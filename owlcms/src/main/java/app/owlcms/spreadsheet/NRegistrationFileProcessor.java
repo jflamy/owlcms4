@@ -9,6 +9,7 @@ package app.owlcms.spreadsheet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,6 +26,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
@@ -40,6 +42,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -47,6 +50,8 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -75,8 +80,10 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	FormulaEvaluator formulaEvaluator;
 	DataFormatter formatter;
 	private boolean createMissingGroups = true;
+	private boolean sbdeFormat;
 
-	public NRegistrationFileProcessor() {
+	public NRegistrationFileProcessor(boolean sbdeFormat) {
+		this.sbdeFormat = sbdeFormat;
 	}
 
 	/**
@@ -116,6 +123,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	        Runnable displayUpdater, boolean resetAthletes) {
 		try (InputStream xlsInputStream = inputStream) {
 			inputStream.reset();
+
 			RCompetition c = new RCompetition();
 			RCompetition.resetActiveCategories();
 			RCompetition.resetActiveGroups();
@@ -129,7 +137,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			try (Workbook workbook = WorkbookFactory.create(xlsInputStream)) {
 				this.formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 				this.formatter = new DataFormatter();
-				athleteInput = readAthletes(workbook, c, errorConsumer);
+				// pass the number of rows to skip
+				athleteInput = readAthletes(workbook, c, errorConsumer, sbdeFormat ? 8 : 0);
 			} catch (IOException | EncryptedDocumentException e) {
 				errorConsumer.accept(e.getLocalizedMessage());
 				LoggerUtils.logError(this.logger, e);
@@ -417,7 +426,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		// LoggerUtils.logError(this.logger, e, true);
 	}
 
-	private AthleteInput readAthletes(Workbook workbook, RCompetition rComp, Consumer<String> errorConsumer) {
+	private AthleteInput readAthletes(Workbook workbook, RCompetition rComp, Consumer<String> errorConsumer, int rowsToSkip) {
 		Sheet sheet = workbook.getSheetAt(0);
 		Iterator<Row> rowIterator = sheet.rowIterator();
 		List<RAthlete> athletes = new LinkedList<>();
@@ -426,7 +435,10 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		rows: while (rowIterator.hasNext()) {
 			int iColumn = 0;
 			Row row = rowIterator.next();
-			if (iRow == 0) {
+			if (iRow < rowsToSkip) {
+				continue;
+			}
+			if (iRow == rowsToSkip) {
 				// header, create a map from column to the appropriate setter.
 				Iterator<Cell> cellIterator = row.cellIterator();
 				while (cellIterator.hasNext()) {
@@ -649,4 +661,79 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		return new AthleteInput(athletes);
 	}
 
+	@Override
+	public void doProcessCompetitionHeader(InputStream inputStream, Consumer<String> errorConsumer, Runnable displayUpdater) {
+		// <section startRow="0" endRow="8">
+		// <mapping cell="A1">competition.federation</mapping>
+		// <mapping cell="F1">competition.competitionName</mapping>
+		// <mapping cell="M1">competition.competitionDate</mapping>
+
+		// <mapping cell="A2">competition.federationAddress</mapping
+		// <mapping cell="F2">competition.competitionCity</mapping>
+
+		// <mapping cell="A3">competition.federationWebSite</mapping>
+		// <mapping cell="F3">competition.competitionSite</mapping>
+
+		// <mapping cell="A4">competition.federationEMail</mapping>
+		// <mapping cell="F4">competition.competitionOrganizer</mapping>
+		// </section>
+		try (InputStream xlsInputStream = inputStream) {
+			inputStream.reset();
+
+			try (Workbook workbook = WorkbookFactory.create(xlsInputStream)) {
+				this.formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+				this.formatter = new DataFormatter();
+
+				Sheet sheet = workbook.getSheetAt(0);
+				Competition competition = Competition.getCurrent();
+				Row row;
+
+				row = sheet.getRow(1 - 1);
+				setCompetitionString(competition::setFederation, row.getCell('A' - 'A')); // A1
+				setCompetitionString(competition::setCompetitionName, row.getCell('F' - 'A')); // F1
+				setCompetitionDate(competition::setCompetitionDate, row.getCell('M' - 'A')); // M1
+
+				row = sheet.getRow(2 - 1);
+				setCompetitionString(competition::setFederationAddress, row.getCell('A' - 'A')); // A2
+				setCompetitionString(competition::setCompetitionCity, row.getCell('F' - 'A')); // F2
+
+				row = sheet.getRow(3 - 1);
+				setCompetitionString(competition::setFederationAddress, row.getCell('A' - 'A')); // A3
+				setCompetitionString(competition::setCompetitionCity, row.getCell('F' - 'A')); // F3
+
+				row = sheet.getRow(4 - 1);
+				setCompetitionString(competition::setFederationAddress, row.getCell('A' - 'A')); // A4
+				setCompetitionString(competition::setCompetitionCity, row.getCell('F' - 'A')); // F4
+			} catch (IOException | EncryptedDocumentException e) {
+				errorConsumer.accept(e.getLocalizedMessage());
+				LoggerUtils.logError(this.logger, e);
+			}
+
+		} catch (IOException e) {
+			LoggerUtils.stackTrace(e);
+			LoggerUtils.logError(this.logger, e);
+		}
+	}
+
+	private void setCompetitionDate(Consumer<LocalDate> setter, Cell cell) {
+		LocalDate ld = null;
+		if (cell.getCellType() == CellType.NUMERIC) {
+			ld = cell.getLocalDateTimeCellValue().toLocalDate();
+		} else if (cell.getCellType() == CellType.STRING) {
+			try {
+				ld = DateTimeUtils.parseExcelDate(cell.getStringCellValue(), OwlcmsSession.getLocale());
+			} catch (Exception e) {
+			}
+		}
+		if (ld != null) {
+			Competition.getCurrent().setCompetitionDate(ld);
+		}
+	}
+
+	private void setCompetitionString(Consumer<String> setter, Cell cell) {
+		String stringCellValue = cell.getStringCellValue();
+		if (stringCellValue != null) {
+			setter.accept(stringCellValue.trim());
+		}
+	}
 }

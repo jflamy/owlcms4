@@ -32,4 +32,5 @@ public interface IRegistrationFileProcessor {
 
 	void updatePlatformsAndGroups(List<RGroup> groups);
 
+	void doProcessCompetitionHeader(InputStream inputStream, Consumer<String> errorConsumer, Runnable displayUpdater);
 }

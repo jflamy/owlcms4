@@ -337,4 +337,10 @@ public class ORegistrationFileProcessor implements IRegistrationFileProcessor {
 		}
 		displayUpdater.run();
 	}
+
+	@Override
+	public void doProcessCompetitionHeader(InputStream inputStream, Consumer<String> errorConsumer, Runnable displayUpdater) {
+		// TODO Auto-generated method stub
+		
+	}
 }

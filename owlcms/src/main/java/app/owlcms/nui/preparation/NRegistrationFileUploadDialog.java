@@ -58,7 +58,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		upload.addSucceededListener(event -> {
 			this.processor = this.sbdeFormat // (buffer.getInputStream())
 			        ? new ORegistrationFileProcessor()
-			        : new NRegistrationFileProcessor();
+			        : new NRegistrationFileProcessor(sbdeFormat);
 			this.fileName = event.getFileName();
 			// try {
 			// buffer.getInputStream().reset();
@@ -99,9 +99,21 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			logger.info("{} groups processed", nbGroups);
 		}
 
+		if (this.sbdeFormat) {
+			processCompetition(inputStream, ta);
+		}
+		
 		// process athletes now that groups have been adjusted
 		processAthletes(inputStream, ta, false);
 		this.processor.adjustParticipations();
+	}
+	
+
+	private void processCompetition(InputStream inputStream, TextArea ta) {
+		StringBuffer sb = new StringBuffer();
+		Consumer<String> errorConsumer = str -> sb.append(str);
+		Runnable displayUpdater = () -> updateDisplay(ta, sb);
+		this.processor.doProcessCompetitionHeader(inputStream, errorConsumer, displayUpdater);
 	}
 
 	private boolean eraseAthletes() {
