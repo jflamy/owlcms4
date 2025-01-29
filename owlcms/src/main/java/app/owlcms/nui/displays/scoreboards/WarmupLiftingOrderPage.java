@@ -72,8 +72,8 @@ public class WarmupLiftingOrderPage extends AbstractResultsDisplayPage {
 	protected void onAttach(AttachEvent attachEvent) {
 		DisplayParameters board = (DisplayParameters) this.getBoard();
 		board.setFop(this.getFop());
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
+//		board.setLeadersDisplay(true);
+//		board.setRecordsDisplay(true);
 
 		this.addComponent((Component) board);
 	}

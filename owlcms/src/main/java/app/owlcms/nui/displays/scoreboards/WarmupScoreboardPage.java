@@ -83,8 +83,10 @@ public class WarmupScoreboardPage extends AbstractResultsDisplayPage {
 	protected void onAttach(AttachEvent attachEvent) {
 		DisplayParameters board = (DisplayParameters) this.getBoard();
 		board.setFop(this.getFop());
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
+		
+// rely on default values, accept URL
+//		board.setLeadersDisplay(true);
+//		board.setRecordsDisplay(true);
 
 		this.addComponent((Component) board);
 	}
