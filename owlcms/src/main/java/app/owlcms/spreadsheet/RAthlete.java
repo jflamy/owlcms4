@@ -524,4 +524,8 @@ public class RAthlete {
 	private void setLegacyPattern(Pattern legacyPattern) {
 		this.legacyPattern = legacyPattern;
 	}
+
+	public void setInvited(boolean b) {
+		this.a.setEligibleForIndividualRanking(!b);
+	}
 }

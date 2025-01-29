@@ -436,6 +436,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			int iColumn = 0;
 			Row row = rowIterator.next();
 			if (iRow < rowsToSkip) {
+				iRow++;
 				continue;
 			}
 			if (iRow == rowsToSkip) {
@@ -598,6 +599,14 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 					} else if (checkTranslation(trimmedCellValue, "SubCategory")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setSubCategory(s);
+						});
+					} else if (checkTranslation(trimmedCellValue, "ComputedWeightClass")) {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
+							// do nothing
+						});
+					} else if (checkTranslation(trimmedCellValue, "Competition.Invited/Extra")) {
+						this.setterForColumn[iColumn] = ((a, s, c) -> {
+							a.setInvited(s != null && s.trim().toLowerCase().equals("true"));
 						});
 					} else {
 						errorConsumer

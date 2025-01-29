@@ -23,7 +23,6 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.IRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
-import app.owlcms.spreadsheet.ORegistrationFileProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -57,7 +56,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		upload.addSucceededListener(event -> {
 			this.processor = this.sbdeFormat // (buffer.getInputStream())
-			        ? new ORegistrationFileProcessor()
+			        ? new NRegistrationFileProcessor(sbdeFormat)
 			        : new NRegistrationFileProcessor(sbdeFormat);
 			this.fileName = event.getFileName();
 			// try {
