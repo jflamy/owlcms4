@@ -20,10 +20,6 @@ jobs:
       RELEASE_SUFFIX: ${{ contains(github.event.inputs.revision, '-') && '-prerelease' || '' }}
       DOCKER_TAG: ${{ contains(github.event.inputs.revision, '-') && 'prerelease' || 'stable' }}
     steps:
-      - name: Set up job name
-        id: set-job-name
-        run: echo "::set-output name=jobname::Release ${{ github.event.inputs.revision }}"
-
       - name: Checkout Dev Repository
         uses: actions/checkout@v4
         with:
