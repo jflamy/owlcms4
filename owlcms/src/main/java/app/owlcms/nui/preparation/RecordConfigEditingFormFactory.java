@@ -233,7 +233,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		uploadRecords.setUploadButton(uploadButton);
 		uploadRecords.setDropLabel(new NativeLabel(Translator.translate("Records.UploadDropZone")));
 		uploadRecords.addSucceededListener(e -> {
-			List<String> errors = RecordDefinitionReader.readInputStream(receiver.getInputStream(),
+			List<String> errors = new RecordDefinitionReader().readInputStream(receiver.getInputStream(),
 			        receiver.getFileName());
 			if (errors.isEmpty()) {
 				UI.getCurrent().getPage().reload();

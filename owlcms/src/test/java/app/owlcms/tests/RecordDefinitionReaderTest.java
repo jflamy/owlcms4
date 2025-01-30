@@ -6,8 +6,8 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
-import static org.junit.Assert.assertEquals;
 import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,7 +95,7 @@ public class RecordDefinitionReaderTest {
             Workbook wb = null;
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
-                List<String> s = RecordDefinitionReader.createRecords(wb, streamURI, null);
+                List<String> s = new RecordDefinitionReader().createRecords(wb, streamURI, null);
                 assertEquals("180 records inserted.", s.get(s.size()-1));
             } finally {
                 if (wb != null) {
@@ -109,7 +109,7 @@ public class RecordDefinitionReaderTest {
     public void _02_testZippedFile() throws IOException, SAXException, InvalidFormatException {
         String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
-        RecordDefinitionReader.readZip(zipStream);
+        new RecordDefinitionReader().readZip(zipStream);
         assertEquals("expected size wrong", 360, RecordRepository.findAll().size());
     }
 
@@ -124,7 +124,7 @@ public class RecordDefinitionReaderTest {
     public void _04_testRetrieval() throws IOException {
         String zipURI = "/testData/records/IWF_EWF.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
-        RecordDefinitionReader.readZip(zipStream);
+        new RecordDefinitionReader().readZip(zipStream);
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 66.0, null, null);
         assertEquals("wrong number of results", 18, results.size());
     }
@@ -133,7 +133,7 @@ public class RecordDefinitionReaderTest {
     public void _05_testNoMatch() throws IOException {
         String zipURI = "/testData/records/IWFRecords.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
-        RecordDefinitionReader.readZip(zipStream);
+        new RecordDefinitionReader().readZip(zipStream);
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 12, 66.0D, null, null);
         assertEquals("wrong number of results", 0, results.size());
     }
@@ -142,7 +142,7 @@ public class RecordDefinitionReaderTest {
     public void _06_testYthMatch() throws IOException {
         String zipURI = "/testData/records/IWFRecords.zip";
         InputStream zipStream = this.getClass().getResourceAsStream(zipURI);
-        RecordDefinitionReader.readZip(zipStream);
+        new RecordDefinitionReader().readZip(zipStream);
         List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 13, 66.0D, null, null);
         assertEquals("wrong number of results", 3, results.size());
     }
@@ -168,7 +168,7 @@ public class RecordDefinitionReaderTest {
             Workbook wb = null;
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
-                RecordDefinitionReader.createRecords(wb, streamURI, null);
+                new RecordDefinitionReader().createRecords(wb, streamURI, null);
                 
                 List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, null);
                 records.sort(new JXLSExportRecords(null,false, false).sortRecords());
@@ -194,7 +194,7 @@ public class RecordDefinitionReaderTest {
             Workbook wb = null;
             try {
                 wb = WorkbookFactory.create(xmlInputStream);
-                List<String> errors = RecordDefinitionReader.createRecords(wb, streamURI, null);
+                List<String> errors = new RecordDefinitionReader().createRecords(wb, streamURI, null);
                 
                 List<RecordEvent> records = RecordRepository.findFiltered(null, null, null, null, null);
                 records.sort(new JXLSExportRecords(null,true, false).sortRecords());

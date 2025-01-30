@@ -5,9 +5,12 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
-import app.owlcms.data.athlete.Gender;
 import org.slf4j.LoggerFactory;
+
+import app.owlcms.data.athlete.Gender;
 import ch.qos.logback.classic.Logger;
 
 public class RecordEventSetters {
@@ -16,90 +19,102 @@ public class RecordEventSetters {
     private final static DateTimeFormatter ymFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
     private final static DateTimeFormatter yFormatter = DateTimeFormatter.ofPattern("yyyy");
     
-    public static void setFederation(RecordEvent rec, String cellValue) {
-        String trim = cellValue.trim();
-        if (trim.isEmpty()) {
+    public static void setFederation(RecordEvent rec, Cell cell) {
+        String value = cell.getStringCellValue().trim();
+        if (value.isEmpty()) {
             throw new IllegalArgumentException("Federation cannot be empty");
         }
-        rec.setRecordFederation(trim);
+        rec.setRecordFederation(value);
     }
 
-    public static void setRecordName(RecordEvent rec, String cellValue) {
-        cellValue = cellValue != null ? cellValue.trim() : cellValue;
-        rec.setRecordName(cellValue);
+    public static void setRecordName(RecordEvent rec, Cell cell) {
+        String value = cell.getStringCellValue();
+        value = value != null ? value.trim() : value;
+        rec.setRecordName(value);
     }
 
-    public static void setAgeGroup(RecordEvent rec, String cellValue) {
-        cellValue = cellValue != null ? cellValue.trim() : cellValue;
-        rec.setAgeGrp(cellValue);
+    public static void setAgeGroup(RecordEvent rec, Cell cell) {
+        String value = cell.getStringCellValue();
+        value = value != null ? value.trim() : value;
+        rec.setAgeGrp(value);
     }
 
-    public static void setGender(RecordEvent rec, String cellValue) {
-        cellValue = cellValue != null ? cellValue.trim().toUpperCase() : cellValue;
-        rec.setGender(Gender.valueOf(cellValue));
+    public static void setGender(RecordEvent rec, Cell cell) {
+        String value = cell.getStringCellValue();
+        value = value != null ? value.trim().toUpperCase() : value;
+        rec.setGender(Gender.valueOf(value));
     }
 
-    public static void setAgeLower(RecordEvent rec, double cellValue) {
-        rec.setAgeGrpLower(Math.toIntExact(Math.round(cellValue)));
+    public static void setAgeLower(RecordEvent rec, Cell cell) {
+        rec.setAgeGrpLower(Math.toIntExact(Math.round(cell.getNumericCellValue())));
     }
 
-    public static void setAgeUpper(RecordEvent rec, double cellValue) {
-        int value = Math.toIntExact(Math.round(cellValue));
+    public static void setAgeUpper(RecordEvent rec, Cell cell) {
+        int value = Math.toIntExact(Math.round(cell.getNumericCellValue()));
         if (value < rec.getAgeGrpLower()) {
             throw new IllegalArgumentException(value + " upper limit on age category should be >= to " + rec.getAgeGrpLower());
         }
         rec.setAgeGrpUpper(value);
     }
 
-    public static void setBwLower(RecordEvent rec, double cellValue) {
-        rec.setBwCatLower(Math.toIntExact(Math.round(cellValue)));
+    public static void setBwLower(RecordEvent rec, Cell cell) {
+        rec.setBwCatLower(Math.toIntExact(Math.round(cell.getNumericCellValue())));
     }
 
-    public static void setBwUpper(RecordEvent rec, String cellValue, CellType cellType) {
-        if (cellType == CellType.STRING) {
+    public static void setBwUpper(RecordEvent rec, Cell cell) {
+        if (cell.getCellType() == CellType.STRING) {
+            String cellValue = cell.getStringCellValue();
             rec.setBwCatString(cellValue);
-            try {
-                if (cellValue.startsWith(">") || cellValue.startsWith("+")) {
-                    rec.setBwCatUpper(999);
-                    rec.setBwCatString(">" + rec.getBwCatLower());
-                } else {
+            
+            if (cellValue.startsWith(">") || cellValue.startsWith("+")) {
+                rec.setBwCatUpper(999);
+                rec.setBwCatString(">" + rec.getBwCatLower());
+            } else {
+                try {
                     rec.setBwCatUpper(Integer.parseInt(cellValue));
-                }
-            } catch (NumberFormatException e) {
-                if (cellValue != null && !cellValue.isBlank()) {
-                    throw new IllegalArgumentException("Invalid bodyweight upper limit: " + cellValue);
+                } catch (NumberFormatException e) {
+                    if (cellValue != null && !cellValue.isBlank()) {
+                        logger.error("[" + cell.getSheet().getSheetName() + "," + cell.getAddress() + "]");
+                    }
                 }
             }
+            
             if (rec.getBwCatUpper() < rec.getBwCatLower()) {
                 throw new IllegalArgumentException(cellValue + " upper limit on bodyweight category should be >= to " + rec.getBwCatLower());
             }
-        } else {
-            long numericValue = Math.round(Double.parseDouble(cellValue));
-            rec.setBwCatString(Long.toString(numericValue));
-            rec.setBwCatUpper(Math.toIntExact(numericValue));
+        } else if (cell.getCellType() == CellType.NUMERIC) {
+            long cellValue = Math.round(cell.getNumericCellValue());
+            rec.setBwCatString(Long.toString(cellValue));
+            rec.setBwCatUpper(Math.toIntExact(cellValue));
+            
             if (rec.getBwCatUpper() <= rec.getBwCatLower()) {
-                throw new IllegalArgumentException(numericValue + " upper limit on bodyweight category should be > to " + rec.getBwCatLower());
+                throw new IllegalArgumentException(cellValue + " upper limit on bodyweight category should be > to " + rec.getBwCatLower());
             }
+        } else {
+            throw new IllegalArgumentException("Unexpected cell type " + cell.getCellType() + 
+                " at [" + cell.getSheet().getSheetName() + "," + cell.getAddress() + "]");
         }
     }
 
-    public static void setRecordLift(RecordEvent rec, String cellValue) {
-        cellValue = cellValue != null ? cellValue.trim() : cellValue;
-        rec.setRecordLift(cellValue);
+    public static void setRecordLift(RecordEvent rec, Cell cell) {
+        String value = cell.getStringCellValue();
+        value = value != null ? value.trim() : value;
+        rec.setRecordLift(value);
     }
 
-    public static void setRecordValue(RecordEvent rec, double cellValue) {
-        rec.setRecordValue(cellValue);
+    public static void setRecordValue(RecordEvent rec, Cell cell) {
+        rec.setRecordValue(cell.getNumericCellValue());
     }
 
-    public static void setAthleteName(RecordEvent rec, String cellValue) {
-        cellValue = cellValue != null ? cellValue.trim() : cellValue;
-        rec.setAthleteName(cellValue);
+    public static void setAthleteName(RecordEvent rec, Cell cell) {
+        String value = cell.getStringCellValue();
+        value = value != null ? value.trim() : value;
+        rec.setAthleteName(value);
     }
 
-    public static void setBirthDate(RecordEvent rec, String cellValue, CellType cellType) {
-        if (cellType == CellType.NUMERIC) {
-            long numericValue = Math.round(Double.parseDouble(cellValue));
+    public static void setBirthDate(RecordEvent rec, Cell cell) {
+        if (cell.getCellType() == CellType.NUMERIC) {
+            long numericValue = Math.round(cell.getNumericCellValue());
             if (numericValue < 3000) {
                 rec.setBirthYear(Math.toIntExact(numericValue));
                 logger.debug("number {}", numericValue);
@@ -110,18 +125,26 @@ public class RecordEventSetters {
                 logger.debug("plusDays {}", rec.getRecordDateAsString());
             }
         } else {
-            parseDateOrYear(rec, cellValue, "birth");
+            parseDateOrYear(rec, cell.getStringCellValue(), "birth");
         }
     }
 
-    public static void setNation(RecordEvent rec, String cellValue) {
-        cellValue = cellValue != null ? cellValue.trim() : cellValue;
-        rec.setNation(cellValue);
+    public static void setNation(RecordEvent rec, Cell cell) {
+        String value = cell.getStringCellValue();
+        value = value != null ? value.trim() : value;
+        rec.setNation(value);
+    }
+    
+    public static void setGroup(RecordEvent rec, Cell cell) {
+        String value = cell.getStringCellValue();
+        value = value != null ? value.trim() : value;
+        rec.setGroupNameString(value);
     }
 
-    public static void setRecordDate(RecordEvent rec, String cellValue, CellType cellType) {
-        if (cellType == CellType.NUMERIC) {
-            long numericValue = Math.round(Double.parseDouble(cellValue));
+
+    public static void setRecordDate(RecordEvent rec, Cell cell) {
+        if (cell.getCellType() == CellType.NUMERIC) {
+            long numericValue = Math.round(cell.getNumericCellValue());
             if (numericValue < 3000) {
                 rec.setRecordYear(Math.toIntExact(numericValue));
                 logger.debug("number {}", numericValue);
@@ -131,26 +154,31 @@ public class RecordEventSetters {
                 rec.setRecordDate(plusDays);
                 logger.debug("plusDays {}", rec.getRecordDateAsString());
             }
-        } else if (cellValue != null && !cellValue.isBlank()) {
-            parseDateOrYear(rec, cellValue, "record");
+        } else if (cell.getStringCellValue() != null && !cell.getStringCellValue().isBlank()) {
+            parseDateOrYear(rec, cell.getStringCellValue(), "record");
         }
     }
 
-    public static void setEventLocation(RecordEvent rec, String cellValue) {
-        cellValue = cellValue != null ? cellValue.trim() : cellValue;
-        rec.setEventLocation(cellValue);
+    public static void setEventLocation(RecordEvent rec, Cell cell) {
+        String value = cell.getStringCellValue();
+        value = value != null ? value.trim() : value;
+        rec.setEventLocation(value);
     }
 
-    public static void setEvent(RecordEvent rec, String cellValue, CellType cellType) {
-        if (cellType == CellType.NUMERIC) {
+    public static void setEvent(RecordEvent rec, Cell cell) {
+        if (cell.getCellType() == CellType.NUMERIC) {
             rec.setEvent("");
         } else {
-            cellValue = cellValue != null ? cellValue.trim() : cellValue;
-            rec.setEvent(cellValue);
+            String value = cell.getStringCellValue();
+            value = value != null ? value.trim() : value;
+            rec.setEvent(value);
         }
     }
 
     private static void parseDateOrYear(RecordEvent rec, String cellValue, String type) {
+    	if (cellValue != null && cellValue.isBlank()) {
+    		return;
+    	}
         try {
             LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
             if (type.equals("birth")) {

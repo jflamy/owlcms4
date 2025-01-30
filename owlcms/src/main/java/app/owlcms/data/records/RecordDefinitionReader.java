@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FilenameUtils;
@@ -49,18 +50,81 @@ public class RecordDefinitionReader {
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReader.class);
 	private final static Logger startupLogger = Main.getStartupLogger();
 
-	public static List<String> createRecords(Workbook workbook, String name, String baseName) {
+	@FunctionalInterface
+	private interface CellSetter {
+		void set(RecordEvent rec, Cell cell) throws Exception;
+	}
+
+	private static final CellSetter EMPTY_SETTER = (rec, cell) -> {
+	};
+	
+	private final Map<String, CellSetter> SETTER_MAP = Map.ofEntries(
+	        Map.entry("federation", (rec, cell) -> RecordEventSetters.setFederation(rec, cell)),
+	        Map.entry("recordname", (rec, cell) -> RecordEventSetters.setRecordName(rec, cell)),
+	        Map.entry("agegroup", (rec, cell) -> RecordEventSetters.setAgeGroup(rec, cell)),
+	        
+	        Map.entry("gender", (rec, cell) -> RecordEventSetters.setGender(rec, cell)),
+	        Map.entry("m/f", (rec, cell) -> RecordEventSetters.setGender(rec, cell)),
+
+	        Map.entry("agelow", (rec, cell) -> RecordEventSetters.setAgeLower(rec, cell)),
+	        Map.entry("ageupper", (rec, cell) -> RecordEventSetters.setAgeUpper(rec, cell)),
+	        Map.entry("agecat", (rec, cell) -> RecordEventSetters.setAgeUpper(rec, cell)), // synonym
+
+	        Map.entry("bwlow", (rec, cell) -> RecordEventSetters.setBwLower(rec, cell)),
+	        Map.entry("bwupper", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)),
+	        Map.entry("bwcat", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)), // synonym
+
+	        Map.entry("recordlift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell)),
+	        Map.entry("lift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell)), // synonym
+
+	        Map.entry("recordvalue", (rec, cell) -> RecordEventSetters.setRecordValue(rec, cell)),
+	        Map.entry("record", (rec, cell) -> RecordEventSetters.setRecordValue(rec, cell)), // synonym
+	        
+	        Map.entry("athletename", (rec, cell) -> RecordEventSetters.setAthleteName(rec, cell)),
+	        Map.entry("name", (rec, cell) -> RecordEventSetters.setAthleteName(rec, cell)), // synonym
+	        
+	        Map.entry("born", (rec, cell) -> RecordEventSetters.setBirthDate(rec, cell)),
+	        Map.entry("birth date", (rec, cell) -> RecordEventSetters.setBirthDate(rec, cell)), // synonym
+	        
+	        Map.entry("nation", (rec, cell) -> RecordEventSetters.setNation(rec, cell)),
+	        Map.entry("date", (rec, cell) -> RecordEventSetters.setRecordDate(rec, cell)),
+	        Map.entry("place", (rec, cell) -> RecordEventSetters.setEventLocation(rec, cell)),
+	        Map.entry("event", (rec, cell) -> RecordEventSetters.setEvent(rec, cell)),
+	        Map.entry("group", (rec, cell) -> RecordEventSetters.setGroup(rec, cell))
+	);
+
+	private CellSetter[] createSetterTableFromHeaderRow(Row headerRow, List<String> errors) {
+		List<CellSetter> setters = new ArrayList<>();
+		for (Cell cell : headerRow) {
+			String headerValue = cell.getStringCellValue().trim().toLowerCase();
+			CellSetter setter = SETTER_MAP.get(headerValue);
+			if (setter != null) {
+				logger.debug("Mapped header '{}' to setter", headerValue);
+			} else {
+				logger.warn("No setter found for header '{}'", headerValue);
+				errors.add(MessageFormat.format("Ignoring unknown column ''{0}'' at sheet {1} [{2}]", 
+				    headerValue, cell.getSheet().getSheetName(), cell.getAddress()));
+				setter = EMPTY_SETTER;
+			}
+			setters.add(setter);
+		}
+		return setters.toArray(new CellSetter[0]);
+	}
+
+	public List<String> createRecords(Workbook workbook, String name, String baseName) {
 		cleanUp(baseName);
 
 		return JPAService.runInTransaction(em -> {
 			int iRecord = 0;
 			List<String> errors = new ArrayList<>();
+			CellSetter[] setterTable = null;
 
 			for (Sheet sheet : workbook) {
-				processSheet: for (Row row : sheet) {
+				for (Row row : sheet) {
 					int iRow = row.getRowNum();
 					if (iRow == 0) {
-						iRow++;
+						// Process header row to create setter table
+						setterTable = createSetterTableFromHeaderRow(row, errors);
 						continue;
 					}
 
@@ -68,71 +132,22 @@ public class RecordDefinitionReader {
 					rec.setFileName(baseName);
 
 					// beware: on a truly empty row we will not enter this loop.
+					// but if the row has blank non empty cells we will.
 					boolean error = false;
 					for (Cell cell : row) {
 						try {
 							int iColumn = cell.getAddress().getColumn();
 
 							logger.debug("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
-							switch (iColumn) {
-                                case 0: // A
-                                    RecordEventSetters.setFederation(rec, cell.getStringCellValue());
-                                    break;
-                                case 1: // B
-                                    RecordEventSetters.setRecordName(rec, cell.getStringCellValue());
-                                    break;
-                                case 2: // C
-                                    RecordEventSetters.setAgeGroup(rec, cell.getStringCellValue());
-                                    break;
-                                case 3: // D
-                                    RecordEventSetters.setGender(rec, cell.getStringCellValue());
-                                    break;
-                                case 4: // E
-                                    RecordEventSetters.setAgeLower(rec, cell.getNumericCellValue());
-                                    break;
-                                case 5: // F
-                                    RecordEventSetters.setAgeUpper(rec, cell.getNumericCellValue());
-                                    break;
-                                case 6: // G
-                                    RecordEventSetters.setBwLower(rec, cell.getNumericCellValue());
-                                    break;
-                                case 7: // H
-                                    RecordEventSetters.setBwUpper(rec, cell.getStringCellValue(), cell.getCellType());
-                                    break;
-                                case 8: // I
-                                    RecordEventSetters.setRecordLift(rec, cell.getStringCellValue());
-                                    break;
-                                case 9: // J
-                                    RecordEventSetters.setRecordValue(rec, cell.getNumericCellValue());
-                                    break;
-                                case 10: // K
-                                    RecordEventSetters.setAthleteName(rec, cell.getStringCellValue());
-                                    break;
-                                case 11: // L
-                                    RecordEventSetters.setBirthDate(rec, cell.getStringCellValue(), cell.getCellType());
-                                    break;
-                                case 12: // M
-                                    RecordEventSetters.setNation(rec, cell.getStringCellValue());
-                                    break;
-                                case 13: // N
-                                    RecordEventSetters.setRecordDate(rec, cell.getStringCellValue(), cell.getCellType());
-                                    break;
-                                case 14: // O
-                                    RecordEventSetters.setEventLocation(rec, cell.getStringCellValue());
-                                    break;
-                                case 15: // P is used for new records
-                                    break;
-                                case 16: // Q
-                                    RecordEventSetters.setEvent(rec, cell.getStringCellValue(), cell.getCellType());
-                                    break;
-                            }
+
+							if (setterTable != null && iColumn < setterTable.length) {
+								setterTable[iColumn].set(rec, cell);
+							}
 
 							iColumn++;
 						} catch (Exception e) {
 							// do not report errors on empty rows
 							if (!isEmptyRow(rec)) {
-								startupLogger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(),
-								        e.getMessage());
 								logger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(), e.getMessage());
 								errors.add(MessageFormat.format("{0}[{1}] {2} ", sheet.getSheetName(),
 								        cell.getAddress(), e.getMessage()));
@@ -142,7 +157,6 @@ public class RecordDefinitionReader {
 					}
 
 					if (!error && !isEmptyRow(rec)) {
-						// if row was empty, we get no cells but rec was created.
 						try {
 							rec.fillDefaults();
 						} catch (MissingAgeGroup | MissingGender | UnknownIWFBodyWeightCategory e1) {
@@ -168,13 +182,13 @@ public class RecordDefinitionReader {
 		});
 	}
 
-	public static void loadRecords() {
+	public void loadRecords() {
 		Path recordsPath;
 		try {
 			recordsPath = ResourceWalker.getFileOrResourcePath("/records");
 			try {
 				if (recordsPath != null && Files.exists(recordsPath)) {
-					RecordDefinitionReader.readFolder(recordsPath);
+					readFolder(recordsPath);
 				} else {
 					logger.info("no record definition files in local/records");
 				}
@@ -187,7 +201,7 @@ public class RecordDefinitionReader {
 
 	}
 
-	public static void readFolder(Path recordsPath) throws IOException {
+	public void readFolder(Path recordsPath) throws IOException {
 		if (recordsPath == null || !Files.exists(recordsPath)) {
 			return;
 		}
@@ -209,7 +223,7 @@ public class RecordDefinitionReader {
 
 	}
 
-	public static List<String> readInputStream(InputStream is, String fileName) {
+	public List<String> readInputStream(InputStream is, String fileName) {
 		List<String> errors = new ArrayList<>();
 		try (Workbook workbook = WorkbookFactory.create(is)) {
 			logger.info("loading record definition file {} {}", fileName,
@@ -230,7 +244,7 @@ public class RecordDefinitionReader {
 		}
 	}
 
-	public static void readZip(InputStream source) throws IOException {
+	public void readZip(InputStream source) throws IOException {
 		// so that each workbook does not close the zip stream
 		final ZipUtils.NoCloseInputStream zipStream = new ZipUtils.NoCloseInputStream(source);
 		RecordRepository.clearLoadedRecords();
@@ -259,14 +273,14 @@ public class RecordDefinitionReader {
 		zipStream.doClose(); // a real close
 	}
 
-	public static void resetRecords() {
+	public void resetRecords() {
 		Path recordsPath;
 		try {
 			recordsPath = ResourceWalker.getFileOrResourcePath("/records");
 			try {
 				RecordRepository.clearLoadedRecords();
 				if (recordsPath != null && Files.exists(recordsPath)) {
-					RecordDefinitionReader.readFolder(recordsPath);
+					readFolder(recordsPath);
 				} else {
 					logger.info("no record definition files in local/records");
 				}

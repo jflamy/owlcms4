@@ -235,7 +235,7 @@ public class RecordRepository {
 	public static void reloadDefinitions(String localizedFileName) throws IOException {
 		clearLoadedRecords();
 		InputStream is = ResourceWalker.getResourceAsStream(localizedFileName);
-		RecordDefinitionReader.readZip(is);
+		new RecordDefinitionReader().readZip(is);
 	}
 
 	/**
