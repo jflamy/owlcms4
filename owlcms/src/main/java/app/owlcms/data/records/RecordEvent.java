@@ -563,105 +563,105 @@ public class RecordEvent {
 	}
 
 	private void fillIWFBodyWeights() throws MissingGender, UnknownIWFBodyWeightCategory {
-		if (this.gender == null) {
-			throw new MissingGender();
-		}
-		if (this.gender == Gender.F) {
-			switch (this.bwCatUpper) {
-				case 40:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
-					break;
-				case 45:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 40;
-					break;
-				case 49:
-					if (this.ageGrp.equals("YTH")) {
-						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 45;
-					} else {
-						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
-					}
-					break;
-				case 55:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 49;
-					break;
-				case 59:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 55;
-					break;
-				case 64:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 59;
-					break;
-				case 71:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 64;
-					break;
-				case 76:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 71;
-					break;
-				case 81:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 76;
-					break;
-				case 87:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
-					break;
-				case 999:
-					if (this.ageGrp.equals("YTH")) {
-						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
-					} else {
-						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 87;
-					}
-					break;
-				default:
-					// throw new UnknownIWFBodyWeightCategory();
-					// leave alone
-			}
-		} else {
-			switch (this.bwCatUpper) {
-				case 49:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
-					break;
-				case 55:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 49;
-					break;
-				case 61:
-					if (this.ageGrp.equals("YTH")) {
-						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 55;
-					} else {
-						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
-					}
-					break;
-				case 67:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 61;
-					break;
-				case 73:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 67;
-					break;
-				case 81:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 73;
-					break;
-				case 89:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
-					break;
-				case 96:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 89;
-					break;
-				case 102:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 96;
-					break;
-				case 109:
-					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 96;
-					break;
-				case 999:
-					if (this.ageGrp.equals("YTH")) {
-						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 102;
-					} else {
-						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 109;
-					}
-					break;
-				default:
-					// throw new UnknownIWFBodyWeightCategory();
-					// leave alone
-			}
-
-		}
+//		if (this.gender == null) {
+//			throw new MissingGender();
+//		}
+//		if (this.gender == Gender.F) {
+//			switch (this.bwCatUpper) {
+//				case 40:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
+//					break;
+//				case 45:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 40;
+//					break;
+//				case 49:
+//					if (this.ageGrp.equals("YTH")) {
+//						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 45;
+//					} else {
+//						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
+//					}
+//					break;
+//				case 55:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 49;
+//					break;
+//				case 59:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 55;
+//					break;
+//				case 64:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 59;
+//					break;
+//				case 71:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 64;
+//					break;
+//				case 76:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 71;
+//					break;
+//				case 81:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 76;
+//					break;
+//				case 87:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
+//					break;
+//				case 999:
+//					if (this.ageGrp.equals("YTH")) {
+//						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
+//					} else {
+//						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 87;
+//					}
+//					break;
+//				default:
+//					// throw new UnknownIWFBodyWeightCategory();
+//					// leave alone
+//			}
+//		} else {
+//			switch (this.bwCatUpper) {
+//				case 49:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
+//					break;
+//				case 55:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 49;
+//					break;
+//				case 61:
+//					if (this.ageGrp.equals("YTH")) {
+//						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 55;
+//					} else {
+//						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 0;
+//					}
+//					break;
+//				case 67:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 61;
+//					break;
+//				case 73:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 67;
+//					break;
+//				case 81:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 73;
+//					break;
+//				case 89:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 81;
+//					break;
+//				case 96:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 89;
+//					break;
+//				case 102:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 96;
+//					break;
+//				case 109:
+//					this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 96;
+//					break;
+//				case 999:
+//					if (this.ageGrp.equals("YTH")) {
+//						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 102;
+//					} else {
+//						this.bwCatLower = this.bwCatLower > 0 ? this.bwCatLower : 109;
+//					}
+//					break;
+//				default:
+//					// throw new UnknownIWFBodyWeightCategory();
+//					// leave alone
+//			}
+//
+//		}
 	}
 
 }
