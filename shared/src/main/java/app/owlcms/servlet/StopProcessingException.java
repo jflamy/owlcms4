@@ -12,7 +12,6 @@ package app.owlcms.servlet;
  * to the web server, where it will be ignored instead of polluting the logs.
  *
  */
-@SuppressWarnings("serial")
 public class StopProcessingException extends RuntimeException {
 
 	/**
