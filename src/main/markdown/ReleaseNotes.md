@@ -6,6 +6,7 @@
 
 **Maintenance Log**
 
+- 55.3.0: Record definition columns can be reordered or omitted (see below)
 - 55.3.0: Added the "invited/extra/out of competition" status to the Start Book Data Entry export/import.
 - 55.3.0: The URL parameters controlling showing of records and of leaders were being ignored, so the pages could not be bookmarked
 - 55.3.0: Scores such as Q-Points or Sinclair will now be shown on scoreboards during snatch (see below)
@@ -13,6 +14,8 @@
 **New In Release 55**
 
 - New [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and startup instructions using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) for updating, launching and stopping OWLCMS on a local computer.
+
+- Record definitions: The columns can now be reordered.  What matters is that the column header names in your match those in the documentation (see [Record File Format](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement?id=record-file-format)) -- upper and lowercase does not matter.  The columns marked as optional can now be deleted from the definitions if you wish.
 
 - When medals are awarded by score like (Q-Points/Q-Masters/Q-Youth/Sinclair/SMHF/etc,), the scores will be visible during the snatch. A feature toggle `noInterimScoresInResults` can be used so that the result sheets always show 0 is no total has been set.
 
