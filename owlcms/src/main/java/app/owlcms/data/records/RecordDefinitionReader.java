@@ -67,14 +67,21 @@ public class RecordDefinitionReader {
 	        Map.entry("m/f", (rec, cell) -> RecordEventSetters.setGender(rec, cell)),
 
 	        Map.entry("agelow", (rec, cell) -> RecordEventSetters.setAgeLower(rec, cell)),
+	        Map.entry("agemin", (rec, cell) -> RecordEventSetters.setAgeLower(rec, cell)), // synonym
+	        
 	        Map.entry("ageupper", (rec, cell) -> RecordEventSetters.setAgeUpper(rec, cell)),
+	        Map.entry("agemax", (rec, cell) -> RecordEventSetters.setAgeUpper(rec, cell)), // synonym
 	        Map.entry("agecat", (rec, cell) -> RecordEventSetters.setAgeUpper(rec, cell)), // synonym
 
 	        Map.entry("bwlow", (rec, cell) -> RecordEventSetters.setBwLower(rec, cell)),
+	        Map.entry("bodyweightmin", (rec, cell) -> RecordEventSetters.setBwLower(rec, cell)),
+	        
 	        Map.entry("bwupper", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)),
 	        Map.entry("bwcat", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)), // synonym
+	        Map.entry("bwhigh", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)), // synonym
+	        Map.entry("bodyweightmax", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)), // synonym
 
-	        Map.entry("recordlift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell)),
+	        Map.entry("recordlift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell)),  
 	        Map.entry("lift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell)), // synonym
 
 	        Map.entry("recordvalue", (rec, cell) -> RecordEventSetters.setRecordValue(rec, cell)),
@@ -87,8 +94,10 @@ public class RecordDefinitionReader {
 	        Map.entry("birth date", (rec, cell) -> RecordEventSetters.setBirthDate(rec, cell)), // synonym
 	        
 	        Map.entry("nation", (rec, cell) -> RecordEventSetters.setNation(rec, cell)),
+	        
 	        Map.entry("date", (rec, cell) -> RecordEventSetters.setRecordDate(rec, cell)),
 	        Map.entry("place", (rec, cell) -> RecordEventSetters.setEventLocation(rec, cell)),
+	        
 	        Map.entry("event", (rec, cell) -> RecordEventSetters.setEvent(rec, cell)),
 	        Map.entry("group", (rec, cell) -> RecordEventSetters.setGroup(rec, cell))
 	);
