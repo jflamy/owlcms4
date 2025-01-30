@@ -46,7 +46,7 @@ public class Speakers {
 		return mixers;
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void mainX(String[] args) throws Exception {
 		List<Mixer> mixers = getOutputs();
 		for (Mixer mixer : mixers) {
 			System.out.println(mixer.getMixerInfo().getName());

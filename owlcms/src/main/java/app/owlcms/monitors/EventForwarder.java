@@ -776,7 +776,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		computeLeaders();
 		JsonValue recordsJson = this.fop.getRecordsJson();
-		logger.warn("setting records {}",recordsJson.toJson());
+		//logger.debug("setting records {}",recordsJson.toJson());
 		setRecords(recordsJson);
 	}
 

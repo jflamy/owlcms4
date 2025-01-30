@@ -21,9 +21,9 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
+@SuppressWarnings("unused")
 public interface ParameterReader extends HasUrlParameter<String> {
 
 	final Logger logger = (Logger) LoggerFactory.getLogger(ParameterReader.class);
@@ -53,9 +53,6 @@ public interface ParameterReader extends HasUrlParameter<String> {
 			value = paramValues.get(0).toLowerCase().equals("true");
 		}
 		doer.accept(value);
-		if (paramName.equals("leaders")) {
-			logger.warn("getting leader {}\n{}", value, LoggerUtils.stackTrace());
-		}
 		updateParam(params, paramName, value ? "true" : "false");
 	}
 
