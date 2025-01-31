@@ -6,7 +6,7 @@ on:
       revision:
         description: 'Revision for the release'
         required: true
-        default: '55.3.0-alpha02'
+        default: '55.3.0-alpha03'
 
 env:
   REPO_OWNER: owlcms
@@ -59,6 +59,9 @@ jobs:
           DOCKER_TAG: ${{ env.DOCKER_TAG }}
           
       - name: Pre-process Documentation and Release Notes
+        env:
+          REPO_OWNER: owlcms
+          O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
         run: |
           mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
           if [[ "${{ env.REVISION }}" == *"-alpha"* ]]; then
@@ -70,10 +73,7 @@ jobs:
           else
             cat src/main/markdown/release.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
           fi
-        env:
-          REPO_OWNER: owlcms
-          O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
-          
+
       - name: Install GitHub CLI
         run: sudo apt-get install gh -y
 
@@ -98,13 +98,13 @@ jobs:
           cd -
           set +x
 
-      - name: Clean Target Directory
+      - name: Force-copy the new documentation
         run: |
           rm -rf ../new-repo/* # we only want the docs directory
           cp -a docs ../new-repo/docs
           echo ${{ env.REVISION }} > ../new-repo/version.txt
 
-      - name: Push Updated Docs to Target Repository
+      - name: Push Updated Documentation to Target Repository
         env:
           GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
         run: |
@@ -114,7 +114,7 @@ jobs:
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
           git add -A
-          git commit -m "Update docs to match dev repo" --allow-empty
+          git commit -m "Update documentation" --allow-empty
           git tag ${{ env.REVISION }}
           git push origin master --force
           git push origin ${{ env.REVISION }}
@@ -139,16 +139,18 @@ jobs:
             publicresults/target/publicresults_${{ env.REVISION }}.zip
           set +x
           
-      - name: Tag Source Repository
+      - name: Update Source Repository
         env:
           GH_TOKEN: ${{ secrets.OWLCMS_ORG_TOKEN }}
         run: |
           set -x
-          git add ReleaseNotes.md
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
-          git commit -m "Update Release Notes for ${{ env.REVISION }}" --allow-empty
-          git push origin
+		  # add the release notes
+		  # git add ReleaseNotes.md
+          # git commit -m "Update Release Notes for ${{ env.REVISION }}" --allow-empty
+          # git push origin
+		  # tag
           git tag ${{ env.REVISION }}
           git push origin ${{ env.REVISION }}
           set +x
