@@ -8,8 +8,7 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 
 ### Features, Downloads and Installation
 
-- Refer to the  to the [Downloads](https://owlcms.github.io/owlcms4/#/Downloads) page and to the [Installation Overview](https://owlcms.github.io/owlcms4/#/InstallationOverview) for the various setup options.
-  - [Extensive Documentation](https://owlcms.github.io/owlcms4-prerelease/#) is available.
+- Please refer to the [Documentation](https://owlcms.github.io/owlcms4-prerelease/#)
 
 
 ### Help, Issues, Feature Requests
@@ -18,7 +17,7 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 - [Issues and Feature Requests](https://github.com/jflamy/owlcms4/issues)  Please use the `Issues` button at the top of this page to report issues.
 - [Work in Progress and Priorities](https://github.com/users/jflamy/projects/2/views/7) Shows what we are working on and what is currently planned.
 
-### Release repositories
+### Releases
 
 - Stable releases are kept at https://github.com/owlcms/owlcms4/releases.
 - Preliminary releases for testing and translation are located at https://github.com/owlcms/owlcms4-prerelease/releases.
