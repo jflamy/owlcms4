@@ -105,8 +105,15 @@ public class RecordDefinitionReader {
 
 	private CellSetter[] createSetterTableFromHeaderRow(Row headerRow, List<String> errors) {
 		List<CellSetter> setters = new ArrayList<>();
-		for (Cell cell : headerRow) {
-			if (cell.getCellType() != CellType.STRING || cell.getStringCellValue().isBlank()) {
+		for (int i = 0; i < headerRow.getLastCellNum(); i++) {
+			Cell cell = headerRow.getCell(i);
+			if (cell == null) {
+				break;
+			}
+			// stop on empty or illicit header
+			if (cell.getCellType() == CellType.BLANK 
+					|| (cell.getCellType() == CellType.STRING && cell.getStringCellValue().isBlank()) 
+					|| (cell.getCellType() != CellType.STRING)) {
 				break;
 			}
 			String headerValue = cell.getStringCellValue().trim().toLowerCase();
