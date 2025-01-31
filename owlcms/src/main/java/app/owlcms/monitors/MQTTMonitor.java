@@ -35,6 +35,7 @@ import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.PlatformRepository;
@@ -358,9 +359,31 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		        new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
 	}
 
+	@SuppressWarnings("unused")
 	public void publishStartAthleteTimer() throws MqttPersistenceException, MqttException {
-		this.client.publish("owlcms/clock/" + this.getFop().getName(),
-		        new MqttMessage("start".getBytes(StandardCharsets.UTF_8)));
+	    Athlete currentAthlete = getFop().getCurAthlete();
+		int attemptNumber = currentAthlete.getAttemptNumber();
+		LiftDefinition.Stage liftType = currentAthlete.getAttemptsDone() >= 3 ? LiftDefinition.Stage.CLEANJERK : LiftDefinition.Stage.SNATCH;
+	    
+	    if (currentAthlete != null) {
+			Map<String, Object> payload = new TreeMap<>();
+	        payload.put("athleteName", currentAthlete.getFullName());
+	        payload.put("liftType", liftType.toString());
+	        payload.put("attemptNumber", attemptNumber);
+	        
+	        String json;
+			try {
+				json = new ObjectMapper().writeValueAsString(payload);
+			} catch (JsonProcessingException e) {
+				json = "";
+			}
+	        this.client.publish("owlcms/clock/" + this.getFop().getName(),
+	                new MqttMessage(("start " + json).getBytes(StandardCharsets.UTF_8)));
+	    } else {
+			// can't happen
+	        this.client.publish("owlcms/clock/" + this.getFop().getName(),
+	                new MqttMessage("start".getBytes(StandardCharsets.UTF_8)));
+	    }
 	}
 
 	public void publishStopAthleteTimer() throws MqttPersistenceException, MqttException {
