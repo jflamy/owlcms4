@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -105,6 +106,9 @@ public class RecordDefinitionReader {
 	private CellSetter[] createSetterTableFromHeaderRow(Row headerRow, List<String> errors) {
 		List<CellSetter> setters = new ArrayList<>();
 		for (Cell cell : headerRow) {
+			if (cell.getCellType() != CellType.STRING || cell.getStringCellValue().isBlank()) {
+				break;
+			}
 			String headerValue = cell.getStringCellValue().trim().toLowerCase();
 			CellSetter setter = SETTER_MAP.get(headerValue);
 			if (setter != null) {
