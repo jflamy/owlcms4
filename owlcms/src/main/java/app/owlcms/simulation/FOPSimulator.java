@@ -160,7 +160,7 @@ public class FOPSimulator {
 		// do a lift in group g: start timer
 		if (USE_MQTT_TIMER && mm != null) {
 			try {
-				mm.publishStartAthleteTimer();
+				mm.simulateStartAthleteTimer();
 			} catch (MqttException e) {
 				LoggerUtils.logError(this.logger, e);
 			}
@@ -178,7 +178,7 @@ public class FOPSimulator {
 		// stop time and get decisions
 		if (USE_MQTT_TIMER && mm != null) {
 			try {
-				mm.publishStopAthleteTimer();
+				mm.simulateStopAthleteTimer();
 			} catch (MqttException e) {
 				LoggerUtils.logError(this.logger, e);
 			}

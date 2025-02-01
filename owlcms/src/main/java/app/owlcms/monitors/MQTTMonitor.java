@@ -360,33 +360,85 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	}
 
 	@SuppressWarnings("unused")
-	public void publishStartAthleteTimer() throws MqttPersistenceException, MqttException {
-	    Athlete currentAthlete = getFop().getCurAthlete();
+	/*
+	 * used to republish a clock start event with information that the triggering device doesn't have.
+	 */
+	public void publishStartAthleteTimer(UIEvent.StartTime e) {
+		try {
+			Integer timeRemaining = e.getTimeRemaining();
+			Athlete currentAthlete = getFop().getCurAthlete();
+			int attemptNumber = currentAthlete.getAttemptNumber();
+			LiftDefinition.Stage liftType = currentAthlete.getAttemptsDone() >= 3 ? LiftDefinition.Stage.CLEANJERK : LiftDefinition.Stage.SNATCH;
+
+			if (currentAthlete != null) {
+				Map<String, Object> payload = new TreeMap<>();
+				payload.put("athleteName", currentAthlete.getFullName());
+				payload.put("liftType", liftType.toString());
+				payload.put("attemptNumber", attemptNumber);
+
+				String json;
+				try {
+					json = new ObjectMapper().writeValueAsString(payload);
+				} catch (JsonProcessingException ex) {
+					json = "";
+				}
+				this.client.publish("owlcms/fop/start/" + this.getFop().getName(),
+				        new MqttMessage((json + " " + timeRemaining).getBytes(StandardCharsets.UTF_8)));
+			} else {
+				// can't happen. parsers should ignore if less than 2 parts
+				this.client.publish("owlcms/fop/start/" + this.getFop().getName(),
+				        new MqttMessage("{}".getBytes(StandardCharsets.UTF_8)));
+			}
+		} catch (MqttPersistenceException e1) {
+			logger.warn("cannot publish start athlete timer", e1);
+		} catch (MqttException e1) {
+			logger.warn("cannot publish start athlete timer", e1);
+		}
+	}
+
+	/*
+	 * used to republish a clock stop event with information that the triggering device doesn't have.
+	 */
+	public void publishStopAthleteTimer(UIEvent.StopTime s) {
+		Integer timeRemaining = s.getTimeRemaining();
+		try {
+			this.client.publish("owlcms/fop/stop/" + this.getFop().getName(),
+			        new MqttMessage(("" + timeRemaining).getBytes(StandardCharsets.UTF_8)));
+		} catch (MqttPersistenceException e1) {
+			logger.warn("cannot publish stop athlete timer", e1);
+		} catch (MqttException e1) {
+			logger.warn("cannot publish stop athlete timer", e1);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	public void simulateStartAthleteTimer() throws MqttPersistenceException, MqttException {
+		Athlete currentAthlete = getFop().getCurAthlete();
 		int attemptNumber = currentAthlete.getAttemptNumber();
 		LiftDefinition.Stage liftType = currentAthlete.getAttemptsDone() >= 3 ? LiftDefinition.Stage.CLEANJERK : LiftDefinition.Stage.SNATCH;
-	    
-	    if (currentAthlete != null) {
+
+		if (currentAthlete != null) {
 			Map<String, Object> payload = new TreeMap<>();
-	        payload.put("athleteName", currentAthlete.getFullName());
-	        payload.put("liftType", liftType.toString());
-	        payload.put("attemptNumber", attemptNumber);
-	        
-	        String json;
+			payload.put("athleteName", currentAthlete.getFullName());
+			payload.put("liftType", liftType.toString());
+			payload.put("attemptNumber", attemptNumber);
+
+			String json;
 			try {
 				json = new ObjectMapper().writeValueAsString(payload);
 			} catch (JsonProcessingException e) {
 				json = "";
 			}
-	        this.client.publish("owlcms/clock/" + this.getFop().getName(),
-	                new MqttMessage(("start " + json).getBytes(StandardCharsets.UTF_8)));
-	    } else {
+			this.client.publish("owlcms/clock/" + this.getFop().getName(),
+			        new MqttMessage(("start " + json).getBytes(StandardCharsets.UTF_8)));
+		} else {
 			// can't happen
-	        this.client.publish("owlcms/clock/" + this.getFop().getName(),
-	                new MqttMessage("start".getBytes(StandardCharsets.UTF_8)));
-	    }
+			this.client.publish("owlcms/clock/" + this.getFop().getName(),
+			        new MqttMessage("start".getBytes(StandardCharsets.UTF_8)));
+		}
 	}
 
-	public void publishStopAthleteTimer() throws MqttPersistenceException, MqttException {
+	public void simulateStopAthleteTimer() throws MqttPersistenceException, MqttException {
 		this.client.publish("owlcms/clock/" + this.getFop().getName(),
 		        new MqttMessage("stop".getBytes(StandardCharsets.UTF_8)));
 	}
@@ -538,6 +590,12 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 	@Subscribe
 	public void slaveTimeStarted(UIEvent.StartTime e) {
+		publishStartAthleteTimer(e);
+	}
+
+	@Subscribe
+	public void slaveTimeStopped(UIEvent.StopTime e) {
+		publishStopAthleteTimer(e);
 	}
 
 	@Subscribe

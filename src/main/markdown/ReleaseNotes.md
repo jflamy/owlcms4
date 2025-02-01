@@ -1,11 +1,14 @@
 
 
+
+
 | Introducing the Owlcms Control Panel                         |
 | ------------------------------------------------------------ |
 | **New and improved installation process for owlcms**.<br><br>All platforms now use the same installation process, using a "Control Panel" program.  The control panel handles installation and updates as well as starting and stopping owlcms.  It is available for Windows, macOS, RaspberryPi OS and Linux. It <br><br>**See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).**<br><br>The release area in this repository is now used to host the files that the control panel fetches. |
 
 **Maintenance Log**
 
+- 55.3.0: Additional MQTT messages to support the self-service jury replay application.
 - 55.3.0: Record definition columns can be reordered or omitted (see below)
 - 55.3.0: Added the "invited/extra/out of competition" status to the Start Book Data Entry export/import.
 - 55.3.0: The URL parameters controlling showing of records and of leaders were being ignored, so the pages could not be bookmarked
@@ -45,6 +48,8 @@
   - The style can be changed back to `nogrid` on the System Settings > Customization page to get the black background styles identical to the on-site scoreboards.
 
 - Templates: a new _FlatFile.xlsx template is available for Competition Results.  It is meant for statistical analysis where headers for each category make reading the file difficult.
+
+- MQTT Messages: new messages `owlcms/fop/start` and `owlcms/fop/stop` when owlcms sends additional information about the athlete and the time remaining.  Used by the jury replays together with `owlcms/fop/refereeDecisions`.
 
   
 

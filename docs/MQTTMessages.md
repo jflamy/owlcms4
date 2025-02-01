@@ -99,6 +99,13 @@ In general, an external observer should listen to all `fop` events to decide wha
 
 
 - `fop/startLifting/A`   Lifting has started on the platform.  This is the normal way to end a break.
+- `fop/start/A :jsonAthlete :timeRemaining` Clock has started for athlete :jsonAthlete.  The json object contains 
+
+  - `athleteName`  the full name of the athlete
+  - `liftType` either `SNATCH` or `CLEANJERK`
+  - `attemptNumber` 1 2 or 3
+
+- `fop/stop/A :timeRemaining` Clock has stopped for athlete :jsonAthlete. 
 - `fop/refereesDecision/A` `:decision` after a lift, when `good` or `bad` lift majority decisions are shown.  Used by observers to control lighting or other ambiance effects without having to parse the individual decisions to determine majority.  Issued at the same time as the individual decisions.
 
 ### Messages published by all devices
