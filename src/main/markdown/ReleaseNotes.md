@@ -8,6 +8,8 @@
 
 **Maintenance Log**
 
+- 55.3.0: the files copied to the local directory were missing the definitions for Q-Points and Q-Masters (qpoints), Q-Youth (agefactors) and GAMX (gamx) .  These files are mostly there for reference.
+- 55.3.0: The custom score non-standard competition that allowed overriding the total on the athlete card with a new value was broken.
 - 55.3.0: Additional MQTT messages to support the self-service jury replay application.
 - 55.3.0: Record definition columns can be reordered or omitted (see below)
 - 55.3.0: Added the "invited/extra/out of competition" status to the Start Book Data Entry export/import.
