@@ -814,6 +814,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		if (Competition.getCurrent().isCustomScore()) {
 			TextField custom = createPositiveWeightField(CUSTOM, CJ3);
 			this.binder.forField(custom)
+			        .withNullRepresentation("")
 			        .withConverter(new StringToDoubleConverter(0.0D, Translator.translate("NumberExpected")))
 			        .bind(Athlete::getCustomScore, Athlete::setCustomScore);
 			atRowAndColumn(this.gridLayout, custom, CUSTOM, CJ3);
