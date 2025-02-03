@@ -1,4 +1,4 @@
-name: owlcms 55.3.0-beta03
+name: owlcms
 
 on:
   workflow_dispatch:
