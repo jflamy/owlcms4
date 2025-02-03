@@ -1,0 +1,22 @@
+package app.owlcms.data.technicalofficial;
+
+public enum OfficialRole {
+    ANNOUNCER,
+    TIMEKEEPER,
+    CENTER_REFEREE,
+    LEFT_REFEREE,
+    RIGHT_REFEREE,
+    MARSHAL1,
+    MARSHAL2,
+    TECHNICAL_CONTROLLER1,
+    TECHNICAL_CONTROLLER2,
+    JURY_PRESIDENT,
+    JURY_A,
+    JURY_B,
+    JURY_C,
+    JURY_D;
+    REFEREE_RESERVE,
+    JURY_RESERVE,
+    COMPETITION_DIRECTOR,
+    COMPETITION_SECRETARY
+}
