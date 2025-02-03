@@ -16,7 +16,7 @@ class CurrentAthlete extends LitElement {
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css"/>
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/currentathlete" + (this.autoversion ?? "")}.css"/>
      
-      <div class="${this.wrapperClasses()}">
+      <div class="${this.wrapperClasses()}" style="${this.colorOverride}">
         <div class="waiting" style="${this.waitingStyles()}">
           <!-- div class="competitionName">[[competitionName]]</div><br -->
           <div class="nextGroup">${this.t?.WaitingNextGroup}</div>

@@ -147,6 +147,8 @@ public class Config {
 	@Transient
 	@JsonIgnore
 	private IConfig mqttConfig;
+	private String videoColorOverrides;
+	private Boolean enableColorOverrides;
 
 	public String computeSalt() {
 		this.setSalt(null);
@@ -993,6 +995,23 @@ public class Config {
 	private void setSalt(String salt) {
 		this.salt = salt;
 		logger.debug("setting salt to {}", this.salt);
+	}
+
+	public String getVideoColorOverrides() {
+		return videoColorOverrides;
+	}
+
+	public void setVideoColorOverrides(String videoColorOverrides) {
+		this.videoColorOverrides = videoColorOverrides;
+	}
+
+	public Boolean getEnableColorOverrides() {
+		return Boolean.TRUE.equals(this.enableColorOverrides);
+	}
+
+	public void setEnableColorOverrides(Boolean enableColorOverrides) {
+		logger.warn("setEnableColorOverrides {}", enableColorOverrides);
+		this.enableColorOverrides = enableColorOverrides;
 	}
 
 }

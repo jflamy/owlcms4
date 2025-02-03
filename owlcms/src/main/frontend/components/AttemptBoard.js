@@ -20,7 +20,7 @@ class CurrentAttempt extends LitElement {
     <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/resultsCustomization" + (this.autoversion ?? "") + ".css"}"/>
     <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/attemptboard" + (this.autoversion ?? "") + ".css"}"/>
 
-    <div class="${this.wrapperClasses()}">
+    <div class="${this.wrapperClasses()}" style="${this.colorOverride}">
       <div class="${this.wrapperClasses()} bigTitle" style="${this.waitingStyles()}">
         <div class="competitionName">${this.competitionName}</div>
         <br />
@@ -104,6 +104,7 @@ class CurrentAttempt extends LitElement {
       stylesDir: {},
       autoVersion: {},
       video: {},
+	  colorOverride: {},
       athletePictures: { type: Boolean },
 
       // translation map
