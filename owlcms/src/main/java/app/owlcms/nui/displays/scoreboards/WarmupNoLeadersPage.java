@@ -66,7 +66,7 @@ public class WarmupNoLeadersPage extends WarmupScoreboardPage {
 		Map<String, String> fullMap = new TreeMap<>();
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);
-		setDefaultParameters(QueryParameters.simple(fullMap));
+		setDefaultParameters(QueryParameters.simple(fullMap));		
 	}
 
 	@Override

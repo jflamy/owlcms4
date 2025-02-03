@@ -125,6 +125,8 @@ public class Results extends LitTemplate
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
+		
+		overrideColors(this.getElement());
 	}
 
 	/**
