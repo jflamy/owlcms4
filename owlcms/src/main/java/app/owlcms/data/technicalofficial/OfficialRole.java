@@ -14,7 +14,7 @@ public enum OfficialRole {
     JURY_A,
     JURY_B,
     JURY_C,
-    JURY_D;
+    JURY_D,
     REFEREE_RESERVE,
     JURY_RESERVE,
     COMPETITION_DIRECTOR,
