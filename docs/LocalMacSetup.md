@@ -1,26 +1,17 @@
 ### Installation
 
-- Click on this link: [Release Repository](https://github.com/owlcms/owlcms-controlpanel/releases).  **Scroll down to the Assets section**.
+- Download the `.dmg` installer by clicking on this link [macOS Installer](https://github.com/owlcms/owlcms-controlpanel/releases/latest/download/macOS_Control_Panel_Installer.dmg)
   
-- Download the file appropriate for your type of computer
+  - See this link for the [release notes](https://github.com/owlcms/owlcms-controlpanel/releases/latest)
   
-  - If you have a **newer M1/M2/M3/M4 mac**, get the installation package that ends with **`_arm64.dmg`**.
-  
-  - If you have an **older Intel mac**, get instead the installation package that ends with **`_intel.dmg`.**
-  
-  
-  ![10](nimg/1120Mac/10.png)
-  
-- Download the .dmg file to your computer
+- Open the `.dmg` file. 
 
-- Open the .dmg file. 
+- There are two options for you (you can do both if you want to)
 
-  ![30](nimg/1120Mac/30.jpg)
-
-- There are two options for you (you can do both)
-  
   - Drag the owlcms icon to the Application icon.  This will copy the control panel app in your Application folder and you will find it there along with your other applications
   - Drag the owlcms icon to your desktop directly.
+
+  ![30](nimg/1120Mac/30.jpg)
 
 
 ### Running OWLCMS
