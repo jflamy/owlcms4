@@ -297,35 +297,37 @@ public class SessionEditingFormFactory
 
 	private FormLayout juryLayout() {
 		FormLayout juryLayout = new FormLayout();
-		TextField jury1 = new TextField(Translator.translate("JuryPresident"));
+		
+		ComboBox<String> jury1 = createOfficialComboBox("JuryPresident");
 		juryLayout.add(jury1);
 		this.binder.forField(jury1)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury1, Group::setJury1);
+				.withNullRepresentation("")
+				.bind(Group::getJury1, Group::setJury1);
 
-		TextField jury2 = new TextField(Translator.translate("Jury2"));
+		ComboBox<String> jury2 = createOfficialComboBox("Jury2");
 		juryLayout.add(jury2);
 		this.binder.forField(jury2)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury2, Group::setJury2);
+				.withNullRepresentation("")
+				.bind(Group::getJury2, Group::setJury2);
 
-		TextField jury3 = new TextField(Translator.translate("Jury3"));
+		ComboBox<String> jury3 = createOfficialComboBox("Jury3");
 		juryLayout.add(jury3);
 		this.binder.forField(jury3)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury3, Group::setJury3);
+				.withNullRepresentation("")
+				.bind(Group::getJury3, Group::setJury3);
 
-		TextField jury4 = new TextField(Translator.translate("Jury4"));
+		ComboBox<String> jury4 = createOfficialComboBox("Jury4");
 		juryLayout.add(jury4);
 		this.binder.forField(jury4)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury4, Group::setJury4);
+				.withNullRepresentation("")
+				.bind(Group::getJury4, Group::setJury4);
 
-		TextField jury5 = new TextField(Translator.translate("Jury5"));
+		ComboBox<String> jury5 = createOfficialComboBox("Jury5");
 		juryLayout.add(jury5);
 		this.binder.forField(jury5)
-		        .withNullRepresentation("")
-		        .bind(Group::getJury5, Group::setJury5);
+				.withNullRepresentation("")
+				.bind(Group::getJury5, Group::setJury5);
+
 		return juryLayout;
 	}
 
