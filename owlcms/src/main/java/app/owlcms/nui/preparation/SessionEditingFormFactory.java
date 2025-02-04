@@ -43,6 +43,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
@@ -273,7 +274,7 @@ public class SessionEditingFormFactory
 		breakDurationField.setPlaceholder(Translator.translate("CJ_BreakDurationPlaceHolder"));
 		breakDurationField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
 		formLayout.add(breakDurationField);
-		
+
 		// Add a custom converter to handle Integer values and null representation
 		binder.forField(breakDurationField).withConverter(
 		        new Converter<Double, Integer>() {
@@ -328,82 +329,104 @@ public class SessionEditingFormFactory
 		return juryLayout;
 	}
 
+	// private Stream<String> queryTechnicalOfficials(Optional<String> filter, long limit, long offset) {
+	// 	return TechnicalOfficialRepository.findAll().stream().map(to -> to.getLastName() + " " + to.getFirstName())
+	// 	        .filter(item -> !filter.isPresent() || item.contains(filter.get())).skip(offset).limit(limit);
+	// }
+
+			// Map TechnicalOfficial fields correctly
+	List<String> officials = TechnicalOfficialRepository.findAll().stream()
+			.map(to -> (to.getLastName() != null ? to.getLastName() : "") 
+					+ (to.getFirstName() != null ? ", " + to.getFirstName() : ""))
+			.filter(name -> !name.isBlank())
+			.sorted()
+			.toList();
+
+	ComboBox<String> createOfficialComboBox(String label) {
+		ComboBox<String> box = new ComboBox<>(Translator.translate(label));
+		box.setAllowCustomValue(true);
+		box.addCustomValueSetListener(e -> box.setValue(e.getDetail()));
+		box.setItems(officials);
+		box.setClearButtonVisible(true);
+		return box;
+	}
+
 	private FormLayout officialsLayout() {
 		FormLayout officialsLayout = new FormLayout();
 
-		TextField announcer = new TextField(Translator.translate("Announcer"));
+
+		ComboBox<String> announcer = createOfficialComboBox("Announcer");
 		officialsLayout.add(announcer);
 		this.binder.forField(announcer)
-		        .withNullRepresentation("")
-		        .bind(Group::getAnnouncer, Group::setAnnouncer);
+				.withNullRepresentation("")
+				.bind(Group::getAnnouncer, Group::setAnnouncer);
 
-		TextField timeKeeper = new TextField(Translator.translate("Timekeeper"));
+		ComboBox<String> timeKeeper = createOfficialComboBox("Timekeeper");
 		officialsLayout.add(timeKeeper);
 		this.binder.forField(timeKeeper)
-		        .withNullRepresentation("")
-		        .bind(Group::getTimeKeeper, Group::setTimeKeeper);
+				.withNullRepresentation("")
+				.bind(Group::getTimeKeeper, Group::setTimeKeeper);
 
-		TextField marshall = new TextField(Translator.translate("Marshall"));
+		ComboBox<String> marshall = createOfficialComboBox("Marshall");
 		officialsLayout.add(marshall);
 		this.binder.forField(marshall)
-		        .withNullRepresentation("")
-		        .bind(Group::getMarshall, Group::setMarshall);
+				.withNullRepresentation("")
+				.bind(Group::getMarshall, Group::setMarshall);
 
-		TextField marshal2 = new TextField(Translator.translate("Marshal2"));
+		ComboBox<String> marshal2 = createOfficialComboBox("Marshal2");
 		officialsLayout.add(marshal2);
 		this.binder.forField(marshal2)
-		        .withNullRepresentation("")
-		        .bind(Group::getMarshal2, Group::setMarshal2);
+				.withNullRepresentation("")
+				.bind(Group::getMarshal2, Group::setMarshal2);
 
-		TextField technicalController = new TextField(Translator.translate("TechnicalController"));
+		ComboBox<String> technicalController = createOfficialComboBox("TechnicalController");
 		officialsLayout.add(technicalController);
 		this.binder.forField(technicalController)
-		        .withNullRepresentation("")
-		        .bind(Group::getTechnicalController, Group::setTechnicalController);
+				.withNullRepresentation("")
+				.bind(Group::getTechnicalController, Group::setTechnicalController);
 
-		TextField technicalController2 = new TextField(Translator.translate("TechnicalController2"));
+		ComboBox<String> technicalController2 = createOfficialComboBox("TechnicalController2");
 		officialsLayout.add(technicalController2);
 		this.binder.forField(technicalController2)
-		        .withNullRepresentation("")
-		        .bind(Group::getTechnicalController2, Group::setTechnicalController2);
+				.withNullRepresentation("")
+				.bind(Group::getTechnicalController2, Group::setTechnicalController2);
 
 		addRuler(officialsLayout);
 
-		TextField weighIn1 = new TextField(Translator.translate("Weighin1"));
+		ComboBox<String> weighIn1 = createOfficialComboBox("Weighin1");
 		officialsLayout.add(weighIn1);
 		this.binder.forField(weighIn1)
-		        .withNullRepresentation("")
-		        .bind(Group::getWeighIn1, Group::setWeighIn1);
+				.withNullRepresentation("")
+				.bind(Group::getWeighIn1, Group::setWeighIn1);
 
-		TextField weighIn2 = new TextField(Translator.translate("Weighin2"));
+		ComboBox<String> weighIn2 = createOfficialComboBox("Weighin2");
 		officialsLayout.add(weighIn2);
 		this.binder.forField(weighIn2)
-		        .withNullRepresentation("")
-		        .bind(Group::getWeighIn2, Group::setWeighIn2);
+				.withNullRepresentation("")
+				.bind(Group::getWeighIn2, Group::setWeighIn2);
 
 		addRuler(officialsLayout);
 
-		TextField referee1 = new TextField(Translator.translate("Referee1"));
+		ComboBox<String> referee1 = createOfficialComboBox("Referee1");
 		officialsLayout.add(referee1);
 		this.binder.forField(referee1)
-		        .withNullRepresentation("")
-		        .bind(Group::getReferee1, Group::setReferee1);
+				.withNullRepresentation("")
+				.bind(Group::getReferee1, Group::setReferee1);
 
-		TextField referee2 = new TextField(Translator.translate("Referee2"));
+		ComboBox<String> referee2 = createOfficialComboBox("Referee2");
 		officialsLayout.add(referee2);
 		this.binder.forField(referee2)
-		        .withNullRepresentation("")
-		        .bind(Group::getReferee2, Group::setReferee2);
+				.withNullRepresentation("")
+				.bind(Group::getReferee2, Group::setReferee2);
 
-		TextField referee3 = new TextField(Translator.translate("Referee3"));
+		ComboBox<String> referee3 = createOfficialComboBox("Referee3");
 		officialsLayout.add(referee3);
 		this.binder.forField(referee3)
-		        .withNullRepresentation("")
-		        .bind(Group::getReferee3, Group::setReferee3);
+				.withNullRepresentation("")
+				.bind(Group::getReferee3, Group::setReferee3);
 
 		addRuler(officialsLayout);
 		return officialsLayout;
-
 	}
 
 }
