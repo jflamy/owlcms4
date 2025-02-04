@@ -111,6 +111,11 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		return this.lastName + ", " + this.firstName;
 	}
 
+	@Override
+	public String toString() {
+		return "TechnicalOfficial [getFullName()=" + getFullName() + "]";
+	}
+
 	public String getLastName() {
 		return lastName;
 	}

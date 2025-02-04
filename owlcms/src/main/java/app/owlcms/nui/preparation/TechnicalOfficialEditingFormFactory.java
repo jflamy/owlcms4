@@ -8,13 +8,20 @@ package app.owlcms.nui.preparation;
 
 import java.util.Collection;
 
+import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.form.CrudFormConfiguration;
 
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
-import app.owlcms.data.group.Group;
+import app.owlcms.data.technicalofficial.TOLevel;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
@@ -55,7 +62,7 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
         super.bindField(field, property, propertyType, c);
     }
 
-    private FormLayout technicalOfficialLayout() {
+    public FormLayout technicalOfficialLayout() {
         FormLayout technicalOfficialLayout = new FormLayout();
 
         TextField lastNameTextField = new TextField(Translator.translate("TechnicalOfficial.LastName"));
@@ -70,32 +77,47 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
                 .withNullRepresentation("")
                 .bind(TechnicalOfficial::getFirstName, TechnicalOfficial::setFirstName);
 
-        TextField emailTextField = new TextField(Translator.translate("TechnicalOfficial.Email"));
-        technicalOfficialLayout.add(emailTextField);
-        this.binder.forField(emailTextField)
-                .withNullRepresentation("")
-                .bind(TechnicalOfficial::getEmail, TechnicalOfficial::setEmail);
+        ComboBox<TOLevel> levelComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.Level"));
+        technicalOfficialLayout.add(levelComboBox);
+        levelComboBox.setItems(TOLevel.values());
+        this.binder.forField(levelComboBox)
+                .bind(TechnicalOfficial::getLevel, TechnicalOfficial::setLevel);
 
-        TextField phoneTextField = new TextField(Translator.translate("TechnicalOfficial.Phone"));
-        technicalOfficialLayout.add(phoneTextField);
-        this.binder.forField(phoneTextField)
+        TextField federationIdTextField = new TextField(Translator.translate("TechnicalOfficial.FederationId"));
+        technicalOfficialLayout.add(federationIdTextField);
+        this.binder.forField(federationIdTextField)
                 .withNullRepresentation("")
-                .bind(TechnicalOfficial::getPhoneNumber, TechnicalOfficial::setPhoneNumber);
+                .bind(TechnicalOfficial::getFederationId, TechnicalOfficial::setFederationId);
 
-        TextField categoryTextField = new TextField(Translator.translate("TechnicalOfficial.Category"));
-        technicalOfficialLayout.add(categoryTextField);
-        this.binder.forField(categoryTextField)
+        TextField federationTextField = new TextField(Translator.translate("TechnicalOfficial.Federation"));
+        technicalOfficialLayout.add(federationTextField);
+        this.binder.forField(federationTextField)
                 .withNullRepresentation("")
-                .bind(TechnicalOfficial::getCategory, TechnicalOfficial::setCategory);
+                .bind(TechnicalOfficial::getFederation, TechnicalOfficial::setFederation);
 
-        TextField notesTextField = new TextField(Translator.translate("TechnicalOfficial.Notes"));
-        notesTextField.setWidth("100%");
-        technicalOfficialLayout.add(notesTextField);
-        technicalOfficialLayout.setColspan(notesTextField, 2);
-        this.binder.forField(notesTextField)
+        TextField iwfIdTextField = new TextField(Translator.translate("TechnicalOfficial.IWFId"));
+        technicalOfficialLayout.add(iwfIdTextField);
+        this.binder.forField(iwfIdTextField)
                 .withNullRepresentation("")
-                .bind(TechnicalOfficial::getNotes, TechnicalOfficial::setNotes);
+                .bind(TechnicalOfficial::getIwfId, TechnicalOfficial::setIwfId);
 
         return technicalOfficialLayout;
+    }
+
+    @Override
+    public Component buildNewForm(CrudOperation operation, TechnicalOfficial aFromList, boolean readOnly,
+            ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> operationButtonClickListener,
+            ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+
+        this.binder = buildBinder(operation, aFromList);
+
+        Component footer = this.buildFooter(operation, aFromList, cancelButtonClickListener,
+                operationButtonClickListener, deleteButtonClickListener, true);
+
+        Component form = technicalOfficialLayout();
+        var mainLayout = new VerticalLayout(form, footer);
+        this.binder.readBean(aFromList);
+        return mainLayout;
     }
 }

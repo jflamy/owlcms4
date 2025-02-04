@@ -121,7 +121,7 @@ public class RecordDefinitionReader {
 			if (setter != null) {
 				logger.debug("Mapped header '{}' to setter", headerValue);
 			} else {
-				logger.warn("No setter found for header '{}'", headerValue);
+				logger./**/warn("No setter found for header '{}'", headerValue);
 				errors.add(MessageFormat.format("Ignoring unknown column ''{0}'' at sheet {1} [{2}]", 
 				    headerValue, cell.getSheet().getSheetName(), cell.getAddress()));
 				setter = EMPTY_SETTER;

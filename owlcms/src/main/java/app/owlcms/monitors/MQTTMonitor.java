@@ -390,9 +390,9 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				        new MqttMessage("{}".getBytes(StandardCharsets.UTF_8)));
 			}
 		} catch (MqttPersistenceException e1) {
-			logger.warn("cannot publish start athlete timer", e1);
+			logger.error("cannot publish start athlete timer", e1);
 		} catch (MqttException e1) {
-			logger.warn("cannot publish start athlete timer", e1);
+			logger.error("cannot publish start athlete timer", e1);
 		}
 	}
 
@@ -405,9 +405,9 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			this.client.publish("owlcms/fop/stop/" + this.getFop().getName(),
 			        new MqttMessage(("" + timeRemaining).getBytes(StandardCharsets.UTF_8)));
 		} catch (MqttPersistenceException e1) {
-			logger.warn("cannot publish stop athlete timer", e1);
+			logger.error("cannot publish stop athlete timer", e1);
 		} catch (MqttException e1) {
-			logger.warn("cannot publish stop athlete timer", e1);
+			logger.error("cannot publish stop athlete timer", e1);
 		}
 	}
 

@@ -113,8 +113,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<TechnicalOfficial> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("lastName", "firstName", "level", "iwfId", "federation", "federationId");
-		crudFormFactory.setFieldCaptions(Translator.translate("TechnicalOfficial.LastName"), Translator.translate("TechnicalOfficial.FirstName"), Translator.translate("TechnicalOfficial.Level"), Translator.translate("TechnicalOfficial.IWFId"), Translator.translate("TechnicalOfficial.Federation"), Translator.translate("TechnicalOfficial.FederationId"));
+		((TechnicalOfficialEditingFormFactory)crudFormFactory).technicalOfficialLayout();
 	}
 
 	/**
@@ -128,8 +127,8 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		grid.getThemeNames().add("row-stripes");
 		grid.addColumn(TechnicalOfficial::getFullName).setHeader(Translator.translate("TechnicalOfficial.Name"));
 		grid.addColumn(TechnicalOfficial::getLevel).setHeader(Translator.translate("TechnicalOfficial.Level"));
-		grid.addColumn(TechnicalOfficial::getFederation).setHeader(Translator.translate("TechnicalOfficial.Federation"));
 		grid.addColumn(TechnicalOfficial::getFederationId).setHeader(Translator.translate("TechnicalOfficial.FederationId"));
+		grid.addColumn(TechnicalOfficial::getFederation).setHeader(Translator.translate("TechnicalOfficial.Federation"));
 		grid.addColumn(TechnicalOfficial::getIwfId).setHeader(Translator.translate("TechnicalOfficial.IWFId"));
 
 		GridCrud<TechnicalOfficial> crud = new OwlcmsCrudGrid<>(TechnicalOfficial.class, new OwlcmsGridLayout(TechnicalOfficial.class),
@@ -145,22 +144,8 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	 * @return the form factory that will create the actual form on demand
 	 */
 	private OwlcmsCrudFormFactory<TechnicalOfficial> createFormFactory() {
-		this.editingFormFactory = createTechnicalOfficialEditingFactory();
-		createFormLayout(this.editingFormFactory);
+		this.editingFormFactory =  new TechnicalOfficialEditingFormFactory(TechnicalOfficial.class);
 		return this.editingFormFactory;
-	}
-
-	/**
-	 * Create the actual form generator with all the conversions and validations required
-	 *
-	 * {@link RegistrationContent#createAthleteEditingFormFactory} for example of redefinition of bindField
-	 *
-	 * @return the actual factory, with the additional mechanisms to do validation
-	 */
-	private OwlcmsCrudFormFactory<TechnicalOfficial> createTechnicalOfficialEditingFactory() {
-		var toeff = new TechnicalOfficialEditingFormFactory(TechnicalOfficial.class);
-		toeff.setVisibleProperties("lastName", "firstName", "level", "federationId",  "federation", "iwfId");
-		return toeff;
 	}
 
 	// private <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
