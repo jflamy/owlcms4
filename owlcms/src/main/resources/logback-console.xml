@@ -31,6 +31,7 @@
     <logger name="io.netty.util.ResourceLeakDetector" level="OFF" />
     <logger name="org.atmosphere.websocket.DefaultWebSocketProcessor" level="ERROR" />
     <logger name="com.vaadin.flow.internal.nodefeature.ElementListenerMap" level="WARN" />
+    <logger name="org.eclipse.jetty.ee10.annotations.AnnotationParser" level="ERROR" />
 
     <!-- by default log all info to console; warnings and above unless logger specifies other level -->
     <root level="WARN">

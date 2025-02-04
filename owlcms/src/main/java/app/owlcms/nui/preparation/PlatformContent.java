@@ -122,7 +122,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name", "soundMixerName");
+		crudFormFactory.setVisibleProperties( "soundMixerName", "name");
 		crudFormFactory.setFieldCaptions(Translator.translate("PlatformName"), Translator.translate("Speakers"));
 		List<String> outputNames = Speakers.getOutputNames();
 		outputNames.add(0, Translator.translate("UseBrowserSound"));

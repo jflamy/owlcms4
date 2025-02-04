@@ -7,31 +7,24 @@
 package app.owlcms.nui.preparation;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
-import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.sound.Speakers;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -122,9 +115,6 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	protected void createFormLayout(OwlcmsCrudFormFactory<TechnicalOfficial> crudFormFactory) {
 		crudFormFactory.setVisibleProperties("lastName", "firstName", "level", "iwfId", "federation", "federationId");
 		crudFormFactory.setFieldCaptions(Translator.translate("TechnicalOfficial.LastName"), Translator.translate("TechnicalOfficial.FirstName"), Translator.translate("TechnicalOfficial.Level"), Translator.translate("TechnicalOfficial.IWFId"), Translator.translate("TechnicalOfficial.Federation"), Translator.translate("TechnicalOfficial.FederationId"));
-		List<String> outputNames = Speakers.getOutputNames();
-		outputNames.add(0, Translator.translate("TechnicalOfficial.UseBrowserSound"));
-		crudFormFactory.setFieldProvider("soundMixerName", new OwlcmsComboBoxProvider<>(outputNames));
 	}
 
 	/**
@@ -139,8 +129,8 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		grid.addColumn(TechnicalOfficial::getFullName).setHeader(Translator.translate("TechnicalOfficial.Name"));
 		grid.addColumn(TechnicalOfficial::getLevel).setHeader(Translator.translate("TechnicalOfficial.Level"));
 		grid.addColumn(TechnicalOfficial::getFederation).setHeader(Translator.translate("TechnicalOfficial.Federation"));
-		grid.addColumn(TechnicalOfficial::getIwfId).setHeader(Translator.translate("TechnicalOfficial.IWFId"));
 		grid.addColumn(TechnicalOfficial::getFederationId).setHeader(Translator.translate("TechnicalOfficial.FederationId"));
+		grid.addColumn(TechnicalOfficial::getIwfId).setHeader(Translator.translate("TechnicalOfficial.IWFId"));
 
 		GridCrud<TechnicalOfficial> crud = new OwlcmsCrudGrid<>(TechnicalOfficial.class, new OwlcmsGridLayout(TechnicalOfficial.class),
 		        crudFormFactory, grid);
@@ -168,19 +158,21 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	 * @return the actual factory, with the additional mechanisms to do validation
 	 */
 	private OwlcmsCrudFormFactory<TechnicalOfficial> createTechnicalOfficialEditingFactory() {
-		return new TechnicalOfficialEditingFormFactory(TechnicalOfficial.class);
+		var toeff = new TechnicalOfficialEditingFormFactory(TechnicalOfficial.class);
+		toeff.setVisibleProperties("lastName", "firstName", "level", "federationId",  "federation", "iwfId");
+		return toeff;
 	}
 
-	private <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
-	        String parameter) {
-		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
-		        + "','" + targetClass.getSimpleName() + "')";
-	}
+	// private <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
+	//         String parameter) {
+	// 	return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
+	// 	        + "','" + targetClass.getSimpleName() + "')";
+	// }
 
-	private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
-	        String label, String parameter) {
-		Button button = new Button(label);
-		button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
-		return button;
-	}
+	// private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
+	//         String label, String parameter) {
+	// 	Button button = new Button(label);
+	// 	button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+	// 	return button;
+	// }
 }
