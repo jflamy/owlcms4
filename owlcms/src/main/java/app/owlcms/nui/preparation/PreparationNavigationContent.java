@@ -73,6 +73,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"),
 		        VaadinIcon.COG.create());
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, Translator.translate("DefineAgeGroups"));
+		Button officials = openInNewTabNoParam(TechnicalOfficialContent.class, Translator.translate("TechnicalOfficials"));
 		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
 		Button configureRecords = openInNewTabNoParam(RecordsContent.class,
@@ -128,9 +129,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
 		exportJsonDiv.setWidthFull();
 
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, groups,
-		        platforms,
-		        configureRecords);
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, officials, groups, configureRecords, platforms);
 		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, teams);
 		doGroup(Translator.translate("Registration"), grid2, this, true);

@@ -81,7 +81,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 
 	@Override
 	public String getMenuTitle() {
-		return Translator.translate("TechnicalOfficial.EditOfficials");
+		return Translator.translate("TechnicalOfficials");
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("TechnicalOfficial.Preparation_Officials");
+		return Translator.translate("TechnicalOfficials");
 	}
 
 	@Override
@@ -125,7 +125,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	protected GridCrud<TechnicalOfficial> createGrid(OwlcmsCrudFormFactory<TechnicalOfficial> crudFormFactory) {
 		Grid<TechnicalOfficial> grid = new Grid<>(TechnicalOfficial.class, false);
 		grid.getThemeNames().add("row-stripes");
-		grid.addColumn(TechnicalOfficial::getFullName).setHeader(Translator.translate("TechnicalOfficial.Name"));
+		grid.addColumn(TechnicalOfficial::getFullName).setHeader(Translator.translate("Name"));
 		grid.addColumn(TechnicalOfficial::getLevel).setHeader(Translator.translate("TechnicalOfficial.Level"));
 		grid.addColumn(TechnicalOfficial::getFederationId).setHeader(Translator.translate("TechnicalOfficial.FederationId"));
 		grid.addColumn(TechnicalOfficial::getFederation).setHeader(Translator.translate("TechnicalOfficial.Federation"));

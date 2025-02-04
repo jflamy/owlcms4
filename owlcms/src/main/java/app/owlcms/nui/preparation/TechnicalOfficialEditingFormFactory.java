@@ -65,13 +65,13 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
     public FormLayout technicalOfficialLayout() {
         FormLayout technicalOfficialLayout = new FormLayout();
 
-        TextField lastNameTextField = new TextField(Translator.translate("TechnicalOfficial.LastName"));
+        TextField lastNameTextField = new TextField(Translator.translate("LastName"));
         technicalOfficialLayout.add(lastNameTextField);
         this.binder.forField(lastNameTextField)
                 .withNullRepresentation("")
                 .bind(TechnicalOfficial::getLastName, TechnicalOfficial::setLastName);
 
-        TextField firstNameTextField = new TextField(Translator.translate("TechnicalOfficial.FirstName"));
+        TextField firstNameTextField = new TextField(Translator.translate("FirstName"));
         technicalOfficialLayout.add(firstNameTextField);
         this.binder.forField(firstNameTextField)
                 .withNullRepresentation("")
@@ -104,6 +104,18 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
         return technicalOfficialLayout;
     }
 
+    @Override
+    public String buildCaption(CrudOperation operation, TechnicalOfficial domainObject) {
+        if (operation.equals(CrudOperation.ADD)) {
+            return Translator.translate("Add") + " " + Translator.translate("TechnicalOfficial");
+        } else if (operation.equals(CrudOperation.UPDATE)) {
+            return Translator.translate("Update") +  " " + Translator.translate("TechnicalOfficial");
+        } else if (operation.equals(CrudOperation.DELETE)) {
+            return Translator.translate("Delete") + " " + Translator.translate("TechnicalOfficial");
+        }
+        return super.buildCaption(operation, domainObject);
+    }
+    
     @Override
     public Component buildNewForm(CrudOperation operation, TechnicalOfficial aFromList, boolean readOnly,
             ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
