@@ -17,3 +17,4 @@
 /_local*
 /*.bak
 /.vaadin-node-tasks.lock
+/bin/
