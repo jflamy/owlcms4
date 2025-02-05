@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [  
-
         {
             "type": "java",
             "name": "Launch owlcms",
@@ -12,7 +11,7 @@
             "mainClass": "app.owlcms.Main",
             "projectName": "owlcms",
             "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition  -XX:HotswapAgent=fatjar", 
-            "env":{"OWLCMS_MEMORYMODE": "true", "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO"},
+            "env":{"OWLCMS_MEMORYMODE": "false", "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO"},
             
         },
         {
