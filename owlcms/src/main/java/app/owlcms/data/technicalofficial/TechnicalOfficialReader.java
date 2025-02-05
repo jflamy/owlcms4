@@ -25,6 +25,7 @@ public class TechnicalOfficialReader {
     private static final String FEDERATION_ID = "FederationId";
 
     public static List<TechnicalOfficial> importFromXLS(InputStream is) {
+    	logger.warn("importFromXLS");
         List<TechnicalOfficial> officials = new ArrayList<>();
         
         try {
@@ -41,9 +42,14 @@ public class TechnicalOfficialReader {
                     Row row = sheet.getRow(i);
                     if (row == null) continue;
                     
+                    logger.warn("row[{}] {}", i, colIndices);
                     TechnicalOfficial official = readRow(row, colIndices);
+                    
                     if (official != null) {
-                        officials.add(official);
+                    	var mergedOff = TechnicalOfficialRepository.save(official);
+                        officials.add(mergedOff);
+                    } else {
+                    	break;
                     }
                 }
                 workbook.close();
@@ -74,15 +80,17 @@ public class TechnicalOfficialReader {
 
     private static TechnicalOfficial readRow(Row row, int[] colIndices) {
         // Check required fields
-        if (isEmptyCell(row.getCell(colIndices[0])) || 
-            isEmptyCell(row.getCell(colIndices[1])) || 
-            isEmptyCell(row.getCell(colIndices[2]))) {
+        if (isEmptyCell(row.getCell(colIndices[0]))) {
             return null;
         }
 
         String lastName = getCellValueAsString(row.getCell(colIndices[0]));
         String firstName = getCellValueAsString(row.getCell(colIndices[1]));
-        TOLevel level = TOLevel.valueOf(getCellValueAsString(row.getCell(colIndices[2])));
+        TOLevel level = null;
+        try {
+			level = TOLevel.valueOf(getCellValueAsString(row.getCell(colIndices[2])));
+		} catch (IllegalArgumentException e) {
+		}
         String iwfId = getCellValueAsString(row.getCell(colIndices[3]));
         String federation = getCellValueAsString(row.getCell(colIndices[4]));
         String federationId = getCellValueAsString(row.getCell(colIndices[5]));

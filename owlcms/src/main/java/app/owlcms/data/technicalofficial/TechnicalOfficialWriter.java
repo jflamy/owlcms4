@@ -1,7 +1,10 @@
-package app.owlcms.nui.preparation;
+package app.owlcms.data.technicalofficial;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -12,22 +15,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.technicalofficial.TechnicalOfficial;
-import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
-import app.owlcms.spreadsheet.XLSXWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
 
-@SuppressWarnings("serial")
-public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
+public class TechnicalOfficialWriter {
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(TechnicalOfficialWriter.class);
 
-    final private static Logger logger = (Logger) LoggerFactory.getLogger(XLSXTechnicalOfficialsExport.class);
-
-    @Override
-    protected void writeStream(OutputStream stream) {
-        Workbook workbook = new XSSFWorkbook();
-        try {
+    public static InputStream write() {
+        try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Technical Officials");
-            
+
             // Create header style
             CellStyle headerStyle = workbook.createCellStyle();
             Font headerFont = workbook.createFont();
@@ -44,8 +40,9 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
             }
 
             // Add data rows
+            List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
             int rowNum = 1;
-            for (TechnicalOfficial official : TechnicalOfficialRepository.findAll()) {
+            for (TechnicalOfficial official : officials) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(official.getLastName() != null ? official.getLastName() : "");
                 row.createCell(1).setCellValue(official.getFirstName() != null ? official.getFirstName() : "");
@@ -60,16 +57,14 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
                 sheet.autoSizeColumn(i);
             }
 
-            workbook.write(stream);
+            // Write to byte array
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            return new ByteArrayInputStream(outputStream.toByteArray());
+
         } catch (IOException e) {
             logger.error("Error writing technical officials: {}", e);
-            throw new RuntimeException("Error writing technical officials", e);
-        } finally {
-            try {
-                workbook.close();
-            } catch (IOException e) {
-                logger.error("Error closing workbook: {}", e);
-            }
+            return null;
         }
     }
 }

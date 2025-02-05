@@ -16,6 +16,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -32,9 +33,10 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.spreadsheet.JXLSExportRecords;
+import app.owlcms.spreadsheet.JXLSExportTechnicalOfficials;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -54,14 +56,14 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	private OwlcmsCrudFormFactory<TechnicalOfficial> editingFormFactory;
 	private OwlcmsLayout routerLayout;
 	private FlexLayout topBar;
+	private GridCrud<TechnicalOfficial> crud;
 
 	/**
 	 * Instantiates the TechnicalOfficial crudGrid.
 	 */
 	public TechnicalOfficialContent() {
 		OwlcmsCrudFormFactory<TechnicalOfficial> crudFormFactory = createFormFactory();
-		GridCrud<TechnicalOfficial> crud = createGrid(crudFormFactory);
-		// defineFilters(crudGrid);
+		crud = createGrid(crudFormFactory);
 		fillHW(crud, this);
 	}
 
@@ -78,23 +80,30 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
 
+		// Export current officials button using the age groups pattern
+        Div exportOfficials = DownloadButtonFactory.createDynamicXLSXDownloadButton(
+            "TechnicalOfficials",
+            Translator.translate("TechnicalOfficials.Export"), 
+            new XLSXTechnicalOfficialsExport());
+        exportOfficials.getStyle().set("margin-left", "1em");
+
 		Button uploadCustom = new Button(Translator.translate("TechnicalOfficials.Upload"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> {
-			        AgeGroupsFileUploadDialog ageGroupsFileUploadDialog = new AgeGroupsFileUploadDialog();
-			        ageGroupsFileUploadDialog.setCallback(() -> loadOfficials());
-			        ageGroupsFileUploadDialog.open();
+			        TechnicalOfficialsUploadDialog dialog = new TechnicalOfficialsUploadDialog();
+			        dialog.setCallback(() -> loadOfficials());
+			        dialog.open();
 		        });
 
-		var recordsWriter1 = new JXLSExportRecords(UI.getCurrent(), true, true);
+		var toAssignmentsWriter = new JXLSExportTechnicalOfficials(UI.getCurrent(), true, true);
 		JXLSDownloader dd1 = new JXLSDownloader(
 		        () -> {
-			        return recordsWriter1;
+			        return toAssignmentsWriter;
 		        },
-		        "/templates/records",
+		        "/templates/toAssignments",
 		        Competition::getComputedTechnicalOfficialsTemplateFileName,
 		        Competition::setTechnicalOfficialsTemplateFileName,
-		        Translator.translate("Records.exportCurrentRecordsTitle"),
+		        Translator.translate("TechnicalOfficials.ExportAssignementReports"),
 		        Translator.translate("Download"));
 		Div allRecords1 = new Div();
 		Button downloadButton = dd1.createDownloadButton();
@@ -102,8 +111,12 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		allRecords1.add(downloadButton);
 
 		FlexLayout buttons = new FlexLayout(
-		        new NativeLabel(Translator.translate("AgeGroups.Custom")),
-		        allRecords1, uploadCustom);
+		        new NativeLabel(Translator.translate("TechnicalOfficials.ImportExport")),
+		        exportOfficials,
+		        uploadCustom,
+				hr(),
+				new NativeLabel(Translator.translate("TechnicalOfficials.AssignmentReports")),
+				allRecords1);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
@@ -117,10 +130,19 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		return this.topBar;
 	}
 
-	private Object loadOfficials() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'loadOfficials'");
+	private Hr hr() {
+		Hr hr = new Hr();
+		hr.setWidthFull();
+		hr.getStyle().set("margin", "0");
+		hr.getStyle().set("padding", "0");
+		return hr;
 	}
+
+	private Object loadOfficials() {
+        logger.warn("refreshing");
+		crud.refreshGrid();
+        return null;
+    }
 
 	@Override
 	public void delete(TechnicalOfficial domainObjectToDelete) {

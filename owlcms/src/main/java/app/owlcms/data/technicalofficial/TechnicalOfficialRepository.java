@@ -14,6 +14,7 @@ import javax.persistence.TypedQuery;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -33,6 +34,7 @@ public class TechnicalOfficialRepository {
 	}
 
 	public static List<TechnicalOfficial> findAll() {
+		logger.warn("====== findall {}",LoggerUtils.stackTrace());
 		return JPAService
 				.runInTransaction(em -> em.createQuery("select c from TechnicalOfficial c order by c.id", TechnicalOfficial.class)
 						.getResultList());
@@ -52,10 +54,11 @@ public class TechnicalOfficialRepository {
 				TechnicalOfficial.class);
 		query.setParameter("id", id);
 
-		return (TechnicalOfficial) query.getResultList().stream().findFirst().orElse(null);
+		return query.getResultList().stream().findFirst().orElse(null);
 	}
 
 	public static TechnicalOfficial save(TechnicalOfficial technicalOfficial) {
+		logger.warn("saving {}", technicalOfficial);
 		TechnicalOfficial nTechnicalOfficial = JPAService.runInTransaction(em -> em.merge(technicalOfficial));
 		return nTechnicalOfficial;
 	}
