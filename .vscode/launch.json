@@ -10,9 +10,8 @@
             "request": "launch",
             "mainClass": "app.owlcms.Main",
             "projectName": "owlcms",
-            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition  -XX:HotswapAgent=fatjar", 
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
             "env":{"OWLCMS_MEMORYMODE": "false", "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO"},
-            
         },
         {
             "type": "java",
@@ -20,7 +19,7 @@
             "request": "launch",
             "mainClass": "app.owlcms.publicresults.Main",
             "projectName": "publicresults",
-            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition  -XX:HotswapAgent=fatjar",
             "env":{"OWLCMS_PORT": "8082", "OWLCMS_UPDATEKEY":"mapetitevacheamalauxpattes"}
         },    
         {
