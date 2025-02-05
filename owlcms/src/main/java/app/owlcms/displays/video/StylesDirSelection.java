@@ -46,4 +46,16 @@ public interface StylesDirSelection {
 	public boolean isVideo();
 
 	public void setVideo(boolean video);
+	
+	public default void overrideColors(Element element) {
+		Logger logger = (Logger) LoggerFactory.getLogger(StylesDirSelection.class);
+		boolean overrideColors = Config.getCurrent().getEnableColorOverrides();
+		String videoColorOverrides = Config.getCurrent().getVideoColorOverrides();
+		logger.warn("overrideColors {} videoColorOverrides {}", overrideColors, videoColorOverrides);
+		if (overrideColors && videoColorOverrides != null && !videoColorOverrides.isBlank()) {
+			element.setProperty("colorOverride", videoColorOverrides);			
+		}
+	}
 }
+
+

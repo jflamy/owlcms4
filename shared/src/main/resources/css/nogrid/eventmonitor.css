@@ -7,7 +7,7 @@
 .wrapper {
 	font: Arial;
 	color: var(--videoTextColor);
-	background-color: #00ff00;
+	background-color: transparent;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -34,8 +34,8 @@
 }
 
 .notification.invisibleNotification {
-	color: #00ff00;
-	background-color: #00ff00;
+	color: transparent;
+	background-color: transparent;
 	border: none;
 }
 

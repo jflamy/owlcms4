@@ -1,4 +1,4 @@
-name: owlcms Release
+name: owlcms
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       revision:
         description: 'Revision for the release'
         required: true
-        default: '55.3.0-beta02'
+        default: '55.3.0-beta03'
 
 env:
   REPO_OWNER: owlcms

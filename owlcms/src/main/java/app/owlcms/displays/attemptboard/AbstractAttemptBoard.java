@@ -125,6 +125,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		// js files add the build number to file names in order to prevent cache
 		// collisions
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
+		
+		overrideColors(this.getElement());
 	}
 
 	@Override

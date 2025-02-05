@@ -8,6 +8,7 @@
 
 **Maintenance Log**
 
+- 55.3.0: Added a color picker to select the background color used when streaming the scoreboard and the attempt board.
 - 55.3.0: the files copied to the local directory were missing the definitions for Q-Points and Q-Masters (qpoints), Q-Youth (agefactors) and GAMX (gamx) .  These files are mostly there for reference.
 - 55.3.0: The custom score non-standard competition that allowed overriding the total on the athlete card with a new value was broken.
 - 55.3.0: Additional MQTT messages to support the self-service jury replay application.
@@ -49,6 +50,8 @@
     
   - The style can be changed back to `nogrid` on the System Settings > Customization page to get the black background styles identical to the on-site scoreboards.
 
+  - There is now a color picker to override the default color for the scoreboard headers and attempt boards.
+  
 - Templates: a new _FlatFile.xlsx template is available for Competition Results.  It is meant for statistical analysis where headers for each category make reading the file difficult.
 
 - MQTT Messages: new messages `owlcms/fop/start` and `owlcms/fop/stop` when owlcms sends additional information about the athlete and the time remaining.  Used by the jury replays together with `owlcms/fop/refereeDecisions`.
