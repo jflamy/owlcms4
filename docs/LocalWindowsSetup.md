@@ -8,7 +8,8 @@ If you are familiar with Windows and downloading programs
 
 You're done.
 
-
+> An installer program is also available. See [these instructions](LocalWindowsInstaller)
+>
 
 ## Detailed Instructions
 

@@ -1,10 +1,7 @@
 ## Windows Installer
 
-> **Caution: Windows will <u>falsely</u> signal the presence of a virus**
->
-> - There is no absolutely no virus in the installer, Windows is confused.  The false detection has been reported to Microsoft
-> - You will not be able to use these instructions unless you follow them once and trigger the antivirus warning.  Then you can go to the Windows Security settings, find the Protection History, find the alert you got, and explicitly allow the falsely detected virus.
-> - You should instead use the executable directly, as explained on [this page](LocalWindowsSetup)
+> - When the installer was first released, Windows <u>falsely</u> signaled a virus in the installer program.
+>- If for some reason your computer rejects the file, you can still download and use the control panel executable program directly, as explained on [this page](LocalWindowsSetup)
 
 ### Installation
 
