@@ -162,7 +162,7 @@ public class JXLSDownloader {
 	 * @return
 	 */
 	// @Deprecated
-	// TODO remove use of createImmediateDownloadButton
+	// CODEREVIEW remove use of createImmediateDownloadButton
 	public Anchor createImmediateDownloadButton(String... tooltipText) {
 		this.xlsWriter = this.streamSourceSupplier.get();
 		Supplier<String> supplier = () -> getTargetFileName();

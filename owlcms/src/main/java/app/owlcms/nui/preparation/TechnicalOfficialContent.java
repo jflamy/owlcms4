@@ -12,11 +12,20 @@ import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.components.JXLSDownloader;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
@@ -25,6 +34,7 @@ import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.spreadsheet.JXLSExportRecords;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -43,6 +53,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	}
 	private OwlcmsCrudFormFactory<TechnicalOfficial> editingFormFactory;
 	private OwlcmsLayout routerLayout;
+	private FlexLayout topBar;
 
 	/**
 	 * Instantiates the TechnicalOfficial crudGrid.
@@ -60,8 +71,55 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	}
 
 	@Override
+	// public FlexLayout createMenuArea() {
+	// return new FlexLayout();
+	// }
+
 	public FlexLayout createMenuArea() {
-		return new FlexLayout();
+		this.topBar = new FlexLayout();
+
+		Button uploadCustom = new Button(Translator.translate("TechnicalOfficials.Upload"),
+		        new Icon(VaadinIcon.UPLOAD_ALT),
+		        buttonClickEvent -> {
+			        AgeGroupsFileUploadDialog ageGroupsFileUploadDialog = new AgeGroupsFileUploadDialog();
+			        ageGroupsFileUploadDialog.setCallback(() -> loadOfficials());
+			        ageGroupsFileUploadDialog.open();
+		        });
+
+		var recordsWriter1 = new JXLSExportRecords(UI.getCurrent(), true, true);
+		JXLSDownloader dd1 = new JXLSDownloader(
+		        () -> {
+			        return recordsWriter1;
+		        },
+		        "/templates/records",
+		        Competition::getComputedTechnicalOfficialsTemplateFileName,
+		        Competition::setTechnicalOfficialsTemplateFileName,
+		        Translator.translate("Records.exportCurrentRecordsTitle"),
+		        Translator.translate("Download"));
+		Div allRecords1 = new Div();
+		Button downloadButton = dd1.createDownloadButton();
+		downloadButton.setWidthFull();
+		allRecords1.add(downloadButton);
+
+		FlexLayout buttons = new FlexLayout(
+		        new NativeLabel(Translator.translate("AgeGroups.Custom")),
+		        allRecords1, uploadCustom);
+		buttons.getStyle().set("flex-wrap", "wrap");
+		buttons.getStyle().set("gap", "1ex");
+		buttons.getStyle().set("margin-left", "5em");
+		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+		this.topBar.getStyle().set("flex", "100 1");
+		this.topBar.add(buttons);
+		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+
+		return this.topBar;
+	}
+
+	private Object loadOfficials() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'loadOfficials'");
 	}
 
 	@Override
@@ -113,7 +171,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<TechnicalOfficial> crudFormFactory) {
-		((TechnicalOfficialEditingFormFactory)crudFormFactory).technicalOfficialLayout();
+		((TechnicalOfficialEditingFormFactory) crudFormFactory).technicalOfficialLayout();
 	}
 
 	/**
@@ -144,20 +202,20 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	 * @return the form factory that will create the actual form on demand
 	 */
 	private OwlcmsCrudFormFactory<TechnicalOfficial> createFormFactory() {
-		this.editingFormFactory =  new TechnicalOfficialEditingFormFactory(TechnicalOfficial.class);
+		this.editingFormFactory = new TechnicalOfficialEditingFormFactory(TechnicalOfficial.class);
 		return this.editingFormFactory;
 	}
 
 	// private <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
-	//         String parameter) {
-	// 	return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
-	// 	        + "','" + targetClass.getSimpleName() + "')";
+	// String parameter) {
+	// return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "?fop=" + parameter
+	// + "','" + targetClass.getSimpleName() + "')";
 	// }
 
 	// private <T extends Component & HasUrlParameter<String>> Button openInNewTab(Class<T> targetClass,
-	//         String label, String parameter) {
-	// 	Button button = new Button(label);
-	// 	button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
-	// 	return button;
+	// String label, String parameter) {
+	// Button button = new Button(label);
+	// button.getElement().setAttribute("onClick", getWindowOpenerFromClass(targetClass, parameter));
+	// return button;
 	// }
 }

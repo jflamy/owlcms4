@@ -296,6 +296,7 @@ public class Competition {
 	private String currentRecordsTemplateFileName;
 	@Column(columnDefinition = "boolean default false")
 	private boolean masters20kg = false;
+	private String technicalOfficialsTemplateFileName;
 
 	public Competition() {
 		this.medalsByGroup = new HashMap<>();
@@ -750,6 +751,15 @@ public class Competition {
 		return this.teamsListTemplateFileName;
 	}
 
+	@Transient
+	@JsonIgnore
+	public String getComputedTechnicalOfficialsTemplateFileName() {
+		if (this.technicalOfficialsTemplateFileName == null) {
+			return "technicalOfficials.xlsx";
+		}
+		return this.technicalOfficialsTemplateFileName;
+	}
+
 	public String getCurrentRecordsTemplateFileName() {
 		return this.currentRecordsTemplateFileName;
 	}
@@ -1024,6 +1034,10 @@ public class Competition {
 
 	public String getTeamsListTemplateFileName() {
 		return this.teamsListTemplateFileName;
+	}
+
+	public String getTechnicalOfficialsTemplateFileName() {
+		return this.technicalOfficialsTemplateFileName;
 	}
 
 	public String getTranslatedScoringSystemName() {
@@ -1522,6 +1536,10 @@ public class Competition {
 
 	public void setTeamsListTemplateFileName(String teamsListTemplateFileName) {
 		this.teamsListTemplateFileName = teamsListTemplateFileName;
+	}
+
+	public void setTechnicalOfficialsTemplateFileName(String technicalOfficialsTemplateFileName) {
+		this.technicalOfficialsTemplateFileName = technicalOfficialsTemplateFileName;
 	}
 
 	/**

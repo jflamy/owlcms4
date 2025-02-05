@@ -124,7 +124,7 @@ public class JuryDialog extends Dialog {
 				this.close();
 				return;
 			}
-			// REVIEW: this should be done after processing the JuryEvent in FieldOfPlay
+			// CODEREVIEW: this should be done after processing the JuryEvent in FieldOfPlay
 			resumeLifting(noAction);
 
 			this.close();

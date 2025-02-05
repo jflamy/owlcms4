@@ -748,7 +748,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			setId("medals-" + fop.getName());
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-			// FIXME: confusing
+			// CODEREVIEW: confusing
 			// this.setGroup(fop.getVideoGroup());
 			// this.setCategory(fop.getVideoCategory());
 			this.setGroup(fop.getGroup());
