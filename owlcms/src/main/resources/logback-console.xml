@@ -54,7 +54,7 @@
     <logger name="app.owlcms.data.athleteSort.WinningOrderComparator" level="INFO" />
     <logger name="app.owlcms.data.athleteSort.RegistrationOrderComparator" level="INFO" />
     <logger name="app.owlcms.data.athleteSort.AbstractLifterComparator" level="INFO" />
-    <logger name="app.owlcms.utils.ResourceWalker" level="DEBUG" />
+    <logger name="app.owlcms.utils.ResourceWalker" level="INFO" />
     <logger name="app.owlcms.displays.monitor.OBSMonitor" level="WARN" />
     <logger name="org.hibernate.SQL" level="WARN" />
     
