@@ -91,7 +91,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> {
 			        TechnicalOfficialsUploadDialog dialog = new TechnicalOfficialsUploadDialog();
-			        dialog.setCallback(() -> loadOfficials());
+			        dialog.setCallback(() -> refreshGrid());
 			        dialog.open();
 		        });
 
@@ -138,7 +138,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		return hr;
 	}
 
-	private Object loadOfficials() {
+	private Object refreshGrid() {
         logger.warn("refreshing");
 		crud.refreshGrid();
         return null;

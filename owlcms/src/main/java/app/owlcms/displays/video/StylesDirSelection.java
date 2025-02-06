@@ -51,7 +51,7 @@ public interface StylesDirSelection {
 		Logger logger = (Logger) LoggerFactory.getLogger(StylesDirSelection.class);
 		boolean overrideColors = Config.getCurrent().getEnableColorOverrides();
 		String videoColorOverrides = Config.getCurrent().getVideoColorOverrides();
-		logger.warn("overrideColors {} videoColorOverrides {}", overrideColors, videoColorOverrides);
+		logger.debug("overrideColors {} videoColorOverrides {}", overrideColors, videoColorOverrides);
 		if (overrideColors && videoColorOverrides != null && !videoColorOverrides.isBlank()) {
 			element.setProperty("colorOverride", videoColorOverrides);			
 		}

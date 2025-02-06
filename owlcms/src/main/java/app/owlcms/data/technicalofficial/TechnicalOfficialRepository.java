@@ -34,7 +34,6 @@ public class TechnicalOfficialRepository {
 	}
 
 	public static List<TechnicalOfficial> findAll() {
-		logger.warn("====== findall {}",LoggerUtils.stackTrace());
 		return JPAService
 				.runInTransaction(em -> em.createQuery("select c from TechnicalOfficial c order by c.id", TechnicalOfficial.class)
 						.getResultList());
@@ -58,8 +57,12 @@ public class TechnicalOfficialRepository {
 	}
 
 	public static TechnicalOfficial save(TechnicalOfficial technicalOfficial) {
-		logger.warn("saving {}", technicalOfficial);
 		TechnicalOfficial nTechnicalOfficial = JPAService.runInTransaction(em -> em.merge(technicalOfficial));
 		return nTechnicalOfficial;
+	}
+
+	public static void deleteAll(EntityManager em) {
+		// use JPQL to delete all rows
+		em.createQuery("delete from TechnicalOfficial").executeUpdate();
 	}
 }
