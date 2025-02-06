@@ -755,7 +755,7 @@ public class Competition {
 	@JsonIgnore
 	public String getComputedTechnicalOfficialsTemplateFileName() {
 		if (this.technicalOfficialsTemplateFileName == null) {
-			return "technicalOfficials.xlsx";
+			return "toAssignments.xlsx";
 		}
 		return this.technicalOfficialsTemplateFileName;
 	}

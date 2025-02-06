@@ -45,56 +45,16 @@ public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 	Logger logger = (Logger) LoggerFactory.getLogger(JXLSExportTechnicalOfficials.class);
 	Group group;
 	private List<RecordEvent> records;
-	// private List<RecordEvent> bestRecords;
-	private boolean allRecords;
-	private boolean currentOnly;
 
 	public JXLSExportTechnicalOfficials(Group group, boolean excludeNotWeighed, UI ui) {
 	}
 
-	public JXLSExportTechnicalOfficials(UI ui, boolean allRecords, boolean currentOnly) {
-		this.setAllRecords(allRecords);
-		this.currentOnly = currentOnly;
+	public JXLSExportTechnicalOfficials(UI ui) {
 	}
 
 	@Override
 	public Group getGroup() {
 		return this.group;
-	}
-
-	/**
-	 * Must be called immediately after getSortedAthletes due to reliance on "records" variable side-effect.
-	 *
-	 * @param cat
-	 * @return
-	 */
-	public List<RecordEvent> getRecords(Category cat) {
-		if (cat == null) {
-			return this.records.isEmpty() ? null : this.records;
-		}
-		this.logger.debug("category {} age >= {} <= {}  bw > {} <= {}",
-		        cat.getGender(),
-		        cat.getAgeGroup().getMinAge(),
-		        cat.getAgeGroup().getMaxAge(),
-		        cat.getMinimumWeight(),
-		        cat.getMaximumWeight());
-		List<RecordEvent> catRecords = new ArrayList<>();
-		for (RecordEvent record : this.records) {
-			Integer athleteAge = record.getAthleteAge();
-			Double athleteBW = record.getAthleteBW();
-			try {
-				if (record.getGender() == cat.getGender()
-				        && athleteAge >= cat.getAgeGroup().getMinAge()
-				        && athleteAge <= cat.getAgeGroup().getMaxAge()
-				        && athleteBW > cat.getMinimumWeight()
-				        && athleteBW <= cat.getMaximumWeight()) {
-					catRecords.add(record);
-				}
-			} catch (Exception e) {
-				this.logger.error("faulty record {}", record);
-			}
-		}
-		return catRecords.isEmpty() ? null : catRecords;
 	}
 
 	@Override
@@ -130,22 +90,9 @@ public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 			return new BufferedInputStream(this.inputStream);
 		}
 		this.logger.debug("getTemplate {}", LoggerUtils.whereFrom());
-		return getLocalizedTemplate("/templates/records/exportRecords", ".xls", locale);
+		return getLocalizedTemplate("/templates/toAssignments/toAssignments", ".xls", locale);
 	}
 
-	public Map<String, RecordEvent> keepNewest() {
-		return this.records.stream()
-		        .collect(Collectors.groupingBy(
-		                RecordEvent::getKey,
-		                Collectors.collectingAndThen(
-		                        Collectors.maxBy((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift())),
-		                        record -> record.orElseThrow(() -> new IllegalStateException("No record found")))));
-	}
-
-	@Override
-	public void setGroup(Group group) {
-		this.group = group;
-	}
 
 	public Comparator<RecordEvent> sortRecords() {
 		return Comparator

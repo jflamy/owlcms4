@@ -103,7 +103,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        "/templates/toAssignments",
 		        Competition::getComputedTechnicalOfficialsTemplateFileName,
 		        Competition::setTechnicalOfficialsTemplateFileName,
-		        Translator.translate("TechnicalOfficials.ExportAssignementReports"),
+		        Translator.translate("TechnicalOfficials.ExportAssignmentReports"),
 		        Translator.translate("Download"));
 		Div allRecords1 = new Div();
 		Button downloadButton = dd1.createDownloadButton();
