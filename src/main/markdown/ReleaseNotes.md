@@ -8,55 +8,21 @@
 
 **Maintenance Log**
 
-- 55.3.0: Added a color picker to select the background color used when streaming the scoreboard and the attempt board.
-- 55.3.0: the files copied to the local directory were missing the definitions for Q-Points and Q-Masters (qpoints), Q-Youth (agefactors) and GAMX (gamx) .  These files are mostly there for reference.
-- 55.3.0: The custom score non-standard competition that allowed overriding the total on the athlete card with a new value was broken.
-- 55.3.0: Additional MQTT messages to support the self-service jury replay application.
-- 55.3.0: Record definition columns can be reordered or omitted (see below)
-- 55.3.0: Added the "invited/extra/out of competition" status to the Start Book Data Entry export/import.
-- 55.3.0: The URL parameters controlling showing of records and of leaders were being ignored, so the pages could not be bookmarked
-- 55.3.0: Scores such as Q-Points or Sinclair will now be shown on scoreboards during snatch (see below)
+- 56.0.0 First release of Technical Official features in Prepare Competition.
 
-**New In Release 55**
+**New In Release 56**
 
-- New [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and startup instructions using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) for updating, launching and stopping OWLCMS on a local computer.
+- Technical Officials
 
-- Record definitions: The columns can now be reordered.  What matters is that the column header names in your match those in the documentation (see [Record File Format](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement?id=record-file-format)) -- upper and lowercase does not matter.  The columns marked as optional can now be deleted from the definitions if you wish.
+  - New button on Prepare Competition to define the list.  Import and Export from Excel are supported
 
-- When medals are awarded by score like (Q-Points/Q-Masters/Q-Youth/Sinclair/SMHF/etc,), the scores will be visible during the snatch. A feature toggle `noInterimScoresInResults` can be used so that the result sheets always show 0 is no total has been set.
+  - The Assignment of Officials on the Session page now allows to pick from the list (the choices are auto-completed as you type)
 
-- The "invited/extra/out of competition" status is now included in the Start Book Data Entry (SBDE) file. Reminder: you can add any column from the SBDE format to your registration sheet if needed.
+  - A summary report of who was assigned to what role including the total number of sessions per TO is also available.
 
-- Inclusion of 2025 Youth body weight classes in the AgeGroups2025 age group template
-
-- Ability to set the duration of the clean & jerk break explicitly for a session, overriding the competition-wide rules.
-
-  - A new Excel template variable `${session.cleanJerkBreakMinutes}` can be used to show this to the announcer if you have a specific template for athlete introductions
-
-- Competition Rules: It is now possible to force the 20kg rule for Masters instead of the 80% rule.
-
-- Refereeing: Selecting "Single Referee" using the ⚙menu  now works with keyboard shortcut keypads (USB, Bluetooth, Joystick).  
-
-  - Any of the 3 referees will work, but configuring the center referee makes most sense (3 = good lift, 4 = no lift).  A single decision will trigger the down signal.
-
-- Simplified Video Setup
-  - The default style for Video Streaming is now `transparent` 
-    With this change,
-    
-    - It is no longer necessary to crop the Current Athlete view
-    - There is no need to add a green mask to have a floating scoreboard
-    
-    See the documentation on using [OBS](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.) for examples of using the transparent style.
-    
-  - The style can be changed back to `nogrid` on the System Settings > Customization page to get the black background styles identical to the on-site scoreboards.
-
-  - There is now a color picker to override the default color for the scoreboard headers and attempt boards.
-  
-- Templates: a new _FlatFile.xlsx template is available for Competition Results.  It is meant for statistical analysis where headers for each category make reading the file difficult.
-
-- MQTT Messages: new messages `owlcms/fop/start` and `owlcms/fop/stop` when owlcms sends additional information about the athlete and the time remaining.  Used by the jury replays together with `owlcms/fop/refereeDecisions`.
 
   
 
 
-For other recent changes, see [version 55 release notes](https://github.com/owlcms/owlcms4/releases/tag/54.2.1) and [version 5 release notes](https://github.com/owlcms/owlcms4/releases/tag/53.1.0)
+
+For other recent changes, see [version 55.3 release notes](https://github.com/owlcms/owlcms4/releases/tag/54.3.0) and [version 5 release notes](https://github.com/owlcms/owlcms4/releases/tag/53.1.0)
