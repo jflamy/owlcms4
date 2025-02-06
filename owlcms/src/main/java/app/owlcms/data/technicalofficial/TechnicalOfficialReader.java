@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Logger;
 
 public class TechnicalOfficialReader {
@@ -25,37 +26,44 @@ public class TechnicalOfficialReader {
     private static final String FEDERATION_ID = "FederationId";
 
     public static List<TechnicalOfficial> importFromXLS(InputStream is) {
-    	logger.warn("importFromXLS");
         List<TechnicalOfficial> officials = new ArrayList<>();
         
-        try {
-            if (is != null) {
-                Workbook workbook = WorkbookFactory.create(is);
-                Sheet sheet = workbook.getSheetAt(0);
-                
-                // Get column indices from header row
-                Row headerRow = sheet.getRow(0);
-                int[] colIndices = findColumnIndices(headerRow);
-                
-                // Process data rows
-                for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                    Row row = sheet.getRow(i);
-                    if (row == null) continue;
+        if (is != null) {
+            JPAService.runInTransaction((em) -> {
+                try {
+                    // Delete existing officials
+                    TechnicalOfficialRepository.deleteAll(em);
                     
-                    logger.warn("row[{}] {}", i, colIndices);
-                    TechnicalOfficial official = readRow(row, colIndices);
+                    Workbook workbook = WorkbookFactory.create(is);
+                    Sheet sheet = workbook.getSheetAt(0);
                     
-                    if (official != null) {
-                    	var mergedOff = TechnicalOfficialRepository.save(official);
-                        officials.add(mergedOff);
-                    } else {
-                    	break;
+                    // Get header and column indices
+                    Row headerRow = sheet.getRow(0);
+                    int[] colIndices = findColumnIndices(headerRow);
+                    
+                    // Process data rows
+                    for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                        Row row = sheet.getRow(i);
+                        if (row == null) continue;
+                        
+                        logger.trace("row[{}] {}", i, colIndices);
+                        TechnicalOfficial official = readRow(row, colIndices);
+                        
+                        if (official != null) {
+                            // add the official to the database.
+                            TechnicalOfficial mergedOff = em.merge(official);
+                            officials.add(mergedOff);
+                        } else {
+                            break;
+                        }
                     }
+                    workbook.close();
+                } catch (Exception e) {
+                    logger.error("Error reading technical officials: {}", e);
+                    throw new RuntimeException(e);
                 }
-                workbook.close();
-            }
-        } catch (Exception e) {
-            logger.error("Error reading technical officials: {}", e);
+                return null;
+            });
         }
         return officials;
     }
@@ -88,9 +96,9 @@ public class TechnicalOfficialReader {
         String firstName = getCellValueAsString(row.getCell(colIndices[1]));
         TOLevel level = null;
         try {
-			level = TOLevel.valueOf(getCellValueAsString(row.getCell(colIndices[2])));
-		} catch (IllegalArgumentException e) {
-		}
+            level = TOLevel.valueOf(getCellValueAsString(row.getCell(colIndices[2])));
+        } catch (IllegalArgumentException e) {
+        }
         String iwfId = getCellValueAsString(row.getCell(colIndices[3]));
         String federation = getCellValueAsString(row.getCell(colIndices[4]));
         String federationId = getCellValueAsString(row.getCell(colIndices[5]));

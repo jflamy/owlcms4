@@ -185,7 +185,7 @@ public class VideoNavigationContent extends BaseNavigationContent
         	boolean selected = Boolean.TRUE.equals(enableColorOverrideCheckbox.getValue());
         	Config.getCurrent().setEnableColorOverrides(selected);
         	colorPicker.setEnabled(selected);
-        	logger.warn("selected {}",selected);
+        	logger.debug("selected {}",selected);
         });
         enableColorOverrideCheckbox.setLabel(Translator.translate("ColorSelection.EnabledLabel"));
         enableColorOverrideCheckbox.setHelperText(Translator.translate("ColorSelection.EnabledHelperText"));

@@ -1010,7 +1010,6 @@ public class Config {
 	}
 
 	public void setEnableColorOverrides(Boolean enableColorOverrides) {
-		logger.warn("setEnableColorOverrides {}", enableColorOverrides);
 		this.enableColorOverrides = enableColorOverrides;
 	}
 

@@ -30,7 +30,6 @@ public class TechnicalOfficialsUploadDialog extends Dialog {
             try {
                 InputStream is = buffer.getInputStream();
                 TechnicalOfficialReader.importFromXLS(is);
-                logger.warn("imported");
                 close();
                 if (callback != null) {
                     callback.run();
