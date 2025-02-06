@@ -10,13 +10,12 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -25,12 +24,13 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.records.RecordEvent;
-import app.owlcms.data.records.RecordRepository;
+import app.owlcms.data.technicalofficial.SessionAssignment;
+import app.owlcms.data.technicalofficial.OfficialRole;
+import app.owlcms.data.technicalofficial.TechnicalOfficial;
+import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -43,44 +43,19 @@ import ch.qos.logback.classic.Logger;
 public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(JXLSExportTechnicalOfficials.class);
-	Group group;
-	private List<RecordEvent> records;
 
-	public JXLSExportTechnicalOfficials(Group group, boolean excludeNotWeighed, UI ui) {
-	}
+	private Map<TechnicalOfficial, List<SessionAssignment>> officialToAssignments = new HashMap<>();
+	private Map<Group, List<SessionAssignment>> groupToAssignments = new HashMap<>();
+	private Map<String, TechnicalOfficial> nameToOfficials = new HashMap<>();
+	private List<SessionAssignment> assignments = new ArrayList<>();
 
 	public JXLSExportTechnicalOfficials(UI ui) {
 	}
 
 	@Override
-	public Group getGroup() {
-		return this.group;
-	}
-
-	@Override
 	public List<Athlete> getSortedAthletes() {
-		HashMap<String, Object> reportingBeans = getReportingBeans();
-
-		// prevent irrelevant "No Athletes" error message.
-		List<Athlete> athletes = List.of(new Athlete());
-
-		String groupName = this.group != null ? this.group.getName() : null;
-		this.records = RecordRepository.findFiltered(null, null, null, groupName, !this.isAllRecords());
-		if (this.currentOnly) {
-			var recordMap = this.keepNewest();
-			this.records = new ArrayList<>(recordMap.values().stream().toList());
-			this.records.sort(sortRecords());
-		} else {
-			this.records.sort(sortRecords());
-		}
-		Map<String, List<RecordEvent>> grouped = groupByAgeGroup(this.records);
-		List<Entry<String, List<RecordEvent>>> list = new ArrayList<>();
-		for (Entry<String, List<RecordEvent>> v : grouped.entrySet()) {
-			list.add(v);
-		}
-		reportingBeans.put("agegroups", list);
-		reportingBeans.put("records", this.records);
-		return athletes;
+		// unused. prevent spurious warning.
+		return List.of(new Athlete());
 	}
 
 	@Override
@@ -93,24 +68,6 @@ public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 		return getLocalizedTemplate("/templates/toAssignments/toAssignments", ".xls", locale);
 	}
 
-
-	public Comparator<RecordEvent> sortRecords() {
-		return Comparator
-		        .comparing(RecordEvent::getRecordFederation) // all records for a federation go together (masters are
-		                                                     // separate)
-		        .thenComparing(RecordEvent::getRecordName) // sometimes several record names for same federation
-		                                                   // (example: event-specific)
-		        .thenComparing(RecordEvent::getGender) // all women, then all men
-		        .thenComparing(RecordEvent::getAgeGrpUpper) // U13 U15 U17 U20 U23 SR
-		        // open has biggest age gap, goes after masters M85 and W85
-		        .thenComparing((a, b) -> ObjectUtils.compare((a.getAgeGrpUpper() - a.getAgeGrpLower()), (b.getAgeGrpUpper() - b.getAgeGrpLower())))
-		        .thenComparing(RecordEvent::getAgeGrpLower) // increasing age groups for masters (35, 40, 45...)
-		        .thenComparing(RecordEvent::getBwCatUpper) // increasing body weights
-		        .thenComparing((r) -> r.getRecordLift().ordinal()) // SNATCH, CJ, TOTAL
-		        .thenComparing(RecordEvent::getRecordValue) // increasing records
-		;
-	}
-
 	@Override
 	protected void setReportingInfo() {
 		List<Athlete> athletes = getSortedAthletes();
@@ -121,30 +78,6 @@ public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 		Competition competition = Competition.getCurrent();
 		getReportingBeans().put("t", Translator.getMap());
 		getReportingBeans().put("competition", competition);
-		getReportingBeans().put("session", getGroup()); // legacy
-		getReportingBeans().put("group", getGroup());
-
-		// reuse existing logic for processing records
-		JXLSExportTechnicalOfficials jxlsExportRecords = this;
-		// jxlsExportRecords.setGroup(getGroup());
-		this.logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
-		try {
-			// Must be called as soon as possible after getSortedAthletes()
-			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
-			this.logger.debug("{} records found", records.size());
-			for (RecordEvent e : records) {
-				if (e.getBwCatUpper() > 250) {
-					e.setBwCatString(">" + e.getBwCatLower());
-				} else {
-					e.setBwCatString(Integer.toString(e.getBwCatUpper()));
-				}
-			}
-			getReportingBeans().put("records", records);
-		} catch (Exception e) {
-			// no records
-		}
-
-		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
 		List<Group> sessions = GroupRepository.findAll().stream().sorted((a, b) -> {
 			int compare = ObjectUtils.compare(a.getWeighInTime(), b.getWeighInTime(), true);
 			if (compare != 0) {
@@ -154,25 +87,73 @@ public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 		}).collect(Collectors.toList());
 		getReportingBeans().put("groups", sessions);
 		getReportingBeans().put("sessions", sessions);
+
+		populateMaps();
+
+		getReportingBeans().put("sessionToAssignments", groupToAssignments);
+		getReportingBeans().put("officialToAssignments", officialToAssignments);
+		getReportingBeans().put("assignments", assignments);
 	}
 
-	private Map<String, List<RecordEvent>> groupByAgeGroup(List<RecordEvent> events) {
-		Map<String, List<RecordEvent>> groupedEvents = new LinkedHashMap<>();
-		for (RecordEvent record : events) {
-			String ageGroup = record.getAgeGrp();
-			boolean masters = record.getAgeGrpLower() >= 30 && (record.getAgeGrp().startsWith("W") || record.getAgeGrp().startsWith("M"));
-			groupedEvents.computeIfAbsent(masters ? ageGroup : ageGroup + " " + record.getTranslatedGender(), k -> new ArrayList<>()).add(record);
-		}
-		return groupedEvents;
+	private List<TechnicalOfficial> populateMaps() {
+		// pre-populate the name lookup map from a single database query
+		TechnicalOfficialRepository.findAll().forEach(official -> nameToOfficials.put(official.getFullName(), official));
+		assignments.clear();
+		groupToAssignments.clear();
+		officialToAssignments.clear();
+
+		// iterate over all groups
+		GroupRepository.findAll().forEach(group -> {
+			// iterate over all roles
+			sessionRoleGetterMap().forEach((role, getter) -> {
+				// get the official name assigned to the role
+				String officialName = getter.apply(group);
+				if (officialName != null) {
+					// lookup official from our pre-populated map
+					TechnicalOfficial official = nameToOfficials.get(officialName);
+					if (official != null) {
+						// create a new GroupAssignment object
+						SessionAssignment assignment = new SessionAssignment(official, group);
+						assignment.getRoles().add(role);
+						// add to maps
+						groupToAssignments.computeIfAbsent(group, k -> new ArrayList<>()).add(assignment);
+						officialToAssignments.computeIfAbsent(official, k -> new ArrayList<>()).add(assignment);
+						// add to list of all assignments
+						assignments.add(assignment);
+					}
+				}
+			});
+		});
+
+		// return list of officials with assignments
+		return new ArrayList<>(officialToAssignments.keySet());
 	}
 
-	private boolean isAllRecords() {
-		return this.allRecords;
-	}
+	/**
+	 * Creates a mapping from official role names to the corresponding getter in the Group class.
+	 */
+	private Map<OfficialRole, Function<Group, String>> sessionRoleGetterMap() {
+		Map<OfficialRole, Function<Group, String>> map = new EnumMap<>(OfficialRole.class);
 
-	private void setAllRecords(boolean allRecords) {
-		// logger.debug("***** allRecords = {} {}", allRecords, LoggerUtils.whereFrom());
-		this.allRecords = allRecords;
+		map.put(OfficialRole.CENTER_REFEREE, Group::getReferee2);
+		map.put(OfficialRole.LEFT_REFEREE, Group::getReferee1);
+		map.put(OfficialRole.RIGHT_REFEREE, Group::getReferee3);
+		map.put(OfficialRole.TIMEKEEPER, Group::getTimeKeeper);
+		map.put(OfficialRole.TECHNICAL_CONTROLLER1, Group::getTechnicalController);
+		map.put(OfficialRole.TECHNICAL_CONTROLLER2, Group::getTechnicalController2);
+		map.put(OfficialRole.MARSHAL1, Group::getMarshall);
+		map.put(OfficialRole.MARSHAL2, Group::getMarshal2);
+		map.put(OfficialRole.JURY_PRESIDENT, Group::getJury1);
+		map.put(OfficialRole.JURY_A, Group::getJury2);
+		map.put(OfficialRole.JURY_B, Group::getJury3);
+		map.put(OfficialRole.JURY_C, Group::getJury4);
+		map.put(OfficialRole.JURY_D, Group::getJury5);
+		map.put(OfficialRole.ANNOUNCER, Group::getAnnouncer);
+		map.put(OfficialRole.COMPETITION_SECRETARY, Group::getCompetitionSecretary);
+		map.put(OfficialRole.COMPETITION_SECRETARY2, Group::getCompetitionSecretary2);
+		map.put(OfficialRole.COMPETITION_DIRECTOR, Group::getCompetitionDirector);
+
+		return map;
 	}
 
 }

@@ -95,7 +95,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			        dialog.open();
 		        });
 
-		var toAssignmentsWriter = new JXLSExportTechnicalOfficials(UI.getCurrent(), true, true);
+		var toAssignmentsWriter = new JXLSExportTechnicalOfficials(UI.getCurrent());
 		JXLSDownloader dd1 = new JXLSDownloader(
 		        () -> {
 			        return toAssignmentsWriter;

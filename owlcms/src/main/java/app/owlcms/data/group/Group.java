@@ -297,19 +297,36 @@ public class Group implements Comparable<Group> {
 	private String referee1;
 	private String referee2;
 	private String referee3;
+	public String getCompetitionSecretary() {
+		return competitionSecretary;
+	}
+	public void setCompetitionSecretary(String competitionSecretary) {
+		this.competitionSecretary = competitionSecretary;
+	}
+	public String getCompetitionSecretary2() {
+		return competitionSecretary2;
+	}
+	public void setCompetitionSecretary2(String competitionSecretary2) {
+		this.competitionSecretary2 = competitionSecretary2;
+	}
+
 	private String reserve;
 	private String technicalController;
 	private String technicalController2;
 	private String timeKeeper;
 	private String weighIn1;
 	private String weighIn2;
+	private String competitionDirector;
+	private String competitionSecretary;
+	private String competitionSecretary2;
 	private LocalDateTime weighInTime;
+
 	@Column(columnDefinition = "integer default null")
 	private Integer cleanJerkBreakDuration;
+
 	@Transient
 	@JsonIgnore
 	Pattern pattern = Pattern.compile("(\\d+)\\s+(\\w+)");
-
 	/**
 	 * Instantiates a new group.
 	 */
@@ -318,7 +335,6 @@ public class Group implements Comparable<Group> {
 		setHourFormatter(Locale.getDefault());
 		setDayFormatter(Locale.getDefault());
 	}
-
 	/**
 	 * Instantiates a new group.
 	 *
@@ -346,6 +362,14 @@ public class Group implements Comparable<Group> {
 		this.name = groupName;
 		this.setWeighInTime(weighin);
 		this.setCompetitionTime(competition);
+	}
+
+	public String getCompetitionDirector() {
+		return competitionDirector;
+	}
+
+	public void setCompetitionDirector(String competitionDirector) {
+		this.competitionDirector = competitionDirector;
 	}
 
 	/*
@@ -1209,38 +1233,6 @@ public class Group implements Comparable<Group> {
 		return getName();
 	}
 
-	DateTimeFormatter getDayFormatter() {
-		return this.dayFormatter;
-	}
-
-	DateTimeFormatter getHourFormatter() {
-		return this.hourFormatter;
-	}
-
-	void setDayFormatter(DateTimeFormatter dayFormatter) {
-		this.dayFormatter = dayFormatter;
-	}
-
-	void setHourFormatter(DateTimeFormatter hourFormatter) {
-		this.hourFormatter = hourFormatter;
-	}
-
-	private void setDayFormatter(Locale locale) {
-		setDayFormatter(DateTimeFormatter
-		        .ofLocalizedDate(FormatStyle.SHORT)
-		        .withLocale(locale));
-	}
-
-	private void setDone(boolean b) {
-		this.done = b;
-	}
-
-	private void setHourFormatter(Locale locale) {
-		setHourFormatter(DateTimeFormatter
-		        .ofLocalizedTime(FormatStyle.SHORT)
-		        .withLocale(locale));
-	}
-
 	public Integer getCleanJerkBreakDuration() {
 		return cleanJerkBreakDuration;
 	}
@@ -1292,5 +1284,37 @@ public class Group implements Comparable<Group> {
 	}
 
 	public void setCleanJerkBreakMinutes(int ignored) {
+	}
+
+	DateTimeFormatter getDayFormatter() {
+		return this.dayFormatter;
+	}
+
+	DateTimeFormatter getHourFormatter() {
+		return this.hourFormatter;
+	}
+
+	void setDayFormatter(DateTimeFormatter dayFormatter) {
+		this.dayFormatter = dayFormatter;
+	}
+
+	void setHourFormatter(DateTimeFormatter hourFormatter) {
+		this.hourFormatter = hourFormatter;
+	}
+
+	private void setDayFormatter(Locale locale) {
+		setDayFormatter(DateTimeFormatter
+		        .ofLocalizedDate(FormatStyle.SHORT)
+		        .withLocale(locale));
+	}
+
+	private void setDone(boolean b) {
+		this.done = b;
+	}
+
+	private void setHourFormatter(Locale locale) {
+		setHourFormatter(DateTimeFormatter
+		        .ofLocalizedTime(FormatStyle.SHORT)
+		        .withLocale(locale));
 	}
 }

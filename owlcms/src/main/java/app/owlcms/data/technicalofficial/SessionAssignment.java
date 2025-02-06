@@ -4,48 +4,42 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Cacheable;
 import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.group.Group;  // Fixed import
+import app.owlcms.data.group.Group; // Fixed import
 import app.owlcms.utils.IdUtils;
+import ch.qos.logback.classic.Logger;
 
-@Entity
-@Cacheable
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer" })
-public class GroupAssignment implements Serializable {
+// @Entity
+// @Cacheable
+// @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+// @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer" })
+public class SessionAssignment implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
     @Id
     private Long id;
-
     @ManyToOne(fetch = FetchType.EAGER)
     private TechnicalOfficial official;
-
     @ManyToOne(fetch = FetchType.EAGER)
     private Group group;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<OfficialRole> roles = new HashSet<>();
+    private Logger logger = (Logger) LoggerFactory.getLogger(SessionAssignment.class);
 
-    public GroupAssignment() {
+    public SessionAssignment() {
         setId(IdUtils.getTimeBasedId());
     }
 
-    public GroupAssignment(TechnicalOfficial official, Group group) {
+    public SessionAssignment(TechnicalOfficial official, Group group) {
         this();
         this.official = official;
         this.group = group;
@@ -75,8 +69,24 @@ public class GroupAssignment implements Serializable {
         this.group = group;
     }
 
+    public Group getSession() {
+        return group;
+    }
+
+    public void setSession(Group session) {
+        this.group = session;
+    }
+
     public Set<OfficialRole> getRoles() {
         return roles;
+    }
+
+    public String getRoleAsString() {
+        return roles.stream().findFirst().map(Object::toString).orElse("");
+    }
+
+    public void setRoleAsString(String unused) {
+        // no-op
     }
 
     public void setRoles(Set<OfficialRole> roles) {
@@ -93,9 +103,11 @@ public class GroupAssignment implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        GroupAssignment other = (GroupAssignment) obj;
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        SessionAssignment other = (SessionAssignment) obj;
         return getId() != null && getId().equals(other.getId());
     }
 
