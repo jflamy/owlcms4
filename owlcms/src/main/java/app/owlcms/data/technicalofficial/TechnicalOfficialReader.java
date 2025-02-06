@@ -44,7 +44,9 @@ public class TechnicalOfficialReader {
                     // Process data rows
                     for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                         Row row = sheet.getRow(i);
-                        if (row == null) continue;
+                        if (row == null) {
+                            break; // previously filled but now empty row
+                        }
                         
                         logger.trace("row[{}] {}", i, colIndices);
                         TechnicalOfficial official = readRow(row, colIndices);

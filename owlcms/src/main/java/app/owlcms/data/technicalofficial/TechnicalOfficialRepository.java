@@ -14,7 +14,6 @@ import javax.persistence.TypedQuery;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.jpa.JPAService;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
