@@ -14,11 +14,11 @@
 		<!--
         <module>publicresults-heroku</module>
         <module>owlcms-heroku</module>
+        <module>installtools</module>
+        <module>owlcms-windows</module>
+		<module>publicresults-windows</module>
          -->
 		<module>owlcms-docker</module>
-		<module>installtools</module>
-		<module>owlcms-windows</module>
-		<module>publicresults-windows</module>
 		<module>playwright</module>
 	</modules>
 
