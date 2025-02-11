@@ -33,7 +33,9 @@ public class SessionAssignment implements Serializable {
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<OfficialRole> roles = new HashSet<>();
-    private Logger logger = (Logger) LoggerFactory.getLogger(SessionAssignment.class);
+    
+    @SuppressWarnings("unused")
+	private Logger logger = (Logger) LoggerFactory.getLogger(SessionAssignment.class);
 
     public SessionAssignment() {
         setId(IdUtils.getTimeBasedId());

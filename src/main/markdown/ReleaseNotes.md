@@ -8,7 +8,8 @@
 
 **Maintenance Log**
 
-- 56.0.0 First release of Technical Official features in Prepare Competition.
+- 56.0.0-alpha01 Timing summary
+- 56.0.0-alpha00 Technical Officials can be listed on a page, with their IDs and federation
 
 **New In Release 56**
 
@@ -20,8 +21,12 @@
 
   - A summary report of who was assigned to what role including the total number of sessions per TO is also available.
 
+- Timing Summary
+  - Now use the rules for the Clean & Jerk break, as well as the overrides that were entered on each session
 
-  
+
+
+
 
 
 
