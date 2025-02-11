@@ -8,6 +8,7 @@
 
 **Maintenance Log**
 
+- 55.3.1: In case of a tie-break between identical totals or scores, the ranks were computed correctly but the results sheet did not always respect the tie-break order.
 - 55.3.0: Added a color picker to select the background color used when streaming the scoreboard and the attempt board.
 - 55.3.0: the files copied to the local directory were missing the definitions for Q-Points and Q-Masters (qpoints), Q-Youth (agefactors) and GAMX (gamx) .  These files are mostly there for reference.
 - 55.3.0: The custom score non-standard competition that allowed overriding the total on the athlete card with a new value was broken.
@@ -19,13 +20,17 @@
 
 **New In Release 55**
 
+- SBDE Export/Import
+
+  - The "invited/extra/out of competition" status is now included in the Start Book Data Entry (SBDE) file. Reminder: you can add any column from the SBDE format to your registration sheet if needed.
+
+  - The SBDE Import now is flexible -- you can remove and reorder columns.  However, you cannot change the column names from what is produced by the new template because it is the column names that control the import.  If the SBDE export template is included in a zip file, you need to replace it with the new `local/templates/registration/SBDE.xlsx` file that uses the translation file to create the headers in the local language.
+
 - New [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and startup instructions using the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) for updating, launching and stopping OWLCMS on a local computer.
 
 - Record definitions: The columns can now be reordered.  What matters is that the column header names in your match those in the documentation (see [Record File Format](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement?id=record-file-format)) -- upper and lowercase does not matter.  The columns marked as optional can now be deleted from the definitions if you wish.
 
 - When medals are awarded by score like (Q-Points/Q-Masters/Q-Youth/Sinclair/SMHF/etc,), the scores will be visible during the snatch. A feature toggle `noInterimScoresInResults` can be used so that the result sheets always show 0 is no total has been set.
-
-- The "invited/extra/out of competition" status is now included in the Start Book Data Entry (SBDE) file. Reminder: you can add any column from the SBDE format to your registration sheet if needed.
 
 - Inclusion of 2025 Youth body weight classes in the AgeGroups2025 age group template
 
@@ -51,7 +56,7 @@
   - The style can be changed back to `nogrid` on the System Settings > Customization page to get the black background styles identical to the on-site scoreboards.
 
   - There is now a color picker to override the default color for the scoreboard headers and attempt boards.
-  
+
 - Templates: a new _FlatFile.xlsx template is available for Competition Results.  It is meant for statistical analysis where headers for each category make reading the file difficult.
 
 - MQTT Messages: new messages `owlcms/fop/start` and `owlcms/fop/stop` when owlcms sends additional information about the athlete and the time remaining.  Used by the jury replays together with `owlcms/fop/refereeDecisions`.

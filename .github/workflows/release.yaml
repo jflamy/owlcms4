@@ -25,7 +25,7 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch }}
           fetch-depth: 1
-          persist-credentials: false # Disable credential persistence
+          persist-credentials: false
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
