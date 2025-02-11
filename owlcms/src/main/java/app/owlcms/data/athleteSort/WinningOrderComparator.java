@@ -95,7 +95,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		// bigger adjusted total comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
-	
+
 	public int compareAgeAdjustedTotalForDelta(Athlete lifter1, Athlete lifter2) {
 		Double lifter1Value = lifter1.getAgeAdjustedTotalForDelta();
 		Double lifter2Value = lifter2.getAgeAdjustedTotalForDelta();
@@ -334,16 +334,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 
 		compare = compareScore(lifter1, lifter2);
-		traceComparison("score", lifter1, lifter2, compare);
 		if (compare != 0) {
 			return -compare; // we want reverse order - smaller comes after
 		}
-
-		compare = compareTotal(lifter1, lifter2);
-		traceComparison("total", lifter1, lifter2, compare);
-		if (compare != 0) {
-			return -compare; // we want reverse order - smaller comes after
-		}
+		traceComparison("score", lifter1, lifter1.computedCategoryScore(), lifter2, lifter2.computedCategoryScore(), compare);
 
 		return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
 	}
@@ -616,28 +610,22 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	private int tieBreak(Athlete lifter1, Athlete lifter2, boolean bodyWeightTieBreak) {
 		int compare;
 
-		if (lifter1 != null && lifter2 != null && lifter1.getGroup() != lifter2.getGroup()) {
+		// if the athletes were not in the same session
+		if (lifter1 != null && lifter2 != null && !(lifter1.getGroup().getId().equals(lifter2.getGroup().getId()))) {
 			compare = compareBestCleanJerkTime(lifter1, lifter2);
-			traceComparison("tiebreak compareBestCleanJerkTime", lifter1, lifter2, compare);
+			traceComparison("tiebreak compareBestCleanJerkTime", lifter1, lifter1.getGroup(), lifter2, lifter2.getGroup(), compare);
 			if (compare != 0) {
 				// <0 means lifter1 earlier than lifter2
 				return compare; // earlier time means higher up in the ascending sort order
 			}
 		}
 
-		if (lifter1 != null && lifter2 != null && lifter1.getGroup() != lifter2.getGroup()) {
+		// earlier session wins (redundant given previous test)
+		if (lifter1 != null && lifter2 != null && !(lifter1.getGroup().getId().equals(lifter2.getGroup().getId()))) {
 			compare = compareCompetitionSessionTime(lifter1, lifter2);
 			traceComparison("tiebreak compareCompetitionSessionTime", lifter1, lifter2, compare);
 			if (compare != 0) {
 				return compare; // earlier group time wins
-			}
-		}
-
-		if (bodyWeightTieBreak) {
-			compare = compareBodyWeight(lifter1, lifter2);
-			traceComparison("tiebreak compareBodyWeight", lifter1, lifter2, compare);
-			if (compare != 0) {
-				return compare; // smaller Athlete wins
 			}
 		}
 
@@ -684,6 +672,12 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			logger./**/warn("{} {} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2,
 			        LoggerUtils.whereFrom(1));
 		}
+	}
+
+	@SuppressWarnings("unused")
+	private void doTraceComparison(String where, Athlete lifter1, Athlete lifter2, int compare) {
+		logger./**/warn("{} {} {} {} {}", where, lifter1, (compare < 0 ? "<" : (compare == 0 ? "=" : ">")), lifter2,
+		        LoggerUtils.whereFrom(1));
 	}
 
 }

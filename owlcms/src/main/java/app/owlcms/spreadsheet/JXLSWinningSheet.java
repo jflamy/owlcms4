@@ -62,15 +62,6 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				Ranking rankingOrder = Ranking.CATEGORY_SCORE;
-				// if (championship != null && sortedAthletes.size() > 0) {
-				// Athlete athlete = sortedAthletes.get(0);
-				// rankingOrder = athlete.getAgeGroup().getComputedScoringSystem();
-				// logger.debug("--- athlete {} scoring {}", athlete, rankingOrder);
-				// if (rankingOrder == null) {
-				// rankingOrder = Ranking.TOTAL;
-				// }
-				// }
-
 				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder, ORDER_BY_CATEGORIES);
 				return this.sortedAthletes;
 			} else {
