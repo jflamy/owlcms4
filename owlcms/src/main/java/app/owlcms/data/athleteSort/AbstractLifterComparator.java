@@ -49,11 +49,9 @@ public class AbstractLifterComparator {
 	}
 
 	public static void doTraceComparison(String where, Object o1, Object v1, Object o2, Object v2, int compare) {
-		// if (logger.isTraceEnabled()) {
 		logger./**/warn("{} {}={} {} {}={} {}", where, o1.toString(), v1, (compare < 0 ? " < " : (compare == 0 ? "=" : " > ")),
 		        o2.toString(), v2,
 		        LoggerUtils.whereFrom(1));
-		// }
 	}
 
 	public static void traceComparison(String where, Athlete lifter1, Object v1, Athlete lifter2, Object v2, int compare) {
@@ -883,8 +881,8 @@ public class AbstractLifterComparator {
 	}
 
 	int compareScore(Athlete lifter1, Athlete lifter2) {
-		Double lifter1Value = lifter1.getCategoryScore();
-		Double lifter2Value = lifter2.getCategoryScore();
+		Double lifter1Value = lifter1.computedCategoryScore();
+		Double lifter2Value = lifter2.computedCategoryScore();
 		final Double notScored = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notScored;
