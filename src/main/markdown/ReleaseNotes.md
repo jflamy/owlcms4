@@ -8,9 +8,9 @@
 
 **Change Log**
 
-- 56.0.0-alpha01 .xslm files are now visible in template lists
-- 56.0.0-alpha01 Include winning order fix from v55.
-- 56.0.0-alpha01 Timing summary
+- 56.0.0-alpha02 .xslm files are now visible in template lists
+- 56.0.0-alpha02 Include winning order fix from v55.
+- 56.0.0-alpha02 Timing summary
 - 56.0.0-alpha00 Technical Officials can be listed on a page, with their IDs and federation
 
 **New In Release 56**
