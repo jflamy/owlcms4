@@ -375,6 +375,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				payload.put("athleteName", currentAthlete.getFullName());
 				payload.put("liftType", liftType.toString());
 				payload.put("attemptNumber", attemptNumber);
+				payload.put("session",getFop().getGroup().getName());
 
 				String json;
 				try {
