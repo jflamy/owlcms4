@@ -8,7 +8,7 @@
 
 **Change Log**
 
-- 56.0.0-beta01 Additional information sent in the MQTT timer start messages.
+- 56.0.0-beta01 Current Session information is sent in the MQTT timer start messages.
 - 56.0.0-alpha02 .xslm files are now visible in template lists
 - 56.0.0-alpha02 Include winning order fix from v55.
 - 56.0.0-alpha02 Timing summary

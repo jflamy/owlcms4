@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       revision:
-        description: 'Revision for the release'
+        description: 'semver number for the release'
         required: true
-        default: '56.0.0-alpha02'
+        default: '56.0.0-beta01'
 
 env:
   REPO_OWNER: owlcms
