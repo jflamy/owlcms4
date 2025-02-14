@@ -2,12 +2,13 @@
 
 
 
-| Introducing the Owlcms Control Panel                         |
+| Installation and Update                                      |
 | ------------------------------------------------------------ |
-| **New and improved installation process for owlcms**.<br><br>All platforms now use the same installation process, using a "Control Panel" program.  The control panel handles installation and updates as well as starting and stopping owlcms.  It is available for Windows, macOS, RaspberryPi OS and Linux. It <br><br>**See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).**<br><br>The release area in this repository is now used to host the files that the control panel fetches. |
+| Since version 55, owlcms is installed and updated using the *owlcms control panel*. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).<br>The release area in this repository is now used to host the files that the control panel fetches. |
 
 **Change Log**
 
+- 56.0.0-beta01 Additional information sent in the MQTT timer start messages.
 - 56.0.0-alpha02 .xslm files are now visible in template lists
 - 56.0.0-alpha02 Include winning order fix from v55.
 - 56.0.0-alpha02 Timing summary
