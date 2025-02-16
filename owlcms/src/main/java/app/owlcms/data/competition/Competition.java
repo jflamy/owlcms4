@@ -167,6 +167,7 @@ public class Competition {
 	private String cardsTemplateFileName;
 	private String competitionCity;
 	private LocalDate competitionDate = null;
+	private LocalDate competitionEndDate = null;
 	private String competitionName;
 	private String competitionOrganizer;
 	private String competitionSite;
@@ -2047,6 +2048,14 @@ public class Competition {
 	
 	public void setMasters20kg(boolean masters20kg) {
 		this.masters20kg = masters20kg;
+	}
+
+	public LocalDate getCompetitionEndDate() {
+		return competitionEndDate;
+	}
+
+	public void setCompetitionEndDate(LocalDate competitionEndDate) {
+		this.competitionEndDate = competitionEndDate;
 	}
 
 }

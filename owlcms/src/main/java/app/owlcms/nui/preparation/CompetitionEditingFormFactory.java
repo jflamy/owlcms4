@@ -30,6 +30,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.shared.Tooltip;
@@ -258,9 +259,15 @@ public class CompetitionEditingFormFactory
 		        .bind(Competition::getCompetitionName, Competition::setCompetitionName);
 
 		DatePicker dateField = new DatePicker();
-		competitionLayout.addFormItem(dateField, Translator.translate("Competition.competitionDate"));
+		DatePicker endDateField = new DatePicker();
+		endDateField.setPlaceholder(Translator.translate("Competition.EndDate"));
+		endDateField.setHelperText(Translator.translate("Competition.LeaveEmpty"));
+		HorizontalLayout pickers = new HorizontalLayout(dateField, endDateField);
+		competitionLayout.addFormItem(pickers, Translator.translate("Competition.competitionDate"));
 		this.binder.forField(dateField)
 		        .bind(Competition::getCompetitionDate, Competition::setCompetitionDate);
+		this.binder.forField(endDateField)
+		        .bind(Competition::getCompetitionEndDate, Competition::setCompetitionEndDate);
 
 		TextField organizerField = new TextField();
 		organizerField.setWidthFull();
@@ -406,7 +413,7 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(enforce20kgRuleField, Translator.translate("Competition.enforce20kgRule"));
 		this.binder.forField(enforce20kgRuleField)
 		        .bind(Competition::isEnforce20kgRule, Competition::setEnforce20kgRule);
-		
+
 		Checkbox masters20kgField = new Checkbox();
 		layout.addFormItem(masters20kgField, Translator.translate("Competition.masters20kg"));
 		this.binder.forField(masters20kgField)
