@@ -121,10 +121,10 @@ For a record to be broken, in addition to meeting the age and bodyweight require
 
 For each record in the record definition Excel, there is a federation code.
 
-In the database, the athlete's registration record can optionnally have a list of federations under which they can break records.  
+In the database, the athlete's registration record can optionnally have a list of federations under which they can break records.
 
 - By default, the list is empty and athletes are eligible for the records from all the listed federations if they meet the age group, age and weight requirements.
-- If a list of federations (comma-separated) is given, the athletes are restricted to these federation records. 
+- If a list of federations (comma-separated) is given, the athletes are restricted to these federation records.
 
 ##### **Example 1:**
 
@@ -135,22 +135,3 @@ In the database, the athlete's registration record can optionnally have a list o
 ##### Example 2:
 
 - If, in a joint South American and PanAm championship, `SudAm` and `PanAm` records have been loaded, then South American athletes would have `SudAm,Panam` and all others (such as North American Athletes) would have only `PanAm` to determine who can break what record.
-
-|      |      |
-| ---- | ---- |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
-|      |      |
