@@ -9,6 +9,7 @@
 **Change Log**
 
 - 56.0.0-beta02: Competition end date
+- 56.0.0-beta02: Documentation for self-service jury replays added
 - 56.0.0-beta01 Current Session information is sent in the MQTT timer start messages.
 - 56.0.0-alpha02 .xslm files are now visible in template lists
 - 56.0.0-alpha02 Include winning order fix from v55.
@@ -30,7 +31,10 @@
   - Now use the rules for the Clean & Jerk break, as well as the overrides that were entered on each session
 - Templates 
   - `${competition.endDate}` is now available as a variable.
-  - templates with Excel macros can now be used:  `.xlsm` files are visible as templates.
+  - Templates with Excel macros can now be used:  `.xlsm` files are visible as templates.
+- Self-service Jury Replays
+  - The documentation for the self-service jury module is now included.
+
 
 
 For other recent changes, see [version 55.3 release notes](https://github.com/owlcms/owlcms4/releases/tag/54.3.0) and [version 54 release notes](https://github.com/owlcms/owlcms4/releases/tag/54.2.1)
