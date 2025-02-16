@@ -1,92 +1,142 @@
-# Replays Using OBS
+# Self-Service Jury Replays
 
-If you are streaming to Facebook or YouTube using OBS, you can replays for the Jury at the same time without additional equipment (and you can also play the replays to your stream)
+There is an auxiliary module to owlcms called `replays` that provides automatic recording of the lifts and makes them available to the jury.  Multiple cameras are supported. The lifts are automatically trimmed to start a little before the lift and stop after the decisions have been shown.  The jury can watch them using a regular browser, and the replays are organized by session and time (most recent first)
 
-The recipe shown here will work for as many USB ports as there are on the machine doing the streaming (typically 4)
+There needs to be one `replays` program running for each platform.   There are options to the replays program if you need to run several on the same computer.
 
-Equipment required:
+First we show how the program is used, then we provide the configuration instructions.
 
-- The OBS Laptop. It should have as many USB ports *on the computer* as you will plug USB cameras in. OBS requires that each camera be plugged in to a different USB port (you cannot use a hub.)  The OBS laptop is ideally a gaming laptop with multiple USB ports, an Ethernet port, and a GPU.
-- 1 to 4 USB Cameras -- this can be a WebCam, or a HDMI camera with a USB converter.
-- A Jury laptop for looking at the replays.
+### Using the Replay Program
 
-## Overview
+The replays program will normally locate owlcms.  So the first thing to do is to start owlcms and wait that it shows its home screen.
 
-OBS has a plugin called "Replay Source" that can memorize a certain duration of anything OBS can display, *independently of what is being streamed*.  We will setup the plugin as many times as we have cameras, each instance is independent of the others.
+> Reminder: You can click on each image to see it bigger.
 
-The workflow will be as follows
+***Announcer Screen***
 
-1. When the athlete enters the stage, we will use a hot key (**F6**) to reset the plugins.
-2. When the athlete is at the bar and about to start lifting, we will use a second hotkey (**F7**) to start recording the replay.  The same hotkey will trigger all the different plugins -- all the cameras will be recording.
-3. When the athlete has lowered the bar, we will use a third hotkey (**F8**) to end the replay.  All the plugins will write a file to disk containing the replay.
-4. Typically the athlete walks off the stage happy or disappointed, and we see the coaches' reaction.
-5. Then we show the replay, using a fourth hotkey (F9)
+The session has not been started yet, but owlcms is running.
 
-So the person in charge of the replays only has to perform the simple F6 - F7 - F8 sequence, plus F9 when appropriate to show the replay.
+![owlcms](nimg/4100replays/owlcms.png)
 
-For the jury to get access to the replays, we run a tiny Web server on the OBS laptop.  The jury laptop is connected to that server. Then one only has to click on the last files at the bottom of the list, the files are listed in chronological order.  Each camera is in a separate file.
+***Jury Screen***
 
-## OBS Setup
+For simplicity, we assume that the `replays` program runs on the jury laptop.  But `replays` can actually run anywhere -- wherever is most convenient for your camera or cameras.
 
-#### Installing the `Replay Source` plugin
+Once owlcms has started -- We show that the jury console and jury scoreboards are running.   So then we start the replays program.  If there is no address configured in the configuration file for owlcms, or if the address has changed, it will try to find owlcms -- it will show a "Scanning" message.  
 
-Using `obs project replay source plugin` in google should bring you to the correct page.  Use the `Download` button to locate the installer for your operating system.
+![scanning](nimg/4100replays/scanning.png)
 
-![05_Plugin](img/Replays/05_Plugin.png)
+After scanning, it will show "Ready", and you can click on "Open replay list in the browser"
 
-### Configuring the Replay Cameras
+![ready-open](nimg/4100replays/ready-open.png)
 
-There is nothing special about configuring the cameras -- in this example, we show 3 cameras being used.  In actual practice, you will probably use 1 for the front, one for a diagonal view, one for the coaches reaction.  Whatever works.
+Since we have not recorded anything at all, the web page that opens will be blank.  If you are running `replays` on a machine other than the jury because of your camera setup, you would use the URL shown at the top to open the page on the jury computer.
 
-For convenience, we create a scene with the cameras we make available to the jury.  In this setup we just use 3 webcams.
+![empty](nimg/4100replays/empty.png)
 
-![10_3cameras](img/Replays/10_3cameras.png)
+***Announcer Screen***
 
-### Configuring the Replay Scenes
+The announcer or timekeeper will start the time normally.  They have nothing special to do.
 
-This part is slightly counter-intuitive.  The configuration of how the plugin will record is actually done at the same place we define how the plugin will *play back*.  So for each of our cameras that we want to be able to replay, we define a scene to *show* the replay.
+![timerunning](nimg/4100replays/timerunning.png)
 
-If we have 3 cameras, we will do this 3 times.  This example is for Camera 2.
+***Jury Screen***
 
-We create a scene, and add an overlay text so we know which replay is playing.  We suggest using a name like `Show Replay Camera 2` for the scene, so it is easier to locate in later steps.
+The jury page will automatically switch to the current session and show that things are recording.  The recording page does NOT have to be visible, but if the screen is large enough you can make it visible at all times by dragging the tab to the side of the screen.
 
-![20_ReplayTxt](img/Replays/20_ReplayTxt.png)
+![recording](nimg/4100replays/recording.png)
 
-Then we add the actual replay. This is done by adding a "Replay Source" source to the scene. We select the Camera we want to record and replay, and the maximum length (15-20 seconds is ok).  We suggest using a name like `ReplayCamera2Source` to make it easier to locate in later steps.
+After the decision is made visible, the replay page will show that it is removing the dead time before the lift.
 
-![30_sourceCamera](img/Replays/30_sourceCamera.png)
+![trimming](nimg/4100replays/trimming.png)
 
-A little bit further down on the Replay Source configuration is the critical information for storing the replays
+And then the video is made available in the list.  Videos are grouped by session and shown in most recent order first.  The athlete, attempt and camera angle are clearly identified.
 
-![40_fileSave](img/Replays/40_fileSave.png)
+![replaysList](nimg/4100replays/replaysList.png)
 
-You must:
+To see a replay, one simply clicks on the video.  Whatever was in front of the camera during the time the clock ran is captured.  The video can be made full screen are looked again.  There is no slow-motion, but you can pause it.
 
-1. Select a directory where the files will be stored.  Somewhere under "Videos" is fine.
-2. IMPORTANT: at the end of the proposed Filename magic string, add `_CameraX` (where X is the camera number).  This will ensure that we know what camera took what view.
+![watchreplay](nimg/4100replays/watchreplay.png)
 
-### Configuring the Shortcut Hotkeys
+When the clock starts again, the recording/trimming/ready sequence starts again.
 
-OBS allows the same hotkey to trigger multiple actions.  It displays a yellow triangle when doing so, but that's exactly what we want.  To define the hotkeys, go to the the Settings/Hotkeys menu.
+![moreReplays](nimg/4100replays/moreReplays.png)
 
-1. Locate the scene that should be shown when the athlete is lifting.  We will define a **F6** Hotkey to go there and reset the replays.
-   ![50_HotKey_Reset](img/Replays/50_HotKey_Reset.png)
-2. Then we will define the hotkeys to deal with the replay.  We need to define how to start and save the recording for each camera.
-   Because of the ordering of items on the screen,  we define the hotkeys for saving first.  We scroll down in the list to find our `ReplayCamera2Source` source.  We define the **F8** key twice for each camera, to load the replay and save it.
+### Accessing the Videos
 
-![52_HotKey_Save](img/Replays/52_HotKey_Save.png)
+You can access the videos by using the File program
 
-Then we scroll one screenful down, and find the entries for resetting and starting the replay recording.  We define F6 and F7 for each camera in the same way.
+![openDirectory](nimg/4100replays/openDirectory.png)
 
-![52_HotKey_Save](img/Replays/53_HotKey_Enable.png)
+You will then see a folder called `videos` and inside, the videos for all the sessions are properly named.
 
-If we have multiple cameras we do the same thing for all the cameras (in our example, `ReplayCamera1Source` and `ReplayCamera3Source`)  We use the same hotkeys for all the jury cameras.
+![videosFolder](nimg/4100replays/videosFolder.png)
 
-### Making the Replays Available to the Jury
+### RaspberryPi: Configuration of the program
 
-The replays are recorded on the OBS laptop.  A very simple way to make the replays available to the jury is to install a simple web server.  For the purpose of this example, we installed https://simplewebserver.org/ on the OBS laptop, and made its default file folder the location where OBS saves the files.
+**Installation** 
 
-The files will be shown in ascending temporal order (more recent at the bottom). Simply refresh the view to get the latest files.   Because we added the suffix to the file name, we know which camera produced what.
+Download the program called `replays` (no `.exe`) from https://github.com/owlcms/replays/releases
 
-![60_ShowReplayOnStreaming](img/Replays/60_ShowReplayOnStreaming.png)
+Copy it to the Desktop where you want to use it
+
+**Configuration**
+
+There is nothing to do if you have only one device.  The `ffmpeg` program is already installed, and when you plug in a camera  the USB adapter will be on `/dev/video0`.
+If you have more than one camera, open the configuration directory, use the Text editor, and copy the section several as needed, using `/dev/video1` and so on for the additional cameras.
+
+### Windows : Configuration of the program
+
+**Installation** 
+
+Download the program called `replays.exe` (with `.exe`) from https://github.com/owlcms/replays/releases
+
+Copy it to the Desktop where you want to use it
+
+**Configuration**
+
+Windows requires
+
+- Installing the `ffmpeg` software to handle the recordings
+- Configuring the cameras.
+
+##### Installing Recording Software
+
+The first time around, you will need to install the `ffmpeg` program that is used to do the actual recordings. To do this, click on the start menu and type `cmd` or open a terminal window.  Type the command
+
+```
+winget ffmpeg
+```
+
+You will then see output similar to the following
+
+![ffmpegInstall](nimg/4100replays/ffmpegInstall.png)
+
+##### Camera Configuration
+
+Once ffmpeg is installed, you can figure out what your cameras are named according to Windows.  This is critical.  Type the following command:
+
+```
+ffmpeg -list_devices true -f dshow -i dummy -hide_banner
+```
+
+You will then get an output similar to this one, listing all your devices
+![list_dshow](nimg/4100replays/list_dshow.png)
+
+For our example, we will configure the camera called `Logitech Webcam C930e`
+
+Go back to the applications directory using the `Open Application Directory` menu.
+
+Find the `config.toml` file, that can be edited with Notepad
+![editToml](nimg/4100replays/editToml.png)
+
+Then edit the cameras to have exactly the name as in the ffmpeg output.   Locate the `[windows]` section.
+
+> Follow the carefully instructions for formatting -- include `video=` before the name, and enclose both inside `'` single quotes'
+
+![notepad](nimg/4100replays/notepad.png)
+
+If you have more than one camera, remove the `# ` in front of the `[windows2]` section and create more sections `[windows3]` if needed.
+
+Normally you don't need to change the other parameters.
 

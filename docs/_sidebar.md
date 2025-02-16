@@ -29,6 +29,7 @@
 * Refereeing
   * [Refereeing](Refereeing)
   * [Jury](Jury)
+  * [Jury Replays](JuryReplays)
 * Scoreboards and Results
   * [Scoreboards](Displays)
   * [Result Documents](ResultDocuments)
