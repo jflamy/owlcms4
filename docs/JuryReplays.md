@@ -78,6 +78,8 @@ You will then see a folder called `videos` and inside, the videos for all the se
 
 Download the program called `replays` (no `.exe`) from https://github.com/owlcms/replays/releases
 
+- Right-click on the program.  Set the execution permissions to "anyone"
+
 Copy it to the Desktop where you want to use it
 
 **Configuration**
