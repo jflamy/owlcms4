@@ -15,6 +15,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 public class TechnicalOfficialWriter {
@@ -35,7 +36,28 @@ public class TechnicalOfficialWriter {
             String[] headers = {"LastName", "FirstName", "Level", "IWFId", "Federation", "FederationId"};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
+                switch (headers[i]) {
+                    case "LastName":
+                        cell.setCellValue(Translator.translate("LastName"));
+                        break;
+                    case "FirstName":
+                        cell.setCellValue(Translator.translate("FirstName"));
+                        break;
+                    case "Level":
+                        cell.setCellValue(Translator.translate("TechnicalOfficials.Level"));
+                        break;
+                    case "IWFId":
+                        cell.setCellValue(Translator.translate("TechnicalOfficials.IWFId"));
+                        break;
+                    case "Federation":
+                        cell.setCellValue(Translator.translate("TechnicalOfficials.Federation"));
+                        break;
+                    case "FederationId":
+                        cell.setCellValue(Translator.translate("TechnicalOfficials.FederationId"));
+                        break;
+                    default:
+                        cell.setCellValue(headers[i]);
+                }
                 cell.setCellStyle(headerStyle);
             }
 
@@ -46,7 +68,7 @@ public class TechnicalOfficialWriter {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(official.getLastName() != null ? official.getLastName() : "");
                 row.createCell(1).setCellValue(official.getFirstName() != null ? official.getFirstName() : "");
-                row.createCell(2).setCellValue(official.getLevel() != null ? official.getLevel().toString() : "");
+                row.createCell(2).setCellValue(official.getLevel() != null ? Translator.translate("TOLevel."+official.getLevel().toString()) : "");
                 row.createCell(3).setCellValue(official.getIwfId() != null ? official.getIwfId() : "");
                 row.createCell(4).setCellValue(official.getFederation() != null ? official.getFederation() : "");
                 row.createCell(5).setCellValue(official.getFederationId() != null ? official.getFederationId() : "");
