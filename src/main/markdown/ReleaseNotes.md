@@ -4,10 +4,11 @@
 
 | Installation and Update                                      |
 | ------------------------------------------------------------ |
-| Since version 55, owlcms is installed and updated using the *owlcms control panel*. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md).<br>The release area in this repository is now used to host the files that the control panel fetches. |
+| Since version 55, owlcms is installed and updated using the *owlcms control panel*. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md). |
 
 **Change Log**
 
+- 56.0.0-beta03: Translation of Technical Official exports/imports
 - 56.0.0-beta02: Competition end date
 - 56.0.0-beta02: Documentation for self-service jury replays added
 - 56.0.0-beta01 Current Session information is sent in the MQTT timer start messages.
@@ -20,12 +21,10 @@
 
 - Competition Information
   - The competition end date can be captured.
-
 - Technical Officials
-  - New button on Prepare Competition to define the list.  Import and Export from Excel are supported
-
+  - A new button is available on Prepare Competition to define a list of TOs.
+  - Import and Export from Excel are supported. Table headers and TO Levels are translated to the current language. It is always possible to Import an English file.
   - The Assignment of Officials on the Session page now allows to pick from the list (the choices are auto-completed as you type)
-
   - A summary report of who was assigned to what role including the total number of sessions per TO is also available.
 - Timing Summary
   - Now use the rules for the Clean & Jerk break, as well as the overrides that were entered on each session

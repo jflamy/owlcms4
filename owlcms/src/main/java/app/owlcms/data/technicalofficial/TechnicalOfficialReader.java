@@ -77,59 +77,89 @@ public class TechnicalOfficialReader {
 
     private int[] findColumnIndices(Row headerRow) {
         int[] indices = new int[6];  // One for each field
-        Map<String, Integer> headerMap = new HashMap<>();
+        Map<String, String> headerMap = new HashMap<>();
+        
+        // Map constants to themselves
+        headerMap.put(LAST_NAME, LAST_NAME);
+        headerMap.put(FIRST_NAME, FIRST_NAME);
+        headerMap.put(LEVEL, LEVEL);
+        headerMap.put(IWF_ID, IWF_ID);
+        headerMap.put(FEDERATION, FEDERATION);
+        headerMap.put(FEDERATION_ID, FEDERATION_ID);
+        
+        // Map English translations to constants
+        headerMap.put(Translator.translate("TechnicalOfficial.LastName", Locale.ENGLISH), LAST_NAME);
+        headerMap.put(Translator.translate("TechnicalOfficial.FirstName", Locale.ENGLISH), FIRST_NAME);
+        headerMap.put(Translator.translate("TechnicalOfficial.Level", Locale.ENGLISH), LEVEL);
+        headerMap.put(Translator.translate("TechnicalOfficial.IWFId", Locale.ENGLISH), IWF_ID);
+        headerMap.put(Translator.translate("TechnicalOfficial.Federation", Locale.ENGLISH), FEDERATION);
+        headerMap.put(Translator.translate("TechnicalOfficial.FederationId", Locale.ENGLISH), FEDERATION_ID);
+        
+        // Map local translations to constants
+        headerMap.put(Translator.translate("TechnicalOfficial.LastName"), LAST_NAME);
+        headerMap.put(Translator.translate("TechnicalOfficial.FirstName"), FIRST_NAME);
+        headerMap.put(Translator.translate("TechnicalOfficial.Level"), LEVEL);
+        headerMap.put(Translator.translate("TechnicalOfficial.IWFId"), IWF_ID);
+        headerMap.put(Translator.translate("TechnicalOfficial.Federation"), FEDERATION);
+        headerMap.put(Translator.translate("TechnicalOfficial.FederationId"), FEDERATION_ID);
         
         for (Cell cell : headerRow) {
             String header = cell.getStringCellValue().trim();
             int colIndex = cell.getColumnIndex();
-
-            headerMap.put(header, colIndex);
-
-            String englishHeader = Translator.translate("TechnicalOfficial."+header, Locale.ENGLISH);
-            headerMap.put(englishHeader, colIndex);
             
-            String translatedHeader = Translator.translate("TechnicalOfficial."+header);
-            headerMap.put(translatedHeader, colIndex);
+            String constant = headerMap.get(header);
+            if (constant != null) {
+                switch (constant) {
+                    case LAST_NAME:
+                        indices[0] = colIndex;
+                        break;
+                    case FIRST_NAME:
+                        indices[1] = colIndex;
+                        break;
+                    case LEVEL:
+                        indices[2] = colIndex;
+                        break;
+                    case IWF_ID:
+                        indices[3] = colIndex;
+                        break;
+                    case FEDERATION:
+                        indices[4] = colIndex;
+                        break;
+                    case FEDERATION_ID:
+                        indices[5] = colIndex;
+                        break;
+                }
+            }
         }
-        
-        indices[0] = headerMap.getOrDefault(LAST_NAME, -1);
-        indices[1] = headerMap.getOrDefault(FIRST_NAME, -1);
-        indices[2] = headerMap.getOrDefault(LEVEL, -1);
-        indices[3] = headerMap.getOrDefault(IWF_ID, -1);
-        indices[4] = headerMap.getOrDefault(FEDERATION, -1);
-        indices[5] = headerMap.getOrDefault(FEDERATION_ID, -1);
         
         return indices;
     }
 
     private TechnicalOfficial readRow(Row row, int[] colIndices) {
-        Cell currentCell = null;
         try {
-            currentCell = row.getCell(colIndices[0]);
+            Cell currentCell = colIndices[0] >= 0 ? row.getCell(colIndices[0]) : null;
             if (isEmptyCell(currentCell)) {
                 return null;
             }
-            String lastName = getCellValueAsString(currentCell);
-            
-            currentCell = row.getCell(colIndices[1]);
-            String firstName = getCellValueAsString(currentCell);
-            
-            currentCell = row.getCell(colIndices[2]);
-            String levelStr = getCellValueAsString(currentCell);
-            TOLevel level = (levelStr != null && !levelStr.isBlank() ? TOLevel.valueOf(levelStr) : null);
-            
-            currentCell = row.getCell(colIndices[3]);
-            String iwfId = getCellValueAsString(currentCell);
-            
-            currentCell = row.getCell(colIndices[4]);
-            String federation = getCellValueAsString(currentCell);
-            
-            currentCell = row.getCell(colIndices[5]);
-            String federationId = getCellValueAsString(currentCell);
-            
+            String lastName = colIndices[0] >= 0 ? getCellValueAsString(currentCell) : "";
+
+            String firstName = colIndices[1] >= 0 ? getCellValueAsString(row.getCell(colIndices[1])) : "";
+
+            String levelStr = colIndices[2] >= 0 ? getCellValueAsString(row.getCell(colIndices[2])) : "";
+            TOLevel level = null;
+            if (levelStr != null && !levelStr.isBlank()) {
+                level = findEnumValueForTranslatedTOLevel(levelStr);
+            }
+
+            String iwfId = colIndices[3] >= 0 ? getCellValueAsString(row.getCell(colIndices[3])) : "";
+
+            String federation = colIndices[4] >= 0 ? getCellValueAsString(row.getCell(colIndices[4])) : "";
+
+            String federationId = colIndices[5] >= 0 ? getCellValueAsString(row.getCell(colIndices[5])) : "";
+
             return new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId);
         } catch(Exception e) {
-            throw new IllegalArgumentException("Error processing cell " + getCellAddress(currentCell) + ": " + e.getMessage(), e);
+            throw new IllegalArgumentException("Error processing cell: " + e.getMessage(), e);
         }
     }
 
@@ -164,5 +194,16 @@ public class TechnicalOfficialReader {
             default:
                 return "";
         }
+    }
+
+    private TOLevel findEnumValueForTranslatedTOLevel(String levelStr) {
+        for (TOLevel level : TOLevel.values()) {
+            if (levelStr.equals(level.name()) ||
+                levelStr.equals(Translator.translate("TOLevel." + level.name())) ||
+                levelStr.equals(Translator.translate("TOLevel." + level.name(), Locale.ENGLISH))) {
+                return level;
+            }
+        }
+        throw new IllegalArgumentException("Unknown level: " + levelStr);
     }
 }
