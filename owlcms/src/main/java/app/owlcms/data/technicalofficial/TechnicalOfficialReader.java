@@ -103,7 +103,7 @@ public class TechnicalOfficialReader {
             
             currentCell = row.getCell(colIndices[2]);
             String levelStr = getCellValueAsString(currentCell);
-            TOLevel level = TOLevel.valueOf(levelStr);
+            TOLevel level = (levelStr != null && !levelStr.isBlank() ? TOLevel.valueOf(levelStr) : null);
             
             currentCell = row.getCell(colIndices[3]);
             String iwfId = getCellValueAsString(currentCell);
