@@ -57,8 +57,7 @@ public class TechnicalOfficialReader {
                             }
                         } catch (IllegalArgumentException ex) {
                             // Append exception details
-                            errors.append("Row " + (row.getRowNum()+1) + ": " + ex.getMessage() + "\n")
-                                  .append(ex.toString()).append("\n");
+                            errors.append(ex.getMessage()).append("\n");
                         } catch (Exception ex) {
                             errors.append("Error processing row " + (i + 1) + ": " + ex.getMessage() + "\n")
                                   .append(ex.toString()).append("\n");
@@ -79,7 +78,7 @@ public class TechnicalOfficialReader {
         int[] indices = new int[6];  // One for each field
         Map<String, String> headerMap = new HashMap<>();
         
-        // Map constants to themselves
+        // Map constants to themselves (legacy support)
         headerMap.put(LAST_NAME, LAST_NAME);
         headerMap.put(FIRST_NAME, FIRST_NAME);
         headerMap.put(LEVEL, LEVEL);
@@ -87,7 +86,7 @@ public class TechnicalOfficialReader {
         headerMap.put(FEDERATION, FEDERATION);
         headerMap.put(FEDERATION_ID, FEDERATION_ID);
         
-        // Map English translations to constants
+        // Map English translations to constants (always accept English)
         headerMap.put(Translator.translate("TechnicalOfficial.LastName", Locale.ENGLISH), LAST_NAME);
         headerMap.put(Translator.translate("TechnicalOfficial.FirstName", Locale.ENGLISH), FIRST_NAME);
         headerMap.put(Translator.translate("TechnicalOfficial.Level", Locale.ENGLISH), LEVEL);
@@ -136,30 +135,25 @@ public class TechnicalOfficialReader {
     }
 
     private TechnicalOfficial readRow(Row row, int[] colIndices) {
+        Cell currentCell = colIndices[0] >= 0 ? row.getCell(colIndices[0]) : null;
         try {
-            Cell currentCell = colIndices[0] >= 0 ? row.getCell(colIndices[0]) : null;
             if (isEmptyCell(currentCell)) {
                 return null;
             }
             String lastName = colIndices[0] >= 0 ? getCellValueAsString(currentCell) : "";
-
             String firstName = colIndices[1] >= 0 ? getCellValueAsString(row.getCell(colIndices[1])) : "";
-
             String levelStr = colIndices[2] >= 0 ? getCellValueAsString(row.getCell(colIndices[2])) : "";
             TOLevel level = null;
             if (levelStr != null && !levelStr.isBlank()) {
                 level = findEnumValueForTranslatedTOLevel(levelStr);
             }
-
             String iwfId = colIndices[3] >= 0 ? getCellValueAsString(row.getCell(colIndices[3])) : "";
-
             String federation = colIndices[4] >= 0 ? getCellValueAsString(row.getCell(colIndices[4])) : "";
-
             String federationId = colIndices[5] >= 0 ? getCellValueAsString(row.getCell(colIndices[5])) : "";
 
             return new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId);
         } catch(Exception e) {
-            throw new IllegalArgumentException("Error processing cell: " + e.getMessage(), e);
+            throw new IllegalArgumentException("Error processing cell "+ getCellAddress(currentCell) + ": " + e.getMessage());
         }
     }
 
@@ -173,7 +167,7 @@ public class TechnicalOfficialReader {
             col = (col / 26) - 1;
         }
         int rowNum = cell.getRowIndex() + 1; // Excel rows are 1-indexed
-        return colLetter.toString() + "-" + rowNum;
+        return colLetter.toString() + rowNum;
     }
 
     private boolean isEmptyCell(Cell cell) {

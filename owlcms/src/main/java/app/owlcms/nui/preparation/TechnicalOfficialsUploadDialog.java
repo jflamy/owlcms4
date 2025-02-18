@@ -32,6 +32,7 @@ public class TechnicalOfficialsUploadDialog extends Dialog {
 
         errorArea.setReadOnly(true);
         errorArea.setVisible(false);
+        errorArea.setWidth("100%");
 
         upload.addSucceededListener(e -> {
             try {
