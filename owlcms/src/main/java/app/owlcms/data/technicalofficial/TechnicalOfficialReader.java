@@ -3,7 +3,10 @@ package app.owlcms.data.technicalofficial;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -14,6 +17,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 public class TechnicalOfficialReader {
@@ -73,19 +77,28 @@ public class TechnicalOfficialReader {
 
     private int[] findColumnIndices(Row headerRow) {
         int[] indices = new int[6];  // One for each field
+        Map<String, Integer> headerMap = new HashMap<>();
+        
         for (Cell cell : headerRow) {
             String header = cell.getStringCellValue().trim();
             int colIndex = cell.getColumnIndex();
+
+            headerMap.put(header, colIndex);
+
+            String englishHeader = Translator.translate("TechnicalOfficial."+header, Locale.ENGLISH);
+            headerMap.put(englishHeader, colIndex);
             
-            switch (header) {
-                case LAST_NAME: indices[0] = colIndex; break;
-                case FIRST_NAME: indices[1] = colIndex; break;
-                case LEVEL: indices[2] = colIndex; break;
-                case IWF_ID: indices[3] = colIndex; break;
-                case FEDERATION: indices[4] = colIndex; break;
-                case FEDERATION_ID: indices[5] = colIndex; break;
-            }
+            String translatedHeader = Translator.translate("TechnicalOfficial."+header);
+            headerMap.put(translatedHeader, colIndex);
         }
+        
+        indices[0] = headerMap.getOrDefault(LAST_NAME, -1);
+        indices[1] = headerMap.getOrDefault(FIRST_NAME, -1);
+        indices[2] = headerMap.getOrDefault(LEVEL, -1);
+        indices[3] = headerMap.getOrDefault(IWF_ID, -1);
+        indices[4] = headerMap.getOrDefault(FEDERATION, -1);
+        indices[5] = headerMap.getOrDefault(FEDERATION_ID, -1);
+        
         return indices;
     }
 
