@@ -8,7 +8,7 @@
 
 **Change Log**
 
-- 56.0.0-beta03: Translation of Technical Official exports/imports
+- 56.0.0-beta03: Importing and Exporting of Technical Officials now uses local language for headers and TO levels.
 - 56.0.0-beta02: Competition end date
 - 56.0.0-beta02: Documentation for self-service jury replays added
 - 56.0.0-beta01 Current Session information is sent in the MQTT timer start messages.
@@ -23,7 +23,7 @@
   - The competition end date can be captured.
 - Technical Officials
   - A new button is available on Prepare Competition to define a list of TOs.
-  - Import and Export from Excel are supported. Table headers and TO Levels are translated to the current language. It is always possible to Import an English file.
+  - Import and Export from Excel are supported. Table headers and TO Levels are translated to the current language. It is always possible to import a file exported in English.
   - The Assignment of Officials on the Session page now allows to pick from the list (the choices are auto-completed as you type)
   - A summary report of who was assigned to what role including the total number of sessions per TO is also available.
 - Timing Summary
