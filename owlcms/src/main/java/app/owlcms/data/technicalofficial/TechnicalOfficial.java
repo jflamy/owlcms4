@@ -52,7 +52,7 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	}
 
 	/**
-	 * Instantiates a new platform. Used for import, no default values.
+	 * Instantiates a new TO. Used for import, no default values.
 	 */
 	public TechnicalOfficial() {
 		setId(IdUtils.getTimeBasedId());

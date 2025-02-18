@@ -42,6 +42,8 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
+import app.owlcms.data.technicalofficial.TechnicalOfficial;
+import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.LoggerUtils;
@@ -60,6 +62,7 @@ public class CompetitionData {
 	private List<Platform> platforms;
 	private List<RecordEvent> records;
 	private RecordConfig recordConfig;
+	private List<TechnicalOfficial> technicalOfficials;
 
 	public CompetitionData() {
 	}
@@ -151,6 +154,7 @@ public class CompetitionData {
 		setCompetitionForExport(Competition.getCurrent());
 		setRecords(RecordRepository.findAll());
 		setRecordConfig(RecordConfig.getCurrent());
+		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
 		return this;
 	}
 
@@ -387,5 +391,13 @@ public class CompetitionData {
 	 */
 	private void setConfigForExport(Config config) {
 		this.config = config;
+	}
+
+	public List<TechnicalOfficial> getTechnicalOfficials() {
+		return technicalOfficials;
+	}
+
+	public void setTechnicalOfficials(List<TechnicalOfficial> technicalOfficials) {
+		this.technicalOfficials = technicalOfficials;
 	}
 }
