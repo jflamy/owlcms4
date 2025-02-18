@@ -2,6 +2,7 @@ package app.owlcms.nui.preparation;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.XLSXWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
 
@@ -39,17 +41,39 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
             String[] headers = {"LastName", "FirstName", "Level", "IWFId", "Federation", "FederationId"};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
+                switch (headers[i]) {
+                    case "LastName":
+                        cell.setCellValue(Translator.translate("TechnicalOfficial.LastName"));
+                        break;
+                    case "FirstName":
+                        cell.setCellValue(Translator.translate("TechnicalOfficial.FirstName"));
+                        break;
+                    case "Level":
+                        cell.setCellValue(Translator.translate("TechnicalOfficial.Level"));
+                        break;
+                    case "IWFId":
+                        cell.setCellValue(Translator.translate("TechnicalOfficial.IWFId"));
+                        break;
+                    case "Federation":
+                        cell.setCellValue(Translator.translate("TechnicalOfficial.Federation"));
+                        break;
+                    case "FederationId":
+                        cell.setCellValue(Translator.translate("TechnicalOfficial.FederationId"));
+                        break;
+                    default:
+                        cell.setCellValue(headers[i]);
+                }
                 cell.setCellStyle(headerStyle);
             }
 
             // Add data rows
+            List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
             int rowNum = 1;
-            for (TechnicalOfficial official : TechnicalOfficialRepository.findAll()) {
+            for (TechnicalOfficial official : officials) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(official.getLastName() != null ? official.getLastName() : "");
                 row.createCell(1).setCellValue(official.getFirstName() != null ? official.getFirstName() : "");
-                row.createCell(2).setCellValue(official.getLevel() != null ? official.getLevel().toString() : "");
+                row.createCell(2).setCellValue(official.getLevel() != null ? Translator.translate("TOLevel."+official.getLevel().toString()) : "");
                 row.createCell(3).setCellValue(official.getIwfId() != null ? official.getIwfId() : "");
                 row.createCell(4).setCellValue(official.getFederation() != null ? official.getFederation() : "");
                 row.createCell(5).setCellValue(official.getFederationId() != null ? official.getFederationId() : "");
