@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [  
+        {
+            "type": "java",
+            "name": "Launch owlcms",
+            "request": "launch",
+            "mainClass": "app.owlcms.Main",
+            "projectName": "owlcms",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition-XX:HotswapAgent=fatjar",
+            "env":{"OWLCMS_MEMORYMODE": "false", "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO"},
+        },
+        {
+            "type": "java",
+            "name": "Launch publicresults",
+            "request": "launch",
+            "mainClass": "app.owlcms.publicresults.Main",
+            "projectName": "publicresults",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+            "env":{"OWLCMS_PORT": "8082", "OWLCMS_UPDATEKEY":"mapetitevacheamalauxpattes"}
+        },    
+        {
+            "type": "java",
+            "name": "Lauch - Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar"
+        }
+
+    ]
+}

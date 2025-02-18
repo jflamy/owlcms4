@@ -10,7 +10,7 @@
             "request": "launch",
             "mainClass": "app.owlcms.Main",
             "projectName": "owlcms",
-            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml",
             "env":{"OWLCMS_MEMORYMODE": "false", "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO"},
         },
         {
@@ -19,15 +19,8 @@
             "request": "launch",
             "mainClass": "app.owlcms.publicresults.Main",
             "projectName": "publicresults",
-            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition  -XX:HotswapAgent=fatjar",
+            "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml",
             "env":{"OWLCMS_PORT": "8082", "OWLCMS_UPDATEKEY":"mapetitevacheamalauxpattes"}
-        },    
-        {
-            "name": "Launch GO file",
-            "type": "go",
-            "request": "launch",
-            "mode": "debug",
-            "program": "${file}"
         },
         {
             "type": "java",
