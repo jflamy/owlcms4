@@ -247,6 +247,11 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		}
 
 		private void postFopTimeEvents(String topic, String messageStr) {
+			int index = messageStr.indexOf(' ');
+			if (index > 0) {
+				// ignore second part
+				messageStr = messageStr.substring(0, index);
+			}
 			messageStr = messageStr.trim();
 			if (messageStr.equalsIgnoreCase("start")) {
 				MQTTMonitor.this.getFop().fopEventPost(new FOPEvent.TimeStarted(this));
@@ -423,6 +428,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			payload.put("athleteName", currentAthlete.getFullName());
 			payload.put("liftType", liftType.toString());
 			payload.put("attemptNumber", attemptNumber);
+			payload.put("session", getFop().getGroup().getName());
 
 			String json;
 			try {
@@ -430,6 +436,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			} catch (JsonProcessingException e) {
 				json = "";
 			}
+			logger.warn("starting clock");
 			this.client.publish("owlcms/clock/" + this.getFop().getName(),
 			        new MqttMessage(("start " + json).getBytes(StandardCharsets.UTF_8)));
 		} else {

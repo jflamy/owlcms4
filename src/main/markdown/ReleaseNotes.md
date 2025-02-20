@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 56.0.0-beta04: Extra information sent to drive jury replays was confusing the competition simulator.
 - 56.0.0-beta03: Importing and Exporting of Technical Officials now uses local language for headers and TO levels.
 - 56.0.0-beta02: Competition end date
 - 56.0.0-beta02: Documentation for self-service jury replays added
