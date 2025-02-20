@@ -6,7 +6,7 @@ on:
       revision:
         description: 'semver number for the release'
         required: true
-        default: '56.0.0-beta03'
+        default: '56.0.0-beta04'
 
 env:
   REPO_OWNER: owlcms
