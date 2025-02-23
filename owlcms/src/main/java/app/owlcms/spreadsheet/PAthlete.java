@@ -223,6 +223,22 @@ public class PAthlete extends Athlete implements IRankHolder {
 	public Double getCategoryScoreForDelta() {
 		return this.a.getCategoryScoreForDelta();
 	}
+	
+	@Override
+	public void setCategoryScoreForDelta(Double ignored) {
+		// ignored, necessary for bean introspection
+	}
+	
+	@Override
+	public Double getCategoryScore() {
+		Double categoryScore = this.a.getCategoryScore();
+		return categoryScore;
+	}
+
+	@Override
+	public void setCategoryScore(Double ignored) {
+		// ignored, necessary for bean introspection
+	}
 
 	@Override
 	public int getCategoryScoreRank() {

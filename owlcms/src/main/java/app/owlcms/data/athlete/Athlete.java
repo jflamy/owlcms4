@@ -559,7 +559,7 @@ public class Athlete {
 			return 0.0;
 		}
 		Ranking scoringSystem = ageGroup.getComputedScoringSystem();
-		// logger.debug("{} {} {}", this.getLastName(), scoringSystem, Ranking.getRankingValue(this, scoringSystem));
+		logger.warn("****** {} {} {}", this.getLastName(), scoringSystem, Ranking.getRankingValue(this, scoringSystem));
 		if (scoringSystem != null) {
 			return Ranking.getRankingValue(this, scoringSystem);
 		} else {
@@ -1209,7 +1209,11 @@ public class Athlete {
 	}
 
 	public int getCategoryScoreRank() {
-		return (getMainRankings() != null ? getMainRankings().getCategoryScoreRank() : -1);
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+			return 0;
+		} else {
+			return (getMainRankings() != null ? getMainRankings().getCategoryScoreRank() : -1);
+		}
 	}
 
 
@@ -5759,7 +5763,19 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCategoryScore() {
-		return getTotal() == 0 ? getCategoryScoreForDelta() : 0.0D;
+		double d;
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+			d = (getTotal() > 0) ? getCategoryScoreForDelta() : 0.0D;
+		} else {
+			d = getCategoryScoreForDelta();
+		}
+		return d;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public void setCategoryScore(Double ignored) {
+		// ignored, necessary for bean introspection
 	}
 	
 	@Transient
@@ -5768,11 +5784,17 @@ public class Athlete {
 		Double computedScore = computedCategoryScore();
 		return computedScore;
 	}
+	
+	@Transient
+	@JsonIgnore
+	public void setCategoryScoreForDelta(Double ignored) {
+		// ignored, necessary for bean introspection
+	}
 
 	@Transient
 	@JsonIgnore
 	public Double getCategorySinclair() {
-		return getTotal() == 0 ? getCategorySinclairForDelta() : 0.0D;
+		return (getTotal() > 0.0) ? getCategorySinclairForDelta() : 0.0D;
 	}
 	
 	/**
