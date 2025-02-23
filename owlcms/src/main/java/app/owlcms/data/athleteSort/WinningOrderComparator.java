@@ -611,7 +611,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		int compare;
 
 		// if the athletes were not in the same session
-		if (lifter1 != null && lifter2 != null && !(lifter1.getGroup().getId().equals(lifter2.getGroup().getId()))) {
+		if (lifter1 != null && lifter2 != null && !sameGroup(lifter1, lifter2)) {
 			compare = compareBestCleanJerkTime(lifter1, lifter2);
 			traceComparison("tiebreak compareBestCleanJerkTime", lifter1, lifter1.getGroup(), lifter2, lifter2.getGroup(), compare);
 			if (compare != 0) {
@@ -621,7 +621,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 
 		// earlier session wins (redundant given previous test)
-		if (lifter1 != null && lifter2 != null && !(lifter1.getGroup().getId().equals(lifter2.getGroup().getId()))) {
+		if (lifter1 != null && lifter2 != null && !sameGroup(lifter1, lifter2)) {
 			compare = compareCompetitionSessionTime(lifter1, lifter2);
 			traceComparison("tiebreak compareCompetitionSessionTime", lifter1, lifter2, compare);
 			if (compare != 0) {
@@ -665,6 +665,15 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		compare = ObjectUtils.compare(lifter1.getId(), lifter2.getId());
 		return compare;
 
+	}
+
+	public boolean sameGroup(Athlete lifter1, Athlete lifter2) {
+		var g1 = lifter1.getGroup();
+		var g2 = lifter2.getGroup();
+		if (g1 == null || g2 == null) {
+			return false;
+		}
+		return g1.equals(g2);
 	}
 
 	private void traceComparison(String where, Athlete lifter1, Athlete lifter2, int compare) {
