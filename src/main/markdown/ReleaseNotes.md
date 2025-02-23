@@ -8,6 +8,8 @@
 
 **Change Log**
 
+- 56.0.0-rc01: Top Score (Top Sinclair) scoreboard would require a manual refresh when switching groups
+- 56.0.0-rc01: fixed inverted test for showing interim scores without totals during score-based medal session (and on corresponding scores spreadsheet)
 - 56.0.0-beta04: Extra information sent to drive jury replays was confusing the competition simulator.
 - 56.0.0-beta03: Importing and Exporting of Technical Officials now uses local language for headers and TO levels.
 - 56.0.0-beta02: Competition end date
