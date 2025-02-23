@@ -559,7 +559,6 @@ public class Athlete {
 			return 0.0;
 		}
 		Ranking scoringSystem = ageGroup.getComputedScoringSystem();
-		logger.warn("****** {} {} {}", this.getLastName(), scoringSystem, Ranking.getRankingValue(this, scoringSystem));
 		if (scoringSystem != null) {
 			return Ranking.getRankingValue(this, scoringSystem);
 		} else {

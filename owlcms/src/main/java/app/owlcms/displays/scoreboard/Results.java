@@ -1078,10 +1078,6 @@ public class Results extends LitTemplate
 		getElement().setProperty("showLiftRanks",
 		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
 		getElement().setProperty("showTotalRank", !Competition.getCurrent().isSinclair());
-		// getElement().setProperty("showSinclair",
-		// Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScores());
-		// getElement().setProperty("showSinclairRank",
-		// Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScoreRanks());
 
 		if (!isSilenced() || !isDownSilenced()) {
 			SoundUtils.enableAudioContextNotification(this.getElement());
@@ -1104,12 +1100,13 @@ public class Results extends LitTemplate
 			}
 		});
 		setTranslationMap();
-		if (scoring[0] || Competition.getCurrent().isDisplayScores() || Competition.getCurrent().isSinclair()) {
-			this.getElement().setProperty("showSinclair", true);
-		}
-		if (scoring[0] || Competition.getCurrent().isDisplayScoreRanks() || Competition.getCurrent().isSinclair()) {
-			this.getElement().setProperty("showSinclairRank", true);
-		}
+		
+		boolean showScore = scoring[0] || Competition.getCurrent().isDisplayScores() || Competition.getCurrent().isSinclair();
+		this.getElement().setProperty("showSinclair", showScore);
+		
+		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks() || Competition.getCurrent().isSinclair();
+		this.getElement().setProperty("showSinclairRank", showScoreRank);
+		
 		this.displayOrder = ImmutableList.of();
 	}
 
