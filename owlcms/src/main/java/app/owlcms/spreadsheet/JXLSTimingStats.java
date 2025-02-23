@@ -173,7 +173,6 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 
 
 		public int getCJBreakSeconds() {
-			logger.warn("getCJBreakSeconds {}", cJBreakSeconds);
 			return cJBreakSeconds;
 		}
 

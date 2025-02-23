@@ -113,7 +113,6 @@ public enum Ranking {
 				value = curLifter.getCategoryScoreRank();
 				break;
 		}
-		// logger.debug("{} ranking value: {}", curLifter.getShortName(), value);
 		return value == null ? 0 : value;
 	}
 
@@ -128,6 +127,10 @@ public enum Ranking {
 		}
 		Double d = 0D;
 		Integer i = 0;
+		if (rankingType == CATEGORY_SCORE) {
+			// indirection -- find the category scoring system
+			rankingType = curLifter.getComputedScoringSystem();
+		}
 		switch (rankingType) {
 			case SNATCH:
 				i = curLifter.getBestSnatch();
@@ -168,7 +171,7 @@ public enum Ranking {
 				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 					d = curLifter.getSmhf();
 				} else {
-					d = curLifter.getSmhfForDelta();
+					d = curLifter .getSmhfForDelta();
 				}
 				break;
 			case GAMX:
@@ -196,12 +199,13 @@ public enum Ranking {
 				}
 				break;
 			case CATEGORY_SCORE:
-				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-					d = curLifter.getCategoryScoreForDelta();
-				} else {
-					d = curLifter.getCategoryScore();
-				}
-				break;
+				throw new RuntimeException("can't happen, CATEGORY_SCORE loop");
+//				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+//					d = curLifter.getCategoryScoreForDelta();
+//				} else {
+//					d = curLifter.getCategoryScore();
+//				}
+//				break;
 		}
 		return d != null ? d : 0D;
 	}

@@ -436,7 +436,6 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			} catch (JsonProcessingException e) {
 				json = "";
 			}
-			logger.warn("starting clock");
 			this.client.publish("owlcms/clock/" + this.getFop().getName(),
 			        new MqttMessage(("start " + json).getBytes(StandardCharsets.UTF_8)));
 		} else {

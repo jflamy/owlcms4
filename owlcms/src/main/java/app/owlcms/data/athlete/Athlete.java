@@ -5380,15 +5380,18 @@ public class Athlete {
 			return 0.0;
 		}
 		Integer total1 = getBestCleanJerk() + getBestSnatch();
-		if (total1 == null || total1 < 0.1 || (this.gender == null)) {
+		if (this.gender == null) {
 			return 0.0;
 		}
 		if (this.gender == Gender.M) { // $NON-NLS-1$
-			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
+
+			double d = total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
 			        sinclairProperties2020.menMaxWeight());
+			return d;
 		} else if (this.gender == Gender.F) {
-			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
+			double d = total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
 			        sinclairProperties2020.womenMaxWeight());
+			return d;
 		} else {
 			return 1.0;
 		}

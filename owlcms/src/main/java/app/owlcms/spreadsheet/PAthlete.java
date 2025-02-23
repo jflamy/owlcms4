@@ -218,6 +218,11 @@ public class PAthlete extends Athlete implements IRankHolder {
 		boolean contains = allUnfinished.contains(code);
 		return !contains;
 	}
+	
+	@Override
+	public Double getCategoryScoreForDelta() {
+		return this.a.getCategoryScoreForDelta();
+	}
 
 	@Override
 	public int getCategoryScoreRank() {

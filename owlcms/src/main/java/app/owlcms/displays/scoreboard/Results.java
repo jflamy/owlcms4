@@ -591,7 +591,6 @@ public class Results extends LitTemplate
 	protected String computedScore(Athlete a) {
 		AgeGroup ageGroup = a.getAgeGroup();
 		Ranking ageGroupScoringSystem = ageGroup != null ? ageGroup.getComputedScoringSystem() : null;
-		// logger.debug("a {} agegroup {} scoring {}", a.getLastName(), a.getAgeGroup(), a.getAgeGroup().getScoringSystem());
 
 		Competition current = Competition.getCurrent();
 		boolean sinclair = current.isSinclair();
@@ -606,12 +605,12 @@ public class Results extends LitTemplate
 			if (ageGroupScoringSystem == Ranking.TOTAL) {
 				score = value > 0.001 ? String.format("%.0f", value) : "-";
 			} else {
-				score = value > 0.001 ? String.format("%.3f", value) : "-";
+				score = value > 0.001 ? String.format("%.3f", value) : "+";
 			}
 			return score;
 		} else {
 			double value = Ranking.getRankingValue(a, scoringSystem);
-			String score = value > 0.001 ? String.format("%.3f", value) : "-";
+			String score = value > 0.001 ? String.format("%.3f", value) : "*";
 			return score;
 		}
 	}
