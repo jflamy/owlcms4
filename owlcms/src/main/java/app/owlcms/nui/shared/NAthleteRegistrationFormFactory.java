@@ -1204,7 +1204,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				// body weight, gender, date
 				this.allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
 				        categoryField, qualifyingTotalField2);
-				// logger.debug("cat {} eli {}", cat, this.allEligible);
+				//logger.debug("cat {} eli {}", cat, this.allEligible);
 				if (cat != null && categoryIsEligible(cat, this.allEligible) && cat.getMaximumWeight() < 999) {
 					// current registration category is amongst eligibles. Don't recompute anything.
 					// logger.debug("leave alone");
@@ -1214,7 +1214,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 						        this.allEligible, this.allEligible, false);
 					}
 				} else {
-					// logger.debug("recompute, cat={} allEligible = {}", cat, this.allEligible);
+					//logger.debug("recompute, cat={} allEligible = {}", cat, this.allEligible);
 					// category is null or not within eligibles, recompute
 
 					List<Category> filteredEligibles = this.allEligible.stream()
@@ -1288,22 +1288,36 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		// Use all assigned categories to guess a bodyweight
 		List<Category> cats = editedAthlete.getParticipations().stream()
 		        .map(p -> p.getCategory())
-		        //.peek(c -> logger.debug("cat {} {} {} {}", c, c.getMinimumWeight(), c.getMaximumWeight(), c.getMinimumWeight() > 10 && c.getMaximumWeight() < 900))
 		        .filter(c -> isRegularBWCategory(c) // not an open category due to lower bound
-		        		) 
+				)
+		        .peek(c -> logger.debug("*** cat {} {} {} {}", c, c.getMinimumWeight(), c.getMaximumWeight(),
+		                isRegularBWCategory(c)))
 		        .toList();
+
+		// use smallest category upper bound for normal categories
+		Optional<Double> max = cats.stream().map(c -> c.getMaximumWeight()).min(Double::compareTo);
+		// for superheavies, the lowerbound of the categories is used. For youth, can be several eligible, use smallest.
 		Optional<Double> min = cats.stream().map(c -> c.getMinimumWeight()).min(Double::compareTo);
-		// we want a youth 102+ to be 102.1
-		if (min.isPresent()) {
-			bw1 = min.get() + 0.1;
-			logger.debug("inferred weight {}", bw1);
+		if (max.isPresent()) {
+			if (max.get() < 900) {
+				// normal case, weight is at upper bound of category.
+				bw1 = max.get();
+			} else if (min.isPresent()) {
+				// super heavy
+				// we want a youth 102+ to be 102.1
+				bw1 = min.get() + 0.1;
+			}
 		}
+		logger.warn("***** inferred weight {}", bw1);
 		return bw1;
 	}
 
 	public boolean isRegularBWCategory(Category c) {
-		return c.getMaximumWeight() < 900
-				|| (c.getMinimumWeight() > 50 && c.getMaximumWeight() > 900);
+		boolean regularNotSuperHeavy = c.getMaximumWeight() < 900;
+		boolean superHeavy = c.getMinimumWeight() > 10 && c.getMaximumWeight() > 900;
+		logger.debug("c {}  isRegular = {} c.getMaximumWeight() < 900 {}  (c.getMinimumWeight() > 10 && c.getMaximumWeight() > 900) {}", c,
+		        regularNotSuperHeavy || superHeavy, regularNotSuperHeavy, superHeavy);
+		return regularNotSuperHeavy || superHeavy;
 	}
 
 	public Double inferBW(Category cat) {
@@ -1403,7 +1417,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        List<Category> allEligibles,
 	        boolean recomputeEligibles) {
 
-		//logger.debug("===== updating category fields {}", LoggerUtils.stackTrace());
+		// logger.debug("===== updating category fields {}", LoggerUtils.stackTrace());
 		LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();
 		Set<Category> prevEligibles;
 		if (recomputeEligibles) {
@@ -1412,7 +1426,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} else {
 			prevEligibles = eligibleField.getValue();
 		}
-		//logger.debug("updateCategoryFields {} {} - {} {} {}", categoryField.getValue(), bestMatch, prevEligibles, filteredEligibles, LoggerUtils.whereFrom());
+		// logger.debug("updateCategoryFields {} {} - {} {} {}", categoryField.getValue(), bestMatch, prevEligibles, filteredEligibles,
+		// LoggerUtils.whereFrom());
 
 		if (prevEligibles != null) {
 			// update the list of eligible categories. Must use the matching items in
@@ -1453,7 +1468,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					break;
 				}
 			}
-			//logger.debug("category {} {} matching eligible {}", categoryField, bestMatch, matchingEligible);
+			// logger.debug("category {} {} matching eligible {}", categoryField, bestMatch, matchingEligible);
 			setCategoryFieldValue(matchingEligible);
 		} else {
 			logger.debug("category is null");
