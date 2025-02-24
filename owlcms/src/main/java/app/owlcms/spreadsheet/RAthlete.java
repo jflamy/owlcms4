@@ -466,7 +466,10 @@ public class RAthlete {
 				Category c2;
 				String catCode = Category.codeFromName(eligibleName.trim());
 				if ((c2 = RCompetition.getActiveCategories().get(catCode)) != null) {
-					addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge, teamMember, c2);
+					boolean addedToEligible = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge, teamMember, c2);
+					if (!addedToEligible) {
+						throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem"));
+					}
 				} else {
 					// logger.debug("{} {}\n{}",Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim(), LoggerUtils.stackTrace()));
 					throw new Exception(
