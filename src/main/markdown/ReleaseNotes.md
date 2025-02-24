@@ -1,24 +1,15 @@
 
 
+### ⚠️⚠️⚠️CHANGE IN THE OWLCMS INSTALLATION PROCESS⚠️⚠️⚠️
+**The [OWLCMS Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is now used to install and run OWLCMS. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) to install it.**
 
-
-| Installation and Update                                      |
-| ------------------------------------------------------------ |
-| Since version 55, owlcms is installed and updated using the *owlcms control panel*. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) and the user guide for the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md). |
+<br><br>
 
 **Change Log**
 
-- 56.0.0-rc01: Top Score (Top Sinclair) scoreboard would require a manual refresh when switching groups
+- 56.0.0-rc02: Only errors in eligibility for the main registration category were reported when loading a registration file or the SBDE start book data. Now errors in all requested eligibility categories are signaled.
+- 56.0.0-rc01: The Top Score (Top Sinclair) scoreboard would require a manual refresh when switching groups.
 - 56.0.0-rc01: fixed inverted test for showing interim scores without totals during score-based medal session (and on corresponding scores spreadsheet)
-- 56.0.0-beta04: Extra information sent to drive jury replays was confusing the competition simulator.
-- 56.0.0-beta03: Importing and Exporting of Technical Officials now uses local language for headers and TO levels.
-- 56.0.0-beta02: Competition end date
-- 56.0.0-beta02: Documentation for self-service jury replays added
-- 56.0.0-beta01 Current Session information is sent in the MQTT timer start messages.
-- 56.0.0-alpha02 .xslm files are now visible in template lists
-- 56.0.0-alpha02 Include winning order fix from v55.
-- 56.0.0-alpha02 Timing summary
-- 56.0.0-alpha00 Technical Officials can be listed on a page, with their IDs and federation
 
 **New In Release 56**
 
