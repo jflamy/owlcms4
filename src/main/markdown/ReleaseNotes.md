@@ -7,6 +7,7 @@
 
 **Change Log**
 
+- 56.0.0-rc03: Fixed the inference of body weight on the registration editing form when a mix of eligible categories has been assigned to the athlete.
 - 56.0.0-rc02: Only errors in eligibility for the main registration category were reported when loading a registration file or the SBDE start book data. Now errors in all requested eligibility categories are signaled.
 - 56.0.0-rc01: The Top Score (Top Sinclair) scoreboard would require a manual refresh when switching groups.
 - 56.0.0-rc01: fixed inverted test for showing interim scores without totals during score-based medal session (and on corresponding scores spreadsheet)
@@ -30,4 +31,4 @@
 
 
 
-For other recent changes, see [version 55.3 release notes](https://github.com/owlcms/owlcms4/releases/tag/54.3.0) and [version 54 release notes](https://github.com/owlcms/owlcms4/releases/tag/54.2.1)
+For other recent changes, see [version 55.3 release notes](https://github.com/owlcms/owlcms4/releases/tag/55.3.0) and [version 54 release notes](https://github.com/owlcms/owlcms4/releases/tag/54.2.1)
