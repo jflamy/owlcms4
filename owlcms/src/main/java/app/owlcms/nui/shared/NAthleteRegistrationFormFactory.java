@@ -1288,10 +1288,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		// Use all assigned categories to guess a bodyweight
 		List<Category> cats = editedAthlete.getParticipations().stream()
 		        .map(p -> p.getCategory())
-		        .filter(c -> isRegularBWCategory(c) // not an open category due to lower bound
-				)
-		        .peek(c -> logger.debug("*** cat {} {} {} {}", c, c.getMinimumWeight(), c.getMaximumWeight(),
-		                isRegularBWCategory(c)))
+		        .filter(c -> isRegularBWCategory(c)) // not an open category due to lower bound
+//	            .peek(c -> logger.debug("*** cat {} {} {}", c, c.getMinimumWeight(), c.getMaximumWeight()))
 		        .toList();
 
 		// use smallest category upper bound for normal categories
