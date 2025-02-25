@@ -94,7 +94,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 	}
 
 	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplates template) {
-		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> f.endsWith(template.extension));
+		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> matchExtension(template, f));
 		ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 
 		templateSelect.addValueChangeListener(e -> {
@@ -117,6 +117,14 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 				LoggerUtils.logError(this.logger, e1);
 			}
 		});
+	}
+
+	public boolean matchExtension(PreCompetitionTemplates template, String f) {
+		if (template.extension.equals(".xlsx")) {
+			return (f.endsWith(".xlsx") || f.endsWith(".xlsm"));
+		} else {
+			return f.endsWith(template.extension);
+		}
 	}
 
 	private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter) {
@@ -207,7 +215,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		for (Resource r : resourceList) {
 			String curName = r.getFileName();
 			// give precedence to .xlsx file if both .xls and .xlsx
-			if (curName.endsWith(".xlsx") || (curName.endsWith(".xls") && !prevName.contentEquals(curName + "x"))) {
+			if (curName.endsWith(".xlsx") || curName.endsWith(".xlsm") || (curName.endsWith(".xls") && !prevName.contentEquals(curName + "x"))) {
 				proritizedList.add(r);
 			}
 			prevName = curName;
