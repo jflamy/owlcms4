@@ -1,12 +1,13 @@
 
 
-### ⚠️⚠️⚠️CHANGE IN THE OWLCMS INSTALLATION PROCESS⚠️⚠️⚠️
-**The [OWLCMS Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is now used to install and run OWLCMS. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) to install it.**
+### ⚠️⚠️⚠️ OWLCMS INSTALLATION PROCEDURE⚠️⚠️⚠️
+**Since version 55, the [OWLCMS Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is used to install and run OWLCMS. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) to install it.**
 
 <br><br>
 
 **Change Log**
 
+- 56.0.0-rc04: `.xlsm` files are now accepted as templates for pre-competition documents (in addition to results)
 - 56.0.0-rc03: Fixed the inference of body weight on the registration editing form when a mix of eligible categories has been assigned to the athlete.
 - 56.0.0-rc02: Only errors in eligibility for the main registration category were reported when loading a registration file or the SBDE start book data. Now errors in all requested eligibility categories are signaled.
 - 56.0.0-rc01: The Top Score (Top Sinclair) scoreboard would require a manual refresh when switching groups.
