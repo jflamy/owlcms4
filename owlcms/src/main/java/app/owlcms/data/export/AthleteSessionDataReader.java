@@ -160,8 +160,11 @@ public class AthleteSessionDataReader {
 						} else {
 							// simple attribute value, check the ones we care about.
 							if (attributes.contains(fieldName)) {
-								if (fieldName.equals("group") && sessionIds.contains(parser.getLongValue())) {
-									keep = true;
+								try {
+									if (fieldName.equals("group") && sessionIds.contains(parser.getLongValue())) {
+										keep = true;
+									}
+								} catch (Exception e) {
 								}
 								boolean validating = Athlete.isSkipValidationsDuringImport();
 								Level level = jsonAthlete.getLogger().getLevel();
@@ -178,7 +181,10 @@ public class AthleteSessionDataReader {
 									} else if (fieldType == String.class) {
 										setter.invoke(jsonAthlete, parser.getValueAsString());
 									} else if (fieldType == Double.class) {
-										setter.invoke(jsonAthlete, parser.getDoubleValue());
+										try {
+											setter.invoke(jsonAthlete, parser.getDoubleValue());
+										} catch (Exception e) {
+										}
 									} else if (fieldType == Float.class) {
 										setter.invoke(jsonAthlete, parser.getFloatValue());
 									}
