@@ -92,6 +92,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		if (lifter2Value == null) {
 			lifter2Value = notWeighed;
 		}
+		if (lifter1Value <= 0.0001 && lifter2Value < 0.0001) {
+			// avoid going to full tie break; need something stable.
+			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
+		}
 		// bigger adjusted total comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
@@ -105,6 +109,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 		if (lifter2Value == null) {
 			lifter2Value = notWeighed;
+		}
+		if (lifter1Value <= 0.0001 && lifter2Value < 0.0001) {
+			// avoid going to full tie break; need something stable.
+			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
 		}
 		// bigger adjusted total comes first
 		return -lifter1Value.compareTo(lifter2Value);
@@ -613,19 +621,29 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		// if the athletes were not in the same session
 		if (lifter1 != null && lifter2 != null && !sameGroup(lifter1, lifter2)) {
 			compare = compareBestCleanJerkTime(lifter1, lifter2);
-			traceComparison("tiebreak compareBestCleanJerkTime", lifter1, lifter1.getGroup(), lifter2, lifter2.getGroup(), compare);
+			Group group1 = lifter1.getGroup();
+			Group group13 = lifter2.getGroup();
+//			if (lifter1.getCategory().getCode().equals("Open_F64") && lifter1.getTotal() > 210) {
+				traceComparison("tiebreak compareBestCleanJerkTime", lifter1, group1, lifter2, group13, compare);
+//			}
 			if (compare != 0) {
 				// <0 means lifter1 earlier than lifter2
-				return compare; // earlier time means higher up in the ascending sort order
+				return -compare; // earlier is better, so return +1
 			}
 		}
 
 		// earlier session wins (redundant given previous test)
 		if (lifter1 != null && lifter2 != null && !sameGroup(lifter1, lifter2)) {
 			compare = compareCompetitionSessionTime(lifter1, lifter2);
-			traceComparison("tiebreak compareCompetitionSessionTime", lifter1, lifter2, compare);
+			Group group12 = lifter1.getGroup();
+			Group group13 = lifter2.getGroup();
+			if (group12 != null && group13 != null)
+//				if (lifter1.getCategory().getCode().equals("Open_F64") && lifter1.getTotal() > 210) {
+					traceComparison("tiebreak compareCompetitionSessionTime", lifter1, group12.getCompetitionTime(), lifter2, group13.getCompetitionTime(),
+					        compare);
+//				}
 			if (compare != 0) {
-				return compare; // earlier group time wins
+				return -compare; // <0 = earlier group that should win, so tiebreak needs to return positive
 			}
 		}
 

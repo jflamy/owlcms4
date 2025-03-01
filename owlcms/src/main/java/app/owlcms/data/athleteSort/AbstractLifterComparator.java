@@ -243,6 +243,10 @@ public class AbstractLifterComparator {
 	int compareBestCleanJerk(Athlete lifter1, Athlete lifter2) {
 		Integer lifter1Value = lifter1.getBestCleanJerk();
 		Integer lifter2Value = lifter2.getBestCleanJerk();
+		if (lifter1Value.equals(0) && lifter2Value.equals(0)) {
+			// avoid going to full tie break; need something stable.
+			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
+		}
 		return lifter1Value.compareTo(lifter2Value);
 	}
 
@@ -375,6 +379,12 @@ public class AbstractLifterComparator {
 		if (lifter2Value == null) {
 			lifter2Value = notWeighed;
 		}
+		
+		if (lifter1Value <= 0.0001 && lifter2Value < 0.0001) {
+			// avoid going to full tie break; need something stable.
+			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
+		}
+		
 		// bigger sinclair comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
@@ -773,7 +783,7 @@ public class AbstractLifterComparator {
 		// bigger sinclair comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
-	
+
 	/**
 	 * Compare Q-masters.
 	 *
@@ -889,6 +899,10 @@ public class AbstractLifterComparator {
 		}
 		if (lifter2Value == null) {
 			lifter2Value = notScored;
+		}
+		if (lifter1Value <= 0.0001 && lifter2Value < 0.0001) {
+			// avoid going to full tie break; need something stable.
+			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
 		}
 		return lifter1Value.compareTo(lifter2Value);
 	}
@@ -1045,6 +1059,10 @@ public class AbstractLifterComparator {
 	int compareTotal(Athlete lifter1, Athlete lifter2) {
 		Integer lifter1Value = lifter1.getTotal();
 		Integer lifter2Value = lifter2.getTotal();
+		if (lifter1Value.equals(0) && lifter2Value.equals(0)) {
+			// avoid going to full tie break; need something stable.
+			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
+		}
 		return lifter1Value.compareTo(lifter2Value);
 	}
 
