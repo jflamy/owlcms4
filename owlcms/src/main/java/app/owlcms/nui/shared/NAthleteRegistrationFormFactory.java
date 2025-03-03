@@ -1306,7 +1306,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				bw1 = min.get() + 0.1;
 			}
 		}
-		logger.warn("***** inferred weight {}", bw1);
+		logger.trace("***** inferred weight {}", bw1);
 		return bw1;
 	}
 
