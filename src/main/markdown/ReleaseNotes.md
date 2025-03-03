@@ -7,6 +7,8 @@
 
 **Change Log**
 
+- 56.0.0-rc05: When producing eligibility category results the `${athlete.categoryScore}` template variable was returning the score associated with the main registration category instead of the current eligibility category.
+- 56.0.0-rc05: Fixed the ranking tie-break rule for clean & jerk or total attained in an earlier session.
 - 56.0.0-rc04: `.xlsm` files are now accepted as templates for pre-competition documents (in addition to results)
 - 56.0.0-rc03: Fixed the inference of body weight on the registration editing form when a mix of eligible categories has been assigned to the athlete.
 - 56.0.0-rc02: Only errors in eligibility for the main registration category were reported when loading a registration file or the SBDE start book data. Now errors in all requested eligibility categories are signaled.
@@ -25,6 +27,7 @@
 - Timing Summary
   - Now use the rules for the Clean & Jerk break, as well as the overrides that were entered on each session
 - Templates 
+  - The `${athlete.categoryScore}` template variable was not working correctly for eligibility categories other than the main registration category (the total would always be shown instead of the actual score.)
   - `${competition.endDate}` is now available as a variable.
   - Templates with Excel macros can now be used:  `.xlsm` files are visible as templates.
 - Self-service Jury Replays

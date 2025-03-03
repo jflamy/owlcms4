@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.Ranking;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -133,6 +134,11 @@ public class Participation implements IRankHolder {
 		return this.category;
 	}
 
+	public Double getCategoryScore() {
+		Double score = Ranking.getRankingValue(athlete, this.getCategory().getAgeGroup().getComputedScoringSystem());
+		return score;
+	}
+	
 	public int getCategoryScoreRank() {
 		return this.categoryScoreRank;
 	}

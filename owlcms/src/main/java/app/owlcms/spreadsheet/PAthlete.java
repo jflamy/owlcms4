@@ -231,7 +231,8 @@ public class PAthlete extends Athlete implements IRankHolder {
 	
 	@Override
 	public Double getCategoryScore() {
-		Double categoryScore = this.a.getCategoryScore();
+		// use ranking calculation with the PAthlete category.
+		Double categoryScore = this.p.getCategoryScore();
 		return categoryScore;
 	}
 
@@ -620,6 +621,11 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public Double getQAge() {
+		return this.a.getQAge();
+	}
+	
+	@Override
+	public Double getQAgeForDelta() {
 		return this.a.getQAge();
 	}
 
