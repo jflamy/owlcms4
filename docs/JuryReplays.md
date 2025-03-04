@@ -1,6 +1,10 @@
 # Self-Service Jury Replays
 
-There is an auxiliary module to owlcms called `replays` that provides automatic recording of the lifts and makes them available to the jury.  Multiple cameras are supported. The lifts are automatically trimmed to start a little before the lift and stop after the decisions have been shown.  The jury can watch them using a regular browser, and the replays are organized by session and time (most recent first)
+> #### Experimental Feature
+>
+> This feature is still evolving and should not be used in a real competition yet.  It is documented here so people can experiment with it, provide feedback, and report issues.is
+
+The `replays` module is a complement to owlcms that provides automatic recording of the lifts and makes them available to the jury.  Multiple cameras are supported. The lifts are automatically trimmed to start a little before the lift and stop after the decisions have been shown.  The jury can watch them using a regular browser, and the replays are organized by session and time (most recent first)
 
 There needs to be one `replays` program running for each platform.   There are options to the replays program if you need to run several on the same computer.
 
@@ -78,9 +82,11 @@ You will then see a folder called `videos` and inside, the videos for all the se
 
 Download the program called `replays` (no `.exe`) from https://github.com/owlcms/replays/releases
 
-- Right-click on the program.  Set the execution permissions to "anyone"
+- Copy it to the Desktop where you want to use it
 
-Copy it to the Desktop where you want to use it
+- Right-click on the program.  **Set the execution permissions to "anyone"**
+
+
 
 **Configuration**
 
@@ -107,7 +113,7 @@ Windows requires
 The first time around, you will need to install the `ffmpeg` program that is used to do the actual recordings. To do this, click on the start menu and type `cmd` or open a terminal window.  Type the command
 
 ```
-winget ffmpeg
+winget install ffmpeg
 ```
 
 You will then see output similar to the following
