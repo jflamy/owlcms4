@@ -7,33 +7,26 @@
 
 **Change Log**
 
-- 56.0.0-rc06: When computing team scores, the -1 ranks given to out-of-competition athletes were breaking Excel lookup formulas
-- 56.0.0-rc05: When producing eligibility category results the `${athlete.categoryScore}` template variable was returning the score associated with the main registration category instead of the current eligibility category.
-- 56.0.0-rc05: Fixed the ranking tie-break rule for clean & jerk or total attained in an earlier session.
-- 56.0.0-rc04: `.xlsm` files are now accepted as templates for pre-competition documents (in addition to results)
-- 56.0.0-rc03: Fixed the inference of body weight on the registration editing form when a mix of eligible categories has been assigned to the athlete.
-- 56.0.0-rc02: Only errors in eligibility for the main registration category were reported when loading a registration file or the SBDE start book data. Now errors in all requested eligibility categories are signaled.
-- 56.0.0-rc01: The Top Score (Top Sinclair) scoreboard would require a manual refresh when switching groups.
-- 56.0.0-rc01: fixed inverted test for showing interim scores without totals during score-based medal session (and on corresponding scores spreadsheet)
+- 56.0.0: Stable Release
 
 **New In Release 56**
 
 - Competition Information
-  - The competition end date can be captured.
+  - The competition end date can be captured. See also Templates, below.
 - Technical Officials
   - A new button is available on Prepare Competition to define a list of TOs.
   - Import and Export from Excel are supported. Table headers and TO Levels are translated to the current language. It is always possible to import a file exported in English.
-  - The Assignment of Officials on the Session page now allows to pick from the list (the choices are auto-completed as you type)
-  - A summary report of who was assigned to what role including the total number of sessions per TO is also available.
+  - The Assignment of Officials on the Session page now allows picking a TO from the list (the choices are auto-completed as you type)
+  - A summary report is available about who was assigned to what role, including the total number of sessions per TO.
 - Timing Summary
   - Now use the rules for the Clean & Jerk break, as well as the overrides that were entered on each session
 - Templates 
   - The `${athlete.categoryScore}` template variable was not working correctly for eligibility categories other than the main registration category (the total would always be shown instead of the actual score.)
   - `${competition.endDate}` is now available as a variable.
   - Templates with Excel macros can now be used:  `.xlsm` files are visible as templates.
-  - Competition Book (Final Package) template now deals correctly with out-of-competition athletes having a negative rank.
-- Self-service Jury Replays
-  - The documentation for the self-service jury module is now included.
+  - Competition Book (Final Package) template now deals correctly with out-of-competition athletes, which are identified by a negative rank.
+- Experimental Self-service Jury Replays
+  - The documentation for the self-service jury module is now included.  The module is not yet ready for full use, but this is necessary to gather feedback.
 
 
 
