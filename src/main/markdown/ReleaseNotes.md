@@ -1,12 +1,13 @@
 
 
 ### ⚠️⚠️⚠️ OWLCMS INSTALLATION PROCEDURE⚠️⚠️⚠️
-**Since version 55, the [OWLCMS Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is used to install and run OWLCMS. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) to install it.**
+**Since version 55, the [OWLCMS Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is used to install and run OWLCMS. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) for details.**
 
 <br><br>
 
 **Change Log**
 
+- 56.0.0-rc06: When computing team scores, the -1 ranks given to out-of-competition athletes were breaking Excel lookup formulas
 - 56.0.0-rc05: When producing eligibility category results the `${athlete.categoryScore}` template variable was returning the score associated with the main registration category instead of the current eligibility category.
 - 56.0.0-rc05: Fixed the ranking tie-break rule for clean & jerk or total attained in an earlier session.
 - 56.0.0-rc04: `.xlsm` files are now accepted as templates for pre-competition documents (in addition to results)
@@ -30,6 +31,7 @@
   - The `${athlete.categoryScore}` template variable was not working correctly for eligibility categories other than the main registration category (the total would always be shown instead of the actual score.)
   - `${competition.endDate}` is now available as a variable.
   - Templates with Excel macros can now be used:  `.xlsm` files are visible as templates.
+  - Competition Book (Final Package) template now deals correctly with out-of-competition athletes having a negative rank.
 - Self-service Jury Replays
   - The documentation for the self-service jury module is now included.
 
