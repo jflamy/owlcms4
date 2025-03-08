@@ -39,7 +39,7 @@ public class ResultsLiftingOrder extends Results {
 		// with other snatching athletes, if any, below.
 		// so we must check if there are any snatching still.
 		boolean snatchPresent = (athletes.stream().anyMatch(s -> s.getActuallyAttemptedLifts() < 3));
-		boolean cjPresent = (athletes.get(athletes.size() - 1).getAttemptsDone() >= 3) && !(athletes.stream().anyMatch(s -> s.withdrawnFromCJ()));
+		boolean cjPresent = (athletes.stream().anyMatch(s -> s.getActuallyAttemptedLifts() > 3 || s.withdrawnFromCJ()));
 		return (snatchPresent ? 1 : 0) + (cjPresent ? 1 : 0) + 1;
 	}
 
@@ -53,9 +53,15 @@ public class ResultsLiftingOrder extends Results {
 	 */
 	@Override
 	protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
-		BiPredicate<Athlete, Athlete> separator = (cur, prev) -> (prev == null) ||
-		        cur.getAttemptsDone() >= 3
-		                && (prev.getAttemptsDone() < 3);
+		BiPredicate<Athlete, Athlete> separator = (cur, prev) -> 
+		{ 
+			boolean first = (prev == null);
+			if (first) return true;
+	        boolean prevIsSnatch = prev.getAttemptsDone() <= 3;
+			boolean curIsCJ = (cur.getAttemptsDone() > 3 || cur.withdrawnFromCJ());
+			//logger.debug("prev {} prevIsSnatch={} cur {} curIsCJ={}",prev.getAbbreviatedName(),prevIsSnatch, cur.getAbbreviatedName(), curIsCJ);
+			return prevIsSnatch && curIsCJ;
+		};
 		return separator;
 	}
 
