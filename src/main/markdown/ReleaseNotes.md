@@ -7,9 +7,9 @@
 
 **Change Log**
 
-- 56.0.1: Updated Jury Replays instructions.
-- 56.0.1: Added back manual setup instructions using java and the .zip file instead of the control panel
-- 56.0.0: Stable Release
+- 56.0.1: Fixed an oversized "Leaders" row on the Lifting Order scoreboard that could happen when an athlete has withdrawn from CJ
+- 56.0.1: Updated Jury Replays add-on module documentation.
+- 56.0.1: Added back the instructions for manual installation using java and the .zip file for setups where the control panel can't run
 
 **New In Release 56**
 

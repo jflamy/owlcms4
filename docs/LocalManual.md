@@ -1,6 +1,6 @@
 ## Manual Installation
 
-If the control panel is not available for your platform, you can run owlcms as follows
+If the control panel cannot be installed on your computer, you can still run owlcms as follows
 
 #### Install Java
 
