@@ -107,7 +107,7 @@ public class Results extends LitTemplate
 	private int liftsDone;
 	private Location location;
 	private UI locationUI;
-	private final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
+	protected final Logger logger = (Logger) LoggerFactory.getLogger(Results.class);
 	private boolean publicDisplay;
 	private boolean recordsDisplay;
 	private String routeParameter;

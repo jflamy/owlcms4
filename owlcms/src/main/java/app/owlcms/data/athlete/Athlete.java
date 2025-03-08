@@ -5828,4 +5828,8 @@ public class Athlete {
 		return getSinclair(categoryWeight);
 	}
 
+	public boolean withdrawnFromCJ() {
+		return getCleanJerk1ActualLift().equals("0") && getCleanJerk2ActualLift().equals("0")  && getCleanJerk3ActualLift().equals("0") ;
+	}
+
 }

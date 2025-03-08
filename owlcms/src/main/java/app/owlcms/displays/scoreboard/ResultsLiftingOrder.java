@@ -39,7 +39,7 @@ public class ResultsLiftingOrder extends Results {
 		// with other snatching athletes, if any, below.
 		// so we must check if there are any snatching still.
 		boolean snatchPresent = (athletes.stream().anyMatch(s -> s.getActuallyAttemptedLifts() < 3));
-		boolean cjPresent = (athletes.get(athletes.size() - 1).getAttemptsDone() >= 3);
+		boolean cjPresent = (athletes.get(athletes.size() - 1).getAttemptsDone() >= 3) && !(athletes.stream().anyMatch(s -> s.withdrawnFromCJ()));
 		return (snatchPresent ? 1 : 0) + (cjPresent ? 1 : 0) + 1;
 	}
 
