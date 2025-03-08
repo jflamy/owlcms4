@@ -87,7 +87,12 @@ Download the program called `replays` (no `.exe`) from https://github.com/owlcms
 **Configuration**
 
 There is nothing to do if you have only one device.  The `ffmpeg` program is already installed, and when you plug in a camera  the USB adapter will be on `/dev/video0`.
-If you have more than one camera, open the configuration directory, use the Text editor, and copy the section several as needed, using `/dev/video2` and so on for the additional cameras.  Cameras are **even-numbered** (0, 2, 4, etc.)
+
+If you have more than one camera, open the configuration directory, use the Text editor, and create additional sections `[linux2]` `[linux3]` etc. as needed. 
+
+- Cameras are **even-numbered** (0, 2, 4, etc.). 
+
+- Make sure that `enabled = true` for the cameras you use and `enabled = false` for those you don't.
 
 ### Windows : Configuration of the program
 
@@ -106,33 +111,23 @@ You need to be connected to the internet when you first use the program.  The re
 
 Once ffmpeg is installed, you need to configure your cameras.   For this, we need to list the camera names as Windows detected them.
 
-- Start the replays program and use the `File` menu to `Open the application files` 
-- Open the directory that starts with `ffmpeg` and then go to the `bin` subdirectory. 
-- Right-click in a blank area of the window and select the option to open a terminal or command window.
+- Go to the `Help` menu and select `List Cameras`.  This will call ffmpeg and obtain the list of available cameras.
 
-Type the following command:
+For our example, we will configure a camera called `Logitech Webcam C930e`
 
-```
-.\ffmpeg.exe -list_devices true -f dshow -i dummy -hide_banner
-```
+- Go back to the applications directory.
 
-You will then get an output similar to this one, listing all your devices
-![list_dshow](nimg/4100replays/list_dshow.png)
 
-For our example, we will configure the camera called `Logitech Webcam C930e`
+- Find the `config.toml` file, that can be edited with Notepad
 
-Go back to the applications directory.
+- ![editToml](nimg/4100replays/editToml.png)
 
-Find the `config.toml` file, that can be edited with Notepad
-![editToml](nimg/4100replays/editToml.png)
+- Then edit the cameras to have exactly the name as in the ffmpeg output.   Locate the `[windows]` section.
 
-Then edit the cameras to have exactly the name as in the ffmpeg output.   Locate the `[windows]` section.
-
-> Follow the carefully instructions for formatting -- include `video=` before the name, and enclose both inside `'` single quotes'
 
 ![notepad](nimg/4100replays/notepad.png)
 
-If you have more than one camera, remove the `# ` in front of the `[windows2]` section and create more sections `[windows3]` if needed.
+If you have more than one camera,  add additional sections`[windows2]` `[windows3]`  etc.  Make sure that `enabled = true` for the cameras you use and `enabled = false` for those you don't.
 
 Normally you don't need to change the other parameters.
 

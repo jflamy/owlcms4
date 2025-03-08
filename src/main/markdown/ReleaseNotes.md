@@ -1,13 +1,14 @@
 
 
 ### ⚠️⚠️⚠️ OWLCMS INSTALLATION PROCEDURE⚠️⚠️⚠️
-**Since version 55, the [OWLCMS Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is used to install and run OWLCMS. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) for details.**
+**Since version 55, the [OWLCMS Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is the normal way to install and run OWLCMS. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) for details.**
 
 <br><br>
 
 **Change Log**
 
-- 56.0.1: Added manual installation instructions back, updated Jury Replays instructions.
+- 56.0.1: Updated Jury Replays instructions.
+- 56.0.1: Added back manual setup instructions using java and the .zip file instead of the control panel
 - 56.0.0: Stable Release
 
 **New In Release 56**
