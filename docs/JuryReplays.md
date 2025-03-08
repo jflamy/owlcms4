@@ -1,8 +1,6 @@
 # Self-Service Jury Replays
 
-> #### Experimental Feature
->
-> This feature is still evolving and should not be used in a real competition yet.  It is documented here so people can experiment with it, provide feedback, and report issues.is
+> This feature is still evolving and if you intend to use it, **you need to experiment extensively beforehand**.  It is documented here so people provide feedback, and report issues.
 
 The `replays` module is a complement to owlcms that provides automatic recording of the lifts and makes them available to the jury.  Multiple cameras are supported. The lifts are automatically trimmed to start a little before the lift and stop after the decisions have been shown.  The jury can watch them using a regular browser, and the replays are organized by session and time (most recent first)
 
@@ -14,7 +12,7 @@ First we show how the program is used, then we provide the configuration instruc
 
 The replays program will normally locate owlcms.  So the first thing to do is to start owlcms and wait that it shows its home screen.
 
-> Reminder: You can click on each image to see it bigger.
+> Reminder: Clicking once on a screenshot makes it bigger.
 
 ***Announcer Screen***
 
@@ -24,9 +22,9 @@ The session has not been started yet, but owlcms is running.
 
 ***Jury Screen***
 
-For simplicity, we assume that the `replays` program runs on the jury laptop.  But `replays` can actually run anywhere -- wherever is most convenient for your camera or cameras.
+For simplicity, we assume that the `replays` program runs on the jury laptop.  But `replays` can actually run anywhere -- wherever is most convenient for your camera or cameras.  You don't *need* to run the jury console if you have jury buttons instead, this just shows that owlcms is running.
 
-Once owlcms has started -- We show that the jury console and jury scoreboards are running.   So then we start the replays program.  If there is no address configured in the configuration file for owlcms, or if the address has changed, it will try to find owlcms -- it will show a "Scanning" message.  
+Once owlcms has started  we start the replays program.  If there is no address configured in the configuration file for owlcms, or if the address has changed, it will try to find owlcms -- it will show a "Scanning" message.  
 
 ![scanning](nimg/4100replays/scanning.png)
 
@@ -46,7 +44,7 @@ The announcer or timekeeper will start the time normally.  They have nothing spe
 
 ***Jury Screen***
 
-The jury page will automatically switch to the current session and show that things are recording.  The recording page does NOT have to be visible, but if the screen is large enough you can make it visible at all times by dragging the tab to the side of the screen.
+The jury page will automatically switch to the current session and show that things are recording.  The recording page is just another tab in the browser.  You can pull it out to make a separate window if you wish. Or you can just leave the tab hidden until the jury needs to look at a replay.
 
 ![recording](nimg/4100replays/recording.png)
 
@@ -68,7 +66,7 @@ When the clock starts again, the recording/trimming/ready sequence starts again.
 
 ### Accessing the Videos
 
-You can access the videos by using the File program
+You can access the video files by using the `File` menu.
 
 ![openDirectory](nimg/4100replays/openDirectory.png)
 
@@ -86,46 +84,36 @@ Download the program called `replays` (no `.exe`) from https://github.com/owlcms
 
 - Right-click on the program.  **Set the execution permissions to "anyone"**
 
-
-
 **Configuration**
 
 There is nothing to do if you have only one device.  The `ffmpeg` program is already installed, and when you plug in a camera  the USB adapter will be on `/dev/video0`.
-If you have more than one camera, open the configuration directory, use the Text editor, and copy the section several as needed, using `/dev/video1` and so on for the additional cameras.
+If you have more than one camera, open the configuration directory, use the Text editor, and copy the section several as needed, using `/dev/video2` and so on for the additional cameras.  Cameras are **even-numbered** (0, 2, 4, etc.)
 
 ### Windows : Configuration of the program
 
 **Installation** 
 
-Download the program called `replays.exe` (with `.exe`) from https://github.com/owlcms/replays/releases
+- Download the program called `replays.exe` (with the `.exe` extension) from https://github.com/owlcms/replays/releases
 
-Copy it to the Desktop where you want to use it
+- Copy it to the Desktop where you want to use it
 
-**Configuration**
 
-Windows requires
+##### Recording Software
 
-- Installing the `ffmpeg` software to handle the recordings
-- Configuring the cameras.
-
-##### Installing Recording Software
-
-The first time around, you will need to install the `ffmpeg` program that is used to do the actual recordings. To do this, click on the start menu and type `cmd` or open a terminal window.  Type the command
-
-```
-winget install ffmpeg
-```
-
-You will then see output similar to the following
-
-![ffmpegInstall](nimg/4100replays/ffmpegInstall.png)
+You need to be connected to the internet when you first use the program.  The replays program will fetch the `ffmpeg` recording software for you and put a copy in the installation directory.
 
 ##### Camera Configuration
 
-Once ffmpeg is installed, you can figure out what your cameras are named according to Windows.  This is critical.  Type the following command:
+Once ffmpeg is installed, you need to configure your cameras.   For this, we need to list the camera names as Windows detected them.
+
+- Start the replays program and use the `File` menu to `Open the application files` 
+- Open the directory that starts with `ffmpeg` and then go to the `bin` subdirectory. 
+- Right-click in a blank area of the window and select the option to open a terminal or command window.
+
+Type the following command:
 
 ```
-ffmpeg -list_devices true -f dshow -i dummy -hide_banner
+.\ffmpeg.exe -list_devices true -f dshow -i dummy -hide_banner
 ```
 
 You will then get an output similar to this one, listing all your devices
@@ -133,7 +121,7 @@ You will then get an output similar to this one, listing all your devices
 
 For our example, we will configure the camera called `Logitech Webcam C930e`
 
-Go back to the applications directory using the `Open Application Directory` menu.
+Go back to the applications directory.
 
 Find the `config.toml` file, that can be edited with Notepad
 ![editToml](nimg/4100replays/editToml.png)

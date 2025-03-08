@@ -7,6 +7,7 @@ The installation details vary slightly by platform.  See the links just below. A
 - [Windows Installation Instructions](LocalWindowsSetup)
 - [Raspberry Pi/Linux Installation Instructions](LocalPiLinuxSetup)
 - [Mac Installation Instructions](LocalMacSetup)
+- [Other - Manual Installation](LocalManual)
 
 ### Release Notes
 
