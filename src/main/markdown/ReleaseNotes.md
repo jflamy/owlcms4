@@ -7,6 +7,7 @@
 
 **Change Log**
 
+- 56.0.1: Added manual installation instructions back, updated Jury Replays instructions.
 - 56.0.0: Stable Release
 
 **New In Release 56**
