@@ -7,6 +7,7 @@
 
 **Change Log**
 
+- 56.0.1: Q-Points are now set to 0 for men bodyweights under 45kg, and women bodyweights under 40kg, as the function is not valid for such weights (Q-Youth should be used.)
 - 56.0.1: Fixed an oversized "Leaders" row on the Lifting Order scoreboard that could happen when an athlete has withdrawn from CJ
 - 56.0.1: Updated Jury Replays add-on module documentation.
 - 56.0.1: Added back the instructions for manual installation using java and the .zip file for setups where the control panel can't run

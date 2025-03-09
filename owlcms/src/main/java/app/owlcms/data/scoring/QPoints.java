@@ -121,6 +121,10 @@ public class QPoints {
 		if (bw == null) {
 			return 0.0D;
 		}
+		// outside of validity range
+		if ((gender == Gender.M && bw <= 45.0D) || (gender == Gender.M && bw <= 40.0D)) {
+			return 0.0D;
+		}
 		Double qPointsFactor = qPointsFactor(gender, bw);
 		return value * qPointsFactor;
 	}
