@@ -107,7 +107,7 @@ public class ResultsPR extends LitTemplate
         setDarkMode(true);
         setDefaultLeadersDisplay(true);
         setDefaultRecordsDisplay(true);
-        setDefaultLiftingOrderDisplay(false);
+        //setDefaultLiftingOrderDisplay(false);
         setShowInitialDialog(false);
         this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
     }
