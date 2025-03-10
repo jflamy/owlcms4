@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,8 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
             Executors.newCachedThreadPool());
     private static Map<String, UpdateEvent> updateCache = new HashMap<>();
     static long lastUpdate = 0;
+    private static final int WAIT_FOR_CONFIG = 5 * 1000; // 5 seconds
+    private static final Lock configLock = new ReentrantLock();
 
     public static EventBus getEventBus() {
         return eventBus;
@@ -103,11 +107,7 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
                 return;
             }
 
-            if (ResourceWalker.getLocalDirPath() == null) {
-                String message = "Local override directory not present: requesting remote configuration files.";
-                this.getLogger().info(message);
-                this.getLogger().info("requesting customization");
-                resp.sendError(412, "Missing configuration files.");
+            if (requestConfigIfMissing(resp)) {
                 return;
             }
 
@@ -214,6 +214,30 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
         } catch (Exception e) {
             this.getLogger().error(LoggerUtils.stackTrace(e));
         }
+    }
+
+    public boolean requestConfigIfMissing(HttpServletResponse resp) throws IOException {
+        boolean doReturn = false;
+        if (ResourceWalker.getLocalDirPath() == null) {
+            if (configLock.tryLock()) {
+                try {
+                    String message = "Local override directory not present: requesting remote configuration files.";
+                    this.getLogger().info(message);
+                    this.getLogger().info("requesting customization");
+                    resp.sendError(412, "Missing configuration files.");
+                    doReturn = true;
+                    Thread.sleep(WAIT_FOR_CONFIG);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    configLock.unlock();
+                }
+            } else {
+                this.getLogger().info("configuration has already been requested, exiting");
+                doReturn = true;
+            }
+        }
+        return doReturn;
     }
 
     @Override
