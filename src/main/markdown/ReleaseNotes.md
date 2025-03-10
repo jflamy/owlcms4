@@ -8,6 +8,8 @@
 
 **Change Log**
 
+- 56.0.3: publicresults now can default to lifting order scoreboard. See below.
+- 56.0.3: publicresults will no longer emit simultaneous requests for configuration files.
 - 56.0.2: Translation updates: Spanish, German, Romanian, Hungarian, Russian
 - 56.0.1: Q-Points are now set to 0 for men bodyweights under 45kg, and women bodyweights under 40kg, as the function is not valid for such weights (Q-Youth should be used.)
 - 56.0.1: Fixed an oversized "Leaders" row on the Lifting Order scoreboard that could happen when an athlete has withdrawn from CJ
@@ -32,6 +34,10 @@
   - Competition Book (Final Package) template now deals correctly with out-of-competition athletes, which are identified by a negative rank.
 - Experimental Self-service Jury Replays
   - The documentation for the self-service jury module is now included.  The module is not yet ready for full use, but this is necessary to gather feedback.
+- publicresults: 
+  - added `OWLCMS_LIFTINGORDER` environment variable. Set to `true` to change the default scoreboard order.  On fly.io, this can be done by setting a secret `OWLCMS_LIFTINGORDER` with value `true` on the application's management page.
+  - Throttle requests to download the configurations. With a large number of platforms, there could be a large number of requests coming through continuously, causing slow startup.
+
 
 
 
