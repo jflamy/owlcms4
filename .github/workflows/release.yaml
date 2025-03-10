@@ -6,7 +6,11 @@ on:
       revision:
         description: 'semver number for the release'
         required: true
-        default: '56.0.1'
+# checklist
+# - pull in translations and proofread
+# - run AllTests locally
+# - Release Notes
+        default: '56.0.2-rc01'
 
 env:
   REPO_OWNER: owlcms

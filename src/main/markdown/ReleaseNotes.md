@@ -1,12 +1,14 @@
 
 
 ### ⚠️⚠️⚠️ OWLCMS INSTALLATION PROCEDURE⚠️⚠️⚠️
-**Since version 55, the [OWLCMS Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is the normal way to install and run OWLCMS. See the [Control Panel Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) for details.**
+**Since version 55, the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is the normal way to install and run OWLCMS. **
+**See the [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) for details.**
 
 <br><br>
 
 **Change Log**
 
+- 56.0.2: Translation updates: Spanish, German, Romanian, Hungarian, Russian
 - 56.0.1: Q-Points are now set to 0 for men bodyweights under 45kg, and women bodyweights under 40kg, as the function is not valid for such weights (Q-Youth should be used.)
 - 56.0.1: Fixed an oversized "Leaders" row on the Lifting Order scoreboard that could happen when an athlete has withdrawn from CJ
 - 56.0.1: Updated Jury Replays add-on module documentation.
