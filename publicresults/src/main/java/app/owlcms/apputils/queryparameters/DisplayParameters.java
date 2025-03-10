@@ -33,6 +33,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 
 /**
@@ -145,7 +146,8 @@ public interface DisplayParameters extends ContentParameters {
     }
 
     public default boolean isDefaultLiftingOrderDisplay() {
-        return false;
+        boolean liftingOrder = StartupUtils.getBooleanParam("liftingOrder");
+        return liftingOrder;
     }
 
     public default boolean isDefaultRecordsDisplay() {
