@@ -6,10 +6,10 @@ on:
       revision:
         description: 'semver number for the release'
         required: true
-# checklist
-# - pull in translations and proofread
-# - run AllTests locally
-# - Release Notes
+		# checklist
+		# - pull in translations and proofread
+		# - run AllTests locally
+		# - Release Notes
         default: '56.0.3-rc01'
 
 env:
