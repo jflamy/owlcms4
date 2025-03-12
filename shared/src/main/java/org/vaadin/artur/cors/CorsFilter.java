@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebFilter(filterName = "Cors Filter", asyncSupported = true, value = "/*")
+// copied from https://github.com/Artur-/cross-site-embedder
 public class CorsFilter implements Filter {
     private static final String SET_COOKIE_HEADER = "Set-Cookie";
     private Set<String> allowedOrigins = new HashSet<>();
