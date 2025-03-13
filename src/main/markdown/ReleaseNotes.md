@@ -4,10 +4,11 @@
 **Since version 55, the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is the normal way to install and run OWLCMS. **
 **See the [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) for details.**
 
-<br><br>
+<br>
 
 **Change Log**
 
+- 56.0.4: `.xlsm` extension from templates is now correctly preserved when using the Documents page
 - 56.0.3: publicresults now can default to lifting order scoreboard. See below.
 - 56.0.3: publicresults will no longer emit simultaneous requests for configuration files.
 - 56.0.2: Translation updates: Spanish, German, Romanian, Hungarian, Russian

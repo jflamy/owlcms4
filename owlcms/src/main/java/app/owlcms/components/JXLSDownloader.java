@@ -328,6 +328,7 @@ public class JXLSDownloader {
 
 		String fileName = "";
 		String templateName = this.templateNameGetter.apply(Competition.getCurrent());
+		
 		String extension = FileUtils.getExtension(templateName);
 		if ((templateName.matches(".*[_-](A4|LETTER|LEGAL).*"))) {
 			fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(." + extension + ")", "") + suffix + "."
