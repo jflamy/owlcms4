@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 56.0.5: Some of the Competition Information in Start Book Data Entry (SBDE) Excel was not being read correctly; also added capability to read the end date from cell N1.
 - 56.0.4: `.xlsm` extension from templates is now correctly preserved when using the Documents page
 - 56.0.3: publicresults now can default to lifting order scoreboard. See below.
 - 56.0.3: publicresults will no longer emit simultaneous requests for configuration files.
@@ -21,6 +22,7 @@
 
 - Competition Information
   - The competition end date can be captured. See also Templates, below.
+  - Entering the end date in cell N1 of the SBDE file now works.
 - Technical Officials
   - A new button is available on Prepare Competition to define a list of TOs.
   - Import and Export from Excel are supported. Table headers and TO Levels are translated to the current language. It is always possible to import a file exported in English.
