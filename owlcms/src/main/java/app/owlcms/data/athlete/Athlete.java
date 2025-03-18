@@ -3019,8 +3019,8 @@ public class Athlete {
 		Participation mr = getMainRankings();
 		int totalPoints = (mr != null ? mr.getTotalPoints() : 0);
 		if (Config.getCurrent().featureSwitch("mastersTeamPoints")) {
-			if (mr.getCategory().getAgeGroup().getChampionship().getType() == ChampionshipType.MASTERS) {
-				
+			if (mr.getChampionshipType() == ChampionshipType.MASTERS) {
+				if (getCategoryFinished()) return 0;
 			}
 		}
 		return totalPoints;
