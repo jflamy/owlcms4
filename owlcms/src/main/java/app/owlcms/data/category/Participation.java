@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
@@ -319,5 +321,14 @@ public class Participation implements IRankHolder {
 
 	private boolean isTeamMember() {
 		return this.teamMember;
+	}
+
+	public ChampionshipType getChampionshipType() {
+		Category category2 = getCategory();
+		if (category2 == null) return null;
+		AgeGroup ag = category2.getAgeGroup();
+		if (ag == null) return null;
+		ChampionshipType ch = ag.getChampionshipType();
+		return ch;
 	}
 }

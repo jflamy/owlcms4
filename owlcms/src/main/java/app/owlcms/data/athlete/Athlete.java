@@ -1483,7 +1483,7 @@ public class Athlete {
 	@JsonIgnore
 	public int getCleanJerkPoints() {
 		Participation mr = getMainRankings();
-		int points = (mr != null ? mr.getSnatchPoints() : 0);
+		int points = (mr != null ? mr.getCleanJerkPoints() : 0);
 		return points;
 	}
 
@@ -3018,6 +3018,11 @@ public class Athlete {
 	public int getTotalPoints() {
 		Participation mr = getMainRankings();
 		int totalPoints = (mr != null ? mr.getTotalPoints() : 0);
+		if (Config.getCurrent().featureSwitch("mastersTeamPoints")) {
+			if (mr.getCategory().getAgeGroup().getChampionship().getType() == ChampionshipType.MASTERS) {
+				
+			}
+		}
 		return totalPoints;
 	}
 
