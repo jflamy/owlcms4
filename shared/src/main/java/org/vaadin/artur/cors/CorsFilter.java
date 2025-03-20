@@ -121,8 +121,8 @@ public class CorsFilter implements Filter {
 //            e.printStackTrace();
 //        }
 //        if (allowedOrigins.isEmpty()) {
-//            logger.warn("No CORS origins defined. Allowing all origins for TESTING PURPOSES.");
-//            logger.warn(
+//            logger.debug("No CORS origins defined. Allowing all origins for TESTING PURPOSES.");
+//            logger.debug(
 //                    "Define allowed origins in src/main/resources/cors.properties as origins=origin1,origin2 before deploying");
 //            allowedOrigins.add("*");
 //        }
