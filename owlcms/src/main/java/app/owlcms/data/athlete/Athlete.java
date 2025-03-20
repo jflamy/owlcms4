@@ -49,6 +49,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -1215,7 +1216,6 @@ public class Athlete {
 		}
 	}
 
-
 	@Transient
 	@JsonIgnore
 	public String getCategorySortCode() {
@@ -2259,8 +2259,6 @@ public class Athlete {
 		return doGetProgression(requestedWeight, attempt);
 	}
 
-
-
 	public int getqAgeRank() {
 		return this.qAgeRank;
 	}
@@ -3016,15 +3014,11 @@ public class Athlete {
 	 * @return the total points
 	 */
 	public int getTotalPoints() {
-		Participation mr = getMainRankings();
-		int totalPoints = (mr != null ? mr.getTotalPoints() : 0);
-		if (Config.getCurrent().featureSwitch("mastersTeamPoints")) {
-			if (mr.getChampionshipType() == ChampionshipType.MASTERS) {
-				if (getCategoryFinished()) return 0;
-			}
-		}
+		int totalPoints = AthleteSorter.imwaPointsFormula(this);
 		return totalPoints;
 	}
+
+
 
 	public int getTotalRank() {
 		return (getMainRankings() != null ? getMainRankings().getTotalRank() : -1);
@@ -5741,7 +5735,7 @@ public class Athlete {
 			return getAgeAdjustedTotalForDelta();
 		}
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Double getAgeAdjustedTotalForDelta() {
@@ -5756,7 +5750,7 @@ public class Athlete {
 		double d = getQPoints() * getQMastersFactor();
 		return d;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Double getQAgeForDelta() {
@@ -5775,20 +5769,20 @@ public class Athlete {
 		}
 		return d;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public void setCategoryScore(Double ignored) {
 		// ignored, necessary for bean introspection
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Double getCategoryScoreForDelta() {
 		Double computedScore = computedCategoryScore();
 		return computedScore;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public void setCategoryScoreForDelta(Double ignored) {
@@ -5800,7 +5794,7 @@ public class Athlete {
 	public Double getCategorySinclair() {
 		return (getTotal() > 0.0) ? getCategorySinclairForDelta() : 0.0D;
 	}
-	
+
 	/**
 	 * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of this computation, only "official" categories are used
 	 * as the purpose is to totalRank athletes according to their competition potential.
@@ -5834,7 +5828,7 @@ public class Athlete {
 	}
 
 	public boolean withdrawnFromCJ() {
-		return getCleanJerk1ActualLift().equals("0") && getCleanJerk2ActualLift().equals("0")  && getCleanJerk3ActualLift().equals("0") ;
+		return getCleanJerk1ActualLift().equals("0") && getCleanJerk2ActualLift().equals("0") && getCleanJerk3ActualLift().equals("0");
 	}
 
 }

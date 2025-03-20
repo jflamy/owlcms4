@@ -298,6 +298,8 @@ public class Competition {
 	@Column(columnDefinition = "boolean default false")
 	private boolean masters20kg = false;
 	private String technicalOfficialsTemplateFileName;
+	@Column(columnDefinition = "boolean default true")
+	private boolean imwa = true;
 
 	public Competition() {
 		this.medalsByGroup = new HashMap<>();
@@ -2056,6 +2058,14 @@ public class Competition {
 
 	public void setCompetitionEndDate(LocalDate competitionEndDate) {
 		this.competitionEndDate = competitionEndDate;
+	}
+
+	public boolean isImwa() {
+		return this.imwa;
+	}
+	
+	public void setImwa(boolean imwa) {
+		this.imwa = imwa;
 	}
 
 }

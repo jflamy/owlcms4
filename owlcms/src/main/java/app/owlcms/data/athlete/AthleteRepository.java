@@ -7,9 +7,11 @@
 package app.owlcms.data.athlete;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,8 @@ public class AthleteRepository {
 		logger.setLevel(Level.INFO);
 	}
 	public static Set<String> allUnfinishedCategories;
+
+	private static final ThreadLocal<Map<String, Integer>> categoryAthleteCount = ThreadLocal.withInitial(HashMap::new);
 
 	public static Set<String> allUnfinishedCategories() {
 		Set<String> unfinishedCategories = new HashSet<>();
@@ -352,6 +356,32 @@ public class AthleteRepository {
 		query.setParameter("id", id);
 
 		return (Athlete) query.getResultList().stream().findFirst().orElse(null);
+	}
+
+	public static int retrieveMastersAthleteCountForCategory(Category category) {
+		Map<String, Integer> map = categoryAthleteCount.get();
+		if (map.isEmpty()) {
+			populateCategoryMastersAthleteCountMap();
+		}
+		return map.getOrDefault(category.getCode(), 0);
+	}
+
+	private static void populateCategoryMastersAthleteCountMap() {
+		JPAService.runInTransaction(em -> {
+			Query query = em.createQuery(
+				"select p.category, count(a.id) from Athlete a join a.participations p join p.category c join c.ageGroup ag where ag.minAge >= 30 group by p.category");
+			@SuppressWarnings("unchecked")
+			List<Object[]> results = query.getResultList();
+			Map<String, Integer> map = categoryAthleteCount.get();
+			map.putAll(results.stream()
+//					.peek(result -> {
+//						Category cat = (Category) result[0];
+//						int count = ((Long) result[1]).intValue();
+//						logger.debug("*** cat {}  count {}", cat.getCode(), count);
+//					})
+					.collect(Collectors.toMap(result -> ((Category) result[0]).getCode(), result -> ((Long) result[1]).intValue())));
+			return null;
+		});
 	}
 
 	public static Set<Athlete> keepOnlyFinishedCategoryAthletes(Collection<Athlete> athletes) {
