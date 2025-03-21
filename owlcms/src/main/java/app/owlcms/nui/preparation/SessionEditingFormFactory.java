@@ -18,6 +18,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -270,6 +271,13 @@ public class SessionEditingFormFactory
 		});
 
 		addRuler(formLayout);
+		Checkbox mastersCheckbox = new Checkbox();
+		mastersCheckbox.setLabel(Translator.translate("Competition.mastersStartOrder"));
+		this.binder.forField(mastersCheckbox)
+		        .bind(Group::isMasters, Group::setMasters);
+		formLayout.addFormItem(mastersCheckbox,Translator.translate("Competition.masters"));
+
+		addRuler(formLayout);
 		NumberField breakDurationField = new NumberField(Translator.translate("CJ_BreakDuration"));
 		breakDurationField.setPlaceholder(Translator.translate("CJ_BreakDurationPlaceHolder"));
 		breakDurationField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
@@ -297,52 +305,52 @@ public class SessionEditingFormFactory
 
 	private FormLayout juryLayout() {
 		FormLayout juryLayout = new FormLayout();
-		
+
 		ComboBox<String> jury1 = createOfficialComboBox("JuryPresident");
 		juryLayout.add(jury1);
 		this.binder.forField(jury1)
-				.withNullRepresentation("")
-				.bind(Group::getJury1, Group::setJury1);
+		        .withNullRepresentation("")
+		        .bind(Group::getJury1, Group::setJury1);
 
 		ComboBox<String> jury2 = createOfficialComboBox("Jury2");
 		juryLayout.add(jury2);
 		this.binder.forField(jury2)
-				.withNullRepresentation("")
-				.bind(Group::getJury2, Group::setJury2);
+		        .withNullRepresentation("")
+		        .bind(Group::getJury2, Group::setJury2);
 
 		ComboBox<String> jury3 = createOfficialComboBox("Jury3");
 		juryLayout.add(jury3);
 		this.binder.forField(jury3)
-				.withNullRepresentation("")
-				.bind(Group::getJury3, Group::setJury3);
+		        .withNullRepresentation("")
+		        .bind(Group::getJury3, Group::setJury3);
 
 		ComboBox<String> jury4 = createOfficialComboBox("Jury4");
 		juryLayout.add(jury4);
 		this.binder.forField(jury4)
-				.withNullRepresentation("")
-				.bind(Group::getJury4, Group::setJury4);
+		        .withNullRepresentation("")
+		        .bind(Group::getJury4, Group::setJury4);
 
 		ComboBox<String> jury5 = createOfficialComboBox("Jury5");
 		juryLayout.add(jury5);
 		this.binder.forField(jury5)
-				.withNullRepresentation("")
-				.bind(Group::getJury5, Group::setJury5);
+		        .withNullRepresentation("")
+		        .bind(Group::getJury5, Group::setJury5);
 
 		return juryLayout;
 	}
 
 	// private Stream<String> queryTechnicalOfficials(Optional<String> filter, long limit, long offset) {
-	// 	return TechnicalOfficialRepository.findAll().stream().map(to -> to.getLastName() + " " + to.getFirstName())
-	// 	        .filter(item -> !filter.isPresent() || item.contains(filter.get())).skip(offset).limit(limit);
+	// return TechnicalOfficialRepository.findAll().stream().map(to -> to.getLastName() + " " + to.getFirstName())
+	// .filter(item -> !filter.isPresent() || item.contains(filter.get())).skip(offset).limit(limit);
 	// }
 
-			// Map TechnicalOfficial fields correctly
+	// Map TechnicalOfficial fields correctly
 	List<String> officials = TechnicalOfficialRepository.findAll().stream()
-			.map(to -> (to.getLastName() != null ? to.getLastName() : "") 
-					+ (to.getFirstName() != null ? ", " + to.getFirstName() : ""))
-			.filter(name -> !name.isBlank())
-			.sorted()
-			.toList();
+	        .map(to -> (to.getLastName() != null ? to.getLastName() : "")
+	                + (to.getFirstName() != null ? ", " + to.getFirstName() : ""))
+	        .filter(name -> !name.isBlank())
+	        .sorted()
+	        .toList();
 
 	ComboBox<String> createOfficialComboBox(String label) {
 		ComboBox<String> box = new ComboBox<>(Translator.translate(label));
@@ -356,76 +364,75 @@ public class SessionEditingFormFactory
 	private FormLayout officialsLayout() {
 		FormLayout officialsLayout = new FormLayout();
 
-
 		ComboBox<String> announcer = createOfficialComboBox("Announcer");
 		officialsLayout.add(announcer);
 		this.binder.forField(announcer)
-				.withNullRepresentation("")
-				.bind(Group::getAnnouncer, Group::setAnnouncer);
+		        .withNullRepresentation("")
+		        .bind(Group::getAnnouncer, Group::setAnnouncer);
 
 		ComboBox<String> timeKeeper = createOfficialComboBox("Timekeeper");
 		officialsLayout.add(timeKeeper);
 		this.binder.forField(timeKeeper)
-				.withNullRepresentation("")
-				.bind(Group::getTimeKeeper, Group::setTimeKeeper);
+		        .withNullRepresentation("")
+		        .bind(Group::getTimeKeeper, Group::setTimeKeeper);
 
 		ComboBox<String> marshall = createOfficialComboBox("Marshall");
 		officialsLayout.add(marshall);
 		this.binder.forField(marshall)
-				.withNullRepresentation("")
-				.bind(Group::getMarshall, Group::setMarshall);
+		        .withNullRepresentation("")
+		        .bind(Group::getMarshall, Group::setMarshall);
 
 		ComboBox<String> marshal2 = createOfficialComboBox("Marshal2");
 		officialsLayout.add(marshal2);
 		this.binder.forField(marshal2)
-				.withNullRepresentation("")
-				.bind(Group::getMarshal2, Group::setMarshal2);
+		        .withNullRepresentation("")
+		        .bind(Group::getMarshal2, Group::setMarshal2);
 
 		ComboBox<String> technicalController = createOfficialComboBox("TechnicalController");
 		officialsLayout.add(technicalController);
 		this.binder.forField(technicalController)
-				.withNullRepresentation("")
-				.bind(Group::getTechnicalController, Group::setTechnicalController);
+		        .withNullRepresentation("")
+		        .bind(Group::getTechnicalController, Group::setTechnicalController);
 
 		ComboBox<String> technicalController2 = createOfficialComboBox("TechnicalController2");
 		officialsLayout.add(technicalController2);
 		this.binder.forField(technicalController2)
-				.withNullRepresentation("")
-				.bind(Group::getTechnicalController2, Group::setTechnicalController2);
+		        .withNullRepresentation("")
+		        .bind(Group::getTechnicalController2, Group::setTechnicalController2);
 
 		addRuler(officialsLayout);
 
 		ComboBox<String> weighIn1 = createOfficialComboBox("Weighin1");
 		officialsLayout.add(weighIn1);
 		this.binder.forField(weighIn1)
-				.withNullRepresentation("")
-				.bind(Group::getWeighIn1, Group::setWeighIn1);
+		        .withNullRepresentation("")
+		        .bind(Group::getWeighIn1, Group::setWeighIn1);
 
 		ComboBox<String> weighIn2 = createOfficialComboBox("Weighin2");
 		officialsLayout.add(weighIn2);
 		this.binder.forField(weighIn2)
-				.withNullRepresentation("")
-				.bind(Group::getWeighIn2, Group::setWeighIn2);
+		        .withNullRepresentation("")
+		        .bind(Group::getWeighIn2, Group::setWeighIn2);
 
 		addRuler(officialsLayout);
 
 		ComboBox<String> referee1 = createOfficialComboBox("Referee1");
 		officialsLayout.add(referee1);
 		this.binder.forField(referee1)
-				.withNullRepresentation("")
-				.bind(Group::getReferee1, Group::setReferee1);
+		        .withNullRepresentation("")
+		        .bind(Group::getReferee1, Group::setReferee1);
 
 		ComboBox<String> referee2 = createOfficialComboBox("Referee2");
 		officialsLayout.add(referee2);
 		this.binder.forField(referee2)
-				.withNullRepresentation("")
-				.bind(Group::getReferee2, Group::setReferee2);
+		        .withNullRepresentation("")
+		        .bind(Group::getReferee2, Group::setReferee2);
 
 		ComboBox<String> referee3 = createOfficialComboBox("Referee3");
 		officialsLayout.add(referee3);
 		this.binder.forField(referee3)
-				.withNullRepresentation("")
-				.bind(Group::getReferee3, Group::setReferee3);
+		        .withNullRepresentation("")
+		        .bind(Group::getReferee3, Group::setReferee3);
 
 		addRuler(officialsLayout);
 		return officialsLayout;
