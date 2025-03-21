@@ -8,38 +8,21 @@
 
 **Change Log**
 
-- 56.0.5: Some of the Competition Information in Start Book Data Entry (SBDE) Excel was not being read correctly; also added capability to read the end date from cell N1.
-- 56.0.4: `.xlsm` extension from templates is now correctly preserved when using the Documents page
-- 56.0.3: publicresults now can default to lifting order scoreboard. See below.
-- 56.0.3: publicresults will no longer emit simultaneous requests for configuration files.
-- 56.0.2: Translation updates: Spanish, German, Romanian, Hungarian, Russian
-- 56.0.1: Q-Points are now set to 0 for men bodyweights under 45kg, and women bodyweights under 40kg, as the function is not valid for such weights (Q-Youth should be used.)
-- 56.0.1: Fixed an oversized "Leaders" row on the Lifting Order scoreboard that could happen when an athlete has withdrawn from CJ
-- 56.0.1: Updated Jury Replays add-on module documentation.
-- 56.0.1: Added back the instructions for manual installation using java and the .zip file for setups where the control panel can't run
+- 57.0.0-alpha01: added ability to calculate team points using IMWA rules 
 
-**New In Release 56**
+**New In Release 57**
 
-- Competition Information
-  - The competition end date can be captured. See also Templates, below.
-  - Entering the end date in cell N1 of the SBDE file now works.
-- Technical Officials
-  - A new button is available on Prepare Competition to define a list of TOs.
-  - Import and Export from Excel are supported. Table headers and TO Levels are translated to the current language. It is always possible to import a file exported in English.
-  - The Assignment of Officials on the Session page now allows picking a TO from the list (the choices are auto-completed as you type)
-  - A summary report is available about who was assigned to what role, including the total number of sessions per TO.
-- Timing Summary
-  - Now use the rules for the Clean & Jerk break, as well as the overrides that were entered on each session
+- Masters sessions
+  - Sessions can be designated as Masters sessions.  Older age groups are first during weigh-in, when attributing start numbers. Scoreboards are grouped by age group, oldest first.
+  - There is now an extra column on the groups page of the registration/SBDE groups tab to indicate that a session is Masters.  TRUE indicates that it is, FALSE that it is not, and empty uses the default "Masters presentation order" setting for the competition.
+- Masters team scores
+  - In Masters championships, points are awarded using the Masters point system.
+
+- Competition Rules
+  - Added the ability to specify whether IMWA or UWML rules are used.  IMWA implies 80% rule and  team scoring that gives less points to winners of one or two-person categories.  IMWA is default.
 - Templates 
-  - The `${athlete.categoryScore}` template variable was not working correctly for eligibility categories other than the main registration category (the total would always be shown instead of the actual score.)
-  - `${competition.endDate}` is now available as a variable.
-  - Templates with Excel macros can now be used:  `.xlsm` files are visible as templates.
-  - Competition Book (Final Package) template now deals correctly with out-of-competition athletes, which are identified by a negative rank.
-- Experimental Self-service Jury Replays
-  - The documentation for the self-service jury module is now included.  The module is not yet ready for full use, but this is necessary to gather feedback.
-- publicresults: 
-  - added `OWLCMS_LIFTINGORDER` environment variable. Set to `true` to change the default scoreboard order.  On fly.io, this can be done by setting a secret `OWLCMS_LIFTINGORDER` with value `true` on the application's management page.
-  - Throttle requests to download the configurations. With a large number of platforms, there could be a large number of requests coming through continuously, causing slow startup.
+  - `${session.masters}` template variable can be used to show whether a session is tagged as Masters or not
+  -  `${athlete.totalPoints}`computes team points according to IWF rules except if the session is a Masters session. Then uses IMWA or UWML rules according to the competition rules.
 
 
 
