@@ -2045,12 +2045,12 @@ public class Competition {
 	}
 
 	public boolean isMasters20kg() {
-		return masters20kg || Config.getCurrent().featureSwitch("masters20kg");
+		return !imwa || Config.getCurrent().featureSwitch("masters20kg");
 	}
 	
-	public void setMasters20kg(boolean masters20kg) {
-		this.masters20kg = masters20kg;
-	}
+//	public void setMasters20kg(boolean masters20kg) {
+//		this.masters20kg = masters20kg;
+//	}
 
 	public LocalDate getCompetitionEndDate() {
 		return competitionEndDate;

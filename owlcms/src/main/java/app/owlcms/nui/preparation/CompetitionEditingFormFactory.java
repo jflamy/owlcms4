@@ -124,7 +124,9 @@ public class CompetitionEditingFormFactory
 		FormLayout competitionLayout = competitionForm();
 		FormLayout federationLayout = federationForm();
 		FormLayout teamsLayout = teamsForm();
-		FormLayout rulesLayout = rulesForm();
+		FormLayout generalRulesLayout = generalRulesForm();
+		FormLayout nonMastersRulesLayout = nonMastersRulesForm();
+		FormLayout mastersRulesLayout = mastersRulesForm();
 		FormLayout breakDurationLayout = breakDurationForm();
 		FormLayout specialLayout = specialRulesForm();
 		FormLayout pointScoresForm = pointScoresForm();
@@ -142,7 +144,9 @@ public class CompetitionEditingFormFactory
 		ts.add(Translator.translate("Competition.RulesTab"),
 		        new VerticalLayout(
 		                teamsLayout, separator(),
-		                rulesLayout, separator(),
+		                generalRulesLayout, separator(),
+		                nonMastersRulesLayout, separator(),
+		                mastersRulesLayout, separator(),
 		                breakDurationLayout));
 		ts.add(Translator.translate("Competition.specialRulesTitle"),
 		        new VerticalLayout(
@@ -403,22 +407,17 @@ public class CompetitionEditingFormFactory
 		return layout;
 	}
 
-	private FormLayout rulesForm() {
+	private FormLayout generalRulesForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("Competition.rulesTitle");
 		layout.add(title);
 		layout.setColspan(title, 2);
-
+		
 		Checkbox enforce20kgRuleField = new Checkbox();
 		layout.addFormItem(enforce20kgRuleField, Translator.translate("Competition.enforce20kgRule"));
 		this.binder.forField(enforce20kgRuleField)
 		        .bind(Competition::isEnforce20kgRule, Competition::setEnforce20kgRule);
-
-		Checkbox masters20kgField = new Checkbox();
-		layout.addFormItem(masters20kgField, Translator.translate("Competition.masters20kg"));
-		this.binder.forField(masters20kgField)
-		        .bind(Competition::isMasters20kg, Competition::setMasters20kg);
-
+		
 		Checkbox snatchCJTotalField = new Checkbox();
 		layout.addFormItem(snatchCJTotalField, Translator.translate("Competition.snatchCJTotalMedals"));
 		this.binder.forField(snatchCJTotalField)
@@ -434,11 +433,15 @@ public class CompetitionEditingFormFactory
 		this.binder.forField(announcerControlledJuryField)
 		        .bind(Competition::isAnnouncerControlledJuryDecision, Competition::setAnnouncerControlledJuryDecision);
 
-		Checkbox mastersField = new Checkbox();
-		layout.addFormItem(mastersField, Translator.translate("Competition.mastersStartOrder"));
-		this.binder.forField(mastersField)
-		        .bind(Competition::isMasters, Competition::setMasters);
-
+		return layout;
+	}
+	
+	private FormLayout nonMastersRulesForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Competition.nonMastersRulesTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+		
 		Checkbox byAgeGroupField = new Checkbox();
 		layout.addFormItem(byAgeGroupField, Translator.translate("Competition.startNumbersByAgeGroup"));
 		this.binder.forField(byAgeGroupField)
@@ -446,6 +449,27 @@ public class CompetitionEditingFormFactory
 
 		return layout;
 	}
+	
+	private FormLayout mastersRulesForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Competition.mastersRulesTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+		
+		Checkbox mastersField = new Checkbox(Translator.translate("Competition.mastersCompetitionCheckbox"));
+		layout.addFormItem(mastersField, Translator.translate("Competition.mastersCompetition"));
+		mastersField.setHelperText(Translator.translate("Competition.mastersCompetitionHelper"));
+		this.binder.forField(mastersField)
+		        .bind(Competition::isMasters, Competition::setMasters);
+
+		Checkbox imwaField = new Checkbox(Translator.translate("Competition.IMWARules"));
+		layout.addFormItem(imwaField, Translator.translate("Competition.IMWA"));
+		this.binder.forField(imwaField)
+		        .bind(Competition::isImwa, Competition::setImwa);
+
+		return layout;
+	}
+
 
 	private Hr separator() {
 		Hr hr = new Hr();

@@ -170,8 +170,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Integer startNumber = aFromDb.getStartNumber();
 		Integer entryTotal = aFromDb.getEntryTotal();
 		String entryString = "";
-		if (entryTotal != null && entryTotal > 0 && Competition.getCurrent().isEnforce20kgRule()
-		        && Config.getCurrent().featureSwitch("AthleteCardEntryTotal")) {
+		if (entryTotal != null && entryTotal > 0 && Config.getCurrent().featureSwitch("AthleteCardEntryTotal")) {
 			entryString = " (" + Translator.translate("Results.Entry_abbrev") + " = " + entryTotal + ")";
 		}
 		return (startNumber != null ? "[" + startNumber + "] " : "") + aFromDb.getFullId() + entryString;
