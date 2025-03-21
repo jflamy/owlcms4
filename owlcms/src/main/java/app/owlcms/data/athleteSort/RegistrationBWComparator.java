@@ -11,7 +11,6 @@ import java.util.Comparator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.competition.Competition;
 
 /**
  * This comparator is used for the technical meeting sheet. It is based on the registration category
@@ -43,7 +42,7 @@ public class RegistrationBWComparator extends AbstractLifterComparator implement
 
 		compare = compareAgeGroup(lifter1, lifter2);
 		if (compare != 0) {
-			return Competition.getCurrent().isMasters() ? -compare : compare;
+			return mastersSessionAgeGroupComparison(lifter1, lifter2, compare);
 		}
 
 		compare = compareEntryTotal(lifter1, lifter2);

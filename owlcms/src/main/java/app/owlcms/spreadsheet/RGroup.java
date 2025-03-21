@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.utils.DateTimeUtils;
 import ch.qos.logback.classic.Logger;
@@ -46,6 +47,7 @@ public class RGroup {
 	String competitionTime;
 	String weighinTime;
 	String platform;
+	String masters;
 
 	public String getAnnouncer() {
 		return this.announcer;
@@ -296,6 +298,19 @@ public class RGroup {
 	public void setWeighInTO2(String weighInTO2) {
 		this.group.setWeighIn2(weighInTO2);
 		this.weighInTO2 = weighInTO2;
+	}
+
+	public String getMasters() {
+		return masters;
+	}
+
+	public void setMasters(String masters) {
+		if (masters != null && !masters.isEmpty()) {
+			this.group.setMasters(masters.equalsIgnoreCase("true"));
+		} else {
+			this.group.setMasters(Competition.getCurrent().isMasters());
+		}
+		this.masters = masters;
 	}
 
 }

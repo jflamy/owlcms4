@@ -16,6 +16,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -149,12 +150,20 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 	};
 	public static Comparator<Athlete> athleteRegistrationOrderComparator = (lifter1, lifter2) -> {
 		int compare;
-		if (Competition.getCurrent().isDisplayByAgeGroup() || Competition.getCurrent().isMasters()) {
+		// normally part of the same group when this is called, but never too careful.
+		// both athletes are lifting in Masters sessions
+		Group group1 = lifter1.getGroup();
+		boolean lifter1Masters = group1 != null ? group1.isMasters() : false;
+		Group group2 = lifter2.getGroup();
+		boolean lifter2Masters = group2 != null ? group2.isMasters() : false;
+		boolean bothMasters = lifter1Masters && lifter2Masters;
+		
+		if (Competition.getCurrent().isDisplayByAgeGroup() || bothMasters) {
 			compare = ageGroupRegistrationComparator.compare(lifter1.getAgeGroup(), lifter2.getAgeGroup());
 			if (compare != 0) {
 				traceComparison("RegistrationOrderComparator ageGroup", lifter1, lifter1.getAgeGroup(), lifter2,
 				        lifter2.getAgeGroup(), compare);
-				return Competition.getCurrent().isMasters() ? -compare : compare;
+				return bothMasters ? -compare : compare;
 			}
 		} else {
 			compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());

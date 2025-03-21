@@ -28,6 +28,7 @@
                 <mapping row="2" col="19">g.jury4</mapping>
                 <mapping row="2" col="20">g.jury5</mapping>
                 <mapping row="2" col="21">g.reserve</mapping>
+                <mapping row="2" col="22">g.masters</mapping>
             </section>
             <loopbreakcondition>
                 <rowcheck offset="0">

@@ -450,13 +450,13 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		// return compare; // earlier group time wins
 		// }
 
-		if (Competition.getCurrent().isUseOldBodyWeightTieBreak()) {
-			compare = compareBodyWeight(lifter1, lifter2);
-			traceComparison("bodyweight", lifter1, lifter2, compare);
-			if (compare != 0) {
-				return compare; // smaller Athlete wins
-			}
-		}
+//		if (Competition.getCurrent().isUseOldBodyWeightTieBreak()) {
+//			compare = compareBodyWeight(lifter1, lifter2);
+//			traceComparison("bodyweight", lifter1, lifter2, compare);
+//			if (compare != 0) {
+//				return compare; // smaller Athlete wins
+//			}
+//		}
 
 		// if (Competition.getCurrent().isMasters()) {
 		// compare = compareBirthDate(lifter1, lifter2);

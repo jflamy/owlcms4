@@ -284,6 +284,7 @@ public class Group implements Comparable<Group> {
 	private String description;
 	@Column(columnDefinition = "boolean default false")
 	private boolean done;
+	private Boolean masters;
 	@Id
 	private Long id;
 	private String jury1;
@@ -1316,5 +1317,19 @@ public class Group implements Comparable<Group> {
 		setHourFormatter(DateTimeFormatter
 		        .ofLocalizedTime(FormatStyle.SHORT)
 		        .withLocale(locale));
+	}
+	
+	public boolean getMasters() {
+		// defaults to competition setting.
+		return isMasters();
+	}
+	
+	public boolean isMasters() {
+		// defaults to competition setting.
+		return masters == null ? Competition.getCurrent().isMasters() : this.masters;
+	}
+	
+	public void setMasters(boolean masters) {
+		this.masters = masters;
 	}
 }
