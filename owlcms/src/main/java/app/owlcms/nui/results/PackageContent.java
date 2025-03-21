@@ -37,6 +37,7 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -105,6 +106,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Checkbox includeUnfinishedCategories;
 	private ComboBox<Ranking> rankingSelector;
 	private Ranking scoringSystem;
+	private boolean winnersOnly;
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
@@ -185,6 +187,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			                && (allCategories || !unfinishedCategories.contains(a.getCategory().getCode()));
 			        return catOk;
 		        })
+		        .filter(a -> !this.winnersOnly || a.getTotalRank() == 1)
 		// /* logger.debug( */.peek(r -> logger./**/warn("including {} {} *** {}", r.getAbbreviatedName(), r.getCategory().getCode(),
 		// r.getParticipations().get(0)))
 		;
@@ -486,21 +489,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	@Override
 	protected void defineFilters(GridCrud<Athlete> crud) {
-		// logger.debug("defineFilters");
-
 		defineFilterCascade(crud);
 		this.includeUnfinishedCategories = new Checkbox(Translator.translate("Video.includeNotCompleted"));
 		getCrudLayout(crud).addFilterComponent(this.includeUnfinishedCategories);
 		defineSelectionListeners();
 
 		this.includeUnfinishedCategories.addValueChangeListener(e -> crud.refreshGrid());
-		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
-		clearFilters.addClickListener(event -> {
-			clearFilters();
-			this.includeUnfinishedCategories.setValue(false);
-		});
 
-		getCrudLayout(crud).addFilterComponent(clearFilters);
+		Checkbox winnersOnlyCheckbox = new Checkbox(Translator.translate("Results.WinnersOnly"));
 
 		if (this.getRankingSelector() == null) {
 			ComboBox<Ranking> scoringCombo = new ComboBox<>(Translator.translate("Ranking.BestAthlete"));
@@ -518,7 +514,26 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 				setScoringSystem(event.getValue());
 				resetGrid();
 			});
+
+			winnersOnlyCheckbox.setValue(this.winnersOnly);
+			winnersOnlyCheckbox.addValueChangeListener(event -> {
+				if (!event.isFromClient()) {
+					return;
+				}
+				setWinnersOnly(event.getValue());
+				resetGrid();
+			});
+			getCrudLayout(crud).addFilterComponent(new VerticalLayout(scoringCombo, winnersOnlyCheckbox));
 		}
+		
+		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+		clearFilters.addClickListener(event -> {
+			clearFilters();
+			this.includeUnfinishedCategories.setValue(false);
+			winnersOnlyCheckbox.setValue(false);
+		});
+		
+		getCrudLayout(crud).addFilterComponent(clearFilters);
 
 		this.getCategoryFilter().setClearButtonVisible(true);
 		this.getCategoryFilter().setPlaceholder(Translator.translate("Category"));
@@ -625,7 +640,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setCategory(this.categoryValue);
 			        rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
-
+			        rs.setWinnersOnly(this.winnersOnly);
 			        Ranking computeScoringSystem = computeScoringSystem();
 			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem, computeScoringSystem.getMReportingName());
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
@@ -711,6 +726,10 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	private void setScoringSystem(Ranking value) {
 		this.scoringSystem = value;
+	}
+	
+	private void setWinnersOnly(boolean value) {
+		this.winnersOnly = value;
 	}
 
 }

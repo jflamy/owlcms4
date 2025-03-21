@@ -15,11 +15,14 @@
 - Masters sessions
   - Sessions can be designated as Masters sessions.  Older age groups are first during weigh-in, when attributing start numbers. Scoreboards are grouped by age group, oldest first.
   - There is now an extra column on the groups page of the registration/SBDE groups tab to indicate that a session is Masters.  TRUE indicates that it is, FALSE that it is not, and empty uses the default "Masters presentation order" setting for the competition.
-- Masters team scores
-  - In Masters championships, points are awarded using the Masters point system.
-
 - Competition Rules
-  - Added the ability to specify whether IMWA or UWML rules are used.  IMWA implies 80% rule and  team scoring that gives less points to winners of one or two-person categories.  IMWA is default.
+  - Added the ability to specify whether IMWA or UWML rules are used.  
+    - IMWA implies 80% rule and  team scoring that gives less points to winners of one or two-person categories.  
+    - Not selecting IMWA keeps IWF 20kg rule and IWF team scores, which is what UWML uses.
+- Masters team scores
+  - New IMWA template to use the IMWA team scoring rules (the template sheet to award points differently is ignored)
+- Best Athlete Awards
+  - The Competition Results page now has an additional checkbox to restrict the listing to category winners.  In many federations, the best lifter athlete must also be a category winner.
 - Templates 
   - `${session.masters}` template variable can be used to show whether a session is tagged as Masters or not
   -  `${athlete.totalPoints}`computes team points according to IWF rules except if the session is a Masters session. Then uses IMWA or UWML rules according to the competition rules.

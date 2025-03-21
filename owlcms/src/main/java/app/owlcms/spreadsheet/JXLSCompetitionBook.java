@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +42,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
 	private boolean isIncludeUnfinished;
+	private boolean winnersOnly;
 
 	public JXLSCompetitionBook(boolean excludeNotWeighed, UI ui) {
 	}
@@ -150,8 +152,23 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		JXLSWorkbookStreamSource.setNoInterimScoresInResults(Config.getCurrent().featureSwitch("noInterimScoresInResults"));
 		reportingBeans.put("bestRankingTitle", Ranking.getScoringTitle(overallScoringSystem));
 
-		reportingBeans.put("mBest", reportingBeans.get(overallScoringSystem.getMReportingName()));
-		reportingBeans.put("wBest", reportingBeans.get(overallScoringSystem.getWReportingName()));
+		if (isWinnersOnly()) {
+			Collection<Athlete> bestMen = ((Collection<Athlete>) reportingBeans
+			        .get(overallScoringSystem.getMReportingName()));
+			if (this.winnersOnly) {
+				bestMen = bestMen.stream().filter(a -> a.getTotalRank() == 1).toList();
+			}
+			reportingBeans.put("mBest", bestMen);
+			Collection<Athlete> bestWomen = ((Collection<Athlete>) reportingBeans
+			        .get(overallScoringSystem.getWReportingName()));
+			if (this.winnersOnly) {
+				bestWomen = bestWomen.stream().filter(a -> a.getTotalRank() == 1).toList();
+			}
+			reportingBeans.put("wBest", bestWomen);
+		} else {
+			reportingBeans.put("mBest", reportingBeans.get(overallScoringSystem.getMReportingName()));
+			reportingBeans.put("wBest", reportingBeans.get(overallScoringSystem.getWReportingName()));
+		}
 		setReportingBeans(reportingBeans);
 	}
 
@@ -217,6 +234,14 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 				curSheet.getFooter().setRight(rightFooter);
 			}
 		}
+	}
+
+	public void setWinnersOnly(boolean winnersOnly) {
+		this.winnersOnly = winnersOnly;
+	}
+
+	public boolean isWinnersOnly() {
+		return winnersOnly;
 	}
 
 }
