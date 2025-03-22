@@ -8,6 +8,8 @@
 
 **Change Log**
 
+- 57.0.0-alpha02: updated the SBDE processing to do updates of session data only
+- 57.0.0-alpha01: added ability to mark sessions as using Masters start number rules.
 - 57.0.0-alpha01: added ability to calculate team points using IMWA rules 
 
 **New In Release 57**
@@ -23,6 +25,10 @@
   - New IMWA template to use the IMWA team scoring rules (the template sheet to award points differently is ignored)
 - Best Athlete Awards
   - The Competition Results page now has an additional checkbox to restrict the listing to category winners.  In many federations, the best lifter athlete must also be a category winner.
+- Updating session data using SBDE
+  - Fix: session data updating was not functional, now fixed
+  - Enhancement: if the file name is renamed to end with `_sessions.xlsx` or if the feature switch `noAthleteUpdates` is present, then only the sessions tab is processed.  This allows changing referee information and scheduled times without touching the athletes.
+
 - Templates 
   - `${session.masters}` template variable can be used to show whether a session is tagged as Masters or not
   -  `${athlete.totalPoints}`computes team points according to IWF rules except if the session is a Masters session. Then uses IMWA or UWML rules according to the competition rules.
