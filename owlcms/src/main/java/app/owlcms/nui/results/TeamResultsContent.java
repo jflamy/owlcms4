@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
@@ -300,12 +301,23 @@ public class TeamResultsContent extends BaseContent
 		grid.addColumn(TeamTreeItem::getCategory).setHeader(Translator.translate("Category"))
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn(TeamTreeItem::getPoints, "points").setHeader(Translator.translate("TeamResults.Points"))
+		        .setComparator((a, b) -> ObjectUtils.compare(a.getPoints(), b.getPoints(), false))
 		        .setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(t -> formatDouble(t.getSinclairScore(), 3), "sinclairScore")
+		grid.addColumn(t -> formatDouble(t.getQPointsScore(), 3))
+		        .setHeader(Translator.translate("Ranking.QPOINTS"))
+		        .setComparator((a, b) -> ObjectUtils.compare(a.getSinclairScore(), b.getSinclairScore(), false))
+		        .setTextAlign(ColumnTextAlign.END);
+		grid.addColumn(t -> formatDouble(t.getQMastersScore(), 3))
+		        .setHeader(Translator.translate("Ranking.QAGE"))
+		        .setComparator((a, b) -> ObjectUtils.compare(a.getQMastersScore(), b.getQMastersScore(), false))
+		        .setTextAlign(ColumnTextAlign.END);
+		grid.addColumn(t -> formatDouble(t.getSinclairScore(), 3))
 		        .setHeader(Translator.translate("Scoreboard.Sinclair"))
+		        .setComparator((a, b) -> ObjectUtils.compare(a.getSinclairScore(), b.getSinclairScore(), false))
 		        .setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(t -> formatDouble(t.getSmfScore(), 3), "smfScore")
+		grid.addColumn(t -> formatDouble(t.getSmfScore(), 3))
 		        .setHeader(Translator.translate("smhf"))
+		        .setComparator((a, b) -> ObjectUtils.compare(a.getSmfScore(), b.getSmfScore(), false))
 		        .setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(TeamTreeItem::formatProgress).setHeader(Translator.translate("TeamResults.Status"))
 		        .setTextAlign(ColumnTextAlign.END);

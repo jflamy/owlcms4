@@ -5757,6 +5757,20 @@ public class Athlete {
 		double d = getQPointsForDelta() * getQMastersFactor();
 		return d;
 	}
+	
+	@Transient
+	@JsonIgnore
+	public Double getQMastersForDelta() {
+		double d = getQPointsForDelta() * getQMastersFactor();
+		return d;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public Double getQMasters() {
+		double d = getQPoints() * getQMastersFactor();
+		return d;
+	}
 
 	@Transient
 	@JsonIgnore

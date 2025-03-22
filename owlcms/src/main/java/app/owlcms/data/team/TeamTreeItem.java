@@ -170,6 +170,16 @@ public class TeamTreeItem {
 	public Double getSinclairScore() {
 		return (this.team != null ? this.team.getSinclairScore() : this.athlete.getSinclairForDelta());
 	}
+	
+	public Double getQPointsScore() {
+		return (this.team != null ? this.team.getQPoints() : this.athlete.getQPointsForDelta());
+	}
+	
+	public Double getQMastersScore() {
+		return (this.team != null ? this.team.getQMasters() : this.athlete.getQMastersForDelta());
+	}
+
+
 
 	public long getSize() {
 		return this.team != null ? this.team.getSize() : 0;

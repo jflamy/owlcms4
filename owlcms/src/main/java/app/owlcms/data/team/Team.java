@@ -61,6 +61,7 @@ public class Team {
 	private double gamx;
 	private double qPoints = 0.0D;
 	private Ranking scoringSystem;
+	private double qMasters = 0.0D;
 
 	public Team(String curTeamName, Gender gender) {
 		this.name = curTeamName;
@@ -108,6 +109,8 @@ public class Team {
 				return getCatSinclairScore();
 			case QPOINTS:
 				return getQPoints();
+			case QAGE:
+				return getQMasters();
 			case ROBI:
 				return getRobi();
 			case SMM:
@@ -117,6 +120,10 @@ public class Team {
 			default:
 				return 0D;
 		}
+	}
+
+	public Double getQMasters() {
+		return this.qMasters;
 	}
 
 	public double getSinclairScore() {
@@ -158,9 +165,14 @@ public class Team {
 		this.points = points;
 	}
 
-	public void setQPoints(double qPoints) {
-		this.qPoints = qPoints;
+	public void setQPoints(double q) {
+		this.qPoints = q;
 	}
+	
+	public void setQMasters(double q) {
+		this.qMasters = q;
+	}
+
 
 	public void setRobi(double robi) {
 		this.robi = robi;

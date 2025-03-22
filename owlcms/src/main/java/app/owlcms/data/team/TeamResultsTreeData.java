@@ -121,6 +121,8 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					double curSmf = a.getSmhfForDelta();
 					double curRobi = a.getRobi();
 					double curGamx = a.getGamx();
+					double curQPoints = a.getQPoints();
+					double curQMasters = a.getQMasters();
 
 					Team curTeam = curTeamItem.getTeam();
 
@@ -141,6 +143,8 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 							curTeam.setCounted(curTeam.getCounted() + 1);
 							curTeam.setRobi(curTeam.getRobi() + curRobi);
 							curTeam.setGamx(curTeam.getGamx() + curGamx);
+							curTeam.setQPoints(curTeam.getQPoints() + curQPoints);
+							curTeam.setQMasters(curTeam.getQPoints() + curQMasters);
 						}
 					}
 					curTeamItem.addTreeItemChild(a, groupIsDone);
