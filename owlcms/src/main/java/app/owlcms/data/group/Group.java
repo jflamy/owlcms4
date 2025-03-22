@@ -6,7 +6,8 @@
  *******************************************************************************/
 package app.owlcms.data.group;
 
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -14,8 +15,10 @@ import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +33,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
@@ -426,13 +428,66 @@ public class Group implements Comparable<Group> {
 		compare = ObjectUtils.compare(this, obj, true);
 		return compare;
 	}
+	
+    // Method to copy properties from another instance using accessors
+    public void copyFrom(Group other) {
+        if (other == null) {
+            throw new IllegalArgumentException("Source instance must not be null");
+        }
 
-	public void copy(Group source) throws IllegalAccessException, InvocationTargetException {
-		Long myId = getId();
-		BeanUtils.copyProperties(source, this);
-		this.setId(myId);
-	}
+        try {
+            Map<String, Method> getters = new HashMap<>();
+            Map<String, Method> setters = new HashMap<>();
 
+            // Collect all getters and setters
+            for (Method method : Group.class.getDeclaredMethods()) {
+                String name = method.getName();
+
+				if (isGetter(method)) {
+                	name = name.substring(name.startsWith("get") ? 3 : 2);
+                    getters.put(name, method);
+                } else if (isSetter(method)) {
+                    setters.put(name.substring(3), method);
+                }
+            }
+
+            // Copy properties
+            for (String propertyName : getters.keySet()) {
+                Method getter = getters.get(propertyName);
+                Method setter = setters.get(propertyName);
+                if (propertyName.equals("Id") || propertyName.contains("Range")) {
+                	continue;
+                }
+                if (getter != null && setter != null) {
+                    try {
+						Object value = getter.invoke(other);
+						setter.invoke(this, value);
+					} catch (Exception e) {
+						logger.error("!!!! mismatch {}", propertyName);
+						throw e;
+					}
+                }
+            }
+        } catch (Exception e) {
+            LoggerUtils.logError(logger, e);
+        }
+    }
+
+    private boolean isGetter(Method method) {
+        if (!method.getName().startsWith("get")) return false;
+        if (method.getParameterTypes().length != 0) return false;
+        if (void.class.equals(method.getReturnType())) return false;
+        if (!Modifier.isPublic(method.getModifiers())) return false;
+        return true;
+    }
+
+    private boolean isSetter(Method method) {
+        if (!method.getName().startsWith("set")) return false;
+        if (method.getParameterTypes().length != 1) return false;
+        if (!void.class.equals(method.getReturnType())) return false;
+        if (!Modifier.isPublic(method.getModifiers())) return false;
+        return true;
+    }
 	public void doDone() {
 		boolean previousDone = this.isDone();
 		boolean groupDone = true;

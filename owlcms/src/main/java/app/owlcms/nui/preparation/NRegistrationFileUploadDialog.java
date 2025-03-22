@@ -20,6 +20,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.IRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
@@ -101,12 +102,18 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		if (this.sbdeFormat) {
 			processCompetition(inputStream, ta);
 		}
-		
-		// process athletes now that groups have been adjusted
-		processAthletes(inputStream, ta, false);
-		this.processor.adjustParticipations();
+
+		if (isProcessAthletes()) {
+			// process athletes now that groups have been adjusted
+			processAthletes(inputStream, ta, false);
+			this.processor.adjustParticipations();
+		}
 	}
-	
+
+	private boolean isProcessAthletes() {
+		boolean updatesAllowed = !Config.getCurrent().featureSwitch("noAthleteUpdates");
+		return updatesAllowed && this.fileName != null && !this.fileName.contains("_sessions");
+	}
 
 	private void processCompetition(InputStream inputStream, TextArea ta) {
 		StringBuffer sb = new StringBuffer();
@@ -116,7 +123,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	}
 
 	private boolean eraseAthletes() {
-		return this.fileName != null && !this.fileName.contains("_add");
+		return isProcessAthletes() && this.fileName != null && !this.fileName.contains("_add");
 	}
 
 	private int processAthletes(InputStream inputStream, TextArea ta, boolean dryRun) {

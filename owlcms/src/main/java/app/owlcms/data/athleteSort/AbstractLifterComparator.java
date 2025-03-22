@@ -1067,12 +1067,12 @@ public class AbstractLifterComparator {
 	}
 	
 	public int mastersSessionAgeGroupComparison(Athlete lifter1, Athlete lifter2, int compare) {
-		// both athletes are lifting in Masters sessions
+		// either athlete is lifting in Masters sessions, oldest first
 		Group group1 = lifter1.getGroup();
 		boolean lifter1Masters = group1 != null ? group1.isMasters() : false;
 		Group group2 = lifter2.getGroup();
 		boolean lifter2Masters = group2 != null ? group2.isMasters() : false;
-		return lifter1Masters && lifter2Masters ? -compare : compare;
+		return lifter1Masters || lifter2Masters ? -compare : compare;
 	}
 
 }

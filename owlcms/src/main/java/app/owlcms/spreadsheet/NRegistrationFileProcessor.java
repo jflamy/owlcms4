@@ -8,7 +8,6 @@ package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -334,14 +333,11 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 				Group readGroup = g.getGroup();
 				Group group = GroupRepository.doFindByName(g.getGroupName(), em);
 				if (group == null) {
-					// new group
+					// create a new group
 					group = readGroup;
 				} else {
-					try {
-						group.copy(readGroup);
-					} catch (IllegalAccessException | InvocationTargetException e) {
-						this.logger.error(LoggerUtils.shortStackTrace(e));
-					}
+					// update the existing group
+					group.copyFrom(readGroup);
 				}
 
 				if (platformName == null || platformName.isBlank()) {
