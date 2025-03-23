@@ -171,30 +171,14 @@ public class AgeGroupEditingFormFactory
 		ComboBox<Gender> genderField = new ComboBox<>();
 		genderField.setPlaceholder(Translator.translate("Gender"));
 		if (Competition.getCurrent().isGenderInclusive()) {
-			genderField.setItems(Gender.M, Gender.F);
-			genderField.setItemLabelGenerator((i) -> {
-				switch (i) {
-					case M:
-						return Translator.translate("Gender.Men");
-					case F:
-						return Translator.translate("Gender.Women");
-					default:
-						throw new IllegalStateException("can't happen");
-				}
-			});
-		} else {
 			genderField.setItems(Gender.M, Gender.F, Gender.I);
 			genderField.setItemLabelGenerator((i) -> {
-				switch (i) {
-					case M:
-						return Translator.translate("Gender.Men");
-					case F:
-						return Translator.translate("Gender.Women");
-					case I:
-						return Translator.translate("Gender.Inclusive");
-					default:
-						throw new IllegalStateException("can't happen");
-				}
+				return i.asGenderName();
+			});
+		} else {
+			genderField.setItems(Gender.M, Gender.F);
+			genderField.setItemLabelGenerator((i) -> {
+				return i.asGenderName();
 			});
 		}
 		this.binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);

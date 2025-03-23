@@ -455,7 +455,7 @@ public class TeamSelectionContent extends BaseContent
 			this.genderFilter.setPlaceholder(Translator.translate("Gender"));
 			this.genderFilter.setItems(Gender.M, Gender.F);
 			this.genderFilter.setItemLabelGenerator((i) -> {
-				return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
+				return i.asGenderName();
 			});
 			this.genderFilter.setClearButtonVisible(true);
 			this.genderFilter.addValueChangeListener(e -> {

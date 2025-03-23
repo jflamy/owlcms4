@@ -68,7 +68,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		if (ageDivision == null) {
 			return;
 		}
-		for (Gender gender : Gender.mfValues()) {
+		for (Gender gender : Gender.mfmfValues()) {
 			if (this.genderFilterValue != null && gender != this.genderFilterValue) {
 				continue;
 			}
@@ -77,84 +77,89 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 			if (curGenderTeams == null) {
 				curGenderTeams = new ArrayList<>();
 				getTeamItemsByGender().put(gender, curGenderTeams);
-				this.logger.debug("created list for gender {}: {}", gender, getTeamItemsByGender().get(gender));
+				//this.logger.debug("created list for gender {}: {}", gender, getTeamItemsByGender().get(gender));
 			}
-
 			TeamTreeItem curTeamItem = null;
-			String key = computeGenderKey(gender) + "Team"
-			        + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.getName());
-			this.logger.debug("looking for {} in {}", key, this.reportingBeans.keySet());
-
-			@SuppressWarnings("unchecked")
-			List<Athlete> athletes = (List<Athlete>) this.reportingBeans.get(key);
-			if (athletes == null) {
-				return;
-			}
-			athletes = athletes.stream()
-			        // .peek(a -> {
-			        // logger.debug("{} {} {} {}",a.getShortName(), ((PAthlete)
-			        // a)._getOriginalParticipation().getTeamMember(), a.getClass().getSimpleName(), ((PAthlete)
-			        // a).getCategory());
-			        // })
-			        // .filter(a -> a.isTeamMember())
-			        .collect(Collectors.toList());
-			AthleteSorter.teamPointsOrder(athletes, this.ranking);
-
-			String prevTeamName = null;
-			if (athletes != null) {
-				boolean combinedTotal = Competition.getCurrent().isSnatchCJTotalMedals();
-				// count points for each team
-				for (Athlete a : athletes) {
-					// check if competition is a "best n results" team comp.
-					// if the competition is "top n", we can have "top 4 men" + "top 2 women", so we
-					// want the athlete's
-					// gender.
-					Integer maxCount = getTopNTeamSize(a.getGender());
-					String curTeamName = a.getTeam();
-					// logger.debug("a={} curTeam = {}",a, a.getTeam());
-					curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName,
-					        curTeamItem,
-					        curTeamName != null ? curTeamName : "-");
-					boolean groupIsDone = groupIsDone(a);
-					Integer curPoints = combinedTotal ? a.getCombinedPoints() : a.getTotalPoints();
-					double curSinclair = a.getSinclairForDelta();
-					double curSmf = a.getSmhfForDelta();
-					double curRobi = a.getRobi();
-					double curGamx = a.getGamx();
-					double curQPoints = a.getQPoints();
-					double curQMasters = a.getQMasters();
-
-					Team curTeam = curTeamItem.getTeam();
-
-					boolean b = curTeam.getCounted() < maxCount;
-					boolean c = curPoints != null && curPoints > 0;
-
-					// if (debug) {
-					// logger.debug("---- Athlete {} {} {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
-					// curTeam.getCounted(), groupIsDone, b, c);
-					// }
-					if (a.isTeamMember()) {
-						if ((includeNotDone || groupIsDone) && b && c) {
-							curTeam.setPoints(curTeam.getPoints() + Math.round(curPoints));
-						}
-						if (b) {
-							curTeam.setSinclairScore(curTeam.getSinclairScore() + curSinclair);
-							curTeam.setSmfScore(curTeam.getSmfScore() + curSmf);
-							curTeam.setCounted(curTeam.getCounted() + 1);
-							curTeam.setRobi(curTeam.getRobi() + curRobi);
-							curTeam.setGamx(curTeam.getGamx() + curGamx);
-							curTeam.setQPoints(curTeam.getQPoints() + curQPoints);
-							curTeam.setQMasters(curTeam.getQPoints() + curQMasters);
-						}
-					}
-					curTeamItem.addTreeItemChild(a, groupIsDone);
-					curTeam.setSize(curTeam.getSize() + 1);
-					prevTeamName = curTeamName;
-				}
-			}
+			curTeamItem = doTeamGender(ageGroupPrefix, ageDivision, includeNotDone, gender, curGenderTeams, curTeamItem);
 		}
 
 		dumpTeams();
+	}
+
+	public TeamTreeItem doTeamGender(String ageGroupPrefix, Championship ageDivision, boolean includeNotDone, Gender gender, List<TeamTreeItem> curGenderTeams,
+	        TeamTreeItem curTeamItem) {
+		String key = computeGenderKey(gender) + "Team"
+		        + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.getName());
+		this.logger.debug("looking for {} in {}", key, this.reportingBeans.keySet());
+
+		@SuppressWarnings("unchecked")
+		List<Athlete> athletes = (List<Athlete>) this.reportingBeans.get(key);
+		if (athletes == null) {
+			return null;
+		}
+		athletes = athletes.stream()
+		        // .peek(a -> {
+		        // logger.debug("{} {} {} {}",a.getShortName(), ((PAthlete)
+		        // a)._getOriginalParticipation().getTeamMember(), a.getClass().getSimpleName(), ((PAthlete)
+		        // a).getCategory());
+		        // })
+		        // .filter(a -> a.isTeamMember())
+		        .collect(Collectors.toList());
+		AthleteSorter.teamPointsOrder(athletes, this.ranking);
+
+		String prevTeamName = null;
+		if (athletes != null) {
+			boolean combinedTotal = Competition.getCurrent().isSnatchCJTotalMedals();
+			// count points for each team
+			for (Athlete a : athletes) {
+				// check if competition is a "best n results" team comp.
+				// if the competition is "top n", we can have "top 4 men" + "top 2 women", so we
+				// want the athlete's
+				// gender.
+				Integer maxCount = getTopNTeamSize(a.getGender());
+				String curTeamName = a.getTeam();
+				// logger.debug("a={} curTeam = {}",a, a.getTeam());
+				curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName,
+				        curTeamItem,
+				        curTeamName != null ? curTeamName : "-");
+				boolean groupIsDone = groupIsDone(a);
+				Integer curPoints = combinedTotal ? a.getCombinedPoints() : a.getTotalPoints();
+				double curSinclair = a.getSinclairForDelta();
+				double curSmf = a.getSmhfForDelta();
+				double curRobi = a.getRobi();
+				double curGamx = a.getGamx();
+				double curQPoints = a.getQPoints();
+				double curQMasters = a.getQMasters();
+
+				Team curTeam = curTeamItem.getTeam();
+
+				boolean b = curTeam.getCounted() < maxCount;
+				boolean c = curPoints != null && curPoints > 0;
+
+				// if (debug) {
+				// logger.debug("---- Athlete {} {} {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
+				// curTeam.getCounted(), groupIsDone, b, c);
+				// }
+				if (a.isTeamMember()) {
+					if ((includeNotDone || groupIsDone) && b && c) {
+						curTeam.setPoints(curTeam.getPoints() + Math.round(curPoints));
+					}
+					if (b) {
+						curTeam.setSinclairScore(curTeam.getSinclairScore() + curSinclair);
+						curTeam.setSmfScore(curTeam.getSmfScore() + curSmf);
+						curTeam.setCounted(curTeam.getCounted() + 1);
+						curTeam.setRobi(curTeam.getRobi() + curRobi);
+						curTeam.setGamx(curTeam.getGamx() + curGamx);
+						curTeam.setQPoints(curTeam.getQPoints() + curQPoints);
+						curTeam.setQMasters(curTeam.getQPoints() + curQMasters);
+					}
+				}
+				curTeamItem.addTreeItemChild(a, groupIsDone);
+				curTeam.setSize(curTeam.getSize() + 1);
+				prevTeamName = curTeamName;
+			}
+		}
+		return curTeamItem;
 	}
 
 	private String computeGenderKey(Gender gender) {
@@ -166,9 +171,11 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 			case M:
 				genderKey = "m";
 				break;
-			default:
+			case MF:
 				genderKey = "mw";
 				break;
+			default:
+				throw new IllegalArgumentException();
 		}
 		return genderKey;
 	}

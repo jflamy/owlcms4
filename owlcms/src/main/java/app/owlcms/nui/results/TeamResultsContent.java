@@ -295,21 +295,31 @@ public class TeamResultsContent extends BaseContent
 	 */
 	protected OwlcmsCrudGrid<TeamTreeItem> createCrudGrid(OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory) {
 		TreeGrid<TeamTreeItem> grid = new TreeGrid<>();
-		grid.addHierarchyColumn(TeamTreeItem::formatName).setHeader(Translator.translate("Name"));
-		grid.addColumn(TeamTreeItem::getGender).setHeader(Translator.translate("Gender"))
-		        .setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(TeamTreeItem::getCategory).setHeader(Translator.translate("Category"))
+		grid.addHierarchyColumn(TeamTreeItem::formatName)
+				.setHeader(Translator.translate("Name"))
+				.setWidth("32ch");
+		grid.addColumn(TeamTreeItem::getGender)
+				.setHeader(Translator.translate("Gender"))
+		        .setTextAlign(ColumnTextAlign.END)
+		        .setAutoWidth(true);
+		grid.addColumn(TeamTreeItem::getCategory)
+				.setHeader(Translator.translate("Category"))
+				.setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn(TeamTreeItem::getPoints, "points").setHeader(Translator.translate("TeamResults.Points"))
+		grid.addColumn(TeamTreeItem::getPoints, "points")
+				.setHeader(Translator.translate("TeamResults.Points"))
 		        .setComparator((a, b) -> ObjectUtils.compare(a.getPoints(), b.getPoints(), false))
+				.setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(t -> formatDouble(t.getQPointsScore(), 3))
 		        .setHeader(Translator.translate("Ranking.QPOINTS"))
 		        .setComparator((a, b) -> ObjectUtils.compare(a.getSinclairScore(), b.getSinclairScore(), false))
+				.setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(t -> formatDouble(t.getQMastersScore(), 3))
 		        .setHeader(Translator.translate("Ranking.QAGE"))
 		        .setComparator((a, b) -> ObjectUtils.compare(a.getQMastersScore(), b.getQMastersScore(), false))
+				.setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(t -> formatDouble(t.getSinclairScore(), 3))
 		        .setHeader(Translator.translate("Scoreboard.Sinclair"))
@@ -317,6 +327,7 @@ public class TeamResultsContent extends BaseContent
 		        .setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(t -> formatDouble(t.getSmfScore(), 3))
 		        .setHeader(Translator.translate("smhf"))
+				.setAutoWidth(true)
 		        .setComparator((a, b) -> ObjectUtils.compare(a.getSmfScore(), b.getSmfScore(), false))
 		        .setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(TeamTreeItem::formatProgress).setHeader(Translator.translate("TeamResults.Status"))
@@ -403,15 +414,13 @@ public class TeamResultsContent extends BaseContent
 		if (this.genderFilter == null) {
 			this.genderFilter = new ComboBox<>();
 			this.genderFilter.setPlaceholder(Translator.translate("Gender"));
-			this.genderFilter.setItems(Gender.M, Gender.F);
-			this.genderFilter.setItemLabelGenerator((i) -> {
-				return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
-			});
+			this.genderFilter.setItems(Gender.M, Gender.F, Gender.MF);
+			this.genderFilter.setItemLabelGenerator((i) -> i.asGenderName());
 			this.genderFilter.setClearButtonVisible(true);
 			this.genderFilter.addValueChangeListener(e -> {
 				crudGrid2.refreshGrid();
 			});
-			this.genderFilter.setWidth("10em");
+			this.genderFilter.setWidth("15em");
 		}
 
 		crudGrid2.getCrudLayout().addFilterComponent(this.topBarAgeDivisionSelect);

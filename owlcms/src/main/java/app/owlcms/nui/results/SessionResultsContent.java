@@ -516,7 +516,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		this.getGenderFilter().setPlaceholder(Translator.translate("Gender"));
 		this.getGenderFilter().setItems(Gender.M, Gender.F);
 		this.getGenderFilter().setItemLabelGenerator((i) -> {
-			return i == Gender.M ? Translator.translate("Gender.Men") : Translator.translate("Gender.Women");
+			return i.asGenderName();
 		});
 		this.getGenderFilter().setClearButtonVisible(true);
 		this.getGenderFilter().addValueChangeListener(e -> {

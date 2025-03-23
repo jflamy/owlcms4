@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 57.0.0-alpha03: added mixed team results to Team Results page
 - 57.0.0-alpha02: updated the SBDE processing to do updates of session data only
 - 57.0.0-alpha01: added ability to mark sessions as using Masters start number rules.
 - 57.0.0-alpha01: added ability to calculate team points using IMWA rules 
@@ -28,6 +29,9 @@
 - Updating session data using SBDE
   - Fix: session data updating was not functional, now fixed
   - Enhancement: if the file name is renamed to end with `_sessions.xlsx` or if the feature switch `noAthleteUpdates` is present, then only the sessions tab is processed.  This allows changing referee information and scheduled times without touching the athletes.
+
+- Team Results
+  - The Team Results page now also shows the combined Men + Women team results
 
 - Templates 
   - `${session.masters}` template variable can be used to show whether a session is tagged as Masters or not

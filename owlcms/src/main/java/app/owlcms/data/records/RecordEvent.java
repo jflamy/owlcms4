@@ -315,7 +315,7 @@ public class RecordEvent {
 	}
 
 	public String getTranslatedGender() {
-		return Translator.translate("Gender." + this.gender);
+		return this.gender.asGenderName();
 	}
 
 	public String getTranslatedLift() {

@@ -76,6 +76,11 @@ public class TeamTreeItem {
 	}
 
 	public void addTreeItemChild(Athlete a, boolean done) {
+		List<TeamTreeItem> members = getTeamMembers();
+		boolean already = members.stream().anyMatch(m -> m.getAthlete().getId().equals(a.getId()));
+		if (already) {
+			return;
+		}
 		TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
 		child.setParent(this);
 		getTeamMembers().add(child);
