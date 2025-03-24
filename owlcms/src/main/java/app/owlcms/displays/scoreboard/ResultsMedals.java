@@ -182,7 +182,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	public void setTitles(JsonObject jMC, Category cat) {
 		jMC.put("categoryName", cat.getDisplayName());
-		Ranking scoringSystem = cat.getAgeGroup().getScoringSystem();
+		AgeGroup ageGroup2 = cat.getAgeGroup();
+		Ranking scoringSystem = ageGroup2 != null ? ageGroup2.getScoringSystem() : null;
 		String rankingTitle = Translator.translate("Rank");
 		if (scoringSystem != null && scoringSystem != Ranking.TOTAL) {
 			String scoreScoringTitle = Translator.translate("Score");
