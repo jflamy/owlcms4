@@ -63,15 +63,17 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	 */
 	@Override
 	public void addDialogContent(Component target, VerticalLayout vl) {
-		// logger.debug("addDialogContent ad={} ag={} darkMode={}", getchampionship(),
-		// getAgeGroupPrefix(),
-		// isDarkMode());
+		 logger.debug("addDialogContent ad={} ag={} darkMode={}", getChampionship(),
+		 getAgeGroupPrefix(),
+		 isDarkMode());
 
 		DisplayOptions.addLightingEntries(vl, target, this);
 		ComboBox<Championship> championshipComboBox = new ComboBox<>();
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
 		List<Championship> championships = Championship.findAll();
+		logger.warn("championships {}",championships);
 		championshipComboBox.setItems(championships);
+		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setPlaceholder(Translator.translate("Championship"));
 		championshipComboBox.setClearButtonVisible(true);
 		championshipComboBox.addValueChangeListener(e -> {

@@ -66,6 +66,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		ComboBox<Championship> championshipComboBox = new ComboBox<>();
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
 		List<Championship> championships = Championship.findAll();
+		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setItems(championships);
 		championshipComboBox.setPlaceholder(Translator.translate("Championship"));
 		championshipComboBox.setClearButtonVisible(true);
