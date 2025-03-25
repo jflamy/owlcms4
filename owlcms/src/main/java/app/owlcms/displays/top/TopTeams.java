@@ -70,6 +70,7 @@ public class TopTeams extends AbstractTop {
 	private List<TeamTreeItem> mensTeams;
 	private EventBus uiEventBus;
 	private List<TeamTreeItem> womensTeams;
+	private List<TeamTreeItem> mixedTeams;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TopTeams() {
@@ -93,8 +94,10 @@ public class TopTeams extends AbstractTop {
 	}
 
 	public void doUpdate(Competition competition) {
-		// logger.debug("doUpdate ag={} ad={}", ageGroupPrefix, ageDivision);
 		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (fop == null) {
+			return;
+		}
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
 		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getChampionship(),
@@ -114,15 +117,13 @@ public class TopTeams extends AbstractTop {
 		}
 		this.womensTeams = topN(this.womensTeams);
 
-		updateBottom();
+		this.mixedTeams = teamsByGender.get(Gender.MF);
+		if (this.mixedTeams != null) {
+			this.mixedTeams.sort(TeamTreeItem.pointComparator);
 	}
+		this.mixedTeams = topN(this.mixedTeams);
 
-	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setSilenced(boolean)
-	 */
-	@Override
-	public void setSilenced(boolean silent) {
-		// no-op, silenced by definition
+		updateBottom();
 	}
 
 	@Override
@@ -169,7 +170,7 @@ public class TopTeams extends AbstractTop {
 
 	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
-		// logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
+		logger.debug("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			if (a != null) {
 				updateBottom();
@@ -233,7 +234,7 @@ public class TopTeams extends AbstractTop {
 		ja.put("team", t.getName());
 		ja.put("counted", formatInt(t.getCounted()));
 		ja.put("size", formatInt((int) t.getSize()));
-		ja.put("score", formatDouble(t.getSinclairScore()));
+		ja.put("score", formatDouble(t.getScore()));
 		ja.put("points", formatInt(t.getPoints()));
 	}
 
@@ -252,8 +253,7 @@ public class TopTeams extends AbstractTop {
 
 		for (Team t : list3) {
 			JsonObject ja = Json.createObject();
-			// Gender curGender = t.getGender();
-
+			t.getGender();
 			getTeamJson(t, ja);
 			String teamName = t.getName();
 			if (teamName != null && teamName.length() > Competition.SHORT_TEAM_LENGTH) {
@@ -282,20 +282,40 @@ public class TopTeams extends AbstractTop {
 	}
 
 	private void updateBottom() {
-		String menTitle = this.mensTeams != null && this.mensTeams.size() > 0
-		        ? Translator.translate("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix()
-		        : "";
-		JsonValue menJson = getTeamsJson(this.mensTeams, true);
-		String womenTitle = this.womensTeams != null && this.womensTeams.size() > 0
-		        ? Translator.translate("Scoreboard.TopTeamsWomen") + computeAgeGroupSuffix()
-		        : "";
-		JsonValue womenJson = getTeamsJson(this.womensTeams, false);
 
-		// logger.debug("updateBottomX {} {}", mensTeams, womensTeams);
-		this.getElement().setProperty("topTeamsMen", menTitle);
-		this.getElement().setPropertyJson("mensTeams", menJson);
-		this.getElement().setProperty("topTeamsWomen", womenTitle);
-		this.getElement().setPropertyJson("womensTeams", womenJson);
+		Gender gender = this.getGender();
+		if (gender == null || gender == Gender.M || gender == Gender.I) {
+			this.getElement().setProperty("topTeamsMen",
+			        this.mensTeams != null && this.mensTeams.size() > 0
+			                ? Translator.translate("Scoreboard.TopTeamsMen") + computeAgeGroupSuffix()
+			                : "");
+			this.getElement().setPropertyJson("mensTeams", getTeamsJson(this.mensTeams, true));
+		} else {
+			this.getElement().setPropertyJson("topTeamsMen", Json.createNull());
+			this.getElement().setPropertyJson("mensTeams", Json.createNull());
+		}
+
+		if (gender == null || gender == Gender.F || gender == Gender.I) {
+			this.getElement().setProperty("topTeamsWomen",
+			        this.womensTeams != null && this.womensTeams.size() > 0
+			                ? Translator.translate("Scoreboard.TopTeamsWomen") + computeAgeGroupSuffix()
+			                : "");
+			this.getElement().setPropertyJson("womensTeams", getTeamsJson(this.womensTeams, false));
+		} else {
+			this.getElement().setPropertyJson("topTeamsWomen", Json.createNull());
+			this.getElement().setPropertyJson("womensTeams", Json.createNull());
+		}
+
+		if (gender == null || gender == Gender.MF) {
+			this.getElement().setProperty("topTeamsMixed",
+			        this.mixedTeams != null && this.mixedTeams.size() > 0
+			                ? Translator.translate("Scoreboard.TopTeamsMixed") + computeAgeGroupSuffix()
+			                : "");
+			this.getElement().setPropertyJson("mixedTeams", getTeamsJson(this.mixedTeams, false));
+		} else {
+			this.getElement().setPropertyJson("topTeamsMixed", Json.createNull());
+			this.getElement().setPropertyJson("mixedTeams", Json.createNull());
+		}
 	}
 
 }

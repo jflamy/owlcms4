@@ -30,6 +30,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -51,6 +52,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	private String ageGroupPrefix;
 	private AgeGroup ageGroup;
 	private Category category;
+	private Gender gender;
 
 	public TopTeamsPage() {
 		// intentionally empty. superclass will call init() as required.
@@ -93,6 +95,24 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 
 		vl.add(new NativeLabel(Translator.translate("SelectAgeGroup")),
 		        new HorizontalLayout(championshipComboBox, ageGroupPrefixComboBox));
+		
+		ComboBox<Gender> genderComboBox = new ComboBox<>();
+		genderComboBox.setItems(Gender.values());
+		genderComboBox.setClearButtonVisible(true);
+		genderComboBox.setItemLabelGenerator(g -> {
+		    return switch (g) {
+		        case M -> Translator.translate("Gender.Men");
+		        case F -> Translator.translate("Gender.Women");
+		        case I -> Translator.translate("Gender.Women") + ", " + Translator.translate("Gender.Men");
+		        case MF -> Translator.translate("Gender.Mixed");
+		    };
+		});
+		genderComboBox.addValueChangeListener(event -> {
+			setGender(event.getValue());
+			updateURLLocations();
+		});
+		vl.add(new NativeLabel(Translator.translate("Scoreboard.SelectGenders")),
+		        new HorizontalLayout(genderComboBox));
 	}
 
 	@Override
@@ -164,6 +184,17 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		setAgeGroupPrefix(ageGroupPrefix);
 		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
 		updateParam(params1, "ag", value2);
+		
+		List<String> genderParams = params1.get("gender");
+		// no age group is the default
+		String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
+		Gender gValue = null;
+		try {
+			gValue = Gender.valueOf(genderString);
+			setGender(gValue);
+		} catch (Exception e) {
+		}
+		updateParam(params1, "gender", gValue == null ? null : gValue.toString());
 
 		switchLightingMode(darkMode, false);
 		updateURLLocations();
@@ -175,6 +206,13 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		}
 		setUrlParameterMap(params1);
 		return params1;
+	}
+	
+	@Override
+	public void setGender(Gender gender) {
+		this.gender = gender;
+		((TopTeams) this.getBoard()).setGender(gender);
+		((TopTeams) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
@@ -255,6 +293,13 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		        getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
 		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
 		        getChampionship() != null ? getChampionship().getName() : null);
+		updateURLLocation(UI.getCurrent(), getLocation(), "gender",
+		        getGender() != null ? getGender().name(): null);
+	}
+
+	@Override
+	public Gender getGender() {
+		return gender;
 	}
 
 }
