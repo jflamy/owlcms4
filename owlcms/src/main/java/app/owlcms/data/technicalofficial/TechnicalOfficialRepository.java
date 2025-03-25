@@ -39,12 +39,25 @@ public class TechnicalOfficialRepository {
 	}
 
 	public static TechnicalOfficial findByName(String string) {
+		String[] t = string.split("[, ]+");
+		String lastName = t[0];
+		String firstName = t[1];
 		return JPAService.runInTransaction(em -> {
-			TypedQuery<TechnicalOfficial> query = em.createQuery("select c from TechnicalOfficial c where lower(name) = lower(:string)", TechnicalOfficial.class);
-			query.setParameter("string", string);
+			TypedQuery<TechnicalOfficial> query = em.createQuery("select c from TechnicalOfficial c where (lower(lastName) = lower(:lastName) and lower(firstName) = lower(:firstName))", TechnicalOfficial.class);
+			query.setParameter("lastName", lastName);
+			query.setParameter("firstName", firstName);
 			List<TechnicalOfficial> resultList = query.getResultList();
 			return resultList.isEmpty() ? null : resultList.get(0);
 		});
+	}
+	
+	public static TechnicalOfficial safeFindByName(String string) {
+		TechnicalOfficial to = findByName(string);
+		if (to == null) {
+			to = new TechnicalOfficial();
+			to.setLastName(string);
+		}
+		return to;
 	}
 
 	public static TechnicalOfficial getById(Long id, EntityManager em) {

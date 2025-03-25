@@ -51,6 +51,8 @@ import app.owlcms.data.athleteSort.AbstractLifterComparator;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.technicalofficial.TechnicalOfficial;
+import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
@@ -300,19 +302,6 @@ public class Group implements Comparable<Group> {
 	private String referee1;
 	private String referee2;
 	private String referee3;
-	public String getCompetitionSecretary() {
-		return competitionSecretary;
-	}
-	public void setCompetitionSecretary(String competitionSecretary) {
-		this.competitionSecretary = competitionSecretary;
-	}
-	public String getCompetitionSecretary2() {
-		return competitionSecretary2;
-	}
-	public void setCompetitionSecretary2(String competitionSecretary2) {
-		this.competitionSecretary2 = competitionSecretary2;
-	}
-
 	private String reserve;
 	private String technicalController;
 	private String technicalController2;
@@ -323,13 +312,12 @@ public class Group implements Comparable<Group> {
 	private String competitionSecretary;
 	private String competitionSecretary2;
 	private LocalDateTime weighInTime;
-
 	@Column(columnDefinition = "integer default null")
 	private Integer cleanJerkBreakDuration;
-
 	@Transient
 	@JsonIgnore
 	Pattern pattern = Pattern.compile("(\\d+)\\s+(\\w+)");
+
 	/**
 	 * Instantiates a new group.
 	 */
@@ -338,6 +326,7 @@ public class Group implements Comparable<Group> {
 		setHourFormatter(Locale.getDefault());
 		setDayFormatter(Locale.getDefault());
 	}
+
 	/**
 	 * Instantiates a new group.
 	 *
@@ -367,12 +356,25 @@ public class Group implements Comparable<Group> {
 		this.setCompetitionTime(competition);
 	}
 
-	public String getCompetitionDirector() {
-		return competitionDirector;
-	}
-
-	public void setCompetitionDirector(String competitionDirector) {
-		this.competitionDirector = competitionDirector;
+	public int cjBreakDuration(FieldOfPlay fieldOfPlay) {
+		Group cGroup = fieldOfPlay.getGroup();
+		int millisRemaining;
+		Competition cCur = Competition.getCurrent();
+		Integer cleanJerkBreakDuration = cGroup.getCleanJerkBreakDuration();
+		if (cleanJerkBreakDuration != null) {
+			millisRemaining = cleanJerkBreakDuration * 60 * 1000;
+		} else {
+			millisRemaining = 10 * 60 * 1000;
+			int size = fieldOfPlay.getLiftingOrder().size();
+			if (cCur.getShorterBreakMin() != null && size > cCur.getShorterBreakMin()) {
+				millisRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10) * 60
+				        * 1000;
+			} else if (cCur.getLongerBreakMax() != null && size < cCur.getLongerBreakMax()) {
+				millisRemaining = (cCur.getLongerBreakDuration() != null ? cCur.getLongerBreakDuration() : 10) * 60
+				        * 1000;
+			}
+		}
+		return millisRemaining;
 	}
 
 	/*
@@ -428,66 +430,51 @@ public class Group implements Comparable<Group> {
 		compare = ObjectUtils.compare(this, obj, true);
 		return compare;
 	}
-	
-    // Method to copy properties from another instance using accessors
-    public void copyFrom(Group other) {
-        if (other == null) {
-            throw new IllegalArgumentException("Source instance must not be null");
-        }
 
-        try {
-            Map<String, Method> getters = new HashMap<>();
-            Map<String, Method> setters = new HashMap<>();
+	// Method to copy properties from another instance using accessors
+	public void copyFrom(Group other) {
+		if (other == null) {
+			throw new IllegalArgumentException("Source instance must not be null");
+		}
 
-            // Collect all getters and setters
-            for (Method method : Group.class.getDeclaredMethods()) {
-                String name = method.getName();
+		try {
+			Map<String, Method> getters = new HashMap<>();
+			Map<String, Method> setters = new HashMap<>();
+
+			// Collect all getters and setters
+			for (Method method : Group.class.getDeclaredMethods()) {
+				String name = method.getName();
 
 				if (isGetter(method)) {
-                	name = name.substring(name.startsWith("get") ? 3 : 2);
-                    getters.put(name, method);
-                } else if (isSetter(method)) {
-                    setters.put(name.substring(3), method);
-                }
-            }
+					name = name.substring(name.startsWith("get") ? 3 : 2);
+					getters.put(name, method);
+				} else if (isSetter(method)) {
+					setters.put(name.substring(3), method);
+				}
+			}
 
-            // Copy properties
-            for (String propertyName : getters.keySet()) {
-                Method getter = getters.get(propertyName);
-                Method setter = setters.get(propertyName);
-                if (propertyName.equals("Id") || propertyName.contains("Range")) {
-                	continue;
-                }
-                if (getter != null && setter != null) {
-                    try {
+			// Copy properties
+			for (String propertyName : getters.keySet()) {
+				Method getter = getters.get(propertyName);
+				Method setter = setters.get(propertyName);
+				if (propertyName.equals("Id") || propertyName.contains("Range")) {
+					continue;
+				}
+				if (getter != null && setter != null) {
+					try {
 						Object value = getter.invoke(other);
 						setter.invoke(this, value);
 					} catch (Exception e) {
 						logger.error("!!!! mismatch {}", propertyName);
 						throw e;
 					}
-                }
-            }
-        } catch (Exception e) {
-            LoggerUtils.logError(logger, e);
-        }
-    }
+				}
+			}
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		}
+	}
 
-    private boolean isGetter(Method method) {
-        if (!method.getName().startsWith("get")) return false;
-        if (method.getParameterTypes().length != 0) return false;
-        if (void.class.equals(method.getReturnType())) return false;
-        if (!Modifier.isPublic(method.getModifiers())) return false;
-        return true;
-    }
-
-    private boolean isSetter(Method method) {
-        if (!method.getName().startsWith("set")) return false;
-        if (method.getParameterTypes().length != 1) return false;
-        if (!void.class.equals(method.getReturnType())) return false;
-        if (!Modifier.isPublic(method.getModifiers())) return false;
-        return true;
-    }
 	public void doDone() {
 		boolean previousDone = this.isDone();
 		boolean groupDone = true;
@@ -557,8 +544,6 @@ public class Group implements Comparable<Group> {
 		return athletes;
 	}
 
-	// @Override
-
 	/**
 	 * Gets the announcer.
 	 *
@@ -570,9 +555,76 @@ public class Group implements Comparable<Group> {
 
 	@Transient
 	@JsonIgnore
+	public TechnicalOfficial getAnnouncerAsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getAnnouncer());
+		return to;
+	}
+
+	@Transient
+	@JsonIgnore
 	public List<Athlete> getAthletes() {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
 	}
+
+	public Integer getCleanJerkBreakDuration() {
+		return cleanJerkBreakDuration;
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getCleanJerkBreakMinutes() {
+		int minutesRemaining = 0;
+		Competition cCur = Competition.getCurrent();
+		Integer cleanJerkBreakDuration = this.getCleanJerkBreakDuration();
+		if (cleanJerkBreakDuration != null) {
+			minutesRemaining = cleanJerkBreakDuration;
+		} else {
+			minutesRemaining = 10;
+			List<Athlete> athletes = this.getAthletes();
+			int size = athletes != null ? athletes.size() : 0;
+			if (cCur.getShorterBreakMin() != null && size > cCur.getShorterBreakMin()) {
+				minutesRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10);
+			} else if (cCur.getLongerBreakMax() != null && size < cCur.getLongerBreakMax()) {
+				minutesRemaining = (cCur.getLongerBreakDuration() != null ? cCur.getLongerBreakDuration() : 10);
+			}
+		}
+		return minutesRemaining;
+	}
+
+	public String getCompetitionDirector() {
+		return competitionDirector;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getCompetitionDirectorAsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getCompetitionDirector());
+		return to;
+	}
+
+	public String getCompetitionSecretary() {
+		return competitionSecretary;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getCompetitionSecretaryAsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getCompetitionSecretary());
+		return to;
+	}
+
+	public String getCompetitionSecretary2() {
+		return competitionSecretary2;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getCompetitionSecretary2AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getCompetitionSecretary2());
+		return to;
+	}
+
+	// @Override
 
 	/**
 	 * Gets the competition short date time.
@@ -811,11 +863,25 @@ public class Group implements Comparable<Group> {
 		return this.jury1;
 	}
 
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getJury1AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury1());
+		return to;
+	}
+
 	/**
 	 * @return the jury2
 	 */
 	public String getJury2() {
 		return this.jury2;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getJury2AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury2());
+		return to;
 	}
 
 	/**
@@ -825,11 +891,25 @@ public class Group implements Comparable<Group> {
 		return this.jury3;
 	}
 
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getJury3AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury3());
+		return to;
+	}
+
 	/**
 	 * @return the jury4
 	 */
 	public String getJury4() {
 		return this.jury4;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getJury4AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury4());
+		return to;
 	}
 
 	/**
@@ -837,6 +917,13 @@ public class Group implements Comparable<Group> {
 	 */
 	public String getJury5() {
 		return this.jury5;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getJury5AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury5());
+		return to;
 	}
 
 	/**
@@ -931,6 +1018,13 @@ public class Group implements Comparable<Group> {
 	public String getMarshal2() {
 		return this.marshal2;
 	}
+	
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getMarshal2AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getMarshal2());
+		return to;
+	}
 
 	/**
 	 * Gets the marshall.
@@ -939,6 +1033,18 @@ public class Group implements Comparable<Group> {
 	 */
 	public String getMarshall() {
 		return this.marshall;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getMarshallAsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getMarshall());
+		return to;
+	}
+
+	public boolean getMasters() {
+		// defaults to competition setting.
+		return isMasters();
 	}
 
 	/**
@@ -969,12 +1075,31 @@ public class Group implements Comparable<Group> {
 	}
 
 	/**
+	 * Gets the referee 1.
+	 *
+	 * @return the referee 1
+	 */
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getReferee1AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.referee1);
+		return to;
+	}
+
+	/**
 	 * Gets the referee 2.
 	 *
 	 * @return the referee 2
 	 */
 	public String getReferee2() {
 		return this.referee2;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getReferee2AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.referee2);
+		return to;
 	}
 
 	/**
@@ -986,11 +1111,25 @@ public class Group implements Comparable<Group> {
 		return this.referee3;
 	}
 
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getReferee3AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.referee3);
+		return to;
+	}
+
 	/**
 	 * @return the reserve
 	 */
 	public String getReserve() {
 		return this.reserve;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getReserveAsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.reserve);
+		return to;
 	}
 
 	@Transient
@@ -1041,6 +1180,20 @@ public class Group implements Comparable<Group> {
 		return this.technicalController2;
 	}
 
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getTechnicalController2AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getTechnicalController2());
+		return to;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getTechnicalControllerAsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getTechnicalController());
+		return to;
+	}
+
 	/**
 	 * Gets the time keeper.
 	 *
@@ -1050,12 +1203,33 @@ public class Group implements Comparable<Group> {
 		return this.timeKeeper;
 	}
 
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getTimeKeeperAsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getTimeKeeper());
+		return to;
+	}
+
 	public String getWeighIn1() {
 		return this.weighIn1;
 	}
 
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getWeighIn1AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getWeighIn1());
+		return to;
+	}
+
 	public String getWeighIn2() {
 		return this.weighIn2;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getWeighIn2AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getWeighIn2());
+		return to;
 	}
 
 	/**
@@ -1101,6 +1275,11 @@ public class Group implements Comparable<Group> {
 		return this.done;
 	}
 
+	public boolean isMasters() {
+		// defaults to competition setting.
+		return masters == null ? Competition.getCurrent().isMasters() : this.masters;
+	}
+
 	public void setAlphaAthletes(List<Athlete> a) {
 	}
 
@@ -1114,6 +1293,25 @@ public class Group implements Comparable<Group> {
 	}
 
 	public void setAthletes(List<Athlete> a) {
+	}
+
+	public void setCleanJerkBreakDuration(Integer cleanJerkBreakDuration) {
+		this.cleanJerkBreakDuration = cleanJerkBreakDuration;
+	}
+
+	public void setCleanJerkBreakMinutes(int ignored) {
+	}
+
+	public void setCompetitionDirector(String competitionDirector) {
+		this.competitionDirector = competitionDirector;
+	}
+
+	public void setCompetitionSecretary(String competitionSecretary) {
+		this.competitionSecretary = competitionSecretary;
+	}
+
+	public void setCompetitionSecretary2(String competitionSecretary2) {
+		this.competitionSecretary2 = competitionSecretary2;
 	}
 
 	/**
@@ -1187,6 +1385,10 @@ public class Group implements Comparable<Group> {
 	 */
 	public void setMarshall(String announcer) {
 		this.marshall = announcer;
+	}
+
+	public void setMasters(boolean masters) {
+		this.masters = masters;
 	}
 
 	/**
@@ -1289,59 +1491,6 @@ public class Group implements Comparable<Group> {
 		return getName();
 	}
 
-	public Integer getCleanJerkBreakDuration() {
-		return cleanJerkBreakDuration;
-	}
-
-	public void setCleanJerkBreakDuration(Integer cleanJerkBreakDuration) {
-		this.cleanJerkBreakDuration = cleanJerkBreakDuration;
-	}
-
-	public int cjBreakDuration(FieldOfPlay fieldOfPlay) {
-		Group cGroup = fieldOfPlay.getGroup();
-		int millisRemaining;
-		Competition cCur = Competition.getCurrent();
-		Integer cleanJerkBreakDuration = cGroup.getCleanJerkBreakDuration();
-		if (cleanJerkBreakDuration != null) {
-			millisRemaining = cleanJerkBreakDuration * 60 * 1000;
-		} else {
-			millisRemaining = 10 * 60 * 1000;
-			int size = fieldOfPlay.getLiftingOrder().size();
-			if (cCur.getShorterBreakMin() != null && size > cCur.getShorterBreakMin()) {
-				millisRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10) * 60
-				        * 1000;
-			} else if (cCur.getLongerBreakMax() != null && size < cCur.getLongerBreakMax()) {
-				millisRemaining = (cCur.getLongerBreakDuration() != null ? cCur.getLongerBreakDuration() : 10) * 60
-				        * 1000;
-			}
-		}
-		return millisRemaining;
-	}
-
-	@Transient
-	@JsonIgnore
-	public int getCleanJerkBreakMinutes() {
-		int minutesRemaining = 0;
-		Competition cCur = Competition.getCurrent();
-		Integer cleanJerkBreakDuration = this.getCleanJerkBreakDuration();
-		if (cleanJerkBreakDuration != null) {
-			minutesRemaining = cleanJerkBreakDuration;
-		} else {
-			minutesRemaining = 10;
-			List<Athlete> athletes = this.getAthletes();
-			int size = athletes != null ? athletes.size() : 0;
-			if (cCur.getShorterBreakMin() != null && size > cCur.getShorterBreakMin()) {
-				minutesRemaining = (cCur.getShorterBreakDuration() != null ? cCur.getShorterBreakDuration() : 10);
-			} else if (cCur.getLongerBreakMax() != null && size < cCur.getLongerBreakMax()) {
-				minutesRemaining = (cCur.getLongerBreakDuration() != null ? cCur.getLongerBreakDuration() : 10);
-			}
-		}
-		return minutesRemaining;
-	}
-
-	public void setCleanJerkBreakMinutes(int ignored) {
-	}
-
 	DateTimeFormatter getDayFormatter() {
 		return this.dayFormatter;
 	}
@@ -1358,6 +1507,30 @@ public class Group implements Comparable<Group> {
 		this.hourFormatter = hourFormatter;
 	}
 
+	private boolean isGetter(Method method) {
+		if (!method.getName().startsWith("get"))
+			return false;
+		if (method.getParameterTypes().length != 0)
+			return false;
+		if (void.class.equals(method.getReturnType()))
+			return false;
+		if (!Modifier.isPublic(method.getModifiers()))
+			return false;
+		return true;
+	}
+
+	private boolean isSetter(Method method) {
+		if (!method.getName().startsWith("set"))
+			return false;
+		if (method.getParameterTypes().length != 1)
+			return false;
+		if (!void.class.equals(method.getReturnType()))
+			return false;
+		if (!Modifier.isPublic(method.getModifiers()))
+			return false;
+		return true;
+	}
+
 	private void setDayFormatter(Locale locale) {
 		setDayFormatter(DateTimeFormatter
 		        .ofLocalizedDate(FormatStyle.SHORT)
@@ -1372,19 +1545,5 @@ public class Group implements Comparable<Group> {
 		setHourFormatter(DateTimeFormatter
 		        .ofLocalizedTime(FormatStyle.SHORT)
 		        .withLocale(locale));
-	}
-	
-	public boolean getMasters() {
-		// defaults to competition setting.
-		return isMasters();
-	}
-	
-	public boolean isMasters() {
-		// defaults to competition setting.
-		return masters == null ? Competition.getCurrent().isMasters() : this.masters;
-	}
-	
-	public void setMasters(boolean masters) {
-		this.masters = masters;
 	}
 }
