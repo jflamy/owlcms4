@@ -40,7 +40,7 @@ class TopTeamsSinclair extends LitElement {
                   `
                 )}
               </table>
-              <h2>&nbsp;</h2>
+              <h4>&nbsp;</h4>
             `
           : html``}
         ${this.topTeamsMen 
@@ -62,7 +62,29 @@ class TopTeamsSinclair extends LitElement {
                   `
                 )}
               </table>
-              <h2>&nbsp;</h2>
+              <h4>&nbsp;</h4>
+            `
+          : html``}
+        ${this.topTeamsMixed 
+          ? html` 
+              <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topTeamsMixed}"></h2>
+              <table class="results" id="orderDiv" style$="">
+                <thead>
+                  <tr>
+                    <th class="club" .innerHTML="${this.t?.Team}"></th>
+                    <th class="medium" .innerHTML="${this.t?.ScoringTitle}"></th>
+                  </tr>
+                </thead>
+                ${(this.mixedTeams ?? []).map(
+                  (item) => html`
+                    <tr>
+                      <td class="club"><div>${item.team}</div></td>
+                      <td class="medium"><div>${item.score}</div></td>
+                    </tr>
+                  `
+                )}
+              </table>
+              <h4>&nbsp;</h4>
             `
           : html``}
       </div>`;

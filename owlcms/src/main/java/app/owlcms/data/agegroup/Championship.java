@@ -73,7 +73,6 @@ public class Championship implements Comparable<Championship> {
 	 */
 	public static List<Championship> findAll() {
 		ArrayList<Championship> allChampionshipsList = new ArrayList<>();
-		logger.warn("allChampionshipsMap {}",allChampionshipsMap);
 		if (allChampionshipsMap == null || allChampionshipsMap.isEmpty()) {
 			allChampionshipsMap = new HashMap<>();
 
@@ -92,7 +91,6 @@ public class Championship implements Comparable<Championship> {
 
 			// additional championships.
 			List<String> allChampionships = AgeGroupRepository.allChampionshipsForAllAgeGroups();
-			logger.warn("findAll {}", allChampionships);
 
 			for (String s : allChampionships) {
 				String typeString = null;

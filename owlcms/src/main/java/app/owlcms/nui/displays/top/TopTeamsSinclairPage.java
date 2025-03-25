@@ -30,6 +30,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -52,6 +53,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	private String ageGroupPrefix;
 	private Category category;
 	private AgeGroup ageGroup;
+	private Gender gender;
 
 	public TopTeamsSinclairPage() {
 		// intentionally empty. superclass will call init() as required.
@@ -68,10 +70,11 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		 isDarkMode());
 
 		DisplayOptions.addLightingEntries(vl, target, this);
+		
 		ComboBox<Championship> championshipComboBox = new ComboBox<>();
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
 		List<Championship> championships = Championship.findAll();
-		logger.warn("championships {}",championships);
+
 		championshipComboBox.setItems(championships);
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setPlaceholder(Translator.translate("Championship"));
@@ -96,9 +99,26 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getChampionship());
 		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
 		championshipComboBox.setValue(getChampionship());
-
 		vl.add(new NativeLabel(Translator.translate("SelectAgeGroup")),
 		        new HorizontalLayout(championshipComboBox, ageGroupPrefixComboBox));
+		
+		ComboBox<Gender> genderComboBox = new ComboBox<>();
+		genderComboBox.setItems(Gender.values());
+		genderComboBox.setClearButtonVisible(true);
+		genderComboBox.setItemLabelGenerator(g -> {
+		    return switch (g) {
+		        case M -> Translator.translate("Gender.Men");
+		        case F -> Translator.translate("Gender.Women");
+		        case I -> Translator.translate("Gender.Women") + ", " + Translator.translate("Gender.Men");
+		        case MF -> Translator.translate("Gender.Mixed");
+		    };
+		});
+		genderComboBox.addValueChangeListener(event -> {
+			setGender(event.getValue());
+			updateURLLocations();
+		});
+		vl.add(new NativeLabel(Translator.translate("Scoreboard.SelectGenders")),
+		        new HorizontalLayout(genderComboBox));
 	}
 
 	@Override
@@ -172,16 +192,34 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
 		updateParam(params1, "ag", value2);
 
+		List<String> genderParams = params1.get("gender");
+		// no age group is the default
+		String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
+		Gender gValue = null;
+		try {
+			gValue = Gender.valueOf(genderString);
+			setGender(gValue);
+		} catch (Exception e) {
+		}
+		updateParam(params1, "gender", gValue == null ? null : gValue.toString());
+
 		switchLightingMode(darkMode, false);
 		updateURLLocations();
 		setShowInitialDialog(
-		        darkParams == null && ageDivisionParams == null && ageGroupParams == null && silentParams == null);
+		        darkParams == null && ageDivisionParams == null && genderParams == null && silentParams == null);
 
 		if (getDialog() == null) {
 			buildDialog(this);
 		}
 		setUrlParameterMap(params1);
 		return params1;
+	}
+
+	@Override
+	public void setGender(Gender gender) {
+		this.gender = gender;
+		((TopTeamsSinclair) this.getBoard()).setGender(gender);
+		((TopTeamsSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
@@ -259,6 +297,13 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		        getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
 		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
 		        getChampionship() != null ? getChampionship().getName() : null);
+		updateURLLocation(UI.getCurrent(), getLocation(), "gender",
+		        getGender() != null ? getGender().name(): null);
+	}
+
+	@Override
+	public Gender getGender() {
+		return gender;
 	}
 
 }
