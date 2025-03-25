@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 57.0.0-alpha04: Championship and Gender Selection on Best Teams scoreboards
 - 57.0.0-alpha03: added mixed team results to Team Results page
 - 57.0.0-alpha02: updated the SBDE processing to do updates of session data only
 - 57.0.0-alpha01: added ability to mark sessions as using Masters start number rules.
@@ -32,6 +33,10 @@
 
 - Team Results
   - The Team Results page now also shows the combined Men + Women team results
+
+- Scoreboards
+  - The Best Team Points scoreboard correctly allows selecting the championship, and allows for selecting Male, Female, Male and Female, Mixed or all teams.
+  - Same fixes for the Best Teams Scores - the score shown is the one for the Best Athlete as set in the competition rules.
 
 - Templates 
   - `${session.masters}` template variable can be used to show whether a session is tagged as Masters or not
