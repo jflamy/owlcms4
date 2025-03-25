@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 57.0.0-alpha05: Added the capability to get the federation ids and other attributes of a session technical official.  See "Templates" below.
 - 57.0.0-alpha04: Championship and Gender Selection on Best Teams scoreboards
 - 57.0.0-alpha03: added mixed team results to Team Results page
 - 57.0.0-alpha02: updated the SBDE processing to do updates of session data only
@@ -30,17 +31,18 @@
 - Updating session data using SBDE
   - Fix: session data updating was not functional, now fixed
   - Enhancement: if the file name is renamed to end with `_sessions.xlsx` or if the feature switch `noAthleteUpdates` is present, then only the sessions tab is processed.  This allows changing referee information and scheduled times without touching the athletes.
-
 - Team Results
   - The Team Results page now also shows the combined Men + Women team results
-
 - Scoreboards
   - The Best Team Points scoreboard correctly allows selecting the championship, and allows for selecting Male, Female, Male and Female, Mixed or all teams.
   - Same fixes for the Best Teams Scores - the score shown is the one for the Best Athlete as set in the competition rules.
-
 - Templates 
+  - `${session.referee1AsTO}` returns a TechnicalOfficial object if one is found in the list of Technical Officials that matches the session referee1. 
+    - There is an `AsTO` variant for all the roles (`announcerAsTO`, `marshal1AsTO` etc.)
+    - You can then do `${session.referee1AsTO.federationId}` to get the `federationId` of the official.   The fields available are `lastName`, `firstName`, `level`, `federationId`, `federation`, `iwfId`.
+    - The format used for matching is  `lastName, firstName`.  If you populate the TechnicalOfficial list first and use the drop downs in the session editing, the match will be good
   - `${session.masters}` template variable can be used to show whether a session is tagged as Masters or not
-  -  `${athlete.totalPoints}`computes team points according to IWF rules except if the session is a Masters session. Then uses IMWA or UWML rules according to the competition rules.
+  - `${athlete.totalPoints}`computes team points according to IWF rules except if the session is a Masters session. Then uses IMWA or UWML rules according to the competition rules.
 
 
 
