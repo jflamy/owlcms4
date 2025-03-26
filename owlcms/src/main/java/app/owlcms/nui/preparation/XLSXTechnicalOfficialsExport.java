@@ -38,7 +38,7 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
 
             // Create headers
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"LastName", "FirstName", "Level", "IWFId", "Federation", "FederationId", "Affiliation"};
+            String[] headers = {"LastName", "FirstName", "Level", "Federation", "FederationId", "Affiliation", "IWFId",};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 switch (headers[i]) {
