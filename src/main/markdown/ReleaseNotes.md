@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 57.0.0-alpha07: Fix export order for Technical Officials Excel.
 - 57.0.0-alpha06: Technical Officials were not correctly restored when importing a .json export.
 - 57.0.0-alpha06: Added an `affiliation` attribute to technical officials (to be used for club/region/etc.)
 - 57.0.0-alpha05: Added the capability to get the federation ids and other attributes of a session technical official.  See "Templates" below.
