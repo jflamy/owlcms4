@@ -8,6 +8,8 @@
 
 **Change Log**
 
+- 57.0.0-alpha06: Technical Officials were not correctly restored when importing a .json export.
+- 57.0.0-alpha06: Added an `affiliation` attribute to technical officials (to be used for club/region/etc.)
 - 57.0.0-alpha05: Added the capability to get the federation ids and other attributes of a session technical official.  See "Templates" below.
 - 57.0.0-alpha04: Championship and Gender Selection on Best Teams scoreboards
 - 57.0.0-alpha03: added mixed team results to Team Results page
@@ -16,6 +18,10 @@
 - 57.0.0-alpha01: added ability to calculate team points using IMWA rules 
 
 **New In Release 57**
+
+- Technical Officials 
+  - Fix: Technical Officials were not restored when importing a .json export.  Since they were exported, re-importing will now work.
+  - A new attribute has been added.  `affiliation` can be used to store the club, region, etc. if needed.
 
 - Masters sessions
   - Sessions can be designated as Masters sessions.  Older age groups are first during weigh-in, when attributing start numbers. Scoreboards are grouped by age group, oldest first.
@@ -39,7 +45,7 @@
 - Templates 
   - `${session.referee1AsTO}` returns a TechnicalOfficial object if one is found in the list of Technical Officials that matches the session referee1. 
     - There is an `AsTO` variant for all the roles (`announcerAsTO`, `marshal1AsTO` etc.)
-    - You can then do `${session.referee1AsTO.federationId}` to get the `federationId` of the official.   The fields available are `lastName`, `firstName`, `level`, `federationId`, `federation`, `iwfId`.
+    - You can then do `${session.referee1AsTO.federationId}` to get the `federationId` of the official.   The fields available are `lastName`, `firstName`, `level`, `federationId`, `federation`, `iwfId`, `affiliation`.
     - The format used for matching is  `lastName, firstName`.  If you populate the TechnicalOfficial list first and use the drop downs in the session editing, the match will be good
   - `${session.masters}` template variable can be used to show whether a session is tagged as Masters or not
   - `${athlete.totalPoints}`computes team points according to IWF rules except if the session is a Masters session. Then uses IMWA or UWML rules according to the competition rules.

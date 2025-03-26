@@ -273,6 +273,12 @@ public class CompetitionData {
 					em.merge(updated.getRecordConfig());
 				}
 
+				if (updated.getTechnicalOfficials() != null) {
+					for (TechnicalOfficial p : updated.getTechnicalOfficials()) {
+						em.merge(p);
+					}
+				}
+				
 				em.merge(competition);
 				em.flush();
 			} catch (Exception e) {
@@ -371,6 +377,12 @@ public class CompetitionData {
 						em.remove(pX);
 					}
 				}
+				for (TechnicalOfficial p : this.getTechnicalOfficials()) {
+					TechnicalOfficial pX = em.find(TechnicalOfficial.class, p.getId());
+					if (pX != null) {
+						em.remove(pX);
+					}
+				}
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
 			}
@@ -398,6 +410,7 @@ public class CompetitionData {
 	}
 
 	public void setTechnicalOfficials(List<TechnicalOfficial> technicalOfficials) {
+		logger.warn("read {} technical officials",technicalOfficials.size());
 		this.technicalOfficials = technicalOfficials;
 	}
 }
