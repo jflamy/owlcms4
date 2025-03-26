@@ -38,7 +38,7 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
 
             // Create headers
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"LastName", "FirstName", "Level", "IWFId", "Federation", "FederationId"};
+            String[] headers = {"LastName", "FirstName", "Level", "IWFId", "Federation", "FederationId", "Affiliation"};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 switch (headers[i]) {
@@ -60,6 +60,9 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
                     case "FederationId":
                         cell.setCellValue(Translator.translate("TechnicalOfficial.FederationId"));
                         break;
+                    case "Affiliation":
+                        cell.setCellValue(Translator.translate("TechnicalOfficial.Affiliation"));
+                        break;
                     default:
                         cell.setCellValue(headers[i]);
                 }
@@ -74,9 +77,10 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
                 row.createCell(0).setCellValue(official.getLastName() != null ? official.getLastName() : "");
                 row.createCell(1).setCellValue(official.getFirstName() != null ? official.getFirstName() : "");
                 row.createCell(2).setCellValue(official.getLevel() != null ? Translator.translate("TOLevel."+official.getLevel().toString()) : "");
-                row.createCell(3).setCellValue(official.getIwfId() != null ? official.getIwfId() : "");
-                row.createCell(4).setCellValue(official.getFederation() != null ? official.getFederation() : "");
-                row.createCell(5).setCellValue(official.getFederationId() != null ? official.getFederationId() : "");
+                row.createCell(3).setCellValue(official.getFederation() != null ? official.getFederation() : "");
+                row.createCell(4).setCellValue(official.getFederationId() != null ? official.getFederationId() : "");
+                row.createCell(5).setCellValue(official.getAffiliation() != null ? official.getAffiliation() : "");
+                row.createCell(6).setCellValue(official.getIwfId() != null ? official.getIwfId() : "");
             }
 
             // Autosize columns

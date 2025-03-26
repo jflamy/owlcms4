@@ -208,6 +208,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		grid.addColumn(TechnicalOfficial::getLevel).setHeader(Translator.translate("TechnicalOfficial.Level"));
 		grid.addColumn(TechnicalOfficial::getFederationId).setHeader(Translator.translate("TechnicalOfficial.FederationId"));
 		grid.addColumn(TechnicalOfficial::getFederation).setHeader(Translator.translate("TechnicalOfficial.Federation"));
+		grid.addColumn(TechnicalOfficial::getAffiliation).setHeader(Translator.translate("TechnicalOfficial.Affiliation"));
 		grid.addColumn(TechnicalOfficial::getIwfId).setHeader(Translator.translate("TechnicalOfficial.IWFId"));
 
 		GridCrud<TechnicalOfficial> crud = new OwlcmsCrudGrid<>(TechnicalOfficial.class, new OwlcmsGridLayout(TechnicalOfficial.class),

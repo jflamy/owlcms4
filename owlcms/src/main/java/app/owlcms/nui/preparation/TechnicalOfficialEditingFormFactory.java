@@ -94,6 +94,12 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
         this.binder.forField(federationTextField)
                 .withNullRepresentation("")
                 .bind(TechnicalOfficial::getFederation, TechnicalOfficial::setFederation);
+        
+        TextField affiliationTextField = new TextField(Translator.translate("TechnicalOfficial.Affiliation"));
+        technicalOfficialLayout.add(affiliationTextField);
+        this.binder.forField(affiliationTextField)
+                .withNullRepresentation("")
+                .bind(TechnicalOfficial::getAffiliation, TechnicalOfficial::setAffiliation);
 
         TextField iwfIdTextField = new TextField(Translator.translate("TechnicalOfficial.IWFId"));
         technicalOfficialLayout.add(iwfIdTextField);

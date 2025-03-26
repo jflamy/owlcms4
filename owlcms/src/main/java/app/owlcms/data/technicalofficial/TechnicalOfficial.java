@@ -46,6 +46,7 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	private String iwfId;
 	private String federation;
 	private String federationId;
+	private String affiliation;
 
 	public void setId(Long id) {
 		this.id = id;
@@ -64,7 +65,7 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	 *
 	 * @param name the name
 	 */
-	public TechnicalOfficial(String lastName, String firstName, TOLevel level, String iwfId, String federation, String federationId) {
+	public TechnicalOfficial(String lastName, String firstName, TOLevel level, String iwfId, String federation, String federationId, String affiliation) {
 		setId(IdUtils.getTimeBasedId());
 		this.lastName = lastName;
 		this.firstName = firstName;
@@ -72,6 +73,7 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		this.iwfId = iwfId;
 		this.federation = federation;
 		this.federationId = federationId;
+		this.affiliation = affiliation;
 	}
 
 	@Override
@@ -162,6 +164,14 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 
 	public void setFederationId(String federationId) {
 		this.federationId = federationId;
+	}
+
+	public String getAffiliation() {
+		return affiliation;
+	}
+
+	public void setAffiliation(String affiliation) {
+		this.affiliation = affiliation;
 	}
 
 }

@@ -30,6 +30,7 @@ public class TechnicalOfficialReader {
     private static final String IWF_ID = "IWFId";
     private static final String FEDERATION = "Federation";
     private static final String FEDERATION_ID = "FederationId";
+    private static final String AFFILIATION = "Affiliation";
 
     public List<TechnicalOfficial> importFromXLS(InputStream is, StringBuilder errors) {
         List<TechnicalOfficial> officials = new ArrayList<>();
@@ -75,7 +76,7 @@ public class TechnicalOfficialReader {
     }
 
     private int[] findColumnIndices(Row headerRow) {
-        int[] indices = new int[6];  // One for each field
+        int[] indices = new int[7];  // One for each field
         Map<String, String> headerMap = new HashMap<>();
         
         // Map constants to themselves (legacy support)
@@ -93,6 +94,7 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translate("TechnicalOfficial.IWFId", Locale.ENGLISH), IWF_ID);
         headerMap.put(Translator.translate("TechnicalOfficial.Federation", Locale.ENGLISH), FEDERATION);
         headerMap.put(Translator.translate("TechnicalOfficial.FederationId", Locale.ENGLISH), FEDERATION_ID);
+        headerMap.put(Translator.translate("TechnicalOfficial.Affiliation", Locale.ENGLISH), AFFILIATION);
         
         // Map local translations to constants
         headerMap.put(Translator.translate("TechnicalOfficial.LastName"), LAST_NAME);
@@ -101,6 +103,7 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translate("TechnicalOfficial.IWFId"), IWF_ID);
         headerMap.put(Translator.translate("TechnicalOfficial.Federation"), FEDERATION);
         headerMap.put(Translator.translate("TechnicalOfficial.FederationId"), FEDERATION_ID);
+        headerMap.put(Translator.translate("TechnicalOfficial.Affiliation"), AFFILIATION);
         
         for (Cell cell : headerRow) {
             String header = cell.getStringCellValue().trim();
@@ -127,6 +130,9 @@ public class TechnicalOfficialReader {
                     case FEDERATION_ID:
                         indices[5] = colIndex;
                         break;
+                    case AFFILIATION:
+                        indices[6] = colIndex;
+                        break;
                 }
             }
         }
@@ -150,8 +156,9 @@ public class TechnicalOfficialReader {
             String iwfId = colIndices[3] >= 0 ? getCellValueAsString(row.getCell(colIndices[3])) : "";
             String federation = colIndices[4] >= 0 ? getCellValueAsString(row.getCell(colIndices[4])) : "";
             String federationId = colIndices[5] >= 0 ? getCellValueAsString(row.getCell(colIndices[5])) : "";
+            String affiliation = colIndices[6] >= 0 ? getCellValueAsString(row.getCell(colIndices[5])) : "";
 
-            return new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId);
+            return new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId, affiliation);
         } catch(Exception e) {
             throw new IllegalArgumentException("Error processing cell "+ getCellAddress(currentCell) + ": " + e.getMessage());
         }
