@@ -277,7 +277,17 @@ public class Athlete {
 			return 0;
 		}
 	}
-
+	
+	public static Integer nullIfInvalid(String value) {
+		try {
+			return Integer.valueOf(value);
+		} catch (NumberFormatException nfe) {
+			return null;
+		}
+	}
+	
+	
+	
 	@Transient
 	protected final Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
 	/**
@@ -977,7 +987,15 @@ public class Athlete {
 		final int cj1 = zeroIfInvalid(this.cleanJerk1ActualLift);
 		final int cj2 = zeroIfInvalid(this.cleanJerk2ActualLift);
 		final int cj3 = zeroIfInvalid(this.cleanJerk3ActualLift);
-		return max(0, cj1, cj2, cj3);
+		if (cj3 > 0) {
+			return cj3;
+		} else if (cj2 > 0) {
+			return cj2;
+		} else if (cj1 > 0) {
+			return cj1;
+		} else {
+			return 0;
+		}
 	}
 
 	/**
@@ -988,19 +1006,18 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public int getBestCleanJerkAttemptNumber() {
-		int referenceValue = getBestCleanJerk();
-		if (referenceValue > 0) {
-			if (zeroIfInvalid(this.cleanJerk3ActualLift) == referenceValue) {
-				return 6;
-			}
-			if (zeroIfInvalid(this.cleanJerk2ActualLift) == referenceValue) {
-				return 5;
-			}
-			if (zeroIfInvalid(this.cleanJerk1ActualLift) == referenceValue) {
-				return 4;
-			}
+		final int cj1 = zeroIfInvalid(this.cleanJerk1ActualLift);
+		final int cj2 = zeroIfInvalid(this.cleanJerk2ActualLift);
+		final int cj3 = zeroIfInvalid(this.cleanJerk3ActualLift);
+		if (cj3 > 0) {
+			return 6;
+		} else if (cj2 > 0) {
+			return 5;
+		} else if (cj1 > 0) {
+			return 4;
+		} else {
+			return 0;
 		}
-		return 0; // no match - bomb-out.
 	}
 
 	/**
@@ -1011,20 +1028,18 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public LocalDateTime getBestCleanJerkAttemptTime() {
-		int referenceValue = getBestCleanJerk();
-		if (referenceValue > 0) {
-			if (zeroIfInvalid(this.cleanJerk3ActualLift) == referenceValue) {
-				return this.getCleanJerk3LiftTime();
-			}
-			if (zeroIfInvalid(this.cleanJerk2ActualLift) == referenceValue) {
-				return this.getSnatch2LiftTime();
-			}
-			if (zeroIfInvalid(this.cleanJerk1ActualLift) == referenceValue) {
-				return this.getCleanJerk1LiftTime();
-			}
+		final int cj1 = zeroIfInvalid(this.cleanJerk1ActualLift);
+		final int cj2 = zeroIfInvalid(this.cleanJerk2ActualLift);
+		final int cj3 = zeroIfInvalid(this.cleanJerk3ActualLift);
+		if (cj3 > 0) {
+			return getCleanJerk3LiftTime();
+		} else if (cj2 > 0) {
+			return getCleanJerk2LiftTime();
+		} else if (cj1 > 0) {
+			return getCleanJerk1LiftTime();
+		} else {
+			return LocalDateTime.MIN;
 		}
-		// should not be required - bomb-out.
-		return LocalDateTime.MIN;
 	}
 
 	@Transient
@@ -1066,6 +1081,7 @@ public class Athlete {
 			}
 		} else {
 			if (referenceValue > 0) {
+				// there has to be a total
 				referenceValue = getBestSnatch();
 				if (zeroIfInvalid(this.snatch3ActualLift) == referenceValue) {
 					return 3;
@@ -1092,7 +1108,15 @@ public class Athlete {
 		final int sn1 = zeroIfInvalid(this.snatch1ActualLift);
 		final int sn2 = zeroIfInvalid(this.snatch2ActualLift);
 		final int sn3 = zeroIfInvalid(this.snatch3ActualLift);
-		return max(0, sn1, sn2, sn3);
+		if (sn3 > 0) {
+			return sn3;
+		} else if (sn2 > 0) {
+			return sn2;
+		} else if (sn1 > 0) {
+			return sn1;
+		} else {
+			return 0;
+		}
 	}
 
 	/**
@@ -1103,43 +1127,41 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public int getBestSnatchAttemptNumber() {
-		int referenceValue = getBestSnatch();
-		if (referenceValue > 0) {
-			if (zeroIfInvalid(this.snatch3ActualLift) == referenceValue) {
-				return 3;
-			}
-			if (zeroIfInvalid(this.snatch2ActualLift) == referenceValue) {
-				return 2;
-			}
-			if (zeroIfInvalid(this.snatch1ActualLift) == referenceValue) {
-				return 1;
-			}
+		final int sn1 = zeroIfInvalid(this.snatch1ActualLift);
+		final int sn2 = zeroIfInvalid(this.snatch2ActualLift);
+		final int sn3 = zeroIfInvalid(this.snatch3ActualLift);
+		if (sn3 > 0) {
+			return 3;
+		} else if (sn2 > 0) {
+			return 2;
+		} else if (sn1 > 0) {
+			return 1;
+		} else {
+			return 0;
 		}
-		return 0; // no match - bomb-out.
 	}
 
 	/**
-	 * Gets the best snatch attempt number.
+	 * Gets the best snatch attempt time.
 	 *
-	 * @return the best snatch attempt number
+	 * @return the best snatch attempt time
 	 */
 	@Transient
 	@JsonIgnore
 	public LocalDateTime getBestSnatchAttemptTime() {
-		int referenceValue = getBestSnatch();
-		if (referenceValue > 0) {
-			if (zeroIfInvalid(this.snatch3ActualLift) == referenceValue) {
-				return this.getSnatch3LiftTime();
-			}
-			if (zeroIfInvalid(this.snatch2ActualLift) == referenceValue) {
-				return this.getSnatch2LiftTime();
-			}
-			if (zeroIfInvalid(this.snatch1ActualLift) == referenceValue) {
-				return this.getSnatch1LiftTime();
-			}
+		final int sn1 = zeroIfInvalid(this.snatch1ActualLift);
+		final int sn2 = zeroIfInvalid(this.snatch2ActualLift);
+		final int sn3 = zeroIfInvalid(this.snatch3ActualLift);
+		if (sn3 > 0) {
+			return getSnatch3LiftTime();
+		} else if (sn2 > 0) {
+			return getSnatch2LiftTime();
+		} else if (sn1 > 0) {
+			return getSnatch1LiftTime();
+		} else {
+			return LocalDateTime.MIN;
 		}
-		// should not be required - bomb-out.
-		return LocalDateTime.MIN;
+
 	}
 
 	/**
@@ -3408,6 +3430,11 @@ public class Athlete {
 		this.cleanJerk1ActualLift = cleanJerk1ActualLift;
 		getLogger().info("{}{} cleanJerk1ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        cleanJerk1ActualLift);
+		if (nullIfInvalid(cleanJerk1ActualLift) == null) {
+			this.setCleanJerk1LiftTime(null);
+		} else {
+			this.setCleanJerk1LiftTime(LocalDateTime.now());
+		}
 	}
 
 	/**
@@ -3506,11 +3533,11 @@ public class Athlete {
 		getLogger().info("{}{} cleanJerk2ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        cleanJerk2ActualLift);
 
-		// if (zeroIfInvalid(cleanJerk2ActualLift) == 0) {
-		// this.setCleanJerk2LiftTime((LocalDateTime) null);
-		// } else {
-		// this.setCleanJerk2LiftTime(LocalDateTime.now());
-		// }
+		if (nullIfInvalid(cleanJerk2ActualLift) == null) {
+			this.setCleanJerk2LiftTime((LocalDateTime) null);
+		} else {
+			this.setCleanJerk2LiftTime(LocalDateTime.now());
+		}
 	}
 
 	/**
@@ -3600,6 +3627,11 @@ public class Athlete {
 		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
 		getLogger().info("{}{} cleanJerk3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        cleanJerk3ActualLift);
+		if (nullIfInvalid(cleanJerk3ActualLift) == null) {
+			this.setCleanJerk3LiftTime((LocalDateTime) null);
+		} else {
+			this.setCleanJerk3LiftTime(LocalDateTime.now());
+		}
 	}
 
 	/*
@@ -4027,11 +4059,11 @@ public class Athlete {
 		getLogger().info("{}{} snatch1ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch1ActualLift);
 
-		// if (zeroIfInvalid(snatch1ActualLift) == 0) {
-		// this.setSnatch1LiftTime(null);
-		// } else {
-		// this.setSnatch1LiftTime(LocalDateTime.now());
-		// }
+		if (nullIfInvalid(snatch1ActualLift) == null) {
+			this.setSnatch1LiftTime(null);
+		} else {
+			this.setSnatch1LiftTime(LocalDateTime.now());
+		}
 	}
 
 	/**
@@ -4120,6 +4152,11 @@ public class Athlete {
 		this.snatch2ActualLift = snatch2ActualLift;
 		getLogger().info("{}{} snatch2ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch2ActualLift);
+		if (nullIfInvalid(snatch2ActualLift) == null) {
+			this.setSnatch2LiftTime(null);
+		} else {
+			this.setSnatch2LiftTime(LocalDateTime.now());
+		}
 	}
 
 	/**
@@ -4209,6 +4246,12 @@ public class Athlete {
 		this.snatch3ActualLift = snatch3ActualLift;
 		getLogger().info("{}{} snatch3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 		        snatch3ActualLift);
+		if (nullIfInvalid(snatch3ActualLift) == null) {
+			// editing emptied the cell
+			this.setSnatch3LiftTime(null);
+		} else {
+			this.setSnatch3LiftTime(LocalDateTime.now());
+		}
 	}
 
 	/**
