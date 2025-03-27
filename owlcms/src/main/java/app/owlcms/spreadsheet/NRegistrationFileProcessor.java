@@ -658,7 +658,11 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 						        delayedSetterCells[delayedOrder]);
 					}
 				}
-				athletes.add(ra);
+				String lastName = ra.getAthlete().getLastName();
+				String firstName = ra.getAthlete().getFirstName();
+				if (lastName != null && firstName != null && !lastName.isBlank() && !firstName.isBlank()) {
+					athletes.add(ra);
+				}
 			}
 
 			iRow++;

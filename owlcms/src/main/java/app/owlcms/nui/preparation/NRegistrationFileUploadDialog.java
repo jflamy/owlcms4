@@ -86,17 +86,17 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			this.processor.resetAthletes();
 		}
 
-		// first do a dry run to count groups
-		int nbGroups = processGroups(inputStream, ta, true);
-		logger.info("{} groups found in file", nbGroups);
-		if (nbGroups > 0) {
+		// first do a dry run to count sessions
+		int nbSessions = processSessions(inputStream, ta, true);
+		logger.info("{} sessions found in file", nbSessions);
+		if (nbSessions > 0) {
 			if (eraseAthletes()) {
 				this.processor.resetGroups();
 			}
 
-			// get the groups from the spreadsheet
-			processGroups(inputStream, ta, false);
-			logger.info("{} groups processed", nbGroups);
+			// get the sessions from the spreadsheet
+			processSessions(inputStream, ta, false);
+			logger.info("{} sessions processed", nbSessions);
 		}
 
 		if (this.sbdeFormat) {
@@ -133,7 +133,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		return this.processor.doProcessAthletes(inputStream, dryRun, errorConsumer, displayUpdater, eraseAthletes());
 	}
 
-	private int processGroups(InputStream inputStream, TextArea ta, boolean dryRun) {
+	private int processSessions(InputStream inputStream, TextArea ta, boolean dryRun) {
 		StringBuffer sb = new StringBuffer();
 		Consumer<String> errorConsumer = str -> sb.append(str);
 		Runnable displayUpdater = () -> updateDisplay(ta, sb);

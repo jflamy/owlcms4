@@ -8,16 +8,18 @@
 
 **Change Log**
 
-- 57.0.0-alpha08: Added error checking to AgeGroups definition
-- 57.0.0-alpha07: Fix export order for Technical Officials Excel.
+- 57.0.0-alpha08: Updated the registration and SBDE templates to account for Masters sessions
+- 57.0.0-alpha08: Added robustness to tie-break rules.
+- 57.0.0-alpha08: Added more error checking to AgeGroups definition reader, see "Age Groups" below.
+- 57.0.0-alpha07: Fixed the export column order for the Technical Officials Excel.
 - 57.0.0-alpha06: Technical Officials were not correctly restored when importing a .json export.
 - 57.0.0-alpha06: Added an `affiliation` attribute to technical officials (to be used for club/region/etc.)
 - 57.0.0-alpha05: Added the capability to get the federation ids and other attributes of a session technical official.  See "Templates" below.
 - 57.0.0-alpha04: Championship and Gender Selection on Best Teams scoreboards
-- 57.0.0-alpha03: added mixed team results to Team Results page
-- 57.0.0-alpha02: updated the SBDE processing to do updates of session data only
-- 57.0.0-alpha01: added ability to mark sessions as using Masters start number rules.
-- 57.0.0-alpha01: added ability to calculate team points using IMWA rules 
+- 57.0.0-alpha03: Added mixed team results to Team Results page
+- 57.0.0-alpha02: Updated the SBDE processing to do updates of session data only
+- 57.0.0-alpha01: Added ability to mark sessions as using Masters start number rules.
+- 57.0.0-alpha01: Added ability to calculate team points using IMWA rules 
 
 **New In Release 57**
 
