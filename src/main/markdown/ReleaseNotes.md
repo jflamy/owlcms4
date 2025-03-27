@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 56.0.6: Robustness fixes to tie-break rules
 - 56.0.5: Some of the Competition Information in Start Book Data Entry (SBDE) Excel was not being read correctly; also added capability to read the end date from cell N1.
 - 56.0.5: Fixed championship name for U15 in the AgeGroups2025 file.
 - 56.0.4: `.xlsm` extension from templates is now correctly preserved when using the Documents page
