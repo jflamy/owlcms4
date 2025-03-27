@@ -1463,7 +1463,7 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setCleanJerk1LiftTime(LocalDateTime cleanJerk1LiftTime) {
-		super.setCleanJerk1LiftTime(cleanJerk1LiftTime);
+		this.a.setCleanJerk1LiftTime(cleanJerk1LiftTime);
 	}
 
 	/**
@@ -1513,7 +1513,7 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setCleanJerk2LiftTime(LocalDateTime cleanJerk2LiftTime) {
-		super.setCleanJerk2LiftTime(cleanJerk2LiftTime);
+		this.a.setCleanJerk2LiftTime(cleanJerk2LiftTime);
 	}
 
 	/**
@@ -1563,7 +1563,7 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setCleanJerk3LiftTime(LocalDateTime cleanJerk3LiftTime) {
-		super.setCleanJerk3LiftTime(cleanJerk3LiftTime);
+		this.a.setCleanJerk3LiftTime(cleanJerk3LiftTime);
 	}
 
 	/**

@@ -406,6 +406,39 @@ public class AthleteSorter implements Serializable {
 		}
 		return 26 - rank;
 	}
+	
+	/**
+	 * @param a
+	 * @return normal points, unless in a Masters championship and IMWA team scoring is enabled
+	 */
+	public static int imwaPointsFormula(Athlete a) {
+		Participation mr = a.getMainRankings();
+		int totalPoints = 0;
+//		boolean imwa = Competition.getCurrent().isImwa();
+//		ChampionshipType championshipType = mr.getChampionshipType();
+//		if (imwa && championshipType == ChampionshipType.MASTERS) {
+//			// IMWA lowers points for 1-person and two-person categories
+//			Category category = a.getCategory();
+//			int athleteCount = AthleteRepository.retrieveMastersAthleteCountForCategory(category);
+//			int rank = a.getTotalRank();
+//			if (rank <= 0) {
+//				return 0;
+//			}
+//			//logger.debug("athlete {} category {} rank={} count={}", a.getAbbreviatedName(), category, rank, athleteCount);
+//			if (athleteCount == 1) {
+//				totalPoints = 23;
+//			} else if (athleteCount == 2) {
+//				totalPoints = (rank == 1) ? 25 : ((rank == 2) ? 23 : 0);
+//			} else {
+//				totalPoints = AthleteSorter.pointsFormula(rank);
+//			}
+//		} else {
+			//
+			totalPoints = (mr != null ? mr.getTotalPoints() : 0);
+//		}
+		return totalPoints;
+	}
+	
 
 	/**
 	 * @param rank
