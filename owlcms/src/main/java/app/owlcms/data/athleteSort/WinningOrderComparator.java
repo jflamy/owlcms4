@@ -13,7 +13,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.LoggerUtils;
@@ -141,7 +140,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return compare;
 		}
 
-		return tieBreak(lifter1, lifter2, true);
+		return tieBreak(lifter1, lifter2);
 	}
 
 	/**
@@ -159,7 +158,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return compare;
 		}
 
-		return tieBreak(lifter1, lifter2, true);
+		return tieBreak(lifter1, lifter2);
 	}
 
 	/**
@@ -175,7 +174,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 		if (!ignoreCategories) {
 			compare = compareCategory(lifter1, lifter2);
-			traceComparison("compareCategory", lifter1.getShortName(), lifter1.getCategoryCode(), lifter1.getShortName(), lifter2.getCategoryCode(), compare);
+			traceComparison("compareCategory", lifter1.getAbbreviatedName(), lifter1.getCategoryCode(), lifter1.getAbbreviatedName(), lifter2.getCategoryCode(), compare);
 			if (compare != 0) {
 				return compare;
 			}
@@ -183,12 +182,12 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 		compare = compareBestCleanJerk(lifter1, lifter2);
 		if (compare != 0) {
-			traceComparison("compareBestCleanJerk", lifter1.getShortName(), lifter1.getBestCleanJerk(), lifter1.getBestCleanJerk(), lifter2.getCategoryCode(),
+			traceComparison("compareBestCleanJerk", lifter1.getAbbreviatedName(), lifter1.getBestCleanJerk(), lifter2.getAbbreviatedName(), lifter2.getBestCleanJerk(),
 			        compare);
 			return -compare; // smaller is less good
 		}
 
-		return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
+		return tieBreak(lifter1, lifter2);
 	}
 
 	/**
@@ -224,7 +223,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return -compare; // we want reverse order - smaller comes after
 		}
 
-		return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
+		return tieBreak(lifter1, lifter2);
 	}
 
 	/**
@@ -347,7 +346,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 		traceComparison("score", lifter1, lifter1.computedCategoryScore(), lifter2, lifter2.computedCategoryScore(), compare);
 
-		return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
+		return tieBreak(lifter1, lifter2);
 	}
 
 	/**
@@ -438,30 +437,20 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 		if (lifter1 != null && lifter2 != null && lifter1.getGroup() != lifter2.getGroup()) {
 			compare = compareBestSnatchTime(lifter1, lifter2);
-			traceComparison("snatch best snatch time", lifter1, lifter2, compare);
+			traceComparison("snatch best snatch time", lifter1, lifter1.getBestSnatchAttemptTime(), lifter2, lifter2.getBestSnatchAttemptTime(), compare);
 			if (compare != 0) {
-				return compare; // earlier is better (higher in ascending sorted list)
+				logger.warn("compare {}",compare);
+				// <0 means lifter1 earlier than lifter2
+				return compare; // earlier is better, rank 1 is better than rank 2
 			}
 		}
 
-		// compare = compareCompetitionSessionTime(lifter1, lifter2);
-		// traceComparison("compareCompetitionSessionTime", lifter1, lifter2, compare);
-		// if (compare != 0) {
-		// return compare; // earlier group time wins
-		// }
-
-//		if (Competition.getCurrent().isUseOldBodyWeightTieBreak()) {
-//			compare = compareBodyWeight(lifter1, lifter2);
-//			traceComparison("bodyweight", lifter1, lifter2, compare);
-//			if (compare != 0) {
-//				return compare; // smaller Athlete wins
-//			}
-//		}
-
-		// if (Competition.getCurrent().isMasters()) {
-		// compare = compareBirthDate(lifter1, lifter2);
-		// if (compare != 0) return -compare; // oldest wins
-		// }
+		compare = compareCompetitionSessionTime(lifter1, lifter2);
+		traceComparison("compareCompetitionSessionTime", lifter1, lifter2, compare);
+		if (compare != 0) {
+			// <0 means lifter1 earlier than lifter2
+			return compare; // earlier is better, rank 1 is better than rank 2
+		}
 
 		compare = compareBestSnatchAttemptNumber(lifter1, lifter2);
 		traceComparison("best snatch attempt number", lifter1, lifter2, compare);
@@ -516,7 +505,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return -compare; // we want reverse order - smaller comes after
 		}
 
-		return tieBreak(lifter1, lifter2, Competition.getCurrent().isUseOldBodyWeightTieBreak());
+		return tieBreak(lifter1, lifter2);
 	}
 
 	/**
@@ -562,6 +551,10 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	private int compareBestCleanJerkTime(Athlete lifter1, Athlete lifter2) {
 		LocalDateTime bestCleanJerkAttemptTime1 = lifter1.getBestCleanJerkAttemptTime();
 		LocalDateTime bestCleanJerkAttemptTime2 = lifter2.getBestCleanJerkAttemptTime();
+		if (bestCleanJerkAttemptTime1 == null || bestCleanJerkAttemptTime2 == null) {
+			// we will rely on session time.
+			return 0;
+		}
 		// logger.trace("tieBreak {} {}={} {} {}={} {}", LoggerUtils.stackTrace(),
 		// lifter1.getShortName(), lifter1.getBestCleanJerk(), bestCleanJerkAttemptTime1,
 		// lifter2.getShortName(), lifter2.getBestCleanJerk(), bestCleanJerkAttemptTime2);
@@ -571,7 +564,14 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	}
 
 	private int compareBestSnatchTime(Athlete lifter1, Athlete lifter2) {
-		return ObjectUtils.compare(lifter1.getBestSnatchAttemptTime(), lifter2.getBestSnatchAttemptTime());
+		LocalDateTime bestSnatchAttemptTime1 = lifter1.getBestSnatchAttemptTime();
+		LocalDateTime bestSnatchAttemptTime2 = lifter2.getBestSnatchAttemptTime();
+		if (bestSnatchAttemptTime1 == null || bestSnatchAttemptTime2 == null) {
+			// we will rely on session time.
+			logger.warn("bestSnatchTime missing {}={} {}={}", lifter1.getAbbreviatedName(), bestSnatchAttemptTime1, lifter2.getAbbreviatedName(), bestSnatchAttemptTime2);
+			return 0;
+		}
+		return ObjectUtils.compare(bestSnatchAttemptTime1, bestSnatchAttemptTime2);
 	}
 
 	/**
@@ -615,7 +615,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	 * @param lifter2
 	 * @return
 	 */
-	private int tieBreak(Athlete lifter1, Athlete lifter2, boolean bodyWeightTieBreak) {
+	private int tieBreak(Athlete lifter1, Athlete lifter2) {
 		int compare;
 
 		// if the athletes were not in the same session
@@ -623,12 +623,12 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			compare = compareBestCleanJerkTime(lifter1, lifter2);
 			Group group1 = lifter1.getGroup();
 			Group group13 = lifter2.getGroup();
-//			if (lifter1.getCategory().getCode().equals("Open_F64") && lifter1.getTotal() > 210) {
-				traceComparison("tiebreak compareBestCleanJerkTime", lifter1, group1, lifter2, group13, compare);
-//			}
+			// if (lifter1.getCategory().getCode().equals("Open_F64") && lifter1.getTotal() > 210) {
+			traceComparison("tiebreak compareBestCleanJerkTime", lifter1, group1, lifter2, group13, compare);
+			// }
 			if (compare != 0) {
 				// <0 means lifter1 earlier than lifter2
-				return -compare; // earlier is better, so return +1
+				return compare; // earlier is better, rank 1 is better than rank 2
 			}
 		}
 
@@ -638,12 +638,12 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			Group group12 = lifter1.getGroup();
 			Group group13 = lifter2.getGroup();
 			if (group12 != null && group13 != null)
-//				if (lifter1.getCategory().getCode().equals("Open_F64") && lifter1.getTotal() > 210) {
-					traceComparison("tiebreak compareCompetitionSessionTime", lifter1, group12.getCompetitionTime(), lifter2, group13.getCompetitionTime(),
-					        compare);
-//				}
+				// if (lifter1.getCategory().getCode().equals("Open_F64") && lifter1.getTotal() > 210) {
+				traceComparison("tiebreak compareCompetitionSessionTime", lifter1, group12.getCompetitionTime(), lifter2, group13.getCompetitionTime(),
+				        compare);
+			// }
 			if (compare != 0) {
-				return -compare; // <0 = earlier group that should win, so tiebreak needs to return positive
+				return compare; // <0 = earlier group that should win, so tiebreak needs to return negative (rank 1 is better than rank 2)
 			}
 		}
 

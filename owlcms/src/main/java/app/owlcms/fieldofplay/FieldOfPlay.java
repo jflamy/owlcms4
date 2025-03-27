@@ -442,6 +442,9 @@ public class FieldOfPlay implements IUnregister {
 	 * @return the leaders
 	 */
 	public List<Athlete> getLeaders() {
+		if (curAthlete == null) {
+			return List.of();
+		}
 		return this.leaders;
 	}
 
