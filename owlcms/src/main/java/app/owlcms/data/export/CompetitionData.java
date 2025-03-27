@@ -410,7 +410,7 @@ public class CompetitionData {
 	}
 
 	public void setTechnicalOfficials(List<TechnicalOfficial> technicalOfficials) {
-		logger.warn("read {} technical officials",technicalOfficials.size());
+		logger.info("read {} technical officials",technicalOfficials.size());
 		this.technicalOfficials = technicalOfficials;
 	}
 }
