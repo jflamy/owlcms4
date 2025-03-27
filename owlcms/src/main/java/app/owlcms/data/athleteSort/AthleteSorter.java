@@ -410,14 +410,15 @@ public class AthleteSorter implements Serializable {
 	
 	/**
 	 * @param a
-	 * @return normal points, unless in a Masters championship and IMWA team scoring is enabled
+	 * @return normal points, unless in a Masters championship or a Masters session and IMWA team scoring is enabled
 	 */
 	public static int imwaPointsFormula(Athlete a) {
 		Participation mr = a.getMainRankings();
 		int totalPoints = 0;
 		boolean imwa = Competition.getCurrent().isImwa();
 		ChampionshipType championshipType = mr.getChampionshipType();
-		if (imwa && championshipType == ChampionshipType.MASTERS) {
+		Group session = a.getGroup();
+		if (imwa && (championshipType == ChampionshipType.MASTERS || (session != null &&session.isMasters()))) {
 			// IMWA lowers points for 1-person and two-person categories
 			Category category = a.getCategory();
 			int athleteCount = AthleteRepository.retrieveMastersAthleteCountForCategory(category);
