@@ -91,7 +91,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		logger.info("{} sessions found in file", nbSessions);
 		if (nbSessions > 0) {
 			if (eraseAthletes()) {
-				this.processor.resetGroups();
+				this.processor.resetSessions();
 			}
 
 			// get the sessions from the spreadsheet

@@ -186,20 +186,20 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
 
 			try (InputStream xlsInputStream = inputStream) {
-				List<RGroup> groups = new ArrayList<>();
+				List<RGroup> sessions = new ArrayList<>();
 
 				Map<String, Object> beans = new HashMap<>();
-				beans.put("groups", groups);
+				beans.put("groups", sessions);
 
 				// logger.info(Translator.translate("ReadingData_"));
 				XLSReadStatus status = reader.read(inputStream, beans);
-				this.logger.info("Read {} groups.", groups.size());
+				this.logger.info("Read {} sessions.", sessions.size());
 				if (!dryRun) {
-					updatePlatformsAndGroups(groups);
+					updatePlatformsAndSessions(sessions);
 				}
 
 				appendErrors(displayUpdater, errorConsumer, status);
-				return groups.size();
+				return sessions.size();
 			} catch (InvalidFormatException | IOException e) {
 				LoggerUtils.logError(this.logger, e);
 			}
@@ -218,7 +218,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	 */
 	@Override
 	public void resetAthletes() {
-		// delete all athletes and groups (naive version).
+		// delete all athletes and sessions (naive version).
 		JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = AthleteRepository.doFindAll(em);
 			for (Athlete a : athletes) {
@@ -230,14 +230,14 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	}
 
 	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#resetGroups()
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#resetSessions()
 	 */
 	@Override
-	public void resetGroups() {
-		// delete all athletes and groups (naive version).
+	public void resetSessions() {
+		// delete all athletes and sessions (naive version).
 		JPAService.runInTransaction(em -> {
-			List<Group> oldGroups = GroupRepository.doFindAll(em);
-			for (Group g : oldGroups) {
+			List<Group> oldSessions = GroupRepository.doFindAll(em);
+			for (Group g : oldSessions) {
 				em.remove(g);
 			}
 			em.flush();
@@ -245,8 +245,8 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		});
 	}
 
-	public void setCreateMissingGroups(boolean createMissingGroups) {
-		this.createMissingGroups = createMissingGroups;
+	public void setCreateMissingSessions(boolean createMissingSessions) {
+		this.createMissingGroups = createMissingSessions;
 	}
 
 	/**
@@ -306,11 +306,11 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 	}
 
 	/**
-	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#updatePlatformsAndGroups(java.util.List)
+	 * @see app.owlcms.spreadsheet.IRegistrationFileProcessor#updatePlatformsAndSessions(java.util.List)
 	 */
 	@Override
-	public void updatePlatformsAndGroups(List<RGroup> groups) {
-		Set<String> futurePlatforms = groups.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
+	public void updatePlatformsAndSessions(List<RGroup> sessions) {
+		Set<String> futurePlatforms = sessions.stream().map(RGroup::getPlatform).filter(p -> (p != null && !p.isBlank()))
 		        .collect(Collectors.toSet());
 
 		String defaultPlatformName = OwlcmsFactory.getDefaultFOP().getName();
@@ -321,14 +321,14 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 		this.logger.debug("to be kept if present: {}", futurePlatforms);
 
 		PlatformRepository.deleteUnusedPlatforms(futurePlatforms);
-		PlatformRepository.createMissingPlatforms(groups);
+		PlatformRepository.createMissingPlatforms(sessions);
 
 		// recompute the available platforms, unregister the existing FOPs, etc.
 		OwlcmsFactory.initDefaultFOP();
 		String newDefault = OwlcmsFactory.getDefaultFOP().getName();
 
 		JPAService.runInTransaction(em -> {
-			groups.stream().forEach(g -> {
+			sessions.stream().forEach(g -> {
 				String platformName = g.getPlatform();
 				Group readGroup = g.getGroup();
 				Group group = GroupRepository.doFindByName(g.getGroupName(), em);
@@ -352,7 +352,7 @@ public class NRegistrationFileProcessor implements IRegistrationFileProcessor {
 			return null;
 		});
 
-		groups.stream().forEach(g -> {
+		sessions.stream().forEach(g -> {
 			this.logger.debug("group {} weighIn {} competition {}", g.getGroup(), g.getWeighinTime(),
 			        g.getCompetitionTime());
 		});

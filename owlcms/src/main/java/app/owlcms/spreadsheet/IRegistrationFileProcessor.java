@@ -26,11 +26,11 @@ public interface IRegistrationFileProcessor {
 
 	void resetAthletes();
 
-	void resetGroups();
+	void resetSessions();
 
 	void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> athletes);
 
-	void updatePlatformsAndGroups(List<RGroup> groups);
+	void updatePlatformsAndSessions(List<RGroup> groups);
 
 	void doProcessCompetitionHeader(InputStream inputStream, Consumer<String> errorConsumer, Runnable displayUpdater);
 }
