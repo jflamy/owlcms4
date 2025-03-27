@@ -142,6 +142,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@Transient
 	@JsonIgnore
 	private Boolean forceSave = null;
+	private ChampionshipType championshipType;
 
 	public AgeGroup() {
 	}
@@ -281,11 +282,17 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return this.championshipName;
 	}
 
-	@JsonIgnore
-	@Transient
 	public ChampionshipType getChampionshipType() {
-		Championship of = Championship.of(this.computeChampionshipName());
-		return of != null ? of.getType() : ChampionshipType.DEFAULT;
+		if (this.championshipType == null) {
+			Championship of = Championship.of(this.computeChampionshipName());
+			return of != null ? of.getType() : ChampionshipType.U;
+		} else {
+			return this.championshipType;
+		}
+	}
+	
+	public void setChampionshipType(ChampionshipType c) {
+		this.championshipType = c;
 	}
 
 	public String getCode() {

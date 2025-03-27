@@ -43,6 +43,7 @@ public class AgeGroupDefinitionReader {
 	private static final String AGE_GROUP_SCORING_HEADER = "agegroupscoring";
 	private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupDefinitionReader.class);
 	static DataFormatter formatter = new DataFormatter();
+	private static int[] countDefaults = new int[Gender.values().length];
 
 	public static void doInsertRobiAndAgeGroups(InputStream ageGroupStream) {
 		Logger mainLogger = Main.getStartupLogger();
@@ -55,6 +56,9 @@ public class AgeGroupDefinitionReader {
 	        EnumSet<ChampionshipType> forcedInsertion,
 	        String localizedName) {
 
+		for (int i = 0; i < Gender.values().length; i++) {
+			countDefaults[i] = 0;
+		}
 		JPAService.runInTransaction(em -> {
 			// backward compatibility
 			Sheet sheet = workbook.getSheetAt(workbook.getNumberOfSheets() - 1);
@@ -114,7 +118,18 @@ public class AgeGroupDefinitionReader {
 							break;
 						case 2: {
 							String cellValue = safeGetTextValue(cell);
-							ag.setAgeDivision(cellValue);
+							if (!cellValue.isBlank()) {
+								try {
+									ag.setAgeDivision(cellValue);
+									ag.setChampionshipType(ChampionshipType.valueOf(cellValue));
+								} catch (Exception e) {
+									reportError(iRow, iColumn, cellValue, new IllegalArgumentException("Unknown Championship Type "+cellValue));
+								}
+							} else {
+								ag.setAgeDivision(cellValue);
+								ag.setChampionshipType(ChampionshipType.U);	
+							}
+
 							if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
 								ag.setAlreadyGendered(true);
 							}
@@ -127,6 +142,15 @@ public class AgeGroupDefinitionReader {
 									ag.setGender(Gender.valueOf(cellValue));
 								} catch (IllegalArgumentException e) {
 									ag.setGender(cellValue.contentEquals("W") ? Gender.F : Gender.M);
+								}
+							}
+							if (ag.getGender() == null) {
+								reportError(iRow, iColumn, cellValue, new IllegalArgumentException("You must indicate a Gender M or F"));
+							} else if (ag.getChampionshipType() == ChampionshipType.DEFAULT) {
+								countDefaults[ag.getGender().ordinal()] = countDefaults[ag.getGender().ordinal()] + 1;
+								int nbDefaults = countDefaults[ag.getGender().ordinal()];
+								if (nbDefaults > 1) {
+									reportError(iRow, 0, safeGetTextValue(row.getCell(0)), new IllegalArgumentException("You can only have one DEFAULT for Men and one DEFAULT for Women"));
 								}
 							}
 						}
@@ -296,8 +320,8 @@ public class AgeGroupDefinitionReader {
 
 	private static void reportError(int iRow, int iColumn, String cellValue, Exception e) {
 		String msg = MessageFormat.format(
-		        "cannot process cell {0} (content = \"{1}\") {2}",
-		        cellName(iColumn, iRow), cellValue, e);
+		        "Cannot process cell {0} (content = \"{1}\") {2}",
+		        cellName(iColumn, iRow), cellValue, e.getMessage());
 		logger.error(msg);
 		if (UI.getCurrent() != null) {
 			NotificationUtils.errorNotification(msg);

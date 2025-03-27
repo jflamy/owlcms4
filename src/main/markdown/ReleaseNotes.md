@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 57.0.0-alpha08: Added error checking to AgeGroups definition
 - 57.0.0-alpha07: Fix export order for Technical Officials Excel.
 - 57.0.0-alpha06: Technical Officials were not correctly restored when importing a .json export.
 - 57.0.0-alpha06: Added an `affiliation` attribute to technical officials (to be used for club/region/etc.)
@@ -23,10 +24,15 @@
 - Technical Officials 
   - Fix: Technical Officials were not restored when importing a .json export.  Since they were exported, re-importing will now work.
   - A new attribute has been added.  `affiliation` can be used to store the club, region, etc. if needed.
-
 - Masters sessions
   - Sessions can be designated as Masters sessions.  Older age groups are first during weigh-in, when attributing start numbers. Scoreboards are grouped by age group, oldest first.
   - There is now an extra column on the groups page of the registration/SBDE groups tab to indicate that a session is Masters.  TRUE indicates that it is, FALSE that it is not, and empty uses the default "Masters presentation order" setting for the competition.
+- Age Group definitions
+  - The only two Championship Types that are now used are MASTERS and DEFAULT
+  - MASTERS indicates that the category code names are already gendered (M35 contains the gender M).  MASTERS also indicates that the athletes in this age group get the 80% rule if the competition is under IMWA rules (and that the 80% rule has not been turned off for the competition as a whole)
+  - DEFAULT indicates that only the gender is used to name the category. Therefore, there can only be one DEFAULT for men, and one DEFAULT for Women. If the code is "Open", the category will be "W 64" instead of "Open W 64".
+  - Any championship that is neither MASTERS or DEFAULT has no special treatment.
+
 - Competition Rules
   - Added the ability to specify whether IMWA or UWML rules are used.  
     - IMWA implies 80% rule and  team scoring that gives less points to winners of one or two-person categories.  
