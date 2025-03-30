@@ -8,6 +8,8 @@
 
 **Change Log**
 
+- 57.0.0-alpha09: Updated the default Age Groups file for Spain (2025 age groups)
+- 57.0.0-alpha09: Fixed error in translation file (Team Results page)
 - 57.0.0-alpha08: Updated the registration and SBDE templates to account for Masters sessions
 - 57.0.0-alpha08: Added robustness to tie-break rules.
 - 57.0.0-alpha08: Added more error checking to AgeGroups definition reader, see "Age Groups" below.
