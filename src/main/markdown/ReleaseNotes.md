@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 56.0.6: Updated Spain age groups file to 2025 categories
 - 56.0.6: Robustness fixes to tie-break rules
 - 56.0.5: Some of the Competition Information in Start Book Data Entry (SBDE) Excel was not being read correctly; also added capability to read the end date from cell N1.
 - 56.0.5: Fixed championship name for U15 in the AgeGroups2025 file.
