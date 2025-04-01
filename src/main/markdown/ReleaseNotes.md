@@ -8,6 +8,7 @@
 
 **Change Log**
 
+- 57.0.0-beta01: Ability to display urgent messages for people that do not read the mailing list.
 - 57.0.0-alpha09: Updated the default Age Groups file for Spain (2025 age groups)
 - 57.0.0-alpha09: Fixed error in translation file (Team Results page)
 - 57.0.0-alpha08: Updated the registration and SBDE templates to account for Masters sessions
@@ -24,6 +25,10 @@
 - 57.0.0-alpha01: Added ability to calculate team points using IMWA rules 
 
 **New In Release 57**
+
+- Message of the day
+  - At startup, a message can be displayed on the home page if something urgent needs to be communicated by the application maintainer.  The files containing the messages are located in the source code repository, and can be changed or removed as required.
+  - When running locally, a check that a recent-enough version of the control panel was used it made.
 
 - Technical Officials 
   - Fix: Technical Officials were not restored when importing a .json export.  Since they were exported, re-importing will now work.

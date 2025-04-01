@@ -9,6 +9,7 @@
     </listAttribute>
     <mapAttribute key="org.eclipse.debug.core.environmentVariables">
         <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
+        <mapEntry key="OWLCMS_LAUNCHER" value="2.1.0"/>
         <mapEntry key="OWLCMS_PORT" value="8080"/>
         <mapEntry key="OWLCMS_UPDATEKEY" value="mapetitevacheamalauxpattes"/>
         <mapEntry key="_JDBC_DATABASE_PASSWORD" value="postgres"/>
@@ -21,7 +22,7 @@
         <mapEntry key="_OWLCMS_H2SERVERPORT" value="9092"/>
         <mapEntry key="_OWLCMS_PIN" value="1234"/>
         <mapEntry key="_OWLCMS_REMOTE" value="http://localhost:8082"/>
-        <mapEntry key="_OWLCMS_VIDEODATA" value="http://owlcms.local:8091"/>
+        <mapEntry key="_OWLCMS_VIDEODATA" value="http://owlcms.local:8092"/>
         <mapEntry key="__JDBC_DATABASE_URL" value="jdbc:h2:file:./database/scolaire.mv.db"/>
     </mapAttribute>
     <mapAttribute key="org.eclipse.debug.core.preferred_launchers">

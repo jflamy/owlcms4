@@ -17,6 +17,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -243,11 +244,12 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		if (OwlcmsSession.getAttribute(USAGE_STR) == null) {
 			logUsage();
 		}
-		// String launcherVersion = System.getenv("OWLCMS_LAUNCHER");
-		// launcherVersion = "2.1.0";
-		// if (launcherVersion != null) {
-		// 	checkControlPanelVersion(launcherVersion);
-		// }
+
+		String launcherVersion = System.getenv("OWLCMS_LAUNCHER");
+		String cpvHtml = null;
+		if (launcherVersion != null) {
+			cpvHtml = checkControlPanelVersion(launcherVersion);
+		}
 
 		VerticalLayout intro = new VerticalLayout();
 		intro.setSpacing(false);
@@ -285,6 +287,28 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		intro.add(ul);
 		intro.add(div);
 
+		var osName = System.getProperty("os.name");
+		if (osName.startsWith("Windows") || osName.startsWith("windows")) {
+			osName = "windows";
+		} else if (osName.startsWith("Mac") || osName.startsWith("mac")) {
+			osName = "macos";
+		} else if (osName.startsWith("Linux") || osName.startsWith("linux")) {
+			osName = "linux";
+		}
+		if (osName.equals("Linux") && !JPAService.isLocalDb()) {
+			osName = "cloud";
+		}
+
+		String motd = getMotd(osName + ".html");
+		if (motd != null) {
+			intro.add(new Hr());
+			intro.add(new Html(motd));
+		}
+		if (cpvHtml != null) {
+			intro.add(new Hr());
+			intro.add(new Html(cpvHtml));
+		}
+
 		div.getStyle().set("margin-bottom", "1ex");
 		Hr hr = new Hr();
 		hr.getStyle().set("margin-bottom", "2ex");
@@ -302,30 +326,33 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	private static final String REPO_OWNER = "jflamy";
-    private static final String REPO_NAME = "owlcms4";
-    private static final String FILE_PATH = "controlPanelVersion.txt";
-    private static final String GITHUB_API_URL = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/" + FILE_PATH;
-
+	private static final String REPO_NAME = "owlcms4";
+	private static final String CONTROL_PANEL_VERSION = "controlPanelVersion.txt";
+	private static final String GITHUB_API_URL = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/";
+	private static LocalDateTime cpWarningEmitted = LocalDateTime.MIN;
+	private static LocalDateTime motdEmitted = LocalDateTime.MIN;
 
 	public static String checkControlPanelVersion(String curVer) {
+		if (LocalDateTime.now().minusHours(1).isBefore(cpWarningEmitted)) {
+			return null;
+		}
+		cpWarningEmitted = LocalDateTime.now();
 		HttpClient client = HttpClient.newBuilder()
 		        .connectTimeout(Duration.ofSeconds(2))
 		        .build();
 		HttpRequest request = HttpRequest.newBuilder()
-		        .uri(URI.create(GITHUB_API_URL))
+		        .uri(URI.create(GITHUB_API_URL + CONTROL_PANEL_VERSION))
 		        .timeout(Duration.ofSeconds(2))
 		        .build();
 
 		try {
 			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
 			if (response.statusCode() != 200) {
-				throw new IOException("Unexpected code " + response.statusCode());
+				throw new IOException(request.uri() + " Unexpected code " + response.statusCode());
 			}
-
 			String contentType = response.headers().firstValue("Content-Type").orElse("");
 			if (!contentType.contains("application/json")) {
-				throw new IOException("Unexpected content type: " + contentType);
+				throw new IOException(request.uri() + "Unexpected content type: " + contentType);
 			}
 
 			String responseBody = response.body();
@@ -340,13 +367,55 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			int comparison = currentVersion.compareTo(requiredVersion);
 			if (comparison < 0) {
 				logger.error("Control panel version is out of date. Current version: {}, required version: {}", curVer, string);
+				return getMotd("controlPanel.html");
 			} else {
 				logger.info("Control panel version is up to date. Current version: {}, required version: {}", curVer, string);
+				return null;
 			}
-
-			return string;
 		} catch (Exception e) {
 			logger.error("Error fetching control panel version: {} {}", e.getMessage(), request.uri());
+			return null;
+		}
+	}
+
+	public static String getMotd(String fileName) {
+		if (LocalDateTime.now().minusHours(1).isBefore(motdEmitted)) {
+			return null;
+		}
+		motdEmitted = LocalDateTime.now();
+		HttpClient client = HttpClient.newBuilder()
+		        .connectTimeout(Duration.ofSeconds(2))
+		        .build();
+		HttpRequest request = HttpRequest.newBuilder()
+		        .uri(URI.create(GITHUB_API_URL + fileName))
+		        .timeout(Duration.ofSeconds(2))
+		        .build();
+
+		try {
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			if (response.statusCode() != 200) {
+				throw new IOException("Unexpected code " + response.statusCode());
+			}
+			String contentType = response.headers().firstValue("Content-Type").orElse("");
+			if (!contentType.contains("application/json")) {
+				throw new IOException("Unexpected content type: " + contentType);
+			}
+
+			String responseBody = response.body();
+			JSONObject json = new JSONObject(responseBody);
+			String content = json.getString("content");
+			if (content != null && !content.isEmpty()) {
+				content = content.strip();
+				content = content.replaceAll("\n", "");
+				content = content.replaceAll(" ", "");
+				if (!content.isEmpty()) {
+					String string = new String(Base64.getDecoder().decode(content));
+					return string;
+				}
+			}
+			return null;
+		} catch (Exception e) {
+			logger.error("Error fetching motd: {} {}", e.getMessage(), request.uri());
 			return null;
 		}
 	}
