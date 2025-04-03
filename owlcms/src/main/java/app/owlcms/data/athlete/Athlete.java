@@ -2173,7 +2173,10 @@ public class Athlete {
 		List<Category> pcats = participations2.stream().map(p -> p.getCategory()).collect(Collectors.toList());
 		pcats.sort(new RegistrationPreferenceComparator());
 		for (Category p : pcats) {
-			s.add(p.getAgeGroup().getDisplayName());
+			AgeGroup ageGroup = p.getAgeGroup();
+			if (ageGroup != null) {
+				s.add(ageGroup.getDisplayName());
+			}
 		}
 		return s;
 	}
