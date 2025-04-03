@@ -40,7 +40,10 @@ public class ResultsLiftingOrder extends Results {
 		// so we must check if there are any snatching still.
 		boolean snatchPresent = (athletes.stream().anyMatch(s -> s.getActuallyAttemptedLifts() < 3));
 		boolean cjPresent = (athletes.stream().anyMatch(s -> s.getActuallyAttemptedLifts() > 3 || s.withdrawnFromCJ()));
-		return (snatchPresent ? 1 : 0) + (cjPresent ? 1 : 0) + 1;
+		boolean snatchEnd = (athletes.stream().allMatch(s -> s.getActuallyAttemptedLifts() == 3));
+		int nbSubsets = (snatchPresent ? 1 : 0) + (snatchEnd ? 1 : 0) + (cjPresent ? 2 : 0) + 1;
+		//logger.debug("**** nbSubsets = {}",nbSubsets);
+		return nbSubsets;
 	}
 
 	@Override
@@ -59,7 +62,7 @@ public class ResultsLiftingOrder extends Results {
 			if (first) return true;
 	        boolean prevIsSnatch = prev.getAttemptsDone() <= 3;
 			boolean curIsCJ = (cur.getAttemptsDone() > 3 || cur.withdrawnFromCJ());
-			//logger.debug("prev {} prevIsSnatch={} cur {} curIsCJ={}",prev.getAbbreviatedName(),prevIsSnatch, cur.getAbbreviatedName(), curIsCJ);
+			//logger.debug("**** separator {} prev {} prevIsSnatch={} cur {} curIsCJ={}",prev.getAbbreviatedName(),prevIsSnatch, cur.getAbbreviatedName(), curIsCJ);
 			return prevIsSnatch && curIsCJ;
 		};
 		return separator;
