@@ -1812,8 +1812,7 @@ public class Athlete {
 	 * @return the firstName
 	 */
 	public String getFirstName() {
-		// return this.firstName != null ? this.firstName.trim() : null;
-		return this.firstName;
+		return this.firstName != null ? this.firstName.trim() : null;
 	}
 
 	@Transient
@@ -1971,7 +1970,7 @@ public class Athlete {
 	 * @return the lastName
 	 */
 	public String getLastName() {
-		return this.lastName != null ? this.lastName.trim() : "";
+		return this.lastName != null ? this.lastName.trim() : null;
 	}
 
 	/**
@@ -5890,7 +5889,10 @@ public class Athlete {
 	}
 
 	public boolean withdrawnFromCJ() {
-		return getCleanJerk1ActualLift().equals("0") && getCleanJerk2ActualLift().equals("0") && getCleanJerk3ActualLift().equals("0");
+		return getCleanJerk3ActualLift().equals("0");
 	}
 
+	public boolean withdrawnFromSnatch() {
+		return getSnatch3ActualLift().equals("0");
+	}
 }
