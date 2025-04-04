@@ -439,7 +439,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			compare = compareBestSnatchTime(lifter1, lifter2);
 			traceComparison("snatch best snatch time", lifter1, lifter1.getBestSnatchAttemptTime(), lifter2, lifter2.getBestSnatchAttemptTime(), compare);
 			if (compare != 0) {
-				logger.warn("compare {}",compare);
+				//logger.debug("compare {}",compare);
 				// <0 means lifter1 earlier than lifter2
 				return compare; // earlier is better, rank 1 is better than rank 2
 			}
@@ -568,7 +568,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		LocalDateTime bestSnatchAttemptTime2 = lifter2.getBestSnatchAttemptTime();
 		if (bestSnatchAttemptTime1 == null || bestSnatchAttemptTime2 == null) {
 			// we will rely on session time.
-			logger.warn("bestSnatchTime missing {}={} {}={}", lifter1.getAbbreviatedName(), bestSnatchAttemptTime1, lifter2.getAbbreviatedName(), bestSnatchAttemptTime2);
+			logger.error("bestSnatchTime missing {}={} {}={}", lifter1.getAbbreviatedName(), bestSnatchAttemptTime1, lifter2.getAbbreviatedName(), bestSnatchAttemptTime2);
 			return 0;
 		}
 		return ObjectUtils.compare(bestSnatchAttemptTime1, bestSnatchAttemptTime2);
