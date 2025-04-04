@@ -349,6 +349,9 @@ public class Results extends LitTemplate
 		this.group = group;
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#setLeadersDisplay(boolean)
+	 */
 	@Override
 	public void setLeadersDisplay(boolean b) {
 		this.leadersDisplay = b;
@@ -1185,11 +1188,11 @@ public class Results extends LitTemplate
 	}
 
 	private void doDone(Group g) {
-		this.logger.debug("doDone {}", g == null ? null : g.getName());
 		if (g == null) {
 			doEmpty();
 		} else {
 			OwlcmsSession.withFop(fop -> {
+				computeLeaders(true);
 				this.getElement().setProperty("fullName", Translator.translate("Group_number_results", g.toString()));
 			});
 		}

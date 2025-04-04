@@ -5885,7 +5885,10 @@ public class Athlete {
 	}
 
 	public boolean withdrawnFromCJ() {
-		return getCleanJerk1ActualLift().equals("0") && getCleanJerk2ActualLift().equals("0") && getCleanJerk3ActualLift().equals("0");
+		return getCleanJerk3ActualLift().equals("0");
 	}
 
+	public boolean withdrawnFromSnatch() {
+		return getSnatch3ActualLift().equals("0");
+	}
 }
