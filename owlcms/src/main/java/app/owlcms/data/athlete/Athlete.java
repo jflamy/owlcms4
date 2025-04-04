@@ -761,7 +761,8 @@ public class Athlete {
 		String firstName2 = this.getFirstName() != null ? this.getFirstName() : "";
 		String[] hyphenatedParts = firstName2.split("-");
 		String abbreviated = Arrays.stream(hyphenatedParts).map(hpart -> {
-			return Arrays.stream(hpart.split("[ .]+")).map(word -> (word.substring(0, 1) + "."))
+			return Arrays.stream(hpart.split("[ .]+"))
+					.map(word -> (!word.isEmpty() ? (word.substring(0, 1) + "."): ""))
 			        .collect(Collectors.joining(" "));
 		}).collect(Collectors.joining("-"));
 
@@ -1811,6 +1812,7 @@ public class Athlete {
 	 * @return the firstName
 	 */
 	public String getFirstName() {
+		// return this.firstName != null ? this.firstName.trim() : null;
 		return this.firstName;
 	}
 
@@ -1969,7 +1971,7 @@ public class Athlete {
 	 * @return the lastName
 	 */
 	public String getLastName() {
-		return this.lastName;
+		return this.lastName != null ? this.lastName.trim() : "";
 	}
 
 	/**
