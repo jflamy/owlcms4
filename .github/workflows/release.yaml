@@ -10,7 +10,7 @@ on:
 # - pull in translations and proofread
 # - run AllTests locally
 # - Release Notes
-        default: '56.0.7'
+        default: '56.0.8-rc01'
 
 env:
   REPO_OWNER: owlcms

@@ -8,7 +8,9 @@
 
 **Change Log**
 
-- 56.0.7: Lifting Order scoreboard: Fixed oversized last line on  after end of snatch.
+- 56.0.8: More fixes to Lifting order scoreboard
+- 56.0.8: Hide leader board as soon as session terminates
+- 56.0.7: Lifting Order scoreboard: Fixed oversized last line on after end of snatch.
 - 56.0.6: Updated Spain age groups file to 2025 categories
 - 56.0.6: Robustness fixes to tie-break rules
 - 56.0.5: Some of the Competition Information in Start Book Data Entry (SBDE) Excel was not being read correctly; also added capability to read the end date from cell N1.
