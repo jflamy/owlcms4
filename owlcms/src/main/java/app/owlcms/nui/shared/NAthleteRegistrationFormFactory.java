@@ -1141,7 +1141,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private Double adjustBW(Double catW, Integer ageFromFields) {
 		if (catW > 990) {
-			return ageFromFields <= 17 ? 99D : 111D;
+			return ageFromFields <= 17 ? 103D : 111D;
 		} else {
 			return catW;
 		}
@@ -1384,8 +1384,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	public Double inferBW(Category cat) {
 		Double bw = cat.getMaximumWeight();
-		var bw2 = inferBW(bw);
-		return bw;
+		var bw2 = adjustBW(bw, cat.getAgeGroup().getMaxAge());
+		return bw2;
 	}
 
 	private void safeCategorySetItems(List<Category> categories) {
