@@ -1142,7 +1142,8 @@ public class FieldOfPlay implements IUnregister {
 			}
 			List<Athlete> groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 
-			if (groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
+			// skip if session is already in progress (forceLoad == false)
+			if (forceLoad && groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
 				this.logger./**/warn("start numbers were not assigned correctly");
 				AthleteRepository.assignStartNumbers(group);
 				groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
@@ -2926,8 +2927,10 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			if (getCurAthlete() != null) {
 				// group already in progress, do not force loading from database
+				//logger.debug("---------- already in progress");
 				loadGroup(group2, e.getOrigin(), false);
 			} else {
+				//logger.debug("---------- NOT in progress");
 				loadGroup(group2, e.getOrigin(), true);
 			}
 			setState(CURRENT_ATHLETE_DISPLAYED);
