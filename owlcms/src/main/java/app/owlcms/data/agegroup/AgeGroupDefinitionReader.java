@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,12 +45,12 @@ public class AgeGroupDefinitionReader {
 	private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupDefinitionReader.class);
 	static DataFormatter formatter = new DataFormatter();
 	private static int[] countDefaults = new int[Gender.values().length];
+	private static Map<String, AgeGroup> ageGroupByCode = new HashMap<>();
 
 	public static void doInsertRobiAndAgeGroups(InputStream ageGroupStream) {
 		Logger mainLogger = Main.getStartupLogger();
 		Map<String, Category> templates = loadRobi(mainLogger);
 		loadAgeGroupStream(null, "custom upload", mainLogger, templates, ageGroupStream);
-
 	}
 
 	static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
@@ -86,6 +87,7 @@ public class AgeGroupDefinitionReader {
 
 				AgeGroup ag = null;
 				double curMin = 0.0D;
+				boolean skip = false;
 
 				Iterator<Cell> cellIterator = row.cellIterator();
 				String championshipName = null;
@@ -123,11 +125,11 @@ public class AgeGroupDefinitionReader {
 									ag.setAgeDivision(cellValue);
 									ag.setChampionshipType(ChampionshipType.valueOf(cellValue));
 								} catch (Exception e) {
-									reportError(iRow, iColumn, cellValue, new IllegalArgumentException("Unknown Championship Type "+cellValue));
+									reportError(iRow, iColumn, cellValue, new IllegalArgumentException("Unknown Championship Type " + cellValue));
 								}
 							} else {
 								ag.setAgeDivision(cellValue);
-								ag.setChampionshipType(ChampionshipType.U);	
+								ag.setChampionshipType(ChampionshipType.U);
 							}
 
 							if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
@@ -150,7 +152,17 @@ public class AgeGroupDefinitionReader {
 								countDefaults[ag.getGender().ordinal()] = countDefaults[ag.getGender().ordinal()] + 1;
 								int nbDefaults = countDefaults[ag.getGender().ordinal()];
 								if (nbDefaults > 1) {
-									reportError(iRow, 0, safeGetTextValue(row.getCell(0)), new IllegalArgumentException("You can only have one DEFAULT for Men and one DEFAULT for Women"));
+									reportError(iRow, 0, safeGetTextValue(row.getCell(0)),
+									        new IllegalArgumentException("You can only have one DEFAULT for Men and one DEFAULT for Women"));
+								}
+							} else {
+								String code = ag.getKey();
+								if (code != null && (ageGroupByCode.get(code) != null)) {
+									reportError(iRow, iColumn, null, new IllegalArgumentException("Duplicate Age Group "+ag.getDisplayName()+" Ignored"));
+									skip = true;
+									ag = null;
+								} else {
+									ageGroupByCode.put(code, ag);
 								}
 							}
 						}
@@ -181,6 +193,9 @@ public class AgeGroupDefinitionReader {
 						}
 							break;
 						default:
+							if (skip) {
+								break;
+							}
 							if (ageGroupScoring && iColumn == 7) {
 								String cellValue = null;
 								cellValue = safeGetTextValue(cell);
@@ -238,7 +253,8 @@ public class AgeGroupDefinitionReader {
 					}
 					iColumn++;
 				}
-				if (ag != null) {
+
+				if (ag != null && !skip) {
 					em.persist(ag);
 				}
 				iRow++;
@@ -294,6 +310,7 @@ public class AgeGroupDefinitionReader {
 		        .create(localizedResourceAsStream1)) {
 			logger.info("loading age group configuration file {}", localizedName);
 			mainLogger.info("loading age group definitions {}", localizedName);
+			ageGroupByCode.clear();
 			createAgeGroups(workbook, templates, forcedInsertion, localizedName);
 			Championship.reset();
 			CategoryRepository.resetCodeMap();
@@ -319,10 +336,19 @@ public class AgeGroupDefinitionReader {
 	}
 
 	private static void reportError(int iRow, int iColumn, String cellValue, Exception e) {
-		String msg = MessageFormat.format(
-		        "Cannot process cell {0} (content = \"{1}\") {2}",
-		        cellName(iColumn, iRow), cellValue, e.getMessage());
-		logger.error(msg);
+		String msg;
+		if (cellValue != null) {
+			msg = MessageFormat.format(
+			        "Cannot process cell {0} (content = \"{1}\") -- {2}",
+			        cellName(iColumn, iRow), cellValue, e.getMessage());
+			logger.error(msg);
+		} else {
+			msg = MessageFormat.format(
+			        "Cannot process cell {0} -- {1}",
+			        cellName(iColumn, iRow), e.getMessage());
+			logger.error(msg);
+		}
+
 		if (UI.getCurrent() != null) {
 			NotificationUtils.errorNotification(msg);
 		}
