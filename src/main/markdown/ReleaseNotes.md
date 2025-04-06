@@ -8,7 +8,9 @@
 
 **Change Log**
 
-- 57.0.0-beta02: On the registration form, switching the registration category required entering a bodyweigh
+- 57.0.0-rc01: Detect duplicate age group when importing age group definitions
+- 57.0.0-rc01: Translations: Danish, German
+- 57.0.0-beta02: On the registration form, switching the registration category required entering a bodyweight
 - 57.0.0-beta01: Ability to display urgent messages for people that do not read the mailing list.
 
 **New In Release 57**
