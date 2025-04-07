@@ -472,6 +472,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        return (getSortedSelection().size() > 1 ? ".zip" : "." + extension);
 		        });
 		Button b = (Button) localDirZipDiv.getChildren().findFirst().get();
+		b.focus();
 		b.addClickListener(e -> b.setEnabled(false));
 		b.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		return localDirZipDiv;
