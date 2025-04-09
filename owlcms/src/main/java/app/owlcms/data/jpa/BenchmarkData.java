@@ -87,7 +87,7 @@ public class BenchmarkData {
 			return null;
 		});
 
-		AthleteRepository.resetParticipations();
+		AthleteRepository.resetParticipations(false, true);
 
 		JPAService.runInTransaction(em -> {
 			AthleteRepository.doFindAll(em).stream()

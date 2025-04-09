@@ -122,73 +122,95 @@ public class Athlete {
 	static private boolean skipValidationsDuringImport = false;
 	private static final int YEAR = LocalDateTime.now().getYear();
 
-	public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults) {
+	public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults, boolean copyChanges, boolean copyId) {
+		System.err.println("> conditionalCopy");
 		boolean validation = dest.isValidation();
 		Level prevSrcLevel = src.getLogger().getLevel();
 		Level prevDestLevel = dest.getLogger().getLevel();
 		try {
-			dest.setId(src.getId());
+			if (copyId) {
+				dest.setId(src.getId());
+			}
 			dest.setValidation(false);
 			dest.setLoggerLevel(Level.OFF);
-			dest.setCopyId(src.getId());
+			
+			System.err.println(">> conditionalCopy nb Participations " + dest.getParticipations().size());
+			dest.getParticipations().forEach(p -> {
+				System.err.println(">> dest="+dest.getId()+" src="+src.getId()+" p.getAthlete="+p.getAthlete().getId());
+			});
 
 			dest.setLastName(src.getLastName());
 			dest.setFirstName(src.getFirstName());
 			dest.setFullBirthDate(src.getFullBirthDate());
-			dest.setBodyWeight(src.getBodyWeight());
+
+			if (copyChanges) {
+				dest.setBodyWeight(src.getBodyWeight());
+			}
 			dest.setGroup(src.getGroup());
 			dest.setStartNumber(src.getStartNumber());
 			dest.setLotNumber(src.getLotNumber());
 			dest.setEntryTotal(src.getEntryTotal());
 			dest.setCategory(src.getCategory());
 
-			dest.setSnatch1Declaration(src.getSnatch1Declaration());
-			dest.setSnatch1Change1(src.getSnatch1Change1());
-			dest.setSnatch1Change2(src.getSnatch1Change2());
+			if (copyChanges) {
+				dest.setSnatch1Declaration(src.getSnatch1Declaration());
+				dest.setSnatch1Change1(src.getSnatch1Change1());
+				dest.setSnatch1Change2(src.getSnatch1Change2());
+			}
 			if (copyResults) {
 				dest.setSnatch1ActualLift(src.getSnatch1ActualLift());
 				dest.setSnatch1LiftTime(src.getSnatch1LiftTime());
 			}
 
-			dest.setSnatch2AutomaticProgression(src.getSnatch2AutomaticProgression());
-			dest.setSnatch2Declaration(src.getSnatch2Declaration());
-			dest.setSnatch2Change1(src.getSnatch2Change1());
-			dest.setSnatch2Change2(src.getSnatch2Change2());
+			if (copyChanges) {
+				dest.setSnatch2AutomaticProgression(src.getSnatch2AutomaticProgression());
+				dest.setSnatch2Declaration(src.getSnatch2Declaration());
+				dest.setSnatch2Change1(src.getSnatch2Change1());
+				dest.setSnatch2Change2(src.getSnatch2Change2());
+			}
 			if (copyResults) {
 				dest.setSnatch2ActualLift(src.getSnatch2ActualLift());
 				dest.setSnatch2LiftTime(src.getSnatch2LiftTime());
 			}
 
-			dest.setSnatch3AutomaticProgression(src.getSnatch3AutomaticProgression());
-			dest.setSnatch3Declaration(src.getSnatch3Declaration());
-			dest.setSnatch3Change1(src.getSnatch3Change1());
-			dest.setSnatch3Change2(src.getSnatch3Change2());
+			if (copyChanges) {
+				dest.setSnatch3AutomaticProgression(src.getSnatch3AutomaticProgression());
+				dest.setSnatch3Declaration(src.getSnatch3Declaration());
+				dest.setSnatch3Change1(src.getSnatch3Change1());
+				dest.setSnatch3Change2(src.getSnatch3Change2());
+			}
 			if (copyResults) {
 				dest.setSnatch3ActualLift(src.getSnatch3ActualLift());
 				dest.setSnatch3LiftTime(src.getSnatch3LiftTime());
 			}
 
-			dest.setCleanJerk1Declaration(src.getCleanJerk1Declaration());
-			dest.setCleanJerk1Change1(src.getCleanJerk1Change1());
-			dest.setCleanJerk1Change2(src.getCleanJerk1Change2());
+			if (copyChanges) {
+				dest.setCleanJerk1Declaration(src.getCleanJerk1Declaration());
+				dest.setCleanJerk1Change1(src.getCleanJerk1Change1());
+				dest.setCleanJerk1Change2(src.getCleanJerk1Change2());
+			}
 			if (copyResults) {
 				dest.setCleanJerk1ActualLift(src.getCleanJerk1ActualLift());
 				dest.setCleanJerk1LiftTime(src.getCleanJerk1LiftTime());
 			}
 
-			dest.setCleanJerk2AutomaticProgression(src.getCleanJerk2AutomaticProgression());
-			dest.setCleanJerk2Declaration(src.getCleanJerk2Declaration());
-			dest.setCleanJerk2Change1(src.getCleanJerk2Change1());
-			dest.setCleanJerk2Change2(src.getCleanJerk2Change2());
+			if (copyChanges) {
+				dest.setCleanJerk2AutomaticProgression(src.getCleanJerk2AutomaticProgression());
+				dest.setCleanJerk2Declaration(src.getCleanJerk2Declaration());
+				dest.setCleanJerk2Change1(src.getCleanJerk2Change1());
+				dest.setCleanJerk2Change2(src.getCleanJerk2Change2());
+			}
 			if (copyResults) {
 				dest.setCleanJerk2ActualLift(src.getCleanJerk2ActualLift());
 				dest.setCleanJerk2LiftTime(src.getCleanJerk2LiftTime());
 			}
 
-			dest.setCleanJerk3AutomaticProgression(src.getCleanJerk3AutomaticProgression());
-			dest.setCleanJerk3Declaration(src.getCleanJerk3Declaration());
-			dest.setCleanJerk3Change1(src.getCleanJerk3Change1());
-			dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
+			if (copyChanges) {
+				dest.setCleanJerk3AutomaticProgression(src.getCleanJerk3AutomaticProgression());
+				dest.setCleanJerk3Declaration(src.getCleanJerk3Declaration());
+				dest.setCleanJerk3Change1(src.getCleanJerk3Change1());
+				dest.setCleanJerk3Change2(src.getCleanJerk3Change2());
+			}
 			if (copyResults) {
 				dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
 				dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
@@ -216,6 +238,9 @@ public class Athlete {
 				dest.setRobiRank(src.getRobiRank());
 				dest.setAgeAdjustedTotalRank(src.getAgeAdjustedTotalRank());
 			}
+		} catch (Exception e) {
+			LoggerUtils.logError((Logger) LoggerFactory.getLogger(Athlete.class), e);
+			throw e;
 		} finally {
 			dest.setValidation(validation);
 			dest.setLoggerLevel(prevDestLevel);
@@ -277,7 +302,7 @@ public class Athlete {
 			return 0;
 		}
 	}
-	
+
 	public static Integer nullIfInvalid(String value) {
 		try {
 			return Integer.valueOf(value);
@@ -285,9 +310,7 @@ public class Athlete {
 			return null;
 		}
 	}
-	
-	
-	
+
 	@Transient
 	protected final Logger logger = (Logger) LoggerFactory.getLogger(Athlete.class);
 	/**
@@ -349,9 +372,7 @@ public class Athlete {
 	private String coach;
 	@Column(columnDefinition = "integer default 0")
 	private int combinedRank;
-	@Transient
-	@JsonIgnore
-	private Long copyId = null;
+
 	private String custom1;
 	private String custom2;
 	private Double customScore;
@@ -762,7 +783,7 @@ public class Athlete {
 		String[] hyphenatedParts = firstName2.split("-");
 		String abbreviated = Arrays.stream(hyphenatedParts).map(hpart -> {
 			return Arrays.stream(hpart.split("[ .]+"))
-					.map(word -> (!word.isEmpty() ? (word.substring(0, 1) + "."): ""))
+			        .map(word -> (!word.isEmpty() ? (word.substring(0, 1) + ".") : ""))
 			        .collect(Collectors.joining(" "));
 		}).collect(Collectors.joining("-"));
 
@@ -3044,8 +3065,6 @@ public class Athlete {
 		return totalPoints;
 	}
 
-
-
 	public int getTotalRank() {
 		return (getMainRankings() != null ? getMainRankings().getTotalRank() : -1);
 	}
@@ -3959,6 +3978,7 @@ public class Athlete {
 	}
 
 	public void setParticipations(List<Participation> participations) {
+		logger.warn("***** set participations {} {}", this.getId(), LoggerUtils.stackTrace());
 		this.participations = participations;
 		computeMainRankings();
 	}
@@ -4593,27 +4613,6 @@ public class Athlete {
 			}
 		}
 	}
-
-	// @SuppressWarnings("unused")
-	// private Long getCopyId() {
-	// return copyId;
-	// }
-
-	// @SuppressWarnings("unused")
-	// private Integer getDeclaredAndActuallyAttempted(Integer... items) {
-	// int lastIndex = items.length - 1;
-	// if (items.length == 0) {
-	// return 0;
-	// }
-	// while (lastIndex >= 0) {
-	// if (items[lastIndex] > 0) {
-	// // if went down from declared weight, then return lower weight
-	// return (items[lastIndex] < items[0] ? items[lastIndex] : items[0]);
-	// }
-	// lastIndex--;
-	// }
-	// return 0;
-	// }
 
 	public boolean validateCleanJerk1ActualLift(String cleanJerk1ActualLift) throws RuleViolationException {
 		validateActualLift(3, getCleanJerk1AutomaticProgression(), this.cleanJerk1Declaration, this.cleanJerk1Change1,
@@ -5605,10 +5604,6 @@ public class Athlete {
 		return categoryEqual;
 	}
 
-	private void setCopyId(Long id2) {
-		this.copyId = id2;
-	}
-
 	private void setEligibles(Athlete a, List<Category> categories) {
 		TreeSet<Category> eligibles = new TreeSet<>(
 		        (x, y) -> ObjectUtils.compare(x.getAgeGroup(), y.getAgeGroup()));
@@ -5804,14 +5799,14 @@ public class Athlete {
 		double d = getQPointsForDelta() * getQMastersFactor();
 		return d;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Double getQMastersForDelta() {
 		double d = getQPointsForDelta() * getQMastersFactor();
 		return d;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Double getQMasters() {

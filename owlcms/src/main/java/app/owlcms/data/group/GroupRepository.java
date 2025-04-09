@@ -54,25 +54,29 @@ public class GroupRepository {
 			return;
 		}
 		JPAService.runInTransaction(em -> {
-			try {
-				// this is the only case where group needs to know its athletes, so we do a
-				// query instead of adding a relationship.
-				Query aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId");
-				aQ.setParameter("groupId", groupe.getId());
-				@SuppressWarnings("unchecked")
-				List<Athlete> aL = aQ.getResultList();
-				for (Athlete a : aL) {
-					a.setGroup(null);
-				}
-				em.flush();
-				logger./**/warn("removing {}", groupe.fullDump());
-				em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
-				em.flush();
-			} catch (Exception e) {
-				LoggerUtils.logError(logger, e);
-			}
-			return null;
+			return doDelete(groupe, em);
 		});
+	}
+
+	public static Object doDelete(Group groupe, EntityManager em) {
+		try {
+			// this is the only case where group needs to know its athletes, so we do a
+			// query instead of adding a relationship.
+			Query aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId");
+			aQ.setParameter("groupId", groupe.getId());
+			@SuppressWarnings("unchecked")
+			List<Athlete> aL = aQ.getResultList();
+			for (Athlete a : aL) {
+				a.setGroup(null);
+			}
+			em.flush();
+			logger./**/warn("removing {}", groupe.fullDump());
+			em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
+			em.flush();
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")

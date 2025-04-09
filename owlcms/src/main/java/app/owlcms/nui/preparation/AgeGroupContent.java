@@ -88,6 +88,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	private Button resetCats;
 	private OwlcmsLayout routerLayout;
 	private FlexLayout topBar;
+	private Button clearEligibles;
 
 	/**
 	 * Instantiates the ageGroup crudGrid.
@@ -123,6 +124,18 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.resetCats.getElement().setAttribute("title", Translator.translate("ResetCategories.ResetCategoriesMouseOver"));
 		HorizontalLayout resetButton = new HorizontalLayout(this.resetCats);
 		resetButton.setMargin(false);
+		
+		this.clearEligibles = new Button(Translator.translate("ResetCategories.ClearEligibles"), (e) -> {
+			new ConfirmationDialog(
+			        Translator.translate("ResetCategories.ClearEligibles"),
+			        Translator.translate("ResetCategories.Warning_ClearEligibles"),
+			        Translator.translate("ResetCategories.ClearEligibles"), () -> {
+				        clearEligibleCategories();
+			        }).open();
+		});
+		this.resetCats.getElement().setAttribute("title", Translator.translate("ResetCategories.ClearEligiblesMouseOver"));
+		HorizontalLayout clearEligiblesButton = new HorizontalLayout(this.clearEligibles);
+		clearEligiblesButton.setMargin(false);
 
 		this.ageGroupDefinitionSelect = new ComboBox<>();
 		this.ageGroupDefinitionSelect.setPlaceholder(Translator.translate("ResetCategories.AvailableDefinitions"));
@@ -186,7 +199,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        exportAgeGroups, uploadCustom, editChampionships,
 		        hr(),
 		        new NativeLabel(Translator.translate("AgeGroups.Reassign")),
-		        resetButton);
+		        resetButton, clearEligiblesButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
@@ -418,10 +431,17 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	}
 
 	private void resetCategories() {
-		AthleteRepository.resetParticipations();
+		AthleteRepository.resetParticipations(false, true);
 		this.getCrud().refreshGrid();
 		unHighlightResetButton();
 	}
+	
+	private void clearEligibleCategories() {
+		AthleteRepository.resetParticipations(true, false);
+		this.getCrud().refreshGrid();
+		unHighlightResetButton();
+	}
+
 
 	private Resource searchMatch(List<Resource> resourceList, String curTemplateName) {
 		Resource found = null;

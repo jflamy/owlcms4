@@ -11,7 +11,9 @@ import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,7 +24,6 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
-import app.owlcms.spreadsheet.IRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -36,7 +37,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	static {
 		jxlsLogger.setLevel(Level.ERROR);
 	}
-	public IRegistrationFileProcessor processor;
+	public NRegistrationFileProcessor processor;
 	private boolean sbdeFormat;
 	public String fileName;
 
@@ -50,6 +51,9 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		Upload upload = new Upload(buffer);
 		upload.setWidth("40em");
 
+		Component sos = sessionOptionSelectors();
+		Component aos = athleteOptionSelectors();
+
 		TextArea ta = new TextArea(Translator.translate("Errors"));
 		ta.setHeight("20ex");
 		ta.setWidth("80em");
@@ -60,12 +64,12 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			        ? new NRegistrationFileProcessor(sbdeFormat)
 			        : new NRegistrationFileProcessor(sbdeFormat);
 			this.fileName = event.getFileName();
-			// try {
-			// buffer.getInputStream().reset();
-			processInput(buffer.getInputStream(), ta);
-			// } catch (IOException e) {
-			// throw new RuntimeException(e);
-			// }
+			try {
+				buffer.getInputStream().reset();
+				processInput(buffer.getInputStream(), ta);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 
 		});
 
@@ -75,28 +79,45 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		});
 
 		H3 title = new H3(Translator.translate("UploadRegistrationFile"));
-		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
+		VerticalLayout vl = new VerticalLayout(title, label, aos, sos, upload, ta);
 		add(vl);
 	}
 
+	private Component athleteOptionSelectors() {
+		// TODO athleteOptionSelectors
+		return new Div("athleteOptionSelectors");
+	}
+
+	private Component sessionOptionSelectors() {
+		// TODO sessionOptionSelectors
+		return new Div("sessionOptionSelectors");
+	}
+
 	public void processInput(InputStream inputStream, TextArea ta) {
+		this.processor.setAthleteOptions(NRegistrationFileProcessor.AthleteOptions.UPDATE_ADD_ATHLETES);
+		this.processor.setSessionOptions(NRegistrationFileProcessor.SessionOptions.IGNORE_SESSIONS);
+
 		// clear athletes to be able to clear groups
 		CategoryRepository.resetCodeMap();
-		if (eraseAthletes()) {
+		if (this.processor.isDeleteAthletes()) {
 			this.processor.resetAthletes();
 		}
 
 		// first do a dry run to count sessions
-		int nbSessions = processSessions(inputStream, ta, true);
-		logger.info("{} sessions found in file", nbSessions);
-		if (nbSessions > 0) {
-			if (eraseAthletes()) {
-				this.processor.resetSessions();
-			}
+		if (this.processor.isIgnoreSessions()) {
+			logger.info("Ignoring Sessions");
+		} else {
+			int nbSessions = processSessions(inputStream, ta, true);
+			logger.info("{} sessions found in file", nbSessions);
+			if (nbSessions > 0) {
+				if (this.processor.isDeleteAthletes() || this.processor.isDeleteSessions()) {
+					this.processor.resetSessions();
+				}
 
-			// get the sessions from the spreadsheet
-			processSessions(inputStream, ta, false);
-			logger.info("{} sessions processed", nbSessions);
+				// get the sessions from the spreadsheet
+				processSessions(inputStream, ta, false);
+				logger.info("{} sessions processed", nbSessions);
+			}
 		}
 
 		if (this.sbdeFormat) {
@@ -122,15 +143,14 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		this.processor.doProcessCompetitionHeader(inputStream, errorConsumer, displayUpdater);
 	}
 
-	private boolean eraseAthletes() {
-		return isProcessAthletes() && this.fileName != null && !this.fileName.contains("_add");
-	}
-
 	private int processAthletes(InputStream inputStream, TextArea ta, boolean dryRun) {
 		StringBuffer sb = new StringBuffer();
 		Consumer<String> errorConsumer = str -> sb.append(str);
 		Runnable displayUpdater = () -> updateDisplay(ta, sb);
-		return this.processor.doProcessAthletes(inputStream, dryRun, errorConsumer, displayUpdater, eraseAthletes());
+		if (this.fileName.contains("_add")) {
+			this.processor.setAthleteOptions(NRegistrationFileProcessor.AthleteOptions.ADD_ATHLETES);
+		}
+		return this.processor.doProcessAthletes(inputStream, dryRun, errorConsumer, displayUpdater);
 	}
 
 	private int processSessions(InputStream inputStream, TextArea ta, boolean dryRun) {

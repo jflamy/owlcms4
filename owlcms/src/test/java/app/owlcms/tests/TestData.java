@@ -73,7 +73,7 @@ public class TestData {
             setupTestData(em, nbAthletes);
             return null;
         });
-        AthleteRepository.resetParticipations();
+        AthleteRepository.resetParticipations(false, true);
 
     }
 
@@ -185,7 +185,7 @@ public class TestData {
         groupC.setPlatform(platform1);
 
         insertSampleLifters(em, liftersToLoad, groupA, groupB, groupC);
-        AthleteRepository.resetParticipations();
+        AthleteRepository.resetParticipations(false, true);
 
 //        em.persist(groupA);
 //        em.persist(groupB);

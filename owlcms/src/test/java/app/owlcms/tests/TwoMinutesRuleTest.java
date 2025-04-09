@@ -104,7 +104,7 @@ public class TwoMinutesRuleTest {
             TestData.insertSampleLifters(em, 5, gA, gB, gC);
             return null;
         });
-        AthleteRepository.resetParticipations();
+        AthleteRepository.resetParticipations(false, true);
         athletes = AthleteRepository.findAll();
         FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
                 new MockCountdownTimer());

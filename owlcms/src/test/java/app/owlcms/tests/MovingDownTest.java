@@ -409,7 +409,7 @@ public class MovingDownTest {
             TestData.insertSampleLifters(em, 5, gA, gB, gC);
             return null;
         });
-        AthleteRepository.resetParticipations();
+        AthleteRepository.resetParticipations(false, true);
     }
 
     @Test

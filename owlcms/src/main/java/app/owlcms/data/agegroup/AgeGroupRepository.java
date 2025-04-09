@@ -433,13 +433,13 @@ public class AgeGroupRepository {
 	public static void reloadDefinitions(InputStream inputStream) {
 		cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(inputStream);
-		AthleteRepository.resetParticipations();
+		AthleteRepository.resetParticipations(false, true);
 	}
 
 	public static void reloadDefinitions(String localizedFileName) {
 		cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
-		AthleteRepository.resetParticipations();
+		AthleteRepository.resetParticipations(false, true);
 	}
 
 	/**

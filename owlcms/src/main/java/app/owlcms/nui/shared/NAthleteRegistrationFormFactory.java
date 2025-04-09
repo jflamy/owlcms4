@@ -1466,7 +1466,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	}
 
 	/**
-	 * @param selectedCategory      TODO
+	 * @param selectedCategory
 	 * @param bestMatch
 	 * @param eligibleField
 	 * @param qualifyingTotalField2

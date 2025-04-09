@@ -306,6 +306,7 @@ public class RAthlete {
 		        && (athleteAge == null
 		                || (athleteAge >= minAge && athleteAge <= maxAge))) {
 			eligibleCategories.add(c2);
+			logger.warn("eligible categories {}",c2);
 			added = true;
 			if (teamMember) {
 				teams.add(c2);
@@ -451,11 +452,15 @@ public class RAthlete {
 		        mainCategoryTeamMember, c);
 		if (!addedToMainCat) {
 			throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem"));
+		} else {
+			this.a.setCategory(c);
+//			this.a.setEligibleCategories(eligibleCategories);
+//			logger.warn("this.a.eligibles {}",this.a.getEligibleCategories());
 		}
 
 		// process the other participations. They are ; separated.
 		if (parts.length > 1) {
-			// logger.debug("additional categories {}",parts[1]);
+			logger.warn("additional categories {}",parts[1]);
 			String[] eligibleNames = parts[1].split(";");
 			for (String eligibleName : eligibleNames) {
 				boolean teamMember = true;
@@ -476,8 +481,11 @@ public class RAthlete {
 					        Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim()));
 				}
 			}
+		} else {
+			logger.warn("no other part");
 		}
 
+		logger.warn("*** this.a.getCategory {}",this.a.getCategory());
 		RCompetition.getAthleteToEligibles().put(this.a.getId(), eligibleCategories);
 		RCompetition.getAthleteToTeams().put(this.a.getId(), teams);
 	}
