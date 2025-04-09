@@ -28,7 +28,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -373,14 +372,14 @@ public class Main {
 					Config.setCurrent(new Config());
 				}
 
-				int nbParts = CategoryRepository.countParticipations();
-				if (nbParts == 0
-				        && AthleteRepository.countFiltered(null, null, null, null, null, null, null, null) > 0) {
-					// database has athletes, but no participations. 4.22 and earlier.
-					// need to create Participation entries for the Athletes.
-					logger.debug("updating database: computing athlete eligibility to age groups and categories.");
-					AthleteRepository.resetParticipations(false, true);
-				}
+//				int nbParts = CategoryRepository.countParticipations();
+//				if (nbParts == 0
+//				        && AthleteRepository.countFiltered(null, null, null, null, null, null, null, null) > 0) {
+//					// database has athletes, but no participations. 4.22 and earlier.
+//					// need to create Participation entries for the Athletes.
+//					logger.debug("updating database: computing athlete eligibility to age groups and categories.");
+//					AthleteRepository.resetParticipations(false, true);
+//				}
 
 				List<Category> nullCodeCategories = CategoryRepository.findNullCodes();
 				if (!nullCodeCategories.isEmpty()) {
