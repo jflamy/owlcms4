@@ -6,6 +6,10 @@
 
 <br>
 
+**Maintenance Log**
+
+- 57.0.0-rc02: Workaround for an issue in the user interface library that prevented the field of play argument from being shown (?fop=A).  This made the URLs not bookmarkable and might explain why browser restarts were needed.
+
 **New In Release 57**
 
 - Message of the day
