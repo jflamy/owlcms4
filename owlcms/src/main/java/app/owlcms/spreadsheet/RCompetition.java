@@ -7,6 +7,7 @@
 package app.owlcms.spreadsheet;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,13 +20,14 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public class RCompetition {
 
 	static Map<String, Category> activeCategories = new HashMap<>();
 	static Map<String, Group> activeGroups = new HashMap<>();
-	static Map<Long, Set<Category>> athleteToEligibles = new HashMap<>();
+	static Map<Long, LinkedHashSet<Category>> athleteToEligibles = new HashMap<>();
 	static Map<Long, Set<Category>> athleteToTeams = new HashMap<>();
 	static Logger logger = (Logger) LoggerFactory.getLogger(RCompetition.class);
 
@@ -37,7 +39,7 @@ public class RCompetition {
 		return activeGroups;
 	}
 
-	public static Map<Long, Set<Category>> getAthleteToEligibles() {
+	public static Map<Long, LinkedHashSet<Category>> getAthleteToEligibles() {
 		return athleteToEligibles;
 	}
 
@@ -171,6 +173,16 @@ public class RCompetition {
 			return;
 		}
 		this.c.setFederationWebSite(federationWebSite);
+	}
+
+	public static void putEligibles(Long id, LinkedHashSet<Category> eligibleCategories) {
+		logger.warn("putEligibles {} {} {}", id, eligibleCategories, LoggerUtils.whereFrom());
+		athleteToEligibles.put(id, eligibleCategories);
+	}
+
+	public static void putTeams(Long id, Set<Category> teams) {
+		logger.warn("putTeams {} {} {}", id, teams, LoggerUtils.whereFrom());
+		athleteToTeams.put(id, teams);
 	}
 
 }

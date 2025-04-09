@@ -8,7 +8,6 @@ package app.owlcms.spreadsheet;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -309,6 +308,7 @@ public class RAthlete {
 			logger.warn("eligible categories {}",c2);
 			added = true;
 			if (teamMember) {
+				logger.warn("teams {}",c2);
 				teams.add(c2);
 			}
 		}
@@ -360,7 +360,9 @@ public class RAthlete {
 		// .collect(Collectors.toSet());
 		List<Category> eligibles = CategoryRepository.doFindEligibleCategories(this.a, this.a.getGender(), age,
 		        searchBodyWeight, qualifyingTotal);
-		this.a.setEligibleCategories(new HashSet<>(eligibles));
+		
+		RCompetition.putEligibles(this.a.getId(), new LinkedHashSet<>(eligibles)); //new
+		//this.a.setEligibleCategories();
 		// logger.debug("eligibles {} {} {}", age, qualifyingTotal, eligibles);
 		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
 		if (category == null) {
@@ -439,7 +441,7 @@ public class RAthlete {
 
 	private void processEligibilityAndTeams(String[] parts, Category c, boolean mainCategoryTeamMember)
 	        throws Exception {
-		Set<Category> eligibleCategories = new LinkedHashSet<>();
+		LinkedHashSet<Category> eligibleCategories = new LinkedHashSet<>();
 		Set<Category> teams = new LinkedHashSet<>();
 		Integer athleteQTotal = this.getAthlete().getQualifyingTotal();
 		Integer athleteAge = null;
@@ -454,8 +456,6 @@ public class RAthlete {
 			throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem"));
 		} else {
 			this.a.setCategory(c);
-//			this.a.setEligibleCategories(eligibleCategories);
-//			logger.warn("this.a.eligibles {}",this.a.getEligibleCategories());
 		}
 
 		// process the other participations. They are ; separated.
@@ -485,9 +485,9 @@ public class RAthlete {
 			logger.warn("no other part");
 		}
 
-		logger.warn("*** this.a.getCategory {}",this.a.getCategory());
-		RCompetition.getAthleteToEligibles().put(this.a.getId(), eligibleCategories);
-		RCompetition.getAthleteToTeams().put(this.a.getId(), teams);
+		logger.warn("*** {} this.a.getCategory {} {}",this.a.getId(), this.a.getCategory(), eligibleCategories);
+		RCompetition.putEligibles(this.a.getId(), eligibleCategories);
+		RCompetition.putTeams(this.a.getId(), teams);
 	}
 
 	private void setCategoryHeuristics(String categoryName) throws Exception {

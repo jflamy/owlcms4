@@ -62,9 +62,6 @@ import net.sf.jxls.reader.XLSReader;
 
 public class NRegistrationFileProcessor {
 
-	record AthleteInput(List<RAthlete> athletes) {
-	}
-
 	/* some setters must be called in a specific order; */
 	private enum DelayedSetter {
 		BIRTHDATE, BODYWEIGHT, QUALIFYING_TOTAL, GENDER, CATEGORY
@@ -160,7 +157,7 @@ public class NRegistrationFileProcessor {
 				displayUpdater.run();
 			}
 			return athletes.size();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			LoggerUtils.stackTrace(e);
 			LoggerUtils.logError(this.logger, e);
 		}
@@ -251,6 +248,10 @@ public class NRegistrationFileProcessor {
 					        throw new IllegalArgumentException("Duplicate Athlete Entry " + athleteKey);
 				        }
 				        allAthletes.put(athleteKey, a);
+				        //FIXME -- only the ones being updated should be cleared
+				        a.getParticipations().clear();
+				        em.merge(a);
+				    em.flush();
 			        });
 			return null;
 		});
@@ -291,22 +292,28 @@ public class NRegistrationFileProcessor {
 		logger.warn("( step 2");
 
 		JPAService.runInTransaction(em -> {
-			
+			logger.warn(") step 3 - database athletes");
 			AthleteRepository.findAll().stream().forEach(a2 -> {
-				LinkedHashSet<Category> eligibles = (LinkedHashSet<Category>) RCompetition
+				LinkedHashSet<Category> eligibles = RCompetition
 				        .getAthleteToEligibles()
 				        .get(a2.getId());
 				LinkedHashSet<Category> teams = (LinkedHashSet<Category>) RCompetition
 				        .getAthleteToTeams()
 				        .get(a2.getId());
+				if (teams == null) {
+					logger.warn("no teams for athlete {}",a2.getFullId());
+					teams = new LinkedHashSet<Category>();
+				}
+				logger.warn("athlete {} eligibles {}",a2.getId(), eligibles);
 				if (eligibles != null) {
 					Category first = eligibles.stream().findFirst().orElse(null);
 					a2.setCategory(first);
 					a2.setCategoryFinished(false);
-					// logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
 					
 					if (!a2.getEligibleCategories().isEmpty()) {
-						logger.warn("eligibility already set for {}",a2.getShortName());
+						logger.error("eligibility already set for {}",a2.getShortName());
+					} else {
+						logger.warn("setting eligibility {} {}", a2.getShortName(), eligibles);
 						a2.setEligibleCategories(eligibles);
 					}
 					List<Participation> participations2 = a2.getParticipations();
@@ -319,11 +326,12 @@ public class NRegistrationFileProcessor {
 							p.setTeamMember(false);
 						}
 					}
-					// logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
+					logger.warn("participations {} {}", a2.getShortName(), a2.getParticipations());
 					em.merge(a2);
 				}
 			});
 			em.flush();
+			logger.warn(") step 3");
 			return null;
 		});
 	}
