@@ -280,6 +280,9 @@ public class Main {
 		SLF4JBridgeHandler.install();
 		// disable poixml warning
 		StartupUtils.disableWarning();
+		
+		// needed otherwise history.replace does not work correctly in Vaadin 24
+		System.setProperty("vaadin.react.enable", "false");
 
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override

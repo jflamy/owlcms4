@@ -411,7 +411,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		logger.debug("params {}", params);
 
 		// change the URL to reflect group
-		event.getUI().getPage().getHistory().replaceState(null,
+		URLUtils.replaceState(event.getUI().getPage().getHistory(),null,
 		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 
@@ -429,7 +429,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		} else {
 			params.remove("group");
 		}
-		ui.getPage().getHistory().replaceState(null,
+		URLUtils.replaceState(ui.getPage().getHistory(),null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 

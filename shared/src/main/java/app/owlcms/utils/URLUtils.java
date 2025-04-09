@@ -18,18 +18,22 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CharMatcher;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.page.History;
 import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import ch.qos.logback.classic.Logger;
+import elemental.json.JsonValue;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -170,7 +174,9 @@ public class URLUtils {
     }
 
     public static Map<String, List<String>> cleanParams(Map<String, List<String>> params) {
-        return params.entrySet().stream().filter(e -> !e.getKey().isBlank()).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+        Set<Entry<String, List<String>>> entrySet = params.entrySet();
+		Map<String, List<String>> collect = entrySet.stream().filter(e -> !e.getKey().isBlank()).collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		return collect;
     }
 
     /**
@@ -238,4 +244,24 @@ public class URLUtils {
             return null;
         }
     }
+
+	/**
+	 * @param history
+	 * @param object
+	 * @param location
+	 */
+	public static void replaceState(History history, JsonValue object, Location location) {
+		//logger.debug("replaceState1 {} {}",location.getPathWithQueryParameters(), LoggerUtils.stackTrace());
+		history.replaceState(object, location);
+	}
+
+	/**
+	 * @param history
+	 * @param object
+	 * @param pathWithQueryParameters
+	 */
+	public static void replaceState(History history, JsonValue object, String pathWithQueryParameters) {
+		//logger.debug("replaceState2 {} {}", pathWithQueryParameters, LoggerUtils.stackTrace());
+		history.replaceState(object, pathWithQueryParameters);
+	}
 }

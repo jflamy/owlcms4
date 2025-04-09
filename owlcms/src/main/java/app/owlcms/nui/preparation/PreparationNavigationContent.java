@@ -200,7 +200,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		params.remove("fop");
 
 		// change the URL to reflect group
-		event.getUI().getPage().getHistory().replaceState(null,
+		URLUtils.replaceState(event.getUI().getPage().getHistory(),null,
 		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 

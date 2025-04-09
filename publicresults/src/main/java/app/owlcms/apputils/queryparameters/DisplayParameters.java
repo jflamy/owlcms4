@@ -322,7 +322,7 @@ public interface DisplayParameters extends ContentParameters {
         Map<String, List<String>> parametersMap = queryParameters.getParameters();
         HashMap<String, List<String>> params = readParams(location, parametersMap);
 
-        event.getUI().getPage().getHistory().replaceState(null,
+        URLUtils.replaceState(event.getUI().getPage().getHistory(),null,
                 new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
     }
 

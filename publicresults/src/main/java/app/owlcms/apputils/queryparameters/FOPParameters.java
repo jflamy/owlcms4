@@ -153,7 +153,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
         // change the URL to reflect the updated parameters
         Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
         //logger.debug("setParameter {}", location2);
-        event.getUI().getPage().getHistory().replaceState(null, location2);
+        URLUtils.replaceState(event.getUI().getPage().getHistory(),null, location2);
     }
 
     /**
@@ -193,7 +193,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
         updateParam(parametersMap, parameter, value);
 
         Location location2 = new Location(location.getPath(), new QueryParameters(parametersMap));
-        ui.getPage().getHistory().replaceState(null, location2);
+        URLUtils.replaceState(ui.getPage().getHistory(),null, location2);
         //logger.debug("location2 = {}", location2.getPathWithQueryParameters());
         setLocation(location2);
         storeReturnURL();
