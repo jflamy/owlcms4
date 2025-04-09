@@ -179,10 +179,18 @@ public class RCompetition {
 		logger.warn("putEligibles {} {} {}", id, eligibleCategories, LoggerUtils.whereFrom());
 		athleteToEligibles.put(id, eligibleCategories);
 	}
+	
+	public static LinkedHashSet<Category> getEligibles(Long id) {
+		return athleteToEligibles.get(id);
+	}
 
 	public static void putTeams(Long id, Set<Category> teams) {
 		logger.warn("putTeams {} {} {}", id, teams, LoggerUtils.whereFrom());
 		athleteToTeams.put(id, teams);
+	}
+	
+	public static Set<Category> getTeams(Long id) {
+		return athleteToTeams.get(id);
 	}
 
 }

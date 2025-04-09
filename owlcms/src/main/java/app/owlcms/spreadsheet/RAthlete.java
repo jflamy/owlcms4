@@ -354,15 +354,12 @@ public class RAthlete {
 
 	private Category findByAgeBW(Matcher legacyResult, double searchBodyWeight, int age, int qualifyingTotal)
 	        throws Exception {
-		// List<Category> found = CategoryRepository.findByGenderAgeBW(a.getGender(), age, searchBodyWeight);
-		// Set<Category> eligibles = new LinkedHashSet<>();
-		// eligibles = found.stream().filter(c -> qualifyingTotal >= c.getQualifyingTotal())
-		// .collect(Collectors.toSet());
 		List<Category> eligibles = CategoryRepository.doFindEligibleCategories(this.a, this.a.getGender(), age,
 		        searchBodyWeight, qualifyingTotal);
 		
-		RCompetition.putEligibles(this.a.getId(), new LinkedHashSet<>(eligibles)); //new
-		//this.a.setEligibleCategories();
+		RCompetition.putEligibles(this.a.getId(), new LinkedHashSet<>(eligibles));
+		RCompetition.putTeams(this.a.getId(), new LinkedHashSet<>(eligibles));
+
 		// logger.debug("eligibles {} {} {}", age, qualifyingTotal, eligibles);
 		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
 		if (category == null) {

@@ -264,8 +264,8 @@ public class NRegistrationFileProcessor {
 			if (existingAthlete != null) {
 				if (isUpdateExistingAthletes()) {
 					existingAthlete.getParticipations().clear();
-					logger.warn("* existing athlete {} {}", existingAthlete.getId(), existingAthlete.getParticipations());
-					logger.warn("* sbde {} {}", sbdeAthlete.getId(), sbdeAthlete.getParticipations());
+					logger.warn("* existing athlete {} {} {}", existingAthlete.getAbbreviatedName(), existingAthlete.getId(), existingAthlete.getParticipations());
+					logger.warn("* sbde {} {}",  sbdeAthlete.getAbbreviatedName(), sbdeAthlete.getId(), sbdeAthlete.getParticipations());
 					updateExistingAthlete(existingAthlete, sbdeAthlete);
 					toBeMerged.add(existingAthlete);
 				}
@@ -280,6 +280,7 @@ public class NRegistrationFileProcessor {
 		JPAService.runInTransaction(em -> {
 			try {
 				for (Athlete a : toBeMerged) {
+					logger.warn("merging {} {}",a.getAbbreviatedName(), a.getId());
 					em.merge(a);
 				}
 				em.flush();
@@ -347,6 +348,8 @@ public class NRegistrationFileProcessor {
 		// must fix participations to point to the existing athlete, not the sbde athlete.
 		System.err.println("> updateExistingAthlete");
 		Athlete.conditionalCopy(existingAthlete, sbdeAthlete, false, false, false);
+		RCompetition.putEligibles(existingAthlete.getId(), RCompetition.getEligibles(sbdeAthlete.getId()));
+		RCompetition.putTeams(existingAthlete.getId(), RCompetition.getTeams(sbdeAthlete.getId()));
 		System.err.println("< updateExistingAthlete");
 	}
 

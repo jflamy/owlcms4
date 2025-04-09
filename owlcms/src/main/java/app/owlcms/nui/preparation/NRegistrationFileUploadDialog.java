@@ -13,10 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
@@ -25,6 +26,8 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
+import app.owlcms.spreadsheet.NRegistrationFileProcessor.AthleteOptions;
+import app.owlcms.spreadsheet.NRegistrationFileProcessor.SessionOptions;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -40,6 +43,8 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	public NRegistrationFileProcessor processor;
 	private boolean sbdeFormat;
 	public String fileName;
+	private AthleteOptions athleteOption;
+	private SessionOptions sessionOption;
 
 	public NRegistrationFileUploadDialog(boolean sbdeFormat) {
 		this.sbdeFormat = sbdeFormat;
@@ -84,19 +89,33 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	}
 
 	private Component athleteOptionSelectors() {
-		// TODO athleteOptionSelectors
-		return new Div("athleteOptionSelectors");
+		RadioButtonGroup<NRegistrationFileProcessor.AthleteOptions> radioGroup = new RadioButtonGroup<>();
+		radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+		radioGroup.setLabel(Translator.translate("SBDE.AthleteOptions"));
+		radioGroup.setItems(NRegistrationFileProcessor.AthleteOptions.values());
+		radioGroup.setItemLabelGenerator(o -> Translator.translate("SBDE.AthleteOptions_"+o.name()));
+		athleteOption = NRegistrationFileProcessor.AthleteOptions.DELETE_ATHLETES;
+		radioGroup.setValue(athleteOption);
+		radioGroup.addValueChangeListener(v -> {this.athleteOption = v.getValue();});
+		return radioGroup;
 	}
 
 	private Component sessionOptionSelectors() {
-		// TODO sessionOptionSelectors
-		return new Div("sessionOptionSelectors");
+		RadioButtonGroup<NRegistrationFileProcessor.SessionOptions> radioGroup = new RadioButtonGroup<>();
+		radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+		radioGroup.setLabel(Translator.translate("SBDE.SessionOptions"));
+		radioGroup.setItems(NRegistrationFileProcessor.SessionOptions.values());
+		radioGroup.setItemLabelGenerator(o -> Translator.translate("SBDE.AthleteOptions_"+o.name()));
+		sessionOption = NRegistrationFileProcessor.SessionOptions.DELETE_SESSIONS;
+		radioGroup.setValue(sessionOption);
+		radioGroup.addValueChangeListener(v -> {this.sessionOption = v.getValue();});
+		return radioGroup;
 	}
 
 	public void processInput(InputStream inputStream, TextArea ta) {
-		this.processor.setAthleteOptions(NRegistrationFileProcessor.AthleteOptions.UPDATE_ADD_ATHLETES);
-		this.processor.setSessionOptions(NRegistrationFileProcessor.SessionOptions.IGNORE_SESSIONS);
-
+		this.processor.setAthleteOptions(athleteOption);
+		this.processor.setSessionOptions(sessionOption);
+		
 		// clear athletes to be able to clear groups
 		CategoryRepository.resetCodeMap();
 		if (this.processor.isDeleteAthletes()) {

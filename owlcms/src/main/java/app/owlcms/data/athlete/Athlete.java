@@ -144,12 +144,17 @@ public class Athlete {
 			dest.setFullBirthDate(src.getFullBirthDate());
 
 			if (copyChanges) {
+				System.err.println(">> copying bodyweight "+src.getBodyWeight());
 				dest.setBodyWeight(src.getBodyWeight());
+			} else {
+				System.err.println(">> NOT copying bodyweight "+src.getBodyWeight() + "\n" + LoggerUtils.stackTrace());
 			}
+			
 			dest.setGroup(src.getGroup());
 			dest.setStartNumber(src.getStartNumber());
 			dest.setLotNumber(src.getLotNumber());
 			dest.setEntryTotal(src.getEntryTotal());
+			
 			dest.setCategory(src.getCategory());
 
 			if (copyChanges) {
@@ -3978,7 +3983,6 @@ public class Athlete {
 	}
 
 	public void setParticipations(List<Participation> participations) {
-		logger.warn("***** set participations {} {}", this.getId(), LoggerUtils.stackTrace());
 		this.participations = participations;
 		computeMainRankings();
 	}
