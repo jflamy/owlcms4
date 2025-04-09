@@ -314,7 +314,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 		this.groupName = (groups != null && !groups.isEmpty() ? groups.get(0) : null);
 		getGroupFilter().setValue(GroupRepository.findByName(this.groupName));
 
-		event.getUI().getPage().getHistory().replaceState(null,
+		URLUtils.replaceState(event.getUI().getPage().getHistory(),null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 
@@ -332,7 +332,7 @@ public class DocsContent extends RegistrationContent implements HasDynamicTitle,
 			params.remove("group");
 		}
 		params = URLUtils.cleanParams(params);
-		ui.getPage().getHistory().replaceState(null,
+		URLUtils.replaceState(ui.getPage().getHistory(),null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 

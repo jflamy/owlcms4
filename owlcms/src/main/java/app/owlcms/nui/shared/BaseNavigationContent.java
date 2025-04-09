@@ -170,7 +170,7 @@ public abstract class BaseNavigationContent extends BaseContent
 			params.remove("group");
 		}
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
-		// ui.getPage().getHistory().replaceState(null, location2);
+		// URLUtils.replaceState(ui.getPage().getHistory(),null, location2);
 		logger.debug("new location {}", location2.getPathWithQueryParameters());
 		ui.getPage().setLocation(location2.getPathWithQueryParameters());
 
