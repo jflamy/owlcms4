@@ -1404,11 +1404,11 @@ public class XAthlete extends Athlete {
 
 	/**
 	 * @param category
-	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
+	 * @see app.owlcms.data.athlete.Athlete#computeCategory(app.owlcms.data.category.Category)
 	 */
 	@Override
-	public void setCategory(Category category) {
-		this.a.setCategory(category);
+	public void computeCategory(Category category) {
+		this.a.computeCategory(category);
 	}
 
 	@Override

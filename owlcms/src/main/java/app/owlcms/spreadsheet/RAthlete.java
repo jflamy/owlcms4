@@ -66,7 +66,7 @@ public class RAthlete {
 	/**
 	 * @param category
 	 * @throws Exception
-	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
+	 * @see app.owlcms.data.athlete.Athlete#computeCategory(app.owlcms.data.category.Category)
 	 */
 	public void setCategory(String s) throws Exception {
 		if (s != null) {
@@ -136,7 +136,7 @@ public class RAthlete {
 	 *
 	 * @param category
 	 * @throws Exception
-	 * @see app.owlcms.data.athlete.Athlete#setCategory(app.owlcms.data.category.Category)
+	 * @see app.owlcms.data.athlete.Athlete#computeCategory(app.owlcms.data.category.Category)
 	 */
 	public void setFullBirthDate(String s) throws Exception {
 		if (s != null) {
@@ -333,12 +333,12 @@ public class RAthlete {
 
 			Category c;
 			String catCode = Category.codeFromName(catName);
-			// logger.debug("catCode {} active {}",catCode,RCompetition.getActiveCategories().keySet());
+			logger.warn("------ catName {} catCode {} active {}",catName, catCode,RCompetition.getActiveCategories().keySet());
 			if ((c = RCompetition.getActiveCategories().get(catCode)) != null) {
 				// exact match for a category. This is the athlete's registration category.
 				processEligibilityAndTeams(parts, c, teamMember);
 			} else {
-				if (parts.length == 1) {
+				if (parts.length == 1 && !parts[0].contains(" ")) {
 					// we have a short form category. infer from age and category limit
 					setCategoryHeuristics(catName);
 					final var tm = teamMember;
@@ -360,7 +360,7 @@ public class RAthlete {
 		RCompetition.putEligibles(this.a.getId(), new LinkedHashSet<>(eligibles));
 		RCompetition.putTeams(this.a.getId(), new LinkedHashSet<>(eligibles));
 
-		// logger.debug("eligibles {} {} {}", age, qualifyingTotal, eligibles);
+		logger.warn ("findByAgeBW {} {} {} {}", age, searchBodyWeight, qualifyingTotal, eligibles);
 		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
 		if (category == null) {
 			throw new Exception(
@@ -439,7 +439,7 @@ public class RAthlete {
 	private void processEligibilityAndTeams(String[] parts, Category c, boolean mainCategoryTeamMember)
 	        throws Exception {
 		LinkedHashSet<Category> eligibleCategories = new LinkedHashSet<>();
-		Set<Category> teams = new LinkedHashSet<>();
+		LinkedHashSet<Category> teams = new LinkedHashSet<>();
 		Integer athleteQTotal = this.getAthlete().getQualifyingTotal();
 		Integer athleteAge = null;
 		try {
@@ -500,7 +500,7 @@ public class RAthlete {
 				throw new Exception(
 				        Translator.translate("Upload.GenderMismatch", categoryName, this.a.getGender()));
 			}
-			this.a.setCategory(category);
+			this.a.computeCategory(category);
 			return;
 		} else {
 			fixLegacyGender(legacyResult);
@@ -524,7 +524,7 @@ public class RAthlete {
 		Category category = findByAgeBW(legacyResult, searchBodyWeight, age,
 		        qualifyingTotal != null ? qualifyingTotal : 999);
 
-		this.a.setCategory(category);
+		this.a.computeCategory(category);
 		// logger.debug("setting category to {} athlete {}",category.longDump(),
 		// a.longDump());
 	}

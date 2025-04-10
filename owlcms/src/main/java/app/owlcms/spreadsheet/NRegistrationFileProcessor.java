@@ -78,7 +78,7 @@ public class NRegistrationFileProcessor {
 	static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
 	Integer[] delayedSetterColumns = new Integer[DelayedSetter.values().length];
 	Logger logger = (Logger) LoggerFactory.getLogger(NRegistrationFileProcessor.class);
-	private boolean keepParticipations;
+	//private boolean keepParticipations;
 	@SuppressWarnings("unchecked")
 	TriConsumer<RAthlete, String, Cell>[] setterForColumn = new TriConsumer[25];
 	FormulaEvaluator formulaEvaluator;
@@ -92,9 +92,9 @@ public class NRegistrationFileProcessor {
 	}
 
 	public void adjustParticipations() {
-		if (!this.keepParticipations) {
-			AthleteRepository.resetParticipations(false, true);
-		}
+//		if (!this.keepParticipations) {
+//			AthleteRepository.resetParticipations(false, true);
+//		}
 	}
 
 	private String cleanMessage(String localizedMessage) {
@@ -135,14 +135,6 @@ public class NRegistrationFileProcessor {
 				LoggerUtils.logError(this.logger, e);
 				return 0;
 			}
-
-			// process the athletes
-			// if exact matches were found for categories, the processing for eligibility
-			// has been done, and we keep the eligibilities exactly as in the file.
-			this.keepParticipations = athletes.stream()
-			        .filter(r -> r.getAthlete().getEligibleCategories() != null).findFirst()
-			        .isPresent();
-			logger.warn("this.keepParticipations {}", keepParticipations);
 
 			this.logger.info(Translator.translate("DataRead") + " " + athletes.size() + " athletes");
 			if (dryRun) {
@@ -240,18 +232,24 @@ public class NRegistrationFileProcessor {
 		Map<String, Athlete> allAthletes = new HashMap<>();
 
 		JPAService.runInTransaction(em -> {
-			// retrieve existing ids, flag duplicates.
+			// retrieve existing ids
 			AthleteRepository.doFindAll(em).stream()
 			        .forEach(a -> {
 				        String athleteKey = athleteKey(a);
-				        if (allAthletes.get(athleteKey) != null) {
-					        throw new IllegalArgumentException("Duplicate Athlete Entry " + athleteKey);
-				        }
 				        allAthletes.put(athleteKey, a);
-				        //FIXME -- only the ones being updated should be cleared
+
+				        // copy the participation categories away
+				        RCompetition.putEligibles(a.getId(), new LinkedHashSet<>(a.getEligibleCategories()));
+				        RCompetition.putTeams(a.getId(), a.getTeams());
 				        a.getParticipations().clear();
+				        
+				        // reset the group that was cleared.
+						String sessionCode = RCompetition.getSessionCode(a.getId());
+						logger.warn("++++++ prior session code for {} = {}",a.getFullId(),sessionCode);
+						a.setGroup(RCompetition.activeGroups.get(sessionCode));
+						logger.warn("++++++ new session for {} = {}",a.getFullId(), a.getGroup());
 				        em.merge(a);
-				    em.flush();
+				        em.flush();
 			        });
 			return null;
 		});
@@ -260,27 +258,32 @@ public class NRegistrationFileProcessor {
 		// Create the new athletes.
 		sbdeAthletes.stream().forEach(r -> {
 			Athlete sbdeAthlete = r.getAthlete();
+			String athleteKey = athleteKey(sbdeAthlete);
+
 			Athlete existingAthlete = allAthletes.get(athleteKey(sbdeAthlete));
 			if (existingAthlete != null) {
-				if (isUpdateExistingAthletes()) {
+				if (isUpdateExistingAthletes() || isDeleteAthletes()) {
 					existingAthlete.getParticipations().clear();
-					logger.warn("* existing athlete {} {} {}", existingAthlete.getAbbreviatedName(), existingAthlete.getId(), existingAthlete.getParticipations());
-					logger.warn("* sbde {} {}",  sbdeAthlete.getAbbreviatedName(), sbdeAthlete.getId(), sbdeAthlete.getParticipations());
+					logger.warn("* existing athlete {} {} {}", existingAthlete.getAbbreviatedName(), existingAthlete.getId(),
+					        existingAthlete.getParticipations());
+					logger.warn("* sbde {} {}", sbdeAthlete.getAbbreviatedName(), sbdeAthlete.getId(), sbdeAthlete.getParticipations());
 					updateExistingAthlete(existingAthlete, sbdeAthlete);
 					toBeMerged.add(existingAthlete);
+				} else {
+					throw new IllegalArgumentException("Duplicate Athlete Entry " + athleteKey);
 				}
 			} else {
 				sbdeAthlete.setCategoryFinished(false);
-				// logger.debug("adding {}", athlete.getShortName());
+				logger.warn("adding sbdeAthlete {} {}", sbdeAthlete.getShortName(), sbdeAthlete.getId());
 				toBeMerged.add(sbdeAthlete);
 			}
 		});
-		
+
 		logger.warn(") step 2");
 		JPAService.runInTransaction(em -> {
 			try {
 				for (Athlete a : toBeMerged) {
-					logger.warn("merging {} {}",a.getAbbreviatedName(), a.getId());
+					logger.warn("merging {} {}", a.getAbbreviatedName(), a.getId());
 					em.merge(a);
 				}
 				em.flush();
@@ -298,21 +301,21 @@ public class NRegistrationFileProcessor {
 				LinkedHashSet<Category> eligibles = RCompetition
 				        .getAthleteToEligibles()
 				        .get(a2.getId());
-				LinkedHashSet<Category> teams = (LinkedHashSet<Category>) RCompetition
+				LinkedHashSet<Category> teams = RCompetition
 				        .getAthleteToTeams()
 				        .get(a2.getId());
 				if (teams == null) {
-					logger.warn("no teams for athlete {}",a2.getFullId());
+					logger.warn("no teams for athlete {}", a2.getFullId());
 					teams = new LinkedHashSet<Category>();
 				}
-				logger.warn("athlete {} eligibles {}",a2.getId(), eligibles);
+				logger.warn("athlete {} eligibles {}", a2.getId(), eligibles);
 				if (eligibles != null) {
 					Category first = eligibles.stream().findFirst().orElse(null);
 					a2.setCategory(first);
 					a2.setCategoryFinished(false);
-					
+
 					if (!a2.getEligibleCategories().isEmpty()) {
-						logger.error("eligibility already set for {}",a2.getShortName());
+						logger.error("eligibility already set for {}", a2.getShortName());
 					} else {
 						logger.warn("setting eligibility {} {}", a2.getShortName(), eligibles);
 						a2.setEligibleCategories(eligibles);

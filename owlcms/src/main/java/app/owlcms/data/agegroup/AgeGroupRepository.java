@@ -573,7 +573,7 @@ public class AgeGroupRepository {
 		for (Athlete a : as) {
 			logger.debug("removing athlete {} from category {}", a, nc.getId());
 			Athlete na = em.contains(a) ? a : em.merge(a);
-			na.setCategory(null);
+			na.computeCategory(null);
 		}
 	}
 
@@ -634,7 +634,7 @@ public class AgeGroupRepository {
 		JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = AthleteRepository.doFindAll(em);
 			for (Athlete a : athletes) {
-				a.setCategory(null);
+				a.computeCategory(null);
 				a.setEligibleCategories(null);
 				em.merge(a);
 			}

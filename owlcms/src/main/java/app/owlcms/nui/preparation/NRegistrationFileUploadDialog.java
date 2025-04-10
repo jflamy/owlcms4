@@ -22,12 +22,14 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.AthleteOptions;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.SessionOptions;
+import app.owlcms.spreadsheet.RCompetition;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -126,6 +128,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		if (this.processor.isIgnoreSessions()) {
 			logger.info("Ignoring Sessions");
 		} else {
+			rememberSessionCodes();
 			int nbSessions = processSessions(inputStream, ta, true);
 			logger.info("{} sessions found in file", nbSessions);
 			if (nbSessions > 0) {
@@ -148,6 +151,12 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			processAthletes(inputStream, ta, false);
 			this.processor.adjustParticipations();
 		}
+	}
+
+	private void rememberSessionCodes() {
+		AthleteRepository.findAll().stream().forEach(a -> {
+			RCompetition.putSessionCode(a.getId(), a.getGroup() != null ? a.getGroup().getName() : "");
+		});
 	}
 
 	private boolean isProcessAthletes() {

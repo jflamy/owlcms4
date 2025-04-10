@@ -105,7 +105,7 @@ public class TestData {
         p.setBodyWeight(81 - nextDouble);
         p.setGender(Gender.M);
         Category cat = CategoryRepository.findByCode("Open_M81");
-        p.setCategory(cat);
+        p.computeCategory(cat);
         // logger.debug("athlete {} category {} participations{} group {}", p, p.getCategory(), p.getParticipations(), p.getGroup());
     }
 

@@ -67,7 +67,7 @@ public class AthleteTest {
                 new AgeGroup("Open", true, 15, 999, Gender.M, "Open", 0),
                 0);
         athlete.setEligibleCategories(new LinkedHashSet<>(Arrays.asList(registrationCategory)));
-        athlete.setCategory(registrationCategory);
+        athlete.computeCategory(registrationCategory);
     }
 
     /**

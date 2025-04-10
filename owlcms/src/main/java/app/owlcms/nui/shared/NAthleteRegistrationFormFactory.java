@@ -664,7 +664,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.categoryField = new ComboBox<>();
 		BindingBuilder<Athlete, Category> bb = this.binder.forField(this.categoryField);
 		validateCategory(bb);
-		bindField(bb, this.categoryField, Athlete::getCategory, Athlete::setCategory);
+		bindField(bb, this.categoryField, Athlete::getCategory, Athlete::computeCategory);
 		safeCategorySetItems(CategoryRepository.findActive());
 		this.categoryField.setRenderer(new TextRenderer<>(Category::getDisplayName));
 		FormItem fi = layoutAddFormItem(layout, this.categoryField, Translator.translate("Category"));

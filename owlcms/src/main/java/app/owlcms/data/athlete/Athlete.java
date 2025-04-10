@@ -112,7 +112,7 @@ import ch.qos.logback.classic.Logger;
 public class Athlete {
 	@Transient
 	@JsonIgnore
-	private static QPoints qPoints = new QPoints(2023);
+	private static QPoints qPointsCoefficients = new QPoints(2023);
 	@Transient
 	@JsonIgnore
 	private static SinclairCoefficients sinclairProperties2020 = new SinclairCoefficients(2020);
@@ -150,12 +150,14 @@ public class Athlete {
 				System.err.println(">> NOT copying bodyweight "+src.getBodyWeight() + "\n" + LoggerUtils.stackTrace());
 			}
 			
+
 			dest.setGroup(src.getGroup());
+			System.err.println(">> conditionalCopy copied group " + dest.getGroup());
 			dest.setStartNumber(src.getStartNumber());
 			dest.setLotNumber(src.getLotNumber());
 			dest.setEntryTotal(src.getEntryTotal());
 			
-			dest.setCategory(src.getCategory());
+			dest.computeCategory(src.getCategory());
 
 			if (copyChanges) {
 				dest.setSnatch1Declaration(src.getSnatch1Declaration());
@@ -619,13 +621,13 @@ public class Athlete {
 				List<Category> categories = CategoryRepository.doFindEligibleCategories(this, this.gender, age, weight,
 				        this.qualifyingTotal);
 				setEligibles(this, categories);
-				this.setCategory(bestMatch(categories));
+				this.computeCategory(bestMatch(categories));
 			}
 		} else {
 			List<Category> categories = CategoryRepository.doFindEligibleCategories(this, this.gender, age, weight,
 			        this.qualifyingTotal);
 			setEligibles(this, categories);
-			this.setCategory(bestMatch(categories));
+			this.computeCategory(bestMatch(categories));
 		}
 	}
 
@@ -638,8 +640,7 @@ public class Athlete {
 		// needs to be called in setParticipations and setCategory.
 		Participation curRankings = null;
 		List<Participation> participations2 = getParticipations();
-		// logger.trace("athlete {} category {} participations {}", this, category,
-		// participations2);
+		logger.warn("????? athlete {} category {} participations {}", this, category, participations2);
 		for (Participation eligible : participations2) {
 			Category eligibleCat = eligible.getCategory();
 			if (this.category != null && eligibleCat != null) {
@@ -744,7 +745,7 @@ public class Athlete {
 					break;
 				}
 			}
-			setCategory(matchingEligible);
+			computeCategory(matchingEligible);
 			this.logger.trace("category {} {} matching eligible {} {}", this.category,
 			        System.identityHashCode(this.category),
 			        matchingEligible, System.identityHashCode(matchingEligible));
@@ -1749,12 +1750,12 @@ public class Athlete {
 	@JsonIgnore
 	@Transient
 	public DisplayGroup getDisplayGroup() {
-		return this.group != null ? new DisplayGroup(
-		        this.group.getName(),
-		        this.group.getDescription(),
-		        this.group.getPlatform(),
-		        this.group.getWeighInShortDateTime(),
-		        this.group.getCompetitionShortDateTime())
+		return this.getGroup() != null ? new DisplayGroup(
+		        this.getGroup().getName(),
+		        this.getGroup().getDescription(),
+		        this.getGroup().getPlatform(),
+		        this.getGroup().getWeighInShortDateTime(),
+		        this.getGroup().getCompetitionShortDateTime())
 		        : Group.getEmptyDisplayGroup();
 	}
 
@@ -2322,7 +2323,7 @@ public class Athlete {
 		if (birthDate1 == null) {
 			return 0.0F;
 		}
-		return qPoints.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
+		return qPointsCoefficients.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
 	}
 
 	@Transient
@@ -2334,7 +2335,7 @@ public class Athlete {
 			return 0.0D;
 		}
 		Integer total = bestCleanJerk + bestSnatch;
-		return qPoints.getQPoints(this, total);
+		return qPointsCoefficients.getQPoints(this, total);
 	}
 
 	/**
@@ -2354,7 +2355,7 @@ public class Athlete {
 	@JsonIgnore
 	public Double getqPointsForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
-		return qPoints.getQPoints(this, total);
+		return qPointsCoefficients.getQPoints(this, total);
 	}
 
 	@Transient
@@ -3410,16 +3411,22 @@ public class Athlete {
 	/**
 	 * Sets the category.
 	 *
-	 * @param category the category to set
+	 * @param newCategory the category to set
 	 */
-	public void setCategory(Category category) {
-		if (category != null) {
+	public void computeCategory(Category newCategory) {
+		logger.warn(">>>> athlete {} {}, newCategory {} oldcategory {}\n{}", this, this.getId(), newCategory, this.category, LoggerUtils.stackTrace());
+		if (newCategory != null) {
 			// explicitly provided information, to be used if actual bodyweight is not yet
 			// known
-			setPresumedBodyWeight(category.getMaximumWeight());
+			setPresumedBodyWeight(newCategory.getMaximumWeight());
 		}
-		this.category = category;
+		this.category = newCategory;
 		computeMainRankings();
+		logger.warn("<<<< athlete {} {}, category {}", this, this.getId(), this.category);
+	}
+	
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 
 	@Transient
@@ -3920,6 +3927,7 @@ public class Athlete {
 	 * @param group the group to set
 	 */
 	public void setGroup(Group group) {
+		System.err.println("%%%%%%%%% setting session "+group+"\n"+LoggerUtils.whereFrom());
 		this.group = group;
 	}
 
@@ -5893,5 +5901,13 @@ public class Athlete {
 
 	public boolean withdrawnFromSnatch() {
 		return getSnatch3ActualLift().equals("0");
+	}
+
+	public LinkedHashSet<Category> getTeams() {
+		LinkedHashSet<Category> collect = getParticipations().stream()
+				.filter(p -> p.getTeamMember())
+				.map(p -> p.getCategory())
+				.collect(Collectors.toCollection(LinkedHashSet::new));
+		return collect;
 	}
 }
