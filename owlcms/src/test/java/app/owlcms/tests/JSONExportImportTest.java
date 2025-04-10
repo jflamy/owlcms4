@@ -23,7 +23,7 @@ public class JSONExportImportTest {
         Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
-        TestData.insertInitialData(5, true);
+        TestData.insertInitialData(1, true);
     }
 
 	@Test

@@ -240,7 +240,7 @@ public class NRegistrationFileProcessor {
 
 				        // copy the participation categories away
 				        RCompetition.putEligibles(a.getId(), new LinkedHashSet<>(a.getEligibleCategories()));
-				        RCompetition.putTeams(a.getId(), a.getTeams());
+				        RCompetition.putTeams(a.getId(), a.computeTeams());
 				        a.getParticipations().clear();
 				        
 				        // reset the group that was cleared.

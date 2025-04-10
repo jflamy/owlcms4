@@ -5903,7 +5903,7 @@ public class Athlete {
 		return getSnatch3ActualLift().equals("0");
 	}
 
-	public LinkedHashSet<Category> getTeams() {
+	public LinkedHashSet<Category> computeTeams() {
 		LinkedHashSet<Category> collect = getParticipations().stream()
 				.filter(p -> p.getTeamMember())
 				.map(p -> p.getCategory())
