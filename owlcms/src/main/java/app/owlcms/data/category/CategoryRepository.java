@@ -301,7 +301,7 @@ public class CategoryRepository {
 	public static void resetCodeMap() {
 		synchronized (allCategories) {
 			findActive().stream()
-			        .peek(c -> logger./**/warn("============ adding {} ; {} : {}", c.getDisplayName(), c.getNameWithAgeGroup(), c.getCode()))
+			        //.peek(c -> logger./**/warn("============ adding {} ; {} : {}", c.getDisplayName(), c.getNameWithAgeGroup(), c.getCode()))
 			        .forEach(c -> {
 				        allCategories.put(c.getDisplayName(), c);
 				        allCategories.put(c.getNameWithAgeGroup(), c);

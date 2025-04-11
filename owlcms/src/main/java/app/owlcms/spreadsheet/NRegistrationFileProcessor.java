@@ -68,7 +68,7 @@ public class NRegistrationFileProcessor {
 	}
 
 	public enum SessionOptions {
-		IGNORE_SESSIONS, DELETE_SESSIONS, UPDATE_ADD_SESSIONS
+		IGNORE_SESSIONS, /* DELETE_SESSIONS, */ UPDATE_ADD_SESSIONS
 	}
 
 	public enum AthleteOptions {
@@ -78,7 +78,7 @@ public class NRegistrationFileProcessor {
 	static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
 	Integer[] delayedSetterColumns = new Integer[DelayedSetter.values().length];
 	Logger logger = (Logger) LoggerFactory.getLogger(NRegistrationFileProcessor.class);
-	//private boolean keepParticipations;
+	// private boolean keepParticipations;
 	@SuppressWarnings("unchecked")
 	TriConsumer<RAthlete, String, Cell>[] setterForColumn = new TriConsumer[25];
 	FormulaEvaluator formulaEvaluator;
@@ -92,9 +92,9 @@ public class NRegistrationFileProcessor {
 	}
 
 	public void adjustParticipations() {
-//		if (!this.keepParticipations) {
-//			AthleteRepository.resetParticipations(false, true);
-//		}
+		// if (!this.keepParticipations) {
+		// AthleteRepository.resetParticipations(false, true);
+		// }
 	}
 
 	private String cleanMessage(String localizedMessage) {
@@ -228,62 +228,75 @@ public class NRegistrationFileProcessor {
 	 * In the most common SBDE scenarios, the athletes are removed first.
 	 * 
 	 */
-	private void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> sbdeAthletes) {
-		Map<String, Athlete> allAthletes = new HashMap<>();
+	Map<String, Athlete> priorAthletes = new HashMap<>();
 
+	private void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> sbdeAthletes) {
+		//logger.debug(") step 1 - copy away participations");
 		JPAService.runInTransaction(em -> {
 			// retrieve existing ids
 			AthleteRepository.doFindAll(em).stream()
 			        .forEach(a -> {
 				        String athleteKey = athleteKey(a);
-				        allAthletes.put(athleteKey, a);
+				        priorAthletes.put(athleteKey, a);
 
-				        // copy the participation categories away
-				        RCompetition.putEligibles(a.getId(), new LinkedHashSet<>(a.getEligibleCategories()));
-				        RCompetition.putTeams(a.getId(), a.computeTeams());
-				        a.getParticipations().clear();
-				        
-				        // reset the group that was cleared.
-						String sessionCode = RCompetition.getSessionCode(a.getId());
-						logger.warn("++++++ prior session code for {} = {}",a.getFullId(),sessionCode);
-						a.setGroup(RCompetition.activeGroups.get(sessionCode));
-						logger.warn("++++++ new session for {} = {}",a.getFullId(), a.getGroup());
+				        if (!isOnlyAddAthletes()) {
+					        // copy the participation categories away
+					        RCompetition.putEligibles(a.getId(), new LinkedHashSet<>(a.getEligibleCategories()));
+					        RCompetition.putTeams(a.getId(), a.computeTeams());
+					        a.getParticipations().clear();
+
+					        if (isDeleteSessions()) {
+						        // reset the group that was cleared.
+						        String sessionCode = RCompetition.getSessionCode(a.getId());
+						        //logger.debug("++++++ prior session code for {} = {}", a.getFullId(), sessionCode);
+						        a.setGroup(RCompetition.activeGroups.get(sessionCode));
+						        //logger.debug("++++++ new session for {} = {}", a.getFullId(), a.getGroup());
+					        }
+				        } else {
+				        	//logger.debug("skipping prior {}",a.getAbbreviatedName());
+				        }
+
 				        em.merge(a);
 				        em.flush();
 			        });
 			return null;
 		});
 
-		List<Athlete> toBeMerged = new ArrayList<>(allAthletes.size());
+		List<Athlete> toBeMerged = new ArrayList<>(priorAthletes.size());
 		// Create the new athletes.
 		sbdeAthletes.stream().forEach(r -> {
 			Athlete sbdeAthlete = r.getAthlete();
 			String athleteKey = athleteKey(sbdeAthlete);
 
-			Athlete existingAthlete = allAthletes.get(athleteKey(sbdeAthlete));
+			Athlete existingAthlete = priorAthletes.get(athleteKey(sbdeAthlete));
 			if (existingAthlete != null) {
 				if (isUpdateExistingAthletes() || isDeleteAthletes()) {
 					existingAthlete.getParticipations().clear();
-					logger.warn("* existing athlete {} {} {}", existingAthlete.getAbbreviatedName(), existingAthlete.getId(),
-					        existingAthlete.getParticipations());
-					logger.warn("* sbde {} {}", sbdeAthlete.getAbbreviatedName(), sbdeAthlete.getId(), sbdeAthlete.getParticipations());
-					updateExistingAthlete(existingAthlete, sbdeAthlete);
-					toBeMerged.add(existingAthlete);
+					//logger.debug("* existing athlete {} {} {}", existingAthlete.getAbbreviatedName(), existingAthlete.getId(),existingAthlete.getParticipations());
+					//logger.debug("* sbde {} {}", sbdeAthlete.getAbbreviatedName(), sbdeAthlete.getId(), sbdeAthlete.getParticipations());
+					
+					// can't happen, mutually exclusive from enclosing conditions, paranoia.
+					if (!isOnlyAddAthletes()) {
+						updateExistingAthlete(existingAthlete, sbdeAthlete);
+						toBeMerged.add(existingAthlete);
+					}
 				} else {
-					throw new IllegalArgumentException("Duplicate Athlete Entry " + athleteKey);
+					errorConsumer.accept("Existing athlete ignored: " + athleteKey);
+					logger.error("Existing Athlete Entry {} {}", athleteKey, existingAthlete.getId());
 				}
 			} else {
 				sbdeAthlete.setCategoryFinished(false);
-				logger.warn("adding sbdeAthlete {} {}", sbdeAthlete.getShortName(), sbdeAthlete.getId());
+				//logger.debug("adding sbdeAthlete {} {}", sbdeAthlete.getShortName(), sbdeAthlete.getId());
 				toBeMerged.add(sbdeAthlete);
 			}
 		});
+		//logger.debug("( end step 1");
 
-		logger.warn(") step 2");
+		//logger.debug(") step 2 - updating participations and teams");
 		JPAService.runInTransaction(em -> {
 			try {
 				for (Athlete a : toBeMerged) {
-					logger.warn("merging {} {}", a.getAbbreviatedName(), a.getId());
+					//logger.debug("merging {} {}", a.getAbbreviatedName(), a.getId());
 					em.merge(a);
 				}
 				em.flush();
@@ -293,11 +306,15 @@ public class NRegistrationFileProcessor {
 			}
 			return null;
 		});
-		logger.warn("( step 2");
+		//logger.debug("( end step 2");
 
 		JPAService.runInTransaction(em -> {
-			logger.warn(") step 3 - database athletes");
+			//logger.debug(") step 3 - database athletes");
 			AthleteRepository.findAll().stream().forEach(a2 -> {
+				if (isPriorAthlete(a2)) {
+					//logger.debug("skipping prior athlete {}",a2.getAbbreviatedName());
+					return;
+				}
 				LinkedHashSet<Category> eligibles = RCompetition
 				        .getAthleteToEligibles()
 				        .get(a2.getId());
@@ -305,10 +322,10 @@ public class NRegistrationFileProcessor {
 				        .getAthleteToTeams()
 				        .get(a2.getId());
 				if (teams == null) {
-					logger.warn("no teams for athlete {}", a2.getFullId());
+					//logger.debug("no teams for athlete {}", a2.getFullId());
 					teams = new LinkedHashSet<Category>();
 				}
-				logger.warn("athlete {} eligibles {}", a2.getId(), eligibles);
+				//logger.debug("athlete {} eligibles {}", a2.getId(), eligibles);
 				if (eligibles != null) {
 					Category first = eligibles.stream().findFirst().orElse(null);
 					a2.setCategory(first);
@@ -317,7 +334,7 @@ public class NRegistrationFileProcessor {
 					if (!a2.getEligibleCategories().isEmpty()) {
 						logger.error("eligibility already set for {}", a2.getShortName());
 					} else {
-						logger.warn("setting eligibility {} {}", a2.getShortName(), eligibles);
+						//logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
 						a2.setEligibleCategories(eligibles);
 					}
 					List<Participation> participations2 = a2.getParticipations();
@@ -330,14 +347,18 @@ public class NRegistrationFileProcessor {
 							p.setTeamMember(false);
 						}
 					}
-					logger.warn("participations {} {}", a2.getShortName(), a2.getParticipations());
+					//logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
 					em.merge(a2);
 				}
 			});
 			em.flush();
-			logger.warn(") step 3");
+			//logger.debug(") end step 3");
 			return null;
 		});
+	}
+
+	private boolean isPriorAthlete(Athlete a2) {
+		return priorAthletes.get(athleteKey(a2)) != null;
 	}
 
 	/**
@@ -398,7 +419,7 @@ public class NRegistrationFileProcessor {
 					// update the existing group
 					existingGroup.copyFrom(readGroup);
 					existingGroup.setPlatform(op);
-					logger.warn("updating platorm for {} to {}", existingGroup, existingGroup.getPlatform());
+					//logger.debug("updating platorm for {} to {}", existingGroup, existingGroup.getPlatform());
 					em.merge(existingGroup);
 				}
 			});
@@ -797,6 +818,10 @@ public class NRegistrationFileProcessor {
 		return this.getAthleteOptions() == AthleteOptions.UPDATE_ADD_ATHLETES;
 	}
 
+	private boolean isOnlyAddAthletes() {
+		return this.getAthleteOptions() == AthleteOptions.ADD_ATHLETES;
+	}
+
 	public AthleteOptions getAthleteOptions() {
 		return athleteOptions;
 	}
@@ -818,7 +843,7 @@ public class NRegistrationFileProcessor {
 	}
 
 	public boolean isDeleteSessions() {
-		return sessionOptions == SessionOptions.DELETE_SESSIONS;
+		return false;/* sessionOptions == SessionOptions.DELETE_SESSIONS; */
 	}
 
 }

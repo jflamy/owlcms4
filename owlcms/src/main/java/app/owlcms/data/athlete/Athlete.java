@@ -640,7 +640,6 @@ public class Athlete {
 		// needs to be called in setParticipations and setCategory.
 		Participation curRankings = null;
 		List<Participation> participations2 = getParticipations();
-		logger.warn("????? athlete {} category {} participations {}", this, category, participations2);
 		for (Participation eligible : participations2) {
 			Category eligibleCat = eligible.getCategory();
 			if (this.category != null && eligibleCat != null) {
@@ -3414,7 +3413,6 @@ public class Athlete {
 	 * @param newCategory the category to set
 	 */
 	public void computeCategory(Category newCategory) {
-		logger.warn(">>>> athlete {} {}, newCategory {} oldcategory {}\n{}", this, this.getId(), newCategory, this.category, LoggerUtils.stackTrace());
 		if (newCategory != null) {
 			// explicitly provided information, to be used if actual bodyweight is not yet
 			// known
@@ -3422,7 +3420,6 @@ public class Athlete {
 		}
 		this.category = newCategory;
 		computeMainRankings();
-		logger.warn("<<<< athlete {} {}, category {}", this, this.getId(), this.category);
 	}
 	
 	public void setCategory(Category category) {

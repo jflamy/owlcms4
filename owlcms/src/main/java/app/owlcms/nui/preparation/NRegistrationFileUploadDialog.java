@@ -107,8 +107,8 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 		radioGroup.setLabel(Translator.translate("SBDE.SessionOptions"));
 		radioGroup.setItems(NRegistrationFileProcessor.SessionOptions.values());
-		radioGroup.setItemLabelGenerator(o -> Translator.translate("SBDE.AthleteOptions_"+o.name()));
-		sessionOption = NRegistrationFileProcessor.SessionOptions.DELETE_SESSIONS;
+		radioGroup.setItemLabelGenerator(o -> Translator.translate("SBDE.SessionOptions_"+o.name()));
+		sessionOption = NRegistrationFileProcessor.SessionOptions.UPDATE_ADD_SESSIONS;
 		radioGroup.setValue(sessionOption);
 		radioGroup.addValueChangeListener(v -> {this.sessionOption = v.getValue();});
 		return radioGroup;
@@ -126,13 +126,15 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		// first do a dry run to count sessions
 		if (this.processor.isIgnoreSessions()) {
-			logger.info("Ignoring Sessions");
+			logger.info("Ignoring session updates");
+			// we still need to process the existing ones
+			rememberSessionCodes();
 		} else {
 			rememberSessionCodes();
 			int nbSessions = processSessions(inputStream, ta, true);
 			logger.info("{} sessions found in file", nbSessions);
 			if (nbSessions > 0) {
-				if (this.processor.isDeleteAthletes() || this.processor.isDeleteSessions()) {
+				if (this.processor.isDeleteSessions()) {
 					this.processor.resetSessions();
 				}
 

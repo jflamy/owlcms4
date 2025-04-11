@@ -305,10 +305,10 @@ public class RAthlete {
 		        && (athleteAge == null
 		                || (athleteAge >= minAge && athleteAge <= maxAge))) {
 			eligibleCategories.add(c2);
-			logger.warn("eligible categories {}",c2);
+			//logger.debug("eligible categories {}",c2);
 			added = true;
 			if (teamMember) {
-				logger.warn("teams {}",c2);
+				//logger.debug("teams {}",c2);
 				teams.add(c2);
 			}
 		}
@@ -333,7 +333,7 @@ public class RAthlete {
 
 			Category c;
 			String catCode = Category.codeFromName(catName);
-			logger.warn("------ catName {} catCode {} active {}",catName, catCode,RCompetition.getActiveCategories().keySet());
+			//logger.debug("------ catName {} catCode {} active {}",catName, catCode,RCompetition.getActiveCategories().keySet());
 			if ((c = RCompetition.getActiveCategories().get(catCode)) != null) {
 				// exact match for a category. This is the athlete's registration category.
 				processEligibilityAndTeams(parts, c, teamMember);
@@ -457,7 +457,7 @@ public class RAthlete {
 
 		// process the other participations. They are ; separated.
 		if (parts.length > 1) {
-			logger.warn("additional categories {}",parts[1]);
+			//logger.debug("additional categories {}",parts[1]);
 			String[] eligibleNames = parts[1].split(";");
 			for (String eligibleName : eligibleNames) {
 				boolean teamMember = true;
@@ -479,10 +479,10 @@ public class RAthlete {
 				}
 			}
 		} else {
-			logger.warn("no other part");
+			//logger.debug("no other part");
 		}
 
-		logger.warn("*** {} this.a.getCategory {} {}",this.a.getId(), this.a.getCategory(), eligibleCategories);
+		//logger.debug("*** {} this.a.getCategory {} {}",this.a.getId(), this.a.getCategory(), eligibleCategories);
 		RCompetition.putEligibles(this.a.getId(), eligibleCategories);
 		RCompetition.putTeams(this.a.getId(), teams);
 	}

@@ -19,7 +19,6 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 public class RCompetition {
@@ -180,7 +179,7 @@ public class RCompetition {
 	}
 
 	public static void putEligibles(Long id, LinkedHashSet<Category> eligibleCategories) {
-		logger.warn("putEligibles {} {} {}", id, eligibleCategories, LoggerUtils.whereFrom());
+		//logger.debug("putEligibles {} {} {}", id, eligibleCategories, LoggerUtils.whereFrom());
 		athleteToEligibles.put(id, eligibleCategories);
 	}
 	
@@ -189,7 +188,7 @@ public class RCompetition {
 	}
 
 	public static void putTeams(Long id, LinkedHashSet<Category> teams) {
-		logger.warn("putTeams {} {} {}", id, teams, LoggerUtils.whereFrom());
+		//logger.debug("putTeams {} {} {}", id, teams, LoggerUtils.whereFrom());
 		athleteToTeams.put(id, teams);
 	}
 	
