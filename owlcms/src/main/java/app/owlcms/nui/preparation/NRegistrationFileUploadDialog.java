@@ -53,6 +53,8 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		H5 label = new H5(Translator.translate("Upload.WarningWillReplaceAll"));
 		label.getStyle().set("color", "red");
+		H5 sbdeLabel = new H5(Translator.translate("SBDE.AthleteOptions_WARNING"));
+		sbdeLabel.getStyle().set("color", "red");
 
 		MemoryBuffer buffer = new MemoryBuffer();
 		Upload upload = new Upload(buffer);
@@ -60,6 +62,11 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		Component sos = sessionOptionSelectors();
 		Component aos = athleteOptionSelectors();
+		
+		if (!sbdeFormat) {
+			athleteOption = NRegistrationFileProcessor.AthleteOptions.DELETE_ATHLETES;
+			sessionOption = NRegistrationFileProcessor.SessionOptions.UPDATE_ADD_SESSIONS;
+		}
 
 		TextArea ta = new TextArea(Translator.translate("Errors"));
 		ta.setHeight("20ex");
@@ -86,7 +93,12 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		});
 
 		H3 title = new H3(Translator.translate("UploadRegistrationFile"));
-		VerticalLayout vl = new VerticalLayout(title, label, aos, sos, upload, ta);
+		VerticalLayout vl;
+		if (sbdeFormat) {
+			vl = new VerticalLayout(title, sbdeLabel, aos, sos, upload, ta);
+		} else {
+			vl = new VerticalLayout(title, label, upload, ta);
+		}
 		add(vl);
 	}
 
