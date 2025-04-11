@@ -72,7 +72,7 @@ public class NRegistrationFileProcessor {
 	}
 
 	public enum AthleteOptions {
-		IGNORE_ATHLETES, DELETE_ATHLETES, UPDATE_ADD_ATHLETES, ADD_ATHLETES
+		IGNORE_ATHLETES, DELETE_ATHLETES, ADD_ATHLETES, UPDATE_ADD_ATHLETES
 	}
 
 	static final String GROUPS_READER_SPEC = "/templates/registration/GroupsReader.xml";
