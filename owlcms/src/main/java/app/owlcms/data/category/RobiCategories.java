@@ -150,6 +150,10 @@ public class RobiCategories {
 	}
 
 	public static Category findRobiCategory(Athlete a) {
+		return findIWFCategory(a, false);
+	}
+
+	public static Category findIWFCategory(Athlete a, boolean forceJrSr) {
 		if (a.getBodyWeight() == null || a.getBodyWeight() < 0.1) {
 			return null;
 		}
@@ -162,7 +166,7 @@ public class RobiCategories {
 		RobiCategories x = new RobiCategories();
 		List<Category> categories;
 		Integer age = a.getAge();
-		if (age != null && age <= 17) {
+		if (!forceJrSr && (age != null && age <= 17)) {
 			categories = ythReferenceCategories;
 		} else {
 			categories = jrSrReferenceCategories;

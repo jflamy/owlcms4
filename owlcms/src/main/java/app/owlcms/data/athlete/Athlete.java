@@ -5869,7 +5869,8 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCategorySinclairForDelta() {
-		Category category = getCategory();
+		//Category category = getCategory();
+		Category category = RobiCategories.findIWFCategory(this, true);
 		if (category == null) {
 			return 0.0;
 		}
