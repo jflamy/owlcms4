@@ -645,7 +645,11 @@ public class Results extends LitTemplate
 	protected void computeLeaders(boolean done) {
 		OwlcmsSession.withFop(fop -> {
 			Athlete curAthlete = fop.getCurAthlete();
-			if (curAthlete != null && curAthlete.getGender() != null) {
+			if (curAthlete == null) {
+				this.getElement().setPropertyJson("leaders", Json.createNull());
+				this.getElement().setProperty("leaderLines", 1); // must be > 0
+			}
+			if (curAthlete.getGender() != null) {
 				this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
 
 				if (Competition.getCurrent().isSinclair()) {
