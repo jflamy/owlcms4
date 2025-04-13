@@ -8,10 +8,15 @@
 
 **Maintenance Log**
 
-- 57.0.0-rc02: Workaround for an issue in the user interface library that prevented the field of play argument from being shown (?fop=A).  This made the URLs not bookmarkable and might explain why browser restarts were needed.
+- Bookmarks: Workaround for an issue in the user interface library that prevented the field of play argument from being shown (?fop=A).  This made the URLs not bookmarkable and might explain why browser restarts were needed.
 
 **New In Release 57**
 
+- Start Book Data Entry (SBDE) Advanced Registration Data Updates using a spreadsheet
+  - It is now possible to update only the athletes or only the sessions.  Updating only the sessions is useful to update the referees, or for changes in schedule.
+  
+  - When updating the athletes, there is the option of removing them beforehand, of only adding athletes (ignoring those who are there), or of doing a full update.  When updating, it is presumed that the First Name, Last Name and Lot number are identical.  Updating this way would be used for a schedule change -- changing sessions, or for changing categories.
+  
 - Message of the day
   - At startup, a message can be displayed on the home page if something urgent needs to be communicated by the application maintainer.  The files containing the messages are located in the source code repository, and can be changed or removed as required.
   - When running locally, a check that a recent-enough version of the control panel was used it made.
@@ -44,6 +49,7 @@
 - Scoreboards
   - The Best Team Points scoreboard correctly allows selecting the championship, and allows for selecting Male, Female, Male and Female, Mixed or all teams.
   - Same fixes for the Best Teams Scores - the score shown is the one for the Best Athlete as set in the competition rules.
+  - Fix: Leader board would sometimes be shown when there was no current athlete (at the end of a session), with out-of-date information.
 - Templates 
   - `${session.referee1AsTO}` returns a TechnicalOfficial object if one is found in the list of Technical Officials that matches the session referee1. 
     - There is an `AsTO` variant for all the roles (`announcerAsTO`, `marshal1AsTO` etc.)
