@@ -39,7 +39,10 @@ class CurrentAttempt extends LitElement {
         <div class="${this.teamFlagImgClasses()}" style="${this.teamFlagImgStyles()}" .innerHTML="${this.teamFlagImg}"></div>
         <div class="${this.athleteImgClasses()}" style="${this.athleteImgStyles()}" .innerHTML="${this.athleteImg}"></div>
         <div class="${this.recordMessageClasses()}" style="${this.recordMessageStyles()}">
-          ${this.recordMessage}
+          <css-ticker
+            .text="${this.recordMessage} &ndash; Québec W64  &nbsp; &nbsp; &nbsp;"
+            .speed="${8}"
+          ></css-ticker>
         </div>
         <div class="startNumber" style="${this.startNumberStyles()}">
           <span>${this.startNumber}</span>
@@ -187,7 +190,8 @@ class CurrentAttempt extends LitElement {
   }
 
   recordMessageStyles() {
-    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.recordAttempt || this.recordBroken)) ? "grid" : "none");
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.recordAttempt || this.recordBroken)) ? "grid" : "none") +
+           "; height: auto; overflow: hidden; align-items: stretch; padding: 0; margin: 0;";
   }
 
   attemptStyles() {
