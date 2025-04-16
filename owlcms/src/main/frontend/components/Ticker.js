@@ -18,13 +18,12 @@ class CssTicker extends LitElement {
       static styles = css`
         :host {
           display: block;
-          width: 75%; /* Set width to 75% of parent */
+          width: 100%; 
           margin-left: auto; /* Use auto margins for centering */
           margin-right: auto; /* Use auto margins for centering */
           justify-self: center; /* Helps centering in grid containers */
           overflow: hidden;
           white-space: nowrap;
-          border: 1px solid #ccc;
           padding: 5px;
           box-sizing: border-box; /* Ensure padding/border are included in width */
         }
