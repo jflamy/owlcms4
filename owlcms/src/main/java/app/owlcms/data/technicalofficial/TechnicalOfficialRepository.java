@@ -34,7 +34,7 @@ public class TechnicalOfficialRepository {
 
 	public static List<TechnicalOfficial> findAll() {
 		return JPAService
-				.runInTransaction(em -> em.createQuery("select c from TechnicalOfficial c order by c.id", TechnicalOfficial.class)
+				.runInTransaction(em -> em.createQuery("select c from TechnicalOfficial c order by c.lastName, c.firstName", TechnicalOfficial.class)
 						.getResultList());
 	}
 
