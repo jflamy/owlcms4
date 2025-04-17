@@ -11,6 +11,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.team.Team;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
@@ -917,16 +919,26 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		});
 	}
 
-	private void spotlightNewRecord() {
+	private void spotlightNewRecord(List<RecordEvent> records) {
 		this.getElement().setProperty("recordBroken", true);
 		this.getElement().setProperty("recordAttempt", false);
-		this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.NewRecord"));
+		String prefix = Translator.translate("Scoreboard.NewRecord");
+		computeMessageProperties(records, prefix);
 	}
 
-	private void spotlightRecordAttempt() {
+	private void spotlightRecordAttempt(List<RecordEvent> records) {
 		this.getElement().setProperty("recordBroken", false);
 		this.getElement().setProperty("recordAttempt", true);
-		this.getElement().setProperty("recordMessage", Translator.translate("Scoreboard.RecordAttempt"));
+		String prefix = Translator.translate("Scoreboard.RecordAttempt");
+		computeMessageProperties(records, prefix);
+	}
+
+	public void computeMessageProperties(List<RecordEvent> records, String prefix) {
+		records.sort(RecordEvent.sequentialOrderComparator());
+		String recordsList = records.stream().map(c -> c.toString()).collect(Collectors.joining(" "));
+		logger.warn("sorted records:\n{}", recordsList);
+		this.getElement().setProperty("recordMessage", prefix + " \u2013 " + recordsList);
+		this.getElement().setProperty("recordMessageSpeed", 5 + records.size()*10);
 	}
 
 	private void spotlightRecords(FieldOfPlay fop, Athlete a) {
@@ -935,13 +947,18 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 		if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
 			hideRecordInfo(a);
-		} else if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
-			spotlightNewRecord();
-		} else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
-			logger.warn("new attempts {}",fop.getNewRecords());
-			spotlightRecordAttempt();
 		} else {
-			hideRecordInfo(a);
+			List<RecordEvent> newRecords = fop.getNewRecords();
+			if (newRecords != null && !newRecords.isEmpty()) {
+				spotlightNewRecord(newRecords);
+			} else {
+				List<RecordEvent> challengedRecords = fop.getChallengedRecords();
+				if (challengedRecords != null && !challengedRecords.isEmpty()) {
+					spotlightRecordAttempt(challengedRecords);
+				} else {
+					hideRecordInfo(a);
+				}
+			}
 		}
 	}
 

@@ -40,8 +40,8 @@ class CurrentAttempt extends LitElement {
         <div class="${this.athleteImgClasses()}" style="${this.athleteImgStyles()}" .innerHTML="${this.athleteImg}"></div>
         <div class="${this.recordMessageClasses()}" style="${this.recordMessageStyles()}">
           <css-ticker
-            .text="${this.recordMessage} &ndash; ${this.recordName} ${this.recordCategory} ${this.recordKind} &nbsp; &nbsp; &nbsp;"
-            .speed="${8}"
+            .text="${this.recordMessage}&nbsp; &nbsp; &nbsp;"
+            .speed="${this.recordMessageSpeed}"
           ></css-ticker>
         </div>
         <div class="startNumber" style="${this.startNumberStyles()}">
@@ -102,9 +102,7 @@ class CurrentAttempt extends LitElement {
       recordAttempt: {},
       recordBroken: {},
       recordMessage: {},
-      recordKind: {},
-      recordCategory: {},
-      recordName: {},
+      recordMessageSpeed: {},
 
       // style sheets & misc.
       javaComponentId: {},
