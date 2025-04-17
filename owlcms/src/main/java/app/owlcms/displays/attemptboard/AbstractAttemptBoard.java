@@ -938,6 +938,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		} else if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
 			spotlightNewRecord();
 		} else if (fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty()) {
+			logger.warn("new attempts {}",fop.getNewRecords());
 			spotlightRecordAttempt();
 		} else {
 			hideRecordInfo(a);
