@@ -8,6 +8,7 @@
 
 **Maintenance Log**
 
+- Updated Translation instructions (fixed obsolete link to translation file)
 - Initial translations for Norwegian and Greek under artificial languages (Ido for Norwegian, Interlingue for Greek).  Will be moved to correct language code once validated.
 - Bookmarks: Workaround for an issue in the user interface library that prevented the field of play argument from being shown (?fop=A).  This made the URLs not bookmarkable and might explain why browser restarts were needed.
 - Sinclair at category weight: when dealing with kids/youth categories, compute Sinclair at the IWF Senior Category.  If athlete is >81 but weighs 83kg, compute at 89kg, not as super heavy...
