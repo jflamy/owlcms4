@@ -922,23 +922,23 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private void spotlightNewRecord(List<RecordEvent> records) {
 		this.getElement().setProperty("recordBroken", true);
 		this.getElement().setProperty("recordAttempt", false);
-		String prefix = Translator.translate("Scoreboard.NewRecord");
+		String prefix = Translator.translate("Scoreboard.NewRecord(s)", records.size());
 		computeMessageProperties(records, prefix);
 	}
 
 	private void spotlightRecordAttempt(List<RecordEvent> records) {
 		this.getElement().setProperty("recordBroken", false);
 		this.getElement().setProperty("recordAttempt", true);
-		String prefix = Translator.translate("Scoreboard.RecordAttempt");
+		String prefix = Translator.translate("Scoreboard.RecordAttempt(s)", records.size());
 		computeMessageProperties(records, prefix);
 	}
 
 	public void computeMessageProperties(List<RecordEvent> records, String prefix) {
 		records.sort(RecordEvent.sequentialOrderComparator());
-		String recordsList = records.stream().map(c -> c.toString()).collect(Collectors.joining(" "));
+		String recordsList = records.stream().map(c -> c.prettyPrint()).collect(Collectors.joining(", "));
 		logger.warn("sorted records:\n{}", recordsList);
 		this.getElement().setProperty("recordMessage", prefix + " \u2013 " + recordsList);
-		this.getElement().setProperty("recordMessageSpeed", 5 + records.size()*10);
+		this.getElement().setProperty("recordMessageSpeed", 5 + records.size()*5);
 	}
 
 	private void spotlightRecords(FieldOfPlay fop, Athlete a) {

@@ -87,19 +87,51 @@ class CssTicker extends LitElement {
         const originalCssText = this.shadowRoot.querySelector('.original-css');
         
         if (cssTickerWrapper && originalCssText) {
-          // Use getBoundingClientRect for potentially more accurate width, especially with Unicode
           const textRect = originalCssText.getBoundingClientRect();
-          const textWidth = textRect.width;
+          const textWidth = textRect.width + 20; // Buffer
           
-          // Ensure width is positive before setting
-          if (textWidth > 0) {
+          if (textWidth > 20) { // Check against buffer value
             cssTickerWrapper.style.width = (textWidth * 2) + 'px';
+
+            // Calculate viewport ratio relative to 1920px baseline
+            const baselineWidth = 1920;
+            const currentWidth = window.innerWidth;
+            const ratio = currentWidth / baselineWidth;
+
+            // Adjust the base speed (duration). Wider viewport = faster animation (shorter duration).
+            // Ensure ratio is not zero to avoid division by zero.
+            const adjustedSpeed = ratio > 0 ? this.speed / ratio : this.speed; 
+
+            // Update the CSS variable with the adjusted speed
+            cssTickerWrapper.style.setProperty('--animation-duration', `${adjustedSpeed}s`);
+
+            // When resetting animation, ensure it uses the CSS variable
+            cssTickerWrapper.style.animation = 'none';
+            void cssTickerWrapper.offsetWidth; // Force reflow
+            // Use the updated CSS variable value directly in the animation definition
+            cssTickerWrapper.style.animation = `cssTicker ${adjustedSpeed}s linear infinite`;
+
           } else {
-            // Fallback or wait if width is zero (e.g., element not fully rendered)
-            // Requesting another frame might help
             requestAnimationFrame(() => this._setWrapperWidth());
           }
         }
+      }
+
+      _handleResize() {
+        // Recalculate width and speed on resize
+        this._setWrapperWidth();
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        // Bind the resize handler context
+        this._boundHandleResize = this._handleResize.bind(this);
+        window.addEventListener('resize', this._boundHandleResize);
+      }
+
+      disconnectedCallback() {
+        super.disconnectedCallback();
+        window.removeEventListener('resize', this._boundHandleResize);
       }
 
       firstUpdated() {

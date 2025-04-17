@@ -146,7 +146,6 @@ public class RecordEvent {
 		this.ageGrp = this.ageGrp.trim();
 		this.ageGrp = this.ageGrp.toUpperCase();
 
-		boolean knownAgeGroup = true;
 		if (this.ageGrp.equals("YTH")) {
 			this.ageGrpLower = this.ageGrpLower > 0 ? this.ageGrpLower : 13;
 			this.ageGrpUpper = this.ageGrpUpper > 0 ? this.ageGrpUpper : 17;
@@ -156,8 +155,6 @@ public class RecordEvent {
 		} else if (this.ageGrp.equals("SR")) {
 			this.ageGrpLower = this.ageGrpLower > 0 ? this.ageGrpLower : 15;
 			this.ageGrpUpper = this.ageGrpUpper > 0 ? this.ageGrpUpper : 999;
-		} else {
-			knownAgeGroup = false;
 		}
 	}
 
@@ -584,6 +581,10 @@ public class RecordEvent {
 		        .filter(i -> target.equals(recordOrder.get(i)))
 		        .findFirst();
 		return index.isEmpty() ? null : index.getAsInt();
+	}
+
+	public String prettyPrint() {
+		return getRecordName() + " " + Translator.translate("Record."+getRecordLift()) + " " + getAgeGrp() + " " + getBwCatString();
 	}
 
 }
