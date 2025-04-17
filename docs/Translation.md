@@ -5,12 +5,13 @@
 ## Translating the screens and displays
 
 1. For translation, you need to install OWLCMS locally.  Refer to the [Local Setup instructions](https://jflamy.github.io/owlcms4/#/LocalSetup). 
-2. Use the following link to locate the [Google Drive](https://www.dropbox.com/sh/3dzsbv02fgdrpp3/AAD-yKNcgiMzFOqQzv3qFTiFa?dl=0) that contains the master copy of the translations.  You may need to ask owlcms@jflamy.dev for access, and you may need to create a Google account.
-    - Click on the file named `translation4.gsheet`
-3. Each column of `translation4.gsheet`represents a language.  
+2. Use the following link to locate the [Google Drive](https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE/edit#gid=2066926495) that contains the master copy of the translations.  You will need to ask owlcms@jflamy.dev for access, and you may need to create a Google account.
+3. When you run the program, the translation file that is used is located in the `local/i18n` folder. To test your translation you will need to use the "File > Download" menu entry and use the CSV format.  You will copy the Google Drive file over that entry to do your tests (detailed instructions below)
+4. Each column of `translation4.gsheet`represents a language.  
     - Add your own language by adding a column at the end; use the ISO 639-1 two-letter code for your language -- see the list in https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes  (for example, da is Danish, fr is French, ru is Russian, etc.) 
+      - When doing the first translations, you may be asked to use a "rare" language so that users don't see your "in progress" translation.  The rare language will be replaced by the correct one when you have validated the translation
     - You may  have variations per country. For example `fr_CA` is the code for French in Canada, where different words are used and some of the displays are bilingual.
-4. Translate the strings in your language. Google sheets saves automatically.
+5. Translate the strings in your language. Google sheets saves automatically.
     ![B_GoogleSheet](img/Translation/B_GoogleSheet.png)
 
 
