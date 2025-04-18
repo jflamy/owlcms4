@@ -685,7 +685,7 @@ public class ResourceWalker {
 		}
 		//
 		// for (Entry<String, Resource> n : resourceMap.entrySet()) {
-		// System.err.println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
+		// System.err./**/println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
 		// }
 		return resourceMap;
 	}
