@@ -431,13 +431,13 @@ public class AgeGroupRepository {
 	}
 
 	public static void reloadDefinitions(InputStream inputStream) {
-		cleanUpExisting();
+		//cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(inputStream);
 		AthleteRepository.resetParticipations(false, true);
 	}
 
 	public static void reloadDefinitions(String localizedFileName) {
-		cleanUpExisting();
+		//cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
 		AthleteRepository.resetParticipations(false, true);
 	}
@@ -630,6 +630,7 @@ public class AgeGroupRepository {
 		return mAgeGroup;
 	}
 
+	@SuppressWarnings("unused")
 	private static void cleanUpExisting() {
 		JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = AthleteRepository.doFindAll(em);
