@@ -123,7 +123,7 @@ public class Athlete {
 	private static final int YEAR = LocalDateTime.now().getYear();
 
 	public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults, boolean copyChanges, boolean copyId) {
-		System.err.println("> conditionalCopy");
+//		System.err./**/println("> conditionalCopy");
 		boolean validation = dest.isValidation();
 		Level prevSrcLevel = src.getLogger().getLevel();
 		Level prevDestLevel = dest.getLogger().getLevel();
@@ -134,25 +134,25 @@ public class Athlete {
 			dest.setValidation(false);
 			dest.setLoggerLevel(Level.OFF);
 			
-			System.err.println(">> conditionalCopy nb Participations " + dest.getParticipations().size());
-			dest.getParticipations().forEach(p -> {
-				System.err.println(">> dest="+dest.getId()+" src="+src.getId()+" p.getAthlete="+p.getAthlete().getId());
-			});
+//			System.err./**/println(">> conditionalCopy nb Participations " + dest.getParticipations().size());
+//			dest.getParticipations().forEach(p -> {
+//				System.err./**/println(">> dest="+dest.getId()+" src="+src.getId()+" p.getAthlete="+p.getAthlete().getId());
+//			});
 
 			dest.setLastName(src.getLastName());
 			dest.setFirstName(src.getFirstName());
 			dest.setFullBirthDate(src.getFullBirthDate());
 
 			if (copyChanges) {
-				System.err.println(">> copying bodyweight "+src.getBodyWeight());
+//				System.err./**/println(">> copying bodyweight "+src.getBodyWeight());
 				dest.setBodyWeight(src.getBodyWeight());
 			} else {
-				System.err.println(">> NOT copying bodyweight "+src.getBodyWeight() + "\n" + LoggerUtils.stackTrace());
+//				System.err./**/println(">> NOT copying bodyweight "+src.getBodyWeight() + "\n" + LoggerUtils.stackTrace());
 			}
 			
 
 			dest.setGroup(src.getGroup());
-			System.err.println(">> conditionalCopy copied group " + dest.getGroup());
+//			System.err./**/println(">> conditionalCopy copied group " + dest.getGroup());
 			dest.setStartNumber(src.getStartNumber());
 			dest.setLotNumber(src.getLotNumber());
 			dest.setEntryTotal(src.getEntryTotal());
@@ -3924,7 +3924,7 @@ public class Athlete {
 	 * @param group the group to set
 	 */
 	public void setGroup(Group group) {
-		System.err.println("%%%%%%%%% setting session "+group+"\n"+LoggerUtils.whereFrom());
+//		System.err./**/println("setting session "+group+"\n"+LoggerUtils.whereFrom());
 		this.group = group;
 	}
 

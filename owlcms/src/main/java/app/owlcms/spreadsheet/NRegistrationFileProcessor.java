@@ -370,11 +370,11 @@ public class NRegistrationFileProcessor {
 	private void updateExistingAthlete(Athlete existingAthlete, Athlete sbdeAthlete) {
 		// keep the bw, declarations, changes, and actual lifts from the existing athlete
 		// must fix participations to point to the existing athlete, not the sbde athlete.
-		System.err.println("> updateExistingAthlete");
+//		System.err./**/println("> updateExistingAthlete");
 		Athlete.conditionalCopy(existingAthlete, sbdeAthlete, false, false, false);
 		RCompetition.putEligibles(existingAthlete.getId(), RCompetition.getEligibles(sbdeAthlete.getId()));
 		RCompetition.putTeams(existingAthlete.getId(), RCompetition.getTeams(sbdeAthlete.getId()));
-		System.err.println("< updateExistingAthlete");
+//		System.err./**/println("< updateExistingAthlete");
 	}
 
 	private String athleteKey(Athlete a) {

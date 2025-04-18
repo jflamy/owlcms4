@@ -65,7 +65,7 @@ public class LoggerUtils {
 			// dealing with traces created in UIEvents. lines at the top are not useful.
 			// first line is java.base and we skip it.
 
-			// System.err.println("processing "+string+" "+i);
+			// System.err./**/println("processing "+string+" "+i);
 
 			if (i > 1 && string.trim().startsWith("app.owlcms.uievents.UIEvent")) {
 				continue;

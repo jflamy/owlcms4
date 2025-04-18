@@ -343,7 +343,7 @@ public class MovingDownTest {
         // get updated allAthletes as they are in database
         groupAthletes = fopState.getDisplayOrder();
         for (Athlete a : groupAthletes) {
-        	System.err.println(a.getShortName());
+        	System.err./**/println(a.getShortName());
         }
         schneiderF = groupAthletes.get(0);
         simpsonR = groupAthletes.get(1);

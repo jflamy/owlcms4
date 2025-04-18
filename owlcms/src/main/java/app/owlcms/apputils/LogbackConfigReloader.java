@@ -27,7 +27,7 @@ public class LogbackConfigReloader {
 			URL configUrl = findLogbackConfigurationUrl();
 
 			if (configUrl == null) {
-				System.err.println("No Logback configuration file found");
+				System.err./**/println("No Logback configuration file found");
 				return;
 			}
 
@@ -41,10 +41,10 @@ public class LogbackConfigReloader {
 			// Reconfigure using the original configuration URL
 			configurator.doConfigure(configUrl);
 
-			System.out.println("Logback configuration reloaded from: " + configUrl);
+			System.out./**/println("Logback configuration reloaded from: " + configUrl);
 
 		} catch (JoranException e) {
-			System.err.println("Error reloading Logback configuration: " + e.getMessage());
+			System.err./**/println("Error reloading Logback configuration: " + e.getMessage());
 		}
 	}
 
