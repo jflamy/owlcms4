@@ -470,7 +470,7 @@ public class RAthlete {
 				if ((c2 = RCompetition.getActiveCategories().get(catCode)) != null) {
 					boolean addedToEligible = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge, teamMember, c2);
 					if (!addedToEligible) {
-						throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem"));
+						throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem")+" "+eligibleName);
 					}
 				} else {
 					// logger.debug("{} {}\n{}",Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim(), LoggerUtils.stackTrace()));
