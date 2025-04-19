@@ -15,8 +15,12 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.dom.Style;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
@@ -574,7 +578,7 @@ public class UIEvent {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
 			this.setActualLift(actualLift);
-			logger.trace("====== JuryNotification wait {} newRecord {} {}",waitForAnnouncer, getNewRecord(), getTrace());
+			logger.trace("====== JuryNotification wait {} newRecord {} {}", waitForAnnouncer, getNewRecord(), getTrace());
 		}
 
 		/**
@@ -588,7 +592,7 @@ public class UIEvent {
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
-			logger.trace("JuryNotification notificationString {} {}",notificationString, getTrace());
+			logger.trace("JuryNotification notificationString {} {}", notificationString, getTrace());
 		}
 
 		/**
@@ -894,7 +898,7 @@ public class UIEvent {
 			if (getFopEventString() != null && !getFopEventString().isEmpty()) {
 				div.setText(FOPError.translateMessage(getNotificationString(), getFopEventString()) + close);
 			} else {
-				div.setText(Translator.translate(getNotificationString(), (Object[]) getInfos()) + close);
+				div.getElement().setProperty("innerHTML", Translator.translate(getNotificationString(), (Object[]) getInfos()) + close);
 			}
 			div.getStyle().set("font-size", "large");
 			n.add(div);
@@ -959,6 +963,143 @@ public class UIEvent {
 
 		private void setMsDuration(Integer msDuration) {
 			this.msDuration = msDuration;
+		}
+	}
+
+	/**
+	 * Class Notification.
+	 */
+	static public class RecordNotification extends UIEvent {
+
+		public enum Level {
+			ERROR, WARNING, SUCCESS, INFO;
+		}
+
+		public static final int NORMAL_DURATION = 3000;
+		private String notificationString;
+		private Level level;
+		private String[] infos;
+		private Integer msDuration;
+		private String title;
+
+		/**
+		 * Instantiates a new Notification.
+		 *
+		 * @param origin the origin
+		 * @param string
+		 */
+		public RecordNotification(
+		        Athlete a,
+		        Object origin,
+		        RecordNotification.Level level, 
+		        String title,
+		        String notificationString,
+		        Integer msDuration,
+		        FieldOfPlay fop,
+		        String... infos) {
+			super(a, origin, fop);
+			this.setNotificationString(notificationString);
+			this.setTitle(title);
+			this.setLevel(level);
+			this.setInfos(infos);
+			this.setMsDuration(msDuration);
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
+		}
+
+	    private void setTitle(String title) {
+	    	this.title = title;
+		}
+
+		public void showNotification(String title, String text) {
+	        Div titleAndCloseDiv = new Div();
+	        titleAndCloseDiv.setWidthFull();
+	        titleAndCloseDiv.getStyle().set("display", "flex").set("align-items", "center");
+
+	        Span titleSpan = new Span(title);
+	        titleSpan.getStyle().set("flex-grow", "1");
+	        titleSpan.getStyle().set("font-size", "1.6em");
+
+	        Span closeSpan = new Span("\u2715");
+	        Style closeStyle = closeSpan.getStyle();
+	        closeStyle.setCursor("pointer");
+	        closeStyle.setFontSize("1.6em");
+	        closeStyle.setMarginLeft("auto");
+
+	        HorizontalLayout titleLayout = new HorizontalLayout(titleSpan, closeSpan);
+	        titleLayout.setWidthFull();
+	        titleLayout.setAlignItems(Alignment.CENTER);
+
+	        Div textDiv = new Div();
+	        textDiv.getElement().setProperty("innerHTML","<nobr>"+text+"</nobr>");
+	        textDiv.getStyle().set("padding-top", "var(--lumo-space-s)"); // Add some spacing
+	        textDiv.getStyle().set("font-size", "1.4em");
+	        textDiv.getStyle().set("line-height", "1.4");
+
+	        Div notificationContent = new Div(titleLayout, textDiv);
+	        notificationContent.getStyle().set("display", "flex").set("flex-direction", "column");
+	        notificationContent.setWidthFull();
+	        
+	        com.vaadin.flow.component.notification.Notification notification = new com.vaadin.flow.component.notification.Notification(notificationContent);
+	        notification.setDuration(msDuration);
+	        closeSpan.addClickListener(event -> notification.close());
+	        
+			switch (getLevel()) {
+				case ERROR:
+					notification.setPosition(Position.MIDDLE);
+					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					break;
+				case INFO:
+					notification.setPosition(Position.BOTTOM_START);
+					notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+					break;
+				case SUCCESS:
+					notification.setPosition(Position.BOTTOM_START);
+					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+					break;
+				case WARNING:
+					notification.setPosition(Position.TOP_START);
+					notification.getElement().getThemeList().add("warning");
+					break;
+			}
+	        notification.open();
+	    }
+
+		public String[] getInfos() {
+			return this.infos;
+		}
+
+		public Level getLevel() {
+			return this.level;
+		}
+
+		public Integer getMsDuration() {
+			return this.msDuration;
+		}
+
+		public String getNotificationString() {
+			return this.notificationString;
+		}
+
+		public void setLevel(Level level) {
+			this.level = level;
+		}
+
+		public void setNotificationString(String notificationString) {
+			this.notificationString = notificationString;
+		}
+
+		private void setInfos(String[] infos) {
+			this.infos = infos;
+		}
+
+		private void setMsDuration(Integer msDuration) {
+			this.msDuration = msDuration;
+		}
+
+		public void doNotification2() {
+			showNotification(this.title, this.getNotificationString());
 		}
 	}
 

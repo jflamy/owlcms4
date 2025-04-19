@@ -782,6 +782,13 @@ public abstract class AthleteGridContent extends BaseContent
 			e.doNotification();
 		});
 	}
+	
+	@Subscribe
+	public void slaveRecordNotification(UIEvent.RecordNotification e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			e.doNotification2();
+		});
+	}
 
 	@Subscribe
 	public void slaveSetTimer(UIEvent.SetTime e) {

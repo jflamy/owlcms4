@@ -1951,7 +1951,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void emitDown(FOPEvent e) {
-		//this.logger.debug("*** {}Emitting down {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom(2));
+		// this.logger.debug("*** {}Emitting down {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom(2));
 		getAthleteTimer().stop(); // paranoia
 		this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
 		setClockOwner(null); // athlete has lifted, time does not keep running for them
@@ -2009,25 +2009,54 @@ public class FieldOfPlay implements IUnregister {
 		return this.initialWarningEmitted;
 	}
 
-	private void notifyRecords(List<RecordEvent> newRecords, boolean newRecord) {
-		if (newRecords == null) {
+	private void notifyRecords(List<RecordEvent> records, boolean newRecord) {
+		if (records == null || records.isEmpty()) {
 			return;
 		}
-		for (RecordEvent rec : newRecords) {
-			pushOutUIEvent(
-			        new UIEvent.Notification(
-			                this.getCurAthlete(),
-			                this,
-			                newRecord ? UIEvent.Notification.Level.SUCCESS : UIEvent.Notification.Level.INFO,
-			                newRecord ? "Record.NewNotification" : "Record.AttemptNotification",
-			                3 * UIEvent.Notification.NORMAL_DURATION,
-			                this,
-			                rec.getRecordName(),
-			                Translator.translate("Record." + rec.getRecordLift().name()),
-			                rec.getAgeGrp(),
-			                rec.getBwCatString(),
-			                Long.toString(Math.round(rec.getRecordValue()))));
+		String title = Translator.translate("Scoreboard." + (newRecord ? "NewRecord(s)" : "RecordAttempt(s)"), records.size());
+		StringBuilder sb = new StringBuilder();
+		int i = 0;
+		for (RecordEvent rec : records) {
+			if (i > 0) {
+				sb.append("<br>");
+			}
+			i++;
+			StringBuilder recordName = new StringBuilder();
+			recordName.append(rec.getRecordName()); recordName.append("\u00A0");
+			recordName.append(Translator.translate("Record." + rec.getRecordLift().name())); recordName.append("\u00A0");
+			recordName.append(rec.getAgeGrp()); recordName.append("\u00A0");
+			recordName.append(rec.getBwCatString()); recordName.append("\u00A0");
+
+			String recordValue = Long.toString(Math.round(rec.getRecordValue()));
+			sb.append(Translator.translate("RecordNotification." + (newRecord ? "New" : "Attempt"), recordName.toString(), recordValue));
+			
+			String date = rec.getRecordDateAsString();
+			String holder = rec.getResAthleteName();
+			boolean okDate = date != null && !date.isBlank();
+			boolean okHolder = holder != null && !holder.isBlank();
+			if (!newRecord && (okDate || okHolder)) {
+				StringBuilder sbh = new StringBuilder();
+				sbh.append(" (");
+				if (okDate) {
+					sbh.append(date);
+					sbh.append(", ");
+				}
+				if (okHolder) {
+					sbh.append(holder);
+				}
+				sbh.append(")");
+				sb.append(sbh);
+			}
 		}
+		pushOutUIEvent(
+		        new UIEvent.RecordNotification(
+		                this.getCurAthlete(),
+		                this,
+		                newRecord ? UIEvent.RecordNotification.Level.SUCCESS : UIEvent.RecordNotification.Level.INFO,
+		                title,
+		                sb.toString(),
+		                0, // 3 * UIEvent.Notification.NORMAL_DURATION,
+		                this));
 	}
 
 	private void prepareDownSignal() {
@@ -2099,9 +2128,9 @@ public class FieldOfPlay implements IUnregister {
 			}
 		}
 		setGoodLift(null);
-		//logger.debug("single {} nbDecisions {}", isSingleReferee(), nbDecisions);
+		// logger.debug("single {} nbDecisions {}", isSingleReferee(), nbDecisions);
 		if (isSingleReferee() && nbDecisions == 1) {
-			//logger.debug("downEmitted {} {}", this.downEmitted, nbWhite);
+			// logger.debug("downEmitted {} {}", this.downEmitted, nbWhite);
 			if (!this.downEmitted) {
 				emitDown(e);
 				this.downEmitted = true;
@@ -2158,21 +2187,21 @@ public class FieldOfPlay implements IUnregister {
 
 	public void processDecisionDelay(FOPEvent e) {
 		if (!isDecisionDisplayScheduled()) {
-//			logger.debug("*** not scheduled");
+			// logger.debug("*** not scheduled");
 			if (e instanceof FOPEvent.DecisionFullUpdate) {
 				if (((FOPEvent.DecisionFullUpdate) e).isImmediate()) {
-//					logger.debug("*** is Immediate, full update NOW");
+					// logger.debug("*** is Immediate, full update NOW");
 					showDecisionNow(e.getOrigin());
 				} else {
-//					logger.debug("*** NOT immediate, full update scheduling");
+					// logger.debug("*** NOT immediate, full update scheduling");
 					showDecisionAfterDelay(e.getOrigin(), REVERSAL_DELAY);
 				}
 			} else {
-//				logger.debug("*** partial update scheduling");
+				// logger.debug("*** partial update scheduling");
 				showDecisionAfterDelay(this, REVERSAL_DELAY);
 			}
 		} else {
-//			logger.debug("*** already scheduled");
+			// logger.debug("*** already scheduled");
 		}
 	}
 
@@ -2927,10 +2956,10 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			if (getCurAthlete() != null) {
 				// group already in progress, do not force loading from database
-				//logger.debug("---------- already in progress");
+				// logger.debug("---------- already in progress");
 				loadGroup(group2, e.getOrigin(), false);
 			} else {
-				//logger.debug("---------- NOT in progress");
+				// logger.debug("---------- NOT in progress");
 				loadGroup(group2, e.getOrigin(), true);
 			}
 			setState(CURRENT_ATHLETE_DISPLAYED);
@@ -3041,8 +3070,8 @@ public class FieldOfPlay implements IUnregister {
 		boolean announcerImmediate = fromAnnouncer && isAnnouncerDecisionImmediate();
 		boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
 		boolean downEmitted2 = isDownEmitted();
-//		this.logger.ddebug("showDownSignalOnSlaveDisplays fromAnnouncer {} announcerImmediate {} emitted={}", fromAnnouncer,
-//				announcerImmediate, downEmitted2);
+		// this.logger.ddebug("showDownSignalOnSlaveDisplays fromAnnouncer {} announcerImmediate {} emitted={}", fromAnnouncer,
+		// announcerImmediate, downEmitted2);
 		if (emitSoundsOnServer2 && !downEmitted2 && !announcerImmediate) {
 			// sound is synchronous, we don't want to wait.
 			new Thread(() -> {
@@ -3055,7 +3084,7 @@ public class FieldOfPlay implements IUnregister {
 			}).start();
 			setDownEmitted(true);
 		}
-//		logger.debug("*** pushing down");
+		// logger.debug("*** pushing down");
 		pushOutUIEvent(new UIEvent.DownSignal(origin2, this));
 	}
 
