@@ -62,7 +62,6 @@ import com.vaadin.flow.server.VaadinService;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.DebugUtils;
-import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
@@ -70,7 +69,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.jetty.EmbeddedJetty;
-import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.displays.DisplayNavigationContent;
 import app.owlcms.nui.displays.VideoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
@@ -194,12 +192,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				        cdRestart.setAction(() -> {
 					        cdRestart.close();
 					        UI.getCurrent().push();
-
-					        MQTTMonitor.reset();
-					        EmbeddedJetty.stop(true);
-					        Main.stopMQTT();
-					        LogbackConfigReloader.reloadLogbackConfiguration();
-					        Main.doRun();
+					        Main.restart();
 				        });
 				        cdRestart.open();
 			        });

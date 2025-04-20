@@ -25,6 +25,7 @@ import org.apache.commons.beanutils.converters.DateConverter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
@@ -45,6 +46,7 @@ import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.jetty.EmbeddedJetty;
+import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.uievents.AppEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -510,5 +512,13 @@ public class Main {
 			logger.info("public demo server shut down");
 		}));
 		System.exit(0);
+	}
+	
+	public static void restart() {
+		EmbeddedJetty.stop(true);
+		Main.stopMQTT();
+		LogbackConfigReloader.reloadLogbackConfiguration();
+		MQTTMonitor.reset();
+		Main.doRun();
 	}
 }
