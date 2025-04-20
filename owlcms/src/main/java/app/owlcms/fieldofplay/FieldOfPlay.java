@@ -2055,7 +2055,7 @@ public class FieldOfPlay implements IUnregister {
 		                newRecord ? UIEvent.RecordNotification.Level.SUCCESS : UIEvent.RecordNotification.Level.INFO,
 		                title,
 		                sb.toString(),
-		                0, // 3 * UIEvent.Notification.NORMAL_DURATION,
+		                newRecord ? 10000 : 0,
 		                this));
 	}
 

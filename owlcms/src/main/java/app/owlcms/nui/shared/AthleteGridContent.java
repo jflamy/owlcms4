@@ -632,6 +632,7 @@ public abstract class AthleteGridContent extends BaseContent
 			// logger.debug("%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
 			syncWithFop(true, e.getFop());
 		});
+		clearRecordNotifications();
 	}
 
 	@Subscribe
@@ -662,6 +663,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 	@Subscribe
 	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
+		clearRecordNotifications();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			doCeremony(e);
 		});
@@ -673,7 +675,18 @@ public abstract class AthleteGridContent extends BaseContent
 		// logger.debug("athletegrid slaveDecision");
 		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
 			warnOthersIfCurrent(e, athlete, e.getFop());
+			clearRecordNotifications();
 		});
+	}
+
+	private synchronized void clearRecordNotifications() {
+		logger.warn("clearing");
+		this.getUI().get().access(() -> {
+			for (Notification n : recordNotifications) {
+				n.close();
+			}
+		});
+		recordNotifications.clear();
 	}
 
 	@Subscribe
@@ -685,7 +698,7 @@ public abstract class AthleteGridContent extends BaseContent
 			getRouterLayout().setMenuArea(createInitialBar());
 			syncWithFop(true, e.getFop());
 		});
-
+		clearRecordNotifications();
 	}
 
 	@Subscribe
@@ -783,10 +796,12 @@ public abstract class AthleteGridContent extends BaseContent
 		});
 	}
 	
+	List<Notification> recordNotifications = new ArrayList<>();
 	@Subscribe
 	public void slaveRecordNotification(UIEvent.RecordNotification e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			e.doNotification2();
+			Notification n = e.doNotification();
+			recordNotifications.add(n);
 		});
 	}
 
@@ -809,6 +824,7 @@ public abstract class AthleteGridContent extends BaseContent
 			this.summonNotificationSent = false;
 			this.deliberationNotificationSent = false;
 		});
+		clearRecordNotifications();
 	}
 
 	@Subscribe
@@ -839,10 +855,12 @@ public abstract class AthleteGridContent extends BaseContent
 			syncWithFop(true, e.getFop());
 			updateURLLocation(getLocationUI(), getLocation(), e.getGroup());
 		});
+		clearRecordNotifications();
 	}
 
 	@Subscribe
 	public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
+		clearRecordNotifications();
 		Athlete athlete = e.getAthlete();
 		var fop = e.getFop();
 		// logger.debug("athletegrid slaveUpdateAnnouncerBar {}", fop.getName());

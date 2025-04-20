@@ -1012,7 +1012,7 @@ public class UIEvent {
 	    	this.title = title;
 		}
 
-		public void showNotification(String title, String text) {
+		public com.vaadin.flow.component.notification.Notification showNotification(String title, String text) {
 	        Div titleAndCloseDiv = new Div();
 	        titleAndCloseDiv.setWidthFull();
 	        titleAndCloseDiv.getStyle().set("display", "flex").set("align-items", "center");
@@ -1064,6 +1064,7 @@ public class UIEvent {
 					break;
 			}
 	        notification.open();
+	        return notification;
 	    }
 
 		public String[] getInfos() {
@@ -1098,8 +1099,8 @@ public class UIEvent {
 			this.msDuration = msDuration;
 		}
 
-		public void doNotification2() {
-			showNotification(this.title, this.getNotificationString());
+		public com.vaadin.flow.component.notification.Notification doNotification() {
+			return showNotification(this.title, this.getNotificationString());
 		}
 	}
 
