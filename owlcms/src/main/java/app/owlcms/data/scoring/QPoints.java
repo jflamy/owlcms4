@@ -179,7 +179,7 @@ public class QPoints {
 		return qPointsFactor;
 	}
 
-	private void loadCoefficients() {
+	private synchronized void loadCoefficients() {
 		if (this.menTMax != null) {
 			return;
 		}
