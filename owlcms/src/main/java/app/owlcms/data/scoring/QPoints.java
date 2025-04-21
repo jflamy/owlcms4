@@ -186,7 +186,6 @@ public class QPoints {
 		if (this.props == null) {
 			loadProps();
 		}
-		logger.warn("this.props {}",this.props);
 		this.setMenTMax(Double.valueOf((String) this.props.get("qpoints.menTMax")));
 		this.setMenBeta0(Double.valueOf((String) this.props.get("qpoints.menBeta0")));
 		this.setMenBeta1(Double.valueOf((String) this.props.get("qpoints.menBeta1")));
