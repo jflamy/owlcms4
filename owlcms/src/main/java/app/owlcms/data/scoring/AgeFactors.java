@@ -92,7 +92,7 @@ public class AgeFactors {
 	/**
 	 *
 	 */
-	private static void loadCoefficients() {
+	private static synchronized void loadCoefficients() {
 		if (loaded) {
 			return;
 		}

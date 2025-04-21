@@ -22,6 +22,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
+import app.owlcms.Main;
 import app.owlcms.data.export.CompetitionData;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
@@ -36,7 +37,7 @@ public class JsonUploadDialog extends Dialog {
 	public JsonUploadDialog(UI ui) {
 		this.ui = ui;
 
-		H5 label = new H5(Translator.translate("ExportDatabase.WarningWillReplaceAll"));
+		H5 label = new H5(Translator.translate("ImportJson.RestartWarning"));
 		label.getStyle().set("color", "red");
 
 		MemoryBuffer buffer = new MemoryBuffer();
@@ -52,8 +53,18 @@ public class JsonUploadDialog extends Dialog {
 		upload.addSucceededListener(event -> {
 			try {
 				processInput(event.getFileName(), buffer.getInputStream(), ta);
+				this.close();
+				ui.push();
 			} catch (Throwable e) {
 				ta.setValue(LoggerUtils./**/stackTrace(e));
+			} finally {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+				new Thread(() -> {
+					Main.restart();
+				}).start();
 			}
 		});
 

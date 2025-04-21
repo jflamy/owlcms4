@@ -101,7 +101,11 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			logger.debug("{}lost connection to MQTT: {}", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()),
 			        cause.getLocalizedMessage());
 			// Called when the client lost the connection to the broker
-			connectionLoop(MQTTMonitor.this.client);
+			try {
+				connectionLoop(MQTTMonitor.this.client);
+			} catch (Throwable e) {
+				logger.error("connectionLost {}", e);
+			}
 		}
 
 		@Override
@@ -380,7 +384,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				payload.put("athleteName", currentAthlete.getFullName());
 				payload.put("liftType", liftType.toString());
 				payload.put("attemptNumber", attemptNumber);
-				payload.put("session",getFop().getGroup().getName());
+				payload.put("session", getFop().getGroup().getName());
 
 				String json;
 				try {
@@ -658,6 +662,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				        e1.getCause() != null ? e1.getCause().getMessage() : e1);
 				logger.error("{}MQTT refereeing device server: {}", FieldOfPlay.getLoggingName(this.getFop()),
 				        e1.getCause() != null ? e1.getCause().getMessage() : e1);
+				break;
 			}
 			sleep(1000);
 		}

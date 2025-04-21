@@ -8,13 +8,14 @@
 
 **Maintenance Log**
 
-- Updated Translation instructions (fixed obsolete link to translation file)
-- Initial translations for Norwegian and Greek under artificial languages (Ido for Norwegian, Interlingue for Greek).  Will be moved to correct language code once validated.
-- Bookmarks: Workaround for an issue in the user interface library that prevented the field of play argument from being shown (?fop=A).  This made the URLs not bookmarkable and might explain why browser restarts were needed.
-- Sinclair at category weight: when dealing with kids/youth categories, compute Sinclair at the IWF Senior Category.  If athlete is >81 but weighs 83kg, compute at 89kg, not as super heavy...
+- rc05: Fixed timing conflict that could prevent simulations from starting
+- rc05: Forced restart after import
+- rc04: Restored the prior behavior of loading AgeGroup definitions. Athlete categories are no longer cleared, a simple reassignment is done. For more sophisticated changes, export SBDE, edit and reload.
 
 **New In Release 57**
 
+- Import Database: the system is now automatically restarted after an import, to ensure a full reset according to the new database content.
+  
 - Start Book Data Entry (SBDE) Advanced Registration Data Updates using a spreadsheet
   - It is now possible to update only the athletes or only the sessions.  Updating only the sessions is useful to update the referees, or for changes in schedule.
   
@@ -60,6 +61,8 @@
     - The format used for matching is  `lastName, firstName`.  If you populate the TechnicalOfficial list first and use the drop downs in the session editing, the match will be good
   - `${session.masters}` template variable can be used to show whether a session is tagged as Masters or not
   - `${athlete.totalPoints}`computes team points according to IWF rules except if the session is a Masters session. Then uses IMWA or UWML rules according to the competition rules.
+- Best Athlete:
+  - Sinclair at category weight: when dealing with kids/youth categories, compute Sinclair at the IWF Senior Category.  If athlete is >81 but weighs 83kg, compute at 89kg, not as super heavy...
 
 
 

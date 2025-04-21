@@ -128,7 +128,7 @@ public class SinclairCoefficients {
 		this.props = props;
 	}
 
-	private void loadCoefficients() {
+	private synchronized void loadCoefficients() {
 		if (this.getProps() == null) {
 			loadProps();
 		}
@@ -142,7 +142,7 @@ public class SinclairCoefficients {
 	/**
 	 * @throws IOException
 	 */
-	private synchronized void loadProps() {
+	private void loadProps() {
 		String name = "/sinclair/sinclair" + this.sinclairYear + ".properties";
 		try {
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
