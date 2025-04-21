@@ -2015,7 +2015,8 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		}
 		String title = Translator.translate("Scoreboard." + (newRecord ? "NewRecord(s)" : "RecordAttempt(s)"), records.size());
-		title = title + " " + newRecordValue + ":" + curAthlete.getFullName();
+		String name = newRecord ? getAthleteUnderReview().getFullName() : curAthlete.getFullName();
+		title = Translator.translate("RecordNotification.Title",title, newRecordValue, name);
 		StringBuilder sb = new StringBuilder();
 		int i = 0;
 		for (RecordEvent rec : records) {
@@ -2030,8 +2031,7 @@ public class FieldOfPlay implements IUnregister {
 			recordName.append(rec.getBwCatString()); recordName.append("\u00A0");
 
 			String recordValue = Long.toString(Math.round(rec.getRecordValue()));
-			// always show the challenged/broken records
-			sb.append(Translator.translate("RecordNotification." + (newRecord ? "Attempt" : "Attempt"), recordName.toString(), recordValue));
+			sb.append(Translator.translate("RecordNotification." + (newRecord ? "New" : "Attempt"), recordName.toString(), recordValue));
 			
 			String date = rec.getRecordDateAsString();
 			String holder = rec.getResAthleteName();
@@ -2773,8 +2773,10 @@ public class FieldOfPlay implements IUnregister {
 
 		// control timing of notifications
 		new DelayTimer(isTestingMode()).schedule(
-		        () -> {
-			        notifyRecords(getChallengedRecords(), true, attempted);
+		        () -> {        	
+			        boolean recordsBroken = !newRecords.isEmpty();
+					notifyRecords(recordsBroken ? getChallengedRecords() : List.of(), 
+			        		recordsBroken, attempted);
 		        }, 500);
 		// tell ourself to reset after 3 secs.
 		// Decision reset will handle end of group.
