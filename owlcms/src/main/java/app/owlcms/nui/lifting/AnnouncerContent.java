@@ -667,10 +667,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		subItemSingleRef.setCheckable(true);
 		subItemSingleRef.setChecked(this.isSingleReferee());
 
-//		MenuItem immediateDecision = subMenu2.addItem(
-//		        Translator.translate("Settings.ImmediateDecision"));
-//		immediateDecision.setCheckable(true);
-//		immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
+		// MenuItem immediateDecision = subMenu2.addItem(
+		// Translator.translate("Settings.ImmediateDecision"));
+		// immediateDecision.setCheckable(true);
+		// immediateDecision.setChecked(fop.isAnnouncerDecisionImmediate());
 
 		MenuItem showLights = subMenu2.addItem(
 		        Translator.translate("DisplayParameters.showDecisionLights"),
@@ -682,7 +682,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				        fop2.setSingleReferee(false);
 			        }
 			        switchImmediateDecisionMode(this, false, true);
-			        //switchSingleRefereeMode(this, false, true);
+			        // switchSingleRefereeMode(this, false, true);
 			        e.getSource().setChecked(this.isLiveLights());
 			        subItemSingleRef.setChecked(false);
 		        });
@@ -707,29 +707,29 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		showDeclarations.setCheckable(true);
 		showDeclarations.setChecked(this.isDeclarations());
 
-//		immediateDecision.addClickListener(e -> {
-//			boolean announcerDecisionImmediate = !fop.isAnnouncerDecisionImmediate();
-//			switchImmediateDecisionMode(this, announcerDecisionImmediate, true);
-//			switchSingleRefereeMode(this, !announcerDecisionImmediate, true);
-//			switchLiveLightsMode(this, !announcerDecisionImmediate, true);
-//			subItemSingleRef.setChecked(!announcerDecisionImmediate);
-//			immediateDecision.setChecked(announcerDecisionImmediate);
-//			showLights.setChecked(isLiveLights());
-//		});
-		
+		// immediateDecision.addClickListener(e -> {
+		// boolean announcerDecisionImmediate = !fop.isAnnouncerDecisionImmediate();
+		// switchImmediateDecisionMode(this, announcerDecisionImmediate, true);
+		// switchSingleRefereeMode(this, !announcerDecisionImmediate, true);
+		// switchLiveLightsMode(this, !announcerDecisionImmediate, true);
+		// subItemSingleRef.setChecked(!announcerDecisionImmediate);
+		// immediateDecision.setChecked(announcerDecisionImmediate);
+		// showLights.setChecked(isLiveLights());
+		// });
+
 		subItemSingleRef.addClickListener(e -> {
 			boolean singleReferee2 = !this.isSingleReferee();
 			switchSingleRefereeMode(this, singleReferee2, true);
 			FieldOfPlay fop2 = OwlcmsSession.getFop();
 			if (fop2 != null) {
-//				fop2.setAnnouncerDecisionImmediate(false);
+				// fop2.setAnnouncerDecisionImmediate(false);
 				fop2.setSingleReferee(singleReferee2);
 			}
 			if (singleReferee2) {
 				switchImmediateDecisionMode(this, false, true);
-//				immediateDecision.setChecked(false);
+				// immediateDecision.setChecked(false);
 			}
-			//switchLiveLightsMode(this, !singleReferee2, true);
+			// switchLiveLightsMode(this, !singleReferee2, true);
 			subItemSingleRef.setChecked(singleReferee2);
 			// immediateDecision.setChecked(!singleReferee2);
 			showDeclarations.setChecked(isLiveLights());
@@ -851,8 +851,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.juryConfirmationDialog.setCancelText(Translator.translate("Announcer.IgnoreJuryDecision"));
 		// the last parameter to the event will trigger the processing of the pending jury decision.
 		// false indicates that the decision event comes from the announcer and not from the jury.
-		this.juryConfirmationDialog.addConfirmListener(c -> OwlcmsSession.getFop()
-		        .fopEventPost(new FOPEvent.JuryDecision(e.getAthlete(), e.getOrigin(), et == GOOD_LIFT, false)));
+		if (e.getAthlete() != null) {
+			this.juryConfirmationDialog.addConfirmListener(c -> OwlcmsSession.getFop()
+			        .fopEventPost(new FOPEvent.JuryDecision(e.getAthlete(), e.getOrigin(), et == GOOD_LIFT, false)));
+		}
 		this.juryConfirmationDialog
 		        .addCancelListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this)));
 		this.juryConfirmationDialog.open();

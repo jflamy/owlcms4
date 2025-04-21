@@ -578,7 +578,7 @@ public class UIEvent {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
 			this.setActualLift(actualLift);
-			logger.trace("====== JuryNotification wait {} newRecord {} {}", waitForAnnouncer, getNewRecord(), getTrace());
+			this.logger.trace("====== JuryNotification wait {} newRecord {} {}", waitForAnnouncer, getNewRecord(), getTrace());
 		}
 
 		/**
@@ -592,7 +592,11 @@ public class UIEvent {
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
-			logger.trace("JuryNotification notificationString {} {}", notificationString, getTrace());
+			this.logger.trace("JuryNotification notificationString {} {}", notificationString, getTrace());
+		}
+
+		public Integer getActualLift() {
+			return this.actualLift;
 		}
 
 		/**
@@ -617,6 +621,10 @@ public class UIEvent {
 			return this.waitForAnnouncer;
 		}
 
+		public void setActualLift(Integer actualLift) {
+			this.actualLift = actualLift;
+		}
+
 		/**
 		 * @param deliberationEventType the deliberationEventType to set
 		 */
@@ -631,20 +639,12 @@ public class UIEvent {
 			this.reversal = reversal;
 		}
 
-		private void setNewRecord(Boolean newRecord) {
-			this.newRecord = newRecord;
-		}
-
-		public Integer getActualLift() {
-			return this.actualLift;
-		}
-
 		public void setWaitForAnnouncer(boolean waitForAnnouncer) {
 			this.waitForAnnouncer = waitForAnnouncer;
 		}
 
-		public void setActualLift(Integer actualLift) {
-			this.actualLift = actualLift;
+		private void setNewRecord(Boolean newRecord) {
+			this.newRecord = newRecord;
 		}
 
 	}
@@ -981,6 +981,7 @@ public class UIEvent {
 		private String[] infos;
 		private Integer msDuration;
 		private String title;
+		private boolean newRecord;
 
 		/**
 		 * Instantiates a new Notification.
@@ -991,10 +992,11 @@ public class UIEvent {
 		public RecordNotification(
 		        Athlete a,
 		        Object origin,
-		        RecordNotification.Level level, 
+		        RecordNotification.Level level,
 		        String title,
 		        String notificationString,
 		        Integer msDuration,
+		        boolean newRecord,
 		        FieldOfPlay fop,
 		        String... infos) {
 			super(a, origin, fop);
@@ -1003,69 +1005,15 @@ public class UIEvent {
 			this.setLevel(level);
 			this.setInfos(infos);
 			this.setMsDuration(msDuration);
+			this.setNewRecord(newRecord);
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
 		}
 
-	    private void setTitle(String title) {
-	    	this.title = title;
+		public com.vaadin.flow.component.notification.Notification doNotification() {
+			return showNotification(this.title, this.getNotificationString());
 		}
-
-		public com.vaadin.flow.component.notification.Notification showNotification(String title, String text) {
-	        Div titleAndCloseDiv = new Div();
-	        titleAndCloseDiv.setWidthFull();
-	        titleAndCloseDiv.getStyle().set("display", "flex").set("align-items", "center");
-
-	        Span titleSpan = new Span(title);
-	        titleSpan.getStyle().set("flex-grow", "1");
-	        titleSpan.getStyle().set("font-size", "1.6em");
-
-	        Span closeSpan = new Span("\u2715");
-	        Style closeStyle = closeSpan.getStyle();
-	        closeStyle.setCursor("pointer");
-	        closeStyle.setFontSize("1.6em");
-	        closeStyle.setMarginLeft("auto");
-
-	        HorizontalLayout titleLayout = new HorizontalLayout(titleSpan, closeSpan);
-	        titleLayout.setWidthFull();
-	        titleLayout.setAlignItems(Alignment.CENTER);
-
-	        Div textDiv = new Div();
-	        textDiv.getElement().setProperty("innerHTML","<nobr>"+text+"</nobr>");
-	        textDiv.getStyle().set("padding-top", "var(--lumo-space-s)"); // Add some spacing
-	        textDiv.getStyle().set("font-size", "1.4em");
-	        textDiv.getStyle().set("line-height", "1.4");
-
-	        Div notificationContent = new Div(titleLayout, textDiv);
-	        notificationContent.getStyle().set("display", "flex").set("flex-direction", "column");
-	        notificationContent.setWidthFull();
-	        
-	        com.vaadin.flow.component.notification.Notification notification = new com.vaadin.flow.component.notification.Notification(notificationContent);
-	        notification.setDuration(msDuration);
-	        closeSpan.addClickListener(event -> notification.close());
-	        
-			switch (getLevel()) {
-				case ERROR:
-					notification.setPosition(Position.MIDDLE);
-					notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					break;
-				case INFO:
-					notification.setPosition(Position.BOTTOM_START);
-					notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
-					break;
-				case SUCCESS:
-					notification.setPosition(Position.BOTTOM_START);
-					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-					break;
-				case WARNING:
-					notification.setPosition(Position.TOP_START);
-					notification.getElement().getThemeList().add("warning");
-					break;
-			}
-	        notification.open();
-	        return notification;
-	    }
 
 		public String[] getInfos() {
 			return this.infos;
@@ -1083,12 +1031,65 @@ public class UIEvent {
 			return this.notificationString;
 		}
 
+		public boolean isNewRecord() {
+			return this.newRecord;
+		}
+
 		public void setLevel(Level level) {
 			this.level = level;
 		}
 
 		public void setNotificationString(String notificationString) {
 			this.notificationString = notificationString;
+		}
+
+		public com.vaadin.flow.component.notification.Notification showNotification(String title, String text) {
+			Div titleAndCloseDiv = new Div();
+			titleAndCloseDiv.setWidthFull();
+			titleAndCloseDiv.getStyle().set("display", "flex").set("align-items", "center");
+
+			Span titleSpan = new Span(title);
+			titleSpan.getStyle().set("flex-grow", "1");
+			titleSpan.getStyle().set("font-size", "1.6em");
+
+			Span closeSpan = new Span("\u2715");
+			Style closeStyle = closeSpan.getStyle();
+			closeStyle.setCursor("pointer");
+			closeStyle.setFontSize("1.6em");
+			closeStyle.setMarginLeft("auto");
+
+			HorizontalLayout titleLayout = new HorizontalLayout(titleSpan, closeSpan);
+			titleLayout.setWidthFull();
+			titleLayout.setAlignItems(Alignment.CENTER);
+
+			Div textDiv = new Div();
+			textDiv.getElement().setProperty("innerHTML", "<nobr>" + text + "</nobr>");
+			textDiv.getStyle().set("padding-top", "var(--lumo-space-s)"); // Add some spacing
+			textDiv.getStyle().set("font-size", "1.4em");
+			textDiv.getStyle().set("line-height", "1.4");
+
+			Div notificationContent = new Div(titleLayout, textDiv);
+			notificationContent.getStyle().set("display", "flex").set("flex-direction", "column");
+			notificationContent.setWidthFull();
+
+			com.vaadin.flow.component.notification.Notification notification = new com.vaadin.flow.component.notification.Notification(notificationContent);
+			notification.setDuration(this.msDuration);
+			closeSpan.addClickListener(event -> notification.close());
+
+			switch (getLevel()) {
+				case INFO:
+					notification.setPosition(Position.BOTTOM_END);
+					notification.addThemeVariants(NotificationVariant.LUMO_PRIMARY);
+					break;
+				case SUCCESS:
+					notification.setPosition(Position.BOTTOM_END);
+					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+					break;
+				default:
+					break;
+			}
+			notification.open();
+			return notification;
 		}
 
 		private void setInfos(String[] infos) {
@@ -1099,8 +1100,12 @@ public class UIEvent {
 			this.msDuration = msDuration;
 		}
 
-		public com.vaadin.flow.component.notification.Notification doNotification() {
-			return showNotification(this.title, this.getNotificationString());
+		private void setNewRecord(boolean newRecord) {
+			this.newRecord = newRecord;
+		}
+
+		private void setTitle(String title) {
+			this.title = title;
 		}
 	}
 

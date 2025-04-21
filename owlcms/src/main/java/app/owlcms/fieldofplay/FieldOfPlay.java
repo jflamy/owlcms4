@@ -2056,6 +2056,7 @@ public class FieldOfPlay implements IUnregister {
 		                title,
 		                sb.toString(),
 		                newRecord ? 10000 : 0,
+		                newRecord,
 		                this));
 	}
 
