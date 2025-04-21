@@ -972,7 +972,7 @@ public class UIEvent {
 	static public class RecordNotification extends UIEvent {
 
 		public enum Level {
-			ERROR, WARNING, SUCCESS, INFO;
+			SUCCESS, INFO;
 		}
 
 		public static final int NORMAL_DURATION = 3000;
@@ -1084,8 +1084,6 @@ public class UIEvent {
 				case SUCCESS:
 					notification.setPosition(Position.BOTTOM_END);
 					notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-					break;
-				default:
 					break;
 			}
 			notification.open();

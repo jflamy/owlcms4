@@ -1735,7 +1735,8 @@ public class FieldOfPlay implements IUnregister {
 			new DelayTimer(isTestingMode()).schedule(() -> {
 				// fopEventPost(new DecisionReset(this));
 				if (reversalToGood) {
-					notifyRecords(this.newRecords, true);
+					// the new record notification shows the records that were broken
+					notifyRecords(getLastChallengedRecords(), true, curValue);
 					setLastNewRecords(getNewRecords());
 				}
 				fopEventPost(new StartLifting(this));
@@ -2009,11 +2010,12 @@ public class FieldOfPlay implements IUnregister {
 		return this.initialWarningEmitted;
 	}
 
-	private void notifyRecords(List<RecordEvent> records, boolean newRecord) {
+	private void notifyRecords(List<RecordEvent> records, boolean newRecord, int newRecordValue) {
 		if (records == null || records.isEmpty()) {
 			return;
 		}
 		String title = Translator.translate("Scoreboard." + (newRecord ? "NewRecord(s)" : "RecordAttempt(s)"), records.size());
+		title = title + " " + newRecordValue + ":" + curAthlete.getFullName();
 		StringBuilder sb = new StringBuilder();
 		int i = 0;
 		for (RecordEvent rec : records) {
@@ -2028,13 +2030,15 @@ public class FieldOfPlay implements IUnregister {
 			recordName.append(rec.getBwCatString()); recordName.append("\u00A0");
 
 			String recordValue = Long.toString(Math.round(rec.getRecordValue()));
-			sb.append(Translator.translate("RecordNotification." + (newRecord ? "New" : "Attempt"), recordName.toString(), recordValue));
+			// always show the challenged/broken records
+			sb.append(Translator.translate("RecordNotification." + (newRecord ? "Attempt" : "Attempt"), recordName.toString(), recordValue));
 			
 			String date = rec.getRecordDateAsString();
 			String holder = rec.getResAthleteName();
 			boolean okDate = date != null && !date.isBlank();
 			boolean okHolder = holder != null && !holder.isBlank();
-			if (!newRecord && (okDate || okHolder)) {
+			// always show the challenged/broken records
+			if ((okDate || okHolder)) {
 				StringBuilder sbh = new StringBuilder();
 				sbh.append(" (");
 				if (okDate) {
@@ -2729,6 +2733,7 @@ public class FieldOfPlay implements IUnregister {
 				nbWhite = nbWhite + (Boolean.TRUE.equals(getRefereeDecision()[i]) ? 1 : 0);
 			}
 		}
+		var attempted = getCurAthlete().getNextAttemptRequestedWeight();
 		setAthleteUnderReview(getCurAthlete());
 		setPreviousAthlete(this.athleteUnderReview);
 		setLastChallengedRecords(this.challengedRecords);
@@ -2769,7 +2774,7 @@ public class FieldOfPlay implements IUnregister {
 		// control timing of notifications
 		new DelayTimer(isTestingMode()).schedule(
 		        () -> {
-			        notifyRecords(getNewRecords(), true);
+			        notifyRecords(getChallengedRecords(), true, attempted);
 		        }, 500);
 		// tell ourself to reset after 3 secs.
 		// Decision reset will handle end of group.
@@ -3053,7 +3058,7 @@ public class FieldOfPlay implements IUnregister {
 		        clock,
 		        getClockOwnerInitialTimeAllowed());
 
-		notifyRecords(getChallengedRecords(), false);
+		notifyRecords(getChallengedRecords(), false, this.curWeight);
 
 		if (attempts >= 6) {
 			pushOutDone();
