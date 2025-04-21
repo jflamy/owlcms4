@@ -8,19 +8,25 @@
 
 **Maintenance Log**
 
+- rc06: Improved Record Notifications
 - rc05: Fixed timing conflict that could prevent simulations from starting
 - rc05: Forced restart after import
 - rc04: Restored the prior behavior of loading AgeGroup definitions. Athlete categories are no longer cleared, a simple reassignment is done. For more sophisticated changes, export SBDE, edit and reload.
 
 **New In Release 57**
 
-- Import Database: the system is now automatically restarted after an import, to ensure a full reset according to the new database content.
+- Record Notifications
+  - All records being challenged are now shown in a single notification, that stays visible as long as decision has not been given.  Information about previous record date and record holder is shown if available.
   
+  - When a record is broken, the previous records are now shown again.
+  
+- Import Database: the system is now automatically restarted after an import, to ensure a full reset according to the new database content.
+
 - Start Book Data Entry (SBDE) Advanced Registration Data Updates using a spreadsheet
   - It is now possible to update only the athletes or only the sessions.  Updating only the sessions is useful to update the referees, or for changes in schedule.
-  
+
   - When updating the athletes, there is the option of removing them beforehand, of only adding athletes (ignoring those who are there), or of doing a full update.  When updating, it is presumed that the First Name, Last Name and Lot number are identical.  Updating this way would be used for a schedule change -- changing sessions, or for changing categories.
-  
+
 - Message of the day
   - At startup, a message can be displayed on the home page if something urgent needs to be communicated by the application maintainer.  The files containing the messages are located in the source code repository, and can be changed or removed as required.
   - When running locally, a check that a recent-enough version of the control panel was used it made.
