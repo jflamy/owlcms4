@@ -281,7 +281,6 @@ public abstract class AthleteGridContent extends BaseContent
 
 	private void addRecordNotification(Notification n) {
 		recordNotifications.add(n);
-		logger.warn("notification n notifications {} {} {}", n, System.identityHashCode(recordNotifications), recordNotifications);
 	}
 
 	/**
@@ -680,7 +679,6 @@ public abstract class AthleteGridContent extends BaseContent
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		Athlete athlete = e.getAthlete();
-		logger.warn("***** athletegrid slaveDecision");
 		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
 			clearRecordNotifications();
 			warnOthersIfCurrent(e, athlete, e.getFop());
@@ -688,9 +686,7 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	private synchronized void clearRecordNotifications() {
-		logger.warn("clearing notifications {} {}", System.identityHashCode(recordNotifications), recordNotifications);
 		for (Notification n : recordNotifications) {
-			logger.warn("clearing {}", n);
 			n.close();
 		}
 		recordNotifications.clear();

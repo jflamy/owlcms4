@@ -936,7 +936,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void computeMessageProperties(List<RecordEvent> records, String prefix) {
 		records.sort(RecordEvent.sequentialOrderComparator());
 		String recordsList = records.stream().map(c -> c.prettyPrint()).collect(Collectors.joining(", "));
-		logger.warn("sorted records:\n{}", recordsList);
 		this.getElement().setProperty("recordMessage", prefix + " \u2013 " + recordsList);
 		this.getElement().setProperty("recordMessageSpeed", 5 + records.size()*5);
 	}
