@@ -8,7 +8,7 @@
 
 **Maintenance Log**
 
-- 57.0.0: Stable release.
+- 57.0.1:  Athletes competing out-of-competition correctly excluded from the medal schedule calculation
 
 **New In Release 57**
 
