@@ -106,6 +106,9 @@ public class JXLSMedalSchedule extends JXLSWorkbookStreamSource {
 				if (this.gender != null && a.getGender() != this.gender) {
 					continue;
 				}
+				if (!a.isEligibleForIndividualRanking()) {
+					continue;
+				}
 				sessionCategories.addAll(a.getEligibleCategories());
 			}
 			ArrayList<Category> returned = new ArrayList<>();
