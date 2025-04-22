@@ -8,10 +8,9 @@
 
 **Maintenance Log**
 
+- rc07: Notification to restart after import.
 - rc06: Improved Record Notifications
 - rc05: Fixed timing conflict that could prevent simulations from starting
-- rc05: Forced restart after import
-- rc04: Restored the prior behavior of loading AgeGroup definitions. Athlete categories are no longer cleared, a simple reassignment is done. For more sophisticated changes, export SBDE, edit and reload.
 
 **New In Release 57**
 
@@ -20,7 +19,7 @@
   
   - When a record is broken, the previous records are now shown again.
   
-- Import Database: the system is now automatically restarted after an import, to ensure a full reset according to the new database content.
+- Import Database Restart Reminder: A warning is now given to restart the system after importing. This is important before running a meet or starting a simulation to ensure that all settings are completely in line with the database.
 
 - Start Book Data Entry (SBDE) Advanced Registration Data Updates using a spreadsheet
   - It is now possible to update only the athletes or only the sessions.  Updating only the sessions is useful to update the referees, or for changes in schedule.
