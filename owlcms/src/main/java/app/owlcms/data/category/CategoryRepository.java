@@ -118,9 +118,6 @@ public class CategoryRepository {
 	        int qualifyingTotal) {
 
 		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, null);
-		if (logger.isEnabledFor(Level.TRACE) && a.getLastName().contentEquals("Molnar")) {
-			logger.trace("allEligible bw={} {} -- {}", bw, allEligible.size(), LoggerUtils.whereFrom());
-		}
 
 		// if youth F >81, athlete may be jr87 or jr>87;
 		allEligible = checkMultipleBWClasses(gender, ageFromFields, bw, allEligible);
@@ -130,6 +127,13 @@ public class CategoryRepository {
 		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
 		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
 		        .collect(Collectors.toList());
+		
+		// the most specific category should be returned first, and will be used as registration category.
+		// we do not want Open categories used as registration if there are "non-open" categories.
+		allEligible.sort(Category.specificityComparator);
+		if (logger.isEnabledFor(Level.TRACE) && a.getLastName().contentEquals("Mannino")) {
+			logger.warn("allEligible bw={} {} -- {}", bw, allEligible, LoggerUtils.whereFrom());
+		}
 		return allEligible;
 	}
 
