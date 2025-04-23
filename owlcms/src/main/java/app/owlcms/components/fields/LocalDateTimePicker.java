@@ -18,6 +18,7 @@ import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.timepicker.TimePicker;
 
+import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -28,6 +29,7 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 	public final static String[] AM_PM_COUNTRIES = { "AU", "GB", "IN", "NZ", "PH", "US", "ZA" };
 
 	public static Locale fixAM_PM(Locale l) {
+		System.err.println("------------------- "+l.getCountry()+" "+OwlcmsSession.getLocale());
 		if (l.getLanguage() != null && l.getLanguage().contentEquals("en")) {
 			String country = l.getCountry();
 			if (l != null && Arrays.binarySearch(AM_PM_COUNTRIES, country) <= 0) {
@@ -44,7 +46,7 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 
 	public LocalDateTimePicker() {
 		this.timePicker.getStyle().set("margin-left", "1em");
-		Locale l = this.timePicker.getLocale();
+		Locale l = OwlcmsSession.getLocale();
 		this.timePicker.setLocale(fixAM_PM(l));
 		add(this.datePicker, this.timePicker);
 	}
