@@ -29,7 +29,6 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 	public final static String[] AM_PM_COUNTRIES = { "AU", "GB", "IN", "NZ", "PH", "US", "ZA" };
 
 	public static Locale fixAM_PM(Locale l) {
-		System.err.println("------------------- "+l.getCountry()+" "+OwlcmsSession.getLocale());
 		if (l.getLanguage() != null && l.getLanguage().contentEquals("en")) {
 			String country = l.getCountry();
 			if (l != null && Arrays.binarySearch(AM_PM_COUNTRIES, country) <= 0) {
