@@ -8,6 +8,7 @@
 
 **Maintenance Log**
 
+- 57.0.4: When loading an age groups file, pre-existing age groups were no longer correctly cleaned. 
 - 57.0.3: When reassigning the categories after editing age groups, fixed edge cases where an open or combined age group would be mistakenly picked as the registration category
 - 57.0.2: Fixed issue with time picker for lifting sessions that affected certain Windows laptops using atypical regional settings.
 - 57.0.1:  Athletes competing out-of-competition correctly excluded from the medal schedule calculation
