@@ -78,7 +78,7 @@ public class AgeGroupRepository {
 			if (!activeOnly || ag.isActive()) {
 				if (ag.computeChampionshipName() != null && !ag.computeChampionshipName().isBlank()) {
 					ts.add(ag.computeChampionshipName());
-				} else {
+				} else if (ag.getAgeDivision() != null){
 					ts.add(ag.getAgeDivision());
 				}
 			}
@@ -431,13 +431,13 @@ public class AgeGroupRepository {
 	}
 
 	public static void reloadDefinitions(InputStream inputStream) {
-		//cleanUpExisting();
+		cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(inputStream);
 		AthleteRepository.resetParticipations(false, true);
 	}
 
 	public static void reloadDefinitions(String localizedFileName) {
-		//cleanUpExisting();
+		cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
 		AthleteRepository.resetParticipations(false, true);
 	}
