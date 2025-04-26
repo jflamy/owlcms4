@@ -1969,25 +1969,22 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public LocalDateTime getLastAttemptedLiftTime() {
+		LocalDateTime max = LocalDateTime.MIN;// long ago
 		if (zeroIfInvalid(this.cleanJerk3ActualLift) != 0) {
-			return getCleanJerk3LiftTime();
+			max = getCleanJerk3LiftTime();
+		} else if (zeroIfInvalid(this.cleanJerk2ActualLift) != 0) {
+			max = getCleanJerk2LiftTime();
+		} else if (zeroIfInvalid(this.cleanJerk1ActualLift) != 0) {
+			max = getCleanJerk1LiftTime();
+		} else if (zeroIfInvalid(this.snatch3ActualLift) != 0) {
+			max = getSnatch3LiftTime();
+		} else if (zeroIfInvalid(this.snatch2ActualLift) != 0) {
+			max = getSnatch2LiftTime();
+		} else if (zeroIfInvalid(this.snatch1ActualLift) != 0) {
+			max = getSnatch1LiftTime();
 		}
-		if (zeroIfInvalid(this.cleanJerk2ActualLift) != 0) {
-			return getCleanJerk2LiftTime();
-		}
-		if (zeroIfInvalid(this.cleanJerk1ActualLift) != 0) {
-			return getCleanJerk1LiftTime();
-		}
-		if (zeroIfInvalid(this.snatch3ActualLift) != 0) {
-			return getSnatch3LiftTime();
-		}
-		if (zeroIfInvalid(this.snatch2ActualLift) != 0) {
-			return getSnatch2LiftTime();
-		}
-		if (zeroIfInvalid(this.snatch1ActualLift) != 0) {
-			return getSnatch1LiftTime();
-		}
-		return LocalDateTime.MIN; // long ago
+		logger.warn("max time {} {}", this.getAbbreviatedName(), max);
+		return max; 
 	}
 
 	/**
@@ -5778,22 +5775,38 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	@Deprecated
 	public Double getAgeAdjustedTotal() {
+		return getQYouth();
+	}
+	
+	@Transient
+	@JsonIgnore
+	public Double getQYouth() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		if (total == 0) {
 			return 0.0D;
 		} else {
-			return getAgeAdjustedTotalForDelta();
+			return getQYouthForDelta();
 		}
 	}
 
 	@Transient
 	@JsonIgnore
+	@Deprecated
 	public Double getAgeAdjustedTotalForDelta() {
+		return getQYouthForDelta();
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getQYouthForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		var val = (double) AgeFactors.getAgeAdjustedTotal(this, total);
 		return val;
 	}
+	
+	
 
 	@Transient
 	@JsonIgnore

@@ -71,9 +71,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 				return compareQPointsResultOrder(lifter1, lifter2);
 			case GAMX:
 				return compareGamxResultOrder(lifter1, lifter2);
-			case AGEFACTORS:
+			case QYOUTH:
 				return compareAgeAdjustedTotalOrder(lifter1, lifter2);
-			case QAGE:
+			case QMASTERS:
 				return compareQAgeResultOrder(lifter1, lifter2);
 			case SNATCH_CJ_TOTAL:
 				throw new UnsupportedOperationException("Unsupported ranking type " + this.rankingType);

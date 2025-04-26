@@ -521,10 +521,10 @@ public class Competition {
 			doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.SMM, true);
 			doReporting(nodupAthletes, Ranking.QPOINTS, true);
-			doReporting(nodupAthletes, Ranking.QAGE, true); // Q-masters
+			doReporting(nodupAthletes, Ranking.QMASTERS, true); // Q-masters
 			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
 			doReporting(nodupAthletes, Ranking.GAMX, true);
-			doReporting(nodupAthletes, Ranking.AGEFACTORS, true); // Q-youth
+			doReporting(nodupAthletes, Ranking.QYOUTH, true); // Q-youth
 			// long afterReporting = System.currentTimeMillis();
 			// logger.trace("------------------------- full reporting {}ms", afterReporting - beforeReporting);
 		}
@@ -2038,8 +2038,8 @@ public class Competition {
 
 		sortedMen = getOrCreateBean("mTeamQAge" + adName);
 		sortedWomen = getOrCreateBean("wTeamQAge" + adName);
-		AthleteSorter.teamPointsOrder(sortedMen, Ranking.QAGE);
-		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.QAGE);
+		AthleteSorter.teamPointsOrder(sortedMen, Ranking.QMASTERS);
+		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.QMASTERS);
 
 		reportQAge(sortedMen, sortedWomen);
 	}

@@ -109,7 +109,7 @@ public class Team {
 				return getCatSinclairScore();
 			case QPOINTS:
 				return getQPoints();
-			case QAGE:
+			case QMASTERS:
 				return getQMasters();
 			case ROBI:
 				return getRobi();

@@ -71,13 +71,13 @@ public class MultiCategoryRankSetter {
 			case QPOINTS:
 				a.setqPointsRank(rank);
 				break;
-			case QAGE:
+			case QMASTERS:
 				a.setqAgeRank(rank);
 				break;
 			case GAMX:
 				a.setGamxRank(rank);
 				break;
-			case AGEFACTORS:
+			case QYOUTH:
 				a.setAgeAdjustedTotalRank(rank);
 				break;
 		}
