@@ -116,7 +116,7 @@ public class Team {
 				return getCatQPointsScore();
 			case QPOINTS:
 				return getQPoints();
-			case QMASTERS:
+			case QAGE:
 				return getQMasters();
 			case ROBI:
 				return getRobi();

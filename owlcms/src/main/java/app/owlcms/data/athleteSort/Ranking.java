@@ -39,8 +39,9 @@ public enum Ranking {
 	ROBI("Robi", true), // IWF ROBI
 	QPOINTS("QPoints", true), // Huebner QPoints.
 	GAMX("GAMX", true), // Global Adjusted Mixed (Huebner)
-	QYOUTH("QYouth", true),
-	QMASTERS("QMasters", true), // QPoints * SMHF age factors
+	// legacy
+	AGEFACTORS("QYouth", true),
+	QAGE("QMasters", true), // QPoints * SMHF age factors
 	;
 
 	public static Map<String, Ranking> rankingByReportingName = new HashMap<>();
@@ -107,10 +108,10 @@ public enum Ranking {
 			case QPOINTS:
 				value = curLifter.getqPointsRank();
 				break;
-			case QMASTERS:
+			case QAGE:
 				value = curLifter.getQMastersRank();
 				break;
-			case QYOUTH:
+			case AGEFACTORS:
 				value = curLifter.getQYouthRank();
 				break;
 			case CATEGORY_SCORE:
@@ -188,7 +189,7 @@ public enum Ranking {
 			case GAMX:
 				d = curLifter.getGamx();
 				break;
-			case QYOUTH:
+			case AGEFACTORS:
 				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 					d = curLifter.getQYouth();
 				} else {
@@ -202,7 +203,7 @@ public enum Ranking {
 					d = curLifter.getQPointsForDelta();
 				}
 				break;
-			case QMASTERS:
+			case QAGE:
 				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 					d = curLifter.getQMasters();
 				} else {
@@ -234,8 +235,8 @@ public enum Ranking {
 			case SMM:
 			case GAMX:
 			case QPOINTS:
-			case QYOUTH:
-			case QMASTERS:
+			case AGEFACTORS:
+			case QAGE:
 			case TOTAL:
 				return Translator.translate("RankingExplanation." + rankingType);
 			default:
@@ -256,8 +257,8 @@ public enum Ranking {
 			case SMM:
 			case GAMX:
 			case QPOINTS:
-			case QYOUTH:
-			case QMASTERS:
+			case AGEFACTORS:
+			case QAGE:
 			case TOTAL:
 				return Translator.translate("Ranking." + rankingType);
 			default:
@@ -266,7 +267,7 @@ public enum Ranking {
 	}
 
 	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, QYOUTH, QPOINTS, QMASTERS, GAMX, CAT_QPOINTS, CAT_SINCLAIR));
+		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, CAT_QPOINTS, CAT_SINCLAIR));
 		return systems;
 	}
 

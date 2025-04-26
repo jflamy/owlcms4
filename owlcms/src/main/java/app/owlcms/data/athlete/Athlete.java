@@ -619,13 +619,13 @@ public class Athlete {
 						age = this.category.getAgeGroup().getMaxAge();
 					}
 				}
-				List<Category> categories = CategoryRepository.doFindEligibleCategories(this, this.gender, age, weight,
+				List<Category> categories = CategoryRepository.doFindEligibleCategories(this, this.getGender(), age, weight,
 				        this.qualifyingTotal);
 				setEligibles(this, categories);
 				this.computeCategory(bestMatch(categories));
 			}
 		} else {
-			List<Category> categories = CategoryRepository.doFindEligibleCategories(this, this.gender, age, weight,
+			List<Category> categories = CategoryRepository.doFindEligibleCategories(this, this.getGender(), age, weight,
 			        this.qualifyingTotal);
 			setEligibles(this, categories);
 			this.computeCategory(bestMatch(categories));
@@ -1291,7 +1291,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCatSinclairFactor() {
-		if (this.gender == Gender.M) {
+		if (this.getGender() == Gender.M) {
 			return sinclairFactor(this.getCategory().getMaximumWeight(), getSinclairProperties().menCoefficient(),
 			        getSinclairProperties().menMaxWeight());
 		} else if (getGender() == Gender.F) {
@@ -1992,7 +1992,7 @@ public class Athlete {
 		} else if (zeroIfInvalid(this.snatch1ActualLift) != 0) {
 			max = getSnatch1LiftTime();
 		}
-		logger.warn("max time {} {}", this.getAbbreviatedName(), max);
+		// logger.debug("max time {} {}", this.getAbbreviatedName(), max);
 		return max;
 	}
 
@@ -2233,13 +2233,13 @@ public class Athlete {
 		Double bodyWeight2 = getBodyWeight();
 		if (this.category != null) {
 			if (this.category.getMaximumWeight() > 998) {
-				return this.gender + String.format("%04d", Math.round(this.category.getMinimumWeight() + 1));
+				return this.getGender() + String.format("%04d", Math.round(this.category.getMinimumWeight() + 1));
 			}
-			return this.gender + String.format("%04d", Math.round(this.category.getMaximumWeight()));
+			return this.getGender() + String.format("%04d", Math.round(this.category.getMaximumWeight()));
 		} else if (bodyWeight2 != null && bodyWeight2 >= 0) {
-			return this.gender + String.format("%04d", Math.round(bodyWeight2));
+			return this.getGender() + String.format("%04d", Math.round(bodyWeight2));
 		} else {
-			return this.gender + "9999";
+			return this.getGender() + "9999";
 		}
 	}
 
@@ -2247,11 +2247,11 @@ public class Athlete {
 	@JsonIgnore
 	public String getPresumedOpenCategoryString() {
 		if (this.category != null) {
-			return this.gender.asPublicGenderCode() + " " + this.category.getUpperBound();
+			return this.getGender().asPublicGenderCode() + " " + this.category.getUpperBound();
 		}
 		Double bw = getPresumedBodyWeight();
-		if (bw != null && this.gender != null) {
-			return this.gender.asPublicGenderCode() + " " + Math.round(bw);
+		if (bw != null && this.getGender() != null) {
+			return this.getGender().asPublicGenderCode() + " " + Math.round(bw);
 		}
 		return "";
 	}
@@ -2321,7 +2321,7 @@ public class Athlete {
 	public int getqAgeRank() {
 		return this.qAgeRank;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public int getQMastersRank() {
@@ -2579,7 +2579,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getSinclairFactor() {
-		if (this.gender == Gender.M) {
+		if (this.getGender() == Gender.M) {
 			return sinclairFactor(this.bodyWeight, getSinclairProperties().menCoefficient(),
 			        getSinclairProperties().menMaxWeight());
 		} else if (getGender() == Gender.F) {
@@ -2604,6 +2604,24 @@ public class Athlete {
 		}
 		Integer total1 = getBestCleanJerk() + getBestSnatch();
 		return getSinclair(bodyWeight1, total1);
+	}
+
+	/**
+	 * Gets the sinclair for delta.
+	 *
+	 * @return a Sinclair value even if c&j has not started
+	 */
+	@Transient
+	@JsonIgnore
+	public Double getSinclairForDelta(Double bodyWeight1) {
+		if (bodyWeight1 == null) {
+			return 0.0;
+		}
+		Integer total1 = getBestCleanJerk() + getBestSnatch();
+		Double sinclair = getSinclair(bodyWeight1, total1);
+		// if (getLastName().equals("Brunelle")) logger.debug("================ {} {} {} {} {}", getAbbreviatedName(), bodyWeight1, total1, sinclair,
+		// LoggerUtils.whereFrom());
+		return sinclair;
 	}
 
 	/**
@@ -3464,7 +3482,7 @@ public class Athlete {
 	public void setCatSinclairRank(int i) {
 		this.catSinclairRank = i;
 	}
-	
+
 	public void setCatQPointsRank(int i) {
 		this.catQPointsRank = i;
 	}
@@ -4054,7 +4072,7 @@ public class Athlete {
 	public void setqAgeRank(int qAgeRank2) {
 		this.qAgeRank = qAgeRank2;
 	}
-	
+
 	@JsonIgnore
 	@Transient
 	public void setQMastersRank(int qAgeRank2) {
@@ -5441,13 +5459,13 @@ public class Athlete {
 		Integer bestCleanJerk = getBestCleanJerk();
 		Integer bestSnatch = getBestSnatch();
 		Integer total1 = bestCleanJerk + bestSnatch;
-		if (bestCleanJerk == null || bestSnatch == null || total1 == null || total1 < 0.1 || (this.gender == null)) {
+		if (bestCleanJerk == null || bestSnatch == null || total1 == null || total1 < 0.1 || (this.getGender() == null)) {
 			return 0.0;
 		}
-		if (this.gender == Gender.M) { // $NON-NLS-1$
+		if (this.getGender() == Gender.M) { // $NON-NLS-1$
 			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
 			        sinclairProperties2020.menMaxWeight());
-		} else if (this.gender == Gender.F) {
+		} else if (this.getGender() == Gender.F) {
 			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
 			        sinclairProperties2020.womenMaxWeight());
 		} else {
@@ -5468,15 +5486,15 @@ public class Athlete {
 			return 0.0;
 		}
 		Integer total1 = getBestCleanJerk() + getBestSnatch();
-		if (this.gender == null) {
+		if (this.getGender() == null) {
 			return 0.0;
 		}
-		if (this.gender == Gender.M) { // $NON-NLS-1$
+		if (this.getGender() == Gender.M) { // $NON-NLS-1$
 
 			double d = total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
 			        sinclairProperties2020.menMaxWeight());
 			return d;
-		} else if (this.gender == Gender.F) {
+		} else if (this.getGender() == Gender.F) {
 			double d = total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
 			        sinclairProperties2020.womenMaxWeight());
 			return d;
@@ -5507,17 +5525,18 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	private Double getSinclair(Double bodyWeight1, Integer total1) {
-		if (total1 == null || total1 < 0.1 || (this.gender == null)) {
+		var gender = getGender();
+		if (total1 == null || total1 < 0.1 || (gender == null)) {
 			return 0.0;
 		}
-		if (this.gender == Gender.M) { // $NON-NLS-1$
+		if (gender == Gender.M) { // $NON-NLS-1$
 			return total1 * sinclairFactor(bodyWeight1, getSinclairProperties().menCoefficient(),
 			        getSinclairProperties().menMaxWeight());
-		} else if (this.gender == Gender.F) {
+		} else if (gender == Gender.F) {
 			return total1 * sinclairFactor(bodyWeight1, getSinclairProperties().womenCoefficient(),
 			        getSinclairProperties().womenMaxWeight());
 		} else {
-			return 1.0;
+			return (double) total1;
 		}
 	}
 
@@ -5839,7 +5858,7 @@ public class Athlete {
 		var val = (double) AgeFactors.getAgeAdjustedTotal(this, total);
 		return val;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public Double getQMasters() {
@@ -5910,7 +5929,7 @@ public class Athlete {
 	public Double getCategoryQPoints() {
 		return (getTotal() > 0.0) ? getCategoryQPointsForDelta() : 0.0D;
 	}
-	
+
 	/**
 	 * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of this computation, only "official" categories are used
 	 * as the purpose is to totalRank athletes according to their competition potential.
@@ -5926,13 +5945,14 @@ public class Athlete {
 			return 0.0;
 		}
 		Double categoryWeight = category.getMaximumWeight();
-		if (getGender() == Gender.M) { // $NON-NLS-1$
+		Gender gender = getGender();
+		if (gender == Gender.M) { // $NON-NLS-1$
 			if (categoryWeight < 55.0) {
 				categoryWeight = 55.0;
 			} else if (categoryWeight > getSinclairProperties().menMaxWeight()) {
 				categoryWeight = getSinclairProperties().menMaxWeight();
 			}
-		} else if (getGender() == Gender.F) {
+		} else if (gender == Gender.F) {
 			if (categoryWeight < 45.0) {
 				categoryWeight = 45.0;
 			} else if (categoryWeight > getSinclairProperties().womenMaxWeight()) {
@@ -5941,9 +5961,11 @@ public class Athlete {
 		} else {
 			return 0.0D;
 		}
-		return getSinclair(categoryWeight);
+		Double sinclairForDelta = getSinclairForDelta(categoryWeight);
+		//if (getLastName().equals("Brunelle")) logger.debug("getCategorySinclairForDelta {} === {} {}", categoryWeight, sinclairForDelta, LoggerUtils.whereFrom());
+		return sinclairForDelta;
 	}
-	
+
 	/**
 	 * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of this computation, only "official" categories are used
 	 * as the purpose is to totalRank athletes according to their competition potential.
@@ -5958,11 +5980,19 @@ public class Athlete {
 		if (category == null) {
 			return 0.0;
 		}
+
 		Double categoryWeight = computeCategoryBodyWeight(category);
-		if (categoryWeight <= 0.1) {
+		// outside of validity range
+		if ((getGender() == Gender.M && categoryWeight <= 45.0D) || (getGender() == Gender.F && categoryWeight <= 40.0D) || (getGender() == Gender.I)) {
 			return 0.0D;
 		}
-		return qPointsCoefficients.getQPoints(this, (int) Math.round(categoryWeight));
+
+		int intCatWeight = (int) Math.round(categoryWeight);
+		Double qPointsFactor = qPointsCoefficients.qPointsFactor(getGender(), (double) intCatWeight);
+		Integer value = getBestCleanJerk() + getBestSnatch();
+		var qPoints = value * qPointsFactor;
+		// if (lastName.equals("Brunelle") || lastName.equals("Prince")) logger.debug("--------------- bw {} cat {} qpoints {} catQPoints {}", getBodyWeight(), intCatWeight, getQPoints(), qPoints);
+		return qPoints;
 	}
 
 	private Double computeCategoryBodyWeight(Category category) {
@@ -5984,11 +6014,10 @@ public class Athlete {
 		}
 		return categoryWeight;
 	}
-	
+
 	public Double computeCategoryBodyWeight() {
 		return computeCategoryBodyWeight(this.getCategory());
 	}
-	
 
 	public boolean withdrawnFromCJ() {
 		return getCleanJerk3ActualLift().equals("0");

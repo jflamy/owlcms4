@@ -44,13 +44,13 @@ public class OverallRankSetter {
 			case QPOINTS:
 				a.setqPointsRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
-			case QMASTERS:
+			case QAGE:
 				a.setQMastersRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 			case GAMX:
 				a.setGamxRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
-			case QYOUTH:
+			case AGEFACTORS:
 				a.setQYouthRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 		}

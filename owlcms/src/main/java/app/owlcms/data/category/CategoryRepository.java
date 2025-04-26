@@ -132,7 +132,7 @@ public class CategoryRepository {
 		// we do not want Open categories used as registration if there are "non-open" categories.
 		allEligible.sort(Category.specificityComparator);
 		if (logger.isEnabledFor(Level.TRACE) && a.getLastName().contentEquals("Mannino")) {
-			logger.warn("allEligible bw={} {} -- {}", bw, allEligible, LoggerUtils.whereFrom());
+			logger./**/warn("allEligible bw={} {} -- {}", bw, allEligible, LoggerUtils.whereFrom());
 		}
 		return allEligible;
 	}
