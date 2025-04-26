@@ -63,6 +63,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 				return compareRobiResultOrder(lifter1, lifter2);
 			case CAT_SINCLAIR:
 				return compareCatSinclairResultOrder(lifter1, lifter2);
+			case CAT_QPOINTS:
+				return compareCatQPointsResultOrder(lifter1, lifter2);
 			case BW_SINCLAIR:
 				return compareSinclairResultOrder(lifter1, lifter2);
 			case SMM:
@@ -82,8 +84,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	}
 
 	public int compareAgeAdjustedTotal(Athlete lifter1, Athlete lifter2) {
-		Double lifter1Value = lifter1.getAgeAdjustedTotal();
-		Double lifter2Value = lifter2.getAgeAdjustedTotal();
+		Double lifter1Value = lifter1.getQYouth();
+		Double lifter2Value = lifter2.getQYouth();
 		final Double notWeighed = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notWeighed;
@@ -100,8 +102,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	}
 
 	public int compareAgeAdjustedTotalForDelta(Athlete lifter1, Athlete lifter2) {
-		Double lifter1Value = lifter1.getAgeAdjustedTotalForDelta();
-		Double lifter2Value = lifter2.getAgeAdjustedTotalForDelta();
+		Double lifter1Value = lifter1.getQYouthForDelta();
+		Double lifter2Value = lifter2.getQYouthForDelta();
 		final Double notWeighed = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notWeighed;
@@ -154,6 +156,17 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		int compare = 0;
 
 		compare = compareCategorySinclair(lifter1, lifter2);
+		if (compare != 0) {
+			return compare;
+		}
+
+		return tieBreak(lifter1, lifter2);
+	}
+	
+	public int compareCatQPointsResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+
+		compare = compareCategoryQPoints(lifter1, lifter2);
 		if (compare != 0) {
 			return compare;
 		}

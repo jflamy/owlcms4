@@ -55,6 +55,7 @@ public class Team {
 	private int points = 0;
 	private double sinclairScore = 0.0D;
 	private double catSinclairScore = 0.0D;
+	private double catQPointsScore = 0.0D;
 	private long size;
 	private double smfScore = 0.0D;
 	private double robi = 0.0D;
@@ -71,6 +72,10 @@ public class Team {
 
 	public double getCatSinclairScore() {
 		return this.catSinclairScore;
+	}
+	
+	public double getCatQPointsScore() {
+		return this.catQPointsScore;
 	}
 
 	public int getCounted() {
@@ -107,6 +112,8 @@ public class Team {
 				return getSinclairScore();
 			case CAT_SINCLAIR:
 				return getCatSinclairScore();
+			case CAT_QPOINTS:
+				return getCatQPointsScore();
 			case QPOINTS:
 				return getQPoints();
 			case QMASTERS:
@@ -145,6 +152,10 @@ public class Team {
 		this.catSinclairScore = catSinclairScore;
 	}
 
+	public void setCatQPointsScore(double score) {
+		this.catQPointsScore = score;
+	}
+	
 	public void setCounted(int counted) {
 		this.counted = counted;
 	}

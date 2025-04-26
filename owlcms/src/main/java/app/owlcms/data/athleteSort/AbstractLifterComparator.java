@@ -388,6 +388,33 @@ public class AbstractLifterComparator {
 		// bigger sinclair comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
+	
+	int compareCategoryQPoints(Athlete lifter1, Athlete lifter2) {
+		Gender gender1 = lifter1.getGender();
+		Gender gender2 = lifter2.getGender();
+		int compare = ObjectUtils.compare(gender1, gender2, true);
+		if (compare != 0) {
+			return compare;
+		}
+
+		Double lifter1Value = lifter1.getCategoryQPoints();
+		Double lifter2Value = lifter2.getCategoryQPoints();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		
+		if (lifter1Value <= 0.0001 && lifter2Value < 0.0001) {
+			// avoid going to full tie break; need something stable.
+			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
+		}
+		
+		// bigger QPoints comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
 
 	/**
 	 * Compare club.
@@ -771,8 +798,8 @@ public class AbstractLifterComparator {
 			return compare;
 		}
 
-		Double lifter1Value = lifter1.getQAge();
-		Double lifter2Value = lifter2.getQAge();
+		Double lifter1Value = lifter1.getQMasters();
+		Double lifter2Value = lifter2.getQMasters();
 		final Double notWeighed = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notWeighed;
@@ -801,8 +828,8 @@ public class AbstractLifterComparator {
 			return compare;
 		}
 
-		Double lifter1Value = lifter1.getQAgeForDelta();
-		Double lifter2Value = lifter2.getQAgeForDelta();
+		Double lifter1Value = lifter1.getQMastersForDelta();
+		Double lifter2Value = lifter2.getQMastersForDelta();
 		final Double notWeighed = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notWeighed;

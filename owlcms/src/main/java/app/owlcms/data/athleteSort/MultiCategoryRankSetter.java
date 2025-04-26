@@ -59,6 +59,9 @@ public class MultiCategoryRankSetter {
 			case CAT_SINCLAIR:
 				a.setCatSinclairRank(rank);
 				break;
+			case CAT_QPOINTS:
+				a.setCatQPointsRank(rank);
+				break;
 			case SNATCH_CJ_TOTAL:
 				a.setCombinedRank(rank);
 				break;
@@ -72,13 +75,13 @@ public class MultiCategoryRankSetter {
 				a.setqPointsRank(rank);
 				break;
 			case QMASTERS:
-				a.setqAgeRank(rank);
+				a.setQMastersRank(rank);
 				break;
 			case GAMX:
 				a.setGamxRank(rank);
 				break;
 			case QYOUTH:
-				a.setAgeAdjustedTotalRank(rank);
+				a.setQYouthRank(rank);
 				break;
 		}
 		return participation;

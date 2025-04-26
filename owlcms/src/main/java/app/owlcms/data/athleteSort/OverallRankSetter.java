@@ -32,6 +32,9 @@ public class OverallRankSetter {
 			case CAT_SINCLAIR:
 				a.setCatSinclairRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
+			case CAT_QPOINTS:
+				a.setCatQPointsRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
+				break;
 			case ROBI:
 				a.setRobiRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
@@ -42,13 +45,13 @@ public class OverallRankSetter {
 				a.setqPointsRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 			case QMASTERS:
-				a.setqAgeRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
+				a.setQMastersRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 			case GAMX:
 				a.setGamxRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 			case QYOUTH:
-				a.setAgeAdjustedTotalRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
+				a.setQYouthRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
 		}
 	}

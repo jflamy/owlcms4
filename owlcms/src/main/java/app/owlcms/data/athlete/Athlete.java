@@ -123,7 +123,7 @@ public class Athlete {
 	private static final int YEAR = LocalDateTime.now().getYear();
 
 	public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults, boolean copyChanges, boolean copyId) {
-//		System.err./**/println("> conditionalCopy");
+		// System.err./**/println("> conditionalCopy");
 		boolean validation = dest.isValidation();
 		Level prevSrcLevel = src.getLogger().getLevel();
 		Level prevDestLevel = dest.getLogger().getLevel();
@@ -133,30 +133,29 @@ public class Athlete {
 			}
 			dest.setValidation(false);
 			dest.setLoggerLevel(Level.OFF);
-			
-//			System.err./**/println(">> conditionalCopy nb Participations " + dest.getParticipations().size());
-//			dest.getParticipations().forEach(p -> {
-//				System.err./**/println(">> dest="+dest.getId()+" src="+src.getId()+" p.getAthlete="+p.getAthlete().getId());
-//			});
+
+			// System.err./**/println(">> conditionalCopy nb Participations " + dest.getParticipations().size());
+			// dest.getParticipations().forEach(p -> {
+			// System.err./**/println(">> dest="+dest.getId()+" src="+src.getId()+" p.getAthlete="+p.getAthlete().getId());
+			// });
 
 			dest.setLastName(src.getLastName());
 			dest.setFirstName(src.getFirstName());
 			dest.setFullBirthDate(src.getFullBirthDate());
 
 			if (copyChanges) {
-//				System.err./**/println(">> copying bodyweight "+src.getBodyWeight());
+				// System.err./**/println(">> copying bodyweight "+src.getBodyWeight());
 				dest.setBodyWeight(src.getBodyWeight());
 			} else {
-//				System.err./**/println(">> NOT copying bodyweight "+src.getBodyWeight() + "\n" + LoggerUtils.stackTrace());
+				// System.err./**/println(">> NOT copying bodyweight "+src.getBodyWeight() + "\n" + LoggerUtils.stackTrace());
 			}
-			
 
 			dest.setGroup(src.getGroup());
-//			System.err./**/println(">> conditionalCopy copied group " + dest.getGroup());
+			// System.err./**/println(">> conditionalCopy copied group " + dest.getGroup());
 			dest.setStartNumber(src.getStartNumber());
 			dest.setLotNumber(src.getLotNumber());
 			dest.setEntryTotal(src.getEntryTotal());
-			
+
 			dest.computeCategory(src.getCategory());
 
 			if (copyChanges) {
@@ -241,6 +240,7 @@ public class Athlete {
 				dest.setSmhfRank(src.getSmhfRank());
 				dest.setTeamSinclairRank(src.getTeamSinclairRank());
 				dest.setCatSinclairRank(src.getCatSinclairRank());
+				dest.setCatQPointsRank(src.getCatQPointsRank());
 				dest.setGamxRank(src.getGamxRank());
 				dest.setRobiRank(src.getRobiRank());
 				dest.setAgeAdjustedTotalRank(src.getAgeAdjustedTotalRank());
@@ -379,7 +379,6 @@ public class Athlete {
 	private String coach;
 	@Column(columnDefinition = "integer default 0")
 	private int combinedRank;
-
 	private String custom1;
 	private String custom2;
 	private Double customScore;
@@ -425,6 +424,8 @@ public class Athlete {
 	@JsonIgnore
 	@Column(columnDefinition = "integer default 0")
 	private Integer qPointsRank;
+	@Column(columnDefinition = "integer default 0")
+	private Integer catQPointsRank;
 	private Integer qualifyingTotal = 0;
 	@JsonIgnore
 	private Integer robiRank;
@@ -880,8 +881,16 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	@Deprecated
+	// keep backward compatibility with older databases
 	public Integer getAgeAdjustedTotalRank() {
 		return this.ageAdjustedTotalRank;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getQYouthRank() {
+		return this.getAgeAdjustedTotalRank();
 	}
 
 	/**
@@ -1984,7 +1993,7 @@ public class Athlete {
 			max = getSnatch1LiftTime();
 		}
 		logger.warn("max time {} {}", this.getAbbreviatedName(), max);
-		return max; 
+		return max;
 	}
 
 	/**
@@ -2308,8 +2317,15 @@ public class Athlete {
 		return doGetProgression(requestedWeight, attempt);
 	}
 
+	@Deprecated
 	public int getqAgeRank() {
 		return this.qAgeRank;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public int getQMastersRank() {
+		return getqAgeRank();
 	}
 
 	@Transient
@@ -3339,6 +3355,13 @@ public class Athlete {
 		setForcedAsCurrent(false);
 	}
 
+	@JsonIgnore
+	@Transient
+	public void setQYouthRank(Integer ageAdjustedTotalRank) {
+		setAgeAdjustedTotalRank(ageAdjustedTotalRank);
+	}
+
+	@Deprecated
 	public void setAgeAdjustedTotalRank(Integer ageAdjustedTotalRank) {
 		// logger.debug("setAgeAdjustedTotalRank {} {}", ageAdjustedTotalRank, this.getFullName());
 		this.ageAdjustedTotalRank = ageAdjustedTotalRank;
@@ -3418,7 +3441,7 @@ public class Athlete {
 		this.category = newCategory;
 		computeMainRankings();
 	}
-	
+
 	public void setCategory(Category category) {
 		this.category = category;
 	}
@@ -3440,6 +3463,10 @@ public class Athlete {
 
 	public void setCatSinclairRank(int i) {
 		this.catSinclairRank = i;
+	}
+	
+	public void setCatQPointsRank(int i) {
+		this.catQPointsRank = i;
 	}
 
 	public void setCheckTiming(boolean checkTiming) {
@@ -3921,7 +3948,7 @@ public class Athlete {
 	 * @param group the group to set
 	 */
 	public void setGroup(Group group) {
-//		System.err./**/println("setting session "+group+"\n"+LoggerUtils.whereFrom());
+		// System.err./**/println("setting session "+group+"\n"+LoggerUtils.whereFrom());
 		this.group = group;
 	}
 
@@ -4023,8 +4050,15 @@ public class Athlete {
 		this.category = category;
 	}
 
+	@Deprecated
 	public void setqAgeRank(int qAgeRank2) {
 		this.qAgeRank = qAgeRank2;
+	}
+	
+	@JsonIgnore
+	@Transient
+	public void setQMastersRank(int qAgeRank2) {
+		setqAgeRank(qAgeRank2);
 	}
 
 	public void setqPointsRank(Integer qPointsRank) {
@@ -5775,41 +5809,46 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	@Deprecated
-	public Double getAgeAdjustedTotal() {
-		return getQYouth();
+	public Double getQYouth() {
+		return this.getAgeAdjustedTotal();
 	}
-	
+
 	@Transient
 	@JsonIgnore
-	public Double getQYouth() {
+	@Deprecated
+	public Double getAgeAdjustedTotal() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		if (total == 0) {
 			return 0.0D;
 		} else {
-			return getQYouthForDelta();
+			return getAgeAdjustedTotalForDelta();
 		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getQYouthForDelta() {
+		return getAgeAdjustedTotalForDelta();
 	}
 
 	@Transient
 	@JsonIgnore
 	@Deprecated
 	public Double getAgeAdjustedTotalForDelta() {
-		return getQYouthForDelta();
-	}
-
-	@Transient
-	@JsonIgnore
-	public Double getQYouthForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		var val = (double) AgeFactors.getAgeAdjustedTotal(this, total);
 		return val;
 	}
 	
-	
+	@Transient
+	@JsonIgnore
+	public Double getQMasters() {
+		return getQAge();
+	}
 
 	@Transient
 	@JsonIgnore
+	@Deprecated
 	public Double getQAge() {
 		double d = getQPoints() * getQMastersFactor();
 		return d;
@@ -5817,22 +5856,15 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Double getQMastersForDelta() {
+		return getQAgeForDelta();
+	}
+
+	@Transient
+	@JsonIgnore
+	@Deprecated
 	public Double getQAgeForDelta() {
 		double d = getQPointsForDelta() * getQMastersFactor();
-		return d;
-	}
-
-	@Transient
-	@JsonIgnore
-	public Double getQMastersForDelta() {
-		double d = getQPointsForDelta() * getQMastersFactor();
-		return d;
-	}
-
-	@Transient
-	@JsonIgnore
-	public Double getQMasters() {
-		double d = getQPoints() * getQMastersFactor();
 		return d;
 	}
 
@@ -5873,6 +5905,12 @@ public class Athlete {
 		return (getTotal() > 0.0) ? getCategorySinclairForDelta() : 0.0D;
 	}
 
+	@Transient
+	@JsonIgnore
+	public Double getCategoryQPoints() {
+		return (getTotal() > 0.0) ? getCategoryQPointsForDelta() : 0.0D;
+	}
+	
 	/**
 	 * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of this computation, only "official" categories are used
 	 * as the purpose is to totalRank athletes according to their competition potential.
@@ -5882,7 +5920,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCategorySinclairForDelta() {
-		//Category category = getCategory();
+		// Category category = getCategory();
 		Category category = RobiCategories.findIWFCategory(this, true);
 		if (category == null) {
 			return 0.0;
@@ -5905,6 +5943,52 @@ public class Athlete {
 		}
 		return getSinclair(categoryWeight);
 	}
+	
+	/**
+	 * Compute the body weight at the maximum weight of the Athlete's category. Note: for the purpose of this computation, only "official" categories are used
+	 * as the purpose is to totalRank athletes according to their competition potential.
+	 *
+	 * @return the category sinclair
+	 */
+	@Transient
+	@JsonIgnore
+	public Double getCategoryQPointsForDelta() {
+		// Category category = getCategory();
+		Category category = RobiCategories.findIWFCategory(this, true);
+		if (category == null) {
+			return 0.0;
+		}
+		Double categoryWeight = computeCategoryBodyWeight(category);
+		if (categoryWeight <= 0.1) {
+			return 0.0D;
+		}
+		return qPointsCoefficients.getQPoints(this, (int) Math.round(categoryWeight));
+	}
+
+	private Double computeCategoryBodyWeight(Category category) {
+		Double categoryWeight = category.getMaximumWeight();
+		if (getGender() == Gender.M) { // $NON-NLS-1$
+			if (categoryWeight < 55.0) {
+				categoryWeight = 55.0;
+			} else if (categoryWeight > 900) {
+				categoryWeight = 150D;
+			}
+		} else if (getGender() == Gender.F) {
+			if (categoryWeight < 45.0) {
+				categoryWeight = 45.0;
+			} else if (categoryWeight > 900) {
+				categoryWeight = 125D;
+			}
+		} else {
+			return 0.0D;
+		}
+		return categoryWeight;
+	}
+	
+	public Double computeCategoryBodyWeight() {
+		return computeCategoryBodyWeight(this.getCategory());
+	}
+	
 
 	public boolean withdrawnFromCJ() {
 		return getCleanJerk3ActualLift().equals("0");
@@ -5916,9 +6000,17 @@ public class Athlete {
 
 	public LinkedHashSet<Category> computeTeams() {
 		LinkedHashSet<Category> collect = getParticipations().stream()
-				.filter(p -> p.getTeamMember())
-				.map(p -> p.getCategory())
-				.collect(Collectors.toCollection(LinkedHashSet::new));
+		        .filter(p -> p.getTeamMember())
+		        .map(p -> p.getCategory())
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
 		return collect;
+	}
+
+	public Integer getCatQPointsRank() {
+		return catQPointsRank;
+	}
+
+	public void setCatQPointsRank(Integer catQPointsRank) {
+		this.catQPointsRank = catQPointsRank;
 	}
 }

@@ -808,12 +808,12 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public Double getQAge() {
-		return this.a.getQAge();
+		return this.a.getQMasters();
 	}
 
 	@Override
 	public int getqAgeRank() {
-		return this.a.getqAgeRank();
+		return this.a.getQMastersRank();
 	}
 
 	/**
@@ -1416,6 +1416,11 @@ public class XAthlete extends Athlete {
 		this.a.setCatSinclairRank(i);
 	}
 
+	@Override
+	public void setCatQPointsRank(int i) {
+		this.a.setCatQPointsRank(i);
+	}
+	
 	/**
 	 * @param cleanJerk1ActualLift
 	 * @see app.owlcms.data.athlete.Athlete#setCleanJerk1ActualLift(java.lang.String)
@@ -1801,7 +1806,7 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setqAgeRank(int i) {
-		this.a.setqAgeRank(i);
+		this.a.setQMastersRank(i);
 	}
 
 	/**

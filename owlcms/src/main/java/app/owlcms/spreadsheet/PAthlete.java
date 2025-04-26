@@ -998,6 +998,11 @@ public class PAthlete extends Athlete implements IRankHolder {
 	public void setCatSinclairRank(int i) {
 		this.a.setCatSinclairRank(i);
 	}
+	
+	@Override
+	public void setCatQPointsRank(int i) {
+		this.a.setCatQPointsRank(i);
+	}
 
 	@Override
 	public void setCoach(String coach) {

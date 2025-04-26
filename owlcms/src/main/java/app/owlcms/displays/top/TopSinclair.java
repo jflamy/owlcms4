@@ -354,6 +354,17 @@ public class TopSinclair extends AbstractTop {
 						        Math.ceil((this.topManScore - a.getCategorySinclair()) / a.getCatSinclairFactor()));
 					}
 					break;
+				case CAT_QPOINTS:
+					if (curGender == Gender.F) {
+						needed = (int) Math.round(
+						        Math.ceil((this.topWomanScore - a.getCategoryQPoints())
+						                / this.qpoints.qPointsFactor(Gender.F, a.computeCategoryBodyWeight())));
+					} else {
+						needed = (int) Math.round(
+						        Math.ceil((this.topManScore - a.getCategoryQPoints())
+						                / this.qpoints.qPointsFactor(Gender.M, a.computeCategoryBodyWeight())));
+					}
+					break;
 				case GAMX:
 					if (curGender == Gender.F) {
 						int tot = a.getBestSnatch() + a.getBestCleanJerk();

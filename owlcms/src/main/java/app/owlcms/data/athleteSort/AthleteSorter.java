@@ -295,6 +295,8 @@ public class AthleteSorter implements Serializable {
 				return curLifter.getSinclairRank();
 			case CAT_SINCLAIR:
 				return curLifter.getCatSinclairRank();
+			case CAT_QPOINTS:
+				return curLifter.getCatQPointsRank();
 			case ROBI:
 				return curLifter.getRobiRank();
 			case TOTAL:
@@ -302,18 +304,17 @@ public class AthleteSorter implements Serializable {
 			case CUSTOM:
 				return curLifter.getMainRankings().getCustomRank();
 			case QYOUTH:
-				return curLifter.getAgeAdjustedTotalRank();
+				return curLifter.getQYouthRank();
 			case GAMX:
 				return curLifter.getGamxRank();
 			case QMASTERS:
-				return curLifter.getqAgeRank();
+				return curLifter.getQMastersRank();
 			case QPOINTS:
 				return curLifter.getqPointsRank();
 			case SNATCH_CJ_TOTAL:
 				break;
-			default:
-				break;
-
+			case CATEGORY_SCORE:
+				return curLifter.getCategoryScoreRank();
 		}
 		return 0;
 	}
@@ -548,6 +549,7 @@ public class AthleteSorter implements Serializable {
 		switch (rankingType) {
 			case BW_SINCLAIR:
 			case CAT_SINCLAIR:
+			case CAT_QPOINTS:
 			case SNATCH_CJ_TOTAL:
 			case ROBI:
 			case SMM:
@@ -583,6 +585,7 @@ public class AthleteSorter implements Serializable {
 		switch (rankingType) {
 			case BW_SINCLAIR:
 			case CAT_SINCLAIR:
+			case CAT_QPOINTS:
 			case SNATCH_CJ_TOTAL:
 			case ROBI:
 			case SMM:

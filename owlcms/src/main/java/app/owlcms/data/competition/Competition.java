@@ -523,6 +523,7 @@ public class Competition {
 			doReporting(nodupAthletes, Ranking.QPOINTS, true);
 			doReporting(nodupAthletes, Ranking.QMASTERS, true); // Q-masters
 			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
+			doReporting(nodupAthletes, Ranking.CAT_QPOINTS, true);
 			doReporting(nodupAthletes, Ranking.GAMX, true);
 			doReporting(nodupAthletes, Ranking.QYOUTH, true); // Q-youth
 			// long afterReporting = System.currentTimeMillis();
