@@ -368,7 +368,7 @@ public class AthleteRepository {
 	private static void populateCategoryMastersAthleteCountMap() {
 		JPAService.runInTransaction(em -> {
 			Query query = em.createQuery(
-			        "select p.category, count(a.id) from Athlete a join a.participations p join p.category c join c.ageGroup ag where ag.minAge >= 30 group by p.category");
+			        "select p.category.code, count(a.id) from Athlete a join a.participations p join p.category c join c.ageGroup ag where ag.minAge >= 30 group by p.category.code");
 			@SuppressWarnings("unchecked")
 			List<Object[]> results = query.getResultList();
 			Map<String, Integer> map = categoryAthleteCount.get();
@@ -378,7 +378,7 @@ public class AthleteRepository {
 			        // int count = ((Long) result[1]).intValue();
 			        // logger.debug("*** cat {} count {}", cat.getCode(), count);
 			        // })
-			        .collect(Collectors.toMap(result -> ((Category) result[0]).getCode(), result -> ((Long) result[1]).intValue())));
+			        .collect(Collectors.toMap(result -> ((String) result[0]), result -> ((Long) result[1]).intValue())));
 			return null;
 		});
 	}

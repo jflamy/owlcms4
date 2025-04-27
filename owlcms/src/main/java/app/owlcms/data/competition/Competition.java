@@ -1646,6 +1646,7 @@ public class Competition {
 				return;
 			}
 
+			try {
 			// the ranks within a category are stored in the database and
 			// not recomputed
 			categoryRankings(athletes);
@@ -1663,6 +1664,10 @@ public class Competition {
 			}
 
 			doGlobalRankings(athletes, false);
+			} catch (Throwable t) {
+				t.printStackTrace();
+				throw t;
+			}
 			// globalRankings();
 		}, Thread.MIN_PRIORITY);
 	}
