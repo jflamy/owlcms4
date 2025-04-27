@@ -904,7 +904,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
 			        startingXlsWriter.setGroup(null);
 			        // get current version of athletes.
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(participationFindAll()));
+			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(athletesFindAll(false)));
 			        startingXlsWriter.createTeamColumns(9, 6);
 			        return startingXlsWriter;
 		        });

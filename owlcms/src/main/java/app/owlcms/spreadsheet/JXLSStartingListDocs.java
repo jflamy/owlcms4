@@ -167,9 +167,10 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 					// split the categories and create individual cells
 					Cell eligibleCatsCell = r.getCell(sourceCol);
 					String eligibleCatsString = eligibleCatsCell.getStringCellValue();
+					CellStyle categoryStyle = catCell.getCellStyle();
 					if (eligibleCatsString != null && !eligibleCatsString.isBlank()) {
 						String[] eligibleCats = eligibleCatsString.split(";");
-						CellStyle categoryStyle = catCell.getCellStyle();
+						
 						for (int prefixOffset = 0; prefixOffset < prefixes.size(); prefixOffset++) {
 							int targetCol = listColumn + prefixOffset + listColumnVFEOffset;
 							r.createCell(targetCol);
@@ -179,6 +180,12 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 									r.getCell(targetCol).setCellValue(catString);
 								}
 							}
+						}
+					} else {
+						for (int prefixOffset = 0; prefixOffset < prefixes.size(); prefixOffset++) {
+							int targetCol = listColumn + prefixOffset + listColumnVFEOffset;
+							r.createCell(targetCol);
+							r.getCell(targetCol).setCellStyle(categoryStyle);
 						}
 					}
 					nonContentCounter = 0;
