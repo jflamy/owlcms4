@@ -949,9 +949,11 @@ public class Competition {
 					        return true; // remove from list.
 				        }
 				        // logger.trace("athletes {} {}", k, athletes);
+				        
 				        // category includes an athlete that has not finished, mark it as "to be
-				        // removed"
-				        boolean anyMatch = athletes.stream().anyMatch(a -> !a.isDone(g));
+				        // removed".  Athletes out of competition don't count as not being done.
+				        boolean anyMatch = athletes.stream().anyMatch(a -> (!a.isDone(g) && a.isEligibleForIndividualRanking()));
+				        
 				        // logger.trace("category {} has finished {}", k, !anyMatch);
 				        // return those that have not finished
 				        return anyMatch;
