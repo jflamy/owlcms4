@@ -8,6 +8,8 @@
 
 **Maintenance Log**
 
+- 57.0.5: Fix: When running on the cloud, an incompatibility between the Postgres and H2 databases was preventing the Competition Results page from loading.
+- 57.0.5: Fix: Athletes competing out of competition would hold back the awarding of medals for their category as far as the medals sheet was concerned.
 - 57.0.4: When loading an age groups file, pre-existing age groups were no longer correctly cleaned. 
 - 57.0.3: When reassigning the categories after editing age groups, fixed edge cases where an open or combined age group would be mistakenly picked as the registration category
 - 57.0.2: Fixed issue with time picker for lifting sessions that affected certain Windows laptops using atypical regional settings.
