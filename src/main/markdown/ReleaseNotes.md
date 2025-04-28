@@ -8,6 +8,7 @@
 
 **Maintenance Log**
 
+- 57.0.6: Fix: the Teams Membership and the Verification of Final Entries validation reports were showing duplicate entries for athletes and had missing cell 
 - 57.0.5: Fix: When running on the cloud, an incompatibility between the Postgres and H2 databases was preventing the Competition Results page from loading.
 - 57.0.5: Fix: Athletes competing out of competition would hold back the awarding of medals for their category as far as the medals sheet was concerned.
 - 57.0.4: When loading an age groups file, pre-existing age groups were no longer correctly cleaned. 
