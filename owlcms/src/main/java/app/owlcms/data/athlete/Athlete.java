@@ -123,7 +123,7 @@ public class Athlete {
 	private static final int YEAR = LocalDateTime.now().getYear();
 
 	public static void conditionalCopy(Athlete dest, Athlete src, boolean copyResults, boolean copyChanges, boolean copyId) {
-//		System.err./**/println("> conditionalCopy");
+		// System.err./**/println("> conditionalCopy");
 		boolean validation = dest.isValidation();
 		Level prevSrcLevel = src.getLogger().getLevel();
 		Level prevDestLevel = dest.getLogger().getLevel();
@@ -133,30 +133,29 @@ public class Athlete {
 			}
 			dest.setValidation(false);
 			dest.setLoggerLevel(Level.OFF);
-			
-//			System.err./**/println(">> conditionalCopy nb Participations " + dest.getParticipations().size());
-//			dest.getParticipations().forEach(p -> {
-//				System.err./**/println(">> dest="+dest.getId()+" src="+src.getId()+" p.getAthlete="+p.getAthlete().getId());
-//			});
+
+			// System.err./**/println(">> conditionalCopy nb Participations " + dest.getParticipations().size());
+			// dest.getParticipations().forEach(p -> {
+			// System.err./**/println(">> dest="+dest.getId()+" src="+src.getId()+" p.getAthlete="+p.getAthlete().getId());
+			// });
 
 			dest.setLastName(src.getLastName());
 			dest.setFirstName(src.getFirstName());
 			dest.setFullBirthDate(src.getFullBirthDate());
 
 			if (copyChanges) {
-//				System.err./**/println(">> copying bodyweight "+src.getBodyWeight());
+				// System.err./**/println(">> copying bodyweight "+src.getBodyWeight());
 				dest.setBodyWeight(src.getBodyWeight());
 			} else {
-//				System.err./**/println(">> NOT copying bodyweight "+src.getBodyWeight() + "\n" + LoggerUtils.stackTrace());
+				// System.err./**/println(">> NOT copying bodyweight "+src.getBodyWeight() + "\n" + LoggerUtils.stackTrace());
 			}
-			
 
 			dest.setGroup(src.getGroup());
-//			System.err./**/println(">> conditionalCopy copied group " + dest.getGroup());
+			// System.err./**/println(">> conditionalCopy copied group " + dest.getGroup());
 			dest.setStartNumber(src.getStartNumber());
 			dest.setLotNumber(src.getLotNumber());
 			dest.setEntryTotal(src.getEntryTotal());
-			
+
 			dest.computeCategory(src.getCategory());
 
 			if (copyChanges) {
@@ -379,7 +378,6 @@ public class Athlete {
 	private String coach;
 	@Column(columnDefinition = "integer default 0")
 	private int combinedRank;
-
 	private String custom1;
 	private String custom2;
 	private Double customScore;
@@ -674,7 +672,7 @@ public class Athlete {
 			case 2:
 				this.setSnatch2ActualLift(weight);
 				if (this.getSnatch2LiftTime() == null) {
-					this.setSnatch1LiftTime(LocalDateTime.now());
+					this.setSnatch2LiftTime(LocalDateTime.now());
 				}
 				if (weight == null || weight.isBlank()) {
 					this.setSnatch2LiftTime(null);
@@ -1816,6 +1814,7 @@ public class Athlete {
 	@JsonIgnore
 	public LocalDateTime getFirstAttemptedLiftTime() {
 		LocalDateTime attemptTime = LocalDateTime.MAX;// forever in the future
+		logger.warn("snatch1 {} {}", this.snatch1ActualLift, getSnatch1LiftTime());
 		if (zeroIfInvalid(this.snatch1ActualLift) != 0) {
 			attemptTime = getSnatch1LiftTime();
 		} else if (zeroIfInvalid(this.snatch2ActualLift) != 0) {
@@ -3421,7 +3420,7 @@ public class Athlete {
 		this.category = newCategory;
 		computeMainRankings();
 	}
-	
+
 	public void setCategory(Category category) {
 		this.category = category;
 	}
@@ -3656,14 +3655,19 @@ public class Athlete {
 		if (isValidation()) {
 			validateCleanJerk3ActualLift(cleanJerk3ActualLift);
 		}
-		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
-		getLogger().info("{}{} cleanJerk3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-		        cleanJerk3ActualLift);
+
 		if (nullIfInvalid(cleanJerk3ActualLift) == null) {
 			this.setCleanJerk3LiftTime((LocalDateTime) null);
 		} else {
+			if (getFop() != null) {
+				getFop().checkLastDecision();
+			}
 			this.setCleanJerk3LiftTime(LocalDateTime.now());
 		}
+
+		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
+		getLogger().info("{}{} cleanJerk3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+		        cleanJerk3ActualLift);
 	}
 
 	/*
@@ -3924,7 +3928,7 @@ public class Athlete {
 	 * @param group the group to set
 	 */
 	public void setGroup(Group group) {
-//		System.err./**/println("setting session "+group+"\n"+LoggerUtils.whereFrom());
+		// System.err./**/println("setting session "+group+"\n"+LoggerUtils.whereFrom());
 		this.group = group;
 	}
 
@@ -4170,6 +4174,7 @@ public class Athlete {
 	}
 
 	public void setSnatch1LiftTime(LocalDateTime snatch1LiftTime) {
+		logger.warn("**** snatch1LiftTime = {} {}", snatch1LiftTime, LoggerUtils.whereFrom());
 		this.snatch1LiftTime = snatch1LiftTime;
 	}
 
@@ -4276,15 +4281,20 @@ public class Athlete {
 		if (isValidation()) {
 			validateSnatch3ActualLift(snatch3ActualLift);
 		}
-		this.snatch3ActualLift = snatch3ActualLift;
-		getLogger().info("{}{} snatch3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-		        snatch3ActualLift);
+
 		if (nullIfInvalid(snatch3ActualLift) == null) {
 			// editing emptied the cell
 			this.setSnatch3LiftTime(null);
 		} else {
+			if (getFop() != null) {
+				getFop().checkLastDecision();
+			}
 			this.setSnatch3LiftTime(LocalDateTime.now());
 		}
+
+		this.snatch3ActualLift = snatch3ActualLift;
+		getLogger().info("{}{} snatch3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+		        snatch3ActualLift);
 	}
 
 	/**
@@ -5869,7 +5879,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCategorySinclairForDelta() {
-		//Category category = getCategory();
+		// Category category = getCategory();
 		Category category = RobiCategories.findIWFCategory(this, true);
 		if (category == null) {
 			return 0.0;
@@ -5903,9 +5913,9 @@ public class Athlete {
 
 	public LinkedHashSet<Category> computeTeams() {
 		LinkedHashSet<Category> collect = getParticipations().stream()
-				.filter(p -> p.getTeamMember())
-				.map(p -> p.getCategory())
-				.collect(Collectors.toCollection(LinkedHashSet::new));
+		        .filter(p -> p.getTeamMember())
+		        .map(p -> p.getCategory())
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
 		return collect;
 	}
 }

@@ -17,6 +17,7 @@ import static app.owlcms.uievents.BreakType.BEFORE_INTRODUCTION;
 import static app.owlcms.uievents.BreakType.FIRST_CJ;
 import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -762,9 +763,6 @@ public class FieldOfPlay implements IUnregister {
 
 			case INACTIVE:
 				checkDeferredWeightChanges();
-				// if (e instanceof TimeStarted) {
-				// transitionToTimeRunning();
-				// } else
 				if (e instanceof WeightChange) {
 					doWeightChange((WeightChange) e);
 				} else if (e instanceof FOPEvent.CeremonyStarted) {
@@ -874,6 +872,7 @@ public class FieldOfPlay implements IUnregister {
 				} else if (e instanceof TimeStarted) {
 					if (!getAthleteTimer().isRunning()) {
 						// don't start if already running
+						checkFirstClockForLift();
 						getAthleteTimer().start();
 					}
 					return;
@@ -904,6 +903,7 @@ public class FieldOfPlay implements IUnregister {
 
 					// we do not reset decisions or "emitted" flags
 					setState(TIME_RUNNING);
+					checkFirstClockForLift();
 					getAthleteTimer().start();
 				} else if (e instanceof WeightChange) {
 					doWeightChange((WeightChange) e);
@@ -989,6 +989,24 @@ public class FieldOfPlay implements IUnregister {
 					unexpectedEventInState(e, DECISION_VISIBLE);
 				}
 				break;
+		}
+	}
+
+	private void checkFirstClockForLift() {
+		if (getAthleteTimer().getTimeRemaining() == 60000) {
+			if (this.isFirstSnatch()) {
+				getGroup().setFirstSnatchTime(LocalDateTime.now(), this);
+			} else if (this.isFirstCJ()) {
+				getGroup().setFirstCJTime(LocalDateTime.now(), this);
+			}
+		}
+	}
+
+	public void checkLastDecision() {
+		if (this.isLastSnatch()) {
+			getGroup().setLastSnatchDecisionTime(LocalDateTime.now(), getGroup(), this);
+		} else if (this.isLastCJ()) {
+			getGroup().setLastCJDecisionTime(LocalDateTime.now(), getGroup(), this);
 		}
 	}
 
@@ -2016,7 +2034,7 @@ public class FieldOfPlay implements IUnregister {
 		}
 		String title = Translator.translate("Scoreboard." + (newRecord ? "NewRecord(s)" : "RecordAttempt(s)"), records.size());
 		String name = newRecord ? getAthleteUnderReview().getFullName() : curAthlete.getFullName();
-		title = Translator.translate("RecordNotification.Title",title, newRecordValue, name);
+		title = Translator.translate("RecordNotification.Title", title, newRecordValue, name);
 		StringBuilder sb = new StringBuilder();
 		int i = 0;
 		for (RecordEvent rec : records) {
@@ -2025,14 +2043,18 @@ public class FieldOfPlay implements IUnregister {
 			}
 			i++;
 			StringBuilder recordName = new StringBuilder();
-			recordName.append(rec.getRecordName()); recordName.append("\u00A0");
-			recordName.append(Translator.translate("Record." + rec.getRecordLift().name())); recordName.append("\u00A0");
-			recordName.append(rec.getAgeGrp()); recordName.append("\u00A0");
-			recordName.append(rec.getBwCatString()); recordName.append("\u00A0");
+			recordName.append(rec.getRecordName());
+			recordName.append("\u00A0");
+			recordName.append(Translator.translate("Record." + rec.getRecordLift().name()));
+			recordName.append("\u00A0");
+			recordName.append(rec.getAgeGrp());
+			recordName.append("\u00A0");
+			recordName.append(rec.getBwCatString());
+			recordName.append("\u00A0");
 
 			String recordValue = Long.toString(Math.round(rec.getRecordValue()));
 			sb.append(Translator.translate("RecordNotification." + (newRecord ? "New" : "Attempt"), recordName.toString(), recordValue));
-			
+
 			String date = rec.getRecordDateAsString();
 			String holder = rec.getResAthleteName();
 			boolean okDate = date != null && !date.isBlank();
@@ -2409,8 +2431,9 @@ public class FieldOfPlay implements IUnregister {
 			});
 
 			AthleteSorter.displayOrder(currentGroupAthletes);
+			// redundant filter appear to be an emergency kludge.
 			currentGroupAthletes.stream()
-			        .filter(a -> a.getGroup() != null ? a.getGroup().equals(g) : false)
+			        .filter(a -> a.getGroup() != null && a.getGroup().equals(g))
 			        .peek(a -> {
 				        if (a.getAttemptsDone() > 3 && !isCjStarted()) {
 					        this.logger.trace("set cj started");
@@ -2450,6 +2473,28 @@ public class FieldOfPlay implements IUnregister {
 
 	}
 
+	public boolean isFirstSnatch() {
+		return getLiftingOrder().stream()
+		        .allMatch(a -> a.getAttemptsDone() == 0);
+	}
+
+	public boolean isFirstCJ() {
+		return getLiftingOrder().stream()
+		        .allMatch(a -> a.getAttemptsDone() == 3);
+	}
+
+	public boolean isLastSnatch() {
+		return getLiftingOrder().stream()
+		        .filter(a -> a.getAttemptsDone() == 2)
+		        .count() == 1;
+	}
+
+	public boolean isLastCJ() {
+		return getLiftingOrder().stream()
+		        .filter(a -> a.getAttemptsDone() == 5)
+		        .count() == 1;
+	}
+	
 	private void recomputeRecordsMap(List<Athlete> athletes) {
 		// logger.debug("recompute record map");
 		this.groupRecords.clear();
@@ -2767,16 +2812,17 @@ public class FieldOfPlay implements IUnregister {
 		setState(DECISION_VISIBLE);
 		// logger.debug("*** Show decision now - doit");
 		// use "this" because the origin must also show the decision.
+
 		uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), getRefereeTime(),
 		        this);
 		recomputeLiftingOrder(true, true);
 
 		// control timing of notifications
 		new DelayTimer(isTestingMode()).schedule(
-		        () -> {        	
+		        () -> {
 			        boolean recordsBroken = !newRecords.isEmpty();
-					notifyRecords(recordsBroken ? getChallengedRecords() : List.of(), 
-			        		recordsBroken, attempted);
+			        notifyRecords(recordsBroken ? getChallengedRecords() : List.of(),
+			                recordsBroken, attempted);
 		        }, 500);
 		// tell ourself to reset after 3 secs.
 		// Decision reset will handle end of group.
@@ -3007,6 +3053,7 @@ public class FieldOfPlay implements IUnregister {
 		if (getCurAthlete().getAttemptsDone() >= 3) {
 			setCjStarted(true);
 		}
+		checkFirstClockForLift();
 		getAthleteTimer().start();
 	}
 
@@ -3285,5 +3332,4 @@ public class FieldOfPlay implements IUnregister {
 		recomputeOrderAndRanks(e.isResultChange());
 		uiDisplayCurrentAthleteAndTime(false, e, false);
 	}
-
 }

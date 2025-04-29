@@ -317,6 +317,10 @@ public class Group implements Comparable<Group> {
 	@Transient
 	@JsonIgnore
 	Pattern pattern = Pattern.compile("(\\d+)\\s+(\\w+)");
+	private LocalDateTime firstSnatchTime;
+	private LocalDateTime firstCJTime;
+	private LocalDateTime lastSnatchDecision;
+	private LocalDateTime lastCJDecision;
 
 	/**
 	 * Instantiates a new group.
@@ -904,7 +908,7 @@ public class Group implements Comparable<Group> {
 	public String getJury4() {
 		return this.jury4;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getJury4AsTO() {
@@ -918,7 +922,7 @@ public class Group implements Comparable<Group> {
 	public String getJury5() {
 		return this.jury5;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getJury5AsTO() {
@@ -1018,7 +1022,7 @@ public class Group implements Comparable<Group> {
 	public String getMarshal2() {
 		return this.marshal2;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getMarshal2AsTO() {
@@ -1034,7 +1038,7 @@ public class Group implements Comparable<Group> {
 	public String getMarshall() {
 		return this.marshall;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getMarshallAsTO() {
@@ -1545,5 +1549,41 @@ public class Group implements Comparable<Group> {
 		setHourFormatter(DateTimeFormatter
 		        .ofLocalizedTime(FormatStyle.SHORT)
 		        .withLocale(locale));
+	}
+
+	public void setFirstSnatchTime(LocalDateTime now, FieldOfPlay fop) {
+		logger.info("{}%%%%%%%%% {} setFirstSnatchTime {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
+		this.firstSnatchTime = now;
+	}
+
+	public void setFirstCJTime(LocalDateTime now, FieldOfPlay fop) {
+		logger.info("{}%%%%%%%%% {} setFirstCJTime {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
+		this.firstCJTime = now;
+	}
+
+	public void setLastSnatchDecisionTime(LocalDateTime now, Group session, FieldOfPlay fop) {
+		logger.info("{}%%%%%%%%% {} setLastSnatchDecision {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
+		this.lastSnatchDecision = now;
+	}
+
+	public void setLastCJDecisionTime(LocalDateTime now, Group session, FieldOfPlay fop) {
+		logger.info("{}%%%%%%%%% {} setLastCJDecision {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
+		this.lastCJDecision = now;
+	}
+
+	public LocalDateTime getFirstSnatchTime() {
+		return firstSnatchTime;
+	}
+
+	public LocalDateTime getFirstCJTime() {
+		return firstCJTime;
+	}
+
+	public LocalDateTime getLastSnatchDecision() {
+		return lastSnatchDecision;
+	}
+
+	public LocalDateTime getLastCJDecision() {
+		return lastCJDecision;
 	}
 }
