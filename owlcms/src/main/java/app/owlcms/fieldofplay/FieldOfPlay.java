@@ -2475,12 +2475,12 @@ public class FieldOfPlay implements IUnregister {
 
 	public boolean isFirstSnatch() {
 		return getLiftingOrder().stream()
-		        .allMatch(a -> a.getAttemptsDone() == 0);
+		        .allMatch(a -> a.getAttemptsDone() == 0 || (a.getActualLiftOrNull(1) == 0));
 	}
 
 	public boolean isFirstCJ() {
 		return getLiftingOrder().stream()
-		        .allMatch(a -> a.getAttemptsDone() == 3);
+		        .allMatch(a -> a.getAttemptsDone() == 3 || (a.getActualLiftOrNull(4) == 0));
 	}
 
 	public boolean isLastSnatch() {
@@ -2494,7 +2494,7 @@ public class FieldOfPlay implements IUnregister {
 		        .filter(a -> a.getAttemptsDone() == 5)
 		        .count() == 1;
 	}
-	
+
 	private void recomputeRecordsMap(List<Athlete> athletes) {
 		// logger.debug("recompute record map");
 		this.groupRecords.clear();
