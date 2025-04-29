@@ -675,7 +675,7 @@ public class Athlete {
 			case 2:
 				this.setSnatch2ActualLift(weight);
 				if (this.getSnatch2LiftTime() == null) {
-					this.setSnatch1LiftTime(LocalDateTime.now());
+					this.setSnatch2LiftTime(LocalDateTime.now());
 				}
 				if (weight == null || weight.isBlank()) {
 					this.setSnatch2LiftTime(null);
@@ -1825,6 +1825,7 @@ public class Athlete {
 	@JsonIgnore
 	public LocalDateTime getFirstAttemptedLiftTime() {
 		LocalDateTime attemptTime = LocalDateTime.MAX;// forever in the future
+		logger.warn("snatch1 {} {}", this.snatch1ActualLift, getSnatch1LiftTime());
 		if (zeroIfInvalid(this.snatch1ActualLift) != 0) {
 			attemptTime = getSnatch1LiftTime();
 		} else if (zeroIfInvalid(this.snatch2ActualLift) != 0) {
@@ -3698,14 +3699,19 @@ public class Athlete {
 		if (isValidation()) {
 			validateCleanJerk3ActualLift(cleanJerk3ActualLift);
 		}
-		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
-		getLogger().info("{}{} cleanJerk3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-		        cleanJerk3ActualLift);
+
 		if (nullIfInvalid(cleanJerk3ActualLift) == null) {
 			this.setCleanJerk3LiftTime((LocalDateTime) null);
 		} else {
+			if (getFop() != null) {
+				getFop().checkLastDecision();
+			}
 			this.setCleanJerk3LiftTime(LocalDateTime.now());
 		}
+
+		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
+		getLogger().info("{}{} cleanJerk3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+		        cleanJerk3ActualLift);
 	}
 
 	/*
@@ -4219,6 +4225,7 @@ public class Athlete {
 	}
 
 	public void setSnatch1LiftTime(LocalDateTime snatch1LiftTime) {
+		logger.warn("**** snatch1LiftTime = {} {}", snatch1LiftTime, LoggerUtils.whereFrom());
 		this.snatch1LiftTime = snatch1LiftTime;
 	}
 
@@ -4325,15 +4332,20 @@ public class Athlete {
 		if (isValidation()) {
 			validateSnatch3ActualLift(snatch3ActualLift);
 		}
-		this.snatch3ActualLift = snatch3ActualLift;
-		getLogger().info("{}{} snatch3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
-		        snatch3ActualLift);
+
 		if (nullIfInvalid(snatch3ActualLift) == null) {
 			// editing emptied the cell
 			this.setSnatch3LiftTime(null);
 		} else {
+			if (getFop() != null) {
+				getFop().checkLastDecision();
+			}
 			this.setSnatch3LiftTime(LocalDateTime.now());
 		}
+
+		this.snatch3ActualLift = snatch3ActualLift;
+		getLogger().info("{}{} snatch3ActualLift={}", OwlcmsSession.getFopLoggingName(), this.getShortName(),
+		        snatch3ActualLift);
 	}
 
 	/**

@@ -225,6 +225,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 			curStat = new SessionStats(groupName);
 			curStat.setCJBreakSeconds(curGroup.getCleanJerkBreakMinutes()*60);
 			for (Athlete curAthlete : curGroup.getAthletes()) {
+
 				curGroup = curAthlete.getGroup();
 				if (curGroup == null) {
 					continue; // we simply skip over athletes with no groups
@@ -233,6 +234,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 				// update stats, min, max.
 				curStat.setNbAthletes(curStat.getNbAthletes() + 1);
 				LocalDateTime minTime = curAthlete.getFirstAttemptedLiftTime();
+				logger.warn("minTime {} {}",curAthlete.getAbbreviatedName(), minTime);
 				curStat.updateMinTime(minTime);
 
 				LocalDateTime maxTime = curAthlete.getLastAttemptedLiftTime();
