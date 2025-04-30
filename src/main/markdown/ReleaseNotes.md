@@ -8,16 +8,16 @@
 
 **Maintenance Log**
 
-- 57.0.6: Fix: the Teams Membership and the Verification of Final Entries validation reports were showing duplicate entries for athletes and had missing cell formatting.
-- 57.0.5: Fix: When running on the cloud, an incompatibility between the Postgres and H2 databases was preventing the Competition Results page from loading.
-- 57.0.5: Fix: Athletes competing out of competition would hold back the awarding of medals for their category as far as the medals sheet was concerned.
-- 57.0.4: When loading an age groups file, pre-existing age groups were no longer correctly cleaned. 
-- 57.0.3: When reassigning the categories after editing age groups, fixed edge cases where an open or combined age group would be mistakenly picked as the registration category
-- 57.0.2: Fixed issue with time picker for lifting sessions that affected certain Windows laptops using atypical regional settings.
-- 57.0.1:  Athletes competing out-of-competition correctly excluded from the medal schedule calculation
+- 57.1.0: New: Recalculation of records
+- 57.1.0: Fix: Timing Statistics redone to be more precise and use the exact time of C&J break
+- 57.1.0: Ability to use Q-Points computed at Category Weight to determine best athlete.
 
 **New In Release 57**
 
+- Recalculation of records:
+  - If record files are reloaded after being modified, or record files are added or removed, or if athlete record eligibilities are changed, it is now possible to redo the computation of records.  This can be done during a competition,  or after the fact.
+
+- Timing statistics redone: the capture of the first snatch and clean & jerk clocks, as well as of the last decisions for each lift are now much more precise.  A new template is available to use these values. Unfortunately, the data used for the timing statistics cannot be inferred from older databases.
 - Record Notifications
   - All records being challenged are now shown in a single notification, that stays visible as long as decision has not been given.  Information about previous record date and record holder is shown if available.
 
@@ -49,6 +49,7 @@
   - Any championship that is neither MASTERS or DEFAULT has no special treatment.
 - Best Athlete Awards
   - The Competition Results page now has an additional checkbox to restrict the listing to category winners.  In many federations, the best lifter athlete must also be a category winner.
+  - Q-Points at category weight can now be used
 - Team Results
   - The Team Results page now also shows the combined Men + Women team results
 - Scoreboards
