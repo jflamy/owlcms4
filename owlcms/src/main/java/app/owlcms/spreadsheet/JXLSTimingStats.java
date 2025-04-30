@@ -234,7 +234,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 				// update stats, min, max.
 				curStat.setNbAthletes(curStat.getNbAthletes() + 1);
 				LocalDateTime minTime = curAthlete.getFirstAttemptedLiftTime();
-				logger.warn("minTime {} {}",curAthlete.getAbbreviatedName(), minTime);
+				//logger.debug("minTime {} {}",curAthlete.getAbbreviatedName(), minTime);
 				curStat.updateMinTime(minTime);
 
 				LocalDateTime maxTime = curAthlete.getLastAttemptedLiftTime();

@@ -105,21 +105,26 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		List<Athlete> athletes = List.of(new Athlete());
 
 		String groupName = this.group != null ? this.group.getName() : null;
-		this.records = RecordRepository.findFiltered(null, null, null, groupName, !this.isAllRecords());
+		this.setRecords(RecordRepository.findFiltered(null, null, null, groupName, !this.isAllRecords()));
+		//logger.debug("found {}",getRecords().size());
+
 		if (this.currentOnly) {
 			var recordMap = this.keepNewest();
-			this.records = new ArrayList<>(recordMap.values().stream().toList());
-			this.records.sort(sortRecords());
+			this.setRecords(new ArrayList<>(recordMap.values().stream().toList()));
+			this.getRecords().sort(sortRecords());
 		} else {
-			this.records.sort(sortRecords());
+			this.getRecords().sort(sortRecords());
 		}
-		Map<String, List<RecordEvent>> grouped = groupByAgeGroup(this.records);
+
+		Map<String, List<RecordEvent>> grouped = groupByAgeGroup(this.getRecords());
 		List<Entry<String, List<RecordEvent>>> list = new ArrayList<>();
 		for (Entry<String, List<RecordEvent>> v : grouped.entrySet()) {
 			list.add(v);
 		}
 		reportingBeans.put("agegroups", list);
-		reportingBeans.put("records", this.records);
+		reportingBeans.put("records", this.getRecords());
+		
+		//logger.debug("put {}",getRecords().size());
 		return athletes;
 	}
 
@@ -134,7 +139,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	}
 
 	public Map<String, RecordEvent> keepNewest() {
-		return this.records.stream()
+		return this.getRecords().stream()
 		        .collect(Collectors.groupingBy(
 		                RecordEvent::getKey,
 		                Collectors.collectingAndThen(
@@ -224,8 +229,15 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	}
 
 	private void setAllRecords(boolean allRecords) {
-		// logger.debug("***** allRecords = {} {}", allRecords, LoggerUtils.whereFrom());
 		this.allRecords = allRecords;
+	}
+
+	private List<RecordEvent> getRecords() {
+		return records;
+	}
+
+	private void setRecords(List<RecordEvent> records) {
+		this.records = records;
 	}
 
 }

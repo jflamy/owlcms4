@@ -1825,7 +1825,6 @@ public class Athlete {
 	@JsonIgnore
 	public LocalDateTime getFirstAttemptedLiftTime() {
 		LocalDateTime attemptTime = LocalDateTime.MAX;// forever in the future
-		logger.warn("snatch1 {} {}", this.snatch1ActualLift, getSnatch1LiftTime());
 		if (zeroIfInvalid(this.snatch1ActualLift) != 0) {
 			attemptTime = getSnatch1LiftTime();
 		} else if (zeroIfInvalid(this.snatch2ActualLift) != 0) {
@@ -4225,7 +4224,6 @@ public class Athlete {
 	}
 
 	public void setSnatch1LiftTime(LocalDateTime snatch1LiftTime) {
-		logger.warn("**** snatch1LiftTime = {} {}", snatch1LiftTime, LoggerUtils.whereFrom());
 		this.snatch1LiftTime = snatch1LiftTime;
 	}
 
@@ -6054,4 +6052,25 @@ public class Athlete {
 	public void setCatQPointsRank(Integer catQPointsRank) {
 		this.catQPointsRank = catQPointsRank;
 	}
+	
+	@Transient
+	@JsonIgnore
+	public LocalDateTime getLiftTime(int i) {
+		switch (i) {
+			case 1:
+				return getSnatch1LiftTime();
+			case 2:
+				return getSnatch2LiftTime();
+			case 3:
+				return getSnatch3LiftTime();
+			case 4:
+				return getCleanJerk1LiftTime();
+			case 5:
+				return getCleanJerk2LiftTime();
+			case 6:
+				return getCleanJerk3LiftTime();
+		}
+		return null;
+	}
+	
 }

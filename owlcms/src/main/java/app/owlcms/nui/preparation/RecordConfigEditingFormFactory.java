@@ -280,15 +280,6 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 	}
 
 	private FormLayout provisionalForm() {
-		Button clearNewRecords = new Button(Translator.translate("Preparation.ClearNewRecords"),
-		        buttonClickEvent -> {
-			        try {
-				        RecordRepository.clearNewRecords();
-			        } catch (IOException e) {
-				        throw new RuntimeException(e);
-			        }
-		        });
-
 		FormLayout recordsAvailableLayout = createLayout();
 		Component title = createTitle("Records.ProvisionalSection");
 
@@ -313,9 +304,25 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 		recordsAvailableLayout.addFormItem(newRecords, Translator.translate("Results.NewRecords"));
 
+		Button clearNewRecords = new Button(Translator.translate("Preparation.ClearNewRecords"),
+		        buttonClickEvent -> {
+			        try {
+				        RecordRepository.clearNewRecords();
+			        } catch (IOException e) {
+				        throw new RuntimeException(e);
+			        }
+		        });
 		clearNewRecords.setWidthFull();
 		recordsAvailableLayout.addFormItem(clearNewRecords,
 		        Translator.translate("Preparation.ClearNewRecordsExplanation"));
+
+		Button recomputeNewRecords = new Button(Translator.translate("Preparation.RecomputeNewRecords"),
+		        buttonClickEvent -> {
+			        RecordRepository.recomputeNewRecords();
+		        });
+		recomputeNewRecords.setWidthFull();
+		recordsAvailableLayout.addFormItem(recomputeNewRecords,
+		        Translator.translate("Preparation.RecomputeNewRecordsExplanation"));
 
 		return recordsAvailableLayout;
 	}
