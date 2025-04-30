@@ -208,6 +208,20 @@ public class AthleteSorter implements Serializable {
 			return 0;
 		}
 	}
+	
+	static public int countAllLiftsDone(List<Athlete> lifters) {
+		if (lifters != null && !lifters.isEmpty()) {
+			int totalSnatch = 0;
+			int totalCJ = 0;
+			for (Athlete Athlete : lifters) {
+				totalSnatch += Athlete.getSnatchAttemptsDone();
+				totalCJ += Athlete.getCleanJerkAttemptsDone();
+			}
+			return totalSnatch + totalCJ;
+		} else {
+			return 0;
+		}
+	}
 
 	/**
 	 * Sort athletes according to official rules (in place) <tableToolbar>

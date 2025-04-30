@@ -48,6 +48,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AbstractLifterComparator;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.Platform;
@@ -319,8 +320,8 @@ public class Group implements Comparable<Group> {
 	Pattern pattern = Pattern.compile("(\\d+)\\s+(\\w+)");
 	private LocalDateTime firstSnatchTime;
 	private LocalDateTime firstCJTime;
-	private LocalDateTime lastSnatchDecision;
-	private LocalDateTime lastCJDecision;
+	private LocalDateTime lastSnatchDecisionTime;
+	private LocalDateTime lastCJDecisionTime;
 
 	/**
 	 * Instantiates a new group.
@@ -1563,14 +1564,54 @@ public class Group implements Comparable<Group> {
 
 	public void setLastSnatchDecisionTime(LocalDateTime now, Group session, FieldOfPlay fop) {
 		logger.info("{}%%%%%%%%% {} setLastSnatchDecision {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
-		this.lastSnatchDecision = now;
+		this.lastSnatchDecisionTime = now;
 	}
 
 	public void setLastCJDecisionTime(LocalDateTime now, Group session, FieldOfPlay fop) {
 		logger.info("{}%%%%%%%%% {} setLastCJDecision {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
-		this.lastCJDecision = now;
+		this.lastCJDecisionTime = now;
 	}
 
+	public void setFirstSnatchExcelTime(double ignored) {
+		return;
+	}
+
+	public void setFirstCJExcelTime(double ignored) {
+		return;
+	}
+
+	public void setLastSnatchDecisionExcelTime(double ignored) {
+		return;
+	}
+
+	public void setLastCJDecisionExcelTime(double ignored) {
+		return;
+	}
+	@Transient
+	@JsonIgnore
+	public double getFirstSnatchExcelTime() {
+		double time = DateTimeUtils.localDateTimeToExcelDate(firstSnatchTime);
+		return time;
+	}
+
+	@Transient
+	@JsonIgnore
+	public double getFirstCJExcelTime() {
+		return DateTimeUtils.localDateTimeToExcelDate(firstCJTime);
+	}
+
+	@Transient
+	@JsonIgnore
+	public double getLastSnatchDecisionExcelTime() {
+		return DateTimeUtils.localDateTimeToExcelDate(lastSnatchDecisionTime);
+	}
+
+	@Transient
+	@JsonIgnore
+	public double getLastCJDecisionExcelTime() {
+		return DateTimeUtils.localDateTimeToExcelDate(lastCJDecisionTime);
+	}
+	
 	public LocalDateTime getFirstSnatchTime() {
 		return firstSnatchTime;
 	}
@@ -1579,11 +1620,19 @@ public class Group implements Comparable<Group> {
 		return firstCJTime;
 	}
 
-	public LocalDateTime getLastSnatchDecision() {
-		return lastSnatchDecision;
+	public LocalDateTime getLastSnatchDecisionTime() {
+		return lastSnatchDecisionTime;
 	}
 
-	public LocalDateTime getLastCJDecision() {
-		return lastCJDecision;
+	public LocalDateTime getLastCJDecisionTime() {
+		return lastCJDecisionTime;
+	}
+	
+	public int getNbAthletes() {
+		return getAthletes().size();
+	}
+	
+	public int getNbAttemptedLifts() {
+		return AthleteSorter.countAllLiftsDone(getAthletes());
 	}
 }

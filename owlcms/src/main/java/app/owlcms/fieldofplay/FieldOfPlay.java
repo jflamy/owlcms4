@@ -2475,12 +2475,12 @@ public class FieldOfPlay implements IUnregister {
 
 	public boolean isFirstSnatch() {
 		return getLiftingOrder().stream()
-		        .allMatch(a -> a.getAttemptsDone() == 0 || (a.getActualLiftOrNull(1) == 0));
+		        .allMatch(a -> a.getAttemptsDone() == 0 || Integer.valueOf(0).equals(a.getActualLiftOrNull(1)));
 	}
 
 	public boolean isFirstCJ() {
 		return getLiftingOrder().stream()
-		        .allMatch(a -> a.getAttemptsDone() == 3 || (a.getActualLiftOrNull(4) == 0));
+		        .allMatch(a -> a.getAttemptsDone() == 3 || Integer.valueOf(0).equals(a.getActualLiftOrNull(4)));
 	}
 
 	public boolean isLastSnatch() {

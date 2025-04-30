@@ -651,6 +651,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				}
 				workbook = new HSSFWorkbook();
 				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
+				workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
 			}
 		} catch (Throwable t) {
 			LoggerUtils.logError(logger, t);
