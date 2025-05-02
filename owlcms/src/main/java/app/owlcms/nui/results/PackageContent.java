@@ -423,8 +423,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	protected AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		Ranking scoringSystem = computeScoringSystem();
-		this.setScoringSystem(scoringSystem);
+//		Ranking scoringSystem = null;
+//		this.setScoringSystem(scoringSystem);
 		Grid<Athlete> grid = SessionResultsContent.createResultGrid(this.getScoringSystem());
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
@@ -505,12 +505,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			scoringCombo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "30ch");
 			scoringCombo.setWidth("30ch");
 			this.setRankingSelector(scoringCombo);
+			scoringCombo.setClearButtonVisible(true);
 			getCrudLayout(crud).addFilterComponent(scoringCombo);
-			scoringCombo.setValue(computeScoringSystem());
+			scoringCombo.setValue(getScoringSystem());
 			scoringCombo.addValueChangeListener(event -> {
 				if (!event.isFromClient()) {
 					return;
 				}
+				logger.warn("setting to {}",event.getValue());
 				setScoringSystem(event.getValue());
 				resetGrid();
 			});

@@ -1090,9 +1090,16 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getBestLifterScore() {
-		// if we are invoked from a printing thread, the value will be defined.
-		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingTL();
-		scoringSystem = scoringSystem != null ? scoringSystem : Competition.getCurrent().getScoringSystem();
+		var scoringSystem = getAgeGroup().getBestAthleteScoringSystem();
+		if (scoringSystem == null) {
+			// if we are invoked from a printing thread, this value will be defined.
+			scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingTL();
+			if (scoringSystem == null) {
+				// this will be used on the interactive page as the default
+				Competition.getCurrent().getScoringSystem();
+			}
+		}
+
 		return Ranking.getRankingValue(this, scoringSystem);
 	}
 
@@ -5972,7 +5979,8 @@ public class Athlete {
 			return 0.0D;
 		}
 		Double sinclairForDelta = getSinclairForDelta(categoryWeight);
-		//if (getLastName().equals("Brunelle")) logger.debug("getCategorySinclairForDelta {} === {} {}", categoryWeight, sinclairForDelta, LoggerUtils.whereFrom());
+		// if (getLastName().equals("Brunelle")) logger.debug("getCategorySinclairForDelta {} === {} {}", categoryWeight, sinclairForDelta,
+		// LoggerUtils.whereFrom());
 		return sinclairForDelta;
 	}
 
@@ -6001,7 +6009,8 @@ public class Athlete {
 		Double qPointsFactor = qPointsCoefficients.qPointsFactor(getGender(), (double) intCatWeight);
 		Integer value = getBestCleanJerk() + getBestSnatch();
 		var qPoints = value * qPointsFactor;
-		// if (lastName.equals("Brunelle") || lastName.equals("Prince")) logger.debug("--------------- bw {} cat {} qpoints {} catQPoints {}", getBodyWeight(), intCatWeight, getQPoints(), qPoints);
+		// if (lastName.equals("Brunelle") || lastName.equals("Prince")) logger.debug("--------------- bw {} cat {} qpoints {} catQPoints {}", getBodyWeight(),
+		// intCatWeight, getQPoints(), qPoints);
 		return qPoints;
 	}
 
@@ -6052,7 +6061,7 @@ public class Athlete {
 	public void setCatQPointsRank(Integer catQPointsRank) {
 		this.catQPointsRank = catQPointsRank;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public LocalDateTime getLiftTime(int i) {
@@ -6072,5 +6081,5 @@ public class Athlete {
 		}
 		return null;
 	}
-	
+
 }

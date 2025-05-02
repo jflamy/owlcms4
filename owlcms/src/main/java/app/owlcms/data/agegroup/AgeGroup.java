@@ -143,6 +143,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@JsonIgnore
 	private Boolean forceSave = null;
 	private ChampionshipType championshipType;
+	private Ranking bestAthleteScoringSystem;
 
 	public AgeGroup() {
 	}
@@ -544,5 +545,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		// OwlcmsSession.getLocale());
 		// return translatedCode != null ? translatedCode : code2;
 		return code2;
+	}
+
+	public void setBestAthleteScoringSystem(Ranking rv) {
+		this.bestAthleteScoringSystem = rv;
+	}
+
+	public Ranking getBestAthleteScoringSystem() {
+		return bestAthleteScoringSystem;
 	}
 }

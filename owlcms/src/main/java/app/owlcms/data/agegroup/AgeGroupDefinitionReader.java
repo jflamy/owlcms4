@@ -42,6 +42,7 @@ import ch.qos.logback.classic.Logger;
 public class AgeGroupDefinitionReader {
 
 	private static final String AGE_GROUP_SCORING_HEADER = "agegroupscoring";
+	private static final String AGE_GROUP_BEST_ATHLETE = "agegroupbestathlete";
 	private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupDefinitionReader.class);
 	static DataFormatter formatter = new DataFormatter();
 	private static int[] countDefaults = new int[Gender.values().length];
@@ -66,12 +67,14 @@ public class AgeGroupDefinitionReader {
 			Iterator<Row> rowIterator = sheet.rowIterator();
 			int iRow;
 			boolean ageGroupScoring = false;
+			boolean ageGroupBestAthlete = false;
 			rows: while (rowIterator.hasNext()) {
 				int iColumn;
 				Row row;
 				row = rowIterator.next();
 				iRow = row.getRowNum();
 				if (iRow == 0) {
+					logger.warn("processing header");
 					// process header
 					iRow = row.getRowNum();
 					Cell scoring = row.getCell(7);
@@ -79,6 +82,15 @@ public class AgeGroupDefinitionReader {
 						try {
 							String lowerCase = scoring.getStringCellValue().toLowerCase();
 							ageGroupScoring = lowerCase.equals(AGE_GROUP_SCORING_HEADER);
+						} catch (Exception e) {
+						}
+					}
+					Cell bestAthlete = row.getCell(8);
+					logger.warn("bestAthlete {}",bestAthlete);
+					if (bestAthlete != null) {
+						try {
+							String lowerCase = bestAthlete.getStringCellValue().toLowerCase();
+							ageGroupBestAthlete = lowerCase.equals(AGE_GROUP_BEST_ATHLETE);
 						} catch (Exception e) {
 						}
 					}
@@ -158,7 +170,7 @@ public class AgeGroupDefinitionReader {
 							} else {
 								String code = ag.getKey();
 								if (code != null && (ageGroupByCode.get(code) != null)) {
-									reportError(iRow, iColumn, null, new IllegalArgumentException("Duplicate Age Group "+ag.getDisplayName()+" Ignored"));
+									reportError(iRow, iColumn, null, new IllegalArgumentException("Duplicate Age Group " + ag.getDisplayName() + " Ignored"));
 									skip = true;
 									ag = null;
 								} else {
@@ -207,6 +219,23 @@ public class AgeGroupDefinitionReader {
 											reportError(iRow, iColumn, cellValue, new IllegalArgumentException(lowerCase));
 										} else {
 											ag.setScoringSystem(rv);
+										}
+									} catch (Exception e) {
+										reportError(iRow, iColumn, cellValue, e);
+									}
+								}
+							} else if (ageGroupBestAthlete && iColumn == 8) {
+								String cellValue = null;
+								cellValue = safeGetTextValue(cell);
+								if (cellValue != null && !cellValue.isBlank()) {
+									try {
+										String lowerCase = cellValue.toLowerCase();
+										Ranking rv = Ranking.rankingByReportingName.get(lowerCase);
+										if (rv == null) {
+											reportError(iRow, iColumn, cellValue, new IllegalArgumentException(lowerCase));
+										} else {
+											logger.warn("ag {} bass {}", ag, rv);
+											ag.setBestAthleteScoringSystem(rv);
 										}
 									} catch (Exception e) {
 										reportError(iRow, iColumn, cellValue, e);

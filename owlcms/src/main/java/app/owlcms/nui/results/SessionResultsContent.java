@@ -38,7 +38,6 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.data.renderer.NumberRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.ThemeList;
@@ -121,32 +120,38 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		        .setComparator(new WinningOrderComparator(Ranking.CLEANJERK, false))
 		        .setRenderer(new TextRenderer<>((a) -> Ranking.formatScoreboardRank(a.getCleanJerkRank())));
 
-		grid.addColumn(new NumberRenderer<>(a -> Ranking.getRankingValue(a, scoringSystem), "%.2f",
-		        OwlcmsSession.getLocale(), "0.00"))
-		        .setSortProperty("score").setHeader(Translator.translate("Ranking." + scoringSystem))
-		        .setComparator(new WinningOrderComparator(scoringSystem, true));
-
-		// if (scoringSystem != Ranking.BW_SINCLAIR) {
-		// grid.addColumn(
-		// new NumberRenderer<>(Athlete::getSinclairForDelta, "%.3f", OwlcmsSession.getLocale(), "0.000"))
-		// .setSortProperty("sinclair").setHeader(Translator.translate("sinclair"))
-		// .setComparator(new WinningOrderComparator(Ranking.BW_SINCLAIR, true));
-		// }
-		//
-		// if (scoringSystem != Ranking.SMM) {
-		// grid.addColumn(new NumberRenderer<>(Athlete::getSmhfForDelta, "%.3f", OwlcmsSession.getLocale(), "-"))
-		// .setHeader(Translator.translate("smhf"))
-		// .setSortProperty("smm")
-		// .setComparator(new WinningOrderComparator(Ranking.SMM, true));
-		// }
-		//
-		// if (scoringSystem != Ranking.ROBI) {
-		// grid.addColumn(new NumberRenderer<>(Athlete::getRobi, "%.3f", OwlcmsSession.getLocale(), "-"))
-		// .setSortProperty("robi")
-		// .setHeader(Translator.translate("robi"))
-		// .setComparator(new WinningOrderComparator(Ranking.ROBI, true));
-		// }
+		// NumberRenderer<Athlete> renderer;
+		// renderer = new NumberRenderer<>(a -> Ranking.getRankingValue(a, scoringSystem), "%.2f", OwlcmsSession.getLocale(), "0000.00");
+		grid.addColumn(
+		        a -> computeScore(scoringSystem, a))
+		        //.setSortProperty("bestAthleteScore")
+		        .setHeader(
+		                // Translator.translate("Ranking." + scoringSystem
+		                Translator.translate("Score"))
+		        //.setComparator(new WinningOrderComparator(scoringSystem, true))
+//		        .setComparator( (d,e) -> Comparator
+//		        		.comparing((Athlete x) -> computeScore(scoringSystem, df, x))
+//		        		.compare(d,e));
+		        .setSortable(true);
 		return grid;
+	}
+
+	public static String computeScore(Ranking scoringSystem, Athlete a) {
+		var compSS = Competition.getCurrent().getScoringSystem();
+		var ageGroup = a.getAgeGroup();
+
+		Ranking ss;
+		if (scoringSystem != null) {
+		    // use the dropdown selection if it is present.
+		    ss = scoringSystem;
+		} else if (ageGroup != null) {
+			ss = ageGroup.getBestAthleteScoringSystem() != null ?  ageGroup.getBestAthleteScoringSystem() : compSS;
+		} else {
+			// defensive
+			ss = Competition.getCurrent().getScoringSystem();
+		}
+		logger.warn("scoringSystem {} ss {}",scoringSystem, ss);
+		return Ranking.getScoringTitle(ss) + " " + String.format(OwlcmsSession.getLocale(), "%7.2f", Ranking.getRankingValue(a, ss));
 	}
 
 	public static String formatBlankRank(Integer total) {
@@ -193,8 +198,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	 */
 	@Override
 	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		Ranking scoringSystem = computeScoringSystem();
-		Grid<Athlete> grid = SessionResultsContent.createResultGrid(scoringSystem);
+		Grid<Athlete> grid = SessionResultsContent.createResultGrid(null);
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
@@ -411,7 +415,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		logger.debug("params {}", params);
 
 		// change the URL to reflect group
-		URLUtils.replaceState(event.getUI().getPage().getHistory(),null,
+		URLUtils.replaceState(event.getUI().getPage().getHistory(), null,
 		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 
@@ -429,7 +433,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		} else {
 			params.remove("group");
 		}
-		URLUtils.replaceState(ui.getPage().getHistory(),null,
+		URLUtils.replaceState(ui.getPage().getHistory(), null,
 		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 
