@@ -132,6 +132,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 //		        .setComparator( (d,e) -> Comparator
 //		        		.comparing((Athlete x) -> computeScore(scoringSystem, df, x))
 //		        		.compare(d,e));
+		        .setAutoWidth(true)
 		        .setSortable(true);
 		return grid;
 	}
@@ -150,7 +151,6 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			// defensive
 			ss = Competition.getCurrent().getScoringSystem();
 		}
-		logger.warn("scoringSystem {} ss {}",scoringSystem, ss);
 		return Ranking.getScoringTitle(ss) + " " + String.format(OwlcmsSession.getLocale(), "%7.2f", Ranking.getRankingValue(a, ss));
 	}
 

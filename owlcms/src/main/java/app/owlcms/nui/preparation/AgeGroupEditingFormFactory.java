@@ -147,6 +147,17 @@ public class AgeGroupEditingFormFactory
 		// logger.debug("***** scoring system {}", aFromDb.getMedalScoringSystem());
 		this.binder.forField(medalScoreSystemField).bind(AgeGroup::getMedalScoringSystem, AgeGroup::setScoringSystem);
 		formLayout.addFormItem(medalScoreSystemField, createLabel(Translator.translate("MedalScoringSystem")));
+		
+		ComboBox<Ranking> bestLifterSystemField = new ComboBox<>();
+		bestLifterSystemField.setClearButtonVisible(true);
+		bestLifterSystemField.setItems(new ListDataProvider<>(medalScoreRankings));
+		bestLifterSystemField.setItemLabelGenerator((ad) -> Translator.translate("Ranking." + ad.name()));
+		// logger.debug("***** scoring system {}", aFromDb.getMedalScoringSystem());
+		this.binder.forField(bestLifterSystemField).bind(AgeGroup::getBestAthleteScoringSystem, AgeGroup::setBestAthleteScoringSystem);
+		formLayout.addFormItem(bestLifterSystemField, createLabel(Translator.translate("AgeGroup.BestAthleteScoringSystem")));
+		bestLifterSystemField.setHelperText(Translator.translate("AgeGroup.BestAthleteScoringSystemExplanation")
+				.replaceAll(" ", "\u00A0")
+				.replaceAll("-", "\u0211"));
 
 		TextField minAgeField = new TextField();
 		formLayout.addFormItem(minAgeField, createLabel(Translator.translate("MinimumAge")));

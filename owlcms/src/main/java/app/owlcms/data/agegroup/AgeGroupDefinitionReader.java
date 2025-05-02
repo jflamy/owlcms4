@@ -74,7 +74,6 @@ public class AgeGroupDefinitionReader {
 				row = rowIterator.next();
 				iRow = row.getRowNum();
 				if (iRow == 0) {
-					logger.warn("processing header");
 					// process header
 					iRow = row.getRowNum();
 					Cell scoring = row.getCell(7);
@@ -86,7 +85,6 @@ public class AgeGroupDefinitionReader {
 						}
 					}
 					Cell bestAthlete = row.getCell(8);
-					logger.warn("bestAthlete {}",bestAthlete);
 					if (bestAthlete != null) {
 						try {
 							String lowerCase = bestAthlete.getStringCellValue().toLowerCase();
@@ -234,7 +232,6 @@ public class AgeGroupDefinitionReader {
 										if (rv == null) {
 											reportError(iRow, iColumn, cellValue, new IllegalArgumentException(lowerCase));
 										} else {
-											logger.warn("ag {} bass {}", ag, rv);
 											ag.setBestAthleteScoringSystem(rv);
 										}
 									} catch (Exception e) {

@@ -423,8 +423,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	protected AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-//		Ranking scoringSystem = null;
-//		this.setScoringSystem(scoringSystem);
 		Grid<Athlete> grid = SessionResultsContent.createResultGrid(this.getScoringSystem());
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
@@ -512,7 +510,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 				if (!event.isFromClient()) {
 					return;
 				}
-				logger.warn("setting to {}",event.getValue());
 				setScoringSystem(event.getValue());
 				resetGrid();
 			});
