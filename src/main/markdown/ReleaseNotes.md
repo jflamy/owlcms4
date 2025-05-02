@@ -8,12 +8,20 @@
 
 **Maintenance Log**
 
+- 57.1.0: New: Ability to override the Best Athlete scoring scheme used for an age group.
 - 57.1.0: New: Recalculation of records
 - 57.1.0: Fix: Timing Statistics redone to be more precise and use the exact time of C&J break
 - 57.1.0: Ability to use Q-Points computed at Category Weight to determine best athlete.
 
 **New In Release 57**
 
+- Age-Group-Specific Best Athlete
+  - It is now possible to have a best athlete formula specific to an age group. For example, using Q-Youth for young athletes instead of Q-Points.
+
+  - A new competition results template "CompetitionResults" shows the best athlete score according to the age group.
+  
+  - The scoring system used for producing results can still be explicitly selected, in which case age-group-specific scores are not used.
+  
 - Recalculation of records:
   - If record files are reloaded after being modified, or record files are added or removed, or if athlete record eligibilities are changed, it is now possible to redo the computation of records.  This can be done during a competition,  or after the fact.
 
@@ -21,7 +29,7 @@
 - Record Notifications
   - All records being challenged are now shown in a single notification, that stays visible as long as decision has not been given.  Information about previous record date and record holder is shown if available.
 
-  - When a record is broken, the previous records are now shown again.
+  - When a record is broken, the record being improved is again shown for the benefit of
 - Import Database Restart Reminder: A warning is now given to restart the system after importing. This is important before running a meet or starting a simulation to ensure that all settings are completely in line with the database.
 - Competition Rules
   - Added the ability to specify whether IMWA or UWML rules are used.  

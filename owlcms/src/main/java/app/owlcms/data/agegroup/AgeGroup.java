@@ -38,6 +38,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.i18n.Translator;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -557,6 +558,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 	
 	public String getBestAthleteScoringSystemTitle() {
-		return Translator.translate("Ranking."+bestAthleteScoringSystem);
+		var explicitBLR = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
+		return Translator.translate("Ranking."+ (explicitBLR != null ? explicitBLR : bestAthleteScoringSystem));
 	}
 }

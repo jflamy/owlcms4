@@ -89,21 +89,19 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		tagLogger.setLevel(Level.ERROR);
 	}
 
-	public static Ranking getBestLifterRankingTL() {
+	public static Ranking getBestLifterRankingThreadLocal() {
 		Ranking blss = bestLifterRankingSystem.get();
-		if (blss == null) {
-			blss = Competition.getCurrent().getScoringSystem();
-		}
+//		if (blss == null) {
+//			blss = Competition.getCurrent().getScoringSystem();
+//		}
 		return blss;
 	}
 
-	protected static void setBestLifterRankingThreadLocal(Ranking bestLifterRankingValue) {
-		logger.debug("**** setting {}", bestLifterRankingValue);
+	public static void setBestLifterRankingThreadLocal(Ranking bestLifterRankingValue) {
 		bestLifterRankingSystem.set(bestLifterRankingValue);
 	}
 	
 	protected static void setNoInterimScoresInResults(boolean noInterimScoresInResultsP) {
-		logger.debug("**** setting {}", noInterimScoresInResultsP);
 		noInterimScoresInResults.set(noInterimScoresInResultsP);
 	}
 	
@@ -583,12 +581,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		List<Group> sessions = GroupRepository.findAll().stream().sorted(Group.groupWeighinTimeComparator)
 		        .collect(Collectors.toList());
 
-		Ranking overallScoringSystem = this.getBestLifterScoringSystem();
-		overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
+//		Ranking overallScoringSystem = this.getBestLifterScoringSystem();
+//		overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
+		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 
 		// make available to the Athlete class in this Thread (and subThreads).
-		JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(overallScoringSystem);
-		this.reportingBeans.put("bestRankingTitle", Ranking.getScoringTitle(overallScoringSystem));
+		this.reportingBeans.put("bestRankingTitle", overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete"));
 
 		getReportingBeans().put("groups", sessions);
 		getReportingBeans().put("sessions", sessions);

@@ -70,6 +70,7 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.spreadsheet.JXLSWinningSheet;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -597,9 +598,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
 			ranking = getRankingSelector().getValue();
 		} else {
-			ranking = getScoringSystem() != null ? getScoringSystem() : Competition.getCurrent().getScoringSystem();
+			//ranking = getScoringSystem() != null ? getScoringSystem() : Competition.getCurrent().getScoringSystem();
+			ranking = null;
 		}
-		logger.debug("computeScoringSystem {}", ranking);
 		return ranking;
 	}
 
@@ -614,8 +615,9 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
 
 			        Ranking computeScoringSystem = computeScoringSystem();
-			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem, computeScoringSystem.getMReportingName());
+			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem);
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
+			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 
 			        List<Athlete> all = (List<Athlete>) findAll();
 			        rs.setSortedAthletes(all);
@@ -641,7 +643,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
 			        rs.setWinnersOnly(this.winnersOnly);
 			        Ranking computeScoringSystem = computeScoringSystem();
-			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem, computeScoringSystem.getMReportingName());
+			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem);
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
 			        return rs;
 		        },
@@ -667,8 +669,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setSortedAthletes((List<Athlete>) findAll());
 
 			        Ranking computeScoringSystem = computeScoringSystem();
-			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem, computeScoringSystem.getMReportingName());
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
+			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 			        return rs;
 		        },
 		        "/templates/competitionResults",

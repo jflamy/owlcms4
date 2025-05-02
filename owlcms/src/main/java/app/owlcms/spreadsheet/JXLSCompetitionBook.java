@@ -145,12 +145,19 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 		reportingBeans.put("records", records);
 
-		Ranking overallScoringSystem = this.getBestLifterScoringSystem();
-		overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
+//		Ranking overallScoringSystem = this.getBestLifterScoringSystem();
+//		overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
 		// make available to the Athlete class in this Thread (and subThreads).
-		JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(overallScoringSystem);
+		//JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(overallScoringSystem);
+
+		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		JXLSWorkbookStreamSource.setNoInterimScoresInResults(Config.getCurrent().featureSwitch("noInterimScoresInResults"));
-		reportingBeans.put("bestRankingTitle", Ranking.getScoringTitle(overallScoringSystem));
+		if (overallScoringSystem == null) {
+			overallScoringSystem = Competition.getCurrent().getScoringSystem();
+		}
+		
+		String brt = overallScoringSystem == null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete");
+		reportingBeans.put("bestRankingTitle", brt);
 
 		if (isWinnersOnly()) {
 			Collection<Athlete> bestMen = ((Collection<Athlete>) reportingBeans

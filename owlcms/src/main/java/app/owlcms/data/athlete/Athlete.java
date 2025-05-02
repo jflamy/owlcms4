@@ -1082,7 +1082,7 @@ public class Athlete {
 	@JsonIgnore
 	public int getBestLifterRank() {
 		// if we are invoked from a printing thread, the value will be defined.
-		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingTL();
+		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		scoringSystem = scoringSystem != null ? scoringSystem : Competition.getCurrent().getScoringSystem();
 		return Ranking.getRanking(this, scoringSystem);
 	}
@@ -1090,10 +1090,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getBestLifterScore() {
-		var scoringSystem = getAgeGroup().getBestAthleteScoringSystem();
+		var scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		if (scoringSystem == null) {
 			// if we are invoked from a printing thread, this value will be defined.
-			scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingTL();
+			scoringSystem = getAgeGroup().getBestAthleteScoringSystem();
 			if (scoringSystem == null) {
 				// this will be used on the interactive page as the default
 				Competition.getCurrent().getScoringSystem();
