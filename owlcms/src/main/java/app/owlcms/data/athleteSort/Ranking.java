@@ -303,4 +303,12 @@ public enum Ranking {
 		this.medalScore = medalScore;
 	}
 
+	public String getReportingName() {
+		return reportingName;
+	}
+
+	public void setReportingName(String reportingName) {
+		this.reportingName = reportingName;
+	}
+
 }

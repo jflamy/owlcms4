@@ -37,6 +37,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -553,5 +554,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	public Ranking getBestAthleteScoringSystem() {
 		return bestAthleteScoringSystem;
+	}
+	
+	public String getBestAthleteScoringSystemTitle() {
+		return Translator.translate("Ranking."+bestAthleteScoringSystem);
 	}
 }
