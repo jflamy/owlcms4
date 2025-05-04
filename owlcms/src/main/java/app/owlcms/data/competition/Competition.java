@@ -950,11 +950,11 @@ public class Competition {
 					        return true; // remove from list.
 				        }
 				        // logger.trace("athletes {} {}", k, athletes);
-				        
+
 				        // category includes an athlete that has not finished, mark it as "to be
-				        // removed".  Athletes out of competition don't count as not being done.
+				        // removed". Athletes out of competition don't count as not being done.
 				        boolean anyMatch = athletes.stream().anyMatch(a -> (!a.isDone(g) && a.isEligibleForIndividualRanking()));
-				        
+
 				        // logger.trace("category {} has finished {}", k, !anyMatch);
 				        // return those that have not finished
 				        return anyMatch;
@@ -1634,11 +1634,13 @@ public class Competition {
 		getOrCreateBean("mCustom" + suffix).clear();
 		getOrCreateBean("wCustom" + suffix).clear();
 		getOrCreateBean("mwCustom" + suffix).clear();
+		getOrCreateBean("mTeamBest" + suffix).clear();
+		getOrCreateBean("wTeamBest" + suffix).clear();
 	}
 
 	private void doComputeReportingInfo(boolean full, List<Athlete> athletes, String ageGroupPrefix,
 	        Championship ad) {
-		
+
 		// reporting does many database queries. fork a low-priority thread.
 		// logger.trace("doComputeReportingInfo {}",LoggerUtils.whereFrom());
 		runInThread(() -> {
@@ -1650,23 +1652,23 @@ public class Competition {
 			}
 
 			try {
-			// the ranks within a category are stored in the database and
-			// not recomputed
-			categoryRankings(athletes);
+				// the ranks within a category are stored in the database and
+				// not recomputed
+				categoryRankings(athletes);
 
-			// splitResultsByGroups(athletes);
-			if (full) {
-				this.reportingBeans.put("athletes", athletes);
-				// logger.trace("championship={} ageGroupPrefix={}", ad, ageGroupPrefix);
-				if (ad != null && (ageGroupPrefix == null || ageGroupPrefix.isBlank())) {
-					// iterate over all age groups present in championship ad
-					teamRankingsForAgeDivision(ad);
-				} else {
-					teamRankings(athletes, ageGroupPrefix);
+				// splitResultsByGroups(athletes);
+				if (full) {
+					this.reportingBeans.put("athletes", athletes);
+					// logger.trace("championship={} ageGroupPrefix={}", ad, ageGroupPrefix);
+					if (ad != null && (ageGroupPrefix == null || ageGroupPrefix.isBlank())) {
+						// iterate over all age groups present in championship ad
+						teamRankingsForAgeDivision(ad);
+					} else {
+						teamRankings(athletes, ageGroupPrefix);
+					}
 				}
-			}
 
-			doGlobalRankings(athletes, false);
+				doGlobalRankings(athletes, false);
 			} catch (Throwable t) {
 				t.printStackTrace();
 				throw t;
@@ -1739,8 +1741,7 @@ public class Competition {
 	 */
 	private void doTeamRankings(List<Athlete> athletes, String suffix, boolean singleAgeGroup) {
 		// team-oriented rankings. These rankings put all the athletes from the same
-		// team
-		// together, sorted according to their points, so the top n can be kept if
+		// team together, sorted according to their points, so the top n can be kept if
 		// needed.
 		// substitutes are not included -- they should be marked as
 		// !isEligibleForTeamRanking
@@ -1786,11 +1787,15 @@ public class Competition {
 			reportCustom(sortedAthletes, sortedMen, sortedWomen);
 		}
 
-		// this is most likely obsolete
-		sortedMen = getOrCreateBean("mTeamSinclair" + suffix);
-		sortedWomen = getOrCreateBean("wTeamSinclair" + suffix);
-		AthleteSorter.teamPointsOrder(sortedMen, Ranking.BW_SINCLAIR);
-		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.BW_SINCLAIR);
+		AthleteSorter.teamPointsOrder(sortedMen, Competition.getCurrent().getScoringSystem());
+		AthleteSorter.teamPointsOrder(sortedWomen, Competition.getCurrent().getScoringSystem());
+		addToReportingBean("mTeamBest" + suffix, sortedMen);
+//		logger.debug("mteamBest {} {}",
+//				sortedMen.stream()
+//				.filter(a -> a.getTeam().equals("Category 5 Athletics"))
+//				.map(a -> a.getAbbreviatedName() + " " + a.getBestLifterScore() + " " +a.getBestLifterRank())
+//				.collect(Collectors.joining("\n")));
+		addToReportingBean("wTeamBest" + suffix, sortedWomen);
 	}
 
 	private String getMedalsTemplateFileName() {
@@ -2055,10 +2060,10 @@ public class Competition {
 	public boolean isMasters20kg() {
 		return !imwa || Config.getCurrent().featureSwitch("masters20kg");
 	}
-	
-//	public void setMasters20kg(boolean masters20kg) {
-//		this.masters20kg = masters20kg;
-//	}
+
+	// public void setMasters20kg(boolean masters20kg) {
+	// this.masters20kg = masters20kg;
+	// }
 
 	public LocalDate getCompetitionEndDate() {
 		return competitionEndDate;
@@ -2071,7 +2076,7 @@ public class Competition {
 	public boolean isImwa() {
 		return this.imwa;
 	}
-	
+
 	public void setImwa(boolean imwa) {
 		this.imwa = imwa;
 	}

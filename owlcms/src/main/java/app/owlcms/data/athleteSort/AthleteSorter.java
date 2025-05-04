@@ -650,8 +650,9 @@ public class AthleteSorter implements Serializable {
 	 *
 	 * @param toBeSorted  the to be sorted
 	 * @param rankingType the ranking type
+	 * @return 
 	 */
-	public static void teamPointsOrder(List<Athlete> toBeSorted, Ranking rankingType) {
+	public static List<Athlete> teamPointsOrder(List<Athlete> toBeSorted, Ranking rankingType) {
 		Collections.sort(toBeSorted, new TeamPointsComparator(rankingType));
 	}
 
