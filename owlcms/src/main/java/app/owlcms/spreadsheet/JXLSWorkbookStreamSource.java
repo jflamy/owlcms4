@@ -559,6 +559,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 		Competition competition = Competition.getCurrent();
 		getReportingBeans().put("t", Translator.getMap());
+		getReportingBeans().put("tf", new JXLSFormatter());
 		getReportingBeans().put("competition", competition);
 		getReportingBeans().put("session", getGroup()); // legacy
 		getReportingBeans().put("group", getGroup());
