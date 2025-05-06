@@ -1,14 +1,12 @@
-
-
-### ⚠️⚠️⚠️ OWLCMS INSTALLATION PROCEDURE⚠️⚠️⚠️
-**Since version 55, the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is the normal way to install and run OWLCMS. **
-**See the [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) for details.**
+⚠️⚠️⚠️ **Since version 55, the [owlcms Control Panel](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md) is used to install and run OWLCMS.  **
+**See the [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md) for details.** ⚠️⚠️⚠️
 
 <br>
 
 **Maintenance Log**
 
 - 57.1.0: Translation of the Introduction sheet, added referees
+- 57.1.0: Updated the local/agegroups file for additional columns (scoring, best athlete)
 - 57.1.0: Adjustments to the session results sheet to correctly show TO affiliation numbers when available
 - 57.1.0: New: Ability to override the Best Athlete scoring scheme used for an age group.
 - 57.1.0: New: Recalculation of records
@@ -21,6 +19,7 @@
   - It is now possible to have a best athlete formula specific to an age group. For example, using Q-Youth for young athletes instead of Q-Points.
   - A new competition results template "CompetitionResults" shows the best athlete score according to the age group.
   - The scoring system used for producing results can still be explicitly selected, in which case age-group-specific scores are not used.  This is recommended when producing final packages for a championship.
+  - The age group files provided in `local/agegroups` have been updated to show the additional columns.
 - Recalculation of records:
   - If record files are reloaded after being modified, or record files are added or removed, or if athlete record eligibilities are changed, it is now possible to redo the computation of records.  This can be done during a competition,  or after the fact.
 - Timing statistics redone: the capture of the first snatch and clean & jerk clocks, as well as of the last decisions for each lift are now much more precise.  A new template is available to use these values. Unfortunately, the data used for the timing statistics cannot be inferred from older databases.
