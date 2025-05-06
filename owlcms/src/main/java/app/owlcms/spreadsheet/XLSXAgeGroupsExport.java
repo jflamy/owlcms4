@@ -44,6 +44,7 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			header.createCell(5).setCellValue("to");
 			header.createCell(6).setCellValue("active");
 			header.createCell(7).setCellValue("agegroupscoring");
+			header.createCell(8).setCellValue("agegroupbestathlete");
 
 			List<AgeGroup> ageGroups = AgeGroupRepository.findAll();
 			ageGroups.sort(Comparator
@@ -62,9 +63,11 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 				curRow.createCell(5).setCellValue(ag.getMaxAge());
 				curRow.createCell(6).setCellValue(ag.isActive());
 				Ranking scoringSystem = ag.getComputedScoringSystem();
-				curRow.createCell(7).setCellValue(scoringSystem == Ranking.TOTAL ? "" : scoringSystem.name());
+				curRow.createCell(7).setCellValue(scoringSystem == Ranking.TOTAL ? "" : scoringSystem.getReportingName());
+				Ranking bestScoringSystem = ag.getBestAthleteScoringSystem();
+				curRow.createCell(8).setCellValue(bestScoringSystem != null ? bestScoringSystem.getReportingName() : "");
 
-				int cellNum = 8;
+				int cellNum = 9;
 				for (Category cat : ag.getCategories()) {
 					Double maximumWeight = cat.getMaximumWeight();
 					int val = (int) (maximumWeight + 0.5);
