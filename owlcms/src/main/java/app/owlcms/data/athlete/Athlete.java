@@ -1091,6 +1091,7 @@ public class Athlete {
 	@JsonIgnore
 	public Double getBestLifterScore() {
 		var scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
+		logger.warn("a {} blss {}", getAbbreviatedName(), scoringSystem);
 		if (scoringSystem == null) {
 			// if we are invoked from a printing thread, this value will be defined.
 			scoringSystem = getAgeGroup().getBestAthleteScoringSystem();

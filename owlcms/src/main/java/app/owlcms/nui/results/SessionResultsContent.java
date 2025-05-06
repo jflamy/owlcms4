@@ -71,6 +71,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.spreadsheet.JXLSWinningSheet;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.NaturalOrderComparator;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -597,6 +598,9 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSWinningSheet rs = new JXLSWinningSheet();
+			        Ranking computeScoringSystem = computeScoringSystem();
+			        rs.setBestLifterScoringSystem(computeScoringSystem);
+			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.getCurrentGroup() != null ? GroupRepository.getById(this.getCurrentGroup().getId()) : null);
 			        return rs;
@@ -614,6 +618,9 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSMedalsSheet rs = new JXLSMedalsSheet();
+			        Ranking computeScoringSystem = computeScoringSystem();
+			        rs.setBestLifterScoringSystem(computeScoringSystem);
+			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.getCurrentGroup() != null ? GroupRepository.getById(this.getCurrentGroup().getId()) : null);
 			        return rs;
@@ -631,6 +638,11 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSResultSheet rs = new JXLSResultSheet(false);
+			        Ranking computeScoringSystem = computeScoringSystem();
+			        rs.setBestLifterScoringSystem(computeScoringSystem);
+			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
+			        
+			        logger.warn("****** computeScoringSystem {}", computeScoringSystem);
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.getCurrentGroup() != null ? GroupRepository.getById(this.getCurrentGroup().getId()) : null);
 			        return rs;
