@@ -157,7 +157,7 @@ public class AgeGroupEditingFormFactory
 		formLayout.addFormItem(bestLifterSystemField, createLabel(Translator.translate("AgeGroup.BestAthleteScoringSystem")));
 		bestLifterSystemField.setHelperText(Translator.translate("AgeGroup.BestAthleteScoringSystemExplanation")
 				.replaceAll(" ", "\u00A0")
-				.replaceAll("-", "\u0211"));
+				.replaceAll("-", "\u2011"));
 
 		TextField minAgeField = new TextField();
 		formLayout.addFormItem(minAgeField, createLabel(Translator.translate("MinimumAge")));
