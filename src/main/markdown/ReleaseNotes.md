@@ -8,6 +8,8 @@
 
 **Maintenance Log**
 
+- 57.1.0: Translation of the Introduction sheet, added referees
+- 57.1.0: Adjustments to the session results sheet to correctly show TO affiliation numbers when available
 - 57.1.0: New: Ability to override the Best Athlete scoring scheme used for an age group.
 - 57.1.0: New: Recalculation of records
 - 57.1.0: Fix: Timing Statistics redone to be more precise and use the exact time of C&J break
