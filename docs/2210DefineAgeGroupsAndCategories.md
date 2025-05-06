@@ -80,6 +80,14 @@ The default list contains non-standard Masters age groups:
 
 - The applicability of the percentage rule (as opposed to the 20kg rule) is based on the category in which the athlete is registered.  If an athlete has a Masters category selected, he is expected to lift in a Masters group, where the rule will apply to all lifters.  In a mixed group with senior and Masters lifters, the which rule applies would depend on the lifter.  The fairest rule would be to set the category to Senior for all athletes: Because they are qualified as Masters, the dual eligibility athletes can still appear in the Masters result sheets.
 
+## Overriding the Best Athlete Computation
+
+If you have several championships going on at once, you may want to use different settings to compute the best athlete. For example, Youth could be computed with QYouth whereas seniors would be computed with QPoints and masters with QMasters
+
+ It is always possible to override the best athlete scheme used when producing the Excel sheets, but sometimes you may want to produce results with all the categories in the same file.
+
+For this purpose, there is now a new setting in the age group definitions, and a new column in the AgeGroup definition files.
+
 ## Creating a Definition File for Local or Federation Settings
 
 If you look at the installation directory under the `local/agegroups` directory, you will notice files with a name similar to `AgeGroups.xlsx` .  
