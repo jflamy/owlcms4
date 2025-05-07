@@ -5,6 +5,7 @@
 
 **Maintenance Log**
 
+- 57.1.0: Fix for flag display on 4K screens (were mispositioned when athlete picture was shown)
 - 57.1.0: Translation of the Introduction sheet, added referees
 - 57.1.0: Updated the local/agegroups file for additional columns (scoring, best athlete)
 - 57.1.0: Adjustments to the session results sheet to correctly show TO affiliation numbers when available
@@ -61,6 +62,7 @@
   - The Best Team Points scoreboard correctly allows selecting the championship, and allows for selecting Male, Female, Male and Female, Mixed or all teams.
   - Same fixes for the Best Teams Scores - the score shown is the one for the Best Athlete as set in the competition rules.
   - Fix: Leader board would sometimes be shown when there was no current athlete (at the end of a session), with out-of-date information.
+  - Flags were not in the correct position on 4K displays, when the athlete picture was shown.
 - Templates 
   - `${session.referee1AsTO}` returns a TechnicalOfficial object if one is found in the list of Technical Officials that matches the session referee1. 
     - There is an `AsTO` variant for all the roles (`announcerAsTO`, `marshal1AsTO` etc.)
