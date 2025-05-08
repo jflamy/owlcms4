@@ -5,6 +5,7 @@
 
 **Maintenance Log**
 
+- 57.1.0: Updated the AgeGroups2025 file for the category change from 98 to 94 kg
 - 57.1.0: Fix for flag display on 4K screens (were mispositioned when athlete picture was shown)
 - 57.1.0: Translation of the Introduction sheet, added referees
 - 57.1.0: Updated the local/agegroups file for additional columns (scoring, best athlete)
