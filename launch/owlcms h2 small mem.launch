@@ -11,6 +11,7 @@
         <mapEntry key="OWLCMS_BACKDOOR" value="127.0.0.1,[0:0:0:0:0:0:0:1]"/>
         <mapEntry key="OWLCMS_ENABLEEMBEDDEDMQTT" value="true"/>
         <mapEntry key="OWLCMS_INITIALDATA" value="SINGLE_ATHLETE_GROUPS"/>
+        <mapEntry key="OWLCMS_LAUNCHER" value="2.3.0"/>
         <mapEntry key="OWLCMS_MEMORYMODE" value="true"/>
         <mapEntry key="OWLCMS_PORT" value="8081"/>
         <mapEntry key="OWLCMS_RESETMODE" value="true"/>
