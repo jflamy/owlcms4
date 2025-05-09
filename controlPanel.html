@@ -1,5 +1,108 @@
-<div style="background-color: #FFFACD">
-Version 2.4.1 of the Control Panel is available. The "Update" feature is now much improved.
-<br>
-Please use the "Help" > "Check for Updates" menu in the Control Panel.
+<div class="multilingual-container" style="background-color: yellow;">
+    <style>
+        /* Style for the multilingual container */
+        .multilingual-container {
+            background-color: yellow;
+        }
+
+        /* Style for the hyperlinks */
+        .multilingual-container a {
+            text-decoration: underline;
+        }
+
+        /* Hide all language versions INSIDE the container by default */
+        .multilingual-container [lang] {
+            display: none;
+        }
+
+        /* Show content based on the HTML tag's lang attribute */
+        /* English */
+        html[lang="en"] .multilingual-container [lang="en"],
+        html[lang^="en-"] .multilingual-container [lang="en"],
+        /* Spanish */
+        html[lang="es"] .multilingual-container [lang="es"],
+        html[lang^="es-"] .multilingual-container [lang="es"],
+        /* French */
+        html[lang="fr"] .multilingual-container [lang="fr"],
+        html[lang^="fr-"] .multilingual-container [lang="fr"],
+        /* Portuguese */
+        html[lang="pt"] .multilingual-container [lang="pt"],
+        html[lang^="pt-"] .multilingual-container [lang="pt"],
+        /* Russian */
+        html[lang="ru"] .multilingual-container [lang="ru"],
+        html[lang^="ru-"] .multilingual-container [lang="ru"],
+        /* German */
+        html[lang="de"] .multilingual-container [lang="de"],
+        html[lang^="de-"] .multilingual-container [lang="de"],
+        /* Other languages... */
+        html[lang="sv"] .multilingual-container [lang="sv"],
+        html[lang^="sv-"] .multilingual-container [lang="sv"],
+        html[lang="da"] .multilingual-container [lang="da"],
+        html[lang^="da-"] .multilingual-container [lang="da"],
+        html[lang="hy"] .multilingual-container [lang="hy"],
+        html[lang^="hy-"] .multilingual-container [lang="hy"],
+        /* Hungarian */
+        html[lang="hu"] .multilingual-container [lang="hu"],
+        html[lang^="hu-"] .multilingual-container [lang="hu"],
+        /* Romanian */
+        html[lang="ro"] .multilingual-container [lang="ro"],
+        html[lang^="ro-"] .multilingual-container [lang="ro"],
+        /* Polish */
+        html[lang="pl"] .multilingual-container [lang="pl"],
+        html[lang^="pl-"] .multilingual-container [lang="pl"],
+        /* Finnish */
+        html[lang="fi"] .multilingual-container [lang="fi"],
+        html[lang^="fi-"] .multilingual-container [lang="fi"],
+        /* Faroese */
+        html[lang="fo"] .multilingual-container [lang="fo"],
+        html[lang^="fo-"] .multilingual-container [lang="fo"],
+        /* Norwegian */
+        html[lang="no"] .multilingual-container [lang="no"],
+        html[lang^="no-"] .multilingual-container [lang="no"],
+        /* Greek */
+        html[lang="el"] .multilingual-container [lang="el"],
+        html[lang^="el-"] .multilingual-container [lang="el"] {
+            display: block;
+        }
+
+        /* Fallback to English if no language matches */
+        html:not([lang="en"]):not([lang^="en-"])
+        :not([lang="es"]):not([lang^="es-"])
+        :not([lang="fr"]):not([lang^="fr-"])
+        :not([lang="pt"]):not([lang^="pt-"])
+        :not([lang="ru"]):not([lang^="ru-"])
+        :not([lang="de"]):not([lang^="de-"])
+        :not([lang="sv"]):not([lang^="sv-"])
+        :not([lang="da"]):not([lang^="da-"])
+        :not([lang="hy"]):not([lang^="hy-"])
+        :not([lang="hu"]):not([lang^="hu-"])
+        :not([lang="ro"]):not([lang^="ro-"])
+        :not([lang="pl"]):not([lang^="pl-"])
+        :not([lang="fi"]):not([lang^="fi-"])
+        :not([lang="fo"]):not([lang^="fo-"])
+        :not([lang="no"]):not([lang^="no-"])
+        :not([lang="el"]):not([lang^="el-"])
+        .multilingual-container [lang="en"] {
+            display: block;
+        }
+    </style>
+
+    <div class="installation-text">
+        <div lang="en">You should update the Control Panel to the current version. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Please use this link</a></div>
+        <div lang="es">Deberías actualizar el Panel de Control a la versión actual. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Por favor, usa este enlace</a></div>
+        <div lang="fr">Vous devriez mettre à jour le Panneau de Contrôle vers la version actuelle. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Veuillez utiliser ce lien</a></div>
+        <div lang="pt">Você deve atualizar o Painel de Controle para a versão atual. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Por favor, use este link</a></div>
+        <div lang="ru">Вам следует обновить Панель управления до текущей версии. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Пожалуйста, используйте эту ссылку</a></div>
+        <div lang="de">Sie sollten das Kontrollpanel auf die aktuelle Version aktualisieren. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Bitte benutzen Sie diesen Link</a></div>
+        <div lang="sv">Du bör uppdatera Kontrollpanelen till den aktuella versionen. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Var god använd denna länk</a></div>
+        <div lang="da">Du bør opdatere Kontrolpanelet til den aktuelle version. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Brug venligst dette link</a></div>
+        <div lang="hy">Դուք պետք է թարմացնեք Կառավարման Վահանակը մինչև ընթացիկ տարբերակը։ <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Խնդրում ենք օգտագործել այս հղումը</a></div>
+        <div lang="hu">Frissítenie kell a Vezérlőpultot a legújabb verzióra. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Kérjük, használja ezt a linket</a></div>
+        <div lang="ro">Ar trebui să actualizați Panoul de Control la versiunea curentă. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Vă rugăm să folosiți acest link</a></div>
+        <div lang="pl">Powinieneś zaktualizować Panel Sterowania do bieżącej wersji. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Proszę użyć tego linku</a></div>
+        <div lang="fi">Sinun tulisi päivittää Ohjauspaneeli nykyiseen versioon. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Ole hyvä ja käytä tätä linkkiä</a></div>
+        <div lang="fo">Tú eigur at dagføra Stýripanel til nýggjastu útgávuna. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Vinarliga nýt hetta leinkið</a></div>
+        <div lang="no">Du bør oppdatere Kontrollpanelet til den nyeste versjonen. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Vennligst bruk denne lenken</a></div>
+        <div lang="el">Θα πρέπει να ενημερώσετε τον Πίνακα Ελέγχου στην τρέχουσα έκδοση. <a href="https://github.com/owlcms/owlcms-controlpanel/releases">Παρακαλώ χρησιμοποιήστε αυτόν τον σύνδεσμο</a></div>
+    </div>
 </div>

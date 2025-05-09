@@ -14,6 +14,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -293,7 +295,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		}
 
 		String motd = getMotd(osName + ".html");
-		if (motd != null) {
+		if (motd != null && !motd.isBlank()) {
 			intro.add(new Hr());
 			intro.add(new Html(motd));
 		}
@@ -371,7 +373,19 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		}
 	}
 
+	static boolean localFileTesting = false;
 	public static String getMotd(String fileName) {
+		// testing
+		if (localFileTesting) {
+			try {
+				Path parentDir = Paths.get("").toAbsolutePath().getParent();
+				Path filePath = parentDir.resolve(fileName);
+				return new String(java.nio.file.Files.readAllBytes(filePath));
+			} catch (IOException e) {
+				return null;
+			}
+		}
+
 		if (LocalDateTime.now().minusHours(1).isBefore(motdEmitted)) {
 			return null;
 		}
