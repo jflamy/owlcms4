@@ -2254,6 +2254,9 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getPresumedOpenCategoryString() {
+		if (this.gender == null) {
+			return "";
+		}
 		if (this.category != null) {
 			return this.getGender().asPublicGenderCode() + " " + this.category.getUpperBound();
 		}
