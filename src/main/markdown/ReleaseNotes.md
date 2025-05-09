@@ -6,14 +6,15 @@
 **Maintenance Log**
 
 - 57.1.0: Updated the AgeGroups2025 file for the category change from 98 to 94 kg
-- 57.1.0: Fix for flag display on 4K screens (were mispositioned when athlete picture was shown)
+- 57.0.1: The message prompting users to update the control panel is now multilingual
+- 57.1.0: Fix for flag display on 4K screens (were mispositioned when the athlete picture was visible)
 - 57.1.0: Translation of the Introduction sheet, added referees
 - 57.1.0: Updated the local/agegroups file for additional columns (scoring, best athlete)
 - 57.1.0: Adjustments to the session results sheet to correctly show TO affiliation numbers when available
 - 57.1.0: New: Ability to override the Best Athlete scoring scheme used for an age group.
 - 57.1.0: New: Recalculation of records
-- 57.1.0: Fix: Timing Statistics redone to be more precise and use the exact time of C&J break
-- 57.1.0: Ability to use Q-Points computed at Category Weight to determine best athlete.
+- 57.1.0: Fix: Timing Statistics redone to be more precise and use the exact time of the C&J break
+- 57.1.0: Ability to use Q-Points computed at Category Weight to determine the best athlete.
 
 **New In Release 57**
 
