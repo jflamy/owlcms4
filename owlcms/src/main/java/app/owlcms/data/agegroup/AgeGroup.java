@@ -146,7 +146,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	private Boolean forceSave = null;
 	private ChampionshipType championshipType;
 	private Ranking bestAthleteScoringSystem;
-
+	@Column(columnDefinition = "boolean default true")
+	private Boolean medals = true;
+	
 	public AgeGroup() {
 	}
 
@@ -232,8 +234,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		if (other.getId() == this.getId()) {
 			return true;
 		}
+		var cs1 = this.ageDivision;
+		var cs2 = other.ageDivision;
 		return this.active == other.active
-		        && this.ageDivision.contentEquals(other.ageDivision)
+				&& ((cs1 == null) ? (cs2 == null) : cs1.contentEquals(cs2))
 		        && Objects.equals(this.getChampionshipName(), other.getChampionshipName())
 		        && Objects.equals(this.categories, other.categories)
 		        && Objects.equals(this.code, other.code)
@@ -560,5 +564,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	public String getBestAthleteScoringSystemTitle() {
 		var explicitBLR = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		return Translator.translate("Ranking."+ (explicitBLR != null ? explicitBLR : bestAthleteScoringSystem));
+	}
+
+	public Boolean getMedals() {
+		return medals;
+	}
+
+	public void setMedals(Boolean medals) {
+		this.medals = medals;
 	}
 }

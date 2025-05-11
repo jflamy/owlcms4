@@ -57,6 +57,9 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 			// logger.debug("medalCat {} {}", medalCat.getKey(), medalCat.getValue().stream().map(a -> a.getAbbreviatedName()).toList());
 			if (medalists != null && !medalists.isEmpty()) {
 				for (Athlete p : medalists) {
+					if (!p.getAgeGroup().getMedals()) {
+						continue;
+					}
 					// logger.trace("Competition.getCurrent().isSnatchCJTotalMedals()
 					// {}",Competition.getCurrent().isSnatchCJTotalMedals());
 					if (Competition.getCurrent().isSnatchCJTotalMedals()) {

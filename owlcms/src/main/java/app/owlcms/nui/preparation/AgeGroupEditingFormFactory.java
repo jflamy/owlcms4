@@ -59,6 +59,7 @@ public class AgeGroupEditingFormFactory
 	@SuppressWarnings("unused")
 	private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupEditingFormFactory.class);
 	private AgeGroupContent origin;
+	private Checkbox medalsAwarded;
 
 	AgeGroupEditingFormFactory(Class<AgeGroup> domainType, AgeGroupContent origin) {
 		super(domainType);
@@ -199,6 +200,11 @@ public class AgeGroupEditingFormFactory
 		this.catField.setWidthFull();
 		this.binder.forField(this.catField).bind(AgeGroup::getCategories, AgeGroup::setCategories);
 		formLayout.addFormItem(this.catField, createLabel(Translator.translate("BodyWeightCategories")));
+		
+		this.medalsAwarded = new Checkbox();
+		this.binder.forField(this.medalsAwarded).bind(AgeGroup::getMedals, AgeGroup::setMedals);
+		formLayout.addFormItem(this.medalsAwarded, createLabel(Translator.translate("AwardMedals")));
+		
 
 		// if (minAgeField.getValue().isEmpty()) {
 		// minAgeField.setValue("0");
