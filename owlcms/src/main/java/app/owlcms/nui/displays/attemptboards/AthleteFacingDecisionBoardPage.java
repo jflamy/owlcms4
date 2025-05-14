@@ -68,7 +68,7 @@ public class AthleteFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 		setDefaultParameters(QueryParameters.simple(fullMap));
 
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
-		board.getDecisions().setDontReset(false);
+		board.getDecisions().setDontReset(true);
 		board.setPublicFacing(false);
 		board.setShowBarbell(false);
 		setSilenced(false);

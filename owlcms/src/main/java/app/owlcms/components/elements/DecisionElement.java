@@ -168,6 +168,9 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		if (isDontReset()) {
+			return;
+		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			getElement().callJsFunction("reset", false);
 		});

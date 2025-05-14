@@ -36,11 +36,25 @@ class DecisionElement extends LitElement {
 
         .decision {
           border-radius: 5%;
-          border: medium solid var(--lumo-contrast);
+          border: 2px solid var(--lumo-contrast);
           margin: 3%;
           /* 	background-color: #333333; */
           width: 30%;
         }
+
+        .soloDecision {
+            border-radius: 50%;
+            border: 2px solid var(--lumo-contrast);
+            margin: 0;
+            padding: 0;
+            width: 1.2em;
+            height: 1.2em;
+            color: black;
+            line-height: 1.2em;
+            font-size: 1.2em;
+            align-self: center;
+        }
+
         .red {
           background-color: red;
         }
@@ -52,6 +66,10 @@ class DecisionElement extends LitElement {
         .none {
           background-color: var(--lumo-contrast-20pct);
           border: medium dashed var(--lumo-contrast);
+        }
+
+        .invisible {
+          visibility: hidden;
         }
 
         .down {
@@ -74,7 +92,7 @@ class DecisionElement extends LitElement {
         <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
         <div class="decisions" style="${this.decisionsStyles()}">
           <span class="${this.decisionClasses(1)}">&nbsp;</span>
-          <span class="${this.decisionClasses(2)}">&nbsp;</span>
+          <span class="${this.decisionClasses(2)}">${((this.ref2 === true && this.ref1 == null && this.ref3 == null) ? "V" : (this.ref2 === false && this.ref1 == null && this.ref3 == null) ? "X" : "")}</span>
           <span class="${this.decisionClasses(3)}">&nbsp;</span>
         </div>
       </div>`;
@@ -131,7 +149,7 @@ class DecisionElement extends LitElement {
       }
     };
   }
-  
+
   constructor() {
     super();
     this.ref1 = null;
@@ -168,27 +186,27 @@ class DecisionElement extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    console.debug("decision ready "+Array.from(_changedProperties.keys()));
+    console.debug("decision ready " + Array.from(_changedProperties.keys()));
     this._init();
   }
-    
+
   _init() {
     this.downShown = false;
     this.ref1 = null;
     this.ref2 = null;
     this.ref3 = null;
   }
-    
+
   initSounds() {
-      var r =  this.renderRoot;
-      if (r == undefined) {
-        console.warn("initSound down NOT READY");
-        r = this;
-      } else {
-        console.warn("initSound down");
-        r.querySelector('#down').muted  = true;
-        r.querySelector('#down').play();
-      }
+    var r = this.renderRoot;
+    if (r == undefined) {
+      console.warn("initSound down NOT READY");
+      r = this;
+    } else {
+      console.warn("initSound down");
+      r.querySelector('#down').muted = true;
+      r.querySelector('#down').play();
+    }
   }
 
   doDown() {
@@ -302,6 +320,16 @@ class DecisionElement extends LitElement {
       return mainClass + "none";
     }
 
+    var single = this.ref1 === null && this.ref3 === null;
+    if (single) {
+      mainClass = "soloDecision "
+      if (position == 1 || position == 3) {
+        return "invisible"
+      } else {
+        return mainClass + (this.ref2 ? "white" : (this.ref2 === false) ? "red" : "none");
+      }
+    }
+
     if (this.publicFacing) {
       if (position == 1) {
         return mainClass + (this.ref1 ? "white" : (this.ref1 === false) ? "red" : "none");
@@ -328,7 +356,7 @@ class DecisionElement extends LitElement {
   }
 
   decisionsStyles() {
-    console.warn("changing decision style "+ (this._downShown ? "none" : "flex"));
+    console.warn("changing decision style " + (this._downShown ? "none" : "flex"));
     return "display: " + (this._downShown ? "none" : "flex");
   }
 
