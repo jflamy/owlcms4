@@ -37,6 +37,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
@@ -563,7 +564,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	
 	public String getBestAthleteScoringSystemTitle() {
 		var explicitBLR = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
-		return Translator.translate("Ranking."+ (explicitBLR != null ? explicitBLR : bestAthleteScoringSystem));
+		if (explicitBLR != null) {
+			return Translator.translate("Ranking."+explicitBLR);
+		} else if (bestAthleteScoringSystem != null) {
+			return Translator.translate("Ranking."+bestAthleteScoringSystem);
+		} else {
+			return Translator.translate("Ranking."+Competition.getCurrent().getScoringSystem());
+		}
 	}
 
 	public Boolean getMedals() {
