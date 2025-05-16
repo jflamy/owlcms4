@@ -1095,9 +1095,10 @@ public class Athlete {
 		if (scoringSystem == null) {
 			// if we are invoked from a printing thread, this value will be defined.
 			scoringSystem = getAgeGroup().getBestAthleteScoringSystem();
+			logger.warn("a {} agetGroupScoringSystem {}", getAbbreviatedName(), scoringSystem);
 			if (scoringSystem == null) {
 				// this will be used on the interactive page as the default
-				Competition.getCurrent().getScoringSystem();
+				scoringSystem = Competition.getCurrent().getScoringSystem();
 			}
 		}
 
