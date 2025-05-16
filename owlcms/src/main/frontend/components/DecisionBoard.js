@@ -15,13 +15,57 @@ class DecisionBoard extends LitElement {
     return html` 
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css"/>
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/decisionboard" + (this.autoversion ?? "")}.css"/>
-      
+	  <style>
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .octagon {
+          width: 60vh; /* Adjust size */
+          height: 60vh;
+          background-color: red;
+          color: white;
+          font-size: 20vh;
+          font-weight: bold;
+          text-align: center;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          /* Correct values for a regular octagon */
+          clip-path: polygon(
+            30% 0%,    /* top-left */
+            70% 0%,    /* top-right */
+            100% 30%,  /* right-top */
+            100% 70%,  /* right-bottom */
+            70% 100%,  /* bottom-right */
+            30% 100%,  /* bottom-left */
+            0% 70%,    /* left-bottom */
+            0% 30%     /* left-top */
+          );
+        }
+
+	    @keyframes blink {
+	      from {
+	        opacity: 1;
+	      }
+	      to {
+	        opacity: 0.3;
+	      }
+	    }
+	  </style>
       <div class="wrapper">
         <div class="wrapper bigTitle" style="${this.waitingStyles()}">
           <div class="competitionName">${this.competitionName}</div>
           <br />
           <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
         </div>
+    <div class="container">
+        <div class="octagon">STOP</div>
+    </div>
         <div class="decisionBoard" style="${this.activeStyles()}">
           <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
             <timer-element id="athleteTimer"></timer-element>
@@ -104,7 +148,11 @@ class DecisionBoard extends LitElement {
   }
 
   activeStyles() {
-    return "display: " + (this.mode !== "WAIT" ? "grid" : "none");
+    return "display: " + ((this.mode !== "WAIT" && this.mode !== "INTERRUPTION") ? "grid" : "none");
+  }
+
+  stopStyles() {
+    return "display: " + (this.mode === "INTERRUPTION" ? "grid" : "none");
   }
 
   lastNameClasses() {
