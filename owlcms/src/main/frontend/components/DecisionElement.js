@@ -92,7 +92,7 @@ class DecisionElement extends LitElement {
         <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
         <div class="decisions" style="${this.decisionsStyles()}">
           <span class="${this.decisionClasses(1)}">&nbsp;</span>
-          <span class="${this.decisionClasses(2)}">${((this.ref2 === true && this.ref1 == null && this.ref3 == null) ? "V" : (this.ref2 === false && this.ref1 == null && this.ref3 == null) ? "X" : "")}</span>
+          <span class="${this.decisionClasses(2)}" style="border: 0; font-weight: bold">${((this.ref2 === true && this.ref1 == null && this.ref3 == null) ? "✓" : (this.ref2 === false && this.ref1 == null && this.ref3 == null) ? "✕" : "")}</span>
           <span class="${this.decisionClasses(3)}">&nbsp;</span>
         </div>
       </div>`;

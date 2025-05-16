@@ -3,6 +3,11 @@
 
 <br>
 
+**Maintenance Log**
+
+- 57.1.1: Fixed the CompetitionResults "CompetitionResults" template to correctly default to the competition scoring system.
+- 57.1.1: Fixed the SnCjTot template for Session Results to correctly show the Technical Official roles
+
 **New In Release 57.1**
 
 - AgeGroups
