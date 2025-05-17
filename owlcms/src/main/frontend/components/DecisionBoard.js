@@ -63,21 +63,21 @@ class DecisionBoard extends LitElement {
           <br />
           <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
         </div>
-    <div class="container">
+    <div class="container" style="${this.stopStyles()}">
         <div class="octagon">STOP</div>
     </div>
-        <div class="decisionBoard" style="${this.activeStyles()}">
-          <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
-            <timer-element id="athleteTimer"></timer-element>
-          </div>
-          <div class="timer breakTime" style="${this.breakTimerStyles()}">
-            <timer-element id="breakTimer"></timer-element>
-          </div>
-          <div class="decision" id="decisionDiv" style="${this.decisionStyles()}">
-            <decision-element id="decisions"></decision-element>
-          </div>
-        </div>
-      </div>`;
+    <div class="decisionBoard" style="${this.activeStyles()}">
+      <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
+        <timer-element id="athleteTimer"></timer-element>
+      </div>
+      <div class="timer breakTime" style="${this.breakTimerStyles()}">
+        <timer-element id="breakTimer"></timer-element>
+      </div>
+      <div class="decision" id="decisionDiv" style="${this.decisionStyles()}">
+        <decision-element id="decisions"></decision-element>
+      </div>
+    </div>
+  </div>`;
   }
 
   /* what follows is integrally copied from attempt board */
@@ -152,7 +152,7 @@ class DecisionBoard extends LitElement {
   }
 
   stopStyles() {
-    return "display: " + (this.mode === "INTERRUPTION" ? "grid" : "none");
+    return "display: " + (this.mode === "INTERRUPTION" ? "flex" : "none");
   }
 
   lastNameClasses() {
