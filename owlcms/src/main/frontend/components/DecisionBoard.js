@@ -22,11 +22,13 @@ class DecisionBoard extends LitElement {
             align-items: center;
             width: 100%;
             height: 100%;
+            font-weight: light;
+            font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
 
         .octagon {
-          width: 60vh; /* Adjust size */
-          height: 60vh;
+          width: 65vh; /* Adjust size */
+          height: 65vh;
           background-color: red;
           color: white;
           font-size: 20vh;
@@ -46,16 +48,23 @@ class DecisionBoard extends LitElement {
             0% 70%,    /* left-bottom */
             0% 30%     /* left-top */
           );
+          
         }
 
-	    @keyframes blink {
-	      from {
-	        opacity: 1;
-	      }
-	      to {
-	        opacity: 0.3;
-	      }
-	    }
+
+        .blink {
+            animation: blink 1.5s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 74% {  /*  1,5 seconds of 2.5s = 75% */
+                opacity: 1;
+            }
+            75%, 100% { /* 0.5 seconds of 2.5s = 25% */
+                opacity: 0;
+            }
+        }
+
 	  </style>
       <div class="wrapper">
         <div class="wrapper bigTitle" style="${this.waitingStyles()}">
@@ -63,7 +72,7 @@ class DecisionBoard extends LitElement {
           <br />
           <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
         </div>
-    <div class="container" style="${this.stopStyles()}">
+    <div class="container blink" style="${this.stopStyles()}">
         <div class="octagon">STOP</div>
     </div>
     <div class="decisionBoard" style="${this.activeStyles()}">
