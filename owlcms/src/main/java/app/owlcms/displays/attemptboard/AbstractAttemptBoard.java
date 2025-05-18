@@ -122,6 +122,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		// logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
 		// athleteTimer.setOrigin(this);
 		this.getElement().setProperty("kgSymbol", Translator.translate("KgSymbol"));
+		this.getElement().setProperty("STOP", Translator.translate("STOP"));
 		// breakTimer.setParent("attemptBoard");
 		checkImages();
 		// js files add the build number to file names in order to prevent cache

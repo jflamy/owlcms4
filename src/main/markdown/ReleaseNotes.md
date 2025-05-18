@@ -5,8 +5,9 @@
 
 **Maintenance Log**
 
-- 57.1.1: Fixed the CompetitionResults "CompetitionResults" template to correctly default to the competition scoring system.
-- 57.1.1: Fixed the SnCjTot template for Session Results to correctly show the Technical Official roles
+- 57.1.1: A flashing "STOP" is shown on the athlete-facing decision board when the competition is stopped.
+- 57.1.1: Fixed the "CompetitionResults-A4" and "CompetitionResults-LETTER" templates to default to the competition scoring system correctly, and to mark out of competition athletes correctly.
+- 57.1.1: Fixed the SnCjTot template for Session Results to show the Technical Official roles correctly
 
 **New In Release 57.1**
 
