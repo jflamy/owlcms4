@@ -92,7 +92,7 @@ class DecisionBoard extends LitElement {
 <div class="container blink" style="${this.stopStyles()}">
   <div class="octagon-container">
     <div class="octagon border-octagon"></div>
-    <div class="octagon main-octagon">STOP</div>
+    <div class="octagon main-octagon">${this.STOP}</div>
   </div>
 </div>
     <div class="decisionBoard" style="${this.activeStyles()}">
