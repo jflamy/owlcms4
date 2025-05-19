@@ -642,7 +642,6 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
 			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 			        
-			        logger.warn("****** computeScoringSystem {}", computeScoringSystem);
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.getCurrentGroup() != null ? GroupRepository.getById(this.getCurrentGroup().getId()) : null);
 			        return rs;

@@ -111,10 +111,14 @@ public class Championship implements Comparable<Championship> {
 				addChampionship(nameString, cType);
 			}
 			allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
-			allChampionshipsList.sort(Championship::compareTo);
+			if (!allChampionshipsList.isEmpty()) {
+				allChampionshipsList.sort(Championship::compareTo);
+			}
 		} else {
 			allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
-			allChampionshipsList.sort(Championship::compareTo);
+			if (!allChampionshipsList.isEmpty()) {
+				allChampionshipsList.sort(Championship::compareTo);
+			}
 		}
 		return allChampionshipsList;
 	}

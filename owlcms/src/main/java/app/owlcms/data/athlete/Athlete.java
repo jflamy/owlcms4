@@ -53,6 +53,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.category.IWFCategories;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.RegistrationPreferenceComparator;
 import app.owlcms.data.category.RobiCategories;
@@ -1091,11 +1092,9 @@ public class Athlete {
 	@JsonIgnore
 	public Double getBestLifterScore() {
 		var scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
-		logger.warn("a {} blss {}", getAbbreviatedName(), scoringSystem);
 		if (scoringSystem == null) {
 			// if we are invoked from a printing thread, this value will be defined.
 			scoringSystem = getAgeGroup().getBestAthleteScoringSystem();
-			logger.warn("a {} agetGroupScoringSystem {}", getAbbreviatedName(), scoringSystem);
 			if (scoringSystem == null) {
 				// this will be used on the interactive page as the default
 				scoringSystem = Competition.getCurrent().getScoringSystem();
@@ -5962,7 +5961,7 @@ public class Athlete {
 	@JsonIgnore
 	public Double getCategorySinclairForDelta() {
 		// Category category = getCategory();
-		Category category = RobiCategories.findIWFCategory(this, true);
+		Category category = IWFCategories.findIWFCategory(this, true);
 		if (category == null) {
 			return 0.0;
 		}
@@ -5999,7 +5998,7 @@ public class Athlete {
 	@JsonIgnore
 	public Double getCategoryQPointsForDelta() {
 		// Category category = getCategory();
-		Category category = RobiCategories.findIWFCategory(this, true);
+		Category category = IWFCategories.findIWFCategory(this, true);
 		if (category == null) {
 			return 0.0;
 		}
