@@ -6,6 +6,7 @@
 **New in Release 57.2**
 
 - Athlete-facing Clock: A flashing "STOP" is shown on the athlete-facing decision board when the competition is stopped.
+- New `local/iwf` directory contains an Excel file with the definition of the IWF categories.
 - Templates:
   - Fixed the "CompetitionResults-A4" and "CompetitionResults-LETTER" templates to default to the competition scoring system correctly, and to mark out of competition athletes correctly.
   - Fixed the SnCjTot template for Session Results to show the Technical Official roles correctly
