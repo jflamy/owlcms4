@@ -556,7 +556,6 @@ public class FieldOfPlay implements IUnregister {
 			// left
 			timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
 		} else if (getPreviousAthlete() != null && getPreviousAthlete().equals(a)) {
-			// ** resetDecisions();
 			if (owner != null || a.getAttemptNumber() == 1) {
 				// clock has started for someone else, one minute
 				// first C&J, one minute (doesn't matter who lifted last during snatch)
@@ -568,7 +567,6 @@ public class FieldOfPlay implements IUnregister {
 				setClockOwnerInitialTimeAllowed(timeAllowed);
 			}
 		} else {
-			// ** resetDecisions();
 			timeAllowed = 60000;
 			if (owner == null) {
 				setClockOwnerInitialTimeAllowed(timeAllowed);
@@ -2514,7 +2512,7 @@ public class FieldOfPlay implements IUnregister {
 	 * Reset decisions. Invoked when a fresh clock is given.
 	 */
 	private void resetDecisions() {
-		this.logger.debug("{}**** resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
+		this.logger.warn("{}**** resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
 		setRefereeDecision(new Boolean[3]);
 		resetJuryDecisions();
 		setRefereeTime(new Long[3]);
