@@ -852,7 +852,12 @@ public class FieldOfPlay implements IUnregister {
 					        getAthleteTimer().getTimeRemainingAtLastStop());
 				} else if (e instanceof DecisionFullUpdate) {
 					// decision board/attempt board sends bulk update
+					var e2 = (DecisionFullUpdate) e;
+					if (isSingleReferee()) {
+						e2.setSingleReferee(true);
+					}
 					updateRefereeDecisions((DecisionFullUpdate) e);
+					logger.warn("***** TIME_RUNNING");
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
 					doPossiblySoloRefereeUpdate(e);
@@ -885,10 +890,16 @@ public class FieldOfPlay implements IUnregister {
 					// only occurs if solo referee
 					emitDown(e);
 				} else if (e instanceof DecisionFullUpdate) {
-					// decision coming from decision display or attempt board
+					logger.warn("===== full update");
+					var e2 = (DecisionFullUpdate) e;
+					if (isSingleReferee()) {
+						e2.setSingleReferee(true);
+					}
 					updateRefereeDecisions((DecisionFullUpdate) e);
+					logger.warn("***** TIME_STOPPED");
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
+					logger.warn("===== partial update");
 					doPossiblySoloRefereeUpdate(e);
 				} else if (e instanceof TimeStarted) {
 					if (!getCurAthlete().equals(getClockOwner())) {
@@ -1768,7 +1779,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doPossiblySoloRefereeUpdate(FOPEvent e) {
-		// logger.debug("===== doPossiblySoloRefereeUpdate {}", isSingleReferee());
+		logger.warn("===== doPossiblySoloRefereeUpdate {}", isSingleReferee());
 		if (isSingleReferee() || ((DecisionUpdate) e).getRefIndex() < 0) {
 			boolean goodLift = ((DecisionUpdate) e).isDecision();
 			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(),
@@ -2153,15 +2164,16 @@ public class FieldOfPlay implements IUnregister {
 			}
 		}
 		setGoodLift(null);
-		// logger.debug("single {} nbDecisions {}", isSingleReferee(), nbDecisions);
-		if (isSingleReferee() && nbDecisions == 1) {
-			// logger.debug("downEmitted {} {}", this.downEmitted, nbWhite);
-			if (!this.downEmitted) {
-				emitDown(e);
-				this.downEmitted = true;
-			}
-			setGoodLift(nbWhite >= 1);
-			processDecisionDelay(e);
+		logger.warn("******* single {} nbDecisions {}", isSingleReferee(), nbDecisions);
+		if (isSingleReferee()) {
+			goodLift = nbWhite >= 1;
+			 // logger.debug("downEmitted {} {}", this.downEmitted, nbWhite);
+			 if (!this.downEmitted) {
+			 emitDown(e);
+			 this.downEmitted = true;
+			 }
+			 setGoodLift(nbWhite >= 1);
+			 processDecisionDelay(e);
 			return;
 		}
 		if (nbWhite >= 2 || nbRed >= 2) {
@@ -2856,7 +2868,7 @@ public class FieldOfPlay implements IUnregister {
 
 		this.setClockOwner(null);
 		DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
-		        now, now, isAnnouncerDecisionImmediate());
+		        now, now, isAnnouncerDecisionImmediate(), isSingleReferee());
 		setRefereeForcedDecision(true);
 		updateRefereeDecisions(ne);
 		uiShowUpdateOnJuryScreen(ed);
@@ -3166,7 +3178,9 @@ public class FieldOfPlay implements IUnregister {
 		pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
 		        isRefereeForcedDecision() ? null : getRefereeDecision()[0],
 		        getRefereeDecision()[1],
-		        isRefereeForcedDecision() ? null : getRefereeDecision()[2], getRefereeTime()[0], getRefereeTime()[1],
+		        isRefereeForcedDecision() ? null : getRefereeDecision()[2], 
+		        getRefereeTime()[0], 
+		        getRefereeTime()[1],
 		        getRefereeTime()[2],
 		        e.getOrigin(), this));
 	}
@@ -3256,6 +3270,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
+		logger.warn("************* referee decisions {} {} {}", e.ref1, e.ref2, e.ref3);
+
 		// it is not possible to go from a non-null decision that was given back to null
 		// this would indicate an event out of order.
 		boolean outOfOrder = (e.ref1 == null && getRefereeDecision()[0] != null)

@@ -460,6 +460,7 @@ public class UIEvent {
 		public Boolean ref2;
 		/** ref 3. */
 		public Boolean ref3;
+		private boolean singleReferee;
 
 		/**
 		 * Instantiates a new referee decision.
@@ -479,6 +480,15 @@ public class UIEvent {
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
+			this.setSingleReferee(fop.isSingleReferee());
+		}
+
+		public boolean isSingleReferee() {
+			return this.singleReferee;
+		}
+
+		public void setSingleReferee(boolean singleReferee) {
+			this.singleReferee = singleReferee;
 		}
 	}
 

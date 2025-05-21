@@ -67,7 +67,7 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 		setDefaultParameters(QueryParameters.simple(fullMap));
 
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
-		board.getDecisions().setDontReset(true);
+		board.getDecisions().setDontReset(false);
 		board.setPublicFacing(true);
 		board.setShowBarbell(false);
 		setSilenced(true);

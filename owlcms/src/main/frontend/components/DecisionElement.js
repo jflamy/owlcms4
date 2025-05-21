@@ -316,9 +316,6 @@ class DecisionElement extends LitElement {
 
   decisionClasses(position) {
     var mainClass = "decision ";
-    if (!this._showDecision) {
-      return mainClass + "none";
-    }
 
     var single = this.ref1 === null && this.ref3 === null;
     if (single) {
@@ -326,6 +323,9 @@ class DecisionElement extends LitElement {
       if (position == 1 || position == 3) {
         return "invisible"
       } else {
+          if (!this._showDecision) {
+            return mainClass + "none";
+          }
         return mainClass + (this.ref2 ? "white" : (this.ref2 === false) ? "red" : "none");
       }
     }
@@ -396,8 +396,18 @@ class DecisionElement extends LitElement {
     console.debug("de showDecisions");
   }
 
+  showSingleDecision(decision) {
+    console.warn("de showSingleDecision: " + decision);
+    this.ref1 = null;
+    this.ref2 = decision;
+    this.ref3 = null;
+    this.hideDown();
+    this._showDecision = true;
+    console.debug("de showSingleDecision");
+  }
+
   showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
-    console.warn("de showDecisionForJury: " + ref1 + " " + ref2 + " " + ref3);
+    console.warn("de showDecisionsForJury: " + ref1 + " " + ref2 + " " + ref3);
     this.ref1 = ref1;
     this.ref2 = ref2;
     this.ref3 = ref3;
@@ -406,7 +416,17 @@ class DecisionElement extends LitElement {
     this.ref3Time = ref3Time;
     this.hideDown();
     this._showDecision = true;
-    console.debug("de jury colorsShown");
+    console.debug("de showDecisionsForJury>");
+  }
+
+  showSingleDecisionForJury(decision) {
+    console.warn("de showSingleDecisionForJury: " + decision);
+    this.ref1 = null;
+    this.ref2 = decision;
+    this.ref3 = null;
+    this.hideDown();
+    this._showDecision = true;
+    console.debug("de showSingleDecisionForJury");
   }
 
   reset(isMaster) {

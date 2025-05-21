@@ -94,7 +94,7 @@ public class DecisionElement extends LitTemplate
 			        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
 			                Long.valueOf(ref1Time),
 			                Long.valueOf(ref2Time),
-			                Long.valueOf(ref3Time), false));
+			                Long.valueOf(ref3Time), false, fop.isSingleReferee()));
 		});
 
 	}
@@ -142,6 +142,7 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		logger.warn("******* decision reset {}", isDontReset());
 		if (isDontReset()) {
 			return;
 		}
@@ -168,6 +169,7 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		logger.warn("******* decision slaveResetOnNewClock {}", isDontReset());
 		if (isDontReset()) {
 			return;
 		}
@@ -181,8 +183,13 @@ public class DecisionElement extends LitTemplate
 		uiEventLogger.debug("!!! {} majority decision ({})", this.getOrigin(),
 		        this.getParent().get().getClass().getSimpleName());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
-			this.getElement().callJsFunction("setEnabled", false);
+			if (e.isSingleReferee()) {
+				this.getElement().callJsFunction("showSingleDecision", e.decision);
+				this.getElement().callJsFunction("setEnabled", false);
+			} else {
+				this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
+				this.getElement().callJsFunction("setEnabled", false);
+			}
 		});
 	}
 
