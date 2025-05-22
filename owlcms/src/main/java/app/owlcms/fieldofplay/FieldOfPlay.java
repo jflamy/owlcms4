@@ -1112,6 +1112,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public boolean isSingleReferee() {
+		logger.warn("isSingleReferee {} {}", this.singleReferee, LoggerUtils.whereFrom());
 		return this.singleReferee;
 	}
 
@@ -1413,7 +1414,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void setSingleReferee(boolean solo) {
-		// logger.debug("===== set single referee {}",solo);
+		logger.warn("===== set single referee {} {}",solo, LoggerUtils.stackTrace());
 		this.singleReferee = solo;
 	}
 

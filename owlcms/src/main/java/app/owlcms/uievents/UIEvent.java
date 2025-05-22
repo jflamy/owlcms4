@@ -481,6 +481,15 @@ public class UIEvent {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
 			this.setSingleReferee(fop.isSingleReferee());
+			if (fop.isSingleReferee()) {
+				if (this.ref1 != null) {
+					this.ref2 = this.ref1;
+					this.ref1 = null;
+				} else if (this.ref3 != null) {
+					this.ref2 = this.ref3;
+					this.ref3 = null;
+				}
+			}
 		}
 
 		public boolean isSingleReferee() {
@@ -1143,6 +1152,15 @@ public class UIEvent {
 			this.ref3Time = long3;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
+			if (fop.isSingleReferee()) {
+				if (this.ref1 != null) {
+					this.ref2 = this.ref1;
+					this.ref1 = null;
+				} else if (this.ref3 != null) {
+					this.ref2 = this.ref3;
+					this.ref3 = null;
+				}
 			}
 			this.logger.debug("ref update for jury {} {} {}", ref1, ref2, ref3);
 		}

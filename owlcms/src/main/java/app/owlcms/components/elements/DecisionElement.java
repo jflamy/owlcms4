@@ -180,8 +180,8 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
-		uiEventLogger.debug("!!! {} majority decision ({})", this.getOrigin(),
-		        this.getParent().get().getClass().getSimpleName());
+		logger.warn("!!! {} majority decision ({})\n{}", this.getOrigin(),
+		        this.getParent().get().getClass().getSimpleName(), e.getTrace());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			if (e.isSingleReferee()) {
 				this.getElement().callJsFunction("showSingleDecision", e.decision);

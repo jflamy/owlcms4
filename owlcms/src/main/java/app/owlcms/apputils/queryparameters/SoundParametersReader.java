@@ -22,6 +22,7 @@ import com.vaadin.flow.router.Location;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.lifting.AnnouncerContent;
 import ch.qos.logback.classic.Logger;
 
 public interface SoundParametersReader extends SoundParameters, FOPParametersReader, StylesDirSelection {
@@ -92,7 +93,7 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 			imm = false;
 		}
 		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop != null) {
+		if (fop != null && this instanceof AnnouncerContent) {
 			fop.setAnnouncerDecisionImmediate(imm);
 			switchImmediateDecisionMode((Component) this, imm, false);
 			updateParam(params, IMMEDIATE, imm ? null : "false");

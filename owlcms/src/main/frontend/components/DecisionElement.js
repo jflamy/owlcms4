@@ -65,7 +65,7 @@ class DecisionElement extends LitElement {
 
         .none {
           background-color: var(--lumo-contrast-20pct);
-          border: medium dashed var(--lumo-contrast);
+          border: 2px dashed var(--lumo-contrast);
         }
 
         .invisible {
