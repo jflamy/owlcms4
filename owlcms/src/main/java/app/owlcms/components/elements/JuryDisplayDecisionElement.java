@@ -32,6 +32,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	public JuryDisplayDecisionElement() {
 		this.setJury(true);
+		getElement().setProperty("singleRef", this.isSingleRef());
 		this.getElement().getStyle().set("font-size", "100%");
 
 	}
@@ -42,6 +43,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	}
 
 	public void doReset() {
+		getElement().setProperty("singleRef", this.isSingleRef());
 		this.getElement().callJsFunction("reset", false);
 	}
 
@@ -103,7 +105,8 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	@Subscribe
 	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			logger.warn("***%%%*** {} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
+			//logger.debug("{} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
+			getElement().setProperty("singleRef", this.isSingleRef());
 			this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, intBox(e.ref1Time),
 			        intBox(e.ref2Time),
 			        intBox(e.ref3Time));

@@ -857,7 +857,6 @@ public class FieldOfPlay implements IUnregister {
 						e2.setSingleReferee(true);
 					}
 					updateRefereeDecisions((DecisionFullUpdate) e);
-					logger.warn("***** TIME_RUNNING");
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
 					doPossiblySoloRefereeUpdate(e);
@@ -890,16 +889,14 @@ public class FieldOfPlay implements IUnregister {
 					// only occurs if solo referee
 					emitDown(e);
 				} else if (e instanceof DecisionFullUpdate) {
-					logger.warn("===== full update");
 					var e2 = (DecisionFullUpdate) e;
 					if (isSingleReferee()) {
 						e2.setSingleReferee(true);
 					}
 					updateRefereeDecisions((DecisionFullUpdate) e);
-					logger.warn("***** TIME_STOPPED");
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
-					logger.warn("===== partial update");
+					// mqtt
 					doPossiblySoloRefereeUpdate(e);
 				} else if (e instanceof TimeStarted) {
 					if (!getCurAthlete().equals(getClockOwner())) {
@@ -999,6 +996,16 @@ public class FieldOfPlay implements IUnregister {
 				}
 				break;
 		}
+	}
+
+	public void haraKiri() {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		System.exit(1);
 	}
 
 	private void checkFirstClockForLift() {
@@ -1112,7 +1119,6 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public boolean isSingleReferee() {
-		logger.warn("isSingleReferee {} {}", this.singleReferee, LoggerUtils.whereFrom());
 		return this.singleReferee;
 	}
 
@@ -1414,7 +1420,6 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void setSingleReferee(boolean solo) {
-		logger.warn("===== set single referee {} {}",solo, LoggerUtils.stackTrace());
 		this.singleReferee = solo;
 	}
 
@@ -1780,7 +1785,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doPossiblySoloRefereeUpdate(FOPEvent e) {
-		logger.warn("===== doPossiblySoloRefereeUpdate {}", isSingleReferee());
+		// logger.debug("===== doPossiblySoloRefereeUpdate {}", isSingleReferee());
 		if (isSingleReferee() || ((DecisionUpdate) e).getRefIndex() < 0) {
 			boolean goodLift = ((DecisionUpdate) e).isDecision();
 			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(),
@@ -2165,16 +2170,15 @@ public class FieldOfPlay implements IUnregister {
 			}
 		}
 		setGoodLift(null);
-		logger.warn("******* single {} nbDecisions {}", isSingleReferee(), nbDecisions);
 		if (isSingleReferee()) {
 			goodLift = nbWhite >= 1;
-			 // logger.debug("downEmitted {} {}", this.downEmitted, nbWhite);
-			 if (!this.downEmitted) {
-			 emitDown(e);
-			 this.downEmitted = true;
-			 }
-			 setGoodLift(nbWhite >= 1);
-			 processDecisionDelay(e);
+			// logger.debug("downEmitted {} {}", this.downEmitted, nbWhite);
+			if (!this.downEmitted) {
+				emitDown(e);
+				this.downEmitted = true;
+			}
+			setGoodLift(nbWhite >= 1);
+			processDecisionDelay(e);
 			return;
 		}
 		if (nbWhite >= 2 || nbRed >= 2) {
@@ -2525,7 +2529,7 @@ public class FieldOfPlay implements IUnregister {
 	 * Reset decisions. Invoked when a fresh clock is given.
 	 */
 	private void resetDecisions() {
-		this.logger.warn("{}**** resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
+		this.logger.debug("{}resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
 		setRefereeDecision(new Boolean[3]);
 		resetJuryDecisions();
 		setRefereeTime(new Long[3]);
@@ -3163,10 +3167,20 @@ public class FieldOfPlay implements IUnregister {
 
 	private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
 	        Long[] longs, Object origin2) {
-		this.uiEventLogger.debug("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
-		pushOutUIEvent(new UIEvent.Decision(athlete2, goodLift2, isRefereeForcedDecision() ? null : refereeDecision2[0],
-		        refereeDecision2[1],
-		        isRefereeForcedDecision() ? null : refereeDecision2[2], origin2, this));
+		logger.debug("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
+		Boolean ref1 = null;
+		Boolean ref2 = null;
+		Boolean ref3 = null;
+		if (isRefereeForcedDecision()) {
+			ref1 = null;
+			ref2 = refereeDecision2[1];
+			ref3 = null;
+		} else {
+			ref1 = refereeDecision2[0];
+			ref2 = refereeDecision2[1];
+			ref3 = refereeDecision2[2];
+		}
+		pushOutUIEvent(new UIEvent.Decision(athlete2, goodLift2, ref1, ref2, ref3, origin2, this));
 	}
 
 	private void uiShowUpdatedRankings() {
@@ -3174,13 +3188,12 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void uiShowUpdateOnJuryScreen(FOPEvent e) {
-		this.uiEventLogger.debug("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
-		// logger.debug("uiShowUpdateOnJuryScreen {}", LoggerUtils.stackTrace());
+		logger.debug("### uiShowUpdateOnJuryScreen {}", isRefereeForcedDecision());
 		pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
 		        isRefereeForcedDecision() ? null : getRefereeDecision()[0],
 		        getRefereeDecision()[1],
-		        isRefereeForcedDecision() ? null : getRefereeDecision()[2], 
-		        getRefereeTime()[0], 
+		        isRefereeForcedDecision() ? null : getRefereeDecision()[2],
+		        getRefereeTime()[0],
 		        getRefereeTime()[1],
 		        getRefereeTime()[2],
 		        e.getOrigin(), this));
@@ -3271,7 +3284,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
-		logger.warn("************* referee decisions {} {} {}", e.ref1, e.ref2, e.ref3);
+		logger.debug("*** referee decisions {} {} {}", e.ref1, e.ref2, e.ref3);
 
 		// it is not possible to go from a non-null decision that was given back to null
 		// this would indicate an event out of order.

@@ -477,9 +477,7 @@ public class UIEvent {
 			this.ref1 = ref1;
 			this.ref2 = ref2;
 			this.ref3 = ref3;
-			if (this.trace == null || this.trace.isBlank()) {
-				this.setTrace(() -> LoggerUtils.stackTrace());
-			}
+			this.setTrace(() -> LoggerUtils.stackTrace());
 			this.setSingleReferee(fop.isSingleReferee());
 			if (fop.isSingleReferee()) {
 				if (this.ref1 != null) {
@@ -1162,7 +1160,7 @@ public class UIEvent {
 					this.ref3 = null;
 				}
 			}
-			this.logger.debug("ref update for jury {} {} {}", ref1, ref2, ref3);
+			this.logger.debug("RefereeUpdate {} {} {}\n{}", ref1, ref2, ref3, this.trace);
 		}
 	}
 

@@ -55,6 +55,10 @@ class DecisionElement extends LitElement {
             align-self: center;
         }
 
+        /* .soloDecision.none {
+          visibility: hidden;
+        } */
+
         .red {
           background-color: red;
         }
@@ -92,7 +96,7 @@ class DecisionElement extends LitElement {
         <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
         <div class="decisions" style="${this.decisionsStyles()}">
           <span class="${this.decisionClasses(1)}">&nbsp;</span>
-          <span class="${this.decisionClasses(2)}" style="${((this.ref2 !== null && this.ref1 == null && this.ref3 == null) ? "border: 0; font-weight: bold" : "")}">${((this.ref2 === true && this.ref1 == null && this.ref3 == null) ? "✓" : (this.ref2 === false && this.ref1 == null && this.ref3 == null) ? "✕" : "")}</span>
+          <span class="${this.decisionClasses(2)}" style="${((this.singleRef && this.ref2 !== null) ? "border: 2px solid var(--lumo-contrast); font-weight: bold" : "")}">${((this.singleRef && this.ref2 === true) ? "✓" : (this.singleRef && this.ref2 === false) ? "✕" : "")}</span>
           <span class="${this.decisionClasses(3)}">&nbsp;</span>
         </div>
       </div>`;
@@ -128,6 +132,10 @@ class DecisionElement extends LitElement {
         type: Boolean,
         state: true,
       },
+      singleRef: {
+        type: Boolean,
+        state: false,
+      },
       enabled: {
         type: Boolean,
         state: true,
@@ -160,6 +168,7 @@ class DecisionElement extends LitElement {
     this.ref3Time = 0;
     this.publicFacing = true;
     this.jury = false;
+    this.singleRef = false;
     this.enabled = false;
     this.silent = false;
     this._downShown = false;
@@ -222,13 +231,23 @@ class DecisionElement extends LitElement {
     console.warn("de key " + key);
     switch (e.key) {
       case "1":
-        this.ref1 = true;
-        this.ref1Time = Date.now();
+        if (this.singleRef) {
+          this.ref2 = true;
+          this.ref2Time = Date.now();
+        } else {
+          this.ref1 = true;
+          this.ref1Time = Date.now();
+        }
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "2":
-        this.ref1 = false;
-        this.ref1Time = Date.now();
+        if (this.singleRef) {
+          this.ref2 = false;
+          this.ref2Time = Date.now();
+        } else {
+          this.ref1 = false;
+          this.ref1Time = Date.now();
+        }
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "3":
@@ -242,13 +261,23 @@ class DecisionElement extends LitElement {
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "5":
-        this.ref3 = true;
-        this.ref3Time = Date.now();
+        if (this.singleRef) {
+          this.ref2 = true;
+          this.ref2Time = Date.now();
+        } else {
+          this.ref3= true;
+          this.ref3Time = Date.now();
+        }
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "6":
-        this.ref3 = false;
-        this.ref3Time = Date.now();
+        if (this.singleRef) {
+          this.ref2 = false;
+          this.ref2Time = Date.now();
+        } else {
+          this.ref3= false;
+          this.ref3Time = Date.now();
+        }
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       default:
@@ -317,7 +346,7 @@ class DecisionElement extends LitElement {
   decisionClasses(position) {
     var mainClass = "decision ";
 
-    var single = this.ref1 === null && this.ref3 === null;
+    var single = this.singleRef;
     if (single) {
       mainClass = "soloDecision "
       if (position == 1 || position == 3) {

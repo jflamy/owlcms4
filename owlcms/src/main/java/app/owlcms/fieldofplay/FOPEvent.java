@@ -309,16 +309,16 @@ public class FOPEvent {
 			this.ref3Time = long3;
 			this.immediate = immediate;
 			this.singleReferee = singleReferee;
-			if (isSingleReferee()) {
-				// move the decision to position 2; this is expected by the JavaScript element
-				if (this.ref1 != null) {
-					this.ref2 = this.ref1;
-					this.ref1 = null;
-				} else if (this.ref3 != null) {
-					this.ref2 = this.ref3;
-					this.ref3 = null;
-				}
-			}
+//			if (isSingleReferee()) {
+//				// move the decision to position 2; this is expected by the JavaScript element
+//				if (this.ref1 != null) {
+//					this.ref2 = this.ref1;
+//					this.ref1 = null;
+//				} else if (this.ref3 != null) {
+//					this.ref2 = this.ref3;
+//					this.ref3 = null;
+//				}
+//			}
 			trace();
 		}
 

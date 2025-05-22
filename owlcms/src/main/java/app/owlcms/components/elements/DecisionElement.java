@@ -48,6 +48,7 @@ public class DecisionElement extends LitTemplate
 	protected EventBus uiEventBus;
 	private boolean silenced;
 	private boolean juryMode;
+	private boolean singleRef;
 	private boolean dontReset;
 	private boolean publicFacing;
 	protected boolean downSlave;
@@ -142,7 +143,6 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
-		logger.warn("******* decision reset {}", isDontReset());
 		if (isDontReset()) {
 			return;
 		}
@@ -154,7 +154,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		logger.debug("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
-		if (isJuryMode() || ( !isDownSlave() && (this.getOrigin() == e.getOrigin()))) {
+		if (isJuryMode() || (!isDownSlave() && (this.getOrigin() == e.getOrigin()))) {
 			// we emitted the down signal, don't do it again.
 			// logger.trace("skipping down, {} is origin",this.getOrigin());
 			return;
@@ -169,7 +169,6 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-		logger.warn("******* decision slaveResetOnNewClock {}", isDontReset());
 		if (isDontReset()) {
 			return;
 		}
@@ -180,13 +179,14 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
-		logger.warn("!!! {} majority decision ({})\n{}", this.getOrigin(),
-		        this.getParent().get().getClass().getSimpleName(), e.getTrace());
+		logger.debug("decision {} {} {}", e.ref1, e.ref2, e.ref3);
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			if (e.isSingleReferee()) {
+				getElement().setProperty("singleRef", this.singleRef);
 				this.getElement().callJsFunction("showSingleDecision", e.decision);
 				this.getElement().callJsFunction("setEnabled", false);
 			} else {
+				getElement().setProperty("singleRef", this.singleRef);
 				this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 				this.getElement().callJsFunction("setEnabled", false);
 			}
@@ -233,6 +233,7 @@ public class DecisionElement extends LitTemplate
 			this.fopEventBus = fop.getFopEventBus();
 			this.uiEventBus = uiEventBusRegister(this, fop);
 			this.fop = fop;
+			setSingleRef(fop.isSingleReferee());
 		});
 	}
 
@@ -243,9 +244,18 @@ public class DecisionElement extends LitTemplate
 	private void setJuryMode(boolean juryMode) {
 		this.juryMode = juryMode;
 	}
-	
+
 	public boolean isDownSlave() {
 		return this.fop.isSingleReferee();
+	}
+
+	public boolean isSingleRef() {
+		return singleRef;
+	}
+
+	public void setSingleRef(boolean singleRef) {
+		this.singleRef = singleRef;
+		getElement().setProperty("singleRef", this.singleRef);
 	}
 
 }
