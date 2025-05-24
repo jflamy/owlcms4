@@ -14,12 +14,12 @@
 
 **New in Release 57.2**
 
-- Athlete-facing Clock: A flashing stop sign is shown on the athlete-facing decision board when the competition is stopped.
-- Experimental support for Right-to-Left languages.  Enabled by adding the "rtl" feature toggle. Currently works with "he" as it is the only RTL language for which there is a translation.
+- Athlete-facing Clock: A flashing stop sign is shown on the athlete-facing decision board while the competition is stopped.
+- Initial support for Right-to-Left languages.  A Hebrew translation by Yaniv Masler has been added.
 - Single-referee decision display
   - When the announcer selects "Single Referee Mode" from the cogwheel next to the session selector,  the first decision received from a referee is used.  
   - Any of the three referee devices can be used for the single referee, does not matter.
-  - A single circular icon is used to display the decision (white with checkmark or red with X).
+  - A single circular icon is used for single-referee or announcer-entered decisions (white with checkmark or red with X).
 - New `local/iwf` directory contains an Excel file with the definition of the IWF categories, used to compute Sinclair and Q-Point scores at category weight, for federations that use this as best lifter or marker.
 - Templates:
   - Fixed the "CompetitionResults-A4" and "CompetitionResults-LETTER" templates to default to the competition scoring system correctly, and to mark out of competition athletes correctly.
