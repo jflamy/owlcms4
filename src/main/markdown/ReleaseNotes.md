@@ -5,7 +5,7 @@
 ⚠️⚠️⚠️ 
 **To install and run OWLCMS, you need to use the OWLCMS Control Panel.** This location contains the release notes and the software modules that the control panel will install for you.
 
-- **The OWLCMS Control Panel can be downloaded at [this location](https://github.com/owlcms/owlcms-controlpanel/releases). **  **You can then follow the [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md)** 
+- **The OWLCMS Control Panel can be downloaded at [this location](https://github.com/owlcms/owlcms-controlpanel/releases). and you can refer to the [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md)**** 
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 ⚠️⚠️⚠️
@@ -14,14 +14,12 @@
 
 **New in Release 57.2**
 
+- Athlete-facing Clock: A flashing stop sign is shown on the athlete-facing decision board when the competition is stopped.
 - Single-referee decision display
   - When the announcer selects "Single Referee Mode" from the cogwheel next to the session selector,  the first decision received from a referee is used.  
   - Any of the three referee devices can be used for the single referee, does not matter.
-  - A single circular icon is used to display the decision (white with checkmark or red with X).  
-  - Note that if you switch from single to multiple referees, or vice-versa, you need to refresh the athlete clock and the attempt board. A simple refresh is enough.
-  
-- Athlete-facing Clock: A flashing "STOP" is shown on the athlete-facing decision board when the competition is stopped.
-- New `local/iwf` directory contains an Excel file with the definition of the IWF categories.
+  - A single circular icon is used to display the decision (white with checkmark or red with X).
+- New `local/iwf` directory contains an Excel file with the definition of the IWF categories, used to compute Sinclair and Q-Point scores at category weight, for federations that use this as best lifter or marker.
 - Templates:
   - Fixed the "CompetitionResults-A4" and "CompetitionResults-LETTER" templates to default to the competition scoring system correctly, and to mark out of competition athletes correctly.
   - Fixed the SnCjTot template for Session Results to show the Technical Official roles correctly
