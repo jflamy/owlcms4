@@ -1,6 +1,19 @@
-## Template Variables
+## Excel Templates
 
+The documents produced by the system are in Excel format.  They are produced by reading an Excel file (a *template*) and reading special instructions inside the template.  When producing a document, owlcms extracts information and feeds it into the template.
 
+The templates are located in the `local/templates` directory that you can reach using the `Files` button on the control panel (next to the version number you are using) . There is a subdirectory for each type of report that contains the various templates available.  You can remove files you don't use or rename them.  The update program will only overwrite the remaining files that have not been touched, so you won't lose your changes.
+
+The software library used to process the templates is called `jxls`.
+
+- Older templates were created using version 1 of jxls.  They can be recognized by the presence of instructions with angle brackets, like `<jx:foreach>`
+- The newer templates use version 3 of jxls, which is many times faster.  That version puts the instructions inside Excel notes.  See the documentation at [https://jxls.sourceforge.net/](https://jxls.sourceforge.net/)
+
+### Template Variables
+
+When writing a template, you can get information about athletes, sessions, etc.  The best way to find about them is to look at existing templates.
+
+Substitutions follow the JEXL conventions, so you can actually chain accesses.
 
 #### Athlete information
 

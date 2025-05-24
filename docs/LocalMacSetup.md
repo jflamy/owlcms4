@@ -1,6 +1,6 @@
 ### Installation
 
-- Download the `.dmg` installer by clicking on this link [macOS Installer](https://github.com/owlcms/owlcms-controlpanel/releases/latest/download/macOS_Control_Panel_Installer.dmg)
+- Download the `.dmg` installer from the [release repository](https://github.com/owlcms/owlcms-controlpanel/releases) by clicking on this link [macOS Installer](https://github.com/owlcms/owlcms-controlpanel/releases/latest/download/macOS_Control_Panel_Installer.dmg)
 
   - See this link for the [release notes](https://github.com/owlcms/owlcms-controlpanel/releases/latest)
 

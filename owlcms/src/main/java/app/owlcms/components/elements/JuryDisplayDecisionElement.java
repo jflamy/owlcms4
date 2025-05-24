@@ -99,6 +99,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 			        this.getParent().get().getClass().getSimpleName());
 			this.getElement().callJsFunction("showDown", false,
 			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
+			getElement().setProperty("singleRef", this.isSingleRef());
 		});
 	}
 
@@ -107,7 +108,8 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			//logger.debug("{} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
 			getElement().setProperty("singleRef", this.isSingleRef());
-			this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, intBox(e.ref1Time),
+			this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, 
+					intBox(e.ref1Time),
 			        intBox(e.ref2Time),
 			        intBox(e.ref3Time));
 		});
@@ -122,6 +124,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	public void slaveStartTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			uiEventLogger.debug("*** {} startTime -> reset", this.getOrigin());
+			getElement().setProperty("singleRef", this.isSingleRef());
 			if (isAutomaticReset()) {
 				doReset();
 			}

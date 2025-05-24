@@ -1,7 +1,6 @@
 ## Windows Installer
 
-> - When the installer was first released, Windows <u>falsely</u> signaled a virus in the installer program.
->- If for some reason your computer rejects the file, you can still download and use the control panel executable program directly, as explained on [this page](LocalWindowsSetup)
+> - If for some reason your computer rejects the installer, you can still download and use the control panel executable program directly, as explained on [this page](LocalWindowsSetup)
 
 ### Installation
 

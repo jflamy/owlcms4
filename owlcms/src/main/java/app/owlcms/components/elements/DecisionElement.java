@@ -111,6 +111,7 @@ public class DecisionElement extends LitTemplate
 	 */
 	public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 		Object origin = this.getOrigin();
+		getElement().setProperty("singleRef", this.isSingleRef());
 		OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
 	}
 
@@ -147,6 +148,7 @@ public class DecisionElement extends LitTemplate
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
+			getElement().setProperty("singleRef", this.isSingleRef());
 			getElement().callJsFunction("reset", false);
 		});
 	}
@@ -162,6 +164,7 @@ public class DecisionElement extends LitTemplate
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
 			        this.getParent().get().getClass().getSimpleName());
+			getElement().setProperty("singleRef", this.isSingleRef());
 			this.getElement().callJsFunction("showDown", false,
 			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
 		});
@@ -173,6 +176,7 @@ public class DecisionElement extends LitTemplate
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
+			getElement().setProperty("singleRef", this.isSingleRef());
 			getElement().callJsFunction("reset", false);
 		});
 	}

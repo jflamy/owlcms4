@@ -2,7 +2,7 @@
 
 If you are familiar with Windows and downloading programs
 
-1. **Download [owlcms_controlpanel.exe](https://github.com/owlcms/owlcms-controlpanel/releases/latest/download/owlcms_controlpanel.exe)** and accept all the security warnings.
+1. **Download [owlcms_controlpanel.exe](https://github.com/owlcms/owlcms-controlpanel/releases/latest/download/owlcms_controlpanel.exe)** from the [release repository](https://github.com/owlcms/owlcms-controlpanel/releases) and accept all the security warnings.
 2. **Drag** the downloaded file to your desktop
 3. **Double-click** on the file.  The first time, this will download the latest owlcms and the files required to run it.  To use the control panel, see [Local Control Panel Overview](LocalControlPanel)
 
