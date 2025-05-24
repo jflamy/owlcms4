@@ -14,6 +14,7 @@ import java.util.Locale;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -36,6 +37,7 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -192,6 +194,9 @@ public class OwlcmsLayout extends AppLayout {
 	@Override
 	protected void afterNavigation() {
 		super.afterNavigation();
+		if (Config.getCurrent().featureSwitch("rtl") && OwlcmsSession.getLocale().getLanguage().equals("he")) {
+			UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
+		}
 		setMenuTitle(getCurrentPageTitle());
 	}
 
