@@ -15,6 +15,7 @@
 **New in Release 57.2**
 
 - Athlete-facing Clock: A flashing stop sign is shown on the athlete-facing decision board when the competition is stopped.
+- Experimental support for Right-to-Left languages.  Enabled by adding the "rtl" feature toggle. Currently works with "he" as it is the only RTL language for which there is a translation.
 - Single-referee decision display
   - When the announcer selects "Single Referee Mode" from the cogwheel next to the session selector,  the first decision received from a referee is used.  
   - Any of the three referee devices can be used for the single referee, does not matter.
