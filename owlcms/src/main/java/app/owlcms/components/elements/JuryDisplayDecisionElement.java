@@ -9,6 +9,8 @@ package app.owlcms.components.elements;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.UI;
 
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -34,7 +36,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		this.setJury(true);
 		getElement().setProperty("singleRef", this.isSingleRef());
 		this.getElement().getStyle().set("font-size", "100%");
-
+		doReset();
 	}
 
 	public JuryDisplayDecisionElement(boolean b) {
@@ -43,8 +45,15 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	}
 
 	public void doReset() {
-		getElement().setProperty("singleRef", this.isSingleRef());
 		this.getElement().callJsFunction("reset", false);
+		getElement().setProperty("singleRef", this.isSingleRef());
+		if (this.isSingleRef()) {
+			this.getElement().callJsFunction("showSingleDecisionForJury", (Boolean) null);
+		} else {
+			this.getElement().callJsFunction("showDecisionsForJury", (Boolean) null, (Boolean) null, (Boolean) null,
+			        0, 0, 0);
+		}
+		UI.getCurrent().push();
 	}
 
 	@Subscribe
@@ -84,14 +93,19 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	}
 
 	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+	}
+
+	@Override
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		// logger.debug("jury slaveDownSignal {} {} {} {}", this, this.getOrigin(), e.getOrigin(), isSilenced());
-		if (isSilenced()
-		// && (isJuryMode() || (this.getOrigin() == e.getOrigin()))
-		) {
+		if (isSilenced()) {
 			// we emitted the down signal, don't do it again.
-			// logger.trace("skipping down, {} is origin",this.getOrigin());
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+				getElement().setProperty("singleRef", this.isSingleRef());
+			});
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
@@ -106,12 +120,16 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	@Subscribe
 	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			//logger.debug("{} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
+			// logger.debug("{} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
 			getElement().setProperty("singleRef", this.isSingleRef());
-			this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3, 
-					intBox(e.ref1Time),
-			        intBox(e.ref2Time),
-			        intBox(e.ref3Time));
+			if (this.isSingleRef()) {
+				this.getElement().callJsFunction("showSingleDecisionForJury", e.ref2);
+			} else {
+				this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3,
+				        intBox(e.ref1Time),
+				        intBox(e.ref2Time),
+				        intBox(e.ref3Time));
+			}
 		});
 	}
 
@@ -123,11 +141,9 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	@Subscribe
 	public void slaveStartTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			uiEventLogger.debug("*** {} startTime -> reset", this.getOrigin());
 			getElement().setProperty("singleRef", this.isSingleRef());
-			if (isAutomaticReset()) {
-				doReset();
-			}
+			doReset();
+			UI.getCurrent().push();
 		});
 	}
 

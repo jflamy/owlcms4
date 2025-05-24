@@ -183,7 +183,7 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
-		logger.debug("decision {} {} {}", e.ref1, e.ref2, e.ref3);
+		//logger.debug("decision {} {} {}", e.ref1, e.ref2, e.ref3);
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			if (e.isSingleReferee()) {
 				getElement().setProperty("singleRef", this.singleRef);
@@ -237,7 +237,6 @@ public class DecisionElement extends LitTemplate
 			this.fopEventBus = fop.getFopEventBus();
 			this.uiEventBus = uiEventBusRegister(this, fop);
 			this.fop = fop;
-			setSingleRef(fop.isSingleReferee());
 		});
 	}
 
@@ -254,12 +253,10 @@ public class DecisionElement extends LitTemplate
 	}
 
 	public boolean isSingleRef() {
-		return singleRef;
-	}
-
-	public void setSingleRef(boolean singleRef) {
-		this.singleRef = singleRef;
-		getElement().setProperty("singleRef", this.singleRef);
+		if (this.fop == null) {
+			this.fop = OwlcmsSession.getFop();
+		}
+		return this.fop != null ? this.fop.isSingleReferee() : false;
 	}
 
 }

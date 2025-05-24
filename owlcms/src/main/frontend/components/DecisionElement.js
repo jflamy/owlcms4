@@ -49,9 +49,9 @@ class DecisionElement extends LitElement {
             padding: 0;
             width: 1.2em;
             height: 1.2em;
-            color: black;
             line-height: 1.2em;
-            font-size: 1.2em;
+            font-size: 1.0em;
+            color: black;
             align-self: center;
         }
 
@@ -134,7 +134,11 @@ class DecisionElement extends LitElement {
       },
       singleRef: {
         type: Boolean,
-        state: false,
+        reflect: true,
+        hasChanged: (newValue, oldValue) => {
+          console.warn(`hasChanged called for singleRef: old=${oldValue}, new=${newValue}`);
+          return newValue !== oldValue;
+        },
       },
       enabled: {
         type: Boolean,
@@ -421,6 +425,7 @@ class DecisionElement extends LitElement {
     this.ref2 = ref2;
     this.ref3 = ref3;
     this.hideDown();
+    this.singleRef = false;
     this._showDecision = true;
     console.debug("de showDecisions");
   }
@@ -431,6 +436,7 @@ class DecisionElement extends LitElement {
     this.ref2 = decision;
     this.ref3 = null;
     this.hideDown();
+    this.singleRef = true;
     this._showDecision = true;
     console.debug("de showSingleDecision");
   }
@@ -444,6 +450,8 @@ class DecisionElement extends LitElement {
     this.ref2Time = ref2Time;
     this.ref3Time = ref3Time;
     this.hideDown();
+    this.singleRef = false;
+    this.jury = true;
     this._showDecision = true;
     console.debug("de showDecisionsForJury>");
   }
@@ -454,6 +462,8 @@ class DecisionElement extends LitElement {
     this.ref2 = decision;
     this.ref3 = null;
     this.hideDown();
+    this.singleRef = true;
+    this.jury = true;
     this._showDecision = true;
     console.debug("de showSingleDecisionForJury");
   }

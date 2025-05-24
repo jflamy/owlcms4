@@ -202,7 +202,7 @@ public class FieldOfPlay implements IUnregister {
 	private boolean timeoutEmitted;
 	final private Logger timingLogger = (Logger) LoggerFactory.getLogger(this.logger.getName() + "_Timing");
 	private EventBus uiEventBus = null;
-	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger(this.logger.getName() + "_UI");
+	//final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger(this.logger.getName() + "_UI");
 	private Thread wakeUpRef;
 	private Integer weightAtLastStart;
 	private int prevWeight;
