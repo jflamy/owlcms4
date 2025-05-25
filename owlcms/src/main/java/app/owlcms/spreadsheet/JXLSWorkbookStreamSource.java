@@ -59,6 +59,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -561,8 +562,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		getReportingBeans().put("t", Translator.getMap());
 		getReportingBeans().put("tf", new JXLSFormatter());
 		getReportingBeans().put("competition", competition);
-		getReportingBeans().put("session", getGroup()); // legacy
-		getReportingBeans().put("group", getGroup());
+		getReportingBeans().put("session", getGroup()); 
+		getReportingBeans().put("group", getGroup());// legacy
+		getReportingBeans().put("platforms", PlatformRepository.findAll());
 
 		// reuse existing logic for processing records
 		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null, false, false);

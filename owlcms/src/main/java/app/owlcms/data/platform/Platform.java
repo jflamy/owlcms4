@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -744,6 +746,14 @@ public class Platform implements Serializable, Comparable<Platform> {
 		logger.debug("SETTING platform {}: soundMixer={}", System.identityHashCode(this),
 		        soundMixer == null ? null : soundMixer.getLineInfo());
 		this.mixer = soundMixer;
+	}
+	
+	public List<Group> getSessions() {
+		var sessions = GroupRepository.findAll().stream()
+				.filter(s -> s.getPlatform().getName().equals(this.getName()))
+				.sorted(((s1,s2) -> s1.getCompetitionTime().compareTo(s2.getCompetitionTime())))
+				.toList();
+		return sessions;
 	}
 
 }
