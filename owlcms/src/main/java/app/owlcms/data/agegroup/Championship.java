@@ -93,11 +93,16 @@ public class Championship implements Comparable<Championship> {
 			List<String> allChampionships = AgeGroupRepository.allChampionshipsForAllAgeGroups();
 
 			for (String s : allChampionships) {
+				logger.warn("s = {}", s);
 				String typeString = null;
 				String nameString = null;
 				if (s.contains("¤")) {
 					String[] arr = s.split("¤");
-					typeString = arr[1];
+					if (arr.length > 1) {
+						typeString = arr[1];
+					} else {
+						typeString = "U";
+					}
 					nameString = arr[0];
 				} else {
 					typeString = s;
