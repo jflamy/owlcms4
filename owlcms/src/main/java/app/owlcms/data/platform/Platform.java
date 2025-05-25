@@ -748,6 +748,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 		this.mixer = soundMixer;
 	}
 	
+	@Transient
+	@JsonIgnore
 	public List<Group> getSessions() {
 		var sessions = GroupRepository.findAll().stream()
 				.filter(s -> s.getPlatform().getName().equals(this.getName()))
