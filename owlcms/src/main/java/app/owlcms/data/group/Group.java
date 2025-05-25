@@ -462,7 +462,8 @@ public class Group implements Comparable<Group> {
 			for (String propertyName : getters.keySet()) {
 				Method getter = getters.get(propertyName);
 				Method setter = setters.get(propertyName);
-				if (propertyName.equals("Id") || propertyName.contains("Range")) {
+				// skip the computed properties
+				if (propertyName.equals("Id") || getter.isAnnotationPresent(Transient.class)) {
 					continue;
 				}
 				if (getter != null && setter != null) {
@@ -675,6 +676,8 @@ public class Group implements Comparable<Group> {
 		return this.description;
 	}
 
+	@Transient
+	@JsonIgnore
 	public String getFormattedRange() {
 		List<Athlete> athletes = getAthletes();
 		boolean unanimous = true;
