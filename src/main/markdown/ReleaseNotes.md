@@ -25,6 +25,7 @@
   - Fixed the "CompetitionResults-A4" and "CompetitionResults-LETTER" templates to default to the competition scoring system correctly, and to mark out of competition athletes correctly.
   - Fixed the SnCjTot template for Session Results to show the Technical Official roles correctly
   - New ${platforms} template variable, as well as ${platform.sessions} accessor.
+  - Fix: the medaling template would sometime skip a category header when identical categories from two different championships medaled in the same session.
 - Fix: the update of sessions by loading the registration files or SBDE file was broken by the improvement of session timing.
 
 
