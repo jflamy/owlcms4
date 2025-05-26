@@ -374,7 +374,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 			String catName = "zzzz" + "_" + getGender() + getSortCodeLimitString();
 			result = catName;
 		} else {
-			result = this.ageGroup.getAgeFirstSortCode() + "_" + getSortCodeLimitString();
+			result = agName + "_" + this.ageGroup.getAgeFirstSortCode() + "_" + getSortCodeLimitString();
 		}
 		// logger.debug("Category {} sort code {}", this, result);
 		return result;
