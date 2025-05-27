@@ -13,24 +13,29 @@
 	justify-content: center;
 	flex-grow: 1;
 	height: 100%;
-	margin: 0;
-	padding: 0;
+	margin: 0; /* This is shorthand for all sides, logical */
+	padding: 0; /* This is shorthand for all sides, logical */
 }
 
 .notification {
 	font-size: var(--fontSize);
 	text-align: center;
 	min-width: 50%;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 5px;
+	/* margin-left: auto; */
+	/* margin-right: auto; */
+	margin-inline: auto;
+	/* margin-top: 5px; */
+	margin-block-start: 5px;
 	border-radius: 20px;
 	border-width: 5px;
 	border-style: solid;
-	padding-left: 1ch;
-	padding-right: 1ch;
-	padding-bottom: 0.2ex;
-	padding-top: 0;
+	/* padding-left: 1ch; */
+	/* padding-right: 1ch; */
+	/* padding-bottom: 0.2ex; */
+	/* padding-top: 0; */
+	padding-inline: 1ch;
+	padding-block-start: 0;
+	padding-block-end: 0.2ex;
 }
 
 .notification.invisibleNotification {

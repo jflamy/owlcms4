@@ -40,7 +40,7 @@
 
 .attemptBoard .lastName {
 	align-self: end;
-	justify-self: left;
+	justify-self: start;
 	font-size: 12vh;
 	line-height: 12vh;
 	grid-area: lastName-start/lastName-start/lastName-end/lastName-end;
@@ -48,7 +48,7 @@
 
 .attemptBoard .lastNameWithPicture {
 	align-self: end;
-	justify-self: left;
+	justify-self: start;
 	font-size: 9vh;
 	line-height: 10vh;
 	font-weight: bold;
@@ -72,15 +72,15 @@
 }
 
 .attemptBoard .firstName {
-	padding: 0;
+	padding: 0; /* Logical */
 	line-height: 12vh;
-	justify-self: left;
+	justify-self: start;
 	font-size: 10vh;
 	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
 }
 
 .attemptBoard .firstNameWithPicture {
-	justify-self: left;
+	justify-self: start;
 	font-size: 9vh;
 	line-height: 10vh;
 	font-weight: normal;
@@ -103,7 +103,7 @@
 }
 
 .attemptBoard .teamName {
-	justify-self: left;
+	justify-self: start;
 	align-self: center;
 	font-size: 8vh;
 	line-height: 8vh;
@@ -210,7 +210,7 @@
 	.attemptBoard .teamName {
 		font-size: 8vh;
 		line-height: 8vh;
-		padding-top: 3vmin;
+		padding-block-start: 3vmin;
 	}
 }
 
@@ -220,7 +220,7 @@
 }
 
 .attemptBoard .category {
-	margin-left: 1.5rem;
+	margin-inline-start: 1.5rem;
 	justify-self: start;
 	align-self: center;
 	font-size: 8.5vh;

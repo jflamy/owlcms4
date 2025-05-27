@@ -67,8 +67,9 @@
     background-color: var(--blockBackgroundColor);
     width: fit-content;
     height: fit-content;
-    padding: 0.66em;
-    margin-top: 1em;
+    padding: 0.66em; /* This is shorthand for all sides, logical */
+    /* margin-top: 1em; */
+    margin-block-start: 1em;
 }
 
 .filler {

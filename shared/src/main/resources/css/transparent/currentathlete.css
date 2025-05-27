@@ -37,7 +37,8 @@ table.results tr td div {
 }
 
 .showRank div, .totalRank div {
-    margin-left: 0.5em;
+    /* margin-left: 0.5em; */
+    margin-inline-start: 0.5em;
     border: none;
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
@@ -45,14 +46,16 @@ table.results tr td div {
 }
 
 div > div.attemptBar > div.attempts > table > tr > td.totalRank {
-    margin-right: 0;
+    /* margin-right: 0; */
+    margin-inline-end: 0;
 }
 
 .wrapper {
     font-family: Arial, Helvetica, sans-serif;
     color: var(--videoTextColor);
     background-color: var(--videoHeaderBackgroundColor);
-    padding: 2vmin 2vmin 2vmin 2vmin;
+    /* padding: 2vmin 2vmin 2vmin 2vmin; */
+    padding: 2vmin; /* This is shorthand for all sides, logical */
     overflow: hidden;
 }
 
@@ -87,7 +90,8 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
 
 .attemptBar .fullName {
     font-size: 110%;
-    justify-self: left;
+    /* justify-self: left; */
+    justify-self: start;
     grid-column: 2/3;
 }
 
@@ -129,7 +133,8 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
     grid-row: 2/3;
     justify-self: center;
     width: 100%;
-    margin-top: 0.33em;
+    /* margin-top: 0.33em; */
+    margin-block-start: 0.33em;
 }
 
 .breakTime {
@@ -144,7 +149,8 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
 table.results {
     border: none;
     background-color: var(--BackgroundColor);
-    margin-top: 0.3em;
+    /* margin-top: 0.3em; */
+    margin-block-start: 0.3em;
 }
 
 
@@ -155,7 +161,8 @@ table.results {
     flex-direction: row;
     width: 100%;
     padding: 0.2em;
-    padding-right: 1em;
+    /* padding-right: 1em; */
+    padding-inline-end: 1em;
     flex-wrap: wrap;
 }
 
@@ -166,14 +173,15 @@ table.results {
     flex-direction: row;
     width: 100%;
     padding: 0.2em;
-    padding-right: 1em;
+    /* padding-right: 1em; */
+    padding-inline-end: 1em;
     flex-wrap: wrap;
 }
 
 table.results th,
 table.results td {
-    padding: 0;
-    margin: 0;
+    padding: 0; /* This is shorthand for all sides, logical */
+    margin: 0; /* This is shorthand for all sides, logical */
     background-clip: padding-box;
     font-size: var(--fontSizeRows-height);
 }
@@ -231,7 +239,8 @@ table.results td {
 :host .light table.results td.showRank div, :host .light table.results td.totalRank div {
     display: inherit;
     font-size: var(--fontSizeRows-height);
-    margin-right: 0.5em;
+    /* margin-right: 0.5em; */
+    margin-inline-end: 0.5em;
     line-height: var(--divLineHeight);
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
@@ -249,7 +258,8 @@ table.results td {
 :host .dark table.results td.showRank div, :host .dark table.results td.totalRank div {
     display: inherit;
     font-size: var(--fontSizeRows-height);
-    margin-right: 0.5em;
+    /* margin-right: 0.5em; */
+    margin-inline-end: 0.5em;
     line-height: var(--divLineHeight);
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
@@ -261,8 +271,9 @@ table.results td {
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
     font-size: calc(var(--fontSizeRows-height)*1.0);
-    padding-left: 1ch;
-    padding-right: 1ch;
+    /* padding-left: 1ch; */
+    /* padding-right: 1ch; */
+    padding-inline: 1ch;
 }
 
 :host .light table.results td.category {
@@ -271,8 +282,9 @@ table.results td {
     background-color: var(--BackgroundColor);
     color: var(--TextColor);
     font-size: calc(var(--fontSizeRows-height)*1.0);
-    padding-left: 1ch;
-    padding-right: 1ch;
+    /* padding-left: 1ch; */
+    /* padding-right: 1ch; */
+    padding-inline: 1ch;
 }
 
 :host .dark table.results td.category div {
@@ -304,7 +316,8 @@ table.results td {
 table.results td.liftName div {
     display: inherit;
     font-size: var(--fontSizeRows-height);
-    margin-right: 0.5em;
+    /* margin-right: 0.5em; */
+    margin-inline-end: 0.5em;
     line-height: var(--divLineHeight);
 }
 
@@ -319,7 +332,7 @@ table.results td.liftName div {
 
 :host .light table.results td.good {
     background-color: var(--GoodBackgroundColor);
-    color: var(--GoodTextColor);
+    color: var,--GoodTextColor);
     font-weight: bold;
     width: var(--narrow-width);
     text-align: center;
@@ -474,8 +487,9 @@ thead {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin: auto;
-    text-align: left;
+    margin: auto; /* This centers, logical in this context */
+    /* text-align: left; */
+    text-align: start;
 }
 
 .hiddenTitle {

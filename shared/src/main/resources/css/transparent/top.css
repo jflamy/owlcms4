@@ -57,8 +57,11 @@
     .showThRank {
         border-collapse: collapse;
         border: solid 1px DarkGray;
-        border-left-style: none;
-        padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+        /* border-left-style: none; */
+        border-inline-start-style: none;
+        /* padding: 0.5vmin 1vmin 0.5vmin 1vmin; */
+        padding-block: 0.5vmin;
+        padding-inline: 1vmin;
         font-size: var(--fontSizeRank-height);
         font-weight: normal;
         font-style: italic;
@@ -123,15 +126,19 @@
     .showThRank {
         display: none;
         width: 0px;
-        padding: 0 0 0 0;
-        margin: 0 0 0 0;
+        /* padding: 0 0 0 0; */
+        padding: 0;
+        /* margin: 0 0 0 0; */
+        margin: 0;
         font-size: var(--fontSizeRank-height);
     }
     .showRank {
         display: none;
         width: 0px;
-        padding: 0 0 0 0;
-        margin: 0 0 0 0;
+        /* padding: 0 0 0 0; */
+        padding: 0;
+        /* margin: 0 0 0 0; */
+        margin: 0;
         font-size: var(--fontSizeRows-height);
     }
     th, td {
@@ -182,16 +189,20 @@
     .showThRank {
         display: none;
         width: 0px;
-        padding: 0 0 0 0;
-        margin: 0 0 0 0;
+        /* padding: 0 0 0 0; */
+        padding: 0;
+        /* margin: 0 0 0 0; */
+        margin: 0;
         font-size: var(--fontSizeRank-height);
     }
     /* hide the snatch and cj ranks, no room */
     .showRank {
         display: none;
         width: 0px;
-        padding: 0 0 0 0;
-        margin: 0 0 0 0;
+        /* padding: 0 0 0 0; */
+        padding: 0;
+        /* margin: 0 0 0 0; */
+        margin: 0;
         font-size: var(--fontSizeRows-height);
     }
     th, td {
@@ -204,7 +215,8 @@
     color: var(--pageTextColor);
     background-color: var(--pageBackgroundColor);
     min-height: 100vh;
-    padding: 2vmin 2vmin 2vmin 2vmin;
+    /* padding: 2vmin 2vmin 2vmin 2vmin; */
+    padding: 2vmin;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -259,13 +271,15 @@
 .athleteInfo .fullName {
     font-weight: bold;
     flex: 0 0 35%;
-    text-align: left;
+    /* text-align: left; */
+    text-align: start;
     flex-grow: 0.5;
 }
 
 .athleteInfo .timer {
     flex: 0 0 15%;
-    text-align: right;
+    /* text-align: right; */
+    text-align: end;
     font-weight: bold;
     width: 10vw;
     display: flex;
@@ -274,8 +288,10 @@
 
 .athleteInfo .decisionBox {
     position: fixed;
-    top: 2vmin;
-    right: 2vmin;
+    /* top: 2vmin; */
+    /* right: 2vmin; */
+    inset-block-start: 2vmin;
+    inset-inline-end: 2vmin;
     width: 15vw;
     height: 10vh;
     background-color: var(--pageBackgroundColor);
@@ -317,7 +333,9 @@ table.results {
 th, td {
     border-collapse: collapse;
     border: solid 1px DarkGray;
-    padding: 0.4vmin 1vmin 0.4vmin 1vmin;
+    /* padding: 0.4vmin 1vmin 0.4vmin 1vmin; */
+    padding-block: 0.4vmin;
+    padding-inline: 1vmin;
     font-size: var(--fontSizeRows-height);
 }
 
@@ -369,8 +387,11 @@ th, td {
 .thRank {
     border-collapse: collapse;
     border: solid 1px DarkGray;
-    border-left-style: none;
-    padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+    /* border-left-style: none; */
+    border-inline-start-style: none;
+    /* padding: 0.5vmin 1vmin 0.5vmin 1vmin; */
+    padding-block: 0.5vmin;
+    padding-inline: 1vmin;
     font-weight: normal;
     font-style: italic;
     width: var(--rank-width);

@@ -126,7 +126,8 @@ td.flags div.flags {
     width: fit-content;
     height: fit-content;
     padding: 0.66em;
-    margin-top: 1em;
+    /* margin-top: 1em; */
+    margin-block-start: 1em;
 }
 
 .filler {
@@ -170,7 +171,7 @@ td.flags div.flags {
 :host div.wrapper.light table.results tr td.totalRank {
     border-color: var(--TableBorders);
     color: black;
-    padding: 0.6em;
+    padding: 0.6em; /* This is shorthand for all sides, logical */
     border-style: solid;
 }
 
@@ -186,7 +187,7 @@ td.flags div.flags {
     background-color: gold;
     color: black;
     border-color: var(--TableBorders);
-    padding: 0.6em;
+    padding: 0.6em; /* This is shorthand for all sides, logical */
     border-style: solid;
 }
 
@@ -202,7 +203,7 @@ td.flags div.flags {
     background-color: silver;
     color: black;
     border-color: var(--TableBorders);
-    padding: 0.6em;
+    padding: 0.6em; /* This is shorthand for all sides, logical */
     border-style: solid;
 }
 
@@ -218,7 +219,7 @@ td.flags div.flags {
     background-color: #CD7F32;
     color: black;
     border-color: var(--TableBorders);
-    padding: 0.6em;
+    padding: 0.6em; /* This is shorthand for all sides, logical */
     border-style: solid;
 }
 
@@ -247,7 +248,7 @@ td.flags div.flags {
     background-color: gold;
     color: black;
     border-color: var(--TableBorders);
-    padding: 0.6em;
+    padding: 0.6em; /* This is shorthand for all sides, logical */
     border-style: solid;
 }
 
@@ -263,7 +264,7 @@ td.flags div.flags {
     background-color: silver;
     color: black;
     border-color: var(--TableBorders);
-    padding: 0.6em;
+    padding: 0.6em; /* This is shorthand for all sides, logical */
     border-style: solid;
 }
 
@@ -279,7 +280,7 @@ td.flags div.flags {
     background-color: #CD7F32;
     color: black;
     border-color: var(--TableBorders);
-    padding: 0.6em;
+    padding: 0.6em; /* This is shorthand for all sides, logical */
     border-style: solid;
 }
 
@@ -332,7 +333,8 @@ div > div > div.attemptBar {
 .athleteInfo .fullName {
     font-weight: bold;
     flex: revert;
-    text-align: left;
+    /* text-align: left; */
+    text-align: start;
     flex-grow: revert;
     color: var(--athleteNameColor);
     font-size: var(--athleteNameFontSize)
