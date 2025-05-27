@@ -57,8 +57,9 @@
     .showThRank {
         border-collapse: collapse;
         border: solid 1px DarkGray;
-        border-left-style: none;
-        padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+        border-inline-start-style: none;
+        padding-block: 0.5vmin; 
+        padding-inline: 1vmin;
         font-size: var(--fontSizeRank-height);
         font-weight: normal;
         font-style: italic;
@@ -204,12 +205,12 @@
     color: var(--pageTextColor);
     background-color: var(--pageBackgroundColor);
     min-height: 100vh;
-    padding: 2vmin 2vmin 2vmin 2vmin;
+    padding: 2vmin; /* This is already logical if all sides are the same */
     overflow: hidden;
     display: flex;
     flex-direction: column;
     flex-wrap: no-wrap;
-    justify-content: flex-start;
+    justify-content: flex-start; /* For column flex, flex-start is top */
 }
 
 #results {
@@ -220,7 +221,7 @@
     flex: 0 0 auto;
     width: 100%;
     min-height: 0;
-    align-self: flex-end;
+    align-self: flex-end; /* For column flex, flex-end is bottom */
     background-color: blue;
 }
 
@@ -259,23 +260,23 @@
 .athleteInfo .fullName {
     font-weight: bold;
     flex: 0 0 35%;
-    text-align: left;
+    text-align: start;
     flex-grow: 0.5;
 }
 
 .athleteInfo .timer {
     flex: 0 0 15%;
-    text-align: right;
+    text-align: end;
     font-weight: bold;
     width: 10vw;
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-end; /* or justify-content: end; */
 }
 
 .athleteInfo .decisionBox {
     position: fixed;
-    top: 2vmin;
-    right: 2vmin;
+    inset-block-start: 2vmin;
+    inset-inline-end: 2vmin;
     width: 15vw;
     height: 10vh;
     background-color: var(--pageBackgroundColor);
@@ -317,7 +318,8 @@ table.results {
 th, td {
     border-collapse: collapse;
     border: solid 1px DarkGray;
-    padding: 0.4vmin 1vmin 0.4vmin 1vmin;
+    padding-block: 0.4vmin; 
+    padding-inline: 1vmin;
     font-size: var(--fontSizeRows-height);
 }
 
@@ -334,32 +336,20 @@ th, td {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    /* text-align: start; if it was previously text-align: left */
 }
 
-.name div {
-    max-width: calc(var(--name-max-width));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+/* .name div already has text-overflow and whitespace, text-align might not be needed or should be start if it was left */
 
 .club {
     width: var(--club-width);
-    text-align: center;
+    text-align: center; /* center is direction-agnostic */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.club div {
-    max-width: var(--club-max-width);
-    text-align: center;
-    margin: auto;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
+/* .club div already has text-align: center */
 .ellipsis {
     white-space: nowrap;
     overflow: hidden;
@@ -369,8 +359,9 @@ th, td {
 .thRank {
     border-collapse: collapse;
     border: solid 1px DarkGray;
-    border-left-style: none;
-    padding: 0.5vmin 1vmin 0.5vmin 1vmin;
+    border-inline-start-style: none; /* Assuming previous border-left-style */
+    padding-block: 0.5vmin; 
+    padding-inline: 1vmin;
     font-weight: normal;
     font-style: italic;
     width: var(--rank-width);
@@ -570,7 +561,7 @@ table#leaders-table thead tr.hide th {
     height: 1px;
     line-height: 1px;
     font-size: 1px;
-    padding: 0;
+    padding: 0; /* This is already logical */
 }
 
 .sinclair {

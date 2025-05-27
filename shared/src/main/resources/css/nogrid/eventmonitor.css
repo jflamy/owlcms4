@@ -21,16 +21,15 @@
 	font-size: var(--fontSize);
 	text-align: center;
 	min-width: 50%;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 5px;
+	margin-inline: auto;
+	margin-top: 5px; /* margin-block-start could be used if more specific control is needed */
 	border-radius: 20px;
 	border-width: 5px;
 	border-style: solid;
-	padding-left: 1ch;
-	padding-right: 1ch;
-	padding-bottom: 0.2ex;
-	padding-top: 0;
+	padding-inline-start: 1ch;
+	padding-inline-end: 1ch;
+	padding-block-end: 0.2ex;
+	padding-block-start: 0;
 }
 
 .notification.invisibleNotification {

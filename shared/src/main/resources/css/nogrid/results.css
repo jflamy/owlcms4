@@ -14,7 +14,10 @@
     background-color: var(--pageBackgroundColor);
 
     min-height: 100vh;
-    padding: 1vmin 2vmin 2vmin 2vmin;
+    padding-block-start: 1vmin; 
+    padding-inline-start: 2vmin; 
+    padding-inline-end: 2vmin; 
+    padding-block-end: 2vmin;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -47,8 +50,9 @@
     background-color: var(--videoHeaderBackgroundColor);
     color: var(--videoHeaderTextColor);
     margin-bottom: 1.2rem;
-    padding: 0.25em;
-    padding-left: 0.5em;
+    padding-block: 0.25em; 
+    padding-inline-end: 0.25em; 
+    padding-inline-start: 0.5em;
     display: flex;
     align-items: center;
     justify-items: center;
@@ -86,7 +90,7 @@
     background-repeat: no-repeat;
     width: 70px;
     height: 70px;
-    margin-right:5px;
+    margin-inline-end:5px;
     background-position: center;
 }
 
@@ -179,7 +183,7 @@ table.results.sinclair.nosinclairRank {
 :host table.results tr td.name {
     background-color: var(--NameBackgroundColor);
     color: var(--NameTextColor);
-    justify-content: left;
+    justify-content: start;
 }
 
 /* category */
@@ -323,17 +327,17 @@ table.results tr td.club div.clubName div.ellipsis {
     background-color: var(--SpacerBackgroundColor);
     /* padding: 0.4vmin 0.4vmin 0.4vmin 0.4vmin; */
     margin-bottom: 0.01vh;
-    border-right: 0;
-    border: none;
+    border-inline-end: 0;
+    border-style: none; /* Simplified from border: none; if only one side was targeted */
     max-height: 2px;
 }
 
 /* spacer line between categories */
 :host table.results tr td.spacer {
     background-color: var(--SpacerBackgroundColor);
-    padding: 0.2vmin 0.2vmin 0.2vmin 0.2vmin;
-    border-right: 0;
-    border: none;
+    padding: 0.2vmin;
+    border-inline-end: 0;
+    border-style: none; /* Simplified from border: none; if only one side was targeted */
     max-height: 2px;
 }
 
@@ -459,10 +463,10 @@ td {
     white-space: nowrap;
     display: flex;
     align-content: stretch;
-    padding-left: calc(var(--tableFontSize)*0.15);
-    padding-right: calc(var(--tableFontSize)*0.15);
-    padding-top: calc(var(--tableFontSize)*0.1);
-    padding-bottom: calc(var(--tableFontSize)*0.1);
+    padding-inline-start: calc(var(--tableFontSize)*0.15);
+    padding-inline-end: calc(var(--tableFontSize)*0.15);
+    padding-block-start: calc(var(--tableFontSize)*0.1);
+    padding-block-end: calc(var(--tableFontSize)*0.1);
     margin: 0;
 }
 
@@ -501,8 +505,9 @@ td {
     font-weight: normal;
     /* font-size: var(--tableFontSize); */
     position: relative;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-block-start: 2px;
+    padding-block-end: 2px;
+    /* Assuming padding-inline is inherited or set by the general th, td rule */
     border: 1px solid;
     background: var(--TitleBackgroundColor);
     color: var(--TitleTextColor);
@@ -511,7 +516,7 @@ td {
 
 :host table.results tr.head td.leaderTitle {
     grid-column: 1 / -1;
-    justify-content: left;
+    justify-content: start;
     font-weight: bold;
 }
 
@@ -576,7 +581,7 @@ td {
 .athleteInfo .fullName {
     font-weight: bold;
     flex: 0 0 35%;
-    text-align: left;
+    text-align: start;
     flex-grow: 0.5;
     color: var(--athleteNameColor);
     font-size: var(--athleteNameFontSize)
@@ -601,17 +606,17 @@ td {
 
 .athleteInfo .timer {
     flex: 0 0 15%;
-    text-align: right;
+    text-align: end;
     font-weight: bold;
     width: 10vw;
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-end; /* or 'end' if appropriate for flex items */
 }
 
 .athleteInfo .decisionBox {
     position: fixed;
-    top: 1vmin;
-    right: 1vmin;
+    inset-block-start: 1vmin;
+    inset-inline-end: 1vmin;
     width: 15vw;
     height: 2.6em;
     background-color: var(--pageBackgroundColor);
@@ -717,7 +722,7 @@ div.ellipsis {
     display: grid;
 	grid-template-columns: repeat(1, min-content);
 	grid-template-rows: repeat(1, min-content);
-    text-align: right;
+    text-align: end;
     align-items: stretch;
     justify-items: stretch;
     align-self: start;
@@ -748,13 +753,13 @@ div.ellipsis {
 }
 :host .dark .recordBox .recordCat {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var(--RecordBoxBorder);
+    outline-color: var,--RecordBoxBorder);
     outline-style: solid;
 }
 
 :host .light .recordCell {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var(--RecordBoxBorder);
+    outline-color: var,--RecordBoxBorder);
     outline-style: solid;
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
@@ -763,7 +768,7 @@ div.ellipsis {
 }
 :host .dark .recordCell {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var(--RecordBoxBorder);
+    outline-color: var,--RecordBoxBorder);
     outline-style: solid;
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
@@ -773,12 +778,12 @@ div.ellipsis {
 
 :host .light div.recordLiftType {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var(--RecordBoxBorder);
+    outline-color: var,--RecordBoxBorder);
     outline-style: solid;
 }
 :host .dark div.recordLiftType {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var(--RecordBoxBorder);
+    outline-color: var,--RecordBoxBorder);
     outline-style: solid;
 }
 
@@ -814,11 +819,11 @@ div.ellipsis {
 }
 
 :host .light .recordsFiller {
-    text-align: right;
+    text-align: end;
     height: calc(var(--recordValueCellHeight)*1.2);
 }
 :host .dark .recordsFiller {
-    text-align: right;
+    text-align: end;
     height: calc(var(--recordValueCellHeight)*1.2);
 }
 

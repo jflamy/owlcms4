@@ -270,3 +270,7 @@ td.custom2 div {
     /* white-space: pre-wrap; */
     text-align: center;
 }
+
+/* No changes needed in this file based on the specific request for block/inline variants,
+   as most relevant properties are either already logical (e.g., text-align: center) 
+   or are controlled by variables. */

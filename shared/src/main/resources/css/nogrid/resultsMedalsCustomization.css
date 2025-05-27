@@ -302,7 +302,7 @@ div > div > div.attemptBar {
 .athleteInfo .fullName {
     font-weight: bold;
     flex: revert;
-    text-align: left;
+    text-align: start;
     flex-grow: revert;
     color: var(--athleteNameColor);
     font-size: var(--athleteNameFontSize)
