@@ -30,7 +30,6 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-	private boolean automaticReset;
 
 	public JuryDisplayDecisionElement() {
 		this.setJury(true);
@@ -41,7 +40,6 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	public JuryDisplayDecisionElement(boolean b) {
 		this();
-		this.setAutomaticReset(b);
 	}
 
 	public void doReset() {
@@ -151,11 +149,4 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		return ref1Time != null ? ref1Time.intValue() : null;
 	}
 
-	private boolean isAutomaticReset() {
-		return this.automaticReset;
-	}
-
-	private void setAutomaticReset(boolean automaticReset) {
-		this.automaticReset = automaticReset;
-	}
 }

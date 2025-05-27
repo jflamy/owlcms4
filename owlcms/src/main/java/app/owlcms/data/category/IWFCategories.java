@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -37,8 +38,9 @@ import ch.qos.logback.classic.Logger;
  * a IWF competition.
  */
 public class IWFCategories {
+	static List<Category> referenceCategories = null;
 
-	private class IWFComparator implements Comparator<Category> {
+	private static class IWFComparator implements Comparator<Category> {
 
 		@Override
 		public int compare(Category c1, Category c2) {
@@ -149,31 +151,36 @@ public class IWFCategories {
 		return categoryMap;
 	}
 
-	public static Category findRobiCategory(Athlete a) {
-		return findIWFCategory(a, false);
-	}
-
-	public static Category findIWFCategory(Athlete a, boolean forceJrSr) {
+	public static Category findIWFCategory(Athlete a) {
 		if (a.getBodyWeight() == null || a.getBodyWeight() < 0.1) {
 			return null;
 		}
-		if (jrSrReferenceCategories == null) {
-			loadJrSrReferenceCategories();
-		}
-		if (ythReferenceCategories == null) {
-			loadYthReferenceCategories();
-		}
-		IWFCategories x = new IWFCategories();
 		List<Category> categories;
-		Integer age = a.getAge();
-		if (!forceJrSr && (age != null && age <= 17)) {
-			categories = ythReferenceCategories;
+		if (referenceCategories != null) {
+			categories = referenceCategories;
 		} else {
-			categories = jrSrReferenceCategories;
+			referenceCategories = Competition.getCurrent().computeReferenceCategories(a.getGender());
+			if (referenceCategories == null) {
+				if (jrSrReferenceCategories == null) {
+					loadJrSrReferenceCategories();
+				}
+				categories = jrSrReferenceCategories;
+//				if (ythReferenceCategories == null) {
+//					loadYthReferenceCategories();
+//				}
+//				Integer age = a.getAge();
+//				if (!fileDefinition && (age != null && age <= 17)) {
+//					categories = ythReferenceCategories;
+//				} else {
+//					categories = jrSrReferenceCategories;
+//				}
+			}
+			categories = referenceCategories;
 		}
+
 		int index = Collections.binarySearch(categories,
 		        new Category(a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
-		        x.new IWFComparator());
+		        new IWFComparator());
 
 		if (index >= 0) {
 			return categories.get(index);

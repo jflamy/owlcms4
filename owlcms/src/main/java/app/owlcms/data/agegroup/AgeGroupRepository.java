@@ -276,7 +276,8 @@ public class AgeGroupRepository {
 
 	@SuppressWarnings("unchecked")
 	public static AgeGroup doFindByName(String name, EntityManager em) {
-		TypedQuery<AgeGroup> query = em.createQuery("select u from AgeGroup u where u.name=:name", AgeGroup.class);
+		logger.warn("name {}",name);
+		TypedQuery<AgeGroup> query = em.createQuery("select u from AgeGroup u where u.code=:name", AgeGroup.class);
 		query.setParameter("name", name);
 		AgeGroup ag = query.getResultList().stream().findFirst().orElse(null);
 		fixAg(ag);

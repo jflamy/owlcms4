@@ -5961,7 +5961,7 @@ public class Athlete {
 	@JsonIgnore
 	public Double getCategorySinclairForDelta() {
 		// Category category = getCategory();
-		Category category = IWFCategories.findIWFCategory(this, true);
+		Category category = IWFCategories.findIWFCategory(this);
 		if (category == null) {
 			return 0.0;
 		}
@@ -5998,7 +5998,7 @@ public class Athlete {
 	@JsonIgnore
 	public Double getCategoryQPointsForDelta() {
 		// Category category = getCategory();
-		Category category = IWFCategories.findIWFCategory(this, true);
+		Category category = IWFCategories.findIWFCategory(this);
 		if (category == null) {
 			return 0.0;
 		}

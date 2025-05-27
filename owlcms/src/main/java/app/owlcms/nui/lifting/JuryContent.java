@@ -456,7 +456,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	private void buildRefereeBox(VerticalLayout container) {
 		this.refereeLabelWrapper = createRefereeLabel(null);
 
-		this.decisions = new JuryDisplayDecisionElement(false);
+		this.decisions = new JuryDisplayDecisionElement();
 		this.decisions.getElement().setAttribute("theme", "dark");
 		Div decisionWrapper = new Div(this.decisions);
 		decisionWrapper.getStyle().set("width", "50%");

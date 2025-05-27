@@ -2081,4 +2081,20 @@ public class Competition {
 		this.imwa = imwa;
 	}
 
+	public List<Category> computeReferenceCategories(Gender g) {
+		logger.warn("all {}", AgeGroupRepository.findAll().stream()
+				.map(ag -> ag.getCode())
+				.collect(Collectors.joining(", ")));
+		
+		var ag = AgeGroupRepository.findFiltered("SR",g, null, null, false, 0, 0);
+		List<Category> allCategories;
+		if (ag.size() > 0) {
+			allCategories = ag.get(0).getAllCategories();
+		} else {
+			allCategories = null;
+		}
+		logger.warn("allCategories {}",allCategories);
+		return allCategories;
+	}
+
 }
