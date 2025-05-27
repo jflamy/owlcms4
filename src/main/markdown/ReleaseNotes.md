@@ -20,7 +20,12 @@
   - When the announcer selects "Single Referee Mode" from the cogwheel next to the session selector,  the first decision received from a referee is used.  
   - Any of the three referee devices can be used for the single referee, does not matter.
   - A single circular icon is used for single-referee or announcer-entered decisions (white with checkmark or red with X).
-- New `local/iwf` directory contains an Excel file with the definition of the IWF categories, used to compute Sinclair and Q-Point scores at category weight, for federations that use this as best lifter or marker.
+- Sinclair and QPoints at category weight:
+  - Some federations use these figures as markers or to determine best athlete.  Instead of the body weight, the athlete score is computed under the assumption that all athletes will be very near the category weight, making it a more realistic comparison of medal potential.
+  - By default, the SR F and SR M categories will be used to determine the categories.  If you hold a JR or Youth championship that also needs the "at category" scores, leave these categories in the Age Groups, just make them inactive.
+  - If the SR F and SR M categories are not present, the `local/iwf` directory contains an Excel file with the definition of the IWF categories.
+  - If you need different SR F and SR M values but also need "at category" values, rename the SR age group so the IWF reference is used.
+
 - Templates:
   - Fixed the "CompetitionResults-A4" and "CompetitionResults-LETTER" templates to default to the competition scoring system correctly, and to mark out of competition athletes correctly.
   - Fixed the SnCjTot template for Session Results to show the Technical Official roles correctly
