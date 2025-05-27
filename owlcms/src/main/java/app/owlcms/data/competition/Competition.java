@@ -2082,9 +2082,9 @@ public class Competition {
 	}
 
 	public List<Category> computeReferenceCategories(Gender g) {
-		logger.warn("all {}", AgeGroupRepository.findAll().stream()
-				.map(ag -> ag.getCode())
-				.collect(Collectors.joining(", ")));
+//		logger.debug("all {}", AgeGroupRepository.findAll().stream()
+//				.map(ag -> ag.getCode())
+//				.collect(Collectors.joining(", ")));
 		
 		var ag = AgeGroupRepository.findFiltered("SR",g, null, null, false, 0, 0);
 		List<Category> allCategories;
@@ -2093,7 +2093,7 @@ public class Competition {
 		} else {
 			allCategories = null;
 		}
-		logger.warn("allCategories {}",allCategories);
+//		logger.debug("allCategories {}",allCategories);
 		return allCategories;
 	}
 
