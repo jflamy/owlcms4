@@ -14,18 +14,21 @@
 
 **New in Release 57.2**
 
+- Support for Right-to-Left languages.
+  - The user interface library feature for supporting RTL is automatically enabled for Arabic, Hebrew and Farsi
+  - Style sheets were updated to support logical start/end for the scoreboards so texts are correctly aligned etc.
+  - A Hebrew translation has been added (many thanks to Yaniv Masler)
+
 - Athlete-facing Clock: A flashing stop sign is shown on the athlete-facing decision board while the competition is stopped.
-- Initial support for Right-to-Left languages.  A Hebrew translation by Yaniv Masler has been added.
 - Single-referee decision display
   - When the announcer selects "Single Referee Mode" from the cogwheel next to the session selector,  the first decision received from a referee is used.  
   - Any of the three referee devices can be used for the single referee, does not matter.
   - A single circular icon is used for single-referee or announcer-entered decisions (white with checkmark or red with X).
 - Sinclair and QPoints at category weight:
   - Some federations use these figures as markers or to determine best athlete.  Instead of the body weight, the athlete score is computed under the assumption that all athletes will be very near the category weight, making it a more realistic comparison of medal potential.
-  - By default, the SR F and SR M categories will be used to determine the categories.  If you hold a JR or Youth championship that also needs the "at category" scores, leave these categories in the Age Groups, just make them inactive.
-  - If the SR F and SR M categories are not present, the `local/iwf` directory contains an Excel file with the definition of the IWF categories.
-  - If you need different SR F and SR M values but also need "at category" values, rename the SR age group so the IWF reference is used.
-
+  - By default, the SR F and SR M categories will be used to determine the categories.  If you hold a JR or Youth championship that also needs the "at category" scores, leave the SR categories in the Age Groups, just make them inactive.
+  - If the SR F and SR M categories are not present, the `local/iwf` directory contains an Excel file with the definition of the IWF categories, and these will be used.
+  - If you need non-standard SR F and SR M values but also need "at category" values, rename the SR age group so the IWF reference is used.
 - Templates:
   - Fixed the "CompetitionResults-A4" and "CompetitionResults-LETTER" templates to default to the competition scoring system correctly, and to mark out of competition athletes correctly.
   - Fixed the SnCjTot template for Session Results to show the Technical Official roles correctly
