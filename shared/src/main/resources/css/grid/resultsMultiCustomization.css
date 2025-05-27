@@ -243,8 +243,8 @@
 .blockPositioningWrapper {
     background-color: var(--blockBackgroundColor);
     /* width: fit-content;*/ /* fit-content is used for video block */
-    padding-right: 1em;
-    padding-left: 0.5em;
+    padding-inline-end: 1em;
+    padding-inline-start: 0.5em;
 }
 
 .filler {
