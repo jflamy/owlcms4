@@ -75,7 +75,7 @@ public class IWFCategories {
 	public static final String IWF_CATEGORIES_XLSX = "/iwf/IWFCategories.xlsx";
 	static Logger logger = (Logger) LoggerFactory.getLogger(IWFCategories.class);
 	private static ArrayList<Category> jrSrReferenceCategories = null;
-	private static ArrayList<Category> ythReferenceCategories;
+//	private static ArrayList<Category> ythReferenceCategories;
 
 	/**
 	 * Create category templates that will be copied to instantiate the actual categories. The world records are read and included in the template.
@@ -238,38 +238,38 @@ public class IWFCategories {
 
 	}
 
-	private static void loadYthReferenceCategories() {
-		String localizedName = IWF_CATEGORIES_XLSX;
-		InputStream localizedResourceAsStream;
-		try {
-			localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
-			try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-				Map<String, Category> referenceCategoryMap = createCategoryMap(workbook);
-				// get the IWF categories, sorted.
-				ythReferenceCategories = referenceCategoryMap.values()
-				        .stream()
-				        .filter(c -> c.getWrYth() > 0)
-				        .sorted()
-				        // .peek(c -> {logger.trace(c.getCode());})
-				        .collect(Collectors.toCollection(ArrayList::new));
-				workbook.close();
-			} catch (Exception e) {
-				logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
-			}
-			Double prevMax = 0.0D;
-			// int i = 0;
-			for (Category refCat : ythReferenceCategories) {
-				refCat.setMinimumWeight(prevMax);
-				// logger.trace(i + " " + dumpCat(ythReferenceCategories.get(i)));
-				prevMax = refCat.getMaximumWeight();
-				if (prevMax >= 998.00D) {
-					prevMax = 0.0D;
-				}
-				// i++;
-			}
-		} catch (FileNotFoundException e1) {
-			logger.error("could not find ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e1));
-		}
-
-	}
+//	private static void loadYthReferenceCategories() {
+//		String localizedName = IWF_CATEGORIES_XLSX;
+//		InputStream localizedResourceAsStream;
+//		try {
+//			localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
+//			try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
+//				Map<String, Category> referenceCategoryMap = createCategoryMap(workbook);
+//				// get the IWF categories, sorted.
+//				ythReferenceCategories = referenceCategoryMap.values()
+//				        .stream()
+//				        .filter(c -> c.getWrYth() > 0)
+//				        .sorted()
+//				        // .peek(c -> {logger.trace(c.getCode());})
+//				        .collect(Collectors.toCollection(ArrayList::new));
+//				workbook.close();
+//			} catch (Exception e) {
+//				logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
+//			}
+//			Double prevMax = 0.0D;
+//			// int i = 0;
+//			for (Category refCat : ythReferenceCategories) {
+//				refCat.setMinimumWeight(prevMax);
+//				// logger.trace(i + " " + dumpCat(ythReferenceCategories.get(i)));
+//				prevMax = refCat.getMaximumWeight();
+//				if (prevMax >= 998.00D) {
+//					prevMax = 0.0D;
+//				}
+//				// i++;
+//			}
+//		} catch (FileNotFoundException e1) {
+//			logger.error("could not find ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e1));
+//		}
+//
+//	}
 }
