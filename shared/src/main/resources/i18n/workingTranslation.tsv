@@ -1,0 +1,1265 @@
+ia$key$en$ar
+2$Question$?$?
+3$CannotEditResults$. You cannot edit the results.$. لا يمكنك تعديل النتائج
+4$Scoreboard.AttemptsDone${0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}${0,choice,0#لم يتم تنفيذ أي محاولة.|1#تم تنفيذ محاولة واحدة.|1<{0} محاولات تم تنفيذها.}
+5$Results.AttemptsDone${0,choice,0#No attempts done.|1#1 attempt done.|1<{0} attempts done.}${0,choice,0#لم يتم تنفيذ أي محاولة.|1#تم تنفيذ محاولة واحدة.|1<{0} محاولات تم تنفيذها.}
+6$NoLift_GoodLift${0,choice,0#No Lift|1#Good Lift} for {1}${0,choice,0#محاولة غير ناجحة|1#محاولة ناجحة} لـ {1}
+7$Kg${0,number,#.#} kg${0,number,#.#} كغ
+8$TeamResults.TeamNameFormat${0} ({1})${0} ({1})
+9$Upload.WrongDateFormat${0} is not a 4-digit year OR an "{1}" {2} format like {3} OR an international {4} format like {5}${0} ليس سنة من 4 أرقام أو تنسيق "{1}" {2} مثل {3} أو تنسيق دولي {4} مثل {5}
+10$Competition.defaultFederation$\u0020$\u0020
+11$Competition.defaultFederationAddress$\u0020$\u0020
+12$Competition.defaultFederationEMail$\u0020$\u0020
+13$Competition.defaultFederationWebSite$\u0020$\u0020
+14$CompetitionBook.C_RightHeader$\u0020$\u0020
+15$AnnouncerEtc$\u0020(announcer, timekeeper, marshal, result boards, attempt board, jury, etc.)$\u0020(المذيع، ضابط الوقت، المشرف، لوحات النتائج، لوحة المحاولات، لجنة التحكيم، إلخ)
+16$LocalComputer$\u0020(on the computer running the owlcms program)$\u0020(على الحاسوب الذي يعمل عليه برنامج owlcms)
+17$Wired$\u0020(wired)$\u0020(سلكي)
+18$Wireless$\u0020(wireless)$\u0020(لاسلكي)
+19$UseAtYourOwnRisk$You are responsible for performing whatever tests are needed to establish that the software is fit for your circumstances.$أنت مسؤول عن إجراء أي اختبارات لازمة للتأكد من أن البرنامج مناسب لظروفك
+20$AtTimeOfRelease$\u0020as published at the time of release.  As stated in the license, there is no guarantee whatsoever regarding this software.$\u0020كما هو منشور وقت الإصدار. كما هو مذكور في الترخيص، لا يوجد أي ضمان لهذا البرنامج.
+21$Semicolon$\u003B$\u003B
+22$Scoreboard.Done$# Athletes Scored (Done Sessions)$# الرياضيين المسجلين (الجلسات المنتهية)
+23$Results.Done$# Athletes Scored (Done Sessions)$# الرياضيين المسجلين (الجلسات المنتهية)
+24$Scoreboard.TeamSize$# Team Members$# أعضاء الفريق
+25$Results.TeamSize$# Team Members$# أعضاء الفريق
+26$SeparateLaptops$</ul>$</ul>
+27$PrepareCompatition_description$<li><b>{0}</b>: Enter the competition coordinates, register the athletes, define the sessions, etc.<br></li>$<li><b>{0}</b>: أدخل بيانات المسابقة، سجل الرياضيين، حدد الجلسات، إلخ.<br></li>
+28$CompetitionDocuments_description$<li><b>{0}</b>: Produce printable documents for each session and the final results package.</li>$<li><b>{0}</b>: إنتاج مستندات قابلة للطباعة لكل جلسة وحزمة النتائج النهائية.</li>
+29$RunLiftingGroup_description$<li><b>{0}</b>: Start the screens for the announcer, the marshal, the timekeeper. The announcer controls which session is shown on the displays.</li>$<li><b>{0}</b>: ابدأ الشاشات للمذيع، المشرف، وضابط الوقت. المذيع يتحكم في الجلسة المعروضة على الشاشات.</li>
+30$StartDisplays_description$<li><b>{0}</b>: Used to start the attempt board, the athlete-facing board, and the scoreboard.</li>$<li><b>{0}</b>: يُستخدم لتشغيل لوحة المحاولات، اللوحة المواجهة للرياضي، ولوحة النتائج.</li>
+31$TranslationDocumentation$<li>Contribute by translating the application to your own language: see the <a href='https://owlcms.github.io/owlcms4/#/Translation'>translation documentation</a>.$<li>ساهم في ترجمة التطبيق إلى لغتك: راجع <a href='https://owlcms.github.io/owlcms4/#/Translation'>وثائق الترجمة</a>.
+32$Documentation$<li>See also the <a href='https://owlcms.github.io/owlcms4/#/index'>documentation</a> for\u0020installation and configuration information.$<li>انظر أيضًا <a href='https://owlcms.github.io/owlcms4/#/index'>الوثائق</a> لمعلومات التثبيت والتكوين
+33$ProjectRepository$<li>See the <a href='https://github.com/jflamy/owlcms4'>project repository</a> the full source.$<li>انظر <a href='https://github.com/jflamy/owlcms4'>مستودع المشروع</a> للكود المصدري الكامل.
+34$catAboveFormat$>{0}$>{0}
+35$LimitForCategory$≤ max kg$≤ الحد الأقصى كغ
+36$About$About$حول
+37$Config.AccessControlTitle$Access Control$التحكم في الوصول
+38$Active$Active$نشط
+39$Active$Active$نشط
+40$ActiveCategoriesOnly$Active Categories Only$الفئات النشطة فقط
+41$Add$Add$إضافة
+42$Add_title$Add {0}$إضافة {0}
+43$AddNewCategory$Add Category$إضافة فئة
+44$darkModeSelect$After opening, click on the board to select white on black or black on white.$بعد الفتح، انقر على اللوحة لاختيار أبيض على أسود أو أسود على أبيض
+45$Scoreboard.AgeGroup$Age Gr.$مجموعة العمر
+46$Results.AgeGroup$Age Gr.$مجموعة العمر
+47$AgeGroup$Age Group$المجموعة العمرية
+48$Card.ageGroup$Age Group$المجموعة العمرية
+49$Preparation_AgeGroups$Age Groups$المجموعات العمرية
+50$AgeFormat$Age must be a number between 0 and 999 inclusively.$يجب أن يكون العمر رقماً بين 0 و 999 شاملاً
+51$Competition.roundRobinOrderExplanation$All lifters perform their first lift according to requested weight, then same for 2nd attempt, then 3rd.$جميع الرافعين يؤدون الرفعة الأولى حسب الوزن المطلوب، ثم الثانية والثالثة بنفس الطريقة
+52$Scoreboard.TimeAllowed$Allowed$مسموح
+53$Results.TimeAllowed$Allowed$مسموح
+54$Announcer$Announcer$المذيع
+55$Apply$Apply$تطبيق
+56$AthleteCard$Athlete Card$بطاقة الرياضي
+57$AthleteCards$Athlete Cards$بطاقات الرياضيين
+58$Athlete_Attempt$Athlete-facing Attempt Board Display$عرض لوحة المحاولة المواجهة للرياضي
+59$Athlete_Decisions$Athlete-facing Timer/Down/Decisions$مؤقت/إشارة النزول/قرارات مواجهة للرياضي
+60$Refereeing_Displays$Athlete-facing Timer/Down/Decisions$مؤقت/إشارة النزول/قرارات مواجهة للرياضي
+61$Attempt$Attempt$محاولة
+62$AttemptAF$Attempt (AF)$محاولة (AF)
+63$AttemptBoard$Attempt Board$لوحة المحاولات
+64$DisplayType.Title$Attempt Board Information$معلومات لوحة المحاولات
+65$DisplayType.LIFT_INFO$Attempt Info$معلومات المحاولة
+66$Speakers$Audio Output$مخرج الصوت
+67$AutomaticProgression$Automatic Progression$تقدم تلقائي
+68$Card.automaticProgression$Automatic Progression$تقدم تلقائي
+69$ResetCategories.AvailableDefinitions$Available Definitions$التعاريف المتاحة
+70$AvailableTemplates$Available Templates$القوالب المتاحة
+71$Scoreboard.BodyWeight$B.W.$وزن الجسم
+72$Results.BodyWeight$B.W.$وزن الجسم
+73$Config.Backdoor$Backdoor Access IP List (use with care)$قائمة عناوين IP للوصول الخلفي (استخدم بحذر)
+74$Bar$Bar$البار
+75$BarWeight$Bar Weight$وزن البار
+76$BreakType.FIRST_CJ$Time before Clean & Jerk$الوقت قبل النتر
+77$BreakType.BEFORE_INTRODUCTION$Time before Introduction$الوقت قبل التقديم
+78$BreakType.FIRST_SNATCH$Time before Snatch$الوقت قبل الخطف
+79$Results.Best$Best$الأفضل
+80$BirthDate$Birth Date$تاريخ الميلاد
+81$Card.birthDate$Birth Date$تاريخ الميلاد
+82$BirthDate_yyyy$Birth Date (yyyy-mm-dd)$تاريخ الميلاد (yyyy-mm-dd)
+83$BirthDate_cannot_future$Birth date cannot be in the future$تاريخ الميلاد لا يمكن أن يكون في المستقبل
+84$Registration.birth$Birth Date or Birth Year$تاريخ الميلاد أو سنة الميلاد
+85$light$Black on white$أسود على أبيض
+86$BodyWeight$Body Weight$وزن الجسم
+87$Card.bodyWeight$Body Weight$وزن الجسم
+88$BodyWeightCategories$Bodyweight Categories$فئات وزن الجسم
+89$Scoreboard.Birth$Born$مولود
+90$Results.Birth$Born$مولود
+91$BreakButton.Caption$Break Timer$مؤقت الاستراحة
+92$BumperPlates$Bumper Plates$أقراص مطاطية
+93$Division.U$By Age Group$حسب المجموعة العمرية
+94$Clean_and_Jerk_short$C&J$نتر
+95$C_and_J_number$C&J #{0}$نتر #{0}
+96$C_and_J_1$C&J 1$نتر 1
+97$C_and_J_2$C&J 2$نتر 2
+98$C_and_J_3$C&J 3$نتر 3
+99$C_and_J_decl$C&J Decl.$إعلان النتر
+100$C_and_J_decl$C&J Decl.$إعلان النتر
+101$Results.CJ_abbrev$C&J$نتر
+102$CantReadCell$Can't read cell$لا يمكن قراءة الخلية
+103$Cancel$Cancel$إلغاء
+104$Unexpected_event_state$Cannot {0} when {1}.$لا يمكن {0} عندما {1}.
+105$Scoreboard.Category$Cat.$فئة
+106$Results.Category$Cat.$فئة
+107$Preparation_Categories$Categories$الفئات
+108$ResetCategories.CategoriesReset$Categories have been recomputed.$تم إعادة حساب الفئات
+109$Card.category$Category$الفئة
+110$Category$Category$الفئة
+111$Upload.CategoryNotFoundByName$Category  "{0}" is not defined.$الفئة "{0}" غير محددة
+112$Upload.CategoryNotFound$Category cannot be found using age={0}, gender={1}, weight={2}$لا يمكن العثور على الفئة باستخدام العمر={0}، الجنس={1}، الوزن={2}
+113$Category_no_match_body_weight$Category does not match body weight.$الفئة لا تتطابق مع وزن الجسم
+114$Category_no_match_gender$Category does not match gender.$الفئة لا تتطابق مع الجنس
+115$Category_no_match_age$Category does not match the age of the athlete.$الفئة لا تتطابق مع عمر الرياضي
+116$Cell$Cell$خلية
+117$Card.change1$Change 1$تغيير 1
+118$Change_1$Change 1$تغيير 1
+119$Card.change2$Change 2$تغيير 2
+120$Change_2$Change 2$تغيير 2
+121$EVENT_BarbellOrPlatesChanged$change barbell or plates$تغيير البار أو الأقراص
+122$EVENT_WeightChanged$change requested weight$تغيير الوزن المطلوب
+123$Competition.competitionCity$City$المدينة
+124$Card.cleanJerk$Clean&amp;Jerk$النتر
+125$Scoreboard.Clean_and_Jerk$Clean&amp;Jerk$النتر
+126$Clean_and_Jerk$Clean&Jerk$النتر
+127$Results.cleanJerk$Clean&Jerk$النتر
+128$Results.Clean_and_Jerk$Clean&Jerk$النتر
+129$Clean_and_Jerk_Declaration$Clean&Jerk Declaration$إعلان النتر
+130$Clean_and_Jerk_Rank$Clean&Jerk Rank$ترتيب النتر
+131$ClearLifts$Clear Lifts$محو الرفعات
+132$ClearLifts_forListed$Clear Lifts for Athletes Currently Listed$محو الرفعات للرياضيين المدرجين حاليًا
+133$ClearStartNumbers$Clear Start Numbers$محو أرقام البداية
+134$reloadTranslationInfo$Click to reload the translation file, then refresh your pages (F5).$انقر لإعادة تحميل ملف الترجمة، ثم قم بتحديث صفحاتك (F5)
+135$STATE_TIME_STOPPED$clock has been stopped$تم إيقاف الساعة
+136$STATE_CURRENT_ATHLETE_DISPLAYED$clock has not started$الساعة لم تبدأ
+137$STATE_TIME_RUNNING$clock is running$الساعة تعمل
+138$CodeMustBeShort$Code should have less than {0} characters$يجب أن يحتوي الرمز على أقل من {0} حرف
+139$Collar$Collar$طوق
+140$Competition$Competition$المسابقة
+141$CompetitionBook.C$Competition$المسابقة
+142$Preparation_Competition$Competition$المسابقة
+143$Competition.informationTitle$Competition$المسابقة
+144$Competition.resultTemplateFileName$Competition Book Template$قالب كتاب المسابقة
+145$PublicMsg.CompetitionPaused$Competition paused$المسابقة متوقفة
+146$CompetitionPlatform$Competition Platform$منصة المسابقة
+147$AgeDivision$Competition type$نوع المسابقة
+148$Confirm$Confirm$تأكيد
+149$Results.Controller$Controller$المتحكم
+150$CopyrightLicense$Copyright and License$حقوق الطبع والنشر والترخيص
+151$DisplayType.COUNTDOWN_INFO$Countdown clock$ساعة العد التنازلي
+152$introCountdown$Countdown$العد التنازلي
+153$BreakButton.ToStartCaption$Countdown to start / Break Timer$العد التنازلي للبداية / مؤقت الاستراحة
+154$CountdownType$Countdown Type$نوع العد التنازلي
+155$Credits$Credits$الشكر والتقدير
+156$CurrentAthleteTitle$Current Athlete$الرياضي الحالي
+157$ScoreboardWLeadersMouseOver$Current Session Scoreboard plus Top 3 lifters for Category, all around.$لوحة نتائج الجلسة الحالية بالإضافة إلى أفضل 3 رافعين للفئة، شامل
+158$Competition.competitionDate$Date$التاريخ
+159$Decision_AF_$Decision (Athlete-Facing)$القرار (مواجه للرياضي)
+160$STATE_DECISION_VISIBLE$decision is being shown$يتم عرض القرار
+161$Results.Declaration_abbrev$decl.$إعلان
+162$Card.declaration$Declaration$الإعلان
+163$Declaration$Declaration$الإعلان
+164$Declaration_current_athlete_with_change$Declaration (with weight change) for current athlete<br>{0}$إعلان (مع تغيير الوزن) للرياضي الحالي<br>{0}
+165$Declaration_Notification$Declaration for {0}: {1}$إعلان لـ {0}: {1}
+166$Declaration_current_athlete$Declaration for current athlete<br>{0}$إعلان للرياضي الحالي<br>{0}
+167$Division.DEFAULT$Open$مفتوح
+168$DefineAgeGroups$Define Age Groups and Categories$تحديد المجموعات العمرية والفئات
+169$DefineCategories$Define Categories$تحديد الفئات
+170$DefineFOP$Define Fields of Play and Sound Output$تحديد أماكن اللعب ومخرج الصوت
+171$Delete$Delete$حذف
+172$Delete_title$Delete {0}$حذف {0}
+173$DeleteAthletes$Delete Athletes$حذف الرياضيين
+174$DeleteAthletes_forListed$Delete Athletes Currently Listed$حذف الرياضيين المدرجين حاليًا
+175$Results.DetailsPerAthlete$Details per Athlete$تفاصيل لكل رياضي
+176$Display$Display$عرض
+177$Competition.presentationTitle$Display and Printout$العرض والطباعة
+178$Competition.defaultLocale$Display and printout language$لغة العرض والطباعة
+179$AgeGroupCode$Display Short Code$عرض الرمز المختصر
+180$Card.ageDivision$Division$التقسيم
+181$Documentation_Menu$Documentation$التوثيق
+182$Done$done$منتهي
+183$Done_period$Done.$منتهي.
+184$STATE_DOWN_SIGNAL_VISIBLE$down signal is being shown$يتم عرض إشارة النزول
+185$DownloadRegistrationTemplate$Download Empty Registration Spreadsheet$تحميل جدول التسجيل الفارغ
+186$DrawLotNumbers$Draw Lot Numbers$سحب أرقام القرعة
+187$CountdownType.DURATION$Duration$المدة
+188$InvalidDurationFormat$Duration must be in format {0} -- Type {1} to get {2} minutes and {3} seconds.$يجب أن تكون المدة بالتنسيق {0} -- اكتب {1} للحصول على {2} دقيقة و {3} ثانية
+189$STATE_BREAK$during a break$أثناء الاستراحة
+190$EditAgeGroups$Edit Age Groups and Categories$تحرير الفئات العمرية
+191$EditAthletes$Edit Athlete Entries$تحرير بيانات الرياضيين
+192$EditAthletes_Groups$Edit Athlete Entries (adjust session assignments)$تحرير بيانات الرياضيين (تعديل تخصيص الجلسة)
+193$EditCategories$Edit Categories$تحرير الفئات
+194$Edit_Groups$Edit Sessions$تحرير الجلسات
+195$EditPlatforms$Edit Platforms$تحرير المنصات
+196$EditRegisteredAthletes$Edit Registered Athletes$تحرير بيانات الرياضيين المسجلين
+197$Eligible$Eligible$مؤهل
+198$Eligible for Individual Ranking?$Eligible for individual ranking?$مؤهل للتصنيف الفردي؟
+199$Competition.customScore$Enable custom score? $تمكين تسجيل النقاط المخصصة؟
+200$EndBreak_StartLifting$End Break, Start Lifting$إنهاء الاستراحة، بدء الرفع
+201$EnterPin$Enter PIN$أدخل الرقم السري
+202$Results.Entry_abbrev$Entry$إدخال
+203$Card.entryTotal$Entry Total$إجمالي الإدخال
+204$EntryTotal$Entry Total$إجمالي الإدخال
+205$Error$Error$خطأ
+206$Errors$Errors$أخطاء
+207$Competition.federationTitle$Federation$الاتحاد
+208$Competition.federationAddress$Federation Address$عنوان الاتحاد
+209$Competition.federationEMail$Federation e-mail$البريد الإلكتروني للاتحاد
+210$Competition.federation$Federation Name$اسم الاتحاد
+211$Competition.federationWebSite$Federation Web Site$الموقع الإلكتروني للاتحاد
+212$FieldOfPlayDisplays$Field of Play Displays$مجال العرض
+213$FinalResultsPackage$Final Results Package$حزمة النتائج النهائية
+214$FirstName$First Name$الاسم الأول
+215$Competition.genderOrderExplanation$For competitions with mixed sessions, in order to reduce the number of breaks and bar changes, call all girls first as a subsession.$في المسابقات ذات الجلسات المختلطة، لتقليل عدد الاستراحات وتغييرات القضبان، يتم استدعاء جميع الفتيات أولاً كفرعية.
+216$ForEachCompetitionGroup$For each competition session$لكل مجموعة من المنافسات
+217$Competition.customScoreExplanation$For kids or special competitions, allow modification of total with bonuses or penalties.$لأجل الأطفال أو المسابقات الخاصة، السماح بتعديل المجموع مع المكافآت أو العقوبات.
+218$ForcedAsCurrent$Forced as Current Athlete$فرض كرياضي حالي
+219$Gender$Gender$الجنس
+220$Upload.GenderMismatch$Gender for category "{0}" does not match athlete gender {1}.$عدم تطابق الجنس
+221$GenerateStartNumbers$Generate Start Numbers$توليد أرقام البداية
+222$EVENT_ExplicitDecision$give decision$إعطاء القرار
+223$EVENT_DownSignal$give down signal$إعطاء إشارة النزول
+224$GotIt$Got it.$فهمت
+225$Card.group$Session$الجلسة
+226$Group$Session$الجلسة
+227$Upload.GroupNotDefined$Session "{0}" is not defined.$الجلسة "{0}" غير محددة
+228$CannotEditResults_logging$Session {} currently lifting on platform {}, cannot edit$لا يمكن تعديل الجلسة {} الرافعة حالياً على المنصة {}
+229$EditingResults_logging$Session {} lifting on {}, editing$تعديل الجلسة {} الرافعة على {}
+230$Group_number$Session {0}$رقم الجلسة
+231$Scoreboard.GroupLiftType$Session {0} {1}$نوع الرفع للجلسة
+232$Results.GroupLiftType$Session {0} {1}$نوع الرفع للجلسة
+233$Group_number_results$Session {0} &ndash; Results$نتائج الجلسة {0}
+234$Group_number_done$Session {0} done.$انتهت الجلسة {0}
+235$GroupResults$Session Results$نتائج الجلسة
+236$Preparation_Groups$Sessions$تحضير الجلسات
+237$EVENT_DecisionReset$hide decisions$إخفاء القرارات
+238$Home$Home$الرئيسية
+239$IdlePlatform$Idle Platform (no countdown displayed)$منصة غير نشطة (لا يوجد عد تنازلي معروض)
+240$Competition.teamSizeExplanation$If a team size is given, the top point scores from team members are used, until the given team size is reached. If empty, the points from all team members are counted.$إذا تم إعطاء حجم فريق، يتم استخدام أعلى نقاط من أعضاء الفريق، حتى يتم الوصول إلى حجم الفريق المحدد. إذا كان فارغًا، يتم احتساب النقاط من جميع أعضاء الفريق.
+241$refereeingDevices$If refereeing devices are used, they are usually connected to this display.$إذا تم استخدام أجهزة التحكيم، فعادة ما تكون متصلة بهذا العرض.
+242$Competition.genderOrder$In mixed sessions, session athletes by gender$في الجلسات المختلطة، يتم تجميع الرياضيين حسب الجنس
+243$LoginDenied$Incorrect Access Information Provided.$تم رفض الدخول
+244$CeremonyType.INTRODUCTION$Introduction$مقدمة
+245$PublicMsg.DuringIntroduction$Introduction$مقدمة
+246$InvalidYearFormat$Invalid year format (4 digits expected)$تنسيق السنة غير صالح (متوقع 4 أرقام)
+247$Competition.invitedIfBornBefore$Invited if born before$مدعو إذا ولد قبل
+248$Division.IWF$IWF$IWF
+249$Translator$Jean-François Lamy$المترجم
+250$JFL$Jean-François Lamy$جان-فرانسوا لامي
+251$AgeGroup.JR$JR$فئة الشباب
+252$Scoreboard.Jr$Jr$فئة الشباب
+253$Results.Jr$Jr$فئة الشباب
+254$Jury$Jury$الهيئة التحكيمية
+255$Jury1$Jury 1$الهيئة التحكيمية 1
+256$Jury2$Jury 2$الهيئة التحكيمية 2
+257$Jury3$Jury 3$الهيئة التحكيمية 3
+258$Jury4$Jury 4$الهيئة التحكيمية 4
+259$Jury5$Jury 5$الهيئة التحكيمية 5
+260$Jury_Console$Jury Console$وحدة التحكم في التحكيم
+261$BreakType.JURY$Jury Deliberation$تداول الهيئة التحكيمية
+262$JuryDecisions$Jury Decisions$قرارات الهيئة التحكيمية
+263$PublicMsg.JuryDeliberation$Jury Deliberation$تداول الهيئة التحكيمية
+264$BreakButton.JuryDeliberation$Jury Deliberation$تداول الهيئة التحكيمية
+265$KgSymbol$\u00a0kg$كغ
+266$Scoreboard.KgSymbol$\u00a0kg$كغ
+267$Results.KgSymbol$\u0020kg$كغ
+268$Scoreboard.Needed$Kg Needed$الوزن المطلوب
+269$Results.Needed$Kg Needed$الوزن المطلوب
+270$LastName$Last Name$اسم العائلة
+271$Leaders$Leaders$القادة
+272$Scoreboard.Leaders$Leaders:$قادة:
+273$Results.Leaders$Leaders:$قادة:
+274$RuleViolation.declaredChangesNotOk$Lift {0} : Value {1} for changes must be greater than or equal to the automatic progression ({2}).$انتهاك القاعدة
+275$RuleViolation.declarationValueTooSmall$Lift {0} : Value {1} for declaration must be greater than or equal to the automatic progression ({2}).$انتهاك القاعدة
+276$RuleViolation.liftValueBelowProgression$Lift {0} : Value {1} for lift must be greater than or equal to the automatic progression ({2}).$انتهاك القاعدة
+277$RuleViolation.liftValueNotWhatWasRequested$Lift {0} : Value {1} for lift must match requested amount ({2}).$انتهاك القاعدة
+278$Scoreboard.LiftingOrder$Lifting Order$ترتيب الرفع
+279$Results.LiftingOrder$Lifting Order$ترتيب الرفع
+280$LiftsCleared$Lifts cleared$تم مسح الرفعات
+281$EVENT_SwitchGroup$Ioad a session$تغيير مجموعة الرفع
+282$ResetCategories.ReloadAgeGroups$Load Definition File$تحميل ملف التعريف
+283$Locale$Locale$الموقع
+284$Log_In$Log in$تسجيل الدخول
+285$Login$Login$تسجيل الدخول
+286$Competition.logo$Logo$الشعار
+287$Card.lotNumber$Lot$رقم السحب
+288$Lot$Lot$رقم السحب
+289$Results.Lot$Lot$رقم السحب
+290$CompetitionBook.MWT$M+W Total Score$إجمالي النقاط M+W
+291$Marshall$Marshal$المشرف
+292$Competition.masters$Masters$الماجستير
+293$Division.MASTERS$Masters$الماجستير
+294$Competition.mastersGenderEquality$Masters: use W75 and W80+ age groups$الماجستير: استخدم مجموعات الأعمار W75 و W80+
+295$Results.max$Max$الحد الأقصى
+296$MaximumAge$Maximum Age (incl.)$الحد الأقصى للعمر (شامل)
+297$MaximumWeight$Maximum Weight$الحد الأقصى للوزن
+298$MedalsOnly$Medals Only$الميداليات فقط
+299$Results.Membership$Memb.$العضوية
+300$Membership$Membership #$العضوية
+301$Gender.Men$Men$الرجال
+302$CompetitionBook.MCT$Men - Combined Score$الرجال - النقاط المجمعة
+303$Results.MenPerTeam$Men per Team$الرجال لكل فريق
+304$Competition.mensTeamSize$Men's "Top Results" Team Size$حجم فريق الرجال "أفضل النتائج"
+305$CompetitionBook.M6$Men's Results$نتائج الرجال
+306$CompetitionBook.MR$Men's Robi$روبي الرجال
+307$CompetitionBook.MG$Men's GAMX$GAMX الرجال
+308$CompetitionBook.MS$Men's Sinclair$سينكلير الرجال
+309$CompetitionBook.MSMF$Men's SMF$SMF الرجال
+310$CompetitionBook.MT$Men's Total Score$إجمالي نقاط الرجال
+311$Men + Women$Men+Women - Combined Score$الرجال والنساء - النقاط المجمعة
+312$MetalPlates$Metal Plates$أقراص معدنية
+313$MinimumAge$Minimum Age (incl.)$الحد الأدنى للعمر (شامل)
+314$MinimumWeight$Minimum Weight$الحد الأدنى للوزن
+315$Card.name$Name$الاسم
+316$Competition.competitionName$Name$اسم المسابقة
+317$Name$Name$الاسم
+318$Scoreboard.Name$Name$الاسم
+319$Results.Name$Name$الاسم
+320$Scoreboard.NextAttempt$Next Attempt$المحاولة التالية
+321$Results.NextAttempt$Next Attempt$المحاولة التالية
+322$NoGroupSelected$No session selected$لا توجد جلسة محددة
+323$No_weighed_in_athletes$No weighed-in athletes$لا يوجد رياضيين تم وزنهم
+324$NonStandardBar$Non-Standard Bar$بار غير قياسي
+325$Competition.specialRulesTitle$Non-standard Rules$قواعد غير قياسية
+326$none$none$لا شيء
+327$Not_weighed$Not weighed$غير موزون
+328$Notes$Notes$ملاحظات
+329$Number$Number$رقم
+330$Results.Athletes$Number of Athletes$عدد الرياضيين
+331$Results.Teams$Number of Teams$عدد الفرق
+332$Officials$Officials$المسؤولون
+333$Division.OLY$Olympics$الأولمبياد
+334$Competition.rulesTitle$Options$الخيارات
+335$Competition.competitionOrganizer$Organizer$المنظم
+336$OWLCMS_Info$OWLCMS - About$حول OWLCMS
+337$OWLCMS_Displays$OWLCMS - Displays$شاشات OWLCMS
+338$OWLCMS_Home$OWLCMS - Home$الصفحة الرئيسية لـ OWLCMS
+339$OWLCMS_Lifting$OWLCMS - Lifting$رفع OWLCMS
+340$OWLCMS_Top$OWLCMS - Olympic Weightlifting Competition Management System$نظام إدارة مسابقات رفع الأثقال الأولمبية OWLCMS
+341$OWLCMS_Preparation$OWLCMS - Preparation$تحضير OWLCMS
+342$OWLCMS_Results$OWLCMS - Results$نتائج OWLCMS
+343$OwlcmsBuild$OWLCMS v{0} ({1})$إصدار OWLCMS
+344$EVENT_BreakPaused$pause break$توقف الاستراحة
+345$PauseCountdown$Pause Break Countdown Timer$مؤقت العد التنازلي للاستراحة
+346$BreakButton.Paused$Paused$مؤقت الاستراحة
+347$Plates$Plates$الأقراص
+348$PlatesDisplay$Plates Display$عرض الأقراص
+349$Platform$Platform$المنصة
+350$STATE_INACTIVE$platform is inactive$المنصة غير نشطة
+351$PlatformName$Platform Name$اسم المنصة
+352$Preparation_Platforms$Platforms$تحضير المنصات
+353$PleaseFix$Please fix the errors and try again.$يرجى تصحيح الأخطاء والمحاولة مرة أخرى.
+354$ResetCategories.PleaseSelectDefinitionFile$Please select a definition file$يرجى اختيار ملف التعريف.
+355$Select_group_first$Please select a session first.$يرجى اختيار جلسة أولاً.
+356$ERROR_WAIT_FOR_RESET$Please wait until decision has been shown. Do not start time when decision is still visible.$يرجى الانتظار حتى تظهر القرار. لا تبدأ الوقت عندما تكون القرار لا تزال مرئية.
+357$Scoreboard.Points$Points$النقاط
+358$TeamResults.Points$Points$النقاط
+359$Results.Points$Points$النقاط
+360$Results.PointsScored$Points scored for Team$النقاط المسجلة للفريق
+361$PreCompetitionSetup$Pre-competition setup$إعداد ما قبل المنافسة
+362$Preferences$Preferences$التفضيلات
+363$PrepareCompetition$Prepare Competition$تحضير المنافسة
+364$JuryPresident$Jury President$رئيس الهيئة التحكيمية
+365$Print$Print$طباعة
+366$ProduceResults$Produce Results$إنتاج النتائج
+367$Competition.protocolFileName$Protocol Sheet Template$قالب ورقة البروتوكول
+368$Config.PublicResultsTitle$Public Results Scoreboard URL$عنوان لوحة النتائج العامة
+369$Config.publicResultsURL$publicresults Cloud Application URL$رابط تطبيق النتائج العامة
+370$Rank$Rank$الرتبة
+371$Scoreboard.Rank$Rank$الرتبة
+372$Results.Rank$Rank$الرتبة
+373$Results.TeamRank$Rank within Team$الرتبة داخل الفريق
+374$DataRead$Read$قراءة
+375$ReadingData_$Reading the data$قراءة البيانات
+376$ResetCategories.ResetAthletes$Reassign athletes$إعادة تعيين الرياضيين
+377$ResetCategories.ResetCategories$Reassign categories$إعادة تعيين الفئات
+378$ResetCategories.ResetCategoriesMouseOver$Recompute categories based on currently active age groups.$إعادة حساب الفئات بناءً على مجموعات العمر النشطة حاليًا.
+379$RecomputeRanks$Recompute Ranks$إعادة حساب الرتب
+380$Referee$Referee$الحكم
+381$Referee_Mobile_Device$Referee (on mobile devices)$الحكم (على الأجهزة المحمولة)
+382$Referee1$Referee 1$الحكم 1
+383$Referee2$Referee 2$الحكم 2
+384$Referee3$Referee 3$الحكم 3
+385$RefereeDecisions$Referee Decisions$قرارات الحكام
+386$Competition.announcerLiveDecisions$Referee decisions visible to announcer$قرارات الحكام المرئية للمذيع
+387$Referees_Jury$Referees and Jury$الحكام والهيئة التحكيمية
+388$Preparation_Registration$Registration$تسجيل
+389$Registration$Registration$التسجيل
+390$Reload_group$Reload session from database.$إعادة تحميل الجلسة من قاعدة البيانات.
+391$reloadTranslation$Reload translation file$إعادة تحميل ملف الترجمة
+392$Requested_weight$Requested Weight$الوزن المطلوب
+393$Scoreboard.RequestedWeight$Requested Weight$الوزن المطلوب
+394$Results.RequestedWeight$Requested Weight$الوزن المطلوب
+395$EVENT_ForceTime$reset timer explicitly$إعادة ضبط المؤقت
+396$Reset1min$Reset to 1 min$إعادة الضبط إلى 1 دقيقة
+397$Reset2min$Reset to 2 min$إعادة الضبط إلى 2 دقيقة
+398$ResultDocuments$Result Documents$وثائق النتائج
+399$Results$Results$النتائج
+400$PublicMsg.GroupDone$Results$النتائج
+401$robi$Robi$روبي
+402$Results.Robi$Robi$روبي
+403$Competition.roundRobinOrder$Round-Robin Order (all 1st lifts, all 2nd, all 3rd)$ترتيب الجولة (جميع الرفعات الأولى، جميع الرفعات الثانية، جميع الرفعات الثالثة)
+404$RunLiftingGroup$Run Lifting Session$تشغيل جلسة الرفع
+405$Score$Score$النتيجة
+406$ScoreboardWLeadersTitle$Score+Leaders$النتيجة + القادة
+407$Scoreboard$Simple Scoreboard$لوحة نتائج بسيطة
+408$ScoreboardMultiRanksButton$Scoreboard, Multiple Age Groups$لوحة النتائج، مجموعات عمرية متعددة
+409$ScoreboardMultiRanksTitle$Scoreboard, Multiple Age Groups$لوحة النتائج، مجموعات عمرية متعددة
+410$Scoreboards$Scoreboards$لوحات النتائج
+411$Config.UpdateKey$Secret update key$مفتاح التحديث السري
+412$SelectPlatform$Select Platform$اختر المنصة
+413$ShowResults$Show Results$عرض النتائج
+414$EVENT_TimeOver$signal time over$إشارة انتهاء الوقت
+415$Scoreboard.Sinclair$Sinclair$سينكلير
+416$sinclair$Sinclair$سينكلير
+417$Results.Sinclair$Sinclair$سينكلير
+418$Competition.competitionSite$Site$الموقع
+419$smm$SM(H)F$SM(H)F
+420$smhf$SM(H)F$SM(H)F
+421$Snatch_short$Sn.$خطف
+422$Card.snatch$Snatch$خطف
+423$Scoreboard.Snatch$Snatch$خطف
+424$Snatch$Snatch$خطف
+425$Results.Snatch$Snatch$خطف
+426$Results.Snatch_abbrev$Snatch$خطف
+427$Snatch_number$Snatch #{0}$خطف #{0}
+428$Snatch1$snatch 1$خطف 1
+429$Snatch2$snatch 2$خطف 2
+430$Snatch3$snatch 3$خطف 3
+431$SnatchDecl_$Snatch Decl.$إعلان الخطف
+432$Snatch_Declaration$Snatch Declaration$إعلان الخطف
+433$SnatchRank$Snatch Rank$ترتيب الخطف
+434$SourceDocumentation$Source and Documentation$المصدر والتوثيق
+435$Division.Special$Special$خاص
+436$ThanksToAll$Special thanks to Stepan Pesterev for feedback and testing.<br>$شكر خاص لستيبان بيسترييف على ملاحظاته واختباراته.<br>
+437$AgeGroup.SR$SR$فئة كبار السن
+438$Scoreboard.Sr$Sr$فئة كبار السن
+439$Results.Sr$Sr$فئة كبار السن
+440$Scoreboard.Start$Start$بدء
+441$Results.Start$Start$بدء
+442$Results.Start$Start$بدء
+443$Card.startNumber$Start #$رقم البدء
+444$EVENT_BreakStarted$start break$بدء الاستراحة
+445$EVENT_TimeStarted$start clock$بدء الساعة
+446$StartDisplays$Start Displays$بدء العرض
+447$EVENT_JuryDecision$start jury deliberation$بدء تداول الهيئة التحكيمية
+448$startLifting$Start Lifting$بدء الرفع
+449$EVENT_StartLifting$start lifting$بدء الرفع
+450$StartingList$Start List$قائمة البدء
+451$StartList.StartList$Start List$قائمة البدء
+452$StartNumber$Start Number$رقم البدء
+453$StartNumbersNotSet$Start numbers were not assigned. Use the Weigh-in page.$لم يتم تعيين أرقام البدء. استخدم صفحة الوزن.
+454$StartTime_StartList$Start Time$وقت البدء
+455$StartTime$Start Time$وقت البدء
+456$Start_$Start#$بدء
+457$Card.startingWeight$Starting Weight$الوزن الابتدائي
+458$RuleViolation.rule15_20Violated$Starting weight rule violation: Missing {5}kg.$انتهاك قاعدة الوزن الابتدائي
+459$TeamResults.Status$Status (Athletes Counted/Team Size)$حالة (عدد الرياضيين / حجم الفريق)
+460$EVENT_TimeStopped$stop clock$إيقاف الساعة
+461$Card.team$Team$الفريق
+462$Scoreboard.Team$Team$الفريق
+463$Team$Team$الفريق
+464$Results.Team$Team$الفريق
+465$TeamMember?$Team Member?$عضو الفريق؟
+466$TeamResults.Title$Team Results$نتائج الفريق
+467$Competition.teamSizeInvalid$Team size must be a number ≤ 99$حجم الفريق يجب أن يكون عددًا ≤ 99
+468$Results.TeamList$Teams$الفرق
+469$TechnicalController$Technical Controller$المراقب الفني
+470$BreakType.TECHNICAL$Technical Issue$مشكلة فنية
+471$TOScreens$Technical Official Screens (select the correct platform above before clicking)$شاشات المسؤولين الفنيين (اختر المنصة الصحيحة أعلاه قبل النقر)
+472$SoundSystemProblem$Technical problem with Sound: Signals will not be emitted by the main computer.<br>If the problem persists, switch to browser sounds or restart the competition system.$مشكلة تقنية في الصوت: لن تصدر الكمبيوتر الرئيسي إشارات. <br> إذا استمرت المشكلة، قم بالتبديل إلى أصوات المتصفح أو أعد تشغيل نظام المنافسة.
+473$ThanksToFHQ$Thanks to the Quebec Weightlifting Federation for supporting the initial development of the software.$شكرًا لاتحاد رفع الأثقال في كيبيك على دعم التطوير الأولي للبرنامج.
+474$ThanksToTranslators$Thanks to the translators (in random order):\u00a0$شكرًا للمترجمين (بترتيب عشوائي):
+475$Competition.announceLiverDecisionsExplanation$The announcer sees each referee's decisions live, immediately as it is entered.$يرى المذيع قرارات كل حكم مباشرة، فور إدخالها.
+476$SystemURL$The competition system is reachable using the following address(es):$يمكن الوصول إلى نظام المنافسة باستخدام العنوان (العناوين) التالية:
+477$Registration.emptyNameWarning$The program stops reading at the first empty family name - use ? if family name unknown$يتوقف البرنامج عن القراءة عند أول اسم عائلة فارغ - استخدم "?" إذا كان اسم العائلة غير معروف
+478$WrittenJFL$The software is written and maintained by Jean-François Lamy, IWF International Technical Official Category 1.$تم كتابة البرنامج وصيانته بواسطة جان-فرانسوا لامي، مسؤول تقني دولي من الفئة 1.
+479$ChangesGroupEverywhere$This changes the current session for all displays and screens associated with the platform$هذا يغير tanda الحالية لجميع الأجهزة والشاشات المرتبطة بالمنصة
+480$Warning_GroupLifting$This session is currently lifting on platform$هذه الجلسة ترفع حاليا على المنصة
+481$Copyright2009$This software is Copyright © 2009-$هذا البرنامج محمي بحقوق الطبع والنشر © 2009-
+482$LicenseUsed$This software is made available under the <a href='https://opensource.org/licenses/NPOSL-3.0'>Non-Profit Open Software License 3.0</a>.$هذا البرنامج متاح تحت <a href='https://opensource.org/licenses/NPOSL-3.0'>رخصة البرمجيات المفتوحة غير الربحية 3.0</a>.
+483$TCRRCompliance$This software is meant to comply with the IWF Technical Competition Rules and Regulations (TCRR) and with the Masters Weightlifting rules$هذا البرنامج مصمم للامتثال لقواعد ولوائح المنافسة التقنية لـ IWF (TCRR) وقواعد رفع الأثقال للماسترز
+484$Warning_ClearAthleteLifts$This will clear all lifting data for the athletes currently displayed except for initial declarations.<br>Are you sure?$سيؤدي هذا إلى محو جميع بيانات الرفع للرياضيين المعروضين حالياً باستثناء الإعلانات الأولية.<br>هل أنت متأكد؟
+485$Warning_DeleteAthletes$This will delete the athletes currently displayed from the database.<br>Are you sure?$سيؤدي هذا إلى حذف الرياضيين المعروضين حالياً من قاعدة البيانات.<br>هل أنت متأكد؟
+486$PublicMsg.TimeBeforeSnatch$Time before first lift$الوقت قبل الرفع الأول
+487$PublicMsg.BeforeIntroduction$Time before introduction$الوقت قبل التقديم
+488$PublicMsg.TimeBeforeCJ$Time before next lift$الوقت قبل الرفع التالي
+489$Timekeeper$Timekeeper$مراقب الوقت
+490$TimingStatistics$Timing Statistics$إحصائيات التوقيت
+491$Scoreboard.TopSinclair$Top Sinclair$أفضل سينكلير
+492$Results.TopSinclair$Top Sinclair$أفضل سينكلير
+493$Results.TopSinclairMen$Top Sinclair - Men$أفضل سينكلير - رجال
+494$Results.TopSinclairWomen$Top Sinclair - Women$أفضل سينكلير - نساء
+495$Scoreboard.TopSinclairMen$Top Sinclair &ndash; Men$أفضل سينكلير - رجال
+496$Scoreboard.TopSinclairWomen$Top Sinclair &ndash; Women$أفضل سينكلير - نساء
+497$Scoreboard.TopTeamsSinclair$Top Team Sinclair$أفضل فريق سينكلير
+498$Results.TopTeamsSinclair$Top Team Sinclair$أفضل فريق سينكلير
+499$Results.TopTeamsSinclairMen$Top Team Sinclair - Men$أفضل فريق سينكلير - رجال
+500$Results.TopTeamsSinclairWomen$Top Team Sinclair - Women$أفضل فريق سينكلير - نساء
+501$Scoreboard.TopTeamsSinclairMen$Top Team Sinclair &ndash; Men$أفضل فريق سينكلير - رجال
+502$Scoreboard.TopTeamsSinclairWomen$Top Team Sinclair &ndash; Women$أفضل فريق سينكلير - نساء
+503$Scoreboard.TopTeams$Top Teams$أفضل الفرق
+504$Results.TopTeams$Top Teams$أفضل الفرق
+505$Scoreboard.TopTeamsMen$Top Teams - Men$أفضل الفرق - رجال
+506$Results.TopTeamsMen$Top Teams - Men$أفضل الفرق - رجال
+507$Scoreboard.TopTeamsWomen$Top Teams - Women$أفضل الفرق - نساء
+508$Results.TopTeamsWomen$Top Teams - Women$أفضل الفرق - نساء
+509$Card.total$Total$الإجمالي
+510$Scoreboard.Total$Total$الإجمالي
+511$Total$Total$الإجمالي
+512$Results.Total$Total$الإجمالي
+513$TotalRank$Total Rank$ترتيب إجمالي
+514$Translation$Translation$ترجمة
+515$Unexpected_Logging$Unexpected event: {} in state {}$حدث غير متوقع: {} في الحالة {}
+516$Unexpected_Notification$Unexpected event: {0} in state {1}$حدث غير متوقع: {0} في الحالة {1}
+517$Update$Update$تحديث
+518$Update_title$Update {0}$تحديث {0}
+519$EVENT_DecisionUpdate$update a referee decision$تحديث قرار الحكم
+520$EVENT_DecisionFullUpdate$update referee decisions$تحديث قرارات الحكم
+521$UploadRegistrations$Upload Completed Registration Spreadsheet$تحميل جدول التسجيل المكتمل
+522$UploadRegistrationFile$Upload Registration File$تحميل ملف التسجيل
+523$Competition.useBirthYear$Use Birth Year Only$استخدم سنة الميلاد فقط
+524$UseBrowserSound$Use Browser Sound$استخدم صوت المتصفح
+525$Button_Open_Display$Use one of the buttons below to open a display.$استخدم أحد الأزرار أدناه لفتح عرض.
+526$Dropdown_Select_Platform$Use the dropdown to select the platform where the display is located.$استخدم القائمة المنسدلة لاختيار المنصة التي يوجد بها العرض.
+527$LeftMenuNavigate$Use the menu at the left to navigate to the various screens:<ul>$استخدم القائمة الموجودة على اليسار للتنقل بين الشاشات المختلفة:
+528$BetweenValues$Value must be between {0} and {1} inclusively.$يجب أن تكون القيمة بين {0} و {1} شاملاً.
+529$CountdownType.INDEFINITE$Wait$انتظر
+530$Scoreboard.WaitingNextGroup$Waiting for next session.$في انتظار الجلسة التالية.
+531$Results.WaitingNextGroup$Waiting for next session.$في انتظار الجلسة التالية.
+532$WaitingForSite$Waiting for updates from the competition site.$في انتظار التحديثات من موقع المنافسة.
+533$Upload.WarningWillReplaceAll$Warning: Athletes, Sessions and Platforms will be erased and reloaded according to the information in this spreadsheet.$تحذير: سيتم مسح الرياضيين والجلسات والمنصات وإعادة تحميلها وفقًا للمعلومات الموجودة في جدول البيانات هذا.
+534$Registration.groupsOverwrite$Warning: the sessions and platforms listed on this sheet will replace the data currently in the database.$تحذير: ستستبدل الجلسات والمنصات المدرجة في هذه الورقة البيانات الموجودة حاليًا في قاعدة البيانات.
+535$WeighIn$Weigh-In$الوزن
+536$WeighInTime_StartList$Weigh-in Time$وقت الوزن
+537$WeighInTime$Weigh-in Time$وقت الوزن
+538$Weighed$Weighed$موزون
+539$Weighed_in_p$Weighed-In?$موزون؟
+540$Weight_change_current_athlete$Weight change for current athlete<br>{0}$تغيير الوزن للرياضي الحالي<br>{0}
+541$WeightLifted$Weight Lifted$الوزن المرفوع
+542$Weight_under_350$Weight should be between 0 and 350kg$يجب أن يكون الوزن بين 0 و 350 كجم
+543$dark$White on black$أبيض على أسود
+544$Withdrawal$Withdrawal$انسحاب
+545$Gender.Women$Women$النساء
+546$CompetitionBook.WCT$Women - Combined Score$النساء - النقاط المجمعة
+547$CompetitionBook.WT$Women - Total Score$النساء - إجمالي النقاط
+548$Results.WomenPerTeam$Women per Team$النساء في الفريق
+549$Competition.womensTeamSize$Women's "Top Results" Team Size$حجم فريق النساء "أفضل النتائج"
+550$CompetitionBook.W6$Women's Results$نتائج النساء
+551$CompetitionBook.WG$Women's GAMX$GAMX النساء
+552$CompetitionBook.WR$Women's Robi$روبي النساء
+553$CompetitionBook.WS$Women's Sinclair$سينكلير النساء
+554$CompetitionBook.WSMF$Women's SMHF$SMHF النساء
+555$WorldRecord$World Record$رقم قياسي عالمي
+556$YearOfBirth$Year of Birth$سنة الميلاد
+557$AgeGroup.YTH$YTH$فئة الشباب
+558$Scoreboard.Yth$Yth$فئة الشباب
+559$Results.Yth$Yth$فئة الشباب
+560$ClickOrTapToEnableSound$Tap here to enable sound$اضغط هنا لتفعيل الصوت
+561$AllowResultsEditing$Edit Lift Results$السماح بتحرير النتائج
+562$RuleViolation.valueBelowStartedClock$Value {0} too low. Clock was started with {1} kg on the bar.$القيمة {0} منخفضة جدًا. تم بدء الساعة بـ {1} كجم على البار.
+563$Config.TZTitle$Time Zone$المنطقة الزمنية
+564$Config.TZ_FromServer$The default system time zone is currently {0}$المنطقة الزمنية الافتراضية حاليًا هي {0}
+565$Config.TZ_FromBrowser$<b>In-person meet</b>: You are currently in time zone {0}. Use the button to select that time zone.$<b>اجتماع شخصي</b>: أنت حاليًا في المنطقة الزمنية {0}. استخدم الزر لاختيار تلك المنطقة الزمنية.
+566$Config.TZExplain$<b>Virtual meet</b>: Use the dropdown below to select the time zone for the published schedule.$<b>اجتماع افتراضي</b>: استخدم القائمة المنسدلة أدناه لاختيار المنطقة الزمنية للجدول الزمني المنشور.
+567$Config.TZ_Selection$Competition Schedule Time Zone$منطقة زمنية لجدول المسابقة
+568$RuleViolation.valueBelowStartedClock${0} kg denied: clock was previously started at {1} kg$تم رفض {0} كجم: كانت الساعة قد بدأت سابقًا عند {1} كجم
+569$RuleViolation.weightBelowAlreadyLifted${0} kg denied: athlete {1} attempted higher weight previously ({2} kg, attempt {3})$تم رفض {0} كجم: حاول الرياضي {1} وزنًا أعلى سابقًا ({2} كجم، محاولة {3})
+570$RuleViolation.attemptNumberTooLow${0} kg denied: athlete {1} has already attempted {2} kg on higher attempt ({3})$تم رفض {0} كجم: لقد حاول الرياضي {1} بالفعل {2} كجم في محاولة أعلى ({3})
+571$RuleViolation.startNumberTooHigh${0} kg denied: athlete {2} cannot lift after {1} (must respect start number)$تم رفض {0} كجم: لا يمكن للرياضي {2} الرفع بعد {1} (يجب احترام رقم البدء)
+572$RuleViolation.ignoreErrors$Ignore message and allow saving$تجاهل الرسالة والسماح بالحفظ
+573$RuleViolation.LateDeclaration$Declaration denied: was not made within first 30 seconds ({0,number,#.#} seconds on clock)$تم رفض الإعلان: لم يتم إجراؤه خلال الثلاثين ثانية الأولى ({0,number,#.#} ثانية على الساعة)
+574$RuleViolation.MustChangeBeforeFinalWarning$Change denied: was not made before final warning ({0,number,#.#} seconds on clock)$تم رفض التغيير: لم يتم إجراؤه قبل التحذير النهائي ({0,number,#.#} ثانية على الساعة)
+575$RuleViolation.MustDeclareFirst$Change denied: must do declaration first.$تم رفض التغيير: يجب إجراء الإعلان أولاً.
+576$DisplayParameters.Silent$Sound Off (no warning sounds)$الصوت مغلق (لا توجد أصوات تحذيرية)
+577$DisplayParameters.SoundOn$Sound On$تشغيل الصوت
+578$DisplayParameters.SoundHelper$Recommended setting: enable sound on one display per room to avoid multiple warning sounds.$الإعداد الموصى به: تفعيل الصوت على جهاز واحد لكل غرفة لتجنب الأصوات التحذيرية المتعددة.
+579$DisplayParameters.SoundSettings$Sound Settings$إعدادات الصوت
+580$DisplayParameters.VisualSettings$Visual Settings$إعدادات العرض
+581$DisplayParameters.SoundsOnServer$Note: warning sounds are emitted on the main laptop sound card. No sound on this browser.$ملاحظة: يتم إصدار أصوات التحذير على بطاقة الصوت الرئيسية للكمبيوتر المحمول. لا يوجد صوت في هذا المتصفح.
+582$Close$Close$إغلاق
+583$Config.ResourceOverride$Override Resources$تجاوز الموارد
+584$Config.Download$Download zip file$تنزيل ملف مضغوط
+585$Config.ClearZipLabel$Cancel stored overrides$إلغاء التعديلات المخزنة
+586$Config.ClearZip$Clear remote zip file$مسح ملف مضغوط عن بُعد
+587$Category.QualificationTotal$Qualification Total$إجمالي التأهيل
+588$Edit$Edit$تحرير
+589$CategoryResults$Category Results$نتائج الفئات
+590$EndOfCompetitionDocuments$Category Results and Final Package$نتائج الفئات وحزمة النتائج النهائية
+591$Config.Select$Select zip file$اختر ملف مضغوط
+592$TeamMembership.Title$Team Membership$عضوية الفريق
+593$TeamMembership.TeamMember$Team Member$عضو الفريق
+594$Config.Title$Language and System Settings$الإعدادات اللغوية ونظام
+595$CompetitionInformation$Competition Information and Rules$معلومات وقواعد المسابقة
+596$EditCompetitionInformation$Edit Information and Rules$تحرير معلومات وقواعد المسابقة
+597$CompetitionBook.MWCT$Men+Women - Combined Team Points$الرجال + النساء - نقاط الفريق المجمعة
+598$Reserve$Reserve$احتياطي
+599$ExcelFormat$(Enter using Excel Format)$تنسيق Excel
+600$ExportDatabase.ExportImport$Export and Import Database$تصدير واستيراد قاعدة البيانات
+601$ExportDatabase.DownloadJson$Export Database$تصدير قاعدة البيانات
+602$ExportDatabase.DownloadLabel$Export database content as a a JSON file$تصدير محتوى قاعدة البيانات كملف JSON
+603$ExportDatabase.UploadJson$Import Database$استيراد قاعدة البيانات
+604$ExportDatabase.UploadLabel$Replace database content using an exported JSON file$استبدال محتوى قاعدة البيانات باستخدام ملف JSON تم تصديره
+605$ExportDatabase.WarningWillReplaceAll$WARNING: This will erase and replace all the data in the database$تحذير: سيؤدي هذا إلى مسح واستبدال جميع البيانات في قاعدة البيانات
+606$PlatesCollarBarbell$Plates, collar and barbell$الأقراص، الطوق والبار
+607$Coach$Coach$المدرب
+608$Custom1.Title$Additional Info 1$معلومات إضافية 1
+609$Custom2.Title$Additional Info 2$معلومات إضافية 2
+610$SelectTemplate$Select Template$اختر قالب
+611$Download$Download$تنزيل
+612$NoAthletes$No Athletes$لا رياضيين
+613$GroupSize$Size$الحجم
+614$Default$Default$افتراضي
+615$CeremonyType.MEDALS$Medals$الميداليات
+616$PublicMsg.Medals$Medal Ceremony$مراسم توزيع الميداليات
+617$OBS.MonitoringButton$Status Monitor$زر مراقبة الحالة
+618$BreakType.GROUP_DONE$Session Done$الجلسة مكتملة
+619$Group.Description$Description$الوصف
+620$SelectAgeGroup$Select Age Group$اختر المجموعة العمرية
+621$Settings.TurnOnSound$Emit warning sounds$تفعيل أصوات التحذير
+622$Settings.TurnOffSound$Turn off warning sounds$إيقاف أصوات التحذير
+623$NoGroup$No Session$لا توجد جلسة محددة
+624$BreakButton.SummonReferees$Call Referee(s)$استدعاء الحكم
+625$Competition.decisionRequestDelayLabel$Referee Decision Reminder Delay (ms)$تأخير تذكير قرار الحكم (بالمللي ثانية)
+626$JuryNotification.END_CALL_REFEREES$End of referee discussion. Competition resumes.$انتهاء مناقشة الحكم. استئناف المنافسة.
+627$JuryNotification.START_DELIBERATION$Jury Deliberation Started$بدء تداول الهيئة التحكيمية
+628$JuryNotification.END_DELIBERATION$End of Jury Deliberation$انتهاء تداول الهيئة التحكيمية
+629$JuryNotification.TECHNICAL_PAUSE$Jury Technical Break$استراحة فنية للجنة التحكيم
+630$JuryNotification.END_TECHNICAL_PAUSE$End of Jury Technical Break. Competition resumes.$انتهاء الاستراحة الفنية. استئناف المنافسة.
+631$JuryNotification.END_JURY_BREAK$Resume Competition$استئناف المنافسة
+632$JuryNotification.PleaseSeeJury$Please see Jury$يرجى مراجعة الهيئة التحكيمية
+633$JuryNotification.PleaseEnterDecision$Waiting for decision$في انتظار القرار
+634$JuryNotification.Confirmed$Jury Confirmation$تأكيد الهيئة التحكيمية
+635$JuryNotification.Reversal$Jury REVERSAL$عكس قرار الهيئة التحكيمية
+636$JuryNotification.CallTechnicalController$Technical Controller is called to Jury table$تم استدعاء المراقب الفني إلى طاولة الهيئة التحكيمية
+637$JuryNotification.GoodLift${0}: Good Lift for {1} on attempt #{2}$رفع مقبول لـ {1} في المحاولة رقم {2}
+638$JuryNotification.BadLift${0}: No Lift for {1} on attempt #{2}$رفع مرفوض لـ {1} في المحاولة رقم {2}
+639$JuryNotification.LoadingError$Loading Error Decision Procedure$إجراء قرار خطأ التحميل
+640$JuryNotification.Confirmed$Jury Confirmation$تأكيد الهيئة التحكيمية
+641$JuryNotification.Reversal$Jury REVERSAL$عكس قرار الهيئة التحكيمية
+642$JuryNotification.CallTechnicalController$Technical Controller is called to Jury table$تم استدعاء المراقب الفني إلى طاولة الهيئة التحكيمية
+643$JuryNotification.GoodLift${0}: Good Lift for {1} on attempt #{2}$رفع مقبول لـ {1} في المحاولة رقم {2}
+644$JuryNotification.BadLift${0}: No Lift for {1} on attempt #{2}$رفع مرفوض لـ {1} في المحاولة رقم {2}
+645$JuryDialog.NoCurrentAthlete$No Decision to Review$لا توجد قرارات للمراجعة
+646$JuryDialog.ResumeCompetition$Resume Competition$استئناف المنافسة
+647$JuryDialog.AllReferees$All$الكل
+648$JuryDialog.SummonRefereesLabel$Call Referee(s)$استدعاء الحكم
+649$JuryDialog.BadLiftLabel$No Lift$رفع مرفوض
+650$JuryDialog.GoodLiftLabel$Good Lift$رفع مقبول
+651$JuryDialog.LoadingErrorLabel$Signal Loading Error$إشارة خطأ التحميل
+652$JuryDialog.LoadingError$Call Technical Controller$اتصل بالمراقب الفني
+653$JuryDialog.CallControllerLabel$Call Technical Controller$اتصل بالمراقب الفني
+654$JuryDialog.CallController$Call Technical Controller$اتصل بالمراقب الفني
+655$JuryDialog.RefGoodLift$Good Lift$رفع مقبول
+656$JuryDialog.RefBadLift$No Lift$رفع مرفوض
+657$JuryDialog.Accept$Confirm Decision$تأكيد القرار
+658$JuryDialog.Reverse$Reverse Decision$عكس القرار
+659$JuryDialog.NotLiftedYet$Athlete has not lifted yet.$لم يرفع الرياضي بعد.
+660$JuryDialog.START_DELIBERATION$Jury Deliberation$تداول الهيئة التحكيمية
+661$JuryDialog.TECHNICAL_PAUSE$Jury Technical Break$استراحة فنية للجنة التحكيم
+662$JuryDialog.CALL_REFEREES$Referee Discussion$مناقشة مع الحكم
+663$Scoreboard.Medals$Medal Ceremony$مراسم توزيع الميداليات
+664$Scoreboard.NoMedalCategories$No medal results at this time.$لا توجد نتائج ميداليات في هذا الوقت.
+665$Scoreboard.Group$Session$الجلسة
+666$BreakMgmt.startIntro$Start Introduction$بدء المقدمة
+667$BreakMgmt.endIntro$End Introduction$انتهاء المقدمة
+668$BreakMgmt.startMedals$Start Medal Ceremony$بدء مراسم توزيع الميداليات
+669$BreakMgmt.endMedals$End Medal Ceremony$انتهاء مراسم توزيع الميداليات
+670$BreakMgmt.Ceremonies$Introduction and Medals$المقدمات والميداليات
+671$BreakMgmt.Countdowns$Countdowns and Breaks$العد التنازلي والاستراحات
+672$BreakMgmt.IntroductionOfAthletes$Introduction of Athletes$مقدمة الرياضيين
+673$BreakMgmt.IntroductionOfOfficials$Introduction of Officials$مقدمة المسؤولين الفنيين
+674$BreakMgmt.startOfficials$Start Officials$بدء المسؤولين الفنيين
+675$BreakMgmt.endOfficials$End Officials$انتهاء المسؤولين الفنيين
+676$CeremonyType.OFFICIALS_INTRODUCTION$Introduction of Officials$مقدمة المسؤولين الفنيين
+677$Results.Medals$Medals$الميداليات
+678$Competition.snatchCJTotalMedals$Medals for snatch, clean&jerk, total$الميداليات للخطف، النتر، والإجمالي
+679$DisplayParameters.PublicDisplay$Public Scoreboard$لوحة النتائج العامة
+680$DisplayParameters.WarmupDisplay$Warmup Scoreboard$لوحة نتائج منطقة الإحماء
+681$DisplayParameters.SwitchableSettings$Ceremony Settings$إعدادات الحفل
+682$DisplayParameters.SwitchableHelper$Public scoreboards switch to medals during ceremony. Use Warmup to prevent switching.$تتحول لوحات النتائج العامة إلى الميداليات خلال الحفل. استخدم لوحة الإحماء لمنع التبديل.
+683$Card.Signature$Signature$التوقيع
+684$BreakType.MARSHAL$Marshal Issue$مشكلة المشرف
+685$Config.FeatureSwitchesTitle$Feature Toggles$تبديل الميزات
+686$Config.FeatureSwitchesLabel$Comma-separated list of option names to selectively enable features$قائمة مفصولة بفواصل لأسماء الخيارات لتمكين الميزات بشكل انتقائي
+687$PlatesPerSide$(number of plates is for one side of the barbell)$عدد الأقراص هو لجهة واحدة من البار
+688$RuleViolation.liftedEarlier${0} kg denied: athlete {2} should already have lifted {0} before {1}<br>(same weight, but {2} had previous attempt before {1})$تم رفض {0} كجم: كان يجب على الرياضي {2} أن يرفع {0} قبل {1}<br>(نفس الوزن، لكن {2} كانت لديه محاولة سابقة قبل {1})
+689$DeleteConfirmation$Delete {0}?$هل تريد حذف {0}؟
+690$TechnicalController1$Technical Controller 1$المراقب الفني 1
+691$TechnicalController2$Technical Controller 2$المراقب الفني 2
+692$Marshal1$Marshal 1$المشرف 1
+693$Marshal2$Marshal 2$المشرف 2
+694$Weighin1$Weigh-In 1$وزن 1
+695$Weighin2$Weigh-In 2$وزن 2
+696$Notification.WeightToBeLoaded${0} kg needed on the bar.$يجب تحميل {0} كجم على البار.
+697$DisplayParameters.FontSizeLabel$Font Size ('em' units)$حجم الخط
+698$CategoryChange_MustForce$Category change - was "{0}". Use checkbox at bottom to force acceptance if change is allowed; check session assignment.$تغيير الفئة - كان "{0}". استخدم خانة الاختيار في الأسفل لفرض القبول إذا كان التغيير مسموحًا به؛ تحقق من تعيين الجلسة.
+699$Competition.fixedRoundRobinOrder$Fixed order for lifting in a round (lot number)$ترتيب ثابت للرفع في جولة (رقم السحب)
+700$Competition.fixedRoundRobinOrderExplanation$Within a round-robin round, athletes lift according to their lot number$داخل جولة round-robin، يرفع الرياضيون وفقًا لرقم سحبهم
+701$Scoreboard.recordS$S$س
+702$Scoreboard.recordCJ$CJ$CJ
+703$Scoreboard.recordT$T$ت
+704$Scoreboard.records$RECORDS$السجلات
+705$DisplayParameters.ShowRecords$Show Records$عرض السجلات
+706$DisplayParameters.ContentSettings$Content Settings$إعدادات المحتوى
+707$Record.NewNotification$New {0} {2} {3} {1} record: {4}\u00A0kg$رقم قياسي جديد: {4} كجم
+708$Record.AttemptNotification$Attempt for {0} {2} {3} {1} record: currently {4}\u00A0kg$محاولة لتحطيم الرقم القياسي: الحالي {4} كجم
+709$Record.CategoryTitle${0} {1}$عنوان الفئة
+710$Record.SNATCH$Snatch$خطف
+711$Record.CLEANJERK$Clean & Jerk$نتر
+712$Record.TOTAL$Total$الإجمالي
+713$OBS.MonitoringTitle$Video Streaming$بث الفيديو
+714$Scoreboard.NewRecord$New Record!$رقم قياسي جديد!
+715$Scoreboard.Custom1$Additional Info 1$معلومات إضافية 1
+716$Scoreboard.Custom2$Additional Info 2$معلومات إضافية 2
+717$Scoreboard.RecordAttempt$Record Attempt$محاولة لتحطيم الرقم القياسي
+718$DisplayParameters.Content$Content Displayed$المحتوى المعروض
+719$DisplayParameters.ShowLeaders$Category Leaders$قادة الفئة
+720$Decision_PF_$Decision (Public-Facing)$قرار (موجه للجمهور)
+721$minutes$minutes$دقائق
+722$Config.LocalTemplateLabel$Select which Excel templates are shown$اختر قوالب Excel التي سيتم عرضها
+723$Config.LocalTemplate$Show only local templates (exclude default templates)$عرض القوالب المحلية فقط (استبعاد القوالب الافتراضية)
+724$App.ResetWarning$Demonstration site will be reset and restarted in {0} minutes.$سيتم إعادة تعيين موقع العرض التوضيحي وإعادة تشغيله في غضون {0} دقيقة.
+725$App.Closing$Demonstration site will be back in about a minute.$سيعود موقع العرض التوضيحي بعد حوالي دقيقة.
+726$EVENT_CeremonyStarted$start ceremony$بدء الحفل
+727$EVENT_CeremonyDone$end ceremony$انتهاء الحفل
+728$SnatchWithdrawal$Withdraw from Snatch$انسحاب من الخطف
+729$AllGroups$All Sessions$جميع الجلسات
+730$Results.NewRecords$Export New Records$تصدير سجلات جديدة
+731$Results.RecordsAreProvisional$Note: The eligibility of the athletes to set records is NOT verified.  Each federation is responsible for verifying citizenship, membership, suspensions and any other criteria they require.$ملاحظة: لم يتم التحقق من أهلية الرياضيين لتحطيم الأرقام القياسية. كل اتحاد مسؤول عن التحقق من الجنسية، العضوية، الإيقافات وأي معايير أخرى يتطلبونها.
+732$Results.EndOfCompetition$End of Competition$نهاية المنافسة
+733$Preparation.ClearNewRecords$Clear Provisional Records$مسح السجلات المؤقتة
+734$Preparation.Records$Records$السجلات
+735$Config.DisplayPIN$Password for Displays$كلمة مرور للشاشات
+736$Config.DisplayAccessList$IP Addresses Authorized to Access Displays$عناوين IP المصرح بها للوصول إلى الشاشات
+737$Config.AccessList$Authorized IP addresses for Officials$عناوين IP المصرح بها للمسؤولين
+738$Config.PasswordOrPIN$Password for Officials$كلمة مرور للمسؤولين
+739$RuleViolation.StartingWeightCurrent$Starting weight rule violation: Missing {0} kg.$انتهاك قاعدة الوزن الابتدائي: الوزن المفقود {0} كجم.
+740$Registration.FederationCodes$Federations where athlete can break records (no restrictions if empty)$الاتحادات التي يمكن للرياضي تحطيم الأرقام القياسية فيها (لا قيود إذا كانت فارغة)
+741$Registration.FederationCodesShort$Record Eligibility Federations$اتحادات الأرقام القياسية
+742$EVENT_SummonReferee$summon referees$استدعاء الحكام
+743$Preparation.PrecompDocsTitle$Pre-competition Documents$وثائق ما قبل المنافسة
+744$ShortTitle.Displays$Displays$العروض
+745$ShortTitle.Info$About$حول
+746$ShortTitle.Home$Home$الرئيسية
+747$ShortTitle.Lifting$Lifting$الرفع
+748$ShortTitle.Top$Olympic Weightlifting Competition Management System$نظام إدارة مسابقات رفع الأثقال الأولمبية
+749$ShortTitle.Preparation$ Preparation$تحضير
+750$ShortTitle.Results$ Results$نتائج
+751$Registration.EligibleCategories$Qualified Categories$الفئات المؤهلة
+752$Registration.Category$Category$الفئة
+753$Weighin.EligibleCategories$Qualified Categories$الفئات المؤهلة
+754$Weighin.Category$Category$الفئة
+755$StartingList.Teams$Teams$الفرق
+756$StartingList.Officials$Officials$المسؤولون
+757$StartingList.Categories$Categories$الفئات
+758$Config.MQTTSectionTitle$Refereeing Device MQTT Server$خادم MQTT لجهاز التحكيم
+759$Config.MQTTServer$MQTT Server$خادم MQTT
+760$Config.MQTTPort$MQTT Port Number$رقم منفذ MQTT
+761$Config.LanguageTab$Language and Time Zone$اللغة والمنطقة الزمنية
+762$Config.ConnexionsTab$Connections$الاتصالات
+763$Config.AccessControlTab$Access Control$التحكم في الوصول
+764$Config.CustomizationTab$Customization$التخصيص
+765$Config.MQTTUserName$MQTT User Name$اسم مستخدم MQTT
+766$Config.MQTTPassword$MQTT Password$كلمة مرور MQTT
+767$ThisFieldIsRequired$This field is required$هذا الحقل مطلوب
+768$AthleteGrid.Attempts$Attempts$محاولات
+769$Config.MQTTExplain$These parameters control access to the built-in MQTT broker embedded in owlcms$هذه المعايير تتحكم في الوصول إلى وسيط MQTT المدمج في owlcms
+770$Config.MQTTEnableInternalExplain$Unselect to disable the embedded MQTT server$ألغ التحديد لتعطيل خادم MQTT المدمج
+771$Config.MQTTEnableInternal$Enable Built-in MQTT Server$تمكين خادم MQTT المدمج
+772$AnnouncerSelectsGroup$The current session for the platform is selected on the <b><i>Announcer</i></b> screen<br>$يتم اختيار الجلسة الحالية للمنصة على شاشة <b><i>المذيع</i></b><br>
+773$EligibilityCategoryResults$Eligibility Category Results $نتائج فئة الأهلية
+774$RegistrationCategoryResults$Registration Category Results$نتائج فئة التسجيل
+775$CompetitionResults$Competition Results$نتائج المسابقة
+776$EmptyProtocolSheet$Empty Protocol$بروتوكول فارغ
+777$WeighinForm$Weigh-In Form$نموذج الوزن
+778$VideoStreaming$Video Streaming$بث الفيديو
+779$Scoreboard.Best$✔$✔
+780$Scoreboard.RANKING$Ranking$الترتيب
+781$Scoreboard.RANKINGS$Rankings$الترتيبات
+782$Video.includeNotCompleted$Include categories with athletes that have not yet finished$تضمين الفئات مع الرياضيين الذين لم ينتهوا بعد
+783$ResetCategories.Warning_ResetCategories$Beware! This will reassign each athlete's category based on the active age groups.<ul><li>You should double-check category participations after reassignment</li><li>Team memberships will be reset and need to be reviewed.</li></ul>$احذر! سيؤدي هذا إلى إعادة تعيين فئة كل رياضي بناءً على المجموعات العمرية النشطة.<ul><li>يجب عليك التحقق المزدوج من مشاركات الفئات بعد إعادة التعيين</li><li>ستتم إعادة تعيين عضويات الفريق ويجب مراجعتها.</li></ul>
+784$Gender.Inclusive$Inclusive$شامل
+785$AttemptBoard_attempt_number${0}<sup>{0,choice,1#st|2#nd|3#rd}</sup> att.${0}<sup>{0,choice,1#الأولى|2#الثانية|3#الثالثة}</sup> محاولة
+786$AttemptBoard_lift_attempt_number${1} #{0}${1} #{0}
+787$AttemptBoard_lift.SNATCH$Snatch$خطف
+788$AttemptBoard_lift.CLEANJERK$C. & J.$نتر
+789$Announcer.ReloadGroup$Reload Session$إعادة تحميل الجلسة
+790$Announcer.ReloadGroupTooltip$Same as exiting and reentering the group. Forces all displays to update.$مثل الخروج وإعادة الدخول إلى المجموعة. يجبر جميع العروض على التحديث.
+791$Record.PersonalBest$Personal Best$أفضل أداء شخصي
+792$Gender.F$F$أ
+793$Gender.M$M$ذ
+794$Gender.I$$ش
+795$Category_noEligiblity_check_age_entry$No eligible category found. Check entry total and birth date.$لم يتم العثور على فئة مؤهلة. تحقق من إجمالي الدخول وتاريخ الميلاد.
+796$Registration.Federations$Eligible Official Records$السجلات الرسمية المؤهلة
+797$Athlete.IdTab$Entry Information$معلومات الدخول
+798$Athlete.InfoTab$Complementary Information$معلومات تكميلية
+799$Athlete.IdentificationTitle$Identification$التعريف
+800$Athlete.GroupCatTitle$Categories and Session$الفئات والجلسة
+801$Athlete.InfoTitle$Additional Information$معلومات إضافية
+802$Athlete.RecordsTitle$Records$السجلات
+803$Athlete.DrawTitle$Draw$السحب
+804$PersonalBestSnatch$Best Snatch$أفضل خطف
+805$PersonalBestCleanJerk$Best Clean & Jerk$أفضل نتر
+806$PersonalBestTotal$Best Total$أفضل مجموع
+807$Results.Combined$Combined$مدمج
+808$BreakType.CHALLENGE$Challenge$تحدي
+809$PublicMsg.CHALLENGE$Challenge$تحدي
+810$BreakButton.CHALLENGE$Challenge$تحدي
+811$JuryNotification.CHALLENGE$Challenge Deliberation Started$بدأت مداولة التحدي
+812$DisplayParameters.DownSoundOn$Down Sound ON$صوت النزول مفعل
+813$DisplayParameters.DownSoundOff$Down Sound OFF$صوت النزول معطل
+814$DisplayParameters.ClockSoundOn$Clock Warning Sounds ON$أصوات تحذير الساعة مفعلة
+815$DisplayParameters.ClockSoundOff$Clock Warning Sounds OFF$أصوات تحذير الساعة معطلة
+816$Results.RecordFederation$Federation$الاتحاد
+817$Results.RecordName$Record Name$اسم السجل
+818$Results.RecordAgeGroup$Age Group$المجموعة العمرية
+819$Results.RecordKind$Type$النوع
+820$Results.RecordWeight$Record$السجل
+821$Results.RecordDate$Record Date$تاريخ السجل
+822$CompetitionBook.Records$Records$السجلات
+823$VideoStreaming_description$<li><b>{0}</b>:  Displays meant to be used for video broadcasting. Such displays may show columns that differ from the official scoreboards and use different color schemes to produce transparency effects.</li>$<li><b>{0}</b>: شاشات مخصصة للبث المرئي. قد تُظهر هذه الشاشات أعمدة تختلف عن لوحات النتائج الرسمية وتستخدم أنظمة ألوان مختلفة لإنتاج تأثيرات الشفافية.</li>
+824$Invited/Extra$Lifting out of competition (no points, no medals)$رفع خارج المنافسة (بلا نقاط، بلا ميداليات)
+825$Competition.InformationTab$Information$معلومات
+826$Competition.RulesTab$Competition Rules$قواعد المسابقة
+827$Records.ConfigurationTab$Records Configuration$إعدادات السجلات
+828$Records.ProvisionalSection$Provisional Records$سجلات مؤقتة
+829$Records.OrderingField$Drag names to determine scoreboard display order$اسحب الأسماء لتحديد ترتيب عرض النتائج
+830$Records.RecordsManagementTitle$Records Management$إدارة السجلات
+831$Records.ClearOfficialRecords$Clear Official Records$مسح السجلات الرسمية
+832$Records.ClearOfficialRecordsExplanation$Use this if you wish to reload all official records from scratch.$استخدم هذا إذا كنت ترغب في إعادة تحميل جميع السجلات الرسمية من الصفر.
+833$Preparation.ClearNewRecordsExplanation$Use this button once new records have been merged with the official files$استخدم هذا الزر بمجرد دمج السجلات الجديدة مع الملفات الرسمية
+834$Records.LoadedOfficialFiles$Currently Loaded Official Record Files$ملفات السجلات الرسمية المحملة حاليًا
+835$Records.OfficialSection$Official Records$السجلات الرسمية
+836$Records.UploadOfficialFile$Upload an official records file. Records previously loaded from that file name will  be replaced.$قم بتحميل ملف سجلات رسمي. سيتم استبدال السجلات المحملة مسبقًا من هذا الاسم الملف.
+837$Clear$Clear$مسح
+838$Records.AllFederations$Show record values from all Federations$إظهار قيم السجلات من جميع الاتحادات
+839$Records.DisplayOptions$Display Options$خيارات العرض
+840$Records.AllCategories$Show records for all categories in session$إظهار السجلات لجميع الفئات في الجلسة
+841$Records.UpdateDisplayOptions$Update Options$خيارات التحديث
+842$Records.NoFiles$No Record Files Loaded. Use the "{0}" section above.$لم يتم تحميل ملفات سجلات. استخدم قسم "{0}" أعلاه.
+843$Records.NoRecords$No Record Files Loaded. Use the "{0}" section below.$لم يتم تحميل ملفات سجلات. استخدم قسم "{0}" أدناه.
+844$Records.UploadButton$Load Record File...$تحميل ملف السجلات...
+845$Records.UploadDropZone$Drop Record File Here...$أسقط ملف السجلات هنا...
+846$Upload.AthleteRegistrationCategoryProblem$Athlete not eligible for category$الرياضي غير مؤهل للفئة
+847$Upload.CannotDetermineRegistrationCategory$Missing category information$معلومات الفئة مفقودة
+848$Scoreboard.RankingOrder$Rankings$ترتيب
+849$Scoreboard.RankingOrderButton$Scoreboard, Ranking Order$لوحة النتائج، ترتيب
+850$Break$Break$استراحة
+851$DefineGroups$Define Sessions and Assign Officials$تحديد الجلسات وتعيين الحكام
+852$Scoreboard.DescriptionLiftTypeFormat${0} {1} ${0} {1}
+853$VideoNotification.JuryBreak$Jury Deliberation$تداول الهيئة التحكيمية
+854$VideoNotification.Challenge$Decision Challenge$تحدي القرار
+855$VideoNotification.MarshalIssue$Competition paused$المنافسة متوقفة
+856$VideoNotification.TechnicalIssue$Competition paused$المنافسة متوقفة
+857$VideoNotification.JuryGoodLift$Jury Decision: Good Lift$قرار الهيئة التحكيمية: رفع مقبول
+858$VideoNotification.JuryNoLift$Jury Decision: No Lift$قرار الهيئة التحكيمية: رفع مرفوض
+859$VideoNotification.RecordAttempt$Record Attempt$محاولة لتحطيم الرقم القياسي
+860$VideoNotification.NewRecord$New Record!$رقم قياسي جديد!
+861$ComputedWeightClass$Presumed Weight Category$فئة الوزن المفترضة
+862$Video.EventMonitoringButton$Video Overlay$تراكب الفيديو
+863$Video.EventMonitoringExplanation$The "{0}" button is used to display a small box on the video feed when a significant event takes place (Record, Challenge, Jury Decision, etc.).$يُستخدم زر "{0}" لعرض مربع صغير على تغذية الفيديو عند حدوث حدث مهم (سجل، تحدي، قرار الهيئة التحكيمية، إلخ).
+864$OBS.MonitoringExplanation$The "{0}" window title reflects the platform's current status and can be used to control automatic scene switching for video production using OBS Studio and similar software.$عنوان نافذة "{0}" يعكس الحالة الحالية للمنصة ويمكن استخدامه للتحكم في التبديل التلقائي للمشاهد لإنتاج الفيديو باستخدام OBS Studio وبرامج مماثلة.
+865$Competition.enforce20kgRule$Apply IWF 20kg / Masters 80% rule?$تطبيق قاعدة IWF 20 كجم / Masters 80%؟
+866$Competition.mastersStartOrder$Masters Start Order (older first)$ترتيب بداية الماسترز (الأكبر سناً أولاً)
+867$Competition.breakParametersTitle$Clean & Jerk Automatic Break Duration$مدة الاستراحة التلقائية للنتر
+868$Competition.breakParametersLonger$(optional) set a longer break if session has less than a certain number of athletes.  Athletes need more time to warm-up.$(اختياري) تحديد استراحة أطول إذا كانت الجلسة تحتوي على أقل من عدد معين من الرياضيين. الرياضيون يحتاجون وقتاً أكثر للإحماء.
+869$Competition.breakParametersShorter$(optional) Set a shorter break if session has more than a certain number of athletes, since athletes have enough time to warm up.  Duration 0 suppresses the break.$(اختياري) تحديد استراحة أقصر إذا كانت الجلسة تحتوي على أكثر من عدد معين من الرياضيين، حيث أن الرياضيين لديهم وقت كافٍ للإحماء. المدة 0 تلغي الاستراحة.
+870$Competition.longerBreakThreshold$Longer CJ break if less than X athletes$استراحة نتر أطول إذا كان أقل من X رياضيين
+871$Competition.longerBreakDuration$Longer break duration (10 is normal)$مدة الاستراحة الأطول (10 عادي)
+872$Competition.shorterBreakThreshold$Shorter CJ break if more than X athletes$استراحة نتر أقصر إذا كان أكثر من X رياضيين
+873$Competition.shorterBreakDuration$Shorter break duration (10 is normal)$مدة الاستراحة الأقصر (10 عادي)
+874$Competition.automaticCJBreakQ$After last snatch, automatically switch to the C&J Break (this enables the other parameters in this section)$بعد آخر خطف، التبديل تلقائياً إلى استراحة النتر (هذا يمكن المعاملات الأخرى في هذا القسم)
+875$Competition.TooManyPerCat$Too Many Athletes?$عدد كثير من الرياضيين؟
+876$Competition.AthletesPerTeam$Athletes per team$رياضيون لكل فريق
+877$Competition.maxAthletesPerCategory$Maximum Athletes per category (in each age group)$الحد الأقصى للرياضيين لكل فئة (في كل مجموعة عمرية)
+878$Competition.teamRules$Team Size$حجم الفريق
+879$Medal.Gold$Gold$ذهبي
+880$Medal.Silver$Silver$فضي
+881$Medal.Bronze$Bronze$برونزي
+882$Entries$Entries$مشاركات
+883$Preparation$Preparation$التحضير
+884$DisplayParameters.Abbreviated$Abbreviated First Name$الاسم الأول المختصر
+885$DisplayParameters.TeamSizeLabel$Team Column Width ("em" units)$عرض عمود الفريق (وحدات "em")
+886$WeighIn_StartNumbers$Start Numbers$أرقام البدء
+887$WeighIn_SessionDocuments$Session Documents$وثائق الجلسة
+888$WeighIn_Title$Weigh-in and Session Documents$الوزن ووثائق الجلسة
+889$Athlete.WeighInTitle$Weigh-In and Declarations$الوزن والإعلانات
+890$Pause$Pause$توقف
+891$Jury.NoInterruption$No interruption during a countdown$لا انقطاع أثناء العد التنازلي
+892$Jury.NoInterruptionDuringCountdown$The announcer or timekeeper must stop the countdown explicitly.$يجب على المذيع أو ضابط الوقت إيقاف العد التنازلي بشكل صريح.
+893$OK$OK$موافق
+894$DisplayParameters.LiftingOrder$Lifting Order$ترتيب الرفع
+895$Records.Inserted${0} records inserted.${0} سجل تم إدراجه.
+896$Records.couldNotProcess$Error opening file {0}$خطأ في فتح الملف {0}
+897$Records.exportAllRecordsTitle$Export all records$تصدير جميع السجلات
+898$Records.exportAllRecordsLabel$Export all records as single file$تصدير جميع السجلات كملف واحد
+899$Records.manageNewRecords$Export Records$تصدير السجلات
+900$Config.stylesTitle$Visual Styling$التصميم المرئي
+901$StartCountdown$Start Timer$بدء المؤقت
+902$EndBreak$End Break$إنهاء الاستراحة
+903$StopCompetition$Stop Competition$إيقاف المنافسة
+904$ResumeCompetition$Resume Competition$استئناف المنافسة
+905$CountdownType.Title$Break Countdown$عد تنازلي للاستراحة
+906$InterruptionType.Title$Interruption$انقطاع
+907$Wait.Text$Wait until break is explicitly terminated.$انتظر حتى تنتهي الاستراحة صراحة.
+908$CountdownType.TARGET$End at specified time$انتهاء في الوقت المحدد
+909$Result.Change$Change$تغيير
+910$BreakType.Title$Break Type$نوع الاستراحة
+911$BreakType.Label_FIRST_CJ$Before Clean & Jerk$قبل النتر
+912$BreakType.Label_BEFORE_INTRODUCTION$Before Introduction$قبل التقديم
+913$BreakType.Label_FIRST_SNATCH$Before Snatch$قبل الخطف
+914$BreakType.Label_CEREMONY$Ceremony$احتفال
+915$BreakType.CEREMONY$Ceremony$احتفال
+916$BreakManagement.InterruptionsAndJury$Interruptions & Jury$انقطاعات وهيئة تحكيمية
+917$BreakManagement.BreaksAndCeremonies$Breaks & Ceremonies$استراحات واحتفالات
+918$BreakManagement.countdownActiveError$A break is under way. Stopping the competition requires ending the break first.$استراحة جارية. إيقاف المنافسة يتطلب إنهاء الاستراحة أولاً.
+919$BreakManagement.interruptionActiveError$Competition is stopped. Resume the competition before starting a break.$المنافسة متوقفة. استأنف المنافسة قبل بدء استراحة.
+920$BreakManagement.needCountdownSelection$Select the type of break$اختر نوع الاستراحة
+921$BreakManagement.needInterruptionSelection$Select the cause of the interruption$اختر سبب الانقطاع
+922$Change$Change$تغيير
+923$Processing$This dialog will close automatically once the document is created.$سيُغلق هذا الحوار تلقائياً بمجرد إنشاء المستند.
+924$LongProcessing$\u26a0 This document can take a little while to be created depending on the number of athletes. This dialog will close when done.$\u26a0 قد يستغرق إنشاء هذا المستند وقتاً قليلاً حسب عدد الرياضيين. سيُغلق هذا الحوار عند الانتهاء.
+925$WarmupScoreboards$Warmup Scoreboards$لوحات نتائج الإحماء
+926$WarmupScoreboards.explanation$These scoreboards are meant for counting attempts in the warmup area.  They do not change during ceremonies.$هذه اللوحات مخصصة لعد المحاولات في منطقة الإحماء. لا تتغير أثناء الاحتفالات.
+927$PublicScoreboards$Public Scoreboards$لوحات النتائج العامة
+928$PublicScoreboards.explanation$These scoreboards switch during ceremonies and are meant for the main room.$هذه اللوحات تتغير أثناء الاحتفالات وهي مخصصة للقاعة الرئيسية.
+929$JuryNotification.CALL_REFEREES$Jury discussion with referee(s).$مناقشة الهيئة التحكيمية مع الحكام.
+930$CompetitionBook.MQ$Men's Q-points$نقاط Q للرجال
+931$CompetitionBook.WQ$Women's Q-points$نقاط Q للنساء
+932$Qpoints$Q-points$نقاط Q
+933$Results.Qpoints$Q-points$نقاط Q
+934$Config.stylesLabel$Directory under "local/css" for scoreboard styles ("nogrid by default")$دليل تحت "local/css" لأنماط لوحة النتائج ("nogrid افتراضياً")
+935$ChallengeCard$Challenge Card$بطاقة تحدي
+936$ChallengeCard.SessionPattern$Session {0}$جلسة {0}
+937$CheckVersion.running$You are running version {0}.$تستخدم الإصدار {0}.
+938$CheckVersion.referenceStable$The current stable version is {0}.$الإصدار المستقر الحالي هو {0}.
+939$CheckVersion.referencePrerelease$The current prerelease version is {0}.$إصدار ما قبل الإطلاق الحالي هو {0}.
+940$CheckVersion.ahead$You are ahead of the current version.$أنت متقدم على الإصدار الحالي.
+941$CheckVersion.ok$You are running the current version.$تستخدم الإصدار الحالي.
+942$CheckVersion.behind$You should update to the current version.$يجب عليك التحديث إلى الإصدار الحالي.
+943$CheckVersion.clickToDownload$Click here to download.$انقر هنا للتنزيل.
+944$CheckVersion.clickCloudUpdate$Click here to update.$انقر هنا للتحديث.
+945$RefreshList$Refresh$تحديث
+946$ScoreboardWLeadersButton$Scoreboard with Leaders and records$لوحة النتائج مع القادة والسجلات
+947$AdvancedPreparation.Explanation$SBDE (Start Book Data Entry) contains the registration, eligibility and team information for athletes, as well as sessions and officials.$SBDE (إدخال بيانات كتاب البداية) يحتوي على التسجيل والأهلية ومعلومات الفريق للرياضيين، بالإضافة إلى الجلسات والمسؤولين.
+948$AdvancedPreparation.Export$Export SBDE Excel$تصدير SBDE Excel
+949$AdvancedPreparation.Import$Import SBDE Excel$استيراد SBDE Excel
+950$AdvancedPreparation.Title$Advanced Preparation Functions$وظائف التحضير المتقدمة
+951$SubCategory$A/B/C/...$أ/ب/ج/...
+952$EmptyInstructions.1$Birth dates should be in international year-month-day format YYYY-MM-DD (2000-12-31 is December 31, 2000)$تواريخ الميلاد يجب أن تكون بالتنسيق الدولي سنة-شهر-يوم YYYY-MM-DD (2000-12-31 هو 31 ديسمبر 2000)
+953$EmptyInstructions.2$If using only the year, 4 digits are required.$إذا كان يُستخدم العام فقط، فمطلوب 4 أرقام.
+954$EmptyInstructions.3$Gender is M for Men, F for women.$الجنس هو M للرجال، F للنساء.
+955$EmptyInstructions.4$Heavyweight categories are written 81+ 87+ 102+ 109+ etc.$فئات الوزن الثقيل تُكتب 81+ 87+ 102+ 109+ إلخ.
+956$AgeGroups.ExportDefinitions$Export Definitions$تصدير التعريفات
+957$About.Bugs_Title$Reporting Problems$الإبلاغ عن المشاكل
+958$About.Bugs$Please report issues on <a href="https://github.com/jflamy/owlcms4/issues">this page</a> or by e-mail at <a href="mailto:owlcms-bugs@jflamy.dev">owlcms-bugs@jflamy.dev</a>$يُرجى الإبلاغ عن المشاكل في <a href="https://github.com/jflamy/owlcms4/issues">هذه الصفحة</a> أو بالبريد الإلكتروني على <a href="mailto:owlcms-bugs@jflamy.dev">owlcms-bugs@jflamy.dev</a>
+959$About.Community_Title$Community Forum$منتدى المجتمع
+960$About.Community$You can ask questions on the <a href="https://groups.google.com/g/owlcms">owlcms community forum</a>$يمكنك طرح الأسئلة في <a href="https://groups.google.com/g/owlcms">منتدى مجتمع owlcms</a>
+961$Ranking.BW_SINCLAIR$Sinclair$Sinclair
+962$Ranking.SMM$SM(H)F$SM(H)F
+963$Ranking.ROBI$Robi$Robi
+964$Ranking.QPOINTS$Q-points$Q-points
+965$Results.Qpoints$Q-points$Q-points
+966$Ranking.GAMX$GAMX$GAMX
+967$Ranking.CUSTOM$Custom$مخصص
+968$Ranking.CAT_SINCLAIR$Category Sinclair$فئة Sinclair
+969$Ranking.TOTAL$Total$المجموع
+970$Scoreboard.TopScore$Top {0}$أفضل {0}
+971$Scoreboard.TopScoreMen$Top {0} &ndash; Men$أفضل {0} &ndash; رجال
+972$Scoreboard.TopScoreWomen$Top {0} &ndash; Women$أفضل {0} &ndash; نساء
+973$Scoreboard.TopTeamsScore$Top Team {0}$أفضل فريق {0}
+974$Scoreboard.TopTeamsScoreMen$Top Team {0} &ndash; Men$أفضل فريق {0} &ndash; رجال
+975$Scoreboard.TopTeamsScoreWomen$Top Team {0} &ndash; Women$أفضل فريق {0} &ndash; نساء
+976$Config.DownloadLocalDirZipLabel$Backup the laptop local override directory (7z zip format)$نسخ احتياطي لمجلد التجاوز المحلي للحاسوب المحمول (تنسيق 7z zip)
+977$Config.TemplateSelection$Selection of the Available Excel Templates$اختيار قوالب Excel المتاحة
+978$LocalOverride.Title$Restore the laptop local override directory$استعادة مجلد التجاوز المحلي للحاسوب المحمول
+979$LocalOverride.DirUploadButton$Load Zip File...$تحميل ملف Zip...
+980$LocalOverride.DirUploadDropZone$Drop Zip File Here...$اسحب ملف Zip هنا...
+981$Config.DownloadLabel$Retrieve the override zip from database$استرداد ملف zip للتجاوز من قاعدة البيانات
+982$Config.UploadLabel$Load a local override zip to the database$تحميل ملف zip للتجاوز المحلي إلى قاعدة البيانات
+983$Competition.startNumbersByAgeGroup$Display categories ordered by age group$عرض الفئات مرتبة حسب الفئة العمرية
+984$Preparation.Check-in$Check-in Sheet$ورقة تسجيل الحضور
+985$Announcer.JuryDecisionTitle$Jury Decision$قرار لجنة التحكيم
+986$Announcer.JuryDecisionExplanation$Please announce the decision and the reason.<br/> Then use the button below to update the system according to the decision and resume the competition.$يرجى الإعلان عن القرار والسبب.<br/> ثم استخدم الزر أدناه لتحديث النظام وفقاً للقرار واستئناف المنافسة.
+987$Announcer.PerformJuryDecision$Display the decision and update system$عرض القرار وتحديث النظام
+988$Announcer.IgnoreJuryDecision$Ignore and Resume$تجاهل واستئناف
+989$Competition.announcerControlledJury$Announcer controls the display of jury decisions$المذيع يتحكم في عرض قرارات لجنة التحكيم
+990$AgeGroups.Predefined$Predefined Age Group Definitions$تعريفات مجموعة العمر المحددة مسبقًا
+991$AgeGroups.LoadPredefined$Load Predefined Definition$تحميل التعريفات المحددة مسبقًا
+992$AgeGroups.Custom$Custom Age Group Definitions$تعريفات مجموعة العمر المخصصة
+993$AgeGroups.UploadCustom$Upload Custom Age Group Definitions$رفع تعريفات مجموعة العمر المخصصة
+994$AgeGroups.Reassign$Athlete Eligibility$أهلية الرياضي
+995$AgeGroups.WarningWillReplaceAll$Beware! This will reassign each athlete's category based on the active age groups.<ul><li>You should double-check category participations after reassignment</li><li>Team memberships will be reset and need to be reviewed.</li></ul>$تحذير! سيؤدي هذا إلى إعادة تعيين فئة كل رياضي بناءً على مجموعات العمر النشطة.<ul><li>يجب عليك التحقق من مشاركات الفئات بعد إعادة التعيين</li><li>ستتم إعادة تعيين عضويات الفريق ويجب مراجعتها.</li></ul>
+996$Registration.UnknownColumnHeader$Unknown Column Header$عنوان عمود غير معروف
+997$Jury.JurySheet$Jury Sheet$ورقة لجنة التحكيم
+998$Jury.JuryMember$Jury Member$عضو لجنة التحكيم
+999$Jury.Signature$Signature$توقيع
+1000$Jury.Level$Level$المستوى
+1001$Jury.Score$Computed Scores$الدرجات المحسوبة
+1002$Jury.A$A - Number of attempts$أ - عدد المحاولات
+1003$Jury.B$B - Incomplete Attempts$ب - محاولات غير مكتملة
+1004$Jury.C$C - Assessed Lifts (A-B)$ج - الرفعات المقدرة (أ-ب)
+1005$Jury.D$D - Errors Made$د - الأخطاء المرتكبة
+1006$Jury.E$E - Correct Decisions (C-D)$هـ - القرارات الصحيحة (ج - د)
+1007$Jury.F$F - Score (E / C)$و - النتيجة (هـ / ج)
+1008$Config.VideoDataTitle$URL for Video Data$عنوان URL لبيانات الفيديو
+1009$Config.videoDataURL$URL that will receive structured JSON data$عنوان URL الذي سيتلقى بيانات JSON المنظمة
+1010$Config.videoStylesLabel$Styles for video streaming ("nogrid" by default, use "transparent" if using a green color filter)$أنماط لبث الفيديو ("بدون شبكة" بشكل افتراضي ، استخدم "شفاف" إذا كنت تستخدم فلتر لون أخضر)
+1011$WeighIn.Batch$Quick Mode$وضع سريع
+1012$WeighIn.UpdateAndNext$Update and Next$تحديث وانتقل إلى التالي
+1013$Championship$Championship$بطولة
+1014$Championship.U$By Age Group$حسب الفئة العمرية
+1015$Championship.DEFAULT$Open$مفتوح
+1016$Championship.IWF$IWF$ورقة لجنة التحكيم
+1017$Championship.MASTERS$Masters$عضو لجنة التحكيم
+1018$BreakButton.cannotInterruptBreak$Only the announcer or timekeeper can interrupt or modify a break.$توقيع
+1019$Jury.AnnouncerWillAnnounce$Announcer has been notified of the decision.$صفحة {0} من {1}
+1020$CategoryRequired$A Category must be selected.$تمت بواسطة
+1021$Weight_under_X$Weight should be between 0 and {0}kg$جدول الميداليات
+1022$SnatchWithdrawalNotification${0} WITHDRAWING from SNATCH$انسحاب
+1023$FullWithdrawalNotification${0} WITHDRAWING from COMPETITION$انسحاب
+1024$Results.dateTime${0} {1}$نتائج.التاريخ والوقت
+1025$Results.pageOf$Page {0} of {1}$صفحة {0} من {1}
+1026$Results.producedBy${0} {1}$تمت بواسطة
+1027$Results.MedalSchedule$Medal Schedule$جدول الميداليات
+1028$Results.MedalsThatCanBeAwarded$Medals that can be awarded at end$الميداليات التي يمكن منحها في النهاية
+1029$Results.sessionStart$Session Start$بداية الجلسة
+1030$Jury.incorrect.Title$IWF Jury Reversal Codes$رموز عكس قرار لجنة التحكيم IWF
+1031$Jury.incorrect.1$Bending and extending of the arms$ثني ومد الذراعين
+1032$Jury.incorrect.2$Press out$إنهاء "بقوة"
+1033$Jury.incorrect.3$Touched the barbell with the foot$لمس الباربل بالقدم
+1034$Jury.incorrect.4$Time lapsed$الوقت المنقضي
+1035$Jury.incorrect.5$Incomplete attempt$محاولة غير مكتملة
+1036$Jury.incorrect.6$Touched platform with the buttocks$لمس المنصة بالأرداف
+1037$Jury.incorrect.7$Elbow touch$لمس الكوع
+1038$Jury.incorrect.8$Double clean movement$حركة تنظيف مزدوجة
+1039$Jury.incorrect.9$Made effort to jerk but did not complete$بذل جهدًا لرفع الوزن لكن لم يكتمل
+1040$Jury.incorrect.10$Deliberate oscillation$تأرجح متعمد (فخ)
+1041$Jury.incorrect.11$Failed to fully extend the knees$الفشل في مد الركبتين بالكامل
+1042$Jury.incorrect.12$Failed to bring the feet in line$الفشل في محاذاة القدمين
+1043$Jury.incorrect.13$Touching outside the platform$اللمس خارج المنصة
+1044$Jury.incorrect.14$Dropped barbell from above the shoulders$إنزال الباربل من فوق مستوى الأكتاف
+1045$Jury.incorrect.15$Did not replace barbell on platform$لم يتم استبدال الباربل على المنصة
+1046$Jury.incorrect.16$Not motionless between clean and jerk$لم يكن ثابتًا بين الرفعة النظيفة والرفعة القذفية
+1047$Jury.incorrect.17$Other$آخر
+1048$CategoryChange_CategoryMustBeEligible$No eligible category has been selected.$لم يتم اختيار أي فئة مؤهلة.
+1049$TooManyAthletes$Too many athletes. Maximum {0} for this report$عدد كبير جدًا من الرياضيين. الحد الأقصى {0} لهذا التقرير
+1050$FullNameFormat${0}, {1}$
+1051$AbbreviatedNameFormat${0}, {1}$
+1052$PreviousAthleteOnJuryScoreboard$\u2B24 {0}$الرياضي السابق في لوحة نتائج لجنة التحكيم
+1053$ChangeOfAthlete$Change of Athlete: {0}$تغيير الرياضي: {0}
+1054$DisplayParameters.showDecisionLights$Show Live Decision Lights$عرض أضواء القرار المباشرة
+1055$DisplayParameters.centerNotifications$Show notifications in center of screen$عرض الإشعارات في وسط الشاشة
+1056$DisplayParameters.showDeclarationNotifications$Show notification for declarations$عرض الإشعار بالإعلانات
+1057$PublicResults.sessionExpiredTitle$Inactivity Delay Exceeded$تأخير الخمول تجاوز
+1058$PublicResults.sessionExpiredText$This page has been inactive for too long.  You can reload the page by using the button below.$لقد كانت هذه الصفحة غير نشطة لفترة طويلة جدًا. يمكنك إعادة تحميل الصفحة باستخدام الزر أدناه.
+1059$PublicResults.sessionExpiredLabel$Reload {0}$إعادة تحميل {0}
+1060$Registration.IllegalInteger$Illegal value: {0}  (Number Expected)$قيمة غير قانونية: {0} (رقم متوقع)
+1061$Registration.IllegalGender$Illegal value: {0}  (M or F expected)$قيمة غير قانونية: {0} (م أو ف متوقع)
+1062$DisplayParameters.startOrder$Order by start number$ترتيب حسب رقم البدء
+1063$Ranking.AGEFACTORS$Q-youth: age-adjusted totals$Q-youth: المجموعات المعدلة حسب العمر
+1064$CompetitionBook.MXT$Men's Team Scores$نتائج فرق الرجال
+1065$CompetitionBook.WXT$Women's Team Scores$نتائج فرق النساء
+1066$CompetitionBook.MWXT$Men's+Women's Team Scores$نتائج فرق الرجال والنساء
+1067$Ranking.QAGE$Q-masters: age-adjusted Q-points$Q-masters: نقاط Q المعدلة حسب العمر
+1068$CompetitionBook.MX$Men's - Score$نتيجة الرجال
+1069$CompetitionBook.WX$Women's - Score$نتيجة النساء
+1070$CompetitionBook.MB$Men's - Best Athlete$أفضل رياضي - رجال
+1071$CompetitionBook.WB$Women's - Best Athlete$أفضل رياضية - نساء
+1072$Results.Extra/Invited$ext.$إضافي/مدعو
+1073$Attempt.Extra/Invited${0} (ext.)${0} (إضافي)
+1074$Scoreboard.Extra/Invited${0}$إضافي
+1075$START_LIST$Start List$قائمة البداية
+1076$SCHEDULE$Schedule$الجدول الزمني
+1077$OFFICIALS$Officials$المسؤولون
+1078$JURY$Jury$لجنة التحكيم
+1079$CHECKIN$Check-in Sheet$ورقة تسجيل الحضور
+1080$EMPTY_PROTOCOL$Empty Protocol$بروتوكول فارغ
+1081$CARDS$Athlete Cards$بطاقات الرياضي
+1082$WEIGHIN$Weigh-In Form$استمارة الوزن
+1083$INTRODUCTION$Introduction Sheet$ورقة المقدمة
+1084$BY_BODYWEIGHT$Bodyweight Categories$فئات الوزن
+1085$BY_TEAM$Teams$الفرق
+1086$BY_CATEGORY$Categories$الفئات
+1087$PRE_WEIGHIN$Before Weigh-in Documents $وثائق ما قبل الوزن
+1088$POST_WEIGHIN$After Weigh-in Documents $وثائق ما بعد الوزن
+1089$Documents.Title$Documents$المستندات
+1090$Documents.Competition$Competition$المنافسة
+1091$Documents.PreWeighIn$Before Weigh-in$قبل الوزن
+1092$Documents.PostWeighIn$After Weigh-in$بعد الوزن
+1093$Documents.Kits$Document Set$مجموعة الوثائق
+1094$Documents.SelectTemplates$Select templates$اختر القوالب
+1095$Documents.ProcessingZip$Creating Zip File...$إنشاء ملف Zip ...
+1096$Documents.ProcessingExcel$Creating Excel File...$إنشاء ملف Excel ...
+1097$Documents.NoSession$At least one session must be selected$يجب اختيار جلسة واحدة على الأقل
+1098$Documents.TemplateSelection$Template Selection$اختيار القالب
+1099$Documents.IgnoreNoTemplate$Items with no template will be ignored when producing a document set.$سيتم تجاهل العناصر التي لا تحتوي على قالب عند إنتاج مجموعة من الوثائق.
+1100$Documents.Registration$Entries$التسجيلات
+1101$Documents.StartBook$Pre-Competition$قبل المنافسة
+1102$Documents.NoTemplate$Please select the desired document template.$يرجى اختيار قالب الوثيقة المطلوب.
+1103$Sessions.EditDetails$Edit Details$تحرير التفاصيل
+1104$Card.20kg_20percent$20kg Rule$قاعدة 20 كجم
+1105$Card.RequiredCJ$Required C&J$الرفعة القذفية المطلوبة
+1106$Documents.Registration$Registrations$التسجيلات
+1107$Documents.TooManyAthletes$Too many athletes for a single Excel. Please select sessions below.$عدد كبير جدًا من الرياضيين لملف Excel واحد. يرجى اختيار الجلسات أدناه.
+1108$Range.LowerUpper${0} – {1}$
+1109$ImportSessions.PageTitle$#REF!$استيراد من موقع غير متصل
+1110$ImportSessions.UploadDatabaseExport$#REF!$تحميل بيانات تم تصديرها من موقع غير متصل
+1111$ImportSessions.WarningWillReplaceAll$Extreme caution! Make sure you only choose the session that took place on the external site$حذر شديد! تأكد من أنك تختار فقط الجلسة التي حدثت على الموقع الخارجي
+1112$ImportSessions.Explanation$Load lifting data exported from an external site$تحميل بيانات الرفع المصدرة من موقع خارجي
+1113$CompetitionBook.MQAGE$Men's Q-masters$Q-masters للرجال
+1114$CompetitionBook.WQAGE$Women's Q-masters$Q-masters للنساء
+1115$Athletes$Athletes$الرياضيون
+1116$Competition.pointScoresTitle$Overall Best Athlete Scoring System$نظام تسجيل النقاط لأفضل رياضي
+1117$Competition.scoringSystemTitle$Overall Best Athlete Scoring System Selected$نظام تسجيل النقاط العالمي لأفضل رياضي تم اختياره
+1118$Competition.showScoresOnScoreboard$Show Overall Score on Scoreboard$عرض النتيجة العامة على لوحة النتائج
+1119$Competition.showScoreRanksOnScoreboard$Show Overall Rank on Scoreboard$عرض الترتيب العام على لوحة النتائج
+1120$Competition.SinclairMeet$Medals according to Overall Best Athlete Score$الميداليات وفقًا للنقاط العامة لأفضل رياضي
+1121$Competition.SinclairMeetExplanation$No body weight divisions for medals. Medals are given according to the overall scoring system (Sinclair, Robi, Q-Points, etc.). $لا توجد تقسيمات لوزن الجسم للميداليات. تُمنح الميداليات وفقًا لنظام النقاط العام (Sinclair، Robi، Q-Points، إلخ).
+1122$Ranking.AGEFACTORS$Q-youth$Q-youth
+1123$Results.AGEFACTORS$Q-youth$Q-youth
+1124$Ranking.QAGE$Q-masters$Q-masters
+1125$Results.QAGE$Q-masters$Q-masters
+1126$Ranking.BW_SINCLAIR$Sinclair$Sinclair
+1127$Ranking.SMM$SM(H)F$SM(H)F
+1128$Ranking.ROBI$Robi$Robi
+1129$Ranking.QPOINTS$Q-points$Q-points
+1130$Ranking.GAMX$GAMX$GAMX
+1131$Ranking.CUSTOM$Custom$مخصص
+1132$Ranking.CAT_SINCLAIR$Category Sinclair$فئة Sinclair
+1133$RankingExplanation.AGEFACTORS$Q-Youth: totals adjusted for age and body weight (U9 - U20)$Q-Youth: المجموعات المعدلة حسب العمر والوزن
+1134$RankingExplanation.QAGE$Q-Masters: totals adjusted for age and body weight$Q-Masters: المجموعات المعدلة حسب العمر والوزن
+1135$RankingExplanation.BW_SINCLAIR$Sinclair$Sinclair
+1136$RankingExplanation.SMM$SM(H)F$SM(H)F
+1137$RankingExplanation.ROBI$Robi$Robi
+1138$RankingExplanation.QPOINTS$Q-points: totals adjusted for body weight$Q-points: المجموعات المعدلة حسب وزن الجسم
+1139$RankingExplanation.GAMX$GAMX$GAMX
+1140$RankingExplanation.CUSTOM$Custom$مخصص
+1141$RankingExplanation.CAT_SINCLAIR$Category Sinclair: Sinclair at category weight$فئة Sinclair: Sinclair عند وزن الفئة
+1142$Ranking.BestAthlete$#REF!$النتيجة لأفضل رياضي
+1143$NoCollarsUnder$#REF!$لا يُسمح باستخدام الأساور إذا كان الوزن المطلوب أقل من
+1144$EditChampionships.Title$#REF!$تحرير البطولات
+1145$MedalScoringSystem$#REF!$هل ستُمنح الميداليات بناءً على النقاط؟
+1146$CodeIncludesGender$#REF!$الكود يحتوي على الجنس
+1147$ExportCurrentRecords$#REF!$تصدير السجلات الحالية
+1148$CategoryAssignment.Title$BEWARE!$تحذير!
+1149$CategoryAssignment.Warning$There are athletes already assigned to the existing categories in this age group. If you confirm the age group changes, these existing categories will be removed. You will need to review the athletes in this age group and reassign the categories.$تحذير! هناك رياضيون معينون بالفعل في الفئات الحالية في هذه الفئة العمرية. إذا كنت تؤكد تغييرات الفئة العمرية ، فسيتم إزالة هذه الفئات الحالية. ستحتاج إلى مراجعة الرياضيين في هذه الفئة العمرية وإعادة تعيين الفئات.
+1150$ManageOwlcms.Title$#REF!$إدارة برنامج owlcms
+1151$ManageOwlcms.Warning$#REF!$استخدم بحذر شديد: هذه الميزات تؤثر على جميع مستخدمي النظام.
+1152$ManageOwlcms.Restart$#REF!$إعادة تشغيل البرنامج
+1153$ManageOwlcms.RestartWarning$#REF!$إعادة تشغيل البرنامج سيسبب انقطاعاً لعدة ثوان. جميع وحدات التحكم والشاشات ستُعاد تحميلها بعد البدء.
+1154$ManageOwlcms.Stop$#REF!$إيقاف البرنامج كلياً
+1155$ManageOwlcms.StopWarning$#REF!$الإغلاق سيُغلق البرنامج. ستحتاج لبدئه يدوياً.<br>جميع وحدات التحكم والشاشات ستُعاد تحميلها بعد البدء.
+1156$Records.Federation$Federation$اتحاد
+1157$Records.RecordName$Record Name$اسم السجل
+1158$Records.AgeGroup$Age Group$مجموعة عمرية
+1159$Records.M/F$Gender$جنس
+1160$Records.ageLow$Lower Age$أدنى عمر
+1161$Records.ageUpper$Top Age$أقصى عمر
+1162$Records.bwLow$Lower BodyWeight$أدنى وزن جسم
+1163$Records.bwUpper$Top Bodyweight$أقصى وزن جسم
+1164$Records.Lift$Modality$نوع الرفع
+1165$Records.Record$Record Weight$وزن السجل
+1166$Records.Name$Athlete$رياضي
+1167$Records.Born$Birth Date$تاريخ الميلاد
+1168$Records.Nation$Nation/Team$دولة/فريق
+1169$Records.Date$Date$تاريخ
+1170$Records.Place$Location$مكان
+1171$Records.Group$Record Session$جلسة السجل
+1172$Records.Event$Event$حدث
+1173$Records.exportCurrentRecordsLabel$Export Current Records$تصدير السجلات الحالية
+1174$Records.exportCurrentRecordsTitle$Export Current Records$تصدير السجلات الحالية
+1175$Config.v55_videoStylesLabel$Styles for video streaming ("transparent" by default, use "nogrid" to have the same scoreboards as on-site)$أنماط بث الفيديو ("transparent" افتراضياً، استخدم "nogrid" للحصول على نفس لوحات النتائج كما في الموقع)
+1176$CJ_BreakDuration$Time before Clean & Jerk$الوقت قبل النتر
+1177$CJ_BreakDurationPlaceHolder$Enter the duration in minutes (leave empty for the default rules)$أدخل المدة بالدقائق (اتركه فارغاً للقواعد الافتراضية)
+1178$CheckVersion.ControlPanelUpdate$#REF!$استخدم لوحة التحكم للتحديث.
+1179$Settings.ImmediateDecision$Do not show the down signal when announcer enters decision$لا تُظهر إشارة النزول عندما يدخل المذيع القرار
+1180$Settings.SingleReferee$Single Referee$حكم فردي
+1181$URL.missingProtocol$URL must start with https:// or http://$يجب أن تبدأ URL بـ https:// أو http://
+1182$Competition.masters20kg$Use 20kg rule for Masters instead of 80%$استخدم قاعدة 20 كجم للماسترز بدلاً من 80%
+1183$Competition.Invited/Extra$Extra/Invited$إضافي/مدعو
+1184$ColorSelection$Background Color Selection$اختيار لون الخلفية
+1185$ColorSelection.Intro$This section controls the background color used when streaming, for the scoreboard heading and for the attempt board$هذا القسم يتحكم في لون الخلفية المستخدم عند البث، لعنوان لوحة النتائج ولوحة المحاولة
+1186$ColorSelection.EnabledLabel$Override the default$تجاوز الافتراضي
+1187$ColorSelection.EnabledHelperText$If selected, the color picked at the right will be used instead of the default CSS style sheet$إذا تم تحديده، سيتم استخدام اللون المختار على اليمين بدلاً من ورقة أنماط CSS الافتراضية
+1188$ColorSelection.Label$Color Picker$منتقي الألوان
+1189$ColorSelection.Helper$Click on the colored box to pick a color, or use the dropdown to select a preset. You may also type an HTML color in the #ffffff format.$انقر على المربع الملون لاختيار لون، أو استخدم القائمة المنسدلة لاختيار إعداد مسبق. يمكنك أيضاً كتابة لون HTML بتنسيق #ffffff.
+1190$VideoStreaming.Intro$The displays on this page are used for video streaming.  A transparent background is used on the scoreboards.$الشاشات في هذه الصفحة تُستخدم لبث الفيديو. يتم استخدام خلفية شفافة على لوحات النتائج.
+1191$TechnicalOfficial$Technical Official$مسؤول تقني
+1192$TechnicalOfficials$Technical Officials$مسؤولون تقنيون
+1193$TechnicalOfficial.LastName$Last Name$اسم العائلة
+1194$TechnicalOfficial.FirstName$First Name$الاسم الأول
+1195$TechnicalOfficial.Level$Level$مستوى
+1196$TechnicalOfficial.Federation$Federation$اتحاد
+1197$TechnicalOfficial.FederationId$Federation Membership Id$رقم عضوية الاتحاد
+1198$TechnicalOfficial.IWFId$IWF Card Number$اختبار IWF 2
+1199$TechnicalOfficials.ImportExport$Import/Export$IWF 2
+1200$TechnicalOfficials.Upload$Import$اختبار IWF 1
+1201$TechnicalOfficials.Export$Export$IWF 1
+1202$TechnicalOfficials.AssignmentReports$Assignment Reports$قواعد الجلسات العادية (غير الماسترز)
+1203$TechnicalOfficials.ExportAssignmentReports$Download Assignment Report$قواعد جلسات الماسترز
+1204$DropZone$#REF!$تطبيق قواعد IMWA (80%، نقاط الفريق)
+1205$SelectFile$#REF!$IMWA
+1206$Competition.EndDate$Competition End Date$منافسة الماسترز
+1207$Competition.LeaveEmpty$Leave empty if same as Start Date$الجلسات تتبع قواعد الماسترز افتراضياً
+1208$TOLevel.LocalCandidate$Regional Examination$المجموعات العمرية الأكبر سناً يتم وزنها مبكراً وتحصل على أرقام بداية أصغر.
+1209$TOLevel.Local$Regional$فائزو الفئات فقط
+1210$TOLevel.NationalCandidate$National Examination$مختلط
+1211$TOLevel.National$National$أفضل الفرق - مختلط
+1212$TOLevel.IWF2Candidate$IWF 2 Examination$اختيار الأجناس
+1213$TOLevel.IWF2$IWF 2$انتماء
+1214$TOLevel.IWF1Candidate$IWF 1 Examination$خيارات الرياضي
+1215$TOLevel.IWF1$IWF 1$يُنصح بشدة بتصدير قاعدة البيانات الحالية كنسخة احتياطية قبل تنفيذ التحديث.
+1216$Competition.nonMastersRulesTitle$Rules for the regular (non-masters) sessions$تجاهل الرياضيين، معالجة الجلسات فقط
+1217$Competition.mastersRulesTitle$Rules for Masters Sessions$حذف جميع الرياضيين قبل المعالجة
+1218$Competition.IMWARules$Apply IMWA Rules (80%, Team Points)$تحديث الرياضيين الحاليين (الاحتفاظ بالإعلانات، التغييرات، الرفع) وإضافة رياضيين جدد
+1219$Competition.IMWA$IMWA$إضافة رياضيين فقط، عدم لمس الرياضيين الحاليين
+1220$Competition.mastersCompetition$Masters Competition$خيارات الجلسة
+1221$Competition.mastersCompetitionCheckbox$Sessions follow Masters rules by default$تجاهل الجلسات، معالجة الرياضيين فقط
+1222$Competition.mastersCompetitionHelper$Oldest age groups are weighed-in earlier and get smaller start numbers.$تحديث الجلسات الحالية، إضافة جديدة
+1223$Results.WinnersOnly$Category Winners Only${0,choice,1#محاولة تسجيل|1<محاولات تسجيل}
+1224$Gender.Mixed$Mixed${0,choice,1#سجل جديد|1<سجلات جديدة}
+1225$Scoreboard.TopTeamsMixed$Top Teams - Mixed$مسح فئات الأهلية الإضافية
+1226$Scoreboard.SelectGenders$Select Genders$هذا سيمسح المشاركة في فئات أخرى غير فئة التسجيل
+1227$TechnicalOfficial.Affiliation$Affiliation${0}: حالياً {1}\u00A0كجم
+1228$SBDE.AthleteOptions$Athlete Options${0}: سابقاً {1}\u00A0كجم
+1229$SBDE.AthleteOptions_WARNING$It is strongly suggested to export the current database as a backup before executing the update.${0} – {1} كجم : {2}
+1230$SBDE.AthleteOptions_IGNORE_ATHLETES$Ignore athletes, only process the sessions$تجاهل الرياضيين، معالجة الجلسات فقط
+1231$SBDE.AthleteOptions_DELETE_ATHLETES$Delete all athletes before processing$حذف جميع الرياضيين قبل المعالجة
+1232$SBDE.AthleteOptions_UPDATE_ADD_ATHLETES$Update existing athletes (keep declarations, changes, lifts) and add new athletes$تحديث الرياضيين الحاليين (الاحتفاظ بالإعلانات، التغييرات، الرفع) وإضافة رياضيين جدد
+1233$SBDE.AthleteOptions_ADD_ATHLETES$Only add athletes, don't touch the existing athletes$إضافة رياضيين فقط، عدم لمس الرياضيين الحاليين
+1234$SBDE.SessionOptions$Session Options$خيارات الجلسة
+1235$SBDE.SessionOptions_IGNORE_SESSIONS$Ignore sessions, only process the athletes$تجاهل الجلسات، معالجة الرياضيين فقط
+1236$SBDE.SessionOptions_UPDATE_ADD_SESSIONS$Update existing sessions, add new ones$تحديث الجلسات الحالية، إضافة جديدة
+1237$Scoreboard.RecordAttempt(s)${0,choice,1#Record Attempt|1<Record Attempts}${0,choice,1#محاولة تسجيل|1<محاولات تسجيل}
+1238$Scoreboard.NewRecord(s)${0,choice,1#New Record|1<New Records}${0,choice,1#سجل جديد|1<سجلات جديدة}
+1239$ResetCategories.ClearEligibles$Clear Additional Eligibility Categories$مسح فئات الأهلية الإضافية
+1240$ResetCategories.Warning_ClearEligibles$This will clear participation in categories other than the registration category$هذا سيمسح المشاركة في فئات أخرى غير فئة التسجيل
+1241$RecordNotification.Attempt${0}: currently {1}\u00A0kg${0}: حالياً {1}\u00A0كجم
+1242$RecordNotification.New${0}: previously {1}\u00A0kg${0}: سابقاً {1}\u00A0كجم
+1243$RecordNotification.Title${0} – {1} kg : {2}${0} – {1} كجم : {2}
+1244$ImportJson.RestartWarning$BEWARE: This replaces the content of the database. It may also be necessary to restart the system.$تحذير: هذا يستبدل محتوى قاعدة البيانات. قد يكون من الضروري أيضًا إعادة تشغيل النظام.
+1245$Import.Success$Import was successful$نجح الاستيراد
+1246$Import.Warning$<ul><li>You should now restart the system.<li>This will ensure that all settings in the database are correctly applied<li>This is very important if you want to run the competition or run a simulation.</ul>$<ul><li>يجب عليك الآن إعادة تشغيل النظام.<li>هذا سيضمن تطبيق جميع إعدادات قاعدة البيانات بشكل صحيح<li>هذا مهم جداً إذا كنت تريد تشغيل المنافسة أو تشغيل محاكاة.</ul>
+1247$Import.ControlPanelRestart$<b>Go to the Control Panel application, stop the system and start it again</b>$<b>اذهب إلى تطبيق لوحة التحكم، أوقف النظام وابدأه مرة أخرى</b>
+1248$Import.CloudRestart$<b>Go to the owlcms-cloud.fly.dev site, stop the system and start it again</b>$<b>اذهب إلى موقع owlcms-cloud.fly.dev، أوقف النظام وابدأه مرة أخرى</b>
+1249$Import.LocalRestart$<b>Stop the system and start it again</b>$<b>أوقف النظام وابدأه مرة أخرى</b>
+1250$Ranking.CAT_QPOINTS$Category Q-Points$نقاط Q للفئة
+1251$RankingExplanation.CAT_QPOINTS$Category Q-Points: Q-Points at category weight$نقاط Q للفئة: نقاط Q عند وزن الفئة
+1252$Preparation.RecomputeNewRecordsExplanation$Recompute the new records (useful after updating the record definitions)$إعادة حساب السجلات الجديدة (مفيد بعد تحديث تعريفات السجلات)
+1253$Preparation.RecomputeNewRecords$Recompute the new records$إعادة حساب السجلات الجديدة
+1254$AgeGroup.BestAthleteScoringSystem$Override the Best Athlete Scoring System$تجاوز نظام تسجيل أفضل رياضي
+1255$AgeGroup.BestAthleteScoringSystemExplanation$By default, the value set in the "Non-Standard Competition Rules" page will be used$افتراضياً، سيتم استخدام القيمة المحددة في صفحة "قواعد المنافسة غير القياسية"
+1256$Age$Age$عمر
+1257$BestAthlete$Best Athlete$أفضل رياضي
+1258$Break.MinutesBeforeCJ${0,choice,0#No break after Snatch|0<{0} minutes break after Snatch}${0,choice,0#لا استراحة بعد الخطف|0<{0} دقائق استراحة بعد الخطف}
+1259$CenterReferee$Center Referee$الحكم المركزي
+1260$AwardMedals$Award medals?$منح ميداليات؟
+1261$STOP$STOP$
+1262$$$
+1263$GoogleTranslateEN$Text translated from column B$
+1264$GoogleTranslateFR$#REF!$
+1265$GoogleTranslateES$#REF!$

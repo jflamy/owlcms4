@@ -295,6 +295,7 @@ public class Translator implements I18NProvider {
 						Files.createFile(outfile);
 						outFiles[i] = outfile;
 						languageProperties[i] = new Properties();
+						nbLanguages = i;
 					}
 
 					// reading to properties
