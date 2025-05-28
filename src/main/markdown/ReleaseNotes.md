@@ -14,10 +14,11 @@
 
 **New in Release 58**
 
-- Age Groups: the age groups now follow the IWF categories.  
-  - To enable in an existing database, load the AgeGroups file from the Age Group preparation button.  
-  - To load a new owlcms from scratch with a new database with the new Age Groups, use the "Click here to install additional version" at the bottom of the control panel instead of doing an update.
-
+- Age Groups: the age groups now follow the June 2025 IWF categories by default.
+  - To update an existing database, load the AgeGroups_2025-06 file from the Age Group preparation button.  
+  - For new databases, the default will now be AgeGroups_2025-06.
+  - To create a new owlcms from scratch with a new database with the new Age Groups, use the "Click here to install additional version" at the bottom of the control panel instead of doing an update.
+  
 - Translations
   - New translation: Norwegian (norsk)
   - Support for Right-to-Left languages.
