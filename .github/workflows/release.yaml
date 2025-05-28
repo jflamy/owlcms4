@@ -1,6 +1,5 @@
 name: owlcms
 
-
 on:
   workflow_dispatch:
     inputs:
@@ -11,7 +10,7 @@ on:
 # - pull in translations and proofread
 # - run AllTests locally
 # - Release Notes
-        default: '58.0.0-rc02'
+        default: '58.0.0'
 
 env:
   REPO_OWNER: owlcms
