@@ -353,6 +353,8 @@ public class Translator implements I18NProvider {
 						}
 					}
 				}
+				
+				//LocaleNameSorter.sortLocales(locales);
 
 			}
 
