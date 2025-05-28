@@ -12,6 +12,10 @@
 
 <br>
 
+**Maintenance log**
+
+- 58.0.1 : Fix for Women Team Points calculation for the IMWA final package
+
 **New in Release 58**
 
 - Age Groups: the age groups now follow the June 2025 IWF categories by default.
