@@ -449,6 +449,10 @@ table {
         var(--sinclairRankWidth);
 }
 
+:host([lang="he"]) table.results,
+:host-context(html[lang="he"]) table.results {
+    --totalWidth: 8ch;
+}
 
 thead,
 tbody,

@@ -15,6 +15,7 @@
 **Maintenance log**
 
 - 58.0.1 : Fix for Women Team Points calculation for the IMWA final package
+- 58.0.1:  Fix for language-specific column widths on scoreboards.
 
 **New in Release 58**
 
