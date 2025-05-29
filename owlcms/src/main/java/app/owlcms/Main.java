@@ -39,6 +39,7 @@ import app.owlcms.data.jpa.BenchmarkData;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
+import app.owlcms.data.jpa.UtcNormalizationMigration;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordDefinitionReader;
 import app.owlcms.i18n.Translator;
@@ -132,6 +133,12 @@ public class Main {
 		}
 		// check for database override of resource files
 		Config.initConfig();
+
+		// Run UTC normalization migration after JPAService and Config are initialized
+		JPAService.runInTransaction(em -> {
+			UtcNormalizationMigration.normalizeAllToUtc(em);
+			return null;
+		});
 	}
 
 	/**

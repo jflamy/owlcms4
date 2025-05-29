@@ -149,6 +149,11 @@ public class Config {
 	private IConfig mqttConfig;
 	private String videoColorOverrides;
 	private Boolean enableColorOverrides;
+	/**
+	 * Indicates if LocalDateTime fields have been normalized to UTC timestamps
+	 */
+	@Column(columnDefinition = "boolean default false")
+	private boolean localDateTimeUtcNormalized = false;
 
 	public String computeSalt() {
 		this.setSalt(null);
@@ -1011,6 +1016,14 @@ public class Config {
 
 	public void setEnableColorOverrides(Boolean enableColorOverrides) {
 		this.enableColorOverrides = enableColorOverrides;
+	}
+
+	public boolean isLocalDateTimeUtcNormalized() {
+		return localDateTimeUtcNormalized;
+	}
+
+	public void setLocalDateTimeUtcNormalized(boolean normalized) {
+		this.localDateTimeUtcNormalized = normalized;
 	}
 
 }
