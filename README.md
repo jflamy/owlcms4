@@ -8,7 +8,9 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 
 ### Features, Downloads and Installation
 
-- Please refer to the [Documentation](https://owlcms.github.io/owlcms4-prerelease/#)
+- [Installation instructions for laptops](https://owlcms.github.io/owlcms4/#/LocalDownloads) A control panel program is used to install, update and run the system.
+- [Cloud Installation Instructions](https://owlcms.github.io/owlcms4/#/Fly) A web site is used to install the program on your own cloud instance.
+- Please refer to the [Documentation](https://owlcms.github.io/owlcms4/#)
 
 
 ### Help, Issues, Feature Requests
