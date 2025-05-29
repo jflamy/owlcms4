@@ -65,6 +65,11 @@
     --flagHeight: 2.7vh;
 }
 
+:host([lang="he"]) table.results,
+:host-context(html[lang="he"]) table.results {
+    --totalWidth: 8ch;
+}
+
 .blockPositioningWrapper {
     background-color: var(--blockBackgroundColor);
     padding: 0.75em;

@@ -63,6 +63,11 @@
     --flagHeight: calc(var(--athleteNameFontSize)*1.4);
 }
 
+:host([lang="he"]) table.results,
+:host-context(html[lang="he"]) table.results {
+    --totalWidth: 8ch;
+}
+
 @media screen and (orientation: landscape) {
 	* {
 		--topRowFontSize: 2.0em;
