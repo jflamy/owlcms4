@@ -453,7 +453,7 @@ table {
         repeat(var(--nbRanks), var(--rankWidth))
         /* total */
         var(--spacerWidth)
-        repeat(1, var(--liftResultWidth))
+        var(--totalWidth)
         /* one total rank per category */
         repeat(var(--nbRanks), var(--totalRankWidth))
         /* sinclair result */
