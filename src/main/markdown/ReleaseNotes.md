@@ -14,7 +14,9 @@
 
 **Maintenance log**
 
-- 58.0.1 : Fix for Women Team Points calculation for the IMWA final package
+- 58.0.1: Fixed a time zone issue when storing dates; this could cause athlete to appear to be born
+  in the previous year when using Birth Dates Only settings.
+- 58.0.1: Fix for Women Team Points calculation for the IMWA final package
 - 58.0.1:  Fix for language-specific column widths on scoreboards.
 - 58.0.1: The nested start list templates now use the translation strings.
 
