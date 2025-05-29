@@ -12,8 +12,12 @@ import java.time.LocalDateTime;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-/**
- * The Class LocalDateTimeAttributeConverter.
+/*
+ * THIS CLASS IS BROKEN.
+ * The timestamp uses the current time zone.
+ * Should be converted to UTC then back so the local time is preserved.
+ * 
+ * Cannot be changed because of existing dates.
  */
 @Converter(autoApply = true)
 public class LocalDateTimeAttributeConverter implements AttributeConverter<LocalDateTime, Timestamp> {
