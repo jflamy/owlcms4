@@ -19,7 +19,7 @@
 ### Gallery
 
 <table>
-<tr><td><a href="http://u.osmfr.org/m/1156248/" target="_bkank"><img src='img/Gallery/Map.png'></a></td><td>Current Usage (each pin is a city where the software has reported usage last 6 months)<br/><a href="http://u.osmfr.org/m/1156248/" target="_blank">Click on image for an interactive map</a>.<br/>The owlcms competition management system is currently in use in over 80 federations.  See here for <a href="./#/Countries">a list</a></td></tr>
+<tr><td><a href="http://u.osmfr.org/m/1156248/" target="_bkank"><img src='img/Gallery/Map.png'></a></td><td>Current Usage (each pin is a city where the software has reported usage last 6 months)<br/><a href="http://u.osmfr.org/m/1156248/" target="_blank">Click on image for an interactive map</a>.<br/>The owlcms competition management system is currently in use in over 90 federations.  See here for <a href="./#/Countries">a list</a></td></tr>
 <tr><td><img src='img/Gallery/IMG_5050.jpg'></img></td><td>USA National Championships<br>1500 athletes, 9 days (U11, U13, U15, U17, U20, U23, U25, Open and Adaptive championships)</td></tr>
 <tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
 <tr><td><img src='img/Gallery/IMG_6536.jpg' size=250></img></td><td>Club meet, Montreal, Canada.<br>Supports mixed-gender kid groups.  Attempt board shows correct loading for 5kg/10kg bars and 2.5kg/5kg large plates.</td></tr>
