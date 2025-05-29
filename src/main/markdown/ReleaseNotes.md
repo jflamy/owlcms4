@@ -16,6 +16,7 @@
 
 - 58.0.1 : Fix for Women Team Points calculation for the IMWA final package
 - 58.0.1:  Fix for language-specific column widths on scoreboards.
+- 58.0.1: The nested start list templates now use the translation strings.
 
 **New in Release 58**
 
