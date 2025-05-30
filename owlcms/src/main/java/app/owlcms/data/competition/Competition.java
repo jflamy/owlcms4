@@ -203,10 +203,10 @@ public class Competition {
 	private String medalScheduleTemplateFileName;
 	private String medalsTemplateFileName;
 	/* this is really "keep best n results", backward compatibility with database exports */
-	@Column(name = "mensTeamSize", columnDefinition = "integer default 10")
+	@Column(name = "mensTeamSize", columnDefinition = "integer default 8")
 	@JsonProperty("mensTeamSize")
-	private Integer mensBestN = 10;
-	@Column(columnDefinition = "integer default 10")
+	private Integer mensBestN = 8;
+	@Column(columnDefinition = "integer default 8")
 	private Integer maxTeamSize = 10;
 	@Column(columnDefinition = "integer default 2")
 	private Integer maxPerCategory = 2;
@@ -261,9 +261,9 @@ public class Competition {
 	@Deprecated
 	private boolean useRegistrationCategory = false;
 	/* this is really "keep best n results", backward compatibility with database exports */
-	@Column(name = "womensTeamSize", columnDefinition = "integer default 10")
+	@Column(name = "womensTeamSize", columnDefinition = "integer default 8")
 	@JsonProperty("womensTeamSize")
-	private Integer womensBestN = 10;
+	private Integer womensBestN = 8;
 	@Column(columnDefinition = "boolean default false")
 	private boolean sinclairMeet;
 	@Column(columnDefinition = "integer default 3")
@@ -300,6 +300,8 @@ public class Competition {
 	private String technicalOfficialsTemplateFileName;
 	@Column(columnDefinition = "boolean default true")
 	private boolean imwa = true;
+	@Column(columnDefinition = "boolean default true")
+	private Boolean deduct250g = true;
 
 	public Competition() {
 		this.medalsByGroup = new HashMap<>();
@@ -2095,6 +2097,14 @@ public class Competition {
 		}
 //		logger.debug("allCategories {}",allCategories);
 		return allCategories;
+	}
+
+	public Boolean getDeduct250g() {
+		return this.deduct250g;
+	}
+
+	public void setDeduct250g(Boolean deduct250g) {
+		this.deduct250g = deduct250g;
 	}
 
 }

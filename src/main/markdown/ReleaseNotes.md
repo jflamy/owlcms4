@@ -12,21 +12,25 @@
 
 <br>
 
-**Maintenance log**
+**New in Release 58.1**
 
-- 58.0.1: Fixed a time zone issue when storing dates; this could cause athlete to appear to be born
+- 250g deduction:
+  - A new Competition Rules option to deduct 250g has been added (on by default, as per June 2025 TCRR)
+  - The weigh-in form now allows entering the weight as read on the scale and computes the 250g adjustment if the 250g deduction rule is enabled.
+- Default team sizes is now 8 as per June 2025 TCRR
+- Fixed a time zone issue when storing dates; this could cause athlete to appear to be born
   in the previous year when using Birth Dates Only settings.
-- 58.0.1: Fix for Women Team Points calculation for the IMWA final package
-- 58.0.1:  Fix for language-specific column widths on scoreboards.
-- 58.0.1: The nested start list templates now use the translation strings.
+- Fix for Women Team Points calculation for the IMWA final package
+- Fix for language-specific (he) column widths on scoreboards 
+- The nested start list templates now use the translation strings.
 
-**New in Release 58**
+**New in Release 58.0**
 
 - Age Groups: the age groups now follow the June 2025 IWF categories by default.
   - To update an existing database, load the AgeGroups_2025-06 file from the Age Group preparation button.  
   - For new databases, the default will now be AgeGroups_2025-06.
   - To create a new owlcms from scratch with a new database with the new Age Groups, use the "Click here to install additional version" at the bottom of the control panel instead of doing an update.
-  
+
 - Translations
   - New translation: Norwegian (norsk)
   - Support for Right-to-Left languages.
@@ -36,6 +40,7 @@
 
 - Athlete-facing Clock: A flashing stop sign is shown on the athlete-facing decision board while the competition is stopped.
 - Templates:
+  - New nested start list format (easier to read)
   - Fixed the "CompetitionResults-A4" and "CompetitionResults-LETTER" templates to default to the competition scoring system correctly, and to mark out of competition athletes correctly.
   - Fixed the SnCjTot template for Session Results to show the Technical Official roles correctly
   - New ${platforms} template variable, as well as ${platform.sessions} accessor.

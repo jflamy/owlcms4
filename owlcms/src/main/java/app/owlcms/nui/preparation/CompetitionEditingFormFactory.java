@@ -143,11 +143,11 @@ public class CompetitionEditingFormFactory
 		                federationLayout));
 		ts.add(Translator.translate("Competition.RulesTab"),
 		        new VerticalLayout(
-		                teamsLayout, separator(),
 		                generalRulesLayout, separator(),
 		                nonMastersRulesLayout, separator(),
 		                mastersRulesLayout, separator(),
-		                breakDurationLayout));
+		                breakDurationLayout, separator(),
+		                teamsLayout));
 		ts.add(Translator.translate("Competition.specialRulesTitle"),
 		        new VerticalLayout(
 		                pointScoresForm, separator(),
@@ -422,6 +422,11 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(snatchCJTotalField, Translator.translate("Competition.snatchCJTotalMedals"));
 		this.binder.forField(snatchCJTotalField)
 		        .bind(Competition::isSnatchCJTotalMedals, Competition::setSnatchCJTotalMedals);
+		
+		Checkbox deduct250gField = new Checkbox();
+		layout.addFormItem(deduct250gField, Translator.translate("Competition.isDeduct250g"));
+		this.binder.forField(deduct250gField)
+		        .bind(Competition::getDeduct250g, Competition::setDeduct250g);
 
 		Checkbox useBirthYearField = new Checkbox();
 		layout.addFormItem(useBirthYearField, Translator.translate("Competition.useBirthYear"));

@@ -338,6 +338,7 @@ public class Athlete {
 	Integer liftOrderRank = 0;
 	private Integer ageAdjustedTotalRank;
 	private Double bodyWeight = null;
+	private Double scaleWeight = null;
 	/*
 	 * eager does not hurt for us. https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa -and-hibernate/
 	 */
@@ -6084,6 +6085,14 @@ public class Athlete {
 				return getCleanJerk3LiftTime();
 		}
 		return null;
+	}
+
+	public Double getScaleWeight() {
+		return scaleWeight;
+	}
+
+	public void setScaleWeight(Double scaleWeight) {
+		this.scaleWeight = scaleWeight;
 	}
 
 }

@@ -99,6 +99,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	HasValue<?, ?> dateField = null;
 	private List<Category> allEligible;
 	private LocalizedDecimalField bodyWeightField;
+	private LocalizedDecimalField scaleWeightField;
 	private ComboBox<Category> categoryField;
 	private boolean catGenderOk;
 	private boolean changeListenersEnabled;
@@ -910,12 +911,52 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		layout.add(title);
 		layout.setColspan(title, NB_COLUMNS);
 
+		this.scaleWeightField = new LocalizedDecimalField();
+		this.scaleWeightField.getWrappedTextField().setValueChangeMode(ValueChangeMode.LAZY);
+		this.scaleWeightField.getWrappedTextField().setAllowedCharPattern("[0-9.,]");
+		BindingBuilder<Athlete, Double> bsw = this.binder.forField(this.scaleWeightField);
+		validateBodyWeight(bsw, false);
+		bindField(bsw, this.scaleWeightField, Athlete::getScaleWeight, Athlete::setScaleWeight);
+		
 		this.bodyWeightField = new LocalizedDecimalField();
+		if (Competition.getCurrent().getDeduct250g()) {
+			this.bodyWeightField.setReadOnly(true);
+			layoutAddFormItem(layout, this.scaleWeightField, Translator.translate("ScaleWeight"));
+		}
 		this.bodyWeightField.getWrappedTextField().setAllowedCharPattern("[0-9.,]");
 		BindingBuilder<Athlete, Double> bb = this.binder.forField(this.bodyWeightField);
 		validateBodyWeight(bb, false);
 		bindField(bb, this.bodyWeightField, Athlete::getBodyWeight, Athlete::setBodyWeight);
-		layoutAddFormItem(layout, this.bodyWeightField, Translator.translate("BodyWeight"));
+		layoutAddFormItem(layout, this.bodyWeightField,
+		        Competition.getCurrent().getDeduct250g()
+		                ? Translator.translate("BodyWeightWithDeduction")
+		                : Translator.translate("BodyWeight"));
+
+		this.scaleWeightField.addValueChangeListener(v -> {
+			if (v.getOldValue() != null && v.getValue() == null) {
+				this.bodyWeightField.setValue(null);
+				this.bodyWeightField.setReadOnly(false);
+			}
+			if (v.getValue() != null) {
+				if (Competition.getCurrent().getDeduct250g()) {
+					this.bodyWeightField.setValue(v.getValue() - 0.250);
+				}
+				recomputeCategories(this.genderField, this.bodyWeightField, this.categoryField.getValue(), this.eligibleField,
+				        this.dateField,
+				        this.qualifyingTotalField);
+				this.bodyWeightField.setReadOnly(true);
+			} else {
+				this.bodyWeightField.setReadOnly(false);
+			}
+		});
+
+		if (!Competition.getCurrent().getDeduct250g()) {
+			// no scale weight field shown
+			layout.add(new NativeLabel());
+		}
+		// skip to next row
+		layout.add(new NativeLabel());
+
 
 		this.snatch1DeclarationField = new LocalizedIntegerField();
 		BindingBuilder<Athlete, Integer> bb1 = this.binder.forField(this.snatch1DeclarationField);
@@ -1268,7 +1309,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				Gender gender = selectedCategory.getGender();
 				int qualifyingTotal = qualifyingTotalField2.getValue();
 				Integer ageFromFields = getAgeFromFields();
-				logger.debug("no body weight, but category available:  ageFromFields={} bw={}",ageFromFields, bw);
+				logger.debug("no body weight, but category available:  ageFromFields={} bw={}", ageFromFields, bw);
 				if (ageFromFields != null && ageFromFields > 5 && ageFromFields < 120) {
 					this.allEligible = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(), gender,
 					        ageFromFields, bw, qualifyingTotal);
@@ -1289,7 +1330,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				this.allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
 				        selectedCategory, qualifyingTotalField2);
 				updateCategoryFields(selectedCategory, null, eligibleField, qualifyingTotalField2,
-				        this.allEligible, this.allEligible, false); /*!!! was true*/
+				        this.allEligible, this.allEligible, false); /* !!! was true */
 			} else if (selectedCategory != null) {
 				// only the category, no age
 				int qualifyingTotal = qualifyingTotalField2.getValue();
@@ -1322,7 +1363,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		if (cats.isEmpty()) {
 			Integer age = editedAthlete.getAge();
 			Gender gender = editedAthlete.getGender();
-			logger.debug("age {} gender {} cats {}",age, gender, cats);
+			logger.debug("age {} gender {} cats {}", age, gender, cats);
 			if (age != null && gender != null) {
 				if (bw1 > 900) {
 					if (age <= 17) {
