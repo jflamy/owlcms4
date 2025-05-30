@@ -144,8 +144,8 @@ Refereeing devices can be configured for these situations (single referee, or an
 
 Only owlcms listens; devices do not listen to one another.
 
-- `clock/A :action`: The timekeeper has started, stopped, or reset the clock.
-  - `action` is `start`, `stop`, `60`, or `120`
+- `clock/A :action`: The timekeeper has started, stopped, or reset the clock. `toggle` allows using the same button to start/stop the clock.
+  - `action` is `start`, `stop`, `toggle`, `60`, or `120`
 
 ### Messages published by the jury device
 

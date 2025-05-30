@@ -257,17 +257,24 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				messageStr = messageStr.substring(0, index);
 			}
 			messageStr = messageStr.trim();
+			FieldOfPlay fop2 = MQTTMonitor.this.getFop();
 			if (messageStr.equalsIgnoreCase("start")) {
-				MQTTMonitor.this.getFop().fopEventPost(new FOPEvent.TimeStarted(this));
+				fop2.fopEventPost(new FOPEvent.TimeStarted(this));
 			} else if (messageStr.equalsIgnoreCase("stop")) {
-				MQTTMonitor.this.getFop().fopEventPost(new FOPEvent.TimeStopped(this));
+				fop2.fopEventPost(new FOPEvent.TimeStopped(this));
+			} else if (messageStr.equalsIgnoreCase("toggle")) {
+				if (fop2.getAthleteTimer().isRunning()) {
+					fop2.fopEventPost(new FOPEvent.TimeStopped(this));	
+				} else {
+					fop2.fopEventPost(new FOPEvent.TimeStarted(this));
+				}
 			} else if (messageStr.equalsIgnoreCase("60")) {
-				MQTTMonitor.this.getFop().fopEventPost(new FOPEvent.ForceTime(60000, this));
+				fop2.fopEventPost(new FOPEvent.ForceTime(60000, this));
 			} else if (messageStr.equalsIgnoreCase("120")) {
-				MQTTMonitor.this.getFop().fopEventPost(new FOPEvent.ForceTime(120000, this));
+				fop2.fopEventPost(new FOPEvent.ForceTime(120000, this));
 			} else {
 				logger.error("{}Malformed MQTT clock message topic='{}' message='{}'",
-				        FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
+				        FieldOfPlay.getLoggingName(fop2), topic, messageStr);
 			}
 		}
 	}
