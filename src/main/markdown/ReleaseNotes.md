@@ -19,6 +19,7 @@
   - The weigh-in form now allows entering the weight as read on the scale and computes the 250g adjustment if the 250g deduction rule is enabled.
 - Default team sizes is now 8 as per June 2025 TCRR
 - New MQTT message clock/toggle to allow starting  and stopping the clock with the same button.
+- Fix for the "Clear Official Records" button, now works as expected again.
 - Fixed a time zone issue when storing dates; this could cause athlete to appear to be born
   in the previous year when using Birth Dates Only settings.
 - Fix for Women Team Points calculation for the IMWA final package
