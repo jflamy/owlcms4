@@ -10,12 +10,13 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Transient;
 
-import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.group.Group;
-import app.owlcms.data.config.Config;
-import app.owlcms.data.competition.Competition;
-import app.owlcms.data.records.RecordEvent;
 import org.slf4j.LoggerFactory;
+
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.records.RecordEvent;
 import ch.qos.logback.classic.Logger;
 
 public class UtcNormalizationMigration {
@@ -35,7 +36,7 @@ public class UtcNormalizationMigration {
             em.merge(a);
             athleteCount++;
         }
-        logger.warn("UtcNormalizationMigration: converted {} Athlete entities", athleteCount);
+        logger.info("UtcNormalizationMigration: converted {} Athlete entities", athleteCount);
 
         // Group entity (table: CompetitionGroup, class: Group)
         List<Group> groups = em.createQuery("SELECT g FROM CompetitionGroup g", app.owlcms.data.group.Group.class).getResultList();
@@ -45,7 +46,7 @@ public class UtcNormalizationMigration {
             em.merge(g);
             groupCount++;
         }
-        logger.warn("UtcNormalizationMigration: converted {} CompetitionGroup entities", groupCount);
+        logger.info("UtcNormalizationMigration: converted {} CompetitionGroup entities", groupCount);
 
         // Competition entity
         List<Competition> competitions = em.createQuery("SELECT c FROM Competition c", Competition.class).getResultList();
@@ -55,7 +56,7 @@ public class UtcNormalizationMigration {
             em.merge(c);
             competitionCount++;
         }
-        logger.warn("UtcNormalizationMigration: converted {} Competition entities", competitionCount);
+        logger.info("UtcNormalizationMigration: converted {} Competition entities", competitionCount);
 
         // RecordEvent entity
         List<RecordEvent> recordEvents = em.createQuery("SELECT r FROM RecordEvent r", RecordEvent.class).getResultList();
@@ -65,13 +66,13 @@ public class UtcNormalizationMigration {
             em.merge(r);
             recordEventCount++;
         }
-        logger.warn("UtcNormalizationMigration: converted {} RecordEvent entities", recordEventCount);
+        logger.info("UtcNormalizationMigration: converted {} RecordEvent entities", recordEventCount);
 
         // Set the flag in Config
         Config config = Config.getCurrent();
         config.setLocalDateTimeUtcNormalized(true);
         em.merge(config);
-        logger.warn("UtcNormalizationMigration: normalization flag set in Config");
+        logger.info("UtcNormalizationMigration: normalization flag set in Config");
     }
 
     private static void normalizeDates(Object entity) {
@@ -89,7 +90,7 @@ public class UtcNormalizationMigration {
                     field.set(entity, toUtc((LocalDate) value));
                 }
             } catch (Exception e) {
-                logger.warn("UtcNormalizationMigration: error normalizing field {} in {}: {}", field.getName(), entity.getClass().getSimpleName(), e.toString());
+                logger.error("UtcNormalizationMigration: error normalizing field {} in {}: {}", field.getName(), entity.getClass().getSimpleName(), e.toString());
             }
         }
     }
