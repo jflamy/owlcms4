@@ -12,6 +12,10 @@
 
 <br>
 
+**Maintenance Log**
+
+58.1.1: Fix for Competition Results page no longer loading when the JR/SR age groups are not present (used for certain scores such as Robi)
+
 **New in Release 58.1**
 
 - 250g deduction:
