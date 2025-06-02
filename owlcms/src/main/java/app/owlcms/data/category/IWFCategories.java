@@ -165,17 +165,10 @@ public class IWFCategories {
 					loadJrSrReferenceCategories();
 				}
 				categories = jrSrReferenceCategories;
-//				if (ythReferenceCategories == null) {
-//					loadYthReferenceCategories();
-//				}
-//				Integer age = a.getAge();
-//				if (!fileDefinition && (age != null && age <= 17)) {
-//					categories = ythReferenceCategories;
-//				} else {
-//					categories = jrSrReferenceCategories;
-//				}
+			} else {
+				categories = referenceCategories;
 			}
-			categories = referenceCategories;
+
 		}
 
 		int index = Collections.binarySearch(categories,
@@ -215,7 +208,7 @@ public class IWFCategories {
 				        .stream()
 				        .filter(c -> c.getWrSr() > 0)
 				        .sorted()
-				        // .peek(c -> {logger.trace(c.getCode());})
+				        //.peek(c -> {logger./**/warn(c.getCode());})
 				        .collect(Collectors.toCollection(ArrayList::new));
 				workbook.close();
 			} catch (Exception e) {
