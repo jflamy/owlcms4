@@ -83,30 +83,30 @@ class DecisionBoard extends LitElement {
         }
 
 	  </style>
-      <div class="wrapper">
-        <div class="wrapper bigTitle" style="${this.waitingStyles()}">
-          <div class="competitionName">${this.competitionName}</div>
-          <br />
-          <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
+    <div class="wrapper">
+      <div class="wrapper bigTitle" style="${this.waitingStyles()}">
+        <div class="competitionName">${this.competitionName}</div>
+        <br />
+        <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
+      </div>
+      <div class="container blink" style="${this.stopStyles()}">
+        <div class="octagon-container">
+          <div class="octagon border-octagon"></div>
+          <div class="octagon main-octagon">${this.STOP}</div>
         </div>
-<div class="container blink" style="${this.stopStyles()}">
-  <div class="octagon-container">
-    <div class="octagon border-octagon"></div>
-    <div class="octagon main-octagon">${this.STOP}</div>
-  </div>
-</div>
-    <div class="decisionBoard" style="${this.activeStyles()}">
-      <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
-        <timer-element id="athleteTimer"></timer-element>
       </div>
-      <div class="timer breakTime" style="${this.breakTimerStyles()}">
-        <timer-element id="breakTimer"></timer-element>
+      <div class="decisionBoard" style="${this.activeStyles()}">
+        <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
+          <timer-element id="athleteTimer"></timer-element>
+        </div>
+        <div class="timer breakTime" style="${this.breakTimerStyles()}">
+          <timer-element id="breakTimer"></timer-element>
+        </div>
+        <div class="decision" id="decisionDiv" style="${this.decisionStyles()}">
+          <decision-element id="decisions"></decision-element>
+        </div>
       </div>
-      <div class="decision" id="decisionDiv" style="${this.decisionStyles()}">
-        <decision-element id="decisions"></decision-element>
-      </div>
-    </div>
-  </div>`;
+    </div>`;
   }
 
   /* what follows is integrally copied from attempt board */
