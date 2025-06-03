@@ -322,6 +322,7 @@ public class Group implements Comparable<Group> {
 	private LocalDateTime firstCJTime;
 	private LocalDateTime lastSnatchDecisionTime;
 	private LocalDateTime lastCJDecisionTime;
+	private String reserveJury;
 
 	/**
 	 * Instantiates a new group.
@@ -1129,6 +1130,20 @@ public class Group implements Comparable<Group> {
 	/**
 	 * @return the reserve
 	 */
+	public String getReserveJury() {
+		return this.reserveJury;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getReserveJuryAsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.reserveJury);
+		return to;
+	}
+	
+	/**
+	 * @return the reserve
+	 */
 	public String getReserve() {
 		return this.reserve;
 	}
@@ -1637,5 +1652,9 @@ public class Group implements Comparable<Group> {
 	
 	public int getNbAttemptedLifts() {
 		return AthleteSorter.countAllLiftsDone(getAthletes());
+	}
+
+	public void setReserveJury(String reserveJury) {
+		this.reserveJury = reserveJury;
 	}
 }
