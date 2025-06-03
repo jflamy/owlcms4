@@ -31,7 +31,12 @@ public class RegistrationExportComparator extends AbstractLifterComparator imple
 
 		compare = compareAgeGroup(lifter1, lifter2);
 		if (compare != 0) {
-			return mastersSessionAgeGroupComparison(lifter1, lifter2, compare);
+			return compare;
+		} else {
+			compare = mastersSessionAgeGroupComparison(lifter1, lifter2, compare);
+			if (compare != 0) {
+				return -compare;
+			}
 		}
 
 		// takes into account platform and group name so that groups are not mixed
