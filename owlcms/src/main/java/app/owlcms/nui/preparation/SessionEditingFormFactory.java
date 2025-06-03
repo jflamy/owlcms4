@@ -335,6 +335,12 @@ public class SessionEditingFormFactory
 		this.binder.forField(jury5)
 		        .withNullRepresentation("")
 		        .bind(Group::getJury5, Group::setJury5);
+		
+		ComboBox<String> reserveJury = createOfficialComboBox("ReserveJury");
+		juryLayout.add(reserveJury);
+		this.binder.forField(reserveJury)
+		        .withNullRepresentation("")
+		        .bind(Group::getReserveJury, Group::setReserveJury);
 
 		return juryLayout;
 	}
@@ -362,6 +368,7 @@ public class SessionEditingFormFactory
 	}
 
 	private FormLayout officialsLayout() {
+		logger.warn("officialsLayout");
 		FormLayout officialsLayout = new FormLayout();
 
 		ComboBox<String> announcer = createOfficialComboBox("Announcer");
@@ -433,6 +440,12 @@ public class SessionEditingFormFactory
 		this.binder.forField(referee3)
 		        .withNullRepresentation("")
 		        .bind(Group::getReferee3, Group::setReferee3);
+		
+		ComboBox<String> reserveReferee = createOfficialComboBox("ReserveReferee");
+		officialsLayout.add(reserveReferee);
+		this.binder.forField(reserveReferee)
+		        .withNullRepresentation("")
+		        .bind(Group::getReserve, Group::setReserve);
 
 		addRuler(officialsLayout);
 		return officialsLayout;

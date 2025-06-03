@@ -16,7 +16,11 @@
 
 58.1.2: Fix for export of SBDE data under exotic circumstances (athletes from same team, same body weight category, same name, lifting in two different sessions, prior to lot number assignment)
 
-58.1.1: Fix for Competition Results page no longer loading when the JR/SR age groups are not present (used for certain scores such as Robi)
+58.1.2: Show Reserve Referee and Reserve Jury on the editing forms and the Registration Excels.
+
+58.1.2: Fix order of weight categories on the introduction form.
+
+58.1.1: Fix for Competition Results page that would not load when the JR/SR age groups are not present (used for certain scores such as Robi)
 
 **New in Release 58.1**
 

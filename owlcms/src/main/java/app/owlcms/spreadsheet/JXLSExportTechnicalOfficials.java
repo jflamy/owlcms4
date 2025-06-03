@@ -27,8 +27,8 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.technicalofficial.SessionAssignment;
 import app.owlcms.data.technicalofficial.OfficialRole;
+import app.owlcms.data.technicalofficial.SessionAssignment;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
@@ -152,7 +152,8 @@ public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 		map.put(OfficialRole.COMPETITION_SECRETARY, Group::getCompetitionSecretary);
 		map.put(OfficialRole.COMPETITION_SECRETARY2, Group::getCompetitionSecretary2);
 		map.put(OfficialRole.COMPETITION_DIRECTOR, Group::getCompetitionDirector);
-
+		map.put(OfficialRole.REFEREE_RESERVE, Group::getReserve);
+		map.put(OfficialRole.JURY_RESERVE, Group::getReserveJury);
 		return map;
 	}
 
