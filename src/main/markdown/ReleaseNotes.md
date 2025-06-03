@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+58.1.2: Fix for export of SBDE data under exotic circumstances (athletes from same team, same body weight category, same name, lifting in two different sessions, prior to lot number assignment)
+
 58.1.1: Fix for Competition Results page no longer loading when the JR/SR age groups are not present (used for certain scores such as Robi)
 
 **New in Release 58.1**
