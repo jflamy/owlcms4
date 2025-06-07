@@ -368,7 +368,6 @@ public class SessionEditingFormFactory
 	}
 
 	private FormLayout officialsLayout() {
-		logger.warn("officialsLayout");
 		FormLayout officialsLayout = new FormLayout();
 
 		ComboBox<String> announcer = createOfficialComboBox("Announcer");
