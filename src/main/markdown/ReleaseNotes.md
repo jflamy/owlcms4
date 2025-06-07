@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+58.1.3: Fix: record attempts were no longer showing on the attempt board.
+
 58.1.2: Fix for export of SBDE data under exotic circumstances (athletes from same team, same body weight category, same name, lifting in two different sessions, prior to lot number assignment)
 
 58.1.2: Show Reserve Referee and Reserve Jury on the editing forms and the Registration Excels.
