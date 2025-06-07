@@ -14,7 +14,9 @@
 
 **Maintenance Log**
 
-58.1.3: Fix: record attempts were no longer showing on the attempt board.
+58.1.5: Feature Toggle: `displayBestScore` adds the best athlete score at the end of the scoreboard.
+
+58.1.4: Fix: record attempts were no longer showing on the attempt board.
 
 58.1.2: Fix for export of SBDE data under exotic circumstances (athletes from same team, same body weight category, same name, lifting in two different sessions, prior to lot number assignment)
 

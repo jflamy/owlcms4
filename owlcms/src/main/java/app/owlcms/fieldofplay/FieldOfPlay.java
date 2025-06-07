@@ -3313,7 +3313,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private List<Athlete> updateScoringSystemRanking(EntityManager em, List<Athlete> l) {
-		if (Competition.getCurrent().isDisplayScoreRanks()) {
+		if (Competition.getCurrent().isDisplayScoreRanks() || Competition.getCurrent().isDisplayScores()) {
 			// long beforeRanks = System.currentTimeMillis();
 			try {
 				// this only computes the current scoring system

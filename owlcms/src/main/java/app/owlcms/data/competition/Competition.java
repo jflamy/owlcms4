@@ -1099,11 +1099,11 @@ public class Competition {
 	}
 
 	public boolean isDisplayScoreRanks() {
-		return this.displayScoreRanks;
+		return this.displayScoreRanks || Config.getCurrent().featureSwitch("displayBestScoreRank");
 	}
 
 	public boolean isDisplayScores() {
-		return this.displayScores;
+		return this.displayScores || Config.getCurrent().featureSwitch("displayBestScore");
 	}
 
 	/**

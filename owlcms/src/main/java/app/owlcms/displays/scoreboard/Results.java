@@ -45,6 +45,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.displays.video.StylesDirSelection;
@@ -826,6 +827,9 @@ public class Results extends LitTemplate
 	}
 
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+		boolean bestScore = Config.getCurrent().featureSwitch("displayBestScore");
+		boolean bestScoreRank = Config.getCurrent().featureSwitch("displayBestScoreRank");
+		
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
 		String fullName;
@@ -863,7 +867,7 @@ public class Results extends LitTemplate
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
-		if (a.getComputedScoringSystem() != Ranking.TOTAL) {
+		if (a.getComputedScoringSystem() != Ranking.TOTAL || bestScore || bestScoreRank) {
 			ja.put("sinclair", computedScore(a));
 			ja.put("sinclairRank", computedScoreRank(a));
 		}
