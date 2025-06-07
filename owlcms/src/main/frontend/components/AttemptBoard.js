@@ -40,7 +40,7 @@ class CurrentAttempt extends LitElement {
         <div class="${this.athleteImgClasses()}" style="${this.athleteImgStyles()}" .innerHTML="${this.athleteImg}"></div>
         <div class="${this.recordMessageClasses()}" style="${this.recordMessageStyles()}">
           <css-ticker
-            text="${this.recordMessage ? this.recordMessage + '   ' : ''}"
+            text="${this.recordMessage ? this.recordMessage + '&nbsp;&nbsp;&nbsp;' : ''}"
             speed="${this.recordMessageSpeed}"
           ></css-ticker>
         </div>
