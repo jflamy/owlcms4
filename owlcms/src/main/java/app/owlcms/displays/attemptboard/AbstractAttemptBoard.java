@@ -939,6 +939,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		String recordsList = records.stream().map(c -> c.prettyPrint()).collect(Collectors.joining(", "));
 		this.getElement().setProperty("recordMessage", prefix + " \u2013 " + recordsList);
 		this.getElement().setProperty("recordMessageSpeed", 5 + records.size()*5);
+		UI.getCurrent().push();
 	}
 
 	private void spotlightRecords(FieldOfPlay fop, Athlete a) {

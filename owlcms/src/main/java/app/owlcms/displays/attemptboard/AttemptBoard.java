@@ -15,6 +15,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 @JsModule("./components/AttemptBoard.js")
 @JsModule("./components/AudioContext.js")
 @JsModule("./components/TimerElement.js")
+@JsModule("./components/Ticker.js")
 @JsModule("./components/DecisionElement.js")
 @CssImport(value = "./styles/shared-styles.css")
 @CssImport(value = "./styles/plates.css")

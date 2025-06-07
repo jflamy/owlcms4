@@ -8,14 +8,14 @@ import { LitElement, html, css } from 'lit';
  *******************************************************************************/
 
 class CssTicker extends LitElement {
-    static get is() { return 'css-ticker'; }
-    static get elementName() { return 'css-ticker'; }
-      static properties = {
-        text: { type: String },
-        speed: { type: Number }
-      };
+  static get is() { return 'css-ticker'; }
+  static get elementName() { return 'css-ticker'; }
+  static properties = {
+    text: { type: String },
+    speed: { type: Number }
+  };
 
-      static styles = css`
+  static styles = css`
         :host {
           display: block;
           width: 100%; 
@@ -54,14 +54,25 @@ class CssTicker extends LitElement {
         }
       `;
 
-      constructor() {
-        super();
-        this.text = '';
-        this.speed = 10; // Default animation duration in seconds
-      }
+  constructor() {
+    super();
+    this.text = '';
+    this.speed = 10;
+  }
 
-      render() {
-        return html`
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    if (changedProperties.has('text') || changedProperties.has('speed')) {
+      //console.log("Ticker: updated with text:", this.text, "speed:", this.speed);
+      this.updateComplete.then(() => {
+        this._setWrapperWidth();
+      });
+    }
+  }
+
+  render() {
+    console.log("Ticker: render with text:", this.text, "speed:", this.speed);
+    return html`
           <div class="css-ticker-container">
             <div class="css-ticker-wrapper" id="cssTickerWrapper" style="--animation-duration: ${this.speed}s">
               <div class="css-ticker-text original-css">${this.text}</div>
@@ -69,76 +80,65 @@ class CssTicker extends LitElement {
             </div>
           </div>
         `;
-      }
+  }
 
-      updated(changedProperties) {
-        super.updated(changedProperties);
-        
-        if (changedProperties.has('text')) {
-          // Need to wait for the DOM to be updated
-          this.updateComplete.then(() => {
-            this._setWrapperWidth();
-          });
-        }
-      }
+  _setWrapperWidth() {
+    const cssTickerWrapper = this.shadowRoot.getElementById('cssTickerWrapper');
+    const originalCssText = this.shadowRoot.querySelector('.original-css');
 
-      _setWrapperWidth() {
-        const cssTickerWrapper = this.shadowRoot.getElementById('cssTickerWrapper');
-        const originalCssText = this.shadowRoot.querySelector('.original-css');
-        
-        if (cssTickerWrapper && originalCssText) {
-          const textRect = originalCssText.getBoundingClientRect();
-          const textWidth = textRect.width + 20; // Buffer
-          
-          if (textWidth > 20) { // Check against buffer value
-            cssTickerWrapper.style.width = (textWidth * 2) + 'px';
+    if (cssTickerWrapper && originalCssText) {
+      const textRect = originalCssText.getBoundingClientRect();
+      const textWidth = textRect.width + 20; // Buffer
 
-            // Calculate viewport ratio relative to 1920px baseline
-            const baselineWidth = 1920;
-            const currentWidth = window.innerWidth;
-            const ratio = currentWidth / baselineWidth;
+      if (textWidth > 20) { // Check against buffer value
+        cssTickerWrapper.style.width = (textWidth * 2) + 'px';
 
-            // Adjust the base speed (duration). Wider viewport = faster animation (shorter duration).
-            // Ensure ratio is not zero to avoid division by zero.
-            const adjustedSpeed = ratio > 0 ? this.speed / ratio : this.speed; 
+        // Calculate viewport ratio relative to 1920px baseline
+        const baselineWidth = 1920;
+        const currentWidth = window.innerWidth;
+        const ratio = currentWidth / baselineWidth;
 
-            // Update the CSS variable with the adjusted speed
-            cssTickerWrapper.style.setProperty('--animation-duration', `${adjustedSpeed}s`);
+        // Adjust the base speed (duration). Wider viewport = faster animation (shorter duration).
+        // Ensure ratio is not zero to avoid division by zero.
+        const adjustedSpeed = ratio > 0 ? this.speed / ratio : this.speed;
 
-            // When resetting animation, ensure it uses the CSS variable
-            cssTickerWrapper.style.animation = 'none';
-            void cssTickerWrapper.offsetWidth; // Force reflow
-            // Use the updated CSS variable value directly in the animation definition
-            cssTickerWrapper.style.animation = `cssTicker ${adjustedSpeed}s linear infinite`;
+        // Update the CSS variable with the adjusted speed
+        cssTickerWrapper.style.setProperty('--animation-duration', `${adjustedSpeed}s`);
 
-          } else {
-            requestAnimationFrame(() => this._setWrapperWidth());
-          }
-        }
-      }
+        // When resetting animation, ensure it uses the CSS variable
+        cssTickerWrapper.style.animation = 'none';
+        void cssTickerWrapper.offsetWidth; // Force reflow
+        // Use the updated CSS variable value directly in the animation definition
+        cssTickerWrapper.style.animation = `cssTicker ${adjustedSpeed}s linear infinite`;
 
-      _handleResize() {
-        // Recalculate width and speed on resize
-        this._setWrapperWidth();
-      }
-
-      connectedCallback() {
-        super.connectedCallback();
-        // Bind the resize handler context
-        this._boundHandleResize = this._handleResize.bind(this);
-        window.addEventListener('resize', this._boundHandleResize);
-      }
-
-      disconnectedCallback() {
-        super.disconnectedCallback();
-        window.removeEventListener('resize', this._boundHandleResize);
-      }
-
-      firstUpdated() {
-        // Set initial width after first render
-        // Use requestAnimationFrame to ensure styles are applied and measurable
+      } else {
         requestAnimationFrame(() => this._setWrapperWidth());
       }
     }
+  }
 
-    customElements.define('css-ticker', CssTicker);
+  _handleResize() {
+    // Recalculate width and speed on resize
+    this._setWrapperWidth();
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    // Bind the resize handler context
+    this._boundHandleResize = this._handleResize.bind(this);
+    window.addEventListener('resize', this._boundHandleResize);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('resize', this._boundHandleResize);
+  }
+
+  firstUpdated() {
+    // Set initial width after first render
+    // Use requestAnimationFrame to ensure styles are applied and measurable
+    requestAnimationFrame(() => this._setWrapperWidth());
+  }
+}
+
+customElements.define('css-ticker', CssTicker);
