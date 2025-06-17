@@ -106,7 +106,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 
 		String groupName = this.group != null ? this.group.getName() : null;
 		this.setRecords(RecordRepository.findFiltered(null, null, null, groupName, !this.isAllRecords()));
-		//logger.debug("found {}",getRecords().size());
+		logger.info("found {} records",getRecords().size());
 
 		if (this.currentOnly) {
 			var recordMap = this.keepNewest();

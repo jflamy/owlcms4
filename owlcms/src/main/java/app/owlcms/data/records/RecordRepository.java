@@ -120,7 +120,7 @@ public class RecordRepository {
 		JPAService.runInTransaction(em -> {
 			Query q = em.createQuery("DELETE FROM RecordEvent a WHERE "
 			        + "a.fileName = :fn "
-			        + "AND a.groupNameString IS NULL");
+			        + "AND (a.groupNameString IS NULL or a.groupNameString = '')");
 			q.setParameter("fn", fileName);
 			q.executeUpdate();
 			return null;
@@ -295,9 +295,9 @@ public class RecordRepository {
 		if (groupName != null) {
 			whereList.add("(groupNameString = :groupName)");
 		}
-		if (newRecords != null && newRecords) {
-			whereList.add("(groupNameString is not null)");
-		}
+//		if (newRecords != null && newRecords) {
+//			whereList.add("((groupNameString is not null) or (groupNameString != ''))");
+//		}
 		if (whereList.size() == 0) {
 			//logger.debug("where = {}", "");
 			return null;
@@ -370,7 +370,7 @@ public class RecordRepository {
 				}
 				
 				if (ali.getLiftNo() <= 3 && mr.getRecordLift() == Ranking.SNATCH && ali.getLift() > mr.getRecordValue()) {
-					improvedRecord = improveRecord(ali, mr);
+					improvedRecord = improveRecord(ali, mr, ali.getLift());
 					if (improvedRecord != null) improvedRecords.add(improvedRecord);
 				} else {
 					// cj lift may improve CJ and may improve Total
@@ -380,11 +380,12 @@ public class RecordRepository {
 						total = bestSnatch + ali.getLift();
 					}
 					if (ali.getLiftNo() > 3 && mr.getRecordLift() == Ranking.CLEANJERK && ali.getLift() > mr.getRecordValue()) {
-						improvedRecord = improveRecord(ali, mr);
+						improvedRecord = improveRecord(ali, mr, ali.getLift());
 						if (improvedRecord != null) improvedRecords.add(improvedRecord);
 					}
 					if (ali.getLiftNo() > 3 && mr.getRecordLift() == Ranking.TOTAL && total > mr.getRecordValue()) {
-						improvedRecord = improveRecord(ali, mr);
+						//logger.debug("checking total for {} {} --- {} ",ali.getA(),ali.getLiftNo(), mr.getRecordValue());
+						improvedRecord = improveRecord(ali, mr, total);
 						if (improvedRecord != null) improvedRecords.add(improvedRecord);
 					}
 				}
@@ -397,7 +398,7 @@ public class RecordRepository {
 
 	}
 
-	public static RecordEvent improveRecord(ActualLiftInfo ali, RecordEvent mr) {
+	public static RecordEvent improveRecord(ActualLiftInfo ali, RecordEvent mr, int newValue) {
 		RecordEvent nmr = new RecordEvent();
 		nmr.setAgeGrp(mr.getAgeGrp());
 		nmr.setRecordFederation(mr.getRecordFederation());
@@ -412,7 +413,7 @@ public class RecordRepository {
 
 		nmr.setAthleteName(ali.getA().getFullName());
 		nmr.setGender(ali.getA().getGender());
-		nmr.setRecordValue(ali.getLift());
+		nmr.setRecordValue(newValue);
 		nmr.setRecordDate(ali.getT().toLocalDate());
 		nmr.setRecordYear(ali.getT().getYear());
 		nmr.setEvent(Competition.getCurrent().getCompetitionName());
