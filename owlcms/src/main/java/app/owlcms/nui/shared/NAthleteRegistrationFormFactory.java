@@ -1522,7 +1522,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        List<Category> allEligibles,
 	        boolean recomputeEligibles) {
 
-		// logger.trace("===== updating category fields {}", LoggerUtils.stackTrace());
+		//logger.trace("===== updating category fields {} {}\n{}", selectedCategory, bestMatch, LoggerUtils.stackTrace());
 		LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();
 		Set<Category> prevEligibles;
 		if (recomputeEligibles) {
@@ -1568,17 +1568,25 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			// find the matching eligible with the same code.
 			matchingEligible = null;
 			for (Category eligible : newEligibles) {
-				if (eligible.getCode().contentEquals(bestMatch.getCode())) {
+				// always allow currently selected if eligible
+				if (eligible.getCode().contentEquals(selectedCategory.getCode())) {
 					matchingEligible = eligible;
 					break;
 				}
 			}
+
+			if (matchingEligible == null) {
+				for (Category eligible : newEligibles) {
+					if (eligible.getCode().contentEquals(bestMatch.getCode())) {
+						matchingEligible = eligible;
+						break;
+					}
+				}
+			}
+			
 			if (matchingEligible == null) {
 				Set<Category> priorEligibles = eligibleField.getValue();
 				// need to recompute the eligibility categories outright before declaring there is none.
-				// allEligibles = findEligibleCategories(this.genderField, getAgeFromFields(), this.bodyWeightField,
-				// this.categoryField,
-				// this.qualifyingTotalField);
 				Double inferBW = inferBW(selectedCategory);
 				allEligibles = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(), genderField.getValue(),
 				        getAgeFromFields(), inferBW, zeroIfNull(qualifyingTotalField2));
