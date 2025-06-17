@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+58.1.5: Fix: When several eligible categories had identical age and weight boundaries, selecting a specific one as the registration category was not possible from the editing form; the first one would be picked
+
 58.1.5: Fix: The recalculation of new records after loading additional record definitions did not compute total correctly.
 
 58.1.5: Feature Toggle: `displayBestScore` adds the best athlete score at the end of the scoreboard.
