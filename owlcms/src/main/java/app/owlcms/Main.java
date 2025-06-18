@@ -343,6 +343,9 @@ public class Main {
 			boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
 			if (allCompetitions.isEmpty() || publicDemo) {
 				logger.info("injecting initial data {}", data);
+				Config current = Config.getCurrent();
+				current.setLocalDateTimeUtcNormalized(true);
+				Config.setCurrent(current); // forces a s save.
 				switch (data) {
 					case EMPTY_COMPETITION:
 						ProdData.insertInitialData(0);

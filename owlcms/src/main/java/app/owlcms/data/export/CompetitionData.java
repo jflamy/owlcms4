@@ -229,12 +229,17 @@ public class CompetitionData {
 
 				CompetitionData updated = this.importData(inputStream);
 				Config config = updated.getConfig();
+				
+				// all LocalDates and LocalDateTimes will be stored in the database as UTC Date.
+				config.setLocalDateTimeUtcNormalized(true);
+				
 				byte[] blob = config.getLocalZipBlob();
-
 				if (blob != null) {
 					logger.info("override zip found {} bytes", blob.length);
 				}
+				// this writes out the config as well.
 				Config.setCurrent(config);
+				
 				ResourceWalker.setInitializedLocalDir(false);
 				ResourceWalker.initLocalDir();
 

@@ -18,9 +18,8 @@ import javax.persistence.Converter;
 
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Logger;
-
 import app.owlcms.data.config.Config;
+import ch.qos.logback.classic.Logger;
 
 /**
  * THIS CLASS IS BROKEN.
@@ -44,7 +43,10 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
 		if (locDate == null) return null;
 		if (Config.getCurrent().isLocalDateTimeUtcNormalized()) {
 			// Store as UTC midnight
-			return new Date(locDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli());
+			long epochMilli = locDate.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli();
+			Date date = new Date(epochMilli);
+			//logger.debug("stored millis {} as Date {}", epochMilli, date);
+			return date;
 		} else {
 			// Store as system default
 			return Date.valueOf(locDate);
@@ -64,8 +66,10 @@ public class LocalDateAttributeConverter implements AttributeConverter<LocalDate
 			// Read as UTC midnight
 			// Always use fallback: convert millis to Instant, then to LocalDate
 			long millis = sqlDate.getTime();
+			
 			java.time.Instant instant = java.time.Instant.ofEpochMilli(millis);
 			LocalDate localDate = instant.atZone(ZoneOffset.UTC).toLocalDate();
+			//logger.debug("local received date {} {}", millis, localDate);
 			return localDate;
 		} else {
 			// Legacy logic (including H2 workaround)
