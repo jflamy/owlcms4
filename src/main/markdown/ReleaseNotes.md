@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+58.1.5: When loading a registration file, the existing sessions were not being deleted.  This has been fixed.  The option to delete the sessions is now available for the SBDE format as well (but only when the athletes are also cleaned)
+
 58.1.5: Local dates and times (such as birthdays and session starts) were not always being saved in the correct time-zone-independent manner and marked as such (in particular, during an import)
 
 58.1.5: Fix: When several eligible categories had identical age and weight boundaries, selecting a specific one as the registration category was not possible from the editing form; the first one would be picked
