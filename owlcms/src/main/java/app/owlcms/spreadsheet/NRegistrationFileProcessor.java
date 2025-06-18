@@ -68,7 +68,7 @@ public class NRegistrationFileProcessor {
 	}
 
 	public enum SessionOptions {
-		IGNORE_SESSIONS, /* DELETE_SESSIONS, */ UPDATE_ADD_SESSIONS
+		IGNORE_SESSIONS, DELETE_SESSIONS, UPDATE_ADD_SESSIONS
 	}
 
 	public enum AthleteOptions {
@@ -843,7 +843,7 @@ public class NRegistrationFileProcessor {
 	}
 
 	public boolean isDeleteSessions() {
-		return false;/* sessionOptions == SessionOptions.DELETE_SESSIONS; */
+		return sessionOptions == SessionOptions.DELETE_SESSIONS;
 	}
 
 }

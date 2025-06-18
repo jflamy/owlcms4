@@ -62,10 +62,10 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		Component sos = sessionOptionSelectors();
 		Component aos = athleteOptionSelectors();
-		
+
 		if (!sbdeFormat) {
 			athleteOption = NRegistrationFileProcessor.AthleteOptions.DELETE_ATHLETES;
-			sessionOption = NRegistrationFileProcessor.SessionOptions.UPDATE_ADD_SESSIONS;
+			sessionOption = NRegistrationFileProcessor.SessionOptions.DELETE_SESSIONS;
 		}
 
 		TextArea ta = new TextArea(Translator.translate("Errors"));
@@ -102,35 +102,45 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		add(vl);
 	}
 
+	RadioButtonGroup<NRegistrationFileProcessor.AthleteOptions> radioGroup = new RadioButtonGroup<>();
+
 	private Component athleteOptionSelectors() {
-		RadioButtonGroup<NRegistrationFileProcessor.AthleteOptions> radioGroup = new RadioButtonGroup<>();
 		radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 		radioGroup.setLabel(Translator.translate("SBDE.AthleteOptions"));
 		radioGroup.setItems(NRegistrationFileProcessor.AthleteOptions.values());
-		radioGroup.setItemLabelGenerator(o -> Translator.translate("SBDE.AthleteOptions_"+o.name()));
+		radioGroup.setItemLabelGenerator(o -> Translator.translate("SBDE.AthleteOptions_" + o.name()));
 		athleteOption = NRegistrationFileProcessor.AthleteOptions.DELETE_ATHLETES;
 		radioGroup.setValue(athleteOption);
-		radioGroup.addValueChangeListener(v -> {this.athleteOption = v.getValue();});
+		radioGroup.addValueChangeListener(v -> {
+			this.athleteOption = v.getValue();
+			if (this.athleteOption != NRegistrationFileProcessor.AthleteOptions.DELETE_ATHLETES) {
+				sessionOption = NRegistrationFileProcessor.SessionOptions.IGNORE_SESSIONS;
+				sessionRadioGroup.setValue(sessionOption);			
+			}
+		});
 		return radioGroup;
 	}
 
+	private RadioButtonGroup<NRegistrationFileProcessor.SessionOptions> sessionRadioGroup = new RadioButtonGroup<>();
+
 	private Component sessionOptionSelectors() {
-		RadioButtonGroup<NRegistrationFileProcessor.SessionOptions> radioGroup = new RadioButtonGroup<>();
-		radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-		radioGroup.setLabel(Translator.translate("SBDE.SessionOptions"));
-		radioGroup.setItems(NRegistrationFileProcessor.SessionOptions.values());
-		radioGroup.setItemLabelGenerator(o -> Translator.translate("SBDE.SessionOptions_"+o.name()));
-		sessionOption = NRegistrationFileProcessor.SessionOptions.UPDATE_ADD_SESSIONS;
-		radioGroup.setValue(sessionOption);
-		radioGroup.addValueChangeListener(v -> {this.sessionOption = v.getValue();});
-		return radioGroup;
+		sessionRadioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+		sessionRadioGroup.setLabel(Translator.translate("SBDE.SessionOptions"));
+		sessionRadioGroup.setItems(NRegistrationFileProcessor.SessionOptions.values());
+		sessionRadioGroup.setItemLabelGenerator(o -> Translator.translate("SBDE.SessionOptions_" + o.name()));
+		sessionOption = NRegistrationFileProcessor.SessionOptions.DELETE_SESSIONS;
+		sessionRadioGroup.setValue(sessionOption);
+		sessionRadioGroup.addValueChangeListener(v -> {
+			this.sessionOption = v.getValue();
+		});
+		return sessionRadioGroup;
 	}
 
 	public void processInput(InputStream inputStream, TextArea ta) {
 		this.processor.setAthleteOptions(athleteOption);
 		this.processor.setSessionOptions(sessionOption);
-		
-		// clear athletes to be able to clear groups
+
+		// clear athletes to be able to clear sessions
 		CategoryRepository.resetCodeMap();
 		if (this.processor.isDeleteAthletes()) {
 			this.processor.resetAthletes();
@@ -148,6 +158,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			if (nbSessions > 0) {
 				if (this.processor.isDeleteSessions()) {
 					this.processor.resetSessions();
+					logger.info("cleared existing sessions", nbSessions);
 				}
 
 				// get the sessions from the spreadsheet
