@@ -801,6 +801,9 @@ public abstract class AthleteGridContent extends BaseContent
 
 	@Subscribe
 	public void slaveRecordNotification(UIEvent.RecordNotification e) {
+		if (this instanceof MarshallContent) {
+			return;
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			Notification n = e.doNotification();
 			if (!e.isNewRecord()) {

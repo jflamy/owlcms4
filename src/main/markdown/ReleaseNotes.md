@@ -16,6 +16,8 @@
 
 58.2.0: A new template `Protocol_AllSessions` produces all the protocol sheets in one Excel, one tab per session.
 
+58.2.0: The marshal is no longer notified of record attempts (this was disruptive)
+
 58.2.0: Newly added technical officials can now be selected in the sessions page.
 
 58.2.0: When loading an initial registration file, the existing sessions were not being deleted.  This has been fixed.   This is also possible for the SBDE format as well (but only when the athletes are also cleaned)
