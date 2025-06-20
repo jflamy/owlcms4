@@ -225,6 +225,16 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 	
 	@Override
+	@Transient
+	@JsonIgnore
+	public String getCategorySortCode() {
+		Category sortCategory = getMainRankings().getCategory();
+		String sortCode = sortCategory != null ? sortCategory.getSortCode() : "-";
+		// logger.debug("a {} category {} sortCode {}", getAbbreviatedName(), getCategory(), sortCategory.getSortCode());
+		return sortCode;
+	}
+	
+	@Override
 	public void setCategoryScoreForDelta(Double ignored) {
 		// ignored, necessary for bean introspection
 	}

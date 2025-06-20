@@ -1286,7 +1286,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getCategorySortCode() {
-		Category sortCategory = getMainRankings().getCategory();
+		Category sortCategory = getCategory();
 		String sortCode = sortCategory != null ? sortCategory.getSortCode() : "-";
 		// logger.debug("a {} category {} sortCode {}", getAbbreviatedName(), getCategory(), sortCategory.getSortCode());
 		return sortCode;

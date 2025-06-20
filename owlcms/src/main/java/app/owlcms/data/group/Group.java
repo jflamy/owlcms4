@@ -52,6 +52,8 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.data.records.RecordEvent;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -572,6 +574,18 @@ public class Group implements Comparable<Group> {
 	public List<Athlete> getAthletes() {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
 	}
+	
+	@Transient
+	@JsonIgnore
+	public List<RecordEvent> getRecords() {
+		return RecordRepository.findFiltered(null, null, null, this.name, true);
+	}
+	
+	@Transient
+	@JsonIgnore
+	public void setRecords(List<RecordEvent> ignored) {
+	}
+	
 
 	public Integer getCleanJerkBreakDuration() {
 		return cleanJerkBreakDuration;
@@ -1140,7 +1154,7 @@ public class Group implements Comparable<Group> {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.reserveJury);
 		return to;
 	}
-	
+
 	/**
 	 * @return the reserve
 	 */
@@ -1605,6 +1619,7 @@ public class Group implements Comparable<Group> {
 	public void setLastCJDecisionExcelTime(double ignored) {
 		return;
 	}
+
 	@Transient
 	@JsonIgnore
 	public double getFirstSnatchExcelTime() {
@@ -1629,7 +1644,7 @@ public class Group implements Comparable<Group> {
 	public double getLastCJDecisionExcelTime() {
 		return DateTimeUtils.localDateTimeToExcelDate(lastCJDecisionTime);
 	}
-	
+
 	public LocalDateTime getFirstSnatchTime() {
 		return firstSnatchTime;
 	}
@@ -1645,11 +1660,11 @@ public class Group implements Comparable<Group> {
 	public LocalDateTime getLastCJDecisionTime() {
 		return lastCJDecisionTime;
 	}
-	
+
 	public int getNbAthletes() {
 		return getAthletes().size();
 	}
-	
+
 	public int getNbAttemptedLifts() {
 		return AthleteSorter.countAllLiftsDone(getAthletes());
 	}
