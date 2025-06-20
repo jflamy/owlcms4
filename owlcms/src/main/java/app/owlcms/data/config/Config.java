@@ -82,6 +82,7 @@ public class Config {
 			if (ConfigRepository.findAll().isEmpty()) {
 				Config config = new Config();
 				config.setMqttInternal(true);
+				config.setLocalDateTimeUtcNormalized(true);
 				Config.setCurrent(config);
 			}
 			return null;

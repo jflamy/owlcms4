@@ -568,6 +568,7 @@ public class Group implements Comparable<Group> {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getAnnouncer());
 		return to;
 	}
+	public void setAnnouncerAsTO(TechnicalOfficial ignored) {}
 
 	@Transient
 	@JsonIgnore

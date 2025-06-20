@@ -60,6 +60,7 @@ public class SessionEditingFormFactory
 	private Logger logger = (Logger) LoggerFactory.getLogger(SessionEditingFormFactory.class);
 	private SessionContent origin;
 	ComboBox<Platform> platformField;
+	private List<String> officials;
 
 	SessionEditingFormFactory(Class<Group> domainType, SessionContent origin) {
 		super(domainType);
@@ -178,6 +179,14 @@ public class SessionEditingFormFactory
 
 	private FlexLayout createTabSheets(Component footer, List<Platform> allPlatforms) {
 		TabSheet ts = new TabSheet();
+		
+		// Map TechnicalOfficial fields correctly
+		officials = TechnicalOfficialRepository.findAll().stream()
+		        .map(to -> (to.getLastName() != null ? to.getLastName() : "")
+		                + (to.getFirstName() != null ? ", " + to.getFirstName() : ""))
+		        .filter(name -> !name.isBlank())
+		        .sorted()
+		        .toList();
 
 		FormLayout groupLayout = sessionLayout(allPlatforms);
 		FormLayout officialsLayout = officialsLayout();
@@ -349,14 +358,6 @@ public class SessionEditingFormFactory
 	// return TechnicalOfficialRepository.findAll().stream().map(to -> to.getLastName() + " " + to.getFirstName())
 	// .filter(item -> !filter.isPresent() || item.contains(filter.get())).skip(offset).limit(limit);
 	// }
-
-	// Map TechnicalOfficial fields correctly
-	List<String> officials = TechnicalOfficialRepository.findAll().stream()
-	        .map(to -> (to.getLastName() != null ? to.getLastName() : "")
-	                + (to.getFirstName() != null ? ", " + to.getFirstName() : ""))
-	        .filter(name -> !name.isBlank())
-	        .sorted()
-	        .toList();
 
 	ComboBox<String> createOfficialComboBox(String label) {
 		ComboBox<String> box = new ComboBox<>(Translator.translate(label));

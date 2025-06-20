@@ -14,15 +14,17 @@
 
 **Maintenance Log**
 
-58.1.5: When loading a registration file, the existing sessions were not being deleted.  This has been fixed.  The option to delete the sessions is now available for the SBDE format as well (but only when the athletes are also cleaned)
+58.2.0: A new template `Protocol_AllSessions` produces all the protocol sheets in one Excel, one tab per session.
 
-58.1.5: Local dates and times (such as birthdays and session starts) were not always being saved in the correct time-zone-independent manner and marked as such (in particular, during an import)
+58.2.0: When loading an initial registration file, the existing sessions were not being deleted.  This has been fixed.   This is also possible for the SBDE format as well (but only when the athletes are also cleaned)
 
-58.1.5: Fix: When several eligible categories had identical age and weight boundaries, selecting a specific one as the registration category was not possible from the editing form; the first one would be picked
+58.2.0: Local dates and times (such as birthdays and session starts) were not always being saved in the correct time-zone-independent manner and marked as such (in particular, during an import)
 
-58.1.5: Fix: The recalculation of new records after loading additional record definitions did not compute total correctly.
+58.2.0: Fix: When several eligible categories had identical age and weight boundaries, selecting a specific one as the registration category was not possible from the editing form; the first one would be picked
 
-58.1.5: Feature Toggle: `displayBestScore` adds the best athlete score at the end of the scoreboard.
+58.2.0: Fix: The recalculation of new records after loading additional record definitions did not compute total correctly.
+
+58.2.0: Feature Toggle: `displayBestScore` adds the best athlete score at the end of the scoreboard.
 
 58.1.4: Fix: record attempts were no longer showing on the attempt board.
 
