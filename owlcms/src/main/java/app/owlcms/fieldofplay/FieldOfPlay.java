@@ -1154,7 +1154,7 @@ public class FieldOfPlay implements IUnregister {
 		}
 		this.setGroup(group);
 		this.setCjStarted(false);
-		this.cjBreakDisplayed = false;
+		this.setCjBreakDisplayed(false);
 		resetDecisions();
 
 		if (group != null) {
@@ -3128,10 +3128,10 @@ public class FieldOfPlay implements IUnregister {
 			pushOutDone();
 		}
 
-		if (!this.cjBreakDisplayed && allFirstCJ()) {
+		if (!this.isCjBreakDisplayed() && allFirstCJ()) {
 			this.logger.debug("{}push out snatch done", FieldOfPlay.getLoggingName(this));
 			pushOutSnatchDone();
-			this.cjBreakDisplayed = true;
+			this.setCjBreakDisplayed(true);
 		}
 	}
 
@@ -3359,5 +3359,13 @@ public class FieldOfPlay implements IUnregister {
 	private void weightChangeDoNotDisturb(WeightChange e) {
 		recomputeOrderAndRanks(e.isResultChange());
 		uiDisplayCurrentAthleteAndTime(false, e, false);
+	}
+
+	private boolean isCjBreakDisplayed() {
+		return cjBreakDisplayed;
+	}
+
+	private void setCjBreakDisplayed(boolean cjBreakDisplayed) {
+		this.cjBreakDisplayed = cjBreakDisplayed;
 	}
 }

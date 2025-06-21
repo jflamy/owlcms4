@@ -366,6 +366,9 @@ public class Group implements Comparable<Group> {
 
 	public int cjBreakDuration(FieldOfPlay fieldOfPlay) {
 		Group cGroup = fieldOfPlay.getGroup();
+		// reload the group from database to get changed break time
+		cGroup = GroupRepository.findByName(cGroup.getName());
+		
 		int millisRemaining;
 		Competition cCur = Competition.getCurrent();
 		Integer cleanJerkBreakDuration = cGroup.getCleanJerkBreakDuration();
