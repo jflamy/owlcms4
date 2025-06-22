@@ -12,11 +12,13 @@
 
 <br>
 
-**Maintenance Log**
+**New in Release 58.2**
 
 58.2.0: **Important fix**: When displaying record attempts, the attempt board would, sometimes (and randomly), fail to update the weight and plates shown on the board (the scoreboards and all other screens would all be correct).  An instruction added during development debugging had been left in and was interfering.
 
 58.2.0: The Final Package now uses the override for the "Best Athlete" scoring scheme if one is selected (the best athlete rankings are recomputed according to that selection)
+
+58.2.0: The duration of the Clean & Jerk break can be changed after the session has started
 
 58.2.0: Fixed messages about missing `reserveJury` property during import of registration and SBDE files.
 
