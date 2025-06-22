@@ -48,6 +48,7 @@ public class RGroup {
 	String weighinTime;
 	String platform;
 	String masters;
+	private String reserveJury;
 
 	public String getAnnouncer() {
 		return this.announcer;
@@ -311,6 +312,15 @@ public class RGroup {
 			this.group.setMasters(Competition.getCurrent().isMasters());
 		}
 		this.masters = masters;
+	}
+
+	String getReserveJury() {
+		return reserveJury;
+	}
+
+	void setReserveJury(String reserveJury) {
+		this.group.setReserveJury(reserveJury);
+		this.reserveJury = reserveJury;
 	}
 
 }
