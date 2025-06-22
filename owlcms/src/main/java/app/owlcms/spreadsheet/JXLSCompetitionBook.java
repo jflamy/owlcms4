@@ -21,6 +21,7 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -145,18 +146,19 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 		reportingBeans.put("records", records);
 
-//		Ranking overallScoringSystem = this.getBestLifterScoringSystem();
-//		overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
-		// make available to the Athlete class in this Thread (and subThreads).
-		//JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(overallScoringSystem);
-
 		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		JXLSWorkbookStreamSource.setNoInterimScoresInResults(Config.getCurrent().featureSwitch("noInterimScoresInResults"));
 		if (overallScoringSystem == null) {
 			overallScoringSystem = Competition.getCurrent().getScoringSystem();
+		} else {
+			// recompute mBest and wBest according to overallScoringSystem
+			List<Athlete> sortedMen = (List<Athlete>) reportingBeans.get("mBest");
+			List<Athlete> sortedWomen = (List<Athlete>) reportingBeans.get("wBest");
+			reportingBeans.put("mBest", AthleteSorter.resultsOrderCopy(sortedMen, overallScoringSystem));
+			reportingBeans.put("wBest", AthleteSorter.resultsOrderCopy(sortedWomen, overallScoringSystem));
 		}
 		
-		String brt = overallScoringSystem == null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete");
+		String brt = overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete");
 		reportingBeans.put("bestRankingTitle", brt);
 
 		if (isWinnersOnly()) {
