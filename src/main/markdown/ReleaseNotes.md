@@ -14,6 +14,10 @@
 
 **Maintenance Log**
 
+58.2.0: Always update the attempt board when there is a lifting order recalculation. This should eliminate  some random situations where the attempt board would not update.
+
+58.2.0: Fixed messages about a missing  `reserveJury` property during import of registration and SBDE files.
+
 58.2.0: A new template `Protocol_AllSessions` produces all the protocol sheets in one Excel, one tab per session.
 
 58.2.0: The marshal is no longer notified of record attempts (this was disruptive)

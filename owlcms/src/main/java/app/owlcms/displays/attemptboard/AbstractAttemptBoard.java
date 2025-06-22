@@ -461,10 +461,17 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 					doBreak(e);
 				}
 			} else if (state == FOPState.INACTIVE) {
-			} else if (!e.isCurrentDisplayAffected()) {
-			} else {
-				Athlete a = e.getAthlete();
-				doAthleteUpdate(a, e.getFop());
+			}
+			else if (!e.isCurrentDisplayAffected()) {
+				// same as next case
+				// logging to see if this ever occurs
+				logger.info(">>>>> isCurrentDisplayAffected false");
+				Athlete b = fop.getCurAthlete();
+				doAthleteUpdate(b, e.getFop());
+			} 
+			else {	
+				Athlete b = fop.getCurAthlete();
+				doAthleteUpdate(b, e.getFop());
 			}
 		}));
 	}
