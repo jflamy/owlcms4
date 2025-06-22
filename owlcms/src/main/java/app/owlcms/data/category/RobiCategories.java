@@ -171,15 +171,11 @@ public class RobiCategories {
 		} else {
 			categories = jrSrReferenceCategories;
 		}
-		int index = Collections.binarySearch(categories,
-		        new Category(a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
-		        x.new RobiComparator());
 
-		if (index >= 0) {
-			return categories.get(index);
-		} else {
-			return null;
-		}
+        return categories.stream().filter(iwfCategory ->
+                        iwfCategory.getGender().equals(a.getGender())
+                                && a.getBodyWeight() > iwfCategory.minimumWeight && a.getBodyWeight() <= iwfCategory.maximumWeight)
+                .findFirst().orElse(null);
 	}
 
 	@SuppressWarnings("unused")
