@@ -766,7 +766,7 @@ public class UIEvent {
 			this.timeAllowed = timeAllowed;
 			this.liftingOrder = liftingOrder;
 			this.displayOrder = displayOrder;
-			this.currentDisplayAffected = currentDisplayAffected;
+			this.setCurrentDisplayAffected(currentDisplayAffected);
 			this.setDisplayToggle(displayToggle);
 			this.setInBreak(inBreak);
 			this.setNewWeight(newWeight);
@@ -853,6 +853,10 @@ public class UIEvent {
 
 		public void setNewWeight(Integer newWeight) {
 			this.newWeight = newWeight;
+		}
+
+		private void setCurrentDisplayAffected(boolean currentDisplayAffected) {
+			this.currentDisplayAffected = currentDisplayAffected;
 		}
 
 	}

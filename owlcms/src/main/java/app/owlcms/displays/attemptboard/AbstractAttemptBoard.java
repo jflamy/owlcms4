@@ -604,6 +604,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			lFirst = Translator.translate("Attempt.Extra/Invited", lFirst);
 		}
 		this.getElement().setProperty("firstName", lFirst);
+		
+		Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+		setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
+		showPlates();
 
 		this.getElement().setProperty("decisionVisible", false);
 		Category category2 = a.getCategory();
@@ -637,9 +641,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("startNumber", a.getStartNumber());
 		String formattedAttempt = formatAttempt(a);
 		this.getElement().setProperty("attempt", formattedAttempt);
-		Integer nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
-		setDisplayedWeight(nextAttemptRequestedWeight > 0 ? nextAttemptRequestedWeight.toString() : "");
-		showPlates();
 		this.getElement().setProperty("mode", BoardMode.CURRENT_ATHLETE.name());
 
 		setDone(false);
@@ -946,7 +947,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		String recordsList = records.stream().map(c -> c.prettyPrint()).collect(Collectors.joining(", "));
 		this.getElement().setProperty("recordMessage", prefix + " \u2013 " + recordsList);
 		this.getElement().setProperty("recordMessageSpeed", 5 + records.size()*5);
-		UI.getCurrent().push();
 	}
 
 	private void spotlightRecords(FieldOfPlay fop, Athlete a) {
