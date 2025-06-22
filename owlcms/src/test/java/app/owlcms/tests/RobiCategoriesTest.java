@@ -91,4 +91,20 @@ public class RobiCategoriesTest {
         Category cat = RobiCategories.findRobiCategory(a);
         assertEquals("M49", cat.getComputedCode());
     }
+
+    @Test
+    public void testFindCorrectRobiCategoryForLowerYouthAthletes() {
+        Athlete youthFemaleAthlete = new Athlete();
+        youthFemaleAthlete.setBodyWeight(40.0D);
+        youthFemaleAthlete.setYearOfBirth(LocalDate.now().getYear() - 12);
+        youthFemaleAthlete.setGender(Gender.F);
+        assertEquals("F40", RobiCategories.findRobiCategory(youthFemaleAthlete).getComputedCode());
+
+        Athlete youthMaleAthlete = new Athlete();
+        youthMaleAthlete.setBodyWeight(40.0D);
+        youthMaleAthlete.setYearOfBirth(LocalDate.now().getYear() - 12);
+        youthMaleAthlete.setGender(Gender.M);
+        assertEquals("M40", RobiCategories.findRobiCategory(youthMaleAthlete).getComputedCode());
+    }
+
 }
