@@ -9,7 +9,6 @@ package app.owlcms.data.category;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,6 +37,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class RobiCategories {
 
+	@SuppressWarnings("unused")
 	private class RobiComparator implements Comparator<Category> {
 
 		@Override
@@ -163,7 +163,7 @@ public class RobiCategories {
 		if (ythReferenceCategories == null) {
 			loadYthReferenceCategories();
 		}
-		RobiCategories x = new RobiCategories();
+		//RobiCategories x = new RobiCategories();
 		List<Category> categories;
 		Integer age = a.getAge();
 		if (!forceJrSr && (age != null && age <= 17)) {
