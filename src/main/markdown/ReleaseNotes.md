@@ -14,6 +14,12 @@
 
 **Maintenance Log**
 
+58.2.3: Ensure that records are shown on scoreboards and that record eligibility is determined when session starts.  Using "start lifting" directly without using the clock countdown could result in records not shown on first athlete.
+
+58.2.3: On the records display, the locale-specific translation for how to display heavyweights is used (>110 or 110+ for example)
+
+58.2.3: Robi ranking calculation for Youth fixed for the lower weight categories.
+
 58.2.2: Fixed export of new records after recalculation to only include new records
 
 **New in Release 58.2**

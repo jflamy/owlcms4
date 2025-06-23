@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 public class RecordEventSetters {
@@ -66,9 +67,9 @@ public class RecordEventSetters {
             String cellValue = cell.getStringCellValue();
             rec.setBwCatString(cellValue);
             
-            if (cellValue.startsWith(">") || cellValue.startsWith("+")) {
+            if (cellValue.startsWith(">") || cellValue.startsWith("+") || cellValue.endsWith("+")) {
                 rec.setBwCatUpper(999);
-                rec.setBwCatString(">" + rec.getBwCatLower());
+                rec.setBwCatString(Translator.translate("catAboveFormat",rec.getBwCatLower()));
             } else {
                 try {
                     rec.setBwCatUpper(Integer.parseInt(cellValue));
