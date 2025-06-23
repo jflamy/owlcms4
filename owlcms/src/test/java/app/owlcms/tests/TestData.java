@@ -133,6 +133,7 @@ public class TestData {
     protected static void createGroup(EntityManager em, Group group, final String[] fnames, final String[] lnames,
             Random r,
             int cat1, int cat2, int liftersToLoad) {
+    	logger.debug("liftersToLoad", liftersToLoad);
         for (int i = 0; i < liftersToLoad; i++) {
             Athlete ath = new Athlete();
             Group mg = (em.contains(group) ? group : em.merge(group));
