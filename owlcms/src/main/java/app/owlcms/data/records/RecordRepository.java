@@ -295,9 +295,9 @@ public class RecordRepository {
 		if (groupName != null) {
 			whereList.add("(groupNameString = :groupName)");
 		}
-//		if (newRecords != null && newRecords) {
-//			whereList.add("((groupNameString is not null) or (groupNameString != ''))");
-//		}
+		if (newRecords != null && newRecords) {
+			whereList.add("((groupNameString is not null) or (groupNameString != ''))");
+		}
 		if (whereList.size() == 0) {
 			//logger.debug("where = {}", "");
 			return null;
