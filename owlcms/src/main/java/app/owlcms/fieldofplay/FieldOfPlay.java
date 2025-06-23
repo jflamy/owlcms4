@@ -1150,6 +1150,8 @@ public class FieldOfPlay implements IUnregister {
 		if (loadGroupName != null && alreadyLoaded && !forceLoad) {
 			// already loaded
 			this.logger.debug("{}group {} already loaded", FieldOfPlay.getLoggingName(this), loadGroupName);
+			this.recomputeRecordsMap(liftingOrder);
+			this.recomputeLeadersAndRecords(liftingOrder);
 			return;
 		}
 		this.setGroup(group);
@@ -2511,14 +2513,14 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void recomputeRecordsMap(List<Athlete> athletes) {
-		// logger.debug("recompute record map");
+		//logger.debug("recompute record map");
 		this.groupRecords.clear();
 		for (Athlete a : athletes) {
 			List<RecordEvent> displayableRecords = RecordFilter.computeDisplayableRecordsForAthlete(a);
 			this.displayableRecordsByAthlete.put(a, displayableRecords);
 
 			List<RecordEvent> eligibleRecords = RecordFilter.filterEligibleRecordsForAthlete(a, displayableRecords);
-			// logger.debug("athlete {} {}",a, eligibleRecords);
+			//logger.debug("athlete {} {}",a, eligibleRecords);
 			this.eligibleRecordsByAthlete.put(a, eligibleRecords);
 
 			this.groupRecords.addAll(displayableRecords);
