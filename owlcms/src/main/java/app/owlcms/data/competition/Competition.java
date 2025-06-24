@@ -974,7 +974,7 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public Integer getMenBestNElseDefault() {
-		return this.mensBestN != null ? this.mensBestN : 10;
+		return this.mensBestN != null ? this.mensBestN : this.maxTeamSize;
 	}
 
 	public Integer getMensBestN() {
@@ -1060,7 +1060,7 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public Integer getWomenBestNElseDefault() {
-		return this.womensBestN != null ? this.womensBestN : 10;
+		return this.womensBestN != null ? this.womensBestN : this.maxTeamSize;
 	}
 
 	public Integer getWomensBestN() {
