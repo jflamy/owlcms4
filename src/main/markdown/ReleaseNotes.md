@@ -14,7 +14,7 @@
 
 **Maintenance Log**
 
-58.2.3: Ensure that records are shown on scoreboards and that record eligibility is determined when session starts.  Using "start lifting" directly without using the clock countdown could result in records not shown on first athlete.
+58.2.3: Fixes for the display of records on scoreboards, on the announcer console, and on the attempt board.
 
 58.2.3: On the records display, the locale-specific translation for how to display heavyweights is used (>110 or 110+ for example)
 

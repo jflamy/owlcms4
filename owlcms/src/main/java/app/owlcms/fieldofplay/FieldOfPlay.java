@@ -1291,7 +1291,7 @@ public class FieldOfPlay implements IUnregister {
 			setNewRecords(List.of());
 		} else {
 			setRecordsJson(recordsJson);
-			setChallengedRecords(challengedRecords);
+			setChallengedRecords(challengedRecords.stream().sorted(RecordEvent.sequentialOrderComparator()).toList());
 			for (RecordEvent re : challengedRecords) {
 				this.logger.info("challenged record: {}", re);
 			}
@@ -1389,7 +1389,7 @@ public class FieldOfPlay implements IUnregister {
 		if (newRecords == null || newRecords.isEmpty()) {
 			// this.logger.debug("{} + clearing athlete records {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom());
 		}
-		this.newRecords = newRecords;
+		this.newRecords = newRecords.stream().sorted(RecordEvent.sequentialOrderComparator()).toList();
 	}
 
 	public void setNextAthlete(Athlete a) {

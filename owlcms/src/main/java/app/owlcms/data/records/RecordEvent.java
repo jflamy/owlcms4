@@ -568,6 +568,11 @@ public class RecordEvent {
 				// normally we have local - state - nation - continent - world; display "biggest" first
 				return -compare;
 			}
+			compare = ObjectUtils.compare(a.getAgeGrpUpper(), b.getAgeGrpUpper());
+			if (compare != 0) {
+				// older age group first
+				return -compare;
+			}
 			compare = ObjectUtils.compare(a.getRecordLift(), b.getRecordLift());
 			if (compare != 0) {
 				return compare;

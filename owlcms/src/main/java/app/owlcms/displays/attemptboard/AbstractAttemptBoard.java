@@ -939,7 +939,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	public void computeMessageProperties(List<RecordEvent> records, String prefix) {
-		records.sort(RecordEvent.sequentialOrderComparator());
+		// must not modify the original list.
 		String recordsList = records.stream().map(c -> c.prettyPrint()).collect(Collectors.joining(", "));
 		this.getElement().setProperty("recordMessage", prefix + " \u2013 " + recordsList);
 		this.getElement().setProperty("recordMessageSpeed", 5 + records.size() * 5);
