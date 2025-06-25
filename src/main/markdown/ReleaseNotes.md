@@ -12,15 +12,9 @@
 
 <br>
 
-**Maintenance Log**
+**New in Release 58.3**
 
-58.2.3: Fixes for the display of records on scoreboards, on the announcer console, and on the attempt board.
-
-58.2.3: On the records display, the locale-specific translation for how to display heavyweights is used (>110 or 110+ for example)
-
-58.2.3: Robi ranking calculation for Youth fixed for the lower weight categories.
-
-58.2.2: Fixed export of new records after recalculation to only include new records
+58.3.0: When a stoppage occurs, the announcer now gets a notification dialog with an OK acknowledgement instead of a disappearing notification.
 
 **New in Release 58.2**
 
