@@ -100,6 +100,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private boolean liveLights;
 	private boolean declarations;
 	private boolean centerNotifications;
+	private ConfirmDialog stoppageAckDialog;
+	private UI ui;
 
 	public AnnouncerContent() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -260,14 +262,14 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				case START_DELIBERATION:
 					text = Translator.translate("JuryNotification." + et.name());
 					if (!this.deliberationNotificationSent) {
-						doNotification(text, style);
+						doStoppageDialog(text, style);
 					}
 					this.deliberationNotificationSent = true;
 					return;
 				case CHALLENGE:
 					text = Translator.translate("JuryNotification." + et.name());
 					if (!this.deliberationNotificationSent) {
-						doNotification(text, style);
+						doStoppageDialog(text, style);
 					}
 					this.deliberationNotificationSent = true;
 					return;
@@ -276,6 +278,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				case END_TECHNICAL_PAUSE:
 				case END_CHALLENGE:
 					text = Translator.translate("JuryNotification." + et.name());
+					if (this.stoppageAckDialog != null) {
+						this.stoppageAckDialog.close();
+					}
 					break;
 				case BAD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
@@ -285,6 +290,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 					break;
 				case CALL_TECHNICAL_CONTROLLER:
 					text = Translator.translate("JuryNotification.CallTechnicalController");
+					doStoppageDialog(text, style);
 					break;
 				case GOOD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
@@ -302,14 +308,55 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 					break;
 				case TECHNICAL_PAUSE:
 					text = Translator.translate("BreakType.TECHNICAL");
-					break;
+					doStoppageDialog(text, style);
+					return;
 				case MARSHALL:
 					text = Translator.translate("BreakType.MARSHAL");
-					break;
+					doStoppageDialog(text, style);
+					return;
 				default:
 					break;
 			}
 			doNotification(text, style);
+		});
+	}
+
+	private void doStoppageDialog(String text, String style) {
+		if (this.stoppageAckDialog != null) {
+			// jury can send multiple decisions.
+			this.stoppageAckDialog.close();
+		}
+		this.stoppageAckDialog = new ConfirmDialog();
+		this.stoppageAckDialog.setHeader(text);
+
+		this.stoppageAckDialog.setText(new Html(
+		        """
+		        <div>
+		        <div style="%s">%s</div>
+		        <br/>
+		        <div>%s</div>
+		        <div>
+		        """.formatted(style, text, Translator.translate("JuryNotification.ACK"))));
+
+		this.stoppageAckDialog.setCloseOnEsc(true);
+		this.stoppageAckDialog.setConfirmText(Translator.translate("OK"));
+		this.stoppageAckDialog.setCancelable(true);
+		this.stoppageAckDialog.setCancelText(Translator.translate("JuryNotification.END_JURY_BREAK"));
+
+		this.stoppageAckDialog
+		        .addCancelListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this)));
+		this.stoppageAckDialog.open();
+
+	}
+
+	@Subscribe
+	@Override
+	public void slaveStartLifting(UIEvent.StartLifting s) {
+		ui.access(() -> {
+			super.slaveStartLifting(s);
+			if (this.stoppageAckDialog != null) {
+				this.stoppageAckDialog.close();
+			}
 		});
 	}
 
@@ -357,19 +404,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			}
 			n.setDuration(5000);
 			n.open();
-
-			// This causes duplicate notifications.
-			// Cannot do this in a UI lock.
-			// Athlete curAthlete = OwlcmsSession.getFop().getLiftingOrder().get(0);
-			//
-			// if (curAthlete != null) {
-			// Integer newWeight = curAthlete.getNextAttemptRequestedWeight();
-			// // avoid duplicate info to officials
-			// if (newWeight != null && newWeight > 0 && Integer.compare(this.prevWeight, newWeight) != 0) {
-			// doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
-			// this.prevWeight = newWeight;
-			// }
-			// }
 			setDecisionLights(null);
 		});
 	}
@@ -762,6 +796,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		// setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
 		// setCenterNotifications(Config.getCurrent().featureSwitch("centerAnnouncerNotifications"));
 		defineFilters(this.getCrudGrid());
+		ui = UI.getCurrent();
 	}
 
 	private void badLift() {
@@ -807,6 +842,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		if (this.juryConfirmationDialog != null) {
 			// jury can send multiple decisions.
 			this.juryConfirmationDialog.close();
+		}
+		if (this.stoppageAckDialog != null) {
+			this.stoppageAckDialog.close();
 		}
 		this.juryConfirmationDialog = new ConfirmDialog();
 		this.juryConfirmationDialog.setHeader(Translator.translate("Announcer.JuryDecisionTitle"));
