@@ -420,6 +420,7 @@ public class RecordRepository {
 		nmr.setNation(ali.getA().getClub());
 		nmr.setAthleteBW(ali.getA().getBodyWeight());
 		nmr.setAthleteAge(ali.getA().getAge());
+		nmr.setBirthDate(ali.getA().getFullBirthDate());
 
 		nmr.setEventLocation(Competition.getCurrent().getCompetitionCity());
 		// this marks the record as provisional

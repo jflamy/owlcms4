@@ -71,8 +71,7 @@ public class RecordEvent {
 		newRecord.setBwCatLower(rec.getBwCatLower());
 		newRecord.setBwCatUpper(rec.getBwCatUpper());
 		newRecord.setBwCatString(rec.getBwCatString());
-		String championship = a.getAgeGroup().getChampionshipName();
-		newRecord.setEvent(championship != null && !championship.isBlank() ? championship : Competition.getCurrent().getCompetitionName());
+		newRecord.setEvent(Competition.getCurrent().getCompetitionName());
 		newRecord.setEventLocation(Competition.getCurrent().getCompetitionCity());
 		newRecord.setGender(a.getGender());
 		newRecord.setNation(a.getTeam());
