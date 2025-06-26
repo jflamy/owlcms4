@@ -278,6 +278,8 @@ public abstract class AthleteGridContent extends BaseContent
 	private HorizontalLayout decisionLights;
 	private String stopButtonVariant;
 	ArrayList<Notification> recordNotifications;
+	protected Notification stoppageAckNotification;
+	protected UI currentUI;
 
 	private void addRecordNotification(Notification n) {
 		recordNotifications.add(n);
@@ -825,7 +827,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
-
+		notifications.clear();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			logger.trace("starting lifting");
 			syncWithFop(true, e.getFop());
@@ -839,6 +841,7 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		// we use stop because it is present on most screens; either button ok for
 		// locking
+		notifications.clear();
 		if (this.stopTimeButton == null) {
 			return;
 		}
@@ -848,6 +851,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 	@Subscribe
 	public void slaveStopTimer(UIEvent.StopTime e) {
+		notifications.clear();
 		// we use stop because it is present on most screens; either button ok for
 		// locking
 		if (this.stopTimeButton == null) {
@@ -1310,8 +1314,9 @@ public abstract class AthleteGridContent extends BaseContent
 	 * @param text
 	 * @param theme
 	 */
+	
+	protected List<Notification> notifications = new ArrayList<>();
 	protected void doNotification(String text, String theme) {
-
 		Notification n = new Notification();
 		n.getElement().getThemeList().add(theme);
 		n.setDuration(6000);
@@ -1327,7 +1332,8 @@ public abstract class AthleteGridContent extends BaseContent
 			n.setPosition(Position.TOP_START);
 		}
 		n.add(label);
-		n.open();
+		notifications.add(n);
+		logger.warn("adding {}",text);
 		n.open();
 	}
 
@@ -1508,6 +1514,8 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		currentUI = attachEvent.getUI();
+		logger.warn("currentUI ================================= {}",currentUI);
 		// logger.debug("attaching {} initial={} \\n{}",
 		// this.getClass().getSimpleName(), attachEvent.isInitialAttach(),
 		// LoggerUtils. stackTrace());
@@ -1756,7 +1764,7 @@ public abstract class AthleteGridContent extends BaseContent
 			} else {
 				text = Translator.translate("Weight_change_current_athlete", curDisplayAthlete.getFullName());
 			}
-			if (text != null) {
+			if (text != null && !ackDialogIsOpened()) {
 				doNotification(text, "warning");
 			}
 		}
@@ -1773,16 +1781,25 @@ public abstract class AthleteGridContent extends BaseContent
 			        && newWeight != null && newWeight > 0
 			        && Integer.compare(this.prevWeight, newWeight) != 0) {
 				// logger.debug("warnOthersIfCurrent {} {} {} -- {}", curAthlete, this.prevWeight, newWeight, LoggerUtils.whereFrom());
-				doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
+				if (!ackDialogIsOpened()) {
+					doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
+				}
 				this.prevWeight = newWeight;
 			}
 
 			if (e instanceof UIEvent.LiftingOrderUpdated && curDisplayAthlete != null && !curDisplayAthlete.equals(curAthlete)) {
 				String text = Translator.translate("ChangeOfAthlete", curAthlete.getFullName());
-				doNotification(text, "warning");
+				if (text != null && !ackDialogIsOpened()) {
+					doNotification(text, "warning");
+				}
 			}
+				
 		}
 
+	}
+
+	public boolean ackDialogIsOpened() {
+		return this.stoppageAckNotification != null && this.stoppageAckNotification.isOpened();
 	}
 
 }

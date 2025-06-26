@@ -25,7 +25,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -35,6 +34,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -100,8 +100,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private boolean liveLights;
 	private boolean declarations;
 	private boolean centerNotifications;
-	private ConfirmDialog stoppageAckDialog;
-	private UI ui;
 
 	public AnnouncerContent() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -278,8 +276,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				case END_TECHNICAL_PAUSE:
 				case END_CHALLENGE:
 					text = Translator.translate("JuryNotification." + et.name());
-					if (this.stoppageAckDialog != null) {
-						this.stoppageAckDialog.close();
+					if (this.stoppageAckNotification != null) {
+						this.stoppageAckNotification.close();
 					}
 					break;
 				case BAD_LIFT:
@@ -322,40 +320,91 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void doStoppageDialog(String text, String style) {
-		if (this.stoppageAckDialog != null) {
-			// jury can send multiple decisions.
-			this.stoppageAckDialog.close();
+//		logger.warn("opening stoppage {}", notifications);
+//		for (Notification notification : notifications) {
+//			if (notification.isOpened()) {
+//				logger.warn("removing {}", notification.getElement().getOuterHTML());
+//				notification.close();
+//			}
+//		}
+//		if (this.stoppageAckDialog != null) {
+//			// jury can send multiple decisions.
+//			this.stoppageAckDialog.close();
+//		}
+//		this.stoppageAckDialog = new ConfirmDialog();
+//		this.stoppageAckDialog.setHeader(text);
+//
+//		this.stoppageAckDialog.setText(new Html(
+//		        """
+//		        <div>%s</div>
+//		        """.formatted(Translator.translate("JuryNotification.ACK"))));
+//
+//		this.stoppageAckDialog.setCloseOnEsc(true);
+//		this.stoppageAckDialog.setConfirmText(Translator.translate("OK"));
+//		this.stoppageAckDialog.setCancelable(true);
+//		this.stoppageAckDialog.setCancelText(Translator.translate("JuryNotification.END_JURY_BREAK"));
+//
+//		this.stoppageAckDialog
+//		        .addCancelListener(c -> {
+//			        OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
+//			        this.stoppageAckDialog = null;
+//		        });
+//		this.stoppageAckDialog
+//		        .addConfirmListener(c -> {
+//			        this.stoppageAckDialog = null;
+//		        });
+//		this.stoppageAckDialog.open();
+		if (this.stoppageAckNotification != null)  {
+			this.stoppageAckNotification.close();
 		}
-		this.stoppageAckDialog = new ConfirmDialog();
-		this.stoppageAckDialog.setHeader(text);
-
-		this.stoppageAckDialog.setText(new Html(
-		        """
-		        <div>
-//		        <div style="%s">%s</div>
-//		        <br/>
-		        <div>%s</div>
-		        <div>
-		        """.formatted(style, text, Translator.translate("JuryNotification.ACK"))));
-
-		this.stoppageAckDialog.setCloseOnEsc(true);
-		this.stoppageAckDialog.setConfirmText(Translator.translate("OK"));
-		this.stoppageAckDialog.setCancelable(true);
-		this.stoppageAckDialog.setCancelText(Translator.translate("JuryNotification.END_JURY_BREAK"));
-
-		this.stoppageAckDialog
-		        .addCancelListener(c -> OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this)));
-		this.stoppageAckDialog.open();
-
+		this.stoppageAckNotification = new Notification();
+		this.stoppageAckNotification.getElement().getThemeList().add("warning");
+		this.stoppageAckNotification.setDuration(6000);
+		
+		Div label = new Div(text);
+		
+		NativeButton ackButton = new NativeButton(Translator.translate("JuryNotification.ACK"));
+		ackButton.getStyle().set("margin-left", "1em");
+		ackButton.addClickListener((event) -> {
+			this.stoppageAckNotification.close();
+			this.stoppageAckNotification = null;
+		});
+		
+		NativeButton resumeButton = new NativeButton(Translator.translate("JuryNotification.END_JURY_BREAK"));
+		resumeButton.getStyle().set("margin-left", "1em");
+		resumeButton.addClickListener((event) -> {
+			OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
+			this.stoppageAckNotification.close();
+			this.stoppageAckNotification = null;
+		});
+		
+		if (isCenterNotifications()) {
+			label.getStyle().set("font-size", "x-large");
+			ackButton.getStyle().set("font-size", "large");
+			resumeButton.getStyle().set("font-size", "large");
+			this.stoppageAckNotification.setPosition(Position.MIDDLE);
+		} else {
+			label.getStyle().set("font-size", "large");
+			ackButton.getStyle().set("font-size", "normal");
+			resumeButton.getStyle().set("font-size", "normal");
+			this.stoppageAckNotification.setPosition(Position.TOP_START);
+		}
+		
+		this.stoppageAckNotification.setDuration(0);
+		this.stoppageAckNotification.add(label);
+		this.stoppageAckNotification.add(ackButton);
+		this.stoppageAckNotification.add(resumeButton);
+		this.stoppageAckNotification.open();
 	}
 
 	@Subscribe
 	@Override
 	public void slaveStartLifting(UIEvent.StartLifting s) {
-		ui.access(() -> {
+		currentUI.access(() -> {
 			super.slaveStartLifting(s);
-			if (this.stoppageAckDialog != null) {
-				this.stoppageAckDialog.close();
+			if (this.stoppageAckNotification != null) {
+				this.stoppageAckNotification.close();
+				this.stoppageAckNotification = null;
 			}
 		});
 	}
@@ -441,16 +490,16 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void create1MinButton() {
 		super.create1MinButton();
-		UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
-		UI.getCurrent().addShortcutListener(() -> do1Minute(), Key.EQUAL, KeyModifier.SHIFT);
+		currentUI.addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
+		currentUI.addShortcutListener(() -> do1Minute(), Key.EQUAL, KeyModifier.SHIFT);
 	}
 
 	@Override
 	protected void create2MinButton() {
 		super.create2MinButton();
-		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.EQUAL);
-		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
-		UI.getCurrent().addShortcutListener(() -> do2Minutes(), Key.SEMICOLON);
+		currentUI.addShortcutListener(() -> do2Minutes(), Key.EQUAL);
+		currentUI.addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
+		currentUI.addShortcutListener(() -> do2Minutes(), Key.SEMICOLON);
 	}
 
 	/**
@@ -475,7 +524,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		this.startLiftingButton = new Button(Translator.translate("startLifting"), new Icon(VaadinIcon.MICROPHONE),
 		        (e) -> {
-			        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
+			        currentUI.access(() -> getRouterLayout().setMenuArea(createTopBar()));
 			        getFop().fopEventPost(new FOPEvent.StartLifting(this));
 		        });
 		this.startLiftingButton.getThemeNames().add("success primary");
@@ -483,7 +532,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.showResultsButton = new Button(Translator.translate("ShowResults"), new Icon(VaadinIcon.MEDAL),
 		        (e) -> {
 			        var fop = getFop();
-			        UI.getCurrent().access(() -> getRouterLayout().setMenuArea(createTopBar()));
+			        currentUI.access(() -> getRouterLayout().setMenuArea(createTopBar()));
 			        fop.fopEventPost(
 			                new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null,
 			                        true,
@@ -541,12 +590,12 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void createStartTimeButton() {
 		super.createStartTimeButton();
-		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
-		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
-		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
+		currentUI.addShortcutListener(() -> doStartTime(), Key.COMMA);
+		currentUI.addShortcutListener(() -> doStartTime(), Key.SLASH);
+		currentUI.addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
 
-		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
-		UI.getCurrent().addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
+		currentUI.addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
+		currentUI.addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
 	}
 
 	/**
@@ -557,8 +606,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void createStopTimeButton() {
 		super.createStopTimeButton();
-		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
-		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL);
+		currentUI.addShortcutListener(() -> doStopTime(), Key.PERIOD);
+		currentUI.addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL);
 	}
 
 	@Override
@@ -654,7 +703,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		var fop = getFop();
 		Group group = fop.getGroup();
 		logger.trace("initial setting group to {} {}", group, LoggerUtils.whereFrom());
-		UI.getCurrent().access(() -> getGroupFilter().setValue(group));
+		currentUI.access(() -> getGroupFilter().setValue(group));
 
 		this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
 		        fop,
@@ -779,11 +828,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
 		Button good = new Button(new Icon(VaadinIcon.CHECK), (e) -> goodLift());
 		good.getElement().setAttribute("theme", "success icon");
-		UI.getCurrent().addShortcutListener(() -> goodLift(), Key.F2);
+		currentUI.addShortcutListener(() -> goodLift(), Key.F2);
 
 		Button bad = new Button(new Icon(VaadinIcon.CLOSE), (e) -> badLift());
 		bad.getElement().setAttribute("theme", "error icon");
-		UI.getCurrent().addShortcutListener(() -> badLift(), Key.F4);
+		currentUI.addShortcutListener(() -> badLift(), Key.F4);
 
 		HorizontalLayout decisions = new HorizontalLayout(good, bad);
 		return decisions;
@@ -796,7 +845,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		// setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
 		// setCenterNotifications(Config.getCurrent().featureSwitch("centerAnnouncerNotifications"));
 		defineFilters(this.getCrudGrid());
-		ui = UI.getCurrent();
 	}
 
 	private void badLift() {
@@ -843,8 +891,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			// jury can send multiple decisions.
 			this.juryConfirmationDialog.close();
 		}
-		if (this.stoppageAckDialog != null) {
-			this.stoppageAckDialog.close();
+		if (this.stoppageAckNotification != null) {
+			this.stoppageAckNotification.close();
 		}
 		this.juryConfirmationDialog = new ConfirmDialog();
 		this.juryConfirmationDialog.setHeader(Translator.translate("Announcer.JuryDecisionTitle"));
