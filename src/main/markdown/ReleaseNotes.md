@@ -14,7 +14,7 @@
 
 **New in Release 58.3**
 
-58.3.0: When a stoppage occurs, the announcer now gets a notification dialogue with an acknowledgement instead of a disappearing notification.
+58.3.0: When a stoppage occurs, the announcer now gets a notification that requires acknowledgement instead of a notification that disappears.  The notification closes when competition is resumed.
 
 58.3.0: When a record is improved or recomputed, records now correctly include the athlete's birth date and birth year.  Also restored using the competition name as the event name.
 
