@@ -254,8 +254,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			switch (et) {
 				case CALL_REFEREES:
 					text = Translator.translate("JuryNotification." + et.name());
-					if (!this.summonNotificationSent) {
-						doNotification(text, style);
+					if (!this.deliberationNotificationSent) {
+						doStoppageDialog(text, style);
 					}
 					this.summonNotificationSent = true;
 					return;
@@ -332,8 +332,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.stoppageAckDialog.setText(new Html(
 		        """
 		        <div>
-		        <div style="%s">%s</div>
-		        <br/>
+//		        <div style="%s">%s</div>
+//		        <br/>
 		        <div>%s</div>
 		        <div>
 		        """.formatted(style, text, Translator.translate("JuryNotification.ACK"))));
