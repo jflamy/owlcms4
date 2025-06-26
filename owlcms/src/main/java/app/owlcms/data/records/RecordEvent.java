@@ -65,16 +65,21 @@ public class RecordEvent {
 		newRecord.setAgeGrp(rec.getAgeGrp());
 		newRecord.setAgeGrpLower(rec.getAgeGrpLower());
 		newRecord.setAgeGrpUpper(rec.getAgeGrpUpper());
+		
 		newRecord.setAthleteName(a.getFullName());
 		newRecord.setBirthDate(a.getFullBirthDate());
 		newRecord.setBirthYear(a.getYearOfBirth());
+		newRecord.setGender(a.getGender());
+		newRecord.setAthleteAge(a.getAge());
+		newRecord.setAthleteBW(a.getBodyWeight());
+		newRecord.setNation(a.getTeam());
+		
 		newRecord.setBwCatLower(rec.getBwCatLower());
 		newRecord.setBwCatUpper(rec.getBwCatUpper());
 		newRecord.setBwCatString(rec.getBwCatString());
+		
 		newRecord.setEvent(Competition.getCurrent().getCompetitionName());
 		newRecord.setEventLocation(Competition.getCurrent().getCompetitionCity());
-		newRecord.setGender(a.getGender());
-		newRecord.setNation(a.getTeam());
 		newRecord.setRecordDate(LocalDate.now());
 		newRecord.setRecordFederation(rec.getRecordFederation());
 		newRecord.setRecordLift(rec.getRecordLift());
@@ -82,9 +87,10 @@ public class RecordEvent {
 		newRecord.setRecordValue(value);
 		newRecord.setRecordYear(LocalDate.now().getYear());
 		newRecord.setFileName(rec.getFileName());
+		
 		newRecord.setGroupNameString(currentGroup != null ? currentGroup.getName() : null);
-		newRecord.setAthleteAge(a.getAge());
-		newRecord.setAthleteBW(a.getBodyWeight());
+		logger.info("!!! new record {} {} {} {}",newRecord.getAthleteName(), newRecord.getAgeGrp(), newRecord.getRecordLift(), newRecord.getRecordValue());
+
 		Category cat = a.getCategory();
 		newRecord.setCategoryString(cat != null ? cat.getSafeName() : "");
 		return newRecord;

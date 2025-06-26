@@ -400,32 +400,35 @@ public class RecordRepository {
 
 	public static RecordEvent improveRecord(ActualLiftInfo ali, RecordEvent mr, int newValue) {
 		RecordEvent nmr = new RecordEvent();
+		
+		nmr.setAthleteName(ali.getA().getFullName());
+		nmr.setBirthDate(ali.getA().getFullBirthDate());
+		nmr.setBirthYear(ali.getA().getYearOfBirth());
+		nmr.setAthleteAge(ali.getA().getAge());
+		nmr.setAthleteBW(ali.getA().getBodyWeight());
+		nmr.setGender(ali.getA().getGender());
+		nmr.setNation(ali.getA().getClub());
+		
 		nmr.setAgeGrp(mr.getAgeGrp());
-		nmr.setRecordFederation(mr.getRecordFederation());
-		nmr.setRecordLift(mr.getRecordLift());
-		nmr.setRecordName(mr.getRecordName());
 		nmr.setAgeGrpLower(mr.getAgeGrpLower());
 		nmr.setAgeGrpUpper(mr.getAgeGrpUpper());
 		nmr.setBwCatLower(mr.getBwCatLower());
 		nmr.setBwCatUpper(mr.getBwCatUpper());
 		nmr.setBwCatString(mr.getBwCatString());
 		nmr.setCategoryString(mr.getCategoryString());
-
-		nmr.setAthleteName(ali.getA().getFullName());
-		nmr.setGender(ali.getA().getGender());
+	
+		nmr.setRecordLift(mr.getRecordLift());
+		nmr.setRecordName(mr.getRecordName());
 		nmr.setRecordValue(newValue);
 		nmr.setRecordDate(ali.getT().toLocalDate());
 		nmr.setRecordYear(ali.getT().getYear());
+		nmr.setRecordFederation(mr.getRecordFederation());
 		nmr.setEvent(Competition.getCurrent().getCompetitionName());
-		nmr.setNation(ali.getA().getClub());
-		nmr.setAthleteBW(ali.getA().getBodyWeight());
-		nmr.setAthleteAge(ali.getA().getAge());
-		nmr.setBirthDate(ali.getA().getFullBirthDate());
-
 		nmr.setEventLocation(Competition.getCurrent().getCompetitionCity());
+		
 		// this marks the record as provisional
 		nmr.setGroupNameString(ali.getA().getGroup().getName());
-		logger.info("!!! improved record {} {} {} {}",nmr.getAthleteName(), nmr.getAgeGrp(), nmr.getRecordLift(), nmr.getRecordValue());
+		logger.info("!!! recomputed record {} {} {} {}",nmr.getAthleteName(), nmr.getAgeGrp(), nmr.getRecordLift(), nmr.getRecordValue());
 		return nmr;
 	}
 
