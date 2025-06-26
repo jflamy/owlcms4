@@ -917,11 +917,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		BindingBuilder<Athlete, Double> bsw = this.binder.forField(this.scaleWeightField);
 		validateBodyWeight(bsw, false);
 		bindField(bsw, this.scaleWeightField, Athlete::getScaleWeight, Athlete::setScaleWeight);
-		
+
 		this.bodyWeightField = new LocalizedDecimalField();
 		if (Competition.getCurrent().getDeduct250g()) {
 			this.bodyWeightField.setReadOnly(true);
 			layoutAddFormItem(layout, this.scaleWeightField, Translator.translate("ScaleWeight"));
+		} else {
+			this.bodyWeightField.setReadOnly(false);
 		}
 		this.bodyWeightField.getWrappedTextField().setAllowedCharPattern("[0-9.,]");
 		BindingBuilder<Athlete, Double> bb = this.binder.forField(this.bodyWeightField);
@@ -941,13 +943,19 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				if (Competition.getCurrent().getDeduct250g()) {
 					this.bodyWeightField.setValue(v.getValue() - 0.250);
 				}
-				recomputeCategories(this.genderField, this.bodyWeightField, this.categoryField.getValue(), this.eligibleField,
-				        this.dateField,
-				        this.qualifyingTotalField);
+				try {
+					// this can fail upon first loading due to fields not fully initialized
+					// we take the easy way out.
+					recomputeCategories(this.genderField, this.bodyWeightField, this.categoryField.getValue(), this.eligibleField,
+					        this.dateField,
+					        this.qualifyingTotalField);
+				} catch (Exception e) {
+				}
 				this.bodyWeightField.setReadOnly(true);
 			} else {
 				this.bodyWeightField.setReadOnly(false);
 			}
+			this.bodyWeightField.setReadOnly(Competition.getCurrent().getDeduct250g());
 		});
 
 		if (!Competition.getCurrent().getDeduct250g()) {
@@ -956,7 +964,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 		// skip to next row
 		layout.add(new NativeLabel());
-
 
 		this.snatch1DeclarationField = new LocalizedIntegerField();
 		BindingBuilder<Athlete, Integer> bb1 = this.binder.forField(this.snatch1DeclarationField);
@@ -1522,7 +1529,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        List<Category> allEligibles,
 	        boolean recomputeEligibles) {
 
-		//logger.trace("===== updating category fields {} {}\n{}", selectedCategory, bestMatch, LoggerUtils.stackTrace());
+		// logger.trace("===== updating category fields {} {}\n{}", selectedCategory, bestMatch, LoggerUtils.stackTrace());
 		LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();
 		Set<Category> prevEligibles;
 		if (recomputeEligibles) {
@@ -1583,7 +1590,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					}
 				}
 			}
-			
+
 			if (matchingEligible == null) {
 				Set<Category> priorEligibles = eligibleField.getValue();
 				// need to recompute the eligibility categories outright before declaring there is none.
