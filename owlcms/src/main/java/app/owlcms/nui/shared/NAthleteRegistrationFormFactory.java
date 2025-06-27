@@ -69,6 +69,7 @@ import app.owlcms.components.fields.LocalDateField;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.components.fields.LocalizedIntegerField;
 import app.owlcms.components.fields.ValidationUtils;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -611,9 +612,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return eligibles.stream().anyMatch(c -> c.sameAs(category));
 	}
 
-	@SuppressWarnings("unused")
 	private List<Championship> championshipsForCategories(Set<Category> value) {
 		return value.stream().map(c -> c.getAgeGroup().getChampionship()).distinct().toList();
+	}
+	
+	@SuppressWarnings("unused")
+	private List<AgeGroup> ageGroupsForCategories(Set<Category> value) {
+		return value.stream().map(c -> c.getAgeGroup()).distinct().toList();
 	}
 
 	private void checkOther20kgFields(LocalizedIntegerField fieldA,
@@ -1273,7 +1278,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        HasValue<?, ?> dateField, LocalizedIntegerField qualifyingTotalField2) {
 
 		Integer age = getAgeFromFields();
-		List<Championship> previousChampionships = championshipsForCategories(eligibleField.getValue());
+		//List<Championship> previousChampionships = championshipsForCategories(eligibleField.getValue());
+		List<String> previousAgeGroups = ageGroupsForCategories(eligibleField.getValue()).stream().map(ag -> ag.getCode()).toList();
+		logger.debug("previous age groups {}", previousAgeGroups);
 		if (bodyWeightField.getValue() != null) {
 			if (genderField.getValue() != null && age != null) {
 				// body weight, gender, date
@@ -1292,9 +1299,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					// logger.trace("recompute, cat={} allEligible = {}", cat, this.allEligible);
 					// category is null or not within eligibles, recompute
 
-					List<Category> filteredEligibles = this.allEligible.stream()
-					        .filter(e -> previousChampionships.isEmpty() || previousChampionships.contains(e.getAgeGroup().getChampionship())).toList();
+//					List<Category> filteredEligibles = this.allEligible.stream()
+//					        .filter(e -> previousChampionships.isEmpty() || previousChampionships.contains(e.getAgeGroup().getChampionship())).toList();
 					// logger.debug("eligibilty filtered on championship {}", filteredEligibles);
+					
+					List<Category> filteredEligibles = this.allEligible.stream()
+					        .filter(e -> previousAgeGroups.isEmpty() || previousAgeGroups.contains(e.getAgeGroup().getCode())).toList();
+					logger.debug("eligibilty filtered on age groups {} {} {}", allEligible, filteredEligibles);
+					
+
 
 					Category bestMatchCategory = bestMatch(filteredEligibles);
 					updateCategoryFields(selectedCategory, bestMatchCategory, eligibleField, qualifyingTotalField2,
@@ -1320,11 +1333,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				if (ageFromFields != null && ageFromFields > 5 && ageFromFields < 120) {
 					this.allEligible = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(), gender,
 					        ageFromFields, bw, qualifyingTotal);
-					List<Category> filteredEligibles = this.allEligible.stream()
-					        .filter(e -> previousChampionships.isEmpty()
-					                || previousChampionships.contains(e.getAgeGroup().getChampionship()))
-					        .toList();
+					
+//					List<Category> filteredEligibles = this.allEligible.stream()
+//					        .filter(e -> previousChampionships.isEmpty()
+//					                || previousChampionships.contains(e.getAgeGroup().getChampionship()))
+//					        .toList();
 					// logger.trace("eligibilty2 filtered on championship {}",filteredEligibles);
+					
+					List<Category> filteredEligibles = this.allEligible.stream()
+					        .filter(e -> previousAgeGroups.isEmpty() || previousAgeGroups.contains(e.getAgeGroup().getCode())).toList();
 
 					updateCategoryFields(selectedCategory, selectedCategory, eligibleField, qualifyingTotalField2,
 					        filteredEligibles,
