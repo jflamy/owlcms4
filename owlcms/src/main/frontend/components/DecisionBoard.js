@@ -83,7 +83,7 @@ class DecisionBoard extends LitElement {
         }
 
 	  </style>
-    <div class="wrapper">
+    <div class="wrapper" style="${this.colorOverride}">
       <div class="wrapper bigTitle" style="${this.waitingStyles()}">
         <div class="competitionName">${this.competitionName}</div>
         <br />
