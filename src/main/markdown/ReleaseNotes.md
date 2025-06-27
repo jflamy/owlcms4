@@ -14,6 +14,8 @@
 
 **New in Release 58.3**
 
+58.3.1: During weigh-in, when entering the weight, athletes will not be assigned to additional age groups even though they might be eligible.  This supports competitions where explicit registration is required for age groups.
+
 58.3.0: **Critical fix**: when using the 250g automatic deduction, reopening an athlete after  the initial weigh-in would fail.
 
 58.3.0: When a stoppage occurs, the announcer now gets a notification that requires acknowledgement instead of a notification that disappears.  The notification closes when competition is resumed.
