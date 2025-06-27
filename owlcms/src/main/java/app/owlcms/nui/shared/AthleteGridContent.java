@@ -1333,7 +1333,6 @@ public abstract class AthleteGridContent extends BaseContent
 		}
 		n.add(label);
 		notifications.add(n);
-		logger.warn("adding {}",text);
 		n.open();
 	}
 
@@ -1514,11 +1513,7 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		currentUI = attachEvent.getUI();
-		logger.warn("currentUI ================================= {}",currentUI);
-		// logger.debug("attaching {} initial={} \\n{}",
-		// this.getClass().getSimpleName(), attachEvent.isInitialAttach(),
-		// LoggerUtils. stackTrace());
+		currentUI = attachEvent.getUI();;
 		// create the top bar.
 		syncWithFop(true, getFop());
 		// we listen on uiEventBus.

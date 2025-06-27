@@ -320,40 +320,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void doStoppageDialog(String text, String style) {
-//		logger.warn("opening stoppage {}", notifications);
-//		for (Notification notification : notifications) {
-//			if (notification.isOpened()) {
-//				logger.warn("removing {}", notification.getElement().getOuterHTML());
-//				notification.close();
-//			}
-//		}
-//		if (this.stoppageAckDialog != null) {
-//			// jury can send multiple decisions.
-//			this.stoppageAckDialog.close();
-//		}
-//		this.stoppageAckDialog = new ConfirmDialog();
-//		this.stoppageAckDialog.setHeader(text);
-//
-//		this.stoppageAckDialog.setText(new Html(
-//		        """
-//		        <div>%s</div>
-//		        """.formatted(Translator.translate("JuryNotification.ACK"))));
-//
-//		this.stoppageAckDialog.setCloseOnEsc(true);
-//		this.stoppageAckDialog.setConfirmText(Translator.translate("OK"));
-//		this.stoppageAckDialog.setCancelable(true);
-//		this.stoppageAckDialog.setCancelText(Translator.translate("JuryNotification.END_JURY_BREAK"));
-//
-//		this.stoppageAckDialog
-//		        .addCancelListener(c -> {
-//			        OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
-//			        this.stoppageAckDialog = null;
-//		        });
-//		this.stoppageAckDialog
-//		        .addConfirmListener(c -> {
-//			        this.stoppageAckDialog = null;
-//		        });
-//		this.stoppageAckDialog.open();
+
 		if (this.stoppageAckNotification != null)  {
 			this.stoppageAckNotification.close();
 		}
