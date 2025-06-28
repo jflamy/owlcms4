@@ -612,6 +612,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return eligibles.stream().anyMatch(c -> c.sameAs(category));
 	}
 
+	@SuppressWarnings("unused")
 	private List<Championship> championshipsForCategories(Set<Category> value) {
 		return value.stream().map(c -> c.getAgeGroup().getChampionship()).distinct().toList();
 	}
