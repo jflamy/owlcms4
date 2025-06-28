@@ -14,6 +14,8 @@
 
 **New in Release 58.3**
 
+58.3.1: Declarations made on a running 1:00 clock could be wrongly denied as being late in certain convoluted circumstances
+
 58.3.1: During weigh-in, when entering the weight, athletes will not be assigned to additional age groups even though they might be eligible.  This supports competitions where explicit registration is required for age groups.
 
 58.3.0: **Critical fix**: when using the 250g automatic deduction, reopening an athlete after  the initial weigh-in would fail.
