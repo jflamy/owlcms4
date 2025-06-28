@@ -202,7 +202,7 @@ public class FieldOfPlay implements IUnregister {
 	private boolean timeoutEmitted;
 	final private Logger timingLogger = (Logger) LoggerFactory.getLogger(this.logger.getName() + "_Timing");
 	private EventBus uiEventBus = null;
-	//final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger(this.logger.getName() + "_UI");
+	// final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger(this.logger.getName() + "_UI");
 	private Thread wakeUpRef;
 	private Integer weightAtLastStart;
 	private int prevWeight;
@@ -552,8 +552,7 @@ public class FieldOfPlay implements IUnregister {
 
 		if (owner != null && owner.equals(a)) {
 			// the clock was started for us. we own the clock, clock is already set to what
-			// time was
-			// left
+			// time was left
 			timeAllowed = getAthleteTimer().getTimeRemainingAtLastStop();
 		} else if (getPreviousAthlete() != null && getPreviousAthlete().equals(a)) {
 			if (owner != null || a.getAttemptNumber() == 1) {
@@ -2513,14 +2512,14 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void recomputeRecordsMap(List<Athlete> athletes) {
-		//logger.debug("recompute record map");
+		// logger.debug("recompute record map");
 		this.groupRecords.clear();
 		for (Athlete a : athletes) {
 			List<RecordEvent> displayableRecords = RecordFilter.computeDisplayableRecordsForAthlete(a);
 			this.displayableRecordsByAthlete.put(a, displayableRecords);
 
 			List<RecordEvent> eligibleRecords = RecordFilter.filterEligibleRecordsForAthlete(a, displayableRecords);
-			//logger.debug("athlete {} {}",a, eligibleRecords);
+			// logger.debug("athlete {} {}",a, eligibleRecords);
 			this.eligibleRecordsByAthlete.put(a, eligibleRecords);
 
 			this.groupRecords.addAll(displayableRecords);
@@ -3050,7 +3049,6 @@ public class FieldOfPlay implements IUnregister {
 
 		if (!getCurAthlete().equals(getClockOwner())) {
 			setClockOwner(getCurAthlete());
-			// setClockOwnerInitialTimeAllowed(getTimeAllowed());
 		}
 		resetEmittedFlags();
 		prepareDownSignal();
@@ -3061,6 +3059,10 @@ public class FieldOfPlay implements IUnregister {
 		int time = getAthleteTimer().getTimeRemaining();
 		if (isForcedTime() || this.clockOwner != this.previousAthlete || (time == 60000 || time == 120000)) {
 			resetDecisions();
+			if (time == 60000 || time == 120000) {
+				// new clock, use this as reference for late declarations.
+				setClockOwnerInitialTimeAllowed(time);
+			}
 		}
 
 		// enable master to listening for decision
