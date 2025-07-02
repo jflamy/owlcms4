@@ -558,7 +558,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected void createStartTimeButton() {
 		super.createStartTimeButton();
 		currentUI.addShortcutListener(() -> doStartTime(), Key.COMMA);
-		currentUI.addShortcutListener(() -> doStartTime(), Key.SLASH);
+		boolean notSpanish = !OwlcmsSession.getLocale().getLanguage().startsWith("es");
+		boolean keepSpanishKeypadShortcut = Config.getCurrent().featureSwitch("keepSpanishHyphenShortcut");
+		if (notSpanish || keepSpanishKeypadShortcut) {
+			currentUI.addShortcutListener(() -> doStartTime(), Key.SLASH);
+		}
 		currentUI.addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
 
 		currentUI.addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);

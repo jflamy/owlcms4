@@ -468,7 +468,11 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	private void registerShortcuts() {
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
-		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
+		boolean notSpanish = !OwlcmsSession.getLocale().getLanguage().startsWith("es");
+		boolean keepSpanishKeypadShortcut = Config.getCurrent().featureSwitch("keepSpanishHyphenShortcut");
+		if (notSpanish || keepSpanishKeypadShortcut) {
+			UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
+		}
 		UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
 
 		UI.getCurrent().addShortcutListener(() -> doStopTime(), Key.PERIOD);
