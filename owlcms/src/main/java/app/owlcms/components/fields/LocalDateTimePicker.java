@@ -18,6 +18,7 @@ import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.timepicker.TimePicker;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
@@ -29,7 +30,9 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 	public final static String[] AM_PM_COUNTRIES = { "AU", "GB", "IN", "NZ", "PH", "US", "ZA" };
 
 	public static Locale fixAM_PM(Locale l) {
-		if (l.getLanguage() != null && l.getLanguage().contentEquals("en")) {
+		if (Config.getCurrent().featureSwitch("force24h")) {
+			return (new Locale("en", "SE"));
+		} else if ((l.getLanguage() != null && l.getLanguage().contentEquals("en"))) {
 			String country = l.getCountry();
 			if (l != null && Arrays.binarySearch(AM_PM_COUNTRIES, country) <= 0) {
 				// use international format en_SE seems to work best.
@@ -46,7 +49,9 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 	public LocalDateTimePicker() {
 		this.timePicker.getStyle().set("margin-left", "1em");
 		Locale l = OwlcmsSession.getLocale();
-		this.timePicker.setLocale(fixAM_PM(l));
+		Locale fixAM_PM = fixAM_PM(l);
+		this.datePicker.setLocale(fixAM_PM);
+		this.timePicker.setLocale(fixAM_PM);
 		add(this.datePicker, this.timePicker);
 	}
 
@@ -62,11 +67,13 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 	protected LocalDateTime generateModelValue() {
 		final LocalDate date = this.datePicker.getValue();
 		final LocalTime time = this.timePicker.getValue();
+		logger.warn("getValue: date {} time {} locale {}",date,time, this.timePicker.getLocale());
 		return date != null && time != null ? LocalDateTime.of(date, time) : null;
 	}
 
 	@Override
 	protected void setPresentationValue(LocalDateTime newPresentationValue) {
+		logger.warn("setPresentationValue {} locale {}",newPresentationValue, this.timePicker.getLocale());
 		this.datePicker.setValue(newPresentationValue != null ? newPresentationValue.toLocalDate() : null);
 		this.timePicker.setValue(newPresentationValue != null ? newPresentationValue.toLocalTime() : null);
 	}

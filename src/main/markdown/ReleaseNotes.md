@@ -14,6 +14,8 @@
 
 **New in Release 58.3**
 
+58.3.2: New feature toggle `force24h` to always use 24h time when selecting a date-time (e.g. for sessions)
+
 58.3.2: Fix: the normal keyboard "minus/hyphen" key would not work for the announcer when attempting to change a lift from good to bad.
 
 - On a Spanish keyboard, the "-" sign is in the same location as the US "/" character.  This is the "Slash" location according to the [standard key location definitions](https://www.w3.org/TR/uievents-code/#key-alphanumeric-section). Shortcuts are defined according to that standard, so the Spanish "-" conflicts with the "/" shortcut used to start the clock. 
