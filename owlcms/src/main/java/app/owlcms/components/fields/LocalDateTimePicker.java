@@ -33,7 +33,6 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 	public static Locale fixAM_PM(Locale l) {
 		if ((l.getLanguage() != null && l.getLanguage().contentEquals("en"))) {
 			String country = l.getCountry();
-			logger.warn("search AR {}", Arrays.binarySearch(AM_PM_COUNTRIES, "AR"));
 			if (l != null && Arrays.binarySearch(AM_PM_COUNTRIES, country) < 0) {
 				// not an AM-PM country, international format en_SE seems to work best for 24h.
 				return (new Locale("en", "SE"));
@@ -68,13 +67,13 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 	protected LocalDateTime generateModelValue() {
 		final LocalDate date = this.datePicker.getValue();
 		final LocalTime time = this.timePicker.getValue();
-		logger.warn("getValue: date {} time {} locale {}",date,time, this.timePicker.getLocale());
+		//logger.debug("getValue: date {} time {} locale {}",date,time, this.timePicker.getLocale());
 		return date != null && time != null ? LocalDateTime.of(date, time) : null;
 	}
 
 	@Override
 	protected void setPresentationValue(LocalDateTime newPresentationValue) {
-		logger.warn("setPresentationValue {} locale {}",newPresentationValue, this.timePicker.getLocale());
+		//logger.debug("setPresentationValue {} locale {}",newPresentationValue, this.timePicker.getLocale());
 		this.datePicker.setValue(newPresentationValue != null ? newPresentationValue.toLocalDate() : null);
 		this.timePicker.setValue(newPresentationValue != null ? newPresentationValue.toLocalTime() : null);
 	}
