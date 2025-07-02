@@ -18,31 +18,32 @@ import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.timepicker.TimePicker;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class LocalDateTimePicker extends CustomField<LocalDateTime> {
+	
+	static Logger logger = (Logger) LoggerFactory.getLogger(LocalDateTimePicker.class);
 
 	// override time format. Sorted list of old-style countries. Canada does both,
 	// so excluded.
 	public final static String[] AM_PM_COUNTRIES = { "AU", "GB", "IN", "NZ", "PH", "US", "ZA" };
 
 	public static Locale fixAM_PM(Locale l) {
-		if (Config.getCurrent().featureSwitch("force24h")) {
-			return (new Locale("en", "SE"));
-		} else if ((l.getLanguage() != null && l.getLanguage().contentEquals("en"))) {
+		if ((l.getLanguage() != null && l.getLanguage().contentEquals("en"))) {
 			String country = l.getCountry();
-			if (l != null && Arrays.binarySearch(AM_PM_COUNTRIES, country) <= 0) {
-				// use international format en_SE seems to work best.
+			logger.warn("search AR {}", Arrays.binarySearch(AM_PM_COUNTRIES, "AR"));
+			if (l != null && Arrays.binarySearch(AM_PM_COUNTRIES, country) < 0) {
+				// not an AM-PM country, international format en_SE seems to work best for 24h.
 				return (new Locale("en", "SE"));
 			}
+		} else {
+			return (new Locale("en", "SE"));
 		}
 		return l;
 	}
-
-	Logger logger = (Logger) LoggerFactory.getLogger(LocalDateTimePicker.class);
+	
 	private final DatePicker datePicker = new DatePicker();
 	private final TimePicker timePicker = new TimePicker();
 
