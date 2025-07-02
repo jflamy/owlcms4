@@ -14,6 +14,13 @@
 
 **New in Release 58.3**
 
+58.3.2: Fix: the normal keyboard "minus/hyphen" key would not work for the announcer when attempting to change a lift from good to bad.
+
+- On a Spanish keyboard, the "-" sign is in the same location as the US "/" character.  This is the "Slash" location according to the [standard key location definitions](https://www.w3.org/TR/uievents-code/#key-alphanumeric-section). Shortcuts are defined according to that standard, so the Spanish "-" conflicts with the "/" shortcut used to start the clock. 
+- The normal keyboard "Slash" shortcut is now disabled by default in Spanish
+  - If using Spanish as a language, and using a timekeeper keypad programmed to send the key at the bottom left of the normal keyboard (the US "/" or Spanish "-"), then you need to change to use the NumPad Divide key (the "/" key on the numeric keypad).
+  - If you cannot reprogram your keypad, you can use the `keepSpanishHyphenShortcut` [feature toggle](https://jflamy.github.io/owlcms4/#/FeatureToggles) to keep the existing shortcut.  The announcer will then need to use the keypad minus sign.
+
 58.3.1: Declarations made on a running 1:00 clock could be wrongly denied as being late in certain convoluted circumstances
 
 58.3.1: During weigh-in, when entering the weight, athletes will not be assigned to additional age groups even though they might be eligible.  This supports competitions where explicit registration is required for age groups.

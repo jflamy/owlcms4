@@ -1,4 +1,6 @@
-For shortcuts, the keys given below are the key locations for a US keyboard. You will use the key at the [location shown on this diagram](https://kbdlayout.info/kbdus), no matter what is actually printed on your keyboard.  Shortcut keys are as defined according to [a standard](https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system).
+For shortcuts, the keys given below are the key locations for a US keyboard. You will use the key at the [location shown on this diagram](https://kbdlayout.info/kbdus), no matter what is actually printed on your keyboard.  Shortcut keys are defined according to [a standard](https://www.w3.org/TR/uievents-code/#key-alphanumeric-writing-system).
+
+We recommend using the numeric pad codes as shortcuts when one is defined.
 
 ### Announcer Keypad Shortcuts
 
@@ -8,10 +10,10 @@ For shortcuts, the keys given below are the key locations for a US keyboard. You
 
 ### Timekeeping Keypad Shortcuts
 
-- The clock can be started by using the `,` (comma) or `/` keys on the keyboard. The `/` key on the numeric keypad also works. On the Flic2 buttons, this is the `/` shortcut.
-- The clock can be stopped by using the `.` (period) key on the keyboard. The decimal fraction character on the numeric keypad should also work (in many countries, the numeric keypad shows a `,` instead of a `.` to match the local usage for decimal fraction). For the Flic2 buttons, this is the `.` shortcut.
+- The clock can be started by using the `,` ("Comma"). The `/`("Numpad Divide") key on the numeric keypad also works. On the Flic2 buttons, this is the `/` shortcut.
+- The clock can be stopped by using the `.` (period) key on the keyboard. The decimal fraction character on the numeric keypad ("Numpad Decimal") should also work (in many countries, the numeric keypad shows a `,` instead of a `.` to match the local usage for decimal fraction). For the Flic2 buttons, this is the `.` shortcut.
 - The clock can be reset to 1:00 by using the + key on the keyboard (more precisely, the key combination that corresponds to + on a US keyboard, that is, Shift=). Using the + key on the numeric keypad will also work. On the Flic2 buttons, this is the `=` shortcut.
-- The clock can be reset to 2:00 by using the `=` or `;`key on the keyboard ). Using the = key on the numeric keypad will also work. On the Flic2 buttons, this is the `=` or `;` shortcut.
+- The clock can be reset to 2:00 by using the `=` or `;`key on the keyboard ). Using the = (Numpad Equal) key on the numeric keypad will also work. On the Flic2 buttons, this is the `=` or `;` shortcut.
 
 ### Refereeing Keypad Shortcuts
 

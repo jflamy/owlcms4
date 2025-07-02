@@ -12,11 +12,47 @@
 
 <br>
 
-**Maintenance Log**
+**New in Release 58.3**
 
-58.1.3: Fix: Attempted records were not showing on the attempt board
+58.3.1: Declarations made on a running 1:00 clock could be wrongly denied as being late in certain convoluted circumstances
 
-58.1.2: Fix: for export of SBDE data under exotic circumstances (athletes from same team, same body weight category, same name, lifting in two different sessions, prior to lot number assignment)
+58.3.1: During weigh-in, when entering the weight, athletes will not be assigned to additional age groups even though they might be eligible.  This supports competitions where explicit registration is required for age groups.
+
+58.3.0: **Critical fix**: when using the 250g automatic deduction, reopening an athlete after  the initial weigh-in would fail.
+
+58.3.0: When a stoppage occurs, the announcer now gets a notification that requires acknowledgement instead of a notification that disappears.  The notification closes when competition is resumed.
+
+58.3.0: When a record is improved or recomputed, records now correctly include the athlete's birth date and birth year.  Also restored using the competition name as the event name.
+
+**New in Release 58.2**
+
+58.2.1: Important fix: When displaying record attempts, the attempt board would, sometimes (and randomly), fail to update the weight and plates shown on the board (the scoreboards and all other screens would all be correct).  An instruction added during development debugging had been left in and was interfering.
+
+58.2.0: The Final Package now uses the override for the "Best Athlete" scoring scheme if one is selected (the best athlete rankings are recomputed according to that selection)
+
+58.2.0: The duration of the Clean & Jerk break can be changed after the session has started
+
+58.2.0: Fixed messages about missing `reserveJury` property during import of registration and SBDE files.
+
+58.2.0: A new template `Protocol_AllSessions` produces all the protocol sheets in one Excel, one tab per session.
+
+58.2.0: The marshal is no longer notified of record attempts (this was disruptive)
+
+58.2.0: Newly added technical officials can now be selected in the sessions page.
+
+58.2.0: When loading an initial registration file, the existing sessions were not being deleted.  This has been fixed.   This is also possible for the SBDE format as well (but only when the athletes are also cleaned)
+
+58.2.0: Local dates and times (such as birthdays and session starts) were not always being saved in the correct time-zone-independent manner and marked as such (in particular, during an import)
+
+58.2.0: Fix: When several eligible categories had identical age and weight boundaries, selecting a specific one as the registration category was not possible from the editing form; the first one would be picked
+
+58.2.0: Fix: The recalculation of new records after loading additional record definitions did not compute total correctly.
+
+58.2.0: Feature Toggle: `displayBestScore` adds the best athlete score at the end of the scoreboard.
+
+58.1.4: Fix: record attempts were no longer showing on the attempt board.
+
+58.1.2: Fix for export of SBDE data under exotic circumstances (athletes from same team, same body weight category, same name, lifting in two different sessions, prior to lot number assignment)
 
 58.1.2: Show Reserve Referee and Reserve Jury on the editing forms and the Registration Excels.
 
