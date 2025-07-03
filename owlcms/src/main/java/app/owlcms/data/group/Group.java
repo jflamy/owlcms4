@@ -982,6 +982,7 @@ public class Group implements Comparable<Group> {
 	 */
 	@Transient
 	@JsonIgnore
+	@Deprecated
 	public String getLocalizedStartHour() {
 		String formatted = "";
 		try {
@@ -995,6 +996,12 @@ public class Group implements Comparable<Group> {
 			LoggerUtils.logError(Group.logger, e);
 		}
 		return formatted;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public String getLocalStartHour() {
+		return getLocalizedStartHour();
 	}
 
 	/**
