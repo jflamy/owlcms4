@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AccessDeniedException;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
@@ -30,7 +33,7 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @Route("displays/ncurrentathlete")
-public class NCurrentAthletePage extends AbstractResultsDisplayPage {
+public class NCurrentAthletePage extends AbstractResultsDisplayPage implements BeforeEnterObserver {
 
     Logger logger = (Logger) LoggerFactory.getLogger(NCurrentAthletePage.class);
     Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
@@ -92,4 +95,14 @@ public class NCurrentAthletePage extends AbstractResultsDisplayPage {
 
         this.addComponentAsFirst((Component) board);
     }
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		if (!Config.getCurrent().featureSwitch("iwfLook")) {
+			throw new AccessDeniedException();
+		}
+	}
+    
+    
+    
 }
