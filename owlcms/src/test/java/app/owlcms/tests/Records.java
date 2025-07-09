@@ -147,7 +147,7 @@ public class Records {
         assertEquals(schneiderF, curLifter);
         successfulLift(fopBus, curLifter, fopState);
         
-        // TODO Check that record has been set and assigned
+        // Check that record has been set and assigned
 
         // schneiderF snatch2
         curLifter = fopState.getCurAthlete();
@@ -155,7 +155,7 @@ public class Records {
         assertEquals(120000, fopState.getTimeAllowed());
         successfulLift(fopBus, curLifter, fopState);
         
-        // TODO Check that record has been improved
+        // Check that record has been improved
     }
 
     /**

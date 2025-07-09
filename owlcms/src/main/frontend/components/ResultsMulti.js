@@ -133,7 +133,7 @@ class ResultsFull extends LitElement {
                             </tr>
                           `
                           : html`
-                            <tr class="athlete">
+                            <tr class="${"athlete" + (item?.classname ?? "")}">
                               <td class="${"start " + (item?.classname ?? "")}">
                                 <div class="${item?.classname}"> ${item?.startNumber}</div>
                               </td>

@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.displays.scoreboard;
 
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -64,6 +66,7 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.CSSUtils;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -1082,6 +1085,8 @@ public class Results extends LitTemplate
 			this.uiEventBus = uiEventBusRegister(this, fop);
 
 			this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
+			this.getElement().setProperty("logoSrc", getLogoSrc());
+			
 		});
 
 		getElement().setProperty("showTotal", true);
@@ -1337,4 +1342,18 @@ public class Results extends LitTemplate
 		}
 	}
 
+	protected String getLogoSrc() {
+		try {
+			Path loc = ResourceWalker.getFileOrResourcePath("logos/left.svg");
+			return loc.toString();
+		} catch (FileNotFoundException e) {
+			try {
+				Path loc = ResourceWalker.getFileOrResourcePath("logos/left.png");
+				return loc.toString();
+			} catch (FileNotFoundException e2) {
+				return "../../../../local/logos/left.png";
+			}
+		}
+
+	}
 }

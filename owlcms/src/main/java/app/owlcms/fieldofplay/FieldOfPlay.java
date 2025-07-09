@@ -1001,7 +1001,6 @@ public class FieldOfPlay implements IUnregister {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		System.exit(1);
@@ -3171,7 +3170,6 @@ public class FieldOfPlay implements IUnregister {
 
 	private void uiShowRefereeDecisionOnSlaveDisplays(Athlete athlete2, Boolean goodLift2, Boolean[] refereeDecision2,
 	        Long[] longs, Object origin2) {
-		logger.debug("### showRefereeDecisionOnSlaveDisplays {}", athlete2);
 		Boolean ref1 = null;
 		Boolean ref2 = null;
 		Boolean ref3 = null;

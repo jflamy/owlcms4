@@ -114,7 +114,7 @@ class ResultsMedals extends LitElement {
                             ${(leader.sattempts ?? []).map(
                               (attempt) => html`
                                 <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}" >
-                                  <div>${attempt.stringValue}</div>
+                                  <div class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}">${attempt.stringValue}</div>
                                 </td>
                               `)}
                             <td class="best">
@@ -127,7 +127,7 @@ class ResultsMedals extends LitElement {
                             ${(leader.cattempts ?? []).map(
                               (attempt) => html`
                                 <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}" >
-                                  <div>${attempt.stringValue}</div>
+                                  <div class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}">${attempt.stringValue}</div>
                                 </td>
                               `)}
                             <td class="best">

@@ -93,7 +93,7 @@ class Results extends LitElement {
                             </tr>
                           `
                           : html`
-                            <tr class="athlete">
+                            <tr class="${"athlete" + (item?.classname ?? "")}">
                               <td class="${"start " + (item?.classname ?? "")}">
                                 <div class="${item?.classname}"> ${item?.startNumber}</div>
                               </td>
@@ -307,6 +307,7 @@ class Results extends LitElement {
       showSinclairRanks: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
+      logoSrc: {},
 
       // translation map
       t: { type: Object },
@@ -315,7 +316,6 @@ class Results extends LitElement {
       javaComponentId: {},
       stylesDir: {},
       autoVersion: {},
-
     };
   }
 

@@ -47,6 +47,7 @@ import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
 import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.MedalsPage;
+import app.owlcms.nui.displays.scoreboards.NCurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.RankingsPage;
 import app.owlcms.nui.displays.scoreboards.WarmupMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.WarmupNoLeadersPage;
@@ -93,9 +94,12 @@ public class VideoNavigationContent extends BaseNavigationContent
         
 		Button currentAthlete = openInNewTabQueryParameters(CurrentAthletePage.class,
 		        Translator.translate("CurrentAthleteTitle"), "video=true");
+		// Add button for new current athlete layout
+		Button nCurrentAthlete = openInNewTabQueryParameters(NCurrentAthletePage.class,
+		        Translator.translate("CurrentAthleteTitle") + " (New)", "video=true");
 		Button attempt = openInNewTabQueryParameters(PublicFacingAttemptBoardPage.class,
 		        Translator.translate("AttemptBoard"), "video=true");
-		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete);
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(attempt, currentAthlete, nCurrentAthlete);
 		doGroup(Translator.translate("AttemptBoard"), grid3, this);
 
 		Button publicDecisions = openInNewTabQueryParameters(PublicFacingDecisionBoardPage.class,
