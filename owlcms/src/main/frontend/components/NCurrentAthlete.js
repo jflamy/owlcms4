@@ -299,6 +299,9 @@ export class NCurrentAthlete extends LitElement {
 
   render() {
     return html`
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css"/>
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/ncurrentathlete" + (this.autoversion ?? "")}.css"/>
+
       <div class="lower-third-container">
         <div class="circle-container">
           <div class="shadow-circle"></div>
