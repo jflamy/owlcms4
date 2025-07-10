@@ -15,7 +15,7 @@
     </dependencySets>
     <files>
         <file>
-            <source>${project.parent.basedir}/owlcms/src/main/resources/logback-console.xml</source>
+            <source>${project.parent.basedir}/owlcms/src/main/resources/logback.xml</source>
             <destName>logback-test.xml</destName>
             <outputDirectory>classes</outputDirectory>
         </file>

@@ -12,6 +12,14 @@
 
 <br>
 
+**New in Release 58.4**
+
+58.4.0: Docker configuration will now keep a local log in the maven directory (next to the owlcms.jar file).
+
+58.4.0: Changes to enable "paid for" custom look and feels for broadcasting special events without including them in the free distribution.
+
+58.4.0: Age groups file for the Spanish Federation updated, visible if "español (España)" is the selected locale.
+
 **New in Release 58.3**
 
 58.3.3: Age groups file for the Spanish Federation updated, visible if "español (España)" is the selected locale.
