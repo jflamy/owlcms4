@@ -61,7 +61,6 @@ public class NCurrentAthlete extends Results {
 		uiEventLogger.setLevel(Level.INFO);
 	}
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private boolean groupDone;
 	private EventBus uiEventBus;
 
 	public NCurrentAthlete(AbstractDisplayPage page) {
@@ -205,7 +204,6 @@ public class NCurrentAthlete extends Results {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			setShowDecisions(this.getElement(), false);
-			setDone(true);
 			doBreak(e);
 		});
 	}
@@ -336,17 +334,6 @@ public class NCurrentAthlete extends Results {
 		return liftType;
 	}
 
-	private void doDone(Group g) {
-		logger.debug("doDone {}", g == null ? null : g.getName());
-		if (g == null) {
-			doEmpty();
-		} else {
-			OwlcmsSession.withFop(fop -> {
-				updateDisplay(null, fop);
-				getElement().setProperty("fullName", Translator.translate("Group_number_done", g.toString()));
-			});
-		}
-	}
 
 	private String formatAttempt(Integer attemptNo) {
 		String liftType = attemptNo >= 3 ? Translator.translate("Clean_and_Jerk")
@@ -425,10 +412,6 @@ public class NCurrentAthlete extends Results {
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 		});
 		setTranslationMap();
-	}
-	
-	private boolean isDone() {
-		return this.groupDone;
 	}
 	
 	private void setDisplay() {
@@ -523,10 +506,6 @@ public class NCurrentAthlete extends Results {
 	private void setShowDecisions(Element element, boolean b) {
 		if (logger.isDebugEnabled()) logger.debug("showDecisions({}) {}", b, LoggerUtils.whereFrom());
 		element.setProperty("showDecisions",b);
-	}
-	
-	private void setDone(boolean b) {
-		this.groupDone = b;
 	}
 	
 	private void syncWithFOP(UIEvent.SwitchGroup e) {
