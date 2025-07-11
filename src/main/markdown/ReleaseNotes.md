@@ -14,6 +14,8 @@
 
 **New in Release 58.3**
 
+58.3.3: Uploading a registration file would complain with a note about "reserveJury" not being defined.
+
 58.3.3: The speaker could not use the "Resume Competition" button in the yellow notification if the speaker were the source of the interruption.  The resume competition button is now more visible.
 
 58.3.3: The Age Groups file for the Spanish Federation has been updated. It is visible if "español (España)" is the selected locale.
