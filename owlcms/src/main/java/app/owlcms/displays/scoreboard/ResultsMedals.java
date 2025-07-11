@@ -107,7 +107,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			// logger.debug("ceremony event = {} {} {} {}", e, ceremonyGroup, ceremonyCategory, LoggerUtils.stackTrace());
 
 			// medalsInit();
-			checkVideo(this);
+			computeStylesDir(this);
 			this.teamFlags = URLUtils.checkFlags();
 			doMedals(this.getFop());
 
@@ -637,7 +637,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	private void doMedalsDisplay() {
 		medalsInit();
-		checkVideo(this);
+		computeStylesDir(this);
 		this.teamFlags = URLUtils.checkFlags();
 		doMedals(this.getFop());
 

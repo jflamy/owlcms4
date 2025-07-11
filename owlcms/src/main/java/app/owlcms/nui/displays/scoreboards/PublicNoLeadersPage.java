@@ -47,7 +47,7 @@ public class PublicNoLeadersPage extends PublicScoreboardPage {
 		        DisplayParameters.LEADERS, "false",
 		        DisplayParameters.RECORDS, "false",
 		        DisplayParameters.VIDEO, "false",
-		        DisplayParameters.PUBLIC, "false",
+		        DisplayParameters.PUBLIC, "true",
 		        SoundParameters.SINGLEREF, "false",
 		        DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")));
 		var additionalMap = Map.of(

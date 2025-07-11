@@ -148,6 +148,16 @@ public class TopSinclair extends AbstractTop {
 	@Override
 	public void setVideo(boolean video) {
 	}
+	
+	@Override
+	public void setPublicDisplay(boolean publicDisplay) {
+		super.setPublicDisplay(publicDisplay);
+	}
+	
+	@Override
+	public boolean isPublicDisplay() {
+		return super.isPublicDisplay();
+	}
 
 	@Subscribe
 	public void slaveGlobalRankingUpdated(UIEvent.GlobalRankingUpdated e) {
@@ -277,7 +287,7 @@ public class TopSinclair extends AbstractTop {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		ui = this.getUI().get();
-		checkVideo(this);
+		computeStylesDir(this);
 		setWide(false);
 		setTranslationMap();
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {

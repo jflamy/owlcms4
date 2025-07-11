@@ -250,7 +250,7 @@ public class Results extends LitTemplate
 	}
 
 	@Override
-	public final boolean isPublicDisplay() {
+	public boolean isPublicDisplay() {
 		return this.publicDisplay;
 	}
 
@@ -453,8 +453,6 @@ public class Results extends LitTemplate
 	 */
 	@Override
 	public void setVideo(boolean b) {
-		// this.logger.debug("{} setVideo {} from {}", this.getClass(), b,
-		// LoggerUtils.whereFrom());
 		this.video = b;
 	}
 
@@ -781,7 +779,7 @@ public class Results extends LitTemplate
 		FieldOfPlay fop = e.getFop();
 		if (!leaveTopAlone) {
 			if (a != null) {
-				Group group = fop.getGroup();
+				Group group = fop != null ? fop.getGroup() : null;
 				if (group != null && !group.isDone()) {
 					if (isAbbreviatedName()) {
 						this.getElement().setProperty("fullName",
@@ -1073,7 +1071,7 @@ public class Results extends LitTemplate
 			// details.toString()), details.getScreenWidth(), details.getScreenHeight());
 			// });
 			resultsInit();
-			checkVideo(this);
+			computeStylesDir(this);
 			this.teamFlags = URLUtils.checkFlags();
 
 			// get the global category rankings (attached to each athlete)

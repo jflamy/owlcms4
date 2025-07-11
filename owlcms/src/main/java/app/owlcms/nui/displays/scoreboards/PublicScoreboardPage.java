@@ -83,7 +83,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 			this.getMedalsBoard().setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
 			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
 			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
-			checkVideo(this.getMedalsBoard());
+			computeStylesDir(this.getMedalsBoard());
 			getMedalsBoard().getStyle().set("display", "block");
 			this.getMedalsBoard().syncWithFOP(getFop());
 			getResultsBoard().getStyle().set("display", "none");
@@ -109,7 +109,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 			this.getMedalsBoard().setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
 			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
 			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
-			checkVideo(this.getMedalsBoard());
+			computeStylesDir(this.getMedalsBoard());
 			getMedalsBoard().getStyle().set("display", "block");
 			this.getMedalsBoard().syncWithFOP(getFop());
 			getResultsBoard().getStyle().set("display", "none");
@@ -151,7 +151,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		        DisplayParameters.LEADERS, "true",
 		        DisplayParameters.RECORDS, "true",
 		        DisplayParameters.VIDEO, "false",
-		        DisplayParameters.PUBLIC, "false",
+		        DisplayParameters.PUBLIC, "true",
 		        SoundParameters.SINGLEREF, "false",
 		        DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")));
 		var additionalMap = Map.of(
@@ -182,7 +182,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		getMedalsBoard().setAbbreviatedName(board.isAbbreviatedName());
 		getMedalsBoard().setTeamWidth(board.getTeamWidth());
 		getMedalsBoard().setEmFontSize(board.getEmFontSize());
-		checkVideo(getMedalsBoard());
+		computeStylesDir(getMedalsBoard());
 
 		getMedalsBoard().getStyle().set("display", "none");
 		this.ui = UI.getCurrent();

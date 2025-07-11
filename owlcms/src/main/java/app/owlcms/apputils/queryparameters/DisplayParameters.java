@@ -65,9 +65,7 @@ public interface DisplayParameters extends SoundParameters {
 	/**
 	 * @return true if the display can switch during breaks (for example, to medals)
 	 */
-	public default boolean isPublicDisplay() {
-		return false;
-	}
+	public boolean isPublicDisplay();
 
 	public default boolean isRecordsDisplay() {
 		return false;

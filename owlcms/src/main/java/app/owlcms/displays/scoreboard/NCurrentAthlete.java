@@ -298,7 +298,7 @@ public class NCurrentAthlete extends Results {
 		OwlcmsSession.withFop(fop -> {
 			setId("ncurrentathlete-" + fop.getName());
 			init();
-			checkVideo(this);
+			computeStylesDir(this);
 
 			// liftsDone = AthleteSorter.countLiftsDone(order);
 			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));

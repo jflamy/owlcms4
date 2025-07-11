@@ -506,7 +506,7 @@ public class CurrentAthlete extends Results {
 		// fop obtained via FOPParameters interface default methods.
 		OwlcmsSession.withFop(fop -> {
 			init();
-			checkVideo(this);
+			computeStylesDir(this);
 
 			// get the global category rankings attached to each athlete
 			this.order = fop.getDisplayOrder();

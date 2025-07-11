@@ -474,6 +474,13 @@ public class ConfigEditingFormFactory
 		this.binder.forField(videoStylesField)
 		        .withNullRepresentation("")
 		        .bind(Config::getVideoStylesDirBase, Config::setVideoStylesDirectory);
+		
+		TextField publicStylesField = new TextField();
+		publicStylesField.setWidthFull();
+		layout.addFormItem(publicStylesField, Translator.translate("Config.publicStylesLabel"));
+		this.binder.forField(publicStylesField)
+		        .withNullRepresentation("")
+		        .bind(Config::getPublicStylesDirectory, Config::setPublicStylesDirectory);
 
 		return layout;
 	}

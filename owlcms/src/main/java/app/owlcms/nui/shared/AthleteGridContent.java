@@ -1316,6 +1316,7 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	
 	protected List<Notification> notifications = new ArrayList<>();
+	private boolean publicDisplay;
 	protected void doNotification(String text, String theme) {
 		Notification n = new Notification();
 		n.getElement().getThemeList().add(theme);
@@ -1795,6 +1796,16 @@ public abstract class AthleteGridContent extends BaseContent
 
 	public boolean ackDialogIsOpened() {
 		return this.stoppageAckNotification != null && this.stoppageAckNotification.isOpened();
+	}
+	
+	@Override
+	public void setPublicDisplay(boolean publicDisplay) {
+		this.publicDisplay = publicDisplay;
+	}
+
+	@Override
+	public boolean isPublicDisplay() {
+		return publicDisplay;
 	}
 
 }

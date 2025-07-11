@@ -145,6 +145,8 @@ public class Config {
 	private String stylesDirectory;
 	@Column(name = "videoStylesDirectory", columnDefinition = "varchar(255) default 'css/transparent'")
 	private String videoStylesDirectory;
+	@Column(name = "publicStylesDirectory", columnDefinition = "varchar(255) default 'css/nogrid'")
+	private String publicStylesDirectory;
 	@Transient
 	@JsonIgnore
 	private IConfig mqttConfig;
@@ -692,7 +694,39 @@ public class Config {
 			Path ldp = ldpd.resolve("css/" + param);
 			boolean predefinedStyleName = isPredefinedStyle(param);
 			if (!Files.exists(ldp) && !predefinedStyleName) {
-				param = "css/transparent";
+				param = "css/nogrid";
+				String message = "{} does not exist, using default css/nogrid as default video styles";
+				Main.getStartupLogger().error(message, ldp.toAbsolutePath());
+				logger./**/error(message, ldp.toAbsolutePath());
+			}
+		}
+		if (!param.startsWith("css/")) {
+			param = "css/" + param;
+		}
+		return param;
+	}
+	
+	@Transient
+	@JsonIgnore
+	public String getParamPublicStylesDir() {
+		String param = StartupUtils.getStringParam("publicStylesDir");
+		if (param == null || param.isBlank()) {
+			// get from database
+			param = Config.getCurrent().getPublicStylesDirectory();
+			if (param == null || param.isBlank()) {
+				param = "css/nogrid";
+			}
+		}
+		Path ldpd = ResourceWalker.getLocalDirPath();
+		// accept and normalize old naming convention.
+		if (param.startsWith("css/")) {
+			param = param.substring("css/".length());
+		}
+		if (ldpd != null) {
+			Path ldp = ldpd.resolve("css/" + param);
+			boolean predefinedStyleName = isPredefinedStyle(param);
+			if (!Files.exists(ldp) && !predefinedStyleName) {
+				param = "css/nogrid";
 				String message = "{} does not exist, using default css/nogrid as default video styles";
 				Main.getStartupLogger().error(message, ldp.toAbsolutePath());
 				logger./**/error(message, ldp.toAbsolutePath());
@@ -1024,6 +1058,14 @@ public class Config {
 
 	public void setLocalDateTimeUtcNormalized(boolean normalized) {
 		this.localDateTimeUtcNormalized = normalized;
+	}
+
+	public String getPublicStylesDirectory() {
+		return publicStylesDirectory;
+	}
+
+	public void setPublicStylesDirectory(String publicStylesDirectory) {
+		this.publicStylesDirectory = publicStylesDirectory;
 	}
 
 }

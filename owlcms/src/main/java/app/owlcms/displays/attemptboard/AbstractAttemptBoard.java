@@ -110,6 +110,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private boolean publicFacing;
 	private boolean showBarbell;
 	private boolean video;
+	private boolean publicDisplay;
 	private FieldOfPlay fop;
 	private Group group;
 	private boolean abbreviatedName;
@@ -293,6 +294,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	@Override
 	public void setPublicDisplay(boolean publicDisplay) {
+		this.publicDisplay = true;
 	}
 
 	/**
@@ -338,7 +340,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void setVideo(boolean b) {
 		this.video = b;
 	}
-
+	
 	@Subscribe
 	public void slaveBarbellOrPlatesChanged(UIEvent.BarbellOrPlatesChanged e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> showPlates());
@@ -709,7 +711,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("{}onAttach {}", FieldOfPlay.getLoggingName(fop), fop.getState());
 			init();
-			checkVideo(this);
+			computeStylesDir(this);
 			ThemeList themeList = UI.getCurrent().getElement().getThemeList();
 			themeList.remove(Lumo.LIGHT);
 			themeList.add(Lumo.DARK);
@@ -965,6 +967,11 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 				}
 			}
 		}
+	}
+
+	@Override
+	public boolean isPublicDisplay() {
+		return publicDisplay;
 	}
 
 }
