@@ -22,7 +22,11 @@
 
 **New in Release 58.3**
 
-58.3.3: Age groups file for the Spanish Federation updated, visible if "español (España)" is the selected locale.
+58.3.3: Uploading a registration file would complain with a note about "reserveJury" not being defined.
+
+58.3.3: The speaker could not use the "Resume Competition" button in the yellow notification if the speaker were the source of the interruption.  The resume competition button is now more visible.
+
+58.3.3: The Age Groups file for the Spanish Federation has been updated. It is visible if "español (España)" is the selected locale.
 
 58.3.2: Use 24h local time except for English-speaking countries that traditionally use AM/PM.  The user interface library time picker does not correctly interpret 12h time for some non-English locales, causing time to switch from AM to PM when editing.
 

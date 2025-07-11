@@ -58,6 +58,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.lifting.AnnouncerContent;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
@@ -656,6 +657,9 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				        fop.getBreakTimer().setTimeRemaining(0, true);
 			        });
 			        masterStartBreak(true);
+			        if (getOrigin() != null && getOrigin().getClass().equals(AnnouncerContent.class)) {
+			        	this.parentDialog.close();
+			        }
 		        });
 		this.stopCompetition.getElement().setAttribute("theme", "primary error");
 		this.stopCompetition.getElement().setAttribute("title", Translator.translate("StopCompetition"));

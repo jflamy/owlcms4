@@ -48,7 +48,7 @@ public class RGroup {
 	String weighinTime;
 	String platform;
 	String masters;
-	private String reserveJury;
+	String reserveJury;
 
 	public String getAnnouncer() {
 		return this.announcer;
@@ -314,11 +314,11 @@ public class RGroup {
 		this.masters = masters;
 	}
 
-	String getReserveJury() {
+	public String getReserveJury() {
 		return reserveJury;
 	}
 
-	void setReserveJury(String reserveJury) {
+	public void setReserveJury(String reserveJury) {
 		this.group.setReserveJury(reserveJury);
 		this.reserveJury = reserveJury;
 	}

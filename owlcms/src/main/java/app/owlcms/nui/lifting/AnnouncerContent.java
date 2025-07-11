@@ -7,7 +7,6 @@
 
 package app.owlcms.nui.lifting;
 
-import static app.owlcms.uievents.JuryDeliberationEventType.BAD_LIFT;
 import static app.owlcms.uievents.JuryDeliberationEventType.GOOD_LIFT;
 
 import java.util.Collection;
@@ -25,6 +24,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
@@ -100,6 +100,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private boolean liveLights;
 	private boolean declarations;
 	private boolean centerNotifications;
+	private UI ui;
 
 	public AnnouncerContent() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -233,9 +234,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+		ui.access(() -> {
 			JuryDeliberationEventType et = e.getDeliberationEventType();
-			if (e.isWaitForAnnouncer() && (et == GOOD_LIFT || et == BAD_LIFT)) {
+			if (e.isWaitForAnnouncer() && (et == JuryDeliberationEventType.GOOD_LIFT || et == JuryDeliberationEventType.BAD_LIFT)) {
 				juryDecisionAnnounce(e);
 				return;
 			}
@@ -338,9 +339,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		});
 		
 		NativeButton resumeButton = new NativeButton(Translator.translate("JuryNotification.END_JURY_BREAK"));
+		resumeButton.getStyle().set("background-color", "darkgreen");
+		resumeButton.getStyle().set("color", "white");
 		resumeButton.getStyle().set("margin-left", "1em");
 		resumeButton.addClickListener((event) -> {
-			OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
+			OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(null));
 			this.stoppageAckNotification.close();
 			this.stoppageAckNotification = null;
 		});
@@ -812,6 +815,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
+		this.ui = UI.getCurrent();
 		createTopBarGroupSelect();
 		// setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
 		// setCenterNotifications(Config.getCurrent().featureSwitch("centerAnnouncerNotifications"));
