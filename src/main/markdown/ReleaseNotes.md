@@ -12,121 +12,13 @@
 
 <br>
 
-**New in Release 58.4**
+**New in Release 59.0**
 
-58.4.0: Docker configuration will now keep a local log in the maven directory (next to the owlcms.jar file).
+59.0.0: Changes to enable custom look and feel for broadcasting special events without including them in the free distribution.  
 
-58.4.0: Changes to enable "paid for" custom look and feels for broadcasting special events without including them in the free distribution.
-
-58.4.0: Age groups file for the Spanish Federation updated, visible if "español (España)" is the selected locale.
-
-**New in Release 58.3**
-
-58.3.3: Uploading a registration file would complain with a note about "reserveJury" not being defined.
-
-58.3.3: The speaker could not use the "Resume Competition" button in the yellow notification if the speaker were the source of the interruption.  The resume competition button is now more visible.
-
-58.3.3: The Age Groups file for the Spanish Federation has been updated. It is visible if "español (España)" is the selected locale.
-
-58.3.2: Use 24h local time except for English-speaking countries that traditionally use AM/PM.  The user interface library time picker does not correctly interpret 12h time for some non-English locales, causing time to switch from AM to PM when editing.
-
-58.3.2: Fix: the normal keyboard "minus/hyphen" key would not work for the announcer when attempting to change a lift from good to bad.
-
-- On a Spanish keyboard, the "-" sign is in the same location as the US "/" character.  This is the "Slash" location according to the [standard key location definitions](https://www.w3.org/TR/uievents-code/#key-alphanumeric-section). Shortcuts are defined according to that standard, so the Spanish "-" conflicts with the "/" shortcut used to start the clock. 
-- The normal keyboard "Slash" shortcut is now disabled by default in Spanish
-  - If using Spanish as a language, and using a timekeeper keypad programmed to send the key at the bottom left of the normal keyboard (the US "/" or Spanish "-"), then you need to change to use the NumPad Divide key (the "/" key on the numeric keypad).
-  - If you cannot reprogram your keypad, you can use the `keepSpanishHyphenShortcut` [feature toggle](https://jflamy.github.io/owlcms4/#/FeatureToggles) to keep the existing shortcut.  The announcer will then need to use the keypad minus sign.
-
-58.3.1: Declarations made on a running 1:00 clock could be wrongly denied as being late in certain convoluted circumstances
-
-58.3.1: During weigh-in, when entering the weight, athletes will not be assigned to additional age groups even though they might be eligible.  This supports competitions where explicit registration is required for age groups.
-
-58.3.0: **Critical fix**: when using the 250g automatic deduction, reopening an athlete after  the initial weigh-in would fail.
-
-58.3.0: When a stoppage occurs, the announcer now gets a notification that requires acknowledgement instead of a notification that disappears.  The notification closes when competition is resumed.
-
-58.3.0: When a record is improved or recomputed, records now correctly include the athlete's birth date and birth year.  Also restored using the competition name as the event name.
-
-**New in Release 58.2**
-
-58.2.1: Important fix: When displaying record attempts, the attempt board would, sometimes (and randomly), fail to update the weight and plates shown on the board (the scoreboards and all other screens would all be correct).  An instruction added during development debugging had been left in and was interfering.
-
-58.2.0: The Final Package now uses the override for the "Best Athlete" scoring scheme if one is selected (the best athlete rankings are recomputed according to that selection)
-
-58.2.0: The duration of the Clean & Jerk break can be changed after the session has started
-
-58.2.0: Fixed messages about missing `reserveJury` property during import of registration and SBDE files.
-
-58.2.0: A new template `Protocol_AllSessions` produces all the protocol sheets in one Excel, one tab per session.
-
-58.2.0: The marshal is no longer notified of record attempts (this was disruptive)
-
-58.2.0: Newly added technical officials can now be selected in the sessions page.
-
-58.2.0: When loading an initial registration file, the existing sessions were not being deleted.  This has been fixed.   This is also possible for the SBDE format as well (but only when the athletes are also cleaned)
-
-58.2.0: Local dates and times (such as birthdays and session starts) were not always being saved in the correct time-zone-independent manner and marked as such (in particular, during an import)
-
-58.2.0: Fix: When several eligible categories had identical age and weight boundaries, selecting a specific one as the registration category was not possible from the editing form; the first one would be picked
-
-58.2.0: Fix: The recalculation of new records after loading additional record definitions did not compute total correctly.
-
-58.2.0: Feature Toggle: `displayBestScore` adds the best athlete score at the end of the scoreboard.
-
-58.1.4: Fix: record attempts were no longer showing on the attempt board.
-
-58.1.2: Fix for export of SBDE data under exotic circumstances (athletes from same team, same body weight category, same name, lifting in two different sessions, prior to lot number assignment)
-
-58.1.2: Show Reserve Referee and Reserve Jury on the editing forms and the Registration Excels.
-
-58.1.2: Fix order of weight categories on the introduction form.
-
-58.1.1: Fix for Competition Results page that would not load when the JR/SR age groups are not present (used for certain scores such as Robi)
-
-**New in Release 58.1**
-
-- 250g deduction:
-  - A new Competition Rules option to deduct 250g has been added (on by default, as per June 2025 TCRR)
-  - The weigh-in form now allows entering the weight as read on the scale and computes the 250g adjustment if the 250g deduction rule is enabled.
-- Default team sizes is now 8 as per June 2025 TCRR
-- New MQTT message clock/toggle to allow starting  and stopping the clock with the same button.
-- Fix for the "Clear Official Records" button, now works as expected again.
-- Fixed a time zone issue when storing dates; this could cause athlete to appear to be born
-  in the previous year when using Birth Dates Only settings.
-- Fix for Women Team Points calculation for the IMWA final package
-- Fix for language-specific (he) column widths on scoreboards 
-- The nested start list templates now use the translation strings.
-
-**New in Release 58.0**
-
-- Age Groups: the age groups now follow the June 2025 IWF categories by default.
-  - To update an existing database, load the AgeGroups_2025-06 file from the Age Group preparation button.  
-  - For new databases, the default will now be AgeGroups_2025-06.
-  - To create a new owlcms from scratch with a new database with the new Age Groups, use the "Click here to install additional version" at the bottom of the control panel instead of doing an update.
-
-- Translations
-  - New translation: Norwegian (norsk)
-  - Support for Right-to-Left languages.
-    - User interface support for Right-to-Left languages and style sheets has been enabled (the user interface is mirrored)
-    - A Hebrew translation has been added (many thanks to Yaniv Masler)
-    - (experimental) An initial Arabic translation has been added.  This translation was generated by AI techniques and likely contains errors. Human volunteers are being sought to review it.
-
-- Athlete-facing Clock: A flashing stop sign is shown on the athlete-facing decision board while the competition is stopped.
-- Templates:
-  - New nested start list format (easier to read)
-  - Fixed the "CompetitionResults-A4" and "CompetitionResults-LETTER" templates to default to the competition scoring system correctly, and to mark out of competition athletes correctly.
-  - Fixed the SnCjTot template for Session Results to show the Technical Official roles correctly
-  - New ${platforms} template variable, as well as ${platform.sessions} accessor.
-  - Fix: the medaling template would sometime skip a category header when identical categories from two different championships medaled in the same session.
-- Single-referee decision display
-  - When the announcer selects "Single Referee Mode" from the cogwheel next to the session selector,  the first decision received from a referee is used.  
-  - Any of the three referee devices can be used for the single referee, does not matter.
-  - A single circular icon is used for single-referee or announcer-entered decisions (white with checkmark or red with X).
-- Sinclair and QPoints at category weight:
-  - Some federations use these figures as markers or to determine best athlete.  Instead of the body weight, the athlete score is computed under the assumption that all athletes will be very near the category weight, making it a more realistic comparison of medal potential.
-  - By default, the SR F and SR M categories will be used to determine the categories.  If you hold a JR or Youth championship that also needs the "at category" scores, leave the SR categories in the Age Groups, just make them inactive.
-  - If the SR F and SR M categories are not present, the `local/iwf` directory contains an Excel file with the definition of the IWF categories, and these will be used.
-  - If you need non-standard SR F and SR M values but also need "at category" values, rename the SR age group so the IWF reference is used.
+- There are now three styling possibilities: default scoreboards, video styling (colourful and with transparent scoreboards), and public scoreboard styling.  
+- The main room public scoreboard styling can now differ from the default, and be more like the TV design (with backgrounds instead of transparency)
+- A web designer familiar with CSS styling can start with the provided styles and modify them as required.
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 
