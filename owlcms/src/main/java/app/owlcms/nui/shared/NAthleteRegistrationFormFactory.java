@@ -1504,6 +1504,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			Double bwValue;
 			if ((lastNameValue = this.lastNameField.getValue()) == null || lastNameValue.isBlank()) {
 				this.lastNameField.focus();
+			} else if (Competition.getCurrent().getDeduct250g() && ((bwValue = this.scaleWeightField.getValue()) == null || bwValue < 0.01D)) {	
+				this.scaleWeightField.focus();
+				this.bodyWeightField.getWrappedTextField().setTabIndex(-1);
 			} else if ((bwValue = this.bodyWeightField.getValue()) == null || bwValue < 0.01D) {
 				this.bodyWeightField.focus();
 			} else {
