@@ -14,6 +14,8 @@
 
 **New in Release 58.3**
 
+58.3.4: When using the "automatic 250g deduction" option, the focus was not on the correct field when opening the page and the tab order did not skip the adjusted field.
+
 58.3.3: Uploading a registration file would complain with a note about "reserveJury" not being defined.
 
 58.3.3: The speaker could not use the "Resume Competition" button in the yellow notification if the speaker were the source of the interruption.  The resume competition button is now more visible.
