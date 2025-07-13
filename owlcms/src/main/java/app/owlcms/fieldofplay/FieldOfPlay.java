@@ -2342,6 +2342,10 @@ public class FieldOfPlay implements IUnregister {
 		} else if (getCurAthlete() != null) {
 			Category category = getCurAthlete().getCategory();
 			List<Athlete> medalists = getMedals().get(category.getCode());
+			
+			if (! Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
+				medalists = medalists.stream().filter(m -> !m.getGroup().equals(this.getGroup())).toList();
+			}
 
 			List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
 				int r = a.getSnatchRank();

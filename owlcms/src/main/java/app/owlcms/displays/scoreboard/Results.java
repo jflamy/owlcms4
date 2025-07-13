@@ -1134,6 +1134,9 @@ public class Results extends LitTemplate
 			}
 		}
 		translations.put("ScoringTitle", Translator.translate("Score"));
+		if (! Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
+			translations.put("Leaders", Translator.translate("Leaders.PreviousGroups"));
+		}
 		this.getElement().setPropertyJson("t", translations);
 	}
 
