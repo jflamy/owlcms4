@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.displays.attemptboard;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -340,7 +341,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void setVideo(boolean b) {
 		this.video = b;
 	}
-	
+
 	@Subscribe
 	public void slaveBarbellOrPlatesChanged(UIEvent.BarbellOrPlatesChanged e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> showPlates());
@@ -603,6 +604,25 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		String team = a.getTeam();
 		if (team == null) {
 			team = "";
+		}
+
+		if (Config.getCurrent().featureSwitch("customTeamName")) {
+			var customTeamFormatString = Translator.translateOrElseNull("Custom.TeamFormat");
+			if (customTeamFormatString != null) {
+				String custom1 = a.getCustom1();
+				String custom2 = a.getCustom2();
+				int count = custom2 != null && custom1 != null ? 3 : (custom2 != null ? 2 : (custom1 != null ? 1 : 0));
+
+				// The message format is expected to be something similar to
+				// {0, choice, 0#{1}|1#{1}, {2}|2#{1}, {3}|3#{1}, {2}, {3}}
+				// a "binary" encoding is used to control the format
+				// count = 0 show only team (00)
+				// count = 1 show team and custom1 (01)
+				// count = 2 show team and custom2 (10)
+				// count = 3 show team, custom1 and custom 2 (11)
+				
+				team = MessageFormat.format(customTeamFormatString, count, team, custom1 != null ? custom1 : "", custom2 != null ? custom2 : "");
+			}
 		}
 		this.getElement().setProperty("teamName", team);
 		this.getElement().setProperty("teamFlagImg", "");
