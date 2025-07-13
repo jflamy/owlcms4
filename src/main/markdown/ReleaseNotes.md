@@ -16,7 +16,7 @@
 
 59.0.0: Support for Japanese
 
-59.0.0: New feature toggle `customTeamName` to allow including the Additional Info fields on the attempt board team line.   If the toggle is active, the attempt board will format the team name line using 4 values.
+59.0.0: New feature toggle `customTeamName` to allow including the Additional Info fields on the attempt board team line.   If the toggle is active, the attempt board will format the team name line using 4 values, using the translation string `AttemptBoard.TeamFormat`  .
 
 - `{0}` is a count that represents the information available for the athlete.
   - 0 means no custom1 and no custom2.  

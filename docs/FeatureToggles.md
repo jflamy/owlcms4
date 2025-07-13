@@ -15,6 +15,9 @@ These switches change the default behavior of the interface
 | localTemplatesOnly           | If present, the default templates distributed inside the owlcms binary will not be shown.  Only the templates found in the local folder will be used.  If a .zip file is used to package the local folder and upload it to the program, then only these templates will be shown.<br />This is normally used to create a zip with only the files used in a given federation, potentially renamed in the local language. | This feature can be activated on the Languages and Settings page. |
 | shortScoreboardNames         | if present, the normal scoreboards will use the abbreviated first names | On demand, on each scoreboard                                |
 | masters20kg                  | If present, the Masters 20% rule is ignored.  Used in mixed Masters and Seniors championships that do not follow IMWA rules. | Activated as a competition rule.                             |
+| customTeamName               | allow including the Additional Info fields on the attempt board team line.   If the toggle is active, the attempt board will format the team name line using 4 values.  The translation string `AttemptBoard.TeamFormat` is used.<br />  `{0}` is a count that represents the information available for the athlete.  <br />0 means no custom1 and no custom2.   1 means custom1 is present, but not custom2.   2 means custom2 is present, but not custom1.  3 means both custom1 and custom2 are present.  Present means "not null"  and "not blank/empty". <br />`{1}` will be the team, `{2}` will be custom1 and `{3}` will be custom2 A format string of the form `{0, choice, 0#{1}|1#{1}, {2}|2#{1}, {3}|3#{1}, {2}, {3}}` would cover all four cases.  See the Java definition of MessageFormat for details. | Only available as a feature switch.                          |
+
+
 
 ### General Options
 
