@@ -12,6 +12,7 @@ on:
 # - Release Notes
         default: '59.0.0-alpha01'
 
+
 env:
   REPO_OWNER: owlcms
   MAVEN_OPTS: '-Xmx2048m'
