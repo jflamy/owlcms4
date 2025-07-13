@@ -14,7 +14,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.dom.Element;
 
 import app.owlcms.data.config.Config;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
 
@@ -23,7 +22,6 @@ public interface StylesDirSelection {
 	Logger logger = (Logger) LoggerFactory.getLogger(StylesDirSelection.class);
 
 	public default void computeStylesDir(Component component) {
-		logger.warn("%%%%%%%%%%%%%%%%%%%%%%%%%%%%% {}\n",LoggerUtils.stackTrace());
 		Logger logger = (Logger) LoggerFactory.getLogger(StylesDirSelection.class);
 		Element element = component.getElement();
 		if (isVideo()) {
@@ -32,7 +30,7 @@ public interface StylesDirSelection {
 				String paramVideoStylesDir = Config.getCurrent().getParamVideoStylesDir();
 				ResourceWalker.getFileOrResourcePath(paramVideoStylesDir);
 				element.setProperty("stylesDir", paramVideoStylesDir);
-				logger.warn("{} setting video styles {}", this.getClass(), paramVideoStylesDir);
+				//logger.debug("{} setting video styles {}", this.getClass(), paramVideoStylesDir);
 				element.setProperty("video", true);
 				element.setProperty("public", false);
 			} catch (FileNotFoundException e) {
@@ -48,7 +46,7 @@ public interface StylesDirSelection {
 				// use video override if /video is in the URL and the override stylesheet exists.
 				String paramPublicStylesDir = Config.getCurrent().getParamPublicStylesDir();
 				ResourceWalker.getFileOrResourcePath(paramPublicStylesDir);
-				logger.warn("{} setting public styles {}", this.getClass(), paramPublicStylesDir);
+				//logger.debug("{} setting public styles {}", this.getClass(), paramPublicStylesDir);
 				element.setProperty("stylesDir", paramPublicStylesDir);
 				element.setProperty("video", false);
 				element.setProperty("public", true);
