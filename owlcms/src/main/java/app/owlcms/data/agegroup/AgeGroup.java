@@ -38,6 +38,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
@@ -79,6 +80,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		if (compare != 0) {
 			// logger.debug("agegroup minage {} {} {} ", a.getMinAge(), compare > 0 ? ">" : "<", b.getMinAge());
 			return compare;
+		}
+		
+		if (!Competition.getCurrent().getDisplayByAgeGroup() && Config.getCurrent().featureSwitch("bwClassThenAgeGroup")) {
+			return ObjectUtils.compare(a.getChampionshipName(), b.getChampionshipName());
 		}
 
 		return compare;

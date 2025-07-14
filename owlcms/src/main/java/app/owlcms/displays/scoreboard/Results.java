@@ -1042,6 +1042,8 @@ public class Results extends LitTemplate
 	 */
 	protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
 		boolean displayByAgeGroup = Competition.getCurrent().isByAgeGroup();
+		boolean bwClassThenAgeGroup = Config.getCurrent().featureSwitch("bwClassThenAgeGroup");
+		//logger.debug("displayByAgeGroup {} bwClassThenAgeGroup {}", displayByAgeGroup, bwClassThenAgeGroup);
 		BiPredicate<Athlete, Athlete> separator = (cur, prev) -> {
 			if (prev == null) {
 				return true;
@@ -1049,6 +1051,10 @@ public class Results extends LitTemplate
 				// score-based all-bodyweight categories need separator in spite of same bounds
 				return (cur.getCategory() != null
 				        && !cur.getCategory().sameAs(prev.getCategory()));
+			} else if (!displayByAgeGroup && !bwClassThenAgeGroup) {
+				// no separator unless switch in body weight max
+				return (cur.getCategory() != null
+				        && cur.getCategory().getMaximumWeight() > (prev.getCategory().getMaximumWeight()));
 			} else {
 				int compare = AbstractLifterComparator.compareBWCategory(cur, prev);
 				return compare != 0;
