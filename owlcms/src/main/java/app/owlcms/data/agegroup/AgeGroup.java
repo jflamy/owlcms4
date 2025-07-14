@@ -82,6 +82,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 			return compare;
 		}
 		
+		// for readability
 		if (!Competition.getCurrent().getDisplayByAgeGroup() && Config.getCurrent().featureSwitch("bwClassThenAgeGroup")) {
 			return ObjectUtils.compare(a.getChampionshipName(), b.getChampionshipName());
 		}

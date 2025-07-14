@@ -18,6 +18,13 @@
 
 59.0.0: On the scoreboard, show only the leaders from previous groups, in compliance with TCRR.  Previously, the predicted medal-winning athletes (including athletes from the current group) were shown.  Old behaviour can be obtained with toggle switch `medalistsAsLeaders`)
 
+59.0.0: When operating in pure IWF scoreboard mode (only the bodyweight category matters, no grouping by age group or championship), the scoreboard would show unneeded separators when there were category switches from one athlete to the next.
+
+59.0.0: Changes to enable custom look and feel for broadcasting special events without including them in the free distribution.  
+
+- There are now three styling possibilities: default scoreboards, video styling (colourful with transparent scoreboards), and public scoreboard styling (possibly colourful like video, but with a background).  It is possible to set the video and/or public scoreboards to the same style as the default scoreboards.
+- A web designer familiar with CSS styling can start with the provided styles and modify them as required.
+
 59.0.0: New feature toggle `customTeamName` to allow including the Additional Info fields on the attempt board team line.   If the toggle is active, the attempt board will format the team name line using 4 values, using the translation string `AttemptBoard.TeamFormat`  .
 
 - `{0}` is a count that represents the information available for the athlete.
@@ -27,12 +34,6 @@
   - 3 means both custom1 and custom2 are present.  Present means "not null"  and "not blank/empty".
 - `{1}` will be the team, `{2}` will be custom1 and `{3}` will be custom2
 - A format string of the form `{0, choice, 0#{1}|1#{1}, {2}|2#{1}, {3}|3#{1}, {2}, {3}}` would cover all four cases.  See the Java definition of MessageFormat for details.
-
-59.0.0: Changes to enable custom look and feel for broadcasting special events without including them in the free distribution.  
-
-- There are now three styling possibilities: default scoreboards, video styling (colourful and with transparent scoreboards), and public scoreboard styling.  
-- The main room public scoreboard styling can now differ from the default, and be more like the TV design (with backgrounds instead of transparency)
-- A web designer familiar with CSS styling can start with the provided styles and modify them as required.
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 

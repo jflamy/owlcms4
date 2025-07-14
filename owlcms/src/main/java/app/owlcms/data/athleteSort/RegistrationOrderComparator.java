@@ -48,7 +48,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 
 		compare = ObjectUtils.compare(category1.getGender(), category2.getGender());
 		if (compare != 0) {
-			doTraceComparison("categoryRegistrationComparator gender", category1, category1.getGender(), category2, category2.getGender(), compare);
+			traceComparison("categoryRegistrationComparator gender", category1, category1.getGender(), category2, category2.getGender(), compare);
 			return compare;
 		}
 
@@ -57,7 +57,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		Double value2 = category2.getMaximumWeight();
 		compare = ObjectUtils.compare(value1, value2);
 		if (compare != 0) {
-			doTraceComparison("categoryRegistrationComparator maximum weight", category1, category1.getMaximumWeight(), category2, category2.getMaximumWeight(),
+			traceComparison("categoryRegistrationComparator maximum weight", category1, category1.getMaximumWeight(), category2, category2.getMaximumWeight(),
 			        compare);
 			return compare;
 		}
@@ -67,7 +67,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 			// (used in South America)
 			compare = AgeGroup.registrationComparator.compare(category1.getAgeGroup(), category2.getAgeGroup());
 			if (compare != 0) {
-				doTraceComparison("categoryRegistrationComparator agegroup", category1, category1.getAgeGroup(), category2, category2.getAgeGroup(), compare);
+				traceComparison("categoryRegistrationComparator agegroup", category1, category1.getAgeGroup(), category2, category2.getAgeGroup(), compare);
 				return compare;
 			}
 		}
@@ -98,13 +98,13 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 
 		compare = ObjectUtils.compare(category1.getGender(), category2.getGender());
 		if (compare != 0) {
-			doTraceComparison("categoryDisplayComparator gender", category1, category1.getGender(), category2, category2.getGender(), compare);
+			traceComparison("categoryDisplayComparator gender", category1, category1.getGender(), category2, category2.getGender(), compare);
 			return compare;
 		}
 
 		compare = AgeGroup.registrationComparator.compare(category1.getAgeGroup(), category2.getAgeGroup());
 		if (compare != 0) {
-			doTraceComparison("categoryDisplayComparator agegroup", category1, category1.getAgeGroup(), category2, category2.getAgeGroup(), compare);
+			traceComparison("categoryDisplayComparator agegroup", category1, category1.getAgeGroup(), category2, category2.getAgeGroup(), compare);
 			return compare;
 		}
 
@@ -113,7 +113,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		Double value2 = category2.getMaximumWeight();
 		compare = ObjectUtils.compare(value1, value2);
 		if (compare != 0) {
-			doTraceComparison("categoryDisplayComparator maximum weight", category1, category1.getMaximumWeight(), category2, category2.getMaximumWeight(),
+			traceComparison("categoryDisplayComparator maximum weight", category1, category1.getMaximumWeight(), category2, category2.getMaximumWeight(),
 			        compare);
 			return compare;
 		}
@@ -129,7 +129,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		Category b = lifter2.getCategory();
 		compare = categoryReportOrderComparator.compare(a, b);
 		if (compare != 0) {
-			doTraceComparison("RegistrationOrderComparator category", lifter1, a, lifter2, b, compare);
+			traceComparison("RegistrationOrderComparator category", lifter1, a, lifter2, b, compare);
 			return compare;
 		}
 
@@ -164,14 +164,14 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		if (Competition.getCurrent().isDisplayByAgeGroup() || bothMasters) {
 			compare = ageGroupRegistrationComparator.compare(lifter1.getAgeGroup(), lifter2.getAgeGroup());
 			if (compare != 0) {
-				doTraceComparison("ageGroupRegistrationComparator ageGroup", lifter1, lifter1.getAgeGroup(), lifter2,
+				traceComparison("ageGroupRegistrationComparator ageGroup", lifter1, lifter1.getAgeGroup(), lifter2,
 				        lifter2.getAgeGroup(), compare);
 				return bothMasters ? -compare : compare;
 			}
 		} else {
 			compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
 			if (compare != 0) {
-				doTraceComparison("athleteRegistrationOrderComparator gender", lifter1, lifter1.getAgeGroup(), lifter2,
+				traceComparison("athleteRegistrationOrderComparator gender", lifter1, lifter1.getAgeGroup(), lifter2,
 				        lifter2.getAgeGroup(), compare);
 				return compare;
 			}
@@ -181,7 +181,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		Category b = lifter2.getCategory();
 		compare = categoryRegistrationComparator.compare(a, b);
 		if (compare != 0) {
-			doTraceComparison("categoryRegistrationComparator category", lifter1, a, lifter2, b, compare);
+			traceComparison("categoryRegistrationComparator category", lifter1, a, lifter2, b, compare);
 			return compare;
 		}
 
