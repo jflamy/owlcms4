@@ -16,6 +16,8 @@
 
 59.0.0: Support for Japanese
 
+59.0.0: When entering a body weight, wait until weight is actually typed in to recompute categories.
+
 59.0.0: On the scoreboard, show only the leaders from previous groups, in compliance with TCRR.  Previously, the predicted medal-winning athletes (including athletes from the current group) were shown.  Old behaviour can be obtained with toggle switch `medalistsAsLeaders`)
 
 59.0.0: When operating in pure IWF scoreboard mode (only the bodyweight category matters, no grouping by age group or championship), the scoreboard would show unneeded separators when there were category switches from one athlete to the next.
