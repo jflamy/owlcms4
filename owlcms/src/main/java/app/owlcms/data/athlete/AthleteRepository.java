@@ -52,9 +52,9 @@ public class AthleteRepository {
 			return Set.of();
 		}
 		for (Athlete a : ranked) {
-			// logger.debug("unfinishedCategories *** athlete {}",a);
-			if (!a.isDone()) {
-				// logger.debug("{}", a, a.getCleanJerk3ActualLift());
+			boolean ineligible = !a.isEligibleForIndividualRanking();
+			boolean done = a.isDone();
+			if (!done && !ineligible) {
 				for (Participation p : a.getParticipations()) {
 					unfinishedCategories.add(p.getCategory().getCode());
 				}
@@ -424,7 +424,7 @@ public class AthleteRepository {
 				return null;
 			});
 		}
-		
+
 		if (recomputeParticipations) {
 			JPAService.runInTransaction(em -> {
 				List<Athlete> athletes = AthleteRepository.doFindAll(em);
