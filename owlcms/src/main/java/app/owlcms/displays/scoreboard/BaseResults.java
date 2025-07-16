@@ -25,15 +25,11 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.router.Location;
 
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
-import app.owlcms.components.elements.AthleteTimerElement;
-import app.owlcms.components.elements.BreakTimerElement;
-import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
@@ -92,12 +88,8 @@ public class BaseResults extends LitTemplate
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean abbreviatedName;
 	private HashMap<Athlete, String> athleteToFlag = new HashMap<>();
-	@Id("breakTimer")
-	private BreakTimerElement breakTimer; // WebComponent, injected by Vaadin
 	private JsonArray cattempts;
 	private boolean darkMode = true;
-	@Id("decisions")
-	private DecisionElement decisions; // WebComponent, injected by Vaadin
 	private boolean downSilenced;
 	private Double emFontSize;
 	private FieldOfPlay fop;
@@ -114,8 +106,6 @@ public class BaseResults extends LitTemplate
 	private boolean silenced;
 	private boolean teamFlags;
 	private Double teamWidth;
-	@Id("timer")
-	private AthleteTimerElement timer; // WebComponent, injected by Vaadin
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	private boolean video;
 
@@ -163,16 +153,8 @@ public class BaseResults extends LitTemplate
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 	}
 
-	public BreakTimerElement getBreakTimer() {
-		return this.breakTimer;
-	}
-
 	public JsonArray getCattempts() {
 		return this.cattempts;
-	}
-
-	public DecisionElement getDecisions() {
-		return this.decisions;
 	}
 
 	@Override
@@ -210,10 +192,6 @@ public class BaseResults extends LitTemplate
 	@Override
 	public final Double getTeamWidth() {
 		return this.teamWidth;
-	}
-
-	public AthleteTimerElement getTimer() {
-		return this.timer;
 	}
 
 	final public Map<String, List<String>> getUrlParameterMap() {
@@ -303,10 +281,6 @@ public class BaseResults extends LitTemplate
 		this.abbreviatedName = b;
 	}
 
-	public void setBreakTimer(BreakTimerElement breakTimer) {
-		this.breakTimer = breakTimer;
-	}
-
 	public void setCattempts(JsonArray cattempts) {
 		this.cattempts = cattempts;
 	}
@@ -321,14 +295,9 @@ public class BaseResults extends LitTemplate
 		getElement().setProperty("darkMode", value);
 	}
 
-	public void setDecisions(DecisionElement decisions) {
-		this.decisions = decisions;
-	}
-
 	@Override
 	public void setDownSilenced(boolean silent) {
 		this.downSilenced = silent;
-		this.getDecisions().setSilenced(silent);
 	}
 
 	@Override
@@ -402,8 +371,6 @@ public class BaseResults extends LitTemplate
 	@Override
 	public void setSilenced(boolean silent) {
 		this.silenced = silent;
-		this.getTimer().setSilenced(this.silenced);
-		this.getBreakTimer().setSilenced(this.silenced);
 	}
 
 	/**
@@ -433,10 +400,6 @@ public class BaseResults extends LitTemplate
 	public void setTeamWidth(Double tw) {
 		this.teamWidth = tw;
 		pushTeamWidth();
-	}
-
-	public void setTimer(AthleteTimerElement timer) {
-		this.timer = timer;
 	}
 
 	final public void setUrlParameterMap(Map<String, List<String>> parametersMap) {

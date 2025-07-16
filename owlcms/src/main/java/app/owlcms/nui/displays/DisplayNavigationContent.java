@@ -33,6 +33,7 @@ import app.owlcms.nui.displays.attemptboards.AthleteFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.AthleteFacingDecisionBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
+import app.owlcms.nui.displays.scoreboards.JuryDecisionsPage;
 import app.owlcms.nui.displays.scoreboards.JuryScoreboardPage;
 import app.owlcms.nui.displays.scoreboards.MedalsPage;
 import app.owlcms.nui.displays.scoreboards.PublicMultiRanksPage;
@@ -126,13 +127,16 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        Translator.translate("ScoreboardMultiRanksButton"));
 			Button scoreboardRankings1 = openInNewTab(PublicRankingOrderPage.class,
 			        Translator.translate("Scoreboard.RankingOrderButton"));
+			Button juryDecisions1 = openInNewTab(JuryDecisionsPage.class,
+			        Translator.translate("JuryDecisions.Title"));
 			VerticalLayout intro11 = new VerticalLayout();
 			addP(intro11, Translator.translate("PublicScoreboards.explanation"));
 			FlexibleGridLayout grid11 = HomeNavigationContent.navigationGrid(
 			        scoreboard1,
 			        scoreboardWLeaders1,
 			        scoreboardRankings1,
-			        scoreboardMultiRanks1);
+			        scoreboardMultiRanks1,
+			        juryDecisions1);
 			doGroup(Translator.translate("PublicScoreboards"), intro11, grid11, this);
 
 			Ranking scoringSystem = Competition.getCurrent().getScoringSystem();

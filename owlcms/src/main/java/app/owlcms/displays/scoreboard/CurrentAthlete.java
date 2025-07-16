@@ -316,6 +316,12 @@ public class CurrentAthlete extends Results {
 		// logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
 		// a != null ? a.getAttemptsDone() : null);
 		boolean leaveTopAlone = false;
+		FieldOfPlay fop = e.getFop();
+		
+		if (fop != null && fop.getState() == FOPState.DECISION_VISIBLE) {
+			// next event will refresh.
+			return;
+		}
 		if (e instanceof UIEvent.LiftingOrderUpdated) {
 			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
 			if (e2.isInBreak()) {
@@ -325,7 +331,6 @@ public class CurrentAthlete extends Results {
 			}
 		}
 
-		FieldOfPlay fop = e.getFop();
 		if (!leaveTopAlone) {
 			if (a != null) {
 				Group group = fop.getGroup();

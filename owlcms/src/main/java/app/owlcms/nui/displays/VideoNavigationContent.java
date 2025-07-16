@@ -46,6 +46,7 @@ import app.owlcms.monitors.OBSMonitor;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
 import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
+import app.owlcms.nui.displays.scoreboards.JuryDecisionsPage;
 import app.owlcms.nui.displays.scoreboards.MedalsPage;
 import app.owlcms.nui.displays.scoreboards.NCurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.RankingsPage;
@@ -109,7 +110,9 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 		Button publicDecisions = openInNewTabQueryParameters(PublicFacingDecisionBoardPage.class,
 		        Translator.translate("RefereeDecisions"), "video=true");
-		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions);
+		Button juryDecisions = openInNewTabQueryParameters(JuryDecisionsPage.class,
+		        Translator.translate("JuryDecisions.Title"), "video=true");
+		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions, juryDecisions);
 		doGroup(Translator.translate("RefereeDecisions"), grid31, this);
 
 		Button scoreboard = openInNewTabQueryParameters(WarmupNoLeadersPage.class,

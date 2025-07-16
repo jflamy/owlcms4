@@ -50,4 +50,41 @@ public class Results extends BaseResults {
 		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
 		overrideColors(this.getElement());
 	}
+
+	public BreakTimerElement getBreakTimer() {
+		return breakTimer;
+	}
+
+	public void setBreakTimer(BreakTimerElement breakTimer) {
+		this.breakTimer = breakTimer;
+	}
+
+	public DecisionElement getDecisions() {
+		return decisions;
+	}
+
+	public void setDecisions(DecisionElement decisions) {
+		this.decisions = decisions;
+	}
+
+	public AthleteTimerElement getTimer() {
+		return timer;
+	}
+
+	public void setTimer(AthleteTimerElement timer) {
+		this.timer = timer;
+	}
+	
+	@Override
+	public void setSilenced(boolean silent) {
+		super.setSilenced(silent);
+		this.getTimer().setSilenced(silent);
+		this.getBreakTimer().setSilenced(silent);
+	}
+	
+	@Override
+	public void setDownSilenced(boolean silent) {
+		super.setDownSilenced(silent);
+		this.getDecisions().setSilenced(silent);
+	}
 }

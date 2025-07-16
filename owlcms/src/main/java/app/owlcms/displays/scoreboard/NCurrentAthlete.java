@@ -164,7 +164,6 @@ public class NCurrentAthlete extends Results {
 				setShowBreakClock(this.getElement(), false);
 				this.getElement().setProperty("showDetails", true);
 			} catch (Exception e1) {
-				// FIXME printStackTrace
 				e1.printStackTrace();
 			}
 		});
