@@ -6,15 +6,22 @@
  *******************************************************************************/
 package app.owlcms.init;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -46,61 +53,154 @@ public class OwlcmsSession {
 
 	public static Locale computeLocale() {
 		Locale locale = (Locale) getAttribute(LOCALE);
+
 		if (locale != null) {
 			return locale;
 		}
-		locale = Translator.getForcedLocale();
-		if (locale != null) {
-			// logger.debug("forced locale {}",locale);
+
+		String country = null;
+		Locale forcedLocale = Translator.getForcedLocale();
+		if (forcedLocale != null) {
+			country = forcedLocale.getCountry();
+			if (country.isBlank()) {
+				UI currentUi = UI.getCurrent();
+				if (currentUi != null) {
+					locale = currentUi.getLocale();
+					if (locale != null) {
+						country = locale.getCountry();
+						locale = new Locale(forcedLocale.getLanguage(), country);
+						logger.warn("adding country from browser {}", locale);
+					} else {
+						// forced locale not improved with a country
+						logger.warn("cannot add country from browser {}", forcedLocale, country);
+						return forcedLocale;
+					}
+				} else {
+					// forced locale not improved with a country
+					logger.warn("no UI, cannot add country from browser {}", forcedLocale);
+					return forcedLocale;
+				}
+			} else {
+				// forced locale already had country
+				logger.warn("already have country from forced locale {}:", forcedLocale, country);
+				return forcedLocale;
+			}
 		}
 
 		UI currentUi = UI.getCurrent();
-		if (locale == null && currentUi != null) {
-			locale = currentUi.getLocale();
-
-			final var loc = locale;
-			// is Browser language supported
-			List<Locale> locales = Translator.getAvailableLocales();
-			boolean supported = locales.stream().anyMatch(l -> l.getLanguage().equals(loc.getLanguage()));
-			if (!supported) {
-				locale = null;
-				logger.debug("browser locale = {}", locale);
-			} else {
-				logger.debug("using browser locale = {}", locale);
-			}
-		}
-
-		// get first defined locale from translation file, else default
-		if (locale == null) {
-			List<Locale> locales = Translator.getAvailableLocales();
-			if (locales != null && !locales.isEmpty()) {
-				locale = locales.get(0);
-			} else {
-				// defensive, can't happen
-				locale = Locale.ENGLISH;
-			}
-		}
-
-		if (locale.getCountry() == "") {
-			// add the country from Locale.getDefault -- probably the country we're running
-			// in.
-			// this may result in strange things for cloud -- such as es_US but the locale
-			// logic will not
-			// find es_US and will fall back to using es
-			// this will however work for en_US and en_UK and en_CA when running on a
-			// laptop, for date formats.
-			String country = Locale.getDefault().getCountry();
-			String variant = locale.getVariant();
-			String language = locale.getLanguage();
-			locale = new Locale(language, country, variant);
-		}
 		if (currentUi != null) {
+			var languages = VaadinService.getCurrentRequest().getHeader("Accept-Language");
+			logger.warn("localeSpecs: {}",languages);
+			List<Locale> acceptableLocales = new ArrayList<Locale>();
+			
+			if (languages != null && !languages.isEmpty()) {
+				String[] localeSpecs = languages.split(",");
+				acceptableLocales = Arrays.stream(localeSpecs).map(l -> extractLocale(l)).map(ls -> Locale.forLanguageTag(ls)).toList();
+			}
+			logger.warn("acceptable locales: {}", acceptableLocales);
+			List<Locale> availableLocales = Translator.getAvailableLocales();
+			Locale match = null;
+			Optional<Locale> found = findMatchingLocale(acceptableLocales, availableLocales);
+			if (found.isEmpty()) {
+				// note: if user has es_AR as preferred 
+				match = findLanguageOnlyMatch(acceptableLocales, availableLocales);
+			} else {
+				match = found.get();
+			}
+			if (match.getCountry().isBlank()) {
+				// the user's country may be unsupported (es_AR for example) as a translation variant, but still useful for formatting
+				country = getFirstCountryFromLocales(acceptableLocales);
+				if (country == null) {
+					country = Locale.getDefault().getCountry();
+				}
+				String language = match.getLanguage();
+				locale = new Locale(language, country);
+				logger.warn("adding country '{}' {}: {}", Locale.getDefault(), country, locale);
+			} else {
+				locale = match;
+			}
+			logger.warn("match = {}", match);
+			logger.warn("setting session locale: {}",locale);
 			currentUi.setLocale(locale);
 			setAttribute(LOCALE, locale);
+			return locale;
+		} else {
+			logger.warn("Locale.ROOT temporarily");
+			return Locale.ROOT;
 		}
-
-		return locale;
 	}
+	
+    private static String getFirstCountryFromLocales(List<Locale> locales) {
+        if (locales == null) {
+            return null;
+        }
+
+        Optional<String> country = locales.stream()
+                                          .map(Locale::getCountry) // Get the country code for each locale
+                                          .filter(c -> c != null && !c.isEmpty()) // Filter out null or empty country codes
+                                          .findFirst(); // Find the first one
+
+        return country.orElse(null); // Return the country code or null if not found
+    }
+	
+    private static String extractLocale(String inputString) {
+        if (inputString == null) {
+            return null;
+        }
+        int semicolonIndex = inputString.indexOf(';');
+        return (semicolonIndex != -1) ? inputString.substring(0, semicolonIndex) : inputString;
+    }
+    
+    private static Optional<Locale> findMatchingLocale(
+            List<Locale> acceptableLocales,
+            List<Locale> supportedLocales) {
+
+        Set<Locale> supportedLocaleSet = new HashSet<>(supportedLocales);
+
+        return acceptableLocales.stream()
+                .filter(supportedLocaleSet::contains) // Filter for locales present in the supported set
+                .findFirst();                         // Get the first one, if any
+    }
+    
+    /**
+     * Finds the first Locale from the acceptableLocales list whose language part
+     * matches a language supported by the application, using Java Streams.
+     * This method assumes all Locale objects have a non-empty language component.
+     *
+     * When a language match is found, it returns the *first* corresponding
+     * Locale object from the 'supportedLocales' list that matches that language.
+     * If no language match is found, it defaults to {@code Locale.ENGLISH}.
+     *
+     * @param acceptableLocales A list of Locale objects the user prefers, in order of preference.
+     * @param supportedLocales  A list of Locale objects that the application supports.
+     * @return The first supported Locale object whose language matches an acceptable language,
+     * or {@code Locale.ENGLISH} if no match is found.
+     */
+    public static Locale findLanguageOnlyMatch(
+            List<Locale> acceptableLocales,
+            List<Locale> supportedLocales) {
+
+        // 1. Create a Set of supported language strings for efficient lookup.
+        //    Example: From [en-US, fr-FR, de] -> { "en", "fr", "de" }
+        Set<String> supportedLanguages = supportedLocales.stream()
+                .map(Locale::getLanguage)
+                .collect(Collectors.toSet());
+
+        // 2. Stream through acceptable locales to find the first language match.
+        //    Then, find the first full Locale object from supported locales that corresponds to it.
+        return acceptableLocales.stream()
+                .map(Locale::getLanguage) // Extract language string (e.g., "en" from "en-CA")
+                .filter(supportedLanguages::contains) // Keep only languages that are in our supported set
+                .findFirst() // Get the first *language string* that matches (e.g., "en")
+                .flatMap(matchedLanguage -> // Once a matching language string is found...
+                    // ...find the first actual Locale object from the 'supportedLocales' list
+                    // that has this matching language.
+                    supportedLocales.stream()
+                        .filter(supported -> supported.getLanguage().equals(matchedLanguage))
+                        .findFirst()
+                )
+                .orElse(Locale.ENGLISH); // If no match is found anywhere in the pipeline, return Locale.ENGLISH
+    }
 
 	/**
 	 * Gets the attribute.
@@ -242,6 +342,7 @@ public class OwlcmsSession {
 	}
 
 	public void setLocale(Locale locale) {
+		//logger.debug("setLocale {}\n{}", locale, LoggerUtils.stackTrace());
 		if (locale == null) {
 			getCurrent().getAttributes().remove(LOCALE);
 		} else {
