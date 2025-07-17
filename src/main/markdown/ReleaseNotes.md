@@ -16,11 +16,13 @@
 
 59.0.0: Support for Japanese
 
-59.0.0: When entering a body weight, there could be premature recalculations of categories if the typing was slow.  Now waits until the change is done by moving outside the field.
-
-59.0.0: Experimental: Some federations show the jury decisions to the public.  A new jury decision scoreboard is available for this purpose.
+59.0.0: When entering a body weight, if typing was slow, the athlete's category could be recomputed before the weight was typed in completely.  Now waits until the change is done by moving outside the field.
 
 59.0.0: On the scoreboard, show only the leaders from previous groups, in compliance with TCRR.  Previously, the predicted medal-winning athletes (including athletes from the current group) were shown.  Old behaviour can be obtained with toggle switch `medalistsAsLeaders`)
+
+59.0.0: For formatting, the country is now set according to the browser's accepted languages preferences unless the locale has been forced in the database. Chrome, Edge and Safari include that information.  For Firefox, formatting will use the server's country unless the user has specified the country in their accepted languages.
+
+59.0.0: Experimental: Some federations show the jury decisions to the public.  A new jury decision scoreboard is available for this purpose.
 
 59.0.0: The scoreboard would show unneeded separators when operating in "pure" IWF mode (only bodyweight categories) there were category switches from one athlete to the next.
 

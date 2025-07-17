@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import javax.persistence.EntityManager;
@@ -30,6 +31,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -58,6 +60,7 @@ public class DemoData {
 	 */
 	public static void insertInitialData(int nbAthletes, EnumSet<ChampionshipType> forcedInsertion) {
 		JPAService.runInTransaction(em -> {
+			OwlcmsSession.setAttribute(OwlcmsSession.LOCALE, Locale.ENGLISH);
 			Competition competition = createDefaultCompetition(forcedInsertion);
 			CompetitionRepository.save(competition);
 			AgeGroupRepository.insertAgeGroups(em, forcedInsertion);

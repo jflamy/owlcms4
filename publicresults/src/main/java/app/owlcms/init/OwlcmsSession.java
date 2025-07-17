@@ -73,7 +73,7 @@ public class OwlcmsSession {
      * @return
      */
     public static Locale getLocale() {
-        logger.warn("***************** getLocale()");
+        //logger.debug("***************** getLocale()");
         Locale locale = Translator.getForcedLocale();
         UI currentUi = UI.getCurrent();
         if (locale == null && currentUi != null) {

@@ -6,8 +6,7 @@
  *******************************************************************************/
 package app.owlcms.init;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -43,7 +42,7 @@ public class OwlcmsSession {
 	private static final String DISPLAY_AUTHENTICATED = "displayAuthenticated";
 	private static final String AUTHENTICATED = "authenticated";
 	private static final String FOP = "fop";
-	private static final String LOCALE = "locale";
+	public static final String LOCALE = "locale";
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsSession.class);
 	private static OwlcmsSession owlcmsSessionSingleton = null;
 
@@ -69,64 +68,56 @@ public class OwlcmsSession {
 					if (locale != null) {
 						country = locale.getCountry();
 						locale = new Locale(forcedLocale.getLanguage(), country);
-						logger.warn("adding country from browser {}", locale);
+						//logger.debug("adding country from browser {}", locale);
 					} else {
 						// forced locale not improved with a country
-						logger.warn("cannot add country from browser {}", forcedLocale, country);
+						//logger.debug("cannot add country from browser {}", forcedLocale, country);
 						return forcedLocale;
 					}
 				} else {
 					// forced locale not improved with a country
-					logger.warn("no UI, cannot add country from browser {}", forcedLocale);
+					//logger.debug("no UI, cannot add country from browser {} {}", forcedLocale, LoggerUtils.stackTrace());
 					return forcedLocale;
 				}
 			} else {
 				// forced locale already had country
-				logger.warn("already have country from forced locale {}:", forcedLocale, country);
+				//logger.debug("already have country from forced locale {}:", forcedLocale, country);
 				return forcedLocale;
 			}
 		}
 
 		UI currentUi = UI.getCurrent();
 		if (currentUi != null) {
-			var languages = VaadinService.getCurrentRequest().getHeader("Accept-Language");
-			logger.warn("localeSpecs: {}",languages);
-			List<Locale> acceptableLocales = new ArrayList<Locale>();
-			
-			if (languages != null && !languages.isEmpty()) {
-				String[] localeSpecs = languages.split(",");
-				acceptableLocales = Arrays.stream(localeSpecs).map(l -> extractLocale(l)).map(ls -> Locale.forLanguageTag(ls)).toList();
-			}
-			logger.warn("acceptable locales: {}", acceptableLocales);
+			List<Locale> acceptableLocales = Collections.list(VaadinService.getCurrentRequest().getLocales());
+			//logger.debug("acceptable locales: {}", acceptableLocales);
 			List<Locale> availableLocales = Translator.getAvailableLocales();
 			Locale match = null;
 			Optional<Locale> found = findMatchingLocale(acceptableLocales, availableLocales);
 			if (found.isEmpty()) {
-				// note: if user has es_AR as preferred 
+				// Firefox does not add es if user has es_AR, so we check for es only
 				match = findLanguageOnlyMatch(acceptableLocales, availableLocales);
 			} else {
 				match = found.get();
 			}
 			if (match.getCountry().isBlank()) {
-				// the user's country may be unsupported (es_AR for example) as a translation variant, but still useful for formatting
 				country = getFirstCountryFromLocales(acceptableLocales);
 				if (country == null) {
 					country = Locale.getDefault().getCountry();
 				}
 				String language = match.getLanguage();
 				locale = new Locale(language, country);
-				logger.warn("adding country '{}' {}: {}", Locale.getDefault(), country, locale);
+				//logger.debug("adding country '{}' {}: {}", Locale.getDefault(), country, locale);
 			} else {
 				locale = match;
 			}
-			logger.warn("match = {}", match);
-			logger.warn("setting session locale: {}",locale);
+			//logger.debug("match = {}", match);
+			//logger.debug("setting session locale: {}",locale);
 			currentUi.setLocale(locale);
 			setAttribute(LOCALE, locale);
 			return locale;
 		} else {
-			logger.warn("Locale.ROOT temporarily");
-			return Locale.ROOT;
+			//logger.debug("Locale.ENGLISH as fallback");
+			return Locale.ENGLISH;
 		}
 	}
 	
@@ -143,14 +134,6 @@ public class OwlcmsSession {
         return country.orElse(null); // Return the country code or null if not found
     }
 	
-    private static String extractLocale(String inputString) {
-        if (inputString == null) {
-            return null;
-        }
-        int semicolonIndex = inputString.indexOf(';');
-        return (semicolonIndex != -1) ? inputString.substring(0, semicolonIndex) : inputString;
-    }
-    
     private static Optional<Locale> findMatchingLocale(
             List<Locale> acceptableLocales,
             List<Locale> supportedLocales) {
