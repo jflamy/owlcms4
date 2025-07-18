@@ -88,6 +88,7 @@ public class DecisionElement extends LitTemplate
 	        Integer ref3Time) {
 		Object origin = this.getOrigin();
 		OwlcmsSession.withFop((fop) -> {
+			//logger.debug("masterRefereeUpdate {} {} {}",ref1, ref2, ref3);
 			if (!fopName.contentEquals(fop.getName())) {
 				return;
 			}
@@ -95,7 +96,7 @@ public class DecisionElement extends LitTemplate
 			        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
 			                Long.valueOf(ref1Time),
 			                Long.valueOf(ref2Time),
-			                Long.valueOf(ref3Time), false, fop.isSingleReferee()));
+			                Long.valueOf(ref3Time), false));
 		});
 
 	}
@@ -183,14 +184,14 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
-		//logger.debug("decision {} {} {}", e.ref1, e.ref2, e.ref3);
+		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleReferee());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			if (e.isSingleReferee()) {
-				getElement().setProperty("singleRef", this.singleRef);
+				getElement().setProperty("singleRef", e.isSingleReferee());
 				this.getElement().callJsFunction("showSingleDecision", e.decision);
 				this.getElement().callJsFunction("setEnabled", false);
 			} else {
-				getElement().setProperty("singleRef", this.singleRef);
+				getElement().setProperty("singleRef", e.isSingleReferee());
 				this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 				this.getElement().callJsFunction("setEnabled", false);
 			}

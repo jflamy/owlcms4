@@ -47,8 +47,8 @@ class DecisionElement extends LitElement {
             border: 2px solid var(--lumo-contrast);
             margin: 0;
             padding: 0;
-            width: 1.2em;
-            height: 1.2em;
+            width: var(--attemptFontSize, 20vh);
+            height: var(--attemptFontSize, 20vh);
             line-height: 1.2em;
             font-size: 1.0em;
             color: black;
@@ -235,23 +235,13 @@ class DecisionElement extends LitElement {
     console.warn("de key " + key);
     switch (e.key) {
       case "1":
-        if (this.singleRef) {
-          this.ref2 = true;
-          this.ref2Time = Date.now();
-        } else {
-          this.ref1 = true;
-          this.ref1Time = Date.now();
-        }
+        this.ref1 = true;
+        this.ref1Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "2":
-        if (this.singleRef) {
-          this.ref2 = false;
-          this.ref2Time = Date.now();
-        } else {
-          this.ref1 = false;
-          this.ref1Time = Date.now();
-        }
+        this.ref1 = false;
+        this.ref1Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "3":
@@ -265,23 +255,13 @@ class DecisionElement extends LitElement {
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "5":
-        if (this.singleRef) {
-          this.ref2 = true;
-          this.ref2Time = Date.now();
-        } else {
-          this.ref3= true;
-          this.ref3Time = Date.now();
-        }
+        this.ref3= true;
+        this.ref3Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "6":
-        if (this.singleRef) {
-          this.ref2 = false;
-          this.ref2Time = Date.now();
-        } else {
-          this.ref3= false;
-          this.ref3Time = Date.now();
-        }
+        this.ref3= false;
+        this.ref3Time = Date.now();
         this._majority(this.ref1, this.ref2, this.ref3);
         break;
       default:
@@ -319,6 +299,7 @@ class DecisionElement extends LitElement {
     var count = countWhite + countRed;
     if (!this._downShown && (countWhite == 2 || countRed == 2)) {
       this.decision = countWhite >= 2;
+      this.singleRef = false;
       if (!this.jury) this.showDown(true);
     }
     if (countWhite + countRed >= 3) {
@@ -453,7 +434,7 @@ class DecisionElement extends LitElement {
     this.singleRef = false;
     this.jury = true;
     this._showDecision = true;
-    console.debug("de showDecisionsForJury>");
+    console.warn("de showDecisionsForJury>");
   }
 
   showSingleDecisionForJury(decision) {
@@ -465,7 +446,7 @@ class DecisionElement extends LitElement {
     this.singleRef = true;
     this.jury = true;
     this._showDecision = true;
-    console.debug("de showSingleDecisionForJury");
+    console.warn("de showSingleDecisionForJury");
   }
 
   reset(isMaster) {

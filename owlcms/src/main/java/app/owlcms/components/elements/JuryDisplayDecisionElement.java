@@ -16,7 +16,6 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.uievents.UIEvent.DecisionReset;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -30,6 +29,8 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
+
+	private UI ui;
 
 	public JuryDisplayDecisionElement() {
 		this.setJury(true);
@@ -92,6 +93,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		ui = UI.getCurrent();
 		super.onAttach(attachEvent);
 	}
 
@@ -120,7 +122,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			// logger.debug("{} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
 			getElement().setProperty("singleRef", this.isSingleRef());
-			if (this.isSingleRef()) {
+			if (e.isSingleReferee()) {
 				this.getElement().callJsFunction("showSingleDecisionForJury", e.ref2);
 			} else {
 				this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3,
@@ -132,8 +134,18 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	}
 
 	@Override
-	public void slaveShowDecision(Decision e) {
-		// ignore
+	@Subscribe
+	public void slaveShowDecision(UIEvent.Decision e) {
+		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleReferee());
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
+			if (e.isSingleReferee()) {
+				getElement().setProperty("singleRef", e.isSingleReferee());
+				this.getElement().callJsFunction("showSingleDecision", e.decision);
+			} else {
+				getElement().setProperty("singleRef", e.isSingleReferee());
+				this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
+			}
+		});
 	}
 
 	@Subscribe

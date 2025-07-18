@@ -296,10 +296,9 @@ public class FOPEvent {
 		public Boolean ref3;
 		public Long ref3Time;
 		private boolean immediate;
-		private boolean singleReferee;
 
 		public DecisionFullUpdate(Object origin, Athlete athlete, Boolean ref1, Boolean ref2, Boolean ref3,
-		        Long long1, Long long2, Long long3, boolean immediate, boolean singleReferee) {
+		        Long long1, Long long2, Long long3, boolean immediate) {
 			super(athlete, origin);
 			this.ref1 = ref1;
 			this.ref2 = ref2;
@@ -308,17 +307,7 @@ public class FOPEvent {
 			this.ref2Time = long2;
 			this.ref3Time = long3;
 			this.immediate = immediate;
-			this.singleReferee = singleReferee;
-//			if (isSingleReferee()) {
-//				// move the decision to position 2; this is expected by the JavaScript element
-//				if (this.ref1 != null) {
-//					this.ref2 = this.ref1;
-//					this.ref1 = null;
-//				} else if (this.ref3 != null) {
-//					this.ref2 = this.ref3;
-//					this.ref3 = null;
-//				}
-//			}
+			//logger.debug("DecisionFullUpdate\n{}",LoggerUtils.stackTrace());
 			trace();
 		}
 
@@ -355,14 +344,6 @@ public class FOPEvent {
 
 		private void trace(Boolean ref1, Boolean ref2, Boolean ref3, boolean immediate) {
 			this.logger.trace("decision full update {} {} {} {}", ref1, ref2, ref3, LoggerUtils.whereFrom(2));
-		}
-		
-		public void setSingleReferee(boolean b) {
-			this.singleReferee = b;
-		}
-
-		public boolean isSingleReferee() {
-			return singleReferee;
 		}
 
 	}

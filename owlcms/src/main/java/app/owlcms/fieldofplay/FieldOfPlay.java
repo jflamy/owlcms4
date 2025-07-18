@@ -851,10 +851,6 @@ public class FieldOfPlay implements IUnregister {
 					        getAthleteTimer().getTimeRemainingAtLastStop());
 				} else if (e instanceof DecisionFullUpdate) {
 					// decision board/attempt board sends bulk update
-					var e2 = (DecisionFullUpdate) e;
-					if (isSingleReferee()) {
-						e2.setSingleReferee(true);
-					}
 					updateRefereeDecisions((DecisionFullUpdate) e);
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
@@ -888,10 +884,6 @@ public class FieldOfPlay implements IUnregister {
 					// only occurs if solo referee
 					emitDown(e);
 				} else if (e instanceof DecisionFullUpdate) {
-					var e2 = (DecisionFullUpdate) e;
-					if (isSingleReferee()) {
-						e2.setSingleReferee(true);
-					}
 					updateRefereeDecisions((DecisionFullUpdate) e);
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
@@ -2170,6 +2162,11 @@ public class FieldOfPlay implements IUnregister {
 			}
 		}
 		setGoodLift(null);
+		if (isRefereeForcedDecision()) {
+			setGoodLift(nbWhite >= 1);
+			showDecisionNow(e.getOrigin());
+			return;
+		}
 		if (isSingleReferee()) {
 			goodLift = nbWhite >= 1;
 			// logger.debug("downEmitted {} {}", this.downEmitted, nbWhite);
@@ -2881,9 +2878,10 @@ public class FieldOfPlay implements IUnregister {
 
 		this.setClockOwner(null);
 		DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
-		        now, now, isAnnouncerDecisionImmediate(), isSingleReferee());
+		        now, now, isAnnouncerDecisionImmediate());
 		setRefereeForcedDecision(true);
 		updateRefereeDecisions(ne);
+		setRefereeForcedDecision(true);
 		uiShowUpdateOnJuryScreen(ed);
 		// needed to make sure 2min rule is triggered. The athlete we have just decided
 		// is the previous athlete.
@@ -3190,7 +3188,8 @@ public class FieldOfPlay implements IUnregister {
 			ref2 = refereeDecision2[1];
 			ref3 = refereeDecision2[2];
 		}
-		pushOutUIEvent(new UIEvent.Decision(athlete2, goodLift2, ref1, ref2, ref3, origin2, this));
+		pushOutUIEvent(new UIEvent.Decision(athlete2, goodLift2, ref1, ref2, ref3, origin2, this, isRefereeForcedDecision() || isSingleReferee()));
+		setRefereeForcedDecision(false);
 	}
 
 	private void uiShowUpdatedRankings() {
@@ -3206,7 +3205,9 @@ public class FieldOfPlay implements IUnregister {
 		        getRefereeTime()[0],
 		        getRefereeTime()[1],
 		        getRefereeTime()[2],
-		        e.getOrigin(), this));
+		        e.getOrigin(),
+		        isRefereeForcedDecision() || isSingleReferee(),
+		        this));
 	}
 
 	private void unexpectedEventInState(FOPEvent e, FOPState state) {
@@ -3294,7 +3295,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
-		logger.debug("*** referee decisions {} {} {}", e.ref1, e.ref2, e.ref3);
+		logger.debug("*** referee decisions {} {} {}\n{}", e.ref1, e.ref2, e.ref3, LoggerUtils.stackTrace());
 
 		// it is not possible to go from a non-null decision that was given back to null
 		// this would indicate an event out of order.

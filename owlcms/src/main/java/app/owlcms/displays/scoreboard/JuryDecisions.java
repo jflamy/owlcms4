@@ -142,7 +142,6 @@ public class JuryDecisions extends BaseResults {
 
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-		logger.warn("resetting2 **********************");
 		ui.access(() -> clear());
 	}
 

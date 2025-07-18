@@ -387,12 +387,12 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			
 			if (fop.isRefereeForcedDecision()) {
 				this.decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(this.athleteUnderReview, null,
-				        curRefDecisions[1], null, null, curRefTimes[1], null, this, fop));
+				        curRefDecisions[1], null, null, curRefTimes[1], null, this, true, fop));
 			} else {
 				this.decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(this.athleteUnderReview,
 				        curRefDecisions[0],
 				        curRefDecisions[1], curRefDecisions[2], curRefTimes[0], curRefTimes[1], curRefTimes[2],
-				        this, fop));
+				        this, false, fop));
 			}
 		}
 	}
