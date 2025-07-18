@@ -57,8 +57,8 @@ public class JuryDecisions extends BaseResults {
 		uiEventLogger.setLevel(Level.INFO);
 	}
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private EventBus uiEventBus;
 	private UI ui;
+	private EventBus uiEventBus;
 
 	public JuryDecisions(AbstractDisplayPage page) {
 		uiEventLogger.setLevel(Level.INFO);
@@ -126,9 +126,24 @@ public class JuryDecisions extends BaseResults {
 		});
 	}
 
+	@Subscribe
+	public void slaveJuryMemberDecision(UIEvent.JuryUpdate e) {
+		ui.access(() -> {
+			checkAllVoted();
+			getElement().setProperty("showJuryDecisions", true);
+		});
+
+	}
+
 	@Override
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+	}
+
+	@Subscribe
+	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		logger.warn("resetting2 **********************");
+		ui.access(() -> clear());
 	}
 
 	@Override
@@ -172,6 +187,16 @@ public class JuryDecisions extends BaseResults {
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 	}
 
+	protected void init() {
+		OwlcmsSession.withFop(fop -> {
+			logger.trace("{}Starting result board", FieldOfPlay.getLoggingName(fop));
+			setId("scoreboard-" + fop.getName());
+			setWideTeamNames(false);
+			getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
+		});
+		setTranslationMap();
+	}
+
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		OwlcmsSession.withFop(fop -> {
@@ -192,14 +217,45 @@ public class JuryDecisions extends BaseResults {
 	protected void updateDisplay(String liftType, FieldOfPlay fop) {
 	}
 
-	protected void init() {
-		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting result board", FieldOfPlay.getLoggingName(fop));
-			setId("scoreboard-" + fop.getName());
-			setWideTeamNames(false);
-			getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-		});
-		setTranslationMap();
+	private void checkAllVoted() {
+		boolean allVoted = true;
+		for (int i = 0; i < getNbJurors(); i++) {
+			Boolean juryVote = getFop().getJuryMemberDecision()[i];
+			if (juryVote == null) {
+				allVoted = false;
+				break;
+			}
+		}
+
+		JsonArray decisions = Json.createArray();
+		if (allVoted) {
+			for (int i = 0; i < getNbJurors(); i++) {
+				Boolean juryVote = getFop().getJuryMemberDecision()[i];
+				decisions.set(i, juryVote ? "white" : "red");
+			}
+		} else {
+			for (int i = 0; i < getNbJurors(); i++) {
+				decisions.set(i, "waiting");
+			}
+		}
+		getElement().setPropertyJson("decisions", decisions);
+		getElement().setProperty("showJuryDecisions", true);
+	}
+
+	private void clear() {
+		JsonArray decisions = Json.createArray();
+		for (int i = 0; i < getNbJurors(); i++) {
+			decisions.set(i, "empty");
+		}
+		getElement().setPropertyJson("decisions", decisions);
+	}
+
+	private int getNbJurors() {
+		return Competition.getCurrent().getJurySize();
+	}
+
+	private void resetJuryVoting() {
+		getElement().setProperty("showJuryDecisions", false);
 	}
 
 	private void setDisplay() {
@@ -248,54 +304,6 @@ public class JuryDecisions extends BaseResults {
 
 	private void setShowJuryDecisions(Element element, boolean b) {
 		getElement().setProperty("showJuryDecisions", b);
-	}
-
-	@Subscribe
-	public void slaveJuryMemberDecision(UIEvent.JuryUpdate e) {
-		ui.access(() -> {
-			checkAllVoted();
-		});
-	}
-
-	@Subscribe
-	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> clear());
-	}
-
-	private void clear() {
-	}
-
-	private void checkAllVoted() {
-		boolean allVoted = true;
-		for (int i = 0; i < getNbJurors(); i++) {
-			Boolean juryVote = getFop().getJuryMemberDecision()[i];
-			if (juryVote == null) {
-				allVoted = false;
-				break;
-			}
-		}
-
-		JsonArray decisions = Json.createArray();
-		if (allVoted) {
-			for (int i = 0; i < getNbJurors(); i++) {
-				Boolean juryVote = getFop().getJuryMemberDecision()[i];
-				decisions.set(i, juryVote ? "white" : "red");
-			}
-		} else {
-			for (int i = 0; i < getNbJurors(); i++) {
-				decisions.set(i, "waiting");
-			}
-		}
-		getElement().setPropertyJson("decisions", decisions);
-		getElement().setProperty("showJuryDecisions", true);
-	}
-
-	private void resetJuryVoting() {
-		getElement().setProperty("showJuryDecisions", false);
-	}
-
-	private int getNbJurors() {
-		return Competition.getCurrent().getJurySize();
 	}
 
 }

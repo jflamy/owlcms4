@@ -48,5 +48,12 @@
         background: #e53935;
       }
       .decision.waiting {
-        background: #43a047;
+        background: slategray;
+        border: slategray;
+        color: slategray;
+      }
+      .decision.empty {
+        background: transparent;
+        border: 2px solid slategray;
+        color: transparent;
       }
