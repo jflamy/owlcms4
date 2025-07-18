@@ -16,6 +16,8 @@
 
 59.0.0: Support for Japanese
 
+59.9.0: Improved the processing of decisions entered by the speaker (when flags are used, or if a referee button does not work). In such cases, the down signal is no longer shown.
+
 59.0.0: When entering a body weight, if typing was slow, the athlete's category could be recomputed before the weight was typed in completely.  Now waits until the change is done by moving outside the field.
 
 59.0.0: On the scoreboard, show only the leaders from previous groups, in compliance with TCRR.  Previously, the predicted medal-winning athletes (including athletes from the current group) were shown.  Old behaviour can be obtained with toggle switch `medalistsAsLeaders`)
