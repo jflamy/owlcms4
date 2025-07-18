@@ -14,8 +14,8 @@
     --defaultLeaderFillerHeight: 1.75em;
 
     /* left column width: adjust depending on how you name groups */
-    --startWidth: 0em;
-    --startVisibility: hidden;
+    --startWidth: min-content;
+    --startVisibility: visible;
 
     /* spacers */
     --spacerWidth: 1vh;
