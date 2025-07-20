@@ -138,7 +138,6 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		} else {
 			medalFontSize = emFontSize * 1.5;
 		}
-		logger.warn("%%%%% setEmFontSize {}", emFontSize);
 		super.setEmFontSize(emFontSize);
 		pushEmSize(this.getBoard().getElement(), emFontSize);
 		pushEmSize(this.getMedalsBoard().getElement(),medalFontSize);

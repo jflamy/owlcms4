@@ -637,11 +637,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			team = "";
 		}
 
-		logger.warn("doUpdate");
 		if (Config.getCurrent().featureSwitch("customTeamName")) {
 			var customTeamFormatString = Translator.translateOrElseNull("AttemptBoard.TeamFormat");
 			if (customTeamFormatString != null) {
-				logger.warn("customTeamName {}",customTeamFormatString);
 				String custom1 = a.getCustom1();
 				String custom2 = a.getCustom2();
 				boolean custom1Present = custom1 != null && !custom1.isBlank();
@@ -657,7 +655,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 				// count = 3 show team, custom1 and custom 2 (11)
 				
 				team = MessageFormat.format(customTeamFormatString, count, team, custom1 != null ? custom1 : "", custom2 != null ? custom2 : "");
-				logger.warn("custom team {}",team);
 			}
 		}
 		return team;

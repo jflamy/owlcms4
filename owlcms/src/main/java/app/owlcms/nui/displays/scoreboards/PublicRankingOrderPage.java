@@ -92,7 +92,6 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 	}
 
 	protected void createComponents() {
-		logger.warn("create components");
 		var board = new ResultsRankingOrder();
 		setMedalsBoard(new ResultsMedals());
 		this.setBoard(board);

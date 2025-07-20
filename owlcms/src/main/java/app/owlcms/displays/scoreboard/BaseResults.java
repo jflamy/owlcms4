@@ -253,10 +253,9 @@ public class BaseResults extends LitTemplate
 	@Override
 	public void pushEmSize(Element element) {
 		String formattedEm = null;
-		logger.warn("pushEmSize {} this.getElement().getTag() {}" , this.emFontSize, this.getElement().getTag());
 		if (this.emFontSize != null) {
 			formattedEm = ResultsParameters.formatEN_US.format(this.emFontSize);
-			logger.warn("B pushing em {} {}\n{}",element.getTag(), emFontSize, LoggerUtils.stackTrace());
+			//logger.debug("B pushing em {} {}\n{}",element.getTag(), emFontSize, LoggerUtils.stackTrace());
 			element.setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "em;");
 		}
 	}
