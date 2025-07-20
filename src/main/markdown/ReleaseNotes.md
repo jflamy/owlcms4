@@ -20,6 +20,8 @@
 
 59.0.0: Support for Japanese
 
+50.0.0: When using public scoreboards, the display switches to medals when the announcer starts a medal ceremony from the "Pause" menu.  The font size used for that menu is now larger and more appropriate.
+
 59.9.0: Improved the processing of decisions entered by the speaker (when flags are used, or if a referee button does not work). In such cases, the down signal is no longer shown.
 
 59.0.0: When entering a body weight, if typing was slow, the athlete's category could be recomputed before the weight was typed in completely.  Now waits until the change is done by moving outside the field.
