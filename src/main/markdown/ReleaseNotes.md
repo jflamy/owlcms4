@@ -12,6 +12,10 @@
 
 <br>
 
+**Maintenance Log**
+
+59.0.0-beta03:  `customTeamName` feature now works as described (see below)
+
 **New in Release 59.0**
 
 59.0.0: Support for Japanese
