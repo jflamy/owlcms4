@@ -602,29 +602,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("athletePictures", isAthletePictures());
 
 		String team = a.getTeam();
-		if (team == null) {
-			team = "";
-		}
-
-		if (Config.getCurrent().featureSwitch("customTeamName")) {
-			var customTeamFormatString = Translator.translateOrElseNull("Custom.TeamFormat");
-			if (customTeamFormatString != null) {
-				String custom1 = a.getCustom1();
-				String custom2 = a.getCustom2();
-				int count = custom2 != null && custom1 != null ? 3 : (custom2 != null ? 2 : (custom1 != null ? 1 : 0));
-
-				// The message format is expected to be something similar to
-				// {0, choice, 0#{1}|1#{1}, {2}|2#{1}, {3}|3#{1}, {2}, {3}}
-				// a "binary" encoding is used to control the format
-				// count = 0 show only team (00)
-				// count = 1 show team and custom1 (01)
-				// count = 2 show team and custom2 (10)
-				// count = 3 show team, custom1 and custom 2 (11)
-				
-				team = MessageFormat.format(customTeamFormatString, count, team, custom1 != null ? custom1 : "", custom2 != null ? custom2 : "");
-			}
-		}
-		this.getElement().setProperty("teamName", team);
 		this.getElement().setProperty("teamFlagImg", "");
 		String teamFileName = URLUtils.sanitizeFilename(team);
 		if (this.teamFlags && !team.isBlank()) {
@@ -632,6 +609,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			        .anyMatch(ext -> URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ext, this));
 		}
 
+		this.getElement().setProperty("teamName", computeTeamName(a));
+		
 		String membership = a.getMembership();
 		this.getElement().setProperty("athleteImg", "");
 		if (isAthletePictures() && membership != null) {
@@ -650,6 +629,38 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		// this will push the changes done so far
 		spotlightRecords(fop, a);
 		setDone(false);
+	}
+
+	public String computeTeamName(Athlete a) {
+		String team = a.getTeam();
+		if (team == null) {
+			team = "";
+		}
+
+		logger.warn("doUpdate");
+		if (Config.getCurrent().featureSwitch("customTeamName")) {
+			var customTeamFormatString = Translator.translateOrElseNull("AttemptBoard.TeamFormat");
+			if (customTeamFormatString != null) {
+				logger.warn("customTeamName {}",customTeamFormatString);
+				String custom1 = a.getCustom1();
+				String custom2 = a.getCustom2();
+				boolean custom1Present = custom1 != null && !custom1.isBlank();
+				boolean custom2Present = custom2 != null && !custom2.isBlank();
+				int count = custom1Present && custom2Present ? 3 : (custom2Present ? 2 : (custom1Present ? 1 : 0));
+
+				// The message format is expected to be something similar to
+				// {0, choice, 0#{1}|1#{1}, {2}|2#{1}, {3}|3#{1}, {2}, {3}}
+				// a "binary" encoding is used to control the format
+				// count = 0 show only team (00)
+				// count = 1 show team and custom1 (01)
+				// count = 2 show team and custom2 (10)
+				// count = 3 show team, custom1 and custom 2 (11)
+				
+				team = MessageFormat.format(customTeamFormatString, count, team, custom1 != null ? custom1 : "", custom2 != null ? custom2 : "");
+				logger.warn("custom team {}",team);
+			}
+		}
+		return team;
 	}
 
 	/**
@@ -884,7 +895,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	private void hideRecordInfo(Athlete a) {
 		this.getElement().setProperty("recordName", "");
-		this.getElement().setProperty("teamName", a.getTeam());
+		this.getElement().setProperty("teamName", computeTeamName(a));
 		this.getElement().setProperty("hideBecauseRecord", "");
 		this.getElement().setProperty("recordAttempt", false);
 		this.getElement().setProperty("recordBroken", false);
