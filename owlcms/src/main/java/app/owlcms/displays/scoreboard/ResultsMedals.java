@@ -330,10 +330,12 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 					doRefresh(new UIEvent.SwitchGroup(fop.getGroup(), FOPState.BREAK, fop.getCurAthlete(), this, fop));
 				}
 				break;
-			// default:
-			// setDisplay();
-			// updateDisplay(null, fop);
 		}
+		logger.warn("emSize medals {}",getEmFontSize());
+		ui.access(() -> {
+			pushEmSize();
+			pushTeamWidth();
+		});
 	}
 
 	@Override

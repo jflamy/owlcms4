@@ -198,7 +198,7 @@ class ResultsMedals extends LitElement {
       teamWidthClass: {},
       sizeOverride: {},
       twOverride: {},
-	  colorOverride: {},
+	    colorOverride: {},
       video: {},
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},

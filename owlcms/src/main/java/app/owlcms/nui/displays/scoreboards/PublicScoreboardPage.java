@@ -74,7 +74,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		}
 		this.ui.access(() -> {
 			/* copy current parameters from results board to medals board */
-			this.getMedalsBoard().setVisible(true);
+			this.getMedalsBoard().getStyle().set("display","block");
 			this.getMedalsBoard().setDownSilenced(true);
 			this.getMedalsBoard().setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
 			this.getMedalsBoard().setVideo(((DisplayParameters) getBoard()).isVideo());
@@ -127,6 +127,10 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		uiEventBusRegister(this, getFop());
+		
+		// overrides common to all enclosed boards
+		this.getElement().getStyle().set("--medalOverride", "2em");
+		
 		DisplayParameters board = (DisplayParameters) this.getBoard();
 		board.setFop(getFop());
 		getMedalsBoard().setFop(getFop());
@@ -137,8 +141,9 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		this.addComponent((Component) board);
 		this.addComponent(getMedalsBoard());
 
-		((Component) board).setVisible(true);
-		getMedalsBoard().setVisible(false);
+		((Component) board).getElement().getStyle().set("display","block");
+		getMedalsBoard().getElement().getStyle().set("display","none");
+
 	}
 
 	protected void setDefaultParameters() {
