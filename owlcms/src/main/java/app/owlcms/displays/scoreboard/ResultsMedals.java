@@ -36,6 +36,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
@@ -417,11 +418,10 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
-		// only show flags when medals are for a single category
 		String prop = null;
-		if (getCategory() != null) {
+		if (!Config.getCurrent().featureSwitch("medalsForCategoryOnly")) {
+			// only show flags when medals are for a single category
 			String team = a.getTeam();
-
 			if (this.teamFlags && !team.isBlank()) {
 				prop = Team.getImgTag(team, "");
 			}

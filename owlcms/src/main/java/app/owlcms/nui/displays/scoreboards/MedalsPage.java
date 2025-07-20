@@ -66,5 +66,32 @@ public class MedalsPage extends AbstractResultsDisplayPage {
 		fullMap.putAll(additionalMap);
 		setDefaultParameters(QueryParameters.simple(fullMap));
 	}
+	
+	@Override
+	public void setEmFontSize(Double emFontSize) {
+		Double medalFontSize;
+		// subjective visual kludging.
+		if (emFontSize == null) {
+			emFontSize = 1.0;
+			medalFontSize = 1.5;
+		} else {
+			medalFontSize = emFontSize * 1.5;
+		}
+		logger.warn("%%%%% setEmFontSize {}", emFontSize);
+		super.setEmFontSize(emFontSize);
+		pushEmSize(this.getBoard().getElement(), medalFontSize);
+
+	}
+	
+	@Override
+	final public void setTeamWidth(Double tw) {
+		if (tw == null) {
+			return;
+		}
+		// TODO Auto-generated method stub
+		super.setTeamWidth(tw);
+		pushTeamWidth(this.getBoard().getElement(),tw*1.4);
+	}
+
 
 }
