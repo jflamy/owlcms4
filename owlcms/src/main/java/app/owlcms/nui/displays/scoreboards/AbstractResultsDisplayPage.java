@@ -12,6 +12,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.HasDynamicTitle;
 
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
@@ -110,24 +111,35 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	}
 
 	@Override
-	public void pushEmSize() {
-		String formattedEm = null;
+	public void pushEmSize(Element element) {
 		Double emFontSize = getEmFontSize();
+		pushEmSize(element, emFontSize);
+	}
+	
+	public void pushEmSize(Element element, Double size) {
+		String formattedEm = null;
+		Double emFontSize = size;
 		if (emFontSize != null) {
 			emFontSize = emFontSize <= 0.0 ? 0.0 : emFontSize;
 			formattedEm = ResultsParameters.formatEN_US.format(emFontSize);
-			getBoard().getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "em;");
+			getLogger().warn("A pushing em {} {}",element.getTag(), emFontSize);
+			element.setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "em;");
 		}
 	}
-
+	
 	@Override
-	public void pushTeamWidth() {
+	public void pushTeamWidth(Element element) {
+		Double teamWidth = getTeamWidth();
+		pushEmSize(element, teamWidth);
+	}
+
+	public void pushTeamWidth(Element element, Double size) {
 		String formattedTW = null;
-		Double teamWidth2 = getTeamWidth();
+		Double teamWidth2 = size;
 		if (teamWidth2 != null) {
 			teamWidth2 = teamWidth2 <= 0.0 ? 0.0 : teamWidth2;
 			formattedTW = ResultsParameters.formatEN_US.format(teamWidth2);
-			getBoard().getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+			element.setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
 		}
 	}
 

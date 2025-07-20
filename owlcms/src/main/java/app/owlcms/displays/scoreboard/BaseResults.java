@@ -25,6 +25,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.littemplate.LitTemplate;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
 
 import app.owlcms.apputils.SoundUtils;
@@ -247,24 +248,25 @@ public class BaseResults extends LitTemplate
 	}
 
 	/**
-	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#pushEmSize()
+	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#pushEmSize(Element)
 	 */
 	@Override
-	public void pushEmSize() {
+	public void pushEmSize(Element element) {
 		String formattedEm = null;
 		logger.warn("pushEmSize {} this.getElement().getTag() {}" , this.emFontSize, this.getElement().getTag());
 		if (this.emFontSize != null) {
 			formattedEm = ResultsParameters.formatEN_US.format(this.emFontSize);
-			this.getElement().setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "em;");
+			logger.warn("B pushing em {} {}\n{}",element.getTag(), emFontSize, LoggerUtils.stackTrace());
+			element.setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "em;");
 		}
 	}
 
 	@Override
-	public void pushTeamWidth() {
+	public void pushTeamWidth(Element element) {
 		String formattedTW = null;
 		if (this.teamWidth != null) {
 			formattedTW = ResultsParameters.formatEN_US.format(this.teamWidth);
-			this.getElement().setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+			element.setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
 		}
 	}
 
@@ -303,7 +305,7 @@ public class BaseResults extends LitTemplate
 	public final void setEmFontSize(Double emFontSize) {
 		// logger.trace("%%%%% setEmFontSize {}", emFontSize);
 		this.emFontSize = emFontSize;
-		pushEmSize();
+		pushEmSize(this.getElement());
 	}
 
 	@Override
@@ -398,7 +400,7 @@ public class BaseResults extends LitTemplate
 	@Override
 	public void setTeamWidth(Double tw) {
 		this.teamWidth = tw;
-		pushTeamWidth();
+		pushTeamWidth(this.getElement());
 	}
 
 	final public void setUrlParameterMap(Map<String, List<String>> parametersMap) {

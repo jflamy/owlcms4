@@ -92,6 +92,7 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 	}
 
 	protected void createComponents() {
+		logger.warn("create components");
 		var board = new ResultsRankingOrder();
 		setMedalsBoard(new ResultsMedals());
 		this.setBoard(board);
@@ -102,11 +103,9 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 		getMedalsBoard().setPublicDisplay(board.isPublicDisplay());
 		getMedalsBoard().setSingleReferee(board.isSingleReferee());
 		getMedalsBoard().setAbbreviatedName(board.isAbbreviatedName());
-		getMedalsBoard().setTeamWidth(board.getTeamWidth());
-		getMedalsBoard().setEmFontSize(board.getEmFontSize());
 		computeStylesDir(getMedalsBoard());
-
 		getMedalsBoard().getStyle().set("display", "none");
+
 		this.ui = UI.getCurrent();
 	}
 

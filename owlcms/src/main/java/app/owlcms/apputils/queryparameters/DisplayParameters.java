@@ -8,6 +8,8 @@ package app.owlcms.apputils.queryparameters;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.dom.Element;
+
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -73,10 +75,10 @@ public interface DisplayParameters extends SoundParameters {
 
 	public boolean isVideo();
 
-	public default void pushEmSize() {
+	public default void pushEmSize(Element element) {
 	}
 
-	public default void pushTeamWidth() {
+	public default void pushTeamWidth(Element element) {
 	}
 
 	public void setAbbreviatedName(boolean b);

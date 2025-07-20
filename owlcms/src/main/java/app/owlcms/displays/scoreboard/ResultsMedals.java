@@ -333,8 +333,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		}
 		logger.warn("emSize medals {}",getEmFontSize());
 		ui.access(() -> {
-			pushEmSize();
-			pushTeamWidth();
+			pushEmSize(this.getElement());
+			pushTeamWidth(this.getElement());
 		});
 	}
 

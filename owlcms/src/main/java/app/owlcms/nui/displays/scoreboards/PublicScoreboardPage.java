@@ -81,12 +81,14 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 			this.getMedalsBoard().setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
 			this.getMedalsBoard().setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
 			this.getMedalsBoard().setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
-			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
-			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
+//			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
+//			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
 			computeStylesDir(this.getMedalsBoard());
 			getMedalsBoard().getStyle().set("display", "block");
 			this.getMedalsBoard().syncWithFOP(getFop());
 			getResultsBoard().getStyle().set("display", "none");
+			pushEmSize(this.getElement());
+			pushTeamWidth(this.getElement());
 		});
 	}
 
@@ -107,12 +109,14 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 			this.getMedalsBoard().setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
 			this.getMedalsBoard().setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
 			this.getMedalsBoard().setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
-			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
-			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
+//			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
+//			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
 			computeStylesDir(this.getMedalsBoard());
 			getMedalsBoard().getStyle().set("display", "block");
 			this.getMedalsBoard().syncWithFOP(getFop());
 			getResultsBoard().getStyle().set("display", "none");
+			pushEmSize(this.getElement());
+			pushTeamWidth(this.getElement());
 		});
 	}
 
@@ -124,6 +128,34 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		setDefaultParameters();
 	}
 
+	@Override
+	public final void setEmFontSize(Double emFontSize) {
+		Double medalFontSize;
+		// subjective visual kludging.
+		if (emFontSize == null) {
+			emFontSize = 1.0;
+			medalFontSize = 1.5;
+		} else {
+			medalFontSize = emFontSize * 1.5;
+		}
+		logger.warn("%%%%% setEmFontSize {}", emFontSize);
+		super.setEmFontSize(emFontSize);
+		pushEmSize(this.getBoard().getElement(), emFontSize);
+		pushEmSize(this.getMedalsBoard().getElement(),medalFontSize);
+	}
+	
+	@Override
+	final public void setTeamWidth(Double tw) {
+		if (tw == null) {
+			return;
+		}
+		// TODO Auto-generated method stub
+		super.setTeamWidth(tw);
+		pushTeamWidth(getElement(), tw);
+		pushEmSize(this.getMedalsBoard().getElement(),tw*1.4);
+	}
+
+	
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		uiEventBusRegister(this, getFop());
@@ -143,6 +175,8 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 
 		((Component) board).getElement().getStyle().set("display","block");
 		getMedalsBoard().getElement().getStyle().set("display","none");
+		pushEmSize(this.getElement());
+		pushTeamWidth(this.getElement());
 
 	}
 

@@ -18,6 +18,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.QueryParameters;
 
@@ -201,12 +202,12 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	@Override
-	public void pushEmSize() {
+	public void pushEmSize(Element element) {
 		// update the dialog
 	}
 
 	@Override
-	public void pushTeamWidth() {
+	public void pushTeamWidth(Element element) {
 		// update the dialog
 	}
 
@@ -248,14 +249,14 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	@Override
-	final public void setEmFontSize(Double emFontSize) {
+	public void setEmFontSize(Double emFontSize) {
 		// clamp the value to something still visible
 		if (emFontSize != null && emFontSize <= 0.1) {
 			emFontSize = 0.1D;
 		}
 		this.emFontSize = emFontSize;
 		((DisplayParameters) this.board).setEmFontSize(emFontSize);
-		pushEmSize();
+		pushEmSize(this.getElement());
 	}
 
 	@Override
@@ -314,7 +315,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	@Override
-	final public void setTeamWidth(Double tw) {
+	public void setTeamWidth(Double tw) {
 		if (tw != null && tw <= 0.0) {
 			tw = 0.0D;
 		}
@@ -350,5 +351,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 			openDialog(getDialog());
 		}
 		addKeyboardShortcuts();
+		pushEmSize(this.getElement());
+		pushTeamWidth(this.getElement());
 	}
 }
