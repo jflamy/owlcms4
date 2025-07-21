@@ -52,7 +52,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 			this.getElement().callJsFunction("showDecisionsForJury", (Boolean) null, (Boolean) null, (Boolean) null,
 			        0, 0, 0);
 		}
-		UI.getCurrent().push();
+		ui.push();
 	}
 
 	@Subscribe

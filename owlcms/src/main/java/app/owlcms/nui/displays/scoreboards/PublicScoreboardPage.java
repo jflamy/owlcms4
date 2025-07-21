@@ -148,7 +148,6 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		if (tw == null) {
 			return;
 		}
-		// TODO Auto-generated method stub
 		super.setTeamWidth(tw);
 		pushTeamWidth(getElement(), tw);
 		pushTeamWidth(this.getMedalsBoard().getElement(),tw*1.4);

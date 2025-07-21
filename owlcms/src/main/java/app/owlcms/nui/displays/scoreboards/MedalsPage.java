@@ -87,7 +87,6 @@ public class MedalsPage extends AbstractResultsDisplayPage {
 		if (tw == null) {
 			return;
 		}
-		// TODO Auto-generated method stub
 		super.setTeamWidth(tw);
 		pushTeamWidth(this.getBoard().getElement(),tw*1.4);
 	}
