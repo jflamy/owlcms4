@@ -138,7 +138,7 @@ public class DecisionElement extends LitTemplate
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			logger.debug("slaveBreakStart disable");
-			this.getElement().callJsFunction("setEnabled", false);
+			this.getElement().callJsFunction("setEnabled", true);
 		});
 	}
 

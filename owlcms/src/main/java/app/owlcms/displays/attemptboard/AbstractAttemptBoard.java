@@ -710,8 +710,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		if (fop2.getGroup() == null) {
 			setDisplayedWeight("");
 		}
-		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 			setBoardMode(fop2.getState(), fop2.getBreakType(), fop2.getCeremonyType(), this.getElement());
 		});
 	}

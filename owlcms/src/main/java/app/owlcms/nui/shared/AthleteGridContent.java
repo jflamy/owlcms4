@@ -632,12 +632,12 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		this.summonNotificationSent = false;
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			if (e.isDisplayToggle()) {
-				logger.debug("{} ignoring switch to break", this.getClass().getSimpleName());
-				return;
-			}
+//			if (e.isDisplayToggle()) {
+//				logger.debug("{} ignoring switch to break", this.getClass().getSimpleName());
+//				return;
+//			}
 
-			// logger.debug("%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
+			logger.warn("%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
 			syncWithFop(true, e.getFop());
 			clearRecordNotifications();
 		});
@@ -925,6 +925,7 @@ public abstract class AthleteGridContent extends BaseContent
 	 * @see app.owlcms.nui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
 	 */
 	protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
+		logger.warn("------ creating breakButtons");
 		this.breakButton = new Button(Translator.translateOrElseEmpty("Pause"), new Icon(VaadinIcon.TIMER), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				Athlete curAthlete = fop.getCurAthlete();
@@ -1588,6 +1589,11 @@ public abstract class AthleteGridContent extends BaseContent
 				topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
 				        fop.getState(), fop.getLiftingOrder());
 			}
+			if (state == FOPState.BREAK) {
+				busyBreakButton();
+			} else {
+				quietBreakButton(Translator.translate("Pause"));
+			}
 		} else {
 			getRouterLayout().setMenuTitle("");
 			getRouterLayout().setMenuArea(createTopBar());
@@ -1632,8 +1638,10 @@ public abstract class AthleteGridContent extends BaseContent
 			String string = Translator.translate("NoGroupSelected");
 			String text = group == null ? "\u2013" : string;
 			if (!this.initialBar) {
+				logger.warn("====== initial bar");
 				topBarMessage(string, text);
 			} else {
+				logger.warn("====== hiding buttons");
 				hideButtons();
 				this.warning.setText(string);
 			}

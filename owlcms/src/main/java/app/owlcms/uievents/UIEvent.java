@@ -46,6 +46,28 @@ import ch.qos.logback.classic.Logger;
 
 public class UIEvent {
 
+	static public class ButtonTest extends UIEvent {
+		private FOPEvent fopEvent;
+		public String format;
+		public Object[] infos;
+
+		public ButtonTest(FOPEvent e, FieldOfPlay fop,  Object origin, String format, Object... infos) {
+			super(origin, fop);
+			this.setFopEvent(e);
+			this.format = format;
+			this.infos = infos;
+		}
+
+		public FOPEvent getFopEvent() {
+			return fopEvent;
+		}
+
+		public void setFopEvent(FOPEvent fopEvent) {
+			this.fopEvent = fopEvent;
+		}
+		
+	}
+
 	static public class BarbellOrPlatesChanged extends UIEvent {
 		public BarbellOrPlatesChanged(Object object, FieldOfPlay fop) {
 			super(object, fop);

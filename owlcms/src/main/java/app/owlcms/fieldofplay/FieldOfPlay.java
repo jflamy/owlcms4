@@ -639,6 +639,13 @@ public class FieldOfPlay implements IUnregister {
 			this.prevHash = newHash;
 		}
 
+		if (getState() == BREAK && getBreakType() == BreakType.TEST_BUTTONS) {
+			FOPEvent.showEvent(e, this);
+			if (! (e instanceof FOPEvent.StartLifting || e instanceof FOPEvent.SwitchGroup)) {
+				return;
+			}
+		}
+		
 		// ======= state-independent processing: the reaction does not depend on the
 		// state.
 
@@ -709,12 +716,18 @@ public class FieldOfPlay implements IUnregister {
 					transitionToLifting(e, getGroup(), true);
 				}
 				return;
-			} else if (this.state == BREAK) {
+			} else if (this.state == BREAK && getGroup() != null) {
 				// group was not under way when break started, full start.
 				transitionToLifting(e, getGroup(), true);
 				return;
-			} else {
+			} else if (getGroup() != null) {
 				transitionToLifting(e, getGroup(), true);
+				return;
+			} else {
+				setState(INACTIVE);
+				loadGroup(null, this, true);
+				pushOutSwitchGroup(e.getOrigin());
+				uiDisplayCurrentAthleteAndTime(true, e, false);
 				return;
 			}
 		} else if (e instanceof BarbellOrPlatesChanged) {
@@ -728,12 +741,12 @@ public class FieldOfPlay implements IUnregister {
 			}
 			SwitchGroup switchGroup = (SwitchGroup) e;
 			Group newGroup = switchGroup.getGroup();
-
+			var orig = e.getOrigin();
 			boolean inBreak = this.state == BREAK || this.state == INACTIVE;
 			if (Objects.equals(oldGroup, newGroup)) {
 				this.logger.debug("{}**** reloading", FieldOfPlay.getLoggingName(this));
 				loadGroup(newGroup, this, true);
-				pushOutSwitchGroup(e.getOrigin());
+				pushOutSwitchGroup(orig);
 				uiDisplayCurrentAthleteAndTime(true, e, false);
 			} else {
 				if (!inBreak) {
@@ -3211,6 +3224,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void unexpectedEventInState(FOPEvent e, FOPState state) {
+	
 		// events not worth signaling
 		if (e instanceof DecisionReset || e instanceof DecisionFullUpdate) {
 			// ignore

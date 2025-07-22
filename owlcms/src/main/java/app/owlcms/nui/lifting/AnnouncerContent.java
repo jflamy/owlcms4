@@ -321,22 +321,22 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	private void doStoppageDialog(String text, String style) {
 
-		if (this.stoppageAckNotification != null)  {
+		if (this.stoppageAckNotification != null) {
 			this.stoppageAckNotification.close();
 		}
 		this.stoppageAckNotification = new Notification();
 		this.stoppageAckNotification.getElement().getThemeList().add("warning");
 		this.stoppageAckNotification.setDuration(6000);
-		
+
 		Div label = new Div(text);
-		
+
 		NativeButton ackButton = new NativeButton(Translator.translate("JuryNotification.ACK"));
 		ackButton.getStyle().set("margin-left", "1em");
 		ackButton.addClickListener((event) -> {
 			this.stoppageAckNotification.close();
 			this.stoppageAckNotification = null;
 		});
-		
+
 		NativeButton resumeButton = new NativeButton(Translator.translate("JuryNotification.END_JURY_BREAK"));
 		resumeButton.getStyle().set("background-color", "darkgreen");
 		resumeButton.getStyle().set("color", "white");
@@ -346,7 +346,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			this.stoppageAckNotification.close();
 			this.stoppageAckNotification = null;
 		});
-		
+
 		if (isCenterNotifications()) {
 			label.getStyle().set("font-size", "x-large");
 			ackButton.getStyle().set("font-size", "large");
@@ -358,7 +358,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			resumeButton.getStyle().set("font-size", "normal");
 			this.stoppageAckNotification.setPosition(Position.TOP_START);
 		}
-		
+
 		this.stoppageAckNotification.setDuration(0);
 		this.stoppageAckNotification.add(label);
 		this.stoppageAckNotification.add(ackButton);
@@ -514,14 +514,19 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
 
 		HorizontalLayout topBarRight = new HorizontalLayout();
-		topBarRight.add(this.warning, this.introCountdownButton, this.startLiftingButton, this.showResultsButton);
+		this.breaks = breakButtons(topBar);
+		this.breaks.setPadding(true);
+
+		topBarRight.add(this.warning, this.introCountdownButton, this.startLiftingButton, this.showResultsButton, this.breaks);
+		topBarRight.setWidthFull();
 		topBarRight.setSpacing(true);
 		topBarRight.setPadding(true);
 		topBarRight.setAlignItems(FlexComponent.Alignment.CENTER);
+		topBarRight.setAlignSelf(Alignment.CENTER, this.breaks);
 
 		this.topBar.removeAll();
 		this.topBar.setSizeFull();
-		this.topBar.add(getTopBarLeft(), topBarRight);
+		this.topBar.add(getTopBarLeft(), topBarRight, this.breaks);
 
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -801,11 +806,14 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected HorizontalLayout decisionButtons(FlexLayout announcerBar) {
 		Button good = new Button(new Icon(VaadinIcon.CHECK), (e) -> goodLift());
 		good.getElement().setAttribute("theme", "success icon");
-		currentUI.addShortcutListener(() -> goodLift(), Key.F2);
 
 		Button bad = new Button(new Icon(VaadinIcon.CLOSE), (e) -> badLift());
 		bad.getElement().setAttribute("theme", "error icon");
-		currentUI.addShortcutListener(() -> badLift(), Key.F4);
+
+		currentUI.access(() -> {
+			currentUI.addShortcutListener(() -> goodLift(), Key.F2);
+			currentUI.addShortcutListener(() -> badLift(), Key.F4);
+		});
 
 		HorizontalLayout decisions = new HorizontalLayout(good, bad);
 		return decisions;
