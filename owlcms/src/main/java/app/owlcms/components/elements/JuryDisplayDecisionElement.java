@@ -52,7 +52,9 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 			this.getElement().callJsFunction("showDecisionsForJury", (Boolean) null, (Boolean) null, (Boolean) null,
 			        0, 0, 0);
 		}
-		ui.push();
+		if (ui != null) {
+			ui.push();
+		}
 	}
 
 	@Subscribe
@@ -153,7 +155,9 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			getElement().setProperty("singleRef", this.isSingleRef());
 			doReset();
-			UI.getCurrent().push();
+			if (ui != null) {
+				ui.push();
+			}
 		});
 	}
 

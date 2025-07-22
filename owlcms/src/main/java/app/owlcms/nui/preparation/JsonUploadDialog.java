@@ -73,7 +73,9 @@ public class JsonUploadDialog extends Dialog {
 					this.ui.getPage().reload();
 				});
 				dialog.open();
-				this.ui.push();
+				if (ui != null) {
+					ui.push();
+				}
 
 			} catch (Throwable e) {
 				e.printStackTrace();

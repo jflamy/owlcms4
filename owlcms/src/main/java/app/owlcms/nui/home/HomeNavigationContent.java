@@ -44,6 +44,7 @@ import com.github.appreciated.css.grid.sizes.Length;
 import com.github.appreciated.css.grid.sizes.MinMax;
 import com.github.appreciated.css.grid.sizes.Repeat;
 import com.github.appreciated.layout.FlexibleGridLayout;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
@@ -131,6 +132,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	String referenceVersionString;
 	String currentVersionString = "";
 	int comparison = 999;
+	private UI ui;
 
 	/**
 	 * Instantiates a new main navigation content.
@@ -192,7 +194,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			        buttonClickEvent -> {
 				        cdRestart.setAction(() -> {
 					        cdRestart.close();
-					        UI.getCurrent().push();
+					        if (ui != null) {
+					        	ui.push();
+					        }
 					        Main.restart();
 				        });
 				        cdRestart.open();
@@ -207,8 +211,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			        buttonClickEvent -> {
 				        cdStop.setAction(() -> {
 					        cdStop.close();
-					        UI.getCurrent().push();
-
+					        if (ui != null) {
+					        	ui.push();
+					        }
 					        EmbeddedJetty.stop(false);
 					        System.exit(0);
 				        });
@@ -508,6 +513,12 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			}
 		}
 		return div;
+	}
+	
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		ui = UI.getCurrent();
 	}
 
 	private void logUsage() {

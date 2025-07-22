@@ -54,6 +54,7 @@ public abstract class TimerElement extends LitTemplate
 	private Element timerElement;
 	protected EventBus uiEventBus;
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
+	private UI ui;
 	{
 		this.logger.setLevel(Level.WARN);
 		this.uiEventLogger.setLevel(Level.WARN);
@@ -150,7 +151,9 @@ public abstract class TimerElement extends LitTemplate
 			}
 			getElement().setProperty("silent", isSilent());
 			start(milliseconds, isIndefinite(), isSilent(), parent);
-			UI.getCurrent().push(); // should not be required...
+			if (ui != null) {
+				ui.push(); // should not be required...
+			}
 		});
 	}
 
@@ -216,6 +219,7 @@ public abstract class TimerElement extends LitTemplate
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		ui = UI.getCurrent();
 		OwlcmsSession.withFop(fop -> {
 			init(fop.getName());
 			// sync with current status of FOP

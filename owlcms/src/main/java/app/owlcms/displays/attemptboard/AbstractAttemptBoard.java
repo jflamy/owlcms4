@@ -115,6 +115,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private FieldOfPlay fop;
 	private Group group;
 	private boolean abbreviatedName;
+	private UI ui;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -736,6 +737,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via FOPParameters interface default methods.
+		ui = UI.getCurrent();
 		OwlcmsSession.withFop(fop -> {
 			logger.debug("{}onAttach {}", FieldOfPlay.getLoggingName(fop), fop.getState());
 			init();
@@ -943,7 +945,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private void spotlightNewRecord(List<RecordEvent> records) {
-		UI.getCurrent().push();
+		if (ui != null) {
+			ui.push();
+		}
 		try {
 			Thread.sleep(200);
 		} catch (InterruptedException e) {
@@ -952,11 +956,15 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("recordAttempt", false);
 		String prefix = Translator.translate("Scoreboard.NewRecord(s)", records.size());
 		computeMessageProperties(records, prefix);
-		UI.getCurrent().push();
+		if (ui != null) {
+			ui.push();
+		}
 	}
 
 	private void spotlightRecordAttempt(List<RecordEvent> records) {
-		UI.getCurrent().push();
+		if (ui != null) {
+			ui.push();
+		}
 		try {
 			Thread.sleep(200);
 		} catch (InterruptedException e) {
@@ -965,7 +973,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("recordAttempt", true);
 		String prefix = Translator.translate("Scoreboard.RecordAttempt(s)", records.size());
 		computeMessageProperties(records, prefix);
-		UI.getCurrent().push();
+		if (ui != null) {
+			ui.push();
+		}
 	}
 
 	public void computeMessageProperties(List<RecordEvent> records, String prefix) {
@@ -977,7 +987,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	private void spotlightRecords(FieldOfPlay fop, Athlete a) {
 		if (Config.getCurrent().featureSwitch("disableRecordHighlight")) {
-			UI.getCurrent().push();
+			if (ui != null) {
+				ui.push();
+			}
 			return;
 		}
 		if (fop.getState() == FOPState.INACTIVE || fop.getState() == FOPState.BREAK) {
