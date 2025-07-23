@@ -31,8 +31,10 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -66,6 +68,8 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	private StringBuilder eventsText;
 	private String line;
 	private Pre lineLog;
+	private Button startTesting;
+	private Button resumeCompetition;
 
 	public TestingContent() {
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -123,6 +127,27 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	@Override
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
+		ui.access(() -> {
+			startTesting.setEnabled(true);
+			resumeCompetition.setEnabled(false);
+		});
+	}
+	
+	@Override
+	@Subscribe
+	public void slaveBreakDone(UIEvent.BreakDone e) {
+		ui.access(() -> {
+			startTesting.setEnabled(true);
+			resumeCompetition.setEnabled(false);
+		});
+	}
+	
+	@Override
+	@Subscribe
+	public void slaveBreakStart(UIEvent.BreakStarted e) {
+		ui.access(() -> {
+			resumeCompetition.setEnabled(true);
+		});
 	}
 
 	@Override
@@ -199,7 +224,7 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	private HorizontalLayout createInterruptionButtons() {
-		var stopCompetition = new Button(Translator.translate("TestButtons.StartTesting"), new Icon(VaadinIcon.EXCLAMATION),
+		startTesting = new Button(Translator.translate("TestButtons.StartTesting"), new Icon(VaadinIcon.EXCLAMATION),
 		        (e) -> {
 			        fop.fopEventPost(new FOPEvent.BreakStarted(
 			                BreakType.TEST_BUTTONS,
@@ -209,34 +234,47 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 			                true,
 			                this.getOrigin()));
 		        });
-		stopCompetition.getElement().setAttribute("theme", "primary contrast");
-		stopCompetition.getElement().setAttribute("title", Translator.translate("StopCompetition"));
+		startTesting.getElement().setAttribute("theme", "primary contrast");
+		startTesting.getElement().setAttribute("title", Translator.translate("StopCompetition"));
 
-		var endInterruption = new Button(Translator.translate("ResumeCompetition"), new Icon(VaadinIcon.MICROPHONE),
+
+		resumeCompetition = new Button(Translator.translate("ResumeCompetition"), new Icon(VaadinIcon.MICROPHONE),
 		        (e) -> {
 			        fop.fopEventPost(new FOPEvent.StartLifting(this));
 		        });
-		endInterruption.getElement().setAttribute("theme", "primary success");
-		endInterruption.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
+		resumeCompetition.getElement().setAttribute("theme", "primary success");
+		resumeCompetition.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
 		
-		var testDown = new Button(Translator.translate("TestButtons.DownSignal"), new Icon(VaadinIcon.DOWNLOAD_ALT),
-		        (e) -> {
-			        new Thread(() -> {
-						try {
-							fop.getMqttMonitor().testDownSignal();
-						} catch (MqttException e1) {
-							LoggerUtils.logError(logger, e1);
-						}
-					}).start();
-		        });
-		testDown.getElement().setAttribute("theme", "primary");
-		testDown.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
-
+		startTesting.addClickListener(e -> {
+			resumeCompetition.setEnabled(true);
+			startTesting.setEnabled(false);
+		});
+		resumeCompetition.addClickListener(e -> {
+			resumeCompetition.setEnabled(false);
+			startTesting.setEnabled(true);
+		});
+		
+		boolean inBreak = getFop().getState() == FOPState.BREAK;
+		startTesting.setEnabled(true);
+		resumeCompetition.setEnabled(inBreak);
+		
 		HorizontalLayout buttons = new HorizontalLayout();
-		if (fop != null && fop.getMqttMonitor().isActive()) {
-			buttons.add(stopCompetition, endInterruption, testDown);
+		if (fop != null && Config.getCurrent().featureSwitch("mqttDownSignal")) {
+			var testDown = new Button(Translator.translate("TestButtons.TestDownSignal"), new Icon(VaadinIcon.ARROW_DOWN),
+			        (e) -> {
+				        new Thread(() -> {
+							try {
+								fop.getMqttMonitor().testDownSignal();
+							} catch (MqttException e1) {
+								LoggerUtils.logError(logger, e1);
+							}
+						}).start();
+			        });
+			//testDown.getElement().setAttribute("theme", "primary");
+			testDown.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
+			buttons.add(startTesting, resumeCompetition, testDown);
 		} else {
-			buttons.add(stopCompetition, endInterruption);
+			buttons.add(startTesting, resumeCompetition);
 		}
 		buttons.setSpacing(true);
 		buttons.setMargin(false);
@@ -244,4 +282,5 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 		return buttons;
 	}
 
+	
 }
