@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
@@ -39,6 +40,7 @@ import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -156,6 +158,14 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 
 	@Override
 	protected void init() {
+	}
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		ui = UI.getCurrent();
+		this.removeAll();
+		
 		setCrudFormFactory(createFormFactory());
 		HorizontalLayout bts = createInterruptionButtons();
 		lineLog = new Pre("\n");
@@ -185,12 +195,7 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 		events.getStyle().set("flex-direction", "column");
 		events.setWidth("95vw");
 		fillHW(events, this);
-	}
 
-	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
-		ui = UI.getCurrent();
 	}
 
 	private HorizontalLayout createInterruptionButtons() {
@@ -213,9 +218,26 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 		        });
 		endInterruption.getElement().setAttribute("theme", "primary success");
 		endInterruption.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
+		
+		var testDown = new Button(Translator.translate("TestButtons.DownSignal"), new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        (e) -> {
+			        new Thread(() -> {
+						try {
+							fop.getMqttMonitor().testDownSignal();
+						} catch (MqttException e1) {
+							LoggerUtils.logError(logger, e1);
+						}
+					}).start();
+		        });
+		testDown.getElement().setAttribute("theme", "primary");
+		testDown.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
 
 		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.add(stopCompetition, endInterruption);
+		if (fop != null && fop.getMqttMonitor().isActive()) {
+			buttons.add(stopCompetition, endInterruption, testDown);
+		} else {
+			buttons.add(stopCompetition, endInterruption);
+		}
 		buttons.setSpacing(true);
 		buttons.setMargin(false);
 		buttons.setPadding(false);
