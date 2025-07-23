@@ -632,12 +632,10 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		this.summonNotificationSent = false;
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-//			if (e.isDisplayToggle()) {
-//				logger.debug("{} ignoring switch to break", this.getClass().getSimpleName());
-//				return;
-//			}
-
-			logger.warn("%%%%%%% starting break {}", LoggerUtils./**/stackTrace());
+			if (e.isDisplayToggle() && e.getBreakType() != BreakType.TEST_BUTTONS) {
+				logger.debug("{} ignoring switch to break", this.getClass().getSimpleName());
+				return;
+			}
 			syncWithFop(true, e.getFop());
 			clearRecordNotifications();
 		});
@@ -925,7 +923,6 @@ public abstract class AthleteGridContent extends BaseContent
 	 * @see app.owlcms.nui.shared.AthleteGridContent#breakButtons(com.vaadin.flow.component.orderedlayout.FlexLayout)
 	 */
 	protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
-		logger.warn("------ creating breakButtons");
 		this.breakButton = new Button(Translator.translateOrElseEmpty("Pause"), new Icon(VaadinIcon.TIMER), (e) -> {
 			OwlcmsSession.withFop(fop -> {
 				Athlete curAthlete = fop.getCurAthlete();
@@ -1638,10 +1635,10 @@ public abstract class AthleteGridContent extends BaseContent
 			String string = Translator.translate("NoGroupSelected");
 			String text = group == null ? "\u2013" : string;
 			if (!this.initialBar) {
-				logger.warn("====== initial bar");
+				logger.debug("====== initial bar");
 				topBarMessage(string, text);
 			} else {
-				logger.warn("====== hiding buttons");
+				logger.debug("====== hiding buttons");
 				hideButtons();
 				this.warning.setText(string);
 			}

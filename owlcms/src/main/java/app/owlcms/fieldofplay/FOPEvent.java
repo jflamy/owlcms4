@@ -831,7 +831,7 @@ public class FOPEvent {
 			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, 
 					Translator.translate("TestButtons.JuryMemberDecisionUpdate",
 						jmdu.refIndex + 1,
-						jmdu.decision)));
+						translateDecision(jmdu.decision))));
 		} else if (e instanceof JuryDecision) {
 			var jd = (JuryDecision) e;
 			logger.info("Jury Lift Decision: {}", jd.success);
@@ -846,7 +846,7 @@ public class FOPEvent {
 							sr.refNumber == 0 ? "all" : sr.refNumber)));
 		} else {
 			logger.info("Other Event: {}", e.toString());
-			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, "none"));
+			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, "\n"));
 		}
 	}
 

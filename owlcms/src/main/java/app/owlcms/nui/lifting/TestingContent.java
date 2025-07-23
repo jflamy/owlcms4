@@ -19,7 +19,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -59,8 +59,11 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	}
 	private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private NativeLabel eventInfo;
 	private UI ui;
+	private Pre eventsLog;
+	private StringBuilder eventsText;
+	private String line;
+	private Pre lineLog;
 
 	public TestingContent() {
 		setDefaultParameters(QueryParameters.simple(Map.of(
@@ -103,7 +106,7 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("ButtonTesting") + OwlcmsSession.getFopNameIfMultiple();
+		return Translator.translate("TestButtons.Title") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	public void setCrudFormFactory(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
@@ -140,25 +143,50 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	@Subscribe
 	public void slaveButtonTest(UIEvent.ButtonTest bt) {
 		ui.access(() -> {
-			eventInfo.setText(MessageFormat.format(bt.format, bt.infos));
+			line = MessageFormat.format(bt.format, bt.infos);
+			lineLog.setText(line);
+			eventsLog.setText(eventsText.toString());
+			var prev = eventsText;
+			eventsText = new StringBuilder(line);
+			eventsText.append("\n");
+			eventsText.append(prev);
+
 		});
 	}
 
 	@Override
 	protected void init() {
 		setCrudFormFactory(createFormFactory());
-		eventInfo = new NativeLabel("none");
 		HorizontalLayout bts = createInterruptionButtons();
+		lineLog = new Pre("\n");
+		lineLog.setWidthFull();
+		lineLog.getStyle().set("border-style", "solid");
+		lineLog.getStyle().set("border-width", "2px");
+		lineLog.getStyle().set("margin-bottom", "2px");
+		lineLog.getStyle().set("font-weight", "bold");
+		lineLog.getStyle().set("font-size", "115%");
+				
+		eventsLog = new Pre();
+		eventsLog.setSizeFull();
+		eventsLog.getStyle().set("border-style", "solid");
+		eventsLog.getStyle().set("border-width", "2px");
+		eventsLog.getStyle().set("overflow", "auto");
+		eventsLog.getStyle().set("margin-top", "0px");
+
+		eventsText = new StringBuilder();
 		FlexLayout events = new FlexLayout(
-		        new H4(Translator.translate("Event Received")),
-		        eventInfo,
-		        bts);
+		        new H4(Translator.translate("TestButtons.Title")),
+		        bts,
+		        lineLog,
+		        eventsLog);
 		events.setSizeUndefined();
+		events.setHeight("100%");
+		events.getStyle().set("margin-top", "1em");
 		events.getStyle().set("flex-direction", "column");
-		events.setWidth("120em");
-		fillH(events, this);
+		events.setWidth("95vw");
+		fillHW(events, this);
 	}
-	
+
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
@@ -168,20 +196,20 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	private HorizontalLayout createInterruptionButtons() {
 		var stopCompetition = new Button(Translator.translate("TestButtons.StartTesting"), new Icon(VaadinIcon.EXCLAMATION),
 		        (e) -> {
-					fop.fopEventPost(new FOPEvent.BreakStarted(
-					        BreakType.TEST_BUTTONS,
-					        CountdownType.INDEFINITE,
-					        null,
-					        null,
-					        true,
-					        this.getOrigin()));
+			        fop.fopEventPost(new FOPEvent.BreakStarted(
+			                BreakType.TEST_BUTTONS,
+			                CountdownType.INDEFINITE,
+			                null,
+			                null,
+			                true,
+			                this.getOrigin()));
 		        });
 		stopCompetition.getElement().setAttribute("theme", "primary contrast");
 		stopCompetition.getElement().setAttribute("title", Translator.translate("StopCompetition"));
 
 		var endInterruption = new Button(Translator.translate("ResumeCompetition"), new Icon(VaadinIcon.MICROPHONE),
-				(e) -> {
-					fop.fopEventPost(new FOPEvent.StartLifting(this));
+		        (e) -> {
+			        fop.fopEventPost(new FOPEvent.StartLifting(this));
 		        });
 		endInterruption.getElement().setAttribute("theme", "primary success");
 		endInterruption.getElement().setAttribute("title", Translator.translate("ResumeCompetition"));
