@@ -64,6 +64,8 @@ import ch.qos.logback.classic.Logger;
  */
 public class MQTTMonitor extends Thread implements IUnregister {
 
+	private boolean active;
+
 	/**
 	 * This inner class contains the routines executed when an MQTT message is received.
 	 */
@@ -80,6 +82,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		String testTopicName;
 		String configTopicName;
 
+
 		MQTTCallback() {
 			// these are the device-initiated events that the monitor tracks
 			this.deprecatedDecisionTopicName = "owlcms/decision/" + MQTTMonitor.this.getFop().getName();
@@ -94,6 +97,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			// no FOP on this message, it is used for the device to query what FOPs are
 			// present
 			this.configTopicName = "owlcms/config";
+			setMonitorActive(false);
 		}
 
 		@Override
@@ -134,6 +138,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				} else if (topic.endsWith(this.jurySummonTopicName)) {
 					postFopEventSummonReferee(topic, messageStr);
 				} else if (topic.endsWith(this.configTopicName)) {
+					this.setMonitorActive(true);
 					publishMqttConfig("owlcms/fop/config");
 				} else if (topic.endsWith(this.testTopicName)) {
 					long before = Long.parseLong(messageStr);
@@ -143,6 +148,10 @@ public class MQTTMonitor extends Thread implements IUnregister {
 					        FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
 				}
 			}).start();
+		}
+
+		private void setMonitorActive(boolean b) {
+			setActive(b);
 		}
 
 		/**
@@ -264,7 +273,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				fop2.fopEventPost(new FOPEvent.TimeStopped(this));
 			} else if (messageStr.equalsIgnoreCase("toggle")) {
 				if (fop2.getAthleteTimer().isRunning()) {
-					fop2.fopEventPost(new FOPEvent.TimeStopped(this));	
+					fop2.fopEventPost(new FOPEvent.TimeStopped(this));
 				} else {
 					fop2.fopEventPost(new FOPEvent.TimeStarted(this));
 				}
@@ -332,6 +341,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			}
 			try {
 				monitor.client.disconnect();
+				monitor.setActive(false);
 			} catch (MqttException ex) {
 				try {
 					monitor.client.disconnectForcibly();
@@ -459,6 +469,21 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	public void simulateStopAthleteTimer() throws MqttPersistenceException, MqttException {
 		this.client.publish("owlcms/clock/" + this.getFop().getName(),
 		        new MqttMessage("stop".getBytes(StandardCharsets.UTF_8)));
+	}
+
+	public void testDownSignal() throws MqttPersistenceException, MqttException {
+		try {
+			this.publishMqttTimeRemaining(90);
+			Thread.sleep(1000);
+			this.publishMqttTimeRemaining(30);
+			Thread.sleep(1000);
+			this.publishMqttTimeRemaining(0);
+			Thread.sleep(1000);
+			this.publishMqttDownSignal();
+		} catch (InterruptedException | MqttException e) {
+			LoggerUtils.logError(logger, e);
+		}
+
 	}
 
 	public void setFop(FieldOfPlay fop) {
@@ -1013,5 +1038,14 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		} catch (InterruptedException e) {
 		}
 	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
 
 }

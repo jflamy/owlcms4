@@ -12,11 +12,9 @@
 
 <br>
 
-**Maintenance Log**
-
-59.0.0-beta03:  `customTeamName` feature now works as described (see below)
-
 **New in Release 59.0**
+
+59.0.0: Added a Button Testing capability.  See the Referee section on the "running a session" page.  The new page is used to start a special break. It shows when the refereeing, timekeeping and jury buttons are pressed.
 
 59.0.0: Support for Japanese
 
