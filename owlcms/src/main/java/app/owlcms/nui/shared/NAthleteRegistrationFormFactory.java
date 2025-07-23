@@ -1594,12 +1594,12 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		if (bestMatch != null) {
 			// find the matching eligible with the same code.
 			matchingEligible = null;
-			String selectedCode = selectedCategory.getCode();
+			String selectedCode = selectedCategory != null ? selectedCategory.getCode() : null;
 			for (Category eligible : newEligibles) {
 				// always allow currently selected if eligible
-				String eligibleCode = eligible.getCode();
+				String eligibleCode = eligible != null ? eligible.getCode() : "";
 				//logger.debug("selected {} eligible {}",selectedCode, eligibleCode);
-				if (eligibleCode.contentEquals(selectedCode)) {
+				if (eligibleCode != null && eligibleCode.contentEquals(selectedCode)) {
 					matchingEligible = eligible;
 					break;
 				}
@@ -1607,7 +1607,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 			if (matchingEligible == null) {
 				for (Category eligible : newEligibles) {
-					if (eligible.getCode().contentEquals(bestMatch.getCode())) {
+					if (eligible != null && eligible.getCode().contentEquals(bestMatch.getCode())) {
 						matchingEligible = eligible;
 						break;
 					}
