@@ -125,7 +125,8 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
 		Button referee = openInNewTab(RefContent.class, Translator.translate("Referee_Mobile_Device"));
 		Button jury = openInNewTab(JuryContent.class, Translator.translate("Jury_Console"));
-		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury);
+		Button testing = openInNewTab(TestingContent.class, Translator.translate("TestButtons.Title"));
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury, testing);
 		doGroup(Translator.translate("Referees_Jury"), grid2, this);
 	}
 }

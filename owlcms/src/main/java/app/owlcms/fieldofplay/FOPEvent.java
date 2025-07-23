@@ -791,59 +791,58 @@ public class FOPEvent {
 		if (e instanceof DecisionFullUpdate) {
 			var rd = (DecisionFullUpdate) e;
 			logger.info("Referee Decisions: {} {} {}", rd.ref1, rd.ref2, rd.ref3);
-			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, 
-					Translator.translate("TestButtons.DecisionFullUpdate",
-				        translateDecision(rd.ref1),
-				        translateDecision(rd.ref2),
-				        translateDecision(rd.ref3)))
-					);
+			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop,
+			        Translator.translate("TestButtons.DecisionFullUpdate",
+			                translateDecision(rd.ref1),
+			                translateDecision(rd.ref2),
+			                translateDecision(rd.ref3))));
 
 		} else if (e instanceof DecisionUpdate) {
 			var du = (DecisionUpdate) e;
 			logger.info("Referee {} decision: {} ", du.refIndex + 1, du.decision);
-			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, 
-					Translator.translate("TestButtons.DecisionUpdate", 
-						du.refIndex + 1, 
-						translateDecision(du.decision))));
+			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop,
+			        Translator.translate("TestButtons.DecisionUpdate",
+			                du.refIndex + 1,
+			                translateDecision(du.decision))));
 		} else if (e instanceof TimeStarted) {
 			logger.info("Starting Time");
-			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, 
-					Translator.translate("TestButtons.TimeStarted")));
+			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop,
+			        Translator.translate("TestButtons.TimeStarted")));
 		} else if (e instanceof TimeStopped) {
 			logger.info("Stopping Time");
-			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, 
-					Translator.translate("TestButtons.TimeStopped")));
+			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop,
+			        Translator.translate("TestButtons.TimeStopped")));
 		} else if (e instanceof ForceTime) {
 			var ft = (ForceTime) e;
 			logger.info("Forcing Time: {}", ft.timeAllowed);
-			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, 
-					Translator.translate("TestButtons.ForceTime", 
-						ft.timeAllowed)));
+			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop,
+			        Translator.translate("TestButtons.ForceTime",
+			                ft.timeAllowed)));
 		} else if (e instanceof BreakStarted) {
 			var bs = (BreakStarted) e;
 			logger.info("Starting Break: {}", bs.breakType);
-			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, 
-					Translator.translate("TestButtons.BreakStarted", 
-							bs.breakType)));
+			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop,
+			        Translator.translate("TestButtons.BreakStarted",
+			                bs.breakType)));
 		} else if (e instanceof JuryMemberDecisionUpdate) {
 			var jmdu = (JuryMemberDecisionUpdate) e;
 			logger.info("Jury Member {} decision: {} ", jmdu.refIndex + 1, jmdu.decision);
-			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, 
-					Translator.translate("TestButtons.JuryMemberDecisionUpdate",
-						jmdu.refIndex + 1,
-						translateDecision(jmdu.decision))));
+			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop,
+			        Translator.translate("TestButtons.JuryMemberDecisionUpdate",
+			                jmdu.refIndex + 1,
+			                translateDecision(jmdu.decision))));
 		} else if (e instanceof JuryDecision) {
 			var jd = (JuryDecision) e;
 			logger.info("Jury Lift Decision: {}", jd.success);
 			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop,
-					Translator.translate("TestButtons.JuryDecision", 
-						jd.success)));
+			        Translator.translate("TestButtons.JuryDecision",
+			                translateDecision(jd.success))));
 		} else if (e instanceof SummonReferee) {
 			var sr = (SummonReferee) e;
 			logger.info("Summon Referee: {}", sr.refNumber == 0 ? "all" : sr.refNumber);
 			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop,
-					Translator.translate("TestButtons.SummonReferee",
-							sr.refNumber == 0 ? "all" : sr.refNumber)));
+			        Translator.translate("TestButtons.SummonReferee",
+			                sr.refNumber == 0 ? "all" : sr.refNumber)));
 		} else {
 			logger.info("Other Event: {}", e.toString());
 			fop.pushOutUIEvent(new UIEvent.ButtonTest(e, fop, fop, "\n"));
