@@ -14,7 +14,9 @@
 
 **New in Release 59.0**
 
-59.0.0: Added a Button Testing capability.  See the Referee section on the "running a session" page.  The new page is used to start a special break. It shows when the refereeing, timekeeping and jury buttons are pressed.
+59.0.0: Added a Button Testing capability.  See the Referee section on the "running a session" page.  The new page is used to start a special break. It shows when the refereeing, timekeeping and jury buttons are pressed.  This works for all devices phone/tablet, keypad (USB/joystick/Bluetooth) or MQTT devices.
+
+- If the feature toggle `mqttDownSignal` is present, a button to test a stand-alone down signal using MQTT messages is added.
 
 59.0.0: Support for Japanese
 
