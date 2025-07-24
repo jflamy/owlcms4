@@ -101,6 +101,7 @@ import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.BreakStarted;
 import app.owlcms.uievents.UIEvent.JuryNotification;
+import app.owlcms.uievents.UIEvent.Notification;
 import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -1180,6 +1181,17 @@ public class FieldOfPlay implements IUnregister {
 				        LoggerUtils.whereFrom());
 			}
 			List<Athlete> groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
+			
+			// catastrophic if weighed in but no category
+			List<Athlete> brokenAthletes = groupAthletes.stream().filter(a -> a.getCategory() == null).toList();
+			if (!brokenAthletes.isEmpty()) {
+		        pushOutUIEvent(new UIEvent.Notification(
+		        		null, this, Notification.Level.ERROR,
+		                "LoadingGroup.ErrorNoCategory", 0, this, 
+		                brokenAthletes.stream().map(a -> a.getShortName()).collect(Collectors.joining(","))));
+			}
+			
+			groupAthletes = groupAthletes.stream().filter(a -> a.getCategory() != null).toList();			
 
 			// skip if session is already in progress (forceLoad == false)
 			if (forceLoad && groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {

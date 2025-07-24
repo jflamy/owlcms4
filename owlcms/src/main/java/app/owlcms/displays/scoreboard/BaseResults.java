@@ -115,7 +115,7 @@ public class BaseResults extends LitTemplate
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
-		
+
 		overrideColors(this.getElement());
 	}
 
@@ -255,7 +255,7 @@ public class BaseResults extends LitTemplate
 		String formattedEm = null;
 		if (this.emFontSize != null) {
 			formattedEm = ResultsParameters.formatEN_US.format(this.emFontSize);
-			//logger.debug("B pushing em {} {}\n{}",element.getTag(), emFontSize, LoggerUtils.stackTrace());
+			// logger.debug("B pushing em {} {}\n{}",element.getTag(), emFontSize, LoggerUtils.stackTrace());
 			element.setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "em;");
 		}
 	}
@@ -788,7 +788,7 @@ public class BaseResults extends LitTemplate
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		boolean bestScore = Config.getCurrent().featureSwitch("displayBestScore");
 		boolean bestScoreRank = Config.getCurrent().featureSwitch("displayBestScoreRank");
-		
+
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
 		String fullName;
@@ -1001,7 +1001,7 @@ public class BaseResults extends LitTemplate
 	protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
 		boolean displayByAgeGroup = Competition.getCurrent().isByAgeGroup();
 		boolean bwClassThenAgeGroup = Config.getCurrent().featureSwitch("bwClassThenAgeGroup");
-		//logger.debug("displayByAgeGroup {} bwClassThenAgeGroup {}", displayByAgeGroup, bwClassThenAgeGroup);
+		// logger.debug("displayByAgeGroup {} bwClassThenAgeGroup {}", displayByAgeGroup, bwClassThenAgeGroup);
 		BiPredicate<Athlete, Athlete> separator = (cur, prev) -> {
 			if (prev == null) {
 				return true;
@@ -1048,7 +1048,7 @@ public class BaseResults extends LitTemplate
 
 			this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 			this.getElement().setProperty("logoSrc", getLogoSrc());
-			
+
 		});
 
 		getElement().setProperty("showTotal", true);
@@ -1072,19 +1072,22 @@ public class BaseResults extends LitTemplate
 
 			List<Athlete> athletes = fop.getDisplayOrder();
 			if (athletes != null && athletes.size() > 0) {
-				boolean any = athletes.stream().map(a -> a.getAgeGroup().getScoringSystem())
-				        .anyMatch(s -> s != null && s != Ranking.TOTAL);
+				boolean any = athletes.stream()
+						.map(a -> a.getAgeGroup())
+						.filter(ageGroup -> ageGroup != null)
+						.map(agegroup -> agegroup.getComputedScoringSystem())
+						.anyMatch(s -> s != Ranking.TOTAL);
 				scoring[0] = any;
 			}
 		});
 		setTranslationMap();
-		
+
 		boolean showScore = scoring[0] || Competition.getCurrent().isDisplayScores() || Competition.getCurrent().isSinclair();
 		this.getElement().setProperty("showSinclair", showScore);
-		
+
 		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks() || Competition.getCurrent().isSinclair();
 		this.getElement().setProperty("showSinclairRank", showScoreRank);
-		
+
 		this.displayOrder = ImmutableList.of();
 	}
 
@@ -1098,7 +1101,7 @@ public class BaseResults extends LitTemplate
 			}
 		}
 		translations.put("ScoringTitle", Translator.translate("Score"));
-		if (! Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
+		if (!Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
 			translations.put("Leaders", Translator.translate("Leaders.PreviousGroups"));
 		}
 		this.getElement().setPropertyJson("t", translations);
