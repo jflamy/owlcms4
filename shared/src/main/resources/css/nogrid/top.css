@@ -306,13 +306,13 @@ table.results {
 }
 
 :host .dark table.results tr {
-    background-color: var(--darkBackgroundColor);
-    color: var(--darkTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
 }
 
 :host .light table.results tr {
-    background-color: var(--lightBackgroundColor);
-    color: var(--lightTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
 }
 
 th, td {
@@ -439,60 +439,60 @@ th, td {
     display: inline-block;
 }
 
-:host .dark .good {
-    background-color: var(--darkGoodBackgroundColor);
+.dark .good {
+    background-color: var(--GoodBackgroundColor);
     font-weight: bold;
-    color: var(--darkGoodTextColor);
+    color: var(--GoodTextColor);
 }
 
 :host .light .good {
-    background-color: var(--lightGoodBackgroundColor);
+    background-color: var(--GoodBackgroundColor);
     font-weight: bold;
-    color: var(--lightGoodTextColor);
+    color: var(--GoodTextColor);
 }
 
 :host .dark .fail {
-    background-color: var(--darkFailBackgroundColor);
+    background-color: var(--FailBackgroundColor);
     font-weight: bold;
-    color: var(--darkFailTextColor);
+    color: var(--FailTextColor);
 }
 
 :host .light .fail {
-    background-color: var(--lightFailBackgroundColor);
+    background-color: var(--FailBackgroundColor);
     font-weight: bold;
-    color: var(--lightFailTextColor);
+    color: var(--FailTextColor);
 }
 
 :host .dark .spacer {
-    background-color: var(--darkSpacerBackgroundColor);
+    background-color: var(--SpacerBackgroundColor);
 }
 
 :host .light .spacer {
-    background-color:var(--lightSpacerBackgroundColor);
+    background-color:var(--SpacerBackgroundColor);
 }
 
 .english {
     font-size: 85%;
 }
 
-:host .dark .request {
-    background-color: var(--darkBackgroundColor);
+:host .dark td.request {
+    background-color: var(--BackgroundColor);
     font-style: italic;
 }
 
 :host .light .request {
-    background-color: var(--lightBackgroundColor);
+    background-color: var(--BackgroundColor);
     font-style: italic;
 }
 
 :host .dark .current {
-    color: var(--darkCurrentTextColor);
+    color: var(--CurrentTextColor);
     font-weight: bold;
 }
 
 :host .light .current {
-    background-color: var(--lightCurrentBackgroundColor);
-    color: var(--lightCurrentTextColor);
+    background-color: var(--CurrentBackgroundColor);
+    color: var(--CurrentTextColor);
     font-weight: bold;
 }
 
@@ -514,25 +514,25 @@ th, td {
 }
 
 :host .dark .next {
-    color: var(--darkNextTextColor);
+    color: var(--NextTextColor);
     font-weight: bold;
 }
 
 :host .light .next {
-    background-color: var(--lightNextBackgroundColor);
-    color: var(--lightNextTextColor);
+    background-color: var(--NextBackgroundColor);
+    color: var(--NextTextColor);
     font-weight: bold;
 }
 
 :host .dark .empty {
-    background-color: var(--darkBackgroundColor);
-    color: var(--darkTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     font-style: italic;
 }
 
 :host .light .empty {
-    background-color: var(--lightBackgroundColor);
-    color: var(--lightTextColor);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
     font-style: italic;
 }
 

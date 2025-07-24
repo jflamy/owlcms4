@@ -116,7 +116,7 @@ public class Athlete {
 	private static QPoints qPointsCoefficients = new QPoints(2023);
 	@Transient
 	@JsonIgnore
-	private static SinclairCoefficients sinclairProperties2020 = new SinclairCoefficients(2020);
+	public static SinclairCoefficients sinclairProperties2020 = new SinclairCoefficients(2020);
 	@Transient
 	@JsonIgnore
 	private static SinclairCoefficients sinclairProperties2024 = new SinclairCoefficients(2024);
@@ -5715,7 +5715,7 @@ public class Athlete {
 	 */
 	@Transient
 	@JsonIgnore
-	private Double sinclairFactor(Double bodyWeight1, Double coefficient, Double maxWeight) {
+	public static Double sinclairFactor(Double bodyWeight1, Double coefficient, Double maxWeight) {
 		if (bodyWeight1 == null) {
 			return 0.0;
 		}

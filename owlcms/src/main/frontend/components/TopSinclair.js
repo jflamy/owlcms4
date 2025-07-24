@@ -20,7 +20,7 @@ class TopSinclair extends LitElement {
         <timer-element id="breakTimer"></timer-element>
         <decision-element id="decisions"></decision-element>
       </div> 
-      <div id="resultBoardDiv" class="${this.activeClasses()}">
+      <div id="resultBoardDiv" class="${this.activeClasses()} ${this.darkMode??"dark"}">
         ${this.topSinclairWomen
           ? html`
               <h2 class="fullName" id="fullNameDiv" .innerHTML="${this.topSinclairWomen}"></h2>
@@ -29,7 +29,7 @@ class TopSinclair extends LitElement {
                   <tr>
                     <th class="name" .innerHTML="${this.t?.Name}"></th>
                     <th class="category" .innerHTML="${this.t?.Category}"></th>
-                    <th class="veryNarrow" .innerHTML="${this.t?.Birth}"></th>
+                    <th class="veryNarrow" .innerHTML="${this.t?.Age}"></th>
                     <th class="club" .innerHTML="${this.t?.Team}"></th>
                     <th colspan="3" .innerHTML="${this.t?.Snatch}"></th>
                     <th colspan="3" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
@@ -45,7 +45,7 @@ class TopSinclair extends LitElement {
                       <td class="name"> <div>${item.fullName}</div>
                       </td>
                       <td class="category">${item.category}</td>
-                      <td class="veryNarrow"><div>${item.yearOfBirth}</div></td>
+                      <td class="veryNarrow"><div>${item.age}</div></td>
                       <td class="club"><div>${item.teamName}</div></td>
                       ${(item.sattempts ?? []).map(
                         (attempt) => html`
@@ -80,7 +80,7 @@ class TopSinclair extends LitElement {
                   <tr>
                     <th class="name" .innerHTML="${this.t?.Name}"></th>
                     <th class="category" .innerHTML="${this.t?.Category}"></th>
-                    <th class="veryNarrow" .innerHTML="${this.t?.Birth}"></th>
+                    <th class="veryNarrow" .innerHTML="${this.t?.Age}"></th>
                     <th class="club" .innerHTML="${this.t?.Team}"></th>
                     <th colspan="3" .innerHTML="${this.t?.Snatch}"></th>
                     <th colspan="3" .innerHTML="${this.t?.Clean_and_Jerk}"></th>
@@ -95,7 +95,7 @@ class TopSinclair extends LitElement {
                     <tr>
                       <td class="name"><div class="name">${item.fullName}</div></td>
                       <td class="category">${item.category}</td>
-                      <td class="veryNarrow"><div>${item.yearOfBirth}</div></td>
+                      <td class="veryNarrow"><div>${item.age}</div></td>
                       <td class="club"><div>${item.teamName}</div></td>
                       ${(item.sattempts ?? []).map(
                         (attempt) => html`
@@ -143,6 +143,8 @@ class TopSinclair extends LitElement {
       video: {},
       t: {type: Object},
       wideTeamNames: {},
+      // dynamic styling
+      darkMode: {},
     };
   }
 

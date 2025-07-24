@@ -125,6 +125,7 @@ public class TopSinclair extends AbstractTop {
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
+		ja.put("age", a.getAge() != null ? a.getAge().toString() : "");
 		Integer startNumber = a.getStartNumber();
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
@@ -148,12 +149,12 @@ public class TopSinclair extends AbstractTop {
 	@Override
 	public void setVideo(boolean video) {
 	}
-	
+
 	@Override
 	public void setPublicDisplay(boolean publicDisplay) {
 		super.setPublicDisplay(publicDisplay);
 	}
-	
+
 	@Override
 	public boolean isPublicDisplay() {
 		return super.isPublicDisplay();
@@ -180,7 +181,7 @@ public class TopSinclair extends AbstractTop {
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
 		Competition competition = Competition.getCurrent();
-		ui.access(() -> {	
+		ui.access(() -> {
 			doUpdate(competition);
 		});
 	}
@@ -421,18 +422,45 @@ public class TopSinclair extends AbstractTop {
 					// }
 
 					break;
-				case SMM:
+				case SMM: {
+					var ageFactor = a.getSmhfFactor();
+					//logger.debug("age factor {} {} {}", a.getShortName(), a.getAge(), ageFactor);
+					if (curGender == Gender.F) {
+						var weightFactor = Athlete.sinclairFactor(
+						        a.getBodyWeight(),
+						        Athlete.sinclairProperties2020.womenCoefficient(),
+						        Athlete.sinclairProperties2020.womenMaxWeight());
+						//logger.debug("weight factor {} {} {}", a.getShortName(), a.getAge(), weightFactor);
+						needed = (int) Math.round(Math.ceil((this.topWomanScore - a.getSmhfForDelta()) / (ageFactor * weightFactor)));
+					} else {
+						var weightFactor = Athlete.sinclairFactor(
+						        a.getBodyWeight(),
+						        Athlete.sinclairProperties2020.menCoefficient(),
+						        Athlete.sinclairProperties2020.menMaxWeight());
+						//logger.debug("weight factor {} {} {}", a.getShortName(), a.getAge(), weightFactor);
+						var difference = this.topManScore - a.getSmhfForDelta();
+						var combinedFactor = ageFactor * weightFactor;
+						needed = (int) Math.round(
+						        Math.ceil(difference / combinedFactor));
+						//logger.debug("difference {} combinedFactor {}", difference, combinedFactor);
+					}
+				}
+					break;
+				case QAGE: { // Q-Masters
+					var ageFactor = a.getSmhfFactor();
 					if (curGender == Gender.F) {
 						needed = (int) Math.round(
-						        Math.ceil((this.topWomanScore - a.getSmhfForDelta()) / a.getSmhfFactor()));
+						        Math.ceil((this.topWomanScore - a.getQPoints())
+						                / (ageFactor*this.qpoints.qPointsFactor(Gender.F, a.getBodyWeight()))));
 					} else {
 						needed = (int) Math.round(
-						        Math.ceil((this.topManScore - a.getSmhfForDelta()) / a.getSmhfFactor()));
+						        Math.ceil((this.topManScore - a.getQPoints())
+						                / (ageFactor*this.qpoints.qPointsFactor(Gender.M, a.getBodyWeight()))));
 					}
+				}
 					break;
 				default:
 					break;
-
 			}
 
 			getAthleteJson(a, ja, curGender, needed);
@@ -506,7 +534,7 @@ public class TopSinclair extends AbstractTop {
 		JsonValue wAthletesJson = getAthletesJson(sortedWomen2, false);
 		this.getElement().setPropertyJson("sortedWomen", wAthletesJson);
 	}
-	
+
 	@Override
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
