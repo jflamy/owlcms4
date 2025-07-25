@@ -172,7 +172,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.setFop(emittingFop);
 		// logger.debug("|||| eventForwarder {} {} {}", System.identityHashCode(this),
 		// emittingFop.getName(),System.identityHashCode(emittingFop));
-		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch("noForwarderKeepAlive");
 
 		this.postBus = getFop().getEventForwardingBus();
 		this.postBus.register(this);
@@ -182,9 +181,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// update key is actually not mandatory
 		// String updateKey = Config.getCurrent().getParamUpdateKey();
 		String updateUrl = Config.getCurrent().getParamPublicResultsURL();
+		boolean publicResultsEnabled = false;
 		if (updateUrl == null || updateUrl.trim().isEmpty()) {
 			logger.info("{}publicresults not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
+			publicResultsEnabled = true;
 			logger.info("{}publicresults enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
 		}
 		if (emittingFop.getState() != null) {
@@ -194,14 +195,23 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// update key is actually not mandatory
 		// String updateKeyV = Config.getCurrent().getParamVideoDataKey();
 		String updateUrlV = Config.getCurrent().getParamVideoDataURL();
+		boolean videoResultsEnabled = false;
 		if (updateUrlV == null || updateUrlV.trim().isEmpty()) {
-			logger.info("{}video data not enabled.", FieldOfPlay.getLoggingName(getFop()));
+			logger.info("{}video data not enabled.", FieldOfPlay.getLoggingName(getFop()));		
 		} else {
+			videoResultsEnabled = true;	
 			logger.info("{}video data enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
 		}
 		if (emittingFop.getState() != null) {
 			pushUpdate(null);
 		}
+		
+		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch("noForwarderKeepAlive");
+		if (!publicResultsEnabled && !videoResultsEnabled) {
+			this.NO_KEEPALIVE = true;
+			logger.info("{} event forwading keepalive disabled", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
+		}
+		
 	}
 
 	/**

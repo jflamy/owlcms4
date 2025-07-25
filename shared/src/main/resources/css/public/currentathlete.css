@@ -1,0 +1,513 @@
+* {
+    box-sizing: border-box;
+}
+
+.wrapper {
+    --attemptBarFontSize: 1.8em;
+    --fontSizeRows-height: 1.35vmax;
+}
+
+table.results {
+    display: flex;
+}
+
+table.results tr td.spacer {
+    flex-grow: 1;
+}
+
+table.results tr td {
+    --narrow-width: 4em;
+    --rank-width: 10ch;
+    --max-narrow-width: 5ch;
+    --medium-width: 6ch;
+    --divLineHeight: 2em;
+    display: table-cell;
+}
+/* 
+table.results tr td div {
+    happens to work with 1280, 1366 and 1920.
+    width: calc(var(--narrow-width) * 1.05);  
+}
+*/
+
+.showRank {
+    display: table-cell;
+    text-align: left;
+    background-color: var(--BackgroundColor);
+}
+
+.showRank div, .totalRank div {
+    /* margin-left: 0.5em; */
+    margin-inline-start: 0.5em;
+    border: none;
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    font-size: var(--fontSizeRows-height);
+}
+
+div > div.attemptBar > div.attempts > table > tr > td.totalRank {
+    /* margin-right: 0; */
+    margin-inline-end: 0;
+}
+
+.wrapper {
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--videoTextColor);
+    background-color: var(--videoHeaderBackgroundColor);
+    /* padding: 2vmin 2vmin 2vmin 2vmin; */
+    padding: 2vmin; /* This is shorthand for all sides, logical */
+    overflow: hidden;
+}
+
+.attemptBar {
+    display: grid;
+    font-weight: bold;
+    font-size: var(--attemptBarFontSize);
+    justify-content: space-between;
+    grid-template-columns: 4ch 1fr 0.5fr 10ch 10ch 15ch;
+    grid-template-rows: auto auto;
+    align-items: center;
+    justify-items: center;
+}
+
+.attemptBar .startNumber {
+    align-self: center;
+}
+
+.attemptBar .startNumber span {
+    font-size: 70%;
+    font-weight: bold;
+    border-width: 0.2ex;
+    border-style: solid;
+    border-color: var(--startNumberBoxColor);
+    display: flex;
+    width: 1.5em;
+    justify-content: center;
+    align-self: center;
+    grid-column: 1/2;
+    grid-row: 1/1;
+}
+
+.attemptBar .fullName {
+    font-size: 110%;
+    /* justify-self: left; */
+    justify-self: start;
+    grid-column: 2/3;
+}
+
+.attemptBar .club {
+    width: var(--club-width);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    grid-area: 3/4;
+}
+
+.attemptBar .attempt {
+    grid-column: 4/5;
+}
+
+.attemptBar .weight {
+    color: var(--athleteAttemptWeightColor);
+    grid-column: 5/6
+}
+
+.attemptBar .timer {
+    font-weight: bold;
+    grid-column: 6/7;
+    grid-row: 1/2;
+}
+
+.attemptBar .decisionBox {
+    width: 100%;
+    height: 100%;
+    background-color: var(--videoHeaderBackgroundColor);
+    grid-column: 6/7;
+    grid-row: 1/3;
+    z-index: 10;
+}
+
+.attemptBar .attempts {
+    font-weight: 200;
+    grid-column: 1/7;
+    grid-row: 2/3;
+    justify-self: center;
+    width: 100%;
+    /* margin-top: 0.33em; */
+    margin-block-start: 0.33em;
+}
+
+.breakTime {
+    color: var(--breakTimerColor)
+    grid-column: 6/7;
+}
+
+.athleteTimer {
+    color: var(--athleteTimerColor);
+}
+
+table.results {
+    border: none;
+    background-color: var(--BackgroundColor);
+    /* margin-top: 0.3em; */
+    margin-block-start: 0.3em;
+}
+
+
+:host .dark table.results tr {
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 0.2em;
+    /* padding-right: 1em; */
+    padding-inline-end: 1em;
+    flex-wrap: wrap;
+}
+
+:host .light table.results tr {
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 0.2em;
+    /* padding-right: 1em; */
+    padding-inline-end: 1em;
+    flex-wrap: wrap;
+}
+
+table.results th,
+table.results td {
+    padding: 0; /* This is shorthand for all sides, logical */
+    margin: 0; /* This is shorthand for all sides, logical */
+    background-clip: padding-box;
+    font-size: var(--fontSizeRows-height);
+}
+
+:host .dark th,
+:host .dark td {
+    font-weight: normal;
+    border: solid 1px var(--TableBorders);
+}
+
+:host .light th,
+:host .light td {
+    font-weight: bold;
+    /* intentional dark border */
+    border: solid 1px var(--TableBorders);
+}
+
+.name {
+    width: var(--name-width);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.name div {
+    max-width: calc(var(--name-max-width));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.club div {
+    max-width: var(--club-max-width);
+    margin: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+:host .light table.results td.showRank, :host .light table.results td.totalRank {
+    white-space: nowrap;
+    border: none;
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    text-align: center;
+}
+
+:host .light table.results td.showRank div, :host .light table.results td.totalRank div {
+    display: inherit;
+    font-size: var(--fontSizeRows-height);
+    /* margin-right: 0.5em; */
+    margin-inline-end: 0.5em;
+    line-height: var(--divLineHeight);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+}
+
+
+:host .dark table.results td.showRank, :host .dark table.results td.totalRank {
+    border: none;
+    font-size: var(--tableFontSize);
+    background-color: var(--BackgroundColor);
+    color: var(--pageTextColor);
+    font-weight: normal;
+}
+
+:host .dark table.results td.showRank div, :host .dark table.results td.totalRank div {
+    display: inherit;
+    font-size: var(--fontSizeRows-height);
+    /* margin-right: 0.5em; */
+    margin-inline-end: 0.5em;
+    line-height: var(--divLineHeight);
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+}
+
+:host .dark table.results td.category {
+    white-space: nowrap;
+    border: none;
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    font-size: calc(var(--fontSizeRows-height)*1.0);
+    /* padding-left: 1ch; */
+    /* padding-right: 1ch; */
+    padding-inline: 1ch;
+}
+
+:host .light table.results td.category {
+    white-space: nowrap;
+    border: none;
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    font-size: calc(var(--fontSizeRows-height)*1.0);
+    /* padding-left: 1ch; */
+    /* padding-right: 1ch; */
+    padding-inline: 1ch;
+}
+
+:host .dark table.results td.category div {
+    line-height: var(--divLineHeight);
+}
+
+:host .light table.results td.category div {
+    display: inherit;
+    color: var(--TextColor);
+    background-color: var(--BackgroundColor);
+    line-height: var(--divLineHeight);
+}
+
+:host .dark table.results td.liftName {
+    white-space: nowrap;
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    text-align: center;
+}
+
+:host .light table.results td.liftName {
+    white-space: nowrap;
+    border: none;
+    background-color: var(--BackgroundColor);
+    color: var(--TextColor);
+    text-align: center;
+}
+
+table.results td.liftName div {
+    display: inherit;
+    font-size: var(--fontSizeRows-height);
+    /* margin-right: 0.5em; */
+    margin-inline-end: 0.5em;
+    line-height: var(--divLineHeight);
+}
+
+:host .dark table.results td.good {
+    background-color: var(--GoodBackgroundColor);
+    color: var(--GoodTextColor);
+    font-weight: bold;
+    width: var(--narrow-width);
+    text-align: center;
+    line-height: var(--divLineHeight)
+}
+
+:host .light table.results td.good {
+    background-color: var(--GoodBackgroundColor);
+    color: var,--GoodTextColor);
+    font-weight: bold;
+    width: var(--narrow-width);
+    text-align: center;
+    line-height: var(--divLineHeight)
+}
+
+:host .dark table.results td.fail {
+    background-color: var(--FailBackgroundColor);
+    color: var(--FailTextColor);
+    font-weight: bold;
+    width: var(--narrow-width);
+    text-align: center;
+    line-height: var(--divLineHeight);
+}
+
+:host .light table.results td.fail {
+    background-color: var(--FailBackgroundColor);
+    color: var(--FailTextColor);
+    font-weight: bold;
+    width: var(--narrow-width);
+    text-align: center;
+    line-height: var(--divLineHeight);
+}
+
+:host .dark .spacer {
+    background-color: var(--EmptyBackgroundColor);
+    flex-grow: 1;
+    border: 0;
+}
+
+
+:host .light .spacer {
+    border: 0;
+}
+
+.english {
+    font-size: 85%;
+}
+
+:host .dark .request {
+    background-color: var(--EmptyBackgroundColor);
+    font-style: italic;
+    width: var(--narrow-width);
+    text-align: center;
+    line-height: var(--divLineHeight);
+}
+
+:host .light .request {
+    background-color: var(--EmptyBackgroundColor);
+    font-style: italic;
+    width: var(--narrow-width);
+    text-align: center;
+    line-height: var(--divLineHeight);
+}
+
+:host .dark td.current {
+/* intentionally light, we want the yellow background */
+    color: var(--CurrentTextColor);
+    background-color: var(--CurrentBackgroundColor);
+    font-weight: bold;
+    width: var(--narrow-width);
+    text-align: center;
+    line-height: var(--divLineHeight);
+}
+
+:host .light td.current {
+    color: var(--CurrentTextColor);
+    background-color: var(--CurrentBackgroundColor);
+    font-weight: bold;
+    width: var(--narrow-width);
+    text-align: center;
+    line-height: var(--divLineHeight);
+}
+
+
+.blink {
+    animation: blink 1.5s step-start 0s infinite;
+    -webkit-animation: blink 1.5s step-start 0s infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.0;
+    }
+}
+
+@-webkit-keyframes blink {
+    50% {
+        opacity: 0.0;
+    }
+}
+
+:host .dark .next {
+    color: orange;
+    font-weight: bold;
+}
+
+:host .dark td.next {
+    color: gold;
+    font-weight: bold;
+}
+
+:host .light td.next {
+    background-color: gold;
+    font-weight: bold;
+}
+
+:host .dark table.results td.empty {
+    background-color: var(--EmptyBackgroundColor);
+    font-style: italic;
+    width: var(--narrow-width);
+}
+
+:host .light table.results td.empty {
+    background-color: var(--EmptyBackgroundColor);
+    font-style: italic;
+    width: var(--narrow-width);
+}
+
+:host .dark table.results td.total {
+    background-color: var(--TotalBackgroundColor);
+    color: var(--TotalTextColor);
+    width: var(--narrow-width);
+    text-align: center;
+    font-style: normal;
+    font-weight: bold;
+    text-align: center;
+    line-height: var(--divLineHeight);
+}
+
+:host .light table.results td.total {
+    background-color: var(--TotalBackgroundColor);
+    color: var(--TotalTextColor);
+    width: var(--narrow-width);
+    text-align: center;
+    font-style: normal;
+    font-weight: bold;
+    text-align: center;
+    line-height: var(--divLineHeight);
+}
+
+.v-system-error {
+    display: none;
+}
+
+thead {
+    display: none
+}
+
+.clubNameEllipsis {
+    max-width: var(--clubName-max-width);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: auto; /* This centers, logical in this context */
+    /* text-align: left; */
+    text-align: start;
+}
+
+.hiddenTitle {
+    display: none;
+}
+
+.bigTitle {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 140px;
+    line-height: 90px;
+}
+
+.competitionName {
+    font-size: 4em;
+}
+
+.nextGroup {
+    font-size: 2em;
+}

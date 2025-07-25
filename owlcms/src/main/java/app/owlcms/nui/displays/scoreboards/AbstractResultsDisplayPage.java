@@ -122,7 +122,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		if (emFontSize != null) {
 			emFontSize = emFontSize <= 0.0 ? 0.0 : emFontSize;
 			formattedEm = ResultsParameters.formatEN_US.format(emFontSize);
-			getLogger().warn("A pushing em {} {}",element.getTag(), emFontSize);
+			getLogger().debug("A pushing em {} {}",element.getTag(), emFontSize);
 			element.setProperty("sizeOverride", " --tableFontSize:" + formattedEm + "em;");
 		}
 	}

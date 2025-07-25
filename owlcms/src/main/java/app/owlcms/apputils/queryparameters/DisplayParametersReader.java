@@ -115,6 +115,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		processBooleanParam(params, VIDEO, (v) -> switchVideo(v, true));
 
 		String videoStyles = Config.getCurrent().getParamVideoStylesDir();
+		String publicStyles = Config.getCurrent().getParamPublicStylesDir();
 		
 		List<String> sizeParams = params.get(FONTSIZE);
 		Double emSize;
@@ -122,7 +123,10 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 			emSize = (sizeParams != null && !sizeParams.isEmpty() ? Double.parseDouble(sizeParams.get(0)) : 0.0D);
 
 			if (isVideo() && emSize <= 0.1D && videoStyles != null && !videoStyles.endsWith("grid")) {
-				// video style is transparent or other custom style, increase default size.
+				// video style is "transparent" or a custom style, increase default size.
+				switchEmFontSize(1.35D, true);
+			} else if (isPublicDisplay() && emSize <= 0.1D && publicStyles != null && !publicStyles.endsWith("grid")) {
+				// public style is "public" or a custom style, increase default size.
 				switchEmFontSize(1.35D, true);
 			} else if (emSize > 0.0D) {
 				switchEmFontSize(emSize, false);
