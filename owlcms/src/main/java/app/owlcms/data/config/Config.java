@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Blob;
@@ -1026,11 +1025,7 @@ public class Config {
 	}
 
 	private boolean isPredefinedStyle(String param) {
-		// check for a directory under css
-		URL predefined = this.getClass().getResource("/css/"+param);
-		//logger.debug("checking for predefined : {} {}",predefined, LoggerUtils.stackTrace());
-		//return param.contentEquals("grid") || param.contentEquals("nogrid") || param.contentEquals("transparent");
-		return predefined != null;
+		return param.contentEquals("grid") || param.contentEquals("nogrid") || param.contentEquals("transparent");
 	}
 
 	/**
