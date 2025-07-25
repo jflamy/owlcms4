@@ -1,0 +1,80 @@
+* {
+	box-sizing: border-box;
+	--fontSize: 6vh;
+	--width: 50%;
+}
+
+.wrapper {
+	font: Arial;
+	color: var(--videoTextColor);
+	background-color: transparent;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	flex-grow: 1;
+	height: 100%;
+	margin: 0; /* This is shorthand for all sides, logical */
+	padding: 0; /* This is shorthand for all sides, logical */
+}
+
+.notification {
+	font-size: var(--fontSize);
+	text-align: center;
+	min-width: 50%;
+	/* margin-left: auto; */
+	/* margin-right: auto; */
+	margin-inline: auto;
+	/* margin-top: 5px; */
+	margin-block-start: 5px;
+	border-radius: 20px;
+	border-width: 5px;
+	border-style: solid;
+	/* padding-left: 1ch; */
+	/* padding-right: 1ch; */
+	/* padding-bottom: 0.2ex; */
+	/* padding-top: 0; */
+	padding-inline: 1ch;
+	padding-block-start: 0;
+	padding-block-end: 0.2ex;
+}
+
+.notification.invisibleNotification {
+	color: transparent;
+	background-color: transparent;
+	border: none;
+}
+
+.notification.neutralNotification {
+	font-weight: bold;
+	color: white;
+	background-color: grey;
+	border-color: white;
+}
+
+.notification.deliberationNotification {
+	font-weight: bold;
+	color: white;
+	background-color: #FF9800;
+	border-color: white;
+}
+
+.notification.attemptNotification {
+	font-weight: bold;
+	color: #FAFAFA;
+	background-color: #FF9800;
+	border-color: white;
+}
+
+.notification.successNotification {
+	color: green;
+	background-color: white;
+	font-weight: bold;
+	border-color: green;
+}
+
+.notification.failNotification {
+	color: white;
+	background-color: red;
+	font-weight: bold;
+	border-color: white;
+}

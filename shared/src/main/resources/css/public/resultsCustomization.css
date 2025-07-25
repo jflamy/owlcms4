@@ -24,7 +24,7 @@
     - change hidden to visible
     - set the width to value like 8ch
     */
-    --birthWidth: 6ch;
+    --birthWidth: 11ch;
     --birthVisibility: visible;
     --custom1Width: 0;
     --custom1Visibility: hidden;
@@ -76,13 +76,15 @@
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0;
 }
+
 :host .dark table.results {
     --spacerWidth: 1vh;
-    --rowSmallSpacerHeight: 0.25vh; /* set to 0.25vh if transparent background */
+    --rowSmallSpacerHeight: 0.25vh;
+    /* set to 0.25vh if transparent background */
 }
 
 td.flags div img {
-	width: calc(var(--flagHeight)*1.3);
+    width: calc(var(--flagHeight)*1.3);
     height: calc(var(--flagHeight));
     margin: 1vh;
     align-self: center;
@@ -102,9 +104,9 @@ td.custom1 div {
     /* white-space: pre-wrap; */
     text-align: center;
 }
+
 td.custom2 div {
     /* pre-wrap is used for multiple lines custom1 custom2 */
     /* white-space: pre-wrap; */
     text-align: center;
 }
-

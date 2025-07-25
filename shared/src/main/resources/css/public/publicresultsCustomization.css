@@ -1,16 +1,20 @@
 * {
+    /*************************
+     * Customization section
+     *************************/
+    --pageBackgroundColor: #00ff00;
+    --pageTextColor: white;
+
     /* variable-size columns. fr = free space after other columns have been allocated.
        for ease of understanding, sum of all fr columns should be 1.00.
     */
-    --nameWidth: 0.8fr;
-    --clubWidth: 0.2fr;
-    --tableWidthRatio: 90%;
-    --defaultLeaderFillerHeight: 1.75em;
+    --nameWidth: 30ch;
+    --clubWidth: 7ch;
 
     /* left column width: adjust depending on how you name groups */
-    --startWidth: min-content;
-    --startVisibility: visible;
-
+    --startWidth: 0em;
+    --startVisibility: hidden;
+    
     /* spacers */
     --spacerWidth: 1vh;
 
@@ -20,12 +24,12 @@
 
     --liftResultWidth: 6ch;
 
-    /* to show these columns
+    /* to show these columns 
     - change hidden to visible
-    - set the width to value like 8ch
+    - set the width to value like 8ch 
     */
-    --birthWidth: 6ch;
-    --birthVisibility: visible;
+    --birthWidth: 0;
+    --birthVisibility: hidden;
     --custom1Width: 0;
     --custom1Visibility: hidden;
     --custom2Width: 0;
@@ -35,7 +39,7 @@
     --rankVisibility: visible;
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
-
+    
     --bestWidth: var(--liftResultWidth);
     --bestVisibility: visible;
 
@@ -54,17 +58,18 @@
 
     box-sizing: border-box;
     --nbRanks: 1;
-
+    
     /* flag height */
     --flagHeight: 2.7vh;
 }
 
 .blockPositioningWrapper {
     background-color: var(--blockBackgroundColor);
-    padding: 0.75em;
+    width: fit-content;
+    height: fit-content;
+    padding: 0.66em; /* This is shorthand for all sides, logical */
     /* margin-top: 1em; */
     margin-block-start: 1em;
-    flex-grow: 0;
 }
 
 .filler {
@@ -72,27 +77,17 @@
     /* min-height: 1.5em; */
 }
 
-:host .light table.results {
-    --spacerWidth: 1vh;
-    --rowSmallSpacerHeight: 0;
-}
-:host .dark table.results {
-    --spacerWidth: 1vh;
-    --rowSmallSpacerHeight: 0.25vh; /* set to 0.25vh if transparent background */
-}
-
 td.flags div img {
-	width: calc(var(--flagHeight)*1.3);
+	width: calc(var(--flagHeight)*1.2);
     height: calc(var(--flagHeight));
     margin: 1vh;
     align-self: center;
     border: 1px;
     border-style: solid;
 }
-
-td.flags div.flags {
+td.flags div {
     height: calc(var(--athleteNameFontSize)*0.8);
-    line-height: calc(var(--athleteNameFontSize)*0.8);
+    line-height:  var(--athleteNameFontSize);
     align-self: center;
     display: flex;
 }
@@ -107,4 +102,3 @@ td.custom2 div {
     /* white-space: pre-wrap; */
     text-align: center;
 }
-
