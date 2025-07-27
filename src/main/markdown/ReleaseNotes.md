@@ -14,6 +14,10 @@
 
 **Maintenance Log**
 
+59.0.0-rc05: Fixes for styling, e.g. Attempt boards were always using the (typically more colorful) "public" styling
+
+59.0.0-rc05: Leader board shows top 3 athletes from previous groups, as opposed to medal contenders from previous groups.
+
 59.0.0-rc04: Added the "public" styles directory (see below)
 
 59.0.0-rc03: Ignore athletes that are weighed in but with no category when loading a session.
@@ -38,9 +42,9 @@
 
 59.0.0: When entering a body weight, if typing was slow, the athlete's category could be recomputed before the weight was typed in completely.  Now waits until the change is done by moving outside the field.
 
-59.0.0: On the scoreboard, show only the leaders from previous groups, in compliance with TCRR.  Previously, the predicted medal-winning athletes (including athletes from the current group) were shown.  Old behaviour can be obtained with toggle switch `medalistsAsLeaders`)
+59.0.0: On the scoreboard, show the 3 best athletes from previous groups, in compliance with TCRR.  Previously, the predicted medal-winning athletes (including athletes from the current group) were shown.  Old behaviour can be obtained with toggle switch `medalistsAsLeaders`)
 
-59.0.0: For formatting, the country is now set according to the browser's accepted languages preferences unless the locale has been forced in the database. Chrome, Edge and Safari include that information.  For Firefox, formatting will use the server's country unless the user has specified the country in their accepted languages.
+59.0.0: For formatting, the country is now set according to the browser's accepted languages preferences unless the locale has been forced in the database. Chrome, Edge and Safari include that information.  For Firefox, the user has to include the country information in their accepted languages, and if not, the server's country is used.
 
 59.0.0: Experimental: Some federations show the jury decisions to the public.  A new jury decision scoreboard is available for this purpose.
 
