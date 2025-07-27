@@ -607,7 +607,7 @@ public class BaseResults extends LitTemplate
 			Athlete curAthlete = fop.getCurAthlete();
 			if (curAthlete == null) {
 				this.getElement().setPropertyJson("leaders", Json.createNull());
-				this.getElement().setProperty("leaderLines", 1); // must be > 0
+				setBottomSize(1);
 			}
 			if (curAthlete.getGender() != null) {
 				this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
@@ -626,14 +626,30 @@ public class BaseResults extends LitTemplate
 					// null as second argument because we do not highlight current athletes in the
 					// leaderboard
 					this.getElement().setPropertyJson("leaders", getAthletesJson(this.displayOrder, null, fop));
-					this.getElement().setProperty("leaderLines", this.displayOrder.size() + 2); // spacer + title
+					setBottomSize(this.displayOrder.size() + 2); // spacer + title 
 				} else {
 					// nothing to show
 					this.getElement().setPropertyJson("leaders", Json.createNull());
-					this.getElement().setProperty("leaderLines", 1); // must be > 0
+					setBottomSize(1);
 				}
 			}
 		});
+	}
+
+	/**
+	 * For TV and Public scoreboards, the leaderboard is not pushed down to the bottom.
+	 * The last line of the grid is not present
+	 * 
+	 * @param normal
+	 */
+	public void setBottomSize(int normal) {
+		if (this.isPublicDisplay() || this.isVideo()) {
+			// no filler line to push the leaderboard down
+			this.getElement().setProperty("leaderLines", normal - 1);
+		} else {
+			// filler line to push the leaderboard down
+			this.getElement().setProperty("leaderLines", normal);
+		}
 	}
 
 	protected void computeRecords(boolean done) {
