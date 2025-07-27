@@ -638,7 +638,7 @@ public class BaseResults extends LitTemplate
 
 	/**
 	 * For TV and Public scoreboards, the leaderboard is not pushed down to the bottom.
-	 * The last line of the grid is not present
+	 * The last line of the grid is not present because this leads to too much space
 	 * 
 	 * @param normal
 	 */
