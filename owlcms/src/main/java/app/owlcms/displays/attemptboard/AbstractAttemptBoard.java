@@ -296,7 +296,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	@Override
 	public void setPublicDisplay(boolean publicDisplay) {
-		this.publicDisplay = true;
+		this.publicDisplay = publicDisplay;
 	}
 
 	/**
