@@ -2366,33 +2366,9 @@ public class FieldOfPlay implements IUnregister {
 			List<Athlete> medalists = getMedals().get(category.getCode());
 			
 			if (! Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
-				medalists = medalists.stream().filter(m -> {
-					Group group2 = this.getGroup();
-					Group group3 = m.getGroup();
-					return group2 != null && group3 != null && !group3.equals(group2);
-				}).toList();
-			}
-
-			List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
-				int r = a.getSnatchRank();
-				return r <= 3 && r > 0;
-			}).sorted((a, b) -> ObjectUtils.compare(a.getSnatchRank(), b.getSnatchRank())).collect(Collectors.toList());
-			// logger.debug("snatch medalists {}", snatchMedalists);
-			List<Athlete> totalMedalists = medalists.stream().filter(a -> {
-				int r = a.getTotalRank();
-				return r <= 3 && r > 0;
-			}).collect(Collectors.toList());
-			// logger.debug("total medalists {}", totalMedalists);
-
-			if (!isCjStarted()) {
-				setLeaders(snatchMedalists);
+				previousGroupLeaders(medalists);	
 			} else {
-				if (totalMedalists.size() > 0) {
-					setLeaders(totalMedalists);
-				} else {
-					setLeaders(snatchMedalists);
-				}
-
+				medalistLeaders(medalists);	
 			}
 		} else {
 			setLeaders(null);
@@ -2411,6 +2387,57 @@ public class FieldOfPlay implements IUnregister {
 			nLeaders.add(found != null ? found : a);
 		}
 		setLeaders(nLeaders);
+	}
+
+	public void medalistLeaders(List<Athlete> medalists) {
+		List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
+			int r = a.getSnatchRank();
+			return r <= 3 && r > 0;
+		}).sorted((a, b) -> ObjectUtils.compare(a.getSnatchRank(), b.getSnatchRank())).collect(Collectors.toList());
+		// logger.debug("snatch medalists {}", snatchMedalists);
+		List<Athlete> totalMedalists = medalists.stream().filter(a -> {
+			int r = a.getTotalRank();
+			return r <= 3 && r > 0;
+		}).collect(Collectors.toList());
+		// logger.debug("total medalists {}", totalMedalists);
+
+		if (!isCjStarted()) {
+			setLeaders(snatchMedalists);
+		} else {
+			if (totalMedalists.size() > 0) {
+				setLeaders(totalMedalists);
+			} else {
+				setLeaders(snatchMedalists);
+			}
+		}
+	}
+
+	public void previousGroupLeaders(List<Athlete> medalists) {
+		medalists = medalists.stream().filter(m -> {
+			Group group2 = this.getGroup();
+			Group group3 = m.getGroup();
+			return group2 != null && group3 != null && !group3.equals(group2);
+		}).toList();
+		List<Athlete> snatchMedalists = medalists.stream()
+				.sorted((a, b) -> ObjectUtils.compare(a.getSnatchRank(), b.getSnatchRank()))
+				.limit(3)
+				.collect(Collectors.toList());
+		// logger.debug("snatch previous {}", snatchMedalists);
+		List<Athlete> totalMedalists = medalists.stream()
+				.sorted((a, b) -> ObjectUtils.compare(a.getTotalRank(), b.getTotalRank()))
+				.limit(3)
+				.collect(Collectors.toList());
+		// logger.debug("total previous {}", totalMedalists);
+
+		if (!isCjStarted()) {
+			setLeaders(snatchMedalists);
+		} else {
+			if (totalMedalists.size() > 0) {
+				setLeaders(totalMedalists);
+			} else {
+				setLeaders(snatchMedalists);
+			}
+		}
 	}
 
 	private void recomputeLeadersAndRecords(List<Athlete> athletes) {
