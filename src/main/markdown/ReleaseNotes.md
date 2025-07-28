@@ -12,25 +12,11 @@
 
 <br>
 
-**Maintenance Log**
-
-59.0.0-rc06: Coding fixes to avoid null pointers in edge cases.
-
-59.0.0-rc05: Fixes for styling, e.g. Attempt boards were always using the (typically more colorful) "public" styling
-
-59.0.0-rc05: Leader board shows top 3 athletes from previous groups, as opposed to medal contenders from previous groups.
-
-59.0.0-rc04: Added the "public" styles directory (see below)
-
-59.0.0-rc03: Ignore athletes that are weighed in but with no category when loading a session.
-
-59.0.0-rc02: Fix for "top score" scoreboards (Top Sinclair, Top Q-Masters): the calculation of the kilograms needed to reach the top was missing a factor.
-
 **New in Release 59.0**
 
 59.0.0: An error message will be emitted if, when loading a session, an athlete has no category.  The athlete will be ignored and not added to the session.  This is a safety check if the weigh-in data entry forced saving without a category.
 
-59.0.0: A new predefined styles directory "public" is available.  Meant to be used if there is a large scoreboard in the main room and a TV-like colourful display is desired.  It is the same as "transparent", but with an opaque background.  The top of the scoreboard shows the current attempt information.  
+59.0.0: A new predefined styles directory "public" is available.  Meant to be used if there is a large scoreboard in the main room and a TV-like colourful display is desired.  The top of the scoreboard shows the current attempt information, and there is an opaque background.  Otherwise, It is the same as the "transparent" style meant for streaming.  
 
 59.0.0: Added a Button Testing capability.  See the Referee section on the "running a session" page.  The new page is used to start a special break. It shows when the refereeing, timekeeping and jury buttons are pressed.  This works for all devices phone/tablet, keypad (USB/joystick/Bluetooth) or MQTT devices.
 
