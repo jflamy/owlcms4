@@ -437,7 +437,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					// no body weight - no contradiction
 					return true;
 				}
-				if (category != null && age != null) {
+				if (category != null && age != null && category.getAgeGroup() != null) {
 					int min = category.getAgeGroup().getMinAge();
 					int max = category.getAgeGroup().getMaxAge();
 					logger.trace("comparing {} [{},{}] with age {}", category.getCode(), min, max, age);
@@ -614,7 +614,11 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	@SuppressWarnings("unused")
 	private List<Championship> championshipsForCategories(Set<Category> value) {
-		return value.stream().map(c -> c.getAgeGroup().getChampionship()).distinct().toList();
+		return value.stream()
+				.map(c -> c.getAgeGroup() != null ? c.getAgeGroup().getChampionship() : null)
+				.filter(championship -> championship != null)
+				.distinct()
+				.toList();
 	}
 	
 	@SuppressWarnings("unused")
@@ -1298,24 +1302,16 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 						        this.allEligible, this.allEligible, false);
 					}
 				} else {
-					// logger.trace("recompute, cat={} allEligible = {}", cat, this.allEligible);
 					// category is null or not within eligibles, recompute
+					// logger.trace("recompute, cat={} allEligible = {}", cat, this.allEligible);
 
-//					List<Category> filteredEligibles = this.allEligible.stream()
-//					        .filter(e -> previousChampionships.isEmpty() || previousChampionships.contains(e.getAgeGroup().getChampionship())).toList();
-					// logger.debug("eligibilty filtered on championship {}", filteredEligibles);
-					
 					List<Category> filteredEligibles = this.allEligible.stream()
-					        .filter(e -> previousAgeGroups.isEmpty() || previousAgeGroups.contains(e.getAgeGroup().getCode())).toList();
+					        .filter(e -> previousAgeGroups.isEmpty() || previousAgeGroups.contains(e.getAgeGroupCode())).toList();
 					logger.debug("eligibilty filtered on age groups {} {} {}", allEligible, filteredEligibles);
 					
 					Category bestMatchCategory = bestMatch(filteredEligibles);
 					updateCategoryFields(selectedCategory, bestMatchCategory, eligibleField, qualifyingTotalField2,
 					        filteredEligibles, this.allEligible, true);
-
-					// Category bestMatchCategory = bestMatch(this.allEligible);
-					// updateCategoryFields(bestMatchCategory, categoryField, eligibleField, qualifyingTotalField2,
-					// this.allEligible, true);
 				}
 			} else {
 				logger.debug("bw, but need age and gender");
@@ -1334,14 +1330,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					this.allEligible = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(), gender,
 					        ageFromFields, bw, qualifyingTotal);
 					
-//					List<Category> filteredEligibles = this.allEligible.stream()
-//					        .filter(e -> previousChampionships.isEmpty()
-//					                || previousChampionships.contains(e.getAgeGroup().getChampionship()))
-//					        .toList();
-					// logger.trace("eligibilty2 filtered on championship {}",filteredEligibles);
-					
 					List<Category> filteredEligibles = this.allEligible.stream()
-					        .filter(e -> previousAgeGroups.isEmpty() || previousAgeGroups.contains(e.getAgeGroup().getCode())).toList();
+					        .filter(e -> previousAgeGroups.isEmpty() || previousAgeGroups.contains(e.getAgeGroupCode())).toList();
 
 					updateCategoryFields(selectedCategory, selectedCategory, eligibleField, qualifyingTotalField2,
 					        filteredEligibles,

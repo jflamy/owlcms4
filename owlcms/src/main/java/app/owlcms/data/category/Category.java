@@ -708,4 +708,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return alreadyGendered;
 	}
 
+	@JsonIgnore
+	@Transient
+	public String getAgeGroupCode() {
+		return this.getAgeGroup() != null ? this.getAgeGroup().getCode() : null;
+	}
+
 }
