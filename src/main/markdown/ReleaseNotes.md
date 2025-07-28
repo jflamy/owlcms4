@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+59.0.0-rc06: Coding fixes to avoid null pointers in edge cases.
+
 59.0.0-rc05: Fixes for styling, e.g. Attempt boards were always using the (typically more colorful) "public" styling
 
 59.0.0-rc05: Leader board shows top 3 athletes from previous groups, as opposed to medal contenders from previous groups.
