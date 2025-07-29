@@ -1200,7 +1200,14 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private Double adjustBW(Double catW, Integer ageFromFields) {
 		if (catW > 990) {
-			return ageFromFields <= 17 ? 103D : 111D;
+			Gender gender = getGenderFieldValue();
+			if (gender == Gender.M) {
+				// a superheavy youth male will be +98 but a 110 JR
+				return ageFromFields != null && ageFromFields <= 17 ? 103D : 111D;
+			} else {
+				// a superheavy youth female will be +77 but a 86 JR
+				return ageFromFields != null && ageFromFields <= 17 ? 80D : 90D;
+			}
 		} else {
 			return catW;
 		}
