@@ -12,6 +12,12 @@
 
 <br>
 
+**Maintenance Log**
+
+59.0.1: Defining an explicit category but no birth date in the registration file would cause errors. This would occur in a single category Sinclair-only competition where the birth date is irrelevant.
+
+59.0.1: In a combined Youth/JR meet, when only the Youth category is known, Youth super-heavies are initially assigned to the JR heavy category.  This was not the case for female athletes.
+
 **New in Release 59.0**
 
 59.0.0: An error message will be emitted if, when loading a session, an athlete has no category.  The athlete will be ignored and not added to the session.  This is a safety check if the weigh-in data entry forced saving without a category.
