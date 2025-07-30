@@ -25,11 +25,15 @@ import app.owlcms.i18n.Translator;
 public class ResultsStartList extends Results {
 
 	public ResultsStartList() {
+		var dt = Translator.translate("Scoreboard.StartList") + " – ";
+		this.getElement().setProperty("displayType", dt);
 	}
 
 	@Override
 	public String getDisplayType() {
-		return Translator.translate("Scoreboard.StartList") + ": ";
+		var dt = Translator.translate("Scoreboard.StartList") + " – ";
+		this.getElement().setProperty("displayType", dt);
+		return dt;
 	}
 
 	@Override

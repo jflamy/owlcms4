@@ -1,0 +1,244 @@
+* {
+    /* variable-size columns. fr = free space after other columns have been allocated.
+       for ease of understanding, sum of all fr columns should be 1.00.
+    */
+    --nameWidth: auto;
+    --clubWidth: 6.0em !important;
+    --tableWidthRatio: 65%;
+    --defaultLeaderFillerHeight: 1.75em;
+
+    /* left column width: adjust depending on how you name groups */
+    --startWidth: min-content;
+    --startVisibility: visible;
+
+    /* spacers */
+    --spacerWidth: 3vw;
+
+    /* normally these do not need to change */
+    --categoryWidth: minmax(11ch,auto);
+    --categoryVisibility: visible;
+    --liftResultWidth: 6ch;
+
+    /* to show these columns
+    - change hidden to visible
+    - set the width to value like 8ch
+    */
+    --birthWidth: minmax(8ch,auto);
+    --birthVisibility: visible;
+    --custom1Width: 0;
+    --custom1Visibility: hidden;
+    --custom2Width: 0;
+    --custom2Visibility: hidden;
+    --rankWidth: var(--liftResultWidth);
+    --rankVisibility: visible;
+    --totalRankWidth: var(--liftResultWidth);
+    --totalRankVisibility: visible;
+    --bestWidth: var(--liftResultWidth);
+    --bestVisibility: visible;
+
+    /* top part: current attempt information */
+    --topRowFontSize: 3vh;
+    --athleteNameFontSize: 4vh;
+    --groupInfoFontSize: 2.5vh;
+
+    /* records */
+    --recordValueCellWidth: 4rem;
+    --recordTypeHeightRatio: 75%;
+    --recordsNotificationFontSize: 2.0em;
+
+    /* leaders section control grid lines visibility */
+    --leaderLineHeight: min-content;
+    box-sizing: border-box;
+    --nbRanks: 1;
+
+    /* flag height */
+    --flagHeight: 2.7vh;
+}
+
+.blockPositioningWrapper {
+    background-color: var(--blockBackgroundColor);
+    padding: 0.75em;
+    /* margin-top: 1em; */
+    margin-block-start: 1em;
+    flex-grow: 0;
+    width: var(--tableWidthRatio, 80%) !important;
+}
+
+.filler {
+    background-color: var(--blockBackgroundColor);
+    /* min-height: 1.5em; */
+}
+
+:host .light table.results {
+    /* --spacerWidth: 3vw; */
+    --rowSmallSpacerHeight: 0;
+}
+:host .dark table.results {
+    /* --spacerWidth: 3vw; */
+    --rowSmallSpacerHeight: 0.25vh; /* set to 0.25vh if transparent background */
+    /* do NOT use all available vertical space */
+    flex: 0;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-rows:
+        repeat(var(--top), min-content) repeat(1,var(--leaderFillerHeight)) repeat(var(--bottom), var(--leaderLineHeight));
+    grid-template-columns:
+        /* start */
+        var(--startWidth)
+        /* name */
+        minmax(50px, var(--nameWidth))
+        /* category */
+        var(--categoryWidth)
+        /* birth */
+        var(--birthWidth)
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        var(--clubWidth)
+        /* entry total */
+        0.5fr;
+}
+
+td.flags div img {
+	width: calc(var(--flagHeight)*1.3);
+    height: calc(var(--flagHeight));
+    margin: 1vh;
+    align-self: center;
+    border: 1px;
+    border-style: solid;
+}
+
+td.flags div.flags {
+    height: calc(var(--athleteNameFontSize)*0.8);
+    line-height: calc(var(--athleteNameFontSize)*0.8);
+    align-self: center;
+    display: flex;
+}
+
+td.custom1 div {
+    /* pre-wrap is used for multiple lines custom1 custom2 */
+    /* white-space: pre-wrap; */
+    text-align: center;
+}
+td.custom2 div {
+    /* pre-wrap is used for multiple lines custom1 custom2 */
+    /* white-space: pre-wrap; */
+    text-align: center;
+}
+
+td.good div {
+    background-color: white;
+    padding: 3px;
+    width: 100%;
+    text-align: center;
+    border-style: solid;
+    border-color: white;
+    border-width: 2px;
+    align-self: center;
+    border-radius: 0.25em;
+}
+
+tr.current td.good div.good {
+    border-color: dimgray;
+    border-width: 1px;
+}
+
+tr.current td.fail div.fail {
+    border-color: dimgray;
+    border-width: 1px;
+}
+
+td.fail div {
+    background-color: var(--FailBackgroundColor);;
+    color: white;
+    padding: 3px;
+    width: 110%;
+    text-align: center;
+    border-style: solid;
+    border-color: white;
+    border-width: 1px;
+    border-radius: 0.25em;
+}
+
+td.best div {
+    background-color: var(--BestBackgroundColor);
+    color: white;
+    padding: 3px;
+    width: 110%;
+    text-align: center;
+    border-style: solid;
+    border-color: white;
+    border-width: 1px;
+    border-radius: 0.25em;
+}
+
+td.total div {
+    background-color: var(--TotalBackgroundColor);
+    color: white;
+    padding: 3px;
+    width: 110%;
+    text-align: center;
+    border-style: solid;
+    border-color: white;
+    border-width: 1px;
+    border-radius: 0.25em;
+}
+
+td.entry div {
+    /* pre-wrap is used for multiple lines custom1 custom2 */
+    /* white-space: pre-wrap; */
+    text-align: center;
+}
+
+.video {
+    font-size: 2rem;
+    font-weight: 600;
+    font-family: 'Roboto Slab', serif;
+    background-color: var(--videoHeaderBackgroundColor);
+    color: var(--videoHeaderTextColor);
+    margin-block-end: 1.2rem;
+    display: flex !important;
+    align-items: center;
+    justify-items: center;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.attemptBar {
+    display: none !important;
+    font-size: var(--topRowFontSize);
+    justify-content: space-between;
+    width: 100%;
+    background-color: var(--videoHeaderBackgroundColor);
+    padding: 0.5em;
+}
+
+.group {
+    color: var(--groupInfoColor);
+    font-size: var(--groupInfoFontSize);
+    /* margin-top: 1vh; */
+    /* margin-bottom: 2vh; */
+    margin-block-start: 1vh;
+    margin-block-end: 2vh;
+    padding: 0.5em;
+    background-color: var(--videoHeaderBackgroundColor);
+    margin-top: -1.0em;
+    display: none !important
+}
+
+/* requested weight column */
+:host table.results tr td.request {
+    --BlinkBackgroundColor: var(--RequestBackgroundColor);
+    background-color: var(--RequestBackgroundColor);
+    color: var(--RequestTextColor);
+    font-style: italic;
+}
+
+/* current athlete colors and blinks */
+:host table.results tr.current td {
+    color: var(--TextColor);
+    background-color: var(--RequestBackgroundColor);
+    font-weight: bold;
+    border: none;
+}
+
