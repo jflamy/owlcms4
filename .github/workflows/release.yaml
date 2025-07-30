@@ -10,7 +10,7 @@ on:
 # - pull in translations and proofread
 # - run AllTests locally
 # - Release Notes
-        default: '59.0.1-rc01'
+        default: '59.0.2-rc01'
 
 
 env:
