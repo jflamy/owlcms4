@@ -40,6 +40,7 @@ import app.owlcms.nui.displays.scoreboards.PublicMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.PublicNoLeadersPage;
 import app.owlcms.nui.displays.scoreboards.PublicRankingOrderPage;
 import app.owlcms.nui.displays.scoreboards.PublicScoreboardPage;
+import app.owlcms.nui.displays.scoreboards.PublicStartListPage;
 import app.owlcms.nui.displays.scoreboards.WarmupLiftingOrderPage;
 import app.owlcms.nui.displays.scoreboards.WarmupMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.WarmupNoLeadersPage;
@@ -127,6 +128,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        Translator.translate("ScoreboardMultiRanksButton"));
 			Button scoreboardRankings1 = openInNewTab(PublicRankingOrderPage.class,
 			        Translator.translate("Scoreboard.RankingOrderButton"));
+			Button startList1 = openInNewTab(PublicStartListPage.class, Translator.translate("Scoreboard.StartList"));
 			Button juryDecisions1 = openInNewTab(JuryDecisionsPage.class,
 			        Translator.translate("JuryDecisions.Title"));
 			VerticalLayout intro11 = new VerticalLayout();
@@ -136,6 +138,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        scoreboardWLeaders1,
 			        scoreboardRankings1,
 			        scoreboardMultiRanks1,
+			        startList1,
 			        juryDecisions1);
 			doGroup(Translator.translate("PublicScoreboards"), intro11, grid11, this);
 
