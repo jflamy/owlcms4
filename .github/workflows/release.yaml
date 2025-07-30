@@ -11,7 +11,7 @@ on:
 # - run AllTests locally
 # - Release Notes
         default: '59.0.2'
-		
+
 env:
   REPO_OWNER: owlcms
   MAVEN_OPTS: '-Xmx2048m'
