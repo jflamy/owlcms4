@@ -643,9 +643,19 @@ public class BaseResults extends LitTemplate
 	 * @param normal
 	 */
 	public void setBottomSize(int normal) {
+		// we stretch video and TV ONLY when using the old standard nogrid or grid styles, or if the corresponding "stretch" feature toggle is present
 		if (this.isPublicDisplay() || this.isVideo()) {
-			// no filler line to push the leaderboard down
-			this.getElement().setProperty("leaderLines", normal - 1);
+			logger.warn("isPublicDisplay {} {} {} {}",
+					isPublicDisplay(),
+					Config.getCurrent().getParamPublicStylesDir().endsWith("grid"),
+					Config.getCurrent().featureSwitch("stretchPublic"),
+					(isPublicDisplay() && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchPublic")))
+					);
+			boolean noStretch = 
+					(isPublicDisplay() && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchPublic"))) 
+					|| (isVideo() && !(Config.getCurrent().getParamVideoStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchVideo")));
+			// noStretch = no filler line to push the leaderboard down
+			this.getElement().setProperty("leaderLines", normal - (noStretch ? 1 : 0));
 		} else {
 			// filler line to push the leaderboard down
 			this.getElement().setProperty("leaderLines", normal);

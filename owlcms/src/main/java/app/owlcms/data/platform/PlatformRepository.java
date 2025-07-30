@@ -95,11 +95,12 @@ public class PlatformRepository {
 	 * @param Platform
 	 */
 	public static void delete(Platform platform) {
+		try {
 		if (OwlcmsFactory.getFopByName() == null) {
 			OwlcmsFactory.initFOPByName();
 		}
 		FieldOfPlay fop = OwlcmsFactory.getFOPByName(platform.getName());
-		MQTTMonitor mm = fop.getMqttMonitor();
+		MQTTMonitor mm = fop != null ? fop.getMqttMonitor() : null;
 		JPAService.runInTransaction(em -> {
 			// this is the only case where platform needs to know its groups, so we do a
 			// query instead of adding a relationship.
@@ -120,6 +121,9 @@ public class PlatformRepository {
 			mm.publishMqttConfig();
 		}
 		OwlcmsFactory.setFirstFOPAsDefault();
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 	}
 
 	public static void deleteUnusedPlatforms(Set<String> futurePlatforms) {

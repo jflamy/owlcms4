@@ -14,9 +14,17 @@
 
 **Maintenance Log**
 
-59.0.1: Defining an explicit category but no birth date in the registration file would cause errors. This would occur in a single category Sinclair-only competition where the birth date is irrelevant.
+59.0.2: Fix: When using the default "nogrid" style for video or public scoreboards, a filler was missing causing the scoreboard to look bad.
 
-59.0.1: In a combined Youth/JR meet, when only the Youth category is known, Youth super-heavies are initially assigned to the JR heavy category.  This was not the case for female athletes.
+59.0.2: Fix: Deleting a platform would fail if no session was in progress.
+
+59.0.1: Fix: Defining an explicit category but no birth date in the registration file would cause errors. This would occur in a single category Sinclair-only competition where the birth date is irrelevant.
+
+59.0.1: Fix: sIn a combined Youth/JR meet, when only the Youth category is known, Youth super-heavies are initially assigned to the JR heavy category.  This was not the case for female athletes.
+
+59.0.1: Fix: Defining an explicit category but no birth date in the registration file would cause errors. This would occur in a single category Sinclair-only competition where the birth date is irrelevant.
+
+59.0.1: Fix: In a combined Youth/JR meet, when only the Youth category is known, Youth super-heavies are initially assigned to the JR heavy category.  This was not the case for female athletes.
 
 **New in Release 59.0**
 
