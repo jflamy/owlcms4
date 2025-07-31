@@ -15,7 +15,7 @@
     --spacerWidth: 1vh;
 
     /* normally these do not need to change */
-    --categoryWidth: 11ch;
+    --categoryWidth: minmax(11ch,auto);
     --categoryVisibility: visible;
 
     --liftResultWidth: 6ch;
@@ -24,7 +24,7 @@
     - change hidden to visible
     - set the width to value like 8ch
     */
-    --birthWidth: 6ch;
+    --birthWidth: minmax(8ch,auto);
     --birthVisibility: visible;
     --custom1Width: 0;
     --custom1Visibility: hidden;

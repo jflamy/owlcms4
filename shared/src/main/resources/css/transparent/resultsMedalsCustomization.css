@@ -65,6 +65,18 @@
  */
 }
 
+.video {
+    display: flex !important
+}
+
+.attemptBar {
+    display: none !important
+}
+
+.group {
+    display: none !important
+}
+
 :host .light table.results {
     --spacerWidth: 0vh;
     --rowSmallSpacerHeight: 0;
