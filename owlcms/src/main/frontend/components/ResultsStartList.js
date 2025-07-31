@@ -241,7 +241,7 @@ class ResultsStartList extends LitElement {
   }
 
   videoHeaderStyles() {
-    return "display: " + ((this.mode !== "WAIT" && this.video)? "flex" : "none");
+    return "display: " + ((this.mode == "WAIT")? "none !important" : "flex");
   }
 
   bottomSpacerStyles() {
