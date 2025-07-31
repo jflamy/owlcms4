@@ -23,7 +23,7 @@
 
     /* normally these do not need to change */
     --categoryWidth: 10ch;
-    --liftResultWidth: 6ch;
+    --liftResultWidth: 7ch;
 
     /* to show these columns 
     - change hidden to visible
@@ -148,8 +148,8 @@ td.flags div.flags {
 }
 
 :host div.wrapper.dark table.results tr td.rank {
-    border-color: var(--EmptyBackgroundColor);
     color: white;
+    border-color: var(--EmptyBackgroundColor);
     border-width: 0.6em;
     border-style: solid;
 }
@@ -172,6 +172,13 @@ td.flags div.flags {
 :host div.wrapper table.results tr td.rank.medal3 {
     background-color: #CD7F32;
     color: black;
+}
+
+:host div.wrapper.dark table.results tr td.good,
+:host div.wrapper.dark table.results tr td.fail {
+    border-color: var(--EmptyBackgroundColor);
+    border-width: 0.6em;
+    border-style: solid;
 }
 
 :host div.wrapper.dark table.results tr td.totalRank {
