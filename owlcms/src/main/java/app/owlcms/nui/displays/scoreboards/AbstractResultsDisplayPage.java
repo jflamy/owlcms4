@@ -139,7 +139,7 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		if (teamWidth2 != null) {
 			teamWidth2 = teamWidth2 <= 0.0 ? 0.0 : teamWidth2;
 			formattedTW = ResultsParameters.formatEN_US.format(teamWidth2);
-			element.setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+			element.setProperty("twOverride", "--clubWidth:" + formattedTW + "em;");
 		}
 	}
 

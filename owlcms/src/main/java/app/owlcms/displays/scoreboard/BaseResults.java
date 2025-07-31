@@ -265,7 +265,7 @@ public class BaseResults extends LitTemplate
 		String formattedTW = null;
 		if (this.teamWidth != null) {
 			formattedTW = ResultsParameters.formatEN_US.format(this.teamWidth);
-			element.setProperty("twOverride", "--nameWidth: 1fr; --clubWidth:" + formattedTW + "em;");
+			element.setProperty("twOverride", "--clubWidth:" + formattedTW + "em;");
 		}
 	}
 
@@ -302,7 +302,7 @@ public class BaseResults extends LitTemplate
 
 	@Override
 	public final void setEmFontSize(Double emFontSize) {
-		// logger.trace("%%%%% setEmFontSize {}", emFontSize);
+		logger.warn("%%%%% setEmFontSize {}", emFontSize);
 		this.emFontSize = emFontSize;
 		pushEmSize(this.getElement());
 	}

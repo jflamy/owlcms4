@@ -94,44 +94,29 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 		colorOverride();
 
-		FlexibleGridLayout grid3;
-		Button attempt = openInNewTabQueryParameters(PublicFacingAttemptBoardPage.class,
-		        Translator.translate("AttemptBoard"), "video=true");
-		if (Config.getCurrent().featureSwitch("iwfLook")) {
-			Button nCurrentAthlete = openInNewTabQueryParameters(NCurrentAthletePage.class,
-			        Translator.translate("CurrentAthleteTitle") + " (New)", "video=true");
-			grid3 = HomeNavigationContent.navigationGrid(nCurrentAthlete, attempt);
-		} else {
-			Button currentAthlete = openInNewTabQueryParameters(CurrentAthletePage.class,
-			        Translator.translate("CurrentAthleteTitle"), "video=true");
-			grid3 = HomeNavigationContent.navigationGrid(currentAthlete, attempt);
-		}
+		attemptBoard();
+		startList();
+		scoreboards();
+		decisions();
+		rankings();
+		monitoring();
 
-		doGroup(Translator.translate("AttemptBoard"), grid3, this);
-		
-		Button startList = openInNewTabQueryParameters(PublicStartListPage.class,
-		        Translator.translate("ScoreBoard.StartList"), "video=true");
-		FlexibleGridLayout gridIntro = HomeNavigationContent.navigationGrid(startList);
-		doGroup(Translator.translate("CeremonyType.INTRODUCTION"), gridIntro, this);
-		
-		Button scoreboard = openInNewTabQueryParameters(WarmupNoLeadersPage.class,
-		        Translator.translate("Scoreboard"), "video=true");
-		Button scoreboardWLeaders = openInNewTabQueryParameters(WarmupScoreboardPage.class,
-		        Translator.translate("ScoreboardWLeadersButton"), "video=true");
-		scoreboardWLeaders.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
-		Button scoreboardMultiRanks = openInNewTabQueryParameters(WarmupMultiRanksPage.class,
-		        Translator.translate("ScoreboardMultiRanksButton"), "video=true");
-		Button scoreboardRankings = openInNewTabQueryParameters(WarmupRankingOrderPage.class,
-		        Translator.translate("Scoreboard.RankingOrderButton"), "video=true");
-		
-		
-		Button publicDecisions = openInNewTabQueryParameters(PublicFacingDecisionBoardPage.class,
-		        Translator.translate("RefereeDecisions"), "video=true");
-		Button juryDecisions = openInNewTabQueryParameters(JuryDecisionsPage.class,
-		        Translator.translate("JuryDecisions.Title"), "video=true");
-		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions, juryDecisions);
-		doGroup(Translator.translate("RefereeDecisions"), grid31, this);
+		DebugUtils.gc();
+	}
 
+	public void monitoring() {
+		Button obsMonitor = openInNewTab(OBSMonitor.class, Translator.translate("OBS.MonitoringButton"));
+		Button eventMonitor = openInNewTabQueryParameters(StreamingEventMonitor.class,
+		        Translator.translate("Video.EventMonitoringButton"),
+		        "video=true");
+		VerticalLayout intro4 = new VerticalLayout();
+		addP(intro4, Translator.translate("Video.EventMonitoringExplanation", Translator.translate("Video.EventMonitoringButton")));
+		addP(intro4, Translator.translate("OBS.MonitoringExplanation", Translator.translate("OBS.MonitoringButton")));
+		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(eventMonitor, obsMonitor);
+		doGroup(Translator.translate("OBS.MonitoringButton"), intro4, grid4, this);
+	}
+
+	public void rankings() {
 		List<Group> groups = GroupRepository.findAll();
 		// more recent group first, else reverse order.
 		groups.sort((g1, g2) -> {
@@ -156,13 +141,6 @@ public class VideoNavigationContent extends BaseNavigationContent
 		includeNotCompleted.setLabel(Translator.translate("Video.includeNotCompleted"));
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.add(groupCategorySelectionMenu, includeNotCompleted);
-		VerticalLayout intro1 = new VerticalLayout();
-		// addP(intro1, Translator.translate("darkModeSelect"));
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
-		        scoreboardRankings,
-		        scoreboardMultiRanks);
-		doGroup(Translator.translate("Scoreboards"), intro1, grid1, this);
-
 		Button medals = new Button(Translator.translate("CeremonyType.MEDALS"));
 		Button rankings = new Button(Translator.translate("Scoreboard.RANKING"));
 		medals.addClickListener((e) -> {
@@ -178,18 +156,57 @@ public class VideoNavigationContent extends BaseNavigationContent
 		intro1a.add(hl);
 		FlexibleGridLayout grid1a = HomeNavigationContent.navigationGrid(medals, rankings);
 		doGroup(Translator.translate("Scoreboard.RANKINGS"), intro1a, grid1a, this);
+	}
 
-		Button obsMonitor = openInNewTab(OBSMonitor.class, Translator.translate("OBS.MonitoringButton"));
-		Button eventMonitor = openInNewTabQueryParameters(StreamingEventMonitor.class,
-		        Translator.translate("Video.EventMonitoringButton"),
-		        "video=true");
-		VerticalLayout intro4 = new VerticalLayout();
-		addP(intro4, Translator.translate("Video.EventMonitoringExplanation", Translator.translate("Video.EventMonitoringButton")));
-		addP(intro4, Translator.translate("OBS.MonitoringExplanation", Translator.translate("OBS.MonitoringButton")));
-		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(eventMonitor, obsMonitor);
-		doGroup(Translator.translate("OBS.MonitoringButton"), intro4, grid4, this);
+	public void decisions() {
+		Button publicDecisions = openInNewTabQueryParameters(PublicFacingDecisionBoardPage.class,
+		        Translator.translate("RefereeDecisions"), "video=true");
+		Button juryDecisions = openInNewTabQueryParameters(JuryDecisionsPage.class,
+		        Translator.translate("JuryDecisions.Title"), "video=true");
+		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions, juryDecisions);
+		doGroup(Translator.translate("RefereeDecisions"), grid31, this);
+	}
 
-		DebugUtils.gc();
+	public void scoreboards() {
+		Button scoreboard = openInNewTabQueryParameters(WarmupNoLeadersPage.class,
+		        Translator.translate("Scoreboard"), "video=true");
+		Button scoreboardWLeaders = openInNewTabQueryParameters(WarmupScoreboardPage.class,
+		        Translator.translate("ScoreboardWLeadersButton"), "video=true");
+		scoreboardWLeaders.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
+		Button scoreboardMultiRanks = openInNewTabQueryParameters(WarmupMultiRanksPage.class,
+		        Translator.translate("ScoreboardMultiRanksButton"), "video=true");
+		Button scoreboardRankings = openInNewTabQueryParameters(WarmupRankingOrderPage.class,
+		        Translator.translate("Scoreboard.RankingOrderButton"), "video=true");
+
+		VerticalLayout intro1 = new VerticalLayout();
+		// addP(intro1, Translator.translate("darkModeSelect"));
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(scoreboard, scoreboardWLeaders,
+		        scoreboardRankings,
+		        scoreboardMultiRanks);
+		doGroup(Translator.translate("Scoreboards"), intro1, grid1, this);
+	}
+
+	public void startList() {
+		Button startList = openInNewTabQueryParameters(PublicStartListPage.class,
+		        Translator.translate("ScoreBoard.StartList"), "video=true");
+		FlexibleGridLayout gridIntro = HomeNavigationContent.navigationGrid(startList);
+		doGroup(Translator.translate("CeremonyType.INTRODUCTION"), gridIntro, this);
+	}
+
+	public void attemptBoard() {
+		FlexibleGridLayout grid3;
+		Button attempt = openInNewTabQueryParameters(PublicFacingAttemptBoardPage.class,
+		        Translator.translate("AttemptBoard"), "video=true");
+		if (Config.getCurrent().featureSwitch("iwfLook")) {
+			Button nCurrentAthlete = openInNewTabQueryParameters(NCurrentAthletePage.class,
+			        Translator.translate("CurrentAthleteTitle") + " (New)", "video=true");
+			grid3 = HomeNavigationContent.navigationGrid(nCurrentAthlete, attempt);
+		} else {
+			Button currentAthlete = openInNewTabQueryParameters(CurrentAthletePage.class,
+			        Translator.translate("CurrentAthleteTitle"), "video=true");
+			grid3 = HomeNavigationContent.navigationGrid(currentAthlete, attempt);
+		}
+		doGroup(Translator.translate("AttemptBoard"), grid3, this);
 	}
 
 	public void colorOverride() {

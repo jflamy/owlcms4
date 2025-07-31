@@ -136,7 +136,8 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 			emFontSize = 1.0;
 			medalFontSize = 1.5;
 		} else {
-			medalFontSize = emFontSize * 1.5;
+			//medalFontSize = emFontSize * 1.5;
+			medalFontSize = emFontSize;
 		}
 		super.setEmFontSize(emFontSize);
 		pushEmSize(this.getBoard().getElement(), emFontSize);
@@ -145,12 +146,18 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 	
 	@Override
 	final public void setTeamWidth(Double tw) {
+		// subjective visual kludging.
+		Double medalTw;
 		if (tw == null) {
-			return;
+			tw = 9.0;
+			medalTw= 9.0;
+		} else {
+			//medalFontSize = emFontSize * 1.5;
+			medalTw = tw;
 		}
 		super.setTeamWidth(tw);
 		pushTeamWidth(getElement(), tw);
-		pushTeamWidth(this.getMedalsBoard().getElement(),tw*1.4);
+		pushTeamWidth(this.getMedalsBoard().getElement(),medalTw);
 	}
 
 	

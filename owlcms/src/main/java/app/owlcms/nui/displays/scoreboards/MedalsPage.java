@@ -75,7 +75,8 @@ public class MedalsPage extends AbstractResultsDisplayPage {
 			emFontSize = 1.0;
 			medalFontSize = 1.5;
 		} else {
-			medalFontSize = emFontSize * 1.5;
+			//medalFontSize = emFontSize * 1.5;
+			medalFontSize = emFontSize;
 		}
 		super.setEmFontSize(emFontSize);
 		pushEmSize(this.getBoard().getElement(), medalFontSize);
