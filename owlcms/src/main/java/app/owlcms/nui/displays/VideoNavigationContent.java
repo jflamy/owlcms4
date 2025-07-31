@@ -188,7 +188,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 	public void startList() {
 		Button startList = openInNewTabQueryParameters(PublicStartListPage.class,
-		        Translator.translate("ScoreBoard.StartList"), "video=true");
+		        Translator.translate("Scoreboard.StartList"), "video=true");
 		FlexibleGridLayout gridIntro = HomeNavigationContent.navigationGrid(startList);
 		doGroup(Translator.translate("CeremonyType.INTRODUCTION"), gridIntro, this);
 	}
