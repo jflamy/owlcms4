@@ -49,6 +49,7 @@ import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.JuryDecisionsPage;
 import app.owlcms.nui.displays.scoreboards.MedalsPage;
 import app.owlcms.nui.displays.scoreboards.NCurrentAthletePage;
+import app.owlcms.nui.displays.scoreboards.PublicStartListPage;
 import app.owlcms.nui.displays.scoreboards.RankingsPage;
 import app.owlcms.nui.displays.scoreboards.WarmupMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.WarmupNoLeadersPage;
@@ -107,14 +108,12 @@ public class VideoNavigationContent extends BaseNavigationContent
 		}
 
 		doGroup(Translator.translate("AttemptBoard"), grid3, this);
-
-		Button publicDecisions = openInNewTabQueryParameters(PublicFacingDecisionBoardPage.class,
-		        Translator.translate("RefereeDecisions"), "video=true");
-		Button juryDecisions = openInNewTabQueryParameters(JuryDecisionsPage.class,
-		        Translator.translate("JuryDecisions.Title"), "video=true");
-		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions, juryDecisions);
-		doGroup(Translator.translate("RefereeDecisions"), grid31, this);
-
+		
+		Button startList = openInNewTabQueryParameters(PublicStartListPage.class,
+		        Translator.translate("ScoreBoard.StartList"), "video=true");
+		FlexibleGridLayout gridIntro = HomeNavigationContent.navigationGrid(startList);
+		doGroup(Translator.translate("CeremonyType.INTRODUCTION"), gridIntro, this);
+		
 		Button scoreboard = openInNewTabQueryParameters(WarmupNoLeadersPage.class,
 		        Translator.translate("Scoreboard"), "video=true");
 		Button scoreboardWLeaders = openInNewTabQueryParameters(WarmupScoreboardPage.class,
@@ -124,6 +123,14 @@ public class VideoNavigationContent extends BaseNavigationContent
 		        Translator.translate("ScoreboardMultiRanksButton"), "video=true");
 		Button scoreboardRankings = openInNewTabQueryParameters(WarmupRankingOrderPage.class,
 		        Translator.translate("Scoreboard.RankingOrderButton"), "video=true");
+		
+		
+		Button publicDecisions = openInNewTabQueryParameters(PublicFacingDecisionBoardPage.class,
+		        Translator.translate("RefereeDecisions"), "video=true");
+		Button juryDecisions = openInNewTabQueryParameters(JuryDecisionsPage.class,
+		        Translator.translate("JuryDecisions.Title"), "video=true");
+		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions, juryDecisions);
+		doGroup(Translator.translate("RefereeDecisions"), grid31, this);
 
 		List<Group> groups = GroupRepository.findAll();
 		// more recent group first, else reverse order.
