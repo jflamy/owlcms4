@@ -133,10 +133,18 @@ fi
 # Start owlcms.jar as a background process on remote server
 echo ""
 echo "Starting owlcms.jar as background process..."
-ssh ${REMOTE_HOST} -q << 'EOF'
-cd "/home/jflamy/asu"
-nohup env OWLCMS_PORT=8084 OWLCMS_ENABLEEMBEDDEDMQTT=false java -jar owlcms*.jar > owlcms.log 2>&1 &
-echo "owlcms started in background with PID: $!"
+ssh ${REMOTE_HOST} -q \
+    REMOTE_PORT=${REMOTE_PORT} \
+    REMOTE_DIR=${REMOTE_DIR} \
+    DOWNLOAD_URL="${DOWNLOAD_URL}" \
+    FILE_PREFIX="${FILE_PREFIX}" \
+    'bash -s' <<'EOF'
+cd $REMOTE_DIR
+echo switching to $(pwd)
+export OWLCMS_PORT=$REMOTE_PORT
+export OWLCMS_ENABLEEMBEDDEDMQTT=false
+export OWLCMS_FEATURESWITCHES=iwfLook
+nohup java -jar owlcms*.jar > owlcms.log 2>&1 &echo "owlcms started in background with PID: $!"
 echo "Logs will be written to owlcms.log"
 EOF
 
