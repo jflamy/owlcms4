@@ -102,7 +102,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		}
 		this.ui.access(() -> {
 			/* copy current parameters from results board to medals board */
-			this.getMedalsBoard().setVisible(true);
+//			this.getMedalsBoard().setVisible(true);
 			this.getMedalsBoard().setDownSilenced(true);
 			this.getMedalsBoard().setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
 			this.getMedalsBoard().setVideo(((DisplayParameters) getBoard()).isVideo());
