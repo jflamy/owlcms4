@@ -480,6 +480,9 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	private boolean validation = true;
+	@Transient
+	@JsonIgnore
+	protected boolean fixNames = false;
 
 	/**
 	 * Instantiates a new athlete.
@@ -488,6 +491,11 @@ public class Athlete {
 		setId(IdUtils.getTimeBasedId());
 		this.validation = true;
 		this.timingLogger.setLevel(Level.WARN);
+		this.fixNames = fixNamesP();
+	}
+
+	protected boolean fixNamesP() {
+		return !Config.getCurrent().featureSwitch("dontFixNames");
 	}
 
 	public void addEligibleCategory(Category category) {
@@ -782,7 +790,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getAbbreviatedName() {
-		var fn = this.getFullName();
+		var fn = this.computeRawFullName();
 		if (fn.isBlank()) {
 			return fn;
 		}
@@ -804,6 +812,66 @@ public class Athlete {
 		} else {
 			return "?";
 		}
+	}
+	
+	@Transient
+	@JsonIgnore
+	public String getFixedName() {
+		Locale loc = OwlcmsSession.getLocale();
+		var fn = this.computeRawFullName();
+		if (fn.isBlank()) {
+			return fn;
+		}
+		String upperCase = this.getLastName() != null ? this.getLastName().toUpperCase() : "";
+		String firstName2 = this.firstName != null ? this.firstName.trim() : "";
+		
+		String formattedFirstName = computeFixedFirstName(loc, firstName2);
+
+		if (!upperCase.isBlank() && !formattedFirstName.isBlank()) {
+			return Translator.translate("AbbreviatedNameFormat", upperCase, formattedFirstName);
+		} else if (!upperCase.isBlank()) {
+			return upperCase;
+		} else if (!formattedFirstName.isBlank()) {
+			return formattedFirstName;
+		} else {
+			return "?";
+		}
+	}
+
+	public String computeFixedFirstName(Locale loc, String firstName2) {
+		// Check if first name is all caps (or all caps with hyphens and spaces)
+		// Only fix names that are all uppercase
+
+		boolean needsFixing = firstName2.equals(firstName2.toUpperCase(loc)) ;
+		var language = loc.getLanguage();
+		if (needsFixing && (language.equals("ar") || language.equals("he") || language.equals("ja"))) {
+			// This would attempt to fix Arabic, Hebrew, Japanese, but the fix would do nothing.
+			return firstName2;
+		}
+		
+		String formattedFirstName;
+		if (needsFixing) {
+			// Split first name by spaces, then split each component by hyphens
+			// Capitalize first letter and lowercase the rest for each component
+			String[] spaceParts = firstName2.split("\\s+");
+			formattedFirstName = Arrays.stream(spaceParts).map(spacePart -> {
+				String[] hyphenatedParts = spacePart.split("-");
+				return Arrays.stream(hyphenatedParts)
+						.map(hpart -> {
+							if (hpart.isEmpty()) {
+								return hpart;
+							}
+							// Capitalize first letter according to locale rules, lowercase the rest
+							return hpart.substring(0, 1).toUpperCase(loc) + 
+								   hpart.substring(1).toLowerCase(loc);
+						})
+						.collect(Collectors.joining("-"));
+			}).collect(Collectors.joining(" "));
+		} else {
+			// Keep the original first name if it doesn't need fixing
+			formattedFirstName = firstName2;
+		}
+		return formattedFirstName;
 	}
 
 	@Transient
@@ -1856,7 +1924,7 @@ public class Athlete {
 	 * @return the firstName
 	 */
 	public String getFirstName() {
-		return this.firstName != null ? this.firstName.trim() : null;
+		return this.firstName != null ? (this.fixNames ? this.computeFixedFirstName(OwlcmsSession.getLocale(), firstName) : this.firstName.trim()) : null;
 	}
 
 	@Transient
@@ -1894,7 +1962,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getFullId() {
-		String fullName = getFullName();
+		String fullName = computeRawFullName();
 		Category category2 = getCategory();
 		if (!fullName.isEmpty()) {
 			return fullName + " " + (category2 != null ? category2 : "");
@@ -1907,6 +1975,12 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getFullName() {
+		return fixNames ? getFixedName() : computeRawFullName();
+	}
+	
+	@Transient
+	@JsonIgnore
+	public String computeRawFullName() {
 		String upperCase = this.getLastName() != null ? this.getLastName().toUpperCase() : "";
 		String firstName2 = this.getFirstName() != null ? this.getFirstName() : "";
 		if ((upperCase != null) && !upperCase.trim().isEmpty() && (firstName2 != null)

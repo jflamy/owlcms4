@@ -744,6 +744,8 @@ public class BaseResults extends LitTemplate
 		this.setDisplay();
 	}
 
+	boolean iwfLook = Config.getCurrent().featureSwitch("iwfLook");
+	
 	protected void doUpdate(Athlete a, UIEvent e) {
 		// logger.trace("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() :
 		// "no event", a, a != null ?
@@ -765,7 +767,7 @@ public class BaseResults extends LitTemplate
 			if (a != null) {
 				Group group = fop != null ? fop.getGroup() : null;
 				if (group != null && !group.isDone()) {
-					if (isAbbreviatedName()) {
+					if (isAbbreviatedName() || (a.getFullName().length() >= 45)) {
 						this.getElement().setProperty("fullName",
 						        a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
 					} else {

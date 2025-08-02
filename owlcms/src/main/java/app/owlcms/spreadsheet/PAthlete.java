@@ -54,6 +54,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 		this.c = a2.getCategory();
 		this.p = a2.getMainRankings();
 		this.originalParticipation = this.p;
+		this.fixNames = fixNamesP();
 	}
 
 	public PAthlete(Participation p) {
@@ -61,6 +62,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 		this.c = p.getCategory();
 		this.p = new Participation(p, this.a, this.c);
 		this.originalParticipation = p;
+		this.fixNames = fixNamesP();
 	}
 
 	/**
