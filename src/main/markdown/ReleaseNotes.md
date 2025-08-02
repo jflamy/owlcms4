@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+59.1.0-beta03: fixed accidental delete of a spacer in beta02.
+
 59.1.0-beta02:  Fixed the scoreboard leader display when using score-based medals. to correctly process the "leaders from previous groups" option.
 
 59.1.0-beta02:  Fixed a problem with refreshing scoreboards due to ill-formed HTML in the template.
