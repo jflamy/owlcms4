@@ -166,10 +166,10 @@ class Results extends LitElement {
               : html``}
             ${this.leaders
               ? html`
-                <tr>
-                  <td class="filler" .style="grid-column: 1 / -1; ${this.fillerStyles()}"> &nbsp; </td>
-                </tr>
                 <tbody class="leaders" style="${this.leadersStyles()}">
+                  <tr>
+                    <td class="filler" .style="grid-column: 1 / -1; ${this.fillerStyles()}"> &nbsp; </td>
+                  </tr>
                   <tr class="head">
                     <td class="leaderTitle" .innerHTML="${(this.t?.Leaders ?? "") + " " + (this.categoryName ?? "")}"></td>
                   </tr>
