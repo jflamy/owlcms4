@@ -12,9 +12,15 @@
 
 <br>
 
+**Maintenance Log**
+
+59.1.0-beta02:  Fixed the scoreboard leader display when using score-based medals. to correctly process the "leaders from previous groups" option.
+
+59.1.0-beta02:  Fixed a problem with refreshing scoreboards due to ill-formed HTML in the template.
+
 **New in Release 59.1**
 
-59.1.0: The down signal/decision lights shown on the scoreboards are now properly styled as `flex`.  If you have customized your scoreboards,  adjust your `.athleteInfo .decisionBox`  and `.athleteInfo .timer` rules in your `results.css` to match the ones from the standard scoreboards.
+59.1.0: The down signal/decision lights shown on the scoreboards are now properly styled as `flex`.  If you have customized your scoreboards,  you should check your `results.css` and align your `.athleteInfo .decisionBox`  and `.athleteInfo .timer` rules to match the ones from the standard scoreboards.
 
 59.1.0: When the given names of athletes are provided in All Caps, they are now fixed to follow the usual capitalized first letter convention for each name. This is skipped for unicameral languages that don't make this distinction. A feature toggle `dontFixNames` is available to keep the All Caps if needed.
 

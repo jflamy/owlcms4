@@ -642,11 +642,11 @@ public class FieldOfPlay implements IUnregister {
 
 		if (getState() == BREAK && getBreakType() == BreakType.TEST_BUTTONS) {
 			FOPEvent.showEvent(e, this);
-			if (! (e instanceof FOPEvent.StartLifting || e instanceof FOPEvent.SwitchGroup)) {
+			if (!(e instanceof FOPEvent.StartLifting || e instanceof FOPEvent.SwitchGroup)) {
 				return;
 			}
 		}
-		
+
 		// ======= state-independent processing: the reaction does not depend on the
 		// state.
 
@@ -1181,17 +1181,17 @@ public class FieldOfPlay implements IUnregister {
 				        LoggerUtils.whereFrom());
 			}
 			List<Athlete> groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
-			
+
 			// catastrophic if weighed in but no category
 			List<Athlete> brokenAthletes = groupAthletes.stream().filter(a -> a.getCategory() == null).toList();
 			if (!brokenAthletes.isEmpty()) {
-		        pushOutUIEvent(new UIEvent.Notification(
-		        		null, this, Notification.Level.ERROR,
-		                "LoadingGroup.ErrorNoCategory", 0, this, 
-		                brokenAthletes.stream().map(a -> a.getShortName()).collect(Collectors.joining(","))));
+				pushOutUIEvent(new UIEvent.Notification(
+				        null, this, Notification.Level.ERROR,
+				        "LoadingGroup.ErrorNoCategory", 0, this,
+				        brokenAthletes.stream().map(a -> a.getShortName()).collect(Collectors.joining(","))));
 			}
-			
-			groupAthletes = groupAthletes.stream().filter(a -> a.getCategory() != null).toList();			
+
+			groupAthletes = groupAthletes.stream().filter(a -> a.getCategory() != null).toList();
 
 			// skip if session is already in progress (forceLoad == false)
 			if (forceLoad && groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
@@ -2354,21 +2354,21 @@ public class FieldOfPlay implements IUnregister {
 		if (getCurAthlete() != null && getCurAthlete().getAgeGroup() != null && getCurAthlete().getAgeGroup().getComputedScoringSystem() != Ranking.TOTAL) {
 			// compute leaders according to score.
 			Category category = getCurAthlete().getCategory();
-			List<Athlete> medalists = getMedals().get(category.getCode());
-			List<Athlete> scoreMedalists = medalists.stream().filter(a -> {
-				int r = a.getCategoryScoreRank();
-				return r <= 3 && r > 0;
-			}).collect(Collectors.toList());
-			// logger.debug("total medalists {}", totalMedalists);
-			setLeaders(scoreMedalists);
+			List<Athlete> scoreMedalists = getMedals().get(category.getCode());
+
+			if (!Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
+				previousGroupScoreLeaders(scoreMedalists);
+			} else {
+				medalistScoreLeaders(scoreMedalists);
+			}
 		} else if (getCurAthlete() != null) {
 			Category category = getCurAthlete().getCategory();
 			List<Athlete> medalists = getMedals().get(category.getCode());
-			
-			if (! Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
-				previousGroupLeaders(medalists);	
+
+			if (!Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
+				previousGroupLeaders(medalists);
 			} else {
-				medalistLeaders(medalists);	
+				medalistLeaders(medalists);
 			}
 		} else {
 			setLeaders(null);
@@ -2419,14 +2419,14 @@ public class FieldOfPlay implements IUnregister {
 			return group2 != null && group3 != null && !group3.equals(group2);
 		}).toList();
 		List<Athlete> snatchMedalists = medalists.stream()
-				.sorted((a, b) -> ObjectUtils.compare(a.getSnatchRank(), b.getSnatchRank()))
-				.limit(3)
-				.collect(Collectors.toList());
+		        .sorted((a, b) -> ObjectUtils.compare(a.getSnatchRank(), b.getSnatchRank()))
+		        .limit(3)
+		        .collect(Collectors.toList());
 		// logger.debug("snatch previous {}", snatchMedalists);
 		List<Athlete> totalMedalists = medalists.stream()
-				.sorted((a, b) -> ObjectUtils.compare(a.getTotalRank(), b.getTotalRank()))
-				.limit(3)
-				.collect(Collectors.toList());
+		        .sorted((a, b) -> ObjectUtils.compare(a.getTotalRank(), b.getTotalRank()))
+		        .limit(3)
+		        .collect(Collectors.toList());
 		// logger.debug("total previous {}", totalMedalists);
 
 		if (!isCjStarted()) {
@@ -2438,6 +2438,27 @@ public class FieldOfPlay implements IUnregister {
 				setLeaders(snatchMedalists);
 			}
 		}
+	}
+
+	public void medalistScoreLeaders(List<Athlete> medalists) {
+		List<Athlete> scoreMedalists = medalists.stream().filter(a -> {
+			int r = a.getCategoryScoreRank();
+			return r <= 3 && r > 0;
+		}).collect(Collectors.toList());
+		setLeaders(scoreMedalists);
+	}
+
+	public void previousGroupScoreLeaders(List<Athlete> medalists) {
+		medalists = medalists.stream().filter(m -> {
+			Group group2 = this.getGroup();
+			Group group3 = m.getGroup();
+			return group2 != null && group3 != null && !group3.equals(group2);
+		}).toList();
+		List<Athlete> scoreMedalists = medalists.stream()
+		        .sorted((a, b) -> ObjectUtils.compare(a.getCategoryScoreRank(), b.getCategoryScoreRank()))
+		        .limit(3)
+		        .collect(Collectors.toList());
+		setLeaders(scoreMedalists);
 	}
 
 	private void recomputeLeadersAndRecords(List<Athlete> athletes) {
@@ -3263,7 +3284,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void unexpectedEventInState(FOPEvent e, FOPState state) {
-	
+
 		// events not worth signaling
 		if (e instanceof DecisionReset || e instanceof DecisionFullUpdate) {
 			// ignore
