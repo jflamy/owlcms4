@@ -173,6 +173,9 @@ class Results extends LitElement {
 				  <tr class="head">
 				    <td class="leaderTitle" .innerHTML="${(this.t?.Leaders ?? "") + " " + (this.categoryName ?? "")}"></td>
 				  </tr>
+                  <tr>
+                    <td class="headerSpacer" innerHTML="&nbsp;" style="${"grid-column: 1 / -1; justify-content: left; " + this.leadingAthleteStyles()}"></td>
+                  </tr>
                   ${(this.leaders ?? []).map(
                     (item, index) =>
                       html`
