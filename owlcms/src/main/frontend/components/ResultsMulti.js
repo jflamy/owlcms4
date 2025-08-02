@@ -320,12 +320,12 @@ class ResultsFull extends LitElement {
                         </div>
                       `)}
                   <div class="${"recordNotification " + (this.recordKind ?? "")}"> ${this.recordMessage} </div>
-                  <div style="position: absolute; bottom: 2em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+                  <div style="position: absolute; bottom: 2em; right: 2em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
                 </div>
               </div>
             `
             : html`<div style="${this.bottomSpacerStyles()}">&nbsp;
-              <div style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: thin; font-size: 0.9em;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+              <div style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
             `}
         </div>
