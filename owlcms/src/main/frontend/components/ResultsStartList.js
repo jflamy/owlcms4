@@ -115,6 +115,7 @@ class ResultsStartList extends LitElement {
               `
               : html``}
           </table>
+          <div class="branding" style="position: absolute; bottom: 0.5em; right: 2em; align-items: center; font-weight: 100; font-size: 1.6vh; line-height: 1.25em"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
         </div>
       </div>
     `;
