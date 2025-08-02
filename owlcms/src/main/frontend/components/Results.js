@@ -166,16 +166,13 @@ class Results extends LitElement {
               : html``}
             ${this.leaders
               ? html`
-                <tr>
-                  <td class="filler" .style="grid-column: 1 / -1; ${this.fillerStyles()}"> &nbsp; </td>
-                </tr>
                 <tbody class="leaders" style="${this.leadersStyles()}">
-                  <tr class="head">
-                    <td class="leaderTitle" .innerHTML="${(this.t?.Leaders ?? "") + " " + (this.categoryName ?? "")}"></td>
-                  </tr>
                   <tr>
-                    <td class="headerSpacer" innerHTML="&nbsp;" style="${"grid-column: 1 / -1; justify-content: left; " + this.leadingAthleteStyles()}"></td>
+                    <td class="filler" style="grid-column: 1 / -1; ${this.fillerStyles()}"> &nbsp; </td>
                   </tr>
+				  <tr class="head">
+				    <td class="leaderTitle" .innerHTML="${(this.t?.Leaders ?? "") + " " + (this.categoryName ?? "")}"></td>
+				  </tr>
                   ${(this.leaders ?? []).map(
                     (item, index) =>
                       html`
@@ -430,7 +427,7 @@ class Results extends LitElement {
   }
 
   fillerStyles() { // was display:flex
-    return this.showLeaders && this.mode !== "WAIT" ? " display:grid" : " display:none";
+    return (this.showLeaders && this.mode !== "WAIT") ? " display:grid" : " display:none";
   }
 
   recordsStyles() {

@@ -608,6 +608,7 @@ public class BaseResults extends LitTemplate
 			if (curAthlete == null) {
 				this.getElement().setPropertyJson("leaders", Json.createNull());
 				setBottomSize(1);
+				return;
 			}
 			if (curAthlete.getGender() != null) {
 				this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
