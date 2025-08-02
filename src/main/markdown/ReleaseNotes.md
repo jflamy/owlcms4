@@ -14,6 +14,10 @@
 
 **New in Release 59.1**
 
+59.1.0: The down signal/decision lights shown on the scoreboards are now properly styled as `flex`.  If you have customized your scoreboards,  adjust your `.athleteInfo .decisionBox`  and `.athleteInfo .timer` rules in your `results.css` to match the ones from the standard scoreboards.
+
+59.1.0: When the given names of athletes are provided in All Caps, they are now fixed to follow the usual capitalized first letter convention for each name. This is skipped for unicameral languages that don't make this distinction. A feature toggle `dontFixNames` is available to keep the All Caps if needed.
+
 59.1.0: A Start List scoreboard is available for streaming.  Also available as a public scoreboard, useful if a large LED wall is present.
 
 **New in Release 59.0**
