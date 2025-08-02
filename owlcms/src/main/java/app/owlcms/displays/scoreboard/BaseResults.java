@@ -568,7 +568,7 @@ public class BaseResults extends LitTemplate
 			if (ageGroupScoringSystem == Ranking.TOTAL) {
 				score = value > 0.001 ? String.format("%.0f", value) : "-";
 			} else {
-				score = value > 0.001 ? String.format("%.3f", value) : "+";
+				score = value > 0.001 ? String.format("%.3f", value) : "-";
 			}
 			return score;
 		} else {
