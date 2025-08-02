@@ -625,22 +625,23 @@ td {
 }
 
 .athleteInfo .timer {
-    flex: 0 0 15%;
     text-align: end;
     font-weight: bold;
-    width: 10vw;
+    width: 5em;
+    height: 1.5em;
     display: flex;
     justify-content: flex-end;
 }
 
 .athleteInfo .decisionBox {
-    position: fixed;
     inset-block-start: 1vmin;
-    inset-inline-end: 2vmin;
-    width: 15vw;
-    height: 2.6em;
-    background-color: var(--pageBackgroundColor);
+    inset-inline-end: 1vmin;
+    width: 5em;
+    height: 1.5em;
+    background-color: transparent;
     display: none;
+    align-self: center;
+    z-index: 10;
 }
 
 .group {
