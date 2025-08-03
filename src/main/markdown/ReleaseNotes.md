@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+59.0.4: The Team Score scoreboard was not updating the mixed section on every lift if that section was the only one selected.
+
 59.0.3: Fixed leader display on scoreboard (incorrect HTML was sometimes visible at the bottom of the screen, even when there were no leaders to be shown)
 
 59.0.2: Fix: When using the default "nogrid" style for video or public scoreboards, a filler was missing causing the scoreboard to look bad.
