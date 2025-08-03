@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+59.1.0-beta04: The Team Score scoreboard was not updating the mixed section on every lift if that section was the only one selected.
+
 59.1.0-beta03: fixed accidental delete of a spacer in beta02.
 
 59.1.0-beta02:  Fixed the scoreboard leader display when using score-based medals. to correctly process the "leaders from previous groups" option.
