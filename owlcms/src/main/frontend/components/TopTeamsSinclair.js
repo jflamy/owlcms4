@@ -95,8 +95,10 @@ class TopTeamsSinclair extends LitElement {
       title: {},
       topTeamsMen: {},
       topTeamsWomen: {},
+      topTeamsMixed: {},
       mensTeams: {type: Object},
       womensTeams: {type: Object},
+      mixedTeams: {type: Object},
       // style sheets & misc.
       javaComponentId: {},
       stylesDir: {},
