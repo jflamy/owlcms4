@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+59.1.0-beta04: Multi-rank scoreboard works for Masters (see below)
+
 59.1.0-beta04: The Team Score scoreboard was not updating the mixed section on every lift if that section was the only one selected.
 
 59.1.0-beta03: fixed accidental delete of a spacer in beta02.
@@ -24,7 +26,7 @@
 
 **New in Release 59.1**
 
-59.1.0: The multiple age groups scoreboard now works for Masters if there are simultaneous championships (one column per championship, as opposed to one column per the many age groups)
+59.1.0: The multiple age groups scoreboard now works for Masters if there are multiple championships (for example, national and regional.) There will be one column per championship, as opposed to one column for each of the Masters multiple age groups.
 
 59.1.0: The down signal/decision lights shown on the scoreboards are now properly styled as `flex`.  If you have customized your scoreboards,  you should check your `results.css` and align your `.athleteInfo .decisionBox`  and `.athleteInfo .timer` rules to match the ones from the standard scoreboards.
 
