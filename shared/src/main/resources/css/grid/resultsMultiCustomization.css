@@ -37,9 +37,9 @@
     --custom2Width: 0;
     --custom2Visibility: hidden;
 
-    --rankWidth: var(--liftResultWidth);
+    --rankWidth: min-content;
     --rankVisibility: visible;
-    --totalRankWidth: var(--liftResultWidth);
+    --totalRankWidth: min-content;
     --totalRankVisibility: visible;
 
     /*

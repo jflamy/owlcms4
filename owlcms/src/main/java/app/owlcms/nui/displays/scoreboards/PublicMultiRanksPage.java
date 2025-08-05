@@ -78,10 +78,12 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 	protected void init() {
 		this.logger = (Logger) LoggerFactory.getLogger(PublicScoreboardPage.class);
 		this.uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
+		
+		logger.warn("init-----------------------");
 
 		// each subclass must override this routine.
 		// otherwise we end up with multiple instances of the Results board.
-		var board = new ResultsMultiRanks();
+		ResultsMultiRanks board = new ResultsMultiRanks();
 		this.setMedalsBoard(new ResultsMedals());
 		this.setBoard(board);
 		this.setResultsBoard(board);

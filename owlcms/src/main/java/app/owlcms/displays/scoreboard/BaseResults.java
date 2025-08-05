@@ -302,7 +302,7 @@ public class BaseResults extends LitTemplate
 
 	@Override
 	public final void setEmFontSize(Double emFontSize) {
-		logger.warn("%%%%% setEmFontSize {}", emFontSize);
+		logger.debug("%%%%% setEmFontSize {}", emFontSize);
 		this.emFontSize = emFontSize;
 		pushEmSize(this.getElement());
 	}
@@ -1158,6 +1158,7 @@ public class BaseResults extends LitTemplate
 		}
 
 		updateGroupInfo(liftType);
+		// getAgeGroupNamesJson must be called before getAthletesJson
 		this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
 		this.getElement().setPropertyJson("athletes",
 		        getAthletesJson(this.displayOrder, fop.getLiftingOrder(), fop));

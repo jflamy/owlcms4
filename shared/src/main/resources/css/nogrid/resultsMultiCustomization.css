@@ -37,9 +37,9 @@
     --custom2Width: 0;
     --custom2Visibility: hidden;
 
-    --rankWidth: var(--liftResultWidth);
+    --rankWidth: min-content;
     --rankVisibility: visible;
-    --totalRankWidth: var(--liftResultWidth);
+    --totalRankWidth: min-content;
     --totalRankVisibility: visible;
 
     --bestWidth: 0;
@@ -63,6 +63,27 @@
 
     /* flag height */
     --flagHeight: calc(var(--athleteNameFontSize)*1.4);
+}
+
+table.results.ranks {
+    --rankWidth: min-content;
+    --rankVisibility: visible;
+}
+
+table.results.noranks {
+    --rankWidth: 0;
+    --rankVisibility: hidden;
+}
+
+table.results.totalRank {
+    /* do not use rankWidth since we set it to 0 */
+    --totalRankWidth: min-content;
+    --totalRankVisibility: visible;
+}
+
+table.results.nototalRank {
+    --totalRankWidth: 0;
+    --totalRankVisibility: hidden;
 }
 
 @media screen and (orientation: landscape) {

@@ -35,10 +35,15 @@ public class WarmupMultiRanksPage extends AbstractResultsDisplayPage {
 	public String getPageTitle() {
 		return Translator.translate("ScoreboardMultiRanksTitle") + OwlcmsSession.getFopNameIfMultiple();
 	}
+	
 
 	@Override
 	protected void init() {
-		var board = new ResultsMultiRanks();
+		this.logger = (Logger) LoggerFactory.getLogger(PublicScoreboardPage.class);
+
+		// each subclass must override this routine.
+		// otherwise we end up with multiple instances of the Results board.
+		ResultsMultiRanks board =  new ResultsMultiRanks();
 		this.setBoard(board);
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
