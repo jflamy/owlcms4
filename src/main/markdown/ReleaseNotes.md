@@ -24,6 +24,8 @@
 
 **New in Release 59.1**
 
+59.1.0: The multiple age groups scoreboard now works for Masters if there are simultaneous championships (one column per championship, as opposed to one column per the many age groups)
+
 59.1.0: The down signal/decision lights shown on the scoreboards are now properly styled as `flex`.  If you have customized your scoreboards,  you should check your `results.css` and align your `.athleteInfo .decisionBox`  and `.athleteInfo .timer` rules to match the ones from the standard scoreboards.
 
 59.1.0: When the given names of athletes are provided in All Caps, they are now fixed to follow the usual capitalized first letter convention for each name. This is skipped for unicameral languages that don't make this distinction. A feature toggle `dontFixNames` is available to keep the All Caps if needed.
