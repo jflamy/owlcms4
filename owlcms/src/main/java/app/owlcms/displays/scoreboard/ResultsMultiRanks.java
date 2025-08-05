@@ -26,6 +26,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
@@ -248,7 +249,13 @@ public class ResultsMultiRanks extends Results {
 	}
 	
 	private String getColumnName(AgeGroup ag) {
-		var championshipName = (this.getFop().getGroup().isMasters()
+		var group2 = this.getFop() != null ? getFop().getGroup() : null;
+		if (group2 == null) {
+			// can't happen, and if somehow it does this will not be matched
+			logger.error("getColumnName called with no active FOP {}",LoggerUtils.whereFrom());
+			return "-";
+		}
+		var championshipName = (group2.isMasters()
 				|| Config.getCurrent().featureSwitch("championshipGrouping")) ? ag.computeChampionshipName() : ag.getCode();
 		return championshipName;
 	}

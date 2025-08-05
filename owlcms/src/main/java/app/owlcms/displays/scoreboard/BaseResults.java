@@ -627,7 +627,7 @@ public class BaseResults extends LitTemplate
 					// null as second argument because we do not highlight current athletes in the
 					// leaderboard
 					this.getElement().setPropertyJson("leaders", getAthletesJson(this.displayOrder, null, fop));
-					setBottomSize(this.displayOrder.size() + 2); // spacer + title 
+					setBottomSize(this.displayOrder.size() + 2); // spacer + title
 				} else {
 					// nothing to show
 					this.getElement().setPropertyJson("leaders", Json.createNull());
@@ -638,23 +638,23 @@ public class BaseResults extends LitTemplate
 	}
 
 	/**
-	 * For TV and Public scoreboards, the leaderboard is not pushed down to the bottom.
-	 * The last line of the grid is not present because this leads to too much space
+	 * For TV and Public scoreboards, the leaderboard is not pushed down to the bottom. The last line of the grid is not present because this leads to too much
+	 * space
 	 * 
 	 * @param normal
 	 */
 	public void setBottomSize(int normal) {
 		// we stretch video and TV ONLY when using the old standard nogrid or grid styles, or if the corresponding "stretch" feature toggle is present
 		if (this.isPublicDisplay() || this.isVideo()) {
-//			logger.debug("isPublicDisplay {} {} {} {}",
-//					isPublicDisplay(),
-//					Config.getCurrent().getParamPublicStylesDir().endsWith("grid"),
-//					Config.getCurrent().featureSwitch("stretchPublic"),
-//					(isPublicDisplay() && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchPublic")))
-//					);
-			boolean noStretch = 
-					(isPublicDisplay() && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchPublic"))) 
-					|| (isVideo() && !(Config.getCurrent().getParamVideoStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchVideo")));
+			// logger.debug("isPublicDisplay {} {} {} {}",
+			// isPublicDisplay(),
+			// Config.getCurrent().getParamPublicStylesDir().endsWith("grid"),
+			// Config.getCurrent().featureSwitch("stretchPublic"),
+			// (isPublicDisplay() && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchPublic")))
+			// );
+			boolean noStretch = (isPublicDisplay()
+			        && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchPublic")))
+			        || (isVideo() && !(Config.getCurrent().getParamVideoStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchVideo")));
 			// noStretch = no filler line to push the leaderboard down
 			this.getElement().setProperty("leaderLines", normal - (noStretch ? 1 : 0));
 		} else {
@@ -746,7 +746,7 @@ public class BaseResults extends LitTemplate
 	}
 
 	boolean iwfLook = Config.getCurrent().featureSwitch("iwfLook");
-	
+
 	protected void doUpdate(Athlete a, UIEvent e) {
 		// logger.trace("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() :
 		// "no event", a, a != null ?
@@ -1103,10 +1103,10 @@ public class BaseResults extends LitTemplate
 			List<Athlete> athletes = fop.getDisplayOrder();
 			if (athletes != null && athletes.size() > 0) {
 				boolean any = athletes.stream()
-						.map(a -> a.getAgeGroup())
-						.filter(ageGroup -> ageGroup != null)
-						.map(agegroup -> agegroup.getComputedScoringSystem())
-						.anyMatch(s -> s != Ranking.TOTAL);
+				        .map(a -> a.getAgeGroup())
+				        .filter(ageGroup -> ageGroup != null)
+				        .map(agegroup -> agegroup.getComputedScoringSystem())
+				        .anyMatch(s -> s != Ranking.TOTAL);
 				scoring[0] = any;
 			}
 		});
@@ -1159,7 +1159,9 @@ public class BaseResults extends LitTemplate
 
 		updateGroupInfo(liftType);
 		// getAgeGroupNamesJson must be called before getAthletesJson
-		this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
+		if (fop.getGroup() != null) {
+			this.getElement().setPropertyJson("ageGroups", getAgeGroupNamesJson(fop.getAgeGroupMap()));
+		}
 		this.getElement().setPropertyJson("athletes",
 		        getAthletesJson(this.displayOrder, fop.getLiftingOrder(), fop));
 
