@@ -67,6 +67,22 @@
     --flagHeight: 2.7vh;
 }
 
+table.results.ranks {
+    --rankWidth: min-content;
+    --rankVisibility: visible;
+}
+
+table.results.noranks {
+    --rankWidth: 0;
+    --rankVisibility: hidden;
+}
+
+table.results.totalRank {
+    /* do not use rankWidth since we set it to 0 */
+    --totalRankWidth: min-content;
+    --totalRankVisibility: visible;
+}
+
 :host .light table.results {
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0.25vh;
