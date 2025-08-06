@@ -88,7 +88,7 @@ class ResultsFull extends LitElement {
                     <th class="vspacer"></th>
                     <th style="grid-column: span calc(3 + ${this.nbRanks} + 1);" .innerHTML="${this.t?.Clean_and_Jerk}" ></th>
                     <th class="vspacer"></th>
-                    <th style="grid-column: span calc(1 + ${this.nbRanks});" .innerHTML="${this.t?.Total}" ></th>
+                    <th style="grid-column: span calc(1 + ${this.nbRanks});" .innerHTML="${this.t?.Ranks}" ></th>
                     <th class="sinclair" style="grid-row: span 2">
                       <div style="display: grid; align-self: center" .innerHTML="${this.t?.ScoringTitle}" ></div>
                     </th>

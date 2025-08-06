@@ -67,6 +67,9 @@ public class ResultsMultiRanks extends Results {
 
 	@Override
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+		boolean bestScore = Config.getCurrent().featureSwitch("displayBestScore");
+		boolean bestScoreRank = Config.getCurrent().featureSwitch("displayBestScoreRank");
+		
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
 		String fullName;
@@ -97,9 +100,11 @@ public class ResultsMultiRanks extends Results {
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 
-		if (a.getComputedScoringSystem() != Ranking.TOTAL) {
+		if (a.getComputedScoringSystem() != Ranking.TOTAL || bestScore || bestScoreRank) {
 			ja.put("sinclair", computedScore(a));
-			ja.put("sinclairRank", computedScoreRank(a));
+			if (bestScoreRank) {
+				ja.put("sinclairRank", computedScoreRank(a));
+			}
 		}
 
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
@@ -127,11 +132,12 @@ public class ResultsMultiRanks extends Results {
 	}
 
 	private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
+		logger.warn("************* a {} r {}", a.getShortName(), r);
 		JsonArray ranks = Json.createArray();
 		int i = 0;
 		for (Entry<String, Participation> e : this.getAgeGroupMap().entrySet()) {
 			Participation p = e.getValue();
-			// logger,debug("a {} k {} v {}", a.getShortName(), e.getKey(), p);
+			logger.warn("a {} k {} v {}", a.getShortName(), e.getKey(), p);
 			if (p == null) {
 				ranks.set(i, formatRank(null));
 			} else {
@@ -143,9 +149,10 @@ public class ResultsMultiRanks extends Results {
 						ranks.set(i, formatRank(p.getSnatchRank()));
 						break;
 					case TOTAL:
-						ranks.set(i, formatRank(p.getTotalRank()));
+						ranks.set(i, formatRank(p.getCategoryScoreRank()));
 						break;
 					default:
+						ranks.set(i, formatRank(p.getCategoryScoreRank()));
 						break;
 				}
 			}

@@ -566,14 +566,14 @@ public class BaseResults extends LitTemplate
 			double value = Ranking.getRankingValue(a, Ranking.CATEGORY_SCORE);
 			String score;
 			if (ageGroupScoringSystem == Ranking.TOTAL) {
-				score = value > 0.001 ? String.format("%.0f", value) : "-";
+				score = value > 0.001 ? String.format("%.0f", value) : "\u2013";
 			} else {
-				score = value > 0.001 ? String.format("%.3f", value) : "-";
+				score = value > 0.001 ? String.format("%.3f", value) : "\u2013";
 			}
 			return score;
 		} else {
 			double value = Ranking.getRankingValue(a, scoringSystem);
-			String score = value > 0.001 ? String.format("%.3f", value) : "*";
+			String score = value > 0.001 ? String.format("%.3f", value) : "\u2013";
 			return score;
 		}
 	}
@@ -857,7 +857,11 @@ public class BaseResults extends LitTemplate
 
 		if (a.getComputedScoringSystem() != Ranking.TOTAL || bestScore || bestScoreRank) {
 			ja.put("sinclair", computedScore(a));
-			ja.put("sinclairRank", computedScoreRank(a));
+			if (bestScoreRank) {
+				ja.put("sinclairRank", computedScoreRank(a));
+			} else {
+				ja.put("sinclairRank", a.getBestLifterRank());
+			}
 		}
 
 		boolean notDone = a.getAttemptsDone() < 6;
@@ -1116,6 +1120,11 @@ public class BaseResults extends LitTemplate
 		this.getElement().setProperty("showSinclair", showScore);
 
 		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks() || Competition.getCurrent().isSinclair();
+		if (Config.getCurrent().featureSwitch("noSinclairRank")) {
+			showScoreRank = false;
+		} else 	if (Config.getCurrent().featureSwitch("displayBestScoreRank")) {
+			showScoreRank = true;
+		}
 		this.getElement().setProperty("showSinclairRank", showScoreRank);
 
 		this.displayOrder = ImmutableList.of();
