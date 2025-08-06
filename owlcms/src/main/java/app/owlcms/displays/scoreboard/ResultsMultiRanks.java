@@ -224,7 +224,8 @@ public class ResultsMultiRanks extends Results {
 	}
 
 	public boolean isChampionshipRanks() {
-		return Config.getCurrent().featureSwitch("championshipGrouping") || getGroup().isMasters();
+		var group2 = getGroup();
+		return Config.getCurrent().featureSwitch("championshipGrouping") || (group2 != null && group2.isMasters());
 	}
 
 	

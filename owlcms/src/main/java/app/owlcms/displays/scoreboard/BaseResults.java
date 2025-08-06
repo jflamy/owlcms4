@@ -1298,6 +1298,9 @@ public class BaseResults extends LitTemplate
 	}
 
 	private void syncWithFOP(UIEvent.SwitchGroup e) {
+		var fop = e.getFop();
+		setFop(fop);
+		setGroup(fop != null ? fop.getGroup() : null);
 		switch (e.getFop().getState()) {
 			case INACTIVE:
 				doEmpty();

@@ -94,7 +94,7 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 					Throwable t = errorEvent.getThrowable();
 					if (!(t instanceof StopProcessingException) && !(t instanceof EofException)) {
 						LoggerFactory.getLogger("app.owlcms.errorHandler").warn("{}\n{}", t.toString(),
-						        LoggerUtils.shortStackTrace(t));
+						        LoggerUtils.stackTrace(t));
 					}
 				}
 			};
