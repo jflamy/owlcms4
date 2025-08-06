@@ -85,6 +85,15 @@ table.results.totalRank {
     --totalRankVisibility: visible;
 }
 
+table.results.sinclair.sinclairRank {
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+table.results.sinclair {
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+}
+
 @media screen and (orientation: landscape) {
 	* {
 		--topRowFontSize: 2.0em;
