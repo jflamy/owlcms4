@@ -88,9 +88,12 @@ class ResultsFull extends LitElement {
                     <th class="vspacer"></th>
                     <th style="grid-column: span calc(3 + ${this.nbRanks} + 1);" .innerHTML="${this.t?.Clean_and_Jerk}" ></th>
                     <th class="vspacer"></th>
-                    <th style="grid-column: span calc(1 + ${this.nbRanks});" .innerHTML="${this.t?.Total}" ></th>
+                    <th style="grid-row: span 2">
+                      <div style="display: grid; align-self: center" .innerHTML="${this.t?.Total}" ></div>
+                    </th>
+                    <th style="grid-column: span calc(${this.nbRanks});" .innerHTML="${this.t?.RANKINGS}" ></th>
                     <th class="sinclair" style="grid-row: span 2">
-                      <div style="display: grid; align-self: center" .innerHTML="${this.t?.ScoringTitle}" ></div>
+                      <div style="display: grid; align-self: center" .innerHTML="${this.scoringName}" ></div>
                     </th>
                     <th class="sinclairRank" style="grid-row: span 2" .innerHTML="${this.t?.Rank}" ></th>
                   </tr>
@@ -115,7 +118,6 @@ class ResultsFull extends LitElement {
                         <th class="rank">${item}</th>
                       `)}
                     <th class="vspacer"></th>
-                    <th class="narrow" .innerHTML="${this.t?.Total}"></th>
                     ${(this.ageGroups ?? []).map(
                       (item) => 
                         html`

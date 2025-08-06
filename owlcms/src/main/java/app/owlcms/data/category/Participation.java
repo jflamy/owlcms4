@@ -146,9 +146,9 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getCategoryScoreRank() {
-		int rank = Ranking.getRanking(athlete, this.getCategory().getAgeGroup().getComputedScoringSystem());
-		return rank;
-		//return this.categoryScoreRank;
+//		int rank = Ranking.getRanking(athlete, this.getCategory().getAgeGroup().getComputedScoringSystem());
+//		return rank;
+		return this.categoryScoreRank;
 	}
 
 	@Transient

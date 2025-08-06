@@ -69,7 +69,7 @@ public class ResultsMultiRanks extends Results {
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		boolean bestScore = Config.getCurrent().featureSwitch("displayBestScore");
 		boolean bestScoreRank = Config.getCurrent().featureSwitch("displayBestScoreRank");
-		
+
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
 		String fullName;
@@ -101,9 +101,15 @@ public class ResultsMultiRanks extends Results {
 		ja.put("subCategory", a.getSubCategory());
 
 		if (a.getComputedScoringSystem() != Ranking.TOTAL || bestScore || bestScoreRank) {
-			ja.put("sinclair", computedScore(a));
-			if (bestScoreRank) {
-				ja.put("sinclairRank", computedScoreRank(a));
+			if (bestScore || bestScoreRank) {
+				var value =  a.getBestLifterScore();
+				var score = value > 0.001 ? String.format("%.3f", value) : "\u2013";
+				ja.put("sinclair", score);
+				if (bestScoreRank) {
+					ja.put("sinclairRank", a.getBestLifterRank());
+				}
+			} else {
+				ja.put("sinclair", computedScore(a));
 			}
 		}
 
@@ -132,12 +138,10 @@ public class ResultsMultiRanks extends Results {
 	}
 
 	private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
-		logger.warn("************* a {} r {}", a.getShortName(), r);
 		JsonArray ranks = Json.createArray();
 		int i = 0;
 		for (Entry<String, Participation> e : this.getAgeGroupMap().entrySet()) {
 			Participation p = e.getValue();
-			logger.warn("a {} k {} v {}", a.getShortName(), e.getKey(), p);
 			if (p == null) {
 				ranks.set(i, formatRank(null));
 			} else {
@@ -160,7 +164,7 @@ public class ResultsMultiRanks extends Results {
 		}
 		return ranks;
 	}
-	
+
 	private void setCurrentAthleteRanks(Athlete a) {
 		if (isChampionshipRanks()) {
 			setCurrentAthleteChampionshipRanks(a);
@@ -192,7 +196,7 @@ public class ResultsMultiRanks extends Results {
 			}
 		});
 	}
-	
+
 	private void setCurrentAthleteChampionshipRanks(Athlete a) {
 		OwlcmsSession.withFop(fop -> {
 			// ensure that the columns are in the same order as the header
@@ -204,7 +208,7 @@ public class ResultsMultiRanks extends Results {
 				for (Participation p : a.getParticipations()) {
 					AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
 					if (ag != null) {
-						//logger.debug("athlete {} ag {} column {} p {}", a, ag.getCode(), getColumnName(ag), p);
+						// logger.debug("athlete {} ag {} column {} p {}", a, ag.getCode(), getColumnName(ag), p);
 						getAgeGroupMap().put(getColumnName(ag), p);
 					}
 				}
@@ -213,13 +217,13 @@ public class ResultsMultiRanks extends Results {
 			}
 		});
 	}
-	
+
 	@Override
 	protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
 		if (isChampionshipRanks()) {
 			return getChampionshipNamesJson(currentAthleteParticipations);
 		}
-		
+
 		JsonArray ageGroups = Json.createArray();
 		int i = 0;
 		for (Entry<String, Participation> e : OwlcmsSession.getFop().getAgeGroupMap().entrySet()) {
@@ -235,11 +239,10 @@ public class ResultsMultiRanks extends Results {
 		return Config.getCurrent().featureSwitch("championshipGrouping") || (group2 != null && group2.isMasters());
 	}
 
-	
 	private JsonArray getChampionshipNamesJson(LinkedHashMap<String, Participation> agMap) {
 		// temporary
 		var ag2 = new LinkedHashMap<String, Participation>();
-		//setAgeGroupMap(new LinkedHashMap<String, Participation>(agMap));
+		// setAgeGroupMap(new LinkedHashMap<String, Participation>(agMap));
 		JsonArray ageGroups = Json.createArray();
 		int i = 0;
 		for (Entry<String, Participation> e : agMap.entrySet()) {
@@ -247,7 +250,7 @@ public class ResultsMultiRanks extends Results {
 			String championshipName = getColumnName(ag);
 			if (!ag2.containsKey(championshipName)) {
 				ageGroups.set(i, championshipName);
-				ag2.put(championshipName,null);
+				ag2.put(championshipName, null);
 				i++;
 			}
 		}
@@ -255,16 +258,16 @@ public class ResultsMultiRanks extends Results {
 		getElement().setProperty("nbRanks", "" + i);
 		return ageGroups;
 	}
-	
+
 	private String getColumnName(AgeGroup ag) {
 		var group2 = this.getFop() != null ? getFop().getGroup() : null;
 		if (group2 == null) {
 			// can't happen, and if somehow it does this will not be matched
-			logger.error("getColumnName called with no active FOP {}",LoggerUtils.whereFrom());
+			logger.error("getColumnName called with no active FOP {}", LoggerUtils.whereFrom());
 			return "-";
 		}
 		var championshipName = (group2.isMasters()
-				|| Config.getCurrent().featureSwitch("championshipGrouping")) ? ag.computeChampionshipName() : ag.getCode();
+		        || Config.getCurrent().featureSwitch("championshipGrouping")) ? ag.computeChampionshipName() : ag.getCode();
 		return championshipName;
 	}
 
@@ -273,7 +276,7 @@ public class ResultsMultiRanks extends Results {
 	}
 
 	protected void setAgeGroupMap(LinkedHashMap<String, Participation> ageGroupMap) {
-		//logger.debug("ageGroupMap {} {}", ageGroupMap, LoggerUtils.whereFrom());
+		// logger.debug("ageGroupMap {} {}", ageGroupMap, LoggerUtils.whereFrom());
 		this.ageGroupMap = ageGroupMap;
 	}
 }
