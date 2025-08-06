@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+59.1.0-beta07: Improved the multi-rank scoreboard, better layout of the Rankings.
+
 59.1.0-beta06: Fixed root cause of scoreboards not having session correctly initialized.
 
 59.1.0-beta06: Hide scoring information from multi-rank scoreboard, until proper fix is made to show a best lifter score for all athletes on that scoreboard.
