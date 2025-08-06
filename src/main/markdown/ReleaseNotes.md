@@ -14,6 +14,10 @@
 
 **Maintenance Log**
 
+59.1.0-beta06: Fixed root cause of scoreboards not having session correctly initialized.
+
+59.1.0-beta06: Hide scoring information from multi-rank scoreboard, until proper fix is made to show a best lifter score for all athletes on that scoreboard.
+
 59.1.0-beta05: Additional shielding for Multi-rank scoreboard called with no session active.
 
 59.1.0-beta04: Multi-rank scoreboard works for Masters (see below)
