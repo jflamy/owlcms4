@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+59.1.0-beta05: Additional shielding for Multi-rank scoreboard called with no session active.
+
 59.1.0-beta04: Multi-rank scoreboard works for Masters (see below)
 
 59.1.0-beta04: The Team Score scoreboard was not updating the mixed section on every lift if that section was the only one selected.
