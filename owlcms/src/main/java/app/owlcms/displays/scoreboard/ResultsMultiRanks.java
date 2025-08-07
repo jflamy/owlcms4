@@ -207,7 +207,7 @@ public class ResultsMultiRanks extends Results {
 				// logger,debug("setting {}", a.getShortName());
 				for (Participation p : a.getParticipations()) {
 					AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
-					if (ag != null) {
+					if (ag != null && Boolean.TRUE.equals(ag.getMedals())) {
 						// logger.debug("athlete {} ag {} column {} p {}", a, ag.getCode(), getColumnName(ag), p);
 						getAgeGroupMap().put(getColumnName(ag), p);
 					}
@@ -241,20 +241,23 @@ public class ResultsMultiRanks extends Results {
 
 	private JsonArray getChampionshipNamesJson(LinkedHashMap<String, Participation> agMap) {
 		// temporary
-		var ag2 = new LinkedHashMap<String, Participation>();
+		var agMap2 = new LinkedHashMap<String, Participation>();
 		// setAgeGroupMap(new LinkedHashMap<String, Participation>(agMap));
 		JsonArray ageGroups = Json.createArray();
 		int i = 0;
 		for (Entry<String, Participation> e : agMap.entrySet()) {
 			AgeGroup ag = AgeGroupRepository.findByName(e.getKey());
+			if (ag == null || !Boolean.TRUE.equals(ag.getMedals())) {
+				continue;
+			}
 			String championshipName = getColumnName(ag);
-			if (!ag2.containsKey(championshipName)) {
+			if (!agMap2.containsKey(championshipName)) {
 				ageGroups.set(i, championshipName);
-				ag2.put(championshipName, null);
+				agMap2.put(championshipName, null);
 				i++;
 			}
 		}
-		setAgeGroupMap(ag2);
+		setAgeGroupMap(agMap2);
 		getElement().setProperty("nbRanks", "" + i);
 		return ageGroups;
 	}
