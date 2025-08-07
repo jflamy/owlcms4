@@ -1169,7 +1169,7 @@ public class BaseResults extends LitTemplate
 		updateGroupInfo(liftType);
 		// getAgeGroupNamesJson must be called before getAthletesJson
 		if (Config.getCurrent().featureSwitch("displayBestScore")) {
-			this.getElement().setProperty("scoringName", Competition.getCurrent().getTranslatedScoringSystemName());
+			this.getElement().setProperty("scoringName", Translator.translate("Scoreboard."+Competition.getCurrent().getScoringSystem().name()));
 		} else {
 			this.getElement().setProperty("scoringName", Translator.translate("Score"));
 		}

@@ -139,7 +139,7 @@ table.results.nosinclair {
 }
 
 table.results.sinclair {
-    --sinclairWidth: 8ch;
+    --sinclairWidth: min-content;
     --sinclairVisibility: visible;
 }
 

@@ -164,7 +164,7 @@ table.results.sinclair {
     --rankVisibility: hidden;
     --totalRankWidth: 0;
     --totalRankVisibility: hidden; */
-    --sinclairWidth: 8ch;
+    --sinclairWidth: min-content;
     --sinclairVisibility: visible;
 }
 
