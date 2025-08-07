@@ -14,6 +14,8 @@
 
 **Maintenance Log**
 
+59.1.0-rc01: "Final" fixes to multi-rank scoreboard to ignore non-medaling age groups.
+
 59.1.0-beta07: Improved the multi-rank scoreboard, better layout of the Rankings.
 
 59.1.0-beta06: Fixed root cause of scoreboards not having session correctly initialized.
