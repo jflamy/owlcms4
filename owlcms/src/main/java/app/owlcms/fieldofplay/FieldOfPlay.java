@@ -153,7 +153,6 @@ public class FieldOfPlay implements IUnregister {
 		Group group = GroupRepository.findByName("A");
 		mFop.setGroup(group);
 		mFop.init(athletes, timer1, breakTimer1, true);
-
 		mFop.fopEventBus.register(mFop);
 		return mFop;
 	}
@@ -725,6 +724,7 @@ public class FieldOfPlay implements IUnregister {
 				transitionToLifting(e, getGroup(), true);
 				return;
 			} else {
+				logger.warn("getGroup ??????? {}",getGroup());
 				setState(INACTIVE);
 				loadGroup(null, this, true);
 				pushOutSwitchGroup(e.getOrigin());
@@ -1546,7 +1546,7 @@ public class FieldOfPlay implements IUnregister {
 	 *
 	 * @param state the new state
 	 */
-	void setState(FOPState state) {
+	public void setState(FOPState state) {
 		this.logger.info("{}entering {} {}", FieldOfPlay.getLoggingName(this), stateName(state),
 		        LoggerUtils.whereFrom());
 		doSetState(state);

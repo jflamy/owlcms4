@@ -34,6 +34,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
@@ -870,6 +871,7 @@ public class MovingDownTest {
     private FieldOfPlay emptyFieldOfPlay() {
         FieldOfPlay mockFieldOfPlay = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(),
                 new MockCountdownTimer());
+        mockFieldOfPlay.setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
         return mockFieldOfPlay;
     }
 
@@ -943,7 +945,6 @@ public class MovingDownTest {
 
         logger.setLevel(Level.INFO);
 
-        fopState.testBefore();
         fopState.loadGroup(gA, this, true);
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
 
@@ -960,7 +961,9 @@ public class MovingDownTest {
             em.flush();
             return null;
         });
+        fopState.testBefore();
         fopState.loadGroup(gA, this, true);
+        fopState.testStartLifting(gA, this);
     }
 
 	private void testPrepSnatchCheckProgression(FieldOfPlay fopState, int nbAthletes) {
@@ -972,6 +975,7 @@ public class MovingDownTest {
 
         fopState.testBefore();
         fopState.loadGroup(gA, this, true);
+        fopState.testStartLifting(gA, fopState);
         List<Athlete> groupAthletes = fopState.getDisplayOrder();
 
         // weigh-in

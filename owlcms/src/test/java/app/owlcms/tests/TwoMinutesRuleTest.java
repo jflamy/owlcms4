@@ -114,9 +114,10 @@ public class TwoMinutesRuleTest {
     }
 
     public void testPrepState3(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
-        fopState.testBefore();
         gA = GroupRepository.findByName("A");
+        fopState.testBefore();
         fopState.loadGroup(gA, this, true);
+        fopState.testStartLifting(gA, fopState);
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);
@@ -149,6 +150,7 @@ public class TwoMinutesRuleTest {
     public void testPrepState4(FieldOfPlay fopState, EventBus fopBus, Logger logger2) {
         fopState.testBefore();
         fopState.loadGroup(gA, this, true);
+        fopState.testStartLifting(gA, fopState);
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
         final Athlete simpsonR = athletes.get(1);

@@ -104,6 +104,7 @@ public class Records {
         
         fopState.testBefore();
         fopState.loadGroup(gA, this, true);
+        fopState.testStartLifting(gA, fopState);
         athletes = fopState.getDisplayOrder();
         final Athlete schneiderF = athletes.get(0);
 
