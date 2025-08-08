@@ -58,6 +58,6 @@
 	// "remoteUser": "root"
 
 	"mounts": [
-		"source=${localEnv:USERPROFILE}/.m2,target=/home/vscode/.m2,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind,consistency=cached"
 	]
 }
