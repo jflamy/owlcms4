@@ -35,17 +35,10 @@ public interface SafeEventBusRegistration {
 		uiEventBus.register(c);
 	    //logger.debug("==== registering {} on bus {} {}",c, uiEventBus.identifier(), LoggerUtils.whereFrom());
 
-//        UnloadObserver unloadObserver = UnloadObserver.get(false);
-//        unloadObserver.addUnloadListener((e) -> {
-//            logger.trace("closing: unregister {} from {}", c, uiEventBus.identifier());
-//            unregister(c, uiEventBus);
-//            UnloadObserver.remove();
-//        });
-//        if (ui == null) {
-//            return uiEventBus;
-//        }
-//        ui.add(unloadObserver);
-
+		if (ui == null) {
+			logger.error("No UI found for component {}", c.getClass().getName());
+			return uiEventBus;
+		}
 		ui.addBeforeLeaveListener((e) -> {
 			//logger.debug("leaving: unregister {} from {}", c, uiEventBus.identifier());
 			unregister(c, uiEventBus);
@@ -56,7 +49,6 @@ public interface SafeEventBusRegistration {
 		});
 		return uiEventBus;
 	}
-
 
     public default void unregister(Component c, EventBus uiEventBus) {
         logger.trace("explicit: unregister {} from {}", c, uiEventBus.identifier());

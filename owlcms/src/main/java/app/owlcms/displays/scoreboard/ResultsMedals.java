@@ -185,7 +185,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		jMC.put("categoryName", cat.getDisplayName());
 		AgeGroup ageGroup2 = cat.getAgeGroup();
 		if (ageGroup2 == null) {
-			logger.error("category without ageGroup: {}",cat);
+			logger.error("category without ageGroup: {}", cat);
 		}
 		Ranking scoringSystem = ageGroup2 != null ? ageGroup2.getScoringSystem() : null;
 		String rankingTitle = Translator.translate("Rank");
@@ -409,9 +409,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 		if (a.getComputedScoringSystem() != Ranking.TOTAL) {
 			ja.put("sinclair", computedScore(a));
-			int computedScoreRank = mainRankings.getCategoryScoreRank();
-			ja.put("sinclairRank", computedScoreRank);
-			ja.put("sinclairMedal", computedScoreRank <= 3 ? "medal" + computedScoreRank : "");
+			if (mainRankings != null) {
+				int computedScoreRank = mainRankings.getCategoryScoreRank();
+				ja.put("sinclairRank", computedScoreRank);
+				ja.put("sinclairMedal", computedScoreRank <= 3 ? "medal" + computedScoreRank : "");
+			}
 		}
 
 		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");

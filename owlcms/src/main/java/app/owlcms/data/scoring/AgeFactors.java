@@ -92,6 +92,7 @@ public class AgeFactors {
 	/**
 	 *
 	 */
+	@SuppressWarnings("null")
 	private static synchronized void loadCoefficients() {
 		if (loaded) {
 			return;

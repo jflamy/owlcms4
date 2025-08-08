@@ -1404,7 +1404,7 @@ public class FieldOfPlay implements IUnregister {
 		if (newRecords == null || newRecords.isEmpty()) {
 			// this.logger.debug("{} + clearing athlete records {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom());
 		}
-		this.newRecords = newRecords.stream().sorted(RecordEvent.sequentialOrderComparator()).toList();
+		this.newRecords = newRecords != null ? newRecords.stream().sorted(RecordEvent.sequentialOrderComparator()).toList() : new ArrayList<>();
 	}
 
 	public void setNextAthlete(Athlete a) {

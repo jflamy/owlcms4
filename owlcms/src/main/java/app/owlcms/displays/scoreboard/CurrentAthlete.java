@@ -333,6 +333,10 @@ public class CurrentAthlete extends Results {
 
 		if (!leaveTopAlone) {
 			if (a != null) {
+				if (fop == null) {
+					doEmpty();
+					return;
+				}
 				Group group = fop.getGroup();
 				if (group == null) {
 					doEmpty();

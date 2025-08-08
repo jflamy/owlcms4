@@ -1102,8 +1102,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 								sheet.addMergedRegion(region);
 								// Apply the captured style to the first cell of the merged region
 								Cell cell2 = sheet.getRow(firstRow).getCell(col);
-								style.setBorderBottom(BorderStyle.HAIR);
-								cell2.setCellStyle(style);
+								if (style != null) {
+									style.setBorderBottom(BorderStyle.HAIR);
+									cell2.setCellStyle(style);
+								}
 								isMerging = false;
 							}
 
@@ -1127,8 +1129,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 					CellRangeAddress region = new CellRangeAddress(firstRow, sheet.getLastRowNum(), col, col);
 					sheet.addMergedRegion(region);
 					Cell cell22 = sheet.getRow(firstRow).getCell(col);
-					style.setBorderBottom(BorderStyle.HAIR);
-					cell22.setCellStyle(style);
+					if (style != null) {
+						style.setBorderBottom(BorderStyle.HAIR);
+						cell22.setCellStyle(style);
+					}
 				}
 			}
 		} catch (Exception e) {

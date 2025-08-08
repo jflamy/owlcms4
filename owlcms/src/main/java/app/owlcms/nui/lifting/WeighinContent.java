@@ -399,8 +399,10 @@ public class WeighinContent extends BaseContent
 		// athlete based on current order.
 
 		// quick workaround: a "no show" is indicated by removing the session.
-		Double curWeight = current.getBodyWeight();
-		if (curWeight != null || current.getGroup() == null) {
+		// current can't be null in practice, this is to keep the compiler happy
+		Double curWeight = current != null ? current.getBodyWeight() : null;
+		Group group2 = current != null ? current.getGroup() : null;
+		if (curWeight != null || group2 == null) {
 			for (Athlete next : all) {
 				if (next.getBodyWeight() == null) {
 					return next;
@@ -408,7 +410,7 @@ public class WeighinContent extends BaseContent
 			}
 		} else {
 			for (int i = 0; i < all.size() - 1; i++) {
-				if (all.get(i).getId().equals(current.getId())) {
+				if (all.get(i).getId().equals(current != null ? current.getId() : null)) {
 					return all.get(i + 1);
 				}
 			}

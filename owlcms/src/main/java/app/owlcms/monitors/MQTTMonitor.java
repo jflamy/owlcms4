@@ -8,6 +8,7 @@ package app.owlcms.monitors;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -810,8 +811,8 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			// when are not fully initialized
 			return;
 		}
-		List<String> platforms = fops.stream().map(p -> p.getPlatform().getName())
-		        .collect(Collectors.toList());
+		List<String> platforms = fops != null ? fops.stream().map(p -> p.getPlatform().getName())
+		        .collect(Collectors.toList()) : new ArrayList<>();
 		payload.put("platforms", platforms);
 		payload.put("version", StartupUtils.getVersion());
 		payload.put("jurySize", Competition.getCurrent().getJurySize());

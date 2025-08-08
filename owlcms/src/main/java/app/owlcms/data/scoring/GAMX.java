@@ -109,6 +109,7 @@ public class GAMX {
 	/**
 	 *
 	 */
+	@SuppressWarnings("null")
 	private static synchronized void loadCoefficients() {
 		if (loaded) {
 			return;

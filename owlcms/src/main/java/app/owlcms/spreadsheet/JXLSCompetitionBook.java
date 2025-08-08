@@ -157,26 +157,28 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			reportingBeans.put("mBest", AthleteSorter.resultsOrderCopy(sortedMen, overallScoringSystem));
 			reportingBeans.put("wBest", AthleteSorter.resultsOrderCopy(sortedWomen, overallScoringSystem));
 		}
-		
+
 		String brt = overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete");
 		reportingBeans.put("bestRankingTitle", brt);
 
-		if (isWinnersOnly()) {
-			Collection<Athlete> bestMen = ((Collection<Athlete>) reportingBeans
-			        .get(overallScoringSystem.getMReportingName()));
-			if (this.winnersOnly) {
-				bestMen = bestMen.stream().filter(a -> a.getTotalRank() == 1).toList();
+		if (overallScoringSystem != null) {
+			if (isWinnersOnly()) {
+				Collection<Athlete> bestMen = ((Collection<Athlete>) reportingBeans
+				        .get(overallScoringSystem.getMReportingName()));
+				if (this.winnersOnly) {
+					bestMen = bestMen.stream().filter(a -> a.getTotalRank() == 1).toList();
+				}
+				reportingBeans.put("mBest", bestMen);
+				Collection<Athlete> bestWomen = ((Collection<Athlete>) reportingBeans
+				        .get(overallScoringSystem.getWReportingName()));
+				if (this.winnersOnly) {
+					bestWomen = bestWomen.stream().filter(a -> a.getTotalRank() == 1).toList();
+				}
+				reportingBeans.put("wBest", bestWomen);
+			} else {
+				reportingBeans.put("mBest", reportingBeans.get(overallScoringSystem.getMReportingName()));
+				reportingBeans.put("wBest", reportingBeans.get(overallScoringSystem.getWReportingName()));
 			}
-			reportingBeans.put("mBest", bestMen);
-			Collection<Athlete> bestWomen = ((Collection<Athlete>) reportingBeans
-			        .get(overallScoringSystem.getWReportingName()));
-			if (this.winnersOnly) {
-				bestWomen = bestWomen.stream().filter(a -> a.getTotalRank() == 1).toList();
-			}
-			reportingBeans.put("wBest", bestWomen);
-		} else {
-			reportingBeans.put("mBest", reportingBeans.get(overallScoringSystem.getMReportingName()));
-			reportingBeans.put("wBest", reportingBeans.get(overallScoringSystem.getWReportingName()));
 		}
 		setReportingBeans(reportingBeans);
 	}

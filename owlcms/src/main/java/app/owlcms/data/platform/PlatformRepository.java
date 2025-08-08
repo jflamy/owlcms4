@@ -96,31 +96,31 @@ public class PlatformRepository {
 	 */
 	public static void delete(Platform platform) {
 		try {
-		if (OwlcmsFactory.getFopByName() == null) {
-			OwlcmsFactory.initFOPByName();
-		}
-		FieldOfPlay fop = OwlcmsFactory.getFOPByName(platform.getName());
-		MQTTMonitor mm = fop != null ? fop.getMqttMonitor() : null;
-		JPAService.runInTransaction(em -> {
-			// this is the only case where platform needs to know its groups, so we do a
-			// query instead of adding a relationship.
-			Long pId = platform.getId();
-			// group is illegal as a table name; query uses the configured table name for
-			// entity.
-			Query gQ = em.createQuery("select g from CompetitionGroup g join g.platform p where p.id = :platformId");
-			gQ.setParameter("platformId", pId);
-			@SuppressWarnings("unchecked")
-			List<Group> gL = gQ.getResultList();
-			for (Group g : gL) {
-				g.setPlatform(null);
+			if (OwlcmsFactory.getFopByName() == null) {
+				OwlcmsFactory.initFOPByName();
 			}
-			em.remove(em.contains(platform) ? platform : em.merge(platform));
-			return null;
-		});
-		if (mm != null) {
-			mm.publishMqttConfig();
-		}
-		OwlcmsFactory.setFirstFOPAsDefault();
+			FieldOfPlay fop = OwlcmsFactory.getFOPByName(platform.getName());
+			MQTTMonitor mm = fop != null ? fop.getMqttMonitor() : null;
+			JPAService.runInTransaction(em -> {
+				// this is the only case where platform needs to know its groups, so we do a
+				// query instead of adding a relationship.
+				Long pId = platform.getId();
+				// group is illegal as a table name; query uses the configured table name for
+				// entity.
+				Query gQ = em.createQuery("select g from CompetitionGroup g join g.platform p where p.id = :platformId");
+				gQ.setParameter("platformId", pId);
+				@SuppressWarnings("unchecked")
+				List<Group> gL = gQ.getResultList();
+				for (Group g : gL) {
+					g.setPlatform(null);
+				}
+				em.remove(em.contains(platform) ? platform : em.merge(platform));
+				return null;
+			});
+			if (mm != null) {
+				mm.publishMqttConfig();
+			}
+			OwlcmsFactory.setFirstFOPAsDefault();
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
@@ -200,10 +200,10 @@ public class PlatformRepository {
 			} else {
 				fop = OwlcmsFactory.registerEmptyFOP(nPlatform);
 			}
-		}
-		MQTTMonitor mm = fop.getMqttMonitor();
-		if (mm != null) {
-			mm.publishMqttConfig();
+			MQTTMonitor mm = fop.getMqttMonitor();
+			if (mm != null) {
+				mm.publishMqttConfig();
+			}
 		}
 		return nPlatform;
 	}

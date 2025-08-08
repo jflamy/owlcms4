@@ -785,7 +785,11 @@ public class BaseResults extends LitTemplate
 				}
 			}
 		}
-		updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
+		if (fop != null) {
+			updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
+		} else {
+			updateDisplay(computeLiftType((Integer)null), fop);
+		}
 	}
 
 	protected String formatInt(Integer value) {
@@ -1159,6 +1163,11 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected void updateDisplay(String liftType, FieldOfPlay fop) {
+		if (fop == null || liftType == null) {
+			this.logger.warn("updateDisplay: fop is null or liftType is null");
+			doEmpty();
+			return;
+		}
 		this.curGroup = fop.getGroup();
 		this.displayOrder = getOrder(fop);
 		spotlightRecords(fop);

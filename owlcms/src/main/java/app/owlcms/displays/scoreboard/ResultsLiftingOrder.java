@@ -64,6 +64,7 @@ public class ResultsLiftingOrder extends Results {
 				nbSubsets++;
 				return true;
 			}
+			@SuppressWarnings("null")
 			boolean prevSnatchNotDone = prev.getAttemptsDone() < 3;
 			boolean curSnatchDoneCJNotStarted = cur.getAttemptsDone() == 3 || cur.withdrawnFromSnatch();
 			if (prevSnatchNotDone && curSnatchDoneCJNotStarted) {

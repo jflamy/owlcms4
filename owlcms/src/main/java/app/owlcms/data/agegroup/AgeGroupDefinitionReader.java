@@ -54,6 +54,7 @@ public class AgeGroupDefinitionReader {
 		loadAgeGroupStream(null, "custom upload", mainLogger, templates, ageGroupStream);
 	}
 
+	@SuppressWarnings("null")
 	static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
 	        EnumSet<ChampionshipType> forcedInsertion,
 	        String localizedName) {

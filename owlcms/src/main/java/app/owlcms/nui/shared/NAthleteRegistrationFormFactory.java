@@ -202,7 +202,9 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} else if (operation == CrudOperation.ADD) {
 			operationButton = buildOperationButton(CrudOperation.ADD, athlete, postOperationCallBack);
 		}
-		operationButton.addClickShortcut(Key.ENTER);
+		if (operationButton != null) {
+			operationButton.addClickShortcut(Key.ENTER);
+		}
 
 		Button deleteButton = buildDeleteButton(CrudOperation.DELETE, athlete, deleteButtonClickListener);
 		Checkbox validateEntries = buildIgnoreErrorsCheckbox();
@@ -238,7 +240,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		if (this.previousNext instanceof WeighinContent) {
 			boolean nextMode = ((WeighinContent) this.previousNext).isNextMode();
-			if (nextMode) {
+			if (nextMode && operationButton != null) {
 				operationButton.setText(Translator.translate("WeighIn.UpdateAndNext"));
 			}
 		}
