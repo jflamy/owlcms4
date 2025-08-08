@@ -70,8 +70,8 @@ public interface SafeEventBusRegistrationPR {
                     try {
                         eventObserver.setInactivityTime();
                         unregister(c, bus);
-                        logger.debug("{}: unregister {} from {}", change, c.getClass().getSimpleName(),
-                                bus.identifier());
+                        // logger.debug("{}: unregister {} from {}", change,
+                        // c.getClass().getSimpleName(),bus.identifier());
                     } catch (Exception ex) {
                         LoggerUtils.logError(logger, ex, true);
                     }
@@ -87,28 +87,27 @@ public interface SafeEventBusRegistrationPR {
                 // switching tabs or minimizing window. no visible scoreboard
                 eventObserver.setInactivityTime();
                 try {
-                    logger.debug("{}: setInactivityTime {} from {}", change, c.getClass().getSimpleName(),
-                            bus.identifier());
+                    //logger.debug("{}: setInactivityTime {} from {}", change, c.getClass().getSimpleName(),bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
             }
 
             else if (change.equals("blur")) {
-//                // blurring can occur when switching the active window and still watching.
-//                // we probably don't want to do anything
-//                try {
-//                    logger.debug("{}: do nothing from {}", change, c.getClass().getSimpleName(), bus.identifier());
-//                } catch (Exception ex) {
-//                    LoggerUtils.logError(logger, ex, true);
-//                }
+                // // blurring can occur when switching the active window and still watching.
+                // // we probably don't want to do anything
+                // try {
+                // logger.debug("{}: do nothing from {}", change, c.getClass().getSimpleName(),
+                // bus.identifier());
+                // } catch (Exception ex) {
+                // LoggerUtils.logError(logger, ex, true);
+                // }
             }
 
             else if (change.equals("visibilityShown")) {
                 eventObserver.setActivityTime();
                 try {
-                    logger.debug("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
-                            bus.identifier());
+                    //logger.debug("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
@@ -116,13 +115,14 @@ public interface SafeEventBusRegistrationPR {
 
             else if (change.equals("focus")) {
                 // visibility changes seem to be sufficient
-//                eventObserver.resetInactivityTime(ui, c);
-//                try {
-//                    logger.debug("{}: resetInactivityTime {} from {}", change, c.getClass().getSimpleName(),
-//                            bus.identifier());
-//                } catch (Exception ex) {
-//                    LoggerUtils.logError(logger, ex, true);
-//                }
+                // eventObserver.resetInactivityTime(ui, c);
+                // try {
+                // logger.debug("{}: resetInactivityTime {} from {}", change,
+                // c.getClass().getSimpleName(),
+                // bus.identifier());
+                // } catch (Exception ex) {
+                // LoggerUtils.logError(logger, ex, true);
+                // }
             }
 
             else {
@@ -132,8 +132,7 @@ public interface SafeEventBusRegistrationPR {
                 try {
                     eventObserver.setInactivityTime();
                     unregister(c, bus);
-                    logger.debug("{}: unregister {} from {}", change, c.getClass().getSimpleName(),
-                            bus.identifier());
+                    //logger.debug("{}: unregister {} from {}", change, c.getClass().getSimpleName(), bus.identifier());
                 } catch (Exception ex) {
                     LoggerUtils.logError(logger, ex, true);
                 }
@@ -141,8 +140,9 @@ public interface SafeEventBusRegistrationPR {
         });
 
         ui.access(() -> {
-//            logger.trace("adding eventObserver {} {}", System.identityHashCode(eventObserver),
-//                    System.identityHashCode(eventObserver.getElement()));
+            // logger.trace("adding eventObserver {} {}",
+            // System.identityHashCode(eventObserver),
+            // System.identityHashCode(eventObserver.getElement()));
             ui.add(eventObserver);
             ui.addBeforeLeaveListener((e) -> {
                 // navigating via a link, don't kill session, clean-up this page.

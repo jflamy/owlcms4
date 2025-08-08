@@ -69,7 +69,10 @@ public interface FOPParameters extends HasUrlParameter<String> {
         if (!isIgnoreFopFromURL()) {
             if (fopFound) {
                 // logger.trace("fopNames {}", fopNames);
-                String decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
+                String decoded = null;
+                if (fopNames != null && fopNames.size() > 0) {
+                     decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
+                }
                 // logger.trace("URL fop = {} decoded = {}",fopNames.get(0), decoded);
                 // fopName = OwlcmsFactory.getFOPByName(decoded);
                 setFopName(decoded);

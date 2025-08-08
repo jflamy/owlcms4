@@ -355,12 +355,16 @@ public class CurrentAthlete extends Results {
 			}
 
 			// change bottom line as soon as possible
-			updateDisplay(computeLiftType(a), fop);
+			updateDisplay(a != null ? computeLiftType(a) : null, fop);
 
 		}
 		// logger.debug("leave top alone {} {}", leaveTopAlone, fop.getState());
+		if (fop == null) {
+			doEmpty();
+			return;
+		}
 		if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED) {
-			updateDisplay(computeLiftType(a), fop);
+			updateDisplay(a != null ? computeLiftType(a) : null, fop);
 		}
 
 	}
