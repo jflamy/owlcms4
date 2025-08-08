@@ -1,71 +1,10 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive",
-
-    // Enable incremental auto-builds (no manual build required)
-    "java.autobuild.enabled": true,
-
-    // Remove invalid/stale JDT LS home override (let extension manage it)
-    // "java.jdt.ls.home": "/home/gitpod/.sdkman/candidates/java/current",
-
-    // Reduce file system churn: exclude generated/build folders
+    // Basic file exclusions to keep workspace clean
     "files.exclude": {
         "**/.classpath": true,
         "**/.project": true,
         "**/.settings": true,
-        "**/.factorypath": true,
-        "**/target": true,
-        "**/target/**": true,
-        "**/node_modules": true,
-        "**/node_modules/**": true
-    },
-    "files.watcherExclude": {
-        "**/target/**": true,
-        "**/node_modules/**": true,
-    "**/.git/**": true,
-    "**/.metadata/**": true
-    },
-    "search.exclude": {
-    "**/target/**": true,
-    "**/node_modules/**": true,
-    "**/.metadata/**": true
+        "**/.factorypath": true
     },
 
-    // Skip importing non-Java content
-    "java.import.exclusions": [
-        "**/node_modules/**",
-        "**/.git/**",
-        "**/target/**",
-        "**/bin/**"
-    ],
-
-    // Java test config (unchanged)
-    "java.test.config": [
-        {
-            "name": "owlcms testing",
-            "workingDirectory": "${workspaceFolder}",
-            "vmargs": [ "-ea"],
-            "env": { "key": "value" }
-        }
-    ],
-
-    // Maven UI
-    "maven.view": "flat",
-    // Optional: speed up initial imports by not fetching javadoc/sources eagerly
-    "java.maven.downloadSources": false,
-    "java.maven.updateSnapshots": false,
-    // Avoid heavy source/javadoc downloads during editing
-    "java.sources.download": "never",
-    "java.jdt.downloadJavadoc": false,
-
-    // Language server memory (keep your existing tuning)
-    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms256m",
-    // Limit concurrent background builds to reduce thrash on large workspaces
-    "java.maxConcurrentBuilds": 1,
-    // Reduce background indexing features if not needed
-    "java.referencesCodeLens.enabled": false,
-    "java.implementationsCodeLens.enabled": false,
-    "java.compile.nullAnalysis.mode": "disabled",
-    "java.dependency.syncWithFolderExplorer": true,
-    "java.dependency.packagePresentation": "hierarchical",
-    "java.project.explorer.showNonJavaResources": true
 }
