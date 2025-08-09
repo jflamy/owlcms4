@@ -22,7 +22,10 @@
 
 **New in Release 59.1**
 
-59.1.0: The logos (.png, .jpg, .jpeg) in the local/logos directory can now be included in the jxls3 Excel templates using the [jx:image](https://jxls.sourceforge.net/image.html) directive. For example `jx:image(src="logos['right.png']" lastCell="B3")` in cell B2 would copy the image local/logos/right.png in the range B2:B3.  Note that .jpg logos require imageType="JPEG" in the directive (not JPG)
+59.1.0: Any image or picture file in PNG or JPEG format found in the local directory can now be included in the jxls3 Excel templates using the [jx:image](https://jxls.sourceforge.net/image.html) directive.
+
+- For example `jx:image(src="local.getBytes('logos/right.png')" lastCell="B3")` in cell B2 would copy the image local/logos/right.png in the range B2:B3.  
+- Note that .jpg pictures require `imageType="JPEG"` in the directive (careful to use JPEG as the image type, not JPG).  `jx:image(src="local.getBytes('pictures/4123.jpg')" imageType="JPEG" lastCell="B3")`
 
 59.1.0:  Added a Clear Body Weights button for simpler testing of weigh-ins
 
