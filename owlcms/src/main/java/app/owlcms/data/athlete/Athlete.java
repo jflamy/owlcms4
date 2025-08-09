@@ -595,6 +595,20 @@ public class Athlete {
 			this.setLoggerLevel(prevLevel);
 		}
 	}
+	
+	public void clearBodyWeight() {
+		boolean validate = this.isValidation();
+		Level prevLevel = this.getLogger().getLevel();
+		try {
+			this.setValidation(false);
+			this.setLoggerLevel(Level.OFF);
+			this.setBodyWeight(null);
+		} finally {
+			this.setValidation(validate);
+			this.setLoggerLevel(prevLevel);
+		}
+	}
+
 
 	/**
 	 * Gets the custom score.

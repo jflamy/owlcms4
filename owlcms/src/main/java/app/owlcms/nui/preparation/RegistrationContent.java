@@ -192,6 +192,15 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			        }).open();
 		});
 		clearLifts.getElement().setAttribute("title", Translator.translate("ClearLifts_forListed"));
+		
+		Button clearBW = new Button(Translator.translate("ClearBodyWeights"), (e) -> {
+			new ConfirmationDialog(Translator.translate("ClearBodyWeights"),
+			        Translator.translate("Warning_BodyWeights"),
+			        Translator.translate("BodyWeightsCleared"), () -> {
+				        clearBodyWeights();
+				        refresh();
+			        }).open();
+		});
 
 		Button resetCats = new Button(Translator.translate("ResetCategories.ResetAthletes"), (e) -> {
 			new ConfirmationDialog(
@@ -209,7 +218,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		hr.getStyle().set("padding", "0");
 		FlexLayout buttons = new FlexLayout(
 		        // new NativeLabel(Translator.translate("Preparation")),
-		        drawLots, deleteAthletes, clearLifts,
+		        drawLots, deleteAthletes, clearLifts, clearBW,
 		        resetCats
 		// , hr,
 		// new NativeLabel(Translator.translate("Entries")),
@@ -900,7 +909,22 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			em.flush();
 			return null;
 		});
-		// when doing tests, the clock may have been started, need to clear
+		// when doing on-site tests, the clock may have been started, need to clear
+		// otherwise marshal gets confusing message.
+		OwlcmsFactory.getFOPs().forEach(f -> f.setWeightAtLastStart(0));
+	}
+	
+	private void clearBodyWeights() {
+		JPAService.runInTransaction(em -> {
+			List<Athlete> athletes = athletesFindAll(false);
+			for (Athlete a : athletes) {
+				a.clearBodyWeight();
+				em.merge(a);
+			}
+			em.flush();
+			return null;
+		});
+		// when doing on-site tests, the clock may have been started, need to clear
 		// otherwise marshal gets confusing message.
 		OwlcmsFactory.getFOPs().forEach(f -> f.setWeightAtLastStart(0));
 	}
