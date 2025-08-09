@@ -724,7 +724,6 @@ public class FieldOfPlay implements IUnregister {
 				transitionToLifting(e, getGroup(), true);
 				return;
 			} else {
-				logger.warn("getGroup ??????? {}",getGroup());
 				setState(INACTIVE);
 				loadGroup(null, this, true);
 				pushOutSwitchGroup(e.getOrigin());

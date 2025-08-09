@@ -1164,7 +1164,7 @@ public class BaseResults extends LitTemplate
 
 	protected void updateDisplay(String liftType, FieldOfPlay fop) {
 		if (fop == null || liftType == null) {
-			this.logger.warn("updateDisplay: fop is null or liftType is null");
+			this.logger.error("updateDisplay: fop is null or liftType is null");
 			doEmpty();
 			return;
 		}
