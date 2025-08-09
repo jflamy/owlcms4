@@ -15,6 +15,18 @@ When writing a template, you can get information about athletes, sessions, etc. 
 
 Substitutions follow the JEXL conventions, so you can actually chain accesses.
 
+#### General Variables
+
+The following variables are set for every template
+
+| Variable    | Notes                                                        |
+| ----------- | ------------------------------------------------------------ |
+| t           | Transation map.  All the entries in the translation map are available by using `${t.get('key')}` where `key` is an entry in the translation file. |
+| competition | The current Competition object.  All the methods are available, for example ${competition.name} |
+| session     | The current session name, when pertinent.  ${session} gives the session name, ${session.description} the details if any were provided |
+| platforms   | An array of platforms.                                       |
+| local       | local is an object that allows retrieving images located in the local directory.   Any image or picture file in PNG or JPEG format found in the local directory can now be included in the jxls3 Excel templates using the [jx:image](https://jxls.sourceforge.net/image.html) directive.<br /><ul><li>For example `jx:image(src="local.getBytes('logos/right.png')" lastCell="B3")` in cell B2 would copy the image local/logos/right.png in the range B2:B3. </li><li>Note that .jpg pictures require `imageType="JPEG"` in the directive (careful to use JPEG as the image type, not JPG).  `jx:image(src="local.getBytes('pictures/4123.jpg')" imageType="JPEG" lastCell="B3")`</li></ul> |
+
 #### Athlete information
 
 | Variable                       | Notes                                                        |
