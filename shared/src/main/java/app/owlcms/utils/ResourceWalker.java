@@ -125,6 +125,7 @@ public class ResourceWalker {
 	 * @throws FileNotFoundException
 	 */
 	public static InputStream getFileOrResource(String name) throws FileNotFoundException {
+		logger.setLevel(Level.DEBUG);
 		InputStream is = null;
 		String relativeName;
 		if (name.startsWith("/")) {
@@ -169,6 +170,19 @@ public class ResourceWalker {
 			}
 		}
 		return is;
+	}
+	
+	/**
+	 * Fetch a named file content. First looking in a local override directory structure, and if not found, as a
+	 * resource on the classpath.
+	 *
+	 * @param name
+	 * @return an input stream with the requested content, null if not found.
+	 * @throws FileNotFoundException
+	 */
+	public static byte[] getBytes(String name) throws IOException {
+		InputStream is = getFileOrResource(name);
+		return is.readAllBytes();
 	}
 
 	/**

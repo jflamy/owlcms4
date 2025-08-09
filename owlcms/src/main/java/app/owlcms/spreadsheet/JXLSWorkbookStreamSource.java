@@ -15,9 +15,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -26,7 +23,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,7 +41,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jxls.builder.JxlsStreaming;
-import org.jxls.command.ImageCommand;
 import org.jxls.transform.poi.JxlsPoi;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +65,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
+import app.owlcms.utils.LocalResource;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Level;
@@ -571,12 +567,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		getReportingBeans().put("group", getGroup());// legacy
 		getReportingBeans().put("platforms", PlatformRepository.findAll());
 					
-		try {
-			Path logoDirPath = ResourceWalker.getFileOrResourcePath("logos");
-			getReportingBeans().put("logos", createImageMap(logoDirPath));
-		} catch (IOException e) {
-			LoggerUtils.logError(jexlLogger, e);
-		}
+		getReportingBeans().put("local", LocalResource.class);
 
 
 		// reuse existing logic for processing records
@@ -607,34 +598,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		getReportingBeans().put("groups", sessions);
 		getReportingBeans().put("sessions", sessions);
 	}
-
-    public static Map<String, byte[]> createImageMap(Path directoryPath) throws IOException {
-        Map<String, byte[]> imageMap = new HashMap<>();
-
-        // Check if the provided path is a directory and exists
-        if (Files.isDirectory(directoryPath) && Files.exists(directoryPath)) {
-            // Use a try-with-resources statement to ensure the DirectoryStream is closed
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(directoryPath)) {
-                for (Path entry : stream) {
-                    // Check if the entry is a regular file
-                    if (Files.isRegularFile(entry)) {
-                        String fileName = entry.getFileName().toString();
-                        String lowerCaseFileName = fileName.toLowerCase();
-
-                        // Check if the file name ends with one of the specified extensions
-                        if (lowerCaseFileName.endsWith(".png") ||
-                            lowerCaseFileName.endsWith(".jpg") ||
-                            lowerCaseFileName.endsWith(".jpeg")) {
-                        	
-                        	byte[] imageBytes = ImageCommand.toByteArray(Files.newInputStream(entry));
-                            imageMap.put(fileName, imageBytes);
-                        }
-                    }
-                }
-            }
-        }
-        return imageMap;
-    }
 	
 	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
 		boolean jxls3 = false;

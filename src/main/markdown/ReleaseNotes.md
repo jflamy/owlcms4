@@ -14,27 +14,17 @@
 
 **Maintenance Log**
 
-59.1.0-rc01: "Final" fixes to multi-rank scoreboard to ignore non-medaling age groups.
+59.1.0-rc02: Made logos available in templates
 
-59.1.0-beta07: Improved the multi-rank scoreboard, better layout of the Rankings.
+59.1.0-rc02: Adjustments to unit tests and systematic checks using null pointer analysis.
 
-59.1.0-beta06: Fixed root cause of scoreboards not having session correctly initialized.
-
-59.1.0-beta06: Hide scoring information from multi-rank scoreboard, until proper fix is made to show a best lifter score for all athletes on that scoreboard.
-
-59.1.0-beta05: Additional shielding for Multi-rank scoreboard called with no session active.
-
-59.1.0-beta04: Multi-rank scoreboard works for Masters (see below)
-
-59.1.0-beta04: The Team Score scoreboard was not updating the mixed section on every lift if that section was the only one selected.
-
-59.1.0-beta03: fixed accidental delete of a spacer in beta02.
-
-59.1.0-beta02:  Fixed the scoreboard leader display when using score-based medals. to correctly process the "leaders from previous groups" option.
-
-59.1.0-beta02:  Fixed a problem with refreshing scoreboards due to ill-formed HTML in the template.
+59.1.0-rc01: Final tweaks to multi-rank scoreboard to ignore age groups that don't award medals
 
 **New in Release 59.1**
+
+59.1.0: The logos (.png, .jpg, .jpeg) in the local/logos directory can now be included in the jxls3 Excel templates using the [jx:image](https://jxls.sourceforge.net/image.html) directive. For example `jx:image(src="logos['right.png']" lastCell="B3")` in cell B2 would copy the image local/logos/right.png in the range B2:B3.  Note that .jpg logos require imageType="JPEG" in the directive (not JPG)
+
+59.1.0:  Added a Clear Body Weights button for simpler testing of weigh-ins
 
 59.1.0: The multiple age groups scoreboard now works for Masters if there are multiple championships (for example, national and regional.) There will be one column per championship, as opposed to one column for each of the Masters multiple age groups.
 
