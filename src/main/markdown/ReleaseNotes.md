@@ -12,16 +12,6 @@
 
 <br>
 
-**Maintenance Log**
-
-59.1.0-rc02: Fixed image scaling in templates to use the largest area without distortion
-
-59.1.0-rc02: Made logos and pictures available in templates
-
-59.1.0-rc02: Adjustments to unit tests and systematic checks using null pointer analysis.
-
-59.1.0-rc01: Final tweaks to multi-rank scoreboard to ignore age groups that don't award medals
-
 **New in Release 59.1**
 
 59.1.0: Any image or picture file in PNG or JPEG format found in the local directory can now be included in the jxls3 Excel templates using the [jx:image](https://jxls.sourceforge.net/image.html) directive.
