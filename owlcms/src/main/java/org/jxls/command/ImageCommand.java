@@ -214,11 +214,11 @@ public class ImageCommand extends AbstractCommand {
 //        resize = true;
 //        if (resize) {
             anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_DONT_RESIZE);
-            anchor.setCol2(-1);
-            anchor.setRow2(-1);
+//            anchor.setCol2(-1);
+//            anchor.setRow2(-1);
 //        } else {
-//            anchor.setCol2(areaRef.getLastCellRef().getCol());
-//            anchor.setRow2(areaRef.getLastCellRef().getRow());
+            anchor.setCol2(areaRef.getLastCellRef().getCol());
+            anchor.setRow2(areaRef.getLastCellRef().getRow());
 //        }
         
         Picture picture = drawing.createPicture(anchor, imageIdx);
@@ -249,39 +249,57 @@ public class ImageCommand extends AbstractCommand {
         int startRow = areaRef.getFirstCellRef().getRow();
         int endRow = areaRef.getLastCellRef().getRow();
         
+        logger.warn("area start={},{} end= {},{}",startRow,startCol, endRow,endCol);
         // Calculate total width in pixels
         double totalWidth = 0;
-        for (int col = startCol; col <= endCol; col++) {
-            totalWidth += getColumnWidthInPixels(sheet, col);
+        for (int col = startCol; col < endCol; col++) {
+            totalWidth += getCellWidthInPoints(sheet, col);
+            logger.warn("totalWidth {}",totalWidth);
         }
+
         
         // Calculate total height in pixels
         double totalHeight = 0;
-        for (int row = startRow; row <= endRow; row++) {
-            totalHeight += getRowHeightInPixels(sheet, row);
+        for (int row = startRow; row < endRow; row++) {
+            totalHeight += getCellHeightInPoints(sheet, row);
+            logger.warn("totalHeight {}",totalHeight);
         }
+
         
         return new Dimension((int) Math.round(totalWidth), (int) Math.round(totalHeight));
     }
     
-    private double getColumnWidthInPixels(Sheet sheet, int col) {
-        // POI stores column width in units of 1/256th of a character width
-        int poiWidth = sheet.getColumnWidth(col);
-        // Convert to pixels (approximate conversion)
-        return poiWidth / 256.0 * 7; // Assuming default character width ~7 pixels
+    /**
+     * Gets the height of a cell in points by sheet and row number
+     * @param sheet The sheet containing the row
+     * @param rowNumber The row number (0-based)
+     * @return Height in points
+     */
+    public static float getCellHeightInPoints(Sheet sheet, int rowNumber) {
+        Row row = sheet.getRow(rowNumber);
+        
+        if (row == null || row.getZeroHeight()) {
+            return 0f;
+        } else if (row.getHeight() == -1) {
+            // Use default row height when not explicitly set
+            return sheet.getDefaultRowHeightInPoints();
+        } else {
+            return row.getHeightInPoints();
+        }
     }
     
-    private double getRowHeightInPixels(Sheet sheet, int rowNum) {
-        Row row = sheet.getRow(rowNum);
-        if (row != null) {
-            // POI stores height in points (1/20th of a point)
-            short heightInPoints = row.getHeight();
-            // Convert points to pixels (72 points = 96 pixels at 96 DPI)
-            return (heightInPoints / 20.0) * (96.0 / 72.0);
-        }
-        // Use default row height if row doesn't exist
-        return sheet.getDefaultRowHeightInPoints() * (96.0 / 72.0);
+    /**
+     * Gets the width of a cell in points by sheet and column number
+     * @param sheet The sheet containing the column
+     * @param columnNumber The column number (0-based)
+     * @return Width in points
+     */
+    public static float getCellWidthInPoints(Sheet sheet, int columnNumber) {
+        // Convert pixels to points (assuming 96 DPI)
+        float widthInPixels = sheet.getColumnWidthInPixels(columnNumber);
+        return widthInPixels * 72f / 96f;
     }
+     
     
     /**
      * Reads all the data from the input stream and returns the bytes read.
