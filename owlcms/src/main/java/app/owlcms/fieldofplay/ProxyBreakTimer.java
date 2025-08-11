@@ -248,8 +248,9 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		}
 		this.serverTimer = new Timer();
 		TimerTask timerTask = computeTask(this.timeRemaining);
-		this.serverTimer.schedule(timerTask, this.timeRemaining);
-
+		if (this.timeRemaining >= 0) {
+			this.serverTimer.schedule(timerTask, this.timeRemaining);
+		}
 	}
 
 	/**

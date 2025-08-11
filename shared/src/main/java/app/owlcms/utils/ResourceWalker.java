@@ -125,7 +125,7 @@ public class ResourceWalker {
 	 * @throws FileNotFoundException
 	 */
 	public static InputStream getFileOrResource(String name) throws FileNotFoundException {
-		logger.setLevel(Level.DEBUG);
+		//logger.setLevel(Level.DEBUG);//logger.debug(
 		InputStream is = null;
 		String relativeName;
 		if (name.startsWith("/")) {
