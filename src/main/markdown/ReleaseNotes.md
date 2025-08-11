@@ -14,7 +14,9 @@
 
 **Maintenance Log**
 
-59.1.0-rc02: Made logos available in templates
+59.1.0-rc02: Fixed image scaling in templates to use the largest area without distortion
+
+59.1.0-rc02: Made logos and pictures available in templates
 
 59.1.0-rc02: Adjustments to unit tests and systematic checks using null pointer analysis.
 
