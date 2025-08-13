@@ -12,12 +12,16 @@
 
 <br>
 
+**Maintenance Log**
+
+59.1.1: When including an image in an Excel template, the image is stretched to occupy the maximum amount in the cell range if no scaling is given.
+
 **New in Release 59.1**
 
 59.1.0: Any image or picture file in PNG or JPEG format found in the local directory can now be included in the jxls3 Excel templates using the [jx:image](https://jxls.sourceforge.net/image.html) directive.
 
-- For example `jx:image(src="local.getBytes('logos/right.png')" lastCell="B3")` in cell B2 would copy the image local/logos/right.png in the range B2:B3.  
-- Note that .jpg pictures require `imageType="JPEG"` in the directive (careful to use JPEG as the image type, not JPG).  `jx:image(src="local.getBytes('pictures/4123.jpg')" imageType="JPEG" lastCell="B3")`
+- For example `jx:image(src="local.getBytes('logos/right.png')" lastCell="B3")` in cell B2 would copy the image from local/logos/right.png to the range B2:B3.
+- Note that .jpg pictures require `imageType="JPEG"` in the directive (careful to use JPEG as the image type, not JPG).   If you are using the directive in a loop and variable `a` is the current athlete, you can write `jx:image(src="local.getBytes('pictures/'+a.membership+'.jpg')" imageType="JPEG" lastCell="B3")` to the the current athlete's picture same as would be on the attempt board.
 
 59.1.0:  Added a Clear Body Weights button for simpler testing of weigh-ins
 
