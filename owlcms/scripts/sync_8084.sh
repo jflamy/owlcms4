@@ -6,7 +6,7 @@ REMOTE_HOST="jflamy@143.110.208.71"
 REMOTE_PORT=8084
 REMOTE_DIR="/home/jflamy/asu"
 DATABASE_FOLDER="database"
-LOCAL_SOURCE_DIR1="/c/Dev/git/owlcms-video/css"
+LOCAL_SOURCE_DIR1="/c/Dev/git/owlcms-video/competitions/asu/local/css"
 LOCAL_SOURCE_DIR2="/c/Users/lamyj/git/owlcms4/owlcms/local/logos"
 LOCAL_SOURCE_DIR3="/c/Users/lamyj/git/owlcms4/owlcms/local/flags"
 
