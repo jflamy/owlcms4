@@ -14,8 +14,6 @@
 
 **Maintenance Log**
 
-59.1.1: Removed obsolete configuration files for GitPod and for Azure Pipelines
-
 59.1.1: When including an image in an Excel template, the image is stretched to occupy the maximum amount in the cell range if no scaling is given.
 
 **New in Release 59.1**
