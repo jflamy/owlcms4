@@ -207,7 +207,7 @@ public class Competition {
 	@JsonProperty("mensTeamSize")
 	private Integer mensBestN = 8;
 	@Column(columnDefinition = "integer default 8")
-	private Integer maxTeamSize = 10;
+	private Integer maxTeamSize = 8;
 	@Column(columnDefinition = "integer default 2")
 	private Integer maxPerCategory = 2;
 	private String protocolTemplateFileName;
