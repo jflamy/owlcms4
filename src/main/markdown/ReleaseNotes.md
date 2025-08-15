@@ -14,7 +14,7 @@
 
 **Maintenance Log**
 
-59.1.2: On the team selection page, warning triangles are now updated if the number of athletes in the category becomes illegal or is legal again.
+59.1.2: On the team selection page, warning triangles are now updated if the number of athletes in the category switches between legal and illegal.
 
 59.1.1: When including an image in an Excel template, the image is stretched to occupy the maximum amount in the cell range if no scaling is given.
 
