@@ -1,9 +1,21 @@
 {
   "folders": [
-    { "path": "." }
+    {
+      "path": "."
+    }
   ],
   "settings": {
-    "debug.toolBarLocation": "docked"
+    "debug.toolBarLocation": "docked",
+    "java.autobuild.enabled": true,
+    "java.configuration.runtimes": [
+      {
+        "name": "JavaSE-17",
+        "path": "C:\\Dev\\Java\\jbrsdk-17.0.6-windows-x64-b779.1",
+        "default": true
+      }
+    ],
+  "java.import.gradle.enabled": false,
+  "terminal.integrated.defaultProfile.windows": "Git Bash"
   },
   "launch": {
     "version": "0.2.0",
@@ -15,7 +27,10 @@
         "mainClass": "app.owlcms.Main",
         "projectName": "owlcms",
         "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
-        "env": { "OWLCMS_MEMORYMODE": "false", "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO" }
+        "env": {
+          "OWLCMS_MEMORYMODE": "false",
+          "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO"
+        }
       },
       {
         "type": "java",
@@ -24,7 +39,10 @@
         "mainClass": "app.owlcms.publicresults.Main",
         "projectName": "publicresults",
         "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
-        "env": { "OWLCMS_PORT": "8082", "OWLCMS_UPDATEKEY": "mapetitevacheamalauxpattes" }
+        "env": {
+          "OWLCMS_PORT": "8082",
+          "OWLCMS_UPDATEKEY": "mapetitevacheamalauxpattes"
+        }
       },
       {
         "type": "java",
