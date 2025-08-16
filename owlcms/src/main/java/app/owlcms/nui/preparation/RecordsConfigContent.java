@@ -35,18 +35,18 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "preparation/records", layout = OwlcmsLayout.class)
-public class RecordsContent extends Composite<VerticalLayout>
+@Route(value = "preparation/recordsConfig", layout = OwlcmsLayout.class)
+public class RecordsConfigContent extends Composite<VerticalLayout>
         implements CrudLayout, OwlcmsContent, CrudListener<RecordConfig> {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(RecordsContent.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(RecordsConfigContent.class);
 	private OwlcmsCrudFormFactory<RecordConfig> factory;
 	private OwlcmsLayout routerLayout;
 
 	/**
 	 * Instantiates a new preparation navigation content.
 	 */
-	public RecordsContent() {
+	public RecordsConfigContent() {
 		initLoggers();
 		this.factory = createFormFactory();
 		RecordConfig current = RecordConfig.getCurrent();

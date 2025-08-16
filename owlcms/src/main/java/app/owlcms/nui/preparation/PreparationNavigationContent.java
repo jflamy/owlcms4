@@ -76,8 +76,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button officials = openInNewTabNoParam(TechnicalOfficialContent.class, Translator.translate("TechnicalOfficials"));
 		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
-		Button configureRecords = openInNewTabNoParam(RecordsContent.class,
-		        Translator.translate("Records.RecordsManagementTitle"));
+
 
 		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport(UI.getCurrent());
 		Notification notification = new Notification(Translator.translate("Processing"));
@@ -112,6 +111,11 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		athletes.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
 		        Translator.translate(TeamSelectionContent.TITLE));
+		
+		Button configureRecords = openInNewTabNoParam(RecordsConfigContent.class,
+		        Translator.translate("RecordEvent.RecordsConfigurationTitle"));
+		Button editExportRecords = openInNewTabNoParam(RecordContent.class,
+		        Translator.translate("RecordEvent.EditExportRecords"));
 
 		Button documents = openInNewTab(DocumentsContent.class, Translator.translate("Documents.Title"), "documents");
 		documents.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
@@ -129,14 +133,14 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
 		exportJsonDiv.setWidthFull();
 
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, officials, groups, configureRecords, platforms);
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, officials, groups, platforms);
 		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, teams);
 		doGroup(Translator.translate("Registration"), grid2, this, true);
-		// FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(athletes, teams, exportDiv);
-		// doGroup(Translator.translate("EditAthletes_Groups"), grid3, this);
-		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(documents);
-		doGroup(Translator.translate("Documents.Title"), grid4, this, true);
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(documents);
+		doGroup(Translator.translate("Documents.Title"), grid3, this, true);
+		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(configureRecords,editExportRecords);
+		doGroup(Translator.translate("RecordEvent.PageTitle"), grid4, this, true);
 		FlexibleGridLayout grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
 		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
 		FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(sbdeDiv, sbdeUpload);
