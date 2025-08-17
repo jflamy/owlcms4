@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -135,7 +136,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 		// Add export button for filtered records
 		Button exportRecordsButton = createExportRecordsButton();
-		this.topBar.add(exportRecordsButton);
+		
+		// Add Clear New Records button (Accept Provisional Records)
+		Button clearNewRecordsButton = createClearNewRecordsButton();
+		
+		// Add Recompute Records button
+		Button recomputeRecordsButton = createRecomputeRecordsButton();
+		
+		this.topBar.add(exportRecordsButton, clearNewRecordsButton, recomputeRecordsButton);
 
 		return this.topBar;
 	}
@@ -156,6 +164,36 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		exportButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		exportButton.getElement().getStyle().set("margin-right", "1em");
 		return exportButton;
+	}
+
+	private Button createClearNewRecordsButton() {
+		Button clearNewRecordsButton = new Button(Translator.translate("Preparation.ClearNewRecords"),
+			buttonClickEvent -> {
+				try {
+					RecordRepository.clearNewRecords();
+					// Refresh the grid to show the updated records
+					this.crud.refreshGrid();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		clearNewRecordsButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+		clearNewRecordsButton.getElement().getStyle().set("margin-right", "1em");
+		clearNewRecordsButton.getElement().setAttribute("title", Translator.translate("Preparation.ClearNewRecordsExplanation"));
+		return clearNewRecordsButton;
+	}
+
+	private Button createRecomputeRecordsButton() {
+		Button recomputeRecordsButton = new Button(Translator.translate("Preparation.RecomputeNewRecords"),
+			buttonClickEvent -> {
+				RecordRepository.recomputeNewRecords();
+				// Refresh the grid to show the updated records
+				this.crud.refreshGrid();
+			});
+		recomputeRecordsButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+		recomputeRecordsButton.getElement().getStyle().set("margin-right", "1em");
+		recomputeRecordsButton.getElement().setAttribute("title", Translator.translate("Preparation.RecomputeNewRecordsExplanation"));
+		return recomputeRecordsButton;
 	}
 
 	@Override
@@ -220,8 +258,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.federationFilter.clear();
 		this.ageGroupFilter.clear();
 		this.genderFilter.clear();
-		this.provisionalFilter.setValue(RecordContent.ProvisionalFilter.ALL);
-		this.currentHistoryFilter.setValue(RecordContent.CurrentHistoryFilter.CURRENT);
+		this.provisionalFilter.setValue(ProvisionalFilter.ALL);
+		this.currentHistoryFilter.setValue(CurrentHistoryFilter.CURRENT);
 		this.nameFilter.clear();
 	}
 
@@ -349,9 +387,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 		// Provisional filter
 		NativeLabel provisionalLabel = new NativeLabel(Translator.translate("RecordEvent.Status"));
-		this.provisionalFilter.setItems(RecordContent.ProvisionalFilter.values());
+		this.provisionalFilter.setItems(ProvisionalFilter.values());
 		this.provisionalFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
-		this.provisionalFilter.setValue(RecordContent.ProvisionalFilter.ALL);
+		this.provisionalFilter.setValue(ProvisionalFilter.ALL);
 		this.provisionalFilter.setClearButtonVisible(true);
 		this.provisionalFilter.addValueChangeListener(e -> {
 			setProvisionalFilter(e.getValue());
@@ -367,9 +405,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		crud.getCrudLayout().addFilterComponent(provisionalLayout);
 
 		// Current/History filter 
-		this.currentHistoryFilter.setItems(RecordContent.CurrentHistoryFilter.values());
+		this.currentHistoryFilter.setItems(CurrentHistoryFilter.values());
 		this.currentHistoryFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
-		this.currentHistoryFilter.setValue(RecordContent.CurrentHistoryFilter.CURRENT);
+		this.currentHistoryFilter.setValue(CurrentHistoryFilter.CURRENT);
 		this.currentHistoryFilter.setClearButtonVisible(true);
 		this.currentHistoryFilter.addValueChangeListener(e -> {
 			setCurrentHistoryFilter(e.getValue());
