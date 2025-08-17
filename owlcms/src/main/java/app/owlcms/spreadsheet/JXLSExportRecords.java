@@ -170,19 +170,16 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	}
 
 	public Comparator<RecordEvent> sortRecords() {
+		// Use the same ordering as RecordRepository.findWithFilters for consistency
 		return Comparator
-		        .comparing(RecordEvent::getRecordFederation) // all records for a federation go together (masters are
-		                                                     // separate)
-		        .thenComparing(RecordEvent::getRecordName) // sometimes several record names for same federation
-		                                                   // (example: event-specific)
-		        .thenComparing(RecordEvent::getGender) // all women, then all men
-		        .thenComparing(RecordEvent::getAgeGrpUpper) // U13 U15 U17 U20 U23 SR
-		        // open has biggest age gap, goes after masters M85 and W85
-		        .thenComparing((a, b) -> ObjectUtils.compare((a.getAgeGrpUpper() - a.getAgeGrpLower()), (b.getAgeGrpUpper() - b.getAgeGrpLower())))
-		        .thenComparing(RecordEvent::getAgeGrpLower) // increasing age groups for masters (35, 40, 45...)
-		        .thenComparing(RecordEvent::getBwCatUpper) // increasing body weights
-		        .thenComparing((r) -> r.getRecordLift().ordinal()) // SNATCH, CJ, TOTAL
-		        .thenComparing(RecordEvent::getRecordValue) // increasing records
+		        .comparing(RecordEvent::getRecordFederation) // federation first
+		        .thenComparing(RecordEvent::getRecordName) // then record name (type)
+		        .thenComparing(RecordEvent::getGender) // then gender
+		        .thenComparing(RecordEvent::getAgeGrpUpper) // then age group upper
+		        .thenComparing(RecordEvent::getAgeGrpLower) // then age group lower
+		        .thenComparing(RecordEvent::getBwCatUpper) // then body weight category
+		        .thenComparing((r) -> r.getRecordLift().ordinal()) // then lift type (SNATCH, CJ, TOTAL)
+		        .thenComparing(RecordEvent::getRecordValue) // finally record value
 		;
 	}
 

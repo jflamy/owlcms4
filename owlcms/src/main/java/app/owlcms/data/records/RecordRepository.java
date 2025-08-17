@@ -797,8 +797,8 @@ public class RecordRepository {
 				}
 			}
 			
-			// Add ordering - same as current grid
-			queryBuilder.append(" ORDER BY rec.gender, rec.ageGrp, rec.recordFederation, rec.recordName, rec.recordLift DESC");
+			// Add ordering - category information before lift type
+			queryBuilder.append(" ORDER BY rec.recordFederation, rec.recordName, rec.gender, rec.ageGrpUpper, rec.ageGrpLower, rec.bwCatUpper, rec.recordLift, rec.recordValue");
 			
 			Query query = em.createQuery(queryBuilder.toString());
 			
@@ -833,20 +833,29 @@ public class RecordRepository {
 				.values()
 				.stream()
 				.sorted((r1, r2) -> {
-					// Re-apply the same ordering as the query
-					int genderComp = ObjectUtils.compare(r1.getGender(), r2.getGender());
-					if (genderComp != 0) return genderComp;
-					
-					int ageComp = ObjectUtils.compare(r1.getAgeGrp(), r2.getAgeGrp());
-					if (ageComp != 0) return ageComp;
-					
+					// Re-apply the same ordering as the query - category before lift
 					int fedComp = ObjectUtils.compare(r1.getRecordFederation(), r2.getRecordFederation());
 					if (fedComp != 0) return fedComp;
 					
 					int nameComp = ObjectUtils.compare(r1.getRecordName(), r2.getRecordName());
 					if (nameComp != 0) return nameComp;
 					
-					return r2.getRecordLift().compareTo(r1.getRecordLift()); // DESC for record lift
+					int genderComp = ObjectUtils.compare(r1.getGender(), r2.getGender());
+					if (genderComp != 0) return genderComp;
+					
+					int ageUpperComp = ObjectUtils.compare(r1.getAgeGrpUpper(), r2.getAgeGrpUpper());
+					if (ageUpperComp != 0) return ageUpperComp;
+					
+					int ageLowerComp = ObjectUtils.compare(r1.getAgeGrpLower(), r2.getAgeGrpLower());
+					if (ageLowerComp != 0) return ageLowerComp;
+					
+					int bwComp = ObjectUtils.compare(r1.getBwCatUpper(), r2.getBwCatUpper());
+					if (bwComp != 0) return bwComp;
+					
+					int liftComp = ObjectUtils.compare(r1.getRecordLift(), r2.getRecordLift());
+					if (liftComp != 0) return liftComp;
+					
+					return ObjectUtils.compare(r1.getRecordValue(), r2.getRecordValue());
 				})
 				.collect(Collectors.toList());
 		}
