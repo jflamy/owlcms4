@@ -6,8 +6,11 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,12 +67,22 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	private ComboBox<String> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Gender> genderFilter = new ComboBox<>();
 	private ComboBox<ProvisionalFilter> provisionalFilter = new ComboBox<>();
+	private ComboBox<CurrentHistoryFilter> currentHistoryFilter = new ComboBox<>();
 	private TextField nameFilter = new TextField();
 
 	public enum ProvisionalFilter {
 		ALL,
 		PROVISIONAL,
 		OFFICIAL;
+
+		public String getKey() {
+			return "RecordEvent." + this.name();
+		}
+	}
+	
+	public enum CurrentHistoryFilter {
+		CURRENT,
+		HISTORY;
 
 		public String getKey() {
 			return "RecordEvent." + this.name();
@@ -137,7 +150,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	public Collection<RecordEvent> findAll() {
 		List<RecordEvent> allRecords = RecordRepository.findAll();
 		List<RecordEvent> filteredRecords = filterRecords(allRecords);
-		return filteredRecords.stream().sorted().collect(Collectors.toList());
+		return filteredRecords.stream()
+			.sorted(Comparator
+				.comparing(RecordEvent::getRecordFederation, Comparator.nullsLast(String::compareTo))
+				.thenComparing(RecordEvent::getAgeGrp, Comparator.nullsLast(String::compareTo))
+				.thenComparing(RecordEvent::getGender, Comparator.nullsLast(Comparator.naturalOrder()))
+				.thenComparing(RecordEvent::getBwCatUpper)
+				.thenComparing(RecordEvent::getRecordLift, Comparator.nullsLast(Comparator.naturalOrder())))
+			.collect(Collectors.toList());
 	}
 
 	@Override
@@ -186,6 +206,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.ageGroupFilter.clear();
 		this.genderFilter.clear();
 		this.provisionalFilter.setValue(ProvisionalFilter.ALL);
+		this.currentHistoryFilter.setValue(CurrentHistoryFilter.CURRENT);
 		this.nameFilter.clear();
 	}
 
@@ -229,6 +250,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.provisionalFilter.setValue(provisionalFilter);
 	}
 
+	public CurrentHistoryFilter getCurrentHistoryFilter() {
+		return this.currentHistoryFilter.getValue();
+	}
+
+	public void setCurrentHistoryFilter(CurrentHistoryFilter currentHistoryFilter) {
+		this.currentHistoryFilter.setValue(currentHistoryFilter);
+	}
+
 	/**
 	 * Define the filters for the record grid
 	 */
@@ -267,6 +296,17 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.genderFilter.setWidth("8em");
 		crud.getCrudLayout().addFilterComponent(this.genderFilter);
 
+		// Name filter (for record name or athlete name)
+		this.nameFilter.setPlaceholder(Translator.translate("Name"));
+		this.nameFilter.setClearButtonVisible(true);
+		this.nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+		this.nameFilter.addValueChangeListener(e -> {
+			setName(e.getValue());
+			crud.refreshGrid();
+		});
+		this.nameFilter.setWidth("12em");
+		crud.getCrudLayout().addFilterComponent(this.nameFilter);
+
 		// Provisional filter
 		NativeLabel provisionalLabel = new NativeLabel(Translator.translate("RecordEvent.Status"));
 		this.provisionalFilter.setItems(ProvisionalFilter.values());
@@ -286,16 +326,17 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		
 		crud.getCrudLayout().addFilterComponent(provisionalLayout);
 
-		// Name filter (for record name or athlete name)
-		this.nameFilter.setPlaceholder(Translator.translate("Name"));
-		this.nameFilter.setClearButtonVisible(true);
-		this.nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
-		this.nameFilter.addValueChangeListener(e -> {
-			setName(e.getValue());
+		// Current/History filter 
+		this.currentHistoryFilter.setItems(CurrentHistoryFilter.values());
+		this.currentHistoryFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
+		this.currentHistoryFilter.setValue(CurrentHistoryFilter.CURRENT);
+		this.currentHistoryFilter.setClearButtonVisible(true);
+		this.currentHistoryFilter.addValueChangeListener(e -> {
+			setCurrentHistoryFilter(e.getValue());
 			crud.refreshGrid();
 		});
-		this.nameFilter.setWidth("12em");
-		crud.getCrudLayout().addFilterComponent(this.nameFilter);
+		this.currentHistoryFilter.setWidth("12em");
+		crud.getCrudLayout().addFilterComponent(this.currentHistoryFilter);
 
 		// Clear filters button
 		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
@@ -374,7 +415,24 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 				return true;
 			});
 
-		return stream.collect(Collectors.toList());
+		// Collect the stream to a list first
+		List<RecordEvent> filteredRecords = stream.collect(Collectors.toList());
+		
+		// Apply Current/History filter if needed
+		CurrentHistoryFilter currentHistoryFilter = getCurrentHistoryFilter();
+		if (currentHistoryFilter != null && currentHistoryFilter == CurrentHistoryFilter.CURRENT) {
+			// Keep only the latest/best records (highest lift) per record key
+			Map<String, RecordEvent> currentRecordsMap = filteredRecords.stream()
+				.collect(Collectors.groupingBy(
+					RecordEvent::getKey,
+					Collectors.collectingAndThen(
+						Collectors.maxBy((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift())),
+						record -> record.orElseThrow(() -> new IllegalStateException("No record found")))));
+			filteredRecords = new ArrayList<>(currentRecordsMap.values());
+		}
+		// For HISTORY, we keep all records (no additional filtering needed)
+
+		return filteredRecords;
 	}
 
 	/**
