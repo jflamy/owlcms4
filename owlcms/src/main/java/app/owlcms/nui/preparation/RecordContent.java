@@ -150,7 +150,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			"/templates/records",
 			Competition::getComputedCurrentRecordsTemplateFileName,
 			Competition::setCurrentRecordsTemplateFileName,
-			Translator.translate("Records.exportCurrentRecordsTitle"),
+			Translator.translate("RecordEvent.ExportRecords"),
 			Translator.translate("Download"));
 		Button exportButton = downloadDialog.createDownloadButton();
 		exportButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
