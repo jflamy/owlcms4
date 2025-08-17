@@ -432,4 +432,32 @@ public class RecordRepository {
 		return nmr;
 	}
 
+	/**
+	 * Find all distinct federations
+	 *
+	 * @return the list of federations
+	 */
+	public static List<String> findDistinctFederations() {
+		return JPAService.runInTransaction(em -> {
+			return em.createQuery(
+				"SELECT DISTINCT rec.recordFederation FROM RecordEvent rec WHERE rec.recordFederation IS NOT NULL ORDER BY rec.recordFederation", 
+				String.class)
+				.getResultList();
+		});
+	}
+
+	/**
+	 * Find all distinct age groups
+	 *
+	 * @return the list of age groups
+	 */
+	public static List<String> findDistinctAgeGroups() {
+		return JPAService.runInTransaction(em -> {
+			return em.createQuery(
+				"SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL ORDER BY rec.ageGrp", 
+				String.class)
+				.getResultList();
+		});
+	}
+
 }

@@ -7,7 +7,9 @@
 package app.owlcms.nui.preparation;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -18,16 +20,21 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
@@ -52,6 +59,19 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	static {
 		logger.setLevel(Level.INFO);
 	}
+	
+	// Filter fields
+	private ComboBox<String> federationFilter = new ComboBox<>();
+	private ComboBox<String> ageGroupFilter = new ComboBox<>(); 
+	private ComboBox<Gender> genderFilter = new ComboBox<>();
+	private TextField nameFilter = new TextField();
+	
+	// Filter values
+	private String federation;
+	private String ageGroup;
+	private Gender gender;
+	private String name;
+	
 	boolean documentPage;
 	private RecordGrid crud;
 	private OwlcmsCrudFormFactory<RecordEvent> editingFormFactory;
@@ -64,6 +84,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	public RecordContent() {
 		this.editingFormFactory = new RecordEditingFormFactory(RecordEvent.class, this);
 		GridCrud<RecordEvent> crud = createGrid(this.editingFormFactory);
+		defineFilters(crud);
 		fillHW(crud, this);
 	}
 
@@ -104,7 +125,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	 */
 	@Override
 	public Collection<RecordEvent> findAll() {
-		return RecordRepository.findAll().stream().sorted().collect(Collectors.toList());
+		List<RecordEvent> allRecords = RecordRepository.findAll();
+		List<RecordEvent> filteredRecords = filterRecords(allRecords);
+		return filteredRecords.stream().sorted().collect(Collectors.toList());
 	}
 
 	@Override
@@ -143,6 +166,161 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		if (this.documentPage) {
 			this.crud.getAddButton().removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		}
+	}
+
+	/**
+	 * Filter methods
+	 */
+	public void clearFilters() {
+		this.federationFilter.clear();
+		this.ageGroupFilter.clear();
+		this.genderFilter.clear();
+		this.nameFilter.clear();
+	}
+
+	public String getFederation() {
+		return federation;
+	}
+
+	public void setFederation(String federation) {
+		this.federation = federation;
+	}
+
+	public String getAgeGroup() {
+		return ageGroup;
+	}
+
+	public void setAgeGroup(String ageGroup) {
+		this.ageGroup = ageGroup;
+	}
+
+	public Gender getGender() {
+		return gender;
+	}
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Define the filters for the record grid
+	 */
+	private void defineFilters(GridCrud<RecordEvent> crud) {
+		// Federation filter
+		this.federationFilter.setPlaceholder(Translator.translate("RecordEvent.Federation"));
+		this.federationFilter.setItems(RecordRepository.findDistinctFederations());
+		this.federationFilter.setClearButtonVisible(true);
+		this.federationFilter.addValueChangeListener(e -> {
+			setFederation(e.getValue());
+			crud.refreshGrid();
+		});
+		this.federationFilter.setWidth("12em");
+		crud.getCrudLayout().addFilterComponent(this.federationFilter);
+
+		// Age Group filter
+		this.ageGroupFilter.setPlaceholder(Translator.translate("AgeGroup"));
+		this.ageGroupFilter.setItems(RecordRepository.findDistinctAgeGroups());
+		this.ageGroupFilter.setClearButtonVisible(true);
+		this.ageGroupFilter.addValueChangeListener(e -> {
+			setAgeGroup(e.getValue());
+			crud.refreshGrid();
+		});
+		this.ageGroupFilter.setWidth("10em");
+		crud.getCrudLayout().addFilterComponent(this.ageGroupFilter);
+
+		// Gender filter
+		this.genderFilter.setPlaceholder(Translator.translate("Gender"));
+		this.genderFilter.setItems(Gender.M, Gender.F);
+		this.genderFilter.setItemLabelGenerator(g -> g.asGenderName());
+		this.genderFilter.setClearButtonVisible(true);
+		this.genderFilter.addValueChangeListener(e -> {
+			setGender(e.getValue());
+			crud.refreshGrid();
+		});
+		this.genderFilter.setWidth("8em");
+		crud.getCrudLayout().addFilterComponent(this.genderFilter);
+
+		// Name filter (for record name or athlete name)
+		this.nameFilter.setPlaceholder(Translator.translate("Name"));
+		this.nameFilter.setClearButtonVisible(true);
+		this.nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+		this.nameFilter.addValueChangeListener(e -> {
+			setName(e.getValue());
+			crud.refreshGrid();
+		});
+		this.nameFilter.setWidth("12em");
+		crud.getCrudLayout().addFilterComponent(this.nameFilter);
+
+		// Clear filters button
+		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+		clearFilters.addClickListener(event -> {
+			clearFilters();
+			crud.refreshGrid();
+		});
+		crud.getCrudLayout().addFilterComponent(clearFilters);
+	}
+
+	/**
+	 * Filter the records based on the current filter values
+	 */
+	private List<RecordEvent> filterRecords(List<RecordEvent> records) {
+		Stream<RecordEvent> stream = records.stream()
+			.filter(r -> {
+				// Filter by federation
+				if (getFederation() != null && !getFederation().isEmpty()) {
+					String recordFederation = r.getRecordFederation();
+					if (recordFederation == null || !recordFederation.equals(getFederation())) {
+						return false;
+					}
+				}
+				return true;
+			})
+			.filter(r -> {
+				// Filter by age group
+				if (getAgeGroup() != null && !getAgeGroup().isEmpty()) {
+					String recordAgeGroup = r.getAgeGrp();
+					if (recordAgeGroup == null || !recordAgeGroup.equals(getAgeGroup())) {
+						return false;
+					}
+				}
+				return true;
+			})
+			.filter(r -> {
+				// Filter by gender
+				if (getGender() != null) {
+					Gender recordGender = r.getGender();
+					if (recordGender == null || !recordGender.equals(getGender())) {
+						return false;
+					}
+				}
+				return true;
+			})
+			.filter(r -> {
+				// Filter by name (search in record name and athlete name)
+				if (getName() != null && !getName().isEmpty()) {
+					String filterName = getName().toLowerCase();
+					String recordName = r.getRecordName();
+					String athleteName = r.getAthleteName();
+					
+					boolean recordNameMatch = recordName != null && recordName.toLowerCase().contains(filterName);
+					boolean athleteNameMatch = athleteName != null && athleteName.toLowerCase().contains(filterName);
+					
+					if (!recordNameMatch && !athleteNameMatch) {
+						return false;
+					}
+				}
+				return true;
+			});
+
+		return stream.collect(Collectors.toList());
 	}
 
 	/**
