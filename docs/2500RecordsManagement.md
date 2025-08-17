@@ -83,17 +83,19 @@ You can then export the selected information in Excel format.
 - prettyGroups removes some of the redundant columns, and translates the header row
 - prettySheets is one sheet per age group.  Perfect for import to Google Sheets and embedding in a Web Site
 
-For example, if you are in Spanish, and use the prettySheets format, you would get -- you can take that format as a basis and remove the columns you don't want.
+For example, if you are in Spanish, and use the prettySheets format, you would get something like the following.  You can customize the templates and create your own, remove columns, etc.
 
-![90](../../../OneDrive/Documents/ShareX/Screenshots/2025-08/B0.png)
+![](nimg/2501_Records_New/B0.png)
 
 
 
 ## Editing Records
 
-If you keep the information in owlcms, and get news of a new record set in another country that meets your requirements, you can actually edit a record.  Just click and edit.  You should later export it in an importable format.
+You can actually keep you records in owlcms, and edit them there prior to publishing.  You would create a full "importFormat" copy for archival, and to reload later, and you would use a pretty format for your Web site or PDF
 
-![A0](../../../OneDrive/Documents/ShareX/Screenshots/2025-08/A0.png)
+If you get news of a new record set in another country that meets your requirements, you can actually edit a record.  Just click and edit.  You should later export it in an importable format.
+
+![A0](nimg/2501_Records_New/A0.png)
 
 ## Record File Format
 
