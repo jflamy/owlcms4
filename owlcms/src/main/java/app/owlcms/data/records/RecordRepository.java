@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -170,6 +172,113 @@ public class RecordRepository {
 				if (updatedCount >= 0) {
 					logger.info("cleared provisional flags for {} record entries", updatedCount);
 				}
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			}
+			return null;
+		});
+	}
+
+	/**
+	 * Keep only current (best) records within the filtered subset, deleting all historical records
+	 * @param federation Federation filter
+	 * @param ageGroup Age group filter
+	 * @param gender Gender filter
+	 * @param nameFilter Name filter
+	 * @param provisionalFilter Provisional filter
+	 * @throws IOException
+	 */
+	public static void keepOnlyCurrentRecordsWithFilters(
+			String federation,
+			String ageGroup, 
+			Gender gender,
+			String nameFilter,
+			String provisionalFilter) throws IOException {
+		
+		JPAService.runInTransaction(em -> {
+			try {
+				// First, get all records matching the filters
+				StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE 1=1");
+				List<String> parameters = new ArrayList<>();
+				
+				// Federation filter
+				if (federation != null && !federation.isEmpty()) {
+					queryBuilder.append(" AND rec.recordFederation = :federation");
+					parameters.add("federation");
+				}
+				
+				// Age group filter
+				if (ageGroup != null && !ageGroup.isEmpty()) {
+					queryBuilder.append(" AND rec.ageGrp = :ageGroup");
+					parameters.add("ageGroup");
+				}
+				
+				// Gender filter
+				if (gender != null) {
+					queryBuilder.append(" AND rec.gender = :gender");
+					parameters.add("gender");
+				}
+				
+				// Name filter (search in both record name and athlete name)
+				if (nameFilter != null && !nameFilter.trim().isEmpty()) {
+					queryBuilder.append(" AND (LOWER(rec.recordName) LIKE :nameFilter OR LOWER(rec.athleteName) LIKE :nameFilter)");
+					parameters.add("nameFilter");
+				}
+				
+				// Provisional filter
+				if (provisionalFilter != null && !"ALL".equals(provisionalFilter)) {
+					if ("PROVISIONAL".equals(provisionalFilter)) {
+						queryBuilder.append(" AND (rec.groupNameString IS NOT NULL AND rec.groupNameString != '')");
+					} else if ("OFFICIAL".equals(provisionalFilter)) {
+						queryBuilder.append(" AND (rec.groupNameString IS NULL OR rec.groupNameString = '')");
+					}
+				}
+				
+				Query query = em.createQuery(queryBuilder.toString());
+				
+				// Set parameters
+				if (parameters.contains("federation")) {
+					query.setParameter("federation", federation);
+				}
+				if (parameters.contains("ageGroup")) {
+					query.setParameter("ageGroup", ageGroup);
+				}
+				if (parameters.contains("gender")) {
+					query.setParameter("gender", gender);
+				}
+				if (parameters.contains("nameFilter")) {
+					query.setParameter("nameFilter", "%" + nameFilter.toLowerCase() + "%");
+				}
+				
+				@SuppressWarnings("unchecked")
+				List<RecordEvent> allRecords = query.getResultList();
+				
+				// Group by record key and find the best record for each key
+				Map<String, RecordEvent> bestRecords = allRecords.stream()
+					.collect(Collectors.groupingBy(
+						RecordEvent::getKey,
+						Collectors.collectingAndThen(
+							Collectors.maxBy((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift())),
+							record -> record.orElseThrow(() -> new IllegalStateException("No record found")))));
+				
+				// Get IDs of records to keep
+				Set<Long> idsToKeep = bestRecords.values().stream()
+					.map(RecordEvent::getId)
+					.collect(Collectors.toSet());
+				
+				// Delete all records in the filtered set that are not the best for their key
+				List<Long> idsToDelete = allRecords.stream()
+					.map(RecordEvent::getId)
+					.filter(id -> !idsToKeep.contains(id))
+					.collect(Collectors.toList());
+				
+				if (!idsToDelete.isEmpty()) {
+					int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.id IN :idsToDelete")
+							.setParameter("idsToDelete", idsToDelete)
+							.executeUpdate();
+					logger.info("deleted {} historical record entries, keeping only current records", deletedCount);
+				}
+				
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
 			}

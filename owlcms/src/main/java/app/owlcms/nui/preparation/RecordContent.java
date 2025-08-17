@@ -124,7 +124,10 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		// Add Recompute Records button
 		Button recomputeRecordsButton = createRecomputeRecordsButton();
 		
-		this.topBar.add(exportRecordsButton, clearNewRecordsButton, recomputeRecordsButton);
+		// Add Keep Current Records button
+		Button keepCurrentRecordsButton = createKeepCurrentRecordsButton();
+		
+		this.topBar.add(exportRecordsButton, recomputeRecordsButton, clearNewRecordsButton, keepCurrentRecordsButton);
 
 		return this.topBar;
 	}
@@ -195,6 +198,37 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		recomputeRecordsButton.getElement().getStyle().set("margin-right", "1em");
 		recomputeRecordsButton.getElement().setAttribute("title", Translator.translate("Preparation.RecomputeNewRecordsExplanation"));
 		return recomputeRecordsButton;
+	}
+
+	private Button createKeepCurrentRecordsButton() {
+		Button keepCurrentRecordsButton = new Button(Translator.translate("RecordEvent.KeepCurrentRecords"),
+			buttonClickEvent -> {
+				try {
+					// Use the same filter parameters as the grid display
+					String provisionalFilterStr = "ALL";
+					if (this.provisionalFilter != null && this.provisionalFilter.getValue() != null) {
+						provisionalFilterStr = this.provisionalFilter.getValue().name();
+					}
+					
+					// Keep only current records within the filtered subset
+					RecordRepository.keepOnlyCurrentRecordsWithFilters(
+						getFederation(),
+						getAgeGroup(),
+						getGender(),
+						getName(),
+						provisionalFilterStr
+					);
+					
+					// Refresh the grid to show the updated records
+					this.crud.refreshGrid();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			});
+		keepCurrentRecordsButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+		keepCurrentRecordsButton.getElement().getStyle().set("margin-right", "1em");
+		keepCurrentRecordsButton.getElement().setAttribute("title", Translator.translate("RecordEvent.KeepCurrentRecordsExplanation"));
+		return keepCurrentRecordsButton;
 	}
 
 	@Override
