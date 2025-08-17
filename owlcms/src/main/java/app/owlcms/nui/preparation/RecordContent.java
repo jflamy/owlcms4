@@ -37,6 +37,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
@@ -127,7 +128,10 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		// Add Keep Current Records button
 		Button keepCurrentRecordsButton = createKeepCurrentRecordsButton();
 		
-		this.topBar.add(exportRecordsButton, recomputeRecordsButton, clearNewRecordsButton, keepCurrentRecordsButton);
+		// Add Remove Selected button
+		Button removeSelectedButton = createRemoveSelectedButton();
+		
+		this.topBar.add(exportRecordsButton, recomputeRecordsButton, clearNewRecordsButton, keepCurrentRecordsButton, removeSelectedButton);
 
 		return this.topBar;
 	}
@@ -229,6 +233,52 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		keepCurrentRecordsButton.getElement().getStyle().set("margin-right", "1em");
 		keepCurrentRecordsButton.getElement().setAttribute("title", Translator.translate("RecordEvent.KeepCurrentRecordsExplanation"));
 		return keepCurrentRecordsButton;
+	}
+
+	private Button createRemoveSelectedButton() {
+		Button removeSelectedButton = new Button(Translator.translate("RecordEvent.DeleteSelected"),
+			buttonClickEvent -> {
+				// Show confirmation dialog before performing the deletion
+				ConfirmationDialog confirmDialog = new ConfirmationDialog(
+					Translator.translate("RecordEvent.DeleteSelected"),
+					Translator.translate("RecordEvent.DeleteSelectedExplanation"),
+					null, // No confirmation message after deletion
+					() -> {
+						try {
+							// Use the same filter parameters as the grid display
+							String provisionalFilterStr = "ALL";
+							if (this.provisionalFilter != null && this.provisionalFilter.getValue() != null) {
+								provisionalFilterStr = this.provisionalFilter.getValue().name();
+							}
+							
+							String currentHistoryFilterStr = "HISTORY"; // Default to showing all records
+							if (this.currentHistoryFilter != null && this.currentHistoryFilter.getValue() != null) {
+								currentHistoryFilterStr = this.currentHistoryFilter.getValue().name();
+							}
+							
+							// Delete all records matching the current filters
+							RecordRepository.deleteRecordsWithFilters(
+								getFederation(),
+								getAgeGroup(),
+								getGender(),
+								getName(),
+								provisionalFilterStr,
+								currentHistoryFilterStr
+							);
+							
+							// Refresh the grid to show the updated records
+							this.crud.refreshGrid();
+						} catch (IOException e) {
+							throw new RuntimeException(e);
+						}
+					}
+				);
+				confirmDialog.open();
+			});
+		removeSelectedButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
+		removeSelectedButton.getElement().getStyle().set("margin-right", "1em");
+		removeSelectedButton.getElement().setAttribute("title", Translator.translate("RecordEvent.DeleteSelectedExplanation"));
+		return removeSelectedButton;
 	}
 
 	@Override

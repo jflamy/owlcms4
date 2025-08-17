@@ -98,7 +98,7 @@ public class RecordsConfigContent extends Composite<VerticalLayout>
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Records.RecordsManagementTitle");
+		return Translator.translate("Records.ConfigurationTab");
 	}
 
 	@Override
