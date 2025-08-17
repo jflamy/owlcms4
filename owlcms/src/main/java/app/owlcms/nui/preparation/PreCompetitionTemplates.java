@@ -51,6 +51,9 @@ public enum PreCompetitionTemplates {
 	JURY("/templates/jury", ".xlsx",
 	        () -> Competition.getCurrent().getJuryTemplateFileName(),
 	        (v) -> Competition.getCurrent().setJuryTemplateFileName(v)),
+	RECORDS("/templates/records", ".xlsx",
+	        () -> Competition.getCurrent().getCurrentRecordsTemplateFileName(),
+	        (v) -> Competition.getCurrent().setCurrentRecordsTemplateFileName(v)),
 	PRE_WEIGHIN("", ".zip", null, null),
 	POST_WEIGHIN("", ".zip", null, null),
 	;

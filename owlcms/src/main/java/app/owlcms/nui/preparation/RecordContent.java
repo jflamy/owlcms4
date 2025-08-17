@@ -6,23 +6,23 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+
+import app.owlcms.data.competition.Competition;
+import app.owlcms.components.JXLSDownloader;
+import app.owlcms.spreadsheet.JXLSExportRecords;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -133,7 +133,29 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
+		// Add export button for filtered records
+		Button exportRecordsButton = createExportRecordsButton();
+		this.topBar.add(exportRecordsButton);
+
 		return this.topBar;
+	}
+
+	private Button createExportRecordsButton() {
+		JXLSDownloader downloadDialog = new JXLSDownloader(
+			() -> {
+				// Get the same filtered records that are shown in the grid
+				List<RecordEvent> filteredRecords = getFilteredRecords();
+				return new JXLSExportRecords(UI.getCurrent(), filteredRecords);
+			},
+			"/templates/records",
+			Competition::getComputedCurrentRecordsTemplateFileName,
+			Competition::setCurrentRecordsTemplateFileName,
+			Translator.translate("Records.exportCurrentRecordsTitle"),
+			Translator.translate("Download"));
+		Button exportButton = downloadDialog.createDownloadButton();
+		exportButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		exportButton.getElement().getStyle().set("margin-right", "1em");
+		return exportButton;
 	}
 
 	@Override
@@ -148,16 +170,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	 */
 	@Override
 	public Collection<RecordEvent> findAll() {
-		List<RecordEvent> allRecords = RecordRepository.findAll();
-		List<RecordEvent> filteredRecords = filterRecords(allRecords);
-		return filteredRecords.stream()
-			.sorted(Comparator
-				.comparing(RecordEvent::getRecordFederation, Comparator.nullsLast(String::compareTo))
-				.thenComparing(RecordEvent::getAgeGrp, Comparator.nullsLast(String::compareTo))
-				.thenComparing(RecordEvent::getGender, Comparator.nullsLast(Comparator.naturalOrder()))
-				.thenComparing(RecordEvent::getBwCatUpper)
-				.thenComparing(RecordEvent::getRecordLift, Comparator.nullsLast(Comparator.naturalOrder())))
-			.collect(Collectors.toList());
+		// Use the centralized filtering method from RecordRepository
+		// This ensures grid and export show exactly the same data
+		return getFilteredRecords();
 	}
 
 	@Override
@@ -205,8 +220,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.federationFilter.clear();
 		this.ageGroupFilter.clear();
 		this.genderFilter.clear();
-		this.provisionalFilter.setValue(ProvisionalFilter.ALL);
-		this.currentHistoryFilter.setValue(CurrentHistoryFilter.CURRENT);
+		this.provisionalFilter.setValue(RecordContent.ProvisionalFilter.ALL);
+		this.currentHistoryFilter.setValue(RecordContent.CurrentHistoryFilter.CURRENT);
 		this.nameFilter.clear();
 	}
 
@@ -256,6 +271,31 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	public void setCurrentHistoryFilter(CurrentHistoryFilter currentHistoryFilter) {
 		this.currentHistoryFilter.setValue(currentHistoryFilter);
+	}
+
+	/**
+	 * Get filtered records using RecordRepository to ensure consistency between grid and export
+	 */
+	private List<RecordEvent> getFilteredRecords() {
+		// Convert enum values to strings for the repository method
+		String provisionalFilterStr = "ALL";
+		if (this.provisionalFilter != null && this.provisionalFilter.getValue() != null) {
+			provisionalFilterStr = this.provisionalFilter.getValue().name();
+		}
+		
+		String currentHistoryFilterStr = "HISTORY"; // Default to showing all records
+		if (this.currentHistoryFilter != null && this.currentHistoryFilter.getValue() != null) {
+			currentHistoryFilterStr = this.currentHistoryFilter.getValue().name();
+		}
+		
+		return RecordRepository.findWithFilters(
+			getFederation(),
+			getAgeGroup(),
+			getGender(),
+			getName(),
+			provisionalFilterStr,
+			currentHistoryFilterStr
+		);
 	}
 
 	/**
@@ -309,9 +349,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 		// Provisional filter
 		NativeLabel provisionalLabel = new NativeLabel(Translator.translate("RecordEvent.Status"));
-		this.provisionalFilter.setItems(ProvisionalFilter.values());
+		this.provisionalFilter.setItems(RecordContent.ProvisionalFilter.values());
 		this.provisionalFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
-		this.provisionalFilter.setValue(ProvisionalFilter.ALL);
+		this.provisionalFilter.setValue(RecordContent.ProvisionalFilter.ALL);
 		this.provisionalFilter.setClearButtonVisible(true);
 		this.provisionalFilter.addValueChangeListener(e -> {
 			setProvisionalFilter(e.getValue());
@@ -327,9 +367,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		crud.getCrudLayout().addFilterComponent(provisionalLayout);
 
 		// Current/History filter 
-		this.currentHistoryFilter.setItems(CurrentHistoryFilter.values());
+		this.currentHistoryFilter.setItems(RecordContent.CurrentHistoryFilter.values());
 		this.currentHistoryFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
-		this.currentHistoryFilter.setValue(CurrentHistoryFilter.CURRENT);
+		this.currentHistoryFilter.setValue(RecordContent.CurrentHistoryFilter.CURRENT);
 		this.currentHistoryFilter.setClearButtonVisible(true);
 		this.currentHistoryFilter.addValueChangeListener(e -> {
 			setCurrentHistoryFilter(e.getValue());
@@ -345,94 +385,6 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout().addFilterComponent(clearFilters);
-	}
-
-	/**
-	 * Filter the records based on the current filter values
-	 */
-	private List<RecordEvent> filterRecords(List<RecordEvent> records) {
-		Stream<RecordEvent> stream = records.stream()
-			.filter(r -> {
-				// Filter by federation
-				if (getFederation() != null && !getFederation().isEmpty()) {
-					String recordFederation = r.getRecordFederation();
-					if (recordFederation == null || !recordFederation.equals(getFederation())) {
-						return false;
-					}
-				}
-				return true;
-			})
-			.filter(r -> {
-				// Filter by age group
-				if (getAgeGroup() != null && !getAgeGroup().isEmpty()) {
-					String recordAgeGroup = r.getAgeGrp();
-					if (recordAgeGroup == null || !recordAgeGroup.equals(getAgeGroup())) {
-						return false;
-					}
-				}
-				return true;
-			})
-			.filter(r -> {
-				// Filter by gender
-				if (getGender() != null) {
-					Gender recordGender = r.getGender();
-					if (recordGender == null || !recordGender.equals(getGender())) {
-						return false;
-					}
-				}
-				return true;
-			})
-			.filter(r -> {
-				// Filter by provisional status
-				ProvisionalFilter provisionalFilter = getProvisionalFilter();
-				if (provisionalFilter != null && provisionalFilter != ProvisionalFilter.ALL) {
-					String groupNameString = r.getGroupNameString();
-					boolean isProvisional = groupNameString != null && !groupNameString.trim().isEmpty();
-					
-					if (provisionalFilter == ProvisionalFilter.PROVISIONAL && !isProvisional) {
-						return false;
-					}
-					if (provisionalFilter == ProvisionalFilter.OFFICIAL && isProvisional) {
-						return false;
-					}
-				}
-				return true;
-			})
-			.filter(r -> {
-				// Filter by name (search in record name and athlete name)
-				if (getName() != null && !getName().isEmpty()) {
-					String filterName = getName().toLowerCase();
-					String recordName = r.getRecordName();
-					String athleteName = r.getAthleteName();
-					
-					boolean recordNameMatch = recordName != null && recordName.toLowerCase().contains(filterName);
-					boolean athleteNameMatch = athleteName != null && athleteName.toLowerCase().contains(filterName);
-					
-					if (!recordNameMatch && !athleteNameMatch) {
-						return false;
-					}
-				}
-				return true;
-			});
-
-		// Collect the stream to a list first
-		List<RecordEvent> filteredRecords = stream.collect(Collectors.toList());
-		
-		// Apply Current/History filter if needed
-		CurrentHistoryFilter currentHistoryFilter = getCurrentHistoryFilter();
-		if (currentHistoryFilter != null && currentHistoryFilter == CurrentHistoryFilter.CURRENT) {
-			// Keep only the latest/best records (highest lift) per record key
-			Map<String, RecordEvent> currentRecordsMap = filteredRecords.stream()
-				.collect(Collectors.groupingBy(
-					RecordEvent::getKey,
-					Collectors.collectingAndThen(
-						Collectors.maxBy((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift())),
-						record -> record.orElseThrow(() -> new IllegalStateException("No record found")))));
-			filteredRecords = new ArrayList<>(currentRecordsMap.values());
-		}
-		// For HISTORY, we keep all records (no additional filtering needed)
-
-		return filteredRecords;
 	}
 
 	/**

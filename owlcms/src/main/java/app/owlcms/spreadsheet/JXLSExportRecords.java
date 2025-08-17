@@ -57,6 +57,16 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		this.currentOnly = currentOnly;
 	}
 
+	/**
+	 * Constructor that accepts a pre-filtered list of records.
+	 * Used when we want to export exactly what is shown in the grid.
+	 */
+	public JXLSExportRecords(UI ui, List<RecordEvent> filteredRecords) {
+		this.setAllRecords(true); // Not used when records are pre-filtered
+		this.currentOnly = false; // Not used when records are pre-filtered
+		this.records = new ArrayList<>(filteredRecords);
+	}
+
 	@Override
 	public Group getGroup() {
 		return this.group;
@@ -104,15 +114,22 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		// prevent irrelevant "No Athletes" error message.
 		List<Athlete> athletes = List.of(new Athlete());
 
-		String groupName = this.group != null ? this.group.getName() : null;
-		this.setRecords(RecordRepository.findFiltered(null, null, null, groupName, !this.isAllRecords()));
-		logger.info("found {} records",getRecords().size());
+		// Only fetch records if they haven't been pre-provided
+		if (this.records == null) {
+			String groupName = this.group != null ? this.group.getName() : null;
+			this.setRecords(RecordRepository.findFiltered(null, null, null, groupName, !this.isAllRecords()));
+			logger.info("found {} records",getRecords().size());
 
-		if (this.currentOnly) {
-			var recordMap = this.keepNewest();
-			this.setRecords(new ArrayList<>(recordMap.values().stream().toList()));
-			this.getRecords().sort(sortRecords());
+			if (this.currentOnly) {
+				var recordMap = this.keepNewest();
+				this.setRecords(new ArrayList<>(recordMap.values().stream().toList()));
+				this.getRecords().sort(sortRecords());
+			} else {
+				this.getRecords().sort(sortRecords());
+			}
 		} else {
+			// Records were pre-filtered, just ensure they're sorted
+			logger.info("using pre-filtered {} records", getRecords().size());
 			this.getRecords().sort(sortRecords());
 		}
 

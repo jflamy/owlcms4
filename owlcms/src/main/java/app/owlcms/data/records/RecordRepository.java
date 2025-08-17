@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -458,6 +459,122 @@ public class RecordRepository {
 				String.class)
 				.getResultList();
 		});
+	}
+
+	/**
+	 * Comprehensive filtering method that supports all filters from RecordContent.
+	 * This ensures consistency between grid display and export functionality.
+	 * 
+	 * @param federation Filter by federation (null for no filter)
+	 * @param ageGroup Filter by age group (null for no filter)  
+	 * @param gender Filter by gender (null for no filter)
+	 * @param nameFilter Filter by record name or athlete name (null for no filter)
+	 * @param provisionalFilter Filter by provisional status (null for ALL)
+	 * @param currentHistoryFilter Filter by current/history (null for ALL)
+	 * @return Filtered and sorted list of records
+	 */
+	public static List<RecordEvent> findWithFilters(
+			String federation,
+			String ageGroup, 
+			Gender gender,
+			String nameFilter,
+			String provisionalFilter, // "ALL", "PROVISIONAL", "OFFICIAL"
+			String currentHistoryFilter // "CURRENT", "HISTORY"
+	) {
+		List<RecordEvent> allResults = JPAService.runInTransaction(em -> {
+			// Start with base query
+			StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE 1=1");
+			List<String> parameters = new ArrayList<>();
+			
+			// Federation filter
+			if (federation != null && !federation.isEmpty()) {
+				queryBuilder.append(" AND rec.recordFederation = :federation");
+				parameters.add("federation");
+			}
+			
+			// Age group filter
+			if (ageGroup != null && !ageGroup.isEmpty()) {
+				queryBuilder.append(" AND rec.ageGrp = :ageGroup");
+				parameters.add("ageGroup");
+			}
+			
+			// Gender filter
+			if (gender != null) {
+				queryBuilder.append(" AND rec.gender = :gender");
+				parameters.add("gender");
+			}
+			
+			// Name filter (search in both record name and athlete name)
+			if (nameFilter != null && !nameFilter.trim().isEmpty()) {
+				queryBuilder.append(" AND (LOWER(rec.recordName) LIKE :nameFilter OR LOWER(rec.athleteName) LIKE :nameFilter)");
+				parameters.add("nameFilter");
+			}
+			
+			// Provisional filter
+			if (provisionalFilter != null && !"ALL".equals(provisionalFilter)) {
+				if ("PROVISIONAL".equals(provisionalFilter)) {
+					queryBuilder.append(" AND (rec.groupNameString IS NOT NULL AND rec.groupNameString != '')");
+				} else if ("OFFICIAL".equals(provisionalFilter)) {
+					queryBuilder.append(" AND (rec.groupNameString IS NULL OR rec.groupNameString = '')");
+				}
+			}
+			
+			// Add ordering - same as current grid
+			queryBuilder.append(" ORDER BY rec.gender, rec.ageGrp, rec.recordFederation, rec.recordName, rec.recordLift DESC");
+			
+			Query query = em.createQuery(queryBuilder.toString());
+			
+			// Set parameters
+			if (parameters.contains("federation")) {
+				query.setParameter("federation", federation);
+			}
+			if (parameters.contains("ageGroup")) {
+				query.setParameter("ageGroup", ageGroup);
+			}
+			if (parameters.contains("gender")) {
+				query.setParameter("gender", gender);
+			}
+			if (parameters.contains("nameFilter")) {
+				query.setParameter("nameFilter", "%" + nameFilter.toLowerCase() + "%");
+			}
+			
+			@SuppressWarnings("unchecked")
+			List<RecordEvent> queryResults = query.getResultList();
+			return queryResults;
+		});
+		
+		// Apply current/history filter in Java (since it requires grouping logic)
+		if ("CURRENT".equals(currentHistoryFilter)) {
+			// Group by record key and keep only the best (highest lift) record for each key
+			return allResults.stream()
+				.collect(Collectors.groupingBy(
+					RecordEvent::getKey,
+					Collectors.collectingAndThen(
+						Collectors.maxBy((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift())),
+						record -> record.orElseThrow(() -> new IllegalStateException("No record found")))))
+				.values()
+				.stream()
+				.sorted((r1, r2) -> {
+					// Re-apply the same ordering as the query
+					int genderComp = ObjectUtils.compare(r1.getGender(), r2.getGender());
+					if (genderComp != 0) return genderComp;
+					
+					int ageComp = ObjectUtils.compare(r1.getAgeGrp(), r2.getAgeGrp());
+					if (ageComp != 0) return ageComp;
+					
+					int fedComp = ObjectUtils.compare(r1.getRecordFederation(), r2.getRecordFederation());
+					if (fedComp != 0) return fedComp;
+					
+					int nameComp = ObjectUtils.compare(r1.getRecordName(), r2.getRecordName());
+					if (nameComp != 0) return nameComp;
+					
+					return r2.getRecordLift().compareTo(r1.getRecordLift()); // DESC for record lift
+				})
+				.collect(Collectors.toList());
+		}
+		
+		// For HISTORY or null, return all results as-is
+		return allResults;
 	}
 
 }
