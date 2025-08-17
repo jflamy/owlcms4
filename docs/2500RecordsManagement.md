@@ -83,9 +83,11 @@ You can then export the selected information in Excel format.
 - prettyGroups removes some of the redundant columns, and translates the header row
 - prettySheets is one sheet per age group.  Perfect for import to Google Sheets and embedding in a Web Site
 
-For example, the import format sheets look like the following:
+For example, if you are in Spanish, and use the prettySheets format, you would get -- you can take that format as a basis and remove the columns you don't want.
 
-![90](../../../OneDrive/Documents/ShareX/Screenshots/2025-08/90.png)
+![90](../../../OneDrive/Documents/ShareX/Screenshots/2025-08/B0.png)
+
+
 
 ## Editing Records
 
