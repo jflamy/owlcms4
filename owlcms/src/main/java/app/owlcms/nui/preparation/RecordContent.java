@@ -16,19 +16,18 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
@@ -62,9 +61,20 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	
 	// Filter fields
 	private ComboBox<String> federationFilter = new ComboBox<>();
-	private ComboBox<String> ageGroupFilter = new ComboBox<>(); 
+	private ComboBox<String> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Gender> genderFilter = new ComboBox<>();
+	private ComboBox<ProvisionalFilter> provisionalFilter = new ComboBox<>();
 	private TextField nameFilter = new TextField();
+
+	public enum ProvisionalFilter {
+		ALL,
+		PROVISIONAL,
+		OFFICIAL;
+
+		public String getKey() {
+			return "RecordEvent." + this.name();
+		}
+	}
 	
 	// Filter values
 	private String federation;
@@ -175,6 +185,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.federationFilter.clear();
 		this.ageGroupFilter.clear();
 		this.genderFilter.clear();
+		this.provisionalFilter.setValue(ProvisionalFilter.ALL);
 		this.nameFilter.clear();
 	}
 
@@ -208,6 +219,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public ProvisionalFilter getProvisionalFilter() {
+		return this.provisionalFilter.getValue();
+	}
+
+	public void setProvisionalFilter(ProvisionalFilter provisionalFilter) {
+		this.provisionalFilter.setValue(provisionalFilter);
 	}
 
 	/**
@@ -247,6 +266,25 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		});
 		this.genderFilter.setWidth("8em");
 		crud.getCrudLayout().addFilterComponent(this.genderFilter);
+
+		// Provisional filter
+		NativeLabel provisionalLabel = new NativeLabel(Translator.translate("RecordEvent.Status"));
+		this.provisionalFilter.setItems(ProvisionalFilter.values());
+		this.provisionalFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
+		this.provisionalFilter.setValue(ProvisionalFilter.ALL);
+		this.provisionalFilter.setClearButtonVisible(true);
+		this.provisionalFilter.addValueChangeListener(e -> {
+			setProvisionalFilter(e.getValue());
+			crud.refreshGrid();
+		});
+		this.provisionalFilter.setWidth("10em");
+		
+		HorizontalLayout provisionalLayout = new HorizontalLayout(provisionalLabel, this.provisionalFilter);
+		provisionalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+		provisionalLayout.setSpacing(false);
+		provisionalLabel.getStyle().set("margin-right", "0.5em");
+		
+		crud.getCrudLayout().addFilterComponent(provisionalLayout);
 
 		// Name filter (for record name or athlete name)
 		this.nameFilter.setPlaceholder(Translator.translate("Name"));
@@ -304,6 +342,22 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 				return true;
 			})
 			.filter(r -> {
+				// Filter by provisional status
+				ProvisionalFilter provisionalFilter = getProvisionalFilter();
+				if (provisionalFilter != null && provisionalFilter != ProvisionalFilter.ALL) {
+					String groupNameString = r.getGroupNameString();
+					boolean isProvisional = groupNameString != null && !groupNameString.trim().isEmpty();
+					
+					if (provisionalFilter == ProvisionalFilter.PROVISIONAL && !isProvisional) {
+						return false;
+					}
+					if (provisionalFilter == ProvisionalFilter.OFFICIAL && isProvisional) {
+						return false;
+					}
+				}
+				return true;
+			})
+			.filter(r -> {
 				// Filter by name (search in record name and athlete name)
 				if (getName() != null && !getName().isEmpty()) {
 					String filterName = getName().toLowerCase();
@@ -335,7 +389,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		grid.getThemeNames().add("row-stripes");
 		
 		// Record identification columns
-		grid.addColumn(RecordEvent::getRecordFederation).setHeader(Translator.translate("RecordEvent.Federation")).setAutoWidth(true);
+		grid.addColumn(RecordEvent::getRecordFederation).setHeader(Translator.translate("Competition.federationTitle")).setAutoWidth(true);
 		grid.addColumn(RecordEvent::getRecordName).setHeader(Translator.translate("RecordEvent.Name")).setAutoWidth(true);
 		grid.addColumn(RecordEvent::getAgeGrp).setHeader(Translator.translate("AgeGroup")).setAutoWidth(true);
 		grid.addColumn(RecordEvent::getGender).setHeader(Translator.translate("Gender")).setAutoWidth(true);
@@ -353,15 +407,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		grid.addColumn(RecordEvent::getEvent).setHeader(Translator.translate("RecordEvent.Event")).setAutoWidth(true);
 		grid.addColumn(RecordEvent::getEventLocation).setHeader(Translator.translate("RecordEvent.EventLocation")).setAutoWidth(true);
 
-		// Edit button column
-		grid.addColumn(new ComponentRenderer<>(p -> {
-			ComponentEventListener<ClickEvent<Button>> clickListener = (click) -> {
-				this.crud.updateButtonClicked(p);
-			};
-			Button editDetails = new Button(Translator.translate("Edit"), clickListener);
-			editDetails.addThemeVariants(ButtonVariant.LUMO_SMALL);
-			return editDetails;
-		})).setHeader("").setAutoWidth(true);
+		// Status column
+		grid.addColumn(recordEvent -> {
+			String groupNameString = recordEvent.getGroupNameString();
+			boolean isProvisional = groupNameString != null && !groupNameString.trim().isEmpty();
+			return isProvisional ? 
+				Translator.translate("RecordEvent.PROVISIONAL") : 
+				Translator.translate("RecordEvent.OFFICIAL");
+		}).setHeader(Translator.translate("RecordEvent.Status")).setAutoWidth(true);
 
 		for (Column<RecordEvent> c : grid.getColumns()) {
 			c.setResizable(true);
