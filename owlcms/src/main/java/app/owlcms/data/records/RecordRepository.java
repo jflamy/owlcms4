@@ -92,6 +92,91 @@ public class RecordRepository {
 		});
 	}
 
+	/**
+	 * Clear provisional flags only for records matching the specified filters
+	 * @param federation Federation filter
+	 * @param ageGroup Age group filter
+	 * @param gender Gender filter
+	 * @param nameFilter Name filter
+	 * @param provisionalFilter Provisional filter
+	 * @param currentHistoryFilter Current/History filter
+	 * @throws IOException
+	 */
+	public static void clearNewRecordsWithFilters(
+			String federation,
+			String ageGroup, 
+			Gender gender,
+			String nameFilter,
+			String provisionalFilter,
+			String currentHistoryFilter) throws IOException {
+		
+		JPAService.runInTransaction(em -> {
+			try {
+				// Build the same WHERE clause as findWithFilters but for UPDATE
+				StringBuilder queryBuilder = new StringBuilder("UPDATE RecordEvent rec SET rec.groupNameString = NULL WHERE rec.groupNameString IS NOT NULL");
+				List<String> parameters = new ArrayList<>();
+				
+				// Federation filter
+				if (federation != null && !federation.isEmpty()) {
+					queryBuilder.append(" AND rec.recordFederation = :federation");
+					parameters.add("federation");
+				}
+				
+				// Age group filter
+				if (ageGroup != null && !ageGroup.isEmpty()) {
+					queryBuilder.append(" AND rec.ageGrp = :ageGroup");
+					parameters.add("ageGroup");
+				}
+				
+				// Gender filter
+				if (gender != null) {
+					queryBuilder.append(" AND rec.gender = :gender");
+					parameters.add("gender");
+				}
+				
+				// Name filter (search in both record name and athlete name)
+				if (nameFilter != null && !nameFilter.trim().isEmpty()) {
+					queryBuilder.append(" AND (LOWER(rec.recordName) LIKE :nameFilter OR LOWER(rec.athleteName) LIKE :nameFilter)");
+					parameters.add("nameFilter");
+				}
+				
+				// Provisional filter - only update provisional records
+				if (provisionalFilter != null && !"ALL".equals(provisionalFilter)) {
+					if ("PROVISIONAL".equals(provisionalFilter)) {
+						// Already included in base WHERE clause
+					} else if ("OFFICIAL".equals(provisionalFilter)) {
+						// Don't update official records - add condition that prevents any updates
+						queryBuilder.append(" AND 1=0");
+					}
+				}
+				
+				Query query = em.createQuery(queryBuilder.toString());
+				
+				// Set parameters
+				if (parameters.contains("federation")) {
+					query.setParameter("federation", federation);
+				}
+				if (parameters.contains("ageGroup")) {
+					query.setParameter("ageGroup", ageGroup);
+				}
+				if (parameters.contains("gender")) {
+					query.setParameter("gender", gender);
+				}
+				if (parameters.contains("nameFilter")) {
+					query.setParameter("nameFilter", "%" + nameFilter.toLowerCase() + "%");
+				}
+				
+				int updatedCount = query.executeUpdate();
+				if (updatedCount >= 0) {
+					logger.info("cleared provisional flags for {} record entries", updatedCount);
+				}
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			}
+			return null;
+		});
+	}
+
 	// public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
 	// Integer cjRequest, Integer totalRequest) {
 	// List<RecordEvent> records = findFiltered(gender, age, bw, null, null);

@@ -67,29 +67,10 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	private ComboBox<String> federationFilter = new ComboBox<>();
 	private ComboBox<String> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Gender> genderFilter = new ComboBox<>();
-	private ComboBox<ProvisionalFilter> provisionalFilter = new ComboBox<>();
-	private ComboBox<CurrentHistoryFilter> currentHistoryFilter = new ComboBox<>();
+	private ComboBox<RecordFilters.ProvisionalFilter> provisionalFilter = new ComboBox<>();
+	private ComboBox<RecordFilters.CurrentHistoryFilter> currentHistoryFilter = new ComboBox<>();
 	private TextField nameFilter = new TextField();
 
-	public enum ProvisionalFilter {
-		ALL,
-		PROVISIONAL,
-		OFFICIAL;
-
-		public String getKey() {
-			return "RecordEvent." + this.name();
-		}
-	}
-	
-	public enum CurrentHistoryFilter {
-		CURRENT,
-		HISTORY;
-
-		public String getKey() {
-			return "RecordEvent." + this.name();
-		}
-	}
-	
 	// Filter values
 	private String federation;
 	private String ageGroup;
@@ -170,7 +151,27 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		Button clearNewRecordsButton = new Button(Translator.translate("Preparation.ClearNewRecords"),
 			buttonClickEvent -> {
 				try {
-					RecordRepository.clearNewRecords();
+					// Use the same filter parameters as the grid display
+					String provisionalFilterStr = "ALL";
+					if (this.provisionalFilter != null && this.provisionalFilter.getValue() != null) {
+						provisionalFilterStr = this.provisionalFilter.getValue().name();
+					}
+					
+					String currentHistoryFilterStr = "HISTORY"; // Default to showing all records
+					if (this.currentHistoryFilter != null && this.currentHistoryFilter.getValue() != null) {
+						currentHistoryFilterStr = this.currentHistoryFilter.getValue().name();
+					}
+					
+					// Clear provisional flags only for the filtered records
+					RecordRepository.clearNewRecordsWithFilters(
+						getFederation(),
+						getAgeGroup(),
+						getGender(),
+						getName(),
+						provisionalFilterStr,
+						currentHistoryFilterStr
+					);
+					
 					// Refresh the grid to show the updated records
 					this.crud.refreshGrid();
 				} catch (IOException e) {
@@ -258,8 +259,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.federationFilter.clear();
 		this.ageGroupFilter.clear();
 		this.genderFilter.clear();
-		this.provisionalFilter.setValue(ProvisionalFilter.ALL);
-		this.currentHistoryFilter.setValue(CurrentHistoryFilter.CURRENT);
+		this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
+		this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
 		this.nameFilter.clear();
 	}
 
@@ -295,19 +296,19 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.name = name;
 	}
 
-	public ProvisionalFilter getProvisionalFilter() {
+	public RecordFilters.ProvisionalFilter getProvisionalFilter() {
 		return this.provisionalFilter.getValue();
 	}
 
-	public void setProvisionalFilter(ProvisionalFilter provisionalFilter) {
+	public void setProvisionalFilter(RecordFilters.ProvisionalFilter provisionalFilter) {
 		this.provisionalFilter.setValue(provisionalFilter);
 	}
 
-	public CurrentHistoryFilter getCurrentHistoryFilter() {
+	public RecordFilters.CurrentHistoryFilter getCurrentHistoryFilter() {
 		return this.currentHistoryFilter.getValue();
 	}
 
-	public void setCurrentHistoryFilter(CurrentHistoryFilter currentHistoryFilter) {
+	public void setCurrentHistoryFilter(RecordFilters.CurrentHistoryFilter currentHistoryFilter) {
 		this.currentHistoryFilter.setValue(currentHistoryFilter);
 	}
 
@@ -387,9 +388,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 		// Provisional filter
 		NativeLabel provisionalLabel = new NativeLabel(Translator.translate("RecordEvent.Status"));
-		this.provisionalFilter.setItems(ProvisionalFilter.values());
+		this.provisionalFilter.setItems(RecordFilters.ProvisionalFilter.values());
 		this.provisionalFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
-		this.provisionalFilter.setValue(ProvisionalFilter.ALL);
+		this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
 		this.provisionalFilter.setClearButtonVisible(true);
 		this.provisionalFilter.addValueChangeListener(e -> {
 			setProvisionalFilter(e.getValue());
@@ -405,9 +406,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		crud.getCrudLayout().addFilterComponent(provisionalLayout);
 
 		// Current/History filter 
-		this.currentHistoryFilter.setItems(CurrentHistoryFilter.values());
+		this.currentHistoryFilter.setItems(RecordFilters.CurrentHistoryFilter.values());
 		this.currentHistoryFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
-		this.currentHistoryFilter.setValue(CurrentHistoryFilter.CURRENT);
+		this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
 		this.currentHistoryFilter.setClearButtonVisible(true);
 		this.currentHistoryFilter.addValueChangeListener(e -> {
 			setCurrentHistoryFilter(e.getValue());
