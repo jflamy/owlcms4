@@ -185,7 +185,6 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 					throw new RuntimeException(e);
 				}
 			});
-		clearNewRecordsButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 		clearNewRecordsButton.getElement().getStyle().set("margin-right", "1em");
 		clearNewRecordsButton.getElement().setAttribute("title", Translator.translate("Preparation.ClearNewRecordsExplanation"));
 		return clearNewRecordsButton;
@@ -198,7 +197,6 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 				// Refresh the grid to show the updated records
 				this.crud.refreshGrid();
 			});
-		recomputeRecordsButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 		recomputeRecordsButton.getElement().getStyle().set("margin-right", "1em");
 		recomputeRecordsButton.getElement().setAttribute("title", Translator.translate("Preparation.RecomputeNewRecordsExplanation"));
 		return recomputeRecordsButton;
@@ -229,7 +227,6 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 					throw new RuntimeException(e);
 				}
 			});
-		keepCurrentRecordsButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 		keepCurrentRecordsButton.getElement().getStyle().set("margin-right", "1em");
 		keepCurrentRecordsButton.getElement().setAttribute("title", Translator.translate("RecordEvent.KeepCurrentRecordsExplanation"));
 		return keepCurrentRecordsButton;
@@ -275,7 +272,6 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 				);
 				confirmDialog.open();
 			});
-		removeSelectedButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
 		removeSelectedButton.getElement().getStyle().set("margin-right", "1em");
 		removeSelectedButton.getElement().setAttribute("title", Translator.translate("RecordEvent.DeleteSelectedExplanation"));
 		return removeSelectedButton;
