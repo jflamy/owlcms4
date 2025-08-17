@@ -14,7 +14,7 @@
 
 **New in Release 60.0**
 
-60.0.0: Exporting and editing records is now done from a separate page that allows selection of the federation, whether superseded records are included or only current, and if new provisional records from the current competition are exported for validation.
+60.0.0: Viewing and exporting records is now done from a dedicated page that allows filtering, for example to restrict to a federation or an age group. It is now possible to edit records via the user interface. See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement)
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 
