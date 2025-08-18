@@ -67,21 +67,30 @@ The second button "Edit and Export Records" (B) is used to view, filter, export 
 
 ![10_prepcomp](nimg/2501_Records_New/10_prepcomp.png)
 
-At the end of the competition, the screen might look like this, and you can select a federation. 
+### Filters
 
-- You can also select whether you want to include only the current records, or all the ones that were superseded ("History")
-- Likewise, you can select the records that were set in this meet ("Provisional"), for validation purposes, or to send to the federation records secretary.
+The records are shown in a grid, as in most other owlcms screens.  Clicking on a record allows editing.
+
+The filters at the top allow selecting records for producing reports in Excel format, and for other actions
+
+- Federation, Age Group, Gender and Name are used to narrow down the records further when it is desired to edit a record
+- Federation, together with the two drop downs at the right control what is exported
+  - When multiple federations are present, the federation drop down controls which one is relevant
+  - The first dropdown controls whether new records set in this competition, or all records are exported.  New records are normally provisional until approved by the federation.  This allows creating a summary report of the new records for the federation.
+  - The second dropdown controls whether only the highest most current record is shown, or if all the historical sequence of superceded records is shown.  Some federations keep a historical sequence.
 
 ![70](nimg/2501_Records_New/70.png)
 
-You can then export the selected information in Excel format.
+You can then export the selected information in Excel format.  Several templates are available by default.
+
+- Import-Export format: used for archival and for configuring the system
+  - importFormatSheet is one sheet per age group, more readable for humans, can be re-imported in owlcms
+  - importFormatRecords has everything in the same sheet, easier if you need to process.
+- "Pretty" format, used as a basis for publishing the records
+  - prettyGroups removes some of the redundant columns, and translates the header row
+  - prettySheets is one sheet per age group.  Perfect for import to Google Sheets and embedding in a Web Site
 
 ![80](nimg/2501_Records_New/80.png)
-
-- importFormatSheet is one sheet per age group, more readable for humans, can be re-imported in owlcms
-- importFormatRecords has everything in the same sheet, easier if you need to process.
-- prettyGroups removes some of the redundant columns, and translates the header row
-- prettySheets is one sheet per age group.  Perfect for import to Google Sheets and embedding in a Web Site
 
 For example, if you are in Spanish, and use the prettySheets format, you would get something like the following.  You can customize the templates and create your own, remove columns, etc.
 
