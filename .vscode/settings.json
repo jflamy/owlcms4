@@ -5,5 +5,8 @@
         "**/.project": true,
         "**/.settings": true,
         "**/.factorypath": true
-    }
+    },
+    // Disable annotation processing to prevent VS Code from modifying .classpath files
+    "java.annotation.processing.enabled": false,
+    "java.autobuild.annotation.processing.enabled": false
 }

@@ -257,6 +257,12 @@
 								<resource>
 									<directory>src/main/markdown</directory>
 									<filtering>true</filtering>
+									<excludes>
+										<exclude>alpha.md</exclude>
+										<exclude>beta.md</exclude>
+										<exclude>release.md</exclude>
+										<exclude>rc.md</exclude>
+									</excludes>
 								</resource>
 								<!-- resource>
 								<directory>src/main/azure-pipelines</directory>

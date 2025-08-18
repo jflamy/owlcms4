@@ -14,9 +14,12 @@
         "default": true
       }
     ],
-  "java.import.gradle.enabled": false,
-  "terminal.integrated.defaultProfile.windows": "Git Bash",
-  "java.compile.nullAnalysis.mode": "disabled"
+    "java.import.gradle.enabled": false,
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "java.compile.nullAnalysis.mode": "disabled",
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.annotation.processing.enabled": false,
+    "java.autobuild.annotation.processing.enabled": false
   },
   "launch": {
     "version": "0.2.0",
