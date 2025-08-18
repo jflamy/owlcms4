@@ -325,6 +325,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		return this.editingFormFactory.update(domainObjectToUpdate);
 	}
 
+	/**
+	 * @see app.owlcms.apputils.queryparameters.FOPParameters#isIgnoreFopFromURL()
+	 */
+	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		if (this.documentPage) {
