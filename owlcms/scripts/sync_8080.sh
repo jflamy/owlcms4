@@ -7,7 +7,7 @@ REMOTE_PORT=8080
 REMOTE_DIR="/home/jflamy/fhq"
 DATABASE_FOLDER="database"
 
-rem empty value prevents copy
+# empty value prevents copy
 LOCAL_SOURCE_DIR1=
 LOCAL_SOURCE_DIR2="/c/Users/lamyj/git/owlcms4/owlcms/local/logos"
 LOCAL_SOURCE_DIR3="/c/Users/lamyj/git/owlcms4/owlcms/local/flags"
@@ -17,7 +17,7 @@ echo "Connecting to remote server for port cleanup and owlcms download..."
 
 
 # Set up variables locally
-REPO_OWNER="owlcmlsof -
+REPO_OWNER="owlcms"
 REPO_NAME="owlcms4-prerelease"
 FILE_PREFIX="owlcms"
 GITHUB_API_URL="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest"
@@ -146,7 +146,8 @@ echo switching to $(pwd)
 export OWLCMS_PORT=$REMOTE_PORT
 export OWLCMS_ENABLEEMBEDDEDMQTT=false
 export OWLCMS_FEATURESWITCHES=iwfLook
-nohup java -jar owlcms*.jar > owlcms.log 2>&1 &echo "owlcms started in background with PID: $!"
+nohup java -jar owlcms*.jar > owlcms.log 2>&1 &
+echo "owlcms started in background with PID: $!"
 echo "Logs will be written to owlcms.log"
 EOF
 
