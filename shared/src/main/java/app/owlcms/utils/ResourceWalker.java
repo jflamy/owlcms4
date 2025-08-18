@@ -71,8 +71,28 @@ public class ResourceWalker {
 	}
 
 	public static void checkForLocalOverrideDirectory() {
-		Path curDir = Paths.get(".", "local");
-		curDir = curDir.normalize();
+		// Start with default directory
+		Path curDir = Paths.get(".", "local").normalize();
+		
+		// Check for environment variable override
+		String envLocalDir = System.getenv("OWLCMS_LOCALDIR");
+		logger.info("OWLCMS_LOCALDIR environment variable = '{}'", envLocalDir);
+		
+		if (envLocalDir != null && !envLocalDir.trim().isEmpty()) {
+			Path envDir = Paths.get(envLocalDir.trim()).normalize();
+			logger.info("Environment directory path: {}, exists: {}", envDir.toAbsolutePath(), Files.exists(envDir));
+			
+			if (Files.exists(envDir)) {
+				// Environment variable exists and directory found - use it instead
+				curDir = envDir;
+				logger.info("using OWLCMS_LOCALDIR environment variable: {}", envLocalDir);
+			} else {
+				// Environment variable defined but directory missing - report error but continue
+				logger.error("OWLCMS_LOCALDIR directory not found: {}, using default instead", envDir.toAbsolutePath());
+			}
+		}
+		
+		// Process the final curDir (either default or env override)
 		if (Files.exists(curDir)) {
 			logger.info("local override directory = {}", curDir.toAbsolutePath());
 			ResourceWalker.setLocalDirPath(curDir);

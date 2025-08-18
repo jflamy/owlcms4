@@ -33,7 +33,8 @@
         "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
         "env": {
           "OWLCMS_MEMORYMODE": "false",
-          "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO"
+          "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
+          // "OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
         }
       },
       {
