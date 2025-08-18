@@ -73,22 +73,30 @@ The records are shown in a grid, as in most other owlcms screens.  Clicking on a
 
 The filters at the top allow selecting records for producing reports in Excel format, and for other actions
 
-- Federation, Age Group, Gender and Name are used to narrow down the records further when it is desired to edit a record
-- Federation, together with the two drop downs at the right control what is exported
-  - When multiple federations are present, the federation drop down controls which one is relevant
-  - The first dropdown controls whether new records set in this competition, or all records are exported.  New records are normally provisional until approved by the federation.  This allows creating a summary report of the new records for the federation.
-  - The second dropdown controls whether only the highest most current record is shown, or if all the historical sequence of superceded records is shown.  Some federations keep a historical sequence.
+- There are "standard" filters to locate a record -- Federation, Age Group, Gender, and athlete Name
+- There are two dropdowns about the status of the records shown
+  - The first one is about new records set in the competition.  New records are provisional, and not official, until approved by a federation.
+    - `Provisional` means new records only. This setting is used to make up a list that can be sent to to the federation.   New records are flagged with the session in which they were set and they remain marked as provisional in this way until the "Accept Provisional Records" button is used.
+    - `Official` means records previously set (their session field is empty).  These are typically loaded from a file that contains data from the federation.
+    - `All` means both.  If you are confident that provisional records will stand, and wish to produce a list with all the records at the end of the competition.
+
+  - The second drop down is about superceded records.  Some federations keep a historical record of all the improvements to a record, even during the same competition.
+    - `Current` means show the last (best) record only, hide the previous ones
+    - `All` means show all records, including the ones that were superceded, to have the full story.
+
 
 ![70](nimg/2501_Records_New/70.png)
+
+### Formats
 
 You can then export the selected information in Excel format.  Several templates are available by default.
 
 - Import-Export format: used for archival and for configuring the system
-  - importFormatSheet is one sheet per age group, more readable for humans, can be re-imported in owlcms
-  - importFormatRecords has everything in the same sheet, easier if you need to process.
+  - `importFormatSheet` is one sheet per age group, more readable for humans, can be re-imported in owlcms.  You would use this to create an archive format.
+  - `importFormatRecords` has everything in the same sheet, easier if you need to convert to a CSV or other flat format.  Your federation would maybe want this to validate Provisional records.
 - "Pretty" format, used as a basis for publishing the records
-  - prettyGroups removes some of the redundant columns, and translates the header row
-  - prettySheets is one sheet per age group.  Perfect for import to Google Sheets and embedding in a Web Site
+  - `prettyGroups` removes some of the redundant columns, and translates the header row.  You would use this to produce a PDF. 
+  - `prettySheets` is one sheet per age group.  Perfect for importing to Google Sheets and then embedding in a Web Site
 
 ![80](nimg/2501_Records_New/80.png)
 
