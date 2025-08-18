@@ -504,7 +504,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		if (sessionOrder) {
 			Collections.sort(regCatAthletesList, RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
 		} else {
-			AthleteSorter.registrationOrder(regCatAthletesList);
+			try {
+				AthleteSorter.registrationOrder(regCatAthletesList);
+			} catch (Exception e) {
+				logger.error("***** Error sorting athletes", e);
+			}
 		}
 
 		updateURLLocations();
