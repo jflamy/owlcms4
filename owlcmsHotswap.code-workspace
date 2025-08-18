@@ -19,14 +19,19 @@
     "java.compile.nullAnalysis.mode": "disabled",
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.annotation.processing.enabled": false,
-    "java.autobuild.annotation.processing.enabled": false
+    "java.autobuild.annotation.processing.enabled": false,
+    "launch": {
+      "configurations": [],
+      "compounds": []
+    },
+    "debug.allowBreakpointsEverywhere": true
   },
   "launch": {
     "version": "0.2.0",
     "configurations": [
       {
         "type": "java",
-        "name": "Launch owlcms (Hotswap)",
+        "name": "⭐ Launch owlcms (Hotswap)",
         "request": "launch",
         "mainClass": "app.owlcms.Main",
         "projectName": "owlcms",
@@ -39,7 +44,7 @@
       },
       {
         "type": "java",
-        "name": "Launch publicresults (Hotswap)",
+        "name": "⭐ Launch publicresults (Hotswap)",
         "request": "launch",
         "mainClass": "app.owlcms.publicresults.Main",
         "projectName": "publicresults",
@@ -55,6 +60,15 @@
         "request": "launch",
         "mainClass": "${file}",
         "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar"
+      }
+    ],
+    "compounds": [
+      {
+        "name": "⭐ Launch Both (owlcms + publicresults)",
+        "configurations": [
+          "⭐ Launch owlcms (Hotswap)",
+          "⭐ Launch publicresults (Hotswap)"
+        ]
       }
     ]
   }
