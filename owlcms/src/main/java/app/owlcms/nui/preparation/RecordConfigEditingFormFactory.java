@@ -37,7 +37,6 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
@@ -52,8 +51,11 @@ import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordDefinitionReader;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
+import app.owlcms.utils.URLUtils;
 
 @SuppressWarnings("serial")
 public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<RecordConfig> {
@@ -206,7 +208,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		});
 
 		FormLayout recordsAvailableLayout = createLayout();
-		Component title = createTitle("RecordConfig.LoadedRecords");
+		Component title = createTitle("RecordConfig.UploadRecords");
 
 		this.loadedField = new LoadedRecordsField(() -> {
 			RecordConfig current = RecordConfig.getCurrent();
@@ -222,19 +224,22 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		FormItem ur = recordsAvailableLayout.addFormItem(uploadRecords,
 		        Translator.translate("Records.UploadOfficialFile"));
 		recordsAvailableLayout.setColspan(ur, 1);
-		FormItem cni = recordsAvailableLayout.addFormItem(clearNewRecords,
-		        Translator.translate("RecordConfig.ClearAllRecordsExplanation"));
-		recordsAvailableLayout.setColspan(cni, 1);
 
-		FlexLayout buttonTitle = new FlexLayout();
-		Button button = new Button("Test");
-		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		HorizontalLayout buttonTitle = new HorizontalLayout();
+		Button editExportRecords = openInNewTabNoParam(RecordContent.class,
+		        Translator.translate("RecordEvent.EditExportRecords"));
+		editExportRecords.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Div div = new Div();
-		H4 nativeLabel = new H4(Translator.translate("Records.LoadedOfficialFiles"));
+		H4 nativeLabel = new H4(Translator.translate("RecordConfig.LoadedRecords"));
+		clearNewRecords.getElement().setAttribute("title",
+			Translator.translate("RecordConfig.ClearAllRecordsExplanation"));
 		buttonTitle.add(nativeLabel,
-		        div, button);
+		        div, clearNewRecords,editExportRecords);
+		buttonTitle.setSpacing(true);
 		buttonTitle.setFlexGrow(1, div);
-		buttonTitle.setAlignSelf(Alignment.END, nativeLabel); 
+		buttonTitle.setAlignSelf(Alignment.CENTER, nativeLabel);
+		// visual kludge
+		buttonTitle.getElement().getStyle().set("margin-right", "1em");
 
 		FormItem lfi = recordsAvailableLayout.addFormItem(this.loadedField,
 		        buttonTitle);
@@ -291,5 +296,22 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 
 	private void setBinder(Binder<RecordConfig> buildBinder) {
 		this.binder = buildBinder;
+	}
+
+	private <T extends Component> Button openInNewTabNoParam(Class<T> targetClass,
+	        String label, Component... icon) {
+		Button button = new Button(label);
+		if (icon.length > 0 && icon[0] != null) {
+			button.setIcon(icon[0]);
+		}
+		button.getElement().setAttribute("onClick", getWindowOpenerFromClassNoParam(targetClass));
+		return button;
+	}
+
+	private <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		String name = fop == null ? "" : "_" + fop.getName();
+		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "','"
+		        + targetClass.getSimpleName() + name + "')";
 	}
 }
