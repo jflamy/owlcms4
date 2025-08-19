@@ -30,12 +30,14 @@ import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
@@ -224,8 +226,18 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		        Translator.translate("RecordConfig.ClearAllRecordsExplanation"));
 		recordsAvailableLayout.setColspan(cni, 1);
 
+		FlexLayout buttonTitle = new FlexLayout();
+		Button button = new Button("Test");
+		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		Div div = new Div();
+		H4 nativeLabel = new H4(Translator.translate("Records.LoadedOfficialFiles"));
+		buttonTitle.add(nativeLabel,
+		        div, button);
+		buttonTitle.setFlexGrow(1, div);
+		buttonTitle.setAlignSelf(Alignment.END, nativeLabel); 
+
 		FormItem lfi = recordsAvailableLayout.addFormItem(this.loadedField,
-		        Translator.translate("Records.LoadedOfficialFiles"));
+		        buttonTitle);
 		recordsAvailableLayout.setColspan(lfi, 2);
 		return recordsAvailableLayout;
 	}
