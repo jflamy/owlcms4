@@ -14,7 +14,7 @@
 
 **New in Release 60.0**
 
-60.0.0: Viewing and exporting records is now done from a dedicated page that allows filtering, for example to restrict to a federation or an age group. It is now possible to edit records via the user interface. See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement)
+60.0.0: New page showing the records in a filtering grid, to allow choosing what is exported. Clicking on a record allows for editing. See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement)
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 
