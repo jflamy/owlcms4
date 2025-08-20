@@ -955,7 +955,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private void doPrintScript(ZipOutputStream zipOut) {
 		try {
-			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/cards/print.ps1"), "print.ps1", false, zipOut);
+			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.bat"), "print.bat", false, zipOut);
+			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.ps1"), "print.ps1", false, zipOut);
 		} catch (IOException e) {
 			LoggerUtils.logError(logger, e, true);
 		}
