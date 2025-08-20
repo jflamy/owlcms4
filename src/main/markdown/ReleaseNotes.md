@@ -14,6 +14,8 @@
 
 **New in Release 60.0**
 
+60.0.0: When producing several documents together (either multiple sessions, or a document set), the zip produced now includes a `print.bat` script for Windows.  Extract All on the zip followed by double-clicking on print.bat will print all the documents on the default printer.
+
 60.0.0: New page showing the records in a filtering grid, to allow choosing what is exported. Clicking on a record allows for editing. See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement)
 
 
