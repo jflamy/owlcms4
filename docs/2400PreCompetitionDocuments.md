@@ -45,7 +45,7 @@ You can produce the cards for one or more sessions.
 - If you do NOT select sessions in the bottom section, and have less than 100 athletes, you can produce the cards as a single Excel.
 - If you select multiple sessions, a zip file is produced with the different sessions in individual files.
 - You can also combine the athlete cards with the weigh-in form in a single zip by using the `Document Set` button.
-- A utility script is included in the zip for use on Windows. Right-click on the zip and use `Extract All`.  In the extracted folder, right-click on `print.ps1` and use `Run in PowerShell`.  This will print all the files on your default printer.
+- A utility script is included in the zip for use on Windows. Right-click on the zip and use `Extract All`.  In the extracted folder, double-click on `print.bat`.  This will print all the files on your default printer.
 
 ![043_AthleteCards](img/WeighIn/043_AthleteCards.png)
 
