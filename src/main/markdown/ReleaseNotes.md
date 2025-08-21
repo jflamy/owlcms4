@@ -12,6 +12,10 @@
 
 <br>
 
+**Maintenance Log**
+
+60.0.0-beta02: Fixed filtering options in the Record grid.  Current Provisional now means best new record from the current competition,  Current Official means best official, Current All means best including provisional.
+
 **New in Release 60.0**
 
 60.0.0: When producing several documents together (either multiple sessions, or a document set), the zip produced now includes a `print.bat` script for Windows.  Extract All on the zip followed by double-clicking on print.bat will print all the documents on the default printer.
