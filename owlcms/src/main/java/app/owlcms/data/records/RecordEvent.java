@@ -213,8 +213,6 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		return this.bwCatLower;
 	}
 
-	@Transient
-	@JsonIgnore
 	public String getBwCatString() {
 		return this.bwCatString;
 	}
