@@ -2,6 +2,9 @@
   "folders": [
     {
       "path": "."
+    },
+    {
+      "path": "../owlcms-video"
     }
   ],
   "settings": {
@@ -39,7 +42,7 @@
         "env": {
           "OWLCMS_MEMORYMODE": "false",
           "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-          // "OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
+          "OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
         }
       },
       {

@@ -823,41 +823,41 @@ public class RecordRepository {
 		
 		// Apply current/history filter in Java (since it requires grouping logic)
 		if ("CURRENT".equals(currentHistoryFilter)) {
-			// Group by record key and keep only the best (highest lift) record for each key
-			return allResults.stream()
-				.collect(Collectors.groupingBy(
-					RecordEvent::getKey,
-					Collectors.collectingAndThen(
-						Collectors.maxBy((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift())),
-						record -> record.orElseThrow(() -> new IllegalStateException("No record found")))))
-				.values()
-				.stream()
-				.sorted((r1, r2) -> {
-					// Re-apply the same ordering as the query - category before lift
-					int fedComp = ObjectUtils.compare(r1.getRecordFederation(), r2.getRecordFederation());
-					if (fedComp != 0) return fedComp;
-					
-					int nameComp = ObjectUtils.compare(r1.getRecordName(), r2.getRecordName());
-					if (nameComp != 0) return nameComp;
-					
-					int genderComp = ObjectUtils.compare(r1.getGender(), r2.getGender());
-					if (genderComp != 0) return genderComp;
-					
-					int ageUpperComp = ObjectUtils.compare(r1.getAgeGrpUpper(), r2.getAgeGrpUpper());
-					if (ageUpperComp != 0) return ageUpperComp;
-					
-					int ageLowerComp = ObjectUtils.compare(r1.getAgeGrpLower(), r2.getAgeGrpLower());
-					if (ageLowerComp != 0) return ageLowerComp;
-					
-					int bwComp = ObjectUtils.compare(r1.getBwCatUpper(), r2.getBwCatUpper());
-					if (bwComp != 0) return bwComp;
-					
-					int liftComp = ObjectUtils.compare(r1.getRecordLift(), r2.getRecordLift());
-					if (liftComp != 0) return liftComp;
-					
-					return ObjectUtils.compare(r1.getRecordValue(), r2.getRecordValue());
-				})
-				.collect(Collectors.toList());
+	       // Group by record key and keep only the best (highest recordValue) record for each key (i.e., for each lift)
+	       return allResults.stream()
+		       .collect(Collectors.groupingBy(
+			       RecordEvent::getKey,
+			       Collectors.collectingAndThen(
+				       Collectors.maxBy((r1, r2) -> Double.compare(r1.getRecordValue(), r2.getRecordValue())),
+				       record -> record.orElseThrow(() -> new IllegalStateException("No record found")))))
+		       .values()
+		       .stream()
+		       .sorted((r1, r2) -> {
+			       // Re-apply the same ordering as the query - category before lift
+			       int fedComp = ObjectUtils.compare(r1.getRecordFederation(), r2.getRecordFederation());
+			       if (fedComp != 0) return fedComp;
+                               
+			       int nameComp = ObjectUtils.compare(r1.getRecordName(), r2.getRecordName());
+			       if (nameComp != 0) return nameComp;
+                               
+			       int genderComp = ObjectUtils.compare(r1.getGender(), r2.getGender());
+			       if (genderComp != 0) return genderComp;
+                               
+			       int ageUpperComp = ObjectUtils.compare(r1.getAgeGrpUpper(), r2.getAgeGrpUpper());
+			       if (ageUpperComp != 0) return ageUpperComp;
+                               
+			       int ageLowerComp = ObjectUtils.compare(r1.getAgeGrpLower(), r2.getAgeGrpLower());
+			       if (ageLowerComp != 0) return ageLowerComp;
+                               
+			       int bwComp = ObjectUtils.compare(r1.getBwCatUpper(), r2.getBwCatUpper());
+			       if (bwComp != 0) return bwComp;
+                               
+			       int liftComp = ObjectUtils.compare(r1.getRecordLift(), r2.getRecordLift());
+			       if (liftComp != 0) return liftComp;
+                               
+			       return ObjectUtils.compare(r1.getRecordValue(), r2.getRecordValue());
+		       })
+		       .collect(Collectors.toList());
 		}
 		
 		// For HISTORY or null, return all results as-is
