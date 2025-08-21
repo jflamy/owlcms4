@@ -14,7 +14,9 @@
 
 **Maintenance Log**
 
-60.0.0-beta02: Fixed filtering options in the Record grid.  Current Provisional now means best new record from the current competition,  Current Official means best official, Current All means best including provisional.
+60.0.0-rc01: Fixed filtering options in the Record grid.  Current Provisional now means best new record from the current competition,  Current Official means best official, Current All means best including provisional.
+
+60.0.0-rc01: Fixed an issue when exporting the database that would cause the category string to be null.
 
 **New in Release 60.0**
 
