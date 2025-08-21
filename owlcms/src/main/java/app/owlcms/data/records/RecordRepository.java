@@ -82,8 +82,8 @@ public class RecordRepository {
 		JPAService.runInTransaction(em -> {
 			try {
 				// do not delete records set in the current competition.
-				int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL")
-				        .executeUpdate();
+		       int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(rec.groupNameString) <> ''")
+			       .executeUpdate();
 				if (deletedCount >= 0) {
 					logger.info("deleted {} provisional record entries", deletedCount);
 				}
