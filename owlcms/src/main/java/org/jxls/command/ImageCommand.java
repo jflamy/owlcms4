@@ -249,12 +249,12 @@ public class ImageCommand extends AbstractCommand {
         int startRow = areaRef.getFirstCellRef().getRow();
         int endRow = areaRef.getLastCellRef().getRow();
         
-        logger.warn("area start={},{} end= {},{}",startRow,startCol, endRow,endCol);
+        logger./**/warn("area start={},{} end= {},{}",startRow,startCol, endRow,endCol);
         // Calculate total width in pixels
         double totalWidth = 0;
         for (int col = startCol; col < endCol; col++) {
             totalWidth += getCellWidthInPoints(sheet, col);
-            logger.warn("totalWidth {}",totalWidth);
+            logger./**/warn("totalWidth {}",totalWidth);
         }
 
         
@@ -262,7 +262,7 @@ public class ImageCommand extends AbstractCommand {
         double totalHeight = 0;
         for (int row = startRow; row < endRow; row++) {
             totalHeight += getCellHeightInPoints(sheet, row);
-            logger.warn("totalHeight {}",totalHeight);
+            logger./**/warn("totalHeight {}",totalHeight);
         }
 
         
