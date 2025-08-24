@@ -2095,7 +2095,6 @@ public class Competition {
 		} else {
 			allCategories = null;
 		}
-//		logger.debug("allCategories {}",allCategories);
 		return allCategories;
 	}
 
