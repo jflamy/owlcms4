@@ -34,7 +34,33 @@
     "configurations": [
       {
         "type": "java",
-        "name": "⭐ Launch owlcms (Hotswap)",
+        "name": "🟨 owlcms no reset (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "false",
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+        }
+      },
+      {
+        "type": "java",
+        "name": "🟥 owlcms empty reset (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "false",
+          "OWLCMS_INITIALDATA": "EMPTY_COMPETITION",
+          "OWLCMS_RESETMODE": "true"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+        }
+      },
+      {
+        "type": "java",
+        "name": "🟥 large demo owlcms reset (Hotswap)",
         "request": "launch",
         "mainClass": "app.owlcms.Main",
         "projectName": "owlcms",
@@ -42,12 +68,41 @@
         "env": {
           "OWLCMS_MEMORYMODE": "false",
           "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-          "OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+          "OWLCMS_RESETMODE": "true"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
         }
       },
       {
         "type": "java",
-        "name": "⭐ Launch publicresults (Hotswap)",
+        "name": "🟩 large demo owlcms memory (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "true",
+          "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
+          "OWLCMS_PORT": "8081"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+        }
+      },
+      {
+        "type": "java",
+        "name": "🟩 large demo owlcms memory edit (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-Dvaadin.frontend.hotdeploy=true -DcssEdit=true -ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "true",
+          "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
+          "OWLCMS_PORT": "8081"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+        }
+      },
+      {
+        "type": "java",
+        "name": "🟠 Launch publicresults (Hotswap)",
         "request": "launch",
         "mainClass": "app.owlcms.publicresults.Main",
         "projectName": "publicresults",
@@ -69,8 +124,8 @@
       {
         "name": "⭐ Launch Both (owlcms + publicresults)",
         "configurations": [
-          "⭐ Launch owlcms (Hotswap)",
-          "⭐ Launch publicresults (Hotswap)"
+          "🟨 owlcms no reset (Hotswap)",
+          "🟠 Launch publicresults (Hotswap)"
         ]
       }
     ]
