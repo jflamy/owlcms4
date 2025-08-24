@@ -1,13 +1,15 @@
 #!/bin/bash -
 export LC_ALL=C.UTF-8
 
-# Configuration variables - edit these as needed
-REMOTE_HOST="jflamy@143.110.208.71"
-REMOTE_PORT=8084
-REMOTE_DIR="/home/jflamy/asu"
-DATABASE_FOLDER="database"
-LOCAL_SOURCE_DIR1="/c/Dev/git/owlcms-video/css"
-LOCAL_SOURCE_DIR2="/c/Users/lamyj/git/owlcms4/owlcms/local/logos"
+# Usage: ./restart_shared.sh <remote_host> <remote_port> <remote_dir>
+REMOTE_HOST="$1"
+REMOTE_PORT="$2"
+REMOTE_DIR="$3"
+
+if [ -z "$REMOTE_HOST" ] || [ -z "$REMOTE_PORT" ] || [ -z "$REMOTE_DIR" ]; then
+    echo "Usage: $0 <remote_host> <remote_port> <remote_dir>"
+    exit 1
+fi
 
 # SSH to the remote server for all operations
 echo "Connecting to remote server for port cleanup and owlcms restart..."
@@ -15,8 +17,7 @@ echo "Connecting to remote server for port cleanup and owlcms restart..."
 ssh ${REMOTE_HOST} -q \
     REMOTE_PORT=${REMOTE_PORT} \
     REMOTE_DIR=${REMOTE_DIR} \
-    DOWNLOAD_URL="${DOWNLOAD_URL}" \
-    FILE_PREFIX="${FILE_PREFIX}" \
+    OWLCMS_PORT=${REMOTE_PORT} \
     'bash -s' <<'EOSSH'
 cd $REMOTE_DIR
 pwd
@@ -64,9 +65,9 @@ fi
 
 # Start owlcms.jar as a background process on remote server
 echo ""
-echo "Starting owlcms.jar as background process..."
-nohup env OWLCMS_PORT=8084 OWLCMS_ENABLEEMBEDDEDMQTT=false java -jar owlcms*.jar > owlcms.log 2>&1 &
-echo "owlcms started in background with PID: $!"
+echo "Starting owlcms.jar as background process on port $OWLCMS_PORT..."
+nohup env OWLCMS_PORT=$OWLCMS_PORT OWLCMS_ENABLEEMBEDDEDMQTT=false java -jar owlcms*.jar > owlcms.log 2>&1 &
+echo "owlcms started in background with PID: $! on port $OWLCMS_PORT"
 echo "Logs will be written to owlcms.log"
 EOSSH
 
