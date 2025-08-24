@@ -577,7 +577,7 @@ public class BaseResults extends LitTemplate
 				  if (p != null) {
 					  a.dump("[DISPLAY] computed CATEGORY_SCORE");
 				  } else {
-					  logger.warn("[DISPLAY] Athlete: {} | Category: {} | CATEGORY_SCORE value: {} | Participation not found", a.getAbbreviatedName(), athleteCatCode, value);
+					  //logger.debug("[DISPLAY] Athlete: {} | Category: {} | CATEGORY_SCORE value: {} | Participation not found", a.getAbbreviatedName(), athleteCatCode, value);
 				  }
 			   String score;
 			   if (ageGroupScoringSystem == Ranking.TOTAL) {
@@ -625,7 +625,7 @@ public class BaseResults extends LitTemplate
 		   } else {
 			   result = Translator.translate("Results.Extra/Invited");
 		   }
-		   logger.warn("computedScoreRank for athlete {} = {}", a, result);
+		   //logger.debug("computedScoreRank for athlete {} = {}", a, result);
 		   return result;
 	   }
 

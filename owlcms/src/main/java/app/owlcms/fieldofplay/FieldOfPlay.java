@@ -2509,7 +2509,7 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			if (recomputeCategoryRanks) {
 				// Trace athlete IDs sent to computeMedals
-				this.logger.warn("athletes sent to computeMedals IDs: {}", athletes == null ? null : athletes.stream().map(a -> a.getId()).collect(Collectors.toList()));
+				//logger.debug("athletes sent to computeMedals IDs: {}", athletes == null ? null : athletes.stream().map(a -> a.getId()).collect(Collectors.toList()));
 				setMedals(Competition.getCurrent().computeMedals(g, athletes));
 			}
 			endMedals = System.nanoTime();
@@ -2526,7 +2526,7 @@ public class FieldOfPlay implements IUnregister {
 
 			AthleteSorter.displayOrder(currentGroupAthletes);
 			// Trace athlete IDs after fetching/refetching
-			this.logger.warn("currentGroupAthletes IDs: {}", currentGroupAthletes.stream().map(a -> a.getId()).collect(Collectors.toList()));
+			//logger.debug("currentGroupAthletes IDs: {}", currentGroupAthletes.stream().map(a -> a.getId()).collect(Collectors.toList()));
 			// redundant filter appear to be an emergency kludge.
 			currentGroupAthletes.stream()
 			        .filter(a -> a.getGroup() != null && a.getGroup().equals(g))

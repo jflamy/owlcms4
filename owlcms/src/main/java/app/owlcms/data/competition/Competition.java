@@ -316,7 +316,7 @@ public class Competition {
 	// Trace the IDs of the ranked athletes
 	logger.trace("computeMedals: rankedAthletes IDs: {}", rankedAthletes == null ? null : rankedAthletes.stream().map(a -> a.getId()).toList());
 	var medals = computeMedals(g, rankedAthletes);
-	logger.warn("*** ranked athletes for group {} {}", g, rankedAthletes.size());// rankedAthletes.stream().map(a -> a.getLastName()).toList());
+	//logger.debug("*** ranked athletes for group {} {}", g, rankedAthletes.size());// rankedAthletes.stream().map(a -> a.getLastName()).toList());
 	return medals;
 	}
 
@@ -371,8 +371,8 @@ public class Competition {
 				if (matchingParticipation.isPresent()) {
 					PAthlete e = new PAthlete(matchingParticipation.get());
 					currentCategoryPAthletes.add(e);
-					logger.warn("[CATEGORY] Processing athlete {} in category {} (scoring system: {})", e.getAbbreviatedName(), category.getCode(),
-					        category.getAgeGroup().getComputedScoringSystem());
+					//logger.debug("[CATEGORY] Processing athlete {} in category {} (scoring system: {})", e.getAbbreviatedName(), category.getCode(),
+					//        category.getAgeGroup().getComputedScoringSystem());
 				}
 			}
 
@@ -400,7 +400,7 @@ public class Competition {
 			List<Athlete> pMedalists;
 
 			if (category.getAgeGroup().getComputedScoringSystem() == Ranking.TOTAL) {
-				logger.warn("[TOTAL] Updating TOTAL and CATEGORY_SCORE ranks for category {}", category.getCode());
+				//logger.debug("[TOTAL] Updating TOTAL and CATEGORY_SCORE ranks for category {}", category.getCode());
 				List<Athlete> totalPLeaders = AthleteSorter.resultsOrderCopy(updatedAthletes, Ranking.TOTAL)
 				        .stream()
 				        .filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
@@ -418,12 +418,12 @@ public class Competition {
 				pMedalists = new ArrayList<>(mSet);
 
 				updatedAthletes = AthleteSorter.updateEligibleCategoryRanks(new ArrayList<>(pMedalists), Ranking.TOTAL, category);
-				logger.warn("[TOTAL] After updateEligibleCategoryRanks (TOTAL), athletes: {}",
-				        updatedAthletes.stream().map(Athlete::getAbbreviatedName).toList());
+				//logger.debug("[TOTAL] After updateEligibleCategoryRanks (TOTAL), athletes: {}",
+				//        updatedAthletes.stream().map(Athlete::getAbbreviatedName).toList());
 				// update CATEGORY_SCORE rankings same as TOTAL.
 				updatedAthletes = AthleteSorter.updateEligibleCategoryRanks(new ArrayList<>(updatedAthletes), Ranking.CATEGORY_SCORE, category);
-				logger.warn("[CATEGORY_SCORE] After updateEligibleCategoryRanks (CATEGORY_SCORE), athletes: {}",
-				        updatedAthletes.stream().map(a -> a.getAbbreviatedName() + ": rank=" + a.getCategoryScoreRank()).toList());
+				//logger.debug("[CATEGORY_SCORE] After updateEligibleCategoryRanks (CATEGORY_SCORE), athletes: {}",
+				//        updatedAthletes.stream().map(a -> a.getAbbreviatedName() + ": rank=" + a.getCategoryScoreRank()).toList());
 
 				for (Athlete a : updatedAthletes) {
 					dumpAthlete(category.getCode(), a);
@@ -432,7 +432,7 @@ public class Competition {
 				List<Athlete> updatedPAthletes = getPAthletes(category, updatedAthletes, false);
 				medalsByCategory.put(category.getCode(), updatedPAthletes);
 			} else {
-				logger.warn("[CATEGORY_SCORE] Updating CATEGORY_SCORE and TOTAL ranks for category {}", category.getCode());
+				//logger.debug("[CATEGORY_SCORE] Updating CATEGORY_SCORE and TOTAL ranks for category {}", category.getCode());
 				List<Athlete> scorePLeaders = AthleteSorter.resultsOrderCopy(currentCategoryPAthletes, Ranking.CATEGORY_SCORE)
 				        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
 				        .collect(Collectors.toList());
@@ -447,12 +447,12 @@ public class Competition {
 				pMedalists = new ArrayList<>(mSet);
 				pMedalists.sort(new WinningOrderComparator(Ranking.TOTAL, true));
 				updatedAthletes = AthleteSorter.updateEligibleCategoryRanks(new ArrayList<>(pMedalists), Ranking.TOTAL, category);
-				logger.warn("[CATEGORY_SCORE] After updateEligibleCategoryRanks (TOTAL), athletes: {}",
-				        updatedAthletes.stream().map(Athlete::getAbbreviatedName).toList());
+				//logger.debug("[CATEGORY_SCORE] After updateEligibleCategoryRanks (TOTAL), athletes: {}",
+				//        updatedAthletes.stream().map(Athlete::getAbbreviatedName).toList());
 				updatedAthletes.sort(comparator);
 				updatedAthletes = AthleteSorter.updateEligibleCategoryRanks(new ArrayList<>(updatedAthletes), Ranking.CATEGORY_SCORE, category);
-				logger.warn("[CATEGORY_SCORE] After updateEligibleCategoryRanks (CATEGORY_SCORE), athletes: {}",
-				        updatedAthletes.stream().map(a -> a.getAbbreviatedName() + ": rank=" + a.getCategoryScoreRank()).toList());
+				//logger.debug("[CATEGORY_SCORE] After updateEligibleCategoryRanks (CATEGORY_SCORE), athletes: {}",
+				//        updatedAthletes.stream().map(a -> a.getAbbreviatedName() + ": rank=" + a.getCategoryScoreRank()).toList());
 				List<Athlete> updatedPAthletes = getPAthletes(category, updatedAthletes, false);
 
 				for (Athlete a : updatedAthletes) {
