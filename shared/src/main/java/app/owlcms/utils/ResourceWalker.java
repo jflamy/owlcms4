@@ -76,8 +76,6 @@ public class ResourceWalker {
 		
 		// Check for environment variable override
 		String envLocalDir = System.getenv("OWLCMS_LOCALDIR");
-		logger.info("OWLCMS_LOCALDIR environment variable = '{}'", envLocalDir);
-		
 		if (envLocalDir != null && !envLocalDir.trim().isEmpty()) {
 			Path envDir = Paths.get(envLocalDir.trim()).normalize();
 			logger.info("Environment directory path: {}, exists: {}", envDir.toAbsolutePath(), Files.exists(envDir));
