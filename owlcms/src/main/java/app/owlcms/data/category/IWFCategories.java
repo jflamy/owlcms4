@@ -25,7 +25,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
-
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.competition.Competition;
@@ -38,31 +37,33 @@ import ch.qos.logback.classic.Logger;
  * a IWF competition.
  */
 public class IWFCategories {
-	static List<Category> referenceCategories = null;
+	static Map<Gender, List<Category>> referenceCategoriesMap = new HashMap<>();
 
 	private static class IWFComparator implements Comparator<Category> {
 
 		@Override
-		public int compare(Category c1, Category c2) {
+		public int compare(Category referenceCategory, Category searchedCategory) {
+			//logger.setLevel(Level.TRACE);
 			try {
 				// because we are getting c2 as the fake value being searched, we invert the
 				// return value of comparison.
 
-				if (c2.getGender() != c1.getGender()) {
-					int compare = ObjectUtils.compare(c2, c1);
-					// logger.trace(dumpCat(c2) + " " + compare + " " + dumpCat(c1));
+				if (searchedCategory.getGender() != referenceCategory.getGender()) {
+					int compare = ObjectUtils.compare(searchedCategory, referenceCategory);
+					//logger.trace(dumpCat(searchedCategory) + " " + compare + " " + dumpCat(referenceCategory));
 					return -compare;
 				}
 				// c2 is a fake category where the upper and lower bounds are the athlete's
 				// weight
-				if (c2.getMinimumWeight() >= c1.getMinimumWeight() && c2.getMaximumWeight() <= c1.getMaximumWeight()) {
-					// logger.trace(dumpCat(c2)+" == "+dumpCat(c1));
+				//logger.trace("comparing searched {} to reference {}", searchedCategory, referenceCategory);
+				if (searchedCategory.getMinimumWeight() >= referenceCategory.getMinimumWeight() && searchedCategory.getMaximumWeight() <= referenceCategory.getMaximumWeight()) {
+					//logger.trace(dumpCat(searchedCategory)+" == "+dumpCat(referenceCategory));
 					return 0;
-				} else if (c2.getMinimumWeight() > c1.getMaximumWeight()) {
-					// logger.trace(dumpCat(c2)+" > "+dumpCat(c1));
+				} else if (searchedCategory.getMinimumWeight() > referenceCategory.getMaximumWeight()) {
+					//logger.trace(dumpCat(searchedCategory)+" > "+dumpCat(referenceCategory));
 					return -1;
 				} else {
-					// logger.trace(dumpCat(c2)+" < "+dumpCat(c1));
+					//logger.trace(dumpCat(searchedCategory)+" < "+dumpCat(referenceCategory));
 					return 1;
 				}
 			} catch (Exception e) {
@@ -74,7 +75,7 @@ public class IWFCategories {
 
 	public static final String IWF_CATEGORIES_XLSX = "/iwf/IWFCategories.xlsx";
 	static Logger logger = (Logger) LoggerFactory.getLogger(IWFCategories.class);
-	private static ArrayList<Category> jrSrReferenceCategories = null;
+	private static Map<Gender, ArrayList<Category>> jrSrReferenceCategoriesMap = new HashMap<>();
 //	private static ArrayList<Category> ythReferenceCategories;
 
 	/**
@@ -153,23 +154,31 @@ public class IWFCategories {
 
 	public static Category findIWFCategory(Athlete a) {
 		if (a.getBodyWeight() == null || a.getBodyWeight() < 0.1) {
+			logger./**/warn(" no body weight for athlete {}", a);
 			return null;
 		}
 		List<Category> categories;
-		if (referenceCategories != null) {
-			categories = referenceCategories;
-		} else {
-			referenceCategories = Competition.getCurrent().computeReferenceCategories(a.getGender());
-			if (referenceCategories == null) {
-				if (jrSrReferenceCategories == null) {
-					loadJrSrReferenceCategories();
-				}
-				categories = jrSrReferenceCategories;
-			} else {
-				categories = referenceCategories;
-			}
 
-		}
+		   Gender gender = a.getGender();
+		   if (gender != Gender.M && gender != Gender.F) {
+			   return null;
+		   }
+		   List<Category> referenceCategories = referenceCategoriesMap.get(gender);
+		   if (referenceCategories != null) {
+			   categories = referenceCategories;
+		   } else {
+			   List<Category> computed = Competition.getCurrent().computeReferenceCategories(gender);
+			   logger.debug("computed reference categories {}", computed);
+			   if (computed == null) {
+				   if (!jrSrReferenceCategoriesMap.containsKey(gender) || jrSrReferenceCategoriesMap.get(gender) == null) {
+					   loadJrSrReferenceCategories();
+				   }
+				   categories = jrSrReferenceCategoriesMap.get(gender);
+			   } else {
+				   referenceCategoriesMap.put(gender, computed);
+				   categories = computed;
+			   }
+		   }
 
 		int index = Collections.binarySearch(categories,
 		        new Category(a.getBodyWeight(), a.getBodyWeight(), a.getGender(), true, 0, 0, 0, null, 0),
@@ -203,32 +212,39 @@ public class IWFCategories {
 			localizedResourceAsStream = ResourceWalker.getResourceAsStream(localizedName);
 			try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
 				Map<String, Category> referenceCategoryMap = createCategoryMap(workbook);
-				// get the IWF categories, sorted.
-				jrSrReferenceCategories = referenceCategoryMap.values()
-				        .stream()
-				        .filter(c -> c.getWrSr() > 0)
-				        .sorted()
-				        //.peek(c -> {logger./**/warn(c.getCode());})
-				        .collect(Collectors.toCollection(ArrayList::new));
+				// Separate by gender
+				ArrayList<Category> maleCats = referenceCategoryMap.values()
+						.stream()
+						.filter(c -> c.getWrSr() > 0 && c.getGender() == Gender.M)
+						.sorted()
+						.collect(Collectors.toCollection(ArrayList::new));
+				ArrayList<Category> femaleCats = referenceCategoryMap.values()
+						.stream()
+						.filter(c -> c.getWrSr() > 0 && c.getGender() == Gender.F)
+						.sorted()
+						.collect(Collectors.toCollection(ArrayList::new));
+				jrSrReferenceCategoriesMap.put(Gender.M, maleCats);
+				jrSrReferenceCategoriesMap.put(Gender.F, femaleCats);
+				// Set min weights for M and F only
+				for (Gender g : new Gender[]{Gender.M, Gender.F}) {
+					ArrayList<Category> list = jrSrReferenceCategoriesMap.get(g);
+					if (list == null) continue;
+					Double prevMax = 0.0D;
+					for (Category refCat : list) {
+						refCat.setMinimumWeight(prevMax);
+						prevMax = refCat.getMaximumWeight();
+						if (prevMax >= 998.00D) {
+							prevMax = 0.0D;
+						}
+					}
+				}
 				workbook.close();
 			} catch (Exception e) {
 				logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
 			}
-			Double prevMax = 0.0D;
-			// int i = 0;
-			for (Category refCat : jrSrReferenceCategories) {
-				refCat.setMinimumWeight(prevMax);
-				// logger.trace(i + " " + dumpCat(referenceCategories.get(i)));
-				prevMax = refCat.getMaximumWeight();
-				if (prevMax >= 998.00D) {
-					prevMax = 0.0D;
-				}
-				// i++;
-			}
 		} catch (FileNotFoundException e1) {
 			logger.error("could not read ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e1));
 		}
-
 	}
 
 //	private static void loadYthReferenceCategories() {

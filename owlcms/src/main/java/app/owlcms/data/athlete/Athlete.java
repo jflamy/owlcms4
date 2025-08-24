@@ -6052,6 +6052,7 @@ public class Athlete {
 		// Category category = getCategory();
 		Category category = IWFCategories.findIWFCategory(this);
 		if (category == null) {
+			logger./**/warn("getCategorySinclairForDelta: category not found {}", this);
 			return 0.0;
 		}
 		Double categoryWeight = category.getMaximumWeight();

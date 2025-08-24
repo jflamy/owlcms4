@@ -267,7 +267,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	@JsonIgnore
 	public List<Category> getAllCategories() {
-		return this.categories;
+		return this.categories.stream().sorted().collect(Collectors.toList());
 	}
 
 	/**
