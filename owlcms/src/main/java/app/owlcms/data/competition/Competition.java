@@ -89,11 +89,11 @@ public class Competition {
 
 	@SuppressWarnings("unused")
 	public static void dumpAthlete(String string, Athlete a) {
-		logger./**/warn("{} {} {} S={} C={} T={}", string, a.getAbbreviatedName(), System.identityHashCode(a), a.getBestSnatch(), a.getBestCleanJerk(),
-		        a.getTotal());
+		logger./**/warn("{} id={} {} {} S={} C={} T={}", string, a.getId(), a.getAbbreviatedName(), System.identityHashCode(a), a.getBestSnatch(), a.getBestCleanJerk(),
+				a.getTotal());
 		for (Participation p : a.getParticipations()) {
 			logger./**/warn("    {} S{} C{} T{} Sc{} {}", p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(), p.getTotalRank(), p.getCategoryScoreRank(),
-			        System.identityHashCode(p));
+					System.identityHashCode(p));
 		}
 	}
 
@@ -312,10 +312,12 @@ public class Competition {
 	 * @return for each category represented in group g where all athletes have lifted, the medals
 	 */
 	public TreeMap<String, List<Athlete>> computeMedals(Group g) {
-		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
-		var medals = computeMedals(g, rankedAthletes);
-		// logger.debug("*** ranked athletes for group {} {}", g, rankedAthletes.size());// rankedAthletes.stream().map(a -> a.getLastName()).toList());
-		return medals;
+	List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
+	// Trace the IDs of the ranked athletes
+	logger.trace("computeMedals: rankedAthletes IDs: {}", rankedAthletes == null ? null : rankedAthletes.stream().map(a -> a.getId()).toList());
+	var medals = computeMedals(g, rankedAthletes);
+	logger.warn("*** ranked athletes for group {} {}", g, rankedAthletes.size());// rankedAthletes.stream().map(a -> a.getLastName()).toList());
+	return medals;
 	}
 
 	/**
@@ -369,8 +371,8 @@ public class Competition {
 				if (matchingParticipation.isPresent()) {
 					PAthlete e = new PAthlete(matchingParticipation.get());
 					currentCategoryPAthletes.add(e);
-					// logger.debug("*** adding {} {} {} {} -- {} {}", e.getAbbreviatedName(), e.getCategory(), e.getTotalRank(), e.getParticipations().size(),
-					// System.identityHashCode(e._getAthlete()), e._getAthlete().getParticipations().size());
+					logger.warn("[CATEGORY] Processing athlete {} in category {} (scoring system: {})", e.getAbbreviatedName(), category.getCode(),
+					        category.getAgeGroup().getComputedScoringSystem());
 				}
 			}
 
@@ -398,6 +400,7 @@ public class Competition {
 			List<Athlete> pMedalists;
 
 			if (category.getAgeGroup().getComputedScoringSystem() == Ranking.TOTAL) {
+				logger.warn("[TOTAL] Updating TOTAL and CATEGORY_SCORE ranks for category {}", category.getCode());
 				List<Athlete> totalPLeaders = AthleteSorter.resultsOrderCopy(updatedAthletes, Ranking.TOTAL)
 				        .stream()
 				        .filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
@@ -415,16 +418,21 @@ public class Competition {
 				pMedalists = new ArrayList<>(mSet);
 
 				updatedAthletes = AthleteSorter.updateEligibleCategoryRanks(new ArrayList<>(pMedalists), Ranking.TOTAL, category);
+				logger.warn("[TOTAL] After updateEligibleCategoryRanks (TOTAL), athletes: {}",
+				        updatedAthletes.stream().map(Athlete::getAbbreviatedName).toList());
 				// update CATEGORY_SCORE rankings same as TOTAL.
 				updatedAthletes = AthleteSorter.updateEligibleCategoryRanks(new ArrayList<>(updatedAthletes), Ranking.CATEGORY_SCORE, category);
+				logger.warn("[CATEGORY_SCORE] After updateEligibleCategoryRanks (CATEGORY_SCORE), athletes: {}",
+				        updatedAthletes.stream().map(a -> a.getAbbreviatedName() + ": rank=" + a.getCategoryScoreRank()).toList());
 
-				// for (Athlete a : updatedAthletes) {
-				// dumpAthlete(category.getCode(), a);
-				// }
+				for (Athlete a : updatedAthletes) {
+					dumpAthlete(category.getCode(), a);
+				}
 
 				List<Athlete> updatedPAthletes = getPAthletes(category, updatedAthletes, false);
 				medalsByCategory.put(category.getCode(), updatedPAthletes);
 			} else {
+				logger.warn("[CATEGORY_SCORE] Updating CATEGORY_SCORE and TOTAL ranks for category {}", category.getCode());
 				List<Athlete> scorePLeaders = AthleteSorter.resultsOrderCopy(currentCategoryPAthletes, Ranking.CATEGORY_SCORE)
 				        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
 				        .collect(Collectors.toList());
@@ -439,13 +447,17 @@ public class Competition {
 				pMedalists = new ArrayList<>(mSet);
 				pMedalists.sort(new WinningOrderComparator(Ranking.TOTAL, true));
 				updatedAthletes = AthleteSorter.updateEligibleCategoryRanks(new ArrayList<>(pMedalists), Ranking.TOTAL, category);
+				logger.warn("[CATEGORY_SCORE] After updateEligibleCategoryRanks (TOTAL), athletes: {}",
+				        updatedAthletes.stream().map(Athlete::getAbbreviatedName).toList());
 				updatedAthletes.sort(comparator);
 				updatedAthletes = AthleteSorter.updateEligibleCategoryRanks(new ArrayList<>(updatedAthletes), Ranking.CATEGORY_SCORE, category);
+				logger.warn("[CATEGORY_SCORE] After updateEligibleCategoryRanks (CATEGORY_SCORE), athletes: {}",
+				        updatedAthletes.stream().map(a -> a.getAbbreviatedName() + ": rank=" + a.getCategoryScoreRank()).toList());
 				List<Athlete> updatedPAthletes = getPAthletes(category, updatedAthletes, false);
 
-				// for (Athlete a : updatedAthletes) {
-				// dumpAthlete(category.getCode(), a);
-				// }
+				for (Athlete a : updatedAthletes) {
+					dumpAthlete(category.getCode(), a);
+				}
 
 				medalsByCategory.put(category.getCode(), updatedPAthletes);
 			}
@@ -1792,11 +1804,11 @@ public class Competition {
 		AthleteSorter.teamPointsOrder(sortedMen, Competition.getCurrent().getScoringSystem());
 		AthleteSorter.teamPointsOrder(sortedWomen, Competition.getCurrent().getScoringSystem());
 		addToReportingBean("mTeamBest" + suffix, sortedMen);
-//		logger.debug("mteamBest {} {}",
-//				sortedMen.stream()
-//				.filter(a -> a.getTeam().equals("Category 5 Athletics"))
-//				.map(a -> a.getAbbreviatedName() + " " + a.getBestLifterScore() + " " +a.getBestLifterRank())
-//				.collect(Collectors.joining("\n")));
+		// logger.debug("mteamBest {} {}",
+		// sortedMen.stream()
+		// .filter(a -> a.getTeam().equals("Category 5 Athletics"))
+		// .map(a -> a.getAbbreviatedName() + " " + a.getBestLifterScore() + " " +a.getBestLifterRank())
+		// .collect(Collectors.joining("\n")));
 		addToReportingBean("wTeamBest" + suffix, sortedWomen);
 	}
 
@@ -1943,9 +1955,9 @@ public class Competition {
 			for (Athlete a : updatedAthletes) {
 				Athlete oldAthlete = em.find(Athlete.class, a.getId());
 				Athlete newAthlete = em.merge(a);
-				// dumpAthlete("updated", a);
-				// dumpAthlete("old", oldAthlete);
-				// dumpAthlete("merged", newAthlete);
+				dumpAthlete("updated", a);
+				dumpAthlete("old", oldAthlete);
+				dumpAthlete("merged", newAthlete);
 			}
 			return null;
 		});
@@ -2084,11 +2096,11 @@ public class Competition {
 	}
 
 	public List<Category> computeReferenceCategories(Gender g) {
-//		logger.debug("all {}", AgeGroupRepository.findAll().stream()
-//				.map(ag -> ag.getCode())
-//				.collect(Collectors.joining(", ")));
-		
-		var ag = AgeGroupRepository.findFiltered("SR",g, null, null, false, 0, 0);
+		// logger.debug("all {}", AgeGroupRepository.findAll().stream()
+		// .map(ag -> ag.getCode())
+		// .collect(Collectors.joining(", ")));
+
+		var ag = AgeGroupRepository.findFiltered("SR", g, null, null, false, 0, 0);
 		List<Category> allCategories;
 		if (ag.size() > 0) {
 			allCategories = ag.get(0).getAllCategories();

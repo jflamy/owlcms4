@@ -6184,4 +6184,14 @@ public class Athlete {
 		this.scaleWeight = scaleWeight;
 	}
 
+	public void dump(String string) {
+		var a = this;
+		logger./**/warn("{} id={} {} {} S={} C={} T={} {}", string, a.getId(), a.getAbbreviatedName(), System.identityHashCode(a), a.getBestSnatch(), a.getBestCleanJerk(),
+				a.getTotal(), app.owlcms.utils.LoggerUtils.whereFrom());
+		for (Participation p : a.getParticipations()) {
+			logger./**/warn("    {} S{} C{} T{} Sc{} {}", p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(), p.getTotalRank(), p.getCategoryScoreRank(),
+					System.identityHashCode(p));
+		}
+	}
+
 }

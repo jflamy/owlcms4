@@ -562,15 +562,30 @@ public class BaseResults extends LitTemplate
 		Competition current3 = Competition.getCurrent();
 		Ranking scoringSystem = current3.getScoringSystem();
 
-		if (ageGroupScoringSystem != null && !sinclair && !displayGlobal) {
-			double value = Ranking.getRankingValue(a, Ranking.CATEGORY_SCORE);
-			String score;
-			if (ageGroupScoringSystem == Ranking.TOTAL) {
-				score = value > 0.001 ? String.format("%.0f", value) : "\u2013";
-			} else {
-				score = value > 0.001 ? String.format("%.3f", value) : "\u2013";
-			}
-			return score;
+		   if (ageGroupScoringSystem != null && !sinclair && !displayGlobal) {
+				  Participation p = null;
+				  String athleteCatCode = a.getCategory() != null ? a.getCategory().getCode() : null;
+				  if (a.getParticipations() != null && a.getParticipations().size() > 0 && athleteCatCode != null) {
+					  for (Participation part : a.getParticipations()) {
+						  if (part.getCategory() != null && athleteCatCode.equals(part.getCategory().getCode())) {
+							  p = part;
+							  break;
+						  }
+					  }
+				  }
+				  double value = (p != null) ? p.getCategoryScore() : Ranking.getRankingValue(a, Ranking.CATEGORY_SCORE);
+				  if (p != null) {
+					  a.dump("[DISPLAY] computed CATEGORY_SCORE");
+				  } else {
+					  logger.warn("[DISPLAY] Athlete: {} | Category: {} | CATEGORY_SCORE value: {} | Participation not found", a.getAbbreviatedName(), athleteCatCode, value);
+				  }
+			   String score;
+			   if (ageGroupScoringSystem == Ranking.TOTAL) {
+				   score = value > 0.001 ? String.format("%.0f", value) : "\u2013";
+			   } else {
+				   score = value > 0.001 ? String.format("%.3f", value) : "\u2013";
+			   }
+			   return score;
 		} else {
 			double value = Ranking.getRankingValue(a, scoringSystem);
 			String score = value > 0.001 ? String.format("%.3f", value) : "\u2013";
@@ -578,29 +593,41 @@ public class BaseResults extends LitTemplate
 		}
 	}
 
-	protected String computedScoreRank(Athlete a) {
-		Ranking ageGroupScoringSystem = a.getAgeGroup().getComputedScoringSystem();
+	   protected String computedScoreRank(Athlete a) {
+		   Ranking ageGroupScoringSystem = a.getAgeGroup().getComputedScoringSystem();
 
-		Competition current = Competition.getCurrent();
-		boolean sinclair = current.isSinclair();
-		Competition current2 = Competition.getCurrent();
-		boolean displayGlobal = current2.isDisplayScoreRanks();
-		Competition current3 = Competition.getCurrent();
-		Ranking bestLifterScoringSystem = current3.getScoringSystem();
+		   Competition current = Competition.getCurrent();
+		   boolean sinclair = current.isSinclair();
+		   Competition current2 = Competition.getCurrent();
+		   boolean displayGlobal = current2.isDisplayScoreRanks();
+		   Competition current3 = Competition.getCurrent();
+		   Ranking bestLifterScoringSystem = current3.getScoringSystem();
 
-		if (a.isEligibleForIndividualRanking()) {
-			if (ageGroupScoringSystem != null && !sinclair && !displayGlobal) {
-				Integer value = Ranking.getRanking(a, Ranking.CATEGORY_SCORE);
-				return value != null && value > 0 ? "" + value : "-";
-			} else {
-				Integer value = Ranking.getRanking(a, bestLifterScoringSystem);
-				return value != null && value > 0 ? "" + value : "-";
-			}
-		} else {
-			return Translator.translate("Results.Extra/Invited");
-		}
-
-	}
+		   String result;
+		   if (a.isEligibleForIndividualRanking()) {
+			   if (ageGroupScoringSystem != null && !sinclair && !displayGlobal) {
+				   Participation p = null;
+				   String athleteCatCode = a.getCategory() != null ? a.getCategory().getCode() : null;
+				   if (a.getParticipations() != null && a.getParticipations().size() > 0 && athleteCatCode != null) {
+					   for (Participation part : a.getParticipations()) {
+						   if (part.getCategory() != null && athleteCatCode.equals(part.getCategory().getCode())) {
+							   p = part;
+							   break;
+						   }
+					   }
+				   }
+				   Integer value = (p != null) ? p.getCategoryScoreRank() : Ranking.getRanking(a, Ranking.CATEGORY_SCORE);
+				   result = value != null && value > 0 ? "" + value : "-";
+			   } else {
+				   Integer value = Ranking.getRanking(a, bestLifterScoringSystem);
+				   result = value != null && value > 0 ? "" + value : "-";
+			   }
+		   } else {
+			   result = Translator.translate("Results.Extra/Invited");
+		   }
+		   logger.warn("computedScoreRank for athlete {} = {}", a, result);
+		   return result;
+	   }
 
 	protected void computeLeaders(boolean done) {
 		OwlcmsSession.withFop(fop -> {
@@ -861,7 +888,7 @@ public class BaseResults extends LitTemplate
 
 		if (a.getComputedScoringSystem() != Ranking.TOTAL || bestScore || bestScoreRank) {
 			ja.put("sinclair", computedScore(a));
-			if (bestScoreRank) {
+			if (bestScoreRank || a.getComputedScoringSystem() != Ranking.TOTAL) {
 				ja.put("sinclairRank", computedScoreRank(a));
 			} else {
 				ja.put("sinclairRank", a.getBestLifterRank());

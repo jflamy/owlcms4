@@ -149,20 +149,24 @@ public class MultiCategoryRankSetter {
 						}
 					}
 						break;
-					case CATEGORY_SCORE: {
-						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
-						if (!zero && a.isEligibleForIndividualRanking()) {
-							this.categoryScoreRank = curRankings.getCategoryScoreRank();
-							this.categoryScoreRank = this.categoryScoreRank + 1;
-							p.setCategoryScoreRank(this.categoryScoreRank);
-							curRankings.setCategoryScoreRank(this.categoryScoreRank);
-							// logger.debug("setting score rank {} {} {} {}", a.getAbbreviatedName(), curCat, categoryScoreRank, p);
-						} else {
-							p.setCategoryScoreRank(a.isEligibleForIndividualRanking() ? 0 : -1);
-							// logger.debug("clearing score rank {} {} {} {}", a.getAbbreviatedName(), curCat, 0, p);
-						}
-					}
-						break;
+					   case CATEGORY_SCORE: {
+						   CategoryRankingHolder curRankings = getCategoryRankings(curCat);
+						   double rankingValue = Ranking.getRankingValue(a, Ranking.CATEGORY_SCORE);
+						   boolean eligible = a.isEligibleForIndividualRanking();
+						   boolean zeroValue = rankingValue <= 0;
+						   logger.warn("[CATEGORY_SCORE] Athlete: {} | Category: {} | rankingValue: {} | eligible: {} | Participation ID: {}", a.getAbbreviatedName(), curCat.getCode(), rankingValue, eligible, System.identityHashCode(p));
+						   if (!zeroValue && eligible) {
+							   this.categoryScoreRank = curRankings.getCategoryScoreRank();
+							   this.categoryScoreRank = this.categoryScoreRank + 1;
+							   p.setCategoryScoreRank(this.categoryScoreRank);
+							   curRankings.setCategoryScoreRank(this.categoryScoreRank);
+							   logger.warn("[CATEGORY_SCORE] Assigned rank {} to athlete {} in category {} | Participation ID: {}", this.categoryScoreRank, a.getAbbreviatedName(), curCat.getCode(), System.identityHashCode(p));
+						   } else {
+							   p.setCategoryScoreRank(eligible ? 0 : -1);
+							   logger.warn("[CATEGORY_SCORE] Set rank {} for athlete {} in category {} (reason: {}{} ) | Participation ID: {}", (eligible ? 0 : -1), a.getAbbreviatedName(), curCat.getCode(), (!eligible ? "not eligible" : "zero value"), "", System.identityHashCode(p));
+						   }
+					   }
+						   break;
 					case CUSTOM: {
 						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
 						if (!zero && a.isEligibleForIndividualRanking()) {
