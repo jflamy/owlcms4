@@ -14,7 +14,7 @@
 **New in Release 60.0**
 
 60.0.0: New page showing the records in a filtering grid, to allow choosing what is exported. 
-- Clicking on a record allows for editing. See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement)
+- Records can now be maintained in the application: clicking on a record allows for editing. See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement)
 - Templates allow selection between a full format to allow re-importing, or a simplified format for publishing.  For both formats, it is possible to select a "all on on sheet" or "one age group per sheet" variant.
 
 60.0.0: Robi configuration updated for the June 2025 categories
