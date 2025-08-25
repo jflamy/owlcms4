@@ -604,6 +604,16 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		return ranking;
 	}
 
+	private Ranking computeScoringSystemForBook() {
+		Ranking ranking;
+		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
+			ranking = getRankingSelector().getValue();
+		} else {
+			ranking = Competition.getCurrent().getScoringSystem();
+		}
+		return ranking;
+	}
+
 	private Button createCategoryResultsDownloadButton() {
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
@@ -635,23 +645,24 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 	private Button createFinalPackageDownloadButton() {
 		this.downloadDialog = new JXLSDownloader(
-		        () -> {
-			        JXLSCompetitionBook rs = new JXLSCompetitionBook(this.locationUI);
-			        rs.setChampionship(this.championship);
-			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
-			        rs.setCategory(this.categoryValue);
-			        rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
-			        rs.setWinnersOnly(this.winnersOnly);
-			        Ranking computeScoringSystem = computeScoringSystem();
-			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem);
-			        rs.setBestLifterScoringSystem(computeScoringSystem);
-			        return rs;
-		        },
-		        "/templates/competitionBook",
-		        Competition::getComputedFinalPackageTemplateFileName,
-		        Competition::setFinalPackageTemplateFileName,
-		        Translator.translate("FinalResultsPackage"),
-		        Translator.translate("Download"));
+				() -> {
+					JXLSCompetitionBook rs = new JXLSCompetitionBook(this.locationUI);
+					rs.setChampionship(this.championship);
+					rs.setAgeGroupPrefix(this.ageGroupPrefix);
+					rs.setCategory(this.categoryValue);
+					rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
+					rs.setWinnersOnly(this.winnersOnly);
+					Ranking computeScoringSystem = computeScoringSystemForBook();
+					logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem);
+					rs.setBestLifterScoringSystem(computeScoringSystem);
+					JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
+					return rs;
+				},
+				"/templates/competitionBook",
+				Competition::getComputedFinalPackageTemplateFileName,
+				Competition::setFinalPackageTemplateFileName,
+				Translator.translate("FinalResultsPackage"),
+				Translator.translate("Download"));
 		this.downloadDialog.setProcessingMessage(Translator.translate("LongProcessing"));
 		Button resultsButton = this.downloadDialog.createDownloadButton();
 		highlight(resultsButton);
