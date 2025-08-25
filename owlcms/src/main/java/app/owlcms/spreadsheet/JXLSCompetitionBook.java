@@ -6,10 +6,13 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+
+import app.owlcms.data.records.RecordEvent;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -126,6 +129,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		competition.computeReportingInfo(getAgeGroupPrefix(), getChampionship());
 
 		super.setReportingInfo();
+
 		Object records = super.getReportingBeans().get("records");
 		HashMap<String, Object> reportingBeans = competition.getReportingBeans();
 
@@ -144,7 +148,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			}
 		}
 
-		reportingBeans.put("records", records);
+		// Filter records to only those RecordEvent objects with non-null and non-empty group field
+		keepProvisionalRecords(records, reportingBeans);
 
 		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		JXLSWorkbookStreamSource.setNoInterimScoresInResults(Config.getCurrent().featureSwitch("noInterimScoresInResults"));
@@ -181,6 +186,28 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			}
 		}
 		setReportingBeans(reportingBeans);
+	}
+
+	private void keepProvisionalRecords(Object records, HashMap<String, Object> reportingBeans) {
+		if (records instanceof List<?>) {
+			try {
+				@SuppressWarnings("unchecked")
+				List<?> recordList = (List<?>) records;
+				if (!recordList.isEmpty() && recordList.get(0) instanceof RecordEvent) {
+					List<RecordEvent> filtered = recordList.stream()
+						.map(o -> (RecordEvent) o)
+						.filter(r -> r != null && r.getGroupNameString() != null && !r.getGroupNameString().isBlank())
+						.toList();
+					reportingBeans.put("records", filtered);
+				} else {
+					reportingBeans.put("records", records);
+				}
+			} catch (ClassCastException e) {
+				reportingBeans.put("records", records);
+			}
+		} else {
+			reportingBeans.put("records", records);
+		}
 	}
 
 	/**

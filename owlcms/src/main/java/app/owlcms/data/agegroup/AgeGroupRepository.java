@@ -292,12 +292,12 @@ public class AgeGroupRepository {
 				List<String> resultSet = q.getResultList();
 				return resultSet;
 			} else {
-				TypedQuery<String> q = em.createQuery(
-				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ((ag.championshipName = :championshipName) or (ag.ageDivision = :championshipName))",
-				        String.class);
-				q.setParameter("championshipName", championship.getName());
-				List<String> resultSet = q.getResultList();
-				return resultSet;
+		TypedQuery<String> q = em.createQuery(
+			"select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ((lower(ag.championshipName) = lower(:championshipName)) or (lower(ag.ageDivision) = lower(:championshipName)))",
+			String.class);
+		q.setParameter("championshipName", championship.getName());
+		List<String> resultSet = q.getResultList();
+		return resultSet;
 			}
 		});
 	}
