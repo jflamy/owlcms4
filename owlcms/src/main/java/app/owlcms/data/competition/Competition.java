@@ -425,9 +425,9 @@ public class Competition {
 				//logger.debug("[CATEGORY_SCORE] After updateEligibleCategoryRanks (CATEGORY_SCORE), athletes: {}",
 				//        updatedAthletes.stream().map(a -> a.getAbbreviatedName() + ": rank=" + a.getCategoryScoreRank()).toList());
 
-				for (Athlete a : updatedAthletes) {
-					dumpAthlete(category.getCode(), a);
-				}
+				// for (Athlete a : updatedAthletes) {
+				// 	dumpAthlete(category.getCode(), a);
+				// }
 
 				List<Athlete> updatedPAthletes = getPAthletes(category, updatedAthletes, false);
 				medalsByCategory.put(category.getCode(), updatedPAthletes);
@@ -455,9 +455,9 @@ public class Competition {
 				//        updatedAthletes.stream().map(a -> a.getAbbreviatedName() + ": rank=" + a.getCategoryScoreRank()).toList());
 				List<Athlete> updatedPAthletes = getPAthletes(category, updatedAthletes, false);
 
-				for (Athlete a : updatedAthletes) {
-					dumpAthlete(category.getCode(), a);
-				}
+				// for (Athlete a : updatedAthletes) {
+				// 	dumpAthlete(category.getCode(), a);
+				// }
 
 				medalsByCategory.put(category.getCode(), updatedPAthletes);
 			}
@@ -1955,9 +1955,9 @@ public class Competition {
 			for (Athlete a : updatedAthletes) {
 				Athlete oldAthlete = em.find(Athlete.class, a.getId());
 				Athlete newAthlete = em.merge(a);
-				dumpAthlete("updated", a);
-				dumpAthlete("old", oldAthlete);
-				dumpAthlete("merged", newAthlete);
+				// dumpAthlete("updated", a);
+				// dumpAthlete("old", oldAthlete);
+				// dumpAthlete("merged", newAthlete);
 			}
 			return null;
 		});
