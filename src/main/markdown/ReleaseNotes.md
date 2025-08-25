@@ -14,6 +14,10 @@
 
 **Maintenance Log**
 
+60.0.0-rc03: The final results competition book ("final package") was not using a competition-wide best athlete scoring scheme (neither the default nor the drop-down value)
+
+60.0.0-rc03: The Competition Results grid Championship Filter could show the Masters championship twice and get confused when filtering.
+
 60.0.0-rc02: Ranks for medals awarded using a scoring system other than TOTAL were not updating live on the scoreboard (the score and the score-based ranks are additional columns when the registration category is score-based)
 
 60.0.0-rc02: "Sinclair at category weight" was not being computed for men.

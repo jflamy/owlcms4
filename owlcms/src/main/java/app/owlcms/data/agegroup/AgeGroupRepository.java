@@ -139,7 +139,7 @@ public class AgeGroupRepository {
 				whereList.add("ag.code = :ageGroupPrefix");
 			}
 			if (championship != null) {
-				whereList.add("((ag.championshipName = :championshipName) or (ag.ageDivision = :championshipName))");
+				whereList.add("((lower(ag.championshipName) = lower(:championshipName)) or (lower(ag.ageDivision) = lower(:championshipName)))");
 			}
 			String whereClause = "";
 			if (whereList.size() > 0) {

@@ -55,15 +55,41 @@ public class Championship implements Comparable<Championship> {
 		return compare;
 	};
 
+	/**
+	 * Adds a championship, normalizing 'Masters' variants to canonical form.
+	 */
 	public static Championship addChampionship(String nameString, ChampionshipType u2) {
-		Championship championship = allChampionshipsMap.get(nameString.toLowerCase());
+		String canonicalName = canonicalizeChampionshipName(nameString);
+		ChampionshipType canonicalType = canonicalizeChampionshipType(canonicalName, u2);
+		Championship championship = allChampionshipsMap.get(canonicalName.toLowerCase());
 		if (championship == null) {
-			Championship newChampionship = new Championship(nameString, u2);
-			allChampionshipsMap.put(nameString.toLowerCase(),
-			        newChampionship);
+			Championship newChampionship = new Championship(canonicalName, canonicalType);
+			String key = canonicalName.toLowerCase();
+			allChampionshipsMap.put(key, newChampionship);
+			logger.debug("Added to map: key='{}', name='{}', type='{}'", key, newChampionship.getName(), newChampionship.getType());
 			return newChampionship;
 		}
 		return championship;
+	}
+
+	/**
+	 * Returns the canonical championship type for known names (e.g., 'Masters').
+	 */
+	private static ChampionshipType canonicalizeChampionshipType(String name, ChampionshipType type) {
+		if (name != null && name.equals("Masters")) {
+			return ChampionshipType.MASTERS;
+		}
+		return type != null ? type : ChampionshipType.U;
+	}
+
+	/**
+	 * Returns the canonical championship name for known types (e.g., 'Masters').
+	 */
+	private static String canonicalizeChampionshipName(String name) {
+		if (name != null && name.trim().equalsIgnoreCase("masters")) {
+			return "Masters";
+		}
+		return name;
 	}
 
 	/**
@@ -83,9 +109,13 @@ public class Championship implements Comparable<Championship> {
 			// allChampionshipsMap.put(IWF, new Championship(ChampionshipType.IWF));
 			String name = null;
 			name = Translator.translate("Division." + ChampionshipType.DEFAULT.name());
-			allChampionshipsMap.put(name.toLowerCase(), new Championship(name, ChampionshipType.DEFAULT));
+			Championship defaultChamp = new Championship(name, ChampionshipType.DEFAULT);
+			allChampionshipsMap.put(name.toLowerCase(), defaultChamp);
+			logger.debug("Added to map: key='{}', name='{}', type='{}'", name.toLowerCase(), defaultChamp.getName(), defaultChamp.getType());
 			name = Translator.translate("Division." + ChampionshipType.MASTERS.name());
-			allChampionshipsMap.put(name.toLowerCase(), new Championship(name, ChampionshipType.MASTERS));
+			Championship mastersChamp = new Championship(name, ChampionshipType.MASTERS);
+			allChampionshipsMap.put(name.toLowerCase(), mastersChamp);
+			logger.debug("Added to map: key='{}', name='{}', type='{}'", name.toLowerCase(), mastersChamp.getName(), mastersChamp.getType());
 
 			// allChampionshipsMap.put(ADAPTIVE, new Championship(ChampionshipType.ADAPTIVE));
 
@@ -130,7 +160,9 @@ public class Championship implements Comparable<Championship> {
 	public static List<Championship> findAllUsed(boolean activeOnly) {
 		var results = new ArrayList<Championship>();
 		findAll();
-		List<String> names = AgeGroupRepository.allActiveChampionshipsNames(activeOnly);
+		List<String> names = AgeGroupRepository.allActiveChampionshipsNames(activeOnly).stream()
+		        .map(n -> canonicalizeChampionshipName(n))
+		        .sorted().distinct().toList();
 		for (String n : names) {
 			Championship of = Championship.of(n);
 			results.add(of);
@@ -164,7 +196,8 @@ public class Championship implements Comparable<Championship> {
 		if (championshipName == null) {
 			return new Championship("", ChampionshipType.U);
 		}
-		return allChampionshipsMap.get(championshipName.toLowerCase());
+		String canonicalName = canonicalizeChampionshipName(championshipName);
+		return allChampionshipsMap.get(canonicalName.toLowerCase());
 	}
 
 	public static Championship ofType(ChampionshipType t) {
