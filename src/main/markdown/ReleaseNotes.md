@@ -9,16 +9,15 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 
-
 <br>
 
 **Maintenance Log**
 
-60.0.0-rc06: Updated Robi template for 2025-06 categories
+60.0.0-rc07: Updated Robi template for 2025-06 categories
+
+60.0.0-rc06: Cleaned up the simplified templates for publishing records ("pretty*.xlsx")
 
 60.0.0-rc06: Template for printable labels for medals
-
-60.0.0-rc06: Cleaned up the simplified "pretty" templates for publishing records
 
 60.0.0-rc05: Further fixes for the championship - age group filter cascade on the Final Package page.
 
