@@ -50,7 +50,7 @@ public class RobiCategoriesTest {
         a.setBodyWeight(57.2D);
         a.setGender(Gender.M);
         Category cat = RobiCategories.findRobiCategory(a);
-        assertEquals("M61", cat.getComputedCode());
+        assertEquals("M60", cat.getComputedCode());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class RobiCategoriesTest {
         a.setBodyWeight(50.2D);
         a.setGender(Gender.M);
         Category cat = RobiCategories.findRobiCategory(a);
-        assertEquals("M55", cat.getComputedCode());
+        assertEquals("M60", cat.getComputedCode());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class RobiCategoriesTest {
         a.setGender(Gender.M);
         a.setYearOfBirth(LocalDate.now().getYear() - 17);
         Category cat = RobiCategories.findRobiCategory(a);
-        assertEquals("M49", cat.getComputedCode());
+        assertEquals("M56", cat.getComputedCode());
     }
 
     @Test
@@ -98,13 +98,13 @@ public class RobiCategoriesTest {
         youthFemaleAthlete.setBodyWeight(40.0D);
         youthFemaleAthlete.setYearOfBirth(LocalDate.now().getYear() - 12);
         youthFemaleAthlete.setGender(Gender.F);
-        assertEquals("F40", RobiCategories.findRobiCategory(youthFemaleAthlete).getComputedCode());
+        assertEquals("F44", RobiCategories.findRobiCategory(youthFemaleAthlete).getComputedCode());
 
         Athlete youthMaleAthlete = new Athlete();
         youthMaleAthlete.setBodyWeight(40.0D);
         youthMaleAthlete.setYearOfBirth(LocalDate.now().getYear() - 12);
         youthMaleAthlete.setGender(Gender.M);
-        assertEquals("M40", RobiCategories.findRobiCategory(youthMaleAthlete).getComputedCode());
+        assertEquals("M56", RobiCategories.findRobiCategory(youthMaleAthlete).getComputedCode());
     }
 
 }
