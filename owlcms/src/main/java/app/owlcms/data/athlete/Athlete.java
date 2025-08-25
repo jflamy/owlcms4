@@ -595,7 +595,7 @@ public class Athlete {
 			this.setLoggerLevel(prevLevel);
 		}
 	}
-	
+
 	public void clearBodyWeight() {
 		boolean validate = this.isValidation();
 		Level prevLevel = this.getLogger().getLevel();
@@ -608,7 +608,6 @@ public class Athlete {
 			this.setLoggerLevel(prevLevel);
 		}
 	}
-
 
 	/**
 	 * Gets the custom score.
@@ -827,7 +826,7 @@ public class Athlete {
 			return "?";
 		}
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public String getFixedName() {
@@ -838,7 +837,7 @@ public class Athlete {
 		}
 		String upperCase = this.getLastName() != null ? this.getLastName().toUpperCase() : "";
 		String firstName2 = this.firstName != null ? this.firstName.trim() : "";
-		
+
 		String formattedFirstName = computeFixedFirstName(loc, firstName2);
 
 		if (!upperCase.isBlank() && !formattedFirstName.isBlank()) {
@@ -856,13 +855,13 @@ public class Athlete {
 		// Check if first name is all caps (or all caps with hyphens and spaces)
 		// Only fix names that are all uppercase
 
-		boolean needsFixing = firstName2.equals(firstName2.toUpperCase(loc)) ;
+		boolean needsFixing = firstName2.equals(firstName2.toUpperCase(loc));
 		var language = loc.getLanguage();
 		if (needsFixing && (language.equals("ar") || language.equals("he") || language.equals("ja"))) {
 			// This would attempt to fix Arabic, Hebrew, Japanese, but the fix would do nothing.
 			return firstName2;
 		}
-		
+
 		String formattedFirstName;
 		if (needsFixing) {
 			// Split first name by spaces, then split each component by hyphens
@@ -871,15 +870,15 @@ public class Athlete {
 			formattedFirstName = Arrays.stream(spaceParts).map(spacePart -> {
 				String[] hyphenatedParts = spacePart.split("-");
 				return Arrays.stream(hyphenatedParts)
-						.map(hpart -> {
-							if (hpart.isEmpty()) {
-								return hpart;
-							}
-							// Capitalize first letter according to locale rules, lowercase the rest
-							return hpart.substring(0, 1).toUpperCase(loc) + 
-								   hpart.substring(1).toLowerCase(loc);
-						})
-						.collect(Collectors.joining("-"));
+				        .map(hpart -> {
+					        if (hpart.isEmpty()) {
+						        return hpart;
+					        }
+					        // Capitalize first letter according to locale rules, lowercase the rest
+					        return hpart.substring(0, 1).toUpperCase(loc) +
+					                hpart.substring(1).toLowerCase(loc);
+				        })
+				        .collect(Collectors.joining("-"));
 			}).collect(Collectors.joining(" "));
 		} else {
 			// Keep the original first name if it doesn't need fixing
@@ -1176,7 +1175,8 @@ public class Athlete {
 	public Double getBestLifterScore() {
 		var scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		if (scoringSystem == null) {
-			// if we are invoked from a printing thread, this value will be defined.
+			// if we are invoked from a printing thread, this value will have been defined according to a
+			// dropdown or defaulted appropriately
 			scoringSystem = getAgeGroup().getBestAthleteScoringSystem();
 			if (scoringSystem == null) {
 				// this will be used on the interactive page as the default
@@ -1991,7 +1991,7 @@ public class Athlete {
 	public String getFullName() {
 		return fixNames ? getFixedName() : computeRawFullName();
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public String computeRawFullName() {
@@ -6186,11 +6186,12 @@ public class Athlete {
 
 	public void dump(String string) {
 		var a = this;
-		logger./**/warn("{} id={} {} {} S={} C={} T={} {}", string, a.getId(), a.getAbbreviatedName(), System.identityHashCode(a), a.getBestSnatch(), a.getBestCleanJerk(),
-				a.getTotal(), app.owlcms.utils.LoggerUtils.whereFrom());
+		logger./**/warn("{} id={} {} {} S={} C={} T={} {}", string, a.getId(), a.getAbbreviatedName(), System.identityHashCode(a), a.getBestSnatch(),
+		        a.getBestCleanJerk(),
+		        a.getTotal(), app.owlcms.utils.LoggerUtils.whereFrom());
 		for (Participation p : a.getParticipations()) {
 			logger./**/warn("    {} S{} C{} T{} Sc{} {}", p.getCategory(), p.getSnatchRank(), p.getCleanJerkRank(), p.getTotalRank(), p.getCategoryScoreRank(),
-					System.identityHashCode(p));
+			        System.identityHashCode(p));
 		}
 	}
 
