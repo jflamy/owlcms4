@@ -14,7 +14,7 @@
 
 **Maintenance Log**
 
-60.0.0-rc04: Further fixes for the championship - age group filter cascade on the Final Package page.
+60.0.0-rc05: Further fixes for the championship - age group filter cascade on the Final Package page.
 
 60.0.0-rc03: The final results competition book ("final package") was not using a competition-wide best athlete scoring scheme (neither the default nor the drop-down value)
 
