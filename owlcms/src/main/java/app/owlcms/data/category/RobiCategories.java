@@ -101,48 +101,54 @@ public class RobiCategories {
 			Iterator<Cell> cellIterator = row.cellIterator();
 
 			while (cellIterator.hasNext()) {
+
 				Cell cell = cellIterator.next();
-				switch (iColumn) {
-					case 0: {
-						String cellValue = dataFormatter.formatCellValue(cell);
-						String trim = cellValue.trim();
-						if (trim.isBlank()) {
-							c = null;
-							break rows;
+				try {
+					switch (iColumn) {
+						case 0: {
+							String cellValue = dataFormatter.formatCellValue(cell);
+							String trim = cellValue.trim();
+							if (trim.isBlank()) {
+								c = null;
+								break rows;
+							}
+							c.setCode(trim);
+							categoryMap.put(cellValue, c);
 						}
-						c.setCode(trim);
-						categoryMap.put(cellValue, c);
-					}
-						break;
-					case 1: {
-						String cellValue = dataFormatter.formatCellValue(cell);
-						if (cellValue != null && !cellValue.trim().isEmpty()) {
-							try {
-								c.setGender(Gender.valueOf(cellValue));
-							} catch (IllegalArgumentException e) {
-								c.setGender(cellValue.contentEquals("W") ? Gender.F : Gender.M);
+							break;
+						case 1: {
+							String cellValue = dataFormatter.formatCellValue(cell);
+							if (cellValue != null && !cellValue.trim().isEmpty()) {
+								try {
+									c.setGender(Gender.valueOf(cellValue));
+								} catch (IllegalArgumentException e) {
+									c.setGender(cellValue.contentEquals("W") ? Gender.F : Gender.M);
+								}
 							}
 						}
+							break;
+						case 2: {
+							c.setMaximumWeight(cell.getNumericCellValue());
+						}
+							break;
+						case 3: {
+							c.setWrSr((int) Math.round(cell.getNumericCellValue()));
+						}
+							break;
+						case 4: {
+							c.setWrJr((int) Math.round(cell.getNumericCellValue()));
+						}
+							break;
+						case 5: {
+							c.setWrYth((int) Math.round(cell.getNumericCellValue()));
+						}
+							break;
 					}
-						break;
-					case 2: {
-						c.setMaximumWeight(cell.getNumericCellValue());
-					}
-						break;
-					case 3: {
-						c.setWrSr((int) Math.round(cell.getNumericCellValue()));
-					}
-						break;
-					case 4: {
-						c.setWrJr((int) Math.round(cell.getNumericCellValue()));
-					}
-						break;
-					case 5: {
-						c.setWrYth((int) Math.round(cell.getNumericCellValue()));
-					}
-						break;
+					iColumn++;
+				} catch (Exception e) {
+					logger.error("Error processing cell {}: {}", cell.getAddress(), LoggerUtils.stackTrace(e));
+					throw new RuntimeException("Error processing cell " + cell.getAddress(), e);
 				}
-				iColumn++;
 			}
 			iRow++;
 		}
@@ -163,7 +169,7 @@ public class RobiCategories {
 		if (ythReferenceCategories == null) {
 			loadYthReferenceCategories();
 		}
-		//RobiCategories x = new RobiCategories();
+		// RobiCategories x = new RobiCategories();
 		List<Category> categories;
 		Integer age = a.getAge();
 		if (!forceJrSr && (age != null && age <= 17)) {
@@ -172,10 +178,9 @@ public class RobiCategories {
 			categories = jrSrReferenceCategories;
 		}
 
-        return categories.stream().filter(iwfCategory ->
-                        iwfCategory.getGender().equals(a.getGender())
-                                && a.getBodyWeight() > iwfCategory.minimumWeight && a.getBodyWeight() <= iwfCategory.maximumWeight)
-                .findFirst().orElse(null);
+		return categories.stream().filter(iwfCategory -> iwfCategory.getGender().equals(a.getGender())
+		        && a.getBodyWeight() > iwfCategory.minimumWeight && a.getBodyWeight() <= iwfCategory.maximumWeight)
+		        .findFirst().orElse(null);
 	}
 
 	@SuppressWarnings("unused")
