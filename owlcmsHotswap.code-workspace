@@ -46,6 +46,18 @@
       },
       {
         "type": "java",
+        "name": "🟨 owlcms no reset EDIT (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-Dvaadin.frontend.hotdeploy=true -ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "false",
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+        }
+      },
+      {
+        "type": "java",
         "name": "🟥 owlcms empty reset (Hotswap)",
         "request": "launch",
         "mainClass": "app.owlcms.Main",
@@ -92,7 +104,7 @@
         "request": "launch",
         "mainClass": "app.owlcms.Main",
         "projectName": "owlcms",
-        "vmArgs": "-Dvaadin.frontend.hotdeploy=true -DcssEdit=true -ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "vmArgs": "-Dvaadin.frontend.hotdeploy=true -ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
         "env": {
           "OWLCMS_MEMORYMODE": "true",
           "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
