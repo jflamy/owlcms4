@@ -29,6 +29,7 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 	public static final String AGEGROUP_PREFIX = "agp";
 	public static final String AGEDIVISION = "ad";
 	public static final String AGEGROUP = "ag";
+	public static final String NB_ATHLETES = "nbAthletes";
 
 	@Override
 	public default Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
@@ -92,6 +93,18 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		String catValue = getCategory() != null ? getCategory().toString() : null;
 		updateParam(newParameterMap, CATEGORY, catValue);
 
+		// Parse nbAthletes parameter from URL
+		List<String> nbAthletesParams = newParameterMap.get(NB_ATHLETES);
+		int nbAthletes = 10; // default value
+		if (nbAthletesParams != null && !nbAthletesParams.isEmpty()) {
+			try {
+				nbAthletes = Integer.parseInt(nbAthletesParams.get(0));
+			} catch (NumberFormatException e) {
+				nbAthletes = 10;
+			}
+		}
+		setNbAthletes(nbAthletes);
+
 		setUrlParameterMap(removeDefaultValues(newParameterMap));
 
 		// Parse displayLifts parameter from URL
@@ -104,6 +117,14 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		setDisplayLifts(displayLifts);
 
 		return getUrlParameterMap();
+	}
+
+	// nbAthletes getter/setter
+	default int getNbAthletes() {
+		return 10;
+	}
+
+	default void setNbAthletes(int nbAthletes) {
 	}
 
 }

@@ -62,31 +62,40 @@ import elemental.json.JsonValue;
 
 public class TopSinclair extends AbstractTop {
 
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
-	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+       final private static Logger logger = (Logger) LoggerFactory.getLogger(TopSinclair.class);
+       final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
-	static {
-		logger.setLevel(Level.INFO);
-		uiEventLogger.setLevel(Level.INFO);
-	}
-	JsonArray cattempts;
-	JsonArray sattempts;
-	private List<Athlete> sortedMen;
-	private List<Athlete> sortedWomen;
-	private double topManScore;
-	private double topWomanScore;
-	private EventBus uiEventBus;
-	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	private Ranking scoringSystem;
-	private QPoints qpoints = new QPoints(2023);
-	private UI ui;
-	private boolean displayLifts;
+       static {
+	       logger.setLevel(Level.INFO);
+	       uiEventLogger.setLevel(Level.INFO);
+       }
+       JsonArray cattempts;
+       JsonArray sattempts;
+       private List<Athlete> sortedMen;
+       private List<Athlete> sortedWomen;
+       private double topManScore;
+       private double topWomanScore;
+       private EventBus uiEventBus;
+       Map<String, List<String>> urlParameterMap = new HashMap<>();
+       private Ranking scoringSystem;
+       private QPoints qpoints = new QPoints(2023);
+       private UI ui;
+       private boolean displayLifts;
+       private int nbAthletes = 10;
 
-	public TopSinclair() {
-		uiEventLogger.setLevel(Level.INFO);
-		OwlcmsFactory.waitDBInitialized();
-		setDarkMode(true);
-	}
+       public int getNbAthletes() {
+	       return nbAthletes;
+       }
+
+       public void setNbAthletes(int nbAthletes) {
+	       this.nbAthletes = nbAthletes;
+       }
+
+       public TopSinclair() {
+	       uiEventLogger.setLevel(Level.INFO);
+	       OwlcmsFactory.waitDBInitialized();
+	       setDarkMode(true);
+       }
 
 	@Override
 	public void doBreak(UIEvent e) {
@@ -101,24 +110,26 @@ public class TopSinclair extends AbstractTop {
 		doBreak(e);
 	}
 
-	public void doUpdate(Competition competition) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
+       public void doUpdate(Competition competition) {
+	       FieldOfPlay fop = OwlcmsSession.getFop();
+	       setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
-		// create copies because we want to change the list
-		AthleteSorter.TopScore topScores;
-	List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
-	topScores = (AthleteSorter.topScore(sortedMen2, sortedMen2.size()));
-	setSortedMen(topScores.topAthletes);
-	this.topManScore = topScores.best;
+	       // create copies because we want to change the list
+	       AthleteSorter.TopScore topScores;
+	       List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
+	       int limitMen = Math.min(nbAthletes, sortedMen2.size());
+	       topScores = (AthleteSorter.topScore(sortedMen2, limitMen));
+	       setSortedMen(topScores.topAthletes);
+	       this.topManScore = topScores.best;
 
-	List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
-	topScores = (AthleteSorter.topScore(sortedWomen2, sortedWomen2.size()));
-	setSortedWomen(topScores.topAthletes);
-	this.topWomanScore = topScores.best;
+	       List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
+	       int limitWomen = Math.min(nbAthletes, sortedWomen2.size());
+	       topScores = (AthleteSorter.topScore(sortedWomen2, limitWomen));
+	       setSortedWomen(topScores.topAthletes);
+	       this.topWomanScore = topScores.best;
 
-		updateBottom();
-	}
+	       updateBottom();
+       }
 
 	public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
 		String category;
