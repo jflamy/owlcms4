@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * Copyright © 2009-present Jean-François Lamy
  *
@@ -24,12 +25,14 @@ import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface ResultsParametersReader extends ResultsParameters, FOPParametersReader {
+	// Only one GENDER constant should be declared; remove duplicates
 
 	public static final String CATEGORY = "cat";
 	public static final String AGEGROUP_PREFIX = "agp";
 	public static final String AGEDIVISION = "ad";
 	public static final String AGEGROUP = "ag";
 	public static final String NB_ATHLETES = "nbAthletes";
+	public static final String GENDER = "gender";
 
 	@Override
 	public default Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
@@ -93,31 +96,54 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		String catValue = getCategory() != null ? getCategory().toString() : null;
 		updateParam(newParameterMap, CATEGORY, catValue);
 
-		// Parse nbAthletes parameter from URL
-		List<String> nbAthletesParams = newParameterMap.get(NB_ATHLETES);
-		int nbAthletes = 10; // default value
-		if (nbAthletesParams != null && !nbAthletesParams.isEmpty()) {
-			try {
-				nbAthletes = Integer.parseInt(nbAthletesParams.get(0));
-			} catch (NumberFormatException e) {
-				nbAthletes = 10;
-			}
-		}
-		setNbAthletes(nbAthletes);
 
-		setUrlParameterMap(removeDefaultValues(newParameterMap));
+	       // Parse nbAthletes parameter from URL
 
-		// Parse displayLifts parameter from URL
-		List<String> displayLiftsParams = newParameterMap.get("displayLifts");
-		boolean displayLifts = false;
-		if (displayLiftsParams != null && !displayLiftsParams.isEmpty()) {
-			String val = displayLiftsParams.get(0);
-			displayLifts = val != null && (val.equalsIgnoreCase("true") || val.equals("1"));
-		}
-		setDisplayLifts(displayLifts);
+	       // Parse nbAthletes parameter from URL
+	       List<String> nbAthletesParams = newParameterMap.get(NB_ATHLETES);
+	       int nbAthletes = 10; // default value
+	       if (nbAthletesParams != null && !nbAthletesParams.isEmpty()) {
+		       try {
+			       nbAthletes = Integer.parseInt(nbAthletesParams.get(0));
+		       } catch (NumberFormatException e) {
+			       nbAthletes = 10;
+		       }
+	       }
+	       setNbAthletes(nbAthletes);
 
-		return getUrlParameterMap();
-	}
+	       // Parse gender parameter from URL
+	       List<String> genderParams = newParameterMap.get(GENDER);
+	       app.owlcms.data.athlete.Gender gender = app.owlcms.data.athlete.Gender.MF; // default
+	       if (genderParams != null && !genderParams.isEmpty()) {
+		       String g = genderParams.get(0);
+		       if (g != null) {
+			       try {
+				       gender = app.owlcms.data.athlete.Gender.valueOf(g.toUpperCase());
+			       } catch (IllegalArgumentException e) {
+				       gender = app.owlcms.data.athlete.Gender.MF;
+			       }
+		       }
+	       }
+	       setGender(gender);
+
+		       setUrlParameterMap(removeDefaultValues(newParameterMap));
+
+		       // Parse displayLifts parameter from URL
+		       List<String> displayLiftsParams = newParameterMap.get("displayLifts");
+		       boolean displayLifts = false;
+		       if (displayLiftsParams != null && !displayLiftsParams.isEmpty()) {
+			       String val = displayLiftsParams.get(0);
+			       displayLifts = val != null && (val.equalsIgnoreCase("true") || val.equals("1"));
+		       }
+		       setDisplayLifts(displayLifts);
+
+		       return getUrlParameterMap();
+	       }
+
+
+		// gender getter/setter
+		default app.owlcms.data.athlete.Gender getGender() { return app.owlcms.data.athlete.Gender.MF; }
+		default void setGender(app.owlcms.data.athlete.Gender gender) {}
 
 	// nbAthletes getter/setter
 	default int getNbAthletes() {

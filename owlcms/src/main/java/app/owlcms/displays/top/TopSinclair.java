@@ -81,7 +81,9 @@ public class TopSinclair extends AbstractTop {
        private QPoints qpoints = new QPoints(2023);
        private UI ui;
        private boolean displayLifts;
-       private int nbAthletes = 10;
+	private int nbAthletes = 10;
+	private Gender gender = Gender.MF; // default to MF
+
 
        public int getNbAthletes() {
 	       return nbAthletes;
@@ -89,6 +91,14 @@ public class TopSinclair extends AbstractTop {
 
        public void setNbAthletes(int nbAthletes) {
 	       this.nbAthletes = nbAthletes;
+       }
+
+       public Gender getGender() {
+	       return gender;
+       }
+
+       public void setGender(Gender gender) {
+	       this.gender = gender;
        }
 
        public TopSinclair() {
@@ -540,25 +550,36 @@ public class TopSinclair extends AbstractTop {
 	}
 
 	private void updateBottom() {
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
-		String ssTitle = Ranking.getScoringTitle(scoringSystem);
-		getElement().setProperty("fullName", Translator.translate("Scoreboard.TopScore"));
-		List<Athlete> sortedMen2 = getSortedMen();
-		sortedMen2 = nodups(sortedMen2);
-		this.getElement().setProperty("topSinclairMen",
-		        sortedMen2 != null && sortedMen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreMen", ssTitle)
-		                : "");
-		JsonValue mAthletesJson = getAthletesJson(sortedMen2, true);
-		this.getElement().setPropertyJson("sortedMen", mAthletesJson);
+	       Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+	       String ssTitle = Ranking.getScoringTitle(scoringSystem);
+	       getElement().setProperty("fullName", Translator.translate("Scoreboard.TopScore"));
+	       Gender gender = this.getGender();
 
-		List<Athlete> sortedWomen2 = getSortedWomen();
-		sortedWomen2 = nodups(sortedWomen2);
-		this.getElement().setProperty("topSinclairWomen",
-		        sortedWomen2 != null && sortedWomen2.size() > 0
-		                ? Translator.translate("Scoreboard.TopScoreWomen", ssTitle)
-		                : "");
-		JsonValue wAthletesJson = getAthletesJson(sortedWomen2, false);
-		this.getElement().setPropertyJson("sortedWomen", wAthletesJson);
+	       if (gender == null || gender == Gender.M || gender == Gender.I || gender == Gender.MF) {
+		       List<Athlete> sortedMen2 = getSortedMen();
+		       sortedMen2 = nodups(sortedMen2);
+		       this.getElement().setProperty("topSinclairMen",
+			       sortedMen2 != null && sortedMen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreMen", ssTitle)
+				       : "");
+		       JsonValue mAthletesJson = getAthletesJson(sortedMen2, true);
+		       this.getElement().setPropertyJson("sortedMen", mAthletesJson);
+	       } else {
+		       this.getElement().setPropertyJson("topSinclairMen", Json.createNull());
+		       this.getElement().setPropertyJson("sortedMen", Json.createNull());
+	       }
+
+	       if (gender == null || gender == Gender.F || gender == Gender.I || gender == Gender.MF) {
+		       List<Athlete> sortedWomen2 = getSortedWomen();
+		       sortedWomen2 = nodups(sortedWomen2);
+		       this.getElement().setProperty("topSinclairWomen",
+			       sortedWomen2 != null && sortedWomen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreWomen", ssTitle)
+				       : "");
+		       JsonValue wAthletesJson = getAthletesJson(sortedWomen2, true);
+		       this.getElement().setPropertyJson("sortedWomen", wAthletesJson);
+	       } else {
+		       this.getElement().setPropertyJson("topSinclairWomen", Json.createNull());
+		       this.getElement().setPropertyJson("sortedWomen", Json.createNull());
+	       }
 	}
 
 	@Override
