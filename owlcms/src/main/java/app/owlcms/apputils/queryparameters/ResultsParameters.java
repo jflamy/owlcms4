@@ -47,4 +47,7 @@ public interface ResultsParameters {
 	public default void setGender(Gender gender) {}
 	
 	public default Gender getGender() {return null;}
+	
+	public default boolean isDisplayLifts() { return false; }
+	public default void setDisplayLifts(boolean displayLifts) {}
 }

@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.QueryParameters;
@@ -45,6 +46,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	private Category category;
 	private String ageGroupPrefix;
 	private Championship ageDivision;
+	private app.owlcms.data.athlete.Gender gender;
+	private boolean displayLifts;
 
 	public TopSinclairPage() {
 		// intentionally empty. superclass will call init() as required.
@@ -86,23 +89,55 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	}
 
 	@Override
+	public app.owlcms.data.athlete.Gender getGender() {
+		return this.gender;
+	}
+
+	@Override
+	public void setGender(app.owlcms.data.athlete.Gender gender) {
+		this.gender = gender;
+		((TopSinclair) this.getBoard()).setGender(gender);
+		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+	}
+
+	@Override
 	public final void setAgeGroup(AgeGroup ag) {
 		this.ageGroup = ag;
+		((TopSinclair) this.getBoard()).setAgeGroup(ag);
+		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
 	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
+		((TopSinclair) this.getBoard()).setAgeGroupPrefix(ageGroupPrefix);
+		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
 	public final void setCategory(Category cat) {
 		this.category = cat;
+		((TopSinclair) this.getBoard()).setCategory(cat);
+		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
 	public void setChampionship(Championship ageDivision) {
 		this.ageDivision = ageDivision;
+		((TopSinclair) this.getBoard()).setChampionship(ageDivision);
+		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+	}
+
+	@Override
+	public boolean isDisplayLifts() {
+		return this.displayLifts;
+	}
+
+	@Override
+	public void setDisplayLifts(boolean displayLifts) {
+		this.displayLifts = displayLifts;
+		((TopSinclair) this.getBoard()).setDisplayLifts(displayLifts);
+		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
 	}
 
 	@Override
@@ -132,6 +167,12 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);
 		setDefaultParameters(QueryParameters.simple(fullMap));
+	}
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		((TopSinclair) this.getBoard()).setDisplayLifts(this.displayLifts);
 	}
 
 }

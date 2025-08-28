@@ -80,6 +80,7 @@ public class TopSinclair extends AbstractTop {
 	private Ranking scoringSystem;
 	private QPoints qpoints = new QPoints(2023);
 	private UI ui;
+	private boolean displayLifts;
 
 	public TopSinclair() {
 		uiEventLogger.setLevel(Level.INFO);
@@ -107,12 +108,12 @@ public class TopSinclair extends AbstractTop {
 		// create copies because we want to change the list
 		AthleteSorter.TopScore topScores;
 		List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
-		topScores = (AthleteSorter.topScore(sortedMen2, 10));
+	topScores = (AthleteSorter.topScore(sortedMen2, 1));
 		setSortedMen(topScores.topAthletes);
 		this.topManScore = topScores.best;
 
 		List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
-		topScores = (AthleteSorter.topScore(sortedWomen2, 10));
+	topScores = (AthleteSorter.topScore(sortedWomen2, 1));
 		setSortedWomen(topScores.topAthletes);
 		this.topWomanScore = topScores.best;
 
@@ -132,6 +133,11 @@ public class TopSinclair extends AbstractTop {
 		getAttemptsJson(a);
 		ja.put("sattempts", this.sattempts);
 		ja.put("cattempts", this.cattempts);
+		// Add best snatch and best clean & jerk
+		int bestSnatch = a.getBestSnatch();
+		int bestCleanJerk = a.getBestCleanJerk();
+		ja.put("bestSnatch", bestSnatch > 0 ? formatInt(bestSnatch) : "-");
+		ja.put("bestCleanJerk", bestCleanJerk > 0 ? formatInt(bestCleanJerk) : "-");
 		ja.put("total", formatInt(a.getTotal()));
 		ja.put("bw", String.format("%.2f", a.getBodyWeight()));
 		ja.put("sinclair", String.format("%.3f", Ranking.getRankingValue(a, this.scoringSystem)));
@@ -511,6 +517,15 @@ public class TopSinclair extends AbstractTop {
 
 	private void setWide(boolean b) {
 		getElement().setProperty("wideTeamNames", b);
+	}
+
+	public boolean isDisplayLifts() {
+		return displayLifts;
+	}
+
+	public void setDisplayLifts(boolean displayLifts) {
+		this.displayLifts = displayLifts;
+		getElement().setProperty("displayLifts", displayLifts);
 	}
 
 	private void updateBottom() {

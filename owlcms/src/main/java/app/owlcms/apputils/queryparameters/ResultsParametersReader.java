@@ -93,6 +93,16 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		updateParam(newParameterMap, CATEGORY, catValue);
 
 		setUrlParameterMap(removeDefaultValues(newParameterMap));
+
+		// Parse displayLifts parameter from URL
+		List<String> displayLiftsParams = newParameterMap.get("displayLifts");
+		boolean displayLifts = false;
+		if (displayLiftsParams != null && !displayLiftsParams.isEmpty()) {
+			String val = displayLiftsParams.get(0);
+			displayLifts = val != null && (val.equalsIgnoreCase("true") || val.equals("1"));
+		}
+		setDisplayLifts(displayLifts);
+
 		return getUrlParameterMap();
 	}
 
