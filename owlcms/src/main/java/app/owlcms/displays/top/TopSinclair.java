@@ -107,15 +107,15 @@ public class TopSinclair extends AbstractTop {
 
 		// create copies because we want to change the list
 		AthleteSorter.TopScore topScores;
-		List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
-	topScores = (AthleteSorter.topScore(sortedMen2, 1));
-		setSortedMen(topScores.topAthletes);
-		this.topManScore = topScores.best;
+	List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
+	topScores = (AthleteSorter.topScore(sortedMen2, sortedMen2.size()));
+	setSortedMen(topScores.topAthletes);
+	this.topManScore = topScores.best;
 
-		List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
-	topScores = (AthleteSorter.topScore(sortedWomen2, 1));
-		setSortedWomen(topScores.topAthletes);
-		this.topWomanScore = topScores.best;
+	List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
+	topScores = (AthleteSorter.topScore(sortedWomen2, sortedWomen2.size()));
+	setSortedWomen(topScores.topAthletes);
+	this.topWomanScore = topScores.best;
 
 		updateBottom();
 	}
