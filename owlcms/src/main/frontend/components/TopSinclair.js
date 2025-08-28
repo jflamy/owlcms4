@@ -14,7 +14,7 @@ class TopSinclair extends LitElement {
   render() {
     return html` 
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/top" + (this.autoversion ?? "")}.css" />
+      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/topSinclair" + (this.autoversion ?? "")}.css" />
       <div class="notused" style="display:none">
         <timer-element id="timer"></timer-element>
         <timer-element id="breakTimer"></timer-element>
