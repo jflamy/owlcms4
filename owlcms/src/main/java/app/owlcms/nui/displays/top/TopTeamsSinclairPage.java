@@ -73,12 +73,14 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		
 		ComboBox<Championship> championshipComboBox = new ComboBox<>();
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
-		List<Championship> championships = Championship.findAll();
+		List<Championship> championships = Championship.findAllUsed(true);
 
 		championshipComboBox.setItems(championships);
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setPlaceholder(Translator.translate("Championship"));
 		championshipComboBox.setClearButtonVisible(true);
+		// Cancel timer when user starts editing
+		championshipComboBox.addFocusListener(e -> cancelDialogTimer());
 		championshipComboBox.addValueChangeListener(e -> {
 			Championship championship = e.getValue();
 			setChampionship(championship);
@@ -89,12 +91,18 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && championship.getType() != ChampionshipType.MASTERS) {
 				ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
 			}
+			// Restart timer after value change
+			restartDialogTimer();
 		});
 		ageGroupPrefixComboBox.setPlaceholder(Translator.translate("AgeGroup"));
 		ageGroupPrefixComboBox.setClearButtonVisible(true);
+		// Cancel timer when user starts editing
+		ageGroupPrefixComboBox.addFocusListener(e -> cancelDialogTimer());
 		ageGroupPrefixComboBox.addValueChangeListener(e -> {
 			setAgeGroupPrefix(e.getValue());
 			updateURLLocations();
+			// Restart timer after value change
+			restartDialogTimer();
 		});
 		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getChampionship());
 		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
@@ -113,9 +121,13 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		        case MF -> Translator.translate("Gender.Mixed");
 		    };
 		});
+		// Cancel timer when user starts editing
+		genderComboBox.addFocusListener(e -> cancelDialogTimer());
 		genderComboBox.addValueChangeListener(event -> {
 			setGender(event.getValue());
 			updateURLLocations();
+			// Restart timer after value change
+			restartDialogTimer();
 		});
 		vl.add(new NativeLabel(Translator.translate("Scoreboard.SelectGenders")),
 		        new HorizontalLayout(genderComboBox));
@@ -178,7 +190,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		try {
 			setChampionship(Championship.of(ageDivisionName));
 		} catch (Exception e) {
-			List<Championship> ageDivisions = Championship.findAll();
+			List<Championship> ageDivisions = Championship.findAllUsed(true);
 			setChampionship((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
 		}
 		// remove if now null
@@ -304,6 +316,48 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	@Override
 	public Gender getGender() {
 		return gender;
+	}
+
+	/**
+	 * Cancels the dialog timer when user starts editing
+	 */
+	private void cancelDialogTimer() {
+		if (getDialogTimer() != null) {
+			getDialogTimer().cancel();
+			getDialogTimer().purge();
+		}
+	}
+
+	/**
+	 * Restarts the dialog timer when user stops editing
+	 */
+	private void restartDialogTimer() {
+		if (getDialog() != null && getDialog().isOpened()) {
+			// Cancel any existing timer
+			cancelDialogTimer();
+
+			// Create new timer to close dialog after 8 seconds of inactivity
+			UI ui = UI.getCurrent();
+			java.util.Timer timer = new java.util.Timer();
+			timer.schedule(
+					new java.util.TimerTask() {
+						@Override
+						public void run() {
+							try {
+								if (ui != null) {
+									ui.access(() -> {
+										if (getDialog() != null && getDialog().isOpened()) {
+											getDialog().close();
+										}
+									});
+								}
+							} catch (Throwable e) {
+								// ignore
+							}
+						}
+					}, 8 * 1000L); // 8 seconds
+			setDialogTimer(timer);
+		}
 	}
 
 }

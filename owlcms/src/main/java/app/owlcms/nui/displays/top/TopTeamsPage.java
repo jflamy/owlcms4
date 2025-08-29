@@ -67,7 +67,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		DisplayOptions.addLightingEntries(vl, target, this);
 		ComboBox<Championship> championshipComboBox = new ComboBox<>();
 		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
-		List<Championship> championships = Championship.findAll();
+		List<Championship> championships = Championship.findAllUsed(true);
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setItems(championships);
 		championshipComboBox.setPlaceholder(Translator.translate("Championship"));
@@ -171,7 +171,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		try {
 			setChampionship(Championship.of(ageDivisionName));
 		} catch (Exception e) {
-			List<Championship> ageDivisions = Championship.findAll();
+			List<Championship> ageDivisions = Championship.findAllUsed(true);
 			setChampionship((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
 		}
 		// remove if now null

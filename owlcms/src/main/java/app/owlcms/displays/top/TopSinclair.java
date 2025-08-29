@@ -142,8 +142,8 @@ public class TopSinclair extends AbstractTop {
        }
 
        public void doUpdateWithFilteredLists(List<Athlete> filteredMen, List<Athlete> filteredWomen) {
-	       FieldOfPlay fop = OwlcmsSession.getFop();
-	       setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
+	       //FieldOfPlay fop = OwlcmsSession.getFop();
+	       //setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
 	       // Use the filtered lists instead of global rankings
 	       AthleteSorter.TopScore topScores;
