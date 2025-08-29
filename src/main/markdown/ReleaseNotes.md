@@ -11,6 +11,10 @@
 
 <br>
 
+**Maintenance Log**
+
+60.0.1: Leaders from previous groups could include athletes from future groups.
+
 **New in Release 60.0**
 
 60.0.0: New page showing the records in a filtering grid, to allow choosing what is exported. 
