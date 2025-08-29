@@ -526,12 +526,12 @@ public class TopSinclair extends AbstractTop {
 		return athletes;
 	}
 
-	private void setSortedMen(List<Athlete> sortedMen) {
+	public void setSortedMen(List<Athlete> sortedMen) {
 		this.sortedMen = sortedMen;
 		// logger.debug("sortedMen = {} -- {}", getSortedMen().size(), LoggerUtils.whereFrom());
 	}
 
-	private void setSortedWomen(List<Athlete> sortedWomen) {
+	public void setSortedWomen(List<Athlete> sortedWomen) {
 		this.sortedWomen = sortedWomen;
 		// logger.debug("sortedWomen = {} -- {}", getSortedWomen().size(), LoggerUtils.whereFrom());
 	}
