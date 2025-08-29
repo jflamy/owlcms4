@@ -60,6 +60,14 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	}
 
 	/**
+	 * Ignore the 'fop' (field of play) parameter for this view.
+	 */
+	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
+	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
 	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
 	 */
@@ -187,37 +195,51 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		setSilenced(silentMode);
 		updateParam(params1, SILENT, !isSilenced() ? "false" : null);
 
-		List<String> ageDivisionParams = params1.get("ad");
-		// no age division
-		String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0)
-		        : null);
-		try {
-			setChampionship(Championship.of(ageDivisionName));
-		} catch (Exception e) {
-			List<Championship> ageDivisions = Championship.findAllUsed(true);
-			setChampionship((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
-		}
-		// remove if now null
-		String value = getChampionship() != null ? getChampionship().getName() : null;
-		updateParam(params1, "ad", value);
+		   List<String> ageDivisionParams = params1.get("ad");
+		   String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() && ageDivisionParams.get(0) != null && !ageDivisionParams.get(0).isEmpty())
+				   ? ageDivisionParams.get(0)
+				   : null;
+		   if (ageDivisionName == null) {
+			   // Default to first available championship if present
+			   List<Championship> ageDivisions = Championship.findAllUsed(true);
+			   Championship first = (ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null;
+			   setChampionship(first);
+		   } else {
+			   try {
+				   setChampionship(Championship.of(ageDivisionName));
+			   } catch (Exception e) {
+				   List<Championship> ageDivisions = Championship.findAllUsed(true);
+				   setChampionship((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
+			   }
+		   }
+		   String value = getChampionship() != null ? getChampionship().getName() : null;
+		   updateParam(params1, "ad", value);
 
-		List<String> ageGroupParams = params1.get("ag");
-		// no age group is the default
-		String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
-		setAgeGroupPrefix(ageGroupPrefix);
-		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-		updateParam(params1, "ag", value2);
+	       List<String> ageGroupParams = params1.get("ag");
+	       // If 'ag' is missing or empty, treat as 'no filtering' (all age groups)
+	       String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() && ageGroupParams.get(0) != null && !ageGroupParams.get(0).isEmpty())
+		       ? ageGroupParams.get(0)
+		       : null;
+	       setAgeGroupPrefix(ageGroupPrefix); // null means no filtering, show all
+	       String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+	       updateParam(params1, "ag", value2);
 
-		List<String> genderParams = params1.get("gender");
-		// no age group is the default
-		String genderString = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
-		Gender gValue = null;
-		try {
-			gValue = Gender.valueOf(genderString);
-			setGender(gValue);
-		} catch (Exception e) {
-		}
-		updateParam(params1, "gender", gValue == null ? null : gValue.toString());
+		   List<String> genderParams = params1.get("gender");
+		   // If 'gender' is missing or empty, treat as 'no filtering' (all genders)
+		   String genderString = (genderParams != null && !genderParams.isEmpty() && genderParams.get(0) != null && !genderParams.get(0).isEmpty())
+				   ? genderParams.get(0)
+				   : null;
+		   Gender gValue = null;
+		   if (genderString != null) {
+			   try {
+				   gValue = Gender.valueOf(genderString);
+				   setGender(gValue);
+			   } catch (Exception e) {
+			   }
+		   } else {
+			   setGender(null); // null means no filtering, show all
+		   }
+		   updateParam(params1, "gender", gValue == null ? null : gValue.toString());
 
 		switchLightingMode(darkMode, false);
 		updateURLLocations();
@@ -307,14 +329,32 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 			// sometimes called from routines outside of normal event flow.
 			return;
 		}
-		updateURLLocation(UI.getCurrent(), getLocation(), DARK,
-		        !isDarkMode() ? Boolean.TRUE.toString() : null);
-		updateURLLocation(UI.getCurrent(), getLocation(), "ag",
-		        getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null);
-		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
-		        getChampionship() != null ? getChampionship().getName() : null);
-		updateURLLocation(UI.getCurrent(), getLocation(), "gender",
-		        getGender() != null ? getGender().name(): null);
+		   updateURLLocation(UI.getCurrent(), getLocation(), DARK,
+				   !isDarkMode() ? Boolean.TRUE.toString() : null);
+
+		   // Only propagate non-null, non-empty age group
+		   String agPrefix = getAgeGroupPrefix();
+		   if (agPrefix != null && !agPrefix.isEmpty()) {
+			   updateURLLocation(UI.getCurrent(), getLocation(), "ag", agPrefix);
+		   } else {
+			   updateURLLocation(UI.getCurrent(), getLocation(), "ag", null);
+		   }
+
+		   // Only propagate non-null, non-empty championship (no empty 'ad' in URL)
+		   Championship champ = getChampionship();
+		   if (champ != null && champ.getName() != null && !champ.getName().isEmpty()) {
+			   updateURLLocation(UI.getCurrent(), getLocation(), "ad", champ.getName());
+		   } else {
+			   updateURLLocation(UI.getCurrent(), getLocation(), "ad", null);
+		   }
+
+		   // Only propagate non-null gender
+		   Gender gender = getGender();
+		   if (gender != null) {
+			   updateURLLocation(UI.getCurrent(), getLocation(), "gender", gender.name());
+		   } else {
+			   updateURLLocation(UI.getCurrent(), getLocation(), "gender", null);
+		   }
 	}
 
 	@Override
