@@ -71,7 +71,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		this.nbAthletes = nbAthletes;
 		if (this.getBoard() instanceof TopSinclair) {
 			((TopSinclair) this.getBoard()).setNbAthletes(nbAthletes);
-			((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+			// Re-apply championship filtering after nbAthletes change
+			refreshFilteredBoard(getChampionship());
 		}
 	}
 
@@ -236,9 +237,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 			        .getGlobalScoreRanking(app.owlcms.data.athlete.Gender.F);
 			java.util.List<app.owlcms.data.athlete.Athlete> filteredMen = filterAthletesByChampionship(allMen, championship);
 			java.util.List<app.owlcms.data.athlete.Athlete> filteredWomen = filterAthletesByChampionship(allWomen, championship);
-			topSinclairBoard.setSortedMen(filteredMen);
-			topSinclairBoard.setSortedWomen(filteredWomen);
-			topSinclairBoard.doUpdate(app.owlcms.data.competition.Competition.getCurrent());
+			// Use the new method that works with filtered lists instead of overriding them
+			topSinclairBoard.doUpdateWithFilteredLists(filteredMen, filteredWomen);
 		}
 	}
 
@@ -277,35 +277,40 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	public void setGender(app.owlcms.data.athlete.Gender gender) {
 		this.gender = gender;
 		((TopSinclair) this.getBoard()).setGender(gender);
-		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+		// Re-apply championship filtering after gender change
+		refreshFilteredBoard(getChampionship());
 	}
 
 	@Override
 	public final void setAgeGroup(AgeGroup ag) {
 		this.ageGroup = ag;
 		((TopSinclair) this.getBoard()).setAgeGroup(ag);
-		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+		// Re-apply championship filtering after age group change
+		refreshFilteredBoard(getChampionship());
 	}
 
 	@Override
 	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
 		((TopSinclair) this.getBoard()).setAgeGroupPrefix(ageGroupPrefix);
-		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+		// Re-apply championship filtering after age group prefix change
+		refreshFilteredBoard(getChampionship());
 	}
 
 	@Override
 	public final void setCategory(Category cat) {
 		this.category = cat;
 		((TopSinclair) this.getBoard()).setCategory(cat);
-		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+		// Re-apply championship filtering after category change
+		refreshFilteredBoard(getChampionship());
 	}
 
 	@Override
 	public void setChampionship(Championship ageDivision) {
 		this.ageDivision = ageDivision;
 		((TopSinclair) this.getBoard()).setChampionship(ageDivision);
-		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+		// Trigger filtering when championship is set programmatically (e.g., from URL parameters)
+		refreshFilteredBoard(ageDivision);
 	}
 
 	@Override
@@ -317,7 +322,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	public void setDisplayLifts(boolean displayLifts) {
 		this.displayLifts = displayLifts;
 		((TopSinclair) this.getBoard()).setDisplayLifts(displayLifts);
-		((TopSinclair) this.getBoard()).doUpdate(Competition.getCurrent());
+		// Re-apply championship filtering after display lifts change
+		refreshFilteredBoard(getChampionship());
 	}
 
 	@Override

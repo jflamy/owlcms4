@@ -141,6 +141,27 @@ public class TopSinclair extends AbstractTop {
 	       updateBottom();
        }
 
+       public void doUpdateWithFilteredLists(List<Athlete> filteredMen, List<Athlete> filteredWomen) {
+	       FieldOfPlay fop = OwlcmsSession.getFop();
+	       setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
+
+	       // Use the filtered lists instead of global rankings
+	       AthleteSorter.TopScore topScores;
+	       List<Athlete> sortedMen2 = new ArrayList<>(filteredMen != null ? filteredMen : Collections.emptyList());
+	       int limitMen = Math.min(nbAthletes, sortedMen2.size());
+	       topScores = (AthleteSorter.topScore(sortedMen2, limitMen));
+	       setSortedMen(topScores.topAthletes);
+	       this.topManScore = topScores.best;
+
+	       List<Athlete> sortedWomen2 = new ArrayList<>(filteredWomen != null ? filteredWomen : Collections.emptyList());
+	       int limitWomen = Math.min(nbAthletes, sortedWomen2.size());
+	       topScores = (AthleteSorter.topScore(sortedWomen2, limitWomen));
+	       setSortedWomen(topScores.topAthletes);
+	       this.topWomanScore = topScores.best;
+
+	       updateBottom();
+       }
+
 	public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
 		String category;
 		category = a.getCategory() != null ? a.getCategory().getDisplayName() : "";
