@@ -2418,15 +2418,15 @@ public class FieldOfPlay implements IUnregister {
 			return group2 != null && group3 != null && !group3.equals(group2);
 		}).toList();
 		List<Athlete> snatchMedalists = medalists.stream()
+				.filter(a -> hasStarted(a))
 		        .sorted((a, b) -> ObjectUtils.compare(a.getSnatchRank(), b.getSnatchRank()))
 		        .limit(3)
 		        .collect(Collectors.toList());
-		// logger.debug("snatch previous {}", snatchMedalists);
 		List<Athlete> totalMedalists = medalists.stream()
+				.filter(a -> hasStarted(a))
 		        .sorted((a, b) -> ObjectUtils.compare(a.getTotalRank(), b.getTotalRank()))
 		        .limit(3)
 		        .collect(Collectors.toList());
-		// logger.debug("total previous {}", totalMedalists);
 
 		if (!isCjStarted()) {
 			setLeaders(snatchMedalists);
@@ -2437,6 +2437,12 @@ public class FieldOfPlay implements IUnregister {
 				setLeaders(snatchMedalists);
 			}
 		}
+	}
+
+	private boolean hasStarted(Athlete a) {
+		boolean weighedIn = a.getBodyWeight() != null && a.getBodyWeight() > 0.01;
+		boolean started = a.getActualLiftOrNull(1) != null;
+		return weighedIn && started;
 	}
 
 	public void medalistScoreLeaders(List<Athlete> medalists) {
@@ -2454,6 +2460,7 @@ public class FieldOfPlay implements IUnregister {
 			return group2 != null && group3 != null && !group3.equals(group2);
 		}).toList();
 		List<Athlete> scoreMedalists = medalists.stream()
+				.filter(a -> hasStarted(a))
 		        .sorted((a, b) -> ObjectUtils.compare(a.getCategoryScoreRank(), b.getCategoryScoreRank()))
 		        .limit(3)
 		        .collect(Collectors.toList());
