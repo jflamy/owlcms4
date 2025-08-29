@@ -140,6 +140,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		vl.add(new com.vaadin.flow.component.html.NativeLabel(app.owlcms.i18n.Translator.translate("SelectAgeGroup")),
 		        new com.vaadin.flow.component.orderedlayout.HorizontalLayout(championshipComboBox, ageGroupComboBox));
 
+
 		// Gender selection ComboBox (M / F only, null = no filtering)
 		com.vaadin.flow.component.combobox.ComboBox<app.owlcms.data.athlete.Gender> genderComboBox = new com.vaadin.flow.component.combobox.ComboBox<>();
 		// Only include M, F
@@ -179,7 +180,17 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 			restartDialogTimer();
 		});
 		vl.add(new com.vaadin.flow.component.html.NativeLabel(app.owlcms.i18n.Translator.translate("Scoreboard.SelectGenders")),
-		        new com.vaadin.flow.component.orderedlayout.HorizontalLayout(genderComboBox));
+				new com.vaadin.flow.component.orderedlayout.HorizontalLayout(genderComboBox));
+
+		// Show lifts checkbox (always visible)
+		com.vaadin.flow.component.checkbox.Checkbox showLiftsCheckbox = new com.vaadin.flow.component.checkbox.Checkbox(app.owlcms.i18n.Translator.translate("TopSinclair.ShowLifts"));
+		showLiftsCheckbox.setValue(isDisplayLifts());
+		showLiftsCheckbox.addValueChangeListener(event -> {
+			setDisplayLifts(event.getValue());
+			updateURLLocations();
+			restartDialogTimer();
+		});
+		vl.add(showLiftsCheckbox);
 
 		// Number of athletes field (at the bottom)
 		com.vaadin.flow.component.textfield.NumberField nbAthletesField = new com.vaadin.flow.component.textfield.NumberField();
@@ -426,57 +437,77 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		refreshFilteredBoard(getChampionship(), getAgeGroup());
 	}
 
-	private void updateURLLocations() {
-		if (getLocation() == null) {
-			// sometimes called from routines outside of normal event flow
-			return;
-		}
-		updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), DisplayParameters.DARK,
-				!isDarkMode() ? Boolean.TRUE.toString() : null);
+	   private void updateURLLocations() {
+		   if (getLocation() == null) {
+			   // sometimes called from routines outside of normal event flow
+			   return;
+		   }
+		   updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), DisplayParameters.DARK,
+				   !isDarkMode() ? Boolean.TRUE.toString() : null);
 
-		// Only propagate non-null, non-empty age group
-		String agPrefix = getAgeGroupPrefix();
-		if (agPrefix != null && !agPrefix.isEmpty()) {
-			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ag", agPrefix);
-		} else {
-			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ag", null);
-		}
+		   // Only propagate non-null, non-empty age group
+		   String agPrefix = getAgeGroupPrefix();
+		   if (agPrefix != null && !agPrefix.isEmpty()) {
+			   updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ag", agPrefix);
+		   } else {
+			   updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ag", null);
+		   }
 
-		// Only propagate non-null, non-empty championship (no empty 'ad' in URL)
-		Championship champ = getChampionship();
-		if (champ != null && champ.getName() != null && !champ.getName().isEmpty()) {
-			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ad", champ.getName());
-		} else {
-			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ad", null);
-		}
+		   // Only propagate non-null, non-empty championship (no empty 'ad' in URL)
+		   Championship champ = getChampionship();
+		   if (champ != null && champ.getName() != null && !champ.getName().isEmpty()) {
+			   updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ad", champ.getName());
+		   } else {
+			   updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ad", null);
+		   }
 
-		// Only propagate gender if not null (null = all athletes, remove from URL)
-		app.owlcms.data.athlete.Gender gender = getGender();
-		updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "gender", gender != null ? gender.name() : null);
-	}
+		   // Only propagate gender if not null (null = all athletes, remove from URL)
+		   app.owlcms.data.athlete.Gender gender = getGender();
+		   updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "gender", gender != null ? gender.name() : null);
+
+		   // Only propagate displayLifts if true (default is false)
+		   if (isDisplayLifts()) {
+			   updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "displayLifts", "true");
+		   } else {
+			   updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "displayLifts", null);
+		   }
+	   }
 	@Override
-	public java.util.HashMap<String, java.util.List<String>> readParams(com.vaadin.flow.router.Location location, java.util.Map<String, java.util.List<String>> parametersMap) {
-		// Use default param reading, but treat missing/empty gender as null (all athletes)
-		var params = TopParametersReader.super.readParams(location, parametersMap);
-		java.util.List<String> genderParams = params.get("gender");
-		String genderString = (genderParams != null && !genderParams.isEmpty() && genderParams.get(0) != null && !genderParams.get(0).isEmpty())
-				? genderParams.get(0)
-				: null;
-		app.owlcms.data.athlete.Gender gValue = null;
-		if (genderString != null) {
-			try {
-				gValue = app.owlcms.data.athlete.Gender.valueOf(genderString);
-			} catch (Exception e) {
-				// ignore invalid value, treat as all
-			}
-		}
-		setGender(gValue); // null means all
-		// Remove gender from URL if null
-		if (gValue == null) {
-			params.remove("gender");
-		}
-		return new java.util.HashMap<>(params);
-	}
+	   public java.util.HashMap<String, java.util.List<String>> readParams(com.vaadin.flow.router.Location location, java.util.Map<String, java.util.List<String>> parametersMap) {
+		   // Use default param reading, but treat missing/empty gender as null (all athletes)
+		   var params = TopParametersReader.super.readParams(location, parametersMap);
+		   java.util.List<String> genderParams = params.get("gender");
+		   String genderString = (genderParams != null && !genderParams.isEmpty() && genderParams.get(0) != null && !genderParams.get(0).isEmpty())
+				   ? genderParams.get(0)
+				   : null;
+		   app.owlcms.data.athlete.Gender gValue = null;
+		   if (genderString != null) {
+			   try {
+				   gValue = app.owlcms.data.athlete.Gender.valueOf(genderString);
+			   } catch (Exception e) {
+				   // ignore invalid value, treat as all
+			   }
+		   }
+		   setGender(gValue); // null means all
+		   // Remove gender from URL if null
+		   if (gValue == null) {
+			   params.remove("gender");
+		   }
+
+		   // Parse displayLifts parameter (default false)
+		   java.util.List<String> displayLiftsParams = params.get("displayLifts");
+		   boolean displayLifts = false;
+		   if (displayLiftsParams != null && !displayLiftsParams.isEmpty()) {
+			   String val = displayLiftsParams.get(0);
+			   displayLifts = val != null && (val.equalsIgnoreCase("true") || val.equals("1"));
+		   }
+		   setDisplayLifts(displayLifts);
+		   if (!displayLifts) {
+			   params.remove("displayLifts");
+		   }
+
+		   return new java.util.HashMap<>(params);
+	   }
 
 	/**
 	 * Cancels the dialog timer when user starts editing
@@ -519,5 +550,4 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 			setDialogTimer(timer);
 		}
 	}
-
 }
