@@ -82,15 +82,15 @@ public class Championship implements Comparable<Championship> {
 		return type != null ? type : ChampionshipType.U;
 	}
 
-	/**
-	 * Returns the canonical championship name for known types (e.g., 'Masters').
-	 */
-	private static String canonicalizeChampionshipName(String name) {
-		if (name != null && name.trim().equalsIgnoreCase("masters")) {
-			return "Masters";
-		}
-		return name;
-	}
+	   /**
+		* Returns the canonical championship name for known types (e.g., 'Masters').
+		*/
+	   public static String canonicalizeChampionshipName(String name) {
+		   if (name != null && name.trim().equalsIgnoreCase("masters")) {
+			   return "Masters";
+		   }
+		   return name;
+	   }
 
 	/**
 	 * Find all.

@@ -670,10 +670,11 @@ public class AgeGroupRepository {
 	}
 
 	private static String filteringWhere(String name, Championship championship, Integer age, Gender gender,
-	        Boolean active) {
+			Boolean active) {
 		List<String> whereList = new LinkedList<>();
 		if (championship != null) {
-			whereList.add("((ag.championshipName = :championshipName) or (ag.ageDivision = :championshipName))");
+			// Canonicalize both DB and parameter for matching
+			whereList.add("((LOWER(TRIM(ag.championshipName)) = :canonicalChampionshipName) or (LOWER(TRIM(ag.ageDivision)) = :canonicalChampionshipName))");
 		}
 		if (name != null && name.trim().length() > 0) {
 			whereList.add("lower(ag.code) like :code");
@@ -707,7 +708,7 @@ public class AgeGroupRepository {
 	}
 
 	private static void setFilteringParameters(String name, Gender gender, Championship championship, Integer age,
-	        Boolean active, Query query) {
+			Boolean active, Query query) {
 		if (name != null && name.trim().length() > 0) {
 			// starts with
 			query.setParameter("code", "%" + name.toLowerCase() + "%");
@@ -719,7 +720,9 @@ public class AgeGroupRepository {
 			query.setParameter("age", age);
 		}
 		if (championship != null) {
-			query.setParameter("championshipName", championship.getName()); // is a string
+			// Canonicalize for parameter as well
+			String canonical = app.owlcms.data.agegroup.Championship.canonicalizeChampionshipName(championship.getName());
+			query.setParameter("canonicalChampionshipName", canonical != null ? canonical.trim().toLowerCase() : null);
 		}
 		if (gender != null) {
 			query.setParameter("gender", gender);
