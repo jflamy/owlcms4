@@ -140,34 +140,36 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		vl.add(new com.vaadin.flow.component.html.NativeLabel(app.owlcms.i18n.Translator.translate("SelectAgeGroup")),
 		        new com.vaadin.flow.component.orderedlayout.HorizontalLayout(championshipComboBox, ageGroupComboBox));
 
-		// Gender selection ComboBox (M / F / MF only)
+		// Gender selection ComboBox (M / F only, null = no filtering)
 		com.vaadin.flow.component.combobox.ComboBox<app.owlcms.data.athlete.Gender> genderComboBox = new com.vaadin.flow.component.combobox.ComboBox<>();
-		// Only include M, F, MF
-		genderComboBox.setItems(app.owlcms.data.athlete.Gender.M, app.owlcms.data.athlete.Gender.F, app.owlcms.data.athlete.Gender.MF);
+		// Only include M, F
+		genderComboBox.setItems(app.owlcms.data.athlete.Gender.M, app.owlcms.data.athlete.Gender.F);
 		genderComboBox.setClearButtonVisible(true);
 		genderComboBox.setItemLabelGenerator(g -> {
 			if (g == null)
-				return "";
+				return app.owlcms.i18n.Translator.translate("Gender.All");
 			switch (g) {
 				case M:
 					return app.owlcms.i18n.Translator.translate("Gender.Men");
 				case F:
 					return app.owlcms.i18n.Translator.translate("Gender.Women");
-				case MF:
-					return app.owlcms.i18n.Translator.translate("Gender.Mixed");
 				default:
 					return "";
 			}
 		});
-		// Only set value if it is M, F, or MF, otherwise default to MF
+		// Set value if M or F, otherwise clear (null = no filtering)
 		app.owlcms.data.athlete.Gender currentGender = getGender();
 		if (currentGender == app.owlcms.data.athlete.Gender.M ||
-		        currentGender == app.owlcms.data.athlete.Gender.F ||
-		        currentGender == app.owlcms.data.athlete.Gender.MF) {
+				currentGender == app.owlcms.data.athlete.Gender.F) {
 			genderComboBox.setValue(currentGender);
 		} else {
-			genderComboBox.setValue(app.owlcms.data.athlete.Gender.MF);
+			genderComboBox.clear();
 		}
+		genderComboBox.addValueChangeListener(event -> {
+			setGender(event.getValue()); // null means no filtering
+			updateURLLocations();
+			restartDialogTimer();
+		});
 		// Reset timer when user starts editing
 		genderComboBox.addFocusListener(e -> restartDialogTimer());
 		genderComboBox.addValueChangeListener(event -> {
@@ -430,7 +432,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 			return;
 		}
 		updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), DisplayParameters.DARK,
-		        !isDarkMode() ? Boolean.TRUE.toString() : null);
+				!isDarkMode() ? Boolean.TRUE.toString() : null);
 
 		// Only propagate non-null, non-empty age group
 		String agPrefix = getAgeGroupPrefix();
@@ -445,17 +447,35 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		if (champ != null && champ.getName() != null && !champ.getName().isEmpty()) {
 			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ad", champ.getName());
 		} else {
-			// Only remove 'ad' from URL if it was not set by the user
 			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "ad", null);
 		}
 
-		// Only propagate non-null gender
+		// Only propagate gender if not null (null = all athletes, remove from URL)
 		app.owlcms.data.athlete.Gender gender = getGender();
-		if (gender != null) {
-			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "gender", gender.name());
-		} else {
-			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "gender", null);
+		updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "gender", gender != null ? gender.name() : null);
+	}
+	@Override
+	public java.util.HashMap<String, java.util.List<String>> readParams(com.vaadin.flow.router.Location location, java.util.Map<String, java.util.List<String>> parametersMap) {
+		// Use default param reading, but treat missing/empty gender as null (all athletes)
+		var params = TopParametersReader.super.readParams(location, parametersMap);
+		java.util.List<String> genderParams = params.get("gender");
+		String genderString = (genderParams != null && !genderParams.isEmpty() && genderParams.get(0) != null && !genderParams.get(0).isEmpty())
+				? genderParams.get(0)
+				: null;
+		app.owlcms.data.athlete.Gender gValue = null;
+		if (genderString != null) {
+			try {
+				gValue = app.owlcms.data.athlete.Gender.valueOf(genderString);
+			} catch (Exception e) {
+				// ignore invalid value, treat as all
+			}
 		}
+		setGender(gValue); // null means all
+		// Remove gender from URL if null
+		if (gValue == null) {
+			params.remove("gender");
+		}
+		return new java.util.HashMap<>(params);
 	}
 
 	/**

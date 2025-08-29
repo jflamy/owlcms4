@@ -82,7 +82,7 @@ public class TopSinclair extends AbstractTop {
        private UI ui;
        private boolean displayLifts;
 	private int nbAthletes = 10;
-	private Gender gender = Gender.MF; // default to MF
+	private Gender gender = null; // default to no filtering
 	private boolean useFilteredResults = false;
 
 
@@ -587,7 +587,7 @@ public class TopSinclair extends AbstractTop {
 	       getElement().setProperty("fullName", Translator.translate("Scoreboard.TopScore"));
 	       Gender gender = this.getGender();
 
-	       if (gender == null || gender == Gender.M || gender == Gender.I || gender == Gender.MF) {
+			   if (gender == null || gender == Gender.M) {
 		       List<Athlete> sortedMen2 = getSortedMen();
 		       sortedMen2 = nodups(sortedMen2);
 		       this.getElement().setProperty("topSinclairMen",
@@ -600,7 +600,7 @@ public class TopSinclair extends AbstractTop {
 		       this.getElement().setPropertyJson("sortedMen", Json.createNull());
 	       }
 
-	       if (gender == null || gender == Gender.F || gender == Gender.I || gender == Gender.MF) {
+			   if (gender == null || gender == Gender.F) {
 		       List<Athlete> sortedWomen2 = getSortedWomen();
 		       sortedWomen2 = nodups(sortedWomen2);
 		       this.getElement().setProperty("topSinclairWomen",
