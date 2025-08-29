@@ -83,6 +83,7 @@ public class TopSinclair extends AbstractTop {
        private boolean displayLifts;
 	private int nbAthletes = 10;
 	private Gender gender = Gender.MF; // default to MF
+	private boolean useFilteredResults = false;
 
 
        public int getNbAthletes() {
@@ -99,6 +100,10 @@ public class TopSinclair extends AbstractTop {
 
        public void setGender(Gender gender) {
 	       this.gender = gender;
+       }
+
+       public void setUseFilteredResults(boolean useFilteredResults) {
+	       this.useFilteredResults = useFilteredResults;
        }
 
        public TopSinclair() {
@@ -121,6 +126,12 @@ public class TopSinclair extends AbstractTop {
 	}
 
        public void doUpdate(Competition competition) {
+	       // If using filtered results, don't update with global rankings
+	       if (useFilteredResults) {
+		       logger.debug("Skipping global ranking update because filtered results are active");
+		       return;
+	       }
+
 	       FieldOfPlay fop = OwlcmsSession.getFop();
 	       setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 

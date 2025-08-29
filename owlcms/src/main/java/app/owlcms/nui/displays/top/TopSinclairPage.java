@@ -223,6 +223,13 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		if (championship == null && ageGroup == null)
 			return athletes;
 
+		logger.debug("Filtering {} athletes with championship={} (name={}), ageGroup={} (code={})",
+		        athletes.size(),
+		        championship != null ? championship.getName() : "null",
+		        championship != null ? championship.getName() : "null",
+		        ageGroup != null ? ageGroup.getCode() : "null",
+		        ageGroup != null ? ageGroup.getCode() : "null");
+
 		java.util.List<app.owlcms.data.athlete.Athlete> filtered = new java.util.ArrayList<>();
 
 		for (app.owlcms.data.athlete.Athlete athlete : athletes) {
@@ -234,12 +241,26 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 						app.owlcms.data.agegroup.AgeGroup athleteAgeGroup = cat.getAgeGroup();
 
 						// Check championship match
+						String selectedChampionshipName = championship != null ? championship.getName() : null;
+						String athleteChampionshipName = athleteAgeGroup.computeChampionshipName();
 						boolean championshipMatch = championship == null ||
-						        championship.equals(athleteAgeGroup.getChampionship());
+						        (selectedChampionshipName != null && selectedChampionshipName.equals(athleteChampionshipName));
 
 						// Check age group match (if specified)
 						boolean ageGroupMatch = ageGroup == null ||
-						        ageGroup.equals(athleteAgeGroup);
+						        (ageGroup.getCode() != null && ageGroup.getCode().equals(athleteAgeGroup.getCode()));
+
+						// Debug logging
+						if (logger.isDebugEnabled()) {
+							logger.debug("Filtering athlete {}: selected championship={}, selected ageGroup={}, athlete championship={}, athlete ageGroup={}, championshipMatch={}, ageGroupMatch={}",
+							        athlete.getFullName(),
+							        championship != null ? championship.getName() : "null",
+							        ageGroup != null ? ageGroup.getCode() : "null",
+							        athleteChampionshipName,
+							        athleteAgeGroup.getCode(),
+							        championshipMatch,
+							        ageGroupMatch);
+						}
 
 						if (championshipMatch && ageGroupMatch) {
 							filtered.add(athlete);
@@ -249,6 +270,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 				}
 			}
 		}
+		logger.debug("Filtered {} athletes down to {} athletes", athletes.size(), filtered.size());
 		return filtered;
 	}
 
@@ -257,6 +279,14 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	 */
 	private void refreshFilteredBoard(app.owlcms.data.agegroup.Championship championship, app.owlcms.data.agegroup.AgeGroup ageGroup) {
 		if (this.getBoard() instanceof app.owlcms.displays.top.TopSinclair topSinclairBoard) {
+			// Reset filtered results flag if no filtering is applied
+			if (championship == null && ageGroup == null) {
+				topSinclairBoard.setUseFilteredResults(false);
+			} else {
+				// If any filtering is applied, use filtered results
+				topSinclairBoard.setUseFilteredResults(true);
+			}
+
 			java.util.List<app.owlcms.data.athlete.Athlete> allMen = app.owlcms.data.competition.Competition.getCurrent()
 			        .getGlobalScoreRanking(app.owlcms.data.athlete.Gender.M);
 			java.util.List<app.owlcms.data.athlete.Athlete> allWomen = app.owlcms.data.competition.Competition.getCurrent()
