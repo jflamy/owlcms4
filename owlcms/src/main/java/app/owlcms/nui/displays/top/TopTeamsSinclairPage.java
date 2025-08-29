@@ -79,8 +79,8 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setPlaceholder(Translator.translate("Championship"));
 		championshipComboBox.setClearButtonVisible(true);
-		// Cancel timer when user starts editing
-		championshipComboBox.addFocusListener(e -> cancelDialogTimer());
+		// Reset timer when user starts editing
+		championshipComboBox.addFocusListener(e -> restartDialogTimer());
 		championshipComboBox.addValueChangeListener(e -> {
 			Championship championship = e.getValue();
 			setChampionship(championship);
@@ -96,8 +96,8 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		});
 		ageGroupPrefixComboBox.setPlaceholder(Translator.translate("AgeGroup"));
 		ageGroupPrefixComboBox.setClearButtonVisible(true);
-		// Cancel timer when user starts editing
-		ageGroupPrefixComboBox.addFocusListener(e -> cancelDialogTimer());
+		// Reset timer when user starts editing
+		ageGroupPrefixComboBox.addFocusListener(e -> restartDialogTimer());
 		ageGroupPrefixComboBox.addValueChangeListener(e -> {
 			setAgeGroupPrefix(e.getValue());
 			updateURLLocations();
@@ -121,8 +121,12 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		        case MF -> Translator.translate("Gender.Mixed");
 		    };
 		});
-		// Cancel timer when user starts editing
-		genderComboBox.addFocusListener(e -> cancelDialogTimer());
+		// Reset timer when user starts editing
+		genderComboBox.addFocusListener(e -> restartDialogTimer());
+	   // Ensure dialog closes on Escape
+	   if (getDialog() != null) {
+		   getDialog().setCloseOnEsc(true);
+	   }
 		genderComboBox.addValueChangeListener(event -> {
 			setGender(event.getValue());
 			updateURLLocations();

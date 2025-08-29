@@ -93,8 +93,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setPlaceholder(app.owlcms.i18n.Translator.translate("Championship"));
 		championshipComboBox.setClearButtonVisible(true);
-		// Cancel timer when user starts editing
-		championshipComboBox.addFocusListener(e -> cancelDialogTimer());
+		// Reset timer when user starts editing
+		championshipComboBox.addFocusListener(e -> restartDialogTimer());
 		championshipComboBox.addValueChangeListener(e -> {
 			app.owlcms.data.agegroup.Championship championship = e.getValue();
 			setChampionship(championship);
@@ -113,8 +113,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		ageGroupComboBox.setPlaceholder(app.owlcms.i18n.Translator.translate("AgeGroup"));
 		ageGroupComboBox.setItemLabelGenerator(ag -> ag != null ? ag.getName() : "");
 		ageGroupComboBox.setClearButtonVisible(true);
-		// Cancel timer when user starts editing
-		ageGroupComboBox.addFocusListener(e -> cancelDialogTimer());
+		// Reset timer when user starts editing
+		ageGroupComboBox.addFocusListener(e -> restartDialogTimer());
 		ageGroupComboBox.addValueChangeListener(e -> {
 			app.owlcms.data.agegroup.AgeGroup selectedAgeGroup = e.getValue();
 			setAgeGroup(selectedAgeGroup);
@@ -168,8 +168,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		} else {
 			genderComboBox.setValue(app.owlcms.data.athlete.Gender.MF);
 		}
-		// Cancel timer when user starts editing
-		genderComboBox.addFocusListener(e -> cancelDialogTimer());
+		// Reset timer when user starts editing
+		genderComboBox.addFocusListener(e -> restartDialogTimer());
 		genderComboBox.addValueChangeListener(event -> {
 			setGender(event.getValue());
 			updateURLLocations();
@@ -185,8 +185,12 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		nbAthletesField.setMin(1);
 		nbAthletesField.setStep(1);
 		nbAthletesField.setValue((double) getNbAthletes());
-		// Cancel timer when user starts editing
-		nbAthletesField.addFocusListener(e -> cancelDialogTimer());
+		// Reset timer when user starts editing
+		nbAthletesField.addFocusListener(e -> restartDialogTimer());
+	   // Ensure dialog closes on Escape
+	   if (getDialog() != null) {
+		   getDialog().setCloseOnEsc(true);
+	   }
 		nbAthletesField.addValueChangeListener(e -> {
 			int value = e.getValue() != null ? e.getValue().intValue() : 10;
 			setNbAthletes(value);
