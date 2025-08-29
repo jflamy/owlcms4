@@ -424,11 +424,9 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		refreshFilteredBoard(getChampionship(), getAgeGroup());
 	}
 
-	// ...existing code...
-
 	private void updateURLLocations() {
 		if (getLocation() == null) {
-			// sometimes called from routines outside of normal event flow.
+			// sometimes called from routines outside of normal event flow
 			return;
 		}
 		updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), DisplayParameters.DARK,

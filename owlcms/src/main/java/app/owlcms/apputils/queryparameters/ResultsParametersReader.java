@@ -70,17 +70,21 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		}
 
 		List<String> ageDivisionParams = newParameterMap.get(AGEDIVISION);
-		try {
-			String ageDivisionName = (ageDivisionParams != null
-			        && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
-			Championship valueOf = Championship.of(ageDivisionName);
-			setChampionship(valueOf);
-		} catch (Exception e) {
+		String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
+		if (ageDivisionName == null || ageDivisionName.isEmpty()) {
 			setChampionship(null);
+			updateParam(newParameterMap, AGEDIVISION, null);
+		} else {
+			try {
+				Championship valueOf = Championship.of(ageDivisionName);
+				setChampionship(valueOf);
+				String value = getChampionship() != null ? getChampionship().getName() : null;
+				updateParam(newParameterMap, AGEDIVISION, value);
+			} catch (Exception e) {
+				setChampionship(null);
+				updateParam(newParameterMap, AGEDIVISION, null);
+			}
 		}
-		// remove if now null
-		String value = getChampionship() != null ? getChampionship().getName() : null;
-		updateParam(newParameterMap, AGEDIVISION, value);
 
 		List<String> ageGroupParams = newParameterMap.get(AGEGROUP_PREFIX);
 		// no age group is the default
