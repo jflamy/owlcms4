@@ -221,12 +221,15 @@ public class BreakTimerElement extends TimerElement {
 					doStartTimer(breakTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
 				}
 			} else {
-				doSetTimer(null);
-				// if (breakTimer.isIndefinite()) {
-				// doSetTimer(null);
-				// } else {
-				// doSetTimer(breakTimer.getTimeRemainingAtLastStop());
-				// }
+				// If the break timer is not currently running, prefer showing the last-stopped
+				// remaining time (when appropriate) instead of clearing to null. Clearing
+				// causes clients to display 0:00 on session switches even when the server
+				// has a remembered remaining time.
+				if (breakTimer.isIndefinite()) {
+					doSetTimer(null);
+				} else {
+					doSetTimer(breakTimer.getTimeRemainingAtLastStop());
+				}
 			}
 		}
 		// });

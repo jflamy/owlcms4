@@ -347,28 +347,21 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
         Group fopGroup = fop.getGroup();
         logger.debug("syncing FOP, group = {}, {}", fopGroup, LoggerUtils.whereFrom(2));
 
-        // When refreshing the page, fetch the live break timer from the FOP and push a UIEvent so the
-        // BreakTimerElement (subscribed to UI events) will update its display.
+        // When refreshing the page, fetch the live break timer from the FOP and remember it locally.
+        // DO NOT push a BreakSetTime/BreakStarted UIEvent here: the server is the canonical source
+        // for timer state and will broadcast the appropriate events. Pushing from the client on
+        // session changes can overwrite a running server timer on other clients.
         if (refreshGrid && fop != null && fop.getBreakTimer() != null) {
             try {
                 Integer ms = fop.getBreakTimer().liveTimeRemaining();
                 BreakType bt = fop.getBreakType();
                 CountdownType ct = fop.getCountdownType();
                 boolean indefinite = fop.getBreakTimer().isIndefinite();
-        // trace the values so user can see refresh read
-        logger.debug("Wodkeeper refresh: breakType={} countdownType={} remainingMs={} indefinite={}", bt,
-            ct, ms, indefinite);
-                // Avoid pushing a BreakSetTime if the server-side break timer is already running.
-                // Pushing BreakSetTime immediately after a BreakStarted can overwrite a running
-                // client timer and stop it. Rely on the server-emitted BreakStarted for clients
-                // that should start running; only push BreakSetTime when timer is not running
-                // (i.e. display-only update).
-                if (!fop.getBreakTimer().isRunning()) {
-                    fop.pushOutUIEvent(new UIEvent.BreakSetTime(bt, ct, ms, null, indefinite, this,
-                            LoggerUtils.stackTrace(), fop));
-                } else {
-                    logger.debug("Wodkeeper.syncWithFop: server break timer is running; skipping BreakSetTime push");
-                }
+                // trace the values so user can see refresh read
+                logger.debug("Wodkeeper refresh (no push): breakType={} countdownType={} remainingMs={} indefinite={}", bt,
+                    ct, ms, indefinite);
+                // remember the value for potential client-side start requests, but do not broadcast
+                this.rememberedBreakMillis = ms;
             } catch (Exception ex) {
                 logger.warn("error fetching break timer on refresh: {}", ex.toString());
             }
@@ -444,15 +437,12 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
                     BreakType bt = fop.getBreakType();
                     CountdownType ct = fop.getCountdownType();
                     boolean indefinite = fop.getBreakTimer().isIndefinite();
-            logger.debug("Wodkeeper onAttach: breakType={} countdownType={} remainingMs={} indefinite={}", bt,
-                ct, ms, indefinite);
-            if (fop.getBreakTimer().isRunning()) {
-            logger.debug("Wodkeeper.onAttach: break is running, pushing BreakStarted millis={} indefinite={}", ms, indefinite);
-                        fop.pushOutUIEvent(new UIEvent.BreakStarted(ms, this, false, bt, ct, LoggerUtils.stackTrace(), Boolean.FALSE, fop));
-                    } else {
-                        fop.pushOutUIEvent(new UIEvent.BreakSetTime(bt, ct, ms, null, indefinite, this,
-                                LoggerUtils.stackTrace(), fop));
-                    }
+                    logger.debug("Wodkeeper onAttach (no push): breakType={} countdownType={} remainingMs={} indefinite={}", bt,
+                        ct, ms, indefinite);
+                    // Do NOT push BreakStarted/BreakSetTime here. The master/server side maintains
+                    // canonical timer state and will broadcast the correct UIEvent. By refraining
+                    // from pushing here we avoid races and inadvertent overwrites of a running
+                    // server timer on other clients.
                 }
             } catch (Exception ex) {
                 logger.warn("Wodkeeper onAttach fetch error: {}", ex.toString());
