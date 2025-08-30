@@ -227,7 +227,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		}
 		// CeremonyType ceremonyType = getFop().getCeremonyType();
 	this.startMillis = System.currentTimeMillis();
-	this.logger.info("ProxyBreakTimer.start() scheduling startMillis={}, timeRemaining={} (indefinite={})", this.startMillis,
+	this.logger.debug("ProxyBreakTimer.start() scheduling startMillis={}, timeRemaining={} (indefinite={})", this.startMillis,
 		this.timeRemaining, this.indefinite);
 
 		Integer millisRemaining = getMillis();
@@ -246,16 +246,16 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
 		// if a break is running, need to stop it before starting another.
 		if (this.serverTimer != null) {
-			this.logger.info("ProxyBreakTimer.start(): cancelling existing serverTimer");
+			this.logger.debug("ProxyBreakTimer.start(): cancelling existing serverTimer");
 			this.serverTimer.cancel();
 		}
 		this.serverTimer = new Timer();
 		TimerTask timerTask = computeTask(this.timeRemaining);
 		if (this.timeRemaining >= 0) {
-			this.logger.info("ProxyBreakTimer.start(): scheduling serverTimer to run in {} ms", this.timeRemaining);
+			this.logger.debug("ProxyBreakTimer.start(): scheduling serverTimer to run in {} ms", this.timeRemaining);
 			this.serverTimer.schedule(timerTask, this.timeRemaining);
 		} else {
-			this.logger.info("ProxyBreakTimer.start(): not scheduling serverTimer (timeRemaining={})", this.timeRemaining);
+			this.logger.debug("ProxyBreakTimer.start(): not scheduling serverTimer (timeRemaining={})", this.timeRemaining);
 		}
 	}
 
