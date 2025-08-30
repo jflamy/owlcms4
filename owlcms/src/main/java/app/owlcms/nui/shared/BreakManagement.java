@@ -589,9 +589,9 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.countdownRadios = new RadioButtonGroup<>();
 		this.countdownRadios.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 
-		this.countdowns = Arrays.asList(BreakType.values()).stream()
-		        .filter(bt -> bt.isCountdown() && bt != BreakType.GROUP_DONE)
-		        .collect(Collectors.toList());
+	this.countdowns = Arrays.asList(BreakType.values()).stream()
+		.filter(bt -> bt.isCountdown() && bt != BreakType.GROUP_DONE && bt != BreakType.SESSION)
+		.collect(Collectors.toList());
 
 		this.countdownRadios.setItems(this.countdowns);
 		this.countdownRadios.setRenderer(new TextRenderer<>(
@@ -691,8 +691,9 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		}
 		this.interruptionRadios = new RadioButtonGroup<>();
 		this.interruptionRadios.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
-		this.interruptions = Arrays.asList(BreakType.values()).stream()
-		        .filter(countdownRadios -> countdownRadios.isInterruption()).collect(Collectors.toList());
+	this.interruptions = Arrays.asList(BreakType.values()).stream()
+		.filter(countdownRadios -> countdownRadios.isInterruption() && countdownRadios != BreakType.SESSION)
+		.collect(Collectors.toList());
 
 		this.interruptionRadios.setRenderer(new TextRenderer<>(
 		        (item) -> {
