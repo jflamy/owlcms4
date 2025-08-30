@@ -372,9 +372,9 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
                 BreakType bt = fop.getBreakType();
                 CountdownType ct = fop.getCountdownType();
                 boolean indefinite = fop.getBreakTimer().isIndefinite();
-                // trace the values so user can see refresh read
-                logger.warn("Wodkeeper refresh: breakType={} countdownType={} remainingMs={} indefinite={}", bt,
-                        ct, ms, indefinite);
+        // trace the values so user can see refresh read
+        logger.debug("Wodkeeper refresh: breakType={} countdownType={} remainingMs={} indefinite={}", bt,
+            ct, ms, indefinite);
                 // Avoid pushing a BreakSetTime if the server-side break timer is already running.
                 // Pushing BreakSetTime immediately after a BreakStarted can overwrite a running
                 // client timer and stop it. Rely on the server-emitted BreakStarted for clients
@@ -461,10 +461,10 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
                     BreakType bt = fop.getBreakType();
                     CountdownType ct = fop.getCountdownType();
                     boolean indefinite = fop.getBreakTimer().isIndefinite();
-                    logger.warn("Wodkeeper onAttach: breakType={} countdownType={} remainingMs={} indefinite={}", bt,
-                            ct, ms, indefinite);
-                    if (fop.getBreakTimer().isRunning()) {
-                        logger.info("Wodkeeper.onAttach: break is running, pushing BreakStarted millis={} indefinite={}", ms, indefinite);
+            logger.debug("Wodkeeper onAttach: breakType={} countdownType={} remainingMs={} indefinite={}", bt,
+                ct, ms, indefinite);
+            if (fop.getBreakTimer().isRunning()) {
+            logger.debug("Wodkeeper.onAttach: break is running, pushing BreakStarted millis={} indefinite={}", ms, indefinite);
                         fop.pushOutUIEvent(new UIEvent.BreakStarted(ms, this, false, bt, ct, LoggerUtils.stackTrace(), Boolean.FALSE, fop));
                     } else {
                         fop.pushOutUIEvent(new UIEvent.BreakSetTime(bt, ct, ms, null, indefinite, this,

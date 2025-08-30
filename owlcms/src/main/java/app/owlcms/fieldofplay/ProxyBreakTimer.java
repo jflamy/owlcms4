@@ -208,7 +208,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining2, boolean indefinite) {
-	this.logger.info("ProxyBreakTimer.setTimeRemaining({},{}) called from {}", timeRemaining2, indefinite,
+	// Debug-level trace: useful when diagnosing timer races, but noisy at INFO.
+	this.logger.debug("ProxyBreakTimer.setTimeRemaining({},{}) called from {}", timeRemaining2, indefinite,
 		LoggerUtils.whereFrom());
 	this.setIndefinite(indefinite);
 	this.timeRemaining = timeRemaining2;
