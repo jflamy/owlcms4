@@ -208,10 +208,10 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void setTimeRemaining(int timeRemaining2, boolean indefinite) {
-		// logger.debug("--- ProxyBreakTimer setTimeRemaining={} indefinite={} from {}", timeRemaining2, indefinite,
-		// LoggerUtils.whereFrom());
-		this.setIndefinite(indefinite);
-		this.timeRemaining = timeRemaining2;
+	this.logger.info("ProxyBreakTimer.setTimeRemaining({},{}) called from {}", timeRemaining2, indefinite,
+		LoggerUtils.whereFrom());
+	this.setIndefinite(indefinite);
+	this.timeRemaining = timeRemaining2;
 	}
 
 	/**
@@ -225,7 +225,9 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 			this.logger.error("null breaktype {}", LoggerUtils.stackTrace());
 		}
 		// CeremonyType ceremonyType = getFop().getCeremonyType();
-		this.startMillis = System.currentTimeMillis();
+	this.startMillis = System.currentTimeMillis();
+	this.logger.info("ProxyBreakTimer.start() scheduling startMillis={}, timeRemaining={} (indefinite={})", this.startMillis,
+		this.timeRemaining, this.indefinite);
 
 		Integer millisRemaining = getMillis();
 
@@ -243,13 +245,16 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
 		// if a break is running, need to stop it before starting another.
 		if (this.serverTimer != null) {
-			// logger.debug("Cancelling running timer");
+			this.logger.info("ProxyBreakTimer.start(): cancelling existing serverTimer");
 			this.serverTimer.cancel();
 		}
 		this.serverTimer = new Timer();
 		TimerTask timerTask = computeTask(this.timeRemaining);
 		if (this.timeRemaining >= 0) {
+			this.logger.info("ProxyBreakTimer.start(): scheduling serverTimer to run in {} ms", this.timeRemaining);
 			this.serverTimer.schedule(timerTask, this.timeRemaining);
+		} else {
+			this.logger.info("ProxyBreakTimer.start(): not scheduling serverTimer (timeRemaining={})", this.timeRemaining);
 		}
 	}
 
@@ -258,20 +263,20 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void stop() {
+		this.logger.info("ProxyBreakTimer.stop() called (running={})", isRunning());
 		if (isRunning()) {
 			computeTimeRemaining();
 		}
 		setRunning(false);
 		this.timeRemainingAtLastStop = this.timeRemaining;
-		// logger.debug("*** stopping Break -- timeRemaining = {} [{}]", getTimeRemaining(), LoggerUtils.whereFrom());
 		this.timeRemainingAtLastStop = getTimeRemaining();
-		// logger.debug("break stop = {} [{}]", liveTimeRemaining(), LoggerUtils.whereFrom());
 		if (this.serverTimer != null) {
+			this.logger.info("ProxyBreakTimer.stop(): cancelling serverTimer");
 			this.serverTimer.cancel();
 		}
 		UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
-		        false,
-		        getFop().getBreakType(), getFop().getCountdownType(), getFop());
+				false,
+				getFop().getBreakType(), getFop().getCountdownType(), getFop());
 
 		getFop().pushOutUIEvent(event);
 	}
@@ -285,7 +290,8 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	public void timeOver(Object origin) {
 		// logger.debug("****** break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
 		// LoggerUtils.whereFrom());
-		if (isRunning() && !isIndefinite()) {
+	this.logger.info("ProxyBreakTimer.timeOver() called (running={}, indefinite={}, getTimeRemaining={} )", isRunning(), isIndefinite(), getTimeRemaining());
+	if (isRunning() && !isIndefinite()) {
 			long now = System.currentTimeMillis();
 			if (now - this.lastStop > 1000) {
 				// ignore rash of timers all signaling break over

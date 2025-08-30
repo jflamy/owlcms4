@@ -549,7 +549,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			}
 			OwlcmsSession.withFop(fop -> {
 				BreakType value = this.countdownRadios.getValue();
-				if (value != null &&
+				if (value != null && value != BreakType.SESSION &&
 				        (value.isCountdown()
 				                || (this.countdownTypeRadios.getValue() != CountdownType.INDEFINITE))) {
 					// force FOP to accept our break and value as new

@@ -17,19 +17,17 @@ import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.KeyModifier;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
@@ -53,8 +51,7 @@ import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 
 /**
- * WodkeeperContent is a near-copy of TimekeeperContent but adjusted to control
- * the break timer with a 30:00 preset.
+ * WodkeeperContent is a near-copy of TimekeeperContent but adjusted to control the break timer with a 30:00 preset.
  */
 @SuppressWarnings("serial")
 @Route(value = "lifting/wodkeeper", layout = OwlcmsLayout.class)
@@ -63,7 +60,6 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     final private Logger logger;
     // remembered break duration/remaining in milliseconds (set by 30:00 button or remembered on pause)
     private Integer rememberedBreakMillis = null;
-
 
     public WodkeeperContent() {
         // initialize loggers at construction time to ensure they are available during attach
@@ -120,11 +116,11 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
 
     @Override
     protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
-    createStartTimeButton();
-    createStopTimeButton();
-    // override the 1min button to be a 30:00 break preset
-    create1MinButton();
-    HorizontalLayout buttons = new HorizontalLayout(this.startTimeButton, this.stopTimeButton, this._1min);
+        createStartTimeButton();
+        createStopTimeButton();
+        // override the 1min button to be a 30:00 break preset
+        create1MinButton();
+        HorizontalLayout buttons = new HorizontalLayout(this.startTimeButton, this.stopTimeButton, this._1min);
         buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
         return buttons;
     }
@@ -195,8 +191,8 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     }
 
     /**
-     * Start or resume time. If the FieldOfPlay is in BREAK state or a rememberedBreakMillis is present,
-     * start/resume the break timer using FOP APIs. Otherwise fall back to athlete clock behaviour.
+     * Start or resume time. If the FieldOfPlay is in BREAK state or a rememberedBreakMillis is present, start/resume the break timer using FOP APIs. Otherwise
+     * fall back to athlete clock behaviour.
      */
     @Override
     protected void doStartTime() {
@@ -210,15 +206,16 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
                     return;
                 }
                 // configure FOP break timer to remembered value, change state and start
-                fop.setBreakType(app.owlcms.uievents.BreakType.TECHNICAL);
+                fop.setBreakType(BreakType.SESSION);
+        logger.info("Wodkeeper.doStartTime(): starting break with ms={} fopState={}", ms, fop.getState());
                 fop.getBreakTimer().setTimeRemaining(ms, false);
                 fop.getBreakTimer().setBreakDuration(ms);
                 fop.getBreakTimer().setEnd(null);
-        fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.TECHNICAL, CountdownType.DURATION, ms, null,
+        fop.fopEventPost(new FOPEvent.BreakStarted(BreakType.SESSION, CountdownType.DURATION, ms, null,
             true, this));
-        // push UI event so displays start
-        fop.pushOutUIEvent(new UIEvent.BreakStarted(ms, this, false, BreakType.TECHNICAL,
-            CountdownType.DURATION, LoggerUtils.stackTrace(), Boolean.FALSE, fop));
+                // Do not push a local UIEvent.BreakStarted here; the FOP/ProxyBreakTimer will emit the canonical
+                // BreakStarted event when the server timer is started. Pushing from the client caused duplicate
+                // and conflicting events on other clients.
                 // once started, clear remembered value
                 this.rememberedBreakMillis = null;
                 return;
@@ -229,8 +226,8 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     }
 
     /**
-     * Stop or pause time. If currently in BREAK state, pause the break timer and remember remaining ms.
-     * Otherwise delegate to parent behaviour (athlete timer stop).
+     * Stop or pause time. If currently in BREAK state, pause the break timer and remember remaining ms. Otherwise delegate to parent behaviour (athlete timer
+     * stop).
      */
     @Override
     protected void doStopTime() {
@@ -239,6 +236,7 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
                 // read remaining time and stop the break timer
                 int remaining = fop.getBreakTimer().liveTimeRemaining();
                 // stop the server break timer
+                logger.info("Wodkeeper.doStopTime(): pausing break, liveRemaining={} (fopState={})", remaining, fop.getState());
                 fop.getBreakTimer().stop();
                 // remember remaining time for next start
                 this.rememberedBreakMillis = remaining;
@@ -271,22 +269,29 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     @Override
     protected FlexLayout createTopBar() {
 
-        this.topBar = new FlexLayout();
-        this.topBar.setClassName("athleteGridTopBar");
-        this.initialBar = false;
+    // Minimal top bar for Wodkeeper: remove athlete details and pause button, show a simple header.
+    this.topBar = new FlexLayout();
+    this.topBar.setClassName("wodkeeperTopBar");
+    this.initialBar = false;
 
-        HorizontalLayout topBarLeft = createTopBarLeft();
+        // Create the components that other logic expects to exist, but do not add them to the layout.
+        // This avoids NPEs while keeping the top bar minimal as requested.
+        this.breakButton = new Button();
+        this.breaks = new HorizontalLayout();
+        this.buttons = new HorizontalLayout();
+        this.decisions = new HorizontalLayout();
 
+        // Basic top-line components that other base-class logic may update; keep them instantiated but hidden
         this.lastName = new H2();
         this.lastName.setText("\u2013");
         this.lastName.getStyle().set("margin", "0px 0px 0px 0px");
 
         setFirstNameWrapper(new H3(""));
         getFirstNameWrapper().getStyle().set("margin", "0px 0px 0px 0px");
-        this.firstName = new Span("");
+        this.firstName = new com.vaadin.flow.component.html.Span("");
         this.firstName.getStyle().set("margin", "0px 0px 0px 0px");
-        this.startNumber = new Span("");
-        Style style = this.startNumber.getStyle();
+        this.startNumber = new com.vaadin.flow.component.html.Span("");
+        com.vaadin.flow.dom.Style style = this.startNumber.getStyle();
         style.set("margin", "0px 0px 0px 1em");
         style.set("padding", "0px 0px 0px 0px");
         style.set("border", "2px solid var(--lumo-primary-color)");
@@ -296,7 +301,6 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
         style.set("display", "inline-block");
         this.startNumber.setVisible(false);
         getFirstNameWrapper().add(this.firstName, this.startNumber);
-        Div fullName = new Div(this.lastName, getFirstNameWrapper());
 
         this.attempt = new H2();
         this.weight = new H2();
@@ -305,29 +309,18 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
             this.timer = new BreakTimerElement("");
         }
         this.timer.setSilenced(this.isSilenced());
-        H1 time = new H1(this.timer);
-        clearVerticalMargins(this.attempt);
-        clearVerticalMargins(time);
-        clearVerticalMargins(this.weight);
 
-        this.breaks = breakButtons(this.topBar);
-        this.breaks.setPadding(false);
-        this.breaks.setMargin(false);
-        this.breaks.setSpacing(true);
+        H1 header = new H1("WodKeeper");
+    header.getStyle().set("margin", "0");
+    header.getStyle().set("font-size", "1.6rem");
+    header.getStyle().set("font-weight", "bold");
 
-        this.topBar.setSizeFull();
-        this.topBar.add(topBarLeft, fullName, this.attempt, this.weight, time);
+    this.topBar.setSizeFull();
+    this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+    this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+    this.topBar.add(header);
 
-        if (this.breaks != null) {
-            this.topBar.add(this.breaks);
-        }
-
-        this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.AROUND);
-        this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        this.topBar.setAlignSelf(Alignment.CENTER, this.attempt, this.weight, time);
-        this.topBar.setFlexGrow(0.5, fullName);
-        this.topBar.setFlexGrow(0.0, topBarLeft);
-        return this.topBar;
+    return this.topBar;
     }
 
     @Override
@@ -370,6 +363,33 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     protected void syncWithFop(boolean refreshGrid, FieldOfPlay fop) {
         Group fopGroup = fop.getGroup();
         logger.debug("syncing FOP, group = {}, {}", fopGroup, LoggerUtils.whereFrom(2));
+
+        // When refreshing the page, fetch the live break timer from the FOP and push a UIEvent so the
+        // BreakTimerElement (subscribed to UI events) will update its display.
+        if (refreshGrid && fop != null && fop.getBreakTimer() != null) {
+            try {
+                Integer ms = fop.getBreakTimer().liveTimeRemaining();
+                BreakType bt = fop.getBreakType();
+                CountdownType ct = fop.getCountdownType();
+                boolean indefinite = fop.getBreakTimer().isIndefinite();
+                // trace the values so user can see refresh read
+                logger.warn("Wodkeeper refresh: breakType={} countdownType={} remainingMs={} indefinite={}", bt,
+                        ct, ms, indefinite);
+                // Avoid pushing a BreakSetTime if the server-side break timer is already running.
+                // Pushing BreakSetTime immediately after a BreakStarted can overwrite a running
+                // client timer and stop it. Rely on the server-emitted BreakStarted for clients
+                // that should start running; only push BreakSetTime when timer is not running
+                // (i.e. display-only update).
+                if (!fop.getBreakTimer().isRunning()) {
+                    fop.pushOutUIEvent(new UIEvent.BreakSetTime(bt, ct, ms, null, indefinite, this,
+                            LoggerUtils.stackTrace(), fop));
+                } else {
+                    logger.debug("Wodkeeper.syncWithFop: server break timer is running; skipping BreakSetTime push");
+                }
+            } catch (Exception ex) {
+                logger.warn("error fetching break timer on refresh: {}", ex.toString());
+            }
+        }
 
         Athlete curAthlete2 = fop.getCurAthlete();
         FOPState state = fop.getState();
@@ -426,6 +446,37 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
         }
     }
 
+    /**
+     * Ensure that when this content attaches we fetch the current break timer from the FOP,
+     * remember it and push a BreakSetTime so the client timer element will display the correct value.
+     */
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        OwlcmsSession.withFop(fop -> {
+            try {
+                if (fop != null && fop.getBreakTimer() != null) {
+                    Integer ms = fop.getBreakTimer().liveTimeRemaining();
+                    this.rememberedBreakMillis = ms;
+                    BreakType bt = fop.getBreakType();
+                    CountdownType ct = fop.getCountdownType();
+                    boolean indefinite = fop.getBreakTimer().isIndefinite();
+                    logger.warn("Wodkeeper onAttach: breakType={} countdownType={} remainingMs={} indefinite={}", bt,
+                            ct, ms, indefinite);
+                    if (fop.getBreakTimer().isRunning()) {
+                        logger.info("Wodkeeper.onAttach: break is running, pushing BreakStarted millis={} indefinite={}", ms, indefinite);
+                        fop.pushOutUIEvent(new UIEvent.BreakStarted(ms, this, false, bt, ct, LoggerUtils.stackTrace(), Boolean.FALSE, fop));
+                    } else {
+                        fop.pushOutUIEvent(new UIEvent.BreakSetTime(bt, ct, ms, null, indefinite, this,
+                                LoggerUtils.stackTrace(), fop));
+                    }
+                }
+            } catch (Exception ex) {
+                logger.warn("Wodkeeper onAttach fetch error: {}", ex.toString());
+            }
+        });
+    }
+
     private void createBottom() {
         this.removeAll();
         if (this.timer == null) {
@@ -441,21 +492,21 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
         centerH(this.timer, time);
         this.add(time);
 
-    createStartTimeButton();
-    createStopTimeButton();
-    create1MinButton();
+        createStartTimeButton();
+        createStopTimeButton();
+        create1MinButton();
 
         registerShortcuts();
 
         this.startTimeButton.setSizeFull();
         this.stopTimeButton.setSizeFull();
-    this._1min.setHeight("15vh");
-    this._1min.setWidthFull();
+        this._1min.setHeight("15vh");
+        this._1min.setWidthFull();
         this.startTimeButton.getStyle().set("flex-shrink", "1");
         this.stopTimeButton.getStyle().set("flex-shrink", "1");
-    this._1min.getStyle().set("flex-shrink", "1");
+        this._1min.getStyle().set("flex-shrink", "1");
 
-    VerticalLayout resets = new VerticalLayout(this._1min);
+        VerticalLayout resets = new VerticalLayout(this._1min);
         resets.setWidthFull();
 
         this.buttons = new HorizontalLayout(this.startTimeButton, this.stopTimeButton, resets);
@@ -516,19 +567,19 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     // Implement 30-minute force break
     protected void do30Minutes() {
         OwlcmsSession.withFop(fop -> {
-        int ms = 30 * 60 * 1000;
-        // Set break type and configure the FOP break timer
-        fop.setBreakType(BreakType.TECHNICAL);
-        fop.getBreakTimer().setTimeRemaining(ms, false);
-        fop.getBreakTimer().setBreakDuration(ms);
-        fop.getBreakTimer().setEnd(null);
-    // remember this preset so Start will use it (does not start immediately)
-    this.rememberedBreakMillis = ms;
+            int ms = 30 * 60 * 1000;
+            // Set break type and configure the FOP break timer
+            fop.setBreakType(BreakType.SESSION);
+            fop.getBreakTimer().setTimeRemaining(ms, false);
+            fop.getBreakTimer().setBreakDuration(ms);
+            fop.getBreakTimer().setEnd(null);
+            // remember this preset so Start will use it (does not start immediately)
+            this.rememberedBreakMillis = ms;
 
-    // Do NOT start the break; instead update the server-side break timer values
-    // and push a UIEvent.BreakSetTime so connected UIs display the 30:00 without starting.
-    fop.pushOutUIEvent(new UIEvent.BreakSetTime(BreakType.TECHNICAL, CountdownType.DURATION, ms, null, false,
-        this, LoggerUtils.stackTrace(), fop));
+            // Do NOT start the break; instead update the server-side break timer values
+            // and push a UIEvent.BreakSetTime so connected UIs display the 30:00 without starting.
+            fop.pushOutUIEvent(new UIEvent.BreakSetTime(BreakType.SESSION, CountdownType.DURATION, ms, null, false,
+                    this, LoggerUtils.stackTrace(), fop));
         });
     }
 

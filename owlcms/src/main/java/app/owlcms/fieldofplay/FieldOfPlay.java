@@ -92,6 +92,7 @@ import app.owlcms.monitors.IUnregister;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.lifting.AnnouncerContent;
 import app.owlcms.nui.lifting.TimekeeperContent;
+import app.owlcms.nui.lifting.WodkeeperContent;
 import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
@@ -655,7 +656,7 @@ public class FieldOfPlay implements IUnregister {
 		if (e instanceof FOPEvent.BreakStarted) {
 			Object origin = e.getOrigin();
 			BreakType requestedBreak = ((FOPEvent.BreakStarted) e).getBreakType();
-			boolean allAllowed = origin instanceof AnnouncerContent || origin instanceof TimekeeperContent;
+			boolean allAllowed = origin instanceof AnnouncerContent || origin instanceof TimekeeperContent || origin instanceof WodkeeperContent;
 
 			if (getState() == BREAK
 			        && (requestedBreak == BreakType.JURY || requestedBreak == BreakType.CHALLENGE)
