@@ -60,7 +60,7 @@ class WodBoard extends LitElement {
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: 1fr 1fr;
-        gap: 0.5em;
+  gap: 0;
         height: 100vh;
         width: 100vw;
         background: var(--background-color, #111);
