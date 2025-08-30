@@ -22,8 +22,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
+// icon imports removed - not used in minimal Wodkeeper top bar
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -44,7 +43,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
-import app.owlcms.nui.shared.BreakDialog;
+// BreakDialog import removed - not used in minimal initial bar
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
@@ -128,55 +127,39 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     @Override
     protected FlexLayout createInitialBar() {
 
+        // Minimal initial bar: show only the "WodKeeper" header.
         this.topBar = new FlexLayout();
         this.initialBar = true;
 
-        createTopBarGroupSelect();
-        createTopBarLeft();
+        // Instantiate base-class components that other logic may reference to avoid NPEs,
+        // but do not add them to the visible layout.
+        this.breakButton = new Button();
+        this.breaks = new HorizontalLayout();
+        this.buttons = new HorizontalLayout();
+        this.decisions = new HorizontalLayout();
 
-        this.introCountdownButton = new Button(Translator.translate("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
-                dialog.open();
-            });
-        });
-        this.introCountdownButton.getElement().setAttribute("theme", "primary contrast");
+        this.lastName = new H2();
+        this.lastName.setText("\u2013");
+        setFirstNameWrapper(new H3(""));
+        this.firstName = new com.vaadin.flow.component.html.Span("");
+        this.startNumber = new com.vaadin.flow.component.html.Span("");
+    this.attempt = new H2();
+    this.weight = new H2();
+    this.warning = new H3();
+    this.warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
+        if (this.timer == null) {
+            this.timer = new BreakTimerElement("");
+        }
 
-        this.startLiftingButton = new Button(Translator.translate("startLifting"), new Icon(VaadinIcon.MICROPHONE), (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                UI.getCurrent().access(() -> createTopBar());
-                fop.fopEventPost(new FOPEvent.StartLifting(this));
-            });
-        });
-        this.startLiftingButton.getThemeNames().add("success primary");
+        H1 header = new H1("WodKeeper");
+        header.getStyle().set("margin", "0");
+        header.getStyle().set("font-size", "1.6rem");
+        header.getStyle().set("font-weight", "bold");
 
-        this.showResultsButton = new Button(Translator.translate("ShowResults"), new Icon(VaadinIcon.MEDAL), (e) -> {
-            OwlcmsSession.withFop(fop -> {
-                UI.getCurrent().access(() -> createTopBar());
-                fop.fopEventPost(
-                        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true,
-                                this));
-            });
-        });
-        this.showResultsButton.getThemeNames().add("success primary");
-        this.showResultsButton.setVisible(false);
-
-        this.warning = new H3();
-        this.warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
-        HorizontalLayout topBarRight = new HorizontalLayout();
-        topBarRight.add(this.warning, this.introCountdownButton, this.startLiftingButton, this.showResultsButton);
-        topBarRight.setSpacing(true);
-        topBarRight.setPadding(true);
-        topBarRight.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        this.topBar.removeAll();
         this.topBar.setSizeFull();
-        this.topBar.add(getTopBarLeft(), topBarRight);
-
-        this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
+        this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-        this.topBar.setFlexGrow(0.0, getTopBarLeft());
-        this.topBar.setFlexGrow(1.0, topBarRight);
+        this.topBar.add(header);
         return this.topBar;
     }
 
