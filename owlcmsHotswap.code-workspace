@@ -86,6 +86,20 @@
       },
       {
         "type": "java",
+        "name": "🟩 small demo owlcms memory (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "true",
+          "OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
+          "OWLCMS_PORT": "8081"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+        }
+      },
+      {
+        "type": "java",
         "name": "🟩 large demo owlcms memory (Hotswap)",
         "request": "launch",
         "mainClass": "app.owlcms.Main",
