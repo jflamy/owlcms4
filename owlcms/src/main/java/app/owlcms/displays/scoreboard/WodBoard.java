@@ -12,6 +12,8 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
@@ -70,6 +72,8 @@ public class WodBoard extends LitTemplate implements DisplayParameters, SafeEven
     }
 
     protected final Logger logger = (Logger) LoggerFactory.getLogger(WodBoard.class);
+    private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
+    protected EventBus uiEventBus;
     @Id("breakTimer")
     private BreakTimerElement breakTimer;
     @SuppressWarnings("unused")
@@ -92,6 +96,43 @@ public class WodBoard extends LitTemplate implements DisplayParameters, SafeEven
                     ja.put("club", "");
                 }
                 jath.set(i, ja);
+            }
+            this.getElement().setPropertyJson("athletes", jath);
+            // register on the fop UI event bus so we receive SwitchGroup events
+            this.uiEventBus = uiEventBusRegister(this, fop);
+        });
+    }
+
+    @Subscribe
+    public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+        uiEventLogger.debug("WodBoard received SwitchGroup group={} origin={}", e.getGroup(), e.getOrigin());
+        UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+            var f = e.getFop();
+            setFop(f);
+            setGroup(e.getGroup());
+            var jath = Json.createArray();
+            if (e.getGroup() == null) {
+                // clear the 4 slots
+                for (int i = 0; i < 4; i++) {
+                    var ja = Json.createObject();
+                    ja.put("name", "");
+                    ja.put("club", "");
+                    jath.set(i, ja);
+                }
+            } else {
+                var displayOrder = f != null ? f.getDisplayOrder() : null;
+                for (int i = 0; i < 4; i++) {
+                    var ja = Json.createObject();
+                    if (displayOrder != null && i < displayOrder.size()) {
+                        var a = displayOrder.get(i);
+                        ja.put("name", a.getFullName());
+                        ja.put("club", a.getTeam());
+                    } else {
+                        ja.put("name", "");
+                        ja.put("club", "");
+                    }
+                    jath.set(i, ja);
+                }
             }
             this.getElement().setPropertyJson("athletes", jath);
         });
