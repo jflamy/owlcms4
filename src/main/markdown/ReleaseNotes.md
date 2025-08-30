@@ -15,6 +15,8 @@
 
 60.1.0: Top Scores scoreboard now allows filtering by gender, hiding attempts and selecting the number of athletes shown.  It is also possible to filter by championship and age group.
 
+60.1.0: Experimental: timer for time-constrained sessions
+
 **New in Release 60.0**
 
 60.0.0: New page showing the records in a filtering grid, to allow choosing what is exported. 
