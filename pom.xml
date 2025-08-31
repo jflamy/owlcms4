@@ -11,6 +11,7 @@
 		<module>shared</module>
 		<module>owlcms</module>
 		<module>publicresults</module>
+		<module>tracker</module>
 		<module>owlcms-docker</module>
 		<module>playwright</module>
 	</modules>
