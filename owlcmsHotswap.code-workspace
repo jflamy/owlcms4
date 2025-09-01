@@ -23,11 +23,8 @@
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.annotation.processing.enabled": false,
     "java.autobuild.annotation.processing.enabled": false,
-    "launch": {
-      "configurations": [],
-      "compounds": []
-    },
-    "debug.allowBreakpointsEverywhere": true
+    "debug.allowBreakpointsEverywhere": true,
+    "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}"
   },
   "launch": {
     "version": "0.2.0",
@@ -154,6 +151,14 @@
           "🟠 Launch publicresults (Hotswap)"
         ]
       }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "vscjava.vscode-java-debug",
+      "vscjava.vscode-java-pack",
+      "redhat.java",
+      "vscjava.vscode-maven"
     ]
   }
 }

@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "vscjava.vscode-java-debug",
+        "vscjava.vscode-java-pack",
+        "redhat.java",
+        "vscjava.vscode-maven"
+    ]
+}
