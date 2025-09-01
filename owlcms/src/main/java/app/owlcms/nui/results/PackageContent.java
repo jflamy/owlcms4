@@ -71,6 +71,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.spreadsheet.JXLSWinningSheet;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
+import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -170,7 +171,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
 		Set<String> unfinishedCategories = AthleteRepository.allUnfinishedCategories();
-		logger.info("unfinished categories {}", unfinishedCategories);
+		logger.info("unfinished categories {} {}", unfinishedCategories, LoggerUtils.whereFrom());
 
 		if (ranked == null || ranked.isEmpty()) {
 			return new ArrayList<>();
@@ -466,18 +467,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.reset = new Button(Translator.translate("RecomputeRanks"), new Icon(VaadinIcon.REFRESH),
 		        (e) -> {
 			        // resetRanks();
-			        JPAService.runInTransaction(em -> {
-				        // assign ranks to all categories, recompute global
-				        List<Athlete> l = AthleteRepository.findAllByGroupAndWeighIn(null, true);
-
-				        Competition.getCurrent().computeMedalsByCategory(l);
-				        Competition.getCurrent().doGlobalRankings(l, true);
-				        for (Athlete a : l) {
-					        em.merge(a);
-				        }
-				        em.flush();
-				        return null;
-			        });
+			        Competition.recomputeAllAthleteRanks();
 			        refresh();
 		        });
 

@@ -363,7 +363,7 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
                 // remember the value for potential client-side start requests, but do not broadcast
                 this.rememberedBreakMillis = ms;
             } catch (Exception ex) {
-                logger.warn("error fetching break timer on refresh: {}", ex.toString());
+                logger.error("error fetching break timer on refresh: {}", ex.toString());
             }
         }
 
@@ -445,7 +445,7 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
                     // server timer on other clients.
                 }
             } catch (Exception ex) {
-                logger.warn("Wodkeeper onAttach fetch error: {}", ex.toString());
+                logger.error("Wodkeeper onAttach fetch error: {}", ex.toString());
             }
         });
     }

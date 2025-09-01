@@ -152,6 +152,7 @@ public class Main {
 		// read locale from database and override if needed
 		Locale l = overrideDisplayLanguage();
 		injectData(initialData, l);
+		Competition.recomputeAllAthleteRanks();
 		overrideTimeZone();
 		logger.info("Initialized data ({} ms)", System.currentTimeMillis() - now);
 

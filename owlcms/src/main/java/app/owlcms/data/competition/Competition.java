@@ -2118,4 +2118,19 @@ public class Competition {
 		this.deduct250g = deduct250g;
 	}
 
+	public static void recomputeAllAthleteRanks() {
+		JPAService.runInTransaction(em -> {
+		    // assign ranks to all categories, recompute global
+		    List<Athlete> l = AthleteRepository.findAllByGroupAndWeighIn(null, true);
+	
+		    getCurrent().computeMedalsByCategory(l);
+		    getCurrent().doGlobalRankings(l, true);
+		    for (Athlete a : l) {
+		        em.merge(a);
+		    }
+		    em.flush();
+		    return null;
+		});
+	}
+
 }
