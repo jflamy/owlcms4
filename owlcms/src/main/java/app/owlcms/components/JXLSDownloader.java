@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 import org.apache.maven.shared.utils.io.FileUtils;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.UI;
 //import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.button.Button;
@@ -218,70 +219,83 @@ public class JXLSDownloader {
 			Resource found = searchMatch(prioritizedList, curTemplateName);
 			this.logger.debug("(1) template found {}", found != null ? found.getFilePath() : null);
 
-			this.templateSelect.addValueChangeListener(e -> {
-				try {
-					String newTemplateName = e.getValue().getFileName();
-
-					Competition current = Competition.getCurrent();
-
-					// supplier is a lambda that sets the template and the filter values in the xls
-					// source
-					Resource res = searchMatch(prioritizedList, newTemplateName);
-					if (res == null) {
-						this.logger.debug("(2) template NOT found {} {}", newTemplateName, prioritizedList);
-						throw new Exception("template not found " + newTemplateName);
-					}
-					this.logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
-					this.templateNameSetter.accept(current, newTemplateName);
-					this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
-
-					this.xlsWriter = this.streamSourceSupplier.get();
-					this.logger.debug("(2) xlsWriter dialog {} {}", this.xlsWriter, this.dialog);
-					if (this.xlsWriter == null) {
-						UI.getCurrent().access(() -> this.dialog.close());
-						return;
-					}
-					this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
-					        newTemplateName);
-
-					CompetitionRepository.save(current);
-					current = Competition.getCurrent();
-					this.logger.debug("(2) template as stored {}", this.templateNameGetter.apply(current));
-
-					InputStream is = res.getStream();
-					this.xlsWriter.setInputStream(is);
-					this.logger.debug("(2) filter present = {} {} {}", this.xlsWriter.getGroup(),
-					        this.xlsWriter.getCategory(),
-					        this.xlsWriter.getChampionship());
-
-					String targetFileName = getTargetFileName();
-					this.logger.debug("(2) targetFileName final = {}", targetFileName);
-
-					Supplier<String> supplier = () -> getTargetFileName();
-
-					Anchor nDownloadAnchor = doCreateActualDownloadButton(this.resource, this.xlsWriter,
-					        supplier.get());
-					// if downloadAnchor is null, same as add nDownloadAnchor
-					templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
-					this.downloadAnchor = nDownloadAnchor;
-
-					this.xlsWriter.setDoneCallback((message) -> this.dialog.close());
-
-					// downloadButton.setFileNameCallback(supplier);
-					// downloadButton.setInputStreamCallback(() -> xlsWriter.createInputStream());
-					// downloadButton.addDownloadStartsListener(ds -> dialog.close());
-				} catch (Throwable e1) {
-					this.logger.error("{}", LoggerUtils.stackTrace(e1));
-				}
-			});
 			templateSelection.add(this.templateSelect);
 			this.dialog.add(templateSelection);
 			this.templateSelect.setValue(found);
+			processTemplateSelection(templateSelection, prioritizedList, found != null ? found.getFileName() : null);
+
+			this.templateSelect.addValueChangeListener(e -> {
+				updateTemplateSelection(templateSelection, prioritizedList, e);
+			});
+
 		} catch (Exception e1) {
 			throw new RuntimeException(e1);
 		}
 
 		return this.dialog;
+	}
+
+	private void updateTemplateSelection(HorizontalLayout templateSelection, List<Resource> prioritizedList,
+	        ComponentValueChangeEvent<ComboBox<Resource>, Resource> e) {
+		String newTemplateName = e.getValue().getFileName();
+		processTemplateSelection(templateSelection, prioritizedList, newTemplateName);
+	}
+
+	private void processTemplateSelection(HorizontalLayout templateSelection, List<Resource> prioritizedList, String newTemplateName) {
+		try {
+			try {
+				this.downloadAnchor.setEnabled(false);
+				this.downloadAnchor.getElement().getChild(0).setEnabled(false);
+			} catch (Exception e) {
+			}
+			UI.getCurrent().push();
+			Competition current = Competition.getCurrent();
+
+			// supplier is a lambda that sets the template and the filter values in the xls
+			// source
+			Resource res = searchMatch(prioritizedList, newTemplateName);
+			if (res == null) {
+				this.logger.debug("(2) template NOT found {} {}", newTemplateName, prioritizedList);
+				throw new Exception("template not found " + newTemplateName);
+			}
+			this.logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
+			this.templateNameSetter.accept(current, newTemplateName);
+			this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
+
+			this.xlsWriter = this.streamSourceSupplier.get();
+			this.logger.debug("(2) xlsWriter dialog {} {}", this.xlsWriter, this.dialog);
+			if (this.xlsWriter == null) {
+				UI.getCurrent().access(() -> this.dialog.close());
+				return;
+			}
+			this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
+			        newTemplateName);
+
+			CompetitionRepository.save(current);
+			current = Competition.getCurrent();
+			this.logger.debug("(2) template as stored {}", this.templateNameGetter.apply(current));
+
+			InputStream is = res.getStream();
+			this.xlsWriter.setInputStream(is);
+			this.logger.debug("(2) filter present = {} {} {}", this.xlsWriter.getGroup(),
+			        this.xlsWriter.getCategory(),
+			        this.xlsWriter.getChampionship());
+
+			String targetFileName = getTargetFileName();
+			this.logger.debug("(2) targetFileName final = {}", targetFileName);
+
+			Supplier<String> supplier = () -> getTargetFileName();
+
+			Anchor nDownloadAnchor = doCreateActualDownloadButton(this.resource, this.xlsWriter,
+			        supplier.get());
+			// if downloadAnchor is null, same as add nDownloadAnchor
+			templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
+			this.downloadAnchor = nDownloadAnchor;
+
+			this.xlsWriter.setDoneCallback((message) -> this.dialog.close());
+		} catch (Throwable e1) {
+			this.logger.error("{}", LoggerUtils.stackTrace(e1));
+		}
 	}
 
 	private Anchor doCreateActualDownloadButton(StreamResource resource, StreamResourceWriter writer, String fileName) {
@@ -328,7 +342,7 @@ public class JXLSDownloader {
 
 		String fileName = "";
 		String templateName = this.templateNameGetter.apply(Competition.getCurrent());
-		
+
 		String extension = FileUtils.getExtension(templateName);
 		if ((templateName.matches(".*[_-](A4|LETTER|LEGAL).*"))) {
 			fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(." + extension + ")", "") + suffix + "."
