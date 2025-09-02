@@ -12,7 +12,10 @@
 
 **New in Release 60.2**
 
-60.2.0: Downloading would fail if clicking very quickly after switching a template.  Button now disabled while the change is being processed.
+60.2.0: If the athlete card for the current athlete is open, and a down signal or decision is received, the card will be
+closed to prevent an accidental overwrite of the lift outcome.
+
+60.2.0: Downloading would fail if clicking very quickly after switching a template.  Download now disabled while the template change is being processed.
 
 60.2.0: Ranks and unfinished categories are recomputed on startup to ensure consistency.
 
