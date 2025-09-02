@@ -10,9 +10,11 @@
 
 <br>
 
-**Maintenance Log**
+**New in Release 60.2**
 
-60.1.1: Recompute ranks and unfinished categories on startup to ensure consistency.
+60.2.0: Downloading would fail if clicking very quickly after switching a template.  Button now disabled while the change is being processed.
+
+60.2.0: Ranks and unfinished categories are recomputed on startup to ensure consistency.
 
 **New in Release 60.1**
 
