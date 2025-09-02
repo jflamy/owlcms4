@@ -63,7 +63,10 @@ import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Notification;
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -127,6 +130,50 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private TextField snatch3Declaration;
 	private BinderValidationStatus<Athlete> status;
 	private Boolean updatingResults;
+	private EventBus uiEventBus;
+
+	/**
+	 * Form component that registers itself safely on the UI event bus and receives DownSignal events.
+	 */
+	private class FormComponent extends VerticalLayout implements SafeEventBusRegistration {
+		private static final long serialVersionUID = 1L;
+
+		@Subscribe
+		public void onDownSignal(UIEvent.DownSignal e) {
+			handleCloseIfCurrent(e);
+		}
+
+		@Subscribe
+		public void onDecision(UIEvent.Decision e) {
+			handleCloseIfCurrent(e);
+		}
+
+		private void handleCloseIfCurrent(UIEvent e) {
+			// execute in UI thread and perform common close/unregister logic
+			UIEventProcessor.uiAccess(AthleteCardFormFactory.this.origin instanceof Component ? (Component) AthleteCardFormFactory.this.origin : null,
+					AthleteCardFormFactory.this.uiEventBus, e, () -> {
+						try {
+							FieldOfPlay fop = e.getFop();
+							if (fop != null && AthleteCardFormFactory.this.originalAthlete != null
+									&& fop.getCurAthlete() != null
+									&& fop.getCurAthlete().equals(AthleteCardFormFactory.this.originalAthlete)) {
+								// explicitly unregister from the UI event bus, then log and close the dialog
+								try {
+									if (AthleteCardFormFactory.this.uiEventBus != null) {
+										AthleteCardFormFactory.this.uiEventBus.unregister(FormComponent.this);
+									}
+								} catch (Exception ex) {
+									// ignore unregister failures
+								}
+								logger.info("Athlete card closed on event {} for athlete {}", e.getClass().getSimpleName(), AthleteCardFormFactory.this.originalAthlete.getId());
+								AthleteCardFormFactory.this.origin.closeDialog();
+							}
+						} catch (Throwable ex) {
+							// swallow
+						}
+					});
+		}
+	}
 
 	public AthleteCardFormFactory(Class<Athlete> domainType, IAthleteEditing origin) {
 		super(domainType);
@@ -300,7 +347,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Component footerLayout = this.buildFooter(operation, getEditedAthlete(), cancelButtonClickListener,
 		        updateButtonClickListener, deleteButtonClickListener, true);
 
-		VerticalLayout mainLayout = new VerticalLayout();
+	FormComponent mainLayout = new FormComponent();
 		mainLayout.add(formLayout);
 		mainLayout.add(this.gridLayout);
 		mainLayout.add(labelWrapper);
@@ -326,8 +373,25 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 
 		setFocus(getEditedAthlete());
+		// Use SafeEventBusRegistration to register the form component on the FOP UI event bus
+		// when the component is attached (so a UI is present).
+		mainLayout.addAttachListener((e) -> {
+			try {
+				FieldOfPlay fop = OwlcmsSession.getFop();
+				if (fop != null) {
+					// uiEventBusRegister requires the component to have a UI; calling it on attach
+					// ensures SafeEventBusRegistration can obtain the UI and wire unregister listeners.
+					this.uiEventBus = mainLayout.uiEventBusRegister(mainLayout, fop);
+				}
+			} catch (Throwable t) {
+				// ignore registration failures
+			}
+		});
+
 		return mainLayout;
 	}
+
+	// The DownSignal subscriber is implemented on the form component instance. See above.
 
 	/**
 	 * Special version because we use setBean instead of readBean
