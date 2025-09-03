@@ -141,7 +141,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 			hideLiveDecisions();
 
 			int d = e.decision ? 1 : 0;
-			String text = Translator.translate("NoLift_GoodLift", d, e.getAthlete().getFullName());
+			String text = "["+e.getAthlete().getStartNumber()+"] "+Translator.translate("NoLift_GoodLift", d, e.getAthlete().getFullName());
 
 			Notification n = new Notification();
 			String themeName = e.decision ? "success" : "error";
