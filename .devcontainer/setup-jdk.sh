@@ -22,8 +22,16 @@ wget -q --show-progress -O jbr-dcevm.tar.gz "https://cache-redirector.jetbrains.
 echo "Extracting JDK 17 DCEVM..."
 tar -xzf jbr-dcevm.tar.gz
 
-# Move to the correct location (JetBrains archives typically have a jbr directory)
-sudo mv jbr_jcef-17.0.14-b1367.22/* /usr/local/jdk-17-dcevm/
+# Find the actual directory name and move contents
+JBR_DIR=$(find . -maxdepth 1 -name "jbr*" -type d | head -n 1)
+if [ -n "$JBR_DIR" ]; then
+    echo "Found JBR directory: $JBR_DIR"
+    sudo mv "$JBR_DIR"/* /usr/local/jdk-17-dcevm/
+else
+    echo "JBR directory not found, trying direct extraction..."
+    # If there's no subdirectory, the files might be at the root
+    sudo mv jbr*/* /usr/local/jdk-17-dcevm/ 2>/dev/null || sudo mv ./* /usr/local/jdk-17-dcevm/
+fi
 sudo chown -R root:root /usr/local/jdk-17-dcevm
 
 # Install Maven separately to get latest version
@@ -119,7 +127,7 @@ echo "Verifying Maven installation..."
 
 # Clean up
 rm -f /tmp/jbr-dcevm.tar.gz /tmp/maven.tar.gz
-rm -rf /tmp/jbr_jcef-17.0.14-b1367.22
+rm -rf /tmp/jbr*
 
 echo ""
 echo "Setup complete!"
