@@ -17,7 +17,7 @@
 	"forwardPorts": [8080, 8081, 1883],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "bash .devcontainer/setup-jdk.sh && mkdir -p .vscode && cp .devcontainer/vscode-settings.json .vscode/settings.json && mvn clean compile",
+	"postCreateCommand": "bash .devcontainer/setup-jdk.sh && mvn clean compile",
 
 	// Use 'onCreateCommand' for Codespaces pre-building
 	"onCreateCommand": "bash .devcontainer/setup-jdk.sh",
@@ -26,11 +26,9 @@
 	"workspaceFolder": "/workspaces/owlcms_v23",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/owlcms_v23,type=bind",
 
-	// Set container environment variables
+	// Set container environment variables (will be updated by setup script)
 	"containerEnv": {
-		"JAVA_HOME": "/usr/lib/jvm/java-21-openjdk-amd64",
-		"M2_HOME": "/opt/maven",
-		"PATH": "/usr/lib/jvm/java-21-openjdk-amd64/bin:/opt/maven/bin:${PATH}"
+		"M2_HOME": "/opt/maven"
 	},
 
 	// Configure tool-specific properties.
@@ -49,22 +47,8 @@
 				"ms-vscode.vscode-json"
 			],
 			"settings": {
-				"java.configuration.runtimes": [
-					{
-						"name": "JavaSE-21",
-						"path": "/usr/lib/jvm/java-21-openjdk-amd64"
-					},
-					{
-						"name": "JavaSE-17",
-						"path": "/usr/local/jdk-17-dcevm"
-					}
-				],
-				"java.jdt.ls.java.home": "/usr/lib/jvm/java-21-openjdk-amd64",
-				"java.compile.nullAnalysis.mode": "automatic",
-				"java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
 				"maven.executable.path": "/opt/maven/bin/mvn",
-				"terminal.integrated.defaultProfile.linux": "bash",
-				"java.configuration.workspaceFolder": "/workspaces/owlcms_v23"
+				"terminal.integrated.defaultProfile.linux": "bash"
 			}
 		}
 	},

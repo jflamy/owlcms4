@@ -13,6 +13,10 @@ sudo apt-get update
 echo "Installing Java 21 for VS Code Java Extension..."
 sudo apt-get install -y openjdk-21-jdk
 
+# Find the actual Java 21 installation path
+JAVA21_PATH=$(find /usr/lib/jvm -name "*java-21-openjdk*" -type d | head -1)
+echo "Java 21 installed at: $JAVA21_PATH"
+
 # Create directory for JDK 17 DCEVM
 sudo mkdir -p /usr/local/jdk-17-dcevm
 cd /tmp
@@ -32,15 +36,15 @@ sudo chown -R root:root /usr/local/jdk-17-dcevm
 # Set up environment variables
 echo "Setting up environment variables..."
 # Java 21 as default JAVA_HOME for VS Code extension
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' | sudo tee -a /etc/environment
+export JAVA_HOME=$JAVA21_PATH
+echo "export JAVA_HOME=$JAVA21_PATH" | sudo tee -a /etc/environment
 echo 'export PATH=$JAVA_HOME/bin:$PATH' | sudo tee -a /etc/environment
 
 # Update current session
 export PATH=$JAVA_HOME/bin:$PATH
 
 # Add to bash profile for future sessions
-echo 'export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64' >> ~/.bashrc
+echo "export JAVA_HOME=$JAVA21_PATH" >> ~/.bashrc
 echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.bashrc
 
 # Install Maven separately since we're overriding the default JDK
@@ -72,6 +76,42 @@ echo "Verifying Maven installation..."
 rm -f /tmp/jbr-dcevm.tar.gz /tmp/maven.tar.gz
 rm -rf /tmp/jbr_jcef-17.0.14-b1367.22
 
+# Update VS Code settings with actual Java paths
+echo "Updating VS Code settings with discovered Java paths..."
+cat > /tmp/vscode-settings.json << EOF
+{
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "$JAVA21_PATH",
+      "default": false
+    },
+    {
+      "name": "JavaSE-17",
+      "path": "/usr/local/jdk-17-dcevm",
+      "default": true
+    }
+  ],
+  "java.jdt.ls.java.home": "$JAVA21_PATH",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+  "maven.executable.path": "/opt/maven/bin/mvn",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "java.configuration.workspaceFolder": "/workspaces/owlcms_v23",
+  "java.autobuild.enabled": true,
+  "java.import.gradle.enabled": false,
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.annotation.processing.enabled": false,
+  "java.autobuild.annotation.processing.enabled": false,
+  "debug.allowBreakpointsEverywhere": true,
+  "debug.toolBarLocation": "docked"
+}
+EOF
+
+# Copy the updated settings
+mkdir -p .vscode
+cp /tmp/vscode-settings.json .vscode/settings.json
+
 echo "Setup complete!"
-echo "- Java 21 (default): For VS Code Java Extension"
-echo "- JDK 17 DCEVM: Available at /usr/local/jdk-17-dcevm for project runtime"
+echo "- Java 21 (default): $JAVA21_PATH - For VS Code Java Extension"
+echo "- JDK 17 DCEVM: /usr/local/jdk-17-dcevm - For project runtime"
