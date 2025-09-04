@@ -22,9 +22,6 @@
 	// Use 'onCreateCommand' for Codespaces pre-building
 	"onCreateCommand": "bash .devcontainer/setup-jdk.sh",
 
-	// Open the devcontainer-specific workspace file
-	"postStartCommand": "code /workspaces/owlcms_v23/owlcmsDevcontainer.code-workspace",
-
 	// Use the devcontainer-specific workspace file
 	"workspaceFolder": "/workspaces/owlcms_v23",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/owlcms_v23,type=bind",
@@ -62,7 +59,8 @@
 				"java.compile.nullAnalysis.mode": "automatic",
 				"java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
 				"maven.executable.path": "/opt/maven/bin/mvn",
-				"terminal.integrated.defaultProfile.linux": "bash"
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"java.configuration.workspaceFolder": "/workspaces/owlcms_v23"
 			}
 		}
 	},
