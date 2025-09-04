@@ -1,6 +1,22 @@
 ## Building and Packaging
 
-This is a standard Maven project.  If you wish, you can build the binaries from this source. 
+This is a standard Maven project.  If you wish, you can build the binaries from this source.
+
+## Development environment
+
+The easiest way to get a local development environment is to use a devcontainer with Visual Studion Code.
+Under Windows, you will need to configure `WSL 2` and `Docker Desktop` first, and install the `Dev Containers` extension.
+Under MacOS, you will need to install `brew` and `docker`.  You can then checkout or fork the repository.
+VS Code should offer you to run from a dev container.
+
+You can avoid these steps by developing in the cloud, using Github Codespaces.  You would just fork the repository,
+and start a codespace from the github page for jflamy/owlcms4.  When prompted, you would use the "devcontainer" workspace
+definition.
+
+## Building a production version
+
+The actual build chain is a Github Actions workflow, in `.github/workflows/release.yaml`. 
+But you can use maven to create a production build manually.
 
 ### Pre-requisites
 
@@ -8,7 +24,6 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 - Clone this repository
 - Install Java 17
 - Install Maven
-
 
 ### Building and testing
 
