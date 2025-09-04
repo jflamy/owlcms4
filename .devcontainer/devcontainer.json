@@ -18,7 +18,7 @@
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// Note: When opening in Codespaces, select 'owlcmsDevcontainer.code-workspace' from the workspace files
-	"postCreateCommand": "bash .devcontainer/setup-jdk.sh && /usr/local/jdk-17-dcevm/bin/java -version && JAVA_HOME=/usr/local/jdk-17-dcevm mvn clean compile",
+	"postCreateCommand": "echo 'Skipping mvn compile (DCEVM + Java auto build). Run mvn manually if needed.'",
 
 	// Ensure the correct workspace is selected
 	"postStartCommand": "echo 'To use the correct workspace configuration, open: owlcmsDevcontainer.code-workspace'",

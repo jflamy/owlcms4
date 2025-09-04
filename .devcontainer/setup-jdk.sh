@@ -7,6 +7,11 @@ set -e
 
 echo "Setting up JetBrains JDK 17 with DCEVM for project runtime..."
 
+# Idempotency: if JDK already present, skip download section
+if [ -d /usr/local/jdk-17-dcevm/bin ]; then
+  echo "JDK 17 DCEVM already installed. Skipping JDK download/extract."
+else
+
 # Update package lists
 sudo apt-get update -q
 
@@ -14,37 +19,41 @@ sudo apt-get update -q
 sudo mkdir -p /usr/local/jdk-17-dcevm
 cd /tmp
 
-# Download JetBrains Runtime JDK with DCEVM (Java 17)
-echo "Downloading JetBrains Runtime JDK 17 with DCEVM..."
-wget -q --show-progress -O jbr-dcevm.tar.gz "https://cache-redirector.jetbrains.com/intellij-jbr/jbr_jcef-17.0.14-linux-x64-b1367.22.tar.gz"
+  # Allow override of JBR version via env var (exact filename fragment). Default pinned for reproducibility.
+  JBR_VERSION_FRAG=${JBR_VERSION_FRAG:-"jbr_jcef-17.0.14-linux-x64-b1367.22"}
+  JBR_ARCHIVE_URL="https://cache-redirector.jetbrains.com/intellij-jbr/${JBR_VERSION_FRAG}.tar.gz"
+  echo "Downloading JetBrains Runtime JDK 17 with DCEVM from: $JBR_ARCHIVE_URL"
+  wget -q --show-progress -O jbr-dcevm.tar.gz "$JBR_ARCHIVE_URL"
 
-# Extract the JDK
-echo "Extracting JDK 17 DCEVM..."
-tar -xzf jbr-dcevm.tar.gz
+  echo "Extracting JDK 17 DCEVM..."
+  tar -xzf jbr-dcevm.tar.gz
 
-# Check if we have a nested tar file
-if [ -f *.tar ]; then
-    echo "Found nested tar file, extracting..."
-    tar -xf *.tar
-    rm -f *.tar
-fi
+  # Handle possible nested tar
+  inner_tar=$(find . -maxdepth 1 -type f -name "jbr*.tar" | head -n1 || true)
+  if [ -n "$inner_tar" ]; then
+    echo "Found nested tar: $inner_tar — extracting..."
+    tar -xf "$inner_tar"
+    rm -f "$inner_tar"
+  fi
 
-# Find the actual directory name and move contents
-JBR_DIR=$(find . -maxdepth 1 -name "jbr*" -type d | head -n 1)
-if [ -n "$JBR_DIR" ]; then
-    echo "Found JBR directory: $JBR_DIR"
-    sudo mv "$JBR_DIR"/* /usr/local/jdk-17-dcevm/
-    sudo chown -R root:root /usr/local/jdk-17-dcevm
-    sudo chmod -R 755 /usr/local/jdk-17-dcevm
-    sudo chmod +x /usr/local/jdk-17-dcevm/bin/*
-else
-    echo "JBR directory not found, listing contents for debugging..."
+  # Locate extracted directory
+  JBR_DIR=$(find . -maxdepth 1 -type d -name "jbr*" | head -n1)
+  if [ -z "$JBR_DIR" ]; then
+    echo "ERROR: Could not locate extracted JBR directory. Contents:" >&2
     ls -la
     exit 1
+  fi
+  echo "Using extracted directory: $JBR_DIR"
+
+  sudo mkdir -p /usr/local/jdk-17-dcevm
+  sudo rsync -a "$JBR_DIR"/ /usr/local/jdk-17-dcevm/
+  sudo chown -R root:root /usr/local/jdk-17-dcevm
+  sudo find /usr/local/jdk-17-dcevm/bin -type f -exec chmod 755 {} +
+  echo "JDK 17 DCEVM installed to /usr/local/jdk-17-dcevm"
 fi
 
 # Install / configure Hotswap Agent (needed for -XX:HotswapAgent=fatjar)
-echo "Installing Hotswap Agent..."
+echo "Installing Hotswap Agent (idempotent)..."
 
 # Allow override of version via environment variable HOTSWAP_AGENT_VERSION.
 # Use 'latest' (default) to query GitHub Releases API for newest version.
@@ -78,24 +87,68 @@ resolve_hotswap_url() {
   echo "$url"
 }
 
-HOTSWAP_URL=$(resolve_hotswap_url "$HOTSWAP_AGENT_VERSION")
-echo "Downloading Hotswap Agent from: $HOTSWAP_URL"
-if ! wget -q -O /tmp/hotswap-agent-dl.jar "$HOTSWAP_URL"; then
-  echo "Download failed; aborting Hotswap Agent installation." >&2
+if [ -f "$DEST_DIR/hotswap-agent.jar" ]; then
+  echo "Hotswap Agent already present at $DEST_DIR/hotswap-agent.jar (skipping download)."
 else
-  sudo mv /tmp/hotswap-agent-dl.jar "$DEST_DIR/hotswap-agent.jar"
-  sudo chmod 644 "$DEST_DIR/hotswap-agent.jar"
-  echo "Hotswap Agent installed at $DEST_DIR/hotswap-agent.jar"
+  HOTSWAP_URL=$(resolve_hotswap_url "$HOTSWAP_AGENT_VERSION")
+  echo "Downloading Hotswap Agent from: $HOTSWAP_URL"
+  if ! wget -q -O /tmp/hotswap-agent-dl.jar "$HOTSWAP_URL"; then
+    echo "Download failed; aborting Hotswap Agent installation." >&2
+  else
+    sudo mv /tmp/hotswap-agent-dl.jar "$DEST_DIR/hotswap-agent.jar"
+    sudo chmod 644 "$DEST_DIR/hotswap-agent.jar"
+    echo "Hotswap Agent installed at $DEST_DIR/hotswap-agent.jar"
+  fi
 fi
 
 echo "To pin a specific version, set HOTSWAP_AGENT_VERSION (e.g., HOTSWAP_AGENT_VERSION=2.0.1)."
 
-# Install Maven separately to get latest version
-echo "Installing Maven 3.9.6..."
-cd /tmp
-wget -q --show-progress -O maven.tar.gz "https://archive.apache.org/dist/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz"
-sudo tar -xzf maven.tar.gz -C /opt
-sudo ln -sf /opt/apache-maven-3.9.6 /opt/maven
+###############################################
+# Maven Installation (fast + idempotent)
+###############################################
+MAVEN_VERSION=${MAVEN_VERSION:-3.9.6}
+MAVEN_DIR="apache-maven-${MAVEN_VERSION}"
+MAVEN_TARGET="/opt/${MAVEN_DIR}"
+
+if command -v mvn >/dev/null 2>&1 && mvn -v 2>/dev/null | grep -q "${MAVEN_VERSION}"; then
+  echo "Maven ${MAVEN_VERSION} already installed. Skipping download."
+else
+  if command -v mvn >/dev/null 2>&1; then
+    echo "A different Maven version is present; installing requested ${MAVEN_VERSION}."
+  else
+    echo "Installing Maven ${MAVEN_VERSION}..."
+  fi
+  cd /tmp
+  MAVEN_ARCHIVE="apache-maven-${MAVEN_VERSION}-bin.tar.gz"
+  # Mirror list (ordered by typical speed / reliability)
+  MAVEN_URLS=( \
+    "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/${MAVEN_ARCHIVE}" \
+    "https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/${MAVEN_ARCHIVE}" \
+    "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/${MAVEN_ARCHIVE}" \
+  )
+  SUCCESS=0
+  for url in "${MAVEN_URLS[@]}"; do
+    echo "Attempting Maven download from: $url"
+    if wget -q -O maven.tar.gz "$url"; then
+      SUCCESS=1
+      echo "Downloaded Maven from: $url"
+      break
+    fi
+  done
+  if [ "$SUCCESS" -ne 1 ]; then
+    echo "All Maven download attempts failed." >&2
+    echo "Falling back to apt-get (may install older version)..."
+    if sudo apt-get update -q && sudo apt-get install -y -q maven; then
+      echo "Installed Maven via apt-get:"; mvn -v
+    else
+      echo "ERROR: Unable to install Maven." >&2
+      exit 2
+    fi
+  else
+    sudo tar -xzf maven.tar.gz -C /opt
+    sudo ln -sf "$MAVEN_TARGET" /opt/maven
+  fi
+fi
 
 # Set up Maven environment and configure it to use JDK 17
 echo 'export M2_HOME=/opt/maven' | sudo tee -a /etc/environment
@@ -179,11 +232,17 @@ echo "Verifying JDK 17 DCEVM installation..."
 /usr/local/jdk-17-dcevm/bin/java -version
 echo ""
 echo "Verifying Maven installation..."
-/opt/maven/bin/mvn -version
+if command -v mvn >/dev/null 2>&1; then
+  mvn -version
+elif [ -x /opt/maven/bin/mvn ]; then
+  /opt/maven/bin/mvn -version
+else
+  echo "WARNING: mvn not found in PATH after installation." >&2
+fi
 
-# Clean up
-rm -f /tmp/jbr-dcevm.tar.gz /tmp/maven.tar.gz
-rm -rf /tmp/jbr*
+# Clean up temporary artifacts if they exist (ignore if already removed)
+rm -f /tmp/jbr-dcevm.tar.gz /tmp/maven.tar.gz 2>/dev/null || true
+rm -rf /tmp/jbr* 2>/dev/null || true
 
 echo ""
 echo "Setup complete!"
