@@ -1,12 +1,17 @@
 {
   "java.configuration.runtimes": [
     {
+      "name": "JavaSE-21",
+      "path": "/usr/lib/jvm/java-21-openjdk-amd64",
+      "default": false
+    },
+    {
       "name": "JavaSE-17",
       "path": "/usr/local/jdk-17-dcevm",
       "default": true
     }
   ],
-  "java.jdt.ls.java.home": "/usr/local/jdk-17-dcevm",
+  "java.jdt.ls.java.home": "/usr/lib/jvm/java-21-openjdk-amd64",
   "java.compile.nullAnalysis.mode": "automatic",
   "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
   "maven.executable.path": "/opt/maven/bin/mvn",

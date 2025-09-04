@@ -28,9 +28,9 @@
 
 	// Set container environment variables
 	"containerEnv": {
-		"JAVA_HOME": "/usr/local/jdk-17-dcevm",
+		"JAVA_HOME": "/usr/lib/jvm/java-21-openjdk-amd64",
 		"M2_HOME": "/opt/maven",
-		"PATH": "/usr/local/jdk-17-dcevm/bin:/opt/maven/bin:${PATH}"
+		"PATH": "/usr/lib/jvm/java-21-openjdk-amd64/bin:/opt/maven/bin:${PATH}"
 	},
 
 	// Configure tool-specific properties.
@@ -51,11 +51,15 @@
 			"settings": {
 				"java.configuration.runtimes": [
 					{
+						"name": "JavaSE-21",
+						"path": "/usr/lib/jvm/java-21-openjdk-amd64"
+					},
+					{
 						"name": "JavaSE-17",
 						"path": "/usr/local/jdk-17-dcevm"
 					}
 				],
-				"java.jdt.ls.java.home": "/usr/local/jdk-17-dcevm",
+				"java.jdt.ls.java.home": "/usr/lib/jvm/java-21-openjdk-amd64",
 				"java.compile.nullAnalysis.mode": "automatic",
 				"java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
 				"maven.executable.path": "/opt/maven/bin/mvn",
