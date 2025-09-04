@@ -52,6 +52,15 @@ cd /tmp
   echo "JDK 17 DCEVM installed to /usr/local/jdk-17-dcevm"
 fi
 
+# Ensure executables keep execute bits even on reused volumes (idempotent safety)
+if [ -d /usr/local/jdk-17-dcevm/bin ]; then
+  MISSING_EXEC=$(find /usr/local/jdk-17-dcevm/bin -maxdepth 1 -type f ! -perm -111 | head -n1 || true)
+  if [ -n "$MISSING_EXEC" ]; then
+    echo "Repairing execute permissions in /usr/local/jdk-17-dcevm/bin ..."
+    sudo find /usr/local/jdk-17-dcevm/bin -type f -exec chmod 755 {} +
+  fi
+fi
+
 # Install / configure Hotswap Agent (needed for -XX:HotswapAgent=fatjar)
 echo "Installing Hotswap Agent (idempotent)..."
 
@@ -69,15 +78,37 @@ resolve_hotswap_url() {
   if [ "$version" = "latest" ]; then
     if command -v curl >/dev/null 2>&1; then
       echo "Querying GitHub Releases API for latest Hotswap Agent..."
-      local api_json
+      local api_json candidates chosen ver extracted_min
       api_json=$(curl -sL https://api.github.com/repos/HotswapProjects/HotswapAgent/releases/latest || true)
       if echo "$api_json" | grep -qi "API rate limit exceeded"; then
         echo "GitHub API rate limit exceeded; falling back to pinned ${DEFAULT_VERSION}" >&2
         version="$DEFAULT_VERSION"
       else
-        url=$(echo "$api_json" | grep -E '"browser_download_url"' | grep -E 'hotswap-agent-[0-9].*\.jar"' | grep -v -E '(sources|javadoc)' | head -n1 | cut -d '"' -f 4)
-        if [ -z "$url" ]; then
-          echo "Could not parse latest release asset; falling back to pinned ${DEFAULT_VERSION}" >&2
+        candidates=$(echo "$api_json" | grep -E '"browser_download_url"' | grep 'hotswap-agent-' | grep '.jar"' | grep -v -E '(sources|javadoc)' | cut -d '"' -f 4)
+        # Pick the first candidate whose version is >= DEFAULT_VERSION (simple numeric compare stripping non-digits/dots)
+        for c in $candidates; do
+          ver=$(echo "$c" | sed -E 's#.*/hotswap-agent-([^/]+)\.jar#\1#')
+          # Normalize version (strip leading 'RELEASE-' or 'v')
+          ver=$(echo "$ver" | sed -E 's/^(RELEASE-|v)//')
+          # Compare by removing dots (fallback heuristic)
+          if [ -z "$chosen" ]; then
+            chosen="$c"; extracted_min="$ver"
+          fi
+          if [ "$(echo "$ver" | tr -d '.');" -ge "$(echo "$DEFAULT_VERSION" | tr -d '.')" ]; then
+            chosen="$c"; extracted_min="$ver"; break
+          fi
+        done
+        if [ -n "$chosen" ]; then
+          url="$chosen"
+          echo "Selected Hotswap Agent asset: $url (version $extracted_min)" >&2
+          # Enforce minimum version
+          if [ "$(echo "$extracted_min" | tr -d '.')" -lt "$(echo "$DEFAULT_VERSION" | tr -d '.')" ]; then
+            echo "Chosen version $extracted_min is below minimum $DEFAULT_VERSION; using pinned." >&2
+            url=""
+            version="$DEFAULT_VERSION"
+          fi
+        else
+          echo "No suitable binary asset found; falling back to pinned ${DEFAULT_VERSION}" >&2
           version="$DEFAULT_VERSION"
         fi
       fi
@@ -119,6 +150,29 @@ echo "To pin a specific version, set HOTSWAP_AGENT_VERSION (e.g., HOTSWAP_AGENT_
 ###############################################
 # Maven Installation (fast + idempotent)
 ###############################################
+# Allow MAVEN_VERSION=latest (or unset) to auto-resolve from Maven Central metadata.
+if [ -z "${MAVEN_VERSION:-}" ] || [ "${MAVEN_VERSION}" = "latest" ]; then
+  META_URL="https://repo1.maven.org/maven2/org/apache/maven/apache-maven/maven-metadata.xml"
+  echo "Resolving latest Maven version from Maven Central metadata..."
+  if command -v curl >/dev/null 2>&1; then
+    MAVEN_VERSION=$(curl -fsSL "$META_URL" 2>/dev/null | sed -n 's:.*<release>\(.*\)</release>.*:\1:p' | head -n1)
+    if [ -z "$MAVEN_VERSION" ]; then
+      # Fallback: last listed version tag
+      MAVEN_VERSION=$(curl -fsSL "$META_URL" 2>/dev/null | sed -n 's:.*<version>\(3\.[0-9.]*\)</version>.*:\1:p' | tail -n1)
+    fi
+  elif command -v wget >/dev/null 2>&1; then
+    MAVEN_VERSION=$(wget -q -O - "$META_URL" 2>/dev/null | sed -n 's:.*<release>\(.*\)</release>.*:\1:p' | head -n1)
+    if [ -z "$MAVEN_VERSION" ]; then
+      MAVEN_VERSION=$(wget -q -O - "$META_URL" 2>/dev/null | sed -n 's:.*<version>\(3\.[0-9.]*\)</version>.*:\1:p' | tail -n1)
+    fi
+  fi
+  if [ -z "$MAVEN_VERSION" ]; then
+    MAVEN_VERSION=3.9.11
+    echo "WARNING: Unable to resolve latest Maven version; falling back to $MAVEN_VERSION" >&2
+  else
+    echo "Resolved latest Maven version: $MAVEN_VERSION"
+  fi
+fi
 MAVEN_VERSION=${MAVEN_VERSION:-3.9.11}
 MAVEN_DIR="apache-maven-${MAVEN_VERSION}"
 MAVEN_TARGET="/opt/${MAVEN_DIR}"
