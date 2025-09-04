@@ -117,7 +117,7 @@ public class IPInterfaceUtils {
 				local = loopbackAddress || siteLocalAddress;
 				logger.trace("request {} loopback:{} sitelocal: {}", requestURL, loopbackAddress, siteLocalAddress);
 			} catch (UnknownHostException e) {
-				// reverse name lookup not configured (e.g. when running on gitpod.io)
+				// reverse name lookup not configured (e.g. when running in cloud environments)
 				local = false;
 			}
 

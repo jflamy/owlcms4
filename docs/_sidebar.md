@@ -56,7 +56,6 @@
   * [MQTT Server Configuration](MQTT)
   * [MQTT Messaging Specification](MQTTMessages)
   * [Using PostgreSQL](PostgreSQL)
-  * [Contributing to the code](Gitpod)
 * Virtual Competitions
   * [Overview](4100VirtualOverview)
   * [Preparing the Zoom Setup](4200PrepareZoomBroadcasting)
