@@ -43,6 +43,53 @@ else
     exit 1
 fi
 
+# Install / configure Hotswap Agent (needed for -XX:HotswapAgent=fatjar)
+echo "Installing Hotswap Agent..."
+
+# Allow override of version via environment variable HOTSWAP_AGENT_VERSION.
+# Use 'latest' (default) to query GitHub Releases API for newest version.
+HOTSWAP_AGENT_VERSION=${HOTSWAP_AGENT_VERSION:-latest}
+DEST_DIR="/usr/local/jdk-17-dcevm/lib/hotswap"
+sudo mkdir -p "$DEST_DIR"
+
+resolve_hotswap_url() {
+  local version="$1"
+  local url=""
+  if [ "$version" = "latest" ]; then
+    if command -v curl >/dev/null 2>&1; then
+      echo "Querying GitHub API for latest Hotswap Agent release..."
+      url=$(curl -s https://api.github.com/repos/HotswapProjects/HotswapAgent/releases/latest \
+        | grep -E '"browser_download_url"' \
+        | grep -E 'hotswap-agent-[0-9].*\.jar' \
+        | head -n1 \
+        | cut -d '"' -f 4)
+    else
+      echo "curl not found; falling back to fixed version 2.0.1"
+      version="2.0.1"
+    fi
+  fi
+  if [ -z "$url" ]; then
+    # If version is still latest but API call failed or produced no match, fallback
+    if [ "$version" = "latest" ]; then
+      version="2.0.1"
+    fi
+    url="https://repo1.maven.org/maven2/org/hotswapagent/hotswap-agent/${version}/hotswap-agent-${version}.jar"
+  fi
+  echo "$url"
+}
+
+HOTSWAP_URL=$(resolve_hotswap_url "$HOTSWAP_AGENT_VERSION")
+echo "Downloading Hotswap Agent from: $HOTSWAP_URL"
+if ! wget -q -O /tmp/hotswap-agent-dl.jar "$HOTSWAP_URL"; then
+  echo "Download failed; aborting Hotswap Agent installation." >&2
+else
+  sudo mv /tmp/hotswap-agent-dl.jar "$DEST_DIR/hotswap-agent.jar"
+  sudo chmod 644 "$DEST_DIR/hotswap-agent.jar"
+  echo "Hotswap Agent installed at $DEST_DIR/hotswap-agent.jar"
+fi
+
+echo "To pin a specific version, set HOTSWAP_AGENT_VERSION (e.g., HOTSWAP_AGENT_VERSION=2.0.1)."
+
 # Install Maven separately to get latest version
 echo "Installing Maven 3.9.6..."
 cd /tmp
