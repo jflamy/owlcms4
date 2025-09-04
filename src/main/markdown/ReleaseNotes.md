@@ -11,6 +11,14 @@
 
 <br>
 
+**New in Release 60.2**
+
+60.2.0: The start number is now visible on the notification for good/no lift shown to the marshal.
+
+60.2.0: If the athlete card for the current athlete is opened and a down signal or decision is received, the card is closed to prevent the marshal from overwriting the decision.
+
+60.2.0: Ranks and medals are recomputed at start to ensure consistency
+
 **New in Release 60.1**
 
 60.1.0: Top Scores scoreboard now allows filtering by gender, hiding attempts and selecting the number of athletes shown.  It is also possible to filter by championship and age group.
