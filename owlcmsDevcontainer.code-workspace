@@ -1,0 +1,96 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../owlcms-video"
+    }
+  ],
+  "settings": {
+    "debug.toolBarLocation": "docked",
+    "java.autobuild.enabled": true,
+    "java.configuration.runtimes": [
+      {
+        "name": "JavaSE-17",
+        "path": "/usr/local/jdk-17-dcevm",
+        "default": true
+      }
+    ],
+    "java.jdt.ls.java.home": "/usr/local/jdk-17-dcevm",
+    "java.import.gradle.enabled": false,
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "java.compile.nullAnalysis.mode": "disabled",
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.annotation.processing.enabled": false,
+    "java.autobuild.annotation.processing.enabled": false,
+    "debug.allowBreakpointsEverywhere": true,
+    "maven.executable.path": "/opt/maven/bin/mvn",
+    "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}${separator}Devcontainer"
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "java",
+        "name": "🟨 owlcms no reset (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "false",
+          "OWLCMS_BACKDOOR": "[0:0:0:0:0:0:0:1],127.0.0.1"
+        }
+      },
+      {
+        "type": "java",
+        "name": "🟨 owlcms no reset EDIT (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "false",
+          "OWLCMS_BACKDOOR": "[0:0:0:0:0:0:0:1],127.0.0.0.1",
+          "OWLCMS_EDITMODE": "true"
+        }
+      },
+      {
+        "type": "java",
+        "name": "🟧 owlcms reset (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_RESETMODE": "true",
+          "OWLCMS_MEMORYMODE": "false",
+          "OWLCMS_BACKDOOR": "[0:0:0:0:0:0:0:1],127.0.0.1"
+        }
+      },
+      {
+        "type": "java",
+        "name": "🟪 publicresults (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.publicresults.Main",
+        "projectName": "publicresults",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "false"
+        }
+      },
+      {
+        "type": "java",
+        "name": "🟩 tracker (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.tracker.Main",
+        "projectName": "tracker",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "false"
+        }
+      }
+    ]
+  }
+}

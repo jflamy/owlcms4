@@ -3,23 +3,13 @@
 {
 	"name": "OWLCMS Java/Vaadin Development",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/java:1-17-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
 	"features": {
-		"ghcr.io/devcontainers/features/java:1": {
-			"installMaven": true,
-			"version": "17",
-			"jdkDistro": "ms",
-			"mavenVersion": "latest"
-		},
 		"ghcr.io/devcontainers/features/node:1": {
 			"version": "18",
 			"nodeGypDependencies": true,
 			"installYarnUsingApt": true
-		},
-		"ghcr.io/devcontainers/features/git:1": {
-			"version": "latest",
-			"ppa": true
 		}
 	},
 
@@ -27,7 +17,24 @@
 	"forwardPorts": [8080, 8081, 1883],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "mvn clean compile",
+	"postCreateCommand": "bash .devcontainer/setup-jdk.sh && mvn clean compile",
+
+	// Use 'onCreateCommand' for Codespaces pre-building
+	"onCreateCommand": "bash .devcontainer/setup-jdk.sh",
+
+	// Open the devcontainer-specific workspace file
+	"postStartCommand": "code /workspaces/owlcms_v23/owlcmsDevcontainer.code-workspace",
+
+	// Use the devcontainer-specific workspace file
+	"workspaceFolder": "/workspaces/owlcms_v23",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/owlcms_v23,type=bind",
+
+	// Set container environment variables
+	"containerEnv": {
+		"JAVA_HOME": "/usr/local/jdk-17-dcevm",
+		"M2_HOME": "/opt/maven",
+		"PATH": "/usr/local/jdk-17-dcevm/bin:/opt/maven/bin:${PATH}"
+	},
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -36,6 +43,9 @@
 				"vscjava.vscode-java-pack",
 				"vscjava.vscode-maven",
 				"redhat.java",
+				"vscjava.vscode-java-debug",
+				"github.copilot",
+				"github.copilot-chat",
 				"ms-vscode.vscode-typescript-next",
 				"bradlc.vscode-tailwindcss",
 				"esbenp.prettier-vscode",
@@ -45,11 +55,14 @@
 				"java.configuration.runtimes": [
 					{
 						"name": "JavaSE-17",
-						"path": "/usr/local/sdkman/candidates/java/current"
+						"path": "/usr/local/jdk-17-dcevm"
 					}
 				],
+				"java.jdt.ls.java.home": "/usr/local/jdk-17-dcevm",
 				"java.compile.nullAnalysis.mode": "automatic",
-				"java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml"
+				"java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+				"maven.executable.path": "/opt/maven/bin/mvn",
+				"terminal.integrated.defaultProfile.linux": "bash"
 			}
 		}
 	},
