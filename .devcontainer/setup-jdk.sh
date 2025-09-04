@@ -33,13 +33,53 @@ wget -q --show-progress -O maven.tar.gz "https://archive.apache.org/dist/maven/m
 sudo tar -xzf maven.tar.gz -C /opt
 sudo ln -sf /opt/apache-maven-3.9.6 /opt/maven
 
-# Set up Maven environment
+# Set up Maven environment and configure it to use JDK 17
 echo 'export M2_HOME=/opt/maven' | sudo tee -a /etc/environment
 echo 'export PATH=$M2_HOME/bin:$PATH' | sudo tee -a /etc/environment
 export M2_HOME=/opt/maven
 export PATH=$M2_HOME/bin:$PATH
 echo 'export M2_HOME=/opt/maven' >> ~/.bashrc
 echo 'export PATH=$M2_HOME/bin:$PATH' >> ~/.bashrc
+
+# Create Maven toolchains.xml to specify JDK 17 for compilation
+echo "Configuring Maven to use JDK 17 for compilation..."
+mkdir -p ~/.m2
+cat > ~/.m2/toolchains.xml << 'EOF'
+<?xml version="1.0" encoding="UTF8"?>
+<toolchains>
+  <toolchain>
+    <type>jdk</type>
+    <provides>
+      <version>17</version>
+      <vendor>jetbrains</vendor>
+    </provides>
+    <configuration>
+      <jdkHome>/usr/local/jdk-17-dcevm</jdkHome>
+    </configuration>
+  </toolchain>
+</toolchains>
+EOF
+
+# Also create a Maven settings.xml to ensure consistent Java home for Maven operations
+cat > ~/.m2/settings.xml << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+  <profiles>
+    <profile>
+      <id>jdk-17</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
+        <java.home>/usr/local/jdk-17-dcevm</java.home>
+      </properties>
+    </profile>
+  </profiles>
+</settings>
+EOF
 
 # Create VS Code settings to use JDK 17 DCEVM for the project
 echo "Setting up VS Code Java configuration..."
