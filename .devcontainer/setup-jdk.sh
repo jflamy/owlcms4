@@ -34,12 +34,14 @@ JBR_DIR=$(find . -maxdepth 1 -name "jbr*" -type d | head -n 1)
 if [ -n "$JBR_DIR" ]; then
     echo "Found JBR directory: $JBR_DIR"
     sudo mv "$JBR_DIR"/* /usr/local/jdk-17-dcevm/
+    sudo chown -R root:root /usr/local/jdk-17-dcevm
+    sudo chmod -R 755 /usr/local/jdk-17-dcevm
+    sudo chmod +x /usr/local/jdk-17-dcevm/bin/*
 else
     echo "JBR directory not found, listing contents for debugging..."
     ls -la
     exit 1
 fi
-sudo chown -R root:root /usr/local/jdk-17-dcevm
 
 # Install Maven separately to get latest version
 echo "Installing Maven 3.9.6..."
