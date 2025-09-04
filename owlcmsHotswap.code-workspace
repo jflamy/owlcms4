@@ -38,6 +38,7 @@
         "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
         "env": {
           "OWLCMS_MEMORYMODE": "false",
+          "OWLCMS_BACKDOOR": "[0:0:0:0:0:0:0:1],127.0.0.1",
           //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
         }
       },
