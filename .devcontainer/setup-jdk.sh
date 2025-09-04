@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # JetBrains Runtime JDK 17 with DCEVM setup script for devcontainer
-# Java 21 is already provided by the base devcontainer image for VS Code extension
+# Java 21      else
+        # Get all non-prerelease releases and find assets
+        candidates=$(echo "$api_json" | jq -r '.[] | select(.prerelease == false) | .assets[] | select(.name | test("hotswap-agent-.*\\.jar$") and (test("sources|javadoc") | not)) | .browser_download_url' 2>/dev/null || echo "$api_json" | grep -E '"browser_download_url"' | grep 'hotswap-agent-' | grep '.jar"' | grep -v -E '(sources|javadoc)' | cut -d '"' -f 4)
+        # Pick the first candidate whose version is >= DEFAULT_VERSION (simple numeric compare stripping non-digits/dots)
+        for c in $candidates; doalready provided by the base devcontainer image for VS Code extension
 
 set -e
 
@@ -77,14 +81,19 @@ resolve_hotswap_url() {
 
   if [ "$version" = "latest" ]; then
     if command -v curl >/dev/null 2>&1; then
-      echo "Querying GitHub Releases API for latest Hotswap Agent..."
+      echo "Querying GitHub Releases API for latest Hotswap Agent..." >&2
       local api_json candidates chosen ver extracted_min
-      api_json=$(curl -sL https://api.github.com/repos/HotswapProjects/HotswapAgent/releases/latest || true)
-      if echo "$api_json" | grep -qi "API rate limit exceeded"; then
+      # Query all releases instead of just /latest to find the truly newest version
+      api_json=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/HotswapProjects/HotswapAgent/releases 2>/dev/null || true)
+      # Validate we got JSON response
+      if ! echo "$api_json" | grep -q '"browser_download_url"'; then
+        echo "Invalid GitHub API response; falling back to pinned ${DEFAULT_VERSION}" >&2
+        version="$DEFAULT_VERSION"
+      elif echo "$api_json" | grep -qi "API rate limit exceeded"; then
         echo "GitHub API rate limit exceeded; falling back to pinned ${DEFAULT_VERSION}" >&2
         version="$DEFAULT_VERSION"
       else
-        candidates=$(echo "$api_json" | grep -E '"browser_download_url"' | grep 'hotswap-agent-' | grep '.jar"' | grep -v -E '(sources|javadoc)' | cut -d '"' -f 4)
+  candidates=$(echo "$api_json" | grep -E '"browser_download_url"' | grep 'hotswap-agent-' | grep '.jar"' | grep -v -E '(sources|javadoc)' | cut -d '"' -f 4)
         # Pick the first candidate whose version is >= DEFAULT_VERSION (simple numeric compare stripping non-digits/dots)
         for c in $candidates; do
           ver=$(echo "$c" | sed -E 's#.*/hotswap-agent-([^/]+)\.jar#\1#')
@@ -94,7 +103,7 @@ resolve_hotswap_url() {
           if [ -z "$chosen" ]; then
             chosen="$c"; extracted_min="$ver"
           fi
-          if [ "$(echo "$ver" | tr -d '.');" -ge "$(echo "$DEFAULT_VERSION" | tr -d '.')" ]; then
+          if [ "$(echo "$ver" | tr -d '.')" -ge "$(echo "$DEFAULT_VERSION" | tr -d '.')" ]; then
             chosen="$c"; extracted_min="$ver"; break
           fi
         done
@@ -126,6 +135,7 @@ resolve_hotswap_url() {
     url="https://github.com/HotswapProjects/HotswapAgent/releases/download/${version}/hotswap-agent-${version}.jar"
   fi
 
+  # Emit only the URL on stdout
   echo "$url"
 }
 
