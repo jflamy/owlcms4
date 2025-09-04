@@ -17,7 +17,7 @@
 	"forwardPorts": [8080, 8081, 1883],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "bash .devcontainer/setup-jdk.sh && mvn clean compile",
+	"postCreateCommand": "bash .devcontainer/setup-jdk.sh && cp .devcontainer/vscode-settings.json .vscode/settings.json && mvn clean compile",
 
 	// Use 'onCreateCommand' for Codespaces pre-building
 	"onCreateCommand": "bash .devcontainer/setup-jdk.sh",
