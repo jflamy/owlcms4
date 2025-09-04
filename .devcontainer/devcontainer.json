@@ -3,7 +3,7 @@
 {
 	"name": "OWLCMS Java/Vaadin Development",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/java:17-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/java:21-bullseye",
 
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {
@@ -26,7 +26,7 @@
 	"workspaceFolder": "/workspaces/owlcms_v23",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/owlcms_v23,type=bind",
 
-	// Set container environment variables (will be updated by setup script)
+	// Set container environment variables
 	"containerEnv": {
 		"M2_HOME": "/opt/maven"
 	},
