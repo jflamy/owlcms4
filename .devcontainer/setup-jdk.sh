@@ -63,27 +63,38 @@ sudo mkdir -p "$DEST_DIR"
 
 resolve_hotswap_url() {
   local version="$1"
+  local DEFAULT_VERSION="2.0.1"
   local url=""
+
   if [ "$version" = "latest" ]; then
     if command -v curl >/dev/null 2>&1; then
-      echo "Querying GitHub API for latest Hotswap Agent release..."
-      url=$(curl -s https://api.github.com/repos/HotswapProjects/HotswapAgent/releases/latest \
-        | grep -E '"browser_download_url"' \
-        | grep -E 'hotswap-agent-[0-9].*\.jar' \
-        | head -n1 \
-        | cut -d '"' -f 4)
+      echo "Querying GitHub Releases API for latest Hotswap Agent..."
+      local api_json
+      api_json=$(curl -sL https://api.github.com/repos/HotswapProjects/HotswapAgent/releases/latest || true)
+      if echo "$api_json" | grep -qi "API rate limit exceeded"; then
+        echo "GitHub API rate limit exceeded; falling back to pinned ${DEFAULT_VERSION}" >&2
+        version="$DEFAULT_VERSION"
+      else
+        url=$(echo "$api_json" | grep -E '"browser_download_url"' | grep -E 'hotswap-agent-[0-9].*\.jar"' | grep -v -E '(sources|javadoc)' | head -n1 | cut -d '"' -f 4)
+        if [ -z "$url" ]; then
+          echo "Could not parse latest release asset; falling back to pinned ${DEFAULT_VERSION}" >&2
+          version="$DEFAULT_VERSION"
+        fi
+      fi
     else
-      echo "curl not found; falling back to fixed version 2.0.1"
-      version="2.0.1"
+      echo "curl not available; using pinned ${DEFAULT_VERSION}" >&2
+      version="$DEFAULT_VERSION"
     fi
   fi
+
   if [ -z "$url" ]; then
-    # If version is still latest but API call failed or produced no match, fallback
+    # Either a specific version was requested or latest fallback selected.
     if [ "$version" = "latest" ]; then
-      version="2.0.1"
+      version="$DEFAULT_VERSION"
     fi
-    url="https://repo1.maven.org/maven2/org/hotswapagent/hotswap-agent/${version}/hotswap-agent-${version}.jar"
+    url="https://github.com/HotswapProjects/HotswapAgent/releases/download/${version}/hotswap-agent-${version}.jar"
   fi
+
   echo "$url"
 }
 
@@ -91,9 +102,11 @@ if [ -f "$DEST_DIR/hotswap-agent.jar" ]; then
   echo "Hotswap Agent already present at $DEST_DIR/hotswap-agent.jar (skipping download)."
 else
   HOTSWAP_URL=$(resolve_hotswap_url "$HOTSWAP_AGENT_VERSION")
-  echo "Downloading Hotswap Agent from: $HOTSWAP_URL"
-  if ! wget -q -O /tmp/hotswap-agent-dl.jar "$HOTSWAP_URL"; then
-    echo "Download failed; aborting Hotswap Agent installation." >&2
+  echo "Resolved Hotswap Agent URL: $HOTSWAP_URL"
+  if [ -z "$HOTSWAP_URL" ]; then
+    echo "ERROR: Could not resolve a Hotswap Agent download URL." >&2
+  elif ! wget -q -O /tmp/hotswap-agent-dl.jar "$HOTSWAP_URL"; then
+    echo "Download failed for $HOTSWAP_URL; aborting Hotswap Agent installation." >&2
   else
     sudo mv /tmp/hotswap-agent-dl.jar "$DEST_DIR/hotswap-agent.jar"
     sudo chmod 644 "$DEST_DIR/hotswap-agent.jar"
@@ -106,7 +119,7 @@ echo "To pin a specific version, set HOTSWAP_AGENT_VERSION (e.g., HOTSWAP_AGENT_
 ###############################################
 # Maven Installation (fast + idempotent)
 ###############################################
-MAVEN_VERSION=${MAVEN_VERSION:-3.9.6}
+MAVEN_VERSION=${MAVEN_VERSION:-3.9.11}
 MAVEN_DIR="apache-maven-${MAVEN_VERSION}"
 MAVEN_TARGET="/opt/${MAVEN_DIR}"
 
@@ -120,9 +133,10 @@ else
   fi
   cd /tmp
   MAVEN_ARCHIVE="apache-maven-${MAVEN_VERSION}-bin.tar.gz"
-  # Mirror list (ordered by typical speed / reliability)
+  # Prefer official Apache CDN first, then Maven Central, then other mirrors/archives.
   MAVEN_URLS=( \
     "https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/${MAVEN_ARCHIVE}" \
+    "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/${MAVEN_VERSION}/${MAVEN_ARCHIVE}" \
     "https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/${MAVEN_ARCHIVE}" \
     "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/${MAVEN_ARCHIVE}" \
   )
@@ -248,4 +262,4 @@ echo ""
 echo "Setup complete!"
 echo "- Java 21: Provided by devcontainer base image (for VS Code Java Extension)"
 echo "- JDK 17 DCEVM: /usr/local/jdk-17-dcevm (for project compilation and hot-swap debugging)"
-echo "- Maven 3.9.6: /opt/maven (latest version)"
+echo "- Maven ${MAVEN_VERSION}: /opt/maven"
