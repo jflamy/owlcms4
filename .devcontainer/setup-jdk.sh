@@ -47,9 +47,10 @@ cd /tmp
   echo "Using extracted directory: $JBR_DIR"
 
   sudo mkdir -p /usr/local/jdk-17-dcevm
-  sudo rsync -a "$JBR_DIR"/ /usr/local/jdk-17-dcevm/
+  sudo cp -r "$JBR_DIR"/* /usr/local/jdk-17-dcevm/
   sudo chown -R root:root /usr/local/jdk-17-dcevm
   sudo find /usr/local/jdk-17-dcevm/bin -type f -exec chmod 755 {} +
+  rm -rf jbr* *.tar.gz
   echo "JDK 17 DCEVM installed to /usr/local/jdk-17-dcevm"
 fi
 
@@ -310,6 +311,11 @@ echo "Verifying Java installation..."
 java -version
 echo ""
 echo "Verifying JDK 17 DCEVM installation..."
+# Ensure execute permissions are set (in case extraction didn't preserve them)
+if [ -d /usr/local/jdk-17-dcevm/bin ] && [ ! -x /usr/local/jdk-17-dcevm/bin/java ]; then
+  echo "Fixing execute permissions for JDK 17 DCEVM..."
+  sudo find /usr/local/jdk-17-dcevm/bin -type f -exec chmod 755 {} +
+fi
 /usr/local/jdk-17-dcevm/bin/java -version
 echo ""
 echo "Verifying Maven installation..."
