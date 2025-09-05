@@ -25,7 +25,8 @@ public class OverallRankSetter {
 			case SNATCH_CJ_TOTAL:
 			case CUSTOM:
 			case CATEGORY_SCORE:
-				throw new RuntimeException("using OverallRankSetter on a category-specific ranking");
+				logger.error("using OverallRankSetter on a category-specific ranking {} {}",a.getShortName(),r);
+				break;
 			case BW_SINCLAIR:
 				a.setSinclairRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
