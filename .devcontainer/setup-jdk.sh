@@ -49,7 +49,7 @@ cd /tmp
   sudo mkdir -p /usr/local/jdk-17-dcevm
   sudo cp -r "$JBR_DIR"/* /usr/local/jdk-17-dcevm/
   sudo chown -R root:root /usr/local/jdk-17-dcevm
-  sudo find /usr/local/jdk-17-dcevm/bin -type f -exec chmod 755 {} +
+  sudo chmod -R 755 /usr/local/jdk-17-dcevm/bin
   rm -rf jbr* *.tar.gz
   echo "JDK 17 DCEVM installed to /usr/local/jdk-17-dcevm"
 fi
@@ -330,16 +330,21 @@ java -version
 echo ""
 echo "Verifying JDK 17 DCEVM installation..."
 # Always ensure execute permissions are correct (defensive approach)
-if [ -d /usr/local/jdk-17-dcevm/bin ]; then
+if sudo test -d /usr/local/jdk-17-dcevm/bin; then
   echo "Ensuring JDK 17 DCEVM execute permissions..."
-  sudo find /usr/local/jdk-17-dcevm/bin -type f -exec chmod 755 {} +
-  sudo chmod 755 /usr/local/jdk-17-dcevm/bin/java
+  sudo chmod -R 755 /usr/local/jdk-17-dcevm/bin
   # Verify permissions were applied
   if [ ! -x /usr/local/jdk-17-dcevm/bin/java ]; then
     echo "ERROR: Could not set java executable permissions" >&2
-    ls -la /usr/local/jdk-17-dcevm/bin/java
+    echo "Checking what's in the bin directory:"
+    sudo ls -la /usr/local/jdk-17-dcevm/bin/ | head -10
     exit 1
   fi
+else
+  echo "ERROR: JDK 17 DCEVM bin directory does not exist" >&2
+  echo "Checking what was installed:"
+  sudo ls -la /usr/local/jdk-17-dcevm/ || echo "JDK directory does not exist"
+  exit 1
 fi
 /usr/local/jdk-17-dcevm/bin/java -version
 echo ""
