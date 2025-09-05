@@ -13,7 +13,9 @@
 
 **Maintenance Log**
 
-60.2.1:  Prevent an exception in medal recalculation from preventing application startup.
+60.2.2: Prevent an illegal overall ranking value in the import file from blocking the import being read.
+
+60.2.1:  Prevent an exception in medal recalculation from preventing the application from starting up.
 
 **New in Release 60.2**
 
