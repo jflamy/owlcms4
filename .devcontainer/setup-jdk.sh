@@ -1,11 +1,8 @@
 #!/bin/bash
 
 # JetBrains Runtime JDK 17 with DCEVM setup script for devcontainer
-# Java 21      else
-        # Get all non-prerelease releases and find assets
-        candidates=$(echo "$api_json" | jq -r '.[] | select(.prerelease == false) | .assets[] | select(.name | test("hotswap-agent-.*\\.jar$") and (test("sources|javadoc") | not)) | .browser_download_url' 2>/dev/null || echo "$api_json" | grep -E '"browser_download_url"' | grep 'hotswap-agent-' | grep '.jar"' | grep -v -E '(sources|javadoc)' | cut -d '"' -f 4)
-        # Pick the first candidate whose version is >= DEFAULT_VERSION (simple numeric compare stripping non-digits/dots)
-        for c in $candidates; doalready provided by the base devcontainer image for VS Code extension
+# Java 21 is already provided by the base devcontainer image for VS Code extension
+# but project runtime uses JDK 17 DCEVM for enhanced class redefinition.
 
 set -e
 
