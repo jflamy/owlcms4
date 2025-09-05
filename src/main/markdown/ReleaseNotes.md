@@ -11,6 +11,10 @@
 
 <br>
 
+**Maintenance Log**
+
+60.2.1:  Prevent an exception in medal recalculation from preventing application startup.
+
 **New in Release 60.2**
 
 60.2.0: The start number is now visible on the notification for good/no lift shown to the marshal.
