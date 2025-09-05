@@ -1521,7 +1521,9 @@ public class Competition {
 
 	public void setScoringSystem(Ranking scoringSystem) {
 		if (!Ranking.scoringSystems().contains(scoringSystem)) {
-			throw new IllegalArgumentException(scoringSystem + " is not a scoring system");
+			//throw new IllegalArgumentException(scoringSystem + " is not a scoring system");
+			logger.error("{} is not a scoring system", scoringSystem);
+			return;
 		}
 		this.scoringSystem = scoringSystem;
 	}
