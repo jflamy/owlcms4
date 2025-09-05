@@ -67,7 +67,7 @@ public class ResourceWalker {
 	private static Supplier<Locale> localeSupplier;
 	
 	public ResourceWalker() {
-		//logger.setLevel(Level.TRACE);
+		// Constructor
 	}
 
 	public static void checkForLocalOverrideDirectory() {
@@ -110,7 +110,7 @@ public class ResourceWalker {
 		Path f = null;
 		try {
 			f = MemTempUtils.createTempDirectory("owlcmsOverride");
-			logger.trace("created temp directory " + f);
+			logger.trace("created temp directory {}", f);
 			setLocalDirPath(f);
 			setInitializedLocalDir(true);
 			logger.info("new in-memory override path {}", getLocalDirPath().normalize());
@@ -124,7 +124,7 @@ public class ResourceWalker {
 		Path f = null;
 		try {
 			f = Files.createTempDirectory("config");
-			logger.trace("created temp directory " + f);
+			logger.trace("created temp directory {}", f);
 			setLocalDirPath(f);
 			setInitializedLocalDir(true);
 			logger.info("new temporary directory {}", getLocalDirPath().normalize());
@@ -143,7 +143,6 @@ public class ResourceWalker {
 	 * @throws FileNotFoundException
 	 */
 	public static InputStream getFileOrResource(String name) throws FileNotFoundException {
-		//logger.setLevel(Level.DEBUG);//logger.debug(
 		InputStream is = null;
 		String relativeName;
 		if (name.startsWith("/")) {
@@ -181,6 +180,19 @@ public class ResourceWalker {
 					logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
 				}
 			} else {
+				// Try with context class loader as fallback for dev environments
+				ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+				if (contextLoader != null) {
+					String contextPath = name.startsWith("/") ? name.substring(1) : name;
+					is = contextLoader.getResourceAsStream(contextPath);
+					if (is != null) {
+						if (logger.isEnabledFor(Level.DEBUG)) {
+							logger.debug("found context classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+						}
+					}
+				}
+			}
+			if (is == null) {
 				if (logger.isEnabledFor(Level.DEBUG)) {
 					logger.debug("not found {} {}", name, LoggerUtils.whereFrom(0));
 				}
@@ -383,8 +395,7 @@ public class ResourceWalker {
 	public static Path getResourcePath(String resourcePathString) {
 		URL resourceURL = ResourceWalker.class.getResource(resourcePathString);
 		if (resourceURL == null) {
-			logger.debug(resourcePathString + " not found *");
-			// throw new RuntimeException(resourcePathString + " not found");
+			logger.debug("{} not found", resourcePathString);
 			return null;
 		}
 		Path resourcePath;
@@ -449,7 +460,7 @@ public class ResourceWalker {
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
 			boolean createDir = !isSameDir(curDirName, prevDirName) && !isSubDir(curDirName, prevDirName);
 			if (logger.isTraceEnabled()) {
-				logger.trace("zipping {} createDir={}",name,createDir);
+				logger.trace("zipping {} createDir={}", name, createDir);
 			}
 			ZipUtils.zipStream(stream, name, createDir, zipOut);
 			prevDirName = curDirName;
@@ -531,7 +542,7 @@ public class ResourceWalker {
 		try {
 			f = MemTempUtils.createTempDirectory("owlcmsOverride");
 			if (logger.isEnabledFor(Level.DEBUG)) {
-				logger.debug("created temp directory " + f);
+				logger.debug("created temp directory {}", f);
 			}
 		} catch (IOException e) {
 			throw new Exception("cannot create directory ", e);
@@ -547,7 +558,7 @@ public class ResourceWalker {
 		// f = Files.createTempDirectory("owlcmsOverride");
 		f = MemTempUtils.createTempDirectory("owlcmsOverride");
 		if (logger.isEnabledFor(Level.DEBUG)) {
-			logger.debug("created temp directory " + f);
+			logger.debug("created temp directory {}", f);
 		}
 		ZipUtils.extractZip(in, f);
 		setLocalDirPath(f);
@@ -680,8 +691,6 @@ public class ResourceWalker {
 
 		Set<String> classPathResourceNames = classPathResourcesMap.keySet();
 		Set<String> overrideResourceNames = overrideResourcesMap.keySet();
-		// logger.debug("classpath resources {}", classPathResourceNames);
-		// logger.debug("override resources {}", overrideResourceNames);
 		TreeSet<String> allResourceNames = new TreeSet<>();
 		allResourceNames.addAll(classPathResourceNames);
 		allResourceNames.addAll(overrideResourceNames);
@@ -690,7 +699,6 @@ public class ResourceWalker {
 			Resource r = overrideResourcesMap.get(rn);
 			return r != null ? r : classPathResourcesMap.get(rn);
 		}).collect(Collectors.toList());
-		// logger.trace("merged list {}", resourceList);
 		return resourceList;
 	}
 
@@ -715,10 +723,6 @@ public class ResourceWalker {
 		} catch (Throwable e) {
 			// ignore in cloud mode.
 		}
-		//
-		// for (Entry<String, Resource> n : resourceMap.entrySet()) {
-		// System.err./**/println(n.getKey() + " " + n.getValue().getFilePath().normalize().toAbsolutePath());
-		// }
 		return resourceMap;
 	}
 
@@ -774,9 +778,7 @@ public class ResourceWalker {
 
 		try {
 			// boolean test = Pattern.matches(regex, noExtension);
-			// logger.trace("pattern match {}",test);
 			// test = matcher.matches();
-			// logger.trace("matcher match {}",test);
 			matcher.matches();
 			resourceSuffix = matcher.group(1);
 			if (logger.isEnabledFor(Level.TRACE)) {
@@ -860,10 +862,8 @@ public class ResourceWalker {
 				        public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
 					        String generatedName = nameGenerator.apply(filePath, rootPath);
 					        String baseName = filePath.getFileName().toString();
-					        // logger.debug("visiting {} {}", filePath, locale);
 					        if (predicate != null) {
 						        if (!predicate.test(baseName)) {
-							        // logger.debug("ignored {}", filePath);
 							        return FileVisitResult.CONTINUE;
 						        }
 					        }
