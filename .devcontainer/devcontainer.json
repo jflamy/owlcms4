@@ -43,9 +43,10 @@
 				"vscjava.vscode-maven",
 				"redhat.java",
 				"vscjava.vscode-java-debug",
+				"vscjava.vscode-java-test",
+				"vscjava.vscode-java-dependency",
 				"github.copilot",
 				"github.copilot-chat",
-				"ms-vscode.vscode-typescript-next",
 				"bradlc.vscode-tailwindcss",
 				"esbenp.prettier-vscode",
 				"ms-vscode.vscode-json"
