@@ -318,15 +318,28 @@ cat > .vscode/settings.json << 'EOF'
 }
 EOF
 
+# Pre-create Vaadin working directory with proper permissions
+echo "Setting up Vaadin working directory..."
+mkdir -p /home/vscode/.vaadin
+chown -R vscode:vscode /home/vscode/.vaadin
+chmod 755 /home/vscode/.vaadin
+
 # Verify installation
 echo "Verifying Java installation..."
 java -version
 echo ""
 echo "Verifying JDK 17 DCEVM installation..."
-# Ensure execute permissions are set (in case extraction didn't preserve them)
-if [ -d /usr/local/jdk-17-dcevm/bin ] && [ ! -x /usr/local/jdk-17-dcevm/bin/java ]; then
-  echo "Fixing execute permissions for JDK 17 DCEVM..."
+# Always ensure execute permissions are correct (defensive approach)
+if [ -d /usr/local/jdk-17-dcevm/bin ]; then
+  echo "Ensuring JDK 17 DCEVM execute permissions..."
   sudo find /usr/local/jdk-17-dcevm/bin -type f -exec chmod 755 {} +
+  sudo chmod 755 /usr/local/jdk-17-dcevm/bin/java
+  # Verify permissions were applied
+  if [ ! -x /usr/local/jdk-17-dcevm/bin/java ]; then
+    echo "ERROR: Could not set java executable permissions" >&2
+    ls -la /usr/local/jdk-17-dcevm/bin/java
+    exit 1
+  fi
 fi
 /usr/local/jdk-17-dcevm/bin/java -version
 echo ""
