@@ -93,7 +93,8 @@ resolve_hotswap_url() {
         echo "GitHub API rate limit exceeded; falling back to pinned ${DEFAULT_VERSION}" >&2
         version="$DEFAULT_VERSION"
       else
-  candidates=$(echo "$api_json" | grep -E '"browser_download_url"' | grep 'hotswap-agent-' | grep '.jar"' | grep -v -E '(sources|javadoc)' | cut -d '"' -f 4)
+        # Get all non-prerelease releases and find assets
+        candidates=$(echo "$api_json" | jq -r '.[] | select(.prerelease == false) | .assets[] | select(.name | test("hotswap-agent-.*\\.jar$") and (test("sources|javadoc") | not)) | .browser_download_url' 2>/dev/null || echo "$api_json" | grep -E '"browser_download_url"' | grep 'hotswap-agent-' | grep '.jar"' | grep -v -E '(sources|javadoc)' | cut -d '"' -f 4)
         # Pick the first candidate whose version is >= DEFAULT_VERSION (simple numeric compare stripping non-digits/dots)
         for c in $candidates; do
           ver=$(echo "$c" | sed -E 's#.*/hotswap-agent-([^/]+)\.jar#\1#')
@@ -161,28 +162,33 @@ echo "To pin a specific version, set HOTSWAP_AGENT_VERSION (e.g., HOTSWAP_AGENT_
 # Maven Installation (fast + idempotent)
 ###############################################
 # Allow MAVEN_VERSION=latest (or unset) to auto-resolve from Maven Central metadata.
+# This will find the latest 3.9.x version to avoid Maven 4.x.
 if [ -z "${MAVEN_VERSION:-}" ] || [ "${MAVEN_VERSION}" = "latest" ]; then
   META_URL="https://repo1.maven.org/maven2/org/apache/maven/apache-maven/maven-metadata.xml"
-  echo "Resolving latest Maven version from Maven Central metadata..."
+  echo "Resolving latest Maven 3.9.x version from Maven Central metadata..."
   if command -v curl >/dev/null 2>&1; then
-    MAVEN_VERSION=$(curl -fsSL "$META_URL" 2>/dev/null | sed -n 's:.*<release>\(.*\)</release>.*:\1:p' | head -n1)
+    # Get the latest 3.9.x version specifically 
+    MAVEN_VERSION=$(curl -fsSL "$META_URL" 2>/dev/null | sed -n 's:.*<version>\(3\.9\.[0-9]*\)</version>.*:\1:p' | tail -n1)
     if [ -z "$MAVEN_VERSION" ]; then
-      # Fallback: last listed version tag
+      # Broader fallback: any 3.x version
       MAVEN_VERSION=$(curl -fsSL "$META_URL" 2>/dev/null | sed -n 's:.*<version>\(3\.[0-9.]*\)</version>.*:\1:p' | tail -n1)
     fi
   elif command -v wget >/dev/null 2>&1; then
-    MAVEN_VERSION=$(wget -q -O - "$META_URL" 2>/dev/null | sed -n 's:.*<release>\(.*\)</release>.*:\1:p' | head -n1)
+    # Get the latest 3.9.x version specifically
+    MAVEN_VERSION=$(wget -q -O - "$META_URL" 2>/dev/null | sed -n 's:.*<version>\(3\.9\.[0-9]*\)</version>.*:\1:p' | tail -n1)
     if [ -z "$MAVEN_VERSION" ]; then
+      # Broader fallback: any 3.x version  
       MAVEN_VERSION=$(wget -q -O - "$META_URL" 2>/dev/null | sed -n 's:.*<version>\(3\.[0-9.]*\)</version>.*:\1:p' | tail -n1)
     fi
   fi
   if [ -z "$MAVEN_VERSION" ]; then
     MAVEN_VERSION=3.9.11
-    echo "WARNING: Unable to resolve latest Maven version; falling back to $MAVEN_VERSION" >&2
+    echo "WARNING: Unable to resolve latest Maven 3.9.x version; falling back to $MAVEN_VERSION" >&2
   else
-    echo "Resolved latest Maven version: $MAVEN_VERSION"
+    echo "Resolved latest Maven 3.9.x version: $MAVEN_VERSION"
   fi
 fi
+# Default to latest known 3.9.x version if not already set
 MAVEN_VERSION=${MAVEN_VERSION:-3.9.11}
 MAVEN_DIR="apache-maven-${MAVEN_VERSION}"
 MAVEN_TARGET="/opt/${MAVEN_DIR}"
