@@ -13,7 +13,7 @@
     "java.configuration.runtimes": [
       {
         "name": "JavaSE-17",
-        "path": "C:\\Dev\\Java\\jbrsdk-17.0.6-windows-x64-b779.1",
+        "path": "C:\\Dev\\Java\\jbr_jcef-17.0.14-windows-x64-b1367.22",
         "default": true
       }
     ],
