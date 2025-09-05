@@ -235,6 +235,18 @@ fi
 # Set up Maven environment and configure it to use JDK 17
 echo 'export M2_HOME=/opt/maven' | sudo tee -a /etc/environment
 echo 'export PATH=$M2_HOME/bin:$PATH' | sudo tee -a /etc/environment
+
+# Ensure Node.js from NVM is available in PATH for Vaadin
+if [ -d /usr/local/share/nvm/versions/node ]; then
+  NODE_VERSION=$(ls /usr/local/share/nvm/versions/node/ | sort -V | tail -n1)
+  if [ -n "$NODE_VERSION" ] && [ -f "/usr/local/share/nvm/versions/node/$NODE_VERSION/bin/node" ]; then
+    echo "export PATH=/usr/local/share/nvm/versions/node/$NODE_VERSION/bin:\$PATH" | sudo tee -a /etc/environment
+    export PATH=/usr/local/share/nvm/versions/node/$NODE_VERSION/bin:$PATH
+    echo "export PATH=/usr/local/share/nvm/versions/node/$NODE_VERSION/bin:\$PATH" >> ~/.bashrc
+    echo "Added Node.js $NODE_VERSION to PATH for Vaadin"
+  fi
+fi
+
 export M2_HOME=/opt/maven
 export PATH=$M2_HOME/bin:$PATH
 echo 'export M2_HOME=/opt/maven' >> ~/.bashrc
