@@ -49,7 +49,8 @@ cd /tmp
   sudo mkdir -p /usr/local/jdk-17-dcevm
   sudo cp -r "$JBR_DIR"/* /usr/local/jdk-17-dcevm/
   sudo chown -R root:root /usr/local/jdk-17-dcevm
-  sudo chmod -R 755 /usr/local/jdk-17-dcevm/bin
+  # Set proper permissions: read/traverse for all, write for owner, execute for executables
+  sudo chmod -R 755 /usr/local/jdk-17-dcevm
   rm -rf jbr* *.tar.gz
   echo "JDK 17 DCEVM installed to /usr/local/jdk-17-dcevm"
 fi
@@ -329,21 +330,25 @@ echo "Verifying Java installation..."
 java -version
 echo ""
 echo "Verifying JDK 17 DCEVM installation..."
-# Always ensure execute permissions are correct (defensive approach)
-if sudo test -d /usr/local/jdk-17-dcevm/bin; then
-  echo "Ensuring JDK 17 DCEVM execute permissions..."
-  sudo chmod -R 755 /usr/local/jdk-17-dcevm/bin
-  # Verify permissions were applied
-  if [ ! -x /usr/local/jdk-17-dcevm/bin/java ]; then
-    echo "ERROR: Could not set java executable permissions" >&2
-    echo "Checking what's in the bin directory:"
-    sudo ls -la /usr/local/jdk-17-dcevm/bin/ | head -10
+# Always ensure proper permissions for the entire JDK directory (defensive approach)
+if sudo test -d /usr/local/jdk-17-dcevm; then
+  echo "Ensuring JDK 17 DCEVM permissions (read/traverse for all)..."
+  sudo chmod -R 755 /usr/local/jdk-17-dcevm
+  # Verify the java binary can run (tests both permissions and shared library access)
+  if ! /usr/local/jdk-17-dcevm/bin/java -version 2>/dev/null; then
+    echo "ERROR: JDK 17 DCEVM java binary cannot execute" >&2
+    echo "Checking directory structure:"
+    sudo ls -la /usr/local/jdk-17-dcevm/ | head -10
+    echo "Checking bin directory:"
+    sudo ls -la /usr/local/jdk-17-dcevm/bin/ | head -5
+    echo "Checking lib directory:"
+    sudo ls -la /usr/local/jdk-17-dcevm/lib/ | head -5
     exit 1
   fi
 else
-  echo "ERROR: JDK 17 DCEVM bin directory does not exist" >&2
+  echo "ERROR: JDK 17 DCEVM directory does not exist" >&2
   echo "Checking what was installed:"
-  sudo ls -la /usr/local/jdk-17-dcevm/ || echo "JDK directory does not exist"
+  sudo ls -la /usr/local/ | grep jdk || echo "No JDK directory found"
   exit 1
 fi
 /usr/local/jdk-17-dcevm/bin/java -version
