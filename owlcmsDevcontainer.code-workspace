@@ -85,7 +85,7 @@
       },
       {
         "type": "java",
-        "name": "� small demo owlcms memory (Hotswap)",
+        "name": "🟩 small demo owlcms memory (Hotswap)",
         "request": "launch",
         "mainClass": "app.owlcms.Main",
         "projectName": "owlcms",
@@ -127,7 +127,7 @@
       },
       {
         "type": "java",
-        "name": "� Launch publicresults (Hotswap)",
+        "name": "🟠 Launch publicresults (Hotswap)",
         "request": "launch",
         "mainClass": "app.owlcms.publicresults.Main",
         "projectName": "publicresults",
