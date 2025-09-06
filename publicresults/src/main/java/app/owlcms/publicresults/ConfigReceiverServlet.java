@@ -11,15 +11,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.util.Collection;
 
-import org.apache.commons.fileupload2.core.DiskFileItem;
-import org.apache.commons.fileupload2.core.DiskFileItemFactory;
-import org.apache.commons.fileupload2.core.DiskFileItemFactory.Builder;
-import org.apache.commons.fileupload2.core.FileItem;
-import org.apache.commons.fileupload2.core.FileUploadException;
-import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
-import org.apache.commons.io.IOUtils;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.Part;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.utils.LoggerUtils;
@@ -33,6 +30,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet("/config")
+@MultipartConfig
 public class ConfigReceiverServlet extends HttpServlet {
 
     Logger logger = (Logger) LoggerFactory.getLogger(ConfigReceiverServlet.class);
@@ -40,40 +38,40 @@ public class ConfigReceiverServlet extends HttpServlet {
     private String secret = StartupUtils.getStringParam("updateKey");
 
     public void handleUploads(HttpServletRequest req, HttpServletResponse resp)
-            throws FileUploadException, IOException {
-
-        // Create a factory for disk-based file items
-        Builder builder = DiskFileItemFactory.builder();
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        DiskFileItemFactory f = builder.setPath(tmpDir).setBufferSize(-1).get();
-
-        // Configure a repository (to ensure a secure temp location is used)
-        JakartaServletFileUpload<DiskFileItem, DiskFileItemFactory> upload = new JakartaServletFileUpload<>(f);
+            throws IOException, ServletException {
         boolean authenticated = false;
 
-        // Parse the request
-        List<DiskFileItem> items = upload.parseRequest(req);
-        for (DiskFileItem item : items) {
-            String fieldName = item.getFieldName();
-            if (item.isFormField()) {
-                String string = item.getString();
-                // updateKey should come first
-                authenticated = checkUpdateKey(req, resp, authenticated, fieldName, string);
-            } else {
-                if (!authenticated) {
-                    deny(req, resp, null);
-                    return;
-                }
-                this.logger.info("receiving {} {}", item, item.getContentType());
-                if (!item.getContentType().contains("zip")) {
-                    copyFile(item);
-                } else {
-                    ResourceWalker.unzipBlobToTemp(item.getInputStream());
+        // Read all parts. First pass: check form fields for updateKey
+        Collection<Part> parts = req.getParts();
+        for (Part part : parts) {
+            String fieldName = part.getName();
+            String fileName = part.getSubmittedFileName();
+            if (fileName == null) { // form field
+                try (InputStream in = part.getInputStream()) {
+                    String value = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+                    authenticated = checkUpdateKey(req, resp, authenticated, fieldName, value);
                 }
             }
         }
+
         if (!authenticated) {
+            // No valid updateKey found
             deny(req, resp, null);
+            return;
+        }
+
+        // Second pass: process file parts
+        for (Part part : parts) {
+            String fileName = part.getSubmittedFileName();
+            if (fileName != null) {
+                String contentType = part.getContentType();
+                this.logger.info("receiving {} {}", fileName, contentType);
+                if (contentType != null && contentType.contains("zip")) {
+                    ResourceWalker.unzipBlobToTemp(part.getInputStream());
+                } else {
+                    copyFile(part);
+                }
+            }
         }
     }
 
@@ -98,7 +96,7 @@ public class ConfigReceiverServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             handleUploads(req, resp);
-        } catch (NumberFormatException | FileUploadException e) {
+        } catch (Exception e) {
             this.logger.error(LoggerUtils.stackTrace(e));
         }
     }
@@ -160,18 +158,18 @@ public class ConfigReceiverServlet extends HttpServlet {
         return authenticated;
     }
 
-    private void copyFile(FileItem<?> item) throws IOException {
+    private void copyFile(Part part) throws IOException {
         Path localDirPath = ResourceWalker.getLocalDirPath();
         if (localDirPath == null) {
             localDirPath = ResourceWalker.createLocalDir();
         }
-        Path name = localDirPath.resolve("styles/" + item.getName());
+        String submitted = part.getSubmittedFileName();
+        String simpleName = submitted == null ? "" : Paths.get(submitted).getFileName().toString();
+        Path name = localDirPath.resolve("styles/" + simpleName);
         Files.createDirectories(name.getParent());
-        try (InputStream uploadedStream = item.getInputStream();
-                OutputStream out = Files.newOutputStream(name)) {
+        try (InputStream uploadedStream = part.getInputStream(); OutputStream out = Files.newOutputStream(name)) {
             this.logger.debug("copying to {}", name.toAbsolutePath());
-            IOUtils.copy(uploadedStream, out);
-            out.close();
+            uploadedStream.transferTo(out);
         }
     }
 
