@@ -44,6 +44,8 @@ owlcms/.classpath
 
 # Local environment file
 .env
-/.env.windows
-/.env.linux
-/.env.mac
+/.vscode/.env.windows
+/.vscode/.env.linux
+/.vscode/.env.mac
+/.code-workspace
+/owlcmsHotswap.code-workspace
