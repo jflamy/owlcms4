@@ -8,7 +8,7 @@
     }
   ],
   "settings": {
-  "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+    "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
     "debug.toolBarLocation": "docked",
     "java.autobuild.enabled": true,
     "java.configuration.runtimes": [
@@ -27,7 +27,6 @@
     "debug.allowBreakpointsEverywhere": true,
     "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}"
   },
-  
   "extensions": {
     "recommendations": [
       "vscjava.vscode-java-debug",

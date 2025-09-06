@@ -2,9 +2,6 @@
   "folders": [
     {
       "path": "."
-    },
-    {
-      "path": "../owlcms-video"
     }
   ],
   "settings": {
