@@ -1,30 +1,27 @@
 ## Building and Packaging
 
-This is a standard Maven project.  If you wish, you can build the binaries from this source.
+This is a standard Maven project.  If you wish, you can build the binaries from this source, see [Building a production version](#building-a-production-version) below.
 
-## Development environment
+### Development environment
 
-The easiest way to get a local development environment is to use a devcontainer with Visual Studion Code.
-Under Windows, you will need to configure `WSL 2` and `Docker Desktop` first, and install the `Dev Containers` extension.
-Under MacOS, you will need to install `brew` and `docker`.  You can then checkout or fork the repository.
-VS Code should offer you to run from a dev container.
+You can checkout this repository (or fork it if you intend to make changes.)
 
-You can avoid these steps by developing in the cloud, using Github Codespaces.  You would just fork the repository,
-and start a codespace from the github page for jflamy/owlcms4.  When prompted, you would use the "devcontainer" workspace
-definition.
+- Typical Use: You can start vscode using the owlcmsJDK.code-workspace file to get correct defaults
+  - You will be prompted to install the typical Java extensions, accept them.
+- Advanced Use: If instead you want to use HotSwap with DCEVM, you can copy and edit `owlcmsHotswap.code-workspace` from the .vscode directory
+  - Get a JDK from JetBrains [JetBrains/JetBrainsRuntime: Runtime environment based on OpenJDK for running IntelliJ Platform-based products on Windows, macOS, and Linux](https://github.com/JetBrains/JetBrainsRuntime) and unzip it.
+  - Get the Hotswap agent from [HotswapAgent releases](https://github.com/HotswapProjects/HotswapAgent/releases)
+  - Create a `lib/hotswap` in the JDK installation directory. Copy the agent jar, *and remove the version number* -- the file should be `lib/hotswap/hotswap-agent.jar`
+- For local development the repository uses platform-specific `.env` files stored under the `.vscode/` folder to provide environment variables to the VS Code launch configurations. 
+  - Copy `.vscode/.env.example` to a platform-specific file for your system under and edit the values you want to override (for example `OWLCMS_UPDATEKEY`): 
+    - use `.vscode/.env.windows` (Windows), 
+    - `.vscode/.env.linux` (Linux), or
+    -  `.vscode/.env.mac` (macOS).
+  - These platform-specific files are ignored by git ; do not commit them.
 
-HotSwap users: open `owlcmsHotswap.code-workspace` — it defines the HotSwap JDK and the `owlcms.vmArgs` used by those launch configurations.
+#### Cloud development 
 
-Devcontainer users: the `owlcmsDevcontainer.code-workspace` and the `.devcontainer` setup install and configure the JDK and runtime settings during container creation, so open that workspace when developing inside the devcontainer.
-
-
-
-## Development environment: local secrets and defaults
-
-For local development the repository uses platform-specific `.env` files stored under the `.vscode/` folder to provide environment variables to the VS Code launch configurations. A template file `.env.example` is provided.
-
-- Copy `.env.example` to the platform-specific file for your system under `.vscode/` and edit values you want to override (for example `OWLCMS_UPDATEKEY`): use `.vscode/.env.windows` (Windows), `.vscode/.env.linux` (Linux), or `.vscode/.env.mac` (macOS).
--- These platform-specific files are gitignored; do not commit them. Launch configurations are stored in `.vscode/launch.json` and will read the appropriate platform `.env` file from `.vscode/`.
+You can avoid these steps by developing in the cloud, using Github Codespaces.   You can start a codespace from the github page for jflamy/owlcms4.  You will be prompted to use a workspace, and should use the "devcontainer" workspace definition.
 
 ## Building a production version
 
