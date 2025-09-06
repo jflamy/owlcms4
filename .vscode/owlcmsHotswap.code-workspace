@@ -1,0 +1,38 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../owlcms-video"
+    }
+  ],
+  "settings": {
+    "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+    "debug.toolBarLocation": "docked",
+    "java.autobuild.enabled": true,
+    "java.configuration.runtimes": [
+      {
+        "name": "JavaSE-17",
+        "path": "C:\\Dev\\Java\\jbr_jcef-17.0.14-windows-x64-b1367.22",
+        "default": true
+      }
+    ],
+    "java.import.gradle.enabled": false,
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "java.compile.nullAnalysis.mode": "disabled",
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.annotation.processing.enabled": false,
+    "java.autobuild.annotation.processing.enabled": false,
+    "debug.allowBreakpointsEverywhere": true,
+    "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}"
+  },
+  "extensions": {
+    "recommendations": [
+      "vscjava.vscode-java-debug",
+      "vscjava.vscode-java-pack",
+      "redhat.java",
+      "vscjava.vscode-maven"
+    ]
+  }
+}
