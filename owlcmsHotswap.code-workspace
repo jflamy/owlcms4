@@ -127,7 +127,23 @@
       },
       {
         "type": "java",
-        "name": "🟠 Launch publicresults (Hotswap)",
+        "name": "🟠 large memory demo owlcms for publicresults (Hotswap)",
+        "request": "launch",
+        "mainClass": "app.owlcms.Main",
+        "projectName": "owlcms",
+        "vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+        "env": {
+          "OWLCMS_MEMORYMODE": "true",
+          "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
+          "OWLCMS_PORT": "8081",
+          "OWLCMS_UPDATEKEY": "mapetitevacheamalauxpattes",
+          "OWLCMS_REMOTE": "http://localhost:8082"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
+        }
+      },
+      {
+        "type": "java",
+        "name": "🟠 publicresults (Hotswap)",
         "request": "launch",
         "mainClass": "app.owlcms.publicresults.Main",
         "projectName": "publicresults",
@@ -149,8 +165,8 @@
       {
         "name": "⭐ Launch Both (owlcms + publicresults)",
         "configurations": [
-          "🟨 owlcms no reset (Hotswap)",
-          "🟠 Launch publicresults (Hotswap)"
+          "🟠 large memory demo owlcms for publicresults (Hotswap)",
+          "🟠 publicresults (Hotswap)"
         ]
       }
     ]
