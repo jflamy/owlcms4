@@ -39,7 +39,8 @@
         "env": {
           "OWLCMS_MEMORYMODE": "false",
           "OWLCMS_BACKDOOR": "[0:0:0:0:0:0:0:1],127.0.0.1",
-          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+          "OWLCMS_UPDATEKEY": "mapetitevacheamalauxpattes"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
         }
       },
       {
@@ -51,7 +52,7 @@
         "vmArgs": "-Dvaadin.frontend.hotdeploy=true -ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
         "env": {
           "OWLCMS_MEMORYMODE": "false",
-          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
         }
       },
       {
@@ -65,7 +66,7 @@
           "OWLCMS_MEMORYMODE": "false",
           "OWLCMS_INITIALDATA": "EMPTY_COMPETITION",
           "OWLCMS_RESETMODE": "true"
-          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
         }
       },
       {
@@ -79,7 +80,7 @@
           "OWLCMS_MEMORYMODE": "false",
           "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
           "OWLCMS_RESETMODE": "true"
-          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
         }
       },
       {
@@ -93,7 +94,7 @@
           "OWLCMS_MEMORYMODE": "true",
           "OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
           "OWLCMS_PORT": "8081"
-          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
         }
       },
       {
@@ -107,7 +108,7 @@
           "OWLCMS_MEMORYMODE": "true",
           "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
           "OWLCMS_PORT": "8081"
-          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
         }
       },
       {
@@ -121,7 +122,7 @@
           "OWLCMS_MEMORYMODE": "true",
           "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
           "OWLCMS_PORT": "8081"
-          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\owlcms-video\\competitions\\asu\\local"
+          //"OWLCMS_LOCALDIR": "C:\\Dev\\git\\usaw-owlcms\\local"
         }
       },
       {
