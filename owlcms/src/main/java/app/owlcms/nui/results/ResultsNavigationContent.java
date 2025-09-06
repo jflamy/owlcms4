@@ -31,6 +31,7 @@ import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.preparation.RecordContent;
 import app.owlcms.nui.preparation.TeamSelectionContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
+import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSMedalSchedule;
@@ -85,18 +86,24 @@ public class ResultsNavigationContent extends BaseNavigationContent implements N
 		highlight(finalPackage);
 
 		var timingWriter = new JXLSTimingStats(UI.getCurrent());
-		JXLSDownloader dd1 = new JXLSDownloader(
-		        () -> {
-			        return timingWriter;
-		        },
-		        "/templates/timing",
-		        // template name used only to generate the results file name. Localized template determined by
-		        // JXLSTimingStats
-		        "TimingStats.xlsx",
-		        Translator.translate("TimingStatistics"),
-		        fileName -> fileName.endsWith(".xlsx"));
+		// JXLSDownloader dd1 = new JXLSDownloader(
+		//         () -> {
+		// 	        return timingWriter;
+		//         },
+		//         "/templates/timing",
+		//         // template name used only to generate the results file name. Localized template determined by
+		//         // JXLSTimingStats
+		//         "TimingStats.xlsx",
+		//         Translator.translate("TimingStatistics"),
+		//         fileName -> fileName.endsWith(".xlsx"));
 		Div timingStats = new Div();
-		timingStats.add(dd1.createImmediateDownloadButton());
+
+		// use DownloadButtonFactory.createDynamicJXLSDownloadButton
+		timingStats.add(DownloadButtonFactory.createDynamicJXLSDownloadButton(
+			"TimingStatistics",
+			Translator.translate("TimingStatistics"),
+			timingWriter,
+			null));
 		timingStats.setWidthFull();
 
 		Button editExportRecords = openInNewTabNoParam(RecordContent.class,

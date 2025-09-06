@@ -154,30 +154,30 @@ public class JXLSDownloader {
 		return dialogOpen;
 	}
 
-	/**
-	 * Deprecated because the time stamp in the file name is determined when the download button is created, and not when the file is downloaded.
-	 *
-	 * Use LazyDownloadButton instead.
-	 *
-	 * @param tooltipText
-	 * @return
-	 */
+	// /**
+	//  * Deprecated because the time stamp in the file name is determined when the download button is created, and not when the file is downloaded.
+	//  *
+	//  * Use LazyDownloadButton instead.
+	//  *
+	//  * @param tooltipText
+	//  * @return
+	//  */
 	// @Deprecated
-	// CODEREVIEW remove use of createImmediateDownloadButton
-	public Anchor createImmediateDownloadButton(String... tooltipText) {
-		this.xlsWriter = this.streamSourceSupplier.get();
-		Supplier<String> supplier = () -> getTargetFileName();
-		this.resource = new StreamResource(supplier.get(), (StreamResourceWriter) this.xlsWriter);
-		Anchor link = new Anchor(this.resource, "");
-		link.getElement().setAttribute("download", true);
-		Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-		if (tooltipText != null && tooltipText.length > 0) {
-			innerButton.setTooltipText(tooltipText[0]);
-		}
-		innerButton.setWidth("100%");
-		link.add(innerButton);
-		return link;
-	}
+	// // CODEREVIEW remove use of createImmediateDownloadButton
+	// public Anchor createImmediateDownloadButton(String... tooltipText) {
+	// 	this.xlsWriter = this.streamSourceSupplier.get();
+	// 	Supplier<String> supplier = () -> getTargetFileName();
+	// 	this.resource = new StreamResource(supplier.get(), (StreamResourceWriter) this.xlsWriter);
+	// 	Anchor link = new Anchor(this.resource, "");
+	// 	link.getElement().setAttribute("download", true);
+	// 	Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+	// 	if (tooltipText != null && tooltipText.length > 0) {
+	// 		innerButton.setTooltipText(tooltipText[0]);
+	// 	}
+	// 	innerButton.setWidth("100%");
+	// 	link.add(innerButton);
+	// 	return link;
+	// }
 
 	public void setProcessingMessage(String processingMessage) {
 		this.processingMessage = processingMessage;
