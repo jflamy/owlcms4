@@ -18,10 +18,7 @@ import com.vaadin.flow.component.HasValidation;
 import com.vaadin.flow.data.binder.Result;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.converter.Converter;
-import com.vaadin.flow.data.renderer.Renderer;
-import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.function.ValueProvider;
 
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Level;
@@ -36,16 +33,16 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class DurationField extends WrappedTextField<Duration> implements HasValidation {
 
-	private static DurationField helper = new DurationField();
+	// private static DurationField helper = new DurationField();
 	private static final String HHMMSS_FORMAT = "HH:mm:ss";
 	private static final DateTimeFormatter HHMMSS_FORMATTER = DateTimeFormatter.ofPattern(HHMMSS_FORMAT);
 	private static final String MMSS_FORMAT = "mm:ss";
 	private static final DateTimeFormatter MMSS_FORMATTER = DateTimeFormatter.ofPattern(MMSS_FORMAT);
 
-	public static <S> Renderer<S> getRenderer(ValueProvider<String, S> v, Locale locale) {
-		return new TextRenderer<>(
-		        d -> helper.getConverter().convertToPresentation((Duration) d, new ValueContext(locale)));
-	}
+	// public static <S> Renderer<S> getRenderer(ValueProvider<String, S> v, Locale locale) {
+	// 	return new TextRenderer<>(
+	// 	        d -> helper.getConverter().convertToPresentation((Duration) d, new ValueContext(locale)));
+	// }
 
 	Logger overrideLogger = (Logger) LoggerFactory.getLogger(DurationField.class);
 	Level overrideLoggerLevel = Level.INFO;
@@ -98,7 +95,7 @@ public class DurationField extends WrappedTextField<Duration> implements HasVali
 
 	@Override
 	public String toString() {
-		return getConverter().convertToPresentation(getValue(), new ValueContext(getLocale()));
+		return getConverter().convertToPresentation(getValue(), new ValueContext(null,getLocale()));
 	}
 
 	protected LocalTime getValueAsLocalTime() {
