@@ -170,7 +170,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<Validat
     }
 
     protected void doConvertToModel(String presentationValue, boolean fromClient) {
-        Result<T> modelValue = getConverter().convertToModel(presentationValue, new ValueContext(this.getLocale()));
+        Result<T> modelValue = getConverter().convertToModel(presentationValue, new ValueContext(null, this.getLocale()));
         modelValue.ifOk(v -> {
             super.setModelValue(v, fromClient);
         });
@@ -227,7 +227,7 @@ public abstract class WrappedTextField<T> extends AbstractCompositeField<Validat
             getWrappedTextField().clear();
         } else {
             getWrappedTextField()
-                    .setValue(getConverter().convertToPresentation(value, new ValueContext(OwlcmsSession.getLocale())));
+                    .setValue(getConverter().convertToPresentation(value, new ValueContext(null, OwlcmsSession.getLocale())));
         }
     }
 
