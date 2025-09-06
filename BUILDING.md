@@ -13,6 +13,19 @@ You can avoid these steps by developing in the cloud, using Github Codespaces.  
 and start a codespace from the github page for jflamy/owlcms4.  When prompted, you would use the "devcontainer" workspace
 definition.
 
+HotSwap users: open `owlcmsHotswap.code-workspace` — it defines the HotSwap JDK and the `owlcms.vmArgs` used by those launch configurations. You will need to edit for your own location.
+
+Devcontainer users: the `owlcmsDevcontainer.code-workspace` and the `.devcontainer` setup install and configure the JDK and runtime settings during container creation, so open that workspace when developing inside the devcontainer.
+
+
+
+## Development environment: local secrets and defaults
+
+For local development the repository uses platform-specific `.env` files at the workspace root to provide environment variables to the VS Code launch configurations. A template file `.env.example` is provided.
+
+- Copy `.env.example` to the platform-specific file for your system and edit values you want to override (for example `OWLCMS_UPDATEKEY`): use `.env.windows` (Windows), `.env.linux` (Linux), or `.env.mac` (macOS).
+- These platform-specific files are gitignored; do not commit them. Launch configurations are set to read the appropriate platform `.env` file.
+
 ## Building a production version
 
 The actual build chain is a Github Actions workflow, in `.github/workflows/release.yaml`. 

@@ -41,3 +41,9 @@ owlcms/.classpath
 /beta.md
 /rc.md
 /release.md
+
+# Local environment file
+.env
+/.env.windows
+/.env.linux
+/.env.mac
