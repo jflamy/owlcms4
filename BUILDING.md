@@ -6,19 +6,22 @@ This is a standard Maven project.  If you wish, you can build the binaries from 
 
 You can checkout this repository (or fork it if you intend to make changes.)
 
-- Typical Use: You can start vscode using the owlcmsJDK.code-workspace file to get correct defaults
+- Typical Use: You can start vscode using the `owlcmsJDK.code-workspace` file to get correct defaults
   - You will be prompted to install the typical Java extensions, accept them.
-- Advanced Use: If instead you want to use HotSwap with DCEVM, you can copy and edit `owlcmsHotswap.code-workspace` from the .vscode directory
-  - Get a JDK 17 from JetBrains [JetBrains/JetBrainsRuntime: Runtime environment based on OpenJDK for running IntelliJ Platform-based products on Windows, macOS, and Linux](https://github.com/JetBrains/JetBrainsRuntime) and unzip it.
-  - Edit your copy of `owlcmsHotswap.code-workspace` to have the path where you unzipped the JDK 17
-  - Get the Hotswap agent from [HotswapAgent releases](https://github.com/HotswapProjects/HotswapAgent/releases)
-  - Create a `lib/hotswap` in the JDK installation directory. Copy the agent jar, *and remove the version number* -- the file should be `lib/hotswap/hotswap-agent.jar`
-- For local development the repository uses platform-specific `.env` files stored under the `.vscode/` folder to provide environment variables to the VS Code launch configurations. 
-  - Copy `.vscode/.env.example` to a platform-specific file for your system under and edit the values you want to override (for example `OWLCMS_UPDATEKEY`): 
-    - use `.vscode/.env.windows` (Windows), 
-    - `.vscode/.env.linux` (Linux), or
-    -  `.vscode/.env.mac` (macOS).
-  - These platform-specific files are ignored by git ; do not commit them.
+- Advanced Use: 
+  - If you want to use HotSwap with DCEVM, you can copy and edit `owlcmsHotswap.code-workspace` from the .vscode directory
+    - Get a JDK 17 from JetBrains [JetBrains/JetBrainsRuntime: Runtime environment based on OpenJDK for running IntelliJ Platform-based products on Windows, macOS, and Linux](https://github.com/JetBrains/JetBrainsRuntime) and unzip it.
+    - Edit your copy of `owlcmsHotswap.code-workspace` to have the path where you unzipped the JDK 17
+    - Get the Hotswap agent from [HotswapAgent releases](https://github.com/HotswapProjects/HotswapAgent/releases)
+    - Create a `lib/hotswap` in the JDK installation directory. Copy the agent jar, *and remove the version number* -- the file should be `lib/hotswap/hotswap-agent.jar`
+  
+  - For local development the repository uses platform-specific `.env` files stored under the `.vscode/` folder to provide environment variables to the VS Code launch configurations. 
+    - Copy `.vscode/.env.example` to a platform-specific file for your system under and edit the values you want to override (for example `OWLCMS_UPDATEKEY`): 
+      - `.vscode/.env.windows` (Windows), 
+      - `.vscode/.env.linux` (Linux), or
+      - `.vscode/.env.mac` (macOS).
+    - These platform-specific files are ignored by git ; do not commit them.
+  
 
 #### Cloud development 
 
@@ -26,8 +29,9 @@ You can avoid these steps by developing in the cloud, using Github Codespaces.  
 
 ## Building a production version
 
-The actual build chain is a Github Actions workflow, in `.github/workflows/release.yaml`. 
-But you can use maven to create a production build manually.
+The actual build chain is a Github Actions workflow, in `.github/workflows/release.yaml`.   This workflow is complicated by the fact that the releases are not in the main repository, but in two separate repositories, in order to have separate binaries and documentation for stable and pre- releases.
+
+But you can use maven to create a production build manually, as follows
 
 ### Pre-requisites
 
@@ -41,7 +45,6 @@ But you can use maven to create a production build manually.
 - From the owlcms4 directory, running ``mvn -P production -am -pl clean owlcms package `` should give you 
   - `owlcms/target/owlcms.jar` a working  "uberjar" (that is, a .jar file that contains all the dependencies together in a single file).  This file can then be run using `java -jar owlcms.jar app.owlcms.Main` 
   - `owlcms/target/owlcms.zip` contains a copy of the local files required.  This is what the owlcms installers use.
-- The installers are in their own repositories under https://github.com/owlcms and are are built separately.
 
 ### Building a Docker container
 
