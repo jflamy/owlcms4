@@ -1,6 +1,8 @@
-/* hide the keyboard focus ring in the grids */
+/* hide the keyboard focus ring in the grids - do NOT remove the cell content (display:none collapses the cell)
+   Use outline/box-shadow removal so layout stays intact while the focus ring is hidden. */
 vaadin-grid::part(focused-cell) {
-    display: none;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* highlight current/next/previous athlete */
