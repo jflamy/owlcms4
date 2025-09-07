@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
+import org.vaadin.crudui.crud.CrudOperation;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
@@ -563,6 +564,53 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	}
 
 	/**
+	 * Custom CRUD Grid that focuses on the filter bar when dialog is closed
+	 */
+	private class RegistrationCrudGrid extends OwlcmsCrudGrid<Athlete> {
+		public RegistrationCrudGrid(Class<Athlete> domainType, OwlcmsGridLayout crudLayout,
+		                           OwlcmsCrudFormFactory<Athlete> crudFormFactory, Grid<Athlete> grid) {
+			super(domainType, crudLayout, crudFormFactory, grid);
+		}
+
+		@Override
+		protected void cancelCallback() {
+			super.cancelCallback();
+			// Focus on the first filter element when dialog is cancelled
+			focusOnFirstFilter();
+		}
+
+		@Override
+		protected void saveCallBack(OwlcmsCrudGrid<Athlete> owlcmsCrudGrid, String successMessage, CrudOperation operation, Athlete domainObject) {
+			super.saveCallBack(owlcmsCrudGrid, successMessage, operation, domainObject);
+			// Focus on the first filter element when dialog is saved
+			focusOnFirstFilter();
+		}
+
+		@Override
+		protected void deleteCallBack() {
+			super.deleteCallBack();
+			// Focus on the first filter element when athlete is deleted
+			focusOnFirstFilter();
+		}
+
+		@Override
+		protected void deleteCallBack(Athlete domainObject) {
+			super.deleteCallBack(domainObject);
+			// Focus on the first filter element when athlete is deleted
+			focusOnFirstFilter();
+		}
+
+		private void focusOnFirstFilter() {
+			// Use UI.getCurrent().access() to ensure focus happens after dialog is closed
+			getUI().ifPresent(ui -> ui.access(() -> {
+				if (getLastNameFilter() != null) {
+					getLastNameFilter().focus();
+				}
+			}));
+		}
+	}
+
+	/**
 	 * The columns of the crudGrid
 	 *
 	 * @param crudFormFactory what to call to create the form for editing an athlete
@@ -608,7 +656,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		sortOrder.add(new GridSortOrder<>(groupCol, SortDirection.ASCENDING));
 		grid.sort(sortOrder);
 
-		OwlcmsCrudGrid<Athlete> crudGrid = new OwlcmsCrudGrid<>(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
+		OwlcmsCrudGrid<Athlete> crudGrid = new RegistrationCrudGrid(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
 
 			@Override
 			public void hideForm() {

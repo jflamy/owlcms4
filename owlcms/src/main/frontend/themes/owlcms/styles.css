@@ -1,6 +1,40 @@
 /* hide the keyboard focus ring in the grids - do NOT remove the cell content (display:none collapses the cell)
    Use outline/box-shadow removal so layout stays intact while the focus ring is hidden. */
 vaadin-grid::part(focused-cell) {
+    /* keep the cell content visible but remove focus visuals */
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+}
+
+/* also suppress the visible focus ring applied to the grid host or rows when
+   something (like an overlay handler) programmatically focuses the grid
+   (we keep keyboard focus for accessibility but hide the visual ring) */
+vaadin-grid:focus,
+vaadin-grid:focus-visible,
+vaadin-grid ::part(row):focus,
+vaadin-grid ::part(row):focus-visible,
+vaadin-grid ::part(focused-row),
+vaadin-grid ::part(focused-row):focus,
+vaadin-grid ::part(focused-row):focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* also ensure any focusable element inside a grid (buttons, inputs, checkboxes, cell content)
+   does not display a focus ring that would visually alter column widths */
+vaadin-grid ::-webkit-focus-ring-color,
+vaadin-grid *:focus,
+vaadin-grid *:focus-visible,
+vaadin-grid vaadin-button:focus,
+vaadin-grid vaadin-checkbox:focus,
+vaadin-grid button:focus,
+vaadin-grid input:focus,
+vaadin-grid textarea:focus,
+vaadin-grid ::part(cell-content):focus,
+vaadin-grid ::part(cell-content):focus-visible,
+vaadin-grid ::part(cell):focus,
+vaadin-grid ::part(cell):focus-visible {
     outline: none !important;
     box-shadow: none !important;
 }
@@ -27,4 +61,64 @@ vaadin-grid::part(isNextAthlete) {
 
 html, body {
     background-color: transparent !important;
+}
+
+/* Aggressive suppression of visible focus ring for vaadin-grid and parts.
+   Keeps keyboard focus intact but removes outlines/shadows that cause the ring. */
+vaadin-grid,
+vaadin-grid:focus,
+vaadin-grid:focus-within,
+vaadin-grid::part(focused-row),
+vaadin-grid::part(focused-cell),
+vaadin-grid ::part(cell),
+vaadin-grid ::part(row),
+vaadin-grid ::part(cell-content),
+vaadin-grid *:focus,
+vaadin-grid *:focus-visible,
+vaadin-grid ::part(focused-cell):focus,
+vaadin-grid ::part(focused-row):focus {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border-color: transparent !important;
+}
+
+/* If Vaadin or the browser exposes a focus-ring part, hide it explicitly */
+vaadin-grid ::part(focus-ring),
+vaadin-grid ::part(focusRing),
+vaadin-grid ::part(focus-ring-inner) {
+    display: none !important;
+}
+
+/* Be cautious: this removes visible focus indicators for keyboard users. Keep it
+   scoped to grids to avoid broad accessibility regressions. */
+
+/* Target specific Vaadin field components when they are inside a vaadin-grid.
+   This scope prevents styling fields outside grids and aims at the internal
+   focus parts that Vaadin components expose via ::part. */
+vaadin-grid vaadin-text-field::part(focus-ring),
+vaadin-grid vaadin-text-field::part(focusRing),
+vaadin-grid vaadin-text-field::part(focus-ring-inner),
+vaadin-grid vaadin-text-field::part(input-field),
+vaadin-grid vaadin-text-field::part(value),
+vaadin-grid vaadin-text-field::part(internal-input),
+vaadin-grid vaadin-text-area::part(focus-ring),
+vaadin-grid vaadin-text-area::part(input-field),
+vaadin-grid vaadin-select::part(focus-ring),
+vaadin-grid vaadin-combo-box::part(focus-ring) {
+    display: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Also defensively target the actual input element inside those components when
+   present in the light DOM under a grid. This handles cases where the focus
+   ring is applied directly to the native input. */
+vaadin-grid vaadin-text-field input,
+vaadin-grid vaadin-text-area textarea,
+vaadin-grid vaadin-combo-box input,
+vaadin-grid input[id^="input-vaadin-text-field"] {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
 }
