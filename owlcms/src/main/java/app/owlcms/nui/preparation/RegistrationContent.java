@@ -26,6 +26,9 @@ import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.CrudOperation;
 
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -567,46 +570,126 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 	 * Custom CRUD Grid that focuses on the filter bar when dialog is closed
 	 */
 	private class RegistrationCrudGrid extends OwlcmsCrudGrid<Athlete> {
+		private Athlete currentlyEditedAthlete = null;
+		
 		public RegistrationCrudGrid(Class<Athlete> domainType, OwlcmsGridLayout crudLayout,
 		                           OwlcmsCrudFormFactory<Athlete> crudFormFactory, Grid<Athlete> grid) {
 			super(domainType, crudLayout, crudFormFactory, grid);
 		}
 
 		@Override
+		protected void showForm(CrudOperation operation, Athlete domainObject, boolean readOnly, String successMessage,
+		        ComponentEventListener<ClickEvent<Button>> unused) {
+			// Store the athlete that triggered the dialog
+			this.currentlyEditedAthlete = domainObject;
+			super.showForm(operation, domainObject, readOnly, successMessage, unused);
+		}
+
+		@Override
 		protected void cancelCallback() {
 			super.cancelCallback();
-			// Focus on the first filter element when dialog is cancelled
-			focusOnFirstFilter();
+			// Two-step focus: first outside to clear highlight, then back to triggering item
+			focusOutsideThenBackToTriggeringItem();
 		}
 
 		@Override
 		protected void saveCallBack(OwlcmsCrudGrid<Athlete> owlcmsCrudGrid, String successMessage, CrudOperation operation, Athlete domainObject) {
 			super.saveCallBack(owlcmsCrudGrid, successMessage, operation, domainObject);
-			// Focus on the first filter element when dialog is saved
-			focusOnFirstFilter();
+			// Update the stored athlete in case it changed (for sorting)
+			this.currentlyEditedAthlete = domainObject;
+			// Two-step focus: first outside to clear highlight, then back to triggering item
+			focusOutsideThenBackToTriggeringItem();
 		}
 
 		@Override
 		protected void deleteCallBack() {
 			super.deleteCallBack();
-			// Focus on the first filter element when athlete is deleted
+			// After deletion, just focus outside since the item no longer exists
 			focusOnFirstFilter();
 		}
 
 		@Override
 		protected void deleteCallBack(Athlete domainObject) {
 			super.deleteCallBack(domainObject);
-			// Focus on the first filter element when athlete is deleted
+			// After deletion, just focus outside since the item no longer exists
 			focusOnFirstFilter();
+		}
+
+		private void focusOutsideThenBackToTriggeringItem() {
+			getUI().ifPresent(ui -> ui.access(() -> {
+				// Step 1: Focus outside the grid to clear any unwanted highlight
+				if (getLastNameFilter() != null) {
+					getLastNameFilter().focus();
+					ui.push();
+				}
+				
+				// Step 2: After a brief delay, focus back on the triggering item
+				ui.access(() -> {
+					if (this.currentlyEditedAthlete != null) {
+						// Select and focus on the athlete that was being edited
+						this.grid.select(this.currentlyEditedAthlete);
+						this.grid.focus();
+						ui.push();
+						// Reset the stored athlete
+						this.currentlyEditedAthlete = null;
+					}
+				});
+			}));
 		}
 
 		private void focusOnFirstFilter() {
 			// Use UI.getCurrent().access() to ensure focus happens after dialog is closed
 			getUI().ifPresent(ui -> ui.access(() -> {
 				if (getLastNameFilter() != null) {
+					// First focus on the filter to clear any unwanted highlight
 					getLastNameFilter().focus();
+					// Force UI update
+					ui.push();
+					// Then unfocus to remove focus from everything
+					getLastNameFilter().blur();
+					ui.push();
 				}
 			}));
+		}
+
+		// Handle dialog close via Escape or clicking outside by forcing a cancel callback
+		public void handleDialogClose() {
+			// For Escape and outside clicks, we should still focus back on the triggering item
+			// since we stored it when the dialog was opened
+			focusOutsideThenBackToTriggeringItem();
+		}
+	}
+
+	/**
+	 * Custom Grid Layout that adds dialog close listener to handle Escape and outside clicks
+	 */
+	private class RegistrationGridLayout extends OwlcmsGridLayout {
+		private RegistrationCrudGrid registrationCrudGrid;
+		
+		public RegistrationGridLayout(Class<?> aClass) {
+			super(aClass);
+		}
+
+		public void setRegistrationCrudGrid(RegistrationCrudGrid grid) {
+			this.registrationCrudGrid = grid;
+		}
+
+		@Override
+		public void showDialog(String caption, Component form) {
+			super.showDialog(caption, form);
+			// Add close listener to handle Escape and outside clicks
+			if (this.dialog != null) {
+				// Use opened-change listener so the handler runs after the dialog is closed.
+				// DialogCloseActionListener is fired when a close action is initiated and
+				// running focus changes there can interfere with the actual close.
+				this.dialog.addOpenedChangeListener(e -> {
+					if (!e.isOpened()) {
+						if (this.registrationCrudGrid != null) {
+							this.registrationCrudGrid.handleDialogClose();
+						}
+					}
+				});
+			}
 		}
 	}
 
@@ -656,7 +739,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		sortOrder.add(new GridSortOrder<>(groupCol, SortDirection.ASCENDING));
 		grid.sort(sortOrder);
 
-		OwlcmsCrudGrid<Athlete> crudGrid = new RegistrationCrudGrid(Athlete.class, new OwlcmsGridLayout(Athlete.class) {
+		OwlcmsCrudGrid<Athlete> crudGrid = new RegistrationCrudGrid(Athlete.class, new RegistrationGridLayout(Athlete.class) {
 
 			@Override
 			public void hideForm() {
@@ -668,6 +751,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			}
 		},
 		        crudFormFactory, grid);
+		
+		// Set up the reference so the grid layout can call back to the crud grid
+		RegistrationGridLayout layout = (RegistrationGridLayout) crudGrid.getOwlcmsGridLayout();
+		layout.setRegistrationCrudGrid((RegistrationCrudGrid) crudGrid);
+		
 		crudGrid.setCrudListener(this);
 		crudGrid.setClickRowToUpdate(true);
 		return crudGrid;
