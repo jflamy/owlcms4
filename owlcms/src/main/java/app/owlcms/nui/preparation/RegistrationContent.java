@@ -617,11 +617,13 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 		private void focusOutsideThenBackToTriggeringItem() {
 			getUI().ifPresent(ui -> ui.access(() -> {
-				// Step 1: Focus outside the grid to clear any unwanted highlight
-				if (getLastNameFilter() != null) {
-					getLastNameFilter().focus();
-					ui.push();
+				// Step 1: Clear any current selection and focus to remove highlight
+				this.grid.asSingleSelect().clear();
+				// Focus on a toolbar button to remove grid highlight
+				if (getAddButton() != null) {
+					getAddButton().focus();
 				}
+				ui.push();
 				
 				// Step 2: After a brief delay, focus back on the triggering item
 				ui.access(() -> {
@@ -638,17 +640,14 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		}
 
 		private void focusOnFirstFilter() {
-			// Use UI.getCurrent().access() to ensure focus happens after dialog is closed
+			// Use UI.access() to ensure focus happens after dialog is closed
 			getUI().ifPresent(ui -> ui.access(() -> {
-				if (getLastNameFilter() != null) {
-					// First focus on the filter to clear any unwanted highlight
-					getLastNameFilter().focus();
-					// Force UI update
-					ui.push();
-					// Then unfocus to remove focus from everything
-					getLastNameFilter().blur();
-					ui.push();
+				// Clear selection and focus on toolbar to remove any unwanted highlight and force UI update
+				this.grid.asSingleSelect().clear();
+				if (getAddButton() != null) {
+					getAddButton().focus();
 				}
+				ui.push();
 			}));
 		}
 
