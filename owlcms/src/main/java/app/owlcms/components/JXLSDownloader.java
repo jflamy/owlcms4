@@ -32,8 +32,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.server.StreamResourceWriter;
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
@@ -62,7 +61,6 @@ public class JXLSDownloader {
 	private ComboBox<Resource> templateSelect;
 	private String processingMessage;
 	private Predicate<String> nameFilter;
-	private StreamResource resource;
 
 	/**
 	 * @param streamSourceSupplier lambda that creates a JXLSWorkbookStreamSource and sets its filters
@@ -208,7 +206,6 @@ public class JXLSDownloader {
 		// templateSelect.getStyle().set("margin-left", "1em");
 		this.templateSelect.getStyle().set("margin-right", "0.8em");
 
-		this.resource = null;
 
 		try {
 			// Competition.getTemplateFileName()
@@ -286,8 +283,7 @@ public class JXLSDownloader {
 
 		       Supplier<String> supplier = () -> getTargetFileName();
 
-		       Anchor nDownloadAnchor = doCreateActualDownloadButton(this.resource, this.xlsWriter,
-			       supplier.get());
+			Anchor nDownloadAnchor = doCreateActualDownloadButton(this.xlsWriter, supplier.get());
 		       // if downloadAnchor is null, same as add nDownloadAnchor
 		       templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
 		       this.downloadAnchor = nDownloadAnchor;
@@ -298,22 +294,29 @@ public class JXLSDownloader {
 		}
 	}
 
-	private Anchor doCreateActualDownloadButton(StreamResource resource, StreamResourceWriter writer, String fileName) {
-		resource = new StreamResource(fileName, writer);
-		Anchor link = new Anchor(resource, "");
-		link.getElement().setAttribute("download", true);
-		Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-		link.add(innerButton);
-		innerButton.setDisableOnClick(true);
-		innerButton.addClickListener((c) -> {
-			this.templateSelect.setEnabled(false);
-			this.dialog.add(new Paragraph(getProcessingMessage()));
-		});
-		innerButton.focus();
-		// highlight because Vaadin does not show a focus ring for some unkown reason
-		innerButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
-		return link;
-	}
+       private Anchor doCreateActualDownloadButton(JXLSWorkbookStreamSource writer, String fileName) {
+	       DownloadHandler downloadHandler = event -> {
+		       event.setFileName(fileName);
+		       try (InputStream is = writer.createInputStream()) {
+			       is.transferTo(event.getOutputStream());
+		       } catch (Exception ex) {
+			       this.logger.error("Download error: {}", LoggerUtils.stackTrace(ex));
+		       }
+	       };
+	       Anchor link = new Anchor(downloadHandler, "");
+	       link.getElement().setAttribute("download", true);
+	       Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+	       link.add(innerButton);
+	       innerButton.setDisableOnClick(true);
+	       innerButton.addClickListener((c) -> {
+		       this.templateSelect.setEnabled(false);
+		       this.dialog.add(new Paragraph(getProcessingMessage()));
+	       });
+	       innerButton.focus();
+	       // highlight because Vaadin does not show a focus ring for some unknown reason
+	       innerButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
+	       return link;
+       }
 
 	private String getProcessingMessage() {
 		return this.processingMessage == null ? Translator.translate("Processing") : this.processingMessage;

@@ -34,8 +34,6 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.NativeLabel;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -48,9 +46,9 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
@@ -75,6 +73,7 @@ import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireLogin;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
+import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -88,7 +87,16 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/teams", layout = OwlcmsLayout.class)
 public class TeamSelectionContent extends BaseContent
-        implements OwlcmsContent, RequireLogin, IAthleteEditing {
+		implements OwlcmsContent, RequireLogin, IAthleteEditing {
+
+	// Copied from DocumentsContent to support team list report
+	protected java.util.List<app.owlcms.data.athlete.Athlete> participationFindAll() {
+		java.util.List<app.owlcms.data.athlete.Athlete> athletes = app.owlcms.data.agegroup.AgeGroupRepository.allPAthletesForAgeGroupAgeDivision(null, null);
+		// If you have a filterAthletes method, use it; otherwise, just return athletes
+		// java.util.List<app.owlcms.data.athlete.Athlete> found = filterAthletes(athletes);
+		// return found;
+		return athletes;
+	}
 
 	public static final String TITLE = "TeamMembership.Title";
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
@@ -106,7 +114,6 @@ public class TeamSelectionContent extends BaseContent
 	private String ageGroupPrefix;
 	private OwlcmsCrudGrid<TeamTreeItem> crudGrid;
 	private Group currentGroup;
-	private Button download;
 	private Anchor finalPackage;
 
 	// private DecimalFormat floatFormat;
@@ -143,22 +150,40 @@ public class TeamSelectionContent extends BaseContent
 	@Override
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
+		// Ensure an xlsWriter exists for listeners that reference it (placeholder)
 		this.xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-		StreamResource href = new StreamResource(TITLE + "Report" + ".xls", () -> this.xlsWriter.createInputStream());
-		this.finalPackage = new Anchor(href, "");
+		// Ensure finalPackage Anchor exists for listeners that update the download attribute
+		this.finalPackage = new Anchor("", "");
 		this.finalPackage.getStyle().set("margin-left", "1em");
-		this.download = new Button(Translator.translate(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
-		this.finalPackage.add(this.download);
-		HorizontalLayout buttons = new HorizontalLayout(this.finalPackage);
+		// Use the same logic as DocumentsContent for the team list report
+		String resourceDirectoryLocation = "/templates/teams";
+		String title = Translator.translate("StartingList.Teams");
+		JXLSDownloader teamListDownloader = new JXLSDownloader(
+			() -> {
+				JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+				startingXlsWriter.setGroup(getGroup() != null ? GroupRepository.getById(getGroup().getId()) : null);
+				startingXlsWriter.setSortedAthletes(app.owlcms.data.athleteSort.AthleteSorter.registrationOrderCopy(participationFindAll()));
+				startingXlsWriter.createTeamColumns(9, 6);
+				return startingXlsWriter;
+			},
+			resourceDirectoryLocation,
+			app.owlcms.data.competition.Competition::getComputedTeamsListTemplateFileName,
+			app.owlcms.data.competition.Competition::setTeamsListTemplateFileName,
+			title,
+			Translator.translate("Download")
+		);
+		Button teamListButton = teamListDownloader.createDownloadButton();
+		HorizontalLayout buttons = new HorizontalLayout(teamListButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		this.topBar.getStyle().set("flex", "100 1");
 		this.topBar.removeAll();
 		// this.topBar.add(this.topBarAgeDivisionSelect, this.topBarAgeGroupPrefixSelect);
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
-		return this.topBar;
+	this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+	this.topBar.add(buttons);
+	return this.topBar;
 	}
 
 	/**
