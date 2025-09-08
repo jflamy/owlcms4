@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,7 +45,7 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.server.streams.UploadHandler;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -340,20 +341,21 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(localDirZipDiv, Translator.translate("Config.DownloadLocalDirZipLabel"));
 
 		Button uploadButton = new Button(Translator.translate("LocalOverride.DirUploadButton"));
-		MemoryBuffer receiver = new MemoryBuffer();
 		uploadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		Upload uploadZip = new Upload(receiver);
-		uploadZip.setUploadButton(uploadButton);
-		uploadZip.setDropLabel(new NativeLabel(Translator.translate("LocalOverride.DirUploadDropZone")));
-		uploadZip.addSucceededListener(e -> {
+		
+		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, bytes) -> {
 			Path curDir = Paths.get(".", "local");
 			try {
 				ZipUtils.deleteDirectoryRecursively(curDir);
-				ZipUtils.extractZip(receiver.getInputStream(), curDir);
+				ZipUtils.extractZip(new ByteArrayInputStream(bytes), curDir);
 			} catch (IOException e1) {
 				LoggerUtils.logError(this.logger, e1);
 			}
 		});
+		
+		Upload uploadZip = new Upload(uploadHandler);
+		uploadZip.setUploadButton(uploadButton);
+		uploadZip.setDropLabel(new NativeLabel(Translator.translate("LocalOverride.DirUploadDropZone")));
 		layout.addFormItem(uploadZip, Translator.translate("LocalOverride.Title"));
 
 		return layout;

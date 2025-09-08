@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -22,7 +23,7 @@ import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.jpa.JPAService;
@@ -42,19 +43,14 @@ public class JsonUploadDialog extends Dialog {
 		H5 label = new H5(Translator.translate("ImportJson.RestartWarning"));
 		label.getStyle().set("color", "red");
 
-		MemoryBuffer buffer = new MemoryBuffer();
-		Upload upload = new Upload(buffer);
-		upload.setWidth("40em");
-		upload.setAcceptedFileTypes("application/json");
-
 		TextArea ta = new TextArea(Translator.translate("Errors"));
 		ta.setHeight("20ex");
 		ta.setWidth("80em");
 		ta.setVisible(false);
 
-		upload.addSucceededListener(event -> {
-			try {
-				processInput(event.getFileName(), buffer.getInputStream(), ta);
+		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
+			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
+				processInput(metadata.fileName(), inputStream, ta);
 				
 				ConfirmDialog dialog = new ConfirmDialog();
 				dialog.setHeader(Translator.translate("Import.Success"));
@@ -78,24 +74,22 @@ public class JsonUploadDialog extends Dialog {
 				}
 
 			} catch (Throwable e) {
-				e.printStackTrace();
-				ta.setValue(LoggerUtils./**/stackTrace(e));
+				logger.error("Error processing uploaded JSON file", e);
+				ta.setValue(LoggerUtils.stackTrace(e));
+				ta.setVisible(true);
+				if (ui != null) {
+					ui.push();
+				}
 			}
-		});
-
-		upload.addStartedListener(event -> {
+		}).whenStart(() -> {
 			logger.debug("started");
 			ta.clear();
 			ta.setVisible(false);
 		});
-
-		upload.addFailedListener(event -> {
-			logger.error("failed upload {}", event.getReason());
-		});
-
-		upload.addFileRejectedListener(event -> {
-			logger.error("rejected {}" + event.getErrorMessage());
-		});
+		
+		Upload upload = new Upload(uploadHandler);
+		upload.setWidth("40em");
+		upload.setAcceptedFileTypes("application/json");
 
 		H3 title = new H3(Translator.translate("ExportDatabase.UploadJson"));
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);

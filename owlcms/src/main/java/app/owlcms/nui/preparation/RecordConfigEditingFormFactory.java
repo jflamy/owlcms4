@@ -8,6 +8,7 @@ import com.vaadin.flow.component.html.Paragraph;********************************
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +41,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.server.streams.UploadHandler;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.ValidationException;
@@ -180,16 +181,13 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 				        throw new RuntimeException(e);
 			        }
 		        });
-		MemoryBuffer receiver = new MemoryBuffer();
 
 		Button uploadButton = new Button(Translator.translate("Records.UploadButton"));
 		uploadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		Upload uploadRecords = new Upload(receiver);
-		uploadRecords.setUploadButton(uploadButton);
-		uploadRecords.setDropLabel(new NativeLabel(Translator.translate("Records.UploadDropZone")));
-		uploadRecords.addSucceededListener(e -> {
-			List<String> errors = new RecordDefinitionReader().readInputStream(receiver.getInputStream(),
-			        receiver.getFileName());
+		
+		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, bytes) -> {
+			List<String> errors = new RecordDefinitionReader().readInputStream(new ByteArrayInputStream(bytes),
+			        metadata.fileName());
 			if (errors.isEmpty()) {
 				UI.getCurrent().getPage().reload();
 			} else {
@@ -206,6 +204,10 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 				d.open();
 			}
 		});
+		
+		Upload uploadRecords = new Upload(uploadHandler);
+		uploadRecords.setUploadButton(uploadButton);
+		uploadRecords.setDropLabel(new NativeLabel(Translator.translate("Records.UploadDropZone")));
 
 		FormLayout recordsAvailableLayout = createLayout();
 		Component title = createTitle("RecordConfig.UploadRecords");

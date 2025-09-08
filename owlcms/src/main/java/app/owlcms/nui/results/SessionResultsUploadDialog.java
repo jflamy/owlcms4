@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.results;
 
+import java.io.ByteArrayInputStream;
 import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
@@ -25,7 +26,7 @@ import ch.qos.logback.classic.Logger;
 public class SessionResultsUploadDialog extends Dialog {
 
 	public final static Logger logger = (Logger) LoggerFactory.getLogger(SessionResultsUploadDialog.class);
-	private Consumer<MemoryBuffer> callback;
+	private Consumer<ByteArrayInputStream> callback;
 
 	public SessionResultsUploadDialog() {
 
@@ -33,34 +34,31 @@ public class SessionResultsUploadDialog extends Dialog {
 		label.getStyle().set("color", "red");
 		label.getStyle().set("font-size", "large");
 
-		MemoryBuffer buffer = new MemoryBuffer();
-		Upload upload = new Upload(buffer);
-		upload.setWidth("40em");
-
 		TextArea ta = new TextArea(Translator.translate("Errors"));
 		ta.setHeight("20ex");
 		ta.setWidth("80em");
 		ta.setVisible(false);
 
-		upload.addSucceededListener(event -> {
-			getCallback().accept(buffer);
-		});
-
-		upload.addStartedListener(event -> {
+		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, bytes) -> {
+			getCallback().accept(new ByteArrayInputStream(bytes));
+		}).whenStart(() -> {
 			ta.clear();
 			ta.setVisible(false);
 		});
+		
+		Upload upload = new Upload(uploadHandler);
+		upload.setWidth("40em");
 
 		H3 title = new H3(Translator.translate("ImportSessions.UploadDatabaseExport"));
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
 		add(vl);
 	}
 
-	public Consumer<MemoryBuffer> getCallback() {
+	public Consumer<ByteArrayInputStream> getCallback() {
 		return this.callback;
 	}
 
-	public void setCallback(Consumer<MemoryBuffer> callback) {
+	public void setCallback(Consumer<ByteArrayInputStream> callback) {
 		this.callback = callback;
 	}
 

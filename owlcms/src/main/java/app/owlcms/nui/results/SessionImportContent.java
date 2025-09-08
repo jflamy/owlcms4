@@ -90,9 +90,9 @@ public class SessionImportContent extends BaseContent implements CrudListener<Gr
 		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> {
 			        SessionResultsUploadDialog sessionUploadDialog = new SessionResultsUploadDialog();
-			        sessionUploadDialog.setCallback((mb) -> {
+			        sessionUploadDialog.setCallback((inputStream) -> {
 				        try {
-					        AthleteSessionDataReader.importAthletes(mb.getInputStream(), getSortedSelection());
+					        AthleteSessionDataReader.importAthletes(inputStream, getSortedSelection());
 				        } catch (IOException e) {
 					        LoggerUtils.logError(logger, e);
 				        }

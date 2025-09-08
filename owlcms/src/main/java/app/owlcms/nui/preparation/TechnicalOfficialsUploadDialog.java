@@ -1,6 +1,6 @@
 package app.owlcms.nui.preparation;
 
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.server.streams.UploadHandler;
 import com.vaadin.flow.component.textfield.TextArea;
 
 import app.owlcms.data.technicalofficial.TechnicalOfficialReader;
@@ -19,31 +19,23 @@ import ch.qos.logback.classic.Logger;
 public class TechnicalOfficialsUploadDialog extends Dialog {
     Logger logger = (Logger) LoggerFactory.getLogger(TechnicalOfficialsUploadDialog.class);
     private Runnable callback;
-    private MemoryBuffer buffer = new MemoryBuffer();
     private Upload upload;
     // Change from NativeLabel to TextArea for multi-line error output:
     private TextArea errorArea = new TextArea();
 
     public TechnicalOfficialsUploadDialog() {
         Button uploadButton = new Button(Translator.translate("SelectFile"));
-        upload = new Upload(buffer);
-        upload.setUploadButton(uploadButton);
-        upload.setDropLabel(new NativeLabel(Translator.translate("DropZone")));
-
-        errorArea.setReadOnly(true);
-        errorArea.setVisible(false);
-        errorArea.setWidth("100%");
-
-        upload.addSucceededListener(e -> {
+        
+        UploadHandler uploadHandler = UploadHandler.inMemory((metadata, bytes) -> {
             try {
-                InputStream is = buffer.getInputStream();
+                ByteArrayInputStream is = new ByteArrayInputStream(bytes);
                 StringBuilder errors = new StringBuilder();
                 var officials = new TechnicalOfficialReader().importFromXLS(is, errors);
                 if (errors.length() > 0) {
                     errorArea.setValue(errors.toString());
                     errorArea.setVisible(true);
                 } else {
-                    errorArea.setValue(Translator.translate("TechnicalOfficials.UploadSuccess", officials.size()));
+                    errorArea.setValue(Translator.translate("TechnicalOfficials.UploadSuccess", officials));
                     if (callback != null) {
                         callback.run();
                     }
@@ -54,6 +46,14 @@ public class TechnicalOfficialsUploadDialog extends Dialog {
                 logger.error("Upload failed", ex);
             }
         });
+        
+        upload = new Upload(uploadHandler);
+        upload.setUploadButton(uploadButton);
+        upload.setDropLabel(new NativeLabel(Translator.translate("DropZone")));
+
+        errorArea.setReadOnly(true);
+        errorArea.setVisible(false);
+        errorArea.setWidth("100%");
 
         add(upload);
         add(errorArea);

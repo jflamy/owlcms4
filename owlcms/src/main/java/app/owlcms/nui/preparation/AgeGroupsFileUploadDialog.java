@@ -8,13 +8,15 @@ package app.owlcms.nui.preparation;
 
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.i18n.Translator;
@@ -32,24 +34,28 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 		label.getStyle().set("color", "red");
 		label.getStyle().set("font-size", "large");
 
-		MemoryBuffer buffer = new MemoryBuffer();
-		Upload upload = new Upload(buffer);
-		upload.setWidth("40em");
-
 		TextArea ta = new TextArea(Translator.translate("Errors"));
 		ta.setHeight("20ex");
 		ta.setWidth("80em");
 		ta.setVisible(false);
 
-		upload.addSucceededListener(event -> {
-			AgeGroupRepository.reloadDefinitions(buffer.getInputStream());
-			getCallback().run();
-		});
-
-		upload.addStartedListener(event -> {
+		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
+			// Process the uploaded file data
+			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
+				AgeGroupRepository.reloadDefinitions(inputStream);
+				getCallback().run();
+			} catch (Exception e) {
+				logger.error("Error processing uploaded age groups file", e);
+				// You might want to show an error notification here
+			}
+		}).whenStart(() -> {
+			// Clear and hide the error area when upload starts
 			ta.clear();
 			ta.setVisible(false);
 		});
+		
+		Upload upload = new Upload(uploadHandler);
+		upload.setWidth("40em");
 
 		H3 title = new H3(Translator.translate("AgeGroups.UploadCustom"));
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);

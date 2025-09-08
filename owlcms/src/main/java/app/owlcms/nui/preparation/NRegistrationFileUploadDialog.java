@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
@@ -20,7 +21,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.CategoryRepository;
@@ -56,10 +57,6 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		H5 sbdeLabel = new H5(Translator.translate("SBDE.AthleteOptions_WARNING"));
 		sbdeLabel.getStyle().set("color", "red");
 
-		MemoryBuffer buffer = new MemoryBuffer();
-		Upload upload = new Upload(buffer);
-		upload.setWidth("40em");
-
 		Component sos = sessionOptionSelectors();
 		Component aos = athleteOptionSelectors();
 
@@ -73,24 +70,26 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		ta.setWidth("80em");
 		ta.setVisible(false);
 
-		upload.addSucceededListener(event -> {
-			this.processor = this.sbdeFormat // (buffer.getInputStream())
+		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
+			// Process the uploaded file data
+			this.processor = this.sbdeFormat
 			        ? new NRegistrationFileProcessor(sbdeFormat)
 			        : new NRegistrationFileProcessor(sbdeFormat);
-			this.fileName = event.getFileName();
-			try {
-				buffer.getInputStream().reset();
-				processInput(buffer.getInputStream(), ta);
+			this.fileName = metadata.fileName();
+			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
+				processInput(inputStream, ta);
 			} catch (Exception e) {
+				logger.error("Error processing uploaded registration file", e);
 				throw new RuntimeException(e);
 			}
-
-		});
-
-		upload.addStartedListener(event -> {
+		}).whenStart(() -> {
+			// Clear and hide the error area when upload starts (equivalent to addStartedListener)
 			ta.clear();
 			ta.setVisible(false);
 		});
+		
+		Upload upload = new Upload(uploadHandler);
+		upload.setWidth("40em");
 
 		H3 title = new H3(Translator.translate("UploadRegistrationFile"));
 		VerticalLayout vl;
