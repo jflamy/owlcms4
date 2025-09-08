@@ -16,6 +16,7 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
@@ -44,6 +45,9 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	private OwlcmsGridLayout owlcmsGridLayout;
 	private boolean clickable = true;
 	protected long clicked = 0L;
+	
+	// Focus management
+	private T triggeringItem;
 
 	/**
 	 * Instantiates a new owlcms crudGrid crudGrid.
@@ -62,6 +66,10 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		// {}",System.identityHashCode(owlcmsCrudFormFactory), LoggerUtils.whereFrom());
 		this.setCrudFormFactory(owlcmsCrudFormFactory);
 		this.setOwlcmsGridLayout(crudLayout);
+		
+		// Set up the grid reference for dialog close callbacks
+		crudLayout.setOwlcmsCrudGrid(this);
+		
 		initLayoutGrid();
 	}
 
@@ -87,7 +95,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
 	protected void cancelCallback() {
 		this.getOwlcmsGridLayout().hideForm();
-		this.grid.asSingleSelect().clear();
+		focusOutsideThenBackToTriggeringItem();
 	}
 
 	/*
@@ -125,17 +133,58 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	protected void deleteCallBack() {
 		this.getOwlcmsGridLayout().hideForm();
 		this.deleteButtonClicked();
+		focusOnAddButton();  // For delete, just focus outside without returning to triggering item
 	}
 
 	protected void deleteCallBack(T domainObject) {
 		this.getOwlcmsGridLayout().hideForm();
 		this.deleteButtonClicked(domainObject);
+		focusOnAddButton();  // For delete, just focus outside without returning to triggering item
 	}
 
 	@Override
 	protected void findAllButtonClicked() {
 		this.grid.sort(null); // reset the sorting order to none - use the query result set as is.
 		super.findAllButtonClicked();
+	}
+
+	/**
+	 * Focus management: Focus outside the grid, then back to the triggering item.
+	 * This performs a two-step focus to clear any unwanted highlights.
+	 */
+	protected void focusOutsideThenBackToTriggeringItem() {
+		// Step 1: Clear selection and focus outside the grid
+		this.grid.asSingleSelect().clear();
+		getAddButton().focus();
+		
+		// Step 2: After a short delay, re-select and focus the triggering item
+		if (triggeringItem != null) {
+			UI.getCurrent().access(() -> {
+				this.grid.select(triggeringItem);
+				this.grid.focus();
+			});
+			UI.getCurrent().push();
+		}
+	}
+
+	/**
+	 * Focus management: Just focus on the add button to clear grid highlights.
+	 */
+	protected void focusOnAddButton() {
+		this.grid.asSingleSelect().clear();
+		getAddButton().focus();
+	}
+
+	@Override
+	protected void addButtonClicked() {
+		triggeringItem = null; // For add operations, no triggering item
+		super.addButtonClicked();
+	}
+
+	@Override
+	protected void updateButtonClicked() {
+		triggeringItem = this.grid.asSingleSelect().getValue(); // Capture the selected item
+		super.updateButtonClicked();
 	}
 
 	/**
@@ -214,6 +263,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 			refreshGrid();
 			Notification.show(successMessage);
 			logger.trace("operation performed");
+			focusOutsideThenBackToTriggeringItem();
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
 		}
@@ -228,6 +278,9 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 	@Override
 	protected void showForm(CrudOperation operation, T domainObject, boolean readOnly, String successMessage,
 	        ComponentEventListener<ClickEvent<Button>> unused) {
+		// Store the item that triggered the dialog (could be new for add, or existing for update)
+		triggeringItem = domainObject;
+		
 		OwlcmsCrudFormFactory<T> owlcmsCrudFormFactory = (OwlcmsCrudFormFactory<T>) this.getCrudFormFactory();
 		Component form = owlcmsCrudFormFactory.buildNewForm(operation, domainObject, readOnly,
 		        cancelButtonClickEvent -> {
@@ -242,6 +295,14 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
 		String caption = owlcmsCrudFormFactory.buildCaption(operation, domainObject);
 		this.getOwlcmsGridLayout().showForm(operation, form, caption);
+	}
+
+	/**
+	 * Handle dialog close events (Escape key, clicking outside, etc.)
+	 * This is called by the grid layout when the dialog is closed.
+	 */
+	public void handleDialogClose() {
+		focusOutsideThenBackToTriggeringItem();
 	}
 
 }

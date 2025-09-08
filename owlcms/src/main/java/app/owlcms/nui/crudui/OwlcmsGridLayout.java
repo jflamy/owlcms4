@@ -28,6 +28,8 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 
 	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsGridLayout.class);
+	
+	private OwlcmsCrudGrid<?> owlcmsCrudGrid;
 
 	/**
 	 * Instantiates a new owlcms crudGrid layout.
@@ -93,6 +95,13 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		return this.toolbarLayout;
 	}
 
+	/**
+	 * Set the associated OwlcmsCrudGrid for dialog close callbacks.
+	 */
+	public void setOwlcmsCrudGrid(OwlcmsCrudGrid<?> grid) {
+		this.owlcmsCrudGrid = grid;
+	}
+
 	@Override
 	public void showDialog(String caption, Component form) {
 		VerticalLayout dialogLayout = new VerticalLayout(form);
@@ -105,6 +114,16 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		h3.getStyle().set("margin-bottom", "0");
 		this.dialog = new Dialog(h3, dialogLayout);
 		this.dialog.setWidth(this.formWindowWidth);
+		
+		// Add dialog close listener for focus management
+		if (this.owlcmsCrudGrid != null) {
+			this.dialog.addOpenedChangeListener(e -> {
+				if (!e.isOpened()) {
+					this.owlcmsCrudGrid.handleDialogClose();
+				}
+			});
+		}
+		
 		this.dialog.open();
 	}
 }
