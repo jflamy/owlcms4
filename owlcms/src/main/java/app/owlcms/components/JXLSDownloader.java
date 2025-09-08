@@ -253,46 +253,46 @@ public class JXLSDownloader {
 
 			// supplier is a lambda that sets the template and the filter values in the xls
 			// source
-			Resource res = searchMatch(prioritizedList, newTemplateName);
-			if (res == null) {
-				this.logger.debug("(2) template NOT found {} {}", newTemplateName, prioritizedList);
-				throw new Exception("template not found " + newTemplateName);
-			}
-			this.logger.debug("(2) template found {}", res != null ? res.getFilePath() : null);
-			this.templateNameSetter.accept(current, newTemplateName);
-			this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
+		       Resource res = searchMatch(prioritizedList, newTemplateName);
+		       if (res == null) {
+			       this.logger.debug("(2) template NOT found {} {} - waiting for user to select a template", newTemplateName, prioritizedList);
+			       return;
+		       }
+		       this.logger.debug("(2) template found {}", res.getFilePath());
+		       this.templateNameSetter.accept(current, newTemplateName);
+		       this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
 
-			this.xlsWriter = this.streamSourceSupplier.get();
-			this.logger.debug("(2) xlsWriter dialog {} {}", this.xlsWriter, this.dialog);
-			if (this.xlsWriter == null) {
-				UI.getCurrent().access(() -> this.dialog.close());
-				return;
-			}
-			this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
-			        newTemplateName);
+		       this.xlsWriter = this.streamSourceSupplier.get();
+		       this.logger.debug("(2) xlsWriter dialog {} {}", this.xlsWriter, this.dialog);
+		       if (this.xlsWriter == null) {
+			       UI.getCurrent().access(() -> this.dialog.close());
+			       return;
+		       }
+		       this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
+			       newTemplateName);
 
-			CompetitionRepository.save(current);
-			current = Competition.getCurrent();
-			this.logger.debug("(2) template as stored {}", this.templateNameGetter.apply(current));
+		       CompetitionRepository.save(current);
+		       current = Competition.getCurrent();
+		       this.logger.debug("(2) template as stored {}", this.templateNameGetter.apply(current));
 
-			InputStream is = res.getStream();
-			this.xlsWriter.setInputStream(is);
-			this.logger.debug("(2) filter present = {} {} {}", this.xlsWriter.getGroup(),
-			        this.xlsWriter.getCategory(),
-			        this.xlsWriter.getChampionship());
+		       InputStream is = res.getStream();
+		       this.xlsWriter.setInputStream(is);
+		       this.logger.debug("(2) filter present = {} {} {}", this.xlsWriter.getGroup(),
+			       this.xlsWriter.getCategory(),
+			       this.xlsWriter.getChampionship());
 
-			String targetFileName = getTargetFileName();
-			this.logger.debug("(2) targetFileName final = {}", targetFileName);
+		       String targetFileName = getTargetFileName();
+		       this.logger.debug("(2) targetFileName final = {}", targetFileName);
 
-			Supplier<String> supplier = () -> getTargetFileName();
+		       Supplier<String> supplier = () -> getTargetFileName();
 
-			Anchor nDownloadAnchor = doCreateActualDownloadButton(this.resource, this.xlsWriter,
-			        supplier.get());
-			// if downloadAnchor is null, same as add nDownloadAnchor
-			templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
-			this.downloadAnchor = nDownloadAnchor;
+		       Anchor nDownloadAnchor = doCreateActualDownloadButton(this.resource, this.xlsWriter,
+			       supplier.get());
+		       // if downloadAnchor is null, same as add nDownloadAnchor
+		       templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
+		       this.downloadAnchor = nDownloadAnchor;
 
-			this.xlsWriter.setDoneCallback((message) -> this.dialog.close());
+		       this.xlsWriter.setDoneCallback((message) -> this.dialog.close());
 		} catch (Throwable e1) {
 			this.logger.error("{}", LoggerUtils.stackTrace(e1));
 		}

@@ -26,7 +26,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.dom.DomEvent;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.InputStreamFactory;
-import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.shared.Registration;
 
 import app.owlcms.servlet.StopProcessingException;
@@ -158,9 +158,13 @@ public class LazyDownloadButton extends Button {
 								this.notification.open();
 							}
 
-							StreamResource href = new StreamResource(getFileNameCallback().get(), () -> inputStream);
-							href.setCacheTime(0);
-							this.anchor.setHref(href);
+							DownloadHandler downloadHandler = (downloadEvent) -> {
+								try (InputStream is = inputStream) {
+									downloadEvent.setFileName(getFileNameCallback().get());
+									is.transferTo(downloadEvent.getOutputStream());
+								}
+							};
+							this.anchor.setHref(downloadHandler);
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
