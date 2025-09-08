@@ -41,7 +41,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -131,8 +131,15 @@ public class TeamResultsContent extends BaseContent
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
 		this.xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-		StreamResource href = new StreamResource(TITLE + "Report" + ".xls", () -> this.xlsWriter.createInputStream());
-		this.finalPackage = new Anchor(href, "");
+		DownloadHandler downloadHandler = event -> {
+			event.setFileName(TITLE + "Report" + ".xls");
+			try (var is = this.xlsWriter.createInputStream()) {
+				is.transferTo(event.getOutputStream());
+			} catch (Exception ex) {
+				// Optionally log error
+			}
+		};
+		this.finalPackage = new Anchor(downloadHandler, "");
 		this.finalPackage.getStyle().set("margin-left", "1em");
 		this.download = new Button(Translator.translate(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
