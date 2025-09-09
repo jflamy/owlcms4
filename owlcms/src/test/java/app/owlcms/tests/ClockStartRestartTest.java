@@ -77,6 +77,7 @@ public class ClockStartRestartTest {
     @Test
     public void liftSequence1() {
         FieldOfPlay fopState = OwlcmsSession.getFop();
+        @SuppressWarnings("unused")
         EventBus fopBus = fopState.getFopEventBus();
         logger.setLevel(Level.DEBUG);
         ((Logger) LoggerFactory.getLogger(Athlete.class)).setLevel(Level.DEBUG);
@@ -105,24 +106,6 @@ public class ClockStartRestartTest {
         org.junit.Assert.assertTrue("refereeDecision[0] expected null but was: " + rdS, rd == null || rd[0] == null);
         org.junit.Assert.assertTrue("refereeDecision[1] expected null but was: " + rdS, rd == null || rd[1] == null);
         org.junit.Assert.assertTrue("refereeDecision[2] expected null but was: " + rdS, rd == null || rd[2] == null);
-    }
-
-    @Test
-    public void liftSequence2() throws InterruptedException {
-        FieldOfPlay fopState = OwlcmsSession.getFop();
-        EventBus fopBus = fopState.getFopEventBus();
-        logger.setLevel(Level.DEBUG);
-        ((Logger) LoggerFactory.getLogger(Athlete.class)).setLevel(Level.DEBUG);
-        ((Logger) LoggerFactory.getLogger(MockCountdownTimer.class)).setLevel(Level.DEBUG);
-        testPrepState(fopState, fopState.getFopEventBus(), logger);
-        Group group = fopState.getGroup();
-        fopState.fopEventPost(new FOPEvent.SwitchGroup(group, this));
-        fopState.fopEventPost(new FOPEvent.StartLifting(this));
-
-        athletes = fopState.getDisplayOrder();
-        final Athlete schneiderF = athletes.get(0);
-        final Athlete simpsonR = athletes.get(1);
-
     }
 
     @Before
@@ -225,6 +208,7 @@ public class ClockStartRestartTest {
 
     }
 
+    @SuppressWarnings("unused")
     private void successfulLift(EventBus fopBus, Athlete curLifter, FieldOfPlay fopState) {
         logger.debug("calling lifter: {}", curLifter);
         fopBus.post(new FOPEvent.TimeStarted(null));
