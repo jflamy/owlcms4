@@ -14,5 +14,7 @@
 
 61.0.0: Technical Update to [Vaadin](https://vaadin.com/) version 24.8.7.   The main changes are to the Upload and Download mechanisms.
 
+61.0.0: Fixes for glitches in clock restart (reset of decisions) and forced time (missing/delayed MQTT events)
+
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 
