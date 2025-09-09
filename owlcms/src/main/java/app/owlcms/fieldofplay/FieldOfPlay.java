@@ -912,10 +912,15 @@ public class FieldOfPlay implements IUnregister {
 					prepareDownSignal();
 					setWeightAtLastStart();
 
+					/* 	THIS IS WRONG, we need to reset decisions on clock restart.				
 					// we do not reset decisions or "emitted" flags
 					setState(TIME_RUNNING);
 					checkFirstClockForLift();
 					getAthleteTimer().start();
+					 */
+
+					checkFirstClockForLift();
+					restartTimer(e, false);
 				} else if (e instanceof WeightChange) {
 					doWeightChange((WeightChange) e);
 				} else if (e instanceof ExplicitDecision) {
@@ -955,7 +960,7 @@ public class FieldOfPlay implements IUnregister {
 					this.deferredWeightChanges.add((WeightChange) e);
 				} else if (e instanceof TimeStarted) {
 					// needed if decision has been given too early (e.g. bar did not reach the knees but reds given)
-					restartTimer(e);
+					restartTimer(e, true);
 				} else {
 					unexpectedEventInState(e, DOWN_SIGNAL_VISIBLE);
 				}
@@ -2635,7 +2640,8 @@ public class FieldOfPlay implements IUnregister {
 		setClockStoppedDecisionsAllowed(false);
 	}
 
-	private void restartTimer(FOPEvent e) {
+	private void restartTimer(FOPEvent e, boolean useEvent) {
+		//logger.trace("*** restartTimer {} from:{}", e.getAthlete(), LoggerUtils.whereFrom());
 		cancelWakeUpRef();
 		if (this.decisionDisplayTimer != null) {
 			this.decisionDisplayTimer.cancel();
@@ -2643,7 +2649,12 @@ public class FieldOfPlay implements IUnregister {
 		resetDecisions();
 		pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this, this));
 		transitionToLifting(e, this.group, this.announcerDecisionImmediate);
-		fopEventPost(new FOPEvent.TimeStarted(this));
+		// if we are in TIME_STOPPED, this will create a loop as we will come back here.
+		if (useEvent) {
+			fopEventPost(new FOPEvent.TimeStarted(this));
+		} else {
+			getAthleteTimer().start();
+		}
 	}
 
 	private boolean resumeLifting(FOPEvent e) {
