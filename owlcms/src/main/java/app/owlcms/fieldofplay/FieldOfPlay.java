@@ -925,10 +925,12 @@ public class FieldOfPlay implements IUnregister {
 					doWeightChange((WeightChange) e);
 				} else if (e instanceof ExplicitDecision) {
 					simulateDecision((ExplicitDecision) e);
-				} else if (e instanceof ForceTime) {
-					getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed, false);
-					setState(CURRENT_ATHLETE_DISPLAYED);
-				} else if (e instanceof TimeStopped) {
+				}
+				// else if (e instanceof ForceTime) {
+				// 	getAthleteTimer().setTimeRemaining(((ForceTime) e).timeAllowed, false);
+				// 	setState(CURRENT_ATHLETE_DISPLAYED);
+				// } 
+				else if (e instanceof TimeStopped) {
 					// ignore duplicate time stopped
 				} else if (e instanceof TimeOver) {
 					// ignore, already dealt by timer
@@ -1725,7 +1727,7 @@ public class FieldOfPlay implements IUnregister {
 		// need to set time
 		int ta = e.timeAllowed;
 		this.logger.debug("{}forcing time to {}", FieldOfPlay.getLoggingName(this), ta);
-		getAthleteTimer().stop();
+		//getAthleteTimer().stop();
 		getAthleteTimer().setTimeRemaining(ta, false);
 		getAthleteTimer().stop();
 		setClockOwnerInitialTimeAllowed(ta);
@@ -2641,7 +2643,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void restartTimer(FOPEvent e, boolean useEvent) {
-		//logger.trace("*** restartTimer {} from:{}", e.getAthlete(), LoggerUtils.whereFrom());
+		//logger.trace("!!!!! restartTimer {} from:{}", this.getCurAthlete(), LoggerUtils.whereFrom());
 		cancelWakeUpRef();
 		if (this.decisionDisplayTimer != null) {
 			this.decisionDisplayTimer.cancel();
@@ -2649,10 +2651,13 @@ public class FieldOfPlay implements IUnregister {
 		resetDecisions();
 		pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this, this));
 		transitionToLifting(e, this.group, this.announcerDecisionImmediate);
+
 		// if we are in TIME_STOPPED, this will create a loop as we will come back here.
+		// in that case, useEvent should be false so we simply restart the timer.
 		if (useEvent) {
 			fopEventPost(new FOPEvent.TimeStarted(this));
 		} else {
+			setState(TIME_RUNNING);
 			getAthleteTimer().start();
 		}
 	}
