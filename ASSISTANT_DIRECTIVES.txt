@@ -1,0 +1,47 @@
+# ASSISTANT_DIRECTIVES.txt
+# Canonical single-file directives for automated assistants and contributors.
+#
+# Purpose:
+# - Provide a single, well-documented location containing both human-readable
+#   directives and a small machine-readable block that automated assistants can
+#   parse and obey.
+# - This file is the canonical source of truth; remove or update any other
+#   assistant-specific directive files and keep this one up-to-date.
+#
+# Format conventions:
+# - Lines starting with '#' are comments and intended for humans.
+# - The machine-readable JSON appears between the markers:
+#     ### MACHINE_DIRECTIVES_START
+#     { ... }
+#     ### MACHINE_DIRECTIVES_END
+# - Simple scripts or assistants should read the file, ignore comment lines,
+#   find the JSON between the markers and parse it. If the markers are missing
+#   assume conservative defaults (no_auto_build = true).
+#
+# Preferred shell: bash
+# Example usage (pseudo):
+#   text = readFile('ASSISTANT_DIRECTIVES.txt')
+#   jsonText = extractBetweenMarkers(text, 'MACHINE_DIRECTIVES_START', 'MACHINE_DIRECTIVES_END')
+#   directives = parseJson(jsonText)
+#
+### MACHINE_DIRECTIVES_START
+{
+  "version": 1,
+  "directives": {
+    "no_auto_build": true,
+    "no_mvn": true,
+    "require_human_consent_for_build": true,
+    "do_not_exfiltrate_secrets": true,
+    "preferred_shell": "bash"
+  }
+}
+### MACHINE_DIRECTIVES_END
+
+# Human-readable summary:
+# - NO_AUTO_BUILD / NO_MVN are set to true: do not run 'mvn' or perform automatic builds
+#   in this repository without explicit human confirmation.
+# - Do not exfiltrate secrets. Use environment variables or a secrets manager.
+
+# If you are an automated assistant: always check this file first and request
+# explicit human consent if any action would trigger a build, deployment, or
+# data exfiltration.
