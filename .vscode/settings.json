@@ -6,7 +6,47 @@
         "**/.settings": true,
         "**/.factorypath": true
     },
-    // Disable annotation processing to prevent VS Code from modifying .classpath files
+
+    // Java performance and autobuild
+    "java.autobuild.enabled": true,
+    "java.autobuild.annotation.processing.enabled": false,
     "java.annotation.processing.enabled": false,
-    "java.autobuild.annotation.processing.enabled": false
+    "java.import.gradle.enabled": false,
+    "java.compile.nullAnalysis.mode": "disabled",
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "java.project.importOnFirstTimeStartup": "disabled",
+    "java.server.launchMode": "Standard",
+    "java.project.importHint": false,
+    "java.saveActions.organizeImports": true,
+    "java.validate.allOpenBuffersOnChanges": false,
+    "java.validate.enable": true,
+    "java.project.resourceFilters": [
+        "node_modules",
+        ".git",
+        "target",
+        ".vscode",
+        ".idea"
+    ],
+
+    // Java editor and completion features
+    "java.completion.enabled": true,
+    "java.signatureHelp.enabled": true,
+    "java.hover.enabled": true,
+    "java.format.enabled": true,
+
+    // Debug and terminal
+    "debug.toolBarLocation": "docked",
+    "debug.allowBreakpointsEverywhere": true,
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "terminal.integrated.defaultProfile.linux": "bash",
+
+    // Maven optimization
+    "maven.explorer.projectName": "${project.artifactId}",
+    "maven.executable.path": "/opt/maven/bin/mvn",
+
+    // Custom VM args (if needed for local dev)
+    "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+
+    // Window title
+    "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}"
 }

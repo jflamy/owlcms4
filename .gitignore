@@ -49,3 +49,4 @@ owlcms/.classpath
 /.vscode/.env.mac
 /.code-workspace
 /owlcmsHotswap.code-workspace
+jfl*.*

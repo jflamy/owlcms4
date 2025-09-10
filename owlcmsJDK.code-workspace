@@ -5,13 +5,5 @@
     }
   ],
   "settings": {
-    "debug.toolBarLocation": "docked",
-    "java.autobuild.enabled": true,
-    "java.import.gradle.enabled": false,
-    "terminal.integrated.defaultProfile.windows": "Git Bash",
-    "java.compile.nullAnalysis.mode": "disabled",
-    "java.configuration.updateBuildConfiguration": "interactive",
-    "java.annotation.processing.enabled": false,
-    "java.autobuild.annotation.processing.enabled": false
   },
 }

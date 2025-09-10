@@ -5,24 +5,13 @@
     }
   ],
   "settings": {
-    "debug.toolBarLocation": "docked",
-    "java.autobuild.enabled": true,
     "java.configuration.runtimes": [
       {
         "name": "JavaSE-17",
         "path": "/usr/local/jdk-17-dcevm",
         "default": true
       }
-    ],
-    "java.import.gradle.enabled": false,
-    "terminal.integrated.defaultProfile.linux": "bash",
-    "java.compile.nullAnalysis.mode": "disabled",
-    "java.configuration.updateBuildConfiguration": "interactive",
-    "java.annotation.processing.enabled": false,
-    "java.autobuild.annotation.processing.enabled": false,
-    "debug.allowBreakpointsEverywhere": true,
-    "maven.executable.path": "/opt/maven/bin/mvn",
-    "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}${separator}Devcontainer"
+    ]
   },
   
   "extensions": {
