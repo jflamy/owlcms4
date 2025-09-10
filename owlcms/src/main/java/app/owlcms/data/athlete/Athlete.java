@@ -1063,7 +1063,7 @@ public class Athlete {
 		if (eligiblesAsString.isBlank()) {
 			return mainCategoryString;
 		} else {
-			return mainCategory + "|" + eligiblesAsString;
+			return mainCategory + ";" + eligiblesAsString;
 		}
 	}
 
