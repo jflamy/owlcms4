@@ -325,6 +325,7 @@ public class Group implements Comparable<Group> {
 	private LocalDateTime lastSnatchDecisionTime;
 	private LocalDateTime lastCJDecisionTime;
 	private String reserveJury;
+	private String doctor;
 
 	/**
 	 * Instantiates a new group.
@@ -1163,6 +1164,25 @@ public class Group implements Comparable<Group> {
 	@JsonIgnore
 	public TechnicalOfficial getReserveJuryAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.reserveJury);
+		return to;
+	}
+
+	
+	/**
+	 * @return the doctor
+	 */
+	public String getDoctor() {
+		return this.doctor;
+	}
+
+	public void setDoctor(String doctor) {
+		this.doctor = doctor;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getDoctorAsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor);
 		return to;
 	}
 

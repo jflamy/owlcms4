@@ -80,6 +80,7 @@ import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSCardsWeighIn;
+import app.owlcms.spreadsheet.JXLSCategoriesListDocs;
 import app.owlcms.spreadsheet.JXLSJurySheet;
 import app.owlcms.spreadsheet.JXLSResultSheet;
 import app.owlcms.spreadsheet.JXLSWeighInSheet;
@@ -192,6 +193,7 @@ public class WeighinContent extends BaseContent
 	private Button juryButton;
 	private Button startingWeightsButton;
 	private Button weighInButton;
+	private Button introductionButton;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private ComboBox<String> teamFilter = new ComboBox<>();
 	private Boolean weighedIn;
@@ -234,6 +236,7 @@ public class WeighinContent extends BaseContent
 		this.startingWeightsButton = createStartingWeightsButton();
 		this.weighInButton = createWeighInButton();
 		this.juryButton = createJuryButton();
+		this.introductionButton = createIntroductionButton();
 
 		Button start = new Button(Translator.translate("GenerateStartNumbers"), (e) -> {
 			generateStartNumbers();
@@ -251,7 +254,7 @@ public class WeighinContent extends BaseContent
 		        start, clear,
 		        hr,
 		        new NativeLabel(Translator.translate("WeighIn_SessionDocuments")),
-		        this.weighInButton, this.cardsButton, this.startingWeightsButton, this.juryButton);
+		        this.weighInButton, this.cardsButton, this.startingWeightsButton, this.juryButton, this.introductionButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "3em");
@@ -857,6 +860,9 @@ public class WeighinContent extends BaseContent
 		// enable quick batch mode only when doing a session
 		boolean sessionSelected = this.getGroup() != null && !this.getGroup().getName().equals("*");
 		((NextCrudGrid) this.crudGrid).batchButton.setEnabled(sessionSelected);
+		if (this.introductionButton != null) {
+			this.introductionButton.setEnabled(sessionSelected);
+		}
 		return found;
 	}
 
@@ -970,6 +976,34 @@ public class WeighinContent extends BaseContent
 		        title,
 		        Translator.translate("Download"));
 		return startingWeightsButton.createDownloadButton();
+	}
+
+	private Button createIntroductionButton() {
+		String resourceDirectoryLocation = "/templates/introduction";
+		String title = Translator.translate("INTRODUCTION");
+
+		JXLSDownloader introductionButton = new JXLSDownloader(
+		        () -> {
+			        Group curGroup = getGroupFilter().getValue();
+			        if (curGroup == null) {
+				        errorNotification();
+				        return null;
+			        }
+			        JXLSCategoriesListDocs rs = new JXLSCategoriesListDocs();
+			        rs.setGroup(GroupRepository.getById(curGroup.getId()));
+			        List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(curGroup, null);
+			        AthleteRepository.assignStartNumbers(athletes);
+			        // sort to the desired order
+			        athletes.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
+			        rs.setSortedAthletes(athletes);
+			        return rs;
+		        },
+		        resourceDirectoryLocation,
+		        Competition::getIntroductionTemplateFileName,
+		        Competition::setIntroductionTemplateFileName,
+		        title,
+		        Translator.translate("Download"));
+		return introductionButton.createDownloadButton();
 	}
 
 	private void doSwitchGroup(Group newCurrentGroup) {

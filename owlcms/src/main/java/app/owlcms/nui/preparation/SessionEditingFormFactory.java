@@ -351,6 +351,13 @@ public class SessionEditingFormFactory
 		        .withNullRepresentation("")
 		        .bind(Group::getReserveJury, Group::setReserveJury);
 
+		addRuler(juryLayout);
+		ComboBox<String> doctor = createOfficialComboBox("Doctor");
+		juryLayout.add(doctor);
+		this.binder.forField(doctor)
+		        .withNullRepresentation("")
+		        .bind(Group::getDoctor, Group::setDoctor);
+
 		return juryLayout;
 	}
 
