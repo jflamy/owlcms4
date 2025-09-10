@@ -1,0 +1,49 @@
+// Make yourself a copy of this file and rename it to use Hotswap
+// Use the copy to start your workspace.
+
+// To use Hotswap, get a JDK with DCEVM from https://github.com/JetBrains/JetBrainsRuntime
+// Then get the HotswapAgent from https://github.com/HotswapAgent/HotswapAgent
+// Create a lib/hotswapagent directory in your project and put the hotswapagent jar there
+// Rename the jar to hotswap-agent.jar
+
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+    "java.configuration.runtimes": [
+      {
+        "name": "JavaSE-17",
+        "path": "C:\\Dev\\Java\\jbr_jcef-17.0.14-windows-x64-b1367.22",
+        "default": true
+      }
+    ],
+  "java.compile.nullAnalysis.mode": "disabled",
+    /*
+     Git Bash (Windows) helper - uncomment to force Git Bash as the integrated terminal in this workspace.
+
+     "terminal.integrated.profiles.windows": {
+       "Git Bash": {
+         "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+         "args": ["--login", "-i"]
+       }
+     },
+     "terminal.integrated.defaultProfile.windows": "Git Bash",
+     "terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe",
+     "terminal.integrated.automationProfile.windows": {
+       "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+       "args": ["--login", "-i"]
+     }, */
+  },
+  "extensions": {
+    "recommendations": [
+      "vscjava.vscode-java-debug",
+      "vscjava.vscode-java-pack",
+      "redhat.java",
+      "vscjava.vscode-maven"
+    ]
+  }
+}

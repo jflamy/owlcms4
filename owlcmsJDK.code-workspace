@@ -5,5 +5,25 @@
     }
   ],
   "settings": {
+    "java.compile.nullAnalysis.mode": "disabled",
+    /*
+     Git Bash (Windows) helper - uncomment to force Git Bash as the integrated terminal in this workspace.
+     Paste these keys inside the "settings" object if you want this workspace to use Git Bash:
+
+     "terminal.integrated.profiles.windows": {
+       "Git Bash": {
+         "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+         "args": ["--login", "-i"]
+       }
+     },
+     "terminal.integrated.defaultProfile.windows": "Git Bash",
+     "terminal.integrated.automationProfile.windows": {
+       "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+       "args": ["--login", "-i"]
+     },
+     // fallback for older VS Code versions
+     "terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe",
+
+    */
   },
 }

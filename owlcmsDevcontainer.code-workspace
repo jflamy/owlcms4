@@ -11,9 +11,9 @@
         "path": "/usr/local/jdk-17-dcevm",
         "default": true
       }
-    ]
+    ],
+    "java.compile.nullAnalysis.mode": "disabled"
   },
-  
   "extensions": {
     "recommendations": [
       "vscjava.vscode-java-debug",

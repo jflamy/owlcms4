@@ -12,7 +12,6 @@
     "java.autobuild.annotation.processing.enabled": false,
     "java.annotation.processing.enabled": false,
     "java.import.gradle.enabled": false,
-    "java.compile.nullAnalysis.mode": "disabled",
     "java.configuration.updateBuildConfiguration": "disabled",
     "java.project.importOnFirstTimeStartup": "disabled",
     "java.server.launchMode": "Standard",
@@ -37,7 +36,6 @@
     // Debug and terminal
     "debug.toolBarLocation": "docked",
     "debug.allowBreakpointsEverywhere": true,
-    "terminal.integrated.defaultProfile.windows": "Git Bash",
     "terminal.integrated.defaultProfile.linux": "bash",
 
     // Maven optimization
