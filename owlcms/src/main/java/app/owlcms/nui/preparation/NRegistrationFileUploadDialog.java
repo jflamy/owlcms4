@@ -8,6 +8,7 @@ package app.owlcms.nui.preparation;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import app.owlcms.spreadsheet.NRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.AthleteOptions;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.SessionOptions;
 import app.owlcms.spreadsheet.RCompetition;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -52,7 +54,9 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	public NRegistrationFileUploadDialog(boolean sbdeFormat) {
 		this.sbdeFormat = sbdeFormat;
 
-		H5 label = new H5(Translator.translate("Upload.WarningWillReplaceAll"));
+	// Keep the exported-Excel translation in the master file, but in the interactive UI we
+	// show a simple English warning text (non-translated) and log the canonical warning if needed.
+	H5 label = new H5("Warning: this will replace all existing data.");
 		label.getStyle().set("color", "red");
 		H5 sbdeLabel = new H5(Translator.translate("SBDE.AthleteOptions_WARNING"));
 		sbdeLabel.getStyle().set("color", "red");
@@ -142,28 +146,94 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		// clear athletes to be able to clear sessions
 		CategoryRepository.resetCodeMap();
 		if (this.processor.isDeleteAthletes()) {
+			// compute how many will be deleted; log the info but do not display a translated message in the UI
+			int priorCount = AthleteRepository.findAll().size();
 			this.processor.resetAthletes();
+			String deletedMsg = "Existing athletes were deleted before processing: " + priorCount;
+			logger.info(deletedMsg);
+			// do not call updateDisplay for this non-count Upload.* message (logging only)
 		}
 
-		// first do a dry run to count sessions
-		if (this.processor.isIgnoreSessions()) {
-			logger.info("Ignoring session updates");
-			// we still need to process the existing ones
-			rememberSessionCodes();
-		} else {
-			rememberSessionCodes();
-			int nbSessions = processSessions(inputStream, ta, true);
-			logger.info("{} sessions found in file", nbSessions);
-			if (nbSessions > 0) {
-				if (this.processor.isDeleteSessions()) {
-					this.processor.resetSessions();
-					logger.info("cleared existing sessions", nbSessions);
-				}
-
-				// get the sessions from the spreadsheet
-				processSessions(inputStream, ta, false);
-				logger.info("{} sessions processed", nbSessions);
+		// Surface a short confirmation message in the UI about how athletes will be handled
+		{
+			String msg;
+			if (this.athleteOption == NRegistrationFileProcessor.AthleteOptions.IGNORE_ATHLETES) {
+				msg = "Athlete updates will be ignored.";
+			} else if (this.processor.isDeleteAthletes()) {
+				msg = "Existing athletes were deleted before processing.";
+			} else if (this.athleteOption == NRegistrationFileProcessor.AthleteOptions.ADD_ATHLETES) {
+				msg = "Athletes will be added only (no updates).";
+			} else {
+				msg = "Athletes will be updated or added.";
 			}
+			// logging only for option messages; do not surface these messages in the UI
+			logger.info(msg);
+		}
+
+		// Surface a short confirmation message in the UI about how sessions will be handled
+		{
+			String msg;
+			if (this.sessionOption == NRegistrationFileProcessor.SessionOptions.IGNORE_SESSIONS) {
+				msg = "Session updates will be ignored.";
+			} else if (this.processor.isDeleteSessions()) {
+				msg = "Existing sessions were deleted before processing.";
+			} else {
+				msg = "Sessions will be updated or added.";
+			}
+			// logging only for session option messages; do not surface these messages in the UI
+			logger.info(msg);
+		}
+
+		// Collect errors into a buffer and avoid interleaving counts/options with errors.
+		StringBuffer errorsSb = new StringBuffer();
+		Consumer<String> errorCollector = str -> {
+			if (str != null) {
+				// strip any trailing CR/LF sequences and append exactly one LF
+				String s = str.replaceAll("[\r\n]+$", "");
+				errorsSb.append(s).append('\n');
+			}
+		};
+		Runnable noopUpdater = () -> {
+			// intentionally empty: we'll show counts/options immediately and errors at the end
+		};
+
+		// first do a dry run to count sessions (always run dry-run to report count)
+		rememberSessionCodes();
+		int nbSessionsFound = this.processor.doProcessGroups(inputStream, true, s -> {
+			// discard dry-run messages; we only want the count
+		}, noopUpdater);
+	// show the dry-run session count only in logs (keep DataProcessed.* translations for UI counts)
+	logger.info(MessageFormat.format("{0} sessions identified.", Integer.valueOf(nbSessionsFound)));
+
+		int nbSessionsProcessed = 0;
+		if (nbSessionsFound > 0 && !this.processor.isIgnoreSessions()) {
+			if (this.processor.isDeleteSessions()) {
+				this.processor.resetSessions();
+				logger.info("cleared existing sessions");
+			}
+			// perform actual session processing but collect errors instead of showing them immediately
+			nbSessionsProcessed = this.processor.doProcessGroups(inputStream, false, errorCollector, noopUpdater);
+			// Processor will have added a processed summary to the collector; remove it so we can display counts separately
+			try {
+				String processedTpl = Translator.translate("Upload.DataProcessed.Sessions");
+				String processedMsg = MessageFormat.format(processedTpl, Integer.valueOf(nbSessionsProcessed));
+				int idx = errorsSb.indexOf(processedMsg);
+				if (idx >= 0) {
+					errorsSb.delete(idx, idx + processedMsg.length());
+				}
+			} catch (Exception ex) {
+				// ignore translation removal failure
+			}
+			// show processed sessions count
+			{
+				String template = Translator.translate("Upload.DataProcessed.Sessions");
+				String msg = MessageFormat.format(template, nbSessionsProcessed);
+				StringBuffer sbForDisplay = new StringBuffer();
+				sbForDisplay.append(msg).append("\n");
+				updateDisplay(ta, sbForDisplay);
+			}
+		} else if (this.processor.isIgnoreSessions()) {
+			// indicate sessions were ignored (already displayed earlier as option)
 		}
 
 		if (this.sbdeFormat) {
@@ -172,8 +242,30 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		if (isProcessAthletes()) {
 			// process athletes now that groups have been adjusted
-			processAthletes(inputStream, ta, false);
+			int nbAthletesProcessed = this.processor.doProcessAthletes(inputStream, false, errorCollector, noopUpdater);
 			this.processor.adjustParticipations();
+			// Processor may have added a processed summary to the collector; remove it so we can display counts separately
+			try {
+				String processedTpl = Translator.translate("Upload.DataProcessed.Athletes");
+				String processedMsg = MessageFormat.format(processedTpl, Integer.valueOf(nbAthletesProcessed));
+				int idx = errorsSb.indexOf(processedMsg);
+				if (idx >= 0) {
+					errorsSb.delete(idx, idx + processedMsg.length());
+				}
+			} catch (Exception ex) {
+				// ignore translation removal failure
+			}
+			// show processed athletes count
+			String template = Translator.translate("Upload.DataProcessed.Athletes");
+			String msg = MessageFormat.format(template, nbAthletesProcessed);
+			StringBuffer sbForDisplay = new StringBuffer();
+			sbForDisplay.append(msg).append("\n");
+			updateDisplay(ta, sbForDisplay);
+		}
+
+		// Finally, append any collected errors at the end so counts/options remain separate
+		if (errorsSb.length() > 0) {
+			updateDisplay(ta, errorsSb);
 		}
 	}
 
@@ -195,26 +287,19 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		this.processor.doProcessCompetitionHeader(inputStream, errorConsumer, displayUpdater);
 	}
 
-	private int processAthletes(InputStream inputStream, TextArea ta, boolean dryRun) {
-		StringBuffer sb = new StringBuffer();
-		Consumer<String> errorConsumer = str -> sb.append(str);
-		Runnable displayUpdater = () -> updateDisplay(ta, sb);
-		if (this.fileName.contains("_add")) {
-			this.processor.setAthleteOptions(NRegistrationFileProcessor.AthleteOptions.ADD_ATHLETES);
-		}
-		return this.processor.doProcessAthletes(inputStream, dryRun, errorConsumer, displayUpdater);
-	}
-
-	private int processSessions(InputStream inputStream, TextArea ta, boolean dryRun) {
-		StringBuffer sb = new StringBuffer();
-		Consumer<String> errorConsumer = str -> sb.append(str);
-		Runnable displayUpdater = () -> updateDisplay(ta, sb);
-		return this.processor.doProcessGroups(inputStream, dryRun, errorConsumer, displayUpdater);
-	}
-
 	private void updateDisplay(TextArea ta, StringBuffer sb) {
 		if (sb.length() > 0) {
-			ta.setValue(sb.toString());
+			String existing = ta.getValue();
+			// Log a warning with origin information (full stack trace) so we can trace who added the UI trace
+			logger.warn(sb.toString() + "  " + LoggerUtils.stackTrace());
+			String newText = sb.toString();
+			// Strip trailing/leading whitespace to avoid double blank lines when appending
+			newText = newText.strip();
+			if (existing == null || existing.isEmpty()) {
+				ta.setValue(newText);
+			} else {
+				ta.setValue(existing + System.lineSeparator() + newText);
+			}
 			ta.setVisible(true);
 		}
 	}

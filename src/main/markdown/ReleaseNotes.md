@@ -12,9 +12,13 @@
 
 **New in Release 61.0**
 
+61.0.0: Excel pages with session information are now header-based: 
+
+- Session info columns can be removed or reordered.  The column headers can be in English or in the current language, but cannot be renamed.
+
 61.0.0: Updates for introductions and technical officials
 
-- Competition Doctor added as technical official and to the introduction sheets
+- Competition Doctor added as technical official role and to the introduction sheets
 - Added a button to print the Introduction sheet from the weigh-in entry page (the introduction sheet is much easier to read by the speaker than the protocol)
 - Added the reserve referee and reserve jury to the protocol sheets to the official document
 

@@ -49,6 +49,7 @@ public class RGroup {
 	String platform;
 	String masters;
 	String reserveJury;
+		String doctor;
 
 	public String getAnnouncer() {
 		return this.announcer;
@@ -140,6 +141,10 @@ public class RGroup {
 
 	public String getWeighInTO2() {
 		return this.weighInTO2;
+	}
+
+	public String getDoctor() {
+		return this.doctor;
 	}
 
 	public void setAnnouncer(String announcer) {
@@ -299,6 +304,11 @@ public class RGroup {
 	public void setWeighInTO2(String weighInTO2) {
 		this.group.setWeighIn2(weighInTO2);
 		this.weighInTO2 = weighInTO2;
+	}
+
+	public void setDoctor(String doctor) {
+		this.group.setDoctor(doctor);
+		this.doctor = doctor;
 	}
 
 	public String getMasters() {

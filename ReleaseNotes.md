@@ -10,32 +10,17 @@
 
 <br>
 
-**New in Release 60.2**
+**New in Release 61.0**
 
-60.2.0: If the athlete card for the current athlete is open, and a down signal or decision is received, the card will be
-closed to prevent an accidental overwrite of the lift outcome.
+61.0.0: Updates for introductions and technical officials
 
-60.2.0: Downloading would fail if clicking very quickly after switching a template.  Download now disabled while the template change is being processed.
+- Competition Doctor added as technical official and to the introduction sheets
+- Added a button to print the Introduction sheet from the weigh-in entry page (the introduction sheet is much easier to read by the speaker than the protocol)
+- Added the reserve referee and reserve jury to the protocol sheets to the official document
 
-60.2.0: Ranks and unfinished categories are recomputed on startup to ensure consistency.
+61.0.0: Fixes for glitches in clock restart (reset of decisions) and forced time (missing/delayed MQTT events)
 
-**New in Release 60.1**
+61.0.0: Technical Update to [Vaadin](https://vaadin.com/) version 24.8.7.   The main changes are to the Upload and Download mechanisms.
 
-60.1.0: Top Scores scoreboard now allows filtering by gender, hiding attempts and selecting the number of athletes shown.  It is also possible to filter by championship and age group.
-
-60.1.0: Experimental: timer for time-constrained sessions
-
-**New in Release 60.0**
-
-60.0.0: New page showing the records in a filtering grid, to allow choosing what is exported. 
-
-- Records can now be maintained in the application: clicking on a record allows for editing. See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/2500RecordsManagement)
-- Templates allow selection between a full format to allow re-importing, or a simplified format for publishing.  For both formats, it is possible to select a "all on on sheet" or "one age group per sheet" variant.
-
-60.0.0: Robi configuration updated for the June 2025 categories
-
-60.0.0: Template for printable labels for medals
-
-60.0.0: When producing several documents together (either multiple sessions, or a document set), the zip produced now includes a `print.bat` script for Windows.  Extract All on the zip followed by double-clicking on print.bat will print all the documents on the default printer.
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 

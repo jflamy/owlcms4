@@ -49,3 +49,7 @@ owlcms/.classpath
 /.vscode/.env.mac
 /.code-workspace
 jfl*.*
+
+# GPT assistant workspace (hidden, local)
+.gpt/
+.gpt/**

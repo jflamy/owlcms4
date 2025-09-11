@@ -9,6 +9,7 @@ package app.owlcms.spreadsheet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,7 +24,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -34,7 +34,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import app.owlcms.components.GroupCategorySelectionMenu.TriConsumer;
 import app.owlcms.data.athlete.Athlete;
@@ -52,13 +51,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
-import net.sf.jxls.reader.ReaderBuilder;
-import net.sf.jxls.reader.ReaderConfig;
-import net.sf.jxls.reader.XLSReadMessage;
-import net.sf.jxls.reader.XLSReadStatus;
-import net.sf.jxls.reader.XLSReader;
 
 public class NRegistrationFileProcessor {
 
@@ -97,19 +90,6 @@ public class NRegistrationFileProcessor {
 		// }
 	}
 
-	private String cleanMessage(String localizedMessage) {
-		localizedMessage = localizedMessage.replace("Can't read cell ", "");
-		String cell = localizedMessage.substring(0, localizedMessage.indexOf(" "));
-		String ss = "spreadsheet";
-		int ix = localizedMessage.indexOf(ss) + ss.length();
-		localizedMessage = localizedMessage.substring(ix);
-		if (localizedMessage.trim().contentEquals("text")) {
-			localizedMessage = "Empty or invalid.";
-		}
-		String cleanMessage = Translator.translate("Cell") + " " + cell + ": " + localizedMessage;
-		return cleanMessage;
-	}
-
 	@SuppressWarnings("unchecked")
 	public int doProcessAthletes(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
 	        Runnable displayUpdater) {
@@ -136,7 +116,16 @@ public class NRegistrationFileProcessor {
 				return 0;
 			}
 
-			this.logger.info(Translator.translate("DataRead") + " " + athletes.size() + " athletes");
+			String dataProcessedTemplate = Translator.translate("Upload.DataProcessed.Athletes");
+			String dataProcessedMsg = MessageFormat.format(dataProcessedTemplate, athletes.size());
+			this.logger.info(dataProcessedMsg);
+			// also surface in the UI via the supplied consumer/updater
+			if (errorConsumer != null) {
+				errorConsumer.accept(dataProcessedMsg + "\n");
+			}
+			if (displayUpdater != null) {
+				displayUpdater.run();
+			}
 			if (dryRun) {
 				return athletes.size();
 			}
@@ -145,50 +134,15 @@ public class NRegistrationFileProcessor {
 				updateAthletes(errorConsumer, c, athletes);
 				appendErrors(displayUpdater, errorConsumer);
 			} else {
-				errorConsumer.accept(Translator.translate("NoAthletes"));
+				// If the caller asked to ignore athletes, don't report this as an error
+				if (!isIgnoreAthletes()) {
+					errorConsumer.accept(Translator.translate("NoAthletes"));
+				}
 				displayUpdater.run();
 			}
 			return athletes.size();
 		} catch (Exception e) {
-			LoggerUtils.stackTrace(e);
 			LoggerUtils.logError(this.logger, e);
-		}
-		return 0;
-	}
-
-	public boolean isDeleteAthletes() {
-		return getAthleteOptions() == AthleteOptions.DELETE_ATHLETES;
-	}
-
-	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
-	        Runnable displayUpdater) {
-		try (InputStream xmlInputStream = ResourceWalker.getResourceAsStream(GROUPS_READER_SPEC)) {
-			inputStream.reset();
-			ReaderConfig readerConfig = ReaderConfig.getInstance();
-			readerConfig.setUseDefaultValuesForPrimitiveTypes(true);
-			readerConfig.setSkipErrors(true);
-			XLSReader reader = ReaderBuilder.buildFromXML(xmlInputStream);
-
-			try (InputStream xlsInputStream = inputStream) {
-				List<RGroup> sessions = new ArrayList<>();
-
-				Map<String, Object> beans = new HashMap<>();
-				beans.put("groups", sessions);
-
-				// logger.info(Translator.translate("ReadingData_"));
-				XLSReadStatus status = reader.read(inputStream, beans);
-				this.logger.info("Read {} sessions.", sessions.size());
-				if (!dryRun) {
-					updatePlatformsAndSessions(sessions);
-				}
-
-				appendErrors(displayUpdater, errorConsumer, status);
-				return sessions.size();
-			} catch (InvalidFormatException | IOException e) {
-				LoggerUtils.logError(this.logger, e);
-			}
-		} catch (IOException | SAXException e1) {
-			LoggerUtils.logError(this.logger, e1);
 		}
 		return 0;
 	}
@@ -231,7 +185,7 @@ public class NRegistrationFileProcessor {
 	Map<String, Athlete> priorAthletes = new HashMap<>();
 
 	private void updateAthletes(Consumer<String> errorConsumer, RCompetition c, List<RAthlete> sbdeAthletes) {
-		//logger.debug(") step 1 - copy away participations");
+		// logger.debug(") step 1 - copy away participations");
 		JPAService.runInTransaction(em -> {
 			// retrieve existing ids
 			AthleteRepository.doFindAll(em).stream()
@@ -248,12 +202,12 @@ public class NRegistrationFileProcessor {
 					        if (isDeleteSessions()) {
 						        // reset the group that was cleared.
 						        String sessionCode = RCompetition.getSessionCode(a.getId());
-						        //logger.debug("++++++ prior session code for {} = {}", a.getFullId(), sessionCode);
+						        // logger.debug("++++++ prior session code for {} = {}", a.getFullId(), sessionCode);
 						        a.setGroup(RCompetition.activeGroups.get(sessionCode));
-						        //logger.debug("++++++ new session for {} = {}", a.getFullId(), a.getGroup());
+						        // logger.debug("++++++ new session for {} = {}", a.getFullId(), a.getGroup());
 					        }
 				        } else {
-				        	//logger.debug("skipping prior {}",a.getAbbreviatedName());
+					        // logger.debug("skipping prior {}",a.getAbbreviatedName());
 				        }
 
 				        em.merge(a);
@@ -272,9 +226,10 @@ public class NRegistrationFileProcessor {
 			if (existingAthlete != null) {
 				if (isUpdateExistingAthletes() || isDeleteAthletes()) {
 					existingAthlete.getParticipations().clear();
-					//logger.debug("* existing athlete {} {} {}", existingAthlete.getAbbreviatedName(), existingAthlete.getId(),existingAthlete.getParticipations());
-					//logger.debug("* sbde {} {}", sbdeAthlete.getAbbreviatedName(), sbdeAthlete.getId(), sbdeAthlete.getParticipations());
-					
+					// logger.debug("* existing athlete {} {} {}", existingAthlete.getAbbreviatedName(),
+					// existingAthlete.getId(),existingAthlete.getParticipations());
+					// logger.debug("* sbde {} {}", sbdeAthlete.getAbbreviatedName(), sbdeAthlete.getId(), sbdeAthlete.getParticipations());
+
 					// can't happen, mutually exclusive from enclosing conditions, paranoia.
 					if (!isOnlyAddAthletes()) {
 						updateExistingAthlete(existingAthlete, sbdeAthlete);
@@ -286,17 +241,17 @@ public class NRegistrationFileProcessor {
 				}
 			} else {
 				sbdeAthlete.setCategoryFinished(false);
-				//logger.debug("adding sbdeAthlete {} {}", sbdeAthlete.getShortName(), sbdeAthlete.getId());
+				// logger.debug("adding sbdeAthlete {} {}", sbdeAthlete.getShortName(), sbdeAthlete.getId());
 				toBeMerged.add(sbdeAthlete);
 			}
 		});
-		//logger.debug("( end step 1");
+		// logger.debug("( end step 1");
 
-		//logger.debug(") step 2 - updating participations and teams");
+		// logger.debug(") step 2 - updating participations and teams");
 		JPAService.runInTransaction(em -> {
 			try {
 				for (Athlete a : toBeMerged) {
-					//logger.debug("merging {} {}", a.getAbbreviatedName(), a.getId());
+					// logger.debug("merging {} {}", a.getAbbreviatedName(), a.getId());
 					em.merge(a);
 				}
 				em.flush();
@@ -306,13 +261,13 @@ public class NRegistrationFileProcessor {
 			}
 			return null;
 		});
-		//logger.debug("( end step 2");
+		// logger.debug("( end step 2");
 
 		JPAService.runInTransaction(em -> {
-			//logger.debug(") step 3 - database athletes");
+			// logger.debug(") step 3 - database athletes");
 			AthleteRepository.findAll().stream().forEach(a2 -> {
 				if (isPriorAthlete(a2)) {
-					//logger.debug("skipping prior athlete {}",a2.getAbbreviatedName());
+					// logger.debug("skipping prior athlete {}",a2.getAbbreviatedName());
 					return;
 				}
 				LinkedHashSet<Category> eligibles = RCompetition
@@ -322,10 +277,10 @@ public class NRegistrationFileProcessor {
 				        .getAthleteToTeams()
 				        .get(a2.getId());
 				if (teams == null) {
-					//logger.debug("no teams for athlete {}", a2.getFullId());
+					// logger.debug("no teams for athlete {}", a2.getFullId());
 					teams = new LinkedHashSet<Category>();
 				}
-				//logger.debug("athlete {} eligibles {}", a2.getId(), eligibles);
+				// logger.debug("athlete {} eligibles {}", a2.getId(), eligibles);
 				if (eligibles != null) {
 					Category first = eligibles.stream().findFirst().orElse(null);
 					a2.setCategory(first);
@@ -334,7 +289,7 @@ public class NRegistrationFileProcessor {
 					if (!a2.getEligibleCategories().isEmpty()) {
 						logger.error("eligibility already set for {}", a2.getShortName());
 					} else {
-						//logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
+						// logger.debug("setting eligibility {} {}", a2.getShortName(), eligibles);
 						a2.setEligibleCategories(eligibles);
 					}
 					List<Participation> participations2 = a2.getParticipations();
@@ -347,12 +302,12 @@ public class NRegistrationFileProcessor {
 							p.setTeamMember(false);
 						}
 					}
-					//logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
+					// logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
 					em.merge(a2);
 				}
 			});
 			em.flush();
-			//logger.debug(") end step 3");
+			// logger.debug(") end step 3");
 			return null;
 		});
 	}
@@ -370,11 +325,11 @@ public class NRegistrationFileProcessor {
 	private void updateExistingAthlete(Athlete existingAthlete, Athlete sbdeAthlete) {
 		// keep the bw, declarations, changes, and actual lifts from the existing athlete
 		// must fix participations to point to the existing athlete, not the sbde athlete.
-//		System.err./**/println("> updateExistingAthlete");
+		// System.err./**/println("> updateExistingAthlete");
 		Athlete.conditionalCopy(existingAthlete, sbdeAthlete, false, false, false);
 		RCompetition.putEligibles(existingAthlete.getId(), RCompetition.getEligibles(sbdeAthlete.getId()));
 		RCompetition.putTeams(existingAthlete.getId(), RCompetition.getTeams(sbdeAthlete.getId()));
-//		System.err./**/println("< updateExistingAthlete");
+		// System.err./**/println("< updateExistingAthlete");
 	}
 
 	private String athleteKey(Athlete a) {
@@ -419,7 +374,7 @@ public class NRegistrationFileProcessor {
 					// update the existing group
 					existingGroup.copyFrom(readGroup);
 					existingGroup.setPlatform(op);
-					//logger.debug("updating platorm for {} to {}", existingGroup, existingGroup.getPlatform());
+					// logger.debug("updating platorm for {} to {}", existingGroup, existingGroup.getPlatform());
 					em.merge(existingGroup);
 				}
 			});
@@ -440,49 +395,165 @@ public class NRegistrationFileProcessor {
 		displayUpdater.run();
 	}
 
-	private void appendErrors(Runnable updater, Consumer<String> appender, XLSReadStatus status) {
-		@SuppressWarnings("unchecked")
-		List<XLSReadMessage> errors = status.getReadMessages();
-		for (XLSReadMessage m : errors) {
-			String cleanMessage = cleanMessage(m.getMessage());
-			appender.accept(cleanMessage);
-			Exception e = m.getException();
-			if (e != null) {
-				Throwable cause = e.getCause();
-				String causeMessage = cause != null ? cause.getLocalizedMessage() : e.getLocalizedMessage();
-				// causeMessage = LoggerUtils.stackTrace(cause);
-				causeMessage = causeMessage != null ? causeMessage : e.toString();
-				if (causeMessage.contentEquals("text")) {
-					causeMessage = "Empty or invalid.";
-				}
-				appender.accept(causeMessage);
-				this.logger.debug(cleanMessage + causeMessage);
-			}
-			appender.accept(System.lineSeparator());
-		}
-		updater.run();
-	}
-
 	private String cellToString(Cell cell) {
+		String raw;
 		switch (cell.getCellType()) {
 			case NUMERIC:
 				if (DateUtil.isCellDateFormatted(cell)) {
 					this.logger.debug("Date Cell {}", cell.getDateCellValue());
-				} else {
-					return this.formatter.formatCellValue(cell);
 				}
+				raw = this.formatter.formatCellValue(cell);
+				break;
 			case FORMULA:
-				return this.formatter.formatCellValue(cell, this.formulaEvaluator);
+				raw = this.formatter.formatCellValue(cell, this.formulaEvaluator);
+				break;
 			default:
-				return this.formatter.formatCellValue(cell);
+				raw = this.formatter.formatCellValue(cell);
 		}
+		if (raw == null) {
+			return "";
+		}
+		return raw.trim();
 	}
 
-	private boolean checkTranslation(String valueRead, String string) {
-		String translate = Translator.translate(string);
-		String translate2 = Translator.translateExplicitLocale(string, Locale.ENGLISH);
-		return valueRead.contentEquals(translate)
-		        || valueRead.contentEquals(translate2);
+	// Use RGroup as the parsing target — it already wraps a Group and stores string fields
+	@FunctionalInterface
+	private interface CellSetterRG {
+		void set(RGroup g, Cell cell) throws Exception;
+	}
+
+	private final Map<String, CellSetterRG> GROUP_SETTER_MAP = buildGroupSetterMap();
+
+	private Map<String, CellSetterRG> buildGroupSetterMap() {
+		Map<String, CellSetterRG> base = new HashMap<>();
+		base.put("Group", (rg, cell) -> rg.setGroupName(cellToString(cell)));
+		base.put("Platform", (rg, cell) -> rg.setPlatform(cellToString(cell)));
+		base.put("Group.Description", (rg, cell) -> rg.setDescription(cellToString(cell)));
+		base.put("Masters", (rg, cell) -> rg.setMasters(cellToString(cell)));
+
+		base.put("WeighInTime", (rg, cell) -> {
+			// Prefer Excel numeric/formula date values so RGroup.parse expects a numeric serial string.
+			try {
+				if (cell.getCellType() == CellType.NUMERIC) {
+					double v = cell.getNumericCellValue();
+					rg.setWeighinTime(Double.toString(v));
+					return;
+				} else if (cell.getCellType() == CellType.FORMULA && this.formulaEvaluator != null) {
+					org.apache.poi.ss.usermodel.CellValue cv = this.formulaEvaluator.evaluate(cell);
+					if (cv != null && cv.getCellType() == CellType.NUMERIC) {
+						rg.setWeighinTime(Double.toString(cv.getNumberValue()));
+						return;
+					}
+				}
+			} catch (Exception e) {
+				// fall through to string path
+			}
+			rg.setWeighinTime(cellToString(cell));
+		});
+		base.put("StartTime", (rg, cell) -> {
+			try {
+				if (cell.getCellType() == CellType.NUMERIC) {
+					double v = cell.getNumericCellValue();
+					rg.setCompetitionTime(Double.toString(v));
+					return;
+				} else if (cell.getCellType() == CellType.FORMULA && this.formulaEvaluator != null) {
+					org.apache.poi.ss.usermodel.CellValue cv = this.formulaEvaluator.evaluate(cell);
+					if (cv != null && cv.getCellType() == CellType.NUMERIC) {
+						rg.setCompetitionTime(Double.toString(cv.getNumberValue()));
+						return;
+					}
+				}
+			} catch (Exception e) {
+				// fall through
+			}
+			rg.setCompetitionTime(cellToString(cell));
+		});
+		base.put("Weighin1", (rg, cell) -> rg.setWeighInTO1(cellToString(cell)));
+		base.put("Weighin2", (rg, cell) -> rg.setWeighInTO2(cellToString(cell)));
+
+		base.put("Announcer", (rg, cell) -> rg.setAnnouncer(cellToString(cell)));
+		base.put("Marshall", (rg, cell) -> rg.setMarshall(cellToString(cell)));
+		base.put("Marshal2", (rg, cell) -> rg.setMarshal2(cellToString(cell)));
+		base.put("TimeKeeper", (rg, cell) -> rg.setTimekeeper(cellToString(cell)));
+		base.put("TechnicalController", (rg, cell) -> rg.setTechController(cellToString(cell)));
+		base.put("TechnicalController2", (rg, cell) -> rg.setTechController2(cellToString(cell)));
+		base.put("Referee1", (rg, cell) -> rg.setRef1(cellToString(cell)));
+		base.put("Referee2", (rg, cell) -> rg.setRef2(cellToString(cell)));
+		base.put("Referee3", (rg, cell) -> rg.setRef3(cellToString(cell)));
+		base.put("Reserve", (rg, cell) -> rg.setReserve(cellToString(cell)));
+
+		base.put("Jury1", (rg, cell) -> rg.setJury1(cellToString(cell)));
+		base.put("Jury2", (rg, cell) -> rg.setJury2(cellToString(cell)));
+		base.put("Jury3", (rg, cell) -> rg.setJury3(cellToString(cell)));
+		base.put("Jury4", (rg, cell) -> rg.setJury4(cellToString(cell)));
+		base.put("Jury5", (rg, cell) -> rg.setJury5(cellToString(cell)));
+		base.put("ReserveJury", (rg, cell) -> rg.setReserveJury(cellToString(cell)));
+
+		base.put("Doctor", (rg, cell) -> rg.getGroup().setDoctor(cellToString(cell)));
+
+		Map<String, CellSetterRG> result = new HashMap<>();
+		for (Map.Entry<String, CellSetterRG> e : base.entrySet()) {
+			String key = e.getKey();
+			CellSetterRG setter = e.getValue();
+			// Only register translations as valid header names. Do not register the canonical key itself.
+			try {
+				// current locale translation
+				String tCurrent = Translator.translate(key);
+				if (tCurrent != null && !tCurrent.isBlank()) {
+					result.putIfAbsent(tCurrent.trim().toLowerCase(), setter);
+				}
+			} catch (Exception ex) {
+				// ignore translation failures
+			}
+			try {
+				// English explicit translation
+				String tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
+				if (tEng != null && !tEng.isBlank()) {
+					result.putIfAbsent(tEng.trim().toLowerCase(), setter);
+				}
+			} catch (Exception ex) {
+				// ignore
+			}
+		}
+			// Practical fallback: register a few common canonical English keys directly
+			// so spreadsheets that use the legacy canonical names are accepted even if
+			// translations are missing. Keys are stored lowercased to match lookup.
+			String[] explicitFallbacks = new String[] { "TimeKeeper", "Masters" };
+			for (String fk : explicitFallbacks) {
+				CellSetterRG s = base.get(fk);
+				if (s != null) {
+					result.putIfAbsent(fk.trim().toLowerCase(), s);
+				}
+			}
+		return result;
+	}
+
+		private CellSetterRG[] createGroupSetterTableFromHeaderRow(Row headerRow, List<String> errors) {
+		List<CellSetterRG> setters = new ArrayList<>();
+		for (int i = 0; i < headerRow.getLastCellNum(); i++) {
+			Cell cell = headerRow.getCell(i);
+			if (cell == null) {
+				break;
+			}
+			if (cell.getCellType() == CellType.BLANK || (cell.getCellType() == CellType.STRING && cell.getStringCellValue().isBlank())
+			        || (cell.getCellType() != CellType.STRING)) {
+				break;
+			}
+			String headerValue = cell.getStringCellValue().trim().toLowerCase();
+			CellSetterRG setter = GROUP_SETTER_MAP.get(headerValue);
+			if (setter != null) {
+				logger.debug("Mapped group header '{}' to setter", headerValue);
+			} else {
+				logger.warn("No setter found for group header '{}'", headerValue);
+				// append a newline so each error appears on its own line when displayed
+				errors.add(MessageFormat.format("Ignoring unknown column ''{0}'' at sheet {1} [{2}]\n",
+				        headerValue, cell.getSheet().getSheetName(), cell.getAddress()));
+				setter = (rg, c) -> {
+					/* noop */ };
+			}
+			setters.add(setter);
+		}
+		return setters.toArray(new CellSetterRG[0]);
 	}
 
 	private boolean checkTranslation(String valueRead, String string, String string2) {
@@ -491,11 +562,49 @@ public class NRegistrationFileProcessor {
 		                + Translator.translateExplicitLocale(string2, Locale.ENGLISH));
 	}
 
+	/**
+	 * Check whether a header cell or header text matches the given canonical key's translation. The canonical key itself is not expected to be in the sheet;
+	 * the routine compares the cell text against the current-locale translation and the explicit English translation.
+	 */
+	private boolean headerMatches(Cell headerCell, String canonicalKey) {
+		if (headerCell == null) {
+			return false;
+		}
+		String value = cellToString(headerCell);
+		return headerMatches(value, canonicalKey);
+	}
+
+	private boolean headerMatches(String valueRead, String canonicalKey) {
+		if (valueRead == null) {
+			return false;
+		}
+		String trimmed = valueRead.trim();
+		try {
+			String tCurrent = Translator.translate(canonicalKey);
+			if (tCurrent != null && !tCurrent.isBlank() && trimmed.equalsIgnoreCase(tCurrent.trim())) {
+				return true;
+			}
+		} catch (Exception ex) {
+			// ignore translation errors
+		}
+		try {
+			String tEng = Translator.translateExplicitLocale(canonicalKey, Locale.ENGLISH);
+			if (tEng != null && !tEng.isBlank() && trimmed.equalsIgnoreCase(tEng.trim())) {
+				return true;
+			}
+		} catch (Exception ex) {
+			// ignore
+		}
+		return false;
+	}
+
 	private void processException(RAthlete a, String s, Cell c, Exception e, Consumer<String> errorConsumer) {
 		errorConsumer.accept(c.getAddress() + " " + e.getLocalizedMessage() + System.lineSeparator());
 		this.logger.error("{} {} {}", c.getAddress(), s, e.getStackTrace());
 		// LoggerUtils.logError(this.logger, e, true);
 	}
+
+	// ... header row detection removed; SBDE uses fixed header row at index 1 when Session is in A2
 
 	private List<RAthlete> readAthletes(Workbook workbook, RCompetition rComp, Consumer<String> errorConsumer, int rowsToSkip) {
 		if (isIgnoreAthletes()) {
@@ -521,27 +630,27 @@ public class NRegistrationFileProcessor {
 					String cellValue = cell.getStringCellValue();
 					String trimmedCellValue = cellValue.trim();
 
-					if (checkTranslation(trimmedCellValue, "Membership")) {
+					if (headerMatches(trimmedCellValue, "Membership")) {
 						this.setterForColumn[iColumn] = (a, s, c) -> {
 							a.setMembership(s);
 						};
-					} else if (checkTranslation(trimmedCellValue, "Card.lotNumber")) {
+					} else if (headerMatches(trimmedCellValue, "Card.lotNumber")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setLotNumber(s);
 						});
-					} else if (checkTranslation(trimmedCellValue, "LastName")) {
+					} else if (headerMatches(trimmedCellValue, "LastName")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setLastName(s);
 						});
-					} else if (checkTranslation(trimmedCellValue, "FirstName")) {
+					} else if (headerMatches(trimmedCellValue, "FirstName")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setFirstName(s);
 						});
-					} else if (checkTranslation(trimmedCellValue, "Scoreboard.Team")) {
+					} else if (headerMatches(trimmedCellValue, "Scoreboard.Team")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setTeam(s);
 						});
-					} else if (checkTranslation(trimmedCellValue, "Registration.birth")) {
+					} else if (headerMatches(trimmedCellValue, "Registration.birth")) {
 						this.delayedSetterColumns[DelayedSetter.BIRTHDATE.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
@@ -562,7 +671,7 @@ public class NRegistrationFileProcessor {
 								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalGender", s)), errorConsumer);
 							}
 						});
-					} else if (checkTranslation(trimmedCellValue, "Card.category")) {
+					} else if (headerMatches(trimmedCellValue, "Card.category")) {
 						this.delayedSetterColumns[DelayedSetter.CATEGORY.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
@@ -571,7 +680,7 @@ public class NRegistrationFileProcessor {
 								processException(a, s, c, e, errorConsumer);
 							}
 						});
-					} else if (checkTranslation(trimmedCellValue, "Scoreboard.BodyWeight")) {
+					} else if (headerMatches(trimmedCellValue, "Scoreboard.BodyWeight")) {
 						this.delayedSetterColumns[DelayedSetter.BODYWEIGHT.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
@@ -600,7 +709,7 @@ public class NRegistrationFileProcessor {
 								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
 							}
 						});
-					} else if (checkTranslation(trimmedCellValue, "Group")) {
+					} else if (headerMatches(trimmedCellValue, "Group")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								a.setGroup(s);
@@ -618,7 +727,7 @@ public class NRegistrationFileProcessor {
 								}
 							}
 						});
-					} else if (checkTranslation(trimmedCellValue, "Card.entryTotal")) {
+					} else if (headerMatches(trimmedCellValue, "Card.entryTotal")) {
 						this.delayedSetterColumns[DelayedSetter.QUALIFYING_TOTAL.ordinal()] = iColumn;
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
@@ -630,23 +739,23 @@ public class NRegistrationFileProcessor {
 								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
 							}
 						});
-					} else if (checkTranslation(trimmedCellValue, "Coach")) {
+					} else if (headerMatches(trimmedCellValue, "Coach")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCoach(s);
 						});
-					} else if (checkTranslation(trimmedCellValue, "Custom1.Title")) {
+					} else if (headerMatches(trimmedCellValue, "Custom1.Title")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCustom1(s);
 						});
-					} else if (checkTranslation(trimmedCellValue, "Custom2.Title")) {
+					} else if (headerMatches(trimmedCellValue, "Custom2.Title")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setCustom2(s);
 						});
-					} else if (checkTranslation(trimmedCellValue, "Registration.FederationCodesShort")) {
+					} else if (headerMatches(trimmedCellValue, "Registration.FederationCodesShort")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setFederationCodes(s);
 						});
-					} else if (checkTranslation(trimmedCellValue, "PersonalBestSnatch")) {
+					} else if (headerMatches(trimmedCellValue, "PersonalBestSnatch")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								a.setPersonalBestSnatch(s);
@@ -654,7 +763,7 @@ public class NRegistrationFileProcessor {
 								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
 							}
 						});
-					} else if (checkTranslation(trimmedCellValue, "PersonalBestCleanJerk")) {
+					} else if (headerMatches(trimmedCellValue, "PersonalBestCleanJerk")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								a.setPersonalBestCleanJerk(s);
@@ -662,7 +771,7 @@ public class NRegistrationFileProcessor {
 								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
 							}
 						});
-					} else if (checkTranslation(trimmedCellValue, "PersonalBestTotal")) {
+					} else if (headerMatches(trimmedCellValue, "PersonalBestTotal")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							try {
 								a.setPersonalBestTotal(s);
@@ -670,15 +779,15 @@ public class NRegistrationFileProcessor {
 								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
 							}
 						});
-					} else if (checkTranslation(trimmedCellValue, "SubCategory")) {
+					} else if (headerMatches(trimmedCellValue, "SubCategory")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setSubCategory(s);
 						});
-					} else if (checkTranslation(trimmedCellValue, "ComputedWeightClass")) {
+					} else if (headerMatches(trimmedCellValue, "ComputedWeightClass")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							// do nothing
 						});
-					} else if (checkTranslation(trimmedCellValue, "Competition.Invited/Extra")) {
+					} else if (headerMatches(trimmedCellValue, "Competition.Invited/Extra")) {
 						this.setterForColumn[iColumn] = ((a, s, c) -> {
 							a.setInvited(s != null && s.trim().toLowerCase().equals("true"));
 						});
@@ -750,6 +859,10 @@ public class NRegistrationFileProcessor {
 
 	private boolean isIgnoreAthletes() {
 		return athleteOptions == NRegistrationFileProcessor.AthleteOptions.IGNORE_ATHLETES;
+	}
+
+	public boolean isDeleteAthletes() {
+		return this.getAthleteOptions() == AthleteOptions.DELETE_ATHLETES;
 	}
 
 	public void doProcessCompetitionHeader(InputStream inputStream, Consumer<String> errorConsumer, Runnable displayUpdater) {
@@ -844,6 +957,148 @@ public class NRegistrationFileProcessor {
 
 	public boolean isDeleteSessions() {
 		return sessionOptions == SessionOptions.DELETE_SESSIONS;
+	}
+
+	/**
+	 * Read groups (sessions) from the workbook using a header-driven approach.
+	 */
+	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
+	        Runnable displayUpdater) {
+		try (InputStream xlsInputStream = inputStream) {
+			inputStream.reset();
+			List<RGroup> parsed = new ArrayList<>();
+			List<String> errors = new ArrayList<>();
+
+			try (Workbook workbook = WorkbookFactory.create(xlsInputStream)) {
+				this.formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+				this.formatter = new DataFormatter();
+
+				// Only process sheets that have the translated key "Session" in cell A2 (row index 1, col 0).
+				// If no sheet meets this criterion, nothing will be processed.
+				if (isIgnoreAthletes()) {
+					this.logger.info("Import configured to ignore athletes; athlete sheets will be skipped.");
+				}
+				for (Sheet sheet : workbook) {
+					Row rCheck = sheet.getRow(1); // A2
+					if (rCheck == null) {
+						continue;
+					}
+					Cell cCheck = rCheck.getCell(0);
+					if (cCheck == null) {
+						this.logger.debug("Sheet '{}' A2 is empty", sheet.getSheetName());
+						continue;
+					}
+					String a2Text = cellToString(cCheck);
+					boolean isSessionHeader = headerMatches(cCheck, "Session");
+					boolean isGroupHeader = headerMatches(cCheck, "Group");
+					String tSessionCur = "";
+					String tSessionEng = "";
+					String tGroupCur = "";
+					String tGroupEng = "";
+					try {
+						tSessionCur = Translator.translate("Session");
+					} catch (Exception ex) {
+						// ignore
+					}
+					try {
+						tSessionEng = Translator.translateExplicitLocale("Session", Locale.ENGLISH);
+					} catch (Exception ex) {
+						// ignore
+					}
+					try {
+						tGroupCur = Translator.translate("Group");
+					} catch (Exception ex) {
+						// ignore
+					}
+					try {
+						tGroupEng = Translator.translateExplicitLocale("Group", Locale.ENGLISH);
+					} catch (Exception ex) {
+						// ignore
+					}
+					// Use warn for temporary diagnostics so they are easy to remove later.
+					this.logger.warn(
+					        "Sheet '{}' A2='{}'. headerMatches(Session)={} session={} (session current='{}' en='{}'; session key current='{}' en='{}')",
+					        sheet.getSheetName(), a2Text, isSessionHeader, isGroupHeader, tSessionCur, tSessionEng, tGroupCur, tGroupEng);
+					// Only accept the sheet when the canonical A2 key 'Group' matches.
+					if (!isGroupHeader) {
+						// not the sessions sheet -> skip
+						continue;
+					}
+					Iterator<Row> rowIter = sheet.rowIterator();
+					CellSetterRG[] setterTable = null;
+					int headerRowIndex = 0;
+					// For sessions sheets, the header row is fixed to index 1 (row 2 human).
+					headerRowIndex = 1; // A2 indicates headers start on the next row (row 2 human)
+
+					rows: while (rowIter.hasNext()) {
+						Row row = rowIter.next();
+						int currentRowNum = row.getRowNum();
+						if (currentRowNum < headerRowIndex) {
+							continue;
+						}
+						if (currentRowNum == headerRowIndex) {
+							setterTable = createGroupSetterTableFromHeaderRow(row, errors);
+							continue;
+						}
+
+						RGroup rg = new RGroup();
+						boolean rowHasData = false;
+						for (Cell cell : row) {
+							int iColumn = cell.getAddress().getColumn();
+							if (setterTable != null && iColumn < setterTable.length) {
+								try {
+									setterTable[iColumn].set(rg, cell);
+									rowHasData = true;
+								} catch (Exception e) {
+									String msg = MessageFormat.format("{0}[{1}] {2}\n", sheet.getSheetName(), cell.getAddress(), e.getMessage());
+									errors.add(msg);
+									logger.error(msg);
+								}
+							}
+						}
+
+						if (!rowHasData || rg.getGroupName() == null || rg.getGroupName().isBlank()) {
+							// empty row -> stop processing this sheet
+							break rows;
+						}
+
+						parsed.add(rg);
+					}
+				}
+			} catch (IOException e) {
+				LoggerUtils.logError(this.logger, e);
+				return 0;
+			}
+
+			String dataReadMsg;
+			try {
+				if (dryRun) {
+					// Dry-run identified count: keep this as plain English for logs/UI-suppressed callers.
+					dataReadMsg = MessageFormat.format("{0} sessions identified.", Integer.valueOf(parsed.size()));
+				} else {
+					String tpl = Translator.translate("Upload.DataProcessed.Sessions");
+					dataReadMsg = MessageFormat.format(tpl, Integer.valueOf(parsed.size()));
+				}
+			} catch (Exception ex) {
+				dataReadMsg = Translator.translate("DataRead") + " " + parsed.size() + " sessions.";
+			}
+			this.logger.info(dataReadMsg);
+			if (!dryRun) {
+				updatePlatformsAndSessions(parsed);
+			}
+
+			// surface a summary message so the UI status shows the number of sessions (dry-run = identified, real = processed)
+			errorConsumer.accept(dataReadMsg);
+			// surface errors
+			for (String e : errors) {
+				errorConsumer.accept(e);
+			}
+			displayUpdater.run();
+			return parsed.size();
+		} catch (Exception e) {
+			LoggerUtils.logError(this.logger, e);
+		}
+		return 0;
 	}
 
 }
