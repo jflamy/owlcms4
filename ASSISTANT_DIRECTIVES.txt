@@ -1,14 +1,14 @@
 # ASSISTANT_DIRECTIVES.txt
 # Canonical single-file directives for automated assistants and contributors.
 #
-# Purpose:
+# Purpose
 # - Provide a single, well-documented location containing both human-readable
 #   directives and a small machine-readable block that automated assistants can
 #   parse and obey.
 # - This file is the canonical source of truth; remove or update any other
 #   assistant-specific directive files and keep this one up-to-date.
 #
-# Format conventions:
+# Format conventions
 # - Lines starting with '#' are comments and intended for humans.
 # - The machine-readable JSON appears between the markers:
 #     ### MACHINE_DIRECTIVES_START
@@ -16,9 +16,9 @@
 #     ### MACHINE_DIRECTIVES_END
 # - Simple scripts or assistants should read the file, ignore comment lines,
 #   find the JSON between the markers and parse it. If the markers are missing
-#   assume conservative defaults (no_auto_build = true).
+#   assume conservative defaults (for example: no_auto_build = true).
 #
-# Preferred shell: bash
+# Preferred shell: bash (enforced)
 # Example usage (pseudo):
 #   text = readFile('ASSISTANT_DIRECTIVES.txt')
 #   jsonText = extractBetweenMarkers(text, 'MACHINE_DIRECTIVES_START', 'MACHINE_DIRECTIVES_END')
@@ -33,6 +33,9 @@
     "require_human_consent_for_build": true,
     "do_not_exfiltrate_secrets": true,
     "preferred_shell": "bash",
+    "enforce_preferred_shell": true,
+    "allowed_shells": ["bash"],
+    "shell_commands_should_be_in": "bash",
     "use_warn_for_temp_debug": true,
     "use_warn_with_stacktrace": false,
     "use_warn_with_wherefrom": true,
@@ -42,18 +45,28 @@
 }
 ### MACHINE_DIRECTIVES_END
 
-# Human-readable summary:
-# - NO_AUTO_BUILD / NO_MVN are set to true: do not run 'mvn' or perform automatic builds
-#   in this repository without explicit human confirmation.
+# Human-readable summary
+# - NO_AUTO_BUILD / NO_MVN are set to true: do not run 'mvn' or perform automatic
+#   builds in this repository without explicit human confirmation.
 # - Do not exfiltrate secrets. Use environment variables or a secrets manager.
 #
-# Debugging convention:
+# Debugging convention
 # - Temporary debugging log statements should use `logger.warn(...)` rather than
 #   `logger.info()` or `logger.debug()` so they are easy to find and remove later.
-#   Prefer `logger.warn(LoggerUtils.whereFrom())` for concise origin info.
-#   Use `LoggerUtils.stackTrace()` only when a full stack dump is explicitly
+# - Prefer `logger.warn(LoggerUtils.whereFrom())` for concise origin info.
+# - Use `LoggerUtils.stackTrace()` only when a full stack dump is explicitly
 #   requested for deeper diagnostics.
-
+#
 # If you are an automated assistant: always check this file first and request
 # explicit human consent if any action would trigger a build, deployment, or
 # data exfiltration.
+#
+# Shell policy for automated assistants
+# - This repository prefers and enforces `bash` for all generated shell
+#   commands and terminal invocations. If the environment default shell is
+#   different (for example, PowerShell on Windows), automated assistants
+#   MUST override the shell and execute commands in a bash-compatible
+#   environment (for example via `bash -lc "..."`, WSL, Git Bash, or a
+#   spawned bash process).
+# - When producing terminal commands for the user (in documentation or as
+#   examples), format them as bash commands and place them in a bash code block.

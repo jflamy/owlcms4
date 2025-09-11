@@ -20,8 +20,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.converters.DateConverter;
+// removed commons-beanutils dependency: conversions handled explicitly when needed
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
@@ -313,8 +312,7 @@ public class Main {
 		}
 
 		// technical initializations
-		ConvertUtils.register(new DateConverter(null), java.util.Date.class);
-		ConvertUtils.register(new DateConverter(null), java.sql.Date.class);
+	// commons-beanutils removed: explicitly parse dates where needed
 
 		// dependency injection
 		injectSuppliers();
