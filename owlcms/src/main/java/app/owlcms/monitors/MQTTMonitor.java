@@ -83,7 +83,6 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		String testTopicName;
 		String configTopicName;
 
-
 		MQTTCallback() {
 			// these are the device-initiated events that the monitor tracks
 			this.deprecatedDecisionTopicName = "owlcms/decision/" + MQTTMonitor.this.getFop().getName();
@@ -252,8 +251,18 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				MQTTMonitor.this.getFop().fopEventPost(
 				        new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, this));
 			} else if (messageStr.equalsIgnoreCase("stop")) {
-				MQTTMonitor.this.getFop().fopEventPost(
-				        new FOPEvent.StartLifting(this));
+				var state = fop.getState();
+				// green resume button used to clear the decision lights.
+				if (state == FOPState.CURRENT_ATHLETE_DISPLAYED
+				        || state == FOPState.INACTIVE
+				        || (state == FOPState.BREAK && !fop.getBreakType().isInterruption())) {
+					logger.info("{}MQTT jury resume received in state {}, sending ResetOnNewClock", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), state);
+					MQTTMonitor.this.getFop().getUiEventBus().post(new UIEvent.ResetOnNewClock(fop.getCurAthlete(), null, fop));
+				} else {
+					MQTTMonitor.this.getFop().fopEventPost(
+					        new FOPEvent.StartLifting(this));
+				}
+
 			} else {
 				logger.error("{}Malformed MQTT jury break message topic='{}' message='{}'",
 				        FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
@@ -1047,6 +1056,5 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-
 
 }
