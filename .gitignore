@@ -53,3 +53,5 @@ jfl*.*
 # GPT assistant workspace (hidden, local)
 .gpt/
 .gpt/**
+owlcms/package.json
+owlcms/package-lock.json
