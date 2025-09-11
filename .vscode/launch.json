@@ -41,7 +41,8 @@
         "envFile": "${workspaceFolder}/.vscode/.env.mac"
       },
       "env": {
-        "OWLCMS_MEMORYMODE": "false"
+        "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_BACKDOOR": "[0:0:0:0:0:0:0:1],127.0.0.1"
       }
     },
     {
