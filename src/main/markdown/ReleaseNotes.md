@@ -12,9 +12,9 @@
 
 **New in Release 61.0**
 
-61.0.0: Excel pages with session information are now header-based: 
+61.0.0: Excel pages with session information can now have the columns reordered or removed
 
-- Session info columns can be removed or reordered.  The column headers can be in English or in the current language, but cannot be renamed.
+- The column headers can be in English or in the current language, but cannot be renamed.
 
 61.0.0: Updates for introductions and technical officials
 
@@ -24,7 +24,10 @@
 
 61.0.0: Fixes for glitches in clock restart (reset of decisions) and forced time (missing/delayed MQTT events)
 
-61.0.0: Technical Update to [Vaadin](https://vaadin.com/) version 24.8.7.   The main changes are to the Upload and Download mechanisms.
+61.0.0: Technical Update to [Vaadin](https://vaadin.com/) version 24.8.7.   
+
+- The main changes are to the Upload and Download mechanisms.
+- Other dependencies were updated to match the expectations of Vaadin (netty, various commons packages)
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 
