@@ -30,7 +30,9 @@ class WodBoard extends LitElement {
     return html`
       <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "") + ".css"}" />
       <div class="timer-overlay">
-        <timer-element id="breakTimer"></timer-element>
+        <div class="timer-frame">
+          <timer-element id="breakTimer"></timer-element>
+        </div>
       </div>
       <div class="wod-board-grid">
         <div class="athlete top left">
@@ -60,7 +62,9 @@ class WodBoard extends LitElement {
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: 1fr 1fr;
-  gap: 0;
+        gap: 2vh; /* space between the four colored frames */
+        padding: 2vh; /* outer gap around the grid */
+        box-sizing: border-box; /* include padding in width/height */
         height: 100vh;
         width: 100vw;
         background: var(--background-color, #111);
@@ -80,10 +84,15 @@ class WodBoard extends LitElement {
         min-height: 6vh;
         padding: 0.5em 1em;
         border-radius: 0.5em;
-        background: rgba(0,0,0,0.2);
-        box-sizing: border-box;
+          background: rgba(0,0,0,0.2);
+          box-sizing: border-box;
+          overflow: hidden;
         text-align: center;
       }
+  .top.left { border: 8px solid #8B0000; }
+  .top.right { border: 8px solid #ffffff; }
+  .bottom.left { border: 8px solid #00008B; }
+  .bottom.right { border: 8px solid #D4AF37; }
       .athlete-name {
         font-weight: bold;
         font-size: 1.38em;
@@ -117,12 +126,27 @@ class WodBoard extends LitElement {
         justify-content: center;;
         pointer-events: none;
       }
+  .timer-frame {
+   /* use an outer box-shadow to draw the gray rounded border while keeping
+     the inner area fully black */
+   border: none;
+   border-radius: 1.0em; /* increased outer radius */
+   padding: 0; /* inner element sits flush inside */
+   background: #000000; /* inner area fully black */
+   box-shadow: 0 0 0 6px #888888; /* gray border thickness */
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   pointer-events: none;
+   box-sizing: border-box;
+  }
       timer-element#breakTimer {
   font-size: 6.19vw;
         color: #fff;
-        background: rgba(0,0,0,0.2);
-        border-radius: 0;
-        padding: 0.2em 0;
+  background: transparent; /* let the frame supply the black background */
+  border-radius: 0; /* inner element square; frame provides rounded corners */
+  padding: 0.25em 0.35em; /* give inner breathing room for the digits */
+  box-sizing: border-box;
   box-shadow: none;
         width: 20vw !important;
   height: 10.8vw;
