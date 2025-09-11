@@ -32,7 +32,12 @@
     "no_mvn": true,
     "require_human_consent_for_build": true,
     "do_not_exfiltrate_secrets": true,
-    "preferred_shell": "bash"
+    "preferred_shell": "bash",
+    "use_warn_for_temp_debug": true,
+    "use_warn_with_stacktrace": false,
+    "use_warn_with_wherefrom": true,
+    "where_from_helper": "LoggerUtils.whereFrom",
+    "stack_trace_helper": "LoggerUtils.stackTrace"
   }
 }
 ### MACHINE_DIRECTIVES_END
@@ -41,6 +46,13 @@
 # - NO_AUTO_BUILD / NO_MVN are set to true: do not run 'mvn' or perform automatic builds
 #   in this repository without explicit human confirmation.
 # - Do not exfiltrate secrets. Use environment variables or a secrets manager.
+#
+# Debugging convention:
+# - Temporary debugging log statements should use `logger.warn(...)` rather than
+#   `logger.info()` or `logger.debug()` so they are easy to find and remove later.
+#   Prefer `logger.warn(LoggerUtils.whereFrom())` for concise origin info.
+#   Use `LoggerUtils.stackTrace()` only when a full stack dump is explicitly
+#   requested for deeper diagnostics.
 
 # If you are an automated assistant: always check this file first and request
 # explicit human consent if any action would trigger a build, deployment, or
