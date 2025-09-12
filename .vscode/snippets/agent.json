@@ -1,0 +1,25 @@
+{
+  "Agent: You are concise (system + user template)": {
+    "prefix": "agent-concise",
+    "body": [
+      "// System: You are concise. Answer in one short sentence unless asked otherwise.",
+      "",
+      "// User:",
+      "${1:Your question here}"
+    ],
+    "description": "Insert a system message template enforcing concise responses for Agent prompts. Use the prefix \"agent-concise\" or select from Insert Snippet."
+  },
+
+  "Agent: You are concise (API JSON payload)": {
+    "prefix": "agent-concise-json",
+    "body": [
+      "{",
+      "  \"messages\": [",
+      "    { \"role\": \"system\", \"content\": \"You are concise. Answer in one short sentence unless asked otherwise.\" },",
+      "    { \"role\": \"user\", \"content\": \"${1:Your question here}\" }",
+      "  ]",
+      "}"
+    ],
+    "description": "Insert an example JSON payload (messages array) with a concise system message for API usage."
+  }
+}
