@@ -471,6 +471,14 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		   } else {
 			   updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "displayLifts", null);
 		   }
+
+		// Propagate nbAthletes if different from default (10)
+		int nb = getNbAthletes();
+		if (nb > 0 && nb != 10) {
+			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "nbAthletes", Integer.toString(nb));
+		} else {
+			updateURLLocation(com.vaadin.flow.component.UI.getCurrent(), getLocation(), "nbAthletes", null);
+		}
 	   }
 	@Override
 	   public java.util.HashMap<String, java.util.List<String>> readParams(com.vaadin.flow.router.Location location, java.util.Map<String, java.util.List<String>> parametersMap) {
@@ -505,6 +513,24 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		   if (!displayLifts) {
 			   params.remove("displayLifts");
 		   }
+
+		 // Parse nbAthletes (number of athletes) parameter; default to 10 if missing/invalid
+		 java.util.List<String> nbParams = params.get("nbAthletes");
+		 int nbValue = 10;
+		 if (nbParams != null && !nbParams.isEmpty()) {
+			 try {
+				 int parsed = Integer.parseInt(nbParams.get(0));
+				 if (parsed > 0) {
+					 nbValue = parsed;
+				 }
+			 } catch (NumberFormatException e) {
+				 // ignore and keep default
+			 }
+		 }
+		 setNbAthletes(nbValue);
+		 if (nbValue == 10) {
+			 params.remove("nb");
+		 }
 
 		   return new java.util.HashMap<>(params);
 	   }
