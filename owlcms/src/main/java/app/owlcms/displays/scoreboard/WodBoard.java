@@ -12,6 +12,8 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.init.OwlcmsFactory;
+import com.vaadin.flow.component.AttachEvent;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.data.config.Config;
 import com.google.common.eventbus.EventBus;
@@ -100,12 +102,22 @@ public class WodBoard extends LitTemplate implements DisplayParameters, SafeEven
                 jath.set(i, ja);
             }
             this.getElement().setPropertyJson("athletes", jath);
-            // propagate stylesDir and autoversion so the frontend loads correct theme files
-            this.getElement().setProperty("stylesDir", Config.getCurrent().getParamStylesDir());
-            this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-            // register on the fop UI event bus so we receive SwitchGroup events
-            this.uiEventBus = uiEventBusRegister(this, fop);
+            // register on the fop UI event bus will be done on attach
+            // (stylesDir/autoversion must be set when attached to a UI)
         });
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        // set styles and version so frontend can load correct theme files
+        this.getElement().setProperty("stylesDir", Config.getCurrent().getParamStylesDir());
+        this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
+
+        // register on all FOP UI event buses once attached to a UI
+        for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+            this.uiEventBus = uiEventBusRegister(this, fop);
+        }
     }
 
     @Subscribe
