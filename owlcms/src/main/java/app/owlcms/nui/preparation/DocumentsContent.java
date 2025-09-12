@@ -29,9 +29,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.compress.utils.FileNameUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.maven.shared.utils.io.FileUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -343,7 +342,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			String template = templateEnum.templateFileNameSupplier.get();
 			String templateName = resourceFolder + template;
 			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
-			String ext = FileNameUtils.getExtension(isp);
+			String ext = FilenameUtils.getExtension(isp.getFileName().toString());
 			KitElement kitElement = new KitElement(id, templateName, ext, isp, 1, writerFactory);
 			return kitElement;
 		} catch (FileNotFoundException e1) {
@@ -468,7 +467,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        return zipOrExcelInputStream(ui, elements, doneCallback);
 		        },
 		        () -> {
-			        String extension = FileUtils.getExtension(template.templateFileNameSupplier.get());
+					String extension = FilenameUtils.getExtension(template.templateFileNameSupplier.get());
 			        return (getSortedSelection().size() > 1 ? ".zip" : "." + extension);
 		        });
 		Button b = (Button) localDirZipDiv.getChildren().findFirst().get();

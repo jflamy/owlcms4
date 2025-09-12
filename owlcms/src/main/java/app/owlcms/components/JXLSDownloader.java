@@ -17,7 +17,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import org.apache.maven.shared.utils.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
@@ -346,7 +346,7 @@ public class JXLSDownloader {
 		String fileName = "";
 		String templateName = this.templateNameGetter.apply(Competition.getCurrent());
 
-		String extension = FileUtils.getExtension(templateName);
+	String extension = FilenameUtils.getExtension(templateName);
 		if ((templateName.matches(".*[_-](A4|LETTER|LEGAL).*"))) {
 			fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(." + extension + ")", "") + suffix + "."
 			        + extension;
