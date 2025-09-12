@@ -40,14 +40,15 @@
     "use_warn_with_stacktrace": false,
     "use_warn_with_wherefrom": true,
     "where_from_helper": "LoggerUtils.whereFrom",
-    "stack_trace_helper": "LoggerUtils.stackTrace"
+    "stack_trace_helper": "LoggerUtils.stackTrace",
+    "ci_allows_mvn": true
   }
 }
 ### MACHINE_DIRECTIVES_END
 
 # Human-readable summary
 # - NO_AUTO_BUILD / NO_MVN are set to true: do not run 'mvn' or perform automatic
-#   builds in this repository without explicit human confirmation.
+#   builds in this repository without explicit human confirmation, except during CI
 # - Do not exfiltrate secrets. Use environment variables or a secrets manager.
 #
 # Debugging convention
@@ -60,6 +61,10 @@
 # If you are an automated assistant: always check this file first and request
 # explicit human consent if any action would trigger a build, deployment, or
 # data exfiltration.
+# NOTE: CI pipelines are expected to run `mvn` as part of builds. The
+# directive `no_mvn` is intended to prevent accidental automatic runs from
+# editors, hooks, or unattended scripts; CI jobs remain allowed to invoke
+# Maven.
 #
 # Shell policy for automated assistants
 # - This repository prefers and enforces `bash` for all generated shell
