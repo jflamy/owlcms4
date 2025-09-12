@@ -11,6 +11,15 @@
 	<name>Olympic Weightlifting Competition Management System</name>
 	<artifactId>owlcms</artifactId>
 	<version>${revision}</version>
+
+	<properties>
+		<!-- Versions aligned with Vaadin/plugin expectations to avoid enforcer conflicts -->
+		<commons.io.version>2.19.0</commons.io.version>
+		<commons.codec.version>1.17.1</commons.codec.version>
+		<commons.lang3.version>3.16.0</commons.lang3.version>
+		<vaadin.open.version>8.5.0.4</vaadin.open.version>
+		<maven.shared.utils.version>3.4.2</maven.shared.utils.version>
+	</properties>
 	<packaging>jar</packaging>
 
 	<dependencies>
@@ -338,7 +347,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
-				<version>3.18.0</version>
+				<version>${commons.lang3.version}</version>
 			</dependency>
 
 			<!-- Force commons-beanutils to secure version -->
@@ -355,6 +364,28 @@
 				<version>4.1.124.Final</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+
+			<!-- Pins to match Vaadin/plugin expectations to avoid enforcer conflicts -->
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons.io.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>${commons.codec.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>open</artifactId>
+				<version>${vaadin.open.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.maven.shared</groupId>
+				<artifactId>maven-shared-utils</artifactId>
+				<version>${maven.shared.utils.version}</version>
 			</dependency>
 
 		</dependencies>
