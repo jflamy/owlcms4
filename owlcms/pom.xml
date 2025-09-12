@@ -16,7 +16,7 @@
 		<!-- Versions aligned with Vaadin/plugin expectations to avoid enforcer conflicts -->
 		<commons.io.version>2.19.0</commons.io.version>
 		<commons.codec.version>1.17.1</commons.codec.version>
-		<commons.lang3.version>3.16.0</commons.lang3.version>
+		<commons.lang3.version>3.18.0</commons.lang3.version>
 		<vaadin.open.version>8.5.0.4</vaadin.open.version>
 		<maven.shared.utils.version>3.4.2</maven.shared.utils.version>
 	</properties>
