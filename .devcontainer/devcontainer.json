@@ -31,8 +31,10 @@
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/owlcms_v23,type=bind",
 
 	// Set container environment variables
+	// Set container environment variables
 	"containerEnv": {
-		"M2_HOME": "/opt/maven"
+		"M2_HOME": "/opt/maven",
+		"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
 	},
 
 	// Configure tool-specific properties.

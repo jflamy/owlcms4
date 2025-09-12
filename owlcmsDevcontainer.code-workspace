@@ -14,6 +14,14 @@
       }
     ],
     "java.compile.nullAnalysis.mode": "disabled"
+    ,
+    // Ensure the OWLCMS embedded MQTT flag is set for terminals launched from the workspace
+    "terminal.integrated.env.linux": {
+      "OWLCMS_ENABLEEMBEDDEDMQTT": "false"
+    },
+    "terminal.integrated.env.windows": {
+      "OWLCMS_ENABLEEMBEDDEDMQTT": "false"
+    }
   },
   "extensions": {
     "recommendations": [
