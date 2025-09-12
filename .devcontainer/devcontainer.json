@@ -47,7 +47,6 @@
 				"vscjava.vscode-java-dependency",
 				"github.copilot",
 				"github.copilot-chat",
-				"bradlc.vscode-tailwindcss",
 				"esbenp.prettier-vscode",
 				"ms-vscode.vscode-json"
 			],
