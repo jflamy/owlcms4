@@ -88,7 +88,20 @@ public class OwlcmsSession {
 
 		UI currentUi = UI.getCurrent();
 		if (currentUi != null) {
-			List<Locale> acceptableLocales = Collections.list(VaadinService.getCurrentRequest().getLocales());
+			// VaadinService.getCurrentRequest() may be null in some contexts (e.g. certain upload handlers).
+			// Defensively handle that case and fall back to the UI locale or system default.
+			com.vaadin.flow.server.VaadinRequest currentRequest = VaadinService.getCurrentRequest();
+			List<Locale> acceptableLocales;
+			if (currentRequest != null) {
+				acceptableLocales = Collections.list(currentRequest.getLocales());
+			} else {
+				Locale uiLocale = currentUi.getLocale();
+				if (uiLocale != null) {
+					acceptableLocales = List.of(uiLocale);
+				} else {
+					acceptableLocales = List.of(Locale.getDefault());
+				}
+			}
 			//logger.debug("acceptable locales: {}", acceptableLocales);
 			List<Locale> availableLocales = Translator.getAvailableLocales();
 			Locale match = null;
