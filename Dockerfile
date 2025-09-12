@@ -29,6 +29,12 @@ COPY ./playwright/pom.xml ./playwright/
 COPY ./playwright/src ./playwright/src
 COPY ./installtools/pom.xml ./installtools/
 
+# Ensure Node.js >=20 is available so Vaadin won't attempt to download it during builds
+RUN apt-get update && apt-get install -y curl gnupg ca-certificates --no-install-recommends \
+	&& curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+	&& apt-get install -y nodejs --no-install-recommends \
+	&& rm -rf /var/lib/apt/lists/*
+
 # go-offline using the pom.xml
 RUN mvn dependency:go-offline package -P production -am -pl owlcms -Dmaven.test.skip=true
 

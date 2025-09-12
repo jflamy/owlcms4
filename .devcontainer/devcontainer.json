@@ -7,7 +7,7 @@
 
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {
-			"version": "18",
+			"version": "22",
 			"nodeGypDependencies": true,
 			"installYarnUsingApt": true
 		}
