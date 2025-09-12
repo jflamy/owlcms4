@@ -5,6 +5,7 @@
     }
   ],
   "settings": {
+    "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
     "java.configuration.runtimes": [
       {
         "name": "JavaSE-17",

@@ -112,6 +112,7 @@
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
         "OWLCMS_PORT": "8081"
+        //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
       }
     },
     {
@@ -134,7 +135,8 @@
       "env": {
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        "OWLCMS_PORT": "8081"
+        "OWLCMS_PORT": "8081",
+        //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
       }
     },
     {
@@ -158,6 +160,7 @@
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_PORT": "8081"
+        //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
       }
     },
     {

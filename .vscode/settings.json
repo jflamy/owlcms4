@@ -44,7 +44,4 @@
 
     // Custom VM args (if needed for local dev)
     "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
-
-    // Window title
-    "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}"
 }
