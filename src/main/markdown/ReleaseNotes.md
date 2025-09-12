@@ -12,6 +12,8 @@
 
 **Maintenance Log**
 
+61.0.0-beta03: More versions compatibility updates to align with Vaadin 24.8.7 + fixes for devcontainer development environments
+
 61.0.0-beta02: Better fix to disable the distracting focus ring inside the grids after closing a dialog.
 
 **New in Release 61.0**
