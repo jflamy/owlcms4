@@ -67,7 +67,8 @@ class WodBoard extends LitElement {
         box-sizing: border-box; /* include padding in width/height */
         height: 100vh;
         width: 100vw;
-        background: var(--background-color, #111);
+  /* Use the shared theme variable used across components */
+  background: var(--pageBackgroundColor, black);
         align-items: center;
         justify-items: center;
       }

@@ -12,6 +12,8 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.utils.StartupUtils;
+import app.owlcms.data.config.Config;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -98,6 +100,9 @@ public class WodBoard extends LitTemplate implements DisplayParameters, SafeEven
                 jath.set(i, ja);
             }
             this.getElement().setPropertyJson("athletes", jath);
+            // propagate stylesDir and autoversion so the frontend loads correct theme files
+            this.getElement().setProperty("stylesDir", Config.getCurrent().getParamStylesDir());
+            this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
             // register on the fop UI event bus so we receive SwitchGroup events
             this.uiEventBus = uiEventBusRegister(this, fop);
         });
