@@ -245,7 +245,8 @@ public class JXLSDownloader {
 				this.downloadAnchor.getElement().getChild(0).setEnabled(false);
 			} catch (Exception e) {
 			}
-			UI.getCurrent().push();
+			UI ui = UI.getCurrent();
+			ui.push();
 			Competition current = Competition.getCurrent();
 
 			// supplier is a lambda that sets the template and the filter values in the xls
@@ -262,7 +263,7 @@ public class JXLSDownloader {
 		       this.xlsWriter = this.streamSourceSupplier.get();
 		       this.logger.debug("(2) xlsWriter dialog {} {}", this.xlsWriter, this.dialog);
 		       if (this.xlsWriter == null) {
-			       UI.getCurrent().access(() -> this.dialog.close());
+			       ui.access(() -> this.dialog.close());
 			       return;
 		       }
 		       this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
@@ -288,7 +289,7 @@ public class JXLSDownloader {
 		       templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
 		       this.downloadAnchor = nDownloadAnchor;
 
-		       this.xlsWriter.setDoneCallback((message) -> this.dialog.close());
+		       this.xlsWriter.setDoneCallback((message) -> ui.access(() -> this.dialog.close()));
 		} catch (Throwable e1) {
 			this.logger.error("{}", LoggerUtils.stackTrace(e1));
 		}

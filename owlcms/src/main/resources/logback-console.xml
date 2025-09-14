@@ -9,9 +9,7 @@
         <target>System.out</target>
         <encoder>
             <charset>UTF-8</charset>
-            <pattern>
-                %d{HH:mm:ss.SSS} %-5level %-75msg [%logger{100}:%L %M]%n
-            </pattern>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level){FATAL=red,ERROR=red,WARN=yellow,INFO=default,DEBUG=default,TRACE=blue} %-75msg [%logger{100}:%L %M]%n</pattern>
         </encoder>
     </appender>
 
