@@ -10,13 +10,9 @@
 
 <br>
 
-**Maintenance Log**
-
-61.0.0-beta03: More versions compatibility updates to align with Vaadin 24.8.7 + fixes for devcontainer development environments
-
-61.0.0-beta02: Better fix to disable the distracting focus ring inside the grids after closing a dialog.
-
 **New in Release 61.0**
+
+61.0.0: The Run Lifting Session / Button Testing page now shows connected MQTT devices (Blue-Owl, owlcms-firmata)
 
 61.0.0: When using a jury keypad with decision lights, and there is no deliberation or break going on, then the decision lights are reset by using the resume button.
 
