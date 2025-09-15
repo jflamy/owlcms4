@@ -18,6 +18,10 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -119,6 +123,14 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 		@Override
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
+			// record the publisher id derived from the topic for live connection listing
+			recordPublisherFromTopic(topic);
+			// record a signature based on topic+payload to help distinguish multiple clients publishing same topic
+			try {
+				recordPublisherSignature(topic, message != null ? message.getPayload() : null);
+			} catch (Throwable t) {
+				// ignore
+			}
 			new Thread(() -> {
 				String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
 				logger.info("{}MQTT received {} : {}", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr.trim());
@@ -143,6 +155,13 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				} else if (topic.endsWith(this.testTopicName)) {
 					long before = Long.parseLong(messageStr);
 					logger.info("{} timing = {}", getFop(), System.currentTimeMillis() - before);
+				} else if (topic.startsWith("$SYS/")) {
+					// broker system topic; try to parse connect/disconnect lines (Moquette may publish status here)
+					try {
+						parseSysTopic(topic, messageStr);
+					} catch (Throwable t) {
+						// ignore
+					}
 				} else {
 					logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
 					        FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
@@ -154,6 +173,39 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			setActive(b);
 		}
 
+		private void parseSysTopic(String topic, String messageStr) {
+			if (messageStr == null) return;
+			String lower = messageStr.toLowerCase();
+			boolean isConnect = lower.contains("connected");
+			boolean isDisconnect = lower.contains("disconnected");
+			if (!isConnect && !isDisconnect) return;
+			String[] parts = messageStr.split("[ ,;:\\t\\n\\r]+");
+			for (int i = 0; i < parts.length; i++) {
+				String p = parts[i].trim();
+				if (p.length() <= 1) continue;
+				if (p.equalsIgnoreCase("client") && i + 1 < parts.length) {
+					String cid = parts[i + 1].trim();
+					if (isConnect) {
+						MQTTMonitor.this.notifyClientConnected(cid);
+					} else {
+						MQTTMonitor.this.notifyClientDisconnected(cid);
+					}
+					return;
+				}
+			}
+			// Fallback: pick first token that is not the keywords
+			for (String p : parts) {
+				String t = p.trim();
+				if (t.length() <= 1) continue;
+				if (t.equalsIgnoreCase("connected") || t.equalsIgnoreCase("disconnected") || t.equalsIgnoreCase("client")) continue;
+				if (isConnect) {
+					MQTTMonitor.this.notifyClientConnected(t);
+				} else {
+					MQTTMonitor.this.notifyClientDisconnected(t);
+				}
+				return;
+			}
+		}
 		/**
 		 * @param athleteUnderReview the athleteUnderReview to set
 		 */
@@ -313,9 +365,13 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		String string = port.startsWith("8") ? "ssl://" : "tcp://";
 		Main.getStartupLogger().info("connecting to MQTT {}{}:{}", string, server, port);
 
+	// Use a stable client id indicating this server instance for the FOP: e.g. "A_owlcms_12345"
+	// Append the global startup id when available so multiple server instances remain unique
+	String startupId = (Main.mqttStartup != null && !Main.mqttStartup.isBlank()) ? Main.mqttStartup : Long.toString(System.currentTimeMillis());
+	String clientId = fop.getName() + "_owlcms_" + startupId;
 		MqttAsyncClient client = new MqttAsyncClient(
 		        string + server + ":" + port,
-		        fop.getName() + "_" + System.currentTimeMillis(), // ClientId
+		        clientId, // ClientId
 		        new MemoryPersistence()); // Persistence
 		return client;
 	}
@@ -371,6 +427,38 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	private Long prevRefereeTimeStamp = 0L;
 	private String monitoredFopName;
 
+	// track recent publishers observed on topics for this monitor (publisher id -> lastSeen millis)
+	private final Map<String, Long> lastSeenByPublisher = new ConcurrentHashMap<>();
+	// track active client ids inferred from topic segments (clientId -> lastSeen millis)
+	private final Map<String, Long> activeClientIds = new ConcurrentHashMap<>();
+	// global active client ids reported by the broker (clientId -> seenMillis)
+	private static final Map<String, Long> globalActiveClientIds = new ConcurrentHashMap<>();
+
+	// Scheduled reconciliation executor for broker session checks
+	private static final java.util.concurrent.ScheduledExecutorService reconciliationExecutor =
+			java.util.concurrent.Executors.newSingleThreadScheduledExecutor(r -> {
+				Thread t = new Thread(r, "mqtt-reconciliation");
+				t.setDaemon(true);
+				return t;
+			});
+	// Start reconciliation when class is loaded
+	static {
+		// schedule reconciliation every 30 seconds
+		reconciliationExecutor.scheduleAtFixedRate(() -> {
+			try {
+				reconcileWithBroker();
+			} catch (Throwable t) {
+				logger.warn("Error during MQTT broker reconciliation", t);
+			}
+		}, 30L, 30L, java.util.concurrent.TimeUnit.SECONDS);
+	}
+
+
+	// track recent publisher signatures (topic+payload hash) to distinguish multiple clients publishing to same topic
+	private final Map<String, Long> lastSeenByPublisherSignature = new ConcurrentHashMap<>();
+	private final long PUBLISHER_TIMEOUT_MS = 30_000L;
+
+
 	private MQTTMonitor(String monitorName, FieldOfPlay fop) {
 		this.setMonitoredFopName(monitorName);
 		this.setFop(fop);
@@ -378,6 +466,263 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 	public FieldOfPlay getFop() {
 		return this.fop;
+	}
+
+	/**
+	 * Return whether the underlying MQTT client is connected.
+	 */
+	public boolean isConnected() {
+		return this.client != null && this.client.isConnected();
+	}
+
+	/**
+	 * Return a short summary of the connection state for logging.
+	 */
+	public String getConnectionSummary() {
+		String clientId = this.client != null ? this.client.getClientId() : "(no-client)";
+		String server = "(no-server)";
+		try {
+			if (this.client != null && this.client.getCurrentServerURI() != null) {
+				server = this.client.getCurrentServerURI();
+			}
+		} catch (Throwable t) {
+			// defensive: some client implementations throw when not connected
+		}
+		return String.format("connected=%b clientId=%s server=%s", isConnected(), clientId, server);
+	}
+
+	/**
+	 * Return summaries for all known MQTT monitors (monitorName -> summary).
+	 */
+	public static Map<String, String> getAllMonitorSummaries() {
+		Map<String, String> summaries = new HashMap<>();
+		synchronized (mqttMonitorByName) {
+			for (Map.Entry<String, MQTTMonitor> e : mqttMonitorByName.entrySet()) {
+				MQTTMonitor mm = e.getValue();
+				String s = mm != null ? mm.getConnectionSummary() : "(null)";
+				summaries.put(e.getKey(), s);
+			}
+		}
+		return summaries;
+	}
+
+	/**
+	 * Return safe snapshot of active publishers per monitor (monitorName -> list of publishers).
+	 */
+	public static Map<String, List<String>> getAllActivePublishers() {
+		Map<String, List<String>> result = new HashMap<>();
+		synchronized (mqttMonitorByName) {
+			for (Map.Entry<String, MQTTMonitor> e : mqttMonitorByName.entrySet()) {
+				MQTTMonitor mm = e.getValue();
+				if (mm == null) {
+					result.put(e.getKey(), List.of());
+					continue;
+				}
+				try {
+					var pubs = mm.getActivePublishers();
+					result.put(e.getKey(), new ArrayList<>(pubs != null ? pubs : java.util.Set.of()));
+				} catch (Throwable t) {
+					result.put(e.getKey(), List.of());
+				}
+			}
+		}
+		return result;
+	}
+
+	private void recordPublisherFromTopic(String topic) {
+		if (topic == null) {
+			return;
+		}
+		String[] parts = topic.split("/");
+		if (parts.length < 2) {
+			return;
+		}
+		// Derive a stable publisher key: join the topic segments between 'owlcms' and the FOP name
+		// Example: 'owlcms/refbox/decision/<fop>' -> 'refbox/decision'
+		String publisherId = null;
+		String fopName = (this.getFop() != null ? this.getFop().getName() : this.monitoredFopName);
+		int fopIndex = -1;
+		if (fopName != null) {
+			for (int i = 0; i < parts.length; i++) {
+				if (parts[i].equals(fopName)) {
+					fopIndex = i;
+					break;
+				}
+			}
+		}
+		if (fopIndex > 1) {
+			// join parts[1..fopIndex-1]
+			StringBuilder sb = new StringBuilder();
+			for (int i = 1; i < fopIndex; i++) {
+				if (sb.length() > 0) sb.append('/');
+				sb.append(parts[i]);
+			}
+			publisherId = sb.toString();
+		} else if (parts.length >= 2) {
+			// fallback to the second segment (device/type)
+			publisherId = parts[1];
+		} else {
+			publisherId = topic;
+		}
+
+		long now = System.currentTimeMillis();
+		lastSeenByPublisher.put(publisherId, now);
+		// also mark inferred client id as active
+		if (publisherId != null && !publisherId.isBlank()) {
+			activeClientIds.put(publisherId, now);
+		}
+
+		// expire old entries: collect expired keys then remove them to avoid iterator.remove() on ConcurrentHashMap
+		List<String> expired = new ArrayList<>();
+		for (java.util.Map.Entry<String, Long> entry : lastSeenByPublisher.entrySet()) {
+			Long ts = entry.getValue();
+			if (ts == null) continue;
+			if (now - ts > PUBLISHER_TIMEOUT_MS) {
+				expired.add(entry.getKey());
+			}
+		}
+		for (String k : expired) {
+			lastSeenByPublisher.remove(k);
+			activeClientIds.remove(k);
+		}
+	}
+
+	private void recordPublisherSignature(String topic, byte[] payload) {
+		if (topic == null) return;
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-1");
+			md.update(topic.getBytes(StandardCharsets.UTF_8));
+			if (payload != null) md.update(payload);
+			byte[] digest = md.digest();
+			String sig = bytesToHex(digest);
+			long now = System.currentTimeMillis();
+			lastSeenByPublisherSignature.put(sig, now);
+
+			// expire old entries
+			List<String> expired = new ArrayList<>();
+			for (java.util.Map.Entry<String, Long> entry : lastSeenByPublisherSignature.entrySet()) {
+				Long ts = entry.getValue();
+				if (ts == null) continue;
+				if (now - ts > PUBLISHER_TIMEOUT_MS) expired.add(entry.getKey());
+			}
+			for (String k : expired) lastSeenByPublisherSignature.remove(k);
+		} catch (NoSuchAlgorithmException e) {
+			// impossible for SHA-1 on standard JVMs, ignore
+		}
+	}
+
+	private static String bytesToHex(byte[] bytes) {
+		char[] hexArray = "0123456789abcdef".toCharArray();
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
+	}
+
+	public Set<String> getActivePublishers() {
+		// return a sorted snapshot to avoid exposing the concurrent map's live view
+		java.util.Set<String> s = new java.util.TreeSet<>(lastSeenByPublisher.keySet());
+		return new java.util.HashSet<>(s);
+	}
+
+	/**
+	 * Return a snapshot of currently active client ids inferred for this monitor.
+	 */
+	public Set<String> getActiveClientIds() {
+		return new java.util.HashSet<>(new java.util.TreeSet<>(activeClientIds.keySet()));
+	}
+
+	/** Return snapshot of client id -> lastSeen for this monitor */
+	public Map<String, Long> getActiveClientIdLastSeen() {
+		return new HashMap<>(activeClientIds);
+	}
+
+	/**
+	 * Return a snapshot of active publisher signatures (payload+topic hashes) observed by this monitor.
+	 */
+	public Set<String> getActivePublisherSignatures() {
+		return new java.util.HashSet<>(new java.util.TreeSet<>(lastSeenByPublisherSignature.keySet()));
+	}
+
+	/**
+	 * Return a snapshot of the raw last-seen timestamps for publishers observed by this monitor.
+	 * Useful for debugging presence and timing (publisher -> lastSeenMillis).
+	 */
+	public Map<String, Long> getLastSeenSnapshot() {
+		return new HashMap<>(lastSeenByPublisher);
+	}
+
+	/**
+	 * Return a snapshot of last-seen maps for all known monitors (monitorName -> (publisher -> lastSeenMillis)).
+	 */
+	public static Map<String, Map<String, Long>> getAllLastSeenSnapshots() {
+		Map<String, Map<String, Long>> result = new HashMap<>();
+		synchronized (mqttMonitorByName) {
+			for (Map.Entry<String, MQTTMonitor> e : mqttMonitorByName.entrySet()) {
+				MQTTMonitor mm = e.getValue();
+				if (mm == null) {
+					result.put(e.getKey(), Map.of());
+					continue;
+				}
+
+                
+				try {
+					result.put(e.getKey(), mm.getLastSeenSnapshot());
+				} catch (Throwable t) {
+					result.put(e.getKey(), Map.of());
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Return snapshot of active publisher signatures across all monitors (monitorName -> set of signatures)
+	 */
+	public static Map<String, java.util.Set<String>> getAllActivePublisherSignatures() {
+		Map<String, java.util.Set<String>> result = new HashMap<>();
+		synchronized (mqttMonitorByName) {
+			for (Map.Entry<String, MQTTMonitor> e : mqttMonitorByName.entrySet()) {
+				MQTTMonitor mm = e.getValue();
+				if (mm == null) {
+					result.put(e.getKey(), java.util.Set.of());
+					continue;
+				}
+
+                
+				try {
+					result.put(e.getKey(), mm.getActivePublisherSignatures());
+				} catch (Throwable t) {
+					result.put(e.getKey(), java.util.Set.of());
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Return active client ids snapshot for all monitors (monitorName -> set of client ids)
+	 */
+	public static Map<String, java.util.Set<String>> getAllActiveClientIds() {
+		Map<String, java.util.Set<String>> result = new HashMap<>();
+		synchronized (mqttMonitorByName) {
+			for (Map.Entry<String, MQTTMonitor> e : mqttMonitorByName.entrySet()) {
+				MQTTMonitor mm = e.getValue();
+				if (mm == null) {
+					result.put(e.getKey(), java.util.Set.of());
+					continue;
+				}
+				try {
+					result.put(e.getKey(), mm.getActiveClientIds());
+				} catch (Throwable t) {
+					result.put(e.getKey(), java.util.Set.of());
+				}
+			}
+		}
+		return result;
 	}
 
 	public void publishMqttConfig() {
@@ -766,6 +1111,13 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		this.client.subscribe(this.callback.configTopicName, 0);
 		logger.trace("{}MQTT subscribe {} {}", FieldOfPlay.getLoggingName(this.getFop()), this.callback.configTopicName,
 		        this.client.getCurrentServerURI());
+		// subscribe to broker $SYS topics to detect client connections when available
+		try {
+			this.client.subscribe("$SYS/#", 0);
+			logger.trace("{}MQTT subscribe $SYS/# {}", FieldOfPlay.getLoggingName(this.getFop()), this.client.getCurrentServerURI());
+		} catch (MqttException me) {
+			logger.debug("{}could not subscribe to $SYS topics: {}", FieldOfPlay.getLoggingName(this.getFop()), me.getMessage());
+		}
 	}
 
 	private void doPublishMQTTSummon(int ref) throws MqttException, MqttPersistenceException {
@@ -1055,6 +1407,225 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	/**
+	 * Called by broker integrations or $SYS parsing when a client connected.
+	 */
+	public void notifyClientConnected(String clientId) {
+		if (clientId == null || clientId.isBlank()) return;
+		activeClientIds.put(clientId, System.currentTimeMillis());
+		try {
+			String monitorName = this.getMonitoredFopName();
+			logger.info("{} MQTT client connected: monitor={} clientId={}", FieldOfPlay.getLoggingName(this.getFop()), monitorName, clientId);
+		} catch (Throwable t) {
+			// defensive: logging must not throw
+		}
+	}
+
+	/**
+	 * Called by broker integrations or $SYS parsing when a client disconnected.
+	 */
+	public void notifyClientDisconnected(String clientId) {
+		if (clientId == null || clientId.isBlank()) return;
+		activeClientIds.remove(clientId);
+	}
+
+	/**
+	 * Broker-level notification: record a globally active client id across the application.
+	 */
+	public static void notifyGlobalClientConnected(String clientId) {
+		if (clientId == null || clientId.isBlank()) return;
+		globalActiveClientIds.put(clientId, System.currentTimeMillis());
+		try {
+			logger.info("Broker-level client connected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size());
+		} catch (Throwable t) {
+			// don't let logging interfere
+		}
+	}
+
+	/**
+	 * Broker-level notification: remove a globally active client id.
+	 */
+	public static void notifyGlobalClientDisconnected(String clientId) {
+		if (clientId == null || clientId.isBlank()) return;
+		globalActiveClientIds.remove(clientId);
+		try {
+			logger.info("Broker-level client disconnected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size());
+		} catch (Throwable t) {
+			// don't let logging interfere
+		}
+	}
+
+	/**
+	 * Return a snapshot of global active client ids as reported by the broker.
+	 */
+	public static java.util.Set<String> getGlobalActiveClientIds() {
+		return new java.util.HashSet<>(new java.util.TreeSet<>(globalActiveClientIds.keySet()));
+	}
+
+	/**
+	 * Remove a specific global client id from the registry (manual cleanup API).
+	 */
+	public static void removeGlobalClient(String clientId) {
+		if (clientId == null || clientId.isBlank()) return;
+		globalActiveClientIds.remove(clientId);
+		try {
+			logger.info("Broker-level client manually removed: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size());
+		} catch (Throwable t) {
+		}
+	}
+
+	/**
+	 * Clear all known global client ids. Useful for testing or manual reset.
+	 */
+	public static void resetGlobalActiveClients() {
+		globalActiveClientIds.clear();
+		try {
+			logger.info("Broker-level global client registry cleared, count={}", globalActiveClientIds.size());
+		} catch (Throwable t) {
+		}
+	}
+
+	/**
+	 * Reconcile the application registry with the broker's session list.
+	 * This method uses reflection to attempt to extract a list of active client ids
+	 * from the embedded Moquette broker instance (`Main.mqttBroker`). It will
+	 * remove any global client id that is not present in the broker's authoritative list.
+	 */
+	private static void reconcileWithBroker() {
+		try {
+			// Main.mqttBroker is private; access it reflectively to avoid visibility issues
+			Object broker = null;
+			try {
+				java.lang.reflect.Field f = Main.class.getDeclaredField("mqttBroker");
+				f.setAccessible(true);
+				broker = f.get(null);
+			} catch (Throwable t) {
+				// fallback: try public field access (unlikely)
+				try { broker = Main.class.getField("mqttBroker").get(null); } catch (Throwable t2) {}
+			}
+			if (broker == null) return;
+
+			java.util.Set<String> brokerClients = new java.util.HashSet<>();
+
+			Class<?> cls = broker.getClass();
+			// Try public methods first
+			for (java.lang.reflect.Method m : cls.getMethods()) {
+				String name = m.getName().toLowerCase();
+				if (!(name.contains("session") || name.contains("sessions") || name.contains("client") || name.contains("clients") )) continue;
+				try {
+					Object res = m.invoke(broker);
+					if (res == null) continue;
+					collectClientIdsFromObject(res, brokerClients);
+				} catch (Throwable t) {
+					// ignore individual method failures
+				}
+			}
+
+			// If nothing found, try declared fields
+			if (brokerClients.isEmpty()) {
+				for (java.lang.reflect.Field f : cls.getDeclaredFields()) {
+					String fname = f.getName().toLowerCase();
+					if (!(fname.contains("session") || fname.contains("sessions") || fname.contains("client") || fname.contains("clients"))) continue;
+					try {
+						f.setAccessible(true);
+						Object val = f.get(broker);
+						if (val == null) continue;
+						collectClientIdsFromObject(val, brokerClients);
+					} catch (Throwable t) {
+						// ignore
+					}
+				}
+			}
+
+			if (brokerClients.isEmpty()) {
+				// nothing to reconcile
+				return;
+			}
+
+			java.util.Set<String> known = new java.util.HashSet<>(globalActiveClientIds.keySet());
+			for (String k : known) {
+				if (!brokerClients.contains(k)) {
+					// remove stale
+					globalActiveClientIds.remove(k);
+					try {
+						logger.info("Broker-level client reconciled and removed: clientId={} reason=missing_in_broker_sessions globalActiveCount={}", k, globalActiveClientIds.size());
+					} catch (Throwable t) {
+					}
+				}
+			}
+		} catch (Throwable t) {
+			logger.warn("Unexpected error during broker reconciliation", t);
+		}
+	}
+
+	private static void collectClientIdsFromObject(Object res, java.util.Set<String> out) {
+		if (res == null) return;
+		if (res instanceof java.util.Collection) {
+			for (Object e : (java.util.Collection<?>) res) {
+				if (e == null) continue;
+				if (e instanceof String) {
+					out.add(((String) e).trim());
+				} else {
+					// try common getter names
+					try {
+						java.lang.reflect.Method m = e.getClass().getMethod("getClientID");
+						Object v = m.invoke(e);
+						if (v != null) out.add(v.toString());
+						continue;
+					} catch (Throwable t) {
+					}
+					try {
+						java.lang.reflect.Method m = e.getClass().getMethod("clientID");
+						Object v = m.invoke(e);
+						if (v != null) out.add(v.toString());
+						continue;
+					} catch (Throwable t) {
+					}
+					try {
+						java.lang.reflect.Method m = e.getClass().getMethod("getClientId");
+						Object v = m.invoke(e);
+						if (v != null) out.add(v.toString());
+						continue;
+					} catch (Throwable t) {
+					}
+					// fallback to toString tokenizing
+					String s = e.toString();
+					if (s != null && s.length() > 0) {
+						// split on non-word to pick client id-like tokens
+						for (String token : s.split("[^A-Za-z0-9_\\-]+")) {
+							if (token.length() > 1) out.add(token);
+						}
+					}
+				}
+			}
+		} else if (res instanceof java.util.Map) {
+			out.addAll(((java.util.Map<?, ?>) res).keySet().stream().map(Object::toString).collect(java.util.stream.Collectors.toSet()));
+		} else {
+			// try to inspect object for iterable-like methods
+			try {
+				java.lang.reflect.Method m = res.getClass().getMethod("getAllClientIds");
+				Object v = m.invoke(res);
+				collectClientIdsFromObject(v, out);
+				return;
+			} catch (Throwable t) {
+			}
+			try {
+				java.lang.reflect.Method m = res.getClass().getMethod("connectedClients");
+				Object v = m.invoke(res);
+				collectClientIdsFromObject(v, out);
+				return;
+			} catch (Throwable t) {
+			}
+			// last resort: toString tokenization
+			String s = res.toString();
+			if (s != null && s.length() > 0) {
+				for (String token : s.split("[^A-Za-z0-9_\\-]+")) {
+					if (token.length() > 1) out.add(token);
+				}
+			}
+		}
 	}
 
 }

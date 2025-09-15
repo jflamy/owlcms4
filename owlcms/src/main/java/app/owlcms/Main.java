@@ -6,14 +6,14 @@
  *******************************************************************************/
 package app.owlcms;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+ 
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
-import java.util.Collections;
+// ...existing imports...
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
@@ -55,9 +55,8 @@ import ch.qos.logback.classic.Logger;
 import io.moquette.broker.Server;
 import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
-import io.moquette.interception.AbstractInterceptHandler;
 import io.moquette.interception.InterceptHandler;
-import io.moquette.interception.messages.InterceptPublishMessage;
+import app.owlcms.monitors.MQTTInterceptHandlers;
 
 /**
  * Main class for launching owlcms using an embedded jetty server. Also start an embedded MQTT moquette server
@@ -66,24 +65,7 @@ import io.moquette.interception.messages.InterceptPublishMessage;
  */
 public class Main {
 
-	static class PublisherListener extends AbstractInterceptHandler {
-
-		@Override
-		public String getID() {
-			return "EmbeddedLauncherPublishListener";
-		}
-
-		@Override
-		public void onPublish(InterceptPublishMessage msg) {
-			final String decodedPayload = msg.getPayload().toString(UTF_8);
-			logger.debug("Received on topic: " + msg.getTopicName() + " content: " + decodedPayload);
-		}
-
-		@Override
-		public void onSessionLoopError(Throwable error) {
-			logger.error("mqtt onSessionLoopError: " + error);
-		}
-	}
+		// MQTT intercept handlers moved to app.owlcms.monitors.MQTTInterceptHandlers
 
 	private static final int WARNING_MINUTES = 5;
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
@@ -231,8 +213,10 @@ public class Main {
 		mqttConfig.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "mqttData");
 		new File(mqttConfig.getProperty(IConfig.DATA_PATH_PROPERTY_NAME)).mkdirs();
 
-		mqttBroker = new Server();
-		List<? extends InterceptHandler> userHandlers = Collections.singletonList(new PublisherListener());
+	mqttBroker = new Server();
+	List<InterceptHandler> userHandlers = new java.util.ArrayList<>();
+	userHandlers.add(new MQTTInterceptHandlers.PublisherListener());
+	userHandlers.add(new MQTTInterceptHandlers.ConnectionListener());
 
 		if (Config.getCurrent().getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
 			logger.info("MQTT Server overridden by environment or system parameter, not starting embedded MQTT");
