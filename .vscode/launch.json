@@ -214,13 +214,35 @@
       "mainClass": "${file}",
       "vmArgs": "${config:owlcms.vmArgs}"
     }
+    ,
+    {
+      "type": "java",
+      "name": "🔷 firmata UI (second folder)",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "mainClass": "app.owlcms.firmata.ui.Main",
+      "projectName": "owlcms-firmata",
+      "cwd": "${workspaceFolder:owlcms-firmata}",
+      "vmArgs": "${config:owlcms.vmArgs}",
+      "env": {
+        "OWLCMS_MEMORYMODE": "false"
+      }
+    }
   ],
   "compounds": [
     {
-      "name": "🟠 tandem launch (owlcms + publicresults)",
+      "name": "🟠 tandem owlcms + publicresults",
       "configurations": [
         "🟠 tandem owlcms",
         "🟠 tandem publicresults"
+      ]
+    }
+    ,
+    {
+      "name": "🔷 tandem owlcms + firmata",
+      "configurations": [
+        "🟨 owlcms no reset",
+        "🔷 firmata UI (second folder)"
       ]
     }
   ]

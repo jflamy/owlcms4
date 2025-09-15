@@ -168,7 +168,9 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		ui.access(() -> {
+			// When a break starts, enable resume and disable start testing
 			resumeCompetition.setEnabled(true);
+			if (startTesting != null) startTesting.setEnabled(false);
 		});
 	}
 
@@ -332,10 +334,19 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	private java.util.List<String> getFilteredDeviceIds(java.util.Collection<?> globalClients) {
 		java.util.List<String> list = new java.util.ArrayList<>();
 		if (globalClients == null || globalClients.isEmpty()) return list;
+		java.util.Map<String, String> descriptors = app.owlcms.monitors.MQTTMonitor.getConnectionDescriptorsSnapshot();
 		for (Object o : globalClients) {
 			if (o == null) continue;
 			String s = o.toString();
 			if (s.contains("_owlcms_") || s.toLowerCase().contains("configmonitor")) continue;
+			// hide config connections: raw id starts with config_f OR descriptor starts with 'config'
+			try {
+				if (s.toLowerCase().startsWith("config_f")) continue;
+				String desc = lookupDescriptorForId(descriptors, s);
+				if (desc != null && desc.toLowerCase().startsWith("config")) continue;
+			} catch (Throwable t) {
+				// ignore and fall back to showing the id
+			}
 			list.add(s);
 		}
 		java.util.Collections.sort(list);
@@ -344,8 +355,27 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 
 	private void populateDevicesContainer(java.util.List<String> ids) {
 		devicesContainer.removeAll();
+	// snapshot descriptors to avoid repeated lookups while rendering
+	java.util.Map<String, String> descriptors = app.owlcms.monitors.MQTTMonitor.getConnectionDescriptorsSnapshot();
+	java.util.Map<String, Long> lastSeen = app.owlcms.monitors.MQTTMonitor.getConnectionLastSeenSnapshot();
 		for (int i = 0; i < ids.size(); i++) {
 			String id = ids.get(i);
+			// Prefer descriptor (friendly name) if available, otherwise fall back to id
+			// no remote address available anymore
+			String display = id;
+			String desc = lookupDescriptorForId(descriptors, id);
+			if (desc != null && !desc.isBlank()) {
+				display = desc;
+			}
+
+			// append concise last-seen if available (use permissive lookup)
+			Long ts = lookupLastSeenForId(lastSeen, id);
+			if (ts != null) {
+				String ago = formatAgo(ts);
+				if (ago != null && !ago.isBlank()) display = display + " (" + ago + ")";
+			}
+
+			// no remote IP available; omit address
 			Div box = new Div();
 			box.getStyle().set("width", "30ch");
 			box.getStyle().set("padding", "6px");
@@ -355,9 +385,59 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 			box.getStyle().set("white-space", "nowrap");
 			box.getStyle().set("overflow", "hidden");
 			box.getStyle().set("text-overflow", "ellipsis");
-			box.setText((i+1) + ". " + id);
+			// If the display (descriptor) differs from the raw id, show descriptor then raw id on next line
+			if (!display.equals(id)) {
+				box.getStyle().set("white-space", "normal");
+				box.setText((i+1) + ". " + display + "\n" + id);
+				box.getStyle().set("font-size", "0.95em");
+			} else {
+				box.setText((i+1) + ". " + display);
+			}
+			// make connection name non-bold
+			box.getStyle().set("font-weight", "normal");
 			devicesContainer.add(box);
 		}
+	}
+
+	// remote lookup removed
+
+	/**
+	 * Permissive lookup for descriptor: exact key, key startsWith id, id startsWith key, or key contains id.
+	 */
+	private String lookupDescriptorForId(java.util.Map<String, String> descriptors, String id) {
+		if (descriptors == null || id == null) return null;
+		if (descriptors.containsKey(id)) return descriptors.get(id);
+		// prefer keys that start with the id (e.g., broker id variants)
+		for (String k : descriptors.keySet()) {
+			if (k != null && k.startsWith(id)) return descriptors.get(k);
+		}
+		// prefer keys that id starts with (id is a longer variant)
+		for (String k : descriptors.keySet()) {
+			if (k != null && id.startsWith(k)) return descriptors.get(k);
+		}
+		// fallback to contains
+		for (String k : descriptors.keySet()) {
+			if (k != null && k.contains(id)) return descriptors.get(k);
+		}
+		return null;
+	}
+
+	/**
+	 * Permissive lookup for lastSeen timestamp using the same heuristic as descriptors.
+	 */
+	private Long lookupLastSeenForId(java.util.Map<String, Long> lastSeen, String id) {
+		if (lastSeen == null || id == null) return null;
+		if (lastSeen.containsKey(id)) return lastSeen.get(id);
+		for (String k : lastSeen.keySet()) {
+			if (k != null && k.startsWith(id)) return lastSeen.get(k);
+		}
+		for (String k : lastSeen.keySet()) {
+			if (k != null && id.startsWith(k)) return lastSeen.get(k);
+		}
+		for (String k : lastSeen.keySet()) {
+			if (k != null && k.contains(id)) return lastSeen.get(k);
+		}
+		return null;
 	}
 
 
@@ -391,8 +471,8 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 			startTesting.setEnabled(true);
 		});
 		
-		boolean inBreak = getFop().getState() == FOPState.BREAK;
-		startTesting.setEnabled(true);
+		boolean inBreak = (getFop() != null && getFop().getState() == FOPState.BREAK);
+		startTesting.setEnabled(!inBreak);
 		resumeCompetition.setEnabled(inBreak);
 		
 		HorizontalLayout buttons = new HorizontalLayout();
@@ -424,14 +504,34 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	private int countConnectedDevices() {
 		var globalClients = app.owlcms.monitors.MQTTMonitor.getGlobalActiveClientIds();
 		if (globalClients == null || globalClients.isEmpty()) return 0;
+		java.util.Map<String, String> descriptors = app.owlcms.monitors.MQTTMonitor.getConnectionDescriptorsSnapshot();
 		int count = 0;
 		for (Object o : globalClients) {
 			if (o == null) continue;
 			String s = o.toString();
 			if (s.contains("_owlcms_") || s.toLowerCase().contains("configmonitor")) continue;
+			try {
+				if (s.toLowerCase().startsWith("config_f")) continue;
+				String desc = lookupDescriptorForId(descriptors, s);
+				if (desc != null && desc.toLowerCase().startsWith("config")) continue;
+			} catch (Throwable t) {
+				// ignore and count the client
+			}
 			count++;
 		}
 		return count;
+	}
+
+	private String formatAgo(Long ts) {
+		if (ts == null) return "";
+		long diff = System.currentTimeMillis() - ts;
+		if (diff < 1000L) return "just now";
+		long seconds = diff / 1000L;
+		if (seconds < 60L) return seconds + "s ago";
+		long minutes = seconds / 60L;
+		if (minutes < 60L) return minutes + "m ago";
+		long hours = minutes / 60L;
+		return hours + "h ago";
 	}
 
 	

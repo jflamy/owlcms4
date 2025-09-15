@@ -123,6 +123,8 @@ public class MQTTMonitor extends Thread implements IUnregister {
 
 		@Override
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
+			// Try to record a human-readable descriptor for any connection id embedded in the topic
+			recordConnectionDescriptorFromTopic(topic);
 			// record the publisher id derived from the topic for live connection listing
 			recordPublisherFromTopic(topic);
 			// record a signature based on topic+payload to help distinguish multiple clients publishing same topic
@@ -167,6 +169,109 @@ public class MQTTMonitor extends Thread implements IUnregister {
 					        FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
 				}
 			}).start();
+				// Some broker runtime intercepts may expose the publisher client id or remote address
+				// on a different object available to intercept handlers. Here we have only the topic
+				// and message payload; no additional session object is available so skip this step.
+				// Intercept handlers (embedded broker) populate remote addresses when available.
+		}
+
+		/**
+		 * If the topic contains a token that looks like a connection id starting with 'mqtt',
+		 * store a descriptor of the form "<platform> <topic-without-leading-owlcms/>" keyed by that id.
+		 */
+		private void recordConnectionDescriptorFromTopic(String topic) {
+			if (topic == null || topic.isBlank()) return;
+			String[] parts = topic.split("/");
+			if (parts.length == 0) return;
+			// find any token that looks like a client id starting with mqtt
+			for (String token : parts) {
+				if (token != null && token.startsWith("mqtt")) {
+					String clientId = token;
+					// build descriptor: platform (FOP name) followed by topic without leading 'owlcms/'
+					String platform = (MQTTMonitor.this.getFop() != null ? MQTTMonitor.this.getFop().getName() : MQTTMonitor.this.monitoredFopName);
+					String descriptor = topic;
+					if (descriptor.startsWith("owlcms/")) descriptor = descriptor.substring("owlcms/".length());
+					String finalDesc = (platform != null ? platform + " " + descriptor : descriptor);
+					// Prefer assigning descriptor to any broker-reported client ids that start with 'mqtt'
+					boolean assigned = false;
+					long now = System.currentTimeMillis();
+						for (String gid : MQTTInterceptHandlers.getGlobalActiveClientIds()) {
+							if (gid == null) continue;
+							if (MQTTInterceptHandlers.isConfigClientId(gid)) continue; // ignore config clients
+							if (MQTTInterceptHandlers.isGenericClientId(gid)) {
+								MQTTInterceptHandlers.putDescriptor(gid, finalDesc);
+								MQTTInterceptHandlers.putLastSeen(gid, now);
+								try {
+									logger.warn("Assigned MQTT descriptor='{}' to broker clientId='{}' from topic='{}'", finalDesc, gid, topic);
+									logger.warn("Updated connectionLastSeen: clientId='{}' ts={} (from topic)", gid, now);
+								} catch (Throwable t) {
+									// ignore logging failures
+								}
+								assigned = true;
+							}
+						}
+					// Fallback: if no global mqtt ids found, store under the token extracted from topic
+					if (!assigned) {
+							if (!MQTTInterceptHandlers.isConfigClientId(clientId)) {
+								MQTTInterceptHandlers.putDescriptor(clientId, finalDesc);
+								MQTTInterceptHandlers.putLastSeen(clientId, now);
+							}
+						try {
+							logger.warn("Assigned MQTT descriptor='{}' to inferred client token='{}' from topic='{}'", finalDesc, clientId, topic);
+							logger.warn("Updated connectionLastSeen: clientId='{}' ts={} (inferred token)", clientId, now);
+						} catch (Throwable t) {
+							// ignore logging failures
+						}
+					}
+					return;
+				}
+			}
+			// diagnostic: if we didn't find an mqtt-like token, log parts to help debugging
+			// Try fallback: use the second segment (e.g. 'jurybox' in 'owlcms/jurybox/...') as a candidate
+			try {
+				if (parts.length >= 2 && "owlcms".equals(parts[0])) {
+					String candidate = parts[1];
+					String platform = (MQTTMonitor.this.getFop() != null ? MQTTMonitor.this.getFop().getName() : MQTTMonitor.this.monitoredFopName);
+					String descriptor = topic;
+					if (descriptor.startsWith("owlcms/")) descriptor = descriptor.substring("owlcms/".length());
+					String finalDesc = (platform != null ? platform + " " + descriptor : descriptor);
+					boolean assigned2 = false;
+					long now2 = System.currentTimeMillis();
+						for (String gid : MQTTInterceptHandlers.getGlobalActiveClientIds()) {
+							if (gid == null) continue;
+							if (MQTTInterceptHandlers.isConfigClientId(gid)) continue; // ignore config clients
+							if (gid.equals(candidate) || gid.startsWith(candidate) || candidate.startsWith(gid) || gid.contains(candidate) || candidate.contains(gid)) {
+								MQTTInterceptHandlers.putDescriptor(gid, finalDesc);
+								MQTTInterceptHandlers.putLastSeen(gid, now2);
+								try {
+									logger.warn("Assigned fallback descriptor='{}' to broker clientId='{}' from topic='{}' (candidate='{}')", finalDesc, gid, topic, candidate);
+									logger.trace("Updated connectionLastSeen: clientId='{}' ts={} (fallback)", gid, now2);
+								} catch (Throwable t) {
+									// ignore logging failures
+								}
+								assigned2 = true;
+							}
+						}
+					if (!assigned2) {
+						// store under the candidate token so permissive UI lookup can find it
+						if (!MQTTInterceptHandlers.isConfigClientId(candidate)) {
+							MQTTInterceptHandlers.putDescriptor(candidate, finalDesc);
+							MQTTInterceptHandlers.putLastSeen(candidate, now2);
+						}
+						try {
+							logger.warn("Assigned fallback descriptor='{}' to inferred client token='{}' from topic='{}'", finalDesc, candidate, topic);
+							logger.trace("Updated connectionLastSeen: clientId='{}' ts={} (fallback-inferred)", candidate, now2);
+						} catch (Throwable t) {
+							// ignore logging failures
+						}
+					}
+					return;
+				}
+				String joined = String.join(",", parts);
+				logger.info("No mqtt-like token found in topic='{}' parts=[{}]", topic, joined);
+			} catch (Throwable t) {
+				// ignore logging failures
+			}
 		}
 
 		private void setMonitorActive(boolean b) {
@@ -431,8 +536,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	private final Map<String, Long> lastSeenByPublisher = new ConcurrentHashMap<>();
 	// track active client ids inferred from topic segments (clientId -> lastSeen millis)
 	private final Map<String, Long> activeClientIds = new ConcurrentHashMap<>();
-	// global active client ids reported by the broker (clientId -> seenMillis)
-	private static final Map<String, Long> globalActiveClientIds = new ConcurrentHashMap<>();
+	// NOTE: global connection/descriptor state is owned by MQTTInterceptHandlers
 
 	// Scheduled reconciliation executor for broker session checks
 	private static final java.util.concurrent.ScheduledExecutorService reconciliationExecutor =
@@ -452,6 +556,17 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			}
 		}, 30L, 30L, java.util.concurrent.TimeUnit.SECONDS);
 	}
+
+	/**
+	 * Helper: return true for generic connection ids that should be treated like mqtt clients.
+	 * We consider ids starting with 'mqtt' or 'a_f_' (case-insensitive) as generic.
+	 */
+	// delegated to MQTTInterceptHandlers.isGenericClientId
+
+	/**
+	 * Helper: return true for configuration-related client ids that should be ignored for descriptor tracking.
+	 */
+	// delegated to MQTTInterceptHandlers.isConfigClientId
 
 
 	// track recent publisher signatures (topic+payload hash) to distinguish multiple clients publishing to same topic
@@ -570,6 +685,23 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		// also mark inferred client id as active
 		if (publisherId != null && !publisherId.isBlank()) {
 			activeClientIds.put(publisherId, now);
+			MQTTInterceptHandlers.putLastSeen(publisherId, now);
+			try {
+				logger.trace("Updated connectionLastSeen: inferredPublisher='{}' ts={}", publisherId, now);
+			} catch (Throwable t) {
+				// ignore logging failures
+			}
+			// if a global client id matches variants of publisherId, update its last seen too
+			for (String gid : MQTTInterceptHandlers.getGlobalActiveClientIds()) {
+				if (gid != null && (gid.equals(publisherId) || gid.startsWith(publisherId) || publisherId.startsWith(gid))) {
+					MQTTInterceptHandlers.putLastSeen(gid, now);
+					try {
+						logger.trace("Updated connectionLastSeen: brokerClient='{}' ts={} (matched publisherId='{}')", gid, now, publisherId);
+					} catch (Throwable t) {
+						// ignore logging failures
+					}
+				}
+			}
 		}
 
 		// expire old entries: collect expired keys then remove them to avoid iterator.remove() on ConcurrentHashMap
@@ -775,6 +907,89 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			logger.error("cannot publish start athlete timer", e1);
 		} catch (MqttException e1) {
 			logger.error("cannot publish start athlete timer", e1);
+		}
+	}
+
+	/**
+	 * Assign a connection descriptor when a publish is observed at the broker.
+	 * If the publishing connection id does NOT start with 'mqtt', the descriptor is the connection id as-is.
+	 * If the publishing connection id starts with 'mqtt', override descriptor using the topic:
+	 * descriptor = "<platform> <device>" where device is the second topic segment and platform is the last segment.
+	 */
+	public static void assignDescriptorForPublish(String topic, String publishingClientId) {
+		// delegate to intercept handlers which own the global state
+		if (publishingClientId == null || publishingClientId.isBlank()) return;
+		// let the intercept handlers decide based on their own helpers
+		try {
+			MQTTInterceptHandlers.putDescriptor(publishingClientId, MQTTMonitor.buildDescriptorFromPublish(topic, publishingClientId));
+			MQTTInterceptHandlers.putLastSeen(publishingClientId, System.currentTimeMillis());
+		} catch (Throwable t) {
+			// swallow to avoid affecting broker processing
+		}
+	}
+
+	private static String buildDescriptorFromPublish(String topic, String publishingClientId) {
+		try {
+			if (publishingClientId == null || publishingClientId.isBlank()) return null;
+			// Keep config descriptors when the publishing connection is an MQTT-generated id
+			// (i.e. starts with 'mqtt' or other generic prefixes). Only ignore config ids
+			// when they are NOT generic (non-mqtt) connections.
+			if (MQTTInterceptHandlers.isConfigClientId(publishingClientId) && !MQTTInterceptHandlers.isGenericClientId(publishingClientId)) return null;
+			// If this is a generic MQTT client (e.g. mqttjs_* or a_f_*), default to a stable
+			// generic descriptor 'mqtt'. Allow topic-derived descriptors to override this
+			// except when the topic represents the special 'owlcms/config' channel.
+			if (MQTTInterceptHandlers.isGenericClientId(publishingClientId)) {
+				if (topic == null || topic.isBlank()) {
+					logger.warn("Assigned descriptor='mqtt' to publishing clientId='{}' (no topic)", publishingClientId);
+					return "mqtt";
+				}
+				String[] genericParts = topic.split("/");
+				if (genericParts.length >= 2) {
+					// If topic is just 'owlcms/config' do NOT let 'config' override the 'mqtt' descriptor
+					if (genericParts.length == 2 && "owlcms".equals(genericParts[0]) && "config".equals(genericParts[1])) {
+						logger.warn("Assigned descriptor='mqtt' to publishing clientId='{}' (topic='{}' - config suppressed)", publishingClientId, topic);
+						return "mqtt";
+					}
+					// Otherwise attempt to derive a meaningful descriptor from topic and use it
+					String device = genericParts.length >= 2 ? genericParts[1] : null;
+					String platform = genericParts.length >= 1 ? genericParts[genericParts.length - 1] : null;
+					if (device != null && !device.isBlank()) {
+						String finalDesc = (platform != null && platform.equals(device)) ? device : (platform != null ? platform + " " + device : device);
+						logger.warn("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}' (overrode mqtt)", finalDesc, publishingClientId, topic);
+						return finalDesc;
+					}
+				}
+				// Fallback: keep the generic 'mqtt' descriptor
+				logger.warn("Assigned descriptor='mqtt' to publishing clientId='{}' (topic='{}' - no better descriptor)", publishingClientId, topic);
+				return "mqtt";
+			}
+			if (topic == null || topic.isBlank()) return null;
+			// The special topic 'owlcms/config' must never override an existing descriptor
+			if ("owlcms/config".equals(topic)) {
+				logger.debug("Topic 'owlcms/config' detected - will not override descriptor for clientId='{}'", publishingClientId);
+				return null;
+			}
+			String[] parts = topic.split("/");
+			if (parts.length < 2) return null;
+			// If topic is just 'owlcms/config' produce a clearer descriptor 'config'
+			if (parts.length == 2 && "owlcms".equals(parts[0]) && "config".equals(parts[1])) {
+				logger.warn("Assigned descriptor='config' to publishing clientId='{}' from topic='{}'", publishingClientId, topic);
+				return "config";
+			}
+			String device = parts.length >= 2 ? parts[1] : null;
+			String platform = parts.length >= 1 ? parts[parts.length - 1] : null;
+			if (device == null || device.isBlank()) return null;
+			// Avoid returning duplicate "config config" when device==platform=="config"
+			String finalDesc;
+			if (platform != null && platform.equals(device)) {
+				finalDesc = device;
+			} else {
+				finalDesc = (platform != null ? platform + " " + device : device);
+			}
+			logger.warn("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}'", finalDesc, publishingClientId, topic);
+			return finalDesc;
+		} catch (Throwable t) {
+			return null;
 		}
 	}
 
@@ -1429,62 +1644,58 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	public void notifyClientDisconnected(String clientId) {
 		if (clientId == null || clientId.isBlank()) return;
 		activeClientIds.remove(clientId);
+		// cleanup any descriptor we kept for this connection
+		MQTTInterceptHandlers.removeDescriptor(clientId);
+		MQTTInterceptHandlers.removeLastSeen(clientId);
 	}
 
 	/**
 	 * Broker-level notification: record a globally active client id across the application.
 	 */
 	public static void notifyGlobalClientConnected(String clientId) {
-		if (clientId == null || clientId.isBlank()) return;
-		globalActiveClientIds.put(clientId, System.currentTimeMillis());
-		try {
-			logger.info("Broker-level client connected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size());
-		} catch (Throwable t) {
-			// don't let logging interfere
-		}
+		MQTTInterceptHandlers.notifyGlobalClientConnected(clientId);
 	}
 
 	/**
 	 * Broker-level notification: remove a globally active client id.
 	 */
 	public static void notifyGlobalClientDisconnected(String clientId) {
-		if (clientId == null || clientId.isBlank()) return;
-		globalActiveClientIds.remove(clientId);
-		try {
-			logger.info("Broker-level client disconnected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size());
-		} catch (Throwable t) {
-			// don't let logging interfere
-		}
+		MQTTInterceptHandlers.notifyGlobalClientDisconnected(clientId);
 	}
+
+    /**
+     * Return a snapshot of connection descriptors (clientId -> descriptor).
+     */
+    public static Map<String, String> getConnectionDescriptorsSnapshot() {
+		return MQTTInterceptHandlers.getConnectionDescriptorsSnapshot();
+    }
+
+	/** Return a snapshot of connection last-seen timestamps (clientId -> lastSeenMillis). */
+	public static Map<String, Long> getConnectionLastSeenSnapshot() {
+		return MQTTInterceptHandlers.getConnectionLastSeenSnapshot();
+	}
+
+	// Remote address snapshot API removed.
 
 	/**
 	 * Return a snapshot of global active client ids as reported by the broker.
 	 */
 	public static java.util.Set<String> getGlobalActiveClientIds() {
-		return new java.util.HashSet<>(new java.util.TreeSet<>(globalActiveClientIds.keySet()));
+		return MQTTInterceptHandlers.getGlobalActiveClientIds();
 	}
 
 	/**
 	 * Remove a specific global client id from the registry (manual cleanup API).
 	 */
 	public static void removeGlobalClient(String clientId) {
-		if (clientId == null || clientId.isBlank()) return;
-		globalActiveClientIds.remove(clientId);
-		try {
-			logger.info("Broker-level client manually removed: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size());
-		} catch (Throwable t) {
-		}
+		MQTTInterceptHandlers.removeGlobalClient(clientId);
 	}
 
 	/**
 	 * Clear all known global client ids. Useful for testing or manual reset.
 	 */
 	public static void resetGlobalActiveClients() {
-		globalActiveClientIds.clear();
-		try {
-			logger.info("Broker-level global client registry cleared, count={}", globalActiveClientIds.size());
-		} catch (Throwable t) {
-		}
+		MQTTInterceptHandlers.resetGlobalActiveClients();
 	}
 
 	/**
@@ -1544,13 +1755,13 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				return;
 			}
 
-			java.util.Set<String> known = new java.util.HashSet<>(globalActiveClientIds.keySet());
+			java.util.Set<String> known = new java.util.HashSet<>(MQTTInterceptHandlers.getGlobalActiveClientIds());
 			for (String k : known) {
 				if (!brokerClients.contains(k)) {
 					// remove stale
-					globalActiveClientIds.remove(k);
+					MQTTInterceptHandlers.removeGlobalClient(k);
 					try {
-						logger.info("Broker-level client reconciled and removed: clientId={} reason=missing_in_broker_sessions globalActiveCount={}", k, globalActiveClientIds.size());
+						logger.info("Broker-level client reconciled and removed: clientId={} reason=missing_in_broker_sessions", k);
 					} catch (Throwable t) {
 					}
 				}

@@ -14,6 +14,105 @@ import io.moquette.interception.messages.InterceptDisconnectMessage;
  */
 public class MQTTInterceptHandlers {
 
+    // Centralized static storage for connection description tracking
+    private static final java.util.Map<String, Long> globalActiveClientIds = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<String, String> connectionDescriptors = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<String, Long> connectionLastSeen = new java.util.concurrent.ConcurrentHashMap<>();
+    // (remote address capture removed) - broker does not expose originating IP reliably
+
+    public static void notifyGlobalClientConnected(String clientId) {
+        if (clientId == null || clientId.isBlank()) return;
+        globalActiveClientIds.put(clientId, System.currentTimeMillis());
+        try {
+            // Ignore descriptor updates for server-originated connections (contain "_owlcms_")
+            if (isServerClientId(clientId) || isConfigClientId(clientId)) {
+                // don't add server/system or raw config ids
+            } else if (isGenericClientId(clientId)) {
+                // Generic mqtt clients (e.g. mqttjs_*) get a generic 'mqtt' descriptor
+                connectionDescriptors.put(clientId, "mqtt");
+                connectionLastSeen.put(clientId, System.currentTimeMillis());
+            } else {
+                // Descriptive client IDs: use clientId itself as descriptor
+                connectionDescriptors.put(clientId, clientId);
+                connectionLastSeen.put(clientId, System.currentTimeMillis());
+            }
+        } catch (Throwable t) {}
+        try { LoggerFactory.getLogger(MQTTInterceptHandlers.class).info("Broker-level client connected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size()); } catch (Throwable t) {}
+    }
+
+    // All attempts to extract a remote IP have been removed — broker does not reliably provide it
+
+    public static void notifyGlobalClientDisconnected(String clientId) {
+        if (clientId == null || clientId.isBlank()) return;
+        globalActiveClientIds.remove(clientId);
+        connectionDescriptors.remove(clientId);
+        connectionLastSeen.remove(clientId);
+        try { LoggerFactory.getLogger(MQTTInterceptHandlers.class).info("Broker-level client disconnected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size()); } catch (Throwable t) {}
+    }
+
+    public static java.util.Set<String> getGlobalActiveClientIds() {
+        return new java.util.HashSet<>(new java.util.TreeSet<>(globalActiveClientIds.keySet()));
+    }
+
+    public static java.util.Map<String, String> getConnectionDescriptorsSnapshot() {
+        return new java.util.HashMap<>(connectionDescriptors);
+    }
+
+    public static java.util.Map<String, Long> getConnectionLastSeenSnapshot() {
+        return new java.util.HashMap<>(connectionLastSeen);
+    }
+
+    // remote-address API removed
+
+    public static void putDescriptor(String clientId, String desc) {
+        if (clientId == null) return;
+        if (isConfigClientId(clientId)) return;
+        // Ignore descriptor updates for server-originated connections (contain "_owlcms_")
+        if (isServerClientId(clientId)) return;
+        connectionDescriptors.put(clientId, desc);
+    }
+
+    public static void putLastSeen(String clientId, long ts) {
+        if (clientId == null) return;
+        if (isConfigClientId(clientId)) return;
+        connectionLastSeen.put(clientId, ts);
+    }
+
+    public static void removeDescriptor(String clientId) {
+        if (clientId == null) return;
+        connectionDescriptors.remove(clientId);
+    }
+
+    public static void removeLastSeen(String clientId) {
+        if (clientId == null) return;
+        connectionLastSeen.remove(clientId);
+    }
+
+    public static void removeGlobalClient(String clientId) {
+        if (clientId == null) return;
+        globalActiveClientIds.remove(clientId);
+    }
+
+    public static void resetGlobalActiveClients() {
+        globalActiveClientIds.clear();
+    }
+
+    public static boolean isGenericClientId(String clientId) {
+        if (clientId == null) return false;
+        String s = clientId.toLowerCase();
+        return s.startsWith("mqtt") || s.startsWith("a_f_");
+    }
+
+    public static boolean isConfigClientId(String clientId) {
+        if (clientId == null) return false;
+        return clientId.toLowerCase().startsWith("config") && !clientId.toLowerCase().startsWith("config_f");
+    }
+
+    public static boolean isServerClientId(String clientId) {
+        if (clientId == null) return false;
+        return clientId.contains("_owlcms_");
+    }
+
     public static class PublisherListener extends AbstractInterceptHandler {
 
         private static final Logger logger = (Logger) LoggerFactory.getLogger(MQTTInterceptHandlers.class);
@@ -27,6 +126,26 @@ public class MQTTInterceptHandlers {
         public void onPublish(InterceptPublishMessage msg) {
             final String decodedPayload = msg.getPayload().toString(UTF_8);
             logger.debug("Received on topic: " + msg.getTopicName() + " content: " + decodedPayload);
+            try {
+                String clientId = null;
+                try {
+                    java.lang.reflect.Method m = msg.getClass().getMethod("getClientId");
+                    Object o = m.invoke(msg);
+                    if (o != null) clientId = o.toString();
+                } catch (Throwable t1) {
+                    try {
+                        java.lang.reflect.Method m2 = msg.getClass().getMethod("getClientID");
+                        Object o2 = m2.invoke(msg);
+                        if (o2 != null) clientId = o2.toString();
+                    } catch (Throwable t2) {
+                        // no client id available
+                    }
+                }
+                // remote-address probing removed; no originating IP available from broker
+                MQTTMonitor.assignDescriptorForPublish(msg.getTopicName(), clientId);
+            } catch (Throwable t) {
+                // ignore diagnostic failures
+            }
         }
 
         @Override
@@ -48,18 +167,12 @@ public class MQTTInterceptHandlers {
         public void onConnect(InterceptConnectMessage msg) {
             try {
                 String clientId = msg.getClientID();
-                String remote = "";
                 try {
-                    java.lang.reflect.Method m = msg.getClass().getMethod("getClientAddress");
-                    Object o = m.invoke(msg);
-                    if (o != null) remote = o.toString();
-                } catch (Throwable ignore) {
-                }
-                try {
-                    logger.info("MQTT client connected: clientId={} username={} remote={} msg={}", clientId, msg.getUsername(), remote, msg.toString());
+                    logger.info("MQTT client connected: clientId={} username={} msg={}", clientId, msg.getUsername(), msg.toString());
                 } catch (Throwable t) {
-                    logger.info("MQTT client connected: clientId={} username={} remote={}", clientId, msg.getUsername(), remote);
+                    logger.info("MQTT client connected: clientId={} username={}", clientId, msg.getUsername());
                 }
+
                 try { MQTTMonitor.notifyGlobalClientConnected(clientId); } catch (Throwable t) {}
             } catch (Throwable t) {
                 logger.warn("Error handling onConnect message", t);
@@ -68,24 +181,17 @@ public class MQTTInterceptHandlers {
 
         @Override
         public void onDisconnect(InterceptDisconnectMessage msg) {
-            try {
-                String clientId = msg.getClientID();
-                String remote = "";
                 try {
-                    java.lang.reflect.Method m = msg.getClass().getMethod("getClientAddress");
-                    Object o = m.invoke(msg);
-                    if (o != null) remote = o.toString();
-                } catch (Throwable ignore) {
-                }
-                try {
-                    logger.info("MQTT client disconnected: clientId={} remote={} msg={}", clientId, remote, msg.toString());
+                    String clientId = msg.getClientID();
+                    try {
+                        logger.info("MQTT client disconnected: clientId={} msg={}", clientId, msg.toString());
+                    } catch (Throwable t) {
+                        logger.info("MQTT client disconnected: clientId={}", clientId);
+                    }
+                    try { MQTTMonitor.notifyGlobalClientDisconnected(clientId); } catch (Throwable t) {}
                 } catch (Throwable t) {
-                    logger.info("MQTT client disconnected: clientId={} remote={}", clientId, remote);
+                    logger.warn("Error handling onDisconnect message", t);
                 }
-                try { MQTTMonitor.notifyGlobalClientDisconnected(clientId); } catch (Throwable t) {}
-            } catch (Throwable t) {
-                logger.warn("Error handling onDisconnect message", t);
-            }
         }
 
         @Override
