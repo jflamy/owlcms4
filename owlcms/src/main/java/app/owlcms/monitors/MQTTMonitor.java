@@ -202,8 +202,8 @@ public class MQTTMonitor extends Thread implements IUnregister {
 								MQTTInterceptHandlers.putDescriptor(gid, finalDesc);
 								MQTTInterceptHandlers.putLastSeen(gid, now);
 								try {
-									logger.warn("Assigned MQTT descriptor='{}' to broker clientId='{}' from topic='{}'", finalDesc, gid, topic);
-									logger.warn("Updated connectionLastSeen: clientId='{}' ts={} (from topic)", gid, now);
+									logger.debug("Assigned MQTT descriptor='{}' to broker clientId='{}' from topic='{}'", finalDesc, gid, topic);
+									logger.debug("Updated connectionLastSeen: clientId='{}' ts={} (from topic)", gid, now);
 								} catch (Throwable t) {
 									// ignore logging failures
 								}
@@ -217,8 +217,8 @@ public class MQTTMonitor extends Thread implements IUnregister {
 								MQTTInterceptHandlers.putLastSeen(clientId, now);
 							}
 						try {
-							logger.warn("Assigned MQTT descriptor='{}' to inferred client token='{}' from topic='{}'", finalDesc, clientId, topic);
-							logger.warn("Updated connectionLastSeen: clientId='{}' ts={} (inferred token)", clientId, now);
+							logger.debug("Assigned MQTT descriptor='{}' to inferred client token='{}' from topic='{}'", finalDesc, clientId, topic);
+							logger.debug("Updated connectionLastSeen: clientId='{}' ts={} (inferred token)", clientId, now);
 						} catch (Throwable t) {
 							// ignore logging failures
 						}
@@ -244,7 +244,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 								MQTTInterceptHandlers.putDescriptor(gid, finalDesc);
 								MQTTInterceptHandlers.putLastSeen(gid, now2);
 								try {
-									logger.warn("Assigned fallback descriptor='{}' to broker clientId='{}' from topic='{}' (candidate='{}')", finalDesc, gid, topic, candidate);
+									logger.debug("Assigned fallback descriptor='{}' to broker clientId='{}' from topic='{}' (candidate='{}')", finalDesc, gid, topic, candidate);
 									logger.trace("Updated connectionLastSeen: clientId='{}' ts={} (fallback)", gid, now2);
 								} catch (Throwable t) {
 									// ignore logging failures
@@ -259,7 +259,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 							MQTTInterceptHandlers.putLastSeen(candidate, now2);
 						}
 						try {
-							logger.warn("Assigned fallback descriptor='{}' to inferred client token='{}' from topic='{}'", finalDesc, candidate, topic);
+							logger.debug("Assigned fallback descriptor='{}' to inferred client token='{}' from topic='{}'", finalDesc, candidate, topic);
 							logger.trace("Updated connectionLastSeen: clientId='{}' ts={} (fallback-inferred)", candidate, now2);
 						} catch (Throwable t) {
 							// ignore logging failures
@@ -552,7 +552,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			try {
 				reconcileWithBroker();
 			} catch (Throwable t) {
-				logger.warn("Error during MQTT broker reconciliation", t);
+				logger.debug("Error during MQTT broker reconciliation", t);
 			}
 		}, 30L, 30L, java.util.concurrent.TimeUnit.SECONDS);
 	}
@@ -931,6 +931,8 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	private static String buildDescriptorFromPublish(String topic, String publishingClientId) {
 		try {
 			if (publishingClientId == null || publishingClientId.isBlank()) return null;
+			// Do not assign descriptors for server-originated client IDs (contain '_owlcms_')
+			if (MQTTInterceptHandlers.isServerClientId(publishingClientId)) return null;
 			// Keep config descriptors when the publishing connection is an MQTT-generated id
 			// (i.e. starts with 'mqtt' or other generic prefixes). Only ignore config ids
 			// when they are NOT generic (non-mqtt) connections.
@@ -940,14 +942,14 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			// except when the topic represents the special 'owlcms/config' channel.
 			if (MQTTInterceptHandlers.isGenericClientId(publishingClientId)) {
 				if (topic == null || topic.isBlank()) {
-					logger.warn("Assigned descriptor='mqtt' to publishing clientId='{}' (no topic)", publishingClientId);
+					logger.debug("Assigned descriptor='mqtt' to publishing clientId='{}' (no topic)", publishingClientId);
 					return "mqtt";
 				}
 				String[] genericParts = topic.split("/");
 				if (genericParts.length >= 2) {
 					// If topic is just 'owlcms/config' do NOT let 'config' override the 'mqtt' descriptor
 					if (genericParts.length == 2 && "owlcms".equals(genericParts[0]) && "config".equals(genericParts[1])) {
-						logger.warn("Assigned descriptor='mqtt' to publishing clientId='{}' (topic='{}' - config suppressed)", publishingClientId, topic);
+						logger.debug("Assigned descriptor='mqtt' to publishing clientId='{}' (topic='{}' - config suppressed)", publishingClientId, topic);
 						return "mqtt";
 					}
 					// Otherwise attempt to derive a meaningful descriptor from topic and use it
@@ -955,12 +957,12 @@ public class MQTTMonitor extends Thread implements IUnregister {
 					String platform = genericParts.length >= 1 ? genericParts[genericParts.length - 1] : null;
 					if (device != null && !device.isBlank()) {
 						String finalDesc = (platform != null && platform.equals(device)) ? device : (platform != null ? platform + " " + device : device);
-						logger.warn("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}' (overrode mqtt)", finalDesc, publishingClientId, topic);
+						logger.debug("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}' (overrode mqtt)", finalDesc, publishingClientId, topic);
 						return finalDesc;
 					}
 				}
 				// Fallback: keep the generic 'mqtt' descriptor
-				logger.warn("Assigned descriptor='mqtt' to publishing clientId='{}' (topic='{}' - no better descriptor)", publishingClientId, topic);
+				logger.debug("Assigned descriptor='mqtt' to publishing clientId='{}' (topic='{}' - no better descriptor)", publishingClientId, topic);
 				return "mqtt";
 			}
 			if (topic == null || topic.isBlank()) return null;
@@ -970,10 +972,15 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				return null;
 			}
 			String[] parts = topic.split("/");
+			// Do not derive descriptors from 'owlcms/fop/...' or 'owlcms/led/...' topics
+			if (parts.length >= 2 && ("fop".equals(parts[1]) || "led".equals(parts[1]))) {
+				logger.debug("Topic '{}' is fop/led - will not derive descriptor for clientId='{}'", topic, publishingClientId);
+				return null;
+			}
 			if (parts.length < 2) return null;
 			// If topic is just 'owlcms/config' produce a clearer descriptor 'config'
 			if (parts.length == 2 && "owlcms".equals(parts[0]) && "config".equals(parts[1])) {
-				logger.warn("Assigned descriptor='config' to publishing clientId='{}' from topic='{}'", publishingClientId, topic);
+				logger.debug("Assigned descriptor='config' to publishing clientId='{}' from topic='{}'", publishingClientId, topic);
 				return "config";
 			}
 			String device = parts.length >= 2 ? parts[1] : null;
@@ -986,7 +993,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			} else {
 				finalDesc = (platform != null ? platform + " " + device : device);
 			}
-			logger.warn("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}'", finalDesc, publishingClientId, topic);
+			logger.debug("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}'", finalDesc, publishingClientId, topic);
 			return finalDesc;
 		} catch (Throwable t) {
 			return null;
@@ -1767,7 +1774,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 				}
 			}
 		} catch (Throwable t) {
-			logger.warn("Unexpected error during broker reconciliation", t);
+			logger.debug("Unexpected error during broker reconciliation", t);
 		}
 	}
 

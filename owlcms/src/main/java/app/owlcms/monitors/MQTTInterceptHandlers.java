@@ -37,7 +37,7 @@ public class MQTTInterceptHandlers {
                 connectionLastSeen.put(clientId, System.currentTimeMillis());
             }
         } catch (Throwable t) {}
-        try { LoggerFactory.getLogger(MQTTInterceptHandlers.class).info("Broker-level client connected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size()); } catch (Throwable t) {}
+    try { LoggerFactory.getLogger(MQTTInterceptHandlers.class).info("MQTT client connected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size()); } catch (Throwable t) {}
     }
 
     // All attempts to extract a remote IP have been removed — broker does not reliably provide it
@@ -47,7 +47,7 @@ public class MQTTInterceptHandlers {
         globalActiveClientIds.remove(clientId);
         connectionDescriptors.remove(clientId);
         connectionLastSeen.remove(clientId);
-        try { LoggerFactory.getLogger(MQTTInterceptHandlers.class).info("Broker-level client disconnected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size()); } catch (Throwable t) {}
+    try { LoggerFactory.getLogger(MQTTInterceptHandlers.class).info("MQTT client disconnected: clientId={} globalActiveCount={}", clientId, globalActiveClientIds.size()); } catch (Throwable t) {}
     }
 
     public static java.util.Set<String> getGlobalActiveClientIds() {
@@ -168,14 +168,14 @@ public class MQTTInterceptHandlers {
             try {
                 String clientId = msg.getClientID();
                 try {
-                    logger.info("MQTT client connected: clientId={} username={} msg={}", clientId, msg.getUsername(), msg.toString());
+                    logger.debug("MQTT client connected: clientId={} username={} msg={}", clientId, msg.getUsername(), msg.toString());
                 } catch (Throwable t) {
-                    logger.info("MQTT client connected: clientId={} username={}", clientId, msg.getUsername());
+                    logger.debug("MQTT client connected: clientId={} username={}", clientId, msg.getUsername());
                 }
 
                 try { MQTTMonitor.notifyGlobalClientConnected(clientId); } catch (Throwable t) {}
             } catch (Throwable t) {
-                logger.warn("Error handling onConnect message", t);
+                logger.debug("Error handling onConnect message", t);
             }
         }
 
@@ -184,13 +184,13 @@ public class MQTTInterceptHandlers {
                 try {
                     String clientId = msg.getClientID();
                     try {
-                        logger.info("MQTT client disconnected: clientId={} msg={}", clientId, msg.toString());
+                        logger.debug("MQTT client disconnected: clientId={} msg={}", clientId, msg.toString());
                     } catch (Throwable t) {
-                        logger.info("MQTT client disconnected: clientId={}", clientId);
+                        logger.debug("MQTT client disconnected: clientId={}", clientId);
                     }
                     try { MQTTMonitor.notifyGlobalClientDisconnected(clientId); } catch (Throwable t) {}
                 } catch (Throwable t) {
-                    logger.warn("Error handling onDisconnect message", t);
+                    logger.debug("Error handling onDisconnect message", t);
                 }
         }
 

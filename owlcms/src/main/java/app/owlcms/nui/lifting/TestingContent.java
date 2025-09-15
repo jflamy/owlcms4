@@ -243,16 +243,16 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	devicesContainer.getStyle().set("margin-bottom", "4px");
 	devicesContainer.getStyle().set("padding", "2px");
 
-		// Refresh button only (clear removed) — create it before the Details so it's not null
-		refreshClientsBtn = new Button("Refresh", e -> {
+	// Refresh button only (clear removed) — create it before the Details so it's not null
+	refreshClientsBtn = new Button(Translator.translate("Refresh"), e -> {
 			new Thread(() -> {
 				try {
 					var globalClients = app.owlcms.monitors.MQTTMonitor.getGlobalActiveClientIds();
 					java.util.List<String> ids = getFilteredDeviceIds(globalClients);
 					int cnt = ids.size();
-					ui.access(() -> {
+						ui.access(() -> {
 						populateDevicesContainer(ids);
-						connectionsDetails.setSummaryText("Connected devices (" + cnt + ")");
+						connectionsDetails.setSummaryText(Translator.translate("MQTT.ConnectedDevices", cnt));
 					});
 				} catch (Throwable t) {
 					app.owlcms.utils.LoggerUtils.logError(logger, t);
@@ -260,8 +260,8 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 			}).start();
 		});
 
-		// Collapsible details that contains the device list and the refresh button; hidden by default
-		String title = "Connected devices (" + countConnectedDevices() + ")";
+	// Collapsible details that contains the device list and the refresh button; hidden by default
+	String title = Translator.translate("MQTT.ConnectedDevices", countConnectedDevices());
 	com.vaadin.flow.component.orderedlayout.VerticalLayout vl = new com.vaadin.flow.component.orderedlayout.VerticalLayout(devicesContainer, refreshClientsBtn);
 	vl.setPadding(false);
 	vl.setSpacing(false);
@@ -286,7 +286,7 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 					int cnt = ids.size();
 					ui.access(() -> {
 						populateDevicesContainer(ids);
-						connectionsDetails.setSummaryText("Connected devices (" + cnt + ")");
+						connectionsDetails.setSummaryText(Translator.translate("MQTT.ConnectedDevices", cnt));
 					});
 				} catch (Throwable t) {
 					// defensive: log only, avoid throwing from timer
