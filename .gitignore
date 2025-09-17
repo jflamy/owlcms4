@@ -56,3 +56,4 @@ jfl*.*
 owlcms/package.json
 owlcms/package-lock.json
 playwright/.flattened-pom.xml
+/package-lock.json
