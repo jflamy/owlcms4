@@ -32,7 +32,6 @@ import app.owlcms.spreadsheet.NRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.AthleteOptions;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.SessionOptions;
 import app.owlcms.spreadsheet.RCompetition;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
