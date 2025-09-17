@@ -185,12 +185,12 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
 		this.grid.asSingleSelect().clear();
 		var focused = focusInFilterArea();
-		logger.warn("focusing on filter area component {}", focused);
+		logger.debug("focusing on filter area component {}", focused);
 		current.push();
 
 		// Step 2: After a short delay, re-select and focus the triggering item
 		if (triggeringItem != null) {
-			logger.warn("refocusing on triggering item {}", triggeringItem);
+			logger.debug("refocusing on triggering item {}", triggeringItem);
 			if (focused != null) {
 				focused.blur();
 			}
@@ -198,7 +198,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 			current.push();
 		} else {
 			// No triggering item: just focus back to the grid
-			logger.warn("no triggering item, just refocusing on grid");
+			logger.debug("no triggering item, just refocusing on grid");
 			this.grid.focus();
 			current.push();
 
