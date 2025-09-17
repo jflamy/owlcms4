@@ -147,9 +147,7 @@ public class NRegistrationFileProcessor {
 		return 0;
 	}
 
-	private boolean isCreateMissingSessions() {
-		return this.getSessionOptions() == SessionOptions.UPDATE_ADD_SESSIONS;
-	}
+
 
 	public void resetAthletes() {
 		// delete all athletes and sessions (naive version).
@@ -368,7 +366,7 @@ public class NRegistrationFileProcessor {
 				if (existingGroup == null) {
 					// create a new group
 					readGroup.setPlatform(op);
-					this.logger.info("setting platform '{}' for group {}", platformName, g.getGroupName());
+					this.logger.debug("setting platform '{}' for group {}", platformName, g.getGroupName());
 					em.merge(readGroup);
 				} else {
 					// update the existing group
@@ -423,6 +421,26 @@ public class NRegistrationFileProcessor {
 	}
 
 	private final Map<String, CellSetterRG> GROUP_SETTER_MAP = buildGroupSetterMap();
+
+	private static class AthleteHeaderInfo {
+		/**
+		 * Holds the setter to apply for a header and optional delayed-setter slot.
+		 *
+		 * <p>
+		 * If {@code delayed} is non-null it identifies which ordered delayed slot (see {@link DelayedSetter}) this header corresponds to; the column index for
+		 * that delayed slot is recorded during header parsing and the actual value is applied in a second pass after immediate setters. If {@code delayed} is
+		 * {@code null} the setter is invoked immediately while reading the row.
+		 */
+		final TriConsumer<RAthlete, String, Cell> setter;
+		final DelayedSetter delayed;
+
+		AthleteHeaderInfo(TriConsumer<RAthlete, String, Cell> setter, DelayedSetter delayed) {
+			this.setter = setter;
+			this.delayed = delayed;
+		}
+	}
+
+	private final Map<String, AthleteHeaderInfo> ATHLETE_SETTER_MAP = buildAthleteSetterMap();
 
 	private Map<String, CellSetterRG> buildGroupSetterMap() {
 		Map<String, CellSetterRG> base = new HashMap<>();
@@ -515,31 +533,115 @@ public class NRegistrationFileProcessor {
 				// ignore
 			}
 		}
-			// Practical fallback: register a few common canonical English keys directly
-			// so spreadsheets that use the legacy canonical names are accepted even if
-			// translations are missing. Keys are stored lowercased to match lookup.
-			String[] explicitFallbacks = new String[] { "TimeKeeper", "Masters" };
-			for (String fk : explicitFallbacks) {
-				CellSetterRG s = base.get(fk);
-				if (s != null) {
-					result.putIfAbsent(fk.trim().toLowerCase(), s);
-				}
+		// Practical fallback: register a few common canonical English keys directly
+		// so spreadsheets that use the legacy canonical names are accepted even if
+		// translations are missing. Keys are stored lowercased to match lookup.
+		String[] explicitFallbacks = new String[] { "TimeKeeper", "Masters" };
+		for (String fk : explicitFallbacks) {
+			CellSetterRG s = base.get(fk);
+			if (s != null) {
+				result.putIfAbsent(fk.trim().toLowerCase(), s);
 			}
+		}
 		return result;
 	}
 
-		private CellSetterRG[] createGroupSetterTableFromHeaderRow(Row headerRow, List<String> errors) {
+	private Map<String, AthleteHeaderInfo> buildAthleteSetterMap() {
+		Map<String, AthleteHeaderInfo> base = new HashMap<>();
+		// simple setters
+		base.put("Membership", new AthleteHeaderInfo((a, s, c) -> a.setMembership(s), null));
+		base.put("Card.lotNumber", new AthleteHeaderInfo((a, s, c) -> a.setLotNumber(s), null));
+		base.put("LastName", new AthleteHeaderInfo((a, s, c) -> a.setLastName(s), null));
+		base.put("FirstName", new AthleteHeaderInfo((a, s, c) -> a.setFirstName(s), null));
+		base.put("Scoreboard.Team", new AthleteHeaderInfo((a, s, c) -> a.setTeam(s), null));
+		base.put("Registration.birth", new AthleteHeaderInfo((a, s, c) -> {
+			try {
+				a.setFullBirthDate(s);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Invalid birth date: " + s);
+			}
+		}, DelayedSetter.BIRTHDATE));
+		base.put("M/F", new AthleteHeaderInfo((a, s, c) -> {
+			if (s != null && s.length() > 0)
+				s = s.substring(0, 1).toUpperCase();
+			a.setGender(s);
+		}, DelayedSetter.GENDER));
+		base.put("Card.category", new AthleteHeaderInfo((a, s, c) -> {
+			try {
+				a.setCategory(s);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Invalid category: " + s);
+			}
+		}, DelayedSetter.CATEGORY));
+		base.put("Scoreboard.BodyWeight", new AthleteHeaderInfo((a, s, c) -> {
+			if (s == null || s.isBlank())
+				return;
+			double d = Double.parseDouble(s);
+			a.setBodyWeight(d);
+		}, DelayedSetter.BODYWEIGHT));
+		base.put("Results.Snatch Results.Declaration_abbrev", new AthleteHeaderInfo((a, s, c) -> a.setSnatch1Declaration(s), null));
+		base.put("Results.CJ_abbrev Results.Declaration_abbrev", new AthleteHeaderInfo((a, s, c) -> a.setCleanJerk1Declaration(s), null));
+		base.put("Group", new AthleteHeaderInfo((a, s, c) -> {
+			try {
+				a.setGroup(s);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Invalid group: " + s);
+			}
+		}, null));
+		base.put("Card.entryTotal", new AthleteHeaderInfo((a, s, c) -> {
+			if (s != null && !s.isBlank())
+				a.setQualifyingTotal(Integer.parseInt(s));
+		}, DelayedSetter.QUALIFYING_TOTAL));
+		base.put("Coach", new AthleteHeaderInfo((a, s, c) -> a.setCoach(s), null));
+		base.put("Custom1.Title", new AthleteHeaderInfo((a, s, c) -> a.setCustom1(s), null));
+		base.put("Custom2.Title", new AthleteHeaderInfo((a, s, c) -> a.setCustom2(s), null));
+		base.put("Registration.FederationCodesShort", new AthleteHeaderInfo((a, s, c) -> a.setFederationCodes(s), null));
+		base.put("PersonalBestSnatch", new AthleteHeaderInfo((a, s, c) -> a.setPersonalBestSnatch(s), null));
+		base.put("PersonalBestCleanJerk", new AthleteHeaderInfo((a, s, c) -> a.setPersonalBestCleanJerk(s), null));
+		base.put("PersonalBestTotal", new AthleteHeaderInfo((a, s, c) -> a.setPersonalBestTotal(s), null));
+		base.put("SubCategory", new AthleteHeaderInfo((a, s, c) -> a.setSubCategory(s), null));
+		base.put("ComputedWeightClass", new AthleteHeaderInfo((a, s, c) -> {
+			/* noop */ }, null));
+		base.put("Competition.Invited/Extra", new AthleteHeaderInfo((a, s, c) -> a.setInvited(s != null && s.trim().toLowerCase().equals("true")), null));
+
+		Map<String, AthleteHeaderInfo> result = new HashMap<>();
+		for (Map.Entry<String, AthleteHeaderInfo> e : base.entrySet()) {
+			String key = e.getKey();
+			AthleteHeaderInfo info = e.getValue();
+			try {
+				//logger.debug("Registering athlete header key '{}' as '{}'", key, Translator.translate(key));
+				String tCurrent = Translator.translate(key);
+				if (tCurrent != null && !tCurrent.isBlank())
+					result.putIfAbsent(tCurrent.trim().toLowerCase(), info);
+			} catch (Exception ex) {
+			}
+			try {
+				String tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
+				if (tEng != null && !tEng.isBlank())
+					result.putIfAbsent(tEng.trim().toLowerCase(), info);
+			} catch (Exception ex) {
+			}
+		}
+		return result;
+	}
+
+	private CellSetterRG[] createGroupSetterTableFromHeaderRow(Row headerRow, List<String> errors) {
 		List<CellSetterRG> setters = new ArrayList<>();
 		for (int i = 0; i < headerRow.getLastCellNum(); i++) {
 			Cell cell = headerRow.getCell(i);
 			if (cell == null) {
 				break;
 			}
-			if (cell.getCellType() == CellType.BLANK || (cell.getCellType() == CellType.STRING && cell.getStringCellValue().isBlank())
-			        || (cell.getCellType() != CellType.STRING)) {
+			// Require a STRING cell with non-empty trimmed content; stop at any
+			// blank/non-string/whitespace-only header cell.
+			if (cell.getCellType() != CellType.STRING) {
 				break;
 			}
-			String headerValue = cell.getStringCellValue().trim().toLowerCase();
+			String raw = cell.getStringCellValue();
+			if (raw == null || raw.trim().isEmpty()) {
+				break;
+			}
+			String headerValue = raw.trim().toLowerCase();
 			CellSetterRG setter = GROUP_SETTER_MAP.get(headerValue);
 			if (setter != null) {
 				logger.debug("Mapped group header '{}' to setter", headerValue);
@@ -556,11 +658,7 @@ public class NRegistrationFileProcessor {
 		return setters.toArray(new CellSetterRG[0]);
 	}
 
-	private boolean checkTranslation(String valueRead, String string, String string2) {
-		return valueRead.contentEquals(Translator.translate(string) + " " + Translator.translate(string2))
-		        || valueRead.contentEquals(Translator.translateExplicitLocale(string, Locale.ENGLISH) + " "
-		                + Translator.translateExplicitLocale(string2, Locale.ENGLISH));
-	}
+
 
 	/**
 	 * Check whether a header cell or header text matches the given canonical key's translation. The canonical key itself is not expected to be in the sheet;
@@ -595,13 +693,45 @@ public class NRegistrationFileProcessor {
 		} catch (Exception ex) {
 			// ignore
 		}
+		// Fallback: compare normalized forms (remove non-alphanumerics, collapse spaces, lowercase)
+		try {
+			String tCurrent = Translator.translate(canonicalKey);
+			String tEng = Translator.translateExplicitLocale(canonicalKey, Locale.ENGLISH);
+			String normRead = normalizeHeader(trimmed);
+			if (tCurrent != null && !tCurrent.isBlank() && normalizeHeader(tCurrent).equals(normRead))
+				return true;
+			if (tEng != null && !tEng.isBlank() && normalizeHeader(tEng).equals(normRead))
+				return true;
+		} catch (Exception ex) {
+			// ignore
+		}
 		return false;
 	}
 
+	/**
+	 * Normalize header text for more permissive matching: remove non-alphanumeric characters, replace multiple whitespace with single space, trim, and
+	 * lowercase.
+	 */
+	private String normalizeHeader(String s) {
+		if (s == null)
+			return "";
+		// Replace NBSP and other unicode spaces, then remove non-alphanumeric (keep letters and digits),
+		// but preserve spaces so word boundaries remain. Collapse multi-space and lowercase.
+		String cleaned = s.replaceAll("\\u00A0", " ");
+		cleaned = cleaned.replaceAll("[^\\p{Alnum}\\s]", " ");
+		cleaned = cleaned.replaceAll("\\s+", " ");
+		return cleaned.trim().toLowerCase();
+	}
+
 	private void processException(RAthlete a, String s, Cell c, Exception e, Consumer<String> errorConsumer) {
-		errorConsumer.accept(c.getAddress() + " " + e.getLocalizedMessage() + System.lineSeparator());
-		this.logger.error("{} {} {}", c.getAddress(), s, e.getStackTrace());
-		// LoggerUtils.logError(this.logger, e, true);
+		// Build the human-friendly message sent to the UI/error consumer
+		String uiMsg = c.getAddress() + " " + e.getLocalizedMessage();
+		if (errorConsumer != null) {
+			errorConsumer.accept(uiMsg+ System.lineSeparator());
+		}
+		// Also log the same message (with context) and include the exception so it appears in logs
+		this.logger.error(uiMsg);
+		//LoggerUtils.logError(logger, e, true);
 	}
 
 	// ... header row detection removed; SBDE uses fixed header row at index 1 when Session is in A2
@@ -619,203 +749,97 @@ public class NRegistrationFileProcessor {
 		rows: while (rowIterator.hasNext()) {
 			int iColumn = 0;
 			Row row = rowIterator.next();
+			try {
+				Cell first = row.getCell(0);
+				String firstVal = first == null ? "<null>" : cellToString(first);
+				this.logger.debug("readAthletes: rowsToSkip={} rowIndex={} firstCell='{}'", rowsToSkip, iRow, firstVal);
+			} catch (Exception ex) {
+				this.logger.debug("readAthletes: rowsToSkip={} rowIndex={} firstCell=<error>", rowsToSkip, iRow);
+			}
 			if (iRow < rowsToSkip) {
 				iRow++;
 				continue;
 			}
 			if (iRow == rowsToSkip) {
-				// header, create a map from column to the appropriate setter.
-				Iterator<Cell> cellIterator = row.cellIterator();
-				while (cellIterator.hasNext()) {
-					Cell cell = cellIterator.next();
+				int lastCol = row.getLastCellNum() <= 0 ? 0 : row.getLastCellNum();
+				List<AthleteHeaderInfo> orderedAthleteHeaderInfo = new ArrayList<>();
+				for (iColumn = 0; iColumn < lastCol; iColumn++) {
+					Cell cell = row.getCell(iColumn);
 					if (cell == null) {
 						athleteHeaderStopColumn = iColumn;
+						orderedAthleteHeaderInfo.add(null);
 						break;
 					}
-					// Stop header parsing at the first blank or non-string header cell.
-					if (cell.getCellType() == CellType.BLANK || cell.getCellType() != CellType.STRING) {
+					if (cell.getCellType() != CellType.STRING) {
 						athleteHeaderStopColumn = iColumn;
+						orderedAthleteHeaderInfo.add(null);
 						break;
 					}
 					String cellValue = cell.getStringCellValue();
 					if (cellValue == null || cellValue.trim().isEmpty()) {
 						athleteHeaderStopColumn = iColumn;
+						orderedAthleteHeaderInfo.add(null);
 						break;
 					}
 					String trimmedCellValue = cellValue.trim();
-
-					if (headerMatches(trimmedCellValue, "Membership")) {
+					AthleteHeaderInfo info = ATHLETE_SETTER_MAP.get(trimmedCellValue.toLowerCase());
+					orderedAthleteHeaderInfo.add(info);
+					if (info != null) {
 						this.setterForColumn[iColumn] = (a, s, c) -> {
-							a.setMembership(s);
+							try {
+								info.setter.accept(a, s, c);
+							} catch (RuntimeException rex) {
+								processException(a, s, c, rex.getCause() == null ? rex : (Exception) rex.getCause(), errorConsumer);
+							}
 						};
-					} else if (headerMatches(trimmedCellValue, "Card.lotNumber")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setLotNumber(s);
-						});
-					} else if (headerMatches(trimmedCellValue, "LastName")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setLastName(s);
-						});
-					} else if (headerMatches(trimmedCellValue, "FirstName")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setFirstName(s);
-						});
-					} else if (headerMatches(trimmedCellValue, "Scoreboard.Team")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setTeam(s);
-						});
-					} else if (headerMatches(trimmedCellValue, "Registration.birth")) {
-						this.delayedSetterColumns[DelayedSetter.BIRTHDATE.ordinal()] = iColumn;
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								a.setFullBirthDate(s);
-							} catch (Exception e) {
-								processException(a, s, c, e, errorConsumer);
-							}
-						});
-					} else if (trimmedCellValue.contentEquals("M/F")) {
-						this.delayedSetterColumns[DelayedSetter.GENDER.ordinal()] = iColumn;
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								if (s != null && s.length() > 0) {
-									s = s.substring(0, 1).toUpperCase();
-								}
-								a.setGender(s);
-							} catch (Exception e) {
-								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalGender", s)), errorConsumer);
-							}
-						});
-					} else if (headerMatches(trimmedCellValue, "Card.category")) {
-						this.delayedSetterColumns[DelayedSetter.CATEGORY.ordinal()] = iColumn;
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								a.setCategory(s);
-							} catch (Exception e) {
-								processException(a, s, c, e, errorConsumer);
-							}
-						});
-					} else if (headerMatches(trimmedCellValue, "Scoreboard.BodyWeight")) {
-						this.delayedSetterColumns[DelayedSetter.BODYWEIGHT.ordinal()] = iColumn;
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								if (s == null || s.isBlank()) {
-									return;
-								}
-								double d = Double.parseDouble(s);
-								a.setBodyWeight(d);
-							} catch (Exception e) {
-								processException(a, s, c, e, errorConsumer);
-							}
-						});
-					} else if (checkTranslation(trimmedCellValue, "Results.Snatch", "Results.Declaration_abbrev")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								a.setSnatch1Declaration(s);
-							} catch (Exception e) {
-								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
-							}
-						});
-					} else if (checkTranslation(trimmedCellValue, "Results.CJ_abbrev", "Results.Declaration_abbrev")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								a.setCleanJerk1Declaration(s);
-							} catch (Exception e) {
-								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
-							}
-						});
-					} else if (headerMatches(trimmedCellValue, "Group")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								a.setGroup(s);
-							} catch (Exception e) {
-								if (isCreateMissingSessions()) {
-									Group g = GroupRepository.add(new Group(s));
-									rComp.addGroup(g);
-									try {
-										a.setGroup(s);
-									} catch (Exception e1) {
-										processException(a, s, c, e, errorConsumer);
-									}
-								} else {
-									processException(a, s, c, e, errorConsumer);
-								}
-							}
-						});
-					} else if (headerMatches(trimmedCellValue, "Card.entryTotal")) {
-						this.delayedSetterColumns[DelayedSetter.QUALIFYING_TOTAL.ordinal()] = iColumn;
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								if (s != null && !s.isBlank()) {
-									int i = Integer.parseInt(s);
-									a.setQualifyingTotal(i);
-								}
-							} catch (Exception e) {
-								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
-							}
-						});
-					} else if (headerMatches(trimmedCellValue, "Coach")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setCoach(s);
-						});
-					} else if (headerMatches(trimmedCellValue, "Custom1.Title")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setCustom1(s);
-						});
-					} else if (headerMatches(trimmedCellValue, "Custom2.Title")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setCustom2(s);
-						});
-					} else if (headerMatches(trimmedCellValue, "Registration.FederationCodesShort")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setFederationCodes(s);
-						});
-					} else if (headerMatches(trimmedCellValue, "PersonalBestSnatch")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								a.setPersonalBestSnatch(s);
-							} catch (Exception e) {
-								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
-							}
-						});
-					} else if (headerMatches(trimmedCellValue, "PersonalBestCleanJerk")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								a.setPersonalBestCleanJerk(s);
-							} catch (Exception e) {
-								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
-							}
-						});
-					} else if (headerMatches(trimmedCellValue, "PersonalBestTotal")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							try {
-								a.setPersonalBestTotal(s);
-							} catch (Exception e) {
-								processException(a, s, c, new Exception(Translator.translate("Registration.IllegalInteger", s)), errorConsumer);
-							}
-						});
-					} else if (headerMatches(trimmedCellValue, "SubCategory")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setSubCategory(s);
-						});
-					} else if (headerMatches(trimmedCellValue, "ComputedWeightClass")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							// do nothing
-						});
-					} else if (headerMatches(trimmedCellValue, "Competition.Invited/Extra")) {
-						this.setterForColumn[iColumn] = ((a, s, c) -> {
-							a.setInvited(s != null && s.trim().toLowerCase().equals("true"));
-						});
+						if (info.delayed != null) {
+							this.delayedSetterColumns[info.delayed.ordinal()] = iColumn;
+						}
 					} else {
-						errorConsumer
-						        .accept(Translator.translate("Registration.UnknownColumnHeader", trimmedCellValue) + " "
-						                + trimmedCellValue);
+						String msg = Translator.translate("Registration.UnknownColumnHeader", trimmedCellValue) + " " + trimmedCellValue;
+						if (errorConsumer != null) {
+							errorConsumer.accept(msg);
+						}
+						this.logger.warn("Unknown header: {} (sheet={} row={})", trimmedCellValue, row.getSheet().getSheetName(), iRow);
 					}
-					iColumn++;
 				}
-				// If headers filled all available cells, set stop column accordingly.
 				if (athleteHeaderStopColumn == Integer.MAX_VALUE) {
-					athleteHeaderStopColumn = iColumn;
+					athleteHeaderStopColumn = lastCol;
 				}
+				try {
+					AthleteHeaderInfo[] orderedHeaderTable = orderedAthleteHeaderInfo.toArray(new AthleteHeaderInfo[0]);
+					this.logger.debug("readAthletes: ordered athlete header table size={} (columns 0..{})", orderedHeaderTable.length, athleteHeaderStopColumn - 1);
+					for (int idx = 0; idx < orderedHeaderTable.length; idx++) {
+						Cell hcCell = row.getCell(idx);
+						String headerText = hcCell == null ? "<null>" : cellToString(hcCell);
+						AthleteHeaderInfo ahi = orderedHeaderTable[idx];
+						if (ahi == null) {
+							this.logger.debug("  [{}] '{}' -> <no setter>", idx, headerText);
+						} else {
+							this.logger.debug("  [{}] '{}' -> setter present delayed={}", idx, headerText, ahi.delayed);
+						}
+					}
+				} catch (Exception ex) {
+					this.logger.debug("readAthletes: failed to log ordered header table", ex);
+				}
+				// Log header discovery for debugging: header row index, stop column, and a preview
+				try {
+					StringBuilder headersPreview = new StringBuilder();
+					for (int hc = 0; hc < athleteHeaderStopColumn; hc++) {
+						Cell hcCell = row.getCell(hc);
+						String v = hcCell == null ? "<null>" : cellToString(hcCell);
+						if (hc > 0) {
+							headersPreview.append(" | ");
+						}
+						headersPreview.append(v);
+					}
+					this.logger.debug("readAthletes: headerFound rowIndex={} stopCol={} headers={}", iRow, athleteHeaderStopColumn, headersPreview.toString());
+				} catch (Exception ex) {
+					this.logger.debug("readAthletes: headerFound rowIndex={} stopCol={} headers=<error>", iRow, athleteHeaderStopColumn);
+				}
+				// move to next row
+				iRow++;
+				continue;
 			} else {
 				// process the values
 				RAthlete ra = new RAthlete();
@@ -856,7 +880,12 @@ public class NRegistrationFileProcessor {
 						if (iColumn < this.setterForColumn.length && this.setterForColumn[iColumn] != null
 						        && cell != null) {
 							this.logger.debug("setting column {} {}", iColumn, cell.getAddress());
-							this.setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
+							try {
+								this.setterForColumn[iColumn].accept(ra, cellValue.trim(), cell);
+								this.logger.debug("applied setter for col {} value='{}'", iColumn, cellValue.trim());
+							} catch (Exception e) {
+								processException(ra, cellValue.trim(), cell, e, errorConsumer);
+							}
 						}
 					} else {
 						delayedSetterValues[delayedOrder] = cellValue.trim();
@@ -864,6 +893,7 @@ public class NRegistrationFileProcessor {
 					}
 				}
 				if (curRowEmpty) {
+					this.logger.debug("readAthletes: stopping at empty rowIndex={}", iRow);
 					break rows;
 				}
 
@@ -881,6 +911,8 @@ public class NRegistrationFileProcessor {
 				String firstName = ra.getAthlete().getFirstName();
 				if (lastName != null && firstName != null && !lastName.isBlank() && !firstName.isBlank()) {
 					athletes.add(ra);
+				} else {
+					this.logger.warn("readAthletes: skipping rowIndex={} missing names last='{}' first='{}'", iRow, lastName, firstName);
 				}
 			}
 

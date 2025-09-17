@@ -150,7 +150,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			int priorCount = AthleteRepository.findAll().size();
 			this.processor.resetAthletes();
 			String deletedMsg = "Existing athletes were deleted before processing: " + priorCount;
-			logger.info(deletedMsg);
+			logger.debug(deletedMsg);
 			// do not call updateDisplay for this non-count Upload.* message (logging only)
 		}
 
@@ -167,7 +167,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 				msg = "Athletes will be updated or added.";
 			}
 			// logging only for option messages; do not surface these messages in the UI
-			logger.info(msg);
+			logger.debug(msg);
 		}
 
 		// Surface a short confirmation message in the UI about how sessions will be handled
@@ -181,7 +181,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 				msg = "Sessions will be updated or added.";
 			}
 			// logging only for session option messages; do not surface these messages in the UI
-			logger.info(msg);
+			logger.debug(msg);
 		}
 
 		// Collect errors into a buffer and avoid interleaving counts/options with errors.
