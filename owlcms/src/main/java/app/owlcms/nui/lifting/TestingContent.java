@@ -219,13 +219,13 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 			var all = app.owlcms.monitors.MQTTMonitor.getAllMonitorSummaries();
 			var allPubs = app.owlcms.monitors.MQTTMonitor.getAllActivePublishers();
 			if ((all == null || all.isEmpty()) && (allPubs == null || allPubs.isEmpty())) {
-				logger.warn("No MQTT monitors configured");
+				logger.debug("No MQTT monitors configured");
 			} else {
 				for (var entry : all.entrySet()) {
 					var name = entry.getKey();
 					var summary = entry.getValue();
 					var pubs = (allPubs != null && allPubs.containsKey(name)) ? allPubs.get(name) : java.util.List.of();
-					logger.warn("MQTT monitor {} => {} publishers={}", name, summary, pubs);
+					logger.debug("MQTT monitor {} => {} publishers={}", name, summary, pubs);
 				}
 			}
 		} catch (Exception e) {

@@ -544,7 +544,7 @@ public class NRegistrationFileProcessor {
 			if (setter != null) {
 				logger.debug("Mapped group header '{}' to setter", headerValue);
 			} else {
-				logger.warn("No setter found for group header '{}'", headerValue);
+				logger.debug("No setter found for group header '{}'", headerValue);
 				// append a newline so each error appears on its own line when displayed
 				errors.add(MessageFormat.format("Ignoring unknown column ''{0}'' at sheet {1} [{2}]\n",
 				        headerValue, cell.getSheet().getSheetName(), cell.getAddress()));
@@ -1047,8 +1047,7 @@ public class NRegistrationFileProcessor {
 					} catch (Exception ex) {
 						// ignore
 					}
-					// Use warn for temporary diagnostics so they are easy to remove later.
-					this.logger.warn(
+					this.logger.debug(
 					        "Sheet '{}' A2='{}'. headerMatches(Session)={} session={} (session current='{}' en='{}'; session key current='{}' en='{}')",
 					        sheet.getSheetName(), a2Text, isSessionHeader, isGroupHeader, tSessionCur, tSessionEng, tGroupCur, tGroupEng);
 					// Only accept the sheet when the canonical A2 key 'Group' matches.

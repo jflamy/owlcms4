@@ -290,8 +290,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	private void updateDisplay(TextArea ta, StringBuffer sb) {
 		if (sb.length() > 0) {
 			String existing = ta.getValue();
-			// Log a warning with origin information (full stack trace) so we can trace who added the UI trace
-			logger.warn(sb.toString() + "  " + LoggerUtils.stackTrace());
+			//logger.debug(sb.toString() + "  " + LoggerUtils.stackTrace());
 			String newText = sb.toString();
 			// Strip trailing/leading whitespace to avoid double blank lines when appending
 			newText = newText.strip();
