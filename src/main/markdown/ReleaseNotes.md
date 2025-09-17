@@ -12,11 +12,12 @@
 
 **New in Release 61.0**
 
+61.0.0: Fix: the athlete registration/weigh-in editing form recomputed the eligibility categories when opened on an athlete with no body weight.  This was wrongly ignoring the categories previously given in the registration Excel.
+
 61.0.0: Improvements to Registration and SBDE files
 
--  The Gender can either be "M" or "F", or the translated value in the current language (e.g. "W")
+- The Gender can either be "M" or "F", or the translated value in the current language (e.g. "W")
 - The page with session information can now have the columns reordered or removed
-
 - The column headers can be in English or in the current language, but cannot be renamed.
 
 61.0.0: When using a jury keypad with decision lights, and there is no deliberation or break going on, then the decision lights are reset by using the resume button.
