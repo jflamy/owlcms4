@@ -614,6 +614,7 @@ public class NRegistrationFileProcessor {
 		Iterator<Row> rowIterator = sheet.rowIterator();
 		List<RAthlete> athletes = new LinkedList<>();
 		int iRow = 0;
+		int athleteHeaderStopColumn = Integer.MAX_VALUE;
 
 		rows: while (rowIterator.hasNext()) {
 			int iColumn = 0;
@@ -627,7 +628,20 @@ public class NRegistrationFileProcessor {
 				Iterator<Cell> cellIterator = row.cellIterator();
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
+					if (cell == null) {
+						athleteHeaderStopColumn = iColumn;
+						break;
+					}
+					// Stop header parsing at the first blank or non-string header cell.
+					if (cell.getCellType() == CellType.BLANK || cell.getCellType() != CellType.STRING) {
+						athleteHeaderStopColumn = iColumn;
+						break;
+					}
 					String cellValue = cell.getStringCellValue();
+					if (cellValue == null || cellValue.trim().isEmpty()) {
+						athleteHeaderStopColumn = iColumn;
+						break;
+					}
 					String trimmedCellValue = cellValue.trim();
 
 					if (headerMatches(trimmedCellValue, "Membership")) {
@@ -798,6 +812,10 @@ public class NRegistrationFileProcessor {
 					}
 					iColumn++;
 				}
+				// If headers filled all available cells, set stop column accordingly.
+				if (athleteHeaderStopColumn == Integer.MAX_VALUE) {
+					athleteHeaderStopColumn = iColumn;
+				}
 			} else {
 				// process the values
 				RAthlete ra = new RAthlete();
@@ -818,8 +836,22 @@ public class NRegistrationFileProcessor {
 					}
 
 					iColumn = cell.getColumnIndex();
+
+					// Stop reading cells in this row when we've reached the first column
+					// beyond the header (the first empty header column).
+					if (iColumn >= athleteHeaderStopColumn) {
+						break;
+					}
 					curRowEmpty = false;
 					int delayedOrder = ArrayUtils.indexOf(this.delayedSetterColumns, iColumn);
+
+					// If this column index has no header-mapped setter and is not a delayed setter,
+					// treat it as the first empty header and stop processing further cells in this row.
+					if ((iColumn >= this.setterForColumn.length || this.setterForColumn[iColumn] == null)
+					        && delayedOrder < 0) {
+						break;
+					}
+
 					if (delayedOrder < 0) {
 						if (iColumn < this.setterForColumn.length && this.setterForColumn[iColumn] != null
 						        && cell != null) {
@@ -1045,15 +1077,17 @@ public class NRegistrationFileProcessor {
 						boolean rowHasData = false;
 						for (Cell cell : row) {
 							int iColumn = cell.getAddress().getColumn();
-							if (setterTable != null && iColumn < setterTable.length) {
-								try {
-									setterTable[iColumn].set(rg, cell);
-									rowHasData = true;
-								} catch (Exception e) {
-									String msg = MessageFormat.format("{0}[{1}] {2}\n", sheet.getSheetName(), cell.getAddress(), e.getMessage());
-									errors.add(msg);
-									logger.error(msg);
-								}
+							// Stop processing cells in this row at the first column beyond the header
+							if (setterTable == null || iColumn >= setterTable.length) {
+								break;
+							}
+							try {
+								setterTable[iColumn].set(rg, cell);
+								rowHasData = true;
+							} catch (Exception e) {
+								String msg = MessageFormat.format("{0}[{1}] {2}\n", sheet.getSheetName(), cell.getAddress(), e.getMessage());
+								errors.add(msg);
+								logger.error(msg);
 							}
 						}
 
