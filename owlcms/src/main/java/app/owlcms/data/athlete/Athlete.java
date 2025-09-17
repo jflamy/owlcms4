@@ -1043,13 +1043,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public String getAllCategoriesAsString() {
-		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
-		// use getName because we don't want the translated gender.
-		String mainCategory = mrCat != null ? mrCat.getDisplayName() : "";
-
-		String mainCategoryString = mainCategory;
+		Category mrCat = getCategory();
+		String mainCategoryAsString = mrCat != null ? mrCat.getName() : "";
 		if (mrCat != null && !getMainRankings().getTeamMember()) {
-			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
+			mainCategoryAsString = mainCategoryAsString + RAthlete.NoTeamMarker;
 		}
 
 		String eligiblesAsString = this.getParticipations().stream()
@@ -1061,9 +1058,9 @@ public class Athlete {
 		        })
 		        .collect(Collectors.joining(";"));
 		if (eligiblesAsString.isBlank()) {
-			return mainCategoryString;
+			return mainCategoryAsString;
 		} else {
-			return mainCategory + ";" + eligiblesAsString;
+			return mainCategoryAsString + ";" + eligiblesAsString;
 		}
 	}
 
