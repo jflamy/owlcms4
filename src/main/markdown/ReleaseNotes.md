@@ -12,13 +12,14 @@
 
 **New in Release 61.0**
 
-61.0.0: The Run Lifting Session / Button Testing page now shows connected MQTT devices (Blue-Owl, owlcms-firmata)
+61.0.0: Improvements to Registration and SBDE files
 
-61.0.0: When using a jury keypad with decision lights, and there is no deliberation or break going on, then the decision lights are reset by using the resume button.
-
-61.0.0: Excel pages with session information can now have the columns reordered or removed
+-  The Gender can either be "M" or "F", or the translated value in the current language (e.g. "W")
+- The page with session information can now have the columns reordered or removed
 
 - The column headers can be in English or in the current language, but cannot be renamed.
+
+61.0.0: When using a jury keypad with decision lights, and there is no deliberation or break going on, then the decision lights are reset by using the resume button.
 
 61.0.0: Updates for introductions and technical officials
 
