@@ -458,6 +458,19 @@ public class Config {
 	}
 
 	/**
+	 * @return the configured MQTT-over-WebSocket port (if provided via env/args)
+	 */
+	@Transient
+	@JsonIgnore
+	public String getParamMqttWsPort() {
+		String param = StartupUtils.getStringParam("mqttWsPort");
+		if (param == null) {
+			return "9090";
+		}
+		return param;
+	}
+
+	/**
 	 * @return the current mqtt server.
 	 */
 	@Transient

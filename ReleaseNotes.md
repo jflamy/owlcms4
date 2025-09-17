@@ -12,15 +12,26 @@
 
 **New in Release 61.0**
 
+61.0.0: The Run Lifting Session / Button Testing page now shows connected MQTT devices (Blue-Owl, owlcms-firmata)
+
+61.0.0: When using a jury keypad with decision lights, and there is no deliberation or break going on, then the decision lights are reset by using the resume button.
+
+61.0.0: Excel pages with session information can now have the columns reordered or removed
+
+- The column headers can be in English or in the current language, but cannot be renamed.
+
 61.0.0: Updates for introductions and technical officials
 
-- Competition Doctor added as technical official and to the introduction sheets
+- Competition Doctor added as technical official role and to the introduction sheets
 - Added a button to print the Introduction sheet from the weigh-in entry page (the introduction sheet is much easier to read by the speaker than the protocol)
 - Added the reserve referee and reserve jury to the protocol sheets to the official document
 
 61.0.0: Fixes for glitches in clock restart (reset of decisions) and forced time (missing/delayed MQTT events)
 
-61.0.0: Technical Update to [Vaadin](https://vaadin.com/) version 24.8.7.   The main changes are to the Upload and Download mechanisms.
+61.0.0: Technical Update to [Vaadin](https://vaadin.com/) version 24.8.7.   
+
+- The main changes are to the Upload and Download mechanisms.
+- Other dependencies were updated to match the expectations of Vaadin (netty, various commons packages)
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 

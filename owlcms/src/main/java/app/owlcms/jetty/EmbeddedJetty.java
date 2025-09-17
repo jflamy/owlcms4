@@ -9,6 +9,7 @@ package app.owlcms.jetty;
 import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import jakarta.websocket.ContainerProvider;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.open.Open;
@@ -18,6 +19,9 @@ import app.owlcms.apputils.LogbackConfigReloader;
 import ch.qos.logback.classic.Logger;
 
 public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
+
+	// Conservative default timeout for WebSocket container (5 minutes)
+	public static final long PROXY_TIMEOUT_DEFAULT_MS = 5 * 60 * 1000L;
 
 	private static Logger startLogger = (Logger) LoggerFactory.getLogger(EmbeddedJetty.class);
 	private static EmbeddedJetty server;
@@ -57,6 +61,13 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 
 	@Override
 	public void onStarted(WebAppContext c) {
+		// Ensure the WebSocket container uses the conservative default timeout set by the proxy
+		try {
+			ContainerProvider.getWebSocketContainer().setDefaultMaxSessionIdleTimeout(EmbeddedJetty.PROXY_TIMEOUT_DEFAULT_MS);
+			startLogger.info("Configured WebSocketContainer defaultMaxSessionIdleTimeout={} ms (conservative default)", EmbeddedJetty.PROXY_TIMEOUT_DEFAULT_MS);
+		} catch (Throwable t) {
+			startLogger.warn("Unable to set WebSocketContainer default timeout at startup: {}", t.getMessage());
+		}
 		startLogger.info("started on port {}", this.getPort());
 	}
 

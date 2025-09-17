@@ -62,5 +62,10 @@
     <logger name="app.owlcms.data.config.Config" level="INFO" />
     <logger name="app.owlcms.utils.ResourceWalker" level="INFO" />
     <logger name="app.owlcms.displays.monitor.Monitor" level="DEBUG" />
+    
+    <!-- TRACE level for MQTT debugging -->
+    <logger name="app.owlcms.monitors.MQTTMonitor" level="TRACE" />
+    <logger name="io.moquette" level="TRACE" />
+    <logger name="de.fraunhofer.iosb.io.moquette" level="TRACE" />
    
 </configuration>

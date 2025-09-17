@@ -47,6 +47,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.jetty.EmbeddedJetty;
 import app.owlcms.monitors.MQTTMonitor;
+import app.owlcms.servlet.MqttWebSocketProxyEndpoint;
 import app.owlcms.uievents.AppEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -213,10 +214,19 @@ public class Main {
 		mqttConfig.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "mqttData");
 		new File(mqttConfig.getProperty(IConfig.DATA_PATH_PROPERTY_NAME)).mkdirs();
 
+		// WebSocket support (MQTT over WebSocket)
+		// Read optional websocket port/path from config or environment
+		String wsPort = Config.getCurrent().getParamMqttWsPort();
+		String wsPath = MqttWebSocketProxyEndpoint.MQTT;
+		mqttConfig.setProperty(IConfig.WEB_SOCKET_PORT_PROPERTY_NAME, wsPort);
+		mqttConfig.setProperty(IConfig.WEB_SOCKET_PATH_PROPERTY_NAME, wsPath);
+		logger.info("Configuring MQTT websocket on port {} path {}", wsPort, wsPath);
+
 	mqttBroker = new Server();
 	List<InterceptHandler> userHandlers = new java.util.ArrayList<>();
 	userHandlers.add(new MQTTInterceptHandlers.PublisherListener());
 	userHandlers.add(new MQTTInterceptHandlers.ConnectionListener());
+		userHandlers.add(new MQTTInterceptHandlers.SubscribeListener());
 
 		if (Config.getCurrent().getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
 			logger.info("MQTT Server overridden by environment or system parameter, not starting embedded MQTT");

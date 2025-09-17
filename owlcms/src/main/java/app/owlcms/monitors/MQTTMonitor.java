@@ -244,7 +244,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 								MQTTInterceptHandlers.putDescriptor(gid, finalDesc);
 								MQTTInterceptHandlers.putLastSeen(gid, now2);
 								try {
-									logger.debug("Assigned fallback descriptor='{}' to broker clientId='{}' from topic='{}' (candidate='{}')", finalDesc, gid, topic, candidate);
+									logger.trace("Assigned fallback descriptor='{}' to broker clientId='{}' from topic='{}' (candidate='{}')", finalDesc, gid, topic, candidate);
 									logger.trace("Updated connectionLastSeen: clientId='{}' ts={} (fallback)", gid, now2);
 								} catch (Throwable t) {
 									// ignore logging failures
@@ -259,7 +259,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 							MQTTInterceptHandlers.putLastSeen(candidate, now2);
 						}
 						try {
-							logger.debug("Assigned fallback descriptor='{}' to inferred client token='{}' from topic='{}'", finalDesc, candidate, topic);
+							logger.trace("Assigned fallback descriptor='{}' to inferred client token='{}' from topic='{}'", finalDesc, candidate, topic);
 							logger.trace("Updated connectionLastSeen: clientId='{}' ts={} (fallback-inferred)", candidate, now2);
 						} catch (Throwable t) {
 							// ignore logging failures
@@ -968,7 +968,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			if (topic == null || topic.isBlank()) return null;
 			// The special topic 'owlcms/config' must never override an existing descriptor
 			if ("owlcms/config".equals(topic)) {
-				logger.debug("Topic 'owlcms/config' detected - will not override descriptor for clientId='{}'", publishingClientId);
+				logger.trace("Topic 'owlcms/config' detected - will not override descriptor for clientId='{}'", publishingClientId);
 				return null;
 			}
 			String[] parts = topic.split("/");
@@ -1401,9 +1401,12 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		payload.put("jurySize", Competition.getCurrent().getJurySize());
 		try {
 			String json = new ObjectMapper().writeValueAsString(payload);
-			logger.debug("{}{} MQTT Config: {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this), json);
+			logger.info("{}{} MQTT Config: {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this), json);
+			logger.trace("Publishing MQTT config to topic '{}' with payload: {}", topic, json);
 			this.client.publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+			logger.trace("Successfully published MQTT config to topic '{}'", topic);
 		} catch (JsonProcessingException | MqttException e) {
+			logger.error("Error publishing MQTT config to topic {}", topic, e);
 		}
 	}
 
@@ -1639,7 +1642,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 		activeClientIds.put(clientId, System.currentTimeMillis());
 		try {
 			String monitorName = this.getMonitoredFopName();
-			logger.info("{} MQTT client connected: monitor={} clientId={}", FieldOfPlay.getLoggingName(this.getFop()), monitorName, clientId);
+			logger.debug("{} MQTT client connected: monitor={} clientId={}", FieldOfPlay.getLoggingName(this.getFop()), monitorName, clientId);
 		} catch (Throwable t) {
 			// defensive: logging must not throw
 		}
