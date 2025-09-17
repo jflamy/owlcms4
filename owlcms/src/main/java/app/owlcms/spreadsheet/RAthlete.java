@@ -174,7 +174,31 @@ public class RAthlete {
 		if (s == null) {
 			return;
 		}
-		this.a.setGender(Gender.valueOf(s.toUpperCase()));
+		String t = s.trim();
+
+		// 1) Try matching the canonical gender names among the allowed set
+		for (Gender g : Gender.mfValues()) {
+			if (g.name().equalsIgnoreCase(t)) {
+				this.a.setGender(g);
+				return;
+			}
+		}
+
+		// 2) Try matching each allowed gender's translated gender code
+		for (Gender g : Gender.mfValues()) {
+			try {
+				String translated = g.getTranslatedGenderCode();
+				if (translated != null && translated.equalsIgnoreCase(t)) {
+					this.a.setGender(g);
+					return;
+				}
+			} catch (Exception ex) {
+				// ignore translation failures and continue
+			}
+		}
+
+		// 3) Fallback to original behavior (this will throw IllegalArgumentException if invalid)
+		this.a.setGender(Gender.valueOf(t.toUpperCase()));
 	}
 
 	/**
