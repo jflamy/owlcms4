@@ -70,7 +70,7 @@ public class GroupRepository {
 				a.setGroup(null);
 			}
 			em.flush();
-			logger./**/warn("removing {}", groupe.fullDump());
+			logger.info("removing {}", groupe);
 			em.remove(em.contains(groupe) ? groupe : em.merge(groupe));
 			em.flush();
 		} catch (Exception e) {

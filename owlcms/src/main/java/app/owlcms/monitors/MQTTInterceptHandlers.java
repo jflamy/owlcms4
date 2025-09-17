@@ -234,7 +234,7 @@ public class MQTTInterceptHandlers {
 				String clientId = msg.getClientID();
 				String topic = msg.getTopicFilter();
 				String transport = clientId != null ? connectionTransport.getOrDefault(clientId, "unknown") : "unknown";
-				logger.info("MQTT subscribe: clientId={} topic={} transport={}", clientId, topic, transport);
+				logger.debug("MQTT subscribe: clientId={} topic={} transport={}", clientId, topic, transport);
 			} catch (Throwable t) {
 				// ignore
 			}
@@ -246,7 +246,7 @@ public class MQTTInterceptHandlers {
 				String clientId = msg.getClientID();
 				String topic = msg.getTopicFilter();
 				String transport = clientId != null ? connectionTransport.getOrDefault(clientId, "unknown") : "unknown";
-				logger.info("MQTT unsubscribe: clientId={} topic={} transport={}", clientId, topic, transport);
+				logger.debug("MQTT unsubscribe: clientId={} topic={} transport={}", clientId, topic, transport);
 			} catch (Throwable t) {
 				// ignore
 			}
