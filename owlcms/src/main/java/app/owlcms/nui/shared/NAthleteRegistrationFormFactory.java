@@ -1052,10 +1052,22 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.categoryField.setClearButtonVisible(true);
 
 		if (initCategories) {
-			this.allEligible = findEligibleCategories(this.genderField, getAgeFromFields(), this.bodyWeightField,
-			        this.categoryField.getValue(), this.qualifyingTotalField);
-			updateCategoryFields(categoryField.getValue(), category, this.eligibleField, this.qualifyingTotalField,
-			        this.allEligible, this.allEligible, false);
+			// Prefer persisted eligible categories if the athlete already has them assigned.
+			Set<Category> dbEligibles = getEditedAthlete() != null ? getEditedAthlete().getEligibleCategories() : null;
+			if (dbEligibles != null && !dbEligibles.isEmpty()) {
+				// Use the database eligibles as the initial items/value so the UI reflects stored state
+				this.allEligible = dbEligibles.stream().toList();
+				this.currentEligibles = new HashSet<>(this.allEligible);
+				eligibleField.setItems(this.allEligible);
+				setEligibleField(new LinkedHashSet<>(this.allEligible));
+				// Ensure the category field reflects the stored registration category
+				setCategoryFieldValue(getEditedAthlete().getCategory());
+			} else {
+				this.allEligible = findEligibleCategories(this.genderField, getAgeFromFields(), this.bodyWeightField,
+						this.categoryField.getValue(), this.qualifyingTotalField);
+				updateCategoryFields(categoryField.getValue(), category, this.eligibleField, this.qualifyingTotalField,
+						this.allEligible, this.allEligible, false);
+			}
 		}
 
 		this.genderField.addValueChangeListener((vc) -> {
