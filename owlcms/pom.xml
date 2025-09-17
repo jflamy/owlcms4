@@ -314,11 +314,11 @@
 		-->
 
 		<!-- https://mvnrepository.com/artifact/de.fraunhofer.iosb.io.moquette/moquette-broker -->
-<dependency>
-    <groupId>de.fraunhofer.iosb.io.moquette</groupId>
-    <artifactId>moquette-broker</artifactId>
-    <version>0.18.3</version>
-				<exclusions>
+		<dependency>
+		    <groupId>de.fraunhofer.iosb.io.moquette</groupId>
+		    <artifactId>moquette-broker</artifactId>
+		    <version>0.18.3</version>
+			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>slf4j-reload4j</artifactId>
@@ -328,7 +328,7 @@
 					<artifactId>h2-mvstore</artifactId>
 				</exclusion>
 			</exclusions>
-</dependency>
+		</dependency>
 
 		<dependency>
 			<groupId>com.vaadin</groupId>

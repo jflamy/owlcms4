@@ -6,8 +6,6 @@
  *******************************************************************************/
 package app.owlcms;
 
- 
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -60,322 +58,330 @@ import io.moquette.interception.InterceptHandler;
 import app.owlcms.monitors.MQTTInterceptHandlers;
 
 /**
- * Main class for launching owlcms using an embedded jetty server. Also start an embedded MQTT moquette server
+ * Main class for launching owlcms using an embedded jetty server. Also start an
+ * embedded MQTT moquette server
  *
  * @author Jean-François Lamy
  */
 public class Main {
 
-		// MQTT intercept handlers moved to app.owlcms.monitors.MQTTInterceptHandlers
+    // MQTT intercept handlers moved to app.owlcms.monitors.MQTTInterceptHandlers
 
-	private static final int WARNING_MINUTES = 5;
-	private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
-	protected static boolean demoData;
-	protected static boolean demoMode;
-	protected static boolean masters;
-	protected static boolean memoryMode;
-	protected static String productionMode;
-	protected static boolean resetMode;
-	protected static Integer serverPort;
-	protected static boolean smallData;
-	private static InitialData initialData;
-	public static String mqttStartup;
-	private static Integer demoResetDelay;
-	private static Server mqttBroker;
+    private static final int WARNING_MINUTES = 5;
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
+    protected static boolean demoData;
+    protected static boolean demoMode;
+    protected static boolean masters;
+    protected static boolean memoryMode;
+    protected static String productionMode;
+    protected static boolean resetMode;
+    protected static Integer serverPort;
+    protected static boolean smallData;
+    private static InitialData initialData;
+    public static String mqttStartup;
+    private static Integer demoResetDelay;
+    private static Server mqttBroker;
 
-	public static EmbeddedJetty doRun() {
-		EmbeddedJetty embeddedJetty = new EmbeddedJetty(null, "owlcms")
-		        .setStartLogger(logger)
-		        .setInitConfig(Main::initConfig)
-		        .setInitData(Main::initData);
-		Thread server = new Thread(() -> {
-			try {
-				embeddedJetty.run(serverPort, "/");
-			} catch (Exception e) {
-				logger.error("cannot start server {}\\n{}", e, LoggerUtils.stackTrace(e));
-			}
-		});
-		server.start();
-		return embeddedJetty;
-	}
+    public static EmbeddedJetty doRun() {
+        EmbeddedJetty embeddedJetty = new EmbeddedJetty(null, "owlcms")
+                .setStartLogger(logger)
+                .setInitConfig(Main::initConfig)
+                .setInitData(Main::initData);
+        Thread server = new Thread(() -> {
+            try {
+                embeddedJetty.run(serverPort, "/");
+            } catch (Exception e) {
+                logger.error("cannot start server {}\\n{}", e, LoggerUtils.stackTrace(e));
+            }
+        });
+        server.start();
+        return embeddedJetty;
+    }
 
-	public static Logger getStartupLogger() {
-		String name = Main.class.getName() + ".startup";
-		return (Logger) LoggerFactory.getLogger(name);
-	}
+    public static Logger getStartupLogger() {
+        String name = Main.class.getName() + ".startup";
+        return (Logger) LoggerFactory.getLogger(name);
+    }
 
-	public static void initConfig() {
-		// there is no config read so far.
-		boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
-		if (publicDemo) {
-			JPAService.init(true, true);
-		} else {
-			// setup database
-			JPAService.init(memoryMode, resetMode);
-		}
-		// check for database override of resource files
-		Config.initConfig();
+    public static void initConfig() {
+        // there is no config read so far.
+        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
+        if (publicDemo) {
+            JPAService.init(true, true);
+        } else {
+            // setup database
+            JPAService.init(memoryMode, resetMode);
+        }
+        // check for database override of resource files
+        Config.initConfig();
 
-		// Run UTC normalization migration after JPAService and Config are initialized
-		JPAService.runInTransaction(em -> {
-			UtcNormalizationMigration.normalizeAllToUtc(em);
-			return null;
-		});
-	}
+        // Run UTC normalization migration after JPAService and Config are initialized
+        JPAService.runInTransaction(em -> {
+            UtcNormalizationMigration.normalizeAllToUtc(em);
+            return null;
+        });
+    }
 
-	/**
-	 * This method is actually called from EmbeddedJetty immediately after starting the server
-	 */
-	public static void initData() {
-		// Vaadin configs
-		System.setProperty("vaadin.i18n.provider", Translator.class.getName());
+    /**
+     * This method is actually called from EmbeddedJetty immediately after starting
+     * the server
+     */
+    public static void initData() {
+        // Vaadin configs
+        System.setProperty("vaadin.i18n.provider", Translator.class.getName());
 
-		long now = System.currentTimeMillis();
-		// read locale from database and override if needed
-		Locale l = overrideDisplayLanguage();
-		injectData(initialData, l);
-		Competition.recomputeAllAthleteRanks();
-		overrideTimeZone();
-		logger.info("Initialized data ({} ms)", System.currentTimeMillis() - now);
+        long now = System.currentTimeMillis();
+        // read locale from database and override if needed
+        Locale l = overrideDisplayLanguage();
+        injectData(initialData, l);
+        Competition.recomputeAllAthleteRanks();
+        overrideTimeZone();
+        logger.info("Initialized data ({} ms)", System.currentTimeMillis() - now);
 
-		if (demoResetDelay == null) {
-			startMQTT();
-		}
-		// initialization, don't push out to browsers
-		OwlcmsFactory.initDefaultFOP();
+        if (demoResetDelay == null) {
+            startMQTT();
+        }
+        // initialization, don't push out to browsers
+        OwlcmsFactory.initDefaultFOP();
 
-		signalDatabaseReady();
-	}
+        signalDatabaseReady();
+    }
 
-	public static void injectSuppliers() {
-		// app config injection
-		Translator.setLocaleSupplier(() -> OwlcmsSession.computeLocale());
-		ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
-		ResourceWalker.setLocalZipBlobSupplier(() -> Config.getCurrent().getLocalZipBlob());
-	}
+    public static void injectSuppliers() {
+        // app config injection
+        Translator.setLocaleSupplier(() -> OwlcmsSession.computeLocale());
+        ResourceWalker.setLocaleSupplier(Translator.getLocaleSupplier());
+        ResourceWalker.setLocalZipBlobSupplier(() -> Config.getCurrent().getLocalZipBlob());
+    }
 
-	/**
-	 * The main method.
-	 *
-	 * Start a web server and do all the required initializations for the application If running normally, we run until killed. If running as a public demo, we
-	 * sleep for awhile, and then exit. Some external mechanism such as Kubernetes will notice and restart another instance.
-	 *
-	 * @param args the arguments
-	 * @throws Exception the exception
-	 */
-	public static void main(String... args) throws Exception {
-		// there is no config read so far.
-		demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
-		if (demoResetDelay != null) {
-			logger.info("Public demo server, will reset after {} seconds", demoResetDelay);
-		}
+    /**
+     * The main method.
+     *
+     * Start a web server and do all the required initializations for the
+     * application If running normally, we run until killed. If running as a public
+     * demo, we
+     * sleep for awhile, and then exit. Some external mechanism such as Kubernetes
+     * will notice and restart another instance.
+     *
+     * @param args the arguments
+     * @throws Exception the exception
+     */
+    public static void main(String... args) throws Exception {
+        // there is no config read so far.
+        demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
+        if (demoResetDelay != null) {
+            logger.info("Public demo server, will reset after {} seconds", demoResetDelay);
+        }
 
-		init();
-		// CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
+        init();
+        // CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
 
-		// restart automatically forever if running as public demo
-		while (true) {
-			EmbeddedJetty embeddedJetty = doRun();
-			if (demoResetDelay == null) {
-				break;
-			} else {
-				warnAndExit(demoResetDelay, embeddedJetty);
-			}
-		}
+        // restart automatically forever if running as public demo
+        while (true) {
+            EmbeddedJetty embeddedJetty = doRun();
+            if (demoResetDelay == null) {
+                break;
+            } else {
+                warnAndExit(demoResetDelay, embeddedJetty);
+            }
+        }
 
-	}
+    }
 
-	@SuppressWarnings("deprecation")
-	public static void startMQTT() {
-		Config conf = Config.getCurrent();
-		Boolean mqttInternal = conf.getMqttInternal();
-		if (mqttInternal == null) {
-			conf.setMqttInternal(true);
-			Config.setCurrent(conf);
-		} else {
-			// conf.setMqttInternal(true);
-			// Config.setCurrent(conf);
-			if (!mqttInternal) {
-				logger.info("MQTT server disabled using database configuration");
-				return;
-			}
-		}
+    @SuppressWarnings("deprecation")
+    public static void startMQTT() {
+        Config conf = Config.getCurrent();
+        Boolean mqttInternal = conf.getMqttInternal();
+        if (mqttInternal == null) {
+            conf.setMqttInternal(true);
+            Config.setCurrent(conf);
+        } else {
+            // conf.setMqttInternal(true);
+            // Config.setCurrent(conf);
+            if (!mqttInternal) {
+                logger.info("MQTT server disabled using database configuration");
+                return;
+            }
+        }
 
-		mqttStartup = Long.toString(System.currentTimeMillis());
-		final IConfig mqttConfig = new MemoryConfig(new Properties());
-		Config.getCurrent().setMqttConfig(mqttConfig);
-		mqttConfig.setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME,
-		        Boolean.toString(Config.getCurrent().getParamMqttUserName() == null));
-		mqttConfig.setProperty(IConfig.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
-		mqttConfig.setProperty(IConfig.PORT_PROPERTY_NAME, Config.getCurrent().getParamMqttPort());
-		mqttConfig.setProperty(IConfig.BUFFER_FLUSH_MS_PROPERTY_NAME, Integer.toString(0));
-		mqttConfig.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, Boolean.FALSE.toString());
-		// this should be in memory, but the DATA_PATH_PROPERTY_NAME does not work with a virtual file system
-		mqttConfig.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "mqttData");
-		new File(mqttConfig.getProperty(IConfig.DATA_PATH_PROPERTY_NAME)).mkdirs();
+        mqttStartup = Long.toString(System.currentTimeMillis());
+        final IConfig mqttConfig = new MemoryConfig(new Properties());
+        Config.getCurrent().setMqttConfig(mqttConfig);
+        mqttConfig.setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME,
+                Boolean.toString(Config.getCurrent().getParamMqttUserName() == null));
+        mqttConfig.setProperty(IConfig.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
+        mqttConfig.setProperty(IConfig.PORT_PROPERTY_NAME, Config.getCurrent().getParamMqttPort());
+        mqttConfig.setProperty(IConfig.BUFFER_FLUSH_MS_PROPERTY_NAME, Integer.toString(0));
+        mqttConfig.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, Boolean.FALSE.toString());
+        // this should be in memory, but the DATA_PATH_PROPERTY_NAME does not work with
+        // a virtual file system
+        mqttConfig.setProperty(IConfig.DATA_PATH_PROPERTY_NAME, "mqttData");
+        new File(mqttConfig.getProperty(IConfig.DATA_PATH_PROPERTY_NAME)).mkdirs();
 
-		// WebSocket support (MQTT over WebSocket)
-		// Read optional websocket port/path from config or environment
-		String wsPort = Config.getCurrent().getParamMqttWsPort();
-		String wsPath = MqttWebSocketProxyEndpoint.MQTT;
-		mqttConfig.setProperty(IConfig.WEB_SOCKET_PORT_PROPERTY_NAME, wsPort);
-		mqttConfig.setProperty(IConfig.WEB_SOCKET_PATH_PROPERTY_NAME, wsPath);
-		logger.info("Configuring MQTT websocket on port {} path {}", wsPort, wsPath);
+        // WebSocket support (MQTT over WebSocket)
+        // Read optional websocket port/path from config or environment
+        String wsPort = Config.getCurrent().getParamMqttWsPort();
+        String wsPath = MqttWebSocketProxyEndpoint.MQTT;
+        mqttConfig.setProperty(IConfig.WEB_SOCKET_PORT_PROPERTY_NAME, wsPort);
+        mqttConfig.setProperty(IConfig.WEB_SOCKET_PATH_PROPERTY_NAME, wsPath);
+        logger.info("Configuring MQTT websocket on port {} path {}", wsPort, wsPath);
 
-	mqttBroker = new Server();
-	List<InterceptHandler> userHandlers = new java.util.ArrayList<>();
-	userHandlers.add(new MQTTInterceptHandlers.PublisherListener());
-	userHandlers.add(new MQTTInterceptHandlers.ConnectionListener());
-		userHandlers.add(new MQTTInterceptHandlers.SubscribeListener());
+        mqttBroker = new Server();
+        List<InterceptHandler> userHandlers = new java.util.ArrayList<>();
+        userHandlers.add(new MQTTInterceptHandlers.PublisherListener());
+        userHandlers.add(new MQTTInterceptHandlers.ConnectionListener());
+        userHandlers.add(new MQTTInterceptHandlers.SubscribeListener());
 
-		if (Config.getCurrent().getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
-			logger.info("MQTT Server overridden by environment or system parameter, not starting embedded MQTT");
-			return;
-		}
-		if (!Config.getCurrent().getParamMqttInternal()) {
-			logger.info("Internal MQTT server not enabled, skipping");
-			return;
-		}
-		if (Config.getCurrent().getMqttInternal() == null) {
-			// default should be true if not set previously
-			Config.getCurrent().setMqttInternal(true);
-		}
+        if (Config.getCurrent().getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
+            logger.info("MQTT Server overridden by environment or system parameter, not starting embedded MQTT");
+            return;
+        }
+        if (!Config.getCurrent().getParamMqttInternal()) {
+            logger.info("Internal MQTT server not enabled, skipping");
+            return;
+        }
+        if (Config.getCurrent().getMqttInternal() == null) {
+            // default should be true if not set previously
+            Config.getCurrent().setMqttInternal(true);
+        }
 
-		try {
-			long now = System.currentTimeMillis();
-			logger.info("starting MQTT broker.");
-			mqttBroker.startServer(mqttConfig, userHandlers);
-			logger.info("started MQTT broker ({} ms).", System.currentTimeMillis() - now);
+        try {
+            long now = System.currentTimeMillis();
+            logger.info("starting MQTT broker.");
+            mqttBroker.startServer(mqttConfig, userHandlers);
+            logger.info("started MQTT broker ({} ms).", System.currentTimeMillis() - now);
 
-			// Bind a shutdown hook
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				logger.info("Stopping broker");
-				mqttBroker.stopServer();
-				logger.info("Broker stopped");
-			}));
-		} catch (Exception e) {
-			logger.error("could not start server", e.toString(), e.getCause());
-		}
-	}
+            // Bind a shutdown hook
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                logger.info("Stopping broker");
+                mqttBroker.stopServer();
+                logger.info("Broker stopped");
+            }));
+        } catch (Exception e) {
+            logger.error("could not start server", e.toString(), e.getCause());
+        }
+    }
 
-	public static void stopMQTT() {
-		mqttBroker.stopServer();
-	}
+    public static void stopMQTT() {
+        mqttBroker.stopServer();
+    }
 
-	/**
-	 * Prepare owlcms
-	 *
-	 * Reads configuration options, injects data, initializes singletons and configurations. The embedded web server can then be started.
-	 *
-	 * Sample command line to run on port 80 and in demo mode (automatically generated fake data, in-memory database)
-	 *
-	 * <code><pre>java -D"server.port"=80 -DdemoMode=true -jar owlcms-4.0.1-SNAPSHOT.jar app.owlcms.Main</pre></code>
-	 *
-	 * @return the server port on which we want to run
-	 * @throws IOException
-	 * @throws ParseException
-	 */
-	protected static void init() throws IOException, ParseException {
-		// Configure logging -- must take place before anything else
-		// Redirect java.util.logging logs to SLF4J
-		SLF4JBridgeHandler.removeHandlersForRootLogger();
-		SLF4JBridgeHandler.install();
-		// disable poixml warning
-		StartupUtils.disableWarning();
-		
-		// needed otherwise history.replace does not work correctly in Vaadin 24
-		System.setProperty("vaadin.react.enable", "false");
+    /**
+     * Prepare owlcms
+     *
+     * Reads configuration options, injects data, initializes singletons and
+     * configurations. The embedded web server can then be started.
+     *
+     * Sample command line to run on port 80 and in demo mode (automatically
+     * generated fake data, in-memory database)
+     *
+     * <code><pre>java -D"server.port"=80 -DdemoMode=true -jar owlcms-4.0.1-SNAPSHOT.jar app.owlcms.Main</pre></code>
+     *
+     * @return the server port on which we want to run
+     * @throws IOException
+     * @throws ParseException
+     */
+    protected static void init() throws IOException, ParseException {
+        // Configure logging -- must take place before anything else
+        // Redirect java.util.logging logs to SLF4J
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+        // disable poixml warning
+        StartupUtils.disableWarning();
 
-		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-			@Override
-			public void uncaughtException(Thread t, Throwable e) {
-				System.out.println("Caught " + e);
-				e.printStackTrace();
-			}
-		});
+        // needed otherwise history.replace does not work correctly in Vaadin 24
+        System.setProperty("vaadin.react.enable", "false");
 
-		// read command-line and environment variable parameters
-		parseConfig();
-		StartupUtils.setServerPort(serverPort);
-		StartupUtils.logStart("owlcms", serverPort);
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                System.out.println("Caught " + e);
+                e.printStackTrace();
+            }
+        });
 
-		// message about log locations.
-		Path logPath = Path.of("logs", "owlcms.log");
-		if (Files.exists(logPath)) {
-			logger.info("Detailed log location: {}", logPath.toAbsolutePath());
-		}
+        // read command-line and environment variable parameters
+        parseConfig();
+        StartupUtils.setServerPort(serverPort);
+        StartupUtils.logStart("owlcms", serverPort);
 
-		// technical initializations
-	// commons-beanutils removed: explicitly parse dates where needed
+        // message about log locations.
+        Path logPath = Path.of("logs", "owlcms.log");
+        if (Files.exists(logPath)) {
+            logger.info("Detailed log location: {}", logPath.toAbsolutePath());
+        }
 
-		// dependency injection
-		injectSuppliers();
-	}
+        // technical initializations
+        // commons-beanutils removed: explicitly parse dates where needed
 
-	protected static void tearDown() {
-		JPAService.close();
-	}
+        // dependency injection
+        injectSuppliers();
+    }
 
-	private static void injectData(InitialData data,
-	        Locale locale) {
-		Locale l = (locale == null ? Locale.ENGLISH : locale);
-		EnumSet<ChampionshipType> ageDivisions = masters ? EnumSet.of(
-		        ChampionshipType.MASTERS,
-		        ChampionshipType.U) : null;
-		try {
-			Translator.setForcedLocale(l);
-			// if a reset was required (e.g. for demonstrations, or to reinitialize, this
-			// has been handled beforehand by Hibernate when opening the database.
-			List<Competition> allCompetitions = CompetitionRepository.findAll();
-			if (data == InitialData.LEAVE_AS_IS && allCompetitions.isEmpty()) {
-				// overide - we cannot leave the database empty
-				data = InitialData.EMPTY_COMPETITION;
-			}
+    protected static void tearDown() {
+        JPAService.close();
+    }
 
-			// there is no config read so far.
-			boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
-			if (allCompetitions.isEmpty() || publicDemo) {
-				logger.info("injecting initial data {}", data);
-				Config current = Config.getCurrent();
-				current.setLocalDateTimeUtcNormalized(true);
-				Config.setCurrent(current); // forces a s save.
-				switch (data) {
-					case EMPTY_COMPETITION:
-						ProdData.insertInitialData(0);
-						break;
-					case LARGEGROUP_DEMO:
-						DemoData.insertInitialData(14, ageDivisions);
-						break;
-					case LEAVE_AS_IS:
-						break;
-					case SINGLE_ATHLETE_GROUPS:
-						DemoData.insertInitialData(1, ageDivisions);
-						break;
-					case BENCHMARK:
-						BenchmarkData.insertInitialData(
-						        EnumSet.of(ChampionshipType.IWF, ChampionshipType.MASTERS));
-						break;
-				}
-			} else {
-				// migrations and other changes
-				logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
-				List<AgeGroup> ags = AgeGroupRepository.findAll();
-				if (ags.isEmpty()) {
-					logger.info("Creating age groups and categories");
-					JPAService.runInTransaction(em -> {
-						AgeGroupRepository.insertAgeGroups(em, null);
-						return null;
-					});
-				} else {
-					// make sure there is a championship name as foreign key to Championship
-					// (Championships are transient, not persisted)
-					AgeGroupRepository.updateExistingChampionships();
-				}
-				List<Config> configs = ConfigRepository.findAll();
-				if (configs.isEmpty()) {
-					logger.debug("adding config object");
-					Config.setCurrent(new Config());
-				}
+    private static void injectData(InitialData data,
+            Locale locale) {
+        Locale l = (locale == null ? Locale.ENGLISH : locale);
+        EnumSet<ChampionshipType> ageDivisions = masters ? EnumSet.of(
+                ChampionshipType.MASTERS,
+                ChampionshipType.U) : null;
+        try {
+            Translator.setForcedLocale(l);
+            // if a reset was required (e.g. for demonstrations, or to reinitialize, this
+            // has been handled beforehand by Hibernate when opening the database.
+            List<Competition> allCompetitions = CompetitionRepository.findAll();
+            if (data == InitialData.LEAVE_AS_IS && allCompetitions.isEmpty()) {
+                // overide - we cannot leave the database empty
+                data = InitialData.EMPTY_COMPETITION;
+            }
+
+            // there is no config read so far.
+            boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
+            if (allCompetitions.isEmpty() || publicDemo) {
+                logger.info("injecting initial data {}", data);
+                Config current = Config.getCurrent();
+                current.setLocalDateTimeUtcNormalized(true);
+                Config.setCurrent(current); // forces a s save.
+                switch (data) {
+                    case EMPTY_COMPETITION:
+                        ProdData.insertInitialData(0);
+                        break;
+                    case LARGEGROUP_DEMO:
+                        DemoData.insertInitialData(14, ageDivisions);
+                        break;
+                    case LEAVE_AS_IS:
+                        break;
+                    case SINGLE_ATHLETE_GROUPS:
+                        DemoData.insertInitialData(1, ageDivisions);
+                        break;
+                    case BENCHMARK:
+                        BenchmarkData.insertInitialData(
+                                EnumSet.of(ChampionshipType.IWF, ChampionshipType.MASTERS));
+                        break;
+                }
+            } else {
+                // migrations and other changes
+                logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
+                List<AgeGroup> ags = AgeGroupRepository.findAll();
+                if (ags.isEmpty()) {
+                    logger.info("Creating age groups and categories");
+                    JPAService.runInTransaction(em -> {
+                        AgeGroupRepository.insertAgeGroups(em, null);
+                        return null;
+                    });
+                } else {
+                    // make sure there is a championship name as foreign key to Championship
+                    // (Championships are transient, not persisted)
+                    AgeGroupRepository.updateExistingChampionships();
+                }
+                List<Config> configs = ConfigRepository.findAll();
+                if (configs.isEmpty()) {
+                    logger.debug("adding config object");
+                    Config.setCurrent(new Config());
+                }
 
 //				int nbParts = CategoryRepository.countParticipations();
 //				if (nbParts == 0
@@ -386,142 +392,143 @@ public class Main {
 //					AthleteRepository.resetParticipations(false, true);
 //				}
 
-				List<Category> nullCodeCategories = CategoryRepository.findNullCodes();
-				if (!nullCodeCategories.isEmpty()) {
-					logger.debug("updating category codes", nullCodeCategories);
-					CategoryRepository.fixNullCodes(nullCodeCategories);
-				}
+                List<Category> nullCodeCategories = CategoryRepository.findNullCodes();
+                if (!nullCodeCategories.isEmpty()) {
+                    logger.debug("updating category codes", nullCodeCategories);
+                    CategoryRepository.fixNullCodes(nullCodeCategories);
+                }
 
-				PlatformRepository.checkPlatforms();
-			}
-			new RecordDefinitionReader().loadRecords();
-		} finally {
-			Translator.setForcedLocale(locale);
-		}
-	}
+                PlatformRepository.checkPlatforms();
+            }
+            new RecordDefinitionReader().loadRecords();
+        } finally {
+            Translator.setForcedLocale(locale);
+        }
+    }
 
-	private static Locale overrideDisplayLanguage() {
-		// read override value from database, if it was previously created.
-		Locale l = null;
-		try {
-			l = Config.getCurrent().getDefaultLocale();
-		} catch (Exception e) {
-		}
+    private static Locale overrideDisplayLanguage() {
+        // read override value from database, if it was previously created.
+        Locale l = null;
+        try {
+            l = Config.getCurrent().getDefaultLocale();
+        } catch (Exception e) {
+        }
 
-		// check OWLCMS_LOCALE, then -Dlocale, then LOCALE
-		String localeEnvStr = StartupUtils.getStringParam("locale");
-		if (localeEnvStr != null) {
-			l = Translator.createLocale(localeEnvStr);
-		} else {
-			localeEnvStr = System.getenv("LOCALE");
-			if (localeEnvStr != null) {
-				l = Translator.createLocale(localeEnvStr);
-			}
-		}
+        // check OWLCMS_LOCALE, then -Dlocale, then LOCALE
+        String localeEnvStr = StartupUtils.getStringParam("locale");
+        if (localeEnvStr != null) {
+            l = Translator.createLocale(localeEnvStr);
+        } else {
+            localeEnvStr = System.getenv("LOCALE");
+            if (localeEnvStr != null) {
+                l = Translator.createLocale(localeEnvStr);
+            }
+        }
 
-		Translator.setForcedLocale(l);
-		if (l != null) {
-			logger.info("forcing display language to {}", l);
-		} else {
-			logger.info("using per-session browser language", l);
-		}
-		return l;
-	}
+        Translator.setForcedLocale(l);
+        if (l != null) {
+            logger.info("forcing display language to {}", l);
+        } else {
+            logger.info("using per-session browser language", l);
+        }
+        return l;
+    }
 
-	private static void overrideTimeZone() {
-		// read override value from database, if it was previously created.
-		TimeZone tz = null;
-		tz = Config.getCurrent().getTimeZone();
-		if (tz != null) {
-			TimeZone.setDefault(tz);
-		}
-	}
+    private static void overrideTimeZone() {
+        // read override value from database, if it was previously created.
+        TimeZone tz = null;
+        tz = Config.getCurrent().getTimeZone();
+        if (tz != null) {
+            TimeZone.setDefault(tz);
+        }
+    }
 
-	/**
-	 * get configuration from environment variables and if not found, from system properties.
-	 */
-	private static void parseConfig() {
-		// under Kubernetes deployed under an owlcms service LoadBalancer
-		String k8sServicePortString = StartupUtils.getStringParam("service_port");
-		if (k8sServicePortString != null) {
-			// we are running under a Kubernetes ingress or load balancer
-			// which handles the mapping for us. We run on the default.
-			serverPort = 8080;
-		} else {
-			// read port parameter from -Dport=9999 on java command line
-			// this is required for running on Heroku which assigns us the port at run time.
-			// default is 8080
-			logger.trace("{}", "reading port from properties and environment");
-			serverPort = StartupUtils.getIntegerParam("port", 8080);
-		}
+    /**
+     * get configuration from environment variables and if not found, from system
+     * properties.
+     */
+    private static void parseConfig() {
+        // under Kubernetes deployed under an owlcms service LoadBalancer
+        String k8sServicePortString = StartupUtils.getStringParam("service_port");
+        if (k8sServicePortString != null) {
+            // we are running under a Kubernetes ingress or load balancer
+            // which handles the mapping for us. We run on the default.
+            serverPort = 8080;
+        } else {
+            // read port parameter from -Dport=9999 on java command line
+            // this is required for running on Heroku which assigns us the port at run time.
+            // default is 8080
+            logger.trace("{}", "reading port from properties and environment");
+            serverPort = StartupUtils.getIntegerParam("port", 8080);
+        }
 
-		StartupUtils.setServerPort(serverPort);
+        StartupUtils.setServerPort(serverPort);
 
-		// drop the schema first
-		memoryMode = StartupUtils.getBooleanParam("memoryMode");
-		resetMode = StartupUtils.getBooleanParam("resetMode") || demoMode || memoryMode;
+        // drop the schema first
+        memoryMode = StartupUtils.getBooleanParam("memoryMode");
+        resetMode = StartupUtils.getBooleanParam("resetMode") || demoMode || memoryMode;
 
-		String initialDataString = StartupUtils.getStringParam("initialData");
-		try {
-			initialData = InitialData.valueOf(initialDataString.toUpperCase());
-		} catch (Exception e) {
-			// no initial data setting, infer from legacy options
-			if (!resetMode) {
-				initialData = InitialData.LEAVE_AS_IS;
-			} else if (demoMode || demoData) {
-				initialData = InitialData.LARGEGROUP_DEMO;
-			} else if (smallData) {
-				initialData = InitialData.SINGLE_ATHLETE_GROUPS;
-			} else {
-				initialData = InitialData.EMPTY_COMPETITION;
-				if (initialDataString != null) {
-					logger.error("unrecognized OWLCMS_INITIALDATA value: {}, defaulting to {}", initialDataString,
-					        initialData);
-				}
-			}
-		}
+        String initialDataString = StartupUtils.getStringParam("initialData");
+        try {
+            initialData = InitialData.valueOf(initialDataString.toUpperCase());
+        } catch (Exception e) {
+            // no initial data setting, infer from legacy options
+            if (!resetMode) {
+                initialData = InitialData.LEAVE_AS_IS;
+            } else if (demoMode || demoData) {
+                initialData = InitialData.LARGEGROUP_DEMO;
+            } else if (smallData) {
+                initialData = InitialData.SINGLE_ATHLETE_GROUPS;
+            } else {
+                initialData = InitialData.EMPTY_COMPETITION;
+                if (initialDataString != null) {
+                    logger.error("unrecognized OWLCMS_INITIALDATA value: {}, defaulting to {}", initialDataString,
+                            initialData);
+                }
+            }
+        }
 
-		masters = StartupUtils.getBooleanParam("masters");
-	}
+        masters = StartupUtils.getBooleanParam("masters");
+    }
 
-	private static void signalDatabaseReady() {
-		try {
-			logger.info("Data initialized.");
-			OwlcmsFactory.countDownLatch();
-		} catch (InterruptedException e) {
-			LoggerUtils.logError(logger, e, false);
-		}
-	}
+    private static void signalDatabaseReady() {
+        try {
+            logger.info("Data initialized.");
+            OwlcmsFactory.countDownLatch();
+        } catch (InterruptedException e) {
+            LoggerUtils.logError(logger, e, false);
+        }
+    }
 
-	private static void warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
-	        throws InterruptedException {
+    private static void warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
+            throws InterruptedException {
 
-		Thread.sleep(demoResetDelay * 1000);
-		String warningText = Translator.translate("App.ResetWarning", Integer.toString(WARNING_MINUTES));
-		AppEvent.AppNotification warning = new AppEvent.AppNotification(warningText);
-		// server.start() hijacks stderr and stdout. Must use new thread to log.
-		new Thread(() -> {
-			logger.info(warningText);
-		}).start();
+        Thread.sleep(demoResetDelay * 1000);
+        String warningText = Translator.translate("App.ResetWarning", Integer.toString(WARNING_MINUTES));
+        AppEvent.AppNotification warning = new AppEvent.AppNotification(warningText);
+        // server.start() hijacks stderr and stdout. Must use new thread to log.
+        new Thread(() -> {
+            logger.info(warningText);
+        }).start();
 
-		OwlcmsFactory.getAppUIBus().post(warning);
-		Thread.sleep(WARNING_MINUTES * 60 * 1000);
-		OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
-		Thread.sleep(5 * 1000);
+        OwlcmsFactory.getAppUIBus().post(warning);
+        Thread.sleep(WARNING_MINUTES * 60 * 1000);
+        OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
+        Thread.sleep(5 * 1000);
 
-		// public demo is run with a restart policy of "always", so k8s will restart
-		// everything
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			logger.info("public demo server shut down");
-		}));
-		System.exit(0);
-	}
-	
-	public static void restart() {
-		EmbeddedJetty.stop(true);
-		Main.stopMQTT();
-		LogbackConfigReloader.reloadLogbackConfiguration();
-		MQTTMonitor.reset();
-		Main.doRun();
-	}
+        // public demo is run with a restart policy of "always", so k8s will restart
+        // everything
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.info("public demo server shut down");
+        }));
+        System.exit(0);
+    }
+
+    public static void restart() {
+        EmbeddedJetty.stop(true);
+        Main.stopMQTT();
+        LogbackConfigReloader.reloadLogbackConfiguration();
+        MQTTMonitor.reset();
+        Main.doRun();
+    }
 }
