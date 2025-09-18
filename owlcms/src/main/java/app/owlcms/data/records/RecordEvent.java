@@ -295,7 +295,7 @@ public class RecordEvent implements Comparable<RecordEvent> {
 	}
 
 	public Double getRecordValue() {
-		return this.recordValue;
+		return this.recordValue == null ? 0.0D : this.recordValue;
 	}
 
 	public int getRecordYear() {
