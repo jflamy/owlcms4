@@ -8,7 +8,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
-      "cwd": "${workspaceFolder:owlcms}",
+      "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -30,7 +30,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
-      "cwd": "${workspaceFolder:owlcms}",
+      "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -52,7 +52,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
-      "cwd": "${workspaceFolder:owlcms}",
+      "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -76,7 +76,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
-      "cwd": "${workspaceFolder:owlcms}",
+      "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -100,7 +100,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
-      "cwd": "${workspaceFolder:owlcms}",
+      "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -125,7 +125,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
-      "cwd": "${workspaceFolder:owlcms}",
+      "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -150,7 +150,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
-      "cwd": "${workspaceFolder:owlcms}",
+      "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -175,7 +175,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
-      "cwd": "${workspaceFolder:owlcms}",
+      "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -200,7 +200,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.publicresults.Main",
       "projectName": "publicresults",
-      "cwd": "${workspaceFolder:publicresults}",
+      "cwd": "${workspaceFolder}/publicresults",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
