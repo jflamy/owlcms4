@@ -37,6 +37,13 @@
     "debug.toolBarLocation": "docked",
     "debug.allowBreakpointsEverywhere": true,
     "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.profiles.windows": {
+        "Git Bash (MSYS)": {
+            "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+            "args": ["--login", "-i"]
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "Git Bash (MSYS)",
 
     // Maven optimization
     "maven.explorer.projectName": "${project.artifactId}",
