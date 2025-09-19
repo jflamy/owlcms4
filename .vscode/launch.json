@@ -8,6 +8,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
+      "cwd": "${workspaceFolder:owlcms}",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -20,7 +21,7 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-     }
+      }
     },
     {
       "type": "java",
@@ -29,6 +30,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
+      "cwd": "${workspaceFolder:owlcms}",
       "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -41,7 +43,7 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-     }
+      }
     },
     {
       "type": "java",
@@ -50,6 +52,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
+      "cwd": "${workspaceFolder:owlcms}",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -73,6 +76,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
+      "cwd": "${workspaceFolder:owlcms}",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -96,6 +100,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
+      "cwd": "${workspaceFolder:owlcms}",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -120,6 +125,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
+      "cwd": "${workspaceFolder:owlcms}",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -144,6 +150,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
+      "cwd": "${workspaceFolder:owlcms}",
       "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -168,6 +175,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
+      "cwd": "${workspaceFolder:owlcms}",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -192,6 +200,7 @@
       "console": "integratedTerminal",
       "mainClass": "app.owlcms.publicresults.Main",
       "projectName": "publicresults",
+      "cwd": "${workspaceFolder:publicresults}",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -213,8 +222,7 @@
       "console": "integratedTerminal",
       "mainClass": "${file}",
       "vmArgs": "${config:owlcms.vmArgs}"
-    }
-    ,
+    },
     {
       "type": "java",
       "name": "🔷 firmata UI (second folder)",
@@ -236,8 +244,7 @@
         "🟠 tandem owlcms",
         "🟠 tandem publicresults"
       ]
-    }
-    ,
+    },
     {
       "name": "🔷 tandem owlcms + firmata",
       "configurations": [
