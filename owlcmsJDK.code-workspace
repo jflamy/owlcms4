@@ -22,9 +22,7 @@
        "path": "C:\\Program Files\\Git\\bin\\bash.exe",
        "args": ["--login", "-i"]
      },
-     // fallback for older VS Code versions
-     "terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe",
-
+ 
     */
   },
 }

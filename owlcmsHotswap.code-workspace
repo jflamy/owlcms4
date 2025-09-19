@@ -33,7 +33,6 @@
        }
      },
      "terminal.integrated.defaultProfile.windows": "Git Bash",
-     "terminal.integrated.shell.windows": "C:\\Program Files\\Git\\bin\\bash.exe",
      "terminal.integrated.automationProfile.windows": {
        "path": "C:\\Program Files\\Git\\bin\\bash.exe",
        "args": ["--login", "-i"]
