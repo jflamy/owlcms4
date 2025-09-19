@@ -7,8 +7,8 @@
         <version>4.9.0.1</version>
     </parent>
 
-    <name>Owlcms Docker packaging</name>
-    <description>Owlcms Docker for use in Kubernetes</description>
+    <name>docker packaging</name>
+    <description>Owlcms Docker Packaging</description>
     <artifactId>owlcms-docker</artifactId>
     <version>${revision}</version>
     <packaging>docker</packaging>

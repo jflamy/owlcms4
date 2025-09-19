@@ -8,7 +8,7 @@
 		<version>4.9.0.1</version>
 	</parent>
 
-	<name>Olympic Weightlifting Competition Management System</name>
+	<name>owlcms</name>
 	<artifactId>owlcms</artifactId>
 	<version>${revision}</version>
 
