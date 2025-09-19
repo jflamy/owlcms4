@@ -209,7 +209,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch("noForwarderKeepAlive");
 		if (!publicResultsEnabled && !videoResultsEnabled) {
 			this.NO_KEEPALIVE = true;
-			logger.info("{} event forwading keepalive disabled", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
+			logger.info("{}event forwading keepalive disabled", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
 		}
 		
 	}
