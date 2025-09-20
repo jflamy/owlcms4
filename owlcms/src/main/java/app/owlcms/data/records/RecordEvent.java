@@ -214,6 +214,22 @@ public class RecordEvent implements Comparable<RecordEvent> {
 	}
 
 	public String getBwCatString() {
+		// if bwCatString is an integer over 900, it is a super-heavyweight
+		// then we use the catLower translated to get the + or > according to locale.
+		// also when the string has ">" or "+" we use the catLower (legacy)
+		if (this.bwCatString != null && (this.bwCatString.contains(">") || this.bwCatString.contains("+"))) {
+			return Translator.translate("catAboveFormat", this.bwCatLower);
+		}
+		if (this.bwCatString != null) {
+			try {
+				int bw = Integer.parseInt(this.bwCatString);
+				if (bw >= 199) {
+					return Translator.translate("catAboveFormat", this.bwCatLower);
+				}
+			} catch (NumberFormatException e) {
+				// not an integer, ignore
+			}
+		}
 		return this.bwCatString;
 	}
 
