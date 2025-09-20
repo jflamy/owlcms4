@@ -33,24 +33,6 @@
     // Debug and terminal
     "debug.toolBarLocation": "docked",
     "debug.allowBreakpointsEverywhere": true,
-    "terminal.integrated.defaultProfile.linux": "bash",
-    "terminal.integrated.profiles.windows": {
-        "Git Bash (MSYS)": {
-            "path": "C:\\Program Files\\Git\\bin\\bash.exe",
-            "args": [
-                "--login",
-                "-i"
-            ]
-        }
-    },
-    "terminal.integrated.defaultProfile.windows": "Git Bash (MSYS)",
-    // Maven optimization
-    "maven.explorer.projectName": "${project.artifactId}",
-    "maven.executable.path": "/opt/maven/bin/mvn",
-    // Custom VM args (if needed for local dev)
-    "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
-    // Prevent Explorer from auto-revealing the currently active file and auto-unrolling
-    "explorer.autoReveal": false,
     "workbench.colorCustomizations": {
         "terminal.foreground": "#FFFFFF",
         "debugConsole.infoForeground": "#FFFFFF",
@@ -58,5 +40,6 @@
         "debugConsole.errorForeground": "#FFFFFF",
         "terminal.ansiBlue": "#FFFFFF",
         "terminal.ansiBrightBlue": "#FFFFFF"
-    }
+    },
+    "editor.stickyScroll.enabled": false,
 }
