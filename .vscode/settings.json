@@ -44,8 +44,10 @@
     "maven.explorer.projectName": "${project.artifactId}",
     "maven.executable.path": "/opt/maven/bin/mvn",
 
-    // Custom VM args (if needed for local dev)
-    "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+    // Custom VM args should live in the .code-workspace files, not in settings.json
     // Prevent Explorer from auto-revealing the currently active file and auto-unrolling
     "explorer.autoReveal": false
+    ,
+    // Disable editor sticky scroll for this workspace
+    "editor.stickyScroll.enabled": false
 }
