@@ -9,14 +9,26 @@ package app.owlcms.utils;
 
 import java.io.IOException;
 
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Logger;
+
 /**
  * Provide a local resource as a byte array, for use in jxls image directives
  * Do not expose all the methods of ResourceWalker.
  */
 public class LocalResource {
+
+	private static Logger logger = (Logger) LoggerFactory.getLogger(LocalResource.class);
 	
 	static public byte[] getBytes(String resourceName) throws IOException {
-		return ResourceWalker.getBytes(resourceName);
+		try {
+			logger.warn("getBytes {}", resourceName);
+			return ResourceWalker.getBytes(resourceName);
+		} catch (Exception e) {
+			logger.error("Error getting local resource " + resourceName);
+			return null;
+		}
 	}
 
 }

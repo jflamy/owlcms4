@@ -171,6 +171,10 @@ public class ImageCommand extends AbstractCommand {
     }
     
     private void addImage(Workbook workbook, AreaRef areaRef, byte[] imageBytes, ImageType imageType, Double scaleX, Double scaleY) {
+        if (imageBytes == null || imageBytes.length == 0) {
+            logger.warn("No image bytes to add for area " + areaRef);
+            return;
+        }
         int poiPictureType = findPoiPictureTypeByImageType(imageType);
         int pictureIdx = workbook.addPicture(imageBytes, poiPictureType);
         addImage(workbook, areaRef, pictureIdx, scaleX, scaleY);
@@ -199,8 +203,7 @@ public class ImageCommand extends AbstractCommand {
     }
 
     private void addImage(Workbook workbook, AreaRef areaRef, int imageIdx, Double scaleX, Double scaleY) {
-    	
-//        boolean resize = scaleX != null && scaleY != null;
+    
         CreationHelper helper = workbook.getCreationHelper();
         Sheet sheet = workbook.getSheet(areaRef.getSheetName());
         if (sheet == null) {
@@ -208,23 +211,26 @@ public class ImageCommand extends AbstractCommand {
         }
         Drawing<?> drawing = sheet.createDrawingPatriarch();
         ClientAnchor anchor = helper.createClientAnchor();
-        anchor.setCol1(areaRef.getFirstCellRef().getCol());
-        anchor.setRow1(areaRef.getFirstCellRef().getRow());
         
-//        resize = true;
-//        if (resize) {
-            anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_DONT_RESIZE);
-//            anchor.setCol2(-1);
-//            anchor.setRow2(-1);
-//        } else {
-            anchor.setCol2(areaRef.getLastCellRef().getCol());
-            anchor.setRow2(areaRef.getLastCellRef().getRow());
-//        }
+        int areaStartCol = areaRef.getFirstCellRef().getCol();
+        int areaStartRow = areaRef.getFirstCellRef().getRow();
+        int areaEndCol = areaRef.getLastCellRef().getCol();
+        int areaEndRow = areaRef.getLastCellRef().getRow();
+        
+        // For centering, start the anchor at the center of the area
+        int centerCol = areaStartCol + (areaEndCol - areaStartCol) / 2;
+        int centerRow = areaStartRow + (areaEndRow - areaStartRow) / 2;
+        
+        anchor.setCol1(centerCol);
+        anchor.setRow1(centerRow);
+        anchor.setCol2(areaEndCol);
+        anchor.setRow2(areaEndRow);
+        anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_DONT_RESIZE);
         
         Picture picture = drawing.createPicture(anchor, imageIdx);
         
         if (scaleX == null && scaleY == null) {
-        	// we make the image as big as possible without distortion
+            // we make the image as big as possible without distortion
             Dimension realDims = ImageDimensionReader.getImageDimensions(picture.getPictureData().getData());
             
             // Calculate target area dimensions
@@ -233,13 +239,37 @@ public class ImageCommand extends AbstractCommand {
             scaleX = computeScaleX(realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
             scaleY = computeScaleY(realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
             
-            logger.debug("scale={},{} image={},{} area={},{}", scaleX, scaleY, realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
-            picture.resize(scaleX.doubleValue(), scaleY.doubleValue());
-        } else {
-            picture.resize(scaleX.doubleValue(), scaleY.doubleValue());
+            logger.warn("scale={},{} image={},{} area={},{}", scaleX, scaleY, realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
         }
+        
+        picture.resize(scaleX.doubleValue(), scaleY.doubleValue());
     }
     
+    private void applyCenteringOffset(ClientAnchor anchor, Dimension realDims, Dimension areaDims, double scaleX, double scaleY) {
+        // Calculate what the scaled image size will be
+        int scaledImageWidth = (int) Math.round(realDims.x() * scaleX);
+        int scaledImageHeight = (int) Math.round(realDims.y() * scaleY);
+        
+        // Calculate centering offsets in pixels
+        int offsetXPixels = Math.max(0, (areaDims.x() - scaledImageWidth) / 2);
+        int offsetYPixels = Math.max(0, (areaDims.y() - scaledImageHeight) / 2);
+        
+        // Convert to EMU (1 pixel ≈ 9525 EMU at 96 DPI)
+        int offsetXEMU = offsetXPixels * 9525;
+        int offsetYEMU = offsetYPixels * 9525;
+        
+        try {
+            anchor.setDx1(offsetXEMU);
+            anchor.setDy1(offsetYEMU);
+            
+            logger.warn("Applied centering offset: {}px, {}px ({}EMU, {}EMU)", 
+                       offsetXPixels, offsetYPixels, offsetXEMU, offsetYEMU);
+                       
+        } catch (Exception e) {
+            logger.warn("Could not apply centering offsets: " + e.getMessage());
+        }
+    }
+
     /**
      * Calculate the pixel dimensions of the target area (AreaRef)
      */
@@ -257,15 +287,12 @@ public class ImageCommand extends AbstractCommand {
             logger./**/warn("totalWidth {}",totalWidth);
         }
 
-        
         // Calculate total height in pixels
         double totalHeight = 0;
         for (int row = startRow; row < endRow; row++) {
             totalHeight += getCellHeightInPoints(sheet, row);
             logger./**/warn("totalHeight {}",totalHeight);
         }
-
-        
         return new Dimension((int) Math.round(totalWidth), (int) Math.round(totalHeight));
     }
     
@@ -275,7 +302,7 @@ public class ImageCommand extends AbstractCommand {
      * @param rowNumber The row number (0-based)
      * @return Height in points
      */
-    public static float getCellHeightInPoints(Sheet sheet, int rowNumber) {
+    public float getCellHeightInPoints(Sheet sheet, int rowNumber) {
         Row row = sheet.getRow(rowNumber);
         
         if (row == null || row.getZeroHeight()) {
@@ -294,7 +321,7 @@ public class ImageCommand extends AbstractCommand {
      * @param columnNumber The column number (0-based)
      * @return Width in points
      */
-    public static float getCellWidthInPoints(Sheet sheet, int columnNumber) {
+    public float getCellWidthInPoints(Sheet sheet, int columnNumber) {
         // Convert pixels to points (assuming 96 DPI)
         float widthInPixels = sheet.getColumnWidthInPixels(columnNumber);
         return widthInPixels * 72f / 96f;
@@ -308,20 +335,20 @@ public class ImageCommand extends AbstractCommand {
      * @return byte array
      * @throws IOException -
      */
-    public static byte[] toByteArray(InputStream inputStream) throws IOException { // used by templates and SimpleExporter
+    public byte[] toByteArray(InputStream inputStream) throws IOException { // used by templates and SimpleExporter
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         copy(inputStream, baos);
         return baos.toByteArray();
     }
     
-    public static void copy(InputStream in, OutputStream out) throws IOException {
+    public void copy(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8 * 1024];
         for (int count; (count = in.read(buffer)) != -1;) {
             out.write(buffer, 0, count);
         }
     }
     
-    private static double computeScaleX(int realX, int realY, int rectX, int rectY) {
+    private double computeScaleX(int realX, int realY, int rectX, int rectY) {
         double ratioX = (double) rectX / realX;
         double ratioY = (double) rectY / realY;
         
@@ -335,10 +362,15 @@ public class ImageCommand extends AbstractCommand {
     /**
      * Computes scaleY to maintain aspect ratio when fitting image in rectangle
      */
-    private static double computeScaleY(int realX, int realY, int rectX, int rectY) {
+    private double computeScaleY(int realX, int realY, int rectX, int rectY) {
         double ratioX = (double) rectX / realX;
         double ratioY = (double) rectY / realY;
-        
+
+        if (rectY <= 0.01) {
+            // assume the cell will be high enough, return the same ratio as horizontal
+            logger.warn("computeScaleY: rectY is too small, using ratioX");
+            return ratioX;
+        }
         if (ratioX <= ratioY) {
             return ratioX / ratioY;  // Width is limiting factor
         } else {
