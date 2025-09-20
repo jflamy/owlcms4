@@ -19,7 +19,7 @@ public class RecordEventSetters {
     private final static DateTimeFormatter ymdFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final static DateTimeFormatter ymFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
     private final static DateTimeFormatter yFormatter = DateTimeFormatter.ofPattern("yyyy");
-    
+
     public static void setFederation(RecordEvent rec, Cell cell) {
         String value = cell.getStringCellValue().trim();
         if (value.isEmpty()) {
@@ -72,7 +72,15 @@ public class RecordEventSetters {
                 rec.setBwCatString(Translator.translate("catAboveFormat",rec.getBwCatLower()));
             } else {
                 try {
-                    rec.setBwCatUpper(Integer.parseInt(cellValue));
+                    // scar tissue for legacy error.
+                    // compensate for excessive validation in Excel preventing entering 999
+                    var val = Integer.parseInt(cellValue);
+                    if (val >= 199) {
+                        rec.setBwCatUpper(999);
+                        rec.setBwCatString(Translator.translate("catAboveFormat",rec.getBwCatLower()));
+                    } else {
+                        rec.setBwCatUpper(val);
+                    }
                 } catch (NumberFormatException e) {
                     if (cellValue != null && !cellValue.isBlank()) {
                         logger.error("[" + cell.getSheet().getSheetName() + "," + cell.getAddress() + "]");
@@ -135,13 +143,12 @@ public class RecordEventSetters {
         value = value != null ? value.trim() : value;
         rec.setNation(value);
     }
-    
+
     public static void setGroup(RecordEvent rec, Cell cell) {
         String value = cell.getStringCellValue();
         value = value != null ? value.trim() : value;
         rec.setGroupNameString(value);
     }
-
 
     public static void setRecordDate(RecordEvent rec, Cell cell) {
         if (cell.getCellType() == CellType.NUMERIC) {
@@ -177,9 +184,9 @@ public class RecordEventSetters {
     }
 
     private static void parseDateOrYear(RecordEvent rec, String cellValue, String type) {
-    	if (cellValue != null && cellValue.isBlank()) {
-    		return;
-    	}
+        if (cellValue != null && cellValue.isBlank()) {
+            return;
+        }
         try {
             LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
             if (type.equals("birth")) {
