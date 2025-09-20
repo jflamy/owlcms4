@@ -27,6 +27,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -109,7 +111,7 @@ import ch.qos.logback.classic.Logger;
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
-@JsonPropertyOrder({ "id", "participations", "category" })
+@JsonPropertyOrder({ "id", "participations", "category", "ligibleForIndividualRanking", "individualEligibilityStatus" })
 public class Athlete {
 	@Transient
 	@JsonIgnore
@@ -386,6 +388,11 @@ public class Athlete {
 	private Double customScore;
 	@Column(columnDefinition = "boolean default true")
 	private boolean eligibleForIndividualRanking = true;
+
+	// New enum status indicating reason for ineligibility or null when eligible
+	@Column(name = "eligible_for_individual_ranking_status", columnDefinition = "varchar(64)")
+	@Enumerated(EnumType.STRING)
+	private EligibleForIndividualRankingStatus individualEligibilityStatus = null;
 	private boolean eligibleForTeamRanking = true;
 	private String federationCodes;
 	private String firstName = "";
@@ -3997,7 +4004,49 @@ public class Athlete {
 	}
 
 	public void setEligibleForIndividualRanking(boolean eligibleForIndividualRanking) {
+		// setter behavior
 		this.eligibleForIndividualRanking = eligibleForIndividualRanking;
+
+		// derived values
+		if (eligibleForIndividualRanking) {
+			// Explicitly mark as eligible: always set explicit enum to ELIGIBLE
+			this.individualEligibilityStatus = EligibleForIndividualRankingStatus.ELIGIBLE;
+			return;
+		} else {
+			// Setting to false:
+		   //if no explicit enum present (legacy DB), or previously marked as ELIGIBLE, set to OOC_INVITED;
+			if (this.individualEligibilityStatus == null || this.individualEligibilityStatus == EligibleForIndividualRankingStatus.ELIGIBLE) {
+				this.individualEligibilityStatus = EligibleForIndividualRankingStatus.OOC_INVITED;
+			} else {
+				// no-op, keep the explicit enum as-is
+			}
+		}
+
+	}
+
+	public EligibleForIndividualRankingStatus getIndividualEligibilityStatus() {
+		return this.individualEligibilityStatus;
+	}
+
+	/**
+	 * Return the effective participation status: if an explicit enum is set return it,
+	 * otherwise map the legacy boolean to ELIGIBLE / OOC_INVITED.
+	 */
+	public EligibleForIndividualRankingStatus getEffectiveIndividualEligibilityStatus() {
+		if (this.individualEligibilityStatus != null) {
+			return this.individualEligibilityStatus;
+		}
+		return this.eligibleForIndividualRanking ? EligibleForIndividualRankingStatus.ELIGIBLE
+				: EligibleForIndividualRankingStatus.OOC_INVITED;
+	}
+
+	public void setIndividualEligibilityStatus(EligibleForIndividualRankingStatus status) {
+		this.individualEligibilityStatus = status;
+		// If status is non-null, derive the boolean from the enum (ELIGIBLE -> true, others -> false).
+		// If status is null, leave the boolean unchanged to preserve legacy database semantics.
+		if (status != null) {
+			this.eligibleForIndividualRanking = (status == EligibleForIndividualRankingStatus.ELIGIBLE);
+		}
 	}
 
 	public void setEligibleForTeamRanking(boolean eligibleForTeamRanking) {
