@@ -245,6 +245,7 @@ public class ImageCommand extends AbstractCommand {
         picture.resize(scaleX.doubleValue(), scaleY.doubleValue());
     }
     
+    @SuppressWarnings("unused")
     private void applyCenteringOffset(ClientAnchor anchor, Dimension realDims, Dimension areaDims, double scaleX, double scaleY) {
         // Calculate what the scaled image size will be
         int scaledImageWidth = (int) Math.round(realDims.x() * scaleX);

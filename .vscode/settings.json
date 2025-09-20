@@ -6,7 +6,6 @@
         "**/.settings": true,
         "**/.factorypath": true
     },
-
     // Java performance and autobuild
     "java.autobuild.enabled": true,
     "java.autobuild.annotation.processing.enabled": false,
@@ -26,13 +25,11 @@
         ".vscode",
         ".idea"
     ],
-
     // Java editor and completion features
     "java.completion.enabled": true,
     "java.signatureHelp.enabled": true,
     "java.hover.enabled": true,
     "java.format.enabled": true,
-
     // Debug and terminal
     "debug.toolBarLocation": "docked",
     "debug.allowBreakpointsEverywhere": true,
@@ -40,17 +37,26 @@
     "terminal.integrated.profiles.windows": {
         "Git Bash (MSYS)": {
             "path": "C:\\Program Files\\Git\\bin\\bash.exe",
-            "args": ["--login", "-i"]
+            "args": [
+                "--login",
+                "-i"
+            ]
         }
     },
     "terminal.integrated.defaultProfile.windows": "Git Bash (MSYS)",
-
     // Maven optimization
     "maven.explorer.projectName": "${project.artifactId}",
     "maven.executable.path": "/opt/maven/bin/mvn",
-
     // Custom VM args (if needed for local dev)
     "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
     // Prevent Explorer from auto-revealing the currently active file and auto-unrolling
-    "explorer.autoReveal": false
+    "explorer.autoReveal": false,
+    "workbench.colorCustomizations": {
+        "terminal.foreground": "#FFFFFF",
+        "debugConsole.infoForeground": "#FFFFFF",
+        "debugConsole.warningForeground": "#FFFFFF",
+        "debugConsole.errorForeground": "#FFFFFF",
+        "terminal.ansiBlue": "#FFFFFF",
+        "terminal.ansiBrightBlue": "#FFFFFF"
+    }
 }
