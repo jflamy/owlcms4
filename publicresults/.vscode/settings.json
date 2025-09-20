@@ -3,4 +3,6 @@
     // Disable annotation processing to prevent VS Code from modifying .classpath files
     "java.annotation.processing.enabled": false,
     "java.autobuild.annotation.processing.enabled": false
+    ,
+    "terminal.integrated.scrollback": 100000
 }

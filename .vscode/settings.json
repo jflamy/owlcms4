@@ -37,6 +37,8 @@
     "debug.toolBarLocation": "docked",
     "debug.allowBreakpointsEverywhere": true,
     "terminal.integrated.defaultProfile.linux": "bash",
+    // Increase terminal scrollback buffer so console can be very long
+    "terminal.integrated.scrollback": 100000,
 
     // Maven optimization
     "maven.explorer.projectName": "${project.artifactId}",
