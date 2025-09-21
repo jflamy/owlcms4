@@ -33,13 +33,6 @@
     // Debug and terminal
     "debug.toolBarLocation": "docked",
     "debug.allowBreakpointsEverywhere": true,
-    "workbench.colorCustomizations": {
-        "terminal.foreground": "#FFFFFF",
-        "debugConsole.infoForeground": "#FFFFFF",
-        "debugConsole.warningForeground": "#FFFFFF",
-        "debugConsole.errorForeground": "#FFFFFF",
-        "terminal.ansiBlue": "#FFFFFF",
-        "terminal.ansiBrightBlue": "#FFFFFF"
-    },
+
     "editor.stickyScroll.enabled": false,
 }
