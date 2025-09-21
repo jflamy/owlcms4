@@ -33,6 +33,6 @@
     // Debug and terminal
     "debug.toolBarLocation": "docked",
     "debug.allowBreakpointsEverywhere": true,
-
     "editor.stickyScroll.enabled": false,
+    "workbench.tree.enableStickyScroll": false
 }
