@@ -118,7 +118,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		if (this.records == null) {
 			String groupName = this.group != null ? this.group.getName() : null;
 			this.setRecords(RecordRepository.findFiltered(null, null, null, groupName, !this.isAllRecords()));
-			logger.info("found {} records",getRecords().size());
+			logger.debug("found {} records",getRecords().size());
 
 			if (this.currentOnly) {
 				var recordMap = this.keepNewest();
@@ -129,7 +129,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 			}
 		} else {
 			// Records were pre-filtered, just ensure they're sorted
-			logger.info("using pre-filtered {} records", getRecords().size());
+			logger.debug("using pre-filtered {} records", getRecords().size());
 			this.getRecords().sort(sortRecords());
 		}
 

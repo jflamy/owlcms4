@@ -829,6 +829,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        startingXlsWriter.setGroup(null);
 			        startingXlsWriter.setPostProcessor(null);
 			        List<Athlete> athletesFindAll = athletesFindAll(true);
+					logger.warn("Checkin athletes: {}", athletesFindAll.size());
 			        startingXlsWriter.setSortedAthletes(athletesFindAll);
 			        return startingXlsWriter;
 		        });
