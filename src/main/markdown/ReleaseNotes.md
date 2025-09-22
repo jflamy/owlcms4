@@ -10,28 +10,21 @@
 
 <br>
 
-**New in Release 61.0**
+**New in Release 62.0**
 
-61.0.0: The Run Lifting Session / Button Testing page now shows connected MQTT devices (Blue-Owl, owlcms-firmata)
+62.0.0: Support of MQTT devices in cloud configurations using websockets (this is *not* needed for local network setups when owlcms runs on a laptop)
 
-61.0.0: When using a jury keypad with decision lights, and there is no deliberation or break going on, then the decision lights are reset by using the resume button.
+- The endpoint used in the URL is /mqtt
+  - if the frontend has secure TLS (port 443), the protocol should be wss:
+  - for local testing,  you can use normal http ports starting with 8 (80, 8080, etc.)
+- Any other port than 443 and those starting with 8 will be assumed to be normal MQTT
+- owlcms-firmata version 2.5.0 correctly selects the protocol depending on the port you indicate (indicate 443 for cloud, 1883 for typical local use)
 
-61.0.0: Excel pages with session information can now have the columns reordered or removed
+62.0.0: jx:image directive fixed for JXLS3 templates. Current limitations:
 
-- The column headers can be in English or in the current language, but cannot be renamed.
+- The cell containing the image should not be the first in the row.
 
-61.0.0: Updates for introductions and technical officials
-
-- Competition Doctor added as technical official role and to the introduction sheets
-- Added a button to print the Introduction sheet from the weigh-in entry page (the introduction sheet is much easier to read by the speaker than the protocol)
-- Added the reserve referee and reserve jury to the protocol sheets to the official document
-
-61.0.0: Fixes for glitches in clock restart (reset of decisions) and forced time (missing/delayed MQTT events)
-
-61.0.0: Technical Update to [Vaadin](https://vaadin.com/) version 24.8.7.   
-
-- The main changes are to the Upload and Download mechanisms.
-- Other dependencies were updated to match the expectations of Vaadin (netty, various commons packages)
+- The image should have the same proportions as the cell where it will be shown.  If doing accreditation forms, and using 5/7 image ratios, make the cell and images both have this 5/7 image ratio.
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 
