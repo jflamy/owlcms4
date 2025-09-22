@@ -11,7 +11,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
+ 
 
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +35,7 @@ import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.shared.Registration;
 
 import app.owlcms.servlet.StopProcessingException;
+ 
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -153,6 +159,44 @@ public class LazyDownloadButton extends Button {
 				newSingleThreadExecutor.execute(() -> {
 					try {
 						InputStream inputStream = getInputStreamCallback().createInputStream();
+						if (inputStream == null) {
+							logger.warn("InputStreamFactory returned null in download thread");
+							// Let the stream source / caller handle doneCallback and notifications.
+							throw new StopProcessingException("InputStreamFactory returned null",
+									new NullPointerException("InputStreamFactory returned null"));
+						}
+
+						// Probe the returned InputStream with a zero-length read and short timeout
+						// so that fast failures in the background Callable (e.g. validation errors)
+						// are propagated synchronously to this thread and the UI dialog can close.
+						ExecutorService probeExecutor = Executors.newSingleThreadExecutor();
+						Future<Integer> probe = probeExecutor.submit(() -> {
+							try {
+								byte[] zero = new byte[0];
+								return inputStream.read(zero, 0, 0);
+							} catch (Throwable t) {
+								// rethrow so ExecutionException has correct cause
+								throw t instanceof RuntimeException ? (RuntimeException) t : new RuntimeException(t);
+							} finally {
+							}
+						});
+						try {
+							probe.get(250, TimeUnit.MILLISECONDS);
+						} catch (TimeoutException te) {
+							// background still running — proceed normally
+						} catch (ExecutionException ee) {
+							Throwable cause = ee.getCause();
+							logger.warn("download probe failed: {}\n{}", cause == null ? ee.getMessage() : cause.getMessage(), app.owlcms.utils.LoggerUtils.stackTrace(cause == null ? ee : cause));
+							if (cause instanceof StopProcessingException) {
+								throw (StopProcessingException) cause;
+							}
+							if (cause == null) {
+								throw new RuntimeException(ee);
+							}
+							throw new RuntimeException(cause);
+						} finally {
+							probeExecutor.shutdownNow();
+						}
 						optionalUI.ifPresent(ui -> ui.access(() -> {
 							if (this.notification != null) {
 								this.notification.open();
@@ -172,7 +216,9 @@ public class LazyDownloadButton extends Button {
 							this.anchor.getElement().callJsFunction("click");
 						}));
 					} catch (Exception e) {
-						if (!(e instanceof StopProcessingException)) {
+						logger.warn("caught exception in download thread: {}\n{}", e.getMessage(), app.owlcms.utils.LoggerUtils.stackTrace(e));
+						Throwable cause = e.getCause();
+						if (!(e instanceof StopProcessingException || (cause != null && cause instanceof StopProcessingException))) {
 							throw new RuntimeException(e);
 						}
 					}
