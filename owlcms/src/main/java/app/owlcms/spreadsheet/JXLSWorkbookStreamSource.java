@@ -15,6 +15,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.FilterInputStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+// removed TimeUnit and TimeoutException imports; no short probe wait is used
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -29,7 +37,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.usermodel.HeaderFooter;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -45,9 +52,6 @@ import org.jxls.transform.poi.JxlsPoi;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResourceWriter;
 import com.vaadin.flow.server.VaadinSession;
@@ -64,6 +68,7 @@ import app.owlcms.data.records.RecordEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.servlet.StopProcessingException;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.LocalResource;
 import app.owlcms.utils.LoggerUtils;
@@ -93,25 +98,24 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public static Ranking getBestLifterRankingThreadLocal() {
 		Ranking blss = bestLifterRankingSystem.get();
-//		if (blss == null) {
-//			blss = Competition.getCurrent().getScoringSystem();
-//		}
+		// if (blss == null) {
+		// blss = Competition.getCurrent().getScoringSystem();
+		// }
 		return blss;
 	}
 
 	public static void setBestLifterRankingThreadLocal(Ranking bestLifterRankingValue) {
 		bestLifterRankingSystem.set(bestLifterRankingValue);
 	}
-	
+
 	protected static void setNoInterimScoresInResults(boolean noInterimScoresInResultsP) {
 		noInterimScoresInResults.set(noInterimScoresInResultsP);
 	}
-	
+
 	public static boolean isNoInterimScoresInResults() {
 		Boolean blss = noInterimScoresInResults.get();
 		return Boolean.TRUE.equals(blss);
 	}
-
 
 	protected List<Athlete> sortedAthletes;
 	private Championship championship;
@@ -122,6 +126,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	protected InputStream inputStream;
 	private HashMap<String, Object> reportingBeans;
 	private String templateFileName;
+	@SuppressWarnings("unused")
 	private UI ui;
 	private Consumer<String> doneCallback;
 	private String fileExtension;
@@ -151,7 +156,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			logger.debug("*** getting {}", getBestLifterScoringSystem());
 			writeStream(stream);
 		} catch (Throwable t) {
-			logger.error(LoggerUtils./**/stackTrace(t));
+			LoggerUtils.logError(logger, t);
+			logger.error("writeStream failed: {}", LoggerUtils.stackTrace(t));
 		} finally {
 			session.unlock();
 		}
@@ -159,22 +165,205 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	@Override
 	public InputStream createInputStream() {
+		logger.warn("============== createInputStream called");
+		// contextTrace intentionally omitted; validation happens synchronously now
+
+		// Synchronous validation: detect errors (e.g. NoAthletes or TooManyAthletes)
+		// before starting background streaming so we can stop the download immediately
+		// and let the caller's error handling (which calls doneCallback) run once.
+		try {
+			setReportingInfo();
+			@SuppressWarnings("unchecked")
+			List<Athlete> athletes = (List<Athlete>) getReportingBeans().get("athletes");
+			int size = athletes != null ? athletes.size() : 0;
+			if (!(size == 0 ? isEmptyOk() : isSizeOk(size))) {
+				if (athletes == null || athletes.size() == 0) {
+					String localized = Translator.translate("NoAthletes");
+					throw new StopProcessingException("NoAthletes", new RuntimeException(localized));
+				} else {
+					String localized = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
+					throw new StopProcessingException("TooManyAthletes", new RuntimeException(localized));
+				}
+			}
+		} catch (StopProcessingException ex) {
+			throw ex;
+		} catch (RuntimeException ex) {
+			// Propagate validation runtime exceptions to caller; caller handles doneCallback/notification
+			throw ex;
+		} catch (Throwable t) {
+			// Any unexpected problem during validation: wrap and propagate
+			throw new RuntimeException(t);
+		}
 		try {
 			PipedInputStream in = new PipedInputStream();
 			PipedOutputStream out = new PipedOutputStream(in);
-			new Thread(
-			        new Runnable() {
-				        @Override
-				        public void run() {
-					        try {
-						        writeStream(out);
-						        out.close();
-					        } catch (IOException e) {
-						        throw new RuntimeException(e);
-					        }
-				        }
-			        }).start();
-			return in;
+
+			ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+				Thread t = new Thread(r);
+				t.setDaemon(true);
+				return t;
+			});
+
+			Callable<Void> task = () -> {
+				try {
+					try {
+						writeStream(out);
+					} finally {
+						try {
+							out.close();
+						} catch (IOException ignore) {
+						}
+					}
+					return null;
+				} catch (Throwable t) {
+					// initial detection of background failure
+					try {
+						if (this.doneCallback != null) {
+							try {
+								// final info before invoking callback
+								this.doneCallback.accept(LoggerUtils.exceptionMessage(t));
+							} catch (Throwable cb) {
+								// swallow callback failure
+							}
+						}
+					} catch (Throwable ignore) {
+					}
+					if (t instanceof IOException) {
+						throw (IOException) t;
+					}
+					if (t instanceof RuntimeException) {
+						throw (RuntimeException) t;
+					}
+					throw new IOException(t);
+				}
+			};
+
+			final Future<Void> future = executor.submit(task);
+
+			// Background task runs asynchronously; any exceptions will be propagated
+			// to readers via the FilterInputStream.checkFuture() and close() handlers.
+
+			InputStream wrapped = new FilterInputStream(in) {
+				private boolean closed = false;
+
+				private void checkFuture() throws IOException {
+					if (future.isDone()) {
+						try {
+							future.get();
+						} catch (ExecutionException ee) {
+							Throwable cause = ee.getCause();
+							try {
+								if (JXLSWorkbookStreamSource.this.doneCallback != null) {
+									try {
+										JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(cause));
+									} catch (Throwable cb) {
+										// swallow callback failure
+									}
+								}
+							} catch (Throwable ignore) {
+							}
+							if (cause instanceof StopProcessingException) {
+								throw (StopProcessingException) cause;
+							}
+							if (cause instanceof IOException) {
+								throw (IOException) cause;
+							} else {
+								throw new IOException(cause);
+							}
+						} catch (InterruptedException ie) {
+							Thread.currentThread().interrupt();
+							try {
+								if (JXLSWorkbookStreamSource.this.doneCallback != null) {
+									try {
+										JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(ie));
+									} catch (Throwable cb) {
+										// swallow callback failure
+									}
+								}
+							} catch (Throwable ignore) {
+							}
+							throw new IOException(ie);
+						}
+					}
+				}
+
+				@Override
+				public int read() throws IOException {
+					checkFuture();
+					int r = super.read();
+					if (r == -1) {
+						checkFuture();
+					}
+					return r;
+				}
+
+				@Override
+				public int read(byte[] b, int off, int len) throws IOException {
+					checkFuture();
+					int r = super.read(b, off, len);
+					if (r == -1) {
+						checkFuture();
+					}
+					return r;
+				}
+
+				@Override
+				public void close() throws IOException {
+					if (closed) {
+						return;
+					}
+					closed = true;
+					try {
+						super.close();
+					} finally {
+						try {
+							if (future.isDone()) {
+								future.get();
+							} else {
+								// not finished yet - cancel the task
+								future.cancel(true);
+							}
+						} catch (ExecutionException ee) {
+							Throwable cause = ee.getCause();
+							try {
+								if (JXLSWorkbookStreamSource.this.doneCallback != null) {
+									try {
+										JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(cause));
+									} catch (Throwable cb) {
+										// swallow callback failure
+									}
+								}
+							} catch (Throwable ignore) {
+							}
+							if (cause instanceof StopProcessingException) {
+								throw (StopProcessingException) cause;
+							}
+							if (cause instanceof IOException) {
+								throw (IOException) cause;
+							} else {
+								throw new IOException(cause);
+							}
+						} catch (InterruptedException ie) {
+							Thread.currentThread().interrupt();
+							try {
+								if (JXLSWorkbookStreamSource.this.doneCallback != null) {
+									try {
+										JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(ie));
+									} catch (Throwable cb) {
+										// swallow callback failure
+									}
+								}
+							} catch (Throwable ignore) {
+							}
+							throw new IOException(ie);
+						} finally {
+							executor.shutdownNow();
+						}
+					}
+				}
+			};
+
+			return wrapped;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -435,8 +624,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				jxls1Transform(stream, workbook);
 			}
 		} catch (Exception e) {
-			LoggerUtils.logError(logger, e);
-			return;
+			// propagate to callable
+			throw new IOException(e);
 		} finally {
 			if (tempFile != null) {
 				tempFile.delete();
@@ -563,12 +752,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		getReportingBeans().put("t", Translator.getMap());
 		getReportingBeans().put("tf", new JXLSFormatter());
 		getReportingBeans().put("competition", competition);
-		getReportingBeans().put("session", getGroup()); 
+		getReportingBeans().put("session", getGroup());
 		getReportingBeans().put("group", getGroup());// legacy
 		getReportingBeans().put("platforms", PlatformRepository.findAll());
-					
-		getReportingBeans().put("local", LocalResource.class);
 
+		getReportingBeans().put("local", LocalResource.class);
 
 		// reuse existing logic for processing records
 		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null, false, false);
@@ -588,17 +776,18 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		List<Group> sessions = GroupRepository.findAll().stream().sorted(Group.groupWeighinTimeComparator)
 		        .collect(Collectors.toList());
 
-//		Ranking overallScoringSystem = this.getBestLifterScoringSystem();
-//		overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
+		// Ranking overallScoringSystem = this.getBestLifterScoringSystem();
+		// overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
 		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 
 		// make available to the Athlete class in this Thread (and subThreads).
-		this.reportingBeans.put("bestRankingTitle", overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete"));
+		this.reportingBeans.put("bestRankingTitle",
+		        overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete"));
 
 		getReportingBeans().put("groups", sessions);
 		getReportingBeans().put("sessions", sessions);
 	}
-	
+
 	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
 		boolean jxls3 = false;
 		Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
@@ -641,23 +830,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 					postProcess(workbook);
 				}
 				logger.debug("after postprocess");
-			} else {
-				String noAthletes = Translator.translate("NoAthletes");
-				logger./**/warn("no athletes: empty report.");
-				if (this.ui != null) {
-					this.ui.access(() -> {
-						Notification notif = new Notification();
-						notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-						notif.setPosition(Position.TOP_STRETCH);
-						notif.setDuration(3000);
-						notif.setText(noAthletes);
-						notif.open();
-					});
+				} else {
+					String localized = Translator.translate("NoAthletes");
+					logger.warn("no athletes: empty report.");
+					// treat as a validation failure -> stop processing and let caller handle the error
+					throw new StopProcessingException("NoAthletes", new RuntimeException(localized));
 				}
-				workbook = new HSSFWorkbook();
-				workbook.createSheet().createRow(1).createCell(1).setCellValue(noAthletes);
-				workbook.getCreationHelper().createFormulaEvaluator().evaluateAll();
-			}
 		} catch (Throwable t) {
 			LoggerUtils.logError(logger, t);
 		}
@@ -699,26 +877,20 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 					logger.info("postProcessing done: {}ms", System.currentTimeMillis() - start);
 				}
 			} else {
-				String message;
 				if (athletes == null || athletes.size() == 0) {
-					message = Translator.translate("NoAthletes");
+					String localized = Translator.translate("NoAthletes");
 					logger./**/warn("no athletes: empty report.");
+					throw new StopProcessingException("NoAthletes", new RuntimeException(localized));
 				} else {
-					message = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
+					String localized = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
 					logger./**/warn("too many athletes : no report");
+					// let caller handle the notification and error propagation
+					throw new StopProcessingException("TooManyAthletes", new RuntimeException(localized));
 				}
-				this.ui.access(() -> {
-					Notification notif = new Notification();
-					notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
-					notif.setPosition(Position.TOP_STRETCH);
-					notif.setDuration(3000);
-					notif.setText(message);
-					notif.open();
-				});
-				throw new RuntimeException(message);
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
 			LoggerUtils.logError(logger, e);
+			throw new RuntimeException(e);
 		} finally {
 			if (tempFile != null) {
 				tempFile.delete();
@@ -736,6 +908,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			}
 			logger.debug("wrote stream3");
 		}
+	}
+
+	public void setUi(UI current) {
+		this.ui = current;
 	}
 
 }
