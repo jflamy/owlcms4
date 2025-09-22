@@ -113,6 +113,8 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/documents", layout = OwlcmsLayout.class)
 public class DocumentsContent extends BaseContent implements CrudListener<Group>, OwlcmsContent {
 
+	private static final String DIALOG_WIDTH = "50em";
+
 	private record KitElement(String id, String name, String extension, Path isp, int count,
 	        BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
 	}
@@ -378,80 +380,35 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private Div createBodyweightButton() {
-		UI ui = UI.getCurrent();
-		PreCompetitionTemplates templateDefinition = PreCompetitionTemplates.BY_BODYWEIGHT;
-		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        Dialog dialog = new Dialog();
-			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
-			        dialog.getFooter().add(createDoItButton(
-			                templateDefinition,
-			                () -> prepareBodyweight(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close()), dialog));
-			        dialog.open();
-		        });
-		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
-		return new Div(openDialog);
+		return createTemplateDownloadButton(
+		        PreCompetitionTemplates.BY_BODYWEIGHT,
+		        null,
+		        () -> prepareBodyweight(PreCompetitionTemplates.BY_BODYWEIGHT, getSortedSelection(), (ex, m) -> notifyError(ex, UI.getCurrent(), m)),
+		        false);
 	}
 
 	private Div createCardsButton() {
-		UI ui = UI.getCurrent();
-		PreCompetitionTemplates templateDefinition = PreCompetitionTemplates.CARDS;
-		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        checkReasonableSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-			        Dialog dialog = new Dialog();
-			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
-			        dialog.getFooter().add(createDoItButton(
-			                templateDefinition,
-			                () -> prepareCards(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close()), dialog));
-			        dialog.open();
-		        });
-		openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
-		return new Div(openDialog);
+		return createTemplateDownloadButton(
+		        PreCompetitionTemplates.CARDS,
+		        () -> checkReasonableSelection(getSortedSelection(), (ex, m) -> notifyError(ex, UI.getCurrent(), m)),
+		        () -> prepareCards(PreCompetitionTemplates.CARDS, getSortedSelection(), (ex, m) -> notifyError(ex, UI.getCurrent(), m)),
+		        true);
 	}
 
 	private Div createCategoriesButton() {
-		UI ui = UI.getCurrent();
-		PreCompetitionTemplates templateDefinition = PreCompetitionTemplates.BY_CATEGORY;
-		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        Dialog dialog = new Dialog();
-			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
-			        dialog.getFooter().add(createDoItButton(
-			                templateDefinition,
-			                () -> prepareCategories(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close()), dialog));
-			        dialog.open();
-		        });
-		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
-		return new Div(openDialog);
+		return createTemplateDownloadButton(
+		        PreCompetitionTemplates.BY_CATEGORY,
+		        null,
+		        () -> prepareCategories(PreCompetitionTemplates.BY_CATEGORY, getSortedSelection(), (ex, m) -> notifyError(ex, UI.getCurrent(), m)),
+		        false);
 	}
 
 	private Div createCheckinButton() {
-		UI ui = UI.getCurrent();
-		PreCompetitionTemplates templateDefinition = PreCompetitionTemplates.CHECKIN;
-		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        Dialog dialog = new Dialog();
-			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
-			        dialog.getFooter().add(createDoItButton(
-			                templateDefinition,
-			                () -> prepareCheckin(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),
-			                ev -> ui.access(() -> dialog.close()), dialog));
-			        dialog.open();
-		        });
-		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
-		return new Div(openDialog);
+		return createTemplateDownloadButton(
+		        PreCompetitionTemplates.CHECKIN,
+		        null,
+		        () -> prepareCheckin(PreCompetitionTemplates.CHECKIN, getSortedSelection(), (ex, m) -> notifyError(ex, UI.getCurrent(), m)),
+		        false);
 	}
 
 	private Div createDoItButton(PreCompetitionTemplates template, Supplier<List<KitElement>> elementSupplier, Consumer<String> doneCallback, Dialog dialog) {
@@ -459,55 +416,82 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		UI ui = UI.getCurrent();
 		ui.setLocale(OwlcmsSession.getLocale());
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
-				() -> stripSuffix(template.templateFileNameSupplier.get()),
-				Translator.translate(template.name()),
-				() -> {
-					List<KitElement> elements = elementSupplier.get();
-					feedback(dialog, ui);
+		        () -> stripSuffix(template.templateFileNameSupplier.get()),
+		        Translator.translate(template.name()),
+		        () -> {
+			        List<KitElement> elements = elementSupplier.get();
+			        feedback(dialog, ui);
 
-					Consumer<String> wrappedDone = s -> {
-						if (s == null || s.isEmpty()) {
-							ui.access(() -> dialog.close());
-							return;
-						}
-						ui.access(() -> {
-							// Remove any existing processing/error paragraph with the canonical id, then add a single error paragraph
-							java.util.Optional<Paragraph> existing = dialog.getChildren()
-									.filter(c -> c instanceof Paragraph)
-									.map(c -> (Paragraph) c)
-									.filter(p -> "documents-processing".equals(p.getId().orElse(null)))
-									.findFirst();
-							if (existing.isPresent()) {
-								Paragraph p = existing.get();
-								p.setText(s);
-								p.getStyle().set("color", "var(--lumo-error-text-color)");
-								p.getStyle().set("font-weight", "bold");
-								p.getStyle().set("text-align", "center");
-								p.getStyle().set("font-size", "large");
-							} else {
-								Paragraph err = new Paragraph(s);
-								err.setId("documents-processing");
-								err.getStyle().set("color", "var(--lumo-error-text-color)");
-								err.getStyle().set("font-weight", "bold");
-								err.getStyle().set("text-align", "center");
-								err.getStyle().set("font-size", "large");
-								dialog.add(err);
-							}
-						});
-					};
+			        Consumer<String> wrappedDone = s -> {
+				        if (s == null || s.isEmpty()) {
+					        ui.access(() -> dialog.close());
+					        return;
+				        }
+				        ui.access(() -> {
+					        // Remove any existing processing/error paragraph with the canonical id, then add a single error paragraph
+					        java.util.Optional<Paragraph> existing = dialog.getChildren()
+					                .filter(c -> c instanceof Paragraph)
+					                .map(c -> (Paragraph) c)
+					                .filter(p -> "documents-processing".equals(p.getId().orElse(null)))
+					                .findFirst();
+					        if (existing.isPresent()) {
+						        Paragraph p = existing.get();
+						        p.setText(s);
+						        p.getStyle().set("color", "var(--lumo-error-text-color)");
+						        p.getStyle().set("font-weight", "bold");
+						        p.getStyle().set("text-align", "center");
+						        p.getStyle().set("font-size", "large");
+					        } else {
+						        Paragraph err = new Paragraph(s);
+						        err.setId("documents-processing");
+						        err.getStyle().set("color", "var(--lumo-error-text-color)");
+						        err.getStyle().set("font-weight", "bold");
+						        err.getStyle().set("text-align", "center");
+						        err.getStyle().set("font-size", "large");
+						        dialog.add(err);
+					        }
+				        });
+			        };
 
-					// Let any exceptions propagate so the LazyDownloadButton can handle them
-					return zipOrExcelInputStream(ui, elements, wrappedDone);
-				},
-				() -> {
-					String extension = FilenameUtils.getExtension(template.templateFileNameSupplier.get());
-					return (getSortedSelection().size() > 1 ? ".zip" : "." + extension);
-				});
+			        // Let any exceptions propagate so the LazyDownloadButton can handle them
+			        return zipOrExcelInputStream(ui, elements, wrappedDone);
+		        },
+		        () -> {
+			        String extension = FilenameUtils.getExtension(template.templateFileNameSupplier.get());
+			        return (getSortedSelection().size() > 1 ? ".zip" : "." + extension);
+		        });
 		Button b = (Button) localDirZipDiv.getChildren().findFirst().get();
 		b.focus();
 		b.addClickListener(e -> b.setEnabled(false));
 		b.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		return localDirZipDiv;
+	}
+
+	private Div createTemplateDownloadButton(PreCompetitionTemplates templateDefinition,
+	        Runnable preAction,
+	        Supplier<List<KitElement>> elementSupplier,
+	        boolean primary) {
+		UI ui = UI.getCurrent();
+		Button openDialog = new Button(
+		        Translator.translate(templateDefinition.name()),
+		        VaadinIcon.DOWNLOAD_ALT.create(),
+		        (e) -> {
+			        if (preAction != null) {
+				        preAction.run();
+			        }
+			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
+			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
+			        dialog.getFooter().add(createDoItButton(
+			                templateDefinition,
+			                elementSupplier,
+			                ev -> ui.access(() -> dialog.close()), dialog));
+			        dialog.open();
+		        });
+		if (primary) {
+			openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+		}
+		return new Div(openDialog);
 	}
 
 	private Div createEmptyProtocolButton() {
@@ -519,6 +503,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        (e) -> {
 			        checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
@@ -538,6 +523,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
@@ -598,6 +584,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        (e) -> {
 			        checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
@@ -618,6 +605,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        (e) -> {
 			        checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
@@ -638,6 +626,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        (e) -> {
 			        checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
@@ -656,6 +645,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        (e) -> {
 			        checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().postWeighInTemplateSelectionForm(dialog));
 			        dialog.getFooter().add(createPostWeighInButtonDoIt(dialog, ev -> ui.access(() -> dialog.close())));
 			        dialog.open();
@@ -686,6 +676,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        (e) -> {
 			        checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().preWeighInTemplateSelectionForm(dialog));
 			        dialog.getFooter().add(createPreWeighInButtonDoIt(dialog, ev -> ui.access(() -> dialog.close())));
 			        dialog.open();
@@ -724,6 +715,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
@@ -743,6 +735,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
@@ -763,6 +756,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        (e) -> {
 			        checkNoSelection(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
 			        Dialog dialog = new Dialog();
+			        dialog.setWidth(DIALOG_WIDTH);
 			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
 			        dialog.getFooter().add(createDoItButton(
 			                templateDefinition,
@@ -829,7 +823,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        startingXlsWriter.setGroup(null);
 			        startingXlsWriter.setPostProcessor(null);
 			        List<Athlete> athletesFindAll = athletesFindAll(true);
-					logger.warn("Checkin athletes: {}", athletesFindAll.size());
+			        logger.warn("Checkin athletes: {}", athletesFindAll.size());
 			        startingXlsWriter.setSortedAthletes(athletesFindAll);
 			        return startingXlsWriter;
 		        });
@@ -1070,7 +1064,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private InputStream excelToInputStream(List<Group> selectedSessions,
-			List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<String> doneCallback, UI ui) {
+	        List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<String> doneCallback, UI ui) {
 		try {
 			return excelKitElement(selectedSessions, elements, ui, doneCallback);
 		} catch (Exception e) {
