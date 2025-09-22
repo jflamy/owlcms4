@@ -360,7 +360,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private void checkNoSelection(List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
 		if (selectedItems == null || selectedItems.size() == 0) {
-			Exception e = new Exception("NoAthletes");
+			Exception e = new Exception("NoSession");
 			errorProcessor.accept(e, e.getMessage());
 			throw new StopProcessingException(e.getMessage(), e);
 		}
@@ -459,17 +459,50 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		UI ui = UI.getCurrent();
 		ui.setLocale(OwlcmsSession.getLocale());
 		localDirZipDiv = DownloadButtonFactory.createDynamicDownloadButton(
-		        () -> stripSuffix(template.templateFileNameSupplier.get()),
-		        Translator.translate(template.name()),
-		        () -> {
-			        List<KitElement> elements = elementSupplier.get();
-			        feedback(dialog, ui);
-			        return zipOrExcelInputStream(ui, elements, doneCallback);
-		        },
-		        () -> {
+				() -> stripSuffix(template.templateFileNameSupplier.get()),
+				Translator.translate(template.name()),
+				() -> {
+					List<KitElement> elements = elementSupplier.get();
+					feedback(dialog, ui);
+
+					Consumer<String> wrappedDone = s -> {
+						if (s == null || s.isEmpty()) {
+							ui.access(() -> dialog.close());
+							return;
+						}
+						ui.access(() -> {
+							// Remove any existing processing/error paragraph with the canonical id, then add a single error paragraph
+							java.util.Optional<Paragraph> existing = dialog.getChildren()
+									.filter(c -> c instanceof Paragraph)
+									.map(c -> (Paragraph) c)
+									.filter(p -> "documents-processing".equals(p.getId().orElse(null)))
+									.findFirst();
+							if (existing.isPresent()) {
+								Paragraph p = existing.get();
+								p.setText(s);
+								p.getStyle().set("color", "var(--lumo-error-text-color)");
+								p.getStyle().set("font-weight", "bold");
+								p.getStyle().set("text-align", "center");
+								p.getStyle().set("font-size", "large");
+							} else {
+								Paragraph err = new Paragraph(s);
+								err.setId("documents-processing");
+								err.getStyle().set("color", "var(--lumo-error-text-color)");
+								err.getStyle().set("font-weight", "bold");
+								err.getStyle().set("text-align", "center");
+								err.getStyle().set("font-size", "large");
+								dialog.add(err);
+							}
+						});
+					};
+
+					// Let any exceptions propagate so the LazyDownloadButton can handle them
+					return zipOrExcelInputStream(ui, elements, wrappedDone);
+				},
+				() -> {
 					String extension = FilenameUtils.getExtension(template.templateFileNameSupplier.get());
-			        return (getSortedSelection().size() > 1 ? ".zip" : "." + extension);
-		        });
+					return (getSortedSelection().size() > 1 ? ".zip" : "." + extension);
+				});
 		Button b = (Button) localDirZipDiv.getChildren().findFirst().get();
 		b.focus();
 		b.addClickListener(e -> b.setEnabled(false));
@@ -974,6 +1007,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 		// writerFactory can apply custom sorting order to the athletes
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.apply(athletes, g);
+		xlsWriter.setUi(ui);
 		if (xlsWriter.getSortedAthletes() == null) {
 			// writerFactory did not set them explicitly, set default
 			xlsWriter.setSortedAthletes(athletes);
@@ -990,7 +1024,17 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		if (doneCallback == null) {
 			Notification n = new Notification(Translator.translate("Documents.ProcessingExcel"));
 			xlsWriter.setDoneCallback((s) -> ui.access(() -> {
-				n.close();
+				if (s == null || s.isEmpty()) {
+					// success: close processing notification
+					n.close();
+				} else {
+					// error: update the existing processing notification to show the error in red and keep it open
+					n.setText(s);
+					n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					n.setPosition(Position.TOP_STRETCH);
+					n.setDuration(0); // keep open until user dismisses
+					n.open();
+				}
 			}));
 			n.setPosition(Position.TOP_END);
 			ui.access(() -> {
@@ -999,28 +1043,50 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		} else {
 			xlsWriter.setDoneCallback(doneCallback);
 		}
-		InputStream in = xlsWriter.createInputStream();
-		return in;
+		InputStream in;
+		try {
+			xlsWriter.setUi(ui);
+			logger.warn("======= Creating download for template: {}", elem.name);
+			// if an exception happens here, it is caught in the caller, it needs to close the dialog.
+			in = xlsWriter.createInputStream();
+			return in;
+		} catch (Exception e) {
+			logger.warn("======= Exception creating download for template: {}", elem.name);
+			LoggerUtils.logError(logger, e, true);
+			// ensure the dialog (or processing indicator) is closed via the provided callback
+			try {
+				if (doneCallback != null) {
+					logger.info("Invoking doneCallback to close dialog from DocumentsContent.excelKitElement catch: {}", LoggerUtils.stackTrace());
+					doneCallback.accept(LoggerUtils.exceptionMessage(e));
+				}
+			} catch (Throwable cb) {
+				LoggerUtils.logError(logger, cb, true);
+			}
+			throw e;
+		}
+
 	}
 
 	private InputStream excelToInputStream(List<Group> selectedSessions,
-	        List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<String> doneCallback, UI ui) {
+			List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<String> doneCallback, UI ui) {
 		try {
 			return excelKitElement(selectedSessions, elements, ui, doneCallback);
-		} catch (Throwable e) {
-			errorProcessor.accept(e, e.getMessage());
+		} catch (Exception e) {
+			// propagate as StopProcessingException so caller can handle and notify once
 			throw new StopProcessingException(e.getMessage(), e);
 		}
 	}
 
 	private void feedback(Dialog dialog, UI ui) {
-		boolean zipping = getSortedSelection().size() > 1;
-		// we set the locale in the ui before calling, since there is no session available in the thread at this point.
-		Paragraph processing = new Paragraph(Translator.translateExplicitLocale(zipping ? "LongProcessing" : "Processing", ui.getLocale()));
-		processing.getStyle().set("text-align", "center");
-		processing.getStyle().set("font-size", "large");
-		processing.getStyle().set("font-weight", "bold");
-		ui.access(() -> dialog.add(processing));
+		ui.access(() -> {
+			boolean zipping = getSortedSelection().size() > 1;
+			Paragraph processing = new Paragraph(Translator.translateExplicitLocale(zipping ? "LongProcessing" : "Processing", ui.getLocale()));
+			processing.setId("documents-processing");
+			processing.getStyle().set("text-align", "center");
+			processing.getStyle().set("font-size", "large");
+			processing.getStyle().set("font-weight", "bold");
+			dialog.add(processing);
+		});
 	}
 
 	private List<Athlete> filterAthletes(List<Athlete> athletes) {
@@ -1417,6 +1483,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements, Consumer<String> doneCallback) {
 		InputStream z;
+		logger.warn("Generating {} for {} sessions", elements.size() > 1 ? "zip" : "excel", getSortedSelection().size());
 		if (getSortedSelection().size() > 1 || elements.size() > 1) {
 			z = zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), doneCallback, ui);
 		} else {

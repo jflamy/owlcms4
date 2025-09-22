@@ -83,6 +83,7 @@ public class DownloadButtonFactory {
 
 	public static Div createDynamicJXLSDownloadButton(String fileNamePrefix, String buttonLabel, JXLSWorkbookStreamSource xlsSource,
 	        Notification notification) {
+		xlsSource.setUi(UI.getCurrent());
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        buttonLabel,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
