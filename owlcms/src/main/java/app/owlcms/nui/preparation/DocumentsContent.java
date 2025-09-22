@@ -974,6 +974,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private void doNotification(String text) {
 		this.getUI().get().access(() -> {
+			logger.warn("DocumentsContent: showing error notification -> {}\n{}", text, LoggerUtils.stackTrace());
 			Notification notif = new Notification();
 			notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			notif.setPosition(Position.TOP_STRETCH);
@@ -1419,15 +1420,26 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			zipOut = new ZipOutputStream(os);
 			doPrintScript(zipOut);
 
+			boolean anyNonEmpty = false;
 			for (Group g : selectedItems) {
 				// get current version of athletes.
 				List<Athlete> athletes = groupAthletes(g, true);
+				if (athletes == null || athletes.isEmpty()) {
+					// skip empty session
+					continue;
+				}
+				anyNonEmpty = true;
 
 				for (KitElement elem : elements) {
 					String seq = String.format("%02d", i);
 					doKitElement(elem, seq, zipOut, g, athletes);
 					i++;
 				}
+			}
+
+			if (!anyNonEmpty) {
+				Exception e = new Exception("NoSession");
+				throw new StopProcessingException(e.getMessage(), e);
 			}
 			return zipOut;
 		} finally {
