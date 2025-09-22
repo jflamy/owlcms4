@@ -12,6 +12,9 @@
 
 **New in Release 61.0**
 
+61.0.0: Cleaner processing of errors on the Documents preparation page.  Errors that take place while processing
+the document are now shown in the dialog box. 
+
 61.0.0: Fix: the athlete registration/weigh-in editing form recomputed the eligibility categories when opened on an athlete with no body weight.  This was wrongly ignoring the categories previously given in the registration Excel.
 
 61.0.0: Fix: Excessive validation in the record Excel files meant that the usual convention of using 999 for the upper limit of superheavyweights did not work (record files expected the >110 or +110 format instead). For backward compatibility, any number over 199 will now be accepted and treated as superheavy; the output format will compensate as well.
