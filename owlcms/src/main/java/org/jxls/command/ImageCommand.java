@@ -25,8 +25,12 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 /**
- * <p>Implements image rendering</p>
- * <p>Image is specified by providing image bytes and type.</p>
+ * <p>
+ * Implements image rendering
+ * </p>
+ * <p>
+ * Image is specified by providing image bytes and type.
+ * </p>
  * 
  * @author Leonid Vysochyn
  */
@@ -43,9 +47,8 @@ public class ImageCommand extends AbstractCommand {
      * <p>
      * Resize the image.
      * <p>
-     * Please note, that this method works correctly only for workbooks
-     * with the default font size (Arial 10pt for .xls and Calibri 11pt for .xlsx).
-     * If the default font is changed the resized image can be streched vertically or horizontally.
+     * Please note, that this method works correctly only for workbooks with the default font size (Arial 10pt for .xls and Calibri 11pt for .xlsx). If the
+     * default font is changed the resized image can be streched vertically or horizontally.
      * </p>
      * <p>
      * <code>resize(1.0,1.0)</code> keeps the original size,<br>
@@ -62,7 +65,8 @@ public class ImageCommand extends AbstractCommand {
 
     /**
      * Creates the command from an image in the context
-     * @param image name of the context attribute with the image bytes
+     * 
+     * @param image     name of the context attribute with the image bytes
      * @param imageType type of the image
      */
     public ImageCommand(String image, ImageType imageType) {
@@ -72,8 +76,9 @@ public class ImageCommand extends AbstractCommand {
 
     /**
      * Creates the command from the image bytes
+     * 
      * @param imageBytes the image byte array
-     * @param imageType the type of the image to render (e.g. PNG, JPEG etc)
+     * @param imageType  the type of the image to render (e.g. PNG, JPEG etc)
      */
     public ImageCommand(byte[] imageBytes, ImageType imageType) {
         this.imageBytes = imageBytes;
@@ -169,7 +174,7 @@ public class ImageCommand extends AbstractCommand {
         addImage(((PoiTransformer) getTransformer()).getWorkbook(), imageAnchorArea, imgBytes, imageType, scaleX, scaleY);
         return area.getSize();
     }
-    
+
     private void addImage(Workbook workbook, AreaRef areaRef, byte[] imageBytes, ImageType imageType, Double scaleX, Double scaleY) {
         if (imageBytes == null || imageBytes.length == 0) {
             logger.warn("No image bytes to add for area " + areaRef);
@@ -185,25 +190,25 @@ public class ImageCommand extends AbstractCommand {
             throw new IllegalArgumentException("imageType must not be null");
         }
         switch (imageType) {
-        case PNG:
-            return Workbook.PICTURE_TYPE_PNG;
-        case JPEG:
-            return Workbook.PICTURE_TYPE_JPEG;
-        case EMF:
-            return Workbook.PICTURE_TYPE_EMF;
-        case WMF:
-            return Workbook.PICTURE_TYPE_WMF;
-        case DIB:
-            return Workbook.PICTURE_TYPE_DIB;
-        case PICT:
-            return Workbook.PICTURE_TYPE_PICT;
-        default:
-            return -1;
+            case PNG:
+                return Workbook.PICTURE_TYPE_PNG;
+            case JPEG:
+                return Workbook.PICTURE_TYPE_JPEG;
+            case EMF:
+                return Workbook.PICTURE_TYPE_EMF;
+            case WMF:
+                return Workbook.PICTURE_TYPE_WMF;
+            case DIB:
+                return Workbook.PICTURE_TYPE_DIB;
+            case PICT:
+                return Workbook.PICTURE_TYPE_PICT;
+            default:
+                return -1;
         }
     }
 
     private void addImage(Workbook workbook, AreaRef areaRef, int imageIdx, Double scaleX, Double scaleY) {
-    
+
         CreationHelper helper = workbook.getCreationHelper();
         Sheet sheet = workbook.getSheet(areaRef.getSheetName());
         if (sheet == null) {
@@ -211,61 +216,94 @@ public class ImageCommand extends AbstractCommand {
         }
         Drawing<?> drawing = sheet.createDrawingPatriarch();
         ClientAnchor anchor = helper.createClientAnchor();
-        
+
         int areaStartCol = areaRef.getFirstCellRef().getCol();
         int areaStartRow = areaRef.getFirstCellRef().getRow();
         int areaEndCol = areaRef.getLastCellRef().getCol();
         int areaEndRow = areaRef.getLastCellRef().getRow();
-        
-        // For centering, start the anchor at the center of the area
-        int centerCol = areaStartCol + (areaEndCol - areaStartCol) / 2;
-        int centerRow = areaStartRow + (areaEndRow - areaStartRow) / 2;
-        
-        anchor.setCol1(centerCol);
-        anchor.setRow1(centerRow);
+
+        // Anchor at the area start (top-left) so positioning is relative to the area's first cell
+        anchor.setCol1(areaStartCol);
+        anchor.setRow1(areaStartRow);
         anchor.setCol2(areaEndCol);
         anchor.setRow2(areaEndRow);
         anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_DONT_RESIZE);
-        
+
         Picture picture = drawing.createPicture(anchor, imageIdx);
-        
+
         if (scaleX == null && scaleY == null) {
             // we make the image as big as possible without distortion
             Dimension realDims = ImageDimensionReader.getImageDimensions(picture.getPictureData().getData());
-            
+
             // Calculate target area dimensions
             Dimension areaDims = calculateAreaDimensions(areaRef, sheet);
-            
+
             scaleX = computeScaleX(realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
             scaleY = computeScaleY(realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
-            
+
             logger.warn("scale={},{} image={},{} area={},{}", scaleX, scaleY, realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
         }
-        
+
         picture.resize(scaleX.doubleValue(), scaleY.doubleValue());
+
+        // Log resulting image size after resizing and anchor placement details
+        try {
+            Dimension realDimsLog = ImageDimensionReader.getImageDimensions(picture.getPictureData().getData());
+            int realW = realDimsLog.x();
+            int realH = realDimsLog.y();
+            int scaledW = (int) Math.round(realW * scaleX.doubleValue());
+            int scaledH = (int) Math.round(realH * scaleY.doubleValue());
+            // Anchor cell indices
+            int aCol1 = anchor.getCol1();
+            int aRow1 = anchor.getRow1();
+            int aCol2 = anchor.getCol2();
+            int aRow2 = anchor.getRow2();
+            // Offsets (EMU) and converted to pixels (approx 1 px = 9525 EMU)
+            int dx1emu = anchor.getDx1();
+            int dy1emu = anchor.getDy1();
+            int dx2emu = anchor.getDx2();
+            int dy2emu = anchor.getDy2();
+            double dx1px = dx1emu / 9525.0;
+            double dy1px = dy1emu / 9525.0;
+            double dx2px = dx2emu / 9525.0;
+            double dy2px = dy2emu / 9525.0;
+
+            // Note: anchor offsets are relative to the top-left corner of the anchor cell.
+            String topLeftCell = toExcelCell(aCol1, aRow1);
+            // For bottom-right, convert exclusive indices to inclusive Excel cell
+            String bottomRightCell = toExcelCell(Math.max(0, aCol2 - 1), Math.max(0, aRow2 - 1));
+
+            logger.warn(
+                    "image scaled to {}x{} px (from {}x{}), anchor top-left={} dx1={}px ({}EMU) dy1={}px ({}EMU), anchor bottom-right={} dx2={}px ({}EMU) dy2={}px ({}EMU)",
+                    scaledW, scaledH, realW, realH,
+                    topLeftCell, String.format("%.2f", dx1px), dx1emu, String.format("%.2f", dy1px), dy1emu,
+                    bottomRightCell, String.format("%.2f", dx2px), dx2emu, String.format("%.2f", dy2px), dy2emu);
+        } catch (Exception e) {
+            logger.warn("Could not log anchor/size details: {}", e.getMessage());
+        }
     }
-    
+
     @SuppressWarnings("unused")
     private void applyCenteringOffset(ClientAnchor anchor, Dimension realDims, Dimension areaDims, double scaleX, double scaleY) {
         // Calculate what the scaled image size will be
         int scaledImageWidth = (int) Math.round(realDims.x() * scaleX);
         int scaledImageHeight = (int) Math.round(realDims.y() * scaleY);
-        
+
         // Calculate centering offsets in pixels
         int offsetXPixels = Math.max(0, (areaDims.x() - scaledImageWidth) / 2);
         int offsetYPixels = Math.max(0, (areaDims.y() - scaledImageHeight) / 2);
-        
+
         // Convert to EMU (1 pixel ≈ 9525 EMU at 96 DPI)
         int offsetXEMU = offsetXPixels * 9525;
         int offsetYEMU = offsetYPixels * 9525;
-        
+
         try {
             anchor.setDx1(offsetXEMU);
             anchor.setDy1(offsetYEMU);
-            
-            logger.warn("Applied centering offset: {}px, {}px ({}EMU, {}EMU)", 
-                       offsetXPixels, offsetYPixels, offsetXEMU, offsetYEMU);
-                       
+
+            logger.warn("Applied centering offset: {}px, {}px ({}EMU, {}EMU)",
+                    offsetXPixels, offsetYPixels, offsetXEMU, offsetYEMU);
+
         } catch (Exception e) {
             logger.warn("Could not apply centering offsets: " + e.getMessage());
         }
@@ -279,33 +317,39 @@ public class ImageCommand extends AbstractCommand {
         int endCol = areaRef.getLastCellRef().getCol();
         int startRow = areaRef.getFirstCellRef().getRow();
         int endRow = areaRef.getLastCellRef().getRow();
-        
-        logger./**/warn("area start={},{} end= {},{}",startRow,startCol, endRow,endCol);
+
+        // Note: AreaRef uses an exclusive end index (one past the inclusive cell).
+        // Log the range in Excel style (e.g. E10:G12) and include internal indices for debugging.
+        int inclusiveEndRow = Math.max(0, endRow - 1);
+        int inclusiveEndCol = Math.max(0, endCol - 1);
+        String excelRange = toExcelCell(startCol, startRow) + ":" + toExcelCell(inclusiveEndCol, inclusiveEndRow);
+        logger./**/warn("area {} (internal start={},{} end(exclusive)={},{})", excelRange, startRow, startCol, endRow, endCol);
         // Calculate total width in pixels
-        double totalWidth = 0;
+        double totalWidthPx = 0;
         for (int col = startCol; col < endCol; col++) {
-            totalWidth += getCellWidthInPoints(sheet, col);
-            logger./**/warn("totalWidth {}",totalWidth);
+            totalWidthPx += getCellWidthInPixels(sheet, col);
+            logger./**/warn("totalWidth {}", totalWidthPx);
         }
 
         // Calculate total height in pixels
-        double totalHeight = 0;
+        double totalHeightPx = 0;
         for (int row = startRow; row < endRow; row++) {
-            totalHeight += getCellHeightInPoints(sheet, row);
-            logger./**/warn("totalHeight {}",totalHeight);
+            totalHeightPx += getCellHeightInPixels(sheet, row);
+            logger./**/warn("totalHeight {}", totalHeightPx);
         }
-        return new Dimension((int) Math.round(totalWidth), (int) Math.round(totalHeight));
+        return new Dimension((int) Math.round(totalWidthPx), (int) Math.round(totalHeightPx));
     }
-    
+
     /**
      * Gets the height of a cell in points by sheet and row number
-     * @param sheet The sheet containing the row
+     * 
+     * @param sheet     The sheet containing the row
      * @param rowNumber The row number (0-based)
      * @return Height in points
      */
     public float getCellHeightInPoints(Sheet sheet, int rowNumber) {
         Row row = sheet.getRow(rowNumber);
-        
+
         if (row == null || row.getZeroHeight()) {
             return 0f;
         } else if (row.getHeight() == -1) {
@@ -315,10 +359,11 @@ public class ImageCommand extends AbstractCommand {
             return row.getHeightInPoints();
         }
     }
-    
+
     /**
      * Gets the width of a cell in points by sheet and column number
-     * @param sheet The sheet containing the column
+     * 
+     * @param sheet        The sheet containing the column
      * @param columnNumber The column number (0-based)
      * @return Width in points
      */
@@ -327,8 +372,40 @@ public class ImageCommand extends AbstractCommand {
         float widthInPixels = sheet.getColumnWidthInPixels(columnNumber);
         return widthInPixels * 72f / 96f;
     }
-     
-    
+
+    /**
+     * Gets the width of a cell in pixels by sheet and column number
+     */
+    public float getCellWidthInPixels(Sheet sheet, int columnNumber) {
+        return sheet.getColumnWidthInPixels(columnNumber);
+    }
+
+    /**
+     * Gets the height of a cell in pixels by sheet and row number
+     */
+    public float getCellHeightInPixels(Sheet sheet, int rowNumber) {
+        float heightPoints = getCellHeightInPoints(sheet, rowNumber);
+        // Convert points to pixels (assuming 96 DPI): px = points * 96 / 72
+        return heightPoints * 96f / 72f;
+    }
+
+    // Convert 0-based column and row to Excel cell name, e.g., (4,9) -> E10
+    private String toExcelCell(int col0, int row0) {
+        return colToName(col0) + Integer.toString(row0 + 1);
+    }
+
+    // Convert 0-based column to Excel column letters (0 -> A, 25 -> Z, 26 -> AA)
+    private String colToName(int col0) {
+        int col = col0;
+        StringBuilder sb = new StringBuilder();
+        while (col >= 0) {
+            int rem = col % 26;
+            sb.append((char) ('A' + rem));
+            col = (col / 26) - 1;
+        }
+        return sb.reverse().toString();
+    }
+
     /**
      * Reads all the data from the input stream and returns the bytes read.
      * 
@@ -341,25 +418,25 @@ public class ImageCommand extends AbstractCommand {
         copy(inputStream, baos);
         return baos.toByteArray();
     }
-    
+
     public void copy(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8 * 1024];
         for (int count; (count = in.read(buffer)) != -1;) {
             out.write(buffer, 0, count);
         }
     }
-    
+
     private double computeScaleX(int realX, int realY, int rectX, int rectY) {
         double ratioX = (double) rectX / realX;
         double ratioY = (double) rectY / realY;
-        
+
         if (ratioX <= ratioY) {
-            return 1.0;  // Width is limiting factor
+            return 1.0; // Width is limiting factor
         } else {
-            return ratioY / ratioX;  // Height is limiting factor
+            return ratioY / ratioX; // Height is limiting factor
         }
     }
-    
+
     /**
      * Computes scaleY to maintain aspect ratio when fitting image in rectangle
      */
@@ -373,9 +450,9 @@ public class ImageCommand extends AbstractCommand {
             return ratioX;
         }
         if (ratioX <= ratioY) {
-            return ratioX / ratioY;  // Width is limiting factor
+            return ratioX / ratioY; // Width is limiting factor
         } else {
-            return 1.0;  // Height is limiting factor
+            return 1.0; // Height is limiting factor
         }
     }
 }
