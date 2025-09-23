@@ -5,13 +5,13 @@ package app.owlcms.data.athlete;
  */
 public enum EligibleForIndividualRankingStatus {
     OOC_INVITED(ParticipationStatus.OOC),
-    OOC_ADMINISTRATIVE(ParticipationStatus.OOC),
-    OOC_QUALIFICATION(ParticipationStatus.OOC),
-    OOC_OUT_OF_AGE_RANGE(ParticipationStatus.OOC),
-    OOC_OTHER(ParticipationStatus.OOC),
     OOC_DID_NOT_MAKE_WEIGHT(ParticipationStatus.OOC),
+    OOC_OUT_OF_AGE_RANGE(ParticipationStatus.OOC),
+    OOC_QUALIFICATION(ParticipationStatus.OOC),
+    OOC_ADMINISTRATIVE(ParticipationStatus.OOC),
     DSQ_DOPING(ParticipationStatus.DSQ),
     DSQ_DISCIPLINARY(ParticipationStatus.DSQ),
+    OOC_OTHER(ParticipationStatus.OOC),
     ELIGIBLE(ParticipationStatus.INCLUSION);
 
     public enum ParticipationStatus {

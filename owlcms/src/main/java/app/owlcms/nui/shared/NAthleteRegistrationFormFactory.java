@@ -72,6 +72,7 @@ import app.owlcms.components.fields.ValidationUtils;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.RuleViolationException;
@@ -131,7 +132,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private TextField teamField;
 	private TextField wrappedBWTextField;
 	private LocalizedIntegerField yobField;
-	private Checkbox invitedCheckbox;
+	private ComboBox<EligibleForIndividualRankingStatus> individualEligibilityField;
 	private TextField subCategoryField;
 	private NextAthleteAble previousNext;
 	private Set<Category> currentEligibles;
@@ -718,12 +719,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		FormItem fi2 = layoutAddFormItem(layout, this.groupField, Translator.translate("Group"));
 		layout.setColspan(fi2, 2);
 
-		this.invitedCheckbox = new Checkbox();
-		bindField(this.binder.forField(this.invitedCheckbox), this.invitedCheckbox,
-		        (a) -> !a.isEligibleForIndividualRanking(),
-		        (a, b) -> a.setEligibleForIndividualRanking(!b));
-		FormItem fi3 = layoutAddFormItem(layout, this.invitedCheckbox, Translator.translate("Invited/Extra"));
-		layout.setColspan(fi3, NB_COLUMNS - 2);
+	this.individualEligibilityField = new ComboBox<>();
+	this.individualEligibilityField.setItems(EligibleForIndividualRankingStatus.values());
+	this.individualEligibilityField.setItemLabelGenerator(s -> Translator.translate("Eligibility." + s.name()));
+	bindField(this.binder.forField(this.individualEligibilityField), this.individualEligibilityField,
+		Athlete::getIndividualEligibilityStatus, Athlete::setIndividualEligibilityStatus);
+	FormItem fi3 = layoutAddFormItem(layout, this.individualEligibilityField, Translator.translate("Eligibility.Status"));
+	layout.setColspan(fi3, NB_COLUMNS - 2);
 
 		return layout;
 	}
