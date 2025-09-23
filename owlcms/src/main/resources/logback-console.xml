@@ -27,7 +27,8 @@
     <logger name="com.vaadin" level="INFO" />
     <logger name="com.github.mvysny.vaadinboot" level="INFO" />
     <logger name="io.netty.util.ResourceLeakDetector" level="OFF" />
-    <logger name="org.atmosphere.websocket.DefaultWebSocketProcessor" level="ERROR" />
+    <logger name="org.atmosphere.websocket" level="ERROR" />
+    <logger name="org.atmosphere.cpr.AtmosphereFramework" level="OFF" />
     <logger name="com.vaadin.flow.internal.nodefeature.ElementListenerMap" level="WARN" />
     <logger name="org.eclipse.jetty.ee10.annotations.AnnotationParser" level="ERROR" />
 
