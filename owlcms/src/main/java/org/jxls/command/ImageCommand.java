@@ -243,6 +243,14 @@ public class ImageCommand extends AbstractCommand {
 
             logger.warn("scale={},{} image={},{} area={},{}", scaleX, scaleY, realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
         }
+        // Compute dimensions again as needed and apply centering offsets so the image is centered within the area
+        try {
+            Dimension realDimsForCenter = ImageDimensionReader.getImageDimensions(picture.getPictureData().getData());
+            Dimension areaDimsForCenter = calculateAreaDimensions(areaRef, sheet);
+            applyCenteringOffset(anchor, realDimsForCenter, areaDimsForCenter, scaleX.doubleValue(), scaleY.doubleValue());
+        } catch (Exception e) {
+            logger.warn("Could not compute centering offsets: {}", e.getMessage());
+        }
 
         picture.resize(scaleX.doubleValue(), scaleY.doubleValue());
 
