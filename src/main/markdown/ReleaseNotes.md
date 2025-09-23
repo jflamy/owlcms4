@@ -12,6 +12,8 @@
 
 **New in Release 62.0**
 
+62.0.0: The eligibility/non-eligibility status of an athlete is now enumerated. The reason for disqualification or non-competition can be selected.
+
 62.0.0: Support of MQTT devices in cloud configurations using websockets (this is *not* needed for local network setups when owlcms runs on a laptop)
 
 - The endpoint used in the URL is /mqtt
