@@ -264,4 +264,20 @@ public class URLUtils {
 		//logger.debug("replaceState2 {} {}", pathWithQueryParameters, LoggerUtils.stackTrace());
 		history.replaceState(object, pathWithQueryParameters);
 	}
+
+	public static String getFlagResourcePath(String team, String[] exts) {
+        if (team == null || team.isBlank()) {
+            return null;
+        }
+        String teamFileName = sanitizeFilename(team);
+        for (String ext : exts) {
+            try {
+                ResourceWalker.getFileOrResourcePath("flags/" + teamFileName + ext);
+                return "flags/" + teamFileName + ext;
+            } catch (FileNotFoundException e) {
+                // try next extension
+            }
+        }
+        return null;
+	}
 }

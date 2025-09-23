@@ -79,6 +79,7 @@ import app.owlcms.spreadsheet.RAthlete;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -3088,6 +3089,11 @@ public class Athlete {
 	 */
 	public String getTeam() {
 		return this.team;
+	}
+
+	public String getTeamFlagPath() {
+		// use the same approach as URLUtils to find the flag
+		return URLUtils.getFlagResourcePath(this.team, new String[] {".png"});
 	}
 
 	@Transient
