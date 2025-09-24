@@ -59,6 +59,7 @@ public class ImageCommand extends AbstractCommand {
      */
     private Double scaleX;
     private Double scaleY;
+    private String ptHeight;
 
     public ImageCommand() {
     }
@@ -130,6 +131,21 @@ public class ImageCommand extends AbstractCommand {
         this.scaleY = Double.valueOf(scaleY);
     }
 
+    /**
+     * Height in points as a string (e.g. "12.0").
+     */
+    public String getPtHeight() {
+        return ptHeight;
+    }
+
+    /**
+     * Set the cell/area height in points as a string value.
+     * The value is stored as-is; parsing should be handled by callers if needed.
+     */
+    public void setPtHeight(String ptHeight) {
+        this.ptHeight = ptHeight;
+    }
+
     private boolean needResizePicture() {
         return this.scaleX != null && this.scaleY != null;
     }
@@ -158,7 +174,7 @@ public class ImageCommand extends AbstractCommand {
         if (area == null) {
             throw new IllegalArgumentException("No area is defined for image command");
         }
-    Size imageAnchorAreaSize = new Size(area.getSize().getWidth() + 1, area.getSize().getHeight() + 1);
+        Size imageAnchorAreaSize = new Size(area.getSize().getWidth() + 1, area.getSize().getHeight() + 1);
         AreaRef imageAnchorArea = new AreaRef(cellRef, imageAnchorAreaSize);
         byte[] imgBytes = imageBytes;
         if (src != null) {
@@ -251,7 +267,8 @@ public class ImageCommand extends AbstractCommand {
         try {
             Dimension realDimsForCenter = ImageDimensionReader.getImageDimensions(picture.getPictureData().getData());
             Dimension areaDimsForCenter = calculateAreaDimensions(areaRef, sheet);
-            applyCenteringOffset(anchor, realDimsForCenter, areaDimsForCenter, scaleX.doubleValue(), scaleY.doubleValue(), areaStartCol, areaEndCol, areaStartRow, areaEndRow, sheet);
+            applyCenteringOffset(anchor, realDimsForCenter, areaDimsForCenter, scaleX.doubleValue(), scaleY.doubleValue(), areaStartCol, areaEndCol,
+                    areaStartRow, areaEndRow, sheet);
         } catch (Exception e) {
             logger.warn("Could not compute centering offsets: {}", e.getMessage());
         }
@@ -293,7 +310,8 @@ public class ImageCommand extends AbstractCommand {
             try {
                 double anchorWidthPx = computeAnchorWidthPixels(sheet, aCol1, aCol2, dx1px, dx2px);
                 double anchorHeightPx = computeAnchorHeightPixels(sheet, aRow1, aRow2, dy1px, dy2px);
-                logger.warn("anchor pixel extent width={}px height={}px (scaled image {}x{})", String.format("%.2f", anchorWidthPx), String.format("%.2f", anchorHeightPx), scaledW, scaledH);
+                logger.warn("anchor pixel extent width={}px height={}px (scaled image {}x{})", String.format("%.2f", anchorWidthPx),
+                        String.format("%.2f", anchorHeightPx), scaledW, scaledH);
             } catch (Exception e) {
                 logger.warn("Could not compute anchor pixel extents: {}", e.getMessage());
             }
@@ -335,6 +353,9 @@ public class ImageCommand extends AbstractCommand {
     @SuppressWarnings("unused")
     private void applyCenteringOffset(ClientAnchor anchor, Dimension realDims, Dimension areaDims, double scaleX, double scaleY,
             int areaStartCol, int areaEndCol, int areaStartRow, int areaEndRow, Sheet sheet) {
+
+        logger.warn("DEBUG: applyCenteringOffset START");
+
         // Calculate what the scaled image size will be
         int scaledImageWidth = (int) Math.round(realDims.x() * scaleX);
         int scaledImageHeight = (int) Math.round(realDims.y() * scaleY);
@@ -343,33 +364,114 @@ public class ImageCommand extends AbstractCommand {
         int offsetXPixels = Math.max(0, (areaDims.x() - scaledImageWidth) / 2);
         int offsetYPixels = Math.max(0, (areaDims.y() - scaledImageHeight) / 2);
 
+        logger.warn("DEBUG: scaledImage={}x{} area={}x{} offsetX={}px offsetY={}px",
+                scaledImageWidth, scaledImageHeight, areaDims.x(), areaDims.y(), offsetXPixels, offsetYPixels);
+
         // Convert to EMU (1 pixel ≈ 9525 EMU at 96 DPI)
         int offsetXEMU = offsetXPixels * 9525;
         int offsetYEMU = offsetYPixels * 9525;
 
         try {
-        // Set top-left offsets
-        anchor.setDx1(offsetXEMU);
-        anchor.setDy1(offsetYEMU);
-        // Restore anchor end cell to the original area end (resize may have modified it)
-        anchor.setCol2(areaEndCol);
-        anchor.setRow2(areaEndRow);
+            // Set top-left offsets
+            anchor.setDx1(offsetXEMU);
+            anchor.setDy1(offsetYEMU);
 
-        // Compute dx2/dy2 such that the anchor covers the full area width/height
-        int offsetX2Pixels = Math.max(0, areaDims.x() - offsetXPixels - scaledImageWidth);
-        int offsetY2Pixels = Math.max(0, areaDims.y() - offsetYPixels - scaledImageHeight);
-        int offsetX2EMU = offsetX2Pixels * 9525;
-        int offsetY2EMU = offsetY2Pixels * 9525;
-        anchor.setDx2(offsetX2EMU);
-        anchor.setDy2(offsetY2EMU);
+            // Restore anchor end cell to the original area end (resize may have modified it)
+            anchor.setCol2(areaEndCol);
+            anchor.setRow2(areaEndRow);
 
-        logger.warn("Applied centering offset: {}px, {}px ({}EMU, {}EMU) scaledImage={}x{} area={}x{} dx2={}px dy2={}px",
-            offsetXPixels, offsetYPixels, offsetXEMU, offsetYEMU,
-            scaledImageWidth, scaledImageHeight, areaDims.x(), areaDims.y(), offsetX2Pixels, offsetY2Pixels);
+            // Calculate where image right edge is relative to the start of the area
+            int imageRightFromAreaStart = offsetXPixels + scaledImageWidth; // 55 + 292 = 347px
+            logger.warn("DEBUG: Image right edge at {}px from area start", imageRightFromAreaStart);
+
+            // Find which column contains the right edge and calculate offset within that column
+            int currentWidth = 0;
+            int targetCol = areaStartCol;
+            for (int col = areaStartCol; col < areaEndCol; col++) {
+                int colWidth = (int) getCellWidthInPixels(sheet, col);
+                logger.warn("DEBUG: Column {} width={}px, cumulative={}px", colToName(col), colWidth, currentWidth + colWidth);
+                if (currentWidth + colWidth >= imageRightFromAreaStart) {
+                    // Right edge is in this column
+                    targetCol = col;
+                    logger.warn("DEBUG: Right edge falls in column {}", colToName(targetCol));
+                    break;
+                }
+                currentWidth += colWidth;
+            }
+
+            // dx2 is offset from the left edge of targetCol to where the right edge should be
+            int offsetX2Pixels = imageRightFromAreaStart - currentWidth;
+            int offsetX2EMU = offsetX2Pixels * 9525;
+
+            logger.warn("DEBUG: targetCol={} currentWidth={}px offsetX2={}px",
+                    colToName(targetCol), currentWidth, offsetX2Pixels);
+
+            // Similar calculation for dy2. Use the total area height (areaDims.y()) to derive
+            // a per-row scale so that when the area height has been overridden (via ptHeight),
+            // the mapping from pixels -> target row/offset is consistent with the overridden value.
+            int imageBottomFromAreaStart = offsetYPixels + scaledImageHeight;
+            int currentHeight = 0;
+            int targetRow = areaStartRow;
+
+            // If ptHeight is present, assume rows are identical and divide the total area height
+            // evenly among the rows. Otherwise, use actual per-row heights.
+            boolean usedUniformRows = false;
+            double areaTotalHeight = areaDims.y();
+            int numRows = Math.max(0, areaEndRow - areaStartRow);
+            if (ptHeight != null && numRows > 0) {
+                usedUniformRows = true;
+                double perRowHeight = areaTotalHeight / (double) numRows;
+                logger.warn("DEBUG: ptHeight present — using uniform per-row height {}px for {} rows (areaTotal={})",
+                        String.format("%.2f", perRowHeight), numRows, String.format("%.2f", areaTotalHeight));
+                for (int row = areaStartRow; row < areaEndRow; row++) {
+                    int rowHeight = (int) Math.round(perRowHeight);
+                    logger.warn("DEBUG: Uniform Row {} height={}px, cumulative={}px", row + 1, rowHeight, currentHeight + rowHeight);
+                    if (currentHeight + rowHeight >= imageBottomFromAreaStart) {
+                        targetRow = row;
+                        logger.warn("DEBUG: Bottom edge falls in row {}", targetRow + 1);
+                        break;
+                    }
+                    currentHeight += rowHeight;
+                }
+            }
+            if (!usedUniformRows) {
+                for (int row = areaStartRow; row < areaEndRow; row++) {
+                    int rowHeight = (int) getCellHeightInPixels(sheet, row);
+                    logger.warn("DEBUG: Row {} height={}px, cumulative={}px", row + 1, rowHeight, currentHeight + rowHeight);
+                    if (currentHeight + rowHeight >= imageBottomFromAreaStart) {
+                        targetRow = row;
+                        logger.warn("DEBUG: Bottom edge falls in row {}", targetRow + 1);
+                        break;
+                    }
+                    currentHeight += rowHeight;
+                }
+            }
+
+            int offsetY2Pixels = imageBottomFromAreaStart - currentHeight;
+            int offsetY2EMU = offsetY2Pixels * 9525;
+
+            logger.warn("DEBUG: targetRow={} currentHeight={}px offsetY2={}px",
+                    targetRow + 1, currentHeight, offsetY2Pixels);
+
+            // Update the anchor end position to the cells that actually contain the image edges
+            anchor.setCol2(targetCol); // targetCol is already the correct end column
+            anchor.setRow2(targetRow); // targetRow is already the correct end row
+            anchor.setDx2(offsetX2EMU);
+            anchor.setDy2(offsetY2EMU);
+
+            logger.warn("DEBUG: Successfully set dx2={}px ({}EMU) dy2={}px ({}EMU) targetCol={} targetRow={}",
+                    offsetX2Pixels, offsetX2EMU, offsetY2Pixels, offsetY2EMU,
+                    colToName(targetCol), targetRow + 1);
+
+            logger.warn("Applied centering offset: {}px, {}px ({}EMU, {}EMU) scaledImage={}x{} area={}x{} dx2={}px dy2={}px",
+                    offsetXPixels, offsetYPixels, offsetXEMU, offsetYEMU,
+                    scaledImageWidth, scaledImageHeight, areaDims.x(), areaDims.y(), offsetX2Pixels, offsetY2Pixels);
 
         } catch (Exception e) {
-            logger.warn("Could not apply centering offsets: " + e.getMessage());
+            logger.error("ERROR in applyCenteringOffset: {}", e.getMessage(), e);
         }
+
+        logger.warn("DEBUG: applyCenteringOffset END");
     }
 
     /**
@@ -391,14 +493,30 @@ public class ImageCommand extends AbstractCommand {
         double totalWidthPx = 0;
         for (int col = startCol; col < endCol; col++) {
             totalWidthPx += getCellWidthInPixels(sheet, col);
-            logger./**/warn("totalWidth {} px", totalWidthPx);
+            logger.warn("totalWidth {} px", totalWidthPx);
         }
 
         // Calculate total height in pixels
         double totalHeightPx = 0;
-        for (int row = startRow; row < endRow; row++) {
-            totalHeightPx += getCellHeightInPixels(sheet, row);
-            logger./**/warn("totalHeight {}", totalHeightPx);
+        boolean computeRows = true;
+        if (ptHeight != null) {
+            // we are forcing the height by adding manually the row heights reported by Excel
+            try {
+                float pt = Float.parseFloat(ptHeight);
+                // Convert points to pixels (px = points * 96 / 72)
+                totalHeightPx = pt * 96D / 72D;
+                logger.warn("ptHeight override: {} pt -> {} px", pt, String.format("%.2f", totalHeightPx));
+                computeRows = false;
+            } catch (NumberFormatException nfe) {
+               // ignore and log
+               logger.warn("Could not parse ptHeight value '{}', will compute height from rows", ptHeight);
+            }
+        } 
+        if (computeRows) {
+            for (int row = startRow; row < endRow; row++) {
+                totalHeightPx += getCellHeightInPixels(sheet, row);
+                logger.warn("{} totalHeight {}", row, totalHeightPx);
+            }
         }
         return new Dimension((int) Math.round(totalWidthPx), (int) Math.round(totalHeightPx));
     }
@@ -489,43 +607,26 @@ public class ImageCommand extends AbstractCommand {
         }
     }
 
-    private double computeScaleX(int realX, int realY, int rectX, int rectY) {
-        double ratioX = (double) rectX / realX;
-        double ratioY = (double) rectY / realY;
-        if (ratioX <= ratioY) {
-            return 1.0; // Width is limiting factor
-        } else {
-            return ratioY / ratioX; // Height is limiting factor
-        }
-    }
-
     /**
-     * Computes scaleY to maintain aspect ratio when fitting image in rectangle
-     */
-    private double computeScaleY(int realX, int realY, int rectX, int rectY) {
-        double ratioX = (double) rectX / realX;
-        double ratioY = (double) rectY / realY;
-        if (rectY <= 0.01) {
-            // assume the cell will be high enough, return the same ratio as horizontal
-            logger.warn("computeScaleY: rectY is too small, using ratioX");
-            return ratioX;
-        }
-        if (ratioX <= ratioY) {
-            return ratioX / ratioY; // Width is limiting factor
-        } else {
-            return 1.0; // Height is limiting factor
-        }
-    }
-
-    /**
-     * Compute a uniform scale that makes the image height equal to the area's height
-     * and preserves aspect ratio. Returns areaHeight / imageHeight.
+     * Computes a uniform scale factor that ensures the image fits within the target area while preserving aspect ratio. The scale factor is determined by the
+     * most restrictive dimension (width or height) to prevent the image from exceeding area boundaries.
+     * 
+     * For portrait images: scales based on height constraint, unless width is more restrictive For landscape images: scales based on width constraint, unless
+     * height is more restrictive
+     * 
+     * @param realX Original image width in pixels
+     * @param realY Original image height in pixels
+     * @param rectX Target area width in pixels
+     * @param rectY Target area height in pixels
+     * @return Scale factor (1.0 = original size, 0.5 = half size, etc.)
      */
     private double computeUniformScale(int realX, int realY, int rectX, int rectY) {
-        if (realY <= 0) {
+        if (realY <= 0 || realX <= 0) {
             return 1.0;
         }
+        double ratioX = (double) rectX / realX;
         double ratioY = (double) rectY / realY;
-        return ratioY;
+        // Use the smaller ratio to ensure the image fits within the area bounds
+        return Math.min(ratioX, ratioY);
     }
 }
