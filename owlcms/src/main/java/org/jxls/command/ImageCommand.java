@@ -432,48 +432,54 @@ public class ImageCommand extends AbstractCommand {
     }
 
     private double computeAnchorWidthPixels(Sheet sheet, int col1, int col2Exclusive, double dx1px, double dx2px) {
-        // Anchor spans from col1 to col2Exclusive-1
-        // Width = sum of column widths from col1 to col2Exclusive-1
-        // dx1 and dx2 are offsets within the first/last columns, not additional width
-        double width = 0;
-        for (int c = col1; c < col2Exclusive; c++) {
-            width += getCellWidthInPixels(sheet, c);
+        if (col1 == col2Exclusive - 1) {
+            // Anchor spans within a single column
+            return dx2px - dx1px;
+        } else {
+            // Anchor spans multiple columns
+            double width = -dx1px; // Start from negative of left offset
+            for (int c = col1; c < col2Exclusive; c++) {
+                width += getCellWidthInPixels(sheet, c);
+            }
+            width += dx2px; // Add right offset
+            return width;
         }
-        return width;
     }
 
     private double computeAnchorHeightPixels(Sheet sheet, int row1, int row2Exclusive, double dy1px, double dy2px) {
-        // Anchor spans from row1 to row2Exclusive-1
-        // Height = sum of row heights from row1 to row2Exclusive-1
-        // dy1 and dy2 are offsets within the first/last rows, not additional height
-        double height = 0;
-
-        // Handle ptHeight case like calculateAreaDimensions does
-        if (ptHeight != null) {
-            try {
-                float pt = Float.parseFloat(ptHeight);
-                double totalHeightPx = pt * 96D / 72D;
-                int numRows = row2Exclusive - row1;
-                if (numRows > 0) {
-                    double uniformRowHeight = totalHeightPx / numRows;
+        if (row1 == row2Exclusive - 1) {
+            // Anchor spans within a single row
+            return dy2px - dy1px;
+        } else {
+            // Anchor spans multiple rows
+            double height = -dy1px; // Start from negative of top offset
+            // Handle ptHeight case like calculateAreaDimensions does
+            if (ptHeight != null) {
+                try {
+                    float pt = Float.parseFloat(ptHeight);
+                    double totalHeightPx = pt * 96D / 72D;
+                    int numRows = row2Exclusive - row1;
+                    if (numRows > 0) {
+                        double uniformRowHeight = totalHeightPx / numRows;
+                        for (int r = row1; r < row2Exclusive; r++) {
+                            height += uniformRowHeight;
+                        }
+                    }
+                } catch (NumberFormatException nfe) {
+                    // Fall back to actual row heights
                     for (int r = row1; r < row2Exclusive; r++) {
-                        height += uniformRowHeight;
+                        height += getCellHeightInPixels(sheet, r);
                     }
                 }
-            } catch (NumberFormatException nfe) {
-                // Fall back to actual row heights
+            } else {
+                // Use actual row heights
                 for (int r = row1; r < row2Exclusive; r++) {
                     height += getCellHeightInPixels(sheet, r);
                 }
             }
-        } else {
-            // Use actual row heights
-            for (int r = row1; r < row2Exclusive; r++) {
-                height += getCellHeightInPixels(sheet, r);
-            }
+            height += dy2px; // Add bottom offset
+            return height;
         }
-
-        return height;
     }
 
     private void applyCenteringOffset(ClientAnchor anchor, Dimension realDims, Dimension areaDims, double scaleX, double scaleY,
@@ -543,7 +549,6 @@ public class ImageCommand extends AbstractCommand {
         // Y position: find row and offset for image start
         int currentRow = areaStartRow;
         int remainingYPixels = imageStartYPixels;
-        double areaTotalHeight = areaDims.y();
         int numRows = areaEndRow - areaStartRow;
 
         if (ptHeight != null) {
