@@ -1,9 +1,15 @@
 package org.jxls.command;
 
 import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -60,6 +66,7 @@ public class ImageCommand extends AbstractCommand {
     private Double scaleX;
     private Double scaleY;
     private String ptHeight;
+    private String border;
 
     public ImageCommand() {
     }
@@ -146,6 +153,18 @@ public class ImageCommand extends AbstractCommand {
         this.ptHeight = ptHeight;
     }
 
+    /**
+     * If set to a value that parses to true (e.g. "true"), a border will
+     * be drawn around the image before adding it to the workbook.
+     */
+    public String getBorder() {
+        return border;
+    }
+
+    public void setBorder(String border) {
+        this.border = border;
+    }
+
     private boolean needResizePicture() {
         return this.scaleX != null && this.scaleY != null;
     }
@@ -196,9 +215,45 @@ public class ImageCommand extends AbstractCommand {
             logger.warn("No image bytes to add for area " + areaRef);
             return;
         }
+        // If border is requested and parses to true, draw a border into the image bytes
+        if (border != null) {
+            try {
+                if (Boolean.parseBoolean(border)) {
+                    // default border: 2px black, keep same format as imageType
+                    String fmt = imageType == ImageType.PNG ? "png" : (imageType == ImageType.JPEG ? "jpg" : "png");
+                    imageBytes = addBorderToImage(imageBytes, 2, Color.BLACK, fmt);
+                }
+            } catch (Exception e) {
+                logger.warn("Could not apply border to image: {}", e.getMessage());
+            }
+        }
         int poiPictureType = findPoiPictureTypeByImageType(imageType);
         int pictureIdx = workbook.addPicture(imageBytes, poiPictureType);
         addImage(workbook, areaRef, pictureIdx, scaleX, scaleY);
+    }
+
+    private byte[] addBorderToImage(byte[] imageBytes, int borderPx, Color borderColor, String outputFormat) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
+        BufferedImage src = ImageIO.read(bais);
+        if (src == null) {
+            throw new IOException("Cannot read image bytes");
+        }
+        int w = src.getWidth();
+        int h = src.getHeight();
+        BufferedImage dst = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = dst.createGraphics();
+        try {
+            g.drawImage(src, 0, 0, null);
+            g.setColor(borderColor);
+            g.setStroke(new BasicStroke(borderPx));
+            int half = Math.max(1, borderPx / 2);
+            g.drawRect(half, half, Math.max(0, w - borderPx), Math.max(0, h - borderPx));
+        } finally {
+            g.dispose();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(dst, outputFormat, baos);
+        return baos.toByteArray();
     }
 
     private int findPoiPictureTypeByImageType(ImageType imageType) {
