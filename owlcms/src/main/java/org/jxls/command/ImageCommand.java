@@ -212,7 +212,7 @@ public class ImageCommand extends AbstractCommand {
 
     private void addImage(Workbook workbook, AreaRef areaRef, byte[] imageBytes, ImageType imageType, Double scaleX, Double scaleY) {
         if (imageBytes == null || imageBytes.length == 0) {
-            logger.warn("No image bytes to add for area " + areaRef);
+            logger.debug("No image bytes to add for area " + areaRef);
             return;
         }
         // If border is requested and parses to true, draw a border into the image bytes
@@ -294,9 +294,9 @@ public class ImageCommand extends AbstractCommand {
         int areaEndRow = areaRef.getLastCellRef().getRow();
 
         // DIAGNOSTIC: Log initial area bounds
-        logger.warn("DIAGNOSTIC: Initial area bounds - startCol={} startRow={} endCol={} endRow={}", 
+        logger.trace("DIAGNOSTIC: Initial area bounds - startCol={} startRow={} endCol={} endRow={}", 
                     areaStartCol, areaStartRow, areaEndCol, areaEndRow);
-        logger.warn("DIAGNOSTIC: Area range = {}:{}", 
+        logger.trace("DIAGNOSTIC: Area range = {}:{}", 
                     toExcelCell(areaStartCol, areaStartRow), 
                     toExcelCell(Math.max(0, areaEndCol - 1), Math.max(0, areaEndRow - 1)));
 
@@ -308,14 +308,14 @@ public class ImageCommand extends AbstractCommand {
         anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_DONT_RESIZE);
 
         // DIAGNOSTIC: Log anchor BEFORE creating picture
-        logger.warn("DIAGNOSTIC: Anchor BEFORE picture creation - Col1={} Row1={} Col2={} Row2={} dx1={} dy1={} dx2={} dy2={}",
+        logger.trace("DIAGNOSTIC: Anchor BEFORE picture creation - Col1={} Row1={} Col2={} Row2={} dx1={} dy1={} dx2={} dy2={}",
                     anchor.getCol1(), anchor.getRow1(), anchor.getCol2(), anchor.getRow2(),
                     anchor.getDx1(), anchor.getDy1(), anchor.getDx2(), anchor.getDy2());
 
         Picture picture = drawing.createPicture(anchor, imageIdx);
 
         // DIAGNOSTIC: Log anchor AFTER creating picture (but before resize)
-        logger.warn("DIAGNOSTIC: Anchor AFTER picture creation - Col1={} Row1={} Col2={} Row2={} dx1={} dy1={} dx2={} dy2={}",
+        logger.trace("DIAGNOSTIC: Anchor AFTER picture creation - Col1={} Row1={} Col2={} Row2={} dx1={} dy1={} dx2={} dy2={}",
                     anchor.getCol1(), anchor.getRow1(), anchor.getCol2(), anchor.getRow2(),
                     anchor.getDx1(), anchor.getDy1(), anchor.getDx2(), anchor.getDy2());
 
@@ -328,11 +328,11 @@ public class ImageCommand extends AbstractCommand {
             double uniformScale = computeUniformScale(realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
             scaleX = uniformScale;
             scaleY = uniformScale;
-            logger.warn("scale={},{} image={},{} area={},{}", scaleX, scaleY, realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
+            logger.debug("scale={},{} image={},{} area={},{}", scaleX, scaleY, realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
         }
 
         // DIAGNOSTIC: Log scale values
-        logger.warn("DIAGNOSTIC: About to resize with scaleX={} scaleY={}", scaleX, scaleY);
+        logger.trace("DIAGNOSTIC: About to resize with scaleX={} scaleY={}", scaleX, scaleY);
 
         // Resize the picture first. Some POI implementations rewrite anchor offsets during resize,
         // so apply centering offsets after resize to ensure `dx1`/`dy1` reflect the offset from the
@@ -340,7 +340,7 @@ public class ImageCommand extends AbstractCommand {
         picture.resize(scaleX.doubleValue(), scaleY.doubleValue());
 
         // DIAGNOSTIC: Log anchor AFTER resize - THIS IS THE KEY DIAGNOSTIC
-        logger.warn("DIAGNOSTIC: Anchor AFTER resize - Col1={} Row1={} Col2={} Row2={} dx1={} dy1={} dx2={} dy2={}",
+        logger.trace("DIAGNOSTIC: Anchor AFTER resize - Col1={} Row1={} Col2={} Row2={} dx1={} dy1={} dx2={} dy2={}",
                     anchor.getCol1(), anchor.getRow1(), anchor.getCol2(), anchor.getRow2(),
                     anchor.getDx1(), anchor.getDy1(), anchor.getDx2(), anchor.getDy2());
 
@@ -350,26 +350,26 @@ public class ImageCommand extends AbstractCommand {
 
         // DIAGNOSTIC: Check if the anchor width is now zero/invalid
         if (anchor.getCol2() <= anchor.getCol1()) {
-            logger.error("DIAGNOSTIC: PROBLEM! Col2 ({}) <= Col1 ({}) after resize! This will cause zero width!",
+            logger.trace("DIAGNOSTIC: PROBLEM! Col2 ({}) <= Col1 ({}) after resize! This will cause zero width!",
                          anchor.getCol2(), anchor.getCol1());
             // Don't reset Col2 - let POI handle it
         }
         if (anchor.getRow2() <= anchor.getRow1()) {
-            logger.error("DIAGNOSTIC: PROBLEM! Row2 ({}) <= Row1 ({}) after resize! This will cause zero height!",
+            logger.trace("DIAGNOSTIC: PROBLEM! Row2 ({}) <= Row1 ({}) after resize! This will cause zero height!",
                          anchor.getRow2(), anchor.getRow1());
             // Don't reset Row2 - let POI handle it
         }
 
         // Compute dimensions and center the image anchor within the area
         try {
-            logger.warn("DIAGNOSTIC: About to call applyCenteringOffset");
+            logger.trace("DIAGNOSTIC: About to call applyCenteringOffset");
             Dimension realDimsForCenter = ImageDimensionReader.getImageDimensions(picture.getPictureData().getData());
             Dimension areaDimsForCenter = calculateAreaDimensions(areaRef, sheet);
             applyCenteringOffset(anchor, realDimsForCenter, areaDimsForCenter, scaleX.doubleValue(), scaleY.doubleValue(), areaStartCol, areaEndCol,
                     areaStartRow, areaEndRow, sheet);
-            logger.warn("DIAGNOSTIC: applyCenteringOffset completed successfully");
+            logger.trace("DIAGNOSTIC: applyCenteringOffset completed successfully");
         } catch (Exception e) {
-            logger.error("DIAGNOSTIC: Exception in applyCenteringOffset: {}", e.getMessage(), e);
+            logger.trace("DIAGNOSTIC: Exception in applyCenteringOffset: {}", e.getMessage(), e);
             // Ensure we have valid bounds even if centering fails
             if (anchor.getCol2() <= anchor.getCol1()) {
                 anchor.setCol2(areaEndCol);
@@ -380,7 +380,7 @@ public class ImageCommand extends AbstractCommand {
         }
 
         // DIAGNOSTIC: Log final anchor state
-        logger.warn("DIAGNOSTIC: FINAL anchor - Col1={} Row1={} Col2={} Row2={} dx1={} dy1={} dx2={} dy2={}",
+        logger.trace("DIAGNOSTIC: FINAL anchor - Col1={} Row1={} Col2={} Row2={} dx1={} dy1={} dx2={} dy2={}",
                     anchor.getCol1(), anchor.getRow1(), anchor.getCol2(), anchor.getRow2(),
                     anchor.getDx1(), anchor.getDy1(), anchor.getDx2(), anchor.getDy2());
 
@@ -411,7 +411,7 @@ public class ImageCommand extends AbstractCommand {
             // For bottom-right, convert exclusive indices to inclusive Excel cell
             String bottomRightCell = toExcelCell(Math.max(0, aCol2 - 1), Math.max(0, aRow2 - 1));
 
-            logger.warn(
+            logger.debug(
                     "image scaled to {}x{} px (from {}x{}), anchor top-left={} dx1={}px ({}EMU) dy1={}px ({}EMU), anchor bottom-right={} dx2={}px ({}EMU) dy2={}px ({}EMU)",
                     scaledW, scaledH, realW, realH,
                     topLeftCell, String.format("%.2f", dx1px), dx1emu, String.format("%.2f", dy1px), dy1emu,
@@ -421,7 +421,7 @@ public class ImageCommand extends AbstractCommand {
             try {
                 double anchorWidthPx = computeAnchorWidthPixels(sheet, aCol1, aCol2, dx1px, dx2px);
                 double anchorHeightPx = computeAnchorHeightPixels(sheet, aRow1, aRow2, dy1px, dy2px);
-                logger.warn("anchor pixel extent width={}px height={}px (scaled image {}x{})", String.format("%.2f", anchorWidthPx),
+                logger.debug("anchor pixel extent width={}px height={}px (scaled image {}x{})", String.format("%.2f", anchorWidthPx),
                         String.format("%.2f", anchorHeightPx), scaledW, scaledH);
             } catch (Exception e) {
                 logger.warn("Could not compute anchor pixel extents: {}", e.getMessage());
@@ -485,7 +485,7 @@ public class ImageCommand extends AbstractCommand {
     private void applyCenteringOffset(ClientAnchor anchor, Dimension realDims, Dimension areaDims, double scaleX, double scaleY,
             int areaStartCol, int areaEndCol, int areaStartRow, int areaEndRow, Sheet sheet) {
 
-        logger.warn("DEBUG: applyCenteringOffset START - positioning image in area");
+        logger.trace("DEBUG: applyCenteringOffset START - positioning image in area");
 
         // Calculate what the scaled image size will be
         int scaledImageWidth = (int) Math.round(realDims.x() * scaleX);
@@ -495,7 +495,7 @@ public class ImageCommand extends AbstractCommand {
         int offsetXPixels = Math.max(0, (areaDims.x() - scaledImageWidth) / 2);
         int offsetYPixels = Math.max(0, (areaDims.y() - scaledImageHeight) / 2);
 
-        logger.warn("DEBUG: scaledImage={}x{} area={}x{} offsetX={}px offsetY={}px",
+        logger.trace("DEBUG: scaledImage={}x{} area={}x{} offsetX={}px offsetY={}px",
                 scaledImageWidth, scaledImageHeight, areaDims.x(), areaDims.y(), offsetXPixels, offsetYPixels);
 
         // Set anchor to span the full area
@@ -647,10 +647,10 @@ public class ImageCommand extends AbstractCommand {
             anchor.setDy2((int) Math.round(remainingYPixels * 9525.0));
         }
 
-        logger.warn("Applied centering: image positioned at ({}, {}) to ({}, {}) in area",
+        logger.debug("Applied centering: image positioned at ({}, {}) to ({}, {}) in area",
                 anchor.getCol1(), anchor.getDx1(), anchor.getCol2(), anchor.getDx2());
 
-        logger.warn("DEBUG: applyCenteringOffset END");
+        logger.trace("DEBUG: applyCenteringOffset END");
     }
 
     /**
@@ -667,12 +667,12 @@ public class ImageCommand extends AbstractCommand {
         int inclusiveEndRow = Math.max(0, endRow - 1);
         int inclusiveEndCol = Math.max(0, endCol - 1);
         String excelRange = toExcelCell(startCol, startRow) + ":" + toExcelCell(inclusiveEndCol, inclusiveEndRow);
-        logger./**/warn("area {} (internal start={},{} end(exclusive)={},{})", excelRange, startRow, startCol, endRow, endCol);
+        logger.debug("area {} (internal start={},{} end(exclusive)={},{})", excelRange, startRow, startCol, endRow, endCol);
         // Calculate total width in pixels
         double totalWidthPx = 0;
         for (int col = startCol; col < endCol; col++) {
             totalWidthPx += getCellWidthInPixels(sheet, col);
-            logger.warn("totalWidth {} px", totalWidthPx);
+            logger.debug("DIAGNOSTIC: totalWidth {} px", totalWidthPx);
         }
 
         // Calculate total height in pixels
@@ -684,7 +684,7 @@ public class ImageCommand extends AbstractCommand {
                 float pt = Float.parseFloat(ptHeight);
                 // Convert points to pixels (px = points * 96 / 72)
                 totalHeightPx = pt * 96D / 72D;
-                logger.warn("ptHeight override: {} pt -> {} px", pt, String.format("%.2f", totalHeightPx));
+                logger.debug("ptHeight override: {} pt -> {} px", pt, String.format("%.2f", totalHeightPx));
                 computeRows = false;
             } catch (NumberFormatException nfe) {
                // ignore and log
@@ -694,7 +694,7 @@ public class ImageCommand extends AbstractCommand {
         if (computeRows) {
             for (int row = startRow; row < endRow; row++) {
                 totalHeightPx += getCellHeightInPixels(sheet, row);
-                logger.warn("{} totalHeight {}", row, totalHeightPx);
+                logger.debug("DIAGNOSTIC: totalHeight {} px", totalHeightPx);
             }
         }
         return new Dimension((int) Math.round(totalWidthPx), (int) Math.round(totalHeightPx));
