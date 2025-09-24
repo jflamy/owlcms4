@@ -158,7 +158,7 @@ public class ImageCommand extends AbstractCommand {
         if (area == null) {
             throw new IllegalArgumentException("No area is defined for image command");
         }
-        Size imageAnchorAreaSize = new Size(area.getSize().getWidth() + 1, area.getSize().getHeight() + 1);
+    Size imageAnchorAreaSize = new Size(area.getSize().getWidth() + 1, area.getSize().getHeight() + 1);
         AreaRef imageAnchorArea = new AreaRef(cellRef, imageAnchorAreaSize);
         byte[] imgBytes = imageBytes;
         if (src != null) {
@@ -232,27 +232,29 @@ public class ImageCommand extends AbstractCommand {
         Picture picture = drawing.createPicture(anchor, imageIdx);
 
         if (scaleX == null && scaleY == null) {
-            // we make the image as big as possible without distortion
+            // compute a uniform scale based on the target area's height so the
+            // image height becomes equal to the area's height and the width is
+            // scaled to preserve aspect ratio (width = aspectRatio * areaHeight).
             Dimension realDims = ImageDimensionReader.getImageDimensions(picture.getPictureData().getData());
-
-            // Calculate target area dimensions
             Dimension areaDims = calculateAreaDimensions(areaRef, sheet);
-
-            scaleX = computeScaleX(realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
-            scaleY = computeScaleY(realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
-
+            double uniformScale = computeUniformScale(realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
+            scaleX = uniformScale;
+            scaleY = uniformScale;
             logger.warn("scale={},{} image={},{} area={},{}", scaleX, scaleY, realDims.x(), realDims.y(), areaDims.x(), areaDims.y());
         }
+        // Resize the picture first. Some POI implementations rewrite anchor offsets during resize,
+        // so apply centering offsets after resize to ensure `dx1`/`dy1` reflect the offset from the
+        // top-left anchor cell (so the image is shifted right/down as expected).
+        picture.resize(scaleX.doubleValue(), scaleY.doubleValue());
+
         // Compute dimensions again as needed and apply centering offsets so the image is centered within the area
         try {
             Dimension realDimsForCenter = ImageDimensionReader.getImageDimensions(picture.getPictureData().getData());
             Dimension areaDimsForCenter = calculateAreaDimensions(areaRef, sheet);
-            applyCenteringOffset(anchor, realDimsForCenter, areaDimsForCenter, scaleX.doubleValue(), scaleY.doubleValue());
+            applyCenteringOffset(anchor, realDimsForCenter, areaDimsForCenter, scaleX.doubleValue(), scaleY.doubleValue(), areaStartCol, areaEndCol, areaStartRow, areaEndRow, sheet);
         } catch (Exception e) {
             logger.warn("Could not compute centering offsets: {}", e.getMessage());
         }
-
-        picture.resize(scaleX.doubleValue(), scaleY.doubleValue());
 
         // Log resulting image size after resizing and anchor placement details
         try {
@@ -286,18 +288,58 @@ public class ImageCommand extends AbstractCommand {
                     scaledW, scaledH, realW, realH,
                     topLeftCell, String.format("%.2f", dx1px), dx1emu, String.format("%.2f", dy1px), dy1emu,
                     bottomRightCell, String.format("%.2f", dx2px), dx2emu, String.format("%.2f", dy2px), dy2emu);
+
+            // Diagnostic: compute the pixel extent of the anchor (left/right/top/bottom)
+            try {
+                double anchorWidthPx = computeAnchorWidthPixels(sheet, aCol1, aCol2, dx1px, dx2px);
+                double anchorHeightPx = computeAnchorHeightPixels(sheet, aRow1, aRow2, dy1px, dy2px);
+                logger.warn("anchor pixel extent width={}px height={}px (scaled image {}x{})", String.format("%.2f", anchorWidthPx), String.format("%.2f", anchorHeightPx), scaledW, scaledH);
+            } catch (Exception e) {
+                logger.warn("Could not compute anchor pixel extents: {}", e.getMessage());
+            }
         } catch (Exception e) {
             logger.warn("Could not log anchor/size details: {}", e.getMessage());
         }
     }
 
+    private double computeAnchorWidthPixels(Sheet sheet, int col1, int col2Exclusive, double dx1px, double dx2px) {
+        // left position: sum widths of columns < col1 plus dx1px
+        double left = 0;
+        for (int c = 0; c < col1; c++) {
+            left += getCellWidthInPixels(sheet, c);
+        }
+        left += dx1px;
+        // right position: sum widths of columns < col2Exclusive plus dx2px
+        double right = 0;
+        for (int c = 0; c < col2Exclusive; c++) {
+            right += getCellWidthInPixels(sheet, c);
+        }
+        right += dx2px;
+        return right - left;
+    }
+
+    private double computeAnchorHeightPixels(Sheet sheet, int row1, int row2Exclusive, double dy1px, double dy2px) {
+        double top = 0;
+        for (int r = 0; r < row1; r++) {
+            top += getCellHeightInPixels(sheet, r);
+        }
+        top += dy1px;
+        double bottom = 0;
+        for (int r = 0; r < row2Exclusive; r++) {
+            bottom += getCellHeightInPixels(sheet, r);
+        }
+        bottom += dy2px;
+        return bottom - top;
+    }
+
     @SuppressWarnings("unused")
-    private void applyCenteringOffset(ClientAnchor anchor, Dimension realDims, Dimension areaDims, double scaleX, double scaleY) {
+    private void applyCenteringOffset(ClientAnchor anchor, Dimension realDims, Dimension areaDims, double scaleX, double scaleY,
+            int areaStartCol, int areaEndCol, int areaStartRow, int areaEndRow, Sheet sheet) {
         // Calculate what the scaled image size will be
         int scaledImageWidth = (int) Math.round(realDims.x() * scaleX);
         int scaledImageHeight = (int) Math.round(realDims.y() * scaleY);
 
-        // Calculate centering offsets in pixels
+        // Calculate centering offsets in pixels (areaDims are already pixels)
         int offsetXPixels = Math.max(0, (areaDims.x() - scaledImageWidth) / 2);
         int offsetYPixels = Math.max(0, (areaDims.y() - scaledImageHeight) / 2);
 
@@ -306,11 +348,24 @@ public class ImageCommand extends AbstractCommand {
         int offsetYEMU = offsetYPixels * 9525;
 
         try {
-            anchor.setDx1(offsetXEMU);
-            anchor.setDy1(offsetYEMU);
+        // Set top-left offsets
+        anchor.setDx1(offsetXEMU);
+        anchor.setDy1(offsetYEMU);
+        // Restore anchor end cell to the original area end (resize may have modified it)
+        anchor.setCol2(areaEndCol);
+        anchor.setRow2(areaEndRow);
 
-            logger.warn("Applied centering offset: {}px, {}px ({}EMU, {}EMU)",
-                    offsetXPixels, offsetYPixels, offsetXEMU, offsetYEMU);
+        // Compute dx2/dy2 such that the anchor covers the full area width/height
+        int offsetX2Pixels = Math.max(0, areaDims.x() - offsetXPixels - scaledImageWidth);
+        int offsetY2Pixels = Math.max(0, areaDims.y() - offsetYPixels - scaledImageHeight);
+        int offsetX2EMU = offsetX2Pixels * 9525;
+        int offsetY2EMU = offsetY2Pixels * 9525;
+        anchor.setDx2(offsetX2EMU);
+        anchor.setDy2(offsetY2EMU);
+
+        logger.warn("Applied centering offset: {}px, {}px ({}EMU, {}EMU) scaledImage={}x{} area={}x{} dx2={}px dy2={}px",
+            offsetXPixels, offsetYPixels, offsetXEMU, offsetYEMU,
+            scaledImageWidth, scaledImageHeight, areaDims.x(), areaDims.y(), offsetX2Pixels, offsetY2Pixels);
 
         } catch (Exception e) {
             logger.warn("Could not apply centering offsets: " + e.getMessage());
@@ -336,7 +391,7 @@ public class ImageCommand extends AbstractCommand {
         double totalWidthPx = 0;
         for (int col = startCol; col < endCol; col++) {
             totalWidthPx += getCellWidthInPixels(sheet, col);
-            logger./**/warn("totalWidth {}", totalWidthPx);
+            logger./**/warn("totalWidth {} px", totalWidthPx);
         }
 
         // Calculate total height in pixels
@@ -437,7 +492,6 @@ public class ImageCommand extends AbstractCommand {
     private double computeScaleX(int realX, int realY, int rectX, int rectY) {
         double ratioX = (double) rectX / realX;
         double ratioY = (double) rectY / realY;
-
         if (ratioX <= ratioY) {
             return 1.0; // Width is limiting factor
         } else {
@@ -451,7 +505,6 @@ public class ImageCommand extends AbstractCommand {
     private double computeScaleY(int realX, int realY, int rectX, int rectY) {
         double ratioX = (double) rectX / realX;
         double ratioY = (double) rectY / realY;
-
         if (rectY <= 0.01) {
             // assume the cell will be high enough, return the same ratio as horizontal
             logger.warn("computeScaleY: rectY is too small, using ratioX");
@@ -462,5 +515,17 @@ public class ImageCommand extends AbstractCommand {
         } else {
             return 1.0; // Height is limiting factor
         }
+    }
+
+    /**
+     * Compute a uniform scale that makes the image height equal to the area's height
+     * and preserves aspect ratio. Returns areaHeight / imageHeight.
+     */
+    private double computeUniformScale(int realX, int realY, int rectX, int rectY) {
+        if (realY <= 0) {
+            return 1.0;
+        }
+        double ratioY = (double) rectY / realY;
+        return ratioY;
     }
 }
