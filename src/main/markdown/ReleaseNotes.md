@@ -12,6 +12,8 @@
 
 **New in Release 62.0**
 
+62.0.0: Experimental: capability to produce accreditation cards with pictures/logos/flags. See this [folder](https://github.com/jflamy/owlcms4/tree/dev62/owlcms/scripts) in the development repository for [ACCREDITATION_README](https://github.com/jflamy/owlcms4/blob/dev62/owlcms/scripts/ACCREDITATION_README.md) and `.py` support scripts.
+
 62.0.0: The eligibility/non-eligibility status of an athlete is now enumerated. The reason for disqualification or non-competition can be selected.
 
 62.0.0: Support of MQTT devices in cloud configurations using websockets (this is *not* needed for local network setups when owlcms runs on a laptop)
