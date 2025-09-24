@@ -344,21 +344,23 @@ public class ImageCommand extends AbstractCommand {
                     anchor.getCol1(), anchor.getRow1(), anchor.getCol2(), anchor.getRow2(),
                     anchor.getDx1(), anchor.getDy1(), anchor.getDx2(), anchor.getDy2());
 
+        // After resize, POI sets the anchor to define the image bounds.
+        // Instead of resetting Col2/Row2 to area end, keep the image anchor as-is
+        // and adjust Col1/Row1 + dx1/dy1 to center the image within the area
+
         // DIAGNOSTIC: Check if the anchor width is now zero/invalid
         if (anchor.getCol2() <= anchor.getCol1()) {
-            logger.error("DIAGNOSTIC: PROBLEM! Col2 ({}) <= Col1 ({}) after resize! This will cause zero width!", 
+            logger.error("DIAGNOSTIC: PROBLEM! Col2 ({}) <= Col1 ({}) after resize! This will cause zero width!",
                          anchor.getCol2(), anchor.getCol1());
-            logger.warn("DIAGNOSTIC: Resetting Col2 to original area end: {}", areaEndCol);
-            anchor.setCol2(areaEndCol);
+            // Don't reset Col2 - let POI handle it
         }
         if (anchor.getRow2() <= anchor.getRow1()) {
-            logger.error("DIAGNOSTIC: PROBLEM! Row2 ({}) <= Row1 ({}) after resize! This will cause zero height!", 
+            logger.error("DIAGNOSTIC: PROBLEM! Row2 ({}) <= Row1 ({}) after resize! This will cause zero height!",
                          anchor.getRow2(), anchor.getRow1());
-            logger.warn("DIAGNOSTIC: Resetting Row2 to original area end: {}", areaEndRow);
-            anchor.setRow2(areaEndRow);
+            // Don't reset Row2 - let POI handle it
         }
 
-        // Compute dimensions again as needed and apply centering offsets so the image is centered within the area
+        // Compute dimensions and center the image anchor within the area
         try {
             logger.warn("DIAGNOSTIC: About to call applyCenteringOffset");
             Dimension realDimsForCenter = ImageDimensionReader.getImageDimensions(picture.getPictureData().getData());
@@ -430,39 +432,54 @@ public class ImageCommand extends AbstractCommand {
     }
 
     private double computeAnchorWidthPixels(Sheet sheet, int col1, int col2Exclusive, double dx1px, double dx2px) {
-        // left position: sum widths of columns < col1 plus dx1px
-        double left = 0;
-        for (int c = 0; c < col1; c++) {
-            left += getCellWidthInPixels(sheet, c);
+        // Anchor spans from col1 to col2Exclusive-1
+        // Width = sum of column widths from col1 to col2Exclusive-1
+        // dx1 and dx2 are offsets within the first/last columns, not additional width
+        double width = 0;
+        for (int c = col1; c < col2Exclusive; c++) {
+            width += getCellWidthInPixels(sheet, c);
         }
-        left += dx1px;
-        // right position: sum widths of columns < col2Exclusive plus dx2px
-        double right = 0;
-        for (int c = 0; c < col2Exclusive; c++) {
-            right += getCellWidthInPixels(sheet, c);
-        }
-        right += dx2px;
-        return right - left;
+        return width;
     }
 
     private double computeAnchorHeightPixels(Sheet sheet, int row1, int row2Exclusive, double dy1px, double dy2px) {
-        double top = 0;
-        for (int r = 0; r < row1; r++) {
-            top += getCellHeightInPixels(sheet, r);
+        // Anchor spans from row1 to row2Exclusive-1
+        // Height = sum of row heights from row1 to row2Exclusive-1
+        // dy1 and dy2 are offsets within the first/last rows, not additional height
+        double height = 0;
+
+        // Handle ptHeight case like calculateAreaDimensions does
+        if (ptHeight != null) {
+            try {
+                float pt = Float.parseFloat(ptHeight);
+                double totalHeightPx = pt * 96D / 72D;
+                int numRows = row2Exclusive - row1;
+                if (numRows > 0) {
+                    double uniformRowHeight = totalHeightPx / numRows;
+                    for (int r = row1; r < row2Exclusive; r++) {
+                        height += uniformRowHeight;
+                    }
+                }
+            } catch (NumberFormatException nfe) {
+                // Fall back to actual row heights
+                for (int r = row1; r < row2Exclusive; r++) {
+                    height += getCellHeightInPixels(sheet, r);
+                }
+            }
+        } else {
+            // Use actual row heights
+            for (int r = row1; r < row2Exclusive; r++) {
+                height += getCellHeightInPixels(sheet, r);
+            }
         }
-        top += dy1px;
-        double bottom = 0;
-        for (int r = 0; r < row2Exclusive; r++) {
-            bottom += getCellHeightInPixels(sheet, r);
-        }
-        bottom += dy2px;
-        return bottom - top;
+
+        return height;
     }
 
     private void applyCenteringOffset(ClientAnchor anchor, Dimension realDims, Dimension areaDims, double scaleX, double scaleY,
             int areaStartCol, int areaEndCol, int areaStartRow, int areaEndRow, Sheet sheet) {
 
-        logger.warn("DEBUG: applyCenteringOffset START");
+        logger.warn("DEBUG: applyCenteringOffset START - positioning image in area");
 
         // Calculate what the scaled image size will be
         int scaledImageWidth = (int) Math.round(realDims.x() * scaleX);
@@ -475,104 +492,158 @@ public class ImageCommand extends AbstractCommand {
         logger.warn("DEBUG: scaledImage={}x{} area={}x{} offsetX={}px offsetY={}px",
                 scaledImageWidth, scaledImageHeight, areaDims.x(), areaDims.y(), offsetXPixels, offsetYPixels);
 
-        // Convert to EMU (1 pixel ≈ 9525 EMU at 96 DPI)
-        int offsetXEMU = offsetXPixels * 9525;
-        int offsetYEMU = offsetYPixels * 9525;
+        // Set anchor to span the full area
+        anchor.setCol1(areaStartCol);
+        anchor.setRow1(areaStartRow);
+        anchor.setCol2(areaEndCol);
+        anchor.setRow2(areaEndRow);
 
-        try {
-            // Set top-left offsets
-            anchor.setDx1(offsetXEMU);
-            anchor.setDy1(offsetYEMU);
+        // Position the image within the area by setting offsets
+        // Top-left of image relative to area start
+        int imageStartXPixels = offsetXPixels;
+        int imageStartYPixels = offsetYPixels;
 
-            // **CRITICAL**: Keep the original anchor end positions
-            // Don't modify Col2/Row2 unless absolutely necessary
-            // The resize() method should have already set appropriate end positions
-            
-            int offsetX2Pixels = 0;
-            int offsetY2Pixels = 0;
+        // Bottom-right of image relative to area start
+        int imageEndXPixels = imageStartXPixels + scaledImageWidth;
+        int imageEndYPixels = imageStartYPixels + scaledImageHeight;
 
-            boolean isSingleColumn = (areaEndCol == areaStartCol + 1);
-            boolean isSingleRow = (areaEndRow == areaStartRow + 1);
-            
-            // Since the image is scaled to fit, the right edge is within the area
-            int targetCol = areaEndCol;
-            offsetX2Pixels = 0;
-            int offsetX2EMU = 0;
-            logger.warn("DEBUG: targetCol={} offsetX2=0px (image fits in area)", targetCol);
+        // Convert to anchor coordinates (Col1/Row1/dx1/dy1 to Col2/Row2/dx2/dy2)
+        // Find which column/row the image start/end positions fall into
 
-            anchor.setDx2(offsetX2EMU);
-
-            // Similar calculation for rows
-            int imageBottomFromAreaStart = offsetYPixels + scaledImageHeight;
-            int currentHeight = 0;
-            int targetRow = areaStartRow;
-
-            // Handle ptHeight case
-            double areaTotalHeight = areaDims.y();
-            int numRows = Math.max(1, areaEndRow - areaStartRow); // Ensure at least 1 row
-            
-            if (ptHeight != null && numRows > 0) {
-                double perRowHeight = areaTotalHeight / (double) numRows;
-                logger.warn("DEBUG: ptHeight present — using uniform per-row height {}px for {} rows (areaTotal={})",
-                        String.format("%.2f", perRowHeight), numRows, String.format("%.2f", areaTotalHeight));
-                
-                for (int row = areaStartRow; row < Math.min(areaEndRow, sheet.getLastRowNum() + 1); row++) {
-                    int rowHeight = (int) Math.round(perRowHeight);
-                    logger.warn("DEBUG: Uniform Row {} height={}px, cumulative={}px", row + 1, rowHeight, currentHeight + rowHeight);
-                    
-                    if (currentHeight + rowHeight >= imageBottomFromAreaStart) {
-                        targetRow = row + 1; // Excel anchors use exclusive end indices
-                        logger.warn("DEBUG: Bottom edge falls in row {}, setting targetRow to {}", row + 1, targetRow);
-                        break;
-                    }
-                    currentHeight += rowHeight;
-                    targetRow = row + 1;
-                }
+        // X position: find column and offset for image start
+        int currentCol = areaStartCol;
+        int remainingXPixels = imageStartXPixels;
+        while (currentCol < areaEndCol && remainingXPixels > 0) {
+            float colWidthPx = getCellWidthInPixels(sheet, currentCol);
+            if (remainingXPixels >= colWidthPx) {
+                remainingXPixels -= colWidthPx;
+                currentCol++;
             } else {
-                // Use actual row heights
-                for (int row = areaStartRow; row < Math.min(areaEndRow, sheet.getLastRowNum() + 1); row++) {
-                    int rowHeight = (int) getCellHeightInPixels(sheet, row);
-                    logger.warn("DEBUG: Row {} height={}px, cumulative={}px", row + 1, rowHeight, currentHeight + rowHeight);
-                    
-                    if (currentHeight + rowHeight >= imageBottomFromAreaStart) {
-                        targetRow = row + 1; // Excel anchors use exclusive end indices
-                        logger.warn("DEBUG: Bottom edge falls in row {}, setting targetRow to {}", row + 1, targetRow);
-                        break;
-                    }
-                    currentHeight += rowHeight;
-                    targetRow = row + 1;
-                }
-            }
-
-            // Ensure targetRow doesn't exceed the original area (cap to areaEndRow)
-            targetRow = Math.min(targetRow, areaEndRow);
-
-            offsetY2Pixels = imageBottomFromAreaStart - currentHeight;
-            int lastRowHeight = (int) getCellHeightInPixels(sheet, targetRow - 1);
-            offsetY2Pixels = Math.min(offsetY2Pixels, lastRowHeight);
-            int offsetY2EMU = Math.max(0, offsetY2Pixels * 9525); // Ensure non-negative
-
-            logger.warn("DEBUG: targetRow={} currentHeight={}px offsetY2={}px (capped to {}px)",
-                    targetRow, currentHeight, offsetY2Pixels, lastRowHeight);
-
-            // Set anchor to the area, with image centered inside
-            anchor.setCol2(areaEndCol);
-            anchor.setRow2(areaEndRow);
-            anchor.setDx2(0);
-            anchor.setDy2(0);
-
-            logger.warn("Applied centering offset: {}px, {}px", offsetXPixels, offsetYPixels);
-
-        } catch (Exception e) {
-            logger.error("ERROR in applyCenteringOffset: {}", e.getMessage(), e);
-            // In case of error, ensure we at least have valid anchor positions
-            if (anchor.getCol2() <= anchor.getCol1()) {
-                anchor.setCol2(areaEndCol);
-            }
-            if (anchor.getRow2() <= anchor.getRow1()) {
-                anchor.setRow2(areaEndRow);
+                break;
             }
         }
+        anchor.setCol1(currentCol);
+        anchor.setDx1((int) Math.round(remainingXPixels * 9525.0)); // Convert to EMU
+
+        // X position: find column and offset for image end
+        currentCol = areaStartCol;
+        remainingXPixels = imageEndXPixels;
+        while (currentCol < areaEndCol && remainingXPixels > 0) {
+            float colWidthPx = getCellWidthInPixels(sheet, currentCol);
+            if (remainingXPixels >= colWidthPx) {
+                remainingXPixels -= colWidthPx;
+                currentCol++;
+            } else {
+                break;
+            }
+        }
+        anchor.setCol2(currentCol);
+        anchor.setDx2((int) Math.round(remainingXPixels * 9525.0)); // Convert to EMU
+
+        // Y position: find row and offset for image start
+        int currentRow = areaStartRow;
+        int remainingYPixels = imageStartYPixels;
+        double areaTotalHeight = areaDims.y();
+        int numRows = areaEndRow - areaStartRow;
+
+        if (ptHeight != null) {
+            // Use uniform row heights
+            try {
+                float pt = Float.parseFloat(ptHeight);
+                double totalHeightPx = pt * 96D / 72D;
+                double uniformRowHeight = totalHeightPx / numRows;
+
+                while (currentRow < areaEndRow && remainingYPixels > 0) {
+                    if (remainingYPixels >= uniformRowHeight) {
+                        remainingYPixels -= uniformRowHeight;
+                        currentRow++;
+                    } else {
+                        break;
+                    }
+                }
+                anchor.setRow1(currentRow);
+                anchor.setDy1((int) Math.round(remainingYPixels * 9525.0));
+            } catch (NumberFormatException nfe) {
+                // Fall back to actual row heights
+                while (currentRow < areaEndRow && remainingYPixels > 0) {
+                    float rowHeightPx = getCellHeightInPixels(sheet, currentRow);
+                    if (remainingYPixels >= rowHeightPx) {
+                        remainingYPixels -= rowHeightPx;
+                        currentRow++;
+                    } else {
+                        break;
+                    }
+                }
+                anchor.setRow1(currentRow);
+                anchor.setDy1((int) Math.round(remainingYPixels * 9525.0));
+            }
+        } else {
+            // Use actual row heights
+            while (currentRow < areaEndRow && remainingYPixels > 0) {
+                float rowHeightPx = getCellHeightInPixels(sheet, currentRow);
+                if (remainingYPixels >= rowHeightPx) {
+                    remainingYPixels -= rowHeightPx;
+                    currentRow++;
+                } else {
+                    break;
+                }
+            }
+            anchor.setRow1(currentRow);
+            anchor.setDy1((int) Math.round(remainingYPixels * 9525.0));
+        }
+
+        // Y position: find row and offset for image end
+        currentRow = areaStartRow;
+        remainingYPixels = imageEndYPixels;
+
+        if (ptHeight != null) {
+            // Use uniform row heights
+            try {
+                float pt = Float.parseFloat(ptHeight);
+                double totalHeightPx = pt * 96D / 72D;
+                double uniformRowHeight = totalHeightPx / numRows;
+
+                while (currentRow < areaEndRow && remainingYPixels > 0) {
+                    if (remainingYPixels >= uniformRowHeight) {
+                        remainingYPixels -= uniformRowHeight;
+                        currentRow++;
+                    } else {
+                        break;
+                    }
+                }
+                anchor.setRow2(currentRow);
+                anchor.setDy2((int) Math.round(remainingYPixels * 9525.0));
+            } catch (NumberFormatException nfe) {
+                // Fall back to actual row heights
+                while (currentRow < areaEndRow && remainingYPixels > 0) {
+                    float rowHeightPx = getCellHeightInPixels(sheet, currentRow);
+                    if (remainingYPixels >= rowHeightPx) {
+                        remainingYPixels -= rowHeightPx;
+                        currentRow++;
+                    } else {
+                        break;
+                    }
+                }
+                anchor.setRow2(currentRow);
+                anchor.setDy2((int) Math.round(remainingYPixels * 9525.0));
+            }
+        } else {
+            // Use actual row heights
+            while (currentRow < areaEndRow && remainingYPixels > 0) {
+                float rowHeightPx = getCellHeightInPixels(sheet, currentRow);
+                if (remainingYPixels >= rowHeightPx) {
+                    remainingYPixels -= rowHeightPx;
+                    currentRow++;
+                } else {
+                    break;
+                }
+            }
+            anchor.setRow2(currentRow);
+            anchor.setDy2((int) Math.round(remainingYPixels * 9525.0));
+        }
+
+        logger.warn("Applied centering: image positioned at ({}, {}) to ({}, {}) in area",
+                anchor.getCol1(), anchor.getDx1(), anchor.getCol2(), anchor.getDx2());
 
         logger.warn("DEBUG: applyCenteringOffset END");
     }
