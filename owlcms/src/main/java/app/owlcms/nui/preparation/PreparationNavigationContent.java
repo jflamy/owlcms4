@@ -77,7 +77,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
 
-
 		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport(UI.getCurrent());
 		Notification notification = new Notification(Translator.translate("Processing"));
 		notification.setPosition(Position.TOP_END);
@@ -109,9 +108,11 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 		Button athletes = openInNewTabNoParam(RegistrationContent.class, Translator.translate("EditAthletes"));
 		athletes.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+		
+		Button coaches = openInNewTabNoParam(CoachContent.class, Translator.translate("EditCoaches"));
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
 		        Translator.translate(TeamSelectionContent.TITLE));
-		
+
 		Button configureRecords = openInNewTabNoParam(RecordsConfigContent.class,
 		        Translator.translate("RecordEvent.RecordsConfigurationTitle"));
 		Button editExportRecords = openInNewTabNoParam(RecordContent.class,
@@ -135,11 +136,11 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, officials, groups, platforms);
 		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
-		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, teams);
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, coaches, teams);
 		doGroup(Translator.translate("Registration"), grid2, this, true);
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(documents);
 		doGroup(Translator.translate("Documents.Title"), grid3, this, true);
-		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(configureRecords,editExportRecords);
+		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(configureRecords, editExportRecords);
 		doGroup(Translator.translate("RecordEvent.PageTitle"), grid4, this, true);
 		FlexibleGridLayout grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
 		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
@@ -204,7 +205,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		params.remove("fop");
 
 		// change the URL to reflect group
-		URLUtils.replaceState(event.getUI().getPage().getHistory(),null,
+		URLUtils.replaceState(event.getUI().getPage().getHistory(), null,
 		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
 	}
 

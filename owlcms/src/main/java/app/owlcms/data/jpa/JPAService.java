@@ -303,6 +303,7 @@ public class JPAService {
 		        .add(Participation.class.getName())
 		        .add(RecordConfig.class.getName())
 				.add(TechnicalOfficial.class.getName())
+				.add(app.owlcms.data.coach.Coach.class.getName())
 		        .build();
 		return vals;
 	}
