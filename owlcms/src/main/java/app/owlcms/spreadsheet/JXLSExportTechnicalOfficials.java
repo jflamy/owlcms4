@@ -149,9 +149,8 @@ public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 		map.put(OfficialRole.JURY_C, Group::getJury4);
 		map.put(OfficialRole.JURY_D, Group::getJury5);
 		map.put(OfficialRole.ANNOUNCER, Group::getAnnouncer);
-		map.put(OfficialRole.COMPETITION_SECRETARY, Group::getCompetitionSecretary);
-		map.put(OfficialRole.COMPETITION_SECRETARY2, Group::getCompetitionSecretary2);
-		map.put(OfficialRole.COMPETITION_DIRECTOR, Group::getCompetitionDirector);
+		map.put(OfficialRole.WEIGHIN1, Group::getWeighIn1);
+		map.put(OfficialRole.WEIGHIN2, Group::getWeighIn2);
 		map.put(OfficialRole.REFEREE_RESERVE, Group::getReserve);
 		map.put(OfficialRole.JURY_RESERVE, Group::getReserveJury);
 		return map;
