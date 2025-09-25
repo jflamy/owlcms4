@@ -11,6 +11,10 @@ on:
 # - run AllTests locally
 # - Release Notes
         default: '62.0.0-alpha03'
+      buildImages:
+        description: 'Build and push Docker images (set to "false" to skip)'
+        required: false
+        default: 'true'
 
 env:
   REPO_OWNER: owlcms
@@ -77,6 +81,7 @@ jobs:
         run: mvn -B clean install -Pproduction -am -pl publicresults -Drevision=${{ env.REVISION }} -Dmaven.test.skip
           
       - name: Build and Push Docker Images
+        if: ${{ github.event.inputs.buildImages == 'true' }}
         run: mvn -B deploy -f owlcms-docker/pom.xml -Ddockerfile.skip=false -Drevision=${{ env.REVISION }}
         env:
           DOCKER_REG: ${{ secrets.DOCKER_REG }}
