@@ -32,12 +32,34 @@ jobs:
           fetch-depth: 1
           persist-credentials: false # Disable credential persistence
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
+      - name: Verify runner Java and Maven (fail fast)
+        run: |
+          set -euo pipefail
+          echo "Checking Java and Maven on runner..."
+          if ! command -v java >/dev/null 2>&1; then
+            echo "ERROR: java not found on runner. Please enable actions/setup-java or use a runner with Java 17." >&2
+            exit 1
+          fi
+          if ! command -v mvn >/dev/null 2>&1; then
+            echo "ERROR: mvn (Maven) not found on runner. Please ensure Maven is available on PATH or install it." >&2
+            exit 1
+          fi
+          java -version 2>&1 | sed -n '1p'
+          mvn -v
+          # Ensure Java 17 is installed (fail if not)
+          if ! java -version 2>&1 | grep -qE '"17|openjdk 17|Temurin.*17|jdk-17'; then
+            echo "ERROR: Java 17 is required but not found. Runner java output:" >&2
+            java -version 2>&1 | sed -n '1,5p' >&2 || true
+            exit 1
+          fi
+          # Export JAVA_HOME based on the java binary location so tools that need it work reliably
+          JAVA_BIN_PATH=$(readlink -f "$(which java)") || true
+          if [ -n "$JAVA_BIN_PATH" ]; then
+            JAVA_HOME=$(dirname $(dirname "$JAVA_BIN_PATH"))
+            echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
+            echo "PATH=$JAVA_HOME/bin:$PATH" >> $GITHUB_ENV
+            echo "Set JAVA_HOME to $JAVA_HOME"
+          fi
           
       - name: Cache Maven dependencies
         id: cache-maven
