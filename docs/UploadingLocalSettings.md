@@ -30,7 +30,13 @@ Cloud-based setups are created on demand, and do not include persistent local fi
 
 In order to use your customized files in a cloud setup, proceed as follows
 
-1. Create a zip file of the `local` folder
+1. Create a zip file of the `local` folder.
+
+   - We recommend that you make a copy of your local folder in another working area, and only keep the files that you have modified.
+
+   - On Windows, you can right-click, and select Send to > Compressed (zipped) folder from the context menu
+
+   - When creating the zip, you can zip the local folder directly.  owlcms will detect the extra "local" level this creates and deal with it correctly.
 
 2. Go to the Preparation > Language and System Settings section of the Cloud-based application
 
