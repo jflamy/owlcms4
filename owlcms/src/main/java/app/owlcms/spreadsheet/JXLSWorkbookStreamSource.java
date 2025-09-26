@@ -143,6 +143,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		init();
 	}
 
+
 	/**
 	 * Read the xls template and write the processed XLS file out.
 	 *
@@ -165,7 +166,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	@Override
 	public InputStream createInputStream() {
-		logger.warn("============== createInputStream called");
+		logger.warn("============== createInputStream called {}", LoggerUtils.stackTrace());
 		// contextTrace intentionally omitted; validation happens synchronously now
 
 		// Synchronous validation: detect errors (e.g. NoAthletes or TooManyAthletes)
@@ -194,6 +195,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			// Any unexpected problem during validation: wrap and propagate
 			throw new RuntimeException(t);
 		}
+		return doCreateStream();
+	}
+
+	protected InputStream doCreateStream() {
 		try {
 			PipedInputStream in = new PipedInputStream();
 			PipedOutputStream out = new PipedOutputStream(in);
@@ -912,6 +917,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public void setUi(UI current) {
 		this.ui = current;
+	}
+
+	public UI getUi() {
+		return ui;
 	}
 
 }

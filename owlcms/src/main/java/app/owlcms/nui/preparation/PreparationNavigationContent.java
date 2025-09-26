@@ -77,11 +77,10 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
 
-		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport(UI.getCurrent());
+		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport();
 		Notification notification = new Notification(Translator.translate("Processing"));
 		notification.setPosition(Position.TOP_END);
-		notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
-		emptyRegistrationWriter.setDoneCallback((s) -> this.getUI().get().access(() -> {
+		emptyRegistrationWriter.setDoneCallback((s) -> emptyRegistrationWriter.getUi().access(() -> {
 			notification.close();
 		}));
 		Div downloadDiv = DownloadButtonFactory.createDynamicJXLSDownloadButton("Registration", Translator.translate("DownloadRegistrationTemplate"),
@@ -108,7 +107,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 		Button athletes = openInNewTabNoParam(RegistrationContent.class, Translator.translate("EditAthletes"));
 		athletes.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-		
+
 		Button coaches = openInNewTabNoParam(CoachContent.class, Translator.translate("EditCoaches"));
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
 		        Translator.translate(TeamSelectionContent.TITLE));

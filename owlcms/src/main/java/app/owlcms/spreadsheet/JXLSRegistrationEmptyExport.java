@@ -20,8 +20,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.component.UI;
-
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -49,7 +47,7 @@ public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 	/**
 	 * @param ui
 	 */
-	public JXLSRegistrationEmptyExport(UI ui) {
+	public JXLSRegistrationEmptyExport() {
 		try {
 			// needed to set the file extension in the source so the download button works.
 			getTemplate(OwlcmsSession.getLocale());

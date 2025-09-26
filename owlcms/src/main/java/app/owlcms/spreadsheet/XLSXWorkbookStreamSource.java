@@ -7,14 +7,19 @@
 package app.owlcms.spreadsheet;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
+import java.io.InputStream;
 import java.util.function.Consumer;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.InputStreamFactory;
 
 import ch.qos.logback.classic.Level;
@@ -35,32 +40,67 @@ public abstract class XLSXWorkbookStreamSource implements InputStreamFactory {
 		jexlLogger.setLevel(Level.ERROR);
 		tagLogger.setLevel(Level.ERROR);
 	}
-	protected Consumer<String> doneCallback;
 
-	public XLSXWorkbookStreamSource() {
+	/** Shared executor for background writer tasks. Daemon threads so they don't block shutdown. */
+	private static final ExecutorService WRITER_EXECUTOR = Executors.newCachedThreadPool(r -> {
+		Thread t = new Thread(r, "XLSXWorkbookStreamSource-writer");
+		t.setDaemon(true);
+		return t;
+	});
+
+	protected Consumer<String> doneCallback;
+	protected UI ui;
+
+	public UI getUi() {
+		return ui;
+	}
+
+	public void setUi(UI ui) {
+		this.ui = ui;
+	}
+
+	public XLSXWorkbookStreamSource(UI ui) {
+		this.ui = ui;
 	}
 
 	@Override
 	public InputStream createInputStream() {
+		final PipedInputStream in;
+		final PipedOutputStream out;
 		try {
-			PipedInputStream in = new PipedInputStream();
-			PipedOutputStream out = new PipedOutputStream(in);
-			new Thread(
-			        new Runnable() {
-				        @Override
-				        public void run() {
-					        try {
-						        writeStream(out);
-						        out.close();
-					        } catch (IOException e) {
-						        throw new RuntimeException(e);
-					        }
-				        }
-			        }).start();
-			return in;
+			in = new PipedInputStream();
+			out = new PipedOutputStream(in);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		// Record writer IOExceptions so the reader can observe them
+		final AtomicReference<IOException> writerException = new AtomicReference<>();
+
+		WRITER_EXECUTOR.submit(() -> {
+			try {
+				writeStream(out);
+			} catch (Throwable t) {
+				// If the exporter wrapped an IOException in a RuntimeException, unwrap it.
+				if (t instanceof IOException) {
+					writerException.set((IOException) t);
+				} else if (t.getCause() instanceof IOException) {
+					writerException.set((IOException) t.getCause());
+				} else {
+					// Record a generic IOException so the reader/poller sees a failure
+					writerException.set(new IOException("Writer failed", t));
+				}
+			} finally {
+				try {
+					out.close();
+				} catch (IOException e) {
+					logger.warn("Error closing piped output stream", e);
+				}
+			}
+		});
+
+		// Return a lightweight wrapper that checks the writer exception before/after reads.
+		return new InputStreamWrapper(in, writerException);
 	}
 
 	public Consumer<String> getDoneCallback() {
@@ -71,6 +111,15 @@ public abstract class XLSXWorkbookStreamSource implements InputStreamFactory {
 		this.doneCallback = action;
 	}
 
-	protected abstract void writeStream(OutputStream stream);
+	/**
+	 * Optional pre-check invoked before creating the input stream. Implementations should return an Optional
+	 * containing an Exception when the download should be aborted early (for example when there's no data).
+	 * The default implementation returns empty (no error).
+	 */
+	public Optional<Exception> preCheck() {
+		return Optional.empty();
+	}
+
+	protected abstract void writeStream(OutputStream stream) throws IOException;
 
 }

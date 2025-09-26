@@ -84,7 +84,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
         Div exportOfficials = DownloadButtonFactory.createDynamicXLSXDownloadButton(
             "TechnicalOfficials",
             Translator.translate("TechnicalOfficials.Export"), 
-            new XLSXTechnicalOfficialsExport());
+            new XLSXTechnicalOfficialsExport(UI.getCurrent()));
         exportOfficials.getStyle().set("margin-left", "1em");
 
 		Button uploadCustom = new Button(Translator.translate("TechnicalOfficials.Upload"),

@@ -17,6 +17,7 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -181,7 +182,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		reloadDefinition.setSpacing(false);
 
 		Div exportAgeGroups = DownloadButtonFactory.createDynamicXLSXDownloadButton("AgeGroups",
-		        Translator.translate("AgeGroups.ExportDefinitions"), new XLSXAgeGroupsExport());
+		        Translator.translate("AgeGroups.ExportDefinitions"), new XLSXAgeGroupsExport(UI.getCurrent()));
 		exportAgeGroups.getStyle().set("margin-left", "1em");
 
 		Button editChampionships = new Button(

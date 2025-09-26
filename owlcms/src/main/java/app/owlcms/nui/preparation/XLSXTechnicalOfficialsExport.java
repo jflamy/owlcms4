@@ -3,6 +3,7 @@ package app.owlcms.nui.preparation;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -13,14 +14,34 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
+
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.XLSXWorkbookStreamSource;
+import app.owlcms.servlet.StopProcessingException;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
+
+    public XLSXTechnicalOfficialsExport(UI ui) {
+        super(ui);
+    }
+
+    @Override
+    public Optional<Exception> preCheck() {
+        try {
+            List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
+            if (officials == null || officials.isEmpty()) {
+                return Optional.of(new StopProcessingException(Translator.translate("export.noTechnicalOfficials"), null));
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            return Optional.of(e);
+        }
+    }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(XLSXTechnicalOfficialsExport.class);
 

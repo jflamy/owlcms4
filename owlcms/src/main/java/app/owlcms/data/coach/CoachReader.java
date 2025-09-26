@@ -24,11 +24,10 @@ public class CoachReader {
 
     @SuppressWarnings("unused")
     private final static Logger logger = (Logger) LoggerFactory.getLogger(CoachReader.class);
-    private static final String LAST_NAME = "LastName";
-    private static final String FIRST_NAME = "FirstName";
-    // LEVEL and IWF_ID removed for Coach
-    private static final String MEMBERSHIP_ID = "MembershipId";
-    private static final String TEAM = "Team";
+    public static final String LAST_NAME = "LastName";
+    public static final String FIRST_NAME = "FirstName";
+    public static final String MEMBERSHIP_ID = "Membership";
+    public static final String TEAM = "Team";
 
     public List<Coach> importFromXLS(InputStream is, StringBuilder errors) {
         List<Coach> coaches = new ArrayList<>();

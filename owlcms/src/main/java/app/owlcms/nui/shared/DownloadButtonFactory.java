@@ -18,10 +18,12 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.server.InputStreamFactory;
 
 import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.export.CompetitionData;
+import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.spreadsheet.XLSXWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
@@ -109,6 +111,12 @@ public class DownloadButtonFactory {
 	 * @return the div
 	 */
 	public static Div createDynamicXLSXDownloadButton(String prefix, String label, XLSXWorkbookStreamSource xlsSource) {
+		Notification notification = new Notification(Translator.translate("Processing"));
+		notification.setPosition(Position.TOP_END);
+		xlsSource.setDoneCallback((s) -> xlsSource.getUi().access(() -> {
+			logger.warn("XLSX generation done: " + s);
+			notification.close();
+		}));
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
 		        new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -120,7 +128,7 @@ public class DownloadButtonFactory {
 			                + value;
 		        },
 		        xlsSource);
-
+		downloadButton.setNotification(notification);
 		return new Div(downloadButton);
 	}
 

@@ -16,15 +16,24 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
+
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.i18n.Translator;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.servlet.StopProcessingException;
+import java.util.Optional;
 
 @SuppressWarnings("serial")
 public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
+
+	public XLSXAgeGroupsExport(UI ui) {
+		super(ui);
+	}
 
 	Logger logger = (Logger) LoggerFactory.getLogger(XLSXAgeGroupsExport.class);
 
@@ -84,6 +93,19 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			stream.close();
 		} catch (Exception e) {
 			LoggerUtils.logError(this.logger, e);
+		}
+	}
+
+	@Override
+	public Optional<Exception> preCheck() {
+		try {
+			List<AgeGroup> ageGroups = AgeGroupRepository.findAll();
+			if (ageGroups == null || ageGroups.isEmpty()) {
+				return Optional.of(new StopProcessingException(Translator.translate("export.noAgeGroups"), null));
+			}
+			return Optional.empty();
+		} catch (Exception e) {
+			return Optional.of(e);
 		}
 	}
 
