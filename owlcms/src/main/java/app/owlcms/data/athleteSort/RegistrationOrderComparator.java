@@ -203,7 +203,9 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 		return compare;
 	};
 	public static Comparator<Athlete> athleteSessionRegistrationOrderComparator = (lifter1, lifter2) -> {
-		return AbstractLifterComparator.athleteSessionComparator.thenComparing(athleteRegistrationOrderComparator).compare(lifter1, lifter2);
+		return AbstractLifterComparator.athleteSessionComparator
+			.thenComparing(athleteRegistrationOrderComparator)
+			.compare(lifter1, lifter2);
 	};
 
 	/*

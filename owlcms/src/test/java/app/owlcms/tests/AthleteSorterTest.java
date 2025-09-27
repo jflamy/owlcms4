@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import org.junit.AfterClass;
@@ -44,6 +45,7 @@ public class AthleteSorterTest {
         Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
+        Gender.initPublicGenderCodeMapString(Locale.ENGLISH);
         TestData.insertInitialData(5, true);
     }
 

@@ -8,7 +8,6 @@ package app.owlcms.components.elements;
 
 import java.io.IOException;
 import java.io.InputStream;
-import app.owlcms.spreadsheet.InputStreamWrapper;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,8 +33,11 @@ import com.vaadin.flow.server.streams.TransferContext;
 import com.vaadin.flow.server.streams.TransferProgressListener;
 import com.vaadin.flow.shared.Registration;
 
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.i18n.Translator;
+import app.owlcms.spreadsheet.InputStreamWrapper;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
+import app.owlcms.spreadsheet.XLSXWorkbookStreamSource;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -66,6 +68,24 @@ public class LazyDownloadButton extends Button {
 		public DomEvent getClientSideEvent() {
 			return this.clientSideEvent;
 		}
+	}
+
+	/**
+	 * Run preCheck() on known workbook stream sources. Returns Optional.empty() when no error.
+	 */
+	private Optional<Exception> runPreCheck() {
+		System.err.println("*** LazyDownloadButton.runPreCheck");
+		InputStreamFactory cb = getInputStreamCallback();
+		if (cb instanceof XLSXWorkbookStreamSource) {
+			System.err.println("*** LazyDownloadButton.runPreCheck: XLSXWorkbookStreamSource");
+			return ((XLSXWorkbookStreamSource) cb).preCheck();
+		}
+		if (cb instanceof JXLSWorkbookStreamSource) {
+			System.err.println("*** LazyDownloadButton.runPreCheck: JXLSWorkbookStreamSource");
+			return ((JXLSWorkbookStreamSource) cb).preCheck();
+		}
+		System.err.println("*** LazyDownloadButton.runPreCheck: no preCheck "+LoggerUtils.whereFrom());
+		return Optional.empty();
 	}
 
 	private static final String DEFAULT_FILE_NAME = "download";
@@ -154,26 +174,21 @@ public class LazyDownloadButton extends Button {
 
 					// Run the pre-check on the UI thread BEFORE creating the DownloadHandler so we can
 					// show a notification (via UI.access) and abort without creating the handler/anchor.
-					if (getInputStreamCallback() instanceof app.owlcms.spreadsheet.XLSXWorkbookStreamSource) {
-						app.owlcms.spreadsheet.XLSXWorkbookStreamSource xs =
-								(app.owlcms.spreadsheet.XLSXWorkbookStreamSource) getInputStreamCallback();
-						java.util.Optional<java.lang.Exception> pre = xs.preCheck();
-						if (pre.isPresent()) {
-							Exception e = pre.get();
-							// Show notification immediately on the UI and abort the download attempt
-							optionalUI.ifPresent(ui -> {
-								showDownloadErrorNotification(ui, e.getMessage() == null ? e.toString() : e.getMessage(), e);
-								errorNotified.set(true);
-							});
-							// Do not proceed with DownloadHandler creation
-							return;
-						}
+					java.util.Optional<java.lang.Exception> pre = runPreCheck();
+					if (pre.isPresent()) {
+						Exception e = pre.get();
+						optionalUI.ifPresent(ui -> {
+							showDownloadErrorNotification(ui, e.getMessage() == null ? e.toString() : e.getMessage(), e);
+							errorNotified.set(true);
+						});
+						return;
 					}
-
+					System.err.println("*** LazyDownloadButton creating DownloadHandler");
 					DownloadHandler downloadHandler = DownloadHandler.fromInputStream(
 						(downloadEvent) -> {
 									try {
 										InputStream downloadStream = getInputStreamCallback().createInputStream();
+										System.err.println("*** LazyDownloadButton created download stream: "+downloadStream);
 
 										// If the stream is our wrapper, poll briefly for a fast writer failure and
 										// return an error response immediately if one occurred.
@@ -232,7 +247,18 @@ public class LazyDownloadButton extends Button {
 								public void onError(TransferContext tc, IOException error) {
 									// Only show the notification if we haven't already (preCheck or fast-fail)
 									if (!errorNotified.getAndSet(true)) {
-										showDownloadErrorNotification(tc.getUI(), error.getMessage(), error);
+										try {
+											UI ui = tc.getUI();
+											if (ui != null) {
+												ui.access(() -> showDownloadErrorNotification(ui, error.getMessage(), error));
+											} else {
+												// No UI available on context; fall back to logging
+												logger.error("Download failed: {}", error.getMessage(), error);
+											}
+										} catch (Exception e) {
+											// Ensure we still log the original error even if UI access fails
+											logger.error("Download failed (notify failed): {}", error.getMessage(), error);
+										}
 									} else {
 										// Still log the error even if notification was already shown
 										logger.error("Download failed (already notified): {}", error.getMessage(), error);

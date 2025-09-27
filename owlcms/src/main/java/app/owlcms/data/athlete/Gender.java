@@ -6,6 +6,9 @@
  *******************************************************************************/
 package app.owlcms.data.athlete;
 
+import java.util.EnumMap;
+import java.util.Locale;
+
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 
@@ -34,6 +37,9 @@ public enum Gender {
 		return mfmfValueArray;
 	}
 
+	// map holding the translated public gender codes per gender
+	private static final EnumMap<Gender, String> translatedGenderCodeMap = new EnumMap<>(Gender.class);
+
 	public String asGenderName() {
 		switch (this) {
 			case F:
@@ -50,14 +56,15 @@ public enum Gender {
 	}
 
 	public String asPublicGenderCode() {
-		switch (this) {
-			case F:
-			case I:
-			case M:
-			case MF:
-				return (Translator.translate("Gender." + this.name()));
-			default:
-				throw new IllegalStateException();
+		return getTranslatedGenderCode();
+	}
+
+	public static void initPublicGenderCodeMapString(Locale locale) {
+		// need to use the system-wide language as defined in Config
+		// create/populate the map used by getTranslatedGenderCode()
+		for (Gender gender : Gender.values()) {
+			translatedGenderCodeMap.put(gender,
+					Translator.translateExplicitLocale("Gender." + gender.name(), locale));
 		}
 	}
 
@@ -67,13 +74,13 @@ public enum Gender {
 			case I:
 			case M:
 			case MF:
-				return (Translator.translate("Gender." + this.name()));
+				return translatedGenderCodeMap.get(this);
 			default:
 				throw new IllegalStateException();
 		}
 	}
 
 	public void setTranslatedGenderCode(String ignored) {
-		// do nothing, for bean introspection
+		// do nothing, the translated code is static
 	}
 }

@@ -15,13 +15,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.FilterInputStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-// removed TimeUnit and TimeoutException imports; no short probe wait is used
+import java.util.concurrent.atomic.AtomicReference;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -95,6 +92,13 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		jexlLogger.setLevel(Level.ERROR);
 		tagLogger.setLevel(Level.ERROR);
 	}
+
+		/** Shared executor for background writer tasks. Daemon threads so they don't block shutdown. */
+		private static final ExecutorService WRITER_EXECUTOR = Executors.newCachedThreadPool(r -> {
+			Thread t = new Thread(r, "JXLSWorkbookStreamSource-writer");
+			t.setDaemon(true);
+			return t;
+		});
 
 	public static Ranking getBestLifterRankingThreadLocal() {
 		Ranking blss = bestLifterRankingSystem.get();
@@ -167,211 +171,59 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	@Override
 	public InputStream createInputStream() {
 		logger.warn("============== createInputStream called {}", LoggerUtils.stackTrace());
-		// contextTrace intentionally omitted; validation happens synchronously now
-
-		// Synchronous validation: detect errors (e.g. NoAthletes or TooManyAthletes)
-		// before starting background streaming so we can stop the download immediately
-		// and let the caller's error handling (which calls doneCallback) run once.
-		try {
-			setReportingInfo();
-			@SuppressWarnings("unchecked")
-			List<Athlete> athletes = (List<Athlete>) getReportingBeans().get("athletes");
-			int size = athletes != null ? athletes.size() : 0;
-			if (!(size == 0 ? isEmptyOk() : isSizeOk(size))) {
-				if (athletes == null || athletes.size() == 0) {
-					String localized = Translator.translate("NoAthletes");
-					throw new StopProcessingException("NoAthletes", new RuntimeException(localized));
-				} else {
-					String localized = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
-					throw new StopProcessingException("TooManyAthletes", new RuntimeException(localized));
-				}
-			}
-		} catch (StopProcessingException ex) {
-			throw ex;
-		} catch (RuntimeException ex) {
-			// Propagate validation runtime exceptions to caller; caller handles doneCallback/notification
-			throw ex;
-		} catch (Throwable t) {
-			// Any unexpected problem during validation: wrap and propagate
-			throw new RuntimeException(t);
-		}
+		// IMPORTANT: do NOT access VaadinSession or UI here. Pre-checks that require
+		// UI/Session must be executed by the caller (for example LazyDownloadButton.preCheck()).
+		// Return the background-driven InputStream immediately so Vaadin can stream it.
 		return doCreateStream();
 	}
 
 	protected InputStream doCreateStream() {
+		// Use shared WRITER_EXECUTOR and publish any writer IOException into an AtomicReference
+		final PipedInputStream in = new PipedInputStream();
+		final PipedOutputStream out;
 		try {
-			PipedInputStream in = new PipedInputStream();
-			PipedOutputStream out = new PipedOutputStream(in);
-
-			ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
-				Thread t = new Thread(r);
-				t.setDaemon(true);
-				return t;
-			});
-
-			Callable<Void> task = () -> {
-				try {
-					try {
-						writeStream(out);
-					} finally {
-						try {
-							out.close();
-						} catch (IOException ignore) {
-						}
-					}
-					return null;
-				} catch (Throwable t) {
-					// initial detection of background failure
-					try {
-						if (this.doneCallback != null) {
-							try {
-								// final info before invoking callback
-								this.doneCallback.accept(LoggerUtils.exceptionMessage(t));
-							} catch (Throwable cb) {
-								// swallow callback failure
-							}
-						}
-					} catch (Throwable ignore) {
-					}
-					if (t instanceof IOException) {
-						throw (IOException) t;
-					}
-					if (t instanceof RuntimeException) {
-						throw (RuntimeException) t;
-					}
-					throw new IOException(t);
-				}
-			};
-
-			final Future<Void> future = executor.submit(task);
-
-			// Background task runs asynchronously; any exceptions will be propagated
-			// to readers via the FilterInputStream.checkFuture() and close() handlers.
-
-			InputStream wrapped = new FilterInputStream(in) {
-				private boolean closed = false;
-
-				private void checkFuture() throws IOException {
-					if (future.isDone()) {
-						try {
-							future.get();
-						} catch (ExecutionException ee) {
-							Throwable cause = ee.getCause();
-							try {
-								if (JXLSWorkbookStreamSource.this.doneCallback != null) {
-									try {
-										JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(cause));
-									} catch (Throwable cb) {
-										// swallow callback failure
-									}
-								}
-							} catch (Throwable ignore) {
-							}
-							if (cause instanceof StopProcessingException) {
-								throw (StopProcessingException) cause;
-							}
-							if (cause instanceof IOException) {
-								throw (IOException) cause;
-							} else {
-								throw new IOException(cause);
-							}
-						} catch (InterruptedException ie) {
-							Thread.currentThread().interrupt();
-							try {
-								if (JXLSWorkbookStreamSource.this.doneCallback != null) {
-									try {
-										JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(ie));
-									} catch (Throwable cb) {
-										// swallow callback failure
-									}
-								}
-							} catch (Throwable ignore) {
-							}
-							throw new IOException(ie);
-						}
-					}
-				}
-
-				@Override
-				public int read() throws IOException {
-					checkFuture();
-					int r = super.read();
-					if (r == -1) {
-						checkFuture();
-					}
-					return r;
-				}
-
-				@Override
-				public int read(byte[] b, int off, int len) throws IOException {
-					checkFuture();
-					int r = super.read(b, off, len);
-					if (r == -1) {
-						checkFuture();
-					}
-					return r;
-				}
-
-				@Override
-				public void close() throws IOException {
-					if (closed) {
-						return;
-					}
-					closed = true;
-					try {
-						super.close();
-					} finally {
-						try {
-							if (future.isDone()) {
-								future.get();
-							} else {
-								// not finished yet - cancel the task
-								future.cancel(true);
-							}
-						} catch (ExecutionException ee) {
-							Throwable cause = ee.getCause();
-							try {
-								if (JXLSWorkbookStreamSource.this.doneCallback != null) {
-									try {
-										JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(cause));
-									} catch (Throwable cb) {
-										// swallow callback failure
-									}
-								}
-							} catch (Throwable ignore) {
-							}
-							if (cause instanceof StopProcessingException) {
-								throw (StopProcessingException) cause;
-							}
-							if (cause instanceof IOException) {
-								throw (IOException) cause;
-							} else {
-								throw new IOException(cause);
-							}
-						} catch (InterruptedException ie) {
-							Thread.currentThread().interrupt();
-							try {
-								if (JXLSWorkbookStreamSource.this.doneCallback != null) {
-									try {
-										JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(ie));
-									} catch (Throwable cb) {
-										// swallow callback failure
-									}
-								}
-							} catch (Throwable ignore) {
-							}
-							throw new IOException(ie);
-						} finally {
-							executor.shutdownNow();
-						}
-					}
-				}
-			};
-
-			return wrapped;
+			out = new PipedOutputStream(in);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		final AtomicReference<IOException> writerException = new AtomicReference<>();
+
+		WRITER_EXECUTOR.submit(() -> {
+			try {
+				writeStream(out);
+			} catch (Throwable t) {
+				// notify doneCallback with a user-friendly message when available
+				try {
+					if (JXLSWorkbookStreamSource.this.doneCallback != null) {
+						try {
+							JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(t));
+						} catch (Throwable cb) {
+							// swallow callback failure
+						}
+					}
+				} catch (Throwable ignore) {
+				}
+
+				if (t instanceof IOException) {
+					writerException.set((IOException) t);
+				} else if (t.getCause() instanceof IOException) {
+					writerException.set((IOException) t.getCause());
+				} else if (t instanceof StopProcessingException) {
+					writerException.set(new IOException(t));
+				} else {
+					writerException.set(new IOException(t));
+				}
+			} finally {
+				try {
+					out.close();
+				} catch (IOException e) {
+					logger.warn("Error closing piped output stream", e);
+				}
+			}
+		});
+
+		return new InputStreamWrapper(in, writerException);
 	}
 
 	public void extractVariables(String comment) {
@@ -455,15 +307,25 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.mergeColumnList;
 	}
 
-	public Integer getPageLength() {
-		return this.pageLength;
-	}
-
+	// Missing helper accessors used by subclasses and internal logic
 	public HashMap<String, Object> getReportingBeans() {
 		return this.reportingBeans;
 	}
 
+	public void setReportingBeans(HashMap<String, Object> beans) {
+		this.reportingBeans = beans;
+	}
+
+	public void setExcludeNotWeighed(boolean exclude) {
+		this.excludeNotWeighed = exclude;
+	}
+
+	public boolean isEmptyOk() {
+		return this.emptyOk;
+	}
+
 	public int getSizeLimit() {
+		// default generous limit; subclasses may override
 		return Integer.MAX_VALUE;
 	}
 
@@ -471,172 +333,103 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.sortedAthletes;
 	}
 
-	public List<String> getSuffixes(Locale locale) {
-		List<String> tryList = new ArrayList<>();
-		if (!locale.getVariant().isEmpty() && !locale.getCountry().isEmpty() && !locale.getLanguage().isEmpty()) {
-			tryList.add("_" + locale.getLanguage() + "_" + locale.getCountry() + "_" + locale.getVariant());
-		}
-		if (!locale.getCountry().isEmpty() && !locale.getLanguage().isEmpty()) {
-			tryList.add("_" + locale.getLanguage() + "_" + locale.getCountry());
-		}
-		if (!locale.getLanguage().isEmpty()) {
-			tryList.add("_" + locale.getLanguage());
-		}
-		// try English explicitly for backward compatibility
-		if (!locale.getLanguage().equals("en")) {
-			tryList.add("_" + "en");
-		}
-		tryList.add("");
-		return tryList;
-	}
-
-	public InputStream getTemplate(Locale locale) throws IOException, Exception {
-		if (this.inputStream != null) {
-			logger.debug("explicitly set template {}", this.inputStream);
-			return new BufferedInputStream(this.inputStream);
-		}
-		String templateFileName2 = getTemplateFileName();
-		InputStream resourceAsStream = ResourceWalker.getFileOrResource(templateFileName2);
-		return new BufferedInputStream(resourceAsStream);
-	}
-
 	public String getTemplateFileName() {
 		return this.templateFileName;
-	}
-
-	public boolean isEmptyOk() {
-		return this.emptyOk;
-	}
-
-	public boolean isExcludeNotWeighed() {
-		return this.excludeNotWeighed;
-	}
-
-	/**
-	 * @param ageGroupPrefix the ageGroupPrefix to set
-	 */
-	public void setAgeGroupPrefix(String ageGroupPrefix) {
-		this.ageGroupPrefix = ageGroupPrefix;
-	}
-
-	public void setBestLifterScoringSystem(Ranking computeScoringSystem) {
-		this.bestLifterScoringSystem = computeScoringSystem;
-	}
-
-	public void setCategory(Category category) {
-		this.category = category;
-	}
-
-	public void setChampionship(Championship championship) {
-		this.championship = championship;
-	}
-
-	public void setDoneCallback(Consumer<String> action) {
-		this.doneCallback = action;
-	}
-
-	public void setEmptyOk(boolean emptyOk) {
-		this.emptyOk = emptyOk;
-	}
-
-	public void setExcludeNotWeighed(boolean excludeNotWeighed) {
-		this.excludeNotWeighed = excludeNotWeighed;
-	}
-
-	public void setFileExtension(String extension) {
-		// logger.debug("setting extension {} in {}",extension,this);
-		this.fileExtension = extension;
-	}
-
-	public void setFirstMergeLine(Integer firstMergeLine) {
-		this.firstMergeLine = firstMergeLine;
-	}
-
-	public void setGroup(Group group) {
-		this.group = group;
-	}
-
-	public void setInputStream(InputStream is) {
-		this.inputStream = is;
-	}
-
-	public void setLastLine(Integer lastLine) {
-		this.lastLine = lastLine;
-	}
-
-	// private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
-	// boolean jxls3 = false;
-	// Sheet sheet = tempWorkbook.getSheetAt(0); // Get the first sheet
-	// Row row = sheet.getRow(0); // Get the first row (0-based)
-	// if (row != null) {
-	// Cell cell = row.getCell(0); // Get the first cell in the row (0-based)
-	// if (cell != null) {
-	// Comment comment = cell.getCellComment();
-	// jxls3 = (comment != null && comment.getString().getString().contains("jx:area"));
-	// if (comment != null) {
-	// String plainComment = comment.getString().getString();
-	// String regex = "lastCell=\"[A-Za-z](.*?)\"";
-	// Pattern pattern = Pattern.compile(regex);
-	// Matcher matcher = pattern.matcher(plainComment);
-	// if (matcher.find()) {
-	// String lastLine = matcher.group(1);
-	// try {
-	// this.setPageLength(Integer.parseInt(lastLine));
-	// } catch (NumberFormatException e) {
-	// LoggerUtils.logError(logger, e, true);
-	// }
-	// }
-	// }
-	// }
-	//
-	// }
-	// return jxls3;
-	// }
-
-	public void setMergeColumnList(List<Integer> columnsList) {
-		this.mergeColumnList = columnsList;
 	}
 
 	public void setPageLength(Integer pageLength) {
 		this.pageLength = pageLength;
 	}
 
-	public void setReportingBeans(HashMap<String, Object> jXLSBeans) {
-		this.reportingBeans = jXLSBeans;
+	public Integer getPageLength() {
+		return this.pageLength;
 	}
 
-	public void setSortedAthletes(List<Athlete> sortedAthletes) {
-		this.sortedAthletes = sortedAthletes;
+	public void setLastLine(Integer lastLine) {
+		this.lastLine = lastLine;
 	}
 
-	public void setTemplateFileName(String templateFileName) {
-		this.templateFileName = templateFileName;
+	public void setFirstMergeLine(Integer firstMergeLine) {
+		this.firstMergeLine = firstMergeLine;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void writeStream(OutputStream stream) throws IOException {
+	public void setMergeColumnList(List<Integer> list) {
+		this.mergeColumnList = list;
+	}
+
+	public void setFileExtension(String ext) {
+		this.fileExtension = ext;
+	}
+
+	// getTemplate(Locale) now has a default implementation lower in the class; subclasses may override it.
+
+	/**
+	 * Default concrete writeStream that reads the template and delegates to the
+	 * jxls transform helpers already defined in this class.
+	 */
+	protected void writeStream(OutputStream stream) throws IOException {
+		System.err.println("*** JXLSWorkbookStreamSource.writeStream");
 		File tempFile = null;
+		InputStream template = null;
 		try {
-			InputStream template;
-			Locale locale = OwlcmsSession.getLocale();
-			template = getTemplate(locale);
+			// Allow subclasses to provide an explicit template input stream via setInputStream
+			if (this.inputStream != null) {
+				template = new BufferedInputStream(this.inputStream);
+			} else {
+				template = getTemplate(OwlcmsSession.getLocale());
+			}
+
+			// Copy template to temp file so WorkbookFactory/JXLS can operate on it
 			tempFile = File.createTempFile("jxlsTemplate", ".tmp");
 			FileUtils.copyInputStreamToFile(template, tempFile);
-			Workbook workbook = WorkbookFactory.create(tempFile);
+
+			Workbook workbook = WorkbookFactory.create(new FileInputStream(tempFile));
 			if (checkJxls3(workbook)) {
 				jxls3Transform(stream, tempFile);
 			} else {
 				jxls1Transform(stream, workbook);
 			}
-		} catch (Exception e) {
-			// propagate to callable
-			throw new IOException(e);
+		} catch (StopProcessingException e) {
+			LoggerUtils.logError(logger, e);
+			// rethrow StopProcessingException directly so caller can handle it
+			throw e;
+		} catch (IOException e) {
+			throw e;
+		} catch (Throwable t) {
+			LoggerUtils.logError(logger, t);
+			throw new IOException(t);
 		} finally {
+			try {
+				if (template != null) {
+					template.close();
+				}
+			} catch (IOException ignore) {
+			}
 			if (tempFile != null) {
 				tempFile.delete();
 			}
 		}
+	}
 
+	// Common setters used by UI and other callers
+	public void setInputStream(InputStream template) {
+		this.inputStream = template;
+	}
+
+	public void setDoneCallback(Consumer<String> cb) {
+		this.doneCallback = cb;
+	}
+
+	public void setSortedAthletes(List<Athlete> athletes) {
+		this.sortedAthletes = athletes;
+	}
+
+	public void setGroup(Group group) {
+		this.group = group;
+	}
+
+	public boolean isExcludeNotWeighed() {
+		return this.excludeNotWeighed;
 	}
 
 	/**
@@ -708,7 +501,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * @throws IOException
 	 */
 	protected InputStream getLocalizedTemplate(String templateName, String extension, Locale locale)
-	        throws IOException {
+			throws IOException {
 		List<String> tryList = getSuffixes(locale);
 		List<String> extensionList;
 		if (extension.equals(".xls")) {
@@ -733,6 +526,24 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			}
 		}
 		throw new IOException("no template found for : " + templateName + extension + " tried with suffix " + tryList);
+	}
+
+	private List<String> getSuffixes(Locale locale) {
+		List<String> result = new ArrayList<>();
+		if (locale == null) {
+			result.add("");
+			return result;
+		}
+		String language = locale.getLanguage();
+		String country = locale.getCountry();
+		if (language != null && !language.isEmpty()) {
+			if (country != null && !country.isEmpty()) {
+				result.add("_" + language + "_" + country);
+			}
+			result.add("_" + language);
+		}
+		result.add("");
+		return result;
 	}
 
 	protected void init() {
@@ -822,7 +633,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		XLSTransformer transformer = new XLSTransformer();
 		configureTransformer(transformer);
 		try {
-			setReportingInfo();
 			HashMap<String, Object> reportingInfo = getReportingBeans();
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
@@ -862,7 +672,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		Workbook workbook = null;
 		File tempFile = null;
 		try {
-			setReportingInfo();
 			HashMap<String, Object> reportingInfo = getReportingBeans();
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
@@ -923,4 +732,79 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return ui;
 	}
 
-}
+	/**
+	 * Default implementation of getTemplate. Subclasses may override to provide a custom template lookup.
+	 */
+	public InputStream getTemplate(Locale locale) throws IOException {
+		if (this.templateFileName != null) {
+			String name = this.templateFileName;
+			String ext = "";
+			int dot = name.lastIndexOf('.');
+			if (dot >= 0) {
+				ext = name.substring(dot);
+				name = name.substring(0, dot);
+			}
+			if (ext == null || ext.isEmpty()) {
+				ext = ".xls";
+			}
+			return getLocalizedTemplate(name, ext, locale);
+		}
+		throw new IOException("No templateFileName set for " + this.getClass().getName());
+	}
+
+	public void setTemplateFileName(String templateFileName) {
+		this.templateFileName = templateFileName;
+	}
+
+	public void setChampionship(Championship championship) {
+		this.championship = championship;
+	}
+
+	public void setAgeGroupPrefix(String ageGroupPrefix) {
+		this.ageGroupPrefix = ageGroupPrefix;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
+	}
+
+	public void setBestLifterScoringSystem(Ranking bestLifterScoringSystem) {
+		this.bestLifterScoringSystem = bestLifterScoringSystem;
+	}
+
+	public void setEmptyOk(boolean emptyOk) {
+		this.emptyOk = emptyOk;
+	}
+
+	/**
+	 * Optional pre-check invoked before creating the input stream. Implementations should return an Optional
+	 * containing an Exception when the download should be aborted early (for example when there's no data).
+	 * The default implementation performs basic reporting-info validation used by many JXLS exporters.
+	 */
+    public Optional<Exception> preCheck() {
+        try {
+			System.err.println("=== JXLSWorkbookStreamSource.preCheck called");
+            setReportingInfo();
+            // Resolve template on UI thread to avoid session access in background writer
+            if (this.inputStream == null) {
+                this.inputStream = getTemplate(OwlcmsSession.getLocale());
+            }
+            @SuppressWarnings("unchecked")
+            List<Athlete> athletes = (List<Athlete>) getReportingBeans().get("athletes");
+            int size = athletes != null ? athletes.size() : 0;
+            if (!(size == 0 ? isEmptyOk() : isSizeOk(size))) {
+                if (athletes == null || athletes.size() == 0) {
+                    String localized = Translator.translate("NoAthletes");
+                    return Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(localized)));
+                } else {
+                    String localized = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
+                    return Optional.of(new StopProcessingException("TooManyAthletes", new RuntimeException(localized)));
+                }
+            }
+			System.err.println("=== preCheck OK");
+            return Optional.empty();
+        } catch (Exception e) {
+			System.err.println("=== preCheck FAILED ===");
+            return Optional.of(e);
+        }
+    }}

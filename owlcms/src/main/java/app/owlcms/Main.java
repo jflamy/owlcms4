@@ -26,6 +26,7 @@ import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
@@ -114,6 +115,8 @@ public class Main {
         }
         // check for database override of resource files
         Config.initConfig();
+        Locale l = overrideDisplayLanguage();
+        Gender.initPublicGenderCodeMapString(l != null ? l : Locale.ENGLISH);
 
         // Run UTC normalization migration after JPAService and Config are initialized
         JPAService.runInTransaction(em -> {

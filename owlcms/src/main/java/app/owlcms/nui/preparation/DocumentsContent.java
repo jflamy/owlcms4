@@ -339,6 +339,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private KitElement checkKit(String id, PreCompetitionTemplates templateEnum, BiConsumer<Throwable, String> errorProcessor,
 	        BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
 		try {
+			System.err.println("*** checkKit for " + templateEnum.name());
 			String resourceFolder = templateEnum.folder;
 			resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
 			String template = templateEnum.templateFileNameSupplier.get();
@@ -419,7 +420,18 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        () -> stripSuffix(template.templateFileNameSupplier.get()),
 		        Translator.translate(template.name()),
 		        () -> {
-			        List<KitElement> elements = elementSupplier.get();
+			        System.err.println("*** createDoItButton running for " + template.name() + " elementSupplier=" + elementSupplier);
+			        List<KitElement> elements = null;
+			        try {
+				        elements = elementSupplier.get();
+			        } catch (StopProcessingException spe) {
+				        System.err.println("*** createDoItButton got StopProcessingException for " + template.name() + ": " + spe.getMessage());
+				        throw spe;
+			        } catch (Throwable e) {
+				        System.err.println("*** createDoItButton got Exception for " + template.name() + ": " + e.toString());
+				        throw e;
+			        }
+			        System.err.println("*** createDoItButton got elements for " + template.name() + ": " + (elements == null ? "null" : elements.size()));
 			        feedback(dialog, ui);
 
 			        Consumer<String> wrappedDone = s -> {
@@ -454,7 +466,13 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        };
 
 			        // Let any exceptions propagate so the LazyDownloadButton can handle them
-			        return zipOrExcelInputStream(ui, elements, wrappedDone);
+			        System.err.println("*** createDoItButton calling zipOrExcelInputStream for " + template.name());
+			        try {
+				        return zipOrExcelInputStream(ui, elements, wrappedDone);
+			        } catch (Exception e) {
+				        e.printStackTrace();
+				        throw e;
+			        }
 		        },
 		        () -> {
 			        String extension = FilenameUtils.getExtension(template.templateFileNameSupplier.get());
@@ -913,13 +931,20 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        templateDefinition,
 		        errorProcessor,
 		        (a, ignored) -> {
-			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			        xlsWriter.setGroup(null);
-			        // get current version of athletes.
-			        List<Athlete> athletesFindAll = athletesFindAll(true);
-			        xlsWriter.setSortedAthletes(athletesFindAll);
-			        xlsWriter.setPostProcessor(null);
-			        return xlsWriter;
+			        System.err.println("*** doElementStartList for " + templateDefinition.name());
+			        try {
+				        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+						System.err.println("*** doElementStartList created xlsWriter for " + templateDefinition.name() + ": " + xlsWriter);
+				        xlsWriter.setGroup(null);
+				        // get current version of athletes.
+				        List<Athlete> athletesFindAll = athletesFindAll(true);
+				        xlsWriter.setSortedAthletes(athletesFindAll);
+				        xlsWriter.setPostProcessor(null);
+				        return xlsWriter;
+			        } catch (Throwable e) {
+				        e.printStackTrace();
+			        }
+			        return null;
 		        });
 	}
 
@@ -993,6 +1018,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private InputStream excelKitElement(List<Group> selectedSessions, List<KitElement> elements, UI ui, Consumer<String> doneCallback) throws IOException {
 		// always called with a single template
 		// for items that are one per session, selected sessions will be non-empty.
+		System.err.println("*** excelKitElement for " + (elements == null ? "null" : elements.size()) + " elements and "
+		        + (selectedSessions == null ? "null" : selectedSessions.size()) + " sessions");
 		Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
 		KitElement elem = elements.get(0);
 
@@ -1003,6 +1030,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 		// writerFactory can apply custom sorting order to the athletes
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.apply(athletes, g);
+		System.err.println("*** excelKitElement created " + xlsWriter);
 		xlsWriter.setUi(ui);
 		if (xlsWriter.getSortedAthletes() == null) {
 			// writerFactory did not set them explicitly, set default
@@ -1065,15 +1093,18 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private InputStream excelToInputStream(List<Group> selectedSessions,
 	        List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<String> doneCallback, UI ui) {
+		String context = LoggerUtils.stackTrace();
 		try {
 			return excelKitElement(selectedSessions, elements, ui, doneCallback);
 		} catch (Exception e) {
+			System.err.println("%%%%%%%%%% Exception context %%%%%%%%%%%%%\n" + context);
 			// propagate as StopProcessingException so caller can handle and notify once
 			throw new StopProcessingException(e.getMessage(), e);
 		}
 	}
 
 	private void feedback(Dialog dialog, UI ui) {
+		System.err.println("*** feedback called " + ui);
 		ui.access(() -> {
 			boolean zipping = getSortedSelection().size() > 1;
 			Paragraph processing = new Paragraph(Translator.translateExplicitLocale(zipping ? "LongProcessing" : "Processing", ui.getLocale()));
@@ -1489,6 +1520,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements, Consumer<String> doneCallback) {
+		System.err.println("*** zipOrExcelInputStream called " + ui + " with elements " + elements);
 		InputStream z;
 		logger.warn("Generating {} for {} sessions", elements.size() > 1 ? "zip" : "excel", getSortedSelection().size());
 		if (getSortedSelection().size() > 1 || elements.size() > 1) {

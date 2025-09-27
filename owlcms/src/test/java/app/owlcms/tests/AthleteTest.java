@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,6 +40,7 @@ public class AthleteTest {
         Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
+        Gender.initPublicGenderCodeMapString(Locale.ENGLISH);
         TestData.insertInitialData(5, true);
     }
 
@@ -68,6 +70,12 @@ public class AthleteTest {
                 0);
         athlete.setEligibleCategories(new LinkedHashSet<>(Arrays.asList(registrationCategory)));
         athlete.computeCategory(registrationCategory);
+    }
+
+    @Test
+    public void testCategoryComputation() {
+        // Test the category computation logic
+        assertEquals("Category", "M 73", athlete.getCategory().toString());
     }
 
     /**
