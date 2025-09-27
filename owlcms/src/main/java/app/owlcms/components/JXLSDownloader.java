@@ -64,6 +64,9 @@ public class JXLSDownloader {
 	private ComboBox<Resource> templateSelect;
 	private String processingMessage;
 	private Predicate<String> nameFilter;
+	// Optional pre-check invoked before activating the download/dialog. Return Optional.empty() on OK
+	// or Optional.of(Exception) to indicate a validation error that should be shown to the user.
+	private java.util.function.Supplier<java.util.Optional<java.lang.Exception>> preCheckSupplier;
 
 	/**
 	 * @param streamSourceSupplier lambda that creates a JXLSWorkbookStreamSource and sets its filters
@@ -148,11 +151,59 @@ public class JXLSDownloader {
 	 */
 	public Button createDownloadButton() {
 		Button dialogOpen = new Button(this.dialogTitle, new Icon(VaadinIcon.DOWNLOAD_ALT),
-		        e -> {
-			        Dialog dialog = createDialog();
-			        dialog.open();
-		        });
+				e -> {
+						Dialog dialog = createDialog();
+						dialog.open();
+
+						// After opening the dialog, run the optional pre-check and show any
+						// validation errors inside the dialog so the user sees them in-context.
+						try {
+							if (this.preCheckSupplier != null) {
+								java.util.Optional<java.lang.Exception> pre = this.preCheckSupplier.get();
+								if (pre != null && pre.isPresent()) {
+									Exception ex = pre.get();
+									UI ui = UI.getCurrent();
+									ui.access(() -> {
+										// remove any existing processing/error paragraph
+										java.util.Optional<Paragraph> existing = dialog.getChildren()
+												.filter(c -> c instanceof Paragraph)
+												.map(c -> (Paragraph) c)
+												.filter(p -> "documents-processing".equals(p.getId().orElse(null)))
+												.findFirst();
+										String msg = ex.getMessage() == null ? Translator.translate("Download.failed") : ex.getMessage();
+										if (existing.isPresent()) {
+											Paragraph p = existing.get();
+											p.setText(msg);
+											p.getStyle().set("color", "var(--lumo-error-text-color)");
+											p.getStyle().set("font-weight", "bold");
+											p.getStyle().set("text-align", "center");
+											p.getStyle().set("font-size", "large");
+										} else {
+											Paragraph err = new Paragraph(msg);
+											err.setId("documents-processing");
+											err.getStyle().set("color", "var(--lumo-error-text-color)");
+											err.getStyle().set("font-weight", "bold");
+											err.getStyle().set("text-align", "center");
+											err.getStyle().set("font-size", "large");
+											dialog.add(err);
+										}
+									});
+								}
+							}
+						} catch (Throwable t) {
+							LoggerUtils.logError(logger, t);
+						}
+				});
 		return dialogOpen;
+	}
+
+	/**
+	 * Set an optional pre-check supplier invoked on the UI thread before the download dialog
+	 * is opened. The supplier should return Optional.empty() when validation passes or
+	 * Optional.of(Exception) to signal an error message to show to the user.
+	 */
+	public void setPreCheckSupplier(java.util.function.Supplier<java.util.Optional<java.lang.Exception>> preCheckSupplier) {
+		this.preCheckSupplier = preCheckSupplier;
 	}
 
 	// /**
@@ -276,8 +327,11 @@ public class JXLSDownloader {
 		       current = Competition.getCurrent();
 		       this.logger.debug("(2) template as stored {}", this.templateNameGetter.apply(current));
 
-		       InputStream is = res.getStream();
-		       this.xlsWriter.setInputStream(is);
+			   // Do not run prechecks here. The precheck callback/validation is handled by the
+			   // centralized pre-check flow elsewhere. If no template is selected we return early
+			   // (caller will show appropriate UI); otherwise obtain the template stream and set it.
+			   InputStream is = res.getStream();
+			   this.xlsWriter.setInputStream(is);
 		       this.logger.debug("(2) filter present = {} {} {}", this.xlsWriter.getGroup(),
 			       this.xlsWriter.getCategory(),
 			       this.xlsWriter.getChampionship());

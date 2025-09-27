@@ -93,6 +93,35 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		tagLogger.setLevel(Level.ERROR);
 	}
 
+	/**
+	 * Lightweight pre-check that only computes reporting beans and checks for simple validation errors
+	 * like "NoAthletes" or "TooManyAthletes". This method intentionally does NOT resolve or open the
+	 * template input stream because that operation can be costly. Call this on the UI thread before
+	 * building the template InputStream.
+	 *
+	 * Returns Optional.empty() on success, or Optional.of(Exception) describing the problem.
+	 */
+	public Optional<Exception> preCheckWithoutTemplate() {
+		try {
+			setReportingInfo();
+			@SuppressWarnings("unchecked")
+			List<Object> athletes = (List<Object>) getReportingBeans().get("athletes");
+			int size = athletes != null ? athletes.size() : 0;
+			if (!(size == 0 ? isEmptyOk() : isSizeOk(size))) {
+				if (athletes == null || athletes.size() == 0) {
+					String localized = Translator.translate("NoAthletes");
+					return Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(localized)));
+				} else {
+					String localized = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
+					return Optional.of(new StopProcessingException("TooManyAthletes", new RuntimeException(localized)));
+				}
+			}
+			return Optional.empty();
+		} catch (Exception e) {
+			return Optional.of(e);
+		}
+	}
+
 		// No shared executor here; each download starts a short-lived daemon Thread.
 
 	public static Ranking getBestLifterRankingThreadLocal() {
@@ -193,14 +222,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				// notify doneCallback with a user-friendly message when available
 				try {
 					if (JXLSWorkbookStreamSource.this.doneCallback != null) {
-						try {
-							JXLSWorkbookStreamSource.this.doneCallback.accept(t);
-						} catch (Throwable cb) {
-							// swallow callback failure
-						}
+						try { JXLSWorkbookStreamSource.this.doneCallback.accept(t); } catch (Throwable cb) { /* swallow */ }
 					}
-				} catch (Throwable ignore) {
-				}
+				} catch (Throwable ignore) { }
 
 				if (t instanceof IOException) {
 					writerException.set((IOException) t);

@@ -117,7 +117,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private static final String DIALOG_WIDTH = "50em";
 
 	private record KitElement(String id, String name, String extension, Path isp, int count,
-	        BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
+		BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory,
+		BiFunction<List<Athlete>, Group, java.util.Optional<Exception>> preCheck) {
 	}
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(DocumentsContent.class);
@@ -338,7 +339,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement checkKit(String id, PreCompetitionTemplates templateEnum, BiConsumer<Throwable, String> errorProcessor,
-	        BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
+			BiFunction<List<Athlete>, Group, java.util.Optional<Exception>> explicitPreCheck,
+			BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
 		try {
 			System.err.println("*** checkKit for " + templateEnum.name());
 			String resourceFolder = templateEnum.folder;
@@ -347,7 +349,49 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			String templateName = resourceFolder + template;
 			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
 			String ext = FilenameUtils.getExtension(isp.getFileName().toString());
-			KitElement kitElement = new KitElement(id, templateName, ext, isp, 1, writerFactory);
+			// default lightweight preCheck that instantiates the writer and inspects athlete counts
+			BiFunction<List<Athlete>, Group, java.util.Optional<Exception>> defaultPre = (a, g) -> {
+				try {
+					// Log input sample for debugging
+					int incomingCount = a == null ? 0 : a.size();
+					String sampleIds = "";
+					if (a != null && !a.isEmpty()) {
+						sampleIds = a.stream().limit(10).map(ath -> String.valueOf(ath.getId())).collect(Collectors.joining(","));
+					}
+					String groupInfo = (g == null) ? "<no-group>" : (g.getId() + ":" + g.getName());
+
+					JXLSWorkbookStreamSource w = writerFactory.apply(a, g);
+					// writerFactory should set sorted athletes/group when appropriate
+					List<Athlete> list = w.getSortedAthletes();
+					int size = list != null ? list.size() : 0;
+
+					// Determine outcome
+					java.util.Optional<Exception> outcome;
+					if (!(size == 0 ? w.isEmptyOk() : w.getSizeLimit() > size)) {
+						if (size == 0) {
+							outcome = java.util.Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(Translator.translate("NoAthletes"))));
+						} else {
+							outcome = java.util.Optional.of(new StopProcessingException("TooManyAthletes", new RuntimeException(Translator.translate("TooManyAthletes", Integer.toString(w.getSizeLimit())))));
+						}
+					} else {
+						outcome = java.util.Optional.empty();
+					}
+
+					// Log what we received and the resulting outcome
+					String resultText = outcome.isEmpty() ? "OK" : (outcome.get().getMessage() == null ? outcome.get().toString() : outcome.get().getMessage());
+					logger.warn("preCheck default for template={} received: incomingCount={}, sampleIds=[{}], group={}, resolvedCount={}, outcome={}", templateEnum.name(), incomingCount, sampleIds, groupInfo, size, resultText);
+
+					return outcome;
+				} catch (Throwable t) {
+					LoggerUtils.logError(logger, t, true);
+					logger.warn("preCheck default for template={} threw exception: {}", templateEnum.name(), t.toString());
+					return java.util.Optional.of(new Exception(t));
+				}
+			};
+
+			BiFunction<List<Athlete>, Group, java.util.Optional<Exception>> pre = explicitPreCheck != null ? explicitPreCheck : defaultPre;
+
+			KitElement kitElement = new KitElement(id, templateName, ext, isp, 1, writerFactory, pre);
 			return kitElement;
 		} catch (FileNotFoundException e1) {
 			if (errorProcessor != null) {
@@ -432,40 +476,86 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				        System.err.println("*** createDoItButton got Exception for " + template.name() + ": " + e.toString());
 				        throw e;
 			        }
-			        System.err.println("*** createDoItButton got elements for " + template.name() + ": " + (elements == null ? "null" : elements.size()));
-			        feedback(dialog, ui);
+				    System.err.println("*** createDoItButton got elements for " + template.name() + ": " + (elements == null ? "null" : elements.size()));
+					// declare wrappedDone first so pre-checks can call it to report errors immediately
+					java.util.function.Consumer<Throwable> wrappedDone = t -> {
+						if (t == null) {
+							ui.access(() -> dialog.close());
+							return;
+						}
+						String s = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
+						ui.access(() -> {
+							// Remove any existing processing/error paragraph with the canonical id, then add a single error paragraph
+							java.util.Optional<Paragraph> existing = dialog.getChildren()
+								.filter(c -> c instanceof Paragraph)
+								.map(c -> (Paragraph) c)
+								.filter(p -> "documents-processing".equals(p.getId().orElse(null)))
+								.findFirst();
+							if (existing.isPresent()) {
+								Paragraph p = existing.get();
+								p.setText(s);
+								p.getStyle().set("color", "var(--lumo-error-text-color)");
+								p.getStyle().set("font-weight", "bold");
+								p.getStyle().set("text-align", "center");
+								p.getStyle().set("font-size", "large");
+							} else {
+								Paragraph err = new Paragraph(s);
+								err.setId("documents-processing");
+								err.getStyle().set("color", "var(--lumo-error-text-color)");
+								err.getStyle().set("font-weight", "bold");
+								err.getStyle().set("text-align", "center");
+								err.getStyle().set("font-size", "large");
+								dialog.add(err);
+							}
+						});
+					};
 
-			java.util.function.Consumer<Throwable> wrappedDone = t -> {
-				if (t == null) {
-					ui.access(() -> dialog.close());
-					return;
-				}
-				String s = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
-				ui.access(() -> {
-					// Remove any existing processing/error paragraph with the canonical id, then add a single error paragraph
-					java.util.Optional<Paragraph> existing = dialog.getChildren()
-						.filter(c -> c instanceof Paragraph)
-						.map(c -> (Paragraph) c)
-						.filter(p -> "documents-processing".equals(p.getId().orElse(null)))
-						.findFirst();
-					if (existing.isPresent()) {
-						Paragraph p = existing.get();
-						p.setText(s);
-						p.getStyle().set("color", "var(--lumo-error-text-color)");
-						p.getStyle().set("font-weight", "bold");
-						p.getStyle().set("text-align", "center");
-						p.getStyle().set("font-size", "large");
-					} else {
-						Paragraph err = new Paragraph(s);
-						err.setId("documents-processing");
-						err.getStyle().set("color", "var(--lumo-error-text-color)");
-						err.getStyle().set("font-weight", "bold");
-						err.getStyle().set("text-align", "center");
-						err.getStyle().set("font-size", "large");
-						dialog.add(err);
+					// Run lightweight preChecks for each element to catch "no athletes" or "too many" before building streams
+					if (elements != null) {
+						List<Group> selectedSessions = getSortedSelection();
+						Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
+						// If no session is selected, use all athletes for the pre-check (and enforce overall limits such as <100)
+						List<Athlete> athletes = (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+						for (KitElement ke : elements) {
+							try {
+								System.err.println("*** running preCheck for element=" + ke.id() + " session=" + (g == null ? "(all)" : g.toString()) + " athletes=" + (athletes == null ? 0 : athletes.size()));
+								java.util.Optional<Exception> pre = ke.preCheck().apply(athletes, g);
+								System.err.println("*** preCheck result for element=" + ke.id() + " -> " + (pre == null ? "null" : (pre.isPresent() ? "FAIL" : "OK")));
+								if (pre != null && pre.isPresent()) {
+									Exception e = pre.get();
+									// log and show the validation error inside the dialog processing paragraph
+									logger.warn("Pre-check failed for {}: {}", template.name(), e.getMessage());
+									ui.access(() -> {
+										try {
+											dialog.getChildren()
+												.filter(c -> c.getId().isPresent() && "documents-processing".equals(c.getId().get()))
+												.findFirst()
+												.ifPresent(c -> {
+													if (c instanceof Paragraph) {
+														((Paragraph) c).setText(Translator.translateExplicitLocale(e.getMessage(), ui.getLocale()));
+													}
+												});
+										} catch (Exception ee) {
+											LoggerUtils.logError(logger, ee, false);
+										}
+									});
+
+									// delegate to wrappedDone so UI shows error consistently
+									if (wrappedDone != null) {
+										try { wrappedDone.accept(e); } catch (Throwable cb) { LoggerUtils.logError(logger, cb, true); }
+									}
+									return null;
+								}
+							} catch (Throwable t) {
+								LoggerUtils.logError(logger, t, true);
+								if (wrappedDone != null) {
+									try { wrappedDone.accept(new Exception(t)); } catch (Throwable cb) { LoggerUtils.logError(logger, cb, true); }
+								}
+								return null;
+							}
+						}
 					}
-				});
-			};
+					feedback(dialog, ui);
 
 					// Quick UI-thread sanity checks only: ensure we actually have template elements to
 					// process. Heavy template resolution and writer-specific validation is performed
@@ -819,191 +909,223 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return new Div(openDialog);
 	}
 
-	private KitElement doElementBodyweight(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("bodyweight",
-		        templateDefinition,
-		        errorProcessor,
-		        (a, ignored) -> {
-			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
-			        startingXlsWriter.setGroup(null);
-			        // get current version of athletes.
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll(false)));
-			        startingXlsWriter.createAgeGroupColumns(10, 7);
-			        return startingXlsWriter;
-		        });
+    private KitElement doElementBodyweight(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("bodyweight",
+		templateDefinition,
+		errorProcessor,
+		null,
+		(a, ignored) -> {
+			JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			startingXlsWriter.setGroup(null);
+			// get current version of athletes.
+			startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll(false)));
+			startingXlsWriter.createAgeGroupColumns(10, 7);
+			return startingXlsWriter;
+		});
 	}
 
 	private KitElement doElementCards(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
+		// CARDS: when a single session is selected require some athletes; when no session selected
+		// use total athletes and require >0 and less than 100
+		BiFunction<List<Athlete>, Group, java.util.Optional<Exception>> cardsPre = (a, g) -> {
+			if (g != null) {
+				if (a == null || a.isEmpty()) {
+					return java.util.Optional.of(new Exception("NoAthletes"));
+				}
+				return java.util.Optional.empty();
+			} else {
+				int total = athletesFindAll(true).size();
+				if (total == 0) {
+					return java.util.Optional.of(new Exception("NoAthletes"));
+				}
+				if (total >= 100) {
+					return java.util.Optional.of(new Exception("TooManyAthletes"));
+				}
+				return java.util.Optional.empty();
+			}
+		};
+
 		return checkKit("cards",
-		        templateDefinition,
-		        errorProcessor,
-		        (a, g) -> {
-			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-			        List<Athlete> athletes;
-			        if (g == null) {
-				        athletes = athletesFindAll(true);
-				        athletes.sort(RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
-			        } else {
-				        athletes = a;
-			        }
-			        xlsWriter.setSortedAthletes(athletes);
-			        return xlsWriter;
-		        });
+				templateDefinition,
+				errorProcessor,
+				cardsPre,
+				(a, g) -> {
+						JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+						List<Athlete> athletes;
+						if (g == null) {
+								athletes = athletesFindAll(true);
+								athletes.sort(RegistrationOrderComparator.athleteSessionRegistrationOrderComparator);
+						} else {
+								athletes = a;
+						}
+						xlsWriter.setSortedAthletes(athletes);
+						return xlsWriter;
+				});
 	}
 
-	private KitElement doElementCategories(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("categories",
-		        template,
-		        errorProcessor,
-		        (a, ignored) -> {
-			        JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
-			        xlsWriter.setGroup(null);
-			        var athletes = participationFindAll();
-			        athletes.sort(RegistrationOrderComparator.athleteReportOrderComparator);
-			        xlsWriter.setSortedAthletes(athletes);
-			        return xlsWriter;
-		        });
+    private KitElement doElementCategories(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("categories",
+		template,
+		errorProcessor,
+		null,
+		(a, ignored) -> {
+			JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
+			xlsWriter.setGroup(null);
+			var athletes = participationFindAll();
+			athletes.sort(RegistrationOrderComparator.athleteReportOrderComparator);
+			xlsWriter.setSortedAthletes(athletes);
+			return xlsWriter;
+		});
 	}
 
-	private KitElement doElementCheckin(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("checkin",
-		        template,
-		        errorProcessor,
-		        (a, ignored) -> {
-			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
-			        startingXlsWriter.setGroup(null);
-			        startingXlsWriter.setPostProcessor(null);
-			        List<Athlete> athletesFindAll = athletesFindAll(true);
-			        logger.warn("Checkin athletes: {}", athletesFindAll.size());
-			        startingXlsWriter.setSortedAthletes(athletesFindAll);
-			        return startingXlsWriter;
-		        });
+    private KitElement doElementCheckin(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("checkin",
+		template,
+		errorProcessor,
+		null,
+		(a, ignored) -> {
+			JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			startingXlsWriter.setGroup(null);
+			startingXlsWriter.setPostProcessor(null);
+			List<Athlete> athletesFindAll = athletesFindAll(true);
+			logger.warn("Checkin athletes: {}", athletesFindAll.size());
+			startingXlsWriter.setSortedAthletes(athletesFindAll);
+			return startingXlsWriter;
+		});
 	}
 
-	private KitElement doElementEmptyProtocol(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("emptyProtocol",
-		        template,
-		        errorProcessor,
-		        (a, g) -> {
-			        AthleteRepository.assignStartNumbers(a);
-			        JXLSResultSheet rs = new JXLSResultSheet(false);
-			        rs.setGroup(g);
-			        rs.setSortedAthletes(a);
-			        return rs;
-		        });
+    private KitElement doElementEmptyProtocol(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("emptyProtocol",
+		template,
+		errorProcessor,
+		null,
+		(a, g) -> {
+			AthleteRepository.assignStartNumbers(a);
+			JXLSResultSheet rs = new JXLSResultSheet(false);
+			rs.setGroup(g);
+			rs.setSortedAthletes(a);
+			return rs;
+		});
 	}
 
-	private KitElement doElementIntroduction(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("introduction",
-		        template,
-		        errorProcessor,
-		        (a, g) -> {
-			        AthleteRepository.assignStartNumbers(a);
-			        JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
-			        xlsWriter.setGroup(g);
+    private KitElement doElementIntroduction(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("introduction",
+		template,
+		errorProcessor,
+		null,
+		(a, g) -> {
+			AthleteRepository.assignStartNumbers(a);
+			JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
+			xlsWriter.setGroup(g);
 
-			        // sort to the desired order
-			        a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
-			        xlsWriter.setSortedAthletes(a);
-			        return xlsWriter;
-		        });
+			// sort to the desired order
+			a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
+			xlsWriter.setSortedAthletes(a);
+			return xlsWriter;
+		});
 	}
 
-	private KitElement doElementJury(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("jury",
-		        template,
-		        errorProcessor,
-		        (a, g) -> {
-			        AthleteRepository.assignStartNumbers(a);
-			        JXLSJurySheet rs = new JXLSJurySheet();
-			        rs.setGroup(g);
-			        rs.setSortedAthletes(a);
-			        return rs;
-		        });
+    private KitElement doElementJury(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("jury",
+		template,
+		errorProcessor,
+		null,
+		(a, g) -> {
+			AthleteRepository.assignStartNumbers(a);
+			JXLSJurySheet rs = new JXLSJurySheet();
+			rs.setGroup(g);
+			rs.setSortedAthletes(a);
+			return rs;
+		});
 	}
 
-	private KitElement doElementOfficials(BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("officials",
-		        PreCompetitionTemplates.OFFICIALS,
-		        errorProcessor,
-		        (a, ignored) -> {
-			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			        xlsWriter.setGroup(null);
-			        xlsWriter.setSortedAthletes(List.of());
-			        xlsWriter.setEmptyOk(true);
-			        return xlsWriter;
-		        });
+    private KitElement doElementOfficials(BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("officials",
+		PreCompetitionTemplates.OFFICIALS,
+		errorProcessor,
+		null,
+		(a, ignored) -> {
+			JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+			xlsWriter.setGroup(null);
+			xlsWriter.setSortedAthletes(List.of());
+			xlsWriter.setEmptyOk(true);
+			return xlsWriter;
+		});
 	}
 
-	private KitElement doElementSchedule(BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("schedule",
-		        PreCompetitionTemplates.SCHEDULE,
-		        errorProcessor,
-		        (a, ignored) -> {
-			        // schedule is currently a variation on starting list
-			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			        xlsWriter.setPostProcessor((w) -> {
-				        if (xlsWriter.getFirstMergeLine() != null) {
-					        logger.debug("merging {} {}", xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
-					        // merged columns
-					        fixMerges(w, xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
-					        fixLastLine(w);
-				        } else {
-					        // simple schedule with no nested merged columns
-					        xlsWriter.setPostProcessor(null);
-					        xlsWriter.setSortedAthletes(a);
-				        }
-			        });
+    private KitElement doElementSchedule(BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("schedule",
+		PreCompetitionTemplates.SCHEDULE,
+		errorProcessor,
+		null,
+		(a, ignored) -> {
+			// schedule is currently a variation on starting list
+			JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+			xlsWriter.setPostProcessor((w) -> {
+				if (xlsWriter.getFirstMergeLine() != null) {
+					logger.debug("merging {} {}", xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
+					// merged columns
+					fixMerges(w, xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
+					fixLastLine(w);
+				} else {
+					// simple schedule with no nested merged columns
+					xlsWriter.setPostProcessor(null);
+					xlsWriter.setSortedAthletes(a);
+				}
+			});
 
-			        return xlsWriter;
-		        });
+			return xlsWriter;
+		});
 	}
 
-	private KitElement doElementStartList(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("startList",
-		        templateDefinition,
-		        errorProcessor,
-		        (a, ignored) -> {
-			        System.err.println("*** doElementStartList for " + templateDefinition.name());
-			        try {
-				        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-						System.err.println("*** doElementStartList created xlsWriter for " + templateDefinition.name() + ": " + xlsWriter);
-				        xlsWriter.setGroup(null);
-				        // get current version of athletes.
-				        List<Athlete> athletesFindAll = athletesFindAll(true);
-				        xlsWriter.setSortedAthletes(athletesFindAll);
-				        xlsWriter.setPostProcessor(null);
-				        return xlsWriter;
-			        } catch (Throwable e) {
-				        e.printStackTrace();
-			        }
-			        return null;
-		        });
+    private KitElement doElementStartList(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("startList",
+		templateDefinition,
+		errorProcessor,
+		null,
+		(a, ignored) -> {
+			System.err.println("*** doElementStartList for " + templateDefinition.name());
+			try {
+				JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+					System.err.println("*** doElementStartList created xlsWriter for " + templateDefinition.name() + ": " + xlsWriter);
+				xlsWriter.setGroup(null);
+				// get current version of athletes.
+				List<Athlete> athletesFindAll = athletesFindAll(true);
+				xlsWriter.setSortedAthletes(athletesFindAll);
+				xlsWriter.setPostProcessor(null);
+				return xlsWriter;
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+			return null;
+		});
 	}
 
-	private KitElement doElementTeam(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("team",
-		        template,
-		        errorProcessor,
-		        (a, ignored) -> {
-			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
-			        startingXlsWriter.setGroup(null);
-			        // get current version of athletes.
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(athletesFindAll(false)));
-			        startingXlsWriter.createTeamColumns(9, 6);
-			        return startingXlsWriter;
-		        });
+    private KitElement doElementTeam(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("team",
+		template,
+		errorProcessor,
+		null,
+		(a, ignored) -> {
+			JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+			startingXlsWriter.setGroup(null);
+			// get current version of athletes.
+			startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(athletesFindAll(false)));
+			startingXlsWriter.createTeamColumns(9, 6);
+			return startingXlsWriter;
+		});
 	}
 
-	private KitElement doElementWeighIn(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return checkKit("weighin",
-		        template,
-		        errorProcessor,
-		        (a, g) -> {
-			        JXLSWeighInSheet rs = new JXLSWeighInSheet();
-			        rs.setGroup(g);
-			        return rs;
-		        });
+    private KitElement doElementWeighIn(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
+	return checkKit("weighin",
+		template,
+		errorProcessor,
+		null,
+		(a, g) -> {
+			JXLSWeighInSheet rs = new JXLSWeighInSheet();
+			rs.setGroup(g);
+			return rs;
+		});
 	}
 
 	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
