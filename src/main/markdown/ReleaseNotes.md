@@ -10,6 +10,10 @@
 
 <br>
 
+**Maintenance Log**
+
+60.0.1: Work around an issue that would prevent listing athletes when some had no eligibility categories set
+
 **New in Release 61.0**
 
 61.0.0: Cleaner processing of errors on the Documents preparation page.  Errors that take place while processing
