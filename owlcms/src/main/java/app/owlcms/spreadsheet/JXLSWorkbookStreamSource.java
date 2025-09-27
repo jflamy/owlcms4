@@ -461,12 +461,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	public void setSortedAthletes(List<Athlete> athletes) {
-		logger.warn("=== setSortedAthletes called, {} athletes", athletes != null ? athletes.size() : 0);
+		logger.warn("=== setSortedAthletes called, {} athletes {}", athletes != null ? athletes.size() : 0, LoggerUtils.whereFrom());
 		this.sortedAthletes = athletes;
 	}
 
 	public void setGroup(Group group) {
-		logger.warn("=== setGroup called, group = {}", group);
+		logger.warn("=== setGroup called, group = {} {}", group, LoggerUtils.whereFrom());
 		this.group = group;
 	}
 
@@ -600,6 +600,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * Return athletes as required by the template.
 	 */
 	protected void setReportingInfo() {
+		logger.warn("&&&&&&&&&&&&&&&&&&&&&& setReportingInfo called, group = {} {}", getGroup(), LoggerUtils.whereFrom());
 		List<Athlete> athletes = getSortedAthletes();
 		if (athletes != null) {
 			getReportingBeans().put("athletes", athletes);
@@ -679,15 +680,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			// print the reporting beans keys for debugging
 			logger.warn("reportingInfo keys: {}", reportingInfo.keySet());
 
-			// Prefer explicitly set sortedAthletes if available (setSortedAthletes may
-			// have been called by caller). Fall back to reportingInfo otherwise.
-			List<Athlete> athletes = this.getSortedAthletes();
-			if (athletes == null || athletes.isEmpty()) {
-				@SuppressWarnings("unchecked")
-				List<Athlete> tmp = (List<Athlete>) reportingInfo.get("athletes");
-				logger.warn("=== jxls1Transform: using reportingInfo athletes, size = {}", tmp != null ? tmp.size() : 0);
-				athletes = tmp;
-			}
+			@SuppressWarnings("unchecked")
+			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
 			if (athletes != null && (athletes.size() == 0 ? isEmptyOk() : isSizeOk(athletes.size()))) {
 				logger.info("{} before transformWorkbook", this.getTemplateFileName());
 				long start = System.currentTimeMillis();
@@ -725,15 +719,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		File tempFile = null;
 		try {
 			HashMap<String, Object> reportingInfo = getReportingBeans();
-			// Prefer explicitly set sortedAthletes if available (setSortedAthletes may
-			// have been called by caller). Fall back to reportingInfo otherwise.
-			List<Athlete> athletes = this.getSortedAthletes();
-			if (athletes == null || athletes.isEmpty()) {
-				@SuppressWarnings("unchecked")
-				List<Athlete> tmp = (List<Athlete>) reportingInfo.get("athletes");
-				logger.warn("=== jxls3Transform: using reportingInfo athletes, size = {}", tmp != null ? tmp.size() : 0);
-				athletes = tmp;
-			}
+			@SuppressWarnings("unchecked")
+			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");
 			int size = athletes != null ? athletes.size() : 0;
 			logger.debug("reportingInfo sessions {} athletes: {}", reportingInfo.get("sessions"), size);
 			if (size == 0 ? isEmptyOk() : isSizeOk(size)) {
