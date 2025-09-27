@@ -106,6 +106,9 @@ public class LazyDownloadButton extends Button {
 	private Supplier<String> fileNameCallback;
 	private InputStreamFactory inputStreamCallback;
 	private Notification notification;
+	// Optional UI-thread precheck hook. If present and returns an exception the
+	// download is aborted. The supplier is executed on the UI thread.
+	private java.util.function.Supplier<java.util.Optional<java.lang.Exception>> uiPreCheck;
 
 	public LazyDownloadButton() {
 	}
@@ -180,6 +183,22 @@ public class LazyDownloadButton extends Button {
 
 				Optional<UI> optionalUI = getUI();
 				try {
+					// Run an optional UI-thread precheck provided by callers. If it returns
+					// an exception, abort the download. The caller should present any UI
+					// feedback (dialog paragraph, disable button) itself.
+					if (this.uiPreCheck != null) {
+						try {
+							java.util.Optional<java.lang.Exception> preUi = this.uiPreCheck.get();
+							if (preUi != null && preUi.isPresent()) {
+								// Caller handled UI feedback; simply abort without showing the default notification
+								return;
+							}
+						} catch (Throwable t) {
+							// If the precheck hook itself throws, log and abort
+							LoggerUtils.logError(logger, t);
+							return;
+						}
+					}
 					// Shared flag to ensure we only show one error notification per download attempt
 					final AtomicBoolean errorNotified = new AtomicBoolean(false);
 
@@ -311,6 +330,10 @@ public class LazyDownloadButton extends Button {
 
 			});
 		});
+	}
+
+	public void setUiPreCheck(java.util.function.Supplier<java.util.Optional<java.lang.Exception>> uiPreCheck) {
+		this.uiPreCheck = uiPreCheck;
 	}
 
 	public LazyDownloadButton(String text, InputStreamFactory inputStreamFactory) {

@@ -197,6 +197,38 @@ public class DownloadButtonFactory {
 		return new Div(downloadButton);
 	}
 
+    public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier,
+	    java.util.function.Supplier<java.util.Optional<java.lang.Exception>> uiPreCheck) {
+	final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		label,
+		new Icon(VaadinIcon.DOWNLOAD_ALT),
+		() -> {
+			LocalDateTime now = LocalDateTime.now().withNano(0);
+			return prefix
+				+ "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+				+ ".zip";
+		},
+		supplier);
+	downloadButton.setUiPreCheck(uiPreCheck);
+	return new Div(downloadButton);
+    }
+
+	public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier,
+			java.util.function.Supplier<java.util.Optional<java.lang.Exception>> uiPreCheck, Icon icon) {
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+				label,
+				icon,
+				() -> {
+					LocalDateTime now = LocalDateTime.now().withNano(0);
+					return prefix
+							+ "_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+							+ ".zip";
+				},
+				supplier);
+		downloadButton.setUiPreCheck(uiPreCheck);
+		return new Div(downloadButton);
+	}
+
 	public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier, Icon icon) {
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
