@@ -350,6 +350,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
 			String ext = FilenameUtils.getExtension(isp.getFileName().toString());
 			// default lightweight preCheck that instantiates the writer and inspects athlete counts
+			// Lightweight default preCheck: avoid instantiating the writer factory here because
+			// some writer factories may perform initialization or side-effects. Heavy
+			// validation (template resolution, exact size limits) is performed later when
+			// the user initiates the download. This default check only verifies that there
+			// are athletes to process for the selected group(s).
 			BiFunction<List<Athlete>, Group, java.util.Optional<Exception>> defaultPre = (a, g) -> {
 				try {
 					// Log input sample for debugging
@@ -360,26 +365,26 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 					}
 					String groupInfo = (g == null) ? "<no-group>" : (g.getId() + ":" + g.getName());
 
-					JXLSWorkbookStreamSource w = writerFactory.apply(a, g);
-					// writerFactory should set sorted athletes/group when appropriate
-					List<Athlete> list = w.getSortedAthletes();
-					int size = list != null ? list.size() : 0;
+					java.util.Optional<Exception> outcome = java.util.Optional.empty();
 
-					// Determine outcome
-					java.util.Optional<Exception> outcome;
-					if (!(size == 0 ? w.isEmptyOk() : w.getSizeLimit() > size)) {
-						if (size == 0) {
+					// If a specific group is selected, require at least one athlete in that group.
+					if (g != null) {
+						if (incomingCount == 0) {
 							outcome = java.util.Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(Translator.translate("NoAthletes"))));
-						} else {
-							outcome = java.util.Optional.of(new StopProcessingException("TooManyAthletes", new RuntimeException(Translator.translate("TooManyAthletes", Integer.toString(w.getSizeLimit())))));
 						}
 					} else {
-						outcome = java.util.Optional.empty();
+						// No group selected: require that there is at least one athlete in the full set.
+						int total = athletesFindAll(true).size();
+						if (total == 0) {
+							outcome = java.util.Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(Translator.translate("NoAthletes"))));
+						}
 					}
 
-					// Log what we received and the resulting outcome
+					// Log what we received and the resulting outcome. resolvedCount here is
+					// the incomingCount (we don't resolve writer-specific sorting/limits in
+					// this lightweight check).
 					String resultText = outcome.isEmpty() ? "OK" : (outcome.get().getMessage() == null ? outcome.get().toString() : outcome.get().getMessage());
-					logger.warn("preCheck default for template={} received: incomingCount={}, sampleIds=[{}], group={}, resolvedCount={}, outcome={}", templateEnum.name(), incomingCount, sampleIds, groupInfo, size, resultText);
+					logger.warn("preCheck default for template={} received: incomingCount={}, sampleIds=[{}], group={}, resolvedCount={}, outcome={}", templateEnum.name(), incomingCount, sampleIds, groupInfo, incomingCount, resultText);
 
 					return outcome;
 				} catch (Throwable t) {
@@ -1123,6 +1128,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		null,
 		(a, g) -> {
 			JXLSWeighInSheet rs = new JXLSWeighInSheet();
+			System.err.println("============ group g "+g+ LoggerUtils.stackTrace());
 			rs.setGroup(g);
 			return rs;
 		});
@@ -1175,6 +1181,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		// for items that are one per session, selected sessions will be non-empty.
 		System.err.println("*** excelKitElement for " + (elements == null ? "null" : elements.size()) + " elements and "
 		        + (selectedSessions == null ? "null" : selectedSessions.size()) + " sessions");
+
+
 		Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
 		KitElement elem = elements.get(0);
 
@@ -1182,6 +1190,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		if (g != null) {
 			athletes = groupAthletes(g, true);
 		}
+
+		System.err.println("g = " + g + " athletes = " + (athletes == null ? "null" : athletes.size()) + " for element " + elem.id);
 
 		// writerFactory can apply custom sorting order to the athletes
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory.apply(athletes, g);
@@ -1225,9 +1235,6 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		}
 		InputStream in;
 		try {
-			// Heavy writer-specific validation (template resolution, athlete validation) is
-			// performed by the LazyDownloadButton.runPreCheck() on the UI thread when the
-			// user clicks the download button. Here we only set UI and create the stream.
 			xlsWriter.setUi(ui);
 			logger.warn("======= Creating download for template: {}", elem.name);
 			// if an exception happens here, it is caught in the caller, it needs to close the dialog.
