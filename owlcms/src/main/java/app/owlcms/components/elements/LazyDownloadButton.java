@@ -79,7 +79,7 @@ public class LazyDownloadButton extends Button {
 		if (cb instanceof XLSXWorkbookStreamSource) {
 			System.err.println("*** LazyDownloadButton.runPreCheck: XLSXWorkbookStreamSource");
 			try {
-				return ((XLSXWorkbookStreamSource) cb).preCheck();
+				return ((XLSXWorkbookStreamSource) cb).prepare();
 			} catch (Exception e) {
 				// Convert thrown exception into Optional to let the caller show a notification
 				LoggerUtils.logError(logger, e);
@@ -89,7 +89,7 @@ public class LazyDownloadButton extends Button {
 		if (cb instanceof JXLSWorkbookStreamSource) {
 			System.err.println("*** LazyDownloadButton.runPreCheck: JXLSWorkbookStreamSource");
 			try {
-				return ((JXLSWorkbookStreamSource) cb).preCheck();
+				return ((JXLSWorkbookStreamSource) cb).prepare();
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
 				return Optional.of(e);

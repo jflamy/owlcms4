@@ -117,7 +117,7 @@ public abstract class XLSXWorkbookStreamSource implements InputStreamFactory {
 	 * containing an Exception when the download should be aborted early (for example when there's no data).
 	 * The default implementation returns empty (no error).
 	 */
-	public Optional<Exception> preCheck() {
+	public Optional<Exception> prepare() {
 		return Optional.empty();
 	}
 

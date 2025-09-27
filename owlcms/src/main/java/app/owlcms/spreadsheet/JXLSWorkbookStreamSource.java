@@ -93,34 +93,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		tagLogger.setLevel(Level.ERROR);
 	}
 
-	/**
-	 * Lightweight pre-check that only computes reporting beans and checks for simple validation errors
-	 * like "NoAthletes" or "TooManyAthletes". This method intentionally does NOT resolve or open the
-	 * template input stream because that operation can be costly. Call this on the UI thread before
-	 * building the template InputStream.
-	 *
-	 * Returns Optional.empty() on success, or Optional.of(Exception) describing the problem.
-	 */
-	public Optional<Exception> preCheckWithoutTemplate() {
-		try {
-			setReportingInfo();
-			@SuppressWarnings("unchecked")
-			List<Object> athletes = (List<Object>) getReportingBeans().get("athletes");
-			int size = athletes != null ? athletes.size() : 0;
-			if (!(size == 0 ? isEmptyOk() : isSizeOk(size))) {
-				if (athletes == null || athletes.size() == 0) {
-					String localized = Translator.translate("NoAthletes");
-					return Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(localized)));
-				} else {
-					String localized = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
-					return Optional.of(new StopProcessingException("TooManyAthletes", new RuntimeException(localized)));
-				}
-			}
-			return Optional.empty();
-		} catch (Exception e) {
-			return Optional.of(e);
-		}
-	}
+	// prepareWithoutTemplate() removed — UI should use lightweight checks via defaultPreCheckFor(...) and
+	// writers should perform their own prepare() which may include template resolution as needed.
 
 		// No shared executor here; each download starts a short-lived daemon Thread.
 
@@ -197,9 +171,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		logger.warn("============== createInputStream called {}\n", LoggerUtils.stackTrace());
 		// IMPORTANT: do NOT access VaadinSession or UI here. Pre-checks that require
 		// UI/Session must be executed by the caller (for example LazyDownloadButton.preCheck()).
-		// Return the background-driven InputStream immediately so Vaadin can stream it.
-		setReportingInfo();
-		return doCreateStream();
+	// Return the background-driven InputStream immediately so Vaadin can stream it.
+	// Ensure reporting beans are available for the writer. Some callers may not invoke
+	// prepare() beforehand, so we keep this defensive initialization here as well.
+	setReportingInfo();
+	return doCreateStream();
 	}
 
 	protected InputStream doCreateStream() {
@@ -827,7 +803,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * containing an Exception when the download should be aborted early (for example when there's no data).
 	 * The default implementation performs basic reporting-info validation used by many JXLS exporters.
 	 */
-    public Optional<Exception> preCheck() {
+	public Optional<Exception> prepare() {
         try {
 			System.err.println("=== JXLSWorkbookStreamSource.preCheck called");
             setReportingInfo();

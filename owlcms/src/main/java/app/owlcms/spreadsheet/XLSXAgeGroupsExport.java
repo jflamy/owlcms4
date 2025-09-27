@@ -96,7 +96,6 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		}
 	}
 
-	@Override
 	public Optional<Exception> preCheck() {
 		try {
 			List<AgeGroup> ageGroups = AgeGroupRepository.findAll();
@@ -107,6 +106,11 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		} catch (Exception e) {
 			return Optional.of(e);
 		}
+	}
+
+	@Override
+	public Optional<Exception> prepare() {
+		return preCheck();
 	}
 
 }

@@ -88,7 +88,6 @@ public class XLSXCoachExport extends XLSXWorkbookStreamSource {
     }
 
 
-    @Override
     public Optional<Exception> preCheck() {
         try {
             List<Coach> coaches = CoachRepository.findAll();
@@ -99,5 +98,10 @@ public class XLSXCoachExport extends XLSXWorkbookStreamSource {
         } catch (Exception e) {
             return Optional.of(e);
         }
+    }
+
+    @Override
+    public Optional<Exception> prepare() {
+        return preCheck();
     }
 }

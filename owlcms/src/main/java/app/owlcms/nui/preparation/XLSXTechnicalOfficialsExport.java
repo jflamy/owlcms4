@@ -30,7 +30,6 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
         super(ui);
     }
 
-    @Override
     public Optional<Exception> preCheck() {
         try {
             List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
@@ -41,6 +40,11 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
         } catch (Exception e) {
             return Optional.of(e);
         }
+    }
+
+    @Override
+    public Optional<Exception> prepare() {
+        return preCheck();
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(XLSXTechnicalOfficialsExport.class);
