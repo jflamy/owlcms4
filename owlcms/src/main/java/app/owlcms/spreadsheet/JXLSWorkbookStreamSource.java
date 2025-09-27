@@ -15,8 +15,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+// using per-task Threads instead of a pooled ExecutorService avoids inheritable ThreadLocal
+// leakage from pooled threads. A dedicated daemon Thread is started for each request.
 import java.util.concurrent.atomic.AtomicReference;
 
 import java.time.LocalDateTime;
@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Locale;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -65,6 +64,7 @@ import app.owlcms.data.records.RecordEvent;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.init.OwlcmsSessionThreadLocal;
 import app.owlcms.servlet.StopProcessingException;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.LocalResource;
@@ -93,12 +93,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		tagLogger.setLevel(Level.ERROR);
 	}
 
-		/** Shared executor for background writer tasks. Daemon threads so they don't block shutdown. */
-		private static final ExecutorService WRITER_EXECUTOR = Executors.newCachedThreadPool(r -> {
-			Thread t = new Thread(r, "JXLSWorkbookStreamSource-writer");
-			t.setDaemon(true);
-			return t;
-		});
+		// No shared executor here; each download starts a short-lived daemon Thread.
 
 	public static Ranking getBestLifterRankingThreadLocal() {
 		Ranking blss = bestLifterRankingSystem.get();
@@ -132,7 +127,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private String templateFileName;
 	@SuppressWarnings("unused")
 	private UI ui;
-	private Consumer<String> doneCallback;
+	private java.util.function.Consumer<Throwable> doneCallback;
 	private String fileExtension;
 	private boolean emptyOk = false;
 	private Integer pageLength = null;
@@ -189,15 +184,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 		final AtomicReference<IOException> writerException = new AtomicReference<>();
 
-		WRITER_EXECUTOR.submit(() -> {
+		Thread writerThread = new Thread(() -> {
 			try {
 				writeStream(out);
+				// success: notify caller
+				try { if (JXLSWorkbookStreamSource.this.doneCallback != null) JXLSWorkbookStreamSource.this.doneCallback.accept(null); } catch (Throwable cb) { /* swallow */ }
 			} catch (Throwable t) {
 				// notify doneCallback with a user-friendly message when available
 				try {
 					if (JXLSWorkbookStreamSource.this.doneCallback != null) {
 						try {
-							JXLSWorkbookStreamSource.this.doneCallback.accept(LoggerUtils.exceptionMessage(t));
+							JXLSWorkbookStreamSource.this.doneCallback.accept(t);
 						} catch (Throwable cb) {
 							// swallow callback failure
 						}
@@ -215,13 +212,31 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 					writerException.set(new IOException(t));
 				}
 			} finally {
+				// Clear thread-local state to avoid leaking session/context if the Thread
+				// object is retained for any reason. This is defensive: per-task threads
+				// are normally reclaimed by the GC once terminated, but clearing is
+				// low-cost and prevents surprises if code changes later.
+				try {
+					OwlcmsSessionThreadLocal.remove();
+				} catch (Throwable ignore) {
+				}
+				try {
+					bestLifterRankingSystem.remove();
+				} catch (Throwable ignore) {
+				}
+				try {
+					noInterimScoresInResults.remove();
+				} catch (Throwable ignore) {
+				}
 				try {
 					out.close();
 				} catch (IOException e) {
 					logger.warn("Error closing piped output stream", e);
 				}
 			}
-		});
+		}, "JXLSWorkbookStreamSource-writer");
+		writerThread.setDaemon(true);
+		writerThread.start();
 
 		return new InputStreamWrapper(in, writerException);
 	}
@@ -278,7 +293,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.championship;
 	}
 
-	public Consumer<String> getDoneCallback() {
+	public java.util.function.Consumer<Throwable> getDoneCallback() {
 		return this.doneCallback;
 	}
 
@@ -416,7 +431,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		this.inputStream = template;
 	}
 
-	public void setDoneCallback(Consumer<String> cb) {
+	public void setDoneCallback(java.util.function.Consumer<Throwable> cb) {
 		this.doneCallback = cb;
 	}
 
@@ -804,6 +819,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			System.err.println("=== preCheck OK");
             return Optional.empty();
         } catch (Exception e) {
+			e.printStackTrace();
 			System.err.println("=== preCheck FAILED ===");
             return Optional.of(e);
         }

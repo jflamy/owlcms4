@@ -36,6 +36,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.init.OwlcmsSessionThreadLocal;
 
 @SuppressWarnings("serial")
 public class GroupCategorySelectionMenu extends MenuBar {
@@ -184,17 +185,22 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		if (!this.subMenuLoaded) {
 			this.medalCategoriesPerGroup.clear();
 			new Thread(() -> {
-				for (Group g : groups) {
-					Set<String> categories = this.includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
-					if (!categories.isEmpty()) {
-						this.medalCategoriesPerGroup.put(g, categories);
+				try {
+					for (Group g : groups) {
+						Set<String> categories = this.includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
+						if (!categories.isEmpty()) {
+							this.medalCategoriesPerGroup.put(g, categories);
+						}
 					}
+					this.subMenuLoaded = true;
+					ui.access(() -> {
+						fillMenu(groups, this.medalCategoriesPerGroup, fop, whenChecked, whenUnselected, item, menuTitle);
+						this.setEnabled(true);
+					});
+				} finally {
+					// Defensive cleanup of thread-local state copied to this thread via InheritableThreadLocal
+					try { OwlcmsSessionThreadLocal.remove(); } catch (Throwable ignore) {}
 				}
-				this.subMenuLoaded = true;
-				ui.access(() -> {
-					fillMenu(groups, this.medalCategoriesPerGroup, fop, whenChecked, whenUnselected, item, menuTitle);
-					this.setEnabled(true);
-				});
 			}).start();
 		}
 

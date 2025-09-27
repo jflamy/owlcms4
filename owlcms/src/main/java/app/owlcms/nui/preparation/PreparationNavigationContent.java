@@ -80,7 +80,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		var emptyRegistrationWriter = new JXLSRegistrationEmptyExport();
 		Notification notification = new Notification(Translator.translate("Processing"));
 		notification.setPosition(Position.TOP_END);
-		emptyRegistrationWriter.setDoneCallback((s) -> emptyRegistrationWriter.getUi().access(() -> {
+		emptyRegistrationWriter.setDoneCallback((t) -> emptyRegistrationWriter.getUi().access(() -> {
+			// ignore throwable, just close notification on completion
 			notification.close();
 		}));
 		Div downloadDiv = DownloadButtonFactory.createDynamicJXLSDownloadButton("Registration", Translator.translate("DownloadRegistrationTemplate"),
@@ -97,7 +98,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Notification notification1 = new Notification(Translator.translate("LongProcessing"));
 		notification1.setPosition(Position.TOP_END);
 		notification1.addThemeVariants(NotificationVariant.LUMO_WARNING);
-		registrationWriter.setDoneCallback((s) -> this.getUI().get().access(() -> {
+		registrationWriter.setDoneCallback((t) -> this.getUI().get().access(() -> {
 			notification1.close();
 		}));
 

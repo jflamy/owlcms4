@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.notification.Notification.Position;
 //import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -289,7 +292,21 @@ public class JXLSDownloader {
 		       templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
 		       this.downloadAnchor = nDownloadAnchor;
 
-		       this.xlsWriter.setDoneCallback((message) -> ui.access(() -> this.dialog.close()));
+		       this.xlsWriter.setDoneCallback((t) -> ui.access(() -> {
+		       	   if (t == null) {
+		       		   // success: close dialog
+		       		   this.dialog.close();
+		       	   } else {
+		       		   // close dialog and show an error notification with the throwable message
+		       		   this.dialog.close();
+		       		   String msg = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
+		       		   Notification err = new Notification(msg);
+		       		   err.addThemeVariants(NotificationVariant.LUMO_ERROR);
+		       		   err.setPosition(Position.TOP_END);
+		       		   err.setDuration(0); // keep open until dismissed
+		       		   err.open();
+		       	   }
+		       }));
 		} catch (Throwable e1) {
 			this.logger.error("{}", LoggerUtils.stackTrace(e1));
 		}

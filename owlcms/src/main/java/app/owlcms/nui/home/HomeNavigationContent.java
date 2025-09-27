@@ -26,7 +26,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -573,7 +572,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        + (local ? "" : "&origin=" + ipAddress)
 		        + (JPAService.isLocalDb() ? "&local=true" : "&local=false");
 
-		Properties attributes = OwlcmsSession.getCurrent().getAttributes();
 		// fire and forget
 		new Thread(() -> {
 			// try 3 times, increasing timeout by 1 second.
@@ -584,8 +582,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 					        .timeout(Duration.ofMillis(2000 + (i * 1000)))
 					        .build();
 					client.send(usageRequest, BodyHandlers.ofString());
-					attributes.setProperty(USAGE_STR, usageStr);
-					logger.info("logged usage {}", attributes.getProperty(USAGE_STR));
+					OwlcmsSession.setAttribute(USAGE_STR, usageStr);
+					logger.info("logged usage {}", OwlcmsSession.getAttribute(USAGE_STR));
 					break;
 				} catch (Throwable e) {
 					logger.error("could not log usage - attempt {}: {}", i, e.getMessage());

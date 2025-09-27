@@ -22,6 +22,7 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+
 import app.owlcms.servlet.StopProcessingException;
 import ch.qos.logback.classic.Logger;
 
@@ -83,6 +84,15 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
             Main.logSessionMemUsage("nbSessions--", sde.getSession());
             logger.trace("Session {} destroyed.", sde.getSession());
             activeSessions.decrementAndGet();
+            try {
+                // Use reflection so this module does not need a compile-time dependency
+                // on app.owlcms.init.OwlcmsSessionThreadLocal.
+                Class<?> tl = Class.forName("app.owlcms.init.OwlcmsSessionThreadLocal");
+                java.lang.reflect.Method rm = tl.getMethod("remove");
+                rm.invoke(null);
+            } catch (Throwable t) {
+                // ignore
+            }
         });
     }
 

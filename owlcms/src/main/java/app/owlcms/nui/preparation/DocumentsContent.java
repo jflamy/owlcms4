@@ -84,6 +84,7 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.init.OwlcmsSessionThreadLocal;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.DownloadButtonFactory;
@@ -412,7 +413,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        false);
 	}
 
-	private Div createDoItButton(PreCompetitionTemplates template, Supplier<List<KitElement>> elementSupplier, Consumer<String> doneCallback, Dialog dialog) {
+	private Div createDoItButton(PreCompetitionTemplates template, Supplier<List<KitElement>> elementSupplier, Consumer<Throwable> doneCallback, Dialog dialog) {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		ui.setLocale(OwlcmsSession.getLocale());
@@ -434,45 +435,77 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        System.err.println("*** createDoItButton got elements for " + template.name() + ": " + (elements == null ? "null" : elements.size()));
 			        feedback(dialog, ui);
 
-			        Consumer<String> wrappedDone = s -> {
-				        if (s == null || s.isEmpty()) {
-					        ui.access(() -> dialog.close());
-					        return;
-				        }
-				        ui.access(() -> {
-					        // Remove any existing processing/error paragraph with the canonical id, then add a single error paragraph
-					        java.util.Optional<Paragraph> existing = dialog.getChildren()
-					                .filter(c -> c instanceof Paragraph)
-					                .map(c -> (Paragraph) c)
-					                .filter(p -> "documents-processing".equals(p.getId().orElse(null)))
-					                .findFirst();
-					        if (existing.isPresent()) {
-						        Paragraph p = existing.get();
-						        p.setText(s);
-						        p.getStyle().set("color", "var(--lumo-error-text-color)");
-						        p.getStyle().set("font-weight", "bold");
-						        p.getStyle().set("text-align", "center");
-						        p.getStyle().set("font-size", "large");
-					        } else {
-						        Paragraph err = new Paragraph(s);
-						        err.setId("documents-processing");
-						        err.getStyle().set("color", "var(--lumo-error-text-color)");
-						        err.getStyle().set("font-weight", "bold");
-						        err.getStyle().set("text-align", "center");
-						        err.getStyle().set("font-size", "large");
-						        dialog.add(err);
-					        }
-				        });
-			        };
+			java.util.function.Consumer<Throwable> wrappedDone = t -> {
+				if (t == null) {
+					ui.access(() -> dialog.close());
+					return;
+				}
+				String s = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
+				ui.access(() -> {
+					// Remove any existing processing/error paragraph with the canonical id, then add a single error paragraph
+					java.util.Optional<Paragraph> existing = dialog.getChildren()
+						.filter(c -> c instanceof Paragraph)
+						.map(c -> (Paragraph) c)
+						.filter(p -> "documents-processing".equals(p.getId().orElse(null)))
+						.findFirst();
+					if (existing.isPresent()) {
+						Paragraph p = existing.get();
+						p.setText(s);
+						p.getStyle().set("color", "var(--lumo-error-text-color)");
+						p.getStyle().set("font-weight", "bold");
+						p.getStyle().set("text-align", "center");
+						p.getStyle().set("font-size", "large");
+					} else {
+						Paragraph err = new Paragraph(s);
+						err.setId("documents-processing");
+						err.getStyle().set("color", "var(--lumo-error-text-color)");
+						err.getStyle().set("font-weight", "bold");
+						err.getStyle().set("text-align", "center");
+						err.getStyle().set("font-size", "large");
+						dialog.add(err);
+					}
+				});
+			};
 
-			        // Let any exceptions propagate so the LazyDownloadButton can handle them
-			        System.err.println("*** createDoItButton calling zipOrExcelInputStream for " + template.name());
-			        try {
-				        return zipOrExcelInputStream(ui, elements, wrappedDone);
-			        } catch (Exception e) {
-				        e.printStackTrace();
-				        throw e;
-			        }
+					// Quick UI-thread sanity checks only: ensure we actually have template elements to
+					// process. Heavy template resolution and writer-specific validation is performed
+					// by the LazyDownloadButton.runPreCheck() (which calls JXLS/XLSX preCheck()) when
+					// the user initiates the download; avoid duplicating that work here.
+					System.err.println("*** createDoItButton running quick sanity checks for " + template.name());
+					try {
+						if (elements == null || elements.isEmpty()) {
+							Exception e = new Exception("NoTemplates");
+							if (wrappedDone != null) {
+								try { wrappedDone.accept(e); } catch (Throwable cb) { LoggerUtils.logError(logger, cb, true); }
+							}
+							throw new StopProcessingException(e.getMessage(), e);
+						}
+					} catch (StopProcessingException spe) {
+						throw spe;
+					} catch (Exception e) {
+						// unexpected quick-check failure
+						LoggerUtils.logError(logger, e, true);
+						if (wrappedDone != null) {
+							try { wrappedDone.accept(e); } catch (Throwable cb) { LoggerUtils.logError(logger, cb, true); }
+						}
+						throw new StopProcessingException(e.getMessage(), e);
+					}
+					System.err.println("*** createDoItButton calling zipOrExcelInputStream for " + template.name());
+					try {
+						return zipOrExcelInputStream(ui, elements, wrappedDone);
+					} catch (Exception e) {
+						// Unexpected error during stream creation: log, notify the UI, and rethrow so the
+						// download handler returns a 500 and the error is visible in server logs.
+						LoggerUtils.logError(logger, e, true);
+						try {
+							if (wrappedDone != null) {
+								wrappedDone.accept(e);
+							}
+						} catch (Throwable cb) {
+							LoggerUtils.logError(logger, cb, true);
+						}
+						throw e;
+					}
 		        },
 		        () -> {
 			        String extension = FilenameUtils.getExtension(template.templateFileNameSupplier.get());
@@ -671,7 +704,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return new Div(openDialog);
 	}
 
-	private Div createPostWeighInButtonDoIt(Dialog dialog, Consumer<String> doneCallback) {
+	private Div createPostWeighInButtonDoIt(Dialog dialog, Consumer<Throwable> doneCallback) {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton(
@@ -702,7 +735,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return new Div(openDialog);
 	}
 
-	private Div createPreWeighInButtonDoIt(Dialog dialog, Consumer<String> doneCallback) {
+	private Div createPreWeighInButtonDoIt(Dialog dialog, Consumer<Throwable> doneCallback) {
 		Div localDirZipDiv = null;
 		UI ui = UI.getCurrent();
 		localDirZipDiv = DownloadButtonFactory.createDynamicZipDownloadButton(
@@ -1015,7 +1048,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		}
 	}
 
-	private InputStream excelKitElement(List<Group> selectedSessions, List<KitElement> elements, UI ui, Consumer<String> doneCallback) throws IOException {
+	private InputStream excelKitElement(List<Group> selectedSessions, List<KitElement> elements, UI ui, java.util.function.Consumer<Throwable> doneCallback) throws IOException {
 		// always called with a single template
 		// for items that are one per session, selected sessions will be non-empty.
 		System.err.println("*** excelKitElement for " + (elements == null ? "null" : elements.size()) + " elements and "
@@ -1047,13 +1080,14 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 		if (doneCallback == null) {
 			Notification n = new Notification(Translator.translate("Documents.ProcessingExcel"));
-			xlsWriter.setDoneCallback((s) -> ui.access(() -> {
-				if (s == null || s.isEmpty()) {
+			xlsWriter.setDoneCallback((t) -> ui.access(() -> {
+				if (t == null) {
 					// success: close processing notification
 					n.close();
 				} else {
-					// error: update the existing processing notification to show the error in red and keep it open
-					n.setText(s);
+					// show error message from Throwable
+					String msg = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
+					n.setText(msg);
 					n.addThemeVariants(NotificationVariant.LUMO_ERROR);
 					n.setPosition(Position.TOP_STRETCH);
 					n.setDuration(0); // keep open until user dismisses
@@ -1069,6 +1103,9 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		}
 		InputStream in;
 		try {
+			// Heavy writer-specific validation (template resolution, athlete validation) is
+			// performed by the LazyDownloadButton.runPreCheck() on the UI thread when the
+			// user clicks the download button. Here we only set UI and create the stream.
 			xlsWriter.setUi(ui);
 			logger.warn("======= Creating download for template: {}", elem.name);
 			// if an exception happens here, it is caught in the caller, it needs to close the dialog.
@@ -1081,7 +1118,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			try {
 				if (doneCallback != null) {
 					logger.info("Invoking doneCallback to close dialog from DocumentsContent.excelKitElement catch: {}", LoggerUtils.stackTrace());
-					doneCallback.accept(LoggerUtils.exceptionMessage(e));
+					// convert exception to Throwable and pass it
+					try { doneCallback.accept(e); } catch (Throwable cb) { LoggerUtils.logError(logger, cb, true); }
 				}
 			} catch (Throwable cb) {
 				LoggerUtils.logError(logger, cb, true);
@@ -1091,8 +1129,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	}
 
-	private InputStream excelToInputStream(List<Group> selectedSessions,
-	        List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<String> doneCallback, UI ui) {
+    private InputStream excelToInputStream(List<Group> selectedSessions,
+	    List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback, UI ui) {
 		String context = LoggerUtils.stackTrace();
 		try {
 			return excelKitElement(selectedSessions, elements, ui, doneCallback);
@@ -1476,8 +1514,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		}
 	}
 
-	private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements,
-	        BiConsumer<Throwable, String> errorProcessor, Consumer<String> doneCallback, UI ui) {
+    private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements,
+	    BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback, UI ui) {
 		PipedOutputStream out;
 		PipedInputStream in;
 		try {
@@ -1498,13 +1536,23 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			});
 		}
 		final var dc = doneCallback;
-		new Thread(() -> {
+		Thread writer = new Thread(() -> {
 			try {
 				zipKitToOutputStream(selectedItems, elements, errorProcessor, out);
+				try { if (dc != null) dc.accept(null); } catch (Throwable ignore) {}
+			} catch (Throwable t) {
+				// Ensure unexpected errors are logged; zipKitToOutputStream reports via errorProcessor
+				LoggerUtils.logError(logger, t, true);
+				try { if (dc != null) dc.accept(t); } catch (Throwable ignore) {}
+				throw t;
 			} finally {
-				dc.accept("");
+				// Defensive cleanup of thread-local state copied into this thread via InheritableThreadLocal
+				try { OwlcmsSessionThreadLocal.remove(); } catch (Throwable ignore) {}
 			}
-		}).start();
+		}, "Documents-zip-writer");
+		writer.setDaemon(true);
+		writer.setUncaughtExceptionHandler((th, ex) -> LoggerUtils.logError(logger, ex, true));
+		writer.start();
 		return in;
 	}
 
@@ -1519,7 +1567,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		}
 	}
 
-	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements, Consumer<String> doneCallback) {
+	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements, Consumer<Throwable> doneCallback) {
 		System.err.println("*** zipOrExcelInputStream called " + ui + " with elements " + elements);
 		InputStream z;
 		logger.warn("Generating {} for {} sessions", elements.size() > 1 ? "zip" : "excel", getSortedSelection().size());

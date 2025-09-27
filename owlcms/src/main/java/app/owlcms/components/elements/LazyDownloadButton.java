@@ -78,11 +78,22 @@ public class LazyDownloadButton extends Button {
 		InputStreamFactory cb = getInputStreamCallback();
 		if (cb instanceof XLSXWorkbookStreamSource) {
 			System.err.println("*** LazyDownloadButton.runPreCheck: XLSXWorkbookStreamSource");
-			return ((XLSXWorkbookStreamSource) cb).preCheck();
+			try {
+				return ((XLSXWorkbookStreamSource) cb).preCheck();
+			} catch (Exception e) {
+				// Convert thrown exception into Optional to let the caller show a notification
+				LoggerUtils.logError(logger, e);
+				return Optional.of(e);
+			}
 		}
 		if (cb instanceof JXLSWorkbookStreamSource) {
 			System.err.println("*** LazyDownloadButton.runPreCheck: JXLSWorkbookStreamSource");
-			return ((JXLSWorkbookStreamSource) cb).preCheck();
+			try {
+				return ((JXLSWorkbookStreamSource) cb).preCheck();
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+				return Optional.of(e);
+			}
 		}
 		System.err.println("*** LazyDownloadButton.runPreCheck: no preCheck "+LoggerUtils.whereFrom());
 		return Optional.empty();
@@ -177,10 +188,33 @@ public class LazyDownloadButton extends Button {
 					java.util.Optional<java.lang.Exception> pre = runPreCheck();
 					if (pre.isPresent()) {
 						Exception e = pre.get();
-						optionalUI.ifPresent(ui -> {
-							showDownloadErrorNotification(ui, e.getMessage() == null ? e.toString() : e.getMessage(), e);
-							errorNotified.set(true);
-						});
+						// If the input source is a known workbook stream source and it has a doneCallback,
+						// delegate the error notification to that doneCallback (it will show the top-right
+						// notification). For other input sources, show the local notification here.
+						InputStreamFactory cb = getInputStreamCallback();
+						boolean delegatedToDoneCallback = false;
+						try {
+							if (cb instanceof XLSXWorkbookStreamSource) {
+								java.util.function.Consumer<Throwable> done = ((XLSXWorkbookStreamSource) cb).getDoneCallback();
+								if (done != null) {
+									try { done.accept(e); } catch (Throwable ignore) { /* swallow */ }
+									delegatedToDoneCallback = true;
+								}
+							} else if (cb instanceof JXLSWorkbookStreamSource) {
+								java.util.function.Consumer<Throwable> done = ((JXLSWorkbookStreamSource) cb).getDoneCallback();
+								if (done != null) {
+									try { done.accept(e); } catch (Throwable ignore) { /* swallow */ }
+									delegatedToDoneCallback = true;
+								}
+							}
+						} catch (Throwable ignore) {}
+
+						if (!delegatedToDoneCallback) {
+							optionalUI.ifPresent(ui -> {
+								showDownloadErrorNotification(ui, e.getMessage() == null ? e.toString() : e.getMessage(), e);
+								errorNotified.set(true);
+							});
+						}
 						return;
 					}
 					System.err.println("*** LazyDownloadButton creating DownloadHandler");

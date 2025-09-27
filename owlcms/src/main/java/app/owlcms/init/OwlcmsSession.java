@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 
@@ -27,6 +28,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+ 
 
 /**
  * Store the current user's settings and choices, across the multiple pages that may be opened.
@@ -205,25 +207,49 @@ public class OwlcmsSession {
 	 * @return the attribute
 	 */
 	public static Object getAttribute(String s) {
+		// Prefer the thread-local session for background threads to avoid
+		// forcing creation of the singleton via getCurrent(). This ensures
+		// consistency with setAttribute which mirrors into the thread-local.
+		OwlcmsSession tl = OwlcmsSessionThreadLocal.get();
+		if (tl != null) {
+			return tl.getAttributes().get(s);
+		}
 		return getCurrent().getAttributes().get(s);
 	}
 
 	public static OwlcmsSession getCurrent() {
-		VaadinSession currentVaadinSession = VaadinSession.getCurrent();
-		if (currentVaadinSession != null) {
-			OwlcmsSession owlcmsSession = (OwlcmsSession) currentVaadinSession.getAttribute("owlcmsSession");
-			if (owlcmsSession == null) {
-				// logger.trace("creating new OwlcmsSession {}", LoggerUtils.whereFrom());
-				owlcmsSession = new OwlcmsSession();
-				currentVaadinSession.setAttribute("owlcmsSession", owlcmsSession);
+		VaadinRequest request = VaadinRequest.getCurrent();
+
+		if (request == null) {
+			// Called from a background thread (no VaadinRequest). Prefer the
+			// OwlcmsSession stored in the InheritableThreadLocal so background
+			// work inherits the user's session.
+			OwlcmsSession tl = OwlcmsSessionThreadLocal.get();
+			if (tl != null) {
+				return tl;
 			}
-			return owlcmsSession;
-		} else {
-			// Used for testing, return a singleton
+			// No OwlcmsSession found in thread-local storage, fall back to singleton
 			if (owlcmsSessionSingleton == null) {
 				owlcmsSessionSingleton = new OwlcmsSession();
 			}
 			return owlcmsSessionSingleton;
+		}
+
+		var httpSession = request.getWrappedSession();
+		if (httpSession != null) {
+			OwlcmsSession owlcmsSession = (OwlcmsSession) httpSession.getAttribute("owlcmsSession");
+			if (owlcmsSession == null) {
+				// logger.trace("creating new OwlcmsSession {}", LoggerUtils.whereFrom());
+				owlcmsSession = new OwlcmsSession();
+				httpSession.setAttribute("owlcmsSession", owlcmsSession);
+			}
+
+			// create / refresh an InheritableThreadLocal OwlcmsSession for use in background threads
+			OwlcmsSessionThreadLocal.set(owlcmsSession);
+
+			return owlcmsSession;
+		} else {
+			throw new RuntimeException("no Vaadin session");
 		}
 	}
 
@@ -290,10 +316,26 @@ public class OwlcmsSession {
 	 * @param o the o
 	 */
 	public static void setAttribute(String s, Object o) {
+		// Always apply to the canonical current OwlcmsSession
+		OwlcmsSession current = getCurrent();
 		if (o == null) {
-			getCurrent().getAttributes().remove(s);
+			current.getAttributes().remove(s);
 		} else {
-			getCurrent().getAttributes().put(s, o);
+			current.getAttributes().put(s, o);
+		}
+
+		// Also mirror into the thread-local OwlcmsSession (useful for background threads)
+		try {
+			OwlcmsSession tl = OwlcmsSessionThreadLocal.get();
+			if (tl != null && tl != current) {
+				if (o == null) {
+					tl.getAttributes().remove(s);
+				} else {
+					tl.getAttributes().put(s, o);
+				}
+			}
+		} catch (Throwable ignore) {
+			// be defensive — don't fail when threadlocal isn't available
 		}
 	}
 
@@ -333,17 +375,13 @@ public class OwlcmsSession {
 	public OwlcmsSession() {
 	}
 
-	public Properties getAttributes() {
+	private Properties getAttributes() {
 		return this.attributes;
 	}
 
 	public void setLocale(Locale locale) {
 		//logger.debug("setLocale {}\n{}", locale, LoggerUtils.stackTrace());
-		if (locale == null) {
-			getCurrent().getAttributes().remove(LOCALE);
-		} else {
-			setAttribute(LOCALE, locale);
-		}
+		setAttribute(LOCALE, locale);
 	}
 
 }

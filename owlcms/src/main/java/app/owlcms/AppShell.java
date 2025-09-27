@@ -100,6 +100,15 @@ public class AppShell implements AppShellConfigurator, VaadinServiceInitListener
 			};
 			session.setErrorHandler(handler);
 		});
+
+		serviceInitEvent.getSource().addSessionDestroyListener(sde -> {
+			// Clear any thread-local copy when the Vaadin session is destroyed to avoid leaks
+			try {
+				app.owlcms.init.OwlcmsSessionThreadLocal.remove();
+			} catch (Throwable t) {
+				// ignore
+			}
+		});
 	}
 
 	private String getCurrentUserLanguage() {

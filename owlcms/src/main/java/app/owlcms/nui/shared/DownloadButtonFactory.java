@@ -19,6 +19,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.server.InputStreamFactory;
 
 import app.owlcms.components.elements.LazyDownloadButton;
@@ -79,7 +80,9 @@ public class DownloadButtonFactory {
 		        () -> {
 			        return new CompetitionData().exportData(ui, notification);
 		        });
-		downloadButton.setNotification(notification);
+	// Keep notification handling to the stream source doneCallback to avoid
+	// duplicate notifications. The stream source will open/close the
+	// processing notification via its doneCallback.
 		return new Div(downloadButton);
 	}
 
@@ -97,6 +100,8 @@ public class DownloadButtonFactory {
 			                + value;
 		        },
 		        xlsSource);
+	// Attach the processing Notification to the button so it opens when download
+	// starts; the stream source doneCallback will close it (or show an error).
 		downloadButton.setNotification(notification);
 		downloadButton.setWidthFull();
 		return new Div(downloadButton);
@@ -113,9 +118,18 @@ public class DownloadButtonFactory {
 	public static Div createDynamicXLSXDownloadButton(String prefix, String label, XLSXWorkbookStreamSource xlsSource) {
 		Notification notification = new Notification(Translator.translate("Processing"));
 		notification.setPosition(Position.TOP_END);
-		xlsSource.setDoneCallback((s) -> xlsSource.getUi().access(() -> {
-			logger.warn("XLSX generation done: " + s);
-			notification.close();
+		xlsSource.setDoneCallback((t) -> xlsSource.getUi().access(() -> {
+			if (t == null) {
+				logger.warn("XLSX generation done");
+				notification.close();
+			} else {
+				String msg = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
+				Notification err = new Notification(msg);
+				err.addThemeVariants(NotificationVariant.LUMO_ERROR);
+				err.setPosition(Position.TOP_END);
+				err.setDuration(5000);
+				err.open();
+			}
 		}));
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		        label,
@@ -128,6 +142,8 @@ public class DownloadButtonFactory {
 			                + value;
 		        },
 		        xlsSource);
+	// Attach the processing Notification to the button so it opens when download
+	// starts; the stream source doneCallback will close it (or show an error).
 		downloadButton.setNotification(notification);
 		return new Div(downloadButton);
 	}
