@@ -547,6 +547,7 @@ public class AthleteSorter implements Serializable {
 	 * @param rankingType the ranking type
 	 */
 	static public void resultsOrder(List<Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
+		//logger.warn("*** resultsOrder type={} absolute={}", rankingType, absoluteOrder);
 		Collections.sort(toBeSorted, new WinningOrderComparator(rankingType, absoluteOrder));
 	}
 
