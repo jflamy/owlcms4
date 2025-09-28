@@ -101,6 +101,7 @@ import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.ZipUtils;
+import app.owlcms.components.elements.LazyDownloadButton;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -546,6 +547,42 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        return (getSortedSelection().size() > 1 ? ".zip" : "." + extension);
 		        });
 
+		// Attach a UI-thread precheck to the inner LazyDownloadButton so template
+		// selection changes (including clearing to null) will re-run prechecks and
+		// return an Optional<Exception> indicating failure. The dialog will call
+		// reportPrecheckErrors(...) or clearProcessing() based on the result.
+		java.util.function.Supplier<java.util.Optional<java.lang.Exception>> uiPreCheck = () -> {
+			try {
+				List<KitElement> elements = elementSupplier.get();
+				if (elements == null || elements.isEmpty()) {
+					// No elements -> treat as missing template(s)
+					return java.util.Optional.of(new TemplateMissingException("NoTemplate"));
+				}
+				List<Group> selectedSessions = getSortedSelection();
+				Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
+				List<Athlete> athletes = (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+				try {
+					filterElementsByPrecheckOrThrow(elements, g, athletes, dialog);
+					return java.util.Optional.empty();
+				} catch (AtLeastOneTemplateRequiredException | StopProcessingException preEx) {
+					return java.util.Optional.of(preEx);
+				} catch (Throwable t) {
+					return java.util.Optional.of(new Exception(t));
+				}
+			} catch (Throwable t) {
+				return java.util.Optional.of(new Exception(t));
+			}
+		};
+
+		try {
+			localDirZipDiv.getChildren().findFirst().ifPresent(c -> {
+				if (c instanceof LazyDownloadButton) {
+					((LazyDownloadButton) c).setUiPreCheck(uiPreCheck);
+				}
+			});
+		} catch (Throwable ignore) {
+		}
+
 		// Run an initial lightweight pre-check immediately so the dialog shows missing-template / no-session
 		// messages when opened (instead of waiting for the user to click the download button).
 		try {
@@ -946,7 +983,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
 			        DocumentDownloadDialog dialog = new DocumentDownloadDialog();
-			        dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition));
+			    dialog.add(new TemplateSelectionFormFactory().singleTemplateSelection(templateDefinition, dialog));
 			        dialog.addDoItButton(createDoItButton(
 			                templateDefinition,
 			                () -> prepareWeighIn(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m)),

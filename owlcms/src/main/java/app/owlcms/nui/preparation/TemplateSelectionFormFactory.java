@@ -61,16 +61,16 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 
 	public FormLayout postWeighInTemplateSelectionForm(Dialog dialog) {
 		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplates.POST_WEIGHIN);
-		addTemplateSelection(layout, PreCompetitionTemplates.INTRODUCTION);
-		addTemplateSelection(layout, PreCompetitionTemplates.EMPTY_PROTOCOL);
-		addTemplateSelection(layout, PreCompetitionTemplates.JURY);
+		addTemplateSelection(layout, PreCompetitionTemplates.INTRODUCTION, dialog);
+		addTemplateSelection(layout, PreCompetitionTemplates.EMPTY_PROTOCOL, dialog);
+		addTemplateSelection(layout, PreCompetitionTemplates.JURY, dialog);
 		return layout;
 	}
 
 	public FormLayout preWeighInTemplateSelectionForm(Dialog dialog) {
 		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplates.PRE_WEIGHIN);
-		addTemplateSelection(layout, PreCompetitionTemplates.CARDS);
-		addTemplateSelection(layout, PreCompetitionTemplates.WEIGHIN);
+		addTemplateSelection(layout, PreCompetitionTemplates.CARDS, dialog);
+		addTemplateSelection(layout, PreCompetitionTemplates.WEIGHIN, dialog);
 		return layout;
 	}
 
