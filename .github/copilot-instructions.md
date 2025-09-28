@@ -124,12 +124,17 @@ If asked to provide commands for Windows users, present them as bash via WSL/Git
 bash -lc "./mvnw -DskipTests package"
 ```
 
+When running python scripts, do not use venvs or activate scripts; just run directly
+No python3 command, use python.
+
+```bash
+python script.py
+```
 ## Agent checklist before any action
 
-1. Read this file in repo root.
-2. If action runs `mvn`, builds, deploys, or touches devices, request explicit human consent.
-3. Never print or store secrets in logs or PRs.
-4. Prefer non-destructive, read-only analyses (grep, static analysis) unless approved.
+1. If action runs `mvn`, builds, deploys, or touches devices, request explicit human consent.
+2. Never print or store secrets in logs or PRs.
+3. Prefer non-destructive, read-only analyses (grep, static analysis) unless approved.
 
 If something here is ambiguous or you need broader context, ask a human reviewer before proceeding.
 

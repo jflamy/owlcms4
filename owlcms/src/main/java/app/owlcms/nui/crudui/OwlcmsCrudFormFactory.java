@@ -515,7 +515,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	}
 
 	private void init() {
-		setButtonCaption(CrudOperation.READ, Translator.translate("Ok"));
+		setButtonCaption(CrudOperation.READ, Translator.translate("OK"));
 		setButtonCaption(CrudOperation.ADD, Translator.translate("Add"));
 		setButtonCaption(CrudOperation.UPDATE, Translator.translate("Update"));
 		setButtonCaption(CrudOperation.DELETE, Translator.translate("Delete"));

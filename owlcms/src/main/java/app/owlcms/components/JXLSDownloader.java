@@ -30,6 +30,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
+import app.owlcms.nui.preparation.DocumentDownloadDialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
@@ -162,32 +163,40 @@ public class JXLSDownloader {
 								java.util.Optional<java.lang.Exception> pre = this.preCheckSupplier.get();
 								if (pre != null && pre.isPresent()) {
 									Exception ex = pre.get();
-									UI ui = UI.getCurrent();
-									ui.access(() -> {
-										// remove any existing processing/error paragraph
-										java.util.Optional<Paragraph> existing = dialog.getChildren()
-												.filter(c -> c instanceof Paragraph)
-												.map(c -> (Paragraph) c)
-												.filter(p -> "documents-processing".equals(p.getId().orElse(null)))
-												.findFirst();
-										String msg = ex.getMessage() == null ? Translator.translate("Download.failed") : ex.getMessage();
-										if (existing.isPresent()) {
-											Paragraph p = existing.get();
-											p.setText(msg);
-											p.getStyle().set("color", "var(--lumo-error-text-color)");
-											p.getStyle().set("font-weight", "bold");
-											p.getStyle().set("text-align", "center");
-											p.getStyle().set("font-size", "large");
-										} else {
-											Paragraph err = new Paragraph(msg);
-											err.setId("documents-processing");
-											err.getStyle().set("color", "var(--lumo-error-text-color)");
-											err.getStyle().set("font-weight", "bold");
-											err.getStyle().set("text-align", "center");
-											err.getStyle().set("font-size", "large");
-											dialog.add(err);
-										}
-									});
+									// If the dialog is our DocumentDownloadDialog, let it handle rendering
+									if (dialog instanceof app.owlcms.nui.preparation.DocumentDownloadDialog) {
+										app.owlcms.nui.preparation.DocumentDownloadDialog d = (app.owlcms.nui.preparation.DocumentDownloadDialog) dialog;
+										java.util.List<Exception> errors = new java.util.ArrayList<>();
+										errors.add(ex);
+										d.reportPrecheckErrors(errors);
+									} else {
+										UI ui = UI.getCurrent();
+										ui.access(() -> {
+											// remove any existing processing/error paragraph
+											java.util.Optional<Paragraph> existing = dialog.getChildren()
+													.filter(c -> c instanceof Paragraph)
+													.map(c -> (Paragraph) c)
+													.filter(p -> "documents-processing".equals(p.getId().orElse(null)))
+													.findFirst();
+											String msg = ex.getMessage() == null ? Translator.translate("Download.failed") : ex.getMessage();
+											if (existing.isPresent()) {
+												Paragraph p = existing.get();
+												p.setText(msg);
+												p.getStyle().set("color", "var(--lumo-error-text-color)");
+												p.getStyle().set("font-weight", "bold");
+												p.getStyle().set("text-align", "center");
+												p.getStyle().set("font-size", "large");
+											} else {
+												Paragraph err = new Paragraph(msg);
+												err.setId("documents-processing");
+												err.getStyle().set("color", "var(--lumo-error-text-color)");
+												err.getStyle().set("font-weight", "bold");
+												err.getStyle().set("text-align", "center");
+												err.getStyle().set("font-size", "large");
+												dialog.add(err);
+											}
+										});
+									}
 								}
 							}
 						} catch (Throwable t) {
@@ -237,7 +246,7 @@ public class JXLSDownloader {
 
 	private Dialog createDialog() {
 		// Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-		this.dialog = new Dialog();
+	this.dialog = new DocumentDownloadDialog();
 		this.dialog.setCloseOnEsc(true);
 		this.dialog.setHeaderTitle(this.dialogTitle);
 		this.templateSelect = new ComboBox<>();
@@ -380,10 +389,14 @@ public class JXLSDownloader {
 	       Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
 	       link.add(innerButton);
 	       innerButton.setDisableOnClick(true);
-	       innerButton.addClickListener((c) -> {
-		       this.templateSelect.setEnabled(false);
-		       this.dialog.add(new Paragraph(getProcessingMessage()));
-	       });
+			   innerButton.addClickListener((c) -> {
+			   this.templateSelect.setEnabled(false);
+			   if (this.dialog instanceof DocumentDownloadDialog) {
+				   ((DocumentDownloadDialog) this.dialog).showProcessing(getProcessingMessage());
+			   } else {
+				   this.dialog.add(new Paragraph(getProcessingMessage()));
+			   }
+		   });
 	       innerButton.focus();
 	       // highlight because Vaadin does not show a focus ring for some unknown reason
 	       innerButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);

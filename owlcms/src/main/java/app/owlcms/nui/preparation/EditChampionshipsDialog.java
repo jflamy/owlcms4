@@ -30,9 +30,6 @@ public class EditChampionshipsDialog extends Dialog {
 
 		dialog.setHeaderTitle(Translator.translate("EditChampionships.Title"));
 		VerticalLayout content = new VerticalLayout();
-		// Paragraph paragraph = new Paragraph();
-		// paragraph.getElement().setProperty("innerHTML", Translator.translate("EditChampionships.Intro"));
-		// paragraph.setWidth("550px");
 
 		updateChampionshipsTable(this.championshipsTable);
 		content.add(this./* paragraph, */championshipsTable);

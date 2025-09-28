@@ -545,7 +545,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 		// element.callJsFunction("setTitle", title);
 
 		if (title.contains(".NEW_RECORD")) {
-			element.setProperty("title", Translator.translate("NewRecord"));
+			element.setProperty("title", Translator.translate("VideoNotification.NewRecord"));
 			this.showLonger = true;
 		} else if (title.contains(".RECORD_ATTEMPT")) {
 			element.setProperty("notificationClass", "attemptNotification");

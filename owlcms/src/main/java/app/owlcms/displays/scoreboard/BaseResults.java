@@ -133,7 +133,7 @@ public class BaseResults extends LitTemplate
 			this.getElement().setProperty("fullName", title);
 			this.getElement().setProperty("teamName", "");
 			this.getElement().setProperty("attempt", "");
-			this.getElement().setProperty("kgSymbol", Translator.translate("kgSymbol"));
+			this.getElement().setProperty("kgSymbol", Translator.translate("KgSymbol"));
 			Athlete a = fop.getCurAthlete();
 
 			this.getElement().setProperty("weight", "");

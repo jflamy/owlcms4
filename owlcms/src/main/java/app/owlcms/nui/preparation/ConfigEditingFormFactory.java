@@ -91,7 +91,7 @@ public class ConfigEditingFormFactory
 
 	@Override
 	public String buildCaption(CrudOperation operation, Config config) {
-		return Translator.translate("Config.Titles");
+		return Translator.translate("Config.Title");
 	}
 
 	@Override

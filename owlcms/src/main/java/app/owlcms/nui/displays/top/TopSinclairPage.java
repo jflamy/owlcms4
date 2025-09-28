@@ -148,7 +148,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		genderComboBox.setClearButtonVisible(true);
 		genderComboBox.setItemLabelGenerator(g -> {
 			if (g == null)
-				return app.owlcms.i18n.Translator.translate("Gender.All");
+				return app.owlcms.i18n.Translator.translate("Gender.Mixed"); // unused
 			switch (g) {
 				case M:
 					return app.owlcms.i18n.Translator.translate("Gender.Men");

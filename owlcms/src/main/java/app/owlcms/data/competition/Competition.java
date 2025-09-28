@@ -942,7 +942,7 @@ public class Competition {
 	}
 
 	public Integer getMaxPerCategory() {
-		return this.maxPerCategory;
+		return this.maxPerCategory != null && this.maxPerCategory > 0 ? this.maxPerCategory : 2;
 	}
 
 	public Integer getMaxTeamSize() {
