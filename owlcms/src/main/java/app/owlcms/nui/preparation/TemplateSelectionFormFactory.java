@@ -93,7 +93,17 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		return layout;
 	}
 
+	public FormLayout singleTemplateSelection(PreCompetitionTemplates templateDefinition, Dialog dialog) {
+		FormLayout layout = createLayoutHeader(templateDefinition);
+		addTemplateSelection(layout, templateDefinition, dialog);
+		return layout;
+	}
+
 	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplates template) {
+		addTemplateSelection(layout, template, null);
+	}
+
+	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplates template, Dialog dialog) {
 		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> matchExtension(template, f));
 		ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 
@@ -113,6 +123,16 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 				Competition current = Competition.getCurrent();
 				CompetitionRepository.save(current);
 				current = Competition.getCurrent();
+
+				// If a dialog was supplied and it is a DocumentDownloadDialog, notify it so it
+				// can re-run any prechecks attached to the download control and clear messages.
+				if (dialog instanceof DocumentDownloadDialog) {
+					try {
+						((DocumentDownloadDialog) dialog).clearProcessing();
+						((DocumentDownloadDialog) dialog).runDownloadControlUiPrecheck();
+					} catch (Throwable ignore) {
+					}
+				}
 			} catch (Throwable e1) {
 				LoggerUtils.logError(this.logger, e1);
 			}

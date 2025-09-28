@@ -172,29 +172,15 @@ public class JXLSDownloader {
 									} else {
 										UI ui = UI.getCurrent();
 										ui.access(() -> {
-											// remove any existing processing/error paragraph
-											java.util.Optional<Paragraph> existing = dialog.getChildren()
-													.filter(c -> c instanceof Paragraph)
-													.map(c -> (Paragraph) c)
-													.filter(p -> "documents-processing".equals(p.getId().orElse(null)))
-													.findFirst();
+											// fallback: create an error paragraph
 											String msg = ex.getMessage() == null ? Translator.translate("Download.failed") : ex.getMessage();
-											if (existing.isPresent()) {
-												Paragraph p = existing.get();
-												p.setText(msg);
-												p.getStyle().set("color", "var(--lumo-error-text-color)");
-												p.getStyle().set("font-weight", "bold");
-												p.getStyle().set("text-align", "center");
-												p.getStyle().set("font-size", "large");
-											} else {
-												Paragraph err = new Paragraph(msg);
-												err.setId("documents-processing");
-												err.getStyle().set("color", "var(--lumo-error-text-color)");
-												err.getStyle().set("font-weight", "bold");
-												err.getStyle().set("text-align", "center");
-												err.getStyle().set("font-size", "large");
-												dialog.add(err);
-											}
+											Paragraph err = new Paragraph(msg);
+											err.setId("documents-processing");
+											err.getStyle().set("color", "var(--lumo-error-text-color)");
+											err.getStyle().set("font-weight", "bold");
+											err.getStyle().set("text-align", "center");
+											err.getStyle().set("font-size", "large");
+											dialog.add(err);
 										});
 									}
 								}
@@ -373,6 +359,26 @@ public class JXLSDownloader {
 		} catch (Throwable e1) {
 			this.logger.error("{}", LoggerUtils.stackTrace(e1));
 		}
+
+		// After processing template selection, clear any processing messages and run the optional preCheckSupplier
+		try {
+			if (this.dialog instanceof app.owlcms.nui.preparation.DocumentDownloadDialog) {
+				app.owlcms.nui.preparation.DocumentDownloadDialog d = (app.owlcms.nui.preparation.DocumentDownloadDialog) this.dialog;
+				// Clear any previous processing/message
+				d.clearProcessing();
+				// Run optional pre-check and show any errors inside the dialog
+				if (this.preCheckSupplier != null) {
+					java.util.Optional<java.lang.Exception> pre = this.preCheckSupplier.get();
+					if (pre != null && pre.isPresent()) {
+						java.util.List<Exception> errors = new java.util.ArrayList<>();
+						errors.add(pre.get());
+						d.reportPrecheckErrors(errors);
+					} else {
+						d.clearProcessing();
+					}
+				}
+			}
+		} catch (Throwable ignore) {}
 	}
 
        private Anchor doCreateActualDownloadButton(JXLSWorkbookStreamSource writer, String fileName) {

@@ -179,7 +179,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	protected InputStream doCreateStream() {
-		// Use shared WRITER_EXECUTOR and publish any writer IOException into an AtomicReference
 		final PipedInputStream in = new PipedInputStream();
 		final PipedOutputStream out;
 		try {
@@ -194,12 +193,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			try {
 				writeStream(out);
 				// success: notify caller
-				try { if (JXLSWorkbookStreamSource.this.doneCallback != null) JXLSWorkbookStreamSource.this.doneCallback.accept(null); } catch (Throwable cb) { /* swallow */ }
+				try { if (this.doneCallback != null) this.doneCallback.accept(null); } catch (Throwable cb) { /* swallow */ }
 			} catch (Throwable t) {
 				// notify doneCallback with a user-friendly message when available
 				try {
-					if (JXLSWorkbookStreamSource.this.doneCallback != null) {
-						try { JXLSWorkbookStreamSource.this.doneCallback.accept(t); } catch (Throwable cb) { /* swallow */ }
+					if (this.doneCallback != null) {
+						try {this.doneCallback.accept(t); } catch (Throwable cb) { /* swallow */ }
 					}
 				} catch (Throwable ignore) { }
 
@@ -384,7 +383,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * jxls transform helpers already defined in this class.
 	 */
 	protected void writeStream(OutputStream stream) throws IOException {
-		System.err.println("*** JXLSWorkbookStreamSource.writeStream");
+		System.err.println("*** writeStream ***"+this.getClass().getName());
 		File tempFile = null;
 		InputStream template = null;
 		try {
@@ -437,12 +436,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	public void setSortedAthletes(List<Athlete> athletes) {
-		logger.warn("=== setSortedAthletes called, {} athletes {}", athletes != null ? athletes.size() : 0, LoggerUtils.whereFrom());
+		logger.warn("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% === setSortedAthletes called, {} athletes {}", athletes != null ? athletes.size() : 0, LoggerUtils.whereFrom());
 		this.sortedAthletes = athletes;
 	}
 
 	public void setGroup(Group group) {
-		logger.warn("=== setGroup called, group = {} {}", group, LoggerUtils.whereFrom());
+		logger.warn("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% setGroup called, group = {} {}", group, LoggerUtils.whereFrom());
 		this.group = group;
 	}
 
@@ -613,7 +612,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 		// Ranking overallScoringSystem = this.getBestLifterScoringSystem();
 		// overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
-		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
+		Ranking overallScoringSystem = getBestLifterRankingThreadLocal();
 
 		// make available to the Athlete class in this Thread (and subThreads).
 		this.reportingBeans.put("bestRankingTitle",
@@ -691,6 +690,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	private void jxls3Transform(OutputStream stream, File templateFile) {
+		logger.warn("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% === jxls3Transform called class={} template={}\n{}", this.getClass().getName(), templateFile, LoggerUtils.stackTrace());
 		Workbook workbook = null;
 		File tempFile = null;
 		try {
@@ -708,7 +708,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				workbook = WorkbookFactory.create(tempFile);
 				if (workbook != null) {
 					start = System.currentTimeMillis();
-					logger.info("postProcessing");
+					logger.info("postProcessing {} {}", templateFile, this.getClass().getName());
 					postProcess(workbook);
 					logger.info("postProcessing done: {}ms", System.currentTimeMillis() - start);
 				}
@@ -805,7 +805,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 */
 	public Optional<Exception> prepare() {
         try {
-			System.err.println("=== JXLSWorkbookStreamSource.preCheck called");
+			System.err.println("=== preCheck called");
             setReportingInfo();
             // Resolve template on UI thread to avoid session access in background writer
             if (this.inputStream == null) {

@@ -336,6 +336,10 @@ public class LazyDownloadButton extends Button {
 		this.uiPreCheck = uiPreCheck;
 	}
 
+	public java.util.function.Supplier<java.util.Optional<java.lang.Exception>> getUiPreCheck() {
+		return this.uiPreCheck;
+	}
+
 	public LazyDownloadButton(String text, InputStreamFactory inputStreamFactory) {
 		this(text, DEFAULT_FILE_NAME_SUPPLIER, inputStreamFactory);
 	}
