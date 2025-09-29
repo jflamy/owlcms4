@@ -55,21 +55,23 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
+		var sa = this.getSortedAthletes();
 		// Championship championship = getChampionship();
-		if (this.sortedAthletes != null) {
-			 logger.trace("%%% sortedAthletes.size()={}",sortedAthletes.size());
+		if (sa != null) {
+			 logger.trace("%%% sortedAthletes.size()={}",sa.size());
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
-				logger.trace("YYYYYYYYYYYY provided athletes {}", sortedAthletes.get(0).getClass().getSimpleName());
+				logger.trace("YYYYYYYYYYYY provided athletes {}", sa.get(0).getClass().getSimpleName());
 				Ranking rankingOrder = Ranking.CATEGORY_SCORE;
-				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder, ORDER_BY_CATEGORIES);
-				logger.trace("ZZZZZZZZZZZZ sorted provided athletes {}", sortedAthletes.get(0).getClass().getSimpleName());
-				return this.sortedAthletes;
+				AthleteSorter.resultsOrder(sa, rankingOrder, ORDER_BY_CATEGORIES);
+				logger.trace("ZZZZZZZZZZZZ sorted provided athletes {}", sa.get(0).getClass().getSimpleName());
+				this.setSortedAthletes(sa);
+				return sa;
 			} else {
 				 logger.trace("YYYYYYYYYYYY unique athletes");
 				// we need to expand all the participations before we filter down.
-				List<Athlete> allParticipations = Competition.getCurrent().mapToParticipations(this.sortedAthletes, this.resultsByCategory);
+				List<Athlete> allParticipations = Competition.getCurrent().mapToParticipations(sa, this.resultsByCategory);
 
 				// keep the the most specific category from the championship
 				List<Athlete> uniqueAthletes = allParticipations.stream()
@@ -97,10 +99,11 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				        .collect(Collectors.toList());
 
 				// re-sort the athletes
-				this.sortedAthletes = new ArrayList<>(uniqueAthletes);
-				AthleteSorter.resultsOrder(this.sortedAthletes, rankingOrder(), ORDER_BY_CATEGORIES);
-				logger.debug("registration getSortedAthletes {}", this.sortedAthletes.size());
-				return this.sortedAthletes;
+				sa = new ArrayList<>(uniqueAthletes);
+				AthleteSorter.resultsOrder(sa, rankingOrder(), ORDER_BY_CATEGORIES);
+				logger.debug("registration getSortedAthletes {}", sa.size());
+				this.setSortedAthletes(sa);
+				return sa;
 			}
 		}
 		logger.debug("XXXXXXXXXXXXXXXXXXXX  no sorted athletes");

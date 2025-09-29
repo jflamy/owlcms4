@@ -43,15 +43,16 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
 		// logger.debug("%%% getSortedAthletes() {}",sortedAthletes.stream().map(a->a.getAbbreviatedName()).toList());
-		if (this.sortedAthletes != null) {
-			return this.sortedAthletes;
+		var sa = this.getSortedAthletes();
+		if (sa != null) {
+			return sa;
 		}
 
 		Group group = getGroup();
 		TreeMap<String, List<Athlete>> medals = Competition.getCurrent().getMedals(group, true);
-		this.sortedAthletes = new ArrayList<>();
+		sa = new ArrayList<>();
 		for (Entry<String, List<Athlete>> medalCat : medals.entrySet()) {
 			List<Athlete> medalists = medalCat.getValue();
 			// logger.debug("medalCat {} {}", medalCat.getKey(), medalCat.getValue().stream().map(a -> a.getAbbreviatedName()).toList());
@@ -64,36 +65,34 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 					// {}",Competition.getCurrent().isSnatchCJTotalMedals());
 					if (Competition.getCurrent().isSnatchCJTotalMedals()) {
 						if (p.getSnatchRank() <= 3) {
-							this.sortedAthletes
-							        .add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(),
+							sa.add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(),
 							                (double) p.getBestSnatch()));
 						}
 						if (p.getCleanJerkRank() <= 3) {
-							this.sortedAthletes.add(new MAthlete((PAthlete) p, Ranking.CLEANJERK, p.getCleanJerkRank(),
+							sa.add(new MAthlete((PAthlete) p, Ranking.CLEANJERK, p.getCleanJerkRank(),
 							        (double) p.getBestCleanJerk()));
 						}
 					}
 
 					if (p.getComputedScoringSystem() == Ranking.TOTAL && p.getTotalRank() <= 3) {
 						// logger.debug("+++ adding total {}", p);
-						this.sortedAthletes
-						        .add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), (double) p.getTotal()));
+						sa.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), (double) p.getTotal()));
 					} else if (p.getCategoryScoreRank() <= 3) {
 						// logger.debug("+++ adding score {}", p);
-						this.sortedAthletes
-						        .add(new MAthlete((PAthlete) p, Ranking.CATEGORY_SCORE, p.getCategoryScoreRank(), (p.getCategoryScore())));
+						sa.add(new MAthlete((PAthlete) p, Ranking.CATEGORY_SCORE, p.getCategoryScoreRank(), (p.getCategoryScore())));
 					}
 				}
 			}
 		}
 
-		MAthlete[] array = this.sortedAthletes.toArray(new MAthlete[0]);
+		MAthlete[] array = sa.toArray(new MAthlete[0]);
 		Arrays.sort(array, new MAthlete.MedalComparator());
-		this.sortedAthletes = Arrays.asList(array).stream()
+		sa = Arrays.asList(array).stream()
 		        // .peek(m -> logger.debug("{} {} {} {}", m.getCategory(), m.getAbbreviatedName(), m.getRankingText(), m.getLiftRank()))
 		        .filter(m -> m.getLiftRank() >= 1 && m.getLiftRank() <= 3)
 		        .collect(Collectors.toList());
-		return this.sortedAthletes;
+		this.setSortedAthletes(sa);
+		return sa;
 		// @formatter:on
 	}
 

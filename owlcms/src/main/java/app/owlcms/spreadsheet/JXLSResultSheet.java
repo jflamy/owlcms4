@@ -51,20 +51,22 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
-		if (this.sortedAthletes != null) {
+	public List<Athlete> computeSortedAthletes() {
+		var sa = this.getSortedAthletes();
+		if (sa != null) {
 			//logger.debug("JXLSResultSheets provided sorted athletes");
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				// no need to unwrap, each athlete is a wrapper PAthlete with a participation category.
-				return this.sortedAthletes;
+				return sa;
 			} else {
 				// we need the athlete with the original registration category inside the PAthlete
 				// sometimes we are given the actual original athletes, so we are careful.
-				List<Athlete> unwrappedAthletes = unwrapAthletesAsNeeded(this.sortedAthletes);
+				List<Athlete> unwrappedAthletes = unwrapAthletesAsNeeded(sa);
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
-				this.sortedAthletes = AthleteSorter.displayOrderCopy(new ArrayList<>(noDuplicates));
-				return this.sortedAthletes;
+				sa = AthleteSorter.displayOrderCopy(new ArrayList<>(noDuplicates));
+				this.setSortedAthletes(sa);
+				return sa;
 			}
 		}
 		//logger.debug("JXLSResultSheets no sorted athletes {}",this.getBestLifterScoringSystem());

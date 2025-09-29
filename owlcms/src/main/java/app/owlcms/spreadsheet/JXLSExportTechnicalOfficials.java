@@ -53,7 +53,7 @@ public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
 		// unused. prevent spurious warning.
 		return List.of(new Athlete());
 	}

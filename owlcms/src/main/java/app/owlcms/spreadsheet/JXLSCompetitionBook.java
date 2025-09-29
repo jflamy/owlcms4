@@ -68,7 +68,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
 		// not used (setReportingInfo does all the work)
 		return null;
 	}

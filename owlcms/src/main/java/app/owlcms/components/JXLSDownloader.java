@@ -16,6 +16,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class JXLSDownloader {
 	private Predicate<String> nameFilter;
 	// Optional pre-check invoked before activating the download/dialog. Return Optional.empty() on OK
 	// or Optional.of(Exception) to indicate a validation error that should be shown to the user.
-	private java.util.function.Supplier<java.util.Optional<java.lang.Exception>> preCheckSupplier;
+	private Supplier<Optional<Exception>> preCheckSupplier;
 
 	/**
 	 * @param streamSourceSupplier lambda that creates a JXLSWorkbookStreamSource and sets its filters
@@ -160,13 +161,13 @@ public class JXLSDownloader {
 						// validation errors inside the dialog so the user sees them in-context.
 						try {
 							if (this.preCheckSupplier != null) {
-								java.util.Optional<java.lang.Exception> pre = this.preCheckSupplier.get();
+								Optional<Exception> pre = this.preCheckSupplier.get();
 								if (pre != null && pre.isPresent()) {
 									Exception ex = pre.get();
 									// If the dialog is our DocumentDownloadDialog, let it handle rendering
-									if (dialog instanceof app.owlcms.nui.preparation.DocumentDownloadDialog) {
-										app.owlcms.nui.preparation.DocumentDownloadDialog d = (app.owlcms.nui.preparation.DocumentDownloadDialog) dialog;
-										java.util.List<Exception> errors = new java.util.ArrayList<>();
+									if (dialog instanceof DocumentDownloadDialog) {
+										DocumentDownloadDialog d = (DocumentDownloadDialog) dialog;
+										List<Exception> errors = new ArrayList<>();
 										errors.add(ex);
 										d.reportPrecheckErrors(errors);
 									} else {
@@ -197,34 +198,9 @@ public class JXLSDownloader {
 	 * is opened. The supplier should return Optional.empty() when validation passes or
 	 * Optional.of(Exception) to signal an error message to show to the user.
 	 */
-	public void setPreCheckSupplier(java.util.function.Supplier<java.util.Optional<java.lang.Exception>> preCheckSupplier) {
+	public void setPreCheckSupplier(Supplier<Optional<Exception>> preCheckSupplier) {
 		this.preCheckSupplier = preCheckSupplier;
 	}
-
-	// /**
-	//  * Deprecated because the time stamp in the file name is determined when the download button is created, and not when the file is downloaded.
-	//  *
-	//  * Use LazyDownloadButton instead.
-	//  *
-	//  * @param tooltipText
-	//  * @return
-	//  */
-	// @Deprecated
-	// // CODEREVIEW remove use of createImmediateDownloadButton
-	// public Anchor createImmediateDownloadButton(String... tooltipText) {
-	// 	this.xlsWriter = this.streamSourceSupplier.get();
-	// 	Supplier<String> supplier = () -> getTargetFileName();
-	// 	this.resource = new StreamResource(supplier.get(), (StreamResourceWriter) this.xlsWriter);
-	// 	Anchor link = new Anchor(this.resource, "");
-	// 	link.getElement().setAttribute("download", true);
-	// 	Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-	// 	if (tooltipText != null && tooltipText.length > 0) {
-	// 		innerButton.setTooltipText(tooltipText[0]);
-	// 	}
-	// 	innerButton.setWidth("100%");
-	// 	link.add(innerButton);
-	// 	return link;
-	// }
 
 	public void setProcessingMessage(String processingMessage) {
 		this.processingMessage = processingMessage;
@@ -362,15 +338,15 @@ public class JXLSDownloader {
 
 		// After processing template selection, clear any processing messages and run the optional preCheckSupplier
 		try {
-			if (this.dialog instanceof app.owlcms.nui.preparation.DocumentDownloadDialog) {
-				app.owlcms.nui.preparation.DocumentDownloadDialog d = (app.owlcms.nui.preparation.DocumentDownloadDialog) this.dialog;
+			if (this.dialog instanceof DocumentDownloadDialog) {
+				DocumentDownloadDialog d = (DocumentDownloadDialog) this.dialog;
 				// Clear any previous processing/message
 				d.clearProcessing();
 				// Run optional pre-check and show any errors inside the dialog
 				if (this.preCheckSupplier != null) {
-					java.util.Optional<java.lang.Exception> pre = this.preCheckSupplier.get();
+					Optional<Exception> pre = this.preCheckSupplier.get();
 					if (pre != null && pre.isPresent()) {
-						java.util.List<Exception> errors = new java.util.ArrayList<>();
+						List<Exception> errors = new ArrayList<>();
 						errors.add(pre.get());
 						d.reportPrecheckErrors(errors);
 					} else {

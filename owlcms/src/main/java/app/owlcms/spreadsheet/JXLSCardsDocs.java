@@ -21,7 +21,7 @@ public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
 	private final static Logger logger = LoggerFactory.getLogger(JXLSCardsDocs.class);
 
 	public JXLSCardsDocs() {
-		System.err.println("*** JXLSCardsDocs created");
+		logger.warn("*** JXLSCardsDocs created");
 	}
 
 	@Override

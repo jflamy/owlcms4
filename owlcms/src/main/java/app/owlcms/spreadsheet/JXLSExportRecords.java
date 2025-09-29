@@ -108,7 +108,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
 		HashMap<String, Object> reportingBeans = getReportingBeans();
 
 		// prevent irrelevant "No Athletes" error message.

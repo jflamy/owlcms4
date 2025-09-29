@@ -56,7 +56,7 @@ public class JXLSRegistrationEmptyExport extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
 		// no athletes - create an empty so the reporting works
 		return List.of();
 	}

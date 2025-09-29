@@ -200,7 +200,7 @@ public class JXLSTimingStats extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
 		HashMap<String, Object> reportingBeans = getReportingBeans();
 
 		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, isExcludeNotWeighed());

@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
+import java.util.Optional;
 
 import org.slf4j.LoggerFactory;
 
@@ -197,8 +198,8 @@ public class DownloadButtonFactory {
 		return new Div(downloadButton);
 	}
 
-    public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier,
-	    java.util.function.Supplier<java.util.Optional<java.lang.Exception>> uiPreCheck) {
+	public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier,
+		Supplier<Optional<Exception>> uiPreCheck) {
 	final LazyDownloadButton downloadButton = new LazyDownloadButton(
 		label,
 		new Icon(VaadinIcon.DOWNLOAD_ALT),
@@ -213,8 +214,8 @@ public class DownloadButtonFactory {
 	return new Div(downloadButton);
     }
 
-	public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier,
-			java.util.function.Supplier<java.util.Optional<java.lang.Exception>> uiPreCheck, Icon icon) {
+    public static Div createDynamicZipDownloadButton(String prefix, String label, InputStreamFactory supplier,
+	    Supplier<Optional<Exception>> uiPreCheck, Icon icon) {
 		final LazyDownloadButton downloadButton = new LazyDownloadButton(
 				label,
 				icon,

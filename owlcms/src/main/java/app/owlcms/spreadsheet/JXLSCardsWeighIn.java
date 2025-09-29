@@ -26,7 +26,7 @@ public class JXLSCardsWeighIn extends JXLSCardsDocs {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
 		if (getGroup() != null) {
 			List<Athlete> registrationOrderCopy = AthleteSorter
 			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));

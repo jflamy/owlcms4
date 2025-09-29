@@ -119,7 +119,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return Boolean.TRUE.equals(blss);
 	}
 
-	protected List<Athlete> sortedAthletes;
+	private List<Athlete> sortedAthletes;
 	private Championship championship;
 	private String ageGroupPrefix;
 	private Category category;
@@ -344,8 +344,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return Integer.MAX_VALUE;
 	}
 
-	public List<Athlete> getSortedAthletes() {
+	final public List<Athlete> getSortedAthletes() {
 		return this.sortedAthletes;
+	}
+
+	public List<Athlete> computeSortedAthletes() {
+		return this.getSortedAthletes();
 	}
 
 	public String getTemplateFileName() {
@@ -383,7 +387,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * jxls transform helpers already defined in this class.
 	 */
 	protected void writeStream(OutputStream stream) throws IOException {
-		System.err.println("*** writeStream ***"+this.getClass().getName());
+		logger.warn("*** writeStream ***{}", this.getClass().getName());
 		File tempFile = null;
 		InputStream template = null;
 		try {
@@ -575,13 +579,13 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * Return athletes as required by the template.
 	 */
 	protected void setReportingInfo() {
-		logger.warn("&&&&&&&&&&&&&&&&&&&&&& setReportingInfo called, group = {} {}", getGroup(), LoggerUtils.whereFrom());
-		List<Athlete> athletes = getSortedAthletes();
+		List<Athlete> athletes = computeSortedAthletes();
 		if (athletes != null) {
 			getReportingBeans().put("athletes", athletes);
 			// logger.debug("*** Athletes : {}",athletes.stream().map(a-> a.getCategory()).toList());
 			getReportingBeans().put("lifters", athletes); // legacy
 		}
+		logger.warn("&&&&&&&&&&&&&&&&&&&&&& setReportingInfo called, group = {} athletes.size {} {}", getGroup(), athletes != null ? athletes.size() : "null", LoggerUtils.whereFrom());
 		Competition competition = Competition.getCurrent();
 		getReportingBeans().put("t", Translator.getMap());
 		getReportingBeans().put("tf", new JXLSFormatter());
@@ -690,7 +694,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	private void jxls3Transform(OutputStream stream, File templateFile) {
-		logger.warn("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% === jxls3Transform called class={} template={}\n{}", this.getClass().getName(), templateFile, LoggerUtils.stackTrace());
+		logger.warn("jxls3Transform called class={} template={}\n{}", this.getClass().getName(), templateFile, LoggerUtils.stackTrace());
 		Workbook workbook = null;
 		File tempFile = null;
 		try {

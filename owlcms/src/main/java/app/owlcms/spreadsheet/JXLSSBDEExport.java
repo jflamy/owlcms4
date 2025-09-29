@@ -66,7 +66,7 @@ public class JXLSSBDEExport extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
 		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(null, null);
 		return AthleteSorter
 		        .registrationExportCopy(athletes);

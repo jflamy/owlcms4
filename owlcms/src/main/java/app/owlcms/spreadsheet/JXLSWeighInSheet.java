@@ -38,7 +38,7 @@ public class JXLSWeighInSheet extends JXLSWorkbookStreamSource {
 	}
 
 	@Override
-	public List<Athlete> getSortedAthletes() {
+	public List<Athlete> computeSortedAthletes() {
 		final Group currentGroup = getGroup();
 		List<Athlete> collect = AthleteSorter
 		        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(currentGroup, null)).stream()
