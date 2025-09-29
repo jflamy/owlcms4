@@ -6,16 +6,34 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.util.List;
+
 import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
 
 @SuppressWarnings("serial")
 public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
+
+	@Override
+	public List<Athlete> computeSortedAthletes() {
+		if (getGroup() != null) {
+			List<Athlete> registrationOrderCopy = AthleteSorter
+			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));
+			return registrationOrderCopy;
+		} else {
+			List<Athlete> registrationOrderCopy = AthleteSorter
+			        .registrationOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(null, null));
+			return registrationOrderCopy;
+		}
+	}
 
 	@SuppressWarnings("unused")
 	private final static Logger logger = LoggerFactory.getLogger(JXLSCardsDocs.class);

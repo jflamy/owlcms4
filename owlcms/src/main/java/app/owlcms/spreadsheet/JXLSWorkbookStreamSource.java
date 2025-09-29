@@ -585,7 +585,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			// logger.debug("*** Athletes : {}",athletes.stream().map(a-> a.getCategory()).toList());
 			getReportingBeans().put("lifters", athletes); // legacy
 		}
-		logger.warn("&&&&&&&&&&&&&&&&&&&&&& setReportingInfo called, group = {} athletes.size {} {}", getGroup(), athletes != null ? athletes.size() : "null", LoggerUtils.whereFrom());
+		logger.warn("{} setReportingInfo called, group = {} athletes.size {} {}", this.getClass().getSimpleName(), getGroup(), athletes != null ? athletes.size() : "null", LoggerUtils.whereFrom());
 		Competition competition = Competition.getCurrent();
 		getReportingBeans().put("t", Translator.getMap());
 		getReportingBeans().put("tf", new JXLSFormatter());

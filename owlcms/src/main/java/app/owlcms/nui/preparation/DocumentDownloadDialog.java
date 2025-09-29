@@ -9,11 +9,13 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.server.InputStreamFactory;
 import java.util.function.Supplier;
 import java.util.Optional;
 import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.components.elements.LazyDownloadButton;
+
 import app.owlcms.i18n.Translator;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -50,6 +52,85 @@ public class DocumentDownloadDialog extends Dialog {
     public DocumentDownloadDialog(java.util.List<KitElement> kitElements) {
         this();
         this.kitElements = kitElements;
+        try {
+            // If the dialog was constructed with kit elements, attempt to add
+            // an appropriate template selection automatically so callers do not
+            // always need to call singleTemplateSelection themselves.
+            if (kitElements != null && !kitElements.isEmpty()) {
+                // For each kit element, attempt to map its id to a
+                // PreCompetitionTemplates enum value and add a template
+                // selection for it. This centralizes selection UI creation
+                // so callers do not need to call dialog.add(...).
+                for (KitElement ke : kitElements) {
+                    try {
+                        String id = ke.id();
+                        if (id == null || id.isBlank()) continue;
+                        String normId = id.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
+                        for (PreCompetitionTemplates p : PreCompetitionTemplates.values()) {
+                            String normEnum = p.name().replaceAll("[^A-Za-z0-9]", "").toLowerCase();
+                            if (normEnum.equals(normId)) {
+                                try {
+                                    add(singleTemplateSelection(p));
+                                } catch (Throwable ignore) {
+                                }
+                                break;
+                            }
+                        }
+                    } catch (Throwable ignore) {
+                        // best-effort per element
+                    }
+                }
+            }
+        } catch (Throwable ignore) {
+            // best-effort: do not fail construction
+        }
+    }
+
+    /**
+     * Construct a DocumentDownloadDialog with a kit and a factory that will produce
+     * the "do it" / download control. The factory is invoked with the dialog
+     * instance so callers can create controls that reference the dialog (for
+     * example to call dialog.showError/clearProcessing). The factory should NOT
+     * perform heavy preparation work at construction time; defer heavy work to
+     * the element supplier used by the control.
+     */
+    public DocumentDownloadDialog(java.util.List<KitElement> kitElements,
+            java.util.function.Function<DocumentDownloadDialog, Component> doItFactory) {
+        this(kitElements);
+        if (doItFactory == null) return;
+        try {
+            Component c = null;
+            try {
+                c = doItFactory.apply(this);
+            } catch (Throwable t) {
+                LoggerUtils.logError(this.logger, t);
+            }
+            if (c != null) addDoItButton(c);
+        } catch (Throwable ignore) {
+            // best-effort
+        }
+    }
+
+    /**
+     * Constructor accepting a factory that receives both the dialog and the kit
+     * list. This allows callers to build a do-it control that uses the precomputed
+     * kit list without re-running preparation.
+     */
+    public DocumentDownloadDialog(java.util.List<KitElement> kitElements,
+            java.util.function.BiFunction<DocumentDownloadDialog, java.util.List<KitElement>, Component> doItFactory) {
+        this(kitElements);
+        if (doItFactory == null) return;
+        try {
+            Component c = null;
+            try {
+                c = doItFactory.apply(this, kitElements);
+            } catch (Throwable t) {
+                LoggerUtils.logError(this.logger, t);
+            }
+            if (c != null) addDoItButton(c);
+        } catch (Throwable ignore) {
+            // best-effort
+        }
     }
 
     public java.util.List<KitElement> getKitElements() {
@@ -312,6 +393,156 @@ public class DocumentDownloadDialog extends Dialog {
             // best-effort
         }
         return d;
+    }
+
+    /**
+     * Create and wire a do-it / download control from caller-supplied factories.
+     * This centralizes the wiring of LazyDownloadButton callbacks and initial
+     * precheck behaviour so callers only need to provide the InputStreamFactory
+     * and UI precheck supplier.
+     *
+     * @param baseFileNameSupplier base name for the generated file (or zip)
+     * @param kit                  kit elements (used to determine multi/single)
+     * @param streamSupplier       supplier that returns an InputStream when invoked
+     * @param uiPreCheck           supplier invoked on UI thread to validate template/session
+     * @param extensionSupplier    extension supplier for single-file downloads (ignored for zip)
+     * @param icon                 icon to use for zip download button (ignored for single-file)
+     * @return the Div containing the download control
+     */
+    public Component createDoItButtonForKits(Supplier<String> baseFileNameSupplier, java.util.List<KitElement> kit,
+            InputStreamFactory streamSupplier,
+            Supplier<Optional<Exception>> uiPreCheck,
+            Supplier<String> extensionSupplier,
+            Icon icon) {
+        if (kit == null || kit.isEmpty()) {
+            Button b = new Button(Translator.translate("Download"), VaadinIcon.DOWNLOAD_ALT.create());
+            b.setEnabled(false);
+            return new Div(b);
+        }
+
+        final boolean multi = kit.size() > 1;
+        Div d;
+        if (multi) {
+            // zip download
+            d = DownloadButtonFactory.createDynamicZipDownloadButton(baseFileNameSupplier.get(), Translator.translate("Download"), streamSupplier,
+                    uiPreCheck, icon == null ? VaadinIcon.DOWNLOAD_ALT.create() : icon);
+        } else {
+            // single-file download: use the provided extensionSupplier
+            d = DownloadButtonFactory.createDynamicDownloadButton(baseFileNameSupplier, Translator.translate("Download"), streamSupplier,
+                    extensionSupplier == null ? () -> ".xlsx" : extensionSupplier);
+        }
+
+        setDownloadDiv(d);
+
+        // Wire inner LazyDownloadButton callbacks: close dialog on success, show error on failure
+        try {
+            d.getChildren().findFirst().ifPresent(c -> {
+                if (c instanceof LazyDownloadButton) {
+                    LazyDownloadButton ldb = (LazyDownloadButton) c;
+                    try {
+                        ldb.setUiPreCheck(uiPreCheck);
+                    } catch (Throwable ignore) {
+                    }
+                    ldb.setDoneCallback((tc, transferredBytes) -> {
+                        try {
+                            // The writer is expected to set flags or otherwise indicate success via its own callbacks.
+                            UI ui = tc != null ? tc.getUI() : UI.getCurrent();
+                            if (ui != null) {
+                                ui.access(() -> this.close());
+                            }
+                        } catch (Throwable cb) {
+                            LoggerUtils.logError(this.logger, cb);
+                        }
+                    });
+                    ldb.setErrorCallback((tc, error) -> {
+                        try {
+                            UI ui = tc != null ? tc.getUI() : UI.getCurrent();
+                            if (ui != null) {
+                                String msg = error.getMessage() == null ? Translator.translate("Download.failed") : error.getMessage();
+                                ui.access(() -> this.showError(msg));
+                            }
+                        } catch (Throwable cb) {
+                            LoggerUtils.logError(this.logger, cb);
+                        }
+                    });
+                }
+            });
+        } catch (Throwable ignore) {
+        }
+
+        // Run initial UI precheck so dialog shows any missing-template / session messages immediately
+        try {
+            if (uiPreCheck != null) {
+                Optional<Exception> pre = uiPreCheck.get();
+                if (pre != null && pre.isPresent()) {
+                    java.util.List<Exception> errors = new java.util.ArrayList<>();
+                    errors.add(pre.get());
+                    this.reportPrecheckErrors(errors);
+                }
+            }
+        } catch (Throwable ignore) {
+        }
+
+        return d;
+    }
+
+    /**
+     * Overload that accepts domain helper functions so callers can pass method
+     * references from DocumentsContent without recreating the wiring locally.
+     */
+    public Component createDoItButtonForKitsWithHelpers(
+            Supplier<String> baseFileNameSupplier,
+            java.util.List<KitElement> kit,
+            Supplier<java.util.List<app.owlcms.data.group.Group>> selectedSessionsSupplier,
+            Supplier<java.util.List<app.owlcms.data.athlete.Athlete>> computeAthletesSupplier,
+            java.util.function.BiFunction<java.util.List<app.owlcms.data.group.Group>, java.util.List<KitElement>, java.io.InputStream> zipSupplier,
+            java.util.function.BiFunction<java.util.List<app.owlcms.data.group.Group>, java.util.List<KitElement>, java.io.InputStream> excelSupplier,
+            RunPrecheck runSetPrecheck,
+            RunPrecheck filterElementsPrecheck,
+            Supplier<String> extSupplier,
+            Icon icon) {
+        if (kit == null || kit.isEmpty()) {
+            Button b = new Button(Translator.translate("Download"), VaadinIcon.DOWNLOAD_ALT.create());
+            b.setEnabled(false);
+            return new Div(b);
+        }
+
+        final boolean multi = kit.size() > 1;
+        InputStreamFactory streamFactory = () -> {
+            java.util.List<app.owlcms.data.group.Group> selected = selectedSessionsSupplier == null ? null : selectedSessionsSupplier.get();
+            if (multi) {
+                return zipSupplier.apply(selected, kit);
+            } else {
+                return excelSupplier.apply(selected, kit);
+            }
+        };
+
+        Supplier<Optional<Exception>> uiPreCheck = () -> {
+            try {
+                java.util.List<app.owlcms.data.group.Group> ss = selectedSessionsSupplier == null ? null : selectedSessionsSupplier.get();
+                app.owlcms.data.group.Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+                java.util.List<app.owlcms.data.athlete.Athlete> athletes = computeAthletesSupplier == null ? null : computeAthletesSupplier.get();
+                try {
+                    if (multi) {
+                        runSetPrecheck.apply(kit, g, athletes, this);
+                    } else {
+                        filterElementsPrecheck.apply(kit, g, athletes, this);
+                    }
+                    return Optional.empty();
+                } catch (Exception preEx) {
+                    return Optional.of(preEx);
+                }
+            } catch (Throwable t) {
+                return Optional.of(new Exception(t));
+            }
+        };
+
+        return createDoItButtonForKits(baseFileNameSupplier, kit, streamFactory, uiPreCheck, extSupplier, icon);
+    }
+
+    @FunctionalInterface
+    public interface RunPrecheck {
+        java.util.List<KitElement> apply(java.util.List<KitElement> elements, app.owlcms.data.group.Group g, java.util.List<app.owlcms.data.athlete.Athlete> athletes, DocumentDownloadDialog dialog);
     }
 
     /**
