@@ -121,6 +121,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	static {
 		logger.setLevel(Level.INFO);
 	}
+	private final DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
 	boolean documentPage;
 	private DocumentsGrid crud;
 	private OwlcmsCrudFormFactory<Group> editingFormFactory;
@@ -477,8 +478,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						throw new RuntimeException(ioe);
 					}
 				},
-				(elements, g, athletes, d) -> runSetPrecheckOrThrow(elements, g, athletes, d),
-				(elements, g, athletes, d) -> filterElementsByPrecheckOrThrow(elements, g, athletes, d),
+				(elements, g, athletes, d) -> precheckService.runSetPrecheckOrThrow(elements, g, athletes, d),
+				(elements, g, athletes, d) -> precheckService.filterElementsByPrecheckOrThrow(elements, g, athletes, d),
 				extSupplier,
 				VaadinIcon.DOWNLOAD_ALT.create());
 	}
@@ -667,7 +668,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
 				List<Athlete> athletes = (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
 				try {
-					List<KitElement> present = runSetPrecheckOrThrow(elements, g, athletes, dialog);
+					List<KitElement> present = precheckService.runSetPrecheckOrThrow(elements, g, athletes, dialog);
 					filteredElementsRef.set(present);
 					// Successful set precheck: ensure any precheck messages are cleared and
 					// the download control is enabled.
@@ -809,7 +810,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
 				List<Athlete> athletes = (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
 				try {
-					List<KitElement> present = runSetPrecheckOrThrow(elements, g, athletes, dialog);
+					List<KitElement> present = precheckService.runSetPrecheckOrThrow(elements, g, athletes, dialog);
 					filteredElementsRef.set(present);
 					// Successful set precheck: ensure any precheck messages are cleared and
 					// the download control is enabled.
@@ -982,7 +983,9 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement doElementBodyweight(PreCompetitionTemplates templateDefinition, BiConsumer<Throwable, String> errorProcessor) {
-		return defineKit("bodyweight",
+		// Use the enum name so the dialog can detect the element and add a template selector
+		// (DocumentDownloadDialog maps normalized id -> PreCompetitionTemplates enum).
+		return defineKit(PreCompetitionTemplates.BY_BODYWEIGHT.name(),
 		        templateDefinition,
 		        errorProcessor,
 		        defaultPreCheckAllowNoSelectionFor(templateDefinition),
@@ -1029,7 +1032,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement doElementCategories(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return defineKit("categories",
+		return defineKit(PreCompetitionTemplates.BY_CATEGORY.name(),
 		        template,
 		        errorProcessor,
 		        defaultPreCheckAllowNoSelectionFor(template),
@@ -1168,7 +1171,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement doElementTeam(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return defineKit("team",
+		return defineKit(PreCompetitionTemplates.BY_TEAM.name(),
 		        template,
 		        errorProcessor,
 		        defaultPreCheckAllowNoSelectionFor(template),
@@ -1183,16 +1186,18 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement doElementWeighIn(PreCompetitionTemplates template, BiConsumer<Throwable, String> errorProcessor) {
-		return defineKit("weighin",
-		        template,
-		        errorProcessor,
-		        defaultPreCheckFor(template),
-		        (a, g) -> {
-			        JXLSWeighInSheet rs = new JXLSWeighInSheet(); // Create a new weigh-in sheet
-			        System.err.println("============ group g " + g + LoggerUtils.stackTrace());
-			        rs.setGroup(g);
-			        return rs;
-		        });
+		// Use the enum name so the dialog can add a template selector. Weigh-in
+		// requires a selected session, so use the default precheck that enforces a session.
+		return defineKit(PreCompetitionTemplates.WEIGHIN.name(),
+				template,
+				errorProcessor,
+				defaultPreCheckFor(template),
+				(a, g) -> {
+					JXLSWeighInSheet rs = new JXLSWeighInSheet(); // Create a new weigh-in sheet
+					System.err.println("============ group g " + g + LoggerUtils.stackTrace());
+					rs.setGroup(g);
+					return rs;
+				});
 	}
 
 	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
@@ -1630,7 +1635,9 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private List<KitElement> prepareWeighIn(PreCompetitionTemplates template, List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
-		checkNoSelection(selectedItems, errorProcessor);
+		// Do NOT require a selected session here; allow weigh-in to be generated for the
+		// whole competition when no session is selected. The element's precheck will
+		// enforce session/no-session semantics via defaultPreCheckAllowNoSelectionFor.
 		List<KitElement> elements = new ArrayList<>();
 		elements.add(doElementWeighIn(template, errorProcessor));
 		return elements;
@@ -1772,75 +1779,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return z;
 	}
 
-	/**
-	 * Run each KitElement.preCheck and return the filtered list of elements that are present. On non-template precheck failure, the method will add an error
-	 * paragraph to the dialog, disable the associated download control (via divRef) and throw StopProcessingException. If all elements are missing templates,
-	 * behaves similarly and throws.
-	 */
-	private List<KitElement> filterElementsByPrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
-		// Use evaluatePrechecks to run element-level prechecks and gather results.
-		PrecheckResult r = evaluatePrechecks(elements, g, athletes, dialog);
-		// If all elements are missing templates, treat this as a per-element
-		// missing-template condition for single-element dialogs: throw
-		// StopProcessingException with TemplateMissingException as cause so callers
-		// can present per-element errors. Set-level callers should use
-		// runSetPrecheckOrThrow instead.
-		if (r.missing > 0 && r.present.isEmpty()) {
-			String s = Translator.translate("Documents.NoTemplate");
-			dialog.displayPrecheckErrors(List.of(new Exception(s)));
-			throw new StopProcessingException("NoTemplate", new TemplateMissingException("NoTemplate"));
-		}
-		return r.present.isEmpty() ? elements : r.present;
-	}
-
-	/**
-	 * Run element prechecks and return present list; if all elements are missing templates, throw AtLeastOneTemplateRequiredException (this is the set-level
-	 * behavior).
-	 */
-	private List<KitElement> runSetPrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
-		PrecheckResult r = evaluatePrechecks(elements, g, athletes, dialog);
-		if (r.missing > 0 && r.present.isEmpty()) {
-			String s = Translator.translate("Documents.NoTemplate");
-			dialog.displayPrecheckErrors(List.of(new Exception(s)));
-			throw new AtLeastOneTemplateRequiredException();
-		}
-		return r.present.isEmpty() ? elements : r.present;
-	}
-
-	private static class PrecheckResult {
-		List<KitElement> present = new ArrayList<>();
-		int missing = 0;
-	}
-
-	/**
-	 * Evaluate per-element prechecks. Does not throw AtLeastOneTemplateRequiredException. It reports other non-template failures via
-	 * dialog.reportPrecheckErrors and throws StopProcessingException for fatal precheck failures.
-	 */
-	private PrecheckResult evaluatePrechecks(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
-		PrecheckResult result = new PrecheckResult();
-		for (KitElement ke : elements) {
-			try {
-				Optional<Exception> pre = ke.preCheck().apply(athletes, g);
-				if (pre != null && pre.isPresent()) {
-					Exception e = pre.get();
-					if (e instanceof TemplateMissingException || "NoTemplate".equals(e.getMessage()) || "NoTemplates".equals(e.getMessage())) {
-						result.missing++;
-						continue;
-					}
-					String s = e.getMessage() == null ? Translator.translate("Download.failed") : e.getMessage();
-					dialog.reportPrecheckErrors(List.of(new Exception(s)));
-					throw new StopProcessingException(s, e);
-				} else {
-					result.present.add(ke);
-				}
-			} catch (Throwable t) {
-				LoggerUtils.logError(logger, t, true);
-				String s = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
-				dialog.reportPrecheckErrors(List.of(new Exception(s)));
-				throw new StopProcessingException(s, t);
-			}
-		}
-		return result;
-	}
+	// Precheck orchestration was moved to DocumentsPrecheckService to keep UI wiring
+	// (DocumentsContent) separate from domain precheck logic. Use precheckService
+	// where prechecks are needed.
 
 }

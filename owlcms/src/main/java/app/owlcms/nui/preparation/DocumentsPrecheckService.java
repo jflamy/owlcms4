@@ -1,0 +1,85 @@
+package app.owlcms.nui.preparation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.group.Group;
+import app.owlcms.i18n.Translator;
+import app.owlcms.servlet.StopProcessingException;
+import app.owlcms.utils.LoggerUtils;
+import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Helper service that centralizes kit-element precheck orchestration.
+ * This keeps DocumentsContent focused on UI wiring and selection while
+ * the precheck logic lives here for reuse by the dialog.
+ */
+public class DocumentsPrecheckService {
+    private static final Logger logger = (Logger) LoggerFactory.getLogger(DocumentsPrecheckService.class);
+
+    public static class PrecheckResult {
+        public List<KitElement> present = new ArrayList<>();
+        public int missing = 0;
+    }
+
+    /**
+     * Evaluate per-element prechecks. Does not throw AtLeastOneTemplateRequiredException.
+     * It reports other non-template failures via dialog.reportPrecheckErrors and throws StopProcessingException for fatal precheck failures.
+     */
+    public PrecheckResult evaluatePrechecks(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
+        PrecheckResult result = new PrecheckResult();
+        for (KitElement ke : elements) {
+            try {
+                Optional<Exception> pre = ke.preCheck().apply(athletes, g);
+                if (pre != null && pre.isPresent()) {
+                    Exception e = pre.get();
+                    if (e instanceof TemplateMissingException || "NoTemplate".equals(e.getMessage()) || "NoTemplates".equals(e.getMessage())) {
+                        result.missing++;
+                        continue;
+                    }
+                    String s = e.getMessage() == null ? Translator.translate("Download.failed") : e.getMessage();
+                    dialog.reportPrecheckErrors(List.of(new Exception(s)));
+                    throw new StopProcessingException(s, e);
+                } else {
+                    result.present.add(ke);
+                }
+            } catch (Throwable t) {
+                LoggerUtils.logError(logger, t, true);
+                String s = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
+                dialog.reportPrecheckErrors(List.of(new Exception(s)));
+                throw new StopProcessingException(s, t);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Run element prechecks and return present list; if all elements are missing templates, throw AtLeastOneTemplateRequiredException (this is the set-level behavior).
+     */
+    public List<KitElement> runSetPrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
+        PrecheckResult r = evaluatePrechecks(elements, g, athletes, dialog);
+        if (r.missing > 0 && r.present.isEmpty()) {
+            String s = Translator.translate("Documents.NoTemplate");
+            dialog.displayPrecheckErrors(List.of(new Exception(s)));
+            throw new AtLeastOneTemplateRequiredException();
+        }
+        return r.present.isEmpty() ? elements : r.present;
+    }
+
+    /**
+     * Run each KitElement.preCheck and return the filtered list of elements that are present. On non-template precheck failure, the method will add an error
+     * paragraph to the dialog, disable the associated download control and throw StopProcessingException. If all elements are missing templates, behaves similarly and throws.
+     */
+    public List<KitElement> filterElementsByPrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
+        PrecheckResult r = evaluatePrechecks(elements, g, athletes, dialog);
+        if (r.missing > 0 && r.present.isEmpty()) {
+            String s = Translator.translate("Documents.NoTemplate");
+            dialog.displayPrecheckErrors(List.of(new Exception(s)));
+            throw new StopProcessingException("NoTemplate", new TemplateMissingException("NoTemplate"));
+        }
+        return r.present.isEmpty() ? elements : r.present;
+    }
+}

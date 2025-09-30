@@ -564,34 +564,55 @@ public class DocumentDownloadDialog extends Dialog {
     public void runDownloadControlUiPrecheck() {
         if (downloadDiv == null) return;
         try {
-            downloadDiv.getChildren().findFirst().ifPresent(c -> {
-                if (c instanceof LazyDownloadButton) {
-                    LazyDownloadButton ldb = (LazyDownloadButton) c;
-                    Supplier<Optional<Exception>> pre = ldb.getUiPreCheck();
-                    if (pre != null) {
-                        try {
-                            Optional<Exception> res = pre.get();
-                            if (res != null && res.isPresent()) {
-                                java.util.List<Exception> errors = new java.util.ArrayList<>();
-                                errors.add(res.get());
-                                reportPrecheckErrors(errors);
-                            } else {
-                                clearProcessing();
-                                setDownloadEnabled(true);
-                            }
-                        } catch (Throwable t) {
+            // The download control may be nested inside wrapper components. Find the
+            // LazyDownloadButton recursively so template selection will always be able
+            // to re-run the attached UI precheck regardless of wrapping.
+            LazyDownloadButton ldb = findLazyDownloadButton(downloadDiv);
+            if (ldb != null) {
+                Supplier<Optional<Exception>> pre = ldb.getUiPreCheck();
+                if (pre != null) {
+                    try {
+                        Optional<Exception> res = pre.get();
+                        if (res != null && res.isPresent()) {
                             java.util.List<Exception> errors = new java.util.ArrayList<>();
-                            errors.add(new Exception(t));
+                            errors.add(res.get());
                             reportPrecheckErrors(errors);
+                        } else {
+                            clearProcessing();
+                            setDownloadEnabled(true);
                         }
-                    } else {
-                        // nothing to run
-                        clearProcessing();
+                    } catch (Throwable t) {
+                        java.util.List<Exception> errors = new java.util.ArrayList<>();
+                        errors.add(new Exception(t));
+                        reportPrecheckErrors(errors);
                     }
+                } else {
+                    // nothing to run
+                    clearProcessing();
                 }
-            });
+            }
         } catch (Throwable ignore) {
         }
+    }
+
+    /**
+     * Recursively search the component tree rooted at {@code root} for the
+     * first LazyDownloadButton instance. Returns null when none found.
+     */
+    private LazyDownloadButton findLazyDownloadButton(Component root) {
+        if (root == null) return null;
+        try {
+            if (root instanceof LazyDownloadButton) return (LazyDownloadButton) root;
+            java.util.Iterator<Component> it = root.getChildren().iterator();
+            while (it.hasNext()) {
+                Component c = it.next();
+                if (c instanceof LazyDownloadButton) return (LazyDownloadButton) c;
+                LazyDownloadButton found = findLazyDownloadButton(c);
+                if (found != null) return found;
+            }
+        } catch (Throwable ignore) {
+        }
+        return null;
     }
 
     // ---- Template selection helpers moved here from TemplateSelectionFormFactory ----
