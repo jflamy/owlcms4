@@ -33,6 +33,7 @@ import com.vaadin.flow.component.html.H4;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.utils.LoggerUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
@@ -647,9 +648,10 @@ public class DocumentDownloadDialog extends Dialog {
         ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 
         templateSelect.addValueChangeListener(e -> {
-            try {
                 Resource value = e.getValue();
                 String newTemplateName = value != null ? value.getFileName() : null;
+                logger.warn("DocumentDownloadDialog.templateSelection: selected template='{}' for enum={}", newTemplateName, template.name());
+            try {
                 if (newTemplateName != null) {
                     Resource res = searchMatch(prioritizedList, newTemplateName);
                     if (res == null) {
@@ -663,14 +665,90 @@ public class DocumentDownloadDialog extends Dialog {
                 CompetitionRepository.save(current);
                 current = Competition.getCurrent();
 
-                // notify dialog so it can re-run any prechecks attached to the download control and clear messages.
-                try {
-                    clearProcessing();
-                    runDownloadControlUiPrecheck();
-                } catch (Throwable ignore) {
+                // clear previous messages
+                clearProcessing();
+
+                // find the inner LazyDownloadButton and its ui precheck supplier
+                LazyDownloadButton ldb = findLazyDownloadButton(downloadDiv);
+                Supplier<Optional<Exception>> pre = ldb == null ? null : ldb.getUiPreCheck();
+                boolean ok = false;
+
+                // If a template was selected and we have kitElements, try resolving
+                // and updating the matching kit elements first. If any resource is
+                // missing, report and treat as precheck failure.
+                boolean resourceProblem = false;
+                if (newTemplateName != null && kitElements != null) {
+                    String resourceFolder = template.folder + "/";
+                    String newFullName = resourceFolder + newTemplateName;
+                    for (int i = 0; i < kitElements.size(); i++) {
+                        KitElement ke = kitElements.get(i);
+                        if (ke == null) continue;
+                        String id = ke.id();
+                        if (id == null) continue;
+                        String normId = id.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
+                        String normEnum = template.name().replaceAll("[^A-Za-z0-9]", "").toLowerCase();
+                        if (normId.equals(normEnum)) {
+                                try {
+                                    java.nio.file.Path ispPath = null;
+                                    String ext = "";
+                                    try {
+                                        ispPath = ResourceWalker.getFileOrResourcePath(newFullName);
+                                        if (ispPath != null) {
+                                            ext = FilenameUtils.getExtension(ispPath.getFileName().toString());
+                                        }
+                                        logger.warn("DocumentDownloadDialog: resolved template '{}' -> path='{}' ext='{}' for kit id='{}'", newFullName, ispPath, ext, ke.id());
+                                    } catch (java.io.FileNotFoundException fnf) {
+                                        // Template not found: report and mark problem
+                                        java.util.List<Exception> errors = new java.util.ArrayList<>();
+                                        errors.add(new TemplateMissingException("NoTemplate", fnf));
+                                        reportPrecheckErrors(errors);
+                                        resourceProblem = true;
+                                        break;
+                                    }
+                                    KitElement newKe = new KitElement(ke.id(), newFullName, ext, ispPath, ke.count(), ke.writerFactory(), ke.preCheck());
+                                    kitElements.set(i, newKe);
+                                    logger.warn("DocumentDownloadDialog: updated kitElements[{}] -> name='{}' isp='{}'", i, newFullName, ispPath);
+                                } catch (Throwable ignore) {
+                                    LoggerUtils.logError(this.logger, ignore);
+                                }
+                        }
+                    }
                 }
-            } catch (Throwable e1) {
-                LoggerUtils.logError(this.logger, e1);
+
+                if (resourceProblem) {
+                    // ensure the download control is disabled if resource missing
+                    setDownloadEnabled(false);
+                } else {
+                    // no resource problems; run UI precheck if present
+                    if (pre != null) {
+                        try {
+                            Optional<Exception> res = pre.get();
+                            if (res == null || res.isEmpty()) {
+                                ok = true;
+                            } else {
+                                java.util.List<Exception> errors = new java.util.ArrayList<>();
+                                errors.add(res.get());
+                                reportPrecheckErrors(errors);
+                            }
+                        } catch (Throwable t) {
+                            java.util.List<Exception> errors = new java.util.ArrayList<>();
+                            errors.add(new Exception(t));
+                            reportPrecheckErrors(errors);
+                        }
+                    } else {
+                        // no ui precheck attached: treat as OK
+                        ok = true;
+                    }
+
+                    if (ok) {
+                        clearProcessing();
+                        setDownloadEnabled(true);
+                    } else {
+                        setDownloadEnabled(false);
+                    }
+                }
+            } catch (Throwable ex) {
+                LoggerUtils.logError(this.logger, ex);
             }
         });
     }

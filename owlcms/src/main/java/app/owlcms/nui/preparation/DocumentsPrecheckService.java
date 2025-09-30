@@ -9,6 +9,8 @@ import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.servlet.StopProcessingException;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
+import java.io.FileNotFoundException;
 import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,5 +83,67 @@ public class DocumentsPrecheckService {
             throw new StopProcessingException("NoTemplate", new TemplateMissingException("NoTemplate"));
         }
         return r.present.isEmpty() ? elements : r.present;
+    }
+
+    /**
+     * Validate template selection and that the template resource exists. Returns Optional.empty() when OK or Optional.of(TemplateMissingException) when missing.
+     */
+    public Optional<Exception> checkTemplateSelectedAndExists(PreCompetitionTemplates templateEnum) {
+        try {
+            String selected = templateEnum.templateFileNameSupplier.get();
+            if (selected == null || selected.isBlank()) {
+                return Optional.of(new TemplateMissingException("NoTemplate"));
+            }
+            String resourceFolder = templateEnum.folder + "/";
+            String templatePath = resourceFolder + selected;
+            try {
+                ResourceWalker.getFileOrResourcePath(templatePath);
+            } catch (FileNotFoundException fnfe) {
+                return Optional.of(new TemplateMissingException("NoTemplate", fnfe));
+            }
+            return Optional.empty();
+        } catch (Throwable t) {
+            return Optional.of(new TemplateMissingException("NoTemplate", t));
+        }
+    }
+
+    /**
+     * Shared logic for default prechecks. If allowNoSelection is false, a missing group (g==null) results in a NoSession exception; otherwise group may be null.
+     */
+    public Optional<Exception> runDefaultPrecheck(PreCompetitionTemplates templateEnum, List<Athlete> a, Group g, boolean allowNoSelection) {
+        Optional<Exception> tpl = checkTemplateSelectedAndExists(templateEnum);
+        if (tpl.isPresent()) {
+            return tpl;
+        }
+        try {
+            if (!allowNoSelection && g == null) {
+                return Optional.of(new Exception("NoSession"));
+            }
+
+            int incomingCount = a == null ? 0 : a.size();
+            String sampleIds = "";
+            if (a != null && !a.isEmpty()) {
+                sampleIds = a.stream().limit(10).map(ath -> String.valueOf(ath.getId())).collect(java.util.stream.Collectors.joining(","));
+            }
+            String groupInfo = (g == null) ? "<no-group>" : (g.getId() + ":" + g.getName());
+            Optional<Exception> outcome = Optional.empty();
+
+            if (g != null) {
+                if (incomingCount == 0) {
+                    outcome = Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(Translator.translate("NoAthletes"))));
+                }
+            }
+
+            String resultText = outcome.isEmpty() ? "OK" : (outcome.get().getMessage() == null ? outcome.get().toString() : outcome.get().getMessage());
+            logger.warn("preCheck %s for template=%s received: incomingCount=%d, sampleIds=[%s], group=%s, resolvedCount=%d, outcome=%s",
+                    allowNoSelection ? "allow-no-selection" : "default",
+                    templateEnum.name(), incomingCount, sampleIds, groupInfo, incomingCount, resultText);
+            return outcome;
+        } catch (Throwable t) {
+            LoggerUtils.logError(logger, t, true);
+            logger.warn("preCheck %s for template=%s threw exception: %s", allowNoSelection ? "allow-no-selection" : "default", templateEnum.name(),
+                    t.toString());
+            return Optional.of(new Exception(t));
+        }
     }
 }

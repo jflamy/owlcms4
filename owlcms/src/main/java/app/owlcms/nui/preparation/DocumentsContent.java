@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -72,7 +70,7 @@ import com.vaadin.flow.router.Route;
 // com.vaadin.flow.server.InputStreamFactory; not used directly here
 
 import app.owlcms.apputils.queryparameters.BaseContent;
-import app.owlcms.components.elements.LazyDownloadButton;
+// LazyDownloadButton and atomic refs were used in older implementation; removed after refactor
 import app.owlcms.components.fields.LocalDateTimeField;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
@@ -286,33 +284,24 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement defineKit(String id, PreCompetitionTemplates templateEnum, BiConsumer<Throwable, String> errorProcessor,
-	        BiFunction<List<Athlete>, Group, Optional<Exception>> explicitPreCheck,
-	        BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
+			BiFunction<List<Athlete>, Group, Optional<Exception>> explicitPreCheck,
+			BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
 		try {
 			logger.warn("*** checkKit for {} with ID: {}\n{}", templateEnum.name() , id, LoggerUtils.stackTrace());
 			String resourceFolder = templateEnum.folder + "/";
 			resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
 			String template = templateEnum.templateFileNameSupplier.get();
 			String templateName = resourceFolder + template;
-			Path isp = ResourceWalker.getFileOrResourcePath(templateName);
-			String ext = FilenameUtils.getExtension(isp.getFileName().toString());
+			// Do not check for template existence here; defer existence checks to the
+			// dialog / precheck service so this helper only composes the KitElement.
+			Path isp = null;
+			String ext = FilenameUtils.getExtension(template == null ? "" : template);
 
 			// The precheck should be provided explicitly by callers. The default
 			// behavior is obtained via defaultPreCheckFor(templateEnum)
 			BiFunction<List<Athlete>, Group, Optional<Exception>> pre = explicitPreCheck;
 
 			KitElement kitElement = new KitElement(id, templateName, ext, isp, 1, writerFactory, pre);
-			return kitElement;
-		} catch (FileNotFoundException e1) {
-			// Missing template: do not call the external error processor here. Return
-			// a KitElement whose preCheck will return a TemplateMissingException so
-			// the dialog's pre-check loop can surface the error inside the dialog.
-			BiFunction<List<Athlete>, Group, Optional<Exception>> missingPre = (a, g) -> Optional.of(
-			        new TemplateMissingException("NoTemplate", e1));
-			Path ispMissing = null;
-			String extMissing = FilenameUtils.getExtension(templateEnum.templateFileNameSupplier.get());
-			KitElement kitElement = new KitElement(id, templateEnum.folder + templateEnum.templateFileNameSupplier.get(), extMissing, ispMissing, 1,
-			        writerFactory, missingPre);
 			return kitElement;
 		} catch (Exception e2) {
 			logger.error("Unexpected exception: {}", e2.toString());
@@ -645,276 +634,34 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        Translator.translate("Documents.Kits"),
 		        VaadinIcon.ARCHIVE.create(),
 		        (e) -> {
-			        List<KitElement> kit = preparePostWeighInKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit);
-					dialog.addDoItButton(createPostWeighInButtonDoIt(dialog));
+					List<KitElement> kit = preparePostWeighInKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, (d, kits) -> createDoItButtonForKits(kits, d, getSortedSelection(), () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					}));
 			        dialog.open();
 		        });
 		return new Div(openDialog);
 	}
 
-	private Div createPostWeighInButtonDoIt(DocumentDownloadDialog dialog) {
-		AtomicReference<Div> localDirZipDivRef = new AtomicReference<>();
-		AtomicReference<List<KitElement>> filteredElementsRef = new AtomicReference<>();
-		UI ui = UI.getCurrent();
-		final DocumentDownloadDialog docDialog = dialog;
-		// UI pre-check supplier: runs on UI thread before download and populates filteredElementsRef
-		Supplier<Optional<Exception>> uiPreCheck = () -> {
-			List<Exception> errors = new ArrayList<>();
-			try {
-				List<KitElement> elements = preparePostWeighInKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
 
-				List<Group> selectedSessions = getSortedSelection();
-				Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
-				List<Athlete> athletes = (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-				try {
-					List<KitElement> present = precheckService.runSetPrecheckOrThrow(elements, g, athletes, dialog);
-					filteredElementsRef.set(present);
-					// Successful set precheck: ensure any precheck messages are cleared and
-					// the download control is enabled.
-					if (docDialog != null) {
-						docDialog.clearProcessing();
-					}
-				} catch (AtLeastOneTemplateRequiredException aote) {
-					errors.add(aote);
-				} catch (StopProcessingException spe) {
-					errors.add(spe);
-				}
-			} catch (Throwable t) {
-				errors.add(new Exception(t));
-			}
-			if (docDialog != null) {
-				docDialog.displayPrecheckErrors(errors);
-			}
-			return errors.isEmpty() ? Optional.empty() : Optional.of(errors.get(0));
-		};
-
-		// Shared flags for writer -> UI coordination (writer sets wrappedDone; UI callbacks read flags)
-	final AtomicBoolean okFlag = new AtomicBoolean(false);
-	final AtomicReference<Throwable> errorRef = new AtomicReference<>(null);
-
-		Consumer<Throwable> wrappedDone = t -> {
-			if (t == null) {
-				okFlag.set(true);
-			} else {
-				errorRef.set(t);
-			}
-		};
-
-		Div localDirZipDiv = dialog.createDynamicZipDownloadArea(
-				"postWeighIn",
-				Translator.translate(PreCompetitionTemplates.POST_WEIGHIN.name()),
-				() -> {
-					// Use cached filtered elements produced by the UI pre-check only. Do NOT call
-					// preparePostWeighInKit here to avoid duplicate preparation work.
-					List<KitElement> elements = filteredElementsRef.get();
-					if (elements == null) {
-						// UI pre-check did not run; abort with StopProcessingException so the
-						// caller's UI can display an appropriate message. This avoids calling
-						// preparePostWeighInKit twice.
-						throw new StopProcessingException(Translator.translate("Download.failed"),
-								new RuntimeException("Pre-check not executed"));
-					}
-
-					return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), wrappedDone, ui);
-				},
-				uiPreCheck,
-				VaadinIcon.ARCHIVE.create());
-		localDirZipDivRef.set(localDirZipDiv);
-		// Wire the inner LazyDownloadButton to perform UI actions based on the writer flags
-		try {
-			localDirZipDiv.getChildren().findFirst().ifPresent(c -> {
-				if (c instanceof LazyDownloadButton) {
-					LazyDownloadButton ldb = (LazyDownloadButton) c;
-					ldb.setUiPreCheck(uiPreCheck);
-					ldb.setDoneCallback((tc, transferredBytes) -> {
-						try {
-							if (okFlag.get()) {
-								UI ui2 = tc != null ? tc.getUI() : UI.getCurrent();
-								if (ui2 != null) {
-									ui2.access(() -> dialog.close());
-								}
-							} else {
-								Throwable t = errorRef.get();
-								if (t != null) {
-									UI ui2 = tc != null ? tc.getUI() : UI.getCurrent();
-									if (ui2 != null) {
-										String msg = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
-										ui2.access(() -> dialog.showError(msg));
-									} else {
-										logger.error("Download finished but error present: {}", t.getMessage(), t);
-									}
-								}
-							}
-						} catch (Throwable cb) {
-							LoggerUtils.logError(logger, cb);
-						}
-					});
-					ldb.setErrorCallback((tc, error) -> {
-						try {
-							UI ui2 = tc != null ? tc.getUI() : UI.getCurrent();
-							if (ui2 != null) {
-								String msg = error.getMessage() == null ? Translator.translate("Download.failed") : error.getMessage();
-								ui2.access(() -> dialog.showError(msg));
-							} else {
-								logger.error("Download failed: {}", error.getMessage(), error);
-							}
-						} catch (Throwable cb) {
-							LoggerUtils.logError(logger, cb);
-						}
-					});
-				}
-			});
-		} catch (Throwable ignore) {
-		}
-		// Run the UI pre-check once now so the dialog shows missing-session / template messages
-		// immediately instead of waiting for the user to click the download button.
-		try {
-			Optional<Exception> pre = uiPreCheck.get();
-			if (pre != null && pre.isPresent()) {
-				// the dialog has already been updated via docDialog.reportPrecheckErrors
-			}
-		} catch (Throwable ignored) {
-			// best-effort; do not prevent dialog opening on precheck failure
-		}
-		return localDirZipDiv;
-	}
 
 	private Div createPreWeighInButton() {
 		UI ui = UI.getCurrent();
 		Button openDialog = new Button(
-		        Translator.translate("Documents.Kits"),
-		        VaadinIcon.ARCHIVE.create(),
-		        (e) -> {
-			        List<KitElement> kit = preparePreWeighInKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit);
-					dialog.addDoItButton(createPreWeighInButtonDoIt(dialog));
-			        dialog.open();
-		        });
+				Translator.translate("Documents.Kits"),
+				VaadinIcon.ARCHIVE.create(),
+				(e) -> {
+					List<KitElement> kit = preparePreWeighInKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, (d, kits) -> createDoItButtonForKits(kits, d, getSortedSelection(), () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					}));
+					dialog.open();
+				});
 		return new Div(openDialog);
-	}
-
-	private Div createPreWeighInButtonDoIt(DocumentDownloadDialog dialog) {
-		AtomicReference<Div> localDirZipDivRef = new AtomicReference<>();
-		AtomicReference<List<KitElement>> filteredElementsRef = new AtomicReference<>();
-		Div localDirZipDiv = null;
-		UI ui = UI.getCurrent();
-		final DocumentDownloadDialog docDialog = dialog;
-		// UI pre-check supplier: runs on UI thread and caches the filtered elements
-		Supplier<Optional<Exception>> uiPreCheck = () -> {
-			List<Exception> errors = new ArrayList<>();
-			try {
-				List<KitElement> elements = preparePreWeighInKit(getSortedSelection(), (e, m) -> notifyError(e, ui, m));
-
-				List<Group> selectedSessions = getSortedSelection();
-				Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
-				List<Athlete> athletes = (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-				try {
-					List<KitElement> present = precheckService.runSetPrecheckOrThrow(elements, g, athletes, dialog);
-					filteredElementsRef.set(present);
-					// Successful set precheck: ensure any precheck messages are cleared and
-					// the download control is enabled.
-					if (docDialog != null) {
-						docDialog.clearProcessing();
-					}
-				} catch (AtLeastOneTemplateRequiredException aote) {
-					errors.add(aote);
-				} catch (StopProcessingException spe) {
-					errors.add(spe);
-				}
-			} catch (Throwable t) {
-				errors.add(new Exception(t));
-			}
-			if (docDialog != null) {
-				docDialog.displayPrecheckErrors(errors);
-			}
-			return errors.isEmpty() ? Optional.empty() : Optional.of(errors.get(0));
-		};
-
-		// Shared flags for writer -> UI coordination
-	final AtomicBoolean okFlag = new AtomicBoolean(false);
-	final AtomicReference<Throwable> errorRef = new AtomicReference<>(null);
-
-		Consumer<Throwable> wrappedDone = t -> {
-			if (t == null) {
-				okFlag.set(true);
-			} else {
-				errorRef.set(t);
-			}
-		};
-
-		localDirZipDiv = dialog.createDynamicZipDownloadArea(
-				"preWeighIn",
-				Translator.translate(PreCompetitionTemplates.PRE_WEIGHIN.name()),
-				() -> {
-					List<KitElement> elements = filteredElementsRef.get();
-					if (elements == null) {
-						throw new StopProcessingException(Translator.translate("Download.failed"),
-								new RuntimeException("Pre-check not executed"));
-					}
-
-					return zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), wrappedDone, ui);
-				},
-				uiPreCheck,
-				VaadinIcon.ARCHIVE.create());
-		localDirZipDivRef.set(localDirZipDiv);
-		// Wire LazyDownloadButton callbacks to perform UI work based on writer flags
-		try {
-			localDirZipDiv.getChildren().findFirst().ifPresent(c -> {
-				if (c instanceof LazyDownloadButton) {
-					LazyDownloadButton ldb = (LazyDownloadButton) c;
-					ldb.setUiPreCheck(uiPreCheck);
-					ldb.setDoneCallback((tc, transferredBytes) -> {
-						try {
-							if (okFlag.get()) {
-								UI ui2 = tc != null ? tc.getUI() : UI.getCurrent();
-								if (ui2 != null) {
-									ui2.access(() -> dialog.close());
-								}
-							} else {
-								Throwable t = errorRef.get();
-								if (t != null) {
-									UI ui2 = tc != null ? tc.getUI() : UI.getCurrent();
-									if (ui2 != null) {
-										String msg = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
-										ui2.access(() -> dialog.showError(msg));
-									} else {
-										logger.error("Download finished but error present: {}", t.getMessage(), t);
-									}
-								}
-							}
-						} catch (Throwable cb) {
-							LoggerUtils.logError(logger, cb);
-						}
-					});
-					ldb.setErrorCallback((tc, error) -> {
-						try {
-							UI ui2 = tc != null ? tc.getUI() : UI.getCurrent();
-							if (ui2 != null) {
-								String msg = error.getMessage() == null ? Translator.translate("Download.failed") : error.getMessage();
-								ui2.access(() -> dialog.showError(msg));
-							} else {
-								logger.error("Download failed: {}", error.getMessage(), error);
-							}
-						} catch (Throwable cb) {
-							LoggerUtils.logError(logger, cb);
-						}
-					});
-				}
-			});
-		} catch (Throwable ignore) {
-		}
-		// Run the UI pre-check once now so the dialog shows missing-session / template messages
-		// immediately instead of waiting for the user to click the download button.
-		try {
-			Optional<Exception> pre = uiPreCheck.get();
-			if (pre != null && pre.isPresent()) {
-				// dialog has already been updated via docDialog.reportPrecheckErrors
-			}
-		} catch (Throwable ignored) {
-			// best-effort; do not prevent dialog opening on precheck failure
-		}
-		return localDirZipDiv;
 	}
 
 	private Hr createRule() {
@@ -1211,7 +958,20 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			xlsWriter.setSortedAthletes(athletes);
 		}
 
-		InputStream is = Files.newInputStream(elem.isp());
+		logger.warn("DocumentsContent.doKitElement: using template='{}' isp='{}' id='{}'", elem.name(), elem.isp(), elem.id());
+		InputStream is = null;
+		try {
+			if (elem.isp() != null) {
+				is = Files.newInputStream(elem.isp());
+			} else {
+				java.nio.file.Path resolved = ResourceWalker.getFileOrResourcePath(elem.name());
+				logger.warn("DocumentsContent.doKitElement: resolved missing isp for '{}' -> {}", elem.name(), resolved);
+				is = Files.newInputStream(resolved);
+			}
+		} catch (java.io.FileNotFoundException fnf) {
+			logger.warn("DocumentsContent.doKitElement: template resource not found: {}", elem.name());
+			throw fnf;
+		}
 		xlsWriter.setInputStream(is);
 		xlsWriter.setTemplateFileName(elem.name());
 		InputStream in = xlsWriter.createInputStream();
@@ -1257,7 +1017,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			athletes = groupAthletes(g, true);
 		}
 
-		System.err.println("g = " + g + " athletes = " + (athletes == null ? "null" : athletes.size()) + " for element " + elem.id());
+	System.err.println("g = " + g + " athletes = " + (athletes == null ? "null" : athletes.size()) + " for element " + elem.id());
+	logger.warn("DocumentsContent.excelKitElement: element.name='{}' element.isp='{}' id='{}'", elem.name(), elem.isp(), elem.id());
 
 		// writerFactory can apply custom sorting order to the athletes
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory().apply(athletes, g);
@@ -1272,7 +1033,20 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			xlsWriter.setGroup(g);
 		}
 
-		InputStream is = Files.newInputStream(elem.isp());
+		InputStream is = null;
+		try {
+			if (elem.isp() != null) {
+				is = Files.newInputStream(elem.isp());
+			} else {
+				// attempt to resolve missing path
+				java.nio.file.Path resolved = ResourceWalker.getFileOrResourcePath(elem.name());
+				logger.warn("DocumentsContent.excelKitElement: resolved missing isp for '{}' -> {}", elem.name(), resolved);
+				is = Files.newInputStream(resolved);
+			}
+		} catch (java.io.FileNotFoundException fnf) {
+			logger.warn("DocumentsContent.excelKitElement: template resource not found: {}", elem.name());
+			throw fnf;
+		}
 		xlsWriter.setInputStream(is);
 		xlsWriter.setTemplateFileName(elem.name());
 

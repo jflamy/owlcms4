@@ -17,6 +17,7 @@ primary location assistants should read before taking actions.
     "enforce_preferred_shell": true,
     "allowed_shells": ["bash"],
     "shell_commands_should_be_in": "bash",
+  "do_not_wrap_shell_commands_in_bash_lc": true,
     "use_warn_for_temp_debug": true,
     "use_warn_with_stacktrace": true,
     "use_warn_with_wherefrom": true,
@@ -61,19 +62,35 @@ logger.warn(LoggerUtils.whereFrom());
 Run a read-only Maven query (safe) — note: still ask before running builds:
 
 ```bash
-bash -lc "mvn -q -DskipTests help:effective-pom"
+mvn -q -DskipTests help:effective-pom
 ```
 
 If asked to provide commands for Windows users, present them as bash via WSL/Git-Bash, e.g.:
 
 ```bash
-bash -lc "./mvnw -DskipTests package"
+./mvnw -DskipTests package
 ```
 
 When running python scripts, do not use venvs or activate scripts; just run directly:
 
 ```bash
 python script.py
+```
+
+Common local developer commands (preferred forms):
+
+```bash
+# Compile only (fast check; do not run package locally)
+mvn -DskipTests compile
+
+# Run the full test suite (slower)
+mvn test
+
+# Run a single test class or method (replace MyTestClass and myTestMethod)
+mvn -Dtest=MyTestClass#myTestMethod test
+
+# If you must produce a distributable artifact in CI only, use package in CI
+# Do NOT run `mvn package` in local/editor automation; prefer `mvn -DskipTests compile`.
 ```
 
 ## Agent checklist before any action
