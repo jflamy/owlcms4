@@ -787,7 +787,7 @@ public class DocumentDownloadDialog extends Dialog {
         templateSelect.addValueChangeListener(e -> {
                 Resource value = e.getValue();
                 String newTemplateName = value != null ? value.getFileName() : null;
-                logger.warn("DocumentDownloadDialog.templateSelection: selected template='{}' for enum={}", newTemplateName, template.name());
+                // logger removed
             try {
                 if (newTemplateName != null) {
                     Resource res = searchMatch(prioritizedList, newTemplateName);
@@ -833,7 +833,7 @@ public class DocumentDownloadDialog extends Dialog {
                                         if (ispPath != null) {
                                             ext = FilenameUtils.getExtension(ispPath.getFileName().toString());
                                         }
-                                        logger.warn("DocumentDownloadDialog: resolved template '{}' -> path='{}' ext='{}' for kit id='{}'", newFullName, ispPath, ext, ke.id());
+                                        // logger removed
                                     } catch (java.io.FileNotFoundException fnf) {
                                         // Template not found: report and mark problem
                                         java.util.List<Exception> errors = new java.util.ArrayList<>();
@@ -851,12 +851,12 @@ public class DocumentDownloadDialog extends Dialog {
                                         ke.setIsp(ispPath);
                                         ke.setAvailableTemplatesSupplier(availableTemplatesSupplier);
                                         ke.setSelectedTemplateSupplier(selectedTemplateSupplier);
-                                        logger.warn("DocumentDownloadDialog: updated kitElements[{}] in-place -> name='{}' isp='{}'", i, newFullName, ispPath);
+                                        // logger removed
                                     } catch (Throwable setterEx) {
                                         // Fallback: if setters fail for some reason, replace the element
                                         KitElement newKe = new KitElement(ke.id(), newFullName, ext, ispPath, ke.count(), ke.writerFactory(), ke.preCheck(), ke.processingMessageSupplier(), availableTemplatesSupplier, selectedTemplateSupplier);
                                         kitElements.set(i, newKe);
-                                        logger.warn("DocumentDownloadDialog: replaced kitElements[{}] due to setter failure -> name='{}' isp='{}'", i, newFullName, ispPath);
+                                        // logger removed
                                     }
                                 } catch (Throwable ignore) {
                                     LoggerUtils.logError(this.logger, ignore);

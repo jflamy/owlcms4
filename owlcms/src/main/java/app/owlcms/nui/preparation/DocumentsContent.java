@@ -288,10 +288,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement defineKit(String id, PreCompetitionTemplates templateEnum, BiConsumer<Throwable, String> errorProcessor,
-			BiFunction<List<Athlete>, Group, Optional<Exception>> explicitPreCheck,
-			BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
+	        BiFunction<List<Athlete>, Group, Optional<Exception>> explicitPreCheck,
+	        BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
 		try {
-			logger.warn("*** checkKit for {} with ID: {}\n{}", templateEnum.name() , id, LoggerUtils.stackTrace());
+			// logger removed
 			String resourceFolder = templateEnum.folder + "/";
 			resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
 			String template = templateEnum.templateFileNameSupplier.get();
@@ -314,11 +314,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				}
 			};
 
-	    Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(templateEnum.folder, (f) -> matchExtension(templateEnum, f));
-	    Supplier<String> selectedTemplateSupplier = () -> templateEnum.templateFileNameSupplier.get();
+			Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(templateEnum.folder, (f) -> matchExtension(templateEnum, f));
+			Supplier<String> selectedTemplateSupplier = () -> templateEnum.templateFileNameSupplier.get();
 
-	    KitElement kitElement = new KitElement(id, templateName, ext, isp, 1, writerFactory, pre, processingMessageSupplier,
-		    availableTemplatesSupplier, selectedTemplateSupplier);
+			KitElement kitElement = new KitElement(id, templateName, ext, isp, 1, writerFactory, pre, processingMessageSupplier,
+			        availableTemplatesSupplier, selectedTemplateSupplier);
 			return kitElement;
 		} catch (Exception e2) {
 			logger.error("Unexpected exception: {}", e2.toString());
@@ -342,11 +342,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter) {
 		List<Resource> resourceList = new ResourceWalker().getResourceList(
-				resourceDirectoryLocation,
-				ResourceWalker::relativeName,
-				nameFilter,
-				OwlcmsSession.getLocale(),
-				Config.getCurrent().isLocalTemplatesOnly());
+		        resourceDirectoryLocation,
+		        ResourceWalker::relativeName,
+		        nameFilter,
+		        OwlcmsSession.getLocale(),
+		        Config.getCurrent().isLocalTemplatesOnly());
 		List<Resource> prioritizedList = xlsxPriority(resourceList);
 		return prioritizedList;
 	}
@@ -471,22 +471,25 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        false);
 	}
 
-	/** Delegates to DocumentDownloadDialog.createDoItButtonForKits to centralize wiring.
-	 *  The caller must provide the currently-sorted selection so the method does not
-	 *  call getSortedSelection() itself (avoids duplicate preparation/work).
+	/**
+	 * Delegates to DocumentDownloadDialog.createDoItButtonForKits to centralize wiring. The caller must provide the currently-sorted selection so the method
+	 * does not call getSortedSelection() itself (avoids duplicate preparation/work).
 	 */
-	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog, Supplier<List<Group>> selectedSessionsSupplier, Supplier<List<Athlete>> computeAthletesSupplier) {
+	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog, Supplier<List<Group>> selectedSessionsSupplier,
+	        Supplier<List<Athlete>> computeAthletesSupplier) {
 		return createDoItButtonForKits(kit, dialog, selectedSessionsSupplier, computeAthletesSupplier, null);
 	}
 
-	/** Delegates to DocumentDownloadDialog.createDoItButtonForKits to centralize wiring.
-	 *  The caller must provide the currently-sorted selection so the method does not
-	 *  call getSortedSelection() itself (avoids duplicate preparation/work).
+	/**
+	 * Delegates to DocumentDownloadDialog.createDoItButtonForKits to centralize wiring. The caller must provide the currently-sorted selection so the method
+	 * does not call getSortedSelection() itself (avoids duplicate preparation/work).
 	 */
-	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog, Supplier<List<Group>> selectedSessionsSupplier, Supplier<List<Athlete>> computeAthletesSupplier, Supplier<String> zipBaseOverride) {
+	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog, Supplier<List<Group>> selectedSessionsSupplier,
+	        Supplier<List<Athlete>> computeAthletesSupplier, Supplier<String> zipBaseOverride) {
 		// Build suppliers used by the dialog helper
 		Supplier<String> baseFile = () -> {
-			if (kit == null || kit.isEmpty()) return "undefined";
+			if (kit == null || kit.isEmpty())
+				return "undefined";
 			if (kit.size() == 1) {
 				// Single-element kit: base name derived from the selected template (if any), fallback to element name
 				String selected = kit.get(0).selectedTemplateSupplier() == null ? null : kit.get(0).selectedTemplateSupplier().get();
@@ -496,7 +499,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			} else {
 				// Composite kit: use the kit id (short and stable) as the base name
 				String id = kit.get(0).id();
-				if (id == null || id.isBlank()) return "document-set";
+				if (id == null || id.isBlank())
+					return "document-set";
 				return id.replaceAll("[^A-Za-z0-9]", "");
 			}
 		};
@@ -509,30 +513,34 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 		// Use the dialog helper to create and wire the control; pass method references for domain helpers
 		Supplier<String> zipBase = () -> {
-			if (zipBaseOverride != null) return zipBaseOverride.get();
-			if (kit == null || kit.isEmpty()) return baseFile.get();
+			if (zipBaseOverride != null)
+				return zipBaseOverride.get();
+			if (kit == null || kit.isEmpty())
+				return baseFile.get();
 			String id = kit.get(0).id();
 			return (id == null || id.isBlank()) ? baseFile.get() : id.replaceAll("[^A-Za-z0-9]", "");
 		};
 
-	return dialog.createDoItButtonForKitsWithHelpers(
-				baseFile,
-				kit,
-				selectedSessionsSupplier,
-				computeAthletesSupplier,
-				(selSessions, k) -> zipKitToInputStream(selSessions, k, (e, m) -> notifyError(e, UI.getCurrent(), m), t -> {/* no-op */}, UI.getCurrent()),
-				(selSessions, k) -> {
-					try {
-						return excelKitElement(selSessions, k, UI.getCurrent(), t -> {});
-					} catch (IOException ioe) {
-						throw new RuntimeException(ioe);
-					}
-				},
-				(elements, g, athletes, d) -> precheckService.runSetPrecheckOrThrow(elements, g, athletes, d),
-				(elements, g, athletes, d) -> precheckService.filterElementsByPrecheckOrThrow(elements, g, athletes, d),
-				zipBase,
-				extSupplier,
-				VaadinIcon.DOWNLOAD_ALT.create());
+		return dialog.createDoItButtonForKitsWithHelpers(
+		        baseFile,
+		        kit,
+		        selectedSessionsSupplier,
+		        computeAthletesSupplier,
+		        (selSessions, k) -> zipKitToInputStream(selSessions, k, (e, m) -> notifyError(e, UI.getCurrent(), m), t -> {
+			        /* no-op */}, UI.getCurrent()),
+		        (selSessions, k) -> {
+			        try {
+				        return excelKitElement(selSessions, k, UI.getCurrent(), t -> {
+				        });
+			        } catch (IOException ioe) {
+				        throw new RuntimeException(ioe);
+			        }
+		        },
+		        (elements, g, athletes, d) -> precheckService.runSetPrecheckOrThrow(elements, g, athletes, d),
+		        (elements, g, athletes, d) -> precheckService.filterElementsByPrecheckOrThrow(elements, g, athletes, d),
+		        zipBase,
+		        extSupplier,
+		        VaadinIcon.DOWNLOAD_ALT.create());
 	}
 
 	private Div createDocumentDownloadButton(PreCompetitionTemplates templateDefinition,
@@ -543,32 +551,35 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
-				if (preAction != null) {
-					preAction.run();
-				}
-				logger.warn("createDocumentDownloadButton: invoking elementSupplier for button '{}'", Translator.translate(templateDefinition.name()));
-			List<KitElement> kit = elementSupplier.get();
-				// Create dialog that receives the precomputed kit and builds the do-it control
-				Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-				Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-					List<Group> ss = getSortedSelection();
-					Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-					return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-				};
-				DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-					if (kits == null || kits.isEmpty()) return "undefined";
-					if (kits.size() == 1) {
-						String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-						String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-						String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-						return stripSuffix(justName);
-					} else {
-						String id = kits.get(0).id();
-						if (id == null || id.isBlank()) return "document-set";
-						return id.replaceAll("[^A-Za-z0-9]", "");
-					}
-				}));
-				dialog.open();
+			        if (preAction != null) {
+				        preAction.run();
+			        }
+			        // logger removed
+			        List<KitElement> kit = elementSupplier.get();
+			        // Create dialog that receives the precomputed kit and builds the do-it control
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+				                if (kits == null || kits.isEmpty())
+					                return "undefined";
+				                if (kits.size() == 1) {
+					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+					                return stripSuffix(justName);
+				                } else {
+					                String id = kits.get(0).id();
+					                if (id == null || id.isBlank())
+						                return "document-set";
+					                return id.replaceAll("[^A-Za-z0-9]", "");
+				                }
+			                }));
+			        dialog.open();
 		        });
 		if (primary) {
 			openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
@@ -583,33 +594,36 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
-				       logger.warn("createEmptyProtocolButton: clicked, preparing kit");
-				       List<KitElement> kit = prepareEmptyProtocol(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-						if (kits == null || kits.isEmpty()) return "undefined";
-						if (kits.size() == 1) {
-							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-							return stripSuffix(justName);
-						} else {
-							String id = kits.get(0).id();
-							if (id == null || id.isBlank()) return "document-set";
-							return id.replaceAll("[^A-Za-z0-9]", "");
-						}
-					}));
-					dialog.open();
+			        // logger removed
+			        List<KitElement> kit = prepareEmptyProtocol(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+				                if (kits == null || kits.isEmpty())
+					                return "undefined";
+				                if (kits.size() == 1) {
+					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+					                return stripSuffix(justName);
+				                } else {
+					                String id = kits.get(0).id();
+					                if (id == null || id.isBlank())
+						                return "document-set";
+					                return id.replaceAll("[^A-Za-z0-9]", "");
+				                }
+			                }));
+			        dialog.open();
 		        });
 		// add debug id and log creation
 		try {
 			openDialog.setId("doc-empty-protocol-btn");
-			logger.warn("createEmptyProtocolButton: button created with id={}", openDialog.getId().orElse("<no-id>"));
+			// logger removed
 		} catch (Throwable ignore) {
 		}
 		return new Div(openDialog);
@@ -622,29 +636,32 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
-					List<KitElement> kit = prepareSchedule(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					// Create the dialog with a factory that receives the precomputed kit list
-					// so the dialog can add a do-it control that does not re-run preparation.
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-						if (kits == null || kits.isEmpty()) return "undefined";
-						if (kits.size() == 1) {
-							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-							return stripSuffix(justName);
-						} else {
-							String id = kits.get(0).id();
-							if (id == null || id.isBlank()) return "document-set";
-							return id.replaceAll("[^A-Za-z0-9]", "");
-						}
-					}));
-					dialog.open();
+			        List<KitElement> kit = prepareSchedule(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
+			        // Create the dialog with a factory that receives the precomputed kit list
+			        // so the dialog can add a do-it control that does not re-run preparation.
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+				                if (kits == null || kits.isEmpty())
+					                return "undefined";
+				                if (kits.size() == 1) {
+					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+					                return stripSuffix(justName);
+				                } else {
+					                String id = kits.get(0).id();
+					                if (id == null || id.isBlank())
+						                return "document-set";
+					                return id.replaceAll("[^A-Za-z0-9]", "");
+				                }
+			                }));
+			        dialog.open();
 		        });
 		return new Div(openDialog);
 	}
@@ -685,33 +702,36 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
-				       logger.warn("createIntroductionButton: clicked, preparing kit");
-				       List<KitElement> kit = prepareIntroduction(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-						if (kits == null || kits.isEmpty()) return "undefined";
-						if (kits.size() == 1) {
-							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-							return stripSuffix(justName);
-						} else {
-							String id = kits.get(0).id();
-							if (id == null || id.isBlank()) return "document-set";
-							return id.replaceAll("[^A-Za-z0-9]", "");
-						}
-					}));
-					dialog.open();
+			        // logger removed
+			        List<KitElement> kit = prepareIntroduction(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+				                if (kits == null || kits.isEmpty())
+					                return "undefined";
+				                if (kits.size() == 1) {
+					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+					                return stripSuffix(justName);
+				                } else {
+					                String id = kits.get(0).id();
+					                if (id == null || id.isBlank())
+						                return "document-set";
+					                return id.replaceAll("[^A-Za-z0-9]", "");
+				                }
+			                }));
+			        dialog.open();
 		        });
 		// add debug id and log creation
 		try {
 			openDialog.setId("doc-introduction-btn");
-			logger.warn("createIntroductionButton: button created with id={}", openDialog.getId().orElse("<no-id>"));
+			// logger removed
 		} catch (Throwable ignore) {
 		}
 		return new Div(openDialog);
@@ -724,33 +744,36 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        Translator.translate(templateDefinition.name()),
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
-				       logger.warn("createJuryButton: clicked, preparing kit");
-				       List<KitElement> kit = prepareJury(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-						if (kits == null || kits.isEmpty()) return "undefined";
-						if (kits.size() == 1) {
-							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-							return stripSuffix(justName);
-						} else {
-							String id = kits.get(0).id();
-							if (id == null || id.isBlank()) return "document-set";
-							return id.replaceAll("[^A-Za-z0-9]", "");
-						}
-					}));
-					dialog.open();
+			        // logger removed
+			        List<KitElement> kit = prepareJury(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+				                if (kits == null || kits.isEmpty())
+					                return "undefined";
+				                if (kits.size() == 1) {
+					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+					                return stripSuffix(justName);
+				                } else {
+					                String id = kits.get(0).id();
+					                if (id == null || id.isBlank())
+						                return "document-set";
+					                return id.replaceAll("[^A-Za-z0-9]", "");
+				                }
+			                }));
+			        dialog.open();
 		        });
 		// add debug id and log creation
 		try {
 			openDialog.setId("doc-jury-btn");
-			logger.warn("createJuryButton: button created with id={}", openDialog.getId().orElse("<no-id>"));
+			// logger removed
 		} catch (Throwable ignore) {
 		}
 		return new Div(openDialog);
@@ -764,25 +787,28 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
 			        List<KitElement> kit = prepareOfficials(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-						if (kits == null || kits.isEmpty()) return "undefined";
-						if (kits.size() == 1) {
-							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-							return stripSuffix(justName);
-						} else {
-							String id = kits.get(0).id();
-							if (id == null || id.isBlank()) return "document-set";
-							return id.replaceAll("[^A-Za-z0-9]", "");
-						}
-					}));
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+				                if (kits == null || kits.isEmpty())
+					                return "undefined";
+				                if (kits.size() == 1) {
+					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+					                return stripSuffix(justName);
+				                } else {
+					                String id = kits.get(0).id();
+					                if (id == null || id.isBlank())
+						                return "document-set";
+					                return id.replaceAll("[^A-Za-z0-9]", "");
+				                }
+			                }));
 			        dialog.open();
 		        });
 		return new Div(openDialog);
@@ -794,37 +820,37 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        Translator.translate("Documents.Kits"),
 		        VaadinIcon.ARCHIVE.create(),
 		        (e) -> {
-					List<KitElement> kit = preparePostWeighInKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+			        List<KitElement> kit = preparePostWeighInKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "PostWeighIn"));
 			        dialog.open();
 		        });
 		return new Div(openDialog);
 	}
 
-
-
 	private Div createPreWeighInButton() {
 		UI ui = UI.getCurrent();
 		Button openDialog = new Button(
-				Translator.translate("Documents.Kits"),
-				VaadinIcon.ARCHIVE.create(),
-				(e) -> {
-					List<KitElement> kit = preparePreWeighInKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
-					dialog.open();
-				});
+		        Translator.translate("Documents.Kits"),
+		        VaadinIcon.ARCHIVE.create(),
+		        (e) -> {
+			        List<KitElement> kit = preparePreWeighInKit(getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "PreWeighIn"));
+			        dialog.open();
+		        });
 		return new Div(openDialog);
 	}
 
@@ -844,14 +870,15 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
 			        List<KitElement> kit = prepareStartList(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
-					dialog.open();
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+			        dialog.open();
 		        });
 		openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 		return new Div(openDialog);
@@ -865,14 +892,15 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
 			        List<KitElement> kit = prepareTeam(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
-					dialog.open();
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 		return new Div(openDialog);
@@ -886,14 +914,15 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        VaadinIcon.DOWNLOAD_ALT.create(),
 		        (e) -> {
 			        List<KitElement> kit = prepareWeighIn(templateDefinition, getSortedSelection(), (ex, m) -> notifyError(ex, ui, m));
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
-					dialog.open();
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+			        dialog.open();
 		        });
 		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 		return new Div(openDialog);
@@ -947,7 +976,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        cardsPre,
 		        (a, g) -> {
 			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-					xlsWriter.setGroup(g);
+			        xlsWriter.setGroup(g);
 			        return xlsWriter;
 		        });
 	}
@@ -960,7 +989,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        (a, ignored) -> {
 			        JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
 			        xlsWriter.setGroup(null);
-					// use the rules from JXLSCategoriesListDocs
+			        // use the rules from JXLSCategoriesListDocs
 			        // var athletes = participationFindAll();
 			        // athletes.sort(RegistrationOrderComparator.athleteReportOrderComparator);
 			        // xlsWriter.setSortedAthletes(athletes);
@@ -978,7 +1007,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        startingXlsWriter.setGroup(null);
 			        startingXlsWriter.setPostProcessor(null);
 			        List<Athlete> athletesFindAll = athletesFindAll(true);
-			        logger.warn("Checkin athletes: {}", athletesFindAll.size());
+			        // logger removed
 			        startingXlsWriter.setSortedAthletes(athletesFindAll);
 			        return startingXlsWriter;
 		        });
@@ -1134,15 +1163,15 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		// Use the enum name so the dialog can add a template selector. Weigh-in
 		// requires a selected session, so use the default precheck that enforces a session.
 		return defineKit(PreCompetitionTemplates.WEIGHIN.name(),
-				template,
-				errorProcessor,
-				defaultPreCheckFor(template),
-				(a, g) -> {
-					JXLSWeighInSheet rs = new JXLSWeighInSheet(); // Create a new weigh-in sheet
-					System.err.println("============ group g " + g + LoggerUtils.stackTrace());
-					rs.setGroup(g);
-					return rs;
-				});
+		        template,
+		        errorProcessor,
+		        defaultPreCheckFor(template),
+		        (a, g) -> {
+			        JXLSWeighInSheet rs = new JXLSWeighInSheet(); // Create a new weigh-in sheet
+			        System.err.println("============ group g " + g + LoggerUtils.stackTrace());
+			        rs.setGroup(g);
+			        return rs;
+		        });
 	}
 
 	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
@@ -1156,18 +1185,18 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			xlsWriter.setSortedAthletes(athletes);
 		}
 
-		logger.warn("DocumentsContent.doKitElement: using template='{}' isp='{}' id='{}'", elem.name(), elem.isp(), elem.id());
+		// logger removed
 		InputStream is = null;
 		try {
 			if (elem.isp() != null) {
 				is = Files.newInputStream(elem.isp());
 			} else {
 				java.nio.file.Path resolved = ResourceWalker.getFileOrResourcePath(elem.name());
-				logger.warn("DocumentsContent.doKitElement: resolved missing isp for '{}' -> {}", elem.name(), resolved);
+				// logger removed
 				is = Files.newInputStream(resolved);
 			}
 		} catch (java.io.FileNotFoundException fnf) {
-			logger.warn("DocumentsContent.doKitElement: template resource not found: {}", elem.name());
+			// logger removed
 			throw fnf;
 		}
 		xlsWriter.setInputStream(is);
@@ -1179,7 +1208,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private void doNotification(String text) {
 		this.getUI().get().access(() -> {
-			logger.warn("DocumentsContent: showing error notification -> {}\n{}", text, LoggerUtils.stackTrace());
+			// logger removed
 			Notification notif = new Notification();
 			notif.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			notif.setPosition(Position.TOP_STRETCH);
@@ -1215,8 +1244,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			athletes = groupAthletes(g, true);
 		}
 
-	System.err.println("g = " + g + " athletes = " + (athletes == null ? "null" : athletes.size()) + " for element " + elem.id());
-	logger.warn("DocumentsContent.excelKitElement: element.name='{}' element.isp='{}' id='{}'", elem.name(), elem.isp(), elem.id());
+		System.err.println("g = " + g + " athletes = " + (athletes == null ? "null" : athletes.size()) + " for element " + elem.id());
+		// logger removed
 
 		// writerFactory can apply custom sorting order to the athletes
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory().apply(athletes, g);
@@ -1238,11 +1267,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			} else {
 				// attempt to resolve missing path
 				java.nio.file.Path resolved = ResourceWalker.getFileOrResourcePath(elem.name());
-				logger.warn("DocumentsContent.excelKitElement: resolved missing isp for '{}' -> {}", elem.name(), resolved);
+				// logger removed
 				is = Files.newInputStream(resolved);
 			}
 		} catch (java.io.FileNotFoundException fnf) {
-			logger.warn("DocumentsContent.excelKitElement: template resource not found: {}", elem.name());
+			// logger removed
 			throw fnf;
 		}
 		xlsWriter.setInputStream(is);
@@ -1274,12 +1303,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		InputStream in;
 		try {
 			xlsWriter.setUi(ui);
-			logger.warn("======= Creating download for template: {}", elem.name());
+			// logger removed
 			// if an exception happens here, it is caught in the caller, it needs to close the dialog.
 			in = xlsWriter.createInputStream();
 			return in;
 		} catch (Exception e) {
-			logger.warn("======= Exception creating download for template: {}", elem.name());
+			// logger removed
 			LoggerUtils.logError(logger, e, true);
 			// ensure the dialog (or processing indicator) is closed via the provided callback
 			try {
@@ -1425,7 +1454,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				}
 			}
 		} catch (Exception e) {
-			logger./**/warn("jxls merging correction failed");
+			// logger removed
 		}
 	}
 
@@ -1581,7 +1610,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return elements;
 	}
 
-	private List<KitElement> prepareSchedule(PreCompetitionTemplates templateDefinition, List<Group> selectedItems, BiConsumer<Throwable, String> errorProcessor) {
+	private List<KitElement> prepareSchedule(PreCompetitionTemplates templateDefinition, List<Group> selectedItems,
+	        BiConsumer<Throwable, String> errorProcessor) {
 		List<KitElement> elements = new ArrayList<>();
 		elements.add(doElementSchedule(errorProcessor));
 		return elements;
@@ -1736,7 +1766,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements, Consumer<Throwable> doneCallback) {
 		System.err.println("*** zipOrExcelInputStream called " + ui + " with elements " + elements);
 		InputStream z;
-		logger.warn("Generating {} for {} sessions", elements.size() > 1 ? "zip" : "excel", getSortedSelection().size());
+		// logger removed
 		if (getSortedSelection().size() > 1 || elements.size() > 1) {
 			z = zipKitToInputStream(getSortedSelection(), elements, (e, m) -> notifyError(e, ui, m), doneCallback, ui);
 		} else {

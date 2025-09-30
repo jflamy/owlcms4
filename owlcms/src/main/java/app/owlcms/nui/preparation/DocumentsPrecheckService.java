@@ -132,11 +132,6 @@ public class DocumentsPrecheckService {
             }
 
             int incomingCount = a == null ? 0 : a.size();
-            String sampleIds = "";
-            if (a != null && !a.isEmpty()) {
-                sampleIds = a.stream().limit(10).map(ath -> String.valueOf(ath.getId())).collect(java.util.stream.Collectors.joining(","));
-            }
-            String groupInfo = (g == null) ? "<no-group>" : (g.getId() + ":" + g.getName());
             Optional<Exception> outcome = Optional.empty();
 
             if (g != null) {
@@ -145,15 +140,11 @@ public class DocumentsPrecheckService {
                 }
             }
 
-            String resultText = outcome.isEmpty() ? "OK" : (outcome.get().getMessage() == null ? outcome.get().toString() : outcome.get().getMessage());
-            logger.warn("preCheck %s for template=%s received: incomingCount=%d, sampleIds=[%s], group=%s, resolvedCount=%d, outcome=%s",
-                    allowNoSelection ? "allow-no-selection" : "default",
-                    templateEnum.name(), incomingCount, sampleIds, groupInfo, incomingCount, resultText);
+            // logging removed
             return outcome;
         } catch (Throwable t) {
             LoggerUtils.logError(logger, t, true);
-            logger.warn("preCheck %s for template=%s threw exception: %s", allowNoSelection ? "allow-no-selection" : "default", templateEnum.name(),
-                    t.toString());
+        // logger removed
             return Optional.of(new Exception(t));
         }
     }
@@ -178,21 +169,21 @@ public class DocumentsPrecheckService {
             // understand what the dialog sees at runtime when performing the
             // template precheck. This is temporary and can be removed after
             // diagnosis.
-            logger.warn("runTemplateSetPrecheck: kitElements.size={}", kitElements.size());
+            // logger removed
 
             for (KitElement ke : kitElements) {
                 if (ke == null) {
-                    logger.warn("runTemplateSetPrecheck: encountered null KitElement");
+                    // logger removed
                     continue;
                 }
                 Supplier<String> selSupplier = ke.selectedTemplateSupplier();
                 if (selSupplier == null) {
-                    logger.warn("runTemplateSetPrecheck: element id='{}' has no selectedTemplateSupplier", ke.id());
+                    // logger removed
                     continue; // not a mapped element
                 }
                 anyMapped = true;
                 String selected = selSupplier.get();
-                logger.warn("runTemplateSetPrecheck: element id='{}' selected='{}'", ke.id(), selected);
+                // logger removed
                 if (selected != null && !selected.isBlank()) {
                     anySelected = true;
                     break;
