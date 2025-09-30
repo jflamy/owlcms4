@@ -476,11 +476,29 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	 *  call getSortedSelection() itself (avoids duplicate preparation/work).
 	 */
 	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog, Supplier<List<Group>> selectedSessionsSupplier, Supplier<List<Athlete>> computeAthletesSupplier) {
+		return createDoItButtonForKits(kit, dialog, selectedSessionsSupplier, computeAthletesSupplier, null);
+	}
+
+	/** Delegates to DocumentDownloadDialog.createDoItButtonForKits to centralize wiring.
+	 *  The caller must provide the currently-sorted selection so the method does not
+	 *  call getSortedSelection() itself (avoids duplicate preparation/work).
+	 */
+	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog, Supplier<List<Group>> selectedSessionsSupplier, Supplier<List<Athlete>> computeAthletesSupplier, Supplier<String> zipBaseOverride) {
 		// Build suppliers used by the dialog helper
 		Supplier<String> baseFile = () -> {
-			String raw = kit == null || kit.isEmpty() ? "undefined" : kit.get(0).name();
-			String justName = org.apache.commons.io.FilenameUtils.getName(raw);
-			return stripSuffix(justName);
+			if (kit == null || kit.isEmpty()) return "undefined";
+			if (kit.size() == 1) {
+				// Single-element kit: base name derived from the selected template (if any), fallback to element name
+				String selected = kit.get(0).selectedTemplateSupplier() == null ? null : kit.get(0).selectedTemplateSupplier().get();
+				String raw = selected == null || selected.isBlank() ? kit.get(0).name() : selected;
+				String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+				return stripSuffix(justName);
+			} else {
+				// Composite kit: use the kit id (short and stable) as the base name
+				String id = kit.get(0).id();
+				if (id == null || id.isBlank()) return "document-set";
+				return id.replaceAll("[^A-Za-z0-9]", "");
+			}
 		};
 		// stream/ui precheck are provided to the dialog via helper method references below
 
@@ -490,7 +508,14 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		};
 
 		// Use the dialog helper to create and wire the control; pass method references for domain helpers
-		return dialog.createDoItButtonForKitsWithHelpers(
+		Supplier<String> zipBase = () -> {
+			if (zipBaseOverride != null) return zipBaseOverride.get();
+			if (kit == null || kit.isEmpty()) return baseFile.get();
+			String id = kit.get(0).id();
+			return (id == null || id.isBlank()) ? baseFile.get() : id.replaceAll("[^A-Za-z0-9]", "");
+		};
+
+	return dialog.createDoItButtonForKitsWithHelpers(
 				baseFile,
 				kit,
 				selectedSessionsSupplier,
@@ -505,6 +530,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				},
 				(elements, g, athletes, d) -> precheckService.runSetPrecheckOrThrow(elements, g, athletes, d),
 				(elements, g, athletes, d) -> precheckService.filterElementsByPrecheckOrThrow(elements, g, athletes, d),
+				zipBase,
 				extSupplier,
 				VaadinIcon.DOWNLOAD_ALT.create());
 	}
@@ -529,7 +555,19 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 					Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
 					return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
 				};
-				DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+				DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+					if (kits == null || kits.isEmpty()) return "undefined";
+					if (kits.size() == 1) {
+						String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+						String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+						String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+						return stripSuffix(justName);
+					} else {
+						String id = kits.get(0).id();
+						if (id == null || id.isBlank()) return "document-set";
+						return id.replaceAll("[^A-Za-z0-9]", "");
+					}
+				}));
 				dialog.open();
 		        });
 		if (primary) {
@@ -553,7 +591,19 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
 						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
 					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+						if (kits == null || kits.isEmpty()) return "undefined";
+						if (kits.size() == 1) {
+							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+							return stripSuffix(justName);
+						} else {
+							String id = kits.get(0).id();
+							if (id == null || id.isBlank()) return "document-set";
+							return id.replaceAll("[^A-Za-z0-9]", "");
+						}
+					}));
 					dialog.open();
 		        });
 		// add debug id and log creation
@@ -581,7 +631,19 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
 						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
 					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+						if (kits == null || kits.isEmpty()) return "undefined";
+						if (kits.size() == 1) {
+							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+							return stripSuffix(justName);
+						} else {
+							String id = kits.get(0).id();
+							if (id == null || id.isBlank()) return "document-set";
+							return id.replaceAll("[^A-Za-z0-9]", "");
+						}
+					}));
 					dialog.open();
 		        });
 		return new Div(openDialog);
@@ -631,7 +693,19 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
 						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
 					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+						if (kits == null || kits.isEmpty()) return "undefined";
+						if (kits.size() == 1) {
+							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+							return stripSuffix(justName);
+						} else {
+							String id = kits.get(0).id();
+							if (id == null || id.isBlank()) return "document-set";
+							return id.replaceAll("[^A-Za-z0-9]", "");
+						}
+					}));
 					dialog.open();
 		        });
 		// add debug id and log creation
@@ -658,7 +732,19 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
 						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
 					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+						if (kits == null || kits.isEmpty()) return "undefined";
+						if (kits.size() == 1) {
+							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+							return stripSuffix(justName);
+						} else {
+							String id = kits.get(0).id();
+							if (id == null || id.isBlank()) return "document-set";
+							return id.replaceAll("[^A-Za-z0-9]", "");
+						}
+					}));
 					dialog.open();
 		        });
 		// add debug id and log creation
@@ -684,7 +770,19 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
 						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
 					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier, (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
+						if (kits == null || kits.isEmpty()) return "undefined";
+						if (kits.size() == 1) {
+							String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
+							String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
+							String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+							return stripSuffix(justName);
+						} else {
+							String id = kits.get(0).id();
+							if (id == null || id.isBlank()) return "document-set";
+							return id.replaceAll("[^A-Za-z0-9]", "");
+						}
+					}));
 			        dialog.open();
 		        });
 		return new Div(openDialog);

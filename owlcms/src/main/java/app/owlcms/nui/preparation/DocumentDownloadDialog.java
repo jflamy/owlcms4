@@ -509,10 +509,11 @@ public class DocumentDownloadDialog extends Dialog {
      * @return the Div containing the download control
      */
     public Component createDoItButtonForKits(Supplier<String> baseFileNameSupplier, java.util.List<KitElement> kit,
-            InputStreamFactory streamSupplier,
-            Supplier<Optional<Exception>> uiPreCheck,
-            Supplier<String> extensionSupplier,
-            Icon icon) {
+        InputStreamFactory streamSupplier,
+        Supplier<Optional<Exception>> uiPreCheck,
+        Supplier<String> zipBaseFileNameSupplier,
+        Supplier<String> extensionSupplier,
+        Icon icon) {
         if (kit == null || kit.isEmpty()) {
             Button b = new Button(Translator.translate("Download"), VaadinIcon.DOWNLOAD_ALT.create());
             b.setEnabled(false);
@@ -523,11 +524,12 @@ public class DocumentDownloadDialog extends Dialog {
         // Determine processing message: use LongProcessing for multi-file downloads, otherwise use the kit element's message
         final String processingKey = multi ? "LongProcessing" : (kit.isEmpty() ? "Processing" : kit.get(0).processingMessageSupplier().get());
         Div d;
-        if (multi) {
-            // zip download
-            d = DownloadButtonFactory.createDynamicZipDownloadButton(baseFileNameSupplier.get(), Translator.translate("Download"), streamSupplier,
-                    uiPreCheck, icon == null ? VaadinIcon.DOWNLOAD_ALT.create() : icon);
-        } else {
+    if (multi) {
+        // zip download: prefer zipBaseFileNameSupplier when provided
+        String zipBase = (zipBaseFileNameSupplier == null) ? baseFileNameSupplier.get() : zipBaseFileNameSupplier.get();
+        d = DownloadButtonFactory.createDynamicZipDownloadButton(zipBase, Translator.translate("Download"), streamSupplier,
+            uiPreCheck, icon == null ? VaadinIcon.DOWNLOAD_ALT.create() : icon);
+    } else {
             // single-file download: use the provided extensionSupplier
             d = DownloadButtonFactory.createDynamicDownloadButton(baseFileNameSupplier, Translator.translate("Download"), streamSupplier,
                     extensionSupplier == null ? () -> ".xlsx" : extensionSupplier);
@@ -596,7 +598,7 @@ public class DocumentDownloadDialog extends Dialog {
      * references from DocumentsContent without recreating the wiring locally.
      */
     public Component createDoItButtonForKitsWithHelpers(
-            Supplier<String> baseFileNameSupplier,
+        Supplier<String> baseFileNameSupplier,
             java.util.List<KitElement> kit,
             Supplier<java.util.List<app.owlcms.data.group.Group>> selectedSessionsSupplier,
             Supplier<java.util.List<app.owlcms.data.athlete.Athlete>> computeAthletesSupplier,
@@ -604,6 +606,7 @@ public class DocumentDownloadDialog extends Dialog {
             java.util.function.BiFunction<java.util.List<app.owlcms.data.group.Group>, java.util.List<KitElement>, java.io.InputStream> excelSupplier,
             RunPrecheck runSetPrecheck,
             RunPrecheck filterElementsPrecheck,
+            Supplier<String> zipBaseFileNameSupplier,
             Supplier<String> extSupplier,
             Icon icon) {
         if (kit == null || kit.isEmpty()) {
@@ -662,7 +665,7 @@ public class DocumentDownloadDialog extends Dialog {
             }
         };
 
-        return createDoItButtonForKits(baseFileNameSupplier, kit, streamFactory, uiPreCheck, extSupplier, icon);
+    return createDoItButtonForKits(baseFileNameSupplier, kit, streamFactory, uiPreCheck, zipBaseFileNameSupplier, extSupplier, icon);
     }
 
     @FunctionalInterface
