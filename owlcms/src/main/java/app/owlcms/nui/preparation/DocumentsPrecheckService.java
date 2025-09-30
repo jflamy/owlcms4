@@ -3,6 +3,7 @@ package app.owlcms.nui.preparation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.group.Group;
@@ -38,21 +39,24 @@ public class DocumentsPrecheckService {
                 Optional<Exception> pre = ke.preCheck().apply(athletes, g);
                 if (pre != null && pre.isPresent()) {
                     Exception e = pre.get();
-                    if (e instanceof TemplateMissingException || "NoTemplate".equals(e.getMessage()) || "NoTemplates".equals(e.getMessage())) {
+                    // Template missing is a recoverable per-element condition for set-level logic
+                    if (e instanceof TemplateMissingException) {
                         result.missing++;
                         continue;
                     }
-                    String s = e.getMessage() == null ? Translator.translate("Download.failed") : e.getMessage();
-                    dialog.reportPrecheckErrors(List.of(new Exception(s)));
-                    throw new StopProcessingException(s, e);
+                    // Non-template failures: report the original exception and abort without altering the message
+                    Exception reportEx = (e instanceof Exception) ? e : new Exception(e);
+                    dialog.reportPrecheckErrors(List.of(reportEx));
+                    throw new StopProcessingException(e.getMessage(), e);
                 } else {
                     result.present.add(ke);
                 }
             } catch (Throwable t) {
                 LoggerUtils.logError(logger, t, true);
-                String s = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
-                dialog.reportPrecheckErrors(List.of(new Exception(s)));
-                throw new StopProcessingException(s, t);
+                // Report original throwable as Exception to the dialog and rethrow wrapped so the original message/cause are preserved
+                Exception reportEx = (t instanceof Exception) ? (Exception) t : new Exception(t);
+                dialog.reportPrecheckErrors(List.of(reportEx));
+                throw new StopProcessingException(t.getMessage(), t);
             }
         }
         return result;
@@ -62,6 +66,13 @@ public class DocumentsPrecheckService {
      * Run element prechecks and return present list; if all elements are missing templates, throw AtLeastOneTemplateRequiredException (this is the set-level behavior).
      */
     public List<KitElement> runSetPrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
+        // Require a selected session for multi-element document sets (scope precheck)
+        if (g == null) {
+            // Show the NoSession message and prevent download
+            dialog.displayPrecheckErrors(List.of(new Exception("NoSession")));
+            throw new StopProcessingException("NoSession", new RuntimeException("No session selected for document set"));
+        }
+
         PrecheckResult r = evaluatePrechecks(elements, g, athletes, dialog);
         if (r.missing > 0 && r.present.isEmpty()) {
             String s = Translator.translate("Documents.NoTemplate");
@@ -143,6 +154,63 @@ public class DocumentsPrecheckService {
             LoggerUtils.logError(logger, t, true);
             logger.warn("preCheck %s for template=%s threw exception: %s", allowNoSelection ? "allow-no-selection" : "default", templateEnum.name(),
                     t.toString());
+            return Optional.of(new Exception(t));
+        }
+    }
+
+    /**
+     * Canonical set-level template selection precheck. This centralizes the
+     * logic used by the UI (dialog) and by service-level invocation so there
+     * that both paths behave identically when deciding whether at least one
+     * template is required for a multi-element kit.
+     *
+     * Returns Optional.empty() when OK, Optional.of(AtLeastOneTemplateRequiredException)
+     * when a multi-element kit has none selected, or Optional.of(new Exception("NoTemplate"))
+     * when a single-element kit has no selection.
+     */
+    public Optional<Exception> runTemplateSetPrecheck(List<KitElement> kitElements) {
+        if (kitElements == null || kitElements.isEmpty()) return Optional.empty();
+        try {
+            boolean anyMapped = false;
+            boolean anySelected = false;
+
+            // Debugging: log the kit contents and supplier values so we can
+            // understand what the dialog sees at runtime when performing the
+            // template precheck. This is temporary and can be removed after
+            // diagnosis.
+            logger.warn("runTemplateSetPrecheck: kitElements.size={}", kitElements.size());
+
+            for (KitElement ke : kitElements) {
+                if (ke == null) {
+                    logger.warn("runTemplateSetPrecheck: encountered null KitElement");
+                    continue;
+                }
+                Supplier<String> selSupplier = ke.selectedTemplateSupplier();
+                if (selSupplier == null) {
+                    logger.warn("runTemplateSetPrecheck: element id='{}' has no selectedTemplateSupplier", ke.id());
+                    continue; // not a mapped element
+                }
+                anyMapped = true;
+                String selected = selSupplier.get();
+                logger.warn("runTemplateSetPrecheck: element id='{}' selected='{}'", ke.id(), selected);
+                if (selected != null && !selected.isBlank()) {
+                    anySelected = true;
+                    break;
+                }
+            }
+
+            if (!anyMapped) return Optional.empty();
+
+            if (!anySelected) {
+                if (kitElements.size() == 1) {
+                    return Optional.of(new Exception("NoTemplate"));
+                } else {
+                    return Optional.of(new AtLeastOneTemplateRequiredException());
+                }
+            }
+
+            return Optional.empty();
+        } catch (Throwable t) {
             return Optional.of(new Exception(t));
         }
     }
