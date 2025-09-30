@@ -608,15 +608,45 @@ public class NRegistrationFileProcessor {
 		for (Map.Entry<String, AthleteHeaderInfo> e : base.entrySet()) {
 			String key = e.getKey();
 			AthleteHeaderInfo info = e.getValue();
+			// translate in current locale and in English, register both
 			try {
 				//logger.debug("Registering athlete header key '{}' as '{}'", key, Translator.translate(key));
-				String tCurrent = Translator.translate(key);
+				String tCurrent = null;
+				if (key.contains(" ")) {
+					// split the key on spaces and translate each part separately, then rejoin with spaces
+					String[] parts = key.split(" ");
+					StringBuilder sb = new StringBuilder();
+					for (String part : parts) {
+						String translated = Translator.translate(part);
+						if (translated != null && !translated.isBlank()) {
+							sb.append(translated).append(" ");
+						}
+					}
+					tCurrent = sb.toString().trim();
+				} else {
+					tCurrent = Translator.translate(key);
+				}
 				if (tCurrent != null && !tCurrent.isBlank())
 					result.putIfAbsent(tCurrent.trim().toLowerCase(), info);
 			} catch (Exception ex) {
 			}
+			// also register the explicit English translation
 			try {
-				String tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
+				String tEng = null;
+				if (key.contains(" ")) {
+					// split the key on spaces and translate each part separately, then rejoin with spaces
+					String[] parts = key.split(" ");
+					StringBuilder sb = new StringBuilder();
+					for (String part : parts) {
+						String translated = Translator.translateExplicitLocale(part, Locale.ENGLISH);
+						if (translated != null && !translated.isBlank()) {
+							sb.append(translated).append(" ");
+						}
+					}
+					tEng = sb.toString().trim();
+				} else {
+					tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
+				}
 				if (tEng != null && !tEng.isBlank())
 					result.putIfAbsent(tEng.trim().toLowerCase(), info);
 			} catch (Exception ex) {
