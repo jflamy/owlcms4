@@ -23,9 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
-import com.vaadin.flow.component.notification.Notification.Position;
+// Notification UI handled inside the dialog instead of using a separate Notification
 //import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -43,6 +41,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
+import app.owlcms.servlet.StopProcessingException;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.LoggerUtils;
@@ -153,50 +152,54 @@ public class JXLSDownloader {
 	 */
 	public Button createDownloadButton() {
 		Button dialogOpen = new Button(this.dialogTitle, new Icon(VaadinIcon.DOWNLOAD_ALT),
-				e -> {
-						Dialog dialog = createDialog();
-						dialog.open();
+		        e -> {
+			        Dialog dialog = createDialog();
+			        dialog.open();
 
-						// After opening the dialog, run the optional pre-check and show any
-						// validation errors inside the dialog so the user sees them in-context.
-						try {
-							if (this.preCheckSupplier != null) {
-								Optional<Exception> pre = this.preCheckSupplier.get();
-								if (pre != null && pre.isPresent()) {
-									Exception ex = pre.get();
-									// If the dialog is our DocumentDownloadDialog, let it handle rendering
-									if (dialog instanceof DocumentDownloadDialog) {
-										DocumentDownloadDialog d = (DocumentDownloadDialog) dialog;
-										List<Exception> errors = new ArrayList<>();
-										errors.add(ex);
-										d.reportPrecheckErrors(errors);
+			        // After opening the dialog, run the optional pre-check and show any
+			        // validation errors inside the dialog so the user sees them in-context.
+			        try {
+				        if (this.preCheckSupplier != null) {
+					        Optional<Exception> pre = this.preCheckSupplier.get();
+					        if (pre != null && pre.isPresent()) {
+						        Exception ex = pre.get();
+						        // If the dialog is our DocumentDownloadDialog, let it handle rendering
+						        if (dialog instanceof DocumentDownloadDialog) {
+							        DocumentDownloadDialog d = (DocumentDownloadDialog) dialog;
+							        List<Exception> errors = new ArrayList<>();
+							        errors.add(ex);
+							        d.reportPrecheckErrors(errors);
+								} else {
+								UI ui = UI.getCurrent();
+								ui.access(() -> {
+									// fallback: create an error paragraph. If StopProcessingException use the message as a translation key.
+									String msg;
+									if (ex instanceof StopProcessingException) {
+										msg = Translator.translate(ex.getMessage());
 									} else {
-										UI ui = UI.getCurrent();
-										ui.access(() -> {
-											// fallback: create an error paragraph
-											String msg = ex.getMessage() == null ? Translator.translate("Download.failed") : ex.getMessage();
-											Paragraph err = new Paragraph(msg);
-											err.setId("documents-processing");
-											err.getStyle().set("color", "var(--lumo-error-text-color)");
-											err.getStyle().set("font-weight", "bold");
-											err.getStyle().set("text-align", "center");
-											err.getStyle().set("font-size", "large");
-											dialog.add(err);
-										});
+										msg = ex.getMessage() == null ? Translator.translate("Download.failed") : ex.getMessage();
 									}
-								}
-							}
-						} catch (Throwable t) {
-							LoggerUtils.logError(logger, t);
-						}
-				});
+									Paragraph err = new Paragraph(msg);
+									err.setId("documents-processing");
+									err.getStyle().set("color", "var(--lumo-error-text-color)");
+									err.getStyle().set("font-weight", "bold");
+									err.getStyle().set("text-align", "center");
+									err.getStyle().set("font-size", "large");
+									dialog.add(err);
+								});
+						        }
+					        }
+				        }
+			        } catch (Throwable t) {
+				        LoggerUtils.logError(logger, t);
+			        }
+		        });
 		return dialogOpen;
 	}
 
 	/**
-	 * Set an optional pre-check supplier invoked on the UI thread before the download dialog
-	 * is opened. The supplier should return Optional.empty() when validation passes or
-	 * Optional.of(Exception) to signal an error message to show to the user.
+	 * Set an optional pre-check supplier invoked on the UI thread before the download dialog is opened. The supplier should return Optional.empty() when
+	 * validation passes or Optional.of(Exception) to signal an error message to show to the user.
 	 */
 	public void setPreCheckSupplier(Supplier<Optional<Exception>> preCheckSupplier) {
 		this.preCheckSupplier = preCheckSupplier;
@@ -208,7 +211,7 @@ public class JXLSDownloader {
 
 	private Dialog createDialog() {
 		// Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-	this.dialog = new DocumentDownloadDialog();
+		this.dialog = new DocumentDownloadDialog();
 		this.dialog.setCloseOnEsc(true);
 		this.dialog.setHeaderTitle(this.dialogTitle);
 		this.templateSelect = new ComboBox<>();
@@ -227,10 +230,9 @@ public class JXLSDownloader {
 		List<Resource> prioritizedList = xlsxPriority(resourceList);
 		this.templateSelect.setItems(prioritizedList);
 		this.templateSelect.setValue(null);
-		this.templateSelect.setWidth("15em");
+		this.templateSelect.setWidth("30em");
 		// templateSelect.getStyle().set("margin-left", "1em");
 		this.templateSelect.getStyle().set("margin-right", "0.8em");
-
 
 		try {
 			// Competition.getTemplateFileName()
@@ -276,62 +278,70 @@ public class JXLSDownloader {
 
 			// supplier is a lambda that sets the template and the filter values in the xls
 			// source
-		       Resource res = searchMatch(prioritizedList, newTemplateName);
-		       if (res == null) {
-			       this.logger.debug("(2) template NOT found {} {} - waiting for user to select a template", newTemplateName, prioritizedList);
-			       return;
-		       }
-		       this.logger.debug("(2) template found {}", res.getFilePath());
-		       this.templateNameSetter.accept(current, newTemplateName);
-		       this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
+			Resource res = searchMatch(prioritizedList, newTemplateName);
+			if (res == null) {
+				this.logger.debug("(2) template NOT found {} {} - waiting for user to select a template", newTemplateName, prioritizedList);
+				return;
+			}
+			this.logger.debug("(2) template found {}", res.getFilePath());
+			this.templateNameSetter.accept(current, newTemplateName);
+			this.logger.debug("(2) template as set {}", this.templateNameGetter.apply(current));
 
-		       this.xlsWriter = this.streamSourceSupplier.get();
-		       this.logger.debug("(2) xlsWriter dialog {} {}", this.xlsWriter, this.dialog);
-		       if (this.xlsWriter == null) {
-			       ui.access(() -> this.dialog.close());
-			       return;
-		       }
-		       this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
-			       newTemplateName);
+			this.xlsWriter = this.streamSourceSupplier.get();
+			this.logger.debug("(2) xlsWriter dialog {} {}", this.xlsWriter, this.dialog);
+			if (this.xlsWriter == null) {
+				ui.access(() -> this.dialog.close());
+				return;
+			}
+			this.logger.debug("(2) xlsWriter {} {}", this.xlsWriter.getClass().getSimpleName(),
+			        newTemplateName);
 
-		       CompetitionRepository.save(current);
-		       current = Competition.getCurrent();
-		       this.logger.debug("(2) template as stored {}", this.templateNameGetter.apply(current));
+			CompetitionRepository.save(current);
+			current = Competition.getCurrent();
+			this.logger.debug("(2) template as stored {}", this.templateNameGetter.apply(current));
 
-			   // Do not run prechecks here. The precheck callback/validation is handled by the
-			   // centralized pre-check flow elsewhere. If no template is selected we return early
-			   // (caller will show appropriate UI); otherwise obtain the template stream and set it.
-			   InputStream is = res.getStream();
-			   this.xlsWriter.setInputStream(is);
-		       this.logger.debug("(2) filter present = {} {} {}", this.xlsWriter.getGroup(),
-			       this.xlsWriter.getCategory(),
-			       this.xlsWriter.getChampionship());
+			// Do not run prechecks here. The precheck callback/validation is handled by the
+			// centralized pre-check flow elsewhere. If no template is selected we return early
+			// (caller will show appropriate UI); otherwise obtain the template stream and set it.
+			InputStream is = res.getStream();
+			this.xlsWriter.setInputStream(is);
+			this.logger.debug("(2) filter present = {} {} {}", this.xlsWriter.getGroup(),
+			        this.xlsWriter.getCategory(),
+			        this.xlsWriter.getChampionship());
 
-		       String targetFileName = getTargetFileName();
-		       this.logger.debug("(2) targetFileName final = {}", targetFileName);
+			String targetFileName = getTargetFileName();
+			this.logger.debug("(2) targetFileName final = {}", targetFileName);
 
-		       Supplier<String> supplier = () -> getTargetFileName();
+			Supplier<String> supplier = () -> getTargetFileName();
 
 			Anchor nDownloadAnchor = doCreateActualDownloadButton(this.xlsWriter, supplier.get());
-		       // if downloadAnchor is null, same as add nDownloadAnchor
-		       templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
-		       this.downloadAnchor = nDownloadAnchor;
+			// if downloadAnchor is null, same as add nDownloadAnchor
+			templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
+			this.downloadAnchor = nDownloadAnchor;
 
-		       this.xlsWriter.setDoneCallback((t) -> ui.access(() -> {
-		       	   if (t == null) {
-		       		   // success: close dialog
-		       		   this.dialog.close();
-		       	   } else {
-		       		   // close dialog and show an error notification with the throwable message
-		       		   this.dialog.close();
-		       		   String msg = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
-		       		   Notification err = new Notification(msg);
-		       		   err.addThemeVariants(NotificationVariant.LUMO_ERROR);
-		       		   err.setPosition(Position.TOP_END);
-		       		   err.setDuration(0); // keep open until dismissed
-		       		   err.open();
-		       	   }
-		       }));
+			this.xlsWriter.setDoneCallback((t) -> ui.access(() -> {
+				if (t == null) {
+					// success: close dialog
+					this.dialog.close();
+				} else {
+					// show the error message inside the dialog (red processing area) and keep dialog open
+					String msg;
+					if (t instanceof StopProcessingException) {
+						msg = Translator.translate(t.getMessage());
+					} else {
+						msg = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
+					}
+					if (this.dialog instanceof DocumentDownloadDialog) {
+						((DocumentDownloadDialog) this.dialog).showError(msg);
+					} else {
+						// fallback: add a red paragraph inside the dialog
+						Paragraph p = new Paragraph(msg);
+						p.getStyle().set("color", "var(--lumo-error-text-color)");
+						p.getStyle().set("font-weight", "bold");
+						this.dialog.add(p);
+					}
+				}
+			}));
 		} catch (Throwable e1) {
 			this.logger.error("{}", LoggerUtils.stackTrace(e1));
 		}
@@ -354,36 +364,37 @@ public class JXLSDownloader {
 					}
 				}
 			}
-		} catch (Throwable ignore) {}
+		} catch (Throwable ignore) {
+		}
 	}
 
-       private Anchor doCreateActualDownloadButton(JXLSWorkbookStreamSource writer, String fileName) {
-	       DownloadHandler downloadHandler = event -> {
-		       event.setFileName(fileName);
-		       try (InputStream is = writer.createInputStream()) {
-			       is.transferTo(event.getOutputStream());
-		       } catch (Exception ex) {
-			       this.logger.error("Download error: {}", LoggerUtils.stackTrace(ex));
-		       }
-	       };
-	       Anchor link = new Anchor(downloadHandler, "");
-	       link.getElement().setAttribute("download", true);
-	       Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
-	       link.add(innerButton);
-	       innerButton.setDisableOnClick(true);
-			   innerButton.addClickListener((c) -> {
-			   this.templateSelect.setEnabled(false);
-			   if (this.dialog instanceof DocumentDownloadDialog) {
-				   ((DocumentDownloadDialog) this.dialog).showProcessing(getProcessingMessage());
-			   } else {
-				   this.dialog.add(new Paragraph(getProcessingMessage()));
-			   }
-		   });
-	       innerButton.focus();
-	       // highlight because Vaadin does not show a focus ring for some unknown reason
-	       innerButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
-	       return link;
-       }
+	private Anchor doCreateActualDownloadButton(JXLSWorkbookStreamSource writer, String fileName) {
+		DownloadHandler downloadHandler = event -> {
+			event.setFileName(fileName);
+			try (InputStream is = writer.createInputStream()) {
+				is.transferTo(event.getOutputStream());
+			} catch (Exception ex) {
+				this.logger.error("Download error: {}", LoggerUtils.stackTrace(ex));
+			}
+		};
+		Anchor link = new Anchor(downloadHandler, "");
+		link.getElement().setAttribute("download", true);
+		Button innerButton = new Button(this.buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
+		link.add(innerButton);
+		innerButton.setDisableOnClick(true);
+		innerButton.addClickListener((c) -> {
+			this.templateSelect.setEnabled(false);
+			if (this.dialog instanceof DocumentDownloadDialog) {
+				((DocumentDownloadDialog) this.dialog).showProcessing(getProcessingMessage());
+			} else {
+				this.dialog.add(new Paragraph(getProcessingMessage()));
+			}
+		});
+		innerButton.focus();
+		// highlight because Vaadin does not show a focus ring for some unknown reason
+		innerButton.addThemeVariants(ButtonVariant.LUMO_CONTRAST, ButtonVariant.LUMO_PRIMARY);
+		return link;
+	}
 
 	private String getProcessingMessage() {
 		return this.processingMessage == null ? Translator.translate("Processing") : this.processingMessage;
@@ -413,7 +424,7 @@ public class JXLSDownloader {
 		String fileName = "";
 		String templateName = this.templateNameGetter.apply(Competition.getCurrent());
 
-	String extension = FilenameUtils.getExtension(templateName);
+		String extension = FilenameUtils.getExtension(templateName);
 		if ((templateName.matches(".*[_-](A4|LETTER|LEGAL).*"))) {
 			fileName = templateName.replaceAll("[_-](A4|LETTER|LEGAL)(." + extension + ")", "") + suffix + "."
 			        + extension;
