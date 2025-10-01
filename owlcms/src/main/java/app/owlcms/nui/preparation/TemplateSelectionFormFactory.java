@@ -51,26 +51,26 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		addTemplateSelection(layout, PreCompetitionTemplates.START_LIST);
-		addTemplateSelection(layout, PreCompetitionTemplates.SCHEDULE);
-		addTemplateSelection(layout, PreCompetitionTemplates.OFFICIALS);
-		addTemplateSelection(layout, PreCompetitionTemplates.CHECKIN);
+		addTemplateSelection(layout, PreCompetitionTemplate.START_LIST);
+		addTemplateSelection(layout, PreCompetitionTemplate.SCHEDULE);
+		addTemplateSelection(layout, PreCompetitionTemplate.OFFICIALS);
+		addTemplateSelection(layout, PreCompetitionTemplate.CHECKIN);
 
 		return layout;
 	}
 
 	public FormLayout postWeighInTemplateSelectionForm(Dialog dialog) {
-		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplates.POST_WEIGHIN);
-		addTemplateSelection(layout, PreCompetitionTemplates.INTRODUCTION, dialog);
-		addTemplateSelection(layout, PreCompetitionTemplates.EMPTY_PROTOCOL, dialog);
-		addTemplateSelection(layout, PreCompetitionTemplates.JURY, dialog);
+		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplate.POST_WEIGHIN);
+		addTemplateSelection(layout, PreCompetitionTemplate.INTRODUCTION, dialog);
+		addTemplateSelection(layout, PreCompetitionTemplate.EMPTY_PROTOCOL, dialog);
+		addTemplateSelection(layout, PreCompetitionTemplate.JURY, dialog);
 		return layout;
 	}
 
 	public FormLayout preWeighInTemplateSelectionForm(Dialog dialog) {
-		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplates.PRE_WEIGHIN);
-		addTemplateSelection(layout, PreCompetitionTemplates.CARDS, dialog);
-		addTemplateSelection(layout, PreCompetitionTemplates.WEIGHIN, dialog);
+		FormLayout layout = createSetLayoutHeader(PreCompetitionTemplate.PRE_WEIGHIN);
+		addTemplateSelection(layout, PreCompetitionTemplate.CARDS, dialog);
+		addTemplateSelection(layout, PreCompetitionTemplate.WEIGHIN, dialog);
 		return layout;
 	}
 
@@ -80,30 +80,30 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		addTemplateSelection(layout, PreCompetitionTemplates.BY_CATEGORY);
-		addTemplateSelection(layout, PreCompetitionTemplates.BY_BODYWEIGHT);
-		addTemplateSelection(layout, PreCompetitionTemplates.BY_TEAM);
+		addTemplateSelection(layout, PreCompetitionTemplate.BY_CATEGORY);
+		addTemplateSelection(layout, PreCompetitionTemplate.BY_BODYWEIGHT);
+		addTemplateSelection(layout, PreCompetitionTemplate.BY_TEAM);
 
 		return layout;
 	}
 
-	public FormLayout singleTemplateSelection(PreCompetitionTemplates templateDefinition) {
+	public FormLayout singleTemplateSelection(PreCompetitionTemplate templateDefinition) {
 		FormLayout layout = createLayoutHeader(templateDefinition);
 		addTemplateSelection(layout, templateDefinition);
 		return layout;
 	}
 
-	public FormLayout singleTemplateSelection(PreCompetitionTemplates templateDefinition, Dialog dialog) {
+	public FormLayout singleTemplateSelection(PreCompetitionTemplate templateDefinition, Dialog dialog) {
 		FormLayout layout = createLayoutHeader(templateDefinition);
 		addTemplateSelection(layout, templateDefinition, dialog);
 		return layout;
 	}
 
-	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplates template) {
+	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplate template) {
 		addTemplateSelection(layout, template, null);
 	}
 
-	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplates template, Dialog dialog) {
+	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplate template, Dialog dialog) {
 		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> matchExtension(template, f));
 		ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 
@@ -139,7 +139,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		});
 	}
 
-	public boolean matchExtension(PreCompetitionTemplates template, String f) {
+	public boolean matchExtension(PreCompetitionTemplate template, String f) {
 		if (template.extension.equals(".xlsx")) {
 			return (f.endsWith(".xlsx") || f.endsWith(".xlsm"));
 		} else {
@@ -166,7 +166,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		return layout;
 	}
 
-	private FormLayout createLayoutHeader(PreCompetitionTemplates templateDefinition) {
+	private FormLayout createLayoutHeader(PreCompetitionTemplate templateDefinition) {
 		FormLayout layout = createLayout();
 		Component title = createTitle(templateDefinition.name());
 		layout.add(title);
@@ -174,7 +174,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		return layout;
 	}
 
-	private FormLayout createSetLayoutHeader(PreCompetitionTemplates templateDefinition) {
+	private FormLayout createSetLayoutHeader(PreCompetitionTemplate templateDefinition) {
 		FormLayout layout = createLayout();
 		Component title = createTitle(templateDefinition.name());
 		layout.add(title);

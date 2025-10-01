@@ -13,12 +13,13 @@ import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import java.io.FileNotFoundException;
 import ch.qos.logback.classic.Logger;
+
 import org.slf4j.LoggerFactory;
 
 /**
- * Helper service that centralizes kit-element precheck orchestration.
+ * Helper service that centralizes kit-element scope precheck orchestration.
  * This keeps DocumentsContent focused on UI wiring and selection while
- * the precheck logic lives here for reuse by the dialog.
+ * the scope precheck logic lives here for reuse by the dialog.
  */
 public class DocumentsPrecheckService {
     private static final Logger logger = (Logger) LoggerFactory.getLogger(DocumentsPrecheckService.class);
@@ -29,30 +30,28 @@ public class DocumentsPrecheckService {
     }
 
     /**
-     * Evaluate per-element prechecks. Does not throw AtLeastOneTemplateRequiredException.
-     * It reports other non-template failures via dialog.reportPrecheckErrors and throws StopProcessingException for fatal precheck failures.
+     * Evaluate per-element scope prechecks. Does not throw AtLeastOneTemplateRequiredException.
+     * It reports other non-template failures via dialog.reportPrecheckErrors and throws StopProcessingException for fatal scope precheck failures.
      */
-    public PrecheckResult evaluatePrechecks(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
+    public PrecheckResult evaluateScopePrechecks(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
         PrecheckResult result = new PrecheckResult();
         for (KitElement ke : elements) {
             try {
-                Optional<Exception> pre = ke.preCheck().apply(athletes, g);
-                if (pre != null && pre.isPresent()) {
-                    Exception e = pre.get();
+                Optional<Exception> scopeCheck = ke.scopePrecheck().apply(athletes, g);
+                if (scopeCheck != null && scopeCheck.isPresent()) {
+                    Exception e = scopeCheck.get();
                     // Template missing is a recoverable per-element condition for set-level logic
-                    if (e instanceof TemplateMissingException) {
+                    if (e instanceof TemplateException) {
                         result.missing++;
                         continue;
                     }
-                    // Non-template failures: report the original exception and abort without altering the message
-                    Exception reportEx = (e instanceof Exception) ? e : new Exception(e);
-                    dialog.reportPrecheckErrors(List.of(reportEx));
-                    throw new StopProcessingException(e.getMessage(), e);
                 } else {
                     result.present.add(ke);
                 }
             } catch (Throwable t) {
-                LoggerUtils.logError(logger, t, true);
+                if (!(t instanceof ScopeException) && !(t instanceof TemplateException)) {
+                    LoggerUtils.logError(logger, t, true);
+                }
                 // Report original throwable as Exception to the dialog and rethrow wrapped so the original message/cause are preserved
                 Exception reportEx = (t instanceof Exception) ? (Exception) t : new Exception(t);
                 dialog.reportPrecheckErrors(List.of(reportEx));
@@ -63,17 +62,17 @@ public class DocumentsPrecheckService {
     }
 
     /**
-     * Run element prechecks and return present list; if all elements are missing templates, throw AtLeastOneTemplateRequiredException (this is the set-level behavior).
+     * Run element scope prechecks and return present list; if all elements are missing templates, throw AtLeastOneTemplateRequiredException (this is the set-level behavior).
      */
-    public List<KitElement> runSetPrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
+    public List<KitElement> runSetScopePrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) throws AtLeastOneTemplateRequiredException {
         // Require a selected session for multi-element document sets (scope precheck)
         if (g == null) {
             // Show the NoSession message and prevent download
-            dialog.displayPrecheckErrors(List.of(new Exception("NoSession")));
+            dialog.displayPrecheckErrors(List.of(new NoSessionException()));
             throw new StopProcessingException("NoSession", new RuntimeException("No session selected for document set"));
         }
 
-        PrecheckResult r = evaluatePrechecks(elements, g, athletes, dialog);
+        PrecheckResult r = evaluateScopePrechecks(elements, g, athletes, dialog);
         if (r.missing > 0 && r.present.isEmpty()) {
             String s = Translator.translate("Documents.NoTemplate");
             dialog.displayPrecheckErrors(List.of(new Exception(s)));
@@ -83,52 +82,48 @@ public class DocumentsPrecheckService {
     }
 
     /**
-     * Run each KitElement.preCheck and return the filtered list of elements that are present. On non-template precheck failure, the method will add an error
+     * Run each KitElement.scopePrecheck and return the filtered list of elements that are present. On non-template scope precheck failure, the method will add an error
      * paragraph to the dialog, disable the associated download control and throw StopProcessingException. If all elements are missing templates, behaves similarly and throws.
      */
-    public List<KitElement> filterElementsByPrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
-        PrecheckResult r = evaluatePrechecks(elements, g, athletes, dialog);
+    public List<KitElement> filterElementsByScopePrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
+        PrecheckResult r = evaluateScopePrechecks(elements, g, athletes, dialog);
         if (r.missing > 0 && r.present.isEmpty()) {
             String s = Translator.translate("Documents.NoTemplate");
             dialog.displayPrecheckErrors(List.of(new Exception(s)));
-            throw new StopProcessingException("NoTemplate", new TemplateMissingException("NoTemplate"));
+            throw new StopProcessingException("NoTemplate", new NoTemplateException("NoTemplate"));
         }
         return r.present.isEmpty() ? elements : r.present;
     }
 
     /**
-     * Validate template selection and that the template resource exists. Returns Optional.empty() when OK or Optional.of(TemplateMissingException) when missing.
+     * Validate template selection and that the template resource exists. Returns Optional.empty() when OK or Optional.of(NoTemplateException) when missing.
      */
-    public Optional<Exception> checkTemplateSelectedAndExists(PreCompetitionTemplates templateEnum) {
+    public Optional<Exception> checkTemplateSelectedAndExists(PreCompetitionTemplate templateEnum) {
         try {
             String selected = templateEnum.templateFileNameSupplier.get();
             if (selected == null || selected.isBlank()) {
-                return Optional.of(new TemplateMissingException("NoTemplate"));
+                return Optional.of(new NoTemplateException("NoTemplate"));
             }
             String resourceFolder = templateEnum.folder + "/";
             String templatePath = resourceFolder + selected;
             try {
                 ResourceWalker.getFileOrResourcePath(templatePath);
             } catch (FileNotFoundException fnfe) {
-                return Optional.of(new TemplateMissingException("NoTemplate", fnfe));
+                return Optional.of(new NoTemplateException("NoTemplate", fnfe));
             }
             return Optional.empty();
         } catch (Throwable t) {
-            return Optional.of(new TemplateMissingException("NoTemplate", t));
+            return Optional.of(new NoTemplateException("NoTemplate", t));
         }
     }
 
     /**
-     * Shared logic for default prechecks. If allowNoSelection is false, a missing group (g==null) results in a NoSession exception; otherwise group may be null.
+     * Shared logic for default scope prechecks. If allowNoSelection is false, a missing group (g==null) results in a NoSession exception; otherwise group may be null.
      */
-    public Optional<Exception> runDefaultPrecheck(PreCompetitionTemplates templateEnum, List<Athlete> a, Group g, boolean allowNoSelection) {
-        Optional<Exception> tpl = checkTemplateSelectedAndExists(templateEnum);
-        if (tpl.isPresent()) {
-            return tpl;
-        }
+    public Optional<Exception> runDefaultScopePrecheck(PreCompetitionTemplate templateEnum, List<Athlete> a, Group g, boolean allowNoSelection) {
         try {
             if (!allowNoSelection && g == null) {
-                return Optional.of(new Exception("NoSession"));
+                return Optional.of(new NoSessionException());
             }
 
             int incomingCount = a == null ? 0 : a.size();
@@ -194,7 +189,7 @@ public class DocumentsPrecheckService {
 
             if (!anySelected) {
                 if (kitElements.size() == 1) {
-                    return Optional.of(new Exception("NoTemplate"));
+                    return Optional.of(new NoTemplateException());
                 } else {
                     return Optional.of(new AtLeastOneTemplateRequiredException());
                 }

@@ -19,41 +19,38 @@ import app.owlcms.utils.Resource;
  */
 public class KitElement {
         private final String id;
+        private final PreCompetitionTemplate templateEnum;
         private String name;
         private String extension;
         private Path isp;
         private int count;
         private final BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory;
-        private final BiFunction<List<Athlete>, Group, Optional<Exception>> preCheck;
+        private final BiFunction<List<Athlete>, Group, Optional<Exception>> scopePrecheck;
         private Supplier<String> processingMessageSupplier;
         private Supplier<List<Resource>> availableTemplatesSupplier;
         private Supplier<String> selectedTemplateSupplier;
 
-        public KitElement(String id, String name, String extension, Path isp, int count,
+        public KitElement(String id, PreCompetitionTemplate templateEnum, String name, String extension, Path isp, int count,
                         BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory,
-                        BiFunction<List<Athlete>, Group, Optional<Exception>> preCheck,
+                        BiFunction<List<Athlete>, Group, Optional<Exception>> scopePrecheck,
                         Supplier<String> processingMessageSupplier,
                         Supplier<List<Resource>> availableTemplatesSupplier,
                         Supplier<String> selectedTemplateSupplier) {
                 this.id = id;
+                this.templateEnum = templateEnum;
                 this.name = name;
                 this.extension = extension;
                 this.isp = isp;
                 this.count = count;
                 this.writerFactory = writerFactory;
-                this.preCheck = preCheck;
+                this.scopePrecheck = scopePrecheck;
                 this.processingMessageSupplier = processingMessageSupplier;
                 this.availableTemplatesSupplier = availableTemplatesSupplier;
                 this.selectedTemplateSupplier = selectedTemplateSupplier;
         }
 
-        // Copy constructor
-        public KitElement(KitElement other) {
-                this(other.id, other.name, other.extension, other.isp, other.count, other.writerFactory, other.preCheck,
-                                other.processingMessageSupplier, other.availableTemplatesSupplier, other.selectedTemplateSupplier);
-        }
-
         public String id() { return id; }
+        public PreCompetitionTemplate templateEnum() { return templateEnum; }
         public String name() { return name; }
         public void setName(String name) { this.name = name; }
         public String extension() { return extension; }
@@ -63,7 +60,7 @@ public class KitElement {
         public int count() { return count; }
         public void setCount(int count) { this.count = count; }
         public BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory() { return writerFactory; }
-        public BiFunction<List<Athlete>, Group, Optional<Exception>> preCheck() { return preCheck; }
+        public BiFunction<List<Athlete>, Group, Optional<Exception>> scopePrecheck() { return scopePrecheck; }
         public Supplier<String> processingMessageSupplier() { return processingMessageSupplier; }
         public void setProcessingMessageSupplier(Supplier<String> s) { this.processingMessageSupplier = s; }
         public Supplier<List<Resource>> availableTemplatesSupplier() { return availableTemplatesSupplier; }

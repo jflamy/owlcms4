@@ -165,6 +165,9 @@ public class Competition {
 	@Column(columnDefinition = "boolean default true")
 	private boolean announcerLiveDecisions = true;
 	private String cardsTemplateFileName;
+	private String athleteCredentialsTemplateFileName;
+	private String toCredentialsTemplateFileName;
+	private String coachCredentialsTemplateFileName;
 	private String competitionCity;
 	private LocalDate competitionDate = null;
 	private LocalDate competitionEndDate = null;
@@ -295,6 +298,29 @@ public class Competition {
 	@Column(columnDefinition = "boolean default true")
 	private boolean announcerControlledJuryDecision = true;
 	private String currentRecordsTemplateFileName;
+	public String getAthleteCredentialsTemplateFileName() {
+		return athleteCredentialsTemplateFileName;
+	}
+
+	public void setAthleteCredentialsTemplateFileName(String athleteCredentialsTemplateFileName) {
+		this.athleteCredentialsTemplateFileName = athleteCredentialsTemplateFileName;
+	}
+
+	public String getToCredentialsTemplateFileName() {
+		return toCredentialsTemplateFileName;
+	}
+
+	public void setToCredentialsTemplateFileName(String toCredentialsTemplateFileName) {
+		this.toCredentialsTemplateFileName = toCredentialsTemplateFileName;
+	}
+
+	public String getCoachCredentialsTemplateFileName() {
+		return coachCredentialsTemplateFileName;
+	}
+
+	public void setCoachCredentialsTemplateFileName(String coachCredentialsTemplateFileName) {
+		this.coachCredentialsTemplateFileName = coachCredentialsTemplateFileName;
+	}
 	@Column(columnDefinition = "boolean default false")
 	private boolean masters20kg = false;
 	private String technicalOfficialsTemplateFileName;

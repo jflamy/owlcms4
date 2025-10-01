@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 import app.owlcms.data.competition.Competition;
 
-public enum PreCompetitionTemplates {
+public enum PreCompetitionTemplate {
 	BY_CATEGORY("/templates/categories", ".xlsx",
 	        () -> Competition.getCurrent().getCategoriesListTemplateFileName(),
 	        (v) -> Competition.getCurrent().setCategoriesListTemplateFileName(v)),
@@ -38,6 +38,15 @@ public enum PreCompetitionTemplates {
 	CARDS("/templates/cards", ".xlsx",
 	        () -> Competition.getCurrent().getCardsTemplateFileName(),
 	        (v) -> Competition.getCurrent().setCardsTemplateFileName(v)),
+	ATHLETE_CREDENTIALS("/templates/credentials", ".xlsx",
+	        () -> Competition.getCurrent().getAthleteCredentialsTemplateFileName(),
+	        (v) -> Competition.getCurrent().setAthleteCredentialsTemplateFileName(v)),
+	TO_CREDENTIALS("/templates/credentials", ".xlsx",
+	        () -> Competition.getCurrent().getToCredentialsTemplateFileName(),
+	        (v) -> Competition.getCurrent().setToCredentialsTemplateFileName(v)),
+	COACH_CREDENTIALS("/templates/credentials", ".xlsx",
+	        () -> Competition.getCurrent().getCoachCredentialsTemplateFileName(),
+	        (v) -> Competition.getCurrent().setCoachCredentialsTemplateFileName(v)),
 	WEIGHIN("/templates/weighin", ".xlsx",
 	        () -> Competition.getCurrent().getWeighInFormTemplateFileName(),
 	        (v) -> Competition.getCurrent().setWeighInFormTemplateFileName(v)),
@@ -63,7 +72,7 @@ public enum PreCompetitionTemplates {
 	Supplier<String> templateFileNameSupplier;
 	Consumer<String> templateFileNameSetter;
 
-	PreCompetitionTemplates(String folder, String extension, Supplier<String> templateFileNameSupplier, Consumer<String> templateFileNameSetter) {
+	PreCompetitionTemplate(String folder, String extension, Supplier<String> templateFileNameSupplier, Consumer<String> templateFileNameSetter) {
 		this.folder = folder;
 		this.extension = extension;
 		this.templateFileNameSupplier = templateFileNameSupplier;

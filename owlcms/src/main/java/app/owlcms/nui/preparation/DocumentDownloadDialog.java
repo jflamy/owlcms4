@@ -2,7 +2,6 @@ package app.owlcms.nui.preparation;
 
 import java.util.List;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -21,6 +20,10 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.function.Predicate;
+import java.util.function.Function;
+import java.util.function.BiFunction;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.utils.Resource;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.init.OwlcmsSession;
@@ -48,44 +51,47 @@ public class DocumentDownloadDialog extends Dialog {
 
     private Paragraph processingParagraph;
     private Div downloadDiv;
-    private java.util.List<KitElement> kitElements;
-    private java.util.function.Supplier<java.util.List<app.owlcms.data.group.Group>> selectedSessionsSupplier;
-    private java.util.function.Supplier<java.util.List<app.owlcms.data.athlete.Athlete>> computeAthletesSupplier;
+    private List<KitElement> kitElements;
+    private Supplier<List<Group>> selectedSessionsSupplier;
+    private Supplier<List<Athlete>> computeAthletesSupplier;
 
     public DocumentDownloadDialog(java.util.List<KitElement> kitElements) {
         this();
         this.kitElements = kitElements;
-        try {
-            // If the dialog was constructed with kit elements, attempt to add
-            // an appropriate template selection automatically so callers do not
-            // always need to call singleTemplateSelection themselves.
-            if (kitElements != null && !kitElements.isEmpty()) {
-                // For each kit element, attempt to map its id to a
-                // PreCompetitionTemplates enum value and add a template
-                // selection for it. This centralizes selection UI creation
-                // so callers do not need to call dialog.add(...).
-                for (KitElement ke : kitElements) {
-                    try {
-                        String id = ke.id();
-                        if (id == null || id.isBlank()) continue;
-                        String normId = id.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
-                        for (PreCompetitionTemplates p : PreCompetitionTemplates.values()) {
-                            String normEnum = p.name().replaceAll("[^A-Za-z0-9]", "").toLowerCase();
-                            if (normEnum.equals(normId)) {
-                                try {
-                                    add(singleTemplateSelection(p));
-                                } catch (Throwable ignore) {
-                                }
-                                break;
-                            }
-                        }
-                    } catch (Throwable ignore) {
-                        // best-effort per element
+        // If the dialog was constructed with kit elements, attempt to add
+        // an appropriate template selection automatically so callers do not
+        // always need to call singleTemplateSelection themselves.
+        logger.warn("DocumentDownloadDialog kitElements {}", kitElements);
+        if (kitElements != null && !kitElements.isEmpty()) {
+            int index = 0;
+            for (KitElement ke : kitElements) {
+                try {
+                    PreCompetitionTemplate p = ke.templateEnum();
+                    logger.warn("Adding template selection for {} with folder '{}'", p, p.folder);
+                    FormLayout templateSection = singleTemplateSelection(p);
+                    // Add vertical spacing before items after the first one
+                    if (index > 0) {
+                        templateSection.getStyle().set("margin-top", "1em");
                     }
+                    add(templateSection);
+                } catch (Throwable t) {
+                    // Log detailed error about which template failed
+                    PreCompetitionTemplate p = ke.templateEnum();
+                    String templateInfo = p != null ? (p.name() + " (folder: '" + p.folder + "')") : "unknown template";
+                    logger.error("Failed to add template selection for {}: {}", templateInfo, t.getMessage());
+                    LoggerUtils.logError(logger, t);
+                    // Show error paragraph in dialog instead of silently failing
+                    String errorMsg = "Template location not found for " + templateInfo;
+                    Paragraph errorPara = new Paragraph(errorMsg);
+                    errorPara.getStyle().set("color", "var(--lumo-error-text-color)");
+                    errorPara.getStyle().set("font-weight", "bold");
+                    if (index > 0) {
+                        errorPara.getStyle().set("margin-top", "1em");
+                    }
+                    add(errorPara);
                 }
+                index++;
             }
-        } catch (Throwable ignore) {
-            // best-effort: do not fail construction
         }
     }
 
@@ -97,8 +103,8 @@ public class DocumentDownloadDialog extends Dialog {
      * perform heavy preparation work at construction time; defer heavy work to
      * the element supplier used by the control.
      */
-    public DocumentDownloadDialog(java.util.List<KitElement> kitElements,
-            java.util.function.Function<DocumentDownloadDialog, Component> doItFactory) {
+    public DocumentDownloadDialog(List<KitElement> kitElements,
+        Function<DocumentDownloadDialog, Component> doItFactory) {
         this(kitElements);
         if (doItFactory == null) return;
         try {
@@ -119,8 +125,8 @@ public class DocumentDownloadDialog extends Dialog {
      * list. This allows callers to build a do-it control that uses the precomputed
      * kit list without re-running preparation.
      */
-    public DocumentDownloadDialog(java.util.List<KitElement> kitElements,
-            java.util.function.BiFunction<DocumentDownloadDialog, java.util.List<KitElement>, Component> doItFactory) {
+    public DocumentDownloadDialog(List<KitElement> kitElements,
+        BiFunction<DocumentDownloadDialog, List<KitElement>, Component> doItFactory) {
         this(kitElements);
         if (doItFactory == null) return;
         try {
@@ -140,10 +146,10 @@ public class DocumentDownloadDialog extends Dialog {
      * Constructor accepting kit elements, suppliers for groups and athletes, and a factory for the download control.
      * This constructor runs prechecks automatically when the dialog is created.
      */
-    public DocumentDownloadDialog(java.util.List<KitElement> kitElements,
-            java.util.function.Supplier<java.util.List<app.owlcms.data.group.Group>> selectedSessionsSupplier,
-            java.util.function.Supplier<java.util.List<app.owlcms.data.athlete.Athlete>> computeAthletesSupplier,
-            java.util.function.BiFunction<DocumentDownloadDialog, java.util.List<KitElement>, Component> doItFactory) {
+    public DocumentDownloadDialog(List<KitElement> kitElements,
+        Supplier<List<Group>> selectedSessionsSupplier,
+        Supplier<List<Athlete>> computeAthletesSupplier,
+        BiFunction<DocumentDownloadDialog, List<KitElement>, Component> doItFactory) {
         this(kitElements);
         this.selectedSessionsSupplier = selectedSessionsSupplier;
         this.computeAthletesSupplier = computeAthletesSupplier;
@@ -160,104 +166,66 @@ public class DocumentDownloadDialog extends Dialog {
             // best-effort
         }
         // Run prechecks after creating the download control
-        runInitialPrechecks();
+        runPrechecks();
     }
 
-    public java.util.List<KitElement> getKitElements() {
+    public List<KitElement> getKitElements() {
         return kitElements;
     }
 
     /**
-     * Check that templates are selected for the kit elements.
-     * If there's only one kit element, require that its template is selected.
-     * If there are multiple kit elements, require that at least one template is selected.
+     * Run all prechecks for the current dialog state and report any errors.
+     * This is the single entry point for precheck validation:
+     * 1. Template selection precheck (at least one template must be selected)
+     * 2. Scope precheck (session/athlete validation from kit element lambdas)
+     * 
+     * Designed to be called:
+     * - When the dialog is initially constructed
+     * - When template selection changes
      */
-    public java.util.Optional<Exception> runTemplatePrecheck() {
-        if (kitElements == null || kitElements.isEmpty()) return java.util.Optional.empty();
+    public void runPrechecks() {
+        if (kitElements == null || kitElements.isEmpty()) {
+            clearProcessing();
+            setDownloadEnabled(true);
+            return;
+        }
+
         try {
-            // Delegate to the canonical precheck in DocumentsPrecheckService so
-            // dialog-level and service-level checks are identical.
+            // Step 1: Check template selection
             DocumentsPrecheckService svc = new DocumentsPrecheckService();
-            return svc.runTemplateSetPrecheck(kitElements);
-        } catch (Throwable t) {
-            return java.util.Optional.of(new Exception(t));
-        }
-    }
-
-    /**
-     * Run the stored kit-elements precheck. If there are multiple kit elements, iterate
-     * over each element's preCheck and report the first error found. Returns Optional.empty()
-     * when OK or Optional.of(Exception) when failing.
-     */
-    public java.util.Optional<Exception> runStoredKitElementsPrecheck(app.owlcms.data.group.Group g, java.util.List<app.owlcms.data.athlete.Athlete> athletes) {
-        if (kitElements == null || kitElements.isEmpty()) return java.util.Optional.empty();
-        try {
-            if (kitElements.size() == 1) {
-                var pre = kitElements.get(0).preCheck();
-                return pre.apply(athletes, g);
-            } else {
-                // For multi-element kits, treat missing-template (TemplateMissingException)
-                // as a recoverable per-element condition: only report an error if a
-                // non-template failure occurs. If all elements are missing templates,
-                // return a TemplateMissingException so the caller can show the
-                // "select a template" message. If any element passes its precheck,
-                // consider the overall stored-kit precheck successful.
-                boolean anyPresent = false;
-                int missingCount = 0;
-                for (KitElement ke : kitElements) {
-                    var res = ke.preCheck().apply(athletes, g);
-                    if (res != null && res.isPresent()) {
-                        Exception e = res.get();
-                        if (e instanceof TemplateMissingException) {
-                            missingCount++;
-                            continue;
-                        }
-                        // Non-template failure: propagate immediately
-                        return res;
-                    } else {
-                        anyPresent = true;
-                    }
-                }
-
-                if (!anyPresent && missingCount > 0) {
-                    return java.util.Optional.of(new TemplateMissingException("NoTemplate"));
-                }
-                return java.util.Optional.empty();
-            }
-        } catch (Throwable t) {
-            return java.util.Optional.of(new Exception(t));
-        }
-    }
-
-    /**
-     * Run initial prechecks using the stored suppliers and report any errors to the dialog.
-     */
-    private void runInitialPrechecks() {
-        if (selectedSessionsSupplier == null || computeAthletesSupplier == null) return;
-        try {
-            // First check that templates are selected
-            java.util.Optional<Exception> templatePrecheckResult = runTemplatePrecheck();
-            if (templatePrecheckResult != null && templatePrecheckResult.isPresent()) {
-                java.util.List<Exception> errors = new java.util.ArrayList<>();
-                errors.add(templatePrecheckResult.get());
-                reportPrecheckErrors(errors);
+            Optional<Exception> templateResult = svc.runTemplateSetPrecheck(kitElements);
+            if (templateResult.isPresent()) {
+                reportPrecheckErrors(List.of(templateResult.get()));
                 return;
             }
-            
-            // Then run the selection prechecks
-            java.util.List<app.owlcms.data.group.Group> sessions = selectedSessionsSupplier.get();
-            app.owlcms.data.group.Group g = (sessions != null && !sessions.isEmpty()) ? sessions.get(0) : null;
-            java.util.List<app.owlcms.data.athlete.Athlete> athletes = computeAthletesSupplier.get();
-            java.util.Optional<Exception> precheckResult = runStoredKitElementsPrecheck(g, athletes);
-            if (precheckResult != null && precheckResult.isPresent()) {
-                java.util.List<Exception> errors = new java.util.ArrayList<>();
-                errors.add(precheckResult.get());
-                reportPrecheckErrors(errors);
+
+            // Step 2: Check scope (session/athletes) if suppliers are available
+            if (selectedSessionsSupplier != null && computeAthletesSupplier != null) {
+                List<Group> sessions = selectedSessionsSupplier.get();
+                Group g = (sessions != null && !sessions.isEmpty()) ? sessions.get(0) : null;
+                List<Athlete> athletes = computeAthletesSupplier.get();
+
+                // Run scope precheck for each kit element
+                for (KitElement ke : kitElements) {
+                    Optional<Exception> scopeResult = ke.scopePrecheck().apply(athletes, g);
+                    if (scopeResult != null && scopeResult.isPresent()) {
+                        Exception e = scopeResult.get();
+                        // Template exceptions are already handled in step 1
+                        if (!(e instanceof TemplateException)) {
+                            reportPrecheckErrors(List.of(e));
+                            return;
+                        }
+                    }
+                }
             }
+
+            // All prechecks passed
+            clearProcessing();
+            setDownloadEnabled(true);
+
         } catch (Throwable t) {
-            java.util.List<Exception> errors = new java.util.ArrayList<>();
-            errors.add(new Exception(t));
-            reportPrecheckErrors(errors);
+            LoggerUtils.logError(logger, t);
+            reportPrecheckErrors(List.of(new Exception(t.getMessage(), t)));
         }
     }
 
@@ -279,61 +247,56 @@ public class DocumentDownloadDialog extends Dialog {
      * (id="documents-processing") with an appropriate translated message and
      * disable the download button area. If errors is empty the paragraph is
      * removed and the download area is enabled.
+     * 
+     * Always called on the UI thread (from dialog creation or template selection dropdown),
+     * so no UI.access() wrapper is needed.
+     * 
+     * Error Handling:
+     * - DocumentPrecheckException: reported simply using getTranslationKey()
+     * - Other exceptions: logged with LoggerUtils.error and message displayed as-is
      */
     public void reportPrecheckErrors(List<Exception> errors) {
-        UI ui = UI.getCurrent();
-        if (ui == null) {
-            // best-effort: try to use dialog's UI
-            if (getUI().isPresent()) ui = getUI().get();
-        }
-        final UI theUi = ui;
-        if (theUi == null) {
+        if (errors == null || errors.isEmpty()) {
+            clearProcessingParagraph();
+            setDownloadEnabled(true);
             return;
         }
-        theUi.access(() -> {
-            if (errors == null || errors.isEmpty()) {
-                clearProcessingParagraph();
-                setDownloadEnabled(true);
-                return;
-            }
 
-            String text = null;
-            // pick the first meaningful error to display
-            Exception e = errors.get(0);
-            if (e instanceof AtLeastOneTemplateRequiredException) {
-                // Set-level error: require at least one template selected for the set
-                text = Translator.translate("Documents.AtLeastOneTemplateRquired");
-            } else if ("NoTemplate".equals(e.getMessage()) || "NoTemplates".equals(e.getMessage())) {
-                // Per-element missing-template legacy messages
-                text = Translator.translate("Documents.NoTemplate");
-            } else if (e.getMessage() != null && e.getMessage().equals("NoSession")) {
-                text = Translator.translate("Documents.NoSession");
-            } else if (e.getMessage() != null && e.getMessage().equals("TooManyAthletes")) {
-                text = Translator.translate("Documents.TooManyAthletes");
-            } else if (e.getMessage() != null) {
+        String text = null;
+        // pick the first meaningful error to display
+        Exception e = errors.get(0);
+        
+        // Document precheck exceptions provide their own translation keys
+        if (e instanceof DocumentPrecheckException) {
+            text = Translator.translate(((DocumentPrecheckException) e).getTranslationKey());
+        }
+        // All other exceptions: log them and use the message as-is
+        else {
+            LoggerUtils.logError(logger, e);
+            if (e.getMessage() != null) {
                 text = e.getMessage();
             } else {
                 text = Translator.translate("Download.failed");
             }
+        }
 
-            if (processingParagraph == null) {
-                processingParagraph = new Paragraph(text);
-                processingParagraph.setId("documents-processing");
-                processingParagraph.getStyle().set("color", "var(--lumo-error-text-color)");
-                processingParagraph.getStyle().set("font-weight", "bold");
-                processingParagraph.getStyle().set("text-align", "center");
-                processingParagraph.getStyle().set("font-size", "large");
-                add(processingParagraph);
-            } else {
-                processingParagraph.setText(text);
-                processingParagraph.getStyle().set("color", "var(--lumo-error-text-color)");
-                processingParagraph.getStyle().set("font-weight", "bold");
-                processingParagraph.getStyle().set("text-align", "center");
-                processingParagraph.getStyle().set("font-size", "large");
-            }
+        if (processingParagraph == null) {
+            processingParagraph = new Paragraph(text);
+            processingParagraph.setId("documents-processing");
+            processingParagraph.getStyle().set("color", "var(--lumo-error-text-color)");
+            processingParagraph.getStyle().set("font-weight", "bold");
+            processingParagraph.getStyle().set("text-align", "center");
+            processingParagraph.getStyle().set("font-size", "large");
+            add(processingParagraph);
+        } else {
+            processingParagraph.setText(text);
+            processingParagraph.getStyle().set("color", "var(--lumo-error-text-color)");
+            processingParagraph.getStyle().set("font-weight", "bold");
+            processingParagraph.getStyle().set("text-align", "center");
+            processingParagraph.getStyle().set("font-size", "large");
+        }
 
-            setDownloadEnabled(false);
-        });
+        setDownloadEnabled(false);
     }
 
     /**
@@ -346,29 +309,23 @@ public class DocumentDownloadDialog extends Dialog {
     /**
      * Show a processing or error message in the dialog (replaces any existing one)
      * and disable the download control area.
+     * 
+     * Called on the UI thread from button click listeners.
      */
     public void showProcessing(String text) {
-        UI ui = UI.getCurrent();
-        if (ui == null) {
-            if (getUI().isPresent()) ui = getUI().get();
+        if (processingParagraph == null) {
+            processingParagraph = new Paragraph(text);
+            processingParagraph.setId("documents-processing");
+            add(processingParagraph);
+        } else {
+            processingParagraph.setText(text);
         }
-        final UI theUi = ui;
-        if (theUi == null) return;
-        theUi.access(() -> {
-            if (processingParagraph == null) {
-                processingParagraph = new Paragraph(text);
-                processingParagraph.setId("documents-processing");
-                add(processingParagraph);
-            } else {
-                processingParagraph.setText(text);
-            }
-            // Neutral processing message: black text
-            processingParagraph.getStyle().set("color", "var(--lumo-body-text-color)");
-            processingParagraph.getStyle().set("font-weight", "bold");
-            processingParagraph.getStyle().set("text-align", "center");
-            processingParagraph.getStyle().set("font-size", "large");
-            setDownloadEnabled(false);
-        });
+        // Neutral processing message: black text
+        processingParagraph.getStyle().set("color", "var(--lumo-body-text-color)");
+        processingParagraph.getStyle().set("font-weight", "bold");
+        processingParagraph.getStyle().set("text-align", "center");
+        processingParagraph.getStyle().set("font-size", "large");
+        setDownloadEnabled(false);
     }
 
     /**
@@ -380,28 +337,22 @@ public class DocumentDownloadDialog extends Dialog {
 
     /**
      * Show an error message (red) and disable the download control area.
+     * 
+     * Must be called on the UI thread (callers use ui.access() when on background threads).
      */
     public void showError(String text) {
-        UI ui = UI.getCurrent();
-        if (ui == null) {
-            if (getUI().isPresent()) ui = getUI().get();
+        if (processingParagraph == null) {
+            processingParagraph = new Paragraph(text);
+            processingParagraph.setId("documents-processing");
+            add(processingParagraph);
+        } else {
+            processingParagraph.setText(text);
         }
-        final UI theUi = ui;
-        if (theUi == null) return;
-        theUi.access(() -> {
-            if (processingParagraph == null) {
-                processingParagraph = new Paragraph(text);
-                processingParagraph.setId("documents-processing");
-                add(processingParagraph);
-            } else {
-                processingParagraph.setText(text);
-            }
-            processingParagraph.getStyle().set("color", "var(--lumo-error-text-color)");
-            processingParagraph.getStyle().set("font-weight", "bold");
-            processingParagraph.getStyle().set("text-align", "center");
-            processingParagraph.getStyle().set("font-size", "large");
-            setDownloadEnabled(false);
-        });
+        processingParagraph.getStyle().set("color", "var(--lumo-error-text-color)");
+        processingParagraph.getStyle().set("font-weight", "bold");
+        processingParagraph.getStyle().set("text-align", "center");
+        processingParagraph.getStyle().set("font-size", "large");
+        setDownloadEnabled(false);
     }
 
     /**
@@ -421,18 +372,12 @@ public class DocumentDownloadDialog extends Dialog {
 
     /**
      * Clear any processing/error paragraph and re-enable the download control.
+     * 
+     * Called on the UI thread from template selection or precheck completion.
      */
     public void clearProcessing() {
-        UI ui = UI.getCurrent();
-        if (ui == null) {
-            if (getUI().isPresent()) ui = getUI().get();
-        }
-        final UI theUi = ui;
-        if (theUi == null) return;
-        theUi.access(() -> {
-            clearProcessingParagraph();
-            setDownloadEnabled(true);
-        });
+        clearProcessingParagraph();
+        setDownloadEnabled(true);
     }
 
     private void clearProcessingParagraph() {
@@ -552,22 +497,17 @@ public class DocumentDownloadDialog extends Dialog {
                     });
                     ldb.setDoneCallback((tc, transferredBytes) -> {
                         try {
-                            // The writer is expected to set flags or otherwise indicate success via its own callbacks.
-                            UI ui = tc != null ? tc.getUI() : UI.getCurrent();
-                            if (ui != null) {
-                                ui.access(() -> this.close());
-                            }
+                            // Callback is already on UI lock (TransferProgressListener wraps onComplete with ui.access)
+                            this.close();
                         } catch (Throwable cb) {
                             LoggerUtils.logError(this.logger, cb);
                         }
                     });
                     ldb.setErrorCallback((tc, error) -> {
                         try {
-                            UI ui = tc != null ? tc.getUI() : UI.getCurrent();
-                            if (ui != null) {
-                                String msg = error.getMessage() == null ? Translator.translate("Download.failed") : error.getMessage();
-                                ui.access(() -> this.showError(msg));
-                            }
+                            // Callback is already on UI lock (TransferProgressListener wraps onError with ui.access)
+                            String msg = error.getMessage() == null ? Translator.translate("Download.failed") : error.getMessage();
+                            this.showError(msg);
                         } catch (Throwable cb) {
                             LoggerUtils.logError(this.logger, cb);
                         }
@@ -670,7 +610,7 @@ public class DocumentDownloadDialog extends Dialog {
 
     @FunctionalInterface
     public interface RunPrecheck {
-        java.util.List<KitElement> apply(java.util.List<KitElement> elements, app.owlcms.data.group.Group g, java.util.List<app.owlcms.data.athlete.Athlete> athletes, DocumentDownloadDialog dialog);
+        java.util.List<KitElement> apply(java.util.List<KitElement> elements, app.owlcms.data.group.Group g, java.util.List<app.owlcms.data.athlete.Athlete> athletes, DocumentDownloadDialog dialog) throws Exception;
     }
 
     /**
@@ -747,7 +687,7 @@ public class DocumentDownloadDialog extends Dialog {
     private static final String DOCUMENTS_IGNORE_NO_TEMPLATE = "Documents.IgnoreNoTemplate";
     private Logger logger = (Logger) LoggerFactory.getLogger(DocumentDownloadDialog.class);
 
-    public FormLayout singleTemplateSelection(PreCompetitionTemplates templateDefinition) {
+    public FormLayout singleTemplateSelection(PreCompetitionTemplate templateDefinition) {
         FormLayout layout = createLayoutHeader(templateDefinition);
         addTemplateSelection(layout, templateDefinition);
         return layout;
@@ -757,10 +697,10 @@ public class DocumentDownloadDialog extends Dialog {
     // provided template elements and adding each selection control. This
     // centralizes the formerly duplicated logic and makes it easy to call
     // singleTemplateSelection-like behavior for each element.
-    private FormLayout templateSelectionFormForSet(PreCompetitionTemplates set, PreCompetitionTemplates... elements) {
+    private FormLayout templateSelectionFormForSet(PreCompetitionTemplate set, PreCompetitionTemplate... elements) {
         FormLayout layout = createSetLayoutHeader(set);
         if (elements != null) {
-            for (PreCompetitionTemplates p : elements) {
+            for (PreCompetitionTemplate p : elements) {
                 addTemplateSelection(layout, p);
             }
         }
@@ -768,19 +708,19 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     public FormLayout postWeighInTemplateSelectionForm() {
-        return templateSelectionFormForSet(PreCompetitionTemplates.POST_WEIGHIN,
-                PreCompetitionTemplates.INTRODUCTION,
-                PreCompetitionTemplates.EMPTY_PROTOCOL,
-                PreCompetitionTemplates.JURY);
+        return templateSelectionFormForSet(PreCompetitionTemplate.POST_WEIGHIN,
+                PreCompetitionTemplate.INTRODUCTION,
+                PreCompetitionTemplate.EMPTY_PROTOCOL,
+                PreCompetitionTemplate.JURY);
     }
 
     public FormLayout preWeighInTemplateSelectionForm() {
-        return templateSelectionFormForSet(PreCompetitionTemplates.PRE_WEIGHIN,
-                PreCompetitionTemplates.CARDS,
-                PreCompetitionTemplates.WEIGHIN);
+        return templateSelectionFormForSet(PreCompetitionTemplate.PRE_WEIGHIN,
+                PreCompetitionTemplate.CARDS,
+                PreCompetitionTemplate.WEIGHIN);
     }
 
-    private void addTemplateSelection(FormLayout layout, PreCompetitionTemplates template) {
+    private void addTemplateSelection(FormLayout layout, PreCompetitionTemplate template) {
         List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> matchExtension(template, f));
         ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 
@@ -804,11 +744,6 @@ public class DocumentDownloadDialog extends Dialog {
 
                 // clear previous messages
                 clearProcessing();
-
-                // find the inner LazyDownloadButton and its ui precheck supplier
-                LazyDownloadButton ldb = findLazyDownloadButton(downloadDiv);
-                Supplier<Optional<Exception>> pre = ldb == null ? null : ldb.getUiPreCheck();
-                boolean ok = false;
 
                 // If a template was selected and we have kitElements, try resolving
                 // and updating the matching kit elements first. If any resource is
@@ -837,27 +772,19 @@ public class DocumentDownloadDialog extends Dialog {
                                     } catch (java.io.FileNotFoundException fnf) {
                                         // Template not found: report and mark problem
                                         java.util.List<Exception> errors = new java.util.ArrayList<>();
-                                        errors.add(new TemplateMissingException("NoTemplate", fnf));
+                                        errors.add(new NoTemplateException("NoTemplate", fnf));
                                         reportPrecheckErrors(errors);
                                         resourceProblem = true;
                                         break;
                                     }
                                     Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(template.folder, (f) -> matchExtension(template, f));
                                     Supplier<String> selectedTemplateSupplier = () -> template.templateFileNameSupplier.get();
-                                    // Update the existing KitElement in-place instead of recreating it
-                                    try {
-                                        ke.setName(newFullName);
-                                        ke.setExtension(ext);
-                                        ke.setIsp(ispPath);
-                                        ke.setAvailableTemplatesSupplier(availableTemplatesSupplier);
-                                        ke.setSelectedTemplateSupplier(selectedTemplateSupplier);
-                                        // logger removed
-                                    } catch (Throwable setterEx) {
-                                        // Fallback: if setters fail for some reason, replace the element
-                                        KitElement newKe = new KitElement(ke.id(), newFullName, ext, ispPath, ke.count(), ke.writerFactory(), ke.preCheck(), ke.processingMessageSupplier(), availableTemplatesSupplier, selectedTemplateSupplier);
-                                        kitElements.set(i, newKe);
-                                        // logger removed
-                                    }
+                                    // Update the existing KitElement in-place
+                                    ke.setName(newFullName);
+                                    ke.setExtension(ext);
+                                    ke.setIsp(ispPath);
+                                    ke.setAvailableTemplatesSupplier(availableTemplatesSupplier);
+                                    ke.setSelectedTemplateSupplier(selectedTemplateSupplier);
                                 } catch (Throwable ignore) {
                                     LoggerUtils.logError(this.logger, ignore);
                                 }
@@ -865,45 +792,18 @@ public class DocumentDownloadDialog extends Dialog {
                     }
                 }
 
-                if (resourceProblem) {
-                    // ensure the download control is disabled if resource missing
-                    setDownloadEnabled(false);
-                } else {
-                    // no resource problems; run UI precheck if present
-                    if (pre != null) {
-                        try {
-                            Optional<Exception> res = pre.get();
-                            if (res == null || res.isEmpty()) {
-                                ok = true;
-                            } else {
-                                java.util.List<Exception> errors = new java.util.ArrayList<>();
-                                errors.add(res.get());
-                                reportPrecheckErrors(errors);
-                            }
-                        } catch (Throwable t) {
-                            java.util.List<Exception> errors = new java.util.ArrayList<>();
-                            errors.add(new Exception(t));
-                            reportPrecheckErrors(errors);
-                        }
-                    } else {
-                        // no ui precheck attached: treat as OK
-                        ok = true;
-                    }
-
-                    if (ok) {
-                        clearProcessing();
-                        setDownloadEnabled(true);
-                    } else {
-                        setDownloadEnabled(false);
-                    }
+                if (!resourceProblem) {
+                    // Resource is OK, run unified prechecks
+                    runPrechecks();
                 }
+                // If resourceProblem is true, download is already disabled by reportPrecheckErrors above
             } catch (Throwable ex) {
                 LoggerUtils.logError(this.logger, ex);
             }
         });
     }
 
-    public boolean matchExtension(PreCompetitionTemplates template, String f) {
+    public boolean matchExtension(PreCompetitionTemplate template, String f) {
         if (template.extension.equals(".xlsx")) {
             return (f.endsWith(".xlsx") || f.endsWith(".xlsm"));
         } else {
@@ -929,7 +829,7 @@ public class DocumentDownloadDialog extends Dialog {
         return layout;
     }
 
-    private FormLayout createLayoutHeader(PreCompetitionTemplates templateDefinition) {
+    private FormLayout createLayoutHeader(PreCompetitionTemplate templateDefinition) {
         FormLayout layout = createLayout();
         Component title = createTitle(templateDefinition.name());
         layout.add(title);
@@ -937,7 +837,7 @@ public class DocumentDownloadDialog extends Dialog {
         return layout;
     }
 
-    private FormLayout createSetLayoutHeader(PreCompetitionTemplates templateDefinition) {
+    private FormLayout createSetLayoutHeader(PreCompetitionTemplate templateDefinition) {
         FormLayout layout = createLayout();
         Component title = createTitle(templateDefinition.name());
         layout.add(title);

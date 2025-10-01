@@ -2,10 +2,9 @@ package app.owlcms.nui.preparation;
 
 /**
  * Thrown when a document set requires at least one template to be present but none are available.
- * This is an unchecked exception used to signal UI-level precheck failures that have
- * already been rendered inside the dialog, so callers should avoid duplicating notifications.
+ * This exception extends TemplateException to indicate template-related failures.
  */
-public class AtLeastOneTemplateRequiredException extends RuntimeException {
+public class AtLeastOneTemplateRequiredException extends TemplateException {
     private static final long serialVersionUID = 1L;
 
     public AtLeastOneTemplateRequiredException() {
@@ -18,5 +17,10 @@ public class AtLeastOneTemplateRequiredException extends RuntimeException {
 
     public AtLeastOneTemplateRequiredException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    @Override
+    public String getTranslationKey() {
+        return "Documents.AtLeastOneTemplateRquired";
     }
 }
