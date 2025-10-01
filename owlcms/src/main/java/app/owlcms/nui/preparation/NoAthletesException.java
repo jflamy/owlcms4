@@ -21,6 +21,6 @@ public class NoAthletesException extends ScopeException {
 
     @Override
     public String getTranslationKey() {
-        return "Documents.NoSession";
+        return "Documents.NoAthletes";
     }
 }
