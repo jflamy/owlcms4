@@ -15,7 +15,7 @@ In fact all images and logos you use should be in the same aspect ratio as the c
 
 ## Adjust the template
 
-Create a copy of the `local/templates/cards/ZAccreditation.xlsx` file.
+Create a copy of the `local/templates/credentials/Athletes.xlsx` file.
 
 Read the documentation at https://jxls.sourceforge.net/each.html to get an idea of how this works.
 

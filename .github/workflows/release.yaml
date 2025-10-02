@@ -10,7 +10,7 @@ on:
 # - pull in translations and proofread
 # - run AllTests locally
 # - Release Notes
-        default: '62.0.0-alpha03'
+        default: '62.0.0-alpha04'
       buildImages:
         description: 'Build and push Docker images (set to "false" to skip)'
         required: false
