@@ -1372,9 +1372,9 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	public String getCategorySortCode() {
+	private String getCategorySortCode() {
 		Category sortCategory = getCategory();
-		String sortCode = sortCategory != null ? sortCategory.getSortCode() : "-";
+		String sortCode = sortCategory != null ? sortCategory.getSortCode() : "~"; // must sort after z to put at end of list
 		// logger.debug("a {} category {} sortCode {}", getAbbreviatedName(), getCategory(), sortCategory.getSortCode());
 		return sortCode;
 	}
