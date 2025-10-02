@@ -187,12 +187,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 		int compare;
 
-		compare = ObjectUtils.compare(this.getCode(), o.getCode());
-		if (compare == 0) {
-			// shortcut. identical codes are identical
-			return compare;
-		}
-
 		compare = ObjectUtils.compare(this.getGender(), o.getGender());
 		if (compare != 0) {
 			return compare;
