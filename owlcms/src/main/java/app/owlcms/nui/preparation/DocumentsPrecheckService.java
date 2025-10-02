@@ -32,11 +32,27 @@ public class DocumentsPrecheckService {
     /**
      * Evaluate per-element scope prechecks. Does not throw AtLeastOneTemplateRequiredException.
      * It reports other non-template failures via dialog.reportPrecheckErrors and throws StopProcessingException for fatal scope precheck failures.
+     * Elements without a template selected are skipped (counted as missing).
      */
     public PrecheckResult evaluateScopePrechecks(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) {
         PrecheckResult result = new PrecheckResult();
         for (KitElement ke : elements) {
             try {
+                // Check if template is selected first - skip scope precheck if no template
+                Supplier<String> selectedTemplateSupplier = ke.selectedTemplateSupplier();
+                boolean hasTemplate = false;
+                if (selectedTemplateSupplier != null) {
+                    String selected = selectedTemplateSupplier.get();
+                    hasTemplate = (selected != null && !selected.isBlank());
+                }
+                
+                if (!hasTemplate) {
+                    // No template selected for this element - skip it
+                    result.missing++;
+                    continue;
+                }
+                
+                // Template exists, now run the scope precheck
                 Optional<Exception> scopeCheck = ke.scopePrecheck().apply(athletes, g);
                 if (scopeCheck != null && scopeCheck.isPresent()) {
                     Exception e = scopeCheck.get();
@@ -63,16 +79,13 @@ public class DocumentsPrecheckService {
 
     /**
      * Run element scope prechecks and return present list; if all elements are missing templates, throw AtLeastOneTemplateRequiredException (this is the set-level behavior).
+     * Each element's individual scope precheck determines whether a session is required. Elements without templates are skipped.
      */
     public List<KitElement> runSetScopePrecheckOrThrow(List<KitElement> elements, Group g, List<Athlete> athletes, DocumentDownloadDialog dialog) throws AtLeastOneTemplateRequiredException {
-        // Require a selected session for multi-element document sets (scope precheck)
-        if (g == null) {
-            // Show the NoSession message and prevent download
-            dialog.displayPrecheckErrors(List.of(new NoSessionException()));
-            throw new StopProcessingException("NoSession", new RuntimeException("No session selected for document set"));
-        }
-
+        // Run individual element prechecks - each will determine if it needs a session
+        // Elements without templates will be skipped by evaluateScopePrechecks
         PrecheckResult r = evaluateScopePrechecks(elements, g, athletes, dialog);
+        
         if (r.missing > 0 && r.present.isEmpty()) {
             String s = Translator.translate("Documents.NoTemplate");
             dialog.displayPrecheckErrors(List.of(new Exception(s)));

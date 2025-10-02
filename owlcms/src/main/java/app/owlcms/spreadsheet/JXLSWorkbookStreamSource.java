@@ -56,11 +56,13 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordEvent;
+import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -593,6 +595,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		getReportingBeans().put("session", getGroup());
 		getReportingBeans().put("group", getGroup());// legacy
 		getReportingBeans().put("platforms", PlatformRepository.findAll());
+		getReportingBeans().put("coaches", CoachRepository.findAll());
+		getReportingBeans().put("tos", TechnicalOfficialRepository.findActive());
 
 		getReportingBeans().put("local", LocalResource.class);
 

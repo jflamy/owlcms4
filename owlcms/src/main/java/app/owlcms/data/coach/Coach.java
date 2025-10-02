@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.utils.IdUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -122,5 +123,10 @@ public class Coach implements Serializable, Comparable<Coach> {
     public void setTeam(String team) {
         this.team = team;
     }
+
+    public String getTeamFlagPath() {
+		// use the same approach as URLUtils to find the flag
+		return URLUtils.getFlagResourcePath(this.team, new String[] {".png"});
+	}
 
 }

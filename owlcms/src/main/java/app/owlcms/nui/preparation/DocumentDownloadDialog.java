@@ -63,6 +63,15 @@ public class DocumentDownloadDialog extends Dialog {
         // always need to call singleTemplateSelection themselves.
         logger.warn("DocumentDownloadDialog kitElements {}", kitElements);
         if (kitElements != null && !kitElements.isEmpty()) {
+            // For multi-element kits (document sets), show info message about template handling
+            if (kitElements.size() > 1) {
+                Paragraph infoPara = new Paragraph(Translator.translate("Documents.IgnoreNoTemplate"));
+                infoPara.getStyle().set("color", "var(--lumo-primary-text-color)");
+                infoPara.getStyle().set("font-style", "italic");
+                infoPara.getStyle().set("margin-bottom", "1em");
+                add(infoPara);
+            }
+            
             int index = 0;
             for (KitElement ke : kitElements) {
                 try {
@@ -205,8 +214,21 @@ public class DocumentDownloadDialog extends Dialog {
                 Group g = (sessions != null && !sessions.isEmpty()) ? sessions.get(0) : null;
                 List<Athlete> athletes = computeAthletesSupplier.get();
 
-                // Run scope precheck for each kit element
+                // Run scope precheck only for elements with templates selected
                 for (KitElement ke : kitElements) {
+                    // Check if this element has a template selected
+                    Supplier<String> selectedTemplateSupplier = ke.selectedTemplateSupplier();
+                    boolean hasTemplate = false;
+                    if (selectedTemplateSupplier != null) {
+                        String selected = selectedTemplateSupplier.get();
+                        hasTemplate = (selected != null && !selected.isBlank());
+                    }
+                    
+                    // Skip scope precheck if no template is selected for this element
+                    if (!hasTemplate) {
+                        continue;
+                    }
+                    
                     Optional<Exception> scopeResult = ke.scopePrecheck().apply(athletes, g);
                     if (scopeResult != null && scopeResult.isPresent()) {
                         Exception e = scopeResult.get();
@@ -517,18 +539,20 @@ public class DocumentDownloadDialog extends Dialog {
         } catch (Throwable ignore) {
         }
 
-        // Run initial UI precheck so dialog shows any missing-template / session messages immediately
-        try {
-            if (uiPreCheck != null) {
-                Optional<Exception> pre = uiPreCheck.get();
-                if (pre != null && pre.isPresent()) {
-                    java.util.List<Exception> errors = new java.util.ArrayList<>();
-                    errors.add(pre.get());
-                    this.reportPrecheckErrors(errors);
-                }
-            }
-        } catch (Throwable ignore) {
-        }
+        // Skip initial UI precheck during button creation - the dialog's runPrechecks()
+        // will handle validation when called from the constructor. The uiPreCheck is
+        // still attached to the button for click-time validation.
+        // try {
+        //     if (uiPreCheck != null) {
+        //         Optional<Exception> pre = uiPreCheck.get();
+        //         if (pre != null && pre.isPresent()) {
+        //             java.util.List<Exception> errors = new java.util.ArrayList<>();
+        //             errors.add(pre.get());
+        //             this.reportPrecheckErrors(errors);
+        //         }
+        //     }
+        // } catch (Throwable ignore) {
+        // }
 
         return d;
     }
@@ -585,25 +609,9 @@ public class DocumentDownloadDialog extends Dialog {
             }
         };
 
-        Supplier<Optional<Exception>> uiPreCheck = () -> {
-            try {
-                java.util.List<app.owlcms.data.group.Group> ss = selectedSessionsSupplier == null ? null : selectedSessionsSupplier.get();
-                app.owlcms.data.group.Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-                java.util.List<app.owlcms.data.athlete.Athlete> athletes = computeAthletesSupplier == null ? null : computeAthletesSupplier.get();
-                try {
-                    if (multi) {
-                        runSetPrecheck.apply(kit, g, athletes, this);
-                    } else {
-                        filterElementsPrecheck.apply(kit, g, athletes, this);
-                    }
-                    return Optional.empty();
-                } catch (Exception preEx) {
-                    return Optional.of(preEx);
-                }
-            } catch (Throwable t) {
-                return Optional.of(new Exception(t));
-            }
-        };
+        // In dialog context, use no-op precheck since runPrechecks() handles all validation.
+        // Stream-time prechecks in streamFactory still run as defense-in-depth.
+        Supplier<Optional<Exception>> uiPreCheck = () -> Optional.empty();
 
     return createDoItButtonForKits(baseFileNameSupplier, kit, streamFactory, uiPreCheck, zipBaseFileNameSupplier, extSupplier, icon);
     }

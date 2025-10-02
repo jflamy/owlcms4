@@ -77,4 +77,8 @@ public class TechnicalOfficialRepository {
 		// use JPQL to delete all rows
 		em.createQuery("delete from TechnicalOfficial").executeUpdate();
 	}
+
+	public static List<TechnicalOfficial> findActive() {
+		return List.of();
+	}
 }

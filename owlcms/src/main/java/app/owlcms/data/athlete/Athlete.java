@@ -3091,6 +3091,8 @@ public class Athlete {
 		return this.team;
 	}
 
+	@Transient
+	@JsonIgnore
 	public String getTeamFlagPath() {
 		// use the same approach as URLUtils to find the flag
 		return URLUtils.getFlagResourcePath(this.team, new String[] {".png"});

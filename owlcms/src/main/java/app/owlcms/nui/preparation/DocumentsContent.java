@@ -1016,7 +1016,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
 				(a, g) -> {
 					JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-					xlsWriter.setGroup(g);
+					// we set no athletes.  setReportingInfo will add the the coaches to
+					// the reporting beans.
+			        xlsWriter.setGroup(null);
+			        xlsWriter.setSortedAthletes(List.of());
+			        xlsWriter.setEmptyOk(true);
 					return xlsWriter;
 				});
 	}
@@ -1220,7 +1224,9 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		xlsWriter.setInputStream(is);
 		xlsWriter.setTemplateFileName(elem.name());
 		InputStream in = xlsWriter.createInputStream();
-		String name = seq + "_" + elem.id() + "_" + g.getName() + "." + elem.extension();
+		// Handle null group for documents that don't require a session (e.g., coach credentials)
+		String groupName = (g != null) ? g.getName() : "All";
+		String name = seq + "_" + elem.id() + "_" + groupName + "." + elem.extension();
 		ZipUtils.zipStream(in, name, false, zipOut);
 	}
 
@@ -1682,16 +1688,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			zipOut = new ZipOutputStream(os);
 			doPrintScript(zipOut);
 
-			boolean anyNonEmpty = false;
-			for (Group g : selectedItems) {
-				// get current version of athletes.
-				List<Athlete> athletes = groupAthletes(g, true);
-				if (athletes == null || athletes.isEmpty()) {
-					// skip empty session
-					continue;
-				}
-				anyNonEmpty = true;
-
+			boolean anyProcessed = false;
+			
+			// Handle case where no sessions are selected (for documents that don't require sessions)
+			if (selectedItems == null || selectedItems.isEmpty()) {
+				// Process elements that can work without a session (e.g., coach credentials, categories)
 				for (KitElement elem : elements) {
 					// Skip elements without a template selected (user chose to skip this document)
 					if (elem.selectedTemplateSupplier() != null) {
@@ -1701,14 +1702,55 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						}
 					}
 					String seq = String.format("%02d", i);
-					doKitElement(elem, seq, zipOut, g, athletes);
+					doKitElement(elem, seq, zipOut, null, null);
+					anyProcessed = true;
 					i++;
+				}
+			} else {
+				// Process elements for each selected session
+				for (Group g : selectedItems) {
+					// get current version of athletes.
+					List<Athlete> athletes = groupAthletes(g, true);
+					if (athletes == null || athletes.isEmpty()) {
+						// skip empty session
+						continue;
+					}
+
+					for (KitElement elem : elements) {
+						// Skip elements without a template selected (user chose to skip this document)
+						if (elem.selectedTemplateSupplier() != null) {
+							String selected = elem.selectedTemplateSupplier().get();
+							if (selected == null || selected.isBlank()) {
+								continue; // skip this element during processing
+							}
+						}
+						String seq = String.format("%02d", i);
+						doKitElement(elem, seq, zipOut, g, athletes);
+						anyProcessed = true;
+						i++;
+					}
 				}
 			}
 
-			if (!anyNonEmpty) {
-				Exception e = new Exception("NoSession");
-				throw new StopProcessingException(e.getMessage(), e);
+			// Only throw NoSession if nothing was processed AND we have elements with templates.
+			// Elements may legitimately process with no sessions (emptyOk flag on their writers).
+			if (!anyProcessed) {
+				// Check if any elements actually have templates selected
+				boolean anyTemplateSelected = false;
+				for (KitElement elem : elements) {
+					if (elem.selectedTemplateSupplier() != null) {
+						String selected = elem.selectedTemplateSupplier().get();
+						if (selected != null && !selected.isBlank()) {
+							anyTemplateSelected = true;
+							break;
+						}
+					}
+				}
+				// Only throw if we had templates but couldn't process anything
+				if (anyTemplateSelected) {
+					Exception e = new Exception("NoSession");
+					throw new StopProcessingException(e.getMessage(), e);
+				}
 			}
 			return zipOut;
 		} finally {
