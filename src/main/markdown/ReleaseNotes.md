@@ -12,9 +12,9 @@
 
 **Maintenance Log**
 
-60.0.1: Adding the snatch and c&j declaration columns to the registration file did not work - the column name lookup was broken.
+60.0.1: Fixes for an issue that would prevent registration and weighin listings of athletes when some had no registration and eligibility categories set
 
-60.0.1: Work around an issue that would prevent listing athletes when some had no eligibility categories set
+60.0.1: Adding the snatch and c&j declaration columns to the registration file did not work - the column name lookup was broken.
 
 60.0.1: Fix for the list of athlete results not being available when multiple open categories overlapped exactly
 
