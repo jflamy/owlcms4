@@ -1058,16 +1058,15 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 				return compare;
 			}
 
-			// // deal with athletes not fully registered or not eligible to any category.
-			// Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
-			// Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
-			// Category category1 = mainRankings1 != null ? mainRankings1.getCategory() : null;
-			// Category category2 = mainRankings2 != null ? mainRankings2.getCategory() : null;
-			// compare = ObjectUtils.compare(category1, category2, true);
-			// if (compare != 0) {
-			// 	logComparison(compare, a1, a2, "mainCategory");
-			// 	return compare;
-			// }
+			// in the context of weigh-in and registration, the displayed category is the one from the wrapped athlete
+			// to guarantee sort stability, we use the most stable category object
+			Category mainCat1 = a1 instanceof PAthlete ? ((PAthlete) a1)._getAthlete().getCategory() : a1.getCategory();
+			Category mainCat2 = a2 instanceof PAthlete ? ((PAthlete) a2)._getAthlete().getCategory() : a2.getCategory();
+			// null may happen with athletes not fully registered or not eligible to any category.
+			compare = ObjectUtils.compare(mainCat1, mainCat2, true);
+			if (compare != 0) {
+				return compare;
+			}
 
 			compare = ObjectUtils.compare(a1.getEntryTotal(), a2.getEntryTotal());
 			logComparison(compare, a1, a2, "entryTotal");
