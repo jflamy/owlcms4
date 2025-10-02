@@ -10,6 +10,10 @@
 
 <br>
 
+**Change Log**
+
+62.0.0-alpha05: merged fixes from 61.0.1 for weigh-in/registration listing bug when no data was available to award categories and multiple "all athletes" categories were present.
+
 **New in Release 62.0**
 
 62.0.0: Experimental capability to produce credentials with pictures/logos/flags.
