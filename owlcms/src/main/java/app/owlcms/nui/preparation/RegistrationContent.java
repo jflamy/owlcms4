@@ -1058,16 +1058,17 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 				return compare;
 			}
 
-			// deal with athletes not fully registered or not eligible to any category.
-			Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
-			Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
-			Category category1 = mainRankings1 != null ? mainRankings1.getCategory() : null;
-			Category category2 = mainRankings2 != null ? mainRankings2.getCategory() : null;
-			compare = ObjectUtils.compare(category1, category2, true);
-			if (compare != 0) {
-				logComparison(compare, a1, a2, "mainCategory");
-				return compare;
-			}
+			//FIXME: we have to compare the categories!
+			// // deal with athletes not fully registered or not eligible to any category.
+			// Participation mainRankings1 = a1.getMainRankings() != null ? a1.getMainRankings() : null;
+			// Participation mainRankings2 = a2.getMainRankings() != null ? a2.getMainRankings() : null;
+			// Category category1 = mainRankings1 != null ? mainRankings1.getCategory() : null;
+			// Category category2 = mainRankings2 != null ? mainRankings2.getCategory() : null;
+			// compare = ObjectUtils.compare(category1, category2, true);
+			// if (compare != 0) {
+			// 	logComparison(compare, a1, a2, "mainCategory");
+			// 	return compare;
+			// }
 
 			compare = ObjectUtils.compare(a1.getEntryTotal(), a2.getEntryTotal());
 			logComparison(compare, a1, a2, "entryTotal");
@@ -1078,11 +1079,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void logComparison(int compare, Athlete a1, Athlete a2, String string) {
 		if (compare == 0) {
-			// logger.trace("({}) {} = {}", string, athleteLog(a1), athleteLog(a2));
+			//logger.warn("({}) {} = {}", string, athleteLog(a1), athleteLog(a2));
 		} else if (compare < 0) {
-			// logger.trace("({}) {} < {}", string, athleteLog(a1), athleteLog(a2));
+			//logger.warn("({}) {} < {}", string, athleteLog(a1), athleteLog(a2));
 		} else if (compare > 0) {
-			// logger.trace("({}) {} > {}", string, athleteLog(a1), athleteLog(a2));
+			//logger.warn("({}) {} > {}", string, athleteLog(a1), athleteLog(a2));
 		}
 	}
 
