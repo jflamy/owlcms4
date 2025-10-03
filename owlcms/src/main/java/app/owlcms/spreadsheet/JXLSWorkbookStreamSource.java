@@ -170,7 +170,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	@Override
 	public InputStream createInputStream() {
-		logger.warn("============== createInputStream called {}\n", LoggerUtils.stackTrace());
+		logger.debug("============== createInputStream called {}\n", LoggerUtils.stackTrace());
 		// IMPORTANT: do NOT access VaadinSession or UI here. Pre-checks that require
 		// UI/Session must be executed by the caller (for example LazyDownloadButton.preCheck()).
 	// Return the background-driven InputStream immediately so Vaadin can stream it.
@@ -389,7 +389,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * jxls transform helpers already defined in this class.
 	 */
 	protected void writeStream(OutputStream stream) throws IOException {
-		logger.warn("*** writeStream ***{}", this.getClass().getName());
+		logger.debug("*** writeStream ***{}", this.getClass().getName());
 		File tempFile = null;
 		InputStream template = null;
 		try {
@@ -442,12 +442,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	public void setSortedAthletes(List<Athlete> athletes) {
-		logger.warn("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% === setSortedAthletes called, {} athletes {}", athletes != null ? athletes.size() : 0, LoggerUtils.whereFrom());
+		logger.debug("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% === setSortedAthletes called, {} athletes {}", athletes != null ? athletes.size() : 0, LoggerUtils.whereFrom());
 		this.sortedAthletes = athletes;
 	}
 
 	public void setGroup(Group group) {
-		logger.warn("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% setGroup called, group = {} {}", group, LoggerUtils.whereFrom());
+		logger.debug("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% setGroup called, group = {} {}", group, LoggerUtils.whereFrom());
 		this.group = group;
 	}
 
@@ -587,7 +587,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			// logger.debug("*** Athletes : {}",athletes.stream().map(a-> a.getCategory()).toList());
 			getReportingBeans().put("lifters", athletes); // legacy
 		}
-		logger.warn("{} setReportingInfo called, group = {} athletes.size {} {}", this.getClass().getSimpleName(), getGroup(), athletes != null ? athletes.size() : "null", LoggerUtils.whereFrom());
+		logger.debug("{} setReportingInfo called, group = {} athletes.size {} {}", this.getClass().getSimpleName(), getGroup(), athletes != null ? athletes.size() : "null", LoggerUtils.whereFrom());
 		Competition competition = Competition.getCurrent();
 		getReportingBeans().put("t", Translator.getMap());
 		getReportingBeans().put("tf", new JXLSFormatter());
@@ -698,7 +698,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	private void jxls3Transform(OutputStream stream, File templateFile) {
-		logger.warn("jxls3Transform called class={} template={}\n{}", this.getClass().getName(), templateFile, LoggerUtils.stackTrace());
+		logger.debug("jxls3Transform called class={} template={}\n{}", this.getClass().getName(), templateFile, LoggerUtils.stackTrace());
 		Workbook workbook = null;
 		File tempFile = null;
 		try {

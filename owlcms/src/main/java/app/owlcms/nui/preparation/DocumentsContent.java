@@ -426,13 +426,13 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			}
 
 			String resultText = outcome.isEmpty() ? "OK" : (outcome.get().getMessage() == null ? outcome.get().toString() : outcome.get().getMessage());
-			logger.warn("scopePrecheck %s for template=%s received: incomingCount=%d, sampleIds=[%s], group=%s, resolvedCount=%d, outcome=%s",
+			logger.debug("scopePrecheck %s for template=%s received: incomingCount=%d, sampleIds=[%s], group=%s, resolvedCount=%d, outcome=%s",
 			        allowNoSelection ? "allow-no-selection" : "default",
 			        templateEnum.name(), incomingCount, sampleIds, groupInfo, incomingCount, resultText);
 			return outcome;
 		} catch (Throwable t) {
 			LoggerUtils.logError(logger, t, true);
-			logger.warn("scopePrecheck %s for template=%s threw exception: %s", allowNoSelection ? "allow-no-selection" : "default", templateEnum.name(),
+			logger.debug("scopePrecheck %s for template=%s threw exception: %s", allowNoSelection ? "allow-no-selection" : "default", templateEnum.name(),
 			        t.toString());
 			return Optional.of(new Exception(t));
 		}
@@ -861,7 +861,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				VaadinIcon.ARCHIVE.create(),
 				(e) -> {
 					List<KitElement> kit = prepareCredentials(getSortedSelection());
-					logger.warn("credentials kit {}", kit);
+					logger.debug("credentials kit {}", kit);
 					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
 					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
 						List<Group> ss = getSortedSelection();

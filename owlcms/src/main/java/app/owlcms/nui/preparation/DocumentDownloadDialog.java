@@ -61,7 +61,7 @@ public class DocumentDownloadDialog extends Dialog {
         // If the dialog was constructed with kit elements, attempt to add
         // an appropriate template selection automatically so callers do not
         // always need to call singleTemplateSelection themselves.
-        logger.warn("DocumentDownloadDialog kitElements {}", kitElements);
+        logger.debug("DocumentDownloadDialog kitElements {}", kitElements);
         if (kitElements != null && !kitElements.isEmpty()) {
             // For multi-element kits (document sets), show info message about template handling
             if (kitElements.size() > 1) {
@@ -76,7 +76,7 @@ public class DocumentDownloadDialog extends Dialog {
             for (KitElement ke : kitElements) {
                 try {
                     PreCompetitionTemplate p = ke.templateEnum();
-                    logger.warn("Adding template selection for {} with folder '{}'", p, p.folder);
+                    logger.debug("Adding template selection for {} with folder '{}'", p, p.folder);
                     FormLayout templateSection = singleTemplateSelection(p);
                     // Add vertical spacing before items after the first one
                     if (index > 0) {

@@ -125,8 +125,12 @@ public class Coach implements Serializable, Comparable<Coach> {
     }
 
     public String getTeamFlagPath() {
+        logger.debug("Coach {} team {}", this, this.team);
 		// use the same approach as URLUtils to find the flag
 		return URLUtils.getFlagResourcePath(this.team, new String[] {".png"});
 	}
 
+    public void setTeamFlagPath(String path) {
+        // no-op, just to please some serializers
+    }
 }
