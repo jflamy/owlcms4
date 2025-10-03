@@ -31,6 +31,8 @@ public class TechnicalOfficialReader {
     private static final String FEDERATION = "Federation";
     private static final String FEDERATION_ID = "FederationId";
     private static final String AFFILIATION = "Affiliation";
+    private static final String ROLE = "Role";
+    private static final String ACTIVE = "Active";
 
     public List<TechnicalOfficial> importFromXLS(InputStream is, StringBuilder errors) {
         List<TechnicalOfficial> officials = new ArrayList<>();
@@ -76,7 +78,11 @@ public class TechnicalOfficialReader {
     }
 
     private int[] findColumnIndices(Row headerRow) {
-        int[] indices = new int[7];  // One for each field
+        int[] indices = new int[9];  // One for each field (7 original + role + active)
+        // Initialize all indices to -1 to indicate column not found
+        for (int i = 0; i < indices.length; i++) {
+            indices[i] = -1;
+        }
         Map<String, String> headerMap = new HashMap<>();
         
         // Map constants to themselves (legacy support)
@@ -86,6 +92,8 @@ public class TechnicalOfficialReader {
         headerMap.put(IWF_ID, IWF_ID);
         headerMap.put(FEDERATION, FEDERATION);
         headerMap.put(FEDERATION_ID, FEDERATION_ID);
+        headerMap.put(ROLE, ROLE);
+        headerMap.put(ACTIVE, ACTIVE);
         
         // Map English translations to constants (always accept English)
         headerMap.put(Translator.translate("TechnicalOfficial.LastName", Locale.ENGLISH), LAST_NAME);
@@ -95,6 +103,8 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translate("TechnicalOfficial.Federation", Locale.ENGLISH), FEDERATION);
         headerMap.put(Translator.translate("TechnicalOfficial.FederationId", Locale.ENGLISH), FEDERATION_ID);
         headerMap.put(Translator.translate("TechnicalOfficial.Affiliation", Locale.ENGLISH), AFFILIATION);
+        headerMap.put(Translator.translate("TechnicalOfficial.Role", Locale.ENGLISH), ROLE);
+        headerMap.put(Translator.translate("TechnicalOfficial.Active", Locale.ENGLISH), ACTIVE);
         
         // Map local translations to constants
         headerMap.put(Translator.translate("TechnicalOfficial.LastName"), LAST_NAME);
@@ -104,6 +114,8 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translate("TechnicalOfficial.Federation"), FEDERATION);
         headerMap.put(Translator.translate("TechnicalOfficial.FederationId"), FEDERATION_ID);
         headerMap.put(Translator.translate("TechnicalOfficial.Affiliation"), AFFILIATION);
+        headerMap.put(Translator.translate("TechnicalOfficial.Role"), ROLE);
+        headerMap.put(Translator.translate("TechnicalOfficial.Active"), ACTIVE);
         
         for (Cell cell : headerRow) {
             String header = cell.getStringCellValue().trim();
@@ -133,6 +145,12 @@ public class TechnicalOfficialReader {
                     case AFFILIATION:
                         indices[6] = colIndex;
                         break;
+                    case ROLE:
+                        indices[7] = colIndex;
+                        break;
+                    case ACTIVE:
+                        indices[8] = colIndex;
+                        break;
                 }
             }
         }
@@ -156,9 +174,21 @@ public class TechnicalOfficialReader {
             String iwfId = colIndices[3] >= 0 ? getCellValueAsString(row.getCell(colIndices[3])) : "";
             String federation = colIndices[4] >= 0 ? getCellValueAsString(row.getCell(colIndices[4])) : "";
             String federationId = colIndices[5] >= 0 ? getCellValueAsString(row.getCell(colIndices[5])) : "";
-            String affiliation = colIndices[6] >= 0 ? getCellValueAsString(row.getCell(colIndices[5])) : "";
+            String affiliation = colIndices[6] >= 0 ? getCellValueAsString(row.getCell(colIndices[6])) : "";
+            
+            String roleStr = colIndices[7] >= 0 ? getCellValueAsString(row.getCell(colIndices[7])) : "";
+            TechnicalOfficial.Role role = TechnicalOfficial.Role.TECHNICAL_OFFICIAL; // Default value
+            if (roleStr != null && !roleStr.isBlank()) {
+                role = findEnumValueForTranslatedRole(roleStr);
+            }
+            
+            String activeStr = colIndices[8] >= 0 ? getCellValueAsString(row.getCell(colIndices[8])) : "";
+            boolean active = parseBooleanValue(activeStr);
 
-            return new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId, affiliation);
+            TechnicalOfficial official = new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId, affiliation);
+            official.setRole(role);
+            official.setActive(active);
+            return official;
         } catch(Exception e) {
             throw new IllegalArgumentException("Error processing cell "+ getCellAddress(currentCell) + ": " + e.getMessage());
         }
@@ -206,5 +236,29 @@ public class TechnicalOfficialReader {
             }
         }
         throw new IllegalArgumentException("Unknown level: " + levelStr);
+    }
+
+    private TechnicalOfficial.Role findEnumValueForTranslatedRole(String roleStr) {
+        for (TechnicalOfficial.Role role : TechnicalOfficial.Role.values()) {
+            if (roleStr.equals(role.name()) ||
+                roleStr.equals(Translator.translate("TO.Role." + role.name())) ||
+                roleStr.equals(Translator.translate("TO.Role." + role.name(), Locale.ENGLISH))) {
+                return role;
+            }
+        }
+        throw new IllegalArgumentException("Unknown role: " + roleStr);
+    }
+
+    private boolean parseBooleanValue(String value) {
+        if (value == null || value.isBlank()) {
+            return false;
+        }
+        String normalized = value.trim().toLowerCase();
+        return normalized.equals("true") || 
+               normalized.equals("yes") || 
+               normalized.equals("y") || 
+               normalized.equals("1") ||
+               normalized.equals(Translator.translate("Yes").toLowerCase()) ||
+               normalized.equals(Translator.translate("Yes", Locale.ENGLISH).toLowerCase());
     }
 }

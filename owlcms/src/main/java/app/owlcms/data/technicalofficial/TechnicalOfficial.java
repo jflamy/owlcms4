@@ -10,7 +10,10 @@ package app.owlcms.data.technicalofficial;
 import java.io.Serializable;
 
 import javax.persistence.Cacheable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
@@ -47,6 +50,41 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	private String federation;
 	private String federationId;
 	private String affiliation;
+	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "varchar(255) default 'TECHNICAL_OFFICIAL'")
+	private Role role;
+	@Column(columnDefinition = "boolean default false")
+	private boolean active;
+
+	public enum CredentialType {
+		TECHNICAL_OFFICIAL,
+		ORGANIZATION,
+		INVITED,
+		MEDIA
+	}
+
+	public enum Role {
+		TECHNICAL_OFFICIAL(CredentialType.TECHNICAL_OFFICIAL),
+		COMPETITION_DIRECTOR(CredentialType.TECHNICAL_OFFICIAL),
+		COMPETITION_SECRETARY(CredentialType.TECHNICAL_OFFICIAL),
+		STAFF(CredentialType.ORGANIZATION),
+		VOLUNTEER(CredentialType.ORGANIZATION),
+		LOADER(CredentialType.ORGANIZATION),
+		INFORMATION_TECHNOLOGY(CredentialType.ORGANIZATION),
+		VIDEO(CredentialType.ORGANIZATION),
+		MEDIA(CredentialType.MEDIA),
+		VIP(CredentialType.INVITED);
+
+		private final CredentialType credentialType;
+
+		Role(CredentialType credentialType) {
+			this.credentialType = credentialType;
+		}
+
+		public CredentialType getCredentialType() {
+			return credentialType;
+		}
+	}
 
 	public void setId(Long id) {
 		this.id = id;
@@ -57,6 +95,8 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	 */
 	public TechnicalOfficial() {
 		setId(IdUtils.getTimeBasedId());
+		this.role = Role.TECHNICAL_OFFICIAL;
+		this.active = false;
 		// logger.debug"new Platform 1 {} {}",this.getNbB_5(), LoggerUtils.whereFrom());
 	}
 
@@ -74,6 +114,8 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		this.federation = federation;
 		this.federationId = federationId;
 		this.affiliation = affiliation;
+		this.role = Role.TECHNICAL_OFFICIAL;
+		this.active = false;
 	}
 
 	@Override
@@ -172,6 +214,28 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 
 	public void setAffiliation(String affiliation) {
 		this.affiliation = affiliation;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	@Transient
+	@JsonIgnore
+	public CredentialType getCredentialType() {
+		return role != null ? role.getCredentialType() : null;
 	}
 
 }

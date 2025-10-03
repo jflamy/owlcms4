@@ -16,6 +16,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -64,6 +65,22 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
 
     public FormLayout technicalOfficialLayout() {
         FormLayout technicalOfficialLayout = new FormLayout();
+
+        Checkbox activeCheckbox = new Checkbox(Translator.translate("TechnicalOfficial.Active"));
+        activeCheckbox.setValue(false); // Default to false
+        technicalOfficialLayout.add(activeCheckbox);
+        this.binder.forField(activeCheckbox)
+                .bind(TechnicalOfficial::isActive, TechnicalOfficial::setActive);
+
+        ComboBox<TechnicalOfficial.Role> roleComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.Role"));
+        technicalOfficialLayout.add(roleComboBox);
+        roleComboBox.setItems(TechnicalOfficial.Role.values());
+        roleComboBox.setItemLabelGenerator(role -> 
+            Translator.translate("TO.Role." + role.name())
+        );
+        roleComboBox.setValue(TechnicalOfficial.Role.TECHNICAL_OFFICIAL); // Default value
+        this.binder.forField(roleComboBox)
+                .bind(TechnicalOfficial::getRole, TechnicalOfficial::setRole);
 
         TextField lastNameTextField = new TextField(Translator.translate("LastName"));
         technicalOfficialLayout.add(lastNameTextField);
