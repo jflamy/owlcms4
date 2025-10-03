@@ -18,9 +18,11 @@
 - Templates have moved to `templates/credentials`  All the credentials templates will go there.
 - See this [folder](https://github.com/jflamy/owlcms4/tree/dev62/owlcms/scripts) in the development repository for [CREDENTIALS_README](https://github.com/jflamy/owlcms4/blob/dev62/owlcms/scripts/CREDENTIALS_README.md) and Python support scripts (see [CROP_README](https://github.com/jflamy/owlcms4/blob/dev62/owlcms/scripts/CROP_README.md))
 
-62.0.0: Ability to enter information about coaches.
+62.0.0: The download mechanism for all the documents on the Documents page has been completely redone to match the current UI toolkit recommended programming practices.  The Weigh-in page also uses the exact same mechanism.
 
-62.0.0: Technical Officials now have a role.
+62.0.0: Ability to enter information about coaches, with name filtering.
+
+62.0.0: Technical Officials now have a role.  There is now a name and role filter on the TO page.
 
 - Overall roles such as Competition Secretary can now be selected
 - Officials in the Technical Officials list can be marked as Active; any official assigned to a Session is implicitly Active and does not need to be marked as such.
