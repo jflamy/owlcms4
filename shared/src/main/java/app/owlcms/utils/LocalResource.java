@@ -23,8 +23,9 @@ public class LocalResource {
 	
 	static public byte[] getBytes(String resourceName) throws IOException {
 		try {
-			logger.debug("getBytes {}", resourceName);
-			return ResourceWalker.getBytes(resourceName);
+			byte[] bytes = ResourceWalker.getBytes(resourceName);
+			logger.warn("getBytes {} -> {} bytes {}", resourceName, bytes != null ? bytes.length : "null", LoggerUtils.whereFrom());
+			return bytes;
 		} catch (Exception e) {
 			logger.error("Error getting local resource " + resourceName);
 			return null;

@@ -660,8 +660,6 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		configureTransformer(transformer);
 		try {
 			HashMap<String, Object> reportingInfo = getReportingBeans();
-			// print the reporting beans keys for debugging
-			logger.warn("reportingInfo keys: {}", reportingInfo.keySet());
 
 			@SuppressWarnings("unchecked")
 			List<Athlete> athletes = (List<Athlete>) reportingInfo.get("athletes");

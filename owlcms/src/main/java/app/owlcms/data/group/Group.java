@@ -1703,4 +1703,39 @@ public class Group implements Comparable<Group> {
 	public void setReserveJury(String reserveJury) {
 		this.reserveJury = reserveJury;
 	}
+
+	/**
+	 * Find all technical officials assigned to this group.
+	 * Returns a list of all TOs in various roles (announcer, jury, technical controllers, etc.)
+	 * 
+	 * @return List of TechnicalOfficials assigned to this group (may contain duplicates if a TO has multiple roles)
+	 */
+	public List<TechnicalOfficial> findAssignedTechnicalOfficials() {
+		List<TechnicalOfficial> officials = new java.util.ArrayList<>();
+		
+		addIfNotNull(officials, getAnnouncerAsTO());
+		addIfNotNull(officials, getCompetitionDirectorAsTO());
+		addIfNotNull(officials, getCompetitionSecretaryAsTO());
+		addIfNotNull(officials, getCompetitionSecretary2AsTO());
+		addIfNotNull(officials, getJury1AsTO());
+		addIfNotNull(officials, getJury2AsTO());
+		addIfNotNull(officials, getJury3AsTO());
+		addIfNotNull(officials, getJury4AsTO());
+		addIfNotNull(officials, getJury5AsTO());
+		addIfNotNull(officials, getMarshallAsTO());
+		addIfNotNull(officials, getTechnicalControllerAsTO());
+		addIfNotNull(officials, getTechnicalController2AsTO());
+		addIfNotNull(officials, getTimeKeeperAsTO());
+		
+		return officials;
+	}
+	
+	/**
+	 * Helper method to add a technical official to the list if not null and has a valid ID
+	 */
+	private void addIfNotNull(List<TechnicalOfficial> list, TechnicalOfficial to) {
+		if (to != null && to.getId() != null) {
+			list.add(to);
+		}
+	}
 }

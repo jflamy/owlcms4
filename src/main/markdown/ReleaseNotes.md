@@ -10,19 +10,20 @@
 
 <br>
 
-**Change Log**
-
-62.0.0-alpha05: merged fixes from 61.0.1 for weigh-in/registration listing bug when no data was available to award categories and multiple "all athletes" categories were present.
-
 **New in Release 62.0**
 
-62.0.0: Experimental capability to produce credentials with pictures/logos/flags.
+62.0.0: Experimental capability to produce credentials for Athletes, Coaches and TOs, with pictures/logos/flags.
 
-- There is now a Credentials button in the Pre-Competition documents.  Currently only the Athlete section is working.
+- There is now a Credentials button in the Pre-Competition documents
 - Templates have moved to `templates/credentials`  All the credentials templates will go there.
-- See this [folder](https://github.com/jflamy/owlcms4/tree/dev62/owlcms/scripts) in the development repository for [CREDENTIALS_README](https://github.com/jflamy/owlcms4/blob/dev62/owlcms/scripts/CREDENTIALS_README.md) and `.py` support scripts.
+- See this [folder](https://github.com/jflamy/owlcms4/tree/dev62/owlcms/scripts) in the development repository for [CREDENTIALS_README](https://github.com/jflamy/owlcms4/blob/dev62/owlcms/scripts/CREDENTIALS_README.md) and Python support scripts (see [CROP_README]([owlcms4/owlcms/scripts/CROP_README.md at dev62 · jflamy/owlcms4](https://github.com/jflamy/owlcms4/blob/dev62/owlcms/scripts/CROP_README.md)))
 
-62.2.0: Experimental: ability to enter information about coachs (will support acc)
+62.0.0: Ability to enter information about coaches.
+
+62.0.0: Technical Officials now have a role.
+
+- Overall roles such as Competition Secretary can now be selected
+- Officials in the Technical Officials list can be marked as Active; any official assigned to a Session is implicitly Active and does not need to be marked as such.
 
 62.0.0: The eligibility/non-eligibility status of an athlete is now enumerated. The reason for disqualification or non-competition can be selected.
 

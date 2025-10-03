@@ -106,7 +106,7 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
             for (TechnicalOfficial official : officials) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(official.isActive() ? "TRUE" : "FALSE");
-                row.createCell(1).setCellValue(official.getRole() != null ? Translator.translate("TechnicalOfficial.Role."+official.getRole().toString()) : "");
+                row.createCell(1).setCellValue(official.getRole() != null ? Translator.translate("TO.Role."+official.getRole().toString()) : "");
                 row.createCell(2).setCellValue(official.getLastName() != null ? official.getLastName() : "");
                 row.createCell(3).setCellValue(official.getFirstName() != null ? official.getFirstName() : "");
                 row.createCell(4).setCellValue(official.getLevel() != null ? Translator.translate("TOLevel."+official.getLevel().toString()) : "");

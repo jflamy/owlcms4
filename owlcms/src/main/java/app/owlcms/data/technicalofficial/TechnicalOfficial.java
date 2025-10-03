@@ -25,7 +25,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.IdUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -60,7 +62,8 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		TECHNICAL_OFFICIAL,
 		ORGANIZATION,
 		INVITED,
-		MEDIA
+		MEDIA,
+		MEDICAL
 	}
 
 	public enum Role {
@@ -73,7 +76,9 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		INFORMATION_TECHNOLOGY(CredentialType.ORGANIZATION),
 		VIDEO(CredentialType.ORGANIZATION),
 		MEDIA(CredentialType.MEDIA),
-		VIP(CredentialType.INVITED);
+		VIP(CredentialType.INVITED),
+		DOCTOR(CredentialType.MEDICAL),
+		MEDICAL_STAFF(CredentialType.MEDICAL);
 
 		private final CredentialType credentialType;
 
@@ -105,7 +110,8 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	 *
 	 * @param name the name
 	 */
-	public TechnicalOfficial(String lastName, String firstName, TOLevel level, String iwfId, String federation, String federationId, String affiliation) {
+	public TechnicalOfficial(String lastName, String firstName, TOLevel level, String iwfId, String federation,
+			String federationId, String affiliation) {
 		setId(IdUtils.getTimeBasedId());
 		this.lastName = lastName;
 		this.firstName = firstName;
@@ -135,6 +141,13 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		TechnicalOfficial other = (TechnicalOfficial) obj;
 		return getId() != null && getId().equals(other.getId());
 
+	}
+
+	@Override
+	public int hashCode() {
+		// Use id for hashCode to be consistent with equals
+		// https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+		return (getId() != null) ? getId().hashCode() : 0;
 	}
 
 	/**
@@ -236,6 +249,48 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	@JsonIgnore
 	public CredentialType getCredentialType() {
 		return role != null ? role.getCredentialType() : null;
+	}
+
+	/**
+	 * Get the translated role name for display.
+	 * 
+	 * @return translated role name, or empty string if role is null
+	 */
+	@Transient
+	@JsonIgnore
+	public String getTranslatedRole() {
+		if (role == null) {
+			return "";
+		}
+		return Translator.translate("TO.Role." + role.name());
+	}
+
+	/**
+	 * Get the translated credential type name for display.
+	 * 
+	 * @return translated credential type name, or empty string if credential type is null
+	 */
+	@Transient
+	@JsonIgnore
+	public String getTranslatedCredentialType() {
+		CredentialType credentialType = getCredentialType();
+		if (credentialType == null) {
+			return "";
+		}
+		return Translator.translate("TO.CredentialType." + credentialType.name());
+	}
+
+	@Transient
+	@JsonIgnore
+	public String getTeamFlagPath() {
+		String fed = this.getFederation();
+		logger.debug("TO {} federation {}", this, fed);
+		// use the same approach as URLUtils to find the flag
+		return URLUtils.getFlagResourcePath(fed, new String[] { ".png" });
+	}
+
+	public void setTeamFlagPath(String path) {
+		// no-op, just to please some serializers
 	}
 
 }

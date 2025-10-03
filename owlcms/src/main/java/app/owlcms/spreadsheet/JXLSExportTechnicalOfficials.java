@@ -50,6 +50,7 @@ public class JXLSExportTechnicalOfficials extends JXLSWorkbookStreamSource {
 	private List<SessionAssignment> assignments = new ArrayList<>();
 
 	public JXLSExportTechnicalOfficials(UI ui) {
+		setEmptyOk(true);
 	}
 
 	@Override

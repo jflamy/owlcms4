@@ -16,6 +16,7 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
@@ -91,6 +92,8 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	private Grid<TechnicalOfficial> grid;
 	private TextField lastNameFilter = new TextField();
 	private String lastNameValue;
+	private ComboBox<TechnicalOfficial.Role> roleFilter = new ComboBox<>();
+	private TechnicalOfficial.Role roleValue;
 
 	/**
 	 * Instantiates the TechnicalOfficial crudGrid.
@@ -203,6 +206,13 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 				.collect(java.util.stream.Collectors.toList());
 		}
 		
+		// Apply role filter if present
+		if (roleValue != null) {
+			officials = officials.stream()
+				.filter(official -> roleValue.equals(official.getRole()))
+				.collect(java.util.stream.Collectors.toList());
+		}
+		
 		return officials;
 	}
 
@@ -280,7 +290,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 				return "";
 			}
 			return Translator.translate("TO.Role." + role.name());
-		}).setHeader(Translator.translate("TO.Role"));
+		}).setHeader(Translator.translate("TechnicalOfficial.Role"));
 		
 		this.grid.addColumn(TechnicalOfficial::getLevel).setHeader(Translator.translate("TechnicalOfficial.Level"));
 		this.grid.addColumn(TechnicalOfficial::getFederationId).setHeader(Translator.translate("TechnicalOfficial.FederationId"));
@@ -311,6 +321,18 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		});
 		this.lastNameFilter.setWidth("15em");
 		crud.getCrudLayout().addFilterComponent(this.lastNameFilter);
+		
+		// Role filter
+		this.roleFilter.setPlaceholder(Translator.translate("TechnicalOfficial.Role"));
+		this.roleFilter.setItems(TechnicalOfficial.Role.values());
+		this.roleFilter.setItemLabelGenerator(role -> Translator.translate("TO.Role." + role.name()));
+		this.roleFilter.setClearButtonVisible(true);
+		this.roleFilter.addValueChangeListener(e -> {
+			this.roleValue = e.getValue();
+			crud.refreshGrid();
+		});
+		this.roleFilter.setWidth("18em");
+		crud.getCrudLayout().addFilterComponent(this.roleFilter);
 	}
 
 	/**

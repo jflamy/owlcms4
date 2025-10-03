@@ -411,9 +411,9 @@ public class ImageCommand extends AbstractCommand {
             // For bottom-right, convert exclusive indices to inclusive Excel cell
             String bottomRightCell = toExcelCell(Math.max(0, aCol2 - 1), Math.max(0, aRow2 - 1));
 
-            logger.debug(
-                    "image scaled to {}x{} px (from {}x{}), anchor top-left={} dx1={}px ({}EMU) dy1={}px ({}EMU), anchor bottom-right={} dx2={}px ({}EMU) dy2={}px ({}EMU)",
-                    scaledW, scaledH, realW, realH,
+            logger.warn(
+                    "image {} scaled to {}x{} px (from {}x{}), anchor top-left={} dx1={}px ({}EMU) dy1={}px ({}EMU), anchor bottom-right={} dx2={}px ({}EMU) dy2={}px ({}EMU)",
+                    src != null ? src : "inline", scaledW, scaledH, realW, realH,
                     topLeftCell, String.format("%.2f", dx1px), dx1emu, String.format("%.2f", dy1px), dy1emu,
                     bottomRightCell, String.format("%.2f", dx2px), dx2emu, String.format("%.2f", dy2px), dy2emu);
 

@@ -190,13 +190,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        createRule(),
 			        new NativeLabel(Translator.translate("Documents.StartBook")),
 			        startListButton, scheduleButton, officialSchedule, checkInButton, credentialsButton,
-					createRule(),
-					new NativeLabel(Translator.translate("Documents.PreWeighIn")),
-					cardsButton, weighInButton, spacer(), preWeighInKitButton,
+			        createRule(),
+			        new NativeLabel(Translator.translate("Documents.PreWeighIn")),
+			        cardsButton, weighInButton, spacer(), preWeighInKitButton,
 			        createRule(),
 			        new NativeLabel(Translator.translate("Documents.PostWeighIn")),
-			        introductionButton, emptyProtocolButton, juryButton, spacer(), postWeighInKitButton
-			);
+			        introductionButton, emptyProtocolButton, juryButton, spacer(), postWeighInKitButton);
 			buttons.getStyle().set("flex-wrap", "wrap");
 			buttons.getStyle().set("gap", "1ex");
 			buttons.getStyle().set("margin-left", "5em");
@@ -320,8 +319,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(templateEnum.folder, (f) -> matchExtension(templateEnum, f));
 			Supplier<String> selectedTemplateSupplier = () -> templateEnum.templateFileNameSupplier.get();
 
-	    KitElement kitElement = new KitElement(id, templateEnum, templateName, ext, isp, 1, writerFactory, pre, processingMessageSupplier,
-		    availableTemplatesSupplier, selectedTemplateSupplier);
+			KitElement kitElement = new KitElement(id, templateEnum, templateName, ext, isp, 1, writerFactory, pre, processingMessageSupplier,
+			        availableTemplatesSupplier, selectedTemplateSupplier);
 			return kitElement;
 		} catch (Exception e2) {
 			logger.error("Unexpected exception: {}", e2.toString());
@@ -402,8 +401,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	/**
-	 * Shared logic for default scope prechecks. If allowNoSelection is false, a missing group (g==null) results in a NoSession exception; otherwise group may be
-	 * null.
+	 * Shared logic for default scope prechecks. If allowNoSelection is false, a missing group (g==null) results in a NoSession exception; otherwise group may
+	 * be null.
 	 */
 	private Optional<Exception> runDefaultScopePrecheck(PreCompetitionTemplate templateEnum, List<Athlete> a, Group g, boolean allowNoSelection) {
 		try {
@@ -850,31 +849,31 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		List<KitElement> elements = new ArrayList<>();
 		// Use same PreCompetitionTemplate.CARDS for athlete credentials, and reuse a generic template for TO/Coach
 		elements.add(doElementAthleteCredentials(PreCompetitionTemplate.ATHLETE_CREDENTIALS));
-		elements.add(doElementTOCredentials(PreCompetitionTemplate.TO_CREDENTIALS));
 		elements.add(doElementCoachCredentials(PreCompetitionTemplate.COACH_CREDENTIALS));
+		elements.add(doElementTOCredentials(PreCompetitionTemplate.TO_CREDENTIALS));
 		return elements;
 	}
 
 	private Div createCredentialsButton() {
 		Button openDialog = new Button(
-				Translator.translate("Credentials"),
-				VaadinIcon.ARCHIVE.create(),
-				(e) -> {
-					List<KitElement> kit = prepareCredentials(getSortedSelection());
-					logger.debug("credentials kit {}", kit);
-					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-						List<Group> ss = getSortedSelection();
-						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-					};
-					DocumentDownloadDialog dialog = new DocumentDownloadDialog(
-						kit,
-						selectedSessionsSupplier, computeAthletesSupplier,
-						(d, kits) -> createDoItButtonForKits(
-							kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "Credentials"));
-					dialog.open();
-				});
+		        Translator.translate("Credentials"),
+		        VaadinIcon.ARCHIVE.create(),
+		        (e) -> {
+			        List<KitElement> kit = prepareCredentials(getSortedSelection());
+			        logger.debug("credentials kit {}", kit);
+			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+				        List<Group> ss = getSortedSelection();
+				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+			        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(
+			                kit,
+			                selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(
+			                        kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "Credentials"));
+			        dialog.open();
+		        });
 		return new Div(openDialog);
 	}
 
@@ -969,28 +968,28 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		// CARDS: when a single session is selected require some athletes; when no session selected
 		// use total athletes and require >0 and less than 100, and check for reasonable selection (not too many athletes)
 		return defineKit("cards",
-				templateDefinition,
-				cardsScopePrecheck,
-				(a, g) -> {
-					JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-					xlsWriter.setGroup(g);
-					return xlsWriter;
-				});
+		        templateDefinition,
+		        cardsScopePrecheck,
+		        (a, g) -> {
+			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+			        xlsWriter.setGroup(g);
+			        return xlsWriter;
+		        });
 	}
 
 	/**
-	 * Athlete credentials use the same scope precheck as cards (require some athletes for a selected session,
-	 * and reasonable total counts when no session is selected).
+	 * Athlete credentials use the same scope precheck as cards (require some athletes for a selected session, and reasonable total counts when no session is
+	 * selected).
 	 */
 	private KitElement doElementAthleteCredentials(PreCompetitionTemplate templateDefinition) {
 		return defineKit("athleteCredentials",
-				templateDefinition,
-				cardsScopePrecheck,
-				(a, g) -> {
-					JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-					xlsWriter.setGroup(g);
-					return xlsWriter;
-				});
+		        templateDefinition,
+		        cardsScopePrecheck,
+		        (a, g) -> {
+			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+			        xlsWriter.setGroup(g);
+			        return xlsWriter;
+		        });
 	}
 
 	/**
@@ -998,13 +997,17 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	 */
 	private KitElement doElementTOCredentials(PreCompetitionTemplate templateDefinition) {
 		return defineKit("toCredentials",
-				templateDefinition,
-				defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
-				(a, g) -> {
-					JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-					xlsWriter.setGroup(g);
-					return xlsWriter;
-				});
+		        templateDefinition,
+		        defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
+		        (a, g) -> {
+			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+			        // setReportingInfo will add the the TOs to
+			        // the reporting beans using #TechnicalOfficialRepository.findActive()
+			        xlsWriter.setGroup(g);
+			        xlsWriter.setSortedAthletes(List.of());
+			        xlsWriter.setEmptyOk(true);
+			        return xlsWriter;
+		        });
 	}
 
 	/**
@@ -1012,17 +1015,17 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	 */
 	private KitElement doElementCoachCredentials(PreCompetitionTemplate templateDefinition) {
 		return defineKit("coachCredentials",
-				templateDefinition,
-				defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
-				(a, g) -> {
-					JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-					// we set no athletes.  setReportingInfo will add the the coaches to
-					// the reporting beans.
+		        templateDefinition,
+		        defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
+		        (a, g) -> {
+			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+			        // setReportingInfo will add the the coaches to
+			        // the reporting beans.
 			        xlsWriter.setGroup(null);
 			        xlsWriter.setSortedAthletes(List.of());
 			        xlsWriter.setEmptyOk(true);
-					return xlsWriter;
-				});
+			        return xlsWriter;
+		        });
 	}
 
 	private KitElement doElementCategories(PreCompetitionTemplate template) {
@@ -1247,7 +1250,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private void doPrintScript(ZipOutputStream zipOut) {
 		try {
 			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.bat"), "print.bat", false, zipOut);
-			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.ps1"), "print.ps1", false, zipOut);
+			//ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.ps1"), "print.ps1", false, zipOut);
 		} catch (IOException e) {
 			LoggerUtils.logError(logger, e, true);
 		}
@@ -1689,7 +1692,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			doPrintScript(zipOut);
 
 			boolean anyProcessed = false;
-			
+
 			// Handle case where no sessions are selected (for documents that don't require sessions)
 			if (selectedItems == null || selectedItems.isEmpty()) {
 				// Process elements that can work without a session (e.g., coach credentials, categories)
