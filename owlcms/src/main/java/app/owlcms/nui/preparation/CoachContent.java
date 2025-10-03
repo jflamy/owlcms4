@@ -16,6 +16,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -83,10 +84,21 @@ public class CoachContent extends BaseContent implements CrudListener<Coach>, Ow
                     dialog.open();
                 });
 
+        // Coach Credentials button
+        Div coachCredentialsButton = DocumentsContent.createCoachCredentialsButton();
+
+        Hr hr = new Hr();
+        hr.setWidthFull();
+        hr.getStyle().set("margin", "0");
+        hr.getStyle().set("padding", "0");
+
         FlexLayout buttons = new FlexLayout(
                 new NativeLabel(Translator.translate("Coaches.ImportExport")),
                 exportCoaches,
-                uploadCustom);
+                uploadCustom,
+                hr,
+                new NativeLabel(Translator.translate("Credentials")),
+                coachCredentialsButton);
         buttons.getStyle().set("flex-wrap", "wrap");
         buttons.getStyle().set("gap", "1ex");
         buttons.getStyle().set("margin-left", "5em");

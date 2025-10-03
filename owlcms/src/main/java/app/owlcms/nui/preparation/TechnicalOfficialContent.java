@@ -148,13 +148,19 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		downloadButton.setWidthFull();
 		allRecords1.add(downloadButton);
 
+		// TO Credentials button
+		Div toCredentialsButton = DocumentsContent.createTOCredentialsButton();
+
 		FlexLayout buttons = new FlexLayout(
 		        new NativeLabel(Translator.translate("TechnicalOfficials.ImportExport")),
 		        exportOfficials,
 		        uploadCustom,
 				hr(),
 				new NativeLabel(Translator.translate("TechnicalOfficials.AssignmentReports")),
-				allRecords1);
+				allRecords1,
+				hr(),
+				new NativeLabel(Translator.translate("Credentials")),
+				toCredentialsButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");

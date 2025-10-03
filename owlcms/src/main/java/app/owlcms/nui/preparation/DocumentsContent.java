@@ -877,6 +877,287 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return new Div(openDialog);
 	}
 
+	/**
+	 * Public factory method to create a standalone Technical Official credentials button 
+	 * that can be used from TechnicalOfficialContent page.
+	 */
+	public static Div createTOCredentialsButton() {
+		Button openDialog = new Button(
+		        Translator.translate("TO_CREDENTIALS"),
+		        VaadinIcon.DOWNLOAD_ALT.create(),
+		        (e) -> {
+			        List<KitElement> kit = new java.util.ArrayList<>();
+			        kit.add(createTOCredentialsElement());
+			        Supplier<List<Group>> selectedSessionsSupplier = () -> java.util.Collections.emptyList();
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> java.util.Collections.emptyList();
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(
+			                kit,
+			                selectedSessionsSupplier,
+			                computeAthletesSupplier,
+			                (d, kits) -> createStaticDoItButtonForKits(
+			                        kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "TOCredentials"));
+			        dialog.open();
+		        });
+		return new Div(openDialog);
+	}
+
+	/**
+	 * Public factory method to create a standalone Coach credentials button 
+	 * that can be used from CoachContent page.
+	 */
+	public static Div createCoachCredentialsButton() {
+		Button openDialog = new Button(
+		        Translator.translate("COACH_CREDENTIALS"),
+		        VaadinIcon.DOWNLOAD_ALT.create(),
+		        (e) -> {
+			        List<KitElement> kit = new java.util.ArrayList<>();
+			        kit.add(createCoachCredentialsElement());
+			        Supplier<List<Group>> selectedSessionsSupplier = () -> java.util.Collections.emptyList();
+			        Supplier<List<Athlete>> computeAthletesSupplier = () -> java.util.Collections.emptyList();
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(
+			                kit,
+			                selectedSessionsSupplier,
+			                computeAthletesSupplier,
+			                (d, kits) -> createStaticDoItButtonForKits(
+			                        kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "CoachCredentials"));
+			        dialog.open();
+		        });
+		return new Div(openDialog);
+	}
+
+	/**
+	 * Create the static do-it button for credential downloads (no instance context needed).
+	 */
+	private static Component createStaticDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog,
+	        Supplier<List<Group>> selectedSessionsSupplier, Supplier<List<Athlete>> computeAthletesSupplier,
+	        Supplier<String> zipBaseOverride) {
+		Supplier<String> baseFile = () -> {
+			if (kit == null || kit.isEmpty())
+				return "undefined";
+			if (kit.size() == 1) {
+				String selected = kit.get(0).selectedTemplateSupplier() == null ? null : kit.get(0).selectedTemplateSupplier().get();
+				String raw = selected == null || selected.isBlank() ? kit.get(0).name() : selected;
+				String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
+				return stripSuffix(justName);
+			} else {
+				String id = kit.get(0).id();
+				if (id == null || id.isBlank())
+					return "document-set";
+				return id.replaceAll("[^A-Za-z0-9]", "");
+			}
+		};
+
+		Supplier<String> extSupplier = () -> {
+			String ext = kit.get(0).extension();
+			return ext == null || ext.isBlank() ? ".xlsx" : (ext.startsWith(".") ? ext : ("." + ext));
+		};
+
+		Supplier<String> zipBase = () -> {
+			if (zipBaseOverride != null)
+				return zipBaseOverride.get();
+			if (kit == null || kit.isEmpty())
+				return baseFile.get();
+			String id = kit.get(0).id();
+			return (id == null || id.isBlank()) ? baseFile.get() : id.replaceAll("[^A-Za-z0-9]", "");
+		};
+
+		return dialog.createDoItButtonForKitsWithHelpers(
+		        baseFile,
+		        kit,
+		        selectedSessionsSupplier,
+		        computeAthletesSupplier,
+		        (selSessions, k) -> {
+			        UI ui = UI.getCurrent();
+			        BiConsumer<Throwable, String> errorProcessor = (ex, msg) -> {
+				        ui.access(() -> {
+					        Notification.show(msg != null ? msg : ex.getMessage());
+				        });
+			        };
+			        return zipKitToInputStreamStatic(selSessions, k, errorProcessor, t -> {}, ui);
+		        },
+		        (selSessions, k) -> {
+			        try {
+				        UI ui = UI.getCurrent();
+				        return excelKitElementStatic(selSessions, k, ui, t -> {});
+			        } catch (IOException ioe) {
+				        throw new RuntimeException(ioe);
+			        }
+		        },
+		        (elements, g, athletes, d) -> {
+			        DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
+			        return precheckService.runSetScopePrecheckOrThrow(elements, g, athletes, d);
+		        },
+		        (elements, g, athletes, d) -> {
+			        DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
+			        return precheckService.filterElementsByScopePrecheckOrThrow(elements, g, athletes, d);
+		        },
+		        zipBase,
+		        extSupplier,
+		        VaadinIcon.DOWNLOAD_ALT.create());
+	}
+
+	/**
+	 * Static version of excelKitElement for use with standalone credential buttons.
+	 */
+	private static InputStream excelKitElementStatic(List<Group> selectedSessions, List<KitElement> elements, UI ui,
+	        Consumer<Throwable> doneCallback) throws IOException {
+		Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
+		KitElement elem = elements.get(0);
+
+		List<Athlete> athletes = null;
+		if (g != null) {
+			athletes = groupAthletes(g, true);
+		}
+
+		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory().apply(athletes, g);
+		xlsWriter.setUi(ui);
+		if (xlsWriter.getSortedAthletes() == null) {
+			xlsWriter.setSortedAthletes(athletes);
+		}
+		if (xlsWriter.getGroup() == null) {
+			xlsWriter.setGroup(g);
+		}
+
+		InputStream is = null;
+		try {
+			if (elem.isp() != null) {
+				is = Files.newInputStream(elem.isp());
+			} else {
+				java.nio.file.Path resolved = ResourceWalker.getFileOrResourcePath(elem.name());
+				is = Files.newInputStream(resolved);
+			}
+		} catch (java.io.FileNotFoundException fnf) {
+			throw fnf;
+		}
+		xlsWriter.setInputStream(is);
+		xlsWriter.setTemplateFileName(elem.name());
+
+		if (doneCallback == null) {
+			Notification n = new Notification(Translator.translate("Documents.ProcessingExcel"));
+			xlsWriter.setDoneCallback((t) -> ui.access(() -> {
+				if (t == null) {
+					n.close();
+				} else {
+					String msg = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
+					n.setText(msg);
+					n.addThemeVariants(NotificationVariant.LUMO_ERROR);
+					n.setPosition(Position.TOP_STRETCH);
+					n.setDuration(0);
+					n.open();
+				}
+			}));
+			n.setPosition(Position.TOP_END);
+			ui.access(() -> {
+				n.open();
+			});
+		} else {
+			xlsWriter.setDoneCallback(doneCallback);
+		}
+		
+		InputStream in;
+		try {
+			xlsWriter.setUi(ui);
+			in = xlsWriter.createInputStream();
+			return in;
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e, true);
+			try {
+				if (doneCallback != null) {
+					try {
+						doneCallback.accept(e);
+					} catch (Throwable cb) {
+						LoggerUtils.logError(logger, cb, true);
+					}
+				}
+			} catch (Throwable cb) {
+				LoggerUtils.logError(logger, cb, true);
+			}
+			throw e;
+		}
+	}
+
+	/**
+	 * Static helper to create the TO credentials element.
+	 */
+	private static KitElement createTOCredentialsElement() {
+		PreCompetitionTemplate templateEnum = PreCompetitionTemplate.TO_CREDENTIALS;
+		String resourceFolder = templateEnum.folder + "/";
+		resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
+		String template = templateEnum.templateFileNameSupplier.get();
+		String templateName = template == null ? null : (resourceFolder + template);
+		Path isp = null;
+		String ext = FilenameUtils.getExtension(template == null ? "" : template);
+
+		BiFunction<List<Athlete>, Group, Optional<Exception>> pre = (a, g) -> {
+			// Allow no selection (global report)
+			return Optional.empty();
+		};
+
+		Supplier<String> processingMessageSupplier = () -> "Processing";
+		Supplier<List<Resource>> availableTemplatesSupplier = () -> {
+			List<Resource> resourceList = new ResourceWalker().getResourceList(
+			        templateEnum.folder,
+			        ResourceWalker::relativeName,
+			        (f) -> (f.endsWith(".xlsx") || f.endsWith(".xlsm")),
+			        OwlcmsSession.getLocale(),
+			        Config.getCurrent().isLocalTemplatesOnly());
+			return resourceList;
+		};
+		Supplier<String> selectedTemplateSupplier = () -> templateEnum.templateFileNameSupplier.get();
+
+		BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory = (a, g) -> {
+			JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+			xlsWriter.setGroup(g);
+			xlsWriter.setSortedAthletes(List.of());
+			xlsWriter.setEmptyOk(true);
+			return xlsWriter;
+		};
+
+		return new KitElement("toCredentials", templateEnum, templateName, ext, isp, 1, writerFactory, pre,
+		        processingMessageSupplier, availableTemplatesSupplier, selectedTemplateSupplier);
+	}
+
+	/**
+	 * Static helper to create the Coach credentials element.
+	 */
+	private static KitElement createCoachCredentialsElement() {
+		PreCompetitionTemplate templateEnum = PreCompetitionTemplate.COACH_CREDENTIALS;
+		String resourceFolder = templateEnum.folder + "/";
+		resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
+		String template = templateEnum.templateFileNameSupplier.get();
+		String templateName = template == null ? null : (resourceFolder + template);
+		Path isp = null;
+		String ext = FilenameUtils.getExtension(template == null ? "" : template);
+
+		BiFunction<List<Athlete>, Group, Optional<Exception>> pre = (a, g) -> {
+			// Allow no selection (global report)
+			return Optional.empty();
+		};
+
+		Supplier<String> processingMessageSupplier = () -> "Processing";
+		Supplier<List<Resource>> availableTemplatesSupplier = () -> {
+			List<Resource> resourceList = new ResourceWalker().getResourceList(
+			        templateEnum.folder,
+			        ResourceWalker::relativeName,
+			        (f) -> (f.endsWith(".xlsx") || f.endsWith(".xlsm")),
+			        OwlcmsSession.getLocale(),
+			        Config.getCurrent().isLocalTemplatesOnly());
+			return resourceList;
+		};
+		Supplier<String> selectedTemplateSupplier = () -> templateEnum.templateFileNameSupplier.get();
+
+		BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory = (a, g) -> {
+			JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+			xlsWriter.setGroup(null);
+			xlsWriter.setSortedAthletes(List.of());
+			xlsWriter.setEmptyOk(true);
+			return xlsWriter;
+		};
+
+		return new KitElement("coachCredentials", templateEnum, templateName, ext, isp, 1, writerFactory, pre,
+		        processingMessageSupplier, availableTemplatesSupplier, selectedTemplateSupplier);
+	}
+
 	private Hr createRule() {
 		Hr hr = new Hr();
 		hr.setWidthFull();
@@ -1199,7 +1480,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        });
 	}
 
-	private void doKitElement(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
+	private static void doKitElementStatic(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory().apply(athletes, g);
 
 		// apply default if the factory did not set
@@ -1247,7 +1528,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		});
 	}
 
-	private void doPrintScript(ZipOutputStream zipOut) {
+	private static void doPrintScriptStatic(ZipOutputStream zipOut) {
 		try {
 			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.bat"), "print.bat", false, zipOut);
 			//ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.ps1"), "print.ps1", false, zipOut);
@@ -1666,7 +1947,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return new Html("<span>&nbsp;&nbsp;<span>");
 	}
 
-	private String stripSuffix(String templateName) {
+	private static String stripSuffix(String templateName) {
 		if (templateName == null) {
 			// defensive, will not be used due to prior error check.
 			return "undefined";
@@ -1684,31 +1965,32 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private void updateURLLocations() {
 	}
 
-	private ZipOutputStream zipKit(List<Group> selectedItems, List<KitElement> elements, PipedOutputStream os) throws IOException {
+	private static ZipOutputStream zipKitStatic(List<Group> selectedItems, List<KitElement> elements, PipedOutputStream os,
+	        BiConsumer<Throwable, String> errorProcessor) throws IOException {
 		int i = 1;
 		ZipOutputStream zipOut = null;
 		try {
 			zipOut = new ZipOutputStream(os);
-			doPrintScript(zipOut);
+			doPrintScriptStatic(zipOut);
 
 			boolean anyProcessed = false;
 
 			// Handle case where no sessions are selected (for documents that don't require sessions)
 			if (selectedItems == null || selectedItems.isEmpty()) {
 				// Process elements that can work without a session (e.g., coach credentials, categories)
-				for (KitElement elem : elements) {
-					// Skip elements without a template selected (user chose to skip this document)
-					if (elem.selectedTemplateSupplier() != null) {
-						String selected = elem.selectedTemplateSupplier().get();
-						if (selected == null || selected.isBlank()) {
-							continue; // skip this element during processing
+					for (KitElement elem : elements) {
+						// Skip elements without a template selected (user chose to skip this document)
+						if (elem.selectedTemplateSupplier() != null) {
+							String selected = elem.selectedTemplateSupplier().get();
+							if (selected == null || selected.isBlank()) {
+								continue; // skip this element during processing
+							}
 						}
+						String seq = String.format("%02d", i);
+						doKitElementStatic(elem, seq, zipOut, null, null);
+						anyProcessed = true;
+						i++;
 					}
-					String seq = String.format("%02d", i);
-					doKitElement(elem, seq, zipOut, null, null);
-					anyProcessed = true;
-					i++;
-				}
 			} else {
 				// Process elements for each selected session
 				for (Group g : selectedItems) {
@@ -1728,14 +2010,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 							}
 						}
 						String seq = String.format("%02d", i);
-						doKitElement(elem, seq, zipOut, g, athletes);
+						doKitElementStatic(elem, seq, zipOut, g, athletes);
 						anyProcessed = true;
 						i++;
 					}
 				}
-			}
-
-			// Only throw NoSession if nothing was processed AND we have elements with templates.
+			}			// Only throw NoSession if nothing was processed AND we have elements with templates.
 			// Elements may legitimately process with no sessions (emptyOk flag on their writers).
 			if (!anyProcessed) {
 				// Check if any elements actually have templates selected
@@ -1766,6 +2046,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements,
 	        BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback, UI ui) {
+		return zipKitToInputStreamStatic(selectedItems, elements, errorProcessor, doneCallback, ui);
+	}
+
+	private static InputStream zipKitToInputStreamStatic(List<Group> selectedItems, List<KitElement> elements,
+	        BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback, UI ui) {
 		PipedOutputStream out;
 		PipedInputStream in;
 		try {
@@ -1788,7 +2073,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		final var dc = doneCallback;
 		Thread writer = new Thread(() -> {
 			try {
-				zipKitToOutputStream(selectedItems, elements, errorProcessor, out);
+				zipKitToOutputStreamStatic(selectedItems, elements, errorProcessor, out);
 				try {
 					if (dc != null)
 						dc.accept(null);
@@ -1817,14 +2102,14 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return in;
 	}
 
-	private void zipKitToOutputStream(List<Group> selectedItems, List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor,
+	private static void zipKitToOutputStreamStatic(List<Group> selectedItems, List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor,
 	        PipedOutputStream out) {
 		try {
-			zipKit(selectedItems, elements, out);
+			zipKitStatic(selectedItems, elements, out, errorProcessor);
 			out.flush();
 			out.close();
 		} catch (Throwable e) {
-			defaultErrorProcessor.accept(e, e.getMessage());
+			errorProcessor.accept(e, e.getMessage());
 		}
 	}
 
