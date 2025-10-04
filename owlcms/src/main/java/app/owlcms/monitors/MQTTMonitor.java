@@ -1771,7 +1771,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 					// remove stale
 					MQTTInterceptHandlers.removeGlobalClient(k);
 					try {
-						logger.info("Broker-level client reconciled and removed: clientId={} reason=missing_in_broker_sessions", k);
+						logger.debug("Broker-level client reconciled and removed: clientId={} reason=missing_in_broker_sessions", k);
 					} catch (Throwable t) {
 					}
 				}
