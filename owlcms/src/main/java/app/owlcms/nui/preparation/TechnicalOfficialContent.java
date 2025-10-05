@@ -287,7 +287,8 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			return activeBox;
 		})).setHeader(Translator.translate("TechnicalOfficial.Active")).setWidth("0");
 		
-		this.grid.addColumn(TechnicalOfficial::getFullName).setHeader(Translator.translate("Name"));
+		this.grid.addColumn(TechnicalOfficial::getLastName).setHeader(Translator.translate("LastName"));
+		this.grid.addColumn(TechnicalOfficial::getFirstName).setHeader(Translator.translate("FirstName"));
 		
 		// Role column with translated role name
 		this.grid.addColumn(official -> {

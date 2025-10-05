@@ -44,7 +44,7 @@ public class TechnicalOfficialReader {
                     Workbook workbook = WorkbookFactory.create(is);
                     Sheet sheet = workbook.getSheetAt(0);
                     Row headerRow = sheet.getRow(0);
-                    int[] colIndices = findColumnIndices(headerRow);
+                    int[] colIndices = findColumnIndices(headerRow, errors);
                     for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                         Row row = sheet.getRow(i);
                         if (row == null) {
@@ -77,7 +77,7 @@ public class TechnicalOfficialReader {
         return officials;
     }
 
-    private int[] findColumnIndices(Row headerRow) {
+    private int[] findColumnIndices(Row headerRow, StringBuilder errors) {
         int[] indices = new int[9];  // One for each field (7 original + role + active)
         // Initialize all indices to -1 to indicate column not found
         for (int i = 0; i < indices.length; i++) {
@@ -96,15 +96,15 @@ public class TechnicalOfficialReader {
         headerMap.put(ACTIVE, ACTIVE);
         
         // Map English translations to constants (always accept English)
-        headerMap.put(Translator.translate("TechnicalOfficial.LastName", Locale.ENGLISH), LAST_NAME);
-        headerMap.put(Translator.translate("TechnicalOfficial.FirstName", Locale.ENGLISH), FIRST_NAME);
-        headerMap.put(Translator.translate("TechnicalOfficial.Level", Locale.ENGLISH), LEVEL);
-        headerMap.put(Translator.translate("TechnicalOfficial.IWFId", Locale.ENGLISH), IWF_ID);
-        headerMap.put(Translator.translate("TechnicalOfficial.Federation", Locale.ENGLISH), FEDERATION);
-        headerMap.put(Translator.translate("TechnicalOfficial.FederationId", Locale.ENGLISH), FEDERATION_ID);
-        headerMap.put(Translator.translate("TechnicalOfficial.Affiliation", Locale.ENGLISH), AFFILIATION);
-        headerMap.put(Translator.translate("TechnicalOfficial.Role", Locale.ENGLISH), ROLE);
-        headerMap.put(Translator.translate("TechnicalOfficial.Active", Locale.ENGLISH), ACTIVE);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.LastName", Locale.ENGLISH), LAST_NAME);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.FirstName", Locale.ENGLISH), FIRST_NAME);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Level", Locale.ENGLISH), LEVEL);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.IWFId", Locale.ENGLISH), IWF_ID);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Federation", Locale.ENGLISH), FEDERATION);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.FederationId", Locale.ENGLISH), FEDERATION_ID);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Affiliation", Locale.ENGLISH), AFFILIATION);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Role", Locale.ENGLISH), ROLE);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Active", Locale.ENGLISH), ACTIVE);
         
         // Map local translations to constants
         headerMap.put(Translator.translate("TechnicalOfficial.LastName"), LAST_NAME);
@@ -117,12 +117,19 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translate("TechnicalOfficial.Role"), ROLE);
         headerMap.put(Translator.translate("TechnicalOfficial.Active"), ACTIVE);
         
+        List<String> unmatchedHeaders = new ArrayList<>();
+        List<String> matchedHeaders = new ArrayList<>();
+        
         for (Cell cell : headerRow) {
             String header = cell.getStringCellValue().trim();
+            if (header.isEmpty()) {
+                continue; // Skip empty headers
+            }
             int colIndex = cell.getColumnIndex();
             
             String constant = headerMap.get(header);
             if (constant != null) {
+                matchedHeaders.add(header);
                 switch (constant) {
                     case LAST_NAME:
                         indices[0] = colIndex;
@@ -152,7 +159,37 @@ public class TechnicalOfficialReader {
                         indices[8] = colIndex;
                         break;
                 }
+            } else {
+                unmatchedHeaders.add(header);
             }
+        }
+        
+        // Report unmatched headers as warnings
+        if (!unmatchedHeaders.isEmpty()) {
+            String warning = "Warning: Unmatched headers in technical official file: " + String.join(", ", unmatchedHeaders);
+            logger.warn(warning);
+            if (errors != null) {
+                errors.append(warning).append("\n");
+            }
+        }
+        
+        // Log matched headers for debugging
+        if (!matchedHeaders.isEmpty()) {
+            logger.trace("Matched headers: {}", String.join(", ", matchedHeaders));
+        }
+        
+        // Check for required columns
+        List<String> missingColumns = new ArrayList<>();
+        if (indices[0] == -1) missingColumns.add("LastName");
+        if (indices[1] == -1) missingColumns.add("FirstName");
+        
+        if (!missingColumns.isEmpty()) {
+            String error = "Missing required columns in technical official file: " + String.join(", ", missingColumns);
+            logger.error(error);
+            if (errors != null) {
+                errors.append(error).append("\n");
+            }
+            throw new IllegalArgumentException(error);
         }
         
         return indices;
@@ -231,7 +268,7 @@ public class TechnicalOfficialReader {
         for (TOLevel level : TOLevel.values()) {
             if (levelStr.equals(level.name()) ||
                 levelStr.equals(Translator.translate("TOLevel." + level.name())) ||
-                levelStr.equals(Translator.translate("TOLevel." + level.name(), Locale.ENGLISH))) {
+                levelStr.equals(Translator.translateExplicitLocale("TOLevel." + level.name(), Locale.ENGLISH))) {
                 return level;
             }
         }
@@ -242,7 +279,7 @@ public class TechnicalOfficialReader {
         for (TechnicalOfficial.Role role : TechnicalOfficial.Role.values()) {
             if (roleStr.equals(role.name()) ||
                 roleStr.equals(Translator.translate("TO.Role." + role.name())) ||
-                roleStr.equals(Translator.translate("TO.Role." + role.name(), Locale.ENGLISH))) {
+                roleStr.equals(Translator.translateExplicitLocale("TO.Role." + role.name(), Locale.ENGLISH))) {
                 return role;
             }
         }
@@ -259,6 +296,6 @@ public class TechnicalOfficialReader {
                normalized.equals("y") || 
                normalized.equals("1") ||
                normalized.equals(Translator.translate("Yes").toLowerCase()) ||
-               normalized.equals(Translator.translate("Yes", Locale.ENGLISH).toLowerCase());
+               normalized.equals(Translator.translateExplicitLocale("Yes", Locale.ENGLISH).toLowerCase());
     }
 }

@@ -20,8 +20,11 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
@@ -36,6 +39,7 @@ import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import org.vaadin.crudui.crud.CrudOperation;
 
 /**
  * Class CoachContent.
@@ -46,6 +50,31 @@ import ch.qos.logback.classic.Logger;
 @Route(value = "preparation/coaches", layout = OwlcmsLayout.class)
 public class CoachContent extends BaseContent implements CrudListener<Coach>, OwlcmsContent {
 
+    /**
+     * Custom CrudGrid to handle focus management after save operations
+     */
+    private final class CoachCrudGrid extends OwlcmsCrudGrid<Coach> {
+        
+        private CoachCrudGrid(Class<Coach> domainType, OwlcmsGridLayout crudLayout,
+                OwlcmsCrudFormFactory<Coach> owlcmsCrudFormFactory, Grid<Coach> grid) {
+            super(domainType, crudLayout, owlcmsCrudFormFactory, grid);
+        }
+
+        @Override
+        protected void saveCallBack(OwlcmsCrudGrid<Coach> owlcmsCrudGrid, String successMessage,
+                CrudOperation operation, Coach coach) {
+            try {
+                owlcmsCrudGrid.getGrid().asSingleSelect().clear();
+                owlcmsCrudGrid.getOwlcmsGridLayout().hideForm();
+                refreshGrid();
+                Notification.show(successMessage);
+                focusOutsideThenBackToTriggeringItem();
+            } catch (Exception e) {
+                logger.error("Error in save callback", e);
+            }
+        }
+    }
+
     final static Logger logger = (Logger) LoggerFactory.getLogger(CoachContent.class);
     static {
         logger.setLevel(Level.INFO);
@@ -54,10 +83,14 @@ public class CoachContent extends BaseContent implements CrudListener<Coach>, Ow
     private OwlcmsLayout routerLayout;
     private FlexLayout topBar;
     private GridCrud<Coach> crud;
+    private Grid<Coach> grid;
+    private TextField lastNameFilter = new TextField();
+    private String lastNameValue;
 
     public CoachContent() {
         OwlcmsCrudFormFactory<Coach> crudFormFactory = createFormFactory();
         crud = createGrid(crudFormFactory);
+        defineFilters(crud);
         fillHW(crud, this);
     }
 
@@ -124,7 +157,20 @@ public class CoachContent extends BaseContent implements CrudListener<Coach>, Ow
 
     @Override
     public Collection<Coach> findAll() {
-        return CoachRepository.findAll();
+        Collection<Coach> coaches = CoachRepository.findAll();
+        
+        // Apply last name filter if present
+        if (lastNameValue != null && !lastNameValue.trim().isEmpty()) {
+            String filterLower = lastNameValue.toLowerCase().trim();
+            coaches = coaches.stream()
+                .filter(coach -> {
+                    String lastName = coach.getLastName();
+                    return lastName != null && lastName.toLowerCase().contains(filterLower);
+                })
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        return coaches;
     }
 
     @Override
@@ -156,18 +202,34 @@ public class CoachContent extends BaseContent implements CrudListener<Coach>, Ow
         ((CoachEditingFormFactory) crudFormFactory).coachLayout();
     }
 
-    protected GridCrud<Coach> createGrid(OwlcmsCrudFormFactory<Coach> crudFormFactory) {
-        Grid<Coach> grid = new Grid<>(Coach.class, false);
-        grid.getThemeNames().add("row-stripes");
-        grid.addColumn(Coach::getFullName).setHeader(Translator.translate("Name"));
-        grid.addColumn(Coach::getTeam).setHeader(Translator.translate("Team"));
-        grid.addColumn(Coach::getMembershipId).setHeader(Translator.translate("Membership"));
-
-        GridCrud<Coach> crud = new OwlcmsCrudGrid<>(Coach.class, new OwlcmsGridLayout(Coach.class),
-                crudFormFactory, grid);
+	protected GridCrud<Coach> createGrid(OwlcmsCrudFormFactory<Coach> crudFormFactory) {
+        this.grid = new Grid<>(Coach.class, false);
+        this.grid.getThemeNames().add("row-stripes");
+        this.grid.addColumn(Coach::getLastName).setHeader(Translator.translate("LastName"));
+        this.grid.addColumn(Coach::getFirstName).setHeader(Translator.translate("FirstName"));
+        this.grid.addColumn(Coach::getTeam).setHeader(Translator.translate("Team"));
+        this.grid.addColumn(Coach::getMembershipId).setHeader(Translator.translate("Membership"));        GridCrud<Coach> crud = new CoachCrudGrid(Coach.class, new OwlcmsGridLayout(Coach.class),
+                crudFormFactory, this.grid);
         crud.setCrudListener(this);
         crud.setClickRowToUpdate(true);
         return crud;
+    }
+
+    /**
+     * The filters at the top of the crudGrid
+     *
+     * @param crud the crudGrid that will be filtered.
+     */
+    protected void defineFilters(GridCrud<Coach> crud) {
+        this.lastNameFilter.setPlaceholder(Translator.translate("LastName"));
+        this.lastNameFilter.setClearButtonVisible(true);
+        this.lastNameFilter.setValueChangeMode(ValueChangeMode.EAGER);
+        this.lastNameFilter.addValueChangeListener(e -> {
+            this.lastNameValue = e.getValue();
+            crud.refreshGrid();
+        });
+        this.lastNameFilter.setWidth("15em");
+        crud.getCrudLayout().addFilterComponent(this.lastNameFilter);
     }
 
     private OwlcmsCrudFormFactory<Coach> createFormFactory() {
