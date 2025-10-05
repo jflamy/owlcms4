@@ -71,6 +71,9 @@ public class OwlcmsSession {
 						country = locale.getCountry();
 						locale = new Locale(forcedLocale.getLanguage(), country);
 						//logger.debug("adding country from browser {}", locale);
+						currentUi.setLocale(locale);
+						setAttribute(LOCALE, locale);
+						return locale;
 					} else {
 						// forced locale not improved with a country
 						//logger.debug("cannot add country from browser {}", forcedLocale, country);
