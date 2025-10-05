@@ -10,6 +10,12 @@
 
 <br>
 
+**Change Log**
+
+62.0.0-beta02: Fixed Import of Coaches and TechnicalOfficials with respect to headers being translated
+
+62.0.0-beta02: Forcing the language to a language with a country dialect (fr_CA, pt_BR) did not work as expected.
+
 **New in Release 62.0**
 
 62.0.0: Experimental capability to produce credentials for Athletes, Coaches and TOs, with pictures/logos/flags.

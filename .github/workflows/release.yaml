@@ -6,10 +6,6 @@ on:
       revision:
         description: 'semver number for the release'
         required: true
-# checklist
-# - pull in translations and proofread
-# - run AllTests locally
-# - Release Notes
         default: '62.0.0-beta02'
       buildImages:
         description: 'Build and push Docker images (set to "false" to skip)'
