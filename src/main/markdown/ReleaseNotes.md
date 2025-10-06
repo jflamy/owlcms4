@@ -12,7 +12,7 @@
 
 **Change Log**
 
-62.0.0-beta04: nogrid style background back to black after accidental change to blue
+62.0.0-rc01: nogrid style background back to black after accidental change to blue
 
 62.0.0-beta03: Ensured that F or W is consistently used for female categories according to the default language of the database
 
