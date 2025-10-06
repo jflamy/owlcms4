@@ -51,6 +51,7 @@ import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.RegexpValidator;
 
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
@@ -419,6 +420,15 @@ public class ConfigEditingFormFactory
 		defaultLocaleField.setItems(new ListDataProvider<>(Translator.getAllAvailableLocales()));
 		defaultLocaleField.setItemLabelGenerator((locale) -> locale.getDisplayName(locale));
 		this.binder.forField(defaultLocaleField).bind(Config::getDefaultLocale, Config::setDefaultLocale);
+		defaultLocaleField.addValueChangeListener(event -> {
+			if (!event.isFromClient()) {
+				return;
+			}
+			Locale newLocale = event.getValue();
+			Translator.setForcedLocale(newLocale);
+			Gender.initPublicGenderCodeMapString(newLocale != null ? newLocale : Locale.ENGLISH);
+			this.logger.info("Setting forced locale {} {}", newLocale, Translator.getForcedLocale());
+		});
 		layout.addFormItem(defaultLocaleField, Translator.translate("Competition.defaultLocale"));
 
 		return layout;

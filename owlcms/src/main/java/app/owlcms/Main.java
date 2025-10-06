@@ -115,8 +115,6 @@ public class Main {
         }
         // check for database override of resource files
         Config.initConfig();
-        Locale l = overrideDisplayLanguage();
-        Gender.initPublicGenderCodeMapString(l != null ? l : Locale.ENGLISH);
 
         // Run UTC normalization migration after JPAService and Config are initialized
         JPAService.runInTransaction(em -> {
@@ -134,9 +132,14 @@ public class Main {
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
 
         long now = System.currentTimeMillis();
+
         // read locale from database and override if needed
         Locale l = overrideDisplayLanguage();
+        // before injectData as it may create/migrate categories
+        Gender.initPublicGenderCodeMapString(l != null ? l : Locale.ENGLISH);
         injectData(initialData, l);
+
+
         Competition.recomputeAllAthleteRanks();
         overrideTimeZone();
         logger.info("Initialized data ({} ms)", System.currentTimeMillis() - now);
@@ -367,7 +370,7 @@ public class Main {
                 }
             } else {
                 // migrations and other changes
-                logger.info("database not empty: {}", allCompetitions.get(0).getCompetitionName());
+                logger.info("Database not empty: {}", allCompetitions.get(0).getCompetitionName());
                 List<AgeGroup> ags = AgeGroupRepository.findAll();
                 if (ags.isEmpty()) {
                     logger.info("Creating age groups and categories");
@@ -385,15 +388,6 @@ public class Main {
                     logger.debug("adding config object");
                     Config.setCurrent(new Config());
                 }
-
-//				int nbParts = CategoryRepository.countParticipations();
-//				if (nbParts == 0
-//				        && AthleteRepository.countFiltered(null, null, null, null, null, null, null, null) > 0) {
-//					// database has athletes, but no participations. 4.22 and earlier.
-//					// need to create Participation entries for the Athletes.
-//					logger.debug("updating database: computing athlete eligibility to age groups and categories.");
-//					AthleteRepository.resetParticipations(false, true);
-//				}
 
                 List<Category> nullCodeCategories = CategoryRepository.findNullCodes();
                 if (!nullCodeCategories.isEmpty()) {
@@ -414,6 +408,7 @@ public class Main {
         Locale l = null;
         try {
             l = Config.getCurrent().getDefaultLocale();
+            //logger.debug("Config.getCurrent().getDefaultLocale() returned {} {}", l, LoggerUtils.whereFrom());
         } catch (Exception e) {
         }
 
