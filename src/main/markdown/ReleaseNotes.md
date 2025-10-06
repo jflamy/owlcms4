@@ -12,6 +12,8 @@
 
 **Change Log**
 
+62.0.0-beta04: nogrid style background back to black after accidental change to blue
+
 62.0.0-beta03: Ensured that F or W is consistently used for female categories according to the default language of the database
 
 62.0.0-beta02: Fixed Import of Coaches and Technical Officials Excel files to correctly interpret translated headers
