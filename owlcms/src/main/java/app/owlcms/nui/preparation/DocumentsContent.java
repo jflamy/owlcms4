@@ -1763,8 +1763,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	        throws IOException {
 		// always called with a single template
 		// for items that are one per session, selected sessions will be non-empty.
-		System.err.println("*** excelKitElement for " + (elements == null ? "null" : elements.size()) + " elements and "
-		        + (selectedSessions == null ? "null" : selectedSessions.size()) + " sessions");
+		logger.warn("*** excelKitElement for {} elements and {} sessions {}",
+		        (elements == null ? "null" : elements.size()),
+		        (selectedSessions == null ? "null" : selectedSessions.size()),
+		        LoggerUtils.whereFrom());
 
 		Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
 		KitElement elem = elements.get(0);
@@ -1774,12 +1776,14 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			athletes = groupAthletes(g, true);
 		}
 
-		System.err.println("g = " + g + " athletes = " + (athletes == null ? "null" : athletes.size()) + " for element " + elem.id());
-		// logger removed
+		logger.warn("g = {} athletes = {} for element {} {}", g,
+		        (athletes == null ? "null" : athletes.size()),
+		        elem.id(),
+		        LoggerUtils.whereFrom());
 
 		// writerFactory can apply custom sorting order to the athletes
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory().apply(athletes, g);
-		System.err.println("*** excelKitElement created " + xlsWriter);
+		logger.warn("*** excelKitElement created {} {}", xlsWriter, LoggerUtils.whereFrom());
 		xlsWriter.setUi(ui);
 		if (xlsWriter.getSortedAthletes() == null) {
 			// writerFactory did not set them explicitly, set default
