@@ -1,6 +1,6 @@
 /* modern style dark mode without borders */
 * {
-    --pageBackgroundColor: darkblue;
+    --pageBackgroundColor: black;
     --pageTextColor: white;
     --blockBackgroundColor: var(--pageBackgroundColor);
 
