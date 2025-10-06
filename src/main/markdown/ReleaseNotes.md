@@ -12,9 +12,11 @@
 
 **Change Log**
 
-62.0.0-beta02: Fixed Import of Coaches and TechnicalOfficials with respect to headers being translated
+62.0.0-beta03: The default language for the database is always used for translating the gender in displayed and exported category codes. In this way, all sessions and all printouts will have either W or F depending on the translation chosen for that language.
 
-62.0.0-beta02: Forcing the language to a language with a country dialect (fr_CA, pt_BR) did not work as expected.
+62.0.0-beta02: Fixed Import of Coaches and Technical Officials Excel files to correctly interpret translated headers
+
+62.0.0-beta02: Forcing the default language to a language with a country dialect (fr_CA, pt_BR) did not work as expected.
 
 **New in Release 62.0**
 
