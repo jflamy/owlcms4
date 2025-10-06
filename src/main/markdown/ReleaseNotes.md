@@ -12,13 +12,15 @@
 
 **Change Log**
 
-62.0.0-beta03: The default language for the database is always used for translating the gender in displayed and exported category codes. In this way, all sessions and all printouts will have either W or F depending on the translation chosen for that language.
+62.0.0-beta03: Ensured that F or W is consistently used for female categories according to the default language of the database
 
 62.0.0-beta02: Fixed Import of Coaches and Technical Officials Excel files to correctly interpret translated headers
 
 62.0.0-beta02: Forcing the default language to a language with a country dialect (fr_CA, pt_BR) did not work as expected.
 
 **New in Release 62.0**
+
+62.0.0-beta03: The default language for the database is always used for translating the gender in displayed and exported category codes. In this way, all sessions and all printouts will have either W or F depending on the translation chosen for that language (this does not apply when the code is explicitly gendered)
 
 62.0.0: Experimental capability to produce credentials for Athletes, Coaches and TOs, with pictures/logos/flags.
 
