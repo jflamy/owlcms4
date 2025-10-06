@@ -233,7 +233,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				try {
 					out.close();
 				} catch (IOException e) {
-					logger.warn("Error closing piped output stream", e);
+					logger.error("Error closing piped output stream", e);
 				}
 			}
 		}, "JXLSWorkbookStreamSource-writer");
@@ -674,7 +674,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				logger.debug("after postprocess");
 				} else {
 					String localized = Translator.translate("NoAthletes");
-					logger.warn("no athletes: empty report.");
+					logger./**/warn("No athletes: empty report.");
 					// treat as a validation failure -> stop processing and let caller handle the error
 					throw new StopProcessingException("NoAthletes", new RuntimeException(localized));
 				}

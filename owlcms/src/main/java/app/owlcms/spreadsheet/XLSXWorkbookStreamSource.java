@@ -94,7 +94,7 @@ public abstract class XLSXWorkbookStreamSource implements InputStreamFactory {
 			} finally {
 				// Defensive cleanup of thread-local state
 				try { OwlcmsSessionThreadLocal.remove(); } catch (Throwable ignore) {}
-				try { out.close(); } catch (IOException e) { logger.warn("Error closing piped output stream", e); }
+				try { out.close(); } catch (IOException e) { logger.error("Error closing piped output stream", e); }
 			}
 		}, "XLSXWorkbookStreamSource-writer");
 		writerThread.setDaemon(true);

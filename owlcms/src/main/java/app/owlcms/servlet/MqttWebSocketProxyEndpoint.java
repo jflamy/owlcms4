@@ -37,7 +37,7 @@ public class MqttWebSocketProxyEndpoint {
             // Ensure database and application initialization completed before handling incoming proxy opens
             OwlcmsFactory.waitDBInitialized();
         } catch (Throwable t) {
-            logger.warn("Error while waiting for DB initialization: {}", t.getMessage());
+            logger.error("Error while waiting for DB initialization: {}", t.getMessage());
         }
         try {
             logger.debug("Client negotiated subprotocol: {}", session.getNegotiatedSubprotocol());
@@ -46,7 +46,7 @@ public class MqttWebSocketProxyEndpoint {
                 session.setMaxIdleTimeout(app.owlcms.jetty.EmbeddedJetty.PROXY_TIMEOUT_DEFAULT_MS);
                 logger.debug("Set client session max idle timeout to {} ms", app.owlcms.jetty.EmbeddedJetty.PROXY_TIMEOUT_DEFAULT_MS);
             } catch (Throwable t) {
-                logger.warn("Unable to set inbound session idle timeout: {}", t.getMessage());
+                logger.error("Unable to set inbound session idle timeout: {}", t.getMessage());
             }
             // WebSocket proxy uses default timeout - MQTT keepalive is handled by Moquette broker
             String target = StartupUtils.getStringParam("mqttWsTarget");

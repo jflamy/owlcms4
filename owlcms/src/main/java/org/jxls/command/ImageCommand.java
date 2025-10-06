@@ -224,7 +224,7 @@ public class ImageCommand extends AbstractCommand {
                     imageBytes = addBorderToImage(imageBytes, 2, Color.BLACK, fmt);
                 }
             } catch (Exception e) {
-                logger.warn("Could not apply border to image: {}", e.getMessage());
+                logger.error("Could not apply border to image: {}", e.getMessage());
             }
         }
         int poiPictureType = findPoiPictureTypeByImageType(imageType);
@@ -411,11 +411,11 @@ public class ImageCommand extends AbstractCommand {
             // For bottom-right, convert exclusive indices to inclusive Excel cell
             String bottomRightCell = toExcelCell(Math.max(0, aCol2 - 1), Math.max(0, aRow2 - 1));
 
-            logger.warn(
-                    "image {} scaled to {}x{} px (from {}x{}), anchor top-left={} dx1={}px ({}EMU) dy1={}px ({}EMU), anchor bottom-right={} dx2={}px ({}EMU) dy2={}px ({}EMU)",
-                    src != null ? src : "inline", scaledW, scaledH, realW, realH,
-                    topLeftCell, String.format("%.2f", dx1px), dx1emu, String.format("%.2f", dy1px), dy1emu,
-                    bottomRightCell, String.format("%.2f", dx2px), dx2emu, String.format("%.2f", dy2px), dy2emu);
+            //logger.debug(
+                    // "image {} scaled to {}x{} px (from {}x{}), anchor top-left={} dx1={}px ({}EMU) dy1={}px ({}EMU), anchor bottom-right={} dx2={}px ({}EMU) dy2={}px ({}EMU)",
+                    // src != null ? src : "inline", scaledW, scaledH, realW, realH,
+                    // topLeftCell, String.format("%.2f", dx1px), dx1emu, String.format("%.2f", dy1px), dy1emu,
+                    // bottomRightCell, String.format("%.2f", dx2px), dx2emu, String.format("%.2f", dy2px), dy2emu);
 
             // Diagnostic: compute the pixel extent of the anchor (left/right/top/bottom)
             try {
@@ -424,10 +424,10 @@ public class ImageCommand extends AbstractCommand {
                 logger.debug("anchor pixel extent width={}px height={}px (scaled image {}x{})", String.format("%.2f", anchorWidthPx),
                         String.format("%.2f", anchorHeightPx), scaledW, scaledH);
             } catch (Exception e) {
-                logger.warn("Could not compute anchor pixel extents: {}", e.getMessage());
+                logger.error("Could not compute anchor pixel extents: {}", e.getMessage());
             }
         } catch (Exception e) {
-            logger.warn("Could not log anchor/size details: {}", e.getMessage());
+            logger.error("Could not log anchor/size details: {}", e.getMessage());
         }
     }
 
@@ -688,7 +688,7 @@ public class ImageCommand extends AbstractCommand {
                 computeRows = false;
             } catch (NumberFormatException nfe) {
                // ignore and log
-               logger.warn("Could not parse ptHeight value '{}', will compute height from rows", ptHeight);
+               logger./**/warn("Could not parse ptHeight value '{}', will compute height from rows", ptHeight);
             }
         } 
         if (computeRows) {

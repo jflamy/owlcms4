@@ -830,7 +830,7 @@ public class NRegistrationFileProcessor {
 						if (errorConsumer != null) {
 							errorConsumer.accept(msg);
 						}
-						this.logger.warn("Unknown header: {} (sheet={} row={})", trimmedCellValue, row.getSheet().getSheetName(), iRow);
+						this.logger./**/warn("Unknown header: {} (sheet={} row={})", trimmedCellValue, row.getSheet().getSheetName(), iRow);
 					}
 				}
 				if (athleteHeaderStopColumn == Integer.MAX_VALUE) {
@@ -942,7 +942,7 @@ public class NRegistrationFileProcessor {
 				if (lastName != null && firstName != null && !lastName.isBlank() && !firstName.isBlank()) {
 					athletes.add(ra);
 				} else {
-					this.logger.warn("readAthletes: skipping rowIndex={} missing names last='{}' first='{}'", iRow, lastName, firstName);
+					this.logger./**/warn("readAthletes: skipping rowIndex={} missing names last='{}' first='{}'", iRow, lastName, firstName);
 				}
 			}
 

@@ -66,7 +66,7 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 			ContainerProvider.getWebSocketContainer().setDefaultMaxSessionIdleTimeout(EmbeddedJetty.PROXY_TIMEOUT_DEFAULT_MS);
 			startLogger.info("Configured WebSocketContainer defaultMaxSessionIdleTimeout={} ms (conservative default)", EmbeddedJetty.PROXY_TIMEOUT_DEFAULT_MS);
 		} catch (Throwable t) {
-			startLogger.warn("Unable to set WebSocketContainer default timeout at startup: {}", t.getMessage());
+			startLogger.error("Unable to set WebSocketContainer default timeout at startup: {}", t.getMessage());
 		}
 		startLogger.info("started on port {}", this.getPort());
 	}

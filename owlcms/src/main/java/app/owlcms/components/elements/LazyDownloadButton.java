@@ -295,7 +295,7 @@ public class LazyDownloadButton extends Button {
 					        }, new TransferProgressListener() {
 						        @Override
 						        public void onStart(TransferContext tc) {
-							        logger.warn("download starting in UI {}", optionalUI.get());
+							        //logger.debug("download starting in UI {}", optionalUI.get());
 							        if (notification != null && !notification.isOpened()) {
 								        notification.open();
 							        }

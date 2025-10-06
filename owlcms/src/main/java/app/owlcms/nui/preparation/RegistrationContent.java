@@ -1078,11 +1078,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 
 	private void logComparison(int compare, Athlete a1, Athlete a2, String string) {
 		if (compare == 0) {
-			//logger.warn("({}) {} = {}", string, athleteLog(a1), athleteLog(a2));
+			//logger.debug("({}) {} = {}", string, athleteLog(a1), athleteLog(a2));
 		} else if (compare < 0) {
-			//logger.warn("({}) {} < {}", string, athleteLog(a1), athleteLog(a2));
+			//logger.debug("({}) {} < {}", string, athleteLog(a1), athleteLog(a2));
 		} else if (compare > 0) {
-			//logger.warn("({}) {} > {}", string, athleteLog(a1), athleteLog(a2));
+			//logger.debug("({}) {} > {}", string, athleteLog(a1), athleteLog(a2));
 		}
 	}
 

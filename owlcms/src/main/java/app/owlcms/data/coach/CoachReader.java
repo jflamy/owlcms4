@@ -130,7 +130,7 @@ public class CoachReader {
         // Report unmatched headers as warnings
         if (!unmatchedHeaders.isEmpty()) {
             String warning = "Warning: Unmatched headers in coach file: " + String.join(", ", unmatchedHeaders);
-            logger.warn(warning);
+            logger./**/warn(warning);
             if (errors != null) {
                 errors.append(warning).append("\n");
             }

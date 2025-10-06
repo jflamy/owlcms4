@@ -121,7 +121,7 @@ public class DownloadButtonFactory {
 		notification.setPosition(Position.TOP_END);
 		xlsSource.setDoneCallback((t) -> xlsSource.getUi().access(() -> {
 			if (t == null) {
-				logger.warn("XLSX generation done");
+				//logger.debug("XLSX generation done");
 				notification.close();
 			} else {
 				String msg = t.getMessage() == null ? Translator.translate("Download.failed") : t.getMessage();
