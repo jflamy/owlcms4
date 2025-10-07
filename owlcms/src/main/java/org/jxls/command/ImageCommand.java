@@ -407,9 +407,9 @@ public class ImageCommand extends AbstractCommand {
             double dy2px = dy2emu / 9525.0;
 
             // Note: anchor offsets are relative to the top-left corner of the anchor cell.
-            String topLeftCell = toExcelCell(aCol1, aRow1);
+            //String topLeftCell = toExcelCell(aCol1, aRow1);
             // For bottom-right, convert exclusive indices to inclusive Excel cell
-            String bottomRightCell = toExcelCell(Math.max(0, aCol2 - 1), Math.max(0, aRow2 - 1));
+            //String bottomRightCell = toExcelCell(Math.max(0, aCol2 - 1), Math.max(0, aRow2 - 1));
 
             //logger.debug(
                     // "image {} scaled to {}x{} px (from {}x{}), anchor top-left={} dx1={}px ({}EMU) dy1={}px ({}EMU), anchor bottom-right={} dx2={}px ({}EMU) dy2={}px ({}EMU)",
