@@ -71,7 +71,7 @@ public class PlatformRepository {
 			groups.stream().forEach(g -> {
 				String platformName = g.getPlatform();
 				Group group = g.getGroup();
-				if (platformName != null && !checkPlatforms.contains(platformName)) {
+				if (platformName != null && !platformName.isBlank() && !checkPlatforms.contains(platformName)) {
 					Platform np = new Platform();
 					np.setName(platformName);
 					group.setPlatform(np);

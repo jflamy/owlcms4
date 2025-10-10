@@ -12,11 +12,15 @@
 
 **Maintenance Log**
 
-60.0.1: Fixes for an issue that would prevent registration and weighin listings of athletes when some had no registration and eligibility categories set
+61.0.2: Not entering platforms on the registration Excel would cause a "blank" platform to be created that would prevent the system from starting
 
-60.0.1: Adding the snatch and c&j declaration columns to the registration file did not work - the column name lookup was broken.
+61.0.2: Restored the black background for scoreboards
 
-60.0.1: Fix for the list of athlete results not being available when multiple open categories overlapped exactly
+61.0.1: Fixes for an issue that would prevent registration and weighin listings of athletes when some had no registration and eligibility categories set
+
+61.0.1: Adding the snatch and c&j declaration columns to the registration file did not work - the column name lookup was broken.
+
+61.0.1: Fix for the list of athlete results not being available when multiple open categories overlapped exactly
 
 
 **New in Release 61.0**
