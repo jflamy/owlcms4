@@ -6,9 +6,11 @@
  *******************************************************************************/
 package app.owlcms.monitors;
 
+import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -28,6 +30,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -51,6 +54,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
@@ -599,6 +603,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			// we need to wait until after the decision is shown and reset.
 			doBreak(e, g);
 		}
+		
+		// Send full competition database to video source at end of group
+		Config current = Config.getCurrent();
+		String videoUrl = current.getParamVideoDataUpdateUrl();
+		String updateKey = current.getParamVideoDataKey();
+		if (videoUrl != null && updateKey != null) {
+			sendFullCompetitionData(videoUrl, updateKey);
+		}
 	}
 
 	@Subscribe
@@ -663,6 +675,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				doUpdate(e.getAthlete(), e);
 		}
 		pushUpdate(e);
+		
+		// Send full competition database to video source on switch group
+		Config current = Config.getCurrent();
+		String videoUrl = current.getParamVideoDataUpdateUrl();
+		String updateKey = current.getParamVideoDataKey();
+		if (videoUrl != null && updateKey != null) {
+			sendFullCompetitionData(videoUrl, updateKey);
+		}
 	}
 
 	@Override
@@ -1208,6 +1228,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 								        LoggerUtils.whereFrom(1));
 								sendConfig(url, updateKey);
 								nbTries++;
+							} else if (nbTries == 0 && statusCode != null && statusCode == 428) {
+								logger.warn("{}hub returned 428 - sending full competition data {} {} {}",
+								        FieldOfPlay.getLoggingName(getFop()), url,
+								        statusLine,
+								        LoggerUtils.whereFrom(1));
+								sendFullCompetitionData(url, updateKey);
+								nbTries++;
 							} else {
 								logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
 								        statusLine,
@@ -1319,11 +1346,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
 		String category;
 		category = curCat != null ? curCat.getNameWithAgeGroup() : "";
+		ja.put("id", a.getId() != null ? a.getId().toString() : "");
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
+		ja.put("gender", a.getGender() != null ? a.getGender().toString() : "");
 		Integer startNumber = a.getStartNumber();
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
+		Integer lotNumber = a.getLotNumber();
+		ja.put("lotNumber", (lotNumber != null ? lotNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank);
 		ja.put("sattempts", this.sattempts);
@@ -1655,6 +1686,97 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			} catch (Exception e2) {
 				logger.error("{}could not send config to {} {}", FieldOfPlay.getLoggingName(getFop()), destination, e2);
 			}
+		}
+	}
+
+	private void sendFullCompetitionData(String url, String updateKey) {
+		logger.warn("{}sendFullCompetitionData called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+		
+		if (url == null || updateKey == null) {
+			logger.error("cannot send full competition data, url or updateKey is null - url:{}, updateKey:{}", url, updateKey);
+			return;
+		}
+		
+		try {
+			// ALWAYS construct the database endpoint URL - extract base URL and add /database
+			String baseUrl = url;
+			// Remove any path after the port/host
+			if (baseUrl.contains("://")) {
+				String[] parts = baseUrl.split("://");
+				if (parts.length == 2) {
+					String protocol = parts[0];
+					String hostPart = parts[1];
+					// Find the first slash after the host:port
+					int slashIndex = hostPart.indexOf('/');
+					if (slashIndex != -1) {
+						hostPart = hostPart.substring(0, slashIndex);
+					}
+					baseUrl = protocol + "://" + hostPart;
+				}
+			}
+			String databaseUrl = baseUrl + "/database";
+			logger.warn("{}ALWAYS sending to database endpoint: {} (from original: {})", 
+			        FieldOfPlay.getLoggingName(getFop()), databaseUrl, url);
+			HttpPost post = new HttpPost(databaseUrl);
+
+			// Get the complete competition data using the same method as the application buttons
+			CompetitionData competitionData = new CompetitionData();
+			
+			String fullCompetitionJson;
+			try (InputStream inputStream = competitionData.exportData()) {
+				// Jackson uses UTF-8 by default when writing JSON to OutputStream
+				// Convert InputStream to String using UTF-8 (Jackson's default)
+				fullCompetitionJson = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+			} catch (Exception e) {
+				logger.error("{}failed to export competition data: {}", 
+				        FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(e));
+				return;
+			}
+			
+			logger.warn("{}generated competition data JSON: {} characters", 
+			        FieldOfPlay.getLoggingName(getFop()), fullCompetitionJson.length());
+
+			// Send the raw JSON data directly
+			post.setHeader("Content-Type", "application/json; charset=UTF-8");
+			post.setEntity(new StringEntity(fullCompetitionJson, "UTF-8"));
+			
+			logger.warn("{}posting raw JSON to database endpoint {}", 
+			        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
+			
+			try (CloseableHttpClient httpClient = HttpClients.createDefault();
+			        CloseableHttpResponse response = httpClient.execute(post)) {
+				StatusLine statusLine = response.getStatusLine();
+				Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+				if (statusCode != null && statusCode != 200) {
+					if (statusCode == 404) {
+						// 404 means the endpoint doesn't exist - this is expected/innocuous
+						logger./**/warn("{}database endpoint not available at {} - 404 Not Found (endpoint not implemented)", 
+						        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
+					} else if (statusCode >= 500) {
+						// 5xx server errors are actual errors
+						logger.error("{}server error sending to database endpoint {} - response: {}", 
+						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
+					} else if (statusCode >= 400) {
+						// Other 4xx client errors (400, 401, 403, etc.) are errors
+						logger.error("{}client error sending to database endpoint {} - response: {}", 
+						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
+					} else {
+						// Other non-200 codes (redirects, etc.)
+						logger./**/warn("{}unexpected response from database endpoint {} - response: {}", 
+						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
+					}
+				} else {
+					logger.warn("{}successfully sent full competition data to database endpoint {} - response: 200 OK", 
+					        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
+				}
+				EntityUtils.toString(response.getEntity());
+			} catch (Exception e1) {
+				logger./**/warn("{}database endpoint not available at {} - {} (this is not fatal)", 
+				        FieldOfPlay.getLoggingName(getFop()), databaseUrl, LoggerUtils.exceptionMessage(e1));
+			}
+		} catch (Exception e2) {
+			logger./**/warn("{}could not send full competition data to {} - {} (this is not fatal)", 
+			        FieldOfPlay.getLoggingName(getFop()), url, LoggerUtils.exceptionMessage(e2));
 		}
 	}
 

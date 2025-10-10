@@ -1354,6 +1354,16 @@ public class Athlete {
 		return this.category != null ? this.getCategory().getCode() : "-";
 	}
 
+	/**
+	 * Gets the category display name safely.
+	 * 
+	 * @return the category display name, or empty string if no category is assigned
+	 */
+	@Transient  // but intentionally JSON
+	public String getCategoryName() {
+		return this.category != null ? this.getCategory().getDisplayName() : "";
+	}
+
 	@Transient
 	@JsonIgnore
 	public Boolean getCategoryFinished() {
@@ -2030,6 +2040,17 @@ public class Athlete {
 	@JsonIgnore
 	public Integer getGamxRank() {
 		return this.gamxRank;
+	}
+
+	/**
+	 * Gets the score according to the competition's global scoring system.
+	 * This method returns the appropriate score (Sinclair, QPoints, Robi, etc.)
+	 * based on the Competition.getScoringSystem() setting.
+	 *
+	 * @return the score value according to the global scoring system
+	 */
+	public Double getGlobalScore() {
+		return Ranking.getRankingValue(this, Competition.getCurrent().getScoringSystem());
 	}
 
 	/**
