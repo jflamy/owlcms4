@@ -424,8 +424,8 @@ class TimerElementPR extends LitElement {
   }
 
   _formatTime(ntime) {
-    if (ntime < 0) return "0:00";
-    var ntime = Math.round(ntime);
+    if (ntime <= 0) return "0:00";
+    var ntime = Math.ceil(ntime);
     var hours = Math.trunc(ntime / 3600);
     var minutes = Math.trunc((ntime - hours * 3600) / 60);
     var seconds = ntime - (hours * 3600 + minutes * 60);
