@@ -20,7 +20,8 @@ Yet it is simple enough to setup that you can use it to run a club or regional c
 - [Work in Progress and Priorities](https://github.com/users/jflamy/projects/2/views/7) Shows what we are working on and what is currently planned.
 
 ### Releases
-
+The installation process uses either the [control panel](https://owlcms.github.io/owlcms4/#/LocalDownloads) for local deployment, or the [cloud setup site](https://owlcms.github.io/owlcms4/#/Fly).
+The following repositories contain the files used by these mechanisms (and the release notes).
 - Stable releases are kept at https://github.com/owlcms/owlcms4/releases.
 - Preliminary releases for testing and translation are located at https://github.com/owlcms/owlcms4-prerelease/releases.
 
