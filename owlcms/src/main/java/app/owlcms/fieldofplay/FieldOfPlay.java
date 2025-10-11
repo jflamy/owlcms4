@@ -88,6 +88,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.EventForwarder;
+import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.monitors.IUnregister;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.lifting.AnnouncerContent;
@@ -226,6 +227,7 @@ public class FieldOfPlay implements IUnregister {
 	private List<Athlete> resultsOrder;
 	private boolean cjBreakDisplayed;
 	private EventForwarder eventForwarder;
+	private WebSocketEventForwarder webSocketEventForwarder;
 	private JuryDecision toBeAnnouncedJuryDecision;
 	private FieldOfPlay existingFOP;
 	private Queue<FOPEvent.WeightChange> deferredWeightChanges = new LinkedList<>();
@@ -277,6 +279,8 @@ public class FieldOfPlay implements IUnregister {
 
 		this.fopEventBus.register(this);
 		this.setEventForwarder(EventForwarder.initEventForwarderByName(this.name, this));
+		// Also initialize WebSocket forwarder for ws:// and wss:// URLs
+		this.setWebSocketEventForwarder(WebSocketEventForwarder.initEventForwarderByName(this.name, this));
 	}
 
 	public void broadcast(String string) {
@@ -405,6 +409,10 @@ public class FieldOfPlay implements IUnregister {
 
 	public EventForwarder getEventForwarder() {
 		return this.eventForwarder;
+	}
+
+	public WebSocketEventForwarder getWebSocketEventForwarder() {
+		return this.webSocketEventForwarder;
 	}
 
 	public EventBus getEventForwardingBus() {
@@ -1367,6 +1375,10 @@ public class FieldOfPlay implements IUnregister {
 		this.eventForwarder = eventForwarder;
 	}
 
+	public void setWebSocketEventForwarder(WebSocketEventForwarder webSocketEventForwarder) {
+		this.webSocketEventForwarder = webSocketEventForwarder;
+	}
+
 	/**
 	 * Sets the group.
 	 *
@@ -1499,12 +1511,17 @@ public class FieldOfPlay implements IUnregister {
 	@Override
 	public void unregister() {
 		MQTTMonitor mqttMonitor2 = this.getMqttMonitor();
-		this.logger.debug("{}unregistering event forwarder and mqtt monitor {}", getLoggingName(this),
+		this.logger.debug("{}unregistering event forwarders and mqtt monitor {}", getLoggingName(this),
 		        System.identityHashCode(mqttMonitor2));
 		this.fopEventBus.unregister(this);
 		if (this.getEventForwarder() != null) {
 			this.getEventForwarder().unregister();
 			this.setEventForwarder(null);
+		}
+		// Also unregister WebSocket forwarder
+		if (this.getWebSocketEventForwarder() != null) {
+			this.getWebSocketEventForwarder().unregister();
+			this.setWebSocketEventForwarder(null);
 		}
 		if (mqttMonitor2 != null) {
 			mqttMonitor2.unregister();
