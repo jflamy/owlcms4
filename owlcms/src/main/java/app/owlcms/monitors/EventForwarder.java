@@ -11,6 +11,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -22,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.HexFormat;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -41,6 +43,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
@@ -87,6 +94,7 @@ import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
+import elemental.json.JsonType;
 import elemental.json.JsonValue;
 
 public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
@@ -111,6 +119,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			eventForwarder.setFop(fieldOfPlay);
 			return eventForwarder;
 		}
+	}
+
+	private static ObjectMapper createObjectMapper() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		return mapper;
 	}
 
 	private boolean NO_KEEPALIVE = false;
@@ -151,7 +166,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private String groupInfo;
 	private Map<String, String> lastTimerMap;
 	private Map<String, String> lastDecisionMap;
-	private Map<String, String> lastUpdate;
+	private Map<String, Object> lastUpdate;
 	Thread keepaliveThread;
 	private boolean showLiftRanks;
 	private boolean showSinclair;
@@ -170,6 +185,30 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private String liftTypeKey;
 	Map<String, Integer> debouncingHash = new HashMap<>();
 	Map<String, Long> debouncingMillis = new HashMap<>();
+	private static final ObjectMapper JSON_MAPPER = createObjectMapper();
+	private static final class CompetitionDataExport {
+		private final Object structure;
+		private final String json;
+		private final String checksum;
+
+		private CompetitionDataExport(Object structure, String json, String checksum) {
+			this.structure = structure;
+			this.json = json;
+			this.checksum = checksum;
+		}
+
+		private Object structure() {
+			return this.structure;
+		}
+
+		private String json() {
+			return this.json;
+		}
+
+		private String checksum() {
+			return this.checksum;
+		}
+	}
 
 	private EventForwarder(String name, FieldOfPlay emittingFop) {
 		this.setForwardedFopName(name);
@@ -186,10 +225,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// String updateKey = Config.getCurrent().getParamUpdateKey();
 		String updateUrl = Config.getCurrent().getParamPublicResultsURL();
 		boolean publicResultsEnabled = false;
+		boolean publicResultsIsWebSocket = false;
 		if (updateUrl == null || updateUrl.trim().isEmpty()) {
 			logger.info("{}publicresults not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
 			publicResultsEnabled = true;
+			publicResultsIsWebSocket = updateUrl.startsWith("ws://") || updateUrl.startsWith("wss://");
 			logger.info("{}publicresults enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
 		}
 		if (emittingFop.getState() != null) {
@@ -200,22 +241,28 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// String updateKeyV = Config.getCurrent().getParamVideoDataKey();
 		String updateUrlV = Config.getCurrent().getParamVideoDataURL();
 		boolean videoResultsEnabled = false;
+		boolean videoResultsIsWebSocket = false;
 		if (updateUrlV == null || updateUrlV.trim().isEmpty()) {
-			logger.info("{}video data not enabled.", FieldOfPlay.getLoggingName(getFop()));		
+			logger.info("{}video data not enabled.", FieldOfPlay.getLoggingName(getFop()));
 		} else {
-			videoResultsEnabled = true;	
+			videoResultsEnabled = true;
+			videoResultsIsWebSocket = updateUrlV.startsWith("ws://") || updateUrlV.startsWith("wss://");
 			logger.info("{}video data enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
 		}
 		if (emittingFop.getState() != null) {
 			pushUpdate(null);
 		}
-		
+
 		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch("noForwarderKeepAlive");
+		// Disable keepalive if using WebSocket (persistent connection doesn't need keepalive)
+		if (publicResultsIsWebSocket || videoResultsIsWebSocket) {
+			this.NO_KEEPALIVE = true;
+			logger.info("{}event forwarding keepalive disabled (WebSocket protocol)", FieldOfPlay.getLoggingName(getFop()));
+		}
 		if (!publicResultsEnabled && !videoResultsEnabled) {
 			this.NO_KEEPALIVE = true;
 			logger.info("{}event forwading keepalive disabled", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
 		}
-		
 	}
 
 	/**
@@ -600,20 +647,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			setHidden(false);
 			// done is a special kind of break.
 			// the done event can be triggered when the decision is being given
-			// we need to wait until after the decision is shown and reset.
-			doBreak(e, g);
-		}
-		
-		// Send full competition database to video source at end of group
-		Config current = Config.getCurrent();
-		String videoUrl = current.getParamVideoDataUpdateUrl();
-		String updateKey = current.getParamVideoDataKey();
-		if (videoUrl != null && updateKey != null) {
-			sendFullCompetitionData(videoUrl, updateKey);
-		}
+		// we need to wait until after the decision is shown and reset.
+		doBreak(e, g);
 	}
-
-	@Subscribe
+	
+	// Database is now embedded in the update message for both HTTP and WebSocket
+}	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
 		Athlete a = e.getAthlete();
@@ -652,6 +691,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
+		logger.warn("slaveSwitchGroup: switching to group {} state {} {}",
+		        e.getGroup() != null ? e.getGroup().getName() : "null",
+		        e.getState(),
+		        LoggerUtils.whereFrom());
 		computeCurrentGroup(e.getGroup());
 		if (e.getState() == null) {
 			setHidden(true);
@@ -671,21 +714,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				}
 				break;
 			default:
-				setHidden(false);
-				doUpdate(e.getAthlete(), e);
-		}
-		pushUpdate(e);
-		
-		// Send full competition database to video source on switch group
-		Config current = Config.getCurrent();
-		String videoUrl = current.getParamVideoDataUpdateUrl();
-		String updateKey = current.getParamVideoDataKey();
-		if (videoUrl != null && updateKey != null) {
-			sendFullCompetitionData(videoUrl, updateKey);
-		}
+			setHidden(false);
+			doUpdate(e.getAthlete(), e);
 	}
-
-	@Override
+	pushUpdate(e);
+	
+	// Database is now embedded in the update message for both HTTP and WebSocket
+}	@Override
 	public void unregister() {
 		// we do nothing. We now have exactly one EventForwarder per name
 		// and we reuse it if we ever recreate the field of play
@@ -759,11 +794,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	@Subscribe
 	void slaveJuryNotification(UIEvent.JuryNotification e) {
-//		logger.debug("===== slaveJuryNotification {} new record = {} waitForAnnouncer = {} trace\n{}",
-//		        e.getDeliberationEventType(),
-//		        e.getNewRecord(),
-//		        e.isWaitForAnnouncer(),
-//		        e.getTrace());
+		// logger.debug("===== slaveJuryNotification {} new record = {} waitForAnnouncer = {} trace\n{}",
+		// e.getDeliberationEventType(),
+		// e.getNewRecord(),
+		// e.isWaitForAnnouncer(),
+		// e.getTrace());
 		uiLog(e);
 		pushDecision(e);
 	}
@@ -806,7 +841,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		computeLeaders();
 		JsonValue recordsJson = this.fop.getRecordsJson();
-		//logger.debug("setting records {}",recordsJson.toJson());
+		// logger.debug("setting records {}",recordsJson.toJson());
 		setRecords(recordsJson);
 	}
 
@@ -890,9 +925,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
 		mapPut(sb, "fop", getFop().getName());
 		setMapFopState(sb);
-		mapPut(sb, "break", String.valueOf(isBreak()));
-
-		// current athlete & attempt
+		mapPut(sb, "break", String.valueOf(isBreak())); // current athlete & attempt
 		mapPut(sb, "fullName", this.fullName);
 		mapPut(sb, "attemptNumber", this.attemptNumber != null ? this.attemptNumber.toString() : null); // 1..3
 		mapPut(sb, "liftTypeKey", this.liftTypeKey);
@@ -902,8 +935,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));
 
-		createRecord(sb);
-		//dumpMap("createDecision", event.getTrace(), sb);
+		populateRecordInfoStrings(sb);
+		// dumpMap("createDecision", event.getTrace(), sb);
 		return sb;
 	}
 
@@ -936,8 +969,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		} else if (det == JuryDeliberationEventType.START_DELIBERATION
 		        || det == JuryDeliberationEventType.END_DELIBERATION
 		        || det == JuryDeliberationEventType.CHALLENGE
-		        || det == JuryDeliberationEventType.END_CHALLENGE
-		        ) {
+		        || det == JuryDeliberationEventType.END_CHALLENGE) {
 			mapPut(sb, "decisionEventType", det.name());
 		}
 
@@ -945,7 +977,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		return sb;
 	}
 
-	private void createRecord(Map<String, String> sb) {
+	private void populateRecordInfo(Map<String, Object> sb) {
 		if (this.records != null) {
 			if (this.fop.getNewRecords() != null && !this.fop.getNewRecords().isEmpty()) {
 				mapPut(sb, "recordKind", "new");
@@ -963,6 +995,26 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private void populateRecordInfoStrings(Map<String, String> sb) {
+		if (this.records != null) {
+			if (this.fop.getNewRecords() != null && !this.fop.getNewRecords().isEmpty()) {
+				sb.put("recordKind", "new");
+				sb.put("recordMessage", Translator.translate("Scoreboard.NewRecord"));
+			} else if (this.fop.getChallengedRecords() != null && !this.fop.getChallengedRecords().isEmpty()) {
+				sb.put("recordKind", "attempt");
+				sb.put("recordMessage", Translator.translate("Scoreboard.RecordAttempt"));
+			} else {
+				sb.put("recordKind", "none");
+			}
+			sb.put("records", this.records.toJson());
+		} else {
+			sb.remove("recordKind");
+			sb.remove("recordMessage");
+			sb.remove("records");
+		}
+	}
+
 	private synchronized Map<String, String> createTimer(UIEvent e) {
 		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
@@ -970,7 +1022,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "fopName", getFop().getName());
 		setMapFopState(sb);
 		mapPut(sb, "mode", getBoardMode());
-		
+
 		// current athlete info
 		mapPut(sb, "fullName", this.fullName);
 		mapPut(sb, "attemptNumber", this.attemptNumber != null ? this.attemptNumber.toString() : null); // 1..3
@@ -1056,13 +1108,13 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				// breakStartTimeMillis + breakMillisRemaining, sb.get("indefiniteBreak"));
 			}
 		}
-		//dumpMap("createTimer", e.getTrace(), sb);
+		// dumpMap("createTimer", e.getTrace(), sb);
 		return sb;
 	}
 
-	private synchronized Map<String, String> createUpdate(UIEvent event) {
+	private synchronized Map<String, Object> createUpdate(UIEvent event) {
 		updateState();
-		Map<String, String> sb = new LinkedHashMap<>();
+		Map<String, Object> sb = new LinkedHashMap<>();
 
 		// include timer and decision info for synchronization on restart/refresh
 		// the update will override common fields
@@ -1088,7 +1140,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// competition state
 		mapPut(sb, "competitionName", Competition.getCurrent().getCompetitionName());
 		mapPut(sb, "fop", getFop().getName());
-		setMapFopState(sb);
+		setMapFopStateObject(sb);
 
 		String isBreak = String.valueOf(isBreak());
 		mapPut(sb, "break", isBreak);
@@ -1135,18 +1187,29 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
 
 		if (this.groupAthletes != null) {
-			mapPut(sb, "groupAthletes", this.groupAthletes.toJson());
+			Object convertedGroup = convertJsonValue(this.groupAthletes);
+			if (convertedGroup != null) {
+				sb.put("groupAthletes", convertedGroup);
+			}
 		}
 		if (this.liftingOrderAthletes != null) {
-			mapPut(sb, "liftingOrderAthletes", this.liftingOrderAthletes.toJson());
+			Object convertedOrder = convertJsonValue(this.liftingOrderAthletes);
+			if (convertedOrder != null) {
+				sb.put("liftingOrderAthletes", convertedOrder);
+			}
 		}
 		if (this.leaders != null) {
 			mapPut(sb, "leaders", this.leaders.toJson());
 		}
-		createRecord(sb);
+		populateRecordInfo(sb);
 
 		// presentation information
-		mapPut(sb, "translationMap", this.translationMap.toJson());
+		if (this.translationMap != null) {
+			Object convertedTranslations = convertJsonValue(this.translationMap);
+			if (convertedTranslations != null) {
+				sb.put("translationMap", convertedTranslations);
+			}
+		}
 		mapPut(sb, "hidden", String.valueOf(this.hidden));
 		mapPut(sb, "wideTeamNames", String.valueOf(this.wideTeamNames));
 		mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
@@ -1154,7 +1217,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());
 
-		//dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
+		if (event instanceof UIEvent.SwitchGroup || event instanceof UIEvent.GroupDone) {
+			CompetitionDataExport export = exportCompetitionData();
+			if (export != null) {
+				sb.put("database", export.structure());
+				mapPut(sb, "databaseChecksum", export.checksum());
+			}
+		}
+
+		// dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
 
 		return sb;
 	}
@@ -1200,12 +1271,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		pushUpdate(e);
 	}
 
-	private void doPost(String url, String updateKey, Map<String, String> parameters) {
+	private void doPost(String url, String updateKey, Map<String, ?> parameters) {
 		HttpPost post = new HttpPost(url);
 		// add request parameters or form parameters
 		List<NameValuePair> urlParameters = new ArrayList<>();
 		parameters.entrySet().stream()
-		        .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
+		        .forEach((e) -> {
+			        String value = convertParameterValue(e.getValue());
+			        if (value != null) {
+				        urlParameters.add(new BasicNameValuePair(e.getKey(), value));
+			        }
+		        });
 
 		boolean done = false;
 		int nbTries = 0;
@@ -1536,11 +1612,119 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		return getFop().getState() == FOPState.BREAK;
 	}
 
+	private void mapPut(Map<String, Object> wr, String key, Object value) {
+		if (value == null) {
+			return;
+		}
+		wr.put(key, value);
+	}
+
 	private void mapPut(Map<String, String> wr, String key, String value) {
 		if (value == null) {
 			return;
 		}
 		wr.put(key, value);
+	}
+
+	private String convertParameterValue(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof CompetitionData) {
+			return ((CompetitionData) value).exportDataAsString();
+		}
+		if (value instanceof JsonValue) {
+			return convertParameterValue(convertJsonValue((JsonValue) value));
+		}
+		if (value instanceof Map || value instanceof Iterable || value.getClass().isArray()) {
+			try {
+				return JSON_MAPPER.writeValueAsString(value);
+			} catch (JsonProcessingException e) {
+				logger.warn("{}could not serialize parameter value {}", FieldOfPlay.getLoggingName(getFop()),
+				        LoggerUtils.exceptionMessage(e));
+			}
+		}
+		return value.toString();
+	}
+
+	private CompetitionDataExport exportCompetitionData() {
+		CompetitionData competitionData = new CompetitionData();
+		competitionData.fromDatabase();
+		try (InputStream inputStream = competitionData.exportData()) {
+			byte[] dataBytes = inputStream.readAllBytes();
+			Object structure = JSON_MAPPER.readValue(dataBytes, Object.class);
+			String json = new String(dataBytes, StandardCharsets.UTF_8);
+			String checksum = computeChecksum(dataBytes);
+			return new CompetitionDataExport(structure, json, checksum);
+		} catch (Exception e) {
+			logger.error("{}failed to export competition data: {}", FieldOfPlay.getLoggingName(getFop()),
+			        LoggerUtils.exceptionMessage(e));
+			return null;
+		}
+	}
+
+	private String computeChecksum(byte[] dataBytes) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hash = digest.digest(dataBytes);
+			return HexFormat.of().formatHex(hash);
+		} catch (Exception e) {
+			logger.warn("{}failed to compute competition data checksum: {}", FieldOfPlay.getLoggingName(getFop()),
+			        LoggerUtils.exceptionMessage(e));
+			return null;
+		}
+	}
+
+	private Object convertJsonValue(JsonValue value) {
+		if (value == null || value.getType() == JsonType.NULL) {
+			return null;
+		}
+		switch (value.getType()) {
+			case STRING:
+				return value.asString();
+			case NUMBER:
+				double number = value.asNumber();
+				if (Math.rint(number) == number) {
+					long longVal = (long) number;
+					if (longVal >= Integer.MIN_VALUE && longVal <= Integer.MAX_VALUE) {
+						return (int) longVal;
+					}
+					return longVal;
+				}
+				return number;
+			case BOOLEAN:
+				return value.asBoolean();
+			case ARRAY:
+				JsonArray array = (JsonArray) value;
+				List<Object> list = new ArrayList<>();
+				for (int i = 0; i < array.length(); i++) {
+					list.add(convertJsonValue(array.get(i)));
+				}
+				return list;
+			case OBJECT:
+				JsonObject object = (JsonObject) value;
+				Map<String, Object> map = new LinkedHashMap<>();
+				for (String key : object.keys()) {
+					map.put(key, convertJsonValue(object.get(key)));
+				}
+				return map;
+			default:
+				return null;
+		}
+	}
+
+	private int computeParametersHash(Map<String, ?> parameters) {
+		if (parameters == null) {
+			return 0;
+		}
+		Map<String, Object> sanitized = new LinkedHashMap<>();
+		parameters.forEach((key, value) -> {
+			if ("database".equals(key)) {
+				return;
+			}
+			sanitized.put(key, value);
+		});
+		return sanitized.hashCode();
 	}
 
 	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
@@ -1552,8 +1736,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (decisionUrl == null && videoUrl == null) {
 			return;
 		}
-		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap());
-		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap());
+		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap(), "decision");
+		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap(), "decision");
 	}
 
 	private void pushDecision(JuryNotification e) {
@@ -1566,8 +1750,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap());
-		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap());
+		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap(), "decision");
+		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap(), "decision");
 	}
 
 	private synchronized void pushTimer(UIEvent e) {
@@ -1580,8 +1764,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), getLastTimerMap());
-		sendPost(timerUrl, current.getUpdatekey(), getLastTimerMap());
+		sendPost(videoUrl, current.getParamVideoDataKey(), getLastTimerMap(), "timer");
+		sendPost(timerUrl, current.getUpdatekey(), getLastTimerMap(), "timer");
 	}
 
 	/**
@@ -1619,15 +1803,16 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Config current = Config.getCurrent();
 		String updateUrl = current.getParamUpdateUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataUpdateUrl();
+		logger.warn("pushUpdateDoIt: updateUrl={} videoUrl={} {}", updateUrl, videoUrl, LoggerUtils.whereFrom());
 		if (updateUrl == null && videoUrl == null) {
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate);
-		sendPost(updateUrl, current.getParamUpdateKey(), this.lastUpdate);
+		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate, "update");
+		sendPost(updateUrl, current.getParamUpdateKey(), this.lastUpdate, "update");
 	}
 
-	private void recomputeRemainingTimes(Map<String, String> sb) {
+	private void recomputeRemainingTimes(Map<String, Object> sb) {
 	}
 
 	private void sendConfig(String url, String updateKey) {
@@ -1691,12 +1876,42 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	private void sendFullCompetitionData(String url, String updateKey) {
 		logger.warn("{}sendFullCompetitionData called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
-		
-		if (url == null || updateKey == null) {
+
+		if (url == null) {
 			logger.error("cannot send full competition data, url or updateKey is null - url:{}, updateKey:{}", url, updateKey);
 			return;
 		}
-		
+		if (updateKey == null) {
+			logger.warn("no updateKey configured for {}, proceeding without one", url);
+		}
+
+		CompetitionDataExport export = exportCompetitionData();
+		if (export == null) {
+			logger.warn("{}unable to build competition data payload for {}", FieldOfPlay.getLoggingName(getFop()), url);
+			return;
+		}
+
+		// Check if URL is WebSocket
+		if (url.startsWith("ws://") || url.startsWith("wss://")) {
+			// Send via WebSocket with checksum and parsed JSON structure
+			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
+			if (sender != null) {
+				Map<String, Object> payload = new LinkedHashMap<>();
+				payload.put("databaseChecksum", export.checksum());
+				payload.put("database", export.structure());
+				boolean sent = sender.sendObject("database", payload);
+				if (sent) {
+					logger.warn("{}sent full competition data via WebSocket to {}",
+					        FieldOfPlay.getLoggingName(getFop()), url);
+				} else {
+					logger.warn("{}could not send full competition data via WebSocket to {} (socket not ready)",
+					        FieldOfPlay.getLoggingName(getFop()), url);
+				}
+			}
+			return;
+		}
+
+		// HTTP POST path - wrap with checksum for database endpoint
 		try {
 			// ALWAYS construct the database endpoint URL - extract base URL and add /database
 			String baseUrl = url;
@@ -1715,34 +1930,31 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				}
 			}
 			String databaseUrl = baseUrl + "/database";
-			logger.warn("{}ALWAYS sending to database endpoint: {} (from original: {})", 
+			logger.warn("{}ALWAYS sending to database endpoint: {} (from original: {})",
 			        FieldOfPlay.getLoggingName(getFop()), databaseUrl, url);
 			HttpPost post = new HttpPost(databaseUrl);
 
-			// Get the complete competition data using the same method as the application buttons
-			CompetitionData competitionData = new CompetitionData();
-			
-			String fullCompetitionJson;
-			try (InputStream inputStream = competitionData.exportData()) {
-				// Jackson uses UTF-8 by default when writing JSON to OutputStream
-				// Convert InputStream to String using UTF-8 (Jackson's default)
-				fullCompetitionJson = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-			} catch (Exception e) {
-				logger.error("{}failed to export competition data: {}", 
-				        FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(e));
+			// Wrap database with checksum in JSON structure
+			Map<String, Object> wrapper = new LinkedHashMap<>();
+			wrapper.put("databaseChecksum", export.checksum());
+			// Parse the JSON string to include as nested structure
+			try {
+				Object databaseStructure = JSON_MAPPER.readValue(export.json(), Object.class);
+				wrapper.put("database", databaseStructure);
+			} catch (Exception parseEx) {
+				logger.error("{}failed to parse competition data JSON: {}",
+				        FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(parseEx));
 				return;
 			}
-			
-			logger.warn("{}generated competition data JSON: {} characters", 
-			        FieldOfPlay.getLoggingName(getFop()), fullCompetitionJson.length());
+			String wrappedJson = JSON_MAPPER.writeValueAsString(wrapper);
 
-			// Send the raw JSON data directly
+			// Send the wrapped JSON data
 			post.setHeader("Content-Type", "application/json; charset=UTF-8");
-			post.setEntity(new StringEntity(fullCompetitionJson, "UTF-8"));
-			
-			logger.warn("{}posting raw JSON to database endpoint {}", 
+			post.setEntity(new StringEntity(wrappedJson, "UTF-8"));
+
+			logger.warn("{}posting database with checksum to endpoint {}",
 			        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
-			
+
 			try (CloseableHttpClient httpClient = HttpClients.createDefault();
 			        CloseableHttpResponse response = httpClient.execute(post)) {
 				StatusLine statusLine = response.getStatusLine();
@@ -1750,44 +1962,51 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				if (statusCode != null && statusCode != 200) {
 					if (statusCode == 404) {
 						// 404 means the endpoint doesn't exist - this is expected/innocuous
-						logger./**/warn("{}database endpoint not available at {} - 404 Not Found (endpoint not implemented)", 
+						logger./**/warn("{}database endpoint not available at {} - 404 Not Found (endpoint not implemented)",
 						        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
 					} else if (statusCode >= 500) {
 						// 5xx server errors are actual errors
-						logger.error("{}server error sending to database endpoint {} - response: {}", 
+						logger.error("{}server error sending to database endpoint {} - response: {}",
 						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
 					} else if (statusCode >= 400) {
 						// Other 4xx client errors (400, 401, 403, etc.) are errors
-						logger.error("{}client error sending to database endpoint {} - response: {}", 
+						logger.error("{}client error sending to database endpoint {} - response: {}",
 						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
 					} else {
 						// Other non-200 codes (redirects, etc.)
-						logger./**/warn("{}unexpected response from database endpoint {} - response: {}", 
+						logger./**/warn("{}unexpected response from database endpoint {} - response: {}",
 						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
 					}
 				} else {
-					logger.warn("{}successfully sent full competition data to database endpoint {} - response: 200 OK", 
+					logger.warn("{}successfully sent full competition data to database endpoint {} - response: 200 OK",
 					        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
 				}
 				EntityUtils.toString(response.getEntity());
 			} catch (Exception e1) {
-				logger./**/warn("{}database endpoint not available at {} - {} (this is not fatal)", 
+				logger./**/warn("{}database endpoint not available at {} - {} (this is not fatal)",
 				        FieldOfPlay.getLoggingName(getFop()), databaseUrl, LoggerUtils.exceptionMessage(e1));
 			}
 		} catch (Exception e2) {
-			logger./**/warn("{}could not send full competition data to {} - {} (this is not fatal)", 
+			logger./**/warn("{}could not send full competition data to {} - {} (this is not fatal)",
 			        FieldOfPlay.getLoggingName(getFop()), url, LoggerUtils.exceptionMessage(e2));
 		}
 	}
 
-	private void sendPost(String url, String updateKey, Map<String, String> parameters) {
+	private void sendPost(String url, String updateKey, Map<String, ?> parameters, String messageType) {
 		if (url == null) {
 			return;
 		}
+
+		// Check if URL is WebSocket (ws:// or wss://)
+		if (url.startsWith("ws://") || url.startsWith("wss://")) {
+			sendWebSocket(url, messageType, parameters);
+			return;
+		}
+
 		Integer previousDebounceHash = this.debouncingHash.get(url);
 		Long previousDebounceMillis = this.debouncingMillis.get(url);
 		long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
-		Integer hashCode = parameters.hashCode();
+		Integer hashCode = computeParametersHash(parameters);
 
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
@@ -1798,6 +2017,38 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			this.debouncingMillis.put(url, System.currentTimeMillis());
 		}
 
+	}
+
+	/**
+	 * Send data via WebSocket connection with message type
+	 */
+	private void sendWebSocket(String url, String messageType, Map<String, ?> parameters) {
+		Integer previousDebounceHash = this.debouncingHash.get(url);
+		Long previousDebounceMillis = this.debouncingMillis.get(url);
+		long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
+		Integer hashCode = computeParametersHash(parameters);
+
+		// debounce, sometimes several identical updates in a rapid succession
+		// identical updates are ok after 1 sec.
+		if (hashCode != previousDebounceHash || (deltaMillis > 1000)) {
+			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
+			if (sender != null) {
+				// Set up callback for 428 status response (database requested)
+				sender.setOnDatabaseRequested(() -> {
+					Config current = Config.getCurrent();
+					String updateKey = current.getParamUpdateKey();
+					if (updateKey == null) {
+						updateKey = current.getParamVideoDataKey();
+					}
+					sendFullCompetitionData(url, updateKey);
+				});
+
+				sender.send(messageType, parameters);
+			}
+
+			this.debouncingHash.put(url, hashCode);
+			this.debouncingMillis.put(url, System.currentTimeMillis());
+		}
 	}
 
 	private void setBreakType(BreakType breakType) {
@@ -1875,6 +2126,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		FOPState state = getFopState();
 		String value = state != null ? state.toString() : FOPState.INACTIVE.name();
 		mapPut(sb, "fopState", value);
+	}
+
+	private void setMapFopStateObject(Map<String, Object> sb) {
+		Map<String, String> temp = new LinkedHashMap<>();
+		setMapFopState(temp);
+		temp.forEach((k, v) -> sb.put(k, v));
 	}
 
 	private void setRecords(JsonValue recordsJson) {

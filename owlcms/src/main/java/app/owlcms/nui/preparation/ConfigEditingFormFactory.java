@@ -445,7 +445,7 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(publicResultsField, Translator.translate("Config.publicResultsURL"));
 		this.binder.forField(publicResultsField)
 		        .withNullRepresentation("")
-		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(http://|https://).*"))
+		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(https?://|wss?://).*"))
 		        .bind(Config::getPublicResultsURL, Config::setPublicResultsURL);
 
 		PasswordField updateKey = new PasswordField();
@@ -590,7 +590,7 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(videoDataField, Translator.translate("Config.videoDataURL"));
 		this.binder.forField(videoDataField)
 		        .withNullRepresentation("")
-		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(http://|https://).*"))
+		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(https?://|wss?://).*"))
 		        .bind(Config::getVideoDataURL, Config::setVideoDataURL);
 
 		PasswordField updateKey = new PasswordField();

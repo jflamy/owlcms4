@@ -280,15 +280,21 @@
 			<version>4.5.13</version>
 		</dependency>
 
-		<!--
-		https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
-		<dependency>
-			<groupId>org.eclipse.paho</groupId>
-			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-			<version>1.2.5</version>
-		</dependency>
+	<!--
+	https://mvnrepository.com/artifact/org.eclipse.paho/org.eclipse.paho.client.mqttv3 -->
+	<dependency>
+		<groupId>org.eclipse.paho</groupId>
+		<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+		<version>1.2.5</version>
+	</dependency>
 
-		<!-- temporary files -->
+	<!--
+	https://mvnrepository.com/artifact/org.java-websocket/Java-WebSocket -->
+	<dependency>
+		<groupId>org.java-websocket</groupId>
+		<artifactId>Java-WebSocket</artifactId>
+		<version>1.5.7</version>
+	</dependency>		<!-- temporary files -->
 		<dependency>
 			<groupId>com.google.jimfs</groupId>
 			<artifactId>jimfs</artifactId>

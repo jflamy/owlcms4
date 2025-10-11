@@ -628,14 +628,28 @@ public class Config {
 	@JsonIgnore
 	public String getParamUpdateUrl() {
 		String publicResultsURLParam = getParamPublicResultsURL();
-		return publicResultsURLParam != null ? publicResultsURLParam + "/update" : null;
+		if (publicResultsURLParam == null) {
+			return null;
+		}
+		// WebSocket URLs don't need path suffixes - message type is in the JSON payload
+		if (publicResultsURLParam.startsWith("ws://") || publicResultsURLParam.startsWith("wss://")) {
+			return publicResultsURLParam;
+		}
+		return publicResultsURLParam + "/update";
 	}
 
 	@Transient
 	@JsonIgnore
 	public String getParamVideoDataDecisionUrl() {
 		String paramVideoDataURL = getParamVideoDataURL();
-		return paramVideoDataURL != null ? paramVideoDataURL + "/decision" : null;
+		if (paramVideoDataURL == null) {
+			return null;
+		}
+		// WebSocket URLs don't need path suffixes - message type is in the JSON payload
+		if (paramVideoDataURL.startsWith("ws://") || paramVideoDataURL.startsWith("wss://")) {
+			return paramVideoDataURL;
+		}
+		return paramVideoDataURL + "/decision";
 	}
 
 	/**
@@ -659,14 +673,28 @@ public class Config {
 	@JsonIgnore
 	public String getParamVideoDataTimerUrl() {
 		String paramVideoDataURL = getParamVideoDataURL();
-		return paramVideoDataURL != null ? paramVideoDataURL + "/timer" : null;
+		if (paramVideoDataURL == null) {
+			return null;
+		}
+		// WebSocket URLs don't need path suffixes - message type is in the JSON payload
+		if (paramVideoDataURL.startsWith("ws://") || paramVideoDataURL.startsWith("wss://")) {
+			return paramVideoDataURL;
+		}
+		return paramVideoDataURL + "/timer";
 	}
 
 	@Transient
 	@JsonIgnore
 	public String getParamVideoDataUpdateUrl() {
 		String paramVideoDataURL = getParamVideoDataURL();
-		return paramVideoDataURL != null ? paramVideoDataURL + "/update" : null;
+		if (paramVideoDataURL == null) {
+			return null;
+		}
+		// WebSocket URLs don't need path suffixes - message type is in the JSON payload
+		if (paramVideoDataURL.startsWith("ws://") || paramVideoDataURL.startsWith("wss://")) {
+			return paramVideoDataURL;
+		}
+		return paramVideoDataURL + "/update";
 	}
 
 	/**
