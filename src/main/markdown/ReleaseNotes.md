@@ -27,8 +27,7 @@
 62.0.0: Experimental capability to produce credentials for Athletes, Coaches and TOs, with pictures/logos/flags.
 
 - There is now a Credentials button in the Pre-Competition documents
-- Templates have moved to `templates/credentials`  All the credentials templates will go there.
-- See this [folder](https://github.com/jflamy/owlcms4/tree/dev62/owlcms/scripts) in the development repository for [CREDENTIALS_README](https://github.com/jflamy/owlcms4/blob/dev62/owlcms/scripts/CREDENTIALS_README.md) and Python support scripts (see [CROP_README](https://github.com/jflamy/owlcms4/blob/dev62/owlcms/scripts/CROP_README.md))
+- See [documentation](https://owlcms.github.io/owlcms4-prerelease/#/Styles)
 
 62.0.0: The download mechanism for all the documents on the Documents page has been completely redone to match the current UI toolkit recommended programming practices.  The Weigh-in page also uses the exact same mechanism.
 
