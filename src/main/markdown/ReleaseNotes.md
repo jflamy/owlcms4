@@ -10,19 +10,9 @@
 
 <br>
 
-**Change Log**
-
-62.0.0-rc01: nogrid style background back to black after accidental change to blue
-
-62.0.0-beta03: Ensured that F or W is consistently used for female categories according to the default language of the database
-
-62.0.0-beta02: Fixed Import of Coaches and Technical Officials Excel files to correctly interpret translated headers
-
-62.0.0-beta02: Forcing the default language to a language with a country dialect (fr_CA, pt_BR) did not work as expected.
-
 **New in Release 62.0**
 
-62.0.0-beta03: The default language for the database is always used for translating the gender in displayed and exported category codes. In this way, all sessions and all printouts will have either W or F depending on the translation chosen for that language (this does not apply when the code is explicitly gendered)
+62.0.0: The default language for the database is always used for translating the gender in displayed and exported category codes. In this way, all sessions and all printouts will have either W or F depending on the translation chosen for that language (this does not apply when the code is explicitly gendered)
 
 62.0.0: Experimental capability to produce credentials for Athletes, Coaches and TOs, with pictures/logos/flags.
 
@@ -34,6 +24,8 @@
 62.0.0: Ability to enter information about coaches, with name filtering.
 
 62.0.0: Technical Officials now have a role.  There is now a name and role filter on the TO page.
+
+62.0.0: nogrid scoreboards background back to black after accidental change to blue
 
 - Overall roles such as Competition Secretary can now be selected
 - Officials in the Technical Officials list can be marked as Active; any official assigned to a Session is implicitly Active and does not need to be marked as such.
