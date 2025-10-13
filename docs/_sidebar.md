@@ -48,6 +48,7 @@
   * [Scoreboard Colors](Styles)
   * [Flags and Pictures](FlagsPictures)
   * [Excel Template Variables](TemplateVariables)
+  * [Credentials](Credentials)
   * [Translations](Translation)
   * [Configuration Parameters](Configuration)
   * [Feature Toggles](FeatureToggles)
