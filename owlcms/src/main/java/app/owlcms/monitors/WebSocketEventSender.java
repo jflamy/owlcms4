@@ -46,19 +46,39 @@ public class WebSocketEventSender {
 	}
 
 	/**
-	 * Get or create a WebSocketEventSender for the given URL
+	 * Get or create a WebSocketEventSender for the given URL.
+	 * Uses a supplier to dynamically fetch the current URL on reconnects.
 	 */
-	public static synchronized WebSocketEventSender getOrCreate(String url) {
+	public static synchronized WebSocketEventSender getOrCreate(String url, java.util.function.Supplier<String> urlSupplier) {
 		if (url == null || url.trim().isEmpty()) {
 			return null;
 		}
 		
 		WebSocketEventSender sender = sendersByUrl.get(url);
 		if (sender == null) {
-			sender = new WebSocketEventSender(url);
+			sender = new WebSocketEventSender(url, urlSupplier);
 			sendersByUrl.put(url, sender);
 		}
 		return sender;
+	}
+	
+	/**
+	 * Get or create a WebSocketEventSender for the given URL (without supplier for legacy compatibility)
+	 */
+	public static synchronized WebSocketEventSender getOrCreate(String url) {
+		return getOrCreate(url, () -> url);
+	}
+	
+	/**
+	 * Close sender for old URL and create new sender for updated URL.
+	 * Used when URL configuration changes (e.g., port correction).
+	 */
+	public static synchronized WebSocketEventSender updateUrl(String oldUrl, String newUrl) {
+		if (oldUrl != null && !oldUrl.equals(newUrl)) {
+			logger.info("WebSocket URL changed from {} to {}, closing old connection and creating new one", oldUrl, newUrl);
+			closeSender(oldUrl);
+		}
+		return getOrCreate(newUrl);
 	}
 
 	/**
@@ -82,21 +102,25 @@ public class WebSocketEventSender {
 	}
 
 	private String url;
+	private java.util.function.Supplier<String> urlSupplier;
 	private WebSocketClient client;
 	private int reconnectAttempts = 0;
 	private boolean intentionallyClosed = false;
-	private Runnable onDatabaseRequested;
+	private Map<String, Runnable> missingDataCallbacks = new HashMap<>();
 
-	private WebSocketEventSender(String url) {
+	private WebSocketEventSender(String url, java.util.function.Supplier<String> urlSupplier) {
 		this.url = url;
+		this.urlSupplier = urlSupplier;
 		connect();
 	}
 	
 	/**
-	 * Set callback to be invoked when server requests full database (428 status)
+	 * Set callback to be invoked when server requests specific missing data type
+	 * @param dataType Type of data ("database", "flags", "styles", "pictures")
+	 * @param callback Callback to invoke when this data type is requested
 	 */
-	public void setOnDatabaseRequested(Runnable callback) {
-		this.onDatabaseRequested = callback;
+	public void setMissingDataCallback(String dataType, Runnable callback) {
+		this.missingDataCallbacks.put(dataType, callback);
 	}
 
 	private void connect() {
@@ -161,6 +185,14 @@ public class WebSocketEventSender {
 			try {
 				TimeUnit.MILLISECONDS.sleep(delayMs);
 				if (!intentionallyClosed) {
+					// Before reconnecting, check if URL has changed in the config
+					String currentUrl = urlSupplier.get();
+					if (currentUrl != null && !currentUrl.equals(this.url)) {
+						logger.info("WebSocket URL changed from {} to {} before reconnect, updating",
+						        this.url, currentUrl);
+						this.url = currentUrl;
+						this.reconnectAttempts = 0; // Reset retry count for new URL
+					}
 					connect();
 				}
 			} catch (InterruptedException e) {
@@ -180,9 +212,34 @@ public class WebSocketEventSender {
 			// Check for status field indicating 428 (Precondition Required)
 			Object status = response.get("status");
 			if (status != null && (status.equals(428) || status.equals("428"))) {
-				logger.warn("WebSocket server {} returned 428 - requesting full database", url);
-				if (onDatabaseRequested != null) {
-					onDatabaseRequested.run();
+				// Parse the missing array to determine what data is needed
+				Object missingObj = response.get("missing");
+				java.util.List<?> missingList = null;
+				
+				if (missingObj instanceof java.util.List) {
+					missingList = (java.util.List<?>) missingObj;
+				}
+				
+				if (missingList != null && !missingList.isEmpty()) {
+					logger.warn("WebSocket server {} returned 428 - missing data: {}", url, missingList);
+					
+					// Check what types of data are missing and invoke appropriate callbacks
+					for (Object missing : missingList) {
+						String missingType = missing != null ? missing.toString() : "";
+						Runnable callback = missingDataCallbacks.get(missingType);
+						
+						if (callback != null) {
+							logger.info("Invoking callback for missing data type: {}", missingType);
+							callback.run();
+						} else {
+							logger.error("No callback registered for missing data type '{}' - cannot fulfill server request. " +
+							        "Register a callback using setMissingDataCallback(\"{}\", callback)", missingType, missingType);
+						}
+					}
+				} else {
+					// No missing array - log error about malformed 428 response
+					logger.error("WebSocket server {} returned 428 without 'missing' array - malformed response. " +
+					        "Expected format: {{\"status\": 428, \"missing\": [\"database\"]}}", url);
 				}
 			}
 		} catch (Exception e) {

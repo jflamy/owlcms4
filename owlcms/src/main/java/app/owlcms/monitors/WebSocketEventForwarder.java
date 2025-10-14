@@ -999,6 +999,12 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));
+		
+		// Add singleReferee flag if this is a Decision event
+		if (event instanceof UIEvent.Decision) {
+			UIEvent.Decision decisionEvent = (UIEvent.Decision) event;
+			mapPut(sb, "singleReferee", Boolean.toString(decisionEvent.isSingleReferee()));
+		}
 
 		populateRecordInfoStrings(sb);
 		// dumpMap("createDecision", event.getTrace(), sb);
@@ -2123,10 +2129,19 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
 		if (hashCode != previousDebounceHash || (deltaMillis > 1000)) {
-			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
+			// Pass URL supplier so sender can re-check config on reconnect
+			WebSocketEventSender sender;
+			if (isPublicResults) {
+				sender = WebSocketEventSender.getOrCreate(url, () -> Config.getCurrent().getParamUpdateUrl());
+			} else if (isVideoData) {
+				sender = WebSocketEventSender.getOrCreate(url, () -> Config.getCurrent().getParamVideoDataUpdateUrl());
+			} else {
+				sender = WebSocketEventSender.getOrCreate(url);
+			}
+			
 			if (sender != null) {
 				// Set up callback for 428 status response (database requested)
-				sender.setOnDatabaseRequested(() -> {
+				sender.setMissingDataCallback("database", () -> {
 					Config currentCallback = Config.getCurrent();
 					String updateKey = currentCallback.getParamUpdateKey();
 					if (updateKey == null) {
