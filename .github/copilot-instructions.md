@@ -1,8 +1,10 @@
+<!-- markdownlint-disable -->
 # Copilot / Assistant Instructions for this repository
 
 Purpose: provide concise, machine- and human-readable guidance for automated
 assistants (CoPilot-style agents) working in this repository. This file is the
 primary location assistants should read before taking actions.
+
 
 ### MACHINE_DIRECTIVES_START
 {
@@ -86,8 +88,8 @@ mvn -DskipTests compile
 # Run the full test suite (slower)
 mvn test
 
-# Run a single test class or method (replace MyTestClass and myTestMethod)
-mvn -Dtest=MyTestClass#myTestMethod test
+# Run a single test class or method (replace MyTestClass and methodName)
+mvn -Dtest=MyTestClass test
 
 # If you must produce a distributable artifact in CI only, use package in CI
 # Do NOT run `mvn package` in local/editor automation; prefer `mvn -DskipTests compile`.
