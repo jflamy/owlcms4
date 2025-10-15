@@ -106,6 +106,7 @@ public class WebSocketEventSender {
 	private WebSocketClient client;
 	private int reconnectAttempts = 0;
 	private boolean intentionallyClosed = false;
+	private boolean connecting = false;
 	private Map<String, Runnable> missingDataCallbacks = new HashMap<>();
 
 	private WebSocketEventSender(String url, java.util.function.Supplier<String> urlSupplier) {
@@ -123,7 +124,22 @@ public class WebSocketEventSender {
 		this.missingDataCallbacks.put(dataType, callback);
 	}
 
-	private void connect() {
+	private synchronized void connect() {
+		if (intentionallyClosed) {
+			logger.debug("Skipping WebSocket connect for {} because it was intentionally closed", url);
+			return;
+		}
+		if (connecting) {
+			logger.debug("WebSocket connect already in progress for {}", url);
+			return;
+		}
+		if (client != null && client.isOpen()) {
+			logger.debug("WebSocket already connected or connecting to {}", url);
+			return;
+		}
+
+		connecting = true;
+
 		try {
 			URI uri = new URI(url);
 			
@@ -131,7 +147,10 @@ public class WebSocketEventSender {
 				@Override
 				public void onOpen(ServerHandshake handshake) {
 					logger.info("WebSocket connected to: {}", url);
-					reconnectAttempts = 0;
+					synchronized (WebSocketEventSender.this) {
+						connecting = false;
+						reconnectAttempts = 0;
+					}
 				}
 
 				@Override
@@ -140,18 +159,25 @@ public class WebSocketEventSender {
 					WebSocketEventSender.this.handleServerMessage(message);
 				}
 
-			@Override
-			public void onClose(int code, String reason, boolean remote) {
-				logger.info("WebSocket closed: {} - code: {}, reason: {}, remote: {}", 
-						url, code, reason, remote);
-				
-				// Always attempt to reconnect if not intentionally closed
-				if (!intentionallyClosed) {
-					scheduleReconnect();
+				@Override
+				public void onClose(int code, String reason, boolean remote) {
+					logger.info("WebSocket closed: {} - code: {}, reason: {}, remote: {}", 
+							url, code, reason, remote);
+					synchronized (WebSocketEventSender.this) {
+						connecting = false;
+					}
+					
+					if (!intentionallyClosed) {
+						scheduleReconnect();
+					}
 				}
-			}				@Override
+
+				@Override
 				public void onError(Exception ex) {
 					logger.error("WebSocket error on {}: {}", url, LoggerUtils.exceptionMessage(ex));
+					synchronized (WebSocketEventSender.this) {
+						connecting = false;
+					}
 				}
 			};
 			
@@ -162,41 +188,65 @@ public class WebSocketEventSender {
 			this.client.connect();
 			
 		} catch (URISyntaxException e) {
+			connecting = false;
 			logger.error("Invalid WebSocket URL {}: {}", url, LoggerUtils.exceptionMessage(e));
+		} catch (Exception e) {
+			connecting = false;
+			logger.error("Unexpected error initiating WebSocket connection to {}: {}", url,
+					LoggerUtils.exceptionMessage(e));
 		}
 	}
 
 	private void scheduleReconnect() {
-		reconnectAttempts++;
-		
-		// Exponential backoff: 1s, 2s, 4s, 8s, 16s, then cap at 30s
 		final int delayMs;
-		if (reconnectAttempts <= EXPONENTIAL_BACKOFF_ATTEMPTS) {
-			int delay = INITIAL_RECONNECT_DELAY_MS * (int) Math.pow(2, reconnectAttempts - 1);
-			delayMs = Math.min(delay, MAX_RECONNECT_DELAY_MS);
-		} else {
-			delayMs = MAX_RECONNECT_DELAY_MS;
-		}
 		
-		logger.warn("Scheduling WebSocket reconnect attempt {} for {} in {}ms", 
-				reconnectAttempts, url, delayMs);
+		synchronized (this) {
+			if (intentionallyClosed) {
+				logger.debug("Skipping reconnect for {} because it was intentionally closed", url);
+				return;
+			}
+			if (connecting) {
+				logger.debug("Reconnect already scheduled or in progress for {}", url);
+				return;
+			}
+			reconnectAttempts++;
+			
+			// Exponential backoff: 1s, 2s, 4s, 8s, 16s, then cap at 30s
+			if (reconnectAttempts <= EXPONENTIAL_BACKOFF_ATTEMPTS) {
+				int delay = INITIAL_RECONNECT_DELAY_MS * (int) Math.pow(2, reconnectAttempts - 1);
+				delayMs = Math.min(delay, MAX_RECONNECT_DELAY_MS);
+			} else {
+				delayMs = MAX_RECONNECT_DELAY_MS;
+			}
+			
+			connecting = true;
+			logger.warn("Scheduling WebSocket reconnect attempt {} for {} in {}ms", 
+					reconnectAttempts, url, delayMs);
+		}
 		
 		new Thread(() -> {
 			try {
 				TimeUnit.MILLISECONDS.sleep(delayMs);
-				if (!intentionallyClosed) {
-					// Before reconnecting, check if URL has changed in the config
-					String currentUrl = urlSupplier.get();
-					if (currentUrl != null && !currentUrl.equals(this.url)) {
-						logger.info("WebSocket URL changed from {} to {} before reconnect, updating",
-						        this.url, currentUrl);
-						this.url = currentUrl;
-						this.reconnectAttempts = 0; // Reset retry count for new URL
+				synchronized (WebSocketEventSender.this) {
+					if (intentionallyClosed) {
+						connecting = false;
+						return;
 					}
+					String currentUrl = urlSupplier.get();
+					if (currentUrl != null && !currentUrl.equals(WebSocketEventSender.this.url)) {
+						logger.info("WebSocket URL changed from {} to {} before reconnect, updating",
+						        WebSocketEventSender.this.url, currentUrl);
+						WebSocketEventSender.this.url = currentUrl;
+						reconnectAttempts = 0; // Reset retry count for new URL
+					}
+					connecting = false;
 					connect();
 				}
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
+				synchronized (WebSocketEventSender.this) {
+					connecting = false;
+				}
 			}
 		}).start();
 	}
@@ -379,7 +429,10 @@ public class WebSocketEventSender {
 	 * Close the WebSocket connection
 	 */
 	public void close() {
-		intentionallyClosed = true;
+		synchronized (this) {
+			intentionallyClosed = true;
+			connecting = false;
+		}
 		if (client != null) {
 			try {
 				client.closeBlocking();

@@ -1270,7 +1270,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			}
 		}
 		if (this.leaders != null) {
-			mapPut(sb, "leaders", this.leaders.toJson());
+			Object convertedLeaders = convertJsonValue(this.leaders);
+			if (convertedLeaders != null) {
+				sb.put("leaders", convertedLeaders);
+			}
 		}
 		populateRecordInfo(sb);
 
