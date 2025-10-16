@@ -24,11 +24,10 @@
 62.0.0: Ability to enter information about coaches, with name filtering.
 
 62.0.0: Technical Officials now have a role.  There is now a name and role filter on the TO page.
-
-62.0.0: nogrid scoreboards background back to black after accidental change to blue
-
 - Overall roles such as Competition Secretary can now be selected
 - Officials in the Technical Officials list can be marked as Active; any official assigned to a Session is implicitly Active and does not need to be marked as such.
+
+62.0.0: nogrid scoreboards background back to black after accidental change to blue
 
 62.0.0: The eligibility/non-eligibility status of an athlete is now enumerated. The reason for disqualification or non-competition can be selected.
 
