@@ -10,7 +10,6 @@ package app.owlcms.spreadsheet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import app.owlcms.data.records.RecordEvent;
 
@@ -26,6 +25,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
@@ -141,8 +141,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 				if (bean instanceof List && ((List) bean).size() > 0 && ((List) bean).get(0) instanceof Athlete) {
 					this.logger.debug("cleaning up {}", k);
 					List<Athlete> bean2 = (List<Athlete>) bean;
-					Set<String> unfinishedCategories = AthleteRepository.unfinishedCategories(bean2);
-					bean2 = bean2.stream().filter(a -> !unfinishedCategories.contains(a.getCategoryCode())).toList();
+					UnfinishedCategories unfinishedCategories = AthleteRepository.unfinishedCategories(bean2);
+					bean2 = bean2.stream().filter(a -> !unfinishedCategories.contains(a.getCategory())).toList();
 					reportingBeans.put(k, bean2);
 				}
 			}

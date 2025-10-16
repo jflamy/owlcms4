@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -170,7 +169,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		boolean allCategories = Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue());
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
-		Set<String> unfinishedCategories = AthleteRepository.allUnfinishedCategories();
+		String unfinishedCategories = AthleteRepository.allUnfinishedCategories().toString();
 		logger.info("unfinished categories {} {}", unfinishedCategories, LoggerUtils.whereFrom());
 
 		if (ranked == null || ranked.isEmpty()) {

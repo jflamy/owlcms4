@@ -26,6 +26,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
@@ -42,27 +43,29 @@ public class AthleteRepository {
 	static {
 		logger.setLevel(Level.INFO);
 	}
-	public static Set<String> allUnfinishedCategories;
+	public static UnfinishedCategories allUnfinishedCategories;
 	private static final ThreadLocal<Map<String, Integer>> categoryAthleteCount = ThreadLocal.withInitial(HashMap::new);
 
-	public static Set<String> allUnfinishedCategories() {
-		Set<String> unfinishedCategories = new HashSet<>();
+	public static UnfinishedCategories allUnfinishedCategories() {
+		UnfinishedCategories result = new UnfinishedCategories();
 		List<Athlete> ranked = findAll();
 		if (ranked == null || ranked.isEmpty()) {
-			return Set.of();
+			setAllUnfinishedCategories(result);
+			return result;
 		}
 		for (Athlete a : ranked) {
 			boolean ineligible = !a.isEligibleForIndividualRanking();
 			boolean done = a.isDone();
 			if (!done && !ineligible) {
 				for (Participation p : a.getParticipations()) {
-					unfinishedCategories.add(p.getCategory().getCode());
+					Category category = p.getCategory();
+					result.add(category);
 				}
 			}
 		}
-		logger.debug("unfinishedCategories2 {}", unfinishedCategories);
-		setAllUnfinishedCategories(unfinishedCategories);
-		return unfinishedCategories;
+		logger.debug("unfinishedCategories2 {}", result);
+		setAllUnfinishedCategories(result);
+		return result;
 	}
 
 	public static void assignCategoryRanks() {
@@ -335,7 +338,7 @@ public class AthleteRepository {
 		});
 	}
 
-	public static Set<String> getAllUnfinishedCategories() {
+	public static UnfinishedCategories getAllUnfinishedCategories() {
 		if (allUnfinishedCategories == null) {
 			allUnfinishedCategories();
 		}
@@ -384,19 +387,21 @@ public class AthleteRepository {
 	}
 
 	public static Set<Athlete> keepOnlyFinishedCategoryAthletes(Collection<Athlete> athletes) {
-		Set<String> unfinishedCategories = new HashSet<>();
+		UnfinishedCategories unfinishedCategories = new UnfinishedCategories();
 		Set<Athlete> finishedCategoryAthletes = new HashSet<>();
 		for (Athlete a : athletes) {
 			if (a.getSnatch3AsInteger() == null || a.getSnatch3ActualLift().isBlank()
 			        || a.getCleanJerk3AsInteger() == null || a.getCleanJerk3ActualLift().isBlank()) {
 				for (Participation p : a.getParticipations()) {
-					unfinishedCategories.add(p.getCategory().getCode());
+					Category category = p.getCategory();
+					unfinishedCategories.add(category);
 				}
 			}
 		}
 		// logger.debug("unfinishedCategories1 {}",unfinishedCategories);
 		for (Athlete a : athletes) {
-			if (!unfinishedCategories.contains(a.getCategory().getCode())) {
+			Category athleteCategory = a.getCategory();
+			if (athleteCategory != null && !unfinishedCategories.contains(athleteCategory)) {
 				finishedCategoryAthletes.add(a);
 			}
 		}
@@ -458,26 +463,27 @@ public class AthleteRepository {
 		});
 	}
 
-	public static void setAllUnfinishedCategories(Set<String> allUnfinishedCategories) {
+	public static void setAllUnfinishedCategories(UnfinishedCategories allUnfinishedCategories) {
 		AthleteRepository.allUnfinishedCategories = allUnfinishedCategories;
 	}
 
-	public static Set<String> unfinishedCategories(List<Athlete> ranked) {
-		Set<String> unfinishedCategories = new HashSet<>();
+	public static UnfinishedCategories unfinishedCategories(List<Athlete> ranked) {
+		UnfinishedCategories result = new UnfinishedCategories();
 		if (ranked == null || ranked.isEmpty()) {
-			return Set.of();
+			return result;
 		}
 		for (Athlete a : ranked) {
 			// logger.debug("unfinishedCategories *** athlete {}",a);
 			if (!a.isDone()) {
 				// logger.debug("{}", a, a.getCleanJerk3ActualLift());
 				for (Participation p : a.getParticipations()) {
-					unfinishedCategories.add(p.getCategory().getCode());
+					Category category = p.getCategory();
+					result.add(category);
 				}
 			}
 		}
-		// logger.debug("unfinishedCategories2 {}",unfinishedCategories);
-		return unfinishedCategories;
+		// logger.debug("unfinishedCategories2 {}",result);
+		return result;
 	}
 
 	private static List<Athlete> doFindAthletesForGlobalRanking(Group g, EntityManager em, boolean onlyWeighedIn) {

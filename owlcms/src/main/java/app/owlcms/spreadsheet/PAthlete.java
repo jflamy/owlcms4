@@ -216,8 +216,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@Override
 	public Boolean getCategoryFinished() {
 		var allUnfinished = AthleteRepository.getAllUnfinishedCategories();
-		String code = this.c.getCode();
-		boolean contains = allUnfinished.contains(code);
+		boolean contains = this.c != null ? allUnfinished.contains(this.c) : false;
 		return !contains;
 	}
 	

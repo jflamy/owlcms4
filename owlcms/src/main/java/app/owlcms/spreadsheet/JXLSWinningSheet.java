@@ -8,7 +8,6 @@ package app.owlcms.spreadsheet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -23,6 +22,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Level;
@@ -119,8 +119,8 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		@SuppressWarnings("unchecked")
-		Set<String> unfinishedCategories = AthleteRepository.allUnfinishedCategories();
-		logger.debug("JXLSWinningSheet unfinished categories {}", unfinishedCategories);
+		UnfinishedCategories unfinishedCategories = AthleteRepository.allUnfinishedCategories();
+		logger.debug("JXLSWinningSheet unfinished categories {}", unfinishedCategories.toString());
 
 		// @formatter:off
         List<Athlete> athletes = AthleteSorter.resultsOrderCopy(pAthletes, rankingOrder(), false).stream()
@@ -161,7 +161,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
                             : true);
 				})
 				.map(a -> {
-					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
+					if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory())) {
 						a.setCategoryFinished(false);
 					} else {
 						a.setCategoryFinished(true);

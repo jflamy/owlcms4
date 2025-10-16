@@ -1368,8 +1368,8 @@ public class Athlete {
 	@JsonIgnore
 	public Boolean getCategoryFinished() {
 		var allUnfinished = AthleteRepository.getAllUnfinishedCategories();
-		String code = this.getCategory() != null ? this.getCategory().getCode() : null;
-		return code != null ? allUnfinished.contains(code) : false;
+		Category category = this.getCategory();
+		return category != null ? allUnfinished.contains(category) : false;
 	}
 
 	public int getCategoryScoreRank() {

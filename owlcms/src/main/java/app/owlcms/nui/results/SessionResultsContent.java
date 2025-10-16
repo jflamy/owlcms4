@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -56,6 +55,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
+import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -281,8 +281,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(getCurrentGroup());
 
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
-		@SuppressWarnings("unchecked")
-		Set<String> unfinishedCategories = AthleteRepository.allUnfinishedCategories();
+		UnfinishedCategories unfinishedCategories = AthleteRepository.allUnfinishedCategories();
 		// logger.debug("ResultsContent unfinished categories {}", unfinishedCategories);
 
 		if (getCurrentGroup() != null) {
@@ -292,7 +291,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			                ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
 			                : false)
 			        .map(a -> {
-				        if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
+				        if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory())) {
 					        a.setCategoryFinished(false);
 				        } else {
 					        a.setCategoryFinished(true);
@@ -306,7 +305,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			                ? (currentGender != null ? currentGender.equals(a.getGender()) : true)
 			                : false)
 			        .map(a -> {
-				        if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory().getCode())) {
+				        if (a.getCategory() != null && unfinishedCategories.contains(a.getCategory())) {
 					        a.setCategoryFinished(false);
 				        } else {
 					        a.setCategoryFinished(true);
