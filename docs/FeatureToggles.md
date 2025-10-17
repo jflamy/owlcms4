@@ -50,8 +50,9 @@ These features are not commonly used, and will not be promoted to the interface
 | usawCollars                   | Apply 2024 USAW rules for bar loading and collars            | Only available as a feature switch. |
 | AthleteCardEntryTotal         | Show entry total on the interactive athlete card used by marshals | Only available as a feature switch. |
 | manualStartNumbers            | Enable manual assignment of start numbers.  Used when competition secretary has assigned start numbers with gaps or prematurely given out bibs out of order. | Only available as a feature switch. |
-| medalsForCategoryOnly         | On the medals scoreboard, show flags only when a single category is shown and not when multiple categories are shown | ResultsMedals.java                  |
-| mqttDownSignal                | Enable MQTT down signal testing button on the button testing page, for sites that have Blue-Owl devices. | TestingContent.java                 |
+| medalsForCategoryOnly         | On the medals scoreboard, show flags only when a single category is shown and not when multiple categories are shown | Only available as a feature switch. |
+| mqttDownSignal                | Enable MQTT down signal testing button on the button testing page, for sites that have Blue-Owl devices.Only available as a feature switch. | Only available as a feature switch. |
+| keepSpanishHyphenShortcut     | The Spanish keyboard has minus where the US keyboard has /.  <br />Normally, we disable the / shortcut so spanish users can use the - at the bottom right of their keyboard.<br />But when using a device that requires the bottom right keycode, this needs to be disabled.<br />The devices should be configured to use NUMPAD_DIVIDE instead. | Only available as a feature switch. |
 
 ### Current Features
 
@@ -64,10 +65,9 @@ These switches will likely be removed, since they can be activated from the appl
 
 ### Obsolete
 
-| Feature Switch            | Description                                                  | Used In                                                      |
-| ------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| keepSpanishHyphenShortcut | The Spanish keyboard has minus where the US keyboard has /.  <br />Normally, we disable the / shortcut so spanish users can use the - at the bottom right of their keyboard.<br />But when using a device that requires the bottom right keycode, this needs to be disabled.<br />The devices should be configured to use NUMPAD_DIVIDE instead.On the multi-agegroups scoreboards, group the age groups columns according to championship | AnnouncerContent.java, TimekeeperContent.java, WodkeeperContent.javaResultsMultiRanks.java |
-| noAthleteUpdates          | Disable athlete updates from registration files.<br />Normally the SBDE would be used instead which has the option in the user interface. | NRegistrationFileUploadDialog.java                           |
+| Feature Switch   | Description                                                  | Used In                            |
+| ---------------- | ------------------------------------------------------------ | ---------------------------------- |
+| noAthleteUpdates | Disable athlete updates from registration files.<br />Normally the SBDE would be used instead which has the option in the user interface. | NRegistrationFileUploadDialog.java |
 
 ### Use at your own risk
 
