@@ -39,8 +39,14 @@ public class StartNumberOrderComparator extends AbstractLifterComparator impleme
 		}
 
 		compare = ObjectUtils.compare(lifter1.getStartNumber(), lifter2.getStartNumber(), true);
+		if (compare != 0) {
+			traceComparison("StartNumberOrderComparator", lifter1, lifter1.getStartNumber(), lifter2, lifter2.getStartNumber(), compare);
+			return compare;
+		}
 
-		return compare;
+		// if athletes have 0 as start number (assignment was not done) or if manual assignment created duplicates,
+		// fall back to registration order
+		return RegistrationOrderComparator.athleteRegistrationOrderComparator.compare(lifter1, lifter2);
 	}
 
 }

@@ -77,6 +77,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.RegistrationOrderComparator;
+import app.owlcms.data.athleteSort.StartNumberOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -1119,15 +1120,19 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				case JURY:
 					JXLSJurySheet jury = new JXLSJurySheet();
 					jury.setGroup(grp);
-					jury.setSortedAthletes(a);
+					jury.setSortedAthletes(AthleteSorter.displayOrderCopy(a));
 					return jury;
 				case INTRODUCTION:
 					JXLSCategoriesListDocs intro = new JXLSCategoriesListDocs();
 					intro.setGroup(grp);
+					logger.warn("Sorting athletes for introduction sheet, group={}, count={}", grp, (a == null ? 0 : a.size()));
 					if (a != null) {
-						a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
+						AthleteSorter.displayOrder(a);
+						// a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
+						a.sort(new StartNumberOrderComparator());
 					}
 					intro.setSortedAthletes(a);
+					logger.warn("Sorted athletes for introduction sheet, athletes={}", a.stream().map(at -> at.getAbbreviatedName().toString()).collect(Collectors.joining(", ")));
 					return intro;
 				default:
 					return null;

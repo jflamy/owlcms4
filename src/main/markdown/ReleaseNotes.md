@@ -12,7 +12,9 @@
 
 **New in Release 63.0**
 
-63.0.0: Additional information sent to tracking programs such as wise-eyes and owlcms-tracker.  Support of web sockets.
+63.0.0: New feature toggle "manualStartNumbers" that enable manual editing of start numbers when errors were made when numbering athlete cards or handing out bibs.
+
+63.0.0: Event forwarding using web sockets to support enhanced tracking programs like owlcms-tracker that will eventually replace publicresults.
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases) 
