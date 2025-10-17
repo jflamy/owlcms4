@@ -1211,7 +1211,7 @@ public class FieldOfPlay implements IUnregister {
 			// skip if session is already in progress (forceLoad == false)
 			if (forceLoad && groupAthletes.stream().map(Athlete::getStartNumber).anyMatch(sn -> sn == 0)) {
 				this.logger./**/warn("start numbers were not assigned correctly");
-				AthleteRepository.assignStartNumbers(group);
+				AthleteRepository.assignStartNumbersUnlessManual(group);
 				groupAthletes = AthleteRepository.findAllByGroupAndWeighIn(group, true);
 			}
 

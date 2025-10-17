@@ -1600,10 +1600,14 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	private MqttConnectOptions setUpConnectionOptions(String username, String password) {
 		MqttConnectOptions connOpts = new MqttConnectOptions();
 		connOpts.setCleanSession(true);
-		if (username != null) {
+		// Only set username/password when they are explicitly provided and non-blank.
+		// Passing empty strings previously caused the client to attempt authentication
+		// with an empty credential which may be rejected by some brokers (e.g. Moquette)
+		// or produce unexpected behavior. Treat blank as not-configured.
+		if (username != null && !username.isBlank()) {
 			connOpts.setUserName(username);
 		}
-		if (password != null) {
+		if (password != null && !password.isBlank()) {
 			connOpts.setPassword(password.toCharArray());
 		}
 		connOpts.setCleanSession(true);

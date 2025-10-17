@@ -328,6 +328,8 @@ public class Competition {
 	private boolean imwa = true;
 	@Column(columnDefinition = "boolean default true")
 	private Boolean deduct250g = true;
+	@Column(columnDefinition = "boolean default false")
+	private boolean manualStartNumbers = false;
 
 	public Competition() {
 		this.medalsByGroup = new HashMap<>();
@@ -1142,6 +1144,14 @@ public class Competition {
 
 	public boolean isDisplayScores() {
 		return this.displayScores || Config.getCurrent().featureSwitch("displayBestScore");
+	}
+
+	public boolean isManualStartNumbers() {
+		return this.manualStartNumbers || Config.getCurrent().featureSwitch("manualStartNumbers");
+	}
+
+	public void setManualStartNumbers(boolean manualStartNumbers) {
+		this.manualStartNumbers = manualStartNumbers;
 	}
 
 	/**

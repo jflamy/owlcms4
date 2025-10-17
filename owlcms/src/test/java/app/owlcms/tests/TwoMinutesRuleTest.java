@@ -65,7 +65,7 @@ public class TwoMinutesRuleTest {
     public void initialCheck() {
         final String resName = "/initialCheck.txt";
         AthleteSorter.displayOrder(athletes);
-        AthleteSorter.doAssignStartNumbers(athletes);
+        AthleteSorter.testAssignStartNumbers(athletes);
 
         Collections.shuffle(athletes);
 
@@ -123,7 +123,7 @@ public class TwoMinutesRuleTest {
         final Athlete simpsonR = athletes.get(1);
 
         JPAService.runInTransaction(em -> {
-            AthleteSorter.doAssignStartNumbers(athletes);
+            AthleteSorter.testAssignStartNumbers(athletes);
             // simulate initial declaration at weigh-in
             schneiderF.setSnatch1Declaration(Integer.toString(60));
             simpsonR.setSnatch1Declaration(Integer.toString(60));
@@ -156,7 +156,7 @@ public class TwoMinutesRuleTest {
         final Athlete simpsonR = athletes.get(1);
 
         JPAService.runInTransaction(em -> {
-            AthleteSorter.doAssignStartNumbers(athletes);
+            AthleteSorter.testAssignStartNumbers(athletes);
             // simulate initial declaration at weigh-in
             schneiderF.setSnatch1Declaration(Integer.toString(60));
             simpsonR.setSnatch1Declaration(Integer.toString(65));

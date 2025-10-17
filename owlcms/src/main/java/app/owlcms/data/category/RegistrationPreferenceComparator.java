@@ -47,60 +47,61 @@ public class RegistrationPreferenceComparator implements Comparator<Category> {
 		} else if (c1 != null && c2 == null) {
 			return -1;
 		} else if (c1 != null && c2 != null) {
-			if (!Config.getCurrent().featureSwitch("oldCatOrder")) {
+			// if (!Config.getCurrent().featureSwitch("oldCatOrder")) {
 				return ObjectUtils.compare(c1.getMedalingSortCode(), c2.getMedalingSortCode());
-			} else {
-				AgeGroup ag1 = c1.getAgeGroup();
-				AgeGroup ag2 = c2.getAgeGroup();
-				Championship ad1 = (ag1 != null ? ag1.getChampionship() : null);
-				Championship ad2 = (ag2 != null ? ag2.getChampionship() : null);
+			// } else {
+			// 	/obsolete
+			// 	AgeGroup ag1 = c1.getAgeGroup();
+			// 	AgeGroup ag2 = c2.getAgeGroup();
+			// 	Championship ad1 = (ag1 != null ? ag1.getChampionship() : null);
+			// 	Championship ad2 = (ag2 != null ? ag2.getChampionship() : null);
 
-				int compare = 0;
-				if (ad1 != null && ad2 != null && ag1 != null && ag2 != null) {
-					compare = ObjectUtils.compare(c1.getGender(), c2.getGender());
-					if (compare != 0) {
-						return compare;
-					}
+			// 	int compare = 0;
+			// 	if (ad1 != null && ad2 != null && ag1 != null && ag2 != null) {
+			// 		compare = ObjectUtils.compare(c1.getGender(), c2.getGender());
+			// 		if (compare != 0) {
+			// 			return compare;
+			// 		}
 
-					// Championships are in registration preference order
-					compare = ObjectUtils.compare(ad1.getType(), ad2.getType());
-					if (compare != 0) {
-						return compare;
-					}
+			// 		// Championships are in registration preference order
+			// 		compare = ObjectUtils.compare(ad1.getType(), ad2.getType());
+			// 		if (compare != 0) {
+			// 			return compare;
+			// 		}
 
-					// Championships are in registration preference order
-					compare = ObjectUtils.compare(ad1.getName().length(), ad2.getName().length());
-					if (compare != 0) {
-						return compare;
-					}
+			// 		// Championships are in registration preference order
+			// 		compare = ObjectUtils.compare(ad1.getName().length(), ad2.getName().length());
+			// 		if (compare != 0) {
+			// 			return compare;
+			// 		}
 
-					// athlete will be placed in youngest age group by default
-					compare = Integer.compare(ag1.getMinAge(), ag2.getMinAge());
-					if (compare != 0) {
-						return compare;
-					}
+			// 		// athlete will be placed in youngest age group by default
+			// 		compare = Integer.compare(ag1.getMinAge(), ag2.getMinAge());
+			// 		if (compare != 0) {
+			// 			return compare;
+			// 		}
 
-					// same minimum age, listed in most specific age category
-					compare = ObjectUtils.compare(ag1.getMaxAge(), ag2.getMaxAge());
-					if (compare != 0) {
-						return compare;
-					}
+			// 		// same minimum age, listed in most specific age category
+			// 		compare = ObjectUtils.compare(ag1.getMaxAge(), ag2.getMaxAge());
+			// 		if (compare != 0) {
+			// 			return compare;
+			// 		}
 
-					// compare age divisions -- grasping at straws to get a total order.
-					compare = ObjectUtils.compare(ad1, ad2);
-					if (compare != 0) {
-						return compare;
-					}
-				}
+			// 		// compare age divisions -- grasping at straws to get a total order.
+			// 		compare = ObjectUtils.compare(ad1, ad2);
+			// 		if (compare != 0) {
+			// 			return compare;
+			// 		}
+			// 	}
 
-				// compare max body weights
-				compare = Double.compare(c1.getMaximumWeight(), c2.getMaximumWeight());
-				if (compare != 0) {
-					return compare;
-				}
+			// 	// compare max body weights
+			// 	compare = Double.compare(c1.getMaximumWeight(), c2.getMaximumWeight());
+			// 	if (compare != 0) {
+			// 		return compare;
+			// 	}
 
-				return 0;
-			}
+			// 	return 0;
+			// }
 		} else {
 			throw new RuntimeException("can't happen");
 		}

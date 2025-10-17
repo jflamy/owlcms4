@@ -79,6 +79,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.Platform;
@@ -970,7 +971,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			groupSupplier,
 			"EmptyProtocolSheet",
 			true, // requires session selection
-			true); // generate start numbers before creating
+			!Competition.getCurrent().isManualStartNumbers()); // generate start numbers before creating
 	}
 
 	/**
@@ -986,7 +987,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			groupSupplier,
 			"Jury",
 			true, // requires session selection
-			true); // generate start numbers before creating
+			!Competition.getCurrent().isManualStartNumbers()); // generate start numbers before creating
 	}
 
 	/**
@@ -1002,7 +1003,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			groupSupplier,
 			"INTRODUCTION",
 			true, // requires session selection
-			true); // generate start numbers before creating
+			!Competition.getCurrent().isManualStartNumbers()); // generate start numbers before creating
 	}
 
 	/**
@@ -1572,7 +1573,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        return Optional.empty();
 		        },
 		        (a, g) -> {
-			        AthleteRepository.assignStartNumbers(a);
+			        AthleteRepository.assignStartNumbersUnlessManual(a);
 			        JXLSResultSheet rs = new JXLSResultSheet(false);
 			        rs.setGroup(g);
 			        rs.setSortedAthletes(a);
@@ -1591,7 +1592,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        return Optional.empty();
 		        },
 		        (a, g) -> {
-			        AthleteRepository.assignStartNumbers(a);
+			        AthleteRepository.assignStartNumbersUnlessManual(a);
 			        JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
 			        xlsWriter.setGroup(g);
 
@@ -1607,7 +1608,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        template,
 		        defaultScopePrecheckFor(template),
 		        (a, g) -> {
-			        AthleteRepository.assignStartNumbers(a);
+			        AthleteRepository.assignStartNumbersUnlessManual(a);
 			        JXLSJurySheet rs = new JXLSJurySheet();
 			        rs.setGroup(g);
 			        rs.setSortedAthletes(a);

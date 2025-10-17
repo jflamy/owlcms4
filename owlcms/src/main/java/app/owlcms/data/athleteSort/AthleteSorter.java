@@ -208,7 +208,7 @@ public class AthleteSorter implements Serializable {
 			return 0;
 		}
 	}
-	
+
 	static public int countAllLiftsDone(List<Athlete> lifters) {
 		if (lifters != null && !lifters.isEmpty()) {
 			int totalSnatch = 0;
@@ -231,7 +231,11 @@ public class AthleteSorter implements Serializable {
 	 * @param athletes the to be sorted
 	 */
 	static public void displayOrder(List<? extends Athlete> athletes) {
-		Collections.sort(athletes, new RegistrationOrderComparator());
+		if (Competition.getCurrent().isManualStartNumbers()) {
+			Collections.sort(athletes, new StartNumberOrderComparator());
+		} else {
+			Collections.sort(athletes, new RegistrationOrderComparator());
+		}	
 	}
 
 	/**
@@ -263,6 +267,15 @@ public class AthleteSorter implements Serializable {
 				curLifter.setStartNumber(0);
 			}
 		}
+	}
+
+	/**
+	 * Assign start numbers to athletes.
+	 *
+	 * @param sortedList the sorted list
+	 */
+	public static void testAssignStartNumbers(List<Athlete> sortedList) {
+		doAssignStartNumbers(sortedList);
 	}
 
 	/**
@@ -422,7 +435,7 @@ public class AthleteSorter implements Serializable {
 		}
 		return 26 - rank;
 	}
-	
+
 	/**
 	 * @param a
 	 * @return normal points, unless in a Masters championship or a Masters session and IMWA team scoring is enabled
@@ -433,7 +446,7 @@ public class AthleteSorter implements Serializable {
 		boolean imwa = Competition.getCurrent().isImwa();
 		ChampionshipType championshipType = mr.getChampionshipType();
 		Group session = a.getGroup();
-		if (imwa && (championshipType == ChampionshipType.MASTERS || (session != null &&session.isMasters()))) {
+		if (imwa && (championshipType == ChampionshipType.MASTERS || (session != null && session.isMasters()))) {
 			// IMWA lowers points for 1-person and two-person categories
 			Category category = a.getCategory();
 			int athleteCount = AthleteRepository.retrieveMastersAthleteCountForCategory(category);
@@ -441,7 +454,7 @@ public class AthleteSorter implements Serializable {
 			if (rank <= 0) {
 				return 0;
 			}
-			//logger.debug("athlete {} category {} rank={} count={}", a.getAbbreviatedName(), category, rank, athleteCount);
+			// logger.debug("athlete {} category {} rank={} count={}", a.getAbbreviatedName(), category, rank, athleteCount);
 			if (athleteCount == 1) {
 				totalPoints = 23;
 			} else if (athleteCount == 2) {
@@ -455,7 +468,6 @@ public class AthleteSorter implements Serializable {
 		}
 		return totalPoints;
 	}
-	
 
 	/**
 	 * @param rank
@@ -650,7 +662,7 @@ public class AthleteSorter implements Serializable {
 	 *
 	 * @param toBeSorted  the to be sorted
 	 * @param rankingType the ranking type
-	 * @return 
+	 * @return
 	 */
 	public static void teamPointsOrder(List<Athlete> toBeSorted, Ranking rankingType) {
 		Collections.sort(toBeSorted, new TeamPointsComparator(rankingType));

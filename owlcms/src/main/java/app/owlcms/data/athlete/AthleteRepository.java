@@ -90,6 +90,12 @@ public class AthleteRepository {
 		});
 	}
 
+	public static void assignStartNumbersUnlessManual(Group group) {
+		if (!Competition.getCurrent().isManualStartNumbers()) {
+			assignStartNumbers(group);
+		}
+	}
+
 	/**
 	 * Assign start numbers to the list of Athletes.
 	 * <p>
@@ -114,6 +120,12 @@ public class AthleteRepository {
 			}
 			return null;
 		});
+	}
+
+	public static void assignStartNumbersUnlessManual(List<Athlete> athletes) {
+		if (!Competition.getCurrent().isManualStartNumbers()) {
+			assignStartNumbers(athletes);
+		}
 	}
 
 	/**

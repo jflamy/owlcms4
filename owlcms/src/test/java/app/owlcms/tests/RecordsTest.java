@@ -33,7 +33,7 @@ import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
-public class Records {
+public class RecordsTest {
     private static Group gA;
     private static Group gB;
     private static Group gC;
@@ -50,7 +50,7 @@ public class Records {
         JPAService.close();
     }
 
-    final Logger logger = (Logger) LoggerFactory.getLogger(Records.class);
+    final Logger logger = (Logger) LoggerFactory.getLogger(RecordsTest.class);
 
     private List<Athlete> athletes;
 
@@ -62,7 +62,7 @@ public class Records {
 //    public void initialCheck() {
 //        final String resName = "/initialCheck.txt";
 //        AthleteSorter.displayOrder(athletes);
-//        AthleteSorter.doAssignStartNumbers(athletes);
+//        AthleteSorter.testAssignStartNumbers(athletes);
 //
 //        Collections.shuffle(athletes);
 //
@@ -109,7 +109,7 @@ public class Records {
         final Athlete schneiderF = athletes.get(0);
 
         JPAService.runInTransaction(em -> {
-            AthleteSorter.doAssignStartNumbers(athletes);
+            AthleteSorter.testAssignStartNumbers(athletes);
             // simulate initial declaration at weigh-in
             schneiderF.setSnatch1Declaration(Integer.toString(60));
             schneiderF.setCleanJerk1Declaration(Integer.toString(80));
