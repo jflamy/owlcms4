@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -43,16 +44,21 @@ public class TechnicalOfficialRepository {
 	}
 
 	public static TechnicalOfficial findByName(String string) {
-		String[] t = string.split("[, ]+");
-		String lastName = t[0];
-		String firstName = t[1];
-		return JPAService.runInTransaction(em -> {
-			TypedQuery<TechnicalOfficial> query = em.createQuery("select c from TechnicalOfficial c where (lower(lastName) = lower(:lastName) and lower(firstName) = lower(:firstName))", TechnicalOfficial.class);
-			query.setParameter("lastName", lastName);
-			query.setParameter("firstName", firstName);
-			List<TechnicalOfficial> resultList = query.getResultList();
-			return resultList.isEmpty() ? null : resultList.get(0);
-		});
+		try {
+			String[] t = string.split("[, ]+");
+			String lastName = (t.length > 0 ? t[0] : "");
+			String firstName = (t.length > 1 ? t[1] : "");
+			return JPAService.runInTransaction(em -> {
+				TypedQuery<TechnicalOfficial> query = em.createQuery("select c from TechnicalOfficial c where (lower(lastName) = lower(:lastName) and lower(firstName) = lower(:firstName))", TechnicalOfficial.class);
+				query.setParameter("lastName", lastName);
+				query.setParameter("firstName", firstName);
+				List<TechnicalOfficial> resultList = query.getResultList();
+				return resultList.isEmpty() ? null : resultList.get(0);
+			});
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+			throw e;
+		}
 	}
 	
 	public static TechnicalOfficial safeFindByName(String string) {
