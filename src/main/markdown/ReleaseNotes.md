@@ -1,7 +1,3 @@
-
-
-
-
 ⚠️⚠️⚠️ 
 **To install and run OWLCMS, you need to use the OWLCMS Control Panel.** This location contains the release notes and the software modules that the control panel will install for you.
 
@@ -11,6 +7,8 @@
 <br>
 
 **Maintenance Log**
+
+62.0.2: Entering a Technical Official in the session assignments without a last name would cause an error. Expected format is LastName, FirstName.
 
 62.0.1:  Export of records was working for the plain export but not for templates that grouped records by age group.
 
