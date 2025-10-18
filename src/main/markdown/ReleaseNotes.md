@@ -8,7 +8,8 @@
 
 **Maintenance Log**
 
-62.0.2: Entering a Technical Official in the session assignments without a last name would cause an error. Expected format is LastName, FirstName.
+62.0.2: Entering a Technical Official in the session assignments without a last name would cause an error. Officials not in the LastName, FirstName format will (correctly) not be matched
+with the Technical Officials table.
 
 62.0.1:  Export of records was working for the plain export but not for templates that grouped records by age group.
 
