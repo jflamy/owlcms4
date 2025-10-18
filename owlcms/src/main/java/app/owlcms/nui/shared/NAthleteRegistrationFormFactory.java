@@ -1612,7 +1612,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				// always allow currently selected if eligible
 				String eligibleCode = eligible != null ? eligible.getCode() : "";
 				//logger.debug("selected {} eligible {}",selectedCode, eligibleCode);
-				if (eligibleCode != null && eligibleCode.contentEquals(selectedCode)) {
+				if (eligibleCode != null && selectedCode != null && eligibleCode.contentEquals(selectedCode)) {
 					matchingEligible = eligible;
 					break;
 				}
