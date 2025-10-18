@@ -55,6 +55,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	public JXLSExportRecords(UI ui, boolean allRecords, boolean currentOnly) {
 		this.setAllRecords(allRecords);
 		this.currentOnly = currentOnly;
+		this.setEmptyOk(true);
 	}
 
 	/**
@@ -65,6 +66,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		this.setAllRecords(true); // Not used when records are pre-filtered
 		this.currentOnly = false; // Not used when records are pre-filtered
 		this.records = new ArrayList<>(filteredRecords);
+		this.setEmptyOk(true);
 	}
 
 	@Override
@@ -111,9 +113,6 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	public List<Athlete> computeSortedAthletes() {
 		HashMap<String, Object> reportingBeans = getReportingBeans();
 
-		// prevent irrelevant "No Athletes" error message.
-		List<Athlete> athletes = List.of(new Athlete());
-
 		// Only fetch records if they haven't been pre-provided
 		if (this.records == null) {
 			String groupName = this.group != null ? this.group.getName() : null;
@@ -142,7 +141,7 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		reportingBeans.put("records", this.getRecords());
 		
 		//logger.debug("put {}",getRecords().size());
-		return athletes;
+		return new ArrayList<>();
 	}
 
 	@Override
@@ -185,6 +184,9 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 
 	@Override
 	protected void setReportingInfo() {
+		// For records export, we need to compute the records first, which populates the reporting beans
+		this.computeSortedAthletes();
+		
 		List<Athlete> athletes = getSortedAthletes();
 		if (athletes != null) {
 			getReportingBeans().put("athletes", athletes);
