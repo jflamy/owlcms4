@@ -10,6 +10,10 @@
 
 <br>
 
+**Maintenance Log**
+
+62.0.1:  Export of records was working for the plain export but not for templates that grouped records by age group.
+
 **New in Release 62.0**
 
 62.0.0: The default language for the database is always used for translating the gender in displayed and exported category codes. In this way, all sessions and all printouts will have either W or F depending on the translation chosen for that language (this does not apply when the code is explicitly gendered)
