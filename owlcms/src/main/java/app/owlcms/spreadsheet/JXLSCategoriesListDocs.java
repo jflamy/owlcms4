@@ -10,8 +10,6 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.flow.theme.lumo.LumoUtility.Margin.Minus.Start;
-
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;

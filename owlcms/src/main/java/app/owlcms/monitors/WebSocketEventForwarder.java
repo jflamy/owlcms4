@@ -86,6 +86,8 @@ import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.uievents.UIEvent.SetTime;
 import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
+import app.owlcms.utils.FlagsZipHelper;
+import app.owlcms.utils.TranslationsZipHelper;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
@@ -1277,13 +1279,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 		populateRecordInfo(sb);
 
-		// presentation information
-		if (this.translationMap != null) {
-			Object convertedTranslations = convertJsonValue(this.translationMap);
-			if (convertedTranslations != null) {
-				sb.put("translationMap", convertedTranslations);
-			}
-		}
+		// Translations are now sent separately via 428 callback (sendTranslations)
+		// No longer included in regular updates for efficiency
+		
 		mapPut(sb, "hidden", String.valueOf(this.hidden));
 		mapPut(sb, "wideTeamNames", String.valueOf(this.wideTeamNames));
 		mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
@@ -2066,6 +2064,99 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 	}
 
+	/**
+	 * Send flags directory as a zipped archive via WebSocket.
+	 * Called when the remote system requests flags (via 428 response with "flags" in missing array).
+	 * Uses binary transmission for maximum efficiency.
+	 * 
+	 * @param url the WebSocket URL to send flags to
+	 */
+	private void sendFlags(String url) {
+		logger.warn("{}sendFlags called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+
+		if (url == null) {
+			logger.error("cannot send flags, url is null");
+			return;
+		}
+
+		if (!FlagsZipHelper.hasFlagsAvailable()) {
+			logger.warn("{}flags not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
+			return;
+		}
+
+		// Check if URL is WebSocket
+		if (url.startsWith("ws://") || url.startsWith("wss://")) {
+			// Send via WebSocket as binary data (most efficient)
+			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
+			if (sender != null) {
+				byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
+				if (flagsZipBytes.length > 0) {
+					boolean sent = sender.sendBinary("flags", flagsZipBytes);
+					if (sent) {
+						logger.warn("{}sent flags ZIP via WebSocket binary to {} ({} bytes)",
+						        FieldOfPlay.getLoggingName(getFop()), url, flagsZipBytes.length);
+					} else {
+						logger.warn("{}could not send flags ZIP via WebSocket to {} (socket not ready)",
+						        FieldOfPlay.getLoggingName(getFop()), url);
+					}
+				} else {
+					logger.warn("{}failed to create flags ZIP for {}", FieldOfPlay.getLoggingName(getFop()), url);
+				}
+			}
+			return;
+		}
+
+		// HTTP endpoints for flags are not typically used, but log a warning
+		logger.warn("{}HTTP endpoint for flags not implemented ({})", FieldOfPlay.getLoggingName(getFop()), url);
+	}
+
+	/**
+	 * Send all translations for all 26 locales as a zipped JSON archive via WebSocket.
+	 * Called when the remote system requests translations (via 428 response with "translations" in missing array).
+	 * Sends complete translation maps with regional variant merging (e.g., fr-CA gets all fr keys + 10 overrides).
+	 * Uses binary transmission for maximum efficiency.
+	 * 
+	 * @param url the WebSocket URL to send translations to
+	 */
+	private void sendTranslations(String url) {
+		logger.warn("{}sendTranslations called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+
+		if (url == null) {
+			logger.error("cannot send translations, url is null");
+			return;
+		}
+
+		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
+			logger.warn("{}translations not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
+			return;
+		}
+
+		// Check if URL is WebSocket
+		if (url.startsWith("ws://") || url.startsWith("wss://")) {
+			// Send via WebSocket as binary data (most efficient)
+			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
+			if (sender != null) {
+				byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
+				if (translationsZipBytes.length > 0) {
+					boolean sent = sender.sendBinary("translations_zip", translationsZipBytes);
+					if (sent) {
+						logger.warn("{}sent translations ZIP via WebSocket binary to {} ({} bytes with all 26 locales)",
+						        FieldOfPlay.getLoggingName(getFop()), url, translationsZipBytes.length);
+					} else {
+						logger.warn("{}could not send translations ZIP via WebSocket to {} (socket not ready)",
+						        FieldOfPlay.getLoggingName(getFop()), url);
+					}
+				} else {
+					logger.warn("{}failed to create translations ZIP for {}", FieldOfPlay.getLoggingName(getFop()), url);
+				}
+			}
+			return;
+		}
+
+		// HTTP endpoints for translations are not typically used, but log a warning
+		logger.warn("{}HTTP endpoint for translations not implemented ({})", FieldOfPlay.getLoggingName(getFop()), url);
+	}
+
 	private void sendPost(String url, String updateKey, Map<String, ?> parameters, String messageType) {
 		if (url == null) {
 			return;
@@ -2151,6 +2242,16 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 						updateKey = currentCallback.getParamVideoDataKey();
 					}
 					sendFullCompetitionData(url, updateKey);
+				});
+
+				// Set up callback for 428 status response (flags requested)
+				sender.setMissingDataCallback("flags", () -> {
+					sendFlags(url);
+				});
+
+				// Set up callback for 428 status response (translations requested)
+				sender.setMissingDataCallback("translations", () -> {
+					sendTranslations(url);
 				});
 
 				sender.send(messageType, parameters);

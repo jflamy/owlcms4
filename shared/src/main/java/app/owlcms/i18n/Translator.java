@@ -137,6 +137,31 @@ public class Translator implements I18NProvider {
 		return translations;
 	}
 
+	/**
+	 * Get all translations for a specific locale as a map.
+	 * This safely accesses the internal Properties objects without exposing them.
+	 * Uses getBundleFromCSV internally (cached by Java's ResourceBundle).
+	 * 
+	 * @param locale the locale to get translations for
+	 * @return Map of all translations for the given locale, empty map if locale not found
+	 */
+	public static Map<String, String> getMapForLocale(Locale locale) {
+		try {
+			final PropertyResourceBundle bundle = (PropertyResourceBundle) getBundleFromCSV(locale);
+			Map<String, String> translations = new HashMap<>();
+			Enumeration<String> keys = bundle.getKeys();
+			String key;
+			while (keys.hasMoreElements()) {
+				key = keys.nextElement();
+				translations.put(key, bundle.getString(key));
+			}
+			return translations;
+		} catch (Exception e) {
+			// Return empty map if locale not found or error occurs
+			return new HashMap<>();
+		}
+	}
+
 	public static long getResetTimeStamp() {
 		return resetTimeStamp;
 	}

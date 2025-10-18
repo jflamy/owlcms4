@@ -8,6 +8,7 @@ package app.owlcms.monitors;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -421,6 +422,60 @@ public class WebSocketEventSender {
 			return true;
 		} catch (Exception e) {
 			logger.error("Failed to send WebSocket message with object to {}: {}", url, LoggerUtils.exceptionMessage(e));
+			return false;
+		}
+	}
+
+	/**
+	 * Send binary data over the WebSocket connection with a message type header.
+	 * 
+	 * Uses the WebSocket binary frame (opcode 0x2) which is automatically distinguished
+	 * from JSON text frames (opcode 0x1) at the protocol level. This means the server
+	 * can distinguish binary from JSON without parsing, simply by checking the frame type.
+	 * 
+	 * Binary Frame Format:
+	 * - First 4 bytes: message type length (big-endian int)
+	 * - Next N bytes: message type as UTF-8 string
+	 * - Remaining bytes: binary payload data
+	 * 
+	 * Example: To send "flags" with 100KB of ZIP data:
+	 * [0x00, 0x00, 0x00, 0x05] [f, l, a, g, s] [100KB of ZIP bytes...]
+	 * 
+	 * @param messageType Type identifier for the binary data (e.g., "flags", "pictures")
+	 * @param binaryData The binary payload to send
+	 * @return true if sent successfully, false if socket not ready
+	 */
+	public boolean sendBinary(String messageType, byte[] binaryData) {
+		if (client == null || !client.isOpen()) {
+			logger.warn("WebSocket not connected to {}, attempting to reconnect", url);
+			scheduleReconnect();
+			return false;
+		}
+
+		try {
+			byte[] typeBytes = messageType.getBytes("UTF-8");
+			
+			// Create buffer: 4 bytes (type length) + type bytes + binary data
+			ByteBuffer frame = ByteBuffer.allocate(4 + typeBytes.length + binaryData.length);
+			
+			// Write type length as big-endian int
+			frame.putInt(typeBytes.length);
+			
+			// Write type string
+			frame.put(typeBytes);
+			
+			// Write binary data
+			frame.put(binaryData);
+			
+			// Flip to prepare for reading
+			frame.flip();
+			
+			client.send(frame);
+			logger.info("Sent binary WebSocket message type '{}' to {} ({} bytes total, {} bytes payload)",
+					messageType, url, frame.capacity(), binaryData.length);
+			return true;
+		} catch (Exception e) {
+			logger.error("Failed to send binary WebSocket message to {}: {}", url, LoggerUtils.exceptionMessage(e));
 			return false;
 		}
 	}
