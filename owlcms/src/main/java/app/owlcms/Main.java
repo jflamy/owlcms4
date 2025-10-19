@@ -26,6 +26,7 @@ import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -371,6 +372,8 @@ public class Main {
             } else {
                 // migrations and other changes
                 logger.info("Database not empty: {}", allCompetitions.get(0).getCompetitionName());
+                AthleteRepository.removeBrokenParticipationsAndCategories();
+                
                 List<AgeGroup> ags = AgeGroupRepository.findAll();
                 if (ags.isEmpty()) {
                     logger.info("Creating age groups and categories");
@@ -394,6 +397,8 @@ public class Main {
                     logger.debug("updating category codes", nullCodeCategories);
                     CategoryRepository.fixNullCodes(nullCodeCategories);
                 }
+
+
 
                 PlatformRepository.checkPlatforms();
             }

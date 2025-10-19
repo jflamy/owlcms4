@@ -1881,10 +1881,11 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Set<Category> getEligibleCategories() {
-		// brain dead version, cannot get query version to work.
+		// defensive -- ignore historical corruption (category with no age group)
 		Set<Category> s = new LinkedHashSet<>();
 		List<Category> cats = getParticipations().stream()
 		        .map(p -> p.getCategory())
+				.filter(c -> c.getAgeGroup() != null)
 		        .sorted(Category.medalingComparator())
 		        // .peek(c -> logger.debug("{} {}", c, c.getMedalingSortCode()))
 		        .toList();
@@ -2310,6 +2311,12 @@ public class Athlete {
 
 	public List<Participation> getParticipations() {
 		return this.participations;
+	}
+
+	public List<Participation> getCleanParticipations() {
+		return this.participations.stream()
+			.filter(p -> p.getCategory() != null && p.getCategory().getAgeGroup() != null)
+			.toList();
 	}
 
 	public Integer getPersonalBestCleanJerk() {
@@ -3530,7 +3537,7 @@ public class Athlete {
 		// in a checkbox group
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
-			logger.warn("p.getCategory()={} p.getCategory().getAgeGroup()={}", p.getCategory(),
+			//logger.debug("p.getCategory()={} p.getCategory().getAgeGroup()={}", p.getCategory(),
 			        p.getCategory() != null ? p.getCategory().getAgeGroup() : null);
 			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
 		}
