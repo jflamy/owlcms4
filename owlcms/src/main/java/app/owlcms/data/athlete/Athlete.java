@@ -1041,8 +1041,13 @@ public class Athlete {
 		Set<String> s = new LinkedHashSet<>();
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
+			Category category2 = p.getCategory();
+			if (category2 == null || category2.getAgeGroup() == null) {
+				// defensive -- corrupt database?
+				continue;
+			}
 			if (p.getTeamMember()) {
-				s.add(p.getCategory().getAgeGroup().getDisplayName());
+				s.add(category2.getAgeGroup().getDisplayName());
 			}
 		}
 		return s;
@@ -1372,7 +1377,7 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
-	private String getCategorySortCode() {
+	public String getCategorySortCode() {
 		Category sortCategory = getCategory();
 		String sortCode = sortCategory != null ? sortCategory.getSortCode() : "~"; // must sort after z to put at end of list
 		// logger.debug("a {} category {} sortCode {}", getAbbreviatedName(), getCategory(), sortCategory.getSortCode());
@@ -3095,7 +3100,7 @@ public class Athlete {
 	@JsonIgnore
 	public String getTeamFlagPath() {
 		// use the same approach as URLUtils to find the flag
-		return URLUtils.getFlagResourcePath(this.team, new String[] {".png"});
+		return URLUtils.getFlagResourcePath(this.team, new String[] { ".png" });
 	}
 
 	@Transient
@@ -3504,6 +3509,8 @@ public class Athlete {
 		// in a checkbox group
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
+			logger.warn("p.getCategory()={} p.getCategory().getAgeGroup()={}", p.getCategory(),
+			        p.getCategory() != null ? p.getCategory().getAgeGroup() : null);
 			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
 		}
 	}
@@ -4022,7 +4029,7 @@ public class Athlete {
 			return;
 		} else {
 			// Setting to false:
-		   //if no explicit enum present (legacy DB), or previously marked as ELIGIBLE, set to OOC_INVITED;
+			// if no explicit enum present (legacy DB), or previously marked as ELIGIBLE, set to OOC_INVITED;
 			if (this.individualEligibilityStatus == null || this.individualEligibilityStatus == EligibleForIndividualRankingStatus.ELIGIBLE) {
 				this.individualEligibilityStatus = EligibleForIndividualRankingStatus.OOC_INVITED;
 			} else {
@@ -4037,15 +4044,14 @@ public class Athlete {
 	}
 
 	/**
-	 * Return the effective participation status: if an explicit enum is set return it,
-	 * otherwise map the legacy boolean to ELIGIBLE / OOC_INVITED.
+	 * Return the effective participation status: if an explicit enum is set return it, otherwise map the legacy boolean to ELIGIBLE / OOC_INVITED.
 	 */
 	public EligibleForIndividualRankingStatus getEffectiveIndividualEligibilityStatus() {
 		if (this.individualEligibilityStatus != null) {
 			return this.individualEligibilityStatus;
 		}
 		return this.eligibleForIndividualRanking ? EligibleForIndividualRankingStatus.ELIGIBLE
-				: EligibleForIndividualRankingStatus.OOC_INVITED;
+		        : EligibleForIndividualRankingStatus.OOC_INVITED;
 	}
 
 	public void setIndividualEligibilityStatus(EligibleForIndividualRankingStatus status) {

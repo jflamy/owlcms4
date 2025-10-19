@@ -631,7 +631,7 @@ public class WeighinContent extends BaseContent
 		        .collect(Collectors.toSet());
 
 		// we also need athletes with no participations (implies no category)
-		List<Athlete> noCat = AthleteRepository.findAthletesNoCategory();
+		List<Athlete> noCat = AthleteRepository.findAthletesNoParticipations();
 		List<Athlete> found2 = filterAthletes(noCat);
 		regCatAthletes.addAll(found2);
 

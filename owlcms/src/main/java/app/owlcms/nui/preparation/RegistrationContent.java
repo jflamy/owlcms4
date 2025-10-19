@@ -494,10 +494,15 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
 		        .collect(Collectors.toSet());
 
-		// we also need athletes with no participations (implies no category)
-		List<Athlete> noCat = AthleteRepository.findAthletesNoCategory();
+		// we also need athletes with no participations
+		List<Athlete> noCat = AthleteRepository.findAthletesNoParticipations();
 		List<Athlete> found2 = filterAthletes(noCat);
 		regCatAthletes.addAll(found2);
+
+		// we also need athletes with no category
+		List<Athlete> noCat3 = AthleteRepository.findAthletesNoCategory();
+		List<Athlete> found3 = filterAthletes(noCat3);
+		regCatAthletes.addAll(found3);
 
 		// sort
 		List<Athlete> regCatAthletesList = new ArrayList<>(regCatAthletes);
@@ -510,6 +515,9 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 				logger.error("***** Error sorting athletes", e);
 			}
 		}
+
+		logger.warn("***** athletesFindAll: found {} athletes with category: {}, without participations: {}, without category: {}", 
+			regCatAthletes.size(), found2.size(), found3.size());
 
 		updateURLLocations();
 		return regCatAthletesList;

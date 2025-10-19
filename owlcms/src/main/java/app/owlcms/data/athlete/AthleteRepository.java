@@ -301,10 +301,20 @@ public class AthleteRepository {
 		});
 	}
 
-	public static List<Athlete> findAthletesNoCategory() {
+	public static List<Athlete> findAthletesNoParticipations() {
 		return JPAService.runInTransaction((em) -> {
 			TypedQuery<Athlete> q = em.createQuery(
 			        "select distinct a from Athlete a left outer join a.participations p where p is null",
+			        Athlete.class);
+			return q.getResultList();
+		});
+	}
+
+	public static List<Athlete> findAthletesNoCategory() {
+		return JPAService.runInTransaction((em) -> {
+			TypedQuery<Athlete> q = em.createQuery(
+			        // Find athletes with no category
+			        "select distinct a from Athlete a where a.category is null",
 			        Athlete.class);
 			return q.getResultList();
 		});

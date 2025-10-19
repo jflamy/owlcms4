@@ -229,7 +229,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 	//@Override
 	@Transient
 	@JsonIgnore
-	private String getCategorySortCode() {
+	public String getCategorySortCode() {
 		Category sortCategory = getMainRankings().getCategory();
 		String sortCode = sortCategory != null ? sortCategory.getSortCode() : "~";
 		// logger.debug("a {} category {} sortCode {}", getAbbreviatedName(), getCategory(), sortCategory.getSortCode());
