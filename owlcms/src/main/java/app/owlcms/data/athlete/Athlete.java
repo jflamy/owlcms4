@@ -2292,6 +2292,8 @@ public class Athlete {
 		return this.participations;
 	}
 
+	@Transient
+	@JsonIgnore
 	public List<Participation> getCleanParticipations() {
 		return this.participations.stream()
 			.filter(p -> p.getCategory() != null && p.getCategory().getAgeGroup() != null)
