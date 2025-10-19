@@ -126,12 +126,13 @@ public class CategoryRepository {
 		allEligible = allEligible.stream()
 		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
 		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
+				.filter(c -> (c.getAgeGroup() != null && c.getAgeGroup().isActive()))
 		        .collect(Collectors.toList());
 		
 		// the most specific category should be returned first, and will be used as registration category.
 		// we do not want Open categories used as registration if there are "non-open" categories.
 		allEligible.sort(Category.specificityComparator);
-		if (logger.isEnabledFor(Level.TRACE) && a.getLastName().contentEquals("Mannino")) {
+		if (logger.isEnabledFor(Level.TRACE) && a.getLastName().contentEquals("Castanon")) {
 			logger./**/warn("allEligible bw={} {} -- {}", bw, allEligible, LoggerUtils.whereFrom());
 		}
 		return allEligible;

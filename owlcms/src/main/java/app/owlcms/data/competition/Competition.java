@@ -427,7 +427,7 @@ public class Competition {
 
 			List<Athlete> pMedalists;
 
-			if (category.getAgeGroup().getComputedScoringSystem() == Ranking.TOTAL) {
+			if (category.getAgeGroup() != null && category.getAgeGroup().getComputedScoringSystem() == Ranking.TOTAL) {
 				//logger.debug("[TOTAL] Updating TOTAL and CATEGORY_SCORE ranks for category {}", category.getCode());
 				List<Athlete> totalPLeaders = AthleteSorter.resultsOrderCopy(updatedAthletes, Ranking.TOTAL)
 				        .stream()
