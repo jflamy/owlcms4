@@ -619,4 +619,48 @@ public class AthleteRepository {
 		}
 	}
 
+	public static void removeBrokenParticipationsAndCategories() {
+		JPAService.runInTransaction(em -> {
+			TypedQuery<Participation> q = em.createQuery(
+			        "select p from Participation p where p.category is null or p.category.ageGroup is null",
+			        Participation.class);
+			List<Participation> results = q.getResultList();
+			logger.info("removeBrokenParticipationsAndCategories found {} athletes with broken participations:\n{}",
+				results.size(),
+			    results.stream().map(p -> p.getAthlete().getAbbreviatedName()).collect(Collectors.joining(",\n")));
+			for (Participation p : results) {
+				Athlete a = p.getAthlete();
+				a.getParticipations().remove(p);
+				em.remove(p);
+				em.merge(a);
+			}
+
+			// find athletes where a.category is without age group
+			TypedQuery<Athlete> q2 = em.createQuery(
+			        "select a from Athlete a where a.category is not null and a.category.ageGroup is null",
+			        Athlete.class);
+			List<Athlete> results2 = q2.getResultList();
+			logger.info("removeBrokenParticipationsAndCategories found {} athletes with broken registration categories {}",
+			        results2.size(),
+			        results2.stream().map(a -> a.getAbbreviatedName()).collect(Collectors.joining(", ")));
+			for (Athlete a : results2) {
+				a.setCategory(null);
+				em.merge(a);
+			}
+
+			// remove the broken categories without age group
+			TypedQuery<Category> q3 = em.createQuery(
+			        "select c from Category c where c.ageGroup is null",
+			        Category.class);
+			List<Category> results3 = q3.getResultList();
+			logger.info("removeBrokenParticipationsAndCategories removed {} stray participation categories {}",
+			        results3.size(),
+			        results3.stream().map(c -> c.getCode()).collect(Collectors.joining(", ")));
+			for (Category c : results3) {
+				em.remove(c);
+			}
+			return null;
+		});
+	}
+
 }
