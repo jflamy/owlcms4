@@ -8,6 +8,9 @@
 
 **Maintenance Log**
 
+62.0.3: When using an old database, it is possible that athlete participation information links to orphaned categories instead of the correct ones.
+At startup, the system will now detect and remove such stray participations. The correct participations can then be fixed using the registration or weighin page.
+
 62.0.2: Entering a Technical Official in the session assignments without a last name would cause an error. Officials not in the LastName, FirstName format will (correctly) not be matched
 with the Technical Officials table.
 
