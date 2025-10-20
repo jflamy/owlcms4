@@ -324,7 +324,6 @@ public class CategoryRepository {
 		return JPAService.runInTransaction(em -> {
 			// code must match inside info for string-based matches in db.
 			category.setCode(category.getComputedCode());
-			category.setName(category.getDisplayName());
 			return em.merge(category);
 		});
 	}
