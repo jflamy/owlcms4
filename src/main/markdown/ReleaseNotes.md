@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+62.0.4: SBDE export was not showing newly created categories with all bodyweights
+
 62.0.3: When using an old database, it is possible that athlete participation information links to orphaned categories instead of the correct ones.
 At startup, the system will now detect and remove such stray participations. The correct participations can then be fixed using the registration or weighin page.
 

@@ -62,10 +62,14 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 			 logger.trace("%%% sortedAthletes.size()={}",sa.size());
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
-				logger.trace("YYYYYYYYYYYY provided athletes {}", sa.get(0).getClass().getSimpleName());
+				if (!sa.isEmpty()) {
+					logger.trace("YYYYYYYYYYYY provided athletes {}", sa.get(0).getClass().getSimpleName());
+				}
 				Ranking rankingOrder = Ranking.CATEGORY_SCORE;
 				AthleteSorter.resultsOrder(sa, rankingOrder, ORDER_BY_CATEGORIES);
-				logger.trace("ZZZZZZZZZZZZ sorted provided athletes {}", sa.get(0).getClass().getSimpleName());
+				if (!sa.isEmpty()) {
+					logger.trace("ZZZZZZZZZZZZ sorted provided athletes {}", sa.get(0).getClass().getSimpleName());
+				}
 				this.setSortedAthletes(sa);
 				return sa;
 			} else {
