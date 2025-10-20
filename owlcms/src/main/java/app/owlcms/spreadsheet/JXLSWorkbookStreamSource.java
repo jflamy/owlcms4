@@ -393,11 +393,14 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		File tempFile = null;
 		InputStream template = null;
 		try {
-			// Allow subclasses to provide an explicit template input stream via setInputStream
+			// Use the provided template stream if one was explicitly set via setInputStream().
+			// Otherwise, fetch the default template. In either case, wrap in BufferedInputStream
+			// for efficiency and mark/reset support, then copy to a temp file immediately so the
+			// original stream is available for reuse on subsequent downloads.
 			if (this.inputStream != null) {
 				template = new BufferedInputStream(this.inputStream);
 			} else {
-				template = getTemplate(OwlcmsSession.getLocale());
+				template = new BufferedInputStream(getTemplate(OwlcmsSession.getLocale()));
 			}
 
 			// Copy template to temp file so WorkbookFactory/JXLS can operate on it
@@ -813,9 +816,20 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
         try {
 			System.err.println("=== preCheck called");
             setReportingInfo();
-            // Resolve template on UI thread to avoid session access in background writer
-            if (this.inputStream == null) {
-                this.inputStream = getTemplate(OwlcmsSession.getLocale());
+            // Validate that the template exists and is readable on the UI thread.
+            // If a caller provided a custom template via setInputStream(), trust that they manage it properly.
+            // Otherwise, validate that the default template exists.
+            try {
+                if (this.inputStream == null) {
+                    // No custom template set; validate the default template can be loaded
+                    InputStream testTemplate = getTemplate(OwlcmsSession.getLocale());
+                    if (testTemplate != null) {
+                        testTemplate.close();
+                    }
+                }
+                // If inputStream is set, don't touch it - caller is responsible for managing it
+            } catch (IOException e) {
+                return Optional.of(e);
             }
             @SuppressWarnings("unchecked")
             List<Athlete> athletes = (List<Athlete>) getReportingBeans().get("athletes");
