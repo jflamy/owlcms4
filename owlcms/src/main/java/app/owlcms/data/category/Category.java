@@ -128,7 +128,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@Id
 	// @GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	private String name;
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<Participation> participations = new ArrayList<>();
 	/** minimum weight to be considered eligible */
@@ -416,10 +415,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@JsonIgnore
 	@Transient
 	public String getSafeName() {
-		if (this.name == null || this.name.isBlank()) {
-			return getDisplayName();
-		}
-		return this.name;
+		return getDisplayName();
 	}
 
 	@JsonIgnore
