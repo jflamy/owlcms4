@@ -53,12 +53,14 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	public NRegistrationFileUploadDialog(boolean sbdeFormat) {
 		this.sbdeFormat = sbdeFormat;
 
-	// Keep the exported-Excel translation in the master file, but in the interactive UI we
-	// show a simple English warning text (non-translated) and log the canonical warning if needed.
-	H5 label = new H5("Warning: this will replace all existing data.");
+		// Keep the exported-Excel translation in the master file, but in the interactive UI we
+		// show a simple English warning text (non-translated) and log the canonical warning if needed.
+		H5 label = new H5("Warning: this will replace all existing data.");
 		label.getStyle().set("color", "red");
 		H5 sbdeLabel = new H5(Translator.translate("SBDE.AthleteOptions_WARNING"));
 		sbdeLabel.getStyle().set("color", "red");
+		H5 restartWarning = new H5(Translator.translate("SBDE.RestartWarning"));
+		restartWarning.getStyle().set("color", "red");
 
 		Component sos = sessionOptionSelectors();
 		Component aos = athleteOptionSelectors();
@@ -90,16 +92,16 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			ta.clear();
 			ta.setVisible(false);
 		});
-		
+
 		Upload upload = new Upload(uploadHandler);
 		upload.setWidth("40em");
 
 		H3 title = new H3(Translator.translate("UploadRegistrationFile"));
 		VerticalLayout vl;
 		if (sbdeFormat) {
-			vl = new VerticalLayout(title, sbdeLabel, aos, sos, upload, ta);
+			vl = new VerticalLayout(title, sbdeLabel, restartWarning, aos, sos, upload, ta);
 		} else {
-			vl = new VerticalLayout(title, label, upload, ta);
+			vl = new VerticalLayout(title, label, restartWarning, upload, ta);
 		}
 		add(vl);
 	}
@@ -117,7 +119,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			this.athleteOption = v.getValue();
 			if (this.athleteOption != NRegistrationFileProcessor.AthleteOptions.DELETE_ATHLETES) {
 				sessionOption = NRegistrationFileProcessor.SessionOptions.IGNORE_SESSIONS;
-				sessionRadioGroup.setValue(sessionOption);			
+				sessionRadioGroup.setValue(sessionOption);
 			}
 		});
 		return radioGroup;
@@ -201,8 +203,8 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		int nbSessionsFound = this.processor.doProcessGroups(inputStream, true, s -> {
 			// discard dry-run messages; we only want the count
 		}, noopUpdater);
-	// show the dry-run session count only in logs (keep DataProcessed.* translations for UI counts)
-	logger.info(MessageFormat.format("{0} sessions identified.", Integer.valueOf(nbSessionsFound)));
+		// show the dry-run session count only in logs (keep DataProcessed.* translations for UI counts)
+		logger.info(MessageFormat.format("{0} sessions identified.", Integer.valueOf(nbSessionsFound)));
 
 		int nbSessionsProcessed = 0;
 		if (nbSessionsFound > 0 && !this.processor.isIgnoreSessions()) {
@@ -289,7 +291,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	private void updateDisplay(TextArea ta, StringBuffer sb) {
 		if (sb.length() > 0) {
 			String existing = ta.getValue();
-			//logger.debug(sb.toString() + "  " + LoggerUtils.stackTrace());
+			// logger.debug(sb.toString() + " " + LoggerUtils.stackTrace());
 			String newText = sb.toString();
 			// Strip trailing/leading whitespace to avoid double blank lines when appending
 			newText = newText.strip();
