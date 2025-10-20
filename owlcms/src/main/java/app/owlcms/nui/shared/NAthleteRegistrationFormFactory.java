@@ -723,7 +723,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.individualEligibilityField.setItems(EligibleForIndividualRankingStatus.values());
 		this.individualEligibilityField.setItemLabelGenerator(s -> Translator.translate("Eligibility." + s.name()));
 		bindField(this.binder.forField(this.individualEligibilityField), this.individualEligibilityField,
-		        Athlete::getIndividualEligibilityStatus, Athlete::setIndividualEligibilityStatus);
+		        Athlete::getEffectiveIndividualEligibilityStatus, Athlete::setIndividualEligibilityStatus);
 		FormItem fi3 = layoutAddFormItem(layout, this.individualEligibilityField, Translator.translate("Eligibility.Status"));
 		layout.setColspan(fi3, NB_COLUMNS - 2);
 
