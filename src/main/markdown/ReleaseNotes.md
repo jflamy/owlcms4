@@ -10,10 +10,12 @@
 
 **Maintenance Log**
 
+62.0.4: Downloading Registration Files twice in a row did not work (required refreahing the page)
+
 62.0.4: SBDE export was not showing newly created categories with all bodyweights
 
-62.0.3: When using an old database, it is possible that athlete participation information links to orphaned categories instead of the correct ones.
-At startup, the system will now detect and remove such stray participations. The correct participations can then be fixed using the registration or weighin page.
+62.0.3: At startup, the system will now detect and remove participations that refer to broken categories (sometimes found in
+from old databases). The correct participations can then be fixed using the registration or weighin page.
 
 62.0.2: Entering a Technical Official in the session assignments without a last name would cause an error. Officials not in the LastName, FirstName format will (correctly) not be matched
 with the Technical Officials table.
