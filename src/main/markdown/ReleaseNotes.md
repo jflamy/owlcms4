@@ -8,19 +8,11 @@
 
 <br>
 
-**Maintenance Log**
+**New in Release 62.1**
 
-62.0.4: Downloading Registration Files twice in a row did not work (required refreahing the page)
-
-62.0.4: SBDE export was not showing newly created categories with all bodyweights
-
-62.0.3: At startup, the system will now detect and remove participations that refer to broken categories (sometimes found in
-from old databases). The correct participations can then be fixed using the registration or weighin page.
-
-62.0.2: Entering a Technical Official in the session assignments without a last name would cause an error. Officials not in the LastName, FirstName format will (correctly) not be matched
-with the Technical Officials table.
-
-62.0.1:  Export of records was working for the plain export but not for templates that grouped records by age group.
+62.1.0: At startup, the system will now detect and remove participations that refer to broken categories (sometimes found in
+from old databases). The correct participations can then be fixed using the registration or weighin page.  You should
+use the reassign ranks on the results page if you reassign categories to one or more athletes.
 
 **New in Release 62.0**
 
