@@ -118,6 +118,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		layout.setWidth("80%");
 		layout.setBoxSizing(BoxSizing.BORDER_BOX);
 		layout.setPadding(true);
+		layout.getElement().getStyle().set("padding-right", "1em");
 		return layout;
 	}
 
