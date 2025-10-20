@@ -5,7 +5,6 @@ Purpose: provide concise, machine- and human-readable guidance for automated
 assistants (CoPilot-style agents) working in this repository. This file is the
 primary location assistants should read before taking actions.
 
-
 ### MACHINE_DIRECTIVES_START
 {
   "version": 1,
@@ -100,6 +99,11 @@ mvn -Dtest=MyTestClass test
 1. If action runs `mvn`, builds, deploys, or touches devices, request explicit human consent.
 2. Never print or store secrets in logs or PRs.
 3. Prefer non-destructive, read-only analyses (grep, static analysis) unless approved.
+
+4. Do NOT create, stage or commit changes to the repository without explicit human approval.
+  - Automated assistants must never perform commits as part of routine actions.
+  - If a commit is necessary, obtain a one-line explicit approval from a human and then run the commit manually or set an explicit environment flag (for example: `ALLOW_AUTOMATED_COMMIT=1`) and document the reason in the commit message.
+  - This repository enforces human-in-the-loop commits to avoid accidental changes; follow organizational review practices before pushing changes.
 
 ## Special-case: JBR / bundled JDK in workspace
 
