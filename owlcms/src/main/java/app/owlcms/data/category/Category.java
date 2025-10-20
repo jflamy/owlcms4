@@ -168,7 +168,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		this.setWrSr(wrSr);
 		this.setQualifyingTotal(qualifyingTotal);
 		this.setCode(getComputedCode());
-		this.setName(getDisplayName());
 		// logger.debug("{} Category({},{},{}) [{}]", getComputedCode(), gender,
 		// minimumWeight, maximumWeight,
 		// LoggerUtils.whereFrom(1));
@@ -381,10 +380,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 */
 	public Double getMinimumWeight() {
 		return this.minimumWeight;
-	}
-
-	public String getName() {
-		return this.name;
 	}
 
 	@JsonIgnore
@@ -638,10 +633,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 */
 	public void setMinimumWeight(Double minimumWeight) {
 		this.minimumWeight = minimumWeight;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public void setParticipations(List<Participation> participations) {
