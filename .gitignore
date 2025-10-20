@@ -62,3 +62,4 @@ package.json
 # Translation work sections (temporary TSV files for editing)
 shared/src/main/resources/i18n/translation_sections/
 shared/src/main/resources/i18n/中文舉重規則2017-2020版109.2.1修訂109.02.27-1.pdf
+shared/src/main/resources/i18n/TRANSLATION_PROMPT.md
