@@ -1057,7 +1057,8 @@ public class Athlete {
 	@JsonIgnore
 	public String getAllCategoriesAsString() {
 		Category mrCat = getCategory();
-		String mainCategoryAsString = mrCat != null ? mrCat.getName() : "";
+
+		String mainCategoryAsString = mrCat != null ? mrCat.getDisplayName() : "";
 		if (mrCat != null && !getMainRankings().getTeamMember()) {
 			mainCategoryAsString = mainCategoryAsString + RAthlete.NoTeamMarker;
 		}

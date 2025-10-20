@@ -612,7 +612,6 @@ public class AgeGroupRepository {
 			newC.setAgeGroup(ageGroup);
 			newC.setGender(ageGroup.getGender());
 			newC.setCode(newC.getComputedCode());
-			newC.setName(newC.getDisplayName());
 			em.merge(newC);
 		}
 
