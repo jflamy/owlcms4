@@ -3540,7 +3540,7 @@ public class Athlete {
 		// in a checkbox group
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
-			//logger.debug("p.getCategory()={} p.getCategory().getAgeGroup()={}", p.getCategory(), p.getCategory() != null ? p.getCategory().getAgeGroup() : null);
+			// logger.debug("p.getCategory()={} p.getCategory().getAgeGroup()={}", p.getCategory(), p.getCategory() != null ? p.getCategory().getAgeGroup() : null);
 			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
 		}
 	}
