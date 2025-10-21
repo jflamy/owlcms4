@@ -12,6 +12,7 @@ primary location assistants should read before taking actions.
   "directives": {
     "no_auto_build": true,
     "no_mvn": true,
+    "require_human_consent_for_git": true,
     "avoid_fully_qualified_class_names": true,
     "require_human_consent_for_build": true,
     "do_not_exfiltrate_secrets": true,
@@ -96,6 +97,7 @@ mvn -Dtest=MyTestClass test
 ```
 
 ## Agent checklist before any action
+0. Never run `git commit`, `git push`, or otherwise write changes to remote repositories without explicit human authorization. If you need to commit or push, ask for approval and wait for the user to perform the action or explicitly grant permission.
 
 1. If action runs `mvn`, builds, deploys, or touches devices, request explicit human consent.
 2. Never print or store secrets in logs or PRs.
