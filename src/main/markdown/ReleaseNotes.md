@@ -8,10 +8,16 @@
 
 <br>
 
+**Change Log**
+
+63.0.0-alpha02: Sync with changes in 62.0.4
+
 **New in Release 63.0**
 
-63.0.0: New feature toggle "manualStartNumbers" that enables manual editing of start numbers when errors were made when numbering athlete cards or handing out bibs.  This disables the automatic allocation of start numbers.
+63.0.0: New feature toggle "manualStartNumbers" that enables manual editing of start numbers when errors were made when numbering athlete cards or handing out bibs.  This disables the automatic allocation of start numbers (must use the button on the Weigh-In page)
 
 63.0.0: Event forwarding using web sockets to support enhanced tracking programs like owlcms-tracker that will eventually replace publicresults.
+
+63.0.0: Experimental: AI-generated translation for zh-HANT (Traditional Chinese)
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
