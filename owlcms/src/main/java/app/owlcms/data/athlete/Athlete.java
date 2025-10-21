@@ -860,13 +860,26 @@ public class Athlete {
 	}
 
 	public String computeFixedFirstName(Locale loc, String firstName2) {
+		if (Config.getCurrent().featureSwitch("dontFixNames")) {
+			return firstName2;
+		}
 		// Check if first name is all caps (or all caps with hyphens and spaces)
 		// Only fix names that are all uppercase
-
 		boolean needsFixing = firstName2.equals(firstName2.toUpperCase(loc));
+
 		var language = loc.getLanguage();
 		if (needsFixing && (language.equals("ar") || language.equals("he") || language.equals("ja"))) {
 			// This would attempt to fix Arabic, Hebrew, Japanese, but the fix would do nothing.
+			return firstName2;
+		} else if (needsFixing && (language.equals("el"))) {
+			// Greek has special rules for the lowercase sigma at the end of words.
+			// We cannot just lowercase everything and uppercase first letters.
+			// So we skip fixing Greek names for now.
+			return firstName2;
+		} else if (needsFixing && language.equals("ru")) {
+			// Russian has special rules for upper/lower case letters (e.g., Ё vs ё).
+			// We cannot just lowercase everything and uppercase first letters.
+			// So we skip fixing Russian names for now.
 			return firstName2;
 		}
 
@@ -1876,7 +1889,7 @@ public class Athlete {
 		Set<Category> s = new LinkedHashSet<>();
 		List<Category> cats = getParticipations().stream()
 		        .map(p -> p.getCategory())
-				.filter(c -> c.getAgeGroup() != null)
+		        .filter(c -> c.getAgeGroup() != null)
 		        .sorted(Category.medalingComparator())
 		        // .peek(c -> logger.debug("{} {}", c, c.getMedalingSortCode()))
 		        .toList();
@@ -2297,8 +2310,8 @@ public class Athlete {
 	@JsonIgnore
 	public List<Participation> getCleanParticipations() {
 		return this.participations.stream()
-			.filter(p -> p.getCategory() != null && p.getCategory().getAgeGroup() != null)
-			.toList();
+		        .filter(p -> p.getCategory() != null && p.getCategory().getAgeGroup() != null)
+		        .toList();
 	}
 
 	public Integer getPersonalBestCleanJerk() {
@@ -3519,7 +3532,8 @@ public class Athlete {
 		// in a checkbox group
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
-			//logger.debug("p.getCategory()={} p.getCategory().getAgeGroup()={}", p.getCategory(), p.getCategory() != null ? p.getCategory().getAgeGroup() : null);
+			// logger.debug("p.getCategory()={} p.getCategory().getAgeGroup()={}", p.getCategory(), p.getCategory() != null ? p.getCategory().getAgeGroup() :
+			// null);
 			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
 		}
 	}
