@@ -10,6 +10,8 @@
 
 **New in Release 62.1**
 
+62.1.2: Templates that use the `${session.referee1AsTO.federationId}` accessors were not working for technical officials with spaces in their compound given or last names.  Now fixed.
+
 62.1.1: Don't modidify the capitalization of first names if the feature switch `dontFixNames` is present.  This will be the case automatically for jp, ar, he, el and ru languages.
 
 62.1.0: At startup, the system will now detect and remove participations that refer to broken categories (sometimes found in
