@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import org.slf4j.LoggerFactory;
-
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
@@ -39,34 +39,56 @@ public class TechnicalOfficialRepository {
 
 	public static List<TechnicalOfficial> findAll() {
 		return JPAService
-				.runInTransaction(em -> em.createQuery("select c from TechnicalOfficial c order by c.lastName, c.firstName", TechnicalOfficial.class)
-						.getResultList());
+		        .runInTransaction(em -> em.createQuery("select c from TechnicalOfficial c order by c.lastName, c.firstName", TechnicalOfficial.class)
+		                .getResultList());
 	}
 
 	public static TechnicalOfficial findByName(String string) {
 		try {
-			String[] t = string.split("[, ]+");
+			string = string.trim();
+
+			String[] t = string.split("[,]+");
 			String lastName = (t.length > 0 ? t[0] : "");
+			var lastName2 = lastName.trim();
 			String firstName = (t.length > 1 ? t[1] : "");
-			return JPAService.runInTransaction(em -> {
-				TypedQuery<TechnicalOfficial> query = em.createQuery("select c from TechnicalOfficial c where (lower(lastName) = lower(:lastName) and lower(firstName) = lower(:firstName))", TechnicalOfficial.class);
-				query.setParameter("lastName", lastName);
-				query.setParameter("firstName", firstName);
+			var firstName2 = firstName.trim();
+			var results = JPAService.runInTransaction(em -> {
+				TypedQuery<TechnicalOfficial> query = em.createQuery(
+				        "select c from TechnicalOfficial c where (lower(lastName) = lower(:lastName) and lower(firstName) = lower(:firstName))",
+				        TechnicalOfficial.class);
+				query.setParameter("lastName", lastName2);
+				query.setParameter("firstName", firstName2);
 				List<TechnicalOfficial> resultList = query.getResultList();
 				return resultList.isEmpty() ? null : resultList.get(0);
 			});
+			// var allResults = JPAService.runInTransaction(em -> {
+			// 	TypedQuery<TechnicalOfficial> query = em.createQuery(
+			// 	        "select c from TechnicalOfficial c",
+			// 	        TechnicalOfficial.class);
+			// 	List<TechnicalOfficial> resultList = query.getResultList();
+			// 	return resultList;
+			// });
+			// if (string.contains("Lars")) {
+			// 	logger.debug("Looking for '{}' '{}': {}",
+			// 	        lastName2, firstName2,
+			// 	        allResults.stream()
+			// 	                .filter(to -> to.getFirstName().startsWith("Lars"))
+			// 	                .map(to -> ("'" + to.getLastName() + "' '" + to.getFirstName() + "'"))
+			// 	                .collect(Collectors.joining(", ")));
+			// }
+			return results;
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
 			throw e;
 		}
 	}
-	
+
 	public static TechnicalOfficial safeFindByName(String string) {
 		// Return null if the input is null or blank - this indicates no official is assigned
 		if (string == null || string.isBlank()) {
 			return null;
 		}
-		TechnicalOfficial to = findByName(string);
+		TechnicalOfficial to = findByName(string.trim());
 		if (to == null) {
 			to = new TechnicalOfficial();
 			to.setLastName(string);
@@ -76,7 +98,7 @@ public class TechnicalOfficialRepository {
 
 	public static TechnicalOfficial getById(Long id, EntityManager em) {
 		TypedQuery<TechnicalOfficial> query = em.createQuery("select u from TechnicalOfficial u where u.id=:id",
-				TechnicalOfficial.class);
+		        TechnicalOfficial.class);
 		query.setParameter("id", id);
 
 		return query.getResultList().stream().findFirst().orElse(null);
@@ -93,10 +115,8 @@ public class TechnicalOfficialRepository {
 	}
 
 	/**
-	 * Find active technical officials.
-	 * Returns officials that are either:
-	 * 1. Explicitly marked as active (active flag = true)
-	 * 2. Implicitly active because they are assigned to a session/group
+	 * Find active technical officials. Returns officials that are either: 1. Explicitly marked as active (active flag = true) 2. Implicitly active because they
+	 * are assigned to a session/group
 	 * 
 	 * @return List of active technical officials (no duplicates)
 	 */
@@ -104,33 +124,34 @@ public class TechnicalOfficialRepository {
 		return JPAService.runInTransaction(em -> {
 			// Get all explicitly active officials
 			TypedQuery<TechnicalOfficial> query = em.createQuery(
-				"select t from TechnicalOfficial t where t.active = true order by t.lastName, t.firstName", 
-				TechnicalOfficial.class);
+			        "select t from TechnicalOfficial t where t.active = true order by t.lastName, t.firstName",
+			        TechnicalOfficial.class);
 			List<TechnicalOfficial> activeOfficials = query.getResultList();
-			
+
 			// Use a Set to avoid duplicates
 			Set<TechnicalOfficial> resultSet = new LinkedHashSet<>(activeOfficials);
-			
-		// Get all groups and extract TOs assigned to them
-		TypedQuery<Group> groupQuery = em.createQuery(
-			"select g from app.owlcms.data.group.Group g", 
-			Group.class);
-		List<Group> groups = groupQuery.getResultList();			// For each group, collect all assigned TOs
+
+			// Get all groups and extract TOs assigned to them
+			TypedQuery<Group> groupQuery = em.createQuery(
+			        "select g from CompetitionGroup g",
+			        Group.class);
+			List<Group> groups = groupQuery.getResultList(); // For each group, collect all assigned TOs
 			for (Group group : groups) {
 				List<TechnicalOfficial> assignedOfficials = group.findAssignedTechnicalOfficials();
 				resultSet.addAll(assignedOfficials);
 			}
-			
+
 			// Convert set back to list and sort
 			List<TechnicalOfficial> result = new ArrayList<>(resultSet);
 			result.sort((a, b) -> {
 				int lastNameCompare = (a.getLastName() != null ? a.getLastName() : "").compareTo(
-					b.getLastName() != null ? b.getLastName() : "");
-				if (lastNameCompare != 0) return lastNameCompare;
+				        b.getLastName() != null ? b.getLastName() : "");
+				if (lastNameCompare != 0)
+					return lastNameCompare;
 				return (a.getFirstName() != null ? a.getFirstName() : "").compareTo(
-					b.getFirstName() != null ? b.getFirstName() : "");
+				        b.getFirstName() != null ? b.getFirstName() : "");
 			});
-			
+
 			return result;
 		});
 	}
