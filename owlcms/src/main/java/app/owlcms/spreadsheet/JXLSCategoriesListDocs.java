@@ -41,16 +41,16 @@ public class JXLSCategoriesListDocs extends JXLSWorkbookStreamSource {
 	public List<Athlete> computeSortedAthletes() {
 		if (getSortedAthletes()!= null) {
 			if (getGroup() != null) {
-				logger.warn("*** prefetched athletes for group={}", getGroup());
+				logger.debug("*** prefetched athletes for group={}", getGroup());
 				var athletes = getSortedAthletes();
 				athletes.sort(new StartNumberOrderComparator());
 				return athletes;
 			} else {
-				logger.warn("*** prefetched athletes no group");
+				logger.debug("*** prefetched athletes no group");
 				return getSortedAthletes();
 			}
 		}
-		logger.warn("*** Computing sorted athletes for categories list sheet, group={}", getGroup());
+		logger.debug("*** Computing sorted athletes for categories list sheet, group={}", getGroup());
 		if (getGroup() != null) {
 			List<Athlete> displayOrderCopy = AthleteSorter
 			        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null));

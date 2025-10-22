@@ -1125,14 +1125,14 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				case INTRODUCTION:
 					JXLSCategoriesListDocs intro = new JXLSCategoriesListDocs();
 					intro.setGroup(grp);
-					logger.warn("Sorting athletes for introduction sheet, group={}, count={}", grp, (a == null ? 0 : a.size()));
+					logger.debug("Sorting athletes for introduction sheet, group={}, count={}", grp, (a == null ? 0 : a.size()));
 					if (a != null) {
 						AthleteSorter.displayOrder(a);
 						// a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
 						a.sort(new StartNumberOrderComparator());
 					}
 					intro.setSortedAthletes(a);
-					logger.warn("Sorted athletes for introduction sheet, athletes={}", a.stream().map(at -> at.getAbbreviatedName().toString()).collect(Collectors.joining(", ")));
+					logger.debug("Sorted athletes for introduction sheet, athletes={}", a.stream().map(at -> at.getAbbreviatedName().toString()).collect(Collectors.joining(", ")));
 					return intro;
 				default:
 					return null;
@@ -1769,7 +1769,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	        throws IOException {
 		// always called with a single template
 		// for items that are one per session, selected sessions will be non-empty.
-		logger.warn("*** excelKitElement for {} elements and {} sessions {}",
+		logger.debug("*** excelKitElement for {} elements and {} sessions {}",
 		        (elements == null ? "null" : elements.size()),
 		        (selectedSessions == null ? "null" : selectedSessions.size()),
 		        LoggerUtils.whereFrom());
@@ -1782,14 +1782,14 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			athletes = groupAthletes(g, true);
 		}
 
-		logger.warn("g = {} athletes = {} for element {} {}", g,
+		logger.debug("g = {} athletes = {} for element {} {}", g,
 		        (athletes == null ? "null" : athletes.size()),
 		        elem.id(),
 		        LoggerUtils.whereFrom());
 
 		// writerFactory can apply custom sorting order to the athletes
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory().apply(athletes, g);
-		logger.warn("*** excelKitElement created {} {}", xlsWriter, LoggerUtils.whereFrom());
+		logger.debug("*** excelKitElement created {} {}", xlsWriter, LoggerUtils.whereFrom());
 		xlsWriter.setUi(ui);
 		if (xlsWriter.getSortedAthletes() == null) {
 			// writerFactory did not set them explicitly, set default

@@ -151,7 +151,7 @@ public class TranslationsZipHelper {
 					}
 				}
 			} else {
-				logger.warn("No translations found for locale: {}", locale);
+				logger.debug("No translations found for locale: {}", locale);
 			}
 		}
 		

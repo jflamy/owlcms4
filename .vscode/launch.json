@@ -23,6 +23,29 @@
         "OWLCMS_MEMORYMODE": "false",
       }
     },
+        {
+      "type": "java",
+      "name": "🟨 owlcms+ws no reset",
+      "request": "launch",
+      "console": "internalConsole",
+      "mainClass": "app.owlcms.Main",
+      "projectName": "owlcms",
+      "cwd": "${workspaceFolder}/owlcms",
+      "vmArgs": "${config:owlcms.vmArgs}",
+      "windows": {
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+      },
+      "linux": {
+        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+      },
+      "osx": {
+        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+      },
+      "env": {
+        "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
+      }
+    },
     {
       "type": "java",
       "name": "🟨 owlcms no reset EDIT",

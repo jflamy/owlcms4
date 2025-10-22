@@ -35,7 +35,7 @@ public class FlagsZipHelper {
 		try {
 			return ResourceWalker.getFileOrResourcePath("flags");
 		} catch (FileNotFoundException e) {
-			logger.warn("Flags directory not found");
+			logger.debug("Flags directory not found");
 			return null;
 		}
 	}
@@ -49,7 +49,7 @@ public class FlagsZipHelper {
 	public static byte[] createFlagsZipBytes() {
 		Path flagsPath = getFlagsDirectory();
 		if (flagsPath == null || !Files.exists(flagsPath)) {
-			logger.warn("Flags directory not found at {}", flagsPath);
+			logger.debug("Flags directory not found at {}", flagsPath);
 			return new byte[0];
 		}
 
@@ -81,7 +81,7 @@ public class FlagsZipHelper {
 		File[] files = dir.listFiles();
 		
 		if (files == null) {
-			logger.warn("Cannot list files in directory: {}", dirPath);
+			logger.debug("Cannot list files in directory: {}", dirPath);
 			return;
 		}
 

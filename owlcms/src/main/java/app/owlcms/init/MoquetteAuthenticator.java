@@ -30,7 +30,7 @@ public class MoquetteAuthenticator implements IAuthenticator {
 		if (clientPasswordString.contentEquals(Main.mqttStartup)) {
 			// special case -- owlcms is calling it's own moquette locally
 			// the shared secret is the milliseconds at which the server started.
-			this.logger.warn("owlcms MQTT connection from {}", clientId);
+			this.logger.debug("owlcms MQTT connection from {}", clientId);
 			return true;
 		}
 
@@ -47,22 +47,22 @@ public class MoquetteAuthenticator implements IAuthenticator {
 		}
 
 		String expectedClearTextPassword = StartupUtils.getStringParam("mqttPassword");
-		this.logger.warn("client password string : {}", clientPasswordString);
+		this.logger.debug("client password string : {}", clientPasswordString);
 		if (expectedClearTextPassword != null) {
 			// clear text comparison
 			boolean plainTextMatch = expectedClearTextPassword.contentEquals(clientPasswordString);
-			this.logger.warn("clear text match {}", plainTextMatch);
+			this.logger.debug("clear text match {}", plainTextMatch);
 			return plainTextMatch;
 		} else {
 			String dbHashedPassword = Config.getCurrent().getMqttPassword();
 			if (dbHashedPassword == null || dbHashedPassword.isBlank()) {
-				this.logger.warn("no password configured, MQTT access allowed to {}", username);
+				this.logger.debug("no password configured, MQTT access allowed to {}", username);
 				return true;
 			} else {
 				String hashedPassword = Config.getCurrent().encodeUserPassword(clientPasswordString, dbHashedPassword);
 				boolean shaMatch = dbHashedPassword.contentEquals(hashedPassword);
 				if (shaMatch) {
-					this.logger.warn("correct password provided, MQTT access allowed to {}", username);
+					this.logger.debug("correct password provided, MQTT access allowed to {}", username);
 				} else {
 					this.logger./**/warn("wrong MQTT password, incorrect password from {}", clientId);
 				}
