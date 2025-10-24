@@ -131,7 +131,7 @@ public interface DarkModeParameters extends QueryParameterReader {
 
         // change the URL to reflect retrieved parameters
         Location newLocation = new Location(location.getPath(), new QueryParameters(cleanParams));
-        URLUtils.replaceState(event.getUI().getPage().getHistory(),null, newLocation);
+        URLUtils.replaceState(event.getUI().getPage().getHistory(),null, newLocation, location);
     }
 
     public default void updateURLLocation(UI ui, Location location, String mode) {
@@ -144,8 +144,8 @@ public interface DarkModeParameters extends QueryParameterReader {
         } else {
             params.remove(DARK);
         }
-        URLUtils.replaceState(ui.getPage().getHistory(),null,
-                new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+        Location newLocation = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+        URLUtils.replaceState(ui.getPage().getHistory(),null, newLocation, location);
     }
 
 }

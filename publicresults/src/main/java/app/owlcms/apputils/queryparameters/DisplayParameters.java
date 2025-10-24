@@ -322,8 +322,8 @@ public interface DisplayParameters extends ContentParameters {
         Map<String, List<String>> parametersMap = queryParameters.getParameters();
         HashMap<String, List<String>> params = readParams(location, parametersMap);
 
-        URLUtils.replaceState(event.getUI().getPage().getHistory(),null,
-                new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+        Location newLocation = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+        URLUtils.replaceState(event.getUI().getPage().getHistory(),null, newLocation, location);
     }
 
     public default void setRecordsDisplay(boolean showRecords) {

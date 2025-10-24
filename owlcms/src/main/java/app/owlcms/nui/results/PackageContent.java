@@ -406,8 +406,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		} else {
 			params.remove("group");
 		}
-		URLUtils.replaceState(ui.getPage().getHistory(),null,
-		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+		Location newLocation = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+		URLUtils.replaceState(ui.getPage().getHistory(),null, newLocation, location);
 	}
 
 	@Override

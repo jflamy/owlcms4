@@ -41,12 +41,17 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	 */
 	@Override
 	public default void doUpdateUrlLocation(UI ui, Location location, Map<String, List<String>> queryParameterMap) {
+		// Log incoming state
+		List<String> incomingFop = queryParameterMap.get(FOP);
+		logger.debug("doUpdateUrlLocation - incoming location: {}, FOP param: {}", 
+			location.getPathWithQueryParameters(), incomingFop);
 
 		Map<String, List<String>> nq = removeDefaultValues(queryParameterMap);
-
 		setUrlParameterMap(nq);
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(nq)));
-		URLUtils.replaceState(ui.getPage().getHistory(),null, location2);
+		logger.debug("doUpdateUrlLocation - final location: {}", location2.getPathWithQueryParameters());
+		
+		URLUtils.replaceState(ui.getPage().getHistory(), null, location2, location);
 		setLocation(location2);
 		if (logger.isDebugEnabled()) {
 			logger.debug("**** updatingLocation {} {}", location2.getPathWithQueryParameters(),
