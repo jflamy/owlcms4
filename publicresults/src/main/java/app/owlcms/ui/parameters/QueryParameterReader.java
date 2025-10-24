@@ -106,8 +106,8 @@ public interface QueryParameterReader extends HasUrlParameter<String> {
         Map<String, List<String>> parametersMap = queryParameters.getParameters();
         HashMap<String, List<String>> params = computeParams(location, parametersMap);
         // change the URL to reflect retrieved parameters
-        URLUtils.replaceState(event.getUI().getPage().getHistory(),null,
-                new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+        Location newLocation = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+        URLUtils.replaceState(event.getUI().getPage().getHistory(),null, newLocation, location);
     }
 
 }

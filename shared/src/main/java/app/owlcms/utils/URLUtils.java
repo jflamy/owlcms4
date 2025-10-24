@@ -248,21 +248,52 @@ public class URLUtils {
 	/**
 	 * @param history
 	 * @param object
-	 * @param location
+	 * @param location the new location to set
+	 * @param originalLocation the original location before the change (for FOP validation)
 	 */
-	public static void replaceState(History history, JsonValue object, Location location) {
+	public static void replaceState(History history, JsonValue object, Location location, Location originalLocation) {
 		//logger.debug("replaceState1 {} {}",location.getPathWithQueryParameters(), LoggerUtils.stackTrace());
-		history.replaceState(object, location);
-	}
-
-	/**
-	 * @param history
-	 * @param object
-	 * @param pathWithQueryParameters
-	 */
-	public static void replaceState(History history, JsonValue object, String pathWithQueryParameters) {
-		//logger.debug("replaceState2 {} {}", pathWithQueryParameters, LoggerUtils.stackTrace());
-		history.replaceState(object, pathWithQueryParameters);
+		
+		// Extract original FOP from the location passed in
+		String originalFop = null;
+		if (originalLocation != null) {
+			QueryParameters origParams = originalLocation.getQueryParameters();
+			if (origParams != null) {
+				List<String> fopParams = origParams.getParameters().get("fop");
+				if (fopParams != null && !fopParams.isEmpty()) {
+					originalFop = fopParams.get(0);
+				}
+			}
+		}
+		
+		// Safety check: ensure FOP parameter is never removed or changed
+		// This is a critical parameter that should remain stable throughout URL updates
+		Location finalLocation = location;
+		
+		QueryParameters newParams = location.getQueryParameters();
+		if (newParams != null && !newParams.getParameters().isEmpty()) {
+			// If we have query parameters, FOP should always be present
+			List<String> newFopParams = newParams.getParameters().get("fop");
+			String newFop = (newFopParams != null && !newFopParams.isEmpty()) ? newFopParams.get(0) : null;
+			
+			if (newFop == null) {
+				String errorMsg = "CRITICAL: replaceState called with URL that has query parameters but NO FOP parameter!\n" +
+					"Original FOP: " + originalFop + "\nURL: " + location.getPathWithQueryParameters() + "\nStack: " + LoggerUtils.stackTrace();
+				logger.error(errorMsg);
+				// If FOP was present before and is now missing, log it
+				if (originalFop != null) {
+					logger.error("FOP parameter was removed from URL! {}", errorMsg);
+				}
+			} else if (originalFop != null && !newFop.equals(originalFop)) {
+				// FOP value changed from original
+				String errorMsg = "CRITICAL: replaceState would change FOP value!\n" +
+					"Original: " + originalFop + "\nNew: " + newFop + "\nURL: " + location.getPathWithQueryParameters() + "\nStack: " + LoggerUtils.stackTrace();
+				logger.error(errorMsg);
+			}
+		}
+		
+		// Only update URL if no FOP violations were detected
+		history.replaceState(object, finalLocation);
 	}
 
 	public static String getFlagResourcePath(String team, String[] exts) {

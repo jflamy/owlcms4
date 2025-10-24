@@ -315,6 +315,10 @@ public class VideoNavigationContent extends BaseNavigationContent
 		} else if (getMedalGroup() != null) {
 			params.put("group", getMedalGroup().toString());
 		}
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (fop != null) {
+			params.put("fop", fop.getName());
+		}
 		params.put("video", "true");
 		QueryParameters qp = QueryParameters.simple(params);
 		doOpenInNewTab(class1,

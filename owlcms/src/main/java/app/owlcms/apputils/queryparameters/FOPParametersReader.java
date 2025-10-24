@@ -41,12 +41,24 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	 */
 	@Override
 	public default void doUpdateUrlLocation(UI ui, Location location, Map<String, List<String>> queryParameterMap) {
+		// Log incoming state
+		List<String> incomingFop = queryParameterMap.get(FOP);
+		logger.warn("doUpdateUrlLocation - incoming location: {}, FOP param: {}", 
+			location.getPathWithQueryParameters(), incomingFop);
 
 		Map<String, List<String>> nq = removeDefaultValues(queryParameterMap);
-
+		
+		// CRITICAL: Always preserve FOP parameter - it must never be removed
+		if (incomingFop != null && !incomingFop.isEmpty()) {
+			nq.put(FOP, incomingFop);
+			logger./**/warn("doUpdateUrlLocation - preserving FOP: {}", incomingFop.get(0));
+		}
+		
 		setUrlParameterMap(nq);
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(nq)));
-		URLUtils.replaceState(ui.getPage().getHistory(),null, location2);
+		logger.warn("doUpdateUrlLocation - final location: {}", location2.getPathWithQueryParameters());
+		
+		URLUtils.replaceState(ui.getPage().getHistory(), null, location2, location);
 		setLocation(location2);
 		if (logger.isDebugEnabled()) {
 			logger.debug("**** updatingLocation {} {}", location2.getPathWithQueryParameters(),
@@ -126,7 +138,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 			newParameterMap.remove(GROUP);
 		}
 
-		logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
+		logger.warn("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
 		        (tFop != null ? tFop.getName() : null), (group != null ? group.getName() : null));
 
 		setUrlParameterMap(removeDefaultValues(newParameterMap));

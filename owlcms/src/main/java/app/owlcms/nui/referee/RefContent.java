@@ -57,6 +57,7 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -521,7 +522,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		}
 		// change the URL to reflect group
 		Location location2 = new Location(this.location.getPath(), new QueryParameters(this.urlParams));
-		this.locationUI.getPage().getHistory().replaceState(null, location2);
+		URLUtils.replaceState(this.locationUI.getPage().getHistory(), null, location2, this.location);
 		logger.trace("changed location to {}", location2.getPathWithQueryParameters());
 		UI.getCurrent().getPage().setTitle(getPageTitle());
 	}
