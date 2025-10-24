@@ -210,13 +210,6 @@ public class OwlcmsSession {
 	 * @return the attribute
 	 */
 	public static Object getAttribute(String s) {
-		// Prefer the thread-local session for background threads to avoid
-		// forcing creation of the singleton via getCurrent(). This ensures
-		// consistency with setAttribute which mirrors into the thread-local.
-		OwlcmsSession tl = OwlcmsSessionThreadLocal.get();
-		if (tl != null) {
-			return tl.getAttributes().get(s);
-		}
 		return getCurrent().getAttributes().get(s);
 	}
 
@@ -231,7 +224,10 @@ public class OwlcmsSession {
 			if (tl != null) {
 				return tl;
 			}
-			// No OwlcmsSession found in thread-local storage, fall back to singleton
+			// No OwlcmsSession found in thread-local storage, create a default singleton
+			// This can happen in background threads not spawned from an HTTP request context.
+			// logger.debug("Background thread {} has no ThreadLocal OwlcmsSession, using singleton", 
+			// 	Thread.currentThread().getName());
 			if (owlcmsSessionSingleton == null) {
 				owlcmsSessionSingleton = new OwlcmsSession();
 			}
@@ -242,13 +238,16 @@ public class OwlcmsSession {
 		if (httpSession != null) {
 			OwlcmsSession owlcmsSession = (OwlcmsSession) httpSession.getAttribute("owlcmsSession");
 			if (owlcmsSession == null) {
-				// logger.trace("creating new OwlcmsSession {}", LoggerUtils.whereFrom());
 				owlcmsSession = new OwlcmsSession();
 				httpSession.setAttribute("owlcmsSession", owlcmsSession);
 			}
 
 			// create / refresh an InheritableThreadLocal OwlcmsSession for use in background threads
-			OwlcmsSessionThreadLocal.set(owlcmsSession);
+			// Only set if different from what's already stored
+			OwlcmsSession tlValue = OwlcmsSessionThreadLocal.get();
+			if (tlValue != owlcmsSession) {
+				OwlcmsSessionThreadLocal.set(owlcmsSession);
+			}
 
 			return owlcmsSession;
 		} else {
@@ -258,10 +257,9 @@ public class OwlcmsSession {
 
 	public static FieldOfPlay getFop() {
 		FieldOfPlay fop = (FieldOfPlay) getAttribute(FOP);
-		// if (fop == null) {
-		// //fop = OwlcmsFactory.getDefaultFOP();
-		// throw new RuntimeException("no fop set");
-		// }
+		if (fop == null) {
+			logger.debug("getFop() returned null for thread: {}", Thread.currentThread().getName());
+		}
 		return fop;
 	}
 
