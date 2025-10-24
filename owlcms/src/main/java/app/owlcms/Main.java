@@ -45,6 +45,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.InitialData;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.init.OwlcmsSessionThreadLocal;
 import app.owlcms.jetty.EmbeddedJetty;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.servlet.MqttWebSocketProxyEndpoint;
@@ -129,6 +130,11 @@ public class Main {
      * the server
      */
     public static void initData() {
+        // Set up a default OwlcmsSession in ThreadLocal for startup initialization
+        // This allows worker threads (e.g., medal computation) spawned during startup
+        // to access the session and perform translations with the correct locale
+        OwlcmsSession defaultSession = new OwlcmsSession();
+        
         // Vaadin configs
         System.setProperty("vaadin.i18n.provider", Translator.class.getName());
 
@@ -136,6 +142,12 @@ public class Main {
 
         // read locale from database and override if needed
         Locale l = overrideDisplayLanguage();
+        // Use English as default if no override is configured
+        Locale sessionLocale = (l != null) ? l : Locale.ENGLISH;
+        defaultSession.setLocale(sessionLocale);
+        OwlcmsSessionThreadLocal.set(defaultSession);
+        logger.info("Created startup OwlcmsSession with locale: {}", sessionLocale);
+        
         // before injectData as it may create/migrate categories
         Gender.initPublicGenderCodeMapString(l != null ? l : Locale.ENGLISH);
         injectData(initialData, l);
