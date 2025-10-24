@@ -106,14 +106,14 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(weighIn);
 		doGroup(Translator.translate("WeighIn_Title"), grid3, this);
 
-		Button announcer = openInNewTab(AnnouncerContent.class, Translator.translate("Announcer"));
+		Button announcer = openInNewTabWithFop(AnnouncerContent.class, Translator.translate("Announcer"));
 		announcer.setIcon(new Icon(VaadinIcon.MICROPHONE));
 		announcer.setTabIndex(2);
 		announcer.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 		announcer.setThemeName(FOP, isAttached());
-		Button marshall = openInNewTab(MarshallContent.class, Translator.translate("Marshall"));
-		Button timekeeper = openInNewTab(TimekeeperContent.class, Translator.translate("Timekeeper"));
-		Button technical = openInNewTab(TCContent.class, Translator.translate("PlatesCollarBarbell"));
+		Button marshall = openInNewTabWithFop(MarshallContent.class, Translator.translate("Marshall"));
+		Button timekeeper = openInNewTabWithFop(TimekeeperContent.class, Translator.translate("Timekeeper"));
+		Button technical = openInNewTabWithFop(TCContent.class, Translator.translate("PlatesCollarBarbell"));
 
 		VerticalLayout intro = new VerticalLayout();
 		addP(intro, Translator.translate("AnnouncerSelectsGroup") + Translator.translate("ChangesGroupEverywhere")
@@ -123,9 +123,9 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
 		doGroup(Translator.translate("Scoreboard.LiftingOrder"), intro, grid1, this);
 
-		Button referee = openInNewTab(RefContent.class, Translator.translate("Referee_Mobile_Device"));
-		Button jury = openInNewTab(JuryContent.class, Translator.translate("Jury_Console"));
-		Button testing = openInNewTab(TestingContent.class, Translator.translate("TestButtons.Title"));
+		Button referee = openInNewTabWithFop(RefContent.class, Translator.translate("Referee_Mobile_Device"));
+		Button jury = openInNewTabWithFop(JuryContent.class, Translator.translate("Jury_Console"));
+		Button testing = openInNewTabWithFop(TestingContent.class, Translator.translate("TestButtons.Title"));
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, jury, testing);
 		doGroup(Translator.translate("Referees_Jury"), grid2, this);
 	}

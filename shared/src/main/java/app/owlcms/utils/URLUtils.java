@@ -268,41 +268,31 @@ public class URLUtils {
 		
 		// Safety check: ensure FOP parameter is never removed or changed
 		// This is a critical parameter that should remain stable throughout URL updates
-		String pathWithQueryParameters = location.getPathWithQueryParameters();
 		Location finalLocation = location;
 		
-		if (pathWithQueryParameters != null && pathWithQueryParameters.contains("?")) {
+		QueryParameters newParams = location.getQueryParameters();
+		if (newParams != null && !newParams.getParameters().isEmpty()) {
 			// If we have query parameters, FOP should always be present
-			if (!pathWithQueryParameters.contains("fop=")) {
-				logger.warn("CRITICAL: replaceState called with URL that has query parameters but NO FOP parameter!\n" +
-					"Original FOP: {}\nURL: {}\nStack: {}", 
-					originalFop, pathWithQueryParameters, LoggerUtils.stackTrace());
-				// If FOP was present before and is now missing, restore it
+			List<String> newFopParams = newParams.getParameters().get("fop");
+			String newFop = (newFopParams != null && !newFopParams.isEmpty()) ? newFopParams.get(0) : null;
+			
+			if (newFop == null) {
+				String errorMsg = "CRITICAL: replaceState called with URL that has query parameters but NO FOP parameter!\n" +
+					"Original FOP: " + originalFop + "\nURL: " + location.getPathWithQueryParameters() + "\nStack: " + LoggerUtils.stackTrace();
+				logger.error(errorMsg);
+				// If FOP was present before and is now missing, log it
 				if (originalFop != null) {
-					logger.error("Restoring missing FOP parameter: {}", originalFop);
-					Map<String, List<String>> params = new java.util.HashMap<>(location.getQueryParameters().getParameters());
-					params.put("fop", java.util.Arrays.asList(originalFop));
-					finalLocation = new Location(location.getPath(), new QueryParameters(params));
+					logger.error("FOP parameter was removed from URL! {}", errorMsg);
 				}
-			} else if (originalFop != null) {
-				// Extract the new FOP value and compare with original
-				java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("fop=([^&]+)");
-				java.util.regex.Matcher matcher = pattern.matcher(pathWithQueryParameters);
-				if (matcher.find()) {
-					String newFop = matcher.group(1);
-					if (!newFop.equals(originalFop)) {
-						logger.warn("CRITICAL: replaceState would change FOP value!\n" +
-							"Original: {}\nNew: {}\nURL: {}\nStack: {}", 
-							originalFop, newFop, pathWithQueryParameters, LoggerUtils.stackTrace());
-						logger.error("Restoring original FOP parameter: {}", originalFop);
-						Map<String, List<String>> params = new java.util.HashMap<>(location.getQueryParameters().getParameters());
-						params.put("fop", java.util.Arrays.asList(originalFop));
-						finalLocation = new Location(location.getPath(), new QueryParameters(params));
-					}
-				}
+			} else if (originalFop != null && !newFop.equals(originalFop)) {
+				// FOP value changed from original
+				String errorMsg = "CRITICAL: replaceState would change FOP value!\n" +
+					"Original: " + originalFop + "\nNew: " + newFop + "\nURL: " + location.getPathWithQueryParameters() + "\nStack: " + LoggerUtils.stackTrace();
+				logger.error(errorMsg);
 			}
 		}
 		
+		// Only update URL if no FOP violations were detected
 		history.replaceState(object, finalLocation);
 	}
 

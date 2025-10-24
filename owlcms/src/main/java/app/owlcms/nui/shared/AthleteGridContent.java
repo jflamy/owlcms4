@@ -1684,9 +1684,13 @@ public abstract class AthleteGridContent extends BaseContent
 	protected void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop != null) {
-			params.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
+		
+		// CRITICAL: Preserve the FOP from this content's context
+		// The session FOP may have changed due to cross-FOP events, but we must maintain
+		// the FOP that corresponds to this page's actual context
+		FieldOfPlay pageFop = this.getFop();
+		if (pageFop != null) {
+			params.put("fop", Arrays.asList(URLUtils.urlEncode(pageFop.getName())));
 		}
 
 		if (newGroup != null && !isIgnoreGroupFromURL()) {
