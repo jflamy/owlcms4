@@ -470,8 +470,8 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		params.remove("fop");
 
 		// change the URL to reflect group
-		URLUtils.replaceState(event.getUI().getPage().getHistory(),null,
-		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+		Location newLocation = new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+		URLUtils.replaceState(event.getUI().getPage().getHistory(),null, newLocation, getLocation());
 	}
 
 	@Override
@@ -1119,7 +1119,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		} else {
 			params.remove("group");
 		}
-		URLUtils.replaceState(ui.getPage().getHistory(),null,
-		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+		Location newLocation = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+		URLUtils.replaceState(ui.getPage().getHistory(),null, newLocation, location);
 	}
 }

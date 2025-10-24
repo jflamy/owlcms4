@@ -416,8 +416,8 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		logger.debug("params {}", params);
 
 		// change the URL to reflect group
-		URLUtils.replaceState(event.getUI().getPage().getHistory(), null,
-		        new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+		Location newLocation = new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+		URLUtils.replaceState(event.getUI().getPage().getHistory(), null, newLocation, getLocation());
 	}
 
 	public void setRankingSelector(ComboBox<Ranking> rankingSelector) {
@@ -434,8 +434,8 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		} else {
 			params.remove("group");
 		}
-		URLUtils.replaceState(ui.getPage().getHistory(), null,
-		        new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params))));
+		Location newLocation = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+		URLUtils.replaceState(ui.getPage().getHistory(), null, newLocation, location);
 	}
 
 	@Override
