@@ -10,7 +10,7 @@
 
 **New in Release 62.2**
 
-62.2.0: Fix for platform selection for multi-platform competitions.  Since version 61.0, a platform selected on the navigation page (for example, "B") would be ignored and the selected Display or Technical Official page would be on the default platorm (A). This required fixing the URL by hand and refreshing. Now fixed.
+62.2.0: Fix for platform selection for multi-platform competitions.  Since version 61.0, a platform selected on the navigation page (for example, "B") could sometimes be ignored and the selected Display or Technical Official page would be on the default platorm (A). This required fixing the URL by hand and refreshing. Now fixed.
 
 **New in Release 62.1**
 
