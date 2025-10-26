@@ -350,7 +350,8 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        .setHeader(Translator.translate("CeremonyType.MEDALS"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
-			        return item.getGender().asGenderName();
+			        Gender gender = item.getGender();
+					return gender != null ? gender.asGenderName() : "";
 		        }))
 		        .setHeader(Translator.translate("Gender"));
 		grid.addColumn(AgeGroup::getMinAge).setHeader(Translator.translate("MinimumAge"));
