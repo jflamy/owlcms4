@@ -247,21 +247,21 @@ public class CompetitionData {
 				Translator.reset();
 				Translator.setForcedLocale(defaultLocale);
 
-				Competition competition = updated.getCompetition();
+			Competition competition = updated.getCompetition();
 
-				for (AgeGroup ag : updated.getAgeGroups()) {
-					em.persist(ag);
-				}
+			for (AgeGroup ag : updated.getAgeGroups()) {
+				em.persist(ag);
+			}
 
-				for (Athlete a : updated.getAthletes()) {
-					em.persist(a);
-				}
+			for (Athlete a : updated.getAthletes()) {
+				em.persist(a);
+			}
 
-				for (Group g : updated.getGroups()) {
-					em.merge(g);
-				}
+			for (Group g : updated.getGroups()) {
+				em.merge(g);
+			}				
 
-				if (updated.getRecords() != null) {
+			if (updated.getRecords() != null) {
 					for (RecordEvent r : updated.getRecords()) {
 						em.merge(r);
 					}

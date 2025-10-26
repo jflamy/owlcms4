@@ -10,7 +10,7 @@
 
 **New in Release 62.2**
 
-62.2.2: Gender field now mandatory when creating age group, plus defensive checks on the age groups page.
+62.2.3: Backward-compatibility fix on database JSON import-export
 
 62.2.2: Additional fix for convoluted scenarios where some categories would not appear in the medaling list
 

@@ -63,7 +63,7 @@ import ch.qos.logback.classic.Logger;
 @Entity
 @Cacheable
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger", "code" })
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	public final static Double ROBI_B = 3.321928095;
@@ -257,7 +257,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	@Transient
 	public String getCode() {
-		return this.getComputedCode();//this.code != null ? this.code : "";
+		return this.getComputedCode();// this.code != null ? this.code : "";
 	}
 
 	@Transient
