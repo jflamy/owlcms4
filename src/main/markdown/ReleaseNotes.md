@@ -10,6 +10,8 @@
 
 **New in Release 62.2**
 
+62.2.2: Gender field now mandatory when creating age group, plus defensive checks on the age groups page.
+
 62.2.2: Additional fix for convoluted scenarios where some categories would not appear in the medaling list
 
 62.2.1: Fix for for multi-platform competitions.  Since version 61.0, there were situations where the
