@@ -193,7 +193,9 @@ public class AgeGroupEditingFormFactory
 				return i.asGenderName();
 			});
 		}
-		this.binder.forField(genderField).bind(AgeGroup::getGender, AgeGroup::setGender);
+		this.binder.forField(genderField)
+		        .asRequired(Translator.translate("ThisFieldIsRequired"))
+		        .bind(AgeGroup::getGender, AgeGroup::setGender);
 		formLayout.addFormItem(genderField, createLabel(Translator.translate("Gender")));
 
 		this.catField = new CategoryGridField(aFromDb);
