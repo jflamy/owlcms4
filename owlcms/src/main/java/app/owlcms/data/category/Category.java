@@ -256,7 +256,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 	
 	@Transient
-	@JsonIgnore
 	public String getCode() {
 		return this.getComputedCode();//this.code != null ? this.code : "";
 	}
@@ -594,7 +593,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public void setCode(String cellValue) {
-		this.code = cellValue;
+		// noop -- getCode is now computed
+		//this.code = cellValue;
 	}
 
 	/**
