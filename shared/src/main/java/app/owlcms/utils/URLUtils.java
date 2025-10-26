@@ -276,15 +276,7 @@ public class URLUtils {
 			List<String> newFopParams = newParams.getParameters().get("fop");
 			String newFop = (newFopParams != null && !newFopParams.isEmpty()) ? newFopParams.get(0) : null;
 			
-			if (newFop == null) {
-				String errorMsg = "CRITICAL: replaceState called with URL that has query parameters but NO FOP parameter!\n" +
-					"Original FOP: " + originalFop + "\nURL: " + location.getPathWithQueryParameters() + "\nStack: " + LoggerUtils.stackTrace();
-				logger.error(errorMsg);
-				// If FOP was present before and is now missing, log it
-				if (originalFop != null) {
-					logger.error("FOP parameter was removed from URL! {}", errorMsg);
-				}
-			} else if (originalFop != null && !newFop.equals(originalFop)) {
+			if (originalFop != null && !originalFop.equals(newFop)) {
 				// FOP value changed from original
 				String errorMsg = "CRITICAL: replaceState would change FOP value!\n" +
 					"Original: " + originalFop + "\nNew: " + newFop + "\nURL: " + location.getPathWithQueryParameters() + "\nStack: " + LoggerUtils.stackTrace();
