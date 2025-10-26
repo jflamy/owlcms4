@@ -593,8 +593,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public void setCode(String cellValue) {
-		// noop -- getCode is now computed
-		//this.code = cellValue;
+
+		this.code = cellValue;
 	}
 
 	/**
