@@ -447,7 +447,7 @@ public class NRegistrationFileProcessor {
 		base.put("Group", (rg, cell) -> rg.setGroupName(cellToString(cell)));
 		base.put("Platform", (rg, cell) -> rg.setPlatform(cellToString(cell)));
 		base.put("Group.Description", (rg, cell) -> rg.setDescription(cellToString(cell)));
-		base.put("Masters", (rg, cell) -> rg.setMasters(cellToString(cell)));
+		base.put("Division.MASTERS", (rg, cell) -> rg.setMasters(cellToString(cell)));
 
 		base.put("WeighInTime", (rg, cell) -> {
 			// Prefer Excel numeric/formula date values so RGroup.parse expects a numeric serial string.
@@ -492,7 +492,7 @@ public class NRegistrationFileProcessor {
 		base.put("Announcer", (rg, cell) -> rg.setAnnouncer(cellToString(cell)));
 		base.put("Marshall", (rg, cell) -> rg.setMarshall(cellToString(cell)));
 		base.put("Marshal2", (rg, cell) -> rg.setMarshal2(cellToString(cell)));
-		base.put("TimeKeeper", (rg, cell) -> rg.setTimekeeper(cellToString(cell)));
+		base.put("Timekeeper", (rg, cell) -> rg.setTimekeeper(cellToString(cell)));
 		base.put("TechnicalController", (rg, cell) -> rg.setTechController(cellToString(cell)));
 		base.put("TechnicalController2", (rg, cell) -> rg.setTechController2(cellToString(cell)));
 		base.put("Referee1", (rg, cell) -> rg.setRef1(cellToString(cell)));
@@ -518,6 +518,7 @@ public class NRegistrationFileProcessor {
 				// current locale translation
 				String tCurrent = Translator.translate(key);
 				if (tCurrent != null && !tCurrent.isBlank()) {
+					logger.warn("registering group header translation '{}' for key '{}'", tCurrent, key);
 					result.putIfAbsent(tCurrent.trim().toLowerCase(), setter);
 				}
 			} catch (Exception ex) {
@@ -527,22 +528,23 @@ public class NRegistrationFileProcessor {
 				// English explicit translation
 				String tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
 				if (tEng != null && !tEng.isBlank()) {
+					logger.warn("registering group header translation '{}' for key '{}'", tEng, key);
 					result.putIfAbsent(tEng.trim().toLowerCase(), setter);
 				}
 			} catch (Exception ex) {
 				// ignore
 			}
 		}
-		// Practical fallback: register a few common canonical English keys directly
-		// so spreadsheets that use the legacy canonical names are accepted even if
-		// translations are missing. Keys are stored lowercased to match lookup.
-		String[] explicitFallbacks = new String[] { "TimeKeeper", "Masters" };
-		for (String fk : explicitFallbacks) {
-			CellSetterRG s = base.get(fk);
-			if (s != null) {
-				result.putIfAbsent(fk.trim().toLowerCase(), s);
-			}
-		}
+		// // Practical fallback: register a few common canonical English keys directly
+		// // so spreadsheets that use the legacy canonical names are accepted even if
+		// // translations are missing. Keys are stored lowercased to match lookup.
+		// String[] explicitFallbacks = new String[] { "TimeKeeper", "Masters" };
+		// for (String fk : explicitFallbacks) {
+		// 	CellSetterRG s = base.get(fk);
+		// 	if (s != null) {
+		// 		result.putIfAbsent(fk.trim().toLowerCase(), s);
+		// 	}
+		// }
 		return result;
 	}
 
