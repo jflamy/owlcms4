@@ -518,7 +518,6 @@ public class NRegistrationFileProcessor {
 				// current locale translation
 				String tCurrent = Translator.translate(key);
 				if (tCurrent != null && !tCurrent.isBlank()) {
-					logger.warn("registering group header translation '{}' for key '{}'", tCurrent, key);
 					result.putIfAbsent(tCurrent.trim().toLowerCase(), setter);
 				}
 			} catch (Exception ex) {
@@ -528,7 +527,6 @@ public class NRegistrationFileProcessor {
 				// English explicit translation
 				String tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
 				if (tEng != null && !tEng.isBlank()) {
-					logger.warn("registering group header translation '{}' for key '{}'", tEng, key);
 					result.putIfAbsent(tEng.trim().toLowerCase(), setter);
 				}
 			} catch (Exception ex) {

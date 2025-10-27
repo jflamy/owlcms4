@@ -149,7 +149,8 @@ public class CategoryGridField extends CustomField<List<Category>> {
 			delete.addClickListener(e -> {
 				// logger.trace("deleting {} {}",cat != null ? cat.shortDump() : null,
 				// presentationCategories.contains(cat));
-				if (pc.getMaximumWeight() >= 998.9D) {
+				if (pc.getMaximumWeight() >= 998.9D && (pc.getMinimumWeight() <= 998.0D)) {
+					// old bug created false sentinels 999 999
 					return; // leave the sentinel.
 				}
 				pc.setMaximumWeight(0D); // disconnect
@@ -158,8 +159,11 @@ public class CategoryGridField extends CustomField<List<Category>> {
 			});
 			delete.getStyle().set("margin-left", "2em");
 
-			if (pc.getMaximumWeight() <= 998) {
+			if (pc.getMaximumWeight() <= 998 && pc.getMinimumWeight() <= 200.0D) {
 				hl.add(delete);
+			} else if (pc.getMaximumWeight() >= 998.9D && (pc.getMinimumWeight() >= 998.0D)) {
+				// work around historical bug where false 999 999 sentient categories were created
+				hl.add(delete); 
 			}
 			catGrid2.add(hl);
 		}
