@@ -10,6 +10,8 @@
 
 **New in Release 62.2**
 
+62.2.4: SBDE was not reading the timekeeper and isMastersSession settings due to wrong translation key
+
 62.2.3: Backward-compatibility fix on database JSON import-export
 
 62.2.2: Additional fix for convoluted scenarios where some categories would not appear in the medaling list
