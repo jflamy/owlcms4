@@ -43,8 +43,13 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	public default void doUpdateUrlLocation(UI ui, Location location, Map<String, List<String>> queryParameterMap) {
 		// Log incoming state
 		List<String> incomingFop = queryParameterMap.get(FOP);
-		logger.warn("doUpdateUrlLocation - incoming location: {}, FOP param: {}", 
-			location.getPathWithQueryParameters(), incomingFop);
+		if (incomingFop != null && !incomingFop.isEmpty()) {
+			logger.warn("doUpdateUrlLocation - incoming location: {}, FOP param: {}", 
+				location.getPathWithQueryParameters(), incomingFop);
+		} else {
+			logger.debug("doUpdateUrlLocation - incoming location: {}, FOP param: null", 
+				location.getPathWithQueryParameters());
+		}
 
 		Map<String, List<String>> nq = removeDefaultValues(queryParameterMap);
 		
@@ -56,7 +61,11 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		
 		setUrlParameterMap(nq);
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(nq)));
-		logger.warn("doUpdateUrlLocation - final location: {}", location2.getPathWithQueryParameters());
+		if (incomingFop != null && !incomingFop.isEmpty()) {
+			logger.warn("doUpdateUrlLocation - final location: {}", location2.getPathWithQueryParameters());
+		} else {
+			logger.debug("doUpdateUrlLocation - final location: {}", location2.getPathWithQueryParameters());
+		}
 		
 		URLUtils.replaceState(ui.getPage().getHistory(), null, location2, location);
 		setLocation(location2);
