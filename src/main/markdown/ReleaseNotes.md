@@ -12,6 +12,8 @@
 
 62.2.4: SBDE was not reading the timekeeper and isMastersSession settings due to wrong translation key
 
+62.2.4: If someone had created a category with bounds 999 999 it was not possible to remove it through the user interface.
+
 62.2.3: Backward-compatibility fix on database JSON import-export
 
 62.2.2: Additional fix for convoluted scenarios where some categories would not appear in the medaling list
@@ -19,7 +21,6 @@
 62.2.1: Fix for for multi-platform competitions.  Since version 61.0, there were situations where the
 page content was correct but did not match the platform `for` shown in the URL.  This would happen on initial
 platform selection, or later when a session started.
-
 
 **New in Release 62.1**
 
