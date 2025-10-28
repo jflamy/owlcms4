@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,6 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UpdateEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -43,8 +40,6 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
             Executors.newCachedThreadPool());
     private static Map<String, UpdateEvent> updateCache = new HashMap<>();
     static long lastUpdate = 0;
-    private static final int WAIT_FOR_CONFIG = 5 * 1000; // 5 seconds
-    private static final Lock configLock = new ReentrantLock();
 
     public static EventBus getEventBus() {
         return eventBus;
@@ -100,14 +95,14 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
                 session.invalidate();
             }
             String updateKey = req.getParameter("updateKey");
-            if (updateKey == null || !updateKey.equals(this.secret)) {
+            if (this.secret != null && (updateKey == null || !updateKey.equals(this.secret))) {
                 this.getLogger().error("denying access from {} expected {} got {} ", req.getRemoteHost(), this.secret,
                         updateKey);
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
             }
 
-            if (requestConfigIfMissing(resp)) {
+            if (ConfigurationRequestUtil.requestConfigIfMissing(resp, "UpdateReceiverServlet")) {
                 return;
             }
 
@@ -214,30 +209,6 @@ public class UpdateReceiverServlet extends HttpServlet implements Traceable {
         } catch (Exception e) {
             this.getLogger().error(LoggerUtils.stackTrace(e));
         }
-    }
-
-    public boolean requestConfigIfMissing(HttpServletResponse resp) throws IOException {
-        boolean doReturn = false;
-        if (ResourceWalker.getLocalDirPath() == null) {
-            if (configLock.tryLock()) {
-                try {
-                    String message = "Local override directory not present: requesting remote configuration files.";
-                    this.getLogger().info(message);
-                    this.getLogger().info("requesting customization");
-                    resp.sendError(412, "Missing configuration files.");
-                    doReturn = true;
-                    Thread.sleep(WAIT_FOR_CONFIG);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                } finally {
-                    configLock.unlock();
-                }
-            } else {
-                this.getLogger().info("configuration has already been requested, exiting");
-                doReturn = true;
-            }
-        }
-        return doReturn;
     }
 
     @Override
