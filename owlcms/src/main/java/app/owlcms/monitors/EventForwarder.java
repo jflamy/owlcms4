@@ -91,6 +91,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(EventForwarder.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	public static final Object singleThreadLock = new Object();
+	private static final long CONFIG_RESEND_WINDOW_MS = 10000L;
+	private static Map<String, Boolean> configSentByEndpoint = Collections.synchronizedMap(new HashMap<>());
+	private static Map<String, Object> configLockByDestination = Collections.synchronizedMap(new HashMap<>());
+	private static Map<String, Boolean> configSendingInProgress = Collections.synchronizedMap(new HashMap<>());
+	private static Map<String, Long> configAttemptTimeByDestination = Collections.synchronizedMap(new HashMap<>());
 	private static Map<String, EventForwarder> eventForwarderByName = new HashMap<>();
 
 	synchronized public static EventForwarder initEventForwarderByName(String name, FieldOfPlay fieldOfPlay) {
@@ -1238,15 +1243,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		pushUpdate(e);
 	}
 
-	private void doPost(String url, String updateKey, Map<String, String> parameters) {
+	private synchronized void doPost(String url, String updateKey, Map<String, String> parameters) {
 		// Skip WebSocket URLs - they are handled by WebSocketEventForwarder
-		if (url != null && (url.startsWith("ws://") || url.startsWith("wss://"))) {
-			logger.trace("{}skipping WebSocket URL (handled by WebSocketEventForwarder): {}", 
-			        FieldOfPlay.getLoggingName(getFop()), url);
+		if (!isActive()) {
 			return;
 		}
 		
-		HttpPost post = new HttpPost(url);
+		String eventKey = parameters.get("event");
+		logger.warn("{}doPost for event: {}", FieldOfPlay.getLoggingName(getFop()), eventKey);
+		
 		// add request parameters or form parameters
 		List<NameValuePair> urlParameters = new ArrayList<>();
 		parameters.entrySet().stream()
@@ -1254,34 +1259,118 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		boolean done = false;
 		int nbTries = 0;
+		String destination = configDestinationForUrl(url);
 		// send post. if the local configuration files are missing, we are sent back a
 		// 412 code.
 		// we send the configuration files as well.
 		while (!done && nbTries <= 1) {
+			boolean destSent = destination != null && Boolean.TRUE.equals(configSentByEndpoint.get(destination));
+			logger.warn("{}doPost loop: nbTries={}, done={}, endpoint={}, destination={}, configSent={}", FieldOfPlay.getLoggingName(getFop()), nbTries, done, url, destination, destSent);
 			try {
+				HttpPost post = new HttpPost(url);
 				post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
 				try (CloseableHttpClient httpClient = HttpClients.createDefault();
 				        CloseableHttpResponse response = httpClient.execute(post)) {
 					StatusLine statusLine = response.getStatusLine();
 					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+					logger.warn("{}POST response: status={}, nbTries={}", FieldOfPlay.getLoggingName(getFop()), statusCode, nbTries);
 					if (statusCode != null && statusCode != 200) {
-						synchronized (singleThreadLock) {
-							if (nbTries == 0 && statusCode != null && statusCode == 412) {
-								logger.error("{}missing remote configuration {} {} {}",
-								        FieldOfPlay.getLoggingName(getFop()), url,
-								        statusLine,
-								        LoggerUtils.whereFrom(1));
-								sendConfig(url, updateKey);
-								nbTries++;
-							} else {
-								logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
-								        statusLine,
-								        LoggerUtils.whereFrom(1));
+						if (nbTries == 0 && statusCode != null && statusCode == 412) {
+							logger.error("{}missing remote configuration {} {} {}",
+									FieldOfPlay.getLoggingName(getFop()), url,
+									statusLine,
+									LoggerUtils.whereFrom(1));
+							// Coordinate config send per destination to avoid duplicate uploads.
+							if (destination == null) {
+								// no destination computable, abort
+								logger.error("{}cannot compute config destination for {}", FieldOfPlay.getLoggingName(getFop()), url);
 								done = true;
+							} else {
+								Object dlock = configLockByDestination.computeIfAbsent(destination, k -> new Object());
+								synchronized (dlock) {
+									long now = System.currentTimeMillis();
+									Long lastAttemptWrapper = configAttemptTimeByDestination.get(destination);
+									if (lastAttemptWrapper == null) {
+										long farPast = now - CONFIG_RESEND_WINDOW_MS - 1L;
+										configAttemptTimeByDestination.put(destination, farPast);
+										lastAttemptWrapper = farPast;
+									}
+									long lastAttempt = lastAttemptWrapper;
+									if ((now - lastAttempt) > CONFIG_RESEND_WINDOW_MS) {
+										// previous attempts are stale; reset state so we can try again
+										logger.warn("{}previous config attempt for {} is older than {}ms, resetting state", FieldOfPlay.getLoggingName(getFop()), destination, now - lastAttempt);
+										configSendingInProgress.remove(destination);
+										configSentByEndpoint.remove(destination);
+										configAttemptTimeByDestination.remove(destination);
+									}
+									// If another thread is already sending config to this destination, wait for it to finish
+									while (Boolean.TRUE.equals(configSendingInProgress.get(destination))) {
+										try {
+											dlock.wait(1000); // wait up to 1s and re-check
+											// if the in-progress send has been going for more than the resend window, give up
+											Long inProgressStartWrapper = configAttemptTimeByDestination.get(destination);
+											long inProgressStart;
+											if (inProgressStartWrapper == null) {
+												inProgressStart = System.currentTimeMillis() - CONFIG_RESEND_WINDOW_MS - 1L;
+											} else {
+												inProgressStart = inProgressStartWrapper;
+											}
+											if ((System.currentTimeMillis() - inProgressStart) > CONFIG_RESEND_WINDOW_MS) {
+												logger.warn("{}config send in progress for {} exceeded {}ms, giving up and resetting state", FieldOfPlay.getLoggingName(getFop()), destination, System.currentTimeMillis() - inProgressStart);
+												configSendingInProgress.remove(destination);
+												configSentByEndpoint.remove(destination);
+												configAttemptTimeByDestination.remove(destination);
+												break;
+											}
+										} catch (InterruptedException ie) {
+											Thread.currentThread().interrupt();
+											break;
+										}
+									}
+									// If after waiting we already have config for this destination, just retry
+									if (Boolean.TRUE.equals(configSentByEndpoint.get(destination))) {
+										Long lastAttempt2 = configAttemptTimeByDestination.get(destination);
+										long age;
+										if (lastAttempt2 == null) {
+											age = CONFIG_RESEND_WINDOW_MS + 1L;
+										} else {
+											age = System.currentTimeMillis() - lastAttempt2;
+										}
+										logger.warn("{}skipping config send for {} because config already sent {} ms ago, retrying post", FieldOfPlay.getLoggingName(getFop()), destination, age);
+										nbTries++;
+									} else {
+										// mark as in-progress and send, record attempt time
+										configSendingInProgress.put(destination, Boolean.TRUE);
+										configAttemptTimeByDestination.put(destination, System.currentTimeMillis());
+										try {
+											if (sendConfig(destination, updateKey)) {
+												logger.info("{}config sent successfully to {} , will retry posts", FieldOfPlay.getLoggingName(getFop()), destination);
+												configSentByEndpoint.put(destination, Boolean.TRUE);
+												// record success time
+												configAttemptTimeByDestination.put(destination, System.currentTimeMillis());
+												nbTries++;
+											} else {
+												logger.error("{}failed to send config to {}, aborting retry", FieldOfPlay.getLoggingName(getFop()), destination);
+												// record failed attempt time
+												configAttemptTimeByDestination.put(destination, System.currentTimeMillis());
+												done = true;
+											}
+										} finally {
+											configSendingInProgress.remove(destination);
+											dlock.notifyAll();
+										}
+									}
+								}
 							}
+						} else {
+							logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
+									statusLine,
+									LoggerUtils.whereFrom(1));
+							done = true;
 						}
 					} else {
 						done = true;
+						// Keep per-destination configSent true until that destination returns 412 again
 					}
 				} catch (Exception e1) {
 					logger.error("{}could not post to {} {}", FieldOfPlay.getLoggingName(getFop()), url,
@@ -1657,68 +1746,89 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return;
 		}
 
+		logger.warn("{}pushUpdateDoIt: videoUrl={}, updateUrl={}", 
+			FieldOfPlay.getLoggingName(getFop()), videoUrl != null ? "yes" : "no", updateUrl != null ? "yes" : "no");
 		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate);
 		sendPost(updateUrl, current.getParamUpdateKey(), this.lastUpdate);
+	}
+
+	private static String configDestinationForUrl(String url) {
+		if (url == null) {
+			return null;
+		}
+		return url.replaceAll("/(timer|update|decision)(/config|/update)?$", "") + "/config";
 	}
 
 	private void recomputeRemainingTimes(Map<String, String> sb) {
 	}
 
-	private void sendConfig(String url, String updateKey) {
-		if (url == null || updateKey == null) {
-			logger.error("cannot send config info, url or updateKey is null");
-			return;
+	private boolean sendConfig(String destination, String updateKey) {
+		if (destination == null) {
+			logger.error("cannot send config info, destination is null");
+			return false;
 		}
 		Config current = Config.getCurrent();
-		String destination = url.replaceAll("/update", "") + "/config";
 		// wait for previous send to finish.
 		// no consequences sending it multiple times in a row -- we have no idea why it
 		// is being requested again.
 		synchronized (current) {
 			try {
-				logger.info("{}sending config", FieldOfPlay.getLoggingName(getFop()));
+				logger.info("{}sending config to {}", FieldOfPlay.getLoggingName(getFop()), destination);
 				HttpPost post = new HttpPost(destination);
 
 				MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-				builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
-
-				try {
-					PipedOutputStream out = new PipedOutputStream();
-					PipedInputStream in = new PipedInputStream(out);
-					new Thread(() -> {
-						try {
-							ResourceWalker.zipPublicResultsConfig(out);
-							out.flush();
-							out.close();
-						} catch (Throwable e) {
-							throw new RuntimeException(e);
-						}
-					}).start();
-					builder.addBinaryBody("local", in, ContentType.create("application/zip"), "local.zip");
-				} catch (Exception e) {
-					throw new RuntimeException(e);
+				if (updateKey != null) {
+					builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
 				}
 
-				HttpEntity entity = builder.build();
+			try {
+				PipedOutputStream out = new PipedOutputStream();
+				PipedInputStream in = new PipedInputStream(out);
+				new Thread(() -> {
+					try {
+						ResourceWalker.zipPublicResultsConfig(out);
+						out.flush();
+						out.close();
+					} catch (Throwable e) {
+						try {
+							out.close();
+						} catch (Exception closeException) {
+							// ignore
+						}
+						logger.warn("Error zipping config: {}", LoggerUtils.exceptionMessage(e));
+					}
+				}).start();
+				builder.addBinaryBody("local", in, ContentType.create("application/zip"), "local.zip");
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}				HttpEntity entity = builder.build();
 
 				post.setEntity(entity);
-				try (CloseableHttpClient httpClient = HttpClients.createDefault();
+				try (CloseableHttpClient httpClient = HttpClients.custom()
+						.disableAutomaticRetries()
+						.build();
 				        CloseableHttpResponse response = httpClient.execute(post)) {
 					StatusLine statusLine = response.getStatusLine();
 					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-					if (statusCode != null && statusCode != 200) {
+					if (statusCode != null && statusCode == 200) {
+						logger.info("{}config sent successfully", FieldOfPlay.getLoggingName(getFop()));
+						EntityUtils.toString(response.getEntity());
+						return true;
+					} else {
 						logger.error("{}could not send config to {} {} {}", FieldOfPlay.getLoggingName(getFop()),
 						        destination,
 						        statusLine,
 						        LoggerUtils.whereFrom(1));
+						return false;
 					}
-					EntityUtils.toString(response.getEntity());
 				} catch (Exception e1) {
 					logger.error("{}could not send config to {} {}", FieldOfPlay.getLoggingName(getFop()), destination,
 					        LoggerUtils.exceptionMessage(e1));
+					return false;
 				}
 			} catch (Exception e2) {
 				logger.error("{}could not send config to {} {}", FieldOfPlay.getLoggingName(getFop()), destination, e2);
+				return false;
 			}
 		}
 	}
