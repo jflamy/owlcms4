@@ -626,12 +626,16 @@ public class Athlete {
 	@JsonIgnore
 	public Double computedCategoryScore() {
 		AgeGroup ageGroup = getAgeGroup();
+
 		if (ageGroup == null) {
 			return 0.0;
 		}
 		Ranking scoringSystem = ageGroup.getComputedScoringSystem();
 		if (scoringSystem != null) {
-			return Ranking.getRankingValue(this, scoringSystem);
+			var score = Ranking.getRankingValue(this, scoringSystem);
+			logger.warn("computing category score for athlete {} ageGroup={} scoringSystem={} score={} {}", 
+				this.getAbbreviatedName(), ageGroup, scoringSystem, score, this.getClass().getSimpleName());
+			return score;
 		} else {
 			return 0.0;
 		}

@@ -355,10 +355,11 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 
 		compare = compareScore(lifter1, lifter2);
+		doTraceComparison("***score", lifter1, lifter1.computedCategoryScore(), lifter2, lifter2.computedCategoryScore(), compare);
 		if (compare != 0) {
 			return -compare; // we want reverse order - smaller comes after
 		}
-		traceComparison("score", lifter1, lifter1.computedCategoryScore(), lifter2, lifter2.computedCategoryScore(), compare);
+
 
 		return tieBreak(lifter1, lifter2);
 	}

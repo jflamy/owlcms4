@@ -630,20 +630,21 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getPreviousLiftTime();
 	}
 
-	@Override
-	public Double getQAge() {
-		return this.a.getQAge();
-	}
+	// @Override
+	// public Double getQAge() {
+	// 	return this.a.getQAge();
+	// }
 	
-	@Override
-	public Double getQAgeForDelta() {
-		return this.a.getQAge();
-	}
+	// @Override
+	// public Double getQAgeForDelta() {
+	// 	logger.warn("getting QAge for Delta for PAthlete {} ", this.a.getAbbreviatedName());
+	// 	return this.a.getQAge();
+	// }
 
-	@Override
-	public int getqAgeRank() {
-		return this.a.getqAgeRank();
-	}
+	// @Override
+	// public int getqAgeRank() {
+	// 	return this.a.getqAgeRank();
+	// }
 
 	@Override
 	public Integer getQualifyingTotal() {
