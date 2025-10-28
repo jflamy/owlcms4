@@ -633,8 +633,8 @@ public class Athlete {
 		Ranking scoringSystem = ageGroup.getComputedScoringSystem();
 		if (scoringSystem != null) {
 			var score = Ranking.getRankingValue(this, scoringSystem);
-			logger.warn("computing category score for athlete {} ageGroup={} scoringSystem={} score={} {}", 
-				this.getAbbreviatedName(), ageGroup, scoringSystem, score, this.getClass().getSimpleName());
+			//logger.debug("computing category score for athlete {} ageGroup={} scoringSystem={} score={} {}", 
+			// this.getAbbreviatedName(), ageGroup, scoringSystem, score, this.getClass().getSimpleName());
 			return score;
 		} else {
 			return 0.0;

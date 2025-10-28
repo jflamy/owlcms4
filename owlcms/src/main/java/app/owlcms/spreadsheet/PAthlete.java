@@ -637,7 +637,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 	
 	// @Override
 	// public Double getQAgeForDelta() {
-	// 	logger.warn("getting QAge for Delta for PAthlete {} ", this.a.getAbbreviatedName());
+	// 	logger./**/warn("getting QAge for Delta for PAthlete {} ", this.a.getAbbreviatedName());
 	// 	return this.a.getQAge();
 	// }
 

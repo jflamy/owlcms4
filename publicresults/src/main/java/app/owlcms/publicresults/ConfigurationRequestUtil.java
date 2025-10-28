@@ -66,14 +66,14 @@ public class ConfigurationRequestUtil {
         }
         
         if (StartupUtils.isDebugSetting()) {
-            logger.warn("Configuration check{}: configRequested = {}, configurationReceived = {}", caller, configRequested, configurationReceived);
+            logger./**/warn("Configuration check{}: configRequested = {}, configurationReceived = {}", caller, configRequested, configurationReceived);
         }
         
         // Check if timeout has passed since last request
         long now = System.currentTimeMillis();
         if (configRequested && (now - lastConfigRequestTime) > WAIT_FOR_CONFIG) {
             if (StartupUtils.isDebugSetting()) {
-                logger.warn("Configuration request timeout, resetting");
+                logger./**/warn("Configuration request timeout, resetting");
             }
             configRequested = false;
         }

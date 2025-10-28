@@ -178,7 +178,7 @@ public class ConfigReceiverServlet extends HttpServlet {
                     || (string != null && string.equals(this.secret))) {
                 authenticated = true;
             } else {
-                logger.warn("ConfigReceiverServlet responding 401 from {}: secret='{}', provided='{}' ({})", 
+                logger.debug("ConfigReceiverServlet responding 401 from {}: secret='{}', provided='{}' ({})", 
                     req.getRemoteHost(),
                     this.secret,
                     string,
