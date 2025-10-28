@@ -10,7 +10,7 @@
 
 **New in Release 62.2**
 
-62.2.4: Robustness improvement for medal eligibility
+62.2.5: Robustness improvement for medal eligibility
 
 62.2.4: SBDE was not reading the timekeeper and isMastersSession settings due to wrong translation key
 
