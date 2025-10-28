@@ -174,11 +174,15 @@ public class ConfigReceiverServlet extends HttpServlet {
     private boolean checkUpdateKey(HttpServletRequest req, HttpServletResponse resp, boolean authenticated,
             String fieldName, String string) throws IOException {
         if ("updateKey".contentEquals(fieldName)) {
-            logger.warn("secret {} {} {}", secret, secret == null, string);
             if (this.secret == null || this.secret.contentEquals("null")
                     || (string != null && string.equals(this.secret))) {
                 authenticated = true;
             } else {
+                logger.warn("ConfigReceiverServlet responding 401 from {}: secret='{}', provided='{}' ({})", 
+                    req.getRemoteHost(),
+                    this.secret,
+                    string,
+                    string != null ? "mismatch" : "missing");
                 deny(req, resp, string);
             }
         }

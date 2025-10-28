@@ -74,9 +74,11 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
 
             String updateKey = req.getParameter("updateKey");
             if (this.secret != null && (updateKey == null || !updateKey.equals(this.secret))) {
-                getLogger().error("denying access from {} expected {} got {} ", req.getRemoteHost(),
-                        this.secret,
-                        updateKey);
+                getLogger().warn("TimerReceiverServlet responding 401 from {}: secret='{}', provided='{}' ({})", 
+                    req.getRemoteHost(),
+                    this.secret,
+                    updateKey,
+                    updateKey != null ? "mismatch" : "missing");
                 resp.sendError(401, "Denied, wrong credentials");
                 return;
             }
