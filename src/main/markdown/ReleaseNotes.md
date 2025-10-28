@@ -10,6 +10,10 @@
 
 **Change Log**
 
+63.0.0-beta02: using passwordless connections to http: endpoints for remote scoreboards and video event feeds now works.
+
+63.0.0-beta02: remote http event feeds should update correctly on the first recalculation of lifting order
+
 63.0.0-beta01: The websocket event feed has stabilized. Merged 62.2.4 fixes.  
 
 **New in Release 63.0**
@@ -17,6 +21,8 @@
 63.0.0: New feature toggle "manualStartNumbers" that enables manual editing of start numbers when errors were made when numbering athlete cards or handing out bibs.  This disables the automatic allocation of start numbers (must use the button on the Weigh-In page)
 
 63.0.0: Event forwarding using web sockets to support enhanced tracking programs like owlcms-tracker that will eventually replace publicresults.
+
+63.0.0: publicresults and videoURL: update on first lifting order recalculation (reload session, decision, marshal change)
 
 63.0.0: Experimental: AI-generated translation for zh-HANT (Traditional Chinese)
 
