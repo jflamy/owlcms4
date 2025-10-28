@@ -19,6 +19,7 @@ import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -2437,6 +2438,9 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void previousGroupLeaders(List<Athlete> medalists) {
+		if (medalists == null) {
+			medalists = Collections.emptyList();
+		}
 		medalists = medalists.stream().filter(m -> {
 			Group group2 = this.getGroup();
 			Group group3 = m.getGroup();
