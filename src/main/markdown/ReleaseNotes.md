@@ -10,6 +10,8 @@
 
 **New in Release 62.2**
 
+62.2.6: QMasters ranks were not correct on scoreboard during Snatch when awarding medals according to QMasters score.
+
 62.2.5: Robustness improvement for medal eligibility
 
 62.2.4: SBDE was not reading the timekeeper and isMastersSession settings due to wrong translation key
