@@ -43,13 +43,13 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	public default void doUpdateUrlLocation(UI ui, Location location, Map<String, List<String>> queryParameterMap) {
 		// Log incoming state
 		List<String> incomingFop = queryParameterMap.get(FOP);
-		if (incomingFop != null && !incomingFop.isEmpty()) {
-			logger.warn("doUpdateUrlLocation - incoming location: {}, FOP param: {}", 
-				location.getPathWithQueryParameters(), incomingFop);
-		} else {
-			logger.debug("doUpdateUrlLocation - incoming location: {}, FOP param: null", 
-				location.getPathWithQueryParameters());
-		}
+		// if (incomingFop == null || incomingFop.isEmpty()) {
+		// 	logger.debug("doUpdateUrlLocation - incoming location: {}, FOP param: {}", 
+		// 		location.getPathWithQueryParameters(), incomingFop);
+		// } else {
+		// 	logger./**/warn("doUpdateUrlLocation - incoming location: {}, FOP param: {}", 
+		// 		location.getPathWithQueryParameters(), incomingFop);
+		// }
 
 		Map<String, List<String>> nq = removeDefaultValues(queryParameterMap);
 		
@@ -61,11 +61,11 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		
 		setUrlParameterMap(nq);
 		Location location2 = new Location(location.getPath(), new QueryParameters(URLUtils.cleanParams(nq)));
-		if (incomingFop != null && !incomingFop.isEmpty()) {
-			logger.warn("doUpdateUrlLocation - final location: {}", location2.getPathWithQueryParameters());
-		} else {
-			logger.debug("doUpdateUrlLocation - final location: {}", location2.getPathWithQueryParameters());
-		}
+		// if (incomingFop == null || incomingFop.isEmpty()) {
+		// 	logger.debug("doUpdateUrlLocation - final location: {}", location2.getPathWithQueryParameters());
+		// } else {
+		// 	logger./**/warn("doUpdateUrlLocation - final location: {}", location2.getPathWithQueryParameters());
+		// }
 		
 		URLUtils.replaceState(ui.getPage().getHistory(), null, location2, location);
 		setLocation(location2);
@@ -147,8 +147,8 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 			newParameterMap.remove(GROUP);
 		}
 
-		logger.warn("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
-		        (tFop != null ? tFop.getName() : null), (group != null ? group.getName() : null));
+		// logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),
+		//         (tFop != null ? tFop.getName() : null), (group != null ? group.getName() : null));
 
 		setUrlParameterMap(removeDefaultValues(newParameterMap));
 		return getUrlParameterMap();
