@@ -10,6 +10,8 @@
 
 **New in Release 62.2**
 
+62.2.5: Robustness improvement for medal eligibility
+
 62.2.4: SBDE was not reading the timekeeper and isMastersSession settings due to wrong translation key
 
 62.2.4: If someone had created a category with bounds 999 999 it was not possible to remove it through the user interface.
