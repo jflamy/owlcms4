@@ -3437,7 +3437,7 @@ public class Athlete {
 	}
 
 	public boolean isEligibleForIndividualRanking() {
-		return this.getIndividualEligibilityStatus() == EligibleForIndividualRankingStatus.ELIGIBLE;
+		return this.getEffectiveIndividualEligibilityStatus() == EligibleForIndividualRankingStatus.ELIGIBLE;
 	}
 
 	public boolean isEligibleForTeamRanking() {
