@@ -118,7 +118,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public static boolean isNoInterimScoresInResults() {
 		Boolean blss = noInterimScoresInResults.get();
-		return Boolean.TRUE.equals(blss);
+		return blss != null && Boolean.TRUE.equals(blss);
 	}
 
 	private List<Athlete> sortedAthletes;

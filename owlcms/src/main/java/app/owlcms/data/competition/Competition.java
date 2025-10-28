@@ -460,7 +460,7 @@ public class Competition {
 			} else {
 				//logger.debug("[CATEGORY_SCORE] Updating CATEGORY_SCORE and TOTAL ranks for category {}", category.getCode());
 				List<Athlete> scorePLeaders = AthleteSorter.resultsOrderCopy(currentCategoryPAthletes, Ranking.CATEGORY_SCORE)
-				        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
+				        .stream().filter(a -> a.isEligibleForIndividualRanking())
 				        .collect(Collectors.toList());
 				List<Athlete> notPFinished = AthleteSorter.resultsOrderCopy(currentCategoryPAthletes, Ranking.CATEGORY_SCORE)
 				        .stream().filter(a -> a.isEligibleForIndividualRanking() && a.getActuallyAttemptedLifts() < 6)
