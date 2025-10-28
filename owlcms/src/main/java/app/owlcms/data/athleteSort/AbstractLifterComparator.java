@@ -54,6 +54,12 @@ public class AbstractLifterComparator {
 		        LoggerUtils.whereFrom(1));
 	}
 
+	public static void doTraceComparison(String where, Athlete lifter1, Object v1, Athlete lifter2, Object v2, int compare) {
+		logger./**/warn("{} {}={} {} {}={} {}", where, lifter1.getLastName(), v1, (compare < 0 ? " < " : (compare == 0 ? "=" : " > ")),
+		        lifter2.getLastName(), v2,
+		        LoggerUtils.whereFrom());
+	}
+
 	public static void traceComparison(String where, Athlete lifter1, Object v1, Athlete lifter2, Object v2, int compare) {
 		if (logger.isTraceEnabled()) {
 			logger./**/warn("{} {}={} {} {}={} {}", where, lifter1.getLastName(), v1, (compare < 0 ? " < " : (compare == 0 ? "=" : " > ")),
@@ -379,16 +385,16 @@ public class AbstractLifterComparator {
 		if (lifter2Value == null) {
 			lifter2Value = notWeighed;
 		}
-		
+
 		if (lifter1Value <= 0.0001 && lifter2Value < 0.0001) {
 			// avoid going to full tie break; need something stable.
 			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
 		}
-		
+
 		// bigger sinclair comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
-	
+
 	int compareCategoryQPoints(Athlete lifter1, Athlete lifter2) {
 		Gender gender1 = lifter1.getGender();
 		Gender gender2 = lifter2.getGender();
@@ -406,12 +412,12 @@ public class AbstractLifterComparator {
 		if (lifter2Value == null) {
 			lifter2Value = notWeighed;
 		}
-		
+
 		if (lifter1Value <= 0.0001 && lifter2Value < 0.0001) {
 			// avoid going to full tie break; need something stable.
 			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
 		}
-		
+
 		// bigger QPoints comes first
 		return -lifter1Value.compareTo(lifter2Value);
 	}
@@ -1092,7 +1098,7 @@ public class AbstractLifterComparator {
 		}
 		return lifter1Value.compareTo(lifter2Value);
 	}
-	
+
 	public int mastersSessionAgeGroupComparison(Athlete lifter1, Athlete lifter2, int compare) {
 		// either athlete is lifting in Masters sessions, oldest first
 		Group group1 = lifter1.getGroup();

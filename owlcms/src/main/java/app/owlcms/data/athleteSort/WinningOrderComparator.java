@@ -346,10 +346,9 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 
 	public int compareScoreResultOrder(Athlete lifter1, Athlete lifter2, boolean ignoreCategories) {
 		int compare = 0;
-
 		if (!ignoreCategories) {
-			compare = ObjectUtils.compare(lifter1.getCategory(), lifter2.getCategory(), true);
-			traceComparison("!ignoreCategories", lifter1, lifter2, compare);
+			compare = ObjectUtils.compare(lifter1.getCategorySortCode(), lifter2.getCategorySortCode(), true);
+			//doTraceComparison("compareScoreResultOrder", lifter1, lifter1.getCategorySortCode(), lifter2, lifter2.getCategorySortCode(), compare);
 			if (compare != 0) {
 				return compare;
 			}
