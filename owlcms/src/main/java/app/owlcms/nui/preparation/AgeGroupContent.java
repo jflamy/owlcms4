@@ -275,6 +275,11 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		return this.routerLayout;
 	}
 
+	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
 	public void highlightResetButton() {
 		this.resetCats.setThemeName("primary error");
 	}

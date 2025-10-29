@@ -236,4 +236,10 @@ public class CoachContent extends BaseContent implements CrudListener<Coach>, Ow
         this.editingFormFactory = new CoachEditingFormFactory(Coach.class);
         return this.editingFormFactory;
     }
+
+    @Override
+    public boolean isIgnoreFopFromURL() {
+        return true;
+    }
 }
+

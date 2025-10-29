@@ -53,10 +53,9 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 
 		Map<String, List<String>> nq = removeDefaultValues(queryParameterMap);
 		
-		// CRITICAL: Always preserve FOP parameter - it must never be removed
+		// Ensure FOP is in the URL
 		if (incomingFop != null && !incomingFop.isEmpty()) {
 			nq.put(FOP, incomingFop);
-			logger./**/warn("doUpdateUrlLocation - preserving FOP: {}", incomingFop.get(0));
 		}
 		
 		setUrlParameterMap(nq);

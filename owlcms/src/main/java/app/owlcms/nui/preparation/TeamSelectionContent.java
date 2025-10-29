@@ -626,4 +626,10 @@ public class TeamSelectionContent extends BaseContent
 	private void updateFilters() {
 	}
 
+	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
 }
+

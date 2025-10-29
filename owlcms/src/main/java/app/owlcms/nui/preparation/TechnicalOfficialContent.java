@@ -241,6 +241,11 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	}
 
 	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
+	@Override
 	public void setRouterLayout(OwlcmsLayout routerLayout) {
 		this.routerLayout = routerLayout;
 	}

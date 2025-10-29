@@ -157,6 +157,11 @@ public class SessionContent extends BaseContent implements CrudListener<Group>, 
 	}
 
 	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
+	@Override
 	public void setRouterLayout(OwlcmsLayout routerLayout) {
 		this.routerLayout = routerLayout;
 	}

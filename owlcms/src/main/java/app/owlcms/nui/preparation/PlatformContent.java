@@ -107,6 +107,11 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 	}
 
 	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
+	@Override
 	public void setRouterLayout(OwlcmsLayout routerLayout) {
 		this.routerLayout = routerLayout;
 	}
