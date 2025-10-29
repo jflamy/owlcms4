@@ -91,7 +91,7 @@ class ResultsFull extends LitElement {
                     <th style="grid-row: span 2">
                       <div style="display: grid; align-self: center" .innerHTML="${this.t?.Total}" ></div>
                     </th>
-                    <th style="grid-column: span calc(${this.nbRanks});" .innerHTML="${this.t?.RANKINGS}" ></th>
+                    <th style="grid-column: span calc(${this.nbRanks});" .innerHTML="${this.t?.["RankingOrder"]}" ></th>
                     <th class="sinclair" style="grid-row: span 2">
                       <div style="display: grid; align-self: center" .innerHTML="${this.scoringName}" ></div>
                     </th>
