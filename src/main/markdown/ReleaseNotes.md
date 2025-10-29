@@ -10,6 +10,8 @@
 
 **Change Log**
 
+63.0.0-beta03: Sync with 62.2.6 - Order of results on results sheet, QMasters interim rankings during snatch.
+
 63.0.0-beta02: using passwordless connections to http: endpoints for remote scoreboards and video event feeds now works.
 
 63.0.0-beta02: remote http event feeds should update correctly on the first recalculation of lifting order
