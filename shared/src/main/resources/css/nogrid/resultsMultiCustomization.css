@@ -304,6 +304,14 @@ table.results.sinclair {
     --rowSmallSpacerHeight: 0.25vh;
 }
 
+/* Force vertical spacer rows to 10px tall for multi-layout only */
+:host table.results tr td.headerSpacer,
+:host table.results tr td.spacer {
+    max-height: 10px !important;
+    min-height: 10px !important;
+    overflow: hidden !important;
+}
+
 .blockPositioningWrapper {
     background-color: var(--blockBackgroundColor);
     /* width: fit-content;*/ /* fit-content is used for video block */
