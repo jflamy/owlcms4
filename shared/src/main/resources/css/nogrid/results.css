@@ -242,6 +242,8 @@ table.results tr td.club div.clubName div.ellipsis {
     color: var(--RankTextColor);
     visibility: var(--rankVisibility);
     display: flex;
+    min-width: var(--rankWidth);
+    box-sizing: border-box;
 }
 
 /* snatch and c&j best */
@@ -258,6 +260,8 @@ table.results tr td.club div.clubName div.ellipsis {
     background-color: var(--TotalRankBackgroundColor);
     color: var(--TotalRankTextColor);
     visibility: var(--totalRankVisibility);
+    min-width: var(--totalRankWidth);
+    box-sizing: border-box;
 }
 
 /* group */
@@ -417,7 +421,7 @@ table {
         /* start */
         var(--startWidth)
         /* name */
-        minmax(50px, var(--nameWidth))
+        minmax(0, var(--nameWidth))
         /* category */
         var(--categoryWidth)
         /* birth */
@@ -444,6 +448,7 @@ table {
         /* one total rank per category */
         repeat(var(--nbRanks), var(--totalRankWidth))
         /* sinclair result */
+        var(--spacerWidth)
         var(--sinclairWidth)
         /* sinclair ranks */
         var(--sinclairRankWidth);
@@ -758,13 +763,13 @@ div.ellipsis {
 }
 :host .dark .recordBox .recordCat {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
 }
 
 :host .light .recordCell {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
@@ -773,7 +778,7 @@ div.ellipsis {
 }
 :host .dark .recordCell {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
@@ -783,12 +788,12 @@ div.ellipsis {
 
 :host .light div.recordLiftType {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
 }
 :host .dark div.recordLiftType {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
 }
 
