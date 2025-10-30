@@ -8,8 +8,8 @@
     /* variable-size columns. fr = free space after other columns have been allocated.
        for ease of understanding, sum of all fr columns should be 1.00.
     */
-    --nameWidth: 0.60fr;
-    --clubWidth: 0.40fr;
+    --nameWidth: 1fr;
+    --clubWidth: max-content;
     --tableWidthRatio: 100%;
     --defaultLeaderFillerHeight: 1fr;
 
@@ -37,9 +37,9 @@
     --custom2Width: 0;
     --custom2Visibility: hidden;
 
-    --rankWidth: min-content;
+    --rankWidth: 3em;
     --rankVisibility: visible;
-    --totalRankWidth: min-content;
+    --totalRankWidth: 3em;
     --totalRankVisibility: visible;
 
     /*
@@ -70,7 +70,7 @@
 }
 
 table.results.ranks {
-    --rankWidth: min-content;
+    --rankWidth: 3em;
     --rankVisibility: visible;
 }
 
@@ -81,7 +81,7 @@ table.results.noranks {
 
 table.results.totalRank {
     /* do not use rankWidth since we set it to 0 */
-    --totalRankWidth: min-content;
+    --totalRankWidth: 3em;
     --totalRankVisibility: visible;
 }
 

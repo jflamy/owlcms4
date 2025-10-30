@@ -13,6 +13,7 @@ table {
     /* use all available vertical space */
     flex: 1;
     display: grid;
+    width: 100%;
     border-collapse: collapse;
     grid-template-rows:
         repeat(var(--top), min-content) repeat(1,var(--leaderFillerHeight)) repeat(var(--bottom), var(--leaderLineHeight));
