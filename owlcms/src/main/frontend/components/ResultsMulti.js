@@ -101,7 +101,7 @@ class ResultsFull extends LitElement {
                     ${(this.ageGroups ?? []).map(
           (item) =>
             html`
-                      <th>${item}</th>
+                          <th>${item}</th>
                         `)}
                     <th class="vspacer"></th>
                     <th class="narrow">1</th>
