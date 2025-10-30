@@ -89,6 +89,7 @@ table.results.nototalRank {
 table.results.nosinclair {
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;
+    --sinclairVspacerWidth: 0;
     --sinclairRankWidth: 0;
     --sinclairRankVisibility: hidden;
 }

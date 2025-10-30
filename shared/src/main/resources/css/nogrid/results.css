@@ -106,6 +106,8 @@ table.results {
     /* do not use rankWidth since we set it to 0 */
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
+    --sinclairVspacerWidth: 0;
+    --sinclairVspacerVisibility: hidden;
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;
     --sinclairRankWidth: 0;
@@ -333,16 +335,25 @@ table.results tr td.club div.clubName div.ellipsis {
     margin-bottom: 0.01vh;
     border-inline-end: 0;
     border-style: none; /* Simplified from border: none; if only one side was targeted */
-    max-height: 2px;
+    font-size: 0;
+    line-height: 0;
+    padding: 0;
+    max-height: var(--spacerWidth);
+    min-height: var(--spacerWidth);
+    overflow: hidden;
 }
 
 /* spacer line between categories */
 :host table.results tr td.spacer {
     background-color: var(--SpacerBackgroundColor);
-    padding: 0.2vmin;
+    padding: 0;
     border-inline-end: 0;
     border-style: none; /* Simplified from border: none; if only one side was targeted */
-    max-height: 2px;
+    font-size: 0;
+    line-height: 0;
+    max-height: var(--spacerWidth);
+    min-height: var(--spacerWidth);
+    overflow: hidden;
 }
 
 /* filler space above leaders */
@@ -448,7 +459,6 @@ table {
         /* one total rank per category */
         repeat(var(--nbRanks), var(--totalRankWidth))
         /* sinclair result */
-        var(--spacerWidth)
         var(--sinclairWidth)
         /* sinclair ranks */
         var(--sinclairRankWidth);
