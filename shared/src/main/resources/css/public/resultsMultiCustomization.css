@@ -29,9 +29,9 @@
     --custom2Width: 0;
     --custom2Visibility: hidden;
 
-    --rankWidth: min-content;
+    --rankWidth: 3em;
     --rankVisibility: visible;
-    --totalRankWidth: min-content;
+    --totalRankWidth: 3em;
     --totalRankVisibility: visible;
 
     --bestWidth: var(--liftResultWidth);
@@ -62,7 +62,7 @@
 }
 
 table.results.ranks {
-    --rankWidth: min-content;
+    --rankWidth: 3em;
     --rankVisibility: visible;
 }
 
@@ -73,14 +73,43 @@ table.results.noranks {
 
 table.results.totalRank {
     /* do not use rankWidth since we set it to 0 */
-    --totalRankWidth: min-content;
+    --totalRankWidth: 3em;
     --totalRankVisibility: visible;
 }
 
-table.results.sinclair.sinclairRank {
+table.results.nosinclair {
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+    --sinclairVspacerWidth: 0;
     --sinclairRankWidth: 0;
     --sinclairRankVisibility: hidden;
 }
+
+/* Hide all sinclair elements when nosinclair */
+table.results.nosinclair th.sinclair,
+table.results.nosinclair td.sinclair,
+table.results.nosinclair th.sinclairRank,
+table.results.nosinclair td.sinclairRank,
+table.results.nosinclair th.sinclairVspacer,
+table.results.nosinclair td.sinclairVspacer {
+    visibility: hidden !important;
+    width: 0 !important;
+    min-width: 0 !important;
+}
+
+table.results.sinclair.nosinclairRank {
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+
+/* Hide sinclairRank elements when sinclair is shown but ranks are off */
+table.results.sinclair.nosinclairRank th.sinclairRank,
+table.results.sinclair.nosinclairRank td.sinclairRank {
+    visibility: hidden !important;
+    width: 0 !important;
+    min-width: 0 !important;
+}
+
 table.results.sinclair {
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;

@@ -1,0 +1,54 @@
+/* resultsMulti.css - CSS Grid layout for ResultsMulti.js (multi-category scoreboard)
+   This file includes an extra spacer column before sinclair to support the 
+   <th class="vspacer sinclairVspacer"></th> element in ResultsMulti.js header.
+   
+   For single-category results (Results.js), use results.css instead.
+*/
+
+/* Import base styles - only override the grid template */
+@import url('results.css');
+
+/* Override grid layout for multi-category scoreboard */
+table {
+    /* use all available vertical space */
+    flex: 1;
+    display: grid;
+    border-collapse: collapse;
+    grid-template-rows:
+        repeat(var(--top), min-content) repeat(1,var(--leaderFillerHeight)) repeat(var(--bottom), var(--leaderLineHeight));
+    grid-template-columns:
+        /* start */
+        var(--startWidth)
+        /* name */
+        minmax(0, var(--nameWidth))
+        /* category */
+        var(--categoryWidth)
+        /* birth */
+        var(--birthWidth)
+        /* custom fields */
+        var(--custom1Width) var(--custom2Width)
+        /* team name */
+        var(--clubWidth)
+        /* snatch results */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* clean&jerk */
+        var(--spacerWidth)
+        repeat(3, var(--liftResultWidth))
+        var(--bestWidth)
+        /* one snatch rank per category */
+        repeat(var(--nbRanks), var(--rankWidth))
+        /* total */
+        var(--spacerWidth)
+        var(--totalWidth)
+        /* one total rank per category */
+        repeat(var(--nbRanks), var(--totalRankWidth))
+        /* sinclair result - EXTRA SPACER FOR MULTI-CATEGORY */
+        var(--sinclairVspacerWidth)
+        var(--sinclairWidth)
+        /* sinclair ranks */
+        var(--sinclairRankWidth);
+}
