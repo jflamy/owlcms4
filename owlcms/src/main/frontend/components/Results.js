@@ -146,7 +146,7 @@ class Results extends LitElement {
                               <td class="rank">
                                 <div .innerHTML="${item?.cleanJerkRank}"></div>
                               </td>
-                              <td class="vspacer"></td>
+                              <td class="vspacer"></td>    
                               <td class="total">
                                 <div>${item?.total}</div>
                               </td>
@@ -210,7 +210,7 @@ class Results extends LitElement {
                                     `)}
                                 <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestCleanJerk}"></div></td>
                                 <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.cleanJerkRank}"></div></td>
-                                <td class="vspacer"></td>
+                                <td class="vspacer sinclairVspacer"></td>
                                 <td class="total" style="${this.leadingAthleteStyles()} "> <div>${item?.total}</div></td>
                                 <td class="totalRank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.totalRank}"></div></td>
                                 <td class="sinclair" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclair}</div></td>
@@ -414,7 +414,7 @@ class Results extends LitElement {
 
   athleteStyles() {
     return (this.mode === "WAIT" ? "display: none" : "display:grid ")
-      + (this.resultLines ? ("; --top: " + this.resultLines) : "")
+      + (this.resultLines ? ("; --top: calc(" + this.resultLines + " + 1)") : "")
       + (this.leaderLines ? "; --bottom: " + this.leaderLines : "")
       + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "")
       + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "")

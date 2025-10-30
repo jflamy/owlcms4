@@ -106,6 +106,8 @@ table.results {
     /* do not use rankWidth since we set it to 0 */
     --totalRankWidth: var(--liftResultWidth);
     --totalRankVisibility: visible;
+    --sinclairVspacerWidth: 0;
+    --sinclairVspacerVisibility: hidden;
     --sinclairWidth: 0;
     --sinclairVisibility: hidden;
     --sinclairRankWidth: 0;
@@ -242,6 +244,8 @@ table.results tr td.club div.clubName div.ellipsis {
     color: var(--RankTextColor);
     visibility: var(--rankVisibility);
     display: flex;
+    min-width: var(--rankWidth);
+    box-sizing: border-box;
 }
 
 /* snatch and c&j best */
@@ -258,6 +262,8 @@ table.results tr td.club div.clubName div.ellipsis {
     background-color: var(--TotalRankBackgroundColor);
     color: var(--TotalRankTextColor);
     visibility: var(--totalRankVisibility);
+    min-width: var(--totalRankWidth);
+    box-sizing: border-box;
 }
 
 /* group */
@@ -329,16 +335,25 @@ table.results tr td.club div.clubName div.ellipsis {
     margin-bottom: 0.01vh;
     border-inline-end: 0;
     border-style: none; /* Simplified from border: none; if only one side was targeted */
-    max-height: 2px;
+    font-size: 0;
+    line-height: 0;
+    padding: 0;
+    max-height: var(--spacerWidth);
+    min-height: var(--spacerWidth);
+    overflow: hidden;
 }
 
 /* spacer line between categories */
 :host table.results tr td.spacer {
     background-color: var(--SpacerBackgroundColor);
-    padding: 0.2vmin;
+    padding: 0;
     border-inline-end: 0;
     border-style: none; /* Simplified from border: none; if only one side was targeted */
-    max-height: 2px;
+    font-size: 0;
+    line-height: 0;
+    max-height: var(--spacerWidth);
+    min-height: var(--spacerWidth);
+    overflow: hidden;
 }
 
 /* filler space above leaders */
@@ -417,7 +432,7 @@ table {
         /* start */
         var(--startWidth)
         /* name */
-        minmax(50px, var(--nameWidth))
+        minmax(0, var(--nameWidth))
         /* category */
         var(--categoryWidth)
         /* birth */
@@ -758,13 +773,13 @@ div.ellipsis {
 }
 :host .dark .recordBox .recordCat {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
 }
 
 :host .light .recordCell {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
@@ -773,7 +788,7 @@ div.ellipsis {
 }
 :host .dark .recordCell {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
@@ -783,12 +798,12 @@ div.ellipsis {
 
 :host .light div.recordLiftType {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
 }
 :host .dark div.recordLiftType {
     outline-width: var(--RecordCellBorderWidth);
-    outline-color: var,--RecordBoxBorder);
+    outline-color: var(--RecordBoxBorder);
     outline-style: solid;
 }
 

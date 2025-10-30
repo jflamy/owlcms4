@@ -37,9 +37,9 @@
     --custom2Width: 0;
     --custom2Visibility: hidden;
 
-    --rankWidth: min-content;
+    --rankWidth: 3ch;
     --rankVisibility: visible;
-    --totalRankWidth: min-content;
+    --totalRankWidth: 3ch;
     --totalRankVisibility: visible;
 
     --bestWidth: 0;
@@ -66,7 +66,7 @@
 }
 
 table.results.ranks {
-    --rankWidth: min-content;
+    --rankWidth: 3em;
     --rankVisibility: visible;
 }
 
@@ -77,7 +77,7 @@ table.results.noranks {
 
 table.results.totalRank {
     /* do not use rankWidth since we set it to 0 */
-    --totalRankWidth: min-content;
+    --totalRankWidth: 3em;
     --totalRankVisibility: visible;
 }
 
@@ -86,10 +86,45 @@ table.results.nototalRank {
     --totalRankVisibility: hidden;
 }
 
+table.results.nosinclair {
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+    --sinclairVspacerWidth: 0;
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+
+/* Hide all sinclair elements when nosinclair */
+table.results.nosinclair th.sinclair,
+table.results.nosinclair td.sinclair,
+table.results.nosinclair th.sinclairRank,
+table.results.nosinclair td.sinclairRank,
+table.results.nosinclair th.sinclairVspacer,
+table.results.nosinclair td.sinclairVspacer {
+    visibility: hidden !important;
+    width: 0 !important;
+    min-width: 0 !important;
+}
+
+table.results.sinclair.nosinclairRank {
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+
+/* Hide sinclairRank elements when sinclair is shown but ranks are off */
+table.results.sinclair.nosinclairRank th.sinclairRank,
+table.results.sinclair.nosinclairRank td.sinclairRank {
+    visibility: hidden !important;
+    width: 0 !important;
+    min-width: 0 !important;
+}
+
+/*
 table.results.sinclair.sinclairRank {
     --sinclairRankWidth: 0;
     --sinclairRankVisibility: hidden;
 }
+*/
 
 /*
 table.results.sinclair {
@@ -267,6 +302,14 @@ table.results.sinclair {
 :host .dark table.results {
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0.25vh;
+}
+
+/* Force vertical spacer rows to 10px tall for multi-layout only */
+:host table.results tr td.headerSpacer,
+:host table.results tr td.spacer {
+    max-height: 10px !important;
+    min-height: 10px !important;
+    overflow: hidden !important;
 }
 
 .blockPositioningWrapper {

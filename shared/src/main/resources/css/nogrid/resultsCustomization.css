@@ -244,6 +244,29 @@
     --rowSmallSpacerHeight: 0; /* set to 0.25vh if transparent background */
 }
 
+table.results.nosinclair {
+    --sinclairWidth: 0;
+    --sinclairVisibility: hidden;
+    --sinclairVspacerWidth: 0;
+    --sinclairVspacerVisibility: hidden;
+    --sinclairRankWidth: 0;
+    --sinclairRankVisibility: hidden;
+}
+
+table.results.nosinclair th.sinclair,
+table.results.nosinclair td.sinclair,
+table.results.nosinclair th.sinclairRank,
+table.results.nosinclair td.sinclairRank,
+table.results.nosinclair th.sinclairVspacer,
+table.results.nosinclair td.sinclairVspacer {
+    visibility: hidden !important;
+    max-width: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
 td.flags div img {
 	width: calc(var(--flagHeight)*1.3);
     height: calc(var(--flagHeight));
