@@ -130,7 +130,7 @@ class ResultsFull extends LitElement {
                         ${item?.isSpacer
                           ? html`
                             <tr>
-                              <td class="spacer" style="grid-column: 1 / -1; justify-content: left;">-</td>
+                              <td class="spacer" style="grid-column: 1 / -1; justify-content: left;">&nbsp;</td>
                             </tr>
                           `
                           : html`
