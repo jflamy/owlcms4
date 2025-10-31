@@ -330,7 +330,7 @@ public class FileServlet extends HttpServlet {
 			return null;
 		} catch (FileNotFoundException e) {
 			logger.error(e.getMessage());
-			LoggerUtils.logError(logger, e);
+			// LoggerUtils.logError(logger, e);
 			response.getWriter().print(e.getLocalizedMessage());
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			return null;

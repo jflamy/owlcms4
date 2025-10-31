@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -249,10 +250,11 @@ public class ResourceWalker {
 					logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
 				}
 			} else {
+				String format = MessageFormat.format("not found {} {} {}", target, resName, LoggerUtils.whereFrom(1));
 				if (logger.isEnabledFor(Level.DEBUG)) {
-					logger.debug("not found {} {} {}", target, resName, LoggerUtils.whereFrom(1));
+					logger.debug(format);
 				}
-				throw new FileNotFoundException(name);
+				throw new FileNotFoundException(format);
 			}
 
 		}
