@@ -10,13 +10,11 @@
 
 **Change Log**
 
+63.3.0-beta04: Added fix of stored category codes at startup to correct potential legacy mismatches
+
+63.3.0-beta04: Revision of scoreboard templates and style sheets for all themes
+
 63.0.0-beta03: Sync with 62.2.6 - Order of results on results sheet, QMasters interim rankings during snatch.
-
-63.0.0-beta02: using passwordless connections to http: endpoints for remote scoreboards and video event feeds now works.
-
-63.0.0-beta02: remote http event feeds should update correctly on the first recalculation of lifting order
-
-63.0.0-beta01: The websocket event feed has stabilized. Merged 62.2.4 fixes.  
 
 **New in Release 63.0**
 
