@@ -247,10 +247,10 @@ public class ResourceWalker {
 			target = getResourcePath(resName);
 			if (target != null) {
 				if (logger.isEnabledFor(Level.DEBUG)) {
-					logger.debug("found classpath resource {} {}", name, LoggerUtils.whereFrom(1));
+					logger.debug("found classpath resource {} {}", relativeName, LoggerUtils.whereFrom(1));
 				}
 			} else {
-				String format = MessageFormat.format("not found {} {} {}", target, resName, LoggerUtils.whereFrom(1));
+				String format = MessageFormat.format("{0} not found  {1}", relativeName, LoggerUtils.whereFrom(1));
 				if (logger.isEnabledFor(Level.DEBUG)) {
 					logger.debug(format);
 				}
