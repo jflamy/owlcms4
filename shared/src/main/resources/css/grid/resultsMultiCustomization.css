@@ -99,7 +99,13 @@ table.results.nosinclair td.sinclair,
 table.results.nosinclair th.sinclairRank,
 table.results.nosinclair td.sinclairRank,
 table.results.nosinclair th.sinclairVspacer,
-table.results.nosinclair td.sinclairVspacer {
+table.results.nosinclair td.sinclairVspacer,
+table.results.nosinclair .leaders th.sinclair,
+table.results.nosinclair .leaders td.sinclair,
+table.results.nosinclair .leaders th.sinclairRank,
+table.results.nosinclair .leaders td.sinclairRank,
+table.results.nosinclair .leaders th.sinclairVspacer,
+table.results.nosinclair .leaders td.sinclairVspacer {
     visibility: hidden !important;
     width: 0 !important;
     min-width: 0 !important;
@@ -112,7 +118,9 @@ table.results.sinclair.nosinclairRank {
 
 /* Hide sinclairRank elements when sinclair is shown but ranks are off */
 table.results.sinclair.nosinclairRank th.sinclairRank,
-table.results.sinclair.nosinclairRank td.sinclairRank {
+table.results.sinclair.nosinclairRank td.sinclairRank,
+table.results.sinclair.nosinclairRank .leaders th.sinclairRank,
+table.results.sinclair.nosinclairRank .leaders td.sinclairRank {
     visibility: hidden !important;
     width: 0 !important;
     min-width: 0 !important;

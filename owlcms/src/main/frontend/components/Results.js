@@ -414,7 +414,7 @@ class Results extends LitElement {
 
   athleteStyles() {
     return (this.mode === "WAIT" ? "display: none" : "display:grid ")
-      + (this.resultLines ? ("; --top: calc(" + this.resultLines + " + 1)") : "")
+      + (this.resultLines ? ("; --top: calc(" + this.resultLines + ")") : "") // FIXME suspicious + 1 removed
       + (this.leaderLines ? "; --bottom: " + this.leaderLines : "")
       + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "")
       + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "")

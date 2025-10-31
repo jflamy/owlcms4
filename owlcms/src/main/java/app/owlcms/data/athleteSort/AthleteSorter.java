@@ -295,7 +295,7 @@ public class AthleteSorter implements Serializable {
 		List<Athlete> impactedAthletes;
 		if (g != null) {
 			impactedAthletes = AthleteRepository.findAthletesForGlobalRanking(em, g);
-			// logger.debug"all athletes in group's categories {}", impactedAthletes);
+			logger.warn("=== all athletes in group's categories {}", impactedAthletes);
 		} else {
 			impactedAthletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, null, true, null);
 			// logger.debug("all athletes in all groups {}", impactedAthletes);

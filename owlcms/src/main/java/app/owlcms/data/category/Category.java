@@ -592,9 +592,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		this.ageGroup = ageGroup;
 	}
 
-	public void setCode(String cellValue) {
-		// noop -- getCode is now computed
-		//this.code = cellValue;
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	/**

@@ -2389,6 +2389,7 @@ public class FieldOfPlay implements IUnregister {
 		} else if (getCurAthlete() != null) {
 			Category category = getCurAthlete().getCategory();
 			List<Athlete> medalists = getMedals().get(category.getCode());
+			logger.warn("medalists for category {} : {}", category.getCode(), getMedals().keySet());
 
 			if (!Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
 				previousGroupLeaders(medalists);
@@ -2415,6 +2416,10 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void medalistLeaders(List<Athlete> medalists) {
+		if (medalists == null) {
+			logger.error("medalistLeaders called with null medalists");
+			medalists = Collections.emptyList();
+		}
 		List<Athlete> snatchMedalists = medalists.stream().filter(a -> {
 			int r = a.getSnatchRank();
 			return r <= 3 && r > 0;
@@ -2518,7 +2523,7 @@ public class FieldOfPlay implements IUnregister {
 		long endLeaders = 0;
 
 		var initialList = getLiftingOrder();
-		this.logger.debug("{}recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this),
+		this.logger.warn("{}=== recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this),
 		        recomputeCategoryRanks, LoggerUtils.whereFrom());
 		if (recomputeCategoryRanks) {
 			// we update the ranks all athletes in our category, as well as the current scoring system
@@ -2545,7 +2550,7 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			if (recomputeCategoryRanks) {
 				// Trace athlete IDs sent to computeMedals
-				//logger.debug("athletes sent to computeMedals IDs: {}", athletes == null ? null : athletes.stream().map(a -> a.getId()).collect(Collectors.toList()));
+				logger.warn("athletes sent to computeMedals IDs: {}", athletes == null ? null : athletes.stream().map(a -> a.getAbbreviatedName()).collect(Collectors.toList()));
 				setMedals(Competition.getCurrent().computeMedals(g, athletes));
 			}
 			endMedals = System.nanoTime();

@@ -430,4 +430,33 @@ public class CategoryRepository {
 			query.setParameter("gender", gender);
 		}
 	}
+
+	public static void fixCategories() {
+		// get all categories for all age groups; if the code in the category does not match the computed code, fix it.
+		// use eager fetch join to load both categories and their age groups in a single query, avoiding N+1 problem.
+		JPAService.runInTransaction(em -> {
+			List<Category> allCats = em.createQuery(
+			        "select c from Category c join fetch c.ageGroup ag order by ag.ageDivision, ag.minAge, ag.maxAge, c.code",
+			        Category.class)
+			        .getResultList();
+
+			int count = 0;
+			int fixedCount = 0;
+			for (Category c : allCats) {
+				String computedCode = c.getComputedCode();
+				if (!c.getCode().equals(computedCode)) {
+					logger.info("fixing category code from {} to {}", c.getCode(), computedCode);
+					c.setCode(computedCode);
+					fixedCount++;
+
+					if (++count % 50 == 0) {
+						em.flush(); // Periodic flush without clear
+					}
+				}
+			}
+			em.flush();
+			logger.info("Fixed {} category codes out of {} total categories", fixedCount, allCats.size());
+			return null;
+		});
+	}
 }

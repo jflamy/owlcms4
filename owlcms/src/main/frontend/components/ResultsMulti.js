@@ -130,7 +130,7 @@ class ResultsFull extends LitElement {
                         ${item?.isSpacer
                           ? html`
                             <tr>
-                              <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" innerHTML="-" ></td>
+                              <td class="spacer" style="grid-column: 1 / -1; justify-content: left;">-</td>
                             </tr>
                           `
                           : html`
@@ -217,15 +217,15 @@ class ResultsFull extends LitElement {
         : html``}
             ${this.leaders
         ? html`
-                <tr>
-                  <td class="filler" .style="grid-column: 1 / -1; ${this.fillerStyles()}"> &nbsp; </td>
-                </tr>
                 <tbody class="leaders" style="${this.leadersStyles()}">
+                  <tr>
+                    <td class="filler" style="grid-column: 1 / -1; ${this.fillerStyles()}"> &nbsp; </td>
+                  </tr>
                   <tr class="head">
                     <td class="leaderTitle" .innerHTML="${(this.t?.Leaders ?? "") + " " + (this.categoryName ?? "")}"></td>
                   </tr>
                   <tr>
-                    <td class="headerSpacer" innerHTML="&nbsp;" style="${"grid-column: 1 / -1; justify-content: left; " + this.leadingAthleteStyles()}"></td>
+                    <td class="headerSpacer" style="${"grid-column: 1 / -1; justify-content: left; " + this.leadingAthleteStyles()}">&nbsp;</td>
                   </tr>
                   ${(this.leaders ?? []).map(
           (item, index) =>
@@ -279,6 +279,7 @@ class ResultsFull extends LitElement {
                                       <div .innerHTML="${rk}"></div>
                                     </td>
                                   `)}
+                                <td class="vspacer sinclairVspacer"></td>
                                 <td class="sinclair" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclair}</div></td>
                                 <td class="sinclairRank" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclairRank}</div></td>
                               </tr>

@@ -384,6 +384,7 @@ public class Main {
             } else {
                 // migrations and other changes
                 logger.info("Database not empty: {}", allCompetitions.get(0).getCompetitionName());
+                CategoryRepository.fixCategories();
                 AthleteRepository.removeBrokenParticipationsAndCategories();
                 
                 List<AgeGroup> ags = AgeGroupRepository.findAll();

@@ -8,13 +8,11 @@ package app.owlcms.data.agegroup;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -78,7 +76,7 @@ public class AgeGroupRepository {
 			if (!activeOnly || ag.isActive()) {
 				if (ag.computeChampionshipName() != null && !ag.computeChampionshipName().isBlank()) {
 					ts.add(ag.computeChampionshipName());
-				} else if (ag.getAgeDivision() != null){
+				} else if (ag.getAgeDivision() != null) {
 					ts.add(ag.getAgeDivision());
 				}
 			}
@@ -292,12 +290,12 @@ public class AgeGroupRepository {
 				List<String> resultSet = q.getResultList();
 				return resultSet;
 			} else {
-		TypedQuery<String> q = em.createQuery(
-			"select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ((lower(ag.championshipName) = lower(:championshipName)) or (lower(ag.ageDivision) = lower(:championshipName)))",
-			String.class);
-		q.setParameter("championshipName", championship.getName());
-		List<String> resultSet = q.getResultList();
-		return resultSet;
+				TypedQuery<String> q = em.createQuery(
+				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ((lower(ag.championshipName) = lower(:championshipName)) or (lower(ag.ageDivision) = lower(:championshipName)))",
+				        String.class);
+				q.setParameter("championshipName", championship.getName());
+				List<String> resultSet = q.getResultList();
+				return resultSet;
 			}
 		});
 	}
@@ -533,35 +531,6 @@ public class AgeGroupRepository {
 		em.remove(nc);
 	}
 
-	static Category createCategoryFromTemplate(String catCode, AgeGroup ag, Map<String, Category> templates,
-	        double curMin, String qualTotal) throws Exception {
-		Category template = templates.get(catCode);
-		if (template == null) {
-			logger.trace("template {} not found", catCode);
-			return null;
-		} else {
-			try {
-				Category newCat = new Category(template);
-				newCat.setMinimumWeight(curMin);
-				newCat.setCode(ag.getCode() + "_" + template.getCode());
-				newCat.setAgeGroup(ag);
-				// logger.debug("code = {} {}",newCat.getCode(), newCat.getComputedCode());
-				ag.addCategory(newCat);
-				newCat.setActive(ag.isActive());
-				try {
-					newCat.setQualifyingTotal(Integer.parseInt(qualTotal));
-				} catch (NumberFormatException e) {
-					throw new Exception(e);
-				}
-				// logger.debug(newCat.dump());
-				return newCat;
-			} catch (IllegalAccessException | InvocationTargetException e) {
-				logger.error("cannot create category from template\n{}", LoggerUtils./**/stackTrace(e));
-				return null;
-			}
-		}
-	}
-
 	@SuppressWarnings("unchecked")
 	private static void cascadeAthleteCategoryDisconnect(EntityManager em, Category c) {
 		Category nc = em.merge(c);
@@ -669,7 +638,7 @@ public class AgeGroupRepository {
 	}
 
 	private static String filteringWhere(String name, Championship championship, Integer age, Gender gender,
-			Boolean active) {
+	        Boolean active) {
 		List<String> whereList = new LinkedList<>();
 		if (championship != null) {
 			// Canonicalize both DB and parameter for matching
@@ -707,7 +676,7 @@ public class AgeGroupRepository {
 	}
 
 	private static void setFilteringParameters(String name, Gender gender, Championship championship, Integer age,
-			Boolean active, Query query) {
+	        Boolean active, Query query) {
 		if (name != null && name.trim().length() > 0) {
 			// starts with
 			query.setParameter("code", "%" + name.toLowerCase() + "%");
@@ -727,5 +696,4 @@ public class AgeGroupRepository {
 			query.setParameter("gender", gender);
 		}
 	}
-
 }
