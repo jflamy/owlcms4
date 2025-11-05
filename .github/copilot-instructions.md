@@ -114,5 +114,12 @@ I detected a bundled JBR runtime in your workspace settings (e.g. `jbr_jcef...`)
 
 This avoids unnecessary builds while the IDE-provided JDK is in use.
 
+## Windows Git Bash shell specifics
+
+- **File/application opening**: Use `explorer <path>` to open files or folders in the user's default application. Do NOT use `start <path>` as it does not work reliably in Git Bash on Windows. Example:
+  ```bash
+  explorer "I:\My Drive\records\WFA\WFA_owlcms_2025-11-06.xlsx"
+  ```
+
 ---
 If you'd like, I can also add short examples for common developer workflows (build/test/debug) based on this repo's `pom.xml` and `frontend/` tooling — tell me which area to document next.
