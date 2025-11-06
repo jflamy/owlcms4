@@ -10,6 +10,8 @@
 
 **Change Log**
 
+63.0.0-rc02 : added lot number to event forwarders.
+
 63.0.0-rc01 : The TeamGlobalScoring template in the Competition Results/Final Package section now works also when a championship is selected.
 
 63.3.0-beta04: Added fix of stored category codes at startup to correct potential legacy mismatches

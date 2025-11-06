@@ -1479,7 +1479,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Integer startNumber = a.getStartNumber();
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		Integer lotNumber = a.getLotNumber();
-		ja.put("lot", (lotNumber != null ? lotNumber.toString() : ""));
+		ja.put("lotNumber", (lotNumber != null ? lotNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank);
 		ja.put("sattempts", this.sattempts);
