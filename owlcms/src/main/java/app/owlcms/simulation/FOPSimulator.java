@@ -323,17 +323,17 @@ public class FOPSimulator {
 			// Assign start numbers to athletes in the group for simulation
 			List<Athlete> athletes = g.getAthletes();
 			if (athletes != null && !athletes.isEmpty()) {
-				this.logger.warn("{}########## About to assign start numbers. Athletes in group: {}", 
+				this.logger.debug("{}########## About to assign start numbers. Athletes in group: {}", 
 					FieldOfPlay.getLoggingName(this.fop), athletes.size());
 				for (Athlete a : athletes) {
-					this.logger.warn("{}########## Athlete: {} {} - bodyWeight: {} startNumber: {}", 
+					this.logger.debug("{}########## Athlete: {} {} - bodyWeight: {} startNumber: {}", 
 						FieldOfPlay.getLoggingName(this.fop), 
 						a.getLastName(), a.getFirstName(), a.getBodyWeight(), a.getStartNumber());
 				}
 				AthleteSorter.testAssignStartNumbers(athletes);
 				this.logger.info("{}########## assigned start numbers for group {}", FieldOfPlay.getLoggingName(this.fop), g);
 				for (Athlete a : athletes) {
-					this.logger.warn("{}########## After assignment - Athlete: {} {} - bodyWeight: {} startNumber: {}", 
+					this.logger.debug("{}########## After assignment - Athlete: {} {} - bodyWeight: {} startNumber: {}", 
 						FieldOfPlay.getLoggingName(this.fop), 
 						a.getLastName(), a.getFirstName(), a.getBodyWeight(), a.getStartNumber());
 				}
