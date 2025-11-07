@@ -162,7 +162,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 				topSinclair.setEnabled(false);
 				topTeamsSinclair.setEnabled(false);
 			}
-			doGroup(Translator.translate("Scoreboard.RANKINGS"), intro111, grid111, this);
+			doGroup(Translator.translate("Scoreboard.RankingOrder"), intro111, grid111, this);
 
 			DebugUtils.gc();
 		} catch (Throwable x) {

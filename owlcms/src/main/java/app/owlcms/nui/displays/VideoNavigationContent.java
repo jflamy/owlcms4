@@ -155,7 +155,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		// addP(intro1, Translator.translate("darkModeSelect"));
 		intro1a.add(hl);
 		FlexibleGridLayout grid1a = HomeNavigationContent.navigationGrid(medals, rankings);
-		doGroup(Translator.translate("Scoreboard.RANKINGS"), intro1a, grid1a, this);
+		doGroup(Translator.translate("Scoreboard.RankingOrder"), intro1a, grid1a, this);
 	}
 
 	public void decisions() {
