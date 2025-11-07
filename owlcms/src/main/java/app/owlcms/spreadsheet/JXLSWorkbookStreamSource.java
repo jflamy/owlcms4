@@ -814,7 +814,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 */
 	public Optional<Exception> prepare() {
         try {
-			System.err.println("=== preCheck called");
+			
             setReportingInfo();
             // Validate that the template exists and is readable on the UI thread.
             // If a caller provided a custom template via setInputStream(), trust that they manage it properly.
@@ -843,11 +843,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
                     return Optional.of(new StopProcessingException("TooManyAthletes", new RuntimeException(localized)));
                 }
             }
-			System.err.println("=== preCheck OK");
+			
             return Optional.empty();
         } catch (Exception e) {
 			e.printStackTrace();
-			System.err.println("=== preCheck FAILED ===");
+			
             return Optional.of(e);
         }
     }}
