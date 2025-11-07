@@ -16,6 +16,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -318,6 +319,26 @@ public class FOPSimulator {
 			}
 			this.logger.info("{}########## switching to group {} of {}", FieldOfPlay.getLoggingName(this.fop), g, curGs);
 			this.fop.fopEventPost(new FOPEvent.SwitchGroup(g, this));
+			
+			// Assign start numbers to athletes in the group for simulation
+			List<Athlete> athletes = g.getAthletes();
+			if (athletes != null && !athletes.isEmpty()) {
+				this.logger.warn("{}########## About to assign start numbers. Athletes in group: {}", 
+					FieldOfPlay.getLoggingName(this.fop), athletes.size());
+				for (Athlete a : athletes) {
+					this.logger.warn("{}########## Athlete: {} {} - bodyWeight: {} startNumber: {}", 
+						FieldOfPlay.getLoggingName(this.fop), 
+						a.getLastName(), a.getFirstName(), a.getBodyWeight(), a.getStartNumber());
+				}
+				AthleteSorter.testAssignStartNumbers(athletes);
+				this.logger.info("{}########## assigned start numbers for group {}", FieldOfPlay.getLoggingName(this.fop), g);
+				for (Athlete a : athletes) {
+					this.logger.warn("{}########## After assignment - Athlete: {} {} - bodyWeight: {} startNumber: {}", 
+						FieldOfPlay.getLoggingName(this.fop), 
+						a.getLastName(), a.getFirstName(), a.getBodyWeight(), a.getStartNumber());
+				}
+			}
+			
 			this.logger.info("{}########## starting group {}", FieldOfPlay.getLoggingName(this.fop), g);
 			this.groupDone = false;
 			this.fop.fopEventPost(new FOPEvent.StartLifting(this));
