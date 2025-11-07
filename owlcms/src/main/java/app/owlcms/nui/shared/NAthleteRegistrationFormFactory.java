@@ -933,10 +933,14 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		bindField(bsw, this.scaleWeightField, Athlete::getScaleWeight, Athlete::setScaleWeight);
 
 		this.bodyWeightField = new LocalizedDecimalField();
-		if (Competition.getCurrent().getDeduct250g()) {
+		boolean deduct250g = Boolean.TRUE.equals(Competition.getCurrent().getDeduct250g());
+		logger.debug("{} deduct250g initial state={} (expect false to hide scaleWeight)", LoggerUtils.whereFrom(), deduct250g);
+		if (deduct250g) {
+			logger.debug("{} deduct250g=true -> adding scaleWeight field", LoggerUtils.whereFrom());
 			this.bodyWeightField.setReadOnly(true);
 			layoutAddFormItem(layout, this.scaleWeightField, Translator.translate("ScaleWeight"));
 		} else {
+			logger.debug("{} deduct250g=false -> not adding scaleWeight field", LoggerUtils.whereFrom());
 			this.bodyWeightField.setReadOnly(false);
 		}
 		this.bodyWeightField.getWrappedTextField().setAllowedCharPattern("[0-9.,]");
@@ -950,12 +954,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		                : Translator.translate("BodyWeight"));
 
 		this.scaleWeightField.addValueChangeListener(v -> {
+			logger.debug("{} scaleWeight value change old={} new={}", LoggerUtils.whereFrom(), v.getOldValue(), v.getValue());
 			if (v.getOldValue() != null && v.getValue() == null) {
 				this.bodyWeightField.setValue(null);
 				this.bodyWeightField.setReadOnly(false);
 			}
 			if (v.getValue() != null) {
-				if (Competition.getCurrent().getDeduct250g()) {
+				boolean deduct250gCurrent = Boolean.TRUE.equals(Competition.getCurrent().getDeduct250g());
+				logger.debug("{} deduct250g current state={} on value change", LoggerUtils.whereFrom(), deduct250gCurrent);
+				if (deduct250gCurrent) {
 					this.bodyWeightField.setValue(v.getValue() - 0.250);
 				}
 				try {
@@ -970,10 +977,10 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			} else {
 				this.bodyWeightField.setReadOnly(false);
 			}
-			this.bodyWeightField.setReadOnly(Competition.getCurrent().getDeduct250g());
+			this.bodyWeightField.setReadOnly(Boolean.TRUE.equals(Competition.getCurrent().getDeduct250g()));
 		});
 
-		if (!Competition.getCurrent().getDeduct250g()) {
+		if (!Boolean.TRUE.equals(Competition.getCurrent().getDeduct250g())) {
 			// no scale weight field shown
 			layout.add(new NativeLabel());
 		}

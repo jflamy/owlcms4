@@ -424,7 +424,7 @@ public class CompetitionEditingFormFactory
 		        .bind(Competition::isSnatchCJTotalMedals, Competition::setSnatchCJTotalMedals);
 		
 		Checkbox deduct250gField = new Checkbox();
-		layout.addFormItem(deduct250gField, Translator.translate("Competition.isDeduct250g"));
+				layout.addFormItem(deduct250gField, Translator.translate("Competition.isDeduct250g"));
 		this.binder.forField(deduct250gField)
 		        .bind(Competition::getDeduct250g, Competition::setDeduct250g);
 
