@@ -7,6 +7,7 @@
 package app.owlcms.nui.crudui;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -31,6 +32,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -43,6 +45,7 @@ import com.vaadin.flow.dom.ClassList;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.i18n.Translator;
@@ -479,6 +482,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
 	protected void performOperationAndCallback(CrudOperation operation, T domainObject,
 	        ComponentEventListener<ClickEvent<Button>> gridCallback, boolean ignoreErrors) {
+		String errorFieldName = null;
 		if (ignoreErrors) {
 			if (domainObject instanceof Athlete) {
 				((Athlete) domainObject).setValidation(!ignoreErrors);
@@ -486,6 +490,28 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			this.binder.writeBeanAsDraft(domainObject, true);
 		} else {
 			boolean writeBeanIfValid = this.binder.writeBeanIfValid(domainObject);
+			logger.debug("{} binder.writeBeanIfValid op={} result={} domainObjectClass={} hash={}",
+			        LoggerUtils.whereFrom(),
+			        operation,
+			        writeBeanIfValid,
+			        domainObject != null ? domainObject.getClass().getSimpleName() : null,
+			        domainObject != null ? System.identityHashCode(domainObject) : null);
+			if (!writeBeanIfValid) {
+				BinderValidationStatus<T> status = this.binder.validate();
+				errorFieldName = status.getFieldValidationErrors().stream()
+				        .map(err -> extractFieldName(err.getField()))
+				        .filter(Objects::nonNull)
+				        .findFirst()
+				        .orElse(null);
+			}
+			if (domainObject instanceof Competition) {
+				Competition comp = (Competition) domainObject;
+				logger.debug("{} Competition deduct250g={} (id={}, name={})",
+				        LoggerUtils.whereFrom(),
+				        comp.getDeduct250g(),
+				        comp.getId(),
+				        comp.getCompetitionName());
+			}
 			setValid(writeBeanIfValid);
 		}
 		if (ignoreErrors || isValid()) {
@@ -507,11 +533,28 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			}
 		} else {
 			logger.debug("not valid {}", domainObject);
+			String fieldLabel = errorFieldName != null ? errorFieldName : "unknown";
+			String message = String.format("Validation error for field %s", fieldLabel);
+			Notification errorNotification = Notification.show(message, 4000,
+			        Position.TOP_END);
+			errorNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 		}
 	}
 
 	protected void setValid(boolean valid) {
 		this.valid = valid;
+	}
+
+	private String extractFieldName(HasValue<?, ?> field) {
+		if (field instanceof Component) {
+			Component component = (Component) field;
+			String label = component.getElement().getProperty("label");
+			if (label != null && !label.isBlank()) {
+				return label;
+			}
+			return component.getClass().getSimpleName();
+		}
+		return field != null ? field.getClass().getSimpleName() : null;
 	}
 
 	private void init() {
