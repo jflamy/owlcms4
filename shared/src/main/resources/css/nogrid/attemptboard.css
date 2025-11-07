@@ -94,6 +94,18 @@
 	max-width: 70vw;
 }
 
+/* Ensure first name truncates before the flag: reserve space for flag (approx 22vh)
+   and force ellipsis at the right edge so the dots appear immediately to the left
+   of the flag image. */
+.attemptBoard .firstNameWithPicture div,
+.attemptBoard .firstName div {
+	display: block; /* needed for text-overflow to work reliably */
+	max-width: calc(100% - 22vh);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
 
 @media screen and (max-width: 1300px) {
 	.attemptBoard .firstName {
