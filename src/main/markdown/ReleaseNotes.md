@@ -10,6 +10,12 @@
 
 **Change Log**
 
+63.0.0-rc03: Identify which field is wrong when trying to save (field can be on another tab)
+
+63.0.0-rc03: Run simulations even if manualStartNumbers is set (ignore and set them)
+
+63.0.0-rc03: (cosmetic) Body Weight were printed on Weigh-in forms -- should always be blank as a matter of principle
+
 63.0.0-rc02 : added lot number to event forwarders.
 
 63.0.0-rc01 : The TeamGlobalScoring template in the Competition Results/Final Package section now works also when a championship is selected.
