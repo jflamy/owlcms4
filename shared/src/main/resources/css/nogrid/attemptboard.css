@@ -35,7 +35,7 @@
     align-content: center;
     align-items: stretch;
     justify-items: stretch;
-    padding: 3vmin;
+	padding: 2vmin;
 }
 
 .attemptBoard .lastName {
@@ -94,13 +94,14 @@
 	max-width: 70vw;
 }
 
-/* Ensure first name truncates before the flag: reserve space for flag (approx 22vh)
-   and force ellipsis at the right edge so the dots appear immediately to the left
-   of the flag image. */
+/* Reserve more space for the flag so the ellipsis appears earlier. 34vh
+   is a reasonable estimate for the flag/timer area on large displays; adjust
+   if needed. Make sure text-overflow works by using display:block. */
 .attemptBoard .firstNameWithPicture div,
 .attemptBoard .firstName div {
-	display: block; /* needed for text-overflow to work reliably */
-	max-width: calc(100% - 22vh);
+	display: block;
+	/* slightly more reserve so the ellipsis renders fully */
+	max-width: calc(100% - 36vh);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
