@@ -709,6 +709,13 @@ public class FieldOfPlay implements IUnregister {
 			// do not return; error message will be shown if state does not allow summon.
 		} else if (e instanceof StartLifting) {
 			this.setCeremonyType(null);
+			// Clear pending jury decision when forcefully exiting via StartLifting
+			// This is the escape route when announcer cancels or system needs to resume
+			if (this.toBeAnnouncedJuryDecision != null) {
+				this.logger.info("{}Clearing pending jury decision due to StartLifting", 
+				        FieldOfPlay.getLoggingName(this));
+				this.toBeAnnouncedJuryDecision = null;
+			}
 			if (this.state == BREAK && (this.breakType == BreakType.JURY || this.breakType == BreakType.TECHNICAL
 			        || this.breakType == BreakType.MARSHAL)) {
 				if (getGroup() == null) {
@@ -846,9 +853,21 @@ public class FieldOfPlay implements IUnregister {
 			case CURRENT_ATHLETE_DISPLAYED:
 				checkDeferredWeightChanges();
 				if (e instanceof TimeStarted) {
+					// Block clock start if there's a pending jury decision waiting for announcer
+					if (this.toBeAnnouncedJuryDecision != null) {
+						pushOutUIEvent(new UIEvent.Notification(null, e.getOrigin(),
+						        UIEvent.Notification.Level.ERROR,
+						        "JuryDecision.MustAnnounceFirst",
+						        3000, this));
+						return;
+					}
 					transitionToTimeRunning();
 				} else if (e instanceof WeightChange) {
 					doWeightChange((WeightChange) e);
+				} else if (e instanceof JuryDecision) {
+					// Handle jury decision reversals that are confirmed by announcer after 
+					// the break has already been exited (e.g., via jury keypad resume)
+					doJuryDecision((JuryDecision) e);
 				} else if (e instanceof ForceTime) {
 					doForceTime((ForceTime) e);
 				} else if (e instanceof CeremonyDone) {
@@ -3344,6 +3363,17 @@ public class FieldOfPlay implements IUnregister {
 		if (e instanceof DecisionReset || e instanceof DecisionFullUpdate) {
 			// ignore
 			return;
+		}
+
+		// Log additional context for JuryDecision events
+		if (e instanceof JuryDecision) {
+			JuryDecision jd = (JuryDecision) e;
+			this.logger./**/warn("{}JuryDecision event refused in state {}: isJuryButton={}, toBeAnnounced={}, athlete={}", 
+			        FieldOfPlay.getLoggingName(this),
+			        state,
+			        jd.isJuryButton(),
+			        this.toBeAnnouncedJuryDecision != null,
+			        jd.getAthlete() != null ? jd.getAthlete().getShortName() : "null");
 		}
 
 		this.logger./**/warn("{}unexpected event {} in state {}", FieldOfPlay.getLoggingName(this),
