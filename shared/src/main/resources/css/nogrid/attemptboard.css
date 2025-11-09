@@ -55,14 +55,13 @@
 	grid-area: lastName-start/lastName-start/lastName-end/lastName-end;
 }
 
-.attemptBoard .lastNameWithPicture div {
+.attemptBoard .lastNameWithPicture div, .attemptBoard .lastName div {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 	font-weight: normal;
-	max-width: 70vw;
+	max-width: 60vw;
 }
-
 
 @media screen and (max-width: 1300px) {
 	.attemptBoard .lastName {
@@ -77,6 +76,12 @@
 	justify-self: start;
 	font-size: 10vh;
 	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
+	text-overflow: ellipsis !important;
+    white-space: nowrap;
+    overflow: hidden;
+	font-weight: normal;
+	max-width: 76vw;
+	display: block;
 }
 
 .attemptBoard .firstNameWithPicture {
@@ -85,6 +90,11 @@
 	line-height: 10vh;
 	font-weight: normal;
 	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
+	text-overflow: ellipsis !important;
+    white-space: nowrap;
+    overflow: hidden;
+	font-weight: normal;
+	max-width: 60vw;
 }
 
 .attemptBoard .firstNameWithPicture div {
@@ -92,19 +102,6 @@
     white-space: nowrap;
     overflow: hidden;
 	max-width: 70vw;
-}
-
-/* Reserve more space for the flag so the ellipsis appears earlier. 34vh
-   is a reasonable estimate for the flag/timer area on large displays; adjust
-   if needed. Make sure text-overflow works by using display:block. */
-.attemptBoard .firstNameWithPicture div,
-.attemptBoard .firstName div {
-	display: block;
-	/* slightly more reserve so the ellipsis renders fully */
-	max-width: calc(100% - 36vh);
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
 }
 
 
