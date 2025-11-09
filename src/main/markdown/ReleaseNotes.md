@@ -10,9 +10,9 @@
 
 **Change Log**
 
-63.0.0-rc04: Execution of the jury reversal following announce by speaker was denied if the jury had pressed resume.
+63.0.0-rc05: Reversal of an accidental changes to attemptboard CSS styling that resulted in severely truncated first names 
 
-63.0.0-rc04: Reversal of an accidental changes to attemptboard CSS styling that resulted in severely truncated first names 
+63.0.0-rc04: Execution of the jury reversal following announce by speaker was denied if the jury had pressed resume.
 
 63.0.0-rc03: Identify which field is wrong when trying to save (field can be on another tab)
 
