@@ -10,6 +10,8 @@
 
 **Change Log**
 
+63.0.0-rc06: Connection pooling for http posts from EventForwarder
+
 63.0.0-rc05: Reversal of an accidental changes to attemptboard CSS styling that resulted in severely truncated first names 
 
 63.0.0-rc04: Execution of the jury reversal following announce by speaker was denied if the jury had pressed resume.
