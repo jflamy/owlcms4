@@ -10,7 +10,10 @@
 
 **Change Log**
 
+
 63.0.0-rc07: HTTP event forwarding: Increased parameters for connection pooling, drain connections, prevent multiple registrations to FOP event bus
+
+63.0.0-rc07: Athlete eligibility status reporting on a PAthlete - delegation was missing
 
 63.0.0-rc06: Connection pooling for http posts from EventForwarder
 
