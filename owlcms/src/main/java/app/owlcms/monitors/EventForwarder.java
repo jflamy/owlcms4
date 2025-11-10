@@ -24,14 +24,17 @@ import java.util.Map.Entry;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.LoggerFactory;
@@ -97,6 +100,52 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private static Map<String, Boolean> configSendingInProgress = Collections.synchronizedMap(new HashMap<>());
 	private static Map<String, Long> configAttemptTimeByDestination = Collections.synchronizedMap(new HashMap<>());
 	private static Map<String, EventForwarder> eventForwarderByName = new HashMap<>();
+	
+	// Debug flag for detailed timer event logging
+	private static final boolean DEBUG_TIMER_EVENTS = Boolean.parseBoolean(
+			System.getenv().getOrDefault("OWLCMS_DEBUG_TIMER_EVENTS", "false"));
+	
+	// Shared HTTP client with connection pooling to prevent port exhaustion
+	private static final CloseableHttpClient sharedHttpClient;
+	private static final CloseableHttpClient sharedConfigHttpClient;
+	
+	static {
+		// Create connection pool manager
+		// We typically have only 2 target URLs (videoUrl and updateUrl), each hitting one server
+		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+		connectionManager.setMaxTotal(6); // Max 6 total connections (2 URLs × 3 connections each)
+		connectionManager.setDefaultMaxPerRoute(3); // Max 3 connections per destination URL
+		
+		// Configure socket settings
+		SocketConfig socketConfig = SocketConfig.custom()
+				.setSoKeepAlive(true)
+				.setSoTimeout(30000) // 30 second socket timeout
+				.build();
+		connectionManager.setDefaultSocketConfig(socketConfig);
+		
+		// Configure request settings
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setConnectTimeout(10000) // 10 second connect timeout
+				.setConnectionRequestTimeout(5000) // 5 second timeout to get connection from pool
+				.setSocketTimeout(30000) // 30 second socket timeout
+				.build();
+		
+		// Build shared client for regular posts
+		sharedHttpClient = HttpClients.custom()
+				.setConnectionManager(connectionManager)
+				.setDefaultRequestConfig(requestConfig)
+				.build();
+		
+		// Build separate client for config uploads (with retries disabled)
+		sharedConfigHttpClient = HttpClients.custom()
+				.setConnectionManager(connectionManager)
+				.setDefaultRequestConfig(requestConfig)
+				.disableAutomaticRetries()
+				.build();
+		
+		logger.info("Initialized shared HTTP clients with connection pooling (max {} total, {} per route)", 
+				connectionManager.getMaxTotal(), connectionManager.getDefaultMaxPerRoute());
+	}
 
 	synchronized public static EventForwarder initEventForwarderByName(String name, FieldOfPlay fieldOfPlay) {
 		// Check if there are any HTTP URLs to forward to
@@ -1249,9 +1298,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return;
 		}
 		
-		String eventKey = parameters.get("event");
-		logger.warn("{}doPost for event: {}", FieldOfPlay.getLoggingName(getFop()), eventKey);
-		
 		// add request parameters or form parameters
 		List<NameValuePair> urlParameters = new ArrayList<>();
 		parameters.entrySet().stream()
@@ -1265,15 +1311,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// we send the configuration files as well.
 		while (!done && nbTries <= 1) {
 			boolean destSent = destination != null && Boolean.TRUE.equals(configSentByEndpoint.get(destination));
-			logger.warn("{}doPost loop: nbTries={}, done={}, endpoint={}, destination={}, configSent={}", FieldOfPlay.getLoggingName(getFop()), nbTries, done, url, destination, destSent);
+			logger.debug("{}doPost loop: nbTries={}, done={}, endpoint={}, destination={}, configSent={}", FieldOfPlay.getLoggingName(getFop()), nbTries, done, url, destination, destSent);
 			try {
 				HttpPost post = new HttpPost(url);
 				post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
-				try (CloseableHttpClient httpClient = HttpClients.createDefault();
-				        CloseableHttpResponse response = httpClient.execute(post)) {
+				try (CloseableHttpResponse response = sharedHttpClient.execute(post)) {
 					StatusLine statusLine = response.getStatusLine();
 					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-					logger.warn("{}POST response: status={}, nbTries={}", FieldOfPlay.getLoggingName(getFop()), statusCode, nbTries);
+					logger.debug("{}POST response: status={}, nbTries={}", FieldOfPlay.getLoggingName(getFop()), statusCode, nbTries);
 					if (statusCode != null && statusCode != 200) {
 						if (nbTries == 0 && statusCode != null && statusCode == 412) {
 							logger.error("{}missing remote configuration {} {} {}",
@@ -1696,6 +1741,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private synchronized void pushTimer(UIEvent e) {
+		if (DEBUG_TIMER_EVENTS) {
+			logger.warn("{}pushTimer: event={} hash={} {}", 
+				FieldOfPlay.getLoggingName(getFop()), 
+				e != null ? e.getClass().getSimpleName() : "null",
+				e != null ? System.identityHashCode(e) : "null",
+				LoggerUtils.whereFrom());
+		}
+		
 		Config current = Config.getCurrent();
 		String timerUrl = current.getParamTimerUrl();
 		String videoUrl = current.getParamVideoDataTimerUrl();
@@ -1748,8 +1801,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return;
 		}
 
-		logger.warn("{}pushUpdateDoIt: videoUrl={}, updateUrl={}", 
-			FieldOfPlay.getLoggingName(getFop()), videoUrl != null ? "yes" : "no", updateUrl != null ? "yes" : "no");
 		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate);
 		sendPost(updateUrl, current.getParamUpdateKey(), this.lastUpdate);
 	}
@@ -1806,10 +1857,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			}				HttpEntity entity = builder.build();
 
 				post.setEntity(entity);
-				try (CloseableHttpClient httpClient = HttpClients.custom()
-						.disableAutomaticRetries()
-						.build();
-				        CloseableHttpResponse response = httpClient.execute(post)) {
+				try (CloseableHttpResponse response = sharedConfigHttpClient.execute(post)) {
 					StatusLine statusLine = response.getStatusLine();
 					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
 					if (statusCode != null && statusCode == 200) {
@@ -1847,6 +1895,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
 		if (hashCode != previousDebounceHash || (deltaMillis > 1000)) {
+			// Only log timer POSTs when debug flag is enabled
+			if (DEBUG_TIMER_EVENTS && url != null && url.contains("/timer")) {
+				logger.warn("{}sendPost TIMER: url={}, hashCode={}, prevHash={}, deltaMs={} {}", 
+					FieldOfPlay.getLoggingName(getFop()), url, hashCode, previousDebounceHash, deltaMillis,
+					LoggerUtils.whereFrom());
+			}
 			new Thread(() -> doPost(url, updateKey, parameters)).start();
 
 			this.debouncingHash.put(url, hashCode);
