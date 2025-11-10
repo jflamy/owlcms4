@@ -113,8 +113,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		// Create connection pool manager
 		// We typically have only 2 target URLs (videoUrl and updateUrl), each hitting one server
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-		connectionManager.setMaxTotal(6); // Max 6 total connections (2 URLs × 3 connections each)
-		connectionManager.setDefaultMaxPerRoute(3); // Max 3 connections per destination URL
+		connectionManager.setMaxTotal(100); // Max 100 total connections (2 URLs × 3 connections each)
+		connectionManager.setDefaultMaxPerRoute(50); // Max 50 connections per destination URL
 		
 		// Configure socket settings
 		SocketConfig socketConfig = SocketConfig.custom()
@@ -261,11 +261,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private EventForwarder(String name, FieldOfPlay emittingFop) {
 		this.setForwardedFopName(name);
 		this.setFop(emittingFop);
-		// logger.debug("|||| eventForwarder {} {} {}", System.identityHashCode(this),
-		// emittingFop.getName(),System.identityHashCode(emittingFop));
-
-		this.postBus = getFop().getEventForwardingBus();
-		this.postBus.register(this);
+		logger.warn("EventForwarder created: instance={} fop={} fopId={} {}", 
+			System.identityHashCode(this),
+			emittingFop.getName(),
+			System.identityHashCode(emittingFop),
+			LoggerUtils.whereFrom());
 
 		this.translatorResetTimeStamp = 0L;
 
@@ -1319,6 +1319,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					StatusLine statusLine = response.getStatusLine();
 					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
 					logger.debug("{}POST response: status={}, nbTries={}", FieldOfPlay.getLoggingName(getFop()), statusCode, nbTries);
+					// Consume entity to release connection back to pool
+					EntityUtils.consume(response.getEntity());
 					if (statusCode != null && statusCode != 200) {
 						if (nbTries == 0 && statusCode != null && statusCode == 412) {
 							logger.error("{}missing remote configuration {} {} {}",
@@ -1944,8 +1946,29 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	/**
 	 * @param fop the fop to set
 	 */
-	private void setFop(FieldOfPlay fop) {
-		this.fop = fop;
+	private void setFop(FieldOfPlay newFop) {
+		if (this.fop == newFop) {
+			return;
+		}
+
+		EventBus previousBus = this.postBus;
+		if (previousBus != null) {
+			try {
+				previousBus.unregister(this);
+			} catch (IllegalArgumentException ex) {
+				logger.debug("EventForwarder was not registered on previous bus, ignoring: {}", ex.getMessage());
+			}
+		}
+
+		this.fop = newFop;
+		this.postBus = newFop != null ? newFop.getEventForwardingBus() : null;
+		if (this.postBus != null) {
+			try {
+				this.postBus.register(this);
+			} catch (IllegalArgumentException ex) {
+				logger.warn("EventForwarder already registered on event bus for FOP {}: {}", newFop.getName(), ex.getMessage());
+			}
+		}
 	}
 
 	private void setFopState(FOPState state) {
