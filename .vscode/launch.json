@@ -21,6 +21,7 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
       }
     },
         {
@@ -113,7 +114,8 @@
       "env": {
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        "OWLCMS_RESETMODE": "true"
+        "OWLCMS_RESETMODE": "true",
+        "OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
       }
     },
     {
@@ -137,7 +139,8 @@
       "env": {
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
-        "OWLCMS_PORT": "8081"
+        // "OWLCMS_PORT": "8081",
+        "OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
         //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
       }
     },
@@ -162,7 +165,8 @@
       "env": {
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        "OWLCMS_PORT": "8081",
+        // "OWLCMS_PORT": "8081",
+        "OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
         //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
       }
     },
