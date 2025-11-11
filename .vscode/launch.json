@@ -214,8 +214,8 @@
         "envFile": "${workspaceFolder}/.vscode/.env.mac"
       },
       "env": {
-        "OWLCMS_MEMORYMODE": "true",
-        "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
+        "OWLCMS_MEMORYMODE": "false",
+        //"OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_PORT": "8081",
         "OWLCMS_REMOTE": "http://localhost:8082"
       }
