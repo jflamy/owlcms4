@@ -648,7 +648,16 @@ public class BaseResults extends LitTemplate
 					this.displayOrder = AthleteSorter.topScore(sortedAthletes, 3).topAthletes;
 					this.getElement().setProperty("categoryName", Ranking.getScoringTitle(scoringSystem));
 				} else {
-					this.displayOrder = fop.getLeaders();
+					List<Athlete> leaders = fop.getLeaders();
+					// 0 total is not shown -- cannot be a leader from a prior group
+					// (when medalistsAsLeaders is false, we show prior group leaders)
+					if (!Config.getCurrent().featureSwitch("medalistsAsLeaders") && leaders != null) {
+						this.displayOrder = leaders.stream()
+							.filter(a -> a.getTotal() > 0)
+							.toList();
+					} else {
+						this.displayOrder = leaders;
+					}
 				}
 				if ((!done || Competition.getCurrent().isSinclair()) && this.displayOrder != null
 				        && this.displayOrder.size() > 0) {
