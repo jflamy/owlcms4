@@ -784,7 +784,9 @@ public class BaseResults extends LitTemplate
 			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
 			if (e2.isInBreak()) {
 				leaveTopAlone = !e2.isDisplayToggle();
-				this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
+				if (a != null) {
+					this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
+				}
 				doBreak(e);
 			} else {
 				leaveTopAlone = !e2.isCurrentDisplayAffected();
