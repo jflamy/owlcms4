@@ -10,6 +10,9 @@
 
 **Change Log**
 
+63.0.0-rc08: Selecting multiple sessions before using a single document type button (e.g. for Cards) will produce a zip as expected.
+
+63.3.0-rc08: Leader board at bottom should no longer present person who as bombed-out
 
 63.0.0-rc07: HTTP event forwarding: Increased parameters for connection pooling, drain connections, prevent multiple registrations to FOP event bus
 
