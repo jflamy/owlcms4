@@ -447,12 +447,36 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        false);
 	}
 
+	/**
+	 * Helper to create a document button that opens a dialog for single-document-type selection.
+	 * Allows multi-session downloads through the DocumentDownloadDialog.
+	 * Treats single document as a special case of document set with only one template type.
+	 */
+	private Div createSingleDocumentButton(PreCompetitionTemplate templateDefinition, boolean primary,
+	        java.util.function.BiFunction<PreCompetitionTemplate, List<Group>, List<KitElement>> prepareFunction) {
+		Button openDialog = new Button(
+		        Translator.translate(templateDefinition.name()),
+		        VaadinIcon.DOWNLOAD_ALT.create(),
+		        (e) -> {
+		        List<Group> selectionSnapshot = new ArrayList<>(getSortedSelection());
+		        List<KitElement> kit = prepareFunction.apply(templateDefinition, selectionSnapshot);
+		        Supplier<List<Group>> selectedSessionsSupplier = () -> selectionSnapshot;
+		        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+		        Group g = (!selectionSnapshot.isEmpty()) ? selectionSnapshot.get(0) : null;
+		        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+		        };
+			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
+			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
+			        dialog.open();
+		        });
+		if (primary) {
+			openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+		}
+		return new Div(openDialog);
+	}
+
 	private Div createCardsButton() {
-		return createDocumentDownloadButton(
-		        PreCompetitionTemplate.CARDS,
-		        null,
-		        () -> prepareCards(PreCompetitionTemplate.CARDS, getSortedSelection()),
-		        true);
+		return createSingleDocumentButton(PreCompetitionTemplate.CARDS, true, this::prepareCards);
 	}
 
 	private Div createCategoriesButton() {
@@ -588,44 +612,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private Div createEmptyProtocolButton() {
-		PreCompetitionTemplate templateDefinition = PreCompetitionTemplate.EMPTY_PROTOCOL;
-		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        // logger removed
-			        List<KitElement> kit = prepareEmptyProtocol(templateDefinition, getSortedSelection());
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-				                if (kits == null || kits.isEmpty())
-					                return "undefined";
-				                if (kits.size() == 1) {
-					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-					                return stripSuffix(justName);
-				                } else {
-					                String id = kits.get(0).id();
-					                if (id == null || id.isBlank())
-						                return "document-set";
-					                return id.replaceAll("[^A-Za-z0-9]", "");
-				                }
-			                }));
-			        dialog.open();
-		        });
-		// add debug id and log creation
-		try {
-			openDialog.setId("doc-empty-protocol-btn");
-			// logger removed
-		} catch (Throwable ignore) {
-		}
-		return new Div(openDialog);
+		return createSingleDocumentButton(PreCompetitionTemplate.EMPTY_PROTOCOL, false, this::prepareEmptyProtocol);
 	}
 
 	private Div createFullScheduleButton() {
@@ -694,85 +681,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private Div createIntroductionButton() {
-		PreCompetitionTemplate templateDefinition = PreCompetitionTemplate.INTRODUCTION;
-		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        // logger removed
-			        List<KitElement> kit = prepareIntroduction(templateDefinition, getSortedSelection());
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-				                if (kits == null || kits.isEmpty())
-					                return "undefined";
-				                if (kits.size() == 1) {
-					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-					                return stripSuffix(justName);
-				                } else {
-					                String id = kits.get(0).id();
-					                if (id == null || id.isBlank())
-						                return "document-set";
-					                return id.replaceAll("[^A-Za-z0-9]", "");
-				                }
-			                }));
-			        dialog.open();
-		        });
-		// add debug id and log creation
-		try {
-			openDialog.setId("doc-introduction-btn");
-			// logger removed
-		} catch (Throwable ignore) {
-		}
-		return new Div(openDialog);
+		return createSingleDocumentButton(PreCompetitionTemplate.INTRODUCTION, false, this::prepareIntroduction);
 	}
 
 	private Div createJuryButton() {
-		PreCompetitionTemplate templateDefinition = PreCompetitionTemplate.JURY;
-		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        // logger removed
-			        List<KitElement> kit = prepareJury(templateDefinition, getSortedSelection());
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-				                if (kits == null || kits.isEmpty())
-					                return "undefined";
-				                if (kits.size() == 1) {
-					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-					                return stripSuffix(justName);
-				                } else {
-					                String id = kits.get(0).id();
-					                if (id == null || id.isBlank())
-						                return "document-set";
-					                return id.replaceAll("[^A-Za-z0-9]", "");
-				                }
-			                }));
-			        dialog.open();
-		        });
-		// add debug id and log creation
-		try {
-			openDialog.setId("doc-jury-btn");
-			// logger removed
-		} catch (Throwable ignore) {
-		}
-		return new Div(openDialog);
+		return createSingleDocumentButton(PreCompetitionTemplate.JURY, false, this::prepareJury);
 	}
 
 	private Div createOfficialsButton() {
@@ -1437,24 +1350,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private Div createWeighInButton() {
-		PreCompetitionTemplate templateDefinition = PreCompetitionTemplate.WEIGHIN;
-		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        List<KitElement> kit = prepareWeighIn(templateDefinition, getSortedSelection());
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
-			        dialog.open();
-		        });
-		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
-		return new Div(openDialog);
+		return createSingleDocumentButton(PreCompetitionTemplate.WEIGHIN, false, this::prepareWeighIn);
 	}
 
 	private KitElement doElementBodyweight(PreCompetitionTemplate templateDefinition) {
@@ -2199,6 +2095,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private static ZipOutputStream zipKitStatic(List<Group> selectedItems, List<KitElement> elements, PipedOutputStream os,
 	        BiConsumer<Throwable, String> errorProcessor) throws IOException {
+		logger.warn("zipKitStatic called with {} sessions and {} elements {}", 
+			selectedItems == null ? "null" : selectedItems.size(), 
+			elements == null ? "null" : elements.size(),
+			LoggerUtils.whereFrom());
 		int i = 1;
 		ZipOutputStream zipOut = null;
 		try {
@@ -2226,6 +2126,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			} else {
 				// Process elements for each selected session
 				for (Group g : selectedItems) {
+					logger.info("Processing session: {}", g != null ? g.getName() : "null");
 					// get current version of athletes.
 					List<Athlete> athletes = groupAthletes(g, true);
 					if (athletes == null || athletes.isEmpty()) {

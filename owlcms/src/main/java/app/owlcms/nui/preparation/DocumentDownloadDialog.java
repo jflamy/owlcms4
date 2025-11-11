@@ -487,7 +487,11 @@ public class DocumentDownloadDialog extends Dialog {
             return new Div(b);
         }
 
-        final boolean multi = kit.size() > 1;
+        // Check if we have multiple selected sessions
+        int selectedSessionCount = (selectedSessionsSupplier != null) ? 
+            (selectedSessionsSupplier.get() != null ? selectedSessionsSupplier.get().size() : 0) : 0;
+
+    final boolean multi = (kit.size() > 1) || (selectedSessionCount > 1);
         // Determine processing message: use LongProcessing for multi-file downloads, otherwise use the kit element's message
         final String processingKey = multi ? "LongProcessing" : (kit.isEmpty() ? "Processing" : kit.get(0).processingMessageSupplier().get());
         Div d;
@@ -579,7 +583,12 @@ public class DocumentDownloadDialog extends Dialog {
             return new Div(b);
         }
 
-        final boolean multi = kit.size() > 1;
+        final int kitElementCount = kit.size();
+        // Check if we have multiple selected sessions  
+        final int selectedSessionCount = (selectedSessionsSupplier != null) ?
+            (selectedSessionsSupplier.get() != null ? selectedSessionsSupplier.get().size() : 0) : 0;
+        final boolean multi = (kitElementCount > 1) || (selectedSessionCount > 1);
+        
         InputStreamFactory streamFactory = () -> {
             java.util.List<app.owlcms.data.group.Group> selected = selectedSessionsSupplier == null ? null : selectedSessionsSupplier.get();
             app.owlcms.data.group.Group g = (selected != null && !selected.isEmpty()) ? selected.get(0) : null;
