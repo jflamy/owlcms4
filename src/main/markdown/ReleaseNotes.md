@@ -10,6 +10,8 @@
 
 **Change Log**
 
+63.0.0-rc09: Updated translations; fixed reading of invited status on registration files.
+
 63.0.0-rc08: Selecting multiple sessions before using a single document type button (e.g. for Cards) will produce a zip as expected.
 
 63.3.0-rc08: Leader board at bottom should no longer present person who as bombed-out
