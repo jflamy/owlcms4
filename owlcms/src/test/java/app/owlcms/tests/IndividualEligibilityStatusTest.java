@@ -75,6 +75,26 @@ public class IndividualEligibilityStatusTest {
         assertEquals(EligibleForIndividualRankingStatus.OOC_INVITED, athlete.getIndividualEligibilityStatus());
     }
 
+    @Test
+    public void testBooleanSetterFalseDoesNotOverrideExistingNonEligibleEnum() {
+        athlete.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.DSQ_DISCIPLINARY);
+        assertEquals(EligibleForIndividualRankingStatus.DSQ_DISCIPLINARY, athlete.getIndividualEligibilityStatus());
+        assertFalse(athlete.isEligibleForIndividualRanking());
+
+        athlete.setEligibleForIndividualRanking(false);
+        assertFalse(athlete.isEligibleForIndividualRanking());
+        assertEquals(EligibleForIndividualRankingStatus.DSQ_DISCIPLINARY, athlete.getIndividualEligibilityStatus());
+    }
+
+    @Test
+    public void testBooleanSetterTrueLeavesExistingEligibleEnum() {
+        athlete.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.ELIGIBLE);
+        assertTrue(athlete.isEligibleForIndividualRanking());
+        athlete.setEligibleForIndividualRanking(true);
+        assertTrue(athlete.isEligibleForIndividualRanking());
+        assertEquals(EligibleForIndividualRankingStatus.ELIGIBLE, athlete.getIndividualEligibilityStatus());
+    }
+
 
     /**
      * Test setting explicit enum status updates boolean accordingly.

@@ -4071,16 +4071,17 @@ public class Athlete {
 
 		// derived values
 		if (eligibleForIndividualRanking) {
-			// Explicitly mark as eligible: always set explicit enum to ELIGIBLE
-			this.individualEligibilityStatus = EligibleForIndividualRankingStatus.ELIGIBLE;
+			// Explicitly mark as eligible when coming from a non-inclusion state.
+			if (this.individualEligibilityStatus == null
+			        || !this.individualEligibilityStatus.isInclusion()) {
+				this.individualEligibilityStatus = EligibleForIndividualRankingStatus.ELIGIBLE;
+			}
 			return;
 		} else {
-			// Setting to false:
-			// if no explicit enum present (legacy DB), set to OOC_INVITED;
-			if (this.individualEligibilityStatus == null) {
+			// Setting to false keeps existing explicit non-eligible statuses when present.
+			if (this.individualEligibilityStatus == null
+			        || (this.individualEligibilityStatus != null && this.individualEligibilityStatus.isInclusion())) {
 				this.individualEligibilityStatus = EligibleForIndividualRankingStatus.OOC_INVITED;
-			} else {
-				// no-op, keep the explicit enum as-is
 			}
 		}
 	}

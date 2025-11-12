@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.CharMatcher;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -558,6 +559,10 @@ public class RAthlete {
 	}
 
 	public void setInvited(boolean b) {
-		this.a.setEligibleForIndividualRanking(!b);
+		if (b) {
+			this.a.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.OOC_INVITED);
+		} else {
+			this.a.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.ELIGIBLE);
+		}
 	}
 }
