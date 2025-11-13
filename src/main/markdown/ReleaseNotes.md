@@ -7,51 +7,34 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
-
-**Change Log**
-
-63.0.0-rc10: Clear button for records now clears all records for the matching federation and age group, ignoring the original file name
-
-63.0.0-rc09: Updated translations; fixed reading of invited status on registration files.
-
-63.0.0-rc08: Selecting multiple sessions before using a single document type button (e.g. for Cards) will produce a zip as expected.
-
-63.3.0-rc08: Leader board at bottom should no longer present person who as bombed-out
-
-63.0.0-rc07: HTTP event forwarding: Increased parameters for connection pooling, drain connections, prevent multiple registrations to FOP event bus
-
-63.0.0-rc07: Athlete eligibility status reporting on a PAthlete - delegation was missing
-
-63.0.0-rc06: Connection pooling for http posts from EventForwarder
-
-63.0.0-rc05: Reversal of an accidental changes to attemptboard CSS styling that resulted in severely truncated first names 
-
-63.0.0-rc04: Execution of the jury reversal following announce by speaker was denied if the jury had pressed resume.
-
-63.0.0-rc03: Identify which field is wrong when trying to save (field can be on another tab)
-
-63.0.0-rc03: Run simulations even if manualStartNumbers is set (ignore and set them)
-
-63.0.0-rc03: (cosmetic) Body Weight were printed on Weigh-in forms -- should always be blank as a matter of principle
-
-63.0.0-rc02 : added lot number to event forwarders.
-
-63.0.0-rc01 : The TeamGlobalScoring template in the Competition Results/Final Package section now works also when a championship is selected.
-
-63.3.0-beta04: Added fix of stored category codes at startup to correct potential legacy mismatches
-
-63.3.0-beta04: Revision of scoreboard templates and style sheets for all themes
-
-63.0.0-beta03: Sync with 62.2.6 - Order of results on results sheet, QMasters interim rankings during snatch.
-
 **New in Release 63.0**
 
-63.0.0: New feature toggle "manualStartNumbers" that enables manual editing of start numbers when errors were made when numbering athlete cards or handing out bibs.  This disables the automatic allocation of start numbers (must use the button on the Weigh-In page)
+63.3.0: Leader board at bottom should no longer present person who as bombed-out
 
-63.0.0: Event forwarding using web sockets to support enhanced tracking programs like owlcms-tracker that will eventually replace publicresults. Updates on first lifting order recalculation (reload session, decision, marshal change)
+63.0.0: Clear button for records now clears all records for the matching federation and age group, ignoring the original file name
 
 63.0.0: The TeamGlobalScoring template in the Competition Results/Final Package section now works also when a championship is selected.
 
+63.0.0: Revision of scoreboard templates and style sheets for all themes
+
+63.0.0: Selecting multiple sessions before using a single document type button (e.g. for Cards) will produce a zip as expected.
+
+63.3.0: Inspection of stored category codes at startup to correct potential legacy mismatches
+
 63.0.0: Translation for zh-HANT (Traditional Chinese)
+
+63.0.0: A notification appears naming the field that is considered invalid (useful when error is on another tab)
+
+63.0.0: Root Athlete eligibility status can now be used on reports about additional participation categories
+
+63.0.0: New feature toggle "manualStartNumbers" that enables manual editing of start numbers when errors were made when numbering athlete cards or handing out bibs.  This disables the automatic allocation of start numbers (must use the button on the Weigh-In page)
+
+63.0.0: Jury reversal now works even if jury has pressed resume
+
+63.0.0: Connection management for HTTP updates to remote event trackers
+
+63.0.0: Event forwarding using web sockets to support enhanced tracking programs like owlcms-tracker that will eventually replace publicresults. Updates on first lifting order recalculation (reload session, decision, marshal change)
+
+63.3.0: Leader board at bottom should no longer present person who as bombed-out
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
