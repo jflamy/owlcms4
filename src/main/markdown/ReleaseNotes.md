@@ -7,9 +7,10 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
+
 **New in Release 63.0**
 
-63.3.0: Leader board at bottom should no longer present person who as bombed-out
+63.3.0: Leader board at bottom no longer shows athlete who has bombed-out
 
 63.0.0: Clear button for records now clears all records for the matching federation and age group, ignoring the original file name
 
