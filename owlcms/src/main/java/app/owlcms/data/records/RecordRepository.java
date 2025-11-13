@@ -43,11 +43,9 @@ public class RecordRepository {
 	public static void clearByExample(RecordEvent re) {
 		JPAService.runInTransaction(em -> {
 			Query q = em.createQuery("DELETE FROM RecordEvent a WHERE "
-			        + "a.fileName = :fn "
-			        + "AND a.recordFederation = :rf "
+			        + "a.recordFederation = :rf "
 			        + "AND a.recordName = :rn "
 			        + "AND a.ageGrp = :ag ");
-			q.setParameter("fn", re.getFileName());
 			q.setParameter("rf", re.getRecordFederation());
 			q.setParameter("rn", re.getRecordName());
 			q.setParameter("ag", re.getAgeGrp());
@@ -447,6 +445,14 @@ public class RecordRepository {
 	public static List<RecordEvent> findAllLoadedRecords() {
 		ArrayList<RecordEvent> recordEventStubs = new ArrayList<>();
 		JPAService.runInTransaction(em -> {
+            // temporary diagnostic: track unexpected records without fileName
+			Query missing = em.createQuery(
+					"SELECT rec.id FROM RecordEvent rec WHERE rec.fileName IS NULL OR TRIM(rec.fileName) = ''");
+			if (!missing.getResultList().isEmpty()) {
+				logger.warn("findAllLoadedRecords detected {} records missing fileName", missing.getResultList().size());
+				logger.warn(LoggerUtils.whereFrom());
+			}
+
 			Query q = em.createNativeQuery(
 			        "SELECT DISTINCT a.fileName, a.recordFederation, a.recordName, a.ageGrp FROM RecordEvent a");
 			@SuppressWarnings("unchecked")
@@ -820,6 +826,24 @@ public class RecordRepository {
 			List<RecordEvent> queryResults = query.getResultList();
 			return queryResults;
 		});
+
+			logger.warn("findWithFilters fetched {} records (federation={}, ageGroup={}, gender={}, nameFilter={}, provisional={}, currentHistory={})", //$NON-NLS-1$
+				allResults.size(), federation, ageGroup, gender, nameFilter, provisionalFilter, currentHistoryFilter);
+			logger.warn(LoggerUtils.whereFrom());
+
+		// Trace records that have no originating file name to help diagnose phantom entries
+		List<RecordEvent> missingFileName = allResults.stream()
+			.filter(rec -> rec.getFileName() == null || rec.getFileName().trim().isEmpty())
+			.collect(Collectors.toList());
+		if (!missingFileName.isEmpty()) {
+			String sampleKeys = missingFileName.stream()
+				.limit(5)
+				.map(RecordEvent::getKey)
+				.collect(Collectors.joining(", "));
+			logger.warn("Detected {} record entries with empty fileName (federation={}, ageGroup={}, gender={}, nameFilter={}); sample keys: {}", //$NON-NLS-1$
+				missingFileName.size(), federation, ageGroup, gender, nameFilter, sampleKeys);
+			logger.warn(LoggerUtils.whereFrom());
+		}
 		
 		// Apply current/history filter in Java (since it requires grouping logic)
 		if ("CURRENT".equals(currentHistoryFilter)) {
