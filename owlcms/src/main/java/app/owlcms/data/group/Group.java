@@ -308,6 +308,7 @@ public class Group implements Comparable<Group> {
 	private String reserve;
 	private String technicalController;
 	private String technicalController2;
+	private String technicalController3;
 	private String timeKeeper;
 	private String weighIn1;
 	private String weighIn2;
@@ -326,6 +327,8 @@ public class Group implements Comparable<Group> {
 	private LocalDateTime lastCJDecisionTime;
 	private String reserveJury;
 	private String doctor;
+	private String doctor2;
+	private String doctor3;
 
 	/**
 	 * Instantiates a new group.
@@ -1179,10 +1182,40 @@ public class Group implements Comparable<Group> {
 		this.doctor = doctor;
 	}
 
+	public String getDoctor2() {
+		return this.doctor2;
+	}
+
+	public void setDoctor2(String doctor2) {
+		this.doctor2 = doctor2;
+	}
+
+	public String getDoctor3() {
+		return this.doctor3;
+	}
+
+	public void setDoctor3(String doctor3) {
+		this.doctor3 = doctor3;
+	}
+
 	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getDoctorAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor);
+		return to;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getDoctor2AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor2);
+		return to;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getDoctor3AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor3);
 		return to;
 	}
 
@@ -1248,10 +1281,21 @@ public class Group implements Comparable<Group> {
 		return this.technicalController2;
 	}
 
+	public String getTechnicalController3() {
+		return this.technicalController3;
+	}
+
 	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getTechnicalController2AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getTechnicalController2());
+		return to;
+	}
+
+	@Transient
+	@JsonIgnore
+	public TechnicalOfficial getTechnicalController3AsTO() {
+		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getTechnicalController3());
 		return to;
 	}
 
@@ -1524,6 +1568,10 @@ public class Group implements Comparable<Group> {
 		this.technicalController2 = technicalController2;
 	}
 
+	public void setTechnicalController3(String technicalController3) {
+		this.technicalController3 = technicalController3;
+	}
+
 	/**
 	 * Sets the time keeper.
 	 *
@@ -1725,6 +1773,10 @@ public class Group implements Comparable<Group> {
 		addIfNotNull(officials, getMarshallAsTO());
 		addIfNotNull(officials, getTechnicalControllerAsTO());
 		addIfNotNull(officials, getTechnicalController2AsTO());
+		addIfNotNull(officials, getTechnicalController3AsTO());
+		addIfNotNull(officials, getDoctorAsTO());
+		addIfNotNull(officials, getDoctor2AsTO());
+		addIfNotNull(officials, getDoctor3AsTO());
 		addIfNotNull(officials, getTimeKeeperAsTO());
 		
 		return officials;
