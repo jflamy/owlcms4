@@ -10,6 +10,8 @@
 
 **Change Log**
 
+63.0.0-rc10: Clear button for records now clears all records for the matching federation and age group, ignoring the original file name
+
 63.0.0-rc09: Updated translations; fixed reading of invited status on registration files.
 
 63.0.0-rc08: Selecting multiple sessions before using a single document type button (e.g. for Cards) will produce a zip as expected.
