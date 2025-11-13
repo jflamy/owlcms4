@@ -36,7 +36,5 @@
     "editor.stickyScroll.enabled": false,
     "workbench.tree.enableStickyScroll": false,
     // Explorer auto-reveal when switching tabs
-    "explorer.autoReveal": true,
-
-    "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml"
+    "explorer.autoReveal": true
 }

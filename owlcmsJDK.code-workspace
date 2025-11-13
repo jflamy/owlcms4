@@ -6,6 +6,7 @@
   ],
   "settings": {
     "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
+    "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition",
     "java.compile.nullAnalysis.mode": "disabled",
     /*
      Git Bash (Windows) helper - uncomment to force Git Bash as the integrated terminal in this workspace.

@@ -14,7 +14,7 @@
   ],
   "settings": {
     "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
-    "owlcms.vmArgs": "-ea -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
+    "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
     "java.configuration.runtimes": [
       {
         "name": "JavaSE-17",
