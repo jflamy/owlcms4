@@ -353,17 +353,28 @@ public class Translator implements I18NProvider {
 								if (input != null) {
 									input = input.trim();
 									// "\ " is not valid, \u0020 is needed.
-									String unescapeJava = StringEscapeUtils.unescapeJava(input.trim());
-									if (!unescapeJava.isEmpty()) {
-										Properties properties = languageProperties[i];
-										if (properties == null) {
-											String message = MessageFormat
-											        .format("{0} line {1}: languageProperties[{2}] is null", csvName, line,
-											                i);
-											logger.error(message);
-											throw new RuntimeException(message);
+									try {
+										String unescapeJava = StringEscapeUtils.unescapeJava(input.trim());
+										if (!unescapeJava.isEmpty()) {
+											Properties properties = languageProperties[i];
+											if (properties == null) {
+												String message = MessageFormat
+												        .format("{0} line {1}: languageProperties[{2}] is null", csvName, line,
+												                i);
+												logger.error(message);
+												throw new RuntimeException(message);
+											}
+											properties.setProperty(key, unescapeJava);
 										}
-										properties.setProperty(key, unescapeJava);
+									} catch (RuntimeException e) {
+										// Convert column index to Excel-style letter (i-1 because i starts at 1)
+										String cellCol = columnIndexToExcelLetter(i - 1);
+										String cellRef = cellCol + line;
+										String message = MessageFormat
+										        .format("{0} cell {1}: Invalid unicode escape in key ''{2}''. Content: {3}. Error: {4}",
+										                csvName, cellRef, key, input, e.getMessage());
+										logger.error(message);
+										throw new RuntimeException(message, e);
 									}
 								}
 							}
@@ -634,6 +645,21 @@ public class Translator implements I18NProvider {
 			locale = getForcedLocale();
 		}
 		return locale;
+	}
+
+	/**
+	 * Convert a column index (0-based) to Excel-style letter(s).
+	 * Examples: 0 -> A, 1 -> B, 25 -> Z, 26 -> AA, 27 -> AB
+	 */
+	private static String columnIndexToExcelLetter(int colIndex) {
+		StringBuilder result = new StringBuilder();
+		int col = colIndex + 1; // Convert to 1-based
+		while (col > 0) {
+			col--; // Adjust for 0-based Excel column letters
+			result.insert(0, (char) ('A' + (col % 26)));
+			col /= 26;
+		}
+		return result.toString();
 	}
 
 }
