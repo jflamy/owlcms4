@@ -1204,6 +1204,7 @@ public class Group implements Comparable<Group> {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor);
 		return to;
 	}
+	public void setDoctorAsTO(TechnicalOfficial ignored) {}
 
 	@Transient
 	@JsonIgnore
@@ -1211,6 +1212,7 @@ public class Group implements Comparable<Group> {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor2);
 		return to;
 	}
+	public void setDoctor2AsTO(TechnicalOfficial ignored) {}
 
 	@Transient
 	@JsonIgnore
@@ -1218,6 +1220,7 @@ public class Group implements Comparable<Group> {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor3);
 		return to;
 	}
+	public void setDoctor3AsTO(TechnicalOfficial ignored) {}
 
 	/**
 	 * @return the reserve
