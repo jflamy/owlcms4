@@ -9,8 +9,15 @@ package app.owlcms.nui.preparation;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.function.Consumer;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
@@ -81,8 +88,17 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			        ? new NRegistrationFileProcessor(sbdeFormat)
 			        : new NRegistrationFileProcessor(sbdeFormat);
 			this.fileName = metadata.fileName();
+			
+			// Check if this is a sessions-only file by looking at A2 of first sheet
+			boolean isSessionsOnly = false;
+			try (ByteArrayInputStream checkStream = new ByteArrayInputStream(data)) {
+				isSessionsOnly = isSessionsOnlyFile(checkStream);
+			} catch (Exception e) {
+				logger.warn("Could not determine file type, assuming full registration file", e);
+			}
+			
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
-				processInput(inputStream, ta);
+				processInput(inputStream, ta, isSessionsOnly);
 			} catch (Exception e) {
 				logger.error("Error processing uploaded registration file", e);
 				throw new RuntimeException(e);
@@ -141,6 +157,10 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	}
 
 	public void processInput(InputStream inputStream, TextArea ta) {
+		processInput(inputStream, ta, false);
+	}
+
+	public void processInput(InputStream inputStream, TextArea ta, boolean isSessionsOnly) {
 		this.processor.setAthleteOptions(athleteOption);
 		this.processor.setSessionOptions(sessionOption);
 
@@ -237,7 +257,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			// indicate sessions were ignored (already displayed earlier as option)
 		}
 
-		if (this.sbdeFormat) {
+		if (this.sbdeFormat && !isSessionsOnly) {
 			processCompetition(inputStream, ta);
 		}
 
@@ -279,6 +299,48 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	private boolean isProcessAthletes() {
 		boolean updatesAllowed = !Config.getCurrent().featureSwitch("noAthleteUpdates");
 		return updatesAllowed && this.fileName != null && !this.fileName.contains("_sessions");
+	}
+
+	private boolean isSessionsOnlyFile(InputStream inputStream) {
+		try (Workbook workbook = WorkbookFactory.create(inputStream)) {
+			Sheet firstSheet = workbook.getSheetAt(0);
+			Row row = firstSheet.getRow(1); // A2 is row index 1
+			if (row == null) {
+				return false;
+			}
+			Cell cell = row.getCell(0); // Column A
+			if (cell == null) {
+				return false;
+			}
+			if (cell.getCellType() != CellType.STRING) {
+				return false;
+			}
+			String cellValue = cell.getStringCellValue();
+			if (cellValue == null || cellValue.trim().isEmpty()) {
+				return false;
+			}
+			
+			// Check if A2 matches "Group" or "Session" canonical key
+			String trimmed = cellValue.trim();
+			try {
+				String tGroupCur = Translator.translate("Group");
+				String tGroupEng = Translator.translateExplicitLocale("Group", Locale.ENGLISH);
+				String tSessionCur = Translator.translate("Session");
+				String tSessionEng = Translator.translateExplicitLocale("Session", Locale.ENGLISH);
+				
+				if ((tGroupCur != null && trimmed.equalsIgnoreCase(tGroupCur)) ||
+					(tGroupEng != null && trimmed.equalsIgnoreCase(tGroupEng)) ||
+					(tSessionCur != null && trimmed.equalsIgnoreCase(tSessionCur)) ||
+					(tSessionEng != null && trimmed.equalsIgnoreCase(tSessionEng))) {
+					return true;
+				}
+			} catch (Exception ex) {
+				// ignore translation errors
+			}
+		} catch (Exception e) {
+			logger.warn("Could not check if file is sessions-only", e);
+		}
+		return false;
 	}
 
 	private void processCompetition(InputStream inputStream, TextArea ta) {
