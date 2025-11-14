@@ -43,13 +43,11 @@ public class TechnicalOfficialRepository {
 
 	public static TechnicalOfficial findByName(String string) {
 		try {
-			string = string.trim();
+			String cleaned = string == null ? "" : string.trim();
 
-			String[] t = string.split("[,]+");
-			String lastName = (t.length > 0 ? t[0] : "");
-			var lastName2 = lastName.trim();
-			String firstName = (t.length > 1 ? t[1] : "");
-			var firstName2 = firstName.trim();
+			TechnicalOfficialNameParser.NameParts nameParts = TechnicalOfficialNameParser.parse(cleaned);
+			String lastName2 = nameParts.getLastName();
+			String firstName2 = nameParts.getFirstName();
 			var results = JPAService.runInTransaction(em -> {
 				TypedQuery<TechnicalOfficial> query = em.createQuery(
 				        "select c from TechnicalOfficial c where (lower(lastName) = lower(:lastName) and lower(firstName) = lower(:firstName))",
