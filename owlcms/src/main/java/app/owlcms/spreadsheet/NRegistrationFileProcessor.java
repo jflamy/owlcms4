@@ -421,6 +421,7 @@ public class NRegistrationFileProcessor {
 	}
 
 	private final Map<String, CellSetterRG> GROUP_SETTER_MAP = buildGroupSetterMap();
+	private Map<String, CellSetterRG> groupCanonicalSetterMap;
 
 	private static class AthleteHeaderInfo {
 		/**
@@ -441,6 +442,18 @@ public class NRegistrationFileProcessor {
 	}
 
 	private final Map<String, AthleteHeaderInfo> ATHLETE_SETTER_MAP = buildAthleteSetterMap();
+
+	private void addPropertyNamesToBase(Map<String, CellSetterRG> result, Map<String, CellSetterRG> base) {
+		Map<String, String> propertyNames = buildPropertyNamesMap();
+		for (Map.Entry<String, String> e : propertyNames.entrySet()) {
+			String propertyName = e.getKey();
+			String canonicalKey = e.getValue();
+			CellSetterRG setter = base.get(canonicalKey);
+			if (setter != null) {
+				result.put(propertyName, setter);
+			}
+		}
+	}
 
 	private Map<String, CellSetterRG> buildGroupSetterMap() {
 		Map<String, CellSetterRG> base = new HashMap<>();
@@ -507,9 +520,15 @@ public class NRegistrationFileProcessor {
 		base.put("Jury5", (rg, cell) -> rg.setJury5(cellToString(cell)));
 		base.put("ReserveJury", (rg, cell) -> rg.setReserveJury(cellToString(cell)));
 
-		base.put("Doctor", (rg, cell) -> rg.getGroup().setDoctor(cellToString(cell)));
+		base.put("Doctor", (rg, cell) -> rg.setDoctor(cellToString(cell)));
+		base.put("Doctor2", (rg, cell) -> rg.setDoctor2(cellToString(cell)));
+		base.put("Doctor3", (rg, cell) -> rg.setDoctor3(cellToString(cell)));
+
+		base.put("CompetitionSecretary", (rg, cell) -> rg.setCompetitionSecretary(cellToString(cell)));
+		base.put("CompetitionSecretary2", (rg, cell) -> rg.setCompetitionSecretary2(cellToString(cell)));
 
 		Map<String, CellSetterRG> result = new HashMap<>();
+		addPropertyNamesToBase(result, base);
 		for (Map.Entry<String, CellSetterRG> e : base.entrySet()) {
 			String key = e.getKey();
 			CellSetterRG setter = e.getValue();
@@ -543,6 +562,57 @@ public class NRegistrationFileProcessor {
 		// 		result.putIfAbsent(fk.trim().toLowerCase(), s);
 		// 	}
 		// }
+		groupCanonicalSetterMap = new HashMap<>();
+		for (Map.Entry<String, CellSetterRG> entry : base.entrySet()) {
+			String key = entry.getKey();
+			if (key != null) {
+				String keyLower = key.trim().toLowerCase();
+				groupCanonicalSetterMap.put(keyLower, entry.getValue());
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Build a map of property names to canonical keys.
+	 * Property names are the names used in generated Excel files (e.g., "sessionName", "jury1", etc.)
+	 * Canonical keys are the English system keys (e.g., "Group", "Jury1", etc.)
+	 * 
+	 * @return Map<String, String> mapping property names to their canonical keys
+	 */
+	private Map<String, String> buildPropertyNamesMap() {
+		Map<String, String> result = new HashMap<>();
+		// Session/Group properties
+		result.put("groupname", "Group");
+		result.put("sessionname", "Group");  // Alias to groupname
+		result.put("platform", "Platform");
+		result.put("description", "Group.Description");
+		result.put("masters", "Division.MASTERS");
+		result.put("weighintime", "WeighInTime");
+		result.put("competitiontime", "StartTime");
+		result.put("announcer", "Announcer");
+		result.put("marshall", "Marshall");
+		result.put("marshal2", "Marshal2");
+		result.put("timekeeper", "Timekeeper");
+		result.put("timekeeper2", "Timekeeper");  // Treat as second timekeeper → Timekeeper
+		result.put("techcontroller", "TechnicalController");
+		result.put("techcontroller2", "TechnicalController2");
+		// Referee mappings: ref1 (first), ref2 (centre), ref3 (second)
+		result.put("ref1", "Referee1");
+		result.put("ref2", "Referee2");
+		result.put("ref3", "Referee3");
+		result.put("reserve", "Reserve");
+		result.put("jury1", "Jury1");
+		result.put("jury2", "Jury2");
+		result.put("jury3", "Jury3");
+		result.put("jury4", "Jury4");
+		result.put("jury5", "Jury5");
+		result.put("reservejury", "ReserveJury");
+		result.put("doctor", "Doctor");
+		result.put("doctor2", "Doctor2");
+		result.put("doctor3", "Doctor3");
+		result.put("competitionsecretary", "CompetitionSecretary");
+		result.put("competitionsecretary2", "CompetitionSecretary2");
 		return result;
 	}
 
@@ -676,12 +746,26 @@ public class NRegistrationFileProcessor {
 			if (setter != null) {
 				logger.debug("Mapped group header '{}' to setter", headerValue);
 			} else {
-				logger.debug("No setter found for group header '{}'", headerValue);
-				// append a newline so each error appears on its own line when displayed
-				errors.add(MessageFormat.format("Ignoring unknown column ''{0}'' at sheet {1} [{2}]\n",
-				        headerValue, cell.getSheet().getSheetName(), cell.getAddress()));
-				setter = (rg, c) -> {
-					/* noop */ };
+				// Try mapping property name to canonical key, then look up canonical key in setter map
+				Map<String, String> propertyNamesMap = buildPropertyNamesMap();
+				String canonicalKey = propertyNamesMap.get(headerValue);
+				if (canonicalKey != null) {
+					String canonicalKeyLower = canonicalKey.toLowerCase();
+					if (groupCanonicalSetterMap != null) {
+						setter = groupCanonicalSetterMap.get(canonicalKeyLower);
+						if (setter != null) {
+							logger.debug("Mapped property name '{}' to canonical key '{}' to setter", headerValue, canonicalKey);
+						}
+					}
+				}
+				if (setter == null) {
+					logger.debug("No setter found for group header '{}'", headerValue);
+					// append a newline so each error appears on its own line when displayed
+					errors.add(MessageFormat.format("Ignoring unknown column ''{0}'' at sheet {1} [{2}]\n",
+					        headerValue, cell.getSheet().getSheetName(), cell.getAddress()));
+					setter = (rg, c) -> {
+						/* noop */ };
+				}
 			}
 			setters.add(setter);
 		}
@@ -1000,6 +1084,9 @@ public class NRegistrationFileProcessor {
 	}
 
 	private void setCompetitionDate(Consumer<LocalDate> setter, Cell cell) {
+		if (cell == null) {
+			return;
+		}
 		LocalDate ld = null;
 		if (cell.getCellType() == CellType.NUMERIC) {
 			ld = cell.getLocalDateTimeCellValue().toLocalDate();
@@ -1015,6 +1102,9 @@ public class NRegistrationFileProcessor {
 	}
 
 	private void setCompetitionString(Consumer<String> setter, Cell cell) {
+		if (cell == null) {
+			return;
+		}
 		String stringCellValue = cell.getStringCellValue();
 		if (stringCellValue != null) {
 			setter.accept(stringCellValue.trim());
@@ -1079,13 +1169,29 @@ public class NRegistrationFileProcessor {
 					}
 					Cell cCheck = rCheck.getCell(0);
 					if (cCheck == null) {
-						this.logger.debug("Sheet '{}' A2 is empty", sheet.getSheetName());
 						continue;
 					}
-					String a2Text = cellToString(cCheck);
-					boolean isSessionHeader = headerMatches(cCheck, "Session");
-					boolean isGroupHeader = headerMatches(cCheck, "Group");
-					String tSessionCur = "";
+				String a2Text = cellToString(cCheck);
+				boolean isSessionHeader = headerMatches(cCheck, "Session");
+				boolean isGroupHeader = headerMatches(cCheck, "Group");
+				
+				// Also check if A2 text is a property name that was added to the setter map
+				// (e.g., "sessionName" which was added by addPropertyNamesToBase)
+				if (!isGroupHeader && !isSessionHeader) {
+					Map<String, CellSetterRG> groupSetterMap = buildGroupSetterMap();
+					String a2Lower = a2Text.toLowerCase().trim();
+					
+					// Check both original case and lowercased (property names are stored as-is, translations are lowercased)
+					if (groupSetterMap.containsKey(a2Text) || groupSetterMap.containsKey(a2Lower)) {
+						// Check if this property maps to a Group-related setter by looking at the property names
+						Map<String, String> propertyNames = buildPropertyNamesMap();
+						// buildPropertyNamesMap has all lowercase keys
+						String canonicalKey = propertyNames.get(a2Lower);
+						if ("Group".equals(canonicalKey)) {
+							isGroupHeader = true;
+						}
+					}
+				}					String tSessionCur = "";
 					String tSessionEng = "";
 					String tGroupCur = "";
 					String tGroupEng = "";
@@ -1122,6 +1228,7 @@ public class NRegistrationFileProcessor {
 					int headerRowIndex = 0;
 					// For sessions sheets, the header row is fixed to index 1 (row 2 human).
 					headerRowIndex = 1; // A2 indicates headers start on the next row (row 2 human)
+					this.logger.warn("Sheet '{}': Starting row iteration, headerRowIndex={}", sheet.getSheetName(), headerRowIndex);
 
 					rows: while (rowIter.hasNext()) {
 						Row row = rowIter.next();
