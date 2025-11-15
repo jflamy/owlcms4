@@ -372,7 +372,7 @@ public class Group implements Comparable<Group> {
 		Group cGroup = fieldOfPlay.getGroup();
 		// reload the group from database to get changed break time
 		cGroup = GroupRepository.getById(cGroup.getId());
-		
+
 		int millisRemaining;
 		Competition cCur = Competition.getCurrent();
 		Integer cleanJerkBreakDuration = cGroup.getCleanJerkBreakDuration();
@@ -575,25 +575,28 @@ public class Group implements Comparable<Group> {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getAnnouncer());
 		return to;
 	}
-	public void setAnnouncerAsTO(TechnicalOfficial ignored) {}
+
+	public void setAnnouncerAsTO(TechnicalOfficial ignored) {
+	}
 
 	@Transient
 	@JsonIgnore
 	public List<Athlete> getAthletes() {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public List<RecordEvent> getRecords() {
-		return RecordRepository.findFiltered(null, null, null, this.name, true);
+		// return RecordRepository.findFiltered(null, null, null, this.name, true);
+		return RecordRepository.findWithFilters(null, null, null, null,
+		        "PROVISIONAL", "HISTORY", this.getName());
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public void setRecords(List<RecordEvent> ignored) {
 	}
-	
 
 	public Integer getCleanJerkBreakDuration() {
 		return cleanJerkBreakDuration;
@@ -1001,7 +1004,7 @@ public class Group implements Comparable<Group> {
 		}
 		return formatted;
 	}
-	
+
 	@Transient
 	@JsonIgnore
 	public String getLocalStartHour() {
@@ -1170,7 +1173,6 @@ public class Group implements Comparable<Group> {
 		return to;
 	}
 
-	
 	/**
 	 * @return the doctor
 	 */
@@ -1753,14 +1755,13 @@ public class Group implements Comparable<Group> {
 	}
 
 	/**
-	 * Find all technical officials assigned to this group.
-	 * Returns a list of all TOs in various roles (announcer, jury, technical controllers, etc.)
+	 * Find all technical officials assigned to this group. Returns a list of all TOs in various roles (announcer, jury, technical controllers, etc.)
 	 * 
 	 * @return List of TechnicalOfficials assigned to this group (may contain duplicates if a TO has multiple roles)
 	 */
 	public List<TechnicalOfficial> findAssignedTechnicalOfficials() {
 		List<TechnicalOfficial> officials = new java.util.ArrayList<>();
-		
+
 		addIfNotNull(officials, getAnnouncerAsTO());
 		addIfNotNull(officials, getCompetitionDirectorAsTO());
 		addIfNotNull(officials, getCompetitionSecretaryAsTO());
@@ -1778,10 +1779,10 @@ public class Group implements Comparable<Group> {
 		addIfNotNull(officials, getDoctor2AsTO());
 		addIfNotNull(officials, getDoctor3AsTO());
 		addIfNotNull(officials, getTimeKeeperAsTO());
-		
+
 		return officials;
 	}
-	
+
 	/**
 	 * Helper method to add a technical official to the list if not null and has a valid ID
 	 */

@@ -421,7 +421,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			getGender(),
 			getName(),
 			provisionalFilterStr,
-			currentHistoryFilterStr
+			currentHistoryFilterStr, null
 		);
 	}
 

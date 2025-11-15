@@ -80,8 +80,8 @@ public class RecordRepository {
 		JPAService.runInTransaction(em -> {
 			try {
 				// do not delete records set in the current competition.
-		       int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(rec.groupNameString) <> ''")
-			       .executeUpdate();
+				int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(rec.groupNameString) <> ''")
+				        .executeUpdate();
 				if (deletedCount >= 0) {
 					logger.info("deleted {} provisional record entries", deletedCount);
 				}
@@ -94,52 +94,53 @@ public class RecordRepository {
 
 	/**
 	 * Clear provisional flags only for records matching the specified filters
-	 * @param federation Federation filter
-	 * @param ageGroup Age group filter
-	 * @param gender Gender filter
-	 * @param nameFilter Name filter
-	 * @param provisionalFilter Provisional filter
+	 * 
+	 * @param federation           Federation filter
+	 * @param ageGroup             Age group filter
+	 * @param gender               Gender filter
+	 * @param nameFilter           Name filter
+	 * @param provisionalFilter    Provisional filter
 	 * @param currentHistoryFilter Current/History filter
 	 * @throws IOException
 	 */
 	public static void clearNewRecordsWithFilters(
-			String federation,
-			String ageGroup, 
-			Gender gender,
-			String nameFilter,
-			String provisionalFilter,
-			String currentHistoryFilter) throws IOException {
-		
+	        String federation,
+	        String ageGroup,
+	        Gender gender,
+	        String nameFilter,
+	        String provisionalFilter,
+	        String currentHistoryFilter) throws IOException {
+
 		JPAService.runInTransaction(em -> {
 			try {
 				// Build the same WHERE clause as findWithFilters but for UPDATE
 				StringBuilder queryBuilder = new StringBuilder("UPDATE RecordEvent rec SET rec.groupNameString = NULL WHERE rec.groupNameString IS NOT NULL");
 				List<String> parameters = new ArrayList<>();
-				
+
 				// Federation filter
 				if (federation != null && !federation.isEmpty()) {
 					queryBuilder.append(" AND rec.recordFederation = :federation");
 					parameters.add("federation");
 				}
-				
+
 				// Age group filter
 				if (ageGroup != null && !ageGroup.isEmpty()) {
 					queryBuilder.append(" AND rec.ageGrp = :ageGroup");
 					parameters.add("ageGroup");
 				}
-				
+
 				// Gender filter
 				if (gender != null) {
 					queryBuilder.append(" AND rec.gender = :gender");
 					parameters.add("gender");
 				}
-				
+
 				// Name filter (search in both record name and athlete name)
 				if (nameFilter != null && !nameFilter.trim().isEmpty()) {
 					queryBuilder.append(" AND (LOWER(rec.recordName) LIKE :nameFilter OR LOWER(rec.athleteName) LIKE :nameFilter)");
 					parameters.add("nameFilter");
 				}
-				
+
 				// Provisional filter - only update provisional records
 				if (provisionalFilter != null && !"ALL".equals(provisionalFilter)) {
 					if ("PROVISIONAL".equals(provisionalFilter)) {
@@ -149,9 +150,9 @@ public class RecordRepository {
 						queryBuilder.append(" AND 1=0");
 					}
 				}
-				
+
 				Query query = em.createQuery(queryBuilder.toString());
-				
+
 				// Set parameters
 				if (parameters.contains("federation")) {
 					query.setParameter("federation", federation);
@@ -165,7 +166,7 @@ public class RecordRepository {
 				if (parameters.contains("nameFilter")) {
 					query.setParameter("nameFilter", "%" + nameFilter.toLowerCase() + "%");
 				}
-				
+
 				int updatedCount = query.executeUpdate();
 				if (updatedCount >= 0) {
 					logger.info("cleared provisional flags for {} record entries", updatedCount);
@@ -179,50 +180,51 @@ public class RecordRepository {
 
 	/**
 	 * Keep only current (best) records within the filtered subset, deleting all historical records
-	 * @param federation Federation filter
-	 * @param ageGroup Age group filter
-	 * @param gender Gender filter
-	 * @param nameFilter Name filter
+	 * 
+	 * @param federation        Federation filter
+	 * @param ageGroup          Age group filter
+	 * @param gender            Gender filter
+	 * @param nameFilter        Name filter
 	 * @param provisionalFilter Provisional filter
 	 * @throws IOException
 	 */
 	public static void keepOnlyCurrentRecordsWithFilters(
-			String federation,
-			String ageGroup, 
-			Gender gender,
-			String nameFilter,
-			String provisionalFilter) throws IOException {
-		
+	        String federation,
+	        String ageGroup,
+	        Gender gender,
+	        String nameFilter,
+	        String provisionalFilter) throws IOException {
+
 		JPAService.runInTransaction(em -> {
 			try {
 				// First, get all records matching the filters
 				StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE 1=1");
 				List<String> parameters = new ArrayList<>();
-				
+
 				// Federation filter
 				if (federation != null && !federation.isEmpty()) {
 					queryBuilder.append(" AND rec.recordFederation = :federation");
 					parameters.add("federation");
 				}
-				
+
 				// Age group filter
 				if (ageGroup != null && !ageGroup.isEmpty()) {
 					queryBuilder.append(" AND rec.ageGrp = :ageGroup");
 					parameters.add("ageGroup");
 				}
-				
+
 				// Gender filter
 				if (gender != null) {
 					queryBuilder.append(" AND rec.gender = :gender");
 					parameters.add("gender");
 				}
-				
+
 				// Name filter (search in both record name and athlete name)
 				if (nameFilter != null && !nameFilter.trim().isEmpty()) {
 					queryBuilder.append(" AND (LOWER(rec.recordName) LIKE :nameFilter OR LOWER(rec.athleteName) LIKE :nameFilter)");
 					parameters.add("nameFilter");
 				}
-				
+
 				// Provisional filter
 				if (provisionalFilter != null && !"ALL".equals(provisionalFilter)) {
 					if ("PROVISIONAL".equals(provisionalFilter)) {
@@ -231,9 +233,9 @@ public class RecordRepository {
 						queryBuilder.append(" AND (rec.groupNameString IS NULL OR rec.groupNameString = '')");
 					}
 				}
-				
+
 				Query query = em.createQuery(queryBuilder.toString());
-				
+
 				// Set parameters
 				if (parameters.contains("federation")) {
 					query.setParameter("federation", federation);
@@ -247,36 +249,36 @@ public class RecordRepository {
 				if (parameters.contains("nameFilter")) {
 					query.setParameter("nameFilter", "%" + nameFilter.toLowerCase() + "%");
 				}
-				
+
 				@SuppressWarnings("unchecked")
 				List<RecordEvent> allRecords = query.getResultList();
-				
+
 				// Group by record key and find the best record for each key
 				Map<String, RecordEvent> bestRecords = allRecords.stream()
-					.collect(Collectors.groupingBy(
-						RecordEvent::getKey,
-						Collectors.collectingAndThen(
-							Collectors.maxBy((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift())),
-							record -> record.orElseThrow(() -> new IllegalStateException("No record found")))));
-				
+				        .collect(Collectors.groupingBy(
+				                RecordEvent::getKey,
+				                Collectors.collectingAndThen(
+				                        Collectors.maxBy((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift())),
+				                        record -> record.orElseThrow(() -> new IllegalStateException("No record found")))));
+
 				// Get IDs of records to keep
 				Set<Long> idsToKeep = bestRecords.values().stream()
-					.map(RecordEvent::getId)
-					.collect(Collectors.toSet());
-				
+				        .map(RecordEvent::getId)
+				        .collect(Collectors.toSet());
+
 				// Delete all records in the filtered set that are not the best for their key
 				List<Long> idsToDelete = allRecords.stream()
-					.map(RecordEvent::getId)
-					.filter(id -> !idsToKeep.contains(id))
-					.collect(Collectors.toList());
-				
+				        .map(RecordEvent::getId)
+				        .filter(id -> !idsToKeep.contains(id))
+				        .collect(Collectors.toList());
+
 				if (!idsToDelete.isEmpty()) {
 					int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.id IN :idsToDelete")
-							.setParameter("idsToDelete", idsToDelete)
-							.executeUpdate();
+					        .setParameter("idsToDelete", idsToDelete)
+					        .executeUpdate();
 					logger.info("deleted {} historical record entries, keeping only current records", deletedCount);
 				}
-				
+
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
 			}
@@ -286,52 +288,53 @@ public class RecordRepository {
 
 	/**
 	 * Delete all records matching the specified filters
-	 * @param federation Federation filter
-	 * @param ageGroup Age group filter
-	 * @param gender Gender filter
-	 * @param nameFilter Name filter
-	 * @param provisionalFilter Provisional filter
+	 * 
+	 * @param federation           Federation filter
+	 * @param ageGroup             Age group filter
+	 * @param gender               Gender filter
+	 * @param nameFilter           Name filter
+	 * @param provisionalFilter    Provisional filter
 	 * @param currentHistoryFilter Current/History filter
 	 * @throws IOException
 	 */
 	public static void deleteRecordsWithFilters(
-			String federation,
-			String ageGroup, 
-			Gender gender,
-			String nameFilter,
-			String provisionalFilter,
-			String currentHistoryFilter) throws IOException {
-		
+	        String federation,
+	        String ageGroup,
+	        Gender gender,
+	        String nameFilter,
+	        String provisionalFilter,
+	        String currentHistoryFilter) throws IOException {
+
 		JPAService.runInTransaction(em -> {
 			try {
 				// Build the same WHERE clause as findWithFilters but for DELETE
 				StringBuilder queryBuilder = new StringBuilder("DELETE FROM RecordEvent rec WHERE 1=1");
 				List<String> parameters = new ArrayList<>();
-				
+
 				// Federation filter
 				if (federation != null && !federation.isEmpty()) {
 					queryBuilder.append(" AND rec.recordFederation = :federation");
 					parameters.add("federation");
 				}
-				
+
 				// Age group filter
 				if (ageGroup != null && !ageGroup.isEmpty()) {
 					queryBuilder.append(" AND rec.ageGrp = :ageGroup");
 					parameters.add("ageGroup");
 				}
-				
+
 				// Gender filter
 				if (gender != null) {
 					queryBuilder.append(" AND rec.gender = :gender");
 					parameters.add("gender");
 				}
-				
+
 				// Name filter (search in both record name and athlete name)
 				if (nameFilter != null && !nameFilter.trim().isEmpty()) {
 					queryBuilder.append(" AND (LOWER(rec.recordName) LIKE :nameFilter OR LOWER(rec.athleteName) LIKE :nameFilter)");
 					parameters.add("nameFilter");
 				}
-				
+
 				// Provisional filter
 				if (provisionalFilter != null && !"ALL".equals(provisionalFilter)) {
 					if ("PROVISIONAL".equals(provisionalFilter)) {
@@ -340,9 +343,9 @@ public class RecordRepository {
 						queryBuilder.append(" AND (rec.groupNameString IS NULL OR rec.groupNameString = '')");
 					}
 				}
-				
+
 				Query query = em.createQuery(queryBuilder.toString());
-				
+
 				// Set parameters
 				if (parameters.contains("federation")) {
 					query.setParameter("federation", federation);
@@ -356,7 +359,7 @@ public class RecordRepository {
 				if (parameters.contains("nameFilter")) {
 					query.setParameter("nameFilter", "%" + nameFilter.toLowerCase() + "%");
 				}
-				
+
 				int deletedCount = query.executeUpdate();
 				if (deletedCount >= 0) {
 					logger.info("deleted {} record entries matching the specified filters", deletedCount);
@@ -445,9 +448,9 @@ public class RecordRepository {
 	public static List<RecordEvent> findAllLoadedRecords() {
 		ArrayList<RecordEvent> recordEventStubs = new ArrayList<>();
 		JPAService.runInTransaction(em -> {
-            // temporary diagnostic: track unexpected records without fileName
+			// temporary diagnostic: track unexpected records without fileName
 			Query missing = em.createQuery(
-					"SELECT rec.id FROM RecordEvent rec WHERE rec.fileName IS NULL OR TRIM(rec.fileName) = ''");
+			        "SELECT rec.id FROM RecordEvent rec WHERE rec.fileName IS NULL OR TRIM(rec.fileName) = ''");
 			if (!missing.getResultList().isEmpty()) {
 				logger.warn("findAllLoadedRecords detected {} records missing fileName", missing.getResultList().size());
 				logger.warn(LoggerUtils.whereFrom());
@@ -497,8 +500,8 @@ public class RecordRepository {
 		List<RecordEvent> findFiltered = JPAService.runInTransaction(em -> {
 			String qlString = "select rec from RecordEvent rec "
 			        + filteringSelection(gender, age, bw, groupName, newRecords)
-			        + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper, rec.bwCatUpper, rec.recordValue desc";
-			//logger.debug("query = {}", qlString);
+			        + " order by rec.gender, rec.ageGrpLower, rec.ageGrpUpper, rec.bwCatUpper, rec.recordValue asc";
+			// logger.debug("query = {}", qlString);
 
 			Query query = em.createQuery(qlString);
 			setFilteringParameters(gender, age, bw, groupName, newRecords, query);
@@ -584,11 +587,11 @@ public class RecordRepository {
 			whereList.add("((groupNameString is not null) or (groupNameString != ''))");
 		}
 		if (whereList.size() == 0) {
-			//logger.debug("where = {}", "");
+			// logger.debug("where = {}", "");
 			return null;
 		} else {
 			String join = String.join(" and ", whereList);
-			//logger.debug("where = {}", join);
+			// logger.debug("where = {}", join);
 			return join;
 		}
 	}
@@ -626,22 +629,22 @@ public class RecordRepository {
 					ali.setLiftNo(i);
 					LocalDateTime liftTime = a.getLiftTime(i);
 					if (liftTime == null) {
-						System.err.println(a.getAbbreviatedName()+" "+i);
+						System.err.println(a.getAbbreviatedName() + " " + i);
 					}
 					ali.setT(liftTime);
 					lifts.add(ali);
 				}
 			}
 		}
-		
+
 		lifts.sort((ali1, ali2) -> ObjectUtils.compare(ali1.getT(), ali2.getT()));
 
 		List<RecordEvent> matchingRecords = new ArrayList<>();
 		for (ActualLiftInfo ali : lifts) {
 			Athlete a = ali.getA();
-			//matchingRecords = findFiltered(a.getGender(), a.getAge(), a.getBodyWeight(), null, null);
+			// matchingRecords = findFiltered(a.getGender(), a.getAge(), a.getBodyWeight(), null, null);
 			matchingRecords = RecordFilter.computeDisplayableRecordsForAthlete(a);
-			
+
 			List<RecordEvent> improvedRecords = new ArrayList<>();
 			RecordEvent improvedRecord;
 			for (RecordEvent mr : matchingRecords) {
@@ -653,10 +656,11 @@ public class RecordRepository {
 						continue;
 					}
 				}
-				
+
 				if (ali.getLiftNo() <= 3 && mr.getRecordLift() == Ranking.SNATCH && ali.getLift() > mr.getRecordValue()) {
 					improvedRecord = improveRecord(ali, mr, ali.getLift());
-					if (improvedRecord != null) improvedRecords.add(improvedRecord);
+					if (improvedRecord != null)
+						improvedRecords.add(improvedRecord);
 				} else {
 					// cj lift may improve CJ and may improve Total
 					var bestSnatch = ali.getA().getBestSnatch();
@@ -666,17 +670,19 @@ public class RecordRepository {
 					}
 					if (ali.getLiftNo() > 3 && mr.getRecordLift() == Ranking.CLEANJERK && ali.getLift() > mr.getRecordValue()) {
 						improvedRecord = improveRecord(ali, mr, ali.getLift());
-						if (improvedRecord != null) improvedRecords.add(improvedRecord);
+						if (improvedRecord != null)
+							improvedRecords.add(improvedRecord);
 					}
 					if (ali.getLiftNo() > 3 && mr.getRecordLift() == Ranking.TOTAL && total > mr.getRecordValue()) {
-						//logger.debug("checking total for {} {} --- {} ",ali.getA(),ali.getLiftNo(), mr.getRecordValue());
+						// logger.debug("checking total for {} {} --- {} ",ali.getA(),ali.getLiftNo(), mr.getRecordValue());
 						improvedRecord = improveRecord(ali, mr, total);
-						if (improvedRecord != null) improvedRecords.add(improvedRecord);
+						if (improvedRecord != null)
+							improvedRecords.add(improvedRecord);
 					}
 				}
 			}
-			
-			for (RecordEvent r: improvedRecords) {
+
+			for (RecordEvent r : improvedRecords) {
 				save(r);
 			}
 		}
@@ -685,7 +691,7 @@ public class RecordRepository {
 
 	public static RecordEvent improveRecord(ActualLiftInfo ali, RecordEvent mr, int newValue) {
 		RecordEvent nmr = new RecordEvent();
-		
+
 		nmr.setAthleteName(ali.getA().getFullName());
 		nmr.setBirthDate(ali.getA().getFullBirthDate());
 		nmr.setBirthYear(ali.getA().getYearOfBirth());
@@ -693,7 +699,7 @@ public class RecordRepository {
 		nmr.setAthleteBW(ali.getA().getBodyWeight());
 		nmr.setGender(ali.getA().getGender());
 		nmr.setNation(ali.getA().getClub());
-		
+
 		nmr.setAgeGrp(mr.getAgeGrp());
 		nmr.setAgeGrpLower(mr.getAgeGrpLower());
 		nmr.setAgeGrpUpper(mr.getAgeGrpUpper());
@@ -701,7 +707,7 @@ public class RecordRepository {
 		nmr.setBwCatUpper(mr.getBwCatUpper());
 		nmr.setBwCatString(mr.getBwCatString());
 		nmr.setCategoryString(mr.getCategoryString());
-	
+
 		nmr.setRecordLift(mr.getRecordLift());
 		nmr.setRecordName(mr.getRecordName());
 		nmr.setRecordValue(newValue);
@@ -710,10 +716,10 @@ public class RecordRepository {
 		nmr.setRecordFederation(mr.getRecordFederation());
 		nmr.setEvent(Competition.getCurrent().getCompetitionName());
 		nmr.setEventLocation(Competition.getCurrent().getCompetitionCity());
-		
+
 		// this marks the record as provisional
 		nmr.setGroupNameString(ali.getA().getGroup().getName());
-		logger.info("!!! recomputed record {} {} {} {}",nmr.getAthleteName(), nmr.getAgeGrp(), nmr.getRecordLift(), nmr.getRecordValue());
+		logger.info("!!! recomputed record {} {} {} {}", nmr.getAthleteName(), nmr.getAgeGrp(), nmr.getRecordLift(), nmr.getRecordValue());
 		return nmr;
 	}
 
@@ -725,9 +731,9 @@ public class RecordRepository {
 	public static List<String> findDistinctFederations() {
 		return JPAService.runInTransaction(em -> {
 			return em.createQuery(
-				"SELECT DISTINCT rec.recordFederation FROM RecordEvent rec WHERE rec.recordFederation IS NOT NULL ORDER BY rec.recordFederation", 
-				String.class)
-				.getResultList();
+			        "SELECT DISTINCT rec.recordFederation FROM RecordEvent rec WHERE rec.recordFederation IS NOT NULL ORDER BY rec.recordFederation",
+			        String.class)
+			        .getResultList();
 		});
 	}
 
@@ -739,75 +745,81 @@ public class RecordRepository {
 	public static List<String> findDistinctAgeGroups() {
 		return JPAService.runInTransaction(em -> {
 			return em.createQuery(
-				"SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL ORDER BY rec.ageGrp", 
-				String.class)
-				.getResultList();
+			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL ORDER BY rec.ageGrp",
+			        String.class)
+			        .getResultList();
 		});
 	}
 
 	/**
-	 * Comprehensive filtering method that supports all filters from RecordContent.
-	 * This ensures consistency between grid display and export functionality.
+	 * Comprehensive filtering method that supports all filters from RecordContent. This ensures consistency between grid display and export functionality.
 	 * 
-	 * @param federation Filter by federation (null for no filter)
-	 * @param ageGroup Filter by age group (null for no filter)  
-	 * @param gender Filter by gender (null for no filter)
-	 * @param nameFilter Filter by record name or athlete name (null for no filter)
-	 * @param provisionalFilter Filter by provisional status (null for ALL)
+	 * @param federation           Filter by federation (null for no filter)
+	 * @param ageGroup             Filter by age group (null for no filter)
+	 * @param gender               Filter by gender (null for no filter)
+	 * @param nameFilter           Filter by record name or athlete name (null for no filter)
+	 * @param provisionalFilter    Filter by provisional status (null for ALL)
 	 * @param currentHistoryFilter Filter by current/history (null for ALL)
+	 * @param session              Filter to current session
 	 * @return Filtered and sorted list of records
 	 */
 	public static List<RecordEvent> findWithFilters(
-			String federation,
-			String ageGroup, 
-			Gender gender,
-			String nameFilter,
-			String provisionalFilter, // "ALL", "PROVISIONAL", "OFFICIAL"
-			String currentHistoryFilter // "CURRENT", "HISTORY"
-	) {
+	        String federation,
+	        String ageGroup,
+	        Gender gender,
+	        String nameFilter,
+	        String provisionalFilter, // "ALL", "PROVISIONAL", "OFFICIAL"
+	        String currentHistoryFilter, // "CURRENT", "HISTORY"
+	        String session) {
+		@SuppressWarnings("unchecked")
 		List<RecordEvent> allResults = JPAService.runInTransaction(em -> {
 			// Start with base query
 			StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE 1=1");
 			List<String> parameters = new ArrayList<>();
-			
+
 			// Federation filter
 			if (federation != null && !federation.isEmpty()) {
 				queryBuilder.append(" AND rec.recordFederation = :federation");
 				parameters.add("federation");
 			}
-			
+
 			// Age group filter
 			if (ageGroup != null && !ageGroup.isEmpty()) {
 				queryBuilder.append(" AND rec.ageGrp = :ageGroup");
 				parameters.add("ageGroup");
 			}
-			
+
 			// Gender filter
 			if (gender != null) {
 				queryBuilder.append(" AND rec.gender = :gender");
 				parameters.add("gender");
 			}
-			
+
 			// Name filter (search in both record name and athlete name)
 			if (nameFilter != null && !nameFilter.trim().isEmpty()) {
 				queryBuilder.append(" AND (LOWER(rec.recordName) LIKE :nameFilter OR LOWER(rec.athleteName) LIKE :nameFilter)");
 				parameters.add("nameFilter");
 			}
-			
+
 			// Provisional filter
 			if (provisionalFilter != null && !"ALL".equals(provisionalFilter)) {
 				if ("PROVISIONAL".equals(provisionalFilter)) {
-					queryBuilder.append(" AND (rec.groupNameString IS NOT NULL AND rec.groupNameString != '')");
+					if (session == null) {
+						queryBuilder.append(" AND (rec.groupNameString IS NOT NULL AND rec.groupNameString != '')");
+					} else {
+						queryBuilder.append(" AND (rec.groupNameString IS NOT NULL AND rec.groupNameString LIKE '"+session+"')");
+					}
 				} else if ("OFFICIAL".equals(provisionalFilter)) {
 					queryBuilder.append(" AND (rec.groupNameString IS NULL OR rec.groupNameString = '')");
 				}
 			}
-			
+
 			// Add ordering - category information before lift type
-			queryBuilder.append(" ORDER BY rec.recordFederation, rec.recordName, rec.gender, rec.ageGrpUpper, rec.ageGrpLower, rec.bwCatUpper, rec.recordLift, rec.recordValue");
-			
+			queryBuilder.append(
+			        " ORDER BY rec.recordFederation, rec.recordName, rec.gender, rec.ageGrpUpper, rec.ageGrpLower, rec.bwCatUpper, rec.recordLift, rec.recordValue");
+
 			Query query = em.createQuery(queryBuilder.toString());
-			
+
 			// Set parameters
 			if (parameters.contains("federation")) {
 				query.setParameter("federation", federation);
@@ -821,69 +833,62 @@ public class RecordRepository {
 			if (parameters.contains("nameFilter")) {
 				query.setParameter("nameFilter", "%" + nameFilter.toLowerCase() + "%");
 			}
-			
-			@SuppressWarnings("unchecked")
-			List<RecordEvent> queryResults = query.getResultList();
+
+			List<RecordEvent> queryResults;
+			queryResults = query.getResultList();
 			return queryResults;
 		});
 
-			logger.warn("findWithFilters fetched {} records (federation={}, ageGroup={}, gender={}, nameFilter={}, provisional={}, currentHistory={})", //$NON-NLS-1$
-				allResults.size(), federation, ageGroup, gender, nameFilter, provisionalFilter, currentHistoryFilter);
-			logger.warn(LoggerUtils.whereFrom());
+		// logger.debug("findWithFilters fetched {} records (federation={}, ageGroup={}, gender={}, nameFilter={}, provisional={}, currentHistory={})", //$NON-NLS-1$
+		//         allResults.size(), federation, ageGroup, gender, nameFilter, provisionalFilter, currentHistoryFilter);
+		// logger.debug(LoggerUtils.whereFrom());
 
-		// Trace records that have no originating file name to help diagnose phantom entries
-		List<RecordEvent> missingFileName = allResults.stream()
-			.filter(rec -> rec.getFileName() == null || rec.getFileName().trim().isEmpty())
-			.collect(Collectors.toList());
-		if (!missingFileName.isEmpty()) {
-			String sampleKeys = missingFileName.stream()
-				.limit(5)
-				.map(RecordEvent::getKey)
-				.collect(Collectors.joining(", "));
-			logger.warn("Detected {} record entries with empty fileName (federation={}, ageGroup={}, gender={}, nameFilter={}); sample keys: {}", //$NON-NLS-1$
-				missingFileName.size(), federation, ageGroup, gender, nameFilter, sampleKeys);
-			logger.warn(LoggerUtils.whereFrom());
-		}
-		
 		// Apply current/history filter in Java (since it requires grouping logic)
 		if ("CURRENT".equals(currentHistoryFilter)) {
-	       // Group by record key and keep only the best (highest recordValue) record for each key (i.e., for each lift)
-	       return allResults.stream()
-		       .collect(Collectors.groupingBy(
-			       RecordEvent::getKey,
-			       Collectors.collectingAndThen(
-				       Collectors.maxBy((r1, r2) -> Double.compare(r1.getRecordValue(), r2.getRecordValue())),
-				       record -> record.orElseThrow(() -> new IllegalStateException("No record found")))))
-		       .values()
-		       .stream()
-		       .sorted((r1, r2) -> {
-			       // Re-apply the same ordering as the query - category before lift
-			       int fedComp = ObjectUtils.compare(r1.getRecordFederation(), r2.getRecordFederation());
-			       if (fedComp != 0) return fedComp;
-                               
-			       int nameComp = ObjectUtils.compare(r1.getRecordName(), r2.getRecordName());
-			       if (nameComp != 0) return nameComp;
-                               
-			       int genderComp = ObjectUtils.compare(r1.getGender(), r2.getGender());
-			       if (genderComp != 0) return genderComp;
-                               
-			       int ageUpperComp = ObjectUtils.compare(r1.getAgeGrpUpper(), r2.getAgeGrpUpper());
-			       if (ageUpperComp != 0) return ageUpperComp;
-                               
-			       int ageLowerComp = ObjectUtils.compare(r1.getAgeGrpLower(), r2.getAgeGrpLower());
-			       if (ageLowerComp != 0) return ageLowerComp;
-                               
-			       int bwComp = ObjectUtils.compare(r1.getBwCatUpper(), r2.getBwCatUpper());
-			       if (bwComp != 0) return bwComp;
-                               
-			       int liftComp = ObjectUtils.compare(r1.getRecordLift(), r2.getRecordLift());
-			       if (liftComp != 0) return liftComp;
-                               
-			       return ObjectUtils.compare(r1.getRecordValue(), r2.getRecordValue());
-		       })
-		       .collect(Collectors.toList());
+			// Group by record key and keep only the best (highest recordValue) record for each key (i.e., for each lift)
+			return allResults.stream()
+			        .collect(Collectors.groupingBy(
+			                RecordEvent::getKey,
+			                Collectors.collectingAndThen(
+			                        Collectors.maxBy((r1, r2) -> Double.compare(r1.getRecordValue(), r2.getRecordValue())),
+			                        record -> record.orElseThrow(() -> new IllegalStateException("No record found")))))
+			        .values()
+			        .stream()
+			        .sorted((r1, r2) -> {
+				        // Re-apply the same ordering as the query - category before lift
+				        int fedComp = ObjectUtils.compare(r1.getRecordFederation(), r2.getRecordFederation());
+				        if (fedComp != 0)
+					        return fedComp;
+
+				        int nameComp = ObjectUtils.compare(r1.getRecordName(), r2.getRecordName());
+				        if (nameComp != 0)
+					        return nameComp;
+
+				        int genderComp = ObjectUtils.compare(r1.getGender(), r2.getGender());
+				        if (genderComp != 0)
+					        return genderComp;
+
+				        int ageUpperComp = ObjectUtils.compare(r1.getAgeGrpUpper(), r2.getAgeGrpUpper());
+				        if (ageUpperComp != 0)
+					        return ageUpperComp;
+
+				        int ageLowerComp = ObjectUtils.compare(r1.getAgeGrpLower(), r2.getAgeGrpLower());
+				        if (ageLowerComp != 0)
+					        return ageLowerComp;
+
+				        int bwComp = ObjectUtils.compare(r1.getBwCatUpper(), r2.getBwCatUpper());
+				        if (bwComp != 0)
+					        return bwComp;
+
+				        int liftComp = ObjectUtils.compare(r1.getRecordLift(), r2.getRecordLift());
+				        if (liftComp != 0)
+					        return liftComp;
+
+				        return ObjectUtils.compare(r1.getRecordValue(), r2.getRecordValue());
+			        })
+			        .collect(Collectors.toList());
 		}
-		
+
 		// For HISTORY or null, return all results as-is
 		return allResults;
 	}
