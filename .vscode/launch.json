@@ -21,7 +21,7 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
+        //"OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
       }
     },
         {
