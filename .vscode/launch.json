@@ -115,7 +115,7 @@
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_RESETMODE": "true",
-        "OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
+        //"OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
       }
     },
     {
@@ -140,7 +140,7 @@
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
         // "OWLCMS_PORT": "8081",
-        "OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
+        //"OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
         //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
       }
     },
