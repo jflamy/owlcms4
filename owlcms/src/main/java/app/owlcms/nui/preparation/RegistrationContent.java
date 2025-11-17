@@ -193,11 +193,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		});
 		clearLifts.getElement().setAttribute("title", Translator.translate("ClearLifts_forListed"));
 		
-		Button clearBW = new Button(Translator.translate("ClearBodyWeights"), (e) -> {
-			new ConfirmationDialog(Translator.translate("ClearBodyWeights"),
-			        Translator.translate("Warning_BodyWeights"),
-			        Translator.translate("BodyWeightsCleared"), () -> {
-				        clearBodyWeights();
+		Button clearWeighIn = new Button(Translator.translate("ClearWeighIn"), (e) -> {
+			new ConfirmationDialog(Translator.translate("ClearWeighIn"),
+			        Translator.translate("Warning_WeighIn"),
+			        Translator.translate("WeighInCleared"), () -> {
+				        clearWeighIn();
 				        refresh();
 			        }).open();
 		});
@@ -218,7 +218,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		hr.getStyle().set("padding", "0");
 		FlexLayout buttons = new FlexLayout(
 		        // new NativeLabel(Translator.translate("Preparation")),
-		        drawLots, deleteAthletes, clearLifts, clearBW,
+		        drawLots, deleteAthletes, clearLifts, clearWeighIn,
 		        resetCats
 		// , hr,
 		// new NativeLabel(Translator.translate("Entries")),
@@ -926,11 +926,11 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		OwlcmsFactory.getFOPs().forEach(f -> f.setWeightAtLastStart(0));
 	}
 	
-	private void clearBodyWeights() {
+	private void clearWeighIn() {
 		JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = athletesFindAll(false);
 			for (Athlete a : athletes) {
-				a.clearBodyWeight();
+				a.clearWeighIn();
 				em.merge(a);
 			}
 			em.flush();

@@ -38,7 +38,25 @@ primary location assistants should read before taking actions.
 - Always format shell commands for `bash`. On Windows, execute via or Git Bash.
 - Never use fully-qualified class names in new or edited Java source files. Prefer adding an import and using the short type name. Only use a fully-qualified name when a collision or other exceptional situation requires it.
 
-Important: The file `shared/src/main/resources/i18n/translation4.csv` is managed by an external i18n tool and must never be edited by automated assistants or by hand in source control. Do not modify `translation4.csv` in this repository; use the external translation management system and the approved process instead. If an update to translations is required, open an issue and request that the translation team apply the change through the canonical workflow.
+Important: The file `shared/src/main/resources/i18n/translation4.csv` is managed by an external i18n tool and must never be edited by automated assistants or by hand in source control. Do not modify `translation4.csv` in this repository; use the external translation management system and the approved process instead.
+
+### Process for adding new translation keys:
+
+When new translation keys are required (e.g., for new UI features):
+
+1. **Implement the feature** using the new translation keys with `Translator.translate("KeyName")` in the Java code
+2. **Create a TSV file** next to `translation4.csv` (e.g., `new_translations.tsv`) containing:
+   - Header row matching the exact language column sequence from `translation4.csv`
+   - One row per new translation key with translations in all supported languages
+   - Tab-delimited format (not CSV)
+3. **Document the keys** in a separate text file explaining the context and purpose of each key
+4. **Notify the human maintainer** who will manually update the master translation database using the TSV content
+
+Example workflow:
+- Assistant creates code using `Translator.translate("ClearWeighIn")`
+- Assistant creates `shared/src/main/resources/i18n/new_translations.tsv` with all language translations
+- Human maintainer imports the TSV content into the external translation management system
+- Human maintainer regenerates `translation4.csv` from the external system
 
 ## Why these rules exist (big picture)
 

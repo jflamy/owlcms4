@@ -617,6 +617,21 @@ public class Athlete {
 		}
 	}
 
+	public void clearWeighIn() {
+		boolean validate = this.isValidation();
+		Level prevLevel = this.getLogger().getLevel();
+		try {
+			this.setValidation(false);
+			this.setLoggerLevel(Level.OFF);
+			this.setBodyWeight(null);
+			this.setSnatch1Declaration("");
+			this.setCleanJerk1Declaration("");
+		} finally {
+			this.setValidation(validate);
+			this.setLoggerLevel(prevLevel);
+		}
+	}
+
 	/**
 	 * Gets the custom score.
 	 *
