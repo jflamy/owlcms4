@@ -169,7 +169,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
 		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			this.serverTimer = new Timer();
-			this.serverTimer.schedule(computeTask(this.timeRemaining), this.timeRemaining % 30000);
+			try {
+				this.serverTimer.schedule(computeTask(this.timeRemaining), this.timeRemaining % 30000);
+			} catch (IllegalArgumentException e) {
+				this.logger.debug("Timer schedule issue: {}", e.getMessage());
+			}
 		}
 	}
 

@@ -112,6 +112,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private BinderValidationStatus<Athlete> initialValidationStatus;
 	private Boolean liftResultChanged;
 	private Button operationButton;
+	private Button acceptChangeButton;
+	private Button cancelButton;
 	private IAthleteEditing origin;
 	private Athlete originalAthlete;
 	private TextField snatch1ActualLift;
@@ -237,8 +239,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		ComponentEventListener<ClickEvent<Button>> postOperationCallBack = (e) -> {
 		};
 		this.operationButton = null;
+		this.acceptChangeButton = null;
 		if (operation == CrudOperation.UPDATE) {
 			this.operationButton = buildOperationButton(CrudOperation.UPDATE, getEditedAthlete(),
+			        postOperationCallBack);
+			this.acceptChangeButton = buildAcceptChangeButton(CrudOperation.UPDATE, getEditedAthlete(),
 			        postOperationCallBack);
 		} else if (operation == CrudOperation.ADD) {
 			this.operationButton = buildOperationButton(CrudOperation.ADD, getEditedAthlete(), postOperationCallBack);
@@ -246,47 +251,68 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		Button deleteButton = buildDeleteButton(CrudOperation.DELETE, getEditedAthlete(), null);
 		Component withdrawButtons = buildWithdrawButtons();
 		Checkbox forcedCurrentCheckbox = buildForcedCurrentCheckbox();
-		Checkbox validateEntries = buildIgnoreErrorsCheckbox();
 		Checkbox allowResultsEditing = buildAllowResultsEditingCheckbox();
-		Button cancelButton = buildCancelButton(cancelButtonClickListener);
+		this.cancelButton = buildCancelButton(cancelButtonClickListener);
 
 		HorizontalLayout footerLayout = new HorizontalLayout();
 		footerLayout.setWidth("100%");
 		footerLayout.setSpacing(true);
 		footerLayout.setPadding(false);
+		footerLayout.setAlignItems(Alignment.START);
 
-		if (deleteButton != null && operation != CrudOperation.ADD) {
-			footerLayout.add(deleteButton);
-		}
-		if (withdrawButtons != null && operation != CrudOperation.ADD) {
-			footerLayout.add(withdrawButtons);
-		}
+		// Add checkboxes first (left side)
 		VerticalLayout vl = new VerticalLayout();
 		if (forcedCurrentCheckbox != null && operation != CrudOperation.ADD) {
 			vl.setSizeUndefined();
 			vl.setPadding(false);
 			vl.setMargin(false);
-			vl.add(validateEntries);
+			vl.setSpacing(true);
 			vl.add(allowResultsEditing);
 			vl.add(forcedCurrentCheckbox);
 			footerLayout.add(vl);
+			footerLayout.setVerticalComponentAlignment(Alignment.START, vl);
+		}
+
+		if (deleteButton != null && operation != CrudOperation.ADD) {
+			footerLayout.add(deleteButton);
+			footerLayout.setVerticalComponentAlignment(Alignment.START, deleteButton);
+		}
+		if (withdrawButtons != null && operation != CrudOperation.ADD) {
+			footerLayout.add(withdrawButtons);
+			footerLayout.setVerticalComponentAlignment(Alignment.START, withdrawButtons);
 		}
 
 		NativeLabel spacer = new NativeLabel();
 
 		footerLayout.add(spacer);// , operationTrigger);
 
-		if (cancelButton != null) {
-			footerLayout.add(cancelButton);
-		}
+		// Create vertical layout for operation buttons with matching widths
+		VerticalLayout buttonStack = new VerticalLayout();
+		buttonStack.setPadding(false);
+		buttonStack.setMargin(false);
+		buttonStack.setSpacing(true);
+		buttonStack.setSizeUndefined();
 
 		if (this.operationButton != null) {
-			footerLayout.add(this.operationButton);
+			this.operationButton.setWidth("240px");
+			buttonStack.add(this.operationButton);
 			if (operation == CrudOperation.UPDATE && shortcutEnter) {
 				ShortcutRegistration reg = this.operationButton.addClickShortcut(Key.ENTER);
 				reg.allowBrowserDefault();
 			}
 		}
+		if (this.acceptChangeButton != null) {
+			this.acceptChangeButton.setWidth("240px");
+			this.acceptChangeButton.setVisible(false);
+			buttonStack.add(this.acceptChangeButton);
+		}
+		if (this.cancelButton != null) {
+			this.cancelButton.setWidth("240px");
+			buttonStack.add(this.cancelButton);
+		}
+
+		footerLayout.add(buttonStack);
+		footerLayout.setVerticalComponentAlignment(Alignment.START, buttonStack);
 		footerLayout.setFlexGrow(1.0, vl);
 		return footerLayout;
 	}
@@ -312,9 +338,18 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 
 		this.gridLayout = setupGrid();
 		this.errorLabel = new Paragraph("initial");
+		this.errorLabel.getStyle().set("font-size", "1.2rem");
+		this.errorLabel.getStyle().set("white-space", "normal");
+		this.errorLabel.getStyle().set("word-wrap", "break-word");
+		this.errorLabel.getStyle().set("overflow-wrap", "break-word");
+		this.errorLabel.getStyle().set("margin", "0");
+		this.errorLabel.getStyle().set("max-width", "600px");
+		this.errorLabel.setWidthFull();
 		HorizontalLayout labelWrapper = new HorizontalLayout(this.errorLabel);
 		// labelWrapper.addClassName("errorMessage");
 		labelWrapper.setWidthFull();
+		labelWrapper.getStyle().set("max-width", "600px");
+		labelWrapper.getStyle().set("overflow-x", "hidden");
 		labelWrapper.setJustifyContentMode(JustifyContentMode.CENTER);
 
 		// We use a copy so that if the user cancels, we still have the original object.
@@ -412,6 +447,23 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			// already initialized correctly in the form, should not be reset here. see #
 			// domainObject.setCheckTiming(false);
 		});
+		return button;
+	}
+
+	public Button buildAcceptChangeButton(CrudOperation operation, Athlete domainObject,
+	        ComponentEventListener<ClickEvent<Button>> callBack) {
+		if (callBack == null) {
+			return null;
+		}
+		Button button = new Button(Translator.translate("AcceptChange"), new Icon(VaadinIcon.WARNING));
+		button.getElement().setAttribute("theme", "primary contrast");
+		button.getStyle().set("background-color", "#FFC107");
+		button.getStyle().set("color", "#000000");
+		button.addClickListener((f) -> {
+			// Perform the operation with ignoreErrors = true
+			performOperationAndCallback(operation, domainObject, callBack, true);
+		});
+		// Do NOT add keyboard shortcut for this button
 		return button;
 	}
 
@@ -971,6 +1023,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        this.origin.closeDialog();
 		        });
 		snatchWithdrawalButton.getElement().setAttribute("theme", "error");
+		snatchWithdrawalButton.setWidth("200px");
 
 		Button withdrawalButton = new Button(Translator.translate("Withdrawal"),
 		        new Icon(VaadinIcon.SIGN_OUT),
@@ -987,6 +1040,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			        this.origin.closeDialog();
 		        });
 		withdrawalButton.getElement().setAttribute("theme", "error");
+		withdrawalButton.setWidth("200px");
 
 		if (attemptsDone < 3) {
 			vl.add(snatchWithdrawalButton, withdrawalButton);
@@ -995,6 +1049,9 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 
 		vl.setSizeUndefined();
+		vl.setPadding(false);
+		vl.setMargin(false);
+		vl.setSpacing(true);
 		return vl;
 	}
 
@@ -1048,11 +1105,31 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			this.errorLabel.setVisible(true);
 			this.errorLabel.getElement().setProperty("innerHTML", "\u26A0 " + message);
 			this.errorLabel.getClassNames().set("errorMessage", true);
+			// Show Accept Change button, hide normal Update button
+			if (this.operationButton != null && this.acceptChangeButton != null) {
+				this.operationButton.setVisible(false);
+				this.acceptChangeButton.setVisible(true);
+			}
+			// Change cancel to "Reject Change" with error theme
+			if (this.cancelButton != null) {
+				this.cancelButton.setText(Translator.translate("RejectChange"));
+				this.cancelButton.getElement().setAttribute("theme", "primary error");
+			}
 		} else {
 			logger.debug("{} setting EMPTY", simpleName);
 			this.errorLabel.setVisible(true);
 			this.errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
 			this.errorLabel.getClassNames().clear();
+			// Show normal Update button, hide Accept Change button
+			if (this.operationButton != null && this.acceptChangeButton != null) {
+				this.operationButton.setVisible(true);
+				this.acceptChangeButton.setVisible(false);
+			}
+			// Restore cancel button to normal
+			if (this.cancelButton != null) {
+				this.cancelButton.setText(Translator.translate("Cancel"));
+				this.cancelButton.getElement().removeAttribute("theme");
+			}
 		}
 	}
 
@@ -1063,12 +1140,32 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			this.errorLabel.getElement().setProperty("innerHTML", message);
 			this.errorLabel.getClassNames().set("errorMessage", true);
 			field.setInvalid(true);
+			// Show Accept Change button, hide normal Update button
+			if (this.operationButton != null && this.acceptChangeButton != null) {
+				this.operationButton.setVisible(false);
+				this.acceptChangeButton.setVisible(true);
+			}
+			// Change cancel to "Reject Change" with error theme
+			if (this.cancelButton != null) {
+				this.cancelButton.setText(Translator.translate("RejectChange"));
+				this.cancelButton.getElement().setAttribute("theme", "primary error");
+			}
 		} else {
 			logger.debug("{} setting EMPTY");
 			this.errorLabel.setVisible(true);
 			this.errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
 			this.errorLabel.getClassNames().clear();
 			field.setInvalid(false);
+			// Show normal Update button, hide Accept Change button
+			if (this.operationButton != null && this.acceptChangeButton != null) {
+				this.operationButton.setVisible(true);
+				this.acceptChangeButton.setVisible(false);
+			}
+			// Restore cancel button to normal
+			if (this.cancelButton != null) {
+				this.cancelButton.setText(Translator.translate("Cancel"));
+				this.cancelButton.getElement().removeAttribute("theme");
+			}
 		}
 		resetReadOnlyFields();
 	}
