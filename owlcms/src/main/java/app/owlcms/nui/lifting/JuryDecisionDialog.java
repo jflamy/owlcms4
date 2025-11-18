@@ -33,7 +33,6 @@ public class JuryDecisionDialog extends Dialog {
 	private Button goodLiftButton;
 	private Button noLiftButton;
 	private Button resumeButton;
-	private Button announceButton;
 	private Athlete athlete;
 	private Object origin;
 	private Runnable onClose;
