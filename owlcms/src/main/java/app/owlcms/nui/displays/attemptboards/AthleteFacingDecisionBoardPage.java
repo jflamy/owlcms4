@@ -69,6 +69,7 @@ public class AthleteFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
 		board.getDecisions().setDontReset(false);
+		board.getDecisions().setDisplaySize("x-large");
 		board.setPublicFacing(false);
 		board.setShowBarbell(false);
 		setSilenced(false);

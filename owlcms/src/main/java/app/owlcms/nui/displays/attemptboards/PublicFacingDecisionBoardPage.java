@@ -68,6 +68,7 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
 		board.getDecisions().setDontReset(false);
+		board.getDecisions().setDisplaySize("x-large");
 		board.setPublicFacing(true);
 		board.setShowBarbell(false);
 		setSilenced(true);

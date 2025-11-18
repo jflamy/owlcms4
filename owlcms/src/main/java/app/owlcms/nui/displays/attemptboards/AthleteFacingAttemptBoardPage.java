@@ -69,6 +69,7 @@ public class AthleteFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 		setDefaultParameters(QueryParameters.simple(fullMap));
 
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
+		board.getDecisions().setDisplaySize("large");
 		board.setPublicFacing(false);
 		this.addComponent(board);
 	}

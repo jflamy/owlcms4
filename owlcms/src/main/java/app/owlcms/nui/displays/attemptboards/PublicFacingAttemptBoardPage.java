@@ -68,6 +68,7 @@ public class PublicFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 		setDefaultParameters(QueryParameters.simple(fullMap));
 
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
+		board.getDecisions().setDisplaySize("large");
 		board.setPublicFacing(true);
 		this.addComponent(board);
 	}

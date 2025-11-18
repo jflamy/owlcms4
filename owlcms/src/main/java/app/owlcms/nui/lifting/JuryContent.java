@@ -457,7 +457,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		this.refereeLabelWrapper = createRefereeLabel(null);
 
 		this.decisions = new JuryDisplayDecisionElement();
+		this.decisions.setDisplaySize("large");
 		this.decisions.getElement().setAttribute("theme", "dark");
+		this.decisions.getStyle().set("background-color", "black");
+		this.decisions.getStyle().set("font-size", "100%");
 		Div decisionWrapper = new Div(this.decisions);
 		decisionWrapper.getStyle().set("width", "50%");
 		// decisionWrapper.getStyle().set("height", "max-content");

@@ -19,6 +19,19 @@ class DecisionElement extends LitElement {
           display: flex;
           height: 100%;
         }
+
+        :host([size="large"]) {
+          --attemptFontSize: 25vh;
+        }
+
+        :host([size="x-large"]) {
+          --attemptFontSize: 40vh;
+        }
+
+        :host(:not([size])),
+        :host([size="small"]) {
+          --attemptFontSize: 1.2em;
+        }
         .decisionWrapper {
           width: 100%;
           height: 100%;
@@ -49,8 +62,11 @@ class DecisionElement extends LitElement {
             padding: 0;
             width: var(--attemptFontSize, 20vh);
             height: var(--attemptFontSize, 20vh);
-            line-height: 1.2em;
-            font-size: 1.0em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          font-size: calc(var(--attemptFontSize, 20vh) * 0.6);
+            line-height: 1;
             color: black;
             align-self: center;
         }
@@ -158,6 +174,10 @@ class DecisionElement extends LitElement {
       _showDecision: {
         type: Boolean,
         state: true,
+      },
+      size: {
+        type: String,
+        reflect: true
       }
     };
   }
@@ -177,6 +197,7 @@ class DecisionElement extends LitElement {
     this.silent = false;
     this._downShown = false;
     this._showDecision = false;
+    this.size = "small";
     // important - the handlers must be bound so "this" is the current DecisionElement instance.
     this._readRef = this._readRef.bind(this);
     this.initSounds = this.initSounds.bind(this)

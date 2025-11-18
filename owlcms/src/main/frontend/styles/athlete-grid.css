@@ -26,12 +26,6 @@
     }
 }
 
-body {
-    --attemptFontSize: 1.2em;
-    --attemptLineHeight: 1.5em;
-    --margin: 2px;
-}
-
 #topBarLeft {
     width: 12em;
     height: 7ex;
@@ -46,6 +40,9 @@ body {
 .green,
 .gray,
 .next {
+    --attemptFontSize: 1.2em;
+    --attemptLineHeight: 1.5em;
+    --margin: 2px;
     width: 5ch;
     max-width: 5ch;
     text-align: center;

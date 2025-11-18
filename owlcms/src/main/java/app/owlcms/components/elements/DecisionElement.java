@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.components.elements;
 
+import java.util.Locale;
+
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -122,6 +124,20 @@ public class DecisionElement extends LitTemplate
 	public void setJury(boolean juryMode) {
 		this.setJuryMode(juryMode);
 		getElement().setProperty("jury", juryMode);
+	}
+
+
+	public void setDisplaySize(String size) {
+		String normalized = size == null ? "small" : size.toLowerCase(Locale.ROOT);
+		switch (normalized) {
+		case "small":
+		case "large":
+		case "x-large":
+			getElement().setProperty("size", normalized);
+			break;
+		default:
+			throw new IllegalArgumentException("Unsupported decision element size: " + size);
+		}
 	}
 
 	public void setPublicFacing(boolean publicFacing) {

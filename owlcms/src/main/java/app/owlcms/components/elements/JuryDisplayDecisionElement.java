@@ -34,6 +34,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	public JuryDisplayDecisionElement() {
 		this.setJury(true);
+		setDisplaySize("large");
 		getElement().setProperty("singleRef", this.isSingleRef());
 		this.getElement().getStyle().set("font-size", "100%");
 		doReset();

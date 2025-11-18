@@ -1056,6 +1056,8 @@ public abstract class AthleteGridContent extends BaseContent
 		this.getDecisionLights().setWidth("12em");
 		this.getDecisionLights().getStyle().set("line-height", "2em");
 		this.decisionDisplay.getStyle().set("width", "9em");
+		// Set small size for top bar decision display
+		this.decisionDisplay.getStyle().set("--attemptFontSize", "1.2em");
 	}
 
 	/**
