@@ -164,9 +164,20 @@ class CurrentAttempt extends LitElement {
   }
 
   firstNameClasses() {
-    return "display: " + (this.athleteImg ? "firstNameWithPicture" : "firstName");
+    const hasPicture = this.athleteImg || this.athletePictures;
+    if (hasPicture) {
+      return "firstNameWithPicture";
+    }
+    if (this.teamFlagImg) {
+      return "firstNameWithFlags";
+    }
+    return "firstName";
   }
   firstNameStyles() {
+    const hasPicture = this.athleteImg || this.athletePictures;
+    if (hasPicture || this.teamFlagImg) {
+      return ""; // Let CSS handle the display for these variants
+    }
     return "display: grid";
   }
 

@@ -56,9 +56,9 @@
 }
 
 .attemptBoard .lastNameWithPicture div, .attemptBoard .lastName div {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
 	font-weight: normal;
 	max-width: 60vw;
 }
@@ -76,12 +76,34 @@
 	justify-self: start;
 	font-size: 10vh;
 	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
-	text-overflow: ellipsis !important;
-    white-space: nowrap;
-    overflow: hidden;
+	white-space: normal;
+	overflow: hidden;
 	font-weight: normal;
 	max-width: 76vw;
+	max-height: 12vh;
 	display: block;
+}
+
+.attemptBoard .firstNameWithFlags {
+	padding: 0;
+	line-height: 12vh;
+	justify-self: start;
+	font-size: 10vh;
+	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
+	white-space: normal;
+	overflow: hidden;
+	font-weight: normal;
+	max-width: 76vw;
+	max-height: 12vh;
+	display: block;
+}
+
+.attemptBoard .firstNameWithFlags div {
+	white-space: normal;
+	overflow: hidden;
+	display: block;
+	max-width: 76vw;
+	max-height: 12vh;
 }
 
 .attemptBoard .firstNameWithPicture {
@@ -90,20 +112,20 @@
 	line-height: 10vh;
 	font-weight: normal;
 	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
-	text-overflow: ellipsis !important;
-    white-space: nowrap;
-    overflow: hidden;
-	font-weight: normal;
-	max-width: 60vw;
+	white-space: normal;
+	overflow: hidden;
+	max-width: 70vw;
+	max-height: 10vh;
+	display: block;
 }
 
 .attemptBoard .firstNameWithPicture div {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+	white-space: normal;
+	overflow: hidden;
+	display: block;
 	max-width: 70vw;
+	max-height: 10vh;
 }
-
 
 @media screen and (max-width: 1300px) {
 	.attemptBoard .firstName {
@@ -121,14 +143,20 @@
 }
 
 .attemptBoard .flag {
-    display: grid;
-    grid-area: firstName-start/timer-start/teamName-end/timer-end;
+	display: grid;
+	grid-area: firstName-start/timer-start/teamName-end/timer-end;
+	place-items: center;
+	border: 1px solid white;
+	width: fit-content;
+	height: fit-content;
+	justify-self: center;
+	align-self: center;
 }
 
 .attemptBoard .flag > img {
-    object-fit: contain;
-    max-height: 25vh;
-    width: 100%;
+	object-fit: contain;
+	max-height: 25vh;
+	width: 100%;
 }
 
 .attemptBoard .flagWithPicture {
@@ -137,6 +165,10 @@
 	align-self: start;
 	grid-area: teamName-start/barbell-start/barbell-start/barbell-end;
 	z-index: 0;
+	place-items: center;
+	border: 1px solid white;
+	width: fit-content;
+	height: fit-content;
 }
 .attemptBoard .flagWithPicture > img {
 	height: 18vh;
