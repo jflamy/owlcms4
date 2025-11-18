@@ -983,27 +983,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		return checkbox;
 	}
 
-	private Checkbox buildIgnoreErrorsCheckbox() {
-		this.ignoreErrorsCheckbox = new Checkbox(Translator.translate("RuleViolation.ignoreErrors"), e -> {
-			if (BooleanUtils.isTrue(isIgnoreErrors())) {
-				logger./**/warn/**/("{}!Errors ignored - checkbox override for athlete {}",
-				        FieldOfPlay.getLoggingName(OwlcmsSession.getFop()), this.getEditedAthlete().getShortName());
-				// binder.validate();
-				boolean validationReset = this.editedAthlete.isValidation();
-				try {
-					this.editedAthlete.setValidation(false);
-					this.binder.writeBeanAsDraft(this.editedAthlete, true);
-				} finally {
-					this.editedAthlete.setValidation(validationReset);
-				}
-
-			}
-
-		});
-		this.ignoreErrorsCheckbox.getStyle().set("margin-left", CHECKBOX_MARGIN);
-		return this.ignoreErrorsCheckbox;
-	}
-
 	private Component buildWithdrawButtons() {
 		Integer attemptsDone = getEditedAthlete().getAttemptsDone();
 		VerticalLayout vl = new VerticalLayout();

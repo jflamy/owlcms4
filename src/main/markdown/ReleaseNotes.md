@@ -8,9 +8,18 @@
 
 <br>
 
+**New in Release 63.1**
+
+63.1.0: If the jury gives decisions by hand signal or forgets to press, the announcer can now trigger the good/bad lift.
+
+63.1.0: Marshal can now accept/reject a late (or  illegal) change using big buttons instead of checkbox
+
+63.1.0: There is now a "clear weigh-in" button to clear weigh-in and declarations created during testing.
+
+
 **New in Release 63.0**
 
-63.3.0: Leader board at bottom no longer shows athlete who has bombed-out
+63.0.0: Leader board at bottom no longer shows athlete who has bombed-out
 
 63.0.0: Clear button for records now clears all records for the matching federation and age group, ignoring the original file name
 
