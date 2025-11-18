@@ -356,10 +356,8 @@ public class RAthlete {
 				}
 			}
 
-			Category c;
-			String catCode = Category.codeFromName(catName);
-			//logger.debug("------ catName {} catCode {} active {}",catName, catCode,RCompetition.getActiveCategories().keySet());
-			if ((c = RCompetition.getActiveCategories().get(catCode)) != null) {
+			Category c = findActiveCategoryByName(catName);
+			if (c != null) {
 				// exact match for a category. This is the athlete's registration category.
 				processEligibilityAndTeams(parts, c, teamMember);
 			} else {
@@ -490,9 +488,8 @@ public class RAthlete {
 					eligibleName = eligibleName.substring(0, eligibleName.length() - NoTeamMarker.length());
 					teamMember = false;
 				}
-				Category c2;
-				String catCode = Category.codeFromName(eligibleName.trim());
-				if ((c2 = RCompetition.getActiveCategories().get(catCode)) != null) {
+					Category c2 = findActiveCategoryByName(eligibleName.trim());
+					if (c2 != null) {
 					boolean addedToEligible = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge, teamMember, c2);
 					if (!addedToEligible) {
 						throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem")+" "+eligibleName);
@@ -517,7 +514,7 @@ public class RAthlete {
 		double searchBodyWeight;
 		if (!legacyResult.matches()) {
 			// try by explicit name
-			Category category = RCompetition.getActiveCategories().get(categoryName);
+			Category category = findActiveCategoryByName(categoryName);
 			if (category == null) {
 				throw new Exception(Translator.translate("Upload.CategoryNotFoundByName", categoryName));
 			}
@@ -564,5 +561,37 @@ public class RAthlete {
 		} else {
 			this.a.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.ELIGIBLE);
 		}
+	}
+
+	private Category findActiveCategoryByName(String categoryName) {
+		if (categoryName == null) {
+			return null;
+		}
+		String trimmed = categoryName.trim();
+		if (trimmed.isEmpty()) {
+			return null;
+		}
+		for (String candidate : buildCategoryNameCandidates(trimmed)) {
+			String catCode = Category.codeFromName(candidate);
+			if (catCode != null) {
+				Category category = RCompetition.getActiveCategories().get(catCode);
+				if (category != null) {
+					return category;
+				}
+			}
+		}
+		return null;
+	}
+
+	private LinkedHashSet<String> buildCategoryNameCandidates(String baseName) {
+		LinkedHashSet<String> candidates = new LinkedHashSet<>();
+		candidates.add(baseName);
+		if (baseName.contains("+")) {
+			candidates.add(baseName.replace('+', '>'));
+		}
+		if (baseName.contains(">")) {
+			candidates.add(baseName.replace('>', '+'));
+		}
+		return candidates;
 	}
 }

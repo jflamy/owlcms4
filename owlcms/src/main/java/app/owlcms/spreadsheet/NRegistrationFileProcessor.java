@@ -1055,23 +1055,31 @@ public class NRegistrationFileProcessor {
 				Competition competition = Competition.getCurrent();
 				Row row;
 
-				row = sheet.getRow(1 - 1);
-				setCompetitionString(competition::setFederation, row.getCell('A' - 'A')); // A1
-				setCompetitionString(competition::setCompetitionName, row.getCell('F' - 'A')); // F1
-				setCompetitionDate(competition::setCompetitionDate, row.getCell('M' - 'A')); // M1
-				setCompetitionDate(competition::setCompetitionEndDate, row.getCell('N' - 'A')); // N1
+				row = sheet.getRow(0);
+				if (row != null) {
+					setCompetitionString(competition::setFederation, row.getCell('A' - 'A')); // A1
+					setCompetitionString(competition::setCompetitionName, row.getCell('F' - 'A')); // F1
+					setCompetitionDate(competition::setCompetitionDate, row.getCell('M' - 'A')); // M1
+					setCompetitionDate(competition::setCompetitionEndDate, row.getCell('N' - 'A')); // N1
+				}
 
-				row = sheet.getRow(2 - 1);
-				setCompetitionString(competition::setFederationAddress, row.getCell('A' - 'A')); // A2
-				setCompetitionString(competition::setCompetitionCity, row.getCell('F' - 'A')); // F2
+				row = sheet.getRow(1);
+				if (row != null) {
+					setCompetitionString(competition::setFederationAddress, row.getCell('A' - 'A')); // A2
+					setCompetitionString(competition::setCompetitionCity, row.getCell('F' - 'A')); // F2
+				}
 
-				row = sheet.getRow(3 - 1);
-				setCompetitionString(competition::setFederationWebSite, row.getCell('A' - 'A')); // A3
-				setCompetitionString(competition::setCompetitionSite, row.getCell('F' - 'A')); // F3
+				row = sheet.getRow(2);
+				if (row != null) {
+					setCompetitionString(competition::setFederationWebSite, row.getCell('A' - 'A')); // A3
+					setCompetitionString(competition::setCompetitionSite, row.getCell('F' - 'A')); // F3
+				}
 
-				row = sheet.getRow(4 - 1);
-				setCompetitionString(competition::setFederationEMail, row.getCell('A' - 'A')); // A4
-				setCompetitionString(competition::setCompetitionOrganizer, row.getCell('F' - 'A')); // F4
+				row = sheet.getRow(3);
+				if (row != null) {
+					setCompetitionString(competition::setFederationEMail, row.getCell('A' - 'A')); // A4
+					setCompetitionString(competition::setCompetitionOrganizer, row.getCell('F' - 'A')); // F4
+				}
 			} catch (IOException | EncryptedDocumentException e) {
 				errorConsumer.accept(e.getLocalizedMessage());
 				LoggerUtils.logError(this.logger, e);
@@ -1105,7 +1113,12 @@ public class NRegistrationFileProcessor {
 		if (cell == null) {
 			return;
 		}
-		String stringCellValue = cell.getStringCellValue();
+		String stringCellValue = null;
+		if (cell.getCellType() == CellType.STRING) {
+			stringCellValue = cell.getStringCellValue();
+		} else if (cell.getCellType() == CellType.NUMERIC) {
+			stringCellValue = this.formatter.formatCellValue(cell);
+		}
 		if (stringCellValue != null) {
 			setter.accept(stringCellValue.trim());
 		}

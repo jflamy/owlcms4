@@ -10,11 +10,13 @@
 
 **New in Release 63.1**
 
-63.1.0: If the jury gives decisions by hand signal or forgets to press, the announcer can now trigger the good/bad lift.
+63.1.0: If the jury gives decisions by hand signal or forgets to press, the announcer can now trigger the good/bad lift processing.
 
-63.1.0: Marshal can now accept/reject a late (or  illegal) change using big buttons instead of checkbox
+63.1.0: Marshal can now accept/reject a late (or  illegal) change using big buttons instead of tiny checkbox
 
 63.1.0: There is now a "clear weigh-in" button to clear weigh-in and declarations created during testing.
+
+63.1.0: Loading an SBDE or registration file will accept either > or + as prefix when looking up the category (both SR F >86 and SR F +86 will be tried)
 
 
 **New in Release 63.0**
