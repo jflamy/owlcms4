@@ -109,6 +109,7 @@ public class WebSocketEventSender {
 	private boolean intentionallyClosed = false;
 	private boolean connecting = false;
 	private Map<String, Runnable> missingDataCallbacks = new HashMap<>();
+	private Runnable onOpenCallback = null;
 
 	private WebSocketEventSender(String url, java.util.function.Supplier<String> urlSupplier) {
 		this.url = url;
@@ -123,6 +124,14 @@ public class WebSocketEventSender {
 	 */
 	public void setMissingDataCallback(String dataType, Runnable callback) {
 		this.missingDataCallbacks.put(dataType, callback);
+	}
+
+	/**
+	 * Set callback to be invoked when WebSocket connection opens
+	 * @param callback Callback to invoke when connection opens
+	 */
+	public void setOnOpenCallback(Runnable callback) {
+		this.onOpenCallback = callback;
 	}
 
 	private synchronized void connect() {
@@ -146,15 +155,17 @@ public class WebSocketEventSender {
 			
 			this.client = new WebSocketClient(uri) {
 				@Override
-				public void onOpen(ServerHandshake handshake) {
-					logger.info("WebSocket connected to: {}", url);
-					synchronized (WebSocketEventSender.this) {
-						connecting = false;
-						reconnectAttempts = 0;
+			public void onOpen(ServerHandshake handshake) {
+				logger.info("WebSocket connected to: {}", url);
+				synchronized (WebSocketEventSender.this) {
+					connecting = false;
+					reconnectAttempts = 0;
+					if (onOpenCallback != null) {
+						onOpenCallback.run();
+						onOpenCallback = null; // Clear callback after first use
 					}
 				}
-
-				@Override
+			}				@Override
 				public void onMessage(String message) {
 					logger.debug("WebSocket message received from {}: {}", url, message);
 					WebSocketEventSender.this.handleServerMessage(message);

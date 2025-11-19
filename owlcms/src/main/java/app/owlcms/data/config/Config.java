@@ -1016,7 +1016,7 @@ public class Config {
 	}
 
 	public void setPublicResultsURL(String publicResultsURL) {
-		if (publicResultsURL != null && !publicResultsURL.startsWith("http")) {
+		if (publicResultsURL != null && !publicResultsURL.startsWith("http") && !publicResultsURL.startsWith("ws")) {
 			this.publicResultsURL = "https://"+publicResultsURL;
 		} else {
 			this.publicResultsURL = publicResultsURL;

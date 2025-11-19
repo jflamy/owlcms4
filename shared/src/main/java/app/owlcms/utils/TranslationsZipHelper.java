@@ -61,12 +61,6 @@ public class TranslationsZipHelper {
 			String jsonContent = MAPPER.writerWithDefaultPrettyPrinter()
 					.writeValueAsString(translationsStructure);
 			
-			@SuppressWarnings("unchecked")
-			Map<String, Map<String, String>> localesMap = 
-				(Map<String, Map<String, String>>) translationsStructure.getOrDefault("locales", new HashMap<>());
-			logger.info("Translation ZIP structure: {} bytes, {} locales in structure",
-					jsonContent.length(), localesMap.size());
-			
 			// Create ZIP archive with translations.json
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try (ZipOutputStream zipOut = new ZipOutputStream(baos)) {
@@ -83,10 +77,8 @@ public class TranslationsZipHelper {
 				zipOut.flush();
 			}
 			
-			byte[] result = baos.toByteArray();
-			logger.info("Created translations ZIP archive: {} bytes containing {} locales with ~1310 keys per regional variant",
-					result.length, getAllLocales().size());
-			return result;
+		byte[] result = baos.toByteArray();
+		return result;
 		} catch (Exception e) {
 			logger.error("Failed to create translations ZIP: {}", LoggerUtils.exceptionMessage(e));
 			return new byte[0];
@@ -106,8 +98,6 @@ public class TranslationsZipHelper {
 		Map<String, Map<String, String>> localesMap = new HashMap<>();
 		
 		List<Locale> availableLocales = getAllLocales();
-		logger.info("Building translations for {} available locales: {}", 
-				availableLocales.size(), availableLocales);
 		
 		// Calculate checksum over all translations
 		MessageDigest md;
@@ -139,8 +129,6 @@ public class TranslationsZipHelper {
 			
 			if (!localeTranslations.isEmpty()) {
 				localesMap.put(locale.toString(), localeTranslations);
-				logger.info("Added {} translations for locale: {} (final size: {} keys)",
-						regionTranslations.size(), locale, localeTranslations.size());
 				
 				// Update checksum with locale data
 				if (md != null) {
@@ -163,7 +151,6 @@ public class TranslationsZipHelper {
 			byte[] digestBytes = md.digest();
 			String checksum = java.util.HexFormat.of().formatHex(digestBytes);
 			root.put("translationsChecksum", checksum);
-			logger.info("Translations checksum: {}", checksum);
 		}
 		
 		return root;

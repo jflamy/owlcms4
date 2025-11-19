@@ -48,6 +48,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.init.OwlcmsSessionThreadLocal;
 import app.owlcms.jetty.EmbeddedJetty;
 import app.owlcms.monitors.MQTTMonitor;
+import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.servlet.MqttWebSocketProxyEndpoint;
 import app.owlcms.uievents.AppEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -163,6 +164,7 @@ public class Main {
         // initialization, don't push out to browsers
         OwlcmsFactory.initDefaultFOP();
 
+        sendStartupDatabaseToWebSocketTrackers();
         signalDatabaseReady();
     }
 
@@ -505,6 +507,20 @@ public class Main {
         }
 
         masters = StartupUtils.getBooleanParam("masters");
+    }
+
+    private static void sendStartupDatabaseToWebSocketTrackers() {
+        try {
+            logger.info("Sending startup data to WebSocket trackers");
+            Config current = Config.getCurrent();
+            String videoUrl = current.getParamVideoDataUpdateUrl();
+            String updateUrl = current.getParamUpdateUrl();
+            
+            // Register callbacks for startup data (database, translations, flags)
+            WebSocketEventForwarder.registerStartupDataCallbacks(videoUrl, updateUrl);
+        } catch (Exception e) {
+            logger.error("Error sending startup messages to WebSocket trackers: {}", LoggerUtils.exceptionMessage(e));
+        }
     }
 
     private static void signalDatabaseReady() {

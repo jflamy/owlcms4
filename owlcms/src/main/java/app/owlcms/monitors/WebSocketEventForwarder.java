@@ -88,6 +88,7 @@ import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.FlagsZipHelper;
 import app.owlcms.utils.TranslationsZipHelper;
+import app.owlcms.utils.PicturesZipHelper;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
@@ -1735,6 +1736,25 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 	}
 
+	/**
+	 * Static method to export competition data (for startup).
+	 * Does not require a FOP instance.
+	 */
+	private static CompetitionDataExport exportCompetitionDataStatic() {
+		CompetitionData competitionData = new CompetitionData();
+		competitionData.fromDatabase();
+		try (InputStream inputStream = competitionData.exportData()) {
+			byte[] dataBytes = inputStream.readAllBytes();
+			Object structure = JSON_MAPPER.readValue(dataBytes, Object.class);
+			String json = new String(dataBytes, StandardCharsets.UTF_8);
+			String checksum = computeChecksumStatic(dataBytes);
+			return new CompetitionDataExport(structure, json, checksum);
+		} catch (Exception e) {
+			logger.error("failed to export competition data for startup: {}", LoggerUtils.exceptionMessage(e));
+			return null;
+		}
+	}
+
 	private String computeChecksum(byte[] dataBytes) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -1743,6 +1763,20 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		} catch (Exception e) {
 			logger.warn("{}failed to compute competition data checksum: {}", FieldOfPlay.getLoggingName(getFop()),
 			        LoggerUtils.exceptionMessage(e));
+			return null;
+		}
+	}
+
+	/**
+	 * Static method to compute checksum of competition data (for startup).
+	 */
+	private static String computeChecksumStatic(byte[] dataBytes) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hash = digest.digest(dataBytes);
+			return HexFormat.of().formatHex(hash);
+		} catch (Exception e) {
+			logger.warn("failed to compute competition data checksum for startup: {}", LoggerUtils.exceptionMessage(e));
 			return null;
 		}
 	}
@@ -1784,7 +1818,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				return null;
 		}
 	}
-
 	private int computeParametersHash(Map<String, ?> parameters) {
 		if (parameters == null) {
 			return 0;
@@ -2091,12 +2124,12 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			if (sender != null) {
 				byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
 				if (flagsZipBytes.length > 0) {
-					boolean sent = sender.sendBinary("flags", flagsZipBytes);
+					boolean sent = sender.sendBinary("flags_zip", flagsZipBytes);
 					if (sent) {
-						logger.warn("{}sent flags ZIP via WebSocket binary to {} ({} bytes)",
+						logger.warn("{}sent flags_zip ZIP via WebSocket binary to {} ({} bytes)",
 						        FieldOfPlay.getLoggingName(getFop()), url, flagsZipBytes.length);
 					} else {
-						logger.warn("{}could not send flags ZIP via WebSocket to {} (socket not ready)",
+						logger.warn("{}could not send flags_zip ZIP via WebSocket to {} (socket not ready)",
 						        FieldOfPlay.getLoggingName(getFop()), url);
 					}
 				} else {
@@ -2417,4 +2450,169 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return liftType;
 	}
 
+	/**
+	 * Static method to send the full competition database on startup via WebSocket.
+	 * This sends a message with type "database" containing the complete competition data.
+	 * 
+	 * @param videoUrl the video data WebSocket URL (if configured)
+	 * @param updateUrl the public results WebSocket URL (if configured)
+	 */
+	/**
+	 * Register startup data callbacks for WebSocket connections.
+	 * When a connection opens, sends database, translations_zip, and flags_zip in sequence.
+	 * Waits for pictures to be requested via 428 response before sending.
+	 * Also registers missing data callbacks to respond to 428 requests for all data types.
+	 * 
+	 * @param videoUrl the video data WebSocket URL (if configured)
+	 * @param updateUrl the public results WebSocket URL (if configured)
+	 */
+	public static void registerStartupDataCallbacks(String videoUrl, String updateUrl) {
+		logger.info("Registering startup data callbacks for WebSocket trackers");
+		
+		// Export competition data once (for all connections)
+		CompetitionDataExport export = exportCompetitionDataStatic();
+		if (export == null) {
+			logger.warn("Unable to build competition data payload for startup");
+			return;
+		}
+		
+		// Create translations ZIP bytes once
+		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
+			logger.warn("Translations not available for startup send");
+			return;
+		}
+		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
+		
+		// Create flags ZIP bytes once
+		if (!FlagsZipHelper.hasFlagsAvailable()) {
+			logger.warn("Flags not available for startup send");
+			return;
+		}
+		byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
+		
+		// Create pictures ZIP bytes once (optional - may not exist)
+		final byte[] picturesZipBytes = PicturesZipHelper.hasPicturesAvailable() 
+			? PicturesZipHelper.createPicturesZipBytes() 
+			: new byte[0];
+		
+		// Register for video data URL
+		if (videoUrl != null && !videoUrl.trim().isEmpty() && (videoUrl.startsWith("ws://") || videoUrl.startsWith("wss://"))) {
+			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(videoUrl);
+			if (sender != null) {
+				// Single onOpenCallback that sends all three data types
+				sender.setOnOpenCallback(() -> {
+					logger.info("WebSocket connected to video URL {}, sending startup data", videoUrl);
+					
+					// Send database
+					Map<String, Object> dbPayload = new LinkedHashMap<>();
+					dbPayload.put("databaseChecksum", export.checksum());
+					dbPayload.put("database", export.structure());
+					boolean sent = sender.sendObject("database", dbPayload);
+					if (sent) {
+						logger.warn("Sent startup database via WebSocket to {}", videoUrl);
+					} else {
+						logger.warn("Could not send startup database via WebSocket to {} (socket not ready)", videoUrl);
+					}
+					
+					// Send translations_zip
+					sent = sender.sendBinary("translations_zip", translationsZipBytes);
+					if (sent) {
+						logger.warn("Sent startup translations_zip via WebSocket to {}", videoUrl);
+					} else {
+						logger.warn("Could not send startup translations_zip via WebSocket to {} (socket not ready)", videoUrl);
+					}
+					
+					// Send flags_zip
+					sent = sender.sendBinary("flags_zip", flagsZipBytes);
+					if (sent) {
+						logger.warn("Sent startup flags_zip via WebSocket to {}", videoUrl);
+					} else {
+						logger.warn("Could not send startup flags_zip via WebSocket to {} (socket not ready)", videoUrl);
+					}
+				});
+				
+				// Register missing data callbacks for on-demand requests
+				sender.setMissingDataCallback("database", () -> {
+					Map<String, Object> payload = new LinkedHashMap<>();
+					payload.put("databaseChecksum", export.checksum());
+					payload.put("database", export.structure());
+					sender.sendObject("database", payload);
+				});
+				
+				sender.setMissingDataCallback("translations_zip", () -> {
+					sender.sendBinary("translations_zip", translationsZipBytes);
+				});
+				
+			sender.setMissingDataCallback("flags_zip", () -> {
+				sender.sendBinary("flags_zip", flagsZipBytes);
+			});
+			
+			// Pictures are sent on-demand only, not at startup
+			sender.setMissingDataCallback("pictures_zip", () -> {
+				if (picturesZipBytes.length > 0) {
+					sender.sendBinary("pictures_zip", picturesZipBytes);
+				}
+			});
+		}
+	}		// Register for public results URL
+		if (updateUrl != null && !updateUrl.trim().isEmpty() && (updateUrl.startsWith("ws://") || updateUrl.startsWith("wss://"))) {
+			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(updateUrl);
+			if (sender != null) {
+				// Single onOpenCallback that sends all three data types
+				sender.setOnOpenCallback(() -> {
+					logger.info("WebSocket connected to update URL {}, sending startup data", updateUrl);
+					
+					// Send database
+					Map<String, Object> dbPayload = new LinkedHashMap<>();
+					dbPayload.put("databaseChecksum", export.checksum());
+					dbPayload.put("database", export.structure());
+					boolean sent = sender.sendObject("database", dbPayload);
+					if (sent) {
+						logger.warn("Sent startup database via WebSocket to {}", updateUrl);
+					} else {
+						logger.warn("Could not send startup database via WebSocket to {} (socket not ready)", updateUrl);
+					}
+					
+					// Send translations_zip
+					sent = sender.sendBinary("translations_zip", translationsZipBytes);
+					if (sent) {
+						logger.warn("Sent startup translations_zip via WebSocket to {}", updateUrl);
+					} else {
+						logger.warn("Could not send startup translations_zip via WebSocket to {} (socket not ready)", updateUrl);
+					}
+					
+					// Send flags_zip
+					sent = sender.sendBinary("flags_zip", flagsZipBytes);
+					if (sent) {
+						logger.warn("Sent startup flags_zip via WebSocket to {}", updateUrl);
+					} else {
+						logger.warn("Could not send startup flags_zip via WebSocket to {} (socket not ready)", updateUrl);
+					}
+				});
+				
+				// Register missing data callbacks for on-demand requests
+				sender.setMissingDataCallback("database", () -> {
+					Map<String, Object> payload = new LinkedHashMap<>();
+					payload.put("databaseChecksum", export.checksum());
+					payload.put("database", export.structure());
+					sender.sendObject("database", payload);
+				});
+				
+				sender.setMissingDataCallback("translations_zip", () -> {
+					sender.sendBinary("translations_zip", translationsZipBytes);
+				});
+				
+				sender.setMissingDataCallback("flags_zip", () -> {
+					sender.sendBinary("flags_zip", flagsZipBytes);
+				});
+				
+				// Pictures are sent on-demand only, not at startup
+				sender.setMissingDataCallback("pictures_zip", () -> {
+					if (picturesZipBytes.length > 0) {
+						sender.sendBinary("pictures_zip", picturesZipBytes);
+					}
+				});
+			}
+		}
+	}
 }
