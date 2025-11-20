@@ -1,5 +1,7 @@
 /** global css definitions go here */
 
+@import url('src/main/resources/fonts/fonts.css');
+
 html {
   box-sizing: border-box;
 }

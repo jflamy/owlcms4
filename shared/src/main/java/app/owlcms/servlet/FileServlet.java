@@ -115,6 +115,35 @@ public class FileServlet extends HttpServlet {
     { logger.setLevel(Level.INFO); }
 
 	/**
+	 * Return a reasonable MIME type for the given file, with explicit handling for
+	 * common web font formats. Falls back to {@link Files#probeContentType(Path)}
+	 * when no explicit mapping is found.
+	 */
+	private static String getContentType(Path file) throws IOException {
+		String contentType = Files.probeContentType(file);
+		if (contentType != null && !contentType.isBlank()) {
+			return contentType;
+		}
+
+		String name = file.getFileName().toString().toLowerCase();
+		if (name.endsWith(".woff2")) {
+			return "font/woff2";
+		} else if (name.endsWith(".woff")) {
+			return "font/woff";
+		} else if (name.endsWith(".ttf")) {
+			return "font/ttf";
+		} else if (name.endsWith(".otf")) {
+			return "font/otf";
+		} else if (name.endsWith(".eot")) {
+			return "application/vnd.ms-fontobject";
+		} else if (name.endsWith(".svg")) {
+			return "image/svg+xml";
+		}
+
+		return "application/octet-stream";
+	}
+
+	/**
 	 * @return the ignoreCaching
 	 */
 	public static boolean isIgnoreCaching() {
@@ -506,31 +535,37 @@ public class FileServlet extends HttpServlet {
 		// --------------------------------------------------------
 
 		// Get content type by file name and set default GZIP support and content
-		// disposition.
+		// disposition. Use servlet context mapping first, then our helper which
+		// adds explicit support for common web font types.
 		String contentType = getServletContext().getMimeType(fileName);
+		if (contentType == null) {
+			contentType = getContentType(file);
+		}
 		boolean acceptsGzip = false;
 		String disposition = "inline";
 
-		// If content type is unknown, then set the default value.
-		// For all content types, see: http://www.w3schools.com/media/media_mimeref.asp
-		// To add new content types, add new mime-mapping entry in web.xml.
+		// If content type is still unknown, then set the default value.
 		if (contentType == null) {
 			contentType = "application/octet-stream";
 		}
 
+		// FIXED: Handle fonts explicitly - never GZIP fonts and always set inline disposition
+		if (contentType.startsWith("font/")) {
+			acceptsGzip = false;
+			disposition = "inline";
+			// Add CORS headers for fonts to ensure cross-origin loading works
+			response.setHeader("Access-Control-Allow-Origin", "*");
+		}
 		// If content type is text, then determine whether GZIP content encoding is
-		// supported by
-		// the browser and expand content type with the one and right character
+		// supported by the browser and expand content type with the one and right character
 		// encoding.
-		if (contentType.startsWith("text")) {
+		else if (contentType.startsWith("text")) {
 			String acceptEncoding = request.getHeader("Accept-Encoding");
 			acceptsGzip = acceptEncoding != null && accepts(acceptEncoding, "gzip");
 			contentType += ";charset=UTF-8";
 		}
-
 		// Else, expect for images, determine content disposition. If content type is
-		// supported by
-		// the browser, then set to inline, else attachment which will pop a 'save as'
+		// supported by the browser, then set to inline, else attachment which will pop a 'save as'
 		// dialogue.
 		else if (!contentType.startsWith("image")) {
 			String accept = request.getHeader("Accept");
@@ -579,6 +614,10 @@ public class FileServlet extends HttpServlet {
 
 					// Copy full range.
 					copy(in, output, r.start, r.length);
+				} else {
+					// HEAD request - always set Content-Length even without body
+					response.setHeader("Content-Length", String.valueOf(r.length));
+					response.setStatus(HttpServletResponse.SC_OK);
 				}
 
 			} else if (ranges.size() == 1) {
