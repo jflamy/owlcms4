@@ -20,7 +20,8 @@
 
 63.1.0: On the attempt board, first names with multiple parts that are too long to fit will be truncated on a whitespace boundary (the exceeding words will be hidden)
 
-63.1.0: Video header now uses the BigTitle font family.  The font files must use the names defined in the local/fonts/fonts.css file (rename the downloaded files)
+63.1.0: Video header now uses the BigTitle font family. Download whatever font you want to local/fonts, rename according
+to conventions used in fonts.css.  Currenly BigTitle is the Noto font. This is a workaround for bundling of style sheets.
 
 63.1.0: Changes to BaseResults.java to fix the URL format used when referring to a logo.
 
