@@ -66,8 +66,7 @@ export class NCurrentAthlete extends LitElement {
           <div class="shadow-circle"></div>
           <div class="circle"></div>
           <div class="white-circle">
-            <img src="${this.logoSrc}" alt="Logo"
-              style="position: absolute; left: 50%; top: 50%; width: 58.5%; height: 58.5%; transform: translate(-50%, -50%); object-fit: contain;" />
+            <img src="${this.logoSrc}" alt="Logo" />
           </div>
         </div>
         <div class="rectangle">

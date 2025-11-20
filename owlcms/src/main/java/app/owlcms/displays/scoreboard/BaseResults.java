@@ -1410,16 +1410,27 @@ public class BaseResults extends LitTemplate
 
 	protected String getLogoSrc() {
 		try {
-			Path loc = ResourceWalker.getFileOrResourcePath("logos/left.svg");
-			return loc.toString();
+			ResourceWalker.getFileOrResourcePath("logos/bottomLogo.svg");
+			return "../../../../local/logos/bottomLogo.svg";
 		} catch (FileNotFoundException e) {
 			try {
-				Path loc = ResourceWalker.getFileOrResourcePath("logos/left.png");
-				return loc.toString();
+				ResourceWalker.getFileOrResourcePath("logos/bottomLogo.png");
+				return "../../../../local/logos/bottomLogo.png";
 			} catch (FileNotFoundException e2) {
-				return "../../../../local/logos/left.png";
+				try {
+					ResourceWalker.getFileOrResourcePath("logos/left.svg");
+					return "../../../../local/logos/left.svg";
+				} catch (FileNotFoundException e3) {
+					try {
+						ResourceWalker.getFileOrResourcePath("logos/left.png");
+						return "../../../../local/logos/left.png";
+					} catch (FileNotFoundException e4) {
+						// nothing found; still point to bottomLogo.svg so the
+						// missing image location is obvious in the UI
+						return "../../../../local/logos/bottomLogo.svg";
+					}
+				}
 			}
 		}
-
 	}
 }
