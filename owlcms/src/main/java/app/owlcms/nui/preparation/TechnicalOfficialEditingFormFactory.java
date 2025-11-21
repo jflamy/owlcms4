@@ -97,6 +97,9 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
         ComboBox<TOLevel> levelComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.Level"));
         technicalOfficialLayout.add(levelComboBox);
         levelComboBox.setItems(TOLevel.values());
+        levelComboBox.setItemLabelGenerator(level -> 
+            Translator.translate("TOLevel." + level.name())
+        );
         this.binder.forField(levelComboBox)
                 .bind(TechnicalOfficial::getLevel, TechnicalOfficial::setLevel);
 
