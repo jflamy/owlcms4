@@ -25,6 +25,10 @@ to conventions used in fonts.css.  Currenly BigTitle is the Noto font. This is a
 
 63.1.0: Changes to BaseResults.java to fix the URL format used when referring to a logo.
 
+63.1.0: Translations were not applied to referee levels in the Referee editing page.
+
+63.1.0: Stabilized startup behavior for owlcms-tracker (database and translations sent on websocket open)
+
 **New in Release 63.0**
 
 63.0.0: Leader board at bottom no longer shows athlete who has bombed-out
