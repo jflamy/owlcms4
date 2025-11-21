@@ -161,8 +161,9 @@ public class WebSocketEventSender {
 					connecting = false;
 					reconnectAttempts = 0;
 					if (onOpenCallback != null) {
+						// Invoke the on-open callback on every successful connection
+						// (including reconnects) so initial data can be re-sent.
 						onOpenCallback.run();
-						onOpenCallback = null; // Clear callback after first use
 					}
 				}
 			}				@Override
