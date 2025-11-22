@@ -55,7 +55,10 @@ public class FlagsZipHelper {
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try (ZipOutputStream zipOut = new ZipOutputStream(baos)) {
-			zipDirectory(flagsPath, "", zipOut);
+			// Count files while zipping so we can log how many were included
+			int[] fileCount = new int[1];
+			fileCount[0] = 0;
+			zipDirectory(flagsPath, "", zipOut, fileCount);
 			zipOut.finish();
 			zipOut.flush();
 		} catch (IOException e) {
@@ -64,7 +67,24 @@ public class FlagsZipHelper {
 		}
 
 		byte[] result = baos.toByteArray();
-		logger.info("Created flags ZIP archive: {} bytes", result.length);
+		try {
+			// Count files in the created ZIP by scanning entries (robust and avoids re-walking filesystem)
+			java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(result);
+			java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(bais);
+			int counted = 0;
+			java.util.zip.ZipEntry ze;
+			while ((ze = zis.getNextEntry()) != null) {
+				String name = ze.getName();
+				if (name != null && !name.endsWith("/")) {
+					counted++;
+				}
+				zis.closeEntry();
+			}
+			zis.close();
+			logger.info("Created flags ZIP archive: {} bytes ({} files)", result.length, counted);
+		} catch (Throwable t) {
+			logger.info("Created flags ZIP archive: {} bytes", result.length);
+		}
 		return result;
 	}
 
@@ -76,7 +96,7 @@ public class FlagsZipHelper {
 	 * @param zipOut the ZipOutputStream to write to
 	 * @throws IOException if an I/O error occurs
 	 */
-	private static void zipDirectory(Path dirPath, String parentPath, ZipOutputStream zipOut) throws IOException {
+	private static void zipDirectory(Path dirPath, String parentPath, ZipOutputStream zipOut, int[] fileCount) throws IOException {
 		File dir = dirPath.toFile();
 		File[] files = dir.listFiles();
 		
@@ -98,10 +118,13 @@ public class FlagsZipHelper {
 				entryPath = entryPath + "/";
 				ZipUtils.zipFile(file, entryPath.substring(0, entryPath.length() - 1), zipOut);
 				// Recursively zip subdirectory contents
-				zipDirectory(file.toPath(), entryPath, zipOut);
+				zipDirectory(file.toPath(), entryPath, zipOut, fileCount);
 			} else {
 				// For files, use ZipUtils method
 				ZipUtils.zipFile(file, entryPath, zipOut);
+				if (fileCount != null) {
+					fileCount[0]++;
+				}
 			}
 		}
 	}
