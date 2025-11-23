@@ -28,6 +28,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
@@ -35,6 +36,7 @@ import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
+import app.owlcms.data.technicalofficial.TOLevel;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -60,7 +62,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	 * Custom CrudGrid to handle focus management after save operations
 	 */
 	private final class TechnicalOfficialCrudGrid extends OwlcmsCrudGrid<TechnicalOfficial> {
-		
+
 		private TechnicalOfficialCrudGrid(Class<TechnicalOfficial> domainType, OwlcmsGridLayout crudLayout,
 		        OwlcmsCrudFormFactory<TechnicalOfficial> owlcmsCrudFormFactory, Grid<TechnicalOfficial> grid) {
 			super(domainType, crudLayout, owlcmsCrudFormFactory, grid);
@@ -119,11 +121,11 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		this.topBar = new FlexLayout();
 
 		// Export current officials button using the age groups pattern
-        Div exportOfficials = DownloadButtonFactory.createDynamicXLSXDownloadButton(
-            "TechnicalOfficials",
-            Translator.translate("TechnicalOfficials.Export"), 
-            new XLSXTechnicalOfficialsExport(UI.getCurrent()));
-        exportOfficials.getStyle().set("margin-left", "1em");
+		Div exportOfficials = DownloadButtonFactory.createDynamicXLSXDownloadButton(
+		        "TechnicalOfficials",
+		        Translator.translate("TechnicalOfficials.Export"),
+		        new XLSXTechnicalOfficialsExport(UI.getCurrent()));
+		exportOfficials.getStyle().set("margin-left", "1em");
 
 		Button uploadCustom = new Button(Translator.translate("TechnicalOfficials.Upload"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
@@ -155,12 +157,12 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        new NativeLabel(Translator.translate("TechnicalOfficials.ImportExport")),
 		        exportOfficials,
 		        uploadCustom,
-				hr(),
-				new NativeLabel(Translator.translate("TechnicalOfficials.AssignmentReports")),
-				allRecords1,
-				hr(),
-				new NativeLabel(Translator.translate("Credentials")),
-				toCredentialsButton);
+		        hr(),
+		        new NativeLabel(Translator.translate("TechnicalOfficials.AssignmentReports")),
+		        allRecords1,
+		        hr(),
+		        new NativeLabel(Translator.translate("Credentials")),
+		        toCredentialsButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
@@ -184,8 +186,8 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 
 	private Object refreshGrid() {
 		crud.refreshGrid();
-        return null;
-    }
+		return null;
+	}
 
 	@Override
 	public void delete(TechnicalOfficial domainObjectToDelete) {
@@ -200,25 +202,25 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	@Override
 	public Collection<TechnicalOfficial> findAll() {
 		Collection<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
-		
+
 		// Apply last name filter if present
 		if (lastNameValue != null && !lastNameValue.trim().isEmpty()) {
 			String filterLower = lastNameValue.toLowerCase().trim();
 			officials = officials.stream()
-				.filter(official -> {
-					String lastName = official.getLastName();
-					return lastName != null && lastName.toLowerCase().contains(filterLower);
-				})
-				.collect(java.util.stream.Collectors.toList());
+			        .filter(official -> {
+				        String lastName = official.getLastName();
+				        return lastName != null && lastName.toLowerCase().contains(filterLower);
+			        })
+			        .collect(java.util.stream.Collectors.toList());
 		}
-		
+
 		// Apply role filter if present
 		if (roleValue != null) {
 			officials = officials.stream()
-				.filter(official -> roleValue.equals(official.getRole()))
-				.collect(java.util.stream.Collectors.toList());
+			        .filter(official -> roleValue.equals(official.getRole()))
+			        .collect(java.util.stream.Collectors.toList());
 		}
-		
+
 		return officials;
 	}
 
@@ -273,7 +275,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	protected GridCrud<TechnicalOfficial> createGrid(OwlcmsCrudFormFactory<TechnicalOfficial> crudFormFactory) {
 		this.grid = new Grid<>(TechnicalOfficial.class, false);
 		this.grid.getThemeNames().add("row-stripes");
-		
+
 		// Active checkbox column - immediate update without opening form
 		this.grid.addColumn(new ComponentRenderer<>(official -> {
 			Checkbox activeBox = new Checkbox();
@@ -291,10 +293,10 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			}).addEventData("event.stopPropagation()");
 			return activeBox;
 		})).setHeader(Translator.translate("TechnicalOfficial.Active")).setWidth("0");
-		
+
 		this.grid.addColumn(TechnicalOfficial::getLastName).setHeader(Translator.translate("LastName"));
 		this.grid.addColumn(TechnicalOfficial::getFirstName).setHeader(Translator.translate("FirstName"));
-		
+
 		// Role column with translated role name
 		this.grid.addColumn(official -> {
 			TechnicalOfficial.Role role = official.getRole();
@@ -303,15 +305,20 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			}
 			return Translator.translate("TO.Role." + role.name());
 		}).setHeader(Translator.translate("TechnicalOfficial.Role"));
-		
-		this.grid.addColumn(TechnicalOfficial::getLevel).setHeader(Translator.translate("TechnicalOfficial.Level"));
+
+		this.grid.addColumn(TechnicalOfficial::getLevel)
+		        .setHeader(Translator.translate("TechnicalOfficial.Level"))
+		        .setRenderer(new TextRenderer<>(official -> {
+		        	TOLevel level = official.getLevel();
+		        	return level == null ? "" : Translator.translate("TOLevel." + level.name());
+		        }));
 		this.grid.addColumn(TechnicalOfficial::getFederationId).setHeader(Translator.translate("TechnicalOfficial.FederationId"));
 		this.grid.addColumn(TechnicalOfficial::getFederation).setHeader(Translator.translate("TechnicalOfficial.Federation"));
 		this.grid.addColumn(TechnicalOfficial::getAffiliation).setHeader(Translator.translate("TechnicalOfficial.Affiliation"));
 		this.grid.addColumn(TechnicalOfficial::getIwfId).setHeader(Translator.translate("TechnicalOfficial.IWFId"));
 
-		TechnicalOfficialCrudGrid crud = new TechnicalOfficialCrudGrid(TechnicalOfficial.class, 
-				new OwlcmsGridLayout(TechnicalOfficial.class),
+		TechnicalOfficialCrudGrid crud = new TechnicalOfficialCrudGrid(TechnicalOfficial.class,
+		        new OwlcmsGridLayout(TechnicalOfficial.class),
 		        crudFormFactory, this.grid);
 		crud.setCrudListener(this);
 		crud.setClickRowToUpdate(true);
@@ -333,7 +340,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		});
 		this.lastNameFilter.setWidth("15em");
 		crud.getCrudLayout().addFilterComponent(this.lastNameFilter);
-		
+
 		// Role filter
 		this.roleFilter.setPlaceholder(Translator.translate("TechnicalOfficial.Role"));
 		this.roleFilter.setItems(TechnicalOfficial.Role.values());
