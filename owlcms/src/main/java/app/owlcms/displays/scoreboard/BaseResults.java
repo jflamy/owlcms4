@@ -422,6 +422,7 @@ public class BaseResults extends LitTemplate
 
 	public void setCurrentAttempt(boolean b) {
 		this.currentAttempt = b;
+		getElement().setProperty("currentAttempt", this.currentAttempt);
 	}
 
 	@Subscribe

@@ -104,12 +104,22 @@ public class DisplayOptions {
 			UI.getCurrent().getPage().setLocation(location.getPathWithQueryParameters());
 		});
 
+		boolean showCurrentAttempt = dp.isCurrentAttempt();
+		Checkbox currentAttemptCheckbox = new Checkbox(Translator.translate("DisplayParameters.ShowCurrentAttempt"));
+		currentAttemptCheckbox.setValue(showCurrentAttempt);
+		currentAttemptCheckbox.addValueChangeListener(e -> {
+			if (e.isFromClient() && e.getSource() == currentAttemptCheckbox) {
+				dp.switchCurrentAttempt(e.getValue(), true);
+			}
+		});
+
 		HorizontalLayout horizontalLayout = new HorizontalLayout();
 		horizontalLayout.add(leadersDisplayCheckbox);
 		if (recordsDisplayCheckbox != null) {
 			horizontalLayout.add(recordsDisplayCheckbox);
 		}
 		horizontalLayout.add(abbreviatedCheckbox);
+		horizontalLayout.add(currentAttemptCheckbox);
 
 		layout.add(label);
 		layout.add(horizontalLayout);
