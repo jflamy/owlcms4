@@ -6,7 +6,7 @@
 	box-sizing: border-box;
 	font: Arial;
 	color: var(--videoTextColor);
-	background-color: var(--videoHeaderBackgroundColor);
+	background-color:  var(--videoHeaderBackgroundColor);
 	height: 100svh;
 	width: 100vw;
 	overflow: hidden;
@@ -35,7 +35,7 @@
     align-content: center;
     align-items: stretch;
     justify-items: stretch;
-    padding: 3vmin;
+	padding: 2vmin;
 }
 
 .attemptBoard .lastName {
@@ -79,8 +79,8 @@
 	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
 	white-space: normal;
 	overflow: hidden;
-	max-width: 76vw;
 	max-height: 12vh;
+	max-width: 76vw;
 	display: block;
 }
 
@@ -92,14 +92,14 @@
 	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
 	white-space: normal;
 	overflow: hidden;
-	max-width: 70vw;
 	max-height: 10vh;
+	max-width: 70vw;
 	display: block;
 }
 
 .attemptBoard .firstNameWithPicture div {
-    white-space: normal;
-    overflow: hidden;
+	white-space: normal;
+	overflow: hidden;
 	max-width: 70vw;
 	max-height: 10vh;
 	display: block;
@@ -113,9 +113,8 @@
 	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
 	white-space: normal;
 	overflow: hidden;
-	font-weight: normal;
-	max-width: 76vw;
 	max-height: 12vh;
+	max-width: 76vw;
 	display: block;
 }
 
@@ -144,14 +143,14 @@
 }
 
 .attemptBoard .flag {
-    display: grid;
-    grid-area: firstName-start/timer-start/teamName-end/timer-end;
-    place-items: center;
-    border: 1px solid white;
-    width: fit-content;
-    height: fit-content;
-    justify-self: center;
-    align-self: center;
+	display: grid;
+	grid-area: firstName-start/timer-start/teamName-end/timer-end;
+	place-items: center;
+	border: 1px solid white;
+	width: fit-content;
+	height: fit-content;
+	justify-self: center;
+	align-self: center;
 }
 
 .attemptBoard .flag > img {
@@ -311,6 +310,10 @@
 	grid-area: weight-start/weight-start/weight-end/weight-end;
 	align-self: center;
 	justify-self: stretch;
+}
+
+.wrapper .branding {
+	display: none;
 }
 
 @media screen and (max-width: 1300px) {

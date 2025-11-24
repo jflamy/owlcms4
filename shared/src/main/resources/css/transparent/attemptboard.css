@@ -79,6 +79,7 @@
 	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
 	white-space: normal;
 	overflow: hidden;
+	font-weight: normal;
 	max-width: 76vw;
 	max-height: 12vh;
 	display: block;
@@ -98,8 +99,8 @@
 }
 
 .attemptBoard .firstNameWithPicture div {
-    white-space: normal;
-    overflow: hidden;
+	white-space: normal;
+	overflow: hidden;
 	max-width: 70vw;
 	max-height: 10vh;
 	display: block;
@@ -155,9 +156,9 @@
 }
 
 .attemptBoard .flag > img {
-	object-fit: contain;
-	max-height: 25vh;
-	width: 100%;
+    object-fit: contain;
+    max-height: 25vh;
+    width: 100%;
 }
 
 .attemptBoard .flagWithPicture {

@@ -584,6 +584,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		if (lastName.length() > 18) {
 			this.getElement().setProperty("nameSizeOverride",
 			        "font-size: 8vh; line-height: 8vh; text-wrap: balance; text-overflow: hidden");
+			this.getElement().setProperty("firstNameSizeOverride",
+			        "font-size: 8vh; line-height: 12vh; text-wrap: wrap; text-overflow: hidden");
 		}
 
 		String lFirst = a.getFirstName();

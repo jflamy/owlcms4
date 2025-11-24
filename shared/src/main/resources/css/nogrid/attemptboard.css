@@ -35,7 +35,7 @@
     align-content: center;
     align-items: stretch;
     justify-items: stretch;
-	padding: 2vmin;
+    padding: 3vmin;
 }
 
 .attemptBoard .lastName {
@@ -63,6 +63,7 @@
 	max-width: 70vw;
 }
 
+
 @media screen and (max-width: 1300px) {
 	.attemptBoard .lastName {
 		font-size: 7vw;
@@ -84,6 +85,27 @@
 	display: block;
 }
 
+.attemptBoard .firstNameWithPicture {
+	justify-self: start;
+	font-size: 9vh;
+	line-height: 10vh;
+	font-weight: normal;
+	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
+	white-space: normal;
+	overflow: hidden;
+	max-width: 70vw;
+	max-height: 10vh;
+	display: block;
+}
+
+.attemptBoard .firstNameWithPicture div {
+	white-space: normal;
+	overflow: hidden;
+	max-width: 70vw;
+	max-height: 10vh;
+	display: block;
+}
+
 .attemptBoard .firstNameWithFlags {
 	padding: 0;
 	line-height: 12vh;
@@ -101,31 +123,11 @@
 .attemptBoard .firstNameWithFlags div {
 	white-space: normal;
 	overflow: hidden;
-	display: block;
 	max-width: 76vw;
 	max-height: 12vh;
-}
-
-.attemptBoard .firstNameWithPicture {
-	justify-self: start;
-	font-size: 9vh;
-	line-height: 10vh;
-	font-weight: normal;
-	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
-	white-space: normal;
-	overflow: hidden;
-	max-width: 70vw;
-	max-height: 10vh;
 	display: block;
 }
 
-.attemptBoard .firstNameWithPicture div {
-	white-space: normal;
-	overflow: hidden;
-	display: block;
-	max-width: 70vw;
-	max-height: 10vh;
-}
 
 @media screen and (max-width: 1300px) {
 	.attemptBoard .firstName {
@@ -143,20 +145,20 @@
 }
 
 .attemptBoard .flag {
-	display: grid;
-	grid-area: firstName-start/timer-start/teamName-end/timer-end;
-	place-items: center;
-	border: 1px solid white;
-	width: fit-content;
-	height: fit-content;
-	justify-self: center;
-	align-self: center;
+    display: grid;
+    grid-area: firstName-start/timer-start/teamName-end/timer-end;
+    place-items: center;
+    border: 1px solid white;
+    width: fit-content;
+    height: fit-content;
+    justify-self: center;
+    align-self: center;
 }
 
 .attemptBoard .flag > img {
-	object-fit: contain;
-	max-height: 25vh;
-	width: 100%;
+    object-fit: contain;
+    max-height: 25vh;
+    width: 100%;
 }
 
 .attemptBoard .flagWithPicture {
@@ -252,7 +254,7 @@
 	.attemptBoard .teamName {
 		font-size: 8vh;
 		line-height: 8vh;
-		padding-top: 3vmin;
+		padding-block-start: 3vmin;
 	}
 }
 
@@ -310,6 +312,10 @@
 	grid-area: weight-start/weight-start/weight-end/weight-end;
 	align-self: center;
 	justify-self: stretch;
+}
+
+.wrapper .branding {
+	display: none;
 }
 
 @media screen and (max-width: 1300px) {
