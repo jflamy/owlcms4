@@ -55,12 +55,12 @@
 	grid-area: lastName-start/lastName-start/lastName-end/lastName-end;
 }
 
-.attemptBoard .lastNameWithPicture div, .attemptBoard .lastName div {
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
+.attemptBoard .lastNameWithPicture div {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 	font-weight: normal;
-	max-width: 60vw;
+	max-width: 70vw;
 }
 
 @media screen and (max-width: 1300px) {
