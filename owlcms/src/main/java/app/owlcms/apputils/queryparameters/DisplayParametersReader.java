@@ -113,6 +113,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		processBooleanParam(params, LEADERS, (v) -> switchLeaders(v, false));
 		processBooleanParam(params, ABBREVIATED, (v) -> switchAbbreviated(v, true));
 		processBooleanParam(params, VIDEO, (v) -> switchVideo(v, true));
+		processBooleanParam(params, CURRENT_ATTEMPT, (v) -> switchCurrentAttempt(v, true));
 
 		String videoStyles = Config.getCurrent().getParamVideoStylesDir();
 		String publicStyles = Config.getCurrent().getParamPublicStylesDir();
@@ -176,6 +177,8 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 	public default void setRouteParameter(String routeParameter) {
 		if (routeParameter != null && routeParameter.contentEquals("video")) {
 			setVideo(true);
+		} else if (routeParameter != null && routeParameter.contentEquals("currentAttempt")) {
+			setCurrentAttempt(true);
 		}
 	}
 
@@ -258,6 +261,13 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 			updateURLLocation(getLocationUI(), getLocation(), VIDEO, Boolean.toString(video));
 		}
 		setVideo(video);
+	}
+
+	public default void switchCurrentAttempt(boolean currentAttempt, boolean updateURL) {
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), CURRENT_ATTEMPT, Boolean.toString(currentAttempt));
+		}
+		setCurrentAttempt(currentAttempt);
 	}
 
 	default Dialog getDialogCreateIfMissing() {

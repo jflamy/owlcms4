@@ -33,6 +33,7 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 	public static final String AGEGROUP = "ag";
 	public static final String NB_ATHLETES = "nbAthletes";
 	public static final String GENDER = "gender";
+	public static final String CURRENT_ATTEMPT = "currentAttempt";
 
 	@Override
 	public default Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {

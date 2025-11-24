@@ -299,8 +299,9 @@ class Results extends LitElement {
       teamWidthClass: {},
       sizeOverride: {},
       twOverride: {},
-	    colorOverride: {},
+      colorOverride: {},
       video: {},
+      currentAttempt: {},
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
@@ -348,7 +349,8 @@ class Results extends LitElement {
   }
 
   attemptBarStyles() {
-    return "display: " + (this.mode === "WAIT" || this.video ? "none" : "block");
+    const showAttempt = this.currentAttempt === true || this.currentAttempt === "true";
+    return "display: " + (this.mode === "WAIT" || this.video || !showAttempt ? "none" : "block");
   }
 
   athleteInfoStyles() {
@@ -392,7 +394,8 @@ class Results extends LitElement {
   }
 
   videoHeaderStyles() {
-    return "display: " + ((this.mode !== "WAIT" && this.video)? "flex" : "none");
+    const showAttempt = this.currentAttempt === true || this.currentAttempt === "true";
+    return "display: " + ((this.mode !== "WAIT" && (this.video || !showAttempt))? "flex" : "none");
   }
 
   bottomSpacerStyles() {
