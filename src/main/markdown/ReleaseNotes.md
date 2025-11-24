@@ -11,6 +11,8 @@
 
 63.1.1: The Team Results page was showing the wrong sum for QMasters scores
 
+63.1.1: When using keypads for refereeing, a partial decision would be shown if majority was reached but 3rd referee was late
+
 
 **New in Release 63.1**
 
