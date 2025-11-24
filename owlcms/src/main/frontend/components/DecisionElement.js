@@ -411,10 +411,8 @@ class DecisionElement extends LitElement {
     }
     this._downShown = true;
 
-    // hide the down arrow after 2.75 seconds -- the decisions will show when available
-    // (there will be no decision lights for a little bit, more if last referee
-    // waits after the other two have given down.
-    if (!this.jury) setTimeout(this.hideDown.bind(this), 2750);
+    // Backend now controls when to hide down and show decisions
+    // No automatic timer - wait for backend showDecisions() or showSingleDecision() call
   }
 
   hideDown() {

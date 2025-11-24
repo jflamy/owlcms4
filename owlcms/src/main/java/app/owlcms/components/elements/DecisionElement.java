@@ -172,11 +172,11 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		logger.debug("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
-		if (isJuryMode() || (!isDownSlave() && (this.getOrigin() == e.getOrigin()))) {
-			// we emitted the down signal, don't do it again.
-			// logger.trace("skipping down, {} is origin",this.getOrigin());
+		if (isJuryMode()) {
+			// jury mode doesn't show down signal
 			return;
 		}
+		// Backend now controls showing down on all decision elements including the keystroke master
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
 			        this.getParent().get().getClass().getSimpleName());
@@ -200,7 +200,8 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
 		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleReferee());
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
+		// Backend now controls hiding down and showing decisions on all decision elements
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			if (e.isSingleReferee()) {
 				getElement().setProperty("singleRef", e.isSingleReferee());
 				this.getElement().callJsFunction("showSingleDecision", e.decision);
