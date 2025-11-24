@@ -6,13 +6,13 @@
 - **The OWLCMS Control Panel can be downloaded at [this location](https://github.com/owlcms/owlcms-controlpanel/releases). and you can refer to the [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md)**
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
-<br>
-** Maintenance Log **
+<br>**Maintenance Log **
 
 63.1.1: The Team Results page was showing the wrong sum for QMasters scores
 
-63.1.1: When using keypads for refereeing, a partial decision would be shown if majority was reached but 3rd referee was late
+63.1.1: When using keypads for refereeing, a partial decision with a missing referee would be shown if majority was reached but 3rd referee was late
 
+63.1.1: Added a start-up consistency check for category genders and codes relative to the parent age group.
 
 **New in Release 63.1**
 
