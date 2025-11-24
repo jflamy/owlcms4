@@ -56,6 +56,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	private boolean showInitialDialog;
 	private Map<String, List<String>> urlParameterMap;
 	private boolean video;
+	private boolean currentAttempt;
 	private FieldOfPlay fop;
 	private Group group;
 	private boolean abbreviatedName;
@@ -162,6 +163,11 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	@Override
+	public final boolean isCurrentAttempt() {
+		return this.currentAttempt;
+	}
+
+	@Override
 	final public boolean isDarkMode() {
 		return this.darkMode;
 	}
@@ -246,6 +252,12 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	final public void setDownSilenced(boolean silent) {
 		((SoundParameters) this.board).setDownSilenced(silent);
 		this.downSilenced = silent;
+	}
+
+	@Override
+	public void setCurrentAttempt(boolean currentAttempt) {
+		((DisplayParameters) this.board).setCurrentAttempt(currentAttempt);
+		this.currentAttempt = currentAttempt;
 	}
 
 	@Override

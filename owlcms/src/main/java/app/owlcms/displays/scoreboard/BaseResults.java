@@ -108,6 +108,7 @@ public class BaseResults extends LitTemplate
 	private Double teamWidth;
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	private boolean video;
+	private boolean currentAttempt;
 
 	public BaseResults() {
 		this.uiEventLogger.setLevel(Level.INFO);
@@ -246,6 +247,10 @@ public class BaseResults extends LitTemplate
 		return this.video;
 	}
 
+	public final boolean isCurrentAttempt() {
+		return this.currentAttempt;
+	}
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#pushEmSize(Element)
 	 */
@@ -360,6 +365,8 @@ public class BaseResults extends LitTemplate
 		this.routeParameter = routeParameter;
 		if (routeParameter != null && routeParameter.contentEquals("video")) {
 			setVideo(true);
+		} else if (routeParameter != null && routeParameter.contentEquals("currentAttempt")) {
+			setCurrentAttempt(true);
 		}
 	}
 
@@ -411,6 +418,11 @@ public class BaseResults extends LitTemplate
 	@Override
 	public void setVideo(boolean b) {
 		this.video = b;
+	}
+
+	public void setCurrentAttempt(boolean b) {
+		this.currentAttempt = b;
+		getElement().setProperty("currentAttempt", this.currentAttempt);
 	}
 
 	@Subscribe
@@ -1132,6 +1144,8 @@ public class BaseResults extends LitTemplate
 		getElement().setProperty("showLiftRanks",
 		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
 		getElement().setProperty("showTotalRank", !Competition.getCurrent().isSinclair());
+		getElement().setProperty("video", this.video);
+		getElement().setProperty("currentAttempt", this.currentAttempt);
 
 		if (!isSilenced() || !isDownSilenced()) {
 			SoundUtils.enableAudioContextNotification(this.getElement());

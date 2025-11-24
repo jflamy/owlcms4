@@ -6,7 +6,7 @@ on:
       revision:
         description: 'semver number for the release'
         required: true
-        default: '63.1.1-rc01'
+        default: '63.1.1'
       buildImages:
         description: 'Build and push Docker images (set to "false" to skip)'
         required: false

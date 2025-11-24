@@ -34,6 +34,7 @@ public interface DisplayParameters extends SoundParameters {
 	public static final String TEAMWIDTH = "tw";
 	public static final String LIGHT = "light";
 	public static final String VIDEO = "video";
+	public static final String CURRENT_ATTEMPT = "currentAttempt";
 
 	public default Double getEmFontSize() {
 		return 1.0D;
@@ -75,6 +76,10 @@ public interface DisplayParameters extends SoundParameters {
 
 	public boolean isVideo();
 
+	public default boolean isCurrentAttempt() {
+		return false;
+	}
+
 	public default void pushEmSize(Element element) {
 	}
 
@@ -96,5 +101,8 @@ public interface DisplayParameters extends SoundParameters {
 	public void setTeamWidth(Double tw);
 
 	public void setVideo(boolean b);
+
+	public default void setCurrentAttempt(boolean b) {
+	}
 
 }

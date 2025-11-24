@@ -32,7 +32,7 @@ import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@Route("displays/publicResults")
+@Route("displays/publicScoreboard")
 
 public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 
