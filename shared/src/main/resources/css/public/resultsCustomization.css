@@ -40,9 +40,9 @@
     --bestVisibility: visible;
 
     /* top part: current attempt information */
-    --topRowFontSize: 3vh;
-    --athleteNameFontSize: 4vh;
-    --groupInfoFontSize: 2.5vh;
+    --topRowFontSize: 1.5rem;
+    --athleteNameFontSize: 1.75rem;
+    --groupInfoFontSize: 1.125rem;
 
     /* records */
     --recordValueCellWidth: 4rem;
