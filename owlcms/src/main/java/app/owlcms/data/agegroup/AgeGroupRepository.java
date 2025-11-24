@@ -696,4 +696,128 @@ public class AgeGroupRepository {
 			query.setParameter("gender", gender);
 		}
 	}
+
+	/**
+	 * Validate that all categories attached to age groups have consistent genders, codes and names.
+	 * 
+	 * Ensures:
+	 * 1. Each category's gender matches its parent age group's gender
+	 * 2. Each category's code complies with the naming rules:
+	 *    - If age group has a name: code = AGEGROUP_CODE + "_" + GENDER + WEIGHT_LIMIT
+	 *    - If age group has no name: code = GENDER + WEIGHT_LIMIT
+	 * 3. Each category has a proper name/code (not blank)
+	 * 
+	 * Fixes are applied in order: gender first, then code (based on corrected gender)
+	 * This is called at startup to detect and log any data inconsistencies.
+	 */
+	public static void validateCategoriesConsistency() {
+		JPAService.runInTransaction(em -> {
+			List<AgeGroup> ageGroups = doFindAll(em);
+			boolean hasErrors = false;
+			
+			for (AgeGroup ageGroup : ageGroups) {
+				List<Category> categories = ageGroup.getCategories();
+				Gender ageGroupGender = ageGroup.getGender();
+				String ageGroupCode = ageGroup.getCode();
+				String ageGroupName = ageGroup.getName();
+				
+				for (Category category : categories) {
+					// Check 1: Category gender must match age group gender
+					// FIX GENDER FIRST
+					Gender categoryGender = category.getGender();
+					if (categoryGender == null) {
+						logger.warn("Category {} (id={}) has null gender but is attached to age group {} with gender {}",
+							category.getCode(), category.getId(), 
+							ageGroup.getCode(), ageGroupGender);
+						hasErrors = true;
+						// Fix: Set category gender to match age group
+						category.setGender(ageGroupGender);
+						categoryGender = ageGroupGender;
+						em.merge(category);
+					} else if (!categoryGender.equals(ageGroupGender)) {
+						logger.warn("Category (id={}) has gender {} but is attached to age group {} with gender {}",
+							category.getId(), categoryGender,
+							ageGroup.getCode(), ageGroupGender);
+						hasErrors = true;
+						// Fix: Correct the category gender
+						category.setGender(ageGroupGender);
+						categoryGender = ageGroupGender;
+						em.merge(category);
+					}
+					
+					// Check 2: Category code must comply with naming rules
+					// USE THE CORRECTED GENDER FOR CODE COMPUTATION
+					String expectedCode = computeExpectedCategoryCode(ageGroupCode, ageGroupName, categoryGender, category);
+					String actualCode = category.getCode();
+					
+					if (actualCode == null || actualCode.isBlank()) {
+						logger.warn("Category (id={}) attached to age group {} has blank code. Expected: {}",
+							category.getId(), ageGroup.getCode(), expectedCode);
+						hasErrors = true;
+						// Fix: Set the computed code
+						category.setCode(expectedCode);
+						em.merge(category);
+					} else if (!actualCode.equals(expectedCode)) {
+						logger.warn("Category code mismatch. Age group: {} ({}), Category id: {}, Actual code: {}, Expected code: {}",
+							ageGroup.getCode(), ageGroupName, category.getId(), actualCode, expectedCode);
+						hasErrors = true;
+						// Fix: Correct the category code
+						category.setCode(expectedCode);
+						em.merge(category);
+					}
+				}
+			}
+			
+			if (hasErrors) {
+				em.flush();
+				logger.info("Fixed category consistency issues");
+			} else {
+				logger.debug("All categories are consistent with their age groups");
+			}
+			
+			return null;
+		});
+	}
+
+	/**
+	 * Compute the expected category code based on age group and category properties.
+	 * 
+	 * Rules:
+	 * - If age group has a name: AGEGROUP_CODE + "_" + GENDER + WEIGHT_LIMIT
+	 * - If age group has no name: GENDER + WEIGHT_LIMIT
+	 */
+	private static String computeExpectedCategoryCode(String ageGroupCode, String ageGroupName, Gender gender, Category category) {
+		String genderStr = gender != null ? gender.toString() : "?";
+		String weightLimit = getWeightLimitString(category);
+		
+		if (ageGroupName == null || ageGroupName.isBlank()) {
+			// No age group name: just GENDER + WEIGHT_LIMIT
+			return genderStr + weightLimit;
+		} else {
+			// Has age group name: AGEGROUP_CODE + "_" + GENDER + WEIGHT_LIMIT
+			return ageGroupCode + "_" + genderStr + weightLimit;
+		}
+	}
+
+	/**
+	 * Extract the weight limit string from a category.
+	 * Rules:
+	 * - If weight > 130: "999" (super heavyweight)
+	 * - Otherwise: rounded maximum weight as string
+	 * - If not saved or has decimals: "temp_MIN_MAX"
+	 */
+	private static String getWeightLimitString(Category category) {
+		Long categoryId = category.getId();
+		Double maxWeight = category.getMaximumWeight();
+		Double minWeight = category.getMinimumWeight();
+		
+		if (categoryId == null || maxWeight == null || maxWeight - Math.round(maxWeight) > 0.1) {
+			return "temp_" + minWeight + "_" + maxWeight;
+		}
+		if (maxWeight > 130) {
+			return "999";
+		} else {
+			return String.valueOf((int) (Math.round(maxWeight)));
+		}
+	}
 }

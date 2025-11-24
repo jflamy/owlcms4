@@ -400,6 +400,8 @@ public class Main {
                     // make sure there is a championship name as foreign key to Championship
                     // (Championships are transient, not persisted)
                     AgeGroupRepository.updateExistingChampionships();
+                    // validate that categories are consistent with their age groups
+                    AgeGroupRepository.validateCategoriesConsistency();
                 }
                 List<Config> configs = ConfigRepository.findAll();
                 if (configs.isEmpty()) {
