@@ -151,7 +151,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 						curTeam.setRobi(curTeam.getRobi() + curRobi);
 						curTeam.setGamx(curTeam.getGamx() + curGamx);
 						curTeam.setQPoints(curTeam.getQPoints() + curQPoints);
-						curTeam.setQMasters(curTeam.getQPoints() + curQMasters);
+						curTeam.setQMasters(curTeam.getQMasters() + curQMasters);
 					}
 				}
 				curTeamItem.addTreeItemChild(a, groupIsDone);

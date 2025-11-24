@@ -7,6 +7,10 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
+** Maintenance Log **
+
+63.1.1: The Team Results page was showing the wrong sum for QMasters scores
+
 
 **New in Release 63.1**
 
