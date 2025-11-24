@@ -6,15 +6,24 @@
 - **The OWLCMS Control Panel can be downloaded at [this location](https://github.com/owlcms/owlcms-controlpanel/releases). and you can refer to the [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md)**
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
-<br>**Maintenance Log **
+<br>
+**New in Release 63.2**
 
-63.1.1: The Team Results page was showing the wrong sum for QMasters scores
+63.2.0: Public Scoreboard
+- there is now an option to select whether the header is fixed with icons on the side or displays the current athlete
+- the route is now called displays/publicScoreboard instead of publicResults
+
+**New in Release 63.1**
+
+63.1.1: Fix: The Team Results page was showing the wrong sum for QMasters scores
+
+63.1.1: Fix: When using keypads for refereeing, a partial decision with a missing referee would be shown if majority was reached but 3rd referee was late
+
+63.1.1: Fix: Added a start-up consistency check for category genders and codes relative to the parent age group.
 
 63.1.1: When using keypads for refereeing, a partial decision with a missing referee would be shown if majority was reached but 3rd referee was late
 
 63.1.1: Added a start-up consistency check for category genders and codes relative to the parent age group.
-
-**New in Release 63.1**
 
 63.1.0: If the jury gives decisions by hand signal or forgets to press, the announcer can now trigger the good/bad lift processing.
 
