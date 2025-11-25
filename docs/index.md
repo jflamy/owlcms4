@@ -1,20 +1,17 @@
 # owlcms: Olympic Weightlifting Competition Management System 
 
-> This free application is a *fully-compliant* weightlifting competition management system that has been used worldwide to manage competitions of all sizes, from club meets to international championships.   Click here for an [overview of features](#features).
+> **From Club Meets to IWF Events**
+>
+> This free program can be used to run a tiny club meet with a laptop and everyday electronics, all the way to a multi-day multi-platform IWF event with compliant refereeing and jury devices.
 >
 > **Simple and automatic**
 >
-> Usage is simple enough that you can run a small club meet with just a single laptop, or a regional meet with only everyday electronics (a couple of laptops and TVs, some phones).
->
-> The program automatically computes the lifting order, sets the clock correctly and enforces the rules for weight changes.  The announcer always sees the lifting order and the information about the current athlete.
+> The program automatically computes the lifting order, manages the clock and enforces the rules for weight changes. 
 >
 > **On-site or Cloud**
 >
-> You can run the program on a laptop at the competition site.  Or if you prefer, in the cloud, without having to install anything, using *free* hosting services.
+> You can run the program on a laptop at the competition site.  Or if you prefer, in the cloud, without having to install anything, using inexpensive hosting services.
 >
-> **Total flexibility for local, regional, national and multi-national meets**
->
-> The program supports multiple age group championships in the same event, on multiple simultaneous platforms.  Medals can be awarded using the traditional methods, or by using scoring formulas.  Best lifter awards and team points can be computed for each championship.  All results and rankings from all championships and all platforms are available live, from a true database.
 
 ### Gallery
 
@@ -23,12 +20,13 @@
 <tr><td><img src='img/Gallery/IMG_5050.jpg'></img></td><td>USA National Championships<br>1500 athletes, 9 days (U11, U13, U15, U17, U20, U23, U25, Open and Adaptive championships)</td></tr>
 <tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
 <tr><td><img src='img/Gallery/IMG_6536.jpg' size=250></img></td><td>Club meet, Montreal, Canada.<br>Supports mixed-gender kid groups.  Attempt board shows correct loading for 5kg/10kg bars and 2.5kg/5kg large plates.</td></tr>
+<tr><td><img src='img/Gallery/ISG2025a.jpg'></img></td><td>ISG 2025 Games, Riyadh. An IWF Event with 31 countries participating in weightlifting. owlcms provided the on-venue data that was fed to the Games central in Olympic Data Feed (ODF) format.</td></tr>
 <tr><td><img src='img/Gallery/IMG_6565.jpg' size=250></img></td><td>Phones or tablets can be used for <a href="#/Refereeing.md">refereeing</a>, as well as simple USB or joystick devices.<br>For dedicated use, <a href="https://blue-owl.nemikor.com">rules-compliant refereeing and jury devices</a> are commercially available, as well as other <a href="https://www.serfeng.com">options</a>.  Fully documented <a href="https://github.com/jflamy/owlcms-firmata/blob/v24/README.md">build-your-own designs</a> using Arduino boards are also available.</td></tr>
-<tr><td><img src='img/Gallery/gaspe2018.png' size=250></img></td><td>PanAm Masters Championship, Gaspé, Canada. The program has full support of Masters rules and coefficients.</td></tr>
+<tr><td><img src='img/Gallery/AMW2025.png' size=250></img></td><td>Asian Masters Championship, Doha, Qatar. The program has full support of Masters rules and coefficients.</td></tr>
 <tr><td><img src='img/Gallery/Streaming.png' size=250></img></td><td>Multiple simultaneous age groups (South American Championships, Guayaquil, Ecuador)<br /><br /> Built-in customizable live streaming/TV-oriented displays.</td></tr>
 <tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
-<tr><td><img src='img/Gallery/BRICS.png'></img></td><td>BRICS Games 2024 Multi-national event.</td></tr>
 </table>
+
 
 
 ### Features
