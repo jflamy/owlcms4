@@ -21,11 +21,13 @@
 <tr><td><img src='img/Gallery/ElSalvador.jpg'></img></td><td>National Competition, El Salvador.<br>A simple setup with everyday electronics.</td></tr>
 <tr><td><img src='img/Gallery/IMG_6536.jpg' size=250></img></td><td>Club meet, Montreal, Canada.<br>Supports mixed-gender kid groups.  Attempt board shows correct loading for 5kg/10kg bars and 2.5kg/5kg large plates.</td></tr>
 <tr><td><img src='img/Gallery/ISG2025a.jpg'></img></td><td>ISG 2025 Games, Riyadh. An IWF Event with 31 countries participating in weightlifting. owlcms provided the on-venue data that was fed to the Games central in Olympic Data Feed (ODF) format.</td></tr>
-<tr><td><img src='img/Gallery/IMG_6565.jpg' size=250></img></td><td>Phones or tablets can be used for <a href="#/Refereeing.md">refereeing</a>, as well as simple USB or joystick devices.<br>For dedicated use, <a href="https://blue-owl.nemikor.com">rules-compliant refereeing and jury devices</a> are commercially available, as well as other <a href="https://www.serfeng.com">options</a>.  Fully documented <a href="https://github.com/jflamy/owlcms-firmata/blob/v24/README.md">build-your-own designs</a> using Arduino boards are also available.</td></tr>
+<tr><td><img src='img/Gallery/tablet.png' size=250></img></td><td>Phones or tablets can be used for <a href="#/Refereeing.md">refereeing</a>, as well as simple USB or joystick devices.</td></tr>
+<tr><td><img src='img/Gallery/IMG_6565.jpg' size=250></img></td><td>For dedicated use, <a href="https://blue-owl.nemikor.com">rules-compliant refereeing and jury devices</a> are commercially available.  Fully documented <a href="https://github.com/jflamy/owlcms-firmata/blob/v24/README.md">build-your-own designs</a> using Arduino boards are available.</td></tr>
 <tr><td><img src='img/Gallery/AMW2025.png' size=250></img></td><td>Asian Masters Championship, Doha, Qatar. The program has full support of Masters rules and coefficients.</td></tr>
 <tr><td><img src='img/Gallery/Streaming.png' size=250></img></td><td>Multiple simultaneous age groups (South American Championships, Guayaquil, Ecuador)<br /><br /> Built-in customizable live streaming/TV-oriented displays.</td></tr>
 <tr><td><img src='img/Gallery/lima.jpg'></img></td><td>PanAm Junior and SouthAmerican  U20/U17/U15 Championships, Lima, Peru.<br>The program  supports simultaneous platforms and displays the multiple rankings for multiple concurrent age group competitions</td></tr>
 </table>
+
 
 
 
