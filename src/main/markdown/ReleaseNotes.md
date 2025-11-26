@@ -11,7 +11,7 @@
 
 63.2.0: Public Scoreboard
 - there is now an option to select whether the header is fixed with icons on the side or displays the current athlete
-- the route is now called displays/publicScoreboard instead of publicResults
+- the route for the on-venue public scoreboard is now called displays/publicScoreboard instead of publicResults
 
 **New in Release 63.1**
 
