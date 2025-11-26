@@ -566,7 +566,6 @@ public class Config {
 	 * @return the public results url stored in the database, except if overridden by system property or envariable.
 	 */
 	@Transient
-	@JsonIgnore
 	public String getParamPublicResultsURL() {
 		String uURL = StartupUtils.getStringParam("remote");
 		if (uURL != null) {
@@ -730,6 +729,7 @@ public class Config {
 	/**
 	 * @return the public results url stored in the database, except if overridden by system property or envariable.
 	 */
+	@Transient
 	public String getParamVideoDataURL() {
 		String uURL = StartupUtils.getStringParam("videodata");
 		if (uURL != null) {

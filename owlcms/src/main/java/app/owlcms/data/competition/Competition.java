@@ -40,6 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -74,6 +76,7 @@ import ch.qos.logback.classic.Logger;
 // must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
+@JsonInclude(Include.NON_NULL)
 public class Competition {
 
 	public static final int SHORT_TEAM_LENGTH = 6;
