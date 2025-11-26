@@ -35,6 +35,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
@@ -134,6 +135,18 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
 		exportJsonDiv.setWidthFull();
 
+		// V2 export button (conditional on feature switch)
+		Div exportJsonV2Div = null;
+		if (Config.getCurrent().featureSwitch("v2Export")) {
+			Notification notification3 = new Notification(Translator.translate("LongProcessing"));
+			notification3.setPosition(Position.TOP_END);
+			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton("owlcmsDatabase",
+			        Translator.translate("ExportDatabase.DownloadJsonV2"), notification3);
+			Optional<Component> exportJsonV2Button = exportJsonV2Div.getChildren().findFirst();
+			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
+			exportJsonV2Div.setWidthFull();
+		}
+
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, officials, groups, platforms);
 		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, coaches, teams);
@@ -142,7 +155,14 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		doGroup(Translator.translate("Documents.Title"), grid3, this, true);
 		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(configureRecords, editExportRecords);
 		doGroup(Translator.translate("RecordEvent.PageTitle"), grid4, this, true);
-		FlexibleGridLayout grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
+		
+		// Add V2 export button to grid if feature switch is enabled
+		FlexibleGridLayout grid5;
+		if (exportJsonV2Div != null) {
+			grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div, uploadJson);
+		} else {
+			grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
+		}
 		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
 		FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(sbdeDiv, sbdeUpload);
 		doHiddenGroup(Translator.translate("AdvancedPreparation.Title"),

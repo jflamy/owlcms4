@@ -25,7 +25,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
-import app.owlcms.data.export.CompetitionData;
+import app.owlcms.data.export.FormatDetector;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
@@ -100,7 +100,8 @@ public class JsonUploadDialog extends Dialog {
 	private void processInput(String fileName, InputStream inputStream, TextArea ta)
 	        throws StreamReadException, DatabindException, IOException {
 		try {
-			new CompetitionData().restore(inputStream);
+			// Use FormatDetector for automatic V1/V2 format detection
+			FormatDetector.importData(inputStream);
 		} catch (Throwable e1) {
 			ta.setValue(LoggerUtils.exceptionMessage(e1));
 		}

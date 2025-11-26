@@ -1655,7 +1655,7 @@ public class Group implements Comparable<Group> {
 		        .withLocale(locale));
 	}
 
-	private void setDone(boolean b) {
+	public void setDone(boolean b) {
 		this.done = b;
 	}
 

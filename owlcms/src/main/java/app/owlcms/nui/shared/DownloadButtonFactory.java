@@ -25,6 +25,7 @@ import com.vaadin.flow.server.InputStreamFactory;
 
 import app.owlcms.components.elements.LazyDownloadButton;
 import app.owlcms.data.export.CompetitionData;
+import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.i18n.Translator;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.spreadsheet.XLSXWorkbookStreamSource;
@@ -80,6 +81,26 @@ public class DownloadButtonFactory {
 		        },
 		        () -> {
 			        return new CompetitionData().exportData(ui, notification);
+		        });
+	// Keep notification handling to the stream source doneCallback to avoid
+	// duplicate notifications. The stream source will open/close the
+	// processing notification via its doneCallback.
+		return new Div(downloadButton);
+	}
+
+	public static Div createDynamicJsonV2DownloadButton(String prefix, String label, Notification notification) {
+		UI ui = UI.getCurrent();
+		final LazyDownloadButton downloadButton = new LazyDownloadButton(
+		        label,
+		        new Icon(VaadinIcon.DOWNLOAD_ALT),
+		        () -> {
+			        LocalDateTime now = LocalDateTime.now().withNano(0);
+			        return prefix
+			                + "_v2_" + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm"))
+			                + ".json";
+		        },
+		        () -> {
+			        return new CompetitionDataV2().exportData(ui, notification);
 		        });
 	// Keep notification handling to the stream source doneCallback to avoid
 	// duplicate notifications. The stream source will open/close the

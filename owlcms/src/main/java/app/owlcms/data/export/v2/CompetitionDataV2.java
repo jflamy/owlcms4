@@ -1,0 +1,379 @@
+/*******************************************************************************
+ * Copyright © 2009-present Jean-François Lamy
+ *
+ * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
+ * License text at https://opensource.org/licenses/NPOSL-3.0
+ *******************************************************************************/
+package app.owlcms.data.export.v2;
+
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.notification.Notification;
+
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.platform.Platform;
+import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.data.records.RecordConfig;
+import app.owlcms.data.records.RecordEvent;
+import app.owlcms.data.records.RecordRepository;
+import app.owlcms.data.technicalofficial.TechnicalOfficial;
+import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
+import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
+import ch.qos.logback.classic.Logger;
+
+/**
+ * Version 2 of the competition data export format.
+ * Uses code/name references instead of IDs, renames Group to Session,
+ * and uses numeric values for lifts instead of strings.
+ * 
+ * Field order is explicitly controlled to ensure:
+ * 1. Competition rules and config are available first during import
+ * 2. Referenced entities (teams, ageGroups) appear before referencing entities (athletes)
+ * 3. Logical reading order matches processing dependencies
+ */
+@JsonPropertyOrder({
+	"formatVersion",
+	"competition",
+	"config",
+	"ageGroups",
+	"teams",
+	"sessions",
+	"athletes",
+	"platforms",
+	"records",
+	"recordConfig",
+	"technicalOfficials"
+})
+public class CompetitionDataV2 {
+
+	final static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionDataV2.class);
+	
+	private String formatVersion = "2.0";
+	private Competition competition;
+	private Config config;
+	private List<AgeGroup> ageGroups;
+	private List<TeamDTO> teams;
+	private List<SessionDTO> sessions;
+	private List<AthleteDTO> athletes;
+	private List<Platform> platforms;
+	private List<RecordEvent> records;
+	private RecordConfig recordConfig;
+	private List<TechnicalOfficial> technicalOfficials;
+
+	public CompetitionDataV2() {
+	}
+
+	public InputStream exportData() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
+		try {
+			ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
+
+			PipedOutputStream out = new PipedOutputStream();
+			PipedInputStream in = new PipedInputStream(out);
+			new Thread(() -> {
+				try {
+					writerWithDefaultPrettyPrinter.writeValue(out, this.fromDatabase());
+					out.flush();
+					out.close();
+				} catch (Throwable e) {
+					LoggerUtils.logError(logger, e);
+				}
+			}).start();
+			return in;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public InputStream exportData(UI ui, Notification notification) {
+		if (ui != null) {
+			ui.access(() -> notification.open());
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
+		try {
+			ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
+
+			PipedOutputStream out = new PipedOutputStream();
+			PipedInputStream in = new PipedInputStream(out);
+			new Thread(() -> {
+				try {
+					writerWithDefaultPrettyPrinter.writeValue(out, this.fromDatabase());
+					out.flush();
+					out.close();
+					if (ui != null) {
+						ui.access(() -> notification.close());
+					}
+				} catch (Throwable e) {
+					LoggerUtils.logError(logger, e);
+				}
+			}).start();
+			return in;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public CompetitionDataV2 fromDatabase() {
+		setAgeGroups(AgeGroupRepository.findAll());
+		
+		List<Athlete> allAthletes = AthleteRepository.findAll()
+		        .stream()
+		        .collect(Collectors.toList());
+		
+		// Build team map from unique team names
+		Map<String, TeamDTO> teamMap = new HashMap<>();
+		for (Athlete athlete : allAthletes) {
+			String teamName = athlete.getTeam();
+			if (teamName != null && !teamName.trim().isEmpty() && !teamMap.containsKey(teamName)) {
+				teamMap.put(teamName, new TeamDTO(teamName));
+			}
+		}
+		setTeams(teamMap.values().stream().collect(Collectors.toList()));
+		
+		// Convert athletes with team references
+		setAthletes(allAthletes.stream()
+		        .map(a -> AthleteDTO.fromAthlete(a, teamMap))
+		        .collect(Collectors.toList()));
+		
+		List<Group> allGroups = GroupRepository.findAll();
+		setSessions(allGroups.stream()
+		        .map(SessionDTO::fromGroup)
+		        .collect(Collectors.toList()));
+		
+		setPlatforms(PlatformRepository.findAll());
+		setConfig(Config.getCurrent());
+		setCompetition(Competition.getCurrent());
+		setRecords(RecordRepository.findAll());
+		setRecordConfig(RecordConfig.getCurrent());
+		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
+		return this;
+	}
+
+	public CompetitionDataV2 importData(InputStream serialized) {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
+		CompetitionDataV2 newData;
+		try {
+			newData = mapper.readValue(serialized, CompetitionDataV2.class);
+			logger.debug("after unmarshall v2 format");
+			return newData;
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+			return null;
+		}
+	}
+
+	public void restore(InputStream inputStream) {
+		this.removeAll();
+		JPAService.runInTransaction(em -> {
+			try {
+				Athlete.setSkipValidationsDuringImport(true);
+				OwlcmsFactory.resetFOPByName();
+
+				CompetitionDataV2 updated = this.importData(inputStream);
+				Config config = updated.getConfig();
+				
+				config.setLocalDateTimeUtcNormalized(true);
+				
+				byte[] blob = config.getLocalZipBlob();
+				if (blob != null) {
+					logger.info("override zip found {} bytes", blob.length);
+				}
+				Config.setCurrent(config);
+				
+				ResourceWalker.setInitializedLocalDir(false);
+				ResourceWalker.initLocalDir();
+
+				Translator.reset();
+				Translator.setForcedLocale(config.getDefaultLocale());
+
+				Competition competition = updated.getCompetition();
+				Competition.setCurrent(competition);
+
+			for (AgeGroup ag : updated.getAgeGroups()) {
+				em.persist(ag);
+			}
+
+		// Build team ID to name map for athlete import
+		Map<Integer, String> teamIdToNameMap = new HashMap<>();
+		if (updated.getTeams() != null) {
+			for (TeamDTO team : updated.getTeams()) {
+				if (team.getId() != null && team.getName() != null) {
+					teamIdToNameMap.put(team.getId(), team.getName());
+				}
+			}
+		}
+
+		// IMPORTANT: Groups/Sessions must be created BEFORE Athletes
+		// Athletes reference Groups via GroupRepository.findByName() during toAthlete()
+		for (SessionDTO sDto : updated.getSessions()) {
+			Group g = sDto.toGroup(em);
+			em.merge(g);
+		}
+
+		// Now create Athletes which will look up their Groups by name
+		for (AthleteDTO aDto : updated.getAthletes()) {
+			Athlete a = aDto.toAthlete(em, teamIdToNameMap);
+			em.persist(a);
+		}			if (updated.getRecords() != null) {
+					for (RecordEvent r : updated.getRecords()) {
+						em.merge(r);
+					}
+				}
+
+				if (updated.getPlatforms() != null) {
+					for (Platform p : updated.getPlatforms()) {
+						em.merge(p);
+					}
+				}
+
+				if (updated.getRecordConfig() != null) {
+					em.merge(updated.getRecordConfig());
+				}
+
+				if (updated.getTechnicalOfficials() != null) {
+					for (TechnicalOfficial p : updated.getTechnicalOfficials()) {
+						em.merge(p);
+					}
+				}
+				
+				em.merge(competition);
+				em.flush();
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			} finally {
+				Athlete.setSkipValidationsDuringImport(false);
+			}
+			return null;
+		});
+		
+		RecordConfig current = RecordConfig.getCurrent();
+		current.addMissing(RecordRepository.findAllRecordNames());
+	}
+
+	private void removeAll() {
+		// Use existing removal logic from CompetitionRepository
+		JPAService.runInTransaction(em -> {
+			app.owlcms.data.competition.CompetitionRepository.doRemoveAll(em);
+			return null;
+		});
+	}
+
+	// Getters and setters
+	
+	public String getFormatVersion() {
+		return formatVersion;
+	}
+
+	public void setFormatVersion(String formatVersion) {
+		this.formatVersion = formatVersion;
+	}
+
+	public List<AgeGroup> getAgeGroups() {
+		return ageGroups;
+	}
+
+	public void setAgeGroups(List<AgeGroup> ageGroups) {
+		this.ageGroups = ageGroups;
+	}
+
+	public List<AthleteDTO> getAthletes() {
+		return athletes;
+	}
+
+	public void setAthletes(List<AthleteDTO> athletes) {
+		this.athletes = athletes;
+	}
+
+	public Competition getCompetition() {
+		return competition;
+	}
+
+	public void setCompetition(Competition competition) {
+		this.competition = competition;
+		Competition.setCurrent(this.competition);
+	}
+
+	public Config getConfig() {
+		return config;
+	}
+
+	public void setConfig(Config config) {
+		this.config = config;
+		Config.setCurrent(this.config);
+	}
+
+	public List<SessionDTO> getSessions() {
+		return sessions;
+	}
+
+	public void setSessions(List<SessionDTO> sessions) {
+		this.sessions = sessions;
+	}
+
+	public List<Platform> getPlatforms() {
+		return platforms;
+	}
+
+	public void setPlatforms(List<Platform> platforms) {
+		this.platforms = platforms;
+	}
+
+	public RecordConfig getRecordConfig() {
+		return recordConfig;
+	}
+
+	public void setRecordConfig(RecordConfig recordConfig) {
+		this.recordConfig = recordConfig;
+	}
+
+	public List<TeamDTO> getTeams() {
+		return teams;
+	}
+
+	public void setTeams(List<TeamDTO> teams) {
+		this.teams = teams;
+	}
+
+	public List<RecordEvent> getRecords() {
+		return records;
+	}
+
+	public void setRecords(List<RecordEvent> records) {
+		this.records = records;
+	}
+
+	public List<TechnicalOfficial> getTechnicalOfficials() {
+		return technicalOfficials;
+	}
+
+	public void setTechnicalOfficials(List<TechnicalOfficial> technicalOfficials) {
+		this.technicalOfficials = technicalOfficials;
+	}
+}

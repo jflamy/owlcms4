@@ -12,9 +12,11 @@ import java.nio.file.Path;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.persistence.Cacheable;
@@ -395,19 +397,47 @@ public class Config {
 
 	/**
 	 * @return the current list of feature switches.
+	 * Environment variable (OWLCMS_FEATURESWITCHES) provides the initial set,
+	 * then database values are processed. Switches starting with "-" remove that switch.
 	 */
 	@Transient
 	@JsonIgnore
 	public String getParamFeatureSwitches() {
-		String uAccessList = StartupUtils.getStringParam("featureSwitches");
-		if (uAccessList == null) {
-			// use access list from database
-			uAccessList = Config.getCurrent().getFeatureSwitches();
-			if (uAccessList == null || uAccessList.isBlank()) {
-				uAccessList = null;
+		// Start with environment variable as initial set
+		String envSwitches = StartupUtils.getStringParam("featureSwitches");
+		
+		// Build the active set of switches
+		Set<String> activeSwitches = new LinkedHashSet<>();
+		if (envSwitches != null && !envSwitches.isBlank()) {
+			String[] envArray = envSwitches.toLowerCase().split("[,; ]");
+			for (String sw : envArray) {
+				if (!sw.isBlank()) {
+					activeSwitches.add(sw.trim());
+				}
 			}
 		}
-		return uAccessList;
+		
+		// Process database switches - they can add or remove switches
+		String dbSwitches = Config.getCurrent().getFeatureSwitches();
+		if (dbSwitches != null && !dbSwitches.isBlank()) {
+			String[] dbArray = dbSwitches.toLowerCase().split("[,; ]");
+			for (String sw : dbArray) {
+				sw = sw.trim();
+				if (!sw.isBlank()) {
+					if (sw.startsWith("-")) {
+						// Remove switch (starts with "-")
+						String switchToRemove = sw.substring(1);
+						activeSwitches.remove(switchToRemove);
+					} else {
+						// Add switch
+						activeSwitches.add(sw);
+					}
+				}
+			}
+		}
+		
+		// Return combined switches as comma-separated string, or null if empty
+		return activeSwitches.isEmpty() ? null : String.join(",", activeSwitches);
 	}
 
 	@Transient

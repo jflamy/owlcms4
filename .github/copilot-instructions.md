@@ -45,18 +45,38 @@ Important: The file `shared/src/main/resources/i18n/translation4.csv` is managed
 When new translation keys are required (e.g., for new UI features):
 
 1. **Implement the feature** using the new translation keys with `Translator.translate("KeyName")` in the Java code
-2. **Create a TSV file** next to `translation4.csv` (e.g., `new_translations.tsv`) containing:
-   - Header row matching the exact language column sequence from `translation4.csv`
-   - One row per new translation key with translations in all supported languages
-   - Tab-delimited format (not CSV)
-3. **Document the keys** in a separate text file explaining the context and purpose of each key
-4. **Notify the human maintainer** who will manually update the master translation database using the TSV content
+
+2. **Read the header from translation4.csv** to get the exact column sequence:
+   ```bash
+   # First line of translation4.csv contains: key,en,en_US,en_CA,es,es_419,...
+   ```
+
+3. **Create a TSV file** in `shared/src/main/resources/i18n/` (e.g., `new_feature_translations.tsv`) containing:
+   - **Header row** matching the exact language column sequence from `translation4.csv` (copy the first line)
+   - **One row per new translation key** with translations in all supported languages
+   - **Tab-delimited format** (TSV, not CSV) - use actual tab characters between columns
+   - Include translations for all languages shown in the header (use English as fallback if translation unknown)
+
+4. **Update TRANSLATION_KEYS_NEEDED.txt** with:
+   - The TSV filename you created
+   - Context explaining each new key and its purpose
+   - List of files modified that use these keys
+   - Clear instructions for the human maintainer
+
+5. **Human maintainer** will:
+   - Import the TSV content into the external translation management system
+   - Review and refine translations
+   - Regenerate `translation4.csv` from the external system
+   - Delete the temporary TSV file
 
 Example workflow:
-- Assistant creates code using `Translator.translate("ClearWeighIn")`
-- Assistant creates `shared/src/main/resources/i18n/new_translations.tsv` with all language translations
-- Human maintainer imports the TSV content into the external translation management system
-- Human maintainer regenerates `translation4.csv` from the external system
+- Assistant implements feature using `Translator.translate("ExportDatabase.DownloadJsonV2")`
+- Assistant reads first line of `translation4.csv` to get column order
+- Assistant creates `shared/src/main/resources/i18n/new_v2_export_translations.tsv` with:
+  - Header: `key	en	en_US	en_CA	es	es_419	es_ES	...` (tab-separated)
+  - Data: `ExportDatabase.DownloadJsonV2	Export Database V2	Export Database V2	...` (tab-separated)
+- Assistant updates `TRANSLATION_KEYS_NEEDED.txt` with context and TSV filename
+- Human maintainer imports TSV into translation system and regenerates `translation4.csv`
 
 ## Why these rules exist (big picture)
 
