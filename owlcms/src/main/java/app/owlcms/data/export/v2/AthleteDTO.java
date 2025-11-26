@@ -123,7 +123,7 @@ public class AthleteDTO {
 	private String subCategory;
 	
 	// Participations
-	private List<Participation> participations;
+	private List<ParticipationDTO> participations;
 
 	public AthleteDTO() {
 	}
@@ -247,8 +247,14 @@ public class AthleteDTO {
 		dto.setForcedAsCurrent(athlete.isForcedAsCurrent());
 		dto.setSubCategory(athlete.getSubCategory());
 		
-		// Participations
-		dto.setParticipations(athlete.getParticipations());
+		// Participations - convert to DTOs
+		List<Participation> athleteParticipations = athlete.getParticipations();
+		if (athleteParticipations != null) {
+			List<ParticipationDTO> participationDTOs = athleteParticipations.stream()
+				.map(ParticipationDTO::fromParticipation)
+				.collect(java.util.stream.Collectors.toList());
+			dto.setParticipations(participationDTOs);
+		}
 		
 		return dto;
 	}
@@ -283,7 +289,8 @@ public class AthleteDTO {
 		}
 		
 		if (this.categoryCode != null) {
-			Category category = CategoryRepository.findByCode(this.categoryCode);
+			// Use doFindByCode with the current EntityManager to see uncommitted changes
+			Category category = CategoryRepository.doFindByCode(this.categoryCode, em);
 			athlete.setCategory(category);
 		}
 		
@@ -380,12 +387,13 @@ public class AthleteDTO {
 		athlete.setForcedAsCurrent(this.forcedAsCurrent != null ? this.forcedAsCurrent : false);
 		athlete.setSubCategory(this.subCategory);
 		
-		// Participations - handle separately after persistence
+		// Participations - convert from DTOs, filtering out nulls (categories not found)
 		if (this.participations != null) {
-			for (Participation p : this.participations) {
-				p.setAthlete(athlete);
-			}
-			athlete.setParticipations(this.participations);
+			List<Participation> participationList = this.participations.stream()
+				.map(dto -> dto.toParticipation(em, athlete))
+				.filter(p -> p != null)  // Filter out null participations
+				.collect(java.util.stream.Collectors.toList());
+			athlete.setParticipations(participationList);
 		}
 		
 		return athlete;
@@ -1031,11 +1039,11 @@ public class AthleteDTO {
 		this.subCategory = subCategory;
 	}
 
-	public List<Participation> getParticipations() {
+	public List<ParticipationDTO> getParticipations() {
 		return participations;
 	}
 
-	public void setParticipations(List<Participation> participations) {
+	public void setParticipations(List<ParticipationDTO> participations) {
 		this.participations = participations;
 	}
 }

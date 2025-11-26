@@ -27,6 +27,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
@@ -181,7 +182,12 @@ public class CompetitionDataV2 {
 		CompetitionDataV2 newData;
 		try {
 			newData = mapper.readValue(serialized, CompetitionDataV2.class);
-			logger.debug("after unmarshall v2 format");
+			logger.info("V2 import: {} ageGroups, {} teams, {} sessions, {} athletes, {} platforms", 
+				newData.getAgeGroups() != null ? newData.getAgeGroups().size() : 0,
+				newData.getTeams() != null ? newData.getTeams().size() : 0,
+				newData.getSessions() != null ? newData.getSessions().size() : 0,
+				newData.getAthletes() != null ? newData.getAthletes().size() : 0,
+				newData.getPlatforms() != null ? newData.getPlatforms().size() : 0);
 			return newData;
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
@@ -217,8 +223,16 @@ public class CompetitionDataV2 {
 				Competition.setCurrent(competition);
 
 			for (AgeGroup ag : updated.getAgeGroups()) {
+				// Ensure category codes are computed (they're not serialized in JSON)
+				if (ag.getCategories() != null) {
+					for (Category cat : ag.getCategories()) {
+						cat.setCode(cat.getComputedCode());
+					}
+				}
 				em.persist(ag);
 			}
+			// Flush to ensure categories from AgeGroups are available for lookup
+			em.flush();
 
 		// Build team ID to name map for athlete import
 		Map<Integer, String> teamIdToNameMap = new HashMap<>();
@@ -241,13 +255,7 @@ public class CompetitionDataV2 {
 		for (AthleteDTO aDto : updated.getAthletes()) {
 			Athlete a = aDto.toAthlete(em, teamIdToNameMap);
 			em.persist(a);
-		}			if (updated.getRecords() != null) {
-					for (RecordEvent r : updated.getRecords()) {
-						em.merge(r);
-					}
-				}
-
-				if (updated.getPlatforms() != null) {
+		}			if (updated.getPlatforms() != null) {
 					for (Platform p : updated.getPlatforms()) {
 						em.merge(p);
 					}
@@ -255,6 +263,12 @@ public class CompetitionDataV2 {
 
 				if (updated.getRecordConfig() != null) {
 					em.merge(updated.getRecordConfig());
+				}
+
+				if (updated.getRecords() != null) {
+					for (RecordEvent r : updated.getRecords()) {
+						em.merge(r);
+					}
 				}
 
 				if (updated.getTechnicalOfficials() != null) {

@@ -34,31 +34,73 @@ public class FormatDetector {
 	 * @throws Exception if import fails
 	 */
 	public static void importData(InputStream inputStream) throws Exception {
-		// Mark the stream so we can reset it after detection
-		BufferedInputStream bis = new BufferedInputStream(inputStream);
-		bis.mark(8192); // Mark up to 8KB for detection
-		
 		try {
-			String version = detectVersion(bis);
+			// Ensure stream supports mark/reset
+			if (!inputStream.markSupported()) {
+				inputStream = new BufferedInputStream(inputStream);
+			}
+			
+			// Mark position - we'll read a small portion to detect format, then reset
+			// 4KB should be more than enough to see formatVersion/sessions/groups fields
+			inputStream.mark(4096);
+			
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.registerModule(new JavaTimeModule());
+			
+			// Create a streaming parser with auto-close disabled so it won't close our stream
+			com.fasterxml.jackson.core.JsonParser parser = mapper.getFactory()
+				.createParser(inputStream)
+				.disable(com.fasterxml.jackson.core.JsonParser.Feature.AUTO_CLOSE_SOURCE);
+			
+			String version = "1.0"; // default
+			boolean hasFormatVersion = false;
+			boolean hasSessions = false;
+			boolean hasGroups = false;
+			
+			// Read just the root level field names
+			if (parser.nextToken() == com.fasterxml.jackson.core.JsonToken.START_OBJECT) {
+				while (parser.nextToken() != com.fasterxml.jackson.core.JsonToken.END_OBJECT) {
+					String fieldName = parser.currentName();
+					if ("formatVersion".equals(fieldName)) {
+						parser.nextToken();
+						version = parser.getText();
+						hasFormatVersion = true;
+						break; // Found explicit version, no need to check further
+					} else if ("sessions".equals(fieldName)) {
+						hasSessions = true;
+					} else if ("groups".equals(fieldName)) {
+						hasGroups = true;
+					}
+					parser.skipChildren(); // Skip the field value
+					
+					// If we found enough info to determine version, stop
+					if (hasSessions || hasGroups) {
+						break;
+					}
+				}
+			}
+			parser.close();
+			
+			// Determine version if not explicitly set
+			if (!hasFormatVersion) {
+				if (hasSessions && !hasGroups) {
+					version = "2.0";
+				}
+			}
+			
 			logger.info("Detected JSON format version: {}", version);
 			
-			// Reset stream to beginning
-			bis.reset();
+			// Reset stream to beginning for full import
+			inputStream.reset();
 			
 			if ("2.0".equals(version)) {
-				// Use V2 importer
-				CompetitionDataV2 dataV2 = new CompetitionDataV2();
-				dataV2.restore(bis);
+				new CompetitionDataV2().restore(inputStream);
 			} else {
-				// Use default (V1) importer
-				CompetitionData dataV1 = new CompetitionData();
-				dataV1.restore(bis);
+				new CompetitionData().restore(inputStream);
 			}
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
 			throw e;
-		} finally {
-			bis.close();
 		}
 	}
 
