@@ -7,11 +7,12 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
-**New in Release 63.2**
+**New in Release 64**
 
-63.2.0: Public Scoreboard
-- there is now an option to select whether the header is fixed with icons on the side or displays the current athlete
-- the route for the on-venue public scoreboard is now called displays/publicScoreboard instead of publicResults
+63.4.0: New v2 export format under test
+- A new cleaner export format is available when the feature toggle `v2export` is active.  An extra button is visible when
+the toggle is active.  The new format uses natural keys for better readability.
+- Import distinguighes the two formats automatically.
 
 **New in Release 63.1**
 
