@@ -28,6 +28,9 @@ import app.owlcms.data.group.GroupRepository;
  */
 public class AthleteDTO {
 	
+	// Stable athlete identifier (precomputed hash)
+	private Integer key;  // Hash of lastName|firstName|teamName|lotNumber
+	
 	// Basic info
 	private String lastName;
 	private String firstName;
@@ -142,6 +145,9 @@ public class AthleteDTO {
 	 */
 	public static AthleteDTO fromAthlete(Athlete athlete, Map<String, TeamDTO> teamMap) {
 		AthleteDTO dto = new AthleteDTO();
+		
+		// Stable athlete key (precomputed hash)
+		dto.setKey(athlete.getKey());
 		
 		// Basic info
 		dto.setLastName(athlete.getLastName());
@@ -423,6 +429,14 @@ public class AthleteDTO {
 
 	// Getters and setters for all fields
 	
+	public Integer getKey() {
+		return key;
+	}
+
+	public void setKey(Integer key) {
+		this.key = key;
+	}
+
 	public String getLastName() {
 		return lastName;
 	}

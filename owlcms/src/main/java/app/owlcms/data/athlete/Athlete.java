@@ -2237,6 +2237,31 @@ public class Athlete {
 		return (this.lotNumber == null ? 0 : this.lotNumber);
 	}
 
+	/**
+	 * Gets a stable key for this athlete based on lastName, firstName, team, and lotNumber.
+	 * This key is deterministic and remains stable across database exports.
+	 * Used by external systems (e.g., owlcms-tracker) to uniquely identify athletes.
+	 *
+	 * @return the athlete key (hash code)
+	 */
+	@Transient
+	@JsonIgnore
+	public Integer getKey() {
+		String lastName = this.getLastName() != null ? this.getLastName() : "";
+		String firstName = this.getFirstName() != null ? this.getFirstName() : "";
+		String teamName = this.getTeam() != null ? this.getTeam() : "";
+		Integer lotNum = this.getLotNumber();
+		
+		// Format: lastName|firstName|teamName|lotNumber
+		String keyString = lastName + "|" + firstName + "|" + teamName + "|" + lotNum;
+		
+		// Use Java's built-in hashCode (same algorithm as JavaScript implementation)
+		int hash = keyString.hashCode();
+		
+		// Make positive and offset by 1 billion to avoid collision with lotNumbers (typically 1-999)
+		return Math.abs(hash) + 1000000000;
+	}
+
 	@Transient
 	@JsonIgnore
 	public Participation getMainRankings() {

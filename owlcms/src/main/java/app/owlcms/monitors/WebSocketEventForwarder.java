@@ -62,6 +62,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.export.CompetitionData;
+import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
@@ -1721,14 +1722,26 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	private CompetitionDataExport exportCompetitionData() {
-		CompetitionData competitionData = new CompetitionData();
-		competitionData.fromDatabase();
-		try (InputStream inputStream = competitionData.exportData()) {
-			byte[] dataBytes = inputStream.readAllBytes();
-			Object structure = JSON_MAPPER.readValue(dataBytes, Object.class);
-			String json = new String(dataBytes, StandardCharsets.UTF_8);
-			String checksum = computeChecksum(dataBytes);
-			return new CompetitionDataExport(structure, json, checksum);
+		try {
+			InputStream inputStream;
+			// Use V2 format if feature switch is active
+			if (Config.getCurrent().featureSwitch("v2Export")) {
+				CompetitionDataV2 competitionData = new CompetitionDataV2();
+				competitionData.fromDatabase();
+				inputStream = competitionData.exportData();
+			} else {
+				CompetitionData competitionData = new CompetitionData();
+				competitionData.fromDatabase();
+				inputStream = competitionData.exportData();
+			}
+			
+			try (inputStream) {
+				byte[] dataBytes = inputStream.readAllBytes();
+				Object structure = JSON_MAPPER.readValue(dataBytes, Object.class);
+				String json = new String(dataBytes, StandardCharsets.UTF_8);
+				String checksum = computeChecksum(dataBytes);
+				return new CompetitionDataExport(structure, json, checksum);
+			}
 		} catch (Exception e) {
 			logger.error("{}failed to export competition data: {}", FieldOfPlay.getLoggingName(getFop()),
 			        LoggerUtils.exceptionMessage(e));
@@ -1741,14 +1754,26 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * Does not require a FOP instance.
 	 */
 	private static CompetitionDataExport exportCompetitionDataStatic() {
-		CompetitionData competitionData = new CompetitionData();
-		competitionData.fromDatabase();
-		try (InputStream inputStream = competitionData.exportData()) {
-			byte[] dataBytes = inputStream.readAllBytes();
-			Object structure = JSON_MAPPER.readValue(dataBytes, Object.class);
-			String json = new String(dataBytes, StandardCharsets.UTF_8);
-			String checksum = computeChecksumStatic(dataBytes);
-			return new CompetitionDataExport(structure, json, checksum);
+		try {
+			InputStream inputStream;
+			// Use V2 format if feature switch is active
+			if (Config.getCurrent().featureSwitch("v2Export")) {
+				CompetitionDataV2 competitionData = new CompetitionDataV2();
+				competitionData.fromDatabase();
+				inputStream = competitionData.exportData();
+			} else {
+				CompetitionData competitionData = new CompetitionData();
+				competitionData.fromDatabase();
+				inputStream = competitionData.exportData();
+			}
+			
+			try (inputStream) {
+				byte[] dataBytes = inputStream.readAllBytes();
+				Object structure = JSON_MAPPER.readValue(dataBytes, Object.class);
+				String json = new String(dataBytes, StandardCharsets.UTF_8);
+				String checksum = computeChecksumStatic(dataBytes);
+				return new CompetitionDataExport(structure, json, checksum);
+			}
 		} catch (Exception e) {
 			logger.error("failed to export competition data for startup: {}", LoggerUtils.exceptionMessage(e));
 			return null;
