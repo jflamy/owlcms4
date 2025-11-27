@@ -157,15 +157,16 @@ public class CompetitionDataV2 {
 		}
 		setTeams(teamMap.values().stream().collect(Collectors.toList()));
 		
-		// Convert athletes with team references
-		setAthletes(allAthletes.stream()
-		        .map(a -> AthleteDTO.fromAthlete(a, teamMap))
-		        .collect(Collectors.toList()));
-		
+		// Convert sessions first so athletes can reference sessions on import
 		List<Group> allGroups = GroupRepository.findAll();
 		setSessions(allGroups.stream()
-		        .map(SessionDTO::fromGroup)
-		        .collect(Collectors.toList()));
+			.map(SessionDTO::fromGroup)
+			.collect(Collectors.toList()));
+
+		// Convert athletes with team references (after sessions)
+		setAthletes(allAthletes.stream()
+			.map(a -> AthleteDTO.fromAthlete(a, teamMap))
+			.collect(Collectors.toList()));
 		
 		setPlatforms(PlatformRepository.findAll());
 		setConfig(Config.getCurrent());

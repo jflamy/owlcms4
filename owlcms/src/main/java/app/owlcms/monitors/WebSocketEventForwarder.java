@@ -63,6 +63,8 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.export.v2.CompetitionDataV2;
+import app.owlcms.data.export.v2.AthleteDTO;
+import app.owlcms.data.export.v2.TeamDTO;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
@@ -169,8 +171,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	// private EventBus fopEventBus;
 	private FieldOfPlay fop;
 	private String fullName;
-	private JsonValue groupAthletes;
-	private JsonValue liftingOrderAthletes;
+
 	private List<Athlete> groupLeaders;
 	private String groupDescription;
 	private String groupName;
@@ -888,13 +889,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				updateGroupInfo(computeLiftType(currentAthlete));
 				setLiftTypeKey(computeLiftTypeKey(currentAthlete));
 				setLiftType(computeLiftType(currentAthlete));
-				setGroupAthletes(getAthletesJson(displayOrder, liftingOrder, true));
-				setLiftingOrderAthletes(getAthletesJson(liftingOrder, liftingOrder, false));
+
 			}
 		} else {
 			updateGroupInfo(null);
-			setGroupAthletes(null);
-			setLiftingOrderAthletes(null);
+
 		}
 
 		// String sinclair = Competition.getCurrent().isSinclair() ? "sinclair" : "nosinclair";
@@ -1064,7 +1063,12 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			} else {
 				mapPut(sb, "recordKind", "none");
 			}
-			mapPut(sb, "records", this.records.toJson());
+			Object convertedRecords = convertJsonValue(this.records);
+			if (convertedRecords != null) {
+				sb.put("records", convertedRecords);
+			} else {
+				mapPut(sb, "records", null);
+			}
 		} else {
 			mapPut(sb, "records", null);
 		}
@@ -1261,18 +1265,46 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "showSinclair", Boolean.toString(isShowSinclair()));
 		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
 
-		if (this.groupAthletes != null) {
-			Object convertedGroup = convertJsonValue(this.groupAthletes);
-			if (convertedGroup != null) {
-				sb.put("groupAthletes", convertedGroup);
+		// Always use V2 format: send athlete order (with spacers) plus full session athlete data
+		List<Athlete> displayOrder = getFop().getDisplayOrder();
+		List<Athlete> liftingOrder = getFop().getLiftingOrder();
+		// Do not emit legacy groupAthletesV2 / liftingOrderAthletesV2 payloads
+		
+		if (displayOrder != null && !displayOrder.isEmpty()) {
+			sb.put("startOrderKeys", getAthleteKeyEntries(displayOrder, true));
+			
+			// Export enriched session athlete data (athlete DTO + displayInfo)
+			// Pass liftingOrder to compute classname ("current blink", "next", "")
+			List<Map<String, Object>> sessionAthletes = exportSessionAthletes(displayOrder, liftingOrder);
+			sb.put("sessionAthletes", sessionAthletes);
+		}
+		if (liftingOrder != null && !liftingOrder.isEmpty()) {
+			sb.put("liftingOrderKeys", getAthleteKeyEntries(liftingOrder, false));
+			
+			// Add current, next, previous athlete keys
+			if (liftingOrder.size() > 0) {
+				Athlete current = liftingOrder.get(0);
+				mapPut(sb, "currentAthleteKey", current.getKey());
+			}
+			if (liftingOrder.size() > 1) {
+				Athlete next = liftingOrder.get(1);
+				mapPut(sb, "nextAthleteKey", next.getKey());
+			}
+			// Previous athlete is the one who just lifted (if available)
+			if (liftingOrder.size() > 0) {
+				Athlete current = liftingOrder.get(0);
+				// Check if there's a recently completed athlete before current
+				int currentIndex = displayOrder.indexOf(current);
+				if (currentIndex > 0) {
+					Athlete previous = displayOrder.get(currentIndex - 1);
+					// Only include if they've actually lifted
+					if (previous.getAttemptsDone() > 0) {
+						mapPut(sb, "previousAthleteKey", previous.getKey());
+					}
+				}
 			}
 		}
-		if (this.liftingOrderAthletes != null) {
-			Object convertedOrder = convertJsonValue(this.liftingOrderAthletes);
-			if (convertedOrder != null) {
-				sb.put("liftingOrderAthletes", convertedOrder);
-			}
-		}
+		
 		if (this.leaders != null) {
 			Object convertedLeaders = convertJsonValue(this.leaders);
 			if (convertedLeaders != null) {
@@ -1302,6 +1334,221 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		// dumpMap("createUpdate " + System.identityHashCode(sb), event.getTrace(), sb);
 
 		return sb;
+	}
+	
+	/**
+	 * Build an order list consisting of athlete keys with spacer entries inserted
+	 * whenever category boundaries (start order) or lift-phase transitions
+	 * (lifting order) occur. This mirrors the EventForwarder behavior so
+	 * downstream consumers can rely on identical spacing.
+	 */
+	private List<Object> getAthleteKeyEntries(List<Athlete> athletes, boolean startOrder) {
+		if (athletes == null || athletes.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<Object> entries = new ArrayList<>();
+		Category prevCat = null;
+		Athlete prevAth = null;
+
+		for (Athlete athlete : athletes) {
+			if (startOrder) {
+				Category curCat = athlete.getCategory();
+				if (curCat != null && !curCat.sameAs(prevCat)) {
+					entries.add(createSpacerEntry());
+					prevCat = curCat;
+				}
+			} else {
+				if (prevAth == null ||
+				        (athlete.getActuallyAttemptedLifts() >= 3 && prevAth.getActuallyAttemptedLifts() < 3)) {
+					entries.add(createSpacerEntry());
+				}
+				prevAth = athlete;
+			}
+
+			Integer key = athlete.getKey();
+			if (key != null) {
+				entries.add(key);
+			}
+		}
+
+		return entries;
+	}
+	
+	/**
+	 * Export session athletes in V2 DTO format with team mapping and complete displayInfo.
+	 * Returns a list of `AthleteDTO` which will be serialized by Jackson
+	 * when the forwarder writes JSON to the WebSocket. `sessionName` is
+	 * emitted by the DTO itself.
+	 * 
+	 * @param athletes The session athletes in display/start order
+	 * @param liftingOrder The current lifting order (used to determine classname: current/next)
+	 */
+	private List<Map<String, Object>> exportSessionAthletes(List<Athlete> athletes, List<Athlete> liftingOrder) {
+		if (athletes == null || athletes.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		// Build team map for consistent team ID references
+		Map<String, TeamDTO> teamMap = buildTeamMap(athletes);
+		
+		// Determine current and next athlete IDs from lifting order for classname
+		long currentId = (liftingOrder != null && liftingOrder.size() > 0) ? liftingOrder.get(0).getId() : -1L;
+		long nextId = (liftingOrder != null && liftingOrder.size() > 1) ? liftingOrder.get(1).getId() : -1L;
+
+		List<Map<String, Object>> result = new ArrayList<>();
+		for (Athlete athlete : athletes) {
+			AthleteDTO dto = AthleteDTO.fromAthlete(athlete, teamMap);
+			
+			// Determine this athlete's position in lifting order for attempt status
+			int liftOrderRank = (athlete.getId() == currentId) ? 1 : ((athlete.getId() == nextId) ? 2 : 0);
+			int attemptsDone = athlete.getAttemptsDone();
+
+			// Build displayInfo with all precomputed display values
+			// This mirrors getAthleteJson() to ensure external scoreboards match internal ones
+			Map<String, Object> displayInfo = new java.util.HashMap<>();
+
+			// Attempt arrays with status info (value + status: good/fail/request/current/next)
+			List<Map<String, Object>> sattemptsList = new ArrayList<>();
+			sattemptsList.add(buildAttemptInfo(dto.getSnatch1ActualLift(), dto.getSnatch1Change2(), dto.getSnatch1Change1(), dto.getSnatch1Declaration(), liftOrderRank, 0, attemptsDone));
+			sattemptsList.add(buildAttemptInfo(dto.getSnatch2ActualLift(), dto.getSnatch2Change2(), dto.getSnatch2Change1(), dto.getSnatch2Declaration(), liftOrderRank, 1, attemptsDone));
+			sattemptsList.add(buildAttemptInfo(dto.getSnatch3ActualLift(), dto.getSnatch3Change2(), dto.getSnatch3Change1(), dto.getSnatch3Declaration(), liftOrderRank, 2, attemptsDone));
+			displayInfo.put("sattempts", sattemptsList);
+
+			List<Map<String, Object>> cattemptsList = new ArrayList<>();
+			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk1ActualLift(), dto.getCleanJerk1Change2(), dto.getCleanJerk1Change1(), dto.getCleanJerk1Declaration(), liftOrderRank, 0, attemptsDone));
+			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk2ActualLift(), dto.getCleanJerk2Change2(), dto.getCleanJerk2Change1(), dto.getCleanJerk2Declaration(), liftOrderRank, 1, attemptsDone));
+			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk3ActualLift(), dto.getCleanJerk3Change2(), dto.getCleanJerk3Change1(), dto.getCleanJerk3Declaration(), liftOrderRank, 2, attemptsDone));
+			displayInfo.put("cattempts", cattemptsList);
+
+			// Basic display fields (matching getAthleteJson)
+			displayInfo.put("fullName", athlete.getFullName() != null ? athlete.getFullName() : "");
+			displayInfo.put("teamName", athlete.getTeam() != null ? athlete.getTeam() : "");
+			displayInfo.put("yearOfBirth", athlete.getYearOfBirth() != null ? athlete.getYearOfBirth().toString() : "");
+			displayInfo.put("gender", athlete.getGender() != null ? athlete.getGender().toString() : "");
+			Integer startNumber = athlete.getStartNumber();
+			displayInfo.put("startNumber", startNumber != null ? startNumber.toString() : "");
+			Integer lotNumber = athlete.getLotNumber();
+			displayInfo.put("lotNumber", lotNumber != null ? lotNumber.toString() : "");
+			
+			// Category with age group
+			Category curCat = athlete.getCategory();
+			displayInfo.put("category", curCat != null ? curCat.getNameWithAgeGroup() : "");
+			
+			// Best lifts and total
+			displayInfo.put("bestSnatch", formatInt(athlete.getBestSnatch()));
+			displayInfo.put("bestCleanJerk", formatInt(athlete.getBestCleanJerk()));
+			displayInfo.put("total", formatInt(athlete.getTotal()));
+			
+			// Session ranks
+			Participation mainRankings = athlete.getMainRankings();
+			if (mainRankings != null) {
+				displayInfo.put("snatchRank", formatInt(mainRankings.getSnatchRank()));
+				displayInfo.put("cleanJerkRank", formatInt(mainRankings.getCleanJerkRank()));
+				displayInfo.put("totalRank", formatInt(mainRankings.getTotalRank()));
+			} else {
+				displayInfo.put("snatchRank", "-");
+				displayInfo.put("cleanJerkRank", "-");
+				displayInfo.put("totalRank", "-");
+			}
+			
+			// Sinclair/computed score
+			displayInfo.put("sinclair", computedScore(athlete));
+			displayInfo.put("sinclairRank", computedScoreRank(athlete));
+			
+			// Group and subcategory
+			if (athlete.getGroup() != null) {
+				displayInfo.put("group", athlete.getGroup().getName());
+			}
+			displayInfo.put("subCategory", athlete.getSubCategory());
+			
+			// Classname for highlighting current/next athlete
+			boolean notDone = athlete.getAttemptsDone() < 6;
+			String blink = (notDone ? " blink" : "");
+			// liftOrderRank already computed above for attempt status
+			if (notDone) {
+				displayInfo.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
+			} else {
+				displayInfo.put("classname", "");
+			}
+			
+			// Custom fields
+			displayInfo.put("custom1", athlete.getCustom1() != null ? athlete.getCustom1() : "");
+			displayInfo.put("custom2", athlete.getCustom2() != null ? athlete.getCustom2() : "");
+			displayInfo.put("membership", athlete.getMembership() != null ? athlete.getMembership() : "");
+			
+			// Team flag info (matching setTeamFlag)
+			String team = athlete.getTeam();
+			if (team != null) {
+				int teamLength = team.length();
+				displayInfo.put("teamLength", teamLength);
+				String flagPath = "/local/flags/" + team + ".svg";
+				displayInfo.put("flagURL", flagPath);
+				displayInfo.put("flagClass", teamLength <= Competition.SHORT_TEAM_LENGTH ? "shortTeam" : "longTeam");
+			} else {
+				displayInfo.put("teamLength", 0);
+				displayInfo.put("flagURL", "");
+				displayInfo.put("flagClass", "");
+			}
+
+			Map<String, Object> sessionAthlete = new java.util.HashMap<>();
+			sessionAthlete.put("athlete", dto);
+			sessionAthlete.put("displayInfo", displayInfo);
+
+			result.add(sessionAthlete);
+		}
+
+		return result;
+	}
+
+	/**
+	 * Pick the most relevant attempt value in display order: actual -> change2 -> change1 -> declaration
+	 * Returns a Map with "value" (Integer) and "status" (String: "good", "fail", "request", "current", "next", or null)
+	 * 
+	 * @param actual The actual lift result (positive=good, negative=fail, null=not attempted)
+	 * @param change2 Second weight change
+	 * @param change1 First weight change  
+	 * @param declaration Original declaration
+	 * @param liftOrderRank 1=current athlete, 2=next athlete, 0=other
+	 * @param attemptIndex 0-5 (0-2 for snatch, 3-5 for C&J within the lift type array)
+	 * @param attemptsDone Number of attempts already completed by this athlete (0-6)
+	 * @return Map with "value" and "status" keys
+	 */
+	@SuppressWarnings("unused")
+	private Map<String, Object> buildAttemptInfo(Integer actual, Integer change2, Integer change1, Integer declaration,
+			int liftOrderRank, int attemptIndex, int attemptsDone) {
+		Map<String, Object> result = new LinkedHashMap<>();
+		
+		if (actual != null) {
+			// Attempt was done
+			result.put("value", Math.abs(actual));
+			result.put("status", actual > 0 ? "good" : "bad");
+		} else {
+			// Attempt not done yet - find the requested weight
+			Integer requested = null;
+			if (change2 != null) requested = change2;
+			else if (change1 != null) requested = change1;
+			else if (declaration != null) requested = declaration;
+			
+			if (requested != null) {
+				result.put("value", requested);
+				// Mark pending attempts based on athlete's position in lifting order
+				// current = this athlete is lifting now, next = this athlete lifts next, request = other athletes
+				if (liftOrderRank == 1) {
+					result.put("status", "current");
+				} else if (liftOrderRank == 2) {
+					result.put("status", "next");
+				} else {
+					result.put("status", "request");
+				}
+			} else {
+				// No data at all
+				result.put("value", null);
+				result.put("status", null);
+			}
+		}
+		
+		return result;
 	}
 
 	private void doBreak(UIEvent e, Group g) {
@@ -1591,6 +1838,37 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			athx++;
 		}
 		return jath;
+	}
+
+	// Removed unused getAthletesV2Json — session athlete export now handled by exportSessionAthletes
+
+	private Map<String, Object> createSpacerEntry() {
+		Map<String, Object> spacer = new LinkedHashMap<>();
+		spacer.put("isSpacer", true);
+		return spacer;
+	}
+
+
+
+	private Map<String, TeamDTO> buildTeamMap(List<Athlete> athletes) {
+		Map<String, TeamDTO> teamMap = new HashMap<>();
+		if (athletes == null) {
+			return teamMap;
+		}
+		for (Athlete athlete : athletes) {
+			if (athlete == null) {
+				continue;
+			}
+			String teamName = athlete.getTeam();
+			if (teamName == null || teamName.trim().isEmpty() || teamMap.containsKey(teamName)) {
+				continue;
+			}
+			TeamDTO teamDto = new TeamDTO();
+			teamDto.setId(teamName.hashCode());
+			teamDto.setName(teamName);
+			teamMap.put(teamName, teamDto);
+		}
+		return teamMap;
 	}
 
 	/**
@@ -2367,10 +2645,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		this.forwardedFopName = name;
 	}
 
-	private void setGroupAthletes(JsonValue athletesJson) {
-		this.groupAthletes = athletesJson;
-	}
-
 	private void setGroupInfo(String computeSecondLine) {
 		this.groupInfo = computeSecondLine;
 	}
@@ -2387,9 +2661,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		this.leaders = athletesJson;
 	}
 
-	private void setLiftingOrderAthletes(JsonValue athletesJson) {
-		this.liftingOrderAthletes = athletesJson;
-	}
+
 
 	private void setMapFopState(Map<String, String> sb) {
 		FOPState state = getFopState();

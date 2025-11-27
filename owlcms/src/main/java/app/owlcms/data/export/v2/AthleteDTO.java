@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.EntityManager;
 
@@ -290,7 +291,14 @@ public class AthleteDTO {
 		
 		// Competition info - resolve by name/code
 		if (this.groupName != null) {
-			Group group = GroupRepository.findByName(this.groupName);
+			// Use the provided EntityManager when available so lookups occur
+			// within the same transaction as the import (avoids visibility issues).
+			Group group = null;
+			if (em != null) {
+				group = GroupRepository.doFindByName(this.groupName, em);
+			} else {
+				group = GroupRepository.findByName(this.groupName);
+			}
 			athlete.setGroup(group);
 		}
 		
@@ -485,10 +493,12 @@ public class AthleteDTO {
 		this.presumedBodyWeight = presumedBodyWeight;
 	}
 
+	@JsonProperty("sessionName")
 	public String getGroupName() {
 		return groupName;
 	}
 
+	@JsonProperty("sessionName")
 	public void setGroupName(String groupName) {
 		this.groupName = groupName;
 	}

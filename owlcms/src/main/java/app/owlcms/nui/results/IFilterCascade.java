@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Objects;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -48,7 +51,13 @@ public interface IFilterCascade {
 		this.getChampionshipFilter().setPlaceholder(Translator.translate("Championship"));
 		this.getChampionshipFilter().setWidth("25ch");
 		this.setChampionshipItems(Championship.findAllUsed(true));
-		this.getChampionshipFilter().setItems(this.getChampionshipItems().stream().sorted((o1, o2) -> o1.getName().compareTo(o2.getName())).toList());
+		// Defensive: filter out any null entries and sort by name handling null names safely
+		List<Championship> championshipItemsSafe = Optional.ofNullable(this.getChampionshipItems()).orElse(Collections.emptyList())
+			.stream()
+			.filter(Objects::nonNull)
+			.sorted(Comparator.comparing((Championship c) -> c.getName(), Comparator.nullsLast(Comparator.naturalOrder())))
+			.toList();
+		this.getChampionshipFilter().setItems(championshipItemsSafe);
 		this.getChampionshipFilter().setItemLabelGenerator((ad) -> ad.translate());
 		this.getChampionshipFilter().setClearButtonVisible(true);
 		this.getChampionshipFilter().getStyle().set("margin-left", "1em");
