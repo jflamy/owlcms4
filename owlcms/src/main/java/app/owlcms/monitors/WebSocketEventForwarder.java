@@ -1446,17 +1446,25 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			// This mirrors getAthleteJson() to ensure external scoreboards match internal ones
 			Map<String, Object> displayInfo = new java.util.HashMap<>();
 
+			// Only the active lift phase (snatch vs clean&jerk) may have the "current" or "next" markers.
+			// If athlete has completed fewer than 3 attempts they are in the snatch phase; otherwise C&J.
+			boolean inCjPhase = attemptsDone >= 3;
+
 			// Attempt arrays with status info (value + status: good/fail/request/current/next)
 			List<Map<String, Object>> sattemptsList = new ArrayList<>();
-			sattemptsList.add(buildAttemptInfo(dto.getSnatch1ActualLift(), dto.getSnatch1Change2(), dto.getSnatch1Change1(), dto.getSnatch1Declaration(), liftOrderRank, 0, attemptsDone));
-			sattemptsList.add(buildAttemptInfo(dto.getSnatch2ActualLift(), dto.getSnatch2Change2(), dto.getSnatch2Change1(), dto.getSnatch2Declaration(), liftOrderRank, 1, attemptsDone));
-			sattemptsList.add(buildAttemptInfo(dto.getSnatch3ActualLift(), dto.getSnatch3Change2(), dto.getSnatch3Change1(), dto.getSnatch3Declaration(), liftOrderRank, 2, attemptsDone));
+			// For snatches, apply liftOrderRank only when in snatch phase; otherwise suppress current/next
+			int snatchLiftOrderRank = inCjPhase ? 0 : liftOrderRank;
+			sattemptsList.add(buildAttemptInfo(dto.getSnatch1ActualLift(), dto.getSnatch1Change2(), dto.getSnatch1Change1(), dto.getSnatch1Declaration(), snatchLiftOrderRank, 0, attemptsDone));
+			sattemptsList.add(buildAttemptInfo(dto.getSnatch2ActualLift(), dto.getSnatch2Change2(), dto.getSnatch2Change1(), dto.getSnatch2Declaration(), snatchLiftOrderRank, 1, attemptsDone));
+			sattemptsList.add(buildAttemptInfo(dto.getSnatch3ActualLift(), dto.getSnatch3Change2(), dto.getSnatch3Change1(), dto.getSnatch3Declaration(), snatchLiftOrderRank, 2, attemptsDone));
 			displayInfo.put("sattempts", sattemptsList);
 
 			List<Map<String, Object>> cattemptsList = new ArrayList<>();
-			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk1ActualLift(), dto.getCleanJerk1Change2(), dto.getCleanJerk1Change1(), dto.getCleanJerk1Declaration(), liftOrderRank, 0, attemptsDone));
-			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk2ActualLift(), dto.getCleanJerk2Change2(), dto.getCleanJerk2Change1(), dto.getCleanJerk2Declaration(), liftOrderRank, 1, attemptsDone));
-			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk3ActualLift(), dto.getCleanJerk3Change2(), dto.getCleanJerk3Change1(), dto.getCleanJerk3Declaration(), liftOrderRank, 2, attemptsDone));
+			// For clean&jerk, apply liftOrderRank only when in C&J phase; otherwise suppress current/next
+			int cjLiftOrderRank = inCjPhase ? liftOrderRank : 0;
+			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk1ActualLift(), dto.getCleanJerk1Change2(), dto.getCleanJerk1Change1(), dto.getCleanJerk1Declaration(), cjLiftOrderRank, 0, attemptsDone));
+			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk2ActualLift(), dto.getCleanJerk2Change2(), dto.getCleanJerk2Change1(), dto.getCleanJerk2Declaration(), cjLiftOrderRank, 1, attemptsDone));
+			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk3ActualLift(), dto.getCleanJerk3Change2(), dto.getCleanJerk3Change1(), dto.getCleanJerk3Declaration(), cjLiftOrderRank, 2, attemptsDone));
 			displayInfo.put("cattempts", cattemptsList);
 
 			// Basic display fields (matching getAthleteJson)
@@ -1620,9 +1628,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 					result.put("status", "request");
 				}
 			} else {
-				// No data at all
-				result.put("value", null);
-				result.put("status", null);
+				// No data at all -> mark explicitly as empty for display-ready output
+				// Use a Unicode non-breaking space so the frontend has a printable cell value
+				result.put("value", "\u00A0");
+				result.put("status", "empty");
 			}
 		}
 		

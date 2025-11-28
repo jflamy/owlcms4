@@ -35,7 +35,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Gender;
@@ -254,10 +253,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	public AgeGroup getAgeGroup() {
 		return this.ageGroup;
 	}
-	
+
 	@Transient
 	public String getCode() {
-		return this.getComputedCode();//this.code != null ? this.code : "";
+		return this.getComputedCode();// this.code != null ? this.code : "";
 	}
 
 	@Transient
@@ -287,6 +286,16 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		} else {
 			return this.ageGroup.getCode() + "_" + getGender() + getCodeLimitString();
 		}
+	}
+
+	/**
+	 * Provide a translated name for JSON export (used by V2 export consumers). This returns the same value as {@link #getDisplayName()} but is emitted with the
+	 * explicit property name `translatedName` so downstream imports and consumers can rely on a stable field.
+	 */
+
+	@Transient
+	public String getCategoryName() {
+		return getDisplayName();
 	}
 
 	@JsonIgnore
