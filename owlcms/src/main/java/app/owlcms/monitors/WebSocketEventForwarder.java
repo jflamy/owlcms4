@@ -177,6 +177,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private String groupName;
 	private boolean hidden;
 	private JsonValue leaders;
+	private List<Map<String, Object>> leadersSessionData;
 	private String liftsDone;
 	private EventBus postBus;
 	private JsonArray sattempts;
@@ -933,28 +934,26 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			setCategoryName(curAthlete.getCategory().getDisplayName());
 			this.groupLeaders = this.fop.getLeaders();
 			if (this.groupLeaders == null || this.groupLeaders.isEmpty()) {
-				setLeaders(null);
+				setLeadersV2(null);
 				return;
 			}
 			int size = this.groupLeaders.size();
 			if (size > 16) {
-				setLeaders(null);
+				setLeadersV2(null);
 			} else if (this.groupLeaders.size() > 0) {
-				// null as second argument because we do not highlight current athletes in the
-				// leaderboard
-				setLeaders(getAthletesJson(this.groupLeaders, null, true));
+				setLeadersV2(exportLeaderEntries(this.groupLeaders));
 			} else {
 				// no one has totaled, so we show the snatch leaders
 				if (!this.fop.isCjStarted()) {
 					if (this.groupLeaders.size() > 0) {
-						setLeaders(getAthletesJson(this.groupLeaders, null, true));
+						setLeadersV2(exportLeaderEntries(this.groupLeaders));
 					} else {
 						// nothing to show
-						setLeaders(null);
+						setLeadersV2(null);
 					}
 				} else {
 					// nothing to show
-					setLeaders(null);
+					setLeadersV2(null);
 				}
 			}
 		}
@@ -1305,10 +1304,49 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			}
 		}
 		
-		if (this.leaders != null) {
+		if (this.leadersSessionData != null) {
+			sb.put("leaders", this.leadersSessionData);
+		} else if (this.leaders != null) {
 			Object convertedLeaders = convertJsonValue(this.leaders);
 			if (convertedLeaders != null) {
-				sb.put("leaders", convertedLeaders);
+				// Ensure each leader entry has a top-level athleteKey for readability
+				if (convertedLeaders instanceof List) {
+					List<?> rawList = (List<?>) convertedLeaders;
+					List<Object> out = new ArrayList<>();
+					for (Object item : rawList) {
+						if (item instanceof Map) {
+							@SuppressWarnings("unchecked")
+							Map<String, Object> m = (Map<String, Object>) item;
+							// Determine a sensible athlete key: prefer 'athleteKey', then 'id', then nested athlete.key/id
+							String keyVal = null;
+							if (m.containsKey("athleteKey") && m.get("athleteKey") != null) {
+								keyVal = String.valueOf(m.get("athleteKey"));
+							} else if (m.containsKey("id") && m.get("id") != null) {
+								keyVal = String.valueOf(m.get("id"));
+							} else if (m.containsKey("athlete") && m.get("athlete") instanceof Map) {
+								@SuppressWarnings("unchecked")
+								Map<String, Object> nested = (Map<String, Object>) m.get("athlete");
+								if (nested.containsKey("key") && nested.get("key") != null) {
+									keyVal = String.valueOf(nested.get("key"));
+								} else if (nested.containsKey("id") && nested.get("id") != null) {
+									keyVal = String.valueOf(nested.get("id"));
+								}
+							}
+							if (keyVal != null) {
+								Map<String, Object> newMap = new LinkedHashMap<>();
+								newMap.put("athleteKey", keyVal);
+								newMap.putAll(m);
+								out.add(newMap);
+								continue;
+							}
+						}
+						// Fallback: pass item through unchanged
+						out.add(item);
+					}
+					sb.put("leaders", out);
+				} else {
+					sb.put("leaders", convertedLeaders);
+				}
 			}
 		}
 		populateRecordInfo(sb);
@@ -1491,11 +1529,51 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				displayInfo.put("flagClass", "");
 			}
 
-			Map<String, Object> sessionAthlete = new java.util.HashMap<>();
-			sessionAthlete.put("athlete", dto);
-			sessionAthlete.put("displayInfo", displayInfo);
+			    Map<String, Object> sessionAthlete = new LinkedHashMap<>();
+			    // Add top-level athleteKey for readability (redundant with athlete.key inside)
+				    String athleteKeyTop = athlete.getKey() != null ? String.valueOf(athlete.getKey())
+					    : (athlete.getId() != null ? String.valueOf(athlete.getId()) : null);
+			    sessionAthlete.put("athleteKey", athleteKeyTop);
+			    sessionAthlete.put("athlete", dto);
+			    sessionAthlete.put("displayInfo", displayInfo);
 
 			result.add(sessionAthlete);
+		}
+
+		return result;
+	}
+
+	private List<Map<String, Object>> exportLeaderEntries(List<Athlete> leaders) {
+		if (leaders == null || leaders.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<Map<String, Object>> baseEntries = exportSessionAthletes(leaders, null);
+		if (baseEntries.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<Map<String, Object>> result = new ArrayList<>();
+		Category previousCategory = null;
+		for (int i = 0; i < leaders.size(); i++) {
+			Athlete athlete = leaders.get(i);
+			Category currentCategory = athlete != null ? athlete.getCategory() : null;
+			boolean categoryChanged = false;
+			if (currentCategory != null) {
+				categoryChanged = previousCategory == null || !currentCategory.sameAs(previousCategory);
+			} else if (previousCategory != null) {
+				categoryChanged = true;
+			}
+
+			if (categoryChanged) {
+				result.add(createSpacerEntry());
+				previousCategory = currentCategory;
+			}
+
+			Map<String, Object> entry = baseEntries.get(i);
+			if (entry != null) {
+				result.add(entry);
+			}
 		}
 
 		return result;
@@ -1791,6 +1869,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, boolean startOrder) {
 		JsonArray jath = Json.createArray();
 		int athx = 0;
@@ -2657,8 +2736,19 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		this.lastTimerMap = lastTimerMap;
 	}
 
+	@SuppressWarnings("unused")
 	private void setLeaders(JsonValue athletesJson) {
 		this.leaders = athletesJson;
+		this.leadersSessionData = null;
+	}
+
+	private void setLeadersV2(List<Map<String, Object>> leaders) {
+		if (leaders != null && leaders.isEmpty()) {
+			leaders = null;
+		}
+		this.leadersSessionData = leaders;
+		// Always null legacy payload when using the V2 structure
+		this.leaders = null;
 	}
 
 
