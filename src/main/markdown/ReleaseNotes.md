@@ -14,6 +14,19 @@
 the toggle is active.  The new format uses natural keys for better readability.
 - Import distinguighes the two formats automatically.
 
+
+**New in Release 63.2**
+
+63.2.2: Fix: Further fixes when reading registration files when database has bodyweight categories + prefixes and suffixes
+
+63.2.1: Fix: All potential eligibility categories are now again selectable when opening the weigh-in form (instead of only the previously selected ones)
+
+63.2.1: Fix: Registration File was not processing category names with a + suffix (110+, 86+)
+
+63.2.0: Public Scoreboard
+- there is now an option to select whether the header is fixed with icons on the side or displays the current athlete
+- the route for the on-venue public scoreboard is now called displays/publicScoreboard instead of publicResults
+
 **New in Release 63.1**
 
 63.1.1: Fix: The Team Results page was showing the wrong sum for QMasters scores
