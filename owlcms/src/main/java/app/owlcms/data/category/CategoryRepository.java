@@ -304,6 +304,7 @@ public class CategoryRepository {
 	}
 
 	public static void resetCodeMap() {
+		logger.info("resetting category code map {}", LoggerUtils.whereFrom());
 		synchronized (allCategories) {
 			findActive().stream()
 			        //.peek(c -> logger./**/warn("============ adding {} ; {} : {}", c.getDisplayName(), c.getNameWithAgeGroup(), c.getCode()))

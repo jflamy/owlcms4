@@ -383,7 +383,6 @@ public class RAthlete {
 		RCompetition.putEligibles(this.a.getId(), new LinkedHashSet<>(eligibles));
 		RCompetition.putTeams(this.a.getId(), new LinkedHashSet<>(eligibles));
 
-		logger.warn ("findByAgeBW {} {} {} {}", age, searchBodyWeight, qualifyingTotal, eligibles);
 		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
 		if (category == null) {
 			throw new Exception(
@@ -573,11 +572,14 @@ public class RAthlete {
 		}
 		for (String candidate : buildCategoryNameCandidates(trimmed)) {
 			String catCode = Category.codeFromName(candidate);
+			// logger.debug("candidate {} -> code {}", candidate, catCode);
 			if (catCode != null) {
 				Category category = RCompetition.getActiveCategories().get(catCode);
 				if (category != null) {
 					return category;
 				}
+			} else {
+				// logger.debug("active categories do not contain candidate {}: [{}]", candidate, RCompetition.getActiveCategories().keySet());
 			}
 		}
 		return null;
@@ -585,13 +587,21 @@ public class RAthlete {
 
 	private LinkedHashSet<String> buildCategoryNameCandidates(String baseName) {
 		LinkedHashSet<String> candidates = new LinkedHashSet<>();
-		candidates.add(baseName);
-		if (baseName.contains("+")) {
-			candidates.add(baseName.replace('+', '>'));
+		if (!baseName.contains("+")) {
+			// + requires canonicalization
+			candidates.add(baseName);
 		}
-		if (baseName.contains(">")) {
-			candidates.add(baseName.replace('>', '+'));
+
+		// if +number or number+ is present, add >number as candidate using regex replaceAll
+		String nc = baseName.replaceAll("(\\d+)[+]", ">$1");
+		if (!nc.contentEquals(baseName)) {
+			candidates.add(nc);
 		}
+		nc = baseName.replaceAll("[+](\\d+)", ">$1");
+		if (!nc.contentEquals(baseName)) {	
+			candidates.add(nc);
+		}
+		// logger.debug("candidates: {}",candidates);
 		return candidates;
 	}
 }
