@@ -254,10 +254,10 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	public AgeGroup getAgeGroup() {
 		return this.ageGroup;
 	}
-	
+
 	@Transient
 	public String getCode() {
-		return this.getComputedCode();//this.code != null ? this.code : "";
+		return this.getComputedCode();// this.code != null ? this.code : "";
 	}
 
 	@Transient
@@ -694,6 +694,16 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@Transient
 	public String getAgeGroupCode() {
 		return this.getAgeGroup() != null ? this.getAgeGroup().getCode() : null;
+	}
+
+	public static String canonicalName(String baseName) {
+		// ensure that "86+" becomes ">86" and "+86" becomes ">86"
+		String nc = baseName.replaceAll("(\\d+)[+]", ">$1");
+		if (!nc.contentEquals(baseName)) {
+			return nc;
+		}
+		nc = nc.replaceAll("[+](\\d+)", ">$1");
+		return nc;
 	}
 
 }

@@ -726,7 +726,7 @@ public class AgeGroupRepository {
 					// FIX GENDER FIRST
 					Gender categoryGender = category.getGender();
 					if (categoryGender == null) {
-						logger.warn("Category {} (id={}) has null gender but is attached to age group {} with gender {}",
+						logger.debug("Category {} (id={}) has null gender but is attached to age group {} with gender {}",
 							category.getCode(), category.getId(), 
 							ageGroup.getCode(), ageGroupGender);
 						hasErrors = true;
@@ -735,7 +735,7 @@ public class AgeGroupRepository {
 						categoryGender = ageGroupGender;
 						em.merge(category);
 					} else if (!categoryGender.equals(ageGroupGender)) {
-						logger.warn("Category (id={}) has gender {} but is attached to age group {} with gender {}",
+						logger.debug("Category (id={}) has gender {} but is attached to age group {} with gender {}",
 							category.getId(), categoryGender,
 							ageGroup.getCode(), ageGroupGender);
 						hasErrors = true;
@@ -751,14 +751,14 @@ public class AgeGroupRepository {
 					String actualCode = category.getCode();
 					
 					if (actualCode == null || actualCode.isBlank()) {
-						logger.warn("Category (id={}) attached to age group {} has blank code. Expected: {}",
+						logger.debug("Category (id={}) attached to age group {} has blank code. Expected: {}",
 							category.getId(), ageGroup.getCode(), expectedCode);
 						hasErrors = true;
 						// Fix: Set the computed code
 						category.setCode(expectedCode);
 						em.merge(category);
 					} else if (!actualCode.equals(expectedCode)) {
-						logger.warn("Category code mismatch. Age group: {} ({}), Category id: {}, Actual code: {}, Expected code: {}",
+						logger.debug("Category code mismatch. Age group: {} ({}), Category id: {}, Actual code: {}, Expected code: {}",
 							ageGroup.getCode(), ageGroupName, category.getId(), actualCode, expectedCode);
 						hasErrors = true;
 						// Fix: Correct the category code

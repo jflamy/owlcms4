@@ -338,6 +338,7 @@ public class AgeGroupDefinitionReader {
 			logger.info("loading age group configuration file {}", localizedName);
 			mainLogger.info("loading age group definitions {}", localizedName);
 			ageGroupByCode.clear();
+			CategoryRepository.clearCodeMap();
 			createAgeGroups(workbook, templates, forcedInsertion, localizedName);
 			Championship.reset();
 			CategoryRepository.resetCodeMap();

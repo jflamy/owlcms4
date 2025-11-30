@@ -452,8 +452,7 @@ public class RecordRepository {
 			Query missing = em.createQuery(
 			        "SELECT rec.id FROM RecordEvent rec WHERE rec.fileName IS NULL OR TRIM(rec.fileName) = ''");
 			if (!missing.getResultList().isEmpty()) {
-				logger.warn("findAllLoadedRecords detected {} records missing fileName", missing.getResultList().size());
-				logger.warn(LoggerUtils.whereFrom());
+				logger.error("findAllLoadedRecords detected {} records missing fileName {}", missing.getResultList().size(), LoggerUtils.whereFrom());
 			}
 
 			Query q = em.createNativeQuery(

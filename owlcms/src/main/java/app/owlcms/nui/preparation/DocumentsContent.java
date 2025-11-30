@@ -2095,7 +2095,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private static ZipOutputStream zipKitStatic(List<Group> selectedItems, List<KitElement> elements, PipedOutputStream os,
 	        BiConsumer<Throwable, String> errorProcessor) throws IOException {
-		logger.warn("zipKitStatic called with {} sessions and {} elements {}", 
+		logger.debug("zipKitStatic called with {} sessions and {} elements {}", 
 			selectedItems == null ? "null" : selectedItems.size(), 
 			elements == null ? "null" : elements.size(),
 			LoggerUtils.whereFrom());

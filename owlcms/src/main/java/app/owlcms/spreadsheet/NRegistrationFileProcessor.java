@@ -1241,7 +1241,7 @@ public class NRegistrationFileProcessor {
 					int headerRowIndex = 0;
 					// For sessions sheets, the header row is fixed to index 1 (row 2 human).
 					headerRowIndex = 1; // A2 indicates headers start on the next row (row 2 human)
-					this.logger.warn("Sheet '{}': Starting row iteration, headerRowIndex={}", sheet.getSheetName(), headerRowIndex);
+					this.logger.debug("Sheet '{}': Starting row iteration, headerRowIndex={}", sheet.getSheetName(), headerRowIndex);
 
 					rows: while (rowIter.hasNext()) {
 						Row row = rowIter.next();
