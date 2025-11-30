@@ -9,11 +9,14 @@
 <br>
 **New in Release 64**
 
+63.4.0: Updated websocket protocol (breaking change)
+- Uses the v2 export format
+- Additional information for tracker applications (e.g. time remaining on breaks, precalculated display information)
+
 63.4.0: New v2 export format under test
 - A new cleaner export format is available when the feature toggle `v2export` is active.  An extra button is visible when
 the toggle is active.  The new format uses natural keys for better readability.
 - Import distinguighes the two formats automatically.
-
 
 **New in Release 63.2**
 
