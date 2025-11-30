@@ -1060,23 +1060,37 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		this.categoryField.setClearButtonVisible(true);
 
-		if (initCategories) {
-			// Prefer persisted eligible categories if the athlete already has them assigned.
+		if (initCategories && category != null) {
+			// Compute ALL eligible categories to show as checkbox items
+			// This is the same behavior as when user selects a category from the dropdown
+			this.allEligible = findEligibleCategories(this.genderField, getAgeFromFields(), this.bodyWeightField,
+			        category, this.qualifyingTotalField);
+			this.currentEligibles = new HashSet<>(this.allEligible);
+			eligibleField.setItems(this.allEligible);
+			
+			// Check only the ones that are stored in the database (or all if none stored)
 			Set<Category> dbEligibles = getEditedAthlete() != null ? getEditedAthlete().getEligibleCategories() : null;
 			if (dbEligibles != null && !dbEligibles.isEmpty()) {
-				// Use the database eligibles as the initial items/value so the UI reflects stored state
-				this.allEligible = dbEligibles.stream().toList();
-				this.currentEligibles = new HashSet<>(this.allEligible);
-				eligibleField.setItems(this.allEligible);
-				setEligibleField(new LinkedHashSet<>(this.allEligible));
-				// Ensure the category field reflects the stored registration category
-				setCategoryFieldValue(getEditedAthlete().getCategory());
+				// Filter to only include eligibles that are in allEligible (by code match)
+				Set<Category> toCheck = new LinkedHashSet<>();
+				for (Category dbCat : dbEligibles) {
+					for (Category eligible : this.allEligible) {
+						if (eligible.getCode().equals(dbCat.getCode())) {
+							toCheck.add(eligible);
+							break;
+						}
+					}
+				}
+				setEligibleField(toCheck);
 			} else {
-				this.allEligible = findEligibleCategories(this.genderField, getAgeFromFields(), this.bodyWeightField,
-				        this.categoryField.getValue(), this.qualifyingTotalField);
-				updateCategoryFields(categoryField.getValue(), category, this.eligibleField, this.qualifyingTotalField,
-				        this.allEligible, this.allEligible, false);
+				setEligibleField(new LinkedHashSet<>(this.allEligible));
 			}
+			setCategoryFieldValue(category);
+		} else if (initCategories) {
+			this.allEligible = findEligibleCategories(this.genderField, getAgeFromFields(), this.bodyWeightField,
+			        this.categoryField.getValue(), this.qualifyingTotalField);
+			updateCategoryFields(categoryField.getValue(), category, this.eligibleField, this.qualifyingTotalField,
+			        this.allEligible, this.allEligible, false);
 		}
 
 		this.genderField.addValueChangeListener((vc) -> {
