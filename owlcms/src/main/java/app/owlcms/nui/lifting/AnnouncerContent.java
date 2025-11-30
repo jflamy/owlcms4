@@ -236,7 +236,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			String text = "";
 			String style = "warning";
 
-			logger.warn("slaveJuryNotification {} sent={} {}", et, this.deliberationNotificationSent, LoggerUtils.whereFrom());
+			logger.debug("slaveJuryNotification {} sent={} {}", et, this.deliberationNotificationSent, LoggerUtils.whereFrom());
 			switch (et) {
 				case CALL_REFEREES:
 					text = Translator.translate("JuryNotification." + et.name());
@@ -852,17 +852,17 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void juryDecisionDialog(UIEvent.JuryNotification e, JuryDeliberationEventType juryDecision) {
-		logger.warn("juryDecisionDialog called: juryDecision={} existingDialog={} {}", 
+		logger.debug("juryDecisionDialog called: juryDecision={} existingDialog={} {}", 
 			juryDecision, (this.juryConfirmationDialog != null), LoggerUtils.whereFrom());
 		if (this.juryConfirmationDialog != null && juryDecision == null) {
 			// Dialog already exists, don't recreate it on START_DELIBERATION
-			logger.warn("Dialog already exists, not recreating for START_DELIBERATION");
+			logger.debug("Dialog already exists, not recreating for START_DELIBERATION");
 			return;
 		}
 		
 		if (this.juryConfirmationDialog != null) {
 			// Jury made a decision, close existing dialog
-			logger.warn("Closing existing dialog for jury decision update");
+			logger.debug("Closing existing dialog for jury decision update");
 			this.juryConfirmationDialog.close();
 		}
 		if (this.stoppageAckNotification != null) {
@@ -870,7 +870,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		}
 		
 		// Create custom dialog with proper footer
-		logger.warn("Creating new JuryDecisionDialog");
+		logger.debug("Creating new JuryDecisionDialog");
 		JuryDecisionDialog dialog = new JuryDecisionDialog(e, juryDecision, () -> {
 			this.deliberationNotificationSent = false;
 			this.juryConfirmationDialog = null;
@@ -878,7 +878,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		
 		this.juryConfirmationDialog = dialog;
 		dialog.open();
-		logger.warn("Dialog opened");
+		logger.debug("Dialog opened");
 	}
 
 }

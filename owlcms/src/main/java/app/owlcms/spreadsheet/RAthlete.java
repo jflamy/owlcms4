@@ -601,7 +601,7 @@ public class RAthlete {
 		if (!nc.contentEquals(baseName)) {	
 			candidates.add(nc);
 		}
-		// logger.debug("candidates: {}",candidates);
+		logger.debug("candidates: {}",candidates);
 		return candidates;
 	}
 }
