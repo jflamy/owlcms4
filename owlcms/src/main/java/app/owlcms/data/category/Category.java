@@ -705,4 +705,13 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return this.getAgeGroup() != null ? this.getAgeGroup().getCode() : null;
 	}
 
+	public static String canonicalName(String baseName) {
+		String nc = baseName.replaceAll("(\\d+)[+]", ">$1");
+		if (!nc.contentEquals(baseName)) {
+			return nc;
+		}
+		nc = nc.replaceAll("[+](\\d+)", ">$1");
+		return nc;
+	}
+
 }

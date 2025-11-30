@@ -94,7 +94,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			try (ByteArrayInputStream checkStream = new ByteArrayInputStream(data)) {
 				isSessionsOnly = isSessionsOnlyFile(checkStream);
 			} catch (Exception e) {
-				logger.warn("Could not determine file type, assuming full registration file", e);
+				logger./**/warn("Could not determine file type, assuming full registration file", e);
 			}
 			
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
@@ -338,7 +338,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 				// ignore translation errors
 			}
 		} catch (Exception e) {
-			logger.warn("Could not check if file is sessions-only", e);
+			logger./**/warn("Could not check if file is sessions-only", e);
 		}
 		return false;
 	}
