@@ -697,6 +697,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public static String canonicalName(String baseName) {
+		// ensure that "86+" becomes ">86" and "+86" becomes ">86"
 		String nc = baseName.replaceAll("(\\d+)[+]", ">$1");
 		if (!nc.contentEquals(baseName)) {
 			return nc;

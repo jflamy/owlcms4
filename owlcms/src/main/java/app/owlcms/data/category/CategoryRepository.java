@@ -126,9 +126,9 @@ public class CategoryRepository {
 		allEligible = allEligible.stream()
 		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
 		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
-				.filter(c -> (c.getAgeGroup() != null && c.getAgeGroup().isActive()))
+		        .filter(c -> (c.getAgeGroup() != null && c.getAgeGroup().isActive()))
 		        .collect(Collectors.toList());
-		
+
 		// the most specific category should be returned first, and will be used as registration category.
 		// we do not want Open categories used as registration if there are "non-open" categories.
 		allEligible.sort(Category.specificityComparator);
@@ -304,14 +304,23 @@ public class CategoryRepository {
 	}
 
 	public static void resetCodeMap() {
-		logger.info("resetting category code map {}", LoggerUtils.whereFrom());
+		clearCodeMap();
 		synchronized (allCategories) {
+			logger.info("reloading category code map {}", LoggerUtils.whereFrom());
 			findActive().stream()
-			        //.peek(c -> logger./**/warn("============ adding {} ; {} : {}", c.getDisplayName(), c.getNameWithAgeGroup(), c.getCode()))
 			        .forEach(c -> {
 				        allCategories.put(c.getDisplayName(), c);
-				        allCategories.put(c.getNameWithAgeGroup(), c);
+				        String canonicalName = Category.canonicalName(c.getNameWithAgeGroup());
+				        allCategories.put(canonicalName, c);
+				        logger.debug("code map entry: '{}' -> {}", c, canonicalName);
 			        });
+		}
+	}
+
+	public static void clearCodeMap() {
+		synchronized (allCategories) {
+			logger.debug("clearing category code map {}", LoggerUtils.whereFrom());
+			allCategories.clear();
 		}
 	}
 
