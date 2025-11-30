@@ -9,6 +9,10 @@
 <br>
 **New in Release 63.2**
 
+63.2.1: Fix: All potential eligibility categories are now again selectable when opening the weigh-in form (instead of only the previously selected ones)
+
+63.2.1: Fix: Registration File was not processing category names with a + suffix (110+, 86+)
+
 63.2.0: Public Scoreboard
 - there is now an option to select whether the header is fixed with icons on the side or displays the current athlete
 - the route for the on-venue public scoreboard is now called displays/publicScoreboard instead of publicResults
