@@ -103,7 +103,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	public static String codeFromName(String catName) {
 		Category cat = CategoryRepository.codeFromName(catName);
-		return cat != null ? cat.getCode() : null;
+		return cat != null ? cat.getComputedCode() : null;
 	}
 
 	public static Comparator<Category> medalingComparator() {
