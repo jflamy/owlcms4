@@ -9,7 +9,7 @@
 <br>
 **New in Release 64**
 
-63.4.0: Updated websocket protocol (breaking change)
+63.4.0: Updated websocket protocol
 - Uses the v2 export format
 - Additional information for tracker applications (e.g. time remaining on breaks, precalculated display information)
 

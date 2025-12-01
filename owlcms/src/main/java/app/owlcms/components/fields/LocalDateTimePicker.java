@@ -35,10 +35,10 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 			String country = l.getCountry();
 			if (l != null && Arrays.binarySearch(AM_PM_COUNTRIES, country) < 0) {
 				// not an AM-PM country, international format en_SE seems to work best for 24h.
-				return (new Locale("en", "SE"));
+				return Locale.of("en", "SE");
 			}
 		} else {
-			return (new Locale("en", "SE"));
+			return Locale.of("en", "SE");
 		}
 		return l;
 	}

@@ -12,6 +12,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -246,12 +247,12 @@ public class IPInterfaceUtils {
 	private void testIP(String protocol, int requestPort, String uri, String targetFile, String ip,
 	        NetworkInterface iface, InetAddress addr, boolean silent) {
 		try {
-			URL siteURL = new URL(protocol, ip, requestPort, uri);
+			URL siteURL = URI.create(protocol + "://" + ip + ":" + requestPort + uri).toURL();
 			String siteURLString = siteURL.toExternalForm();
 			siteURLString = URLUtils.cleanURL(siteURL, siteURLString);
 
 			// use a file inside the site to avoid triggering a loop if called on home page
-			URL testingURL = new URL(protocol, ip, requestPort, uri + targetFile);
+			URL testingURL = URI.create(protocol + "://" + ip + ":" + requestPort + uri + targetFile).toURL();
 			String testingURLString = testingURL.toExternalForm();
 
 			HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();

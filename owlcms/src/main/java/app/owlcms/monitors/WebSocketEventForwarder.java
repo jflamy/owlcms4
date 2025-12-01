@@ -6,12 +6,9 @@
  *******************************************************************************/
 package app.owlcms.monitors;
 
-import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -23,8 +20,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.HexFormat;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
@@ -62,14 +57,12 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.export.CompetitionData;
-import app.owlcms.data.export.v2.CompetitionDataV2;
-import app.owlcms.data.export.v2.AthleteDTO;
-import app.owlcms.data.export.v2.TeamDTO;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
+import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.HasBoardMode;
@@ -89,9 +82,13 @@ import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.uievents.UIEvent.SetTime;
 import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
+import app.owlcms.monitors.websocket.AthleteExporter;
+import app.owlcms.monitors.websocket.ForwarderPayloadBuilder;
+import app.owlcms.monitors.websocket.ForwarderPayloadBuilder.CompetitionDataExport;
+import app.owlcms.monitors.websocket.WebSocketSender;
+import app.owlcms.monitors.websocket.WebSocketEventSender;
 import app.owlcms.utils.FlagsZipHelper;
 import app.owlcms.utils.TranslationsZipHelper;
-import app.owlcms.utils.PicturesZipHelper;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
@@ -236,29 +233,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	private static final ObjectMapper JSON_MAPPER = createObjectMapper();
-	private static final class CompetitionDataExport {
-		private final Object structure;
-		private final String json;
-		private final String checksum;
-
-		private CompetitionDataExport(Object structure, String json, String checksum) {
-			this.structure = structure;
-			this.json = json;
-			this.checksum = checksum;
-		}
-
-		private Object structure() {
-			return this.structure;
-		}
-
-		private String json() {
-			return this.json;
-		}
-
-		private String checksum() {
-			return this.checksum;
-		}
-	}
 
 	private WebSocketEventForwarder(String name, FieldOfPlay emittingFop) {
 		this.setForwardedFopName(name);
@@ -941,12 +915,12 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			if (size > 16) {
 				setLeadersV2(null);
 			} else if (this.groupLeaders.size() > 0) {
-				setLeadersV2(exportLeaderEntries(this.groupLeaders));
+				setLeadersV2(AthleteExporter.exportLeaderEntries(this.groupLeaders));
 			} else {
 				// no one has totaled, so we show the snatch leaders
 				if (!this.fop.isCjStarted()) {
 					if (this.groupLeaders.size() > 0) {
-						setLeadersV2(exportLeaderEntries(this.groupLeaders));
+						setLeadersV2(AthleteExporter.exportLeaderEntries(this.groupLeaders));
 					} else {
 						// nothing to show
 						setLeadersV2(null);
@@ -1274,7 +1248,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			
 			// Export enriched session athlete data (athlete DTO + displayInfo)
 			// Pass liftingOrder to compute classname ("current blink", "next", "")
-			List<Map<String, Object>> sessionAthletes = exportSessionAthletes(displayOrder, liftingOrder);
+			List<Map<String, Object>> sessionAthletes = AthleteExporter.exportSessionAthletes(displayOrder, liftingOrder);
 			sb.put("sessionAthletes", sessionAthletes);
 		}
 		if (liftingOrder != null && !liftingOrder.isEmpty()) {
@@ -1362,7 +1336,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "mode", getBoardMode());
 
 		if (event instanceof UIEvent.SwitchGroup || event instanceof UIEvent.GroupDone) {
-			CompetitionDataExport export = exportCompetitionData();
+			CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionData(getFop());
 			if (export != null) {
 				sb.put("database", export.structure());
 				mapPut(sb, "databaseChecksum", export.checksum());
@@ -1413,230 +1387,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return entries;
 	}
 	
-	/**
-	 * Export session athletes in V2 DTO format with team mapping and complete displayInfo.
-	 * Returns a list of `AthleteDTO` which will be serialized by Jackson
-	 * when the forwarder writes JSON to the WebSocket. `sessionName` is
-	 * emitted by the DTO itself.
-	 * 
-	 * @param athletes The session athletes in display/start order
-	 * @param liftingOrder The current lifting order (used to determine classname: current/next)
-	 */
-	private List<Map<String, Object>> exportSessionAthletes(List<Athlete> athletes, List<Athlete> liftingOrder) {
-		if (athletes == null || athletes.isEmpty()) {
-			return Collections.emptyList();
-		}
-
-		// Build team map for consistent team ID references
-		Map<String, TeamDTO> teamMap = buildTeamMap(athletes);
-		
-		// Determine current and next athlete IDs from lifting order for classname
-		long currentId = (liftingOrder != null && liftingOrder.size() > 0) ? liftingOrder.get(0).getId() : -1L;
-		long nextId = (liftingOrder != null && liftingOrder.size() > 1) ? liftingOrder.get(1).getId() : -1L;
-
-		List<Map<String, Object>> result = new ArrayList<>();
-		for (Athlete athlete : athletes) {
-			AthleteDTO dto = AthleteDTO.fromAthlete(athlete, teamMap);
-			
-			// Determine this athlete's position in lifting order for attempt status
-			int liftOrderRank = (athlete.getId() == currentId) ? 1 : ((athlete.getId() == nextId) ? 2 : 0);
-			int attemptsDone = athlete.getAttemptsDone();
-
-			// Build displayInfo with all precomputed display values
-			// This mirrors getAthleteJson() to ensure external scoreboards match internal ones
-			Map<String, Object> displayInfo = new java.util.HashMap<>();
-
-			// Only the active lift phase (snatch vs clean&jerk) may have the "current" or "next" markers.
-			// If athlete has completed fewer than 3 attempts they are in the snatch phase; otherwise C&J.
-			boolean inCjPhase = attemptsDone >= 3;
-
-			// Attempt arrays with status info (value + status: good/fail/request/current/next)
-			List<Map<String, Object>> sattemptsList = new ArrayList<>();
-			// For snatches, apply liftOrderRank only when in snatch phase; otherwise suppress current/next
-			int snatchLiftOrderRank = inCjPhase ? 0 : liftOrderRank;
-			sattemptsList.add(buildAttemptInfo(dto.getSnatch1ActualLift(), dto.getSnatch1Change2(), dto.getSnatch1Change1(), dto.getSnatch1Declaration(), snatchLiftOrderRank, 0, attemptsDone));
-			sattemptsList.add(buildAttemptInfo(dto.getSnatch2ActualLift(), dto.getSnatch2Change2(), dto.getSnatch2Change1(), dto.getSnatch2Declaration(), snatchLiftOrderRank, 1, attemptsDone));
-			sattemptsList.add(buildAttemptInfo(dto.getSnatch3ActualLift(), dto.getSnatch3Change2(), dto.getSnatch3Change1(), dto.getSnatch3Declaration(), snatchLiftOrderRank, 2, attemptsDone));
-			displayInfo.put("sattempts", sattemptsList);
-
-			List<Map<String, Object>> cattemptsList = new ArrayList<>();
-			// For clean&jerk, apply liftOrderRank only when in C&J phase; otherwise suppress current/next
-			int cjLiftOrderRank = inCjPhase ? liftOrderRank : 0;
-			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk1ActualLift(), dto.getCleanJerk1Change2(), dto.getCleanJerk1Change1(), dto.getCleanJerk1Declaration(), cjLiftOrderRank, 0, attemptsDone));
-			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk2ActualLift(), dto.getCleanJerk2Change2(), dto.getCleanJerk2Change1(), dto.getCleanJerk2Declaration(), cjLiftOrderRank, 1, attemptsDone));
-			cattemptsList.add(buildAttemptInfo(dto.getCleanJerk3ActualLift(), dto.getCleanJerk3Change2(), dto.getCleanJerk3Change1(), dto.getCleanJerk3Declaration(), cjLiftOrderRank, 2, attemptsDone));
-			displayInfo.put("cattempts", cattemptsList);
-
-			// Basic display fields (matching getAthleteJson)
-			displayInfo.put("fullName", athlete.getFullName() != null ? athlete.getFullName() : "");
-			displayInfo.put("teamName", athlete.getTeam() != null ? athlete.getTeam() : "");
-			displayInfo.put("yearOfBirth", athlete.getYearOfBirth() != null ? athlete.getYearOfBirth().toString() : "");
-			displayInfo.put("gender", athlete.getGender() != null ? athlete.getGender().toString() : "");
-			Integer startNumber = athlete.getStartNumber();
-			displayInfo.put("startNumber", startNumber != null ? startNumber.toString() : "");
-			Integer lotNumber = athlete.getLotNumber();
-			displayInfo.put("lotNumber", lotNumber != null ? lotNumber.toString() : "");
-			
-			// Category with age group
-			Category curCat = athlete.getCategory();
-			displayInfo.put("category", curCat != null ? curCat.getNameWithAgeGroup() : "");
-			
-			// Best lifts and total
-			displayInfo.put("bestSnatch", formatInt(athlete.getBestSnatch()));
-			displayInfo.put("bestCleanJerk", formatInt(athlete.getBestCleanJerk()));
-			displayInfo.put("total", formatInt(athlete.getTotal()));
-			
-			// Session ranks
-			Participation mainRankings = athlete.getMainRankings();
-			if (mainRankings != null) {
-				displayInfo.put("snatchRank", formatInt(mainRankings.getSnatchRank()));
-				displayInfo.put("cleanJerkRank", formatInt(mainRankings.getCleanJerkRank()));
-				displayInfo.put("totalRank", formatInt(mainRankings.getTotalRank()));
-			} else {
-				displayInfo.put("snatchRank", "-");
-				displayInfo.put("cleanJerkRank", "-");
-				displayInfo.put("totalRank", "-");
-			}
-			
-			// Sinclair/computed score
-			displayInfo.put("sinclair", computedScore(athlete));
-			displayInfo.put("sinclairRank", computedScoreRank(athlete));
-			
-			// Group and subcategory
-			if (athlete.getGroup() != null) {
-				displayInfo.put("group", athlete.getGroup().getName());
-			}
-			displayInfo.put("subCategory", athlete.getSubCategory());
-			
-			// Classname for highlighting current/next athlete
-			boolean notDone = athlete.getAttemptsDone() < 6;
-			String blink = (notDone ? " blink" : "");
-			// liftOrderRank already computed above for attempt status
-			if (notDone) {
-				displayInfo.put("classname", (liftOrderRank == 1 ? "current" + blink : (liftOrderRank == 2) ? "next" : ""));
-			} else {
-				displayInfo.put("classname", "");
-			}
-			
-			// Custom fields
-			displayInfo.put("custom1", athlete.getCustom1() != null ? athlete.getCustom1() : "");
-			displayInfo.put("custom2", athlete.getCustom2() != null ? athlete.getCustom2() : "");
-			displayInfo.put("membership", athlete.getMembership() != null ? athlete.getMembership() : "");
-			
-			// Team flag info (matching setTeamFlag)
-			String team = athlete.getTeam();
-			if (team != null) {
-				int teamLength = team.length();
-				displayInfo.put("teamLength", teamLength);
-				String flagPath = "/local/flags/" + team + ".svg";
-				displayInfo.put("flagURL", flagPath);
-				displayInfo.put("flagClass", teamLength <= Competition.SHORT_TEAM_LENGTH ? "shortTeam" : "longTeam");
-			} else {
-				displayInfo.put("teamLength", 0);
-				displayInfo.put("flagURL", "");
-				displayInfo.put("flagClass", "");
-			}
-
-			    Map<String, Object> sessionAthlete = new LinkedHashMap<>();
-			    // Add top-level athleteKey for readability (redundant with athlete.key inside)
-				    String athleteKeyTop = athlete.getKey() != null ? String.valueOf(athlete.getKey())
-					    : (athlete.getId() != null ? String.valueOf(athlete.getId()) : null);
-			    sessionAthlete.put("athleteKey", athleteKeyTop);
-			    sessionAthlete.put("athlete", dto);
-			    sessionAthlete.put("displayInfo", displayInfo);
-
-			result.add(sessionAthlete);
-		}
-
-		return result;
-	}
-
-	private List<Map<String, Object>> exportLeaderEntries(List<Athlete> leaders) {
-		if (leaders == null || leaders.isEmpty()) {
-			return Collections.emptyList();
-		}
-
-		List<Map<String, Object>> baseEntries = exportSessionAthletes(leaders, null);
-		if (baseEntries.isEmpty()) {
-			return Collections.emptyList();
-		}
-
-		List<Map<String, Object>> result = new ArrayList<>();
-		Category previousCategory = null;
-		for (int i = 0; i < leaders.size(); i++) {
-			Athlete athlete = leaders.get(i);
-			Category currentCategory = athlete != null ? athlete.getCategory() : null;
-			boolean categoryChanged = false;
-			if (currentCategory != null) {
-				categoryChanged = previousCategory == null || !currentCategory.sameAs(previousCategory);
-			} else if (previousCategory != null) {
-				categoryChanged = true;
-			}
-
-			if (categoryChanged) {
-				result.add(createSpacerEntry());
-				previousCategory = currentCategory;
-			}
-
-			Map<String, Object> entry = baseEntries.get(i);
-			if (entry != null) {
-				result.add(entry);
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Pick the most relevant attempt value in display order: actual -> change2 -> change1 -> declaration
-	 * Returns a Map with "value" (Integer) and "status" (String: "good", "fail", "request", "current", "next", or null)
-	 * 
-	 * @param actual The actual lift result (positive=good, negative=fail, null=not attempted)
-	 * @param change2 Second weight change
-	 * @param change1 First weight change  
-	 * @param declaration Original declaration
-	 * @param liftOrderRank 1=current athlete, 2=next athlete, 0=other
-	 * @param attemptIndex 0-5 (0-2 for snatch, 3-5 for C&J within the lift type array)
-	 * @param attemptsDone Number of attempts already completed by this athlete (0-6)
-	 * @return Map with "value" and "status" keys
-	 */
-	@SuppressWarnings("unused")
-	private Map<String, Object> buildAttemptInfo(Integer actual, Integer change2, Integer change1, Integer declaration,
-			int liftOrderRank, int attemptIndex, int attemptsDone) {
-		Map<String, Object> result = new LinkedHashMap<>();
-		
-		if (actual != null) {
-			// Attempt was done
-			result.put("value", Math.abs(actual));
-			result.put("status", actual > 0 ? "good" : "bad");
-		} else {
-			// Attempt not done yet - find the requested weight
-			Integer requested = null;
-			if (change2 != null) requested = change2;
-			else if (change1 != null) requested = change1;
-			else if (declaration != null) requested = declaration;
-			
-			if (requested != null) {
-				result.put("value", requested);
-				// Mark pending attempts based on athlete's position in lifting order
-				// current = this athlete is lifting now, next = this athlete lifts next, request = other athletes
-				if (liftOrderRank == 1) {
-					result.put("status", "current");
-				} else if (liftOrderRank == 2) {
-					result.put("status", "next");
-				} else {
-					result.put("status", "request");
-				}
-			} else {
-				// No data at all -> mark explicitly as empty for display-ready output
-				// Use a Unicode non-breaking space so the frontend has a printable cell value
-				result.put("value", "\u00A0");
-				result.put("status", "empty");
-			}
-		}
-		
-		return result;
-	}
+	// Session athlete export and attempt info building delegated to AthleteExporter
 
 	private void doBreak(UIEvent e, Group g) {
 		OwlcmsSession.withFop(fop -> {
@@ -1936,29 +1687,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return spacer;
 	}
 
-
-
-	private Map<String, TeamDTO> buildTeamMap(List<Athlete> athletes) {
-		Map<String, TeamDTO> teamMap = new HashMap<>();
-		if (athletes == null) {
-			return teamMap;
-		}
-		for (Athlete athlete : athletes) {
-			if (athlete == null) {
-				continue;
-			}
-			String teamName = athlete.getTeam();
-			if (teamName == null || teamName.trim().isEmpty() || teamMap.containsKey(teamName)) {
-				continue;
-			}
-			TeamDTO teamDto = new TeamDTO();
-			teamDto.setId(teamName.hashCode());
-			teamDto.setName(teamName);
-			teamMap.put(teamName, teamDto);
-		}
-		return teamMap;
-	}
-
 	/**
 	 * Compute Json string ready to be used by web component template
 	 *
@@ -2087,90 +1815,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return value.toString();
 	}
 
-	private CompetitionDataExport exportCompetitionData() {
-		try {
-			InputStream inputStream;
-			// Use V2 format if feature switch is active
-			if (Config.getCurrent().featureSwitch("v2Export")) {
-				CompetitionDataV2 competitionData = new CompetitionDataV2();
-				competitionData.fromDatabase();
-				inputStream = competitionData.exportData();
-			} else {
-				CompetitionData competitionData = new CompetitionData();
-				competitionData.fromDatabase();
-				inputStream = competitionData.exportData();
-			}
-			
-			try (inputStream) {
-				byte[] dataBytes = inputStream.readAllBytes();
-				Object structure = JSON_MAPPER.readValue(dataBytes, Object.class);
-				String json = new String(dataBytes, StandardCharsets.UTF_8);
-				String checksum = computeChecksum(dataBytes);
-				return new CompetitionDataExport(structure, json, checksum);
-			}
-		} catch (Exception e) {
-			logger.error("{}failed to export competition data: {}", FieldOfPlay.getLoggingName(getFop()),
-			        LoggerUtils.exceptionMessage(e));
-			return null;
-		}
-	}
-
-	/**
-	 * Static method to export competition data (for startup).
-	 * Does not require a FOP instance.
-	 */
-	private static CompetitionDataExport exportCompetitionDataStatic() {
-		try {
-			InputStream inputStream;
-			// Use V2 format if feature switch is active
-			if (Config.getCurrent().featureSwitch("v2Export")) {
-				CompetitionDataV2 competitionData = new CompetitionDataV2();
-				competitionData.fromDatabase();
-				inputStream = competitionData.exportData();
-			} else {
-				CompetitionData competitionData = new CompetitionData();
-				competitionData.fromDatabase();
-				inputStream = competitionData.exportData();
-			}
-			
-			try (inputStream) {
-				byte[] dataBytes = inputStream.readAllBytes();
-				Object structure = JSON_MAPPER.readValue(dataBytes, Object.class);
-				String json = new String(dataBytes, StandardCharsets.UTF_8);
-				String checksum = computeChecksumStatic(dataBytes);
-				return new CompetitionDataExport(structure, json, checksum);
-			}
-		} catch (Exception e) {
-			logger.error("failed to export competition data for startup: {}", LoggerUtils.exceptionMessage(e));
-			return null;
-		}
-	}
-
-	private String computeChecksum(byte[] dataBytes) {
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] hash = digest.digest(dataBytes);
-			return HexFormat.of().formatHex(hash);
-		} catch (Exception e) {
-			logger.warn("{}failed to compute competition data checksum: {}", FieldOfPlay.getLoggingName(getFop()),
-			        LoggerUtils.exceptionMessage(e));
-			return null;
-		}
-	}
-
-	/**
-	 * Static method to compute checksum of competition data (for startup).
-	 */
-	private static String computeChecksumStatic(byte[] dataBytes) {
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] hash = digest.digest(dataBytes);
-			return HexFormat.of().formatHex(hash);
-		} catch (Exception e) {
-			logger.warn("failed to compute competition data checksum for startup: {}", LoggerUtils.exceptionMessage(e));
-			return null;
-		}
-	}
+	// Competition data export and hash computation delegated to ForwarderPayloadBuilder
 
 	private Object convertJsonValue(JsonValue value) {
 		if (value == null || value.getType() == JsonType.NULL) {
@@ -2208,19 +1853,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			default:
 				return null;
 		}
-	}
-	private int computeParametersHash(Map<String, ?> parameters) {
-		if (parameters == null) {
-			return 0;
-		}
-		Map<String, Object> sanitized = new LinkedHashMap<>();
-		parameters.forEach((key, value) -> {
-			if ("database".equals(key)) {
-				return;
-			}
-			sanitized.put(key, value);
-		});
-		return sanitized.hashCode();
 	}
 
 	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
@@ -2283,7 +1915,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 					pushUpdateDoIt(e2);
 					Thread.sleep(KEEPALIVE_INTERVAL);
 				} catch (InterruptedException e) {
-					logger.debug("thread {} interrupted", Thread.currentThread().getId());
+					logger.debug("thread {} interrupted", Thread.currentThread().threadId());
 					break;
 				}
 			}
@@ -2309,6 +1941,119 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	private void recomputeRemainingTimes(Map<String, Object> sb) {
+		try {
+			if (sb == null) return;
+			if (getFop() == null) return;
+
+			long now = System.currentTimeMillis();
+
+			// Helper: parse long/int/boolean from payload values (strings or numbers)
+			java.util.function.Function<Object, Long> toLong = (o) -> {
+				if (o == null) return null;
+				if (o instanceof Number) return ((Number) o).longValue();
+				try { return Long.parseLong(String.valueOf(o)); } catch (Exception e) { return null; }
+			};
+			java.util.function.Function<Object, Integer> toInt = (o) -> {
+				if (o == null) return null;
+				if (o instanceof Number) return ((Number) o).intValue();
+				try { return Integer.parseInt(String.valueOf(o)); } catch (Exception e) { return null; }
+			};
+			java.util.function.Function<Object, Boolean> toBool = (o) -> {
+				if (o == null) return Boolean.FALSE;
+				if (o instanceof Boolean) return (Boolean) o;
+				String s = String.valueOf(o);
+				return "true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s) || "1".equals(s);
+			};
+
+			// ATHLETE: If the update payload already contains athlete start+remaining, recompute remaining from that, else fallback to live timer
+			try {
+				Long existingAthStart = toLong.apply(sb.get("athleteStartTimeMillis"));
+				Integer existingAthRemaining = toInt.apply(sb.get("athleteMillisRemaining"));
+				String existingAthEvent = sb.get("athleteTimerEventType") != null ? sb.get("athleteTimerEventType").toString() : null;
+				if (existingAthStart != null && existingAthRemaining != null && existingAthStart > 0
+						&& "StartTime".equals(existingAthEvent)) {
+					long elapsed = now - existingAthStart;
+					int recomputed = Math.max(0, existingAthRemaining - (int) elapsed);
+					sb.put("athleteMillisRemaining", recomputed);
+					// keep event type as StartTime and preserve start timestamp
+				} else {
+					// fallback to live timer
+					try {
+						IProxyTimer athleteTimer = getFop().getAthleteTimer();
+						if (athleteTimer != null) {
+							int athleteRemaining = athleteTimer.liveTimeRemaining();
+							sb.put("athleteMillisRemaining", athleteRemaining);
+							sb.put("athleteTimerEventType", athleteTimer.isRunning() ? "StartTime" : "SetTime");
+							if (athleteTimer.isRunning()) {
+								sb.put("athleteStartTimeMillis", now);
+							}
+						}
+					} catch (Throwable t) {
+						logger.warn("{}could not recompute athlete timer: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
+					}
+				}
+			} catch (Throwable t) {
+				logger.warn("{}athlete timer recomputation failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
+			}
+
+			// BREAK: Prefer values present in the update payload (e.g., from lastTimerMap) and recompute remaining based on stored start time; otherwise fall back to live timer
+			try {
+				Long existingBreakStart = toLong.apply(sb.get("breakStartTimeMillis"));
+				Integer existingBreakRemaining = toInt.apply(sb.get("breakMillisRemaining"));
+				Boolean existingIndefinite = toBool.apply(sb.get("indefiniteBreak"));
+				String existingBreakEvent = sb.get("breakTimerEventType") != null ? sb.get("breakTimerEventType").toString() : null;
+
+				if (existingBreakStart != null && existingBreakStart > 0 && existingBreakRemaining != null
+						&& "BreakStarted".equals(existingBreakEvent)) {
+					long elapsed = now - existingBreakStart;
+					int recomputed = Math.max(0, existingBreakRemaining - (int) elapsed);
+					if (existingIndefinite != null && existingIndefinite) {
+						sb.put("indefiniteBreak", Boolean.TRUE);
+						sb.put("breakMillisRemaining", null);
+						sb.put("breakIsIndefinite", Boolean.toString(true));
+					} else {
+						sb.put("indefiniteBreak", Boolean.FALSE);
+						sb.put("breakMillisRemaining", recomputed);
+						sb.put("breakIsIndefinite", Boolean.toString(false));
+					}
+					// preserve breakStartTimeMillis as provided
+				} else if (existingIndefinite != null && existingIndefinite) {
+					// explicit indefinite marker in payload
+					sb.put("indefiniteBreak", Boolean.TRUE);
+					sb.put("breakMillisRemaining", null);
+					sb.put("breakIsIndefinite", Boolean.toString(true));
+				} else {
+					// fallback to live break timer
+					try {
+						IBreakTimer breakTimer = getFop().getBreakTimer();
+						if (breakTimer != null) {
+							boolean indefinite = breakTimer.isIndefinite();
+							int breakRemaining = breakTimer.liveTimeRemaining();
+							if (indefinite) {
+								sb.put("indefiniteBreak", Boolean.TRUE);
+								sb.put("breakMillisRemaining", null);
+							} else {
+								sb.put("indefiniteBreak", Boolean.FALSE);
+								sb.put("breakMillisRemaining", breakRemaining);
+							}
+							sb.put("breakIsIndefinite", Boolean.toString(indefinite));
+							if (breakTimer.isRunning()) {
+								sb.put("breakStartTimeMillis", now);
+								sb.put("breakTimerEventType", "BreakStarted");
+							}
+						}
+					} catch (Throwable t) {
+						logger.warn("{}could not recompute break timer: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
+					}
+				}
+			} catch (Throwable t) {
+				logger.warn("{}break timer recomputation failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
+			}
+
+		} catch (Throwable ex) {
+			logger.warn("{}recomputeRemainingTimes failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(ex));
+		}
+
 	}
 
 	private void sendConfig(String url, String updateKey) {
@@ -2381,7 +2126,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			logger.warn("no updateKey configured for {}, proceeding without one", url);
 		}
 
-		CompetitionDataExport export = exportCompetitionData();
+		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionData(getFop());
 		if (export == null) {
 			logger.warn("{}unable to build competition data payload for {}", FieldOfPlay.getLoggingName(getFop()), url);
 			return;
@@ -2595,7 +2340,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		Integer previousDebounceHash = this.debouncingHash.get(url);
 		Long previousDebounceMillis = this.debouncingMillis.get(url);
 		long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
-		Integer hashCode = computeParametersHash(parameters);
+		Integer hashCode = ForwarderPayloadBuilder.computeParametersHash(parameters);
 
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
@@ -2642,7 +2387,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		Integer previousDebounceHash = this.debouncingHash.get(url);
 		Long previousDebounceMillis = this.debouncingMillis.get(url);
 		long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
-		Integer hashCode = computeParametersHash(parameters);
+		Integer hashCode = ForwarderPayloadBuilder.computeParametersHash(parameters);
 
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
@@ -2847,168 +2592,13 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	/**
-	 * Static method to send the full competition database on startup via WebSocket.
-	 * This sends a message with type "database" containing the complete competition data.
-	 * 
-	 * @param videoUrl the video data WebSocket URL (if configured)
-	 * @param updateUrl the public results WebSocket URL (if configured)
-	 */
-	/**
 	 * Register startup data callbacks for WebSocket connections.
-	 * When a connection opens, sends database, translations_zip, and flags_zip in sequence.
-	 * Waits for pictures to be requested via 428 response before sending.
-	 * Also registers missing data callbacks to respond to 428 requests for all data types.
+	 * Delegates to WebSocketSender.registerStartupDataCallbacks().
 	 * 
 	 * @param videoUrl the video data WebSocket URL (if configured)
 	 * @param updateUrl the public results WebSocket URL (if configured)
 	 */
 	public static void registerStartupDataCallbacks(String videoUrl, String updateUrl) {
-		logger.info("Registering startup data callbacks for WebSocket trackers");
-		
-		// Export competition data once (for all connections)
-		CompetitionDataExport export = exportCompetitionDataStatic();
-		if (export == null) {
-			logger.warn("Unable to build competition data payload for startup");
-			return;
-		}
-		
-		// Create translations ZIP bytes once
-		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
-			logger.warn("Translations not available for startup send");
-			return;
-		}
-		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
-		
-		// Create flags ZIP bytes once
-		if (!FlagsZipHelper.hasFlagsAvailable()) {
-			logger.warn("Flags not available for startup send");
-			return;
-		}
-		byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
-		
-		// Create pictures ZIP bytes once (optional - may not exist)
-		final byte[] picturesZipBytes = PicturesZipHelper.hasPicturesAvailable() 
-			? PicturesZipHelper.createPicturesZipBytes() 
-			: new byte[0];
-		
-		// Register for video data URL
-		if (videoUrl != null && !videoUrl.trim().isEmpty() && (videoUrl.startsWith("ws://") || videoUrl.startsWith("wss://"))) {
-			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(videoUrl);
-			if (sender != null) {
-				// Single onOpenCallback that sends all three data types
-				sender.setOnOpenCallback(() -> {
-					logger.info("WebSocket connected to video URL {}, sending startup data", videoUrl);
-					
-					// Send database
-					Map<String, Object> dbPayload = new LinkedHashMap<>();
-					dbPayload.put("databaseChecksum", export.checksum());
-					dbPayload.put("database", export.structure());
-					boolean sent = sender.sendObject("database", dbPayload);
-					if (sent) {
-						logger.warn("Sent startup database via WebSocket to {}", videoUrl);
-					} else {
-						logger.warn("Could not send startup database via WebSocket to {} (socket not ready)", videoUrl);
-					}
-					
-					// Send translations_zip
-					sent = sender.sendBinary("translations_zip", translationsZipBytes);
-					if (sent) {
-						logger.warn("Sent startup translations_zip via WebSocket to {}", videoUrl);
-					} else {
-						logger.warn("Could not send startup translations_zip via WebSocket to {} (socket not ready)", videoUrl);
-					}
-					
-					// Send flags_zip
-					sent = sender.sendBinary("flags_zip", flagsZipBytes);
-					if (sent) {
-						logger.warn("Sent startup flags_zip via WebSocket to {}", videoUrl);
-					} else {
-						logger.warn("Could not send startup flags_zip via WebSocket to {} (socket not ready)", videoUrl);
-					}
-				});
-				
-				// Register missing data callbacks for on-demand requests
-				sender.setMissingDataCallback("database", () -> {
-					Map<String, Object> payload = new LinkedHashMap<>();
-					payload.put("databaseChecksum", export.checksum());
-					payload.put("database", export.structure());
-					sender.sendObject("database", payload);
-				});
-				
-				sender.setMissingDataCallback("translations_zip", () -> {
-					sender.sendBinary("translations_zip", translationsZipBytes);
-				});
-				
-			sender.setMissingDataCallback("flags_zip", () -> {
-				sender.sendBinary("flags_zip", flagsZipBytes);
-			});
-			
-			// Pictures are sent on-demand only, not at startup
-			sender.setMissingDataCallback("pictures_zip", () -> {
-				if (picturesZipBytes.length > 0) {
-					sender.sendBinary("pictures_zip", picturesZipBytes);
-				}
-			});
-		}
-	}		// Register for public results URL
-		if (updateUrl != null && !updateUrl.trim().isEmpty() && (updateUrl.startsWith("ws://") || updateUrl.startsWith("wss://"))) {
-			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(updateUrl);
-			if (sender != null) {
-				// Single onOpenCallback that sends all three data types
-				sender.setOnOpenCallback(() -> {
-					logger.info("WebSocket connected to update URL {}, sending startup data", updateUrl);
-					
-					// Send database
-					Map<String, Object> dbPayload = new LinkedHashMap<>();
-					dbPayload.put("databaseChecksum", export.checksum());
-					dbPayload.put("database", export.structure());
-					boolean sent = sender.sendObject("database", dbPayload);
-					if (sent) {
-						logger.warn("Sent startup database via WebSocket to {}", updateUrl);
-					} else {
-						logger.warn("Could not send startup database via WebSocket to {} (socket not ready)", updateUrl);
-					}
-					
-					// Send translations_zip
-					sent = sender.sendBinary("translations_zip", translationsZipBytes);
-					if (sent) {
-						logger.warn("Sent startup translations_zip via WebSocket to {}", updateUrl);
-					} else {
-						logger.warn("Could not send startup translations_zip via WebSocket to {} (socket not ready)", updateUrl);
-					}
-					
-					// Send flags_zip
-					sent = sender.sendBinary("flags_zip", flagsZipBytes);
-					if (sent) {
-						logger.warn("Sent startup flags_zip via WebSocket to {}", updateUrl);
-					} else {
-						logger.warn("Could not send startup flags_zip via WebSocket to {} (socket not ready)", updateUrl);
-					}
-				});
-				
-				// Register missing data callbacks for on-demand requests
-				sender.setMissingDataCallback("database", () -> {
-					Map<String, Object> payload = new LinkedHashMap<>();
-					payload.put("databaseChecksum", export.checksum());
-					payload.put("database", export.structure());
-					sender.sendObject("database", payload);
-				});
-				
-				sender.setMissingDataCallback("translations_zip", () -> {
-					sender.sendBinary("translations_zip", translationsZipBytes);
-				});
-				
-				sender.setMissingDataCallback("flags_zip", () -> {
-					sender.sendBinary("flags_zip", flagsZipBytes);
-				});
-				
-				// Pictures are sent on-demand only, not at startup
-				sender.setMissingDataCallback("pictures_zip", () -> {
-					if (picturesZipBytes.length > 0) {
-						sender.sendBinary("pictures_zip", picturesZipBytes);
-					}
-				});
-			}
-		}
+		WebSocketSender.registerStartupDataCallbacks(videoUrl, updateUrl);
 	}
 }

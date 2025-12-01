@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -168,7 +169,7 @@ public class StartupUtils {
 
         int response;
 
-        URL testingURL = new URL("http", hostName, serverPort, "/local/sounds/timeOver.mp3");
+        URL testingURL = URI.create("http://" + hostName + ":" + serverPort + "/local/sounds/timeOver.mp3").toURL();
         HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
         logger.debug("checking for {}", testingURL.toExternalForm());
         huc.setRequestMethod("GET");
@@ -176,13 +177,13 @@ public class StartupUtils {
         int response1 = huc.getResponseCode();
         response = response1;
         if (response == 200) {
-            URL appURL = new URL("http", hostName, serverPort, "");
+            URL appURL = URI.create("http://" + hostName + ":" + serverPort).toURL();
             String os = System.getProperty("os.name").toLowerCase();
             if (desktop != null) {
                 desktop.browse(appURL.toURI());
             } else if (os.contains("win")) {
                 Runtime rt = Runtime.getRuntime();
-                rt.exec("rundll32 url.dll,FileProtocolHandler " + appURL.toURI());
+                rt.exec(new String[] {"rundll32", "url.dll,FileProtocolHandler", appURL.toURI().toString()});
             } else {
                 return false;
             }

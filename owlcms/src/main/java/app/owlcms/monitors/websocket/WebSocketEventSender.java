@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.monitors;
+package app.owlcms.monitors.websocket;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -127,7 +127,8 @@ public class WebSocketEventSender {
 	}
 
 	/**
-	 * Set callback to be invoked when WebSocket connection opens
+	 * Set callback to be invoked when WebSocket connection opens.
+	 * The callback is invoked on every successful connection including reconnects.
 	 * @param callback Callback to invoke when connection opens
 	 */
 	public void setOnOpenCallback(Runnable callback) {

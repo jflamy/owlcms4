@@ -3,6 +3,7 @@ package com.github.mvysny.vaadinboot;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -87,7 +88,7 @@ final class Env {
         }
 
         // Resolve file to directory
-        final URL webRoot = new URL(url.substring(0, url.length() - 5));
+        final URL webRoot = URI.create(url.substring(0, url.length() - 5)).toURL();
         log.info("WebRoot is served from " + webRoot);
         final Resource resource = resourceFactory.newResource(webRoot);
         if (!resource.exists()) {
