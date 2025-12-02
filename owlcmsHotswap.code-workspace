@@ -17,8 +17,8 @@
     "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar",
     "java.configuration.runtimes": [
       {
-        "name": "JavaSE-17",
-        "path": "C:\\Dev\\Java\\jbr_jcef-17.0.14-windows-x64-b1367.22",
+        "name": "JavaSE-21",
+        "path": "C:\\Dev\\Java\\jbrsdk_jcef-21.0.9-windows-x64-b1038.76",
         "default": true
       }
     ],
