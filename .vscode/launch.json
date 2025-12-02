@@ -266,14 +266,14 @@
   ],
   "compounds": [
     {
-      "name": "🟠 tandem owlcms + tracker",
+      "name": "🟪 tandem owlcms + publicresults",
       "configurations": [
         "🟠 tandem owlcms",
         "🟠 tandem publicresults"
       ]
     },
     {
-      "name": "🔷 tandem owlcms + firmata",
+      "name": "🟪 tandem owlcms + firmata",
       "configurations": [
         "🟨 owlcms no reset",
         "🔷 firmata UI (second folder)"
