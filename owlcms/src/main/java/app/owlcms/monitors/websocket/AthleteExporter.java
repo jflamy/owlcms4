@@ -205,6 +205,33 @@ public class AthleteExporter {
 	}
 
 	/**
+	 * Ensure only the first pending attempt (without actual lift) retains a status.
+	 * Subsequent pending attempts are marked as empty to avoid showing multiple
+	 * "current" or "request" markers for future attempts.
+	 * 
+	 * @param attempts List of attempt info maps with "status" keys
+	 */
+	private static void enforceFirstPendingOnly(List<Map<String, Object>> attempts) {
+		boolean foundFirstPending = false;
+		for (Map<String, Object> attempt : attempts) {
+			String status = (String) attempt.get("status");
+			// "good" and "bad" are completed lifts - skip them
+			if (AttemptStatus.GOOD.getValue().equals(status) || AttemptStatus.BAD.getValue().equals(status)) {
+				continue;
+			}
+			// This is a pending attempt (current, next, request, or empty)
+			if (!foundFirstPending && !AttemptStatus.EMPTY.getValue().equals(status)) {
+				// First pending attempt with a status - keep it
+				foundFirstPending = true;
+			} else if (foundFirstPending && !AttemptStatus.EMPTY.getValue().equals(status)) {
+				// Subsequent pending attempt with status - mark as empty and clear value
+				attempt.put("status", AttemptStatus.EMPTY.getValue());
+				attempt.put("value", null);
+			}
+		}
+	}
+
+	/**
 	 * Create a spacer entry for order lists.
 	 */
 	public static Map<String, Object> createSpacerEntry() {
@@ -254,6 +281,8 @@ public class AthleteExporter {
 		sattemptsList.add(buildAttemptInfo(dto.getSnatch1ActualLift(), dto.getSnatch1Change2(), dto.getSnatch1Change1(), dto.getSnatch1Declaration(), null, snatchLiftOrderRank));
 		sattemptsList.add(buildAttemptInfo(dto.getSnatch2ActualLift(), dto.getSnatch2Change2(), dto.getSnatch2Change1(), dto.getSnatch2Declaration(), parseAutoProgression(dto.getSnatch2AutomaticProgression()), snatchLiftOrderRank));
 		sattemptsList.add(buildAttemptInfo(dto.getSnatch3ActualLift(), dto.getSnatch3Change2(), dto.getSnatch3Change1(), dto.getSnatch3Declaration(), parseAutoProgression(dto.getSnatch3AutomaticProgression()), snatchLiftOrderRank));
+		// Only the first pending attempt should have a status; subsequent pending attempts are empty
+		enforceFirstPendingOnly(sattemptsList);
 		displayInfo.put("sattempts", sattemptsList);
 
 		// CleanJerk1 has no automatic progression (first C&J attempt)
@@ -262,6 +291,8 @@ public class AthleteExporter {
 		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk1ActualLift(), dto.getCleanJerk1Change2(), dto.getCleanJerk1Change1(), dto.getCleanJerk1Declaration(), null, cjLiftOrderRank));
 		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk2ActualLift(), dto.getCleanJerk2Change2(), dto.getCleanJerk2Change1(), dto.getCleanJerk2Declaration(), parseAutoProgression(dto.getCleanJerk2AutomaticProgression()), cjLiftOrderRank));
 		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk3ActualLift(), dto.getCleanJerk3Change2(), dto.getCleanJerk3Change1(), dto.getCleanJerk3Declaration(), parseAutoProgression(dto.getCleanJerk3AutomaticProgression()), cjLiftOrderRank));
+		// Only the first pending attempt should have a status; subsequent pending attempts are empty
+		enforceFirstPendingOnly(cattemptsList);
 		displayInfo.put("cattempts", cattemptsList);
 
 		// Basic display fields
