@@ -1783,7 +1783,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					pushUpdateDoIt(e2);
 					Thread.sleep(KEEPALIVE_INTERVAL);
 				} catch (InterruptedException e) {
-					logger.debug("thread {} interrupted", Thread.currentThread().threadId());
+					logger.debug("thread {} interrupted", Thread.currentThread().getId());
 					break;
 				}
 			}

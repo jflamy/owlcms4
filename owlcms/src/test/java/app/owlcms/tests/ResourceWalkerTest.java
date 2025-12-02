@@ -37,23 +37,23 @@ public class ResourceWalkerTest {
         assertTrue(walker.matchesLocale("Protocol.xls", null));
         assertFalse(walker.matchesLocale("Protocol_en.xls", null));
 
-        assertTrue(walker.matchesLocale("Protocol_en.xls", Locale.of("en")));
-        assertFalse(walker.matchesLocale("Protocol_en.xls", Locale.of("fr")));
-        assertFalse(walker.matchesLocale("Protocol_en_ZA.xls", Locale.of("en")));
-        assertFalse(walker.matchesLocale("Protocol_en_ZA.xls", Locale.of("fr")));
-        assertFalse(walker.matchesLocale("Protocol_en_ZA_JHB.xls", Locale.of("en")));
-        assertFalse(walker.matchesLocale("Protocol_en_ZA_JHB.xls", Locale.of("fr")));
+        assertTrue(walker.matchesLocale("Protocol_en.xls", new Locale("en")));
+        assertFalse(walker.matchesLocale("Protocol_en.xls", new Locale("fr")));
+        assertFalse(walker.matchesLocale("Protocol_en_ZA.xls", new Locale("en")));
+        assertFalse(walker.matchesLocale("Protocol_en_ZA.xls", new Locale("fr")));
+        assertFalse(walker.matchesLocale("Protocol_en_ZA_JHB.xls", new Locale("en")));
+        assertFalse(walker.matchesLocale("Protocol_en_ZA_JHB.xls", new Locale("fr")));
 
-        assertTrue(walker.matchesLocale("Protocol_en.xls", Locale.of("en", "ZA")));
-        assertTrue(walker.matchesLocale("Protocol_en_ZA.xls", Locale.of("en", "ZA")));
-        assertFalse(walker.matchesLocale("Protocol_en_ZA.xls", Locale.of("en", "CA")));
-        assertTrue(walker.matchesLocale("Protocol_en_ZA_JHB.xls", Locale.of("en", "ZA")));
-        assertFalse(walker.matchesLocale("Protocol_en_ZA_JHB.xls", Locale.of("en", "CA")));
+        assertTrue(walker.matchesLocale("Protocol_en.xls", new Locale("en", "ZA")));
+        assertTrue(walker.matchesLocale("Protocol_en_ZA.xls", new Locale("en", "ZA")));
+        assertFalse(walker.matchesLocale("Protocol_en_ZA.xls", new Locale("en", "CA")));
+        assertTrue(walker.matchesLocale("Protocol_en_ZA_JHB.xls", new Locale("en", "ZA")));
+        assertFalse(walker.matchesLocale("Protocol_en_ZA_JHB.xls", new Locale("en", "CA")));
 
-        assertTrue(walker.matchesLocale("Protocol_en.xls", Locale.of("en", "ZA", "JHB")));
-        assertTrue(walker.matchesLocale("Protocol_en_ZA.xls", Locale.of("en", "ZA", "JHB")));
-        assertTrue(walker.matchesLocale("Protocol_en_ZA_JHB.xls", Locale.of("en", "ZA", "JHB")));
-        assertFalse(walker.matchesLocale("Protocol_en_ZA_JHB.xls", Locale.of("en", "ZA", "CT")));
+        assertTrue(walker.matchesLocale("Protocol_en.xls", new Locale("en", "ZA", "JHB")));
+        assertTrue(walker.matchesLocale("Protocol_en_ZA.xls", new Locale("en", "ZA", "JHB")));
+        assertTrue(walker.matchesLocale("Protocol_en_ZA_JHB.xls", new Locale("en", "ZA", "JHB")));
+        assertFalse(walker.matchesLocale("Protocol_en_ZA_JHB.xls", new Locale("en", "ZA", "CT")));
     }
     
     @Ignore

@@ -266,7 +266,7 @@
   ],
   "compounds": [
     {
-      "name": "🟠 tandem owlcms + publicresults",
+      "name": "🟠 tandem owlcms + tracker",
       "configurations": [
         "🟠 tandem owlcms",
         "🟠 tandem publicresults"
@@ -277,6 +277,13 @@
       "configurations": [
         "🟨 owlcms no reset",
         "🔷 firmata UI (second folder)"
+      ]
+    },
+    {
+      "name": "🟪 owlcms + tracker learning",
+      "configurations": [
+        "🟨 WS owlcms no reset",
+        "OWLCMS Tracker - Learning Mode"
       ]
     }
   ]

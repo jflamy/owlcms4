@@ -610,7 +610,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.countdownTypeRadios.setRenderer(new TextRenderer<>(
 		        (item) -> Translator.translate(CountdownType.class.getSimpleName() + "." + item.name())));
 
-		Locale locale = Locale.of("en", "SE"); // ISO 8601 style dates and time
+		Locale locale = new Locale("en", "SE"); // ISO 8601 style dates and time
 		this.timePicker.setLocale(locale);
 		this.datePicker.setLocale(locale);
 		this.minutes = new NativeLabel(Translator.translate("minutes"));

@@ -69,7 +69,7 @@ public class OwlcmsSession {
 					locale = currentUi.getLocale();
 					if (locale != null) {
 						country = locale.getCountry();
-						locale = Locale.of(forcedLocale.getLanguage(), country);
+						locale = new Locale(forcedLocale.getLanguage(), country);
 						//logger.debug("adding country from browser {}", locale);
 						currentUi.setLocale(locale);
 						setAttribute(LOCALE, locale);
@@ -123,7 +123,7 @@ public class OwlcmsSession {
 					country = Locale.getDefault().getCountry();
 				}
 				String language = match.getLanguage();
-				locale = Locale.of(language, country);
+				locale = new Locale(language, country);
 				//logger.debug("adding country '{}' {}: {}", Locale.getDefault(), country, locale);
 			} else {
 				locale = match;
