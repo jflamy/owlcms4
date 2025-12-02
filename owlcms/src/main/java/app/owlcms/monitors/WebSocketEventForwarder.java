@@ -171,7 +171,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	private List<Athlete> groupLeaders;
 	private String groupDescription;
-	private String groupName;
+	private String sessionName;
 	private boolean hidden;
 	private JsonValue leaders;
 	private List<Map<String, Object>> leadersSessionData;
@@ -188,7 +188,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private JsonValue records;
 	private Boolean teamFlags;
 	private String boardMode;
-	private String groupInfo;
+	private String sessionInfo;
 	private Map<String, String> lastTimerMap;
 	private Map<String, String> lastDecisionMap;
 	private Map<String, Object> lastUpdate;
@@ -383,12 +383,12 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return this.groupDescription;
 	}
 
-	public String getGroupInfo() {
-		return this.groupInfo;
+	public String getSessionInfo() {
+		return this.sessionInfo;
 	}
 
-	public String getGroupName() {
-		return this.groupName;
+	public String getSessionName() {
+		return this.sessionName;
 	}
 
 	public String getLiftsDone() {
@@ -805,8 +805,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		this.groupDescription = description;
 	}
 
-	void setGroupName(String name) {
-		this.groupName = name;
+	void setSessionName(String name) {
+		this.sessionName = name;
 	}
 
 	void setHidden(boolean b) {
@@ -853,21 +853,21 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		List<Athlete> displayOrder = getFop().getDisplayOrder();
 		// int liftsDone = AthleteSorter.countLiftsDone(displayOrder);
 
-		// setGroupName(group != null ? group.getName() : "");
-		// setGroupInfo(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
+		// setSessionName(group != null ? group.getName() : "");
+		// setSessionInfo(computeSecondLine(getFop().getCurAthlete(), group != null ? group.getName() : null));
 		// setLiftsDone(Translator.translate("Scoreboard.AttemptsDone", liftsDone));
 
 		if (displayOrder != null && displayOrder.size() > 0) {
 			List<Athlete> liftingOrder = getFop().getLiftingOrder();
 			if (liftingOrder != null && liftingOrder.size() > 0) {
 				Athlete currentAthlete = liftingOrder.get(0);
-				updateGroupInfo(computeLiftType(currentAthlete));
+				updateSessionInfo(computeLiftType(currentAthlete));
 				setLiftTypeKey(computeLiftTypeKey(currentAthlete));
 				setLiftType(computeLiftType(currentAthlete));
 
 			}
 		} else {
-			updateGroupInfo(null);
+			updateSessionInfo(null);
 
 		}
 
@@ -1168,16 +1168,14 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		updateState();
 		Map<String, Object> sb = new LinkedHashMap<>();
 
-		// include timer and decision info for synchronization on restart/refresh
+		// include timer info for synchronization on restart/refresh
 		// the update will override common fields
+		// Decision info is NOT included - decisions are sent via separate DECISION messages
+		// and should not be mixed with lifting order updates
 		if (getLastTimerMap() != null) {
 			sb.putAll(getLastTimerMap());
 		}
 		recomputeRemainingTimes(sb);
-
-		if (getLastDecisionMap() != null) {
-			sb.putAll(getLastDecisionMap());
-		}
 
 		mapPut(sb, "uiEvent", event.getClass().getSimpleName());
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
@@ -1226,9 +1224,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "timeAllowed", this.timeAllowed != null ? this.timeAllowed.toString() : null);
 
 		// current group
-		mapPut(sb, "groupName", getGroupName());
+		mapPut(sb, "sessionName", getSessionName());
 		mapPut(sb, "groupDescription", getGroupDescription());
-		mapPut(sb, "groupInfo", getGroupInfo());
+		mapPut(sb, "sessionInfo", getSessionInfo());
 		mapPut(sb, "liftTypeKey", this.liftTypeKey);
 		mapPut(sb, "liftsDone", getLiftsDone());
 
@@ -1422,9 +1420,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			setHidden(true);
 		} else {
 			setFullName(g.getName());
-			setGroupName("");
+			setSessionName("");
 			setGroupDescription("");
-			setGroupInfo("");
+			setSessionInfo("");
 			setLiftsDone("");
 		}
 		pushUpdate(e);
@@ -1518,11 +1516,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				if (e instanceof UIEvent.LiftingOrderUpdated) {
 					setTimeAllowed(((LiftingOrderUpdated) e).getTimeAllowed());
 				}
-				String groupName = getFop().getGroup() != null ? getFop().getGroup().getName() : null;
-				String computedName = groupName != null
-				        ? computeSecondLine(a, groupName)
+				String sessionName = getFop().getGroup() != null ? getFop().getGroup().getName() : null;
+				String computedName = sessionName != null
+				        ? computeSecondLine(a, sessionName)
 				        : "";
-				setGroupInfo(computedName);
+				setSessionInfo(computedName);
 			}
 		} else {
 			if (!leaveTopAlone) {
@@ -2478,8 +2476,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		this.forwardedFopName = name;
 	}
 
-	private void setGroupInfo(String computeSecondLine) {
-		this.groupInfo = computeSecondLine;
+	private void setSessionInfo(String computeSecondLine) {
+		this.sessionInfo = computeSecondLine;
 	}
 
 	private void setLastDecisionMap(Map<String, String> lastDecisionMap) {
@@ -2556,24 +2554,24 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		        null, e.getOrigin(), LoggerUtils.whereFrom());
 	}
 
-	private void updateGroupInfo(String pLiftType) {
+	private void updateSessionInfo(String pLiftType) {
 		Group lCurGroup = this.fop.getGroup();
 		int lNbLiftsDone = AthleteSorter.countLiftsDone(this.fop.getDisplayOrder());
 
 		String lGroupDescription = lCurGroup != null ? lCurGroup.getDescription() : null;
-		String lGroupInfo = lGroupDescription;
+		String lSessionInfo = lGroupDescription;
 		String lLiftsDone = "";
 		if (lCurGroup != null && lCurGroup.isDone()) {
 			lLiftsDone = "";
 		} else if (lCurGroup != null && pLiftType != null) {
 			String name = lGroupDescription != null ? lGroupDescription : lCurGroup.getName();
-			lGroupInfo = lGroupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, pLiftType)
+			lSessionInfo = lGroupDescription == null ? Translator.translate("Scoreboard.GroupLiftType", name, pLiftType)
 			        : Translator.translate("Scoreboard.DescriptionLiftTypeFormat", lGroupDescription, pLiftType);
 			lLiftsDone = Translator.translate("Scoreboard.AttemptsDone", lNbLiftsDone);
 		}
-		setGroupName(lCurGroup != null ? lCurGroup.getName() : "");
+		setSessionName(lCurGroup != null ? lCurGroup.getName() : "");
 		setGroupDescription(lGroupDescription != null ? lGroupDescription : "");
-		setGroupInfo(lGroupInfo);
+		setSessionInfo(lSessionInfo);
 		setLiftsDone(lLiftsDone);
 	}
 

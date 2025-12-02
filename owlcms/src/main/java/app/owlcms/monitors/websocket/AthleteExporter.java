@@ -158,7 +158,7 @@ public class AthleteExporter {
 	}
 
 	/**
-	 * Pick the most relevant attempt value in display order: actual -> change2 -> change1 -> declaration
+	 * Pick the most relevant attempt value in display order: actual -> change2 -> change1 -> declaration -> automaticProgression
 	 * Returns a Map with "value" (Integer or nbsp) and "status" (AttemptStatus string value).
 	 * 
 	 * Phase logic (snatch vs CJ) is handled by the caller which adjusts liftOrderRank accordingly:
@@ -169,11 +169,12 @@ public class AthleteExporter {
 	 * @param change2 Second weight change
 	 * @param change1 First weight change  
 	 * @param declaration Original declaration
+	 * @param automaticProgression Computed automatic progression (previous lift weight or +1kg)
 	 * @param liftOrderRank 1=current athlete, 2=next athlete, 0=other (already phase-adjusted by caller)
 	 * @return Map with "value" and "status" keys
 	 */
 	public static Map<String, Object> buildAttemptInfo(Integer actual, Integer change2, Integer change1, Integer declaration,
-			int liftOrderRank) {
+			Integer automaticProgression, int liftOrderRank) {
 		Map<String, Object> result = new LinkedHashMap<>();
 		
 		if (actual != null) {
@@ -181,11 +182,13 @@ public class AthleteExporter {
 			result.put("value", Math.abs(actual));
 			result.put("status", (actual > 0 ? AttemptStatus.GOOD : AttemptStatus.BAD).getValue());
 		} else {
-			// Attempt not done yet - find the requested weight (priority: change2 > change1 > declaration)
+			// Attempt not done yet - find the requested weight 
+			// Priority: change2 > change1 > declaration > automaticProgression
 			Integer requested = null;
 			if (change2 != null) requested = change2;
 			else if (change1 != null) requested = change1;
 			else if (declaration != null) requested = declaration;
+			else if (automaticProgression != null && automaticProgression > 0) requested = automaticProgression;
 			
 			if (requested != null) {
 				result.put("value", requested);
@@ -244,18 +247,21 @@ public class AthleteExporter {
 		boolean inCjPhase = attemptsDone >= 3;
 
 		// Attempt arrays with status info
+		// Priority for requested weight: change2 > change1 > declaration > automaticProgression
+		// Snatch1 has no automatic progression (first attempt)
 		List<Map<String, Object>> sattemptsList = new ArrayList<>();
 		int snatchLiftOrderRank = inCjPhase ? 0 : liftOrderRank;
-		sattemptsList.add(buildAttemptInfo(dto.getSnatch1ActualLift(), dto.getSnatch1Change2(), dto.getSnatch1Change1(), dto.getSnatch1Declaration(), snatchLiftOrderRank));
-		sattemptsList.add(buildAttemptInfo(dto.getSnatch2ActualLift(), dto.getSnatch2Change2(), dto.getSnatch2Change1(), dto.getSnatch2Declaration(), snatchLiftOrderRank));
-		sattemptsList.add(buildAttemptInfo(dto.getSnatch3ActualLift(), dto.getSnatch3Change2(), dto.getSnatch3Change1(), dto.getSnatch3Declaration(), snatchLiftOrderRank));
+		sattemptsList.add(buildAttemptInfo(dto.getSnatch1ActualLift(), dto.getSnatch1Change2(), dto.getSnatch1Change1(), dto.getSnatch1Declaration(), null, snatchLiftOrderRank));
+		sattemptsList.add(buildAttemptInfo(dto.getSnatch2ActualLift(), dto.getSnatch2Change2(), dto.getSnatch2Change1(), dto.getSnatch2Declaration(), parseAutoProgression(dto.getSnatch2AutomaticProgression()), snatchLiftOrderRank));
+		sattemptsList.add(buildAttemptInfo(dto.getSnatch3ActualLift(), dto.getSnatch3Change2(), dto.getSnatch3Change1(), dto.getSnatch3Declaration(), parseAutoProgression(dto.getSnatch3AutomaticProgression()), snatchLiftOrderRank));
 		displayInfo.put("sattempts", sattemptsList);
 
+		// CleanJerk1 has no automatic progression (first C&J attempt)
 		List<Map<String, Object>> cattemptsList = new ArrayList<>();
 		int cjLiftOrderRank = inCjPhase ? liftOrderRank : 0;
-		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk1ActualLift(), dto.getCleanJerk1Change2(), dto.getCleanJerk1Change1(), dto.getCleanJerk1Declaration(), cjLiftOrderRank));
-		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk2ActualLift(), dto.getCleanJerk2Change2(), dto.getCleanJerk2Change1(), dto.getCleanJerk2Declaration(), cjLiftOrderRank));
-		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk3ActualLift(), dto.getCleanJerk3Change2(), dto.getCleanJerk3Change1(), dto.getCleanJerk3Declaration(), cjLiftOrderRank));
+		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk1ActualLift(), dto.getCleanJerk1Change2(), dto.getCleanJerk1Change1(), dto.getCleanJerk1Declaration(), null, cjLiftOrderRank));
+		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk2ActualLift(), dto.getCleanJerk2Change2(), dto.getCleanJerk2Change1(), dto.getCleanJerk2Declaration(), parseAutoProgression(dto.getCleanJerk2AutomaticProgression()), cjLiftOrderRank));
+		cattemptsList.add(buildAttemptInfo(dto.getCleanJerk3ActualLift(), dto.getCleanJerk3Change2(), dto.getCleanJerk3Change1(), dto.getCleanJerk3Declaration(), parseAutoProgression(dto.getCleanJerk3AutomaticProgression()), cjLiftOrderRank));
 		displayInfo.put("cattempts", cattemptsList);
 
 		// Basic display fields
@@ -328,6 +334,22 @@ public class AthleteExporter {
 		}
 
 		return displayInfo;
+	}
+
+	/**
+	 * Parse automatic progression string to Integer.
+	 * Returns null if the string is null, empty, or "0" (no automatic progression).
+	 */
+	private static Integer parseAutoProgression(String autoProgression) {
+		if (autoProgression == null || autoProgression.isEmpty()) {
+			return null;
+		}
+		try {
+			int value = Integer.parseInt(autoProgression);
+			return value > 0 ? value : null;
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	private static String formatInt(Integer total) {
