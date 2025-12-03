@@ -99,14 +99,14 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(decisions, athleteFacingAttempt);
 			doGroup(Translator.translate("Refereeing_Displays"), intro2, grid2, this);
 
-			Button scoreboard = openInNewTabWithFop(WarmupNoLeadersPage.class, Translator.translate("Scoreboard"));
+			Button scoreboard = openInNewTabWithFopCurrentAttempt(WarmupNoLeadersPage.class, Translator.translate("Scoreboard"));
 			highlight(scoreboard);
-			Button scoreboardWLeaders = openInNewTabWithFop(WarmupScoreboardPage.class,
+			Button scoreboardWLeaders = openInNewTabWithFopCurrentAttempt(WarmupScoreboardPage.class,
 			        Translator.translate("ScoreboardWLeadersButton"));
 			scoreboardWLeaders.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
-			Button scoreboardMultiRanks = openInNewTabWithFop(WarmupMultiRanksPage.class,
+			Button scoreboardMultiRanks = openInNewTabWithFopCurrentAttempt(WarmupMultiRanksPage.class,
 			        Translator.translate("ScoreboardMultiRanksButton"));
-			Button liftingOrder = openInNewTabWithFop(WarmupLiftingOrderPage.class,
+			Button liftingOrder = openInNewTabWithFopCurrentAttempt(WarmupLiftingOrderPage.class,
 			        Translator.translate("Scoreboard.LiftingOrder"));
 			VerticalLayout intro1 = new VerticalLayout();
 			addP(intro1, Translator.translate("WarmupScoreboards.explanation"));

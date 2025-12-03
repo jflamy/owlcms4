@@ -208,4 +208,23 @@ public interface NavigationPage extends ContentWrapping {
 		}
 	}
 
+	/**
+	 * Opens a new tab with the current FOP and currentAttempt=true as query parameters.
+	 * Used for warmup room scoreboards to show the current attempt bar.
+	 * 
+	 * @param targetClass the component class to open
+	 * @param label the button label
+	 * @return a button that opens the target page with FOP and currentAttempt=true
+	 */
+	public default <T extends Component & HasUrlParameter<String>> Button openInNewTabWithFopCurrentAttempt(Class<T> targetClass,
+	        String label) {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		if (fop != null) {
+			String queryString = "fop=" + fop.getName() + "&currentAttempt=true";
+			return openInNewTabQueryParameters(targetClass, label, queryString);
+		} else {
+			return openInNewTab(targetClass, label);
+		}
+	}
+
 }
