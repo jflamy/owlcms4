@@ -36,6 +36,9 @@ public class WebSocketEventSender {
 	private static final int MAX_RECONNECT_DELAY_MS = 30000;     // Cap at 30 seconds
 	private static final int EXPONENTIAL_BACKOFF_ATTEMPTS = 5;   // 1s, 2s, 4s, 8s, 16s, then cap at 30s
 	
+	/** Protocol version for WebSocket messages. Incremented when message format changes. */
+	public static final String PROTOCOL_VERSION = "2.0.0";
+	
 	private static Map<String, WebSocketEventSender> sendersByUrl = new HashMap<>();
 	private static ObjectMapper objectMapper = createObjectMapper();
 	
@@ -325,8 +328,9 @@ public class WebSocketEventSender {
 		}
 
 		try {
-			// Wrap payload with message type for robustness
+			// Wrap payload with message type and protocol version for robustness
 			Map<String, Object> wrapper = new HashMap<>();
+			wrapper.put("version", PROTOCOL_VERSION);
 			wrapper.put("type", messageType);
 			wrapper.put("payload", data);
 			
@@ -359,8 +363,9 @@ public class WebSocketEventSender {
 			// Parse the JSON payload into a JsonNode (parse once)
 			JsonNode payloadNode = objectMapper.readTree(jsonPayload);
 			
-			// Create wrapper as JSON structure
+			// Create wrapper as JSON structure with protocol version
 			ObjectNode wrapper = objectMapper.createObjectNode();
+			wrapper.put("version", PROTOCOL_VERSION);
 			wrapper.put("type", messageType);
 			wrapper.set("payload", payloadNode);
 			
@@ -392,8 +397,9 @@ public class WebSocketEventSender {
 			// Parse the raw JSON payload
 			Object parsedPayload = objectMapper.readValue(jsonPayload, Object.class);
 			
-			// Wrap with message type
+			// Wrap with message type and protocol version
 			Map<String, Object> wrapper = new HashMap<>();
+			wrapper.put("version", PROTOCOL_VERSION);
 			wrapper.put("type", messageType);
 			wrapper.put("payload", parsedPayload);
 			
@@ -422,8 +428,9 @@ public class WebSocketEventSender {
 		}
 
 		try {
-			// Wrap with message type
+			// Wrap with message type and protocol version
 			Map<String, Object> wrapper = new HashMap<>();
+			wrapper.put("version", PROTOCOL_VERSION);
 			wrapper.put("type", messageType);
 			wrapper.put("payload", payload);
 			
@@ -440,19 +447,21 @@ public class WebSocketEventSender {
 	}
 
 	/**
-	 * Send binary data over the WebSocket connection with a message type header.
+	 * Send binary data over the WebSocket connection with protocol version, message type header, and payload.
 	 * 
 	 * Uses the WebSocket binary frame (opcode 0x2) which is automatically distinguished
 	 * from JSON text frames (opcode 0x1) at the protocol level. This means the server
 	 * can distinguish binary from JSON without parsing, simply by checking the frame type.
 	 * 
 	 * Binary Frame Format:
-	 * - First 4 bytes: message type length (big-endian int)
-	 * - Next N bytes: message type as UTF-8 string
+	 * - First 4 bytes: protocol version length (big-endian int)
+	 * - Next N bytes: protocol version as UTF-8 string (e.g., "2.0.0")
+	 * - Next 4 bytes: message type length (big-endian int)
+	 * - Next M bytes: message type as UTF-8 string (e.g., "flags")
 	 * - Remaining bytes: binary payload data
 	 * 
-	 * Example: To send "flags" with 100KB of ZIP data:
-	 * [0x00, 0x00, 0x00, 0x05] [f, l, a, g, s] [100KB of ZIP bytes...]
+	 * Example: To send "flags" with 100KB of ZIP data using protocol version "2.0.0":
+	 * [0x00, 0x00, 0x00, 0x05] [2, ., 0, ., 0] [0x00, 0x00, 0x00, 0x05] [f, l, a, g, s] [100KB of ZIP bytes...]
 	 * 
 	 * @param messageType Type identifier for the binary data (e.g., "flags", "pictures")
 	 * @param binaryData The binary payload to send
@@ -466,10 +475,17 @@ public class WebSocketEventSender {
 		}
 
 		try {
+			byte[] versionBytes = PROTOCOL_VERSION.getBytes("UTF-8");
 			byte[] typeBytes = messageType.getBytes("UTF-8");
 			
-			// Create buffer: 4 bytes (type length) + type bytes + binary data
-			ByteBuffer frame = ByteBuffer.allocate(4 + typeBytes.length + binaryData.length);
+			// Create buffer: 4 bytes (version length) + version bytes + 4 bytes (type length) + type bytes + binary data
+			ByteBuffer frame = ByteBuffer.allocate(4 + versionBytes.length + 4 + typeBytes.length + binaryData.length);
+			
+			// Write version length as big-endian int
+			frame.putInt(versionBytes.length);
+			
+			// Write version string
+			frame.put(versionBytes);
 			
 			// Write type length as big-endian int
 			frame.putInt(typeBytes.length);
@@ -484,8 +500,8 @@ public class WebSocketEventSender {
 			frame.flip();
 			
 			client.send(frame);
-			logger.info("Sent binary WebSocket message type '{}' to {} ({} bytes total, {} bytes payload)",
-					messageType, url, frame.capacity(), binaryData.length);
+			logger.info("Sent binary WebSocket message version='{}' type='{}' to {} ({} bytes total, {} bytes payload)",
+					PROTOCOL_VERSION, messageType, url, frame.capacity(), binaryData.length);
 			return true;
 		} catch (Exception e) {
 			logger.error("Failed to send binary WebSocket message to {}: {}", url, LoggerUtils.exceptionMessage(e));
