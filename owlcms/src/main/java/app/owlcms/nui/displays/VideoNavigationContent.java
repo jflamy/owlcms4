@@ -169,14 +169,14 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 	public void scoreboards() {
 		Button scoreboard = openInNewTabQueryParameters(WarmupNoLeadersPage.class,
-		        Translator.translate("Scoreboard"), "video=true");
+		        Translator.translate("Scoreboard"), "video=true&currentAttempt=false");
 		Button scoreboardWLeaders = openInNewTabQueryParameters(WarmupScoreboardPage.class,
-		        Translator.translate("ScoreboardWLeadersButton"), "video=true");
+		        Translator.translate("ScoreboardWLeadersButton"), "video=true&currentAttempt=false");
 		scoreboardWLeaders.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
 		Button scoreboardMultiRanks = openInNewTabQueryParameters(WarmupMultiRanksPage.class,
-		        Translator.translate("ScoreboardMultiRanksButton"), "video=true");
+		        Translator.translate("ScoreboardMultiRanksButton"), "video=true&currentAttempt=false");
 		Button scoreboardRankings = openInNewTabQueryParameters(WarmupRankingOrderPage.class,
-		        Translator.translate("Scoreboard.RankingOrderButton"), "video=true");
+		        Translator.translate("Scoreboard.RankingOrderButton"), "video=true&currentAttempt=false");
 
 		VerticalLayout intro1 = new VerticalLayout();
 		// addP(intro1, Translator.translate("darkModeSelect"));
