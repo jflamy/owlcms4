@@ -107,6 +107,10 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 				String decoded = URLDecoder.decode(fopNames.get(0), StandardCharsets.UTF_8);
 				// logger.debug("URL fop = {} decoded = {}",fopNames.get(0), decoded);
 				tFop = OwlcmsFactory.getFOPByName(decoded);
+				if (tFop == null && decoded != null && !decoded.isBlank()) {
+					logger.warn("FOP '{}' from URL not found, will use default FOP. Available FOPs: {}", 
+						decoded, OwlcmsFactory.getFOPs().stream().map(f -> f.getName()).toList());
+				}
 				this.setFop(tFop);
 			} else if (OwlcmsSession.getFop() != null) {
 				// logger.trace("OwlcmsSession.getFop() {}", OwlcmsSession.getFop());

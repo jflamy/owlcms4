@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.shared;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 
 public interface IAthleteEditing {
@@ -13,4 +14,6 @@ public interface IAthleteEditing {
 	void closeDialog();
 
 	OwlcmsCrudGrid<?> getEditingGrid();
+
+	FieldOfPlay getFop();
 }
