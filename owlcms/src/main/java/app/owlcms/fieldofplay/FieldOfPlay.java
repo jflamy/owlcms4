@@ -95,6 +95,7 @@ import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.lifting.AnnouncerContent;
 import app.owlcms.nui.lifting.TimekeeperContent;
 import app.owlcms.nui.lifting.WodkeeperContent;
+import app.owlcms.nui.shared.BreakManagement;
 import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.sound.Sound;
 import app.owlcms.sound.Tone;
@@ -665,7 +666,10 @@ public class FieldOfPlay implements IUnregister {
 		if (e instanceof FOPEvent.BreakStarted) {
 			Object origin = e.getOrigin();
 			BreakType requestedBreak = ((FOPEvent.BreakStarted) e).getBreakType();
-			boolean allAllowed = origin instanceof AnnouncerContent || origin instanceof TimekeeperContent || origin instanceof WodkeeperContent;
+			boolean allAllowed = origin instanceof AnnouncerContent
+			        || origin instanceof TimekeeperContent
+			        || origin instanceof WodkeeperContent
+			        || origin instanceof BreakManagement;
 
 			if (getState() == BREAK
 			        && (requestedBreak == BreakType.JURY || requestedBreak == BreakType.CHALLENGE)
@@ -673,6 +677,10 @@ public class FieldOfPlay implements IUnregister {
 				transitionToBreak((FOPEvent.BreakStarted) e);
 				return;
 			} else if (getState() == BREAK && getBreakType() != null && getBreakType().isCountdown() && !allAllowed) {
+				this.logger.warn("Break start rejected: origin={} breakType={} state={}",
+				        origin != null ? origin.getClass().getSimpleName() : "null",
+				        requestedBreak,
+				        this.getState());
 				pushOutUIEvent(new UIEvent.Notification(null, this,
 				        UIEvent.Notification.Level.ERROR,
 				        "BreakButton.cannotInterruptBreak",

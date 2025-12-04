@@ -17,10 +17,10 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.displays.attemptboard.AbstractAttemptBoard;
 import app.owlcms.displays.attemptboard.DecisionBoard;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -36,7 +36,9 @@ public class PublicFacingDecisionBoardPage extends AbstractAttemptBoardPage {
 
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("RefereeDecisions") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("RefereeDecisions") + suffix;
 	}
 
 	@Override

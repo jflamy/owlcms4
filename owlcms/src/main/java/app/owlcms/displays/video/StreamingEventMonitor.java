@@ -37,7 +37,6 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakType;
@@ -177,7 +176,9 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Video.EventMonitoringButton") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("Video.EventMonitoringButton") + suffix;
 	}
 
 	@Override

@@ -163,7 +163,10 @@ public abstract class BaseNavigationContent extends BaseContent
 	public void updateURLLocation(UI ui, Location location, Group newGroup) {
 		// change the URL to reflect fop group
 		HashMap<String, List<String>> params = new HashMap<>(location.getQueryParameters().getParameters());
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			fop = OwlcmsFactory.getDefaultFOP();
+		}
 		if (fop != null) {
 			params.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
 		}
@@ -193,13 +196,19 @@ public abstract class BaseNavigationContent extends BaseContent
 		formatLabel(fopLabel);
 
 		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
-		OwlcmsSession.withFop((fop1) -> {
-			fopSelect.setValue(fop1);
-		});
+		FieldOfPlay currentFop = getFop();
+		if (currentFop == null) {
+			currentFop = OwlcmsSession.getFop();
+		}
+		if (currentFop == null) {
+			currentFop = OwlcmsFactory.getDefaultFOP();
+		}
+		fopSelect.setValue(currentFop);
 		fopSelect.addValueChangeListener(e -> {
 			// by default, we do NOT switch the group -- only the competition group lifting
 			// page
 			// does by overriding this method.
+			setFop(e.getValue());
 			OwlcmsSession.setFop(e.getValue());
 		});
 

@@ -37,8 +37,8 @@ import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -134,7 +134,9 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("TestButtons.Title") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("TestButtons.Title") + suffix;
 	}
 
 	public void setCrudFormFactory(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {

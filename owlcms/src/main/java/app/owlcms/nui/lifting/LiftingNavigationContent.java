@@ -28,6 +28,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.referee.RefContent;
@@ -64,8 +65,9 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
 	@Override
 	public String getPageTitle() {
-		String fopNameIfMultiple = OwlcmsSession.getFopNameIfMultiple();
-		return Translator.translate("ShortTitle.Lifting") + (!fopNameIfMultiple.isBlank() ? (" - " + fopNameIfMultiple) : "");
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("ShortTitle.Lifting") + suffix;
 	}
 
 	/*
@@ -79,10 +81,16 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		formatLabel(fopLabel);
 
 		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
-		OwlcmsSession.withFop((fop) -> {
-			fopSelect.setValue(fop);
-		});
+		FieldOfPlay currentFop = getFop();
+		if (currentFop == null) {
+			currentFop = OwlcmsSession.getFop();
+		}
+		if (currentFop == null) {
+			currentFop = OwlcmsFactory.getDefaultFOP();
+		}
+		fopSelect.setValue(currentFop);
 		fopSelect.addValueChangeListener(e -> {
+			setFop(e.getValue());
 			OwlcmsSession.setFop(e.getValue());
 			updateURLLocation(getLocationUI(), getLocation(), null);
 		});
