@@ -1111,6 +1111,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 				this.cancelButton.getElement().removeAttribute("theme");
 			}
 		}
+		// Ensure focus markers reflect the presence of errors (no yellow when error)
+		setFocus(getEditedAthlete(), sb != null && sb.length() > 0);
 	}
 
 	private void doSetErrorLabel(String message, TextField field) {
@@ -1148,6 +1150,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			}
 		}
 		resetReadOnlyFields();
+		// Ensure focus markers reflect the presence of errors (no yellow when error)
+		setFocus(getEditedAthlete(), message != null && !message.isBlank());
 	}
 
 	/**
@@ -1340,6 +1344,25 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			}
 		}
 
+		// Check if any field has the "error" class - if so, don't show the yellow "current" marker
+		// The pink error highlighting is sufficient
+		boolean anyFieldHasError = false;
+		for (int col = SNATCH1; col <= CJ3; col++) {
+			for (int row = DECLARATION; row <= ACTUAL; row++) {
+				TextField tf = this.textfields[row - 1][col - 1];
+				if (tf != null && tf.getElement().getClassList().contains("error")) {
+					anyFieldHasError = true;
+					break;
+				}
+			}
+			if (anyFieldHasError) break;
+		}
+		
+		// Don't show yellow "current" marker when there's an error
+		if (hasErrors || anyFieldHasError) {
+			return;
+		}
+
 		// Compute the expected column based on athlete data (attempts done)
 		// This is more reliable than checking TextField values which may not be populated yet
 		int attemptsDone = a.getAttemptsDone();
@@ -1367,55 +1390,28 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		// Rows top-to-bottom: AUTOMATIC(2), DECLARATION(3), CHANGE1(4), CHANGE2(5), ACTUAL(6)
 		int bottomRow = isUpdatingResults() ? ACTUAL : CHANGE2;
 
-		if (hasErrors) {
-			// When there are validation errors, focus on the last non-empty cell (the problematic one)
-			// Scan from bottom up to find the bottom-most non-empty cell
-			for (int row = bottomRow; row > AUTOMATIC; row--) {
-				int tfRowIndex = row - 1;
-				int tfColIndex = expectedCol - 1;
-				TextField tf = this.textfields[tfRowIndex][tfColIndex];
-				String value = tf != null ? tf.getValue() : null;
-				boolean empty = value == null || value.isBlank();
-				if (!empty) {
-					targetRow = tfRowIndex;
-					targetCol = tfColIndex;
-					break; // Found the bottom-most non-empty cell
-				}
+		// Normal case: find the topmost empty cell in a contiguous block from bottom up
+		for (int row = bottomRow; row > AUTOMATIC; row--) {
+			int tfRowIndex = row - 1;
+			int tfColIndex = expectedCol - 1;
+			TextField tf = this.textfields[tfRowIndex][tfColIndex];
+			String value = tf != null ? tf.getValue() : null;
+			boolean empty = value == null || value.isBlank();
+			if (empty) {
+				targetRow = tfRowIndex;
+				targetCol = tfColIndex;
+			} else {
+				break; // Hit a non-empty cell, stop - targetRow/targetCol has the topmost empty
 			}
+		}
 
-			// Crosscheck: verify TextField-based row matches athlete data-based row for error focus
-			// In error mode, we expect to focus on the bottom-most non-empty cell
-			int expectedErrorRow = computeExpectedErrorRowFromAthlete(a, expectedCol);
-			if (targetRow != expectedErrorRow) {
-				logger.error("setFocus error mismatch: TextField row={} but athlete data expects row={} for col={} (attemptsDone={}, updatingResults={}) {}",
-				        targetRow >= 0 ? targetRow + 1 : "none",
-				        expectedErrorRow >= 0 ? expectedErrorRow + 1 : "none",
-				        expectedCol, attemptsDone, isUpdatingResults(), LoggerUtils.whereFrom());
-			}
-		} else {
-			// Normal case: find the topmost empty cell in a contiguous block from bottom up
-			for (int row = bottomRow; row > AUTOMATIC; row--) {
-				int tfRowIndex = row - 1;
-				int tfColIndex = expectedCol - 1;
-				TextField tf = this.textfields[tfRowIndex][tfColIndex];
-				String value = tf != null ? tf.getValue() : null;
-				boolean empty = value == null || value.isBlank();
-				if (empty) {
-					targetRow = tfRowIndex;
-					targetCol = tfColIndex;
-				} else {
-					break; // Hit a non-empty cell, stop - targetRow/targetCol has the topmost empty
-				}
-			}
-
-			// Crosscheck: verify TextField-based row matches athlete data-based row
-			// Both should agree on where the focus should go (or both should be -1 if no empty cell)
-			if (targetRow != expectedRow) {
-				logger.error("setFocus mismatch: TextField row={} but athlete data expects row={} for col={} (attemptsDone={}, updatingResults={}) {}",
-				        targetRow >= 0 ? targetRow + 1 : "none",
-				        expectedRow >= 0 ? expectedRow + 1 : "none",
-				        expectedCol, attemptsDone, isUpdatingResults(), LoggerUtils.whereFrom());
-			}
+		// Crosscheck: verify TextField-based row matches athlete data-based row
+		// Both should agree on where the focus should go (or both should be -1 if no empty cell)
+		if (targetRow != expectedRow) {
+			logger.error("setFocus mismatch: TextField row={} but athlete data expects row={} for col={} (attemptsDone={}, updatingResults={}) {}",
+			        targetRow >= 0 ? targetRow + 1 : "none",
+			        expectedRow >= 0 ? expectedRow + 1 : "none",
+			        expectedCol, attemptsDone, isUpdatingResults(), LoggerUtils.whereFrom());
 		}
 
 		if (targetCol >= 0 && targetRow >= 0) {
@@ -1464,42 +1460,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			}
 		}
 		return expectedRow;
-	}
-
-	/**
-	 * Compute the expected row for error focus based on athlete data (not TextField values).
-	 * Scans from bottom up to find the bottom-most non-empty field (the problematic one).
-	 * 
-	 * @param a the athlete
-	 * @param col the column (SNATCH1..CJ3)
-	 * @return the expected row index (0-based), or -1 if all fields are empty
-	 */
-	private int computeExpectedErrorRowFromAthlete(Athlete a, int col) {
-		// Get the athlete's values for this column (lift)
-		String declaration = getAthleteValueForCell(a, DECLARATION, col);
-		String change1 = getAthleteValueForCell(a, CHANGE1, col);
-		String change2 = getAthleteValueForCell(a, CHANGE2, col);
-		String actual = getAthleteValueForCell(a, ACTUAL, col);
-
-		// When not updating results, skip ACTUAL row
-		int bottomRow = isUpdatingResults() ? ACTUAL : CHANGE2;
-
-		// Scan from bottom up, find the bottom-most non-empty cell
-		for (int row = bottomRow; row > AUTOMATIC; row--) {
-			String value;
-			switch (row) {
-				case DECLARATION: value = declaration; break;
-				case CHANGE1: value = change1; break;
-				case CHANGE2: value = change2; break;
-				case ACTUAL: value = actual; break;
-				default: value = null;
-			}
-			boolean empty = value == null || value.isBlank();
-			if (!empty) {
-				return row - 1; // 0-based index, found bottom-most non-empty
-			}
-		}
-		return -1; // All fields are empty
 	}
 
 	/**
