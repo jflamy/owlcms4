@@ -61,7 +61,8 @@ public class WarmupRankingOrderPage extends AbstractResultsDisplayPage {
 		        SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch("noLiveLights")),
 		        SoundParameters.SHOW_DECLARATIONS, "false",
 		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
-		        SoundParameters.START_ORDER, "false");
+		        SoundParameters.START_ORDER, "false",
+		        DisplayParameters.CURRENT_ATTEMPT, "true");
 		Map<String, String> fullMap = new TreeMap<>();
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);
