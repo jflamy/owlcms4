@@ -57,7 +57,8 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	}
 
 	public void go() throws InterruptedException {
-		this.uiEventBus = uiEventBusRegister(this, this.fop);
+		// explicitly use the generic subscriber overload (not a Vaadin Component)
+		this.uiEventBus = uiEventBusRegister((Object) this, this.fop);
 		this.setOrigin(this);
 
 		this.logger.info("simulating fop {}", this.fop.getName());

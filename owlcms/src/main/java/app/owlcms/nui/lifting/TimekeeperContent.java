@@ -110,7 +110,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	@Override
 	public String getMenuTitle() {
-		return Translator.translate("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("Timekeeper") + suffix;
 	}
 
 	/**
@@ -118,7 +120,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("Timekeeper") + suffix;
 	}
 
 	@Override
@@ -173,7 +177,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		createTopBarLeft();
 
 		this.introCountdownButton = new Button(Translator.translate("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
-			BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
+			BreakDialog dialog = new BreakDialog(getFop(), BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
 			dialog.open();
 		});
 		this.introCountdownButton.getElement().setAttribute("theme", "primary contrast");

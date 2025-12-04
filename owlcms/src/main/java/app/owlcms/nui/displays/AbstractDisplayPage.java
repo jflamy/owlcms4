@@ -28,7 +28,6 @@ import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Logger;
 
@@ -363,7 +362,12 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		uiEventBusRegister(this, OwlcmsSession.getFop());
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			logger.error("No FOP provided to {} before attach; aborting registration", this.getClass().getSimpleName());
+			return;
+		}
+		uiEventBusRegister(this, fop);
 		if (isShowInitialDialog()) {
 			openDialog(getDialog());
 		}

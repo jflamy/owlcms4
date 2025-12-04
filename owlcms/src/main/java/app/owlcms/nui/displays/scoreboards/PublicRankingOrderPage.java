@@ -26,8 +26,8 @@ import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsMedals;
 import app.owlcms.displays.scoreboard.ResultsRankingOrder;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Logger;
@@ -51,7 +51,9 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Scoreboard.RankingOrder") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("Scoreboard.RankingOrder") + suffix;
 	}
 
 	public final Results getResultsBoard() {

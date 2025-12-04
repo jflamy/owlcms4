@@ -18,14 +18,13 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 
 public interface SoundEntries {
 
 	public default void addSoundEntries(VerticalLayout layout, Component audioComponent,
 	        DisplayParametersReader parentPage) {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SoundSettings"));
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = parentPage.getFop();
 		if (fop != null) {
 			if (fop.isEmitSoundsOnServer()) {
 				label = new NativeLabel(Translator.translate("DisplayParameters.SoundsOnServer"));

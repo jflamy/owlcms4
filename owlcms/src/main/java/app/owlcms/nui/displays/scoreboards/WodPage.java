@@ -6,8 +6,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.displays.scoreboard.WodBoard;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -21,7 +21,9 @@ public class WodPage extends WarmupScoreboardPage {
 
     @Override
     public String getPageTitle() {
-        return Translator.translate("Scoreboard") + OwlcmsSession.getFopNameIfMultiple();
+        FieldOfPlay fop = getFop();
+        String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+        return Translator.translate("Scoreboard") + suffix;
     }
 
     @Override

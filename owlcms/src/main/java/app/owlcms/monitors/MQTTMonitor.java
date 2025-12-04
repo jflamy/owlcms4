@@ -1228,7 +1228,8 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	@Override
 	public void start() {
 		// this.setFop(this.getFop());
-		this.uiEventBusRegister(this, this.getFop());
+		// explicitly use the generic subscriber overload (not a Vaadin Component)
+		this.uiEventBusRegister((Object) this, this.getFop());
 		this.getFop().getFopEventBus().register(this);
 
 		try {

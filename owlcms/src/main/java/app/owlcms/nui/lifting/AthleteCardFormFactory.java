@@ -1350,8 +1350,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		// The pink error highlighting is sufficient
 		boolean anyFieldHasError = false;
 		TextField firstErrorField = null;
-		int firstErrorRow = -1;
-		int firstErrorCol = -1;
 		for (int col = SNATCH1; col <= CJ3; col++) {
 			for (int row = DECLARATION; row <= ACTUAL; row++) {
 				TextField tf = this.textfields[row - 1][col - 1];
@@ -1359,8 +1357,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 					anyFieldHasError = true;
 					if (firstErrorField == null) {
 						firstErrorField = tf;
-						firstErrorRow = row;
-						firstErrorCol = col;
 					}
 					break;
 				}

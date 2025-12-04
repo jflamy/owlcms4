@@ -20,6 +20,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.QueryParameters;
 
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.URLUtils;
@@ -137,7 +138,7 @@ public interface NavigationPage extends ContentWrapping {
 
 	public default <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<?> class1,
 	        String parameter, QueryParameters qp) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = resolveFop();
 		String name = fop == null ? "" : "_" + fop.getName();
 		return "window.open('" + URLUtils.getUrlFromTargetClass(class1, parameter, qp) + "','"
 		        + class1.getSimpleName() + name + "')";
@@ -145,14 +146,14 @@ public interface NavigationPage extends ContentWrapping {
 
 	public default <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
 	        String parameter) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = resolveFop();
 		String name = fop == null ? "" : "_" + fop.getName();
 		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass, parameter) + "','"
 		        + targetClass.getSimpleName() + name + "')";
 	}
 
 	public default <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = resolveFop();
 		String name = fop == null ? "" : "_" + fop.getName();
 		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "','"
 		        + targetClass.getSimpleName() + name + "')";
@@ -201,7 +202,7 @@ public interface NavigationPage extends ContentWrapping {
 	public default <T extends Component & HasUrlParameter<String>> Button openInNewTabWithFopQueryParameters(
 	        Class<T> targetClass,
 	        String label, String additionalQueryParameters) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = resolveFop();
 		String queryString;
 		if (fop != null) {
 			queryString = "fop=" + fop.getName() + "&" + additionalQueryParameters;
@@ -221,7 +222,7 @@ public interface NavigationPage extends ContentWrapping {
 	 */
 	public default <T extends Component & HasUrlParameter<String>> Button openInNewTabWithFop(Class<T> targetClass,
 	        String label) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = resolveFop();
 		if (fop != null) {
 			String queryString = "fop=" + fop.getName();
 			return openInNewTabQueryParameters(targetClass, label, queryString);
@@ -240,7 +241,7 @@ public interface NavigationPage extends ContentWrapping {
 	 */
 	public default <T extends Component & HasUrlParameter<String>> Button openInNewTabWithFopCurrentAttempt(Class<T> targetClass,
 	        String label) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = resolveFop();
 		if (fop != null) {
 			String queryString = "fop=" + fop.getName() + "&currentAttempt=true";
 			return openInNewTabQueryParameters(targetClass, label, queryString);
@@ -259,13 +260,23 @@ public interface NavigationPage extends ContentWrapping {
 	 */
 	public default <T extends Component & HasUrlParameter<String>> Button openInNewTabWithFopNoCurrentAttempt(Class<T> targetClass,
 	        String label) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = resolveFop();
 		if (fop != null) {
 			String queryString = "fop=" + fop.getName() + "&currentAttempt=false";
 			return openInNewTabQueryParameters(targetClass, label, queryString);
 		} else {
 			return openInNewTab(targetClass, label);
 		}
+	}
+
+	/**
+	 * Resolve the current FieldOfPlay, preferring the implementing instance when it also implements FOPParameters.
+	 */
+	public default FieldOfPlay resolveFop() {
+		if (this instanceof FOPParameters) {
+			return ((FOPParameters) this).getFop();
+		}
+		return OwlcmsSession.getFop();
 	}
 
 }

@@ -41,7 +41,6 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.video.StreamingEventMonitor;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.OBSMonitor;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
@@ -127,7 +126,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 			compare = -(new NaturalOrderComparator<Group>().compare(g1, g2));
 			return compare;
 		});
-		FieldOfPlay curFop = OwlcmsSession.getFop();
+		FieldOfPlay curFop = getFop();
 		GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, curFop,
 		        // group has been selected
 		        (g1, c1, fop1) -> selectVideoContext(g1, c1, fop1),
@@ -271,7 +270,9 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("VideoStreaming") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("VideoStreaming") + suffix;
 	}
 
 	/*
@@ -285,11 +286,9 @@ public class VideoNavigationContent extends BaseNavigationContent
 		formatLabel(fopLabel);
 
 		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
-		OwlcmsSession.withFop((fop) -> {
-			fopSelect.setValue(fop);
-		});
+		fopSelect.setValue(getFop());
 		fopSelect.addValueChangeListener(e -> {
-			OwlcmsSession.setFop(e.getValue());
+			setFop(e.getValue());
 			updateURLLocation(getLocationUI(), getLocation(), null);
 		});
 
@@ -315,7 +314,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		} else if (getMedalGroup() != null) {
 			params.put("group", getMedalGroup().toString());
 		}
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = getFop();
 		if (fop != null) {
 			params.put("fop", fop.getName());
 		}

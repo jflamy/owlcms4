@@ -951,7 +951,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 				}
 				// logger.debug("requesting breaktype {}", bt);
-				this.breakDialog = new BreakDialog(bt, ct, null, this);
+				this.breakDialog = new BreakDialog(getFop(), bt, ct, null, this);
 				this.breakDialog.open();
 			}
 		});

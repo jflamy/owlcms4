@@ -160,7 +160,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Announcer") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("Announcer") + suffix;
 	}
 
 	@Override
@@ -468,7 +470,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		this.introCountdownButton = new Button(Translator.translate("introCountdown"), new Icon(VaadinIcon.TIMER),
 		        (e) -> {
-			        BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null,
+		        	BreakDialog dialog = new BreakDialog(getFop(), BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null,
 			                this);
 			        dialog.open();
 		        });

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.dialog.Dialog;
 
 import app.owlcms.fieldofplay.CountdownType;
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.uievents.BreakType;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -29,21 +29,27 @@ public class BreakDialog extends Dialog {
 	 * @param cdt
 	 * @param origin
 	 */
-	public BreakDialog(BreakType brt, CountdownType cdt, Integer secondsRemaining, Object origin) {
+	public BreakDialog(FieldOfPlay fop, BreakType brt, CountdownType cdt, Integer secondsRemaining, Object origin) {
 		// logger.debug("BreakDialog brt = {}", brt);
-		this.content = new BreakManagement(OwlcmsSession.getFop(), brt, cdt, secondsRemaining, this, origin);
+		this.content = new BreakManagement(fop, brt, cdt, secondsRemaining, this, origin);
 		this.add(this.content);
 
 		this.addDialogCloseActionListener((e) -> {
 
 			// defensive, should have been unregistered already
 			try {
-				OwlcmsSession.getFop().getUiEventBus().unregister(this.content);
+				FieldOfPlay cfop = fop;
+				if (cfop != null) {
+					cfop.getUiEventBus().unregister(this.content);
+				}
 				// logger.debug("++++++ unregistered {}", breakTimer.id);
 			} catch (Exception e1) {
 			}
 			try {
-				OwlcmsSession.getFop().getFopEventBus().unregister(this.content);
+				FieldOfPlay cfop = fop;
+				if (cfop != null) {
+					cfop.getFopEventBus().unregister(this.content);
+				}
 			} catch (Exception e1) {
 			}
 			this.content = null;
@@ -58,8 +64,8 @@ public class BreakDialog extends Dialog {
 	 * @param origin the origin
 	 */
 	@SuppressWarnings("deprecation")
-	public BreakDialog(Object origin) {
-		this.content = new BreakManagement(OwlcmsSession.getFop(), this, origin);
+	public BreakDialog(FieldOfPlay fop, Object origin) {
+		this.content = new BreakManagement(fop, this, origin);
 		this.add(this.content);
 
 		this.addDialogCloseActionListener((e) -> {
@@ -68,12 +74,18 @@ public class BreakDialog extends Dialog {
 
 			// defensive, should have been unregistered already
 			try {
-				OwlcmsSession.getFop().getUiEventBus().unregister(this.content);
+				FieldOfPlay cfop = fop;
+				if (cfop != null) {
+					cfop.getUiEventBus().unregister(this.content);
+				}
 			} catch (Exception e1) {
 			}
 
 			try {
-				OwlcmsSession.getFop().getFopEventBus().unregister(this.content);
+				FieldOfPlay cfop = fop;
+				if (cfop != null) {
+					cfop.getFopEventBus().unregister(this.content);
+				}
 			} catch (Exception e1) {
 			}
 			this.content = null;

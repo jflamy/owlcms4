@@ -26,8 +26,8 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.scoreboard.JuryDecisions;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -47,7 +47,9 @@ public class JuryDecisionsPage extends AbstractResultsDisplayPage implements Bef
 
     @Override
     public String getPageTitle() {
-        return Translator.translate("JuryDecisions.Title") + OwlcmsSession.getFopNameIfMultiple();
+        FieldOfPlay fop = getFop();
+        String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+        return Translator.translate("JuryDecisions.Title") + suffix;
     }
 
     @Override

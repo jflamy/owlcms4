@@ -28,7 +28,6 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.attemptboards.AthleteFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.AthleteFacingDecisionBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
@@ -182,7 +181,9 @@ public class DisplayNavigationContent extends BaseNavigationContent
 
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("ShortTitle.Displays") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("ShortTitle.Displays") + suffix;
 	}
 
 	/*
@@ -196,11 +197,9 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		formatLabel(fopLabel);
 
 		ComboBox<FieldOfPlay> fopSelect = createFopSelect(placeHolder);
-		OwlcmsSession.withFop((fop) -> {
-			fopSelect.setValue(fop);
-		});
+		fopSelect.setValue(getFop());
 		fopSelect.addValueChangeListener(e -> {
-			OwlcmsSession.setFop(e.getValue());
+			setFop(e.getValue());
 			updateURLLocation(getLocationUI(), getLocation(), null);
 		});
 

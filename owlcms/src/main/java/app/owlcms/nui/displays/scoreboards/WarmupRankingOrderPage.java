@@ -21,7 +21,7 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
 import app.owlcms.displays.scoreboard.ResultsRankingOrder;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -37,7 +37,9 @@ public class WarmupRankingOrderPage extends AbstractResultsDisplayPage {
 
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Scoreboard.RankingOrder") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("Scoreboard.RankingOrder") + suffix;
 	}
 
 	@Override
