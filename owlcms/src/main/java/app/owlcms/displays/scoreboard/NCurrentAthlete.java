@@ -72,7 +72,8 @@ public class NCurrentAthlete extends Results {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+		FieldOfPlay fop = getFop();
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			uiEventLogger.debug("$$$ currentAthlete calling doBreak()");
 			if (fop.getGroup() != null && fop.getGroup().isDone()) {
 				setDisplay();
@@ -83,13 +84,14 @@ public class NCurrentAthlete extends Results {
 				setDisplay();
 				updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 			}
-		}));
+		});
 	}
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		uiEventLogger.debug("$$$ currentAthlete calling doCeremony()");
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+		FieldOfPlay fop = getFop();
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			getElement().setProperty("fullName",
 			        inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 			getElement().setProperty("teamName", "");
@@ -97,7 +99,7 @@ public class NCurrentAthlete extends Results {
 
 			updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 
-		}));
+		});
 	}
 
 	@Override
@@ -294,18 +296,17 @@ public class NCurrentAthlete extends Results {
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsSession.withFop(fop -> {
-			setId("ncurrentathlete-" + fop.getName());
-			init();
-			computeStylesDir(this);
+		FieldOfPlay fop = getFop();
+		setId("ncurrentathlete-" + fop.getName());
+		init();
+		computeStylesDir(this);
 
-			// liftsDone = AthleteSorter.countLiftsDone(order);
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
-			// we listen on uiEventBus.
-			this.uiEventBus = uiEventBusRegister(this, fop);
-			this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
-			this.getElement().setProperty("logoSrc", getLogoSrc());
-		});
+		// liftsDone = AthleteSorter.countLiftsDone(order);
+		syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
+		// we listen on uiEventBus.
+		this.uiEventBus = uiEventBusRegister(this, fop);
+		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
+		this.getElement().setProperty("logoSrc", getLogoSrc());
 	}
 
 	@Override
@@ -404,92 +405,90 @@ public class NCurrentAthlete extends Results {
 	}
 	
 	protected void init() {
-		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting result board", FieldOfPlay.getLoggingName(fop));
-			setId("scoreboard-" + fop.getName());
-			setWideTeamNames(false);
-			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-		});
+		FieldOfPlay fop = getFop();
+		logger.trace("{}Starting result board", FieldOfPlay.getLoggingName(fop));
+		setId("scoreboard-" + fop.getName());
+		setWideTeamNames(false);
+		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 		setTranslationMap();
 	}
 	
 	private void setDisplay() {
-		OwlcmsSession.withFop(fop -> {
-			FOPState fopState = fop.getState();
-			BreakType breakType = fop.getBreakType();
-			Element element = this.getElement();
-			BoardMode bm = computeBoardMode(fopState, breakType, fop.getCeremonyType());
-			if (logger.isDebugEnabled()) logger.debug("********* setting board mode {} {}",bm.name(), LoggerUtils.whereFrom());
-			switch (bm) {
-				case WAIT:
-					element.setProperty("mode", "WAIT");
-					element.setProperty("fullName", Translator.translate("Scoreboard.WaitingNextGroup"));
-					setShowDecisions(element,false);
-					setShowAthleteClock(element, false);
-					setShowBreakClock(element,false);
-					setDetails(element, false);
-					break;
-				case INTRO_COUNTDOWN:
-					element.setProperty("mode", "INTRO_COUNTDOWN");
-					setShowDecisions(element,false);			
-					setShowAthleteClock(element, false);
-					setShowBreakClock(element,true);
-					setDetails(element, false);
-					break;
-				case CEREMONY:
-					element.setProperty("mode", "CEREMONY");
-					setShowDecisions(element,false);
-					setShowAthleteClock(element, false);
-					setShowBreakClock(element,true);
-					setDetails(element, false);
-					break;
-				case LIFT_COUNTDOWN:
-					element.setProperty("mode", "LIFT_COUNTDOWN");
-					setShowDecisions(element,false);
-					setShowAthleteClock(element, false);
-					setShowBreakClock(element,true);
-					setDetails(element, false);
-					break;
-				case CURRENT_ATHLETE:
-					element.setProperty("mode", "CURRENT_ATHLETE");
-//					setShowDecisions(element,false);
-//					setShowAthleteClock(element, true);
-//					setShowBreakClock(element,false);
-					setDetails(element,  true);
-					break;
-				case INTERRUPTION:
-					element.setProperty("mode", "INTERRUPTION");
-					setShowDecisions(element,false);
-					setShowAthleteClock(element, false);
-					setShowBreakClock(element,false);
-					setDetails(element, false);
-					break;
-				case SESSION_DONE:
-					element.setProperty("mode", "SESSION_DONE");
-					setShowDecisions(element,false);
-					setShowAthleteClock(element, false);
-					setShowBreakClock(element,false);
-					setDetails(element, false);
-					break;
-				case LIFT_COUNTDOWN_CEREMONY:
-					element.setProperty("mode", "LIFT_COUNTDOWN_CEREMONY");
-					setShowAthleteClock(element, true);
-					setShowBreakClock(element,false);
-					setDetails(element, false);
-					break;
-			}
+		FieldOfPlay fop = getFop();
+		FOPState fopState = fop.getState();
+		BreakType breakType = fop.getBreakType();
+		Element element = this.getElement();
+		BoardMode bm = computeBoardMode(fopState, breakType, fop.getCeremonyType());
+		if (logger.isDebugEnabled()) logger.debug("********* setting board mode {} {}",bm.name(), LoggerUtils.whereFrom());
+		switch (bm) {
+			case WAIT:
+				element.setProperty("mode", "WAIT");
+				element.setProperty("fullName", Translator.translate("Scoreboard.WaitingNextGroup"));
+				setShowDecisions(element,false);
+				setShowAthleteClock(element, false);
+				setShowBreakClock(element,false);
+				setDetails(element, false);
+				break;
+			case INTRO_COUNTDOWN:
+				element.setProperty("mode", "INTRO_COUNTDOWN");
+				setShowDecisions(element,false);			
+				setShowAthleteClock(element, false);
+				setShowBreakClock(element,true);
+				setDetails(element, false);
+				break;
+			case CEREMONY:
+				element.setProperty("mode", "CEREMONY");
+				setShowDecisions(element,false);
+				setShowAthleteClock(element, false);
+				setShowBreakClock(element,true);
+				setDetails(element, false);
+				break;
+			case LIFT_COUNTDOWN:
+				element.setProperty("mode", "LIFT_COUNTDOWN");
+				setShowDecisions(element,false);
+				setShowAthleteClock(element, false);
+				setShowBreakClock(element,true);
+				setDetails(element, false);
+				break;
+			case CURRENT_ATHLETE:
+				element.setProperty("mode", "CURRENT_ATHLETE");
+//				setShowDecisions(element,false);
+//				setShowAthleteClock(element, true);
+//				setShowBreakClock(element,false);
+				setDetails(element,  true);
+				break;
+			case INTERRUPTION:
+				element.setProperty("mode", "INTERRUPTION");
+				setShowDecisions(element,false);
+				setShowAthleteClock(element, false);
+				setShowBreakClock(element,false);
+				setDetails(element, false);
+				break;
+			case SESSION_DONE:
+				element.setProperty("mode", "SESSION_DONE");
+				setShowDecisions(element,false);
+				setShowAthleteClock(element, false);
+				setShowBreakClock(element,false);
+				setDetails(element, false);
+				break;
+			case LIFT_COUNTDOWN_CEREMONY:
+				element.setProperty("mode", "LIFT_COUNTDOWN_CEREMONY");
+				setShowAthleteClock(element, true);
+				setShowBreakClock(element,false);
+				setDetails(element, false);
+				break;
+		}
 
-			element.setProperty("breakType", fopState == FOPState.BREAK ? breakType.name() : null);
-			Group group = fop.getGroup();
-			String description = null;
-			if (group != null) {
-				description = group.getDescription();
-				if (description == null) {
-					description = Translator.translate("Group_number", group.getName());
-				}
+		element.setProperty("breakType", fopState == FOPState.BREAK ? breakType.name() : null);
+		Group group = fop.getGroup();
+		String description = null;
+		if (group != null) {
+			description = group.getDescription();
+			if (description == null) {
+				description = Translator.translate("Group_number", group.getName());
 			}
-			this.getElement().setProperty("groupDescription", description != null ? description : "");
-		});
+		}
+		this.getElement().setProperty("groupDescription", description != null ? description : "");
 	}
 
 	private void setShowBreakClock(Element element, boolean b) {

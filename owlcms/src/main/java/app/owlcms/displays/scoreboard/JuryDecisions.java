@@ -69,19 +69,19 @@ public class JuryDecisions extends BaseResults {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		OwlcmsSession.withFop(fop -> ui.access(() -> {
+		ui.access(() -> {
 			uiEventLogger.debug("$$$ currentAthlete calling doBreak()");
 			setDisplay();
 			setShowJuryDecisions(getElement(), false);
-		}));
+		});
 	}
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
-		OwlcmsSession.withFop(fop -> ui.access(() -> {
+		ui.access(() -> {
 			setDisplay();
 			setShowJuryDecisions(getElement(), false);
-		}));
+		});
 	}
 
 	@Override
@@ -187,29 +187,27 @@ public class JuryDecisions extends BaseResults {
 	}
 
 	protected void init() {
-		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting result board", FieldOfPlay.getLoggingName(fop));
-			setId("scoreboard-" + fop.getName());
-			setWideTeamNames(false);
-			getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-		});
+		FieldOfPlay fop = getFop();
+		logger.trace("{}Starting result board", FieldOfPlay.getLoggingName(fop));
+		setId("scoreboard-" + fop.getName());
+		setWideTeamNames(false);
+		getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 		setTranslationMap();
 	}
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsSession.withFop(fop -> {
-			setId("jurydecisions-" + fop.getName());
-			init();
-			ui = UI.getCurrent();
-			computeStylesDir(this);
+		FieldOfPlay fop = getFop();
+		setId("jurydecisions-" + fop.getName());
+		init();
+		ui = UI.getCurrent();
+		computeStylesDir(this);
 
-			// we listen on uiEventBus.
-			this.uiEventBus = uiEventBusRegister(this, fop);
-			getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
-			getElement().setProperty("showJuryDecisions", true);
-			getElement().setPropertyJson("decisions", Json.createArray());
-		});
+		// we listen on uiEventBus.
+		this.uiEventBus = uiEventBusRegister(this, fop);
+		getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
+		getElement().setProperty("showJuryDecisions", true);
+		getElement().setPropertyJson("decisions", Json.createArray());
 	}
 
 	@Override
@@ -258,47 +256,46 @@ public class JuryDecisions extends BaseResults {
 	}
 
 	private void setDisplay() {
-		OwlcmsSession.withFop(fop -> {
-			FOPState fopState = fop.getState();
-			BreakType breakType = fop.getBreakType();
-			Element element = getElement();
-			BoardMode bm = computeBoardMode(fopState, breakType, fop.getCeremonyType());
-			if (logger.isDebugEnabled())
-				logger.debug("********* setting board mode {} {}", bm.name(), LoggerUtils.whereFrom());
-			switch (bm) {
-				case WAIT:
-					element.setProperty("mode", "WAIT");
-					setShowJuryDecisions(element, false);
-					break;
-				case INTRO_COUNTDOWN:
-					element.setProperty("mode", "INTRO_COUNTDOWN");
-					setShowJuryDecisions(element, false);
-					break;
-				case CEREMONY:
-					element.setProperty("mode", "CEREMONY");
-					setShowJuryDecisions(element, false);
-					break;
-				case LIFT_COUNTDOWN:
-					element.setProperty("mode", "LIFT_COUNTDOWN");
-					setShowJuryDecisions(element, false);
-					break;
-				case CURRENT_ATHLETE:
-					element.setProperty("mode", "CURRENT_ATHLETE");
-					break;
-				case INTERRUPTION:
-					element.setProperty("mode", "INTERRUPTION");
-					setShowJuryDecisions(element, false);
-					break;
-				case SESSION_DONE:
-					element.setProperty("mode", "SESSION_DONE");
-					setShowJuryDecisions(element, false);
-					break;
-				case LIFT_COUNTDOWN_CEREMONY:
-					element.setProperty("mode", "LIFT_COUNTDOWN_CEREMONY");
-					setShowJuryDecisions(element, false);
-					break;
-			}
-		});
+		FieldOfPlay fop = getFop();
+		FOPState fopState = fop.getState();
+		BreakType breakType = fop.getBreakType();
+		Element element = getElement();
+		BoardMode bm = computeBoardMode(fopState, breakType, fop.getCeremonyType());
+		if (logger.isDebugEnabled())
+			logger.debug("********* setting board mode {} {}", bm.name(), LoggerUtils.whereFrom());
+		switch (bm) {
+			case WAIT:
+				element.setProperty("mode", "WAIT");
+				setShowJuryDecisions(element, false);
+				break;
+			case INTRO_COUNTDOWN:
+				element.setProperty("mode", "INTRO_COUNTDOWN");
+				setShowJuryDecisions(element, false);
+				break;
+			case CEREMONY:
+				element.setProperty("mode", "CEREMONY");
+				setShowJuryDecisions(element, false);
+				break;
+			case LIFT_COUNTDOWN:
+				element.setProperty("mode", "LIFT_COUNTDOWN");
+				setShowJuryDecisions(element, false);
+				break;
+			case CURRENT_ATHLETE:
+				element.setProperty("mode", "CURRENT_ATHLETE");
+				break;
+			case INTERRUPTION:
+				element.setProperty("mode", "INTERRUPTION");
+				setShowJuryDecisions(element, false);
+				break;
+			case SESSION_DONE:
+				element.setProperty("mode", "SESSION_DONE");
+				setShowJuryDecisions(element, false);
+				break;
+			case LIFT_COUNTDOWN_CEREMONY:
+				element.setProperty("mode", "LIFT_COUNTDOWN_CEREMONY");
+				setShowJuryDecisions(element, false);
+				break;
+		}
 	}
 
 	private void setShowJuryDecisions(Element element, boolean b) {

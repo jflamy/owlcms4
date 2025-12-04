@@ -28,6 +28,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.IRankHolder;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.group.Group;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -482,6 +483,11 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@Override
 	public String getFirstName() {
 		return this.a.getFirstName();
+	}
+
+	@Override
+	public FieldOfPlay getFop() {
+		return this.a.getFop();
 	}
 
 	@Override

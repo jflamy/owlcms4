@@ -174,48 +174,45 @@ public class ResultsMultiRanks extends Results {
 	}
 
 	private void setCurrentAthleteAgeGroupRanks(Athlete a) {
-		OwlcmsSession.withFop(fop -> {
-			// ensure that the columns are in the same order as the header
-			this.setAgeGroupMap(new LinkedHashMap<>(fop.getAgeGroupMap()));
-			for (Entry<String, Participation> cape : this.getAgeGroupMap().entrySet()) {
-				cape.setValue(null);
-			}
-			if (a != null) {
-				// logger,debug(">>>setCurrentAthleteParticipations begin");
-				// logger,debug("setting {}", a.getShortName());
-				for (Participation p : a.getParticipations()) {
-					AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
-					if (ag != null) {
-						// logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
-						this.getAgeGroupMap().put(ag.getCode(), p);
-					}
+		FieldOfPlay fop = getFop();
+		// ensure that the columns are in the same order as the header
+		this.setAgeGroupMap(new LinkedHashMap<>(fop.getAgeGroupMap()));
+		for (Entry<String, Participation> cape : this.getAgeGroupMap().entrySet()) {
+			cape.setValue(null);
+		}
+		if (a != null) {
+			// logger,debug(">>>setCurrentAthleteParticipations begin");
+			// logger,debug("setting {}", a.getShortName());
+			for (Participation p : a.getParticipations()) {
+				AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
+				if (ag != null) {
+					// logger,debug("athlete {} curRankings {} {}", a, ag.getCode(), p);
+					this.getAgeGroupMap().put(ag.getCode(), p);
 				}
-				// logger,debug("<<<setCurrentAthleteParticipations end");
-			} else {
-				// logger,debug("+++ cleared");
 			}
-		});
+			// logger,debug("<<<setCurrentAthleteParticipations end");
+		} else {
+			// logger,debug("+++ cleared");
+		}
 	}
 
 	private void setCurrentAthleteChampionshipRanks(Athlete a) {
-		OwlcmsSession.withFop(fop -> {
-			// ensure that the columns are in the same order as the header
-			for (Entry<String, Participation> cape : this.getAgeGroupMap().entrySet()) {
-				cape.setValue(null);
-			}
-			if (a != null) {
-				// logger,debug("setting {}", a.getShortName());
-				for (Participation p : a.getParticipations()) {
-					AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
-					if (ag != null && Boolean.TRUE.equals(ag.getMedals())) {
-						// logger.debug("athlete {} ag {} column {} p {}", a, ag.getCode(), getColumnName(ag), p);
-						getAgeGroupMap().put(getColumnName(ag), p);
-					}
+		// ensure that the columns are in the same order as the header
+		for (Entry<String, Participation> cape : this.getAgeGroupMap().entrySet()) {
+			cape.setValue(null);
+		}
+		if (a != null) {
+			// logger,debug("setting {}", a.getShortName());
+			for (Participation p : a.getParticipations()) {
+				AgeGroup ag = p.getCategory() != null ? p.getCategory().getAgeGroup() : null;
+				if (ag != null && Boolean.TRUE.equals(ag.getMedals())) {
+					// logger.debug("athlete {} ag {} column {} p {}", a, ag.getCode(), getColumnName(ag), p);
+					getAgeGroupMap().put(getColumnName(ag), p);
 				}
-			} else {
-				// logger,debug("+++ cleared");
 			}
-		});
+		} else {
+			// logger,debug("+++ cleared");
+		}
 	}
 
 	@Override
@@ -226,7 +223,7 @@ public class ResultsMultiRanks extends Results {
 
 		JsonArray ageGroups = Json.createArray();
 		int i = 0;
-		for (Entry<String, Participation> e : OwlcmsSession.getFop().getAgeGroupMap().entrySet()) {
+		for (Entry<String, Participation> e : getFop().getAgeGroupMap().entrySet()) {
 			ageGroups.set(i, e.getKey());
 			i++;
 		}

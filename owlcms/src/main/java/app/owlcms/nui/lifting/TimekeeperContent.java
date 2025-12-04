@@ -173,28 +173,22 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		createTopBarLeft();
 
 		this.introCountdownButton = new Button(Translator.translate("introCountdown"), new Icon(VaadinIcon.TIMER), (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
-				dialog.open();
-			});
+			BreakDialog dialog = new BreakDialog(BreakType.BEFORE_INTRODUCTION, CountdownType.TARGET, null, this);
+			dialog.open();
 		});
 		this.introCountdownButton.getElement().setAttribute("theme", "primary contrast");
 
 		this.startLiftingButton = new Button(Translator.translate("startLifting"), new Icon(VaadinIcon.MICROPHONE), (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				UI.getCurrent().access(() -> createTopBar());
-				fop.fopEventPost(new FOPEvent.StartLifting(this));
-			});
+			UI.getCurrent().access(() -> createTopBar());
+			getFop().fopEventPost(new FOPEvent.StartLifting(this));
 		});
 		this.startLiftingButton.getThemeNames().add("success primary");
 
 		this.showResultsButton = new Button(Translator.translate("ShowResults"), new Icon(VaadinIcon.MEDAL), (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				UI.getCurrent().access(() -> createTopBar());
-				fop.fopEventPost(
-				        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true,
-				                this));
-			});
+			UI.getCurrent().access(() -> createTopBar());
+			getFop().fopEventPost(
+			        new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null, true,
+			                this));
 		});
 		this.showResultsButton.getThemeNames().add("success primary");
 		this.showResultsButton.setVisible(false);
@@ -312,14 +306,13 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 			List<Group> groups = GroupRepository.findAll();
 			groups.sort(Group.groupSelectionComparator);
 
-			OwlcmsSession.withFop(fop -> {
-				this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
-				        fop,
-				        (g1) -> fop.fopEventPost(
-				                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
-				        (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
-				createTopBarSettingsMenu();
-			});
+			FieldOfPlay fop = getFop();
+			this.topBarMenu = new GroupSelectionMenu(groups, fop.getGroup(),
+			        fop,
+			        (g1) -> fop.fopEventPost(
+			                new FOPEvent.SwitchGroup(g1.compareTo(fop.getGroup()) == 0 ? null : g1, this)),
+			        (g1) -> fop.fopEventPost(new FOPEvent.SwitchGroup(null, this)));
+			createTopBarSettingsMenu();
 		} else {
 			super.createTopBarGroupSelect();
 		}

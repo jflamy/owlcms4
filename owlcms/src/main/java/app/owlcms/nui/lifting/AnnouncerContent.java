@@ -130,7 +130,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = getFop();
 		if (fop != null) {
 			logger.trace("{}findAll {} {}", FieldOfPlay.getLoggingName(fop),
 			        fop.getGroup() == null ? null : fop.getGroup().getName(),
@@ -325,7 +325,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		resumeButton.getStyle().set("color", "white");
 		resumeButton.getStyle().set("margin-left", "1em");
 		resumeButton.addClickListener((event) -> {
-			OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(null));
+			getFop().fopEventPost(new FOPEvent.StartLifting(null));
 			this.stoppageAckNotification.close();
 			this.stoppageAckNotification = null;
 		});
@@ -720,7 +720,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        Translator.translate("DisplayParameters.showDecisionLights"),
 		        e -> {
 			        switchLiveLightsMode(this, !this.isLiveLights(), true);
-			        FieldOfPlay fop2 = OwlcmsSession.getFop();
+			        FieldOfPlay fop2 = getFop();
 			        if (fop2 != null) {
 				        fop2.setAnnouncerDecisionImmediate(false);
 				        fop2.setSingleReferee(false);
@@ -764,7 +764,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		subItemSingleRef.addClickListener(e -> {
 			boolean singleReferee2 = !this.isSingleReferee();
 			switchSingleRefereeMode(this, singleReferee2, true);
-			FieldOfPlay fop2 = OwlcmsSession.getFop();
+			FieldOfPlay fop2 = getFop();
 			if (fop2 != null) {
 				// fop2.setAnnouncerDecisionImmediate(false);
 				fop2.setSingleReferee(singleReferee2);

@@ -99,7 +99,8 @@ public class CurrentAthlete extends Results {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+		FieldOfPlay fop = getFop();
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			uiEventLogger.debug("$$$ currentAthlete calling doBreak()");
 			if (fop.getGroup() != null && fop.getGroup().isDone()) {
 				setDisplay();
@@ -116,13 +117,14 @@ public class CurrentAthlete extends Results {
 				updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			}
-		}));
+		});
 	}
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		uiEventLogger.debug("$$$ currentAthlete calling doCeremony()");
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+		FieldOfPlay fop = getFop();
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			getElement().setProperty("fullName",
 			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
 			getElement().setProperty("teamName", "");
@@ -131,7 +133,7 @@ public class CurrentAthlete extends Results {
 
 			updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 
-		}));
+		});
 	}
 
 	/**
@@ -146,7 +148,8 @@ public class CurrentAthlete extends Results {
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			FieldOfPlay fop = getFop();
 			Athlete a = e.getAthlete();
 			setDisplay();
 			if (a == null) {
@@ -158,7 +161,7 @@ public class CurrentAthlete extends Results {
 				// liftsDone = AthleteSorter.countLiftsDone(order);
 				doUpdate(a, e);
 			}
-		}));
+		});
 	}
 
 	@Override
@@ -191,7 +194,7 @@ public class CurrentAthlete extends Results {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", true);
-			OwlcmsSession.withFop(fop -> doUpdate(fop.getCurAthlete(), e));
+			doUpdate(getFop().getCurAthlete(), e);
 		});
 	}
 
@@ -205,7 +208,7 @@ public class CurrentAthlete extends Results {
 			if (isDone()) {
 				doDone(e.getAthlete().getGroup());
 			} else {
-				OwlcmsSession.withFop(fop -> doUpdate(fop.getCurAthlete(), e));
+				doUpdate(getFop().getCurAthlete(), e);
 			}
 		});
 	}
@@ -517,19 +520,18 @@ public class CurrentAthlete extends Results {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via FOPParameters interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
-			computeStylesDir(this);
+		FieldOfPlay fop = getFop();
+		init();
+		computeStylesDir(this);
 
-			// get the global category rankings attached to each athlete
-			this.order = fop.getDisplayOrder();
+		// get the global category rankings attached to each athlete
+		this.order = fop.getDisplayOrder();
 
-			// liftsDone = AthleteSorter.countLiftsDone(order);
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
-			// we listen on uiEventBus.
-			this.uiEventBus = uiEventBusRegister(this, fop);
-			this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
-		});
+		// liftsDone = AthleteSorter.countLiftsDone(order);
+		syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
+		// we listen on uiEventBus.
+		this.uiEventBus = uiEventBusRegister(this, fop);
+		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 	}
 
 	@Override
@@ -578,10 +580,9 @@ public class CurrentAthlete extends Results {
 		if (g == null) {
 			doEmpty();
 		} else {
-			OwlcmsSession.withFop(fop -> {
-				updateDisplay(null, fop);
-				getElement().setProperty("fullName", Translator.translate("Group_number_done", g.toString()));
-			});
+			FieldOfPlay fop = getFop();
+			updateDisplay(null, fop);
+			getElement().setProperty("fullName", Translator.translate("Group_number_done", g.toString()));
 		}
 	}
 
@@ -600,12 +601,11 @@ public class CurrentAthlete extends Results {
 	}
 
 	private void init() {
-		OwlcmsSession.withFop(fop -> {
-			logger.trace("{}Starting result board", FieldOfPlay.getLoggingName(fop));
-			setId("scoreboard-" + fop.getName());
-			setWideTeamNames(false);
-			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-		});
+		FieldOfPlay fop = getFop();
+		logger.trace("{}Starting result board", FieldOfPlay.getLoggingName(fop));
+		setId("scoreboard-" + fop.getName());
+		setWideTeamNames(false);
+		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 		setTranslationMap();
 		this.order = ImmutableList.of();
 	}
@@ -615,18 +615,17 @@ public class CurrentAthlete extends Results {
 	}
 
 	private void setDisplay() {
-		OwlcmsSession.withFop(fop -> {
-			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
-			Group group = fop.getGroup();
-			String description = null;
-			if (group != null) {
-				description = group.getDescription();
-				if (description == null) {
-					description = Translator.translate("Group_number", group.getName());
-				}
+		FieldOfPlay fop = getFop();
+		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
+		Group group = fop.getGroup();
+		String description = null;
+		if (group != null) {
+			description = group.getDescription();
+			if (description == null) {
+				description = Translator.translate("Group_number", group.getName());
 			}
-			this.getElement().setProperty("groupDescription", description != null ? description : "");
-		});
+		}
+		this.getElement().setProperty("groupDescription", description != null ? description : "");
 	}
 
 	private void setDone(boolean b) {

@@ -81,7 +81,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = getFop();
 		if (fop != null) {
 			logger.trace("{}findAll {} {} {}", FieldOfPlay.getLoggingName(fop),
 			        fop.getGroup() == null ? null : fop.getGroup().getName(),

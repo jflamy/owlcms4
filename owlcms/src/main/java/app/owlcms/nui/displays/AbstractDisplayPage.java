@@ -24,6 +24,7 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
+import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -274,6 +275,10 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	@Override
 	final public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
+		// Propagate FOP to the board so it can access it via its own getFop()
+		if (this.board instanceof FOPParameters) {
+			((FOPParameters) this.board).setFop(fop);
+		}
 	}
 
 	@Override

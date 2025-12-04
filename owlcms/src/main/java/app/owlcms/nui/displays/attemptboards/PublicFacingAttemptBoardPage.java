@@ -55,6 +55,7 @@ public class PublicFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 		        DisplayParameters.RECORDS, "false",
 		        DisplayParameters.VIDEO, "false",
 		        DisplayParameters.PUBLIC, "false",
+		        DisplayParameters.CURRENT_ATTEMPT, "false",
 		        SoundParameters.SINGLEREF, "false",
 		        DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")));
 		var additionalMap = Map.of(

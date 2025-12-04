@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 public interface BreakDisplay {
@@ -22,13 +21,20 @@ public interface BreakDisplay {
 
 	public void doCeremony(UIEvent.CeremonyStarted e);
 
+	/**
+	 * Get the FieldOfPlay associated with this display.
+	 * Must be implemented by all BreakDisplay implementations to avoid ThreadLocal issues.
+	 * @return the FieldOfPlay instance for this display
+	 */
+	public FieldOfPlay getFop();
+
 	public default String inferGroupName() {
 		return inferGroupName(null);
 	}
 
 	public default String inferGroupName(CeremonyType ceremonyType) {
 		// logger.debug("inferGroupName {}\n{}",ceremonyType,LoggerUtils.stackTrace());
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = getFop();
 		if (fop == null || ceremonyType == CeremonyType.MEDALS) {
 			return "";
 		}

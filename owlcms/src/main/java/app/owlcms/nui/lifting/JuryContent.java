@@ -232,15 +232,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Subscribe
 	public void slaveTimeStarted(UIEvent.StartTime e) {
-		OwlcmsSession.withFop(fop -> {
-			this.currentAthleteAtStart = fop.getClockOwner();
-			if (this.currentAthleteAtStart != null) {
-				this.currentAttemptNumber = this.currentAthleteAtStart.getActuallyAttemptedLifts();
-			} else {
-				this.currentAttemptNumber = 0;
-			}
-			this.newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
-		});
+		FieldOfPlay fop = getFop();
+		this.currentAthleteAtStart = fop.getClockOwner();
+		if (this.currentAthleteAtStart != null) {
+			this.currentAttemptNumber = this.currentAthleteAtStart.getActuallyAttemptedLifts();
+		} else {
+			this.currentAttemptNumber = 0;
+		}
+		this.newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
 		// this is redundant because of slaveResetOnNewClock
 		if ((this.currentAthleteAtStart != this.previousAthleteAtStart)
 		        || (this.currentAttemptNumber != this.previousAttemptNumber)
@@ -311,14 +310,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			        }
 		        });
 		subMenu2.addItem("3", (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				this.setNbJurors(3);
-			});
+			this.setNbJurors(3);
 		});
 		subMenu2.addItem("5", (e) -> {
-			OwlcmsSession.withFop(fop -> {
-				this.setNbJurors(5);
-			});
+			this.setNbJurors(5);
 		});
 	}
 
@@ -596,7 +591,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		Button technicalPauseButton = new Button(
 		        new Icon(VaadinIcon.TIMER),
 		        (e) -> {
-			        FieldOfPlay fop = OwlcmsSession.getFop();
+			        FieldOfPlay fop = getFop();
 			        if (fop.getState() == FOPState.BREAK && fop.getBreakType().isCountdown()) {
 				        slaveNotification(
 				                new UIEvent.Notification(null, this,
@@ -640,9 +635,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		this.juryIcons[juryMember] = votedIcon;
 		this.juryVotes[juryMember] = goodBad;
 		if (sendFOPEvent) {
-			OwlcmsSession.withFop(fop -> {
-				fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(this, juryMember, goodBad));
-			});
+			getFop().fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(this, juryMember, goodBad));
 		}
 		checkAllVoted();
 	}
@@ -650,19 +643,18 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	private void openJuryDialog(JuryDeliberationEventType deliberation) {
 		long now = System.currentTimeMillis();
 		if (now - this.lastOpen > 100 && (this.juryDialog == null || !this.juryDialog.isOpened())) {
-			OwlcmsSession.withFop(fop -> {
-				if (fop.getState() != FOPState.BREAK && deliberation != JuryDeliberationEventType.TECHNICAL_PAUSE) {
-					fop.fopEventPost(
-					        new FOPEvent.BreakStarted(
-					                deliberation == JuryDeliberationEventType.CHALLENGE ? BreakType.CHALLENGE
-					                        : BreakType.JURY,
-					                CountdownType.INDEFINITE, 0, null, true, this));
-				}
-				this.juryDialog = new JuryDialog(JuryContent.this, getAthleteUnderReview(), deliberation,
-				        this.summonEnabled);
-				this.juryDialog.open();
-				this.lastOpen = now;
-			});
+			FieldOfPlay fop = getFop();
+			if (fop.getState() != FOPState.BREAK && deliberation != JuryDeliberationEventType.TECHNICAL_PAUSE) {
+				fop.fopEventPost(
+				        new FOPEvent.BreakStarted(
+				                deliberation == JuryDeliberationEventType.CHALLENGE ? BreakType.CHALLENGE
+				                        : BreakType.JURY,
+				                CountdownType.INDEFINITE, 0, null, true, this));
+			}
+			this.juryDialog = new JuryDialog(JuryContent.this, getAthleteUnderReview(), deliberation,
+			        this.summonEnabled);
+			this.juryDialog.open();
+			this.lastOpen = now;
 		}
 	}
 
@@ -733,16 +725,15 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			openJuryDialog(JuryDeliberationEventType.CALL_REFEREES);
 			this.lastOpen = now;
 
-			OwlcmsSession.withFop(fop -> {
-				if (i > 0) {
-					fop.fopEventPost(new FOPEvent.SummonReferee(this.getOrigin(), i));
-				} else {
-					// i = 0 means call all refs.
-					for (int j = 1; j <= 3; j++) {
-						fop.fopEventPost(new FOPEvent.SummonReferee(this.getOrigin(), j));
-					}
+			FieldOfPlay fop = getFop();
+			if (i > 0) {
+				fop.fopEventPost(new FOPEvent.SummonReferee(this.getOrigin(), i));
+			} else {
+				// i = 0 means call all refs.
+				for (int j = 1; j <= 3; j++) {
+					fop.fopEventPost(new FOPEvent.SummonReferee(this.getOrigin(), j));
 				}
-			});
+			}
 		}
 	}
 
