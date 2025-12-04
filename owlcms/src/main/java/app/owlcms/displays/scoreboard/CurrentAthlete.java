@@ -36,7 +36,6 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;

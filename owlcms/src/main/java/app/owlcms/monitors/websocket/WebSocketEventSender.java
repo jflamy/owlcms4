@@ -23,8 +23,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import app.owlcms.i18n.TranslationsZipHelper;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.TranslationsZipHelper;
 import ch.qos.logback.classic.Logger;
 
 /**
