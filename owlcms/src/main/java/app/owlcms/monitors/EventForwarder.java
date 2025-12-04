@@ -1683,7 +1683,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	/**
 	 * @return the fop
 	 */
-	private FieldOfPlay getFop() {
+	@Override
+	public FieldOfPlay getFop() {
 		return this.fop;
 	}
 

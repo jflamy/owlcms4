@@ -1660,7 +1660,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	/**
 	 * @return the fop
 	 */
-	private FieldOfPlay getFop() {
+	@Override
+	public FieldOfPlay getFop() {
 		return this.fop;
 	}
 
