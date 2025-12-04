@@ -407,20 +407,18 @@ public class MQTTMonitor extends Thread implements IUnregister {
 			} else if (messageStr.equalsIgnoreCase("challenge")) {
 				MQTTMonitor.this.getFop().fopEventPost(
 				        new FOPEvent.BreakStarted(BreakType.CHALLENGE, CountdownType.INDEFINITE, 0, null, true, this));
-			} else if (messageStr.equalsIgnoreCase("stop")) {
-				var state = fop.getState();
-				// green resume button used to clear the decision lights.
-				if (state == FOPState.CURRENT_ATHLETE_DISPLAYED
-				        || state == FOPState.INACTIVE
-				        || (state == FOPState.BREAK && !fop.getBreakType().isInterruption())) {
-					logger.info("{}MQTT jury resume received in state {}, sending ResetOnNewClock", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), state);
-					MQTTMonitor.this.getFop().getUiEventBus().post(new UIEvent.ResetOnNewClock(fop.getCurAthlete(), null, fop));
-				} else {
-					MQTTMonitor.this.getFop().fopEventPost(
-					        new FOPEvent.StartLifting(this));
-				}
-
+		} else if (messageStr.equalsIgnoreCase("stop")) {
+			var state = MQTTMonitor.this.getFop().getState();
+			// green resume button used to clear the decision lights.
+			if (state == FOPState.CURRENT_ATHLETE_DISPLAYED
+			        || state == FOPState.INACTIVE
+			        || (state == FOPState.BREAK && !MQTTMonitor.this.getFop().getBreakType().isInterruption())) {
+				logger.info("{}MQTT jury resume received in state {}, sending ResetOnNewClock", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), state);
+				MQTTMonitor.this.getFop().getUiEventBus().post(new UIEvent.ResetOnNewClock(MQTTMonitor.this.getFop().getCurAthlete(), null, MQTTMonitor.this.getFop()));
 			} else {
+				MQTTMonitor.this.getFop().fopEventPost(
+				        new FOPEvent.StartLifting(this));
+			}			} else {
 				logger.error("{}Malformed MQTT jury break message topic='{}' message='{}'",
 				        FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
 			}

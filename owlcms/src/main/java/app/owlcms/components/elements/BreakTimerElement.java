@@ -245,13 +245,15 @@ public class BreakTimerElement extends TimerElement {
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsSession.withFop(fop -> {
-			// we listen on uiEventBus; this method ensures we stop when detached.
+		FieldOfPlay fopToUse = this.fop != null ? this.fop : OwlcmsSession.getFop();
+		if (fopToUse != null) {
 			this.uiEventLogger.trace("&&& breakTimerElement register {} {}", this.parentName, LoggerUtils.whereFrom());
-			uiEventBusRegister(this, fop);
-			syncWithFopTimer(fop);
-		});
-
+			uiEventBusRegister(this, fopToUse);
+			this.fop = fopToUse;
+			syncWithFopTimer(fopToUse);
+		} else {
+			this.logger.warn("No FOP available for BreakTimerElement onAttach {}", LoggerUtils.whereFrom());
+		}
 	}
 
 	private String formatDuration(Integer milliseconds) {

@@ -45,6 +45,7 @@ public abstract class TimerElement extends LitTemplate
 	public long lastStartMillis;
 	public long lastStopMillis;
 	protected String fopName;
+	protected FieldOfPlay fop;
 	protected VaadinSession vsession;
 	private boolean indefinite;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
@@ -64,6 +65,10 @@ public abstract class TimerElement extends LitTemplate
 	 * Instantiates a new timer element.
 	 */
 	public TimerElement() {
+	}
+
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
 	}
 
 	@AllowInert

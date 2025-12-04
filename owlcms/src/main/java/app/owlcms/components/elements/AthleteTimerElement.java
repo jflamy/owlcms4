@@ -166,13 +166,13 @@ public class AthleteTimerElement extends TimerElement {
 	}
 
 	public void detach() {
-		OwlcmsSession.withFop(fop -> {
+		if (this.fop != null) {
 			try {
-				fop.getFopEventBus().unregister(this);
+				this.fop.getFopEventBus().unregister(this);
 			} catch (Exception e) {
 				// ignored
 			}
-		});
+		}
 	}
 
 	/**
@@ -260,20 +260,26 @@ public class AthleteTimerElement extends TimerElement {
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		OwlcmsSession.withFop(fop -> {
-			init(fop.getName());
+		// Use the FOP that was set explicitly, or fall back to ThreadLocal session FOP
+		FieldOfPlay fopToUse = this.fop != null ? this.fop : OwlcmsSession.getFop();
+		
+		if (fopToUse != null) {
+			init(fopToUse.getName());
 			// sync with current status of FOP
-			IProxyTimer fopTimer = getFopTimer(fop);
+			IProxyTimer fopTimer = getFopTimer(fopToUse);
 			if (fopTimer != null) {
 				if (fopTimer.isRunning()) {
-					doStartTimer(fopTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
+					doStartTimer(fopTimer.liveTimeRemaining(), isSilenced() || fopToUse.isEmitSoundsOnServer());
 				} else {
 					doSetTimer(fopTimer.getTimeRemaining());
 				}
 			}
 			// we listen on uiEventBus.
-			uiEventBusRegister(this, fop);
-		});
+			uiEventBusRegister(this, fopToUse);
+			this.fop = fopToUse;
+		} else {
+			logger.warn("No FOP available for AthleteTimerElement onAttach {}", LoggerUtils.whereFrom());
+		}
 	}
 
 }
