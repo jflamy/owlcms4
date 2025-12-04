@@ -23,10 +23,10 @@
 	<properties>
 		<!-- revision is overridden by .github/workflow/release.yaml for the official
 		builds. this value is only used for local development -->
-		<revision>64.0.0-SNAPSHOT</revision>
+		<revision>63.1.0-SNAPSHOT</revision>
 
-		<vaadin.version>24.9.5</vaadin.version>
-		<logback.version>1.5.19</logback.version>
+		<vaadin.version>24.9.6</vaadin.version>
+		<logback.version>1.5.13</logback.version>
 		<slf4j.version>2.0.7</slf4j.version>
 		<hibernate.version>5.6.15.Final</hibernate.version>
 		<guava.version>32.0.0-jre</guava.version>
