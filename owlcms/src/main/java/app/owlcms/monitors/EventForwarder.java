@@ -60,7 +60,6 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
@@ -1252,20 +1251,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private void doBreak(UIEvent e, Group g) {
-		OwlcmsSession.withFop(fop -> {
-			createUpdate(e);
-			if (getFopState() != FOPState.BREAK) {
-				logger.debug("### done not break");
-			} else {
-				logger.debug("### done but break");
-				setFullName(groupResults(g));
-				setTeamName("");
-				setAttempt("");
-				setHidden(false);
-			}
-			pushUpdate(e);
-		});
-
+		createUpdate(e);
+		if (getFopState() != FOPState.BREAK) {
+			logger.debug("### done not break");
+		} else {
+			logger.debug("### done but break");
+			setFullName(groupResults(g));
+			setTeamName("");
+			setAttempt("");
+			setHidden(false);
+		}
+		pushUpdate(e);
 	}
 
 	private void doCeremony(CeremonyDone e) {
