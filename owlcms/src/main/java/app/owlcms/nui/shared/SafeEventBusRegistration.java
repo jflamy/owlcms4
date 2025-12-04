@@ -23,7 +23,7 @@ import ch.qos.logback.classic.Logger;
 // @formatter:off
 public interface SafeEventBusRegistration {
 
-	Map<Component, EventBus> BUS_REGISTRY = Collections.synchronizedMap(new WeakHashMap<>());
+	Map<Object, EventBus> BUS_REGISTRY = Collections.synchronizedMap(new WeakHashMap<>());
 
 	Logger logger = (Logger) LoggerFactory.getLogger(SafeEventBusRegistration.class);
 
@@ -79,10 +79,42 @@ public interface SafeEventBusRegistration {
 		return uiEventBus;
 	}
 
-    public default void unregister(Component c, EventBus uiEventBus) {
-		logger.trace("explicit: unregister {} from {}", c, uiEventBus.identifier());
-		try {uiEventBus.unregister(c);} catch (Exception ex) {}
-		BUS_REGISTRY.remove(c, uiEventBus);
+	public default EventBus uiEventBusRegister(Object subscriber, FieldOfPlay fop) {
+		{logger.setLevel(Level.INFO);}
+		if (fop == null) {
+			logger.error("uiEventBusRegister called with null FOP for subscriber {}", subscriber);
+			return null;
+		}
+		EventBus uiEventBus = fop.getUiEventBus();
+		EventBus previousBus = BUS_REGISTRY.get(subscriber);
+		if (previousBus != null && previousBus != uiEventBus) {
+			try {
+				previousBus.unregister(subscriber);
+				logger.error("Subscriber {} was registered to a different bus ({}); unregistering before switching", subscriber, previousBus.identifier());
+			} catch (Exception ex) {
+				logger.error("Failed to unregister subscriber {} from previous bus {}", subscriber, previousBus.identifier(), ex);
+			}
+		}
+		if (previousBus == uiEventBus) {
+			return uiEventBus;
+		}
+		try {
+			uiEventBus.unregister(subscriber);
+		} catch (Exception ignored) {
+		}
+		try {
+			uiEventBus.register(subscriber);
+			BUS_REGISTRY.put(subscriber, uiEventBus);
+		} catch (Exception ex) {
+			logger.error("Failed to register subscriber {} on UI bus {}", subscriber, uiEventBus.identifier(), ex);
+		}
+		return uiEventBus;
+	}
+
+    public default void unregister(Object subscriber, EventBus uiEventBus) {
+		logger.trace("explicit: unregister {} from {}", subscriber, uiEventBus.identifier());
+		try {uiEventBus.unregister(subscriber);} catch (Exception ex) {}
+		BUS_REGISTRY.remove(subscriber, uiEventBus);
     }
 
 }
