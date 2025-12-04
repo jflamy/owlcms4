@@ -52,6 +52,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent.BreakStarted;
 import app.owlcms.uievents.UIEvent.GroupDone;
 import app.owlcms.utils.LoggerUtils;
@@ -67,7 +68,7 @@ import ch.qos.logback.classic.Logger;
  *
  * @author Jean-François Lamy
  */
-public class MQTTMonitor extends Thread implements IUnregister {
+public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegistration {
 
 	private boolean active;
 
@@ -1227,7 +1228,7 @@ public class MQTTMonitor extends Thread implements IUnregister {
 	@Override
 	public void start() {
 		// this.setFop(this.getFop());
-		this.getFop().getUiEventBus().register(this);
+		this.uiEventBusRegister(this, this.getFop());
 		this.getFop().getFopEventBus().register(this);
 
 		try {

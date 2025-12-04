@@ -21,6 +21,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.monitors.MQTTMonitor;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -36,7 +37,7 @@ import ch.qos.logback.classic.Logger;
  * @author Jean-François Lamy
  *
  */
-public class FOPSimulator {
+public class FOPSimulator implements SafeEventBusRegistration {
 
 	private static final boolean USE_MQTT_TIMER = true;
 	static private Random r = new Random(0);
@@ -56,8 +57,7 @@ public class FOPSimulator {
 	}
 
 	public void go() throws InterruptedException {
-		this.uiEventBus = this.fop.getUiEventBus();
-		this.uiEventBus.register(this);
+		this.uiEventBus = uiEventBusRegister(this, this.fop);
 		this.setOrigin(this);
 
 		this.logger.info("simulating fop {}", this.fop.getName());
