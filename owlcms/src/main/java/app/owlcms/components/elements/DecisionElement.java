@@ -54,7 +54,7 @@ public class DecisionElement extends LitTemplate
 	private boolean dontReset;
 	private boolean publicFacing;
 	protected boolean downSlave;
-	private FieldOfPlay fop;
+	protected FieldOfPlay fop;
 
 	public DecisionElement() {
 	}
