@@ -1121,6 +1121,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			this.errorLabel.setVisible(true);
 			this.errorLabel.getElement().setProperty("innerHTML", message);
 			this.errorLabel.getClassNames().set("errorMessage", true);
+			field.getElement().getClassList().set("error", true);
 			field.setInvalid(true);
 			// Show Accept Change button, hide normal Update button
 			if (this.operationButton != null && this.acceptChangeButton != null) {
@@ -1137,6 +1138,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			this.errorLabel.setVisible(true);
 			this.errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
 			this.errorLabel.getClassNames().clear();
+			field.getElement().getClassList().set("error", false);
 			field.setInvalid(false);
 			// Show normal Update button, hide Accept Change button
 			if (this.operationButton != null && this.acceptChangeButton != null) {
@@ -1347,19 +1349,34 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		// Check if any field has the "error" class - if so, don't show the yellow "current" marker
 		// The pink error highlighting is sufficient
 		boolean anyFieldHasError = false;
+		TextField firstErrorField = null;
+		int firstErrorRow = -1;
+		int firstErrorCol = -1;
 		for (int col = SNATCH1; col <= CJ3; col++) {
 			for (int row = DECLARATION; row <= ACTUAL; row++) {
 				TextField tf = this.textfields[row - 1][col - 1];
 				if (tf != null && tf.getElement().getClassList().contains("error")) {
 					anyFieldHasError = true;
+					if (firstErrorField == null) {
+						firstErrorField = tf;
+						firstErrorRow = row;
+						firstErrorCol = col;
+					}
 					break;
 				}
 			}
-			if (anyFieldHasError) break;
+			if (anyFieldHasError && firstErrorField != null) {
+				break;
+			}
 		}
-		
-		// Don't show yellow "current" marker when there's an error
+
+		// Don't show yellow "current" marker when there's an error; focus the first error cell instead
 		if (hasErrors || anyFieldHasError) {
+			if (firstErrorField != null) {
+				firstErrorField.setAutofocus(true);
+				firstErrorField.setAutoselect(true);
+				firstErrorField.focus();
+			}
 			return;
 		}
 
