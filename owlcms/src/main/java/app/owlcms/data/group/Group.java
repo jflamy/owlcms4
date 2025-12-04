@@ -329,6 +329,8 @@ public class Group implements Comparable<Group> {
 	private String doctor;
 	private String doctor2;
 	private String doctor3;
+	private String tis1;
+	private String tis2;
 
 	/**
 	 * Instantiates a new group.
@@ -1198,6 +1200,22 @@ public class Group implements Comparable<Group> {
 
 	public void setDoctor3(String doctor3) {
 		this.doctor3 = doctor3;
+	}
+
+	public String getTis1() {
+		return this.tis1;
+	}
+
+	public void setTis1(String tis1) {
+		this.tis1 = tis1;
+	}
+
+	public String getTis2() {
+		return this.tis2;
+	}
+
+	public void setTis2(String tis2) {
+		this.tis2 = tis2;
 	}
 
 	@Transient

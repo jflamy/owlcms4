@@ -59,6 +59,8 @@ public class SessionDTO {
 	private String doctor;
 	private String doctor2;
 	private String doctor3;
+	private String tis1;
+	private String tis2;
 
 	public SessionDTO() {
 	}
@@ -106,6 +108,8 @@ public class SessionDTO {
 		dto.setDoctor(group.getDoctor());
 		dto.setDoctor2(group.getDoctor2());
 		dto.setDoctor3(group.getDoctor3());
+		dto.setTis1(group.getTis1());
+		dto.setTis2(group.getTis2());
 		
 		return dto;
 	}
@@ -159,6 +163,8 @@ public class SessionDTO {
 		group.setDoctor(this.doctor);
 		group.setDoctor2(this.doctor2);
 		group.setDoctor3(this.doctor3);
+		group.setTis1(this.tis1);
+		group.setTis2(this.tis2);
 		
 		return group;
 	}
@@ -459,5 +465,21 @@ public class SessionDTO {
 
 	public void setDoctor3(String doctor3) {
 		this.doctor3 = doctor3;
+	}
+
+	public String getTis1() {
+		return tis1;
+	}
+
+	public void setTis1(String tis1) {
+		this.tis1 = tis1;
+	}
+
+	public String getTis2() {
+		return tis2;
+	}
+
+	public void setTis2(String tis2) {
+		this.tis2 = tis2;
 	}
 }

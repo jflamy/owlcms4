@@ -190,6 +190,7 @@ public class SessionEditingFormFactory
 
 		FormLayout groupLayout = sessionLayout(allPlatforms);
 		FormLayout officialsLayout = officialsLayout();
+		FormLayout supportLayout = supportLayout();
 		FormLayout juryLayout = juryLayout();
 
 		VerticalLayout content = new VerticalLayout(new Div(),
@@ -205,10 +206,16 @@ public class SessionEditingFormFactory
 		        content2);
 
 		VerticalLayout content3 = new VerticalLayout(new Div(),
-		        juryLayout);
+		        supportLayout);
 		content3.setHeight(HEIGHT);
-		ts.add(Translator.translate("Jury"),
+		ts.add(Translator.translate("Support"),
 		        content3);
+
+		VerticalLayout content4 = new VerticalLayout(new Div(),
+		        juryLayout);
+		content4.setHeight(HEIGHT);
+		ts.add(Translator.translate("Jury"),
+		        content4);
 
 		FlexLayout mainLayout = new FlexLayout(ts, footer);
 		mainLayout.setFlexDirection(FlexDirection.COLUMN);
@@ -436,20 +443,6 @@ public class SessionEditingFormFactory
 
 		addRuler(officialsLayout);
 
-		ComboBox<String> weighIn1 = createOfficialComboBox("Weighin1");
-		officialsLayout.add(weighIn1);
-		this.binder.forField(weighIn1)
-		        .withNullRepresentation("")
-		        .bind(Group::getWeighIn1, Group::setWeighIn1);
-
-		ComboBox<String> weighIn2 = createOfficialComboBox("Weighin2");
-		officialsLayout.add(weighIn2);
-		this.binder.forField(weighIn2)
-		        .withNullRepresentation("")
-		        .bind(Group::getWeighIn2, Group::setWeighIn2);
-
-		addRuler(officialsLayout);
-
 		ComboBox<String> referee1 = createOfficialComboBox("Referee1");
 		officialsLayout.add(referee1);
 		this.binder.forField(referee1)
@@ -476,6 +469,53 @@ public class SessionEditingFormFactory
 
 		addRuler(officialsLayout);
 		return officialsLayout;
+	}
+
+	private FormLayout supportLayout() {
+		FormLayout supportLayout = new FormLayout();
+
+		ComboBox<String> weighIn1 = createOfficialComboBox("Weighin1");
+		supportLayout.add(weighIn1);
+		this.binder.forField(weighIn1)
+		        .withNullRepresentation("")
+		        .bind(Group::getWeighIn1, Group::setWeighIn1);
+
+		ComboBox<String> weighIn2 = createOfficialComboBox("Weighin2");
+		supportLayout.add(weighIn2);
+		this.binder.forField(weighIn2)
+		        .withNullRepresentation("")
+		        .bind(Group::getWeighIn2, Group::setWeighIn2);
+
+		addRuler(supportLayout);
+
+		ComboBox<String> competitionSecretary = createOfficialComboBox("CompetitionSecretary");
+		supportLayout.add(competitionSecretary);
+		this.binder.forField(competitionSecretary)
+		        .withNullRepresentation("")
+		        .bind(Group::getCompetitionSecretary, Group::setCompetitionSecretary);
+
+		ComboBox<String> competitionSecretary2 = createOfficialComboBox("CompetitionSecretary2", "CompetitionSecretary");
+		supportLayout.add(competitionSecretary2);
+		this.binder.forField(competitionSecretary2)
+		        .withNullRepresentation("")
+		        .bind(Group::getCompetitionSecretary2, Group::setCompetitionSecretary2);
+
+		addRuler(supportLayout);
+
+		ComboBox<String> tis1 = createOfficialComboBox("TIS1");
+		supportLayout.add(tis1);
+		this.binder.forField(tis1)
+		        .withNullRepresentation("")
+		        .bind(Group::getTis1, Group::setTis1);
+
+		ComboBox<String> tis2 = createOfficialComboBox("TIS2");
+		supportLayout.add(tis2);
+		this.binder.forField(tis2)
+		        .withNullRepresentation("")
+		        .bind(Group::getTis2, Group::setTis2);
+
+		addRuler(supportLayout);
+		return supportLayout;
 	}
 
 }

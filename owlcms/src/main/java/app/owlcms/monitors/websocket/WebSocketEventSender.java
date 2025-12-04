@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import app.owlcms.i18n.TranslationsZipHelper;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -103,6 +104,33 @@ public class WebSocketEventSender {
 			sender.close();
 		}
 		sendersByUrl.clear();
+	}
+
+	/**
+	 * Send translations to all connected WebSocket clients.
+	 * Used when translations are reloaded to broadcast the updated translations.
+	 */
+	public static synchronized void sendTranslationsToAll() {
+		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
+			logger.warn("translations not available, cannot send to all clients");
+			return;
+		}
+
+		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
+		if (translationsZipBytes.length == 0) {
+			logger.warn("failed to create translations ZIP, cannot send to all clients");
+			return;
+		}
+
+		int sentCount = 0;
+		for (WebSocketEventSender sender : sendersByUrl.values()) {
+			boolean sent = sender.sendBinary("translations_zip", translationsZipBytes);
+			if (sent) {
+				sentCount++;
+			}
+		}
+		logger.warn("sent translations ZIP to {}/{} connected WebSocket clients ({} bytes)",
+		        sentCount, sendersByUrl.size(), translationsZipBytes.length);
 	}
 
 	private String url;

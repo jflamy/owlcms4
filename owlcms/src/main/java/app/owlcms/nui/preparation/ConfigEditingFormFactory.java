@@ -55,6 +55,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.monitors.websocket.WebSocketEventSender;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.nui.shared.DownloadButtonFactory;
@@ -519,7 +520,11 @@ public class ConfigEditingFormFactory
 		layout.setColspan(title, 2);
 
 		Button resetTranslation = new Button(Translator.translate("reloadTranslation"),
-		        buttonClickEvent -> Translator.reset());
+		        buttonClickEvent -> {
+		        	Translator.reset();
+		        	// Broadcast fresh translations to all connected WebSocket clients
+		        	WebSocketEventSender.sendTranslationsToAll();
+		        });
 		layout.addFormItem(resetTranslation, Translator.translate("reloadTranslationInfo"));
 		return layout;
 	}
