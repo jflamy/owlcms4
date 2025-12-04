@@ -113,7 +113,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		processBooleanParam(params, LEADERS, (v) -> switchLeaders(v, false));
 		processBooleanParam(params, ABBREVIATED, (v) -> switchAbbreviated(v, true));
 		processBooleanParam(params, VIDEO, (v) -> switchVideo(v, true));
-		processBooleanParam(params, CURRENT_ATTEMPT, (v) -> switchCurrentAttempt(v, true));
+		processBooleanParam(params, CURRENT_ATTEMPT, (v) -> switchCurrentAttempt(v, false));
 
 		String videoStyles = Config.getCurrent().getParamVideoStylesDir();
 		String publicStyles = Config.getCurrent().getParamPublicStylesDir();

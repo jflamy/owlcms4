@@ -106,7 +106,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 	public void monitoring() {
 		Button obsMonitor = openInNewTab(OBSMonitor.class, Translator.translate("OBS.MonitoringButton"));
-		Button eventMonitor = openInNewTabQueryParameters(StreamingEventMonitor.class,
+		Button eventMonitor = openInNewTabWithFopQueryParameters(StreamingEventMonitor.class,
 		        Translator.translate("Video.EventMonitoringButton"),
 		        "video=true");
 		VerticalLayout intro4 = new VerticalLayout();
@@ -159,24 +159,24 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	public void decisions() {
-		Button publicDecisions = openInNewTabQueryParameters(PublicFacingDecisionBoardPage.class,
+		Button publicDecisions = openInNewTabWithFopQueryParameters(PublicFacingDecisionBoardPage.class,
 		        Translator.translate("RefereeDecisions"), "video=true");
-		Button juryDecisions = openInNewTabQueryParameters(JuryDecisionsPage.class,
+		Button juryDecisions = openInNewTabWithFopQueryParameters(JuryDecisionsPage.class,
 		        Translator.translate("JuryDecisions.Title"), "video=true");
 		FlexibleGridLayout grid31 = HomeNavigationContent.navigationGrid(publicDecisions, juryDecisions);
 		doGroup(Translator.translate("RefereeDecisions"), grid31, this);
 	}
 
 	public void scoreboards() {
-		Button scoreboard = openInNewTabQueryParameters(WarmupNoLeadersPage.class,
-		        Translator.translate("Scoreboard"), "video=true");
-		Button scoreboardWLeaders = openInNewTabQueryParameters(WarmupScoreboardPage.class,
-		        Translator.translate("ScoreboardWLeadersButton"), "video=true");
+		Button scoreboard = openInNewTabWithFopQueryParameters(WarmupNoLeadersPage.class,
+		        Translator.translate("Scoreboard"), "video=true&currentAttempt=false");
+		Button scoreboardWLeaders = openInNewTabWithFopQueryParameters(WarmupScoreboardPage.class,
+		        Translator.translate("ScoreboardWLeadersButton"), "video=true&currentAttempt=false");
 		scoreboardWLeaders.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
-		Button scoreboardMultiRanks = openInNewTabQueryParameters(WarmupMultiRanksPage.class,
-		        Translator.translate("ScoreboardMultiRanksButton"), "video=true");
-		Button scoreboardRankings = openInNewTabQueryParameters(WarmupRankingOrderPage.class,
-		        Translator.translate("Scoreboard.RankingOrderButton"), "video=true");
+		Button scoreboardMultiRanks = openInNewTabWithFopQueryParameters(WarmupMultiRanksPage.class,
+		        Translator.translate("ScoreboardMultiRanksButton"), "video=true&currentAttempt=false");
+		Button scoreboardRankings = openInNewTabWithFopQueryParameters(WarmupRankingOrderPage.class,
+		        Translator.translate("Scoreboard.RankingOrderButton"), "video=true&currentAttempt=false");
 
 		VerticalLayout intro1 = new VerticalLayout();
 		// addP(intro1, Translator.translate("darkModeSelect"));
@@ -187,7 +187,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	public void startList() {
-		Button startList = openInNewTabQueryParameters(PublicStartListPage.class,
+		Button startList = openInNewTabWithFopQueryParameters(PublicStartListPage.class,
 		        Translator.translate("Scoreboard.StartList"), "video=true");
 		FlexibleGridLayout gridIntro = HomeNavigationContent.navigationGrid(startList);
 		doGroup(Translator.translate("CeremonyType.INTRODUCTION"), gridIntro, this);
@@ -195,14 +195,14 @@ public class VideoNavigationContent extends BaseNavigationContent
 
 	public void attemptBoard() {
 		FlexibleGridLayout grid3;
-		Button attempt = openInNewTabQueryParameters(PublicFacingAttemptBoardPage.class,
+		Button attempt = openInNewTabWithFopQueryParameters(PublicFacingAttemptBoardPage.class,
 		        Translator.translate("AttemptBoard"), "video=true");
 		if (Config.getCurrent().featureSwitch("iwfLook")) {
-			Button nCurrentAthlete = openInNewTabQueryParameters(NCurrentAthletePage.class,
+			Button nCurrentAthlete = openInNewTabWithFopQueryParameters(NCurrentAthletePage.class,
 			        Translator.translate("CurrentAthleteTitle") + " (New)", "video=true");
 			grid3 = HomeNavigationContent.navigationGrid(nCurrentAthlete, attempt);
 		} else {
-			Button currentAthlete = openInNewTabQueryParameters(CurrentAthletePage.class,
+			Button currentAthlete = openInNewTabWithFopQueryParameters(CurrentAthletePage.class,
 			        Translator.translate("CurrentAthleteTitle"), "video=true");
 			grid3 = HomeNavigationContent.navigationGrid(currentAthlete, attempt);
 		}

@@ -85,7 +85,6 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
@@ -153,7 +152,9 @@ public abstract class AthleteGridContent extends BaseContent
 		Integer lift = a.getActualLiftOrNull(i);
 		Integer attemptsDone = a.getAttemptsDone();
 		if (i == (attemptsDone + 1)) {
-			return a == OwlcmsSession.getFop().getCurAthlete() ? "yellow" : "next";
+			FieldOfPlay fop = a.getFop();
+			Athlete curAthlete = fop != null ? fop.getCurAthlete() : null;
+			return a == curAthlete ? "yellow" : "next";
 		} else if (lift == null) {
 			return ("gray");
 		} else if (lift > 0) {
@@ -166,7 +167,9 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	private static String computeNameClass(Athlete a) {
-		return a == OwlcmsSession.getFop().getCurAthlete() ? "bold" : "";
+		FieldOfPlay fop = a.getFop();
+		Athlete curAthlete = fop != null ? fop.getCurAthlete() : null;
+		return a == curAthlete ? "bold" : "";
 	}
 
 	private static Renderer<Athlete> createAttemptsRenderer() {
@@ -473,7 +476,7 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	@Override
 	public Collection<Athlete> findAll() {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = getFop();
 		if (fop != null) {
 			logger.trace("{}findAll {} {}", FieldOfPlay.getLoggingName(fop),
 			        fop.getGroup() == null ? null : fop.getGroup().getName(),
@@ -924,7 +927,8 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	protected HorizontalLayout breakButtons(FlexLayout announcerBar) {
 		this.breakButton = new Button(Translator.translateOrElseEmpty("Pause"), new Icon(VaadinIcon.TIMER), (e) -> {
-			OwlcmsSession.withFop(fop -> {
+			FieldOfPlay fop = getFop();
+			if (fop != null) {
 				Athlete curAthlete = fop.getCurAthlete();
 				List<Athlete> order = fop.getLiftingOrder();
 				BreakType bt;
@@ -949,7 +953,7 @@ public abstract class AthleteGridContent extends BaseContent
 				// logger.debug("requesting breaktype {}", bt);
 				this.breakDialog = new BreakDialog(bt, ct, null, this);
 				this.breakDialog.open();
-			});
+			}
 		});
 		return layoutBreakButtons();
 	}
@@ -1007,7 +1011,10 @@ public abstract class AthleteGridContent extends BaseContent
 		        .setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn((a) -> formatAttemptNumber(a), "attemptsDone").setHeader(Translator.translate("Attempt"));
 		grid.setPartNameGenerator(athlete -> {
-			FieldOfPlay fop2 = OwlcmsSession.getFop();
+			FieldOfPlay fop2 = getFop();
+			if (fop2 == null) {
+				return null;
+			}
 			Athlete prevAthlete = fop2.getPreviousAthlete();
 			Athlete curAthlete = fop2.getCurAthlete();
 			Athlete nextAthlete = fop2.getNextAthlete();

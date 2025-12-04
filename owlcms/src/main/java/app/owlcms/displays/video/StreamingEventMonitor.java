@@ -265,10 +265,9 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 			return;
 		} else if (e instanceof UIEvent.Notification) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-				OwlcmsSession.withFop(fop -> {
-					this.logger.trace("---- notification {} {}", fop.getName(),
-					        ((UIEvent.Notification) e).getNotificationString());
-				});
+				FieldOfPlay fop = getFop();
+				this.logger.trace("---- notification {} {}", fop.getName(),
+				        ((UIEvent.Notification) e).getNotificationString());
 			});
 		}
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e /* , e.getTrace() */);
@@ -305,15 +304,14 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via FOPParameters interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			init();
+		FieldOfPlay fop = getFop();
+		init();
 
-			computeStylesDir(this);
-			// sync with current status of FOP
-			syncWithFOP(null);
-			// we listen on uiEventBus.
-			this.uiEventBus = uiEventBusRegister(this, fop);
-		});
+		computeStylesDir(this);
+		// sync with current status of FOP
+		syncWithFOP(null);
+		// we listen on uiEventBus.
+		this.uiEventBus = uiEventBusRegister(this, fop);
 		doUpdate();
 	}
 
@@ -473,10 +471,9 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 	}
 
 	private void init() {
-		OwlcmsSession.withFop(fop -> {
-			this.logger.trace("{}Starting notification monitor", FieldOfPlay.getLoggingName(fop));
-			setId("scoreboard-" + fop.getName());
-		});
+		FieldOfPlay fop = getFop();
+		this.logger.trace("{}Starting notification monitor", FieldOfPlay.getLoggingName(fop));
+		setId("scoreboard-" + fop.getName());
 	}
 
 	private boolean isNotEmpty(List<RecordEvent> list) {
@@ -489,44 +486,43 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 	private boolean syncWithFOP(UIEvent e) {
 		boolean significant[] = { false };
-		OwlcmsSession.withFop(fop -> {
-			this.currentFOP = fop.getName();
-			boolean fopChallengedRecords = fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty();
-			boolean newRecord = e instanceof UIEvent.JuryNotification && ((UIEvent.JuryNotification) e).getNewRecord();
-			boolean curChallengedRecords = this.history.get(0).challengedRecords;
+		FieldOfPlay fop = getFop();
+		this.currentFOP = fop.getName();
+		boolean fopChallengedRecords = fop.getChallengedRecords() != null && !fop.getChallengedRecords().isEmpty();
+		boolean newRecord = e instanceof UIEvent.JuryNotification && ((UIEvent.JuryNotification) e).getNewRecord();
+		boolean curChallengedRecords = this.history.get(0).challengedRecords;
 
-			boolean stateChanged = fop.getState() != this.history.get(0).state;
-			boolean recordsChanged = fopChallengedRecords != curChallengedRecords;
-			this.logger.debug(">>>>>>EventMonitor event {} fop {} history {} recordsChanged {}",
-			        e != null ? e.getClass().getSimpleName() : null, fop.getState(), this.history.get(0).state,
-			        recordsChanged);
-			if (e != null && e instanceof UIEvent.DecisionReset) {
-				// this event does not change state, and should always be ignored.
-				// however, because it can occur very close to the lifter update, and we have
-				// asynchronous events
-				// there is a possibility that it comes late and out of order. So we ignore it
-				// explicitly.
-				this.logger.debug(">>>>>>EventMonitor DecisionReset ignored");
-				significant[0] = false;
-			} else if (stateChanged || recordsChanged) {
-				doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
-				        isNotEmpty(fop.getChallengedRecords()) || newRecord, fop.getCurrentStage()));
+		boolean stateChanged = fop.getState() != this.history.get(0).state;
+		boolean recordsChanged = fopChallengedRecords != curChallengedRecords;
+		this.logger.debug(">>>>>>EventMonitor event {} fop {} history {} recordsChanged {}",
+		        e != null ? e.getClass().getSimpleName() : null, fop.getState(), this.history.get(0).state,
+		        recordsChanged);
+		if (e != null && e instanceof UIEvent.DecisionReset) {
+			// this event does not change state, and should always be ignored.
+			// however, because it can occur very close to the lifter update, and we have
+			// asynchronous events
+			// there is a possibility that it comes late and out of order. So we ignore it
+			// explicitly.
+			this.logger.debug(">>>>>>EventMonitor DecisionReset ignored");
+			significant[0] = false;
+		} else if (stateChanged || recordsChanged) {
+			doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), fop.getGoodLift(),
+			        isNotEmpty(fop.getChallengedRecords()) || newRecord, fop.getCurrentStage()));
+			significant[0] = true;
+		} else if (fop.getState() == FOPState.BREAK) {
+			if (fop.getBreakType() != this.history.get(0).breakType
+			        || fop.getCeremonyType() != this.history.get(0).ceremonyType) {
+				doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), null,
+				        isNotEmpty(fop.getChallengedRecords()), null));
 				significant[0] = true;
-			} else if (fop.getState() == FOPState.BREAK) {
-				if (fop.getBreakType() != this.history.get(0).breakType
-				        || fop.getCeremonyType() != this.history.get(0).ceremonyType) {
-					doPush(new Status(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), null,
-					        isNotEmpty(fop.getChallengedRecords()), null));
-					significant[0] = true;
-				} else {
-					// logger.trace("*** EventMonitor ignored duplicate {} {}",
-					// fop.getBreakType(),
-					// fop.getCeremonyType());
-				}
 			} else {
-				// logger.trace("*** EventMonitor non break {}", fop.getState());
+				// logger.trace("*** EventMonitor ignored duplicate {} {}",
+				// fop.getBreakType(),
+				// fop.getCeremonyType());
 			}
-		});
+		} else {
+			// logger.trace("*** EventMonitor non break {}", fop.getState());
+		}
 		this.logger.debug(">>>>>>EventMonitor sync significant {}", significant[0]);
 		return significant[0];
 	}

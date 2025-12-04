@@ -190,6 +190,28 @@ public interface NavigationPage extends ContentWrapping {
 	}
 
 	/**
+	 * Opens a new tab with the current FOP and additional query parameters.
+	 * This ensures the opened page has explicit knowledge of which FOP it should be operating on.
+	 * 
+	 * @param targetClass the component class to open
+	 * @param label the button label
+	 * @param additionalQueryParameters additional query parameters (e.g., "video=true")
+	 * @return a button that opens the target page with FOP query parameter and additional parameters
+	 */
+	public default <T extends Component & HasUrlParameter<String>> Button openInNewTabWithFopQueryParameters(
+	        Class<T> targetClass,
+	        String label, String additionalQueryParameters) {
+		FieldOfPlay fop = OwlcmsSession.getFop();
+		String queryString;
+		if (fop != null) {
+			queryString = "fop=" + fop.getName() + "&" + additionalQueryParameters;
+		} else {
+			queryString = additionalQueryParameters;
+		}
+		return openInNewTabQueryParameters(targetClass, label, queryString);
+	}
+
+	/**
 	 * Opens a new tab with the current FOP automatically included as a query parameter.
 	 * This ensures the opened page has explicit knowledge of which FOP it should be operating on.
 	 * 

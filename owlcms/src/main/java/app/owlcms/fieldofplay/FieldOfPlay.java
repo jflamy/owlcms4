@@ -2586,6 +2586,11 @@ public class FieldOfPlay implements IUnregister {
 				return nAth;
 			});
 
+			// set the FOP on refetched athletes so they can be used in background threads
+			for (Athlete a : currentGroupAthletes) {
+				a.setFop(this);
+			}
+
 			AthleteSorter.displayOrder(currentGroupAthletes);
 			// Trace athlete IDs after fetching/refetching
 			//logger.debug("currentGroupAthletes IDs: {}", currentGroupAthletes.stream().map(a -> a.getId()).collect(Collectors.toList()));

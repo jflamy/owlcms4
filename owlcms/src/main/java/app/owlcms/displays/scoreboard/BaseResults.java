@@ -49,7 +49,6 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
@@ -125,7 +124,11 @@ public class BaseResults extends LitTemplate
 	@Override
 	public void doBreak(UIEvent event) {
 		// this.logger.debug("BaseResults doBreak {}", LoggerUtils.stackTrace());
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			return;
+		}
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
 			String title = inferGroupName() + " &ndash; "
@@ -147,7 +150,7 @@ public class BaseResults extends LitTemplate
 			}
 			setDisplay();
 			updateDisplay(computeLiftType(a), fop);
-		}));
+		});
 	}
 
 	@Override
@@ -328,8 +331,8 @@ public class BaseResults extends LitTemplate
 	public void setLeadersDisplay(boolean b) {
 		this.leadersDisplay = b;
 		this.getElement().setProperty("showLeaders", b);
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
+		FieldOfPlay fop = getFop();
+		boolean done = fop != null && fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
 		if (!isLeadersDisplay() || done) {
 			this.logger.debug("setLeadersDisplay 0px: isLeaders = {} done = {}", isLeadersDisplay(), done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
@@ -428,7 +431,11 @@ public class BaseResults extends LitTemplate
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> OwlcmsSession.withFop(fop -> {
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			return;
+		}
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
 			setDisplay();
 			if (a == null) {
@@ -440,7 +447,7 @@ public class BaseResults extends LitTemplate
 				this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 				doUpdate(a, e);
 			}
-		}));
+		});
 	}
 
 	@Subscribe
@@ -642,47 +649,49 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected void computeLeaders(boolean done) {
-		OwlcmsSession.withFop(fop -> {
-			Athlete curAthlete = fop.getCurAthlete();
-			if (curAthlete == null) {
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			return;
+		}
+		Athlete curAthlete = fop.getCurAthlete();
+		if (curAthlete == null) {
+			this.getElement().setPropertyJson("leaders", Json.createNull());
+			setBottomSize(1);
+			return;
+		}
+		if (curAthlete.getGender() != null) {
+			this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
+
+			if (Competition.getCurrent().isSinclair()) {
+				Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+				List<Athlete> sortedAthletes = new ArrayList<>(
+				        Competition.getCurrent().getGlobalScoreRanking(curAthlete.getGender()));
+				this.displayOrder = AthleteSorter.topScore(sortedAthletes, 3).topAthletes;
+				this.getElement().setProperty("categoryName", Ranking.getScoringTitle(scoringSystem));
+			} else {
+				List<Athlete> leaders = fop.getLeaders();
+				// 0 total is not shown -- cannot be a leader from a prior group
+				// (when medalistsAsLeaders is false, we show prior group leaders)
+				if (!Config.getCurrent().featureSwitch("medalistsAsLeaders") && leaders != null) {
+					this.displayOrder = leaders.stream()
+						.filter(a -> a.getTotal() > 0)
+						.toList();
+				} else {
+					this.displayOrder = leaders;
+				}
+			}
+			if ((!done || Competition.getCurrent().isSinclair()) && this.displayOrder != null
+			        && this.displayOrder.size() > 0) {
+				// null as second argument because we do not highlight current athletes in the
+				// leaderboard
+				this.getElement().setPropertyJson("leaders", getAthletesJson(this.displayOrder, null, fop));
+				setBottomSize(this.displayOrder.size() + 2); // spacer + title
+			} else {
+				// nothing to show
 				this.getElement().setPropertyJson("leaders", Json.createNull());
 				setBottomSize(1);
-				return;
 			}
-			if (curAthlete.getGender() != null) {
-				this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
-
-				if (Competition.getCurrent().isSinclair()) {
-					Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
-					List<Athlete> sortedAthletes = new ArrayList<>(
-					        Competition.getCurrent().getGlobalScoreRanking(curAthlete.getGender()));
-					this.displayOrder = AthleteSorter.topScore(sortedAthletes, 3).topAthletes;
-					this.getElement().setProperty("categoryName", Ranking.getScoringTitle(scoringSystem));
-				} else {
-					List<Athlete> leaders = fop.getLeaders();
-					// 0 total is not shown -- cannot be a leader from a prior group
-					// (when medalistsAsLeaders is false, we show prior group leaders)
-					if (!Config.getCurrent().featureSwitch("medalistsAsLeaders") && leaders != null) {
-						this.displayOrder = leaders.stream()
-							.filter(a -> a.getTotal() > 0)
-							.toList();
-					} else {
-						this.displayOrder = leaders;
-					}
-				}
-				if ((!done || Competition.getCurrent().isSinclair()) && this.displayOrder != null
-				        && this.displayOrder.size() > 0) {
-					// null as second argument because we do not highlight current athletes in the
-					// leaderboard
-					this.getElement().setPropertyJson("leaders", getAthletesJson(this.displayOrder, null, fop));
-					setBottomSize(this.displayOrder.size() + 2); // spacer + title
-				} else {
-					// nothing to show
-					this.getElement().setPropertyJson("leaders", Json.createNull());
-					setBottomSize(1);
-				}
-			}
-		});
+		}
 	}
 
 	/**
@@ -717,17 +726,19 @@ public class BaseResults extends LitTemplate
 		// this.getElement().setPropertyJson("records", Json.createNull());
 		// return;
 		// }
-		OwlcmsSession.withFop(fop -> {
-			Athlete curAthlete = fop.getCurAthlete();
-			if (curAthlete != null && curAthlete.getGender() != null) {
-				if (!done && showCurrent(fop)) {
-					this.getElement().setPropertyJson("records", fop.getRecordsJson());
-				} else {
-					// nothing to show
-					this.getElement().setPropertyJson("records", Json.createNull());
-				}
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			return;
+		}
+		Athlete curAthlete = fop.getCurAthlete();
+		if (curAthlete != null && curAthlete.getGender() != null) {
+			if (!done && showCurrent(fop)) {
+				this.getElement().setPropertyJson("records", fop.getRecordsJson());
+			} else {
+				// nothing to show
+				this.getElement().setPropertyJson("records", Json.createNull());
 			}
-		});
+		}
 	}
 
 	/**
@@ -1115,29 +1126,30 @@ public class BaseResults extends LitTemplate
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via FOPParameters interface default methods.
-		OwlcmsSession.withFop(fop -> {
-			// Page page = UI.getCurrent().getPage();
-			// page.retrieveExtendedClientDetails(details -> {
-			// logger.debug("{} device resolution : {}x{}",
-			// details.isIPad()?"iPad":(details.isIOS()?"iPhone" :
-			// details.toString()), details.getScreenWidth(), details.getScreenHeight());
-			// });
-			resultsInit();
-			computeStylesDir(this);
-			this.teamFlags = URLUtils.checkFlags();
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			return;
+		}
+		// Page page = UI.getCurrent().getPage();
+		// page.retrieveExtendedClientDetails(details -> {
+		// logger.debug("{} device resolution : {}x{}",
+		// details.isIPad()?"iPad":(details.isIOS()?"iPhone" :
+		// details.toString()), details.getScreenWidth(), details.getScreenHeight());
+		// });
+		resultsInit();
+		computeStylesDir(this);
+		this.teamFlags = URLUtils.checkFlags();
 
-			// get the global category rankings (attached to each athlete)
-			this.displayOrder = getOrder(fop);
+		// get the global category rankings (attached to each athlete)
+		this.displayOrder = getOrder(fop);
 
-			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
-			// we listen on uiEventBus.
-			this.uiEventBus = uiEventBusRegister(this, fop);
+		this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
+		syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
+		// we listen on uiEventBus.
+		this.uiEventBus = uiEventBusRegister(this, fop);
 
-			this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
-			this.getElement().setProperty("logoSrc", getLogoSrc());
-
-		});
+		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
+		this.getElement().setProperty("logoSrc", getLogoSrc());
 
 		getElement().setProperty("showTotal", true);
 		getElement().setProperty("showBest", true); // overridden by media queries, not a variable
@@ -1154,7 +1166,8 @@ public class BaseResults extends LitTemplate
 
 	protected void resultsInit() {
 		boolean scoring[] = { false };
-		OwlcmsSession.withFop(fop -> {
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
 			setId("scoreboard-" + fop.getName());
 			this.curGroup = fop.getGroup();
 			setWideTeamNames(false);
@@ -1169,7 +1182,7 @@ public class BaseResults extends LitTemplate
 				        .anyMatch(s -> s != Ranking.TOTAL);
 				scoring[0] = any;
 			}
-		});
+		}
 		setTranslationMap();
 
 		boolean showScore = scoring[0] || Competition.getCurrent().isDisplayScores() || Competition.getCurrent().isSinclair();
@@ -1280,10 +1293,8 @@ public class BaseResults extends LitTemplate
 		if (g == null) {
 			doEmpty();
 		} else {
-			OwlcmsSession.withFop(fop -> {
-				computeLeaders(true);
-				this.getElement().setProperty("fullName", Translator.translate("Group_number_results", g.toString()));
-			});
+			computeLeaders(true);
+			this.getElement().setProperty("fullName", Translator.translate("Group_number_results", g.toString()));
 		}
 	}
 
@@ -1306,18 +1317,20 @@ public class BaseResults extends LitTemplate
 	}
 
 	private void setDisplay() {
-		OwlcmsSession.withFop(fop -> {
-			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
-			Group group = fop.getGroup();
-			String description = null;
-			if (group != null) {
-				description = group.getDescription();
-				if (description == null) {
-					description = Translator.translate("Group_number", group.getName());
-				}
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			return;
+		}
+		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
+		Group group = fop.getGroup();
+		String description = null;
+		if (group != null) {
+			description = group.getDescription();
+			if (description == null) {
+				description = Translator.translate("Group_number", group.getName());
 			}
-			this.getElement().setProperty("groupDescription", description != null ? description : "");
-		});
+		}
+		this.getElement().setProperty("groupDescription", description != null ? description : "");
 	}
 
 	private void setDisplayTypeProperty(String displayType) {
@@ -1367,9 +1380,10 @@ public class BaseResults extends LitTemplate
 	}
 
 	private void syncWithFOP() {
-		OwlcmsSession.withFop(fop -> {
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
 			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
-		});
+		}
 	}
 
 	private void syncWithFOP(UIEvent.SwitchGroup e) {
