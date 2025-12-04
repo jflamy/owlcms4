@@ -7,6 +7,11 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
+**New in Release 63.3**
+
+63.3.0: Fix for intermittent issue on announcer/marshal screen. The athlete grid would sometime be hidden (a refresh would bring it back), due to incomplete filtering/routing of timer
+events.
+
 **New in Release 63.2**
 
 63.2.3: Fixed the warmup scoreboard buttons to show the current attempt information by default at the top of the screen.  Public and video streaming scoreboards show a static banner instead.
