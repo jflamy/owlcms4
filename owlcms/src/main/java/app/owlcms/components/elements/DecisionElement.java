@@ -26,6 +26,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -66,6 +67,10 @@ public class DecisionElement extends LitTemplate
 		return this.publicFacing;
 	}
 
+	public void setFop(FieldOfPlay fop) {
+		this.fop = fop;
+	}
+
 	/**
 	 * @return the silenced
 	 */
@@ -88,18 +93,14 @@ public class DecisionElement extends LitTemplate
 	        Integer ref2Time,
 	        Integer ref3Time) {
 		Object origin = this.getOrigin();
-		OwlcmsSession.withFop((fop) -> {
+		if (this.fop != null && fopName.contentEquals(this.fop.getName())) {
 			//logger.debug("masterRefereeUpdate {} {} {}",ref1, ref2, ref3);
-			if (!fopName.contentEquals(fop.getName())) {
-				return;
-			}
-			fop.fopEventPost(
-			        new FOPEvent.DecisionFullUpdate(origin, fop.getCurAthlete(), ref1, ref2, ref3,
+			this.fop.fopEventPost(
+			        new FOPEvent.DecisionFullUpdate(origin, this.fop.getCurAthlete(), ref1, ref2, ref3,
 			                Long.valueOf(ref1Time),
 			                Long.valueOf(ref2Time),
 			                Long.valueOf(ref3Time), false));
-		});
-
+		}
 	}
 
 	@ClientCallable
@@ -114,7 +115,9 @@ public class DecisionElement extends LitTemplate
 	public void masterShowDown(String fopName, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3) {
 		Object origin = this.getOrigin();
 		getElement().setProperty("singleRef", this.isSingleRef());
-		OwlcmsSession.getFop().fopEventPost(new FOPEvent.DownSignal(origin));
+		if (this.fop != null && this.fop.getName().equals(fopName)) {
+			this.fop.fopEventPost(new FOPEvent.DownSignal(origin));
+		}
 	}
 
 	public void setDontReset(boolean dontReset) {
@@ -181,8 +184,9 @@ public class DecisionElement extends LitTemplate
 			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
 			        this.getParent().get().getClass().getSimpleName());
 			getElement().setProperty("singleRef", this.isSingleRef());
+			boolean emitSoundsOnServer = (this.fop != null && this.fop.isEmitSoundsOnServer());
 			this.getElement().callJsFunction("showDown", false,
-			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
+			        isSilenced() || emitSoundsOnServer);
 		});
 	}
 
@@ -247,14 +251,19 @@ public class DecisionElement extends LitTemplate
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		OwlcmsSession.withFop(fop -> {
+		// Use the FOP that was set explicitly, or fall back to ThreadLocal session FOP
+		FieldOfPlay fopToUse = this.fop != null ? this.fop : OwlcmsSession.getFop();
+		
+		if (fopToUse != null) {
 			// defensive: needed to make sure the update is processed on the right fop
-			init(fop.getName());
+			init(fopToUse.getName());
 			// we send on fopEventBus, listen on uiEventBus.
-			this.fopEventBus = fop.getFopEventBus();
-			this.uiEventBus = uiEventBusRegister(this, fop);
-			this.fop = fop;
-		});
+			this.fopEventBus = fopToUse.getFopEventBus();
+			this.uiEventBus = uiEventBusRegister(this, fopToUse);
+			this.fop = fopToUse;
+		} else {
+			logger.warn("No FOP available for DecisionElement onAttach {}", LoggerUtils.whereFrom());
+		}
 	}
 
 	private void init(String fopName) {

@@ -12,11 +12,11 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.DecisionReset;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -60,11 +60,9 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
-		OwlcmsSession.withFop((fop) -> {
-			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-				uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
-				doReset();
-			});
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
+			uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
+			doReset();
 		});
 	}
 
@@ -78,15 +76,13 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		if (e.isDisplayToggle()) {
 			return;
 		}
-		OwlcmsSession.withFop((fop) -> {
-			if (fop.getBreakType() != BreakType.JURY) {
-				// don't reset on a break we just created !
-				UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-					uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
-					doReset();
-				});
-			}
-		});
+		// Only reset if this is not a jury break that we just created
+		if (this.fop != null && this.fop.getBreakType() != BreakType.JURY) {
+			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
+				uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
+				doReset();
+			});
+		}
 	}
 
 	@Override
@@ -98,6 +94,9 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	protected void onAttach(AttachEvent attachEvent) {
 		ui = UI.getCurrent();
 		super.onAttach(attachEvent);
+		if (this.fop == null) {
+			logger.warn("No FOP available for JuryDisplayDecisionElement onAttach {}", LoggerUtils.whereFrom());
+		}
 	}
 
 	@Override
@@ -114,8 +113,9 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
 			        this.getParent().get().getClass().getSimpleName());
+			boolean emitSoundsOnServer = (this.fop != null && this.fop.isEmitSoundsOnServer());
 			this.getElement().callJsFunction("showDown", false,
-			        isSilenced() || OwlcmsSession.getFop().isEmitSoundsOnServer());
+			        isSilenced() || emitSoundsOnServer);
 			getElement().setProperty("singleRef", this.isSingleRef());
 		});
 	}

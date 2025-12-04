@@ -1056,6 +1056,7 @@ public abstract class AthleteGridContent extends BaseContent
 
 	protected void createDecisionLights() {
 		this.decisionDisplay = new JuryDisplayDecisionElement();
+		this.decisionDisplay.setFop(getFop());
 		this.decisionDisplay.setSilenced(isDownSilenced());
 		// Icon silenceIcon = AvIcons.MIC_OFF.create();
 		this.setDecisionLights(new HorizontalLayout(this.decisionDisplay));
