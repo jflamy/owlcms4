@@ -744,12 +744,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		ui = UI.getCurrent();
 		FieldOfPlay fop = getFop();
 		if (fop == null) {
-			// Fallback to session FOP if not yet set from URL parameters
-			fop = OwlcmsSession.getFop();
-			setFop(fop);
-		}
-		if (fop == null) {
-			logger.error("No FOP available in onAttach");
+			logger.error("No FOP available in onAttach; FOP must be provided via route parameters");
 			return;
 		}
 		logger.debug("{}onAttach {}", FieldOfPlay.getLoggingName(fop), fop.getState());
