@@ -15,12 +15,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.internal.AllowInert;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
@@ -74,14 +74,12 @@ public class BreakTimerElement extends TimerElement {
 		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
-		OwlcmsSession.withFop(fop -> {
-			if (!fopName.contentEquals(fop.getName())) {
-				return;
-			}
-			this.logger.debug("{}{} fetching time", getClass().getSimpleName(), FieldOfPlay.getLoggingName(fop));
-			IProxyTimer fopTimer = getFopTimer(fop);
-			doSetTimer(fopTimer.isIndefinite() ? null : fopTimer.liveTimeRemaining());
-		});
+		if (this.fop == null || !fopName.contentEquals(this.fop.getName())) {
+			return;
+		}
+		this.logger.debug("{}{} fetching time", getClass().getSimpleName(), FieldOfPlay.getLoggingName(this.fop));
+		IProxyTimer fopTimer = getFopTimer(this.fop);
+		doSetTimer(fopTimer.isIndefinite() ? null : fopTimer.liveTimeRemaining());
 	}
 
 	/**
@@ -96,17 +94,15 @@ public class BreakTimerElement extends TimerElement {
 		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
-		OwlcmsSession.withFop(fop -> {
-			if (fopName != null && !fopName.contentEquals(fop.getName())) {
-				return;
-			}
-			// logger.debug("{}Received time over.", fop.getLoggingName());
-			IProxyTimer fopTimer = getFopTimer(fop);
-			// logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
-			if (!fopTimer.isIndefinite()) {
-				getFopTimer(fop).timeOver(this);
-			}
-		});
+		if (this.fop == null || (fopName != null && !fopName.contentEquals(this.fop.getName()))) {
+			return;
+		}
+		// logger.debug("{}Received time over.", fop.getLoggingName());
+		IProxyTimer fopTimer = getFopTimer(this.fop);
+		// logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
+		if (!fopTimer.isIndefinite()) {
+			getFopTimer(this.fop).timeOver(this);
+		}
 	}
 
 	/*
@@ -245,15 +241,14 @@ public class BreakTimerElement extends TimerElement {
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		FieldOfPlay fopToUse = this.fop != null ? this.fop : OwlcmsSession.getFop();
-		if (fopToUse != null) {
-			this.uiEventLogger.trace("&&& breakTimerElement register {} {}", this.parentName, LoggerUtils.whereFrom());
-			uiEventBusRegister(this, fopToUse);
-			this.fop = fopToUse;
-			syncWithFopTimer(fopToUse);
-		} else {
-			this.logger.warn("No FOP available for BreakTimerElement onAttach {}", LoggerUtils.whereFrom());
+		this.ui = UI.getCurrent();
+		if (this.fop == null) {
+			this.logger.error("BreakTimerElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
+			return;
 		}
+		this.uiEventLogger.trace("&&& breakTimerElement register {} {}", this.parentName, LoggerUtils.whereFrom());
+		uiEventBusRegister(this, this.fop);
+		syncWithFopTimer(this.fop);
 	}
 
 	private String formatDuration(Integer milliseconds) {

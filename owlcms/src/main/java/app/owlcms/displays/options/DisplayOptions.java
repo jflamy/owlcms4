@@ -29,7 +29,6 @@ import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.components.fields.LocalizedDecimalField;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 public class DisplayOptions {
@@ -173,7 +172,7 @@ public class DisplayOptions {
 
 	public static void addSoundEntries(VerticalLayout layout, Component target, DisplayParametersReader dp) {
 		NativeLabel label = new NativeLabel(Translator.translate("DisplayParameters.SoundSettings"));
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = dp.getFop();
 		if (fop != null) {
 			if (fop.isEmitSoundsOnServer()) {
 				label = new NativeLabel(Translator.translate("DisplayParameters.SoundsOnServer"));

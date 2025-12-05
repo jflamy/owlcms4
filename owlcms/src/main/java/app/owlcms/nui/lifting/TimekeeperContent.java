@@ -272,6 +272,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		if (this.timer == null) {
 			this.timer = new AthleteTimerElement("");
 		}
+		this.timer.setFop(getFop());
 		this.timer.setSilenced(this.isSilenced());
 		H1 time = new H1(this.timer);
 		clearVerticalMargins(this.attempt);
@@ -401,6 +402,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		if (this.timer == null) {
 			this.timer = new AthleteTimerElement("");
 		}
+		this.timer.setFop(getFop());
 		VerticalLayout time = new VerticalLayout();
 		time.setWidth("50%");
 

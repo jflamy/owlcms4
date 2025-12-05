@@ -18,7 +18,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasUrlParameter;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.utils.URLUtils;
 
@@ -29,6 +28,14 @@ import app.owlcms.utils.URLUtils;
  *
  */
 public interface NavigationPage extends OwlcmsContent {
+
+	/**
+	 * Get the FieldOfPlay associated with this page.
+	 * Implementing classes must provide this method.
+	 * 
+	 * @return the current FieldOfPlay
+	 */
+	FieldOfPlay getFop();
 
 	/**
 	 * Create a paragraph with HTML inside.
@@ -82,14 +89,14 @@ public interface NavigationPage extends OwlcmsContent {
 
 	public default <T extends Component & HasUrlParameter<String>> String getWindowOpenerFromClass(Class<T> targetClass,
 	        String parameter) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = getFop();
 		String name = fop == null ? "" : "_" + fop.getName();
 		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass, parameter) + "','"
 		        + targetClass.getSimpleName() + name + "')";
 	}
 
 	public default <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = getFop();
 		String name = fop == null ? "" : "_" + fop.getName();
 		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "','"
 		        + targetClass.getSimpleName() + name + "')";

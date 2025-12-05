@@ -33,7 +33,6 @@ import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
@@ -81,11 +80,15 @@ public class TopTeamsSinclair extends AbstractTop {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			FieldOfPlay fop = getFop();
+			if (fop == null) {
+				return;
+			}
 			// just update the display
 			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 			doUpdate(fop.getCurAthlete(), null);
-		}));
+		});
 	}
 
 	@Override
@@ -94,7 +97,7 @@ public class TopTeamsSinclair extends AbstractTop {
 	}
 
 	public void doUpdate(Competition competition) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
+		FieldOfPlay fop = getFop();
 		if (fop == null) {
 			return;
 		}
@@ -175,8 +178,10 @@ public class TopTeamsSinclair extends AbstractTop {
 	@Override
 	protected void doEmpty() {
 		logger.trace("doEmpty");
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
+		}
 	}
 
 	@Override

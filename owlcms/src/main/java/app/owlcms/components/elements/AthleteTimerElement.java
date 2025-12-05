@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -57,13 +57,11 @@ public class AthleteTimerElement extends TimerElement {
 		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
-		OwlcmsSession.withFop(fop -> {
-			if (!fopName.contentEquals(fop.getName())) {
-				return;
-			}
-			logger.debug("{} Received final warning from client.", fop.getName());
-			getFopTimer(fop).finalWarning(this);
-		});
+		if (this.fop == null || !fopName.contentEquals(this.fop.getName())) {
+			return;
+		}
+		logger.debug("{} Received final warning from client.", this.fop.getName());
+		getFopTimer(this.fop).finalWarning(this);
 	}
 
 	/**
@@ -75,13 +73,11 @@ public class AthleteTimerElement extends TimerElement {
 		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
-		OwlcmsSession.withFop(fop -> {
-			if (!fopName.contentEquals(fop.getName())) {
-				return;
-			}
-			logger.debug("{} Received initial warning from client.", fop.getName());
-			getFopTimer(fop).initialWarning(this);
-		});
+		if (this.fop == null || !fopName.contentEquals(this.fop.getName())) {
+			return;
+		}
+		logger.debug("{} Received initial warning from client.", this.fop.getName());
+		getFopTimer(this.fop).initialWarning(this);
 	}
 
 	/**
@@ -115,17 +111,15 @@ public class AthleteTimerElement extends TimerElement {
 		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
-		OwlcmsSession.withFop(fop -> {
-			if (fopName != null && !fopName.contentEquals(fop.getName())) {
-				return;
-			}
-			// logger.debug("{}Received time over.", fop.getLoggingName());
-			IProxyTimer fopTimer = getFopTimer(fop);
-			logger.debug("{} {} athlete time over received from client {}", fopName, fop.getName(), fopTimer.isIndefinite());
-			if (!fopTimer.isIndefinite()) {
-				getFopTimer(fop).timeOver(this);
-			}
-		});
+		if (this.fop == null || (fopName != null && !fopName.contentEquals(this.fop.getName()))) {
+			return;
+		}
+		// logger.debug("{}Received time over.", fop.getLoggingName());
+		IProxyTimer fopTimer = getFopTimer(this.fop);
+		logger.debug("{} {} athlete time over received from client {}", fopName, this.fop.getName(), fopTimer.isIndefinite());
+		if (!fopTimer.isIndefinite()) {
+			getFopTimer(this.fop).timeOver(this);
+		}
 	}
 
 	/*
@@ -260,26 +254,23 @@ public class AthleteTimerElement extends TimerElement {
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		// Use the FOP that was set explicitly, or fall back to ThreadLocal session FOP
-		FieldOfPlay fopToUse = this.fop != null ? this.fop : OwlcmsSession.getFop();
-		
-		if (fopToUse != null) {
-			init(fopToUse.getName());
-			// sync with current status of FOP
-			IProxyTimer fopTimer = getFopTimer(fopToUse);
-			if (fopTimer != null) {
-				if (fopTimer.isRunning()) {
-					doStartTimer(fopTimer.liveTimeRemaining(), isSilenced() || fopToUse.isEmitSoundsOnServer());
-				} else {
-					doSetTimer(fopTimer.getTimeRemaining());
-				}
-			}
-			// we listen on uiEventBus.
-			uiEventBusRegister(this, fopToUse);
-			this.fop = fopToUse;
-		} else {
-			logger.warn("No FOP available for AthleteTimerElement onAttach {}", LoggerUtils.whereFrom());
+		this.ui = UI.getCurrent();
+		if (this.fop == null) {
+			logger.error("AthleteTimerElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
+			return;
 		}
+		init(this.fop.getName());
+		// sync with current status of FOP
+		IProxyTimer fopTimer = getFopTimer(this.fop);
+		if (fopTimer != null) {
+			if (fopTimer.isRunning()) {
+				doStartTimer(fopTimer.liveTimeRemaining(), isSilenced() || this.fop.isEmitSoundsOnServer());
+			} else {
+				doSetTimer(fopTimer.getTimeRemaining());
+			}
+		}
+		// we listen on uiEventBus.
+		uiEventBusRegister(this, this.fop);
 	}
 
 }

@@ -38,7 +38,6 @@ import app.owlcms.data.scoring.QPoints;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.uievents.UIEvent;
@@ -114,10 +113,11 @@ public class TopSinclair extends AbstractTop {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		OwlcmsSession.withFop(fop -> UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			FieldOfPlay fop = getFop();
 			// just update the display
-			doUpdate(fop.getCurAthlete(), null);
-		}));
+			doUpdate(fop != null ? fop.getCurAthlete() : null, null);
+		});
 	}
 
 	@Override
@@ -132,8 +132,10 @@ public class TopSinclair extends AbstractTop {
 		       return;
 	       }
 
-	       FieldOfPlay fop = OwlcmsSession.getFop();
-	       setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
+	       FieldOfPlay fop = getFop();
+	       if (fop != null) {
+		       setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
+	       }
 
 	       // create copies because we want to change the list
 	       AthleteSorter.TopScore topScores;

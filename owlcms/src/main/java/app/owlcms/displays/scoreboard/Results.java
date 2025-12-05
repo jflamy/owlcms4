@@ -15,6 +15,7 @@ import com.vaadin.flow.component.template.Id;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -86,5 +87,18 @@ public class Results extends BaseResults {
 	public void setDownSilenced(boolean silent) {
 		super.setDownSilenced(silent);
 		this.getDecisions().setSilenced(silent);
+	}
+
+	@Override
+	protected void propagateFopToTimerElements(FieldOfPlay fop) {
+		if (this.breakTimer != null) {
+			this.breakTimer.setFop(fop);
+		}
+		if (this.timer != null) {
+			this.timer.setFop(fop);
+		}
+		if (this.decisions != null) {
+			this.decisions.setFop(fop);
+		}
 	}
 }

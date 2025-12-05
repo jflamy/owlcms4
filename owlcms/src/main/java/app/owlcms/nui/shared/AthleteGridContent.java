@@ -324,6 +324,7 @@ public abstract class AthleteGridContent extends BaseContent
 		IBreakTimer breakTimer = this.fop.getBreakTimer();
 		if (!breakTimer.isIndefinite()) {
 			BreakTimerElement bte = (BreakTimerElement) getBreakTimerElement();
+			bte.setFop(this.fop);
 			bte.syncWithFopTimer(this.fop);
 			bte.setParent(this.getClass().getSimpleName() + "_" + this.id);
 			this.breakButton.setIcon(bte);
@@ -1152,6 +1153,7 @@ public abstract class AthleteGridContent extends BaseContent
 		if (this.timer == null) {
 			this.timer = new AthleteTimerElement(this);
 		}
+		this.timer.setFop(getFop());
 		this.timer.setSilenced(this.isSilenced());
 		H1 time = new H1(this.timer);
 		clearVerticalMargins(this.attempt);
