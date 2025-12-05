@@ -9,7 +9,7 @@
 <br>
 **New in Release 63.3**
 
-63.3.1: Fixes for random updates to timers on announcer/marshall/jury screens.  Actually, systematic changes to the way the field of play (fop) is propagated.
+63.3.1: Fixes for random updates to timers on announcer/marshall/jury screens and other related anomalies.  Systematic change in the way sessions
 
 63.3.0: Fix for intermittent issue on announcer/marshal screen. The athlete grid would sometime be hidden (a refresh would bring it back), due to incomplete filtering/routing of timer
 events.
