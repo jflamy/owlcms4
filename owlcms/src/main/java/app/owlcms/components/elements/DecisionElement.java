@@ -22,7 +22,6 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
@@ -251,19 +250,15 @@ public class DecisionElement extends LitTemplate
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		// Use the FOP that was set explicitly, or fall back to ThreadLocal session FOP
-		FieldOfPlay fopToUse = this.fop != null ? this.fop : OwlcmsSession.getFop();
-		
-		if (fopToUse != null) {
-			// defensive: needed to make sure the update is processed on the right fop
-			init(fopToUse.getName());
-			// we send on fopEventBus, listen on uiEventBus.
-			this.fopEventBus = fopToUse.getFopEventBus();
-			this.uiEventBus = uiEventBusRegister(this, fopToUse);
-			this.fop = fopToUse;
-		} else {
-			logger.warn("No FOP available for DecisionElement onAttach {}", LoggerUtils.whereFrom());
+		if (this.fop == null) {
+			logger.error("DecisionElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
+			return;
 		}
+		// defensive: needed to make sure the update is processed on the right fop
+		init(this.fop.getName());
+		// we send on fopEventBus, listen on uiEventBus.
+		this.fopEventBus = this.fop.getFopEventBus();
+		this.uiEventBus = uiEventBusRegister(this, this.fop);
 	}
 
 	private void init(String fopName) {
@@ -279,9 +274,6 @@ public class DecisionElement extends LitTemplate
 	}
 
 	public boolean isSingleRef() {
-		if (this.fop == null) {
-			this.fop = OwlcmsSession.getFop();
-		}
 		return this.fop != null ? this.fop.isSingleReferee() : false;
 	}
 

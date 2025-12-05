@@ -97,6 +97,19 @@ public class CurrentAthlete extends Results {
 	}
 
 	@Override
+	protected void propagateFopToTimerElements(FieldOfPlay fop) {
+		if (this.breakTimer != null) {
+			this.breakTimer.setFop(fop);
+		}
+		if (this.timer != null) {
+			this.timer.setFop(fop);
+		}
+		if (this.decisions != null) {
+			this.decisions.setFop(fop);
+		}
+	}
+
+	@Override
 	public void doBreak(UIEvent e) {
 		FieldOfPlay fop = getFop();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
@@ -520,6 +533,9 @@ public class CurrentAthlete extends Results {
 	protected void onAttach(AttachEvent attachEvent) {
 		// fop obtained via FOPParameters interface default methods.
 		FieldOfPlay fop = getFop();
+		// Timer elements are injected by Vaadin @Id after setFop() was called.
+		// Re-propagate FOP to timer elements now that they're available.
+		propagateFopToTimerElements(fop);
 		init();
 		computeStylesDir(this);
 

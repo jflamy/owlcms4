@@ -609,6 +609,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		if (this.timer == null) {
 			this.timer = new AthleteTimerElement(this);
 		}
+		this.timer.setFop(getFop());
 		this.timer.setSilenced(this.isSilenced());
 		H1 time = new H1(this.timer);
 		clearVerticalMargins(this.attempt);

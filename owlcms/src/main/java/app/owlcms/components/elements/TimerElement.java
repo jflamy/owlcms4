@@ -26,7 +26,6 @@ import com.vaadin.flow.server.VaadinSession;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
@@ -55,7 +54,7 @@ public abstract class TimerElement extends LitTemplate
 	private Element timerElement;
 	protected EventBus uiEventBus;
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
-	private UI ui;
+	protected UI ui;
 	{
 		this.logger.setLevel(Level.WARN);
 		this.uiEventLogger.setLevel(Level.WARN);
@@ -225,13 +224,15 @@ public abstract class TimerElement extends LitTemplate
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		ui = UI.getCurrent();
-		OwlcmsSession.withFop(fop -> {
-			init(fop.getName());
-			// sync with current status of FOP
-			doSetTimer(fop.getAthleteTimer().getTimeRemaining());
-			// we listen on uiEventBus.
-			this.uiEventBus = uiEventBusRegister(this, fop);
-		});
+		if (this.fop == null) {
+			this.logger.error("TimerElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
+			return;
+		}
+		init(this.fop.getName());
+		// sync with current status of FOP
+		doSetTimer(this.fop.getAthleteTimer().getTimeRemaining());
+		// we listen on uiEventBus.
+		this.uiEventBus = uiEventBusRegister(this, this.fop);
 	}
 
 	@Override

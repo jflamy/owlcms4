@@ -296,6 +296,9 @@ public class NCurrentAthlete extends Results {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		FieldOfPlay fop = getFop();
+		// Timer elements are injected by Vaadin @Id after setFop() was called.
+		// Re-propagate FOP to timer elements now that they're available.
+		propagateFopToTimerElements(fop);
 		setId("ncurrentathlete-" + fop.getName());
 		init();
 		computeStylesDir(this);

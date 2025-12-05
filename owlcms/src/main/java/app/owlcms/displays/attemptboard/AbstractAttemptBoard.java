@@ -285,6 +285,25 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	@Override
 	final public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
+		// Propagate FOP to timer elements so they can register on the correct event bus
+		propagateFopToTimerElements(fop);
+	}
+
+	/**
+	 * Propagate FOP to timer elements (BreakTimerElement, AthleteTimerElement, DecisionElement).
+	 * Timer elements must have their FOP set before they attach to register on the correct event bus.
+	 * @param fop the field of play to propagate
+	 */
+	protected void propagateFopToTimerElements(FieldOfPlay fop) {
+		if (this.breakTimer != null) {
+			this.breakTimer.setFop(fop);
+		}
+		if (this.athleteTimer != null) {
+			this.athleteTimer.setFop(fop);
+		}
+		if (this.decisions != null) {
+			this.decisions.setFop(fop);
+		}
 	}
 
 	@Override
@@ -748,6 +767,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			logger.error("No FOP available in onAttach; FOP must be provided via route parameters");
 			return;
 		}
+		// Timer elements are injected by Vaadin @Id after setFop() was called.
+		// Re-propagate FOP to timer elements now that they're available.
+		propagateFopToTimerElements(fop);
 		logger.debug("{}onAttach {}", FieldOfPlay.getLoggingName(fop), fop.getState());
 		init();
 		computeStylesDir(this);

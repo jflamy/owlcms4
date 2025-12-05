@@ -11,7 +11,6 @@ import com.vaadin.flow.component.template.Id;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.init.OwlcmsFactory;
 import com.vaadin.flow.component.AttachEvent;
 import app.owlcms.utils.StartupUtils;
@@ -85,26 +84,17 @@ public class WodBoard extends LitTemplate implements DisplayParameters, SafeEven
 
     public WodBoard() {
         super();
-        // Set the 'athletes' property to the first 4 athletes in FOP display order
-        OwlcmsSession.withFop(fop -> {
-            var displayOrder = fop.getDisplayOrder();
-            var jath = Json.createArray();
-            for (int i = 0; i < 4; i++) {
-                var ja = Json.createObject();
-                if (displayOrder != null && i < displayOrder.size()) {
-                    var a = displayOrder.get(i);
-                    ja.put("name", a.getFullName());
-                    ja.put("club", a.getTeam());
-                } else {
-                    ja.put("name", "");
-                    ja.put("club", "");
-                }
-                jath.set(i, ja);
-            }
-            this.getElement().setPropertyJson("athletes", jath);
-            // register on the fop UI event bus will be done on attach
-            // (stylesDir/autoversion must be set when attached to a UI)
-        });
+        // Initialize with empty athlete slots - will be populated when FOP is set via SwitchGroup event
+        var jath = Json.createArray();
+        for (int i = 0; i < 4; i++) {
+            var ja = Json.createObject();
+            ja.put("name", "");
+            ja.put("club", "");
+            jath.set(i, ja);
+        }
+        this.getElement().setPropertyJson("athletes", jath);
+        // register on the fop UI event bus will be done on attach
+        // (stylesDir/autoversion must be set when attached to a UI)
     }
 
     @Override

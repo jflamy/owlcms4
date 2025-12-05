@@ -317,6 +317,17 @@ public class BaseResults extends LitTemplate
 	@Override
 	final public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
+		// Hook for subclasses to propagate FOP to timer elements
+		propagateFopToTimerElements(fop);
+	}
+
+	/**
+	 * Override in subclasses to propagate FOP to timer elements (BreakTimerElement, AthleteTimerElement, DecisionElement).
+	 * Timer elements must have their FOP set before they attach to register on the correct event bus.
+	 * @param fop the field of play to propagate
+	 */
+	protected void propagateFopToTimerElements(FieldOfPlay fop) {
+		// Default implementation does nothing; subclasses with timer elements should override
 	}
 
 	@Override
@@ -1130,6 +1141,9 @@ public class BaseResults extends LitTemplate
 		if (fop == null) {
 			return;
 		}
+		// Timer elements are injected by Vaadin @Id after setFop() was called.
+		// Re-propagate FOP to timer elements now that they're available.
+		propagateFopToTimerElements(fop);
 		// Page page = UI.getCurrent().getPage();
 		// page.retrieveExtendedClientDetails(details -> {
 		// logger.debug("{} device resolution : {}x{}",
