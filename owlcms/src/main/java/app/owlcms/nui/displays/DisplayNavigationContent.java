@@ -109,7 +109,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        Translator.translate("Scoreboard.LiftingOrder"));
 			VerticalLayout intro1 = new VerticalLayout();
 			addP(intro1, Translator.translate("WarmupScoreboards.explanation"));
-			Button juryScoreboard = openInNewTabWithFop(JuryScoreboardPage.class, Translator.translate("Jury"));
+			Button juryScoreboard = openInNewTabWithFopCurrentAttempt(JuryScoreboardPage.class, Translator.translate("Jury"));
 			scoreboardWLeaders.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
 			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			        scoreboard,
@@ -119,16 +119,16 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        juryScoreboard);
 			doGroup(Translator.translate("WarmupScoreboards"), intro1, grid1, this);
 
-			Button scoreboard1 = openInNewTabWithFop(PublicNoLeadersPage.class, Translator.translate("Scoreboard"));
-			Button scoreboardWLeaders1 = openInNewTabWithFop(PublicScoreboardPage.class,
+			Button scoreboard1 = openInNewTabWithFopNoCurrentAttempt(PublicNoLeadersPage.class, Translator.translate("Scoreboard"));
+			Button scoreboardWLeaders1 = openInNewTabWithFopNoCurrentAttempt(PublicScoreboardPage.class,
 			        Translator.translate("ScoreboardWLeadersButton"));
 			scoreboardWLeaders1.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
-			Button scoreboardMultiRanks1 = openInNewTabWithFop(PublicMultiRanksPage.class,
+			Button scoreboardMultiRanks1 = openInNewTabWithFopNoCurrentAttempt(PublicMultiRanksPage.class,
 			        Translator.translate("ScoreboardMultiRanksButton"));
-			Button scoreboardRankings1 = openInNewTabWithFop(PublicRankingOrderPage.class,
+			Button scoreboardRankings1 = openInNewTabWithFopNoCurrentAttempt(PublicRankingOrderPage.class,
 			        Translator.translate("Scoreboard.RankingOrderButton"));
-			Button startList1 = openInNewTabWithFop(PublicStartListPage.class, Translator.translate("Scoreboard.StartList"));
-			Button juryDecisions1 = openInNewTabWithFop(JuryDecisionsPage.class,
+			Button startList1 = openInNewTabWithFopNoCurrentAttempt(PublicStartListPage.class, Translator.translate("Scoreboard.StartList"));
+			Button juryDecisions1 = openInNewTabWithFopNoCurrentAttempt(JuryDecisionsPage.class,
 			        Translator.translate("JuryDecisions.Title"));
 			VerticalLayout intro11 = new VerticalLayout();
 			addP(intro11, Translator.translate("PublicScoreboards.explanation"));
