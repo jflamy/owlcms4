@@ -167,7 +167,7 @@ public class WebSocketSender {
 	 * Send full competition data to a URL.
 	 */
 	public void sendFullCompetitionData(String url, String updateKey) {
-		logger.warn("{}sendFullCompetitionData called for url: {}", FieldOfPlay.getLoggingName(fop), url);
+		logger.debug("{}sendFullCompetitionData called for url: {}", FieldOfPlay.getLoggingName(fop), url);
 
 		if (url == null) {
 			logger.error("cannot send full competition data, url or updateKey is null - url:{}, updateKey:{}", url,
@@ -175,12 +175,12 @@ public class WebSocketSender {
 			return;
 		}
 		if (updateKey == null) {
-			logger.warn("no updateKey configured for {}, proceeding without one", url);
+			logger.debug("no updateKey configured for {}, proceeding without one", url);
 		}
 
 		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionData(fop);
 		if (export == null) {
-			logger.warn("{}unable to build competition data payload for {}", FieldOfPlay.getLoggingName(fop), url);
+			logger.debug("{}unable to build competition data payload for {}", FieldOfPlay.getLoggingName(fop), url);
 			return;
 		}
 
@@ -194,10 +194,10 @@ public class WebSocketSender {
 				payload.put("database", export.structure());
 				boolean sent = sender.sendObject("database", payload);
 				if (sent) {
-					logger.warn("{}sent full competition data via WebSocket to {}",
+					logger.debug("{}sent full competition data via WebSocket to {}",
 					        FieldOfPlay.getLoggingName(fop), url);
 				} else {
-					logger.warn("{}could not send full competition data via WebSocket to {} (socket not ready)",
+					logger.debug("{}could not send full competition data via WebSocket to {} (socket not ready)",
 					        FieldOfPlay.getLoggingName(fop), url);
 				}
 			}
@@ -223,7 +223,7 @@ public class WebSocketSender {
 				}
 			}
 			String databaseUrl = baseUrl + "/database";
-			logger.warn("{}ALWAYS sending to database endpoint: {} (from original: {})",
+			logger.debug("{}ALWAYS sending to database endpoint: {} (from original: {})",
 			        FieldOfPlay.getLoggingName(fop), databaseUrl, url);
 			HttpPost post = new HttpPost(databaseUrl);
 
@@ -246,7 +246,7 @@ public class WebSocketSender {
 			post.setHeader("Content-Type", "application/json; charset=UTF-8");
 			post.setEntity(new StringEntity(wrappedJson, "UTF-8"));
 
-			logger.warn("{}posting database with checksum to endpoint {}",
+			logger.debug("{}posting database with checksum to endpoint {}",
 			        FieldOfPlay.getLoggingName(fop), databaseUrl);
 
 			try (CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -255,7 +255,7 @@ public class WebSocketSender {
 				Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
 				if (statusCode != null && statusCode != 200) {
 					if (statusCode == 404) {
-						logger.warn(
+						logger.debug(
 						        "{}database endpoint not available at {} - 404 Not Found (endpoint not implemented)",
 						        FieldOfPlay.getLoggingName(fop), databaseUrl);
 					} else if (statusCode >= 500) {
@@ -265,20 +265,20 @@ public class WebSocketSender {
 						logger.error("{}client error sending to database endpoint {} - response: {}",
 						        FieldOfPlay.getLoggingName(fop), databaseUrl, statusLine);
 					} else {
-						logger.warn("{}unexpected response from database endpoint {} - response: {}",
+						logger.debug("{}unexpected response from database endpoint {} - response: {}",
 						        FieldOfPlay.getLoggingName(fop), databaseUrl, statusLine);
 					}
 				} else {
-					logger.warn("{}successfully sent full competition data to database endpoint {} - response: 200 OK",
+					logger.debug("{}successfully sent full competition data to database endpoint {} - response: 200 OK",
 					        FieldOfPlay.getLoggingName(fop), databaseUrl);
 				}
 				EntityUtils.toString(response.getEntity());
 			} catch (Exception e1) {
-				logger.warn("{}database endpoint not available at {} - {} (this is not fatal)",
+				logger.debug("{}database endpoint not available at {} - {} (this is not fatal)",
 				        FieldOfPlay.getLoggingName(fop), databaseUrl, LoggerUtils.exceptionMessage(e1));
 			}
 		} catch (Exception e2) {
-			logger.warn("{}could not send full competition data to {} - {} (this is not fatal)",
+			logger.debug("{}could not send full competition data to {} - {} (this is not fatal)",
 			        FieldOfPlay.getLoggingName(fop), url, LoggerUtils.exceptionMessage(e2));
 		}
 	}
@@ -287,7 +287,7 @@ public class WebSocketSender {
 	 * Send flags directory as a zipped archive via WebSocket.
 	 */
 	public void sendFlags(String url) {
-		logger.warn("{}sendFlags called for url: {}", FieldOfPlay.getLoggingName(fop), url);
+		logger.debug("{}sendFlags called for url: {}", FieldOfPlay.getLoggingName(fop), url);
 
 		if (url == null) {
 			logger.error("cannot send flags, url is null");
@@ -295,7 +295,7 @@ public class WebSocketSender {
 		}
 
 		if (!FlagsZipHelper.hasFlagsAvailable()) {
-			logger.warn("{}flags not available, cannot send", FieldOfPlay.getLoggingName(fop));
+			logger.debug("{}flags not available, cannot send", FieldOfPlay.getLoggingName(fop));
 			return;
 		}
 
@@ -307,27 +307,27 @@ public class WebSocketSender {
 				if (flagsZipBytes.length > 0) {
 					boolean sent = sender.sendBinary("flags_zip", flagsZipBytes);
 					if (sent) {
-						logger.warn("{}sent flags_zip ZIP via WebSocket binary to {} ({} bytes)",
+						logger.debug("{}sent flags_zip ZIP via WebSocket binary to {} ({} bytes)",
 						        FieldOfPlay.getLoggingName(fop), url, flagsZipBytes.length);
 					} else {
-						logger.warn("{}could not send flags_zip ZIP via WebSocket to {} (socket not ready)",
+						logger.debug("{}could not send flags_zip ZIP via WebSocket to {} (socket not ready)",
 						        FieldOfPlay.getLoggingName(fop), url);
 					}
 				} else {
-					logger.warn("{}failed to create flags ZIP for {}", FieldOfPlay.getLoggingName(fop), url);
+					logger.debug("{}failed to create flags ZIP for {}", FieldOfPlay.getLoggingName(fop), url);
 				}
 			}
 			return;
 		}
 
-		logger.warn("{}HTTP endpoint for flags not implemented ({})", FieldOfPlay.getLoggingName(fop), url);
+		logger.debug("{}HTTP endpoint for flags not implemented ({})", FieldOfPlay.getLoggingName(fop), url);
 	}
 
 	/**
 	 * Send all translations for all locales as a zipped JSON archive via WebSocket.
 	 */
 	public void sendTranslations(String url) {
-		logger.warn("{}sendTranslations called for url: {}", FieldOfPlay.getLoggingName(fop), url);
+		logger.debug("{}sendTranslations called for url: {}", FieldOfPlay.getLoggingName(fop), url);
 
 		if (url == null) {
 			logger.error("cannot send translations, url is null");
@@ -335,7 +335,7 @@ public class WebSocketSender {
 		}
 
 		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
-			logger.warn("{}translations not available, cannot send", FieldOfPlay.getLoggingName(fop));
+			logger.debug("{}translations not available, cannot send", FieldOfPlay.getLoggingName(fop));
 			return;
 		}
 
@@ -347,21 +347,21 @@ public class WebSocketSender {
 				if (translationsZipBytes.length > 0) {
 					boolean sent = sender.sendBinary("translations_zip", translationsZipBytes);
 					if (sent) {
-						logger.warn(
+						logger.debug(
 						        "{}sent translations ZIP via WebSocket binary to {} ({} bytes with all 26 locales)",
 						        FieldOfPlay.getLoggingName(fop), url, translationsZipBytes.length);
 					} else {
-						logger.warn("{}could not send translations ZIP via WebSocket to {} (socket not ready)",
+						logger.debug("{}could not send translations ZIP via WebSocket to {} (socket not ready)",
 						        FieldOfPlay.getLoggingName(fop), url);
 					}
 				} else {
-					logger.warn("{}failed to create translations ZIP for {}", FieldOfPlay.getLoggingName(fop), url);
+					logger.debug("{}failed to create translations ZIP for {}", FieldOfPlay.getLoggingName(fop), url);
 				}
 			}
 			return;
 		}
 
-		logger.warn("{}HTTP endpoint for translations not implemented ({})", FieldOfPlay.getLoggingName(fop), url);
+		logger.debug("{}HTTP endpoint for translations not implemented ({})", FieldOfPlay.getLoggingName(fop), url);
 	}
 
 	/**
@@ -437,7 +437,7 @@ public class WebSocketSender {
 			}
 			EntityUtils.toString(response.getEntity());
 		} catch (Exception e) {
-			logger.warn("{}POST to {} failed: {}", FieldOfPlay.getLoggingName(fop), url,
+			logger.debug("{}POST to {} failed: {}", FieldOfPlay.getLoggingName(fop), url,
 			        LoggerUtils.exceptionMessage(e));
 		}
 	}
@@ -455,20 +455,20 @@ public class WebSocketSender {
 		// Export competition data once (for all connections)
 		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionDataStatic();
 		if (export == null) {
-			logger.warn("Unable to build competition data payload for startup");
+			logger.debug("Unable to build competition data payload for startup");
 			return;
 		}
 
 		// Create translations ZIP bytes once
 		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
-			logger.warn("Translations not available for startup send");
+			logger.debug("Translations not available for startup send");
 			return;
 		}
 		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
 
 		// Create flags ZIP bytes once
 		if (!FlagsZipHelper.hasFlagsAvailable()) {
-			logger.warn("Flags not available for startup send");
+			logger.debug("Flags not available for startup send");
 			return;
 		}
 		byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
@@ -505,25 +505,25 @@ public class WebSocketSender {
 				dbPayload.put("database", export.structure());
 				boolean sent = sender.sendObject("database", dbPayload);
 				if (sent) {
-					logger.warn("Sent startup database via WebSocket to {}", url);
+					logger.debug("Sent startup database via WebSocket to {}", url);
 				} else {
-					logger.warn("Could not send startup database via WebSocket to {} (socket not ready)", url);
+					logger.debug("Could not send startup database via WebSocket to {} (socket not ready)", url);
 				}
 
 				// Send translations_zip
 				sent = sender.sendBinary("translations_zip", translationsZipBytes);
 				if (sent) {
-					logger.warn("Sent startup translations_zip via WebSocket to {}", url);
+					logger.debug("Sent startup translations_zip via WebSocket to {}", url);
 				} else {
-					logger.warn("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
+					logger.debug("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
 				}
 
 				// Send flags_zip
 				sent = sender.sendBinary("flags_zip", flagsZipBytes);
 				if (sent) {
-					logger.warn("Sent startup flags_zip via WebSocket to {}", url);
+					logger.debug("Sent startup flags_zip via WebSocket to {}", url);
 				} else {
-					logger.warn("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
+					logger.debug("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
 				}
 			});
 

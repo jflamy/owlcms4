@@ -736,7 +736,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		if (!isActive()) return;
-		logger.warn("slaveSwitchGroup: switching to group {} state {} {}",
+		logger.debug("slaveSwitchGroup: switching to group {} state {} {}",
 		        e.getGroup() != null ? e.getGroup().getName() : "null",
 		        e.getState(),
 		        LoggerUtils.whereFrom());
@@ -1462,7 +1462,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 								sendConfig(url, updateKey);
 								nbTries++;
 							} else if (nbTries == 0 && statusCode != null && statusCode == 428) {
-								logger.warn("{}hub returned 428 - sending full competition data {} {} {}",
+								logger.debug("{}hub returned 428 - sending full competition data {} {} {}",
 								        FieldOfPlay.getLoggingName(getFop()), url,
 								        statusLine,
 								        LoggerUtils.whereFrom(1));
@@ -1807,7 +1807,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			try {
 				return JSON_MAPPER.writeValueAsString(value);
 			} catch (JsonProcessingException e) {
-				logger.warn("{}could not serialize parameter value {}", FieldOfPlay.getLoggingName(getFop()),
+				logger.debug("{}could not serialize parameter value {}", FieldOfPlay.getLoggingName(getFop()),
 				        LoggerUtils.exceptionMessage(e));
 			}
 		}
@@ -1930,7 +1930,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		Config current = Config.getCurrent();
 		String updateUrl = current.getParamUpdateUrl();
 		String videoUrl = Config.getCurrent().getParamVideoDataUpdateUrl();
-		logger.warn("pushUpdateDoIt: updateUrl={} videoUrl={} {}", updateUrl, videoUrl, LoggerUtils.whereFrom());
+		logger.debug("pushUpdateDoIt: updateUrl={} videoUrl={} {}", updateUrl, videoUrl, LoggerUtils.whereFrom());
 		if (updateUrl == null && videoUrl == null) {
 			return;
 		}
@@ -1988,11 +1988,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 							}
 						}
 					} catch (Throwable t) {
-						logger.warn("{}could not recompute athlete timer: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
+						logger.debug("{}could not recompute athlete timer: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
 					}
 				}
 			} catch (Throwable t) {
-				logger.warn("{}athlete timer recomputation failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
+				logger.debug("{}athlete timer recomputation failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
 			}
 
 			// BREAK: Prefer values present in the update payload (e.g., from lastTimerMap) and recompute remaining based on stored start time; otherwise fall back to live timer
@@ -2042,15 +2042,15 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 							}
 						}
 					} catch (Throwable t) {
-						logger.warn("{}could not recompute break timer: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
+						logger.debug("{}could not recompute break timer: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
 					}
 				}
 			} catch (Throwable t) {
-				logger.warn("{}break timer recomputation failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
+				logger.debug("{}break timer recomputation failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(t));
 			}
 
 		} catch (Throwable ex) {
-			logger.warn("{}recomputeRemainingTimes failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(ex));
+			logger.debug("{}recomputeRemainingTimes failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(ex));
 		}
 
 	}
@@ -2115,19 +2115,19 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	private void sendFullCompetitionData(String url, String updateKey) {
-		logger.warn("{}sendFullCompetitionData called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+		logger.debug("{}sendFullCompetitionData called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
 
 		if (url == null) {
 			logger.error("cannot send full competition data, url or updateKey is null - url:{}, updateKey:{}", url, updateKey);
 			return;
 		}
 		if (updateKey == null) {
-			logger.warn("no updateKey configured for {}, proceeding without one", url);
+			logger.debug("no updateKey configured for {}, proceeding without one", url);
 		}
 
 		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionData(getFop());
 		if (export == null) {
-			logger.warn("{}unable to build competition data payload for {}", FieldOfPlay.getLoggingName(getFop()), url);
+			logger.debug("{}unable to build competition data payload for {}", FieldOfPlay.getLoggingName(getFop()), url);
 			return;
 		}
 
@@ -2141,10 +2141,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				payload.put("database", export.structure());
 				boolean sent = sender.sendObject("database", payload);
 				if (sent) {
-					logger.warn("{}sent full competition data via WebSocket to {}",
+					logger.debug("{}sent full competition data via WebSocket to {}",
 					        FieldOfPlay.getLoggingName(getFop()), url);
 				} else {
-					logger.warn("{}could not send full competition data via WebSocket to {} (socket not ready)",
+					logger.debug("{}could not send full competition data via WebSocket to {} (socket not ready)",
 					        FieldOfPlay.getLoggingName(getFop()), url);
 				}
 			}
@@ -2170,7 +2170,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				}
 			}
 			String databaseUrl = baseUrl + "/database";
-			logger.warn("{}ALWAYS sending to database endpoint: {} (from original: {})",
+			logger.debug("{}ALWAYS sending to database endpoint: {} (from original: {})",
 			        FieldOfPlay.getLoggingName(getFop()), databaseUrl, url);
 			HttpPost post = new HttpPost(databaseUrl);
 
@@ -2192,7 +2192,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			post.setHeader("Content-Type", "application/json; charset=UTF-8");
 			post.setEntity(new StringEntity(wrappedJson, "UTF-8"));
 
-			logger.warn("{}posting database with checksum to endpoint {}",
+			logger.debug("{}posting database with checksum to endpoint {}",
 			        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
 
 			try (CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -2218,7 +2218,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
 					}
 				} else {
-					logger.warn("{}successfully sent full competition data to database endpoint {} - response: 200 OK",
+					logger.debug("{}successfully sent full competition data to database endpoint {} - response: 200 OK",
 					        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
 				}
 				EntityUtils.toString(response.getEntity());
@@ -2240,7 +2240,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * @param url the WebSocket URL to send flags to
 	 */
 	private void sendFlags(String url) {
-		logger.warn("{}sendFlags called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+		logger.debug("{}sendFlags called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
 
 		if (url == null) {
 			logger.error("cannot send flags, url is null");
@@ -2248,7 +2248,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 
 		if (!FlagsZipHelper.hasFlagsAvailable()) {
-			logger.warn("{}flags not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
+			logger.debug("{}flags not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
 			return;
 		}
 
@@ -2261,21 +2261,21 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				if (flagsZipBytes.length > 0) {
 					boolean sent = sender.sendBinary("flags_zip", flagsZipBytes);
 					if (sent) {
-						logger.warn("{}sent flags_zip ZIP via WebSocket binary to {} ({} bytes)",
+						logger.debug("{}sent flags_zip ZIP via WebSocket binary to {} ({} bytes)",
 						        FieldOfPlay.getLoggingName(getFop()), url, flagsZipBytes.length);
 					} else {
-						logger.warn("{}could not send flags_zip ZIP via WebSocket to {} (socket not ready)",
+						logger.debug("{}could not send flags_zip ZIP via WebSocket to {} (socket not ready)",
 						        FieldOfPlay.getLoggingName(getFop()), url);
 					}
 				} else {
-					logger.warn("{}failed to create flags ZIP for {}", FieldOfPlay.getLoggingName(getFop()), url);
+					logger.debug("{}failed to create flags ZIP for {}", FieldOfPlay.getLoggingName(getFop()), url);
 				}
 			}
 			return;
 		}
 
 		// HTTP endpoints for flags are not typically used, but log a warning
-		logger.warn("{}HTTP endpoint for flags not implemented ({})", FieldOfPlay.getLoggingName(getFop()), url);
+		logger.debug("{}HTTP endpoint for flags not implemented ({})", FieldOfPlay.getLoggingName(getFop()), url);
 	}
 
 	/**
@@ -2287,7 +2287,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * @param url the WebSocket URL to send translations to
 	 */
 	private void sendTranslations(String url) {
-		logger.warn("{}sendTranslations called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+		logger.debug("{}sendTranslations called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
 
 		if (url == null) {
 			logger.error("cannot send translations, url is null");
@@ -2295,7 +2295,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 
 		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
-			logger.warn("{}translations not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
+			logger.debug("{}translations not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
 			return;
 		}
 
@@ -2308,21 +2308,21 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				if (translationsZipBytes.length > 0) {
 					boolean sent = sender.sendBinary("translations_zip", translationsZipBytes);
 					if (sent) {
-						logger.warn("{}sent translations ZIP via WebSocket binary to {} ({} bytes with all 26 locales)",
+						logger.debug("{}sent translations ZIP via WebSocket binary to {} ({} bytes with all 26 locales)",
 						        FieldOfPlay.getLoggingName(getFop()), url, translationsZipBytes.length);
 					} else {
-						logger.warn("{}could not send translations ZIP via WebSocket to {} (socket not ready)",
+						logger.debug("{}could not send translations ZIP via WebSocket to {} (socket not ready)",
 						        FieldOfPlay.getLoggingName(getFop()), url);
 					}
 				} else {
-					logger.warn("{}failed to create translations ZIP for {}", FieldOfPlay.getLoggingName(getFop()), url);
+					logger.debug("{}failed to create translations ZIP for {}", FieldOfPlay.getLoggingName(getFop()), url);
 				}
 			}
 			return;
 		}
 
 		// HTTP endpoints for translations are not typically used, but log a warning
-		logger.warn("{}HTTP endpoint for translations not implemented ({})", FieldOfPlay.getLoggingName(getFop()), url);
+		logger.debug("{}HTTP endpoint for translations not implemented ({})", FieldOfPlay.getLoggingName(getFop()), url);
 	}
 
 	private void sendPost(String url, String updateKey, Map<String, ?> parameters, String messageType) {

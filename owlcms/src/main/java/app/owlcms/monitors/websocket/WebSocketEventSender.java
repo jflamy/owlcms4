@@ -112,13 +112,13 @@ public class WebSocketEventSender {
 	 */
 	public static synchronized void sendTranslationsToAll() {
 		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
-			logger.warn("translations not available, cannot send to all clients");
+			logger.debug("translations not available, cannot send to all clients");
 			return;
 		}
 
 		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
 		if (translationsZipBytes.length == 0) {
-			logger.warn("failed to create translations ZIP, cannot send to all clients");
+			logger.debug("failed to create translations ZIP, cannot send to all clients");
 			return;
 		}
 
@@ -129,7 +129,7 @@ public class WebSocketEventSender {
 				sentCount++;
 			}
 		}
-		logger.warn("sent translations ZIP to {}/{} connected WebSocket clients ({} bytes)",
+		logger.debug("sent translations ZIP to {}/{} connected WebSocket clients ({} bytes)",
 		        sentCount, sendersByUrl.size(), translationsZipBytes.length);
 	}
 
@@ -265,7 +265,7 @@ public class WebSocketEventSender {
 			}
 			
 			connecting = true;
-			logger.warn("Scheduling WebSocket reconnect attempt {} for {} in {}ms", 
+			logger.debug("Scheduling WebSocket reconnect attempt {} for {} in {}ms", 
 					reconnectAttempts, url, delayMs);
 		}
 		
@@ -316,7 +316,7 @@ public class WebSocketEventSender {
 				}
 				
 				if (missingList != null && !missingList.isEmpty()) {
-					logger.warn("WebSocket server {} returned 428 - missing data: {}", url, missingList);
+					logger.debug("WebSocket server {} returned 428 - missing data: {}", url, missingList);
 					
 					// Check what types of data are missing and invoke appropriate callbacks
 					for (Object missing : missingList) {
@@ -350,7 +350,7 @@ public class WebSocketEventSender {
 	 */
 	public void send(String messageType, Map<String, ?> data) {
 		if (client == null || !client.isOpen()) {
-			logger.warn("WebSocket not connected to {}, attempting to reconnect", url);
+			logger.debug("WebSocket not connected to {}, attempting to reconnect", url);
 			scheduleReconnect();
 			return;
 		}
@@ -365,7 +365,7 @@ public class WebSocketEventSender {
 			// Convert to JSON string using Jackson
 			String jsonPayload = objectMapper.writeValueAsString(wrapper);
 			String preview = jsonPayload.length() > 50 ? jsonPayload.substring(0, 50) + "..." : jsonPayload;
-			logger.warn("Sending WebSocket message type '{}' to {}: {} {}", messageType, url, preview, LoggerUtils.whereFrom());
+			logger.debug("Sending WebSocket message type '{}' to {}: {} {}", messageType, url, preview, LoggerUtils.whereFrom());
 			client.send(jsonPayload);
 			logger.debug("Sent WebSocket message type '{}' to {}: {}", messageType, url, jsonPayload);
 		} catch (Exception e) {
@@ -382,7 +382,7 @@ public class WebSocketEventSender {
 	 */
 	public void sendPreSerializedJson(String messageType, String jsonPayload) {
 		if (client == null || !client.isOpen()) {
-			logger.warn("WebSocket not connected to {}, attempting to reconnect", url);
+			logger.debug("WebSocket not connected to {}, attempting to reconnect", url);
 			scheduleReconnect();
 			return;
 		}
@@ -416,7 +416,7 @@ public class WebSocketEventSender {
 	 */
 	public void sendRawJson(String messageType, String jsonPayload) {
 		if (client == null || !client.isOpen()) {
-			logger.warn("WebSocket not connected to {}, attempting to reconnect", url);
+			logger.debug("WebSocket not connected to {}, attempting to reconnect", url);
 			scheduleReconnect();
 			return;
 		}
@@ -450,7 +450,7 @@ public class WebSocketEventSender {
 	 */
 	public boolean sendObject(String messageType, Object payload) {
 		if (client == null || !client.isOpen()) {
-			logger.warn("WebSocket not connected to {}, attempting to reconnect", url);
+			logger.debug("WebSocket not connected to {}, attempting to reconnect", url);
 			scheduleReconnect();
 			return false;
 		}
@@ -497,7 +497,7 @@ public class WebSocketEventSender {
 	 */
 	public boolean sendBinary(String messageType, byte[] binaryData) {
 		if (client == null || !client.isOpen()) {
-			logger.warn("WebSocket not connected to {}, attempting to reconnect", url);
+			logger.debug("WebSocket not connected to {}, attempting to reconnect", url);
 			scheduleReconnect();
 			return false;
 		}
@@ -550,7 +550,7 @@ public class WebSocketEventSender {
 				client.closeBlocking();
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
-				logger.warn("Interrupted while closing WebSocket to {}", url);
+				logger.debug("Interrupted while closing WebSocket to {}", url);
 			}
 		}
 	}

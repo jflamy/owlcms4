@@ -260,7 +260,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private EventForwarder(String name, FieldOfPlay emittingFop) {
 		this.setForwardedFopName(name);
 		this.setFop(emittingFop);
-		logger.warn("EventForwarder created: instance={} fop={} fopId={} {}", 
+		logger.debug("EventForwarder created: instance={} fop={} fopId={} {}", 
 			System.identityHashCode(this),
 			emittingFop.getName(),
 			System.identityHashCode(emittingFop),
@@ -1341,7 +1341,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 									long lastAttempt = lastAttemptWrapper;
 									if ((now - lastAttempt) > CONFIG_RESEND_WINDOW_MS) {
 										// previous attempts are stale; reset state so we can try again
-										logger.warn("{}previous config attempt for {} is older than {}ms, resetting state", FieldOfPlay.getLoggingName(getFop()), destination, now - lastAttempt);
+										logger.debug("{}previous config attempt for {} is older than {}ms, resetting state", FieldOfPlay.getLoggingName(getFop()), destination, now - lastAttempt);
 										configSendingInProgress.remove(destination);
 										configSentByEndpoint.remove(destination);
 										configAttemptTimeByDestination.remove(destination);
@@ -1359,7 +1359,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 												inProgressStart = inProgressStartWrapper;
 											}
 											if ((System.currentTimeMillis() - inProgressStart) > CONFIG_RESEND_WINDOW_MS) {
-												logger.warn("{}config send in progress for {} exceeded {}ms, giving up and resetting state", FieldOfPlay.getLoggingName(getFop()), destination, System.currentTimeMillis() - inProgressStart);
+												logger.debug("{}config send in progress for {} exceeded {}ms, giving up and resetting state", FieldOfPlay.getLoggingName(getFop()), destination, System.currentTimeMillis() - inProgressStart);
 												configSendingInProgress.remove(destination);
 												configSentByEndpoint.remove(destination);
 												configAttemptTimeByDestination.remove(destination);
@@ -1379,7 +1379,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 										} else {
 											age = System.currentTimeMillis() - lastAttempt2;
 										}
-										logger.warn("{}skipping config send for {} because config already sent {} ms ago, retrying post", FieldOfPlay.getLoggingName(getFop()), destination, age);
+										logger.debug("{}skipping config send for {} because config already sent {} ms ago, retrying post", FieldOfPlay.getLoggingName(getFop()), destination, age);
 										nbTries++;
 									} else {
 										// mark as in-progress and send, record attempt time
@@ -1741,7 +1741,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	private synchronized void pushTimer(UIEvent e) {
 		if (DEBUG_TIMER_EVENTS) {
-			logger.warn("{}pushTimer: event={} hash={} {}", 
+			logger.debug("{}pushTimer: event={} hash={} {}", 
 				FieldOfPlay.getLoggingName(getFop()), 
 				e != null ? e.getClass().getSimpleName() : "null",
 				e != null ? System.identityHashCode(e) : "null",
@@ -1847,7 +1847,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 						} catch (Exception closeException) {
 							// ignore
 						}
-						logger.warn("Error zipping config: {}", LoggerUtils.exceptionMessage(e));
+						logger.debug("Error zipping config: {}", LoggerUtils.exceptionMessage(e));
 					}
 				}).start();
 				builder.addBinaryBody("local", in, ContentType.create("application/zip"), "local.zip");
@@ -1896,7 +1896,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (hashCode != previousDebounceHash || (deltaMillis > 1000)) {
 			// Only log timer POSTs when debug flag is enabled
 			if (DEBUG_TIMER_EVENTS && url != null && url.contains("/timer")) {
-				logger.warn("{}sendPost TIMER: url={}, hashCode={}, prevHash={}, deltaMs={} {}", 
+				logger.debug("{}sendPost TIMER: url={}, hashCode={}, prevHash={}, deltaMs={} {}", 
 					FieldOfPlay.getLoggingName(getFop()), url, hashCode, previousDebounceHash, deltaMillis,
 					LoggerUtils.whereFrom());
 			}
@@ -1963,7 +1963,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			try {
 				this.postBus.register(this);
 			} catch (IllegalArgumentException ex) {
-				logger.warn("EventForwarder already registered on event bus for FOP {}: {}", newFop.getName(), ex.getMessage());
+				logger.debug("EventForwarder already registered on event bus for FOP {}: {}", newFop.getName(), ex.getMessage());
 			}
 		}
 	}

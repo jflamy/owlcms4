@@ -367,7 +367,7 @@ public class ForwarderPayloadBuilder {
 			try {
 				return JSON_MAPPER.writeValueAsString(value);
 			} catch (JsonProcessingException e) {
-				logger.warn("{}could not serialize parameter value {}", 
+				logger.debug("{}could not serialize parameter value {}", 
 				        fop != null ? FieldOfPlay.getLoggingName(fop) : "",
 				        LoggerUtils.exceptionMessage(e));
 			}
@@ -467,10 +467,10 @@ public class ForwarderPayloadBuilder {
 			return HexFormat.of().formatHex(hash);
 		} catch (Exception e) {
 			if (fop != null) {
-				logger.warn("{}failed to compute competition data checksum: {}", FieldOfPlay.getLoggingName(fop),
+				logger.debug("{}failed to compute competition data checksum: {}", FieldOfPlay.getLoggingName(fop),
 				        LoggerUtils.exceptionMessage(e));
 			} else {
-				logger.warn("failed to compute competition data checksum: {}", LoggerUtils.exceptionMessage(e));
+				logger.debug("failed to compute competition data checksum: {}", LoggerUtils.exceptionMessage(e));
 			}
 			return null;
 		}
