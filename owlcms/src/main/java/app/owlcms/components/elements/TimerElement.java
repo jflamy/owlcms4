@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.components.elements;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
@@ -41,22 +43,27 @@ import ch.qos.logback.classic.Logger;
 public abstract class TimerElement extends LitTemplate
         implements SafeEventBusRegistration, Focusable<Div> {
 
+	// Note: onAttach is abstract - subclasses must implement and call super.onAttach() first
+
 	public long lastStartMillis;
 	public long lastStopMillis;
 	protected String fopName;
 	protected FieldOfPlay fop;
 	protected VaadinSession vsession;
 	private boolean indefinite;
+	private final String instanceId = Integer.toHexString(System.identityHashCode(this));
+	protected final AtomicBoolean attached = new AtomicBoolean(false);
 	final private Logger logger = (Logger) LoggerFactory.getLogger(TimerElement.class);
 	private Integer msRemaining;
 	private boolean serverSound;
 	private boolean silenced = true;
 	private Element timerElement;
+	private Object origin;
 	protected EventBus uiEventBus;
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	protected UI ui;
 	{
-		this.logger.setLevel(Level.WARN);
+		this.logger.setLevel(Level.DEBUG);
 		this.uiEventLogger.setLevel(Level.WARN);
 	}
 
@@ -68,6 +75,14 @@ public abstract class TimerElement extends LitTemplate
 
 	public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
+	}
+
+	public void setOrigin(Object origin) {
+		this.origin = origin;
+	}
+
+	protected Object getOrigin() {
+		return this.origin;
 	}
 
 	@AllowInert
@@ -130,8 +145,8 @@ public abstract class TimerElement extends LitTemplate
 
 	protected final void doSetTimer(Integer milliseconds) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("====== {} doSetTimer {} {}", this.getClass().getSimpleName(), milliseconds,
-			        LoggerUtils.whereFrom());
+			this.logger.debug("====== {} doSetTimer {} {}", this, milliseconds,
+			        LoggerUtils.stackTrace());
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
@@ -142,7 +157,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
-		this.logger.debug("====== {} doStartTimer {}", this.getClass().getSimpleName(), milliseconds);
+		this.logger.debug("====== {} doStartTimer {}", this, milliseconds);
 		setServerSound(serverSound);
 		// String trace = LoggerUtils.stackTrace();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
@@ -219,20 +234,18 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	/*
+	 * Subclasses MUST call super.onAttach(attachEvent) first to ensure guard is checked.
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		ui = UI.getCurrent();
-		if (this.fop == null) {
-			this.logger.error("TimerElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
-			return;
+		// Guard against double-attach - subclasses must call this via super.onAttach()
+		if (!this.attached.compareAndSet(false, true)) {
+			this.logger.debug("TimerElement.onAttach called twice for instance={} parent={} - ignoring", instanceId,
+				DebugUtils.getOwlcmsParentName(this.getParent().orElse(null)));
+			return; // Silently ignore subsequent attach calls
 		}
-		init(this.fop.getName());
-		// sync with current status of FOP
-		doSetTimer(this.fop.getAthleteTimer().getTimeRemaining());
-		// we listen on uiEventBus.
-		this.uiEventBus = uiEventBusRegister(this, this.fop);
+		this.ui = UI.getCurrent();
 	}
 
 	@Override

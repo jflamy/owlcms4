@@ -677,7 +677,7 @@ public class FieldOfPlay implements IUnregister {
 				transitionToBreak((FOPEvent.BreakStarted) e);
 				return;
 			} else if (getState() == BREAK && getBreakType() != null && getBreakType().isCountdown() && !allAllowed) {
-				this.logger.warn("Break start rejected: origin={} breakType={} state={}",
+				this.logger.debug("Break start rejected: origin={} breakType={} state={}",
 				        origin != null ? origin.getClass().getSimpleName() : "null",
 				        requestedBreak,
 				        this.getState());
@@ -1774,9 +1774,8 @@ public class FieldOfPlay implements IUnregister {
 		// need to set time
 		int ta = e.timeAllowed;
 		this.logger.debug("{}forcing time to {}", FieldOfPlay.getLoggingName(this), ta);
-		//getAthleteTimer().stop();
+		// setTimeRemaining already stops the timer (sets running=false) and emits UIEvent.SetTime
 		getAthleteTimer().setTimeRemaining(ta, false);
-		getAthleteTimer().stop();
 		setClockOwnerInitialTimeAllowed(ta);
 		setForcedTime(true);
 		setState(CURRENT_ATHLETE_DISPLAYED);

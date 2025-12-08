@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.littemplate.LitTemplate;
@@ -785,6 +786,29 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 		// we send on fopEventBus, listen on uiEventBus.
 		this.uiEventBus = uiEventBusRegister(this, fop);
+		// logger.debug(">>> REGISTERED: class={}, fop={}, uiSession={}", 
+		// 		this.getClass().getSimpleName(),
+		// 		fop != null ? fop.getName() : "null",
+		// 		ui != null && ui.getSession() != null ? Integer.toHexString(System.identityHashCode(ui.getSession())) : "null");
+	}
+
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+
+		// Vaadin Beacon API works fine.
+
+			// logger.debug("<<< DETACHING: class={}, fop={}, uiSession={}", 
+			// 		this.getClass().getSimpleName(),
+			// 		getFop() != null ? getFop().getName() : "null",
+			// 		ui != null && ui.getSession() != null ? Integer.toHexString(System.identityHashCode(ui.getSession())) : "null");
+			
+			// // Explicit EventBus cleanup - don't rely only on UI-level listeners
+			// if (this.uiEventBus != null) {
+			// 	unregister(this, this.uiEventBus);
+			// 	logger.debug("<<< UNREGISTERED: class={}, eventBus={}", 
+			// 			this.getClass().getSimpleName(),
+			// 			this.uiEventBus != null ? "present" : "null");
+			// }
 	}
 
 	protected void setAthletePictures(boolean athletePictures) {

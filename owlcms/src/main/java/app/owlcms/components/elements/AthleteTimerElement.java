@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.UI;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -33,19 +32,18 @@ public class AthleteTimerElement extends TimerElement {
 		logger.setLevel(Level.WARN);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-	private Object origin;
 
 	/**
 	 * Instantiates a new timer element.
 	 */
 	public AthleteTimerElement() {
 		this.setOrigin(null); // force exception
-		logger.trace("### AthleteTimerElement new {}", this.origin);
+		logger.trace("### AthleteTimerElement created (no-arg constructor)\n{}", LoggerUtils.stackTrace());
 	}
 
 	public AthleteTimerElement(Object origin) {
 		this.setOrigin(origin);
-		logger.trace("### AthleteTimerElement new {} {}", origin, LoggerUtils.whereFrom());
+		logger.debug("### AthleteTimerElement created with origin={}\n{}", origin, LoggerUtils.stackTrace());
 	}
 
 	/**
@@ -133,7 +131,8 @@ public class AthleteTimerElement extends TimerElement {
 		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			return;
 		}
-		if (logger.isDebugEnabled()) {
+		// if (logger.isDebugEnabled())
+			 {
 			logger.warn/**/("timer {} starting on client: remaining = {}, late={}", from, remainingTime, lateMillis,
 			        delta(this.lastStartMillis));
 		}
@@ -167,17 +166,6 @@ public class AthleteTimerElement extends TimerElement {
 				// ignored
 			}
 		}
-	}
-
-	/**
-	 * @return the origin
-	 */
-	public Object getOrigin() {
-		return this.origin;
-	}
-
-	public void setOrigin(Object origin) {
-		this.origin = origin;
 	}
 
 	@Subscribe
@@ -252,9 +240,10 @@ public class AthleteTimerElement extends TimerElement {
 	/*
 	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
 	 */
+
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		this.ui = UI.getCurrent();
+		super.onAttach(attachEvent); // Guard and UI setup
 		if (this.fop == null) {
 			logger.error("AthleteTimerElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
 			return;

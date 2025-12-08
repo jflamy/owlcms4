@@ -45,6 +45,7 @@ public class BreakTimerElement extends TimerElement {
 
 	public BreakTimerElement() {
 		this.id = IdUtils.getTimeBasedId();
+		logger.trace("### BreakTimerElement created (no-arg constructor)\n{}", LoggerUtils.stackTrace());
 	}
 
 	/**
@@ -52,6 +53,7 @@ public class BreakTimerElement extends TimerElement {
 	 */
 	public BreakTimerElement(String parentName) {
 		this.id = IdUtils.getTimeBasedId();
+		logger.debug("### BreakTimerElement created with parentName={}\n{}", parentName, LoggerUtils.stackTrace());
 	}
 
 	@Override

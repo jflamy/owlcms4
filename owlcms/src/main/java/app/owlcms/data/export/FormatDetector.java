@@ -142,7 +142,7 @@ public class FormatDetector {
 			return "1.0";
 			
 		} catch (Exception e) {
-			logger.warn(LoggerUtils.whereFrom() + " Error detecting format version, defaulting to V1: {}", e.getMessage());
+			logger.debug(LoggerUtils.whereFrom() + " Error detecting format version, defaulting to V1: {}", e.getMessage());
 			return "1.0";
 		}
 	}
@@ -173,7 +173,7 @@ public class FormatDetector {
 			
 			return "1.0";
 		} catch (Exception e) {
-			logger.warn(LoggerUtils.whereFrom() + " Error detecting format version from string: {}", e.getMessage());
+			logger.debug(LoggerUtils.whereFrom() + " Error detecting format version from string: {}", e.getMessage());
 			return "1.0";
 		}
 	}

@@ -9,7 +9,7 @@
 <br>
 **New in Release 64**
 
-64.0.0: Merge all the sanitization work done in releases 63.3
+64.0.0: Merge all the sanitization work done in releases 63.3.x
 
 64.0.0: New websocket protocol for updated tracker
 - Uses the v2 export format

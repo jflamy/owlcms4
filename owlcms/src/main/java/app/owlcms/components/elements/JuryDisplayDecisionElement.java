@@ -95,7 +95,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		ui = UI.getCurrent();
 		super.onAttach(attachEvent);
 		if (this.fop == null) {
-			logger.warn("No FOP available for JuryDisplayDecisionElement onAttach {}", LoggerUtils.whereFrom());
+			logger./**/warn("No FOP available for JuryDisplayDecisionElement onAttach {}", LoggerUtils.whereFrom());
 		}
 	}
 
