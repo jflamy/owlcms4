@@ -129,9 +129,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	 */
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
-		return Translator.translate("Referee") + suffix + (getRef13ix() != null ? (" " + getRef13ix()) : "");
+		return Translator.translate("Referee") + OwlcmsSession.getFopNameIfMultiple() + (getRef13ix() != null ? (" " + getRef13ix()) : "");
 	}
 
 	/**

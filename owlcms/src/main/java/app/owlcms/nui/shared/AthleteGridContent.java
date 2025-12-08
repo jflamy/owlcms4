@@ -294,7 +294,7 @@ public abstract class AthleteGridContent extends BaseContent
 	public AthleteGridContent() {
 		init();
 		this.stopButtonVariant = Config.getCurrent().featureSwitch("blackStopButton") ? "contrast" : "error";
-		this.breakTimerElement = new BreakTimerElement();
+		this.breakTimerElement = new BreakTimerElement(this.getTopBarTitle() + "_" + this.id);
 		this.recordNotifications = new ArrayList<>();
 	}
 

@@ -57,6 +57,8 @@ public interface SafeEventBusRegistration {
 		} catch (Exception ignored) {
 		}
 		try {
+			// trace the registration
+			logger.debug("automatic: register {} class={} from {}", Integer.toHexString(System.identityHashCode(c)), c.getClass().getSimpleName(), uiEventBus.identifier());
 			uiEventBus.register(c);
 			BUS_REGISTRY.put(c, uiEventBus);
 		} catch (Exception ex) {
@@ -74,12 +76,14 @@ public interface SafeEventBusRegistration {
 			unregister(c, uiEventBus);
 		});
 		ui.addDetachListener((e) -> {
+			// trace the unregistration
+			logger.debug("automatic: unregister {} class={} from {}", Integer.toHexString(System.identityHashCode(c)), c.getClass().getSimpleName(), uiEventBus.identifier());
 			unregister(c, uiEventBus);
 		});
 		return uiEventBus;
 	}
 
-	public default EventBus uiEventBusRegister(Object subscriber, FieldOfPlay fop) {
+	public default EventBus uiEventBusRegisterNoUI(Object subscriber, FieldOfPlay fop) {
 		{logger.setLevel(Level.INFO);}
 		if (fop == null) {
 			logger.error("uiEventBusRegister called with null FOP for subscriber {}", subscriber);
@@ -108,6 +112,7 @@ public interface SafeEventBusRegistration {
 		} catch (Exception ex) {
 			logger.error("Failed to register subscriber {} on UI bus {}", subscriber, uiEventBus.identifier(), ex);
 		}
+
 		return uiEventBus;
 	}
 

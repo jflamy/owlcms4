@@ -844,7 +844,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			this.logger.debug("BreakManagement FOP");
 		}
 		if (this.fop == null) {
-			this.logger.warn("BreakManagement initialised without FieldOfPlay");
+			this.logger.error("BreakManagement initialised without FieldOfPlay");
 			return;
 		}
 

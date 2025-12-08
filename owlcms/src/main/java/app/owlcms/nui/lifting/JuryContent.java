@@ -51,6 +51,7 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.BreakType;
@@ -142,9 +143,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	 */
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
-		return Translator.translate("Jury") + suffix;
+		return Translator.translate("Jury") + OwlcmsSession.getFopNameIfMultiple();
 	}
 
 	@Override
