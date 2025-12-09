@@ -148,21 +148,150 @@ public class GAMX2ComparisonTest {
 	public void testAllVariantsAccessible() {
 		logger.info("Testing all GAMX2 variant accessibility");
 
-		double gamxSenior = GAMX2.computeGamx(Gender.M, 100.0, 200, GAMX2.Variant.SENIOR);
-		double gamxU30 = GAMX2.computeGamx(Gender.M, 100.0, 200, GAMX2.Variant.AGE_ADJUSTED);
-		double gamxU17 = GAMX2.computeGamx(Gender.M, 100.0, 200, GAMX2.Variant.U17);
-		double gamxMasters = GAMX2.computeGamx(Gender.M, 100.0, 200, GAMX2.Variant.MASTERS);
+		// SENIOR variant - age parameter ignored (always uses 25.0)
+		double gamxSenior = GAMX2.computeGamx(Gender.M, null, 100.0, 200, GAMX2.Variant.SENIOR);
+		
+		// Age-dependent variants - require age parameter
+		double gamxAgeAdjusted = GAMX2.computeGamx(Gender.M, 20.0, 100.0, 200, GAMX2.Variant.AGE_ADJUSTED);
+		double gamxU17 = GAMX2.computeGamx(Gender.M, 15.0, 100.0, 200, GAMX2.Variant.U17);
+		double gamxMasters = GAMX2.computeGamx(Gender.M, 50.0, 100.0, 200, GAMX2.Variant.MASTERS);
 
 		logger.info("Variant test results (M, 100kg, 200kg total):");
-		logger.info(String.format("  SENIOR:  %.4f", gamxSenior));
-		logger.info(String.format("  U30:     %.4f", gamxU30));
-		logger.info(String.format("  U17:     %.4f", gamxU17));
-		logger.info(String.format("  MASTERS: %.4f", gamxMasters));
+		logger.info(String.format("  SENIOR (age ignored):     %.4f", gamxSenior));
+		logger.info(String.format("  AGE_ADJUSTED (age 20):    %.4f", gamxAgeAdjusted));
+		logger.info(String.format("  U17 (age 15):             %.4f", gamxU17));
+		logger.info(String.format("  MASTERS (age 50):         %.4f", gamxMasters));
 
 		assertTrue("SENIOR variant failed", gamxSenior > 0);
-		assertTrue("U30 variant failed", gamxU30 > 0);
+		assertTrue("AGE_ADJUSTED variant failed", gamxAgeAdjusted > 0);
 		assertTrue("U17 variant failed", gamxU17 > 0);
 		assertTrue("MASTERS variant failed", gamxMasters > 0);
+	}
+
+	@Test
+	public void testSENIORVariantIgnoresAge() {
+		logger.info("Testing that SENIOR variant always uses age=25.0 regardless of input");
+
+		// SENIOR variant should produce same result regardless of age parameter
+		double gamx1 = GAMX2.computeGamx(Gender.M, null, 100.0, 200, GAMX2.Variant.SENIOR);
+		double gamx2 = GAMX2.computeGamx(Gender.M, 20.0, 100.0, 200, GAMX2.Variant.SENIOR);
+		double gamx3 = GAMX2.computeGamx(Gender.M, 30.0, 100.0, 200, GAMX2.Variant.SENIOR);
+		double gamx4 = GAMX2.computeGamx(Gender.M, 50.0, 100.0, 200, GAMX2.Variant.SENIOR);
+
+		logger.info(String.format("SENIOR with age=null: %.4f", gamx1));
+		logger.info(String.format("SENIOR with age=20:   %.4f", gamx2));
+		logger.info(String.format("SENIOR with age=30:   %.4f", gamx3));
+		logger.info(String.format("SENIOR with age=50:   %.4f", gamx4));
+
+		assertTrue("SENIOR should produce same result regardless of age",
+				Math.abs(gamx1 - gamx2) < 0.0001 &&
+				Math.abs(gamx1 - gamx3) < 0.0001 &&
+				Math.abs(gamx1 - gamx4) < 0.0001);
+	}
+
+	@Test
+	public void testAgeParameterRequiredForNonSenior() {
+		logger.info("Testing that non-SENIOR variants require age parameter");
+
+		// These should return 0.0 because age is null
+		double gamxAgeAdjusted = GAMX2.computeGamx(Gender.M, null, 100.0, 200, GAMX2.Variant.AGE_ADJUSTED);
+		double gamxU17 = GAMX2.computeGamx(Gender.M, null, 100.0, 200, GAMX2.Variant.U17);
+		double gamxMasters = GAMX2.computeGamx(Gender.M, null, 100.0, 200, GAMX2.Variant.MASTERS);
+
+		logger.info(String.format("AGE_ADJUSTED with age=null: %.4f (should be 0.0)", gamxAgeAdjusted));
+		logger.info(String.format("U17 with age=null:          %.4f (should be 0.0)", gamxU17));
+		logger.info(String.format("MASTERS with age=null:      %.4f (should be 0.0)", gamxMasters));
+
+		assertTrue("AGE_ADJUSTED should return 0 when age is null", gamxAgeAdjusted == 0.0);
+		assertTrue("U17 should return 0 when age is null", gamxU17 == 0.0);
+		assertTrue("MASTERS should return 0 when age is null", gamxMasters == 0.0);
+	}
+
+	@Test
+	public void testKgTargetCrossingAgeVariants() {
+		logger.info("Testing kgTarget: SENIOR athlete matching their MASTERS score");
+
+		// Scenario: 69kg male athlete at age 58 (MASTERS) lifts 140kg
+		// Question: How much does the same athlete need to lift as SENIOR (age normalized to 25) to match that GAMX?
+		double bodyMass = 69.0;
+		int mastersTotal = 140;
+		double mastersAge58 = 58.0;
+
+		// Compute GAMX for 58-year-old lifting 140kg (MASTERS variant)
+		double masters58GAMX = GAMX2.computeGamx(Gender.M, mastersAge58, bodyMass, mastersTotal, GAMX2.Variant.MASTERS);
+
+		logger.info(String.format("MASTERS athlete: age=%.0f, bodyMass=%.0fkg, total=%dkg → GAMX=%.4f",
+				mastersAge58, bodyMass, mastersTotal, masters58GAMX));
+
+		// Find total needed as SENIOR to match that GAMX (age normalized to 25)
+		int seniorTotal = GAMX2.kgTarget(Gender.M, null, masters58GAMX, bodyMass, GAMX2.Variant.SENIOR);
+
+		// Verify the SENIOR total produces equivalent GAMX
+		double seniorGAMX = GAMX2.computeGamx(Gender.M, null, bodyMass, seniorTotal, GAMX2.Variant.SENIOR);
+		double seniorRounded = Math.round(seniorGAMX * 100.0) / 100.0;
+		double masters58Rounded = Math.round(masters58GAMX * 100.0) / 100.0;
+
+		logger.info(String.format("SENIOR athlete: age=25 (normalized), bodyMass=%.0fkg, total=%dkg → GAMX=%.4f",
+				bodyMass, seniorTotal, seniorGAMX));
+		logger.info(String.format("Difference: SENIOR needs %d kg more to exceed MASTERS age 58 GAMX (%.4f vs %.4f)",
+				seniorTotal - mastersTotal, seniorGAMX, masters58GAMX));
+
+		// Verify that subtracting 1kg from SENIOR total yields lower GAMX than MASTERS
+		double seniorMinus1GAMX = GAMX2.computeGamx(Gender.M, null, bodyMass, seniorTotal - 1, GAMX2.Variant.SENIOR);
+		double seniorMinus1Rounded = Math.round(seniorMinus1GAMX * 100.0) / 100.0;
+
+		logger.info(String.format("SENIOR athlete with -1kg: total=%dkg → GAMX=%.4f (should be < %.4f)",
+				seniorTotal - 1, seniorMinus1GAMX, masters58GAMX));
+
+		assertTrue("Failed to compute MASTERS GAMX", masters58GAMX > 0);
+		assertTrue("Failed to compute SENIOR target total", seniorTotal > 0);
+		
+		boolean seniorMatches = seniorRounded >= masters58Rounded;
+		assertTrue("SENIOR total should exceed MASTERS GAMX at 2 decimal precision", seniorMatches);
+		logger.info(String.format("%s SENIOR total exceeds MASTERS age 58 GAMX at 2 decimals", seniorMatches ? "✓" : "✗"));
+		
+		boolean seniorMinus1Lower = seniorMinus1Rounded < masters58Rounded;
+		assertTrue("SENIOR total minus 1kg should yield lower GAMX than MASTERS age 58", seniorMinus1Lower);
+		logger.info(String.format("%s SENIOR total minus 1kg yields lower GAMX than MASTERS age 58", seniorMinus1Lower ? "✓" : "✗"));
+
+		// Now test 25-year-old MASTERS athlete needing to match the 58-year-old's GAMX
+		double mastersAge25 = 25.0;
+		
+		// Find total needed for 25-year-old MASTERS to match 58-year-old's GAMX
+		int masters25Total = GAMX2.kgTarget(Gender.M, mastersAge25, masters58GAMX, bodyMass, GAMX2.Variant.MASTERS);
+
+		// Verify the 25-year-old MASTERS total produces equivalent GAMX
+		double masters25GAMX = GAMX2.computeGamx(Gender.M, mastersAge25, bodyMass, masters25Total, GAMX2.Variant.MASTERS);
+		double masters25Rounded = Math.round(masters25GAMX * 100.0) / 100.0;
+
+		logger.info(String.format("MASTERS athlete: age=%.0f, bodyMass=%.0fkg, total=%dkg → GAMX=%.4f",
+				mastersAge25, bodyMass, masters25Total, masters25GAMX));
+		logger.info(String.format("Difference: 25-year-old needs %d kg more than 58-year-old to match GAMX (%.4f vs %.4f)",
+				masters25Total - mastersTotal, masters25GAMX, masters58GAMX));
+
+		// Verify that subtracting 1kg from 25-year-old total yields lower GAMX than 58-year-old
+		double masters25Minus1GAMX = GAMX2.computeGamx(Gender.M, mastersAge25, bodyMass, masters25Total - 1, GAMX2.Variant.MASTERS);
+		double masters25Minus1Rounded = Math.round(masters25Minus1GAMX * 100.0) / 100.0;
+
+		logger.info(String.format("MASTERS age 25 with -1kg: total=%dkg → GAMX=%.4f (should be < %.4f)",
+				masters25Total - 1, masters25Minus1GAMX, masters58GAMX));
+
+		assertTrue("Failed to compute MASTERS age 25 target total", masters25Total > 0);
+		
+		// CRITICAL: 25-year-old (normalized to 30) is YOUNGER/STRONGER than 58-year-old
+		// Therefore they need MORE kg to achieve the same GAMX score
+		assertTrue("25-year-old MASTERS should need MORE kg than 58-year-old (younger = stronger = needs more weight)",
+				masters25Total > mastersTotal);
+		logger.info(String.format("%s 25-year-old needs more kg than 58-year-old (%d > %d)", 
+				masters25Total > mastersTotal ? "✓" : "✗", masters25Total, mastersTotal));
+		
+		boolean masters25Matches = masters25Rounded >= masters58Rounded;
+		assertTrue("25-year-old MASTERS should exceed 58-year-old GAMX at 2 decimal precision", masters25Matches);
+		logger.info(String.format("%s 25-year-old MASTERS total exceeds 58-year-old GAMX at 2 decimals", masters25Matches ? "✓" : "✗"));
+		
+		boolean masters25Minus1Lower = masters25Minus1Rounded < masters58Rounded;
+		assertTrue("25-year-old MASTERS minus 1kg should yield lower GAMX than 58-year-old", masters25Minus1Lower);
+		logger.info(String.format("%s 25-year-old MASTERS minus 1kg yields lower GAMX than 58-year-old", masters25Minus1Lower ? "✓" : "✗"));
 	}
 
 	/**
@@ -198,7 +327,7 @@ public class GAMX2ComparisonTest {
 			double targetGAMX = (Double) testCase[1];
 
 			// Compute required total using kgTarget
-			int computedTotal = GAMX2.kgTarget(Gender.M, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
+			int computedTotal = GAMX2.kgTarget(Gender.M, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
 
 			if (computedTotal == 0) {
 				failed++;
@@ -240,7 +369,7 @@ public class GAMX2ComparisonTest {
 			double targetGAMX = (Double) testCase[1];
 
 			// Compute required total using kgTarget
-			int computedTotal = GAMX2.kgTarget(Gender.F, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
+			int computedTotal = GAMX2.kgTarget(Gender.F, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
 
 			if (computedTotal == 0) {
 				failed++;
@@ -290,7 +419,7 @@ public class GAMX2ComparisonTest {
 			double bodyMass = (Double) point[1];
 			double targetGAMX = (Double) point[2];
 
-			int formulaResult = GAMX2.kgTarget(gender, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
+			int formulaResult = GAMX2.kgTarget(gender, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
 			int iterativeResult = GAMX2.kgTargetIterative(gender, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
 
 			if (formulaResult == iterativeResult) {
@@ -343,7 +472,7 @@ public class GAMX2ComparisonTest {
 			double opponentRounded = Math.round(opponentGAMX * 100.0) / 100.0;
 
 			// Find the total needed to beat opponent
-			int totalToBeat = GAMX2.kgTarget(gender, opponentGAMX, bodyMass, GAMX2.Variant.SENIOR);
+			int totalToBeat = GAMX2.kgTarget(gender, null, opponentGAMX, bodyMass, GAMX2.Variant.SENIOR);
 
 			// Compute our GAMX at that total
 			double ourGAMX = GAMX2.computeGamx(gender, bodyMass, totalToBeat, GAMX2.Variant.SENIOR);

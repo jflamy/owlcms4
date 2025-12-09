@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -56,18 +55,25 @@ public class GAMX2 {
 	 * A single row from the parameter CSV file
 	 */
 	private static class ParamRow {
+		final double age;        // normalized to 25.0 for SENIOR variant
 		final double bodyMass;
 		final double mu;
 		final double sigma;
 		final double nu;
 
-		ParamRow(double bodyMass, double mu, double sigma, double nu) {
+		ParamRow(double age, double bodyMass, double mu, double sigma, double nu) {
+			this.age = age;
 			this.bodyMass = bodyMass;
 			this.mu = mu;
 			this.sigma = sigma;
 			this.nu = nu;
 		}
 	}
+
+	/**
+	 * Normalized age for SENIOR variant (used for efficient binary search)
+	 */
+	private static final double SENIOR_AGE = 25.0;
 
 	/**
 	 * Result of parameter interpolation
@@ -93,8 +99,8 @@ public class GAMX2 {
 		}
 	}
 
-	// Cache: variant -> gender -> list of ParamRow
-	private static final Map<Variant, Map<Gender, List<ParamRow>>> parameterCache = new EnumMap<>(Variant.class);
+	// Cache: variant -> gender -> ArrayList of ParamRow (pre-allocated for performance)
+	private static final Map<Variant, Map<Gender, ArrayList<ParamRow>>> parameterCache = new EnumMap<>(Variant.class);
 
 	/**
 	 * Compute GAMX score for an athlete using the default SENIOR variant.
@@ -179,6 +185,20 @@ public class GAMX2 {
 	 * @return GAMX score, or 0.0 if inputs invalid
 	 */
 	public static double computeGamx(Gender gender, Double bodyMass, int total, Variant variant) {
+		return computeGamx(gender, null, bodyMass, total, variant);
+	}
+
+	/**
+	 * Compute GAMX score with age parameter.
+	 * 
+	 * @param gender   Gender.MALE or Gender.FEMALE
+	 * @param age      athlete's age (required for AGE_ADJUSTED, U17, MASTERS; ignored for SENIOR)
+	 * @param bodyMass body mass in kg
+	 * @param total    lifted total in kg
+	 * @param variant  which parameter set to use
+	 * @return GAMX score, or 0.0 if inputs invalid
+	 */
+	public static double computeGamx(Gender gender, Double age, Double bodyMass, int total, Variant variant) {
 		if (gender == null || bodyMass == null || bodyMass <= 0 || total <= 0) {
 			return 0.0;
 		}
@@ -186,21 +206,33 @@ public class GAMX2 {
 		// Ensure parameters are loaded
 		loadParameters(variant);
 
+		// Age handling: SENIOR always uses 25.0, other variants require actual age
+		double normalizedAge;
+		if (variant == Variant.SENIOR) {
+			normalizedAge = SENIOR_AGE; // Always 25.0 for SENIOR, regardless of age parameter
+		} else {
+			if (age == null || age <= 0) {
+				logger.warn("Age required for variant {} but not provided", variant);
+				return 0.0;
+			}
+			normalizedAge = age;
+		}
+
 		// Get parameter table for this gender
-		Map<Gender, List<ParamRow>> genderMap = parameterCache.get(variant);
+		Map<Gender, ArrayList<ParamRow>> genderMap = parameterCache.get(variant);
 		if (genderMap == null) {
 			logger.warn("No parameters loaded for variant {}", variant);
 			return 0.0;
 		}
 
-		List<ParamRow> params = genderMap.get(gender);
+		ArrayList<ParamRow> params = genderMap.get(gender);
 		if (params == null || params.isEmpty()) {
 			logger.warn("No parameters for gender {} variant {}", gender, variant);
 			return 0.0;
 		}
 
-		// Interpolate mu, sigma, nu from body mass
-		InterpolatedParams interp = interpolateParams(params, bodyMass);
+		// Interpolate mu, sigma, nu from age and body mass
+		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass);
 		if (!interp.success) {
 			return 0.0;
 		}
@@ -216,12 +248,13 @@ public class GAMX2 {
 	 * achieves GAMX score X, the other needs kgTarget(X) to guarantee a win (not just a tie).
 	 * 
 	 * @param gender      Gender.MALE or Gender.FEMALE
+	 * @param age         athlete's age (required for AGE_ADJUSTED, U17, MASTERS; ignored for SENIOR)
 	 * @param targetScore the target GAMX score (must strictly exceed this at 2 decimal precision)
 	 * @param bodyMass    body mass in kg
 	 * @param variant     which parameter set to use
 	 * @return minimum total in kg that strictly exceeds targetScore, or 0 if impossible
 	 */
-	public static int kgTarget(Gender gender, double targetScore, double bodyMass, Variant variant) {
+	public static int kgTarget(Gender gender, Double age, double targetScore, double bodyMass, Variant variant) {
 		if (gender == null || bodyMass <= 0) {
 			return 0;
 		}
@@ -229,18 +262,32 @@ public class GAMX2 {
 		// Ensure parameters are loaded
 		loadParameters(variant);
 
-		Map<Gender, List<ParamRow>> genderMap = parameterCache.get(variant);
+		Map<Gender, ArrayList<ParamRow>> genderMap = parameterCache.get(variant);
 		if (genderMap == null) {
 			return 0;
 		}
 
-		List<ParamRow> params = genderMap.get(gender);
+		ArrayList<ParamRow> params = genderMap.get(gender);
 		if (params == null || params.isEmpty()) {
 			return 0;
 		}
 
-		InterpolatedParams interp = interpolateParams(params, bodyMass);
+		// Age handling: SENIOR always uses 25.0, other variants require actual age
+		double normalizedAge;
+		if (variant == Variant.SENIOR) {
+			normalizedAge = SENIOR_AGE; // Always 25.0 for SENIOR, regardless of age parameter
+		} else {
+			if (age == null || age <= 0) {
+				logger.warn("Age required for variant {} but not provided", variant);
+				return 0;
+			}
+			normalizedAge = age;
+		}
+
+		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass);
 		if (!interp.success) {
+			logger.warn("kgTarget: interpolateParams failed for variant={}, gender={}, normalizedAge={}, bodyMass={}", 
+					variant, gender, normalizedAge, bodyMass);
 			return 0;
 		}
 
@@ -252,7 +299,12 @@ public class GAMX2 {
 		// Compute initial total using qBCCG (gives a hint for binary search)
 		double formulaResult = qBCCG(p, interp.mu, interp.sigma, interp.nu);
 
+		logger.debug("kgTarget: variant={}, gender={}, age={}, normalizedAge={}, bodyMass={}, targetScore={}, z={}, p={}, mu={}, sigma={}, nu={}, formulaResult={}",
+				variant, gender, age, normalizedAge, bodyMass, targetScore, z, p, interp.mu, interp.sigma, interp.nu, formulaResult);
+
 		if (Double.isNaN(formulaResult) || Double.isInfinite(formulaResult) || formulaResult <= 0) {
+			logger.warn("kgTarget: qBCCG returned invalid result: formulaResult={}, p={}, mu={}, sigma={}, nu={}, variant={}, gender={}, age={}, bodyMass={}",
+					formulaResult, p, interp.mu, interp.sigma, interp.nu, variant, gender, age, bodyMass);
 			return 0;
 		}
 
@@ -304,17 +356,20 @@ public class GAMX2 {
 		// Ensure parameters are loaded
 		loadParameters(variant);
 
-		Map<Gender, List<ParamRow>> genderMap = parameterCache.get(variant);
+		Map<Gender, ArrayList<ParamRow>> genderMap = parameterCache.get(variant);
 		if (genderMap == null) {
 			return 0;
 		}
 
-		List<ParamRow> params = genderMap.get(gender);
+		ArrayList<ParamRow> params = genderMap.get(gender);
 		if (params == null || params.isEmpty()) {
 			return 0;
 		}
 
-		InterpolatedParams interp = interpolateParams(params, bodyMass);
+		// Normalize age: use 25.0 for SENIOR variant
+		double normalizedAge = SENIOR_AGE;
+
+		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass);
 		if (!interp.success) {
 			return 0;
 		}
@@ -347,28 +402,28 @@ public class GAMX2 {
 	 * Find the total needed to achieve a target GAMX score using SENIOR variant.
 	 */
 	public static int kgTarget(Gender gender, double targetScore, double bodyMass) {
-		return kgTarget(gender, targetScore, bodyMass, Variant.SENIOR);
+		return kgTarget(gender, null, targetScore, bodyMass, Variant.SENIOR);
 	}
 
 	/**
-	 * Find the total needed to achieve a target GAMX-Y (U30) score.
+	 * Find the total needed to achieve a target GAMX-Y (AGE_ADJUSTED) score.
 	 */
 	public static int kgTargetY(Gender gender, double targetScore, double bodyMass) {
-		return kgTarget(gender, targetScore, bodyMass, Variant.AGE_ADJUSTED);
+		return kgTarget(gender, null, targetScore, bodyMass, Variant.AGE_ADJUSTED);
 	}
 
 	/**
 	 * Find the total needed to achieve a target GAMX-U (U17) score.
 	 */
 	public static int kgTargetU(Gender gender, double targetScore, double bodyMass) {
-		return kgTarget(gender, targetScore, bodyMass, Variant.U17);
+		return kgTarget(gender, null, targetScore, bodyMass, Variant.U17);
 	}
 
 	/**
 	 * Find the total needed to achieve a target GAMX-M (Masters) score.
 	 */
 	public static int kgTargetM(Gender gender, double targetScore, double bodyMass) {
-		return kgTarget(gender, targetScore, bodyMass, Variant.MASTERS);
+		return kgTarget(gender, null, targetScore, bodyMass, Variant.MASTERS);
 	}
 
 	/**
@@ -514,15 +569,104 @@ public class GAMX2 {
 	}
 
 	/**
-	 * Interpolate mu, sigma, nu from the parameter table based on body mass.
+	 * Binary search to find first row with matching age.
+	 * If age is below table minimum, returns index for minimum age (lower bound normalization).
+	 * If age is above table maximum, returns index for maximum age (upper bound normalization).
+	 * Returns -1 only if params is empty.
 	 */
-	private static InterpolatedParams interpolateParams(List<ParamRow> params, double bodyMass) {
+	private static int binarySearchAge(ArrayList<ParamRow> params, double targetAge) {
 		if (params.isEmpty()) {
+			return -1;
+		}
+
+		// Check if target age is below minimum - use lower bound
+		double minAge = params.get(0).age;
+		if (targetAge < minAge) {
+			logger.debug("Age {} below table minimum {}, normalizing to lower bound", targetAge, minAge);
+			return 0;
+		}
+
+		// Check if target age is above maximum - use upper bound
+		double maxAge = params.get(params.size() - 1).age;
+		// Find first row with max age (walk backwards to find first occurrence)
+		for (int i = params.size() - 1; i >= 0; i--) {
+			if (Math.abs(params.get(i).age - maxAge) < 0.01) {
+				if (i == 0 || Math.abs(params.get(i - 1).age - maxAge) >= 0.01) {
+					if (targetAge > maxAge) {
+						logger.debug("Age {} above table maximum {}, normalizing to upper bound", targetAge, maxAge);
+						return i;
+					}
+					break;
+				}
+			}
+		}
+
+		// Binary search for exact match
+		int left = 0;
+		int right = params.size() - 1;
+		int result = -1;
+
+		while (left <= right) {
+			int mid = left + (right - left) / 2;
+			double midAge = params.get(mid).age;
+
+			if (Math.abs(midAge - targetAge) < 0.01) {
+				// Found matching age, keep searching left for first occurrence
+				result = mid;
+				right = mid - 1;
+			} else if (midAge < targetAge) {
+				left = mid + 1;
+			} else {
+				right = mid - 1;
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Interpolate parameters at specific age and body mass using linear interpolation.
+	 * Uses binary search to efficiently find age range in large parameter arrays.
+	 * 
+	 * For age out-of-range:
+	 * - If age < min: normalizes to min age (lower bound)
+	 * - If age > max: normalizes to max age (upper bound)
+	 */
+	private static InterpolatedParams interpolateParams(ArrayList<ParamRow> params, double age, double bodyMass) {
+		if (params == null || params.isEmpty()) {
 			return new InterpolatedParams();
 		}
 
-		double minBm = params.get(0).bodyMass;
-		double maxBm = params.get(params.size() - 1).bodyMass;
+		// Normalize age to table bounds (e.g., age 25 → 30 for MASTERS which starts at 30)
+		double minAge = params.get(0).age;
+		double maxAge = params.get(params.size() - 1).age;
+		double normalizedAge = age;
+		if (age < minAge) {
+			logger.debug("Age {} below minimum {}, normalizing to lower bound", age, minAge);
+			normalizedAge = minAge;
+		} else if (age > maxAge) {
+			logger.debug("Age {} above maximum {}, normalizing to upper bound", age, maxAge);
+			normalizedAge = maxAge;
+		}
+
+		// Binary search to find first row with matching age
+		int firstAgeIdx = binarySearchAge(params, normalizedAge);
+		if (firstAgeIdx < 0) {
+			logger.warn("No parameters found for age={}", normalizedAge);
+			return new InterpolatedParams();
+		}
+
+		// Find last row with same age (walk forward) - use normalizedAge, not original age
+		int lastAgeIdx = firstAgeIdx;
+		while (lastAgeIdx + 1 < params.size() && Math.abs(params.get(lastAgeIdx + 1).age - normalizedAge) < 0.01) {
+			lastAgeIdx++;
+		}
+
+		// Extract age-specific rows for body mass interpolation
+		ArrayList<ParamRow> ageParams = new ArrayList<>(params.subList(firstAgeIdx, lastAgeIdx + 1));
+
+		double minBm = ageParams.get(0).bodyMass;
+		double maxBm = ageParams.get(ageParams.size() - 1).bodyMass;
 
 		// Clamp body mass to valid range
 		if (bodyMass < minBm) {
@@ -531,15 +675,15 @@ public class GAMX2 {
 			bodyMass = maxBm;
 		}
 
-		// Find bracketing indices
+		// Find bracketing indices within age-specific rows
 		int lowIdx = -1;
 		int highIdx = -1;
 
-		for (int i = 0; i < params.size(); i++) {
-			if (params.get(i).bodyMass <= bodyMass) {
+		for (int i = 0; i < ageParams.size(); i++) {
+			if (ageParams.get(i).bodyMass <= bodyMass) {
 				lowIdx = i;
 			}
-			if (params.get(i).bodyMass >= bodyMass && highIdx < 0) {
+			if (ageParams.get(i).bodyMass >= bodyMass && highIdx < 0) {
 				highIdx = i;
 			}
 		}
@@ -549,8 +693,8 @@ public class GAMX2 {
 			return new InterpolatedParams();
 		}
 
-		ParamRow low = params.get(lowIdx);
-		ParamRow high = params.get(highIdx);
+		ParamRow low = ageParams.get(lowIdx);
+		ParamRow high = ageParams.get(highIdx);
 
 		// Exact match or same row
 		if (lowIdx == highIdx || Math.abs(high.bodyMass - low.bodyMass) < 1e-10) {
@@ -580,10 +724,10 @@ public class GAMX2 {
 		String menFile = getResourcePath(variant, Gender.M);
 		String womenFile = getResourcePath(variant, Gender.F);
 
-		List<ParamRow> menParams = loadCsv(menFile);
-		List<ParamRow> womenParams = loadCsv(womenFile);
+		ArrayList<ParamRow> menParams = loadCsv(menFile);
+		ArrayList<ParamRow> womenParams = loadCsv(womenFile);
 
-		Map<Gender, List<ParamRow>> genderMap = new EnumMap<>(Gender.class);
+		Map<Gender, ArrayList<ParamRow>> genderMap = new EnumMap<>(Gender.class);
 		genderMap.put(Gender.M, menParams);
 		genderMap.put(Gender.F, womenParams);
 		parameterCache.put(variant, genderMap);
@@ -608,10 +752,16 @@ public class GAMX2 {
 
 	/**
 	 * Load a CSV parameter file.
-	 * Expected format: bodyMass,mu,sigma,nu (with header row)
+	 * Format: bodyMass,mu,sigma,nu (SENIOR) or age,bodyMass,mu,sigma,nu (age-dependent)
+	 * Pre-allocates ArrayList based on variant type for optimal performance.
 	 */
-	private static List<ParamRow> loadCsv(String resourcePath) {
-		List<ParamRow> rows = new ArrayList<>();
+	private static ArrayList<ParamRow> loadCsv(String resourcePath) {
+		// Estimate capacity based on file type to avoid reallocations
+		int estimatedCapacity = resourcePath.contains("params_sen") ? 1600 :
+		                       resourcePath.contains("params_iwf") ? 45000 :
+		                       resourcePath.contains("params_usa") ? 30000 :
+		                       resourcePath.contains("params_mas") ? 100000 : 10000;
+		ArrayList<ParamRow> rows = new ArrayList<>(estimatedCapacity);
 
 		try {
 			InputStream stream = ResourceWalker.getResourceAsStream(resourcePath);
@@ -625,11 +775,15 @@ public class GAMX2 {
 
 				String line;
 				boolean firstLine = true;
+				boolean hasAgeColumn = false;
 
 				while ((line = reader.readLine()) != null) {
-					// Skip header
+					// Check header to determine format
 					if (firstLine) {
 						firstLine = false;
+						// Check if header contains "age" column
+						String headerLower = line.toLowerCase();
+						hasAgeColumn = headerLower.contains("age") && headerLower.contains("bmass");
 						continue;
 					}
 
@@ -640,18 +794,30 @@ public class GAMX2 {
 					}
 
 					String[] parts = line.split(",");
-					if (parts.length < 4) {
-						logger.warn("Invalid CSV line in {}: {}", resourcePath, line);
+					int expectedCols = hasAgeColumn ? 5 : 4;
+					if (parts.length < expectedCols) {
+						logger.warn("Invalid CSV line in {}: expected {} columns, got {}", 
+						    resourcePath, expectedCols, parts.length);
 						continue;
 					}
 
 					try {
-						double bodyMass = Double.parseDouble(parts[0].trim());
-						double mu = Double.parseDouble(parts[1].trim());
-						double sigma = Double.parseDouble(parts[2].trim());
-						double nu = Double.parseDouble(parts[3].trim());
-
-						rows.add(new ParamRow(bodyMass, mu, sigma, nu));
+						if (hasAgeColumn) {
+							// Format: age, bodyMass, mu, sigma, nu
+							double age = Double.parseDouble(parts[0].trim());
+							double bodyMass = Double.parseDouble(parts[1].trim());
+							double mu = Double.parseDouble(parts[2].trim());
+							double sigma = Double.parseDouble(parts[3].trim());
+							double nu = Double.parseDouble(parts[4].trim());
+							rows.add(new ParamRow(age, bodyMass, mu, sigma, nu));
+						} else {
+							// Format: bodyMass, mu, sigma, nu (SENIOR - normalize to age 25.0)
+							double bodyMass = Double.parseDouble(parts[0].trim());
+							double mu = Double.parseDouble(parts[1].trim());
+							double sigma = Double.parseDouble(parts[2].trim());
+							double nu = Double.parseDouble(parts[3].trim());
+							rows.add(new ParamRow(SENIOR_AGE, bodyMass, mu, sigma, nu));
+						}
 					} catch (NumberFormatException e) {
 						logger.warn("Failed to parse CSV line in {}: {}", resourcePath, line);
 					}

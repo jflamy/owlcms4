@@ -1,0 +1,17 @@
+// SENIOR uses no age parameter
+double gamxSenior = GAMX2.computeGamx(Gender.M, null, 100.0, 200, GAMX2.Variant.SENIOR);
+
+// AGE_ADJUSTED uses age 20 (range 13-40)
+double gamxAgeAdjusted = GAMX2.computeGamx(Gender.M, 20.0, 100.0, 200, GAMX2.Variant.AGE_ADJUSTED);
+
+// U17 uses age 15 (youth)
+double gamxU17 = GAMX2.computeGamx(Gender.M, 15.0, 100.0, 200, GAMX2.Variant.U17);
+
+// MASTERS uses age 50 (masters athlete)
+double gamxMasters = GAMX2.computeGamx(Gender.M, 50.0, 100.0, 200, GAMX2.Variant.MASTERS);
+
+logger.info("Variant test results (M, 100kg bodyMass, 200kg total):");
+logger.info(String.format("  SENIOR:            %.4f (no age)", gamxSenior));
+logger.info(String.format("  AGE_ADJUSTED(20y): %.4f", gamxAgeAdjusted));
+logger.info(String.format("  U17(15y):          %.4f", gamxU17));
+logger.info(String.format("  MASTERS(50y):      %.4f", gamxMasters));
