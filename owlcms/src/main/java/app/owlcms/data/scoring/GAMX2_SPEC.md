@@ -123,7 +123,7 @@ while (lastAgeIdx + 1 < params.size() &&
 }
 ```
 
-**Why age clamping matters:** A 25-year-old competing in MASTERS should use age 30 parameters (the youngest in the table). Without clamping, the algorithm would fail to find matching rows and return incorrect results.
+**Why age clamping matters:** A 29-year-old allowed to compete as MASTERS should use age 30 parameters (the youngest in the table). Without clamping, the algorithm would fail to find matching rows and return incorrect results.
 
 ### 2. BCCG CDF (pBCCG)
 

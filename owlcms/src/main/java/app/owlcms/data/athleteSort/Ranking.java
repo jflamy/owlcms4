@@ -38,8 +38,12 @@ public enum Ranking {
 	SMM("Smm", true), // Legacy name, kept for import/export backward compatibility Sinclair Meltzer Huebner Faber
 	ROBI("Robi", true), // IWF ROBI
 	QPOINTS("QPoints", true), // Huebner QPoints.
-	GAMX("GAMX", true), // Global Adjusted Mixed (Huebner)
-	// legacy
+	GAMX("GAMX", true), // GAMX 2.0 scoring
+	GAMX_M("GAMX-M", true), // GAMX, age-adjusted for Masters
+	GAMX_U("GAMX-U", true), // GAMX, age-adjusted for 7-17 years old
+	GAMX_A("GAMX-A", true), // GAMX, age-adjusted for 13-40
+
+	// legacy (don't change due to translation strings)
 	AGEFACTORS("QYouth", true),
 	QAGE("QMasters", true), // QPoints * SMHF age factors
 	;
