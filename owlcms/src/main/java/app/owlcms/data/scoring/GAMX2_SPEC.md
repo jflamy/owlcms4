@@ -13,7 +13,7 @@ GAMX = qnorm(pBCCG(total, μ, σ, ν)) × 100 + 1000
 Where:
 - `total` = lifted weight in kg
 - `μ`, `σ`, `ν` = BCCG distribution parameters (interpolated from body mass)
-- `pBCCG()` = **truncated/normalized** cumulative distribution function of the BCCG distribution
+- `pBCCG()` = **truncated/normalized** CDF (cumulative distribution function) of the Box-Cox Cole and Green (BCCG) distribution
 - `qnorm()` = inverse of the standard normal CDF (probit function)
 
 ### pBCCG Detail (from R gamlss.dist)
@@ -46,6 +46,7 @@ Four sets of CSV parameter files are loaded from `owlcms/src/main/resources/gamx
 
 ### CSV Format
 
+**Body-mass-only variants (SENIOR, U17):**
 ```csv
 bodyMass,mu,sigma,nu
 40.0,123.45,0.085,4.2
@@ -53,19 +54,38 @@ bodyMass,mu,sigma,nu
 ...
 ```
 
-- `bodyMass`: Body mass in kg (sorted ascending)
+**Age-dependent variants (AGE_ADJUSTED, MASTERS):**
+```csv
+age,bodyMass,mu,sigma,nu
+30,40.0,115.17,0.0835,2.57
+30,40.1,115.48,0.0835,2.56
+...
+58,69.0,163.77,0.1055,0.53
+...
+95,190.0,54.42,0.2197,-2.88
+```
+
+**Column definitions:**
+- `age`: Age in years (only for age-dependent variants, sorted ascending)
+- `bodyMass`: Body mass in kg (sorted ascending within each age)
 - `mu`: Location parameter (μ) of BCCG distribution
 - `sigma`: Scale parameter (σ) of BCCG distribution  
 - `nu`: Skewness parameter (ν) of BCCG distribution
+
+**Age ranges by variant:**
+- MASTERS: ages 30-95
+- AGE_ADJUSTED: ages 13-40
 
 ## Algorithms
 
 ### 1. Parameter Interpolation
 
+#### Body-Mass-Only Variants (SENIOR, U17)
+
 Given `sex` ("M" or "W") and `bodyMass`:
 
 1. Select appropriate parameter table based on sex
-2. Validate body mass is within table range `[min_bm, max_bm]`
+2. **Clamp** body mass to table range `[min_bm, max_bm]`
 3. Find bracketing rows:
    - `low_idx` = largest index where `table.bodyMass <= bodyMass`
    - `high_idx` = smallest index where `table.bodyMass >= bodyMass`
@@ -81,6 +101,29 @@ double mu = (highRatio * lowMu + lowRatio * highMu) / denom;
 double sigma = (highRatio * lowSigma + lowRatio * highSigma) / denom;
 double nu = (highRatio * lowNu + lowRatio * highNu) / denom;
 ```
+
+#### Age-Dependent Variants (AGE_ADJUSTED, MASTERS)
+
+Given `sex`, `bodyMass`, and `age`:
+
+1. Select appropriate parameter table based on sex
+2. **Clamp age to table bounds** (critical for correct scoring):
+   - MASTERS: clamp to `[30, 95]` (e.g., age 25 → 30)
+   - AGE_ADJUSTED: clamp to `[13, 40]`
+3. **Binary search** to find first row matching `normalizedAge`
+4. **Expand** to find all rows with same age (using `normalizedAge`, not original `age`)
+5. Extract body-mass rows for that age, then interpolate by body mass as above
+
+```java
+// CRITICAL: Use normalizedAge (clamped) not original age when expanding rows
+int lastAgeIdx = firstAgeIdx;
+while (lastAgeIdx + 1 < params.size() && 
+       Math.abs(params.get(lastAgeIdx + 1).age - normalizedAge) < 0.01) {
+    lastAgeIdx++;
+}
+```
+
+**Why age clamping matters:** A 25-year-old competing in MASTERS should use age 30 parameters (the youngest in the table). Without clamping, the algorithm would fail to find matching rows and return incorrect results.
 
 ### 2. BCCG CDF (pBCCG)
 

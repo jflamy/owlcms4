@@ -30,7 +30,7 @@ import ch.qos.logback.classic.Logger;
  * 
  * This implementation supports four parameter variants:
  * - SENIOR: Senior parameters (uses params_sen CSV files) - standard GAMX
- * - U30: U30 parameters (uses params_iwf CSV files) - GAMX-Y
+ * - AGE_ADJUSTED: Age-adjusted parameters (uses params_iwf CSV files) - GAMX-A
  * - U17: U17 parameters (uses params_usa CSV files) - GAMX-U
  * - MASTERS: Masters athlete parameters (uses params_mas CSV files) - GAMX-M
  * 
@@ -114,11 +114,11 @@ public class GAMX2 {
 	}
 
 	/**
-	 * Compute GAMX-Y (U30) score for an athlete.
+	 * Compute GAMX-A (Age-Adjusted) score for an athlete.
 	 * 
 	 * @param a            the athlete
 	 * @param liftedWeight total lifted in kg
-	 * @return GAMX-Y score, or 0.0 if inputs invalid
+	 * @return GAMX-A score, or 0.0 if inputs invalid
 	 */
 	public static double getGamxY(Athlete a, Integer liftedWeight) {
 		return getGamx(a, liftedWeight, Variant.AGE_ADJUSTED);
@@ -406,7 +406,7 @@ public class GAMX2 {
 	}
 
 	/**
-	 * Find the total needed to achieve a target GAMX-Y (AGE_ADJUSTED) score.
+	 * Find the total needed to achieve a target GAMX-A (AGE_ADJUSTED) score.
 	 */
 	public static int kgTargetY(Gender gender, double targetScore, double bodyMass) {
 		return kgTarget(gender, null, targetScore, bodyMass, Variant.AGE_ADJUSTED);
