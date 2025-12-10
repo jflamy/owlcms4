@@ -160,7 +160,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Announcer") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("Announcer") + suffix;
 	}
 
 	@Override

@@ -120,7 +120,9 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Timekeeper") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("Timekeeper") + suffix;
 	}
 
 	@Override

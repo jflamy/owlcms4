@@ -37,7 +37,6 @@ import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.uievents.UIEvent;
@@ -111,7 +110,9 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 */
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Marshall") + OwlcmsSession.getFopNameIfMultiple();
+		FieldOfPlay fop = getFop();
+		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		return Translator.translate("Marshall") + suffix;
 	}
 
 	@Override
