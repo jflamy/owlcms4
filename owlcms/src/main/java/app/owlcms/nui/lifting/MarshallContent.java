@@ -110,8 +110,7 @@ public class MarshallContent extends AthleteGridContent implements HasDynamicTit
 	 */
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
 		return Translator.translate("Marshall") + suffix;
 	}
 

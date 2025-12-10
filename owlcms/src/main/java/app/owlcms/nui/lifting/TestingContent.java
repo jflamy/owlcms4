@@ -134,8 +134,7 @@ public class TestingContent extends AthleteGridContent implements HasDynamicTitl
 	 */
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
 		return Translator.translate("TestButtons.Title") + suffix;
 	}
 

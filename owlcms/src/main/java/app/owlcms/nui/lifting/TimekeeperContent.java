@@ -110,8 +110,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	@Override
 	public String getMenuTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
 		return Translator.translate("Timekeeper") + suffix;
 	}
 
@@ -120,8 +119,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	 */
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
 		return Translator.translate("Timekeeper") + suffix;
 	}
 

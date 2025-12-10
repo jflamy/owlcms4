@@ -17,9 +17,9 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.config.Config;
-import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.displays.attemptboard.AbstractAttemptBoard;
 import app.owlcms.displays.attemptboard.AttemptBoard;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
@@ -36,8 +36,7 @@ public class PublicFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
 		return Translator.translate("AttemptBoard") + suffix;
 	}
 

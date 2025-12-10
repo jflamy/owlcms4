@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -176,8 +177,7 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
 		return Translator.translate("Video.EventMonitoringButton") + suffix;
 	}
 

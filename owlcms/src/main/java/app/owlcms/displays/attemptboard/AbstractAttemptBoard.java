@@ -46,8 +46,8 @@ import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.team.Team;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
-import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
@@ -213,8 +213,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
 		return Translator.translate("Attempt") + suffix;
 	}
 

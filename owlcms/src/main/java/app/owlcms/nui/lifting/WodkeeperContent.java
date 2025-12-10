@@ -86,15 +86,13 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
 
     @Override
     public String getMenuTitle() {
-        FieldOfPlay fop = getFop();
-        String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+        String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
         return "WodKeeper" + suffix;
     }
 
     @Override
     public String getPageTitle() {
-        FieldOfPlay fop = getFop();
-        String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+        String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
         return "WodKeeper" + suffix;
     }
 

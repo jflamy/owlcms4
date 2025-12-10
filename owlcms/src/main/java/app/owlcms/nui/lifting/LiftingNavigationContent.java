@@ -65,8 +65,7 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
 		return Translator.translate("ShortTitle.Lifting") + suffix;
 	}
 

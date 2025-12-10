@@ -46,9 +46,8 @@ public class CurrentAthletePage extends AbstractResultsDisplayPage {
 
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
-		return Translator.translate("CurrentAthleteTitle") + suffix;
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
+		return Translator.translate("CurrentAthlete") + suffix;
 	}
 
 	@Override

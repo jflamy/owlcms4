@@ -47,9 +47,8 @@ public class JuryDecisionsPage extends AbstractResultsDisplayPage implements Bef
 
     @Override
     public String getPageTitle() {
-        FieldOfPlay fop = getFop();
-        String suffix = fop != null ? " (" + fop.getName() + ")" : "";
-        return Translator.translate("JuryDecisions.Title") + suffix;
+        String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
+        return Translator.translate("JuryDecisions") + suffix;
     }
 
     @Override

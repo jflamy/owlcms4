@@ -51,8 +51,7 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 
 	@Override
 	public String getPageTitle() {
-		FieldOfPlay fop = getFop();
-		String suffix = fop != null ? " (" + fop.getName() + ")" : "";
+		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
 		return Translator.translate("Scoreboard.RankingOrder") + suffix;
 	}
 

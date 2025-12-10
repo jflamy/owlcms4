@@ -142,6 +142,21 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
+	 * Returns FOP name suffix for display, null-safe.
+	 * If the FOP is null or there are multiple FOPs, returns empty string.
+	 * Otherwise returns " " + fopName (with leading space).
+	 *
+	 * @param fop the field of play (may be null)
+	 * @return suffix string: "" if null or multiple FOPs, " FopName" otherwise
+	 */
+	public static String getFopNameIfMultiple(FieldOfPlay fop) {
+		if (OwlcmsFactory.getFOPs().size() > 1 && fop != null) {
+			return " " + fop.getName();
+		}
+		return "";
+	}
+
+	/**
 	 * Instantiates a new field of play state. This constructor is only used for testing using mock timers.
 	 *
 	 * @param athletes the athletes

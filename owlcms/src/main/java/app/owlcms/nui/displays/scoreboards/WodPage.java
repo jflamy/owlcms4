@@ -21,9 +21,8 @@ public class WodPage extends WarmupScoreboardPage {
 
     @Override
     public String getPageTitle() {
-        FieldOfPlay fop = getFop();
-        String suffix = fop != null ? " (" + fop.getName() + ")" : "";
-        return Translator.translate("Scoreboard") + suffix;
+        String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
+        return Translator.translate("WOD") + suffix;
     }
 
     @Override
