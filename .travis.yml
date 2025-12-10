@@ -1,0 +1,16 @@
+language: java
+jdk:
+  - oraclejdk8
+env:
+  - REVISION=63.2.3 RELEASE_SUFFIX=
+script:
+  - mvn -B clean install -Pproduction -am -pl owlcms -Drevision=$REVISION -Dmaven.test.skip
+  - mvn -B clean install -Pproduction -am -pl publicresults -Drevision=$REVISION -Dmaven.test.skip
+  - mvn -B deploy -f owlcms-docker/pom.xml -Ddockerfile.skip=false -Drevision=$REVISION
+before_cache:
+  - rm -f  $HOME/.m2/repository/org/ow2/owlcms/owlcms-core/
+cache:
+  directories:
+    - $HOME/.m2/repository
+notifications:
+  email: false
