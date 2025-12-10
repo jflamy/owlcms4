@@ -145,14 +145,15 @@
 }
 
 .attemptBoard .flag {
-    display: grid;
-    grid-area: firstName-start/timer-start/teamName-end/timer-end;
-    place-items: center;
-    border: 1px solid white;
-    width: fit-content;
-    height: fit-content;
-    justify-self: center;
-    align-self: center;
+	display: grid;
+	grid-area: firstName-start/timer-start/teamName-end/timer-end;
+	place-items: center;
+	/* Do not show border when empty to avoid tiny white dot */
+	border: none;
+	width: fit-content;
+	height: fit-content;
+	justify-self: center;
+	align-self: center;
 }
 
 .attemptBoard .flag > img {
@@ -168,13 +169,27 @@
 	grid-area: teamName-start/barbell-start/barbell-start/barbell-end;
 	z-index: 0;
 	place-items: center;
-	border: 1px solid white;
+	/* Avoid showing an empty bordered box when no flag is present */
+	border: none;
 	width: fit-content;
 	height: fit-content;
 }
 .attemptBoard .flagWithPicture > img {
 	height: 18vh;
 	align-self: start;
+}
+
+/* Apply border only when the flag container actually has an image */
+.attemptBoard .flag:has(img),
+.attemptBoard .flagWithPicture:has(img) {
+	border: 1px solid white;
+}
+
+.attemptBoard .flag > img,
+.attemptBoard .flagWithPicture > img {
+	display: block;
+	max-width: 100%;
+	height: auto;
 }
 
 .attemptBoard .picture {
