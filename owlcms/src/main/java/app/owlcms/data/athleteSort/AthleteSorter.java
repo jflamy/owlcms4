@@ -29,6 +29,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Logger;
+import app.owlcms.data.athleteSort.RankingConfig;
 
 /**
  * The Class AthleteSorter.
@@ -125,6 +126,9 @@ public class AthleteSorter implements Serializable {
 	 * @param rankingType the ranking type
 	 */
 	public static void assignCategoryRanks(List<Athlete> sortedList, Ranking rankingType) {
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return;
+		}
 		AthleteSorter.resultsOrder(sortedList, rankingType, true);
 		AthleteSorter.assignEligibleCategoryRanks(sortedList, rankingType);
 		AthleteSorter.resultsOrder(sortedList, rankingType, false);
@@ -150,6 +154,9 @@ public class AthleteSorter implements Serializable {
 	 * @param rankingType the ranking type
 	 */
 	public static void assignOverallRanksAndPoints(List<Athlete> sortedList, Ranking rankingType) {
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return;
+		}
 		Gender prevGender = null;
 
 		OverallRankSetter rs = new OverallRankSetter();
@@ -559,6 +566,9 @@ public class AthleteSorter implements Serializable {
 	 * @param rankingType the ranking type
 	 */
 	static public void resultsOrder(List<Athlete> toBeSorted, Ranking rankingType, boolean absoluteOrder) {
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return;
+		}
 		Collections.sort(toBeSorted, new WinningOrderComparator(rankingType, absoluteOrder));
 	}
 
@@ -572,6 +582,9 @@ public class AthleteSorter implements Serializable {
 	 */
 	static public List<Athlete> resultsOrderCopy(List<? extends Athlete> athletes, Ranking rankingType) {
 		List<Athlete> sorted = new ArrayList<>(athletes);
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return sorted;
+		}
 		switch (rankingType) {
 			case BW_SINCLAIR:
 			case CAT_SINCLAIR:
@@ -608,6 +621,9 @@ public class AthleteSorter implements Serializable {
 	static public List<Athlete> resultsOrderCopy(List<? extends Athlete> toBeSorted, Ranking rankingType,
 	        boolean absoluteOrder) {
 		List<Athlete> sorted = new ArrayList<>(toBeSorted);
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return sorted;
+		}
 		switch (rankingType) {
 			case BW_SINCLAIR:
 			case CAT_SINCLAIR:
@@ -665,6 +681,9 @@ public class AthleteSorter implements Serializable {
 	 * @return
 	 */
 	public static void teamPointsOrder(List<Athlete> toBeSorted, Ranking rankingType) {
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return;
+		}
 		Collections.sort(toBeSorted, new TeamPointsComparator(rankingType));
 	}
 
@@ -677,6 +696,9 @@ public class AthleteSorter implements Serializable {
 	 */
 	public static List<Athlete> teamPointsOrderCopy(List<? extends Athlete> athletes, Ranking rankingType) {
 		List<Athlete> sorted = new ArrayList<>(athletes);
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return sorted;
+		}
 		teamPointsOrder(sorted, rankingType);
 		return sorted;
 	}
@@ -690,6 +712,9 @@ public class AthleteSorter implements Serializable {
 
 	public static TopScore topScore(List<Athlete> sortedAthletes, int nbAthletes) {
 		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		if (!RankingConfig.shouldCompute(scoringSystem)) {
+			return new TopScore(0.0D, List.of());
+		}
 		double topScore = 0.0D;
 		if (sortedAthletes != null && !sortedAthletes.isEmpty()) {
 			ListIterator<Athlete> iterAthletes = sortedAthletes.listIterator();

@@ -51,6 +51,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -560,19 +561,28 @@ public class Competition {
 
 		if (scoringSystemOnly) {
 			// long beforeReporting = System.currentTimeMillis();
-			doReporting(nodupAthletes, getScoringSystem(), true);
+			Ranking scoringSystem = getScoringSystem();
+			if (RankingConfig.shouldCompute(scoringSystem)) {
+				doReporting(nodupAthletes, scoringSystem, true);
+			}
 			// long afterReporting = System.currentTimeMillis();
 			// logger.trace("------------------------- scoringSystem reporting {}ms", afterReporting - beforeReporting);
 		} else {
 			// long beforeReporting = System.currentTimeMillis();
-			doReporting(nodupAthletes, Ranking.BW_SINCLAIR, true);
-			doReporting(nodupAthletes, Ranking.SMM, true);
-			doReporting(nodupAthletes, Ranking.QPOINTS, true);
-			doReporting(nodupAthletes, Ranking.QAGE, true); // Q-masters
-			doReporting(nodupAthletes, Ranking.CAT_SINCLAIR, true);
-			doReporting(nodupAthletes, Ranking.CAT_QPOINTS, true);
-			doReporting(nodupAthletes, Ranking.GAMX, true);
-			doReporting(nodupAthletes, Ranking.AGEFACTORS, true); // Q-youth
+			for (Ranking ranking : List.of(
+			        Ranking.BW_SINCLAIR,
+			        Ranking.SMM,
+			        Ranking.QPOINTS,
+			        Ranking.QAGE, // Q-masters
+			        Ranking.CAT_SINCLAIR,
+			        Ranking.CAT_QPOINTS,
+			        Ranking.GAMX,
+			        Ranking.AGEFACTORS // Q-youth
+			)) {
+				if (RankingConfig.shouldCompute(ranking)) {
+					doReporting(nodupAthletes, ranking, true);
+				}
+			}
 			// long afterReporting = System.currentTimeMillis();
 			// logger.trace("------------------------- full reporting {}ms", afterReporting - beforeReporting);
 		}
@@ -1735,6 +1745,9 @@ public class Competition {
 	}
 
 	private void doMixedReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
+		if (!RankingConfig.shouldCompute(ranking)) {
+			return;
+		}
 		List<Athlete> sortedAthletes;
 		List<Athlete> sortedMen;
 		List<Athlete> sortedWomen;
@@ -1760,6 +1773,9 @@ public class Competition {
 	}
 
 	private void doReporting(List<Athlete> athletes, Ranking ranking, boolean overall) {
+		if (!RankingConfig.shouldCompute(ranking)) {
+			return;
+		}
 		List<Athlete> sortedAthletes;
 		List<Athlete> sortedMen;
 		List<Athlete> sortedWomen;

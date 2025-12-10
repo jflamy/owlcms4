@@ -272,6 +272,7 @@ public enum Ranking {
 
 	public static List<Ranking> scoringSystems() {
 		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, CAT_QPOINTS, CAT_SINCLAIR));
+		systems.removeIf(ranking -> !RankingConfig.shouldCompute(ranking));
 		return systems;
 	}
 
