@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -1228,11 +1229,124 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		// best match is first
 		Double bw = bodyWeightField.getValue();
 		Double catW = cat != null ? cat.getMaximumWeight() : null;
+		
+		// Only expand eligibility when there's no actual body weight entered
+		// Once a body weight is entered, use standard eligibility based on actual weight
+		boolean hasActualBodyWeight = (bw != null);
+		
 		if (bw == null && catW != null) {
 			bw = adjustBW(catW, ageFromFields);
 		}
-		return CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(), genderField.getValue(),
+		List<Category> baseEligible = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(), genderField.getValue(),
 		        ageFromFields, bw, zeroIfNull(qualifyingTotalField2));
+		
+		// Expand eligibility based on registration category weight window ONLY when no actual body weight
+		if (hasActualBodyWeight) {
+			return baseEligible;
+		}
+		return expandEligibilityForWeightWindow(baseEligible, cat, genderField.getValue());
+	}
+
+	/**
+	 * Expand eligible categories based on the registration category's weight window.
+	 * 
+	 * For each eligibility age group (derived from athlete's stored participations),
+	 * include all categories whose weight bounds fall within the registration category's
+	 * possible weight range [registration_min_weight, registration_max_weight].
+	 * 
+	 * @param baseEligible the initial list of eligible categories
+	 * @param registrationCategory the athlete's registration category
+	 * @param gender the athlete's gender
+	 * @return expanded list of eligible categories
+	 */
+	private List<Category> expandEligibilityForWeightWindow(List<Category> baseEligible, 
+	        Category registrationCategory, Gender gender) {
+		if (registrationCategory == null || gender == null) {
+			return baseEligible;
+		}
+		
+		Athlete athlete = getEditedAthlete();
+		if (athlete == null) {
+			return baseEligible;
+		}
+		
+		// Compute weight window from registration category
+		// registration_min_weight = lower bound + 0.01
+		// registration_max_weight = upper bound (999 for superheavy)
+		double registrationMinWeight = registrationCategory.getMinimumWeight() + 0.01;
+		double registrationMaxWeight = registrationCategory.getMaximumWeight();
+		
+		// Get all eligibility age groups from athlete's stored participations
+		Set<AgeGroup> eligibilityAgeGroups = new LinkedHashSet<>();
+		
+		// Include registration category's age group
+		if (registrationCategory.getAgeGroup() != null) {
+			eligibilityAgeGroups.add(registrationCategory.getAgeGroup());
+		}
+		
+		// Include ALL age groups the athlete is eligible for based on age (not filtered by body weight)
+		// This ensures we show all potential weight classes across all eligible age groups
+		List<Category> allAgeEligible = CategoryRepository.findByGenderAgeBW(gender, 
+		        athlete.getAge(), null);
+		for (Category c : allAgeEligible) {
+			if (c.getAgeGroup() != null && c.getAgeGroup().isActive()) {
+				eligibilityAgeGroups.add(c.getAgeGroup());
+			}
+		}
+		
+		// Include age groups from base eligible categories (computed from age/gender/weight)
+		for (Category c : baseEligible) {
+			if (c.getAgeGroup() != null) {
+				eligibilityAgeGroups.add(c.getAgeGroup());
+			}
+		}
+		
+		// Include age groups from athlete's existing eligibility categories (stored in DB)
+		Set<Category> dbEligibles = athlete.getEligibleCategories();
+		if (dbEligibles != null) {
+			for (Category c : dbEligibles) {
+				if (c.getAgeGroup() != null) {
+					eligibilityAgeGroups.add(c.getAgeGroup());
+				}
+			}
+		}
+		
+		// Build expanded eligibility map, keyed by code to avoid duplicates
+		Map<String, Category> expandedEligibles = new LinkedHashMap<>();
+		for (Category c : baseEligible) {
+			expandedEligibles.put(c.getCode(), c);
+		}
+		
+		// For each eligibility age group, find all categories within the weight window
+		for (AgeGroup ageGroup : eligibilityAgeGroups) {
+			// Get all active categories for this age group and gender
+			List<Category> ageGroupCategories = CategoryRepository.findFiltered(
+			        null, gender, null, ageGroup, null, null, true, -1, -1);
+			
+			for (Category c : ageGroupCategories) {
+				if (c.getAgeGroup() == null || !c.getAgeGroup().isActive()) {
+					continue;
+				}
+				
+				// Use integer comparisons to avoid round-off errors per spec:
+				// floor(lower_bound) >= floor(registration_min_weight) && 
+				// round(upper_bound) <= round(registration_max_weight)
+				int catLowerBound = (int) Math.floor(c.getMinimumWeight());
+				int catUpperBound = (int) Math.round(c.getMaximumWeight());
+				int regMinWeight = (int) Math.floor(registrationMinWeight);
+				int regMaxWeight = (int) Math.round(registrationMaxWeight);
+				
+				if (catLowerBound >= regMinWeight && catUpperBound <= regMaxWeight) {
+					expandedEligibles.putIfAbsent(c.getCode(), c);
+				}
+			}
+		}
+		
+		// Sort by specificity (U15 before M/Open), then by weight within each age group
+		List<Category> result = new ArrayList<>(expandedEligibles.values());
+		result.sort(Category.specificityComparator.thenComparing(Category::getMinimumWeight));
+		
+		return result;
 	}
 
 	private Double adjustBW(Double catW, Integer ageFromFields) {
@@ -1366,23 +1480,22 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		} else {
 			// no body weight, but category available.
 			if (age != null && selectedCategory != null) {
-				Double bw = selectedCategory.getMaximumWeight();
-				bw = inferBW(bw);
-				Gender gender = selectedCategory.getGender();
-				int qualifyingTotal = qualifyingTotalField2.getValue();
 				Integer ageFromFields = getAgeFromFields();
-				logger.debug("no body weight, but category available:  ageFromFields={} bw={}", ageFromFields, bw);
+				logger.debug("no body weight, but category available:  ageFromFields={}", ageFromFields);
 				if (ageFromFields != null && ageFromFields > 5 && ageFromFields < 120) {
-					this.allEligible = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(), gender,
-					        ageFromFields, bw, qualifyingTotal);
+					// Use findEligibleCategories which will expand based on registration category weight window
+					this.allEligible = findEligibleCategories(genderField, ageFromFields, bodyWeightField,
+					        selectedCategory, qualifyingTotalField2);
 
 					List<Category> filteredEligibles = this.allEligible.stream()
 					        .filter(e -> previousAgeGroups.isEmpty() || previousAgeGroups.contains(e.getAgeGroupCode())).toList();
 
+					// Use false for recomputeEligibles to preserve current checkbox selections
+					// (from DB or user choices), while showing all expanded potential categories
 					updateCategoryFields(selectedCategory, selectedCategory, eligibleField, qualifyingTotalField2,
 					        filteredEligibles,
 					        this.allEligible,
-					        true);
+					        false);
 				}
 			} else if (genderField.getValue() != null && age != null) {
 				// use age, gender and qualifying total

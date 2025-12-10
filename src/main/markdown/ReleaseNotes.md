@@ -7,6 +7,10 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
+**New in Release 63.4**
+
+63.4.0: Fix: Registration editing page did not show did not show all the possible open categories for youth superheavy categories with lower bounds (e.g. U15 79+). The athlete can be 88 all the way to 110+.
+
 **New in Release 63.3**
 
 63.3.1: Fixes for random updates to timers on announcer/marshall/jury screens and other related anomalies.  Systematic change in the way sessions
