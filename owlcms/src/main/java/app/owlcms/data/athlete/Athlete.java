@@ -65,7 +65,7 @@ import app.owlcms.data.group.DisplayGroup;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.LocalDateAttributeConverter;
 import app.owlcms.data.scoring.AgeFactors;
-import app.owlcms.data.scoring.GAMX;
+import app.owlcms.data.scoring.GAMX2;
 import app.owlcms.data.scoring.QPoints;
 import app.owlcms.data.scoring.SinclairCoefficients;
 import app.owlcms.fieldofplay.FOPState;
@@ -246,6 +246,9 @@ public class Athlete {
 				dest.setCatSinclairRank(src.getCatSinclairRank());
 				dest.setCatQPointsRank(src.getCatQPointsRank());
 				dest.setGamxRank(src.getGamxRank());
+				dest.setGamxMRank(src.getGamxMRank());
+				dest.setGamxURank(src.getGamxURank());
+				dest.setGamxARank(src.getGamxARank());
 				dest.setRobiRank(src.getRobiRank());
 				dest.setAgeAdjustedTotalRank(src.getAgeAdjustedTotalRank());
 			}
@@ -404,6 +407,12 @@ public class Athlete {
 	private LocalDate fullBirthDate = null;
 	@Column(columnDefinition = "integer default 0", name = "gmaxRank")
 	private Integer gamxRank;
+	@Column(columnDefinition = "integer default 0", name = "gamxMRank")
+	private Integer gamxMRank;
+	@Column(columnDefinition = "integer default 0", name = "gamxURank")
+	private Integer gamxURank;
+	@Column(columnDefinition = "integer default 0", name = "gamxARank")
+	private Integer gamxARank;
 	private Gender gender = null; // $NON-NLS-1$
 	@ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE,
 	        CascadeType.REFRESH }, optional = true, fetch = FetchType.EAGER)
@@ -2066,7 +2075,7 @@ public class Athlete {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
 			if (total > 0) {
-				return (double) GAMX.getGamx(this, total);
+				return GAMX2.getGamx(this, total);
 			} else {
 				return 0.0D;
 			}
@@ -2079,6 +2088,129 @@ public class Athlete {
 	@JsonIgnore
 	public Integer getGamxRank() {
 		return this.gamxRank;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxM() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		try {
+			if (total > 0) {
+				return GAMX2.getGamxM(this, total);
+			} else {
+				return 0.0D;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return 0.0D;
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxMRank() {
+		return this.gamxMRank;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxU() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		try {
+			if (total > 0) {
+				return GAMX2.getGamxU(this, total);
+			} else {
+				return 0.0D;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return 0.0D;
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxURank() {
+		return this.gamxURank;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxA() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		try {
+			if (total > 0) {
+				return GAMX2.getGamxA(this, total);
+			} else {
+				return 0.0D;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return 0.0D;
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxARank() {
+		return this.gamxARank;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxForDelta() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		try {
+			if (total > 0) {
+				return GAMX2.getGamx(this, total);
+			} else {
+				return 0.0D;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return 0.0D;
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxMForDelta() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		try {
+			if (total > 0) {
+				return GAMX2.getGamxM(this, total);
+			} else {
+				return 0.0D;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return 0.0D;
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxUForDelta() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		try {
+			if (total > 0) {
+				return GAMX2.getGamxU(this, total);
+			} else {
+				return 0.0D;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return 0.0D;
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxAForDelta() {
+		Integer total = getBestCleanJerk() + getBestSnatch();
+		try {
+			if (total > 0) {
+				return GAMX2.getGamxA(this, total);
+			} else {
+				return 0.0D;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return 0.0D;
+		}
 	}
 
 	/**
@@ -4201,6 +4333,18 @@ public class Athlete {
 
 	public void setGamxRank(Integer rank) {
 		this.gamxRank = rank;
+	}
+
+	public void setGamxMRank(Integer rank) {
+		this.gamxMRank = rank;
+	}
+
+	public void setGamxURank(Integer rank) {
+		this.gamxURank = rank;
+	}
+
+	public void setGamxARank(Integer rank) {
+		this.gamxARank = rank;
 	}
 
 	/**

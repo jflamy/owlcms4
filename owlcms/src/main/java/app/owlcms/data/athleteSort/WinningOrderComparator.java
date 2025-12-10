@@ -67,13 +67,19 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 				return compareCatQPointsResultOrder(lifter1, lifter2);
 			case BW_SINCLAIR:
 				return compareSinclairResultOrder(lifter1, lifter2);
-			case SMM:
-				return compareSmhfResultOrder(lifter1, lifter2);
-			case QPOINTS:
-				return compareQPointsResultOrder(lifter1, lifter2);
-			case GAMX:
-				return compareGamxResultOrder(lifter1, lifter2);
-			case AGEFACTORS:
+		case SMM:
+			return compareSmhfResultOrder(lifter1, lifter2);
+		case QPOINTS:
+			return compareQPointsResultOrder(lifter1, lifter2);
+		case GAMX:
+			return compareGamxResultOrder(lifter1, lifter2);
+		case GAMX_M:
+			return compareGamxMResultOrder(lifter1, lifter2);
+		case GAMX_U:
+			return compareGamxUResultOrder(lifter1, lifter2);
+		case GAMX_A:
+			return compareGamxAResultOrder(lifter1, lifter2);
+		case AGEFACTORS:
 				return compareAgeAdjustedTotalOrder(lifter1, lifter2);
 			case QAGE:
 				return compareQAgeResultOrder(lifter1, lifter2);
@@ -242,31 +248,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 	}
 
 	/**
-	 * Determine who ranks first on GAMX points.
-	 *
-	 * @param lifter1 the lifter 1
-	 * @param lifter2 the lifter 2
-	 * @return the int
-	 */
-	public int compareGamxResultOrder(Athlete lifter1, Athlete lifter2) {
-		int compare = 0;
-		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
-		if (compare != 0) {
-			return compare;
-		}
-		compare = compareGamx(lifter1, lifter2);
-		traceComparison("gamx", lifter1, lifter2, compare);
-		if (compare != 0) {
-			return compare;
-		}
-
-		compare = compareBodyWeight(lifter1, lifter2);
-		traceComparison("gamx compareBodyWeight", lifter1, lifter2, compare);
-		return compare; // smaller Athlete wins
-	}
-
-	/**
-	 * Determine who ranks first on QPoints points.
+	 * Determine who ranks first on QAge (Q-Masters) points.
 	 *
 	 * @param lifter1 the lifter 1
 	 * @param lifter2 the lifter 2
@@ -283,7 +265,7 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		} else {
 			compare = compareQAgeForDelta(lifter1, lifter2);
 		}
-		traceComparison("qPoints", lifter1, lifter2, compare);
+		traceComparison("qAge", lifter1, lifter2, compare);
 		if (compare != 0) {
 			return compare;
 		}
@@ -417,6 +399,114 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		}
 		compare = compareBodyWeight(lifter1, lifter2);
 		traceComparison("smm compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
+	}
+
+	/**
+	 * Determine GAMX result order. If the GAMX scores are the same, the Athlete who reached total first is ranked first.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public int compareGamxResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+			compare = compareGamx(lifter1, lifter2);
+		} else {
+			compare = compareGamxForDelta(lifter1, lifter2);
+		}
+		traceComparison("gamx", lifter1, lifter2, compare);
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("gamx compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
+	}
+
+	/**
+	 * Determine GAMX Masters result order. If the GAMX Masters scores are the same, the Athlete who reached total first is ranked first.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public int compareGamxMResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+			compare = compareGamxM(lifter1, lifter2);
+		} else {
+			compare = compareGamxMForDelta(lifter1, lifter2);
+		}
+		traceComparison("gamx_m", lifter1, lifter2, compare);
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("gamx_m compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
+	}
+
+	/**
+	 * Determine GAMX Youth result order. If the GAMX Youth scores are the same, the Athlete who reached total first is ranked first.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public int compareGamxUResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+			compare = compareGamxU(lifter1, lifter2);
+		} else {
+			compare = compareGamxUForDelta(lifter1, lifter2);
+		}
+		traceComparison("gamx_u", lifter1, lifter2, compare);
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("gamx_u compareBodyWeight", lifter1, lifter2, compare);
+		return compare; // smaller Athlete wins
+	}
+
+	/**
+	 * Determine GAMX Adult result order. If the GAMX Adult scores are the same, the Athlete who reached total first is ranked first.
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	public int compareGamxAResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+		compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+			compare = compareGamxA(lifter1, lifter2);
+		} else {
+			compare = compareGamxAForDelta(lifter1, lifter2);
+		}
+		traceComparison("gamx_a", lifter1, lifter2, compare);
+		if (compare != 0) {
+			return compare;
+		}
+		compare = compareBodyWeight(lifter1, lifter2);
+		traceComparison("gamx_a compareBodyWeight", lifter1, lifter2, compare);
 		return compare; // smaller Athlete wins
 	}
 
@@ -563,6 +653,82 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		int compare;
 		compare = -lifter1Value.compareTo(lifter2Value);
 		// traceComparison("qpoints", lifter1, lifter2, compare);
+		return compare;
+	}
+
+	/**
+	 * Compare GAMX.
+	 */
+	int compareGamx(Athlete lifter1, Athlete lifter2) {
+		Double lifter1Value = lifter1.getGamx();
+		Double lifter2Value = lifter2.getGamx();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger GAMX comes first
+		int compare;
+		compare = -lifter1Value.compareTo(lifter2Value);
+		return compare;
+	}
+
+	/**
+	 * Compare GAMX_M.
+	 */
+	int compareGamxM(Athlete lifter1, Athlete lifter2) {
+		Double lifter1Value = lifter1.getGamxM();
+		Double lifter2Value = lifter2.getGamxM();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger GAMX_M comes first
+		int compare;
+		compare = -lifter1Value.compareTo(lifter2Value);
+		return compare;
+	}
+
+	/**
+	 * Compare GAMX_U.
+	 */
+	int compareGamxU(Athlete lifter1, Athlete lifter2) {
+		Double lifter1Value = lifter1.getGamxU();
+		Double lifter2Value = lifter2.getGamxU();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger GAMX_U comes first
+		int compare;
+		compare = -lifter1Value.compareTo(lifter2Value);
+		return compare;
+	}
+
+	/**
+	 * Compare GAMX_A.
+	 */
+	int compareGamxA(Athlete lifter1, Athlete lifter2) {
+		Double lifter1Value = lifter1.getGamxA();
+		Double lifter2Value = lifter2.getGamxA();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger GAMX_A comes first
+		int compare;
+		compare = -lifter1Value.compareTo(lifter2Value);
 		return compare;
 	}
 

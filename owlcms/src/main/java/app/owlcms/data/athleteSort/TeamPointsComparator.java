@@ -114,14 +114,35 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 				logger.trace(
 				        lifter1 + " " + robi1 + " [" + compareRobi + "]" + lifter2 + " " + robi2);
 				return compareRobi;
-			case GAMX:
-				final Double gamx1 = lifter1.getGamx();
-				final Double gamx2 = lifter2.getGamx();
-				final int compareGamx = gamx1.compareTo(gamx2);
-				logger.trace(
-				        lifter1 + " " + gamx1 + " [" + compareGamx + "]" + lifter2 + " " + gamx2);
-				return compareGamx;
-			default:
+		case GAMX:
+			final Double gamx1 = lifter1.getGamx();
+			final Double gamx2 = lifter2.getGamx();
+			final int compareGamx = gamx1.compareTo(gamx2);
+			logger.trace(
+			        lifter1 + " " + gamx1 + " [" + compareGamx + "]" + lifter2 + " " + gamx2);
+			return compareGamx;
+		case GAMX_M:
+			final Double gamxM1 = lifter1.getGamxM();
+			final Double gamxM2 = lifter2.getGamxM();
+			final int compareGamxM = gamxM1.compareTo(gamxM2);
+			logger.trace(
+			        lifter1 + " " + gamxM1 + " [" + compareGamxM + "]" + lifter2 + " " + gamxM2);
+			return compareGamxM;
+		case GAMX_U:
+			final Double gamxU1 = lifter1.getGamxU();
+			final Double gamxU2 = lifter2.getGamxU();
+			final int compareGamxU = gamxU1.compareTo(gamxU2);
+			logger.trace(
+			        lifter1 + " " + gamxU1 + " [" + compareGamxU + "]" + lifter2 + " " + gamxU2);
+			return compareGamxU;
+		case GAMX_A:
+			final Double gamxA1 = lifter1.getGamxA();
+			final Double gamxA2 = lifter2.getGamxA();
+			final int compareGamxA = gamxA1.compareTo(gamxA2);
+			logger.trace(
+			        lifter1 + " " + gamxA1 + " [" + compareGamxA + "]" + lifter2 + " " + gamxA2);
+			return compareGamxA;
+		default:
 				break;
 		}
 

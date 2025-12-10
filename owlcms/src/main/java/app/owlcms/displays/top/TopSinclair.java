@@ -33,7 +33,7 @@ import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.scoring.GAMX;
+import app.owlcms.data.scoring.GAMX2;
 import app.owlcms.data.scoring.QPoints;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -440,13 +440,13 @@ public class TopSinclair extends AbstractTop {
 				case GAMX:
 					if (curGender == Gender.F) {
 						int tot = a.getBestSnatch() + a.getBestCleanJerk();
-						needed = GAMX.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
+						needed = GAMX2.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
 						if (needed < 0) {
 							needed = 0;
 						}
 					} else {
 						int tot = a.getBestSnatch() + a.getBestCleanJerk();
-						needed = GAMX.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
+						needed = GAMX2.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
 						if (needed < 0) {
 							needed = 0;
 						}

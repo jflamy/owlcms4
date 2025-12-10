@@ -75,6 +75,9 @@ public enum Ranking {
 		if (rankingType == null) {
 			return 0;
 		}
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return 0;
+		}
 		switch (rankingType) {
 			case SNATCH:
 				value = curLifter.getSnatchRank();
@@ -109,6 +112,15 @@ public enum Ranking {
 			case GAMX:
 				value = curLifter.getGamxRank();
 				break;
+			case GAMX_M:
+				value = curLifter.getGamxMRank();
+				break;
+			case GAMX_U:
+				value = curLifter.getGamxURank();
+				break;
+			case GAMX_A:
+				value = curLifter.getGamxARank();
+				break;
 			case QPOINTS:
 				value = curLifter.getqPointsRank();
 				break;
@@ -132,6 +144,9 @@ public enum Ranking {
 	 */
 	public static double getRankingValue(Athlete curLifter, Ranking rankingType) {
 		if (rankingType == null) {
+			return 0D;
+		}
+		if (!RankingConfig.shouldCompute(rankingType)) {
 			return 0D;
 		}
 		Double d = 0D;
@@ -192,6 +207,15 @@ public enum Ranking {
 				break;
 			case GAMX:
 				d = curLifter.getGamx();
+				break;
+			case GAMX_M:
+				d = curLifter.getGamxM();
+				break;
+			case GAMX_U:
+				d = curLifter.getGamxU();
+				break;
+			case GAMX_A:
+				d = curLifter.getGamxA();
 				break;
 			case AGEFACTORS:
 				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
@@ -260,6 +284,9 @@ public enum Ranking {
 			case CAT_QPOINTS:
 			case SMM:
 			case GAMX:
+			case GAMX_M:
+			case GAMX_U:
+			case GAMX_A:
 			case QPOINTS:
 			case AGEFACTORS:
 			case QAGE:
@@ -271,7 +298,7 @@ public enum Ranking {
 	}
 
 	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, CAT_QPOINTS, CAT_SINCLAIR));
+		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, GAMX_M, GAMX_U, GAMX_A, CAT_QPOINTS, CAT_SINCLAIR));
 		systems.removeIf(ranking -> !RankingConfig.shouldCompute(ranking));
 		return systems;
 	}

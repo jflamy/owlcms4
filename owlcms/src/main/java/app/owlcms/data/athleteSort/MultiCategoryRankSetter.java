@@ -80,6 +80,15 @@ public class MultiCategoryRankSetter {
 			case GAMX:
 				a.setGamxRank(rank);
 				break;
+			case GAMX_M:
+				a.setGamxMRank(rank);
+				break;
+			case GAMX_U:
+				a.setGamxURank(rank);
+				break;
+			case GAMX_A:
+				a.setGamxARank(rank);
+				break;
 			case AGEFACTORS:
 				a.setQYouthRank(rank);
 				break;

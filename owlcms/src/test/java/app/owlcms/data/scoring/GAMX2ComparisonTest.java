@@ -145,7 +145,7 @@ public class GAMX2ComparisonTest {
 	}
 
 	@Test
-	public void testAllVariantsAccessible() {
+	public void testVariantsAccessible() {
 		logger.info("Testing all GAMX2 variant accessibility");
 
 		// SENIOR variant - age parameter ignored (always uses 25.0)

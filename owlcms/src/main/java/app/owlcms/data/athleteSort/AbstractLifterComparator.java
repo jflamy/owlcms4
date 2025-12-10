@@ -1001,6 +1001,126 @@ public class AbstractLifterComparator {
 	}
 
 	/**
+	 * Compare GAMX for delta (interim score).
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	int compareGamxForDelta(Athlete lifter1, Athlete lifter2) {
+		Gender gender = lifter1.getGender();
+		if (gender == null) {
+			return -1;
+		}
+		int compare = gender.compareTo(lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+
+		Double lifter1Value = lifter1.getGamxForDelta();
+		Double lifter2Value = lifter2.getGamxForDelta();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger GAMX comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
+
+	/**
+	 * Compare GAMX Masters for delta (interim score).
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	int compareGamxMForDelta(Athlete lifter1, Athlete lifter2) {
+		Gender gender = lifter1.getGender();
+		if (gender == null) {
+			return -1;
+		}
+		int compare = gender.compareTo(lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+
+		Double lifter1Value = lifter1.getGamxMForDelta();
+		Double lifter2Value = lifter2.getGamxMForDelta();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger GAMX Masters comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
+
+	/**
+	 * Compare GAMX Youth for delta (interim score).
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	int compareGamxUForDelta(Athlete lifter1, Athlete lifter2) {
+		Gender gender = lifter1.getGender();
+		if (gender == null) {
+			return -1;
+		}
+		int compare = gender.compareTo(lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+
+		Double lifter1Value = lifter1.getGamxUForDelta();
+		Double lifter2Value = lifter2.getGamxUForDelta();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger GAMX Youth comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
+
+	/**
+	 * Compare GAMX Adult for delta (interim score).
+	 *
+	 * @param lifter1 the lifter 1
+	 * @param lifter2 the lifter 2
+	 * @return the int
+	 */
+	int compareGamxAForDelta(Athlete lifter1, Athlete lifter2) {
+		Gender gender = lifter1.getGender();
+		if (gender == null) {
+			return -1;
+		}
+		int compare = gender.compareTo(lifter2.getGender());
+		if (compare != 0) {
+			return compare;
+		}
+
+		Double lifter1Value = lifter1.getGamxAForDelta();
+		Double lifter2Value = lifter2.getGamxAForDelta();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+		// bigger GAMX Adult comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
+
+	/**
 	 * Compare SM(H)F.
 	 *
 	 * @param lifter1 the lifter 1

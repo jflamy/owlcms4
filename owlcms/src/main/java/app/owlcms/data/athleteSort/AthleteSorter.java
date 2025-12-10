@@ -29,7 +29,6 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Logger;
-import app.owlcms.data.athleteSort.RankingConfig;
 
 /**
  * The Class AthleteSorter.
@@ -341,6 +340,12 @@ public class AthleteSorter implements Serializable {
 				return curLifter.getQYouthRank();
 			case GAMX:
 				return curLifter.getGamxRank();
+			case GAMX_M:
+				return curLifter.getGamxMRank();
+			case GAMX_U:
+				return curLifter.getGamxURank();
+			case GAMX_A:
+				return curLifter.getGamxARank();
 			case QAGE:
 				return curLifter.getQMastersRank();
 			case QPOINTS:
@@ -594,6 +599,9 @@ public class AthleteSorter implements Serializable {
 			case SMM:
 			case QPOINTS:
 			case GAMX:
+			case GAMX_M:
+			case GAMX_U:
+			case GAMX_A:
 			case AGEFACTORS:
 			case QAGE:
 				// logger.debug("ranking type {}",rankingType);
@@ -633,6 +641,9 @@ public class AthleteSorter implements Serializable {
 			case SMM:
 			case QPOINTS:
 			case GAMX:
+			case GAMX_M:
+			case GAMX_U:
+			case GAMX_A:
 			case AGEFACTORS:
 			case QAGE:
 				resultsOrder(sorted, rankingType, true);
