@@ -41,14 +41,12 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Dialog subclass that provides named areas for the download control and the
- * single processing/error paragraph so callers do not need to navigate the
- * component tree.
+ * Dialog subclass that provides named areas for the download control and the single processing/error paragraph so callers do not need to navigate the component
+ * tree.
  */
 public class DocumentDownloadDialog extends Dialog {
     private static final long serialVersionUID = 1L;
     private static final String DEFAULT_WIDTH = "50em";
-
     private Paragraph processingParagraph;
     private Div downloadDiv;
     private List<KitElement> kitElements;
@@ -71,7 +69,7 @@ public class DocumentDownloadDialog extends Dialog {
                 infoPara.getStyle().set("margin-bottom", "1em");
                 add(infoPara);
             }
-            
+
             int index = 0;
             for (KitElement ke : kitElements) {
                 try {
@@ -105,17 +103,15 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Construct a DocumentDownloadDialog with a kit and a factory that will produce
-     * the "do it" / download control. The factory is invoked with the dialog
-     * instance so callers can create controls that reference the dialog (for
-     * example to call dialog.showError/clearProcessing). The factory should NOT
-     * perform heavy preparation work at construction time; defer heavy work to
-     * the element supplier used by the control.
+     * Construct a DocumentDownloadDialog with a kit and a factory that will produce the "do it" / download control. The factory is invoked with the dialog
+     * instance so callers can create controls that reference the dialog (for example to call dialog.showError/clearProcessing). The factory should NOT perform
+     * heavy preparation work at construction time; defer heavy work to the element supplier used by the control.
      */
     public DocumentDownloadDialog(List<KitElement> kitElements,
-        Function<DocumentDownloadDialog, Component> doItFactory) {
+            Function<DocumentDownloadDialog, Component> doItFactory) {
         this(kitElements);
-        if (doItFactory == null) return;
+        if (doItFactory == null)
+            return;
         try {
             Component c = null;
             try {
@@ -123,21 +119,22 @@ public class DocumentDownloadDialog extends Dialog {
             } catch (Throwable t) {
                 LoggerUtils.logError(this.logger, t);
             }
-            if (c != null) addDoItButton(c);
+            if (c != null)
+                addDoItButton(c);
         } catch (Throwable ignore) {
             // best-effort
         }
     }
 
     /**
-     * Constructor accepting a factory that receives both the dialog and the kit
-     * list. This allows callers to build a do-it control that uses the precomputed
+     * Constructor accepting a factory that receives both the dialog and the kit list. This allows callers to build a do-it control that uses the precomputed
      * kit list without re-running preparation.
      */
     public DocumentDownloadDialog(List<KitElement> kitElements,
-        BiFunction<DocumentDownloadDialog, List<KitElement>, Component> doItFactory) {
+            BiFunction<DocumentDownloadDialog, List<KitElement>, Component> doItFactory) {
         this(kitElements);
-        if (doItFactory == null) return;
+        if (doItFactory == null)
+            return;
         try {
             Component c = null;
             try {
@@ -145,32 +142,35 @@ public class DocumentDownloadDialog extends Dialog {
             } catch (Throwable t) {
                 LoggerUtils.logError(this.logger, t);
             }
-            if (c != null) addDoItButton(c);
+            if (c != null)
+                addDoItButton(c);
         } catch (Throwable ignore) {
             // best-effort
         }
     }
 
     /**
-     * Constructor accepting kit elements, suppliers for groups and athletes, and a factory for the download control.
-     * This constructor runs prechecks automatically when the dialog is created.
+     * Constructor accepting kit elements, suppliers for groups and athletes, and a factory for the download control. This constructor runs prechecks
+     * automatically when the dialog is created.
      */
     public DocumentDownloadDialog(List<KitElement> kitElements,
-        Supplier<List<Group>> selectedSessionsSupplier,
-        Supplier<List<Athlete>> computeAthletesSupplier,
-        BiFunction<DocumentDownloadDialog, List<KitElement>, Component> doItFactory) {
+            Supplier<List<Group>> selectedSessionsSupplier,
+            Supplier<List<Athlete>> computeAthletesSupplier,
+            BiFunction<DocumentDownloadDialog, List<KitElement>, Component> doItFactory) {
         this(kitElements);
         this.selectedSessionsSupplier = selectedSessionsSupplier;
         this.computeAthletesSupplier = computeAthletesSupplier;
-        if (doItFactory == null) return;
+        if (doItFactory == null)
+            return;
         try {
             Component c = null;
             try {
-                c = doItFactory.apply(this, kitElements);
+                 c = doItFactory.apply(this, kitElements);
             } catch (Throwable t) {
                 LoggerUtils.logError(this.logger, t);
             }
-            if (c != null) addDoItButton(c);
+            if (c != null)
+                addDoItButton(c);
         } catch (Throwable ignore) {
             // best-effort
         }
@@ -183,14 +183,10 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Run all prechecks for the current dialog state and report any errors.
-     * This is the single entry point for precheck validation:
-     * 1. Template selection precheck (at least one template must be selected)
-     * 2. Scope precheck (session/athlete validation from kit element lambdas)
+     * Run all prechecks for the current dialog state and report any errors. This is the single entry point for precheck validation: 1. Template selection
+     * precheck (at least one template must be selected) 2. Scope precheck (session/athlete validation from kit element lambdas)
      * 
-     * Designed to be called:
-     * - When the dialog is initially constructed
-     * - When template selection changes
+     * Designed to be called: - When the dialog is initially constructed - When template selection changes
      */
     public void runPrechecks() {
         if (kitElements == null || kitElements.isEmpty()) {
@@ -223,12 +219,12 @@ public class DocumentDownloadDialog extends Dialog {
                         String selected = selectedTemplateSupplier.get();
                         hasTemplate = (selected != null && !selected.isBlank());
                     }
-                    
+
                     // Skip scope precheck if no template is selected for this element
                     if (!hasTemplate) {
                         continue;
                     }
-                    
+
                     Optional<Exception> scopeResult = ke.scopePrecheck().apply(athletes, g);
                     if (scopeResult != null && scopeResult.isPresent()) {
                         Exception e = scopeResult.get();
@@ -265,17 +261,13 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Report precheck errors to the dialog. This will show a single paragraph
-     * (id="documents-processing") with an appropriate translated message and
-     * disable the download button area. If errors is empty the paragraph is
-     * removed and the download area is enabled.
+     * Report precheck errors to the dialog. This will show a single paragraph (id="documents-processing") with an appropriate translated message and disable
+     * the download button area. If errors is empty the paragraph is removed and the download area is enabled.
      * 
-     * Always called on the UI thread (from dialog creation or template selection dropdown),
-     * so no UI.access() wrapper is needed.
+     * Always called on the UI thread (from dialog creation or template selection dropdown), so no UI.access() wrapper is needed.
      * 
-     * Error Handling:
-     * - DocumentPrecheckException: reported simply using getTranslationKey()
-     * - Other exceptions: logged with LoggerUtils.error and message displayed as-is
+     * Error Handling: - DocumentPrecheckException: reported simply using getTranslationKey() - Other exceptions: logged with LoggerUtils.error and message
+     * displayed as-is
      */
     public void reportPrecheckErrors(List<Exception> errors) {
         if (errors == null || errors.isEmpty()) {
@@ -287,7 +279,7 @@ public class DocumentDownloadDialog extends Dialog {
         String text = null;
         // pick the first meaningful error to display
         Exception e = errors.get(0);
-        
+
         // Document precheck exceptions provide their own translation keys
         if (e instanceof DocumentPrecheckException) {
             text = Translator.translate(((DocumentPrecheckException) e).getTranslationKey());
@@ -329,8 +321,7 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Show a processing or error message in the dialog (replaces any existing one)
-     * and disable the download control area.
+     * Show a processing or error message in the dialog (replaces any existing one) and disable the download control area.
      * 
      * Called on the UI thread from button click listeners.
      */
@@ -388,7 +379,10 @@ public class DocumentDownloadDialog extends Dialog {
         // pick first error message to display
         Exception e = errors.get(0);
         String text;
-        if (e.getMessage() != null) text = e.getMessage(); else text = Translator.translate("Download.failed");
+        if (e.getMessage() != null)
+            text = e.getMessage();
+        else
+            text = Translator.translate("Download.failed");
         showError(text);
     }
 
@@ -413,7 +407,8 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     private void setDownloadEnabled(boolean enabled) {
-        if (downloadDiv == null) return;
+        if (downloadDiv == null)
+            return;
         try {
             downloadDiv.getChildren().findFirst().ifPresent(c -> {
                 if (c instanceof Button) {
@@ -432,10 +427,8 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Create a dynamic download control (single-file or .zip) and add it to the
-     * dialog footer. The dialog will keep a reference to the control so it can
-     * enable/disable the inner button when reporting processing/errors.
-     * Returns the Div that contains the download control.
+     * Create a dynamic download control (single-file or .zip) and add it to the dialog footer. The dialog will keep a reference to the control so it can
+     * enable/disable the inner button when reporting processing/errors. Returns the Div that contains the download control.
      */
     public Div createDynamicDownloadArea(Supplier<String> baseFileNameSupplier, String label, InputStreamFactory streamSupplier,
             Supplier<String> extensionSupplier) {
@@ -462,10 +455,8 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Create and wire a do-it / download control from caller-supplied factories.
-     * This centralizes the wiring of LazyDownloadButton callbacks and initial
-     * precheck behaviour so callers only need to provide the InputStreamFactory
-     * and UI precheck supplier.
+     * Create and wire a do-it / download control from caller-supplied factories. This centralizes the wiring of LazyDownloadButton callbacks and initial
+     * precheck behaviour so callers only need to provide the InputStreamFactory and UI precheck supplier.
      *
      * @param baseFileNameSupplier base name for the generated file (or zip)
      * @param kit                  kit elements (used to determine multi/single)
@@ -476,11 +467,11 @@ public class DocumentDownloadDialog extends Dialog {
      * @return the Div containing the download control
      */
     public Component createDoItButtonForKits(Supplier<String> baseFileNameSupplier, java.util.List<KitElement> kit,
-        InputStreamFactory streamSupplier,
-        Supplier<Optional<Exception>> uiPreCheck,
-        Supplier<String> zipBaseFileNameSupplier,
-        Supplier<String> extensionSupplier,
-        Icon icon) {
+            InputStreamFactory streamSupplier,
+            Supplier<Optional<Exception>> uiPreCheck,
+            Supplier<String> zipBaseFileNameSupplier,
+            Supplier<String> extensionSupplier,
+            Icon icon) {
         if (kit == null || kit.isEmpty()) {
             Button b = new Button(Translator.translate("Download"), VaadinIcon.DOWNLOAD_ALT.create());
             b.setEnabled(false);
@@ -488,19 +479,19 @@ public class DocumentDownloadDialog extends Dialog {
         }
 
         // Check if we have multiple selected sessions
-        int selectedSessionCount = (selectedSessionsSupplier != null) ? 
-            (selectedSessionsSupplier.get() != null ? selectedSessionsSupplier.get().size() : 0) : 0;
+        int selectedSessionCount = (selectedSessionsSupplier != null) ? (selectedSessionsSupplier.get() != null ? selectedSessionsSupplier.get().size() : 0)
+                : 0;
 
-    final boolean multi = (kit.size() > 1) || (selectedSessionCount > 1);
+        final boolean multi = (kit.size() > 1) || (selectedSessionCount > 1);
         // Determine processing message: use LongProcessing for multi-file downloads, otherwise use the kit element's message
         final String processingKey = multi ? "LongProcessing" : (kit.isEmpty() ? "Processing" : kit.get(0).processingMessageSupplier().get());
         Div d;
-    if (multi) {
-        // zip download: prefer zipBaseFileNameSupplier when provided
-        String zipBase = (zipBaseFileNameSupplier == null) ? baseFileNameSupplier.get() : zipBaseFileNameSupplier.get();
-        d = DownloadButtonFactory.createDynamicZipDownloadButton(zipBase, Translator.translate("Download"), streamSupplier,
-            uiPreCheck, icon == null ? VaadinIcon.DOWNLOAD_ALT.create() : icon);
-    } else {
+        if (multi) {
+            // zip download: prefer zipBaseFileNameSupplier when provided
+            String zipBase = (zipBaseFileNameSupplier == null) ? baseFileNameSupplier.get() : zipBaseFileNameSupplier.get();
+            d = DownloadButtonFactory.createDynamicZipDownloadButton(zipBase, Translator.translate("Download"), streamSupplier,
+                    uiPreCheck, icon == null ? VaadinIcon.DOWNLOAD_ALT.create() : icon);
+        } else {
             // single-file download: use the provided extensionSupplier
             d = DownloadButtonFactory.createDynamicDownloadButton(baseFileNameSupplier, Translator.translate("Download"), streamSupplier,
                     extensionSupplier == null ? () -> ".xlsx" : extensionSupplier);
@@ -547,14 +538,14 @@ public class DocumentDownloadDialog extends Dialog {
         // will handle validation when called from the constructor. The uiPreCheck is
         // still attached to the button for click-time validation.
         // try {
-        //     if (uiPreCheck != null) {
-        //         Optional<Exception> pre = uiPreCheck.get();
-        //         if (pre != null && pre.isPresent()) {
-        //             java.util.List<Exception> errors = new java.util.ArrayList<>();
-        //             errors.add(pre.get());
-        //             this.reportPrecheckErrors(errors);
-        //         }
-        //     }
+        // if (uiPreCheck != null) {
+        // Optional<Exception> pre = uiPreCheck.get();
+        // if (pre != null && pre.isPresent()) {
+        // java.util.List<Exception> errors = new java.util.ArrayList<>();
+        // errors.add(pre.get());
+        // this.reportPrecheckErrors(errors);
+        // }
+        // }
         // } catch (Throwable ignore) {
         // }
 
@@ -562,11 +553,10 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Overload that accepts domain helper functions so callers can pass method
-     * references from DocumentsContent without recreating the wiring locally.
+     * Overload that accepts domain helper functions so callers can pass method references from DocumentsContent without recreating the wiring locally.
      */
     public Component createDoItButtonForKitsWithHelpers(
-        Supplier<String> baseFileNameSupplier,
+            Supplier<String> baseFileNameSupplier,
             java.util.List<KitElement> kit,
             Supplier<java.util.List<app.owlcms.data.group.Group>> selectedSessionsSupplier,
             Supplier<java.util.List<app.owlcms.data.athlete.Athlete>> computeAthletesSupplier,
@@ -584,11 +574,12 @@ public class DocumentDownloadDialog extends Dialog {
         }
 
         final int kitElementCount = kit.size();
-        // Check if we have multiple selected sessions  
-        final int selectedSessionCount = (selectedSessionsSupplier != null) ?
-            (selectedSessionsSupplier.get() != null ? selectedSessionsSupplier.get().size() : 0) : 0;
+        // Check if we have multiple selected sessions
+        final int selectedSessionCount = (selectedSessionsSupplier != null)
+                ? (selectedSessionsSupplier.get() != null ? selectedSessionsSupplier.get().size() : 0)
+                : 0;
         final boolean multi = (kitElementCount > 1) || (selectedSessionCount > 1);
-        
+
         InputStreamFactory streamFactory = () -> {
             java.util.List<app.owlcms.data.group.Group> selected = selectedSessionsSupplier == null ? null : selectedSessionsSupplier.get();
             app.owlcms.data.group.Group g = (selected != null && !selected.isEmpty()) ? selected.get(0) : null;
@@ -622,17 +613,17 @@ public class DocumentDownloadDialog extends Dialog {
         // Stream-time prechecks in streamFactory still run as defense-in-depth.
         Supplier<Optional<Exception>> uiPreCheck = () -> Optional.empty();
 
-    return createDoItButtonForKits(baseFileNameSupplier, kit, streamFactory, uiPreCheck, zipBaseFileNameSupplier, extSupplier, icon);
+        return createDoItButtonForKits(baseFileNameSupplier, kit, streamFactory, uiPreCheck, zipBaseFileNameSupplier, extSupplier, icon);
     }
 
     @FunctionalInterface
     public interface RunPrecheck {
-        java.util.List<KitElement> apply(java.util.List<KitElement> elements, app.owlcms.data.group.Group g, java.util.List<app.owlcms.data.athlete.Athlete> athletes, DocumentDownloadDialog dialog) throws Exception;
+        java.util.List<KitElement> apply(java.util.List<KitElement> elements, app.owlcms.data.group.Group g,
+                java.util.List<app.owlcms.data.athlete.Athlete> athletes, DocumentDownloadDialog dialog) throws Exception;
     }
 
     /**
-     * Add the do-it / download control to the dialog. The dialog decides where
-     * to place the component (usually in the footer) and manages sizing.
+     * Add the do-it / download control to the dialog. The dialog decides where to place the component (usually in the footer) and manages sizing.
      */
     public void addDoItButton(Component c) {
         try {
@@ -643,11 +634,11 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * When the template selection changes, re-run the UI precheck attached to the
-     * download control (if any) and update the dialog messaging accordingly.
+     * When the template selection changes, re-run the UI precheck attached to the download control (if any) and update the dialog messaging accordingly.
      */
     public void runDownloadControlUiPrecheck() {
-        if (downloadDiv == null) return;
+        if (downloadDiv == null)
+            return;
         try {
             // The download control may be nested inside wrapper components. Find the
             // LazyDownloadButton recursively so template selection will always be able
@@ -681,19 +672,22 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Recursively search the component tree rooted at {@code root} for the
-     * first LazyDownloadButton instance. Returns null when none found.
+     * Recursively search the component tree rooted at {@code root} for the first LazyDownloadButton instance. Returns null when none found.
      */
     private LazyDownloadButton findLazyDownloadButton(Component root) {
-        if (root == null) return null;
+        if (root == null)
+            return null;
         try {
-            if (root instanceof LazyDownloadButton) return (LazyDownloadButton) root;
+            if (root instanceof LazyDownloadButton)
+                return (LazyDownloadButton) root;
             java.util.Iterator<Component> it = root.getChildren().iterator();
             while (it.hasNext()) {
                 Component c = it.next();
-                if (c instanceof LazyDownloadButton) return (LazyDownloadButton) c;
+                if (c instanceof LazyDownloadButton)
+                    return (LazyDownloadButton) c;
                 LazyDownloadButton found = findLazyDownloadButton(c);
-                if (found != null) return found;
+                if (found != null)
+                    return found;
             }
         } catch (Throwable ignore) {
         }
@@ -742,9 +736,9 @@ public class DocumentDownloadDialog extends Dialog {
         ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 
         templateSelect.addValueChangeListener(e -> {
-                Resource value = e.getValue();
-                String newTemplateName = value != null ? value.getFileName() : null;
-                // logger removed
+            Resource value = e.getValue();
+            String newTemplateName = value != null ? value.getFileName() : null;
+            // logger removed
             try {
                 if (newTemplateName != null) {
                     Resource res = searchMatch(prioritizedList, newTemplateName);
@@ -771,40 +765,43 @@ public class DocumentDownloadDialog extends Dialog {
                     String newFullName = resourceFolder + newTemplateName;
                     for (int i = 0; i < kitElements.size(); i++) {
                         KitElement ke = kitElements.get(i);
-                        if (ke == null) continue;
+                        if (ke == null)
+                            continue;
                         String id = ke.id();
-                        if (id == null) continue;
+                        if (id == null)
+                            continue;
                         String normId = id.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
                         String normEnum = template.name().replaceAll("[^A-Za-z0-9]", "").toLowerCase();
                         if (normId.equals(normEnum)) {
+                            try {
+                                java.nio.file.Path ispPath = null;
+                                String ext = "";
                                 try {
-                                    java.nio.file.Path ispPath = null;
-                                    String ext = "";
-                                    try {
-                                        ispPath = ResourceWalker.getFileOrResourcePath(newFullName);
-                                        if (ispPath != null) {
-                                            ext = FilenameUtils.getExtension(ispPath.getFileName().toString());
-                                        }
-                                        // logger removed
-                                    } catch (java.io.FileNotFoundException fnf) {
-                                        // Template not found: report and mark problem
-                                        java.util.List<Exception> errors = new java.util.ArrayList<>();
-                                        errors.add(new NoTemplateException("NoTemplate", fnf));
-                                        reportPrecheckErrors(errors);
-                                        resourceProblem = true;
-                                        break;
+                                    ispPath = ResourceWalker.getFileOrResourcePath(newFullName);
+                                    if (ispPath != null) {
+                                        ext = FilenameUtils.getExtension(ispPath.getFileName().toString());
                                     }
-                                    Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(template.folder, (f) -> matchExtension(template, f));
-                                    Supplier<String> selectedTemplateSupplier = () -> template.templateFileNameSupplier.get();
-                                    // Update the existing KitElement in-place
-                                    ke.setName(newFullName);
-                                    ke.setExtension(ext);
-                                    ke.setIsp(ispPath);
-                                    ke.setAvailableTemplatesSupplier(availableTemplatesSupplier);
-                                    ke.setSelectedTemplateSupplier(selectedTemplateSupplier);
-                                } catch (Throwable ignore) {
-                                    LoggerUtils.logError(this.logger, ignore);
+                                    // logger removed
+                                } catch (java.io.FileNotFoundException fnf) {
+                                    // Template not found: report and mark problem
+                                    java.util.List<Exception> errors = new java.util.ArrayList<>();
+                                    errors.add(new NoTemplateException("NoTemplate", fnf));
+                                    reportPrecheckErrors(errors);
+                                    resourceProblem = true;
+                                    break;
                                 }
+                                Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(template.folder,
+                                        (f) -> matchExtension(template, f));
+                                Supplier<String> selectedTemplateSupplier = () -> template.templateFileNameSupplier.get();
+                                // Update the existing KitElement in-place
+                                ke.setName(newFullName);
+                                ke.setExtension(ext);
+                                ke.setIsp(ispPath);
+                                ke.setAvailableTemplatesSupplier(availableTemplatesSupplier);
+                                ke.setSelectedTemplateSupplier(selectedTemplateSupplier);
+                            } catch (Throwable ignore) {
+                                LoggerUtils.logError(this.logger, ignore);
+                            }
                         }
                     }
                 }
@@ -881,9 +878,8 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Public helper: create a FormLayout with a labeled template ComboBox.
-     * Returns the FormLayout so callers can add it to the dialog. The valueListener
-     * is invoked when selection changes.
+     * Public helper: create a FormLayout with a labeled template ComboBox. Returns the FormLayout so callers can add it to the dialog. The valueListener is
+     * invoked when selection changes.
      */
     public FormLayout createLabeledTemplateSelection(String labelKey, List<Resource> prioritizedList, String selectedFileName,
             java.util.function.Consumer<com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent<ComboBox<Resource>, Resource>> valueListener) {
@@ -922,8 +918,7 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     /**
-     * Create a horizontal layout containing a ComboBox for a given resource list.
-     * The returned layout can be added to the dialog by callers. When the user
+     * Create a horizontal layout containing a ComboBox for a given resource list. The returned layout can be added to the dialog by callers. When the user
      * changes the selected Resource the provided valueListener is invoked.
      */
     public com.vaadin.flow.component.orderedlayout.HorizontalLayout createTemplateSelectionArea(
