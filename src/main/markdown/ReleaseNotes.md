@@ -7,9 +7,13 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
+**Maintenance Log**
+
+64.0.0-beta01: Feature set deemed complete. Fixes/adjustments only expected.
+
 **New in Release 64**
 
-64.0.0: Support for GAMX 2.0 scores: GAMX + age-adjusted variants GAMX-M (Masters), GAMX-U (Kids+Youth), GAMX-A (13-40)
+64.0.0: Support for GAMX 2.0 scores: GAMX + age-adjusted variants GAMX-M (Masters), GAMX-U (Kids+Youth), GAMX-A (13-40).  Also added CAT_GAMX, GAMX computed at IWF JR/SR category weight.
 
 64.0.0: For performance, only the scoring systems required by the best athlete and medals are computed by default; additional ones can be selected if needed by local templates
 
