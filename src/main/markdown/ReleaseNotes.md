@@ -11,7 +11,7 @@
 
 64.0.0: Support for GAMX 2.0 scores: GAMX + age-adjusted variants GAMX-M (Masters), GAMX-U (Kids+Youth), GAMX-A (13-40)
 
-64.0.0: For performance, only the scoring systems required by the best athlete and medals are computed by default; additional ones can be selected
+64.0.0: For performance, only the scoring systems required by the best athlete and medals are computed by default; additional ones can be selected if needed by local templates
 
 64.0.0: Fix: Athletes not weighed-in are not propagated to the introduction sheet
 

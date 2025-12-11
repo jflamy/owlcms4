@@ -46,6 +46,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.ValidationException;
 
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.fields.GridField;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordConfig;
@@ -169,17 +170,24 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 	private FormLayout officialForm() {
 		Button clearNewRecords = new Button(Translator.translate("RecordConfig.ClearAllRecords"),
 		        buttonClickEvent -> {
-			        try {
-				        // Clear ALL records from the system
-				        JPAService.runInTransaction(em -> {
-					        int deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
-					        logger.info("deleted {} record entries", deletedCount);
-					        return null;
-				        });
-				        UI.getCurrent().getPage().reload();
-			        } catch (Exception e) {
-				        throw new RuntimeException(e);
-			        }
+			        ConfirmationDialog cd = new ConfirmationDialog(
+			                Translator.translate("RecordConfig.ClearAllRecords"),
+			                Translator.translate("RecordConfig.ClearAllRecordsWarning"),
+			                null,
+			                () -> {
+				                try {
+					                // Clear ALL records from the system
+					                JPAService.runInTransaction(em -> {
+						                int deletedCount = em.createQuery("DELETE FROM RecordEvent").executeUpdate();
+						                logger.info("deleted {} record entries", deletedCount);
+						                return null;
+					                });
+					                UI.getCurrent().getPage().reload();
+				                } catch (Exception e) {
+					                throw new RuntimeException(e);
+				                }
+			                });
+			        cd.open();
 		        });
 
 		Button uploadButton = new Button(Translator.translate("Records.UploadButton"));
