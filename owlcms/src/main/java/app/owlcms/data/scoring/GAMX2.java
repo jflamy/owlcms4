@@ -212,7 +212,7 @@ public class GAMX2 {
 			normalizedAge = SENIOR_AGE; // Always 25.0 for SENIOR, regardless of age parameter
 		} else {
 			if (age == null || age <= 0) {
-				logger.warn("Age required for variant {} but not provided", variant);
+				logger.error("Age required for variant {} but not provided", variant);
 				return 0.0;
 			}
 			normalizedAge = age;
@@ -221,13 +221,13 @@ public class GAMX2 {
 		// Get parameter table for this gender
 		Map<Gender, ArrayList<ParamRow>> genderMap = parameterCache.get(variant);
 		if (genderMap == null) {
-			logger.warn("No parameters loaded for variant {}", variant);
+			logger.error("No parameters loaded for variant {}", variant);
 			return 0.0;
 		}
 
 		ArrayList<ParamRow> params = genderMap.get(gender);
 		if (params == null || params.isEmpty()) {
-			logger.warn("No parameters for gender {} variant {}", gender, variant);
+			logger.error("No parameters for gender {} variant {}", gender, variant);
 			return 0.0;
 		}
 
@@ -278,7 +278,7 @@ public class GAMX2 {
 			normalizedAge = SENIOR_AGE; // Always 25.0 for SENIOR, regardless of age parameter
 		} else {
 			if (age == null || age <= 0) {
-				logger.warn("Age required for variant {} but not provided", variant);
+				logger.error("Age required for variant {} but not provided", variant);
 				return 0;
 			}
 			normalizedAge = age;
@@ -286,7 +286,7 @@ public class GAMX2 {
 
 		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass);
 		if (!interp.success) {
-			logger.warn("kgTarget: interpolateParams failed for variant={}, gender={}, normalizedAge={}, bodyMass={}", 
+			logger.error("kgTarget: interpolateParams failed for variant={}, gender={}, normalizedAge={}, bodyMass={}", 
 					variant, gender, normalizedAge, bodyMass);
 			return 0;
 		}
@@ -303,7 +303,7 @@ public class GAMX2 {
 				variant, gender, age, normalizedAge, bodyMass, targetScore, z, p, interp.mu, interp.sigma, interp.nu, formulaResult);
 
 		if (Double.isNaN(formulaResult) || Double.isInfinite(formulaResult) || formulaResult <= 0) {
-			logger.warn("kgTarget: qBCCG returned invalid result: formulaResult={}, p={}, mu={}, sigma={}, nu={}, variant={}, gender={}, age={}, bodyMass={}",
+			logger.error("kgTarget: qBCCG returned invalid result: formulaResult={}, p={}, mu={}, sigma={}, nu={}, variant={}, gender={}, age={}, bodyMass={}",
 					formulaResult, p, interp.mu, interp.sigma, interp.nu, variant, gender, age, bodyMass);
 			return 0;
 		}
@@ -460,7 +460,7 @@ public class GAMX2 {
 			return gamx;
 
 		} catch (Exception e) {
-			logger.warn("GAMX computation error: {}", e.getMessage());
+			logger.error("GAMX computation error: {}", e.getMessage());
 			return 0.0;
 		}
 	}
@@ -652,7 +652,7 @@ public class GAMX2 {
 		// Binary search to find first row with matching age
 		int firstAgeIdx = binarySearchAge(params, normalizedAge);
 		if (firstAgeIdx < 0) {
-			logger.warn("No parameters found for age={}", normalizedAge);
+			logger.error("No parameters found for age={}", normalizedAge);
 			return new InterpolatedParams();
 		}
 
@@ -689,7 +689,7 @@ public class GAMX2 {
 		}
 
 		if (lowIdx < 0 || highIdx < 0) {
-			logger.warn("Failed to find bracketing rows for bodyMass={}", bodyMass);
+			logger.error("Failed to find bracketing rows for bodyMass={}", bodyMass);
 			return new InterpolatedParams();
 		}
 
@@ -796,7 +796,7 @@ public class GAMX2 {
 					String[] parts = line.split(",");
 					int expectedCols = hasAgeColumn ? 5 : 4;
 					if (parts.length < expectedCols) {
-						logger.warn("Invalid CSV line in {}: expected {} columns, got {}", 
+						logger.error("Invalid CSV line in {}: expected {} columns, got {}", 
 						    resourcePath, expectedCols, parts.length);
 						continue;
 					}
@@ -819,7 +819,7 @@ public class GAMX2 {
 							rows.add(new ParamRow(SENIOR_AGE, bodyMass, mu, sigma, nu));
 						}
 					} catch (NumberFormatException e) {
-						logger.warn("Failed to parse CSV line in {}: {}", resourcePath, line);
+						logger.error("Failed to parse CSV line in {}: {}", resourcePath, line);
 					}
 				}
 			}
