@@ -27,6 +27,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -221,8 +222,8 @@ public class CompetitionDataV2 {
 				Translator.setForcedLocale(config.getDefaultLocale());
 
 				Competition competition = updated.getCompetition();
-				Competition.setCurrent(competition);
-
+				Competition.setCurrent(competition);			// Recompute mustCompute rankings based on imported Competition and age groups
+			RankingConfig.updateMustCompute();
 			for (AgeGroup ag : updated.getAgeGroups()) {
 				// Ensure category codes are computed (they're not serialized in JSON)
 				if (ag.getCategories() != null) {
@@ -333,6 +334,8 @@ public class CompetitionDataV2 {
 	public void setCompetition(Competition competition) {
 		this.competition = competition;
 		Competition.setCurrent(this.competition);
+		// Recompute mustCompute rankings based on imported Competition and age groups
+		RankingConfig.updateMustCompute();
 	}
 
 	public Config getConfig() {

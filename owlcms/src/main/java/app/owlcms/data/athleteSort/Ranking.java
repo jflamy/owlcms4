@@ -33,20 +33,21 @@ public enum Ranking {
 
     // global scoring systems
 	BW_SINCLAIR("Sinclair", true), // normal Sinclair
-	CAT_SINCLAIR("CatSinclair", true), // legacy Quebec federation, Sinclair computed at category boundary
-	CAT_QPOINTS("CatQPoints", true), // QPoints computed at category boundary
 	SMM("Smm", true), // Legacy name, kept for import/export backward compatibility Sinclair Meltzer Huebner Faber
-	ROBI("Robi", true), // IWF ROBI
+	CAT_SINCLAIR("CatSinclair", true), // legacy Quebec federation, Sinclair computed at category boundary
+
 	QPOINTS("QPoints", true), // Huebner QPoints.
+	QAGE("QMasters", true), // QPoints * SMHF age factors
+	AGEFACTORS("QYouth", true),
+	CAT_QPOINTS("CatQPoints", true), // QPoints computed at category boundary
+
 	GAMX("GAMX", true), // GAMX 2.0 scoring
 	GAMX_M("GAMX-M", true), // GAMX, age-adjusted for Masters
 	GAMX_U("GAMX-U", true), // GAMX, age-adjusted for 7-17 years old
-	GAMX_A("GAMX-A", true), // GAMX, age-adjusted for 13-40
-
-	// legacy (don't change due to translation strings)
-	AGEFACTORS("QYouth", true),
-	QAGE("QMasters", true), // QPoints * SMHF age factors
-	;
+	GAMX_A("GAMX-A", true),// GAMX, age-adjusted for 13-40
+	
+	ROBI("Robi", true), // IWF ROBI
+;
 
 	public static Map<String, Ranking> rankingByReportingName = new HashMap<>();
 	static {
@@ -262,6 +263,9 @@ public enum Ranking {
 			case CAT_QPOINTS:
 			case SMM:
 			case GAMX:
+			case GAMX_M:
+			case GAMX_U:
+			case GAMX_A:
 			case QPOINTS:
 			case AGEFACTORS:
 			case QAGE:

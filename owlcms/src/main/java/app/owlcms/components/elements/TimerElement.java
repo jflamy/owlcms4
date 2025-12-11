@@ -63,7 +63,7 @@ public abstract class TimerElement extends LitTemplate
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	protected UI ui;
 	{
-		this.logger.setLevel(Level.DEBUG);
+		this.logger.setLevel(Level.WARN);
 		this.uiEventLogger.setLevel(Level.WARN);
 	}
 

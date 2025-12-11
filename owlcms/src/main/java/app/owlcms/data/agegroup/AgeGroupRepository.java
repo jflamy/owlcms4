@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
@@ -414,6 +415,7 @@ public class AgeGroupRepository {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName("/agegroups/AgeGroups_2025-06.xlsx");
 			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(forcedInsertion, localizedName);
+			RankingConfig.updateMustCompute();
 		} catch (FileNotFoundException e1) {
 			// ignore
 		}
@@ -423,6 +425,7 @@ public class AgeGroupRepository {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName(resourceName);
 			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(forcedInsertion, localizedName);
+			RankingConfig.updateMustCompute();
 		} catch (FileNotFoundException e1) {
 			throw new RuntimeException(e1);
 		}
@@ -432,12 +435,14 @@ public class AgeGroupRepository {
 		cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(inputStream);
 		AthleteRepository.resetParticipations(false, true);
+		RankingConfig.updateMustCompute();
 	}
 
 	public static void reloadDefinitions(String localizedFileName) {
 		cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
 		AthleteRepository.resetParticipations(false, true);
+		RankingConfig.updateMustCompute();
 	}
 
 	/**

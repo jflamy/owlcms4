@@ -30,6 +30,7 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
@@ -322,6 +323,8 @@ public class CompetitionData {
 		Competition.setCurrent(this.competition);
 		logger.info("Applied imported Competition settings. useBirthYear={}",
 		        Competition.getCurrent().isUseBirthYear());
+		// Recompute mustCompute rankings based on imported Competition and age groups
+		RankingConfig.updateMustCompute();
 	}
 
 	/**

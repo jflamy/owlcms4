@@ -26,6 +26,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -110,12 +113,18 @@ public class Competition {
 	public static Competition getCurrent() {
 		if (competition == null) {
 			competition = CompetitionRepository.findAll().get(0);
+			// Initialize RankingConfig from persisted settings on first load
+			competition.initializeRankingConfig();
 		}
 		return competition;
 	}
 
 	public static void setCurrent(Competition c) {
 		competition = c;
+		if (c != null) {
+			// Initialize RankingConfig when competition is explicitly set
+			c.initializeRankingConfig();
+		}
 	}
 
 	public static void splitByGender(List<Athlete> athletes, List<Athlete> sortedMen, List<Athlete> sortedWomen) {
@@ -303,6 +312,12 @@ public class Competition {
 	@Column(columnDefinition = "boolean default true")
 	private boolean announcerControlledJuryDecision = true;
 	private String currentRecordsTemplateFileName;
+	/**
+	 * JSON array of Ranking enum names that are enabled (shouldCompute=true).
+	 * Exported/imported in both v1 and v2 formats.
+	 */
+	@Column(columnDefinition = "text")
+	private String enabledRankings;
 
 	public String getAthleteCredentialsTemplateFileName() {
 		return athleteCredentialsTemplateFileName;
@@ -823,6 +838,117 @@ public class Competition {
 
 	public String getCurrentRecordsTemplateFileName() {
 		return this.currentRecordsTemplateFileName;
+	}
+
+	@JsonIgnore
+	public String getEnabledRankingsInternal() {
+		return this.enabledRankings;
+	}
+
+	@JsonIgnore
+	public void setEnabledRankingsInternal(String enabledRankings) {
+		this.enabledRankings = enabledRankings;
+	}
+
+	/**
+	 * Get the enabled rankings as a list of Ranking enum names.
+	 * Returns null if no rankings have been persisted yet.
+	 * Exported as a JSON array in both v1 and v2 formats.
+	 *
+	 * @return list of enabled ranking names, or null if not set
+	 */
+	@JsonProperty("enabledRankings")
+	public List<String> getEnabledRankings() {
+		if (this.enabledRankings == null || this.enabledRankings.trim().isEmpty()) {
+			return null;
+		}
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.readValue(this.enabledRankings, new TypeReference<List<String>>() {});
+		} catch (IOException e) {
+			logger.warn("Failed to parse enabledRankings: {}", e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * Set the enabled rankings from a list of Ranking enum names.
+	 * Imported from a JSON array in both v1 and v2 formats.
+	 *
+	 * @param rankings list of enabled ranking names
+	 */
+	@JsonProperty("enabledRankings")
+	public void setEnabledRankings(List<String> rankings) {
+		if (rankings == null || rankings.isEmpty()) {
+			this.enabledRankings = null;
+			return;
+		}
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			this.enabledRankings = mapper.writeValueAsString(rankings);
+		} catch (IOException e) {
+			logger.warn("Failed to serialize enabledRankings: {}", e.getMessage());
+			this.enabledRankings = null;
+		}
+	}
+
+	/**
+	 * Initialize RankingConfig from the persisted enabledRankings field.
+	 * User preferences are loaded from the database.
+	 * MustCompute rankings are derived from age groups and global scoring system.
+	 * Feature switches (GAMX, usaw, fr-CA) force additional user preferences on.
+	 * Should be called when loading a competition.
+	 */
+	public void initializeRankingConfig() {
+		// Load user preferences from stored config
+		List<String> stored = getEnabledRankings();
+		if (stored != null) {
+			// Stored configuration exists - apply user preferences
+			for (Ranking r : RankingConfig.getAllScoringRankings()) {
+				RankingConfig.setUserEnabled(r, stored.contains(r.name()));
+			}
+		} else {
+			// No stored configuration - apply defaults
+			RankingConfig.resetUserDefaults();
+		}
+
+		// Feature switch overrides - force user preferences on
+		Locale defaultLocale = Config.getCurrent().getDefaultLocale();
+		if (defaultLocale != null && "fr".equals(defaultLocale.getLanguage()) 
+		        && "CA".equals(defaultLocale.getCountry())) {
+			RankingConfig.setUserEnabled(Ranking.CAT_SINCLAIR, true);
+		}
+
+		if (Config.getCurrent().featureSwitch("GAMX")) {
+			RankingConfig.setUserEnabled(Ranking.GAMX, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_M, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_U, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_A, true);
+		}
+
+		if (Config.getCurrent().featureSwitch("usaw")) {
+			RankingConfig.setUserEnabled(Ranking.QPOINTS, true);
+			RankingConfig.setUserEnabled(Ranking.QAGE, true);      // Q-masters
+			RankingConfig.setUserEnabled(Ranking.AGEFACTORS, true); // Q-youth
+		}
+
+		// Update mustCompute from age groups and global scoring system
+		RankingConfig.updateMustCompute();
+	}
+
+	/**
+	 * Save the current RankingConfig user preferences to the enabledRankings field.
+	 * Only user preferences are saved (not mustCompute, which is derived).
+	 * Should be called before persisting the competition.
+	 */
+	public void saveRankingConfig() {
+		List<String> enabled = new ArrayList<>();
+		for (Ranking r : RankingConfig.getAllScoringRankings()) {
+			if (RankingConfig.isUserEnabled(r)) {
+				enabled.add(r.name());
+			}
+		}
+		setEnabledRankings(enabled);
 	}
 
 	public boolean getDisplayByAgeGroup() {

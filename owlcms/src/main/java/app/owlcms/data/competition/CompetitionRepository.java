@@ -13,6 +13,7 @@ import javax.persistence.Query;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.jpa.JPAService;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -111,6 +112,8 @@ public class CompetitionRepository {
 		});
 
 		Competition current = Competition.getCurrent();
+		// Recompute mustCompute rankings based on updated Competition and age groups
+		RankingConfig.updateMustCompute();
 		return current;
 	}
 

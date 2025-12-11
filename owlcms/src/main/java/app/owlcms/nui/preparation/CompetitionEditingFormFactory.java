@@ -45,6 +45,7 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import app.owlcms.components.fields.LocalizedIntegerField;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
@@ -62,6 +63,12 @@ public class CompetitionEditingFormFactory
 	private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionEditingFormFactory.class);
 	@SuppressWarnings("unused")
 	private CompetitionContent origin;
+	
+	// Map of ranking checkboxes to update when mustCompute changes
+	private java.util.Map<Ranking, Checkbox> rankingCheckboxes = new java.util.HashMap<>();
+	
+	// Reference to sinclairYear radio buttons for enabling/disabling
+	private RadioButtonGroup<Integer> sinclairYear;
 
 	CompetitionEditingFormFactory(Class<Competition> domainType, CompetitionContent origin) {
 		super(domainType);
@@ -70,6 +77,8 @@ public class CompetitionEditingFormFactory
 
 	@Override
 	public Competition add(Competition c) {
+		// Save current RankingConfig state to competition before persisting
+		c.saveRankingConfig();
 		CompetitionRepository.save(c);
 		return c;
 	}
@@ -120,6 +129,9 @@ public class CompetitionEditingFormFactory
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
 		setBinder(buildBinder(operation, comp));
+
+		// Initialize RankingConfig from persisted competition settings
+		comp.initializeRankingConfig();
 
 		FormLayout competitionLayout = competitionForm();
 		FormLayout federationLayout = federationForm();
@@ -193,6 +205,8 @@ public class CompetitionEditingFormFactory
 
 	@Override
 	public Competition update(Competition competition) {
+		// Save current RankingConfig state to competition before persisting
+		competition.saveRankingConfig();
 		Competition saved = CompetitionRepository.save(competition);
 		return saved;
 	}
@@ -364,17 +378,81 @@ public class CompetitionEditingFormFactory
 
 	private FormLayout pointScoresForm() {
 		FormLayout layout = createLayout();
-		Component title = createTitle("Competition.pointScoresTitle");
-		layout.add(title);
-		layout.setColspan(title, 2);
+		// (Moved) main point-scores header will be displayed above the global scoring selection
+
+		// Main point-scores header (moved here so it labels the global scoring section)
+		Component mainScoresTitle = createTitle("Competition.pointScoresTitle");
+		layout.add(mainScoresTitle);
+		layout.setColspan(mainScoresTitle, 2);
 
 		ComboBox<Ranking> scoringCombo = new ComboBox<>();
-		scoringCombo.setItems(Ranking.scoringSystems());
+		// Use unfiltered list - this dropdown SELECTS what to compute, not filtered by what's computed
+		scoringCombo.setItems(RankingConfig.getAllScoringRankings());
 		scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringExplanation(r));
 		scoringCombo.setWidth("50ch");
 		scoringCombo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "50ch");
 		layout.addFormItem(scoringCombo, Translator.translate("Competition.scoringSystemTitle"));
 		this.binder.forField(scoringCombo).bind(Competition::getScoringSystem, Competition::setScoringSystem);
+		
+		// When global scoring system changes, update mustCompute and refresh checkboxes
+		scoringCombo.addValueChangeListener(e -> {
+			RankingConfig.updateMustCompute(e.getValue());
+			refreshRankingCheckboxes();
+		});
+
+		// Visual separator before ranking selection
+		Hr hrSeparator = separator();
+		layout.add(hrSeparator);
+		layout.setColspan(hrSeparator, 2);
+
+		// Scoring systems section
+		Component scoringTitle = createTitle("ScoringSystems");
+		layout.add(scoringTitle);
+		layout.setColspan(scoringTitle, 2);
+
+		Paragraph scoringExplain = new Paragraph(Translator.translate("ScoringSystems.Explanation"));
+		scoringExplain.getStyle().set("margin-top", "2ex");
+		scoringExplain.getStyle().set("margin-bottom", "2ex");
+		layout.add(scoringExplain);
+		layout.setColspan(scoringExplain, 2);
+
+		// Ranking system selection rows: one horizontal row of checkboxes per ranking family
+		// Sinclair-based rankings
+		HorizontalLayout sinclairRow = new HorizontalLayout();
+		for (Ranking r : RankingConfig.getSinclairRankings()) {
+			Checkbox cb = createRankingCheckbox(r);
+			sinclairRow.add(cb);
+		}
+		layout.add(sinclairRow);
+		layout.setColspan(sinclairRow, 2);
+
+		// QPoints-based rankings
+		HorizontalLayout qpointsRow = new HorizontalLayout();
+		for (Ranking r : RankingConfig.getQPointsRankings()) {
+			Checkbox cb = createRankingCheckbox(r);
+			qpointsRow.add(cb);
+		}
+		layout.add(qpointsRow);
+		layout.setColspan(qpointsRow, 2);
+
+		// GAMX-based rankings
+		HorizontalLayout gamxRow = new HorizontalLayout();
+		for (Ranking r : RankingConfig.getGamxRankings()) {
+			Checkbox cb = createRankingCheckbox(r);
+			gamxRow.add(cb);
+		}
+		layout.add(gamxRow);
+		layout.setColspan(gamxRow, 2);
+
+		// Other global scoring systems (SMM, ROBI, etc.)
+		HorizontalLayout otherRow = new HorizontalLayout();
+		for (Ranking r : RankingConfig.getRobiRankings()) {
+			Checkbox cb = createRankingCheckbox(r);
+			otherRow.add(cb);
+		}
+		otherRow.getStyle().set("margin-bottom", "2ex");
+		layout.add(otherRow);
+		layout.setColspan(otherRow, 2);
 
 		// Checkbox showScoressOnScoreboard = new Checkbox();
 		// layout.addFormItem(showScoressOnScoreboard, Translator.translate("Competition.showScoresOnScoreboard"));
@@ -386,11 +464,27 @@ public class CompetitionEditingFormFactory
 		// this.binder.forField(showScoreRanksOnScoreboard)
 		// .bind(Competition::isDisplayScoreRanks, Competition::setDisplayScoreRanks);
 
-		RadioButtonGroup<Integer> sinclairYear = new RadioButtonGroup<>();
-		layout.addFormItem(sinclairYear, Translator.translate("sinclair"));
-		sinclairYear.setItems(2020, 2024);
-		this.binder.forField(sinclairYear)
+		RadioButtonGroup<Integer> sinclairYearLocal = new RadioButtonGroup<>();
+		layout.addFormItem(sinclairYearLocal, Translator.translate("sinclair"));
+		sinclairYearLocal.setItems(2020, 2024);
+		this.binder.forField(sinclairYearLocal)
 		        .bind(Competition::getSinclairYear, Competition::setSinclairYear);
+
+		// Store reference for later access when checkboxes change
+		this.sinclairYear = sinclairYearLocal;
+		
+		// Disable sinclairYear if neither Sinclair nor Category Sinclair is computed
+		updateSinclairYearEnabled();
+		
+		// Add listeners to Sinclair checkboxes to update radio button state
+		Checkbox sinclairCb = rankingCheckboxes.get(Ranking.BW_SINCLAIR);
+		Checkbox catSinclairCb = rankingCheckboxes.get(Ranking.CAT_SINCLAIR);
+		if (sinclairCb != null) {
+			sinclairCb.addValueChangeListener(e -> updateSinclairYearEnabled());
+		}
+		if (catSinclairCb != null) {
+			catSinclairCb.addValueChangeListener(e -> updateSinclairYearEnabled());
+		}
 
 		// Checkbox sinclairMeetField = new Checkbox();
 		// layout.addFormItem(sinclairMeetField,
@@ -398,13 +492,60 @@ public class CompetitionEditingFormFactory
 		// this.binder.forField(sinclairMeetField)
 		// .bind(Competition::isSinclair, Competition::setSinclair);
 
-		Checkbox customScoreField = new Checkbox();
-		layout.addFormItem(customScoreField,
-		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
-		this.binder.forField(customScoreField)
-		        .bind(Competition::isCustomScore, Competition::setCustomScore);
-
 		return layout;
+	}
+
+	/**
+	 * Create a checkbox for a ranking system.
+	 * Stores reference in rankingCheckboxes map for later refresh.
+	 */
+	private Checkbox createRankingCheckbox(Ranking r) {
+		Checkbox cb = new Checkbox(Ranking.getScoringTitle(r));
+		cb.setValue(RankingConfig.shouldCompute(r));
+		// Read-only if mustCompute (required by age group or global scoring)
+		if (RankingConfig.isMustCompute(r)) {
+			cb.setReadOnly(true);
+			cb.getStyle().set("font-weight", "bold");
+		}
+		cb.addValueChangeListener(e -> {
+			if (!cb.isReadOnly()) {
+				RankingConfig.setUserEnabled(r, e.getValue());
+			}
+		});
+		rankingCheckboxes.put(r, cb);
+		return cb;
+	}
+
+	/**
+	 * Refresh all ranking checkboxes to reflect current mustCompute state.
+	 * Called when global scoring system changes.
+	 */
+	private void refreshRankingCheckboxes() {
+		for (java.util.Map.Entry<Ranking, Checkbox> entry : rankingCheckboxes.entrySet()) {
+			Ranking r = entry.getKey();
+			Checkbox cb = entry.getValue();
+			boolean mustCompute = RankingConfig.isMustCompute(r);
+			cb.setReadOnly(mustCompute);
+			if (mustCompute) {
+				cb.getStyle().set("font-weight", "bold");
+			} else {
+				cb.getStyle().remove("font-weight");
+			}
+			cb.setValue(RankingConfig.shouldCompute(r));
+		}
+	}
+
+	/**
+	 * Update Sinclair year radio buttons enabled state.
+	 * Disable if neither Sinclair nor Category Sinclair is being computed.
+	 */
+	private void updateSinclairYearEnabled() {
+		if (sinclairYear == null) {
+			return; // Not yet initialized
+		}
+		boolean sinclairEnabled = RankingConfig.shouldCompute(Ranking.BW_SINCLAIR)
+				|| RankingConfig.shouldCompute(Ranking.CAT_SINCLAIR);
+		sinclairYear.setEnabled(sinclairEnabled);
 	}
 
 	private FormLayout generalRulesForm() {
@@ -437,6 +578,12 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(announcerControlledJuryField, Translator.translate("Competition.announcerControlledJury"));
 		this.binder.forField(announcerControlledJuryField)
 		        .bind(Competition::isAnnouncerControlledJuryDecision, Competition::setAnnouncerControlledJuryDecision);
+
+		Checkbox customScoreField = new Checkbox();
+		layout.addFormItem(customScoreField,
+		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
+		this.binder.forField(customScoreField)
+		        .bind(Competition::isCustomScore, Competition::setCustomScore);
 
 		return layout;
 	}

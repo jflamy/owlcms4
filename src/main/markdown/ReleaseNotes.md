@@ -9,7 +9,13 @@
 <br>
 **New in Release 64**
 
-64.0.0: Various cleanup to timer processing to remove timer stutter on clock start
+64.0.0: Support for GAMX 2.0 scores: GAMX + age-adjusted variants GAMX-M (Masters), GAMX-U (Kids+Youth), GAMX-A (13-40)
+
+64.0.0: For performance, only the scoring systems required by the best athlete and medals are computed by default; additional ones can be selected
+
+64.0.0: Fix: Athletes not weighed-in are not propagated to the introduction sheet
+
+64.0.0: Fix timer visual stutter on initial 1:00 or 2:00 clock start 
 
 64.0.0: Require explicit field of play parameters instead of inheriting through the user's session (merged sanitization from 63.3.x)
 
@@ -17,10 +23,11 @@
 - Uses the v2 export format
 - Additional information for tracker applications (e.g. time remaining on breaks, precalculated display information)
 
-64.0.0: New v2 export format under test
-- A new cleaner export format is available when the feature toggle `v2export` is active.  An extra button is visible when
+64.0.0: New v2 JSON export format
+- A new cleaner export format is available when the feature toggle `v2export` is active.  Historical unfortunate naming fixes,
+symbolic references/natural keys for readability.
+- An extra button is visible when
 the toggle is active.  The new format uses natural keys for better readability.
 - Import distinguighes the two formats automatically.
-
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)

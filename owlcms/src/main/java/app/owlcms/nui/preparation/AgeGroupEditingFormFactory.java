@@ -44,6 +44,7 @@ import app.owlcms.data.agegroup.AssignedAthletesException;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -147,6 +148,10 @@ public class AgeGroupEditingFormFactory
 		medalScoreSystemField.setItemLabelGenerator((ad) -> Translator.translate("Ranking." + ad.name()));
 		// logger.debug("***** scoring system {}", aFromDb.getMedalScoringSystem());
 		this.binder.forField(medalScoreSystemField).bind(AgeGroup::getMedalScoringSystem, AgeGroup::setScoringSystem);
+		// When medals scoring system changes, recompute mustCompute immediately
+		medalScoreSystemField.addValueChangeListener(e -> {
+			RankingConfig.updateMustCompute();
+		});
 		formLayout.addFormItem(medalScoreSystemField, createLabel(Translator.translate("MedalScoringSystem")));
 		
 		ComboBox<Ranking> bestLifterSystemField = new ComboBox<>();
@@ -155,6 +160,10 @@ public class AgeGroupEditingFormFactory
 		bestLifterSystemField.setItemLabelGenerator((ad) -> Translator.translate("Ranking." + ad.name()));
 		// logger.debug("***** scoring system {}", aFromDb.getMedalScoringSystem());
 		this.binder.forField(bestLifterSystemField).bind(AgeGroup::getBestAthleteScoringSystem, AgeGroup::setBestAthleteScoringSystem);
+		// When best athlete scoring system changes, recompute mustCompute immediately
+		bestLifterSystemField.addValueChangeListener(e -> {
+			RankingConfig.updateMustCompute();
+		});
 		formLayout.addFormItem(bestLifterSystemField, createLabel(Translator.translate("AgeGroup.BestAthleteScoringSystem")));
 		bestLifterSystemField.setHelperText(Translator.translate("AgeGroup.BestAthleteScoringSystemExplanation")
 				.replaceAll(" ", "\u00A0")
@@ -270,6 +279,7 @@ public class AgeGroupEditingFormFactory
 		AgeGroup[] saved = new AgeGroup[1];
 		try {
 			saved[0] = AgeGroupRepository.save(ageGroup);
+			RankingConfig.updateMustCompute();
 			this.origin.closeDialog();
 			this.origin.highlightResetButton();
 			return saved[0];
@@ -282,6 +292,7 @@ public class AgeGroupEditingFormFactory
 				        ageGroup.setForceSave(true);
 				        try {
 					        saved[0] = AgeGroupRepository.save(ageGroup);
+					        RankingConfig.updateMustCompute();
 				        } catch (AssignedAthletesException e1) {
 					        saved[0] = ageGroup;
 				        }

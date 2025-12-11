@@ -8,95 +8,203 @@ package app.owlcms.data.athleteSort;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
+
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.competition.Competition;
 
 /**
  * Configuration for which rankings should be computed.
  * Controls which scoring systems are calculated for athletes.
+ * 
+ * Rankings are computed if they are either:
+ * - Required by age groups or global scoring system (mustCompute - read-only)
+ * - Enabled by user preference (userEnabled - editable)
  */
 public class RankingConfig {
 
-	private static final EnumMap<Ranking, Boolean> computeRanking = new EnumMap<>(Ranking.class);
+	/** User-selected rankings (stored in database) */
+	private static final EnumMap<Ranking, Boolean> userEnabled = new EnumMap<>(Ranking.class);
+	
+	/** Rankings required by age groups and global scoring system (computed at runtime) */
+	private static final EnumSet<Ranking> mustCompute = EnumSet.noneOf(Ranking.class);
 
 	static {
-		// Category values - always computed by default
-		computeRanking.put(Ranking.SNATCH, true);
-		computeRanking.put(Ranking.CLEANJERK, true);
-		computeRanking.put(Ranking.TOTAL, true);
-		computeRanking.put(Ranking.CUSTOM, true);
-		computeRanking.put(Ranking.SNATCH_CJ_TOTAL, true);
-		computeRanking.put(Ranking.CATEGORY_SCORE, true);
-
-		// Global scoring systems - Sinclair and QPoints enabled by default
-		computeRanking.put(Ranking.BW_SINCLAIR, true);
-		computeRanking.put(Ranking.CAT_SINCLAIR, true);
-		computeRanking.put(Ranking.SMM, true);
-		computeRanking.put(Ranking.CAT_QPOINTS, false);
-		computeRanking.put(Ranking.ROBI, false);
-		computeRanking.put(Ranking.QPOINTS, true);
-		computeRanking.put(Ranking.AGEFACTORS, false);
-		computeRanking.put(Ranking.QAGE, true);
-		computeRanking.put(Ranking.GAMX, false);
-		computeRanking.put(Ranking.GAMX_M, false);
-		computeRanking.put(Ranking.GAMX_U, false);
-		computeRanking.put(Ranking.GAMX_A, false);
+		// Initialize user preferences with defaults
+		resetUserDefaults();
 	}
 
 	/**
 	 * Check if a ranking should be computed.
+	 * Returns true if the ranking is either required (mustCompute) or user-enabled.
 	 *
 	 * @param ranking the ranking to check
 	 * @return true if the ranking should be computed, false otherwise
 	 */
 	public static boolean shouldCompute(Ranking ranking) {
-		return computeRanking.getOrDefault(ranking, false);
+		// Category rankings are always computed
+		if (getCategoryRankings().contains(ranking)) {
+			return true;
+		}
+		return mustCompute.contains(ranking) || userEnabled.getOrDefault(ranking, false);
 	}
 
 	/**
-	 * Set whether a ranking should be computed.
+	 * Check if a ranking is required (cannot be disabled by user).
+	 *
+	 * @param ranking the ranking to check
+	 * @return true if the ranking is required by age groups or global scoring
+	 */
+	public static boolean isMustCompute(Ranking ranking) {
+		return mustCompute.contains(ranking);
+	}
+
+	/**
+	 * Check if a ranking is user-enabled (editable preference).
+	 *
+	 * @param ranking the ranking to check
+	 * @return true if the user has enabled this ranking
+	 */
+	public static boolean isUserEnabled(Ranking ranking) {
+		return userEnabled.getOrDefault(ranking, false);
+	}
+
+	/**
+	 * Set whether a ranking is user-enabled.
+	 * This only affects user preferences, not mustCompute rankings.
 	 *
 	 * @param ranking the ranking to configure
-	 * @param compute true to enable computation, false to disable
+	 * @param enabled true to enable, false to disable
+	 */
+	public static void setUserEnabled(Ranking ranking, boolean enabled) {
+		userEnabled.put(ranking, enabled);
+	}
+
+	/**
+	 * Legacy method for compatibility - delegates to setUserEnabled.
 	 */
 	public static void setCompute(Ranking ranking, boolean compute) {
-		computeRanking.put(ranking, compute);
+		setUserEnabled(ranking, compute);
 	}
 
 	/**
-	 * Get the current configuration as a copy.
+	 * Update the mustCompute set based on age groups and global scoring system.
+	 * Should be called after age groups are loaded/changed.
+	 */
+	public static void updateMustCompute() {
+		mustCompute.clear();
+		
+		// Add global scoring system from Competition
+		Competition comp = Competition.getCurrent();
+		if (comp != null) {
+			Ranking globalScoring = comp.getScoringSystem();
+			if (globalScoring != null && getAllScoringRankings().contains(globalScoring)) {
+				mustCompute.add(globalScoring);
+			}
+		}
+		
+		// Add scoring systems from all age groups
+		List<AgeGroup> ageGroups = AgeGroupRepository.findAll();
+		for (AgeGroup ag : ageGroups) {
+			if (!ag.isActive()) {
+				continue;
+			}
+			// Medal scoring system
+			Ranking scoringSystem = ag.getComputedScoringSystem();
+			if (scoringSystem != null && getAllScoringRankings().contains(scoringSystem)) {
+				mustCompute.add(scoringSystem);
+			}
+			// Best athlete scoring system
+			Ranking bestAthleteScoring = ag.getBestAthleteScoringSystem();
+			if (bestAthleteScoring != null && getAllScoringRankings().contains(bestAthleteScoring)) {
+				mustCompute.add(bestAthleteScoring);
+			}
+		}
+	}
+
+	/**
+	 * Update mustCompute using a specific global scoring system.
+	 * Age groups are read from the database.
+	 * Used when the global scoring dropdown changes in the UI (before save).
+	 */
+	public static void updateMustCompute(Ranking globalScoring) {
+		List<AgeGroup> ageGroups = AgeGroupRepository.findAll();
+		updateMustCompute(ageGroups, globalScoring);
+	}
+
+	/**
+	 * Update mustCompute from a provided list of age groups (used during import
+	 * before age groups are persisted to database).
+	 */
+	public static void updateMustCompute(List<AgeGroup> ageGroups, Ranking globalScoring) {
+		mustCompute.clear();
+		
+		// Add global scoring system
+		if (globalScoring != null && getAllScoringRankings().contains(globalScoring)) {
+			mustCompute.add(globalScoring);
+		}
+		
+		// Add scoring systems from provided age groups
+		if (ageGroups != null) {
+			for (AgeGroup ag : ageGroups) {
+				if (!ag.isActive()) {
+					continue;
+				}
+				Ranking scoringSystem = ag.getComputedScoringSystem();
+				if (scoringSystem != null && getAllScoringRankings().contains(scoringSystem)) {
+					mustCompute.add(scoringSystem);
+				}
+				Ranking bestAthleteScoring = ag.getBestAthleteScoringSystem();
+				if (bestAthleteScoring != null && getAllScoringRankings().contains(bestAthleteScoring)) {
+					mustCompute.add(bestAthleteScoring);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get the current mustCompute set (read-only view).
+	 */
+	public static Set<Ranking> getMustCompute() {
+		return EnumSet.copyOf(mustCompute);
+	}
+
+	/**
+	 * Get the current user configuration as a copy.
 	 *
-	 * @return a copy of the current EnumMap configuration
+	 * @return a copy of the current user preferences EnumMap
 	 */
 	public static EnumMap<Ranking, Boolean> getConfig() {
-		return new EnumMap<>(computeRanking);
+		return new EnumMap<>(userEnabled);
 	}
 
 	/**
-	 * Reset all rankings to their default configuration.
+	 * Reset user preferences to defaults.
+	 */
+	public static void resetUserDefaults() {
+		userEnabled.clear();
+		// Global scoring systems - reasonable defaults
+		userEnabled.put(Ranking.BW_SINCLAIR, true);
+		userEnabled.put(Ranking.CAT_SINCLAIR, false);
+		userEnabled.put(Ranking.SMM, true);
+		userEnabled.put(Ranking.CAT_QPOINTS, false);
+		userEnabled.put(Ranking.ROBI, false);
+		userEnabled.put(Ranking.QPOINTS, false);
+		userEnabled.put(Ranking.AGEFACTORS, false);
+		userEnabled.put(Ranking.QAGE, false);
+		userEnabled.put(Ranking.GAMX, false);
+		userEnabled.put(Ranking.GAMX_M, false);
+		userEnabled.put(Ranking.GAMX_U, false);
+		userEnabled.put(Ranking.GAMX_A, false);
+	}
+
+	/**
+	 * Legacy method - resets user defaults only (mustCompute is derived).
 	 */
 	public static void resetDefaults() {
-		computeRanking.clear();
-		// Category values
-		computeRanking.put(Ranking.SNATCH, true);
-		computeRanking.put(Ranking.CLEANJERK, true);
-		computeRanking.put(Ranking.TOTAL, true);
-		computeRanking.put(Ranking.CUSTOM, true);
-		computeRanking.put(Ranking.SNATCH_CJ_TOTAL, true);
-		computeRanking.put(Ranking.CATEGORY_SCORE, true);
-
-		// Global scoring systems - Sinclair and QPoints enabled by default
-		computeRanking.put(Ranking.BW_SINCLAIR, true);
-		computeRanking.put(Ranking.CAT_SINCLAIR, true);
-		computeRanking.put(Ranking.SMM, true);
-		computeRanking.put(Ranking.CAT_QPOINTS, false);
-		computeRanking.put(Ranking.ROBI, false);
-		computeRanking.put(Ranking.QPOINTS, true);
-		computeRanking.put(Ranking.AGEFACTORS, false);
-		computeRanking.put(Ranking.QAGE, true);
-		computeRanking.put(Ranking.GAMX, false);
-		computeRanking.put(Ranking.GAMX_M, false);
-		computeRanking.put(Ranking.GAMX_U, false);
-		computeRanking.put(Ranking.GAMX_A, false);
+		resetUserDefaults();
 	}
 
 	private RankingConfig() {
@@ -128,15 +236,6 @@ public class RankingConfig {
 	 */
 	public static Set<Ranking> getGamxRankings() {
 		return EnumSet.of(Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A);
-	}
-
-	/**
-	 * Get all other global scoring system rankings.
-	 *
-	 * @return set containing SMM and ROBI
-	 */
-	public static Set<Ranking> getOtherScoringRankings() {
-		return EnumSet.of(Ranking.SMM, Ranking.ROBI);
 	}
 
 	/**
