@@ -1351,7 +1351,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 										long lastAttempt = lastAttemptWrapper;
 										if ((now - lastAttempt) > CONFIG_RESEND_WINDOW_MS) {
 											// previous attempts are stale; reset state so we can try again
-											logger.warn("{}previous config attempt for {} is older than {}ms, resetting state", FieldOfPlay.getLoggingName(getFop()), destination, now - lastAttempt);
+											logger./**/warn("{}previous config attempt for {} is older than {}ms, resetting state", FieldOfPlay.getLoggingName(getFop()), destination, now - lastAttempt);
 											configSendingInProgress.remove(destination);
 											configSentByEndpoint.remove(destination);
 											configAttemptTimeByDestination.remove(destination);
@@ -1369,7 +1369,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 													inProgressStart = inProgressStartWrapper;
 												}
 												if ((System.currentTimeMillis() - inProgressStart) > CONFIG_RESEND_WINDOW_MS) {
-													logger.warn("{}config send in progress for {} exceeded {}ms, giving up and resetting state", FieldOfPlay.getLoggingName(getFop()), destination, System.currentTimeMillis() - inProgressStart);
+													logger./**/warn("{}config send in progress for {} exceeded {}ms, giving up and resetting state", FieldOfPlay.getLoggingName(getFop()), destination, System.currentTimeMillis() - inProgressStart);
 													configSendingInProgress.remove(destination);
 													configSentByEndpoint.remove(destination);
 													configAttemptTimeByDestination.remove(destination);
@@ -1389,7 +1389,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 											} else {
 												age = System.currentTimeMillis() - lastAttempt2;
 											}
-											logger.warn("{}skipping config send for {} because config already sent {} ms ago, retrying post", FieldOfPlay.getLoggingName(getFop()), destination, age);
+											logger./**/warn("{}skipping config send for {} because config already sent {} ms ago, retrying post", FieldOfPlay.getLoggingName(getFop()), destination, age);
 											nbTries++;
 										} else {
 											// mark as in-progress and send, record attempt time
