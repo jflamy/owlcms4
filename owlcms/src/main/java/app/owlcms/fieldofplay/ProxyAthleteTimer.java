@@ -134,8 +134,8 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		}
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug("{}==== setting Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
-			        timeRemaining,
-			        LoggerUtils.whereFrom());
+		        timeRemaining,
+		        LoggerUtils.whereFrom());
 		}
 		this.timeRemaining = timeRemaining;
 		if (timeRemaining < 1) {
@@ -143,34 +143,47 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		}
 		getFop().pushOutUIEvent(new UIEvent.SetTime(timeRemaining, null, LoggerUtils.stackTrace(), getFop()));
 		this.running = false;
-	}
-
-	/**
+	}	/**
 	 * @see app.owlcms.fieldofplay.IProxyTimer#start()
 	 */
 	@Override
 	public void start() {
+		startInternal(this.timeRemaining);
+	}
+
+	/**
+	 * @see app.owlcms.fieldofplay.IProxyTimer#start(int)
+	 */
+	@Override
+	public void start(int timeRemaining) {
+		// Set time internally without pushing SetTime event
+		this.timeRemaining = timeRemaining;
+		startInternal(timeRemaining);
+	}
+
+	/**
+	 * Internal start logic shared by both start() and start(int).
+	 */
+	private void startInternal(int time) {
 		if (!this.running) {
 			this.startMillis = System.currentTimeMillis();
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug("{}starting Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
-				        this.timeRemaining,
-				        LoggerUtils.whereFrom());
+			        time,
+			        LoggerUtils.whereFrom());
 			}
-			this.timeRemainingAtLastStop = this.timeRemaining;
+			this.timeRemainingAtLastStop = time;
 		}
-		if (this.timeRemaining < 1) {
+		if (time < 1) {
 			this.logger./**/warn("starting with no time {}", LoggerUtils.whereFrom());
 		}
 		getFop().pushOutUIEvent(
-		        new UIEvent.StartTime(this.timeRemaining, null, getFop().isEmitSoundsOnServer(),
+		        new UIEvent.StartTime(time, null, getFop().isEmitSoundsOnServer(),
 		                LoggerUtils.stackTrace(), getFop()));
-		this.running = true;
-
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
+		this.running = true;		if (!Config.getCurrent().featureSwitch("oldTimers")) {
 			this.serverTimer = new Timer();
 			try {
-				this.serverTimer.schedule(computeTask(this.timeRemaining), this.timeRemaining % 30000);
+				this.serverTimer.schedule(computeTask(time), time % 30000);
 			} catch (IllegalArgumentException e) {
 				this.logger.debug("Timer schedule issue: {}", e.getMessage());
 			}

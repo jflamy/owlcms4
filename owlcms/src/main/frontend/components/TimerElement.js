@@ -118,7 +118,7 @@ class TimerElement extends LitElement {
     this._finalWarningGiven = this.currentTime < 30;
     this._timeOverWarningGiven = this.currentTime < 0;
 
-    this._elapsed = performance.now() / 1000;
+    this._elapsed = null;  // Will be initialized on first _decreaseTimer call
     this.running = true;
     console.warn("timer running " + this.currentTime);
     window.requestAnimationFrame(this._decreaseTimer);
@@ -227,6 +227,10 @@ class TimerElement extends LitElement {
     }
 
     var now = timestamp / 1000;
+    // On first call, initialize _elapsed to current timestamp so progress is ~0
+    if (this._elapsed === null) {
+      this._elapsed = now;
+    }
     // Compute the relative progress based on the time spent running
     var progress = now - this._elapsed;
     this.currentTime = this.countUp

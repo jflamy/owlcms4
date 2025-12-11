@@ -128,6 +128,18 @@ public class MockCountdownTimer implements IBreakTimer, IProxyTimer {
     /*
      * (non-Javadoc)
      *
+     * @see app.owlcms.fieldofplay.IProxyTimer#start(int)
+     */
+    @Override
+    public void start(int timeRemaining) {
+        logger.debug("starting Time with duration -- timeRemaining = {} \t[{}]", timeRemaining, LoggerUtils.whereFrom());
+        this.timeRemaining = timeRemaining;
+        this.timeRemainingAtLastStop = timeRemaining;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
      * @see app.owlcms.tests.ICountDownTimer#stop()
      */
     @Override

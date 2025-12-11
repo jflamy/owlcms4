@@ -53,6 +53,14 @@ public interface IProxyTimer {
 	public void start();
 
 	/**
+	 * Start with specified time remaining (does not push SetTime event).
+	 * Use this when starting immediately after setting time to avoid visual stutter.
+	 * 
+	 * @param timeRemaining the time to start with
+	 */
+	public void start(int timeRemaining);
+
+	/**
 	 * Stop.
 	 */
 	public void stop();

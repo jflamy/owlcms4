@@ -3252,7 +3252,9 @@ public class FieldOfPlay implements IUnregister {
 			setCjStarted(true);
 		}
 		checkFirstClockForLift();
-		getAthleteTimer().start();
+		// Use start(time) to set and start atomically - avoids separate SetTime event
+		// which can cause visual stutter on displays when StartTime follows immediately
+		getAthleteTimer().start(time);
 	}
 
 	private void uiDisplayCurrentAthleteAndTime(boolean currentDisplayAffected, FOPEvent e, boolean displayToggle) {

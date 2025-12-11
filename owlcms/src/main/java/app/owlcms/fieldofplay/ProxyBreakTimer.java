@@ -260,6 +260,16 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	}
 
 	/**
+	 * @see app.owlcms.fieldofplay.IProxyTimer#start(int)
+	 */
+	@Override
+	public void start(int timeRemaining) {
+		// For break timer, just set time and call regular start
+		this.timeRemaining = timeRemaining;
+		start();
+	}
+
+	/**
 	 * @see app.owlcms.fieldofplay.IProxyTimer#stop()
 	 */
 	@Override
