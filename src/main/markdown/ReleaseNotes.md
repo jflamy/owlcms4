@@ -11,8 +11,6 @@
 
 63.4.0: Fix: Failure to post event information to either of the public scoreboard or video URLs could block the other.
 
-63.4.0: Fix: Stutter on athlete timer when starting at 2:00 or 1:00 fixed
-
 63.4.0: Fix: Registration editing page did not show did not show all the possible open categories for youth superheavy categories with lower bounds (e.g. U15 79+). The athlete can be 88 all the way to 110+.
 
 **New in Release 63.3**
