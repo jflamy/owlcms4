@@ -591,6 +591,7 @@ public class Competition {
 			        Ranking.QAGE, // Q-masters
 			        Ranking.CAT_SINCLAIR,
 			        Ranking.CAT_QPOINTS,
+			        Ranking.CAT_GAMX,
 			        Ranking.GAMX,
 			        Ranking.AGEFACTORS // Q-youth
 			)) {

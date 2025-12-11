@@ -422,6 +422,33 @@ public class AbstractLifterComparator {
 		return -lifter1Value.compareTo(lifter2Value);
 	}
 
+	int compareCategoryGAMX(Athlete lifter1, Athlete lifter2) {
+		Gender gender1 = lifter1.getGender();
+		Gender gender2 = lifter2.getGender();
+		int compare = ObjectUtils.compare(gender1, gender2, true);
+		if (compare != 0) {
+			return compare;
+		}
+
+		Double lifter1Value = lifter1.getCategoryGAMX();
+		Double lifter2Value = lifter2.getCategoryGAMX();
+		final Double notWeighed = 0D;
+		if (lifter1Value == null) {
+			lifter1Value = notWeighed;
+		}
+		if (lifter2Value == null) {
+			lifter2Value = notWeighed;
+		}
+
+		if (lifter1Value <= 0.0001 && lifter2Value < 0.0001) {
+			// avoid going to full tie break; need something stable.
+			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
+		}
+
+		// bigger GAMX comes first
+		return -lifter1Value.compareTo(lifter2Value);
+	}
+
 	/**
 	 * Compare club.
 	 *

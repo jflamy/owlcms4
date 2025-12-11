@@ -125,10 +125,13 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 				boolean groupIsDone = groupIsDone(a);
 				Integer curPoints = combinedTotal ? a.getCombinedPoints() : a.getTotalPoints();
 				double curSinclair = a.getSinclairForDelta();
+				double curCatSinclair = a.getCategorySinclairForDelta();
 				double curSmf = a.getSmhfForDelta();
 				double curRobi = a.getRobi();
 				double curGamx = a.getGamx();
+				double curCatGamx = a.getCategoryGAMXForDelta();
 				double curQPoints = a.getQPoints();
+				double curCatQPoints = a.getCategoryQPointsForDelta();
 				double curQMasters = a.getQMasters();
 
 				Team curTeam = curTeamItem.getTeam();
@@ -146,11 +149,14 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					}
 					if (b) {
 						curTeam.setSinclairScore(curTeam.getSinclairScore() + curSinclair);
+						curTeam.setCatSinclairScore(curTeam.getCatSinclairScore() + curCatSinclair);
 						curTeam.setSmfScore(curTeam.getSmfScore() + curSmf);
 						curTeam.setCounted(curTeam.getCounted() + 1);
 						curTeam.setRobi(curTeam.getRobi() + curRobi);
 						curTeam.setGamx(curTeam.getGamx() + curGamx);
+						curTeam.setCatGamxScore(curTeam.getCatGamxScore() + curCatGamx);
 						curTeam.setQPoints(curTeam.getQPoints() + curQPoints);
+						curTeam.setCatQPointsScore(curTeam.getCatQPointsScore() + curCatQPoints);
 						curTeam.setQMasters(curTeam.getQMasters() + curQMasters);
 					}
 				}

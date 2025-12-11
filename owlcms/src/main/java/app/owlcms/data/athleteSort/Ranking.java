@@ -45,6 +45,7 @@ public enum Ranking {
 	GAMX_M("GAMX-M", true), // GAMX, age-adjusted for Masters
 	GAMX_U("GAMX-U", true), // GAMX, age-adjusted for 7-17 years old
 	GAMX_A("GAMX-A", true),// GAMX, age-adjusted for 13-40
+	CAT_GAMX("CatGAMX", true), // GAMX computed at category boundary
 	
 	ROBI("Robi", true), // IWF ROBI
 ;
@@ -106,6 +107,9 @@ public enum Ranking {
 				break;
 			case CAT_QPOINTS:
 				value = curLifter.getCatQPointsRank();
+				break;
+			case CAT_GAMX:
+				value = curLifter.getCatGAMXRank();
 				break;
 			case SMM:
 				value = curLifter.getSmhfRank();
@@ -218,6 +222,13 @@ public enum Ranking {
 			case GAMX_A:
 				d = curLifter.getGamxA();
 				break;
+			case CAT_GAMX:
+				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+					d = curLifter.getCategoryGAMX();
+				} else {
+					d = curLifter.getCategoryGAMXForDelta();
+				}
+				break;
 			case AGEFACTORS:
 				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
 					d = curLifter.getQYouth();
@@ -261,6 +272,7 @@ public enum Ranking {
 			case BW_SINCLAIR:
 			case CAT_SINCLAIR:
 			case CAT_QPOINTS:
+			case CAT_GAMX:
 			case SMM:
 			case GAMX:
 			case GAMX_M:
@@ -286,6 +298,7 @@ public enum Ranking {
 			case BW_SINCLAIR:
 			case CAT_SINCLAIR:
 			case CAT_QPOINTS:
+			case CAT_GAMX:
 			case SMM:
 			case GAMX:
 			case GAMX_M:
@@ -302,7 +315,7 @@ public enum Ranking {
 	}
 
 	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, GAMX_M, GAMX_U, GAMX_A, CAT_QPOINTS, CAT_SINCLAIR));
+		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, GAMX_M, GAMX_U, GAMX_A, CAT_QPOINTS, CAT_GAMX, CAT_SINCLAIR));
 		systems.removeIf(ranking -> !RankingConfig.shouldCompute(ranking));
 		return systems;
 	}

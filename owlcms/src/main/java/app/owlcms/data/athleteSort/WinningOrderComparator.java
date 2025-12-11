@@ -65,6 +65,8 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 				return compareCatSinclairResultOrder(lifter1, lifter2);
 			case CAT_QPOINTS:
 				return compareCatQPointsResultOrder(lifter1, lifter2);
+			case CAT_GAMX:
+				return compareCatGamxResultOrder(lifter1, lifter2);
 			case BW_SINCLAIR:
 				return compareSinclairResultOrder(lifter1, lifter2);
 		case SMM:
@@ -173,6 +175,17 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 		int compare = 0;
 
 		compare = compareCategoryQPoints(lifter1, lifter2);
+		if (compare != 0) {
+			return compare;
+		}
+
+		return tieBreak(lifter1, lifter2);
+	}
+
+	public int compareCatGamxResultOrder(Athlete lifter1, Athlete lifter2) {
+		int compare = 0;
+
+		compare = compareCategoryGAMX(lifter1, lifter2);
 		if (compare != 0) {
 			return compare;
 		}

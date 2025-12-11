@@ -245,6 +245,7 @@ public class Athlete {
 				dest.setTeamSinclairRank(src.getTeamSinclairRank());
 				dest.setCatSinclairRank(src.getCatSinclairRank());
 				dest.setCatQPointsRank(src.getCatQPointsRank());
+				dest.setCatGAMXRank(src.getCatGAMXRank());
 				dest.setGamxRank(src.getGamxRank());
 				dest.setGamxMRank(src.getGamxMRank());
 				dest.setGamxURank(src.getGamxURank());
@@ -445,6 +446,8 @@ public class Athlete {
 	private Integer qPointsRank;
 	@Column(columnDefinition = "integer default 0")
 	private Integer catQPointsRank;
+	@Column(columnDefinition = "integer default 0")
+	private Integer catGAMXRank;
 	private Integer qualifyingTotal = 0;
 	@JsonIgnore
 	private Integer robiRank;
@@ -2158,11 +2161,7 @@ public class Athlete {
 	public Double getGamxForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
-			if (total > 0) {
-				return GAMX2.getGamx(this, total);
-			} else {
-				return 0.0D;
-			}
+			return GAMX2.getGamx(this, total);
 		} catch (IndexOutOfBoundsException e) {
 			return 0.0D;
 		}
@@ -2173,11 +2172,7 @@ public class Athlete {
 	public Double getGamxMForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
-			if (total > 0) {
-				return GAMX2.getGamxM(this, total);
-			} else {
-				return 0.0D;
-			}
+			return GAMX2.getGamxM(this, total);
 		} catch (IndexOutOfBoundsException e) {
 			return 0.0D;
 		}
@@ -2188,11 +2183,7 @@ public class Athlete {
 	public Double getGamxUForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
-			if (total > 0) {
-				return GAMX2.getGamxU(this, total);
-			} else {
-				return 0.0D;
-			}
+			return GAMX2.getGamxU(this, total);
 		} catch (IndexOutOfBoundsException e) {
 			return 0.0D;
 		}
@@ -2203,11 +2194,7 @@ public class Athlete {
 	public Double getGamxAForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
-			if (total > 0) {
-				return GAMX2.getGamxA(this, total);
-			} else {
-				return 0.0D;
-			}
+			return GAMX2.getGamxA(this, total);
 		} catch (IndexOutOfBoundsException e) {
 			return 0.0D;
 		}
@@ -6399,6 +6386,44 @@ public class Athlete {
 		return qPoints;
 	}
 
+	@Transient
+	@JsonIgnore
+	public Double getCategoryGAMX() {
+		return (getTotal() > 0.0) ? getCategoryGAMXForDelta() : 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getCategoryGAMXForDelta() {
+		Category category = IWFCategories.findIWFCategory(this);
+		if (category == null) {
+			return 0.0;
+		}
+
+		Double categoryWeight = computeCategoryBodyWeight(category);
+		// outside of validity range
+		if ((getGender() == Gender.M && categoryWeight <= 45.0D) || (getGender() == Gender.F && categoryWeight <= 40.0D) || (getGender() == Gender.I)) {
+			return 0.0D;
+		}
+
+		Integer value = getBestCleanJerk() + getBestSnatch();
+		try {
+			return GAMX2.getGamx(this, value, categoryWeight);
+		} catch (IndexOutOfBoundsException e) {
+			return 0.0D;
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double computeIwfCategoryBodyWeight() {
+		Category category = IWFCategories.findIWFCategory(this);
+		if (category == null) {
+			return 0.0D;
+		}
+		return computeCategoryBodyWeight(category);
+	}
+
 	private Double computeCategoryBodyWeight(Category category) {
 		Double categoryWeight = category.getMaximumWeight();
 		if (getGender() == Gender.M) { // $NON-NLS-1$
@@ -6445,6 +6470,14 @@ public class Athlete {
 
 	public void setCatQPointsRank(Integer catQPointsRank) {
 		this.catQPointsRank = catQPointsRank;
+	}
+
+	public Integer getCatGAMXRank() {
+		return catGAMXRank;
+	}
+
+	public void setCatGAMXRank(Integer catGAMXRank) {
+		this.catGAMXRank = catGAMXRank;
 	}
 
 	@Transient

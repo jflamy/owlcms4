@@ -198,6 +198,7 @@ public class RankingConfig {
 		userEnabled.put(Ranking.GAMX_M, false);
 		userEnabled.put(Ranking.GAMX_U, false);
 		userEnabled.put(Ranking.GAMX_A, false);
+		userEnabled.put(Ranking.CAT_GAMX, false);
 	}
 
 	/**
@@ -232,10 +233,10 @@ public class RankingConfig {
 	/**
 	 * Get all GAMX-based rankings.
 	 *
-	 * @return set containing GAMX, GAMX_M, GAMX_U, and GAMX_A
+	 * @return set containing GAMX, GAMX_M, GAMX_U, GAMX_A, and CAT_GAMX
 	 */
 	public static Set<Ranking> getGamxRankings() {
-		return EnumSet.of(Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A);
+		return EnumSet.of(Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.CAT_GAMX);
 	}
 
 	/**
@@ -254,10 +255,10 @@ public class RankingConfig {
 	 */
 	public static Set<Ranking> getAllScoringRankings() {
 		return EnumSet.of(
-			Ranking.BW_SINCLAIR, Ranking.CAT_SINCLAIR, Ranking.CAT_QPOINTS,
-			Ranking.SMM, Ranking.ROBI, Ranking.QPOINTS, Ranking.AGEFACTORS,
-			Ranking.QAGE, Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A
-		);
+			Ranking.BW_SINCLAIR, Ranking.SMM, Ranking.CAT_SINCLAIR,
+			Ranking.QPOINTS, Ranking.AGEFACTORS, Ranking.QAGE, Ranking.CAT_QPOINTS,
+			Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.CAT_GAMX, 
+			Ranking.ROBI);
 	}
 
 	/**

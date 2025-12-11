@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -160,6 +161,37 @@ public class GAMX2 {
 		}
 		Gender gender = a.getGender();
 		Double bodyMass = a.getBodyWeight();
+		return computeGamx(gender, bodyMass, liftedWeight, variant);
+	}
+
+	/**
+	 * Compute GAMX score for an athlete using a custom body mass (e.g., category boundary weight).
+	 * This is used for category-normalized GAMX scores (CAT_GAMX).
+	 * 
+	 * @param a            the athlete (for gender and age)
+	 * @param liftedWeight total lifted in kg
+	 * @param bodyMass     custom body mass in kg (e.g., category maximum weight)
+	 * @return GAMX score, or 0.0 if inputs invalid
+	 */
+	public static double getGamx(Athlete a, Integer liftedWeight, Double bodyMass) {
+		return getGamx(a, liftedWeight, bodyMass, Variant.SENIOR);
+	}
+
+	/**
+	 * Compute GAMX score for an athlete using a custom body mass and variant.
+	 * This is used for category-normalized GAMX scores (CAT_GAMX).
+	 * 
+	 * @param a            the athlete (for gender and age)
+	 * @param liftedWeight total lifted in kg
+	 * @param bodyMass     custom body mass in kg (e.g., category maximum weight)
+	 * @param variant      which parameter set to use
+	 * @return GAMX score, or 0.0 if inputs invalid
+	 */
+	public static double getGamx(Athlete a, Integer liftedWeight, Double bodyMass, Variant variant) {
+		if (a == null || liftedWeight == null || liftedWeight <= 0 || bodyMass == null || bodyMass <= 0) {
+			return 0.0;
+		}
+		Gender gender = a.getGender();
 		return computeGamx(gender, bodyMass, liftedWeight, variant);
 	}
 
@@ -424,6 +456,43 @@ public class GAMX2 {
 	 */
 	public static int kgTargetM(Gender gender, double targetScore, double bodyMass) {
 		return kgTarget(gender, null, targetScore, bodyMass, Variant.MASTERS);
+	}
+
+	/**
+	 * Find the total needed to achieve a target GAMX score for an athlete.
+	 * Automatically determines body weight (actual vs category) and variant based on Ranking.
+	 * 
+	 * @param a           the athlete
+	 * @param targetScore the target score
+	 * @param ranking     the ranking type (GAMX, GAMX_M, GAMX_U, GAMX_A, CAT_GAMX)
+	 * @return total in kg needed, or 0 if impossible
+	 */
+	public static int kgTarget(Athlete a, double targetScore, Ranking ranking) {
+		if (a == null || ranking == null) {
+			return 0;
+		}
+		
+		// Determine body weight: category boundary for CAT_GAMX, actual for others
+		Double bodyMass;
+		if (ranking == Ranking.CAT_GAMX) {
+			bodyMass = a.computeIwfCategoryBodyWeight();
+			if (bodyMass == null || bodyMass <= 0) {
+				return 0;
+			}
+		} else {
+			bodyMass = a.getBodyWeight();
+		}
+		
+		// Map Ranking to Variant
+		Variant variant = switch (ranking) {
+			case GAMX, CAT_GAMX -> Variant.SENIOR;
+			case GAMX_M -> Variant.MASTERS;
+			case GAMX_U -> Variant.U17;
+			case GAMX_A -> Variant.AGE_ADJUSTED;
+			default -> Variant.SENIOR;
+		};
+		
+		return kgTarget(a.getGender(), null, targetScore, bodyMass, variant);
 	}
 
 	/**

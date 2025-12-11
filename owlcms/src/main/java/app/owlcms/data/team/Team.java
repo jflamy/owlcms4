@@ -56,6 +56,7 @@ public class Team {
 	private double sinclairScore = 0.0D;
 	private double catSinclairScore = 0.0D;
 	private double catQPointsScore = 0.0D;
+	private double catGamxScore = 0.0D;
 	private long size;
 	private double smfScore = 0.0D;
 	private double robi = 0.0D;
@@ -76,6 +77,10 @@ public class Team {
 	
 	public double getCatQPointsScore() {
 		return this.catQPointsScore;
+	}
+
+	public double getCatGamxScore() {
+		return this.catGamxScore;
 	}
 
 	public int getCounted() {
@@ -114,6 +119,8 @@ public class Team {
 				return getCatSinclairScore();
 			case CAT_QPOINTS:
 				return getCatQPointsScore();
+			case CAT_GAMX:
+				return getCatGamxScore();
 			case QPOINTS:
 				return getQPoints();
 			case QAGE:
@@ -154,6 +161,10 @@ public class Team {
 
 	public void setCatQPointsScore(double score) {
 		this.catQPointsScore = score;
+	}
+
+	public void setCatGamxScore(double score) {
+		this.catGamxScore = score;
 	}
 	
 	public void setCounted(int counted) {

@@ -36,6 +36,9 @@ public class OverallRankSetter {
 			case CAT_QPOINTS:
 				a.setCatQPointsRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
+			case CAT_GAMX:
+				a.setCatGAMXRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
+				break;
 			case ROBI:
 				a.setRobiRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;

@@ -62,6 +62,9 @@ public class MultiCategoryRankSetter {
 			case CAT_QPOINTS:
 				a.setCatQPointsRank(rank);
 				break;
+			case CAT_GAMX:
+				a.setCatGAMXRank(rank);
+				break;
 			case SNATCH_CJ_TOTAL:
 				a.setCombinedRank(rank);
 				break;
