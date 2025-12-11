@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -238,6 +239,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private String liftTypeKey;
 	Map<String, Integer> debouncingHash = new HashMap<>();
 	Map<String, Long> debouncingMillis = new HashMap<>();
+	// Per-URL locks to prevent socket timeout on one URL from blocking other URLs
+	private Map<String, Object> postLockByUrl = new ConcurrentHashMap<>();
+	// Track URLs that are experiencing continuous failures to implement exponential backoff
+	private Map<String, Long> failureTimeByUrl = new ConcurrentHashMap<>();
+	private static final long FAILURE_BACKOFF_MS = 30000; // 30 second backoff before retrying failed URL
 
 	/**
 	 * Check if this forwarder has any active HTTP/HTTPS URLs to send to.
@@ -1288,143 +1294,156 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		pushUpdate(e);
 	}
 
-	private synchronized void doPost(String url, String updateKey, Map<String, String> parameters) {
+	private void doPost(String url, String updateKey, Map<String, String> parameters) {
 		// Skip WebSocket URLs - they are handled by WebSocketEventForwarder
 		if (!isActive()) {
 			return;
 		}
 		
-		// add request parameters or form parameters
-		List<NameValuePair> urlParameters = new ArrayList<>();
-		parameters.entrySet().stream()
-		        .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
+		// Get or create per-URL lock to prevent one URL's socket timeout from blocking other URLs
+		Object urlLock = postLockByUrl.computeIfAbsent(url, k -> new Object());
+		
+		synchronized (urlLock) {
+			// add request parameters or form parameters
+			List<NameValuePair> urlParameters = new ArrayList<>();
+			parameters.entrySet().stream()
+			        .forEach((e) -> urlParameters.add(new BasicNameValuePair(e.getKey(), e.getValue())));
 
-		boolean done = false;
-		int nbTries = 0;
-		String destination = configDestinationForUrl(url);
-		// send post. if the local configuration files are missing, we are sent back a
-		// 412 code.
-		// we send the configuration files as well.
-		while (!done && nbTries <= 1) {
-			boolean destSent = destination != null && Boolean.TRUE.equals(configSentByEndpoint.get(destination));
-			logger.debug("{}doPost loop: nbTries={}, done={}, endpoint={}, destination={}, configSent={}", FieldOfPlay.getLoggingName(getFop()), nbTries, done, url, destination, destSent);
-			try {
-				HttpPost post = new HttpPost(url);
-				post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
-				try (CloseableHttpResponse response = sharedHttpClient.execute(post)) {
-					StatusLine statusLine = response.getStatusLine();
-					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-					logger.debug("{}POST response: status={}, nbTries={}", FieldOfPlay.getLoggingName(getFop()), statusCode, nbTries);
-					// Consume entity to release connection back to pool
-					EntityUtils.consume(response.getEntity());
-					if (statusCode != null && statusCode != 200) {
-						if (nbTries == 0 && statusCode != null && statusCode == 412) {
-							logger.error("{}missing remote configuration {} {} {}",
-									FieldOfPlay.getLoggingName(getFop()), url,
-									statusLine,
-									LoggerUtils.whereFrom(1));
-							// Coordinate config send per destination to avoid duplicate uploads.
-							if (destination == null) {
-								// no destination computable, abort
-								logger.error("{}cannot compute config destination for {}", FieldOfPlay.getLoggingName(getFop()), url);
-								done = true;
-							} else {
-								Object dlock = configLockByDestination.computeIfAbsent(destination, k -> new Object());
-								synchronized (dlock) {
-									long now = System.currentTimeMillis();
-									Long lastAttemptWrapper = configAttemptTimeByDestination.get(destination);
-									if (lastAttemptWrapper == null) {
-										long farPast = now - CONFIG_RESEND_WINDOW_MS - 1L;
-										configAttemptTimeByDestination.put(destination, farPast);
-										lastAttemptWrapper = farPast;
-									}
-									long lastAttempt = lastAttemptWrapper;
-									if ((now - lastAttempt) > CONFIG_RESEND_WINDOW_MS) {
-										// previous attempts are stale; reset state so we can try again
-										logger.debug("{}previous config attempt for {} is older than {}ms, resetting state", FieldOfPlay.getLoggingName(getFop()), destination, now - lastAttempt);
-										configSendingInProgress.remove(destination);
-										configSentByEndpoint.remove(destination);
-										configAttemptTimeByDestination.remove(destination);
-									}
-									// If another thread is already sending config to this destination, wait for it to finish
-									while (Boolean.TRUE.equals(configSendingInProgress.get(destination))) {
-										try {
-											dlock.wait(1000); // wait up to 1s and re-check
-											// if the in-progress send has been going for more than the resend window, give up
-											Long inProgressStartWrapper = configAttemptTimeByDestination.get(destination);
-											long inProgressStart;
-											if (inProgressStartWrapper == null) {
-												inProgressStart = System.currentTimeMillis() - CONFIG_RESEND_WINDOW_MS - 1L;
-											} else {
-												inProgressStart = inProgressStartWrapper;
-											}
-											if ((System.currentTimeMillis() - inProgressStart) > CONFIG_RESEND_WINDOW_MS) {
-												logger.debug("{}config send in progress for {} exceeded {}ms, giving up and resetting state", FieldOfPlay.getLoggingName(getFop()), destination, System.currentTimeMillis() - inProgressStart);
-												configSendingInProgress.remove(destination);
-												configSentByEndpoint.remove(destination);
-												configAttemptTimeByDestination.remove(destination);
+			boolean done = false;
+			int nbTries = 0;
+			String destination = configDestinationForUrl(url);
+			// send post. if the local configuration files are missing, we are sent back a
+			// 412 code.
+			// we send the configuration files as well.
+			while (!done && nbTries <= 1) {
+				boolean destSent = destination != null && Boolean.TRUE.equals(configSentByEndpoint.get(destination));
+				logger.debug("{}doPost loop: nbTries={}, done={}, endpoint={}, destination={}, configSent={}", FieldOfPlay.getLoggingName(getFop()), nbTries, done, url, destination, destSent);
+				try {
+					HttpPost post = new HttpPost(url);
+					post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
+					try (CloseableHttpResponse response = sharedHttpClient.execute(post)) {
+						StatusLine statusLine = response.getStatusLine();
+						Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
+						logger.debug("{}POST response: status={}, nbTries={}", FieldOfPlay.getLoggingName(getFop()), statusCode, nbTries);
+						// Consume entity to release connection back to pool
+						EntityUtils.consume(response.getEntity());
+						if (statusCode != null && statusCode != 200) {
+							if (nbTries == 0 && statusCode != null && statusCode == 412) {
+								logger.error("{}missing remote configuration {} {} {}",
+										FieldOfPlay.getLoggingName(getFop()), url,
+										statusLine,
+										LoggerUtils.whereFrom(1));
+								// Coordinate config send per destination to avoid duplicate uploads.
+								if (destination == null) {
+									// no destination computable, abort
+									logger.error("{}cannot compute config destination for {}", FieldOfPlay.getLoggingName(getFop()), url);
+									done = true;
+								} else {
+									Object dlock = configLockByDestination.computeIfAbsent(destination, k -> new Object());
+									synchronized (dlock) {
+										long now = System.currentTimeMillis();
+										Long lastAttemptWrapper = configAttemptTimeByDestination.get(destination);
+										if (lastAttemptWrapper == null) {
+											long farPast = now - CONFIG_RESEND_WINDOW_MS - 1L;
+											configAttemptTimeByDestination.put(destination, farPast);
+											lastAttemptWrapper = farPast;
+										}
+										long lastAttempt = lastAttemptWrapper;
+										if ((now - lastAttempt) > CONFIG_RESEND_WINDOW_MS) {
+											// previous attempts are stale; reset state so we can try again
+											logger.warn("{}previous config attempt for {} is older than {}ms, resetting state", FieldOfPlay.getLoggingName(getFop()), destination, now - lastAttempt);
+											configSendingInProgress.remove(destination);
+											configSentByEndpoint.remove(destination);
+											configAttemptTimeByDestination.remove(destination);
+										}
+										// If another thread is already sending config to this destination, wait for it to finish
+										while (Boolean.TRUE.equals(configSendingInProgress.get(destination))) {
+											try {
+												dlock.wait(1000); // wait up to 1s and re-check
+												// if the in-progress send has been going for more than the resend window, give up
+												Long inProgressStartWrapper = configAttemptTimeByDestination.get(destination);
+												long inProgressStart;
+												if (inProgressStartWrapper == null) {
+													inProgressStart = System.currentTimeMillis() - CONFIG_RESEND_WINDOW_MS - 1L;
+												} else {
+													inProgressStart = inProgressStartWrapper;
+												}
+												if ((System.currentTimeMillis() - inProgressStart) > CONFIG_RESEND_WINDOW_MS) {
+													logger.warn("{}config send in progress for {} exceeded {}ms, giving up and resetting state", FieldOfPlay.getLoggingName(getFop()), destination, System.currentTimeMillis() - inProgressStart);
+													configSendingInProgress.remove(destination);
+													configSentByEndpoint.remove(destination);
+													configAttemptTimeByDestination.remove(destination);
+													break;
+												}
+											} catch (InterruptedException ie) {
+												Thread.currentThread().interrupt();
 												break;
 											}
-										} catch (InterruptedException ie) {
-											Thread.currentThread().interrupt();
-											break;
 										}
-									}
-									// If after waiting we already have config for this destination, just retry
-									if (Boolean.TRUE.equals(configSentByEndpoint.get(destination))) {
-										Long lastAttempt2 = configAttemptTimeByDestination.get(destination);
-										long age;
-										if (lastAttempt2 == null) {
-											age = CONFIG_RESEND_WINDOW_MS + 1L;
-										} else {
-											age = System.currentTimeMillis() - lastAttempt2;
-										}
-										logger.debug("{}skipping config send for {} because config already sent {} ms ago, retrying post", FieldOfPlay.getLoggingName(getFop()), destination, age);
-										nbTries++;
-									} else {
-										// mark as in-progress and send, record attempt time
-										configSendingInProgress.put(destination, Boolean.TRUE);
-										configAttemptTimeByDestination.put(destination, System.currentTimeMillis());
-										try {
-											if (sendConfig(destination, updateKey)) {
-												logger.info("{}config sent successfully to {} , will retry posts", FieldOfPlay.getLoggingName(getFop()), destination);
-												configSentByEndpoint.put(destination, Boolean.TRUE);
-												// record success time
-												configAttemptTimeByDestination.put(destination, System.currentTimeMillis());
-												nbTries++;
+										// If after waiting we already have config for this destination, just retry
+										if (Boolean.TRUE.equals(configSentByEndpoint.get(destination))) {
+											Long lastAttempt2 = configAttemptTimeByDestination.get(destination);
+											long age;
+											if (lastAttempt2 == null) {
+												age = CONFIG_RESEND_WINDOW_MS + 1L;
 											} else {
-												logger.error("{}failed to send config to {}, aborting retry", FieldOfPlay.getLoggingName(getFop()), destination);
-												// record failed attempt time
-												configAttemptTimeByDestination.put(destination, System.currentTimeMillis());
-												done = true;
+												age = System.currentTimeMillis() - lastAttempt2;
 											}
-										} finally {
-											configSendingInProgress.remove(destination);
-											dlock.notifyAll();
+											logger.warn("{}skipping config send for {} because config already sent {} ms ago, retrying post", FieldOfPlay.getLoggingName(getFop()), destination, age);
+											nbTries++;
+										} else {
+											// mark as in-progress and send, record attempt time
+											configSendingInProgress.put(destination, Boolean.TRUE);
+											configAttemptTimeByDestination.put(destination, System.currentTimeMillis());
+											try {
+												if (sendConfig(destination, updateKey)) {
+													logger.info("{}config sent successfully to {} , will retry posts", FieldOfPlay.getLoggingName(getFop()), destination);
+													configSentByEndpoint.put(destination, Boolean.TRUE);
+													// record success time
+													configAttemptTimeByDestination.put(destination, System.currentTimeMillis());
+													nbTries++;
+												} else {
+													logger.error("{}failed to send config to {}, aborting retry", FieldOfPlay.getLoggingName(getFop()), destination);
+													// record failed attempt time
+													configAttemptTimeByDestination.put(destination, System.currentTimeMillis());
+													done = true;
+												}
+											} finally {
+												configSendingInProgress.remove(destination);
+												dlock.notifyAll();
+											}
 										}
 									}
 								}
+							} else {
+								logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
+										statusLine,
+										LoggerUtils.whereFrom(1));
+								done = true;
+								// Mark URL as failed and enter backoff
+								failureTimeByUrl.put(url, System.currentTimeMillis());
 							}
 						} else {
-							logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
-									statusLine,
-									LoggerUtils.whereFrom(1));
 							done = true;
+							// Clear failure tracking on success
+							failureTimeByUrl.remove(url);
+							// Keep per-destination configSent true until that destination returns 412 again
 						}
-					} else {
+					} catch (Exception e1) {
+						logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
+						        LoggerUtils.exceptionMessage(e1), LoggerUtils.whereFrom(1));
 						done = true;
-						// Keep per-destination configSent true until that destination returns 412 again
+						// Mark URL as failed and enter backoff
+						failureTimeByUrl.put(url, System.currentTimeMillis());
 					}
-				} catch (Exception e1) {
+				} catch (UnsupportedEncodingException e2) {
+					// can't happen.
 					logger.error("{}could not post to {} {}", FieldOfPlay.getLoggingName(getFop()), url,
-					        LoggerUtils.exceptionMessage(e1));
+					        LoggerUtils.exceptionMessage(e2));
 					done = true;
+					// Mark URL as failed and enter backoff
+					failureTimeByUrl.put(url, System.currentTimeMillis());
 				}
-			} catch (UnsupportedEncodingException e2) {
-				// can't happen.
-				logger.error("{}could not post to {} {}", FieldOfPlay.getLoggingName(getFop()), url,
-				        LoggerUtils.exceptionMessage(e2));
-				done = true;
 			}
 		}
 	}
@@ -1886,6 +1905,24 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (url == null) {
 			return;
 		}
+		
+		// Check if this URL is in backoff due to repeated failures
+		Long failureTime = failureTimeByUrl.get(url);
+		if (failureTime != null) {
+			long timeSinceFailure = System.currentTimeMillis() - failureTime;
+			if (timeSinceFailure < FAILURE_BACKOFF_MS) {
+				// Still in backoff period, skip this attempt
+				logger.debug("{}sendPost skipping {} (in backoff for {}ms)", 
+					FieldOfPlay.getLoggingName(getFop()), url, timeSinceFailure);
+				return;
+			} else {
+				// Backoff period expired, clear it and try again
+				failureTimeByUrl.remove(url);
+				logger.info("{}sendPost retrying {} after backoff period", 
+					FieldOfPlay.getLoggingName(getFop()), url);
+			}
+		}
+		
 		Integer previousDebounceHash = this.debouncingHash.get(url);
 		Long previousDebounceMillis = this.debouncingMillis.get(url);
 		long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
