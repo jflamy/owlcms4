@@ -294,7 +294,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	public Ranking getScoringSystem() {
-		return this.scoringSystem; // not reliable.
+		// Return global default if not yet set
+		return this.scoringSystem != null ? this.scoringSystem : Competition.getCurrent().getScoringSystem();
 	}
 
 	@Override
@@ -495,14 +496,18 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			this.setRankingSelector(scoringCombo);
 			scoringCombo.setClearButtonVisible(true);
 			getCrudLayout(crud).addFilterComponent(scoringCombo);
-			scoringCombo.setValue(getScoringSystem());
 			scoringCombo.addValueChangeListener(event -> {
 				if (!event.isFromClient()) {
 					return;
 				}
-				setScoringSystem(event.getValue());
-				resetGrid();
+				bestAthleteScoringSelected(event.getValue());
 			});
+			// Initialize to current value or global default
+			Ranking initialValue = this.scoringSystem != null ? this.scoringSystem : Competition.getCurrent().getScoringSystem();
+			scoringCombo.setValue(initialValue);
+			if (this.scoringSystem == null) {
+				setScoringSystem(initialValue); // Set field on first initialization
+			}
 
 			winnersOnlyCheckbox.setValue(this.winnersOnly);
 			winnersOnlyCheckbox.addValueChangeListener(event -> {
@@ -587,8 +592,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
 			ranking = getRankingSelector().getValue();
 		} else {
-			//ranking = getScoringSystem() != null ? getScoringSystem() : Competition.getCurrent().getScoringSystem();
-			ranking = null;
+			ranking = Competition.getCurrent().getScoringSystem();
 		}
 		return ranking;
 	}
@@ -692,18 +696,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	private void resetGrid() {
-		// we cannot just reset the data provider because we are changing columns.
-		// brute-force way to recompute the grid layout without reloading the page.
-		var g = this.getCrudGrid().getCrudLayout();
-		var parent = ((Component) g).getParent().get();
-		parent.getChildren().forEach(c -> c.removeFromParent());
-		parent.removeFromParent();
-		this.setChampionshipFilter(null);
-		this.setAgeGroupFilter(null);
-		this.setCategoryFilter(null);
-		this.setRankingSelector(null);
-		this.setGenderFilter(null);
-		init();
+		// Create new grid with updated columns for the new scoring system
+		Grid<Athlete> newGrid = SessionResultsContent.createResultGrid(this.getScoringSystem());
+		
+		// Replace just the grid component, preserving all filters and layout
+		this.getCrudGrid().replaceGrid(newGrid);
+		
+		// Refresh data
+		this.getCrudGrid().refreshGrid();
 	}
 
 	@SuppressWarnings("unused")
@@ -729,8 +729,34 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.scoringSystem = value;
 	}
 	
+	private void bestAthleteScoringSelected(Ranking ranking) {
+		setScoringSystem(ranking);
+		resetGrid();
+	}
+	
 	private void setWinnersOnly(boolean value) {
 		this.winnersOnly = value;
+	}
+	
+	@Override
+	public void onChampionshipChanged(Championship championship) {
+		// Update scoring system dropdown when championship changes
+		// Get best athlete scoring system from championship's age groups
+		if (this.getRankingSelector() != null) {
+			Ranking newRanking;
+			if (championship != null) {
+				newRanking = championship.getBestAthleteScoringSystem(this.ageGroupPrefix);
+			} else {
+				newRanking = null;
+			}
+			if (newRanking == null) {
+				newRanking = Competition.getCurrent().getScoringSystem();
+			}
+			// Update dropdown and field, then refresh grid via helper
+			this.getRankingSelector().setValue(newRanking);
+			setScoringSystem(newRanking);
+			resetGrid();
+		}
 	}
 
 }

@@ -349,4 +349,45 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		focusOutsideThenBackToTriggeringItem();
 	}
 
+	/**
+	 * Replace the grid with a new one (e.g., when columns need to change).
+	 * Preserves all filter components and layout, only replacing the grid itself.
+	 *
+	 * @param newGrid the new grid to use
+	 */
+	public void replaceGrid(Grid<T> newGrid) {
+		// Remove old grid from layout
+		if (this.grid != null) {
+			this.grid.removeFromParent();
+		}
+		
+		// Store the new grid
+		this.grid = newGrid;
+		
+		// Setup the new grid the same way initLayoutGrid does
+		this.grid.setSizeFull();
+		this.grid.setSelectionMode(SelectionMode.SINGLE);
+		
+		this.grid.addItemClickListener((e) -> {
+			if (!this.isClickable()) {
+				return;
+			}
+			long delta = System.currentTimeMillis() - this.clicked;
+			if (delta > DOUBLE_CLICK_MS_DELTA) {
+				this.grid.select(e.getItem());
+				gridSelectionChanged();
+			}
+			this.clicked = System.currentTimeMillis();
+		});
+		this.grid.addItemDoubleClickListener((e) -> {
+		});
+		
+		for (Column<T> c : this.grid.getColumns()) {
+			c.setResizable(true);
+		}
+		
+		// Add to layout
+		this.crudLayout.setMainComponent(this.grid);
+	}
+
 }

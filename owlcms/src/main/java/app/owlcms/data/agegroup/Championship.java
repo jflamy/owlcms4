@@ -16,6 +16,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -272,6 +273,45 @@ public class Championship implements Comparable<Championship> {
 	public String translate() {
 		String tr = Translator.translateOrElseNull("Championship." + getName(), OwlcmsSession.getLocale());
 		return tr != null ? tr : getName();
+	}
+	
+	/**
+	 * Gets the best athlete scoring system from the age groups in this championship.
+	 * Uses majority vote - returns the scoring system used by most age groups.
+	 * 
+	 * @param ageGroupPrefix the age group prefix to filter by (optional, can be null)
+	 * @return the best athlete scoring system, or null if none found
+	 */
+	public Ranking getBestAthleteScoringSystem(String ageGroupPrefix) {
+		List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, this, null, true, -1, -1);
+		
+		// Filter by age group prefix if provided
+		if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
+			ageGroups = ageGroups.stream()
+				.filter(ag -> ageGroupPrefix.equals(ag.getCode()))
+				.toList();
+		}
+		
+		// Count occurrences of each scoring system
+		Map<Ranking, Integer> scoringSystemCounts = new HashMap<>();
+		for (AgeGroup ag : ageGroups) {
+			Ranking system = ag.getBestAthleteScoringSystem();
+			if (system != null) {
+				scoringSystemCounts.put(system, scoringSystemCounts.getOrDefault(system, 0) + 1);
+			}
+		}
+		
+		// Return the most common scoring system (majority vote)
+		Ranking mostCommon = null;
+		int maxCount = 0;
+		for (Map.Entry<Ranking, Integer> entry : scoringSystemCounts.entrySet()) {
+			if (entry.getValue() > maxCount) {
+				maxCount = entry.getValue();
+				mostCommon = entry.getKey();
+			}
+		}
+		
+		return mostCommon;
 	}
 
 }

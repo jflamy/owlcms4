@@ -138,7 +138,9 @@ public class VaadinBoot {
 	 */
 
 	public String getServerURL() {
-		return "http://" + (hostName != null ? hostName : "localhost") + ":" + port + contextRoot;
+		var string = "http://" + (hostName != null ? hostName : "localhost") + ":" + port + contextRoot;
+		System.err.println("serverURL: "+ string);
+		return string;
 	}
 
 	/**

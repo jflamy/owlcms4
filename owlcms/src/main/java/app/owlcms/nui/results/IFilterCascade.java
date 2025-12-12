@@ -209,6 +209,10 @@ public interface IFilterCascade {
 			// surrounds the packageDownloadButton button.
 			Championship championshipValue = e.getValue();
 			setChampionship(championshipValue);
+			
+			// Update scoring system dropdown when championship changes
+			onChampionshipChanged(championshipValue);
+			
 			if (championshipValue == null) {
 				this.getAgeGroupFilter().setValue(null);
 				this.getAgeGroupFilter().setItems(new ArrayList<>());
@@ -251,6 +255,14 @@ public interface IFilterCascade {
 
 	public default boolean showGenderFilter() {
 		return false;
+	}
+	
+	/**
+	 * Hook called when championship selection changes.
+	 * Override to update other UI components (e.g., scoring system dropdown).
+	 */
+	public default void onChampionshipChanged(Championship championship) {
+		// Default implementation does nothing
 	}
 
 	public default void updateCategoryFilter(Championship ageDivision2, String ageGroupPrefix2) {
