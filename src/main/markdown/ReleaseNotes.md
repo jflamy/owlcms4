@@ -9,14 +9,14 @@
 <br>
 **Maintenance Log**
 
-64.0.0-beta01: Feature set deemed complete. Fixes/adjustments only expected.
+64.0.0-beta01: Feature set deemed complete. Entering external testing phase.
 
 **New in Release 64**
 
 64.0.0: End of Competitition Behavior for Best Athlete Scoring:
 - If no championship is selected, all athletes are shown, with the global scoring scheme.  The Final package also uses the global scoring scheme.
 - When a championship is selected, the best athlete scoring scheme for that championship is used.  The final package uses the championship scheme.
-- Eligibility category results with no championship selected show the age-group best score
+- Eligibility category results with no championship selected show the age-group best athlete score
 - Registration category results with no championship selected show the global best athlete score
 
 64.0.0: Support for GAMX 2.0 scores: GAMX + age-adjusted variants GAMX-M (Masters), GAMX-U (Kids+Youth), GAMX-A (13-40).  Also added CAT_GAMX, GAMX computed at IWF JR/SR category weight.
