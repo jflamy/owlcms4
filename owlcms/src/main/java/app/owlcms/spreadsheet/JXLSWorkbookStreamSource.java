@@ -193,6 +193,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 		Thread writerThread = new Thread(() -> {
 			try {
+				// Propagate instance field values to ThreadLocal for cross-cutting concerns.
+				// The ThreadLocal is read by classes (e.g., Athlete.getBestLifterScore()) that
+				// don't have direct access to this JXLSWorkbookStreamSource instance.
+				if (this.bestLifterScoringSystem != null) {
+					setBestLifterRankingThreadLocal(this.bestLifterScoringSystem);
+				}
 				writeStream(out);
 				// success: notify caller
 				try { if (this.doneCallback != null) this.doneCallback.accept(null); } catch (Throwable cb) { /* swallow */ }

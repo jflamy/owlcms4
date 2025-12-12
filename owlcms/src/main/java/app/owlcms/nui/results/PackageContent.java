@@ -710,10 +710,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
 
-			        Ranking computeScoringSystem = computeScoringSystem();
+			        // For eligibility category results, only use scoring system when a championship is selected.
+			        // Without a championship, pass null to ignore the global dropdown value.
+			        Ranking computeScoringSystem = (this.championship != null) ? computeScoringSystem() : null;
 			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem);
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
-			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 
 			        List<Athlete> all = (List<Athlete>) findAll();
 			        rs.setSortedAthletes(all);
@@ -741,7 +742,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 					Ranking computeScoringSystem = computeScoringSystemForBook();
 					logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem);
 					rs.setBestLifterScoringSystem(computeScoringSystem);
-					JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 					return rs;
 				},
 				"/templates/competitionBook",
@@ -767,7 +767,6 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 
 			        Ranking computeScoringSystem = computeScoringSystem();
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
-			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 			        return rs;
 		        },
 		        "/templates/competitionResults",

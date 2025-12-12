@@ -600,7 +600,6 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			        JXLSWinningSheet rs = new JXLSWinningSheet();
 			        Ranking computeScoringSystem = computeScoringSystem();
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
-			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.getCurrentGroup() != null ? GroupRepository.getById(this.getCurrentGroup().getId()) : null);
 			        return rs;
@@ -620,7 +619,6 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			        JXLSMedalsSheet rs = new JXLSMedalsSheet();
 			        Ranking computeScoringSystem = computeScoringSystem();
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
-			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.getCurrentGroup() != null ? GroupRepository.getById(this.getCurrentGroup().getId()) : null);
 			        return rs;
@@ -640,8 +638,6 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			        JXLSResultSheet rs = new JXLSResultSheet(false);
 			        Ranking computeScoringSystem = computeScoringSystem();
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
-			        JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(computeScoringSystem);
-			        
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.getCurrentGroup() != null ? GroupRepository.getById(this.getCurrentGroup().getId()) : null);
 			        return rs;

@@ -1229,17 +1229,7 @@ public class Athlete {
 	@JsonIgnore
 	public Double getBestLifterScore() {
 		var scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
-		if (scoringSystem == null) {
-			// if we are invoked from a printing thread, this value will have been defined according to a
-			// dropdown or defaulted appropriately
-			scoringSystem = getAgeGroup().getBestAthleteScoringSystem();
-			logger.warn("getBestLifterScore: scoringSystem from age group {}: {}", getAgeGroup(), scoringSystem);
-			if (scoringSystem == null) {
-				// this will be used on the interactive page as the default
-				scoringSystem = Competition.getCurrent().getScoringSystem();
-			}
-		}
-
+		// scoringSystem will be set by JXLSWorkbookStreamSource.doCreateStream() when running in a print thread
 		return Ranking.getRankingValue(this, scoringSystem);
 	}
 
