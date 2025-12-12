@@ -88,7 +88,7 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		}
 
 		List<String> ageGroupParams = newParameterMap.get(AGEGROUP_PREFIX);
-		// no age group is the default
+		// no age group prefix is the default; the cascade will auto-select if there's only one
 		String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
 		setAgeGroupPrefix(ageGroupPrefix);
 		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
@@ -98,7 +98,7 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
 		catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
 		setCategory(CategoryRepository.findByCode(catParam));
-		String catValue = getCategory() != null ? getCategory().toString() : null;
+		String catValue = getCategory() != null ? getCategory().getComputedCode() : null;
 		updateParam(newParameterMap, CATEGORY, catValue);
 
 

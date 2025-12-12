@@ -41,10 +41,11 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.queryparameters.ResultsParameters;
+import app.owlcms.apputils.queryparameters.ResultsParametersReader;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
@@ -82,7 +83,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "results/finalpackage", layout = OwlcmsLayout.class)
-public class PackageContent extends AthleteGridContent implements HasDynamicTitle, ResultsParameters, IFilterCascade {
+public class PackageContent extends AthleteGridContent implements HasDynamicTitle, ResultsParametersReader, IFilterCascade {
 
 	static final String TITLE = "Results.EndOfCompetition";
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
@@ -113,6 +114,95 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	 * Instantiates a new announcer content. Does nothing. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
 	 */
 	public PackageContent() {
+	}
+
+	@Override
+	public Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
+		// First call parent to handle FOP, group, sound parameters
+		Map<String, List<String>> params = super.readParams(location, parametersMap);
+		
+		// Parse results-specific parameters: championship (ad), age group prefix (agp), category (cat), gender
+		// Championship
+		List<String> ageDivisionParams = params.get("ad");
+		String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0) : null);
+		if (ageDivisionName != null && !ageDivisionName.isEmpty()) {
+			Championship valueOf = Championship.of(ageDivisionName);
+			setChampionship(valueOf);
+		}
+		
+		// Age group prefix
+		List<String> ageGroupParams = params.get("agp");
+		String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() ? ageGroupParams.get(0) : null);
+		setAgeGroupPrefix(ageGroupPrefix);
+		
+		// Category
+		List<String> catParams = params.get("cat");
+		String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
+		if (catParam != null) {
+			catParam = java.net.URLDecoder.decode(catParam, java.nio.charset.StandardCharsets.UTF_8);
+			setCategory(app.owlcms.data.category.CategoryRepository.findByCode(catParam));
+		}
+		
+		// Gender
+		List<String> genderParams = params.get("gender");
+		String genderParam = (genderParams != null && !genderParams.isEmpty() ? genderParams.get(0) : null);
+		if (genderParam != null) {
+			try {
+				Gender g = Gender.valueOf(genderParam.toUpperCase());
+				setGender(g);
+			} catch (IllegalArgumentException e) {
+				// Invalid gender value, ignore
+			}
+		}
+		
+		return params;
+	}
+	
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		// Call parent to parse URL parameters
+		super.setParameter(event, parameter);
+		
+		// Now apply the parsed URL parameters to the filter UI components
+		// This runs AFTER readParams() has set our field values
+		applyUrlFiltersToUI();
+	}
+	
+	/**
+	 * Apply URL parameters to filter dropdowns.
+	 * Called after readParams() has populated the field values.
+	 */
+	private void applyUrlFiltersToUI() {
+		Championship urlAD = getChampionship();
+		String urlAG = getAgeGroupPrefix();
+		Category urlCat = getCategoryValue();
+		Gender urlGender = getGender();
+
+		// Apply championship filter
+		if (urlAD != null && getChampionshipFilter() != null) {
+			List<Championship> items = getChampionshipItems();
+			if (items != null && items.contains(urlAD)) {
+				getChampionshipFilter().setValue(urlAD);
+			}
+		}
+		
+		// Apply age group prefix filter
+		if (urlAG != null && getAgeGroupFilter() != null) {
+			List<String> prefixes = getChampionshipAgeGroupPrefixes();
+			if (prefixes != null && prefixes.contains(urlAG)) {
+				getAgeGroupFilter().setValue(urlAG);
+			}
+		}
+		
+		// Apply category filter
+		if (urlCat != null && getCategoryFilter() != null) {
+			getCategoryFilter().setValue(urlCat);
+		}
+		
+		// Apply gender filter
+		if (urlGender != null && getGenderFilter() != null) {
+			getGenderFilter().setValue(urlGender);
+		}
 	}
 
 	/**
@@ -552,16 +642,19 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		}
 
 		updateURLLocation(UI.getCurrent(), getLocation(), "fop", null);
-		String ag = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-		updateURLLocation(UI.getCurrent(), getLocation(), "ag",
-		        ag);
+		String agp = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
+		updateURLLocation(UI.getCurrent(), getLocation(), "agp",
+		        agp);
 		String ad = getChampionship() != null ? getChampionship().getName() : null;
 		updateURLLocation(UI.getCurrent(), getLocation(), "ad",
 		        ad);
 		String cat = getCategoryValue() != null ? getCategoryValue().getComputedCode() : null;
 		updateURLLocation(UI.getCurrent(), getLocation(), "cat",
 		        cat);
-		// logger.debug("update URL {} {} {}",ag,ad,cat);
+		String gender = getGender() != null ? getGender().name() : null;
+		updateURLLocation(UI.getCurrent(), getLocation(), "gender",
+		        gender);
+		// logger.debug("update URL {} {} {}",agp,ad,cat);
 	}
 
 	/**
@@ -742,10 +835,13 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	public void onChampionshipChanged(Championship championship) {
 		// Update scoring system dropdown when championship changes
 		// Get best athlete scoring system from championship's age groups
+		// Use null age group to get scoring from all age groups in championship
 		if (this.getRankingSelector() != null) {
 			Ranking newRanking;
 			if (championship != null) {
-				newRanking = championship.getBestAthleteScoringSystem(this.ageGroupPrefix);
+				// Get scoring system for the championship (across all age groups)
+				// The age group prefix will be recomputed by the cascade
+				newRanking = championship.getBestAthleteScoringSystem(null);
 			} else {
 				newRanking = null;
 			}

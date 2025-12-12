@@ -210,6 +210,10 @@ public interface IFilterCascade {
 			Championship championshipValue = e.getValue();
 			setChampionship(championshipValue);
 			
+			// When championship changes, nullify age group prefix to let cascade recompute it
+			// Different championships have different age groups available
+			setAgeGroupPrefix(null);
+			
 			// Update scoring system dropdown when championship changes
 			onChampionshipChanged(championshipValue);
 			

@@ -1553,10 +1553,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        templateDefinition,
 		        defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
 		        (a, ignored) -> {
-			        System.err.println("*** doElementStartList for " + templateDefinition.name());
+			        logger.debug("*** doElementStartList for {}", templateDefinition.name());
 			        try {
 				        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-				        System.err.println("*** doElementStartList created xlsWriter for " + templateDefinition.name() + ": " + xlsWriter);
+				        logger.debug("*** doElementStartList created xlsWriter for {}: {}", templateDefinition.name(), xlsWriter);
 				        xlsWriter.setGroup(null);
 				        // get current version of athletes.
 				        List<Athlete> athletesFindAll = athletesFindAll(true);
@@ -1592,7 +1592,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        defaultScopePrecheckFor(template),
 		        (a, g) -> {
 			        JXLSWeighInSheet rs = new JXLSWeighInSheet(); // Create a new weigh-in sheet
-			        System.err.println("============ group g " + g + LoggerUtils.stackTrace());
+			        logger.debug("============ group g {} {}", g, LoggerUtils.stackTrace());
 			        rs.setGroup(g);
 			        return rs;
 		        });
@@ -1765,7 +1765,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		try {
 			return excelKitElement(selectedSessions, elements, ui, doneCallback);
 		} catch (Exception e) {
-			System.err.println("%%%%%%%%%% Exception context %%%%%%%%%%%%%\n" + context);
+			logger.debug("%%%%%%%%%% Exception context %%%%%%%%%%%%%\n{}", context);
 			// propagate as StopProcessingException so caller can handle and notify once
 			throw new StopProcessingException(e.getMessage(), e);
 		}
@@ -2242,7 +2242,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	@SuppressWarnings("unused")
 	private InputStream zipOrExcelInputStream(UI ui, List<KitElement> elements, Consumer<Throwable> doneCallback) {
-		System.err.println("*** zipOrExcelInputStream called " + ui + " with elements " + elements);
+		logger.debug("*** zipOrExcelInputStream called {} with elements {}", ui, elements);
 		InputStream z;
 		// logger removed
 		if (getSortedSelection().size() > 1 || elements.size() > 1) {
