@@ -493,62 +493,70 @@ public class WebSocketSender {
 
 	private static void registerStartupCallbacksForUrl(String url, CompetitionDataExport export,
 	        byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes) {
-		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
-		if (sender != null) {
-			// Single onOpenCallback that sends all three data types
-			sender.setOnOpenCallback(() -> {
-				logger.info("WebSocket connected to {}, sending startup data", url);
+		// Synchronize to ensure callbacks are registered before the WebSocket connection
+		// can open and send messages (preventing "No callback registered" errors)
+		synchronized (WebSocketEventSender.class) {
+			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
+			if (sender != null) {
+				// Register missing data callbacks FIRST (before onOpenCallback)
+				// This ensures callbacks are available if the connection opens immediately
+				sender.setMissingDataCallback("database", () -> {
+					Map<String, Object> payload = new LinkedHashMap<>();
+					payload.put("databaseChecksum", export.checksum());
+					payload.put("database", export.structure());
+					sender.sendObject("database", payload);
+				});
 
-				// Send database
-				Map<String, Object> dbPayload = new LinkedHashMap<>();
-				dbPayload.put("databaseChecksum", export.checksum());
-				dbPayload.put("database", export.structure());
-				boolean sent = sender.sendObject("database", dbPayload);
-				if (sent) {
-					logger.debug("Sent startup database via WebSocket to {}", url);
-				} else {
-					logger.debug("Could not send startup database via WebSocket to {} (socket not ready)", url);
-				}
+				sender.setMissingDataCallback("translations_zip", () -> {
+					sender.sendBinary("translations_zip", translationsZipBytes);
+				});
 
-				// Send translations_zip
-				sent = sender.sendBinary("translations_zip", translationsZipBytes);
-				if (sent) {
-					logger.debug("Sent startup translations_zip via WebSocket to {}", url);
-				} else {
-					logger.debug("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
-				}
+				sender.setMissingDataCallback("flags_zip", () -> {
+					sender.sendBinary("flags_zip", flagsZipBytes);
+				});
 
-				// Send flags_zip
-				sent = sender.sendBinary("flags_zip", flagsZipBytes);
-				if (sent) {
-					logger.debug("Sent startup flags_zip via WebSocket to {}", url);
-				} else {
-					logger.debug("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
-				}
-			});
+				// Pictures are sent on-demand only, not at startup
+				sender.setMissingDataCallback("pictures_zip", () -> {
+					if (picturesZipBytes.length > 0) {
+						sender.sendBinary("pictures_zip", picturesZipBytes);
+					}
+				});
 
-			// Register missing data callbacks for on-demand requests
-			sender.setMissingDataCallback("database", () -> {
-				Map<String, Object> payload = new LinkedHashMap<>();
-				payload.put("databaseChecksum", export.checksum());
-				payload.put("database", export.structure());
-				sender.sendObject("database", payload);
-			});
+				// Single onOpenCallback that sends all three data types
+				// IMPORTANT: Send database first (text frame with updateKey) to authenticate,
+				// then send binary frames (translations_zip, flags_zip) which require prior auth
+				sender.setOnOpenCallback(() -> {
+					logger.info("WebSocket connected to {}, sending startup data", url);
 
-			sender.setMissingDataCallback("translations_zip", () -> {
-				sender.sendBinary("translations_zip", translationsZipBytes);
-			});
+					// Send database FIRST (text JSON message with updateKey for authentication)
+					Map<String, Object> dbPayload = new LinkedHashMap<>();
+					dbPayload.put("databaseChecksum", export.checksum());
+					dbPayload.put("database", export.structure());
+					boolean sent = sender.sendObject("database", dbPayload);
+					if (sent) {
+						logger.debug("Sent startup database via WebSocket to {} (this authenticates the connection)", url);
+					} else {
+						logger.debug("Could not send startup database via WebSocket to {} (socket not ready)", url);
+					}
 
-			sender.setMissingDataCallback("flags_zip", () -> {
-				sender.sendBinary("flags_zip", flagsZipBytes);
-			});
+					// Send binary frames AFTER authentication (requires valid updateKey from database message)
+					// Send translations_zip
+					sent = sender.sendBinary("translations_zip", translationsZipBytes);
+					if (sent) {
+						logger.debug("Sent startup translations_zip via WebSocket to {}", url);
+					} else {
+						logger.debug("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
+					}
 
-			// Pictures are sent on-demand only, not at startup
-			sender.setMissingDataCallback("pictures_zip", () -> {
-				if (picturesZipBytes.length > 0) {
-					sender.sendBinary("pictures_zip", picturesZipBytes);
-				}
-			});
+					// Send flags_zip
+					sent = sender.sendBinary("flags_zip", flagsZipBytes);
+					if (sent) {
+						logger.debug("Sent startup flags_zip via WebSocket to {}", url);
+					} else {
+						logger.debug("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
+					}
+				});
+			}
 		}
 	}
 
