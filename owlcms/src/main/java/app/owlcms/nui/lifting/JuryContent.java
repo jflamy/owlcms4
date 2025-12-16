@@ -354,6 +354,14 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	@Override
 	protected void syncWithFop(boolean refreshGrid, FieldOfPlay fop) {
 		super.syncWithFop(refreshGrid, fop);
+		
+		// Create decisions element if deferred from init (FOP was not available then)
+		addDecisionsElement(fop);
+		
+		// Ensure FOP is set on decision element
+		if (this.decisions != null) {
+			this.decisions.setFop(fop);
+		}
 		setAthleteUnderReview(fop.getAthleteUnderReview());
 		Boolean[] curDecisions = fop.getJuryMemberDecision();
 		if (curDecisions != null) {
@@ -365,8 +373,10 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		}
 		Boolean[] curRefDecisions = fop.getRefereeDecision();
 		Long[] curRefTimes = fop.getRefereeTime();
-		this.decisions.doReset();
-		if (curRefDecisions != null) {
+		if (this.decisions != null) {
+			this.decisions.doReset();
+		}
+		if (curRefDecisions != null && this.decisions != null) {
 			// for (int i = 0; i < 3; i++) {
 			// Boolean goodBad = curRefDecisions[i];
 			// logger.debug("existing ref {} {}", i, goodBad);
@@ -450,17 +460,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	private void buildRefereeBox(VerticalLayout container) {
 		this.refereeLabelWrapper = createRefereeLabel(null);
 
-		this.decisions = new JuryDisplayDecisionElement();
-		this.decisions.setFop(getFop());
-		this.decisions.setDisplaySize("large");
-		this.decisions.getElement().setAttribute("theme", "dark");
-		this.decisions.getStyle().set("background-color", "black");
-		this.decisions.getStyle().set("font-size", "100%");
-		Div decisionWrapper = new Div(this.decisions);
-		decisionWrapper.getStyle().set("width", "50%");
-		// decisionWrapper.getStyle().set("height", "max-content");
-
-		this.refContainer = new HorizontalLayout(decisionWrapper);
+		// Create empty container first - decisions element will be added when FOP is available
+		this.refContainer = new HorizontalLayout();
 		this.refContainer.setBoxSizing(BoxSizing.BORDER_BOX);
 		this.refContainer.setJustifyContentMode(JustifyContentMode.CENTER);
 		this.refContainer.getStyle().set("background-color", "black");
@@ -473,6 +474,32 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		container.add(this.refereeLabelWrapper);
 		container.setAlignSelf(Alignment.START, this.refereeLabelWrapper);
 		container.add(this.refContainer);
+
+		// Create and add decisions element only if FOP is already available
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
+			addDecisionsElement(fop);
+		}
+		// Otherwise, syncWithFop() will call addDecisionsElement() when FOP becomes available
+	}
+
+	/**
+	 * Creates and adds the JuryDisplayDecisionElement to refContainer.
+	 * Called either from buildRefereeBox (if FOP available) or syncWithFop (deferred).
+	 */
+	private void addDecisionsElement(FieldOfPlay fop) {
+		if (this.decisions != null || this.refContainer == null) {
+			return; // Already created or container not ready
+		}
+		this.decisions = new JuryDisplayDecisionElement();
+		this.decisions.setFop(fop);
+		this.decisions.setDisplaySize("large");
+		this.decisions.getElement().setAttribute("theme", "dark");
+		this.decisions.getStyle().set("background-color", "black");
+		this.decisions.getStyle().set("font-size", "100%");
+		Div decisionWrapper = new Div(this.decisions);
+		decisionWrapper.getStyle().set("width", "50%");
+		this.refContainer.add(decisionWrapper);
 	}
 
 	private void checkAllVoted() {

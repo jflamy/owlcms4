@@ -147,10 +147,16 @@ public class JuryDecisionDialog extends Dialog {
 		
 		if (juryDecision != null) {
 			// Jury has made a decision - only show Resume button with primary theme
+			// Resume will apply the jury decision, then restart lifting
 			this.resumeButton = new Button(Translator.translate("JuryNotification.END_JURY_BREAK"));
 			this.resumeButton.getElement().setAttribute("theme", "primary");
 			this.resumeButton.addClickListener(c -> {
-				OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this.origin));
+				// First apply the jury decision (reversal or confirmation)
+				if (this.athlete != null) {
+					boolean success = (juryDecision == JuryDeliberationEventType.GOOD_LIFT);
+					OwlcmsSession.getFop().fopEventPost(new FOPEvent.JuryDecision(this.athlete, this.origin, success, false));
+				}
+				// doJuryDecision will handle restarting lifting after the decision is displayed
 				close();
 			});
 			buttonContainer.add(this.resumeButton);

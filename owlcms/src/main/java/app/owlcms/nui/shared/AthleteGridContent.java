@@ -399,6 +399,11 @@ public abstract class AthleteGridContent extends BaseContent
 		if (this.timer == null) {
 			this.timer = new AthleteTimerElement(this);
 		}
+		// FOP may not be available yet during init; will be set in syncWithFop()/createTopBar()
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
+			this.timer.setFop(fop);
+		}
 		this.timer.setSilenced(this.isSilenced());
 		H1 time = new H1(this.timer);
 		clearVerticalMargins(this.attempt);

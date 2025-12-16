@@ -1807,7 +1807,9 @@ public class FieldOfPlay implements IUnregister {
 			boolean newRecord = e.success && getLastChallengedRecords() != null
 			        && !getLastChallengedRecords().isEmpty();
 
+			
 			boolean waitForAnnouncer = Competition.getCurrent().isAnnouncerControlledJuryDecision() && e.isJuryButton();
+			logger.warn("=========== waitForAnnouncer={} isJuryButton={} ", waitForAnnouncer,  e.isJuryButton());
 			JuryNotification juryNotificationEvent = new UIEvent.JuryNotification(a, e.getOrigin(),
 			        e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
 			        reversalToGood || reversalToBad, newRecord,
@@ -1839,7 +1841,9 @@ public class FieldOfPlay implements IUnregister {
 			// state.
 			setGoodLift(e.success);
 			setState(DECISION_VISIBLE);
-			pushOutUIEvent(juryNotificationEvent);
+			
+			// Apply the reversal/confirmation to the athlete BEFORE sending the notification
+			// so attempt board shows updated result
 			a.doLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
 			AthleteRepository.save(a);
 
@@ -1848,6 +1852,9 @@ public class FieldOfPlay implements IUnregister {
 			setNewRecords(updateRecords(a, e.success, getLastChallengedRecords(), getLastNewRecords()));
 
 			recomputeLiftingOrder(true, true);
+			
+			// Now send the notification with the updated data
+			pushOutUIEvent(juryNotificationEvent);
 
 			// tell ourself to reset after 3 secs.
 			new DelayTimer(isTestingMode()).schedule(() -> {
@@ -1943,9 +1950,10 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			switch (newBreak) {
 				case JURY:
+					logger.debug("{}Jury break notification", FieldOfPlay.getLoggingName(this));
 					resetJuryDecisions();
 					pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,
-					        JuryDeliberationEventType.START_DELIBERATION, null, null, false, this, null));
+					        JuryDeliberationEventType.START_DELIBERATION, null, null, Competition.getCurrent().isAnnouncerControlledJuryDecision(), this, null));
 					break;
 				case MARSHAL:
 					pushOutUIEvent(new UIEvent.JuryNotification(this.athleteUnderReview, this,

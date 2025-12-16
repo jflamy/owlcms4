@@ -443,16 +443,20 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void create1MinButton() {
 		super.create1MinButton();
-		currentUI.addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
-		currentUI.addShortcutListener(() -> do1Minute(), Key.EQUAL, KeyModifier.SHIFT);
+		currentUI.access(() -> {
+			currentUI.addShortcutListener(() -> do1Minute(), Key.NUMPAD_ADD);
+			currentUI.addShortcutListener(() -> do1Minute(), Key.EQUAL, KeyModifier.SHIFT);
+		});
 	}
 
 	@Override
 	protected void create2MinButton() {
 		super.create2MinButton();
-		currentUI.addShortcutListener(() -> do2Minutes(), Key.EQUAL);
-		currentUI.addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
-		currentUI.addShortcutListener(() -> do2Minutes(), Key.SEMICOLON);
+		currentUI.access(() -> {
+			currentUI.addShortcutListener(() -> do2Minutes(), Key.EQUAL);
+			currentUI.addShortcutListener(() -> do2Minutes(), Key.NUMPAD_EQUAL);
+			currentUI.addShortcutListener(() -> do2Minutes(), Key.SEMICOLON);
+		});
 	}
 
 	/**
@@ -548,16 +552,17 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void createStartTimeButton() {
 		super.createStartTimeButton();
-		currentUI.addShortcutListener(() -> doStartTime(), Key.COMMA);
 		boolean notSpanish = !OwlcmsSession.getLocale().getLanguage().startsWith("es");
 		boolean keepSpanishKeypadShortcut = Config.getCurrent().featureSwitch("keepSpanishHyphenShortcut");
-		if (notSpanish || keepSpanishKeypadShortcut) {
-			currentUI.addShortcutListener(() -> doStartTime(), Key.SLASH);
-		}
-		currentUI.addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
-
-		currentUI.addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
-		currentUI.addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
+		currentUI.access(() -> {
+			currentUI.addShortcutListener(() -> doStartTime(), Key.COMMA);
+			if (notSpanish || keepSpanishKeypadShortcut) {
+				currentUI.addShortcutListener(() -> doStartTime(), Key.SLASH);
+			}
+			currentUI.addShortcutListener(() -> doStartTime(), Key.NUMPAD_DIVIDE);
+			currentUI.addShortcutListener(() -> doToggleTime(), Key.NUMPAD_MULTIPLY);
+			currentUI.addShortcutListener(() -> doToggleTime(), Key.DIGIT_8, KeyModifier.SHIFT);
+		});
 	}
 
 	/**
@@ -568,8 +573,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	protected void createStopTimeButton() {
 		super.createStopTimeButton();
-		currentUI.addShortcutListener(() -> doStopTime(), Key.PERIOD);
-		currentUI.addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL);
+		currentUI.access(() -> {
+			currentUI.addShortcutListener(() -> doStopTime(), Key.PERIOD);
+			currentUI.addShortcutListener(() -> doStopTime(), Key.NUMPAD_DECIMAL);
+		});
 	}
 
 	@Override
