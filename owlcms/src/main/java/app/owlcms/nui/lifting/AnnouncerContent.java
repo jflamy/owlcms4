@@ -249,7 +249,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				case START_DELIBERATION:
 				case CHALLENGE:
 					// Show jury decision dialog immediately with Good Lift/No Lift buttons
-					if (!this.deliberationNotificationSent) {
+					if (e.isWaitForAnnouncer() && !this.deliberationNotificationSent) {
 						juryDecisionDialog(e, null);
 					}
 					this.deliberationNotificationSent = true;
