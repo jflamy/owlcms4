@@ -1719,6 +1719,11 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	 * remove any global client id that is not present in the broker's authoritative list.
 	 */
 	private static void reconcileWithBroker() {
+		// Skip reconciliation if MQTT server is disabled
+		if (!Config.getCurrent().getParamMqttInternal()) {
+			return;
+		}
+		
 		try {
 			// Main.mqttBroker is private; access it reflectively to avoid visibility issues
 			Object broker = null;
