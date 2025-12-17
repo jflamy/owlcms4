@@ -347,8 +347,8 @@ public class Competition {
 	private String technicalOfficialsTemplateFileName;
 	@Column(columnDefinition = "boolean default true")
 	private boolean imwa = true;
-	@Column(columnDefinition = "boolean default true")
-	private Boolean deduct250g = true;
+	@Column(columnDefinition = "boolean default false")
+	private Boolean deduct250g = false;
 	@Column(columnDefinition = "boolean default false")
 	private boolean manualStartNumbers = false;
 
