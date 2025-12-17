@@ -238,6 +238,7 @@ public class FieldOfPlay implements IUnregister {
 	Map<Athlete, List<RecordEvent>> eligibleRecordsByAthlete = new HashMap<>();
 	Set<RecordEvent> groupRecords = new HashSet<>();
 	private boolean clockStoppedDecisionsAllowed;
+	private boolean decisionReceivedWithoutClock;
 	private Group videoGroup;
 	private Category videoCategory;
 	private AgeGroup videoAgeGroup;
@@ -895,6 +896,22 @@ public class FieldOfPlay implements IUnregister {
 					doForceTime((ForceTime) e);
 				} else if (e instanceof CeremonyDone) {
 					// ignore, already dealt by timer
+				} else if (e instanceof DecisionFullUpdate) {
+					// Accept decision even though clock was not started
+					// Clear stale decisions and set up for decision processing
+					setupForDecisionWithoutClock(e);
+					updateRefereeDecisions((DecisionFullUpdate) e);
+					uiShowUpdateOnJuryScreen(e);
+				} else if (e instanceof DecisionUpdate) {
+					// Accept decision even though clock was not started
+					// Clear stale decisions and set up for decision processing
+					setupForDecisionWithoutClock(e);
+					doPossiblySoloRefereeUpdate(e);
+				} else if (e instanceof ExplicitDecision) {
+					// Accept announcer forced decision even though clock was not started
+					// Clear stale decisions and set up for decision processing (same as MQTT flow)
+					setupForDecisionWithoutClock(e);
+					simulateDecision((ExplicitDecision) e);
 				} else {
 					pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
 					        UIEvent.Notification.Level.ERROR, this));
@@ -949,9 +966,17 @@ public class FieldOfPlay implements IUnregister {
 					// only occurs if solo referee
 					emitDown(e);
 				} else if (e instanceof DecisionFullUpdate) {
+					// If no clock owner (e.g., after session reload), set up properly first
+					if (getClockOwner() == null) {
+						setupForDecisionWithoutClock(e);
+					}
 					updateRefereeDecisions((DecisionFullUpdate) e);
 					uiShowUpdateOnJuryScreen(e);
 				} else if (e instanceof DecisionUpdate) {
+					// If no clock owner (e.g., after session reload), set up properly first
+					if (getClockOwner() == null) {
+						setupForDecisionWithoutClock(e);
+					}
 					// mqtt
 					doPossiblySoloRefereeUpdate(e);
 				} else if (e instanceof TimeStarted) {
@@ -2319,6 +2344,8 @@ public class FieldOfPlay implements IUnregister {
 			if (this.wakeUpRef != null) {
 				cancelWakeUpRef();
 			}
+			// Notify announcer/timekeeper if decision was received without clock
+			notifyDecisionWithoutClock(e.getOrigin());
 			setGoodLift(nbWhite >= 2);
 			// logger.debug("*** 3 decisions");
 			processDecisionDelay(e);
@@ -2722,6 +2749,27 @@ public class FieldOfPlay implements IUnregister {
 		setDownEmitted(false);
 		setDecisionDisplayScheduled(false);
 		setClockStoppedDecisionsAllowed(false);
+		this.decisionReceivedWithoutClock = false;
+	}
+
+	/**
+	 * Notify announcer/timekeeper if a decision was recorded without the clock being started.
+	 * This is a safety warning - the lift result will still be processed, but officials should
+	 * be alerted to the procedural irregularity.
+	 * 
+	 * @param origin the origin of the event for notification routing
+	 */
+	private void notifyDecisionWithoutClock(Object origin) {
+		if (this.decisionReceivedWithoutClock) {
+			this.logger.warn("{}Decision recorded but clock was never started for {}",
+			        FieldOfPlay.getLoggingName(this), getCurAthlete().getShortName());
+			pushOutUIEvent(new UIEvent.Notification(
+			        getCurAthlete(), origin,
+			        UIEvent.Notification.Level.ERROR,
+			        "Decision.ClockNotStarted",
+			        5000, this));
+			this.decisionReceivedWithoutClock = false;
+		}
 	}
 
 	private void restartTimer(FOPEvent e, boolean useEvent) {
@@ -2820,6 +2868,55 @@ public class FieldOfPlay implements IUnregister {
 		this.logger.debug("{}setClockOwnerInitialTimeAllowed timeAllowed={} {}", FieldOfPlay.getLoggingName(this),
 		        timeAllowed, LoggerUtils.whereFrom());
 		this.clockOwnerInitialTimeAllowed = timeAllowed;
+	}
+
+	/**
+	 * Set up the FOP state to accept a referee decision even though the clock was never started.
+	 * This ensures the decision can be processed as if the clock had been started.
+	 * <p>
+	 * This mirrors the essential setup from {@link #transitionToTimeRunning()} so that:
+	 * <ul>
+	 * <li>The down signal can be emitted when 2+ referees agree</li>
+	 * <li>The lift outcome (good/bad) is properly registered</li>
+	 * <li>The decision lights are shown after the appropriate delay</li>
+	 * </ul>
+	 *
+	 * @param e the decision event
+	 */
+	private void setupForDecisionWithoutClock(FOPEvent e) {
+		// Clear stale decisions from previous lift FIRST - before any other setup
+		// This must happen unconditionally to prevent old decisions from triggering
+		// an immediate down signal when combined with a single new decision
+		resetDecisions();
+
+		// Only do the full setup if we haven't already transitioned
+		// (prevents re-setup on 2nd and 3rd referee decisions)
+		if (getClockOwner() == null || !getClockOwner().equals(getCurAthlete())) {
+			// Set up clock ownership as if timekeeper had started it
+			setClockOwner(getCurAthlete());
+
+			// Reset emitted flags - crucial for down signal to work
+			// This sets downEmitted=false so emitDown() will actually emit
+			resetEmittedFlags();
+
+			prepareDownSignal();
+			setWeightAtLastStart();
+
+			// Clear any previous lift result
+			setGoodLift(null);
+
+			// Transition to TIME_STOPPED (as if athlete already lifted bar)
+			// Allow decisions to be processed in this state
+			setState(TIME_STOPPED);
+			setClockStoppedDecisionsAllowed(true);
+
+			// Mark that decision came without clock - notification will be shown
+			// only when all 3 referees have decided (in processRefereeDecisions)
+			this.decisionReceivedWithoutClock = true;
+
+			this.logger.debug("{}Decision received but clock was not started for {}", FieldOfPlay.getLoggingName(this),
+			        getCurAthlete().getShortName());
+		}
 	}
 
 	private void setClockStoppedDecisionsAllowed(boolean b) {
@@ -3057,6 +3154,9 @@ public class FieldOfPlay implements IUnregister {
 		if (getAthleteTimer().isRunning()) {
 			getAthleteTimer().stop();
 		}
+
+		// Check if this decision came without clock being started (e.g., MQTT solo referee)
+		notifyDecisionWithoutClock(ed.getOrigin());
 
 		this.setClockOwner(null);
 		DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
