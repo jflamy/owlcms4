@@ -380,7 +380,8 @@ public class CategoryRepository {
 	        Double bodyWeight, Gender gender, Boolean active) {
 		List<String> whereList = new LinkedList<>();
 		if (ageDivision != null) {
-			whereList.add("((ag.ageDivision = :championshipName) or (ag.championshipName = :championshipName))");
+			// Match on championshipName first; only fall back to ageDivision if championshipName is not set
+			whereList.add("((ag.championshipName = :championshipName) or ((ag.championshipName IS NULL OR ag.championshipName = '') AND ag.ageDivision = :championshipName))");
 		}
 		if (name != null && name.trim().length() > 0) {
 			whereList.add("lower(c.name) like :name");

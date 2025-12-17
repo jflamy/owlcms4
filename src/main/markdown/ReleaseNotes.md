@@ -7,6 +7,12 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
+**New in Release 63.5**
+
+63.5.0: If in the same competition there were two or more simultaneous Masters championships
+- The filtering from Championship to Masters Age Group was not correct (Registration, Team Memberships, Team Results, Final Results)
+- Some Masters athletes could be counted in a championship in which their age group did not participate.
+
 **New in Release 63.4**
 
 63.4.0: Fix: Failure to post event information to either of the public scoreboard or video URLs could block the other.
