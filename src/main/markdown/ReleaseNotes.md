@@ -17,6 +17,8 @@
 
 **New in Release 64**
 
+64.0.0-beta05: Decisions entered when the clock was not started will now be accepted.  A red notification is given to the announcer, timekeeper and jury.
+
 64.0.0-beta04: Manual 250g deduction is now by default (automatic must be selected); clarified option description
 
 64.0.0: End of Competitition Behavior for Best Athlete Scoring:
