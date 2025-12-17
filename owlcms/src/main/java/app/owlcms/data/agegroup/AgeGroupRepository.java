@@ -643,8 +643,8 @@ public class AgeGroupRepository {
 	        Boolean active) {
 		List<String> whereList = new LinkedList<>();
 		if (championship != null) {
-			// Canonicalize both DB and parameter for matching
-			whereList.add("((LOWER(TRIM(ag.championshipName)) = :canonicalChampionshipName) or (LOWER(TRIM(ag.ageDivision)) = :canonicalChampionshipName))");
+			// Match on championshipName first; only fall back to ageDivision if championshipName is not set
+			whereList.add("((LOWER(TRIM(ag.championshipName)) = :canonicalChampionshipName) or ((ag.championshipName IS NULL OR TRIM(ag.championshipName) = '') AND LOWER(TRIM(ag.ageDivision)) = :canonicalChampionshipName))");
 		}
 		if (name != null && name.trim().length() > 0) {
 			whereList.add("lower(ag.code) like :code");
