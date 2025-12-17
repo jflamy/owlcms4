@@ -9,8 +9,9 @@
 <br>
 **New in Release 63.5**
 
-63.5.0: If in the same competition there were two or more simultaneous Masters championships, the filtering from Championship to Masters Age Group was not correct and
-some Masters athletes could be counted in the other championship in addition to their own.
+63.5.0: If in the same competition there were two or more simultaneous Masters championships
+- The filtering from Championship to Masters Age Group was not correct (Registration, Team Memberships, Team Results, Final Results)
+- Some Masters athletes could be counted in a championship in which their age group did not participate.
 
 **New in Release 63.4**
 
