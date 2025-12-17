@@ -9,13 +9,15 @@
 <br>
 **Maintenance Log**
 
-64.0.0-beta03: Include fixes from 63.5.0 for Championship -> Age Group filtering
+64.0.0-beta03: Fix: Include fixes from 63.5.0 for Championship -> Age Group filtering
 
 64.0.0-beta02: Fix: the competition setting to display the jury decision immediately without waiting for the announcer is operational again.
 
 64.0.0-beta01: Feature set deemed complete. Entering external testing phase.
 
 **New in Release 64**
+
+64.0.0-beta04: Manual 250g deduction is now by default (automatic must be selected); clarified option description
 
 64.0.0: End of Competitition Behavior for Best Athlete Scoring:
 - If no championship is selected, all athletes are shown, with the global scoring scheme.  The Final package also uses the global scoring scheme.
