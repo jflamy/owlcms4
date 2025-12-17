@@ -9,6 +9,8 @@
 <br>
 **Maintenance Log**
 
+64.0.0-beta03: Include fixes from 63.5.0 for Championship -> Age Group filtering
+
 64.0.0-beta02: Fix: the competition setting to display the jury decision immediately without waiting for the announcer is operational again.
 
 64.0.0-beta01: Feature set deemed complete. Entering external testing phase.
