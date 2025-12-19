@@ -170,7 +170,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private String fullName;
 
 	private List<Athlete> groupLeaders;
-	private String groupDescription;
+	private String sessionDescription;
 	private String sessionName;
 	private boolean hidden;
 	private JsonValue leaders;
@@ -379,8 +379,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return this.fopState;
 	}
 
-	public String getGroupDescription() {
-		return this.groupDescription;
+	public String getSessionDescription() {
+		return this.sessionDescription;
 	}
 
 	public String getSessionInfo() {
@@ -801,8 +801,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		this.fullName = fullName;
 	}
 
-	void setGroupDescription(String description) {
-		this.groupDescription = description;
+	void setSessionDescription(String description) {
+		this.sessionDescription = description;
 	}
 
 	void setSessionName(String name) {
@@ -1223,9 +1223,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "weight", this.weight != null ? this.weight.toString() : null);
 		mapPut(sb, "timeAllowed", this.timeAllowed != null ? this.timeAllowed.toString() : null);
 
-		// current group
+		// current session
 		mapPut(sb, "sessionName", getSessionName());
-		mapPut(sb, "groupDescription", getGroupDescription());
+		mapPut(sb, "sessionDescription", getSessionDescription());
 		mapPut(sb, "sessionInfo", getSessionInfo());
 		mapPut(sb, "liftTypeKey", this.liftTypeKey);
 		mapPut(sb, "liftsDone", getLiftsDone());
@@ -2571,7 +2571,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			lLiftsDone = Translator.translate("Scoreboard.AttemptsDone", lNbLiftsDone);
 		}
 		setSessionName(lCurGroup != null ? lCurGroup.getName() : "");
-		setGroupDescription(lGroupDescription != null ? lGroupDescription : "");
+		setSessionDescription(lGroupDescription != null ? lGroupDescription : "");
 		setSessionInfo(lSessionInfo);
 		setLiftsDone(lLiftsDone);
 	}
