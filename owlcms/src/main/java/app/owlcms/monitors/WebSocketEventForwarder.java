@@ -1421,7 +1421,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		} else {
 			setFullName(g.getName());
 			setSessionName("");
-			setGroupDescription("");
+			setSessionDescription("");
 			setSessionInfo("");
 			setLiftsDone("");
 		}
