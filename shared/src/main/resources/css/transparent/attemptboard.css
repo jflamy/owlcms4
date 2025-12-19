@@ -185,13 +185,6 @@
 	border: 1px solid white;
 }
 
-.attemptBoard .flag > img,
-.attemptBoard .flagWithPicture > img {
-	display: block;
-	max-width: 100%;
-	height: auto;
-}
-
 .attemptBoard .picture {
 	display: flex;
 	justify-self: center;
