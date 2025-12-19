@@ -435,6 +435,28 @@ public class ConfigEditingFormFactory
 		return layout;
 	}
 
+	/**
+	 * Handle WebSocket URL changes - close old connection if URL changed.
+	 * If there's no prior URL (initialization), this does nothing and allows
+	 * the new connection to be created automatically on the next event.
+	 * 
+	 * @param oldUrl the previous URL value (may be null on initialization)
+	 * @param newUrl the new URL value
+	 * @param urlType descriptive name for logging (e.g., "Public Results", "Video Data")
+	 */
+	private void handleWebSocketUrlChange(String oldUrl, String newUrl, String urlType) {
+		// Close old WebSocket connection if URL changed
+		if (oldUrl != null && !oldUrl.trim().isEmpty() && 
+		    (oldUrl.startsWith("ws://") || oldUrl.startsWith("wss://"))) {
+			if (!oldUrl.equals(newUrl)) {
+				logger.info("{} URL changed from {} to {}, closing old connection", urlType, oldUrl, newUrl);
+				WebSocketEventSender.closeSender(oldUrl);
+			}
+		}
+		// If oldUrl is null/empty (initialization case), do nothing here.
+		// New connection will be created automatically on next event if newUrl is configured.
+	}
+
 	private FormLayout publicResultsForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("Config.PublicResultsTitle");
@@ -448,6 +470,10 @@ public class ConfigEditingFormFactory
 		        .withNullRepresentation("")
 		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(https?://|wss?://).*"))
 		        .bind(Config::getPublicResultsURL, Config::setPublicResultsURL);
+		
+		publicResultsField.addValueChangeListener(event -> 
+			handleWebSocketUrlChange(event.getOldValue(), event.getValue(), "Public Results")
+		);
 
 		PasswordField updateKey = new PasswordField();
 		updateKey.setWidthFull();
@@ -597,6 +623,10 @@ public class ConfigEditingFormFactory
 		        .withNullRepresentation("")
 		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(https?://|wss?://).*"))
 		        .bind(Config::getVideoDataURL, Config::setVideoDataURL);
+		
+		videoDataField.addValueChangeListener(event -> 
+			handleWebSocketUrlChange(event.getOldValue(), event.getValue(), "Video Data")
+		);
 
 		PasswordField updateKey = new PasswordField();
 		updateKey.setWidthFull();
