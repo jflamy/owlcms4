@@ -159,11 +159,14 @@ public class WebSocketEventSender {
 
 	/**
 	 * Set callback to be invoked when WebSocket connection opens.
-	 * The callback is invoked on every successful connection including reconnects.
+	 * The callback is invoked only on actual connection open events (including reconnects),
+	 * not when this method is called on an already-open connection.
 	 * @param callback Callback to invoke when connection opens
 	 */
 	public void setOnOpenCallback(Runnable callback) {
-		this.onOpenCallback = callback;
+		synchronized (this) {
+			this.onOpenCallback = callback;
+		}
 	}
 
 	private synchronized void connect() {

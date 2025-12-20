@@ -6,40 +6,24 @@
  *******************************************************************************/
 package app.owlcms.monitors.websocket;
 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.monitors.websocket.ForwarderPayloadBuilder.CompetitionDataExport;
 import app.owlcms.utils.FlagsZipHelper;
-import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.DatabaseZipHelper;
 import app.owlcms.utils.PicturesZipHelper;
 import app.owlcms.utils.TranslationsZipHelper;
 import ch.qos.logback.classic.Logger;
 
 /**
- * Handles WebSocket and HTTP communication for forwarding events.
+ * Handles WebSocket communication for forwarding events to trackers.
+ * WebSocket-only - no HTTP support.
  * Manages debouncing, URL tracking, and message delivery.
  */
 public class WebSocketSender {
@@ -57,32 +41,26 @@ public class WebSocketSender {
 	}
 
 	/**
-	 * Send data via WebSocket or HTTP POST based on URL scheme.
+	 * Send data via WebSocket connection.
+	 * WebSocket-only - URL must start with ws:// or wss://.
+	 * 
+	 * @param url WebSocket URL (ws:// or wss://)
+	 * @param updateKey update key for authentication (optional)
+	 * @param parameters data to send
+	 * @param messageType type of message (update, timer, decision)
 	 */
-	public void sendPost(String url, String updateKey, Map<String, ?> parameters, String messageType) {
+	public void send(String url, String updateKey, Map<String, ?> parameters, String messageType) {
 		if (url == null) {
 			return;
 		}
 
-		// Check if URL is WebSocket (ws:// or wss://)
-		if (url.startsWith("ws://") || url.startsWith("wss://")) {
-			sendWebSocket(url, messageType, parameters);
+		// Only WebSocket URLs are supported
+		if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
+			logger.debug("{}ignoring non-WebSocket URL: {}", FieldOfPlay.getLoggingName(fop), url);
 			return;
 		}
 
-		Integer previousDebounceHash = this.debouncingHash.get(url);
-		Long previousDebounceMillis = this.debouncingMillis.get(url);
-		long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
-		Integer hashCode = ForwarderPayloadBuilder.computeParametersHash(parameters);
-
-		// debounce, sometimes several identical updates in a rapid succession
-		// identical updates are ok after 1 sec.
-		if (!hashCode.equals(previousDebounceHash) || (deltaMillis > 1000)) {
-			new Thread(() -> doPost(url, updateKey, parameters)).start();
-
-			this.debouncingHash.put(url, hashCode);
-			this.debouncingMillis.put(url, System.currentTimeMillis());
-		}
+		sendWebSocket(url, messageType, parameters);
 	}
 
 	/**
@@ -166,16 +144,27 @@ public class WebSocketSender {
 	/**
 	 * Send full competition data to a URL.
 	 */
+	/**
+	 * Send competition database via WebSocket using compressed binary ZIP format.
+	 * SINGLE DATABASE SENDING ROUTINE - always uses binary ZIP for efficiency (70-80% reduction).
+	 * 
+	 * Called when:
+	 * 1. Remote system requests database (via 428 Precondition Required status)
+	 * 2. Initial connection to tracker
+	 * 
+	 * Binary ZIP format is used for all WebSocket transmissions:
+	 * - Typical database: ~700KB JSON → ~200KB ZIP
+	 * - Provides consistent, efficient transmission
+	 * 
+	 * @param url the WebSocket URL to send the database to
+	 * @param updateKey the update key for validation (optional, not used for WebSocket binary format)
+	 */
 	public void sendFullCompetitionData(String url, String updateKey) {
 		logger.debug("{}sendFullCompetitionData called for url: {}", FieldOfPlay.getLoggingName(fop), url);
 
 		if (url == null) {
-			logger.error("cannot send full competition data, url or updateKey is null - url:{}, updateKey:{}", url,
-			        updateKey);
+			logger.error("cannot send database, url is null");
 			return;
-		}
-		if (updateKey == null) {
-			logger.debug("no updateKey configured for {}, proceeding without one", url);
 		}
 
 		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionData(fop);
@@ -184,103 +173,43 @@ public class WebSocketSender {
 			return;
 		}
 
-		// Check if URL is WebSocket
+		// Only support WebSocket for database transmission (binary ZIP format)
 		if (url.startsWith("ws://") || url.startsWith("wss://")) {
-			// Send via WebSocket with checksum and parsed JSON structure
 			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
 			if (sender != null) {
-				Map<String, Object> payload = new LinkedHashMap<>();
-				payload.put("databaseChecksum", export.checksum());
-				payload.put("database", export.structure());
-				boolean sent = sender.sendObject("database", payload);
-				if (sent) {
-					logger.debug("{}sent full competition data via WebSocket to {}",
-					        FieldOfPlay.getLoggingName(fop), url);
+				// Compress database using binary ZIP format
+				// Use export.structure() (parsed object) not export.json() (string)
+				byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(
+					export.structure()
+				);
+
+				if (databaseZipBytes.length > 0) {
+					boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
+					if (sent) {
+						// Log compression ratio for reference
+						String jsonDatabase = export.json();
+						double ratio = 100.0 * (1.0 - (double) databaseZipBytes.length / jsonDatabase.getBytes().length);
+						logger.info(
+							"{}sent database ZIP via WebSocket to {} ({} bytes, from {}, {:.1f}% reduction)",
+							FieldOfPlay.getLoggingName(fop), url, databaseZipBytes.length,
+							jsonDatabase.getBytes().length, ratio
+						);
+					} else {
+						logger.debug(
+							"{}could not send database ZIP via WebSocket to {} (socket not ready)",
+							FieldOfPlay.getLoggingName(fop), url
+						);
+					}
 				} else {
-					logger.debug("{}could not send full competition data via WebSocket to {} (socket not ready)",
-					        FieldOfPlay.getLoggingName(fop), url);
+					logger.error("{}failed to create database ZIP for {}",
+						FieldOfPlay.getLoggingName(fop), url);
 				}
 			}
 			return;
 		}
 
-		// HTTP POST path - wrap with checksum for database endpoint
-		try {
-			// ALWAYS construct the database endpoint URL - extract base URL and add /database
-			String baseUrl = url;
-			// Remove any path after the port/host
-			if (baseUrl.contains("://")) {
-				String[] parts = baseUrl.split("://");
-				if (parts.length == 2) {
-					String protocol = parts[0];
-					String hostPart = parts[1];
-					// Find the first slash after the host:port
-					int slashIndex = hostPart.indexOf('/');
-					if (slashIndex != -1) {
-						hostPart = hostPart.substring(0, slashIndex);
-					}
-					baseUrl = protocol + "://" + hostPart;
-				}
-			}
-			String databaseUrl = baseUrl + "/database";
-			logger.debug("{}ALWAYS sending to database endpoint: {} (from original: {})",
-			        FieldOfPlay.getLoggingName(fop), databaseUrl, url);
-			HttpPost post = new HttpPost(databaseUrl);
-
-			// Wrap database with checksum in JSON structure
-			Map<String, Object> wrapper = new LinkedHashMap<>();
-			wrapper.put("databaseChecksum", export.checksum());
-			// Parse the JSON string to include as nested structure
-			try {
-				Object databaseStructure = ForwarderPayloadBuilder.getObjectMapper().readValue(export.json(),
-				        Object.class);
-				wrapper.put("database", databaseStructure);
-			} catch (Exception parseEx) {
-				logger.error("{}failed to parse competition data JSON: {}",
-				        FieldOfPlay.getLoggingName(fop), LoggerUtils.exceptionMessage(parseEx));
-				return;
-			}
-			String wrappedJson = ForwarderPayloadBuilder.getObjectMapper().writeValueAsString(wrapper);
-
-			// Send the wrapped JSON data
-			post.setHeader("Content-Type", "application/json; charset=UTF-8");
-			post.setEntity(new StringEntity(wrappedJson, "UTF-8"));
-
-			logger.debug("{}posting database with checksum to endpoint {}",
-			        FieldOfPlay.getLoggingName(fop), databaseUrl);
-
-			try (CloseableHttpClient httpClient = HttpClients.createDefault();
-			        CloseableHttpResponse response = httpClient.execute(post)) {
-				StatusLine statusLine = response.getStatusLine();
-				Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-				if (statusCode != null && statusCode != 200) {
-					if (statusCode == 404) {
-						logger.debug(
-						        "{}database endpoint not available at {} - 404 Not Found (endpoint not implemented)",
-						        FieldOfPlay.getLoggingName(fop), databaseUrl);
-					} else if (statusCode >= 500) {
-						logger.error("{}server error sending to database endpoint {} - response: {}",
-						        FieldOfPlay.getLoggingName(fop), databaseUrl, statusLine);
-					} else if (statusCode >= 400) {
-						logger.error("{}client error sending to database endpoint {} - response: {}",
-						        FieldOfPlay.getLoggingName(fop), databaseUrl, statusLine);
-					} else {
-						logger.debug("{}unexpected response from database endpoint {} - response: {}",
-						        FieldOfPlay.getLoggingName(fop), databaseUrl, statusLine);
-					}
-				} else {
-					logger.debug("{}successfully sent full competition data to database endpoint {} - response: 200 OK",
-					        FieldOfPlay.getLoggingName(fop), databaseUrl);
-				}
-				EntityUtils.toString(response.getEntity());
-			} catch (Exception e1) {
-				logger.debug("{}database endpoint not available at {} - {} (this is not fatal)",
-				        FieldOfPlay.getLoggingName(fop), databaseUrl, LoggerUtils.exceptionMessage(e1));
-			}
-		} catch (Exception e2) {
-			logger.debug("{}could not send full competition data to {} - {} (this is not fatal)",
-			        FieldOfPlay.getLoggingName(fop), url, LoggerUtils.exceptionMessage(e2));
-		}
+		logger.debug("{}database transmission requires WebSocket ({})",
+			FieldOfPlay.getLoggingName(fop), url);
 	}
 
 	/**
@@ -361,85 +290,7 @@ public class WebSocketSender {
 			return;
 		}
 
-		logger.debug("{}HTTP endpoint for translations not implemented ({})", FieldOfPlay.getLoggingName(fop), url);
-	}
-
-	/**
-	 * Send configuration to HTTP endpoint.
-	 */
-	public void sendConfig(String destination, Map<String, String> config) {
-		if (destination == null) {
-			return;
-		}
-
-		if (destination.startsWith("ws://") || destination.startsWith("wss://")) {
-			// WebSocket doesn't need config send
-			return;
-		}
-
-		if (destination.endsWith("/update") || destination.endsWith("/timer") || destination.endsWith("/decision")) {
-			try {
-				HttpPost post = new HttpPost(destination.replace("/update", "/config").replace("/timer", "/config")
-				        .replace("/decision", "/config"));
-
-				MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-				for (Entry<String, String> entry : config.entrySet()) {
-					builder.addPart(entry.getKey(),
-					        new StringBody(entry.getValue(), ContentType.create("text/plain", "UTF-8")));
-				}
-				HttpEntity entity = builder.build();
-				post.setEntity(entity);
-
-				try (CloseableHttpClient httpClient = HttpClients.createDefault();
-				        CloseableHttpResponse response = httpClient.execute(post)) {
-					StatusLine statusLine = response.getStatusLine();
-					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-					if (statusCode != null && statusCode != 200) {
-						logger.error("{}could not send config to {} {} {}", FieldOfPlay.getLoggingName(fop),
-						        destination,
-						        statusLine,
-						        LoggerUtils.whereFrom(1));
-					}
-					EntityUtils.toString(response.getEntity());
-				} catch (Exception e1) {
-					logger.error("{}could not send config to {} {}", FieldOfPlay.getLoggingName(fop), destination,
-					        LoggerUtils.exceptionMessage(e1));
-				}
-			} catch (Exception e2) {
-				logger.error("{}could not send config to {} {}", FieldOfPlay.getLoggingName(fop), destination, e2);
-			}
-		}
-	}
-
-	// Private helper for HTTP POST
-	private void doPost(String url, String updateKey, Map<String, ?> parameters) {
-		HttpPost post = new HttpPost(url);
-		try {
-			List<NameValuePair> params = new ArrayList<>();
-			for (Entry<String, ?> entry : parameters.entrySet()) {
-				String value = ForwarderPayloadBuilder.convertParameterValue(entry.getValue(), fop);
-				if (value != null) {
-					params.add(new BasicNameValuePair(entry.getKey(), value));
-				}
-			}
-			post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			logger.error("{}encoding error: {}", FieldOfPlay.getLoggingName(fop), LoggerUtils.exceptionMessage(e));
-			return;
-		}
-
-		try (CloseableHttpClient httpClient = HttpClients.createDefault();
-		        CloseableHttpResponse response = httpClient.execute(post)) {
-			StatusLine statusLine = response.getStatusLine();
-			Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-			if (statusCode != null && statusCode != 200) {
-				logger.error("{}POST to {} returned status {}", FieldOfPlay.getLoggingName(fop), url, statusLine);
-			}
-			EntityUtils.toString(response.getEntity());
-		} catch (Exception e) {
-			logger.debug("{}POST to {} failed: {}", FieldOfPlay.getLoggingName(fop), url,
-			        LoggerUtils.exceptionMessage(e));
-		}
+		logger.debug("{}non-WebSocket URL not supported ({})", FieldOfPlay.getLoggingName(fop), url);
 	}
 
 	/**
@@ -498,13 +349,29 @@ public class WebSocketSender {
 		synchronized (WebSocketEventSender.class) {
 			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
 			if (sender != null) {
+				// Determine startup send mode (JSON vs binary) and log it
+				boolean jsonMode = Config.getCurrent().featureSwitch("jsonTrackerDatabase");
+				logger.info("Startup send mode for {}: {}", url, jsonMode ? "JSON(text)" : "BINARY(database_zip)");
+
+				// Prepare binary database ZIP if needed (created once)
+				final byte[] databaseZipBytes = jsonMode ? new byte[0]
+						: DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+
 				// Register missing data callbacks FIRST (before onOpenCallback)
 				// This ensures callbacks are available if the connection opens immediately
 				sender.setMissingDataCallback("database", () -> {
-					Map<String, Object> payload = new LinkedHashMap<>();
-					payload.put("databaseChecksum", export.checksum());
-					payload.put("database", export.structure());
-					sender.sendObject("database", payload);
+					if (jsonMode) {
+						Map<String, Object> payload = new LinkedHashMap<>();
+						payload.put("databaseChecksum", export.checksum());
+						payload.put("database", export.structure());
+						sender.sendObject("database", payload);
+					} else {
+						if (databaseZipBytes.length > 0) {
+							sender.sendBinary("database_zip", databaseZipBytes);
+						} else {
+							logger.warn("No database ZIP available to send to {}", url);
+						}
+					}
 				});
 
 				sender.setMissingDataCallback("translations_zip", () -> {
@@ -523,34 +390,48 @@ public class WebSocketSender {
 				});
 
 				// Single onOpenCallback that sends all three data types
-				// IMPORTANT: Send database first (text frame with updateKey) to authenticate,
+				// IMPORTANT: Send database first (text frame or binary) to authenticate if needed,
 				// then send binary frames (translations_zip, flags_zip) which require prior auth
 				sender.setOnOpenCallback(() -> {
-					logger.info("WebSocket connected to {}, sending startup data", url);
+					logger.info("WebSocket connected to {}, sending startup data (mode={})", url,
+							jsonMode ? "JSON" : "BINARY");
 
-					// Send database FIRST (text JSON message with updateKey for authentication)
-					Map<String, Object> dbPayload = new LinkedHashMap<>();
-					dbPayload.put("databaseChecksum", export.checksum());
-					dbPayload.put("database", export.structure());
-					boolean sent = sender.sendObject("database", dbPayload);
-					if (sent) {
-						logger.debug("Sent startup database via WebSocket to {} (this authenticates the connection)", url);
+					// Send database FIRST according to selected mode
+					if (jsonMode) {
+						Map<String, Object> dbPayload = new LinkedHashMap<>();
+						dbPayload.put("databaseChecksum", export.checksum());
+						dbPayload.put("database", export.structure());
+						boolean sent = sender.sendObject("database", dbPayload);
+						if (sent) {
+							logger.debug("Sent startup database (JSON) via WebSocket to {} (auth step)", url);
+						} else {
+							logger.debug("Could not send startup database (JSON) via WebSocket to {} (socket not ready)", url);
+						}
 					} else {
-						logger.debug("Could not send startup database via WebSocket to {} (socket not ready)", url);
+						if (databaseZipBytes.length > 0) {
+							boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
+							if (sent) {
+								logger.debug("Sent startup database_zip via WebSocket to {} (auth step)", url);
+							} else {
+								logger.debug("Could not send startup database_zip via WebSocket to {} (socket not ready)", url);
+							}
+						} else {
+							logger.warn("No database ZIP prepared for startup send to {}", url);
+						}
 					}
 
 					// Send binary frames AFTER authentication (requires valid updateKey from database message)
 					// Send translations_zip
-					sent = sender.sendBinary("translations_zip", translationsZipBytes);
-					if (sent) {
+					boolean sentBin = sender.sendBinary("translations_zip", translationsZipBytes);
+					if (sentBin) {
 						logger.debug("Sent startup translations_zip via WebSocket to {}", url);
 					} else {
 						logger.debug("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
 					}
 
 					// Send flags_zip
-					sent = sender.sendBinary("flags_zip", flagsZipBytes);
-					if (sent) {
+					sentBin = sender.sendBinary("flags_zip", flagsZipBytes);
+					if (sentBin) {
 						logger.debug("Sent startup flags_zip via WebSocket to {}", url);
 					} else {
 						logger.debug("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);

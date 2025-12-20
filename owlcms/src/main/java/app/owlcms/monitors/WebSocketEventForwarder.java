@@ -27,7 +27,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -87,6 +86,7 @@ import app.owlcms.monitors.websocket.ForwarderPayloadBuilder;
 import app.owlcms.monitors.websocket.ForwarderPayloadBuilder.CompetitionDataExport;
 import app.owlcms.monitors.websocket.WebSocketSender;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
+import app.owlcms.utils.DatabaseZipHelper;
 import app.owlcms.utils.FlagsZipHelper;
 import app.owlcms.utils.TranslationsZipHelper;
 import app.owlcms.utils.LoggerUtils;
@@ -1333,10 +1333,13 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());
 
+		// Database is now sent proactively on connection open and after platform updates.
+		// No longer embed empty database structure in update messages - it confuses the tracker
+		// into thinking a binary database_zip will follow.
 		if (event instanceof UIEvent.SwitchGroup || event instanceof UIEvent.GroupDone) {
 			CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionData(getFop());
 			if (export != null) {
-				sb.put("database", export.structure());
+				// Only send checksum so tracker can verify it has current data
 				mapPut(sb, "databaseChecksum", export.checksum());
 			}
 		}
@@ -1462,11 +1465,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 								sendConfig(url, updateKey);
 								nbTries++;
 							} else if (nbTries == 0 && statusCode != null && statusCode == 428) {
-								logger.debug("{}hub returned 428 - sending full competition data {} {} {}",
+								logger.debug("{}hub returned 428 - sending database {} {} {}",
 								        FieldOfPlay.getLoggingName(getFop()), url,
 								        statusLine,
 								        LoggerUtils.whereFrom(1));
-								sendFullCompetitionData(url, updateKey);
+								sendDatabase(url, updateKey);
 								nbTries++;
 							} else {
 								logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
@@ -2113,123 +2116,113 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			}
 		}
 	}
-
-	private void sendFullCompetitionData(String url, String updateKey) {
-		logger.debug("{}sendFullCompetitionData called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+	/**
+	 * Send competition database via WebSocket using compressed binary ZIP format.
+	 * SINGLE DATABASE SENDING ROUTINE - always uses binary ZIP for efficiency (70-80% reduction).
+	 * 
+	 * Called in these scenarios:
+	 * 1. Initial connection (response to 428 Precondition Required)
+	 * 2. Platform configuration changes (plate/weight updates)
+	 * 3. Session switches (group selection)
+	 * 
+	 * ZIP format handles large competition databases efficiently:
+	 * - Typical database: ~700KB JSON → ~200KB ZIP
+	 * - Scales better than JSON for competitions with 100+ athletes
+	 * 
+	 * @param url the WebSocket URL to send the database to
+	 * @param updateKey the update key for validation (optional, not used for WebSocket)
+	 */
+	public void sendDatabase(String url, String updateKey) {
+		logger.info("{}sendDatabase called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
 
 		if (url == null) {
-			logger.error("cannot send full competition data, url or updateKey is null - url:{}, updateKey:{}", url, updateKey);
+			logger.error("cannot send database, url is null");
 			return;
-		}
-		if (updateKey == null) {
-			logger.debug("no updateKey configured for {}, proceeding without one", url);
 		}
 
 		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionData(getFop());
 		if (export == null) {
-			logger.debug("{}unable to build competition data payload for {}", FieldOfPlay.getLoggingName(getFop()), url);
+			logger.warn("{}unable to build competition data for database", FieldOfPlay.getLoggingName(getFop()));
 			return;
 		}
 
-		// Check if URL is WebSocket
+		// Only support WebSocket for database transmission
 		if (url.startsWith("ws://") || url.startsWith("wss://")) {
-			// Send via WebSocket with checksum and parsed JSON structure
 			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
 			if (sender != null) {
-				Map<String, Object> payload = new LinkedHashMap<>();
-				payload.put("databaseChecksum", export.checksum());
-				payload.put("database", export.structure());
-				boolean sent = sender.sendObject("database", payload);
-				if (sent) {
-					logger.debug("{}sent full competition data via WebSocket to {}",
-					        FieldOfPlay.getLoggingName(getFop()), url);
+				// Compress database using binary ZIP format
+				// Use export.structure() (parsed object) not export.json() (string)
+				// to avoid double-encoding issues
+				byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(
+					export.structure()
+				);
+
+				if (databaseZipBytes.length > 0) {
+					boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
+					if (sent) {
+						// Log compression ratio for reference
+						String jsonDatabase = export.json();
+						double ratio = 100.0 * (1.0 - (double) databaseZipBytes.length / jsonDatabase.getBytes().length);
+						logger.info(
+							"{}sent database ZIP via WebSocket to {} ({} bytes, from {}, {:.1f}% reduction)",
+							FieldOfPlay.getLoggingName(getFop()), url, databaseZipBytes.length,
+							jsonDatabase.getBytes().length, ratio
+						);
+					} else {
+						logger.debug(
+							"{}could not send database ZIP via WebSocket to {} (socket not ready)",
+							FieldOfPlay.getLoggingName(getFop()), url
+						);
+					}
 				} else {
-					logger.debug("{}could not send full competition data via WebSocket to {} (socket not ready)",
-					        FieldOfPlay.getLoggingName(getFop()), url);
+					logger.error("{}failed to create database ZIP for {}",
+						FieldOfPlay.getLoggingName(getFop()), url);
 				}
 			}
 			return;
 		}
 
-		// HTTP POST path - wrap with checksum for database endpoint
-		try {
-			// ALWAYS construct the database endpoint URL - extract base URL and add /database
-			String baseUrl = url;
-			// Remove any path after the port/host
-			if (baseUrl.contains("://")) {
-				String[] parts = baseUrl.split("://");
-				if (parts.length == 2) {
-					String protocol = parts[0];
-					String hostPart = parts[1];
-					// Find the first slash after the host:port
-					int slashIndex = hostPart.indexOf('/');
-					if (slashIndex != -1) {
-						hostPart = hostPart.substring(0, slashIndex);
-					}
-					baseUrl = protocol + "://" + hostPart;
+		logger.debug("{}database transmission requires WebSocket ({})",
+			FieldOfPlay.getLoggingName(getFop()), url);
+	}
+
+	/**
+	 * Send competition database via WebSocket using compressed binary ZIP format.
+	 * Convenience method without update key parameter.
+	 * 
+	 * @param url the WebSocket URL to send the database to
+	 */
+	public void sendDatabase(String url) {
+		sendDatabase(url, null);
+	}
+
+	/**
+	 * Send competition database via WebSocket using compressed binary ZIP format.
+	 * PRIMARY static method to broadcast database to all remote trackers/scoreboards.
+	 * 
+	 * @param updateKey the update key for validation (optional, not used for WebSocket binary format)
+	 */
+	public static void sendDatabaseToAll(String updateKey) {
+		String[] urls = new String[2];
+		urls[0] = Config.getCurrent().getParamPublicResultsURL();
+		urls[1] = Config.getCurrent().getParamVideoDataURL();
+
+		for (String url : urls) {
+			if (url != null && !url.trim().isEmpty() &&
+				(url.startsWith("ws://") || url.startsWith("wss://"))) {
+				for (WebSocketEventForwarder forwarder : eventForwarderByName.values()) {
+					forwarder.sendDatabase(url, updateKey);
 				}
 			}
-			String databaseUrl = baseUrl + "/database";
-			logger.debug("{}ALWAYS sending to database endpoint: {} (from original: {})",
-			        FieldOfPlay.getLoggingName(getFop()), databaseUrl, url);
-			HttpPost post = new HttpPost(databaseUrl);
-
-			// Wrap database with checksum in JSON structure
-			Map<String, Object> wrapper = new LinkedHashMap<>();
-			wrapper.put("databaseChecksum", export.checksum());
-			// Parse the JSON string to include as nested structure
-			try {
-				Object databaseStructure = JSON_MAPPER.readValue(export.json(), Object.class);
-				wrapper.put("database", databaseStructure);
-			} catch (Exception parseEx) {
-				logger.error("{}failed to parse competition data JSON: {}",
-				        FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(parseEx));
-				return;
-			}
-			String wrappedJson = JSON_MAPPER.writeValueAsString(wrapper);
-
-			// Send the wrapped JSON data
-			post.setHeader("Content-Type", "application/json; charset=UTF-8");
-			post.setEntity(new StringEntity(wrappedJson, "UTF-8"));
-
-			logger.debug("{}posting database with checksum to endpoint {}",
-			        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
-
-			try (CloseableHttpClient httpClient = HttpClients.createDefault();
-			        CloseableHttpResponse response = httpClient.execute(post)) {
-				StatusLine statusLine = response.getStatusLine();
-				Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-				if (statusCode != null && statusCode != 200) {
-					if (statusCode == 404) {
-						// 404 means the endpoint doesn't exist - this is expected/innocuous
-						logger./**/warn("{}database endpoint not available at {} - 404 Not Found (endpoint not implemented)",
-						        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
-					} else if (statusCode >= 500) {
-						// 5xx server errors are actual errors
-						logger.error("{}server error sending to database endpoint {} - response: {}",
-						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
-					} else if (statusCode >= 400) {
-						// Other 4xx client errors (400, 401, 403, etc.) are errors
-						logger.error("{}client error sending to database endpoint {} - response: {}",
-						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
-					} else {
-						// Other non-200 codes (redirects, etc.)
-						logger./**/warn("{}unexpected response from database endpoint {} - response: {}",
-						        FieldOfPlay.getLoggingName(getFop()), databaseUrl, statusLine);
-					}
-				} else {
-					logger.debug("{}successfully sent full competition data to database endpoint {} - response: 200 OK",
-					        FieldOfPlay.getLoggingName(getFop()), databaseUrl);
-				}
-				EntityUtils.toString(response.getEntity());
-			} catch (Exception e1) {
-				logger./**/warn("{}database endpoint not available at {} - {} (this is not fatal)",
-				        FieldOfPlay.getLoggingName(getFop()), databaseUrl, LoggerUtils.exceptionMessage(e1));
-			}
-		} catch (Exception e2) {
-			logger./**/warn("{}could not send full competition data to {} - {} (this is not fatal)",
-			        FieldOfPlay.getLoggingName(getFop()), url, LoggerUtils.exceptionMessage(e2));
 		}
+	}
+
+	/**
+	 * Send competition database via WebSocket using compressed binary ZIP format.
+	 * Static convenience method without update key.
+	 */
+	public static void sendDatabaseToAll() {
+		sendDatabaseToAll(null);
 	}
 
 	/**
@@ -2402,22 +2395,37 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			}
 			
 			if (sender != null) {
-				// Set up callback for 428 status response (database requested)
+				// Set up callback for WebSocket connection open - proactively send database and translations
+				sender.setOnOpenCallback(() -> {
+					Config currentCallback = Config.getCurrent();
+					String updateKey = currentCallback.getParamUpdateKey();
+					if (updateKey == null) {
+						updateKey = currentCallback.getParamVideoDataKey();
+					}
+					logger.info("{}WebSocket connection established to {}, proactively sending database and translations",
+					        FieldOfPlay.getLoggingName(getFop()), url);
+					
+// Send database (binary ZIP format)
+				sendDatabase(url, updateKey);
+					
+					// Send translations
+					sendTranslations(url);
+					
+					// Send flags if available
+					sendFlags(url);
+				});
+				
+				// Set up callback for 428 status response (database requested) - fallback for reconnection
 				sender.setMissingDataCallback("database", () -> {
 					Config currentCallback = Config.getCurrent();
 					String updateKey = currentCallback.getParamUpdateKey();
 					if (updateKey == null) {
 						updateKey = currentCallback.getParamVideoDataKey();
 					}
-					sendFullCompetitionData(url, updateKey);
-				});
-
-				// Set up callback for 428 status response (flags requested)
-				sender.setMissingDataCallback("flags", () -> {
-					sendFlags(url);
-				});
-
-				// Set up callback for 428 status response (translations requested)
+				// Send database (binary ZIP format)
+				sendDatabase(url, updateKey);
+			});
+				// Set up callback for 428 status response (translations requested) - fallback for reconnection
 				sender.setMissingDataCallback("translations", () -> {
 					sendTranslations(url);
 				});
