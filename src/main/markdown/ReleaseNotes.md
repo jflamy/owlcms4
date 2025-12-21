@@ -9,6 +9,8 @@
 <br>
 **Maintenance Log**
 
+64.0.0-rc02: Tracker protocol updated to 2.1.0; database is now sent zipped; initial handshake redone.
+
 64.0.0-rc01: Flag sizes on the attempt board had accidentally been reduced.
 
 **New in Release 64**

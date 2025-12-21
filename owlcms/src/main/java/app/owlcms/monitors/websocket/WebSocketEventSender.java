@@ -38,7 +38,7 @@ public class WebSocketEventSender {
 	private static final int EXPONENTIAL_BACKOFF_ATTEMPTS = 5;   // 1s, 2s, 4s, 8s, 16s, then cap at 30s
 	
 	/** Protocol version for WebSocket messages. Incremented when message format changes. */
-	public static final String PROTOCOL_VERSION = "2.0.0";
+	public static final String PROTOCOL_VERSION = "2.1.0";
 	
 	private static Map<String, WebSocketEventSender> sendersByUrl = new HashMap<>();
 	private static ObjectMapper objectMapper = createObjectMapper();
@@ -491,7 +491,7 @@ public class WebSocketEventSender {
 	 * - Next M bytes: message type as UTF-8 string (e.g., "flags")
 	 * - Remaining bytes: binary payload data
 	 * 
-	 * Example: To send "flags" with 100KB of ZIP data using protocol version "2.0.0":
+	 * Example: To send "flags" with 100KB of ZIP data using protocol version "2.1.0":
 	 * [0x00, 0x00, 0x00, 0x05] [2, ., 0, ., 0] [0x00, 0x00, 0x00, 0x05] [f, l, a, g, s] [100KB of ZIP bytes...]
 	 * 
 	 * @param messageType Type identifier for the binary data (e.g., "flags", "pictures")
