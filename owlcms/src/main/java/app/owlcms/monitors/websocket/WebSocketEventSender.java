@@ -53,8 +53,12 @@ public class WebSocketEventSender {
 	/**
 	 * Get or create a WebSocketEventSender for the given URL.
 	 * Uses a supplier to dynamically fetch the current URL on reconnects.
+	 * Optionally accepts a callback to invoke on connection open (including reconnects).
 	 */
-	public static synchronized WebSocketEventSender getOrCreate(String url, java.util.function.Supplier<String> urlSupplier) {
+	public static synchronized WebSocketEventSender getOrCreate(
+			String url, 
+			java.util.function.Supplier<String> urlSupplier,
+			Runnable onOpenCallback) {
 		if (url == null || url.trim().isEmpty()) {
 			return null;
 		}
@@ -62,16 +66,29 @@ public class WebSocketEventSender {
 		WebSocketEventSender sender = sendersByUrl.get(url);
 		if (sender == null) {
 			sender = new WebSocketEventSender(url, urlSupplier);
+			// Set callback BEFORE connecting to avoid race condition
+			if (onOpenCallback != null) {
+				sender.setOnOpenCallback(onOpenCallback);
+			}
+			// Now connect - callback is ready to fire
+			sender.connect();
 			sendersByUrl.put(url, sender);
 		}
 		return sender;
 	}
 	
 	/**
-	 * Get or create a WebSocketEventSender for the given URL (without supplier for legacy compatibility)
+	 * Get or create a WebSocketEventSender for the given URL (without onOpen callback).
+	 */
+	public static synchronized WebSocketEventSender getOrCreate(String url, java.util.function.Supplier<String> urlSupplier) {
+		return getOrCreate(url, urlSupplier, null);
+	}
+	
+	/**
+	 * Get or create a WebSocketEventSender for the given URL (legacy compatibility).
 	 */
 	public static synchronized WebSocketEventSender getOrCreate(String url) {
-		return getOrCreate(url, () -> url);
+		return getOrCreate(url, () -> url, null);
 	}
 	
 	/**
@@ -145,7 +162,8 @@ public class WebSocketEventSender {
 	private WebSocketEventSender(String url, java.util.function.Supplier<String> urlSupplier) {
 		this.url = url;
 		this.urlSupplier = urlSupplier;
-		connect();
+		// DO NOT call connect() here - getOrCreate() will call it after setting callbacks
+		// This avoids race condition where connection opens before callbacks are registered
 	}
 	
 	/**

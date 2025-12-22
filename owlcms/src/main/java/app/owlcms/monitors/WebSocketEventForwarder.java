@@ -2384,36 +2384,38 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
 		if (hashCode != previousDebounceHash || (deltaMillis > 1000)) {
-			// Pass URL supplier so sender can re-check config on reconnect
+			// Create sender with onOpen callback to send database/translations/flags
+			// Callback fires on EVERY connection (including reconnects) because tracker may have restarted
+			Runnable onOpenCallback = () -> {
+				Config currentCallback = Config.getCurrent();
+				String updateKey = currentCallback.getParamUpdateKey();
+				if (updateKey == null) {
+					updateKey = currentCallback.getParamVideoDataKey();
+				}
+				logger.info("{}WebSocket connection established to {}, proactively sending database and translations",
+				        FieldOfPlay.getLoggingName(getFop()), url);
+				
+				// Send database (binary ZIP format)
+				sendDatabase(url, updateKey);
+				
+				// Send translations
+				sendTranslations(url);
+				
+				// Send flags if available
+				sendFlags(url);
+			};
+			
+			// Pass URL supplier and callback so they're set BEFORE connection starts
 			WebSocketEventSender sender;
 			if (isPublicResults) {
-				sender = WebSocketEventSender.getOrCreate(url, () -> Config.getCurrent().getParamUpdateUrl());
+				sender = WebSocketEventSender.getOrCreate(url, () -> Config.getCurrent().getParamUpdateUrl(), onOpenCallback);
 			} else if (isVideoData) {
-				sender = WebSocketEventSender.getOrCreate(url, () -> Config.getCurrent().getParamVideoDataUpdateUrl());
+				sender = WebSocketEventSender.getOrCreate(url, () -> Config.getCurrent().getParamVideoDataUpdateUrl(), onOpenCallback);
 			} else {
-				sender = WebSocketEventSender.getOrCreate(url);
+				sender = WebSocketEventSender.getOrCreate(url, () -> url, onOpenCallback);
 			}
 			
 			if (sender != null) {
-				// Set up callback for WebSocket connection open - proactively send database and translations
-				sender.setOnOpenCallback(() -> {
-					Config currentCallback = Config.getCurrent();
-					String updateKey = currentCallback.getParamUpdateKey();
-					if (updateKey == null) {
-						updateKey = currentCallback.getParamVideoDataKey();
-					}
-					logger.info("{}WebSocket connection established to {}, proactively sending database and translations",
-					        FieldOfPlay.getLoggingName(getFop()), url);
-					
-// Send database (binary ZIP format)
-				sendDatabase(url, updateKey);
-					
-					// Send translations
-					sendTranslations(url);
-					
-					// Send flags if available
-					sendFlags(url);
-				});
 				
 				// Set up callback for 428 status response (database requested) - fallback for reconnection
 				sender.setMissingDataCallback("database", () -> {
