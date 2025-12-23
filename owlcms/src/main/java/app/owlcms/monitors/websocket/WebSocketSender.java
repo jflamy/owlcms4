@@ -344,19 +344,15 @@ public class WebSocketSender {
 
 	private static void registerStartupCallbacksForUrl(String url, CompetitionDataExport export,
 	        byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes) {
+		// Determine startup send mode (JSON vs binary) and log it
+		boolean jsonMode = Config.getCurrent().featureSwitch("jsonTrackerDatabase");
+		logger.info("Startup send mode for {}: {}", url, jsonMode ? "JSON(text)" : "BINARY(database_zip)");
+
 		// Synchronize to ensure callbacks are registered before the WebSocket connection
 		// can open and send messages (preventing "No callback registered" errors)
 		synchronized (WebSocketEventSender.class) {
 			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
 			if (sender != null) {
-				// Determine startup send mode (JSON vs binary) and log it
-				boolean jsonMode = Config.getCurrent().featureSwitch("jsonTrackerDatabase");
-				logger.info("Startup send mode for {}: {}", url, jsonMode ? "JSON(text)" : "BINARY(database_zip)");
-
-				// Prepare binary database ZIP if needed (created once)
-				final byte[] databaseZipBytes = jsonMode ? new byte[0]
-						: DatabaseZipHelper.createDatabaseZipBytes(export.structure());
-
 				// Register missing data callbacks FIRST (before onOpenCallback)
 				// This ensures callbacks are available if the connection opens immediately
 				sender.setMissingDataCallback("database", () -> {
@@ -366,8 +362,10 @@ public class WebSocketSender {
 						payload.put("database", export.structure());
 						sender.sendObject("database", payload);
 					} else {
-						if (databaseZipBytes.length > 0) {
-							sender.sendBinary("database_zip", databaseZipBytes);
+						// Create ZIP on-demand when requested
+						byte[] zipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+						if (zipBytes.length > 0) {
+							sender.sendBinary("database_zip", zipBytes);
 						} else {
 							logger.warn("No database ZIP available to send to {}", url);
 						}
@@ -397,23 +395,26 @@ public class WebSocketSender {
 							jsonMode ? "JSON" : "BINARY");
 
 					// Send database FIRST according to selected mode
+					// Create ZIP now that socket is open - no race condition
 					if (jsonMode) {
 						Map<String, Object> dbPayload = new LinkedHashMap<>();
 						dbPayload.put("databaseChecksum", export.checksum());
 						dbPayload.put("database", export.structure());
 						boolean sent = sender.sendObject("database", dbPayload);
 						if (sent) {
-							logger.debug("Sent startup database (JSON) via WebSocket to {} (auth step)", url);
+							logger.info("Sent startup database (JSON) via WebSocket to {} (auth step)", url);
 						} else {
-							logger.debug("Could not send startup database (JSON) via WebSocket to {} (socket not ready)", url);
+							logger.warn("Could not send startup database (JSON) via WebSocket to {} (socket not ready)", url);
 						}
 					} else {
+						// Create database ZIP now that socket is ready
+						byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
 						if (databaseZipBytes.length > 0) {
 							boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
 							if (sent) {
-								logger.debug("Sent startup database_zip via WebSocket to {} (auth step)", url);
+								logger.info("Sent startup database_zip via WebSocket to {} (auth step)", url);
 							} else {
-								logger.debug("Could not send startup database_zip via WebSocket to {} (socket not ready)", url);
+								logger.warn("Could not send startup database_zip via WebSocket to {} (socket not ready)", url);
 							}
 						} else {
 							logger.warn("No database ZIP prepared for startup send to {}", url);
@@ -424,17 +425,17 @@ public class WebSocketSender {
 					// Send translations_zip
 					boolean sentBin = sender.sendBinary("translations_zip", translationsZipBytes);
 					if (sentBin) {
-						logger.debug("Sent startup translations_zip via WebSocket to {}", url);
+						logger.info("Sent startup translations_zip via WebSocket to {}", url);
 					} else {
-						logger.debug("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
+						logger.warn("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
 					}
 
 					// Send flags_zip
 					sentBin = sender.sendBinary("flags_zip", flagsZipBytes);
 					if (sentBin) {
-						logger.debug("Sent startup flags_zip via WebSocket to {}", url);
+						logger.info("Sent startup flags_zip via WebSocket to {}", url);
 					} else {
-						logger.debug("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
+						logger.warn("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
 					}
 				});
 			}
