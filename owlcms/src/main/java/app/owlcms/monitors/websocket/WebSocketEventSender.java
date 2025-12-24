@@ -38,7 +38,7 @@ public class WebSocketEventSender {
 	private static final int EXPONENTIAL_BACKOFF_ATTEMPTS = 5;   // 1s, 2s, 4s, 8s, 16s, then cap at 30s
 	
 	/** Protocol version for WebSocket messages. Incremented when message format changes. */
-	public static final String PROTOCOL_VERSION = "2.1.0";
+	public static final String PROTOCOL_VERSION = "2.2.0";
 	
 	private static Map<String, WebSocketEventSender> sendersByUrl = new HashMap<>();
 	private static ObjectMapper objectMapper = createObjectMapper();

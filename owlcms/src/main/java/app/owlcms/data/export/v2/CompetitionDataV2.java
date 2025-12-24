@@ -23,6 +23,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 
+import java.time.Instant;
+
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
@@ -44,6 +46,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -58,6 +61,7 @@ import ch.qos.logback.classic.Logger;
  */
 @JsonPropertyOrder({
 	"formatVersion",
+	"exportDate",
 	"competition",
 	"config",
 	"ageGroups",
@@ -74,6 +78,7 @@ public class CompetitionDataV2 {
 	final static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionDataV2.class);
 	
 	private String formatVersion = "2.0";
+	private String exportDate;
 	private Competition competition;
 	private Config config;
 	private List<AgeGroupDTO> ageGroups;
@@ -141,6 +146,9 @@ public class CompetitionDataV2 {
 	}
 
 	public CompetitionDataV2 fromDatabase() {
+		// Set export timestamp in ISO 8601 format
+		setExportDate(Instant.now().toString());
+		
 		// Convert AgeGroups to DTOs with category codes
 		setAgeGroups(AgeGroupRepository.findAll().stream()
 			.map(AgeGroupDTO::fromAgeGroup)
@@ -172,7 +180,9 @@ public class CompetitionDataV2 {
 			.collect(Collectors.toList()));
 		
 		setPlatforms(PlatformRepository.findAll());
-		setConfig(Config.getCurrent());
+		Config config = Config.getCurrent();
+		config.setAppVersion(StartupUtils.getVersion());
+		setConfig(config);
 		setCompetition(Competition.getCurrent());
 		setRecords(RecordRepository.findAll());
 		setRecordConfig(RecordConfig.getCurrent());
@@ -309,6 +319,14 @@ public class CompetitionDataV2 {
 
 	public void setFormatVersion(String formatVersion) {
 		this.formatVersion = formatVersion;
+	}
+
+	public String getExportDate() {
+		return exportDate;
+	}
+
+	public void setExportDate(String exportDate) {
+		this.exportDate = exportDate;
 	}
 
 	public List<AgeGroupDTO> getAgeGroups() {

@@ -34,6 +34,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.AccessUtils;
@@ -160,6 +162,14 @@ public class Config {
 	 */
 	@Column(columnDefinition = "boolean default false")
 	private boolean localDateTimeUtcNormalized = false;
+	
+	/**
+	 * OWLCMS application version - export-only field set at time of V2 export
+	 * Not stored in database, not read on import
+	 */
+	@Transient
+	@JsonProperty(access = Access.READ_ONLY)
+	private String appVersion;
 
 	public String computeSalt() {
 		this.setSalt(null);
@@ -1142,6 +1152,14 @@ public class Config {
 
 	public void setPublicStylesDirectory(String publicStylesDirectory) {
 		this.publicStylesDirectory = publicStylesDirectory;
+	}
+
+	public String getAppVersion() {
+		return appVersion;
+	}
+
+	public void setAppVersion(String appVersion) {
+		this.appVersion = appVersion;
 	}
 
 }

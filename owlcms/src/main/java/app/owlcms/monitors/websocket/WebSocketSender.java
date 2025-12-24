@@ -16,6 +16,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.monitors.websocket.ForwarderPayloadBuilder.CompetitionDataExport;
 import app.owlcms.utils.FlagsZipHelper;
+import app.owlcms.utils.LogosZipHelper;
 import app.owlcms.utils.DatabaseZipHelper;
 import app.owlcms.utils.PicturesZipHelper;
 import app.owlcms.utils.TranslationsZipHelper;
@@ -329,21 +330,26 @@ public class WebSocketSender {
 		        ? PicturesZipHelper.createPicturesZipBytes()
 		        : new byte[0];
 
+		// Create logos ZIP bytes once (optional - may not exist)
+		final byte[] logosZipBytes = LogosZipHelper.hasLogosAvailable()
+		        ? LogosZipHelper.createLogosZipBytes()
+		        : new byte[0];
+
 		// Register for video data URL
 		if (videoUrl != null && !videoUrl.trim().isEmpty()
 		        && (videoUrl.startsWith("ws://") || videoUrl.startsWith("wss://"))) {
-			registerStartupCallbacksForUrl(videoUrl, export, translationsZipBytes, flagsZipBytes, picturesZipBytes);
+			registerStartupCallbacksForUrl(videoUrl, export, translationsZipBytes, flagsZipBytes, picturesZipBytes, logosZipBytes);
 		}
 
 		// Register for public results URL
 		if (updateUrl != null && !updateUrl.trim().isEmpty()
 		        && (updateUrl.startsWith("ws://") || updateUrl.startsWith("wss://"))) {
-			registerStartupCallbacksForUrl(updateUrl, export, translationsZipBytes, flagsZipBytes, picturesZipBytes);
+			registerStartupCallbacksForUrl(updateUrl, export, translationsZipBytes, flagsZipBytes, picturesZipBytes, logosZipBytes);
 		}
 	}
 
 	private static void registerStartupCallbacksForUrl(String url, CompetitionDataExport export,
-	        byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes) {
+	        byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes, byte[] logosZipBytes) {
 		// Determine startup send mode (JSON vs binary) and log it
 		boolean jsonMode = Config.getCurrent().featureSwitch("jsonTrackerDatabase");
 		logger.info("Startup send mode for {}: {}", url, jsonMode ? "JSON(text)" : "BINARY(database_zip)");
@@ -384,6 +390,13 @@ public class WebSocketSender {
 				sender.setMissingDataCallback("pictures_zip", () -> {
 					if (picturesZipBytes.length > 0) {
 						sender.sendBinary("pictures_zip", picturesZipBytes);
+					}
+				});
+
+				// Logos are sent on-demand only, not at startup
+				sender.setMissingDataCallback("logos_zip", () -> {
+					if (logosZipBytes.length > 0) {
+						sender.sendBinary("logos_zip", logosZipBytes);
 					}
 				});
 
