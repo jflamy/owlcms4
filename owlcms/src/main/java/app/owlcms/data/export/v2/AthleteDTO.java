@@ -97,6 +97,13 @@ public class AthleteDTO {
 	private Integer personalBestCleanJerk;
 	private Integer personalBestTotal;
 	
+	// Competition bests (computed from actual lifts in this competition)
+	private Integer bestSnatch;
+	private Integer bestCleanJerk;
+	
+	// Competition total (computed from best snatch + best clean&jerk)
+	private Integer total;
+	
 	// Rankings
 	private Integer sinclairRank;
 	private Integer qPointsRank;
@@ -224,6 +231,13 @@ public class AthleteDTO {
 		dto.setPersonalBestSnatch(athlete.getPersonalBestSnatch());
 		dto.setPersonalBestCleanJerk(athlete.getPersonalBestCleanJerk());
 		dto.setPersonalBestTotal(athlete.getPersonalBestTotal());
+		
+		// Competition bests (computed)
+		dto.setBestSnatch(athlete.getBestSnatch());
+		dto.setBestCleanJerk(athlete.getBestCleanJerk());
+		
+		// Competition total (computed)
+		dto.setTotal(athlete.getTotal());
 		
 		// Rankings
 		dto.setSinclairRank(athlete.getSinclairRank());
@@ -861,6 +875,30 @@ public class AthleteDTO {
 
 	public void setPersonalBestTotal(Integer personalBestTotal) {
 		this.personalBestTotal = personalBestTotal;
+	}
+
+	public Integer getBestSnatch() {
+		return bestSnatch;
+	}
+
+	public void setBestSnatch(Integer bestSnatch) {
+		this.bestSnatch = bestSnatch;
+	}
+
+	public Integer getBestCleanJerk() {
+		return bestCleanJerk;
+	}
+
+	public void setBestCleanJerk(Integer bestCleanJerk) {
+		this.bestCleanJerk = bestCleanJerk;
+	}
+
+	public Integer getTotal() {
+		return total;
+	}
+
+	public void setTotal(Integer total) {
+		this.total = total;
 	}
 
 	public Integer getSinclairRank() {

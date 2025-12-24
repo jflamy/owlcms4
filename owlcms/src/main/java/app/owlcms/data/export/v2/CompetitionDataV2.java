@@ -28,7 +28,6 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.RankingConfig;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
@@ -77,7 +76,7 @@ public class CompetitionDataV2 {
 	private String formatVersion = "2.0";
 	private Competition competition;
 	private Config config;
-	private List<AgeGroup> ageGroups;
+	private List<AgeGroupDTO> ageGroups;
 	private List<TeamDTO> teams;
 	private List<SessionDTO> sessions;
 	private List<AthleteDTO> athletes;
@@ -142,7 +141,10 @@ public class CompetitionDataV2 {
 	}
 
 	public CompetitionDataV2 fromDatabase() {
-		setAgeGroups(AgeGroupRepository.findAll());
+		// Convert AgeGroups to DTOs with category codes
+		setAgeGroups(AgeGroupRepository.findAll().stream()
+			.map(AgeGroupDTO::fromAgeGroup)
+			.collect(Collectors.toList()));
 		
 		List<Athlete> allAthletes = AthleteRepository.findAll()
 		        .stream()
@@ -224,17 +226,13 @@ public class CompetitionDataV2 {
 				Competition competition = updated.getCompetition();
 				Competition.setCurrent(competition);			// Recompute mustCompute rankings based on imported Competition and age groups
 			RankingConfig.updateMustCompute();
-			for (AgeGroup ag : updated.getAgeGroups()) {
-				// Ensure category codes are computed (they're not serialized in JSON)
-				if (ag.getCategories() != null) {
-					for (Category cat : ag.getCategories()) {
-						cat.setCode(cat.getComputedCode());
-					}
-				}
-				em.persist(ag);
-			}
-			// Flush to ensure categories from AgeGroups are available for lookup
-			em.flush();
+			for (AgeGroupDTO agDto : updated.getAgeGroups()) {
+				// Convert DTO to entity
+				AgeGroup ag = agDto.toAgeGroup();
+			em.persist(ag);
+		}
+		// Flush to ensure categories from AgeGroups are available for lookup
+		em.flush();
 
 		// Build team ID to name map for athlete import
 		Map<Integer, String> teamIdToNameMap = new HashMap<>();
@@ -257,36 +255,38 @@ public class CompetitionDataV2 {
 		for (AthleteDTO aDto : updated.getAthletes()) {
 			Athlete a = aDto.toAthlete(em, teamIdToNameMap);
 			em.persist(a);
-		}			if (updated.getPlatforms() != null) {
-					for (Platform p : updated.getPlatforms()) {
-						em.merge(p);
-					}
-				}
-
-				if (updated.getRecordConfig() != null) {
-					em.merge(updated.getRecordConfig());
-				}
-
-				if (updated.getRecords() != null) {
-					for (RecordEvent r : updated.getRecords()) {
-						em.merge(r);
-					}
-				}
-
-				if (updated.getTechnicalOfficials() != null) {
-					for (TechnicalOfficial p : updated.getTechnicalOfficials()) {
-						em.merge(p);
-					}
-				}
-				
-				em.merge(competition);
-				em.flush();
-			} catch (Exception e) {
-				LoggerUtils.logError(logger, e);
-			} finally {
-				Athlete.setSkipValidationsDuringImport(false);
+		}
+		
+		if (updated.getPlatforms() != null) {
+			for (Platform p : updated.getPlatforms()) {
+				em.merge(p);
 			}
-			return null;
+		}
+
+		if (updated.getRecordConfig() != null) {
+			em.merge(updated.getRecordConfig());
+		}
+
+		if (updated.getRecords() != null) {
+			for (RecordEvent r : updated.getRecords()) {
+				em.merge(r);
+			}
+		}
+
+		if (updated.getTechnicalOfficials() != null) {
+			for (TechnicalOfficial p : updated.getTechnicalOfficials()) {
+				em.merge(p);
+			}
+		}
+		
+		em.merge(competition);
+		em.flush();
+		} catch (Exception e) {
+			LoggerUtils.logError(logger, e);
+		} finally {
+			Athlete.setSkipValidationsDuringImport(false);
+		}
+		return null;
 		});
 		
 		RecordConfig current = RecordConfig.getCurrent();
@@ -311,11 +311,11 @@ public class CompetitionDataV2 {
 		this.formatVersion = formatVersion;
 	}
 
-	public List<AgeGroup> getAgeGroups() {
+	public List<AgeGroupDTO> getAgeGroups() {
 		return ageGroups;
 	}
 
-	public void setAgeGroups(List<AgeGroup> ageGroups) {
+	public void setAgeGroups(List<AgeGroupDTO> ageGroups) {
 		this.ageGroups = ageGroups;
 	}
 
