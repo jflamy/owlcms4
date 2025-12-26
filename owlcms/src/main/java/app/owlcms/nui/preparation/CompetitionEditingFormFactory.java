@@ -662,6 +662,16 @@ public class CompetitionEditingFormFactory
 		        .withValidator(new IntegerRangeValidator(message, 0, 99))
 		        .bind(Competition::getWomensBestN, Competition::setWomensBestN);
 
+		IntegerField teamPoints1stField = new IntegerField();
+		layout.addFormItem(teamPoints1stField, Translator.translate("Competition.teamPoints1st"));
+		this.binder.forField(teamPoints1stField)
+		        .bind(Competition::getTeamPoints1st, Competition::setTeamPoints1st);
+
+		IntegerField teamPoints2ndField = new IntegerField();
+		layout.addFormItem(teamPoints2ndField, Translator.translate("Competition.teamPoints2nd"));
+		this.binder.forField(teamPoints2ndField)
+		        .bind(Competition::getTeamPoints2nd, Competition::setTeamPoints2nd);
+
 		Checkbox roundRobinOrderField = new Checkbox();
 		layout.addFormItem(roundRobinOrderField,
 		        labelWithHelp("Competition.roundRobinOrder", "Competition.roundRobinOrderExplanation"));

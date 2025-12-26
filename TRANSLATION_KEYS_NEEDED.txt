@@ -2,8 +2,15 @@
 
 ## Pending import
 - File: shared/src/main/resources/i18n/cat_gamx_translations.tsv
+- File: shared/src/main/resources/i18n/team_points_translations.tsv
 
 ## New keys
+- Competition.teamPoints1st
+  - Used by: app/owlcms/nui/preparation/CompetitionEditingFormFactory.java
+  - Purpose: Label for Team Points for 1st place setting
+- Competition.teamPoints2nd
+  - Used by: app/owlcms/nui/preparation/CompetitionEditingFormFactory.java
+  - Purpose: Label for Team Points for 2nd place setting
 - Ranking.CAT_GAMX
   - Used by: app/owlcms/data/athleteSort/Ranking.getScoringTitle()
   - Purpose: Label for CAT_GAMX scoring system

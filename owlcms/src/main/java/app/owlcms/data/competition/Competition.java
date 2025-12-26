@@ -281,6 +281,10 @@ public class Competition {
 	@Column(name = "womensTeamSize", columnDefinition = "integer default 8")
 	@JsonProperty("womensTeamSize")
 	private Integer womensBestN = 8;
+	@Column(columnDefinition = "integer default 28")
+	private Integer teamPoints1st = 28;
+	@Column(columnDefinition = "integer default 26")
+	private Integer teamPoints2nd = 26;
 	@Column(columnDefinition = "boolean default false")
 	private boolean sinclairMeet;
 	@Column(columnDefinition = "integer default 3")
@@ -1249,6 +1253,14 @@ public class Competition {
 		return this.womensBestN;
 	}
 
+	public Integer getTeamPoints1st() {
+		return teamPoints1st;
+	}
+
+	public Integer getTeamPoints2nd() {
+		return teamPoints2nd;
+	}
+
 	@Override
 	public int hashCode() {
 		return 31;
@@ -1769,6 +1781,14 @@ public class Competition {
 
 	public void setWomensBestN(Integer womensTeamSize) {
 		this.womensBestN = womensTeamSize;
+	}
+
+	public void setTeamPoints1st(Integer teamPoints1st) {
+		this.teamPoints1st = teamPoints1st;
+	}
+
+	public void setTeamPoints2nd(Integer teamPoints2nd) {
+		this.teamPoints2nd = teamPoints2nd;
 	}
 
 	@Override
