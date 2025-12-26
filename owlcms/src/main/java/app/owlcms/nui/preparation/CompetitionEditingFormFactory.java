@@ -670,6 +670,11 @@ public class CompetitionEditingFormFactory
 		this.binder.forField(teamPoints2ndField)
 		        .bind(Competition::getTeamPoints2nd, Competition::setTeamPoints2nd);
 
+		IntegerField teamPoints3rdField = new IntegerField();
+		layout.addFormItem(teamPoints3rdField, Translator.translate("Competition.teamPoints3rd"));
+		this.binder.forField(teamPoints3rdField)
+		        .bind(Competition::getTeamPoints3rd, Competition::setTeamPoints3rd);
+
 		return layout;
 	}
 

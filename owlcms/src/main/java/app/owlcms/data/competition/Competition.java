@@ -283,8 +283,10 @@ public class Competition {
 	private Integer womensBestN = 8;
 	@Column(columnDefinition = "integer default 28")
 	private Integer teamPoints1st = 28;
-	@Column(columnDefinition = "integer default 26")
-	private Integer teamPoints2nd = 26;
+	@Column(columnDefinition = "integer default 25")
+	private Integer teamPoints2nd = 25;
+	@Column(columnDefinition = "integer default 23")
+	private Integer teamPoints3rd = 23;
 	@Column(columnDefinition = "boolean default false")
 	private boolean sinclairMeet;
 	@Column(columnDefinition = "integer default 3")
@@ -1261,6 +1263,10 @@ public class Competition {
 		return teamPoints2nd;
 	}
 
+	public Integer getTeamPoints3rd() {
+		return teamPoints3rd;
+	}
+
 	@Override
 	public int hashCode() {
 		return 31;
@@ -1783,12 +1789,28 @@ public class Competition {
 		this.womensBestN = womensTeamSize;
 	}
 
+	public Integer getTeamPoints1st() {
+		return this.teamPoints1st;
+	}
+
+	public Integer getTeamPoints2nd() {
+		return this.teamPoints2nd;
+	}
+
+	public Integer getTeamPoints3rd() {
+		return this.teamPoints3rd;
+	}
+
 	public void setTeamPoints1st(Integer teamPoints1st) {
 		this.teamPoints1st = teamPoints1st;
 	}
 
 	public void setTeamPoints2nd(Integer teamPoints2nd) {
 		this.teamPoints2nd = teamPoints2nd;
+	}
+
+	public void setTeamPoints3rd(Integer teamPoints3rd) {
+		this.teamPoints3rd = teamPoints3rd;
 	}
 
 	@Override
