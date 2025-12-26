@@ -141,6 +141,7 @@ public class CompetitionEditingFormFactory
 		FormLayout mastersRulesLayout = mastersRulesForm();
 		FormLayout breakDurationLayout = breakDurationForm();
 		FormLayout specialLayout = specialRulesForm();
+		FormLayout teamPointsLayout = teamPointsForm();
 		FormLayout pointScoresForm = pointScoresForm();
 
 		Component footer = this.buildFooter(operation, comp, cancelButtonClickListener,
@@ -163,7 +164,8 @@ public class CompetitionEditingFormFactory
 		ts.add(Translator.translate("Competition.specialRulesTitle"),
 		        new VerticalLayout(
 		                pointScoresForm, separator(),
-		                specialLayout));
+		                specialLayout, separator(),
+		                teamPointsForm()));
 
 		VerticalLayout mainLayout = new VerticalLayout(
 		        footer,
@@ -632,15 +634,11 @@ public class CompetitionEditingFormFactory
 		return hr;
 	}
 
-	private void setBinder(Binder<Competition> buildBinder) {
-		this.binder = buildBinder;
-	}
-
-	private FormLayout specialRulesForm() {
+	private FormLayout teamPointsForm() {
 		String message = Translator.translate("Competition.teamSizeInvalid");
 
 		FormLayout layout = createLayout();
-		Component title = createTitle("Competition.specialRulesTitle");
+		Component title = createTitle("Competition.teamPointsTitle");
 		layout.add(title);
 		layout.setColspan(title, 2);
 
@@ -671,6 +669,19 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(teamPoints2ndField, Translator.translate("Competition.teamPoints2nd"));
 		this.binder.forField(teamPoints2ndField)
 		        .bind(Competition::getTeamPoints2nd, Competition::setTeamPoints2nd);
+
+		return layout;
+	}
+
+	private void setBinder(Binder<Competition> buildBinder) {
+		this.binder = buildBinder;
+	}
+
+	private FormLayout specialRulesForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Competition.specialRulesTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
 
 		Checkbox roundRobinOrderField = new Checkbox();
 		layout.addFormItem(roundRobinOrderField,
