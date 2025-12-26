@@ -9,6 +9,10 @@
 <br>
 **Maintenance Log**
 
+64.0.0-rc04: Further adjustments to initial handshake
+
+64.0.0-rc04: Support "on-demand" resource requests from owlcms-tracker; additional informations sent to support IWF-style documents.
+
 64.0.0-rc03: More adjustments to the initial handshake, tested pictures.
 
 64.0.0-rc02: Tracker protocol updated to 2.1.0; database is now sent zipped; initial handshake redone.

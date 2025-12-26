@@ -208,18 +208,20 @@ public class WebSocketEventSender {
 			
 			this.client = new WebSocketClient(uri) {
 				@Override
-			public void onOpen(ServerHandshake handshake) {
-				logger.info("WebSocket connected to: {}", url);
-				synchronized (WebSocketEventSender.this) {
-					connecting = false;
-					reconnectAttempts = 0;
-					if (onOpenCallback != null) {
-						// Invoke the on-open callback on every successful connection
-						// (including reconnects) so initial data can be re-sent.
-						onOpenCallback.run();
+				public void onOpen(ServerHandshake handshake) {
+					logger.info("✓ Connection established: {}", url);
+					synchronized (WebSocketEventSender.this) {
+						connecting = false;
+						reconnectAttempts = 0;
+						if (onOpenCallback != null) {
+							// Invoke the on-open callback on every successful connection
+							// (including reconnects) so initial data can be re-sent.
+							onOpenCallback.run();
+						}
 					}
 				}
-			}				@Override
+
+				@Override
 				public void onMessage(String message) {
 					logger.debug("WebSocket message received from {}: {}", url, message);
 					WebSocketEventSender.this.handleServerMessage(message);
@@ -227,8 +229,12 @@ public class WebSocketEventSender {
 
 				@Override
 				public void onClose(int code, String reason, boolean remote) {
-					logger.info("WebSocket closed: {} - code: {}, reason: {}, remote: {}", 
-							url, code, reason, remote);
+					if (remote) {
+						logger.info("✗ Connection closed by remote: {} (code: {}, reason: {})", 
+								url, code, reason);
+					} else {
+						logger.debug("Connection closed by local: {} (code: {})", url, code);
+					}
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
 					}
@@ -240,7 +246,7 @@ public class WebSocketEventSender {
 
 				@Override
 				public void onError(Exception ex) {
-					logger.error("WebSocket error on {}: {}", url, LoggerUtils.exceptionMessage(ex));
+					logger.warn("✗ Connection refused: {} - {}", url, LoggerUtils.exceptionMessage(ex));
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
 					}
@@ -286,8 +292,8 @@ public class WebSocketEventSender {
 			}
 			
 			connecting = true;
-			logger.debug("Scheduling WebSocket reconnect attempt {} for {} in {}ms", 
-					reconnectAttempts, url, delayMs);
+			logger.info("Retrying connection to {} in {}s (attempt {})", 
+					url, delayMs / 1000, reconnectAttempts);
 		}
 		
 		new Thread(() -> {
