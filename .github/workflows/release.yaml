@@ -6,12 +6,11 @@ on:
       revision:
         description: 'semver number for the release'
         required: true
-        default: '64.0.0-rc04'
+        default: '64.0.0-rc05'
       buildImages:
         description: 'Build and push Docker images (set to "false" to skip)'
         required: false
         default: 'true'
-
 
 env:
   REPO_OWNER: owlcms
