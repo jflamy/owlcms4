@@ -165,7 +165,7 @@ public class CompetitionEditingFormFactory
 		        new VerticalLayout(
 		                pointScoresForm, separator(),
 		                specialLayout, separator(),
-		                teamPointsForm()));
+		                teamPointsLayout));
 
 		VerticalLayout mainLayout = new VerticalLayout(
 		        footer,

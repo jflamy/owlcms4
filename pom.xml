@@ -290,11 +290,6 @@
 										<exclude>rc.md</exclude>
 									</excludes>
 								</resource>
-								<!-- resource>
-								<directory>src/main/azure-pipelines</directory>
-								<include>azure-pipelines.yml</include>
-								<filtering>true</filtering> 
-                                    </resource> -->
 							</resources>
 						</configuration>
 					</execution>

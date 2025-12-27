@@ -1255,18 +1255,6 @@ public class Competition {
 		return this.womensBestN;
 	}
 
-	public Integer getTeamPoints1st() {
-		return teamPoints1st;
-	}
-
-	public Integer getTeamPoints2nd() {
-		return teamPoints2nd;
-	}
-
-	public Integer getTeamPoints3rd() {
-		return teamPoints3rd;
-	}
-
 	@Override
 	public int hashCode() {
 		return 31;
