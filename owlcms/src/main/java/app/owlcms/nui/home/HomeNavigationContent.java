@@ -426,7 +426,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			}
 			return null;
 		} catch (Exception e) {
-			logger.error("Error fetching motd: {} {}", e.getMessage(), request.uri());
+			logger.debug("Error fetching motd: {} {}", e.getMessage(), request.uri());
 			return null;
 		}
 	}
