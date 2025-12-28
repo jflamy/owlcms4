@@ -7,7 +7,6 @@
 package app.owlcms.monitors.websocket;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
@@ -350,9 +349,7 @@ public class WebSocketSender {
 
 	private static void registerStartupCallbacksForUrl(String url, CompetitionDataExport export,
 	        byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes, byte[] logosZipBytes) {
-		// Determine startup send mode (JSON vs binary) and log it
-		boolean jsonMode = Config.getCurrent().featureSwitch("jsonTrackerDatabase");
-		logger.info("Startup send mode for {}: {}", url, jsonMode ? "JSON(text)" : "BINARY(database_zip)");
+		logger.info("Startup send mode for {}: BINARY(database_zip)", url);
 
 		// Synchronize to ensure callbacks are registered before the WebSocket connection
 		// can open and send messages (preventing "No callback registered" errors)
@@ -362,19 +359,12 @@ public class WebSocketSender {
 				// Register missing data callbacks FIRST (before onOpenCallback)
 				// This ensures callbacks are available if the connection opens immediately
 				sender.setMissingDataCallback("database", () -> {
-					if (jsonMode) {
-						Map<String, Object> payload = new LinkedHashMap<>();
-						payload.put("databaseChecksum", export.checksum());
-						payload.put("database", export.structure());
-						sender.sendObject("database", payload);
+					// Create ZIP on-demand when requested
+					byte[] zipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+					if (zipBytes.length > 0) {
+						sender.sendBinary("database_zip", zipBytes);
 					} else {
-						// Create ZIP on-demand when requested
-						byte[] zipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
-						if (zipBytes.length > 0) {
-							sender.sendBinary("database_zip", zipBytes);
-						} else {
-							logger.warn("No database ZIP available to send to {}", url);
-						}
+						logger.warn("No database ZIP available to send to {}", url);
 					}
 				});
 
@@ -401,37 +391,23 @@ public class WebSocketSender {
 				});
 
 				// Single onOpenCallback that sends all three data types
-				// IMPORTANT: Send database first (text frame or binary) to authenticate if needed,
+				// IMPORTANT: Send database first (binary) to authenticate if needed,
 				// then send binary frames (translations_zip, flags_zip) which require prior auth
 				sender.setOnOpenCallback(() -> {
-					logger.info("WebSocket connected to {}, sending startup data (mode={})", url,
-							jsonMode ? "JSON" : "BINARY");
+					logger.info("WebSocket connected to {}, sending startup data (mode=BINARY)", url);
 
-					// Send database FIRST according to selected mode
+					// Send database FIRST as binary ZIP
 					// Create ZIP now that socket is open - no race condition
-					if (jsonMode) {
-						Map<String, Object> dbPayload = new LinkedHashMap<>();
-						dbPayload.put("databaseChecksum", export.checksum());
-						dbPayload.put("database", export.structure());
-						boolean sent = sender.sendObject("database", dbPayload);
+					byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+					if (databaseZipBytes.length > 0) {
+						boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
 						if (sent) {
-							logger.info("Sent startup database (JSON) via WebSocket to {} (auth step)", url);
+							logger.info("Sent startup database_zip via WebSocket to {} (auth step)", url);
 						} else {
-							logger.warn("Could not send startup database (JSON) via WebSocket to {} (socket not ready)", url);
+							logger.warn("Could not send startup database_zip via WebSocket to {} (socket not ready)", url);
 						}
 					} else {
-						// Create database ZIP now that socket is ready
-						byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
-						if (databaseZipBytes.length > 0) {
-							boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
-							if (sent) {
-								logger.info("Sent startup database_zip via WebSocket to {} (auth step)", url);
-							} else {
-								logger.warn("Could not send startup database_zip via WebSocket to {} (socket not ready)", url);
-							}
-						} else {
-							logger.warn("No database ZIP prepared for startup send to {}", url);
-						}
+						logger.warn("No database ZIP prepared for startup send to {}", url);
 					}
 
 					// Send binary frames AFTER authentication (requires valid updateKey from database message)
