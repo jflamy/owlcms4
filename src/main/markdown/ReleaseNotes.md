@@ -9,6 +9,8 @@
 <br>
 **Maintenance Log**
 
+64.0.0-rc06: Removed json mode for database transfer; preparing for tracker inclusion in control panel
+
 64.0.0-rc05: Added the values for 1st 2nd and 3rd place team points to allow owlcms-tracker computation of team points without hard-coding.
 
 64.0.0-rc04: Further adjustments to initial owlcms-tracker handshake

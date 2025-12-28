@@ -44,8 +44,7 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
-        "OWLCMS_FEATURESWITCHES": "jsonXrackerDatabase"
+        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
       }
     },
     {
