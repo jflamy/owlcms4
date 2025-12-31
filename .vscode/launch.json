@@ -20,11 +20,10 @@
         "envFile": "${workspaceFolder}/.vscode/.env.mac"
       },
       "env": {
-        "OWLCMS_MEMORYMODE": "false",
-        //"OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
+        "OWLCMS_MEMORYMODE": "false"
       }
     },
-        {
+    {
       "type": "java",
       "name": "🟨 WS owlcms no reset",
       "request": "launch",
@@ -66,7 +65,7 @@
         "envFile": "${workspaceFolder}/.vscode/.env.mac"
       },
       "env": {
-        "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_MEMORYMODE": "false"
       }
     },
     {
@@ -114,8 +113,7 @@
       "env": {
         "OWLCMS_MEMORYMODE": "false",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        "OWLCMS_RESETMODE": "true",
-        //"OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
+        "OWLCMS_RESETMODE": "true"
       }
     },
     {
@@ -139,9 +137,7 @@
       "env": {
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
-        "OWLCMS_PORT": "8081",
-        //"OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
-        //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
+        "OWLCMS_PORT": "8081"
       }
     },
     {
@@ -167,7 +163,6 @@
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_PORT": "8081",
         "OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
-        //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
       }
     },
     {
@@ -192,7 +187,6 @@
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_PORT": "8081"
-        //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
       }
     },
     {
@@ -215,7 +209,6 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        //"OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_PORT": "8081",
         "OWLCMS_REMOTE": "http://localhost:8082"
       }
@@ -262,6 +255,13 @@
       "env": {
         "OWLCMS_MEMORYMODE": "false"
       }
+    },
+    {
+      "type": "java",
+      "name": "RunResults",
+      "request": "launch",
+      "mainClass": "playwright.RunResults",
+      "projectName": "playwright"
     }
   ],
   "compounds": [
