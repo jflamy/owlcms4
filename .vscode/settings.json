@@ -37,5 +37,8 @@
     "workbench.tree.enableStickyScroll": false,
     // Explorer auto-reveal when switching tabs
     "explorer.autoReveal": true,
-    "java.compile.nullAnalysis.mode": "disabled"
+    "java.compile.nullAnalysis.mode": "disabled",
+
+    // Disable built-in Markdown link validation to prevent false positives
+    "markdown.validate.enabled": false
 }
