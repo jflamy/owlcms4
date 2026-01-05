@@ -25,6 +25,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import app.owlcms.data.technicalofficial.TOLevel;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
+import app.owlcms.data.technicalofficial.OfficialRole;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 
@@ -72,7 +73,7 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
         this.binder.forField(activeCheckbox)
                 .bind(TechnicalOfficial::isActive, TechnicalOfficial::setActive);
 
-        ComboBox<TechnicalOfficial.Role> roleComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.Role"));
+        ComboBox<TechnicalOfficial.Role> roleComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.Accreditation"));
         technicalOfficialLayout.add(roleComboBox);
         roleComboBox.setItems(TechnicalOfficial.Role.values());
         roleComboBox.setItemLabelGenerator(role -> 
@@ -81,6 +82,16 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
         roleComboBox.setValue(TechnicalOfficial.Role.TECHNICAL_OFFICIAL); // Default value
         this.binder.forField(roleComboBox)
                 .bind(TechnicalOfficial::getRole, TechnicalOfficial::setRole);
+
+        ComboBox<OfficialRole> officialRoleComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.OfficialRole"));
+        technicalOfficialLayout.add(officialRoleComboBox);
+        officialRoleComboBox.setItems(OfficialRole.values());
+        officialRoleComboBox.setItemLabelGenerator(role -> 
+            Translator.translate("OfficialRole." + role.name())
+        );
+        officialRoleComboBox.setClearButtonVisible(true);
+        this.binder.forField(officialRoleComboBox)
+                .bind(TechnicalOfficial::getOfficialRole, TechnicalOfficial::setOfficialRole);
 
         TextField lastNameTextField = new TextField(Translator.translate("LastName"));
         technicalOfficialLayout.add(lastNameTextField);
@@ -93,6 +104,14 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
         this.binder.forField(firstNameTextField)
                 .withNullRepresentation("")
                 .bind(TechnicalOfficial::getFirstName, TechnicalOfficial::setFirstName);
+
+        ComboBox<Integer> teamComboBox = new ComboBox<>(Translator.translate("Team"));
+        teamComboBox.setItems(1, 2, 3, 4); // Max four teams
+        teamComboBox.setAllowCustomValue(false); // typing filters, selection constrained to 1-4
+        teamComboBox.setClearButtonVisible(true);
+        technicalOfficialLayout.add(teamComboBox);
+        this.binder.forField(teamComboBox)
+            .bind(TechnicalOfficial::getTechnicalOfficialTeam, TechnicalOfficial::setTechnicalOfficialTeam);
 
         ComboBox<TOLevel> levelComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.Level"));
         technicalOfficialLayout.add(levelComboBox);

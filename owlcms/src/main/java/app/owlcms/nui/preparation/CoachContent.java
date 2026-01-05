@@ -37,6 +37,7 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.spreadsheet.XLSXCoachExport;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import org.vaadin.crudui.crud.CrudOperation;

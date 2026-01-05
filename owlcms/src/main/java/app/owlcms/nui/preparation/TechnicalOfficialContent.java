@@ -7,6 +7,8 @@
 package app.owlcms.nui.preparation;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -46,6 +48,8 @@ import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSExportTechnicalOfficials;
+import app.owlcms.spreadsheet.XLSXTechnicalOfficialsExport;
+import app.owlcms.spreadsheet.XLSXTimetableExport;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -153,16 +157,53 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		// TO Credentials button
 		Div toCredentialsButton = DocumentsContent.createTOCredentialsButton();
 
+		// IWF Team Assignments Timetable buttons
+		XLSXTimetableExport timetableExport = new XLSXTimetableExport(UI.getCurrent());
+		Div downloadTimetableDiv = DownloadButtonFactory.createDynamicXLSXDownloadButton("timetable",
+		        Translator.translate("Timetable.ExportTimetable"), timetableExport);
+
+		Button uploadTimetableButton = new Button(Translator.translate("Timetable.ImportTimetable"),
+		        new Icon(VaadinIcon.UPLOAD_ALT),
+		        buttonClickEvent -> {
+			        TimetableUploadDialog dialog = new TimetableUploadDialog();
+			        dialog.setCallback(() -> {
+				        // Timetable updated - may need to refresh UI if needed
+				        Notification.show(Translator.translate("Timetable.ImportedSuccessfully"));
+			        });
+			        dialog.open();
+		        });
+
+		Button generateAssignmentsButton = new Button(Translator.translate("Timetable.GenerateSessionAssignments"),
+		        new Icon(VaadinIcon.COGS),
+		        buttonClickEvent -> {
+			        try {
+				        int count = app.owlcms.data.technicalofficial.SessionAssignmentGenerator.generateSessionAssignments();
+				        Notification.show(Translator.translate("Timetable.AssignmentsGenerated", count));
+			        } catch (Exception e) {
+				        logger.error("Error generating session assignments", e);
+				        Notification.show(Translator.translate("Timetable.AssignmentGenerationFailed") + ": " + e.getMessage());
+			        }
+		        });
+		// Enable button only if timetable has entries
+		generateAssignmentsButton.setEnabled(hasTimetableEntries());
+
 		FlexLayout buttons = new FlexLayout(
 		        new NativeLabel(Translator.translate("TechnicalOfficials.ImportExport")),
 		        exportOfficials,
 		        uploadCustom,
-		        hr(),
-		        new NativeLabel(Translator.translate("TechnicalOfficials.AssignmentReports")),
-		        allRecords1,
-		        hr(),
+		        hr()
+		        // hr(),
+		        // new NativeLabel(Translator.translate("TechnicalOfficials.AssignmentReports")),
+		        // allRecords1,
+		        // hr(),
+		        ,
 		        new NativeLabel(Translator.translate("Credentials")),
-		        toCredentialsButton);
+		        toCredentialsButton,
+		        hr(),
+		        new NativeLabel(Translator.translate("Timetable.IWFTeamAssignments")),
+		        downloadTimetableDiv,
+		        uploadTimetableButton,
+		        generateAssignmentsButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
@@ -182,6 +223,14 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		hr.getStyle().set("margin", "0");
 		hr.getStyle().set("padding", "0");
 		return hr;
+	}
+
+	private boolean hasTimetableEntries() {
+		return app.owlcms.data.jpa.JPAService.runInTransaction(em -> {
+			List<app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable> entries = 
+				app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository.findAll(em);
+			return !entries.isEmpty();
+		});
 	}
 
 	private Object refreshGrid() {
@@ -294,17 +343,45 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			return activeBox;
 		})).setHeader(Translator.translate("TechnicalOfficial.Active")).setWidth("0");
 
-		this.grid.addColumn(TechnicalOfficial::getLastName).setHeader(Translator.translate("LastName"));
-		this.grid.addColumn(TechnicalOfficial::getFirstName).setHeader(Translator.translate("FirstName"));
+		this.grid.addColumn(TechnicalOfficial::getFullName)
+		        .setHeader(Translator.translate("Name"))
+		        .setAutoWidth(true);
+		this.grid.addColumn(TechnicalOfficial::getFederation).setHeader(Translator.translate("TechnicalOfficial.Federation"));
+		var teamColumn = this.grid.addColumn(official -> {
+			Integer team = official.getTechnicalOfficialTeam();
+			return team == null ? "" : team.toString();
+		}).setHeader(Translator.translate("Team"))
+		        .setAutoWidth(true);
+		teamColumn.setComparator(Comparator
+		        .comparing((TechnicalOfficial o) -> o.getTechnicalOfficialTeam() == null ? Integer.MAX_VALUE : o.getTechnicalOfficialTeam())
+		        .thenComparing(o -> {
+		            var officialRole = o.getOfficialRole();
+		            return officialRole == null ? Integer.MAX_VALUE : officialRole.ordinal();
+		        }));
 
 		// Role column with translated role name
-		this.grid.addColumn(official -> {
+		var roleColumn = this.grid.addColumn(official -> {
 			TechnicalOfficial.Role role = official.getRole();
 			if (role == null) {
 				return "";
 			}
 			return Translator.translate("TO.Role." + role.name());
-		}).setHeader(Translator.translate("TechnicalOfficial.Role"));
+		}).setHeader(Translator.translate("TechnicalOfficial.Accreditation"));
+		roleColumn.setComparator(Comparator
+		        .comparing((TechnicalOfficial o) -> {
+		            TechnicalOfficial.Role role = o.getRole();
+		            return role == null ? "" : role.name();
+		        })
+		        .thenComparing(o -> {
+		            Integer team = o.getTechnicalOfficialTeam();
+		            return team == null ? Integer.MAX_VALUE : team;
+		        }));
+
+		// OfficialRole column
+		this.grid.addColumn(official -> {
+			var officialRole = official.getOfficialRole();
+			return officialRole == null ? "" : Translator.translate(officialRole.getIntroductionKey());
+		}).setHeader(Translator.translate("TechnicalOfficials.OfficialRole"));
 
 		this.grid.addColumn(TechnicalOfficial::getLevel)
 		        .setHeader(Translator.translate("TechnicalOfficial.Level"))
@@ -313,7 +390,6 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        	return level == null ? "" : Translator.translate("TOLevel." + level.name());
 		        }));
 		this.grid.addColumn(TechnicalOfficial::getFederationId).setHeader(Translator.translate("TechnicalOfficial.FederationId"));
-		this.grid.addColumn(TechnicalOfficial::getFederation).setHeader(Translator.translate("TechnicalOfficial.Federation"));
 		this.grid.addColumn(TechnicalOfficial::getAffiliation).setHeader(Translator.translate("TechnicalOfficial.Affiliation"));
 		this.grid.addColumn(TechnicalOfficial::getIwfId).setHeader(Translator.translate("TechnicalOfficial.IWFId"));
 
@@ -342,7 +418,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		crud.getCrudLayout().addFilterComponent(this.lastNameFilter);
 
 		// Role filter
-		this.roleFilter.setPlaceholder(Translator.translate("TechnicalOfficial.Role"));
+		this.roleFilter.setPlaceholder(Translator.translate("TechnicalOfficial.Accreditation"));
 		this.roleFilter.setItems(TechnicalOfficial.Role.values());
 		this.roleFilter.setItemLabelGenerator(role -> Translator.translate("TO.Role." + role.name()));
 		this.roleFilter.setClearButtonVisible(true);

@@ -33,6 +33,8 @@ public class TechnicalOfficialReader {
     private static final String AFFILIATION = "Affiliation";
     private static final String ROLE = "Role";
     private static final String ACTIVE = "Active";
+    private static final String TEAM = "Team";
+    private static final String OFFICIAL_ROLE = "OfficialRole";
 
     public List<TechnicalOfficial> importFromXLS(InputStream is, StringBuilder errors) {
         List<TechnicalOfficial> officials = new ArrayList<>();
@@ -78,7 +80,7 @@ public class TechnicalOfficialReader {
     }
 
     private int[] findColumnIndices(Row headerRow, StringBuilder errors) {
-        int[] indices = new int[9];  // One for each field (7 original + role + active)
+        int[] indices = new int[11];  // One for each field (7 original + role + active + team + officialRole)
         // Initialize all indices to -1 to indicate column not found
         for (int i = 0; i < indices.length; i++) {
             indices[i] = -1;
@@ -94,6 +96,7 @@ public class TechnicalOfficialReader {
         headerMap.put(FEDERATION_ID, FEDERATION_ID);
         headerMap.put(ROLE, ROLE);
         headerMap.put(ACTIVE, ACTIVE);
+        headerMap.put(OFFICIAL_ROLE, OFFICIAL_ROLE);
         
         // Map English translations to constants (always accept English)
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.LastName", Locale.ENGLISH), LAST_NAME);
@@ -103,8 +106,10 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Federation", Locale.ENGLISH), FEDERATION);
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.FederationId", Locale.ENGLISH), FEDERATION_ID);
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Affiliation", Locale.ENGLISH), AFFILIATION);
-        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Role", Locale.ENGLISH), ROLE);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Accreditation", Locale.ENGLISH), ROLE);
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Active", Locale.ENGLISH), ACTIVE);
+        headerMap.put(Translator.translateExplicitLocale("Team", Locale.ENGLISH), TEAM);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficials.OfficialRole", Locale.ENGLISH), OFFICIAL_ROLE);
         
         // Map local translations to constants
         headerMap.put(Translator.translate("TechnicalOfficial.LastName"), LAST_NAME);
@@ -114,7 +119,7 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translate("TechnicalOfficial.Federation"), FEDERATION);
         headerMap.put(Translator.translate("TechnicalOfficial.FederationId"), FEDERATION_ID);
         headerMap.put(Translator.translate("TechnicalOfficial.Affiliation"), AFFILIATION);
-        headerMap.put(Translator.translate("TechnicalOfficial.Role"), ROLE);
+        headerMap.put(Translator.translate("TechnicalOfficial.Accreditation"), ROLE);
         headerMap.put(Translator.translate("TechnicalOfficial.Active"), ACTIVE);
         
         List<String> unmatchedHeaders = new ArrayList<>();
@@ -157,6 +162,12 @@ public class TechnicalOfficialReader {
                         break;
                     case ACTIVE:
                         indices[8] = colIndex;
+                        break;
+                    case TEAM:
+                        indices[9] = colIndex;
+                        break;
+                    case OFFICIAL_ROLE:
+                        indices[10] = colIndex;
                         break;
                 }
             } else {
@@ -212,6 +223,8 @@ public class TechnicalOfficialReader {
             String federation = colIndices[4] >= 0 ? getCellValueAsString(row.getCell(colIndices[4])) : "";
             String federationId = colIndices[5] >= 0 ? getCellValueAsString(row.getCell(colIndices[5])) : "";
             String affiliation = colIndices[6] >= 0 ? getCellValueAsString(row.getCell(colIndices[6])) : "";
+            Cell teamCell = colIndices.length > 9 && colIndices[9] >= 0 ? row.getCell(colIndices[9]) : null;
+            String teamStr = teamCell != null ? getCellValueAsString(teamCell) : "";
             
             String roleStr = colIndices[7] >= 0 ? getCellValueAsString(row.getCell(colIndices[7])) : "";
             TechnicalOfficial.Role role = TechnicalOfficial.Role.TECHNICAL_OFFICIAL; // Default value
@@ -222,9 +235,34 @@ public class TechnicalOfficialReader {
             String activeStr = colIndices[8] >= 0 ? getCellValueAsString(row.getCell(colIndices[8])) : "";
             boolean active = parseBooleanValue(activeStr);
 
-            TechnicalOfficial official = new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId, affiliation);
+            // Parse OfficialRole
+            OfficialRole officialRole = null;
+            if (colIndices.length > 10 && colIndices[10] >= 0) {
+                Cell officialRoleCell = row.getCell(colIndices[10]);
+                String officialRoleStr = officialRoleCell != null ? getCellValueAsString(officialRoleCell) : "";
+                if (officialRoleStr != null && !officialRoleStr.isEmpty()) {
+                    try {
+                        officialRole = OfficialRole.valueOf(officialRoleStr.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        logger.warn("Invalid OfficialRole value '{}' for {} {} (row {}) - skipping OfficialRole assignment", 
+                            officialRoleStr, firstName, lastName, row.getRowNum() + 1);
+                    }
+                }
+            }
+
+            Integer team = null;
+            if (teamStr != null && !teamStr.isBlank()) {
+                try {
+                    team = Integer.valueOf(teamStr);
+                } catch (NumberFormatException nfe) {
+                    throw new IllegalArgumentException("Invalid team value: '" + teamStr + "' at " + getCellAddress(teamCell));
+                }
+            }
+
+            TechnicalOfficial official = new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId, affiliation, team);
             official.setRole(role);
             official.setActive(active);
+            official.setOfficialRole(officialRole);
             return official;
         } catch(Exception e) {
             throw new IllegalArgumentException("Error processing cell "+ getCellAddress(currentCell) + ": " + e.getMessage());

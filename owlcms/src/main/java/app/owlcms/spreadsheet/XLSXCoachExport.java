@@ -1,4 +1,4 @@
-package app.owlcms.nui.preparation;
+package app.owlcms.spreadsheet;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,7 +20,6 @@ import app.owlcms.data.coach.Coach;
 import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.coach.CoachReader;
 import app.owlcms.i18n.Translator;
-import app.owlcms.spreadsheet.XLSXWorkbookStreamSource;
 import app.owlcms.servlet.StopProcessingException;
 import ch.qos.logback.classic.Logger;
 

@@ -61,6 +61,7 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
+import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
@@ -304,6 +305,7 @@ public class JPAService {
 		        .add(Participation.class.getName())
 		        .add(RecordConfig.class.getName())
 				.add(TechnicalOfficial.class.getName())
+				.add(TechnicalOfficialsTimetable.class.getName())
 				.add(Coach.class.getName())
 		        .build();
 		return vals;

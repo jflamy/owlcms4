@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
+
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -44,6 +46,8 @@ import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
+import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable;
+import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.LoggerUtils;
@@ -63,6 +67,7 @@ public class CompetitionData {
 	private List<RecordEvent> records;
 	private RecordConfig recordConfig;
 	private List<TechnicalOfficial> technicalOfficials;
+	private List<TechnicalOfficialsTimetable> technicalOfficialsTimetable;
 
 	public CompetitionData() {
 	}
@@ -155,6 +160,8 @@ public class CompetitionData {
 		setRecords(RecordRepository.findAll());
 		setRecordConfig(RecordConfig.getCurrent());
 		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
+		setTechnicalOfficialsTimetable(null,
+			JPAService.runInTransaction(em -> TechnicalOfficialsTimetableRepository.findAll(em)));
 		return this;
 	}
 
@@ -281,6 +288,12 @@ public class CompetitionData {
 				if (updated.getTechnicalOfficials() != null) {
 					for (TechnicalOfficial p : updated.getTechnicalOfficials()) {
 						em.merge(p);
+					}
+				}
+				
+				if (updated.getTechnicalOfficialsTimetable() != null) {
+					for (TechnicalOfficialsTimetable t : updated.getTechnicalOfficialsTimetable()) {
+						em.merge(t);
 					}
 				}
 				
@@ -419,5 +432,19 @@ public class CompetitionData {
 	public void setTechnicalOfficials(List<TechnicalOfficial> technicalOfficials) {
 		logger.info("read {} technical officials",technicalOfficials.size());
 		this.technicalOfficials = technicalOfficials;
+	}
+
+	@JsonProperty(index = 180)
+	public List<TechnicalOfficialsTimetable> getTechnicalOfficialsTimetable() {
+		return technicalOfficialsTimetable;
+	}
+
+	public void setTechnicalOfficialsTimetable(EntityManager em, List<TechnicalOfficialsTimetable> timetable) {
+		if (timetable != null) {
+			logger.info("read {} timetable entries", timetable.size());
+			this.technicalOfficialsTimetable = timetable;
+		} else {
+			this.technicalOfficialsTimetable = List.of();
+		}
 	}
 }

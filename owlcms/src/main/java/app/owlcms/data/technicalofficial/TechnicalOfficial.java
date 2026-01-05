@@ -52,6 +52,10 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	private String federation;
 	private String federationId;
 	private String affiliation;
+	private Integer technicalOfficialTeam;
+	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "varchar(255)")
+	private OfficialRole officialRole;
 	@Enumerated(EnumType.STRING)
 	@Column(columnDefinition = "varchar(255) default 'TECHNICAL_OFFICIAL'")
 	private Role role;
@@ -111,7 +115,7 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	 * @param name the name
 	 */
 	public TechnicalOfficial(String lastName, String firstName, TOLevel level, String iwfId, String federation,
-			String federationId, String affiliation) {
+			String federationId, String affiliation, Integer technicalOfficialTeam) {
 		setId(IdUtils.getTimeBasedId());
 		this.lastName = lastName;
 		this.firstName = firstName;
@@ -120,6 +124,7 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		this.federation = federation;
 		this.federationId = federationId;
 		this.affiliation = affiliation;
+		this.technicalOfficialTeam = technicalOfficialTeam;
 		this.role = Role.TECHNICAL_OFFICIAL;
 		this.active = false;
 	}
@@ -162,10 +167,16 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	/**
 	 * Gets the full name.
 	 *
-	 * @return lastName + ", " + firstName
+	 * @return lastName, firstName (with comma only if both are present)
 	 */
 	public String getFullName() {
-		return this.lastName + (this.firstName != null ? (", " + this.firstName) : "");
+		if (this.lastName == null || this.lastName.isEmpty()) {
+			return this.firstName != null ? this.firstName : "";
+		}
+		if (this.firstName == null || this.firstName.isEmpty()) {
+			return this.lastName;
+		}
+		return this.lastName + ", " + this.firstName;
 	}
 
 	@Override
@@ -227,6 +238,22 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 
 	public void setAffiliation(String affiliation) {
 		this.affiliation = affiliation;
+	}
+
+	public Integer getTechnicalOfficialTeam() {
+		return technicalOfficialTeam;
+	}
+
+	public void setTechnicalOfficialTeam(Integer technicalOfficialTeam) {
+		this.technicalOfficialTeam = technicalOfficialTeam;
+	}
+
+	public OfficialRole getOfficialRole() {
+		return officialRole;
+	}
+
+	public void setOfficialRole(OfficialRole officialRole) {
+		this.officialRole = officialRole;
 	}
 
 	public Role getRole() {

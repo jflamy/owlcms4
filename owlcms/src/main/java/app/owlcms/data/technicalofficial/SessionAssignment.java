@@ -17,10 +17,16 @@ import app.owlcms.data.group.Group; // Fixed import
 import app.owlcms.utils.IdUtils;
 import ch.qos.logback.classic.Logger;
 
-// @Entity
-// @Cacheable
-// @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-// @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer" })
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+@Entity
+@Cacheable
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer" })
 public class SessionAssignment implements Serializable {
 
     private static final long serialVersionUID = 1L;

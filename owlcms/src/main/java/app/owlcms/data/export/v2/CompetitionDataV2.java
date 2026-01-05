@@ -42,6 +42,8 @@ import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
+import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable;
+import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.LoggerUtils;
@@ -71,7 +73,8 @@ import ch.qos.logback.classic.Logger;
 	"platforms",
 	"records",
 	"recordConfig",
-	"technicalOfficials"
+	"technicalOfficials",
+	"technicalOfficialsTimetable"
 })
 public class CompetitionDataV2 {
 
@@ -89,6 +92,7 @@ public class CompetitionDataV2 {
 	private List<RecordEvent> records;
 	private RecordConfig recordConfig;
 	private List<TechnicalOfficial> technicalOfficials;
+	private List<TimetableEntryDTO> technicalOfficialsTimetable;
 
 	public CompetitionDataV2() {
 	}
@@ -187,6 +191,14 @@ public class CompetitionDataV2 {
 		setRecords(RecordRepository.findAll());
 		setRecordConfig(RecordConfig.getCurrent());
 		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
+        
+		// Convert timetable entries from V2 format (DTO with session names)
+		setTechnicalOfficialsTimetable(
+			JPAService.runInTransaction(em -> TechnicalOfficialsTimetableRepository.findAll(em)).stream()
+				.map(TimetableEntryDTO::fromEntity)
+				.collect(Collectors.toList())
+		);
+		
 		return this;
 	}
 
@@ -286,6 +298,19 @@ public class CompetitionDataV2 {
 		if (updated.getTechnicalOfficials() != null) {
 			for (TechnicalOfficial p : updated.getTechnicalOfficials()) {
 				em.merge(p);
+			}
+		}
+		
+		// Restore timetable entries: convert DTOs to entities, looking up Groups by session name
+		if (updated.getTechnicalOfficialsTimetable() != null) {
+			for (TimetableEntryDTO dto : updated.getTechnicalOfficialsTimetable()) {
+				if (dto.getSessionName() != null) {
+					Group group = GroupRepository.findByName(dto.getSessionName());
+					if (group != null) {
+						TechnicalOfficialsTimetable entity = dto.toEntity(group);
+						em.merge(entity);
+					}
+				}
 			}
 		}
 		
@@ -411,5 +436,13 @@ public class CompetitionDataV2 {
 
 	public void setTechnicalOfficials(List<TechnicalOfficial> technicalOfficials) {
 		this.technicalOfficials = technicalOfficials;
+	}
+
+	public List<TimetableEntryDTO> getTechnicalOfficialsTimetable() {
+		return technicalOfficialsTimetable;
+	}
+
+	public void setTechnicalOfficialsTimetable(List<TimetableEntryDTO> timetable) {
+		this.technicalOfficialsTimetable = timetable;
 	}
 }
