@@ -8,6 +8,8 @@ package app.owlcms.data.technicalofficial;
 
 import java.util.EnumSet;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * TeamRole represents the generic roles used for:
  * - Import/Export columns
@@ -41,7 +43,7 @@ public enum TeamRole {
             OfficialRole.JURY_RESERVE
     )),
 
-    MARSHAL("Marshall", EnumSet.of(
+    MARSHALL("Marshall", EnumSet.of(
             OfficialRole.MARSHALL,
             OfficialRole.MARSHAL1,
             OfficialRole.MARSHAL2
@@ -131,5 +133,26 @@ public enum TeamRole {
             }
         }
         return null;
+    }
+
+    /**
+     * JSON deserializer that handles legacy value "MARSHAL" (single L)
+     * which was used in earlier versions before standardizing to "MARSHALL".
+     */
+    @JsonCreator
+    public static TeamRole fromValue(String value) {
+        if (value == null || value.isEmpty()) {
+            return null;
+        }
+        // Handle legacy spelling with single L
+        if ("MARSHAL".equalsIgnoreCase(value)) {
+            return MARSHALL;
+        }
+        // Standard enum lookup
+        try {
+            return TeamRole.valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

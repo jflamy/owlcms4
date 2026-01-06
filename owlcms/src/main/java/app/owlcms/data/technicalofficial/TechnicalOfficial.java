@@ -11,6 +11,7 @@ import java.io.Serializable;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.EnumType;
@@ -54,7 +55,7 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	private String federationId;
 	private String affiliation;
 	private Integer technicalOfficialTeam;
-	@Enumerated(EnumType.STRING)
+	@Convert(converter = TeamRoleConverter.class)
 	@Column(columnDefinition = "varchar(255)")
 	private TeamRole teamRole;
 	@Enumerated(EnumType.STRING)

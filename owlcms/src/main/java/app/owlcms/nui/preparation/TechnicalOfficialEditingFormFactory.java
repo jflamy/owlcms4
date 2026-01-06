@@ -205,7 +205,6 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
      */
     @SuppressWarnings("unused")
     private Component createTitle(String translationKey) {
-        // TODO: Implement section titles later if needed
         // H4 title = new H4(Translator.translate(translationKey));
         // title.getStyle().set("margin-top", "0");
         // title.getStyle().set("margin-bottom", "0.5em");

@@ -3,14 +3,17 @@ package app.owlcms.data.technicalofficial;
 public enum OfficialRole {
 
     // technical officials, in introduction order
+    // generic roles are included for convenience
     REFEREE("Referee", "Referee"),
     CENTER_REFEREE("Referee2", "CenterReferee"),
     LEFT_REFEREE("Referee1", "SideReferee"),
     RIGHT_REFEREE("Referee3", "SideReferee"),
     REFEREE_RESERVE("ReserveReferee", "ReserveReferee"),
+    MARSHALL("Marshall", "Marshall"),
     MARSHAL1("Marshal1", "ChiefMarshal"),
     MARSHAL2("Marshal2", "AssistantMarshal"),
     TIMEKEEPER("Timekeeper", "Timekeeper"),
+    TECHNICAL_CONTROLLER("TechnicalController", "TechnicalController"),
     TECHNICAL_CONTROLLER1("TechnicalController1", "TechnicalController"),
     TECHNICAL_CONTROLLER2("TechnicalController2", "TechnicalController"),
     DOCTOR("Doctor1", "Doctor"),
@@ -28,6 +31,7 @@ public enum OfficialRole {
 
 
     // Jury, in introduction order
+    JURY("Jury", "Jury"),
     JURY_PRESIDENT("JuryPresident", "JuryPresident"),
     JURY_MEMBER("JuryMember", "JuryMember"),
     JURY_A("Jury2", "JuryMember"),
@@ -36,11 +40,6 @@ public enum OfficialRole {
     JURY_D("Jury5", "JuryMember"),
     JURY_RESERVE("ReserveJury", "ReserveJury"),
 
-    // Generic team assignment categories (used in timetable)
-    // These are used for team assignment rotations
-    JURY("Jury", "Jury"),
-    MARSHALL("Marshall", "Marshall"),
-    TECHNICAL_CONTROLLER("TechnicalController", "TechnicalController"),
     ;
 
     // Generic roles for team assignment (used with timetable)

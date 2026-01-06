@@ -64,7 +64,7 @@ public class SessionAssignmentGenerator {
             case MARSHALL:
             case MARSHAL1:
             case MARSHAL2:
-                return TeamRole.MARSHAL;
+                return TeamRole.MARSHALL;
             case TIMEKEEPER:
                 return TeamRole.TIMEKEEPER;
             case TECHNICAL_CONTROLLER:
@@ -453,7 +453,7 @@ public class SessionAssignmentGenerator {
         // Define TeamRole to OfficialRole[] mappings for non-rotating roles
         // Each TeamRole can have multiple positions to fill
         Map<TeamRole, OfficialRole[]> teamRoleToPositions = new EnumMap<>(TeamRole.class);
-        teamRoleToPositions.put(TeamRole.MARSHAL, new OfficialRole[]{OfficialRole.MARSHAL1, OfficialRole.MARSHAL2});
+        teamRoleToPositions.put(TeamRole.MARSHALL, new OfficialRole[]{OfficialRole.MARSHAL1, OfficialRole.MARSHAL2});
         teamRoleToPositions.put(TeamRole.TECHNICAL_CONTROLLER, new OfficialRole[]{OfficialRole.TECHNICAL_CONTROLLER1, OfficialRole.TECHNICAL_CONTROLLER2});
         teamRoleToPositions.put(TeamRole.TIMEKEEPER, new OfficialRole[]{OfficialRole.TIMEKEEPER});
         teamRoleToPositions.put(TeamRole.ANNOUNCER, new OfficialRole[]{OfficialRole.ANNOUNCER});
