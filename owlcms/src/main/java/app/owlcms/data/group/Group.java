@@ -1773,6 +1773,44 @@ public class Group implements Comparable<Group> {
 	}
 
 	/**
+	 * Clears all technical official assignments for this session.
+	 * Used when importing a new timetable to ensure clean state.
+	 */
+	public void clearAllAssignments() {
+		// Jury assignments
+		this.jury1 = null;
+		this.jury2 = null;
+		this.jury3 = null;
+		this.jury4 = null;
+		this.jury5 = null;
+		this.reserveJury = null;
+		
+		// Referee assignments
+		this.referee1 = null;
+		this.referee2 = null;
+		this.referee3 = null;
+		this.reserve = null;
+		
+		// Marshall assignments
+		this.marshall = null;
+		this.marshal2 = null;
+		
+		// Other official assignments
+		this.timeKeeper = null;
+		this.technicalController = null;
+		this.technicalController2 = null;
+		this.technicalController3 = null;
+		this.doctor = null;
+		this.doctor2 = null;
+		this.doctor3 = null;
+		this.competitionSecretary = null;
+		this.competitionSecretary2 = null;
+		this.announcer = null;
+		this.weighIn1 = null;
+		this.weighIn2 = null;
+	}
+
+	/**
 	 * Find all technical officials assigned to this group. Returns a list of all TOs in various roles (announcer, jury, technical controllers, etc.)
 	 * 
 	 * @return List of TechnicalOfficials assigned to this group (may contain duplicates if a TO has multiple roles)

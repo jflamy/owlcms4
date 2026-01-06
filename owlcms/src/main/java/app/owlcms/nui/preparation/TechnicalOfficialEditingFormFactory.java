@@ -19,13 +19,14 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
 import app.owlcms.data.technicalofficial.TOLevel;
+import app.owlcms.data.technicalofficial.TeamRole;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
-import app.owlcms.data.technicalofficial.OfficialRole;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 
@@ -67,32 +68,7 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
     public FormLayout technicalOfficialLayout() {
         FormLayout technicalOfficialLayout = new FormLayout();
 
-        Checkbox activeCheckbox = new Checkbox(Translator.translate("TechnicalOfficial.Active"));
-        activeCheckbox.setValue(false); // Default to false
-        technicalOfficialLayout.add(activeCheckbox);
-        this.binder.forField(activeCheckbox)
-                .bind(TechnicalOfficial::isActive, TechnicalOfficial::setActive);
-
-        ComboBox<TechnicalOfficial.Role> roleComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.Accreditation"));
-        technicalOfficialLayout.add(roleComboBox);
-        roleComboBox.setItems(TechnicalOfficial.Role.values());
-        roleComboBox.setItemLabelGenerator(role -> 
-            Translator.translate("TO.Role." + role.name())
-        );
-        roleComboBox.setValue(TechnicalOfficial.Role.TECHNICAL_OFFICIAL); // Default value
-        this.binder.forField(roleComboBox)
-                .bind(TechnicalOfficial::getRole, TechnicalOfficial::setRole);
-
-        ComboBox<OfficialRole> officialRoleComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.OfficialRole"));
-        technicalOfficialLayout.add(officialRoleComboBox);
-        officialRoleComboBox.setItems(OfficialRole.values());
-        officialRoleComboBox.setItemLabelGenerator(role -> 
-            Translator.translate("OfficialRole." + role.name())
-        );
-        officialRoleComboBox.setClearButtonVisible(true);
-        this.binder.forField(officialRoleComboBox)
-                .bind(TechnicalOfficial::getOfficialRole, TechnicalOfficial::setOfficialRole);
-
+        // Personal Information
         TextField lastNameTextField = new TextField(Translator.translate("LastName"));
         technicalOfficialLayout.add(lastNameTextField);
         this.binder.forField(lastNameTextField)
@@ -105,6 +81,14 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
                 .withNullRepresentation("")
                 .bind(TechnicalOfficial::getFirstName, TechnicalOfficial::setFirstName);
 
+        // Role Assignment Section
+        Hr roleRuler = new Hr();
+        roleRuler.setWidthFull();
+        roleRuler.getStyle().set("margin", "0.5em 0");
+        roleRuler.getStyle().set("padding", "0");
+        technicalOfficialLayout.add(roleRuler);
+        technicalOfficialLayout.setColspan(roleRuler, 2);
+
         ComboBox<Integer> teamComboBox = new ComboBox<>(Translator.translate("Team"));
         teamComboBox.setItems(1, 2, 3, 4); // Max four teams
         teamComboBox.setAllowCustomValue(false); // typing filters, selection constrained to 1-4
@@ -112,6 +96,40 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
         technicalOfficialLayout.add(teamComboBox);
         this.binder.forField(teamComboBox)
             .bind(TechnicalOfficial::getTechnicalOfficialTeam, TechnicalOfficial::setTechnicalOfficialTeam);
+
+        ComboBox<TeamRole> teamRoleComboBox = new ComboBox<>(Translator.translate("TechnicalOfficials.TeamRole"));
+        technicalOfficialLayout.add(teamRoleComboBox);
+        teamRoleComboBox.setItems(TeamRole.values());
+        teamRoleComboBox.setItemLabelGenerator(teamRole -> 
+            Translator.translate(teamRole.getTranslationKey())
+        );
+        teamRoleComboBox.setClearButtonVisible(true);
+        this.binder.forField(teamRoleComboBox)
+                .bind(TechnicalOfficial::getTeamRole, TechnicalOfficial::setTeamRole);
+
+        ComboBox<TechnicalOfficial.Role> roleComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.Accreditation"));
+        technicalOfficialLayout.add(roleComboBox);
+        roleComboBox.setItems(TechnicalOfficial.Role.values());
+        roleComboBox.setItemLabelGenerator(role -> 
+            Translator.translate("AccreditationRole." + role.name())
+        );
+        roleComboBox.setValue(TechnicalOfficial.Role.TECHNICAL_OFFICIAL); // Default value
+        this.binder.forField(roleComboBox)
+                .bind(TechnicalOfficial::getAccreditationRole, TechnicalOfficial::setAccreditationRole);
+
+        // Credentials
+        Hr credentialsRuler = new Hr();
+        credentialsRuler.setWidthFull();
+        credentialsRuler.getStyle().set("margin", "0.5em 0");
+        credentialsRuler.getStyle().set("padding", "0");
+        technicalOfficialLayout.add(credentialsRuler);
+        technicalOfficialLayout.setColspan(credentialsRuler, 2);
+
+        TextField federationTextField = new TextField(Translator.translate("TechnicalOfficial.Federation"));
+        technicalOfficialLayout.add(federationTextField);
+        this.binder.forField(federationTextField)
+                .withNullRepresentation("")
+                .bind(TechnicalOfficial::getFederation, TechnicalOfficial::setFederation);
 
         ComboBox<TOLevel> levelComboBox = new ComboBox<>(Translator.translate("TechnicalOfficial.Level"));
         technicalOfficialLayout.add(levelComboBox);
@@ -128,11 +146,11 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
                 .withNullRepresentation("")
                 .bind(TechnicalOfficial::getFederationId, TechnicalOfficial::setFederationId);
 
-        TextField federationTextField = new TextField(Translator.translate("TechnicalOfficial.Federation"));
-        technicalOfficialLayout.add(federationTextField);
-        this.binder.forField(federationTextField)
+        TextField iwfIdTextField = new TextField(Translator.translate("TechnicalOfficial.IWFId"));
+        technicalOfficialLayout.add(iwfIdTextField);
+        this.binder.forField(iwfIdTextField)
                 .withNullRepresentation("")
-                .bind(TechnicalOfficial::getFederation, TechnicalOfficial::setFederation);
+                .bind(TechnicalOfficial::getIwfId, TechnicalOfficial::setIwfId);
         
         TextField affiliationTextField = new TextField(Translator.translate("TechnicalOfficial.Affiliation"));
         technicalOfficialLayout.add(affiliationTextField);
@@ -140,11 +158,12 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
                 .withNullRepresentation("")
                 .bind(TechnicalOfficial::getAffiliation, TechnicalOfficial::setAffiliation);
 
-        TextField iwfIdTextField = new TextField(Translator.translate("TechnicalOfficial.IWFId"));
-        technicalOfficialLayout.add(iwfIdTextField);
-        this.binder.forField(iwfIdTextField)
-                .withNullRepresentation("")
-                .bind(TechnicalOfficial::getIwfId, TechnicalOfficial::setIwfId);
+        // Status (at bottom)
+        Checkbox activeCheckbox = new Checkbox(Translator.translate("TechnicalOfficial.Active"));
+        activeCheckbox.setValue(false); // Default to false
+        technicalOfficialLayout.add(activeCheckbox);
+        this.binder.forField(activeCheckbox)
+                .bind(TechnicalOfficial::isActive, TechnicalOfficial::setActive);
 
         return technicalOfficialLayout;
     }
@@ -176,5 +195,21 @@ class TechnicalOfficialEditingFormFactory extends OwlcmsCrudFormFactory<Technica
         var mainLayout = new VerticalLayout(form, footer);
         this.binder.readBean(aFromList);
         return mainLayout;
+    }
+
+    /**
+     * Dummy method for future section titles.
+     * Currently does nothing - can be implemented later to add H4 section headers.
+     * @param translationKey the translation key for the title
+     * @return null (no title component for now)
+     */
+    @SuppressWarnings("unused")
+    private Component createTitle(String translationKey) {
+        // TODO: Implement section titles later if needed
+        // H4 title = new H4(Translator.translate(translationKey));
+        // title.getStyle().set("margin-top", "0");
+        // title.getStyle().set("margin-bottom", "0.5em");
+        // return title;
+        return null;
     }
 }

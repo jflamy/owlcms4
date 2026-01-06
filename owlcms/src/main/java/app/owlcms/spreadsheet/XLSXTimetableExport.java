@@ -18,8 +18,6 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
-import app.owlcms.i18n.Translator;
-import app.owlcms.servlet.StopProcessingException;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -38,16 +36,8 @@ public class XLSXTimetableExport extends XLSXWorkbookStreamSource {
 
     @Override
     public Optional<Exception> prepare() {
-        try {
-            List<TechnicalOfficialsTimetable> entries = JPAService.runInTransaction(em ->
-                    TechnicalOfficialsTimetableRepository.findAll(em));
-            if (entries == null || entries.isEmpty()) {
-                return Optional.of(new StopProcessingException(Translator.translate("Timetable.NoEntriesFound"), null));
-            }
-            return Optional.empty();
-        } catch (Exception e) {
-            return Optional.of(e);
-        }
+        // Always allow export - will create empty timetable if no entries exist
+        return Optional.empty();
     }
 
     @Override

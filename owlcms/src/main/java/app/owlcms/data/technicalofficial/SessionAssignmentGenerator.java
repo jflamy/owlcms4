@@ -22,15 +22,71 @@ import ch.qos.logback.classic.Logger;
 /**
  * Generates session assignments for technical officials based on the timetable.
  * 
+ * Officials are grouped by {@link TeamRole} and team number.
+ * The algorithm uses the TeamRole to determine which positions can be filled.
+ * 
  * Implements rotation logic:
  * - Referees: center → reserve → right → left → center (skip reserve if team has 3 members)
- * - Jury: if reserve exists: D→reserve, A→B, B→C, C→D, reserve→A; if no reserve, no rotation
+ * - Jury: if reserve exists: rotate through A→B→C→D→reserve; if no reserve, static positions
  * 
  * Assignments are stored directly in Group entity fields (jury1, jury2, referee1, etc.)
  */
 public class SessionAssignmentGenerator {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(SessionAssignmentGenerator.class);
+
+    /**
+     * Maps timetable role categories to the TeamRole used for grouping officials.
+     * Timetable uses OfficialRole categories (JURY, REFEREE, MARSHALL, etc.) 
+     * which we map to TeamRole for lookup.
+     */
+    private static TeamRole mapTimetableCategoryToTeamRole(OfficialRole timetableCategory) {
+        if (timetableCategory == null) {
+            return null;
+        }
+        switch (timetableCategory) {
+            case JURY:
+            case JURY_MEMBER:
+            case JURY_A:
+            case JURY_B:
+            case JURY_C:
+            case JURY_D:
+            case JURY_RESERVE:
+                return TeamRole.JURY;
+            case JURY_PRESIDENT:
+                return TeamRole.JURY_PRESIDENT;
+            case REFEREE:
+            case CENTER_REFEREE:
+            case LEFT_REFEREE:
+            case RIGHT_REFEREE:
+            case REFEREE_RESERVE:
+                return TeamRole.REFEREE;
+            case MARSHALL:
+            case MARSHAL1:
+            case MARSHAL2:
+                return TeamRole.MARSHAL;
+            case TIMEKEEPER:
+                return TeamRole.TIMEKEEPER;
+            case TECHNICAL_CONTROLLER:
+            case TECHNICAL_CONTROLLER1:
+            case TECHNICAL_CONTROLLER2:
+                return TeamRole.TECHNICAL_CONTROLLER;
+            case DOCTOR:
+            case DOCTOR2:
+            case DOCTOR3:
+                return TeamRole.DOCTOR;
+            case COMPETITION_SECRETARY:
+            case COMPETITION_SECRETARY2:
+                return TeamRole.COMPETITION_SECRETARY;
+            case ANNOUNCER:
+                return TeamRole.ANNOUNCER;
+            case WEIGHIN1:
+            case WEIGHIN2:
+                return TeamRole.WEIGHIN;
+            default:
+                return null;
+        }
+    }
 
     /**
      * Creates a mapping from OfficialRole to the corresponding setter in the Group class.
@@ -56,11 +112,19 @@ public class SessionAssignmentGenerator {
         map.put(OfficialRole.WEIGHIN2, Group::setWeighIn2);
         map.put(OfficialRole.REFEREE_RESERVE, Group::setReserve);
         map.put(OfficialRole.JURY_RESERVE, Group::setReserveJury);
+        map.put(OfficialRole.DOCTOR, Group::setDoctor);
+        map.put(OfficialRole.DOCTOR2, Group::setDoctor2);
+        map.put(OfficialRole.DOCTOR3, Group::setDoctor3);
+        map.put(OfficialRole.COMPETITION_SECRETARY, Group::setCompetitionSecretary);
+        map.put(OfficialRole.COMPETITION_SECRETARY2, Group::setCompetitionSecretary2);
         return map;
     }
 
     /**
      * Generate session assignments for all sessions based on the timetable.
+     * 
+     * Officials are grouped by their TeamRole and team number.
+     * All officialRole values are cleared before new assignments are generated.
      * 
      * @return Number of assignments generated
      */
@@ -73,10 +137,43 @@ public class SessionAssignmentGenerator {
                 return 0;
             }
 
-            // Get all sessions in chronological order
+            // Clear all existing assignments for all sessions before generating new ones
+            logger.info("Clearing all existing session assignments before generating new assignments");
+            for (Group group : GroupRepository.findAll()) {
+                group.clearAllAssignments();
+                em.merge(group);
+            }
+
+            // Get all technical officials and clear their officialRole
+            List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
+            logger.info("Clearing officialRole for all {} technical officials", officials.size());
+            for (TechnicalOfficial official : officials) {
+                official.setOfficialRole(null);
+                em.merge(official);
+            }
+
+            // Get all sessions in chronological order (by competition time if available, otherwise by name)
             List<Group> sessions = GroupRepository.findAll().stream()
-                    .filter(g -> g.getWeighInTime() != null)
-                    .sorted(Comparator.comparing(Group::getWeighInTime))
+                    .sorted((g1, g2) -> {
+                        // Sort by competition time if both have it
+                        if (g1.getCompetitionTime() != null && g2.getCompetitionTime() != null) {
+                            return g1.getCompetitionTime().compareTo(g2.getCompetitionTime());
+                        }
+                        // Sort by weigh-in time if both have it
+                        if (g1.getWeighInTime() != null && g2.getWeighInTime() != null) {
+                            return g1.getWeighInTime().compareTo(g2.getWeighInTime());
+                        }
+                        // Put sessions with times first, then sort by name
+                        boolean g1HasTime = g1.getCompetitionTime() != null || g1.getWeighInTime() != null;
+                        boolean g2HasTime = g2.getCompetitionTime() != null || g2.getWeighInTime() != null;
+                        if (g1HasTime != g2HasTime) {
+                            return g1HasTime ? -1 : 1;
+                        }
+                        // Finally sort by name as fallback
+                        String name1 = g1.getName() != null ? g1.getName() : "";
+                        String name2 = g2.getName() != null ? g2.getName() : "";
+                        return name1.compareTo(name2);
+                    })
                     .collect(Collectors.toList());
 
             if (sessions.isEmpty()) {
@@ -84,36 +181,43 @@ public class SessionAssignmentGenerator {
                 return 0;
             }
 
-            // Get all technical officials with their OfficialRole and team
-            List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
-            
-            // Group officials by OfficialRole and team
-            Map<OfficialRole, Map<Integer, List<TechnicalOfficial>>> officialsByRoleAndTeam = officials.stream()
-                    .filter(o -> o.getOfficialRole() != null && o.getTechnicalOfficialTeam() != null)
-                    .collect(Collectors.groupingBy(
-                            TechnicalOfficial::getOfficialRole,
-                            Collectors.groupingBy(TechnicalOfficial::getTechnicalOfficialTeam)));
+            // Group officials by TeamRole and team number
+            Map<TeamRole, Map<Integer, List<TechnicalOfficial>>> officialsByTeamRoleAndTeam = new HashMap<>();
+            for (TechnicalOfficial official : officials) {
+                if (official.getTechnicalOfficialTeam() == null || official.getTeamRole() == null) {
+                    continue;
+                }
+                officialsByTeamRoleAndTeam
+                    .computeIfAbsent(official.getTeamRole(), k -> new HashMap<>())
+                    .computeIfAbsent(official.getTechnicalOfficialTeam(), k -> new ArrayList<>())
+                    .add(official);
+            }
 
-            // Group timetable entries by role category and team, collecting sessions
-            Map<OfficialRole, Map<Integer, Set<Group>>> sessionsByRoleAndTeam = new HashMap<>();
+            // Group timetable entries by TeamRole and team number, collecting sessions
+            Map<TeamRole, Map<Integer, Set<Group>>> sessionsByTeamRoleAndTeam = new HashMap<>();
             for (TechnicalOfficialsTimetable entry : timetableEntries) {
-                sessionsByRoleAndTeam
-                        .computeIfAbsent(entry.getRoleCategory(), k -> new HashMap<>())
-                        .computeIfAbsent(entry.getTeamNumber(), k -> new HashSet<>())
-                        .add(entry.getGroup());
+                OfficialRole timetableRole = entry.getRoleCategory();
+                // Map timetable OfficialRole category to TeamRole for lookup
+                TeamRole teamRole = mapTimetableCategoryToTeamRole(timetableRole);
+                if (teamRole != null) {
+                    sessionsByTeamRoleAndTeam
+                            .computeIfAbsent(teamRole, k -> new HashMap<>())
+                            .computeIfAbsent(entry.getTeamNumber(), k -> new HashSet<>())
+                            .add(entry.getGroup());
+                }
             }
 
             Map<OfficialRole, BiConsumer<Group, String>> setterMap = sessionRoleSetterMap();
             int assignmentCount = 0;
 
             // Process REFEREE teams with rotation
-            assignmentCount += processRefereeTeams(em, sessions, officialsByRoleAndTeam, sessionsByRoleAndTeam, setterMap);
+            assignmentCount += processRefereeTeams(em, sessions, officialsByTeamRoleAndTeam, sessionsByTeamRoleAndTeam, setterMap);
 
-            // Process JURY teams with rotation
-            assignmentCount += processJuryTeams(em, sessions, officialsByRoleAndTeam, sessionsByRoleAndTeam, setterMap);
+            // Process JURY teams with rotation (JURY_PRESIDENT + JURY members)
+            assignmentCount += processJuryTeams(em, sessions, officialsByTeamRoleAndTeam, sessionsByTeamRoleAndTeam, setterMap);
 
-            // Process non-rotating roles (MARSHAL, TC, TIMEKEEPER, ANNOUNCER, WEIGHIN)
-            assignmentCount += processNonRotatingRoles(em, sessions, officialsByRoleAndTeam, sessionsByRoleAndTeam, setterMap);
+            // Process non-rotating roles (MARSHAL, TC, TIMEKEEPER, ANNOUNCER, WEIGHIN, DOCTOR, COMPETITION_SECRETARY)
+            assignmentCount += processNonRotatingRoles(em, sessions, officialsByTeamRoleAndTeam, sessionsByTeamRoleAndTeam, setterMap);
 
             return assignmentCount;
         });
@@ -124,21 +228,21 @@ public class SessionAssignmentGenerator {
      * Skip reserve if team has only 3 members.
      */
     private static int processRefereeTeams(EntityManager em, List<Group> allSessions,
-            Map<OfficialRole, Map<Integer, List<TechnicalOfficial>>> officialsByRoleAndTeam,
-            Map<OfficialRole, Map<Integer, Set<Group>>> sessionsByRoleAndTeam,
+            Map<TeamRole, Map<Integer, List<TechnicalOfficial>>> officialsByTeamRoleAndTeam,
+            Map<TeamRole, Map<Integer, Set<Group>>> sessionsByTeamRoleAndTeam,
             Map<OfficialRole, BiConsumer<Group, String>> setterMap) {
         
         int count = 0;
         
-        // Get referee officials (generic REFEREE role)
-        Map<Integer, List<TechnicalOfficial>> refereesByTeam = officialsByRoleAndTeam.get(OfficialRole.REFEREE);
+        // Get referee officials (TeamRole.REFEREE)
+        Map<Integer, List<TechnicalOfficial>> refereesByTeam = officialsByTeamRoleAndTeam.get(TeamRole.REFEREE);
         if (refereesByTeam == null || refereesByTeam.isEmpty()) {
-            logger.info("No referees with REFEREE role found");
+            logger.info("No referees with REFEREE TeamRole found");
             return 0;
         }
 
         // Get sessions assigned to referee teams
-        Map<Integer, Set<Group>> refereeSessions = sessionsByRoleAndTeam.get(OfficialRole.REFEREE);
+        Map<Integer, Set<Group>> refereeSessions = sessionsByTeamRoleAndTeam.get(TeamRole.REFEREE);
         if (refereeSessions == null || refereeSessions.isEmpty()) {
             logger.info("No referee team assignments in timetable");
             return 0;
@@ -203,28 +307,29 @@ public class SessionAssignmentGenerator {
     }
 
     /**
-     * Process jury teams with rotation:
-     * If reserve: D→reserve, A→B, B→C, C→D, reserve→A
-     * If no reserve: no rotation
+     * Process jury teams with rotation.
+     * A jury team = JURY_PRESIDENT + JURY members.
+     * If 5+ members (with reserve): rotate through A→B→C→D→reserve
+     * If 4 or fewer members: static positions
      */
     private static int processJuryTeams(EntityManager em, List<Group> allSessions,
-            Map<OfficialRole, Map<Integer, List<TechnicalOfficial>>> officialsByRoleAndTeam,
-            Map<OfficialRole, Map<Integer, Set<Group>>> sessionsByRoleAndTeam,
+            Map<TeamRole, Map<Integer, List<TechnicalOfficial>>> officialsByTeamRoleAndTeam,
+            Map<TeamRole, Map<Integer, Set<Group>>> sessionsByTeamRoleAndTeam,
             Map<OfficialRole, BiConsumer<Group, String>> setterMap) {
         
         int count = 0;
 
-        // Get jury member officials (generic JURY_MEMBER role)
-        Map<Integer, List<TechnicalOfficial>> juryMembersByTeam = officialsByRoleAndTeam.getOrDefault(OfficialRole.JURY_MEMBER, new HashMap<>());
+        // Get jury member officials (TeamRole.JURY)
+        Map<Integer, List<TechnicalOfficial>> juryMembersByTeam = officialsByTeamRoleAndTeam.getOrDefault(TeamRole.JURY, new HashMap<>());
         
-        // Get jury president officials (JURY_PRESIDENT role)
-        Map<Integer, List<TechnicalOfficial>> juryPresidentsByTeam = officialsByRoleAndTeam.getOrDefault(OfficialRole.JURY_PRESIDENT, new HashMap<>());
+        // Get jury president officials (TeamRole.JURY_PRESIDENT)
+        Map<Integer, List<TechnicalOfficial>> juryPresidentsByTeam = officialsByTeamRoleAndTeam.getOrDefault(TeamRole.JURY_PRESIDENT, new HashMap<>());
 
-        // Get sessions assigned to jury teams
-        Map<Integer, Set<Group>> jurySessions = sessionsByRoleAndTeam.getOrDefault(OfficialRole.JURY_MEMBER, new HashMap<>());
+        // Get sessions assigned to jury teams (from timetable)
+        Map<Integer, Set<Group>> jurySessions = new HashMap<>(sessionsByTeamRoleAndTeam.getOrDefault(TeamRole.JURY, new HashMap<>()));
         
         // Merge with JURY_PRESIDENT sessions if different
-        Map<Integer, Set<Group>> juryPresidentSessions = sessionsByRoleAndTeam.getOrDefault(OfficialRole.JURY_PRESIDENT, new HashMap<>());
+        Map<Integer, Set<Group>> juryPresidentSessions = sessionsByTeamRoleAndTeam.getOrDefault(TeamRole.JURY_PRESIDENT, new HashMap<>());
         for (Map.Entry<Integer, Set<Group>> entry : juryPresidentSessions.entrySet()) {
             jurySessions.computeIfAbsent(entry.getKey(), k -> new HashSet<>()).addAll(entry.getValue());
         }
@@ -234,7 +339,7 @@ public class SessionAssignmentGenerator {
             return 0;
         }
 
-        // Process each team
+        // Process each team (union of all team numbers that have president or members)
         Set<Integer> allTeams = new HashSet<>();
         allTeams.addAll(juryMembersByTeam.keySet());
         allTeams.addAll(juryPresidentsByTeam.keySet());
@@ -332,27 +437,36 @@ public class SessionAssignmentGenerator {
     }
 
     /**
-     * Process non-rotating roles: MARSHAL1, MARSHAL2, TECHNICAL_CONTROLLER1, TECHNICAL_CONTROLLER2,
-     * TIMEKEEPER, ANNOUNCER, WEIGHIN1, WEIGHIN2
+     * Process non-rotating roles: MARSHAL, TECHNICAL_CONTROLLER, TIMEKEEPER, 
+     * ANNOUNCER, WEIGHIN, DOCTOR, COMPETITION_SECRETARY
+     * 
+     * For roles with multiple positions (e.g., MARSHAL1, MARSHAL2), officials are assigned 
+     * in order to available positions.
      */
     private static int processNonRotatingRoles(EntityManager em, List<Group> allSessions,
-            Map<OfficialRole, Map<Integer, List<TechnicalOfficial>>> officialsByRoleAndTeam,
-            Map<OfficialRole, Map<Integer, Set<Group>>> sessionsByRoleAndTeam,
+            Map<TeamRole, Map<Integer, List<TechnicalOfficial>>> officialsByTeamRoleAndTeam,
+            Map<TeamRole, Map<Integer, Set<Group>>> sessionsByTeamRoleAndTeam,
             Map<OfficialRole, BiConsumer<Group, String>> setterMap) {
         
         int count = 0;
 
-        // Non-rotating roles that map directly
-        OfficialRole[] nonRotatingRoles = {
-                OfficialRole.MARSHAL1, OfficialRole.MARSHAL2,
-                OfficialRole.TECHNICAL_CONTROLLER1, OfficialRole.TECHNICAL_CONTROLLER2,
-                OfficialRole.TIMEKEEPER, OfficialRole.ANNOUNCER,
-                OfficialRole.WEIGHIN1, OfficialRole.WEIGHIN2
-        };
+        // Define TeamRole to OfficialRole[] mappings for non-rotating roles
+        // Each TeamRole can have multiple positions to fill
+        Map<TeamRole, OfficialRole[]> teamRoleToPositions = new EnumMap<>(TeamRole.class);
+        teamRoleToPositions.put(TeamRole.MARSHAL, new OfficialRole[]{OfficialRole.MARSHAL1, OfficialRole.MARSHAL2});
+        teamRoleToPositions.put(TeamRole.TECHNICAL_CONTROLLER, new OfficialRole[]{OfficialRole.TECHNICAL_CONTROLLER1, OfficialRole.TECHNICAL_CONTROLLER2});
+        teamRoleToPositions.put(TeamRole.TIMEKEEPER, new OfficialRole[]{OfficialRole.TIMEKEEPER});
+        teamRoleToPositions.put(TeamRole.ANNOUNCER, new OfficialRole[]{OfficialRole.ANNOUNCER});
+        teamRoleToPositions.put(TeamRole.WEIGHIN, new OfficialRole[]{OfficialRole.WEIGHIN1, OfficialRole.WEIGHIN2});
+        teamRoleToPositions.put(TeamRole.DOCTOR, new OfficialRole[]{OfficialRole.DOCTOR, OfficialRole.DOCTOR2, OfficialRole.DOCTOR3});
+        teamRoleToPositions.put(TeamRole.COMPETITION_SECRETARY, new OfficialRole[]{OfficialRole.COMPETITION_SECRETARY, OfficialRole.COMPETITION_SECRETARY2});
 
-        for (OfficialRole role : nonRotatingRoles) {
-            Map<Integer, List<TechnicalOfficial>> officialsByTeam = officialsByRoleAndTeam.get(role);
-            Map<Integer, Set<Group>> sessionsByTeam = sessionsByRoleAndTeam.get(role);
+        for (Map.Entry<TeamRole, OfficialRole[]> entry : teamRoleToPositions.entrySet()) {
+            TeamRole teamRole = entry.getKey();
+            OfficialRole[] positions = entry.getValue();
+
+            Map<Integer, List<TechnicalOfficial>> officialsByTeam = officialsByTeamRoleAndTeam.get(teamRole);
+            Map<Integer, Set<Group>> sessionsByTeam = sessionsByTeamRoleAndTeam.get(teamRole);
 
             if (officialsByTeam == null || sessionsByTeam == null) {
                 continue;
@@ -367,21 +481,27 @@ public class SessionAssignmentGenerator {
                     continue;
                 }
 
-                // Use the first official for this role in this team
-                TechnicalOfficial official = teamOfficials.get(0);
-                String officialName = official.getFullName();
+                // Sort officials by ID for consistent ordering
+                teamOfficials.sort(Comparator.comparing(TechnicalOfficial::getId));
 
-                BiConsumer<Group, String> setter = setterMap.get(role);
-                if (setter == null) {
-                    continue;
-                }
+                // Assign officials to positions in order
+                for (int i = 0; i < Math.min(teamOfficials.size(), positions.length); i++) {
+                    TechnicalOfficial official = teamOfficials.get(i);
+                    String officialName = official.getFullName();
+                    OfficialRole position = positions[i];
 
-                for (Group session : allSessions) {
-                    if (teamSessions.contains(session)) {
-                        setter.accept(session, officialName);
-                        em.merge(session);
-                        count++;
-                        logger.debug("Assigned {} as {} for session {}", officialName, role, session.getName());
+                    BiConsumer<Group, String> setter = setterMap.get(position);
+                    if (setter == null) {
+                        continue;
+                    }
+
+                    for (Group session : allSessions) {
+                        if (teamSessions.contains(session)) {
+                            setter.accept(session, officialName);
+                            em.merge(session);
+                            count++;
+                            logger.debug("Assigned {} as {} for session {}", officialName, position, session.getName());
+                        }
                     }
                 }
             }

@@ -19,6 +19,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import app.owlcms.components.ConfirmationDialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
@@ -100,6 +101,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	private String lastNameValue;
 	private ComboBox<TechnicalOfficial.Role> roleFilter = new ComboBox<>();
 	private TechnicalOfficial.Role roleValue;
+	private Button generateAssignmentsButton;
 
 	/**
 	 * Instantiates the TechnicalOfficial crudGrid.
@@ -167,25 +169,52 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        buttonClickEvent -> {
 			        TimetableUploadDialog dialog = new TimetableUploadDialog();
 			        dialog.setCallback(() -> {
-				        // Timetable updated - may need to refresh UI if needed
+				        // Timetable updated - refresh button state and show notification
+				        generateAssignmentsButton.setEnabled(hasTimetableEntries());
 				        Notification.show(Translator.translate("Timetable.ImportedSuccessfully"));
 			        });
 			        dialog.open();
 		        });
 
-		Button generateAssignmentsButton = new Button(Translator.translate("Timetable.GenerateSessionAssignments"),
+		generateAssignmentsButton = new Button(Translator.translate("Timetable.GenerateSessionAssignments"),
 		        new Icon(VaadinIcon.COGS),
 		        buttonClickEvent -> {
-			        try {
-				        int count = app.owlcms.data.technicalofficial.SessionAssignmentGenerator.generateSessionAssignments();
-				        Notification.show(Translator.translate("Timetable.AssignmentsGenerated", count));
-			        } catch (Exception e) {
-				        logger.error("Error generating session assignments", e);
-				        Notification.show(Translator.translate("Timetable.AssignmentGenerationFailed") + ": " + e.getMessage());
-			        }
+			        new ConfirmationDialog(
+			                Translator.translate("Timetable.GenerateSessionAssignments"),
+			                Translator.translate("Timetable.GenerateAssignmentsWarning"),
+			                null,
+			                () -> {
+				                try {
+					                int count = app.owlcms.data.technicalofficial.SessionAssignmentGenerator.generateSessionAssignments();
+					                Notification.show(Translator.translate("Timetable.AssignmentsGenerated", count));
+				                } catch (Exception e) {
+					                logger.error("Error generating session assignments", e);
+					                Notification.show(Translator.translate("Timetable.AssignmentGenerationFailed") + ": " + e.getMessage());
+				                }
+			                }
+			        ).open();
 		        });
 		// Enable button only if timetable has entries
 		generateAssignmentsButton.setEnabled(hasTimetableEntries());
+
+		Button clearAssignmentsButton = new Button(Translator.translate("Timetable.ClearSessionAssignments"),
+		        new Icon(VaadinIcon.ERASER),
+		        buttonClickEvent -> {
+			        try {
+				        int count = app.owlcms.data.jpa.JPAService.runInTransaction(em -> {
+					        List<app.owlcms.data.group.Group> groups = app.owlcms.data.group.GroupRepository.findAll();
+					        for (app.owlcms.data.group.Group group : groups) {
+						        group.clearAllAssignments();
+						        em.merge(group);
+					        }
+					        return groups.size();
+				        });
+				        Notification.show(Translator.translate("Timetable.AssignmentsCleared", count));
+			        } catch (Exception e) {
+				        logger.error("Error clearing session assignments", e);
+				        Notification.show(Translator.translate("Timetable.AssignmentClearFailed") + ": " + e.getMessage());
+			        }
+		        });
 
 		FlexLayout buttons = new FlexLayout(
 		        new NativeLabel(Translator.translate("TechnicalOfficials.ImportExport")),
@@ -200,10 +229,11 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        new NativeLabel(Translator.translate("Credentials")),
 		        toCredentialsButton,
 		        hr(),
-		        new NativeLabel(Translator.translate("Timetable.IWFTeamAssignments")),
+		        new NativeLabel(Translator.translate("Timetable.TeamAssignments")),
 		        downloadTimetableDiv,
 		        uploadTimetableButton,
-		        generateAssignmentsButton);
+		        generateAssignmentsButton,
+		        clearAssignmentsButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
@@ -266,7 +296,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		// Apply role filter if present
 		if (roleValue != null) {
 			officials = officials.stream()
-			        .filter(official -> roleValue.equals(official.getRole()))
+			        .filter(official -> roleValue.equals(official.getAccreditationRole()))
 			        .collect(java.util.stream.Collectors.toList());
 		}
 
@@ -355,21 +385,21 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		teamColumn.setComparator(Comparator
 		        .comparing((TechnicalOfficial o) -> o.getTechnicalOfficialTeam() == null ? Integer.MAX_VALUE : o.getTechnicalOfficialTeam())
 		        .thenComparing(o -> {
-		            var officialRole = o.getOfficialRole();
-		            return officialRole == null ? Integer.MAX_VALUE : officialRole.ordinal();
+		            var teamRole = o.getTeamRole();
+		            return teamRole == null ? Integer.MAX_VALUE : teamRole.ordinal();
 		        }));
 
 		// Role column with translated role name
 		var roleColumn = this.grid.addColumn(official -> {
-			TechnicalOfficial.Role role = official.getRole();
+			TechnicalOfficial.Role role = official.getAccreditationRole();
 			if (role == null) {
 				return "";
 			}
-			return Translator.translate("TO.Role." + role.name());
+			return Translator.translate("AccreditationRole." + role.name());
 		}).setHeader(Translator.translate("TechnicalOfficial.Accreditation"));
 		roleColumn.setComparator(Comparator
 		        .comparing((TechnicalOfficial o) -> {
-		            TechnicalOfficial.Role role = o.getRole();
+		            TechnicalOfficial.Role role = o.getAccreditationRole();
 		            return role == null ? "" : role.name();
 		        })
 		        .thenComparing(o -> {
@@ -377,11 +407,11 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		            return team == null ? Integer.MAX_VALUE : team;
 		        }));
 
-		// OfficialRole column
+		// TeamRole column (generic role for team assignment)
 		this.grid.addColumn(official -> {
-			var officialRole = official.getOfficialRole();
-			return officialRole == null ? "" : Translator.translate(officialRole.getIntroductionKey());
-		}).setHeader(Translator.translate("TechnicalOfficials.OfficialRole"));
+			var teamRole = official.getTeamRole();
+			return teamRole == null ? "" : Translator.translate(teamRole.getTranslationKey());
+		}).setHeader(Translator.translate("TechnicalOfficials.TeamRole"));
 
 		this.grid.addColumn(TechnicalOfficial::getLevel)
 		        .setHeader(Translator.translate("TechnicalOfficial.Level"))
@@ -420,7 +450,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		// Role filter
 		this.roleFilter.setPlaceholder(Translator.translate("TechnicalOfficial.Accreditation"));
 		this.roleFilter.setItems(TechnicalOfficial.Role.values());
-		this.roleFilter.setItemLabelGenerator(role -> Translator.translate("TO.Role." + role.name()));
+		this.roleFilter.setItemLabelGenerator(role -> Translator.translate("AccreditationRole." + role.name()));
 		this.roleFilter.setClearButtonVisible(true);
 		this.roleFilter.addValueChangeListener(e -> {
 			this.roleValue = e.getValue();

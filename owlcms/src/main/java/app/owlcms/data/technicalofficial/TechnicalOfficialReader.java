@@ -31,10 +31,10 @@ public class TechnicalOfficialReader {
     private static final String FEDERATION = "Federation";
     private static final String FEDERATION_ID = "FederationId";
     private static final String AFFILIATION = "Affiliation";
-    private static final String ROLE = "Role";
+    private static final String ACCREDITATION_ROLE = "AccreditationRole";
     private static final String ACTIVE = "Active";
     private static final String TEAM = "Team";
-    private static final String OFFICIAL_ROLE = "OfficialRole";
+    private static final String TEAM_ROLE = "TeamRole";
 
     public List<TechnicalOfficial> importFromXLS(InputStream is, StringBuilder errors) {
         List<TechnicalOfficial> officials = new ArrayList<>();
@@ -80,7 +80,7 @@ public class TechnicalOfficialReader {
     }
 
     private int[] findColumnIndices(Row headerRow, StringBuilder errors) {
-        int[] indices = new int[11];  // One for each field (7 original + role + active + team + officialRole)
+        int[] indices = new int[11];  // One for each field (7 original + role + active + team + teamRole)
         // Initialize all indices to -1 to indicate column not found
         for (int i = 0; i < indices.length; i++) {
             indices[i] = -1;
@@ -94,9 +94,10 @@ public class TechnicalOfficialReader {
         headerMap.put(IWF_ID, IWF_ID);
         headerMap.put(FEDERATION, FEDERATION);
         headerMap.put(FEDERATION_ID, FEDERATION_ID);
-        headerMap.put(ROLE, ROLE);
+        headerMap.put(ACCREDITATION_ROLE, ACCREDITATION_ROLE);
+        headerMap.put("Role", ACCREDITATION_ROLE); // backward compatibility with old exports
         headerMap.put(ACTIVE, ACTIVE);
-        headerMap.put(OFFICIAL_ROLE, OFFICIAL_ROLE);
+        headerMap.put(TEAM_ROLE, TEAM_ROLE);
         
         // Map English translations to constants (always accept English)
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.LastName", Locale.ENGLISH), LAST_NAME);
@@ -106,10 +107,10 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Federation", Locale.ENGLISH), FEDERATION);
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.FederationId", Locale.ENGLISH), FEDERATION_ID);
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Affiliation", Locale.ENGLISH), AFFILIATION);
-        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Accreditation", Locale.ENGLISH), ROLE);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Accreditation", Locale.ENGLISH), ACCREDITATION_ROLE);
         headerMap.put(Translator.translateExplicitLocale("TechnicalOfficial.Active", Locale.ENGLISH), ACTIVE);
         headerMap.put(Translator.translateExplicitLocale("Team", Locale.ENGLISH), TEAM);
-        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficials.OfficialRole", Locale.ENGLISH), OFFICIAL_ROLE);
+        headerMap.put(Translator.translateExplicitLocale("TechnicalOfficials.TeamRole", Locale.ENGLISH), TEAM_ROLE);
         
         // Map local translations to constants
         headerMap.put(Translator.translate("TechnicalOfficial.LastName"), LAST_NAME);
@@ -119,8 +120,9 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translate("TechnicalOfficial.Federation"), FEDERATION);
         headerMap.put(Translator.translate("TechnicalOfficial.FederationId"), FEDERATION_ID);
         headerMap.put(Translator.translate("TechnicalOfficial.Affiliation"), AFFILIATION);
-        headerMap.put(Translator.translate("TechnicalOfficial.Accreditation"), ROLE);
+        headerMap.put(Translator.translate("TechnicalOfficial.Accreditation"), ACCREDITATION_ROLE);
         headerMap.put(Translator.translate("TechnicalOfficial.Active"), ACTIVE);
+        headerMap.put(Translator.translate("TechnicalOfficials.TeamRole"), TEAM_ROLE);
         
         List<String> unmatchedHeaders = new ArrayList<>();
         List<String> matchedHeaders = new ArrayList<>();
@@ -157,7 +159,7 @@ public class TechnicalOfficialReader {
                     case AFFILIATION:
                         indices[6] = colIndex;
                         break;
-                    case ROLE:
+                    case ACCREDITATION_ROLE:
                         indices[7] = colIndex;
                         break;
                     case ACTIVE:
@@ -166,7 +168,7 @@ public class TechnicalOfficialReader {
                     case TEAM:
                         indices[9] = colIndex;
                         break;
-                    case OFFICIAL_ROLE:
+                    case TEAM_ROLE:
                         indices[10] = colIndex;
                         break;
                 }
@@ -232,20 +234,21 @@ public class TechnicalOfficialReader {
                 role = findEnumValueForTranslatedRole(roleStr);
             }
             
+            // Default to active=true when importing (officials being imported are presumably active)
+            // Only set to false if explicitly specified as FALSE/NO/N/0 in the spreadsheet
             String activeStr = colIndices[8] >= 0 ? getCellValueAsString(row.getCell(colIndices[8])) : "";
-            boolean active = parseBooleanValue(activeStr);
+            boolean active = parseBooleanValueDefaultTrue(activeStr);
 
-            // Parse OfficialRole
-            OfficialRole officialRole = null;
+            // Parse TeamRole
+            TeamRole teamRole = null;
             if (colIndices.length > 10 && colIndices[10] >= 0) {
-                Cell officialRoleCell = row.getCell(colIndices[10]);
-                String officialRoleStr = officialRoleCell != null ? getCellValueAsString(officialRoleCell) : "";
-                if (officialRoleStr != null && !officialRoleStr.isEmpty()) {
-                    try {
-                        officialRole = OfficialRole.valueOf(officialRoleStr.toUpperCase());
-                    } catch (IllegalArgumentException e) {
-                        logger.warn("Invalid OfficialRole value '{}' for {} {} (row {}) - skipping OfficialRole assignment", 
-                            officialRoleStr, firstName, lastName, row.getRowNum() + 1);
+                Cell teamRoleCell = row.getCell(colIndices[10]);
+                String teamRoleStr = teamRoleCell != null ? getCellValueAsString(teamRoleCell) : "";
+                if (teamRoleStr != null && !teamRoleStr.isEmpty()) {
+                    teamRole = findEnumValueForTranslatedTeamRole(teamRoleStr);
+                    if (teamRole == null) {
+                        logger.warn("Invalid TeamRole value '{}' for {} {} (row {}) - skipping TeamRole assignment", 
+                            teamRoleStr, firstName, lastName, row.getRowNum() + 1);
                     }
                 }
             }
@@ -260,9 +263,9 @@ public class TechnicalOfficialReader {
             }
 
             TechnicalOfficial official = new TechnicalOfficial(lastName, firstName, level, iwfId, federation, federationId, affiliation, team);
-            official.setRole(role);
+            official.setAccreditationRole(role);
             official.setActive(active);
-            official.setOfficialRole(officialRole);
+            official.setTeamRole(teamRole);
             return official;
         } catch(Exception e) {
             throw new IllegalArgumentException("Error processing cell "+ getCellAddress(currentCell) + ": " + e.getMessage());
@@ -316,8 +319,8 @@ public class TechnicalOfficialReader {
     private TechnicalOfficial.Role findEnumValueForTranslatedRole(String roleStr) {
         for (TechnicalOfficial.Role role : TechnicalOfficial.Role.values()) {
             if (roleStr.equals(role.name()) ||
-                roleStr.equals(Translator.translate("TO.Role." + role.name())) ||
-                roleStr.equals(Translator.translateExplicitLocale("TO.Role." + role.name(), Locale.ENGLISH))) {
+                roleStr.equals(Translator.translate("AccreditationRole." + role.name())) ||
+                roleStr.equals(Translator.translateExplicitLocale("AccreditationRole." + role.name(), Locale.ENGLISH))) {
                 return role;
             }
         }
@@ -335,5 +338,51 @@ public class TechnicalOfficialReader {
                normalized.equals("1") ||
                normalized.equals(Translator.translate("Yes").toLowerCase()) ||
                normalized.equals(Translator.translateExplicitLocale("Yes", Locale.ENGLISH).toLowerCase());
+    }
+
+    /**
+     * Parse boolean value, defaulting to TRUE if empty/missing.
+     * Returns false only if explicitly set to FALSE/NO/N/0.
+     */
+    private boolean parseBooleanValueDefaultTrue(String value) {
+        if (value == null || value.isBlank()) {
+            return true; // Default to active when importing
+        }
+        String normalized = value.trim().toLowerCase();
+        // Return false only if explicitly false
+        if (normalized.equals("false") || 
+            normalized.equals("no") || 
+            normalized.equals("n") || 
+            normalized.equals("0") ||
+            normalized.equals(Translator.translate("No").toLowerCase()) ||
+            normalized.equals(Translator.translateExplicitLocale("No", Locale.ENGLISH).toLowerCase())) {
+            return false;
+        }
+        return true; // Default to true for any other value
+    }
+
+    private TeamRole findEnumValueForTranslatedTeamRole(String roleStr) {
+        // Try exact enum name match first
+        for (TeamRole teamRole : TeamRole.values()) {
+            if (roleStr.equalsIgnoreCase(teamRole.name())) {
+                return teamRole;
+            }
+        }
+        // Try translation key match (e.g., "Referee", "Marshall")
+        for (TeamRole teamRole : TeamRole.values()) {
+            if (roleStr.equalsIgnoreCase(teamRole.getTranslationKey())) {
+                return teamRole;
+            }
+        }
+        // Try translated value match (current locale and English)
+        for (TeamRole teamRole : TeamRole.values()) {
+            String translatedCurrent = Translator.translate(teamRole.getTranslationKey());
+            String translatedEnglish = Translator.translateExplicitLocale(teamRole.getTranslationKey(), Locale.ENGLISH);
+            if (roleStr.equals(translatedCurrent) || roleStr.equals(translatedEnglish)) {
+                return teamRole;
+            }
+        }
+        // Not found
+        return null;
     }
 }

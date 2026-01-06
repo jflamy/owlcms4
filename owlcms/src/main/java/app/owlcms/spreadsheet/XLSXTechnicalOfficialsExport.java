@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.data.technicalofficial.TeamRole;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
@@ -62,7 +63,7 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
 
             // Create headers
             Row headerRow = sheet.createRow(0);
-            String[] headers = {"Active", "Role", "LastName", "FirstName", "Level", "FederationId", "Federation", "Affiliation", "IWFId", "Team", "OfficialRole"};
+            String[] headers = {"Active", "AccreditationRole", "LastName", "FirstName", "Level", "FederationId", "Federation", "Affiliation", "IWFId", "Team", "TeamRole"};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 switch (headers[i]) { 
@@ -72,7 +73,7 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
                     case "Active":
                         cell.setCellValue(Translator.translate("TechnicalOfficial.Active"));
                         break;
-                    case "Role":
+                    case "AccreditationRole":
                         cell.setCellValue(Translator.translate("TechnicalOfficial.Accreditation"));
                         break;
                     case "LastName":
@@ -96,8 +97,8 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
                     case "Affiliation":
                         cell.setCellValue(Translator.translate("TechnicalOfficial.Affiliation"));
                         break;
-                    case "OfficialRole":
-                        cell.setCellValue(Translator.translate("TechnicalOfficials.OfficialRole"));
+                    case "TeamRole":
+                        cell.setCellValue(Translator.translate("TechnicalOfficials.TeamRole"));
                         break;
                     default:
                         cell.setCellValue(headers[i]);
@@ -111,7 +112,7 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
             for (TechnicalOfficial official : officials) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(official.isActive() ? "TRUE" : "FALSE");
-                row.createCell(1).setCellValue(official.getRole() != null ? Translator.translate("TO.Role."+official.getRole().toString()) : "");
+                row.createCell(1).setCellValue(official.getAccreditationRole() != null ? Translator.translate("AccreditationRole."+official.getAccreditationRole().toString()) : "");
                 row.createCell(2).setCellValue(official.getLastName() != null ? official.getLastName() : "");
                 row.createCell(3).setCellValue(official.getFirstName() != null ? official.getFirstName() : "");
                 row.createCell(4).setCellValue(official.getLevel() != null ? Translator.translate("TOLevel."+official.getLevel().toString()) : "");
@@ -121,30 +122,13 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
                 row.createCell(8).setCellValue(official.getIwfId() != null ? official.getIwfId() : "");
                 // Team may be null
                 row.createCell(9).setCellValue(official.getTechnicalOfficialTeam() != null ? String.valueOf(official.getTechnicalOfficialTeam()) : "");
-                // OfficialRole - export generic role (REFEREE, JURY_MEMBER) instead of detailed session assignments
-                String exportRole = "";
-                if (official.getOfficialRole() != null) {
-                    switch (official.getOfficialRole()) {
-                        case CENTER_REFEREE:
-                        case LEFT_REFEREE:
-                        case RIGHT_REFEREE:
-                        case REFEREE_RESERVE:
-                            exportRole = "REFEREE";
-                            break;
-                        case JURY_A:
-                        case JURY_B:
-                        case JURY_C:
-                        case JURY_D:
-                        case JURY_RESERVE:
-                            exportRole = "JURY_MEMBER";
-                            break;
-                        default:
-                            // Keep specific roles as-is: JURY_PRESIDENT, MARSHAL1, MARSHAL2, TECHNICAL_CONTROLLER1, etc.
-                            exportRole = official.getOfficialRole().name();
-                            break;
-                    }
+                // TeamRole - export the generic role (REFEREE, JURY, MARSHAL, etc.)
+                // If teamRole is not set, derive it from officialRole (if available)
+                TeamRole teamRole = official.getTeamRole();
+                if (teamRole == null && official.getOfficialRole() != null) {
+                    teamRole = TeamRole.fromOfficialRole(official.getOfficialRole());
                 }
-                row.createCell(10).setCellValue(exportRole);
+                row.createCell(10).setCellValue(teamRole != null ? Translator.translate(teamRole.getTranslationKey()) : "");
             }
 
             // Autosize columns

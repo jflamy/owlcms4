@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.i18n.Translator;
@@ -55,9 +56,14 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	private Integer technicalOfficialTeam;
 	@Enumerated(EnumType.STRING)
 	@Column(columnDefinition = "varchar(255)")
+	private TeamRole teamRole;
+	@Enumerated(EnumType.STRING)
+	@Column(columnDefinition = "varchar(255)")
+	@JsonIgnore // Internal-only: used for session assignment algorithm, not exported
 	private OfficialRole officialRole;
 	@Enumerated(EnumType.STRING)
 	@Column(columnDefinition = "varchar(255) default 'TECHNICAL_OFFICIAL'")
+	@JsonProperty("accreditationRole") // Export as 'accreditationRole' in JSON
 	private Role role;
 	@Column(columnDefinition = "boolean default false")
 	private boolean active;
@@ -256,11 +262,37 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		this.officialRole = officialRole;
 	}
 
+	public TeamRole getTeamRole() {
+		return teamRole;
+	}
+
+	public void setTeamRole(TeamRole teamRole) {
+		this.teamRole = teamRole;
+	}
+
+	/**
+	 * @deprecated Use {@link #getAccreditationRole()} instead
+	 */
+	@Deprecated
+	@JsonIgnore // Prevent duplicate serialization, use accreditationRole instead
 	public Role getRole() {
 		return role;
 	}
 
+	/**
+	 * @deprecated Use {@link #setAccreditationRole(Role)} instead
+	 */
+	@Deprecated
+	@JsonIgnore // Prevent duplicate serialization, use accreditationRole instead
 	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public Role getAccreditationRole() {
+		return role;
+	}
+
+	public void setAccreditationRole(Role role) {
 		this.role = role;
 	}
 
@@ -279,17 +311,27 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	}
 
 	/**
-	 * Get the translated role name for display.
+	 * Get the translated accreditation role name for display.
 	 * 
 	 * @return translated role name, or empty string if role is null
 	 */
 	@Transient
 	@JsonIgnore
-	public String getTranslatedRole() {
+	public String getTranslatedAccreditationRole() {
 		if (role == null) {
 			return "";
 		}
-		return Translator.translate("TO.Role." + role.name());
+		return Translator.translate("AccreditationRole." + role.name());
+	}
+
+	/**
+	 * @deprecated Use {@link #getTranslatedAccreditationRole()} instead
+	 */
+	@Deprecated
+	@Transient
+	@JsonIgnore
+	public String getTranslatedRole() {
+		return getTranslatedAccreditationRole();
 	}
 
 	/**

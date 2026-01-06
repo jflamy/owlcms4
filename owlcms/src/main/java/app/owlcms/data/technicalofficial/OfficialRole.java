@@ -23,8 +23,8 @@ public enum OfficialRole {
     ANNOUNCER("Announcer", "Announcer"),
 
     // For federations that do not use the referees as weigh-in staff
-    WEIGHIN1("Weighin1", "Weighin1"),
-    WEIGHIN2("Weighin2", "Weighin2"),
+    WEIGHIN1("Weighin1", "Weighin"),
+    WEIGHIN2("Weighin2", "Weighin"),
 
 
     // Jury, in introduction order
@@ -35,6 +35,12 @@ public enum OfficialRole {
     JURY_C("Jury4", "JuryMember"),
     JURY_D("Jury5", "JuryMember"),
     JURY_RESERVE("ReserveJury", "ReserveJury"),
+
+    // Generic team assignment categories (used in timetable)
+    // These are used for team assignment rotations
+    JURY("Jury", "Jury"),
+    MARSHALL("Marshall", "Marshall"),
+    TECHNICAL_CONTROLLER("TechnicalController", "TechnicalController"),
     ;
 
     // Generic roles for team assignment (used with timetable)
@@ -65,10 +71,12 @@ public enum OfficialRole {
     }
 
     /**
-     * Check if this role is a generic team assignment role
+     * Check if this role is a generic team assignment role (used in timetable)
      */
     public boolean isGenericTeamRole() {
-        return this == REFEREE || this == JURY_MEMBER;
+        return this == JURY || this == REFEREE || this == MARSHALL || 
+               this == TIMEKEEPER || this == TECHNICAL_CONTROLLER || 
+               this == DOCTOR || this == COMPETITION_SECRETARY;
     }
 
     /**
@@ -76,10 +84,20 @@ public enum OfficialRole {
      */
     public java.util.List<OfficialRole> getSpecificPositions() {
         switch (this) {
+            case JURY:
+                return java.util.List.of(JURY_PRESIDENT, JURY_A, JURY_B, JURY_C, JURY_D, JURY_RESERVE);
             case REFEREE:
                 return java.util.List.of(CENTER_REFEREE, LEFT_REFEREE, RIGHT_REFEREE, REFEREE_RESERVE);
-            case JURY_MEMBER:
-                return java.util.List.of(JURY_PRESIDENT, JURY_A, JURY_B, JURY_C, JURY_D, JURY_RESERVE);
+            case MARSHALL:
+                return java.util.List.of(MARSHAL1, MARSHAL2);
+            case TECHNICAL_CONTROLLER:
+                return java.util.List.of(TECHNICAL_CONTROLLER1, TECHNICAL_CONTROLLER2);
+            case DOCTOR:
+                return java.util.List.of(DOCTOR, DOCTOR2, DOCTOR3);
+            case COMPETITION_SECRETARY:
+                return java.util.List.of(COMPETITION_SECRETARY, COMPETITION_SECRETARY2);
+            case TIMEKEEPER:
+                return java.util.List.of(TIMEKEEPER);
             default:
                 return java.util.List.of(this);
         }
