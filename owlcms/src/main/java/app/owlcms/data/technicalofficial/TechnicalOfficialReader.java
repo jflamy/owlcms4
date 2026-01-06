@@ -327,19 +327,6 @@ public class TechnicalOfficialReader {
         throw new IllegalArgumentException("Unknown role: " + roleStr);
     }
 
-    private boolean parseBooleanValue(String value) {
-        if (value == null || value.isBlank()) {
-            return false;
-        }
-        String normalized = value.trim().toLowerCase();
-        return normalized.equals("true") || 
-               normalized.equals("yes") || 
-               normalized.equals("y") || 
-               normalized.equals("1") ||
-               normalized.equals(Translator.translate("Yes").toLowerCase()) ||
-               normalized.equals(Translator.translateExplicitLocale("Yes", Locale.ENGLISH).toLowerCase());
-    }
-
     /**
      * Parse boolean value, defaulting to TRUE if empty/missing.
      * Returns false only if explicitly set to FALSE/NO/N/0.
