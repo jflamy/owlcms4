@@ -142,7 +142,7 @@
     },
     {
       "type": "java",
-      "name": "🟩 large demo owlcms memory",
+      "name": "🟩 WS large demo owlcms memory",
       "request": "launch",
       "console": "internalConsole",
       "mainClass": "app.owlcms.Main",
@@ -162,7 +162,7 @@
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_PORT": "8081",
-        "OWLCMS_VIDEODATA": "http://127.0.0.1:8082"
+        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
       }
     },
     {
