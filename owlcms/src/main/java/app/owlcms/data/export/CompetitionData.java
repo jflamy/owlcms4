@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
-
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -160,7 +158,7 @@ public class CompetitionData {
 		setRecords(RecordRepository.findAll());
 		setRecordConfig(RecordConfig.getCurrent());
 		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
-		setTechnicalOfficialsTimetable(null,
+		setTechnicalOfficialsTimetable(
 			JPAService.runInTransaction(em -> TechnicalOfficialsTimetableRepository.findAll(em)));
 		return this;
 	}
@@ -205,18 +203,12 @@ public class CompetitionData {
 		return this.records;
 	}
 
-	public CompetitionData importData(InputStream serialized) {
+	public CompetitionData importData(InputStream serialized) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());
-		CompetitionData newData;
-		try {
-			newData = mapper.readValue(serialized, CompetitionData.class);
-			logger.debug("after unmarshall {}", newData.getPlatforms());
-			return newData;
-		} catch (Exception e) {
-			LoggerUtils.logError(logger, e);
-			return null;
-		}
+		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
+		logger.debug("after unmarshall {}", newData.getPlatforms());
+		return newData;
 	}
 
 	public CompetitionData importDataFromString(String serialized)
@@ -301,6 +293,7 @@ public class CompetitionData {
 				em.flush();
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
+				throw new RuntimeException("Import failed: " + e.getMessage(), e);
 			} finally {
 				Athlete.setSkipValidationsDuringImport(false);
 
@@ -439,7 +432,7 @@ public class CompetitionData {
 		return technicalOfficialsTimetable;
 	}
 
-	public void setTechnicalOfficialsTimetable(EntityManager em, List<TechnicalOfficialsTimetable> timetable) {
+	public void setTechnicalOfficialsTimetable(List<TechnicalOfficialsTimetable> timetable) {
 		if (timetable != null) {
 			logger.info("read {} timetable entries", timetable.size());
 			this.technicalOfficialsTimetable = timetable;

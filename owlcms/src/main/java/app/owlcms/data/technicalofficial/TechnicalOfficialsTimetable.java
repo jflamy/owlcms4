@@ -18,7 +18,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.group.Group;
 
@@ -40,6 +43,8 @@ public class TechnicalOfficialsTimetable {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Group.class)
+    @JsonIdentityReference(alwaysAsId = true)
     private Group group;
 
     @Column(nullable = false)

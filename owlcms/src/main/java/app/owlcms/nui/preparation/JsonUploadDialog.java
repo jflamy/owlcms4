@@ -75,10 +75,15 @@ public class JsonUploadDialog extends Dialog {
 
 			} catch (Throwable e) {
 				logger.error("Error processing uploaded JSON file", e);
-				ta.setValue(LoggerUtils.stackTrace(e));
-				ta.setVisible(true);
 				if (ui != null) {
+					ui.access(() -> {
+						ta.setValue(LoggerUtils.stackTrace(e));
+						ta.setVisible(true);
+					});
 					ui.push();
+				} else {
+					ta.setValue(LoggerUtils.stackTrace(e));
+					ta.setVisible(true);
 				}
 			}
 		}).whenStart(() -> {
@@ -103,7 +108,17 @@ public class JsonUploadDialog extends Dialog {
 			// Use FormatDetector for automatic V1/V2 format detection
 			FormatDetector.importData(inputStream);
 		} catch (Throwable e1) {
-			ta.setValue(LoggerUtils.exceptionMessage(e1));
+			if (ui != null) {
+				ui.access(() -> {
+					ta.setValue(LoggerUtils.exceptionMessage(e1));
+					ta.setVisible(true);
+				});
+				ui.push();
+			} else {
+				ta.setValue(LoggerUtils.exceptionMessage(e1));
+				ta.setVisible(true);
+			}
+			throw new IOException("Import failed: " + e1.getMessage(), e1);
 		}
 	}
 
