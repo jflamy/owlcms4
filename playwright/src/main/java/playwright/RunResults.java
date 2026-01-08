@@ -26,8 +26,7 @@ import com.microsoft.playwright.Playwright;
  * @author Jean-François Lamy
  */
 public class RunResults {
-    private static final String DEFAULT_HOSTNAME = "192.168.1.174";
-    private static final int DEFAULT_PORT = 8096;
+    private static final String DEFAULT_URL = "http://192.168.1.174:8096/start-order?fop=A";
     private static final int DEFAULT_NB_REMOTE_USERS = 30;
     private static final int POLLING_DELAY_SECONDS = 0; // set to 0 to disable polling
     private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
@@ -35,34 +34,24 @@ public class RunResults {
 
     @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception {
-        // Parse command-line arguments: hostname port number-of-users
-        String hostname = DEFAULT_HOSTNAME;
-        int port = DEFAULT_PORT;
+        // Parse command-line arguments: url number-of-users
+        String url = DEFAULT_URL;
         int nbRemoteUsers = DEFAULT_NB_REMOTE_USERS;
         
-        if (args.length >= 3) {
-            hostname = args[0];
+        if (args.length >= 2) {
+            url = args[0];
             try {
-                port = Integer.parseInt(args[1]);
+                nbRemoteUsers = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                System.err.println("Error: Invalid port number: " + args[1]);
+                System.err.println("Error: Invalid number of users: " + args[1]);
                 printUsage();
                 System.exit(1);
             }
-            try {
-                nbRemoteUsers = Integer.parseInt(args[2]);
-            } catch (NumberFormatException e) {
-                System.err.println("Error: Invalid number of users: " + args[2]);
-                printUsage();
-                System.exit(1);
-            }
-        } else if (args.length > 0) {
-            System.err.println("Error: All three arguments are required");
+        } else if (args.length == 1) {
+            System.err.println("Error: Both URL and number of users arguments are required");
             printUsage();
             System.exit(1);
         }
-        
-        String url = "http://" + hostname + ":" + port + "/start-order?fop=A";
         System.out.println("Target URL: " + url);
         System.out.println("Simulating " + nbRemoteUsers + " remote users");
         
@@ -114,20 +103,18 @@ public class RunResults {
     }
     
     private static void printUsage() {
-        System.err.println("Usage: java -jar playwright-4.22.0-jar-with-dependencies.jar <hostname> <port> <users>");
+        System.err.println("Usage: java -jar playwright-4.22.0-jar-with-dependencies.jar <url> <users>");
         System.err.println("");
         System.err.println("Arguments:");
-        System.err.println("  hostname  - Server hostname or IP (e.g., 192.168.1.174 or localhost)");
-        System.err.println("  port      - Server port number (e.g., 8096)");
-        System.err.println("  users     - Number of concurrent browser sessions to simulate (e.g., 50)");
+        System.err.println("  url   - Full URL to the scoreboard (e.g., http://localhost:8096/start-order?fop=A)");
+        System.err.println("  users - Number of concurrent browser sessions to simulate (e.g., 50)");
         System.err.println("");
         System.err.println("Examples:");
-        System.err.println("  java -jar playwright-4.22.0-jar-with-dependencies.jar localhost 8096 50");
-        System.err.println("  java -jar playwright-4.22.0-jar-with-dependencies.jar 192.168.1.174 8080 100");
+        System.err.println("  java -jar playwright-4.22.0-jar-with-dependencies.jar http://localhost:8096/start-order?fop=A 50");
+        System.err.println("  java -jar playwright-4.22.0-jar-with-dependencies.jar http://192.168.1.174:8080/lifting-order?fop=B 100");
         System.err.println("");
         System.err.println("Defaults (if no arguments):");
-        System.err.println("  hostname: " + DEFAULT_HOSTNAME);
-        System.err.println("  port: " + DEFAULT_PORT);
+        System.err.println("  url: " + DEFAULT_URL);
         System.err.println("  users: " + DEFAULT_NB_REMOTE_USERS);
     }
 }
