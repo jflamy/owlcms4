@@ -9,6 +9,8 @@
 <br>
 **Maintenance Log**
 
+64.0.0-rc07: Support for IWF-style refereeing teams and timetable
+
 64.0.0-rc06: Removed json mode for database transfer; preparing for tracker inclusion in control panel
 
 64.0.0-rc05: Added the values for 1st 2nd and 3rd place team points to allow owlcms-tracker computation of team points without hard-coding.
@@ -25,7 +27,9 @@
 
 **New in Release 64**
 
-64.0.0: Sends all the data needed by owlcms-tracker to generate a full IWF-style results book
+64.0.0: Sends all the data needed by owlcms-tracker to generate IWF-style start books and results book
+
+64.0.0: Support for IWF-style referee assignments by teams, including import/export of a timetable.
 
 64.0.0: Decisions entered when the clock was not started will now be accepted.  A red notification is given to the announcer, timekeeper and jury.
 
