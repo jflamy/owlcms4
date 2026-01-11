@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Testing/development logback file, writes to CONSOLE -->
+<!-- IDE: console output, + startup.log if OWLCMS_CONTROLPANEL or OWLCMS_LAUNCHER is set -->
 <configuration scan="true" debug="false">
 
     <!-- Stop output INFO at start -->
@@ -10,6 +11,21 @@
         <encoder>
             <charset>UTF-8</charset>
             <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %-75msg [%logger{100}:%L %M]%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Startup log appender for control panel feedback (IDE development testing) -->
+    <appender name="STARTUP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/startup.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>logs/startup_%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>
+                %d{HH:mm:ss} %msg%n
+            </pattern>
         </encoder>
     </appender>
 
@@ -37,8 +53,20 @@
         <appender-ref ref="CONSOLE" />
     </root>
     
-    <!-- turn off simplified user-friendly messages shown at startup when using java.exe -->
-    <logger name="app.owlcms.Main.startup" level="OFF" />
+    <!-- Startup logger - conditionally enabled when OWLCMS_CONTROLPANEL is present -->
+    <if condition='isDefined("OWLCMS_CONTROLPANEL")'>
+        <then>
+            <!-- When control panel env var is set, enable startup logger and write to both console and file -->
+            <logger name="app.owlcms.Main.startup" level="INFO" additivity="false">
+                <appender-ref ref="STARTUP_FILE" />
+                <appender-ref ref="CONSOLE" />
+            </logger>
+        </then>
+        <else>
+            <!-- In normal IDE development, turn off startup messages (already available via regular logs) -->
+            <logger name="app.owlcms.Main.startup" level="OFF" />
+        </else>
+    </if>
 
     <!-- default levels for owlcms -->
     <logger name="app.owlcms" level="INFO" />

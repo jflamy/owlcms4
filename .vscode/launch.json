@@ -11,13 +11,16 @@
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows",
+        "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe"
       },
       "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+        "envFile": "${workspaceFolder}/.vscode/.env.linux",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+        "envFile": "${workspaceFolder}/.vscode/.env.mac",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false"
@@ -33,13 +36,16 @@
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows",
+        "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe"
       },
       "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+        "envFile": "${workspaceFolder}/.vscode/.env.linux",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+        "envFile": "${workspaceFolder}/.vscode/.env.mac",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
@@ -56,13 +62,16 @@
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
       "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows",
+        "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe"
       },
       "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+        "envFile": "${workspaceFolder}/.vscode/.env.linux",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+        "envFile": "${workspaceFolder}/.vscode/.env.mac",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false"
@@ -78,13 +87,16 @@
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows",
+        "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe"
       },
       "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+        "envFile": "${workspaceFolder}/.vscode/.env.linux",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+        "envFile": "${workspaceFolder}/.vscode/.env.mac",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
@@ -102,13 +114,16 @@
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows",
+        "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe"
       },
       "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+        "envFile": "${workspaceFolder}/.vscode/.env.linux",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+        "envFile": "${workspaceFolder}/.vscode/.env.mac",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
@@ -126,13 +141,16 @@
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows",
+        "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe"
       },
       "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+        "envFile": "${workspaceFolder}/.vscode/.env.linux",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+        "envFile": "${workspaceFolder}/.vscode/.env.mac",
+        "javaExec": "${config:java.debug.settings.javaHome}/bin/java"
       },
       "env": {
         "OWLCMS_MEMORYMODE": "true",
@@ -148,6 +166,7 @@
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
+      "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -173,6 +192,7 @@
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
+      "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe",
       "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -197,6 +217,7 @@
       "mainClass": "app.owlcms.Main",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
+      "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -221,6 +242,7 @@
       "mainClass": "app.owlcms.publicresults.Main",
       "projectName": "publicresults",
       "cwd": "${workspaceFolder}/publicresults",
+      "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe",
       "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
@@ -241,6 +263,7 @@
       "request": "launch",
       "console": "internalConsole",
       "mainClass": "${file}",
+      "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe",
       "vmArgs": "${config:owlcms.vmArgs}"
     },
     {
@@ -251,6 +274,7 @@
       "mainClass": "app.owlcms.firmata.ui.Main",
       "projectName": "owlcms-firmata",
       "cwd": "${workspaceFolder:owlcms-firmata}",
+      "javaExec": "${config:java.debug.settings.javaHome}\\bin\\java.exe",
       "vmArgs": "${config:owlcms.vmArgs}",
       "env": {
         "OWLCMS_MEMORYMODE": "false"

@@ -29,6 +29,15 @@ public class StartupUtils {
 
     static Logger logger = (Logger) LoggerFactory.getLogger(StartupUtils.class);
     static Logger mainLogger = (Logger) LoggerFactory.getLogger("app.owlcms.Main");
+    static Logger startupLogger = (Logger) LoggerFactory.getLogger("app.owlcms.Main.startup");
+
+    public static Logger getStartupLogger() {
+        return startupLogger;
+    }
+
+    public static void setStartupLogger(Logger startupLogger) {
+        StartupUtils.startupLogger = startupLogger;
+    }
 
     static Integer serverPort = null;
     private static String buildTimestamp;
@@ -158,6 +167,7 @@ public class StartupUtils {
         String buildZone = props.getProperty("buildZone");
         String vaadinVersion = props.getProperty("vaadinVersion");
         mainLogger.info("{} {} built {} ({}). Vaadin {}", appName, version, getBuildTimestamp(), buildZone, vaadinVersion);
+        //startupLogger.info("Starting {} {}", appName, version);
     }
 
     public static boolean openBrowser(Desktop desktop, String hostName)

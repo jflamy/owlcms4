@@ -12,10 +12,8 @@ import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import jakarta.websocket.ContainerProvider;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.open.Open;
-import com.vaadin.open.Options;
-
 import app.owlcms.apputils.LogbackConfigReloader;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
@@ -68,7 +66,7 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 		} catch (Throwable t) {
 			startLogger.error("Unable to set WebSocketContainer default timeout at startup: {}", t.getMessage());
 		}
-		startLogger.info("started on port {}", this.getPort());
+		StartupUtils.getStartupLogger().info("OWLCMS starting.");
 	}
 
 	@Override
@@ -78,25 +76,14 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 
 		// this gets called both when CTRL+C is pressed, and when main() terminates.
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> stop("Shutdown hook called, shutting down")));
-		startLogger.info("Press CTRL+C to shutdown");
-
-		// Open.open(getServerURL());
-
-		new Thread(() -> {
-			this.logger.info("Starting browser");
-			Options openOptions = new Options();
-			openOptions.setNewInstance(true);
-			openOptions.setBackground(true);
-			openOptions.setWait(false);
-			Open.open(getServerURL(), openOptions);
-			this.logger.info("Browser started");
-		}).start();
+		//startLogger.info("Press CTRL+C to shutdown");
 
 	}
 
 	public void run(Integer serverPort, String string) throws Exception {
 		this.setPort(serverPort);
 		this.run();
+		StartupUtils.getStartupLogger().info("Intializing technical configuration.");
 		this.initConfig.run();
 		this.initData.run();
 	}

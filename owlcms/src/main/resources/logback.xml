@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- production logback file, writes to logs/owlcms.log, creates new files daily -->
+<!-- Docker: detailed logs with source locations to logs/owlcms.log -->
+<!-- Control Panel: detailed logs to logs/owlcms.log + logs/startup.log (when OWLCMS_CONTROLPANEL or OWLCMS_LAUNCHER is set) -->
 <configuration scan="true" debug="false">
 
     <!-- Stop output INFO at start -->
@@ -15,6 +17,21 @@
             <charset>UTF-8</charset>
             <pattern>
                 %d{HH:mm:ss.SSS} %-5level %-75msg [%logger{100}:%L %M]%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- Startup log appender for control panel feedback -->
+    <appender name="STARTUP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/startup.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>logs/startup_%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>
+                %d{HH:mm:ss} %msg%n
             </pattern>
         </encoder>
     </appender>
@@ -57,6 +74,20 @@
     <logger name="app.owlcms" level="INFO" />
     <logger name="app.owlcms.fieldofplay.FieldOfPlay" level="DEBUG" />
     <logger name="app.owlcms.fieldofplay.FOPEvent" level="DEBUG" />
+
+    <!-- Startup logger - enabled for control panel (writes to startup.log) -->
+    <if condition='isDefined("OWLCMS_CONTROLPANEL")'>
+        <then>
+            <logger name="app.owlcms.Main.startup" level="INFO" additivity="false">
+                <appender-ref ref="STARTUP_FILE" />
+                <appender-ref ref="CONSOLE" />
+            </logger>
+        </then>
+        <else>
+            <!-- In Docker/production without control panel, startup messages go to regular logs -->
+            <logger name="app.owlcms.Main.startup" level="INFO" />
+        </else>
+    </if>
 
     <!-- additional tracing/debugging (set level to DEBUG or TRACE) -->
     <logger name="app.owlcms.data.config.Config" level="INFO" />

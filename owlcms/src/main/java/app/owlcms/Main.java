@@ -22,6 +22,9 @@ import java.util.TimeZone;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import com.vaadin.flow.theme.lumo.LumoUtility.Margin.Minus.Start;
+
+import app.owlcms.apputils.BrowserUtils;
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -131,6 +134,7 @@ public class Main {
      * the server
      */
     public static void initData() {
+        StartupUtils.getStartupLogger().info("Loading data.");
         // Set up a default OwlcmsSession in ThreadLocal for startup initialization
         // This allows worker threads (e.g., medal computation) spawned during startup
         // to access the session and perform translations with the correct locale
@@ -153,18 +157,22 @@ public class Main {
         Gender.initPublicGenderCodeMapString(l != null ? l : Locale.ENGLISH);
         injectData(initialData, l);
 
-
+        StartupUtils.getStartupLogger().info("Initializing scoring.");
         Competition.recomputeAllAthleteRanks();
         overrideTimeZone();
         logger.info("Initialized data ({} ms)", System.currentTimeMillis() - now);
 
         if (demoResetDelay == null) {
+            StartupUtils.getStartupLogger().info("Initializing Refereeing Devices.");
             startMQTT();
         }
         // initialization, don't push out to browsers
         OwlcmsFactory.initDefaultFOP();
 
+        StartupUtils.getStartupLogger().info("Initializing Event Broadcasting.");
         sendStartupDatabaseToWebSocketTrackers();
+        StartupUtils.getStartupLogger().info("OWLCMS Ready.");
+
         signalDatabaseReady();
     }
 
@@ -386,6 +394,7 @@ public class Main {
             } else {
                 // migrations and other changes
                 logger.info("Database not empty: {}", allCompetitions.get(0).getCompetitionName());
+                StartupUtils.getStartupLogger().info("Performing integrity checks.");
                 CategoryRepository.fixCategories();
                 AthleteRepository.removeBrokenParticipationsAndCategories();
                 
@@ -527,15 +536,19 @@ public class Main {
 
     private static void signalDatabaseReady() {
         try {
-            logger.info("Data initialized.");
+            logger.info("**** Data initialized.");
             OwlcmsFactory.countDownLatch();
-        } catch (InterruptedException e) {
-            LoggerUtils.logError(logger, e, false);
-        }
-    }
 
-    private static void warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
-            throws InterruptedException {
+            // Start browser only after the database is ready
+            String serverURL = String.format("http://localhost:%d/", serverPort);
+			BrowserUtils.startBrowserIfAppropriate(serverURL);
+		} catch (InterruptedException e) {
+			LoggerUtils.logError(logger, e, false);
+		}
+	}
+
+	private static void warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
+			throws InterruptedException {
 
         Thread.sleep(demoResetDelay * 1000);
         String warningText = Translator.translate("App.ResetWarning", Integer.toString(WARNING_MINUTES));

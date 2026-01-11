@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.open.Open;
 
+import app.owlcms.utils.StartupUtils;
+
 /**
  * Modified to always open a browser and not to write on stdout. Also changed the termination message since Enter does not work for our use case.
  * 
@@ -245,6 +247,7 @@ public class VaadinBoot {
 		@SuppressWarnings("unused")
 		final long startupMeasurementSince = System.currentTimeMillis();
 		log.info("Starting Application");
+		StartupUtils.getStartupLogger().info("Starting Web Server on port {}", port);
 
 		// detect&enable production mode, but only if it hasn't been specified by the user already
 		String property = System.getProperty("vaadin.productionMode");
@@ -270,6 +273,7 @@ public class VaadinBoot {
 		server.addConnector(serverConnector);
 		server.setHandler(context);
 		log.debug("Jetty Server configured");
+		StartupUtils.getStartupLogger().info("Web Server loading OWLCMS Application.");
 		try {
 			server.start();
 			log.debug("Jetty Server started");
@@ -389,7 +393,10 @@ public class VaadinBoot {
 	 */
 
 	protected ThreadPool newThreadPool() {
-		if (useVirtualThreadsIfAvailable && Env.getJavaVersion() >= 21) {
+		log.info("running JVM: {}", System.getProperty("java.home"));
+		int javaVersion = Env.getJavaVersion();
+		log.debug("Detected Java version: {}, useVirtualThreadsIfAvailable: {}", javaVersion, useVirtualThreadsIfAvailable);
+		if (useVirtualThreadsIfAvailable && javaVersion >= 21) {
 			log.info("Configuring Jetty to use JVM 21+ virtual threads");
 			// see https://eclipse.dev/jetty/documentation/jetty-12/programming-guide/index.html#pg-arch-threads-thread-pool-virtual-threads
 			final QueuedThreadPool threadPool = new QueuedThreadPool();

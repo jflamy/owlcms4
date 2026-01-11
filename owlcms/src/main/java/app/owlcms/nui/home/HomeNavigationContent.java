@@ -244,7 +244,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			logUsage();
 		}
 
-		String launcherVersion = System.getenv("OWLCMS_LAUNCHER");
+		String launcherVersion = System.getenv("OWLCMS_CONTROLPANEL");
+		if (launcherVersion == null) {
+			launcherVersion = System.getenv("OWLCMS_LAUNCHER");
+		}
 		String cpvHtml = null;
 		if (launcherVersion != null) {
 			cpvHtml = checkControlPanelVersion(launcherVersion);
@@ -474,7 +477,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			String okVersionMsg = Translator.translate("CheckVersion.ok");
 			String behindVersionMsg = Translator.translate("CheckVersion.behind");
 
-			String owlcmsLauncher = System.getenv("OWLCMS_LAUNCHER");
+			String owlcmsLauncher = System.getenv("OWLCMS_CONTROLPANEL");
+			if (owlcmsLauncher == null) {
+				owlcmsLauncher = System.getenv("OWLCMS_LAUNCHER");
+			}
 
 			if (JPAService.isLocalDb()) {
 				HttpServletRequest httpRequest = (HttpServletRequest) VaadinService.getCurrentRequest();

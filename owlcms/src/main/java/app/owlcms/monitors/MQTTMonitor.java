@@ -467,7 +467,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		String port = Config.getCurrent().getParamMqttPort();
 		port = (port != null ? port : "1883");
 		String string = port.startsWith("8") ? "ssl://" : "tcp://";
-		Main.getStartupLogger().info("connecting to MQTT {}{}:{}", string, server, port);
+		logger.info("connecting to MQTT {}{}:{}", string, server, port);
 
 	// Use a stable client id indicating this server instance for the FOP: e.g. "A_owlcms_12345"
 	// Append the global startup id when available so multiple server instances remain unique
