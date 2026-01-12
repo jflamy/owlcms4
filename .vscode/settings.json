@@ -7,17 +7,6 @@
         "**/.factorypath": true
     },
 
-    // JDK selection (project-level): use JetBrains Runtime (DCEVM) for enhanced hotswap
-    "java.configuration.runtimes": [
-        
-        {
-            "name": "JavaSE-25",
-            "path": "C:\\Dev\\Java\\jbr_jcef-25.0.1-windows-x64-b266.34",
-            "default": true
-        }
-    ],
-    "java.jdt.ls.java.home": "C:\\Dev\\Java\\jbr_jcef-25.0.1-windows-x64-b266.34",
-
     // Java performance and autobuild
     "java.autobuild.enabled": true,
     "java.autobuild.annotation.processing.enabled": false,
@@ -45,9 +34,6 @@
     // Debug and terminal
     "debug.toolBarLocation": "docked",
     "debug.allowBreakpointsEverywhere": true,
-    "terminal.integrated.env.windows": {
-        "JAVA_HOME": "C:\\Dev\\Java\\jbr_jcef-25.0.1-windows-x64-b266.34"
-    },
     "editor.stickyScroll.enabled": false,
     "workbench.tree.enableStickyScroll": false,
     // Explorer auto-reveal when switching tabs
