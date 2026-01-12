@@ -535,13 +535,32 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			doEmpty(e.getFop());
 			return;
 		}
-		doNotEmpty(e.getFop());
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			this.getElement().setProperty("decisionVisible", false);
 			this.getElement().setProperty("recordName", "");
-			this.getElement().setProperty("mode", BoardMode.CURRENT_ATHLETE.name());
+			// We are leaving a break countdown: clear any leftover break-mode flags.
+			this.getElement().setProperty("introCountdownMode", false);
+			this.getElement().setProperty("waitMode", false);
+			this.getElement().setProperty("liftCountdownMode", false);
+
+			FieldOfPlay fop = e.getFop();
+			// Set board mode based on actual current FOP state (not stale breakType).
+			setBoardMode(fop.getState(), fop.getState() == FOPState.BREAK ? fop.getBreakType() : null,
+			        fop.getCeremonyType(), this.getElement());
+
+			Athlete curAthlete = fop.getCurAthlete();
+			if (curAthlete != null) {
+				Athlete refreshed = AthleteRepository.findById(curAthlete.getId());
+				doAthleteUpdate(refreshed, fop);
+				this.athleteTimer.syncWithFop(fop);
+			} else {
+				// Defensive: avoid showing stale break header if there's no athlete yet.
+				this.getElement().setProperty("firstName", "");
+				this.getElement().setProperty("lastName", "");
+				this.getElement().setProperty("mode", BoardMode.CURRENT_ATHLETE.name());
+			}
 		});
 	}
 
@@ -735,7 +754,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-			setBoardMode(fop2.getState(), fop2.getBreakType(), fop2.getCeremonyType(), this.getElement());
+			FOPState state = fop2.getState();
+			// Only pass breakType to setBoardMode when actually in BREAK state
+			setBoardMode(state, state == FOPState.BREAK ? fop2.getBreakType() : null, fop2.getCeremonyType(), this.getElement());
 		});
 	}
 
@@ -860,7 +881,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		setBoardMode(fopState, fopState == FOPState.BREAK ? fop.getBreakType() : null, fop.getCeremonyType(),
 		        this.getElement());
 		this.getElement().setProperty("lastName", inferGroupName(fop.getCeremonyType()));
-		this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
+		// Only show break message when actually in BREAK state, not when stale breakType persists
+		if (fopState == FOPState.BREAK) {
+			this.getElement().setProperty("firstName", inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
+		}
 	}
 
 	private void doJuryBreak(FieldOfPlay fop, BreakType breakType) {
