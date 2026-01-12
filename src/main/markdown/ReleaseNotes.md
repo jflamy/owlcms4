@@ -9,9 +9,9 @@
 <br>
 **Maintenance Log**
 
-64.0.0-rc07: Support for IWF-style refereeing teams and timetable
+64.0.0-rc08: Create a simplified startup.log to be tailed during launch by control-panel
 
-64.0.0-rc07: Create a simplified startup.log to be tailed during launch by control-panel
+64.0.0-rc07: Support for IWF-style refereeing teams and timetable
 
 64.0.0-rc06: Removed json mode for database transfer; preparing for tracker inclusion in control panel
 

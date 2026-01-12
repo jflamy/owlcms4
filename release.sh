@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="${REVISION:-${1:-64.0.0-rc07}}"
+REVISION="${REVISION:-${1:-64.0.0-rc08}}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
@@ -61,6 +61,19 @@ echo "Branch:    ${GIT_REF}"
 echo "Commit:    ${DO_COMMIT}"
 echo "Push:      ${DO_PUSH}"
 echo "Git pull:  ${DO_GIT_PULL}"
+
+# Check if the tag already exists locally or remotely.
+if git rev-parse "${REVISION}" >/dev/null 2>&1; then
+  echo "ERROR: Tag '${REVISION}' already exists in local repository." >&2
+  echo "       Use a new version number." >&2
+  exit 3
+fi
+
+if git ls-remote --tags origin | grep -q "refs/tags/${REVISION}$"; then
+  echo "ERROR: Tag '${REVISION}' already exists in remote repository." >&2
+  echo "       Use a new version number." >&2
+  exit 3
+fi
 
 if [[ "${DO_COMMIT}" == "true" ]]; then
   # Only allow committing the files that must match the build.
