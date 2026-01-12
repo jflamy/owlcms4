@@ -1,0 +1,177 @@
+#!/usr/bin/env bash
+REVISION="${REVISION:-${1:-64.0.0-rc07}}"
+set -euo pipefail
+
+# Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
+# and watches the run until completion.
+#
+# Usage:
+#   REVISION=64.0.0-rc07 ./release.sh
+#   REVISION=64.0.0 BUILD_IMAGES=false ./release.sh
+#   ./release.sh 64.0.0-rc07
+#
+# Defaults:
+#   - Commits + pushes release note sources (src/main/markdown/*) and release.sh before triggering
+#     (so CI builds what you see)
+#   - Runs the workflow on the current git branch
+#   - After a successful run, does a safe git pull --ff-only
+
+if [[ -z "${REVISION}" ]]; then
+  echo "ERROR: REVISION must be set (e.g. REVISION=64.0.0-rc07)" >&2
+  echo "       or pass it as the first argument: ./release.sh 64.0.0-rc07" >&2
+  exit 1
+fi
+
+BUILD_IMAGES="${BUILD_IMAGES:-true}"
+DO_COMMIT="${DO_COMMIT:-true}"
+DO_PUSH="${DO_PUSH:-true}"
+DO_GIT_PULL="${DO_GIT_PULL:-true}"
+WORKFLOW_FILE="release.yaml"
+
+if ! command -v gh >/dev/null 2>&1; then
+  echo "ERROR: 'gh' (GitHub CLI) not found on PATH." >&2
+  exit 1
+fi
+
+if ! command -v git >/dev/null 2>&1; then
+  echo "ERROR: 'git' not found on PATH." >&2
+  exit 1
+fi
+
+# Fail fast if not authenticated.
+if ! gh auth status >/dev/null 2>&1; then
+  echo "ERROR: gh is not authenticated. Run: gh auth login" >&2
+  exit 1
+fi
+
+REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if [[ "${CURRENT_BRANCH}" == "HEAD" ]]; then
+  echo "ERROR: Detected detached HEAD; checkout a branch before running release.sh." >&2
+  exit 1
+fi
+GIT_REF="${CURRENT_BRANCH}"
+
+echo "Repo:      ${REPO}"
+echo "Workflow:  ${WORKFLOW_FILE}"
+echo "Revision:  ${REVISION}"
+echo "Images:    ${BUILD_IMAGES}"
+echo "Branch:    ${GIT_REF}"
+echo "Commit:    ${DO_COMMIT}"
+echo "Push:      ${DO_PUSH}"
+echo "Git pull:  ${DO_GIT_PULL}"
+
+if [[ "${DO_COMMIT}" == "true" ]]; then
+  # Only allow committing the files that must match the build.
+  # Notes live in src/main/markdown and are assembled by the workflow.
+  # Keep the root ReleaseNotes.md out of the release workflow contract.
+  ALLOWED_FILES=(
+    "release.sh"
+    "src/main/markdown/ReleaseNotes.md"
+    "src/main/markdown/release.md"
+    "src/main/markdown/rc.md"
+    "src/main/markdown/beta.md"
+    "src/main/markdown/alpha.md"
+  )
+
+  DIRTY_FILES=()
+  while IFS= read -r line; do
+    [[ -z "${line}" ]] && continue
+    # Porcelain format: XY <path> (we only care about the path)
+    path="${line:3}"
+    DIRTY_FILES+=("${path}")
+  done < <(git status --porcelain)
+
+  if ((${#DIRTY_FILES[@]} > 0)); then
+    for f in "${DIRTY_FILES[@]}"; do
+      allowed=false
+      for a in "${ALLOWED_FILES[@]}"; do
+        if [[ "${f}" == "${a}" ]]; then
+          allowed=true
+          break
+        fi
+      done
+      if [[ "${allowed}" == "false" ]]; then
+        echo "ERROR: Working tree has changes outside allowed files:" >&2
+        echo "  Allowed: ${ALLOWED_FILES[*]}" >&2
+        echo "  Found:   ${DIRTY_FILES[*]}" >&2
+        echo "Commit/stash other changes, or set DO_COMMIT=false." >&2
+        exit 2
+      fi
+    done
+  fi
+
+  # Stage + commit if there are changes.
+  git add -- "${ALLOWED_FILES[@]}" || true
+  if git diff --cached --quiet; then
+    echo "No changes to commit in ${ALLOWED_FILES[*]}"
+  else
+    git commit -m "Release ${REVISION}"
+  fi
+
+  if [[ "${DO_PUSH}" == "true" ]]; then
+    # Ensure the remote has the commit before triggering workflow_dispatch.
+    git push
+  fi
+fi
+
+# Capture the most recent run before triggering so we can detect the new run.
+PREV_RUN_ID="$(gh run list --repo "${REPO}" --workflow "${WORKFLOW_FILE}" --limit 1 --json databaseId -q '.[0].databaseId' 2>/dev/null || true)"
+START_ISO="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+ARGS=(--repo "${REPO}" -f "revision=${REVISION}" -f "buildImages=${BUILD_IMAGES}")
+ARGS+=( --ref "${GIT_REF}" )
+
+echo "Triggering workflow_dispatch…"
+gh workflow run "${WORKFLOW_FILE}" "${ARGS[@]}"
+
+echo "Waiting for the run to appear…"
+RUN_ID=""
+for _ in {1..60}; do
+  # Look for the newest run created after we started.
+  # ISO timestamps compare lexicographically.
+  RUN_ID="$(gh run list \
+    --repo "${REPO}" \
+    --workflow "${WORKFLOW_FILE}" \
+    --event workflow_dispatch \
+    --limit 10 \
+    --json databaseId,createdAt \
+    -q ".[] | select(.createdAt >= \"${START_ISO}\") | .databaseId" \
+    | head -n 1 \
+    || true)"
+
+  if [[ -n "${RUN_ID}" && "${RUN_ID}" != "${PREV_RUN_ID}" ]]; then
+    break
+  fi
+
+  sleep 5
+done
+
+if [[ -z "${RUN_ID}" || "${RUN_ID}" == "${PREV_RUN_ID}" ]]; then
+  echo "ERROR: Could not find the newly triggered run for ${WORKFLOW_FILE}." >&2
+  echo "Tip: Check runs manually: gh run list --repo \"${REPO}\" --workflow \"${WORKFLOW_FILE}\"" >&2
+  exit 1
+fi
+
+echo "Run ID: ${RUN_ID}"
+echo "Watching run (Ctrl+C to detach)…"
+
+gh run watch --repo "${REPO}" "${RUN_ID}" --exit-status
+
+echo "Run finished. Showing summary (and failed logs if any)…"
+gh run view --repo "${REPO}" "${RUN_ID}"
+# This prints logs only if there were failures; harmless otherwise.
+gh run view --repo "${REPO}" "${RUN_ID}" --log-failed || true
+
+if [[ "${DO_GIT_PULL}" == "true" ]]; then
+  echo "Release workflow succeeded; updating local repo via git pull (--ff-only)…"
+
+  if [[ -n "$(git status --porcelain)" ]]; then
+    echo "ERROR: Working tree is not clean; refusing to run git pull." >&2
+    echo "Commit/stash changes and re-run with DO_GIT_PULL=true." >&2
+    exit 2
+  fi
+
+  git pull --ff-only
+fi

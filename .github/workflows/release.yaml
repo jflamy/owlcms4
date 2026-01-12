@@ -27,7 +27,6 @@ jobs:
       - name: Checkout Dev Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch }}
           fetch-depth: 1
           persist-credentials: false # Disable credential persistence
 
@@ -91,15 +90,20 @@ jobs:
           O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
         run: |
           mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
+          
+          # Assemble release notes: prepend the appropriate prefix to the maintained source notes.
           if [[ "${{ env.REVISION }}" == *"-alpha"* ]]; then
-            cat src/main/markdown/alpha.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+            cat src/main/markdown/alpha.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
           elif [[ "${{ env.REVISION }}" == *"-beta"* ]]; then
-            cat src/main/markdown/beta.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+            cat src/main/markdown/beta.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
           elif [[ "${{ env.REVISION }}" == *"-rc"* ]]; then
-            cat src/main/markdown/rc.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+            cat src/main/markdown/rc.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
           else
-            cat src/main/markdown/release.md ReleaseNotes.md > temp.md && mv temp.md ReleaseNotes.md
+            cat src/main/markdown/release.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
           fi
+          
+          # Copy assembled result to root for gh release create --notes-file
+          cp -f ReleaseNotes.assembled.md ReleaseNotes.md
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh -y
@@ -173,11 +177,23 @@ jobs:
           set -x
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git config user.name "${{ github.actor }}"
-          # add the release notes
-          # git add ReleaseNotes.md
-          # git commit -m "Update Release Notes for ${{ env.REVISION }}" --allow-empty
-          # git push origin
-          # tag
+
+          # Ensure pushes work even though checkout disabled persisted credentials.
+          git remote set-url origin https://x-access-token:${{ secrets.OWLCMS_ORG_TOKEN }}@github.com/${{ github.repository }}.git
+
+          # Update version.txt to match the semver tag that was built.
+          echo ${{ env.REVISION }} > version.txt
+
+          # Update the default REVISION shown in release.sh so it reflects the last successful build.
+          # Expects release.sh line 2 to look like: REVISION="${REVISION:-${1:-...}}"
+          sed -i -E "2s#^REVISION=\"\$\{REVISION:-\$\{1:-[^}]*\}\}\"#REVISION=\"\$\{REVISION:-\$\{1:-${{ env.REVISION }}\}\}\"#" release.sh
+
+          # Commit the assembled release notes and version marker so a local `git pull` brings them in.
+          git add ReleaseNotes.md version.txt release.sh
+          git commit -m "Release ${{ env.REVISION }}" --allow-empty
+          git push origin HEAD
+
+          # Tag AFTER committing so the tag points at the committed artifacts.
           git tag ${{ env.REVISION }}
           git push origin ${{ env.REVISION }}
           set +x
