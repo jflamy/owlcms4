@@ -66,7 +66,7 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 		} catch (Throwable t) {
 			startLogger.error("Unable to set WebSocketContainer default timeout at startup: {}", t.getMessage());
 		}
-		StartupUtils.getStartupLogger().info("OWLCMS starting.");
+		StartupUtils.getStartupLogger().info("Starting OWLCMS.");
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 	public void run(Integer serverPort, String string) throws Exception {
 		this.setPort(serverPort);
 		this.run();
-		StartupUtils.getStartupLogger().info("Initializing translations and system settings.");
+		//StartupUtils.getStartupLogger().info("Initializing translations and system settings.");
 		this.initConfig.run();
 		this.initData.run();
 	}

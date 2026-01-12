@@ -111,6 +111,7 @@ public class JPAService {
 	 * @param inMemory if true, start with in-memory database
 	 */
 	public static void init(boolean inMemory, boolean reset) {
+		StartupUtils.getStartupLogger().info("Starting database.");
 		if (getFactory() == null) {
 			EntityManagerFactory factory2 = null;
 

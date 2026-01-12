@@ -22,12 +22,9 @@
     </appender>
 
     <!-- Startup log appender for control panel feedback -->
-    <appender name="STARTUP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="STARTUP_FILE" class="ch.qos.logback.core.FileAppender">
         <file>logs/startup.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
-            <fileNamePattern>logs/startup_%d{yyyy-MM-dd}.log</fileNamePattern>
-        </rollingPolicy>
+        <append>false</append>
         <encoder>
             <charset>UTF-8</charset>
             <pattern>

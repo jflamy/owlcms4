@@ -134,7 +134,7 @@ public class Main {
      * the server
      */
     public static void initData() {
-        StartupUtils.getStartupLogger().info("Loading data.");
+        StartupUtils.getStartupLogger().info("Loading competition data.");
         // Set up a default OwlcmsSession in ThreadLocal for startup initialization
         // This allows worker threads (e.g., medal computation) spawned during startup
         // to access the session and perform translations with the correct locale
