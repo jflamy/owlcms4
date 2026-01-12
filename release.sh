@@ -112,7 +112,8 @@ if [[ "${DO_COMMIT}" == "true" ]]; then
 
   if [[ "${DO_PUSH}" == "true" ]]; then
     # Ensure the remote has the commit before triggering workflow_dispatch.
-    git push
+    # Push only the current branch by name (not all matching branches).
+    git push origin "${CURRENT_BRANCH}"
   fi
 fi
 
