@@ -83,7 +83,7 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 	public void run(Integer serverPort, String string) throws Exception {
 		this.setPort(serverPort);
 		this.run();
-		StartupUtils.getStartupLogger().info("Intializing technical configuration.");
+		StartupUtils.getStartupLogger().info("Initializing translations and system settings.");
 		this.initConfig.run();
 		this.initData.run();
 	}
