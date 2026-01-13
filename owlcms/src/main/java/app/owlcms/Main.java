@@ -22,8 +22,6 @@ import java.util.TimeZone;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.vaadin.flow.theme.lumo.LumoUtility.Margin.Minus.Start;
-
 import app.owlcms.apputils.BrowserUtils;
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
