@@ -46,6 +46,8 @@ public class CompetitionRepository {
 		logger.info("deleted {} participations", deletedCount);
 		deletedCount = em.createQuery("DELETE FROM Athlete").executeUpdate();
 		logger.info("deleted {} athletes", deletedCount);
+		deletedCount = em.createQuery("DELETE FROM TechnicalOfficialsTimetable").executeUpdate();
+		logger.info("deleted {} technical officials timetable entries", deletedCount);
 		deletedCount = em.createQuery("DELETE FROM CompetitionGroup").executeUpdate();
 		logger.info("deleted {} sessions", deletedCount);
 		deletedCount = em.createQuery("DELETE FROM Category").executeUpdate();
