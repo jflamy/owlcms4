@@ -640,7 +640,7 @@ public class NRegistrationFileProcessor {
 			try {
 				a.setCategory(s);
 			} catch (Exception e) {
-				throw new IllegalArgumentException("Invalid category: " + s);
+				throw new IllegalArgumentException(e.getMessage());
 			}
 		}, DelayedSetter.CATEGORY));
 		base.put("Scoreboard.BodyWeight", new AthleteHeaderInfo((a, s, c) -> {

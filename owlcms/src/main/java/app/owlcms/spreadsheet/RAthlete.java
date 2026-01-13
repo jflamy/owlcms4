@@ -78,7 +78,15 @@ public class RAthlete {
 			this.a.computeMainAndEligibleCategories();
 			this.a.getParticipations().stream().forEach(p -> p.setTeamMember(true));
 			if (this.a.getCategory() == null) {
-				throw new Exception(Translator.translate("Upload.CannotDetermineRegistrationCategory"));
+				Integer athleteAge = null;
+				try {
+					athleteAge = this.a.getAge();
+				} catch (Exception e) {
+				}
+				throw new Exception(Translator.translate("Upload.NoEligibleCategoryMatch",
+					athleteAge != null ? athleteAge.toString() : "?",
+					this.a.getGender() != null ? this.a.getGender().toString() : "?",
+					this.a.getBodyWeight() != null ? this.a.getBodyWeight().toString() : "?"));
 			}
 			return;
 		}
@@ -385,10 +393,11 @@ public class RAthlete {
 
 		Category category = eligibles.size() > 0 ? eligibles.get(0) : null;
 		if (category == null) {
+			// The short-hand notation was provided but doesn't match any category
+			String notation = legacyResult.group(2) + legacyResult.group(3);
 			throw new Exception(
 			        Translator.translate(
-			                "Upload.CategoryNotFound", age, this.a.getGender(),
-			                legacyResult.group(2) + legacyResult.group(3)));
+			                "Upload.CategoryNotFoundByName", notation + " (" + this.a.getGender() + ", age " + age + ")"));
 		}
 		return category;
 	}
@@ -472,7 +481,9 @@ public class RAthlete {
 		boolean addedToMainCat = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge,
 		        mainCategoryTeamMember, c);
 		if (!addedToMainCat) {
-			throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem"));
+			throw new Exception(Translator.translate("Upload.AthleteNotEligibleForCategory", c.getDisplayName(), 
+				athleteAge != null ? athleteAge.toString() : "?", 
+				athleteQTotal != null ? athleteQTotal.toString() : "0"));
 		} else {
 			this.a.setCategory(c);
 		}
@@ -491,7 +502,9 @@ public class RAthlete {
 					if (c2 != null) {
 					boolean addedToEligible = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge, teamMember, c2);
 					if (!addedToEligible) {
-						throw new Exception(Translator.translate("Upload.AthleteRegistrationCategoryProblem")+" "+eligibleName);
+						throw new Exception(Translator.translate("Upload.AthleteNotEligibleForCategory", eligibleName,
+							athleteAge != null ? athleteAge.toString() : "?",
+							athleteQTotal != null ? athleteQTotal.toString() : "0"));
 					}
 				} else {
 					// logger.debug("{} {}\n{}",Translator.translate("Upload.CategoryNotFoundByName", eligibleName.trim(), LoggerUtils.stackTrace()));
