@@ -37,8 +37,13 @@ public class WebSocketEventSender {
 	private static final int MAX_RECONNECT_DELAY_MS = 30000;     // Cap at 30 seconds
 	private static final int EXPONENTIAL_BACKOFF_ATTEMPTS = 5;   // 1s, 2s, 4s, 8s, 16s, then cap at 30s
 	
-	/** Protocol version for WebSocket messages. Incremented when message format changes. */
-	public static final String PROTOCOL_VERSION = "2.3.0";
+	/**
+	 * Protocol version for WebSocket messages.
+	 *
+	 * We align the protocol version with the OWLCMS producer version, since OWLCMS is the authoritative
+	 * source of message formats.
+	 */
+	public static final String PROTOCOL_VERSION = "64.0.0";
 	
 	private static Map<String, WebSocketEventSender> sendersByUrl = new HashMap<>();
 	private static ObjectMapper objectMapper = createObjectMapper();
@@ -209,7 +214,7 @@ public class WebSocketEventSender {
 			this.client = new WebSocketClient(uri) {
 				@Override
 				public void onOpen(ServerHandshake handshake) {
-					logger.info("✓ Connection established: {}", url);
+					logger.info("✓ Connection established: {} (protocol version: {})", url, PROTOCOL_VERSION);
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
 						reconnectAttempts = 0;
@@ -510,12 +515,12 @@ public class WebSocketEventSender {
 	 * 
 	 * Binary Frame Format:
 	 * - First 4 bytes: protocol version length (big-endian int)
-	 * - Next N bytes: protocol version as UTF-8 string (e.g., "2.0.0")
+	 * - Next N bytes: protocol version as UTF-8 string (e.g., "64.0.0")
 	 * - Next 4 bytes: message type length (big-endian int)
 	 * - Next M bytes: message type as UTF-8 string (e.g., "flags")
 	 * - Remaining bytes: binary payload data
 	 * 
-	 * Example: To send "flags" with 100KB of ZIP data using protocol version "2.1.0":
+	 * Example: To send "flags" with 100KB of ZIP data using protocol version "64.0.0":
 	 * [0x00, 0x00, 0x00, 0x05] [2, ., 0, ., 0] [0x00, 0x00, 0x00, 0x05] [f, l, a, g, s] [100KB of ZIP bytes...]
 	 * 
 	 * @param messageType Type identifier for the binary data (e.g., "flags", "pictures")
