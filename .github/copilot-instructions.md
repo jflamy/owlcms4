@@ -57,11 +57,7 @@ When new translation keys are required (e.g., for new UI features):
    - **Tab-delimited format** (TSV, not CSV) - use actual tab characters between columns
    - Include translations for all languages shown in the header (use English as fallback if translation unknown)
 
-4. **Update TRANSLATION_KEYS_NEEDED.txt** with:
-   - The TSV filename you created
-   - Context explaining each new key and its purpose
-   - List of files modified that use these keys
-   - Clear instructions for the human maintainer
+4. **DO NOT create TRANSLATION_KEYS_NEEDED.txt** - The TSV file itself is sufficient documentation
 
 5. **Human maintainer** will:
    - Import the TSV content into the external translation management system
@@ -75,7 +71,6 @@ Example workflow:
 - Assistant creates `shared/src/main/resources/i18n/new_v2_export_translations.tsv` with:
   - Header: `key	en	en_US	en_CA	es	es_419	es_ES	...` (tab-separated)
   - Data: `ExportDatabase.DownloadJsonV2	Export Database V2	Export Database V2	...` (tab-separated)
-- Assistant updates `TRANSLATION_KEYS_NEEDED.txt` with context and TSV filename
 - Human maintainer imports TSV into translation system and regenerates `translation4.csv`
 
 ## Why these rules exist (big picture)
