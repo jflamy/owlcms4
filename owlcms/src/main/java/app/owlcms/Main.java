@@ -536,10 +536,9 @@ public class Main {
 
     private static void signalDatabaseReady() {
         try {
-            logger.info("**** Data initialized.");
+            logger.info("Database ready, unlatching browser requests.");
             OwlcmsFactory.countDownLatch();
-
-            // Start browser only after the database is ready
+            // Start browser now that the database is ready
             String serverURL = String.format("http://localhost:%d/", serverPort);
 			BrowserUtils.startBrowserIfAppropriate(serverURL);
 		} catch (InterruptedException e) {

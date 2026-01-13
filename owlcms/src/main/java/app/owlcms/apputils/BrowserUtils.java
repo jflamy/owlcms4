@@ -29,19 +29,17 @@ public class BrowserUtils {
 	 */
 	public static void startBrowserIfAppropriate(String serverURL) {
 		if (isHeadlessEnvironment()) {
-			logger.info("Headless environment detected - browser will not be started");
+			StartupUtils.getStartupLogger().info("Headless environment detected - browser will not be started.");
 			return;
 		}
 
 		new Thread(() -> {
-			logger.info("Starting browser");
 			StartupUtils.getStartupLogger().info("Starting browser.");
 			Options openOptions = new Options();
 			openOptions.setNewInstance(true);
 			openOptions.setBackground(true);
 			openOptions.setWait(false);
 			Open.open(serverURL, openOptions);
-			logger.info("Browser started");
 		}).start();
 	}
 
