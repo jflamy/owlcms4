@@ -34,7 +34,7 @@ This step is performed only on the primary laptop.
 
 - Double-click on the zip file, and extract the files to a directory.  We suggest you use `~/owlcms4` as the unzipped location.
 
-- Make sure you have Java 8 installed. 
+- Make sure you have Java 17 installed. 
 
   -  For Linux, refer to https://adoptopenjdk.net/releases.html depending on the Linux type you run
   -  For MacOS, see https://adoptopenjdk.net/releases.html#x64_mac
