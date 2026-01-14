@@ -9,25 +9,17 @@
 <br>
 **Maintenance Log**
 
-64.0.0-rc08: Create a simplified startup.log to be tailed during launch by control-panel
+64.0.0-rc09: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
 
-64.0.0-rc07: Support for IWF-style refereeing teams and timetable
+64.0.0-rc09: Moved the browser startup to after database is ready, added startup log for use by control panel 
 
-64.0.0-rc06: Removed json mode for database transfer; preparing for tracker inclusion in control panel
-
-64.0.0-rc05: Added the values for 1st 2nd and 3rd place team points to allow owlcms-tracker computation of team points without hard-coding.
-
-64.0.0-rc04: Further adjustments to initial owlcms-tracker handshake
-
-64.0.0-rc04: Support "on-demand" resource requests from owlcms-tracker; additional informations sent to support IWF-style documents.
-
-64.0.0-rc03: More adjustments to the initial handshake, tested pictures.
-
-64.0.0-rc02: Tracker protocol updated to 2.1.0; database is now sent zipped; initial handshake redone.
-
-64.0.0-rc01: Flag sizes on the attempt board had accidentally been reduced.
+64.0.0-rc09: Updated the protocol version required to 64.0.0 to account for all the small changes made
 
 **New in Release 64**
+
+64.0.0: 250g deduction done manually by TO is now again the default (automatic must be selected); clarified option description
+
+64.0.0: User-oriented startup log that can be tailed by control panel
 
 64.0.0: Sends all the data needed by owlcms-tracker to generate IWF-style start books and results book
 
@@ -35,12 +27,10 @@
 
 64.0.0: Decisions entered when the clock was not started will now be accepted.  A red notification is given to the announcer, timekeeper and jury.
 
-64.0.0: Manual 250g deduction is now by default (automatic must be selected); clarified option description
-
-64.0.0: End of Competitition Behavior for Best Athlete Scoring:
+64.0.0: End of Competitition Behavior filtering for Best Athlete Scoring has beeen fixed
 - If no championship is selected, all athletes are shown, with the global scoring scheme.  The Final package also uses the global scoring scheme.
 - When a championship is selected, the best athlete scoring scheme for that championship is used.  The final package uses the championship scheme.
-- Eligibility category results with no championship selected show the age-group best athlete score
+- Eligibility category results with no championship selected show the age-group best athlete score (global if no age-group specific score)
 - Registration category results with no championship selected show the global best athlete score
 
 64.0.0: Support for GAMX 2.0 scores: GAMX + age-adjusted variants GAMX-M (Masters), GAMX-U (Kids+Youth), GAMX-A (13-40).  Also added CAT_GAMX, GAMX computed at IWF JR/SR category weight.
