@@ -1,3 +1,6 @@
 /target/
 /.flattened-pom.xml
 /cp.txt
+
+# Translation backup files
+src/main/resources/i18n/translation4.csv.backup.*
