@@ -9,6 +9,8 @@
 <br>
 **Maintenance Log**
 
+64.0.0-rc10: Ensured that '+110' body weight formatting works for producing exports such as SBDE.
+
 64.0.0-rc09: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
 
 64.0.0-rc09: Moved the browser startup to after database is ready, added startup log for use by control panel 

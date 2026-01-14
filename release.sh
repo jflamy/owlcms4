@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="${REVISION:-${1:-64.0.0-rc08}}"
+REVISION="${REVISION:-${1:-64.0.0-rc10}}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
@@ -73,6 +73,32 @@ if git ls-remote --tags origin | grep -q "refs/tags/${REVISION}$"; then
   echo "ERROR: Tag '${REVISION}' already exists in remote repository." >&2
   echo "       Use a new version number." >&2
   exit 3
+fi
+
+# Check that translation4.csv matches the Google Sheets source
+TRANSLATION_CSV="shared/src/main/resources/i18n/translation4.csv"
+GOOGLE_SHEET_URL="https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE/export?format=csv"
+
+echo "Checking translation4.csv against Google Sheets source..."
+REMOTE_TMP=$(mktemp)
+trap "rm -f ${REMOTE_TMP}" EXIT
+curl -sL "${GOOGLE_SHEET_URL}" | tr -d '\r' > "${REMOTE_TMP}"
+
+if ! diff -q <(tr -d '\r' < "${TRANSLATION_CSV}") "${REMOTE_TMP}" >/dev/null 2>&1; then
+  echo "WARNING: translation4.csv does not match the Google Sheets source!" >&2
+  echo "         Local file may be out of date or have local modifications." >&2
+  echo ""
+  echo "Differences:"
+  diff -u <(tr -d '\r' < "${TRANSLATION_CSV}") "${REMOTE_TMP}" | head -50 || true
+  echo ""
+  read -p "Do you want to proceed anyway? (y/N): " -r PROCEED
+  if [[ ! "${PROCEED}" =~ ^[Yy]$ ]]; then
+    echo "Aborting. Update translation4.csv from Google Sheets before releasing." >&2
+    exit 4
+  fi
+  echo "Proceeding despite translation mismatch..."
+else
+  echo "translation4.csv matches Google Sheets source."
 fi
 
 if [[ "${DO_COMMIT}" == "true" ]]; then
