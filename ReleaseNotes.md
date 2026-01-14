@@ -12,6 +12,8 @@
 <br>
 **Maintenance Log**
 
+64.0.0-rc09: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
+
 64.0.0-rc09: Moved the browser startup to after database is ready, added startup log for use by control panel 
 
 64.0.0-rc09: Updated the protocol version required to 64.0.0 to account for all the small changes made
