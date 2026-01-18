@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -55,6 +56,10 @@ public class AgeGroupRepository {
 		// first clean up the age group
 		AgeGroup nAgeGroup = JPAService.runInTransaction(em -> {
 			try {
+				if (hasDuplicateCodeGender(ageGroup, em)) {
+					logger.error("duplicate age group code+gender: {} {}", ageGroup.getCode(), ageGroup.getGender());
+					return null;
+				}
 				em.persist(ageGroup);
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
@@ -440,6 +445,18 @@ public class AgeGroupRepository {
 		RankingConfig.updateMustCompute();
 	}
 
+	public static void reloadDefinitions(InputStream inputStream, Consumer<String> errorCollector) {
+		cleanUpExisting();
+		try {
+			AgeGroupDefinitionReader.setErrorCollector(errorCollector);
+			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(inputStream);
+		} finally {
+			AgeGroupDefinitionReader.setErrorCollector(null);
+		}
+		AthleteRepository.resetParticipations(false, true);
+		RankingConfig.updateMustCompute();
+	}
+
 	public static void reloadDefinitions(String localizedFileName) {
 		cleanUpExisting();
 		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
@@ -455,6 +472,11 @@ public class AgeGroupRepository {
 	 * @throws AssignedAthletesException
 	 */
 	public static AgeGroup save(AgeGroup ageGroup) throws AssignedAthletesException {
+		boolean duplicate = JPAService.runInTransaction(em -> hasDuplicateCodeGender(ageGroup, em));
+		if (duplicate) {
+			logger.error("duplicate age group code+gender: {} {}", ageGroup.getCode(), ageGroup.getGender());
+			throw new IllegalArgumentException("Duplicate Age Group Code+Gender");
+		}
 		AgeGroup existing = JPAService.runInTransaction(em -> {
 			AgeGroup ag = null;
 			try {
@@ -529,6 +551,29 @@ public class AgeGroupRepository {
 			em.flush();
 			return null;
 		});
+	}
+
+	private static boolean hasDuplicateCodeGender(AgeGroup ageGroup, EntityManager em) {
+		if (ageGroup == null || em == null) {
+			return false;
+		}
+		String code = ageGroup.getCode();
+		Gender gender = ageGroup.getGender();
+		if (code == null || code.isBlank() || gender == null) {
+			return false;
+		}
+		Long currentId = ageGroup.getId();
+		if (currentId == null) {
+			currentId = -1L;
+		}
+		TypedQuery<Long> q = em.createQuery(
+		        "select count(ag) from AgeGroup ag where lower(ag.code) = :code and ag.gender = :gender and ag.id <> :id",
+		        Long.class);
+		q.setParameter("code", code.trim().toLowerCase());
+		q.setParameter("gender", gender);
+		q.setParameter("id", currentId);
+		Long count = q.getSingleResult();
+		return count != null && count > 0;
 	}
 
 	static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {

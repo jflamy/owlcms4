@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -35,6 +36,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import ch.qos.logback.classic.Logger;
@@ -46,7 +48,12 @@ public class AgeGroupDefinitionReader {
 	private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupDefinitionReader.class);
 	static DataFormatter formatter = new DataFormatter();
 	private static int[] countDefaults = new int[Gender.values().length];
-	private static Map<String, AgeGroup> ageGroupByCode = new HashMap<>();
+	private static Map<String, AgeGroup> ageGroupByCodeGender = new HashMap<>();
+	private static ThreadLocal<Consumer<String>> errorCollector = new ThreadLocal<>();
+
+	public static void setErrorCollector(Consumer<String> collector) {
+		errorCollector.set(collector);
+	}
 
 	public static void doInsertRobiAndAgeGroups(InputStream ageGroupStream) {
 		Logger mainLogger = Main.getStartupLogger();
@@ -159,21 +166,28 @@ public class AgeGroupDefinitionReader {
 							}
 							if (ag.getGender() == null) {
 								reportError(iRow, iColumn, cellValue, new IllegalArgumentException("You must indicate a Gender M or F"));
-							} else if (ag.getChampionshipType() == ChampionshipType.DEFAULT) {
-								countDefaults[ag.getGender().ordinal()] = countDefaults[ag.getGender().ordinal()] + 1;
-								int nbDefaults = countDefaults[ag.getGender().ordinal()];
-								if (nbDefaults > 1) {
-									reportError(iRow, 0, safeGetTextValue(row.getCell(0)),
-									        new IllegalArgumentException("You can only have one DEFAULT for Men and one DEFAULT for Women"));
-								}
 							} else {
-								String code = ag.getKey();
-								if (code != null && (ageGroupByCode.get(code) != null)) {
-									reportError(iRow, iColumn, null, new IllegalArgumentException("Duplicate Age Group " + ag.getDisplayName() + " Ignored"));
-									skip = true;
-									ag = null;
-								} else {
-									ageGroupByCode.put(code, ag);
+								if (ag.getChampionshipType() == ChampionshipType.DEFAULT) {
+									countDefaults[ag.getGender().ordinal()] = countDefaults[ag.getGender().ordinal()] + 1;
+									int nbDefaults = countDefaults[ag.getGender().ordinal()];
+									if (nbDefaults > 1) {
+										IllegalArgumentException ex = new IllegalArgumentException(
+										        "You can only have one DEFAULT for Men and one DEFAULT for Women");
+										reportError(iRow, 0, safeGetTextValue(row.getCell(0)), ex);
+										em.getTransaction().setRollbackOnly();
+										throw ex;
+									}
+								}
+
+								String codeGenderKey = buildCodeGenderKey(ag);
+								if (codeGenderKey != null && ageGroupByCodeGender.get(codeGenderKey) != null) {
+									String message = Translator.translate("AgeGroup.DuplicateCodeGender",ag.getCode(),ag.getGender());
+									IllegalArgumentException ex = new IllegalArgumentException(message);
+									reportError(iRow, iColumn, ag.getCode() + " " + ag.getGender(), ex);
+									em.getTransaction().setRollbackOnly();
+									throw ex;
+								} else if (codeGenderKey != null) {
+									ageGroupByCodeGender.put(codeGenderKey, ag);
 								}
 							}
 						}
@@ -337,15 +351,26 @@ public class AgeGroupDefinitionReader {
 		        .create(localizedResourceAsStream1)) {
 			logger.info("loading age group configuration file {}", localizedName);
 			mainLogger.info("loading age group definitions {}", localizedName);
-			ageGroupByCode.clear();
+			ageGroupByCodeGender.clear();
 			CategoryRepository.clearCodeMap();
 			createAgeGroups(workbook, templates, forcedInsertion, localizedName);
 			Championship.reset();
 			CategoryRepository.resetCodeMap();
 		} catch (Exception e) {
-			logger.error("could not process ageGroup configuration\n{}", LoggerUtils./**/stackTrace(e));
-			mainLogger.error("could not process ageGroup configuration. See logs for details");
+			logger.error("could not process ageGroup configuration: {}", e.getMessage());
 		}
+	}
+
+	private static String buildCodeGenderKey(AgeGroup ag) {
+		if (ag == null) {
+			return null;
+		}
+		String code = ag.getCode();
+		Gender gender = ag.getGender();
+		if (code == null || code.isBlank() || gender == null) {
+			return null;
+		}
+		return code.trim().toUpperCase() + "_" + gender.name();
 	}
 
 	private static Map<String, Category> loadRobi(Logger mainLogger) {
@@ -364,20 +389,18 @@ public class AgeGroupDefinitionReader {
 	}
 
 	private static void reportError(int iRow, int iColumn, String cellValue, Exception e) {
-		String msg;
-		if (cellValue != null) {
-			msg = MessageFormat.format(
-			        "Cannot process cell {0} (content = \"{1}\") -- {2}",
-			        cellName(iColumn, iRow), cellValue, e.getMessage());
-			logger.error(msg);
-		} else {
-			msg = MessageFormat.format(
-			        "Cannot process cell {0} -- {1}",
-			        cellName(iColumn, iRow), e.getMessage());
-			logger.error(msg);
+		String template = Translator.translate("AgeGroup.CannotProcessCell");
+		String msg = MessageFormat.format(
+		        template,
+		        cellName(iColumn, iRow), e.getMessage());
+		logger.error(msg);
+
+		Consumer<String> collector = errorCollector.get();
+		if (collector != null) {
+			collector.accept(msg);
 		}
 
-		if (UI.getCurrent() != null) {
+		if (collector == null && UI.getCurrent() != null) {
 			NotificationUtils.errorNotification(msg);
 		}
 	}

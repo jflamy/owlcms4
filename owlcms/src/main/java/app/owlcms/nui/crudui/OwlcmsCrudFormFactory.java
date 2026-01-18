@@ -70,6 +70,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 	protected ClickEvent<Button> operationTriggerEvent;
 	protected ResponsiveStep[] responsiveSteps;
 	private boolean valid = false;
+	protected boolean showValidationErrorNotification = true;
 	protected Notification notif = new Notification("Saved.");
 
 	/**
@@ -533,11 +534,13 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			}
 		} else {
 			logger.debug("not valid {}", domainObject);
-			String fieldLabel = errorFieldName != null ? errorFieldName : "unknown";
-			String message = String.format("Validation error for field %s", fieldLabel);
-			Notification errorNotification = Notification.show(message, 4000,
-			        Position.TOP_END);
-			errorNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			if (this.showValidationErrorNotification) {
+				String fieldLabel = errorFieldName != null ? errorFieldName : "unknown";
+				String message = String.format("Validation error for field %s", fieldLabel);
+				Notification errorNotification = Notification.show(message, 4000,
+				        Position.TOP_END);
+				errorNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+			}
 		}
 	}
 

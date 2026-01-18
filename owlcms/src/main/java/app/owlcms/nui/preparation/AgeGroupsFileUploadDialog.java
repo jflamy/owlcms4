@@ -9,6 +9,7 @@ package app.owlcms.nui.preparation;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.util.function.Consumer;
 
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -42,7 +43,15 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
 			// Process the uploaded file data
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
-				AgeGroupRepository.reloadDefinitions(inputStream);
+				StringBuffer errorsSb = new StringBuffer();
+				Consumer<String> errorCollector = str -> {
+					if (str != null) {
+						String s = str.replaceAll("[\r\n]+$", "");
+						errorsSb.append(s).append('\n');
+					}
+				};
+				AgeGroupRepository.reloadDefinitions(inputStream, errorCollector);
+				updateDisplay(ta, errorsSb);
 				getCallback().run();
 			} catch (Exception e) {
 				logger.error("Error processing uploaded age groups file", e);
@@ -60,6 +69,19 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 		H3 title = new H3(Translator.translate("AgeGroups.UploadCustom"));
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
 		add(vl);
+	}
+
+	private void updateDisplay(TextArea ta, StringBuffer sb) {
+		if (sb.length() > 0) {
+			String existing = ta.getValue();
+			String newText = sb.toString().strip();
+			if (existing == null || existing.isEmpty()) {
+				ta.setValue(newText);
+			} else {
+				ta.setValue(existing + System.lineSeparator() + newText);
+			}
+			ta.setVisible(true);
+		}
 	}
 
 	public Runnable getCallback() {

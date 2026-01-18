@@ -31,6 +31,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
@@ -114,14 +115,38 @@ public class AgeGroupEditingFormFactory
 		String message = Translator.translate("AgeFormat");
 
 		TextField codeField = new TextField();
-		int maxLength = 5;
+		int maxLength = 10;
 		codeField.setRequired(true);
 		codeField.setMaxLength(maxLength);
+
+		ComboBox<Gender> genderField = new ComboBox<>();
+		genderField.setPlaceholder(Translator.translate("Gender"));
+		if (Competition.getCurrent().isGenderInclusive()) {
+			genderField.setItems(Gender.M, Gender.F, Gender.I);
+			genderField.setItemLabelGenerator((i) -> {
+				return i.asGenderName();
+			});
+		} else {
+			genderField.setItems(Gender.M, Gender.F);
+			genderField.setItemLabelGenerator((i) -> {
+				return i.asGenderName();
+			});
+		}
+
 		this.binder.forField(codeField)
 		        .withValidator(
 		                new StringLengthValidator(Translator.translate("ThisFieldIsRequired", maxLength), 1, null))
 		        .withValidator(
 		                new StringLengthValidator(Translator.translate("CodeMustBeShort", maxLength), 0, maxLength))
+		        .withValidator((code, ctx) -> {
+		                Gender gender = genderField.getValue();
+		                if (code != null && gender != null && hasDuplicateCodeGender(aFromDb, code, gender)) {
+		                        return ValidationResult.error(
+		                                Translator.translate("AgeGroup.CodeAlreadyExists", code, gender));
+		                } else {
+		                        return ValidationResult.ok();
+		                }
+		        })
 		        .bind(AgeGroup::getCode, AgeGroup::setCode);
 
 		Checkbox gendered = new Checkbox(Translator.translate("CodeIncludesGender"));
@@ -189,21 +214,17 @@ public class AgeGroupEditingFormFactory
 		        .withValidator(new IntegerRangeValidator(message, 0, 999))
 		        .bind(AgeGroup::getMaxAge, AgeGroup::setMaxAge);
 
-		ComboBox<Gender> genderField = new ComboBox<>();
-		genderField.setPlaceholder(Translator.translate("Gender"));
-		if (Competition.getCurrent().isGenderInclusive()) {
-			genderField.setItems(Gender.M, Gender.F, Gender.I);
-			genderField.setItemLabelGenerator((i) -> {
-				return i.asGenderName();
-			});
-		} else {
-			genderField.setItems(Gender.M, Gender.F);
-			genderField.setItemLabelGenerator((i) -> {
-				return i.asGenderName();
-			});
-		}
 		this.binder.forField(genderField)
 		        .asRequired(Translator.translate("ThisFieldIsRequired"))
+		        .withValidator((gender, ctx) -> {
+		                String code = codeField.getValue();
+		                if (code != null && gender != null && hasDuplicateCodeGender(aFromDb, code, gender)) {
+		                        return ValidationResult.error(
+		                                Translator.translate("AgeGroup.CodeAlreadyExists", code, gender));
+		                } else {
+		                        return ValidationResult.ok();
+		                }
+		        })
 		        .bind(AgeGroup::getGender, AgeGroup::setGender);
 		formLayout.addFormItem(genderField, createLabel(Translator.translate("Gender")));
 
@@ -315,6 +336,32 @@ public class AgeGroupEditingFormFactory
 	private Component createLabel(String translate) {
 		Div label = new Div(translate);
 		return label;
+	}
+
+	private boolean hasDuplicateCodeGender(AgeGroup currentAgeGroup, String code, Gender gender) {
+		if (code == null || code.isBlank() || gender == null) {
+			return false;
+		}
+		String normalizedCode = code.trim();
+		List<AgeGroup> all = AgeGroupRepository.findAll();
+		for (AgeGroup ag : all) {
+			if (ag == null) {
+				continue;
+			}
+			// Skip self when editing existing age group
+			if (currentAgeGroup != null && currentAgeGroup.getId() != null 
+			        && currentAgeGroup.getId().equals(ag.getId())) {
+				continue;
+			}
+			String otherCode = ag.getCode();
+			if (otherCode == null || otherCode.isBlank()) {
+				continue;
+			}
+			if (normalizedCode.equalsIgnoreCase(otherCode.trim()) && gender == ag.getGender()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
