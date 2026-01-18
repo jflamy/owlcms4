@@ -9,6 +9,8 @@
 <br>
 **Maintenance Log**
 
+64.0.0-rc11: Validation that there cannot be two age groups with the same code and gender. On import and from interactive editing.
+
 64.0.0-rc10: Ensured that '+110' body weight formatting works for producing exports such as SBDE.
 
 64.0.0-rc09: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
