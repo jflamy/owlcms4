@@ -190,6 +190,18 @@ public class PlatformRepository {
 	 * @return the platform
 	 */
 	public static Platform save(Platform platform) {
+		return save(platform, true);
+	}
+
+	/**
+	 * Save with optional MQTT config publish.
+	 *
+	 * @param platform the platform
+	 * @param publishMqtt whether to publish MQTT config after save
+	 * @return the platform
+	 */
+	public static Platform save(Platform platform, boolean publishMqtt) {
+		logger.debug("Saving platform {} publishMqtt={}", platform.getName(), publishMqtt);
 		Platform nPlatform = JPAService.runInTransaction(em -> em.merge(platform));
 		String name = nPlatform.getName();
 		FieldOfPlay fop = null;
@@ -200,9 +212,11 @@ public class PlatformRepository {
 			} else {
 				fop = OwlcmsFactory.registerEmptyFOP(nPlatform);
 			}
-			MQTTMonitor mm = fop.getMqttMonitor();
-			if (mm != null) {
-				mm.publishMqttConfig();
+			if (publishMqtt) {
+				MQTTMonitor mm = fop.getMqttMonitor();
+				if (mm != null) {
+					mm.publishMqttConfig();
+				}
 			}
 		}
 		return nPlatform;

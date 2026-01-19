@@ -7,7 +7,9 @@
 package app.owlcms.data.platform;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
@@ -24,6 +26,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.data.group.Group;
@@ -168,6 +172,19 @@ public class Platform implements Serializable, Comparable<Platform> {
 	private Boolean useNonStandardBar = false;
 	@Column(columnDefinition = "integer default 40")
 	private Integer collarThreshold = 40;
+
+	/**
+	 * UI settings for different roles (announcer, marshall, jury, etc.) stored as JSON.
+	 * Structure: Map<roleName, Map<settingName, value>>
+	 * Example: {"announcer": {"singleRef": true, "silent": false}}
+	 */
+	@Column(columnDefinition = "TEXT")
+	@JsonIgnore
+	private String uiSettingsJson;
+
+	@Transient
+	@JsonIgnore
+	private static final ObjectMapper UI_SETTINGS_MAPPER = new ObjectMapper();
 
 	/**
 	 * Instantiates a new platform. Used for import, no default values.
@@ -500,6 +517,89 @@ public class Platform implements Serializable, Comparable<Platform> {
 
 	public Boolean getUseNonStandardBar() {
 		return Boolean.TRUE.equals(this.useNonStandardBar);
+	}
+
+	/**
+	 * Gets the UI settings as a Map structure.
+	 * Deserializes the JSON column to Map<roleName, Map<settingName, value>>.
+	 * 
+	 * @return the UI settings map, or empty map if none stored
+	 */
+	@SuppressWarnings("unchecked")
+	@JsonProperty("uiSettings")
+	public Map<String, Map<String, Object>> getUiSettings() {
+		if (this.uiSettingsJson == null || this.uiSettingsJson.trim().isEmpty()) {
+			return new HashMap<>();
+		}
+		try {
+			return UI_SETTINGS_MAPPER.readValue(
+				this.uiSettingsJson, 
+				new TypeReference<Map<String, Map<String, Object>>>() {}
+			);
+		} catch (Exception e) {
+			logger.warn("Failed to deserialize UI settings JSON: {}", e.getMessage());
+			return new HashMap<>();
+		}
+	}
+
+	/**
+	 * Sets the UI settings from a Map structure and persists to database.
+	 * Serializes the map to JSON and saves via PlatformRepository.
+	 * 
+	 * @param settings the UI settings map
+	 */
+	@JsonProperty("uiSettings")
+	public void setUiSettings(Map<String, Map<String, Object>> settings) {
+		if (settings == null || settings.isEmpty()) {
+			this.uiSettingsJson = null;
+		} else {
+			try {
+				this.uiSettingsJson = UI_SETTINGS_MAPPER.writeValueAsString(settings);
+			} catch (Exception e) {
+				logger.error("Failed to serialize UI settings to JSON: {}", e.getMessage());
+				this.uiSettingsJson = null;
+			}
+		}
+	}
+
+	/**
+	 * Gets a single UI setting value for a specific role and setting name.
+	 * 
+	 * @param roleName the role name (e.g., "announcer", "marshall")
+	 * @param settingName the setting name (e.g., "singleRef", "silent")
+	 * @param defaultValue the default value if setting not found
+	 * @return the setting value, or defaultValue if not found
+	 */
+	public Object getUISetting(String roleName, String settingName, Object defaultValue) {
+		Map<String, Map<String, Object>> allSettings = getUiSettings();
+		Map<String, Object> roleSettings = allSettings.get(roleName);
+		if (roleSettings == null) {
+			return defaultValue;
+		}
+		return roleSettings.getOrDefault(settingName, defaultValue);
+	}
+
+	/**
+	 * Sets a single UI setting value (in memory only).
+	 * Call {@link #saveSettings()} to persist to database.
+	 * 
+	 * @param roleName the role name (e.g., "announcer", "marshall")
+	 * @param settingName the setting name (e.g., "singleRef", "silent")
+	 * @param value the setting value
+	 */
+	public void setUISetting(String roleName, String settingName, Object value) {
+		Map<String, Map<String, Object>> allSettings = getUiSettings();
+		Map<String, Object> roleSettings = allSettings.computeIfAbsent(roleName, k -> new HashMap<>());
+		roleSettings.put(settingName, value);
+		setUiSettings(allSettings);
+	}
+
+	/**
+	 * Persists the current UI settings to database.
+	 * Does not publish MQTT config since UI settings don't affect MQTT devices.
+	 */
+	public void saveSettings() {
+		PlatformRepository.save(this, false);
 	}
 
 	@Override
