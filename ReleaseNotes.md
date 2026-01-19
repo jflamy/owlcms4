@@ -12,8 +12,6 @@
 <br>
 **Maintenance Log**
 
-64.0.0-rc12: For a given platform, the cogwheel settings for the technical official screens (for example, single referee), are now stored and remain selected when switching sessions.
-
 64.0.0-rc11: Validation that there cannot be two age groups with the same code and gender. On import and from interactive editing.
 
 64.0.0-rc10: Ensured that '+110' body weight formatting works for producing exports such as SBDE.
