@@ -27,7 +27,7 @@
 
 		<vaadin.version>24.9.6</vaadin.version>
 		<logback.version>1.5.13</logback.version>
-		<slf4j.version>2.0.11</slf4j.version>
+		<slf4j.version>2.0.16</slf4j.version>
 		<hibernate.version>5.6.15.Final</hibernate.version>
 		<guava.version>33.4.0-jre</guava.version>
 
@@ -128,9 +128,19 @@
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-ext</artifactId>
 				<version>${slf4j.version}</version>
 				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>log4j-over-slf4j</artifactId>
+				<version>${slf4j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
