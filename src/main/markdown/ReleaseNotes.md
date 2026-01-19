@@ -9,26 +9,22 @@
 <br>
 **Maintenance Log**
 
+64.0.0-rc13: Fix for rc12
+
 64.0.0-rc12: The cogwheel settings for the technical official screens (for example, single referee),
 are now stored with the platform and remain selected when switching sessions.
 
-64.0.0-rc11: Validation that there cannot be two age groups with the same code and gender. On import and from interactive editing.
-
-64.0.0-rc10: Ensured that '+110' body weight formatting works for producing exports such as SBDE.
-
-64.0.0-rc09: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
-
-64.0.0-rc09: Moved the browser startup to after database is ready, added startup log for use by control panel 
-
-64.0.0-rc09: Updated the protocol version required to 64.0.0 to account for all the small changes made
-
 **New in Release 64**
+
+64.0.0: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
 
 64.0.0: 250g deduction done manually by TO is now again the default (automatic must be selected); clarified option description
 
 64.0.0: User-oriented startup log that can be tailed by control panel
 
-64.0.0: Sends all the data needed by owlcms-tracker to generate IWF-style start books and results book
+64.0.0: Validation that there cannot be two age groups with the same code and gender. On import and from interactive editing
+
+64.0.0: Sends all the data needed by owlcms-tracker, with full resynchronization if either end restarts
 
 64.0.0: Support for IWF-style referee assignments by teams, including import/export of a timetable.
 

@@ -82,14 +82,14 @@ GOOGLE_SHEET_URL="https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7
 echo "Checking translation4.csv against Google Sheets source..."
 REMOTE_TMP=$(mktemp)
 trap "rm -f ${REMOTE_TMP}" EXIT
-curl -sL "${GOOGLE_SHEET_URL}" | tr -d '\r' > "${REMOTE_TMP}"
+curl -sL "${GOOGLE_SHEET_URL}" > "${REMOTE_TMP}"
 
-if ! diff -q <(tr -d '\r' < "${TRANSLATION_CSV}") "${REMOTE_TMP}" >/dev/null 2>&1; then
+if ! diff --strip-trailing-cr -q "${TRANSLATION_CSV}" "${REMOTE_TMP}" >/dev/null 2>&1; then
   echo "WARNING: translation4.csv does not match the Google Sheets source!" >&2
   echo "         Local file may be out of date or have local modifications." >&2
   echo ""
   echo "Differences:"
-  diff -u <(tr -d '\r' < "${TRANSLATION_CSV}") "${REMOTE_TMP}" | head -50 || true
+  diff --strip-trailing-cr -u "${TRANSLATION_CSV}" "${REMOTE_TMP}" | head -50 || true
   echo ""
   read -p "Do you want to proceed anyway? (y/N): " -r PROCEED
   if [[ ! "${PROCEED}" =~ ^[Yy]$ ]]; then
@@ -104,7 +104,8 @@ fi
 if [[ "${DO_COMMIT}" == "true" ]]; then
   # Only allow committing the files that must match the build.
   # Notes live in src/main/markdown and are assembled by the workflow.
-  # Keep the root ReleaseNotes.md out of the release workflow contract.
+  # src/main/markdown/ReleaseNotes.md is OK to commit.
+  # Root-level ReleaseNotes.md (if any) should NOT be committed.
   ALLOWED_FILES=(
     "release.sh"
     "src/main/markdown/ReleaseNotes.md"
