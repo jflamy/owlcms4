@@ -9,7 +9,7 @@
 <br>
 **Maintenance Log**
 
-64.0.0-rc14: publicresults had obsolete dependencies listed preventing cloud deployment
+64.0.0-rc15: Fixes for subtle dependency orderinb affecting launching under Docker
 
 64.0.0-rc13: Fix for rc12 cogwheel settings persitance
 
