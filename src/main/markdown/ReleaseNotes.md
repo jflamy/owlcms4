@@ -9,10 +9,12 @@
 <br>
 **Maintenance Log**
 
-64.0.0-rc13: Fix for rc12
+64.0.0-rc14: publicresults had obsolete dependencies listed preventing cloud deployment
+
+64.0.0-rc13: Fix for rc12 cogwheel settings persitance
 
 64.0.0-rc12: The cogwheel settings for the technical official screens (for example, single referee),
-are now stored with the platform and remain selected when switching sessions.
+are now storedwith the platform and remain selected when switching sessions. 
 
 **New in Release 64**
 
@@ -20,15 +22,18 @@ are now stored with the platform and remain selected when switching sessions.
 
 64.0.0: 250g deduction done manually by TO is now again the default (automatic must be selected); clarified option description
 
+64.0.0: Decisions entered when the clock was not started will now be accepted.  A red notification is given to the announcer, timekeeper and jury.
+
 64.0.0: User-oriented startup log that can be tailed by control panel
 
 64.0.0: Validation that there cannot be two age groups with the same code and gender. On import and from interactive editing
 
-64.0.0: Sends all the data needed by owlcms-tracker, with full resynchronization if either end restarts
+64.0.0: 64.0.0: New websocket protocol for updated tracker
+- Uses the v2 export format (see below)
+- Additional information for tracker applications (e.g. time remaining on breaks, precalculated display information)
+- Sends all the data needed by owlcms-tracker, with full resynchronization if either end restarts
 
 64.0.0: Support for IWF-style referee assignments by teams, including import/export of a timetable.
-
-64.0.0: Decisions entered when the clock was not started will now be accepted.  A red notification is given to the announcer, timekeeper and jury.
 
 64.0.0: End of Competitition Behavior filtering for Best Athlete Scoring has beeen fixed
 - If no championship is selected, all athletes are shown, with the global scoring scheme.  The Final package also uses the global scoring scheme.
@@ -37,18 +42,9 @@ are now stored with the platform and remain selected when switching sessions.
 - Registration category results with no championship selected show the global best athlete score
 
 64.0.0: Support for GAMX 2.0 scores: GAMX + age-adjusted variants GAMX-M (Masters), GAMX-U (Kids+Youth), GAMX-A (13-40).  Also added CAT_GAMX, GAMX computed at IWF JR/SR category weight.
-
-64.0.0: For performance, only the scoring systems required by the best athlete and medals are computed by default; additional ones can be selected if needed by local templates
+- For performance, only the scoring systems required by the best athlete and medals are computed by default; additional ones can be selected if needed by local templates
 
 64.0.0: Fix: Athletes not weighed-in are not propagated to the introduction sheet
-
-64.0.0: Fix timer visual stutter on initial 1:00 or 2:00 clock start 
-
-64.0.0: Require explicit field of play parameters instead of inheriting through the user's session (merged sanitization from 63.3.x)
-
-64.0.0: New websocket protocol for updated tracker
-- Uses the v2 export format
-- Additional information for tracker applications (e.g. time remaining on breaks, precalculated display information)
 
 64.0.0: New v2 JSON export format
 - A new cleaner export format is available when the feature toggle `v2export` is active.  Historical unfortunate naming fixes,

@@ -41,6 +41,7 @@ owlcms/.classpath
 /beta.md
 /rc.md
 /release.md
+/ReleaseNotes.assembled.md
 
 # Local environment file
 .env

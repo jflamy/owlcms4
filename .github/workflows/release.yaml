@@ -101,9 +101,6 @@ jobs:
           else
             cat src/main/markdown/release.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
           fi
-          
-          # Copy assembled result to root for gh release create --notes-file
-          cp -f ReleaseNotes.assembled.md ReleaseNotes.md
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh -y
@@ -165,7 +162,7 @@ jobs:
           gh release create ${{ env.REVISION }} \
             --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} \
             --title "${{ env.REVISION }}" \
-            --notes-file ReleaseNotes.md \
+            --notes-file ReleaseNotes.assembled.md \
             owlcms/target/owlcms_${{ env.REVISION }}.zip \
             publicresults/target/publicresults_${{ env.REVISION }}.zip
           set +x
