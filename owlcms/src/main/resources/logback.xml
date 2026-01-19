@@ -92,7 +92,7 @@
     <logger name="app.owlcms.displays.monitor.Monitor" level="DEBUG" />
 
     <!-- SQL logging (set to DEBUG/TRACE to see queries) -->
-    <logger name="org.hibernate.SQL" level="DEBUG" />
-    <logger name="org.hibernate.orm.jdbc.bind" level="TRACE" />
+    <logger name="org.hibernate.SQL" level="OFF" />
+    <logger name="org.hibernate.orm.jdbc.bind" level="OFF" />
    
 </configuration>
