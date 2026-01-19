@@ -9,7 +9,7 @@
 <br>
 **Maintenance Log**
 
-64.0.0-rc15: Fixes for subtle dependency orderinb affecting launching under Docker
+64.0.0-rc16: Fixes for subtle dependency issues that only show up under Docker
 
 64.0.0-rc13: Fix for rc12 cogwheel settings persitance
 
