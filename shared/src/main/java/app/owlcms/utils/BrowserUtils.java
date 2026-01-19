@@ -4,14 +4,13 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.apputils;
+package app.owlcms.utils;
 
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.open.Open;
 import com.vaadin.open.Options;
 
-import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -49,7 +48,7 @@ public class BrowserUtils {
 	 * 
 	 * @return true if headless environment detected
 	 */
-	private static boolean isHeadlessEnvironment() {
+	public static boolean isHeadlessEnvironment() {
 
 		// removed checks for JVM headless mode and Desktop API support because
 		// they were too aggressive and blocked browser launch if one was already running

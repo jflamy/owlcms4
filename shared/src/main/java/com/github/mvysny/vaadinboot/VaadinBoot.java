@@ -16,8 +16,7 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.open.Open;
-
+import app.owlcms.utils.BrowserUtils;
 import app.owlcms.utils.StartupUtils;
 
 /**
@@ -223,8 +222,7 @@ public class VaadinBoot {
 		System.out.println("Press CTRL+C to shutdown");
 
 		if (openBrowserInDevMode && !Env.isVaadinProductionMode) {
-			// Open.open is not supposed to block if no wait option is given, but it does on some OS
-			new Thread(() -> Open.open(getServerURL())).start();
+			BrowserUtils.startBrowserIfAppropriate(getServerURL());
 		}
 
 		// Await for Enter.
@@ -273,7 +271,7 @@ public class VaadinBoot {
 		server.addConnector(serverConnector);
 		server.setHandler(context);
 		log.debug("Jetty Server configured");
-		StartupUtils.getStartupLogger().info("Web Server loading OWLCMS Application.");
+		StartupUtils.getStartupLogger().info("Web Server loading {} Application.", getAppName() != null ? getAppName().toUpperCase() : "");
 		try {
 			server.start();
 			log.debug("Jetty Server started");
