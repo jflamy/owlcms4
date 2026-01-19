@@ -69,6 +69,16 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 	@Override
 	public default Map<String, List<String>> readParams(Location location,
 	        Map<String, List<String>> parametersMap) {
+		boolean hasSingleRefParam = parametersMap.get(SINGLEREF) != null && !parametersMap.get(SINGLEREF).isEmpty();
+		boolean hasLiveLightsParam = parametersMap.get(LIVE_LIGHTS) != null && !parametersMap.get(LIVE_LIGHTS).isEmpty();
+		boolean hasShowDeclarationsParam = parametersMap.get(SHOW_DECLARATIONS) != null
+		        && !parametersMap.get(SHOW_DECLARATIONS).isEmpty();
+		boolean hasCenterNotificationsParam = parametersMap.get(CENTER_NOTIFICATIONS) != null
+		        && !parametersMap.get(CENTER_NOTIFICATIONS).isEmpty();
+		boolean hasSilentParam = parametersMap.get(SILENT) != null && !parametersMap.get(SILENT).isEmpty();
+		boolean hasDownSilentParam = parametersMap.get(DOWNSILENT) != null && !parametersMap.get(DOWNSILENT).isEmpty();
+		boolean hasStartOrderParam = parametersMap.get(START_ORDER) != null && !parametersMap.get(START_ORDER).isEmpty();
+
 		// handle FOP and Group by calling superclass
 		Map<String, List<String>> params = FOPParametersReader.super.readParams(location, parametersMap);
 
@@ -108,46 +118,53 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 			
 			// If URL params are missing, restore from platform UI settings
 			// This preserves settings when the page is closed and reopened
-			if (params.get(SINGLEREF) == null || params.get(SINGLEREF).isEmpty()) {
+			if (!hasSingleRefParam) {
 				Boolean saved = (Boolean) fop.getPlatform().getUISetting(roleName, SINGLEREF, null);
 				if (saved != null) {
 					setSingleReferee(saved);
+					updateParam(params, SINGLEREF, saved ? "true" : "false");
 				}
 			}
-			if (params.get(LIVE_LIGHTS) == null || params.get(LIVE_LIGHTS).isEmpty()) {
+			if (!hasLiveLightsParam) {
 				Boolean saved = (Boolean) fop.getPlatform().getUISetting(roleName, LIVE_LIGHTS, null);
 				if (saved != null) {
 					setLiveLights(saved);
+					updateParam(params, LIVE_LIGHTS, saved ? "true" : "false");
 				}
 			}
-			if (params.get(SHOW_DECLARATIONS) == null || params.get(SHOW_DECLARATIONS).isEmpty()) {
+			if (!hasShowDeclarationsParam) {
 				Boolean saved = (Boolean) fop.getPlatform().getUISetting(roleName, SHOW_DECLARATIONS, null);
 				if (saved != null) {
 					setDeclarations(saved);
+					updateParam(params, SHOW_DECLARATIONS, saved ? "true" : "false");
 				}
 			}
-			if (params.get(CENTER_NOTIFICATIONS) == null || params.get(CENTER_NOTIFICATIONS).isEmpty()) {
+			if (!hasCenterNotificationsParam) {
 				Boolean saved = (Boolean) fop.getPlatform().getUISetting(roleName, CENTER_NOTIFICATIONS, null);
 				if (saved != null) {
 					setCenterNotifications(saved);
+					updateParam(params, CENTER_NOTIFICATIONS, saved ? "true" : "false");
 				}
 			}
-			if (params.get(SILENT) == null || params.get(SILENT).isEmpty()) {
+			if (!hasSilentParam) {
 				Boolean saved = (Boolean) fop.getPlatform().getUISetting(roleName, SILENT, null);
 				if (saved != null) {
 					setSilenced(saved);
+					updateParam(params, SILENT, saved ? "true" : "false");
 				}
 			}
-			if (params.get(DOWNSILENT) == null || params.get(DOWNSILENT).isEmpty()) {
+			if (!hasDownSilentParam) {
 				Boolean saved = (Boolean) fop.getPlatform().getUISetting(roleName, DOWNSILENT, null);
 				if (saved != null) {
 					setDownSilenced(saved);
+					updateParam(params, DOWNSILENT, saved ? "true" : "false");
 				}
 			}
-			if (params.get(START_ORDER) == null || params.get(START_ORDER).isEmpty()) {
+			if (!hasStartOrderParam) {
 				Boolean saved = (Boolean) fop.getPlatform().getUISetting(roleName, START_ORDER, null);
 				if (saved != null) {
 					setStartOrder(saved);
+					updateParam(params, START_ORDER, saved ? "true" : "false");
 				}
 			}
 			
