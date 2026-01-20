@@ -24,17 +24,17 @@
 		<link>
 			<name>target_classes</name>
 			<type>2</type>
-			<location>//home/owlcms/git/owlcms4/playwright/target/classes/</location>
+			<location>/home/owlcms/git/owlcms4/playwright/target/classes</location>
 		</link>
 	</linkedResources>
 	<filteredResources>
 		<filter>
-			<id>1768925938663</id>
+			<id>1768928900365</id>
 			<name></name>
 			<type>30</type>
 			<matcher>
 				<id>org.eclipse.core.resources.regexFilterMatcher</id>
-				<arguments>node_modules|.git|target|.vscode|.idea|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
+				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>
