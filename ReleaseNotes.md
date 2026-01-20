@@ -9,6 +9,8 @@
 <br>
 **Maintenance Log**
 
+64.0.0-rc18: Fixed browser startup code for public results
+
 64.0.0-rc17: Untangled subtle dependency issues that only showed up under Docker
 
 64.0.0-rc13: Fix for rc12 cogwheel settings persitance
