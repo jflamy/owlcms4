@@ -7,6 +7,7 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
+
 **New in Release 64**
 
 64.0.0: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
