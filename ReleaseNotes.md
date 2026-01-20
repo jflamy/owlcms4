@@ -7,17 +7,6 @@
 - **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
 
 <br>
-**Maintenance Log**
-
-64.0.0-rc18: Fixed browser startup code for public results
-
-64.0.0-rc17: Untangled subtle dependency issues that only showed up under Docker
-
-64.0.0-rc13: Fix for rc12 cogwheel settings persitance
-
-64.0.0-rc12: The cogwheel settings for the technical official screens (for example, single referee),
-are now storedwith the platform and remain selected when switching sessions. 
-
 **New in Release 64**
 
 64.0.0: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
@@ -29,6 +18,9 @@ are now storedwith the platform and remain selected when switching sessions.
 64.0.0: User-oriented startup log that can be tailed by control panel
 
 64.0.0: Validation that there cannot be two age groups with the same code and gender. On import and from interactive editing
+
+64.0.0: The cogwheel settings for the technical official screens (for example, single referee),
+are now stored with the platform, remain selected when switching sessions, and are restored when restarting the server.
 
 64.0.0: 64.0.0: New websocket protocol for updated tracker
 - Uses the v2 export format (see below)
