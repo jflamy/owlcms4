@@ -472,7 +472,7 @@
 					<version>3.0.0-M1</version>
 				</plugin>
 
-				<!-- m2e lifecycle mapping: tell Eclipse to ignore flatten plugin execution -->
+				<!-- m2e lifecycle mapping: tell Eclipse to ignore certain plugin executions -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -487,6 +487,20 @@
 										<versionRange>[1.0,)</versionRange>
 										<goals>
 											<goal>flatten</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>com.vaadin</groupId>
+										<artifactId>vaadin-maven-plugin</artifactId>
+										<versionRange>[1.0,)</versionRange>
+										<goals>
+											<goal>prepare-frontend</goal>
+											<goal>build-frontend</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
