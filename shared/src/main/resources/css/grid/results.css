@@ -747,6 +747,7 @@ div.ellipsis {
     align-items: stretch;
     justify-items: stretch;
     align-self: start;
+    width: max-content;
 }
 
 /* records */
@@ -814,8 +815,7 @@ div.ellipsis {
     background-color: var(--RecordNameBackground);
     color: var(--RecordNameText);
     height: var(--recordValueCellHeight);
-    line-height: var(--recordValueCellHeight);
-}
+    line-height: var(--recordValueCellHeight);    width: max-content;}
 
 :host .dark .recordName {
     font-weight: bold;

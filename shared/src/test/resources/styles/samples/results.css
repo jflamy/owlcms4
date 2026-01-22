@@ -638,6 +638,7 @@ div.ellipsis {
     color: var(--lightRecordNameText);
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
+    width: max-content;
 }
 
 :host(.light) .recordTitle {

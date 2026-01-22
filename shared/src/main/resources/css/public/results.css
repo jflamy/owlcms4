@@ -880,6 +880,7 @@ div.ellipsis {
     color: var(--RecordNameText);
     height: var(--recordValueCellHeight);
     line-height: var(--recordValueCellHeight);
+    width: max-content;
 }
 :host .dark .recordName {
     height: var(--recordValueCellHeight);
@@ -887,6 +888,7 @@ div.ellipsis {
     background-color: var(--RecordNameBackground);
     color: var(--RecordNameText);
     font-weight: bold;
+    width: max-content;
 }
 
 :host .light .recordTitle {
