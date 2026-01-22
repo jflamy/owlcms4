@@ -73,7 +73,6 @@ public class Translator implements I18NProvider {
 	// Cache for created ResourceBundles to avoid recreating them
 	private static final Map<String, ResourceBundle> bundleCache = new HashMap<>();
 
-	@SuppressWarnings("deprecation")
 	public static Locale createLocale(String localeString) {
 		if (localeString == null) {
 			throwInvalidLocale(localeString);
