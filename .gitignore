@@ -36,7 +36,7 @@ database/owlcms.mv.db
 /mqttData/
 /nohup.out
 /*.mp4
-owlcms/.classpath
+**/.classpath
 /alpha.md
 /beta.md
 /rc.md
