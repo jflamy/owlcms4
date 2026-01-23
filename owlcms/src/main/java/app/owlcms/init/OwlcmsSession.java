@@ -69,7 +69,9 @@ public class OwlcmsSession {
 					locale = currentUi.getLocale();
 					if (locale != null) {
 						country = locale.getCountry();
-						locale = new Locale(forcedLocale.getLanguage(), country);
+						@SuppressWarnings("deprecation")
+						Locale combinedLocale = new Locale(forcedLocale.getLanguage(), country);
+						locale = combinedLocale;
 						//logger.debug("adding country from browser {}", locale);
 						currentUi.setLocale(locale);
 						setAttribute(LOCALE, locale);
