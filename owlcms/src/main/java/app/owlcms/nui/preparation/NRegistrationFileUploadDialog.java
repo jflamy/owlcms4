@@ -35,6 +35,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.AthleteOptions;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.SessionOptions;
@@ -56,9 +57,12 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	public String fileName;
 	private AthleteOptions athleteOption;
 	private SessionOptions sessionOption;
+	private Locale capturedLocale;
 
 	public NRegistrationFileUploadDialog(boolean sbdeFormat) {
 		this.sbdeFormat = sbdeFormat;
+		// Capture locale now while still on UI thread - will be used in upload callback
+		this.capturedLocale = OwlcmsSession.getLocale();
 
 		// Keep the exported-Excel translation in the master file, but in the interactive UI we
 		// show a simple English warning text (non-translated) and log the canonical warning if needed.
@@ -85,8 +89,8 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, data) -> {
 			// Process the uploaded file data
 			this.processor = this.sbdeFormat
-			        ? new NRegistrationFileProcessor(sbdeFormat)
-			        : new NRegistrationFileProcessor(sbdeFormat);
+			        ? new NRegistrationFileProcessor(sbdeFormat, this.capturedLocale)
+			        : new NRegistrationFileProcessor(sbdeFormat, this.capturedLocale);
 			this.fileName = metadata.fileName();
 			
 			// Check if this is a sessions-only file by looking at A2 of first sheet

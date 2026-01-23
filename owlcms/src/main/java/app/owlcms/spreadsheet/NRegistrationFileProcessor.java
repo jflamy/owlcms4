@@ -79,9 +79,11 @@ public class NRegistrationFileProcessor {
 	private boolean sbdeFormat;
 	private SessionOptions sessionOptions;
 	private AthleteOptions athleteOptions;
+	private Locale locale;
 
-	public NRegistrationFileProcessor(boolean sbdeFormat) {
+	public NRegistrationFileProcessor(boolean sbdeFormat, Locale locale) {
 		this.sbdeFormat = sbdeFormat;
+		this.locale = locale != null ? locale : Locale.ENGLISH;
 	}
 
 	public void adjustParticipations() {
@@ -420,7 +422,6 @@ public class NRegistrationFileProcessor {
 		void set(RGroup g, Cell cell) throws Exception;
 	}
 
-	private final Map<String, CellSetterRG> GROUP_SETTER_MAP = buildGroupSetterMap();
 	private Map<String, CellSetterRG> groupCanonicalSetterMap;
 
 	private static class AthleteHeaderInfo {
@@ -440,8 +441,6 @@ public class NRegistrationFileProcessor {
 			this.delayed = delayed;
 		}
 	}
-
-	private final Map<String, AthleteHeaderInfo> ATHLETE_SETTER_MAP = buildAthleteSetterMap();
 
 	private void addPropertyNamesToBase(Map<String, CellSetterRG> result, Map<String, CellSetterRG> base) {
 		Map<String, String> propertyNames = buildPropertyNamesMap();
@@ -535,7 +534,7 @@ public class NRegistrationFileProcessor {
 			// Only register translations as valid header names. Do not register the canonical key itself.
 			try {
 				// current locale translation
-				String tCurrent = Translator.translate(key);
+				String tCurrent = Translator.translateExplicitLocale(key, this.locale);
 				if (tCurrent != null && !tCurrent.isBlank()) {
 					result.putIfAbsent(tCurrent.trim().toLowerCase(), setter);
 				}
@@ -617,6 +616,7 @@ public class NRegistrationFileProcessor {
 	}
 
 	private Map<String, AthleteHeaderInfo> buildAthleteSetterMap() {
+		logger.info("Building athlete setter map for locale: {}", this.locale);
 		Map<String, AthleteHeaderInfo> base = new HashMap<>();
 		// simple setters
 		base.put("Membership", new AthleteHeaderInfo((a, s, c) -> a.setMembership(s), null));
@@ -680,25 +680,27 @@ public class NRegistrationFileProcessor {
 			AthleteHeaderInfo info = e.getValue();
 			// translate in current locale and in English, register both
 			try {
-				//logger.debug("Registering athlete header key '{}' as '{}'", key, Translator.translate(key));
 				String tCurrent = null;
 				if (key.contains(" ")) {
 					// split the key on spaces and translate each part separately, then rejoin with spaces
 					String[] parts = key.split(" ");
 					StringBuilder sb = new StringBuilder();
 					for (String part : parts) {
-						String translated = Translator.translate(part);
+						String translated = Translator.translateExplicitLocale(part, this.locale);
 						if (translated != null && !translated.isBlank()) {
 							sb.append(translated).append(" ");
 						}
 					}
 					tCurrent = sb.toString().trim();
 				} else {
-					tCurrent = Translator.translate(key);
+					tCurrent = Translator.translateExplicitLocale(key, this.locale);
 				}
-				if (tCurrent != null && !tCurrent.isBlank())
+				if (tCurrent != null && !tCurrent.isBlank()) {
+					logger.info("Athlete header: '{}' -> current locale '{}' (lowercase: '{}')", key, tCurrent, tCurrent.trim().toLowerCase());
 					result.putIfAbsent(tCurrent.trim().toLowerCase(), info);
+				}
 			} catch (Exception ex) {
+				logger.warn("Failed to translate athlete header '{}': {}", key, ex.getMessage());
 			}
 			// also register the explicit English translation
 			try {
@@ -717,15 +719,19 @@ public class NRegistrationFileProcessor {
 				} else {
 					tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
 				}
-				if (tEng != null && !tEng.isBlank())
+				if (tEng != null && !tEng.isBlank()) {
+					logger.info("Athlete header: '{}' -> English '{}' (lowercase: '{}')", key, tEng, tEng.trim().toLowerCase());
 					result.putIfAbsent(tEng.trim().toLowerCase(), info);
+				}
 			} catch (Exception ex) {
+				logger.warn("Failed to translate athlete header '{}' to English: {}", key, ex.getMessage());
 			}
 		}
 		return result;
 	}
 
 	private CellSetterRG[] createGroupSetterTableFromHeaderRow(Row headerRow, List<String> errors) {
+		Map<String, CellSetterRG> groupSetterMap = buildGroupSetterMap();
 		List<CellSetterRG> setters = new ArrayList<>();
 		for (int i = 0; i < headerRow.getLastCellNum(); i++) {
 			Cell cell = headerRow.getCell(i);
@@ -742,7 +748,7 @@ public class NRegistrationFileProcessor {
 				break;
 			}
 			String headerValue = raw.trim().toLowerCase();
-			CellSetterRG setter = GROUP_SETTER_MAP.get(headerValue);
+			CellSetterRG setter = groupSetterMap.get(headerValue);
 			if (setter != null) {
 				logger.debug("Mapped group header '{}' to setter", headerValue);
 			} else {
@@ -875,6 +881,7 @@ public class NRegistrationFileProcessor {
 				continue;
 			}
 			if (iRow == rowsToSkip) {
+				Map<String, AthleteHeaderInfo> athleteSetterMap = buildAthleteSetterMap();
 				int lastCol = row.getLastCellNum() <= 0 ? 0 : row.getLastCellNum();
 				List<AthleteHeaderInfo> orderedAthleteHeaderInfo = new ArrayList<>();
 				for (iColumn = 0; iColumn < lastCol; iColumn++) {
@@ -896,7 +903,12 @@ public class NRegistrationFileProcessor {
 						break;
 					}
 					String trimmedCellValue = cellValue.trim();
-					AthleteHeaderInfo info = ATHLETE_SETTER_MAP.get(trimmedCellValue.toLowerCase());
+					String lookupKey = trimmedCellValue.toLowerCase();
+					logger.info("Looking up athlete header '{}' (lowercase: '{}') in setter map", trimmedCellValue, lookupKey);
+					AthleteHeaderInfo info = athleteSetterMap.get(lookupKey);
+					if (info == null) {
+						logger.warn("No setter found for athlete header '{}' (tried lowercase: '{}')", trimmedCellValue, lookupKey);
+					}
 					orderedAthleteHeaderInfo.add(info);
 					if (info != null) {
 						this.setterForColumn[iColumn] = (a, s, c) -> {

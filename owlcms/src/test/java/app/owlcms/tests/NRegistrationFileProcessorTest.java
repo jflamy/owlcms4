@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -76,7 +77,7 @@ public class NRegistrationFileProcessorTest {
             byte[] fileBytes = xlsInputStream.readAllBytes();
             ByteArrayInputStream bais = new ByteArrayInputStream(fileBytes);
 
-            NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false);
+            NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false, Locale.ENGLISH);
             processor.setSessionOptions(NRegistrationFileProcessor.SessionOptions.UPDATE_ADD_SESSIONS);
             
             // Reset (delete) all existing sessions first
@@ -123,7 +124,7 @@ public class NRegistrationFileProcessorTest {
             byte[] fileBytes = xlsInputStream.readAllBytes();
             ByteArrayInputStream bais = new ByteArrayInputStream(fileBytes);
 
-            NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false);
+            NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false, Locale.ENGLISH);
             processor.setSessionOptions(NRegistrationFileProcessor.SessionOptions.UPDATE_ADD_SESSIONS);
             
             int groupsProcessed = processor.doProcessGroups(bais, false, 
@@ -159,7 +160,7 @@ public class NRegistrationFileProcessorTest {
             byte[] fileBytes = xlsInputStream.readAllBytes();
             ByteArrayInputStream bais = new ByteArrayInputStream(fileBytes);
 
-            NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false);
+            NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false, Locale.ENGLISH);
             processor.setSessionOptions(NRegistrationFileProcessor.SessionOptions.UPDATE_ADD_SESSIONS);
             
             int groupsProcessed = processor.doProcessGroups(bais, false, 
