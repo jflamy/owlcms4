@@ -87,6 +87,27 @@ logger.warn(LoggerUtils.whereFrom());
 
 - Use `LoggerUtils.stackTrace()` only when a full dump is requested by the human reviewer.
 
+## Thread safety: OwlcmsSession methods are risky
+
+**IMPORTANT:** `OwlcmsSession.getLocale()` and `OwlcmsSession.withFop()` rely on `UI.getCurrent()` which returns `null` when called from background threads, callbacks, or spawned threads. This causes silent fallback to default values (e.g., `Locale.ENGLISH`).
+
+**Pattern to follow:** Capture values on the UI thread BEFORE entering callbacks/threads, then pass them explicitly:
+
+```java
+// WRONG - will get wrong locale in upload callback
+UploadHandler.inMemory((metadata, data) -> {
+    Locale locale = OwlcmsSession.getLocale();  // Returns ENGLISH, not user's locale!
+});
+
+// CORRECT - capture before callback
+Locale capturedLocale = OwlcmsSession.getLocale();  // Captured on UI thread
+UploadHandler.inMemory((metadata, data) -> {
+    // Use capturedLocale here
+});
+```
+
+When creating processors or handlers that run in background threads, pass the locale (or FOP) as a constructor parameter rather than retrieving it inside the thread.
+
 ## Key files and directories to inspect
 
 - `pom.xml` — project build configuration (Maven). Do not run automatically.
