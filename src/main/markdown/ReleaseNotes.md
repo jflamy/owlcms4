@@ -10,6 +10,8 @@
 
 **New in Release 64**
 
+64.0.1: Fixed upload of registration files when the current session is not in English.
+
 64.0.0: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
 
 64.0.0: 250g deduction done manually by TO is now again the default (automatic must be selected); clarified option description
