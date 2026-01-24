@@ -901,7 +901,7 @@ public class NRegistrationFileProcessor {
 						break;
 					}
 					String cellValue = cell.getStringCellValue();
-					def (cellValue == null || cellValue.trim().isEmpty()) {
+					if (cellValue == null || cellValue.trim().isEmpty()) {
 						athleteHeaderStopColumn = iColumn;
 						orderedAthleteHeaderInfo.add(null);
 						break;
