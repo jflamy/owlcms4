@@ -222,12 +222,16 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			// intentionally empty: we'll show counts/options immediately and errors at the end
 		};
 
-		// first do a dry run to count sessions (always run dry-run to report count)
+		// First pass: parse sessions to determine valid groups for athlete assignment.
+		// The valid groups depend on the session option:
+		// - IGNORE_SESSIONS: only database groups are valid (spreadsheet sessions ignored)
+		// - DELETE_SESSIONS: only spreadsheet groups are valid (database will be cleared)
+		// - UPDATE_ADD_SESSIONS: database + spreadsheet groups (spreadsheet overrides)
 		rememberSessionCodes();
 		int nbSessionsFound = this.processor.doProcessGroups(inputStream, true, s -> {
-			// discard dry-run messages; we only want the count
+			// discard validation pass messages; we only want the count
 		}, noopUpdater);
-		// show the dry-run session count only in logs (keep DataProcessed.* translations for UI counts)
+		// show the session count only in logs (keep DataProcessed.* translations for UI counts)
 		logger.info(MessageFormat.format("{0} sessions identified.", Integer.valueOf(nbSessionsFound)));
 
 		int nbSessionsProcessed = 0;

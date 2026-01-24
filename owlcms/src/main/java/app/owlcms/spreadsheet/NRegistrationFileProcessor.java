@@ -100,7 +100,11 @@ public class NRegistrationFileProcessor {
 
 			RCompetition c = new RCompetition();
 			RCompetition.resetActiveCategories();
-			RCompetition.resetActiveGroups();
+			// Don't reset activeGroups here - they should already be populated from doProcessGroups
+			// Only reset if activeGroups is empty (single-pass athlete-only upload)
+			if (RCompetition.getActiveGroups().isEmpty()) {
+				RCompetition.resetActiveGroups();
+			}
 			if (isDeleteAthletes()) {
 				RCompetition.resetAthleteToEligibles();
 				RCompetition.resetAthleteToTeams();
@@ -897,7 +901,7 @@ public class NRegistrationFileProcessor {
 						break;
 					}
 					String cellValue = cell.getStringCellValue();
-					if (cellValue == null || cellValue.trim().isEmpty()) {
+					def (cellValue == null || cellValue.trim().isEmpty()) {
 						athleteHeaderStopColumn = iColumn;
 						orderedAthleteHeaderInfo.add(null);
 						break;
@@ -1170,8 +1174,11 @@ public class NRegistrationFileProcessor {
 
 	/**
 	 * Read groups (sessions) from the workbook using a header-driven approach.
+	 * 
+	 * @param determineValidSessionsOnly if true, only parse and populate activeGroups for validation;
+	 *        if false, also save sessions to database
 	 */
-	public int doProcessGroups(InputStream inputStream, boolean dryRun, Consumer<String> errorConsumer,
+	public int doProcessGroups(InputStream inputStream, boolean determineValidSessionsOnly, Consumer<String> errorConsumer,
 	        Runnable displayUpdater) {
 		try (InputStream xlsInputStream = inputStream) {
 			inputStream.reset();
@@ -1299,8 +1306,8 @@ public class NRegistrationFileProcessor {
 
 			String dataReadMsg;
 			try {
-				if (dryRun) {
-					// Dry-run identified count: keep this as plain English for logs/UI-suppressed callers.
+				if (determineValidSessionsOnly) {
+					// Validation pass: keep this as plain English for logs/UI-suppressed callers.
 					dataReadMsg = MessageFormat.format("{0} sessions identified.", Integer.valueOf(parsed.size()));
 				} else {
 					String tpl = Translator.translate("Upload.DataProcessed.Sessions");
@@ -1310,8 +1317,35 @@ public class NRegistrationFileProcessor {
 				dataReadMsg = Translator.translate("DataRead") + " " + parsed.size() + " sessions.";
 			}
 			this.logger.info(dataReadMsg);
-			if (!dryRun) {
+			if (!determineValidSessionsOnly) {
 				updatePlatformsAndSessions(parsed);
+			}
+			
+			// Populate activeGroups so athlete processing can validate group references.
+			// - IGNORE_SESSIONS: only DB groups are valid (spreadsheet groups ignored)
+			// - DELETE_SESSIONS: only spreadsheet groups are valid (DB was/will be cleared)
+			// - UPDATE_ADD_SESSIONS: DB groups + spreadsheet groups (spreadsheet overrides)
+			if (isIgnoreSessions()) {
+				// Only use groups from database
+				RCompetition.resetActiveGroups();
+			} else if (isDeleteSessions()) {
+				// Only use groups from spreadsheet (DB was/will be cleared)
+				RCompetition.getActiveGroups().clear();
+				for (RGroup rg : parsed) {
+					String groupName = rg.getGroupName();
+					if (groupName != null && !groupName.isBlank()) {
+						RCompetition.getActiveGroups().put(groupName, rg.getGroup());
+					}
+				}
+			} else {
+				// UPDATE_ADD_SESSIONS: start with DB, add/override with spreadsheet
+				RCompetition.resetActiveGroups();
+				for (RGroup rg : parsed) {
+					String groupName = rg.getGroupName();
+					if (groupName != null && !groupName.isBlank()) {
+						RCompetition.getActiveGroups().put(groupName, rg.getGroup());
+					}
+				}
 			}
 
 			// surface a summary message so the UI status shows the number of sessions (dry-run = identified, real = processed)
