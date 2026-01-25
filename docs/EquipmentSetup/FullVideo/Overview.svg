@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1050">
+  <!-- Define styles -->
+  <defs>
+    <style>
+      .device-box { fill: #e3f2fd; stroke: #1976d2; stroke-width: 2; }
+      .switch-box { fill: #fff3e0; stroke: #f57c00; stroke-width: 2; }
+      .master-box { fill: #f3e5f5; stroke: #7b1fa2; stroke-width: 2; }
+      .display-box { fill: #e8f5e9; stroke: #388e3c; stroke-width: 2; }
+      .text { font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; }
+      .label { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
+      .title-text { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; text-anchor: middle; }
+      .connection { stroke: #666; stroke-width: 2; fill: none; }
+      .mqtt-arrow { stroke: #7b1fa2; stroke-width: 3; fill: none; marker-end: url(#arrowhead-mqtt); }
+      .video-connection { stroke: #1976d2; stroke-width: 2; fill: none; }
+      .video-arrow { stroke: #1976d2; stroke-width: 3; fill: none; marker-end: url(#arrowhead-video); }
+      .youtube-arrow { stroke: #c62828; stroke-width: 3; fill: none; marker-end: url(#arrowhead-youtube); }
+      .http-arrow { stroke: #666; stroke-width: 2; fill: none; stroke-dasharray: 5,5; marker-end: url(#arrowhead-http); }
+    </style>
+    <marker id="arrowhead-mqtt" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#7b1fa2" />
+    </marker>
+    <marker id="arrowhead-video" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#1976d2" />
+    </marker>
+    <marker id="arrowhead-youtube" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#c62828" />
+    </marker>
+    <marker id="arrowhead-http" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="30" class="title-text">OBS Dual-Stream System - Network Topology</text>
+  <text x="600" y="50" class="label">192.168.1.x Network</text>
+
+  <!-- Competition Router -->
+  <rect x="500" y="100" width="200" height="80" class="switch-box" rx="5"/>
+  <text x="600" y="135" class="title-text">Competition Router</text>
+  <text x="515" y="155" class="label">Core Network</text>
+
+  <!-- OWLCMS -->
+  <rect x="800" y="250" width="200" height="100" class="master-box" rx="5"/>
+  <text x="900" y="285" class="title-text">OWLCMS</text>
+  <text x="815" y="305" class="label">Master Controller</text>
+  <text x="815" y="325" class="label">MQTT Broker</text>
+
+  <!-- Video Switch -->
+  <rect x="500" y="250" width="200" height="100" class="switch-box" rx="5"/>
+  <text x="600" y="285" class="title-text">Video Traffic Switch</text>
+  <text x="515" y="305" class="label">Dedicated Video</text>
+  <text x="515" y="325" class="label">Isolated Network</text>
+
+  <!-- RPi 5 -->
+  <rect x="350" y="450" width="200" height="120" class="device-box" rx="5"/>
+  <text x="450" y="485" class="title-text">Raspberry Pi 5</text>
+  <text x="365" y="505" class="label">IP: 192.168.1.42</text>
+  <text x="365" y="525" class="label">• Camera Capture</text>
+  <text x="365" y="545" class="label">• Replay System</text>
+  <text x="365" y="565" class="label">• MQTT Subscriber</text>
+
+  <!-- Laptop 1 -->
+  <rect x="650" y="450" width="200" height="120" class="device-box" rx="5"/>
+  <text x="750" y="485" class="title-text">Laptop 1</text>
+  <text x="665" y="505" class="label">OBS - YouTube Stream</text>
+  <text x="665" y="525" class="label">GTX 1050 NVENC</text>
+  <text x="665" y="545" class="label">Inputs: UDP 9001, 9002</text>
+
+  <!-- Laptop 2 -->
+  <rect x="950" y="450" width="200" height="120" class="device-box" rx="5"/>
+  <text x="1050" y="485" class="title-text">Laptop 2</text>
+  <text x="965" y="505" class="label">OBS - LED Wall Stream</text>
+  <text x="965" y="525" class="label">GTX 1050 NVENC</text>
+  <text x="965" y="545" class="label">Inputs: Replay MP4s</text>
+
+  <!-- Cameras -->
+  <rect x="50" y="650" width="150" height="80" class="device-box" rx="5"/>
+  <text x="125" y="675" class="title-text">Center Camera</text>
+  <text x="65" y="695" class="label">(Camera 1)</text>
+  <text x="65" y="715" class="label">UVC PTZ USB</text>
+
+  <rect x="250" y="650" width="150" height="80" class="device-box" rx="5"/>
+  <text x="325" y="675" class="title-text">Side Camera</text>
+  <text x="265" y="695" class="label">(Camera 2)</text>
+  <text x="265" y="715" class="label">UVC PTZ USB</text>
+
+  <!-- HDMI Splitter -->
+  <rect x="50" y="760" width="150" height="60" class="switch-box" rx="5"/>
+  <text x="125" y="785" class="title-text">HDMI Splitter</text>
+  <text x="65" y="805" class="label">1 in → 2 out</text>
+
+  <!-- Marshal Screen -->
+  <rect x="50" y="850" width="120" height="60" class="display-box" rx="5"/>
+  <text x="110" y="875" class="title-text">Marshal</text>
+  <text x="65" y="895" class="label">Screen</text>
+
+  <!-- Warmup Screen -->
+  <rect x="180" y="850" width="120" height="60" class="display-box" rx="5"/>
+  <text x="240" y="875" class="title-text">Warmup</text>
+  <text x="195" y="895" class="label">Screen</text>
+
+  <!-- LED Wall -->
+  <rect x="950" y="600" width="200" height="80" class="display-box" rx="5"/>
+  <text x="1050" y="630" class="title-text">LED Wall</text>
+  <text x="965" y="650" class="label">Main Display</text>
+  <text x="965" y="670" class="label">HDMI Input</text>
+
+  <!-- Connections -->
+  <!-- A) UDP Video Traffic: RPi 5 -> Video Switch -> Laptops -->
+  <path d="M 470 450 L 570 350" class="video-arrow"/>
+  <text x="510" y="395" class="label" fill="#1976d2">UDP</text>
+  
+  <path d="M 630 350 L 730 450" class="video-arrow"/>
+  <text x="580" y="395" class="label" fill="#1976d2">UDP 9001/9002</text>
+  
+  <path d="M 650 350 L 1030 450" class="video-arrow"/>
+  <text x="850" y="395" class="label" fill="#1976d2">UDP 9001/9002</text>
+  
+  <!-- B) YouTube Stream: Laptop 1 -> Video Switch -> Parent Switch -->
+  <path d="M 770 450 L 670 350" class="youtube-arrow"/>
+  <text x="730" y="400" class="label" fill="#c62828">YouTube</text>
+  
+  <path d="M 620 250 L 620 180" class="youtube-arrow"/>
+  <text x="640" y="215" class="label" fill="#c62828">YouTube</text>
+
+  <!-- MQTT Command Path: OWLCMS -> Parent Switch -> Video Switch -> RPi 5 -->
+  <path d="M 800 300 L 700 180" class="mqtt-arrow"/>
+  <text x="760" y="230" class="label" fill="#7b1fa2">MQTT</text>
+  
+  <path d="M 600 180 L 600 250" class="mqtt-arrow"/>
+  
+  <path d="M 500 350 L 450 450" class="mqtt-arrow"/>
+  <text x="380" y="400" class="label" fill="#7b1fa2">MQTT Commands</text>
+  <text x="380" y="415" class="label" fill="#7b1fa2">(Replay Triggers)</text>
+
+  <!-- Center Camera USB to RPi 5 -->
+  <line x1="125" y1="650" x2="400" y2="570" class="connection"/>
+  <text x="250" y="610" class="label">USB 3.0</text>
+  
+  <!-- Side Camera USB to RPi 5 -->
+  <line x1="325" y1="650" x2="450" y2="570" class="connection"/>
+  <text x="380" y="610" class="label">USB 3.0</text>
+
+  <!-- Center Camera HDMI to Splitter -->
+  <line x1="125" y1="730" x2="125" y2="760" class="connection"/>
+  <text x="140" y="745" class="label">HDMI</text>
+
+  <!-- HDMI Splitter to Marshal Screen -->
+  <line x1="90" y1="820" x2="90" y2="850" class="connection"/>
+  <text x="105" y="835" class="label">HDMI</text>
+
+  <!-- HDMI Splitter to Warmup Screen -->
+  <line x1="160" y1="820" x2="220" y2="850" class="connection"/>
+  <text x="190" y="835" class="label">HDMI</text>
+
+  <!-- Laptop 2 to LED Wall HDMI -->
+  <line x1="1050" y1="570" x2="1050" y2="600" class="connection"/>
+  <text x="1080" y="585" class="label">HDMI</text>
+
+  <!-- UDP streams -->
+  
+  <!-- HTTP Control Arcs: RPi 5 -> Laptops -->
+  <path d="M 540 560 Q 600 610 650 570" class="http-arrow"/>
+  <text x="590" y="600" class="label">Replays</text>
+  
+  <path d="M 550 570 Q 700 640 950 570" class="http-arrow"/>
+  <text x="750" y="620" class="label">Replays</text>
+
+  <!-- HTTP Arc: OWLCMS -> Laptop 2 -->
+  <path d="M 1000 300 Q 1080 370 1050 450" class="http-arrow"/>
+  <text x="1080" y="370" class="label">Scoreboards</text>
+
+  <!-- Legend -->
+  <rect x="50" y="950" width="1100" height="80" fill="#f5f5f5" stroke="#999" stroke-width="1" rx="5"/>
+  <text x="600" y="975" class="title-text">Data Flow Legend</text>
+  
+  <text x="80" y="1000" class="label">Physical</text>
+  <line x1="80" y1="1010" x2="180" y2="1010" class="connection"/>
+  
+  <text x="250" y="1000" class="label">UDP Video</text>
+  <line x1="250" y1="1010" x2="350" y2="1010" class="video-arrow"/>
+  
+  <text x="430" y="1000" class="label">MQTT Control</text>
+  <path d="M 430 1010 L 530 1010" class="mqtt-arrow"/>
+  
+  <text x="610" y="1000" class="label">YouTube</text>
+  <path d="M 610 1010 L 710 1010" class="youtube-arrow"/>
+  
+  <text x="790" y="1000" class="label">HTTP</text>
+  <path d="M 790 1010 L 890 1010" class="http-arrow"/>
+</svg>
