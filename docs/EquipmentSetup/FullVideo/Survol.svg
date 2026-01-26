@@ -67,10 +67,9 @@
   <rect x="190" y="450" width="200" height="140" class="device-box" rx="5"/>
   <text x="290" y="485" class="title-text">Système de Reprise</text>
   <text x="205" y="505" class="label">Raspberry Pi 5</text>
-  <text x="205" y="525" class="label">• Capture Caméra</text>
-  <text x="205" y="545" class="label">• Rediffusion des caméras</text>
-  <text x="205" y="565" class="label">• Système de Reprise</text>
-  <text x="205" y="585" class="label">• Abonné MQTT</text>
+  <text x="205" y="525" class="label">• Caméra → UDP (continu)</text>
+  <text x="205" y="545" class="label">• UDP → Enregistr. (on/off)</text>
+  <text x="205" y="565" class="label">• Abonné MQTT</text>
 
   <!-- Streaming OBS -->
   <rect x="490" y="450" width="200" height="120" class="device-box" rx="5"/>
@@ -83,7 +82,7 @@
   <rect x="790" y="450" width="200" height="160" class="device-box" rx="5"/>
   <text x="890" y="485" class="title-text">OBS Mur LED</text>
   <text x="805" y="505" class="label">Dell 2017 GTX 1050 NVENC</text>
-  <text x="805" y="525" class="label">Flux Mur LED</text>
+  <text x="805" y="525" class="label">Sortie HDMI Full HD</text>
   <text x="805" y="545" class="label">Entrées : MP4 des reprises</text>
   <text x="805" y="565" class="label">Entrées : Tableaux de résultats</text>
   <text x="805" y="585" class="label">Entrées : Fichier vidéo local</text>

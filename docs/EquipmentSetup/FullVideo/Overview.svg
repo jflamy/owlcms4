@@ -67,8 +67,8 @@
   <rect x="190" y="450" width="200" height="120" class="device-box" rx="5"/>
   <text x="290" y="485" class="title-text">Replay System</text>
   <text x="205" y="505" class="label">Raspberry Pi 5</text>
-  <text x="205" y="525" class="label">• Camera Capture</text>
-  <text x="205" y="545" class="label">• Replay System</text>
+  <text x="205" y="525" class="label">• Camera → UDP (continuous)</text>
+  <text x="205" y="545" class="label">• UDP → Recording (on/off)</text>
   <text x="205" y="565" class="label">• MQTT Subscriber</text>
 
   <!-- Streaming OBS -->
@@ -82,7 +82,7 @@
   <rect x="790" y="450" width="200" height="160" class="device-box" rx="5"/>
   <text x="890" y="485" class="title-text">LED Wall OBS</text>
   <text x="805" y="505" class="label">Dell 2017 GTX 1050 NVENC</text>
-  <text x="805" y="525" class="label">LED Wall Stream</text>
+  <text x="805" y="525" class="label">Full HD HDMI Output</text>
   <text x="805" y="545" class="label">Inputs: Replay MP4s</text>
   <text x="805" y="565" class="label">Inputs: Scoreboards</text>
   <text x="805" y="585" class="label">Inputs: Local video file</text>

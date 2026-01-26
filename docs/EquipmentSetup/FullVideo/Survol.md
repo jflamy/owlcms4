@@ -15,7 +15,7 @@ Le diagramme complet de topologie réseau montre :
 - **Commutateur de Trafic Vidéo** : Commutateur dédié pour les flux vidéo (réseau isolé)
 - **RPi 5** (192.168.1.42) : Capture de caméra, système de reprise et abonné MQTT
 - **OBS Streaming** : OBS diffusant vers YouTube (entrées UDP 9001, 9002)
-- **OBS Mur LED** : OBS diffusant vers le mur LED (entrées de reprise HTTP et tableaux d'affichage d'OWLCMS)
+- **OBS Mur LED** : OBS sortant HDMI Full HD vers le mur LED (entrées de reprise HTTP et tableaux d'affichage d'OWLCMS)
 
 ## Composants du Système
 
@@ -34,8 +34,8 @@ Le diagramme complet de topologie réseau montre :
 
 **Fonctions :**
 1. Capture de caméra (H.264 depuis USB)
-2. Diffusion UDP vers les deux ordinateurs portables
-3. Enregistrement continu (segments de 2 minutes)
+2. **Diffusion UDP continue** vers les deux ordinateurs portables OBS (FFmpeg #1 par caméra)
+3. **Enregistrement à la demande** depuis le flux UDP (FFmpeg #2 par caméra, déclenché par MQTT)
 4. Système de découpage de reprise
 5. Abonné MQTT pour les commandes OWLCMS
 6. Serveur HTTP pour les MP4 de reprise
@@ -74,9 +74,9 @@ Le diagramme complet de topologie réseau montre :
 - Exemple : `http://192.168.1.42:8080/replay_001.mp4`
 
 **Sortie OBS :**
-- Flux mur LED (RTMP/SDI/autre)
+- HDMI Full HD vers Mur LED (1920x1080)
 
-### OWLCMS - Contrôleur Maître
+### OWLCMS - Logiciel de gestion de compétition
 **Fonctions :**
 - Émet des commandes MQTT pour :
   - Déclencheurs de démarrage/arrêt d'enregistrement
@@ -120,47 +120,75 @@ Le diagramme complet de topologie réseau montre :
 
 ## Commandes FFmpeg
 
-### Intention de Conception : Architecture Zéro-Copie
+### Intention de Conception : Architecture Zéro-Copie avec Diffusion et Enregistrement Séparés
 
 Les commandes FFmpeg sont conçues pour une **charge minimale et une latence minimale** :
 
 - **Pas de réencodage** : Les caméras produisent du H.264 directement ; FFmpeg utilise `-c:v copy` pour diffuser les données compressées sans décodage/réencodage
 - **Charge CPU/GPU zéro** : Pas de transcodage signifie que le CPU/GPU du RPi 5 est libre pour d'autres tâches (découpage de reprise, service HTTP)
 - **Latence minimale** : La copie directe de caméra → réseau a un délai <100ms (vs. 2-5 secondes avec réencodage)
-- **Double sortie** : Chaque processus FFmpeg diffuse simultanément vers UDP (temps réel) ET écrit sur disque (source de reprise) en utilisant la même approche zéro-copie
+- **Processus séparés pour la diffusion et l'enregistrement** :
+  - **FFmpeg #1** (par caméra) : Diffusion UDP continue depuis la caméra (toujours en cours d'exécution)
+  - **FFmpeg #2** (par caméra) : Enregistrement à la demande depuis le flux UDP (démarré/arrêté par les commandes MQTT)
 
-**Remarque :** Ces commandes sont configurées et gérées par le système de reprise RPi 5, qui gère l'initialisation de la caméra, le démarrage du flux et la gestion de l'enregistrement.
+**Justification de l'Architecture :**
+- OBS nécessite un **flux vidéo continu** - ne peut pas avoir d'interruptions dans le flux UDP
+- Le système de reprise nécessite un **enregistrement à la demande** - démarre quand l'athlète se prépare, s'arrête après la décision
+- La lecture du flux UDP localement est plus fiable que la double lecture de la même caméra USB
 
-### RPi 5 - Capture, Diffusion & Enregistrement Caméra 1
+**Remarque :** Ces commandes sont configurées et gérées par le système de reprise RPi 5, qui gère l'initialisation de la caméra, le démarrage du flux et la gestion de l'enregistrement basée sur les déclencheurs MQTT d'OWLCMS.
+
+### RPi 5 - Diffusion UDP Continue Caméra 1 (FFmpeg #1)
 
 ```bash
+# Toujours en cours d'exécution - fournit un flux continu aux systèmes OBS
 ffmpeg -f v4l2 -input_format h264 -video_size 1920x1080 -framerate 60 -i /dev/video0 \
-  -c:v copy -f mpegts udp://192.168.1.255:9001?pkt_size=1316 \
-  -c:v copy -f segment -segment_time 120 -reset_timestamps 1 /recordings/cam1_%03d.mp4 &
+  -c:v copy -f mpegts udp://192.168.1.255:9001?pkt_size=1316
 ```
 
-### RPi 5 - Capture, Diffusion & Enregistrement Caméra 2
+### RPi 5 - Enregistrement à la Demande Caméra 1 (FFmpeg #2)
 
 ```bash
-ffmpeg -f v4l2 -input_format h264 -video_size 1920x1080 -framerate 60 -i /dev/video2 \
-  -c:v copy -f mpegts udp://192.168.1.255:9002?pkt_size=1316 \
-  -c:v copy -f segment -segment_time 120 -reset_timestamps 1 /recordings/cam2_%03d.mp4 &
+# Démarré/arrêté par les commandes MQTT - enregistre depuis le flux UDP local
+ffmpeg -i udp://127.0.0.1:9001 \
+  -c:v copy -f segment -segment_time 120 -reset_timestamps 1 /recordings/cam1_%03d.mp4
 ```
 
-**Remarque :** Chaque commande produit DEUX sorties à partir d'UN SEUL flux d'entrée :
-1. **Flux UDP** (temps réel vers les ordinateurs portables) - utilise le conteneur MPEG-TS pour une transmission réseau résiliente
-2. **Enregistrement disque** (segments MP4 de 2 minutes pour le système de reprise) - utilise le conteneur MP4 pour un service HTTP efficace
+### RPi 5 - Diffusion UDP Continue Caméra 2 (FFmpeg #1)
 
-Les deux sorties utilisent `-c:v copy` (mode de copie de flux) - les données H.264 de la caméra sont écrites directement vers les deux destinations sans aucun traitement.
+```bash
+# Toujours en cours d'exécution - fournit un flux continu aux systèmes OBS
+ffmpeg -f v4l2 -input_format h264 -video_size 1920x1080 -framerate 60 -i /dev/video2 \
+  -c:v copy -f mpegts udp://192.168.1.255:9002?pkt_size=1316
+```
+
+### RPi 5 - Enregistrement à la Demande Caméra 2 (FFmpeg #2)
+
+```bash
+# Démarré/arrêté par les commandes MQTT - enregistre depuis le flux UDP local
+ffmpeg -i udp://127.0.0.1:9002 \
+  -c:v copy -f segment -segment_time 120 -reset_timestamps 1 /recordings/cam2_%03d.mp4
+```
+
+**Avantages de l'Architecture :**
+1. **Continuité OBS** : La diffusion UDP ne s'arrête jamais, OBS a toujours une entrée vidéo
+2. **Contrôle d'enregistrement** : L'enregistrement démarre quand l'athlète est appelé, s'arrête après la décision
+3. **Efficacité des ressources** : Lecture de caméra unique (FFmpeg #1), l'enregistrement lit depuis la pile réseau (FFmpeg #2)
+4. **Fiabilité** : La multidiffusion UDP permet plusieurs consommateurs sans contention USB
 
 ### Paramètres Clés Expliqués
 
+**Paramètres FFmpeg de diffusion (#1) :**
 - `-f v4l2` : Format d'entrée Video4Linux2 (API de caméra Linux)
 - `-input_format h264` : Spécifier l'entrée H.264 (la caméra produit du compressé)
 - `-c:v copy` : Copier le flux vidéo sans réencodage (charge CPU/GPU zéro)
 - `-f mpegts` : Format MPEG Transport Stream (idéal pour le streaming)
 - `udp://192.168.1.255:9001` : Diffusion UDP vers le port 9001
 - `?pkt_size=1316` : Taille de paquet UDP optimale pour la vidéo
+
+**Paramètres FFmpeg d'enregistrement (#2) :**
+- `-i udp://127.0.0.1:9001` : Lire depuis le flux UDP local
+- `-c:v copy` : Copier le flux vidéo sans réencodage
 - `-f segment` : Diviser la sortie en segments
 - `-segment_time 120` : Segments de 2 minutes
 - `-reset_timestamps 1` : Réinitialiser les horodatages pour chaque segment
@@ -224,9 +252,9 @@ OBS Streaming diffuse vers YouTube avec commutation automatique de scène basée
    - URL : URL d'affichage OWLCMS
    - Largeur : 1920, Hauteur : 1080
 
-### OBS Mur LED - Flux Mur LED
+### OBS Mur LED - Affichage Mur LED
 
-OBS Mur LED fournit un flux simplifié pour le mur LED de la salle, axé sur les rediffusions et les tableaux d'affichage.
+OBS Mur LED fournit un signal HDMI Full HD simplifié pour le mur LED de la salle, axé sur les rediffusions et les tableaux d'affichage.
 
 | Contenu | Source |
 |---------|--------|
