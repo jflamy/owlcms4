@@ -37,6 +37,7 @@ database/owlcms.mv.db
 /nohup.out
 /*.mp4
 **/.classpath
+**/bin/
 /alpha.md
 /beta.md
 /rc.md
