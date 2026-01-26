@@ -16,6 +16,9 @@ UDP_SOURCE="udp://239.255.0.1:9001"
 FORMAT="mpegts"
 OUTPUT_PARAMS="-c:v copy -an"
 
+# Note: Resolution (1280x720) and framerate (60fps) are embedded in the MPEG-TS stream
+# and don't need to be specified when reading from UDP
+
 # Recording parameters
 DURATION="${1:-10}"
 TIMESTAMP=$(date '+%Y%m%d_%H%M%S')
