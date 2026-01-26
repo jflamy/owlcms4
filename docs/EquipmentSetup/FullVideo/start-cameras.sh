@@ -25,7 +25,7 @@ PORT_CAMERA2="9002"
 # Common settings
 # Use multicast for multiple receivers (3 readers + 2 OBS = 5 clients)
 UDP_MULTICAST="239.255.0.1"
-VIDEO_SIZE="1920x1080"
+VIDEO_SIZE="1280x720"
 FRAMERATE="60"
 PKT_SIZE="1316"
 

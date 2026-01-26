@@ -196,7 +196,7 @@ logFfmpeg = false
     enabled = true
     camera = 'udp://239.255.0.1:9001'  # Multicast UDP stream from FFmpeg #1
     format = 'mpegts'
-    size = "1920x1080"
+    size = "1280x720"
     fps = 60
     
     # Input parameters: none needed - reading from multicast UDP stream
@@ -214,7 +214,7 @@ logFfmpeg = false
     enabled = false
     camera = 'udp://239.255.0.1:9002'  # Multicast UDP stream from FFmpeg #1
     format = 'mpegts'
-    size = "1920x1080"
+    size = "1280x720"
     fps = 60
     
     # Input parameters: none needed - reading from multicast UDP stream

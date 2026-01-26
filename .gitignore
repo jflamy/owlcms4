@@ -61,3 +61,4 @@ playwright/.flattened-pom.xml
 package-lock.json
 package.json
 docs/EquipmentSetup/FullVideo/*.mp4
+docs/EquipmentSetup/FullVideo/*.pid

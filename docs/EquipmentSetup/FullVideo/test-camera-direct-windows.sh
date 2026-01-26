@@ -12,7 +12,7 @@ set -e
 
 # Configuration
 CAMERA_NAME="UVC Camera"
-VIDEO_SIZE="1280x720"
+VIDEO_SIZE="1920x1080"
 FRAMERATE="60"
 INPUT_FORMAT="dshow"
 
