@@ -124,9 +124,10 @@ The complete network topology diagram shows:
 
 The FFmpeg commands are designed for **minimal overhead and minimal latency**:
 
-- **No re-encoding**: Cameras output H.264 directly; FFmpeg uses `-c:v copy` to stream the compressed data without decoding/re-encoding
-- **Zero CPU/GPU load**: No transcoding means the RPi 5 CPU/GPU are free for other tasks (replay clipping, HTTP serving)
-- **Minimal latency**: Direct copy from camera → network has <100ms delay (vs. 2-5 seconds with re-encoding)
+- **No re-encoding**: Cameras output H.264 directly; FFmpeg copies the encoded H.264 without decoding/re-encoding
+- **Remuxing only**: FFmpeg only changes container format (muxing to MPEG-TS for streaming, demuxing/remuxing to MP4 for recording)
+- **Zero CPU/GPU load**: No encoding/decoding means the RPi 5 CPU/GPU are free for other tasks (replay clipping, HTTP serving)
+- **Minimal latency**: Direct copy from camera → network has <100ms delay (vs. 2-5 seconds with encoding)
 - **Separate processes for streaming and recording**:
   - **FFmpeg #1** (per camera): Continuous UDP streaming from camera (always running)
   - **FFmpeg #2** (per camera): On-demand recording from UDP stream (started/stopped by MQTT commands)
@@ -136,62 +137,75 @@ The FFmpeg commands are designed for **minimal overhead and minimal latency**:
 - Replay system needs **on-demand recording** - starts when athlete prepares, stops after decision
 - Reading UDP stream locally is more reliable than dual-reading the same USB camera
 
-**Note:** These commands are configured and managed by the RPi 5 replay system, which handles camera initialization, stream startup, and recording management based on MQTT triggers from OWLCMS.
+---
 
-### RPi 5 - Camera 1 Continuous UDP Streaming (FFmpeg #1)
+### Continuous UDP Streaming (Shell Script)
+
+These FFmpeg processes are started by a shell script prior to starting the replay system and run continuously. They provide uninterrupted video feeds to OBS.
+
+**Camera-to-UDP streaming parameters:**
+- `-f v4l2`: Video4Linux2 input format (Linux camera API)
+- `-input_format h264`: Specify H.264 input (camera outputs H.264-encoded video)
+- `-video_size 1920x1080`: Resolution from camera
+- `-framerate 60`: Frame rate from camera
+- `-i /dev/video0`: Input device (camera)
+- `-c:v copy`: Copy H.264-encoded video without decoding/re-encoding (zero CPU/GPU load)
+- `-bsf:v dump_extra`: Bitstream filter that repeats H.264 SPS/PPS headers periodically, allowing OBS to start decoding immediately when it connects
+- `-f mpegts`: Mux into MPEG Transport Stream container format (minimal overhead, ideal for streaming)
+- `udp://192.168.1.255:9001`: UDP broadcast to port 9001
+- `?pkt_size=1316`: Optimal UDP packet size for video
+
+#### Camera 1 - UDP Streaming
 
 ```bash
 # Always running - provides continuous feed to OBS systems
 ffmpeg -f v4l2 -input_format h264 -video_size 1920x1080 -framerate 60 -i /dev/video0 \
-  -c:v copy -f mpegts udp://192.168.1.255:9001?pkt_size=1316
+  -c:v copy -bsf:v dump_extra -f mpegts udp://192.168.1.255:9001?pkt_size=1316
 ```
 
-### RPi 5 - Camera 1 On-Demand Recording (FFmpeg #2)
-
-```bash
-# Started/stopped by MQTT commands - records from local UDP stream
-ffmpeg -i udp://127.0.0.1:9001 \
-  -c:v copy -f segment -segment_time 120 -reset_timestamps 1 /recordings/cam1_%03d.mp4
-```
-
-### RPi 5 - Camera 2 Continuous UDP Streaming (FFmpeg #1)
+#### Camera 2 - UDP Streaming
 
 ```bash
 # Always running - provides continuous feed to OBS systems
 ffmpeg -f v4l2 -input_format h264 -video_size 1920x1080 -framerate 60 -i /dev/video2 \
-  -c:v copy -f mpegts udp://192.168.1.255:9002?pkt_size=1316
+  -c:v copy -bsf:v dump_extra -f mpegts udp://192.168.1.255:9002?pkt_size=1316
 ```
 
-### RPi 5 - Camera 2 On-Demand Recording (FFmpeg #2)
+---
+
+### On-Demand Recording (Replay System)
+
+These FFmpeg processes are started and stopped by the replay system based on MQTT triggers from OWLCMS. Recording begins when an athlete is called and stops after the decision.
+
+**UDP-to-recording parameters:**
+- `-f mpegts`: Demux MPEG Transport Stream input (containing H.264-encoded video)
+- `-i udp://127.0.0.1:9001`: Read from local UDP stream
+- `-c:v copy`: Copy H.264-encoded video without decoding/re-encoding (remuxing only: MPEG-TS → MP4)
+- `-an`: No audio (cameras don't provide audio)
+
+#### Camera 1 - Recording
 
 ```bash
-# Started/stopped by MQTT commands - records from local UDP stream
-ffmpeg -i udp://127.0.0.1:9002 \
-  -c:v copy -f segment -segment_time 120 -reset_timestamps 1 /recordings/cam2_%03d.mp4
+# Started/stopped by MQTT commands - records from local UDP stream (H.264 in MPEG-TS)
+ffmpeg -f mpegts -i udp://127.0.0.1:9001 \
+  -c:v copy -an /recordings/cam1.mp4
 ```
+
+#### Camera 2 - Recording
+
+```bash
+# Started/stopped by MQTT commands - records from local UDP stream (H.264 in MPEG-TS)
+ffmpeg -f mpegts -i udp://127.0.0.1:9002 \
+  -c:v copy -an /recordings/cam2.mp4
+```
+
+---
 
 **Architecture Benefits:**
 1. **OBS continuity**: UDP streaming never stops, OBS always has video input
 2. **Recording control**: Recording starts when athlete called, stops after decision
 3. **Resource efficiency**: Single camera read (FFmpeg #1), recording reads from network stack (FFmpeg #2)
 4. **Reliability**: UDP multicast allows multiple consumers without USB contention
-
-### Key Parameters Explained
-
-**Streaming FFmpeg (#1) parameters:**
-- `-f v4l2`: Video4Linux2 input format (Linux camera API)
-- `-input_format h264`: Specify H.264 input (camera outputs compressed)
-- `-c:v copy`: Copy video stream without re-encoding (zero CPU/GPU load)
-- `-f mpegts`: MPEG Transport Stream format (ideal for streaming)
-- `udp://192.168.1.255:9001`: UDP broadcast to port 9001
-- `?pkt_size=1316`: Optimal UDP packet size for video
-
-**Recording FFmpeg (#2) parameters:**
-- `-i udp://127.0.0.1:9001`: Read from local UDP stream
-- `-c:v copy`: Copy video stream without re-encoding
-- `-f segment`: Split output into segments
-- `-segment_time 120`: 2-minute segments
-- `-reset_timestamps 1`: Reset timestamps for each segment
 
 ## OBS Configuration
 

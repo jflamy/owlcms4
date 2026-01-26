@@ -124,9 +124,10 @@ Le diagramme complet de topologie réseau montre :
 
 Les commandes FFmpeg sont conçues pour une **charge minimale et une latence minimale** :
 
-- **Pas de réencodage** : Les caméras produisent du H.264 directement ; FFmpeg utilise `-c:v copy` pour diffuser les données compressées sans décodage/réencodage
-- **Charge CPU/GPU zéro** : Pas de transcodage signifie que le CPU/GPU du RPi 5 est libre pour d'autres tâches (découpage de reprise, service HTTP)
-- **Latence minimale** : La copie directe de caméra → réseau a un délai <100ms (vs. 2-5 secondes avec réencodage)
+- **Pas de réencodage** : Les caméras produisent du H.264 directement ; FFmpeg copie le H.264 encodé sans décodage/réencodage
+- **Remuxing seulement** : FFmpeg change uniquement le format de conteneur (muxing en MPEG-TS pour la diffusion, demuxing/remuxing en MP4 pour l'enregistrement)
+- **Charge CPU/GPU zéro** : Pas d'encodage/décodage signifie que le CPU/GPU du RPi 5 est libre pour d'autres tâches (découpage de reprise, service HTTP)
+- **Latence minimale** : La copie directe de caméra → réseau a un délai <100ms (vs. 2-5 secondes avec encodage)
 - **Processus séparés pour la diffusion et l'enregistrement** :
   - **FFmpeg #1** (par caméra) : Diffusion UDP continue depuis la caméra (toujours en cours d'exécution)
   - **FFmpeg #2** (par caméra) : Enregistrement à la demande depuis le flux UDP (démarré/arrêté par les commandes MQTT)
@@ -136,62 +137,75 @@ Les commandes FFmpeg sont conçues pour une **charge minimale et une latence min
 - Le système de reprise nécessite un **enregistrement à la demande** - démarre quand l'athlète se prépare, s'arrête après la décision
 - La lecture du flux UDP localement est plus fiable que la double lecture de la même caméra USB
 
-**Remarque :** Ces commandes sont configurées et gérées par le système de reprise RPi 5, qui gère l'initialisation de la caméra, le démarrage du flux et la gestion de l'enregistrement basée sur les déclencheurs MQTT d'OWLCMS.
+---
 
-### RPi 5 - Diffusion UDP Continue Caméra 1 (FFmpeg #1)
+### Diffusion UDP Continue (Script Shell)
+
+Ces processus FFmpeg sont démarrés par un script shell avant de démarrer le système de reprise et s'exécutent en continu. Ils fournissent des flux vidéo ininterrompus à OBS.
+
+**Paramètres de diffusion caméra-vers-UDP :**
+- `-f v4l2` : Format d'entrée Video4Linux2 (API de caméra Linux)
+- `-input_format h264` : Spécifier l'entrée H.264 (la caméra produit de la vidéo encodée en H.264)
+- `-video_size 1920x1080` : Résolution de la caméra
+- `-framerate 60` : Fréquence d'images de la caméra
+- `-i /dev/video0` : Périphérique d'entrée (caméra)
+- `-c:v copy` : Copier la vidéo encodée en H.264 sans décodage/réencodage (charge CPU/GPU zéro)
+- `-bsf:v dump_extra` : Filtre de flux binaire qui répète les en-têtes H.264 SPS/PPS périodiquement, permettant à OBS de commencer le décodage immédiatement lors de la connexion
+- `-f mpegts` : Muxer dans le format de conteneur MPEG Transport Stream (surcharge minimale, idéal pour la diffusion)
+- `udp://192.168.1.255:9001` : Diffusion UDP vers le port 9001
+- `?pkt_size=1316` : Taille de paquet UDP optimale pour la vidéo
+
+#### Caméra 1 - Diffusion UDP
 
 ```bash
 # Toujours en cours d'exécution - fournit un flux continu aux systèmes OBS
 ffmpeg -f v4l2 -input_format h264 -video_size 1920x1080 -framerate 60 -i /dev/video0 \
-  -c:v copy -f mpegts udp://192.168.1.255:9001?pkt_size=1316
+  -c:v copy -bsf:v dump_extra -f mpegts udp://192.168.1.255:9001?pkt_size=1316
 ```
 
-### RPi 5 - Enregistrement à la Demande Caméra 1 (FFmpeg #2)
-
-```bash
-# Démarré/arrêté par les commandes MQTT - enregistre depuis le flux UDP local
-ffmpeg -i udp://127.0.0.1:9001 \
-  -c:v copy -f segment -segment_time 120 -reset_timestamps 1 /recordings/cam1_%03d.mp4
-```
-
-### RPi 5 - Diffusion UDP Continue Caméra 2 (FFmpeg #1)
+#### Caméra 2 - Diffusion UDP
 
 ```bash
 # Toujours en cours d'exécution - fournit un flux continu aux systèmes OBS
 ffmpeg -f v4l2 -input_format h264 -video_size 1920x1080 -framerate 60 -i /dev/video2 \
-  -c:v copy -f mpegts udp://192.168.1.255:9002?pkt_size=1316
+  -c:v copy -bsf:v dump_extra -f mpegts udp://192.168.1.255:9002?pkt_size=1316
 ```
 
-### RPi 5 - Enregistrement à la Demande Caméra 2 (FFmpeg #2)
+---
+
+### Enregistrement à la Demande (Système de Reprise)
+
+Ces processus FFmpeg sont démarrés et arrêtés par le système de reprise basé sur les déclencheurs MQTT d'OWLCMS. L'enregistrement commence quand un athlète est appelé et s'arrête après la décision.
+
+**Paramètres UDP-vers-enregistrement :**
+- `-f mpegts` : Demuxer l'entrée MPEG Transport Stream (contenant la vidéo encodée en H.264)
+- `-i udp://127.0.0.1:9001` : Lire depuis le flux UDP local
+- `-c:v copy` : Copier la vidéo encodée en H.264 sans décodage/réencodage (remuxing seulement : MPEG-TS → MP4)
+- `-an` : Pas d'audio (les caméras ne fournissent pas d'audio)
+
+#### Caméra 1 - Enregistrement
 
 ```bash
-# Démarré/arrêté par les commandes MQTT - enregistre depuis le flux UDP local
-ffmpeg -i udp://127.0.0.1:9002 \
-  -c:v copy -f segment -segment_time 120 -reset_timestamps 1 /recordings/cam2_%03d.mp4
+# Démarré/arrêté par les commandes MQTT - enregistre depuis le flux UDP local (H.264 en MPEG-TS)
+ffmpeg -f mpegts -i udp://127.0.0.1:9001 \
+  -c:v copy -an /recordings/cam1.mp4
 ```
+
+#### Caméra 2 - Enregistrement
+
+```bash
+# Démarré/arrêté par les commandes MQTT - enregistre depuis le flux UDP local (H.264 en MPEG-TS)
+ffmpeg -f mpegts -i udp://127.0.0.1:9002 \
+  -c:v copy -an /recordings/cam2.mp4
+```
+
+---
 
 **Avantages de l'Architecture :**
 1. **Continuité OBS** : La diffusion UDP ne s'arrête jamais, OBS a toujours une entrée vidéo
 2. **Contrôle d'enregistrement** : L'enregistrement démarre quand l'athlète est appelé, s'arrête après la décision
 3. **Efficacité des ressources** : Lecture de caméra unique (FFmpeg #1), l'enregistrement lit depuis la pile réseau (FFmpeg #2)
 4. **Fiabilité** : La multidiffusion UDP permet plusieurs consommateurs sans contention USB
-
-### Paramètres Clés Expliqués
-
-**Paramètres FFmpeg de diffusion (#1) :**
-- `-f v4l2` : Format d'entrée Video4Linux2 (API de caméra Linux)
-- `-input_format h264` : Spécifier l'entrée H.264 (la caméra produit du compressé)
-- `-c:v copy` : Copier le flux vidéo sans réencodage (charge CPU/GPU zéro)
-- `-f mpegts` : Format MPEG Transport Stream (idéal pour le streaming)
-- `udp://192.168.1.255:9001` : Diffusion UDP vers le port 9001
-- `?pkt_size=1316` : Taille de paquet UDP optimale pour la vidéo
-
-**Paramètres FFmpeg d'enregistrement (#2) :**
-- `-i udp://127.0.0.1:9001` : Lire depuis le flux UDP local
-- `-c:v copy` : Copier le flux vidéo sans réencodage
-- `-f segment` : Diviser la sortie en segments
-- `-segment_time 120` : Segments de 2 minutes
-- `-reset_timestamps 1` : Réinitialiser les horodatages pour chaque segment
 
 ## Configuration OBS
 

@@ -191,15 +191,16 @@ logFfmpeg = false
 # - FFmpeg #2 (these configs) records from UDP stream on demand (started/stopped by MQTT)
 
 # UDP Stream from Center Camera (Camera 1)
+# This is FFmpeg #2 in the two-process architecture - records from UDP stream on demand
 [linux5]
     enabled = true
-    camera = 'udp://127.0.0.1:9001'  # Local UDP stream from FFmpeg #1
+    camera = 'udp://239.255.0.1:9001'  # Multicast UDP stream from FFmpeg #1
     format = 'mpegts'
     size = "1920x1080"
     fps = 60
     
-    # Input parameters: UDP receive buffer for reliable capture
-    inputParameters = '-buffer_size 2097152 -fifo_size 1000000'
+    # Input parameters: none needed - reading from multicast UDP stream
+    inputParameters = ''
     
     # Output parameters: copy H.264 stream directly (already encoded by camera)
     outputParameters = '-c:v copy -an'
@@ -208,15 +209,16 @@ logFfmpeg = false
     recode = false
 
 # UDP Stream from Side Camera (Camera 2)
+# This is FFmpeg #2 in the two-process architecture - records from UDP stream on demand
 [linux6]
     enabled = false
-    camera = 'udp://127.0.0.1:9002'  # Local UDP stream from FFmpeg #1
+    camera = 'udp://239.255.0.1:9002'  # Multicast UDP stream from FFmpeg #1
     format = 'mpegts'
     size = "1920x1080"
     fps = 60
     
-    # Input parameters: UDP receive buffer for reliable capture
-    inputParameters = '-buffer_size 2097152 -fifo_size 1000000'
+    # Input parameters: none needed - reading from multicast UDP stream
+    inputParameters = ''
     
     # Output parameters: copy H.264 stream directly (already encoded by camera)
     outputParameters = '-c:v copy -an'
