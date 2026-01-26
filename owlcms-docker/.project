@@ -24,7 +24,7 @@
 		<link>
 			<name>target_classes</name>
 			<type>2</type>
-			<location>c:/home/owlcms/git/owlcms4/owlcms-docker/target/classes</location>
+			<location>/home/owlcms/git/owlcms4/c::/home/owlcms/git/owlcms4/owlcms-docker/target/classes</location>
 		</link>
 	</linkedResources>
 	<filteredResources>

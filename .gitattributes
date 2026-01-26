@@ -1,2 +1,10 @@
-* text=auto
+* text=auto eol=lf
 *.sh text eol=lf
+*.xml text eol=lf
+*.java text eol=lf
+*.properties text eol=lf
+*.prefs text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.csv text eol=lf
+*.tsv text eol=lf
