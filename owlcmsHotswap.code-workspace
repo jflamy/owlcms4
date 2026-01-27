@@ -19,6 +19,25 @@
     "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
     "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --enable-native-access=ALL-UNNAMED",
     "java.compile.nullAnalysis.mode": "disabled",
+    
+    /*
+     DCEVM JDK Configuration (REQUIRED for hotswap) - uncomment and update paths:
+     
+     "java.configuration.runtimes": [
+       {
+         "name": "JavaSE-25",
+         "path": "C:\\Dev\\Java\\jbr_jcef-25.0.1-windows-x64-b266.34",
+         "default": true
+       }
+     ],
+     "java.jdt.ls.java.home": "C:\\Dev\\Java\\jbr_jcef-25.0.1-windows-x64-b266.34",
+     "java.debug.settings.javaHome": "C:\\Dev\\Java\\jbr_jcef-25.0.1-windows-x64-b266.34",
+     "java.debug.settings.vmArgs": "${config:owlcms.vmArgs}",
+     "terminal.integrated.env.windows": {
+       "JAVA_HOME": "C:\\Dev\\Java\\jbr_jcef-25.0.1-windows-x64-b266.34"
+     },
+    */
+    
     /*
      Git Bash (Windows) helper - uncomment to force Git Bash as the integrated terminal in this workspace.
 
@@ -32,7 +51,8 @@
      "terminal.integrated.automationProfile.windows": {
        "path": "C:\\Program Files\\Git\\bin\\bash.exe",
        "args": ["--login", "-i"]
-     }, */
+     },
+    */
   },
   "extensions": {
     "recommendations": [

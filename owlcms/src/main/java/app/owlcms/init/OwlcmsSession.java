@@ -52,6 +52,7 @@ public class OwlcmsSession {
 		logger.setLevel(Level.INFO);
 	}
 
+	@SuppressWarnings("deprecation")
 	public static Locale computeLocale() {
 		Locale locale = (Locale) getAttribute(LOCALE);
 

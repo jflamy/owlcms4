@@ -30,6 +30,7 @@ public class LocalDateTimePicker extends CustomField<LocalDateTime> {
 	// so excluded.
 	public final static String[] AM_PM_COUNTRIES = { "AU", "GB", "IN", "NZ", "PH", "US", "ZA" };
 
+	@SuppressWarnings("deprecation")
 	public static Locale fixAM_PM(Locale l) {
 		if ((l.getLanguage() != null && l.getLanguage().contentEquals("en"))) {
 			String country = l.getCountry();

@@ -1,0 +1,3 @@
+eclipse.preferences.version=1
+org.eclipse.jdt.core.compiler.problem.redundantSuperinterface=ignore
+org.eclipse.jdt.core.compiler.problem.unusedWarningToken=ignore
