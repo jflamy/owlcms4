@@ -13,14 +13,43 @@
 
 set -e
 
-# Configuration
-# To disable a camera, comment out its DEVICE line below
+# Auto-detect cameras with H.264 support
+detect_h264_cameras() {
+    local cameras=()
+    for dev in /dev/video*; do
+        if [ -e "$dev" ] && ffmpeg -hide_banner -f v4l2 -list_formats all -i "$dev" 2>&1 | grep -q "h264"; then
+            cameras+=("$dev")
+        fi
+    done
+    echo "${cameras[@]}"
+}
 
-CAMERA1_DEVICE="/dev/video0"
+# Configuration
+# To manually set cameras, uncomment and set DEVICE lines below
+# Otherwise, will auto-detect cameras with H.264 support
+
+#CAMERA1_DEVICE="/dev/video2"
 PORT_CAMERA1="9001"
 
-#CAMERA2_DEVICE="/dev/video2"
+#CAMERA2_DEVICE="/dev/video4"
 PORT_CAMERA2="9002"
+
+# Auto-detect cameras independently if not manually configured
+detected_cameras=($(detect_h264_cameras))
+
+if [ -z "$CAMERA1_DEVICE" ]; then
+    if [ ${#detected_cameras[@]} -gt 0 ]; then
+        CAMERA1_DEVICE="${detected_cameras[0]}"
+        echo "Auto-detected Camera 1: $CAMERA1_DEVICE"
+    fi
+fi
+
+if [ -z "$CAMERA2_DEVICE" ]; then
+    if [ ${#detected_cameras[@]} -gt 1 ]; then
+        CAMERA2_DEVICE="${detected_cameras[1]}"
+        echo "Auto-detected Camera 2: $CAMERA2_DEVICE"
+    fi
+fi
 
 # Common settings
 # Use multicast for multiple receivers (3 readers + 2 OBS = 5 clients)
