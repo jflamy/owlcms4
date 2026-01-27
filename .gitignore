@@ -62,3 +62,6 @@ package-lock.json
 package.json
 docs/EquipmentSetup/FullVideo/*.mp4
 docs/EquipmentSetup/FullVideo/*.pid
+
+# Ignore Eclipse/IDE project files
+.project
