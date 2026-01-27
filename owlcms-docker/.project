@@ -29,12 +29,12 @@
 	</linkedResources>
 	<filteredResources>
 		<filter>
-			<id>1768928900311</id>
+			<id>1769523185008</id>
 			<name></name>
 			<type>30</type>
 			<matcher>
 				<id>org.eclipse.core.resources.regexFilterMatcher</id>
-				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
+				<arguments>node_modules|.git|target|.vscode|.idea|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>
