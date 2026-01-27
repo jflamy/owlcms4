@@ -47,6 +47,7 @@ echo ""
 # Record from UDP multicast stream
 # This simulates what the replay system does
 ffmpeg -f mpegts \
+       -fflags +genpts \
        -i "$UDP_URL" \
        -c:v copy \
        -an \
