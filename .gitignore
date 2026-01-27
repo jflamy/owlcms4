@@ -65,3 +65,5 @@ docs/EquipmentSetup/FullVideo/*.pid
 
 # Ignore Eclipse/IDE project files
 .project
+.settings/
+.factorypath

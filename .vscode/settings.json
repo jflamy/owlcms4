@@ -12,7 +12,7 @@
     "java.autobuild.annotation.processing.enabled": false,
     "java.annotation.processing.enabled": false,
     "java.import.gradle.enabled": false,
-    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.configuration.updateBuildConfiguration": "automatic",
     "java.project.importOnFirstTimeStartup": "automatic",
     "java.server.launchMode": "Standard",
     "java.project.importHint": true,
