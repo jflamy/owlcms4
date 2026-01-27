@@ -65,5 +65,8 @@ docs/EquipmentSetup/FullVideo/*.pid
 
 # Ignore Eclipse/IDE project files
 .project
-.settings/
 .factorypath
+# Machine-dependent settings (absolute paths, local JRE, debug configs)
+**/.settings/org.eclipse.jdt.launching.prefs
+**/.settings/org.eclipse.debug.core.prefs
+**/.settings/org.eclipse.core.resources.prefs

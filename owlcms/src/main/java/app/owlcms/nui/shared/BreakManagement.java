@@ -620,6 +620,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		return buttons;
 	}
 
+	@SuppressWarnings("deprecation")
 	private VerticalLayout createCountdownColumn() {
 		this.countdownRadios = new RadioButtonGroup<>();
 		this.countdownRadios.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);

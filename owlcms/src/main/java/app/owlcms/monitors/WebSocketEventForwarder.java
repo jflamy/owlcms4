@@ -1903,6 +1903,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * duplicate events.
 	 *
 	 */
+	@SuppressWarnings("deprecation")
 	private synchronized void pushUpdate(UIEvent e2) {
 		if (this.NO_KEEPALIVE) {
 			pushUpdateDoIt(e2);

@@ -31,6 +31,7 @@ public class ResourceWalkerTest {
         Config.initConfig();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void test() {
         ResourceWalker walker = new ResourceWalker();
