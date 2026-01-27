@@ -73,9 +73,11 @@ start_camera1() {
            -input_format h264 \
            -video_size "$VIDEO_SIZE" \
            -framerate "$FRAMERATE" \
+           -use_wallclock_as_timestamps 1 \
            -i "$CAMERA1_DEVICE" \
            -c:v copy \
            -bsf:v dump_extra \
+           -fflags +genpts \
            -f mpegts \
            "udp://$UDP_MULTICAST:$PORT_CAMERA1?pkt_size=$PKT_SIZE" \
            >> "$LOG_FILE" 2>&1 &
@@ -91,9 +93,11 @@ start_camera2() {
            -input_format h264 \
            -video_size "$VIDEO_SIZE" \
            -framerate "$FRAMERATE" \
+           -use_wallclock_as_timestamps 1 \
            -i "$CAMERA2_DEVICE" \
            -c:v copy \
            -bsf:v dump_extra \
+           -fflags +genpts \
            -f mpegts \
            "udp://$UDP_MULTICAST:$PORT_CAMERA2?pkt_size=$PKT_SIZE" \
            >> "$LOG_FILE" 2>&1 &

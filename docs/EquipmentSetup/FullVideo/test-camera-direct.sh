@@ -13,7 +13,7 @@ set -e
 
 # Configuration (matches start-cameras.sh camera parameters)
 CAMERA_DEVICE="/dev/video0"
-VIDEO_SIZE="1280x720"
+VIDEO_SIZE="1920x1080"
 FRAMERATE="60"
 INPUT_FORMAT="h264"
 
@@ -38,13 +38,18 @@ fi
 echo "Starting recording..."
 
 # Record directly from camera using same parameters as start-cameras.sh
+# Note: Adding timestamp and sync fixes for camera H.264 streams that may have
+# problematic timestamps causing MP4 muxer assertion failures
 ffmpeg -f v4l2 \
        -input_format "$INPUT_FORMAT" \
        -video_size "$VIDEO_SIZE" \
        -framerate "$FRAMERATE" \
+       -use_wallclock_as_timestamps 1 \
        -i "$CAMERA_DEVICE" \
        -c:v copy \
        -an \
+       -fflags +genpts \
+       -vsync cfr \
        -t "$DURATION" \
        "$OUTPUT_FILE"
 

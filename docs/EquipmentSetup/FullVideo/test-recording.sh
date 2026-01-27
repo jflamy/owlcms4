@@ -33,6 +33,7 @@ echo "Starting recording..."
 
 # Record using the same parameters as linux5 in config.toml
 ffmpeg -f "$FORMAT" \
+       -fflags +genpts \
        -i "$UDP_SOURCE" \
        $OUTPUT_PARAMS \
        -t "$DURATION" \
