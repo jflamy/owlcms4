@@ -79,6 +79,25 @@ public class ConfigRepository {
 	 * @return the config
 	 */
 	static Config save(Config config) {
+		// Preserve BLOB data before merge to avoid "unable to merge BLOB data" error.
+		// Hibernate cannot merge a Blob whose stream has already been consumed.
+		// We extract the bytes from the in-memory BlobProxy (not from DB), clear it,
+		// merge, then restore.
+		byte[] localZipBytes = null;
+		try {
+			localZipBytes = config.getLocalZipBlobBytes();
+		} catch (Exception e) {
+			logger.debug("No in-memory BLOB to preserve: {}", e.getMessage());
+		}
+
+		// Rehydrate with a fresh BlobProxy when bytes are available; otherwise clear
+		if (localZipBytes != null && localZipBytes.length > 0) {
+			config.setLocalZipBlob(localZipBytes);
+		} else {
+			config.clearLocalOverride();
+			config.setClearZip(false); // Reset flag after clearing
+		}
+		
 		Config merged = JPAService.runInTransaction(em -> {
 			Config nc = em.merge(config);
 			TimeZone tz = nc.getTimeZone();
@@ -88,6 +107,7 @@ public class ConfigRepository {
 			}
 			return nc;
 		});
+		
 		return merged;
 	}
 

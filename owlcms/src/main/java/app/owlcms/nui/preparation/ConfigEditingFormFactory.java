@@ -28,6 +28,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+
+import app.owlcms.components.ConfirmationDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -45,6 +47,7 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.streams.UploadHandler;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
@@ -74,6 +77,8 @@ public class ConfigEditingFormFactory
 	private Logger logger = (Logger) LoggerFactory.getLogger(ConfigRepository.class);
 	@SuppressWarnings("unused")
 	private ConfigContent origin;
+	private TabSheet tabSheet;
+	private static final String TAB_INDEX_KEY = "config.selectedTabIndex";
 
 	ConfigEditingFormFactory(Class<Config> domainType, ConfigContent origin) {
 		super(domainType);
@@ -145,29 +150,40 @@ public class ConfigEditingFormFactory
 			                defaultLocale, Translator.getForcedLocale());
 		        }, deleteButtonClickListener, false);
 
-		TabSheet ts = new TabSheet();
-		ts.add(Translator.translate("Config.LanguageTab"),
+		tabSheet = new TabSheet();
+		tabSheet.add(Translator.translate("Config.LanguageTab"),
 		        new VerticalLayout(new Div(), languageLayout, separator(),
 		                tzLayout, separator(), translationLayout));
-		ts.add(Translator.translate("Config.ConnexionsTab"),
+		tabSheet.add(Translator.translate("Config.ConnexionsTab"),
 		        new VerticalLayout(
 		                new Div(),
 		                publicResultsLayout, separator(),
 		                videoDataLayout, separator(),
 		                mqttLayout, separator()));
-		ts.add(Translator.translate("Config.AccessControlTab"),
+		tabSheet.add(Translator.translate("Config.AccessControlTab"),
 		        new VerticalLayout(
 		                new Div(), accessLayout));
-		ts.add(Translator.translate("Config.CustomizationTab"),
+		tabSheet.add(Translator.translate("Config.CustomizationTab"),
 		        new VerticalLayout(new Div(),
 		                stylesLayout, separator(),
 		                templateSelectionLayout, separator(),
 		                localOverrideLayout, separator(),
 		                featuresLayout));
+		
+		// Restore saved tab index from session
+		Integer savedTabIndex = (Integer) VaadinSession.getCurrent().getAttribute(TAB_INDEX_KEY);
+		if (savedTabIndex != null && savedTabIndex < tabSheet.getChildren().count()) {
+			tabSheet.setSelectedIndex(savedTabIndex);
+		}
+		
+		// Listen for tab changes to save the selection
+		tabSheet.addSelectedChangeListener(event -> {
+			VaadinSession.getCurrent().setAttribute(TAB_INDEX_KEY, tabSheet.getSelectedIndex());
+		});
 
 		VerticalLayout mainLayout = new VerticalLayout(
 		        footer,
-		        ts);
+		        tabSheet);
 		mainLayout.setMargin(false);
 		mainLayout.setPadding(false);
 
@@ -203,9 +219,9 @@ public class ConfigEditingFormFactory
 	public Config update(Config config) {
 		try {
 			config.setSkipReading(true);
-			if (config.isClearZip()) {
-				config.setLocalZipBlob(null);
-				ResourceWalker.checkForLocalOverrideDirectory();
+			// Save current tab index before reload
+			if (tabSheet != null) {
+				VaadinSession.getCurrent().setAttribute(TAB_INDEX_KEY, tabSheet.getSelectedIndex());
 			}
 			Config saved = Config.setCurrent(config);
 			try {
@@ -327,11 +343,28 @@ public class ConfigEditingFormFactory
 		downloadDiv.setWidthFull();
 		layout.addFormItem(downloadDiv, Translator.translate("Config.DownloadLabel"));
 
-		Checkbox clearField = new Checkbox(Translator.translate("Config.ClearZip"));
-		clearField.setWidthFull();
-		layout.addFormItem(clearField, Translator.translate("Config.ClearZipLabel"));
-		this.binder.forField(clearField)
-		        .bind(Config::isClearZip, Config::setClearZip);
+		Button clearButton = new Button(Translator.translate("Config.ClearZip"));
+		clearButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		clearButton.setEnabled(localOverride != null && localOverride.length > 0);
+		clearButton.addClickListener(e -> {
+			new ConfirmationDialog(
+					Translator.translate("Config.ClearZipLabel"), // Dialog title
+					Translator.translate("Config.ClearZipConfirmMessage"), // Warning message
+					Translator.translate("Config.ClearZipLabel"), // Confirm button label (same as title)
+					null, // No notification needed - page reload confirms action
+					() -> {
+						// Get current config, set clearZip flag, and save through proper merge flow
+						Config config = Config.getCurrent();
+						config.setClearZip(true);
+						// setCurrent calls save() which handles the merge and returns the merged entity
+						Config.setCurrent(config);
+						// Refresh local override directory
+						ResourceWalker.checkForLocalOverrideDirectory();
+						// Reload page to reflect changes
+						UI.getCurrent().getPage().reload();
+					}).open();
+		});
+		layout.addFormItem(clearButton, Translator.translate("Config.ClearZipLabel"));
 
 		layout.addFormItem(new Div(), "");
 

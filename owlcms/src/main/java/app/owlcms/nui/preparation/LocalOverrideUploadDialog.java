@@ -8,6 +8,7 @@ package app.owlcms.nui.preparation;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
@@ -16,6 +17,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
@@ -40,14 +42,17 @@ public class LocalOverrideUploadDialog extends Dialog {
 			logger.info("zip type {}", metadata.contentType());
 			try {
 				ResourceWalker.unzipBlobToTemp(bytes);
-				f.setValue(bytes);
+				// Save directly to config and reload page
+				Config config = Config.getCurrent();
+				config.setLocalZipBlob(bytes);
+				Config.setCurrent(config);
+				ResourceWalker.checkForLocalOverrideDirectory();
+				this.close();
+				UI.getCurrent().getPage().reload();
 			} catch (Exception e) {
 				String localizedMessage = e.getLocalizedMessage();
 				appendErrors(ta, localizedMessage != null ? localizedMessage : e.toString());
 				logger.error("{}", LoggerUtils.stackTrace(e));
-			}
-			if (ta.isEmpty()) {
-				this.close();
 			}
 		}).whenStart(() -> {
 			ta.clear();

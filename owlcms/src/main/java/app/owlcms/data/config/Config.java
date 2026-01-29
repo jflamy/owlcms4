@@ -999,6 +999,67 @@ public class Config {
 		}
 	}
 
+	/**
+	 * Get the raw bytes from the Blob, handling both in-memory BlobProxy
+	 * and DB-loaded Blobs. Used before merge to preserve BLOB data.
+	 * 
+	 * @return the bytes from localOverride, or null if not set or unreadable
+	 */
+	@Transient
+	@JsonIgnore
+	public byte[] getLocalZipBlobBytes() {
+		if (this.clearZip) {
+			return null;
+		}
+		// If localOverride is null on this object, check if there's data in DB
+		// (could happen if object was deserialized or field wasn't loaded)
+		if (this.localOverride == null) {
+			if (this.id == null) {
+				return null;
+			}
+			// Try fetching from database in case blob exists there
+			return JPAService.runInTransaction(em -> {
+				try {
+					Config dbConfig = em.find(Config.class, this.id);
+					if (dbConfig != null && dbConfig.localOverride != null) {
+						return dbConfig.localOverride.getBytes(1, (int) dbConfig.localOverride.length());
+					}
+					return null;
+				} catch (Exception ex) {
+					logger.debug("Could not read BLOB from DB: {}", ex.getMessage());
+					return null;
+				}
+			});
+		}
+		// First try reading directly (works for fresh BlobProxy)
+		try {
+			return this.localOverride.getBytes(1, (int) this.localOverride.length());
+		} catch (Exception e) {
+			// If direct read fails (DB blob, consumed stream), fetch from database
+			logger.debug("Direct BLOB read failed, fetching from DB: {}", e.getMessage());
+			return JPAService.runInTransaction(em -> {
+				try {
+					Config dbConfig = em.find(Config.class, this.id);
+					if (dbConfig != null && dbConfig.localOverride != null) {
+						return dbConfig.localOverride.getBytes(1, (int) dbConfig.localOverride.length());
+					}
+					return null;
+				} catch (Exception ex) {
+					logger.debug("Could not read BLOB from DB: {}", ex.getMessage());
+					return null;
+				}
+			});
+		}
+	}
+
+	/**
+	 * Clear the in-memory Blob reference. Used before merge to avoid
+	 * "unable to merge BLOB data" errors.
+	 */
+	public void clearLocalOverride() {
+		this.localOverride = null;
+	}
+
 	public void setMqttConfig(IConfig mqttConfig) {
 		this.mqttConfig = mqttConfig;
 	}

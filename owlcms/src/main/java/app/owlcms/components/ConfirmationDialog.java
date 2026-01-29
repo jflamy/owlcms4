@@ -22,7 +22,16 @@ public class ConfirmationDialog extends Dialog {
 
 	Runnable action;
 
-	public ConfirmationDialog(String title, String question, String confirmation, Runnable pAction) {
+	/**
+	 * Creates a confirmation dialog with a custom confirm button label.
+	 *
+	 * @param title              the dialog title
+	 * @param question           the confirmation question/warning message (can contain HTML)
+	 * @param confirmButtonLabel the label for the confirm button (red, dangerous action)
+	 * @param successNotification the notification message shown after successful action (can be null)
+	 * @param pAction            the action to run when confirmed
+	 */
+	public ConfirmationDialog(String title, String question, String confirmButtonLabel, String successNotification, Runnable pAction) {
 		Dialog dialog = this;
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
@@ -38,23 +47,23 @@ public class ConfirmationDialog extends Dialog {
 		content.add(title1, paragraph);
 
 		HorizontalLayout buttons = new HorizontalLayout();
-		Button confirmButton = new Button(Translator.translate("Confirm"), event -> {
+		Button confirmButton = new Button(confirmButtonLabel, event -> {
 			if (pAction != null) {
 				pAction.run();
 			} else if (this.action != null) {
 				this.action.run();
 			}
-			if (confirmation != null) {
-				Notification.show(confirmation);
+			if (successNotification != null) {
+				Notification.show(successNotification);
 			}
 			dialog.close();
 		});
-		confirmButton.getElement().setAttribute("theme", "primary");
+		confirmButton.getElement().setAttribute("theme", "primary error");
 
 		Button cancelButton = new Button(Translator.translate("Cancel"), event -> {
 			dialog.close();
 		});
-		cancelButton.getElement().setAttribute("theme", "primary error");
+		cancelButton.getElement().setAttribute("theme", "primary");
 		cancelButton.focus();
 		buttons.add(confirmButton, cancelButton);
 		buttons.setWidthFull();
@@ -62,6 +71,18 @@ public class ConfirmationDialog extends Dialog {
 
 		dialog.add(content);
 		dialog.add(buttons);
+	}
+
+	/**
+	 * Creates a confirmation dialog with default "Confirm" button label.
+	 *
+	 * @param title              the dialog title
+	 * @param question           the confirmation question/warning message (can contain HTML)
+	 * @param successNotification the notification message shown after successful action (can be null)
+	 * @param pAction            the action to run when confirmed
+	 */
+	public ConfirmationDialog(String title, String question, String successNotification, Runnable pAction) {
+		this(title, question, Translator.translate("Confirm"), successNotification, pAction);
 	}
 
 	public Runnable getAction() {
