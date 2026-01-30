@@ -1,10 +1,13 @@
-The most common option for using owlcms is to run it locally at the competition site, on a laptop.  The **owlcms Control Panel** is the only software you need to install.  It is extremely easy to use and handles all the steps for running and updating.  The control panel hides all technical details but you can get a glimpse [here](#technical-overview).
+The most common option for using owlcms is to run it locally at the competition site, on a laptop.  The **owlcms Control Panel** is the only software you need to install.  It is easy to use and handles all the steps for running and updating.
 
 ## Using the Control Panel
 
 The control panel works the same on all the platforms (Windows, Mac, Raspberry Pi, Linux).  At a competition, only one laptop runs the control panel and owlcms.  **To install the control panel for your computer, see the [Control Panel Installation page](LocalDownloads).**
 
 After starting the control panel, you can start and stop owlcms. To start it, use the Launch button
+![30](nimg/1100windows/27.png)
+
+The control panel will then show progress information and display a button to stop the program when done.
 
 ![30](nimg/1100windows/30.png)
 
@@ -22,41 +25,37 @@ After launching, the control panel shows a "Stop" button that you can use when t
 
 owlcms is updated frequently for new features and bug fixes.  If you don't have the latest version, the control panel will tell you and give you an easy way to update, simply by clicking a button.
 
+You have two choices
+
+- The **Update** button will download the new version and add it. Both version will be show, so you don't lose the current one and can keep it until you are satisfied the new one works. "Update" will copy your current database to the new version.  Changes that you may have made to local configuration files (templates, style sheets, age groups etc.) will also be copied.
+
 ![60](nimg/1100windows/60.png)
 
-> Before you update, it is always recommended to take a backup of your current database if there is important information in it.  To do so
->
-> - Launch the old version and use the Export feature found on the Prepare Competition page.  
-> - Then use the Update button from the Control Panel
-
-If you prefer, you can keep your current version and install the new one.  This is done using the link at the bottom.
-
-![70](nimg/1100windows/70.png)
-
-You will then pick your version, and the list will show both versions.
+- If you prefer, you can just add the new version as a clean install.  After that is done, you can use the an `Import` button to copy the database and local file changes from another version (same as what Update does).
 
 ![80](nimg/1100windows/80.png)
 
- The "Import Data And Config" button allows you to copy the database (and eventual configuration changes you might have made) from another version.  In this example, we use it to copy from the previous version to the new one.
+- To have full control over what is copied from another version, you can copy the database and files yourself. To do so, open the OWLCMS intstallation directory, and you will see all the versions.
 
-![85](nimg/1100windows/85.png)
+![80](nimg/1100windows/90.png)
 
 ## Menus
 
-The menu bar gives access to the following options
+The menu bar for OWLCMS gives access to the following options
 
-- **File**
+- **Files**
   In order of likelihood of usage
-  - **Quit** This exits the program, same as using the X (Windows and Linux) or red button (Mac)
   - **Open Installation Directory**: You would use this to go inside of the installed versions, for example to gather log files at the request of the application maintainers.
-  - **Remove All Versions**: this removes all the installed versions of owlcms, but leaves the configuration and Java.  If you use this option and then restart the control panel, you will get the latest version reinstalled.
-  - **Remove Java**: this removes the Java runtime engine that actually runs owlcms.  When restarting the control panel, the latest stable version of Java will be reinstalled
-  - **Remove All Stored Data and Configurations** Uninstalling the application does not uninstall the databases and the programs and Java.  This uninstalls all that the application copied.
+  - **Install OWLCMS version from zip**: Your federation makes available a kit with their customized templates and database
+  - **Save installed OWLCMS as zip**:  Your setup will be copied as a zip so you can give it to someone else
+  - **Refresh Available Versions**: Go look at the server to see if something new is available.
+  - **Uninstall OWLCMS**
 - **Processes**
-  - **Kill Already Running Process**  You may inadvertently start two control panels, and try to start two instances of owlcms.  The Control Panel will only allow one at a time.  If you can't find the other control panel to stop the previous one, this entry will try to kill it.
-- **Help**
-  - **Documentation** links to this web site.
-  - **About** shows the version number of the control panel if you need to report a bug.
+  - **Kill Already Running Process**  You may inadvertently start two control panels, and try to start two instances of OWLCMS.  The Control Panel will only allow one at a time.  This is used to kill a previously started version.  Sometimes there may be false warnings about a program that was actually killed, this will clear the warning.
+- **Options**
+  - **Enable/Disable connection to local tracker**: Tracker is an optional module.  When started from the control panel, it is typically used to display team scoreboards in team league competitions, or to produce fancy documents.  Use this option to have owlcms connect directly to tracker without having the change the parameters in the database.
+
+There is also a top-level menu to the control panel, to manage the installed prerequisite software and exit the program.
 
 ## Technical Overview
 

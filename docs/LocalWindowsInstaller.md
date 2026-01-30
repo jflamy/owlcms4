@@ -1,7 +1,5 @@
 ## Windows Installer
 
-> - If for some reason your computer rejects the installer, you can still download and use the control panel executable program directly, as explained on [this page](LocalWindowsSetup)
-
 ### Installation
 
 - Click on this link: [Release Repository](https://github.com/owlcms/owlcms-controlpanel/releases).  **Scroll down to the Assets section**.
@@ -24,7 +22,7 @@
 - To run the program, double-click on the Desktop Icon, or use the entry for "owlcms Control Panel" in the start menu
   - The first time you run the file, it is possible that Windows will complain.  Should that be the case Click on **More Info** and then, at the bottom, click on **Run Anyway**
 
-- The first time you run the Control Panel, it will detect that no version is installed and download the current version of owlcms, and the Java runtime files necessary to execute it.
+- The first time you run the Control Panel, it will offer to install OWLCMS.  This will download and install the prerequisites (Java), and install the latest OWLCMS.
   ![25](nimg/1100windows/25.png)
 - You will then see the Control Panel
 - Once this is done, you can **follow the steps shown in the [Local Control Panel Overview](LocalControlPanel)**
