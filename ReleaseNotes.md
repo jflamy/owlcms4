@@ -10,6 +10,12 @@
 
 **New in Release 64**
 
+64.0.3: Updated the documentation to reflect Control Panel version 3 and use of SBDE format.
+
+64.0.3: Fix: Application did not start if there was a configuration override zip in the database.
+
+64.0.3: Usability: Adding/Removing a configuration override zip in the database no longer requires the Update button.
+
 64.0.2: Sessions from a registration file were not correctly reset to match the Sessions tab
 
 64.0.1: Fixed upload of registration files when the current session is not in English.
