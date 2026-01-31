@@ -65,11 +65,13 @@ public class WebSocketEventSender {
 			java.util.function.Supplier<String> urlSupplier,
 			Runnable onOpenCallback) {
 		if (url == null || url.trim().isEmpty()) {
+			logger.debug("getOrCreate: null or empty URL, returning null");
 			return null;
 		}
 		
 		WebSocketEventSender sender = sendersByUrl.get(url);
 		if (sender == null) {
+			logger.info("Creating new WebSocketEventSender for {} {}", url, LoggerUtils.whereFrom());
 			sender = new WebSocketEventSender(url, urlSupplier);
 			// Set callback BEFORE connecting to avoid race condition
 			if (onOpenCallback != null) {
@@ -78,6 +80,9 @@ public class WebSocketEventSender {
 			// Now connect - callback is ready to fire
 			sender.connect();
 			sendersByUrl.put(url, sender);
+		} else {
+			logger.info("Reusing existing WebSocketEventSender for {} (connected: {}) {}", 
+					url, sender.isConnected(), LoggerUtils.whereFrom());
 		}
 		return sender;
 	}
@@ -207,6 +212,7 @@ public class WebSocketEventSender {
 		}
 
 		connecting = true;
+		logger.warn("Starting WebSocket connect to {} {}", url, LoggerUtils.whereFrom());
 
 		try {
 			URI uri = new URI(url);
@@ -235,10 +241,10 @@ public class WebSocketEventSender {
 				@Override
 				public void onClose(int code, String reason, boolean remote) {
 					if (remote) {
-						logger.info("✗ Connection closed by remote: {} (code: {}, reason: {})", 
+						logger.warn("✗ Connection closed by remote: {} (code: {}, reason: {})", 
 								url, code, reason);
 					} else {
-						logger.debug("Connection closed by local: {} (code: {})", url, code);
+						logger.info("Connection closed by local: {} (code: {}, reason: {})", url, code, reason);
 					}
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
@@ -251,7 +257,8 @@ public class WebSocketEventSender {
 
 				@Override
 				public void onError(Exception ex) {
-					logger.warn("✗ Connection refused: {} - {}", url, LoggerUtils.exceptionMessage(ex));
+					logger.warn("✗ WebSocket error for {} - {} {}", url, LoggerUtils.exceptionMessage(ex),
+							LoggerUtils.stackTrace(ex));
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
 					}
@@ -262,7 +269,9 @@ public class WebSocketEventSender {
 			this.client.setConnectionLostTimeout(30);
 			
 			// Connect asynchronously
+			logger.info("WebSocket connecting asynchronously to {} (timeout: 30s)...", url);
 			this.client.connect();
+			logger.info("WebSocket connect() call returned for {} - waiting for onOpen/onError callback", url);
 			
 		} catch (URISyntaxException e) {
 			connecting = false;
@@ -297,7 +306,7 @@ public class WebSocketEventSender {
 			}
 			
 			connecting = true;
-			logger.info("Retrying connection to {} in {}s (attempt {})", 
+			logger.warn("Scheduling reconnect to {} in {}s (attempt {})", 
 					url, delayMs / 1000, reconnectAttempts);
 		}
 		

@@ -7,11 +7,11 @@
 package app.owlcms.utils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.slf4j.LoggerFactory;
@@ -90,6 +90,7 @@ public class FlagsZipHelper {
 
 	/**
 	 * Recursively zip a directory and all its contents.
+	 * Uses NIO Files API to support both regular filesystems and in-memory filesystems (JimFS).
 	 * 
 	 * @param dirPath the directory to zip
 	 * @param parentPath the parent path prefix within the zip (e.g., "flags/")
@@ -97,33 +98,38 @@ public class FlagsZipHelper {
 	 * @throws IOException if an I/O error occurs
 	 */
 	private static void zipDirectory(Path dirPath, String parentPath, ZipOutputStream zipOut, int[] fileCount) throws IOException {
-		File dir = dirPath.toFile();
-		File[] files = dir.listFiles();
-		
-		if (files == null) {
-			logger.debug("Cannot list files in directory: {}", dirPath);
-			return;
-		}
+		// Use Files.list() to support JimFS and other non-default filesystems
+		try (var stream = Files.list(dirPath)) {
+			for (Path path : stream.toList()) {
+				// Skip hidden files
+				try {
+					if (Files.isHidden(path)) {
+						continue;
+					}
+				} catch (IOException e) {
+					// Some filesystems don't support isHidden, continue anyway
+				}
 
-		for (File file : files) {
-			// Skip hidden files
-			if (file.isHidden()) {
-				continue;
-			}
-
-			String entryPath = parentPath + file.getName();
-			
-			if (file.isDirectory()) {
-				// For directories, add an entry with trailing slash
-				entryPath = entryPath + "/";
-				ZipUtils.zipFile(file, entryPath.substring(0, entryPath.length() - 1), zipOut);
-				// Recursively zip subdirectory contents
-				zipDirectory(file.toPath(), entryPath, zipOut, fileCount);
-			} else {
-				// For files, use ZipUtils method
-				ZipUtils.zipFile(file, entryPath, zipOut);
-				if (fileCount != null) {
-					fileCount[0]++;
+				String fileName = path.getFileName().toString();
+				String entryPath = parentPath + fileName;
+				
+				if (Files.isDirectory(path)) {
+					// For directories, add an entry with trailing slash
+					entryPath = entryPath + "/";
+					ZipEntry zipEntry = new ZipEntry(entryPath);
+					zipOut.putNextEntry(zipEntry);
+					zipOut.closeEntry();
+					// Recursively zip subdirectory contents
+					zipDirectory(path, entryPath, zipOut, fileCount);
+				} else {
+					// For files, read bytes using NIO and write to zip
+					ZipEntry zipEntry = new ZipEntry(entryPath);
+					zipOut.putNextEntry(zipEntry);
+					Files.copy(path, zipOut);
+					zipOut.closeEntry();
+					if (fileCount != null) {
+						fileCount[0]++;
+					}
 				}
 			}
 		}
@@ -136,16 +142,33 @@ public class FlagsZipHelper {
 	 */
 	public static boolean hasFlagsAvailable() {
 		Path flagsPath = getFlagsDirectory();
-		if (flagsPath == null || !Files.exists(flagsPath)) {
+		if (flagsPath == null) {
+			logger.warn("hasFlagsAvailable: getFlagsDirectory() returned null");
+			return false;
+		}
+		if (!Files.exists(flagsPath)) {
+			logger.warn("hasFlagsAvailable: flags path does not exist: {}", flagsPath);
 			return false;
 		}
 		
 		try {
-			// Check if directory has at least one file (not counting hidden files)
-			File[] files = flagsPath.toFile().listFiles(File::isFile);
-			return files != null && files.length > 0;
+			// Use Files.list() with try-with-resources to properly close the stream
+			// This is important for ZIP filesystems which require explicit close
+			long fileCount;
+			try (var stream = Files.list(flagsPath)) {
+				fileCount = stream.filter(Files::isRegularFile).count();
+			}
+			boolean available = fileCount > 0;
+			if (!available) {
+				logger.warn("hasFlagsAvailable: flags directory exists but is empty: {} (filesystem: {})", 
+						flagsPath, flagsPath.getFileSystem().getClass().getSimpleName());
+			} else {
+				logger.debug("hasFlagsAvailable: found {} flag files in {}", fileCount, flagsPath);
+			}
+			return available;
 		} catch (Exception e) {
-			logger.debug("Error checking flags availability: {}", LoggerUtils.exceptionMessage(e));
+			logger.warn("Error checking flags availability in {}: {} - {}", 
+					flagsPath, e.getClass().getSimpleName(), LoggerUtils.exceptionMessage(e));
 			return false;
 		}
 	}

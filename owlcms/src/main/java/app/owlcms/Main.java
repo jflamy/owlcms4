@@ -528,7 +528,8 @@ public class Main {
             // Register callbacks for startup data (database, translations, flags)
             WebSocketEventForwarder.registerStartupDataCallbacks(videoUrl, updateUrl);
         } catch (Exception e) {
-            logger.error("Error sending startup messages to WebSocket trackers: {}", LoggerUtils.exceptionMessage(e));
+            logger.error("Error sending startup messages to WebSocket trackers: {} {}", 
+                    LoggerUtils.exceptionMessage(e), LoggerUtils.stackTrace(e));
         }
     }
 

@@ -67,7 +67,6 @@ import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
-import app.owlcms.utils.LoggerUtils;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.jetty.EmbeddedJetty;
@@ -471,23 +470,16 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		Html div = new Html("<div></div>");
 
 		if (this.comparison < 999) {
-			logger.warn(LoggerUtils.whereFrom());
-			logger.warn("Locale supplier resolved to: {} (forced locale: {})", Translator.getLocaleSupplier().get(),
-			        Translator.getForcedLocale());
 			String runningMsg = Translator.translate("CheckVersion.running", this.currentVersionString);
-			logger.warn("runningMsg after translate: '{}'", runningMsg);
 			
 			// Escape curly braces for MessageFormat - already translated strings shouldn't be re-interpreted
 			String referenceVersionMsg = Translator.translate(
 			        "CheckVersion.reference" + (this.referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
 			        this.referenceVersionString).replace("{", "'{'").replace("}", "'}'");
-			logger.warn("referenceVersionMsg after translate: '{}'", referenceVersionMsg);
 			
 			String okVersionMsg = Translator.translate("CheckVersion.ok");
-			logger.warn("okVersionMsg after translate: '{}'", okVersionMsg);
 			
 			String behindVersionMsg = Translator.translate("CheckVersion.behind");
-			logger.warn("behindVersionMsg initial translate: '{}'", behindVersionMsg);
 
 			String owlcmsLauncher = System.getenv("OWLCMS_CONTROLPANEL");
 			if (owlcmsLauncher == null) {
@@ -503,12 +495,10 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 					if (inetAddress.isLoopbackAddress()) {
 						if (owlcmsLauncher != null && !owlcmsLauncher.isBlank()) {
 							String controlPanelUpdate = Translator.translate("CheckVersion.ControlPanelUpdate");
-							logger.warn("ControlPanelUpdate translation: '{}', forced locale: {}", controlPanelUpdate, Translator.getForcedLocale());
 							if (controlPanelUpdate == null || controlPanelUpdate.isBlank() || "#ERROR!".contentEquals(controlPanelUpdate)) {
-								logger.warn("ControlPanelUpdate translation invalid; keeping behindVersionMsg: '{}'", behindVersionMsg);
+								// Keep original behindVersionMsg
 							} else {
 								behindVersionMsg = "<b>" + controlPanelUpdate + "</b>";
-								logger.warn("behindVersionMsg after ControlPanelUpdate: '{}'", behindVersionMsg);
 							}
 						}
 					}
@@ -517,16 +507,13 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				}
 			} else {
 				String clickCloudUpdate = Translator.translate("CheckVersion.clickCloudUpdate");
-				logger.warn("clickCloudUpdate translate: '{}'", clickCloudUpdate);
 				behindVersionMsg = """
 				                   <a href='https://owlcms-cloud.fly.dev/apps' style='text-decoration:underline'>%s</a>
 				                   """
 				        .formatted(clickCloudUpdate);
-				logger.warn("behindVersionMsg after formatted: '{}'", behindVersionMsg);
 			}
 
 			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
-			logger.warn("aheadVersionMsg after translate: '{}'", aheadVersionMsg);
 
 			if (this.referenceVersionString.contains("-alpha")) {
 				// do not recommend update to an alpha version.
@@ -534,14 +521,9 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			}
 			String warningUnicode = this.comparison < 0 ? "\u26A0 " : "";
 			
-			logger.warn("MessageFormat inputs: comparison={}, runningMsg='{}', referenceVersionMsg='{}', behindVersionMsg='{}', okVersionMsg='{}', aheadVersionMsg='{}', warningUnicode='{}'",
-			    this.comparison, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg, warningUnicode);
-			
 			String formatted = MessageFormat.format(
 			        "<div>{6}{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}</div>",
 			        this.comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg, warningUnicode);
-			
-			logger.warn("MessageFormat output: '{}'", formatted);
 			
 			div.setHtmlContent(formatted);
 			if (this.comparison < 0) {

@@ -301,25 +301,26 @@ public class WebSocketSender {
 	 * @param updateUrl the public results WebSocket URL (if configured)
 	 */
 	public static void registerStartupDataCallbacks(String videoUrl, String updateUrl) {
-		logger.info("Registering startup data callbacks for WebSocket trackers");
+		logger.info("Registering startup data callbacks for WebSocket trackers (videoUrl={}, updateUrl={})", 
+				videoUrl, updateUrl);
 
 		// Export competition data once (for all connections)
 		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionDataStatic();
 		if (export == null) {
-			logger.debug("Unable to build competition data payload for startup");
+			logger.warn("Unable to build competition data payload for startup - aborting WebSocket registration");
 			return;
 		}
 
 		// Create translations ZIP bytes once
 		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
-			logger.debug("Translations not available for startup send");
+			logger.warn("Translations not available for startup send - aborting WebSocket registration");
 			return;
 		}
 		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
 
 		// Create flags ZIP bytes once
 		if (!FlagsZipHelper.hasFlagsAvailable()) {
-			logger.debug("Flags not available for startup send");
+			logger.warn("Flags not available for startup send - aborting WebSocket registration");
 			return;
 		}
 		byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
