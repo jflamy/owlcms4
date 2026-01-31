@@ -10,6 +10,8 @@
 
 **New in Release 64**
 
+64.0.4: Flags, Translations and Logos were not packaged and sent to tracker if they were in a override zip stored in the database
+
 64.0.3: Updated the documentation to reflect Control Panel version 3 and use of SBDE format.
 
 64.0.3: Fix: Application did not start if there was a configuration override zip in the database.
