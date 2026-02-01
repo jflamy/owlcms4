@@ -82,7 +82,24 @@ public class PicturesZipHelper {
 		}
 
 		byte[] result = baos.toByteArray();
-		logger.info("Created pictures ZIP archive: {} bytes", result.length);
+		try {
+			// Count files in the created ZIP by scanning entries
+			java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(result);
+			java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(bais);
+			int counted = 0;
+			java.util.zip.ZipEntry ze;
+			while ((ze = zis.getNextEntry()) != null) {
+				String name = ze.getName();
+				if (name != null && !name.endsWith("/")) {
+					counted++;
+				}
+				zis.closeEntry();
+			}
+			zis.close();
+			logger.info("Created pictures ZIP archive from {}: {} bytes ({} files)", picturesPath, result.length, counted);
+		} catch (Throwable t) {
+			logger.info("Created pictures ZIP archive from {}: {} bytes", picturesPath, result.length);
+		}
 		return result;
 	}
 

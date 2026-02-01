@@ -81,9 +81,9 @@ public class FlagsZipHelper {
 				zis.closeEntry();
 			}
 			zis.close();
-			logger.info("Created flags ZIP archive: {} bytes ({} files)", result.length, counted);
+			logger.info("Created flags ZIP archive from {}: {} bytes ({} files)", flagsPath, result.length, counted);
 		} catch (Throwable t) {
-			logger.info("Created flags ZIP archive: {} bytes", result.length);
+			logger.info("Created flags ZIP archive from {}: {} bytes", flagsPath, result.length);
 		}
 		return result;
 	}

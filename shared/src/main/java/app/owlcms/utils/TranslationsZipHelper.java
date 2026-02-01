@@ -114,6 +114,7 @@ public class TranslationsZipHelper {
 			
 			// First, get base language translations if this is a regional variant
 			if (locale.getCountry() != null && !locale.getCountry().isEmpty()) {
+				@SuppressWarnings("deprecation")
 				Locale baseLanguage = new Locale(locale.getLanguage());
 				// Get all base language translations
 				Map<String, String> baseTranslations = Translator.getMapForLocale(baseLanguage);

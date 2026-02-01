@@ -81,9 +81,9 @@ public class LogosZipHelper {
 				zis.closeEntry();
 			}
 			zis.close();
-			logger.info("Created logos ZIP archive: {} bytes ({} files)", result.length, counted);
+			logger.info("Created logos ZIP archive from {}: {} bytes ({} files)", logosPath, result.length, counted);
 		} catch (Throwable t) {
-			logger.info("Created logos ZIP archive: {} bytes", result.length);
+			logger.info("Created logos ZIP archive from {}: {} bytes", logosPath, result.length);
 		}
 		return result;
 	}
