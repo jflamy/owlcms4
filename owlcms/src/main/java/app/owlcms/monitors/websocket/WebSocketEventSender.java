@@ -257,10 +257,13 @@ public class WebSocketEventSender {
 
 				@Override
 				public void onError(Exception ex) {
-					logger.warn("✗ WebSocket error for {} - {} {}", url, LoggerUtils.exceptionMessage(ex),
-							LoggerUtils.stackTrace(ex));
+					logger.warn("✗ WebSocket error for {} - {}", url, LoggerUtils.exceptionMessage(ex));
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
+					}
+					
+					if (!intentionallyClosed) {
+						scheduleReconnect();
 					}
 				}
 			};

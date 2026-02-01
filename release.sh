@@ -6,7 +6,6 @@ set -euo pipefail
 # and watches the run until completion.
 #
 # Usage:
-#   REVISION=64.0.0-rc07 ./release.sh
 #   REVISION=64.0.0 BUILD_IMAGES=false ./release.sh
 #   ./release.sh 64.0.0-rc07
 #
