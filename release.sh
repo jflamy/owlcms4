@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="${REVISION:-${1:-64.0.4-rc01}}"
+REVISION="${REVISION:-${1:-64.0.4-rc02}}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
