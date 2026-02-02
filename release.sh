@@ -14,7 +14,7 @@ set -euo pipefail
 #     (so CI builds what you see)
 #   - Runs the workflow on the current git branch
 #   - After a successful run, does a safe git pull --ff-only
-.
+
 if [[ -z "${REVISION}" ]]; then
   echo "ERROR: REVISION must be set (e.g. REVISION=64.0.0-rc07)" >&2
   echo "       or pass it as the first argument: ./release.sh 64.0.0-rc07" >&2
