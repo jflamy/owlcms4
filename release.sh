@@ -87,8 +87,8 @@ if ! diff --strip-trailing-cr -q "${TRANSLATION_CSV}" "${REMOTE_TMP}" >/dev/null
   echo "WARNING: translation4.csv does not match the Google Sheets source!" >&2
   echo "         Local file may be out of date or have local modifications." >&2
   echo ""
-  echo "Differences:"
-  diff --strip-trailing-cr -u "${TRANSLATION_CSV}" "${REMOTE_TMP}" | head -50 || true
+  echo "Running translation consistency check..."
+  ./scripts/check-translations.sh || true
   echo ""
   read -p "Do you want to proceed anyway? (y/N): " -r PROCEED
   if [[ ! "${PROCEED}" =~ ^[Yy]$ ]]; then
