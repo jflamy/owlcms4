@@ -39,7 +39,11 @@ git checkout "${MAIN_BRANCH}"
 echo "Merging ${DEV_BRANCH} into ${MAIN_BRANCH} (fast-forward only)..."
 git merge --ff-only "${DEV_BRANCH}"
 
-# Step 4: Extract REVISION from release.sh and remove suffix
+# Step 4: Push the merged mainXX branch
+echo "Pushing ${MAIN_BRANCH}..."
+git push origin "${MAIN_BRANCH}"
+
+# Step 5: Extract REVISION from release.sh and remove suffix
 REVISION_LINE=$(grep '^REVISION=' release.sh | head -n 1)
 FULL_REVISION=$(echo "${REVISION_LINE}" | sed 's/REVISION="\(.*\)"/\1/')
 BASE_REVISION=$(echo "${FULL_REVISION}" | sed 's/-.*$//')
@@ -47,7 +51,7 @@ BASE_REVISION=$(echo "${FULL_REVISION}" | sed 's/-.*$//')
 echo "Full revision from release.sh: ${FULL_REVISION}"
 echo "Base revision (suffix removed): ${BASE_REVISION}"
 
-# Step 5: Launch release.sh with base revision (or use passed arguments if provided)
+# Step 6: Launch release.sh with base revision (or use passed arguments if provided)
 if [[ $# -eq 0 ]]; then
   echo "Launching release.sh ${BASE_REVISION}..."
   ./release.sh "${BASE_REVISION}"
@@ -56,11 +60,11 @@ else
   ./release.sh "$@"
 fi
 
-# Step 6: Switch back to devXX
+# Step 7: Switch back to devXX
 echo "Switching back to ${DEV_BRANCH}..."
 git checkout "${DEV_BRANCH}"
 
-# Step 7: Fast-forward merge from mainXX
+# Step 8: Fast-forward merge from mainXX
 echo "Merging ${MAIN_BRANCH} into ${DEV_BRANCH} (fast-forward only)..."
 git merge --ff-only "${MAIN_BRANCH}"
 
