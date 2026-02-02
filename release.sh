@@ -158,7 +158,6 @@ fi
 
 # Capture the most recent run before triggering so we can detect the new run.
 PREV_RUN_ID="$(gh run list --repo "${REPO}" --workflow "${WORKFLOW_FILE}" --limit 1 --json databaseId -q '.[0].databaseId' 2>/dev/null || true)"
-START_ISO="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
 ARGS=(--repo "${REPO}" -f "revision=${REVISION}" -f "buildImages=${BUILD_IMAGES}")
 ARGS+=( --ref "${GIT_REF}" )
@@ -169,23 +168,20 @@ gh workflow run "${WORKFLOW_FILE}" "${ARGS[@]}"
 echo "Waiting for the run to appear…"
 RUN_ID=""
 for _ in {1..60}; do
-  # Look for the newest run created after we started.
-  # ISO timestamps compare lexicographically.
+  # Get the most recent run that is queued or in_progress
   RUN_ID="$(gh run list \
     --repo "${REPO}" \
     --workflow "${WORKFLOW_FILE}" \
-    --event workflow_dispatch \
-    --limit 10 \
-    --json databaseId,createdAt \
-    -q ".[] | select(.createdAt >= \"${START_ISO}\") | .databaseId" \
-    | head -n 1 \
+    --limit 1 \
+    --json databaseId,status \
+    -q '.[] | select(.status == "queued" or .status == "in_progress") | .databaseId' \
     || true)"
 
   if [[ -n "${RUN_ID}" && "${RUN_ID}" != "${PREV_RUN_ID}" ]]; then
     break
   fi
 
-  sleep 5
+  sleep 3
 done
 
 if [[ -z "${RUN_ID}" || "${RUN_ID}" == "${PREV_RUN_ID}" ]]; then
