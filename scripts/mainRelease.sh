@@ -43,21 +43,23 @@ git merge --ff-only "${DEV_BRANCH}"
 echo "Pushing ${MAIN_BRANCH}..."
 git push origin "${MAIN_BRANCH}"
 
-# Step 5: Extract REVISION from release.sh and remove suffix
-REVISION_LINE=$(grep '^REVISION=' release.sh | head -n 1)
-FULL_REVISION=$(echo "${REVISION_LINE}" | sed 's/REVISION="\(.*\)"/\1/')
-BASE_REVISION=$(echo "${FULL_REVISION}" | sed 's/-.*$//')
+# Step 5: Extract default REVISION from release.sh and remove suffix
+# release.sh uses format: REVISION="${1:-64.0.4-rc02}"
+# We need to extract the default value (after :-)
+REVISION_LINE=$(grep '^REVISION=' ../release.sh | head -n 1)
+DEFAULT_REVISION=$(echo "${REVISION_LINE}" | sed 's/.*:-\([^}]*\)}.*/\1/')
+BASE_REVISION=$(echo "${DEFAULT_REVISION}" | sed 's/-.*$//')
 
-echo "Full revision from release.sh: ${FULL_REVISION}"
+echo "Default revision from release.sh: ${DEFAULT_REVISION}"
 echo "Base revision (suffix removed): ${BASE_REVISION}"
 
 # Step 6: Launch release.sh with base revision (or use passed arguments if provided)
 if [[ $# -eq 0 ]]; then
   echo "Launching release.sh ${BASE_REVISION}..."
-  ./release.sh "${BASE_REVISION}"
+  ../release.sh "${BASE_REVISION}"
 else
   echo "Launching release.sh $@..."
-  ./release.sh "$@"
+  ../release.sh "$@"
 fi
 
 # Step 7: Switch back to devXX
