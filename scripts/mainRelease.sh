@@ -46,7 +46,7 @@ git push origin "${MAIN_BRANCH}"
 # Step 5: Extract default REVISION from release.sh and remove suffix
 # release.sh uses format: REVISION="${1:-64.0.4-rc02}"
 # We need to extract the default value (after :-)
-REVISION_LINE=$(grep '^REVISION=' ../release.sh | head -n 1)
+REVISION_LINE=$(grep '^REVISION=' ./release.sh | head -n 1)
 DEFAULT_REVISION=$(echo "${REVISION_LINE}" | sed 's/.*:-\([^}]*\)}.*/\1/')
 BASE_REVISION=$(echo "${DEFAULT_REVISION}" | sed 's/-.*$//')
 
@@ -56,10 +56,10 @@ echo "Base revision (suffix removed): ${BASE_REVISION}"
 # Step 6: Launch release.sh with base revision (or use passed arguments if provided)
 if [[ $# -eq 0 ]]; then
   echo "Launching release.sh ${BASE_REVISION}..."
-  ../release.sh "${BASE_REVISION}"
+  ./release.sh "${BASE_REVISION}"
 else
   echo "Launching release.sh $@..."
-  ../release.sh "$@"
+  ./release.sh "$@"
 fi
 
 # Step 7: Switch back to devXX
