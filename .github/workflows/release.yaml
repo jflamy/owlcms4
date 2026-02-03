@@ -182,9 +182,9 @@ jobs:
           echo ${{ env.REVISION }} > version.txt
 
           # Update the default REVISION shown in release.sh so it reflects the last successful build.
-          # Expects release.sh line 2 to look like: REVISION="${REVISION:-${1:-...}}"
+          # Expects release.sh line 2 to look like: REVISION="${1:-...}"
           if grep -q '^REVISION="' release.sh; then
-            sed -i -E 's#^REVISION="\$\{REVISION:-\$\{1:-[^}]*\}\}"#REVISION="${REVISION:-${1:-${{ env.REVISION }}}}"#' release.sh
+            sed -i -E 's#^REVISION="\$\{1:-[^}]*\}"#REVISION="${1:-${{ env.REVISION }}}"#' release.sh
             if ! grep -q '${{ env.REVISION }}' release.sh; then
               echo "ERROR: Failed to update REVISION in release.sh" >&2
               cat release.sh | head -5
