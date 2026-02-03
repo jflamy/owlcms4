@@ -190,14 +190,17 @@ if [[ -z "${RUN_ID}" || "${RUN_ID}" == "${PREV_RUN_ID}" ]]; then
 fi
 
 echo "Run ID: ${RUN_ID}"
-echo "View this run on GitHub: https://github.com/${REPO}/actions/runs/${RUN_ID}"
+echo "Run URL: https://github.com/${REPO}/actions/runs/${RUN_ID}"
 echo "Watching run (Ctrl+C to detach)…"
 
 RUN_FAILED=false
 if ! gh run watch --repo "${REPO}" "${RUN_ID}" --exit-status; then
   RUN_FAILED=true
   echo ""
-  echo "Run FAILED. View this run on GitHub: https://github.com/${REPO}/actions/runs/${RUN_ID}"
+  echo "╔════════════════════════════════════════════════════════════════════════════╗"
+  echo "║ Run FAILED                                                                 ║"
+  echo "╚════════════════════════════════════════════════════════════════════════════╝"
+  echo "View this run on GitHub: https://github.com/${REPO}/actions/runs/${RUN_ID}"
   echo ""
   echo "Showing failed logs…"
   gh run view --repo "${REPO}" "${RUN_ID}" --log-failed || true
