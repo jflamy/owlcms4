@@ -70,5 +70,9 @@ git checkout "${DEV_BRANCH}"
 echo "Merging ${MAIN_BRANCH} into ${DEV_BRANCH} (fast-forward only)..."
 git merge --ff-only "${MAIN_BRANCH}"
 
+# Step 9: Push the merged devXX branch
+echo "Pushing ${DEV_BRANCH}..."
+git push origin "${DEV_BRANCH}"
+
 echo ""
-echo "Done! Both ${DEV_BRANCH} and ${MAIN_BRANCH} are now in sync."
+echo "Done! Both ${DEV_BRANCH} and ${MAIN_BRANCH} are now in sync and pushed."
