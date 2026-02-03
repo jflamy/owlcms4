@@ -190,17 +190,24 @@ if [[ -z "${RUN_ID}" || "${RUN_ID}" == "${PREV_RUN_ID}" ]]; then
 fi
 
 echo "Run ID: ${RUN_ID}"
+echo "View this run on GitHub: https://github.com/${REPO}/actions/runs/${RUN_ID}"
 echo "Watching run (Ctrl+C to detach)…"
 
-gh run watch --repo "${REPO}" "${RUN_ID}" --exit-status
-
-echo "Run finished. Showing summary (and failed logs if any)…"
-gh run view --repo "${REPO}" "${RUN_ID}"
-# This prints logs only if there were failures; harmless otherwise.
-gh run view --repo "${REPO}" "${RUN_ID}" --log-failed || true
+RUN_FAILED=false
+if ! gh run watch --repo "${REPO}" "${RUN_ID}" --exit-status; then
+  RUN_FAILED=true
+  echo ""
+  echo "Run FAILED. View this run on GitHub: https://github.com/${REPO}/actions/runs/${RUN_ID}"
+  echo ""
+  echo "Showing failed logs…"
+  gh run view --repo "${REPO}" "${RUN_ID}" --log-failed || true
+else
+  echo "Run finished. Showing summary…"
+  gh run view --repo "${REPO}" "${RUN_ID}"
+fi
 
 if [[ "${DO_GIT_PULL}" == "true" ]]; then
-  echo "Release workflow succeeded; updating local repo via git pull (--ff-only)…"
+  echo "Updating local repo via git pull (--ff-only)…"
 
   if [[ -n "$(git status --porcelain)" ]]; then
     echo "ERROR: Working tree is not clean; refusing to run git pull." >&2
@@ -209,4 +216,8 @@ if [[ "${DO_GIT_PULL}" == "true" ]]; then
   fi
 
   git pull --ff-only
+fi
+
+if [[ "${RUN_FAILED}" == "true" ]]; then
+  exit 1
 fi
