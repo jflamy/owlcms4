@@ -161,7 +161,8 @@ public class GAMX2 {
 		}
 		Gender gender = a.getGender();
 		Double bodyMass = a.getBodyWeight();
-		return computeGamx(gender, bodyMass, liftedWeight, variant);
+		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
+		return computeGamx(gender, age, bodyMass, liftedWeight, variant);
 	}
 
 	/**
@@ -192,7 +193,8 @@ public class GAMX2 {
 			return 0.0;
 		}
 		Gender gender = a.getGender();
-		return computeGamx(gender, bodyMass, liftedWeight, variant);
+		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
+		return computeGamx(gender, age, bodyMass, liftedWeight, variant);
 	}
 
 	/**
@@ -204,7 +206,7 @@ public class GAMX2 {
 	 * @return GAMX score, or 0.0 if inputs invalid
 	 */
 	public static double computeGamx(Gender gender, Double bodyMass, int total) {
-		return computeGamx(gender, bodyMass, total, Variant.SENIOR);
+		return computeGamx(gender, SENIOR_AGE, bodyMass, total, Variant.SENIOR);
 	}
 
 	/**
@@ -492,7 +494,8 @@ public class GAMX2 {
 			default -> Variant.SENIOR;
 		};
 		
-		return kgTarget(a.getGender(), null, targetScore, bodyMass, variant);
+		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
+		return kgTarget(a.getGender(), age, targetScore, bodyMass, variant);
 	}
 
 	/**
@@ -904,6 +907,6 @@ public class GAMX2 {
 	 * For backwards compatibility with GAMX.java API
 	 */
 	public static float doGetGamx(Gender gender, Double bodyMass, Integer liftedWeight) {
-		return (float) computeGamx(gender, bodyMass, liftedWeight != null ? liftedWeight : 0, Variant.SENIOR);
+		return (float) computeGamx(gender, SENIOR_AGE, bodyMass, liftedWeight != null ? liftedWeight : 0, Variant.SENIOR);
 	}
 }
