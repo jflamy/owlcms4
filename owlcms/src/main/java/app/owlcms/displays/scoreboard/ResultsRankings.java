@@ -41,6 +41,12 @@ public class ResultsRankings extends ResultsMedals implements ResultsParameters 
 	}
 
 	@Override
+	protected boolean isOnlyFinished() {
+		// Rankings should show all athletes, not just finished categories
+		return false;
+	}
+
+	@Override
 	protected JsonValue getAthletesJson(List<Athlete> rankingOrder, final FieldOfPlay _unused) {
 		JsonArray jath = Json.createArray();
 		AtomicInteger athx = new AtomicInteger(0);

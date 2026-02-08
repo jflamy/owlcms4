@@ -76,6 +76,9 @@ public class GroupCategorySelectionMenu extends MenuBar {
 	public void fillMenu(List<Group> groups, Map<Group, Set<String>> medalCategoriesPerGroup, FieldOfPlay fop,
 	        TriConsumer<Group, Category, FieldOfPlay> whenChecked,
 	        TriConsumer<Group, Category, FieldOfPlay> whenUnselected, MenuItem item, String menuTitle) {
+		if (fop == null) {
+			this.logger.debug("fillMenu called with null FieldOfPlay (expected during early initialization)");
+		}
 		SubMenu subMenu = item.getSubMenu();
 		for (Group g : groups) {
 			Set<String> categories = medalCategoriesPerGroup.get(g);
@@ -89,7 +92,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 				        });
 
 				subItem.setCheckable(true);
-				if (g.compareTo(fop.getGroup()) == 0) {
+				if (fop != null && fop.getGroup() != null && g.compareTo(fop.getGroup()) == 0) {
 					setChecked(subItem, subMenu, true);
 				}
 				subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
@@ -184,9 +187,17 @@ public class GroupCategorySelectionMenu extends MenuBar {
 
 		if (!this.subMenuLoaded) {
 			this.medalCategoriesPerGroup.clear();
+			// Explicitly capture parameters for thread closure
+			final List<Group> capturedGroups = groups;
+			final FieldOfPlay capturedFop = fop;
+			final TriConsumer<Group, Category, FieldOfPlay> capturedWhenChecked = whenChecked;
+			final TriConsumer<Group, Category, FieldOfPlay> capturedWhenUnselected = whenUnselected;
+			final MenuItem capturedItem = item;
+			final String capturedMenuTitle = menuTitle;
+			
 			new Thread(() -> {
 				try {
-					for (Group g : groups) {
+					for (Group g : capturedGroups) {
 						Set<String> categories = this.includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
 						if (!categories.isEmpty()) {
 							this.medalCategoriesPerGroup.put(g, categories);
@@ -194,7 +205,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 					}
 					this.subMenuLoaded = true;
 					ui.access(() -> {
-						fillMenu(groups, this.medalCategoriesPerGroup, fop, whenChecked, whenUnselected, item, menuTitle);
+						fillMenu(capturedGroups, this.medalCategoriesPerGroup, capturedFop, capturedWhenChecked, capturedWhenUnselected, capturedItem, capturedMenuTitle);
 						this.setEnabled(true);
 					});
 				} finally {

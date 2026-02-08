@@ -65,7 +65,6 @@ import elemental.json.JsonValue;
 
 public class ResultsMedals extends Results implements ResultsParameters, DisplayParameters {
 
-	private static final boolean ONLY_FINISHED = true;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(ResultsMedals.class);
 	@SuppressWarnings("unused")
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
@@ -608,25 +607,34 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	// .then(String.class, resultHandler);
 	// }
 
+	protected boolean isOnlyFinished() {
+		return true;
+	}
+
 	private void doMedals(FieldOfPlay fop2) {
 		if (this.getCategory() == null) {
 			if (this.getGroup() != null) {
-				// logger.debug("=== getgroup {}", this.getGroup());
-				this.setMedals(Competition.getCurrent().getMedals(this.getGroup(), ONLY_FINISHED));
+				this.logger./**/warn("=== doMedals using this.getGroup() = {}", this.getGroup().getName());
+				this.setMedals(Competition.getCurrent().getMedals(this.getGroup(), isOnlyFinished()));
 			} else {
-				// logger.debug("=== getgroup from FOP {}", fop2.getGroup());
-				this.setMedals(Competition.getCurrent().getMedals(fop2.getGroup(), ONLY_FINISHED));
+				this.logger./**/warn("=== doMedals using fop2.getGroup() = {}", 
+					fop2.getGroup() != null ? fop2.getGroup().getName() : null);
+				this.setMedals(Competition.getCurrent().getMedals(fop2.getGroup(), isOnlyFinished()));
 			}
 			// this.getElement().setProperty("fillerDisplay", "");
 		} else {
 			List<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
-			// logger.debug("=== group {} category {} catMedals {}", getGroup(), getCategory(), catMedals.stream().map(a -> a.getAbbreviatedName()).toList());
+			this.logger./**/warn("=== doMedals group {} category {} catMedals {}", 
+				getGroup() != null ? getGroup().getName() : null, 
+				getCategory().getNameWithAgeGroup(), 
+				catMedals.stream().map(a -> a.getAbbreviatedName()).toList());
 			this.setMedals(new TreeMap<>());
 			this.getMedals().put(this.getCategory().getCode(), catMedals);
 		}
 		setDisplay();
 		this.getElement().setProperty("showLiftRanks", Competition.getCurrent().isSnatchCJTotalMedals());
 		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop2.getName()));
+		this.logger./**/warn("=== doMedals medals computed: {} categories", this.getMedals() != null ? this.getMedals().size() : 0);
 		computeMedalsJson(this.getMedals());
 	}
 
@@ -743,15 +751,31 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	private void medalsInit() {
 		FieldOfPlay fop = getFop();
-		this.logger.trace("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
+		this.logger./**/warn("{}Starting result board on FOP {}", FieldOfPlay.getLoggingName(fop));
 		setId("medals-" + fop.getName());
 		setWideTeamNames(false);
 		this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
-		// CODEREVIEW: confusing
-		// this.setGroup(fop.getVideoGroup());
-		// this.setCategory(fop.getVideoCategory());
-		this.setGroup(fop.getGroup());
-		this.setCategory(null);
+		
+		// For video=true pages, prefer URL parameters over FOP state
+		// Don't override group/category that may have been set from URL parameters
+		Group existingGroup = this.getGroup();
+		if (existingGroup == null) {
+			// Only set from FOP if not already set from URL
+			if (isVideo()) {
+				this.setGroup(fop.getVideoGroup());
+				this.setCategory(fop.getVideoCategory());
+				this.logger./**/warn("medalsInit: no existing group, using videoGroup={}", 
+					fop.getVideoGroup() != null ? fop.getVideoGroup().getName() : null);
+			} else {
+				this.setGroup(fop.getGroup());
+				this.setCategory(null);
+				this.logger./**/warn("medalsInit: no existing group, using fop.getGroup()={}", 
+					fop.getGroup() != null ? fop.getGroup().getName() : null);
+			}
+		} else {
+			this.logger./**/warn("medalsInit: preserving existing group={} from URL parameters", 
+				existingGroup.getName());
+		}
 		setTranslationMap();
 	}
 

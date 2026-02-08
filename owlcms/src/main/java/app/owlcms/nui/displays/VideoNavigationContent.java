@@ -41,6 +41,8 @@ import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.video.StreamingEventMonitor;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.OBSMonitor;
 import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.attemptboards.PublicFacingDecisionBoardPage;
@@ -126,7 +128,14 @@ public class VideoNavigationContent extends BaseNavigationContent
 			compare = -(new NaturalOrderComparator<Group>().compare(g1, g2));
 			return compare;
 		});
+		// Get FOP with fallbacks - getFop() may be null during construction before URL params are processed
 		FieldOfPlay curFop = getFop();
+		if (curFop == null) {
+			curFop = OwlcmsSession.getFop();
+		}
+		if (curFop == null) {
+			curFop = OwlcmsFactory.getDefaultFOP();
+		}
 		GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, curFop,
 		        // group has been selected
 		        (g1, c1, fop1) -> selectVideoContext(g1, c1, fop1),
@@ -308,11 +317,32 @@ public class VideoNavigationContent extends BaseNavigationContent
 	private void openInNewTabWithResultsQueryParameters(Class<?> class1) {
 		Map<String, String> params = new TreeMap<>();
 		Category medalCategory2 = getMedalCategory();
+		Group groupToUse = null;
+		
+		// Determine which group to use
 		if (medalCategory2 != null) {
 			params.put("cat", medalCategory2.getCode().toString());
-		} else if (getMedalGroup() != null) {
-			params.put("group", getMedalGroup().toString());
+		} else {
+			// Try medal group first (set via menu selection)
+			groupToUse = getMedalGroup();
+			
+			// If no medal group, try FOP's video group
+			if (groupToUse == null) {
+				FieldOfPlay fop = getFop();
+				if (fop != null) {
+					groupToUse = fop.getVideoGroup();
+					// If no video group, fall back to FOP's current group
+					if (groupToUse == null) {
+						groupToUse = fop.getGroup();
+					}
+				}
+			}
+			
+			if (groupToUse != null) {
+				params.put("group", groupToUse.getName());
+			}
 		}
+		
 		FieldOfPlay fop = getFop();
 		if (fop != null) {
 			params.put("fop", fop.getName());

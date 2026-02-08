@@ -43,6 +43,12 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 		// intentionally empty; init() will be invoked as required.
 	}
 
+	@Override
+	public boolean isIgnoreGroupFromURL() {
+		// Results pages (medals, rankings) need to respect the group parameter
+		return false;
+	}
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
 	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
