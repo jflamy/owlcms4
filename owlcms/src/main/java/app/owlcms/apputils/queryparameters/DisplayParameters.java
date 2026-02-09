@@ -36,6 +36,8 @@ public interface DisplayParameters extends SoundParameters {
 	public static final String VIDEO = "video";
 	public static final String CURRENT_ATTEMPT = "currentAttempt";
 	public static final String SHOW_MEDALS = "showMedals";
+	public static final String KEEP_INITIAL_DECISION = "keepInitial";
+	public static final String KEEP_FINAL_DECISION = "keepFinal";
 
 	public default Double getEmFontSize() {
 		return 1.0D;

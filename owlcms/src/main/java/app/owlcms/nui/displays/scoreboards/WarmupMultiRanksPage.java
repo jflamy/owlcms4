@@ -64,7 +64,8 @@ public class WarmupMultiRanksPage extends AbstractResultsDisplayPage {
 		        SoundParameters.SHOW_DECLARATIONS, "false",
 		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
 		        SoundParameters.START_ORDER, "false",
-		        DisplayParameters.CURRENT_ATTEMPT, "true");
+		        DisplayParameters.CURRENT_ATTEMPT, "true",
+		        DisplayParameters.SHOW_MEDALS, "auto");
 		Map<String, String> fullMap = new TreeMap<>();
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);

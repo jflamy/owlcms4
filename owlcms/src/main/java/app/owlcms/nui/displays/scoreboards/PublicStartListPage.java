@@ -97,7 +97,9 @@ public class PublicStartListPage extends AbstractResultsDisplayPage {
 		        SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch("noLiveLights")),
 		        SoundParameters.SHOW_DECLARATIONS, "false",
 		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
-		        SoundParameters.START_ORDER, "false");
+		        SoundParameters.START_ORDER, "false",
+		        DisplayParameters.CURRENT_ATTEMPT, "false",
+		        DisplayParameters.SHOW_MEDALS, "auto");
 		Map<String, String> fullMap = new TreeMap<>();
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);
