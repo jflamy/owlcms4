@@ -37,6 +37,9 @@ public class JuryDecisionsPage extends AbstractResultsDisplayPage implements Bef
     Logger logger = (Logger) LoggerFactory.getLogger(JuryDecisionsPage.class);
     Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
     Map<String, List<String>> urlParameterMap = new HashMap<>();
+    
+    private boolean keepInitialDecision = true;
+    private boolean keepFinalDecision = true;
 
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
@@ -72,13 +75,17 @@ public class JuryDecisionsPage extends AbstractResultsDisplayPage implements Bef
             DisplayParameters.VIDEO, "false",
             DisplayParameters.PUBLIC, "false",
             SoundParameters.SINGLEREF, "false",
-            DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames"))
+            DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")),
+            DisplayParameters.CURRENT_ATTEMPT, "false"
         );
         var additionalMap = Map.of(
             SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch("noLiveLights")),
             SoundParameters.SHOW_DECLARATIONS, "false",
             SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
-            SoundParameters.START_ORDER, "false"
+            SoundParameters.START_ORDER, "false",
+            DisplayParameters.KEEP_INITIAL_DECISION, "true",
+            DisplayParameters.KEEP_FINAL_DECISION, "true",
+            DisplayParameters.SHOW_MEDALS, "auto"
         );
         Map<String, String> fullMap = new TreeMap<>();
         fullMap.putAll(initialMap);
@@ -88,10 +95,12 @@ public class JuryDecisionsPage extends AbstractResultsDisplayPage implements Bef
 
     @Override
     protected void onAttach(AttachEvent attachEvent) {
-        DisplayParameters board = (DisplayParameters) this.getBoard();
+        JuryDecisions board = (JuryDecisions) this.getBoard();
         board.setFop(this.getFop());
         board.setLeadersDisplay(false);
         board.setRecordsDisplay(false);
+        board.setKeepInitialDecision(keepInitialDecision);
+        board.setKeepFinalDecision(keepFinalDecision);
 
         this.addComponentAsFirst((Component) board);
         board.getElement().getParent().getStyle().set("height", "100%");
@@ -99,6 +108,17 @@ public class JuryDecisionsPage extends AbstractResultsDisplayPage implements Bef
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
+		Map<String, List<String>> params = event.getLocation().getQueryParameters().getParameters();
+		
+		List<String> keepInitialParams = params.get(DisplayParameters.KEEP_INITIAL_DECISION);
+		if (keepInitialParams != null && !keepInitialParams.isEmpty()) {
+			keepInitialDecision = Boolean.parseBoolean(keepInitialParams.get(0));
+		}
+		
+		List<String> keepFinalParams = params.get(DisplayParameters.KEEP_FINAL_DECISION);
+		if (keepFinalParams != null && !keepFinalParams.isEmpty()) {
+			keepFinalDecision = Boolean.parseBoolean(keepFinalParams.get(0));
+		}
 	}
     
     

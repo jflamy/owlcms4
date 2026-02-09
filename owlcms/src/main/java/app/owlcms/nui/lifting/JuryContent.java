@@ -244,17 +244,19 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		        || (this.currentAttemptNumber != this.previousAttemptNumber)
 		        || this.newClock) {
 			// we switched lifter, or we switched attempt.
-			// reset the decisions.
+			// reset the referee decisions AND the jury votes.
+			// jury votes from first vote are cleared when deliberation starts.
+			// jury votes from second vote during deliberation stay visible until clock starts.
 			// logger.debug("RESETTING");
 			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 				this.decisions.doReset();
-				this.juryVotingButtons.removeAll();
-				resetJuryVoting();
 				this.decisions.setSilenced(true);
 				if (this.decisionNotification != null) {
 					this.decisionNotification.close();
 				}
-				// referee decisions handle reset on their own, nothing to do.
+				// reset jury votes when clock starts
+				this.juryVotingButtons.removeAll();
+				resetJuryVoting();
 				// reset referee decision label
 				swapRefereeLabel(null);
 			});

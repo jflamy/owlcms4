@@ -10,6 +10,11 @@
 
 **New in Release 64**
 
+64.1.0: The Jury Decision Display from the Video Streaming page
+- will now keep the initial jury decisions visible during deliberation. This can be controlled using the `keepInitial` URL parameter (default = true)
+- and also keep the second vote visible until the clock starts for the next athlete.  URL parameter `keepFinal` is true by default
+- this does NOT change the behavior of the Jury deliberation page that clears the decisions in order to allow for a second vote
+
 64.1.0: The Rankings selection on the Video Streaming page now works again.
 
 64.1.0: The Rankings screen from the Video Streaming page

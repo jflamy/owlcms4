@@ -58,6 +58,11 @@ public class JuryDecisions extends BaseResults {
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private UI ui;
 	private EventBus uiEventBus;
+	
+	/** If true, keep showing initial vote during deliberation */
+	private boolean keepInitialDecision = true;
+	/** If true, keep showing final vote until next athlete */
+	private boolean keepFinalDecision = true;
 
 	public JuryDecisions(AbstractDisplayPage page) {
 		uiEventLogger.setLevel(Level.INFO);
@@ -127,11 +132,11 @@ public class JuryDecisions extends BaseResults {
 
 	@Subscribe
 	public void slaveJuryMemberDecision(UIEvent.JuryUpdate e) {
-		ui.access(() -> {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			checkAllVoted();
 			getElement().setProperty("showJuryDecisions", true);
 		});
-
 	}
 
 	@Override
@@ -141,16 +146,56 @@ public class JuryDecisions extends BaseResults {
 
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-		ui.access(() -> clear());
+		uiLog(e);
+		// If keepFinalDecision is true, don't clear until clock actually starts
+		// Otherwise, clear on new clock (next athlete)
+		if (!keepFinalDecision) {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+				clear();
+			});
+		}
+	}
+	
+	@Subscribe
+	public void slaveTimeStarted(UIEvent.StartTime e) {
+		uiLog(e);
+		logger.debug("slaveTimeStarted received, clearing jury decisions");
+		// When clock actually starts running, clear the decisions
+		// This is when keepFinalDecision=true should finally hide them
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			clear();
+		});
+	}
+	
+	public boolean isKeepInitialDecision() {
+		return keepInitialDecision;
+	}
+	
+	public void setKeepInitialDecision(boolean keepInitialDecision) {
+		this.keepInitialDecision = keepInitialDecision;
+	}
+	
+	public boolean isKeepFinalDecision() {
+		return keepFinalDecision;
+	}
+	
+	public void setKeepFinalDecision(boolean keepFinalDecision) {
+		this.keepFinalDecision = keepFinalDecision;
 	}
 
 	@Override
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
 		ui.access(() -> {
-			setDisplay();
-			resetJuryVoting();
-			doBreak(e);
+			// If keepInitialDecision is true and this is a JURY deliberation, don't hide the initial vote
+			if (keepInitialDecision && e.getBreakType() == BreakType.JURY) {
+				// Keep decisions visible - only set the mode, don't hide decisions
+				getElement().setProperty("mode", "INTERRUPTION");
+			} else {
+				setDisplay();
+				resetJuryVoting();
+				doBreak(e);
+			}
 		});
 	}
 
@@ -160,7 +205,10 @@ public class JuryDecisions extends BaseResults {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
-			setShowJuryDecisions(getElement(), false);
+			// If keepFinalDecision is true, don't hide the final vote when lifting resumes
+			if (!keepFinalDecision) {
+				setShowJuryDecisions(getElement(), false);
+			}
 		});
 	}
 
@@ -204,6 +252,7 @@ public class JuryDecisions extends BaseResults {
 
 		// we listen on uiEventBus.
 		this.uiEventBus = uiEventBusRegister(this, fop);
+		logger.warn("JuryDecisions registered on uiEventBus for fop {}", fop.getName());
 		getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 		getElement().setProperty("showJuryDecisions", true);
 		getElement().setPropertyJson("decisions", Json.createArray());
@@ -239,6 +288,7 @@ public class JuryDecisions extends BaseResults {
 	}
 
 	private void clear() {
+		logger.debug("clear() called");
 		JsonArray decisions = Json.createArray();
 		for (int i = 0; i < getNbJurors(); i++) {
 			decisions.set(i, "empty");
