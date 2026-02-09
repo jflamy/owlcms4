@@ -10,6 +10,21 @@
 
 **New in Release 64**
 
+64.1.0: The Jury Decision Display from the Video Streaming page
+- will now keep the initial jury decisions visible during deliberation. This can be controlled using the `keepInitial` URL parameter (default = true)
+- and also keep the second vote visible until the clock starts for the next athlete.  URL parameter `keepFinal` is true by default
+- this does NOT change the behavior of the Jury deliberation page that clears the decisions in order to allow for a second vote
+
+64.1.0: The Rankings selection on the Video Streaming page now works again.
+
+64.1.0: The Rankings screen from the Video Streaming page
+  - now shows more athletes (same as the regular session handling)
+  - shows the medal winners highlighted with the medal color
+  - showMedals=auto is a new parameter on the URL: medals shown when category is done.
+  - showMedals=true or false overrides the default.
+
+64.1.0: The previous groups leaders section will include medalists in Snatch or CJ even if they are not top 3 total.
+
 64.0.5: GAMX-M, U and A scores were computed as 0.00 due to age not being propagated.
 
 64.0.4: Flags, Translations and Logos were not packaged and sent to tracker if they were in a override zip stored in the database
