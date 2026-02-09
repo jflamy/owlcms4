@@ -467,8 +467,10 @@ public class Competition {
 				WinningOrderComparator comparator = new WinningOrderComparator(Ranking.TOTAL, true);
 				var mSet = new TreeSet<>(comparator);
 				mSet.addAll(totalPLeaders);
-				mSet.addAll(cjPLeaders); // in case of bomb-out
-				mSet.addAll(snatchPLeaders); // in case of bomb-out
+				// filter snatch/CJ leaders for eligibility when used as bomb-out fallback for TOTAL ranking
+				// (individual lift medals are computed earlier without this filter)
+				mSet.addAll(cjPLeaders.stream().filter(Athlete::isEligibleForIndividualRanking).toList());
+				mSet.addAll(snatchPLeaders.stream().filter(Athlete::isEligibleForIndividualRanking).toList());
 				mSet.addAll(notPFinished); // for interim results
 				pMedalists = new ArrayList<>(mSet);
 
@@ -489,7 +491,7 @@ public class Competition {
 			} else {
 				//logger.debug("[CATEGORY_SCORE] Updating CATEGORY_SCORE and TOTAL ranks for category {}", category.getCode());
 				List<Athlete> scorePLeaders = AthleteSorter.resultsOrderCopy(currentCategoryPAthletes, Ranking.CATEGORY_SCORE)
-				        .stream().filter(a -> a.isEligibleForIndividualRanking())
+				        .stream().filter(a -> a.getTotal() > 0 && a.isEligibleForIndividualRanking())
 				        .collect(Collectors.toList());
 				List<Athlete> notPFinished = AthleteSorter.resultsOrderCopy(currentCategoryPAthletes, Ranking.CATEGORY_SCORE)
 				        .stream().filter(a -> a.isEligibleForIndividualRanking() && a.getActuallyAttemptedLifts() < 6)
