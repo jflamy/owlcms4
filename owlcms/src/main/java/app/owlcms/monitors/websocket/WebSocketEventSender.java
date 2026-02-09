@@ -11,6 +11,9 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.client.WebSocketClient;
@@ -47,6 +50,12 @@ public class WebSocketEventSender {
 	
 	private static Map<String, WebSocketEventSender> sendersByUrl = new HashMap<>();
 	private static ObjectMapper objectMapper = createObjectMapper();
+	// Single shared executor for all reconnect scheduling - daemon thread so it doesn't block shutdown
+	private static ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
+		Thread t = new Thread(r, "WebSocket-Reconnect-Scheduler");
+		t.setDaemon(true);
+		return t;
+	});
 	
 	private static ObjectMapper createObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
@@ -81,7 +90,7 @@ public class WebSocketEventSender {
 			sender.connect();
 			sendersByUrl.put(url, sender);
 		} else {
-			logger.info("Reusing existing WebSocketEventSender for {} (connected: {}) {}", 
+			logger.debug("Reusing existing WebSocketEventSender for {} (connected: {}) {}", 
 					url, sender.isConnected(), LoggerUtils.whereFrom());
 		}
 		return sender;
@@ -168,6 +177,7 @@ public class WebSocketEventSender {
 	private boolean connecting = false;
 	private Map<String, Runnable> missingDataCallbacks = new HashMap<>();
 	private Runnable onOpenCallback = null;
+	private ScheduledFuture<?> pendingReconnect = null; // Track pending reconnect to cancel duplicates
 
 	private WebSocketEventSender(String url, java.util.function.Supplier<String> urlSupplier) {
 		this.url = url;
@@ -211,6 +221,17 @@ public class WebSocketEventSender {
 			return;
 		}
 
+		// Close any previous client to prevent memory leak
+		if (client != null) {
+			logger.debug("Closing previous WebSocket client for {} before reconnect", url);
+			try {
+				client.close();
+			} catch (Exception e) {
+				logger.debug("Error closing previous client: {}", LoggerUtils.exceptionMessage(e));
+			}
+			client = null;
+		}
+
 		connecting = true;
 		logger.warn("Starting WebSocket connect to {} {}", url, LoggerUtils.whereFrom());
 
@@ -248,6 +269,8 @@ public class WebSocketEventSender {
 					}
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
+						// Null out the client reference so java-websocket can GC its threads
+						client = null;
 					}
 					
 					if (!intentionallyClosed) {
@@ -294,8 +317,13 @@ public class WebSocketEventSender {
 				logger.debug("Skipping reconnect for {} because it was intentionally closed", url);
 				return;
 			}
+			// Check if a reconnect is already pending (prevents duplicate scheduling from onClose + onError)
+			if (pendingReconnect != null && !pendingReconnect.isDone()) {
+				logger.debug("Reconnect already scheduled for {}, skipping duplicate", url);
+				return;
+			}
 			if (connecting) {
-				logger.debug("Reconnect already scheduled or in progress for {}", url);
+				logger.debug("Reconnect already in progress for {}", url);
 				return;
 			}
 			reconnectAttempts++;
@@ -308,17 +336,14 @@ public class WebSocketEventSender {
 				delayMs = MAX_RECONNECT_DELAY_MS;
 			}
 			
-			connecting = true;
 			logger.warn("Scheduling reconnect to {} in {}s (attempt {})", 
 					url, delayMs / 1000, reconnectAttempts);
-		}
-		
-		new Thread(() -> {
-			try {
-				TimeUnit.MILLISECONDS.sleep(delayMs);
+			
+			// Use shared executor instead of spawning new threads
+			pendingReconnect = reconnectExecutor.schedule(() -> {
 				synchronized (WebSocketEventSender.this) {
+					pendingReconnect = null;
 					if (intentionallyClosed) {
-						connecting = false;
 						return;
 					}
 					String currentUrl = urlSupplier.get();
@@ -328,16 +353,10 @@ public class WebSocketEventSender {
 						WebSocketEventSender.this.url = currentUrl;
 						reconnectAttempts = 0; // Reset retry count for new URL
 					}
-					connecting = false;
 					connect();
 				}
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				synchronized (WebSocketEventSender.this) {
-					connecting = false;
-				}
-			}
-		}).start();
+			}, delayMs, TimeUnit.MILLISECONDS);
+		}
 	}
 	
 	/**
@@ -588,6 +607,11 @@ public class WebSocketEventSender {
 		synchronized (this) {
 			intentionallyClosed = true;
 			connecting = false;
+			// Cancel any pending reconnect
+			if (pendingReconnect != null) {
+				pendingReconnect.cancel(false);
+				pendingReconnect = null;
+			}
 		}
 		if (client != null) {
 			try {
@@ -596,6 +620,7 @@ public class WebSocketEventSender {
 				Thread.currentThread().interrupt();
 				logger.debug("Interrupted while closing WebSocket to {}", url);
 			}
+			client = null;
 		}
 	}
 

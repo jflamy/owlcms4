@@ -58,6 +58,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
@@ -224,6 +225,8 @@ public class ConfigEditingFormFactory
 				VaadinSession.getCurrent().setAttribute(TAB_INDEX_KEY, tabSheet.getSelectedIndex());
 			}
 			Config saved = Config.setCurrent(config);
+			// Reinitialize WebSocket forwarders in case URLs were added/changed
+			WebSocketEventForwarder.reinitializeForAllFOPs();
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

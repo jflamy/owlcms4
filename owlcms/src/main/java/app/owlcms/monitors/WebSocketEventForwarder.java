@@ -63,6 +63,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.uievents.BreakDisplay;
@@ -144,6 +145,49 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	synchronized public static WebSocketEventForwarder getEventForwarderByName(String name) {
 		return eventForwarderByName.get(name);
+	}
+
+	/**
+	 * Reinitialize WebSocket event forwarders for all FOPs.
+	 * Call this when WebSocket URL configuration changes to create forwarders
+	 * that weren't created at startup (because no URL was configured then),
+	 * or to close connections when URLs are removed.
+	 */
+	synchronized public static void reinitializeForAllFOPs() {
+		logger.info("reinitializing WebSocket event forwarders for all FOPs after config change");
+		
+		// Get current URL configuration
+		Config current = Config.getCurrent();
+		String publicResultsUrl = current.getParamPublicResultsURL();
+		String videoDataUrl = current.getParamVideoDataURL();
+		
+		boolean hasPublicResultsWs = publicResultsUrl != null && !publicResultsUrl.trim().isEmpty()
+			&& (publicResultsUrl.startsWith("ws://") || publicResultsUrl.startsWith("wss://"));
+		boolean hasVideoDataWs = videoDataUrl != null && !videoDataUrl.trim().isEmpty()
+			&& (videoDataUrl.startsWith("ws://") || videoDataUrl.startsWith("wss://"));
+		
+		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+			WebSocketEventForwarder existing = fop.getWebSocketEventForwarder();
+			if (existing == null) {
+				// No forwarder exists - try to create one if URLs are now configured
+				WebSocketEventForwarder newForwarder = initEventForwarderByName(fop.getName(), fop);
+				if (newForwarder != null) {
+					fop.setWebSocketEventForwarder(newForwarder);
+					logger.info("{}created WebSocket event forwarder after config change", FieldOfPlay.getLoggingName(fop));
+					// Trigger an initial update to establish connection
+					newForwarder.pushUpdate(null);
+				}
+			} else {
+				// Forwarder exists - check for URL removal and close stale connections
+				existing.closeStaleConnections(hasPublicResultsWs, hasVideoDataWs);
+				
+				// Trigger an update which will detect URL changes and open new connections
+				if (hasPublicResultsWs || hasVideoDataWs) {
+					logger.info("{}triggering update on existing WebSocket event forwarder", FieldOfPlay.getLoggingName(fop));
+					existing.pushUpdate(null);
+				}
+			}
+		}
 	}
 
 	private static ObjectMapper createObjectMapper() {
@@ -230,6 +274,31 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			&& (videoUrl.startsWith("ws://") || videoUrl.startsWith("wss://"));
 		
 		return hasPublicUrl || hasVideoUrl;
+	}
+
+	/**
+	 * Close WebSocket connections for URLs that have been removed from config.
+	 * Called when config is saved to clean up stale connections.
+	 * 
+	 * @param hasPublicResultsWs true if a valid publicResults WebSocket URL is configured
+	 * @param hasVideoDataWs true if a valid videoData WebSocket URL is configured
+	 */
+	public void closeStaleConnections(boolean hasPublicResultsWs, boolean hasVideoDataWs) {
+		// Close publicResults connection if URL was removed
+		if (!hasPublicResultsWs && this.currentPublicResultsUrl != null) {
+			logger.info("{}PublicResults WebSocket URL removed, closing connection to {}",
+			        FieldOfPlay.getLoggingName(getFop()), this.currentPublicResultsUrl);
+			WebSocketEventSender.closeSender(this.currentPublicResultsUrl);
+			this.currentPublicResultsUrl = null;
+		}
+		
+		// Close videoData connection if URL was removed
+		if (!hasVideoDataWs && this.currentVideoDataUrl != null) {
+			logger.info("{}VideoData WebSocket URL removed, closing connection to {}",
+			        FieldOfPlay.getLoggingName(getFop()), this.currentVideoDataUrl);
+			WebSocketEventSender.closeSender(this.currentVideoDataUrl);
+			this.currentVideoDataUrl = null;
+		}
 	}
 
 	private static final ObjectMapper JSON_MAPPER = createObjectMapper();
