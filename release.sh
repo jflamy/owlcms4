@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="${1:-64.0.5}"
+REVISION="${1:-64.1.0-beta01}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
@@ -87,7 +87,7 @@ if ! diff --strip-trailing-cr -q "${TRANSLATION_CSV}" "${REMOTE_TMP}" >/dev/null
   echo "         Local file may be out of date or have local modifications." >&2
   echo ""
   echo "Running translation consistency check..."
-  ./scripts/check-translations.sh || true
+  ./scripts/check-translation-diff.sh || true
   echo ""
   read -p "Do you want to proceed anyway? (y/N): " -r PROCEED
   if [[ ! "${PROCEED}" =~ ^[Yy]$ ]]; then
