@@ -10,6 +10,8 @@
 
 **New in Release 64**
 
+64.1.0: A zero eliminates the athlete from score-based medals (same as for total medals)
+
 64.1.0: The Jury Decision Display from the Video Streaming page
 - will now keep the initial jury decisions visible during deliberation. This can be controlled using the `keepInitial` URL parameter (default = true)
 - and also keep the second vote visible until the clock starts for the next athlete.  URL parameter `keepFinal` is true by default
@@ -22,6 +24,8 @@
   - shows the medal winners highlighted with the medal color
   - showMedals=auto is a new parameter on the URL: medals shown when category is done.
   - showMedals=true or false overrides the default.
+
+64.1.0: Fixed potential memory leak when trying to connect to an inexistent (or irresponsive) remote websocket site using the tracker protocol
 
 64.1.0: The previous groups leaders section will include medalists in Snatch or CJ even if they are not top 3 total.
 
