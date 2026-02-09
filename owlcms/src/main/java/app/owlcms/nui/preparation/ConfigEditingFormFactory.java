@@ -224,9 +224,25 @@ public class ConfigEditingFormFactory
 			if (tabSheet != null) {
 				VaadinSession.getCurrent().setAttribute(TAB_INDEX_KEY, tabSheet.getSelectedIndex());
 			}
+			
+			// Check if WebSocket URLs changed before saving
+			Config oldConfig = Config.getCurrent();
+			String oldPublicResultsUrl = oldConfig != null ? oldConfig.getParamPublicResultsURL() : null;
+			String oldVideoDataUrl = oldConfig != null ? oldConfig.getParamVideoDataURL() : null;
+			String newPublicResultsUrl = config.getParamPublicResultsURL();
+			String newVideoDataUrl = config.getParamVideoDataURL();
+			
+			boolean webSocketUrlsChanged = 
+				!java.util.Objects.equals(oldPublicResultsUrl, newPublicResultsUrl) ||
+				!java.util.Objects.equals(oldVideoDataUrl, newVideoDataUrl);
+			
 			Config saved = Config.setCurrent(config);
-			// Reinitialize WebSocket forwarders in case URLs were added/changed
-			WebSocketEventForwarder.reinitializeForAllFOPs();
+			
+			// Only reinitialize WebSocket forwarders if URLs actually changed
+			if (webSocketUrlsChanged) {
+				WebSocketEventForwarder.reinitializeForAllFOPs();
+			}
+			
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
