@@ -106,11 +106,11 @@ public interface DisplayParameters extends SoundParameters {
 	public default void setCurrentAttempt(boolean b) {
 	}
 
-	public default boolean isShowMedals() {
-		return false;
+	public default String isShowMedals() {
+		return "auto";
 	}
 
-	public default void setShowMedals(boolean b) {
+	public default void setShowMedals(String value) {
 	}
 
 }

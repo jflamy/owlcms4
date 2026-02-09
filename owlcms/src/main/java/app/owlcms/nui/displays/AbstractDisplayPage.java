@@ -64,7 +64,7 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	private boolean leadersDisplay;
 	private boolean recordsDisplay;
 	private boolean publicDisplay;
-	private boolean showMedals;
+	private String showMedals = "auto";
 	private Double teamWidth;
 	private Component board;
 
@@ -355,14 +355,14 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 	}
 
 	@Override
-	public boolean isShowMedals() {
+	public String isShowMedals() {
 		return this.showMedals;
 	}
 
 	@Override
-	public void setShowMedals(boolean b) {
-		((DisplayParameters) this.board).setShowMedals(b);
-		this.showMedals = b;
+	public void setShowMedals(String value) {
+		((DisplayParameters) this.board).setShowMedals(value);
+		this.showMedals = value;
 	}
 
 	protected Component getBoard() {

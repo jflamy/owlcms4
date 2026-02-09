@@ -108,7 +108,7 @@ public class BaseResults extends LitTemplate
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	private boolean video;
 	private boolean currentAttempt;
-	private boolean showMedals;
+	private String showMedals = "auto";
 
 	public BaseResults() {
 		this.uiEventLogger.setLevel(Level.INFO);
@@ -441,13 +441,13 @@ public class BaseResults extends LitTemplate
 	}
 
 	@Override
-	public boolean isShowMedals() {
+	public String isShowMedals() {
 		return this.showMedals;
 	}
 
 	@Override
-	public void setShowMedals(boolean b) {
-		this.showMedals = b;
+	public void setShowMedals(String value) {
+		this.showMedals = value != null ? value : "auto";
 		getElement().setProperty("showMedals", this.showMedals);
 	}
 

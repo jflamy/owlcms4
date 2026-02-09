@@ -13,9 +13,10 @@ import { html, LitElement, css } from "lit";
  * with the medalCategories data structure from ResultsMedals.js
  * (categories shown as grouping headers).
  * 
- * Medal decorations are shown:
- *  - automatically for categories where all athletes are done (categoryDone flag)
- *  - for all categories when showMedals=true URL parameter is set
+ * Medal decorations are controlled by showMedals parameter:
+ *  - showMedals="auto" (default): Automatically show medals when category is done (categoryDone flag)
+ *  - showMedals="true": Force show medals for all categories
+ *  - showMedals="false": Hide medals even when category is done
  */
 class ResultsRankingsByCategory extends LitElement {
   static get is() {
@@ -128,7 +129,7 @@ class ResultsRankingsByCategory extends LitElement {
                             <td class="best">
                               <div .innerHTML="${item?.bestSnatch}"></div>
                             </td>
-                            <td class="${"rank " + ((this.showMedals || mc.categoryDone) ? (item?.snatchMedal ?? "") : "")}">
+                            <td class="${"rank " + ((this.showMedals === "true" || (this.showMedals === "auto" && mc.categoryDone)) ? (item?.snatchMedal ?? "") : "")}">
                               <div .innerHTML="${item?.snatchRank}"></div>
                             </td>
                             <td class="vspacer"></td>
@@ -141,20 +142,20 @@ class ResultsRankingsByCategory extends LitElement {
                             <td class="best">
                               <div .innerHTML="${item?.bestCleanJerk}"></div>
                             </td>
-                            <td class="${"rank " + ((this.showMedals || mc.categoryDone) ? (item?.cleanJerkMedal ?? "") : "")}">
+                            <td class="${"rank " + ((this.showMedals === "true" || (this.showMedals === "auto" && mc.categoryDone)) ? (item?.cleanJerkMedal ?? "") : "")}">
                               <div .innerHTML="${item?.cleanJerkRank}"></div>
                             </td>
                             <td class="vspacer"></td>
                             <td class="total">
                               <div>${item?.total}</div>
                             </td>
-                            <td class="${"totalRank " + ((this.showMedals || mc.categoryDone) ? (item?.totalMedal ?? "") : "")}">
+                            <td class="${"totalRank " + ((this.showMedals === "true" || (this.showMedals === "auto" && mc.categoryDone)) ? (item?.totalMedal ?? "") : "")}">
                               <div .innerHTML="${item?.totalRank}"></div>
                             </td>
                             <td class="sinclair">
                               <div>${item?.sinclair}</div>
                             </td>
-                            <td class="${"sinclairRank " + ((this.showMedals || mc.categoryDone) ? (item?.sinclairMedal ?? "") : "")}">
+                            <td class="${"sinclairRank " + ((this.showMedals === "true" || (this.showMedals === "auto" && mc.categoryDone)) ? (item?.sinclairMedal ?? "") : "")}">
                               <div>${item?.sinclairRank}</div>
                             </td>
                           </tr>
@@ -204,7 +205,7 @@ class ResultsRankingsByCategory extends LitElement {
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
       showSinclairRanks: {type: Boolean},
-      showMedals: {type: Boolean},
+      showMedals: {type: String}, // "auto", "true", or "false"
 
       // translation map
       t: { type: Object },
@@ -279,7 +280,8 @@ class ResultsRankingsByCategory extends LitElement {
   constructor() {
     super();
     this.mode = "WAIT";
-    this.showMedals = false;
+    // showMedals: "auto" (default, use categoryDone), "true" (force show), "false" (force hide)
+    this.showMedals = "auto";
   }
 }
 

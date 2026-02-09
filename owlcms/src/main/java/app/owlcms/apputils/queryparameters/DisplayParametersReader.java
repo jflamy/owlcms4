@@ -114,7 +114,20 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		processBooleanParam(params, ABBREVIATED, (v) -> switchAbbreviated(v, true));
 		processBooleanParam(params, VIDEO, (v) -> switchVideo(v, true));
 		processBooleanParam(params, CURRENT_ATTEMPT, (v) -> switchCurrentAttempt(v, false));
-		processBooleanParam(params, SHOW_MEDALS, (v) -> switchShowMedals(v, true));
+		
+		// Process showMedals: "auto" (default), "true", "false"
+		List<String> showMedalsValues = params.get(SHOW_MEDALS);
+		String showMedalsValue = "auto"; // default
+		if (showMedalsValues != null && !showMedalsValues.isEmpty()) {
+			String param = showMedalsValues.get(0).toLowerCase();
+			if (param.equals("true") || param.equals("false")) {
+				showMedalsValue = param;
+			} else {
+				showMedalsValue = "auto";
+			}
+		}
+		switchShowMedals(showMedalsValue, true);
+		updateParam(params, SHOW_MEDALS, showMedalsValue);
 
 		String videoStyles = Config.getCurrent().getParamVideoStylesDir();
 		String publicStyles = Config.getCurrent().getParamPublicStylesDir();
@@ -271,9 +284,9 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		setCurrentAttempt(currentAttempt);
 	}
 
-	public default void switchShowMedals(boolean showMedals, boolean updateURL) {
+	public default void switchShowMedals(String showMedals, boolean updateURL) {
 		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), SHOW_MEDALS, Boolean.toString(showMedals));
+			updateURLLocation(getLocationUI(), getLocation(), SHOW_MEDALS, showMedals);
 		}
 		setShowMedals(showMedals);
 	}
