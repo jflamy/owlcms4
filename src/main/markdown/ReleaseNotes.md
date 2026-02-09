@@ -18,6 +18,8 @@
   - showMedals=auto is a new parameter on the URL: medals shown when category is done.
   - showMedals=true or false overrides the default.
 
+64.1.0: The previous groups leaders section will include medalists in Snatch or CJ even if they are not top 3 total.
+
 64.0.5: GAMX-M, U and A scores were computed as 0.00 due to age not being propagated.
 
 64.0.4: Flags, Translations and Logos were not packaged and sent to tracker if they were in a override zip stored in the database
