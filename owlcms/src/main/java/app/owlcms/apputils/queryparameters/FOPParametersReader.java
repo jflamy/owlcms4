@@ -133,9 +133,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 			List<String> groupNames = parametersMap.get(GROUP);
 			if (groupNames != null && groupNames.get(0) != null) {
 				String decoded = URLDecoder.decode(groupNames.get(0), StandardCharsets.UTF_8);
-				logger./**/warn("URL group parameter = {} decoded = {}", groupNames.get(0), decoded);
 				group = GroupRepository.findByName(decoded);
-				logger./**/warn("GroupRepository.findByName({}) returned {}", decoded, group != null ? group.getName() : null);
 				Group fopGroup = tFop != null ? tFop.getGroup() : null;
 				boolean sameGroup = fopGroup != null && fopGroup.getName().equals(decoded);
 				if (!sameGroup && tFop != null) {
@@ -143,17 +141,14 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 				}
 			} else {
 				group = (tFop != null ? tFop.getGroup() : null);
-				logger./**/warn("No group in URL, using FOP group={}", group != null ? group.getName() : null);
 			}
 			if (group != null) {
 				newParameterMap.put(GROUP, Arrays.asList(URLUtils.urlEncode(group.getName())));
 			}
 			// Set the group on the page so it can be used by display components
 			this.setGroup(group);
-			logger./**/warn("Called setGroup({}) on page", group != null ? group.getName() : null);
 		} else {
 			newParameterMap.remove(GROUP);
-			logger./**/warn("isIgnoreGroupFromURL() is true, removing group from URL");
 		}
 
 		// logger.debug("URL parsing: {} OwlcmsSession: fop={} group={}", LoggerUtils.whereFrom(),

@@ -108,6 +108,7 @@ public class BaseResults extends LitTemplate
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	private boolean video;
 	private boolean currentAttempt;
+	private boolean showMedals;
 
 	public BaseResults() {
 		this.uiEventLogger.setLevel(Level.INFO);
@@ -437,6 +438,17 @@ public class BaseResults extends LitTemplate
 	public void setCurrentAttempt(boolean b) {
 		this.currentAttempt = b;
 		getElement().setProperty("currentAttempt", this.currentAttempt);
+	}
+
+	@Override
+	public boolean isShowMedals() {
+		return this.showMedals;
+	}
+
+	@Override
+	public void setShowMedals(boolean b) {
+		this.showMedals = b;
+		getElement().setProperty("showMedals", this.showMedals);
 	}
 
 	@Subscribe
@@ -1172,6 +1184,7 @@ public class BaseResults extends LitTemplate
 		getElement().setProperty("showTotalRank", !Competition.getCurrent().isSinclair());
 		getElement().setProperty("video", this.video);
 		getElement().setProperty("currentAttempt", this.currentAttempt);
+		getElement().setProperty("showMedals", this.showMedals);
 
 		if (!isSilenced() || !isDownSilenced()) {
 			SoundUtils.enableAudioContextNotification(this.getElement());

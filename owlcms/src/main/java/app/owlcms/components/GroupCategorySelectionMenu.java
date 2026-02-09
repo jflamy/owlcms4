@@ -77,7 +77,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 	        TriConsumer<Group, Category, FieldOfPlay> whenChecked,
 	        TriConsumer<Group, Category, FieldOfPlay> whenUnselected, MenuItem item, String menuTitle) {
 		if (fop == null) {
-			this.logger.debug("fillMenu called with null FieldOfPlay (expected during early initialization)");
+			this.logger.debug("fillMenu called with null FieldOfPlay");
 		}
 		SubMenu subMenu = item.getSubMenu();
 		for (Group g : groups) {

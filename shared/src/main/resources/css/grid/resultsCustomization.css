@@ -271,6 +271,35 @@ td.custom2 div {
     text-align: center;
 }
 
+/* Medal colors for rankings display */
+:host table.results tr td.rank.medal1,
+:host table.results tr td.totalRank.medal1,
+:host table.results tr td.sinclairRank.medal1 {
+    background-color: gold;
+    color: black;
+}
+:host table.results tr td.rank.medal2,
+:host table.results tr td.totalRank.medal2,
+:host table.results tr td.sinclairRank.medal2 {
+    background-color: silver;
+    color: black;
+}
+:host table.results tr td.rank.medal3,
+:host table.results tr td.totalRank.medal3,
+:host table.results tr td.sinclairRank.medal3 {
+    background-color: #CD7F32;
+    color: black;
+}
+
+:host table.results td.categoryGroupHeader {
+    grid-column: 1 / -1;
+    justify-content: left;
+    font-weight: bold;
+    font-size: 105%;
+    padding-bottom: 0.1em;
+    margin-bottom: 0.4em;
+}
+
 :host .light table.results {
     --spacerWidth: 1vh;
     --rowSmallSpacerHeight: 0;

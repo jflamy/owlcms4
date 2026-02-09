@@ -35,6 +35,7 @@ public interface DisplayParameters extends SoundParameters {
 	public static final String LIGHT = "light";
 	public static final String VIDEO = "video";
 	public static final String CURRENT_ATTEMPT = "currentAttempt";
+	public static final String SHOW_MEDALS = "showMedals";
 
 	public default Double getEmFontSize() {
 		return 1.0D;
@@ -103,6 +104,13 @@ public interface DisplayParameters extends SoundParameters {
 	public void setVideo(boolean b);
 
 	public default void setCurrentAttempt(boolean b) {
+	}
+
+	public default boolean isShowMedals() {
+		return false;
+	}
+
+	public default void setShowMedals(boolean b) {
 	}
 
 }

@@ -114,6 +114,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		processBooleanParam(params, ABBREVIATED, (v) -> switchAbbreviated(v, true));
 		processBooleanParam(params, VIDEO, (v) -> switchVideo(v, true));
 		processBooleanParam(params, CURRENT_ATTEMPT, (v) -> switchCurrentAttempt(v, false));
+		processBooleanParam(params, SHOW_MEDALS, (v) -> switchShowMedals(v, true));
 
 		String videoStyles = Config.getCurrent().getParamVideoStylesDir();
 		String publicStyles = Config.getCurrent().getParamPublicStylesDir();
@@ -268,6 +269,13 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 			updateURLLocation(getLocationUI(), getLocation(), CURRENT_ATTEMPT, Boolean.toString(currentAttempt));
 		}
 		setCurrentAttempt(currentAttempt);
+	}
+
+	public default void switchShowMedals(boolean showMedals, boolean updateURL) {
+		if (updateURL) {
+			updateURLLocation(getLocationUI(), getLocation(), SHOW_MEDALS, Boolean.toString(showMedals));
+		}
+		setShowMedals(showMedals);
 	}
 
 	default Dialog getDialogCreateIfMissing() {
