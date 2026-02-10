@@ -29,6 +29,7 @@ or when the childrenEquipment toggle is added to the list of feature toggles.
   - shows the medal winners highlighted with the medal color
   - showMedals=auto is a new parameter on the URL: medals shown when category is done.
   - showMedals=true or false overrides the default.
+  - topN=15 shows 15 athletes (is the default.)
 
 64.1.0: Fixed potential memory leak when trying to connect to an inexistent (or irresponsive) remote websocket site using the tracker protocol
 
