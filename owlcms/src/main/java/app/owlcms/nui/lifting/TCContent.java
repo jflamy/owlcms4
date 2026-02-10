@@ -307,7 +307,9 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 					// logger.debug"after save, platform identity={}",System.identityHashCode(fop.getPlatform()));
 					platesDisplay.removeAll();
 					fop.setPlatform(np);
-					// causes fop to recompute what bar to use.
+					// Force immediate recalculation of bar weight before displaying
+					fop.recomputeBarInUse();
+					// Notify other UIs that equipment changed
 					fop.fopEventPost(new FOPEvent.BarbellOrPlatesChanged(this));
 					this.plates.computeImageArea(fop, true);
 					platesDisplay.add(this.plates);

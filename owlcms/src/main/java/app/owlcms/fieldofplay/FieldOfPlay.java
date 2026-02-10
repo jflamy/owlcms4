@@ -1245,6 +1245,17 @@ public class FieldOfPlay implements IUnregister {
 		this.setCjStarted(false);
 		this.setCjBreakDisplayed(false);
 		resetDecisions();
+		
+		// Reset platform equipment according to feature toggle when session starts
+		if (Config.getCurrent().featureSwitch("childrenEquipment") && getPlatform() != null) {
+			getPlatform().setNbB_5(1);
+			getPlatform().setNbB_10(1);
+			getPlatform().setNbB_15(1);
+			getPlatform().setNbB_20(1);
+			getPlatform().setNbL_2_5(1);
+			getPlatform().setNbL_5(1);
+			this.logger.info("{}reset platform equipment for children's competition", FieldOfPlay.getLoggingName(this));
+		}
 
 		if (group != null) {
 			// debounce spurious requests due to misconfigured client that would trigger
@@ -1675,20 +1686,22 @@ public class FieldOfPlay implements IUnregister {
 		this.wakeUpRef = null;
 	}
 
+	/**
+	 * Force recalculation of bar weight and light bar status based on current athlete and platform settings.
+	 * Call this after changing platform equipment to ensure the FOP state is updated before displaying.
+	 */
+	public void recomputeBarInUse() {
+		changePlatformEquipment(this.curAthlete, this.curWeight);
+	}
+
 	private void changePlatformEquipment(Athlete a, Integer newWeight) {
 		// skip during unit tests or results editing
 		if (getPlatform() == null || a == null) {
 			return;
 		}
 		boolean use15Bar = false;
-		if (Config.getCurrent().featureSwitch("childrenEquipment")) {
-			getPlatform().setNbB_5(1);
-			getPlatform().setNbB_10(1);
-			getPlatform().setNbB_15(1);
-			getPlatform().setNbB_20(1);
-			getPlatform().setNbL_2_5(1);
-			getPlatform().setNbL_5(1);
-		}
+		// Note: childrenEquipment feature switch resets equipment when a session is loaded (see loadGroup).
+		// TC screen can still override settings during the session.
 		AgeGroup ageGroup = a.getAgeGroup();
 		boolean boysLightBarAllowed = Config.getCurrent().featureSwitch("lightBarU13")
 		        && (ageGroup != null && ageGroup.getMaxAge() <= 13);
@@ -1732,10 +1745,33 @@ public class FieldOfPlay implements IUnregister {
 				this.setBarWeight(15);
 				this.setUseCollarsIfAvailable(true);
 			} else {
-				this.logger.trace("standard");
-				this.setLightBarInUse(false);
+				// Standard bar selection based on gender and availability
 				Gender gender = this.curAthlete != null ? this.curAthlete.getGender() : null;
-				this.setBarWeight((gender != null && gender == Gender.M) ? 20 : 15);
+				int standardBar = (gender != null && gender == Gender.M) ? 20 : 15;
+				
+				// Check if standard bar is available, otherwise find heaviest available bar
+				int actualBar = standardBar;
+				if (standardBar == 20 && getPlatform().getNbB_20() == 0) {
+					// 20kg not available, try lighter bars in order
+					if (getPlatform().getNbB_15() > 0) {
+						actualBar = 15;
+					} else if (getPlatform().getNbB_10() > 0) {
+						actualBar = 10;
+					} else if (getPlatform().getNbB_5() > 0) {
+						actualBar = 5;
+					}
+				} else if (standardBar == 15 && getPlatform().getNbB_15() == 0) {
+					// 15kg not available, try lighter bars
+					if (getPlatform().getNbB_10() > 0) {
+						actualBar = 10;
+					} else if (getPlatform().getNbB_5() > 0) {
+						actualBar = 5;
+					}
+				}
+				
+				this.logger.trace("standard -> using {}kg bar", actualBar);
+				this.setLightBarInUse(actualBar != standardBar);
+				this.setBarWeight(actualBar);
 				this.setUseCollarsIfAvailable(useCollars);
 			}
 		}

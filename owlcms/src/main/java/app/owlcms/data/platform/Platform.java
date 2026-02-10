@@ -30,6 +30,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.server.VaadinSession;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -233,13 +234,16 @@ public class Platform implements Serializable, Comparable<Platform> {
 		this.setNbL_20(1);
 		this.setNbL_25(3);
 
-		// large plates, kid competitions
-		this.setNbL_2_5(0);
-		this.setNbL_5(0);
+		// Check if childrenEquipment feature is enabled for initial defaults
+		boolean childrenEquipment = Config.getCurrent().featureSwitch("childrenEquipment");
+		
+		// large plates for kid competitions (enabled if childrenEquipment)
+		this.setNbL_2_5(childrenEquipment ? 1 : 0);
+		this.setNbL_5(childrenEquipment ? 1 : 0);
 
-		// available bars
-		this.setNbB_5(0);
-		this.setNbB_10(0);
+		// available bars (5kg, 10kg enabled if childrenEquipment)
+		this.setNbB_5(childrenEquipment ? 1 : 0);
+		this.setNbB_10(childrenEquipment ? 1 : 0);
 		this.setNbB_15(1);
 		this.setNbB_20(1);
 	}
