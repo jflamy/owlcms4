@@ -18,6 +18,9 @@
   "settings": {
     "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
     "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --enable-native-access=ALL-UNNAMED",
+    "owlcms.mainClass": "app.owlcms.Main",
+    "owlcms.console": "internalConsole",
+    "owlcms.noDebug": false,
     "java.compile.nullAnalysis.mode": "disabled",
     
     /*

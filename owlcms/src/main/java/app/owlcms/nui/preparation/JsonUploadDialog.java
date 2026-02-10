@@ -66,6 +66,18 @@ public class JsonUploadDialog extends Dialog {
 				dialog.setConfirmText(Translator.translate("OK"));
 				dialog.addConfirmListener(ev -> {
 					dialog.close();
+					JsonUploadDialog.this.close(); // Close the upload dialog
+					if (ui != null) {
+						ui.push(); // Push UI changes before sleeping
+					}
+					try {
+						Thread.sleep(2000); // Give UI time to close before restart
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+					// Check if we should restart (OWLCMS_CONTROLPANEL >= 3.1.0)
+					FormatDetector.checkAndRestartIfNeeded();
+					// If we reach here, no restart was triggered, so just reload
 					this.ui.getPage().reload();
 				});
 				dialog.open();
