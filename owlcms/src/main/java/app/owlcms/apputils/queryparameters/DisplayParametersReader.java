@@ -115,6 +115,17 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		processBooleanParam(params, VIDEO, (v) -> switchVideo(v, true));
 		processBooleanParam(params, CURRENT_ATTEMPT, (v) -> switchCurrentAttempt(v, false));
 		
+		// Process topN parameter (default DEFAULT_TOP_N)
+		List<String> topNValues = params.get(TOP_N);
+		if (topNValues != null && !topNValues.isEmpty()) {
+			try {
+				int topN = Integer.parseInt(topNValues.get(0));
+				setTopN(topN);
+			} catch (NumberFormatException e) {
+				setTopN(DEFAULT_TOP_N);
+			}
+		}
+		
 		// Process showMedals: "auto" (default), "true", "false"
 		List<String> showMedalsValues = params.get(SHOW_MEDALS);
 		String showMedalsValue = "auto"; // default

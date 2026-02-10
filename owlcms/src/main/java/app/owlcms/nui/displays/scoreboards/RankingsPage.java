@@ -62,7 +62,8 @@ public class RankingsPage extends MedalsPage {
 		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
 		        SoundParameters.START_ORDER, "false",
 		        DisplayParameters.CURRENT_ATTEMPT, "false",
-		        DisplayParameters.SHOW_MEDALS, "auto");
+		        DisplayParameters.SHOW_MEDALS, "auto",
+		        DisplayParameters.TOP_N, Integer.toString(DisplayParameters.DEFAULT_TOP_N));
 		Map<String, String> fullMap = new TreeMap<>();
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);

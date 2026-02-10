@@ -67,7 +67,7 @@ class ResultsRankingsByCategory extends LitElement {
                   ${(this.medalCategories ?? []).map(
                     (mc, index, array) => html`
                       <tr>
-                        <td class="categoryGroupHeader" style="padding-top: ${index > 0 ? '0.4em' : '0'};" .innerHTML="${mc.categoryName}"></td>
+                        <td class="categoryGroupHeader" style="margin-top: ${index > 0 ? '0.4em' : '0'};" .innerHTML="${mc.categoryName}"></td>
                       </tr>
                       <tr class="head">
                         <th class="groupCol" .innerHTML="${this.t?.Start}"></th>

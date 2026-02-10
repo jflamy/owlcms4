@@ -96,7 +96,7 @@ public class ResultsRankings extends ResultsMedals implements ResultsParameters 
 				        return Integer.compare(aTotalRank, bTotalRank);
 			        }
 		        })
-		        .limit(15)
+		        .limit(getTopN())
 		        .forEach(a -> {
 			        JsonObject ja = Json.createObject();
 			        Category curCat = a.getCategory();

@@ -109,6 +109,7 @@ public class BaseResults extends LitTemplate
 	private boolean video;
 	private boolean currentAttempt;
 	private String showMedals = "auto";
+	private int topN = DisplayParameters.DEFAULT_TOP_N;
 
 	public BaseResults() {
 		this.uiEventLogger.setLevel(Level.INFO);
@@ -449,6 +450,16 @@ public class BaseResults extends LitTemplate
 	public void setShowMedals(String value) {
 		this.showMedals = value != null ? value : "auto";
 		getElement().setProperty("showMedals", this.showMedals);
+	}
+
+	@Override
+	public int getTopN() {
+		return this.topN;
+	}
+
+	@Override
+	public void setTopN(int topN) {
+		this.topN = topN > 0 ? topN : DisplayParameters.DEFAULT_TOP_N;
 	}
 
 	@Subscribe
