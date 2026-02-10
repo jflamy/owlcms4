@@ -12,6 +12,9 @@
 
 64.1.0: A zero eliminates the athlete from score-based medals (same as for total medals)
 
+61.1.0: The `childrenEquipment` feature toggle is now treated as a default setting for the beginning of a session. It is therefore possible, for example,
+to uncheck the 20kg bar to have all athletes use 15kg or lower bars.
+
 64.1.0: The Jury Decision Display from the Video Streaming page
 - will now keep the initial jury decisions visible during deliberation. This can be controlled using the `keepInitial` URL parameter (default = true)
 - and also keep the second vote visible until the clock starts for the next athlete.  URL parameter `keepFinal` is true by default
