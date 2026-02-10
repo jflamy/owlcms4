@@ -1854,6 +1854,9 @@ public class FieldOfPlay implements IUnregister {
 		getAthleteTimer().setTimeRemaining(ta, false);
 		setClockOwnerInitialTimeAllowed(ta);
 		setForcedTime(true);
+		// Reset clock owner so setupForDecisionWithoutClock will properly initialize
+		// when decisions arrive without the clock being started
+		setClockOwner(null);
 		setState(CURRENT_ATHLETE_DISPLAYED);
 	}
 
@@ -2952,14 +2955,13 @@ public class FieldOfPlay implements IUnregister {
 	 * @param e the decision event
 	 */
 	private void setupForDecisionWithoutClock(FOPEvent e) {
-		// Clear stale decisions from previous lift FIRST - before any other setup
-		// This must happen unconditionally to prevent old decisions from triggering
-		// an immediate down signal when combined with a single new decision
-		resetDecisions();
-
 		// Only do the full setup if we haven't already transitioned
-		// (prevents re-setup on 2nd and 3rd referee decisions)
+		// (prevents re-setup and unwanted decision reset on 2nd and 3rd referee decisions)
 		if (getClockOwner() == null || !getClockOwner().equals(getCurAthlete())) {
+			// Clear stale decisions from previous lift FIRST - before any other setup
+			// This must happen only when starting a new decision phase, not on every decision
+			resetDecisions();
+
 			// Set up clock ownership as if timekeeper had started it
 			setClockOwner(getCurAthlete());
 
