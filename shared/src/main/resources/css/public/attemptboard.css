@@ -322,9 +322,9 @@
 	justify-self: stretch;
 }
 
-.wrapper .branding {
-	/* display: none; */
-}
+/* .wrapper .branding {
+	display: none;
+} */
 
 @media screen and (max-width: 1300px) {
 	.attemptBoard .weight {
