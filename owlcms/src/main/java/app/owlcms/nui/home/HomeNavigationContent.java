@@ -157,8 +157,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		fillH(intro, this);
 		fillH(grid, this);
 
-		owlcmsManagementTwister();
-
 		DebugUtils.gc();
 	}
 
@@ -181,52 +179,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	@Override
 	public boolean isIgnoreFopFromURL() {
 		return true;
-	}
-
-	public void owlcmsManagementTwister() {
-		if (Config.getCurrent().featureSwitch("manageOwlcms")) {
-			ConfirmationDialog cdRestart = new ConfirmationDialog(
-			        Translator.translate("ManageOwlcms.Restart"),
-			        Translator.translate("ManageOwlcms.RestartWarning"),
-			        null,
-			        null);
-			Button restart = new Button(Translator.translate("ManageOwlcms.Restart"),
-			        buttonClickEvent -> {
-				        cdRestart.setAction(() -> {
-					        cdRestart.close();
-					        if (ui != null) {
-					        	ui.push();
-					        }
-					        Main.restart();
-				        });
-				        cdRestart.open();
-			        });
-
-			ConfirmationDialog cdStop = new ConfirmationDialog(
-			        Translator.translate("ManageOwlcms.Stop"),
-			        Translator.translate("ManageOwlcms.StopWarning"),
-			        null,
-			        null);
-			Button stop = new Button(Translator.translate("ManageOwlcms.Stop"),
-			        buttonClickEvent -> {
-				        cdStop.setAction(() -> {
-					        cdStop.close();
-					        if (ui != null) {
-					        	ui.push();
-					        }
-					        EmbeddedJetty.stop(false);
-					        System.exit(0);
-				        });
-				        cdStop.open();
-			        });
-			FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(restart, stop);
-
-			Html explanation = new Html(
-			        "<div style='color: red; font-weight: bold'>" + "\uD83D\uDED1 " + Translator.translate("ManageOwlcms.Warning") + "</div>");
-			explanation.getStyle().set("width", "40em");
-			doHiddenGroup(Translator.translate("ManageOwlcms.Title"),
-			        explanation, grid2, this, true);
-		}
 	}
 
 	/**
