@@ -57,6 +57,8 @@ import com.vaadin.flow.data.validator.RegexpValidator;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
+import app.owlcms.data.platform.Platform;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
@@ -236,11 +238,21 @@ public class ConfigEditingFormFactory
 				!java.util.Objects.equals(oldPublicResultsUrl, newPublicResultsUrl) ||
 				!java.util.Objects.equals(oldVideoDataUrl, newVideoDataUrl);
 			
+			// Check if childrenEquipment toggle is being ADDED (wasn't active before, now is)
+			boolean hadChildrenEquipment = oldConfig != null && oldConfig.featureSwitch("childrenEquipment");
+			boolean willHaveChildrenEquipment = containsFeatureSwitch(config.getFeatureSwitches(), "childrenEquipment");
+			boolean childrenEquipmentAdded = !hadChildrenEquipment && willHaveChildrenEquipment;
+			
 			Config saved = Config.setCurrent(config);
 			
 			// Only reinitialize WebSocket forwarders if URLs actually changed
 			if (webSocketUrlsChanged) {
 				WebSocketEventForwarder.reinitializeForAllFOPs();
+			}
+			
+			// If childrenEquipment toggle was just added, update all platforms with children equipment defaults
+			if (childrenEquipmentAdded) {
+				applyChildrenEquipmentToAllPlatforms();
 			}
 			
 			try {
@@ -252,6 +264,41 @@ public class ConfigEditingFormFactory
 			return saved;
 		} finally {
 			config.setSkipReading(false);
+		}
+	}
+	
+	/**
+	 * Check if a feature switch is present in a comma/semicolon/space-separated string.
+	 */
+	private boolean containsFeatureSwitch(String switches, String toggle) {
+		if (switches == null || switches.trim().isEmpty()) {
+			return false;
+		}
+		String[] parts = switches.toLowerCase().split("[,; ]");
+		for (String part : parts) {
+			if (part.trim().equalsIgnoreCase(toggle)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Apply children's equipment defaults to all existing platforms.
+	 * Called when the childrenEquipment feature toggle is added.
+	 */
+	private void applyChildrenEquipmentToAllPlatforms() {
+		logger.info("childrenEquipment toggle added - applying children's equipment defaults to all platforms");
+		for (Platform platform : PlatformRepository.findAll()) {
+			// Enable light bars
+			platform.setNbB_5(1);
+			platform.setNbB_10(1);
+			platform.setNbB_15(1);
+			platform.setNbB_20(1);
+			// Enable extra large plates for kids
+			platform.setNbL_2_5(1);
+			platform.setNbL_5(1);
+			PlatformRepository.save(platform);
 		}
 	}
 

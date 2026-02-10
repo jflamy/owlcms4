@@ -1245,17 +1245,6 @@ public class FieldOfPlay implements IUnregister {
 		this.setCjStarted(false);
 		this.setCjBreakDisplayed(false);
 		resetDecisions();
-		
-		// Reset platform equipment according to feature toggle when session starts
-		if (Config.getCurrent().featureSwitch("childrenEquipment") && getPlatform() != null) {
-			getPlatform().setNbB_5(1);
-			getPlatform().setNbB_10(1);
-			getPlatform().setNbB_15(1);
-			getPlatform().setNbB_20(1);
-			getPlatform().setNbL_2_5(1);
-			getPlatform().setNbL_5(1);
-			this.logger.info("{}reset platform equipment for children's competition", FieldOfPlay.getLoggingName(this));
-		}
 
 		if (group != null) {
 			// debounce spurious requests due to misconfigured client that would trigger

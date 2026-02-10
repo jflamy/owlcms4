@@ -10,10 +10,12 @@
 
 **New in Release 64**
 
+64.1.0: If the clock was started, and then accidentally reset to 1 or 2 minutes, and not restarted, the "accept decisions with a warning" process did not work. Now fixed.
+
 64.1.0: A zero eliminates the athlete from score-based medals (same as for total medals)
 
-61.1.0: The `childrenEquipment` feature toggle is now treated as a default setting for the beginning of a session. It is therefore possible, for example,
-to uncheck the 20kg bar to have all athletes use 15kg or lower bars.
+64.1.0: The `childrenEquipment` feature toggle is now treated as a default setting for the equipment on the platforms.  Applied when creating a platform,
+or when the childrenEquipment toggle is added to the list of feature toggles.
 
 64.1.0: The Jury Decision Display from the Video Streaming page
 - will now keep the initial jury decisions visible during deliberation. This can be controlled using the `keepInitial` URL parameter (default = true)
