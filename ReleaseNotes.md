@@ -25,7 +25,6 @@ or when the childrenEquipment toggle is added to the list of feature toggles.
 64.1.0: The Rankings selection on the Video Streaming page now works again.
 
 64.1.0: The Rankings screen from the Video Streaming page
-  - now shows more athletes (same as the regular session handling)
   - shows the medal winners highlighted with the medal color
   - showMedals=auto is a new parameter on the URL: medals shown when category is done.
   - showMedals=true or false overrides the default.
