@@ -3,10 +3,34 @@
   "configurations": [
     {
       "type": "java",
+      "name": "🟩 owlcms wrapper",
+      "request": "launch",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
+      "projectName": "owlcms",
+      "cwd": "${workspaceFolder}/owlcms",
+      "vmArgs": "${config:owlcms.vmArgs}",
+      "windows": {
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+      },
+      "linux": {
+        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+      },
+      "osx": {
+        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+      },
+      "env": {
+        "OWLCMS_MEMORYMODE": "false"
+      }
+    },
+    {
+      "type": "java",
       "name": "🟨 owlcms no reset",
       "request": "launch",
-      "console": "internalConsole",
-      "mainClass": "app.owlcms.Main",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
@@ -27,8 +51,9 @@
       "type": "java",
       "name": "🟨 WS owlcms no reset",
       "request": "launch",
-      "console": "internalConsole",
-      "mainClass": "app.owlcms.Main",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
@@ -50,8 +75,9 @@
       "type": "java",
       "name": "🟨 EDIT owlcms no reset ",
       "request": "launch",
-      "console": "internalConsole",
-      "mainClass": "app.owlcms.Main",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
@@ -72,8 +98,9 @@
       "type": "java",
       "name": "🟥 owlcms empty reset",
       "request": "launch",
-      "console": "internalConsole",
-      "mainClass": "app.owlcms.Main",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
@@ -96,8 +123,9 @@
       "type": "java",
       "name": "🟥 large demo owlcms reset",
       "request": "launch",
-      "console": "internalConsole",
-      "mainClass": "app.owlcms.Main",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
@@ -120,8 +148,9 @@
       "type": "java",
       "name": "🟩 small demo owlcms memory",
       "request": "launch",
-      "console": "internalConsole",
-      "mainClass": "app.owlcms.Main",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
@@ -144,8 +173,9 @@
       "type": "java",
       "name": "🟩 WS large demo owlcms memory",
       "request": "launch",
-      "console": "internalConsole",
-      "mainClass": "app.owlcms.Main",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
@@ -170,8 +200,9 @@
       "type": "java",
       "name": "🟩 large demo owlcms memory edit",
       "request": "launch",
-      "console": "internalConsole",
-      "mainClass": "app.owlcms.Main",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
@@ -194,8 +225,9 @@
       "type": "java",
       "name": "🟠 tandem owlcms",
       "request": "launch",
-      "console": "internalConsole",
-      "mainClass": "app.owlcms.Main",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
+      "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs}",
@@ -218,7 +250,8 @@
       "type": "java",
       "name": "🟠 tandem publicresults",
       "request": "launch",
-      "console": "internalConsole",
+      "noDebug": "${config:owlcms.noDebug}",
+      "console": "${config:owlcms.console}",
       "mainClass": "app.owlcms.publicresults.Main",
       "projectName": "publicresults",
       "cwd": "${workspaceFolder}/publicresults",
@@ -239,8 +272,9 @@
 
     {
       "type": "java",
-      "name": "RunResults",
+      "name": "♦️ RunResults",
       "request": "launch",
+      "noDebug": "${config:owlcms.noDebug}",
       "mainClass": "playwright.RunResults",
       "projectName": "playwright"
     }
@@ -254,17 +288,10 @@
       ]
     },
     {
-      "name": "🟪 tandem owlcms + firmata",
-      "configurations": [
-        "🟨 owlcms no reset",
-        "🔷 firmata"
-      ]
-    },
-    {
       "name": "🟪 owlcms + tracker learning",
       "configurations": [
         "🟨 WS owlcms no reset",
-        "OWLCMS Tracker - Learning Mode"
+        "🔳 OWLCMS Tracker - Learning Mode"
       ]
     }
   ]

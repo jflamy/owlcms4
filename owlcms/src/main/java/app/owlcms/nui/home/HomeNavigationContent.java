@@ -483,7 +483,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		UI.getCurrent();
 	}
 
 	private void logUsage() {

@@ -30,17 +30,20 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 
 @SuppressWarnings("serial")
 public class JsonUploadDialog extends Dialog {
 
 	final static Logger logger = (Logger) LoggerFactory.getLogger(JsonUploadDialog.class);
 	private UI ui;
+	private boolean isRestartScenario;
 
 	public JsonUploadDialog(UI ui) {
 		this.ui = ui;
+		this.isRestartScenario = checkIfRestartScenario();
 
-		H5 label = new H5(Translator.translate("ImportJson.RestartWarning"));
+		H5 label = new H5(Translator.translate(isRestartScenario ? "ImportJsonR.RestartWarning" : "ImportJson.RestartWarning"));
 		label.getStyle().set("color", "red");
 
 		TextArea ta = new TextArea(Translator.translate("Errors"));
@@ -53,19 +56,38 @@ public class JsonUploadDialog extends Dialog {
 				processInput(metadata.fileName(), inputStream, ta);
 				
 				ConfirmDialog dialog = new ConfirmDialog();
-				dialog.setHeader(Translator.translate("Import.Success"));
-				String owlcmsLauncher = System.getenv("OWLCMS_LAUNCHER");
-				String preamble = Translator.translate("Import.Warning");
+				String successKey = isRestartScenario ? "ImportR.Success" : "Import.Success";
+				String warningKey = isRestartScenario ? "ImportR.Warning" : "Import.Warning";
+				String controlPanelKey = isRestartScenario ? "ImportR.ControlPanelRestart" : "Import.ControlPanelRestart";
+				// local restart scenario if MainWrapper.java is used to simulate the control panel
+				String localKey = isRestartScenario ? "ImportR.ControlPanelRestart" : "Import.LocalRestart";
+				String cloudKey = isRestartScenario ? "ImportR.CloudRestart" : "Import.CloudRestart";
+				
+				dialog.setHeader(Translator.translate(successKey));
+				String owlcmsLauncher = System.getenv("OWLCMS_CONTROLPANEL");
+				String preamble = Translator.translate(warningKey);
 				if (owlcmsLauncher != null) {
-					dialog.setText(new Html("<div>"+preamble+Translator.translate("Import.ControlPanelRestart")+"</div>"));
+					dialog.setText(new Html("<div>"+preamble+Translator.translate(controlPanelKey)+"</div>"));
 				} else if (JPAService.isLocalDb()){
-					dialog.setText(new Html("<div>"+preamble+Translator.translate("Import.LocalRestart")+"</div>"));
+					dialog.setText(new Html("<div>"+preamble+Translator.translate(localKey)+"</div>"));
 				} else {
-					dialog.setText(new Html("<div>"+preamble+Translator.translate("Import.CloudRestart")+"</div>"));
+					dialog.setText(new Html("<div>"+preamble+Translator.translate(cloudKey)+"</div>"));
 				}
 				dialog.setConfirmText(Translator.translate("OK"));
 				dialog.addConfirmListener(ev -> {
 					dialog.close();
+					JsonUploadDialog.this.close(); // Close the upload dialog
+					if (ui != null) {
+						ui.push(); // Push UI changes before sleeping
+					}
+					try {
+						Thread.sleep(2000); // Give UI time to close before restart
+					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
+					}
+					// Check if we should restart (OWLCMS_CONTROLPANEL >= 3.1.0)
+					FormatDetector.checkAndRestartIfNeeded();
+					// If we reach here, no restart was triggered, so just reload
 					this.ui.getPage().reload();
 				});
 				dialog.open();
@@ -119,6 +141,25 @@ public class JsonUploadDialog extends Dialog {
 				ta.setVisible(true);
 			}
 			throw new IOException("Import failed: " + e1.getMessage(), e1);
+		}
+	}
+
+	/**
+	 * Check if we're in a restart scenario (OWLCMS_CONTROLPANEL >= 3.1.0)
+	 */
+	private boolean checkIfRestartScenario() {
+		String controlPanelVersion = System.getenv("OWLCMS_CONTROLPANEL");
+		if (controlPanelVersion == null || controlPanelVersion.trim().isEmpty()) {
+			return false;
+		}
+		
+		try {
+			ComparableVersion currentVersion = new ComparableVersion(controlPanelVersion);
+			ComparableVersion minVersion = new ComparableVersion("3.1.0-alpha00");
+			return currentVersion.compareTo(minVersion) >= 0;
+		} catch (Exception e) {
+			logger.error("Error checking control panel version: {}", e.getMessage());
+			return false;
 		}
 	}
 

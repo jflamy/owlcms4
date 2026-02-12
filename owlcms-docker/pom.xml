@@ -81,6 +81,9 @@
                                 <assembly>
                                     <descriptor>owlcms.xml</descriptor>
                                 </assembly>
+                                <env>
+                                    <OWLCMS_CONTROLPANEL>3.0.5</OWLCMS_CONTROLPANEL>
+                                </env>
                                 <entryPoint>
                                     <arg>java</arg>
 <!--                                     <arg>-Djava.net.preferIPv4Stack=true</arg> -->
