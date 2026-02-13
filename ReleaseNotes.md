@@ -10,6 +10,11 @@
 
 **New in Release 64**
 
+64.2.0: Restart by control panel or docker
+  - If the program exits with a non-zero status, control-panel >= 3.1 and Docker will restart it
+  - JSON imports will trigger a restart if started from control-panel version >= 3.1 or Docker
+  - When developing, app.owlcms.MainWrapper can be used instead of app.owlcms.Main to launch a child JVM and simulate the behavior.
+
 64.1.0: If the clock was started, and then accidentally reset to 1 or 2 minutes, and not restarted, the "accept decisions with a warning" process did not work. Now fixed.
 
 64.1.0: A zero eliminates the athlete from score-based medals (same as for total medals)
