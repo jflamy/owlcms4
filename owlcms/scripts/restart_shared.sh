@@ -66,7 +66,7 @@ fi
 # Start owlcms.jar as a background process on remote server
 echo ""
 echo "Starting owlcms.jar as background process on port $OWLCMS_PORT..."
-nohup env OWLCMS_PORT=$OWLCMS_PORT OWLCMS_ENABLEEMBEDDEDMQTT=false java -jar owlcms*.jar > owlcms.log 2>&1 &
+nohup env OWLCMS_PORT=$OWLCMS_PORT OWLCMS_ENABLEEMBEDDEDMQTT=false java -cp owlcms*.jar app.owlcms.MainWrapper > owlcms.log 2>&1 &
 echo "owlcms started in background with PID: $! on port $OWLCMS_PORT"
 echo "Logs will be written to owlcms.log"
 EOSSH

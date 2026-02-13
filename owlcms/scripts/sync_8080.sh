@@ -146,7 +146,7 @@ echo switching to $(pwd)
 export OWLCMS_PORT=$REMOTE_PORT
 export OWLCMS_ENABLEEMBEDDEDMQTT=false
 export OWLCMS_FEATURESWITCHES=iwfLook
-nohup java -jar owlcms*.jar > owlcms.log 2>&1 &
+nohup java -cp owlcms*.jar app.owlcms.MainWrapper > owlcms.log 2>&1 &
 echo "owlcms started in background with PID: $!"
 echo "Logs will be written to owlcms.log"
 EOF
