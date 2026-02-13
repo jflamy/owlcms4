@@ -30,26 +30,41 @@ echo "lsof result: $PIDS"
 if [ -z "$PIDS" ]; then
     echo "No processes found running on port $REMOTE_PORT"
 else
-    echo "Found processes to kill: $PIDS"
-    echo "Process details:"
+    echo "Found processes on port: $PIDS"
+    
+    # For each port-owning process, find its parent (MainWrapper) and kill that instead
     for pid in $PIDS; do
-        ps -p $pid -o pid,user,command 2>/dev/null
-    done
-
-    echo "Killing processes..."
-    for pid in $PIDS; do
-        if [ ! -z "$pid" ] && [ "$pid" != "-" ]; then
-            echo "Attempting to kill process $pid"
-            kill -TERM $pid 2>/dev/null
-            sleep 2
-
-            # Check if process is still running, force kill if necessary
-            if kill -0 $pid 2>/dev/null; then
-                echo "Process $pid still running, force killing..."
-                kill -KILL $pid 2>/dev/null
-            else
-                echo "Process $pid terminated successfully"
+        echo "Process details for $pid:"
+        ps -p $pid -o pid,ppid,user,command 2>/dev/null
+        
+        # Get parent PID
+        PPID=$(ps -o ppid= -p $pid 2>/dev/null | tr -d ' ')
+        if [ ! -z "$PPID" ] && [ "$PPID" != "1" ]; then
+            PARENT_CMD=$(ps -o command= -p $PPID 2>/dev/null)
+            if echo "$PARENT_CMD" | grep -q "MainWrapper"; then
+                echo "Found MainWrapper parent process: $PPID"
+                echo "Killing MainWrapper (parent) instead of child..."
+                kill -TERM $PPID 2>/dev/null
+                sleep 2
+                if kill -0 $PPID 2>/dev/null; then
+                    echo "MainWrapper $PPID still running, force killing..."
+                    kill -KILL $PPID 2>/dev/null
+                else
+                    echo "MainWrapper $PPID terminated successfully"
+                fi
+                continue
             fi
+        fi
+        
+        # Fallback: kill the port-owning process directly
+        echo "Killing process $pid directly..."
+        kill -TERM $pid 2>/dev/null
+        sleep 2
+        if kill -0 $pid 2>/dev/null; then
+            echo "Process $pid still running, force killing..."
+            kill -KILL $pid 2>/dev/null
+        else
+            echo "Process $pid terminated successfully"
         fi
     done
 
