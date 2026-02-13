@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dialog.Dialog;
+
+import app.owlcms.components.ConfirmationDialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H5;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -55,42 +55,46 @@ public class JsonUploadDialog extends Dialog {
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
 				processInput(metadata.fileName(), inputStream, ta);
 				
-				ConfirmDialog dialog = new ConfirmDialog();
-				String successKey = isRestartScenario ? "ImportR.Success" : "Import.Success";
+				String titleKey = isRestartScenario ? "ImportR.Success" : "Import.Success";
 				String warningKey = isRestartScenario ? "ImportR.Warning" : "Import.Warning";
 				String controlPanelKey = isRestartScenario ? "ImportR.ControlPanelRestart" : "Import.ControlPanelRestart";
 				// local restart scenario if MainWrapper.java is used to simulate the control panel
 				String localKey = isRestartScenario ? "ImportR.ControlPanelRestart" : "Import.LocalRestart";
 				String cloudKey = isRestartScenario ? "ImportR.CloudRestart" : "Import.CloudRestart";
+				String confirmKey = isRestartScenario ? "ImportR.DoIt" : "Import.DoIt";
 				
-				dialog.setHeader(Translator.translate(successKey));
 				String owlcmsLauncher = System.getenv("OWLCMS_CONTROLPANEL");
 				String preamble = Translator.translate(warningKey);
+				String message;
 				if (owlcmsLauncher != null) {
-					dialog.setText(new Html("<div>"+preamble+Translator.translate(controlPanelKey)+"</div>"));
+					message = preamble + Translator.translate(controlPanelKey);
 				} else if (JPAService.isLocalDb()){
-					dialog.setText(new Html("<div>"+preamble+Translator.translate(localKey)+"</div>"));
+					message = preamble + Translator.translate(localKey);
 				} else {
-					dialog.setText(new Html("<div>"+preamble+Translator.translate(cloudKey)+"</div>"));
+					message = preamble + Translator.translate(cloudKey);
 				}
-				dialog.setConfirmText(Translator.translate("OK"));
-				dialog.addConfirmListener(ev -> {
-					dialog.close();
-					JsonUploadDialog.this.close(); // Close the upload dialog
-					if (ui != null) {
-						ui.push(); // Push UI changes before sleeping
+				
+				new ConfirmationDialog(
+					Translator.translate(titleKey),
+					message,
+					Translator.translate(confirmKey),
+					null, // No success notification needed
+					() -> {
+						JsonUploadDialog.this.close(); // Close the upload dialog
+						if (ui != null) {
+							ui.push(); // Push UI changes before sleeping
+						}
+						try {
+							Thread.sleep(2000); // Give UI time to close before restart
+						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
+						}
+						// Check if we should restart (OWLCMS_CONTROLPANEL >= 3.1.0)
+						FormatDetector.checkAndRestartIfNeeded();
+						// If we reach here, no restart was triggered, so just reload
+						ui.getPage().reload();
 					}
-					try {
-						Thread.sleep(2000); // Give UI time to close before restart
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-					}
-					// Check if we should restart (OWLCMS_CONTROLPANEL >= 3.1.0)
-					FormatDetector.checkAndRestartIfNeeded();
-					// If we reach here, no restart was triggered, so just reload
-					this.ui.getPage().reload();
-				});
-				dialog.open();
+				).open();
 				if (ui != null) {
 					ui.push();
 				}
