@@ -241,10 +241,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		if (other.getId() == this.getId()) {
 			return true;
 		}
-		var cs1 = this.ageDivision;
-		var cs2 = other.ageDivision;
 		return this.active == other.active
-				&& ((cs1 == null) ? (cs2 == null) : cs1.contentEquals(cs2))
+				&& Objects.equals(this.ageDivision, other.ageDivision)
 		        && Objects.equals(this.getChampionshipName(), other.getChampionshipName())
 		        && Objects.equals(this.categories, other.categories)
 		        && Objects.equals(this.code, other.code)
