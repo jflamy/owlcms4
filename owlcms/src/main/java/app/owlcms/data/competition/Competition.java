@@ -2101,7 +2101,8 @@ public class Competition {
 		getOrCreateBean("mTeamBest");
 		this.reportingBeans.put("mTeamBest", sortedMen);
 		getOrCreateBean("wTeamBest");
-		this.reportingBeans.put("wBest", sortedWomen);
+		this.reportingBeans.put("wTeamBest", sortedWomen);
+
 	}
 
 	private void reportQPoints(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
