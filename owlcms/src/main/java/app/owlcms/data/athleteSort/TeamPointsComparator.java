@@ -21,6 +21,7 @@ import ch.qos.logback.classic.Logger;
 public class TeamPointsComparator extends AbstractLifterComparator implements Comparator<Athlete> {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TeamPointsComparator.class);
 	private Ranking rankingType;
+	private boolean splitByGender;
 
 	/**
 	 * Instantiates a new team ranking comparator.
@@ -28,7 +29,12 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 	 * @param rankingType the ranking type
 	 */
 	TeamPointsComparator(Ranking rankingType) {
+		this(rankingType, true);
+	}
+
+	TeamPointsComparator(Ranking rankingType, boolean splitByGender) {
 		this.rankingType = rankingType;
+		this.splitByGender = splitByGender;
 	}
 
 	/*
@@ -45,9 +51,11 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 			return compare;
 		}
 
-		compare = compareGender(lifter1, lifter2);
-		if (compare != 0) {
-			return compare;
+		if (this.splitByGender) {
+			compare = compareGender(lifter1, lifter2);
+			if (compare != 0) {
+				return compare;
+			}
 		}
 
 		compare = comparePointsOrder(lifter1, lifter2);

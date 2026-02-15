@@ -703,6 +703,19 @@ public class AthleteSorter implements Serializable {
 	}
 
 	/**
+	 * Sort athletes by team and points, without splitting men/women inside each team.
+	 *
+	 * @param toBeSorted  the list to sort
+	 * @param rankingType the ranking type
+	 */
+	public static void teamPointsOrderMixed(List<Athlete> toBeSorted, Ranking rankingType) {
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return;
+		}
+		Collections.sort(toBeSorted, new TeamPointsComparator(rankingType, false));
+	}
+
+	/**
 	 * Sort athletes by team, gender and totalRank so team totals can be computed.
 	 *
 	 * @param athletes    the to be sorted
@@ -715,6 +728,22 @@ public class AthleteSorter implements Serializable {
 			return sorted;
 		}
 		teamPointsOrder(sorted, rankingType);
+		return sorted;
+	}
+
+	/**
+	 * Sort athletes by team and points, without splitting men/women inside each team, creating a copy.
+	 *
+	 * @param athletes    the list to copy and sort
+	 * @param rankingType what type of lift or total is being ranked
+	 * @return the sorted list
+	 */
+	public static List<Athlete> teamPointsOrderCopyMixed(List<? extends Athlete> athletes, Ranking rankingType) {
+		List<Athlete> sorted = new ArrayList<>(athletes);
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return sorted;
+		}
+		teamPointsOrderMixed(sorted, rankingType);
 		return sorted;
 	}
 

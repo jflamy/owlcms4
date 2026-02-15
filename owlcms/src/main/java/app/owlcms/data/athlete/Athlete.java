@@ -1228,8 +1228,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getBestLifterScore() {
-		var scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
+		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		// scoringSystem will be set by JXLSWorkbookStreamSource.doCreateStream() when running in a print thread
+		// fallback to the global scoring system (like getBestLifterRank() does)
+		scoringSystem = scoringSystem != null ? scoringSystem : Competition.getCurrent().getScoringSystem();
 		return Ranking.getRankingValue(this, scoringSystem);
 	}
 

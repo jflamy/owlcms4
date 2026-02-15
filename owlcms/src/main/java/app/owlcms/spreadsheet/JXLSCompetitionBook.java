@@ -125,6 +125,15 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected void setReportingInfo() {
+		// Propagate the instance field to the thread-local so that super.setReportingInfo(),
+		// the override logic below, and Athlete.getBestLifterScore()/getBestLifterRank()
+		// all see the dropdown-selected scoring system on the main thread.
+		// (JXLSResultSheet does this in computeSortedAthletes(); JXLSCompetitionBook
+		// returns null from computeSortedAthletes(), so we must set it here.)
+		if (getBestLifterScoringSystem() != null) {
+			JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(getBestLifterScoringSystem());
+		}
+
 		Competition competition = Competition.getCurrent();
 		competition.computeReportingInfo(getAgeGroupPrefix(), getChampionship());
 
@@ -155,12 +164,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		JXLSWorkbookStreamSource.setNoInterimScoresInResults(Config.getCurrent().featureSwitch("noInterimScoresInResults"));
 		if (overallScoringSystem == null) {
 			overallScoringSystem = Competition.getCurrent().getScoringSystem();
-		} else {
-			// recompute mBest and wBest according to overallScoringSystem
-			List<Athlete> sortedMen = (List<Athlete>) reportingBeans.get("mBest");
-			List<Athlete> sortedWomen = (List<Athlete>) reportingBeans.get("wBest");
-			reportingBeans.put("mBest", AthleteSorter.resultsOrderCopy(sortedMen, overallScoringSystem));
-			reportingBeans.put("wBest", AthleteSorter.resultsOrderCopy(sortedWomen, overallScoringSystem));
 		}
 
 		String brt = overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete");
@@ -184,6 +187,21 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 				reportingBeans.put("mBest", reportingBeans.get(overallScoringSystem.getMReportingName()));
 				reportingBeans.put("wBest", reportingBeans.get(overallScoringSystem.getWReportingName()));
 			}
+
+			@SuppressWarnings("unchecked")
+			Collection<Athlete> mBest = (Collection<Athlete>) reportingBeans.get("mBest");
+			@SuppressWarnings("unchecked")
+			Collection<Athlete> wBest = (Collection<Athlete>) reportingBeans.get("wBest");
+
+			List<Athlete> mTeamBest = mBest != null ? new java.util.ArrayList<>(mBest) : List.of();
+			List<Athlete> wTeamBest = wBest != null ? new java.util.ArrayList<>(wBest) : List.of();
+			List<Athlete> mwTeamBest = new java.util.ArrayList<>(mTeamBest.size() + wTeamBest.size());
+			mwTeamBest.addAll(mTeamBest);
+			mwTeamBest.addAll(wTeamBest);
+
+			reportingBeans.put("mTeamBest", AthleteSorter.teamPointsOrderCopy(mTeamBest, overallScoringSystem));
+			reportingBeans.put("wTeamBest", AthleteSorter.teamPointsOrderCopy(wTeamBest, overallScoringSystem));
+			reportingBeans.put("mwTeamBest", AthleteSorter.teamPointsOrderCopyMixed(mwTeamBest, overallScoringSystem));
 		}
 		setReportingBeans(reportingBeans);
 	}

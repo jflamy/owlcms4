@@ -2019,10 +2019,12 @@ public class Competition {
 			reportCustom(sortedAthletes, sortedMen, sortedWomen);
 		}
 
-		AthleteSorter.teamPointsOrder(sortedMen, Competition.getCurrent().getScoringSystem());
-		AthleteSorter.teamPointsOrder(sortedWomen, Competition.getCurrent().getScoringSystem());
+		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Competition.getCurrent().getScoringSystem());
+		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Competition.getCurrent().getScoringSystem());
+		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Competition.getCurrent().getScoringSystem());
 		addToReportingBean("mTeamBest" + suffix, sortedMen);
 		addToReportingBean("wTeamBest" + suffix, sortedWomen);
+		addToReportingBean("mwTeamBest" + suffix, sortedAthletes);
 		if (singleAgeGroup) {
 			reportTeamBest(sortedAthletes, sortedMen, sortedWomen);
 		}
@@ -2102,7 +2104,6 @@ public class Competition {
 		this.reportingBeans.put("mTeamBest", sortedMen);
 		getOrCreateBean("wTeamBest");
 		this.reportingBeans.put("wTeamBest", sortedWomen);
-
 	}
 
 	private void reportQPoints(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
