@@ -10,10 +10,17 @@
 
 **New in Release 64**
 
-64.2.0: Restart by control panel or docker
-  - If the program exits with a non-zero status, control-panel >= 3.1 and Docker will restart it
-  - JSON imports will trigger a restart if started from control-panel version >= 3.1 or Docker
-  - When developing, app.owlcms.MainWrapper can be used instead of app.owlcms.Main to launch a child JVM and simulate the behavior.
+64.2.0: Fix for TeamsGlobalScoring-A4 template
+  - Selecting a given scoring system (e.g. Robi) did not propagate to the report
+  - Added a "mixed" sheet + summary for combined gender-neutral scores (GAMX, Robi)
+
+64.2.0: Restart on JSON import
+  - There are 3 launchers that restart OWLMCS when it exits with a special status (non-zero)
+    - control panel version 3.1 or later (not yet released)
+    - when running in the cloud, Docker is the launcher
+    - when developing, you can use app.owlcms.MainWrapper can be used instead of app.owlcms.Main 
+  - JSON imports will trigger a restart in this way
+  - Additional restarts will be added as required.
 
 64.1.0: If the clock was started, and then accidentally reset to 1 or 2 minutes, and not restarted, the "accept decisions with a warning" process did not work. Now fixed.
 
