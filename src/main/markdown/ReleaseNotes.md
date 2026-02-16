@@ -10,6 +10,8 @@
 
 **New in Release 64**
 
+64.2.0: Added an AgeGroup_2026-08 for the August 2026 body weight categories
+
 64.2.0: Fix for TeamsGlobalScoring-A4 template
   - Selecting a given scoring system (e.g. Robi) did not propagate to the report
   - Added a "mixed" sheet + summary for combined gender-neutral scores (GAMX, Robi)
