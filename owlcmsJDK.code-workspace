@@ -10,6 +10,7 @@
     "owlcms.mainClass": "app.owlcms.MainWrapper",
     "owlcms.console": "integratedTerminal",
     "owlcms.noDebug": false,
+    "java.debug.settings.console": "integratedTerminal",
     "java.compile.nullAnalysis.mode": "disabled",
     /*
      Git Bash (Windows) helper - uncomment to force Git Bash as the integrated terminal in this workspace.
