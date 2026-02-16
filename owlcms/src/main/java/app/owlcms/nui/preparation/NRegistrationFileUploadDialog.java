@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H5;
@@ -31,15 +32,19 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.export.FormatDetector;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.AthleteOptions;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.SessionOptions;
 import app.owlcms.spreadsheet.RCompetition;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -58,9 +63,11 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	private AthleteOptions athleteOption;
 	private SessionOptions sessionOption;
 	private Locale capturedLocale;
+	private boolean isRestartScenario;
 
 	public NRegistrationFileUploadDialog(boolean sbdeFormat) {
 		this.sbdeFormat = sbdeFormat;
+		this.isRestartScenario = checkIfRestartScenario();
 		// Capture locale now while still on UI thread - will be used in upload callback
 		this.capturedLocale = OwlcmsSession.getLocale();
 
@@ -103,6 +110,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
 				processInput(inputStream, ta, isSessionsOnly);
+				openRestartConfirmation();
 			} catch (Exception e) {
 				logger.error("Error processing uploaded registration file", e);
 				throw new RuntimeException(e);
@@ -371,6 +379,65 @@ public class NRegistrationFileUploadDialog extends Dialog {
 				ta.setValue(existing + System.lineSeparator() + newText);
 			}
 			ta.setVisible(true);
+		}
+	}
+
+	private void openRestartConfirmation() {
+		UI ui = this.getUI().orElse(UI.getCurrent());
+
+		String titleKey = isRestartScenario ? "ImportR.Success" : "Import.Success";
+		String controlPanelKey = isRestartScenario ? "ImportR.ControlPanelRestart" : "Import.ControlPanelRestart";
+		String localKey = isRestartScenario ? "ImportR.ControlPanelRestart" : "Import.LocalRestart";
+		String cloudKey = isRestartScenario ? "ImportR.CloudRestart" : "Import.CloudRestart";
+		String confirmKey = isRestartScenario ? "ImportR.DoIt" : "Import.DoIt";
+
+		String owlcmsLauncher = System.getenv("OWLCMS_CONTROLPANEL");
+		String preamble = Translator.translate("SBDE.RestartWarning");
+		String message;
+		if (owlcmsLauncher != null) {
+			message = preamble + " " + Translator.translate(controlPanelKey);
+		} else if (JPAService.isLocalDb()) {
+			message = preamble + " " + Translator.translate(localKey);
+		} else {
+			message = preamble + " " + Translator.translate(cloudKey);
+		}
+
+		new ConfirmationDialog(
+		        Translator.translate(titleKey),
+		        message,
+		        Translator.translate(confirmKey),
+		        null,
+		        () -> {
+			        NRegistrationFileUploadDialog.this.close();
+			        if (ui != null) {
+				        ui.push();
+			        }
+			        try {
+				        Thread.sleep(2000);
+			        } catch (InterruptedException e) {
+				        Thread.currentThread().interrupt();
+			        }
+			        FormatDetector.checkAndRestartIfNeeded();
+		        }
+		).open();
+		if (ui != null) {
+			ui.push();
+		}
+	}
+
+	private boolean checkIfRestartScenario() {
+		String controlPanelVersion = System.getenv("OWLCMS_CONTROLPANEL");
+		if (controlPanelVersion == null || controlPanelVersion.trim().isEmpty()) {
+			return false;
+		}
+
+		try {
+			ComparableVersion currentVersion = new ComparableVersion(controlPanelVersion);
+			ComparableVersion minVersion = new ComparableVersion("3.1.0-alpha00");
+			return currentVersion.compareTo(minVersion) >= 0;
+		} catch (Exception e) {
+			logger.error("Error checking control panel version: {}", e.getMessage());
+			return false;
 		}
 	}
 

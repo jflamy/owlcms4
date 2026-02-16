@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -60,6 +61,10 @@ public class GroupRepository {
 
 	public static Object doDelete(Group groupe, EntityManager em) {
 		try {
+			// Remove dependent timetable rows that hold a FK reference to this group
+			TechnicalOfficialsTimetableRepository.deleteByGroup(em, groupe);
+			em.flush();
+
 			// this is the only case where group needs to know its athletes, so we do a
 			// query instead of adding a relationship.
 			Query aQ = em.createQuery("select a from Athlete a join a.group g where g.id = :groupId");

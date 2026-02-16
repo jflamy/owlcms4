@@ -4,44 +4,21 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-
-import org.slf4j.LoggerFactory;
-
-import app.owlcms.data.group.Group; // Fixed import
+import app.owlcms.data.group.Group;
 import app.owlcms.utils.IdUtils;
-import ch.qos.logback.classic.Logger;
 
-import javax.persistence.Cacheable;
-import javax.persistence.Entity;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-@Entity
-@Cacheable
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-@JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer" })
+/**
+ * Transient in-memory data holder used for building export reports
+ * (e.g. JXLSExportTechnicalOfficials).  Not a JPA entity — not
+ * registered in the persistence unit and has no database table.
+ */
 public class SessionAssignment implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
     private Long id;
-    @ManyToOne(fetch = FetchType.EAGER)
     private TechnicalOfficial official;
-    @ManyToOne(fetch = FetchType.EAGER)
     private Group group;
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
     private Set<OfficialRole> roles = new HashSet<>();
-    
-    @SuppressWarnings("unused")
-	private Logger logger = (Logger) LoggerFactory.getLogger(SessionAssignment.class);
 
     public SessionAssignment() {
         setId(IdUtils.getTimeBasedId());
