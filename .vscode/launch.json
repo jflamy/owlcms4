@@ -3,27 +3,6 @@
   "configurations": [
     {
       "type": "java",
-      "name": "🟩 owlcms wrapper",
-      "request": "launch",
-      "mainClass": "${config:owlcms.mainClass}",
-      "projectName": "owlcms",
-      "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
-      "env": {
-        "OWLCMS_MEMORYMODE": "false"
-      }
-    },
-    {
-      "type": "java",
       "name": "🟨 owlcms no reset",
       "request": "launch",
       "mainClass": "${config:owlcms.mainClass}",
