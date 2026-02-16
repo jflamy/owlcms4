@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="${1:-64.2.0-beta03}"
+REVISION="${1:-64.2.0-beta04}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
@@ -89,6 +89,15 @@ if ! diff --strip-trailing-cr -q "${TRANSLATION_CSV}" "${REMOTE_TMP}" >/dev/null
   echo "Running translation consistency check..."
   ./scripts/check-translation-diff.sh || true
   echo ""
+  read -p "Refresh translation4.csv from Google Sheets now and exit? (y/N): " -r REFRESH
+  if [[ "${REFRESH}" =~ ^[Yy]$ ]]; then
+    echo "Updating ${TRANSLATION_CSV} from Google Sheets..."
+    cp "${REMOTE_TMP}" "${TRANSLATION_CSV}"
+    echo "translation4.csv was refreshed."
+    echo "Aborting release after refreshing translation4.csv. Please review/commit the updated file, then rerun release.sh." >&2
+    exit 4
+  fi
+
   read -p "Do you want to proceed anyway? (y/N): " -r PROCEED
   if [[ ! "${PROCEED}" =~ ^[Yy]$ ]]; then
     echo "Aborting. Update translation4.csv from Google Sheets before releasing." >&2
