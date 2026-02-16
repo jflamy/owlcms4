@@ -7,8 +7,8 @@
   "settings": {
     "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
     "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml",
-    "owlcms.mainClass": "app.owlcms.Main",
-    "owlcms.console": "internalConsole",
+    "owlcms.mainClass": "app.owlcms.MainWrapper",
+    "owlcms.console": "integratedTerminal",
     "owlcms.noDebug": false,
     "java.compile.nullAnalysis.mode": "disabled",
     /*
