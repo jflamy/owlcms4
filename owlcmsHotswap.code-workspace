@@ -2,6 +2,7 @@
 // (use a JDK with "jcef" included). Unzip it to a location of your choice.
 // Then get the HotswapAgent from https://github.com/HotswapAgent/HotswapAgent
 // Create a lib/hotswapagent directory in the JDK installation directory and put the hotswapagent jar there
+// (lib/hotswap/hotswap-agent.jar also works with DCEVM fatjar mode)
 // Rename the jar to hotswap-agent.jar
 
 // CRITICAL: Use the
@@ -17,7 +18,7 @@
   ],
   "settings": {
     "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
-    "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --enable-native-access=ALL-UNNAMED",
+    "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar --add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED --enable-native-access=ALL-UNNAMED",
     "owlcms.mainClass": "app.owlcms.MainWrapper",
     "owlcms.console": "integratedTerminal",
     "owlcms.noDebug": false,

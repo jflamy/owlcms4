@@ -17,23 +17,20 @@
 	"forwardPorts": [8080, 8081, 1883],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// Note: When opening in Codespaces, select 'owlcmsDevcontainer.code-workspace' from the workspace files
+	// Note: When opening in Codespaces, select 'owlcmsHotswap.code-workspace' from the workspace files
 	"postCreateCommand": "echo 'Skipping mvn compile (DCEVM + Java auto build). Run mvn manually if needed.'",
 
 	// Ensure the correct workspace is selected
-	"postStartCommand": "echo 'To use the correct workspace configuration, open: owlcmsDevcontainer.code-workspace'",
+	"postStartCommand": "echo 'To use the correct workspace configuration, open: owlcmsHotswap.code-workspace'",
 
 	// Use 'onCreateCommand' for Codespaces pre-building
 	"onCreateCommand": "bash .devcontainer/setup-jdk.sh",
-
-	// Use the devcontainer-specific workspace file
-	"workspaceFolder": "/workspaces/owlcms_v23",
-	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/owlcms_v23,type=bind",
 
 	// Set container environment variables
 	// Set container environment variables
 	"containerEnv": {
 		"M2_HOME": "/opt/maven",
+		"JAVA_HOME": "/usr/local/jdk-25-dcevm",
 		"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
 	},
 
@@ -53,6 +50,16 @@
 				"ms-vscode.vscode-json"
 			],
 			"settings": {
+				"java.configuration.runtimes": [
+					{
+						"name": "JavaSE-25",
+						"path": "/usr/local/jdk-25-dcevm",
+						"default": true
+					}
+				],
+				"java.jdt.ls.java.home": "/usr/local/jdk-25-dcevm",
+				"java.debug.settings.javaHome": "/usr/local/jdk-25-dcevm",
+				"java.debug.settings.vmArgs": "${config:owlcms.vmArgs}",
 				"maven.executable.path": "/opt/maven/bin/mvn",
 				"terminal.integrated.defaultProfile.linux": "bash"
 			}
@@ -63,6 +70,6 @@
 	// "remoteUser": "root"
 
 	"mounts": [
-		"source=${localEnv:HOME}/.m2,target=/home/vscode/.m2,type=bind,consistency=cached"
+		"source=owlcms_m2_cache,target=/home/vscode/.m2,type=volume"
 	]
 }

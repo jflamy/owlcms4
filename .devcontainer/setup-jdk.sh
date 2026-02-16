@@ -1,32 +1,33 @@
 #!/bin/bash
 
-# JetBrains Runtime JDK 17 with DCEVM setup script for devcontainer
+# JetBrains Runtime JDK 25 with DCEVM setup script for devcontainer
 # Java 21 is already provided by the base devcontainer image for VS Code extension
-# but project runtime uses JDK 17 DCEVM for enhanced class redefinition.
+# but project runtime uses JDK 25 DCEVM for enhanced class redefinition.
+# Maven compilation remains Java 17 via maven.compiler.release/source/target.
 
 set -e
 
-echo "Setting up JetBrains JDK 17 with DCEVM for project runtime..."
+echo "Setting up JetBrains JDK 25 with DCEVM for project runtime..."
 
 # Idempotency: if JDK already present, skip download section
-if [ -d /usr/local/jdk-17-dcevm/bin ]; then
-  echo "JDK 17 DCEVM already installed. Skipping JDK download/extract."
+if [ -d /usr/local/jdk-25-dcevm/bin ]; then
+  echo "JDK 25 DCEVM already installed. Skipping JDK download/extract."
 else
 
 # Update package lists
 sudo apt-get update -q
 
-# Create directory for JDK 17 DCEVM
-sudo mkdir -p /usr/local/jdk-17-dcevm
+# Create directory for JDK 25 DCEVM
+sudo mkdir -p /usr/local/jdk-25-dcevm
 cd /tmp
 
   # Allow override of JBR version via env var (exact filename fragment). Default pinned for reproducibility.
-  JBR_VERSION_FRAG=${JBR_VERSION_FRAG:-"jbr_jcef-17.0.14-linux-x64-b1367.22"}
+  JBR_VERSION_FRAG=${JBR_VERSION_FRAG:-"jbr_jcef-25.0.1-linux-x64-b266.34"}
   JBR_ARCHIVE_URL="https://cache-redirector.jetbrains.com/intellij-jbr/${JBR_VERSION_FRAG}.tar.gz"
-  echo "Downloading JetBrains Runtime JDK 17 with DCEVM from: $JBR_ARCHIVE_URL"
+  echo "Downloading JetBrains Runtime JDK 25 with DCEVM from: $JBR_ARCHIVE_URL"
   wget -q --show-progress -O jbr-dcevm.tar.gz "$JBR_ARCHIVE_URL"
 
-  echo "Extracting JDK 17 DCEVM..."
+  echo "Extracting JDK 25 DCEVM..."
   tar -xzf jbr-dcevm.tar.gz
 
   # Handle possible nested tar
@@ -46,21 +47,21 @@ cd /tmp
   fi
   echo "Using extracted directory: $JBR_DIR"
 
-  sudo mkdir -p /usr/local/jdk-17-dcevm
-  sudo cp -r "$JBR_DIR"/* /usr/local/jdk-17-dcevm/
-  sudo chown -R root:root /usr/local/jdk-17-dcevm
+  sudo mkdir -p /usr/local/jdk-25-dcevm
+  sudo cp -r "$JBR_DIR"/* /usr/local/jdk-25-dcevm/
+  sudo chown -R root:root /usr/local/jdk-25-dcevm
   # Set proper permissions: read/traverse for all, write for owner, execute for executables
-  sudo chmod -R 755 /usr/local/jdk-17-dcevm
+  sudo chmod -R 755 /usr/local/jdk-25-dcevm
   rm -rf jbr* *.tar.gz
-  echo "JDK 17 DCEVM installed to /usr/local/jdk-17-dcevm"
+  echo "JDK 25 DCEVM installed to /usr/local/jdk-25-dcevm"
 fi
 
 # Ensure executables keep execute bits even on reused volumes (idempotent safety)
-if [ -d /usr/local/jdk-17-dcevm/bin ]; then
-  MISSING_EXEC=$(find /usr/local/jdk-17-dcevm/bin -maxdepth 1 -type f ! -perm -111 | head -n1 || true)
+if [ -d /usr/local/jdk-25-dcevm/bin ]; then
+  MISSING_EXEC=$(find /usr/local/jdk-25-dcevm/bin -maxdepth 1 -type f ! -perm -111 | head -n1 || true)
   if [ -n "$MISSING_EXEC" ]; then
-    echo "Repairing execute permissions in /usr/local/jdk-17-dcevm/bin ..."
-    sudo find /usr/local/jdk-17-dcevm/bin -type f -exec chmod 755 {} +
+    echo "Repairing execute permissions in /usr/local/jdk-25-dcevm/bin ..."
+    sudo find /usr/local/jdk-25-dcevm/bin -type f -exec chmod 755 {} +
   fi
 fi
 
@@ -70,8 +71,11 @@ echo "Installing Hotswap Agent (idempotent)..."
 # Allow override of version via environment variable HOTSWAP_AGENT_VERSION.
 # Use 'latest' (default) to query GitHub Releases API for newest version.
 HOTSWAP_AGENT_VERSION=${HOTSWAP_AGENT_VERSION:-latest}
-DEST_DIR="/usr/local/jdk-17-dcevm/lib/hotswap"
-sudo mkdir -p "$DEST_DIR"
+DEST_DIR_HOTSWAP="/usr/local/jdk-25-dcevm/lib/hotswap"
+DEST_DIR_HOTSWAPAGENT="/usr/local/jdk-25-dcevm/lib/hotswapagent"
+DEST_FILE_HOTSWAP="$DEST_DIR_HOTSWAP/hotswap-agent.jar"
+DEST_FILE_HOTSWAPAGENT="$DEST_DIR_HOTSWAPAGENT/hotswap-agent.jar"
+sudo mkdir -p "$DEST_DIR_HOTSWAP" "$DEST_DIR_HOTSWAPAGENT"
 
 resolve_hotswap_url() {
   local version="$1"
@@ -139,8 +143,16 @@ resolve_hotswap_url() {
   echo "$url"
 }
 
-if [ -f "$DEST_DIR/hotswap-agent.jar" ]; then
-  echo "Hotswap Agent already present at $DEST_DIR/hotswap-agent.jar (skipping download)."
+if [ -f "$DEST_FILE_HOTSWAP" ] || [ -f "$DEST_FILE_HOTSWAPAGENT" ]; then
+  echo "Hotswap Agent already present (skipping download). Ensuring both lib/hotswap and lib/hotswapagent copies exist."
+  if [ ! -f "$DEST_FILE_HOTSWAP" ] && [ -f "$DEST_FILE_HOTSWAPAGENT" ]; then
+    sudo cp "$DEST_FILE_HOTSWAPAGENT" "$DEST_FILE_HOTSWAP"
+    sudo chmod 644 "$DEST_FILE_HOTSWAP"
+  fi
+  if [ ! -f "$DEST_FILE_HOTSWAPAGENT" ] && [ -f "$DEST_FILE_HOTSWAP" ]; then
+    sudo cp "$DEST_FILE_HOTSWAP" "$DEST_FILE_HOTSWAPAGENT"
+    sudo chmod 644 "$DEST_FILE_HOTSWAPAGENT"
+  fi
 else
   HOTSWAP_URL=$(resolve_hotswap_url "$HOTSWAP_AGENT_VERSION")
   echo "Resolved Hotswap Agent URL: $HOTSWAP_URL"
@@ -149,9 +161,12 @@ else
   elif ! wget -q -O /tmp/hotswap-agent-dl.jar "$HOTSWAP_URL"; then
     echo "Download failed for $HOTSWAP_URL; aborting Hotswap Agent installation." >&2
   else
-    sudo mv /tmp/hotswap-agent-dl.jar "$DEST_DIR/hotswap-agent.jar"
-    sudo chmod 644 "$DEST_DIR/hotswap-agent.jar"
-    echo "Hotswap Agent installed at $DEST_DIR/hotswap-agent.jar"
+    sudo cp /tmp/hotswap-agent-dl.jar "$DEST_FILE_HOTSWAP"
+    sudo cp /tmp/hotswap-agent-dl.jar "$DEST_FILE_HOTSWAPAGENT"
+    rm -f /tmp/hotswap-agent-dl.jar
+    sudo chmod 644 "$DEST_FILE_HOTSWAP" "$DEST_FILE_HOTSWAPAGENT"
+    echo "Hotswap Agent installed at: $DEST_FILE_HOTSWAP"
+    echo "Hotswap Agent installed at: $DEST_FILE_HOTSWAPAGENT"
   fi
 fi
 
@@ -266,7 +281,7 @@ cat > ~/.m2/toolchains.xml << 'EOF'
       <vendor>jetbrains</vendor>
     </provides>
     <configuration>
-      <jdkHome>/usr/local/jdk-17-dcevm</jdkHome>
+      <jdkHome>/usr/local/jdk-25-dcevm</jdkHome>
     </configuration>
   </toolchain>
 </toolchains>
@@ -286,22 +301,22 @@ cat > ~/.m2/settings.xml << 'EOF'
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.release>17</maven.compiler.release>
-        <java.home>/usr/local/jdk-17-dcevm</java.home>
+        <java.home>/usr/local/jdk-25-dcevm</java.home>
       </properties>
     </profile>
   </profiles>
 </settings>
 EOF
 
-# Create VS Code settings to use JDK 17 DCEVM for the project
+# Create VS Code settings to use JDK 25 DCEVM for the project
 echo "Setting up VS Code Java configuration..."
 mkdir -p .vscode
 cat > .vscode/settings.json << 'EOF'
 {
   "java.configuration.runtimes": [
     {
-      "name": "JavaSE-17",
-      "path": "/usr/local/jdk-17-dcevm",
+      "name": "JavaSE-25",
+      "path": "/usr/local/jdk-25-dcevm",
       "default": true
     }
   ],
@@ -329,29 +344,29 @@ chmod 755 /home/vscode/.vaadin
 echo "Verifying Java installation..."
 java -version
 echo ""
-echo "Verifying JDK 17 DCEVM installation..."
+echo "Verifying JDK 25 DCEVM installation..."
 # Always ensure proper permissions for the entire JDK directory (defensive approach)
-if sudo test -d /usr/local/jdk-17-dcevm; then
-  echo "Ensuring JDK 17 DCEVM permissions (read/traverse for all)..."
-  sudo chmod -R 755 /usr/local/jdk-17-dcevm
+if sudo test -d /usr/local/jdk-25-dcevm; then
+  echo "Ensuring JDK 25 DCEVM permissions (read/traverse for all)..."
+  sudo chmod -R 755 /usr/local/jdk-25-dcevm
   # Verify the java binary can run (tests both permissions and shared library access)
-  if ! /usr/local/jdk-17-dcevm/bin/java -version 2>/dev/null; then
-    echo "ERROR: JDK 17 DCEVM java binary cannot execute" >&2
+  if ! /usr/local/jdk-25-dcevm/bin/java -version 2>/dev/null; then
+    echo "ERROR: JDK 25 DCEVM java binary cannot execute" >&2
     echo "Checking directory structure:"
-    sudo ls -la /usr/local/jdk-17-dcevm/ | head -10
+    sudo ls -la /usr/local/jdk-25-dcevm/ | head -10
     echo "Checking bin directory:"
-    sudo ls -la /usr/local/jdk-17-dcevm/bin/ | head -5
+    sudo ls -la /usr/local/jdk-25-dcevm/bin/ | head -5
     echo "Checking lib directory:"
-    sudo ls -la /usr/local/jdk-17-dcevm/lib/ | head -5
+    sudo ls -la /usr/local/jdk-25-dcevm/lib/ | head -5
     exit 1
   fi
 else
-  echo "ERROR: JDK 17 DCEVM directory does not exist" >&2
+  echo "ERROR: JDK 25 DCEVM directory does not exist" >&2
   echo "Checking what was installed:"
   sudo ls -la /usr/local/ | grep jdk || echo "No JDK directory found"
   exit 1
 fi
-/usr/local/jdk-17-dcevm/bin/java -version
+/usr/local/jdk-25-dcevm/bin/java -version
 echo ""
 echo "Verifying Maven installation..."
 if command -v mvn >/dev/null 2>&1; then
@@ -369,5 +384,5 @@ rm -rf /tmp/jbr* 2>/dev/null || true
 echo ""
 echo "Setup complete!"
 echo "- Java 21: Provided by devcontainer base image (for VS Code Java Extension)"
-echo "- JDK 17 DCEVM: /usr/local/jdk-17-dcevm (for project compilation and hot-swap debugging)"
+echo "- JDK 25 DCEVM: /usr/local/jdk-25-dcevm (for project runtime and hot-swap debugging; compilation target remains Java 17)"
 echo "- Maven ${MAVEN_VERSION}: /opt/maven"
