@@ -16,13 +16,13 @@
   - Selecting a given scoring system (e.g. Robi) did not propagate to the report
   - Added a "mixed" sheet + summary for combined gender-neutral scores (GAMX, Robi)
 
-64.2.0: Restart on JSON import
+64.2.0: Restart on JSON database export load, and on SBDE file load
   - There are 3 launchers that restart OWLMCS when it exits with a special status (non-zero)
     - control panel version 3.1 or later (not yet released)
     - when running in the cloud, Docker is the launcher
     - when developing, you can use app.owlcms.MainWrapper can be used instead of app.owlcms.Main 
-  - JSON imports will trigger a restart in this way
-  - Additional restarts will be added as required.
+  - JSON imports will strongly suggest a restart in this way (restart is almost always needed)
+  - Start Book Data Entry also strongly suggest a restart (but some situations like session updates do not require a restart)
 
 64.1.0: If the clock was started, and then accidentally reset to 1 or 2 minutes, and not restarted, the "accept decisions with a warning" process did not work. Now fixed.
 
