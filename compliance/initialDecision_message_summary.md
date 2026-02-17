@@ -13,6 +13,17 @@ It is forwarded through both:
 - HTTP EventForwarder (publicresults / videodata decision endpoints)
 - WebSocketEventForwarder
 
+## URL path used
+
+For HTTP forwarding, the decision message is posted to:
+
+- Publicresults: `<PublicResultsURL>/decision`
+- Videodata: `<VideoDataURL>/decision`
+
+These are built from config values in Connections (base URL fields) with the `/decision` suffix appended.
+
+For WebSocket URLs (`ws://` or `wss://`), no `/decision` suffix is appended; the same WebSocket URL is used and message type is carried in payload.
+
 ## When to use this message in video logic
 
 Use this message when:

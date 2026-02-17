@@ -7,7 +7,6 @@
 package app.owlcms.publicresults;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -81,15 +80,14 @@ public class DecisionReceiverServlet extends HttpServlet implements Traceable {
                 return;
             }
 
-            DecisionEvent decisionEvent = new DecisionEvent();        String eventTypeString = req.getParameter("decisionEventType");
+            DecisionEvent decisionEvent = new DecisionEvent();
+        String eventTypeString = req.getParameter("decisionEventType");
         DecisionEventType eventType = null;
         try {
             eventType = DecisionEventType.valueOf(eventTypeString);
             decisionEvent.setEventType(eventType);
         } catch (Exception e) {
-            String message = MessageFormat.format("unknown decision event type {0}", eventTypeString);
-            this.getLogger().error(message);
-            resp.sendError(400, message);
+            this.getLogger().warn("ignoring unknown decision event type {}", eventTypeString);
             return;
         }
 
