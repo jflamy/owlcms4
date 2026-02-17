@@ -10,6 +10,9 @@
 
 **New in Release 64**
 
+64.2.0: Additional event for initial decision reached (to allow for quick display of a Good/No Lift video). 
+  - Listeners to this event may to check if there was reversal when the decision visible event comes 3 seconds later.
+
 62.2.0: Changing the connections to a remote publicresults dynamically updates the event forwarder to the new destinations
 
 64.2.0: OWLCMS Restart on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load

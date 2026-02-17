@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-REVISION="${1:-64.2.0-beta04}"
+REVISION="${1:-64.2.0-beta05}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
 # and watches the run until completion.
 #
 # Usage:
-#   ./release.sh 64.2.0-beta01
+#   ./release.sh 64.2.0-beta05
 #   BUILD_IMAGES=false ./release.sh 64.2.0-beta01
 #
 # Defaults:
