@@ -522,6 +522,14 @@ public class UIEvent {
 		}
 	}
 
+	static public class InitialDecision extends Decision {
+
+		public InitialDecision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,
+		        Object origin, FieldOfPlay fop, boolean singleReferee) {
+			super(a, decision, ref1, ref2, ref3, origin, fop, singleReferee);
+		}
+	}
+
 	/**
 	 * Class DecisionReset.
 	 */

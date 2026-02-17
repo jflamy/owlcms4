@@ -2389,15 +2389,29 @@ public class FieldOfPlay implements IUnregister {
 					showDecisionNow(e.getOrigin());
 				} else {
 					// logger.debug("*** NOT immediate, full update scheduling");
+					emitInitialDecisionEvent(e.getOrigin());
 					showDecisionAfterDelay(e.getOrigin(), REVERSAL_DELAY);
 				}
 			} else {
 				// logger.debug("*** partial update scheduling");
+				emitInitialDecisionEvent(this);
 				showDecisionAfterDelay(this, REVERSAL_DELAY);
 			}
 		} else {
 			// logger.debug("*** already scheduled");
 		}
+	}
+
+	private void emitInitialDecisionEvent(Object origin) {
+		Boolean[] refereeDecisions = getRefereeDecision();
+		int nbWhite = 0;
+		for (int i = 0; i < 3; i++) {
+			nbWhite = nbWhite + (Boolean.TRUE.equals(refereeDecisions[i]) ? 1 : 0);
+		}
+		Boolean pendingDecision = isSingleReferee() ? (nbWhite >= 1) : (nbWhite >= 2);
+		pushOutUIEvent(new UIEvent.InitialDecision(getCurAthlete(), pendingDecision,
+		        refereeDecisions[0], refereeDecisions[1], refereeDecisions[2],
+		        origin, this, isRefereeForcedDecision() || isSingleReferee()));
 	}
 
 	private void pushOutDone() {

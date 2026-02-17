@@ -77,6 +77,7 @@ import app.owlcms.uievents.UIEvent.BreakPaused;
 import app.owlcms.uievents.UIEvent.BreakSetTime;
 import app.owlcms.uievents.UIEvent.BreakStarted;
 import app.owlcms.uievents.UIEvent.CeremonyDone;
+import app.owlcms.uievents.UIEvent.IniitialDecision;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.uievents.UIEvent.SetTime;
@@ -706,6 +707,18 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	@Subscribe
+	public void slaveIniitialDecision(IniitialDecision e) {
+		if (!isActive()) return;
+		uiLog(e);
+		setDecisionLight1(e.ref1);
+		setDecisionLight2(e.ref2);
+		setDecisionLight3(e.ref3);
+		setDecisionLightsVisible(false);
+		setDown(false);
+		pushDecision(DecisionEventType.INIITIAL_DECISION, e);
+	}
+
+	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		if (!isActive()) return;
 		uiLog(e);
@@ -1027,7 +1040,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private synchronized Map<String, String> createDecision(UIEvent event, DecisionEventType det) {
 		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
-		mapPut(sb, "decisionEventType", det.toString());
+		mapPut(sb, "decisionEventType", det == DecisionEventType.INIITIAL_DECISION ? "iniitialDecision" : det.toString());
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		mapPut(sb, "mode", getBoardMode());
 
@@ -1042,6 +1055,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "d1", getDecisionLight1() != null ? getDecisionLight1().toString() : null);
 		mapPut(sb, "d2", getDecisionLight2() != null ? getDecisionLight2().toString() : null);
 		mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
+		if (event instanceof UIEvent.Decision) {
+			UIEvent.Decision decisionEvent = (UIEvent.Decision) event;
+			mapPut(sb, "decision", decisionEvent.decision != null ? decisionEvent.decision.toString() : null);
+		}
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));
 		

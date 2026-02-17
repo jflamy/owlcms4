@@ -60,6 +60,7 @@ import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.uievents.BreakDisplay;
@@ -73,6 +74,7 @@ import app.owlcms.uievents.UIEvent.BreakPaused;
 import app.owlcms.uievents.UIEvent.BreakSetTime;
 import app.owlcms.uievents.UIEvent.BreakStarted;
 import app.owlcms.uievents.UIEvent.CeremonyDone;
+import app.owlcms.uievents.UIEvent.InitialDecision;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.uievents.UIEvent.SetTime;
@@ -179,6 +181,44 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			eventForwarder.getFop().setEventForwarder(eventForwarder);
 			eventForwarder.setFop(fieldOfPlay);
 			return eventForwarder;
+		}
+	}
+
+	/**
+	 * Reinitialize HTTP event forwarders for all FOPs.
+	 * Call this when URL configuration changes to create forwarders that
+	 * were not created at startup because no HTTP URL was configured then.
+	 */
+	synchronized public static void reinitializeForAllFOPs() {
+		logger.info("reinitializing HTTP event forwarders for all FOPs after config change");
+
+		Config current = Config.getCurrent();
+		String publicResultsUrl = current.getParamPublicResultsURL();
+		String videoDataUrl = current.getParamVideoDataURL();
+
+		boolean hasPublicResultsHttp = publicResultsUrl != null && !publicResultsUrl.trim().isEmpty()
+				&& (publicResultsUrl.startsWith("http://") || publicResultsUrl.startsWith("https://"));
+		boolean hasVideoDataHttp = videoDataUrl != null && !videoDataUrl.trim().isEmpty()
+				&& (videoDataUrl.startsWith("http://") || videoDataUrl.startsWith("https://"));
+		boolean hasHttpTarget = hasPublicResultsHttp || hasVideoDataHttp;
+
+		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
+			EventForwarder existing = fop.getEventForwarder();
+			if (existing == null) {
+				EventForwarder newForwarder = initEventForwarderByName(fop.getName(), fop);
+				if (newForwarder != null) {
+					fop.setEventForwarder(newForwarder);
+					logger.info("{}created HTTP event forwarder after config change", FieldOfPlay.getLoggingName(fop));
+					newForwarder.pushUpdate(null);
+				}
+			} else {
+				if (hasHttpTarget) {
+					logger.info("{}triggering update on existing HTTP event forwarder", FieldOfPlay.getLoggingName(fop));
+					existing.pushUpdate(null);
+				} else {
+					logger.info("{}HTTP forwarding targets disabled in config; existing forwarder remains idle", FieldOfPlay.getLoggingName(fop));
+				}
+			}
 		}
 	}
 
@@ -658,6 +698,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	@Subscribe
+	public void slaveInitialDecision(InitialDecision e) {
+		if (!isActive()) return;
+		uiLog(e);
+		setDecisionLight1(e.ref1);
+		setDecisionLight2(e.ref2);
+		setDecisionLight3(e.ref3);
+		setDecisionLightsVisible(false);
+		pushDecision(DecisionEventType.INITIAL_DECISION, e);
+	}
+
+	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		if (!isActive()) return;
 		uiLog(e);
@@ -979,7 +1030,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private synchronized Map<String, String> createDecision(UIEvent event, DecisionEventType det) {
 		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
-		mapPut(sb, "decisionEventType", det.toString());
+		mapPut(sb, "decisionEventType", det == DecisionEventType.INITIAL_DECISION ? "initialDecision" : det.toString());
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		mapPut(sb, "mode", getBoardMode());
 
@@ -996,6 +1047,10 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "d1", getDecisionLight1() != null ? getDecisionLight1().toString() : null);
 		mapPut(sb, "d2", getDecisionLight2() != null ? getDecisionLight2().toString() : null);
 		mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
+		if (event instanceof UIEvent.Decision) {
+			UIEvent.Decision de = (UIEvent.Decision) event;
+			mapPut(sb, "decision", de.decision != null ? de.decision.toString() : null);
+		}
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));
 
@@ -1172,7 +1227,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			sb.putAll(getLastDecisionMap());
 		}
 
-		mapPut(sb, "uiEvent", event.getClass().getSimpleName());
+		mapPut(sb, "uiEvent", event != null ? event.getClass().getSimpleName() : "InitialSync");
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		String paramStylesDir = Config.getCurrent().getParamStylesDir();
 		mapPut(sb, "stylesDir", paramStylesDir);

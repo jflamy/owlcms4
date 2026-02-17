@@ -60,6 +60,7 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.monitors.EventForwarder;
 import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
@@ -226,17 +227,7 @@ public class ConfigEditingFormFactory
 			if (tabSheet != null) {
 				VaadinSession.getCurrent().setAttribute(TAB_INDEX_KEY, tabSheet.getSelectedIndex());
 			}
-			
-			// Check if WebSocket URLs changed before saving
 			Config oldConfig = Config.getCurrent();
-			String oldPublicResultsUrl = oldConfig != null ? oldConfig.getParamPublicResultsURL() : null;
-			String oldVideoDataUrl = oldConfig != null ? oldConfig.getParamVideoDataURL() : null;
-			String newPublicResultsUrl = config.getParamPublicResultsURL();
-			String newVideoDataUrl = config.getParamVideoDataURL();
-			
-			boolean webSocketUrlsChanged = 
-				!java.util.Objects.equals(oldPublicResultsUrl, newPublicResultsUrl) ||
-				!java.util.Objects.equals(oldVideoDataUrl, newVideoDataUrl);
 			
 			// Check if childrenEquipment toggle is being ADDED (wasn't active before, now is)
 			boolean hadChildrenEquipment = oldConfig != null && oldConfig.featureSwitch("childrenEquipment");
@@ -245,10 +236,9 @@ public class ConfigEditingFormFactory
 			
 			Config saved = Config.setCurrent(config);
 			
-			// Only reinitialize WebSocket forwarders if URLs actually changed
-			if (webSocketUrlsChanged) {
-				WebSocketEventForwarder.reinitializeForAllFOPs();
-			}
+			// Always reinitialize forwarders after saving connection settings.
+			EventForwarder.reinitializeForAllFOPs();
+			WebSocketEventForwarder.reinitializeForAllFOPs();
 			
 			// If childrenEquipment toggle was just added, update all platforms with children equipment defaults
 			if (childrenEquipmentAdded) {
