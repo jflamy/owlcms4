@@ -121,7 +121,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 				tFop = OwlcmsFactory.getDefaultFOP();
 				this.setFop(tFop);
 			}
-			newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(tFop.getName())));
+			newParameterMap.put(FOP, Arrays.asList(tFop.getName()));
 			OwlcmsSession.setFop(tFop);
 		} else {
 			newParameterMap.remove(FOP);

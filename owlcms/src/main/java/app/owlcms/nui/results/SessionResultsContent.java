@@ -405,10 +405,10 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			this.setCurrentGroup((groups.size() > 0 ? groups.get(0) : null));
 		}
 		if (this.getCurrentGroup() != null) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(this.getCurrentGroup().getName())));
+			params.put("group", Arrays.asList(this.getCurrentGroup().getName()));
 		} else {
 			// params.remove("group");
-			params.put("group", Arrays.asList(URLUtils.urlEncode("*")));
+			params.put("group", Arrays.asList("*"));
 		}
 		doSwitchGroup(this.getCurrentGroup());
 		params.remove("fop");
@@ -429,7 +429,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		HashMap<String, List<String>> params = new HashMap<>(
 		        location.getQueryParameters().getParameters());
 		if (!isIgnoreGroupFromURL() && newGroup != null) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+			params.put("group", Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");
 		}

@@ -492,7 +492,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		HashMap<String, List<String>> params = new HashMap<>(
 		        location.getQueryParameters().getParameters());
 		if (!isIgnoreGroupFromURL() && newGroup != null) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+			params.put("group", Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");
 		}

@@ -168,10 +168,10 @@ public abstract class BaseNavigationContent extends BaseContent
 			fop = OwlcmsFactory.getDefaultFOP();
 		}
 		if (fop != null) {
-			params.put("fop", Arrays.asList(URLUtils.urlEncode(fop.getName())));
+			params.put("fop", Arrays.asList(fop.getName()));
 		}
 		if (newGroup != null && !isIgnoreGroupFromURL()) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+			params.put("group", Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");
 		}
