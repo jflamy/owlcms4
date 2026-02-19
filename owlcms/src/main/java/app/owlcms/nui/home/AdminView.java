@@ -4,15 +4,31 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AccessDeniedException;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.AccessUtils;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.RequireLogin;
 
 @SuppressWarnings("serial")
 @Route(value = "admin", layout = OwlcmsLayout.class)
 public class AdminView extends Composite<VerticalLayout> implements HasDynamicTitle, RequireLogin {
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		RequireLogin.super.beforeEnter(event);
+		if (!OwlcmsSession.isAuthenticated()) {
+			return;
+		}
+		String clientIp = AccessUtils.getClientIp();
+		if (!AccessUtils.checkBackdoor(clientIp)) {
+			throw new AccessDeniedException();
+		}
+	}
 
 	public AdminView() {
 		VerticalLayout content = getContent();

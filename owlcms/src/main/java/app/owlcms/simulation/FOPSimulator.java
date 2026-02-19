@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.simulation;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -50,6 +52,8 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	private Object origin;
 	private EventBus uiEventBus;
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("Simulation-" + this.logger.getName());
+	private final List<Thread> workers = Collections.synchronizedList(new ArrayList<>());
+	private volatile boolean stopped;
 
 	public FOPSimulator(FieldOfPlay f, List<Group> groups) {
 		this.fop = f;
@@ -62,23 +66,30 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		this.setOrigin(this);
 
 		this.logger.info("simulating fop {}", this.fop.getName());
-		startNextGroup(this.groups);
+		if (!startNextGroup(this.groups)) {
+			CompetitionSimulator.simulatorCompleted(this);
+		}
 	}
 
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) throws InterruptedException {
+		if (!isActive()) {
+			return;
+		}
 		this.uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		new Thread(() -> {
+		startWorker(() -> {
 			if (this.groupDone) {
 				if (this.groups.size() > 0) {
 					this.groups.remove(0);
-					startNextGroup(this.groups);
+					if (!startNextGroup(this.groups)) {
+						CompetitionSimulator.simulatorCompleted(this);
+					}
 				}
 			} else {
 				doNextAthleteWithDeclaration(e);
 			}
-		}).start();
+		});
 	}
 
 	@Subscribe
@@ -90,19 +101,26 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	@Subscribe
 	public void slaveGroupDone(UIEvent.GroupDone e) throws InterruptedException {
+		if (!isActive()) {
+			return;
+		}
 		this.uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		// note that the group is done.
 		this.groupDone = false; // WAS true
-		new Thread(() -> {
+		startWorker(() -> {
 			this.logger.info("########## group {} done", e.getGroup());
 			if (this.groups.size() > 0) {
 				if (this.groups.get(0).getName().contentEquals(e.getGroup().getName())) {
 					this.groups.remove(0);
 				}
-				startNextGroup(this.groups);
+				if (!startNextGroup(this.groups)) {
+					CompetitionSimulator.simulatorCompleted(this);
+				}
+			} else {
+				CompetitionSimulator.simulatorCompleted(this);
 			}
-		}).start();
+		});
 	}
 
 	@Subscribe
@@ -122,9 +140,12 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) throws InterruptedException {
+		if (!isActive()) {
+			return;
+		}
 		this.uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		new Thread(() -> doNextAthlete(e)).start();
+		startWorker(() -> doNextAthlete(e));
 	}
 
 	@Subscribe
@@ -134,14 +155,30 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	@Subscribe
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) throws InterruptedException {
+		if (!isActive()) {
+			return;
+		}
 		this.uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		new Thread(() -> doSwitchGroup(e)).start();
+		startWorker(() -> doSwitchGroup(e));
 	}
 
 	public void unregister() {
 		this.logger.debug("unregister simulator {}", this.fop.getName());
-		this.uiEventBus.unregister(this);
+		if (this.uiEventBus != null) {
+			this.uiEventBus.unregister(this);
+		}
+	}
+
+	public void stop() {
+		this.stopped = true;
+		unregister();
+		synchronized (this.workers) {
+			for (Thread t : this.workers) {
+				t.interrupt();
+			}
+			this.workers.clear();
+		}
 	}
 
 	protected void doEmpty() {
@@ -149,6 +186,9 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	@SuppressWarnings("unused")
 	protected void doLift(Athlete a) {
+		if (!isActive()) {
+			return;
+		}
 		if (a == null) {
 			doEmpty();
 			return;
@@ -172,9 +212,8 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		}
 
 		// wait for clock to run down a bit
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
+		if (!sleepQuietly(2000)) {
+			return;
 		}
 
 		// stop time and get decisions
@@ -189,9 +228,8 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		}
 
 		// wait for clock to run down a bit
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
+		if (!sleepQuietly(1000)) {
+			return;
 		}
 
 		// stop time and get decisions
@@ -241,20 +279,24 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	}
 
 	private void doNextAthlete(UIEvent e) {
+		if (!isActive()) {
+			return;
+		}
 		List<Athlete> order = this.fop.getLiftingOrder();
 		Athlete athlete = order.size() > 0 ? order.get(0) : null;
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e1) {
+		if (!sleepQuietly(1000)) {
+			return;
 		}
 		doLift(athlete);
 	}
 
 	private void doNextAthleteWithDeclaration(UIEvent e) {
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e1) {
+		if (!isActive()) {
+			return;
+		}
+		if (!sleepQuietly(2000)) {
+			return;
 		}
 
 		List<Athlete> order = this.fop.getLiftingOrder();
@@ -311,12 +353,14 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	}
 
 	private boolean startNextGroup(List<Group> curGs) {
+		if (!isActive()) {
+			return false;
+		}
 		if (curGs != null && curGs.size() > 0) {
 			Group g = curGs.get(0);
 			this.logger.info("########## waiting to start group {} of {}", g, curGs);
-			try {
-				Thread.sleep(6000);
-			} catch (InterruptedException e) {
+			if (!sleepQuietly(6000)) {
+				return false;
 			}
 			this.logger.info("{}########## switching to group {} of {}", FieldOfPlay.getLoggingName(this.fop), g, curGs);
 			this.fop.fopEventPost(new FOPEvent.SwitchGroup(g, this));
@@ -348,6 +392,38 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		} else {
 			return false;
 		}
+	}
+
+	private boolean isActive() {
+		return !this.stopped && CompetitionSimulator.isRunning();
+	}
+
+	private boolean sleepQuietly(long millis) {
+		if (!isActive()) {
+			return false;
+		}
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			return false;
+		}
+		return isActive();
+	}
+
+	private void startWorker(Runnable task) {
+		if (!isActive()) {
+			return;
+		}
+		Thread thread = new Thread(() -> {
+			try {
+				task.run();
+			} finally {
+				this.workers.remove(Thread.currentThread());
+			}
+		});
+		this.workers.add(thread);
+		thread.start();
 	}
 
 }

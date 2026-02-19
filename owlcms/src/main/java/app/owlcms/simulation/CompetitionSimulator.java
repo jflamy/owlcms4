@@ -43,14 +43,31 @@ public class CompetitionSimulator {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionSimulator.class);
 	private static List<FOPSimulator> registeredSimulators = new ArrayList<>();
-	private static boolean running;
+	private static volatile boolean running;
 
 	public static boolean isRunning() {
 		return running;
 	}
 
 	public static void setRunning(boolean b) {
-		running = true;
+		running = b;
+	}
+
+	public static synchronized void stopSimulation() {
+		setRunning(false);
+		Competition.getCurrent().setSimulation(false);
+		for (FOPSimulator s : new ArrayList<>(registeredSimulators)) {
+			s.stop();
+		}
+		registeredSimulators.clear();
+	}
+
+	public static synchronized void simulatorCompleted(FOPSimulator simulator) {
+		registeredSimulators.remove(simulator);
+		if (registeredSimulators.isEmpty()) {
+			setRunning(false);
+			Competition.getCurrent().setSimulation(false);
+		}
 	}
 
 	private Random r = new Random(0);
@@ -59,6 +76,9 @@ public class CompetitionSimulator {
 	}
 
 	public String runSimulation() throws InterruptedException {
+		if (isRunning()) {
+			return "simulation already running.";
+		}
 		Competition.getCurrent().setSimulation(true);
 		setRunning(true);
 		logger.setLevel(Level.DEBUG);
@@ -76,6 +96,9 @@ public class CompetitionSimulator {
 
 		int i = 0;
 		for (Group g : gs) {
+			if (!isRunning()) {
+				return "simulation stopped.";
+			}
 
 			List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
 
@@ -113,15 +136,23 @@ public class CompetitionSimulator {
 		}
 
 		for (FOPSimulator s : registeredSimulators) {
-			s.unregister();
+			s.stop();
 		}
 		registeredSimulators.clear();
 
 		for (Platform p : ps) {
+			if (!isRunning()) {
+				return "simulation stopped.";
+			}
 			FieldOfPlay f = OwlcmsFactory.getFOPByName(p.getName());
 			FOPSimulator fopSimulator = new FOPSimulator(f, groupsByPlatform.get(p));
 			registeredSimulators.add(fopSimulator);
 			fopSimulator.go();
+		}
+
+		if (registeredSimulators.isEmpty()) {
+			setRunning(false);
+			Competition.getCurrent().setSimulation(false);
 		}
 		return "simulation done.";
 	}

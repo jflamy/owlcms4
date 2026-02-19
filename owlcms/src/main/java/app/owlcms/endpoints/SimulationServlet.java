@@ -59,6 +59,7 @@ public class SimulationServlet extends HttpServlet {
 	// ----------------------------------------
 
 	private static Logger logger = (Logger) LoggerFactory.getLogger(SimulationServlet.class);
+	private static volatile Thread simulationThread;
 	// { logger.setLevel(Level.DEBUG); }
 
 	// Inner classes
@@ -72,7 +73,6 @@ public class SimulationServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
-		// Process request with content.
 		processRequest(request, response, true);
 	}
 
@@ -84,8 +84,13 @@ public class SimulationServlet extends HttpServlet {
 	@Override
 	protected void doHead(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
-		// Process request without content.
 		processRequest(request, response, false);
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+		processRequest(request, response, true);
 	}
 
 	/**
@@ -99,6 +104,57 @@ public class SimulationServlet extends HttpServlet {
 	private void processRequest(HttpServletRequest request, HttpServletResponse response, boolean content)
 	        throws IOException {
 		logger.info("processing simulation request");
+		if (!authorize(request, response)) {
+			return;
+		}
+
+		String action = getAction(request);
+		String message = null;
+		if ("start".equalsIgnoreCase(action)) {
+			message = startSimulation();
+		} else if ("stop".equalsIgnoreCase(action)) {
+			message = stopSimulation();
+		}
+
+		if (!content) {
+			response.setStatus(200);
+			response.flushBuffer();
+			return;
+		}
+
+		writePage(response, message);
+	}
+
+	private static synchronized String startSimulation() {
+		if (CompetitionSimulator.isRunning()) {
+			return "Simulation is already running.";
+		}
+		simulationThread = new Thread(() -> {
+			try {
+				new CompetitionSimulator().runSimulation();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				logger.warn("simulation thread interrupted");
+			} catch (Throwable t) {
+				logger.error("{}", LoggerUtils.stackTrace(t));
+			}
+		}, "competition-simulation");
+		simulationThread.setDaemon(true);
+		simulationThread.start();
+		return "Simulation start requested.";
+	}
+
+	private static synchronized String stopSimulation() {
+		boolean wasRunning = CompetitionSimulator.isRunning();
+		CompetitionSimulator.stopSimulation();
+		if (simulationThread != null) {
+			simulationThread.interrupt();
+			simulationThread = null;
+		}
+		return wasRunning ? "Simulation stop requested." : "Simulation is not running.";
+	}
+
+	private boolean authorize(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
 		boolean bd = AccessUtils.checkBackdoor(host);
@@ -106,42 +162,48 @@ public class SimulationServlet extends HttpServlet {
 			logger.error("{} not in backdoor list, denied simulation", host);
 			response.setStatus(403);
 			response.flushBuffer();
-			return;
+			return false;
 		} else {
 			logger.info("{} authorized simulation", host);
 		}
+		return true;
+	}
 
-		// Get requested file by path info.
-		String requestedFileName = request.getPathInfo();
-		logger.debug("requested file = {}", requestedFileName);
-
-		// Prepare and initialize response
-		// --------------------------------------------------------
-
-		// Initialize response.
-		response.reset();
-
-		// Prepare streams.
-		OutputStream output = null;
-
-		try {
-			// Open streams.
-			output = response.getOutputStream();
-			PrintWriter pw = new PrintWriter(output, true, StandardCharsets.UTF_8);
-			pw.write("Starting simulation");
-			pw.flush();
-			output.flush();
-			response.setStatus(200);
-			response.flushBuffer();
-			new CompetitionSimulator().runSimulation();
-		} catch (Throwable t) {
-			logger.error("{}", LoggerUtils.stackTrace(t));
-			response.setStatus(500);
-		} finally {
-			if (output != null) {
-				output.close();
-			}
+	private String getAction(HttpServletRequest request) {
+		String action = request.getParameter("action");
+		if (action != null && !action.isBlank()) {
+			return action;
 		}
+		String pathInfo = request.getPathInfo();
+		if (pathInfo == null || pathInfo.isBlank() || "/".equals(pathInfo)) {
+			return null;
+		}
+		return pathInfo.startsWith("/") ? pathInfo.substring(1) : pathInfo;
+	}
+
+	private void writePage(HttpServletResponse response, String message) throws IOException {
+		response.reset();
+		response.setStatus(200);
+		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+		response.setContentType("text/html;charset=UTF-8");
+
+		OutputStream output = response.getOutputStream();
+		PrintWriter pw = new PrintWriter(output, true, StandardCharsets.UTF_8);
+		pw.println("<!doctype html>");
+		pw.println("<html><head><meta charset='utf-8'><title>Simulation</title></head><body>");
+		pw.println("<h2>Simulation</h2>");
+		pw.println("<p>Status: " + (CompetitionSimulator.isRunning() ? "running" : "stopped") + "</p>");
+		if (message != null && !message.isBlank()) {
+			pw.println("<p>" + message + "</p>");
+		}
+		pw.println("<form method='post' action=''>");
+		pw.println("<button type='submit' name='action' value='start'>Start</button>");
+		pw.println("<button type='submit' name='action' value='stop'>Stop</button>");
+		pw.println("</form>");
+		pw.println("</body></html>");
+		pw.flush();
+		output.flush();
+		output.close();
 	}
 
 }
