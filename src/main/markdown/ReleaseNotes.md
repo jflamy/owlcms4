@@ -10,6 +10,9 @@
 
 **New in Release 64**
 
+64.2.0-beta07: Fixed double-encoding issue for UTF-8 characters in platform names, potentially causing the same field of play to be
+loaded multiple times under the different encoded names.
+
 64.2.0-beta07: /simulation page now has start/stop buttons. Requires backdoor whitelisting.
 
 64.2.0-beta07: /admin page added with stop/restart button.  Requires backdoor whitelisting.
