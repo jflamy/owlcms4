@@ -10,6 +10,8 @@
 
 **New in Release 64**
 
+64.1.1:  Fix double-encoding issue affecting non-Latin platform names, causing the same field of play to be loaded multiple times under the different encoded names.
+
 64.1.0: If the clock was started, and then accidentally reset to 1 or 2 minutes, and not restarted, the "accept decisions with a warning" process did not work. Now fixed.
 
 64.1.0: A zero eliminates the athlete from score-based medals (same as for total medals)
