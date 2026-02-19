@@ -121,6 +121,8 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 	protected void onAttach(AttachEvent attachEvent) {
 		DisplayParameters board = (DisplayParameters) this.getBoard();
 		board.setFop(getFop());
+		board.setLeadersDisplay(board.isLeadersDisplay());
+		board.setRecordsDisplay(board.isRecordsDisplay());
 		getMedalsBoard().setFop(getFop());
 
 		this.setResultsBoard((Results) board);
@@ -138,8 +140,8 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 		        SoundParameters.SILENT, "true",
 		        SoundParameters.DOWNSILENT, "true",
 		        DisplayParameters.DARK, "true",
-		        DisplayParameters.LEADERS, "true",
-		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.LEADERS, "false",
+		        DisplayParameters.RECORDS, "false",
 		        DisplayParameters.VIDEO, "false",
 		        DisplayParameters.PUBLIC, "true",
 		        SoundParameters.SINGLEREF, "false",

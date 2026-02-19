@@ -52,8 +52,8 @@ public class WarmupRankingOrderPage extends AbstractResultsDisplayPage {
 		        SoundParameters.SILENT, "true",
 		        SoundParameters.DOWNSILENT, "true",
 		        DisplayParameters.DARK, "true",
-		        DisplayParameters.LEADERS, "true",
-		        DisplayParameters.RECORDS, "true",
+		        DisplayParameters.LEADERS, "false",
+		        DisplayParameters.RECORDS, "false",
 		        DisplayParameters.VIDEO, "false",
 		        DisplayParameters.PUBLIC, "false",
 		        SoundParameters.SINGLEREF, "false",
@@ -74,8 +74,6 @@ public class WarmupRankingOrderPage extends AbstractResultsDisplayPage {
 	protected void onAttach(AttachEvent attachEvent) {
 		DisplayParameters board = (DisplayParameters) this.getBoard();
 		board.setFop(this.getFop());
-		board.setLeadersDisplay(true);
-		board.setRecordsDisplay(true);
 
 		this.addComponent((Component) board);
 	}

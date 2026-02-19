@@ -34,7 +34,7 @@ public class PublicNoLeadersPage extends PublicScoreboardPage {
 	@Override
 	public String getPageTitle() {
 		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
-		return Translator.translate("PublicScoreboard") + suffix;
+		return Translator.translate("DisplayParameters.PublicDisplay") + suffix;
 	}
 
 	@Override
