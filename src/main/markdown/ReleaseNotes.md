@@ -10,16 +10,20 @@
 
 **New in Release 64**
 
-64.2.0: Additional event for initial decision reached (to allow for quick display of a Good/No Lift video). 
-  - Listeners to this event may to check if there was reversal when the decision visible event comes 3 seconds later.
+64.2.0-beta07: /simulation page now has start/stop buttons. Requires backdoor whitelisting.
 
-62.2.0: Changing the connections to a remote publicresults dynamically updates the event forwarder to the new destinations
+64.2.0-beta07: /admin page added with stop/restart button.  Requires backdoor whitelisting.
 
 64.2.0: OWLCMS Restart on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
   - To test this, you need control panel version 3.1 or later (prerelease version at https://github.com/owlcms/owlcms-controlpanel/releases)
   - Or when developing, app.owlcms.MainWrapper is used instead of app.owlcms.Main 
 
 64.2.0: Added an AgeGroup_2026-08 for the August 2026 body weight categories
+
+64.2.0: Additional event for initial decision reached (to allow for quick display of a Good/No Lift video). 
+  - Listeners to this event may to check if there was reversal when the decision visible event comes 3 seconds later.
+
+62.2.0: Changing the connections to a remote publicresults dynamically updates the event forwarder to the new destinations
 
 64.2.0: Fix for TeamsGlobalScoring-A4 template
   - Selecting a given scoring system (e.g. Robi) did not propagate to the report
