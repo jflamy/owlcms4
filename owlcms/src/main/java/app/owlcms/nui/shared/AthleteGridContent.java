@@ -1707,11 +1707,11 @@ public abstract class AthleteGridContent extends BaseContent
 		// the FOP that corresponds to this page's actual context
 		FieldOfPlay pageFop = this.getFop();
 		if (pageFop != null) {
-			params.put("fop", Arrays.asList(URLUtils.urlEncode(pageFop.getName())));
+			params.put("fop", Arrays.asList(pageFop.getName()));
 		}
 
 		if (newGroup != null && !isIgnoreGroupFromURL()) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+			params.put("group", Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");
 		}

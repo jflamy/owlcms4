@@ -260,7 +260,7 @@ public class TeamResultsContent extends BaseContent
 			this.currentGroup = null;
 		}
 		if (this.currentGroup != null) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(this.currentGroup.getName())));
+			params.put("group", Arrays.asList(this.currentGroup.getName()));
 		} else {
 			params.remove("group");
 		}
@@ -281,7 +281,7 @@ public class TeamResultsContent extends BaseContent
 		HashMap<String, List<String>> params = new HashMap<>(
 		        location.getQueryParameters().getParameters());
 		if (!isIgnoreGroupFromURL() && newGroup != null) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(newGroup.getName())));
+			params.put("group", Arrays.asList(newGroup.getName()));
 		} else {
 			params.remove("group");
 		}

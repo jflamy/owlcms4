@@ -218,7 +218,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 			this.currentGroup = null;
 		}
 		if (this.currentGroup != null) {
-			params.put("group", Arrays.asList(URLUtils.urlEncode(this.currentGroup.getName())));
+			params.put("group", Arrays.asList(this.currentGroup.getName()));
 		} else {
 			params.remove("group");
 		}
