@@ -32,7 +32,6 @@ loaded multiple times under the different encoded names.
   - Selecting a given scoring system (e.g. Robi) did not propagate to the report
   - Added a "mixed" sheet + summary for combined gender-neutral scores (GAMX, Robi)
 
-
 64.1.0: If the clock was started, and then accidentally reset to 1 or 2 minutes, and not restarted, the "accept decisions with a warning" process did not work. Now fixed.
 
 64.1.0: A zero eliminates the athlete from score-based medals (same as for total medals)

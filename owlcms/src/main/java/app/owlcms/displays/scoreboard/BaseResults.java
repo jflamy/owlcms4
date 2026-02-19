@@ -110,6 +110,7 @@ public class BaseResults extends LitTemplate
 	private boolean currentAttempt;
 	private String showMedals = "auto";
 	private int topN = DisplayParameters.DEFAULT_TOP_N;
+	private boolean groupPinnedFromURL;
 
 	public BaseResults() {
 		this.uiEventLogger.setLevel(Level.INFO);
@@ -176,6 +177,14 @@ public class BaseResults extends LitTemplate
 	@Override
 	final public Group getGroup() {
 		return this.group;
+	}
+
+	public boolean isGroupPinnedFromURL() {
+		return this.groupPinnedFromURL;
+	}
+
+	public void setGroupPinnedFromURL(boolean groupPinnedFromURL) {
+		this.groupPinnedFromURL = groupPinnedFromURL;
 	}
 
 	final public Location getLocation() {

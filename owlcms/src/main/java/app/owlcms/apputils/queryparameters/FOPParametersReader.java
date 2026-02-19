@@ -84,6 +84,17 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 	}
 
 	/**
+	 * Whether a group provided in the URL is allowed to mutate the underlying FOP
+	 * state (i.e., call loadGroup on the shared FOP).
+	 *
+	 * Display pages should return false so URL changes remain local to that display
+	 * and never override the announcer-selected group.
+	 */
+	public default boolean isGroupURLAllowedToMutateFop() {
+		return false;
+	}
+
+	/**
 	 * @see app.owlcms.apputils.queryparameters.ParameterReader#readParams(com.vaadin.flow.router.Location, java.util.Map)
 	 */
 	@Override
@@ -131,19 +142,22 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 		Group group = null;
 		if (!isIgnoreGroupFromURL()) {
 			List<String> groupNames = parametersMap.get(GROUP);
+			boolean groupProvidedInUrl = groupNames != null && groupNames.get(0) != null;
 			if (groupNames != null && groupNames.get(0) != null) {
 				String decoded = URLDecoder.decode(groupNames.get(0), StandardCharsets.UTF_8);
 				group = GroupRepository.findByName(decoded);
 				Group fopGroup = tFop != null ? tFop.getGroup() : null;
 				boolean sameGroup = fopGroup != null && fopGroup.getName().equals(decoded);
-				if (!sameGroup && tFop != null) {
+				if (!sameGroup && tFop != null && isGroupURLAllowedToMutateFop()) {
 					tFop.loadGroup(group, this, true);
 				}
 			} else {
 				group = (tFop != null ? tFop.getGroup() : null);
 			}
-			if (group != null) {
+			if (groupProvidedInUrl && group != null) {
 				newParameterMap.put(GROUP, Arrays.asList(URLUtils.urlEncode(group.getName())));
+			} else {
+				newParameterMap.remove(GROUP);
 			}
 			// Set the group on the page so it can be used by display components
 			this.setGroup(group);

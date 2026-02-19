@@ -188,6 +188,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	@Override
+	public boolean isGroupURLAllowedToMutateFop() {
+		return true;
+	}
+
+	@Override
 	public boolean isLiveLights() {
 		// logger.debug("is live lights {} -- {}",this.liveLights, LoggerUtils.whereFrom());
 		return this.liveLights;

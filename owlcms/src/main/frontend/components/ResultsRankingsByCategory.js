@@ -39,14 +39,14 @@ class ResultsRankingsByCategory extends LitElement {
           </div>
           <div class="attemptBar" style="${this.attemptBarStyles()}">
             <div class="athleteInfo" style="${this.athleteInfoStyles()}">
-              <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${this.displayTitle}"></div>
+              <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${this.headerTitle()}"></div>
             </div>
           </div>
           <div class="video" style="${this.videoHeaderStyles()}">
             <div class="eventlogo"></div>
             <div class="videoheader">
               <div class="groupInfo">${this.competitionName}</div>
-              <div>${this.displayTitle} ${this.groupDescription}</div>
+              <div>${this.headerTitle()}</div>
             </div>
             <div class="federationlogo"></div>
           </div>
@@ -66,9 +66,10 @@ class ResultsRankingsByCategory extends LitElement {
                 <table class="${this.athleteClasses()}" style="${this.athleteStyles()}">
                   ${(this.medalCategories ?? []).map(
                     (mc, index, array) => html`
+                      ${this.isSingleCategory() ? html`` : html`
                       <tr>
                         <td class="categoryGroupHeader" style="margin-top: ${index > 0 ? '0.4em' : '0'};" .innerHTML="${mc.categoryName}"></td>
-                      </tr>
+                      </tr>`}
                       <tr class="head">
                         <th class="groupCol" .innerHTML="${this.t?.Start}"></th>
                         <th class="name" .innerHTML="${this.t?.Name}"></th>
@@ -241,7 +242,7 @@ class ResultsRankingsByCategory extends LitElement {
   }
 
   attemptBarStyles() {
-    return "display: " + (!this.video ? "grid" : "none");
+    return "display: none";
   }
 
   athleteInfoStyles() {
@@ -253,7 +254,7 @@ class ResultsRankingsByCategory extends LitElement {
   }
 
   videoHeaderStyles() {
-    return "display: " + ((this.video) ? "flex" : "none");
+    return "display: flex";
   }
 
   athleteClasses() {
@@ -271,6 +272,25 @@ class ResultsRankingsByCategory extends LitElement {
 
   bottomSpacerStyles() {
     return "line-height: var(--bottomSpacerHeight)";
+  }
+
+  isSingleCategory() {
+    if (!Array.isArray(this.medalCategories)) {
+      return false;
+    }
+    const nonEmptyCategories = this.medalCategories.filter(
+      (mc) => Array.isArray(mc?.leaders) && mc.leaders.length > 0
+    );
+    return nonEmptyCategories.length === 1;
+  }
+
+  headerTitle() {
+    const title = (this.displayTitle ?? "").toString().trim();
+    const description = (this.groupDescription ?? "").toString().trim();
+    if (this.isSingleCategory() && description.length > 0) {
+      return `${title} ${description}`.trim();
+    }
+    return title;
   }
 
   isBreak() {

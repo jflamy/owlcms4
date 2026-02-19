@@ -129,6 +129,11 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 	}
 
 	@Override
+	public boolean isGroupURLAllowedToMutateFop() {
+		return Config.getCurrent().featureSwitch("enableTimeKeeperSessionSwitch");
+	}
+
+	@Override
 	public void setHeaderContent() {
 		getRouterLayout().setMenuTitle(getMenuTitle());
 		getRouterLayout().setMenuArea(createInitialBar());
