@@ -6,7 +6,7 @@
   ],
   "settings": {
     "window.title": "${dirty}${folderName}${separator}${activeRepositoryBranchName}${separator}${profileName}",
-    "owlcms.vmArgs": "@${workspaceFolder}/.vscode/owlcms-common.vmargs",
+    "owlcms.vmArgs": "-ea -DcssEdit=true -Dlogback.configurationFile=logback-console.xml",
     "owlcms.mainClass": "app.owlcms.MainWrapper",
     "owlcms.console": "integratedTerminal",
     "owlcms.noDebug": false,

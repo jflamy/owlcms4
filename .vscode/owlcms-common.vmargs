@@ -1,7 +1,0 @@
--ea
--DcssEdit=true
--Dlogback.configurationFile=logback-console.xml
---add-opens=jdk.unsupported/sun.misc=ALL-UNNAMED
---add-opens=java.base/jdk.internal.misc=ALL-UNNAMED
---add-opens=java.base/java.util.concurrent=ALL-UNNAMED
---enable-native-access=ALL-UNNAMED
