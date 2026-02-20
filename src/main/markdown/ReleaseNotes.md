@@ -10,6 +10,9 @@
 
 **New in Release 64**
 
+64.2.0-rc01: More fixes for double-encodings when URLs contain session names with non-Latin characters.  Session names are now never added to an URL
+unless explicitly warranted (e.g. when showing rankings or medals from another session)
+
 64.2.0-beta07: The public scoreboard for ranking does not show the current attempt, but displays medal colors when the session is done and shows sub-headers
 for each category. Feature toggle `rankingsWithCurrentAttempt` uses the prior variant, which can show the current attempt, but does not highlight medals.
 The prior variant will likely be abandoned.
