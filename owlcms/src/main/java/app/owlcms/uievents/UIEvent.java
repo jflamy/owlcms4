@@ -522,11 +522,27 @@ public class UIEvent {
 		}
 	}
 
-	static public class InitialDecision extends Decision {
+	static public class InitialDecision extends UIEvent {
+
+		public Boolean decision;
+		public Boolean ref1;
+		public Boolean ref2;
+		public Boolean ref3;
+		private boolean singleReferee;
 
 		public InitialDecision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,
 		        Object origin, FieldOfPlay fop, boolean singleReferee) {
-			super(a, decision, ref1, ref2, ref3, origin, fop, singleReferee);
+			super(a, origin, fop);
+			this.decision = decision;
+			this.ref1 = ref1;
+			this.ref2 = ref2;
+			this.ref3 = ref3;
+			this.singleReferee = singleReferee;
+			this.setTrace(() -> LoggerUtils.stackTrace());
+		}
+
+		public boolean isSingleReferee() {
+			return this.singleReferee;
 		}
 	}
 

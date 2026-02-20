@@ -1047,7 +1047,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "d1", getDecisionLight1() != null ? getDecisionLight1().toString() : null);
 		mapPut(sb, "d2", getDecisionLight2() != null ? getDecisionLight2().toString() : null);
 		mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
-		if (event instanceof UIEvent.Decision) {
+		if (event instanceof UIEvent.InitialDecision) {
+			UIEvent.InitialDecision de = (UIEvent.InitialDecision) event;
+			mapPut(sb, "decision", de.decision != null ? de.decision.toString() : null);
+			mapPut(sb, "singleReferee", Boolean.toString(de.isSingleReferee()));
+		} else if (event instanceof UIEvent.Decision) {
 			UIEvent.Decision de = (UIEvent.Decision) event;
 			mapPut(sb, "decision", de.decision != null ? de.decision.toString() : null);
 		}

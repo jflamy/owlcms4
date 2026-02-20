@@ -10,19 +10,21 @@
 
 **New in Release 64**
 
-64.2.0-rc01: More fixes for double-encodings when URLs contain session names with non-Latin characters.  Session names are now never added to an URL
-unless explicitly warranted (e.g. when showing rankings or medals from another session)
+64.2.0-rc02: Fixed handling of the new Initial Decision event so it is not confused with the official decision and does not interfere with Down Signal
 
-64.2.0-beta07: The public scoreboard for ranking does not show the current attempt, but displays medal colors when the session is done and shows sub-headers
-for each category. Feature toggle `rankingsWithCurrentAttempt` uses the prior variant, which can show the current attempt, but does not highlight medals.
-The prior variant will likely be abandoned.
+64.2.0-rc01: More fixes for double-encodings when URLs contain session names with non-Latin characters. Session names are only relevant
+for the Announcer, for medal ceremonies, and for producing result documents, and should not be in URL otherwise.
 
-64.2.0-beta07: Fixed double-encoding issue for UTF-8 characters in platform names, potentially causing the same field of play to be
+64.2.0: The public scoreboard for ranking now displays medal colors when the session is done and shows sub-headers
+for each category if there are several.  It does not show the current attempt info.
+- Feature toggle `rankingsWithCurrentAttempt` uses the prior variant, which can show the current attempt, but does not highlight medals.
+
+64.2.0: Fixed double-encoding issue for UTF-8 characters in platform names, potentially causing the same field of play to be
 loaded multiple times under the different encoded names.
 
-64.2.0-beta07: /simulation page now has start/stop buttons. Requires backdoor whitelisting.
+64.2.0: /simulation page now has start/stop buttons. Requires backdoor whitelisting.
 
-64.2.0-beta07: /admin page added with stop/restart button.  Requires backdoor whitelisting.
+64.2.0: /admin page added with stop/restart button.  Requires backdoor whitelisting.
 
 64.2.0: OWLCMS Restart on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
   - To test this, you need control panel version 3.1 or later (prerelease version at https://github.com/owlcms/owlcms-controlpanel/releases)

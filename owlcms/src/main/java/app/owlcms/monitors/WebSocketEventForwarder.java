@@ -1055,18 +1055,17 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		mapPut(sb, "d1", getDecisionLight1() != null ? getDecisionLight1().toString() : null);
 		mapPut(sb, "d2", getDecisionLight2() != null ? getDecisionLight2().toString() : null);
 		mapPut(sb, "d3", getDecisionLight3() != null ? getDecisionLight3().toString() : null);
-		if (event instanceof UIEvent.Decision) {
+		if (event instanceof UIEvent.InitialDecision) {
+			UIEvent.InitialDecision de = (UIEvent.InitialDecision) event;
+			mapPut(sb, "decision", de.decision != null ? de.decision.toString() : null);
+			mapPut(sb, "singleReferee", Boolean.toString(de.isSingleReferee()));
+		} else if (event instanceof UIEvent.Decision) {
 			UIEvent.Decision decisionEvent = (UIEvent.Decision) event;
 			mapPut(sb, "decision", decisionEvent.decision != null ? decisionEvent.decision.toString() : null);
+			mapPut(sb, "singleReferee", Boolean.toString(decisionEvent.isSingleReferee()));
 		}
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));
-		
-		// Add singleReferee flag if this is a Decision event
-		if (event instanceof UIEvent.Decision) {
-			UIEvent.Decision decisionEvent = (UIEvent.Decision) event;
-			mapPut(sb, "singleReferee", Boolean.toString(decisionEvent.isSingleReferee()));
-		}
 
 		populateRecordInfoStrings(sb);
 		// dumpMap("createDecision", event.getTrace(), sb);
