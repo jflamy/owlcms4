@@ -10,10 +10,19 @@
 
 **New in Release 64**
 
-64.2.0: Additional event for initial decision reached (to allow for quick display of a Good/No Lift video). 
-  - Listeners to this event may to check if there was reversal when the decision visible event comes 3 seconds later.
+64.2.0-rc01: More fixes for double-encodings when URLs contain session names with non-Latin characters.  Session names are now never added to an URL
+unless explicitly warranted (e.g. when showing rankings or medals from another session)
 
-62.2.0: Changing the connections to a remote publicresults dynamically updates the event forwarder to the new destinations
+64.2.0-beta07: The public scoreboard for ranking does not show the current attempt, but displays medal colors when the session is done and shows sub-headers
+for each category. Feature toggle `rankingsWithCurrentAttempt` uses the prior variant, which can show the current attempt, but does not highlight medals.
+The prior variant will likely be abandoned.
+
+64.2.0-beta07: Fixed double-encoding issue for UTF-8 characters in platform names, potentially causing the same field of play to be
+loaded multiple times under the different encoded names.
+
+64.2.0-beta07: /simulation page now has start/stop buttons. Requires backdoor whitelisting.
+
+64.2.0-beta07: /admin page added with stop/restart button.  Requires backdoor whitelisting.
 
 64.2.0: OWLCMS Restart on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
   - To test this, you need control panel version 3.1 or later (prerelease version at https://github.com/owlcms/owlcms-controlpanel/releases)
@@ -21,10 +30,14 @@
 
 64.2.0: Added an AgeGroup_2026-08 for the August 2026 body weight categories
 
+64.2.0: Additional event for initial decision reached (to allow for quick display of a Good/No Lift video). 
+  - Listeners to this event may to check if there was reversal when the decision visible event comes 3 seconds later.
+
+62.2.0: Changing the connections to a remote publicresults dynamically updates the event forwarder to the new destinations
+
 64.2.0: Fix for TeamsGlobalScoring-A4 template
   - Selecting a given scoring system (e.g. Robi) did not propagate to the report
   - Added a "mixed" sheet + summary for combined gender-neutral scores (GAMX, Robi)
-
 
 64.1.0: If the clock was started, and then accidentally reset to 1 or 2 minutes, and not restarted, the "accept decisions with a warning" process did not work. Now fixed.
 
