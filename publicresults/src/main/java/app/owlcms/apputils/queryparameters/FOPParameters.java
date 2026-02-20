@@ -92,7 +92,7 @@ public interface FOPParameters extends HasUrlParameter<String> {
                     setFopName("A"); // default config.
                 }
             }
-            newParameterMap.put(FOP, Arrays.asList(URLUtils.urlEncode(getFopName())));
+            newParameterMap.put(FOP, Arrays.asList(getFopName()));
             OwlcmsSession.getCurrent().setFopName(getFopName());
         } else {
             newParameterMap.remove(FOP);

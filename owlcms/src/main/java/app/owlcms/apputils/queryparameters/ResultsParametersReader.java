@@ -58,7 +58,7 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 			// ageGroup = fop.getVideoAgeGroup();
 			// }
 			if (ageGroup != null) {
-				newParameterMap.put(AGEGROUP, Arrays.asList(URLUtils.urlEncode(ageGroup.getName())));
+				newParameterMap.put(AGEGROUP, Arrays.asList(ageGroup.getName()));
 			}
 			this.setAgeGroup(ageGroup);
 		}
@@ -94,12 +94,17 @@ public interface ResultsParametersReader extends ResultsParameters, FOPParameter
 		String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
 		updateParam(newParameterMap, AGEGROUP_PREFIX, value2);
 
-		List<String> catParams = newParameterMap.get(CATEGORY);
-		String catParam = (catParams != null && !catParams.isEmpty() ? catParams.get(0) : null);
-		catParam = catParam != null ? URLDecoder.decode(catParam, StandardCharsets.UTF_8) : null;
-		setCategory(CategoryRepository.findByCode(catParam));
-		String catValue = getCategory() != null ? getCategory().getComputedCode() : null;
-		updateParam(newParameterMap, CATEGORY, catValue);
+		List<String> catParams = parametersMap.get(CATEGORY);
+		boolean categoryProvidedInUrl = catParams != null && !catParams.isEmpty() && catParams.get(0) != null
+		        && !catParams.get(0).isBlank();
+		String catParam = categoryProvidedInUrl ? URLDecoder.decode(catParams.get(0), StandardCharsets.UTF_8) : null;
+		setCategory(catParam != null ? CategoryRepository.findByCode(catParam) : null);
+		// Only include category in URL if it was explicitly provided in input
+		if (categoryProvidedInUrl && getCategory() != null) {
+			updateParam(newParameterMap, CATEGORY, getCategory().getComputedCode());
+		} else {
+			newParameterMap.remove(CATEGORY);
+		}
 
 
 	       // Parse nbAthletes parameter from URL

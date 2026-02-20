@@ -155,7 +155,7 @@ public interface FOPParametersReader extends ParameterReader, FOPParameters {
 				group = (tFop != null ? tFop.getGroup() : null);
 			}
 			if (groupProvidedInUrl && group != null) {
-				newParameterMap.put(GROUP, Arrays.asList(URLUtils.urlEncode(group.getName())));
+				newParameterMap.put(GROUP, Arrays.asList(group.getName()));
 			} else {
 				newParameterMap.remove(GROUP);
 			}

@@ -10,6 +10,10 @@
 
 **New in Release 64**
 
+64.2.0-beta07: The public scoreboard for ranking does not show the current attempt, but displays medal colors when the session is done and shows sub-headers
+for each category. Feature toggle `rankingsWithCurrentAttempt` uses the prior variant, which can show the current attempt, but does not highlight medals.
+The prior variant will likely be abandoned.
+
 64.2.0-beta07: Fixed double-encoding issue for UTF-8 characters in platform names, potentially causing the same field of play to be
 loaded multiple times under the different encoded names.
 
