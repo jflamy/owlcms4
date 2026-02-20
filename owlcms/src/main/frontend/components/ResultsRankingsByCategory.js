@@ -287,10 +287,10 @@ class ResultsRankingsByCategory extends LitElement {
   headerTitle() {
     const title = (this.displayTitle ?? "").toString().trim();
     const description = (this.groupDescription ?? "").toString().trim();
-    if (this.isSingleCategory() && description.length > 0) {
-      return `${title} ${description}`.trim();
+    if (title.length > 0 && description.length > 0) {
+      return `${title} – ${description}`;
     }
-    return title;
+    return description.length > 0 ? description : title;
   }
 
   isBreak() {

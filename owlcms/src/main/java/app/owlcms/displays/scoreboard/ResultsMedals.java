@@ -417,11 +417,9 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			if (a.getComputedScoringSystem() == Ranking.TOTAL) {
 				ja.put("totalRank", formatRank(totalRank));
 				ja.put("totalMedal", totalRank >= 1 && totalRank <= 3 ? "medal" + totalRank : "");
-				logger.warn("MEDAL: {} totalRank={} totalMedal={}", a.getShortName(), totalRank, ja.getString("totalMedal"));
 			} else {
 				ja.put("totalRank", "");
 				ja.put("totalMedal", "");
-				logger.warn("MEDAL: {} NOT TOTAL scoring={} -> empty medal", a.getShortName(), a.getComputedScoringSystem());
 			}
 		} else {
 			this.logger.error("main rankings null for {}", a);
@@ -554,15 +552,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			Group g = this.getGroup();
 			boolean allDone = medalists.stream()
 			        .noneMatch(a -> !a.isDone(g) && a.isEligibleForIndividualRanking());
-			logger.warn("computeCategoryMedalsJson categoryDone check: group={} allDone={} category={}", 
-			        g != null ? g.getName() : "null", allDone, catCode);
-			for (Athlete a : medalists) {
-				if (!a.isDone(g) && a.isEligibleForIndividualRanking()) {
-					logger.warn("  NOT DONE: {} isDone={} eligible={} cj3={}", 
-					    a.getShortName(), a.isDone(g), a.isEligibleForIndividualRanking(), 
-					    a.getCleanJerk3ActualLift());
-				}
-			}
 			jMC.put("categoryDone", allDone);
 
 			jsonMCArray.set(mcX, jMC);
@@ -611,15 +600,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				Group g = this.getGroup();
 				boolean allDone = medalists.stream()
 				        .noneMatch(a -> !a.isDone(g) && a.isEligibleForIndividualRanking());
-				logger.warn("categoryDone check: group={} allDone={} category={}", 
-				        g != null ? g.getName() : "null", allDone, key);
-				for (Athlete a : medalists) {
-					if (!a.isDone(g) && a.isEligibleForIndividualRanking()) {
-						logger.warn("  NOT DONE: {} isDone={} eligible={} cj3={}", 
-						    a.getShortName(), a.isDone(g), a.isEligibleForIndividualRanking(), 
-						    a.getCleanJerk3ActualLift());
-					}
-				}
 				jMC.put("categoryDone", allDone);
 
 				setScoreRanks(scoreNeeded);
@@ -832,8 +812,19 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	private void setDisplay() {
 		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			return;
+		}
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
-		this.getElement().setProperty("groupDescription", "");
+		Group group = getGroup();
+		String description = null;
+		if (group != null) {
+			description = group.getDescription();
+			if (description == null) {
+				description = Translator.translate("Group_number", group.getName());
+			}
+		}
+		this.getElement().setProperty("groupDescription", description != null ? description : "");
 	}
 
 	private void setMedals(TreeMap<String, List<Athlete>> medals) {
