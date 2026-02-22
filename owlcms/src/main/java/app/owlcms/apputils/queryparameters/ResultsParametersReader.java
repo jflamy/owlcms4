@@ -21,7 +21,6 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 public interface ResultsParametersReader extends ResultsParameters, FOPParametersReader {

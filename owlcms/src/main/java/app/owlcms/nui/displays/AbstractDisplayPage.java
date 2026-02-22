@@ -27,7 +27,6 @@ import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.DisplayParametersReader;
 import app.owlcms.apputils.queryparameters.FOPParameters;
-import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.group.Group;
