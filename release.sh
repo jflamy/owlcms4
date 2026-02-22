@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="${1:-64.2.0-rc02}"
+REVISION="${1:-64.2.0-rc03}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
@@ -87,7 +87,7 @@ if ! diff --strip-trailing-cr -q "${TRANSLATION_CSV}" "${REMOTE_TMP}" >/dev/null
   echo "         Local file may be out of date or have local modifications." >&2
   echo ""
   echo "Running translation consistency check..."
-  ./scripts/check-translation-diff.sh || true
+  PROMPT_DOWNLOAD=false ./scripts/check-translation-diff.sh || true
   echo ""
   read -p "Refresh translation4.csv from Google Sheets now and exit? (y/N): " -r REFRESH
   if [[ "${REFRESH}" =~ ^[Yy]$ ]]; then
