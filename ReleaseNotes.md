@@ -10,6 +10,8 @@
 
 **New in Release 64**
 
+64.2.0-rc03: Session results protocol sheets for an individual session were no longer showing new records.
+
 64.2.0-rc02: Fixed handling of the new Initial Decision event so it is not confused with the official decision and does not interfere with Down Signal
 
 64.2.0-rc01: More fixes for double-encodings when URLs contain session names with non-Latin characters. Session names are only relevant
