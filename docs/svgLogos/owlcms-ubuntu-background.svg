@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <rect x="0" y="0" width="1920" height="1080" fill="#5F7893"/>
+  <image
+    href="owlcms.svg"
+    x="785.75"
+    y="327.5"
+    width="348.5"
+    height="425"
+    preserveAspectRatio="xMidYMid meet"
+  />
+</svg>
