@@ -8,7 +8,7 @@ package app.owlcms.i18n;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
@@ -293,6 +293,13 @@ public class Translator implements I18NProvider {
 				logger.debug("reloading translation bundles");
 				InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
 				logger.debug("csvStream {} {}", csvName, csvStream);
+				if (csvStream == null) {
+					throw new RuntimeException(csvName + " not found");
+				}
+				String csvText = new String(csvStream.readAllBytes(), StandardCharsets.UTF_8);
+				if (!csvText.isEmpty() && !(csvText.endsWith("\n") || csvText.endsWith("\r"))) {
+					csvText = csvText + "\n";
+				}
 				ICsvListReader listReader = null;
 				try {
 					CsvPreference[] preferences = new CsvPreference[] { CsvPreference.STANDARD_PREFERENCE,
@@ -300,14 +307,11 @@ public class Translator implements I18NProvider {
 
 					List<String> stringList = new ArrayList<>();
 					for (CsvPreference preference : preferences) {
-						listReader = new CsvListReader(new InputStreamReader(csvStream, StandardCharsets.UTF_8),
+						listReader = new CsvListReader(new StringReader(csvText),
 						        preference);
 
 						if ((stringList = readLine(listReader)) == null) {
 							throw new RuntimeException(csvName + " file is empty");
-						} else if (stringList.size() <= 2) {
-							// reset stream
-							csvStream = ResourceWalker.getResourceAsStream(csvName);
 						} else {
 							logger.trace(stringList.toString());
 							break;
@@ -338,14 +342,17 @@ public class Translator implements I18NProvider {
 					}
 
 					// reading to properties
+					String lastProcessedKey = null;
 					while ((stringList = readLine(listReader)) != null) {
 						String key = stringList.get(0);
 						if (key == null) {
+							lastProcessedKey = null;
 //							String message = MessageFormat.format("{0} line {1}: key is null", csvName, line);
 //							logger.error(message);
 //							throw new RuntimeException(message);
 						} else {
 							key = key.trim();
+							lastProcessedKey = key;
 							logger.debug(stringList.toString());
 							for (int i = 1; i < nbLanguages + 1; i++) {
 								// treat the CSV strings using same rules as Properties files.
@@ -381,6 +388,13 @@ public class Translator implements I18NProvider {
 							}
 						}
 					}
+					logger.warn("{} Translation CSV read loop exited at line {}. Last processed key='{}'",
+					        LoggerUtils.whereFrom(), line, lastProcessedKey);
+					if (languageProperties.length > 1 && languageProperties[1] != null
+					        && !languageProperties[1].containsKey("ImportR.DoIt")) {
+						logger.warn("{} Missing translation key after CSV parse: ImportR.DoIt (line {}, last key='{}')",
+						        LoggerUtils.whereFrom(), line, lastProcessedKey);
+					}
 
 					// writing
 					for (int i = 1; i < nbLanguages + 1; i++) {
@@ -402,6 +416,7 @@ public class Translator implements I18NProvider {
 				} catch (IOException e) {
 					LoggerUtils.logError(logger, e);
 				} finally {
+					csvText = null;
 					if (listReader != null) {
 						try {
 							listReader.close();
