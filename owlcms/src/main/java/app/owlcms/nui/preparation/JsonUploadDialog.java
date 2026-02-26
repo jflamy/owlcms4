@@ -138,7 +138,7 @@ public class JsonUploadDialog extends Dialog {
 	private String translateButtonLabel(String key, String hardcodedFallback) {
 		String value = Translator.translateNoOverrideOrElseNull(key, capturedLocale);
 		if (value == null || value.isBlank()) {
-			logger.warn("{} Missing button translation key='{}' locale='{}'. Using hardcoded fallback='{}'.\n{}",
+			logger.debug("{} Missing button translation key='{}' locale='{}'. Using hardcoded fallback='{}'.\n{}",
 			        LoggerUtils.whereFrom(), key, capturedLocale, hardcodedFallback, LoggerUtils.stackTrace());
 			return hardcodedFallback;
 		}
@@ -148,11 +148,11 @@ public class JsonUploadDialog extends Dialog {
 	private String translatePinned(String key) {
 		String value = Translator.translateExplicitLocale(key, capturedLocale);
 		if (value != null && value.startsWith("!")) {
-			logger.warn("{} translatePinned primary miss key='{}' locale='{}' value='{}'\n{}",
+			logger./**/warn("{} translatePinned primary miss key='{}' locale='{}' value='{}'\n{}",
 			        LoggerUtils.whereFrom(), key, capturedLocale, value, LoggerUtils.stackTrace());
 			String fallback = Translator.translateExplicitLocale(key, Locale.ENGLISH);
 			if (fallback != null && fallback.startsWith("!")) {
-				logger.warn("{} translatePinned fallback miss key='{}' fallbackLocale='{}' value='{}'\n{}",
+				logger./**/warn("{} translatePinned fallback miss key='{}' fallbackLocale='{}' value='{}'\n{}",
 				        LoggerUtils.whereFrom(), key, Locale.ENGLISH, fallback, LoggerUtils.stackTrace());
 			}
 			return fallback;

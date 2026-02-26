@@ -1862,7 +1862,7 @@ public class FieldOfPlay implements IUnregister {
 
 			
 			boolean waitForAnnouncer = Competition.getCurrent().isAnnouncerControlledJuryDecision() && e.isJuryButton();
-			logger.warn("=========== waitForAnnouncer={} isJuryButton={} ", waitForAnnouncer,  e.isJuryButton());
+			logger.debug("=========== waitForAnnouncer={} isJuryButton={} ", waitForAnnouncer,  e.isJuryButton());
 			JuryNotification juryNotificationEvent = new UIEvent.JuryNotification(a, e.getOrigin(),
 			        e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
 			        reversalToGood || reversalToBad, newRecord,
@@ -2835,7 +2835,7 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	private void notifyDecisionWithoutClock(Object origin) {
 		if (this.decisionReceivedWithoutClock) {
-			this.logger.warn("{}Decision recorded but clock was never started for {}",
+			this.logger./**/warn("{}Decision recorded but clock was never started for {}",
 			        FieldOfPlay.getLoggingName(this), getCurAthlete().getShortName());
 			pushOutUIEvent(new UIEvent.Notification(
 			        getCurAthlete(), origin,

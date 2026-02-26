@@ -56,20 +56,20 @@ public class BrowserUtils {
 
 		// 1. Check JVM AWT Headless mode (covers java.awt.headless property and OS capabilities)
 		// if (java.awt.GraphicsEnvironment.isHeadless()) {
-		// 	logger.warn("Detected JVM headless mode");
+		// 	logger.info("Detected JVM headless mode");
 		// 	return true;
 		// }
 
 		// 2. Check Desktop API support
 		// if (!java.awt.Desktop.isDesktopSupported() || !java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
-		// 	logger.warn("Java Desktop API or BROWSE action not supported");
+		// 	logger.info("Java Desktop API or BROWSE action not supported");
 		// 	return true;
 		// }
 
 		// 3. Check for specific container/CI markers that imply no browser usage
 		// Check for Docker
 		if (new java.io.File("/.dockerenv").exists()) {
-			logger.warn("Detected Docker environment (/.dockerenv exists)");
+			logger.debug("Detected Docker environment (/.dockerenv exists)");
 			return true;
 		}
 
@@ -79,7 +79,7 @@ public class BrowserUtils {
 		if ((os.contains("nix") || os.contains("nux") || os.contains("aix")) 
 				&& System.getenv("DISPLAY") == null 
 				&& System.getenv("WAYLAND_DISPLAY") == null) {
-			logger.warn("Detected headless Linux/Unix (DISPLAY and WAYLAND_DISPLAY not set)");
+			logger.debug("Detected headless Linux/Unix (DISPLAY and WAYLAND_DISPLAY not set)");
 			return true;
 		}
 

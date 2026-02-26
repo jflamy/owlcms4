@@ -247,7 +247,7 @@ public class TechnicalOfficialReader {
                 if (teamRoleStr != null && !teamRoleStr.isEmpty()) {
                     teamRole = findEnumValueForTranslatedTeamRole(teamRoleStr);
                     if (teamRole == null) {
-                        logger.warn("Invalid TeamRole value '{}' for {} {} (row {}) - skipping TeamRole assignment", 
+                        logger.error("Invalid TeamRole value '{}' for {} {} (row {}) - skipping TeamRole assignment", 
                             teamRoleStr, firstName, lastName, row.getRowNum() + 1);
                     }
                 }

@@ -143,11 +143,11 @@ public class FlagsZipHelper {
 	public static boolean hasFlagsAvailable() {
 		Path flagsPath = getFlagsDirectory();
 		if (flagsPath == null) {
-			logger.warn("hasFlagsAvailable: getFlagsDirectory() returned null");
+			logger./**/warn("hasFlagsAvailable: getFlagsDirectory() returned null");
 			return false;
 		}
 		if (!Files.exists(flagsPath)) {
-			logger.warn("hasFlagsAvailable: flags path does not exist: {}", flagsPath);
+			logger./**/warn("hasFlagsAvailable: flags path does not exist: {}", flagsPath);
 			return false;
 		}
 		
@@ -160,14 +160,14 @@ public class FlagsZipHelper {
 			}
 			boolean available = fileCount > 0;
 			if (!available) {
-				logger.warn("hasFlagsAvailable: flags directory exists but is empty: {} (filesystem: {})", 
+				logger./**/warn("hasFlagsAvailable: flags directory exists but is empty: {} (filesystem: {})", 
 						flagsPath, flagsPath.getFileSystem().getClass().getSimpleName());
 			} else {
 				logger.debug("hasFlagsAvailable: found {} flag files in {}", fileCount, flagsPath);
 			}
 			return available;
 		} catch (Exception e) {
-			logger.warn("Error checking flags availability in {}: {} - {}", 
+			logger.error("Error while checking flags availability in {}: {} - {}", 
 					flagsPath, e.getClass().getSimpleName(), LoggerUtils.exceptionMessage(e));
 			return false;
 		}

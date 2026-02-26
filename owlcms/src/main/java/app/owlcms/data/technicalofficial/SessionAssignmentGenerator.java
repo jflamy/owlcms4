@@ -133,7 +133,7 @@ public class SessionAssignmentGenerator {
             // Get all timetable entries
             List<TechnicalOfficialsTimetable> timetableEntries = TechnicalOfficialsTimetableRepository.findAll(em);
             if (timetableEntries.isEmpty()) {
-                logger.warn("No timetable entries found - cannot generate assignments");
+                logger./**/warn("No timetable entries found - cannot generate assignments");
                 return 0;
             }
 
@@ -177,7 +177,7 @@ public class SessionAssignmentGenerator {
                     .collect(Collectors.toList());
 
             if (sessions.isEmpty()) {
-                logger.warn("No sessions found - cannot generate assignments");
+                logger./**/warn("No sessions found - cannot generate assignments");
                 return 0;
             }
 

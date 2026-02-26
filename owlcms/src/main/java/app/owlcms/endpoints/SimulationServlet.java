@@ -134,7 +134,7 @@ public class SimulationServlet extends HttpServlet {
 				new CompetitionSimulator().runSimulation();
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
-				logger.warn("simulation thread interrupted");
+				logger./**/warn("simulation thread interrupted");
 			} catch (Throwable t) {
 				logger.error("{}", LoggerUtils.stackTrace(t));
 			}

@@ -233,7 +233,7 @@ public class WebSocketEventSender {
 		}
 
 		connecting = true;
-		logger.warn("Starting WebSocket connect to {} {}", url, LoggerUtils.whereFrom());
+		logger.info("Starting WebSocket connect to {} {}", url, LoggerUtils.whereFrom());
 
 		try {
 			URI uri = new URI(url);
@@ -262,7 +262,7 @@ public class WebSocketEventSender {
 				@Override
 				public void onClose(int code, String reason, boolean remote) {
 					if (remote) {
-						logger.warn("✗ Connection closed by remote: {} (code: {}, reason: {})", 
+						logger.info("✗ Connection closed by remote: {} (code: {}, reason: {})", 
 								url, code, reason);
 					} else {
 						logger.info("Connection closed by local: {} (code: {}, reason: {})", url, code, reason);
@@ -280,7 +280,7 @@ public class WebSocketEventSender {
 
 				@Override
 				public void onError(Exception ex) {
-					logger.warn("✗ WebSocket error for {} - {}", url, LoggerUtils.exceptionMessage(ex));
+					logger.info("✗ WebSocket error for {} - {}", url, LoggerUtils.exceptionMessage(ex));
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
 					}
@@ -336,7 +336,7 @@ public class WebSocketEventSender {
 				delayMs = MAX_RECONNECT_DELAY_MS;
 			}
 			
-			logger.warn("Scheduling reconnect to {} in {}s (attempt {})", 
+			logger.info("Scheduling reconnect to {} in {}s (attempt {})", 
 					url, delayMs / 1000, reconnectAttempts);
 			
 			// Use shared executor instead of spawning new threads

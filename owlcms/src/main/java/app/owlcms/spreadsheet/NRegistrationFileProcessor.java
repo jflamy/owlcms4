@@ -704,7 +704,7 @@ public class NRegistrationFileProcessor {
 					result.putIfAbsent(tCurrent.trim().toLowerCase(), info);
 				}
 			} catch (Exception ex) {
-				logger.warn("Failed to translate athlete header '{}': {}", key, ex.getMessage());
+				logger./**/warn("Failed to translate athlete header '{}': {}", key, ex.getMessage());
 			}
 			// also register the explicit English translation
 			try {
@@ -728,7 +728,7 @@ public class NRegistrationFileProcessor {
 					result.putIfAbsent(tEng.trim().toLowerCase(), info);
 				}
 			} catch (Exception ex) {
-				logger.warn("Failed to translate athlete header '{}' to English: {}", key, ex.getMessage());
+				logger./**/warn("Failed to translate athlete header '{}' to English: {}", key, ex.getMessage());
 			}
 		}
 		return result;
@@ -911,7 +911,7 @@ public class NRegistrationFileProcessor {
 					logger.info("Looking up athlete header '{}' (lowercase: '{}') in setter map", trimmedCellValue, lookupKey);
 					AthleteHeaderInfo info = athleteSetterMap.get(lookupKey);
 					if (info == null) {
-						logger.warn("No setter found for athlete header '{}' (tried lowercase: '{}')", trimmedCellValue, lookupKey);
+						logger.error("No setter found for athlete header '{}' (tried lowercase: '{}')", trimmedCellValue, lookupKey);
 					}
 					orderedAthleteHeaderInfo.add(info);
 					if (info != null) {

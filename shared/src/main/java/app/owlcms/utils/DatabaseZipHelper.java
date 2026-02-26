@@ -37,7 +37,7 @@ public class DatabaseZipHelper {
 	 */
 	public static byte[] createDatabaseZipBytes(Object databasePayload) {
 		if (databasePayload == null) {
-			logger.warn("[DatabaseZipHelper] Payload is null, returning empty ZIP");
+			logger./**/warn("[DatabaseZipHelper] Payload is null, returning empty ZIP");
 			return new byte[0];
 		}
 
@@ -77,7 +77,7 @@ public class DatabaseZipHelper {
 	 */
 	public static byte[] createMetadataZipBytes(Object metadata) {
 		if (metadata == null) {
-			logger.warn("[DatabaseZipHelper] Metadata is null, returning empty ZIP");
+			logger./**/warn("[DatabaseZipHelper] Metadata is null, returning empty ZIP");
 			return new byte[0];
 		}
 

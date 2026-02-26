@@ -307,23 +307,21 @@ public class WebSocketSender {
 		// Export competition data once (for all connections)
 		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionDataStatic();
 		if (export == null) {
-			logger.warn("Unable to build competition data payload for startup - aborting WebSocket registration");
+			logger.error("Unable to build competition data payload for startup - aborting WebSocket registration");
 			return;
 		}
 
 		// Create translations ZIP bytes once
 		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
-			logger.warn("Translations not available for startup send - aborting WebSocket registration");
+			logger.error("Translations not available for startup send - aborting WebSocket registration");
 			return;
 		}
 		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
 
-		// Create flags ZIP bytes once
-		if (!FlagsZipHelper.hasFlagsAvailable()) {
-			logger.warn("Flags not available for startup send - aborting WebSocket registration");
-			return;
-		}
-		byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
+		// Create flags ZIP bytes once (optional - may not exist)
+		final byte[] flagsZipBytes = FlagsZipHelper.hasFlagsAvailable()
+		        ? FlagsZipHelper.createFlagsZipBytes()
+		        : new byte[0];
 
 		// Create pictures ZIP bytes once (optional - may not exist)
 		final byte[] picturesZipBytes = PicturesZipHelper.hasPicturesAvailable()
@@ -365,7 +363,7 @@ public class WebSocketSender {
 					if (zipBytes.length > 0) {
 						sender.sendBinary("database_zip", zipBytes);
 					} else {
-						logger.warn("No database ZIP available to send to {}", url);
+						logger.error("No database ZIP available to send to {}", url);
 					}
 				});
 
@@ -405,10 +403,10 @@ public class WebSocketSender {
 						if (sent) {
 							logger.info("Sent startup database_zip via WebSocket to {} (auth step)", url);
 						} else {
-							logger.warn("Could not send startup database_zip via WebSocket to {} (socket not ready)", url);
+							logger.error("Could not send startup database_zip via WebSocket to {} (socket not ready)", url);
 						}
 					} else {
-						logger.warn("No database ZIP prepared for startup send to {}", url);
+						logger.error("No database ZIP prepared for startup send to {}", url);
 					}
 
 					// Send binary frames AFTER authentication (requires valid updateKey from database message)
@@ -417,15 +415,17 @@ public class WebSocketSender {
 					if (sentBin) {
 						logger.info("Sent startup translations_zip via WebSocket to {}", url);
 					} else {
-						logger.warn("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
+						logger.error("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
 					}
 
-					// Send flags_zip
-					sentBin = sender.sendBinary("flags_zip", flagsZipBytes);
-					if (sentBin) {
-						logger.info("Sent startup flags_zip via WebSocket to {}", url);
-					} else {
-						logger.warn("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
+					// Send flags_zip (optional - may not exist)
+					if (flagsZipBytes != null && flagsZipBytes.length > 0) {
+						sentBin = sender.sendBinary("flags_zip", flagsZipBytes);
+						if (sentBin) {
+							logger.info("Sent startup flags_zip via WebSocket to {}", url);
+						} else {
+							logger.warn("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
+						}
 					}
 				});
 			}

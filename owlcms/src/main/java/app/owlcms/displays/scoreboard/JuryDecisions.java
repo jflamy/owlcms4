@@ -252,7 +252,7 @@ public class JuryDecisions extends BaseResults {
 
 		// we listen on uiEventBus.
 		this.uiEventBus = uiEventBusRegister(this, fop);
-		logger.warn("JuryDecisions registered on uiEventBus for fop {}", fop.getName());
+		logger.debug("JuryDecisions registered on uiEventBus for fop {}", fop.getName());
 		getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 		getElement().setProperty("showJuryDecisions", true);
 		getElement().setPropertyJson("decisions", Json.createArray());

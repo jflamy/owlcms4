@@ -2228,7 +2228,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionData(getFop());
 		if (export == null) {
-			logger.warn("{}unable to build competition data for database", FieldOfPlay.getLoggingName(getFop()));
+			logger.error("{}unable to build competition data for database", FieldOfPlay.getLoggingName(getFop()));
 			return;
 		}
 

@@ -541,7 +541,7 @@ public class Platform implements Serializable, Comparable<Platform> {
 				new TypeReference<Map<String, Map<String, Object>>>() {}
 			);
 		} catch (Exception e) {
-			logger.warn("Failed to deserialize UI settings JSON: {}", e.getMessage());
+			logger.error("Failed to deserialize UI settings JSON: {}", e.getMessage());
 			return new HashMap<>();
 		}
 	}

@@ -388,11 +388,11 @@ public class Translator implements I18NProvider {
 							}
 						}
 					}
-					logger.warn("{} Translation CSV read loop exited at line {}. Last processed key='{}'",
+					logger.debug("{} Translation CSV read loop exited at line {}. Last processed key='{}'",
 					        LoggerUtils.whereFrom(), line, lastProcessedKey);
 					if (languageProperties.length > 1 && languageProperties[1] != null
 					        && !languageProperties[1].containsKey("ImportR.DoIt")) {
-						logger.warn("{} Missing translation key after CSV parse: ImportR.DoIt (line {}, last key='{}')",
+						logger.debug("{} Missing translation key after CSV parse: ImportR.DoIt (line {}, last key='{}')",
 						        LoggerUtils.whereFrom(), line, lastProcessedKey);
 					}
 

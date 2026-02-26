@@ -49,7 +49,7 @@ public class MainWrapper {
                     if (p.waitFor(3, java.util.concurrent.TimeUnit.SECONDS)) {
                         logger.info("Subprocess terminated");
                     } else {
-                        logger.warn("Subprocess still running after 3s wait");
+                        logger./**/warn("Subprocess still running after 3s wait");
                     }
                 } catch (Exception e) {
                     logger.error("Error during shutdown: {}", e.getMessage());
@@ -133,7 +133,7 @@ public class MainWrapper {
                 }
                 
             } catch (InterruptedException e) {
-                logger.warn("MainWrapper interrupted, exiting", e);
+                logger.info("MainWrapper interrupted, exiting", e);
                 Thread.currentThread().interrupt();
                 break;
             } catch (IOException e) {

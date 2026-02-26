@@ -875,7 +875,7 @@ public class Competition {
 			ObjectMapper mapper = new ObjectMapper();
 			return mapper.readValue(this.enabledRankings, new TypeReference<List<String>>() {});
 		} catch (IOException e) {
-			logger.warn("Failed to parse enabledRankings: {}", e.getMessage());
+			logger.error("Failed to parse enabledRankings: {}", e.getMessage());
 			return null;
 		}
 	}
@@ -896,7 +896,7 @@ public class Competition {
 			ObjectMapper mapper = new ObjectMapper();
 			this.enabledRankings = mapper.writeValueAsString(rankings);
 		} catch (IOException e) {
-			logger.warn("Failed to serialize enabledRankings: {}", e.getMessage());
+			logger.error("Failed to serialize enabledRankings: {}", e.getMessage());
 			this.enabledRankings = null;
 		}
 	}

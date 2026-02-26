@@ -162,6 +162,7 @@ public class TimetableIO {
      * @return List of imported timetable entries
      * @throws IOException If read fails
      */
+    //FIXME: errors are not reported to user, only logged - need to collect and report back in UI
     public static List<TechnicalOfficialsTimetable> importTimetable(InputStream in) throws IOException {
         List<TechnicalOfficialsTimetable> result = new ArrayList<>();
 
@@ -183,7 +184,7 @@ public class TimetableIO {
             // Read header row to get column indices
             Row headerRow = sheet.getRow(0);
             if (headerRow == null) {
-                logger.warn("No header row found");
+                logger.error("No header row found");
                 workbook.close();
                 return result;
             }
@@ -219,7 +220,7 @@ public class TimetableIO {
                     // Lookup session by name
                     Group group = GroupRepository.findByName(sessionName);
                     if (group == null) {
-                        logger.warn("Session '{}' not found at row {}", sessionName, i + 1);
+                        logger./**/warn("Session '{}' not found at row {}", sessionName, i + 1);
                         continue;
                     }
 
@@ -245,7 +246,7 @@ public class TimetableIO {
                         try {
                             teamNumber = Integer.parseInt(teamNumberStr);
                         } catch (NumberFormatException e) {
-                            logger.warn("Invalid team number '{}' at row {} column {}", teamNumberStr, i + 1, roleCategory);
+                            logger./**/warn("Invalid team number '{}' at row {} column {}", teamNumberStr, i + 1, roleCategory);
                             continue;
                         }
 
@@ -254,7 +255,7 @@ public class TimetableIO {
                         try {
                             role = OfficialRole.valueOf(roleCategory);
                         } catch (IllegalArgumentException e) {
-                            logger.warn("Invalid role category '{}' at row {}", roleCategory, i + 1);
+                            logger./**/warn("Invalid role category '{}' at row {}", roleCategory, i + 1);
                             continue;
                         }
 
@@ -263,7 +264,7 @@ public class TimetableIO {
                     }
 
                 } catch (Exception e) {
-                    logger.warn("Error parsing row {}: {}", i + 1, e.getMessage());
+                    logger./**/warn("Error parsing row {}: {}", i + 1, e.getMessage());
                 }
             }
 
