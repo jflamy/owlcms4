@@ -28,10 +28,12 @@ public class ConfirmationDialog extends Dialog {
 	 * @param title              the dialog title
 	 * @param question           the confirmation question/warning message (can contain HTML)
 	 * @param confirmButtonLabel the label for the confirm button (red, dangerous action)
+	 * @param cancelButtonLabel  the label for the cancel button (null uses translated default)
 	 * @param successNotification the notification message shown after successful action (can be null)
 	 * @param pAction            the action to run when confirmed
 	 */
-	public ConfirmationDialog(String title, String question, String confirmButtonLabel, String successNotification, Runnable pAction) {
+	public ConfirmationDialog(String title, String question, String confirmButtonLabel, String cancelButtonLabel,
+	        String successNotification, Runnable pAction) {
 		Dialog dialog = this;
 		dialog.setCloseOnEsc(false);
 		dialog.setCloseOnOutsideClick(false);
@@ -60,7 +62,8 @@ public class ConfirmationDialog extends Dialog {
 		});
 		confirmButton.getElement().setAttribute("theme", "primary error");
 
-		Button cancelButton = new Button(Translator.translate("Cancel"), event -> {
+		String effectiveCancelLabel = cancelButtonLabel != null ? cancelButtonLabel : Translator.translate("Cancel");
+		Button cancelButton = new Button(effectiveCancelLabel, event -> {
 			dialog.close();
 		});
 		cancelButton.getElement().setAttribute("theme", "primary");
@@ -71,6 +74,11 @@ public class ConfirmationDialog extends Dialog {
 
 		dialog.add(content);
 		dialog.add(buttons);
+	}
+
+	public ConfirmationDialog(String title, String question, String confirmButtonLabel, String successNotification,
+	        Runnable pAction) {
+		this(title, question, confirmButtonLabel, null, successNotification, pAction);
 	}
 
 	/**
