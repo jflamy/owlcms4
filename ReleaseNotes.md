@@ -10,27 +10,23 @@
 
 **New in Release 64**
 
-64.2.0-rc03: Session results protocol sheets for an individual session were no longer showing new records.
-
-64.2.0-rc02: Fixed handling of the new Initial Decision event so it is not confused with the official decision and does not interfere with Down Signal
-
-64.2.0-rc01: More fixes for double-encodings when URLs contain session names with non-Latin characters. Session names are only relevant
-for the Announcer, for medal ceremonies, and for producing result documents, and should not be in URL otherwise.
+64.2.0: Fixed the Session results protocol template: individual session result protocols were no longer showing new records
 
 64.2.0: The public scoreboard for ranking now displays medal colors when the session is done and shows sub-headers
 for each category if there are several.  It does not show the current attempt info.
 - Feature toggle `rankingsWithCurrentAttempt` uses the prior variant, which can show the current attempt, but does not highlight medals.
 
-64.2.0: Fixed double-encoding issue for UTF-8 characters in platform names, potentially causing the same field of play to be
-loaded multiple times under the different encoded names.
+64.2.0: Fixed for double-encodings when URLs contain session names with non-Latin characters. 
+  - Ignore and remove session names in URLs except for the the Announcer, for medal ceremonies, and for result documents.
 
 64.2.0: /simulation page now has start/stop buttons. Requires backdoor whitelisting.
 
 64.2.0: /admin page added with stop/restart button.  Requires backdoor whitelisting.
 
-64.2.0: OWLCMS Restart on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
-  - To test this, you need control panel version 3.1 or later (prerelease version at https://github.com/owlcms/owlcms-controlpanel/releases)
-  - Or when developing, app.owlcms.MainWrapper is used instead of app.owlcms.Main 
+64.2.0: OWLCMS supports restarting on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
+  - When using Control Panel locally, version 3.1 or later of the control panel is required
+  - Works automatically when running in the cloud (Docker handles the restart)
+  - When developing, start the application with app.owlcms.MainWrapper is used instead of app.owlcms.Main.  Stop using Ctrl-C to allow clean-up to take place 
 
 64.2.0: Added an AgeGroup_2026-08 for the August 2026 body weight categories
 
