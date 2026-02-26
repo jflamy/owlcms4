@@ -620,7 +620,7 @@ public class NRegistrationFileProcessor {
 	}
 
 	private Map<String, AthleteHeaderInfo> buildAthleteSetterMap() {
-		logger.info("Building athlete setter map for locale: {}", this.locale);
+		logger.debug("Building athlete setter map for locale: {}", this.locale);
 		Map<String, AthleteHeaderInfo> base = new HashMap<>();
 		// simple setters
 		base.put("Membership", new AthleteHeaderInfo((a, s, c) -> a.setMembership(s), null));
@@ -700,7 +700,7 @@ public class NRegistrationFileProcessor {
 					tCurrent = Translator.translateExplicitLocale(key, this.locale);
 				}
 				if (tCurrent != null && !tCurrent.isBlank()) {
-					logger.info("Athlete header: '{}' -> current locale '{}' (lowercase: '{}')", key, tCurrent, tCurrent.trim().toLowerCase());
+					logger.debug("Athlete header: '{}' -> current locale '{}' (lowercase: '{}')", key, tCurrent, tCurrent.trim().toLowerCase());
 					result.putIfAbsent(tCurrent.trim().toLowerCase(), info);
 				}
 			} catch (Exception ex) {
@@ -724,7 +724,7 @@ public class NRegistrationFileProcessor {
 					tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
 				}
 				if (tEng != null && !tEng.isBlank()) {
-					logger.info("Athlete header: '{}' -> English '{}' (lowercase: '{}')", key, tEng, tEng.trim().toLowerCase());
+					logger.debug("Athlete header: '{}' -> English '{}' (lowercase: '{}')", key, tEng, tEng.trim().toLowerCase());
 					result.putIfAbsent(tEng.trim().toLowerCase(), info);
 				}
 			} catch (Exception ex) {
@@ -908,7 +908,7 @@ public class NRegistrationFileProcessor {
 					}
 					String trimmedCellValue = cellValue.trim();
 					String lookupKey = trimmedCellValue.toLowerCase();
-					logger.info("Looking up athlete header '{}' (lowercase: '{}') in setter map", trimmedCellValue, lookupKey);
+					logger.debug("Looking up athlete header '{}' (lowercase: '{}') in setter map", trimmedCellValue, lookupKey);
 					AthleteHeaderInfo info = athleteSetterMap.get(lookupKey);
 					if (info == null) {
 						logger.error("No setter found for athlete header '{}' (tried lowercase: '{}')", trimmedCellValue, lookupKey);
