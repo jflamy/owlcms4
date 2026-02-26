@@ -223,7 +223,8 @@ public class URLUtils {
             found = false;
         }
         if (found) {
-            component.getElement().setProperty(propertyName, "<img src='local/" + prefix + name + suffix + "'></img>");
+            String imageUrl = appendAutoVersion("local/" + prefix + name + suffix);
+            component.getElement().setProperty(propertyName, "<img src='" + imageUrl + "'></img>");
         } else {
             component.getElement().setProperty(propertyName, "");
         }
@@ -239,10 +240,16 @@ public class URLUtils {
             found = false;
         }
         if (found) {
-            return "<img "+style+" src='local/" + prefix + name + suffix + "'></img>";
+            String imageUrl = appendAutoVersion("local/" + prefix + name + suffix);
+            return "<img " + style + " src='" + imageUrl + "'></img>";
         } else {
             return null;
         }
+    }
+
+    private static String appendAutoVersion(String url) {
+        String av = StartupUtils.getAutoVersion();
+        return (av == null || av.isEmpty()) ? url : url + "?v=" + av;
     }
 
 	/**
