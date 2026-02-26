@@ -10,11 +10,18 @@
 
 **New in Release 64**
 
+64.2.0: OWLCMS supports restarting on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
+  - When using Control Panel locally, version 3.1 or later of the control panel is required
+  - Works automatically when running in the cloud (Docker handles the restart)
+  - When developing, start the application with app.owlcms.MainWrapper is used instead of app.owlcms.Main.  Stop using Ctrl-C to allow clean-up to take place 
+
 64.2.0: Fixed the Session results protocol template: individual session result protocols were no longer showing new records
 
-64.2.0: The public scoreboard for ranking now displays medal colors when the session is done and shows sub-headers
-for each category if there are several.  It does not show the current attempt info.
-- Feature toggle `rankingsWithCurrentAttempt` uses the prior variant, which can show the current attempt, but does not highlight medals.
+64.2.0: Flags and pictures are now auto-versioned (restarting the server will ensure newer image is used)
+
+64.2.0: The "Rankings" public scoreboard now displays medal colors when the session is done. It also shows sub-headers
+for each category if there are several.
+- Feature toggle `rankingsWithCurrentAttempt` uses the deprecated prior variant that shows the current attempt during the session but does not highlight medals.
 
 64.2.0: Fixed for double-encodings when URLs contain session names with non-Latin characters. 
   - Ignore and remove session names in URLs except for the the Announcer, for medal ceremonies, and for result documents.
@@ -23,10 +30,6 @@ for each category if there are several.  It does not show the current attempt in
 
 64.2.0: /admin page added with stop/restart button.  Requires backdoor whitelisting.
 
-64.2.0: OWLCMS supports restarting on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
-  - When using Control Panel locally, version 3.1 or later of the control panel is required
-  - Works automatically when running in the cloud (Docker handles the restart)
-  - When developing, start the application with app.owlcms.MainWrapper is used instead of app.owlcms.Main.  Stop using Ctrl-C to allow clean-up to take place 
 
 64.2.0: Added an AgeGroup_2026-08 for the August 2026 body weight categories
 
