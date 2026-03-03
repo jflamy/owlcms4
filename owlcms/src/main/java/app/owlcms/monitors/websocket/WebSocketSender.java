@@ -424,7 +424,7 @@ public class WebSocketSender {
 						if (sentBin) {
 							logger.info("Sent startup flags_zip via WebSocket to {}", url);
 						} else {
-							logger.warn("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
+							logger.error("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
 						}
 					}
 				});
