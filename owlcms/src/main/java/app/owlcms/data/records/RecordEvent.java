@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 
 import javax.persistence.Cacheable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Index;
@@ -96,6 +97,8 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		return newRecord;
 	}
 
+	@Column(columnDefinition = "boolean default true")
+	private Boolean active = true;
 	private Double athleteBW;
 	private Integer athleteAge;
 	@Id
@@ -162,6 +165,10 @@ public class RecordEvent implements Comparable<RecordEvent> {
 			this.ageGrpLower = this.ageGrpLower > 0 ? this.ageGrpLower : 15;
 			this.ageGrpUpper = this.ageGrpUpper > 0 ? this.ageGrpUpper : 999;
 		}
+	}
+
+	public Boolean getActive() {
+		return this.active != null ? this.active : true;
 	}
 
 	public String getAgeGrp() {
@@ -435,6 +442,10 @@ public class RecordEvent implements Comparable<RecordEvent> {
 	// this.recordDate, this.recordFederation, this.recordLift, this.recordName, this.recordValue,
 	// this.fileName, this.recordYear);
 	// }
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
 
 	public void setAgeGrp(String ageGrp) {
 		this.ageGrp = ageGrp;

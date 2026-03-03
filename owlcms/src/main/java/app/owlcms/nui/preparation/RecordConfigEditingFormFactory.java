@@ -79,7 +79,67 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 			this.grid.addColumn(RecordEvent::getAgeGrp).setTextAlign(ColumnTextAlign.CENTER);
 			this.grid.addColumn(RecordEvent::getRecordFederation).setTextAlign(ColumnTextAlign.CENTER);
 			this.grid.addColumn(RecordEvent::getFileName).setAutoWidth(true);
+
+			// Header checkbox toggles all rows
+			Checkbox headerCheckbox = new Checkbox();
+			headerCheckbox.setAriaLabel(Translator.translate("Active"));
+			headerCheckbox.addValueChangeListener(e -> {
+				if (e.isFromClient()) {
+					boolean newVal = e.getValue();
+					RecordRepository.setActiveForAll(newVal);
+					for (RecordEvent re : LoadedRecordsField.this.getValue()) {
+						re.setActive(newVal);
+					}
+					this.grid.getDataProvider().refreshAll();
+				}
+			});
+			updateHeaderCheckboxState(headerCheckbox);
+
+			NativeLabel activeLabel = new NativeLabel(Translator.translate("Active"));
+			activeLabel.getStyle().set("font-size", "var(--lumo-font-size-s)");
+			Div headerWrapper = new Div(activeLabel, headerCheckbox);
+			headerWrapper.getStyle().set("display", "flex");
+			headerWrapper.getStyle().set("flex-direction", "column");
+			headerWrapper.getStyle().set("align-items", "center");
+
+			this.grid.addComponentColumn(re -> createActiveCheckbox(re, headerCheckbox))
+			        .setHeader(headerWrapper)
+			        .setTextAlign(ColumnTextAlign.CENTER);
 			this.grid.addComponentColumn(re -> createClearButton(re)).setTextAlign(ColumnTextAlign.CENTER);
+		}
+
+		private void updateHeaderCheckboxState(Checkbox headerCheckbox) {
+			List<RecordEvent> items = LoadedRecordsField.this.getValue();
+			if (items == null || items.isEmpty()) {
+				headerCheckbox.setValue(false);
+				headerCheckbox.setIndeterminate(false);
+				return;
+			}
+			boolean allActive = items.stream().allMatch(RecordEvent::getActive);
+			boolean noneActive = items.stream().noneMatch(RecordEvent::getActive);
+			if (allActive) {
+				headerCheckbox.setValue(true);
+				headerCheckbox.setIndeterminate(false);
+			} else if (noneActive) {
+				headerCheckbox.setValue(false);
+				headerCheckbox.setIndeterminate(false);
+			} else {
+				headerCheckbox.setIndeterminate(true);
+			}
+		}
+
+		private Checkbox createActiveCheckbox(RecordEvent re, Checkbox headerCheckbox) {
+			Checkbox checkbox = new Checkbox();
+			checkbox.setValue(re.getActive());
+			checkbox.addValueChangeListener(e -> {
+				if (e.isFromClient()) {
+					RecordRepository.setActiveForRecordSet(
+					        re.getRecordFederation(), re.getRecordName(), re.getAgeGrp(), e.getValue());
+					re.setActive(e.getValue());
+					updateHeaderCheckboxState(headerCheckbox);
+				}
+			});
+			return checkbox;
 		}
 
 		private Button createClearButton(RecordEvent re) {

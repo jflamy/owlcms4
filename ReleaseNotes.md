@@ -10,6 +10,9 @@
 
 **New in Release 64**
 
+64.3.0: Records can now be activated/deactivated without deleting them.
+  - Making a record set inactive makes them invisible (they are not updated and not exported) -- behaves the same as if they had been deleted.
+
 64.2.0: OWLCMS supports restarting on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
   - When using Control Panel locally, version 3.1 or later of the control panel is required
   - Works automatically when running in the cloud (Docker handles the restart)

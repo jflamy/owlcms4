@@ -456,7 +456,7 @@ public class RecordRepository {
 			}
 
 			Query q = em.createNativeQuery(
-			        "SELECT DISTINCT a.fileName, a.recordFederation, a.recordName, a.ageGrp FROM RecordEvent a");
+			        "SELECT DISTINCT a.fileName, a.recordFederation, a.recordName, a.ageGrp, a.active FROM RecordEvent a");
 			@SuppressWarnings("unchecked")
 			List<Object[]> records = q.getResultList();
 
@@ -466,6 +466,8 @@ public class RecordRepository {
 				e.setRecordFederation((String) a[1]);
 				e.setRecordName((String) a[2]);
 				e.setAgeGrp((String) a[3]);
+				Object activeVal = a[4];
+				e.setActive(activeVal == null ? true : (Boolean) activeVal);
 				recordEventStubs.add(e);
 			}
 			return null;
@@ -570,6 +572,8 @@ public class RecordRepository {
 
 	private static String filteringWhere(Gender gender, Integer age, Double bw, String groupName, Boolean newRecords) {
 		List<String> whereList = new LinkedList<>();
+		// only return active records (treat null as active for backward compatibility)
+		whereList.add("(rec.active IS NULL OR rec.active = true)");
 		if (gender != null) {
 			whereList.add("rec.gender = :gender");
 		}
@@ -747,6 +751,47 @@ public class RecordRepository {
 			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL ORDER BY rec.ageGrp",
 			        String.class)
 			        .getResultList();
+		});
+	}
+
+	/**
+	 * Set active status for all records matching the given record set (federation + recordName + ageGrp).
+	 * This is used to activate or deactivate entire record sets.
+	 * Inactive records behave as if they had never been loaded.
+	 *
+	 * @param recordFederation the federation
+	 * @param recordName       the record name
+	 * @param ageGrp           the age group
+	 * @param active           true to activate, false to deactivate
+	 */
+	public static void setActiveForRecordSet(String recordFederation, String recordName, String ageGrp, boolean active) {
+		JPAService.runInTransaction(em -> {
+			Query q = em.createQuery("UPDATE RecordEvent a SET a.active = :active WHERE "
+			        + "a.recordFederation = :rf "
+			        + "AND a.recordName = :rn "
+			        + "AND a.ageGrp = :ag ");
+			q.setParameter("active", active);
+			q.setParameter("rf", recordFederation);
+			q.setParameter("rn", recordName);
+			q.setParameter("ag", ageGrp);
+			int updated = q.executeUpdate();
+			logger.info("{} {} record entries for {} {} {}", active ? "activated" : "deactivated", updated, recordFederation, recordName, ageGrp);
+			return null;
+		});
+	}
+
+	/**
+	 * Set active status for ALL record events.
+	 *
+	 * @param active true to activate all, false to deactivate all
+	 */
+	public static void setActiveForAll(boolean active) {
+		JPAService.runInTransaction(em -> {
+			Query q = em.createQuery("UPDATE RecordEvent a SET a.active = :active");
+			q.setParameter("active", active);
+			int updated = q.executeUpdate();
+			logger.info("{} all {} record entries", active ? "activated" : "deactivated", updated);
+			return null;
 		});
 	}
 
