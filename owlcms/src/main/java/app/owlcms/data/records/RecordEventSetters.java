@@ -107,6 +107,16 @@ public class RecordEventSetters {
 
     public static void setRecordLift(RecordEvent rec, Cell cell) {
         String value = cell.getStringCellValue();
+
+        // accept translated values for lift types, but store the standard value in the record
+        if (Translator.translate("Record.SNATCH").equalsIgnoreCase(value)) {
+            value = "SNATCH";
+        } else if (Translator.translate("Record.CLEANJERK").equalsIgnoreCase(value)) {
+            value = "CLEAN_AND_JERK";
+        } else if (Translator.translate("Record.TOTAL").equalsIgnoreCase(value)) {
+            value = "TOTAL";
+        }
+
         value = value != null ? value.trim() : value;
         rec.setRecordLift(value);
     }
