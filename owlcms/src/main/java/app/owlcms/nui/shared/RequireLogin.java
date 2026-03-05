@@ -26,6 +26,15 @@ public interface RequireLogin extends BeforeEnterObserver {
 	@Override
 	public default void beforeEnter(BeforeEnterEvent event) {
 		OwlcmsFactory.waitDBInitialized();
+		String path = event.getLocation().getPath();
+		QueryParameters queryParameters = event.getLocation().getQueryParameters();
+
+		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
+		if (recordsOnly && !isRecordsOnlyAllowedPath(path)) {
+			event.forwardTo("preparation");
+			return;
+		}
+
 		boolean isAuthenticated = OwlcmsSession.isAuthenticated();
 		if (isAuthenticated) {
 			// no check required
@@ -33,8 +42,14 @@ public interface RequireLogin extends BeforeEnterObserver {
 			return;
 		}
 
-		String path = event.getLocation().getPath();
-		QueryParameters queryParameters = event.getLocation().getQueryParameters();
+		if (recordsOnly) {
+			String clientIp = AccessUtils.getClientIp();
+			if (AccessUtils.ipIsAllowedForOfficials(clientIp)) {
+				OwlcmsSession.setAuthenticated(true);
+				return;
+			}
+		}
+
 		String paramPin = Config.getCurrent().getParamPin();
 		String dbPin = Config.getCurrent().getPin();
 		String backdoorList = Config.getCurrent().getParamBackdoorList();
@@ -70,6 +85,17 @@ public interface RequireLogin extends BeforeEnterObserver {
 				logger.debug("no pin expected {} {}", paramPin, dbPin);
 			}
 		}
+	}
+
+	private static boolean isRecordsOnlyAllowedPath(String path) {
+		if (path == null || path.isBlank()) {
+			return false;
+		}
+		return path.equals(LoginView.LOGIN)
+		        || path.equals("preparation")
+		        || path.equals("preparation/recordsConfig")
+		        || path.equals("preparation/records")
+		        || path.equals("preparation/config");
 	}
 
 }

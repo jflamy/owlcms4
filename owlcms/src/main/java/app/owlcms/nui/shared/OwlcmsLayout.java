@@ -37,6 +37,7 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -303,6 +304,14 @@ public class OwlcmsLayout extends AppLayout {
 	private Tabs getTabs() {
 		Tabs tabs = new Tabs();
 		String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
+		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
+		if (recordsOnly) {
+			tabs.add(createTab(new Icon(VaadinIcon.GROUP),
+			        Translator.translate("RecordEvent.PageTitle"),
+			        PreparationNavigationContent.class));
+			tabs.setOrientation(Tabs.Orientation.VERTICAL);
+			return tabs;
+		}
 		// boolean tv = new OwlcmsLicense().isFeatureAllowed("tv");
 		tabs.add(
 		        createTab(new Icon(VaadinIcon.HOME),

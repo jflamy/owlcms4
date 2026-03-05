@@ -68,6 +68,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	 * Instantiates a new preparation navigation content.
 	 */
 	public PreparationNavigationContent() {
+		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
 
 		Button competition = openInNewTabNoParam(CompetitionContent.class,
 		        Translator.translate("CompetitionInformation"));
@@ -147,37 +148,56 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 			exportJsonV2Div.setWidthFull();
 		}
 
-		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, officials, groups, platforms);
-		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
-		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, coaches, teams);
-		doGroup(Translator.translate("Registration"), grid2, this, true);
-		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(documents);
-		doGroup(Translator.translate("Documents.Title"), grid3, this, true);
-		FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(configureRecords, editExportRecords);
-		doGroup(Translator.translate("RecordEvent.PageTitle"), grid4, this, true);
-		
-		// Add V2 export button to grid if feature switch is enabled
-		FlexibleGridLayout grid5;
-		if (exportJsonV2Div != null) {
-			grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div, uploadJson);
+		if (recordsOnly) {
+			FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(configureRecords, editExportRecords);
+			doGroup(Translator.translate("RecordEvent.PageTitle"), grid4, this, true);
+
+			FlexibleGridLayout grid5;
+			if (exportJsonV2Div != null) {
+				grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div, uploadJson);
+			} else {
+				grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
+			}
+			doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
 		} else {
-			grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
+			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, officials, groups, platforms);
+			doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
+			FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, coaches, teams);
+			doGroup(Translator.translate("Registration"), grid2, this, true);
+			FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(documents);
+			doGroup(Translator.translate("Documents.Title"), grid3, this, true);
+			FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(configureRecords, editExportRecords);
+			doGroup(Translator.translate("RecordEvent.PageTitle"), grid4, this, true);
+
+			FlexibleGridLayout grid5;
+			if (exportJsonV2Div != null) {
+				grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div, uploadJson);
+			} else {
+				grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
+			}
+			doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
+
+			FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(sbdeDiv, sbdeUpload);
+			doHiddenGroup(Translator.translate("AdvancedPreparation.Title"),
+			        new Div(Translator.translate("AdvancedPreparation.Explanation")), grid6, this, true);
 		}
-		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
-		FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(sbdeDiv, sbdeUpload);
-		doHiddenGroup(Translator.translate("AdvancedPreparation.Title"),
-		        new Div(Translator.translate("AdvancedPreparation.Explanation")), grid6, this, true);
 
 		DebugUtils.gc();
 	}
 
 	@Override
 	public String getMenuTitle() {
+		if (Config.getCurrent().featureSwitch("recordsOnly")) {
+			return Translator.translate("RecordEvent.PageTitle");
+		}
 		return Translator.translate("PrepareCompetition");
 	}
 
 	@Override
 	public String getPageTitle() {
+		if (Config.getCurrent().featureSwitch("recordsOnly")) {
+			return Translator.translate("RecordEvent.PageTitle");
+		}
 		return Translator.translate("ShortTitle.Preparation");
 	}
 
