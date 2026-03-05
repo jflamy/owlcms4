@@ -137,7 +137,7 @@ public class NCurrentAthlete extends Results {
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		uiLog(e);
-		if (e.ref2 == null) {
+		if (e.decision == null) {
 			if (logger.isDebugEnabled()) logger.debug("waiting for decision");
 			setShowDecisions(this.getElement(), false);
 			setShowAthleteClock(this.getElement(), false);
@@ -149,10 +149,15 @@ public class NCurrentAthlete extends Results {
 			try {
 				if (logger.isDebugEnabled()) logger.debug("showing decision");
 				setDisplay();
+
+				Athlete athlete = e.getAthlete() != null ? e.getAthlete() : getFop().getCurAthlete();
+				if (athlete != null) {
+					computeIndicators(athlete, 1, e.getFop(), e.decision);
+				}
 				
 				JsonArray decisions = Json.createArray();
 				if (getFop().isSingleReferee() || getFop().isRefereeForcedDecision()) {
-					decisions.set(0, e.ref2);
+					decisions.set(0, e.ref2 != null ? e.ref2 : e.decision);
 				} else {
 					decisions.set(0, e.ref1);
 					decisions.set(1, e.ref2);
@@ -350,6 +355,10 @@ public class NCurrentAthlete extends Results {
 	}
 	
 	private void computeIndicators(Athlete a, int liftOrderRank, FieldOfPlay fop) {
+		computeIndicators(a, liftOrderRank, fop, null);
+	}
+
+	private void computeIndicators(Athlete a, int liftOrderRank, FieldOfPlay fop, Boolean decisionOverride) {
 		XAthlete x = new XAthlete(a);
 		Integer curLift = x.getAttemptsDone();
 		JsonArray snIndicators = Json.createArray();
@@ -380,8 +389,14 @@ public class NCurrentAthlete extends Results {
 						break;
 					default:
 						if (stringValue != null && !trim.isEmpty()) {
-							if (i.getLiftNo() == curLift && (fop.getState() != FOPState.DECISION_VISIBLE)) {
-								className = "current";
+								if (i.getLiftNo() == curLift) {
+									if (decisionOverride != null) {
+										className = decisionOverride ? "white" : "red";
+									} else if (fop.getState() != FOPState.DECISION_VISIBLE) {
+										className = "current";
+									} else {
+										className = "empty";
+									}
 							} else {
 								className = "empty";
 							}
