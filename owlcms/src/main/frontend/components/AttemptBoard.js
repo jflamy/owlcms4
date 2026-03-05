@@ -165,17 +165,19 @@ class CurrentAttempt extends LitElement {
 
   firstNameClasses() {
     const hasPicture = this.athleteImg || this.athletePictures;
+    const showTeamFlag = Boolean(this.teamFlagImg) && this.mode === "CURRENT_ATHLETE" && !this.isBreak();
     if (hasPicture) {
       return "firstNameWithPicture";
     }
-    if (this.teamFlagImg) {
+    if (showTeamFlag) {
       return "firstNameWithFlags";
     }
     return "firstName";
   }
   firstNameStyles() {
     const hasPicture = this.athleteImg || this.athletePictures;
-    if (hasPicture || this.teamFlagImg) {
+    const showTeamFlag = Boolean(this.teamFlagImg) && this.mode === "CURRENT_ATHLETE" && !this.isBreak();
+    if (hasPicture || showTeamFlag) {
       return ""; // Let CSS handle the display for these variants
     }
     return "display: grid";
