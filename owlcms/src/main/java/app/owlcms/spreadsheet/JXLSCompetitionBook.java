@@ -13,6 +13,8 @@ import java.util.List;
 
 import app.owlcms.data.records.RecordEvent;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
@@ -118,8 +120,36 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	@Override
 	protected void postProcess(Workbook workbook) {
 		super.postProcess(workbook);
+		overwritePointsSheet(workbook);
 		translateSheets(workbook);
 		workbook.setForceFormulaRecalculation(true);
+	}
+
+	private void overwritePointsSheet(Workbook workbook) {
+		Sheet pointsSheet = workbook.getSheet("Points");
+		if (pointsSheet == null) {
+			return;
+		}
+
+		for (int rowIndex = 1; rowIndex <= pointsSheet.getLastRowNum(); rowIndex++) {
+			int rank = rowIndex - 1;
+			Row row = pointsSheet.getRow(rowIndex);
+			if (row == null) {
+				row = pointsSheet.createRow(rowIndex);
+			}
+
+			Cell rankCell = row.getCell(0);
+			if (rankCell == null) {
+				rankCell = row.createCell(0);
+			}
+			rankCell.setCellValue(rank);
+
+			Cell pointsCell = row.getCell(1);
+			if (pointsCell == null) {
+				pointsCell = row.createCell(1);
+			}
+			pointsCell.setCellValue(AthleteSorter.pointsFormula(rank));
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
