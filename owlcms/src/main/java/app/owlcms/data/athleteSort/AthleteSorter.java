@@ -441,13 +441,21 @@ public class AthleteSorter implements Serializable {
 		if (rank == null || rank <= 0) {
 			return 0;
 		}
+		Competition competition = Competition.getCurrent();
+		int firstPlacePoints = competition != null && competition.getTeamPoints1st() != null ? competition.getTeamPoints1st() : 28;
+		int secondPlacePoints = competition != null && competition.getTeamPoints2nd() != null ? competition.getTeamPoints2nd() : 25;
+		int thirdPlacePoints = competition != null && competition.getTeamPoints3rd() != null ? competition.getTeamPoints3rd() : 23;
+
 		if (rank == 1) {
-			return 28;
+			return firstPlacePoints;
 		}
 		if (rank == 2) {
-			return 25;
+			return secondPlacePoints;
 		}
-		return 26 - rank;
+		if (rank == 3) {
+			return thirdPlacePoints;
+		}
+		return Math.max(0, thirdPlacePoints - (rank - 3));
 	}
 
 	/**
@@ -492,13 +500,7 @@ public class AthleteSorter implements Serializable {
 		if (rank == null || rank <= 0) {
 			return 0;
 		}
-		if (rank == 1) {
-			return 28;
-		}
-		if (rank == 2) {
-			return 25;
-		}
-		return 26 - rank;
+		return pointsFormula(rank);
 	}
 
 	static public List<Athlete> registrationBWCopy(List<Athlete> toBeSorted) {
