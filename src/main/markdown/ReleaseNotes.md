@@ -10,6 +10,12 @@
 
 **New in Release 64**
 
+64.3.0: Team scoring in the web application now correctly uses the competition-configured points for 1st, 2nd and 3rd place.
+  - Subsequent places use the 3rd-place value minus one point per rank until reaching 0.
+  - Generated Excel competition books now rewrite the `Points` sheet to match the configured competition team scoring values.
+
+64.3.0: 2026 Age Groups: Masters body weight categories for Women have been fixed.
+
 64.2.0: OWLCMS supports restarting on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
   - When using Control Panel locally, version 3.1 or later of the control panel is required
   - Works automatically when running in the cloud (Docker handles the restart)
