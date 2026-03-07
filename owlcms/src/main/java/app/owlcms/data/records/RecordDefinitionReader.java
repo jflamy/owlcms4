@@ -197,6 +197,9 @@ public class RecordDefinitionReader {
 
 			for (RecordEvent importedRecord : importedRecords) {
 				try {
+					if (!RecordRepository.isProvisional(importedRecord)) {
+						RecordRepository.clearMatchingProvisionalRecordsForImportedOfficial(em, importedRecord);
+					}
 					if (RecordRepository.isProvisional(importedRecord)
 					        && RecordRepository.findExactDuplicate(em, importedRecord) != null) {
 						logger.info("skipping duplicate provisional record {} {}", importedRecord.getKey(), importedRecord.getRecordValue());

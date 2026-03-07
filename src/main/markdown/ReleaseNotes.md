@@ -8,120 +8,15 @@
 
 <br>
 
-**New in Release 64**
+**New in Release 65**
 
-64.3.0: Team scoring in the web application now correctly uses the competition-configured points for 1st, 2nd and 3rd place.
-  - Subsequent places use the 3rd-place value minus one point per rank until reaching 0.
-  - Generated Excel competition books now rewrite the `Points` sheet to match the configured competition team scoring values.
+65.0.0: Act as record repository :
+  - A new feature toggle "recordsOnly" hides all the pages except records management
+    - A separate dedicated OWLCMS instance can be used with this option to keep and edit the records
+  - You can export all the provisional records from a meet and import them to have automatic updates
+  - Round-trip is supported -- you can export a subset of the records, update the file, and reload to make corrections.
+    - This does not remove entries however, voided records need to be removed in the application.
+    - If the reloaded file approves a provisional record, the prior provisional record is replaced by the official version.
 
-64.3.0: 2026 Age Groups: Masters body weight categories for Women have been fixed.
-
-64.2.0: OWLCMS supports restarting on JSON database export load, and (optionally) on Start Book Data Entry (SBDE) file load
-  - When using Control Panel locally, version 3.1 or later of the control panel is required
-  - Works automatically when running in the cloud (Docker handles the restart)
-  - When developing, start the application with app.owlcms.MainWrapper is used instead of app.owlcms.Main.  Stop using Ctrl-C to allow clean-up to take place 
-
-64.2.0: Fixed the Session results protocol template: individual session result protocols were no longer showing new records
-
-64.2.0: Flags and pictures are now auto-versioned (restarting the server will ensure newer image is used)
-
-64.2.0: The "Rankings" public scoreboard now displays medal colors when the session is done. It also shows sub-headers
-for each category if there are several.
-- Feature toggle `rankingsWithCurrentAttempt` uses the deprecated prior variant that shows the current attempt during the session but does not highlight medals.
-
-64.2.0: Fixed for double-encodings when URLs contain session names with non-Latin characters. 
-  - Ignore and remove session names in URLs except for the the Announcer, for medal ceremonies, and for result documents.
-
-64.2.0: /simulation page now has start/stop buttons. Requires backdoor whitelisting.
-
-64.2.0: /admin page added with stop/restart button.  Requires backdoor whitelisting.
-
-
-64.2.0: Added an AgeGroup_2026-08 for the August 2026 body weight categories
-
-64.2.0: Additional event for initial decision reached (to allow for quick display of a Good/No Lift video). 
-  - Listeners to this event may to check if there was reversal when the decision visible event comes 3 seconds later.
-
-62.2.0: Changing the connections to a remote publicresults dynamically updates the event forwarder to the new destinations
-
-64.2.0: Fix for TeamsGlobalScoring-A4 template
-  - Selecting a given scoring system (e.g. Robi) did not propagate to the report
-  - Added a "mixed" sheet + summary for combined gender-neutral scores (GAMX, Robi)
-
-64.1.0: If the clock was started, and then accidentally reset to 1 or 2 minutes, and not restarted, the "accept decisions with a warning" process did not work. Now fixed.
-
-64.1.0: A zero eliminates the athlete from score-based medals (same as for total medals)
-
-64.1.0: The `childrenEquipment` feature toggle is now treated as a default setting for the equipment on the platforms.  Applied when creating a platform,
-or when the childrenEquipment toggle is added to the list of feature toggles.
-
-64.1.0: The Jury Decision Display from the Video Streaming page
-- will now keep the initial jury decisions visible during deliberation. This can be controlled using the `keepInitial` URL parameter (default = true)
-- and also keep the second vote visible until the clock starts for the next athlete.  URL parameter `keepFinal` is true by default
-- this does NOT change the behavior of the Jury deliberation page that clears the decisions in order to allow for a second vote
-
-64.1.0: The Rankings selection on the Video Streaming page now works again.
-
-64.1.0: The Rankings screen from the Video Streaming page
-  - shows the medal winners highlighted with the medal color
-  - showMedals=auto is a new parameter on the URL: medals shown when category is done.
-  - showMedals=true or false overrides the default.
-  - topN=15 shows 15 athletes (is the default.)
-
-64.1.0: Fixed potential memory leak when trying to connect to an inexistent (or irresponsive) remote websocket site using the tracker protocol
-
-64.1.0: The previous groups leaders section will include medalists in Snatch or CJ even if they are not top 3 total.
-
-64.0.5: GAMX-M, U and A scores were computed as 0.00 due to age not being propagated.
-
-64.0.4: Flags, Translations and Logos were not packaged and sent to tracker if they were in a override zip stored in the database
-
-64.0.3: Updated the documentation to reflect Control Panel version 3 and use of SBDE format.
-
-64.0.3: Fix: Application did not start if there was a configuration override zip in the database.
-
-64.0.3: Usability: Adding/Removing a configuration override zip in the database no longer requires the Update button.
-
-64.0.2: Sessions from a registration file were not correctly reset to match the Sessions tab
-
-64.0.1: Fixed upload of registration files when the current session is not in English.
-
-64.0.0: Improved error messages when loading a registration/SBDE sheet and athlete is not eligible to stated category (age or qualif. total)
-
-64.0.0: 250g deduction done manually by TO is now again the default (automatic must be selected); clarified option description
-
-64.0.0: Decisions entered when the clock was not started will now be accepted.  A red notification is given to the announcer, timekeeper and jury.
-
-64.0.0: User-oriented startup log that can be tailed by control panel
-
-64.0.0: Validation that there cannot be two age groups with the same code and gender. On import and from interactive editing
-
-64.0.0: The cogwheel settings for the technical official screens (for example, single referee),
-are now stored with the platform, remain selected when switching sessions, and are restored when restarting the server.
-
-64.0.0: 64.0.0: New websocket protocol for updated tracker
-- Uses the v2 export format (see below)
-- Additional information for tracker applications (e.g. time remaining on breaks, precalculated display information)
-- Sends all the data needed by owlcms-tracker, with full resynchronization if either end restarts
-
-64.0.0: Support for IWF-style referee assignments by teams, including import/export of a timetable.
-
-64.0.0: End of Competitition Behavior filtering for Best Athlete Scoring has beeen fixed
-- If no championship is selected, all athletes are shown, with the global scoring scheme.  The Final package also uses the global scoring scheme.
-- When a championship is selected, the best athlete scoring scheme for that championship is used.  The final package uses the championship scheme.
-- Eligibility category results with no championship selected show the age-group best athlete score (global if no age-group specific score)
-- Registration category results with no championship selected show the global best athlete score
-
-64.0.0: Support for GAMX 2.0 scores: GAMX + age-adjusted variants GAMX-M (Masters), GAMX-U (Kids+Youth), GAMX-A (13-40).  Also added CAT_GAMX, GAMX computed at IWF JR/SR category weight.
-- For performance, only the scoring systems required by the best athlete and medals are computed by default; additional ones can be selected if needed by local templates
-
-64.0.0: Fix: Athletes not weighed-in are not propagated to the introduction sheet
-
-64.0.0: New v2 JSON export format
-- A new cleaner export format is available when the feature toggle `v2export` is active.  Historical unfortunate naming fixes,
-symbolic references/natural keys for readability.
-- An extra button is visible when
-the toggle is active.  The new format uses natural keys for better readability.
-- Import distinguighes the two formats automatically.
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)

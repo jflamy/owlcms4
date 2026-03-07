@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -400,6 +401,25 @@ public class RecordRepository {
 		}
 	}
 
+	static void clearMatchingProvisionalRecordsForImportedOfficial(EntityManager em, RecordEvent record) {
+		StringBuilder queryBuilder = new StringBuilder(
+		        "DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(rec.groupNameString) <> ''");
+		Map<String, Object> parameters = new LinkedHashMap<>();
+		appendLogicalKeyConditions(queryBuilder, parameters, record);
+		appendEqualityCondition(queryBuilder, parameters, "rec.recordValue", "recordValue", record.getRecordValue());
+		appendEqualityCondition(queryBuilder, parameters, "rec.athleteName", "athleteName", record.getAthleteName());
+		appendEqualityCondition(queryBuilder, parameters, "rec.recordDate", "recordDate", record.getRecordDate());
+		appendEqualityCondition(queryBuilder, parameters, "rec.event", "event", record.getEvent());
+		appendEqualityCondition(queryBuilder, parameters, "rec.eventLocation", "eventLocation", record.getEventLocation());
+
+		Query query = em.createQuery(queryBuilder.toString());
+		parameters.forEach(query::setParameter);
+		int deletedCount = query.executeUpdate();
+		if (deletedCount > 0) {
+			logger.info("deleted {} provisional record entries replaced by imported official {} {}", deletedCount, record.getKey(), record.getRecordValue());
+		}
+	}
+
 	/**
 	 * Delete.
 	 *
@@ -580,20 +600,20 @@ public class RecordRepository {
 	}
 
 	private static boolean isSameDuplicateProvisional(RecordEvent left, RecordEvent right) {
-		return ObjectUtils.equals(left.getRecordFederation(), right.getRecordFederation())
-		        && ObjectUtils.equals(left.getRecordName(), right.getRecordName())
-		        && ObjectUtils.equals(left.getGender(), right.getGender())
-		        && ObjectUtils.equals(left.getRecordLift(), right.getRecordLift())
-		        && ObjectUtils.equals(left.getAgeGrpLower(), right.getAgeGrpLower())
-		        && ObjectUtils.equals(left.getAgeGrpUpper(), right.getAgeGrpUpper())
-		        && ObjectUtils.equals(left.getBwCatLower(), right.getBwCatLower())
-		        && ObjectUtils.equals(left.getBwCatUpper(), right.getBwCatUpper())
-		        && ObjectUtils.equals(left.getRecordValue(), right.getRecordValue())
-		        && ObjectUtils.equals(left.getAthleteName(), right.getAthleteName())
-		        && ObjectUtils.equals(left.getRecordDate(), right.getRecordDate())
-		        && ObjectUtils.equals(left.getEvent(), right.getEvent())
-		        && ObjectUtils.equals(left.getEventLocation(), right.getEventLocation())
-		        && ObjectUtils.equals(left.getGroupNameString(), right.getGroupNameString());
+		return Objects.equals(left.getRecordFederation(), right.getRecordFederation())
+		        && Objects.equals(left.getRecordName(), right.getRecordName())
+		        && Objects.equals(left.getGender(), right.getGender())
+		        && Objects.equals(left.getRecordLift(), right.getRecordLift())
+		        && Objects.equals(left.getAgeGrpLower(), right.getAgeGrpLower())
+		        && Objects.equals(left.getAgeGrpUpper(), right.getAgeGrpUpper())
+		        && Objects.equals(left.getBwCatLower(), right.getBwCatLower())
+		        && Objects.equals(left.getBwCatUpper(), right.getBwCatUpper())
+		        && Objects.equals(left.getRecordValue(), right.getRecordValue())
+		        && Objects.equals(left.getAthleteName(), right.getAthleteName())
+		        && Objects.equals(left.getRecordDate(), right.getRecordDate())
+		        && Objects.equals(left.getEvent(), right.getEvent())
+		        && Objects.equals(left.getEventLocation(), right.getEventLocation())
+		        && Objects.equals(left.getGroupNameString(), right.getGroupNameString());
 	}
 
 	@SuppressWarnings("unchecked")

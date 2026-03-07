@@ -72,6 +72,27 @@ Official import must not modify provisional records.
 
 Provisional overlaps remain visible for manual cleanup.
 
+### Accepted Round-Trip Exception
+
+An imported official record may replace a matching provisional record created locally.
+
+This applies to the round-trip case where:
+
+1. A local provisional record is exported.
+2. The reference site imports and accepts it as official.
+3. The local site later reloads records from the reference site.
+
+In that case:
+
+1. The imported official row wins.
+2. The otherwise matching local provisional row must be removed.
+3. The imported official row is then inserted.
+4. The result is a single official row rather than one official row plus one stale provisional row.
+
+This exception is narrow.
+
+It applies only when the imported official matches the same record details, not merely the same logical key.
+
 ### Duplicate Cleanup Rule
 
 True duplicate provisional rows may be removed or prevented during import/recompute.
@@ -249,13 +270,14 @@ This is required for provisional review and export when the status filter is pro
 1. Official import replaces official records by logical key.
 2. Official import does not replace by filename.
 3. Official import does not touch provisional records.
-4. Provisional review must expose overlaps and duplicates.
-5. `Status = PROVISIONAL` forces `HISTORY` behavior.
-6. Exact duplicate provisional rows may be cleaned up conservatively.
-7. Accepting provisional records may be done in bulk.
-8. Bulk acceptance is additive: accepted provisional rows become official historical rows.
-9. Correction workflows are separate and may require explicit replacement or voiding behavior.
-10. Competing provisional improvements from different competitions must remain separately reviewable unless they are true duplicates.
+4. Except for the accepted round-trip case, where a matching official import absorbs the matching provisional.
+5. Provisional review must expose overlaps and duplicates.
+6. `Status = PROVISIONAL` forces `HISTORY` behavior.
+7. Exact duplicate provisional rows may be cleaned up conservatively.
+8. Accepting provisional records may be done in bulk.
+9. Bulk acceptance is additive: accepted provisional rows become official historical rows.
+10. Correction workflows are separate and may require explicit replacement or voiding behavior.
+11. Competing provisional improvements from different competitions must remain separately reviewable unless they are true duplicates.
 
 ## Explicit Non-Goals
 
