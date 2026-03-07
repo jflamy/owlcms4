@@ -61,3 +61,4 @@ When using this skill:
 
 - Do not touch translation CSV files.
 - Do not stage, commit, or push unless explicitly requested.
+- Do not rewrite large sections of release notes just for wording preference.
