@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +94,7 @@ public class RecordRepository {
 	}
 
 	/**
-	 * Clear provisional flags only for records matching the specified filters
+	 * Accept provisional records only for rows matching the specified filters.
 	 * 
 	 * @param federation           Federation filter
 	 * @param ageGroup             Age group filter
@@ -103,7 +104,7 @@ public class RecordRepository {
 	 * @param currentHistoryFilter Current/History filter
 	 * @throws IOException
 	 */
-	public static void clearNewRecordsWithFilters(
+	public static void acceptProvisionalRecordsWithFilters(
 	        String federation,
 	        String ageGroup,
 	        Gender gender,
@@ -113,7 +114,7 @@ public class RecordRepository {
 
 		JPAService.runInTransaction(em -> {
 			try {
-				// Build the same WHERE clause as findWithFilters but for UPDATE
+				// Accept provisional rows by clearing the session/group marker.
 				StringBuilder queryBuilder = new StringBuilder("UPDATE RecordEvent rec SET rec.groupNameString = NULL WHERE rec.groupNameString IS NOT NULL");
 				List<String> parameters = new ArrayList<>();
 
@@ -141,12 +142,12 @@ public class RecordRepository {
 					parameters.add("nameFilter");
 				}
 
-				// Provisional filter - only update provisional records
+				// Status filter - only provisional rows can be accepted here.
 				if (provisionalFilter != null && !"ALL".equals(provisionalFilter)) {
 					if ("PROVISIONAL".equals(provisionalFilter)) {
 						// Already included in base WHERE clause
 					} else if ("OFFICIAL".equals(provisionalFilter)) {
-						// Don't update official records - add condition that prevents any updates
+						// Do not modify official rows in the acceptance action.
 						queryBuilder.append(" AND 1=0");
 					}
 				}
@@ -169,7 +170,7 @@ public class RecordRepository {
 
 				int updatedCount = query.executeUpdate();
 				if (updatedCount >= 0) {
-					logger.info("cleared provisional flags for {} record entries", updatedCount);
+					logger.info("accepted {} provisional record entries", updatedCount);
 				}
 			} catch (Exception e) {
 				LoggerUtils.logError(logger, e);
@@ -179,26 +180,24 @@ public class RecordRepository {
 	}
 
 	/**
-	 * Keep only current (best) records within the filtered subset, deleting all historical records
+	 * Keep only the latest official record within the filtered subset, deleting older official history.
 	 * 
 	 * @param federation        Federation filter
 	 * @param ageGroup          Age group filter
 	 * @param gender            Gender filter
 	 * @param nameFilter        Name filter
-	 * @param provisionalFilter Provisional filter
 	 * @throws IOException
 	 */
-	public static void keepOnlyCurrentRecordsWithFilters(
+	public static void keepLatestOfficialRecordsWithFilters(
 	        String federation,
 	        String ageGroup,
 	        Gender gender,
-	        String nameFilter,
-	        String provisionalFilter) throws IOException {
+	        String nameFilter) throws IOException {
 
 		JPAService.runInTransaction(em -> {
 			try {
-				// First, get all records matching the filters
-				StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE 1=1");
+				// This cleanup only applies to official history.
+				StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE (rec.groupNameString IS NULL OR rec.groupNameString = '')");
 				List<String> parameters = new ArrayList<>();
 
 				// Federation filter
@@ -225,15 +224,6 @@ public class RecordRepository {
 					parameters.add("nameFilter");
 				}
 
-				// Provisional filter
-				if (provisionalFilter != null && !"ALL".equals(provisionalFilter)) {
-					if ("PROVISIONAL".equals(provisionalFilter)) {
-						queryBuilder.append(" AND (rec.groupNameString IS NOT NULL AND rec.groupNameString != '')");
-					} else if ("OFFICIAL".equals(provisionalFilter)) {
-						queryBuilder.append(" AND (rec.groupNameString IS NULL OR rec.groupNameString = '')");
-					}
-				}
-
 				Query query = em.createQuery(queryBuilder.toString());
 
 				// Set parameters
@@ -253,12 +243,12 @@ public class RecordRepository {
 				@SuppressWarnings("unchecked")
 				List<RecordEvent> allRecords = query.getResultList();
 
-				// Group by record key and find the best record for each key
+				// Group by logical key and keep the highest-valued official row for each key.
 				Map<String, RecordEvent> bestRecords = allRecords.stream()
 				        .collect(Collectors.groupingBy(
 				                RecordEvent::getKey,
 				                Collectors.collectingAndThen(
-				                        Collectors.maxBy((r1, r2) -> r1.getRecordLift().compareTo(r2.getRecordLift())),
+				                        Collectors.maxBy((r1, r2) -> Double.compare(r1.getRecordValue(), r2.getRecordValue())),
 				                        record -> record.orElseThrow(() -> new IllegalStateException("No record found")))));
 
 				// Get IDs of records to keep
@@ -276,7 +266,7 @@ public class RecordRepository {
 					int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.id IN :idsToDelete")
 					        .setParameter("idsToDelete", idsToDelete)
 					        .executeUpdate();
-					logger.info("deleted {} historical record entries, keeping only current records", deletedCount);
+					logger.info("deleted {} official historical record entries, keeping only the latest official records", deletedCount);
 				}
 
 			} catch (Exception e) {
@@ -396,15 +386,18 @@ public class RecordRepository {
 		});
 	}
 
-	public static void clearRecordsOriginallyFromFile(String fileName) {
-		JPAService.runInTransaction(em -> {
-			Query q = em.createQuery("DELETE FROM RecordEvent a WHERE "
-			        + "a.fileName = :fn "
-			        + "AND (a.groupNameString IS NULL or a.groupNameString = '')");
-			q.setParameter("fn", fileName);
-			q.executeUpdate();
-			return null;
-		});
+	static void clearOfficialRecordsMatchingLogicalKey(EntityManager em, RecordEvent record) {
+		StringBuilder queryBuilder = new StringBuilder(
+		        "DELETE FROM RecordEvent rec WHERE (rec.groupNameString IS NULL OR rec.groupNameString = '')");
+		Map<String, Object> parameters = new LinkedHashMap<>();
+		appendLogicalKeyConditions(queryBuilder, parameters, record);
+
+		Query query = em.createQuery(queryBuilder.toString());
+		parameters.forEach(query::setParameter);
+		int deletedCount = query.executeUpdate();
+		if (deletedCount > 0) {
+			logger.info("deleted {} official record entries for {}", deletedCount, record.getKey());
+		}
 	}
 
 	/**
@@ -543,6 +536,13 @@ public class RecordRepository {
 		RecordEvent nRecord = JPAService.runInTransaction(em -> {
 			// the category objects that have a null age group must be removed.
 			try {
+				if (isProvisional(Record)) {
+					RecordEvent duplicate = findExactDuplicate(em, Record);
+					if (duplicate != null) {
+						logger.info("skipping duplicate provisional record {} {}", duplicate.getKey(), duplicate.getRecordValue());
+						return duplicate;
+					}
+				}
 				RecordEvent mRecord = em.merge(Record);
 				em.flush();
 				return mRecord;
@@ -553,6 +553,47 @@ public class RecordRepository {
 		});
 
 		return nRecord;
+	}
+
+	static RecordEvent findExactDuplicate(EntityManager em, RecordEvent candidate) {
+		StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE 1=1");
+		Map<String, Object> parameters = new LinkedHashMap<>();
+
+		appendLogicalKeyConditions(queryBuilder, parameters, candidate);
+		appendEqualityCondition(queryBuilder, parameters, "rec.recordValue", "recordValue", candidate.getRecordValue());
+		appendEqualityCondition(queryBuilder, parameters, "rec.groupNameString", "groupNameString", candidate.getGroupNameString());
+		appendEqualityCondition(queryBuilder, parameters, "rec.athleteName", "athleteName", candidate.getAthleteName());
+		appendEqualityCondition(queryBuilder, parameters, "rec.recordDate", "recordDate", candidate.getRecordDate());
+		appendEqualityCondition(queryBuilder, parameters, "rec.event", "event", candidate.getEvent());
+		appendEqualityCondition(queryBuilder, parameters, "rec.eventLocation", "eventLocation", candidate.getEventLocation());
+
+		Query query = em.createQuery(queryBuilder.toString());
+		parameters.forEach(query::setParameter);
+
+		@SuppressWarnings("unchecked")
+		List<RecordEvent> matches = query.getResultList();
+		return matches.stream().filter(match -> isSameDuplicateProvisional(candidate, match)).findFirst().orElse(null);
+	}
+
+	static boolean isProvisional(RecordEvent record) {
+		return record.getGroupNameString() != null && !record.getGroupNameString().isBlank();
+	}
+
+	private static boolean isSameDuplicateProvisional(RecordEvent left, RecordEvent right) {
+		return ObjectUtils.equals(left.getRecordFederation(), right.getRecordFederation())
+		        && ObjectUtils.equals(left.getRecordName(), right.getRecordName())
+		        && ObjectUtils.equals(left.getGender(), right.getGender())
+		        && ObjectUtils.equals(left.getRecordLift(), right.getRecordLift())
+		        && ObjectUtils.equals(left.getAgeGrpLower(), right.getAgeGrpLower())
+		        && ObjectUtils.equals(left.getAgeGrpUpper(), right.getAgeGrpUpper())
+		        && ObjectUtils.equals(left.getBwCatLower(), right.getBwCatLower())
+		        && ObjectUtils.equals(left.getBwCatUpper(), right.getBwCatUpper())
+		        && ObjectUtils.equals(left.getRecordValue(), right.getRecordValue())
+		        && ObjectUtils.equals(left.getAthleteName(), right.getAthleteName())
+		        && ObjectUtils.equals(left.getRecordDate(), right.getRecordDate())
+		        && ObjectUtils.equals(left.getEvent(), right.getEvent())
+		        && ObjectUtils.equals(left.getEventLocation(), right.getEventLocation())
+		        && ObjectUtils.equals(left.getGroupNameString(), right.getGroupNameString());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -815,6 +856,7 @@ public class RecordRepository {
 	        String provisionalFilter, // "ALL", "PROVISIONAL", "OFFICIAL"
 	        String currentHistoryFilter, // "CURRENT", "HISTORY"
 	        String session) {
+		String effectiveCurrentHistoryFilter = normalizeCurrentHistoryFilter(provisionalFilter, currentHistoryFilter);
 		@SuppressWarnings("unchecked")
 		List<RecordEvent> allResults = JPAService.runInTransaction(em -> {
 			// Start with base query
@@ -851,7 +893,8 @@ public class RecordRepository {
 					if (session == null) {
 						queryBuilder.append(" AND (rec.groupNameString IS NOT NULL AND rec.groupNameString != '')");
 					} else {
-						queryBuilder.append(" AND (rec.groupNameString IS NOT NULL AND rec.groupNameString LIKE '"+session+"')");
+						queryBuilder.append(" AND (rec.groupNameString IS NOT NULL AND rec.groupNameString LIKE :session)");
+						parameters.add("session");
 					}
 				} else if ("OFFICIAL".equals(provisionalFilter)) {
 					queryBuilder.append(" AND (rec.groupNameString IS NULL OR rec.groupNameString = '')");
@@ -877,6 +920,9 @@ public class RecordRepository {
 			if (parameters.contains("nameFilter")) {
 				query.setParameter("nameFilter", "%" + nameFilter.toLowerCase() + "%");
 			}
+			if (parameters.contains("session")) {
+				query.setParameter("session", session);
+			}
 
 			List<RecordEvent> queryResults;
 			queryResults = query.getResultList();
@@ -888,7 +934,7 @@ public class RecordRepository {
 		// logger.debug(LoggerUtils.whereFrom());
 
 		// Apply current/history filter in Java (since it requires grouping logic)
-		if ("CURRENT".equals(currentHistoryFilter)) {
+		if ("CURRENT".equals(effectiveCurrentHistoryFilter)) {
 			// Group by record key and keep only the best (highest recordValue) record for each key (i.e., for each lift)
 			return allResults.stream()
 			        .collect(Collectors.groupingBy(
@@ -935,6 +981,38 @@ public class RecordRepository {
 
 		// For HISTORY or null, return all results as-is
 		return allResults;
+	}
+
+	public static String normalizeCurrentHistoryFilter(String provisionalFilter, String currentHistoryFilter) {
+		if ("PROVISIONAL".equals(provisionalFilter)) {
+			return "HISTORY";
+		}
+		return currentHistoryFilter;
+	}
+
+	private static void appendLogicalKeyConditions(StringBuilder queryBuilder, Map<String, Object> parameters, RecordEvent record) {
+		appendEqualityCondition(queryBuilder, parameters, "rec.recordFederation", "recordFederation", record.getRecordFederation());
+		appendEqualityCondition(queryBuilder, parameters, "rec.recordName", "recordName", record.getRecordName());
+		appendEqualityCondition(queryBuilder, parameters, "rec.gender", "gender", record.getGender());
+		appendEqualityCondition(queryBuilder, parameters, "rec.recordLift", "recordLift", record.getRecordLift());
+		appendEqualityCondition(queryBuilder, parameters, "rec.ageGrpLower", "ageGrpLower", record.getAgeGrpLower());
+		appendEqualityCondition(queryBuilder, parameters, "rec.ageGrpUpper", "ageGrpUpper", record.getAgeGrpUpper());
+		appendEqualityCondition(queryBuilder, parameters, "rec.bwCatLower", "bwCatLower", record.getBwCatLower());
+		appendEqualityCondition(queryBuilder, parameters, "rec.bwCatUpper", "bwCatUpper", record.getBwCatUpper());
+	}
+
+	private static void appendEqualityCondition(
+	        StringBuilder queryBuilder,
+	        Map<String, Object> parameters,
+	        String fieldName,
+	        String parameterName,
+	        Object value) {
+		if (value == null) {
+			queryBuilder.append(" AND ").append(fieldName).append(" IS NULL");
+		} else {
+			queryBuilder.append(" AND ").append(fieldName).append(" = :").append(parameterName);
+			parameters.put(parameterName, value);
+		}
 	}
 
 }

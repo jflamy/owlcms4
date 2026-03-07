@@ -283,8 +283,7 @@ public class RecordEvent implements Comparable<RecordEvent> {
 	@Transient
 	@JsonIgnore
 	public String getKey() {
-		return // getRecordFederation() + "_" +
-		getRecordName() + "_" + getGender() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
+		return getRecordFederation() + "_" + getRecordName() + "_" + getGender() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
 		        + getAgeGrpLower() + "_" + getAgeGrpUpper();
 	}
 
@@ -393,7 +392,6 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		        && Objects.equals(this.bwCatUpper, other.bwCatUpper)
 		        && Objects.equals(this.categoryString, other.categoryString)
 		        && Objects.equals(this.event, other.event) && Objects.equals(this.eventLocation, other.eventLocation)
-		        && Objects.equals(this.fileName, other.fileName) && this.gender == other.gender
 		        && Objects.equals(this.groupNameString, other.groupNameString)
 		        && Objects.equals(this.nation, other.nation)
 		        && Objects.equals(this.recordDate, other.recordDate)

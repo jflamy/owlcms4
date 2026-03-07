@@ -15,8 +15,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -212,5 +214,61 @@ public class RecordDefinitionReaderTest {
                 }
             }
         }
+    }
+
+    @Test
+    public void _11_testOfficialImportReplacesByLogicalKeyAcrossFileNames() throws IOException {
+        try (Workbook firstWorkbook = createWorkbook("QC", "Provincial", "F", "SR", 15, 999, 71, 76, "SNATCH", 101);
+                Workbook secondWorkbook = createWorkbook("QC", "Provincial", "F", "SR", 15, 999, 71, 76, "SNATCH", 99)) {
+            new RecordDefinitionReader().createRecords(firstWorkbook, "first.xlsx", "first_upload");
+            assertEquals(1, RecordRepository.findAll().size());
+
+            new RecordDefinitionReader().createRecords(secondWorkbook, "second.xlsx", "second_upload");
+
+            List<RecordEvent> allRecords = RecordRepository.findAll();
+            assertEquals(1, allRecords.size());
+            RecordEvent correctedRecord = allRecords.get(0);
+            assertEquals(99.0D, correctedRecord.getRecordValue(), 0.001D);
+            assertEquals("second_upload", correctedRecord.getFileName());
+        }
+    }
+
+    private Workbook createWorkbook(
+            String federation,
+            String recordName,
+            String gender,
+            String ageGroup,
+            int ageLower,
+            int ageUpper,
+            int bwLower,
+            int bwUpper,
+            String lift,
+            double recordValue) {
+        Workbook workbook = new XSSFWorkbook();
+        var sheet = workbook.createSheet("records");
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("federation");
+        header.createCell(1).setCellValue("recordname");
+        header.createCell(2).setCellValue("agegroup");
+        header.createCell(3).setCellValue("gender");
+        header.createCell(4).setCellValue("agelow");
+        header.createCell(5).setCellValue("ageupper");
+        header.createCell(6).setCellValue("bwlow");
+        header.createCell(7).setCellValue("bwupper");
+        header.createCell(8).setCellValue("recordlift");
+        header.createCell(9).setCellValue("recordvalue");
+
+        Row row = sheet.createRow(1);
+        row.createCell(0).setCellValue(federation);
+        row.createCell(1).setCellValue(recordName);
+        row.createCell(2).setCellValue(ageGroup);
+        row.createCell(3).setCellValue(gender);
+        row.createCell(4).setCellValue(ageLower);
+        row.createCell(5).setCellValue(ageUpper);
+        row.createCell(6).setCellValue(bwLower);
+        row.createCell(7).setCellValue(bwUpper);
+        row.createCell(8).setCellValue(lift);
+        row.createCell(9).setCellValue(recordValue);
+        return workbook;
     }
 }

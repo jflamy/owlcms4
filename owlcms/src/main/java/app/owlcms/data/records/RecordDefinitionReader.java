@@ -13,8 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.io.FilenameUtils;
@@ -132,11 +134,10 @@ public class RecordDefinitionReader {
 	}
 
 	public List<String> createRecords(Workbook workbook, String name, String baseName) {
-		cleanUp(baseName);
-
 		return JPAService.runInTransaction(em -> {
 			int iRecord = 0;
 			List<String> errors = new ArrayList<>();
+			List<RecordEvent> importedRecords = new ArrayList<>();
 			CellSetter[] setterTable = null;
 
 			for (Sheet sheet : workbook) {
@@ -182,16 +183,32 @@ public class RecordDefinitionReader {
 						} catch (MissingAgeGroup | MissingGender | UnknownIWFBodyWeightCategory e1) {
 							throw new RuntimeException(e1 + " row " + iRow);
 						}
-
-						try {
-							em.persist(rec);
-							iRecord++;
-						} catch (Exception e) {
-							logger.error("could not persist RecordEvent {}", LoggerUtils./**/stackTrace(e));
-						}
+						importedRecords.add(rec);
 					}
 				}
 			}
+
+			Set<String> clearedOfficialKeys = new HashSet<>();
+			for (RecordEvent importedRecord : importedRecords) {
+				if (!RecordRepository.isProvisional(importedRecord) && clearedOfficialKeys.add(importedRecord.getKey())) {
+					RecordRepository.clearOfficialRecordsMatchingLogicalKey(em, importedRecord);
+				}
+			}
+
+			for (RecordEvent importedRecord : importedRecords) {
+				try {
+					if (RecordRepository.isProvisional(importedRecord)
+					        && RecordRepository.findExactDuplicate(em, importedRecord) != null) {
+						logger.info("skipping duplicate provisional record {} {}", importedRecord.getKey(), importedRecord.getRecordValue());
+						continue;
+					}
+					em.persist(importedRecord);
+					iRecord++;
+				} catch (Exception e) {
+					logger.error("could not persist RecordEvent {}", LoggerUtils./**/stackTrace(e));
+				}
+			}
+
 			Competition comp = Competition.getCurrent();
 			Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
 			comp2.setAgeGroupsFileName(name);
@@ -310,12 +327,6 @@ public class RecordDefinitionReader {
 		} catch (FileNotFoundException e1) {
 			logger.error("cannot find records {}", LoggerUtils.stackTrace(e1));
 		}
-	}
-
-	private static void cleanUp(String fileName) {
-		logger.info("removing records originally from {}", fileName);
-		RecordRepository.clearRecordsOriginallyFromFile(fileName);
-
 	}
 
 	private static boolean isEmptyRow(RecordEvent rec) {

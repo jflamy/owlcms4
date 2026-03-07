@@ -7,6 +7,7 @@
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
@@ -26,7 +27,11 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordDefinitionReader;
+import app.owlcms.data.records.RecordRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -79,9 +84,98 @@ public class RecordsTest {
         doLiftSequence4(fopState, fopBus, logger);
     }
 
+    @Test
+    public void provisionalCurrentFilterUsesHistoryView() {
+        RecordRepository.save(createRecord(100.0D, "A"));
+        RecordRepository.save(createRecord(101.0D, "A"));
+
+        List<RecordEvent> provisionalRecords = RecordRepository.findWithFilters(
+                null,
+                null,
+                null,
+                null,
+                "PROVISIONAL",
+                "CURRENT",
+                null);
+
+        assertEquals(2, provisionalRecords.size());
+    }
+
+    @Test
+    public void exactDuplicateProvisionalsAreSuppressed() {
+        RecordEvent duplicate = createRecord(102.0D, "A");
+        RecordRepository.save(duplicate);
+        RecordRepository.save(createRecord(102.0D, "A"));
+
+        List<RecordEvent> provisionalRecords = RecordRepository.findWithFilters(
+                null,
+                null,
+                null,
+                null,
+                "PROVISIONAL",
+                "HISTORY",
+                null);
+
+        assertEquals(1, provisionalRecords.size());
+        assertNotNull(provisionalRecords.get(0));
+    }
+
+    @Test
+    public void duplicateProvisionalsIgnoreFilename() {
+        RecordEvent first = createRecord(103.0D, "A");
+        first.setFileName("meet_a");
+        RecordEvent second = createRecord(103.0D, "A");
+        second.setFileName("meet_b");
+
+        RecordRepository.save(first);
+        RecordRepository.save(second);
+
+        List<RecordEvent> provisionalRecords = RecordRepository.findWithFilters(
+                null,
+                null,
+                null,
+                null,
+                "PROVISIONAL",
+                "HISTORY",
+                null);
+
+        assertEquals(1, provisionalRecords.size());
+    }
+
+    @Test
+    public void keepLatestOfficialRecordsPrunesOnlyOfficialHistory() throws Exception {
+        RecordEvent lowerOfficial = createRecord(100.0D, null);
+        RecordEvent bestOfficial = createRecord(105.0D, null);
+        RecordEvent provisional = createRecord(104.0D, "A");
+
+        RecordRepository.save(lowerOfficial);
+        RecordRepository.save(bestOfficial);
+        RecordRepository.save(provisional);
+
+        RecordRepository.keepLatestOfficialRecordsWithFilters(null, null, null, null);
+
+        List<RecordEvent> history = RecordRepository.findWithFilters(null, null, null, null, "ALL", "HISTORY", null);
+        assertEquals(2, history.size());
+        assertEquals(1, history.stream().filter(rec -> rec.getGroupNameString() == null || rec.getGroupNameString().isBlank()).count());
+        assertEquals(1, history.stream().filter(rec -> rec.getGroupNameString() != null && !rec.getGroupNameString().isBlank()).count());
+        assertEquals(105.0D,
+                history.stream()
+                        .filter(rec -> rec.getGroupNameString() == null || rec.getGroupNameString().isBlank())
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("missing official record"))
+                        .getRecordValue(),
+                0.001D);
+    }
+
     @Before
     public void setupTest() {
         TestData.insertInitialData(1, true);
+		try {
+			RecordRepository.clearLoadedRecords();
+			RecordRepository.clearNewRecords();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
         JPAService.runInTransaction((em) -> {
             gA = GroupRepository.doFindByName("A", em);
             gB = GroupRepository.doFindByName("B", em);
@@ -213,6 +307,26 @@ public class RecordsTest {
         logger.debug("successful lift for {}", curLifter);
 //        fopState.finalDecision(null);
         fopBus.post(new FOPEvent.DecisionReset(null));
+    }
+
+    private RecordEvent createRecord(double value, String groupName) {
+        RecordEvent record = new RecordEvent();
+        record.setRecordFederation("QC");
+        record.setRecordName("Provincial");
+        record.setGender(Gender.F);
+        record.setAgeGrp("SR");
+        record.setAgeGrpLower(15);
+        record.setAgeGrpUpper(999);
+        record.setBwCatLower(71);
+        record.setBwCatUpper(76);
+        record.setRecordLift(Ranking.SNATCH);
+        record.setRecordValue(value);
+        record.setAthleteName("Athlete One");
+        record.setEvent("Test Event");
+        record.setEventLocation("Test City");
+        record.setGroupNameString(groupName);
+        record.setFileName("generated");
+        return record;
     }
 
 }

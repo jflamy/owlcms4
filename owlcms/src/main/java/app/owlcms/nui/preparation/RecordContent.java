@@ -119,19 +119,19 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		// Add export button for filtered records
 		Button exportRecordsButton = createExportRecordsButton();
 		
-		// Add Clear New Records button (Accept Provisional Records)
-		Button clearNewRecordsButton = createClearNewRecordsButton();
+		// Add Accept Provisional Records button
+		Button acceptProvisionalRecordsButton = createAcceptProvisionalRecordsButton();
 		
 		// Add Recompute Records button
 		Button recomputeRecordsButton = createRecomputeRecordsButton();
 		
 		// Add Keep Current Records button
-		Button keepCurrentRecordsButton = createKeepCurrentRecordsButton();
+		Button keepLatestOfficialRecordsButton = createKeepLatestOfficialRecordsButton();
 		
 		// Add Remove Selected button
 		Button removeSelectedButton = createRemoveSelectedButton();
 		
-		this.topBar.add(exportRecordsButton, recomputeRecordsButton, clearNewRecordsButton, keepCurrentRecordsButton, removeSelectedButton);
+		this.topBar.add(exportRecordsButton, recomputeRecordsButton, acceptProvisionalRecordsButton, keepLatestOfficialRecordsButton, removeSelectedButton);
 
 		return this.topBar;
 	}
@@ -154,8 +154,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		return exportButton;
 	}
 
-	private Button createClearNewRecordsButton() {
-		Button clearNewRecordsButton = new Button(Translator.translate("Preparation.ClearNewRecords"),
+	private Button createAcceptProvisionalRecordsButton() {
+		Button acceptProvisionalRecordsButton = new Button(Translator.translate("Preparation.ClearNewRecords"),
 			buttonClickEvent -> {
 				try {
 					// Use the same filter parameters as the grid display
@@ -169,8 +169,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 						currentHistoryFilterStr = this.currentHistoryFilter.getValue().name();
 					}
 					
-					// Clear provisional flags only for the filtered records
-					RecordRepository.clearNewRecordsWithFilters(
+					// Accept provisional rows only for the filtered records.
+					RecordRepository.acceptProvisionalRecordsWithFilters(
 						getFederation(),
 						getAgeGroup(),
 						getGender(),
@@ -185,9 +185,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 					throw new RuntimeException(e);
 				}
 			});
-		clearNewRecordsButton.getElement().getStyle().set("margin-right", "1em");
-		clearNewRecordsButton.getElement().setAttribute("title", Translator.translate("Preparation.ClearNewRecordsExplanation"));
-		return clearNewRecordsButton;
+		acceptProvisionalRecordsButton.getElement().getStyle().set("margin-right", "1em");
+		acceptProvisionalRecordsButton.getElement().setAttribute("title", Translator.translate("Preparation.ClearNewRecordsExplanation"));
+		return acceptProvisionalRecordsButton;
 	}
 
 	private Button createRecomputeRecordsButton() {
@@ -202,23 +202,16 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		return recomputeRecordsButton;
 	}
 
-	private Button createKeepCurrentRecordsButton() {
-		Button keepCurrentRecordsButton = new Button(Translator.translate("RecordEvent.KeepCurrentRecords"),
+	private Button createKeepLatestOfficialRecordsButton() {
+		Button keepLatestOfficialRecordsButton = new Button(Translator.translate("RecordEvent.KeepCurrentRecords"),
 			buttonClickEvent -> {
 				try {
-					// Use the same filter parameters as the grid display
-					String provisionalFilterStr = "ALL";
-					if (this.provisionalFilter != null && this.provisionalFilter.getValue() != null) {
-						provisionalFilterStr = this.provisionalFilter.getValue().name();
-					}
-					
-					// Keep only current records within the filtered subset
-					RecordRepository.keepOnlyCurrentRecordsWithFilters(
+					// Prune official history only, keeping the latest official row per logical key.
+					RecordRepository.keepLatestOfficialRecordsWithFilters(
 						getFederation(),
 						getAgeGroup(),
 						getGender(),
-						getName(),
-						provisionalFilterStr
+						getName()
 					);
 					
 					// Refresh the grid to show the updated records
@@ -227,9 +220,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 					throw new RuntimeException(e);
 				}
 			});
-		keepCurrentRecordsButton.getElement().getStyle().set("margin-right", "1em");
-		keepCurrentRecordsButton.getElement().setAttribute("title", Translator.translate("RecordEvent.KeepCurrentRecordsExplanation"));
-		return keepCurrentRecordsButton;
+		keepLatestOfficialRecordsButton.getElement().getStyle().set("margin-right", "1em");
+		keepLatestOfficialRecordsButton.getElement().setAttribute("title", Translator.translate("RecordEvent.KeepCurrentRecordsExplanation"));
+		return keepLatestOfficialRecordsButton;
 	}
 
 	private Button createRemoveSelectedButton() {
@@ -349,6 +342,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.genderFilter.clear();
 		this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
 		this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
+		syncCurrentHistoryFilterForProvisional();
 		this.nameFilter.clear();
 	}
 
@@ -414,6 +408,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		if (this.currentHistoryFilter != null && this.currentHistoryFilter.getValue() != null) {
 			currentHistoryFilterStr = this.currentHistoryFilter.getValue().name();
 		}
+		currentHistoryFilterStr = RecordRepository.normalizeCurrentHistoryFilter(provisionalFilterStr, currentHistoryFilterStr);
 		
 		return RecordRepository.findWithFilters(
 			getFederation(),
@@ -482,6 +477,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.provisionalFilter.setClearButtonVisible(true);
 		this.provisionalFilter.addValueChangeListener(e -> {
 			setProvisionalFilter(e.getValue());
+			syncCurrentHistoryFilterForProvisional();
 			crud.refreshGrid();
 		});
 		this.provisionalFilter.setWidth("10em");
@@ -500,10 +496,12 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.currentHistoryFilter.setClearButtonVisible(true);
 		this.currentHistoryFilter.addValueChangeListener(e -> {
 			setCurrentHistoryFilter(e.getValue());
+			syncCurrentHistoryFilterForProvisional();
 			crud.refreshGrid();
 		});
 		this.currentHistoryFilter.setWidth("12em");
 		crud.getCrudLayout().addFilterComponent(this.currentHistoryFilter);
+		syncCurrentHistoryFilterForProvisional();
 
 		// Clear filters button
 		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
@@ -512,6 +510,17 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout().addFilterComponent(clearFilters);
+	}
+
+	private void syncCurrentHistoryFilterForProvisional() {
+		boolean provisionalOnly = this.provisionalFilter != null
+		        && this.provisionalFilter.getValue() == RecordFilters.ProvisionalFilter.PROVISIONAL;
+		if (this.currentHistoryFilter != null) {
+			if (provisionalOnly && this.currentHistoryFilter.getValue() != RecordFilters.CurrentHistoryFilter.HISTORY) {
+				this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.HISTORY);
+			}
+			this.currentHistoryFilter.setEnabled(!provisionalOnly);
+		}
 	}
 
 	/**
