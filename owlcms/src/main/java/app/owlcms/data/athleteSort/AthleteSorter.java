@@ -446,16 +446,16 @@ public class AthleteSorter implements Serializable {
 		int secondPlacePoints = competition != null && competition.getTeamPoints2nd() != null ? competition.getTeamPoints2nd() : 25;
 		int thirdPlacePoints = competition != null && competition.getTeamPoints3rd() != null ? competition.getTeamPoints3rd() : 23;
 
-		if (rank == 1) {
-			return firstPlacePoints;
+		switch (rank) {
+			case 1:
+				return firstPlacePoints;
+			case 2:
+				return secondPlacePoints;
+			case 3:
+				return thirdPlacePoints;
+			default:
+				return Math.max(0, thirdPlacePoints - (rank - 3));
 		}
-		if (rank == 2) {
-			return secondPlacePoints;
-		}
-		if (rank == 3) {
-			return thirdPlacePoints;
-		}
-		return Math.max(0, thirdPlacePoints - (rank - 3));
 	}
 
 	/**
