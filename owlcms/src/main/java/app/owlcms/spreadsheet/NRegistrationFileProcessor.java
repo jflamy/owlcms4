@@ -41,6 +41,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -1096,6 +1097,11 @@ public class NRegistrationFileProcessor {
 					setCompetitionString(competition::setFederationEMail, row.getCell('A' - 'A')); // A4
 					setCompetitionString(competition::setCompetitionOrganizer, row.getCell('F' - 'A')); // F4
 				}
+
+				CompetitionRepository.save(competition);
+				if (displayUpdater != null) {
+					displayUpdater.run();
+				}
 			} catch (IOException | EncryptedDocumentException e) {
 				errorConsumer.accept(e.getLocalizedMessage());
 				LoggerUtils.logError(this.logger, e);
@@ -1116,7 +1122,7 @@ public class NRegistrationFileProcessor {
 			ld = cell.getLocalDateTimeCellValue().toLocalDate();
 		} else if (cell.getCellType() == CellType.STRING) {
 			try {
-				ld = DateTimeUtils.parseExcelDate(cell.getStringCellValue(), OwlcmsSession.getLocale());
+				ld = DateTimeUtils.parseExcelDate(cell.getStringCellValue(), this.locale);
 			} catch (Exception e) {
 			}
 		}
