@@ -52,7 +52,18 @@ if [[ ${PYTHON_EXIT} -ne 0 ]]; then
     read -p "Download updated translation4.csv from Google Sheets? (y/N): " -r DOWNLOAD
     if [[ "${DOWNLOAD}" =~ ^[Yy]$ ]]; then
       echo "Downloading updated translation4.csv..."
-      cp "${REMOTE_TMP}" "${TRANSLATION_CSV}"
+      if [[ -f "${TRANSLATION_CSV}" ]]; then
+		BACKUP_FILE="${TRANSLATION_CSV}.bak"
+        echo "Moving existing file aside: ${BACKUP_FILE}"
+        mv "${TRANSLATION_CSV}" "${BACKUP_FILE}"
+      fi
+      if ! cp "${REMOTE_TMP}" "${TRANSLATION_CSV}"; then
+        if [[ -n "${BACKUP_FILE:-}" && -f "${BACKUP_FILE}" ]]; then
+          echo "Restoring backup..."
+          mv "${BACKUP_FILE}" "${TRANSLATION_CSV}"
+        fi
+        exit 1
+      fi
       echo "✓ Updated ${TRANSLATION_CSV}"
       echo "  Review changes with: git diff ${TRANSLATION_CSV}"
     else

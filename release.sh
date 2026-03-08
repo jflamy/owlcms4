@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="${1:-64.2.0}"
+REVISION="${1:-64.3.0}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
@@ -92,7 +92,19 @@ if ! diff --strip-trailing-cr -q "${TRANSLATION_CSV}" "${REMOTE_TMP}" >/dev/null
   read -p "Refresh translation4.csv from Google Sheets now and exit? (y/N): " -r REFRESH
   if [[ "${REFRESH}" =~ ^[Yy]$ ]]; then
     echo "Updating ${TRANSLATION_CSV} from Google Sheets..."
-    cp "${REMOTE_TMP}" "${TRANSLATION_CSV}"
+    if [[ -f "${TRANSLATION_CSV}" ]]; then
+		BACKUP_FILE="${TRANSLATION_CSV}.bak"
+      echo "Moving existing file aside: ${BACKUP_FILE}"
+      mv "${TRANSLATION_CSV}" "${BACKUP_FILE}"
+    fi
+    if ! cp "${REMOTE_TMP}" "${TRANSLATION_CSV}"; then
+      if [[ -n "${BACKUP_FILE:-}" && -f "${BACKUP_FILE}" ]]; then
+        echo "Restoring backup..."
+        mv "${BACKUP_FILE}" "${TRANSLATION_CSV}"
+      fi
+      echo "ERROR: Failed to refresh ${TRANSLATION_CSV}." >&2
+      exit 4
+    fi
     echo "translation4.csv was refreshed."
     echo "Aborting release after refreshing translation4.csv. Please review/commit the updated file, then rerun release.sh." >&2
     exit 4
