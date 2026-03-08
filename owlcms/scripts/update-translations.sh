@@ -22,11 +22,11 @@ echo "Downloading translations from Google Sheets..."
 echo "Source: ${EXPORT_URL}"
 echo "Target: ${TARGET_FILE}"
 
-# Create backup of existing file
+# Move existing file out of the way before downloading the replacement
 if [ -f "$TARGET_FILE" ]; then
-    BACKUP_FILE="${TARGET_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
-    echo "Creating backup: ${BACKUP_FILE}"
-    cp "$TARGET_FILE" "$BACKUP_FILE"
+    BACKUP_FILE="${TARGET_FILE}.bak"
+    echo "Moving existing file aside: ${BACKUP_FILE}"
+    mv "$TARGET_FILE" "$BACKUP_FILE"
 fi
 
 # Download the CSV file
