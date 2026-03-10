@@ -119,10 +119,13 @@ public class Athlete {
 	private static QPoints qPointsCoefficients = new QPoints(2023);
 	@Transient
 	@JsonIgnore
-	public static SinclairCoefficients sinclairProperties2020 = new SinclairCoefficients(2020);
+	public static SinclairCoefficients sinclairProperties2020;
 	@Transient
 	@JsonIgnore
-	private static SinclairCoefficients sinclairProperties2024 = new SinclairCoefficients(2024);
+	private static SinclairCoefficients sinclairProperties2024;
+	@Transient
+	@JsonIgnore
+	private static SinclairCoefficients sinclairProperties2028;
 	static private boolean skipValidationsDuringImport = false;
 	private static final int YEAR = LocalDateTime.now().getYear();
 
@@ -451,9 +454,6 @@ public class Athlete {
 	private Integer qualifyingTotal = 0;
 	@JsonIgnore
 	private Integer robiRank;
-	@Transient
-	@JsonIgnore
-	private SinclairCoefficients sinclairProperties;
 	@JsonIgnore
 	private Integer sinclairRank;
 	@JsonIgnore
@@ -2962,7 +2962,7 @@ public class Athlete {
 		if (birthDate1 == null) {
 			return 0.0F;
 		}
-		return sinclairProperties2020.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
+		return getSinclairProperties2020().getAgeGenderCoefficient(YEAR - birthDate1, getGender());
 	}
 
 	/**
@@ -5843,12 +5843,13 @@ public class Athlete {
 		if (bestCleanJerk == null || bestSnatch == null || total1 == null || total1 < 0.1 || (this.getGender() == null)) {
 			return 0.0;
 		}
+		SinclairCoefficients mastersSinclair = getSinclairProperties2020();
 		if (this.getGender() == Gender.M) { // $NON-NLS-1$
-			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
-			        sinclairProperties2020.menMaxWeight());
+			return total1 * sinclairFactor(bodyWeight1, mastersSinclair.menCoefficient(),
+			        mastersSinclair.menMaxWeight());
 		} else if (this.getGender() == Gender.F) {
-			return total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
-			        sinclairProperties2020.womenMaxWeight());
+			return total1 * sinclairFactor(bodyWeight1, mastersSinclair.womenCoefficient(),
+			        mastersSinclair.womenMaxWeight());
 		} else {
 			return 1.0;
 		}
@@ -5870,14 +5871,15 @@ public class Athlete {
 		if (this.getGender() == null) {
 			return 0.0;
 		}
+		SinclairCoefficients mastersSinclair = getSinclairProperties2020();
 		if (this.getGender() == Gender.M) { // $NON-NLS-1$
 
-			double d = total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.menCoefficient(),
-			        sinclairProperties2020.menMaxWeight());
+			double d = total1 * sinclairFactor(bodyWeight1, mastersSinclair.menCoefficient(),
+			        mastersSinclair.menMaxWeight());
 			return d;
 		} else if (this.getGender() == Gender.F) {
-			double d = total1 * sinclairFactor(bodyWeight1, sinclairProperties2020.womenCoefficient(),
-			        sinclairProperties2020.womenMaxWeight());
+			double d = total1 * sinclairFactor(bodyWeight1, mastersSinclair.womenCoefficient(),
+			        mastersSinclair.womenMaxWeight());
 			return d;
 		} else {
 			return 1.0;
@@ -5922,11 +5924,35 @@ public class Athlete {
 	}
 
 	private SinclairCoefficients getSinclairProperties() {
-		if (this.sinclairProperties == null) {
-			this.sinclairProperties = (Competition.getCurrent().getSinclairYear() == 2024 ? sinclairProperties2024
-			        : sinclairProperties2020);
+		int sinclairYear = Competition.getCurrent().getSinclairYear();
+		if (sinclairYear == 2024) {
+			return getSinclairProperties2024();
+		} else if (sinclairYear == 2028) {
+			return getSinclairProperties2028();
+		} else {
+			return getSinclairProperties2020();
 		}
-		return this.sinclairProperties;
+	}
+
+	private static synchronized SinclairCoefficients getSinclairProperties2020() {
+		if (sinclairProperties2020 == null) {
+			sinclairProperties2020 = new SinclairCoefficients(2020);
+		}
+		return sinclairProperties2020;
+	}
+
+	private static synchronized SinclairCoefficients getSinclairProperties2024() {
+		if (sinclairProperties2024 == null) {
+			sinclairProperties2024 = new SinclairCoefficients(2024);
+		}
+		return sinclairProperties2024;
+	}
+
+	private static synchronized SinclairCoefficients getSinclairProperties2028() {
+		if (sinclairProperties2028 == null) {
+			sinclairProperties2028 = new SinclairCoefficients(2028);
+		}
+		return sinclairProperties2028;
 	}
 
 	/**
