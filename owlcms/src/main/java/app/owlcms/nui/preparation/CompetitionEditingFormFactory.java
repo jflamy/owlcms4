@@ -468,7 +468,7 @@ public class CompetitionEditingFormFactory
 
 		RadioButtonGroup<Integer> sinclairYearLocal = new RadioButtonGroup<>();
 		layout.addFormItem(sinclairYearLocal, Translator.translate("sinclair"));
-		sinclairYearLocal.setItems(2020, 2024);
+		sinclairYearLocal.setItems(2020, 2024, 2028);
 		this.binder.forField(sinclairYearLocal)
 		        .bind(Competition::getSinclairYear, Competition::setSinclairYear);
 

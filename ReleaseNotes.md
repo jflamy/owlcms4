@@ -10,6 +10,8 @@
 
 **New in Release 64**
 
+64.3.2: Added Sinclair 2028 coefficients.  Default remains 2024.
+
 64.3.1: Fix: Missing 2025 body weight category for female JR heavyweights
 
 64.3.0: Fix: SBDE Import was not saving the Competition Information from the file header. 
