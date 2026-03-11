@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-REVISION="${1:-64.3.1}"
+REVISION="${1:-65.0.0-beta01}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
 # and watches the run until completion.
 #
 # Usage:
-#   ./release.sh 64.2.0-beta05
-#   BUILD_IMAGES=false ./release.sh 64.2.0-beta01
+#   ./release.sh 65.0.0-beta01
+#   BUILD_IMAGES=false ./release.sh 65.0.0-beta01
 #
 # Defaults:
 #   - Commits + pushes release note sources (src/main/markdown/*) and release.sh before triggering
@@ -16,7 +16,7 @@ set -euo pipefail
 #   - After a successful run, does a safe git pull --ff-only
 
 if [[ -z "${REVISION}" ]]; then
-  echo "ERROR: REVISION must be passed as the first argument: ./release.sh 64.0.0-rc07" >&2
+  echo "ERROR: REVISION must be defined or passed as the first argument: ./release.sh 65.0.0-beta01" >&2
   exit 1
 fi
 
