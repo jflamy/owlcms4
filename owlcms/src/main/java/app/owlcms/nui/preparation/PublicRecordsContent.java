@@ -124,13 +124,17 @@ public class PublicRecordsContent extends BaseContent implements CrudListener<Re
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 
 		Button exportRecordsButton = createExportRecordsButton();
+		Button importButton = new Button(Translator.translate("Import"),
+		        e -> UI.getCurrent().navigate(RecordsConfigContent.class));
+		importButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+		importButton.getElement().getStyle().set("margin-right", "1em");
 
 		Button loginButton = new Button(Translator.translate("Edit"),
 		        e -> UI.getCurrent().navigate(RecordContent.class));
 		loginButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 		loginButton.getElement().getStyle().set("margin-right", "1em");
 
-		this.topBar.add(exportRecordsButton, loginButton);
+		this.topBar.add(exportRecordsButton, loginButton, importButton);
 		return this.topBar;
 	}
 

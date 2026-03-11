@@ -28,22 +28,29 @@ languages = header[1:] if len(header) > 1 else []
 
 # Build dictionaries keyed by translation key
 local_dict = {}
+local_key_order = []
 for row in local_rows[1:]:
     if row and len(row) > 0:
         key = row[0]
         local_dict[key] = row
+        local_key_order.append(key)
 
 remote_dict = {}
+remote_key_order = []
 for row in remote_rows[1:]:
     if row and len(row) > 0:
         key = row[0]
         remote_dict[key] = row
+        remote_key_order.append(key)
 
 # Find differences
 differences = []
-all_keys = set(local_dict.keys()) | set(remote_dict.keys())
+all_keys = list(local_key_order)
+for key in remote_key_order:
+    if key not in local_dict:
+        all_keys.append(key)
 
-for key in sorted(all_keys):
+for key in all_keys:
     local_row = local_dict.get(key, [])
     remote_row = remote_dict.get(key, [])
 
