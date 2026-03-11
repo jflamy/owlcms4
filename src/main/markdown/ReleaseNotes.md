@@ -11,12 +11,12 @@
 **New in Release 65**
 
 65.0.0: Act as record repository :
-  - A new feature toggle "recordsOnly" hides all the pages except records management
-    - A separate dedicated OWLCMS instance can be used with this option to keep and edit the records
+  - A separate dedicated OWLCMS instance can be used to keep and edit the records
+    - A new feature toggle "recordsOnly" hides all the pages except records management
+    - The preparation page can be accessed by editing the URL
   - You can export all the provisional records from a meet and import them to have automatic updates
-  - Round-trip is supported -- you can export a subset of the records, update the file, and reload after making corrections.
+  - Round-trip updating is supported -- you can export a subset of the records, update the file, and reload after making corrections or approving provisional records
     - This does not remove entries however, voided records need to be removed in the application.
-    - If the reloaded file approves a provisional record, the prior provisional record is replaced by the official version.
   - You can set the "active" records to quickly pick all the records you need for a competition in a single file
 
 
