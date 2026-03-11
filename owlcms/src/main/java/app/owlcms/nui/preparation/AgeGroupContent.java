@@ -59,7 +59,6 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.nui.shared.RequireLogin;
 import app.owlcms.spreadsheet.XLSXAgeGroupsExport;
 import app.owlcms.utils.Resource;
 import app.owlcms.utils.ResourceWalker;
@@ -73,7 +72,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation/agegroup", layout = OwlcmsLayout.class)
-public class AgeGroupContent extends BaseContent implements CrudListener<AgeGroup>, OwlcmsContent, RequireLogin {
+public class AgeGroupContent extends BaseContent implements CrudListener<AgeGroup>, OwlcmsContent {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupContent.class);
 	static {

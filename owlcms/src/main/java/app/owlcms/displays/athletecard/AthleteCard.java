@@ -35,7 +35,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.nui.shared.RequireLogin;
+import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -52,7 +52,7 @@ import elemental.json.JsonObject;
 @Route("weighin/AthleteCard")
 
 public class AthleteCard extends LitTemplate
-        implements FOPParametersReader, SafeEventBusRegistration, HasDynamicTitle, RequireLogin {
+        implements FOPParametersReader, SafeEventBusRegistration, HasDynamicTitle, AuthorizationDispatch {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteCard.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());

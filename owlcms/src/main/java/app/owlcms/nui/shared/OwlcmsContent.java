@@ -10,7 +10,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 
 public interface OwlcmsContent
-        extends ContentWrapping, OwlcmsLayoutAware, HasDynamicTitle, SafeEventBusRegistration, RequireLogin {
+        extends ContentWrapping, OwlcmsLayoutAware, HasDynamicTitle, SafeEventBusRegistration, AuthorizationDispatch {
 
 	@Override
 	public FlexLayout createMenuArea();

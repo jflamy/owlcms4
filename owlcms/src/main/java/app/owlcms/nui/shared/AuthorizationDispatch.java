@@ -19,9 +19,9 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.LoginView;
 import ch.qos.logback.classic.Logger;
 
-public interface RequireLogin extends BeforeEnterObserver {
+public interface AuthorizationDispatch extends BeforeEnterObserver {
 
-	Logger logger = (Logger) LoggerFactory.getLogger(RequireLogin.class);
+	Logger logger = (Logger) LoggerFactory.getLogger(AuthorizationDispatch.class);
 
 	@Override
 	public default void beforeEnter(BeforeEnterEvent event) {
@@ -32,8 +32,20 @@ public interface RequireLogin extends BeforeEnterObserver {
 		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
 		boolean recordsPreparation = Config.getCurrent().featureSwitch("recordsPreparation")
 		        || Boolean.TRUE.equals(OwlcmsSession.getAttribute("recordsPreparation"));
+
+		// Dispatch root URL based on mode
+		if (path.isEmpty()) {
+			if (recordsOnly) {
+				event.forwardTo("publicRecords");
+				return;
+			} else if (isMobileRefereeMode()) {
+				// future: forward to mobile refereeing page
+			}
+			// default: fall through to normal HomeNavigationContent handling
+		}
+
 		if (recordsOnly && !isRecordsOnlyAllowedPath(path, recordsPreparation)) {
-			event.forwardTo("records");
+			event.forwardTo("publicRecords");
 			return;
 		}
 
@@ -44,9 +56,14 @@ public interface RequireLogin extends BeforeEnterObserver {
 			return;
 		}
 
-		if (recordsOnly) {
+		boolean recordsOnlyProtectedPath = isRecordsOnlyProtectedPath(path);
+		if (recordsOnly && !recordsOnlyProtectedPath) {
+			return;
+		}
+
+		if (recordsOnly && recordsOnlyProtectedPath) {
 			String clientIp = AccessUtils.getClientIp();
-			if (AccessUtils.ipIsAllowedForOfficials(clientIp)) {
+			if (isExplicitlyWhitelistedOfficial(clientIp)) {
 				OwlcmsSession.setAuthenticated(true);
 				return;
 			}
@@ -94,6 +111,7 @@ public interface RequireLogin extends BeforeEnterObserver {
 			return false;
 		}
 		if (path.equals(LoginView.LOGIN)
+		        || path.equals("publicRecords")
 		        || path.equals("records")
 		        || path.equals("recordsPreparation")
 		        || path.equals("preparation/config")
@@ -101,6 +119,26 @@ public interface RequireLogin extends BeforeEnterObserver {
 		        || path.equals("preparation/records")) {
 			return true;
 		}
+		return false;
+	}
+
+	private static boolean isRecordsOnlyProtectedPath(String path) {
+		if (path == null || path.isBlank()) {
+			return false;
+		}
+		return path.equals("records")
+		        || path.equals("recordsPreparation")
+		        || path.equals("preparation/config")
+		        || path.equals("preparation/recordsConfig")
+		        || path.equals("preparation/records");
+	}
+
+	private static boolean isExplicitlyWhitelistedOfficial(String clientIp) {
+		String whiteList = Config.getCurrent().getParamAccessList();
+		return whiteList != null && !whiteList.isBlank() && AccessUtils.ipIsAllowedForOfficials(clientIp);
+	}
+
+	private static boolean isMobileRefereeMode() {
 		return false;
 	}
 

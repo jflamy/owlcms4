@@ -62,7 +62,6 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.nui.shared.RequireLogin;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -76,7 +75,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "results/teamresults", layout = OwlcmsLayout.class)
 public class TeamResultsContent extends BaseContent
-        implements OwlcmsContent, RequireLogin, IAthleteEditing {
+	implements OwlcmsContent, IAthleteEditing {
 
 	static final String TITLE = "TeamResults.Title";
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");

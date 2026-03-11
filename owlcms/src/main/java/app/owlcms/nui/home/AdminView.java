@@ -12,15 +12,15 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.nui.shared.RequireLogin;
+import app.owlcms.nui.shared.AuthorizationDispatch;
 
 @SuppressWarnings("serial")
 @Route(value = "admin", layout = OwlcmsLayout.class)
-public class AdminView extends Composite<VerticalLayout> implements HasDynamicTitle, RequireLogin {
+public class AdminView extends Composite<VerticalLayout> implements HasDynamicTitle, AuthorizationDispatch {
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		RequireLogin.super.beforeEnter(event);
+		AuthorizationDispatch.super.beforeEnter(event);
 		if (!OwlcmsSession.isAuthenticated()) {
 			return;
 		}

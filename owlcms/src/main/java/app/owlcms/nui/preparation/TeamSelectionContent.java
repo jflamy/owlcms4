@@ -71,7 +71,6 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.nui.shared.RequireLogin;
 import app.owlcms.spreadsheet.JXLSCompetitionBook;
 import app.owlcms.spreadsheet.JXLSStartingListDocs;
 import app.owlcms.spreadsheet.PAthlete;
@@ -87,7 +86,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/teams", layout = OwlcmsLayout.class)
 public class TeamSelectionContent extends BaseContent
-		implements OwlcmsContent, RequireLogin, IAthleteEditing {
+		implements OwlcmsContent, IAthleteEditing {
 
 	// Copied from DocumentsContent to support team list report
 	protected java.util.List<app.owlcms.data.athlete.Athlete> participationFindAll() {

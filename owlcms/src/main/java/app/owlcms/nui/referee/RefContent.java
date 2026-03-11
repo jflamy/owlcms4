@@ -52,7 +52,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
-import app.owlcms.nui.shared.RequireLogin;
+import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.uievents.UIEvent;
@@ -69,7 +69,7 @@ import ch.qos.logback.classic.Logger;
 @CssImport(value = "./styles/shared-styles.css")
 
 public class RefContent extends BaseContent implements FOPParametersReader, SafeEventBusRegistration,
-        UIEventProcessor, HasDynamicTitle, RequireLogin, BeforeEnterListener {
+        UIEventProcessor, HasDynamicTitle, AuthorizationDispatch, BeforeEnterListener {
 
 	private class DelayTimer {
 		private final Timer t = new Timer();
@@ -120,7 +120,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		RequireLogin.super.beforeEnter(event);
+		AuthorizationDispatch.super.beforeEnter(event);
 		UI.getCurrent().getPage().setTitle(getPageTitle());
 	}
 
