@@ -18,6 +18,8 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.DisplayLoginView;
 import app.owlcms.nui.home.LoginView;
+import app.owlcms.nui.preparation.PublicRecordsContent;
+import app.owlcms.nui.preparation.RecordContent;
 import ch.qos.logback.classic.Logger;
 
 public interface RequireDisplayLogin extends BeforeEnterObserver {
@@ -27,6 +29,15 @@ public interface RequireDisplayLogin extends BeforeEnterObserver {
 	@Override
 	public default void beforeEnter(BeforeEnterEvent event) {
 		OwlcmsFactory.waitDBInitialized();
+		if (Config.getCurrent().featureSwitch("recordsOnly")) {
+			if (OwlcmsSession.isAuthenticated()) {
+				event.forwardTo(RecordContent.class);
+			} else {
+				event.forwardTo(PublicRecordsContent.class);
+			}
+			return;
+		}
+
 		boolean isDisplayAuthenticated = OwlcmsSession.isDisplayAuthenticated();
 		if (isDisplayAuthenticated) {
 			// no check required

@@ -39,9 +39,11 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.OwlcmsContent;
@@ -103,6 +105,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
+		OwlcmsContent.super.beforeEnter(event);
 		String path = event.getLocation().getPath();
 		this.documentPage = path.contains("documents");
 	}
@@ -132,10 +135,24 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		
 		// Add Remove Selected button
 		Button removeSelectedButton = createRemoveSelectedButton();
-		
+
 		this.topBar.add(exportRecordsButton, recomputeRecordsButton, acceptProvisionalRecordsButton, keepLatestOfficialRecordsButton, removeSelectedButton);
+		if (Config.getCurrent().featureSwitch("recordsOnly")) {
+			this.topBar.add(createLogoutButton());
+		}
 
 		return this.topBar;
+	}
+
+	private Button createLogoutButton() {
+		Button logoutButton = new Button("Logout", buttonClickEvent -> {
+			UI currentUi = UI.getCurrent();
+			OwlcmsSession.invalidate();
+			currentUi.getPage().setLocation("publicRecords");
+		});
+		logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		logoutButton.getElement().getStyle().set("margin-right", "1em");
+		return logoutButton;
 	}
 
 	private Button createExportRecordsButton() {
@@ -306,6 +323,15 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			return Translator.translate("Documents.Title");
 		}
 		return Translator.translate("RecordEvent.PageTitle");
+	}
+
+	@Override
+	public void setHeaderContent() {
+		this.routerLayout.setMenuTitle(getMenuTitle());
+		this.routerLayout.setMenuArea(createMenuArea());
+		this.routerLayout.showLocaleDropdown(true);
+		this.routerLayout.setDrawerOpened(false);
+		this.routerLayout.updateHeader(true);
 	}
 
 	@Override
