@@ -1,10 +1,17 @@
 #!/usr/bin/env python
-"""Compare local translation4.csv with a remote copy downloaded from Google Sheets."""
+"""Compare a HEAD-refreshed translation4.csv copy with a remote Google Sheets copy."""
 import csv
 import sys
 
-LOCAL_FILE = "shared/src/main/resources/i18n/translation4.csv"
-REMOTE_FILE = sys.argv[1]
+if len(sys.argv) != 3:
+    print(
+        "Usage: compare-translations.py <local_csv> <remote_csv>",
+        file=sys.stderr,
+    )
+    sys.exit(2)
+
+LOCAL_FILE = sys.argv[1]
+REMOTE_FILE = sys.argv[2]
 
 # Read both files
 with open(LOCAL_FILE, 'r', encoding='utf-8') as f:
@@ -44,7 +51,7 @@ for key in sorted(all_keys):
         differences.append({
             'key': key,
             'type': 'missing_local',
-            'details': 'Key exists in Google Sheets but not in local file'
+            'details': 'Key exists in Google Sheets but not in the HEAD-refreshed local copy'
         })
         continue
 
@@ -52,7 +59,7 @@ for key in sorted(all_keys):
         differences.append({
             'key': key,
             'type': 'missing_remote',
-            'details': 'Key exists in local file but not in Google Sheets'
+            'details': 'Key exists in the HEAD-refreshed local copy but not in Google Sheets'
         })
         continue
 
@@ -89,7 +96,7 @@ print(f"Found {len(differences)} keys with differences:\n")
 for diff in differences:
     if diff['type'] == 'missing_local':
         print(f"  {diff['key']}")
-        print(f"  Missing from local file")
+        print(f"  Missing from HEAD-refreshed local copy")
         print()
     elif diff['type'] == 'missing_remote':
         print(f"  {diff['key']}")
@@ -99,7 +106,7 @@ for diff in differences:
         print(f"  {diff['key']}")
         for lang_diff in diff['languages']:
             print(f"  Language: {lang_diff['lang']}")
-            print(f"    Local:  {lang_diff['local']}")
+            print(f"    Local: {lang_diff['local']}")
             print(f"    Remote: {lang_diff['remote']}")
         print()
 

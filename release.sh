@@ -73,7 +73,8 @@ if git ls-remote --tags origin | grep -q "refs/tags/${REVISION}$"; then
   exit 3
 fi
 
-# Check that translation4.csv matches the Google Sheets source
+# Check that translation4.csv, refreshed from HEAD, matches the Google Sheets source.
+# Local edits to translation4.csv are intentionally discarded for this check.
 TRANSLATION_CSV="shared/src/main/resources/i18n/translation4.csv"
 GOOGLE_SHEET_URL="https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE/export?format=csv"
 
@@ -82,9 +83,14 @@ REMOTE_TMP=$(mktemp)
 trap "rm -f ${REMOTE_TMP}" EXIT
 curl -sL "${GOOGLE_SHEET_URL}" > "${REMOTE_TMP}"
 
+if ! git restore --source=HEAD --worktree -- "${TRANSLATION_CSV}"; then
+  echo "ERROR: Could not refresh ${TRANSLATION_CSV} from HEAD." >&2
+  exit 4
+fi
+
 if ! diff --strip-trailing-cr -q "${TRANSLATION_CSV}" "${REMOTE_TMP}" >/dev/null 2>&1; then
   echo "WARNING: translation4.csv does not match the Google Sheets source!" >&2
-  echo "         Local file may be out of date or have local modifications." >&2
+  echo "         The HEAD version on this branch is out of date." >&2
   echo ""
   echo "Running translation consistency check..."
   PROMPT_DOWNLOAD=false ./scripts/check-translation-diff.sh || true

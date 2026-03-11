@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Compares local translation4.csv with Google Sheets source
-# and reports which keys differ in which languages
+# Refreshes translation4.csv from HEAD, then compares it with Google Sheets
+# and reports which keys differ in which languages.
 
 TRANSLATION_CSV="shared/src/main/resources/i18n/translation4.csv"
 GOOGLE_SHEET_URL="https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE/export?format=csv"
@@ -15,6 +15,11 @@ fi
 
 REMOTE_TMP=$(mktemp)
 trap "rm -f ${REMOTE_TMP}" EXIT
+
+if ! git restore --source=HEAD --worktree -- "${TRANSLATION_CSV}"; then
+  echo "ERROR: Could not refresh ${TRANSLATION_CSV} from HEAD" >&2
+  exit 1
+fi
 
 echo "Downloading Google Sheets translation (this may take a moment)..."
 curl -sL --retry 3 --retry-delay 2 --max-time 120 --connect-timeout 30 \
@@ -42,7 +47,7 @@ echo ""
 # Run comparison script (separate file to avoid Git Bash heredoc issues)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set +e
-python "${SCRIPT_DIR}/compare-translations.py" "${REMOTE_TMP}"
+python "${SCRIPT_DIR}/compare-translations.py" "${TRANSLATION_CSV}" "${REMOTE_TMP}"
 PYTHON_EXIT=$?
 set -e
 
