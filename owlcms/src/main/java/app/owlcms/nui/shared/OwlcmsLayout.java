@@ -48,6 +48,7 @@ import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.home.InfoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
+import app.owlcms.nui.preparation.PublicRecordsContent;
 import app.owlcms.nui.preparation.RecordsNavigationContent;
 import app.owlcms.nui.preparation.RecordsPreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
@@ -313,13 +314,20 @@ public class OwlcmsLayout extends AppLayout {
 		boolean recordsPreparation = Config.getCurrent().featureSwitch("recordsPreparation")
 		        || Boolean.TRUE.equals(OwlcmsSession.getAttribute("recordsPreparation"));
 		if (recordsOnly) {
-			tabs.add(createTab(new Icon(VaadinIcon.TROPHY),
-			        Translator.translate("RecordEvent.PageTitle"),
-			        RecordsNavigationContent.class));
-			if (recordsPreparation) {
-				tabs.add(createTab(new Icon(VaadinIcon.DATABASE),
-				        Translator.translate("Configuration"),
-				        RecordsPreparationNavigationContent.class));
+			boolean isAuthenticated = OwlcmsSession.isAuthenticated();
+			if (isAuthenticated) {
+				tabs.add(createTab(new Icon(VaadinIcon.TROPHY),
+				        Translator.translate("RecordEvent.PageTitle"),
+				        RecordsNavigationContent.class));
+				if (recordsPreparation) {
+					tabs.add(createTab(new Icon(VaadinIcon.DATABASE),
+					        Translator.translate("Configuration"),
+					        RecordsPreparationNavigationContent.class));
+				}
+			} else {
+				tabs.add(createTab(new Icon(VaadinIcon.TROPHY),
+				        Translator.translate("RecordEvent.PageTitle"),
+				        PublicRecordsContent.class));
 			}
 			tabs.setOrientation(Tabs.Orientation.VERTICAL);
 			return tabs;
