@@ -98,6 +98,7 @@ public class RecordRepository {
 	 * Accept provisional records only for rows matching the specified filters.
 	 * 
 	 * @param federation           Federation filter
+	 * @param recordName           Record name filter
 	 * @param ageGroup             Age group filter
 	 * @param gender               Gender filter
 	 * @param nameFilter           Name filter
@@ -107,6 +108,7 @@ public class RecordRepository {
 	 */
 	public static void acceptProvisionalRecordsWithFilters(
 	        String federation,
+	        String recordName,
 	        String ageGroup,
 	        Gender gender,
 	        String nameFilter,
@@ -123,6 +125,12 @@ public class RecordRepository {
 				if (federation != null && !federation.isEmpty()) {
 					queryBuilder.append(" AND rec.recordFederation = :federation");
 					parameters.add("federation");
+				}
+
+				// Record name filter
+				if (recordName != null && !recordName.isEmpty()) {
+					queryBuilder.append(" AND rec.recordName = :recordName");
+					parameters.add("recordName");
 				}
 
 				// Age group filter
@@ -159,6 +167,9 @@ public class RecordRepository {
 				if (parameters.contains("federation")) {
 					query.setParameter("federation", federation);
 				}
+				if (parameters.contains("recordName")) {
+					query.setParameter("recordName", recordName);
+				}
 				if (parameters.contains("ageGroup")) {
 					query.setParameter("ageGroup", ageGroup);
 				}
@@ -184,6 +195,7 @@ public class RecordRepository {
 	 * Keep only the latest official record within the filtered subset, deleting older official history.
 	 * 
 	 * @param federation        Federation filter
+	 * @param recordName        Record name filter
 	 * @param ageGroup          Age group filter
 	 * @param gender            Gender filter
 	 * @param nameFilter        Name filter
@@ -191,6 +203,7 @@ public class RecordRepository {
 	 */
 	public static void keepLatestOfficialRecordsWithFilters(
 	        String federation,
+	        String recordName,
 	        String ageGroup,
 	        Gender gender,
 	        String nameFilter) throws IOException {
@@ -205,6 +218,12 @@ public class RecordRepository {
 				if (federation != null && !federation.isEmpty()) {
 					queryBuilder.append(" AND rec.recordFederation = :federation");
 					parameters.add("federation");
+				}
+
+				// Record name filter
+				if (recordName != null && !recordName.isEmpty()) {
+					queryBuilder.append(" AND rec.recordName = :recordName");
+					parameters.add("recordName");
 				}
 
 				// Age group filter
@@ -230,6 +249,9 @@ public class RecordRepository {
 				// Set parameters
 				if (parameters.contains("federation")) {
 					query.setParameter("federation", federation);
+				}
+				if (parameters.contains("recordName")) {
+					query.setParameter("recordName", recordName);
 				}
 				if (parameters.contains("ageGroup")) {
 					query.setParameter("ageGroup", ageGroup);
@@ -281,6 +303,7 @@ public class RecordRepository {
 	 * Delete all records matching the specified filters
 	 * 
 	 * @param federation           Federation filter
+	 * @param recordName           Record name filter
 	 * @param ageGroup             Age group filter
 	 * @param gender               Gender filter
 	 * @param nameFilter           Name filter
@@ -290,6 +313,7 @@ public class RecordRepository {
 	 */
 	public static void deleteRecordsWithFilters(
 	        String federation,
+	        String recordName,
 	        String ageGroup,
 	        Gender gender,
 	        String nameFilter,
@@ -306,6 +330,12 @@ public class RecordRepository {
 				if (federation != null && !federation.isEmpty()) {
 					queryBuilder.append(" AND rec.recordFederation = :federation");
 					parameters.add("federation");
+				}
+
+				// Record name filter
+				if (recordName != null && !recordName.isEmpty()) {
+					queryBuilder.append(" AND rec.recordName = :recordName");
+					parameters.add("recordName");
 				}
 
 				// Age group filter
@@ -340,6 +370,9 @@ public class RecordRepository {
 				// Set parameters
 				if (parameters.contains("federation")) {
 					query.setParameter("federation", federation);
+				}
+				if (parameters.contains("recordName")) {
+					query.setParameter("recordName", recordName);
 				}
 				if (parameters.contains("ageGroup")) {
 					query.setParameter("ageGroup", ageGroup);
@@ -491,7 +524,7 @@ public class RecordRepository {
 	public static List<String> findAllRecordNames() {
 		ArrayList<String> names = new ArrayList<>();
 		JPAService.runInTransaction(em -> {
-			Query q = em.createNativeQuery("SELECT DISTINCT a.recordName FROM RecordEvent a");
+			Query q = em.createNativeQuery("SELECT DISTINCT a.recordName FROM RecordEvent a WHERE (a.active IS NULL OR a.active = true)");
 			@SuppressWarnings("unchecked")
 			List<Object> records = q.getResultList();
 
@@ -802,6 +835,20 @@ public class RecordRepository {
 	}
 
 	/**
+	 * Find all distinct record names
+	 *
+	 * @return the list of record names
+	 */
+	public static List<String> findDistinctRecordNames() {
+		return JPAService.runInTransaction(em -> {
+			return em.createQuery(
+			        "SELECT DISTINCT rec.recordName FROM RecordEvent rec WHERE rec.recordName IS NOT NULL ORDER BY rec.recordName",
+			        String.class)
+			        .getResultList();
+		});
+	}
+
+	/**
 	 * Find all distinct age groups
 	 *
 	 * @return the list of age groups
@@ -870,6 +917,7 @@ public class RecordRepository {
 	 */
 	public static List<RecordEvent> findWithFilters(
 	        String federation,
+	        String recordName,
 	        String ageGroup,
 	        Gender gender,
 	        String nameFilter,
@@ -887,6 +935,12 @@ public class RecordRepository {
 			if (federation != null && !federation.isEmpty()) {
 				queryBuilder.append(" AND rec.recordFederation = :federation");
 				parameters.add("federation");
+			}
+
+			// Record name filter
+			if (recordName != null && !recordName.isEmpty()) {
+				queryBuilder.append(" AND rec.recordName = :recordName");
+				parameters.add("recordName");
 			}
 
 			// Age group filter
@@ -930,6 +984,9 @@ public class RecordRepository {
 			// Set parameters
 			if (parameters.contains("federation")) {
 				query.setParameter("federation", federation);
+			}
+			if (parameters.contains("recordName")) {
+				query.setParameter("recordName", recordName);
 			}
 			if (parameters.contains("ageGroup")) {
 				query.setParameter("ageGroup", ageGroup);

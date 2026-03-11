@@ -94,6 +94,7 @@ public class RecordsTest {
                 null,
                 null,
                 null,
+                null,
                 "PROVISIONAL",
                 "CURRENT",
                 null);
@@ -108,6 +109,7 @@ public class RecordsTest {
         RecordRepository.save(createRecord(102.0D, "A"));
 
         List<RecordEvent> provisionalRecords = RecordRepository.findWithFilters(
+                null,
                 null,
                 null,
                 null,
@@ -135,6 +137,7 @@ public class RecordsTest {
                 null,
                 null,
                 null,
+                null,
                 "PROVISIONAL",
                 "HISTORY",
                 null);
@@ -152,9 +155,9 @@ public class RecordsTest {
         RecordRepository.save(bestOfficial);
         RecordRepository.save(provisional);
 
-        RecordRepository.keepLatestOfficialRecordsWithFilters(null, null, null, null);
+        RecordRepository.keepLatestOfficialRecordsWithFilters(null, null, null, null, null);
 
-        List<RecordEvent> history = RecordRepository.findWithFilters(null, null, null, null, "ALL", "HISTORY", null);
+        List<RecordEvent> history = RecordRepository.findWithFilters(null, null, null, null, null, "ALL", "HISTORY", null);
         assertEquals(2, history.size());
         assertEquals(1, history.stream().filter(rec -> rec.getGroupNameString() == null || rec.getGroupNameString().isBlank()).count());
         assertEquals(1, history.stream().filter(rec -> rec.getGroupNameString() != null && !rec.getGroupNameString().isBlank()).count());

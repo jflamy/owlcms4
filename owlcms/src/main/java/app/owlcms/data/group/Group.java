@@ -591,7 +591,7 @@ public class Group implements Comparable<Group> {
 	@JsonIgnore
 	public List<RecordEvent> getRecords() {
 		// return RecordRepository.findFiltered(null, null, null, this.name, true);
-		return RecordRepository.findWithFilters(null, null, null, null,
+		return RecordRepository.findWithFilters(null, null, null, null, null,
 		        "PROVISIONAL", "HISTORY", this.getName());
 	}
 

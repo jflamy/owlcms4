@@ -66,6 +66,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	
 	// Filter fields
 	private ComboBox<String> federationFilter = new ComboBox<>();
+	private ComboBox<String> recordNameFilter = new ComboBox<>();
 	private ComboBox<String> ageGroupFilter = new ComboBox<>();
 	private ComboBox<Gender> genderFilter = new ComboBox<>();
 	private ComboBox<RecordFilters.ProvisionalFilter> provisionalFilter = new ComboBox<>();
@@ -74,6 +75,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	// Filter values
 	private String federation;
+	private String recordName;
 	private String ageGroup;
 	private Gender gender;
 	private String name;
@@ -172,6 +174,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 					// Accept provisional rows only for the filtered records.
 					RecordRepository.acceptProvisionalRecordsWithFilters(
 						getFederation(),
+						getRecordName(),
 						getAgeGroup(),
 						getGender(),
 						getName(),
@@ -209,6 +212,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 					// Prune official history only, keeping the latest official row per logical key.
 					RecordRepository.keepLatestOfficialRecordsWithFilters(
 						getFederation(),
+						getRecordName(),
 						getAgeGroup(),
 						getGender(),
 						getName()
@@ -249,6 +253,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 							// Delete all records matching the current filters
 							RecordRepository.deleteRecordsWithFilters(
 								getFederation(),
+								getRecordName(),
 								getAgeGroup(),
 								getGender(),
 								getName(),
@@ -338,6 +343,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	 */
 	public void clearFilters() {
 		this.federationFilter.clear();
+		this.recordNameFilter.clear();
 		this.ageGroupFilter.clear();
 		this.genderFilter.clear();
 		this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
@@ -352,6 +358,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	public void setFederation(String federation) {
 		this.federation = federation;
+	}
+
+	public String getRecordName() {
+		return recordName;
+	}
+
+	public void setRecordName(String recordName) {
+		this.recordName = recordName;
 	}
 
 	public String getAgeGroup() {
@@ -412,6 +426,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		
 		return RecordRepository.findWithFilters(
 			getFederation(),
+			getRecordName(),
 			getAgeGroup(),
 			getGender(),
 			getName(),
@@ -434,6 +449,17 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		});
 		this.federationFilter.setWidth("12em");
 		crud.getCrudLayout().addFilterComponent(this.federationFilter);
+
+		// Record Name filter
+		this.recordNameFilter.setPlaceholder(Translator.translate("Records.RecordName"));
+		this.recordNameFilter.setItems(RecordRepository.findDistinctRecordNames());
+		this.recordNameFilter.setClearButtonVisible(true);
+		this.recordNameFilter.addValueChangeListener(e -> {
+			setRecordName(e.getValue());
+			crud.refreshGrid();
+		});
+		this.recordNameFilter.setWidth("12em");
+		crud.getCrudLayout().addFilterComponent(this.recordNameFilter);
 
 		// Age Group filter
 		this.ageGroupFilter.setPlaceholder(Translator.translate("AgeGroup"));
