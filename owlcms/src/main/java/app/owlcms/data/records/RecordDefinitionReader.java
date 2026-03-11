@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -50,8 +51,18 @@ import ch.qos.logback.classic.Logger;
  */
 public class RecordDefinitionReader {
 
+	public RecordDefinitionReader() {
+		this(null);
+	}
+
+	public RecordDefinitionReader(Locale locale) {
+		this.locale = locale;
+	}
+
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(RecordDefinitionReader.class);
 	private final static Logger startupLogger = Main.getStartupLogger();
+
+	private Locale locale;
 
 	@FunctionalInterface
 	private interface CellSetter {
@@ -84,8 +95,8 @@ public class RecordDefinitionReader {
 	        Map.entry("bwhigh", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)), // synonym
 	        Map.entry("bodyweightmax", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)), // synonym
 
-	        Map.entry("recordlift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell)),  
-	        Map.entry("lift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell)), // synonym
+	        Map.entry("recordlift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell, this.locale)),  
+	        Map.entry("lift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell, this.locale)), // synonym
 
 	        Map.entry("recordvalue", (rec, cell) -> RecordEventSetters.setRecordValue(rec, cell)),
 	        Map.entry("record", (rec, cell) -> RecordEventSetters.setRecordValue(rec, cell)), // synonym
@@ -207,10 +218,16 @@ public class RecordDefinitionReader {
 					}
 					em.persist(importedRecord);
 					iRecord++;
+					if (iRecord % 100 == 0) {
+						em.flush();
+						em.clear();
+					}
 				} catch (Exception e) {
 					logger.error("could not persist RecordEvent {}", LoggerUtils./**/stackTrace(e));
 				}
 			}
+			em.flush();
+			em.clear();
 
 			Competition comp = Competition.getCurrent();
 			Competition comp2 = em.contains(comp) ? comp : em.merge(comp);

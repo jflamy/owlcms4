@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -91,6 +92,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 						re.setActive(newVal);
 					}
 					this.grid.getDataProvider().refreshAll();
+					this.callback.run();
 				}
 			});
 			updateHeaderCheckboxState(headerCheckbox);
@@ -137,6 +139,7 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 					        re.getRecordFederation(), re.getRecordName(), re.getAgeGrp(), e.getValue());
 					re.setActive(e.getValue());
 					updateHeaderCheckboxState(headerCheckbox);
+					this.callback.run();
 				}
 			});
 			return checkbox;
@@ -253,8 +256,9 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		Button uploadButton = new Button(Translator.translate("Records.UploadButton"));
 		uploadButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		
+		Locale capturedLocale = OwlcmsSession.getLocale();
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, bytes) -> {
-			List<String> errors = new RecordDefinitionReader().readInputStream(new ByteArrayInputStream(bytes),
+			List<String> errors = new RecordDefinitionReader(capturedLocale).readInputStream(new ByteArrayInputStream(bytes),
 			        metadata.fileName());
 			if (errors.isEmpty()) {
 				UI.getCurrent().getPage().reload();

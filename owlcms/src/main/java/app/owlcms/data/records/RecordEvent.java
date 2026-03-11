@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -37,6 +38,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.IdUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -537,14 +539,38 @@ public class RecordEvent implements Comparable<RecordEvent> {
 	}
 
 	public void setRecordLift(String liftAbbreviation) {
-		if (liftAbbreviation.toLowerCase().startsWith("s")) {
+		setRecordLift(liftAbbreviation, OwlcmsSession.getLocale());
+	}
+
+	public void setRecordLift(String liftAbbreviation, Locale locale) {
+		if (locale == null) {
+			locale = OwlcmsSession.getLocale();
+		}
+
+		// Try translated values using the explicit locale (with bundle hierarchy fr_CA → fr → en)
+		String trSnatch = Translator.translateNoOverrideOrElseNull("Record.SNATCH", locale);
+		String trCleanJerk = Translator.translateNoOverrideOrElseNull("Record.CLEANJERK", locale);
+		String trTotal = Translator.translateNoOverrideOrElseNull("Record.TOTAL", locale);
+		if (trSnatch != null && trSnatch.equalsIgnoreCase(liftAbbreviation)) {
 			this.recordLift = Ranking.SNATCH;
-		} else if (liftAbbreviation.toLowerCase().startsWith("c")) {
+		} else if (trCleanJerk != null && trCleanJerk.equalsIgnoreCase(liftAbbreviation)) {
 			this.recordLift = Ranking.CLEANJERK;
-		} else if (liftAbbreviation.toLowerCase().startsWith("t")) {
+		} else if (trTotal != null && trTotal.equalsIgnoreCase(liftAbbreviation)) {
 			this.recordLift = Ranking.TOTAL;
 		} else {
-			throw new IllegalArgumentException("recordLift");
+			// Fall back to English first-letter check (s=snatch, c=clean&jerk, t=total)
+			String lower = liftAbbreviation.toLowerCase();
+			if (lower.startsWith("s")) {
+				this.recordLift = Ranking.SNATCH;
+			} else if (lower.startsWith("c")) {
+				this.recordLift = Ranking.CLEANJERK;
+			} else if (lower.startsWith("t")) {
+				this.recordLift = Ranking.TOTAL;
+			} else {
+				throw new IllegalArgumentException(
+					"recordLift: unrecognized value '" + liftAbbreviation
+						+ "' (compared using locale " + locale.getDisplayLanguage(Locale.ENGLISH) + ")");
+			}
 		}
 	}
 

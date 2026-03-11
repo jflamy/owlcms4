@@ -5,6 +5,7 @@ import java.time.Year;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -105,20 +106,10 @@ public class RecordEventSetters {
         }
     }
 
-    public static void setRecordLift(RecordEvent rec, Cell cell) {
+    public static void setRecordLift(RecordEvent rec, Cell cell, Locale locale) {
         String value = cell.getStringCellValue();
-
-        // accept translated values for lift types, but store the standard value in the record
-        if (Translator.translate("Record.SNATCH").equalsIgnoreCase(value)) {
-            value = "SNATCH";
-        } else if (Translator.translate("Record.CLEANJERK").equalsIgnoreCase(value)) {
-            value = "CLEAN_AND_JERK";
-        } else if (Translator.translate("Record.TOTAL").equalsIgnoreCase(value)) {
-            value = "TOTAL";
-        }
-
         value = value != null ? value.trim() : value;
-        rec.setRecordLift(value);
+        rec.setRecordLift(value, locale);
     }
 
     public static void setRecordValue(RecordEvent rec, Cell cell) {
