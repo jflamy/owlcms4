@@ -13,11 +13,11 @@
 65.0.0: Act as record repository :
   - A separate dedicated OWLCMS instance can be used to keep and edit the records
     - A new feature toggle "recordsOnly" hides all the pages except records management
+    - Default access is read-only, with capability to export selected records
     - The preparation page can be accessed by editing the URL
-  - You can export all the provisional records from a meet and import them to have automatic updates
+  - You can import the provisional records from a meet to accept them and have automatic updates with history
   - Round-trip updating is supported -- you can export a subset of the records, update the file, and reload after making corrections or approving provisional records
-    - This does not remove entries however, voided records need to be removed in the application.
-  - You can set the "active" records to quickly pick all the records you need for a competition in a single file
-
+    - This does not delete records.
+  - You can set the "active" record set to quickly pick all the records you need for a competition in a single file
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
