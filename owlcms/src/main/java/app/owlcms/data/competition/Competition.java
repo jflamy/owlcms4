@@ -724,7 +724,7 @@ public class Competition {
 	@JsonIgnore
 	public String getComputedCurrentRecordsTemplateFileName() {
 		if (this.currentRecordsTemplateFileName == null) {
-			return "currentRecords.xlsx";
+			return "display_groups.xlsx";
 		}
 		return this.currentRecordsTemplateFileName;
 	}
