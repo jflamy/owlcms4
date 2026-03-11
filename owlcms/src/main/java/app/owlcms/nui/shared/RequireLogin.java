@@ -30,8 +30,10 @@ public interface RequireLogin extends BeforeEnterObserver {
 		QueryParameters queryParameters = event.getLocation().getQueryParameters();
 
 		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
-		if (recordsOnly && !isRecordsOnlyAllowedPath(path)) {
-			event.forwardTo("preparation");
+		boolean recordsPreparation = Config.getCurrent().featureSwitch("recordsPreparation")
+		        || Boolean.TRUE.equals(OwlcmsSession.getAttribute("recordsPreparation"));
+		if (recordsOnly && !isRecordsOnlyAllowedPath(path, recordsPreparation)) {
+			event.forwardTo("records");
 			return;
 		}
 
@@ -87,15 +89,18 @@ public interface RequireLogin extends BeforeEnterObserver {
 		}
 	}
 
-	private static boolean isRecordsOnlyAllowedPath(String path) {
+	private static boolean isRecordsOnlyAllowedPath(String path, boolean recordsPreparation) {
 		if (path == null || path.isBlank()) {
 			return false;
 		}
-		return path.equals(LoginView.LOGIN)
-		        || path.equals("preparation")
+		if (path.equals(LoginView.LOGIN)
+		        || path.equals("records")
+		        || path.equals("recordsPreparation")
 		        || path.equals("preparation/recordsConfig")
-		        || path.equals("preparation/records")
-		        || path.equals("preparation/config");
+		        || path.equals("preparation/records")) {
+			return true;
+		}
+		return false;
 	}
 
 }

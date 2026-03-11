@@ -27,6 +27,8 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
@@ -37,6 +39,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
@@ -55,7 +58,7 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation", layout = OwlcmsLayout.class)
-public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle {
+public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle, BeforeEnterObserver {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(PreparationNavigationContent.class);
 	static {
@@ -68,7 +71,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	 * Instantiates a new preparation navigation content.
 	 */
 	public PreparationNavigationContent() {
-		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
+		boolean recordsPreparation = Config.getCurrent().featureSwitch("recordsPreparation")
+		        || Boolean.TRUE.equals(OwlcmsSession.getAttribute("recordsPreparation"));
 
 		Button competition = openInNewTabNoParam(CompetitionContent.class,
 		        Translator.translate("CompetitionInformation"));
@@ -115,11 +119,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
 		        Translator.translate(TeamSelectionContent.TITLE));
 
-		Button configureRecords = openInNewTabNoParam(RecordsConfigContent.class,
-		        Translator.translate("RecordEvent.RecordsConfigurationTitle"));
-		Button editExportRecords = openInNewTabNoParam(RecordContent.class,
-		        Translator.translate("RecordEvent.EditExportRecords"));
-
 		Button documents = openInNewTab(DocumentsContent.class, Translator.translate("Documents.Title"), "documents");
 		documents.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
@@ -148,9 +147,9 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 			exportJsonV2Div.setWidthFull();
 		}
 
-		if (recordsOnly) {
-			FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(configureRecords, editExportRecords);
-			doGroup(Translator.translate("RecordEvent.PageTitle"), grid4, this, true);
+		if (recordsPreparation) {
+			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(config);
+			doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
 
 			FlexibleGridLayout grid5;
 			if (exportJsonV2Div != null) {
@@ -166,8 +165,6 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 			doGroup(Translator.translate("Registration"), grid2, this, true);
 			FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(documents);
 			doGroup(Translator.translate("Documents.Title"), grid3, this, true);
-			FlexibleGridLayout grid4 = HomeNavigationContent.navigationGrid(configureRecords, editExportRecords);
-			doGroup(Translator.translate("RecordEvent.PageTitle"), grid4, this, true);
 
 			FlexibleGridLayout grid5;
 			if (exportJsonV2Div != null) {
@@ -187,17 +184,18 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 	@Override
 	public String getMenuTitle() {
-		if (Config.getCurrent().featureSwitch("recordsOnly")) {
-			return Translator.translate("RecordEvent.PageTitle");
-		}
 		return Translator.translate("PrepareCompetition");
 	}
 
 	@Override
-	public String getPageTitle() {
+	public void beforeEnter(BeforeEnterEvent event) {
 		if (Config.getCurrent().featureSwitch("recordsOnly")) {
-			return Translator.translate("RecordEvent.PageTitle");
+			event.forwardTo("records");
 		}
+	}
+
+	@Override
+	public String getPageTitle() {
 		return Translator.translate("ShortTitle.Preparation");
 	}
 

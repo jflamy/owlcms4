@@ -24,8 +24,10 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.preparation.RecordsNavigationContent;
 import app.owlcms.nui.shared.ContentWrapping;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.nui.shared.OwlcmsLayoutAware;
@@ -145,6 +147,8 @@ public class LoginView extends Composite<VerticalLayout>
 		String requestedUrl = OwlcmsSession.getRequestedUrl();
 		if (requestedUrl != null) {
 			UI.getCurrent().navigate(requestedUrl, OwlcmsSession.getRequestedQueryParameters());
+		} else if (Config.getCurrent().featureSwitch("recordsOnly")) {
+			UI.getCurrent().navigate(RecordsNavigationContent.class);
 		} else {
 			UI.getCurrent().navigate(HomeNavigationContent.class);
 		}

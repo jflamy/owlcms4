@@ -35,6 +35,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
 import app.owlcms.data.config.Config;
@@ -47,6 +48,8 @@ import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.home.InfoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
+import app.owlcms.nui.preparation.RecordsNavigationContent;
+import app.owlcms.nui.preparation.RecordsPreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
 import ch.qos.logback.classic.Logger;
 
@@ -67,6 +70,7 @@ public class OwlcmsLayout extends AppLayout {
 	private FlexLayout menuArea;
 	private HorizontalLayout header;
 	private boolean margin;
+	private Tabs drawerTabs;
 
 	public OwlcmsLayout() {
 		OwlcmsFactory.waitDBInitialized();
@@ -194,6 +198,7 @@ public class OwlcmsLayout extends AppLayout {
 	@Override
 	protected void afterNavigation() {
 		super.afterNavigation();
+		refreshDrawerIfNeeded();
 		if (Translator.isRTL(OwlcmsSession.getLocale())) {
 			UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 		}
@@ -237,8 +242,8 @@ public class OwlcmsLayout extends AppLayout {
 	}
 
 	private void addDrawerContent() {
-		Tabs tabs = getTabs();
-		addToDrawer(tabs);
+		this.drawerTabs = getTabs();
+		addToDrawer(this.drawerTabs);
 	}
 
 	private void clearNavBar() {
@@ -305,10 +310,17 @@ public class OwlcmsLayout extends AppLayout {
 		Tabs tabs = new Tabs();
 		String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
 		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
+		boolean recordsPreparation = Config.getCurrent().featureSwitch("recordsPreparation")
+		        || Boolean.TRUE.equals(OwlcmsSession.getAttribute("recordsPreparation"));
 		if (recordsOnly) {
-			tabs.add(createTab(new Icon(VaadinIcon.GROUP),
+			tabs.add(createTab(new Icon(VaadinIcon.TROPHY),
 			        Translator.translate("RecordEvent.PageTitle"),
-			        PreparationNavigationContent.class));
+			        RecordsNavigationContent.class));
+			if (recordsPreparation) {
+				tabs.add(createTab(new Icon(VaadinIcon.DATABASE),
+				        Translator.translate("Configuration"),
+				        RecordsPreparationNavigationContent.class));
+			}
 			tabs.setOrientation(Tabs.Orientation.VERTICAL);
 			return tabs;
 		}
@@ -336,6 +348,9 @@ public class OwlcmsLayout extends AppLayout {
 		        createTab(new Icon(VaadinIcon.PRINT),
 		                Translator.translate("Results"),
 		                ResultsNavigationContent.class),
+		        createTab(new Icon(VaadinIcon.TROPHY),
+		                Translator.translate("RecordEvent.PageTitle"),
+		                RecordsNavigationContent.class),
 		        createTab(new Icon(VaadinIcon.QUESTION_CIRCLE),
 		                Translator.translate("Documentation_Menu"),
 		                docOpener),
@@ -358,6 +373,36 @@ public class OwlcmsLayout extends AppLayout {
 
 	private void setViewTitle(Component topBarTitle) {
 		this.viewTitle = topBarTitle;
+	}
+
+	private void refreshDrawerIfNeeded() {
+		Tabs newTabs = getTabs();
+		if (this.drawerTabs != null
+		        && newTabs.getComponentCount() != this.drawerTabs.getComponentCount()) {
+			this.drawerTabs.removeFromParent();
+			this.drawerTabs = newTabs;
+			addToDrawer(this.drawerTabs);
+		}
+		// select the tab matching the current content's route
+		if (this.drawerTabs != null && getContent() != null) {
+			Route route = getContent().getClass().getAnnotation(Route.class);
+			if (route != null) {
+				String routeValue = route.value();
+				for (int i = 0; i < this.drawerTabs.getComponentCount(); i++) {
+					Tab tab = (Tab) this.drawerTabs.getComponentAt(i);
+					tab.getChildren()
+					        .filter(c -> c instanceof RouterLink)
+					        .map(c -> (RouterLink) c)
+					        .findFirst()
+					        .ifPresent(link -> {
+						        String href = link.getHref();
+						        if (href != null && href.equals(routeValue)) {
+							        this.drawerTabs.setSelectedTab(tab);
+						        }
+					        });
+				}
+			}
+		}
 	}
 
 }
