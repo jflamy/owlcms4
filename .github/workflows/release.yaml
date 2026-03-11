@@ -25,7 +25,7 @@ jobs:
       DOCKER_TAG: ${{ contains(github.event.inputs.revision, '-') && 'prerelease' || 'stable' }}
     steps:
       - name: Checkout Dev Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
           persist-credentials: false # Disable credential persistence
@@ -61,7 +61,7 @@ jobs:
           
       - name: Cache Maven dependencies
         id: cache-maven
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml', 'shared/pom.xml', 'owlcms/pom.xml', 'publicresults/pom.xml') }}
