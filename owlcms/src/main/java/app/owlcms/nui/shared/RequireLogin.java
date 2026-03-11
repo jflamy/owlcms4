@@ -96,6 +96,7 @@ public interface RequireLogin extends BeforeEnterObserver {
 		if (path.equals(LoginView.LOGIN)
 		        || path.equals("records")
 		        || path.equals("recordsPreparation")
+		        || path.equals("preparation/config")
 		        || path.equals("preparation/recordsConfig")
 		        || path.equals("preparation/records")) {
 			return true;
