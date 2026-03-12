@@ -131,6 +131,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.topBar.getStyle().set("flex", "100 1");
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		applyRecordsOnlyToolbarOffset();
 
 		// Add export button for filtered records
 		Button exportRecordsButton = createExportRecordsButton();
@@ -149,10 +150,30 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 		this.topBar.add(exportRecordsButton, recomputeRecordsButton, acceptProvisionalRecordsButton, keepLatestOfficialRecordsButton, removeSelectedButton);
 		if (Config.getCurrent().featureSwitch("recordsOnly")) {
-			this.topBar.add(createLogoutButton());
+			this.topBar.add(createImportButton(), createLogoutButton());
 		}
 
 		return this.topBar;
+	}
+
+	protected void applyRecordsOnlyToolbarOffset() {
+		if (Config.getCurrent().featureSwitch("recordsOnly")) {
+			this.topBar.getStyle().set("margin-left", "1.5em");
+			this.topBar.getStyle().set("padding-left", "0");
+		} else {
+			this.topBar.getStyle().remove("margin-left");
+			this.topBar.getStyle().remove("padding-left");
+		}
+	}
+
+	protected Button createImportButton() {
+		Button importButton = new Button(Translator.translate("Import"), buttonClickEvent -> {
+			OwlcmsSession.setAttribute("recordsPreparation", true);
+			UI.getCurrent().navigate(RecordsConfigContent.class);
+		});
+		importButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+		importButton.getElement().getStyle().set("margin-right", "1em");
+		return importButton;
 	}
 
 	private Button createLogoutButton() {

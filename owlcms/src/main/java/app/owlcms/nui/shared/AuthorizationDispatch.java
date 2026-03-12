@@ -30,8 +30,6 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 		QueryParameters queryParameters = event.getLocation().getQueryParameters();
 
 		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
-		boolean recordsPreparation = Config.getCurrent().featureSwitch("recordsPreparation")
-		        || Boolean.TRUE.equals(OwlcmsSession.getAttribute("recordsPreparation"));
 
 		// Dispatch root URL based on mode
 		if (path.isEmpty()) {
@@ -44,7 +42,7 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 			// default: fall through to normal HomeNavigationContent handling
 		}
 
-		if (recordsOnly && !isRecordsOnlyAllowedPath(path, recordsPreparation)) {
+		if (recordsOnly && !isRecordsOnlyAllowedPath(path)) {
 			event.forwardTo("publicRecords");
 			return;
 		}
@@ -106,7 +104,7 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 		}
 	}
 
-	private static boolean isRecordsOnlyAllowedPath(String path, boolean recordsPreparation) {
+	private static boolean isRecordsOnlyAllowedPath(String path) {
 		if (path == null || path.isBlank()) {
 			return false;
 		}

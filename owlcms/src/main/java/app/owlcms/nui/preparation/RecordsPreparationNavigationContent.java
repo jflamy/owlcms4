@@ -22,7 +22,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
@@ -33,7 +32,6 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.DownloadButtonFactory;
@@ -50,7 +48,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "recordsPreparation", layout = OwlcmsLayout.class)
 public class RecordsPreparationNavigationContent extends BaseNavigationContent
-        implements NavigationPage, HasDynamicTitle, BeforeEnterObserver {
+	implements NavigationPage, HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(RecordsPreparationNavigationContent.class);
 	static {
@@ -97,13 +95,6 @@ public class RecordsPreparationNavigationContent extends BaseNavigationContent
 		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
 
 		DebugUtils.gc();
-	}
-
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		if (Config.getCurrent().featureSwitch("recordsOnly")) {
-			OwlcmsSession.setAttribute("recordsPreparation", true);
-		}
 	}
 
 	@Override
