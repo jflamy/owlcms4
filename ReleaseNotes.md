@@ -25,4 +25,6 @@
   - You should NOT switch without analysis, as the coefficients change quite a bit.
   - Note that Q-Points or GAMX are better alternatives, for a number of reasons.
 
+65.0.0: Improved process cleanup when stopped using a signal
+
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
