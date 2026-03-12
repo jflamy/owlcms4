@@ -26,6 +26,7 @@ import ch.qos.logback.classic.Logger;
 public class MainWrapper {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(MainWrapper.class);
+    private static final int MAX_RESTARTS = 3;
     private static volatile Process currentProcess;
 
     public static void main(String... args) throws Exception {
@@ -89,7 +90,8 @@ public class MainWrapper {
         String classpath = System.getProperty("java.class.path");
 
         int restartCount = 0;
-        while (true) {
+        int wrapperExitCode = 0;
+        while (restartCount <= MAX_RESTARTS) {
             try {
                 logger.info("Starting app.owlcms.Main as separate process (restart count: {})", restartCount);
                 
@@ -121,28 +123,43 @@ public class MainWrapper {
                 
                 logger.info("Subprocess exited with code {}", exitCode);
                 
-                if (exitCode == 0) {
-                    logger.info("app.owlcms.Main exited normally with code 0, wrapper exiting");
-                    break; // Exit successfully
-                } else {
-                    restartCount++;
-                    logger.info("app.owlcms.Main exited with non-zero code {} - initiating restart (count: {})", 
-                                 exitCode, restartCount);
-                    Thread.sleep(5000); // Wait 5 seconds before restart
+                if (exitCode == 0 || exitCode >= 128) {
+                    logger.info("app.owlcms.Main exited with terminal code {}, wrapper exiting", exitCode);
+                    wrapperExitCode = exitCode;
+                    break;
+                }
+                
+                // Restartable exit code (1-127)
+                wrapperExitCode = exitCode;
+                restartCount++;
+                if (restartCount <= MAX_RESTARTS) {
+                    logger.info("app.owlcms.Main exited with code {} - restart {}/{}", 
+                                 exitCode, restartCount, MAX_RESTARTS);
+                    Thread.sleep(5000);
                     logger.info("Restarting app.owlcms.Main...");
                 }
                 
             } catch (InterruptedException e) {
                 logger.info("MainWrapper interrupted, exiting", e);
                 Thread.currentThread().interrupt();
+                wrapperExitCode = 130;
                 break;
             } catch (IOException e) {
+                wrapperExitCode = 1;
                 restartCount++;
-                logger.error("Failed to start app.owlcms.Main (restart count: {}): {}", 
-                             restartCount, e.getMessage(), e);
-                Thread.sleep(5000); // Wait 5 seconds before retry
-                logger.info("Retrying app.owlcms.Main...");
+                if (restartCount <= MAX_RESTARTS) {
+                    logger.error("Failed to start app.owlcms.Main (restart {}/{}): {}", 
+                                 restartCount, MAX_RESTARTS, e.getMessage(), e);
+                    Thread.sleep(5000);
+                    logger.info("Retrying app.owlcms.Main...");
+                }
             }
+        }
+        if (restartCount > MAX_RESTARTS) {
+            logger.error("Restart limit ({}) reached, wrapper exiting with code {}", MAX_RESTARTS, wrapperExitCode);
+        }
+        if (wrapperExitCode != 0) {
+            System.exit(wrapperExitCode);
         }
     }
 }
