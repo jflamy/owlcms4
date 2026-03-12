@@ -67,32 +67,42 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	}
 	
 	// Filter fields
-	private ComboBox<String> federationFilter = new ComboBox<>();
-	private ComboBox<String> recordNameFilter = new ComboBox<>();
-	private ComboBox<String> ageGroupFilter = new ComboBox<>();
-	private ComboBox<Gender> genderFilter = new ComboBox<>();
-	private ComboBox<RecordFilters.ProvisionalFilter> provisionalFilter = new ComboBox<>();
-	private ComboBox<RecordFilters.CurrentHistoryFilter> currentHistoryFilter = new ComboBox<>();
-	private TextField nameFilter = new TextField();
+	protected ComboBox<String> federationFilter = new ComboBox<>();
+	protected ComboBox<String> recordNameFilter = new ComboBox<>();
+	protected ComboBox<String> ageGroupFilter = new ComboBox<>();
+	protected ComboBox<Gender> genderFilter = new ComboBox<>();
+	protected ComboBox<RecordFilters.ProvisionalFilter> provisionalFilter = new ComboBox<>();
+	protected ComboBox<RecordFilters.CurrentHistoryFilter> currentHistoryFilter = new ComboBox<>();
+	protected TextField nameFilter = new TextField();
 
 	// Filter values
-	private String federation;
-	private String recordName;
-	private String ageGroup;
-	private Gender gender;
-	private String name;
-	
+	protected String federation;
+	protected String recordName;
+	protected String ageGroup;
+	protected Gender gender;
+	protected String name;
+
+	protected boolean readOnly;
 	boolean documentPage;
-	private RecordGrid crud;
-	private OwlcmsCrudFormFactory<RecordEvent> editingFormFactory;
-	private OwlcmsLayout routerLayout;
-	private FlexLayout topBar;
+	protected RecordGrid crud;
+	protected OwlcmsCrudFormFactory<RecordEvent> editingFormFactory;
+	protected OwlcmsLayout routerLayout;
+	protected FlexLayout topBar;
+
+	/**
+	 * Instantiates the RecordEvent crudGrid (editing mode).
+	 */
+	public RecordContent() {
+		this(false);
+	}
 
 	/**
 	 * Instantiates the RecordEvent crudGrid.
+	 * @param readOnly true for the public page (no editing, no selection)
 	 */
-	public RecordContent() {
-		this.editingFormFactory = new RecordEditingFormFactory(RecordEvent.class, this);
+	protected RecordContent(boolean readOnly) {
+		this.readOnly = readOnly;
+		this.editingFormFactory = new RecordEditingFormFactory(RecordEvent.class, readOnly ? null : this);
 		GridCrud<RecordEvent> crud = createGrid(this.editingFormFactory);
 		defineFilters(crud);
 		fillHW(crud, this);
@@ -100,6 +110,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	@Override
 	public RecordEvent add(RecordEvent domainObjectToAdd) {
+		if (this.readOnly) return domainObjectToAdd;
 		return this.editingFormFactory.add(domainObjectToAdd);
 	}
 
@@ -155,7 +166,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		return logoutButton;
 	}
 
-	private Button createExportRecordsButton() {
+	protected Button createExportRecordsButton() {
 		JXLSDownloader downloadDialog = new JXLSDownloader(
 			() -> {
 				// Get the same filtered records that are shown in the grid
@@ -294,6 +305,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	@Override
 	public void delete(RecordEvent domainObjectToDelete) {
+		if (this.readOnly) return;
 		this.editingFormFactory.delete(domainObjectToDelete);
 	}
 
@@ -346,6 +358,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	@Override
 	public RecordEvent update(RecordEvent domainObjectToUpdate) {
+		if (this.readOnly) return domainObjectToUpdate;
 		return this.editingFormFactory.update(domainObjectToUpdate);
 	}
 
@@ -437,7 +450,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	/**
 	 * Get filtered records using RecordRepository to ensure consistency between grid and export
 	 */
-	private List<RecordEvent> getFilteredRecords() {
+	protected List<RecordEvent> getFilteredRecords() {
 		// Convert enum values to strings for the repository method
 		String provisionalFilterStr = "ALL";
 		if (this.provisionalFilter != null && this.provisionalFilter.getValue() != null) {
@@ -464,7 +477,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	/**
 	 * Define the filters for the record grid
 	 */
-	private void defineFilters(GridCrud<RecordEvent> crud) {
+	protected void defineFilters(GridCrud<RecordEvent> crud) {
 		// Federation filter
 		this.federationFilter.setPlaceholder(Translator.translate("RecordEvent.Federation"));
 		this.federationFilter.setItems(RecordRepository.findDistinctFederations());
@@ -564,7 +577,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		crud.getCrudLayout().addFilterComponent(clearFilters);
 	}
 
-	private void syncCurrentHistoryFilterForProvisional() {
+	protected void syncCurrentHistoryFilterForProvisional() {
 		boolean provisionalOnly = this.provisionalFilter != null
 		        && this.provisionalFilter.getValue() == RecordFilters.ProvisionalFilter.PROVISIONAL;
 		if (this.currentHistoryFilter != null) {
@@ -581,7 +594,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	 * @param crudFormFactory what to call to create the form for editing a record event
 	 * @return
 	 */
-	private GridCrud<RecordEvent> createGrid(OwlcmsCrudFormFactory<RecordEvent> crudFormFactory) {
+	protected GridCrud<RecordEvent> createGrid(OwlcmsCrudFormFactory<RecordEvent> crudFormFactory) {
 		Grid<RecordEvent> grid = new Grid<>(RecordEvent.class, false);
 		this.crud = new RecordGrid(RecordEvent.class, new OwlcmsGridLayout(RecordEvent.class), crudFormFactory, grid);
 		grid.getThemeNames().add("row-stripes");
@@ -619,8 +632,17 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		}
 
 		this.crud.setCrudListener(this);
-		this.crud.setClickRowToUpdate(true);
-		grid.setSelectionMode(SelectionMode.SINGLE);
+		if (this.readOnly) {
+			this.crud.setClickable(false);
+			this.crud.setClickRowToUpdate(false);
+			grid.setSelectionMode(SelectionMode.NONE);
+			this.crud.setAddOperationVisible(false);
+			this.crud.setUpdateOperationVisible(false);
+			this.crud.setDeleteOperationVisible(false);
+		} else {
+			this.crud.setClickRowToUpdate(true);
+			grid.setSelectionMode(SelectionMode.SINGLE);
+		}
 		return this.crud;
 	}
 
