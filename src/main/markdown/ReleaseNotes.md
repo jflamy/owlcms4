@@ -19,12 +19,11 @@
   - Round-trip updating is supported -- you can export a subset of the records, update the file, and reload after making corrections or approving provisional records
     - This does not delete records.
   - You can set the "active" record set to quickly pick all the records you need for a competition in a single file
+  - The /competition/export URL can be used to take backups
 
 65.0.0: Added Sinclair 2028.  
   - The default remains the 2001-2004 values.
   - You should NOT switch without analysis, as the coefficients change quite a bit.
   - Note that Q-Points or GAMX are better alternatives, for a number of reasons.
-
-65.0.0: Improved process cleanup when stopped using a signal
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
