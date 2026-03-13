@@ -14,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
