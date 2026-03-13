@@ -151,8 +151,8 @@ public class AccessUtils {
 	private static boolean checkListMembership(String clientIp, String whiteList, boolean whiteListCheck) {
 		boolean whiteListed;
 		if (whiteList != null && !whiteList.trim().isEmpty()) {
-			if ("0:0:0:0:0:0:0:1".equals(clientIp) || clientIp.startsWith("169.254")) {
-				// compensate for IPv6 returned and other windows networking oddities
+			if (isLocalhost(clientIp)) {
+				// compensate for IPv6 returned by some platforms
 				clientIp = "127.0.0.1";
 			}
 			List<String> whiteListedList = Arrays.asList(whiteList.split(","));
@@ -166,6 +166,22 @@ public class AccessUtils {
 			whiteListed = false;
 		}
 		return whiteListed;
+	}
+
+	/**
+	 * Check whether an IP address represents localhost in any format.
+	 * Uses {@link java.net.InetAddress#isLoopbackAddress()} which handles
+	 * IPv4 (127.x.x.x), IPv6 (::1, 0:0:0:0:0:0:0:1), and bracketed forms.
+	 */
+	public static boolean isLocalhost(String ip) {
+		if (ip == null || ip.isBlank()) {
+			return false;
+		}
+		try {
+			return java.net.InetAddress.getByName(ip).isLoopbackAddress();
+		} catch (java.net.UnknownHostException e) {
+			return false;
+		}
 	}
 
 	private static boolean checkPassword(String password, String pinOverride, String dbPin, String loggingContext) {
