@@ -44,6 +44,7 @@
   * [Optional Modified Competition Rules](ModifiedRules)
   * [Competition Options Reference](2600AdvancedPreCompetitionSetup)
   * [System Settings Reference](2120AdvancedSystemSettings)
+  * [Record Repository](RecordsRepository)
   * [Packaging Local Settings](UploadingLocalSettings)
   * [Scoreboard Colors](Styles)
   * [Flags and Pictures](FlagsPictures)
