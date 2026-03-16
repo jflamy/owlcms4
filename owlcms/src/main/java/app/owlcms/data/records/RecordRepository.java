@@ -828,7 +828,7 @@ public class RecordRepository {
 	public static List<String> findDistinctFederations() {
 		return JPAService.runInTransaction(em -> {
 			return em.createQuery(
-			        "SELECT DISTINCT rec.recordFederation FROM RecordEvent rec WHERE rec.recordFederation IS NOT NULL ORDER BY rec.recordFederation",
+			        "SELECT DISTINCT rec.recordFederation FROM RecordEvent rec WHERE rec.recordFederation IS NOT NULL AND (rec.active IS NULL OR rec.active = true) ORDER BY rec.recordFederation",
 			        String.class)
 			        .getResultList();
 		});
@@ -842,7 +842,7 @@ public class RecordRepository {
 	public static List<String> findDistinctRecordNames() {
 		return JPAService.runInTransaction(em -> {
 			return em.createQuery(
-			        "SELECT DISTINCT rec.recordName FROM RecordEvent rec WHERE rec.recordName IS NOT NULL ORDER BY rec.recordName",
+			        "SELECT DISTINCT rec.recordName FROM RecordEvent rec WHERE rec.recordName IS NOT NULL AND (rec.active IS NULL OR rec.active = true) ORDER BY rec.recordName",
 			        String.class)
 			        .getResultList();
 		});
@@ -854,7 +854,7 @@ public class RecordRepository {
 		}
 		return JPAService.runInTransaction(em -> {
 			StringBuilder queryBuilder = new StringBuilder(
-			        "SELECT DISTINCT rec.recordName FROM RecordEvent rec WHERE rec.recordName IS NOT NULL AND rec.recordFederation = :federation");
+			        "SELECT DISTINCT rec.recordName FROM RecordEvent rec WHERE rec.recordName IS NOT NULL AND rec.recordFederation = :federation AND (rec.active IS NULL OR rec.active = true)");
 			if (ageGroup != null && !ageGroup.isBlank()) {
 				queryBuilder.append(" AND rec.ageGrp = :ageGroup");
 			}
@@ -880,7 +880,7 @@ public class RecordRepository {
 	public static List<String> findDistinctAgeGroups() {
 		return JPAService.runInTransaction(em -> {
 			return em.createQuery(
-			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL ORDER BY rec.ageGrp",
+			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL AND (rec.active IS NULL OR rec.active = true) ORDER BY rec.ageGrp",
 			        String.class)
 			        .getResultList();
 		});
@@ -892,7 +892,7 @@ public class RecordRepository {
 		}
 		return JPAService.runInTransaction(em -> {
 			StringBuilder queryBuilder = new StringBuilder(
-			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL AND rec.recordFederation = :federation");
+			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL AND rec.recordFederation = :federation AND (rec.active IS NULL OR rec.active = true)");
 			if (recordName != null && !recordName.isBlank()) {
 				queryBuilder.append(" AND rec.recordName = :recordName");
 			}

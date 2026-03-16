@@ -506,6 +506,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.federationFilter.setItems(RecordRepository.findDistinctFederations());
 		this.federationFilter.setClearButtonVisible(true);
 		this.federationFilter.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
 			setFederation(e.getValue());
 			refreshDependentFilterOptions();
 			crud.refreshGrid();
@@ -518,6 +521,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.recordNameFilter.setPlaceholder(Translator.translate("Records.RecordName"));
 		this.recordNameFilter.setClearButtonVisible(true);
 		this.recordNameFilter.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
 			setRecordName(e.getValue());
 			refreshDependentFilterOptions();
 			crud.refreshGrid();
@@ -529,6 +535,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.ageGroupFilter.setPlaceholder(Translator.translate("AgeGroup"));
 		this.ageGroupFilter.setClearButtonVisible(true);
 		this.ageGroupFilter.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
 			setAgeGroup(e.getValue());
 			refreshDependentFilterOptions();
 			crud.refreshGrid();
@@ -639,15 +648,23 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		List<String> availableAgeGroups = RecordRepository.findDistinctAgeGroups(selectedFederation, selectedRecordName);
 
 		this.recordNameFilter.setItems(availableRecordNames);
-		if (selectedRecordName != null && !availableRecordNames.contains(selectedRecordName)) {
-			this.recordNameFilter.clear();
-			setRecordName(null);
+		if (selectedRecordName != null) {
+			if (availableRecordNames.contains(selectedRecordName)) {
+				this.recordNameFilter.setValue(selectedRecordName);
+			} else {
+				this.recordNameFilter.clear();
+				setRecordName(null);
+			}
 		}
 
 		this.ageGroupFilter.setItems(availableAgeGroups);
-		if (selectedAgeGroup != null && !availableAgeGroups.contains(selectedAgeGroup)) {
-			this.ageGroupFilter.clear();
-			setAgeGroup(null);
+		if (selectedAgeGroup != null) {
+			if (availableAgeGroups.contains(selectedAgeGroup)) {
+				this.ageGroupFilter.setValue(selectedAgeGroup);
+			} else {
+				this.ageGroupFilter.clear();
+				setAgeGroup(null);
+			}
 		}
 	}
 
