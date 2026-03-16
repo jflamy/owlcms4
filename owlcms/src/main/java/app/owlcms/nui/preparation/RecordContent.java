@@ -403,8 +403,10 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	 */
 	public void clearFilters() {
 		this.federationFilter.clear();
+		autoSelectSingleFederation();
 		this.recordNameFilter.clear();
 		this.ageGroupFilter.clear();
+		refreshDependentFilterOptions();
 		this.genderFilter.clear();
 		this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
 		this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
@@ -505,17 +507,19 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.federationFilter.setClearButtonVisible(true);
 		this.federationFilter.addValueChangeListener(e -> {
 			setFederation(e.getValue());
+			refreshDependentFilterOptions();
 			crud.refreshGrid();
 		});
 		this.federationFilter.setWidth("12em");
 		crud.getCrudLayout().addFilterComponent(this.federationFilter);
+		autoSelectSingleFederation();
 
 		// Record Name filter
 		this.recordNameFilter.setPlaceholder(Translator.translate("Records.RecordName"));
-		this.recordNameFilter.setItems(RecordRepository.findDistinctRecordNames());
 		this.recordNameFilter.setClearButtonVisible(true);
 		this.recordNameFilter.addValueChangeListener(e -> {
 			setRecordName(e.getValue());
+			refreshDependentFilterOptions();
 			crud.refreshGrid();
 		});
 		this.recordNameFilter.setWidth("12em");
@@ -523,14 +527,15 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 		// Age Group filter
 		this.ageGroupFilter.setPlaceholder(Translator.translate("AgeGroup"));
-		this.ageGroupFilter.setItems(RecordRepository.findDistinctAgeGroups());
 		this.ageGroupFilter.setClearButtonVisible(true);
 		this.ageGroupFilter.addValueChangeListener(e -> {
 			setAgeGroup(e.getValue());
+			refreshDependentFilterOptions();
 			crud.refreshGrid();
 		});
 		this.ageGroupFilter.setWidth("10em");
 		crud.getCrudLayout().addFilterComponent(this.ageGroupFilter);
+		refreshDependentFilterOptions();
 
 		// Gender filter
 		this.genderFilter.setPlaceholder(Translator.translate("Gender"));
@@ -596,6 +601,54 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			crud.refreshGrid();
 		});
 		crud.getCrudLayout().addFilterComponent(clearFilters);
+	}
+
+	protected void autoSelectSingleFederation() {
+		if (this.federationFilter.getValue() != null && !this.federationFilter.getValue().isBlank()) {
+			return;
+		}
+
+		List<String> availableFederations = RecordRepository.findDistinctFederations();
+		if (availableFederations.size() == 1) {
+			this.federationFilter.setValue(availableFederations.get(0));
+			setFederation(availableFederations.get(0));
+		}
+	}
+
+	protected void refreshDependentFilterOptions() {
+		String selectedFederation = this.federationFilter.getValue();
+		String selectedRecordName = this.recordNameFilter.getValue();
+		String selectedAgeGroup = this.ageGroupFilter.getValue();
+
+		if (selectedFederation == null || selectedFederation.isBlank()) {
+			this.recordNameFilter.clear();
+			this.ageGroupFilter.clear();
+			this.recordNameFilter.setItems(List.of());
+			this.ageGroupFilter.setItems(List.of());
+			this.recordNameFilter.setReadOnly(true);
+			this.ageGroupFilter.setReadOnly(true);
+			setRecordName(null);
+			setAgeGroup(null);
+			return;
+		}
+
+		this.recordNameFilter.setReadOnly(false);
+		this.ageGroupFilter.setReadOnly(false);
+
+		List<String> availableRecordNames = RecordRepository.findDistinctRecordNames(selectedFederation, selectedAgeGroup);
+		List<String> availableAgeGroups = RecordRepository.findDistinctAgeGroups(selectedFederation, selectedRecordName);
+
+		this.recordNameFilter.setItems(availableRecordNames);
+		if (selectedRecordName != null && !availableRecordNames.contains(selectedRecordName)) {
+			this.recordNameFilter.clear();
+			setRecordName(null);
+		}
+
+		this.ageGroupFilter.setItems(availableAgeGroups);
+		if (selectedAgeGroup != null && !availableAgeGroups.contains(selectedAgeGroup)) {
+			this.ageGroupFilter.clear();
+			setAgeGroup(null);
+		}
 	}
 
 	protected void syncCurrentHistoryFilterForProvisional() {

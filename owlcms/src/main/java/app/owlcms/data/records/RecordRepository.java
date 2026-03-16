@@ -848,6 +848,30 @@ public class RecordRepository {
 		});
 	}
 
+	public static List<String> findDistinctRecordNames(String federation, String ageGroup) {
+		if (federation == null || federation.isBlank()) {
+			return List.of();
+		}
+		return JPAService.runInTransaction(em -> {
+			StringBuilder queryBuilder = new StringBuilder(
+			        "SELECT DISTINCT rec.recordName FROM RecordEvent rec WHERE rec.recordName IS NOT NULL AND rec.recordFederation = :federation");
+			if (ageGroup != null && !ageGroup.isBlank()) {
+				queryBuilder.append(" AND rec.ageGrp = :ageGroup");
+			}
+			queryBuilder.append(" ORDER BY rec.recordName");
+
+			Query query = em.createQuery(queryBuilder.toString(), String.class);
+			query.setParameter("federation", federation);
+			if (ageGroup != null && !ageGroup.isBlank()) {
+				query.setParameter("ageGroup", ageGroup);
+			}
+
+			@SuppressWarnings("unchecked")
+			List<String> resultList = query.getResultList();
+			return resultList;
+		});
+	}
+
 	/**
 	 * Find all distinct age groups
 	 *
@@ -859,6 +883,30 @@ public class RecordRepository {
 			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL ORDER BY rec.ageGrp",
 			        String.class)
 			        .getResultList();
+		});
+	}
+
+	public static List<String> findDistinctAgeGroups(String federation, String recordName) {
+		if (federation == null || federation.isBlank()) {
+			return List.of();
+		}
+		return JPAService.runInTransaction(em -> {
+			StringBuilder queryBuilder = new StringBuilder(
+			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL AND rec.recordFederation = :federation");
+			if (recordName != null && !recordName.isBlank()) {
+				queryBuilder.append(" AND rec.recordName = :recordName");
+			}
+			queryBuilder.append(" ORDER BY rec.ageGrp");
+
+			Query query = em.createQuery(queryBuilder.toString(), String.class);
+			query.setParameter("federation", federation);
+			if (recordName != null && !recordName.isBlank()) {
+				query.setParameter("recordName", recordName);
+			}
+
+			@SuppressWarnings("unchecked")
+			List<String> resultList = query.getResultList();
+			return resultList;
 		});
 	}
 
