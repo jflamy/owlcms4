@@ -7,7 +7,7 @@ There are two scenarios where you might need Simultaneous Ethernet and Wi-Fi
 
 ### macOS and Raspberry Pi
 
-There is nothing special to do. Connect your computer to the Wifi provided by your phone or the facility, and connect the Ethernet cable. The computer should use both
+There is nothing special to do. Connect your computer to the Wifi provided by your phone or the facility, and connect the Ethernet cable. The computer should use both connections automatically.
 
 ### Windows
 
@@ -24,7 +24,7 @@ Now we have a connection to router that is NOT connected to the Internet, where 
 
 > The following steps are not permanent. *They are reset after a reboot,* and need to be done again when you want to use Wi-Fi hotspot for the Internet and exclude the router.
 
-The next steps requires running a command shell in Administrator mode.  Use the Start menu to locate the CMD command and run it as administrator.
+The next steps require running a command shell in Administrator mode.  Use the Start menu to locate the CMD command and run it as administrator.
 
 ![OPEIQnL0mB](img/HotSpot/OPEIQnL0mB.png)
 
