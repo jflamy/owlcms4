@@ -23,7 +23,7 @@ function cleanup(mdFile) {
 
   const content = fs.readFileSync(mdFile, "utf8");
 
-  const regex = new RegExp(`img/${mdName}/([^\\)]+\\.png)`, "g");
+  const regex = new RegExp(`(?:\\./)?img/${mdName}/([^\\)]+\\.png)`, "g");
   const referenced = new Set();
   let match;
 

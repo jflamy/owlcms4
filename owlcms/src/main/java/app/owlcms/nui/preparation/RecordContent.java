@@ -624,6 +624,26 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		}
 	}
 
+	protected void refreshFilterOptionsFromRepository() {
+		String selectedFederation = this.federationFilter.getValue();
+		List<String> availableFederations = RecordRepository.findDistinctFederations();
+		this.federationFilter.setItems(availableFederations);
+
+		if (selectedFederation != null && !selectedFederation.isBlank()) {
+			if (availableFederations.contains(selectedFederation)) {
+				this.federationFilter.setValue(selectedFederation);
+				setFederation(selectedFederation);
+			} else {
+				this.federationFilter.clear();
+				setFederation(null);
+			}
+		} else {
+			autoSelectSingleFederation();
+		}
+
+		refreshDependentFilterOptions();
+	}
+
 	protected void refreshDependentFilterOptions() {
 		String selectedFederation = this.federationFilter.getValue();
 		String selectedRecordName = this.recordNameFilter.getValue();
@@ -687,7 +707,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	 */
 	protected GridCrud<RecordEvent> createGrid(OwlcmsCrudFormFactory<RecordEvent> crudFormFactory) {
 		Grid<RecordEvent> grid = new Grid<>(RecordEvent.class, false);
-		this.crud = new RecordGrid(RecordEvent.class, new OwlcmsGridLayout(RecordEvent.class), crudFormFactory, grid);
+		this.crud = new RecordGrid(RecordEvent.class, new OwlcmsGridLayout(RecordEvent.class), crudFormFactory, grid,
+		        this::refreshFilterOptionsFromRepository);
 		grid.getThemeNames().add("row-stripes");
 		
 		// Record identification columns

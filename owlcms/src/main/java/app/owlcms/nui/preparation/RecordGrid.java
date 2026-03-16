@@ -22,8 +22,12 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 
 @SuppressWarnings("serial")
 final class RecordGrid extends OwlcmsCrudGrid<RecordEvent> {
-	RecordGrid(Class<RecordEvent> domainType, OwlcmsGridLayout crudLayout, OwlcmsCrudFormFactory<RecordEvent> owlcmsCrudFormFactory, Grid<RecordEvent> grid) {
+	private final Runnable refreshCallback;
+
+	RecordGrid(Class<RecordEvent> domainType, OwlcmsGridLayout crudLayout, OwlcmsCrudFormFactory<RecordEvent> owlcmsCrudFormFactory,
+	        Grid<RecordEvent> grid, Runnable refreshCallback) {
 		super(domainType, crudLayout, owlcmsCrudFormFactory, grid);
+		this.refreshCallback = refreshCallback;
 	}
 
 	public Set<RecordEvent> getSelectedItems() {
@@ -37,6 +41,9 @@ final class RecordGrid extends OwlcmsCrudGrid<RecordEvent> {
 
 	@Override
 	protected void findAllButtonClicked() {
+		if (this.refreshCallback != null) {
+			this.refreshCallback.run();
+		}
 		refreshGrid();
 	}
 

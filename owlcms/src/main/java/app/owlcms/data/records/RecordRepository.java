@@ -976,7 +976,7 @@ public class RecordRepository {
 		@SuppressWarnings("unchecked")
 		List<RecordEvent> allResults = JPAService.runInTransaction(em -> {
 			// Start with base query
-			StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE 1=1");
+			StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE (rec.active IS NULL OR rec.active = true)");
 			List<String> parameters = new ArrayList<>();
 
 			// Federation filter

@@ -10,22 +10,23 @@ In the following example
 
 *Official records* are provided in Excel files that are loaded in the system.  The format for these files is explained [below](#record-file-format).
 
-- An example record file can be found [here](https://github.com/jflamy/umwl/raw/refs/heads/main/Singapore2025-06/records/UWMF/Current/SourceOfTruth_exportSheets_2025-06-16_21h21;59.xlsx).
+- Sample record files for regular categories and for Masters can be found [here](https://drive.google.com/drive/folders/1k14vBh2vD-5qKoScxuOBZMEfI0U2QQrk?usp=drive_link)
 - It is convenient to store record files as cloud spreadsheets, giving writing permissions to the federation's record secretary.  Then any club can download them and load them for their local meets.
 
-If records are broken during a meet, they are stored in the database.  They are *not* considered to be official records.  For them to become official, they need to be approved by the appropriate association or federation, and then added to the correct Excel file.  Once the Excel file has been updated, it becomes the new reference and can be loaded again in the database.
+If records are broken during a meet, they are stored in the database with the session in which the record was broken.  This marks them as *provisional* records. This provisional status needs to be explicitly accepted for the record to become official (see below)
 
 ## Record Management
 
-The Record Management pages are reached from the Prepare Competition page
+The Record Management pages reached from the Records menu entry
 
-![10_prepcomp](nimg/2501_Records_New/10_prepcomp.png)
+![image-20260316104251849](img/2500RecordsManagement/image-20260316104251849.png)
 
 ### Loading Records
 
-To reach the page where record definition files are loaded, click on the "Import and Configure Records" button (A)
+To reach the page where record definition files are loaded, click on the "Import and Configure Records" left button.
+You can then load record files as you wish.  For a first example, we will load records for regional youth games, and the normal regional records.
 
-![20_loadRecords](nimg/2501_Records_New/20_loadRecords.png)
+![image-20260316104621433](img/2500RecordsManagement/image-20260316104621433.png)
 
 We will load the UWMF records as they were before the 2025 Masters World Cup, and then load the Commonwealth Masters Standards to illustrate that several federation standards can be used concurrently.
 
