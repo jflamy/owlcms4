@@ -30,6 +30,13 @@ jobs:
           fetch-depth: 1
           persist-credentials: false # Disable credential persistence
 
+      - name: Set up Java 17 and pin Maven version
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          maven-version: '3.9.9'
+
       - name: Verify runner Java and Maven (fail fast)
         run: |
           set -euo pipefail
