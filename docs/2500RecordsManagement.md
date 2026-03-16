@@ -8,12 +8,14 @@ In the following example
 
 ![records](img/Records/records.png)
 
-*Official records* are provided in Excel files that are loaded in the system.  The format for these files is explained [below](#record-file-format).
+*Official records* are provided in Excel files that are loaded in the system.  
 
 - Sample record files for regular categories and for Masters can be found [here](https://drive.google.com/drive/folders/1k14vBh2vD-5qKoScxuOBZMEfI0U2QQrk?usp=drive_link)
+- The format for these files is explained [below](#record-file-format).
+
 - It is convenient to store record files as cloud spreadsheets, giving writing permissions to the federation's record secretary.  Then any club can download them and load them for their local meets.
 
-If records are broken during a meet, they are stored in the database with the session in which the record was broken.  This marks them as *provisional* records. This provisional status needs to be explicitly accepted for the record to become official (see below)
+If records are broken during a meet, they are stored in the database with the session in which the record was broken.  This marks them as *provisional* records. This provisional status needs to be explicitly accepted for the record to become official (see below).  The federation can then update its file and re-publish a new Excel.  It is possible to set up a [Record Repository](RecordsRepository) to make these tasks easier.
 
 ## Record Management
 
@@ -24,37 +26,73 @@ The Record Management pages reached from the Records menu entry
 ### Loading Records
 
 To reach the page where record definition files are loaded, click on the "Import and Configure Records" left button.
-You can then load record files as you wish.  For a first example, we will load records for regional youth games, and the normal regional records.
+You can then load record files as you wish. 
 
 ![image-20260316104621433](img/2500RecordsManagement/image-20260316104621433.png)
 
-We will load the UWMF records as they were before the 2025 Masters World Cup, and then load the Commonwealth Masters Standards to illustrate that several federation standards can be used concurrently.
+For our example, we will load records for regional youth games, and the normal regional records.  After loading the two files, we have the following situation:
 
-First, the UWMF records.
-![30](nimg/2501_Records_New/30.png)
+- In our provincial record files, we had several record age groups.  We unchecked the SR records because they are not relevant for this event
+- We can control in what order the records will be shown.  We want our event records shown first, above the provincial records.
 
-This then shows a list of loaded records
+![image-20260316112013845](img/2500RecordsManagement/image-20260316112013845.png)
 
-![40](nimg/2501_Records_New/40.png)
-
-## Multiple Records and Display Order
-
-It is also possible to add records from multiple federations or to add records that are specific to an event. 
-
-We proceed the same way for the Commonwealth Masters records.  And we notice that in the top section we can reorder the federations to control the order on the records sections of the scoreboard.
-
-![50](nimg/2501_Records_New/50.png)
+## Display Options
 
 There are additional display options in the top section
 
-Normally, the scoreboard will only show the records for which the current athlete is eligible.
+Normally, the scoreboard will only show the records for which the current athlete is eligible (for the age groups and federations in which he is eligible)
 
-- It is sometimes desired to show the records for all the body weight class in a session, or all the age groups in a a session, if they fit on the scoreboard.  The "Show records for all categories in session" checkbox enables this.
-- The "All Federations" checkbox can also be used in multi-regional events. In a joint PanAm + South American event, some athletes could beat PanAm Records only, others might beat South American *and* PanAm records.  The key is to correctly set the eligibility criteria for the athletes. See [Eligibility Criteria](#eligibility-criteria) below.
+- You may want show all the federations (the South American records and PanAm records would be shown for Canadian athletes even though they are not eligible to beat the South American record -- see [Controlling Eligibility](#controlling-eligibility) below
+
+- You can select to show all the records for all the athletes in the session during the whole session instead
+
+## Viewing Records
+
+Using the other button ("Edit and Export Records")  we can see the records we have loaded
+
+![image-20260316120438213](img/2500RecordsManagement/image-20260316120438213.png)
+
+## Updating Records Interactively
+
+The first option to update records is to edit them directly in the database, and re-export the records after doing the edits.
+To do so, click on the record.
+
+![image-20260316121328976](img/2500RecordsManagement/image-20260316121328976.png)
+
+NOTE:  if you enter something in the Competition Group at the bottom, this normally indicates the session in which the record was broken, and is understood to mean that the record is provisional.
+
+## Exporting New Records and Updating Using Files
+
+At the end of the competition, all new records are marked as provisional.  You can see the new records by using the Status dropdown in the filter bar and selecting "Provisional".  For example
+![image-20260316141613882](img/2500RecordsManagement/image-20260316141613882.png)
+
+Using the Export Records at the top and choosing a "dataExchange" template will produce an Excel File that you can then load into OWLCMS or in a [Record Repository](RecordRepository)
+![image-20260316141805170](img/2500RecordsManagement/image-20260316141805170.png)
+
+The resulting file is in the exact same format as the record inputs, so you can merge it in Excel format if you prefer. As mentioned earlier, it is the presence of information in the Group column that indicates that the record is provisional.  To approve the records, you either clear the cells before loading, or you use the "Accept Proviional Records" button in the application after loading.
+
+![image-20260316142118946](img/2500RecordsManagement/image-20260316142118946.png)
+
+## Producing Records for Publishing
+
+When Exporting, you can select templates. For inclusion on a Web site, you can use the "display" templates.  This will give you an output where the column heading are translated in your langage.
+
+- The "groups" template puts all the categories on a single page, with group headers
+- The "sheets" template puts each gender and age group as a separate page.
+- When using a mail merge program to produce pretty documents, you may want to use the dataExchange format to get a flat file without headers.
+
+For example, exporting Masters records in the sheets format yields an Excel of the following form
+![image-20260316142736214](img/2500RecordsManagement/image-20260316142736214.png)
+
+## Recomputing Records
+
+Say for example you loaded an obsolete version of a record file, or forgot to load one, and you realize after the competition has started.  No problem. You can recompute all records that were improved by using the "Recompute Recordsbutton in the top bar.
+This will essentially replay all the lifts in the competition order, so the improved records are recomputed in the correct order.
 
 ## Controlling Eligibility
 
-For each record definition there is a Federation field.  In our example, the federations are UMWF and CMWF.   Some athletes are eligible to UMWF but not CMWF.  The information about record eligibility is part of the athlete registration form (found under Edit Athlete Entries during the preparation).
+For each record definition there is a Federation field.  In the screenshot below the federations are UMWF and CMWF.   Some athletes are eligible to UMWF but not CMWF.  The information about record eligibility is part of the athlete registration form (found under Edit Athlete Entries during the preparation).
 
 In the following example, we state that the athlete is eligible to UMWF only, and not CMWF.   To say both, we would have written `UWMF,CMWF` .  This information can be entered using the full start book data entry (SBDE) advanced registration sheet format.  If there is no information in that field, records from all federations are considered breakable.
 
@@ -62,58 +100,26 @@ Note that if in your national federation you have Masters-aged athletes that can
 
 ![60](nimg/2501_Records_New/60.png)
 
-## Exporting Records
+### Eligibility Criteria
 
-The second button "Edit and Export Records" (B) is used to view, filter, export and clean-up records.
+For a record to be broken, in addition to meeting the age and bodyweight requirements, the athlete must be eligible according  to the Federation Eligibility Field
 
-![10_prepcomp](nimg/2501_Records_New/10_prepcomp.png)
+For each record in the record definition Excel, there is a federation code.
 
-### Filters
+In the database, the athlete's registration record can optionnally have a list of federations under which they can break records.
 
-The records are shown in a grid, as in most other owlcms screens.  Clicking on a record allows editing.
+- By default, the list is empty and athletes are eligible for the records from all the listed federations if they meet the age group, age and weight requirements.
+- If a list of federations (comma-separated) is given, the athletes are restricted to these federation records.
 
-The filters at the top allow selecting records for producing reports in Excel format, and for other actions
+##### **Example 1:**
 
-- There are "standard" filters to locate a record -- Federation, Age Group, Gender, and athlete Name
-- There are two dropdowns about the status of the records shown
-  - The first one is about new records set in the competition.  New records are provisional, and not official, until approved by a federation.
-    - `Provisional` means new records only. This setting is used to make up a list that can be sent to to the federation.   New records are flagged with the session in which they were set and they remain marked as provisional in this way until the "Accept Provisional Records" button is used.
-    - `Official` means records previously set (their session field is empty).  These are typically loaded from a file that contains data from the federation.
-    - `All` means both.  If you are confident that provisional records will stand, and wish to produce a list with all the records at the end of the competition.
+- Joint IWF-certified Canada-USA-Mexico meet.  All athletes can break records for their country, and also a PanAm record.
+- The record files have PAWF for PanAm records, CAN as federation for Canadian Records, USA for American Records, MEX for Mexican Records.
+- A Canadian athletes would have `CAN,PAWF` as their Record Eligibility Federations on the the Athlete registration page
 
-  - The second drop down is about superceded records.  Some federations keep a historical record of all the improvements to a record, even during the same competition.
-    - `Current` means show the last (best) record only, hide the previous ones
-    - `All` means show all records, including the ones that were superceded, to have the full story.
+##### Example 2:
 
-
-![70](nimg/2501_Records_New/70.png)
-
-### Formats
-
-You can then export the selected information in Excel format.  Several templates are available by default.
-
-- Import-Export format: used for archival and for configuring the system
-  - `importFormatSheet` is one sheet per age group, more readable for humans, can be re-imported in owlcms.  You would use this to create an archive format.
-  - `importFormatRecords` has everything in the same sheet, easier if you need to convert to a CSV or other flat format.  Your federation would maybe want this to validate Provisional records.
-- "Pretty" format, used as a basis for publishing the records
-  - `prettyGroups` removes some of the redundant columns, and translates the header row.  You would use this to produce a PDF. 
-  - `prettySheets` is one sheet per age group.  Perfect for importing to Google Sheets and then embedding in a Web Site
-
-![80](nimg/2501_Records_New/80.png)
-
-For example, if you are in Spanish, and use the prettySheets format, you would get something like the following.  You can customize the templates and create your own, remove columns, etc.
-
-![](nimg/2501_Records_New/B0.png)
-
-
-
-## Editing Records
-
-You can actually keep you records in owlcms, and edit them there prior to publishing.  You would create a full "importFormat" copy for archival, and to reload later, and you would use a pretty format for your Web site or PDF
-
-If you get news of a new record set in another country that meets your requirements, you can actually edit a record.  Just click and edit.  You should later export it in an importable format.
-
-![A0](nimg/2501_Records_New/A0.png)
+- If, in a joint South American and PanAm championship, `SudAm` and `PanAm` records have been loaded, then South American athletes would have `SudAm,Panam` and all others (such as North American Athletes) would have only `PanAm` to determine who can break what record.
 
 ## Record File Format
 
@@ -142,23 +148,3 @@ The following figure shows the content of the 10_Canada file, organized with one
 
 ![](img/Records/excel.png)
 
-### Eligibility Criteria
-
-For a record to be broken, in addition to meeting the age and bodyweight requirements, the athlete must be eligible according  to the Federation Eligibility Field
-
-For each record in the record definition Excel, there is a federation code.
-
-In the database, the athlete's registration record can optionnally have a list of federations under which they can break records.
-
-- By default, the list is empty and athletes are eligible for the records from all the listed federations if they meet the age group, age and weight requirements.
-- If a list of federations (comma-separated) is given, the athletes are restricted to these federation records.
-
-##### **Example 1:**
-
-- Joint IWF-certified Canada-USA-Mexico meet.  All athletes can break records for their country, and also a PanAm record.
-- The record files have PAWF for PanAm records, CAN as federation for Canadian Records, USA for American Records, MEX for Mexican Records.
-- A Canadian athletes would have `CAN,PAWF` as their Record Eligibility Federations on the the Athlete registration page
-
-##### Example 2:
-
-- If, in a joint South American and PanAm championship, `SudAm` and `PanAm` records have been loaded, then South American athletes would have `SudAm,Panam` and all others (such as North American Athletes) would have only `PanAm` to determine who can break what record.
