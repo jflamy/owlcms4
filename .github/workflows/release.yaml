@@ -35,7 +35,23 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          maven-version: '3.9.9'
+
+      - name: Install pinned Maven 3.8.8
+        run: |
+          set -euo pipefail
+          MAVEN_VERSION=3.8.8
+          MAVEN_DIR="$RUNNER_TEMP/apache-maven-$MAVEN_VERSION"
+          MAVEN_TGZ="$RUNNER_TEMP/apache-maven-$MAVEN_VERSION-bin.tar.gz"
+
+          curl -fsSL "https://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz" -o "$MAVEN_TGZ"
+          rm -rf "$MAVEN_DIR"
+          mkdir -p "$MAVEN_DIR"
+          tar -xzf "$MAVEN_TGZ" -C "$RUNNER_TEMP"
+
+          echo "$MAVEN_DIR/bin" >> "$GITHUB_PATH"
+          echo "M2_HOME=$MAVEN_DIR" >> "$GITHUB_ENV"
+          echo "MAVEN_HOME=$MAVEN_DIR" >> "$GITHUB_ENV"
+          "$MAVEN_DIR/bin/mvn" -v
 
       - name: Verify runner Java and Maven (fail fast)
         run: |
@@ -49,6 +65,9 @@ jobs:
             echo "ERROR: mvn (Maven) not found on runner. Please ensure Maven is available on PATH or install it." >&2
             exit 1
           fi
+          echo "PATH=$PATH"
+          echo "which java: $(which java)"
+          echo "which mvn: $(which mvn)"
           java -version 2>&1 | sed -n '1p'
           mvn -v
           # Ensure Java 17 is installed (fail if not)
