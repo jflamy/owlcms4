@@ -1,0 +1,7 @@
+{
+  "name": "md-clean",
+  "version": "1.0.0",
+  "bin": {
+    "md-clean": "md-clean.js"
+  }
+}
