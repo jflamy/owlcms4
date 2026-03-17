@@ -11,15 +11,14 @@
 **New in Release 65**
 
 65.0.0: Act as record repository :
-  - A separate dedicated OWLCMS instance can be used to keep and edit the records
-    - A new feature toggle "recordsOnly" hides all the pages except records management
-    - Default access is read-only, with capability to export selected records
-    - The preparation page can be accessed by editing the URL
-  - You can import the provisional records from a meet to accept them and have automatic updates with history
-  - Round-trip updating is supported -- you can export a subset of the records, update the file, and reload after making corrections or approving provisional records
+  - Enable a separate dedicated OWLCMS instance to keep and edit records
+    - A new feature toggle "recordRepository" hides all the pages except records management
+    - Default access is read-only, with capability to export selected records and the database
+  - Ability to import the provisional records from a meet to accept them, thereby creating a full history
+  - Round-trip updating - export a subset of the records, update the file, and reload after making corrections or approving provisional records
     - This does not delete records.
-  - You can set the "active" record set to quickly pick all the records you need for a competition in a single file
-  - The /competition/export URL can be used to take backups
+  - Define the set active record set (inactive records are not exported or editable)
+  - Abiilty to export the database (including using the /competition/export backup from localhost or a machine in the backdoor list)
 
 65.0.0: Added Sinclair 2028.  
   - The default remains the 2001-2004 values.
