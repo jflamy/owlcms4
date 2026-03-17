@@ -57,8 +57,11 @@ public class AccessUtils {
 		boolean isAuthenticated = OwlcmsSession.isDisplayAuthenticated();
 
 		if (!isAuthenticated) {
-			boolean ipIsAllowed = AccessUtils.isIpAllowedForDisplay(getClientIp());
-			if (!(ipIsAllowed)) {
+			String displayList = Config.getCurrent().getParamDisplayList();
+			boolean noDisplayList = displayList == null || displayList.isBlank();
+			String clientIp = getClientIp();
+			boolean ipIsAllowed = noDisplayList || AccessUtils.isIpAllowedForDisplay(clientIp);
+			if (!ipIsAllowed) {
 				OwlcmsSession.setAuthenticated(false);
 				return false;
 			}
@@ -141,6 +144,10 @@ public class AccessUtils {
 	public static boolean ipIsAllowedForOfficials(String clientIp) {
 		String whiteList = Config.getCurrent().getParamAccessList();
 		return (whiteList != null && !whiteList.isEmpty()) ? checkListMembership(clientIp, whiteList, true) : true;
+	}
+
+	public static boolean isBackdoorAccess() {
+		return checkBackdoor(getClientIp());
 	}
 
 	public static boolean isIpAllowedForDisplay(String clientIp) {

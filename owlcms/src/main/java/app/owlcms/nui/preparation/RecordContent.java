@@ -148,16 +148,20 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		// Add Remove Selected button
 		Button removeSelectedButton = createRemoveSelectedButton();
 
-		this.topBar.add(exportRecordsButton, recomputeRecordsButton, acceptProvisionalRecordsButton, keepLatestOfficialRecordsButton, removeSelectedButton);
-		if (Config.getCurrent().featureSwitch("recordsOnly")) {
-			this.topBar.add(createImportButton(), createLogoutButton());
+		if (Config.getCurrent().isRecordRepository()) {
+			this.topBar.add(exportRecordsButton, createImportButton(), recomputeRecordsButton,
+			        acceptProvisionalRecordsButton, keepLatestOfficialRecordsButton, removeSelectedButton,
+			        createLogoutButton());
+		} else {
+			this.topBar.add(exportRecordsButton, recomputeRecordsButton, acceptProvisionalRecordsButton,
+			        keepLatestOfficialRecordsButton, removeSelectedButton);
 		}
 
 		return this.topBar;
 	}
 
 	protected void applyRecordsOnlyToolbarOffset() {
-		if (Config.getCurrent().featureSwitch("recordsOnly")) {
+		if (Config.getCurrent().isRecordRepository()) {
 			this.topBar.getStyle().set("margin-left", "1.5em");
 			this.topBar.getStyle().set("padding-left", "0");
 		} else {
@@ -168,7 +172,6 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	protected Button createImportButton() {
 		Button importButton = new Button(Translator.translate("Import"), buttonClickEvent -> {
-			OwlcmsSession.setAttribute("recordsPreparation", true);
 			UI.getCurrent().navigate(RecordsConfigContent.class);
 		});
 		importButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
@@ -661,29 +664,42 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			return;
 		}
 
-		this.recordNameFilter.setReadOnly(false);
-		this.ageGroupFilter.setReadOnly(false);
-
 		List<String> availableRecordNames = RecordRepository.findDistinctRecordNames(selectedFederation, selectedAgeGroup);
 		List<String> availableAgeGroups = RecordRepository.findDistinctAgeGroups(selectedFederation, selectedRecordName);
 
-		this.recordNameFilter.setItems(availableRecordNames);
-		if (selectedRecordName != null) {
-			if (availableRecordNames.contains(selectedRecordName)) {
-				this.recordNameFilter.setValue(selectedRecordName);
-			} else {
-				this.recordNameFilter.clear();
-				setRecordName(null);
-			}
+		updateSingleValueFilter(this.recordNameFilter, availableRecordNames, selectedRecordName, this::setRecordName);
+		updateSingleValueFilter(this.ageGroupFilter, availableAgeGroups, selectedAgeGroup, this::setAgeGroup);
+	}
+
+	private void updateSingleValueFilter(ComboBox<String> filter, List<String> availableValues, String selectedValue,
+	        java.util.function.Consumer<String> setter) {
+		filter.setItems(availableValues);
+
+		if (availableValues.isEmpty()) {
+			filter.clear();
+			filter.setReadOnly(true);
+			setter.accept(null);
+			return;
 		}
 
-		this.ageGroupFilter.setItems(availableAgeGroups);
-		if (selectedAgeGroup != null) {
-			if (availableAgeGroups.contains(selectedAgeGroup)) {
-				this.ageGroupFilter.setValue(selectedAgeGroup);
+		if (availableValues.size() == 1) {
+			String onlyValue = availableValues.get(0);
+			if (!onlyValue.equals(filter.getValue())) {
+				filter.setValue(onlyValue);
+			}
+			filter.setReadOnly(true);
+			setter.accept(onlyValue);
+			return;
+		}
+
+		filter.setReadOnly(false);
+		if (selectedValue != null) {
+			if (availableValues.contains(selectedValue)) {
+				filter.setValue(selectedValue);
+				setter.accept(selectedValue);
 			} else {
-				this.ageGroupFilter.clear();
-				setAgeGroup(null);
+				filter.clear();
+				setter.accept(null);
 			}
 		}
 	}

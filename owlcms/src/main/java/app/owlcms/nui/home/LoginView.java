@@ -60,6 +60,7 @@ public class LoginView extends Composite<VerticalLayout>
 	public LoginView() {
 		this.pinField.setClearButtonVisible(true);
 		this.pinField.setRevealButtonVisible(true);
+		this.pinField.setAutofocus(true);
 		this.pinField.setLabel(Translator.translate("EnterPin"));
 		this.pinField.setWidthFull();
 		this.pinField.addValueChangeListener(event -> {
@@ -147,7 +148,7 @@ public class LoginView extends Composite<VerticalLayout>
 		String requestedUrl = OwlcmsSession.getRequestedUrl();
 		if (requestedUrl != null) {
 			UI.getCurrent().navigate(requestedUrl, OwlcmsSession.getRequestedQueryParameters());
-		} else if (Config.getCurrent().featureSwitch("recordsOnly")) {
+		} else if (Config.getCurrent().isRecordRepository()) {
 			UI.getCurrent().navigate(RecordsNavigationContent.class);
 		} else {
 			UI.getCurrent().navigate(HomeNavigationContent.class);

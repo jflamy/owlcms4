@@ -29,7 +29,7 @@ public interface RequireDisplayLogin extends BeforeEnterObserver {
 	@Override
 	public default void beforeEnter(BeforeEnterEvent event) {
 		OwlcmsFactory.waitDBInitialized();
-		if (Config.getCurrent().featureSwitch("recordsOnly")) {
+		if (Config.getCurrent().isRecordRepository()) {
 			if (OwlcmsSession.isAuthenticated()) {
 				event.forwardTo(RecordContent.class);
 			} else {

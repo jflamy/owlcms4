@@ -29,7 +29,7 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 		String path = event.getLocation().getPath();
 		QueryParameters queryParameters = event.getLocation().getQueryParameters();
 
-		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
+		boolean recordsOnly = Config.getCurrent().isRecordRepository();
 
 		// Dispatch root URL based on mode
 		if (path.isEmpty()) {
@@ -42,9 +42,23 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 			// default: fall through to normal HomeNavigationContent handling
 		}
 
-		if (recordsOnly && !isRecordsOnlyAllowedPath(path)) {
-			event.forwardTo("publicRecords");
-			return;
+		if (recordsOnly) {
+			if (isRecordsOnlyPublicPath(path)) {
+				return;
+			}
+
+			if (isRecordsOnlyAdminPath(path)) {
+				if (AccessUtils.isBackdoorAccess()) {
+					return;
+				}
+				event.forwardTo("recordsPreparation");
+				return;
+			}
+
+			if (!isRecordsOnlySecretaryPath(path)) {
+				event.forwardTo("publicRecords");
+				return;
+			}
 		}
 
 		boolean isAuthenticated = OwlcmsSession.isAuthenticated();
@@ -54,17 +68,16 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 			return;
 		}
 
-		boolean recordsOnlyProtectedPath = isRecordsOnlyProtectedPath(path);
-		if (recordsOnly && !recordsOnlyProtectedPath) {
-			return;
+		if (recordsOnly) {
+			OwlcmsSession.setRequestedUrl(path);
+			OwlcmsSession.setRequestedQueryParameters(queryParameters);
+		} else if (!path.equals(LoginView.LOGIN)) {
+			OwlcmsSession.setRequestedUrl(path);
+			OwlcmsSession.setRequestedQueryParameters(queryParameters);
 		}
 
-		if (recordsOnly && recordsOnlyProtectedPath) {
-			String clientIp = AccessUtils.getClientIp();
-			if (isExplicitlyWhitelistedOfficial(clientIp)) {
-				OwlcmsSession.setAuthenticated(true);
-				return;
-			}
+		if (recordsOnly && !isRecordsOnlySecretaryPath(path)) {
+			return;
 		}
 
 		String paramPin = Config.getCurrent().getParamPin();
@@ -91,8 +104,6 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 					OwlcmsSession.setAuthenticated(true);
 				} else if (!path.equals(LoginView.LOGIN)) {
 					// prompt user for PIN
-					OwlcmsSession.setRequestedUrl(path);
-					OwlcmsSession.setRequestedQueryParameters(queryParameters);
 					event.forwardTo(LoginView.LOGIN);
 				} else {
 					// already on login view, do nothing.
@@ -104,36 +115,29 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 		}
 	}
 
-	private static boolean isRecordsOnlyAllowedPath(String path) {
+	private static boolean isRecordsOnlyPublicPath(String path) {
 		if (path == null || path.isBlank()) {
 			return false;
 		}
-		if (path.equals(LoginView.LOGIN)
+		return path.equals(LoginView.LOGIN)
 		        || path.equals("publicRecords")
-		        || path.equals("records")
-		        || path.equals("recordsPreparation")
-		        || path.equals("preparation/config")
-		        || path.equals("preparation/recordsConfig")
-		        || path.equals("preparation/records")) {
-			return true;
-		}
-		return false;
+		        || path.equals("recordsPreparation");
 	}
 
-	private static boolean isRecordsOnlyProtectedPath(String path) {
+	private static boolean isRecordsOnlySecretaryPath(String path) {
 		if (path == null || path.isBlank()) {
 			return false;
 		}
-		return path.equals("records")
-		        || path.equals("recordsPreparation")
-		        || path.equals("preparation/config")
+		return path.equals("preparation/recordsConfig")
 		        || path.equals("preparation/recordsConfig")
 		        || path.equals("preparation/records");
 	}
 
-	private static boolean isExplicitlyWhitelistedOfficial(String clientIp) {
-		String whiteList = Config.getCurrent().getParamAccessList();
-		return whiteList != null && !whiteList.isBlank() && AccessUtils.ipIsAllowedForOfficials(clientIp);
+	private static boolean isRecordsOnlyAdminPath(String path) {
+		if (path == null || path.isBlank()) {
+			return false;
+		}
+		return path.equals("preparation/config");
 	}
 
 	private static boolean isMobileRefereeMode() {

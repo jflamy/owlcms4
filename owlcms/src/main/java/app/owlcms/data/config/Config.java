@@ -208,6 +208,12 @@ public class Config {
 		return trueIfPresent ? present : !present;
 	}
 
+	@Transient
+	@JsonIgnore
+	public boolean isRecordRepository() {
+		return featureSwitch("recordRepository") || featureSwitch("recordsOnly");
+	}
+
 	/**
 	 * Gets the default locale.
 	 *

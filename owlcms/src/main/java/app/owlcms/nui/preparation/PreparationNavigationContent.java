@@ -189,7 +189,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		if (Config.getCurrent().featureSwitch("recordsOnly")) {
+		if (Config.getCurrent().isRecordRepository()) {
 			event.forwardTo("records");
 		}
 	}

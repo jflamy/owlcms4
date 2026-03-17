@@ -38,6 +38,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
+import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -310,25 +311,14 @@ public class OwlcmsLayout extends AppLayout {
 	private Tabs getTabs() {
 		Tabs tabs = new Tabs();
 		String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
-		boolean recordsOnly = Config.getCurrent().featureSwitch("recordsOnly");
-		boolean recordsPreparation = Config.getCurrent().featureSwitch("recordsPreparation")
-		        || Boolean.TRUE.equals(OwlcmsSession.getAttribute("recordsPreparation"));
+		boolean recordsOnly = Config.getCurrent().isRecordRepository();
 		if (recordsOnly) {
-			boolean isAuthenticated = OwlcmsSession.isAuthenticated();
-			if (isAuthenticated) {
-				tabs.add(createTab(new Icon(VaadinIcon.TROPHY),
-				        Translator.translate("RecordEvent.PageTitle"),
-				        RecordsNavigationContent.class));
-				if (recordsPreparation) {
-					tabs.add(createTab(new Icon(VaadinIcon.DATABASE),
-					        Translator.translate("Configuration"),
-					        RecordsPreparationNavigationContent.class));
-				}
-			} else {
-				tabs.add(createTab(new Icon(VaadinIcon.TROPHY),
-				        Translator.translate("RecordEvent.PageTitle"),
-				        PublicRecordsContent.class));
-			}
+			tabs.add(createTab(new Icon(VaadinIcon.TROPHY),
+			        Translator.translate("RecordEvent.PageTitle"),
+			        PublicRecordsContent.class));
+			tabs.add(createTab(new Icon(VaadinIcon.DATABASE),
+			        Translator.translate("Configuration"),
+			        RecordsPreparationNavigationContent.class));
 			tabs.setOrientation(Tabs.Orientation.VERTICAL);
 			return tabs;
 		}

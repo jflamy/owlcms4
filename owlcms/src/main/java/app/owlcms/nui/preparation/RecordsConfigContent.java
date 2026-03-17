@@ -18,13 +18,18 @@ import org.vaadin.crudui.layout.CrudLayout;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -72,7 +77,12 @@ public class RecordsConfigContent extends Composite<VerticalLayout>
 
 	@Override
 	public FlexLayout createMenuArea() {
-		return new FlexLayout();
+		FlexLayout menuArea = new FlexLayout();
+		if (Config.getCurrent().isRecordRepository()) {
+			menuArea.add(createEditExportRecordsButton());
+			menuArea.add(createLogoutButton());
+		}
+		return menuArea;
 	}
 
 	@Override
@@ -117,8 +127,10 @@ public class RecordsConfigContent extends Composite<VerticalLayout>
 	@Override
 	public void setHeaderContent() {
 		this.routerLayout.setMenuTitle(getPageTitle());
+		this.routerLayout.setMenuArea(createMenuArea());
 		this.routerLayout.showLocaleDropdown(true);
 		this.routerLayout.setDrawerOpened(false);
+		this.routerLayout.updateHeader(true);
 	}
 
 	/**
@@ -165,6 +177,25 @@ public class RecordsConfigContent extends Composite<VerticalLayout>
 		OwlcmsCrudFormFactory<RecordConfig> factory = new RecordConfigEditingFormFactory(
 		        RecordConfig.class);
 		return factory;
+	}
+
+	private Button createEditExportRecordsButton() {
+		Button editExportButton = new Button(Translator.translate("RecordEvent.EditExportRecords"),
+		        buttonClickEvent -> UI.getCurrent().navigate(RecordContent.class));
+		editExportButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+		editExportButton.getElement().getStyle().set("margin-right", "1em");
+		return editExportButton;
+	}
+
+	private Button createLogoutButton() {
+		Button logoutButton = new Button("Logout", buttonClickEvent -> {
+			UI currentUi = UI.getCurrent();
+			OwlcmsSession.invalidate();
+			currentUi.getPage().setLocation("publicRecords");
+		});
+		logoutButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+		logoutButton.getElement().getStyle().set("margin-right", "1em");
+		return logoutButton;
 	}
 
 }

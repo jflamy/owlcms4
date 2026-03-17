@@ -28,11 +28,9 @@ public class DisplayLoginView extends LoginView {
 	@Override
 	protected void redirect() {
 		String requestedUrl = OwlcmsSession.getRequestedUrl();
-		if (requestedUrl != null && requestedUrl.startsWith("displays/")) {
-			// logger.debug("requestedURL starts with displays/ {}", requestedUrl);
+		if (requestedUrl != null) {
 			UI.getCurrent().navigate(requestedUrl, OwlcmsSession.getRequestedQueryParameters());
 		} else {
-			// logger.debug("requestedURL does NOT start with displays/ {}", requestedUrl);
 			UI.getCurrent().navigate(DisplayNavigationContent.class);
 		}
 	}

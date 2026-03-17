@@ -49,6 +49,7 @@ import com.vaadin.flow.data.binder.ValidationException;
 
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.components.fields.GridField;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordDefinitionReader;
@@ -180,13 +181,19 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		this.recordConfig = comp;
 		setBinder(buildBinder(operation, comp));
 
-		FormLayout recordsOrderLayout = recordOrderForm();
 		FormLayout officialLayout = officialForm();
 
-		VerticalLayout mainLayout = new VerticalLayout(
-		        recordsOrderLayout,
-		        separator(),
-		        officialLayout);
+		VerticalLayout mainLayout;
+		if (Config.getCurrent().isRecordRepository()) {
+			officialLayout.getStyle().set("margin-top", "1em");
+			mainLayout = new VerticalLayout(officialLayout);
+		} else {
+			FormLayout recordsOrderLayout = recordOrderForm();
+			mainLayout = new VerticalLayout(
+			        recordsOrderLayout,
+			        separator(),
+			        officialLayout);
+		}
 		mainLayout.setMargin(false);
 		mainLayout.setPadding(false);
 
@@ -305,19 +312,28 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		editExportRecords.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		Div div = new Div();
 		H4 nativeLabel = new H4(Translator.translate("RecordConfig.LoadedRecords"));
+		nativeLabel.getStyle().set("margin", "0");
+		nativeLabel.getStyle().set("line-height", "1.2");
 		clearNewRecords.getElement().setAttribute("title",
 			Translator.translate("RecordConfig.ClearAllRecordsExplanation"));
 		buttonTitle.add(nativeLabel,
-		        div, clearNewRecords,editExportRecords);
+		        div, clearNewRecords);
+		if (!Config.getCurrent().isRecordRepository()) {
+			buttonTitle.add(editExportRecords);
+		}
 		buttonTitle.setSpacing(true);
 		buttonTitle.setFlexGrow(1, div);
-		buttonTitle.setAlignSelf(Alignment.CENTER, nativeLabel);
+		buttonTitle.setAlignItems(Alignment.START);
+		buttonTitle.setAlignSelf(Alignment.START, nativeLabel);
 		// visual kludge
+		buttonTitle.getElement().getStyle().set("margin-top", "2em");
 		buttonTitle.getElement().getStyle().set("margin-right", "1em");
+		buttonTitle.setWidthFull();
 
-		FormItem lfi = recordsAvailableLayout.addFormItem(this.loadedField,
-		        buttonTitle);
-		recordsAvailableLayout.setColspan(lfi, 2);
+		recordsAvailableLayout.add(buttonTitle);
+		recordsAvailableLayout.setColspan(buttonTitle, 2);
+		recordsAvailableLayout.add(this.loadedField);
+		recordsAvailableLayout.setColspan(this.loadedField, 2);
 		return recordsAvailableLayout;
 	}
 
