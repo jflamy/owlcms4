@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.github.appreciated.layout.FlexibleGridLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Location;
@@ -58,6 +59,11 @@ public class RecordsNavigationContent extends BaseNavigationContent implements N
 	@Override
 	public String getPageTitle() {
 		return Translator.translate("RecordEvent.PageTitle");
+	}
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		event.forwardTo(RecordContent.class);
 	}
 
 	@Override

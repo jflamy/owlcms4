@@ -318,9 +318,6 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 			Translator.translate("RecordConfig.ClearAllRecordsExplanation"));
 		buttonTitle.add(nativeLabel,
 		        div, clearNewRecords);
-		if (!Config.getCurrent().isRecordRepository()) {
-			buttonTitle.add(editExportRecords);
-		}
 		buttonTitle.setSpacing(true);
 		buttonTitle.setFlexGrow(1, div);
 		buttonTitle.setAlignItems(Alignment.START);

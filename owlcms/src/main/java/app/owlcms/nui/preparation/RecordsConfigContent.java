@@ -78,8 +78,8 @@ public class RecordsConfigContent extends Composite<VerticalLayout>
 	@Override
 	public FlexLayout createMenuArea() {
 		FlexLayout menuArea = new FlexLayout();
+		menuArea.add(createEditExportRecordsButton());
 		if (Config.getCurrent().isRecordRepository()) {
-			menuArea.add(createEditExportRecordsButton());
 			menuArea.add(createLogoutButton());
 		}
 		return menuArea;
@@ -128,7 +128,7 @@ public class RecordsConfigContent extends Composite<VerticalLayout>
 	public void setHeaderContent() {
 		this.routerLayout.setMenuTitle(getPageTitle());
 		this.routerLayout.setMenuArea(createMenuArea());
-		this.routerLayout.showLocaleDropdown(true);
+		this.routerLayout.showLocaleDropdown(Config.getCurrent().isRecordRepository());
 		this.routerLayout.setDrawerOpened(false);
 		this.routerLayout.updateHeader(true);
 	}

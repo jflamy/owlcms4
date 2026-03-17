@@ -148,26 +148,18 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		// Add Remove Selected button
 		Button removeSelectedButton = createRemoveSelectedButton();
 
+		this.topBar.add(exportRecordsButton, createImportButton(), recomputeRecordsButton,
+		        acceptProvisionalRecordsButton, keepLatestOfficialRecordsButton, removeSelectedButton);
 		if (Config.getCurrent().isRecordRepository()) {
-			this.topBar.add(exportRecordsButton, createImportButton(), recomputeRecordsButton,
-			        acceptProvisionalRecordsButton, keepLatestOfficialRecordsButton, removeSelectedButton,
-			        createLogoutButton());
-		} else {
-			this.topBar.add(exportRecordsButton, recomputeRecordsButton, acceptProvisionalRecordsButton,
-			        keepLatestOfficialRecordsButton, removeSelectedButton);
+			this.topBar.add(createLogoutButton());
 		}
 
 		return this.topBar;
 	}
 
 	protected void applyRecordsOnlyToolbarOffset() {
-		if (Config.getCurrent().isRecordRepository()) {
-			this.topBar.getStyle().set("margin-left", "1.5em");
-			this.topBar.getStyle().set("padding-left", "0");
-		} else {
-			this.topBar.getStyle().remove("margin-left");
-			this.topBar.getStyle().remove("padding-left");
-		}
+		this.topBar.getStyle().set("margin-left", "1.5em");
+		this.topBar.getStyle().set("padding-left", "0");
 	}
 
 	protected Button createImportButton() {

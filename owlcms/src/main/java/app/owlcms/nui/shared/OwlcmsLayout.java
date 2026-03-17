@@ -50,6 +50,7 @@ import app.owlcms.nui.home.InfoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.nui.preparation.PublicRecordsContent;
+import app.owlcms.nui.preparation.RecordContent;
 import app.owlcms.nui.preparation.RecordsNavigationContent;
 import app.owlcms.nui.preparation.RecordsPreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
@@ -348,7 +349,7 @@ public class OwlcmsLayout extends AppLayout {
 		                ResultsNavigationContent.class),
 		        createTab(new Icon(VaadinIcon.TROPHY),
 		                Translator.translate("RecordEvent.PageTitle"),
-		                RecordsNavigationContent.class),
+		                RecordContent.class),
 		        createTab(new Icon(VaadinIcon.QUESTION_CIRCLE),
 		                Translator.translate("Documentation_Menu"),
 		                docOpener),
