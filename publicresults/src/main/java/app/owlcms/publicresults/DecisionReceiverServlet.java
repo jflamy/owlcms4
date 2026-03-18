@@ -84,7 +84,7 @@ public class DecisionReceiverServlet extends HttpServlet implements Traceable {
         String eventTypeString = req.getParameter("decisionEventType");
         DecisionEventType eventType = null;
         try {
-            eventType = DecisionEventType.valueOf(eventTypeString);
+            eventType = parseDecisionEventType(eventTypeString);
             decisionEvent.setEventType(eventType);
         } catch (Exception e) {
             this.getLogger().warn("ignoring unknown decision event type {}", eventTypeString);
@@ -120,6 +120,13 @@ public class DecisionReceiverServlet extends HttpServlet implements Traceable {
 
     void setLogger(Logger logger) {
         this.logger = logger;
+    }
+
+    private DecisionEventType parseDecisionEventType(String eventTypeString) {
+        if ("initialDecision".equals(eventTypeString)) {
+            return DecisionEventType.INITIAL_DECISION;
+        }
+        return DecisionEventType.valueOf(eventTypeString);
     }
 
 }

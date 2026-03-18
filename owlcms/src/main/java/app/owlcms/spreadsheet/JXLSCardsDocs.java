@@ -39,7 +39,7 @@ public class JXLSCardsDocs extends JXLSWorkbookStreamSource {
 	private final static Logger logger = LoggerFactory.getLogger(JXLSCardsDocs.class);
 
 	public JXLSCardsDocs() {
-		logger.debug("*** JXLSCardsDocs created");
+		logger.debug("JXLSCardsDocs created");
 	}
 
 	@Override

@@ -158,7 +158,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	public void accept(OutputStream stream, VaadinSession session) throws IOException {
 		try {
 			session.lock();
-			logger.debug("*** getting {}", getBestLifterScoringSystem());
+			logger.debug("getting {}", getBestLifterScoringSystem());
 			writeStream(stream);
 		} catch (Throwable t) {
 			LoggerUtils.logError(logger, t);
@@ -170,7 +170,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	@Override
 	public InputStream createInputStream() {
-		logger.debug("============== createInputStream called {}\n", LoggerUtils.stackTrace());
+		logger.debug("createInputStream called {}\n", LoggerUtils.stackTrace());
 		// IMPORTANT: do NOT access VaadinSession or UI here. Pre-checks that require
 		// UI/Session must be executed by the caller (for example LazyDownloadButton.preCheck()).
 	// Return the background-driven InputStream immediately so Vaadin can stream it.
@@ -395,7 +395,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 * jxls transform helpers already defined in this class.
 	 */
 	protected void writeStream(OutputStream stream) throws IOException {
-		logger.debug("*** writeStream ***{}", this.getClass().getName());
+		logger.debug("writeStream {}", this.getClass().getName());
 		File tempFile = null;
 		InputStream template = null;
 		try {
@@ -451,12 +451,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	public void setSortedAthletes(List<Athlete> athletes) {
-		logger.debug("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% === setSortedAthletes called, {} athletes {}", athletes != null ? athletes.size() : 0, LoggerUtils.whereFrom());
+		logger.debug("setSortedAthletes called, {} athletes {}", athletes != null ? athletes.size() : 0, LoggerUtils.whereFrom());
 		this.sortedAthletes = athletes;
 	}
 
 	public void setGroup(Group group) {
-		logger.debug("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% setGroup called, group = {} {}", group, LoggerUtils.whereFrom());
+		logger.debug("setGroup called, group = {} {}", group, LoggerUtils.whereFrom());
 		this.group = group;
 	}
 

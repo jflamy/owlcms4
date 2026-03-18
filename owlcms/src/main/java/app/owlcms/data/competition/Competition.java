@@ -371,7 +371,7 @@ public class Competition {
 		// Trace the IDs of the ranked athletes
 		logger.trace("computeMedals: rankedAthletes IDs: {}", rankedAthletes == null ? null : rankedAthletes.stream().map(a -> a.getId()).toList());
 		var medals = computeMedals(g, rankedAthletes);
-		logger.debug("*** ranked athletes for group {} {}", g, rankedAthletes.size());// rankedAthletes.stream().map(a -> a.getLastName()).toList());
+		logger.debug("ranked athletes for group {} {}", g, rankedAthletes.size());// rankedAthletes.stream().map(a -> a.getLastName()).toList());
 		return medals;
 	}
 

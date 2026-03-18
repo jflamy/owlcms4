@@ -1554,7 +1554,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		Level level = logger.getLevel();
 		try {
 			logger.setLevel(Level.TRACE);
-			logger.trace("=== {}\n{}", string, string2);
+			logger.trace("{}\n{}", string, string2);
 			for (Entry<String, String> m : map.entrySet()) {
 				if (m.getKey() == "updateKey") {
 					logger.trace(" {} = {}", m.getKey(), m.getValue() != null ? "masked " + m.getValue().length() : "masked null value");
@@ -1796,11 +1796,22 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		String videoUrl = current.getParamVideoDataDecisionUrl();
 
 		setLastDecisionMap(createDecision(e, det));
+		if (det == DecisionEventType.INITIAL_DECISION || det == DecisionEventType.FULL_DECISION) {
+			logger.warn("{} forwarding decision event {} d1={} d2={} d3={} decisionUrl={} videoUrl={} {}",
+					FieldOfPlay.getLoggingName(getFop()),
+					det,
+					getDecisionLight1(),
+					getDecisionLight2(),
+					getDecisionLight3(),
+					decisionUrl,
+					videoUrl,
+					LoggerUtils.whereFrom());
+		}
 		if (decisionUrl == null && videoUrl == null) {
 			return;
 		}
 		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap());
-		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap());
+		sendPost(decisionUrl, current.getParamUpdateKey(), getLastDecisionMap());
 	}
 
 	private void pushDecision(JuryNotification e) {
@@ -1814,7 +1825,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 
 		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap());
-		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap());
+		sendPost(decisionUrl, current.getParamUpdateKey(), getLastDecisionMap());
 	}
 
 	private synchronized void pushTimer(UIEvent e) {
@@ -1836,7 +1847,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 
 		sendPost(videoUrl, current.getParamVideoDataKey(), getLastTimerMap());
-		sendPost(timerUrl, current.getUpdatekey(), getLastTimerMap());
+		sendPost(timerUrl, current.getParamUpdateKey(), getLastTimerMap());
 	}
 
 	/**

@@ -278,7 +278,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		Gender currentGender = this.getGenderFilter().getValue();
 
 		List<Athlete> rankedAthletes = AthleteSorter.assignCategoryRanks(getCurrentGroup());
-		logger.debug("=== ResultsContent ranked athletes {}", rankedAthletes.size());
+		logger.debug("ResultsContent ranked athletes {}", rankedAthletes.size());
 
 		// unfinished categories need to be computed using all relevant athletes, including not weighed-in yet
 		UnfinishedCategories unfinishedCategories = AthleteRepository.allUnfinishedCategories();

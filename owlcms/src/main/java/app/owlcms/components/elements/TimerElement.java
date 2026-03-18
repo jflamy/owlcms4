@@ -145,7 +145,7 @@ public abstract class TimerElement extends LitTemplate
 
 	protected final void doSetTimer(Integer milliseconds) {
 		if (this.logger.isDebugEnabled()) {
-		this.logger.debug("====== {} doSetTimer {} {}", this, milliseconds,
+		this.logger.debug("{} doSetTimer {} {}", this, milliseconds,
 		        LoggerUtils.stackTrace());
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
@@ -157,7 +157,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
-		this.logger.debug("====== {} doStartTimer {}", this, milliseconds);
+		this.logger.debug("{} doStartTimer {}", this, milliseconds);
 		setServerSound(serverSound);
 		// String trace = LoggerUtils.stackTrace();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {

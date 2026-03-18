@@ -100,6 +100,12 @@ public class DecisionElementPR extends LitTemplate
                         logger.debug("showing down");
                         this.getElement().callJsFunction("showDown", false, isSilenced());
                         break;
+                    case INITIAL_DECISION:
+                        logger.debug("calling initial decision");
+                        this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(),
+                                de.getDecisionLight2(),
+                                de.getDecisionLight3());
+                        break;
                     case FULL_DECISION:
                         logger.debug("calling full decision");
                         this.getElement().callJsFunction("showDecisions", false, de.getDecisionLight1(),

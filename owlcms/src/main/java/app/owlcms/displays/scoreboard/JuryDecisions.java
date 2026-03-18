@@ -311,7 +311,7 @@ public class JuryDecisions extends BaseResults {
 		Element element = getElement();
 		BoardMode bm = computeBoardMode(fopState, breakType, fop.getCeremonyType());
 		if (logger.isDebugEnabled())
-			logger.debug("********* setting board mode {} {}", bm.name(), LoggerUtils.whereFrom());
+			logger.debug("setting board mode {} {}", bm.name(), LoggerUtils.whereFrom());
 		switch (bm) {
 			case WAIT:
 				element.setProperty("mode", "WAIT");

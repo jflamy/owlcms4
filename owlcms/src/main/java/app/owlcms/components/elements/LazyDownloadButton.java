@@ -76,10 +76,10 @@ public class LazyDownloadButton extends Button {
 	 * Run preCheck() on known workbook stream sources. Returns Optional.empty() when no error.
 	 */
 	private Optional<Exception> runPreCheck() {
-		logger.debug("*** LazyDownloadButton.runPreCheck");
+		logger.debug("LazyDownloadButton.runPreCheck");
 		InputStreamFactory cb = getInputStreamCallback();
 		if (cb instanceof XLSXWorkbookStreamSource) {
-			logger.debug("*** LazyDownloadButton.runPreCheck: XLSXWorkbookStreamSource");
+			logger.debug("LazyDownloadButton.runPreCheck: XLSXWorkbookStreamSource");
 			try {
 				return ((XLSXWorkbookStreamSource) cb).prepare();
 			} catch (Exception e) {
@@ -89,7 +89,7 @@ public class LazyDownloadButton extends Button {
 			}
 		}
 		if (cb instanceof JXLSWorkbookStreamSource) {
-			logger.debug("*** LazyDownloadButton.runPreCheck: JXLSWorkbookStreamSource");
+			logger.debug("LazyDownloadButton.runPreCheck: JXLSWorkbookStreamSource");
 			try {
 				return ((JXLSWorkbookStreamSource) cb).prepare();
 			} catch (Exception e) {
@@ -97,7 +97,7 @@ public class LazyDownloadButton extends Button {
 				return Optional.of(e);
 			}
 		}
-		logger.debug("*** LazyDownloadButton.runPreCheck: no preCheck {}", LoggerUtils.whereFrom());
+		logger.debug("LazyDownloadButton.runPreCheck: no preCheck {}", LoggerUtils.whereFrom());
 		return Optional.empty();
 	}
 
@@ -248,12 +248,12 @@ public class LazyDownloadButton extends Button {
 						}
 						return;
 					}
-					logger.debug("*** LazyDownloadButton creating DownloadHandler");
+					logger.debug("LazyDownloadButton creating DownloadHandler");
 					DownloadHandler downloadHandler = DownloadHandler.fromInputStream(
 					        (downloadEvent) -> {
 						        try {
 							        InputStream downloadStream = getInputStreamCallback().createInputStream();
-							        logger.debug("*** LazyDownloadButton created download stream: {}", downloadStream);
+									logger.debug("LazyDownloadButton created download stream: {}", downloadStream);
 
 							        // If the stream is our wrapper, poll briefly for a fast writer failure and
 							        // return an error response immediately if one occurred.
