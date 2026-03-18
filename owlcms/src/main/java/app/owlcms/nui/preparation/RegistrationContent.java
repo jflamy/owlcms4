@@ -512,7 +512,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			try {
 				AthleteSorter.registrationOrder(regCatAthletesList);
 			} catch (Exception e) {
-				logger.error("***** Error sorting athletes", e);
+				logger.error("Error sorting athletes", e);
 			}
 		}
 

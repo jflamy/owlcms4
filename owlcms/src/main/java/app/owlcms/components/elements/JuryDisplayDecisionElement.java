@@ -61,7 +61,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
+			uiEventLogger.debug("{} break start -> reset", this.getOrigin());
 			doReset();
 		});
 	}
@@ -79,7 +79,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		// Only reset if this is not a jury break that we just created
 		if (this.fop != null && this.fop.getBreakType() != BreakType.JURY) {
 			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-				uiEventLogger.debug("*** {} break start -> reset", this.getOrigin());
+				uiEventLogger.debug("{} break start -> reset", this.getOrigin());
 				doReset();
 			});
 		}

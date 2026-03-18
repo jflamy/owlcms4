@@ -320,7 +320,7 @@ public class BaseResults extends LitTemplate
 
 	@Override
 	public final void setEmFontSize(Double emFontSize) {
-		logger.debug("%%%%% setEmFontSize {}", emFontSize);
+		logger.debug("setEmFontSize {}", emFontSize);
 		this.emFontSize = emFontSize;
 		pushEmSize(this.getElement());
 	}

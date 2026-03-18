@@ -329,6 +329,18 @@ public class ResultsPR extends LitTemplate
                     this.getElement().setProperty("decisionVisible", true);
                 });
                 break;
+            case INITIAL_DECISION:
+                this.decisionVisible = true;
+                if (this.ui == null || this.ui.isClosing()) {
+                    return;
+                }
+                this.ui.access(() -> {
+                    setBoardMode(e.getMode());
+                    this.getElement().setProperty("decisionVisible", true);
+                    this.getElement().setProperty("recordKind", "");
+                    this.getElement().setProperty("recordMessage", "");
+                });
+                break;
             case RESET:
                 this.decisionVisible = false;
                 if (this.ui == null || this.ui.isClosing()) {

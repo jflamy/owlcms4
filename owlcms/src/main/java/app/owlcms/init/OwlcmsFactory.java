@@ -133,7 +133,7 @@ public class OwlcmsFactory {
 		for (Platform platform : PlatformRepository.findAll()) {
 			registerEmptyFOP(platform);
 		}
-		logger.trace("*** after initFOPByName {}", getFopByName() != null ? getFopByName().size() : null);
+		logger.trace("after initFOPByName {}", getFopByName() != null ? getFopByName().size() : null);
 	}
 
 	public static FieldOfPlay registerEmptyFOP(Platform platform) {
@@ -195,7 +195,7 @@ public class OwlcmsFactory {
 	public static void waitDBInitialized() {
 		try {
 			CountDownLatch initializationLatch = OwlcmsFactory.getInitializationLatch();
-			logger.debug("******** latch.getCount() {}", latch.getCount());
+			logger.debug("latch.getCount() {}", latch.getCount());
 			initializationLatch.await();
 		} catch (InterruptedException e) {
 		}

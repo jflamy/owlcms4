@@ -544,7 +544,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		        		                this));
 		        		setMedalGroup(g);
 		        		setMedalCategory(c);
-		        		this.logger.info("======= switching {} to {} {}", currentFop, g.getName() != null ? g.getName() : "-",
+		        		this.logger.info("switching {} to {} {}", currentFop, g.getName() != null ? g.getName() : "-",
 		        		        c != null ? c.getNameWithAgeGroup() : "");
 		        		currentFop.getUiEventBus().post(new UIEvent.CeremonyStarted(CeremonyType.MEDALS, g, c, LoggerUtils.stackTrace(), this, currentFop));
 		        		currentFop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c, currentFop));
@@ -1138,7 +1138,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	}
 
 	private void setDurationField(Duration duration) {
-		logger.debug("=========== {} {}", duration, LoggerUtils.whereFrom());
+		logger.debug("{} {}", duration, LoggerUtils.whereFrom());
 		this.durationField.setValue(duration);
 	}
 

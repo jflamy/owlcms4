@@ -642,7 +642,7 @@ public class UIEvent {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
 			this.setActualLift(actualLift);
-			this.logger.trace("====== JuryNotification wait {} newRecord {} {}", waitForAnnouncer, getNewRecord(), getTrace());
+			this.logger.trace("JuryNotification wait {} newRecord {} {}", waitForAnnouncer, getNewRecord(), getTrace());
 		}
 
 		/**

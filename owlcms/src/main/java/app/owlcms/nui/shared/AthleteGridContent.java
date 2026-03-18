@@ -1652,10 +1652,10 @@ public abstract class AthleteGridContent extends BaseContent
 			String string = Translator.translate("NoGroupSelected");
 			String text = group == null ? "\u2013" : string;
 			if (!this.initialBar) {
-				logger.debug("====== initial bar");
+				logger.debug("initial bar");
 				topBarMessage(string, text);
 			} else {
-				logger.debug("====== hiding buttons");
+				logger.debug("hiding buttons");
 				hideButtons();
 				this.warning.setText(string);
 			}

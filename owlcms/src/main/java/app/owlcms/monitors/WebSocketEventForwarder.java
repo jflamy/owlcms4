@@ -1627,7 +1627,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		Level level = logger.getLevel();
 		try {
 			logger.setLevel(Level.TRACE);
-			logger.trace("=== {}\n{}", string, string2);
+			logger.trace("{}\n{}", string, string2);
 			for (Entry<String, String> m : map.entrySet()) {
 				if (m.getKey() == "updateKey") {
 					logger.trace(" {} = {}", m.getKey(), m.getValue() != null ? "masked " + m.getValue().length() : "masked null value");

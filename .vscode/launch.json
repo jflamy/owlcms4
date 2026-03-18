@@ -155,7 +155,34 @@
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_PORT": "8081",
-        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
+        //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
+        "OWLCMS_VIDEODATA": "wss://fhq.fly.dev/ws"
+      }
+    },
+    {
+      "type": "java",
+      "name": "🟩 WS large demo owlcms memory tandem",
+      "request": "launch",
+      "mainClass": "${config:owlcms.mainClass}",
+      "projectName": "owlcms",
+      "cwd": "${workspaceFolder}/owlcms",
+      "vmArgs": "${config:owlcms.vmArgs}",
+      "windows": {
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+      },
+      "linux": {
+        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+      },
+      "osx": {
+        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+      },
+      "env": {
+        "OWLCMS_MEMORYMODE": "true",
+        "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
+        "OWLCMS_PORT": "8081",
+        "OWLCMS_REMOTE": "http://localhost:8082",
+        "OWLCMS_FEATURESWITCHES": "noForwarderKeepAlive",
+        //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
         //"OWLCMS_VIDEODATA": "wss://fhq.fly.dev/ws"
       }
     },
@@ -248,6 +275,13 @@
       "configurations": [
         "🟨 WS owlcms no reset",
         "🔳 OWLCMS Tracker - Learning Mode"
+      ]
+    },
+    {
+      "name": "🟪 WS large demo + publicresults",
+      "configurations": [
+        "🟩 WS large demo owlcms memory tandem",
+        "🟠 tandem publicresults"
       ]
     }
   ]

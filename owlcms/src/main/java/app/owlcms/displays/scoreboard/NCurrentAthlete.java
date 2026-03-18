@@ -216,7 +216,7 @@ public class NCurrentAthlete extends Results {
 	@Override
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
-		if (logger.isDebugEnabled()) logger.debug("****************** slaveOrderUpdated called with event: {}", e);
+		if (logger.isDebugEnabled()) logger.debug("slaveOrderUpdated called with event: {}", e);
 		FieldOfPlay fop = e.getFop();
 		FOPState state = fop.getState();
 		if (state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE) {
@@ -436,7 +436,7 @@ public class NCurrentAthlete extends Results {
 		BreakType breakType = fop.getBreakType();
 		Element element = this.getElement();
 		BoardMode bm = computeBoardMode(fopState, breakType, fop.getCeremonyType());
-		if (logger.isDebugEnabled()) logger.debug("********* setting board mode {} {}",bm.name(), LoggerUtils.whereFrom());
+		if (logger.isDebugEnabled()) logger.debug("setting board mode {} {}", bm.name(), LoggerUtils.whereFrom());
 		switch (bm) {
 			case WAIT:
 				element.setProperty("mode", "WAIT");

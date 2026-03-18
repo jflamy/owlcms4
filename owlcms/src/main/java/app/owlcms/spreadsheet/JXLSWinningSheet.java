@@ -59,7 +59,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		var sa = this.getSortedAthletes();
 		// Championship championship = getChampionship();
 		if (sa != null) {
-			 logger.trace("%%% sortedAthletes.size()={}",sa.size());
+			 logger.trace("sortedAthletes.size()={}", sa.size());
 			// we are provided with an externally computed list.
 			if (this.resultsByCategory) {
 				if (!sa.isEmpty()) {

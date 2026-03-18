@@ -1769,7 +1769,7 @@ public class FieldOfPlay implements IUnregister {
 	private void checkDeferredWeightChanges() {
 		if (!this.deferredWeightChanges.isEmpty()) {
 			// decision reset did not happen, we have pending weight changes.
-			this.logger.error("*** Can't happen: Weight changes during down/decision display, but no decision reset");
+			this.logger.error("Can't happen: Weight changes during down/decision display, but no decision reset");
 			recomputeLiftingOrder(true, true);
 		}
 	}
@@ -1862,7 +1862,7 @@ public class FieldOfPlay implements IUnregister {
 
 			
 			boolean waitForAnnouncer = Competition.getCurrent().isAnnouncerControlledJuryDecision() && e.isJuryButton();
-			logger.debug("=========== waitForAnnouncer={} isJuryButton={} ", waitForAnnouncer,  e.isJuryButton());
+			logger.debug("waitForAnnouncer={} isJuryButton={}", waitForAnnouncer, e.isJuryButton());
 			JuryNotification juryNotificationEvent = new UIEvent.JuryNotification(a, e.getOrigin(),
 			        e.success ? JuryDeliberationEventType.GOOD_LIFT : JuryDeliberationEventType.BAD_LIFT,
 			        reversalToGood || reversalToBad, newRecord,
@@ -2264,7 +2264,7 @@ public class FieldOfPlay implements IUnregister {
 	 * @param refIndex
 	 */
 	private void processJuryMemberDecisions(Object origin, int refIndex) {
-		this.logger.debug("*** process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(),
+		this.logger.debug("process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(),
 		        getJuryMemberDecision()[0], getJuryMemberDecision()[1], getJuryMemberDecision()[2]);
 		int jurySize = Competition.getCurrent().getJurySize();
 		showJuryMemberDecisionReceived(this, refIndex, getJuryMemberDecision(), jurySize);
@@ -2415,7 +2415,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void pushOutDone() {
-		this.logger.debug("{} *** group {} done", FieldOfPlay.getLoggingName(this), getGroup());
+		this.logger.debug("{} group {} done", FieldOfPlay.getLoggingName(this), getGroup());
 		UIEvent.GroupDone event = new UIEvent.GroupDone(this.getGroup(), null, LoggerUtils.whereFrom(), this);
 		// make sure the publicresults update carries the right state.
 		this.setBreakType(BreakType.GROUP_DONE);
@@ -3040,12 +3040,12 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void setLastChallengedRecords(List<RecordEvent> challengedRecords) {
-		this.logger.debug("{} + lastChallengedRecords {}", FieldOfPlay.getLoggingName(this), challengedRecords);
+		this.logger.debug("{} lastChallengedRecords {}", FieldOfPlay.getLoggingName(this), challengedRecords);
 		this.lastChallengedRecords = challengedRecords;
 	}
 
 	private void setLastNewRecords(List<RecordEvent> newRecords) {
-		this.logger.debug("{} + lastNewRecords {}", FieldOfPlay.getLoggingName(this), newRecords);
+		this.logger.debug("{} lastNewRecords {}", FieldOfPlay.getLoggingName(this), newRecords);
 		this.lastNewRecords = newRecords;
 	}
 
@@ -3664,7 +3664,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
-		logger.debug("*** referee decisions {} {} {}\n{}", e.ref1, e.ref2, e.ref3, LoggerUtils.stackTrace());
+		logger.debug("referee decisions {} {} {}\n{}", e.ref1, e.ref2, e.ref3, LoggerUtils.stackTrace());
 
 		// it is not possible to go from a non-null decision that was given back to null
 		// this would indicate an event out of order.
