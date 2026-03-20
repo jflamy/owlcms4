@@ -83,11 +83,29 @@ public class ChampionshipRepository {
 			return (Long) em.createQuery("select count(c) from Championship c").getSingleResult();
 		});
 		if (count > 0) {
+			migrateScoringFieldsIfNeeded();
 			logger.debug("Championship table already has {} rows, skipping bootstrap", count);
 			return;
 		}
 		logger.info("Bootstrapping Championship table from persisted age groups");
 		reconcileFromAgeGroups();
+	}
+
+	private static void migrateScoringFieldsIfNeeded() {
+		JPAService.runInTransaction(em -> {
+			TypedQuery<Championship> query = em.createQuery(
+			        "select c from Championship c where c.scoringSystem is null", Championship.class);
+			List<Championship> championshipsNeedingMigration = query.getResultList();
+			for (Championship championship : championshipsNeedingMigration) {
+				championship.populateScoringDefaults();
+				em.merge(championship);
+				logger.info("Migrated scoring fields for championship '{}'", championship.getName());
+			}
+			if (!championshipsNeedingMigration.isEmpty()) {
+				em.flush();
+			}
+			return null;
+		});
 	}
 
 	/**
@@ -136,6 +154,7 @@ public class ChampionshipRepository {
 
 				if (existing.isEmpty()) {
 					Championship c = new Championship(name, type);
+					c.populateScoringDefaults();
 					em.persist(c);
 					logger.info("Created stored championship: name='{}', type='{}'", name, type);
 				} else {
@@ -143,8 +162,11 @@ public class ChampionshipRepository {
 					if (c.getType() != type) {
 						logger.info("Updated championship type: name='{}', {} -> {}", name, c.getType(), type);
 						c.setType(type);
-						em.merge(c);
 					}
+					if (c.getScoringSystem() == null) {
+						c.populateScoringDefaults();
+					}
+					em.merge(c);
 				}
 			}
 

@@ -9,7 +9,6 @@ package app.owlcms.data.agegroup;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +26,7 @@ import javax.persistence.Id;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -78,6 +78,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 		Championship championship = allChampionshipsMap.get(canonicalName);
 		if (championship == null) {
 			Championship newChampionship = new Championship(canonicalName, canonicalType);
+			newChampionship.populateScoringDefaults();
 			newChampionship = ChampionshipRepository.save(newChampionship);
 			allChampionshipsMap.put(canonicalName, newChampionship);
 			logger.debug("Added to map and DB: key='{}', name='{}', type='{}'", canonicalName, newChampionship.getName(), newChampionship.getType());
@@ -222,6 +223,32 @@ public class Championship implements Comparable<Championship>, Serializable {
 	@Enumerated(EnumType.STRING)
 	private ChampionshipType type;
 
+	@Enumerated(EnumType.STRING)
+	private Ranking scoringSystem;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking bestAthleteScoringSystem;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking bestSnatchScoringSystem;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking bestCJScoringSystem;
+
+	@Column(columnDefinition = "boolean default false")
+	private boolean snatchCJTotalMedals = false;
+
+	private Integer teamPoints1st;
+	private Integer teamPoints2nd;
+	private Integer teamPoints3rd;
+
+	private Integer mensBestN;
+	private Integer womensBestN;
+	private Integer mixedBestN;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking teamScoringSystem;
+
 	public Championship() {
 	}
 
@@ -246,6 +273,54 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public String getName() {
 		return this.name;
+	}
+
+	public Ranking getScoringSystem() {
+		return this.scoringSystem;
+	}
+
+	public Ranking getBestAthleteScoringSystem() {
+		return this.bestAthleteScoringSystem;
+	}
+
+	public Ranking getBestSnatchScoringSystem() {
+		return this.bestSnatchScoringSystem;
+	}
+
+	public Ranking getBestCJScoringSystem() {
+		return this.bestCJScoringSystem;
+	}
+
+	public boolean isSnatchCJTotalMedals() {
+		return this.snatchCJTotalMedals;
+	}
+
+	public Integer getTeamPoints1st() {
+		return this.teamPoints1st;
+	}
+
+	public Integer getTeamPoints2nd() {
+		return this.teamPoints2nd;
+	}
+
+	public Integer getTeamPoints3rd() {
+		return this.teamPoints3rd;
+	}
+
+	public Integer getMensBestN() {
+		return this.mensBestN;
+	}
+
+	public Integer getWomensBestN() {
+		return this.womensBestN;
+	}
+
+	public Integer getMixedBestN() {
+		return this.mixedBestN;
+	}
+
+	public Ranking getTeamScoringSystem() {
+		return this.teamScoringSystem;
 	}
 
 	public ChampionshipType getType() {
@@ -278,8 +353,86 @@ public class Championship implements Comparable<Championship>, Serializable {
 		}
 	}
 
+	public void setScoringSystem(Ranking scoringSystem) {
+		this.scoringSystem = scoringSystem;
+	}
+
+	public void setBestAthleteScoringSystem(Ranking bestAthleteScoringSystem) {
+		this.bestAthleteScoringSystem = bestAthleteScoringSystem;
+	}
+
+	public void setBestSnatchScoringSystem(Ranking bestSnatchScoringSystem) {
+		this.bestSnatchScoringSystem = bestSnatchScoringSystem;
+	}
+
+	public void setBestCJScoringSystem(Ranking bestCJScoringSystem) {
+		this.bestCJScoringSystem = bestCJScoringSystem;
+	}
+
+	public void setSnatchCJTotalMedals(boolean snatchCJTotalMedals) {
+		this.snatchCJTotalMedals = snatchCJTotalMedals;
+	}
+
+	public void setTeamPoints1st(Integer teamPoints1st) {
+		this.teamPoints1st = teamPoints1st;
+	}
+
+	public void setTeamPoints2nd(Integer teamPoints2nd) {
+		this.teamPoints2nd = teamPoints2nd;
+	}
+
+	public void setTeamPoints3rd(Integer teamPoints3rd) {
+		this.teamPoints3rd = teamPoints3rd;
+	}
+
+	public void setMensBestN(Integer mensBestN) {
+		this.mensBestN = mensBestN;
+	}
+
+	public void setWomensBestN(Integer womensBestN) {
+		this.womensBestN = womensBestN;
+	}
+
+	public void setMixedBestN(Integer mixedBestN) {
+		this.mixedBestN = mixedBestN;
+	}
+
+	public void setTeamScoringSystem(Ranking teamScoringSystem) {
+		this.teamScoringSystem = teamScoringSystem;
+	}
+
 	public void setType(ChampionshipType type) {
 		this.type = type;
+	}
+
+	public void populateScoringDefaults() {
+		Competition comp = Competition.getCurrent();
+		if (comp == null) {
+			return;
+		}
+		this.scoringSystem = comp.getScoringSystem();
+		this.bestAthleteScoringSystem = comp.getScoringSystem();
+		this.snatchCJTotalMedals = comp.isSnatchCJTotalMedals();
+		this.teamPoints1st = comp.getTeamPoints1st();
+		this.teamPoints2nd = comp.getTeamPoints2nd();
+		this.teamPoints3rd = comp.getTeamPoints3rd();
+		this.mensBestN = comp.getMensBestN();
+		this.womensBestN = comp.getWomensBestN();
+		this.mixedBestN = comp.getMixedBestNElseDefault();
+		this.teamScoringSystem = Ranking.GAMX;
+
+		List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, this, null, true, -1, -1);
+		for (AgeGroup ageGroup : ageGroups) {
+			if (ageGroup.getScoringSystem() != null) {
+				this.scoringSystem = ageGroup.getScoringSystem();
+			}
+			if (ageGroup.getBestAthleteScoringSystem() != null) {
+				this.bestAthleteScoringSystem = ageGroup.getBestAthleteScoringSystem();
+			}
+		}
+
+		this.bestSnatchScoringSystem = this.bestAthleteScoringSystem;
+		this.bestCJScoringSystem = this.bestAthleteScoringSystem;
 	}
 
 	@Override
@@ -304,45 +457,6 @@ public class Championship implements Comparable<Championship>, Serializable {
 	public String translate() {
 		String tr = Translator.translateOrElseNull("Championship." + getName(), OwlcmsSession.getLocale());
 		return tr != null ? tr : getName();
-	}
-	
-	/**
-	 * Gets the best athlete scoring system from the age groups in this championship.
-	 * Uses majority vote - returns the scoring system used by most age groups.
-	 * 
-	 * @param ageGroupPrefix the age group prefix to filter by (optional, can be null)
-	 * @return the best athlete scoring system, or null if none found
-	 */
-	public Ranking getBestAthleteScoringSystem(String ageGroupPrefix) {
-		List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, this, null, true, -1, -1);
-		
-		// Filter by age group prefix if provided
-		if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
-			ageGroups = ageGroups.stream()
-				.filter(ag -> ageGroupPrefix.equals(ag.getCode()))
-				.toList();
-		}
-		
-		// Count occurrences of each scoring system
-		Map<Ranking, Integer> scoringSystemCounts = new HashMap<>();
-		for (AgeGroup ag : ageGroups) {
-			Ranking system = ag.getBestAthleteScoringSystem();
-			if (system != null) {
-				scoringSystemCounts.put(system, scoringSystemCounts.getOrDefault(system, 0) + 1);
-			}
-		}
-		
-		// Return the most common scoring system (majority vote)
-		Ranking mostCommon = null;
-		int maxCount = 0;
-		for (Map.Entry<Ranking, Integer> entry : scoringSystemCounts.entrySet()) {
-			if (entry.getValue() > maxCount) {
-				maxCount = entry.getValue();
-				mostCommon = entry.getKey();
-			}
-		}
-		
-		return mostCommon;
 	}
 
 }
