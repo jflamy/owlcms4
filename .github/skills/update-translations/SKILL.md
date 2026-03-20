@@ -45,7 +45,9 @@ If the task is to change existing UI wording, update the existing translation ke
 - Use the existing key if revising a translation.
 - Use a new key only when the source text represents a genuinely new concept.
 - Keep unrelated translation keys out of the `.tsv` file.
-- Leave all regional-variant locale columns blank when the language code contains `_`.
+- Leave regional-variant locale columns blank by default.
+- Exception: provide translations for `es_ES`, `es_SV`, `es_EC`, and `zh_HANT` when those columns are present.
+- Keep `es_419` blank.
 - Leave the last two named columns blank.
 - Button text changes such as revising wording to `Keep Latest Official Records` are translation-update tasks and should normally reuse the existing key.
 - When revising existing UI wording, derive the key from the UI code that renders the text, label, tooltip, or menu item rather than guessing the key name.
@@ -67,7 +69,8 @@ If the task is to change existing UI wording, update the existing translation ke
 - If translation certainty is low for some languages, preserve the row structure and use the best domain-consistent wording available for review.
 - Wording refinements to existing UI strings should generally be treated as translation revisions, not as a reason to proliferate near-duplicate keys.
 - For UI wording updates, inspect the button, label, tooltip, or menu definition in Java or frontend code to identify the exact translation key before preparing the `.tsv` row.
-- In this repository's translation TSVs, do not fill regional-variant locale columns whose header contains `_`.
+- In this repository's translation TSVs, leave regional-variant locale columns blank except for `es_ES`, `es_SV`, `es_EC`, and `zh_HANT`.
+- In this repository's translation TSVs, keep `es_419` blank.
 - In this repository's translation TSVs, leave the last two named columns blank.
 
 ## Expected Output
