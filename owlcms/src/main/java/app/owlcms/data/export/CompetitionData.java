@@ -28,6 +28,7 @@ import com.vaadin.flow.component.notification.Notification;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.RankingConfig;
@@ -58,6 +59,7 @@ public class CompetitionData {
 	final static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionData.class);
 	private List<AgeGroup> ageGroups;
 	private List<Athlete> athletes;
+	private List<Championship> championships;
 	private Competition competition;
 	private Config config;
 	private List<Group> groups;
@@ -157,6 +159,7 @@ public class CompetitionData {
 		setCompetitionForExport(Competition.getCurrent());
 		setRecords(RecordRepository.findAll());
 		setRecordConfig(RecordConfig.getCurrent());
+		setChampionships(ChampionshipRepository.findAll());
 		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
 		setTechnicalOfficialsTimetable(
 			JPAService.runInTransaction(em -> TechnicalOfficialsTimetableRepository.findAll(em)));
@@ -171,6 +174,11 @@ public class CompetitionData {
 	@JsonProperty(index = 40)
 	public List<Athlete> getAthletes() {
 		return this.athletes;
+	}
+
+	@JsonProperty(index = 35)
+	public List<Championship> getChampionships() {
+		return this.championships;
 	}
 
 	@JsonProperty(index = 5)
@@ -253,6 +261,12 @@ public class CompetitionData {
 					em.persist(ag);
 				}
 
+				if (updated.getChampionships() != null) {
+					for (Championship c : updated.getChampionships()) {
+						em.merge(c);
+					}
+				}
+
 				for (Athlete a : updated.getAthletes()) {
 					em.persist(a);
 				}
@@ -300,6 +314,7 @@ public class CompetitionData {
 			}
 			return null;
 		});
+		ChampionshipRepository.reconcileFromAgeGroups();
 		Championship.reset();
 //		CategoryRepository.resetCodeMap();
 //		// register the new FOPs for events and MQTT
@@ -316,6 +331,10 @@ public class CompetitionData {
 
 	public void setAthletes(List<Athlete> athletes) {
 		this.athletes = athletes;
+	}
+
+	public void setChampionships(List<Championship> championships) {
+		this.championships = championships;
 	}
 
 	/**
@@ -382,6 +401,12 @@ public class CompetitionData {
 					AgeGroup agX = em.find(AgeGroup.class, ag.getId());
 					if (agX != null) {
 						em.remove(agX);
+					}
+				}
+				for (Championship c : ChampionshipRepository.findAll()) {
+					Championship cX = em.find(Championship.class, c.getId());
+					if (cX != null) {
+						em.remove(cX);
 					}
 				}
 				for (Platform p : this.getPlatforms()) {

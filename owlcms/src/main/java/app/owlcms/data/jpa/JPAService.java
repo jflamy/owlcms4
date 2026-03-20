@@ -50,6 +50,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import app.owlcms.Main;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -301,6 +302,7 @@ public class JPAService {
 		        .add(Platform.class.getName())
 		        .add(Competition.class.getName())
 		        .add(AgeGroup.class.getName())
+		        .add(Championship.class.getName())
 		        .add(Config.class.getName())
 		        .add(RecordEvent.class.getName())
 		        .add(Participation.class.getName())

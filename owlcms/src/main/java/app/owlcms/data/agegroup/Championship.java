@@ -6,12 +6,23 @@
  *******************************************************************************/
 package app.owlcms.data.agegroup;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+
+import javax.persistence.Cacheable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -22,21 +33,19 @@ import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Enum Championship.
+ * Championship entity.
  *
- * Divisions are listed in registration preference order.
+ * Represents a named championship grouping of age groups used for award computation.
+ * Persisted to the database; the static methods provide a thin cache over the DB.
  */
-public class Championship implements Comparable<Championship> {
+@Entity
+@Cacheable
+public class Championship implements Comparable<Championship>, Serializable {
 
-	// public static final String MASTERS = ChampionshipType.MASTERS.name();
-	// public static final String U = ChampionshipType.U.name();
-	// public static final String IWF = ChampionshipType.IWF.name();
-	// public static final String DEFAULT = ChampionshipType.DEFAULT.name();
+	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Championship.class);
 	private static Map<String, Championship> allChampionshipsMap;
-	// private static List<Championship> allChampionshipsList;
 	static Comparator<Championship> ct = (a, b) -> {
 		int compare = 0;
 		if (a == null || b == null) {
@@ -58,16 +67,20 @@ public class Championship implements Comparable<Championship> {
 
 	/**
 	 * Adds a championship, normalizing 'Masters' variants to canonical form.
+	 * Persists to database and updates the in-memory cache.
 	 */
 	public static Championship addChampionship(String nameString, ChampionshipType u2) {
+		if (allChampionshipsMap == null) {
+			findAll();
+		}
 		String canonicalName = canonicalizeChampionshipName(nameString);
 		ChampionshipType canonicalType = canonicalizeChampionshipType(canonicalName, u2);
-		Championship championship = allChampionshipsMap.get(canonicalName.toLowerCase());
+		Championship championship = allChampionshipsMap.get(canonicalName);
 		if (championship == null) {
 			Championship newChampionship = new Championship(canonicalName, canonicalType);
-			String key = canonicalName.toLowerCase();
-			allChampionshipsMap.put(key, newChampionship);
-			logger.debug("Added to map: key='{}', name='{}', type='{}'", key, newChampionship.getName(), newChampionship.getType());
+			newChampionship = ChampionshipRepository.save(newChampionship);
+			allChampionshipsMap.put(canonicalName, newChampionship);
+			logger.debug("Added to map and DB: key='{}', name='{}', type='{}'", canonicalName, newChampionship.getName(), newChampionship.getType());
 			return newChampionship;
 		}
 		return championship;
@@ -94,67 +107,65 @@ public class Championship implements Comparable<Championship> {
 	   }
 
 	/**
-	 * Find all.
+	 * Find all championships. Loads from database; falls back to age-group derivation
+	 * if the Championship table is empty (pre-migration or first startup).
 	 *
-	 * @return the collection
+	 * @return the sorted list
 	 */
 	public static List<Championship> findAll() {
-		ArrayList<Championship> allChampionshipsList = new ArrayList<>();
 		if (allChampionshipsMap == null || allChampionshipsMap.isEmpty()) {
-			allChampionshipsMap = new HashMap<>();
+			allChampionshipsMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			// default championships, always present.
-			// allChampionshipsMap.put(U, new Championship(ChampionshipType.U));
-			// allChampionshipsMap.put(MASTERS, new Championship(ChampionshipType.MASTERS));
-			// allChampionshipsMap.put(OLY, new Championship(ChampionshipType.OLY));
-			// allChampionshipsMap.put(IWF, new Championship(ChampionshipType.IWF));
-			String name = null;
-			name = Translator.translate("Division." + ChampionshipType.DEFAULT.name());
-			Championship defaultChamp = new Championship(name, ChampionshipType.DEFAULT);
-			allChampionshipsMap.put(name.toLowerCase(), defaultChamp);
-			logger.debug("Added to map: key='{}', name='{}', type='{}'", name.toLowerCase(), defaultChamp.getName(), defaultChamp.getType());
-			name = Translator.translate("Division." + ChampionshipType.MASTERS.name());
-			Championship mastersChamp = new Championship(name, ChampionshipType.MASTERS);
-			allChampionshipsMap.put(name.toLowerCase(), mastersChamp);
-			logger.debug("Added to map: key='{}', name='{}', type='{}'", name.toLowerCase(), mastersChamp.getName(), mastersChamp.getType());
+			// Try loading from the persisted Championship table first.
+			List<Championship> stored = ChampionshipRepository.findAll();
+			if (stored != null && !stored.isEmpty()) {
+				for (Championship c : stored) {
+					allChampionshipsMap.put(c.getName(), c);
+				}
+			} else {
+				// Fallback: derive from age groups (pre-migration or empty DB).
+				// Seed default entries.
+				String name = null;
+				name = Translator.translate("Division." + ChampionshipType.DEFAULT.name());
+				Championship defaultChamp = new Championship(name, ChampionshipType.DEFAULT);
+				allChampionshipsMap.put(name, defaultChamp);
+				name = Translator.translate("Division." + ChampionshipType.MASTERS.name());
+				Championship mastersChamp = new Championship(name, ChampionshipType.MASTERS);
+				allChampionshipsMap.put(name, mastersChamp);
 
-			// allChampionshipsMap.put(ADAPTIVE, new Championship(ChampionshipType.ADAPTIVE));
-
-			// additional championships.
-			List<String> allChampionships = AgeGroupRepository.allChampionshipsForAllAgeGroups();
-
-			for (String s : allChampionships) {
-				String typeString = null;
-				String nameString = null;
-				if (s.contains("¤")) {
-					String[] arr = s.split("¤");
-					if (arr.length > 1) {
-						typeString = arr[1];
+				// Derive additional championships from persisted age groups.
+				List<String> allChampionships = AgeGroupRepository.allChampionshipsForAllAgeGroups();
+				for (String s : allChampionships) {
+					String typeString = null;
+					String nameString = null;
+					if (s.contains("¤")) {
+						String[] arr = s.split("¤");
+						if (arr.length > 1) {
+							typeString = arr[1];
+						} else {
+							typeString = "U";
+						}
+						nameString = arr[0];
 					} else {
-						typeString = "U";
+						typeString = s;
+						nameString = s;
 					}
-					nameString = arr[0];
-				} else {
-					typeString = s;
-					nameString = s;
+					ChampionshipType cType = ChampionshipType.U;
+					try {
+						cType = ChampionshipType.valueOf(typeString);
+					} catch (Exception e) {
+					}
+					// Add to cache only (not to DB) during fallback.
+					String canonicalName = canonicalizeChampionshipName(nameString);
+					ChampionshipType canonicalType = canonicalizeChampionshipType(canonicalName, cType);
+					if (!allChampionshipsMap.containsKey(canonicalName)) {
+						allChampionshipsMap.put(canonicalName, new Championship(canonicalName, canonicalType));
+					}
 				}
-				ChampionshipType cType = ChampionshipType.U;
-				try {
-					cType = ChampionshipType.valueOf(typeString);
-				} catch (Exception e) {
-				}
-				addChampionship(nameString, cType);
-			}
-			allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
-			if (!allChampionshipsList.isEmpty()) {
-				allChampionshipsList.sort(Championship::compareTo);
-			}
-		} else {
-			allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
-			if (!allChampionshipsList.isEmpty()) {
-				allChampionshipsList.sort(Championship::compareTo);
 			}
 		}
+		ArrayList<Championship> allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
+		allChampionshipsList.sort(Championship::compareTo);
 		return allChampionshipsList;
 	}
 
@@ -187,6 +198,9 @@ public class Championship implements Comparable<Championship> {
 	}
 
 	public static Map<String, Championship> getMap() {
+		if (allChampionshipsMap == null) {
+			findAll();
+		}
 		return allChampionshipsMap;
 	}
 
@@ -198,10 +212,22 @@ public class Championship implements Comparable<Championship> {
 			return new Championship("", ChampionshipType.U);
 		}
 		String canonicalName = canonicalizeChampionshipName(championshipName);
-		return allChampionshipsMap.get(canonicalName.toLowerCase());
+		Championship cached = allChampionshipsMap.get(canonicalName);
+		if (cached != null) {
+			return cached;
+		}
+		// Fallback: check DB in case it was just created by another path
+		Championship fromDb = ChampionshipRepository.findByName(canonicalName);
+		if (fromDb != null) {
+			allChampionshipsMap.put(fromDb.getName(), fromDb);
+		}
+		return fromDb;
 	}
 
 	public static Championship ofType(ChampionshipType t) {
+		if (allChampionshipsMap == null) {
+			findAll();
+		}
 		// return first championship of the type
 		// we use reverse order to get Open and Senior and U20 first.
 		Optional<Championship> found = allChampionshipsMap.values().stream().sorted(Comparator.reverseOrder()).filter(v -> v.getType() == t).findFirst();
@@ -209,7 +235,10 @@ public class Championship implements Comparable<Championship> {
 	}
 
 	public static void remove(Championship c) {
-		allChampionshipsMap.remove(c.name.toLowerCase());
+		allChampionshipsMap.remove(c.getName());
+		if (c.getId() != null) {
+			ChampionshipRepository.delete(c);
+		}
 	}
 
 	public static void reset() {
@@ -218,10 +247,21 @@ public class Championship implements Comparable<Championship> {
 	}
 
 	public static void update(Championship c) {
+		ChampionshipRepository.save(c);
 	}
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+
+	@Column(unique = true, nullable = false)
 	private String name;
+
+	@Enumerated(EnumType.STRING)
 	private ChampionshipType type;
+
+	public Championship() {
+	}
 
 	public Championship(ChampionshipType type) {
 		this.name = type.name();
@@ -236,6 +276,10 @@ public class Championship implements Comparable<Championship> {
 	@Override
 	public int compareTo(Championship o) {
 		return ct.compare(this, o);
+	}
+
+	public Long getId() {
+		return this.id;
 	}
 
 	public String getName() {
@@ -256,13 +300,34 @@ public class Championship implements Comparable<Championship> {
 	}
 
 	public void setName(String name) {
-		allChampionshipsMap.remove(this.name.toLowerCase());
+		if (allChampionshipsMap != null) {
+			allChampionshipsMap.remove(this.name);
+		}
 		this.name = name;
-		allChampionshipsMap.put(this.name.toLowerCase(), this);
+		if (allChampionshipsMap != null) {
+			allChampionshipsMap.put(this.name, this);
+		}
+		if (this.id != null) {
+			ChampionshipRepository.save(this);
+		}
 	}
 
 	public void setType(ChampionshipType type) {
 		this.type = type;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null || getClass() != obj.getClass()) return false;
+		Championship other = (Championship) obj;
+		if (this.name == null || other.name == null) return false;
+		return this.name.equals(other.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return this.name != null ? this.name.hashCode() : 0;
 	}
 
 	@Override

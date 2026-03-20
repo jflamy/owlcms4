@@ -157,7 +157,7 @@ public class AgeGroupEditingFormFactory
 		formLayout.addFormItem(codeInfo, createLabel(Translator.translate("AgeGroupCode")));
 
 		ComboBox<Championship> championshipField = new ComboBox<>();
-		List<Championship> list = Championship.getMap().values().stream().sorted().toList();
+		List<Championship> list = Championship.findAll();
 		championshipField.setItems(new ListDataProvider<>(list));
 		championshipField.setItemLabelGenerator((ad) -> ad.getName());
 		championshipField.setRequired(true);

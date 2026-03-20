@@ -354,6 +354,7 @@ public class AgeGroupDefinitionReader {
 			ageGroupByCodeGender.clear();
 			CategoryRepository.clearCodeMap();
 			createAgeGroups(workbook, templates, forcedInsertion, localizedName);
+			ChampionshipRepository.reconcileFromAgeGroups();
 			Championship.reset();
 			CategoryRepository.resetCodeMap();
 		} catch (Exception e) {
