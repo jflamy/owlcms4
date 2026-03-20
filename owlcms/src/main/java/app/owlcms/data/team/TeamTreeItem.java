@@ -177,6 +177,13 @@ public class TeamTreeItem {
 		return (this.team != null ? this.team.getScore() : Ranking.getRankingValue(this.athlete, this.scoringSystem));
 	}
 
+	public void setScoringSystem(Ranking scoringSystem) {
+		this.scoringSystem = scoringSystem;
+		if (this.team != null) {
+			this.team.setScoringSystem(scoringSystem);
+		}
+	}
+
 	public Double getSinclairScore() {
 		return (this.team != null ? this.team.getSinclairScore() : this.athlete.getSinclairForDelta());
 	}

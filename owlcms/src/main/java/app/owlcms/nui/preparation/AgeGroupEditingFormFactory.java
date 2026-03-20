@@ -6,7 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,8 +43,8 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.AssignedAthletesException;
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
@@ -62,6 +62,7 @@ public class AgeGroupEditingFormFactory
 	private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupEditingFormFactory.class);
 	private AgeGroupContent origin;
 	private Checkbox medalsAwarded;
+	private String pendingChampionshipName;
 
 	AgeGroupEditingFormFactory(Class<AgeGroup> domainType, AgeGroupContent origin) {
 		super(domainType);
@@ -157,42 +158,78 @@ public class AgeGroupEditingFormFactory
 		formLayout.addFormItem(codeInfo, createLabel(Translator.translate("AgeGroupCode")));
 
 		ComboBox<Championship> championshipField = new ComboBox<>();
-		List<Championship> list = Championship.findAll();
+		List<Championship> list = new ArrayList<>(Championship.findAll());
 		championshipField.setItems(new ListDataProvider<>(list));
 		championshipField.setItemLabelGenerator((ad) -> ad.getName());
 		championshipField.setRequired(true);
 		championshipField.setRequiredIndicatorVisible(false);
-		this.binder.forField(championshipField).bind(AgeGroup::getChampionship, AgeGroup::setChampionship);
-		formLayout.addFormItem(championshipField, createLabel(Translator.translate("Championship")));
+		championshipField.setAllowCustomValue(true);
 
-		ComboBox<Ranking> medalScoreSystemField = new ComboBox<>();
-		medalScoreSystemField.setClearButtonVisible(true);
-		List<Ranking> rankings = Arrays.asList(Ranking.values());
-		List<Ranking> medalScoreRankings = rankings.stream().filter(r -> r.isMedalScore()).toList();
-		medalScoreSystemField.setItems(new ListDataProvider<>(medalScoreRankings));
-		medalScoreSystemField.setItemLabelGenerator((ad) -> Translator.translate("Ranking." + ad.name()));
-		// logger.debug("***** scoring system {}", aFromDb.getMedalScoringSystem());
-		this.binder.forField(medalScoreSystemField).bind(AgeGroup::getMedalScoringSystem, AgeGroup::setScoringSystem);
-		// When medals scoring system changes, recompute mustCompute immediately
-		medalScoreSystemField.addValueChangeListener(e -> {
-			RankingConfig.updateMustCompute();
+		// If age group references a championship that doesn't exist yet, track its name
+		Championship initialChampionship = aFromDb.getChampionship();
+		String initialName = aFromDb.getChampionshipName();
+		if (initialChampionship == null && initialName != null && !initialName.isBlank()) {
+			this.pendingChampionshipName = initialName;
+			championshipField.setPlaceholder(initialName);
+		} else {
+			this.pendingChampionshipName = null;
+		}
+
+		Button editChampionshipButton = new Button(Translator.translate("Sessions.EditDetails"), e -> {
+			Championship selected = championshipField.getValue();
+			if (selected != null && selected.getId() != null) {
+				new ChampionshipDetailsDialog(selected, null).open();
+			}
 		});
-		formLayout.addFormItem(medalScoreSystemField, createLabel(Translator.translate("MedalScoringSystem")));
-		
-		ComboBox<Ranking> bestLifterSystemField = new ComboBox<>();
-		bestLifterSystemField.setClearButtonVisible(true);
-		bestLifterSystemField.setItems(new ListDataProvider<>(medalScoreRankings));
-		bestLifterSystemField.setItemLabelGenerator((ad) -> Translator.translate("Ranking." + ad.name()));
-		// logger.debug("***** scoring system {}", aFromDb.getMedalScoringSystem());
-		this.binder.forField(bestLifterSystemField).bind(AgeGroup::getBestAthleteScoringSystem, AgeGroup::setBestAthleteScoringSystem);
-		// When best athlete scoring system changes, recompute mustCompute immediately
-		bestLifterSystemField.addValueChangeListener(e -> {
-			RankingConfig.updateMustCompute();
+		editChampionshipButton.setEnabled(initialChampionship != null && initialChampionship.getId() != null);
+
+		// Handle user typing a new championship name
+		championshipField.addCustomValueSetListener(event -> {
+			String customValue = event.getDetail();
+			if (customValue == null || customValue.isBlank()) {
+				return;
+			}
+			Championship found = list.stream()
+				.filter(c -> c.getName().equalsIgnoreCase(customValue.trim()))
+				.findFirst().orElse(null);
+			if (found != null) {
+				championshipField.setValue(found);
+				this.pendingChampionshipName = null;
+				editChampionshipButton.setEnabled(true);
+			} else {
+				this.pendingChampionshipName = customValue.trim();
+				championshipField.setValue(null);
+				championshipField.setPlaceholder(customValue.trim());
+				editChampionshipButton.setEnabled(false);
+			}
 		});
-		formLayout.addFormItem(bestLifterSystemField, createLabel(Translator.translate("AgeGroup.BestAthleteScoringSystem")));
-		bestLifterSystemField.setHelperText(Translator.translate("AgeGroup.BestAthleteScoringSystemExplanation")
-				.replaceAll(" ", "\u00A0")
-				.replaceAll("-", "\u2011"));
+
+		// Update details button when selection changes
+		championshipField.addValueChangeListener(e -> {
+			Championship val = e.getValue();
+			if (val != null) {
+				this.pendingChampionshipName = null;
+				editChampionshipButton.setEnabled(val.getId() != null);
+			} else if (this.pendingChampionshipName == null) {
+				editChampionshipButton.setEnabled(false);
+			}
+		});
+
+		// Binder preserves pending championship name when ComboBox value is null
+		this.binder.forField(championshipField).bind(
+			AgeGroup::getChampionship,
+			(ag, championship) -> {
+				if (championship != null) {
+					ag.setChampionship(championship);
+				} else if (this.pendingChampionshipName != null) {
+					ag.setChampionshipName(this.pendingChampionshipName);
+				}
+			}
+		);
+
+		HorizontalLayout championshipRow = new HorizontalLayout(championshipField, editChampionshipButton);
+		championshipRow.setAlignItems(Alignment.CENTER);
+		formLayout.addFormItem(championshipRow, createLabel(Translator.translate("Championship")));
 
 		TextField minAgeField = new TextField();
 		formLayout.addFormItem(minAgeField, createLabel(Translator.translate("MinimumAge")));
@@ -296,6 +333,12 @@ public class AgeGroupEditingFormFactory
 	 */
 	@Override
 	public AgeGroup update(AgeGroup ageGroup) {
+		// Create championship if it doesn't exist yet
+		String champName = ageGroup.getChampionshipName();
+		if (champName != null && !champName.isBlank() && Championship.of(champName) == null) {
+			Championship.addChampionship(champName, ChampionshipType.U);
+		}
+
 		// array is used to workaround Java language restriction on setting variables in lambda
 		AgeGroup[] saved = new AgeGroup[1];
 		try {

@@ -49,7 +49,6 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.team.TeamResultsTreeData;
@@ -221,13 +220,13 @@ public class TeamResultsContent extends BaseContent
 	}
 
 	private Ranking getTeamRanking() {
-		if (getAgeDivision() != null && getAgeDivision().getScoringSystem() != null) {
-			return getAgeDivision().getScoringSystem();
+		if (getGenderFilter() != null && getGenderFilter().getValue() == Gender.MF && getAgeDivision() != null) {
+			return getAgeDivision().getMixedTeamScoringSystem() != null ? getAgeDivision().getMixedTeamScoringSystem() : Ranking.TOTAL;
 		}
-		Competition competition = Competition.getCurrent();
-		return competition != null && competition.getScoringSystem() != null
-		        ? competition.getScoringSystem()
-		        : Ranking.SNATCH_CJ_TOTAL;
+		if (getAgeDivision() != null) {
+			return getAgeDivision().getTeamScoringSystem() != null ? getAgeDivision().getTeamScoringSystem() : Ranking.TOTAL;
+		}
+		return Ranking.TOTAL;
 	}
 
 	public void refresh() {

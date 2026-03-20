@@ -26,6 +26,8 @@ import javax.persistence.Id;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.i18n.Translator;
@@ -246,8 +248,17 @@ public class Championship implements Comparable<Championship>, Serializable {
 	private Integer womensBestN;
 	private Integer mixedBestN;
 
+	private Integer maxTeamSize;
+	private Integer maxPerCategory;
+
+	@Column(columnDefinition = "boolean default false")
+	private boolean explicitMixedTeamMembers = false;
+
 	@Enumerated(EnumType.STRING)
 	private Ranking teamScoringSystem;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking mixedTeamScoringSystem;
 
 	public Championship() {
 	}
@@ -323,6 +334,14 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return this.teamScoringSystem;
 	}
 
+	public Ranking getMixedTeamScoringSystem() {
+		return this.mixedTeamScoringSystem;
+	}
+
+	public boolean isExplicitMixedTeamMembers() {
+		return this.explicitMixedTeamMembers;
+	}
+
 	public ChampionshipType getType() {
 		return this.type;
 	}
@@ -332,12 +351,14 @@ public class Championship implements Comparable<Championship>, Serializable {
 	 *
 	 * @return true, if is default
 	 */
+	@JsonIgnore
 	public boolean isDefault() {
 		return this.getType() == ChampionshipType.DEFAULT;
 	}
 
+	@JsonIgnore
 	public boolean isMixed() {
-		return this.getType() != null && this.getType().isMixed();
+		return this.explicitMixedTeamMembers;
 	}
 
 	public void setName(String name) {
@@ -385,6 +406,26 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.teamPoints3rd = teamPoints3rd;
 	}
 
+	public Integer getMaxTeamSize() {
+		return this.maxTeamSize != null ? this.maxTeamSize : 8;
+	}
+
+	public void setMaxTeamSize(Integer maxTeamSize) {
+		this.maxTeamSize = maxTeamSize;
+	}
+
+	public Integer getMaxPerCategory() {
+		return this.maxPerCategory != null && this.maxPerCategory > 0 ? this.maxPerCategory : 2;
+	}
+
+	public void setMaxPerCategory(Integer maxPerCategory) {
+		this.maxPerCategory = maxPerCategory;
+	}
+
+	public void setExplicitMixedTeamMembers(boolean explicitMixedTeamMembers) {
+		this.explicitMixedTeamMembers = explicitMixedTeamMembers;
+	}
+
 	public void setMensBestN(Integer mensBestN) {
 		this.mensBestN = mensBestN;
 	}
@@ -399,6 +440,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public void setTeamScoringSystem(Ranking teamScoringSystem) {
 		this.teamScoringSystem = teamScoringSystem;
+	}
+
+	public void setMixedTeamScoringSystem(Ranking mixedTeamScoringSystem) {
+		this.mixedTeamScoringSystem = mixedTeamScoringSystem;
 	}
 
 	public void setType(ChampionshipType type) {
@@ -419,7 +464,11 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.mensBestN = comp.getMensBestN();
 		this.womensBestN = comp.getWomensBestN();
 		this.mixedBestN = comp.getMixedBestNElseDefault();
-		this.teamScoringSystem = Ranking.GAMX;
+		this.maxTeamSize = comp.getMaxTeamSize();
+		this.maxPerCategory = comp.getMaxPerCategory();
+		this.explicitMixedTeamMembers = false;
+		this.teamScoringSystem = null;
+		this.mixedTeamScoringSystem = null;
 
 		List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, this, null, true, -1, -1);
 		for (AgeGroup ageGroup : ageGroups) {

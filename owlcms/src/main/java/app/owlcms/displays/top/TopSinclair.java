@@ -438,6 +438,13 @@ public class TopSinclair extends AbstractTop {
 					}
 					break;
 				case GAMX:
+				case GAMX_M:
+				case GAMX_MS:
+				case GAMX_MC:
+				case GAMX_U:
+				case GAMX_A:
+				case GAMX_S:
+				case GAMX_C:
 					if (curGender == Gender.F) {
 						int tot = a.getBestSnatch() + a.getBestCleanJerk();
 						needed = GAMX2.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;

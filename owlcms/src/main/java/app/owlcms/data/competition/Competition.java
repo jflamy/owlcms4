@@ -605,6 +605,13 @@ public class Competition {
 			        Ranking.CAT_QPOINTS,
 			        Ranking.CAT_GAMX,
 			        Ranking.GAMX,
+			        Ranking.GAMX_M,
+			        Ranking.GAMX_MS,
+			        Ranking.GAMX_MC,
+			        Ranking.GAMX_U,
+			        Ranking.GAMX_A,
+			        Ranking.GAMX_S,
+			        Ranking.GAMX_C,
 			        Ranking.AGEFACTORS // Q-youth
 			)) {
 				if (RankingConfig.shouldCompute(ranking)) {
@@ -935,8 +942,12 @@ public class Competition {
 		if (Config.getCurrent().featureSwitch("GAMX")) {
 			RankingConfig.setUserEnabled(Ranking.GAMX, true);
 			RankingConfig.setUserEnabled(Ranking.GAMX_M, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_MS, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_MC, true);
 			RankingConfig.setUserEnabled(Ranking.GAMX_U, true);
 			RankingConfig.setUserEnabled(Ranking.GAMX_A, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_S, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_C, true);
 		}
 
 		if (Config.getCurrent().featureSwitch("usaw")) {

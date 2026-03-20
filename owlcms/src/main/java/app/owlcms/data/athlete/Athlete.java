@@ -2129,6 +2129,30 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Double getGamxMS() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxMSRank() {
+		return 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxMC() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxMCRank() {
+		return 0;
+	}
+
+	@Transient
+	@JsonIgnore
 	public Double getGamxU() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
@@ -2171,6 +2195,30 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Double getGamxS() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxSRank() {
+		return 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxC() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxCRank() {
+		return 0;
+	}
+
+	@Transient
+	@JsonIgnore
 	public Double getGamxForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
@@ -2193,6 +2241,18 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Double getGamxMSForDelta() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxMCForDelta() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
 	public Double getGamxUForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
@@ -2211,6 +2271,18 @@ public class Athlete {
 		} catch (IndexOutOfBoundsException e) {
 			return 0.0D;
 		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxSForDelta() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxCForDelta() {
+		return 0.0D;
 	}
 
 	/**

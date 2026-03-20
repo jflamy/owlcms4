@@ -236,13 +236,10 @@ public class TopTeams extends AbstractTop {
 	}
 
 	private Ranking getTeamRanking() {
-		if (getChampionship() != null && getChampionship().getScoringSystem() != null) {
-			return getChampionship().getScoringSystem();
+		if (getChampionship() != null) {
+			return getChampionship().getTeamScoringSystem() != null ? getChampionship().getTeamScoringSystem() : Ranking.TOTAL;
 		}
-		Competition competition = Competition.getCurrent();
-		return competition != null && competition.getScoringSystem() != null
-		        ? competition.getScoringSystem()
-		        : Ranking.SNATCH_CJ_TOTAL;
+		return Ranking.TOTAL;
 	}
 
 	private void getTeamJson(Team t, JsonObject ja) {

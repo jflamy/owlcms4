@@ -196,8 +196,12 @@ public class RankingConfig {
 		userEnabled.put(Ranking.QAGE, false);
 		userEnabled.put(Ranking.GAMX, false);
 		userEnabled.put(Ranking.GAMX_M, false);
+		userEnabled.put(Ranking.GAMX_MS, false);
+		userEnabled.put(Ranking.GAMX_MC, false);
 		userEnabled.put(Ranking.GAMX_U, false);
 		userEnabled.put(Ranking.GAMX_A, false);
+		userEnabled.put(Ranking.GAMX_S, false);
+		userEnabled.put(Ranking.GAMX_C, false);
 		userEnabled.put(Ranking.CAT_GAMX, false);
 	}
 
@@ -236,7 +240,7 @@ public class RankingConfig {
 	 * @return set containing GAMX, GAMX_M, GAMX_U, GAMX_A, and CAT_GAMX
 	 */
 	public static Set<Ranking> getGamxRankings() {
-		return EnumSet.of(Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.CAT_GAMX);
+		return EnumSet.of(Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.GAMX_S, Ranking.GAMX_C, Ranking.CAT_GAMX);
 	}
 
 	/**
@@ -257,7 +261,7 @@ public class RankingConfig {
 		return EnumSet.of(
 			Ranking.BW_SINCLAIR, Ranking.SMM, Ranking.CAT_SINCLAIR,
 			Ranking.QPOINTS, Ranking.AGEFACTORS, Ranking.QAGE, Ranking.CAT_QPOINTS,
-			Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.CAT_GAMX, 
+			Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.GAMX_S, Ranking.GAMX_C, Ranking.CAT_GAMX, 
 			Ranking.ROBI);
 	}
 

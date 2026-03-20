@@ -136,6 +136,8 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 			logger.trace(
 			        lifter1 + " " + gamxM1 + " [" + compareGamxM + "]" + lifter2 + " " + gamxM2);
 			return compareGamxM;
+		case GAMX_MS:
+		case GAMX_MC:
 		case GAMX_U:
 			final Double gamxU1 = lifter1.getGamxU();
 			final Double gamxU2 = lifter2.getGamxU();
@@ -150,6 +152,9 @@ public class TeamPointsComparator extends AbstractLifterComparator implements Co
 			logger.trace(
 			        lifter1 + " " + gamxA1 + " [" + compareGamxA + "]" + lifter2 + " " + gamxA2);
 			return compareGamxA;
+		case GAMX_S:
+		case GAMX_C:
+			return 0;
 		default:
 				break;
 		}

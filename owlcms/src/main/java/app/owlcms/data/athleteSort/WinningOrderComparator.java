@@ -77,6 +77,11 @@ public class WinningOrderComparator extends AbstractLifterComparator implements 
 			return compareGamxResultOrder(lifter1, lifter2);
 		case GAMX_M:
 			return compareGamxMResultOrder(lifter1, lifter2);
+		case GAMX_MS:
+		case GAMX_MC:
+		case GAMX_S:
+		case GAMX_C:
+			return 0;
 		case GAMX_U:
 			return compareGamxUResultOrder(lifter1, lifter2);
 		case GAMX_A:

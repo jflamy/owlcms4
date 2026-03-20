@@ -344,10 +344,18 @@ public class AthleteSorter implements Serializable {
 				return curLifter.getGamxRank();
 			case GAMX_M:
 				return curLifter.getGamxMRank();
+			case GAMX_MS:
+				return curLifter.getGamxMSRank();
+			case GAMX_MC:
+				return curLifter.getGamxMCRank();
 			case GAMX_U:
 				return curLifter.getGamxURank();
 			case GAMX_A:
 				return curLifter.getGamxARank();
+			case GAMX_S:
+				return curLifter.getGamxSRank();
+			case GAMX_C:
+				return curLifter.getGamxCRank();
 			case QAGE:
 				return curLifter.getQMastersRank();
 			case QPOINTS:
@@ -621,8 +629,12 @@ public class AthleteSorter implements Serializable {
 			case QPOINTS:
 			case GAMX:
 			case GAMX_M:
+			case GAMX_MS:
+			case GAMX_MC:
 			case GAMX_U:
 			case GAMX_A:
+			case GAMX_S:
+			case GAMX_C:
 			case AGEFACTORS:
 			case QAGE:
 				// logger.debug("ranking type {}",rankingType);
@@ -664,8 +676,12 @@ public class AthleteSorter implements Serializable {
 			case QPOINTS:
 			case GAMX:
 			case GAMX_M:
+			case GAMX_MS:
+			case GAMX_MC:
 			case GAMX_U:
 			case GAMX_A:
+			case GAMX_S:
+			case GAMX_C:
 			case AGEFACTORS:
 			case QAGE:
 				resultsOrder(sorted, rankingType, true);

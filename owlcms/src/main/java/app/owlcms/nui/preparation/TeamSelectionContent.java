@@ -370,8 +370,10 @@ public class TeamSelectionContent extends BaseContent
 		ComponentRenderer<Component, TeamTreeItem> membershipRenderer = new ComponentRenderer<>(p -> {
 			if (p.getAthlete() == null) {
 				long nb = p.getTeamMembers().stream().filter(pa -> pa.isTeamMember()).count();
+				Championship champ = getAgeDivision();
+				int maxSize = champ != null ? champ.getMaxTeamSize() : Competition.getCurrent().getMaxTeamSize();
 				NativeLabel label = new NativeLabel(
-				        nb > Competition.getCurrent().getMaxTeamSize() ? nb + "\u26a0" : nb + "");
+				        nb > maxSize ? nb + "\u26a0" : nb + "");
 				p.setMembershipLabel(label);
 				return label;
 			} else {
@@ -400,8 +402,10 @@ public class TeamSelectionContent extends BaseContent
 			}
 			if (p.getAthlete() == null) {
 				long nb = p.getTeamMembers().stream().filter(pa -> Boolean.TRUE.equals(pa.isMixedTeamMember())).count();
+				Championship champ = getAgeDivision();
+				int maxSize = champ != null ? champ.getMaxTeamSize() : Competition.getCurrent().getMaxTeamSize();
 				NativeLabel label = new NativeLabel(
-				        nb > Competition.getCurrent().getMaxTeamSize() ? nb + "\u26a0" : Long.toString(nb));
+				        nb > maxSize ? nb + "\u26a0" : Long.toString(nb));
 				p.setMixedMembershipLabel(label);
 				return label;
 			}

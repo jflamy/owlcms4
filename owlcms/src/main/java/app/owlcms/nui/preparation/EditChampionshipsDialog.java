@@ -66,12 +66,15 @@ public class EditChampionshipsDialog extends Dialog {
 				c.setName(nameField.getValue());
 				updateChampionshipsTable(championshipsTable);
 			});
+			Button details = new Button(Translator.translate("Sessions.EditDetails"), VaadinIcon.COG.create(), e -> {
+				new ChampionshipDetailsDialog(c, () -> updateChampionshipsTable(championshipsTable)).open();
+			});
 			Button delete = new Button(Translator.translate("Delete"), VaadinIcon.TRASH.create(), e -> {
 				Championship.remove(c);
 				updateChampionshipsTable(championshipsTable);
 			});
 			delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-			HorizontalLayout ctRow = new HorizontalLayout(nameField, typeField, update, delete);
+			HorizontalLayout ctRow = new HorizontalLayout(nameField, typeField, update, details, delete);
 			championshipsTable.add(ctRow);
 		});
 		HorizontalLayout addRow = new HorizontalLayout();
@@ -92,7 +95,7 @@ public class EditChampionshipsDialog extends Dialog {
 		typeField.setItems(Arrays.asList(ChampionshipType.values()));
 		typeField.setItemLabelGenerator(type -> {
 			String translated = Translator.translateOrElseNull("Division." + type.name());
-			return translated != null ? translated : type.name();
+			return translated != null ? translated + " (" + type.name() + ")" : type.name();
 		});
 		return typeField;
 	}

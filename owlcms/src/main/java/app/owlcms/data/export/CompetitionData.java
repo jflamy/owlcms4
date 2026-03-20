@@ -263,8 +263,36 @@ public class CompetitionData {
 
 				if (updated.getChampionships() != null) {
 					for (Championship c : updated.getChampionships()) {
-						em.merge(c);
+						Championship existing = em.createQuery(
+						        "select c from Championship c where c.name = :name", Championship.class)
+						        .setParameter("name", Championship.canonicalizeChampionshipName(c.getName()))
+						        .getResultStream()
+						        .findFirst()
+						        .orElse(null);
+						if (existing != null) {
+							existing.setType(c.getType());
+							existing.setScoringSystem(c.getScoringSystem());
+							existing.setBestAthleteScoringSystem(c.getBestAthleteScoringSystem());
+							existing.setBestSnatchScoringSystem(c.getBestSnatchScoringSystem());
+							existing.setBestCJScoringSystem(c.getBestCJScoringSystem());
+							existing.setSnatchCJTotalMedals(c.isSnatchCJTotalMedals());
+							existing.setTeamPoints1st(c.getTeamPoints1st());
+							existing.setTeamPoints2nd(c.getTeamPoints2nd());
+							existing.setTeamPoints3rd(c.getTeamPoints3rd());
+							existing.setMensBestN(c.getMensBestN());
+							existing.setWomensBestN(c.getWomensBestN());
+							existing.setMixedBestN(c.getMixedBestN());
+							existing.setMaxTeamSize(c.getMaxTeamSize());
+							existing.setMaxPerCategory(c.getMaxPerCategory());
+							existing.setExplicitMixedTeamMembers(c.isExplicitMixedTeamMembers());
+							existing.setTeamScoringSystem(c.getTeamScoringSystem());
+							existing.setMixedTeamScoringSystem(c.getMixedTeamScoringSystem());
+							em.merge(existing);
+						} else {
+							em.merge(c);
+						}
 					}
+					Championship.reset();
 				}
 
 				for (Athlete a : updated.getAthletes()) {

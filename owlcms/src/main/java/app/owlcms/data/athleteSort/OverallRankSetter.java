@@ -57,6 +57,11 @@ public class OverallRankSetter {
 			case GAMX_M:
 				a.setGamxMRank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;
+			case GAMX_MS:
+			case GAMX_MC:
+			case GAMX_S:
+			case GAMX_C:
+				break;
 			case GAMX_U:
 				a.setGamxURank(eligible ? (zero ? 0 : incrementRank(r)) : -1);
 				break;

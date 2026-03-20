@@ -253,10 +253,7 @@ public class TopTeamsSinclair extends AbstractTop {
 		if (getChampionship() != null && getChampionship().getTeamScoringSystem() != null) {
 			return getChampionship().getTeamScoringSystem();
 		}
-		Competition competition = Competition.getCurrent();
-		return competition != null && competition.getScoringSystem() != null
-		        ? competition.getScoringSystem()
-		        : Ranking.GAMX;
+		return Ranking.TOTAL;
 	}
 
 	private void getTeamJson(Team t, JsonObject ja) {

@@ -91,6 +91,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 	        TeamTreeItem curTeamItem) {
 		String key = computeGenderKey(gender) + "Team"
 		        + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.getName());
+		Ranking rankingForGender = getRankingForGender(gender);
 		this.logger.debug("looking for {} in {}", key, this.reportingBeans.keySet());
 
 		@SuppressWarnings("unchecked")
@@ -107,9 +108,9 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		        // .filter(a -> a.isTeamMember())
 		        .collect(Collectors.toList());
 		if (gender == Gender.MF && ageDivision != null && ageDivision.isMixed()) {
-			AthleteSorter.teamPointsOrderMixed(athletes, this.ranking);
+			AthleteSorter.teamPointsOrderMixed(athletes, rankingForGender);
 		} else {
-			AthleteSorter.teamPointsOrder(athletes, this.ranking);
+			AthleteSorter.teamPointsOrder(athletes, rankingForGender);
 		}
 
 		String prevTeamName = null;
@@ -129,7 +130,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 				// logger.debug("a={} curTeam = {}",a, a.getTeam());
 				curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName,
 				        curTeamItem,
-				        curTeamName != null ? curTeamName : "-");
+				        curTeamName != null ? curTeamName : "-", rankingForGender);
 				boolean groupIsDone = groupIsDone(a);
 				Integer curPoints = gender == Gender.MF && ageDivision != null && ageDivision.isMixed()
 				        ? (combinedTotal ? a.getRawCombinedPoints() : a.getRawTotalPoints())
@@ -174,6 +175,8 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					}
 				}
 				curTeamItem.addTreeItemChild(a, groupIsDone);
+				List<TeamTreeItem> members = curTeamItem.getTeamMembers();
+				members.get(members.size() - 1).setScoringSystem(rankingForGender);
 				curTeam.setSize(curTeam.getSize() + 1);
 				prevTeamName = curTeamName;
 			}
@@ -217,7 +220,8 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 	}
 
 	private TeamTreeItem findCurTeamItem(Map<Gender, List<TeamTreeItem>> teamItemsByGender, Gender gender,
-	        List<TeamTreeItem> curGenderTeams, String prevTeamName, TeamTreeItem curTeamItem, String curTeamName) {
+	        List<TeamTreeItem> curGenderTeams, String prevTeamName, TeamTreeItem curTeamItem, String curTeamName,
+	        Ranking rankingForGender) {
 		if (curTeamItem == null || prevTeamName == null || !curTeamName.contentEquals(prevTeamName)) {
 			// maybe we have seen the team already (if mixed)
 			TeamTreeItem found = null;
@@ -231,11 +235,26 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 				curTeamItem = found;
 			} else {
 				curTeamItem = new TeamTreeItem(curTeamName, gender, null, false);
+				curTeamItem.setScoringSystem(rankingForGender);
 				curTeamItem.getTeam().setSize(AthleteRepository.countTeamMembers(curTeamName, gender));
 				teamItemsByGender.get(gender).add(curTeamItem);
 			}
 		}
 		return curTeamItem;
+	}
+
+	private Ranking getRankingForGender(Gender gender) {
+		if (this.championship != null) {
+			if (gender == Gender.MF) {
+				return this.championship.getMixedTeamScoringSystem() != null
+				        ? this.championship.getMixedTeamScoringSystem()
+				        : Ranking.TOTAL;
+			}
+			return this.championship.getTeamScoringSystem() != null
+			        ? this.championship.getTeamScoringSystem()
+			        : Ranking.TOTAL;
+		}
+		return this.ranking != null ? this.ranking : Ranking.TOTAL;
 	}
 
 	private Integer getTopNTeamSize(Gender gender) {

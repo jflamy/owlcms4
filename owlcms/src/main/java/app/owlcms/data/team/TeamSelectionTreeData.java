@@ -259,22 +259,23 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 			}
 		}
 		for (TeamTreeItem t : this.teams) {
-			t.getTeam().setSize(checkCounts(t));
+			t.getTeam().setSize(checkCounts(t, ageDivision));
 		}
 		dumpTeams();
 	}
 
-	private long checkCounts(TeamTreeItem teamItem) {
+	private long checkCounts(TeamTreeItem teamItem, Championship championship) {
 		List<TeamTreeItem> teamMembers = teamItem.getTeamMembers();
 		HashMap<String, Integer> nbPerCat = new HashMap<>();
 		List<String> illegalCounts = new ArrayList<>();
 		int nbMembers = 0;
 		boolean mixedTeam = teamItem.getGender() == Gender.MF;
+		int maxPerCat = championship != null ? championship.getMaxPerCategory() : Competition.getCurrent().getMaxPerCategory();
 		for (TeamTreeItem t : teamMembers) {
 			Integer countPerCat = nbPerCat.get(t.getCategory());
 			countPerCat = countPerCat == null ? 1 : countPerCat + 1;
 			nbPerCat.put(t.getCategory(), countPerCat);
-			if (countPerCat > Competition.getCurrent().getMaxPerCategory()) {
+			if (countPerCat > maxPerCat) {
 				illegalCounts.add(t.getCategory());
 			}
 			if (mixedTeam ? Boolean.TRUE.equals(t.isMixedTeamMember()) : Boolean.TRUE.equals(t.isTeamMember())) {

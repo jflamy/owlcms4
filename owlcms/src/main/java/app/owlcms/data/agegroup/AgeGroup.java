@@ -308,8 +308,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@Transient
 	@JsonIgnore
 	public boolean isMixedTeams() {
-		ChampionshipType championshipType2 = getChampionshipType();
-		return championshipType2 != null && championshipType2.isMixed();
+		Championship championship = getChampionship();
+		return championship != null && championship.isExplicitMixedTeamMembers();
 	}
 	
 	public void setChampionshipType(ChampionshipType c) {
@@ -338,7 +338,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 		String value = null;
 		String translatedCode = getTranslatedCode(code2);
-		if (this.isAlreadyGendered() || this.getChampionship().getType().isMasters()) {
+		ChampionshipType resolvedChampionshipType = this.getChampionshipType();
+		if (this.isAlreadyGendered() || (resolvedChampionshipType != null && resolvedChampionshipType.isMasters())) {
 			value = translatedCode;
 		} else {
 			value = translatedCode + " " + getTranslatedGender();
@@ -504,8 +505,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	public void setChampionship(Championship championship) {
-		logger.debug("setting {} championship to {}", this, championship.getName());
-		this.setChampionshipName(championship.getName());
+		logger.debug("setting {} championship to {}", this, championship != null ? championship.getName() : null);
+		this.setChampionshipName(championship != null ? championship.getName() : null);
 	}
 
 	public void setChampionshipName(String championshipName) {
