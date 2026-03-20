@@ -164,7 +164,7 @@ public class TeamResultsContent extends BaseContent
 		List<TeamTreeItem> allTeams = new ArrayList<>();
 
 		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(),
-		        getGenderFilter().getValue(), Ranking.SNATCH_CJ_TOTAL, false);
+		        getGenderFilter().getValue(), getTeamRanking(), false);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamResultsTreeData.getTeamItemsByGender();
 
 		List<TeamTreeItem> mensTeams = teamsByGender.get(Gender.M);
@@ -217,6 +217,16 @@ public class TeamResultsContent extends BaseContent
 	@Override
 	public boolean isIgnoreGroupFromURL() {
 		return false;
+	}
+
+	private Ranking getTeamRanking() {
+		if (getAgeDivision() != null && getAgeDivision().getScoringSystem() != null) {
+			return getAgeDivision().getScoringSystem();
+		}
+		Competition competition = Competition.getCurrent();
+		return competition != null && competition.getScoringSystem() != null
+		        ? competition.getScoringSystem()
+		        : Ranking.SNATCH_CJ_TOTAL;
 	}
 
 	public void refresh() {
@@ -351,7 +361,7 @@ public class TeamResultsContent extends BaseContent
 				// getAgeDivision(),
 				// genderFilter.getValue());
 				TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(),
-				        TeamResultsContent.this.genderFilter.getValue(), Ranking.SNATCH_CJ_TOTAL, false);
+				        TeamResultsContent.this.genderFilter.getValue(), getTeamRanking(), false);
 				this.grid.setDataProvider(new TreeDataProvider<>(teamResultsTreeData));
 			}
 
@@ -465,7 +475,7 @@ public class TeamResultsContent extends BaseContent
 			public DataProvider<TeamTreeItem, ?> getDataProvider() {
 				return new TreeDataProvider<>(
 				        new TeamResultsTreeData(getAgeGroupPrefix(), getAgeDivision(), getGenderFilter().getValue(),
-				                Ranking.SNATCH_CJ_TOTAL, false));
+				                getTeamRanking(), false));
 			}
 
 			@Override

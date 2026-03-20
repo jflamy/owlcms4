@@ -105,7 +105,7 @@ public class TopTeams extends AbstractTop {
 
 		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getChampionship(),
 		        (Gender) null,
-		        Ranking.SNATCH_CJ_TOTAL, false);
+		        getTeamRanking(), false);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = teamResultsTreeData.getTeamItemsByGender();
 
 		this.mensTeams = teamsByGender.get(Gender.M);
@@ -233,6 +233,16 @@ public class TopTeams extends AbstractTop {
 	@SuppressWarnings("unused")
 	private Object getOrigin() {
 		return this;
+	}
+
+	private Ranking getTeamRanking() {
+		if (getChampionship() != null && getChampionship().getScoringSystem() != null) {
+			return getChampionship().getScoringSystem();
+		}
+		Competition competition = Competition.getCurrent();
+		return competition != null && competition.getScoringSystem() != null
+		        ? competition.getScoringSystem()
+		        : Ranking.SNATCH_CJ_TOTAL;
 	}
 
 	private void getTeamJson(Team t, JsonObject ja) {
