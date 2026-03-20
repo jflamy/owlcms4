@@ -116,6 +116,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private Athlete editedAthlete = null;
 	private CheckboxGroup<Category> eligibleField;
 	private CheckboxGroup<String> ageGroupTeamField;
+	private CheckboxGroup<String> mixedAgeGroupTeamField;
 	private TextField federationCodesField;
 	private Map<HasValue<?, ?>, Binding<Athlete, ?>> fieldToBinding = new HashMap<>();
 	private TextField firstNameField;
@@ -630,6 +631,58 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return value.stream().map(c -> c.getAgeGroup()).distinct().toList();
 	}
 
+	private Set<String> possibleAgeGroupTeamsForEligibleField() {
+		if (this.eligibleField == null || this.eligibleField.getValue() == null) {
+			return new LinkedHashSet<>();
+		}
+		return ageGroupsForCategories(this.eligibleField.getValue()).stream()
+		        .filter(ag -> ag != null)
+		        .map(AgeGroup::getDisplayName)
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
+	}
+
+	private Set<String> possibleMixedAgeGroupTeamsForEligibleField() {
+		if (this.eligibleField == null || this.eligibleField.getValue() == null) {
+			return new LinkedHashSet<>();
+		}
+		return ageGroupsForCategories(this.eligibleField.getValue()).stream()
+		        .filter(ag -> ag != null && ag.isMixedTeams())
+		        .map(AgeGroup::getDisplayName)
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
+	}
+
+	private void refreshTeamMembershipFields() {
+		refreshTeamMembershipField(this.ageGroupTeamField, possibleAgeGroupTeamsForEligibleField(),
+		        getEditedAthlete() != null ? getEditedAthlete().getAgeGroupTeams() : new LinkedHashSet<>());
+		refreshTeamMembershipField(this.mixedAgeGroupTeamField, possibleMixedAgeGroupTeamsForEligibleField(),
+		        getEditedAthlete() != null ? getEditedAthlete().getMixedAgeGroupTeams() : new LinkedHashSet<>());
+	}
+
+	private void refreshTeamMembershipField(CheckboxGroup<String> field, Set<String> possibleValues,
+	        Set<String> fallbackSelectedValues) {
+		if (field == null) {
+			return;
+		}
+
+		Set<String> selectedValues = new LinkedHashSet<>();
+		if (field.getValue() != null && !field.getValue().isEmpty()) {
+			selectedValues.addAll(field.getValue());
+		} else if (fallbackSelectedValues != null) {
+			selectedValues.addAll(fallbackSelectedValues);
+		}
+		selectedValues.retainAll(possibleValues);
+
+		boolean listenerStatus = isChangeListenersEnabled();
+		try {
+			setChangeListenersEnabled(false);
+			field.setItems(possibleValues);
+			field.setVisible(!possibleValues.isEmpty());
+			field.setValue(selectedValues);
+		} finally {
+			setChangeListenersEnabled(listenerStatus);
+		}
+	}
+
 	private void checkOther20kgFields(LocalizedIntegerField fieldA,
 	        LocalizedIntegerField fieldB) {
 		logger.trace("entering checkOther20kgFields {} {}", isCheckOther20kgFields(),
@@ -704,9 +757,17 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.ageGroupTeamField = new CheckboxGroup<>(null, getEditedAthlete().getPossibleAgeGroupTeams());
 		bindField(this.binder.forField(this.ageGroupTeamField), this.ageGroupTeamField, Athlete::getAgeGroupTeams,
 		        Athlete::setAgeGroupTeams);
-		this.ageGroupTeamField.setValue(getEditedAthlete().getPossibleAgeGroupTeams());
+		this.ageGroupTeamField.setValue(getEditedAthlete().getAgeGroupTeams());
 		FormItem fi4 = layoutAddFormItem(layout, this.ageGroupTeamField, Translator.translate("TeamMembership.Title"));
 		layout.setColspan(fi4, NB_COLUMNS - 1);
+
+		this.mixedAgeGroupTeamField = new CheckboxGroup<>(null, getEditedAthlete().getPossibleMixedAgeGroupTeams());
+		bindField(this.binder.forField(this.mixedAgeGroupTeamField), this.mixedAgeGroupTeamField,
+		        Athlete::getMixedAgeGroupTeams, Athlete::setMixedAgeGroupTeams);
+		this.mixedAgeGroupTeamField.setValue(getEditedAthlete().getMixedAgeGroupTeams());
+		FormItem fi5 = layoutAddFormItem(layout, this.mixedAgeGroupTeamField,
+		        Translator.translate("TeamMembership.MixedTeamMember"));
+		layout.setColspan(fi5, NB_COLUMNS - 1);
 
 		this.groupField = new ComboBox<>();
 		bindField(this.binder.forField(this.groupField), this.groupField, Athlete::getGroup, Athlete::setGroup);
@@ -1207,6 +1268,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			Stream<Category> filter = this.allEligible.stream().filter(c -> c.sameAsAny(selectedEligibilityCategories));
 			Category category2 = filter.findFirst().orElse(null);
 			setCategoryFieldValue(category2);
+			refreshTeamMembershipFields();
 			setChangeListenersEnabled(true);
 		});
 
@@ -1219,6 +1281,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			        this.qualifyingTotalField);
 		});
 		this.qualifyingTotalField.setAutoselect(true);
+		refreshTeamMembershipFields();
 
 		setChangeListenersEnabled(true);
 	}
@@ -1791,6 +1854,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			setCategoryFieldValue(matchingEligible);
 		} else {
 		}
+		refreshTeamMembershipFields();
 	}
 
 	public void setEligibleField(Set<Category> newEligibles) {
