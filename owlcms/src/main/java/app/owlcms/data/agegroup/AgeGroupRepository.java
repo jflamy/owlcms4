@@ -717,7 +717,7 @@ public class AgeGroupRepository {
 	}
 
 	private static AgeGroup fixAg(AgeGroup ag) {
-		if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
+		if (ag.getChampionshipType().isMasters()) {
 			ag.setAlreadyGendered(true);
 		}
 		if (ag.getCode().startsWith("!")) {

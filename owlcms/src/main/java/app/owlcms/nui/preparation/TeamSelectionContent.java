@@ -51,7 +51,6 @@ import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
-import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
@@ -563,7 +562,7 @@ public class TeamSelectionContent extends BaseContent
 			this.topBarAgeGroupPrefixSelect.setItems(ageDivisionAgeGroupPrefixes);
 			boolean notEmpty = ageDivisionAgeGroupPrefixes.size() > 0;
 			this.topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-			String first = (notEmpty && ageDivisionValue.getType() == ChampionshipType.IWF) ? ageDivisionAgeGroupPrefixes.get(0)
+			String first = (notEmpty && ageDivisionValue.getType().isIWF()) ? ageDivisionAgeGroupPrefixes.get(0)
 			        : null;
 			// logger.debug("ad {} ag {} first {} select {}", ageDivisionValue,
 			// ageDivisionAgeGroupPrefixes, first,

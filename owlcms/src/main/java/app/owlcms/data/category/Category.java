@@ -493,7 +493,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 			return 0;
 		}
 		int wr = 0;
-		if (this.ageGroup.getChampionshipType() != (ChampionshipType.IWF)) {
+		if (!this.ageGroup.getChampionshipType().isIWF()) {
 			wr = 0;
 		} else if (this.ageGroup.getMaxAge() == 999) {
 			wr = getWrSr();

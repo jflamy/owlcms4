@@ -150,7 +150,7 @@ public class AgeGroupDefinitionReader {
 								ag.setChampionshipType(ChampionshipType.U);
 							}
 
-							if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
+							if (ag.getChampionshipType().isMasters()) {
 								ag.setAlreadyGendered(true);
 							}
 						}

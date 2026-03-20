@@ -468,7 +468,7 @@ public class AthleteSorter implements Serializable {
 		boolean imwa = Competition.getCurrent().isImwa();
 		ChampionshipType championshipType = mr.getChampionshipType();
 		Group session = a.getGroup();
-		if (imwa && (championshipType == ChampionshipType.MASTERS || (session != null && session.isMasters()))) {
+		if (imwa && (championshipType.isMasters() || (session != null && session.isMasters()))) {
 			// IMWA lowers points for 1-person and two-person categories
 			Category category = a.getCategory();
 			int athleteCount = AthleteRepository.retrieveMastersAthleteCountForCategory(category);

@@ -29,7 +29,6 @@ import app.owlcms.apputils.queryparameters.TopParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
-import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -96,7 +95,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 			List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, championship);
 			if (existingAgeGroupPrefix != null) {
 				ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
-			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && championship.getType() != ChampionshipType.MASTERS) {
+			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && !championship.getType().isMasters()) {
 				ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
 			}
 			// Restart timer after value change
