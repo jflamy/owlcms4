@@ -50,7 +50,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
-import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -3677,6 +3676,34 @@ public class Athlete {
 	@JsonIgnore
 	public boolean isMixedTeamMember() {
 		return (getMainRankings() != null ? getMainRankings().getMixedTeamMember() : false);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawTotalPoints() {
+		Participation mainRankings = getMainRankings();
+		return mainRankings != null ? mainRankings.getRawTotalPoints() : 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawSnatchPoints() {
+		Participation mainRankings = getMainRankings();
+		return mainRankings != null ? mainRankings.getRawSnatchPoints() : 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawCleanJerkPoints() {
+		Participation mainRankings = getMainRankings();
+		return mainRankings != null ? mainRankings.getRawCleanJerkPoints() : 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawCombinedPoints() {
+		Participation mainRankings = getMainRankings();
+		return mainRankings != null ? mainRankings.getRawCombinedPoints() : 0;
 	}
 
 	@Transient

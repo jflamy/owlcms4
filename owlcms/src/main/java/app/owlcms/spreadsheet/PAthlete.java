@@ -410,6 +410,26 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
+	public int getRawTotalPoints() {
+		return this.originalParticipation.getRawTotalPoints();
+	}
+
+	@Override
+	public int getRawSnatchPoints() {
+		return this.originalParticipation.getRawSnatchPoints();
+	}
+
+	@Override
+	public int getRawCleanJerkPoints() {
+		return this.originalParticipation.getRawCleanJerkPoints();
+	}
+
+	@Override
+	public int getRawCombinedPoints() {
+		return this.originalParticipation.getRawCombinedPoints();
+	}
+
+	@Override
 	public int getCombinedRank() {
 		return this.p.getCombinedRank();
 	}

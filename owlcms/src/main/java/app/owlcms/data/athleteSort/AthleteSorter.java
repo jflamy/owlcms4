@@ -458,6 +458,22 @@ public class AthleteSorter implements Serializable {
 		}
 	}
 
+	public static int pointsFormula(Integer rank, int firstPlacePoints, int secondPlacePoints, int thirdPlacePoints) {
+		if (rank == null || rank <= 0) {
+			return 0;
+		}
+		switch (rank) {
+			case 1:
+				return firstPlacePoints;
+			case 2:
+				return secondPlacePoints;
+			case 3:
+				return thirdPlacePoints;
+			default:
+				return Math.max(0, thirdPlacePoints - (rank - 3));
+		}
+	}
+
 	/**
 	 * @param a
 	 * @return normal points, unless in a Masters championship or a Masters session and IMWA team scoring is enabled

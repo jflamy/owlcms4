@@ -170,6 +170,30 @@ public class Participation implements IRankHolder {
 		return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
 	}
 
+	@Transient
+	@JsonIgnore
+	public int getRawTotalPoints() {
+		return AthleteSorter.pointsFormula(this.totalRank);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawSnatchPoints() {
+		return AthleteSorter.pointsFormula(this.snatchRank);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawCleanJerkPoints() {
+		return AthleteSorter.pointsFormula(this.cleanJerkRank);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawCombinedPoints() {
+		return getRawSnatchPoints() + getRawCleanJerkPoints() + getRawTotalPoints();
+	}
+
 	public int getCombinedRank() {
 		return this.combinedRank;
 	}
@@ -337,11 +361,11 @@ public class Participation implements IRankHolder {
 		return "Participation [athlete=" + this.athlete + ", category=" + this.category + "]";
 	}
 
-	private boolean isTeamMember() {
+	public boolean isTeamMember() {
 		return this.teamMember;
 	}
 
-	private boolean isMixedTeamMember() {
+	public boolean isMixedTeamMember() {
 		return this.mixedTeamMember;
 	}
 
