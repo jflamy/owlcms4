@@ -9,6 +9,7 @@ package app.owlcms.data.agegroup;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -475,11 +476,7 @@ public class AgeGroupRepository {
 			return ag;
 		});
 
-		boolean needCleanUp = !ageGroup.getCode().equals(existing.getCode())
-		        || !ageGroup.getMinAge().equals(existing.getMinAge())
-		        || !ageGroup.getMaxAge().equals(existing.getMaxAge())
-		        || ageGroup.getGender() != existing.getGender()
-		        || existing.reassignmentHashCode() != ageGroup.reassignmentHashCode();
+		boolean needCleanUp = requiresAthleteReassignment(existing, ageGroup);
 
 		List<Athlete> assignedAthletes = AthleteRepository.findAthletesForAgeGroup(ageGroup);
 
@@ -525,6 +522,41 @@ public class AgeGroupRepository {
 			return nAgeGroup;
 		}
 
+	}
+
+	private static boolean requiresAthleteReassignment(AgeGroup existing, AgeGroup updated) {
+		if (existing == null || updated == null) {
+			return false;
+		}
+
+		// Championship-level edits do not affect age-group category assignment.
+		return !ObjectUtils.equals(updated.getMinAge(), existing.getMinAge())
+		        || !ObjectUtils.equals(updated.getMaxAge(), existing.getMaxAge())
+		        || updated.getGender() != existing.getGender()
+		        || !sameReassignmentCategories(existing, updated);
+	}
+
+	private static boolean sameReassignmentCategories(AgeGroup existing, AgeGroup updated) {
+		List<Category> existingCategories = normalizedCategoriesForReassignment(existing);
+		List<Category> updatedCategories = normalizedCategoriesForReassignment(updated);
+
+		if (existingCategories.size() != updatedCategories.size()) {
+			return false;
+		}
+
+		for (int index = 0; index < existingCategories.size(); index++) {
+			if (existingCategories.get(index).reassignmentHashCode() != updatedCategories.get(index).reassignmentHashCode()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static List<Category> normalizedCategoriesForReassignment(AgeGroup ageGroup) {
+		return ageGroup.getCategories().stream()
+		        .sorted(Comparator.naturalOrder())
+		        .collect(Collectors.toList());
 	}
 
 	private static boolean hasDuplicateCodeGender(AgeGroup ageGroup, EntityManager em) {
