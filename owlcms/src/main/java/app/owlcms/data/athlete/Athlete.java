@@ -1123,17 +1123,13 @@ public class Athlete {
 	public String getAllCategoriesAsString() {
 		Category mrCat = getCategory();
 
-		String mainCategoryAsString = mrCat != null ? mrCat.getDisplayName() : "";
-		if (mrCat != null && !getMainRankings().getTeamMember()) {
-			mainCategoryAsString = mainCategoryAsString + RAthlete.NoTeamMarker;
-		}
+		String mainCategoryAsString = mrCat != null ? formatCategoryParticipation(mrCat.getDisplayName(), getMainRankings()) : "";
 
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
 		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
-			        String catName = p.getCategory().getDisplayName();
-			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
+			        return formatCategoryParticipation(p.getCategory().getDisplayName(), p);
 		        })
 		        .collect(Collectors.joining(";"));
 		if (eligiblesAsString.isBlank()) {
@@ -1958,24 +1954,27 @@ public class Athlete {
 		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
 		String mainCategory = mrCat != null ? mrCat.getDisplayName() : "";
 
-		String mainCategoryString = mainCategory;
-		if (mrCat != null && !getMainRankings().getTeamMember()) {
-			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
-		}
+		String mainCategoryString = formatCategoryParticipation(mainCategory, getMainRankings());
 
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
 		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
-			        String catName = p.getCategory().getNameWithAgeGroup();
-			        return catName;
+			        return formatCategoryParticipation(p.getCategory().getNameWithAgeGroup(), p);
 		        })
 		        .collect(Collectors.joining(";"));
 		if (eligiblesAsString.isBlank()) {
 			return mainCategoryString;
 		} else {
-			return mainCategory + ";" + eligiblesAsString;
+			return mainCategoryString + ";" + eligiblesAsString;
 		}
+	}
+
+	private String formatCategoryParticipation(String categoryName, Participation participation) {
+		if (categoryName == null || categoryName.isBlank() || participation == null) {
+			return categoryName;
+		}
+		return RAthlete.appendMembershipMarkers(categoryName, participation.getTeamMember(), participation.getMixedTeamMember());
 	}
 
 	public Integer getEntryTotal() {
@@ -6575,6 +6574,14 @@ public class Athlete {
 	public LinkedHashSet<Category> computeTeams() {
 		LinkedHashSet<Category> collect = getParticipations().stream()
 		        .filter(p -> p.getTeamMember())
+		        .map(p -> p.getCategory())
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
+		return collect;
+	}
+
+	public LinkedHashSet<Category> computeMixedTeams() {
+		LinkedHashSet<Category> collect = getParticipations().stream()
+		        .filter(p -> p.getMixedTeamMember())
 		        .map(p -> p.getCategory())
 		        .collect(Collectors.toCollection(LinkedHashSet::new));
 		return collect;
