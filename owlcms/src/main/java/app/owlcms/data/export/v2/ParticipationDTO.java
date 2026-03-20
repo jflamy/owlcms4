@@ -29,6 +29,7 @@ public class ParticipationDTO {
 	private Integer teamCJRank;
 	private Integer teamCombinedRank;
 	private Boolean teamMember;
+	private Boolean mixedTeamMember;
 	private Integer teamRobiRank;
 	private Integer teamSinclairRank;
 	private Integer teamSnatchRank;
@@ -54,6 +55,7 @@ public class ParticipationDTO {
 		dto.setTeamCJRank(participation.getTeamCJRank());
 		dto.setTeamCombinedRank(participation.getTeamCombinedRank());
 		dto.setTeamMember(participation.getTeamMember());
+		dto.setMixedTeamMember(participation.getMixedTeamMember());
 		dto.setTeamRobiRank(participation.getTeamRobiRank());
 		dto.setTeamSinclairRank(participation.getTeamSinclairRank());
 		dto.setTeamSnatchRank(participation.getTeamSnatchRank());
@@ -91,6 +93,7 @@ public class ParticipationDTO {
 		participation.setTeamCJRank(teamCJRank != null ? teamCJRank : 0);
 		participation.setTeamCombinedRank(teamCombinedRank != null ? teamCombinedRank : 0);
 		participation.setTeamMember(teamMember != null ? teamMember : false);
+		participation.setMixedTeamMember(mixedTeamMember != null ? mixedTeamMember : false);
 		participation.setTeamRobiRank(teamRobiRank != null ? teamRobiRank : 0);
 		participation.setTeamSinclairRank(teamSinclairRank != null ? teamSinclairRank : 0);
 		participation.setTeamSnatchRank(teamSnatchRank != null ? teamSnatchRank : 0);
@@ -171,6 +174,14 @@ public class ParticipationDTO {
 	
 	public void setTeamMember(Boolean teamMember) {
 		this.teamMember = teamMember;
+	}
+
+	public Boolean getMixedTeamMember() {
+		return mixedTeamMember;
+	}
+
+	public void setMixedTeamMember(Boolean mixedTeamMember) {
+		this.mixedTeamMember = mixedTeamMember;
 	}
 	
 	public Integer getTeamRobiRank() {

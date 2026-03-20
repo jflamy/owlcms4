@@ -919,6 +919,10 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getTeamMember();
 	}
 
+	public Boolean getMixedTeamMember() {
+		return this.p.getMixedTeamMember();
+	}
+
 	@Override
 	public Integer getTeamRobiRank() {
 		return this.a.getTeamRobiRank();
@@ -1006,6 +1010,10 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@Override
 	public boolean isTeamMember() {
 		return this.p.getTeamMember();
+	}
+
+	public boolean isMixedTeamMember() {
+		return this.p.getMixedTeamMember();
 	}
 
 	@Override
@@ -1101,6 +1109,10 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@Override
 	public void setTeamMember(boolean member) {
 		this.p.setTeamMember(member);
+	}
+
+	public void setMixedTeamMember(boolean member) {
+		this.p.setMixedTeamMember(member);
 	}
 
 	@Override

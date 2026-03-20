@@ -236,6 +236,9 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 			case F:
 				maxCount = comp.getWomensBestN() != null ? comp.getWomensBestN() : Integer.MAX_VALUE;
 				break;
+			case MF:
+				maxCount = comp.getMixedBestNElseDefault() != null ? comp.getMixedBestNElseDefault() : Integer.MAX_VALUE;
+				break;
 			case I:
 				return 0;
 			default:

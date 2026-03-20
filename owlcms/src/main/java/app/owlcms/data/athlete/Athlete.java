@@ -523,11 +523,16 @@ public class Athlete {
 	}
 
 	public void addEligibleCategory(Category category, boolean teamMember) {
+		addEligibleCategory(category, teamMember, false);
+	}
+
+	public void addEligibleCategory(Category category, boolean teamMember, boolean mixedTeamMember) {
 		if (category == null) {
 			return;
 		}
 		Participation participation = new Participation(this, category);
 		participation.setTeamMember(teamMember);
+		participation.setMixedTeamMember(mixedTeamMember);
 
 		if (this.participations == null) {
 			setParticipations(new ArrayList<>());
@@ -1091,6 +1096,23 @@ public class Athlete {
 				continue;
 			}
 			if (p.getTeamMember()) {
+				s.add(category2.getAgeGroup().getDisplayName());
+			}
+		}
+		return s;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Set<String> getMixedAgeGroupTeams() {
+		Set<String> s = new LinkedHashSet<>();
+		List<Participation> participations2 = getParticipations();
+		for (Participation p : participations2) {
+			Category category2 = p.getCategory();
+			if (category2 == null || category2.getAgeGroup() == null) {
+				continue;
+			}
+			if (p.getMixedTeamMember()) {
 				s.add(category2.getAgeGroup().getDisplayName());
 			}
 		}
@@ -2523,6 +2545,22 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Set<String> getPossibleMixedAgeGroupTeams() {
+		Set<String> s = new LinkedHashSet<>();
+		List<Participation> participations2 = getParticipations();
+		List<Category> pcats = participations2.stream().map(p -> p.getCategory()).collect(Collectors.toList());
+		pcats.sort(new RegistrationPreferenceComparator());
+		for (Category p : pcats) {
+			AgeGroup ageGroup = p.getAgeGroup();
+			if (ageGroup != null && ageGroup.isMixedTeams()) {
+				s.add(ageGroup.getDisplayName());
+			}
+		}
+		return s;
+	}
+
+	@Transient
+	@JsonIgnore
 	public Double getPresumedBodyWeight() {
 		Double bodyWeight2 = getBodyWeight();
 		if (bodyWeight2 != null && bodyWeight2 >= 0) {
@@ -3354,6 +3392,12 @@ public class Athlete {
 		return isEligibleForTeamRanking();
 	}
 
+	@Transient
+	@JsonIgnore
+	public Boolean getMixedTeamMember() {
+		return (getMainRankings() != null ? getMainRankings().getMixedTeamMember() : false);
+	}
+
 	/**
 	 * Gets the team robi rank.
 	 *
@@ -3631,6 +3675,12 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public boolean isMixedTeamMember() {
+		return (getMainRankings() != null ? getMainRankings().getMixedTeamMember() : false);
+	}
+
+	@Transient
+	@JsonIgnore
 	public boolean isValidation() {
 		return this.validation && !isSkipValidationsDuringImport();
 	}
@@ -3709,8 +3759,24 @@ public class Athlete {
 		// in a checkbox group
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
-			// logger.debug("p.getCategory()={} p.getCategory().getAgeGroup()={}", p.getCategory(), p.getCategory() != null ? p.getCategory().getAgeGroup() : null);
-			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
+			Category category2 = p.getCategory();
+			if (category2 == null || category2.getAgeGroup() == null) {
+				continue;
+			}
+			p.setTeamMember(s.contains(category2.getAgeGroup().getDisplayName()));
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public void setMixedAgeGroupTeams(Set<String> s) {
+		List<Participation> participations2 = getParticipations();
+		for (Participation p : participations2) {
+			Category category2 = p.getCategory();
+			if (category2 == null || category2.getAgeGroup() == null) {
+				continue;
+			}
+			p.setMixedTeamMember(s.contains(category2.getAgeGroup().getDisplayName()));
 		}
 	}
 
@@ -4880,6 +4946,10 @@ public class Athlete {
 
 	public void setTeamMember(boolean member) {
 		throw new UnsupportedOperationException("Team Membership should be updated via PAthlete");
+	}
+
+	public void setMixedTeamMember(boolean member) {
+		throw new UnsupportedOperationException("Mixed Team Membership should be updated via PAthlete");
 	}
 
 	/**
