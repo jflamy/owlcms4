@@ -93,14 +93,22 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 			        teamNames.add(athleteTeamName);
 
 			        Gender athleteGender = p.getAthlete().getGender();
-			        if (genderFilterValue != null && genderFilterValue != athleteGender) {
-				        return false;
+			        boolean mixedFilter = genderFilterValue == Gender.MF;
+			        if (genderFilterValue != null) {
+				        if (mixedFilter) {
+					        if (!p.getMixedTeamMember()) {
+						        return false;
+					        }
+				        } else if (genderFilterValue != athleteGender) {
+					        return false;
+				        }
 			        }
+			        Gender teamGender = mixedFilter ? Gender.MF : athleteGender;
 			        List<TeamTreeItem> teams = this.teamsByName.get(athleteTeamName);
 			        TeamTreeItem genderTeam = null;
 			        if (teams != null) {
 				        for (TeamTreeItem t : teams) {
-					        if (t.getGender() == athleteGender) {
+					        if (t.getGender() == teamGender) {
 						        genderTeam = t;
 					        }
 				        }
@@ -108,13 +116,14 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 				        teams = new ArrayList<>();
 			        }
 			        if (genderTeam == null) {
-				        genderTeam = new TeamTreeItem(athleteTeamName, athleteGender, null, true);
+				        genderTeam = new TeamTreeItem(athleteTeamName, teamGender, null, true);
 				        teams.add(genderTeam);
 				        this.teamsByName.put(athleteTeamName, teams);
 			        }
 
+			        boolean genderOk = genderFilterValue == null || mixedFilter || genderFilterValue == athleteGender;
 			        boolean catOk = (catFilterValue == null || athleteCatCode.contentEquals(catCode))
-			                && (genderFilterValue == null || genderFilterValue == athleteGender)
+			                && genderOk
 			                && (teamFilterValue == null || teamFilterValue.contentEquals(athleteTeamName));
 			        return catOk;
 		        })
@@ -128,8 +137,8 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 				        return compare;
 			        }
 
-			        Boolean memberA = a.getTeamMember();
-			        Boolean memberB = b.getTeamMember();
+			        Boolean memberA = genderFilterValue == Gender.MF ? a.getMixedTeamMember() : a.getTeamMember();
+			        Boolean memberB = genderFilterValue == Gender.MF ? b.getMixedTeamMember() : b.getTeamMember();
 			        compare = -(memberA.compareTo(memberB));
 			        if (compare != 0) {
 				        return compare;
@@ -216,16 +225,51 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 				}
 			}
 		}
+		if (participations == null) {
+			return;
+		}
+		if (ageDivision.isMixed()) {
+			Collection<Participation> mixedParticipations = participations.stream()
+			        .filter(Participation::isMixedTeamMember)
+			        .sorted((p1, p2) -> {
+				        int compare = 0;
+				        compare = ObjectUtils.compare(p1.getAthlete().getTeam(), p2.getAthlete().getTeam());
+				        if (compare != 0) {
+					        return compare;
+				        }
+				        compare = ObjectUtils.compare(p1.getMixedTeamMember(), p2.getMixedTeamMember());
+				        if (compare != 0) {
+					        return -compare;
+				        }
+				        return p1.getCategory().compareTo(p2.getCategory());
+			        })
+			        .collect(Collectors.toList());
+
+			TeamTreeItem curTeamItem = null;
+			for (Participation p : mixedParticipations) {
+				String curTeamName = p.getAthlete().getTeam();
+				curTeamItem = findCurTeamItem(Gender.MF, curTeamName != null ? curTeamName : "-");
+				if (!this.teams.contains(curTeamItem)) {
+					this.addRootItems(curTeamItem);
+					this.teams.add(curTeamItem);
+				}
+
+				Group group = p.getAthlete().getGroup();
+				curTeamItem.addTreeItemChild(this, new PAthlete(p), group != null ? group.isDone() : false);
+			}
+		}
 		for (TeamTreeItem t : this.teams) {
-			t.getTeam().setSize(checkCounts(t.getTeamMembers()));
+			t.getTeam().setSize(checkCounts(t));
 		}
 		dumpTeams();
 	}
 
-	private long checkCounts(List<TeamTreeItem> teamMembers) {
+	private long checkCounts(TeamTreeItem teamItem) {
+		List<TeamTreeItem> teamMembers = teamItem.getTeamMembers();
 		HashMap<String, Integer> nbPerCat = new HashMap<>();
 		List<String> illegalCounts = new ArrayList<>();
 		int nbMembers = 0;
+		boolean mixedTeam = teamItem.getGender() == Gender.MF;
 		for (TeamTreeItem t : teamMembers) {
 			Integer countPerCat = nbPerCat.get(t.getCategory());
 			countPerCat = countPerCat == null ? 1 : countPerCat + 1;
@@ -233,7 +277,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 			if (countPerCat > Competition.getCurrent().getMaxPerCategory()) {
 				illegalCounts.add(t.getCategory());
 			}
-			if (t.isTeamMember()) {
+			if (mixedTeam ? Boolean.TRUE.equals(t.isMixedTeamMember()) : Boolean.TRUE.equals(t.isTeamMember())) {
 				nbMembers++;
 			}
 		}
@@ -263,6 +307,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 	}
 
 	private TeamTreeItem findCurTeamItem(Gender gender, String curTeamName) {
+		this.teamsByName.computeIfAbsent(curTeamName, ignored -> new ArrayList<>());
 		TeamTreeItem curTeamItem;
 		// maybe we have seen the team already (if mixed)
 		TeamTreeItem found = null;

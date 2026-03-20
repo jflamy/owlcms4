@@ -60,6 +60,7 @@ public class TeamTreeItem {
 	private List<TeamTreeItem> teamMembers;
 	private boolean combinedPoints;
 	private NativeLabel membershipLabel;
+	private NativeLabel mixedMembershipLabel;
 	private boolean warning;
 	private Ranking scoringSystem;
 
@@ -146,6 +147,10 @@ public class TeamTreeItem {
 		return this.membershipLabel;
 	}
 
+	public NativeLabel getMixedMembershipLabel() {
+		return this.mixedMembershipLabel;
+	}
+
 	public String getName() {
 		if (this.athlete == null) {
 			return getTeam().getName();
@@ -229,12 +234,20 @@ public class TeamTreeItem {
 		return (this.athlete != null ? this.athlete.isTeamMember() : null);
 	}
 
+	public Boolean isMixedTeamMember() {
+		return (this.athlete != null ? this.athlete.isMixedTeamMember() : null);
+	}
+
 	public boolean isWarning() {
 		return this.warning;
 	}
 
 	public void setMembershipLabel(NativeLabel label) {
 		this.membershipLabel = label;
+	}
+
+	public void setMixedMembershipLabel(NativeLabel label) {
+		this.mixedMembershipLabel = label;
 	}
 
 	public void setParent(TeamTreeItem parent) {
@@ -244,6 +257,12 @@ public class TeamTreeItem {
 	public void setTeamMember(boolean b) {
 		if (this.athlete != null) {
 			this.athlete.setTeamMember(b);
+		}
+	}
+
+	public void setMixedTeamMember(boolean b) {
+		if (this.athlete != null) {
+			this.athlete.setMixedTeamMember(b);
 		}
 	}
 
