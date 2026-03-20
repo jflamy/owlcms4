@@ -405,8 +405,6 @@ public class Main {
                         return null;
                     });
                 } else {
-                    // make sure there is a championship name as foreign key to Championship
-                    AgeGroupRepository.updateExistingChampionships();
                     // bootstrap stored championships from age groups if Championship table is empty
                     ChampionshipRepository.bootstrapFromAgeGroups();
                     // validate that categories are consistent with their age groups

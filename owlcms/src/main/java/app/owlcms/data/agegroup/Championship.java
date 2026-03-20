@@ -107,8 +107,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 	   }
 
 	/**
-	 * Find all championships. Loads from database; falls back to age-group derivation
-	 * if the Championship table is empty (pre-migration or first startup).
+	 * Find all championships from the stored Championship table.
 	 *
 	 * @return the sorted list
 	 */
@@ -116,51 +115,14 @@ public class Championship implements Comparable<Championship>, Serializable {
 		if (allChampionshipsMap == null || allChampionshipsMap.isEmpty()) {
 			allChampionshipsMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			// Try loading from the persisted Championship table first.
 			List<Championship> stored = ChampionshipRepository.findAll();
-			if (stored != null && !stored.isEmpty()) {
+			if ((stored == null || stored.isEmpty()) && !AgeGroupRepository.findAll().isEmpty()) {
+				ChampionshipRepository.bootstrapFromAgeGroups();
+				stored = ChampionshipRepository.findAll();
+			}
+			if (stored != null) {
 				for (Championship c : stored) {
 					allChampionshipsMap.put(c.getName(), c);
-				}
-			} else {
-				// Fallback: derive from age groups (pre-migration or empty DB).
-				// Seed default entries.
-				String name = null;
-				name = Translator.translate("Division." + ChampionshipType.DEFAULT.name());
-				Championship defaultChamp = new Championship(name, ChampionshipType.DEFAULT);
-				allChampionshipsMap.put(name, defaultChamp);
-				name = Translator.translate("Division." + ChampionshipType.MASTERS.name());
-				Championship mastersChamp = new Championship(name, ChampionshipType.MASTERS);
-				allChampionshipsMap.put(name, mastersChamp);
-
-				// Derive additional championships from persisted age groups.
-				List<String> allChampionships = AgeGroupRepository.allChampionshipsForAllAgeGroups();
-				for (String s : allChampionships) {
-					String typeString = null;
-					String nameString = null;
-					if (s.contains("¤")) {
-						String[] arr = s.split("¤");
-						if (arr.length > 1) {
-							typeString = arr[1];
-						} else {
-							typeString = "U";
-						}
-						nameString = arr[0];
-					} else {
-						typeString = s;
-						nameString = s;
-					}
-					ChampionshipType cType = ChampionshipType.U;
-					try {
-						cType = ChampionshipType.valueOf(typeString);
-					} catch (Exception e) {
-					}
-					// Add to cache only (not to DB) during fallback.
-					String canonicalName = canonicalizeChampionshipName(nameString);
-					ChampionshipType canonicalType = canonicalizeChampionshipType(canonicalName, cType);
-					if (!allChampionshipsMap.containsKey(canonicalName)) {
-						allChampionshipsMap.put(canonicalName, new Championship(canonicalName, canonicalType));
-					}
 				}
 			}
 		}

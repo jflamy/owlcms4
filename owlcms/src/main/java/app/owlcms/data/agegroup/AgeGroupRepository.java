@@ -80,11 +80,7 @@ public class AgeGroupRepository {
 		TreeSet<String> ts = new TreeSet<>();
 		for (AgeGroup ag : ageGroups) {
 			if (!activeOnly || ag.isActive()) {
-				if (ag.computeChampionshipName() != null && !ag.computeChampionshipName().isBlank()) {
-					ts.add(ag.computeChampionshipName());
-				} else if (ag.getAgeDivision() != null) {
-					ts.add(ag.getAgeDivision());
-				}
+				ts.add(ag.computeChampionshipName());
 			}
 		}
 		return new ArrayList<>(ts);
@@ -101,13 +97,7 @@ public class AgeGroupRepository {
 		});
 		TreeSet<String> ts = new TreeSet<>();
 		for (AgeGroup ag : ageGroups) {
-			if (ag.computeChampionshipName() != null && !ag.computeChampionshipName().isBlank()) {
-				ts.add(ag.computeChampionshipName() + "¤" + ag.getAgeDivision());
-			} else if (ag.getAgeDivision() != null) {
-				ts.add(ag.getAgeDivision());
-			} else {
-				logger.error("{} {} {}", ag.getId(), ag.code, ag.computeChampionshipName(), ag.getCategoriesAsString());
-			}
+			ts.add(ag.computeChampionshipName() + "¤" + ag.getChampionshipType().name());
 		}
 		return new ArrayList<>(ts);
 	}
@@ -143,8 +133,7 @@ public class AgeGroupRepository {
 				whereList.add("ag.code = :ageGroupPrefix");
 			}
 			if (championship != null) {
-				// Match on championshipName first; only fall back to ageDivision if championshipName is not set
-				whereList.add("((lower(ag.championshipName) = lower(:championshipName)) or ((ag.championshipName IS NULL OR ag.championshipName = '') AND lower(ag.ageDivision) = lower(:championshipName)))");
+				whereList.add("lower(ag.championshipName) = lower(:championshipName)");
 			}
 			String whereClause = "";
 			if (whereList.size() > 0) {
@@ -297,9 +286,8 @@ public class AgeGroupRepository {
 				List<String> resultSet = q.getResultList();
 				return resultSet;
 			} else {
-				// Match on championshipName first; only fall back to ageDivision if championshipName is not set
 				TypedQuery<String> q = em.createQuery(
-				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ((lower(ag.championshipName) = lower(:championshipName)) or ((ag.championshipName IS NULL OR ag.championshipName = '') AND lower(ag.ageDivision) = lower(:championshipName)))",
+				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where lower(ag.championshipName) = lower(:championshipName)",
 				        String.class);
 				q.setParameter("championshipName", championship.getName());
 				List<String> resultSet = q.getResultList();
@@ -539,20 +527,6 @@ public class AgeGroupRepository {
 
 	}
 
-	public static void updateExistingChampionships() {
-		JPAService.runInTransaction(em -> {
-			List<AgeGroup> ags = doFindAll(em);
-			for (AgeGroup a : ags) {
-				if (a.computeChampionshipName() == null || a.computeChampionshipName().isBlank()) {
-					a.setChampionshipName(a.getAgeDivision());
-				}
-				em.merge(a);
-			}
-			em.flush();
-			return null;
-		});
-	}
-
 	private static boolean hasDuplicateCodeGender(AgeGroup ageGroup, EntityManager em) {
 		if (ageGroup == null || em == null) {
 			return false;
@@ -693,8 +667,7 @@ public class AgeGroupRepository {
 	        Boolean active) {
 		List<String> whereList = new LinkedList<>();
 		if (championship != null) {
-			// Canonicalize both DB and parameter for matching
-			whereList.add("((LOWER(TRIM(ag.championshipName)) = :canonicalChampionshipName) or (LOWER(TRIM(ag.ageDivision)) = :canonicalChampionshipName))");
+			whereList.add("LOWER(TRIM(ag.championshipName)) = :canonicalChampionshipName");
 		}
 		if (name != null && name.trim().length() > 0) {
 			whereList.add("lower(ag.code) like :code");

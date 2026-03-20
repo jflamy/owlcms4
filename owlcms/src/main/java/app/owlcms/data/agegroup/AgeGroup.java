@@ -225,8 +225,10 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@JsonIgnore
 	@Transient
 	public String computeChampionshipName() {
-		return (this.getChampionshipName() != null && !this.getChampionshipName().isBlank()) ? this.getChampionshipName()
-		        : this.ageDivision;
+		if (this.getChampionshipName() == null || this.getChampionshipName().isBlank()) {
+			throw new IllegalStateException("AgeGroup " + this.getCode() + " is missing championshipName");
+		}
+		return this.getChampionshipName();
 	}
 
 	@Override
@@ -301,6 +303,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		} else {
 			return this.championshipType;
 		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public boolean isMixedTeams() {
+		ChampionshipType championshipType2 = getChampionshipType();
+		return championshipType2 != null && championshipType2.isMixed();
 	}
 	
 	public void setChampionshipType(ChampionshipType c) {

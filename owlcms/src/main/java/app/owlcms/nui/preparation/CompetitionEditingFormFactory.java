@@ -660,6 +660,15 @@ public class CompetitionEditingFormFactory
 		        .withValidator(new IntegerRangeValidator(message, 0, 99))
 		        .bind(Competition::getWomensBestN, Competition::setWomensBestN);
 
+		TextField mixedTeamSizeField = new TextField();
+		layout.addFormItem(mixedTeamSizeField,
+		        labelWithHelp("Competition.mixedTeamSize", "Competition.teamSizeExplanation"));
+		this.binder.forField(mixedTeamSizeField)
+		        .withNullRepresentation("")
+		        .withConverter(new StringToIntegerConverter(message))
+		        .withValidator(new IntegerRangeValidator(message, 0, 99))
+		        .bind(Competition::getMixedBestN, Competition::setMixedBestN);
+
 		IntegerField teamPoints1stField = new IntegerField();
 		layout.addFormItem(teamPoints1stField, Translator.translate("Competition.teamPoints1st"));
 		this.binder.forField(teamPoints1stField)

@@ -93,7 +93,6 @@ public class ChampionshipRepository {
 	/**
 	 * Reconcile stored championships with the current state of persisted age groups.
 	 * Creates missing Championship rows and updates types where age groups disagree.
-	 * Called after age-group file upload and after competition data import.
 	 */
 	public static void reconcileFromAgeGroups() {
 		JPAService.runInTransaction(em -> {
@@ -104,24 +103,14 @@ public class ChampionshipRepository {
 			// "Last age group read wins" for type resolution.
 			Map<String, ChampionshipType> nameToType = new LinkedHashMap<>();
 			for (AgeGroup ag : ageGroups) {
-				String champName = ag.computeChampionshipName();
+				String champName = ag.getChampionshipName();
 				if (champName == null || champName.isBlank()) {
-					continue;
+					throw new IllegalStateException("AgeGroup " + ag.getCode() + " is missing championshipName");
 				}
 				String canonical = Championship.canonicalizeChampionshipName(champName);
 				ChampionshipType agType = ag.getChampionshipType();
 				if (agType == null) {
-					// fallback: try to resolve from ageDivision
-					String ad = ag.getAgeDivision();
-					if (ad != null) {
-						try {
-							agType = ChampionshipType.valueOf(ad);
-						} catch (Exception e) {
-							agType = ChampionshipType.U;
-						}
-					} else {
-						agType = ChampionshipType.U;
-					}
+					agType = ChampionshipType.U;
 				}
 				nameToType.put(canonical, agType); // last wins
 			}

@@ -296,6 +296,12 @@ public class AgeGroupDefinitionReader {
 				}
 
 				if (ag != null && !skip) {
+					if (ag.getChampionshipName() == null || ag.getChampionshipName().isBlank()) {
+						ag.setChampionshipName(ag.getCode());
+					}
+					if (ag.getChampionshipType() == null) {
+						ag.setChampionshipType(ChampionshipType.U);
+					}
 					em.persist(ag);
 				}
 				iRow++;

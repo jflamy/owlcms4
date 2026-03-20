@@ -223,6 +223,10 @@ public class Competition {
 	@Column(name = "mensTeamSize", columnDefinition = "integer default 8")
 	@JsonProperty("mensTeamSize")
 	private Integer mensBestN = 8;
+	/* this is really "keep best n results", backward compatibility with database exports */
+	@Column(name = "mixedTeamSize", columnDefinition = "integer default 8")
+	@JsonProperty("mixedTeamSize")
+	private Integer mixedBestN = 8;
 	@Column(columnDefinition = "integer default 8")
 	private Integer maxTeamSize = 8;
 	@Column(columnDefinition = "integer default 2")
@@ -1167,8 +1171,18 @@ public class Competition {
 		return this.mensBestN != null ? this.mensBestN : this.maxTeamSize;
 	}
 
+	@Transient
+	@JsonIgnore
+	public Integer getMixedBestNElseDefault() {
+		return this.mixedBestN != null ? this.mixedBestN : this.maxTeamSize;
+	}
+
 	public Integer getMensBestN() {
 		return this.mensBestN;
+	}
+
+	public Integer getMixedBestN() {
+		return this.mixedBestN;
 	}
 
 	public String getOfficialsListTemplateFileName() {
@@ -1666,6 +1680,10 @@ public class Competition {
 
 	public void setMensBestN(Integer mensTeamSize) {
 		this.mensBestN = mensTeamSize;
+	}
+
+	public void setMixedBestN(Integer mixedTeamSize) {
+		this.mixedBestN = mixedTeamSize;
 	}
 
 	public void setOfficialsListTemplateFileName(String officialsListTemplateFileName) {
