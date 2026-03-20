@@ -299,6 +299,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return this.getType() == ChampionshipType.DEFAULT;
 	}
 
+	public boolean isMixed() {
+		return this.getType() != null && this.getType().isMixed();
+	}
+
 	public void setName(String name) {
 		if (allChampionshipsMap != null) {
 			allChampionshipsMap.remove(this.name);
