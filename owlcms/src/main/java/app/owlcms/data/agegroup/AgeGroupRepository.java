@@ -23,7 +23,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;

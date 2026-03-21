@@ -45,6 +45,7 @@ public class ChampionshipTest {
 
     private static final String FIXTURE_RESOURCE = "/testDatabases/mixedTestsJRSR.mv.db";
     private static final String MEMORY_JDBC_URL = "jdbc:h2:mem:owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
+    @SuppressWarnings("unused")
     private static final Logger logger = (Logger) LoggerFactory.getLogger(ChampionshipTest.class);
 
     private static Path fixtureDirectory;
@@ -61,6 +62,11 @@ public class ChampionshipTest {
 
         // Replicate the essential parts of Main.initData()
         Gender.initPublicGenderCodeMapString(Locale.ENGLISH);
+
+        // Override the fixture's persisted ranking settings so this test controls
+        // exactly which global/category scoring systems are computed.
+        overrideFixtureEnabledRankings();
+
         Competition.recomputeAllAthleteRanks();
     }
 
@@ -118,12 +124,6 @@ public class ChampionshipTest {
         assertNotNull("medal map should not be null", medals);
         assertTrue("medal map should have category entries", medals.size() > 0);
 
-        logger.warn("ChampionshipTest medal map categories: {}", medals.keySet());
-        medals.forEach((categoryCode, categoryAthletes) -> logger.warn("ChampionshipTest medals {} -> {}", categoryCode,
-            categoryAthletes.stream()
-                .map(a -> a.getLastName() + ":T" + a.getTotal() + ":R" + a.getTotalRank())
-                .collect(Collectors.toList())));
-
         // Spot-check JR_F48: gold should be POURAMIN
         List<Athlete> jrF48 = medals.get("JR_F48");
         assertNotNull("JR_F48 should be in medal map", jrF48);
@@ -133,6 +133,7 @@ public class ChampionshipTest {
         assertNotNull("JR_F48 should have a gold medalist", jrF48Gold);
         assertTrue("JR_F48 gold medalist should be Pouramin, got " + jrF48Gold.getLastName(),
             "POURAMIN".equalsIgnoreCase(jrF48Gold.getLastName()));
+        assertRoundedTo2("JR_F48 gold GAMX", 871.21D, jrF48Gold.getGamx());
 
         // Spot-check SR_F48: gold should be ALTUN
         List<Athlete> srF48 = medals.get("SR_F48");
@@ -143,6 +144,7 @@ public class ChampionshipTest {
         assertNotNull("SR_F48 should have a gold medalist", srF48Gold);
         assertTrue("SR_F48 gold medalist should be Altun, got " + srF48Gold.getLastName(),
             "ALTUN".equalsIgnoreCase(srF48Gold.getLastName()));
+            assertRoundedTo2("SR_F48 gold GAMX", 1026.14D, srF48Gold.getGamx());
 
         // Spot-check: verify ranks are stored on participations in the database
         Athlete anyAthlete = weighedIn.stream()
@@ -180,6 +182,27 @@ public class ChampionshipTest {
                 Statement targetStatement = target.createStatement()) {
             targetStatement.execute("RUNSCRIPT FROM '" + escapedScriptFile + "'");
         }
+    }
+
+    private static void overrideFixtureEnabledRankings() {
+        Competition competition = Competition.getCurrent();
+        competition.setEnabledRankings(List.of(
+            Ranking.BW_SINCLAIR.name(),
+            Ranking.GAMX.name(),
+            Ranking.CAT_GAMX.name()
+        ));
+        JPAService.runInTransaction(em -> {
+            em.merge(competition);
+            return null;
+        });
+        competition.initializeRankingConfig();
+    }
+
+    private static void assertRoundedTo2(String message, double expected, Double actual) {
+        assertNotNull(message + " should not be null", actual);
+        double actualRounded = Math.round(actual * 100.0D) / 100.0D;
+        double expectedRounded = Math.round(expected * 100.0D) / 100.0D;
+        assertEquals(message, expectedRounded, actualRounded, 0.0D);
     }
 
     private static String escapePath(Path path) {

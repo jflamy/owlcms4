@@ -1112,7 +1112,7 @@ public class Athlete {
 				continue;
 			}
 			if (p.getMixedTeamMember()) {
-				s.add(category2.getAgeGroup().getDisplayName());
+				s.add(category2.getAgeGroup().getCode());
 			}
 		}
 		return s;
@@ -2623,7 +2623,7 @@ public class Athlete {
 		for (Category p : pcats) {
 			AgeGroup ageGroup = p.getAgeGroup();
 			if (ageGroup != null && ageGroup.isMixedTeams()) {
-				s.add(ageGroup.getDisplayName());
+				s.add(ageGroup.getCode());
 			}
 		}
 		return s;
@@ -3874,7 +3874,7 @@ public class Athlete {
 			if (category2 == null || category2.getAgeGroup() == null) {
 				continue;
 			}
-			p.setMixedTeamMember(s.contains(category2.getAgeGroup().getDisplayName()));
+			p.setMixedTeamMember(s.contains(category2.getAgeGroup().getCode()));
 		}
 	}
 

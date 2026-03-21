@@ -117,6 +117,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private CheckboxGroup<Category> eligibleField;
 	private CheckboxGroup<String> ageGroupTeamField;
 	private CheckboxGroup<String> mixedAgeGroupTeamField;
+	private Div mixedTeamSpacer;
+	private FormItem mixedAgeGroupTeamFormItem;
 	private TextField federationCodesField;
 	private Map<HasValue<?, ?>, Binding<Athlete, ?>> fieldToBinding = new HashMap<>();
 	private TextField firstNameField;
@@ -647,7 +649,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		}
 		return ageGroupsForCategories(this.eligibleField.getValue()).stream()
 		        .filter(ag -> ag != null && ag.isMixedTeams())
-		        .map(AgeGroup::getDisplayName)
+		        .map(AgeGroup::getCode)
 		        .collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
@@ -677,6 +679,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			setChangeListenersEnabled(false);
 			field.setItems(possibleValues);
 			field.setVisible(!possibleValues.isEmpty());
+			if (field == this.mixedAgeGroupTeamField) {
+				boolean visible = !possibleValues.isEmpty();
+				if (this.mixedTeamSpacer != null) {
+					this.mixedTeamSpacer.setVisible(visible);
+				}
+				if (this.mixedAgeGroupTeamFormItem != null) {
+					this.mixedAgeGroupTeamFormItem.setVisible(visible);
+				}
+			}
 			field.setValue(selectedValues);
 		} finally {
 			setChangeListenersEnabled(listenerStatus);
@@ -764,10 +775,17 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.mixedAgeGroupTeamField = new CheckboxGroup<>(null, getEditedAthlete().getPossibleMixedAgeGroupTeams());
 		bindField(this.binder.forField(this.mixedAgeGroupTeamField), this.mixedAgeGroupTeamField,
 		        Athlete::getMixedAgeGroupTeams, Athlete::setMixedAgeGroupTeams);
+		this.mixedAgeGroupTeamField.setRenderer(new TextRenderer<>(this::formatMixedAgeGroupLabel));
+		this.mixedAgeGroupTeamField.setItemLabelGenerator(this::formatMixedAgeGroupLabel);
 		this.mixedAgeGroupTeamField.setValue(getEditedAthlete().getMixedAgeGroupTeams());
-		FormItem fi5 = layoutAddFormItem(layout, this.mixedAgeGroupTeamField,
+		this.mixedTeamSpacer = new Div();
+		layout.add(this.mixedTeamSpacer);
+		this.mixedAgeGroupTeamFormItem = layoutAddFormItem(layout, this.mixedAgeGroupTeamField,
 		        Translator.translate("TeamMembership.MixedTeamMember"));
-		layout.setColspan(fi5, NB_COLUMNS - 1);
+		layout.setColspan(this.mixedAgeGroupTeamFormItem, NB_COLUMNS - 1);
+		boolean hasMixedTeamItems = !getEditedAthlete().getPossibleMixedAgeGroupTeams().isEmpty();
+		this.mixedTeamSpacer.setVisible(hasMixedTeamItems);
+		this.mixedAgeGroupTeamFormItem.setVisible(hasMixedTeamItems);
 
 		this.groupField = new ComboBox<>();
 		bindField(this.binder.forField(this.groupField), this.groupField, Athlete::getGroup, Athlete::setGroup);
@@ -790,6 +808,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		layout.setColspan(fi3, NB_COLUMNS - 2);
 
 		return layout;
+	}
+
+	private String formatMixedAgeGroupLabel(String value) {
+		if (value == null) {
+			return "";
+		}
+		return value.replaceFirst("\\s+(M|F|I)$", "");
 	}
 
 	private FormLayout createDrawForm() {
