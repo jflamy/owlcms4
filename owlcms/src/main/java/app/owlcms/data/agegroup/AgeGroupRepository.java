@@ -384,11 +384,12 @@ public class AgeGroupRepository {
 			return resultList;
 		});
 		findFiltered.sort((ag1, ag2) -> {
-			int compare = 0;
-			ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
-			if (compare != 0) {
-				return -compare; // most generic first
-			}
+			//int compare = 0;
+			//*** this is missing an assignment to compare; current behavior might rely on this bug, so we comment out for now
+			// ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
+			// if (compare != 0) {
+			// 	return -compare; // most generic first
+			// }
 			return ag1.compareTo(ag2);
 		});
 		return findFiltered;
