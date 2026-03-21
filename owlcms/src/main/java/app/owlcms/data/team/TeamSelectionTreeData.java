@@ -41,6 +41,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 
 	Map<Gender, List<TeamTreeItem>> teamsByGender = new EnumMap<>(Gender.class);
 	private boolean debug = false;
+	private Gender genderFilterValue;
 	private final Logger logger = (Logger) LoggerFactory.getLogger(TeamSelectionTreeData.class);
 	private Ranking ranking;
 	private Map<String, List<TeamTreeItem>> teamsByName = new TreeMap<>();
@@ -65,22 +66,22 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 		}
 	});
 
-	public TeamSelectionTreeData(String ageGroupPrefix, Championship ageDivision, Gender gender, Ranking ranking,
+	public TeamSelectionTreeData(String ageGroupPrefix, Championship championship, Gender gender, Ranking ranking,
 	        boolean includeNotDone) {
+		this.genderFilterValue = gender;
 		this.setRanking(ranking);
-		init(ageGroupPrefix, ageDivision, gender, includeNotDone);
+		init(ageGroupPrefix, championship, gender, includeNotDone);
 	}
 
-	public Collection<Participation> findAll(String ageGroupPrefix, Championship ageDivision, Gender genderFilterValue,
+	public Collection<Participation> findAll(String ageGroupPrefix, Championship championship, Gender genderFilterValue,
 	        Category catFilterValue, String teamFilterValue) {
-		if (ageGroupPrefix == null && ageDivision == null) {
+		if (ageGroupPrefix == null && championship == null) {
 			return new ArrayList<>();
 		}
 
 		List<Participation> participations = AgeGroupRepository.allParticipationsForAgeGroupAgeDivision(ageGroupPrefix,
-		        ageDivision);
+		        championship);
 
-		Set<String> teamNames = new TreeSet<>();
 		Stream<Participation> stream = participations.stream()
 		        .filter(p -> {
 			        String catCode = catFilterValue != null ? catFilterValue.getComputedCode() : null;
@@ -90,40 +91,17 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 			        if (athleteTeamName == null || athleteTeamName.isBlank()) {
 				        return false;
 			        }
-			        teamNames.add(athleteTeamName);
 
 			        Gender athleteGender = p.getAthlete().getGender();
-			        boolean mixedFilter = genderFilterValue == Gender.MF;
-			        if (genderFilterValue != null) {
-				        if (mixedFilter) {
-					        if (!p.getMixedTeamMember()) {
-						        return false;
-					        }
-				        } else if (genderFilterValue != athleteGender) {
+			        if (genderFilterValue == Gender.MF) {
+				        if (athleteGender != Gender.M && athleteGender != Gender.F) {
 					        return false;
 				        }
-			        }
-			        Gender teamGender = mixedFilter ? Gender.MF : athleteGender;
-			        List<TeamTreeItem> teams = this.teamsByName.get(athleteTeamName);
-			        TeamTreeItem genderTeam = null;
-			        if (teams != null) {
-				        for (TeamTreeItem t : teams) {
-					        if (t.getGender() == teamGender) {
-						        genderTeam = t;
-					        }
-				        }
-			        } else {
-				        teams = new ArrayList<>();
-			        }
-			        if (genderTeam == null) {
-				        genderTeam = new TeamTreeItem(athleteTeamName, teamGender, null, true);
-				        teams.add(genderTeam);
-				        this.teamsByName.put(athleteTeamName, teams);
+			        } else if (genderFilterValue != null && genderFilterValue != athleteGender) {
+				        return false;
 			        }
 
-			        boolean genderOk = genderFilterValue == null || mixedFilter || genderFilterValue == athleteGender;
 			        boolean catOk = (catFilterValue == null || athleteCatCode.contentEquals(catCode))
-			                && genderOk
 			                && (teamFilterValue == null || teamFilterValue.contentEquals(athleteTeamName));
 			        return catOk;
 		        })
@@ -137,9 +115,13 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 				        return compare;
 			        }
 
-			        Boolean memberA = genderFilterValue == Gender.MF ? a.getMixedTeamMember() : a.getTeamMember();
-			        Boolean memberB = genderFilterValue == Gender.MF ? b.getMixedTeamMember() : b.getTeamMember();
-			        compare = -(memberA.compareTo(memberB));
+			        boolean memberA = genderFilterValue == Gender.MF
+			                ? effectiveMixedMembership(a, championship)
+			                : a.getTeamMember();
+			        boolean memberB = genderFilterValue == Gender.MF
+			                ? effectiveMixedMembership(b, championship)
+			                : b.getTeamMember();
+			        compare = -Boolean.compare(memberA, memberB);
 			        if (compare != 0) {
 				        return compare;
 			        }
@@ -178,90 +160,88 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 	private void buildTeamItemTree(
 	        Collection<Participation> participations,
 	        String ageGroupPrefix,
-	        Championship ageDivision,
+	        Championship championship,
 	        boolean includeNotDone) {
 
-		if (ageDivision == null) {
+		if (championship == null || participations == null) {
 			return;
 		}
-		for (Gender gender : Gender.mfValues()) {
-			Collection<Participation> gParticipations;
-			TeamTreeItem curTeamItem = null;
-
-			if (participations == null) {
-				return;
-			} else {
-				gParticipations = participations.stream()
-				        .filter(a -> a.getAthlete().getGender() == gender)
-				        .sorted((p1, p2) -> {
-					        int compare = 0;
-					        compare = ObjectUtils.compare(p1.getAthlete().getTeam(), p2.getAthlete().getTeam());
-					        if (compare != 0) {
-						        return compare;
-					        }
-					        compare = ObjectUtils.compare(p1.getTeamMember(), p2.getTeamMember());
-					        if (compare != 0) {
-						        return -compare;
-					        }
-					        compare = p1.getCategory().compareTo(p2.getCategory());
-					        return compare;
-				        })
-				        .collect(Collectors.toList());
-			}
-
-			if (gParticipations.size() > 0) {
-				for (Participation p : gParticipations) {
-					String curTeamName = p.getAthlete().getTeam();
-					curTeamItem = findCurTeamItem(
-					        gender,
-					        curTeamName != null ? curTeamName : "-");
-					if (!this.teams.contains(curTeamItem)) {
-						this.addRootItems(curTeamItem);
-						this.teams.add(curTeamItem);
-					}
-
-					Group group = p.getAthlete().getGroup();
-					curTeamItem.addTreeItemChild(this, new PAthlete(p), group != null ? group.isDone() : false);
-				}
-			}
-		}
-		if (participations == null) {
-			return;
-		}
-		if (ageDivision.isMixed()) {
-			Collection<Participation> mixedParticipations = participations.stream()
-			        .filter(Participation::isMixedTeamMember)
-			        .sorted((p1, p2) -> {
-				        int compare = 0;
-				        compare = ObjectUtils.compare(p1.getAthlete().getTeam(), p2.getAthlete().getTeam());
-				        if (compare != 0) {
-					        return compare;
-				        }
-				        compare = ObjectUtils.compare(p1.getMixedTeamMember(), p2.getMixedTeamMember());
-				        if (compare != 0) {
-					        return -compare;
-				        }
-				        return p1.getCategory().compareTo(p2.getCategory());
-			        })
-			        .collect(Collectors.toList());
-
-			TeamTreeItem curTeamItem = null;
-			for (Participation p : mixedParticipations) {
-				String curTeamName = p.getAthlete().getTeam();
-				curTeamItem = findCurTeamItem(Gender.MF, curTeamName != null ? curTeamName : "-");
-				if (!this.teams.contains(curTeamItem)) {
-					this.addRootItems(curTeamItem);
-					this.teams.add(curTeamItem);
-				}
-
-				Group group = p.getAthlete().getGroup();
-				curTeamItem.addTreeItemChild(this, new PAthlete(p), group != null ? group.isDone() : false);
+		if (this.genderFilterValue == Gender.MF) {
+			buildMixedTeamItems(participations, championship);
+		} else if (this.genderFilterValue != null) {
+			buildGenderTeamItems(participations, this.genderFilterValue);
+		} else {
+			for (Gender gender : Gender.mfValues()) {
+				buildGenderTeamItems(participations, gender);
 			}
 		}
 		for (TeamTreeItem t : this.teams) {
-			t.getTeam().setSize(checkCounts(t, ageDivision));
+			t.getTeam().setSize(checkCounts(t, championship));
 		}
 		dumpTeams();
+	}
+
+	private void buildGenderTeamItems(Collection<Participation> participations, Gender gender) {
+		Collection<Participation> gParticipations = participations.stream()
+		        .filter(a -> a.getAthlete().getGender() == gender)
+		        .sorted((p1, p2) -> {
+			        int compare = 0;
+			        compare = ObjectUtils.compare(p1.getAthlete().getTeam(), p2.getAthlete().getTeam());
+			        if (compare != 0) {
+				        return compare;
+			        }
+			        compare = ObjectUtils.compare(p1.getTeamMember(), p2.getTeamMember());
+			        if (compare != 0) {
+				        return -compare;
+			        }
+			        return p1.getCategory().compareTo(p2.getCategory());
+		        })
+		        .collect(Collectors.toList());
+
+		TeamTreeItem curTeamItem = null;
+		for (Participation p : gParticipations) {
+			String curTeamName = p.getAthlete().getTeam();
+			curTeamItem = findCurTeamItem(gender, curTeamName != null ? curTeamName : "-");
+			if (!this.teams.contains(curTeamItem)) {
+				this.addRootItems(curTeamItem);
+				this.teams.add(curTeamItem);
+			}
+
+			Group group = p.getAthlete().getGroup();
+			curTeamItem.addTreeItemChild(this, new PAthlete(p), group != null ? group.isDone() : false);
+		}
+	}
+
+	private void buildMixedTeamItems(Collection<Participation> participations, Championship championship) {
+		Collection<Participation> mixedParticipations = participations.stream()
+		        .filter(p -> p.getAthlete().getGender() == Gender.M || p.getAthlete().getGender() == Gender.F)
+		        .sorted((p1, p2) -> {
+			        int compare = 0;
+			        compare = ObjectUtils.compare(p1.getAthlete().getTeam(), p2.getAthlete().getTeam());
+			        if (compare != 0) {
+				        return compare;
+			        }
+			        compare = -Boolean.compare(effectiveMixedMembership(p1, championship),
+			                effectiveMixedMembership(p2, championship));
+			        if (compare != 0) {
+				        return compare;
+			        }
+			        return p1.getCategory().compareTo(p2.getCategory());
+		        })
+		        .collect(Collectors.toList());
+
+		TeamTreeItem curTeamItem = null;
+		for (Participation p : mixedParticipations) {
+			String curTeamName = p.getAthlete().getTeam();
+			curTeamItem = findCurTeamItem(Gender.MF, curTeamName != null ? curTeamName : "-");
+			if (!this.teams.contains(curTeamItem)) {
+				this.addRootItems(curTeamItem);
+				this.teams.add(curTeamItem);
+			}
+
+			Group group = p.getAthlete().getGroup();
+			curTeamItem.addTreeItemChild(this, new PAthlete(p), group != null ? group.isDone() : false);
+		}
 	}
 
 	private long checkCounts(TeamTreeItem teamItem, Championship championship) {
@@ -272,20 +252,21 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 		boolean mixedTeam = teamItem.getGender() == Gender.MF;
 		int maxPerCat = championship != null ? championship.getMaxPerCategory() : Competition.getCurrent().getMaxPerCategory();
 		for (TeamTreeItem t : teamMembers) {
+			boolean countedMember = mixedTeam ? effectiveMixedMembership(t, championship) : Boolean.TRUE.equals(t.isTeamMember());
+			if (!countedMember) {
+				continue;
+			}
 			Integer countPerCat = nbPerCat.get(t.getCategory());
 			countPerCat = countPerCat == null ? 1 : countPerCat + 1;
 			nbPerCat.put(t.getCategory(), countPerCat);
 			if (countPerCat > maxPerCat) {
 				illegalCounts.add(t.getCategory());
 			}
-			if (mixedTeam ? Boolean.TRUE.equals(t.isMixedTeamMember()) : Boolean.TRUE.equals(t.isTeamMember())) {
-				nbMembers++;
-			}
+			nbMembers++;
 		}
-		if (!illegalCounts.isEmpty()) {
-			for (TeamTreeItem t : teamMembers) {
-				t.setWarning(illegalCounts.contains(t.getCategory()));
-			}
+		for (TeamTreeItem t : teamMembers) {
+			boolean countedMember = mixedTeam ? effectiveMixedMembership(t, championship) : Boolean.TRUE.equals(t.isTeamMember());
+			t.setWarning(countedMember && illegalCounts.contains(t.getCategory()));
 		}
 		return nbMembers;
 	}
@@ -328,12 +309,23 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 		return curTeamItem;
 	}
 
-	private void init(String ageGroupPrefix, Championship ageDivision, Gender gender, boolean includeNotDone) {
+	private boolean effectiveMixedMembership(Participation participation, Championship championship) {
+		boolean explicitMixed = championship != null && championship.isExplicitMixedTeamMembers();
+		return explicitMixed ? participation.getMixedTeamMember() : participation.getTeamMember();
+	}
+
+	private boolean effectiveMixedMembership(TeamTreeItem item, Championship championship) {
+		return item != null && item.getAthlete() instanceof PAthlete pAthlete
+		        ? effectiveMixedMembership(pAthlete._getOriginalParticipation(), championship)
+		        : false;
+	}
+
+	private void init(String ageGroupPrefix, Championship championship, Gender gender, boolean includeNotDone) {
 		if (this.debug) {
 			this.logger.setLevel(Level.DEBUG);
 		}
-		Collection<Participation> athletes = findAll(ageGroupPrefix, ageDivision, gender, null, null);
-		buildTeamItemTree(athletes, ageGroupPrefix, ageDivision, includeNotDone);
+		Collection<Participation> athletes = findAll(ageGroupPrefix, championship, gender, null, null);
+		buildTeamItemTree(athletes, ageGroupPrefix, championship, includeNotDone);
 		if (this.debug) {
 			dumpTeams();
 		}
