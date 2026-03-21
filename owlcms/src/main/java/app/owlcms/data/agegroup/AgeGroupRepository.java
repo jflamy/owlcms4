@@ -14,6 +14,7 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -530,8 +531,8 @@ public class AgeGroupRepository {
 		}
 
 		// Championship-level edits do not affect age-group category assignment.
-		return !ObjectUtils.equals(updated.getMinAge(), existing.getMinAge())
-		        || !ObjectUtils.equals(updated.getMaxAge(), existing.getMaxAge())
+		return !Objects.equals(updated.getMinAge(), existing.getMinAge())
+		        || !Objects.equals(updated.getMaxAge(), existing.getMaxAge())
 		        || updated.getGender() != existing.getGender()
 		        || !sameReassignmentCategories(existing, updated);
 	}
