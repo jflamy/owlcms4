@@ -78,10 +78,10 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 		// this gets called both when CTRL+C is pressed, and when main() terminates.
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			stop("Shutdown hook called, shutting down");
-			if (Main.isSigTermReceived()) {
+			if (Main.isIntentionalSignalReceived()) {
 				// Force exit 0 so Docker on-failure and other supervisors treat
-				// SIGTERM as an intentional stop rather than a crash.
-				startLogger.info("SIGTERM detected — exiting with code 0");
+				// SIGTERM/SIGINT as an intentional stop rather than a crash.
+				startLogger.info("Intentional signal received — exiting with code 0");
 				Runtime.getRuntime().halt(0);
 			}
 		}));

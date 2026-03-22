@@ -73,12 +73,12 @@ public class Main {
 
     // MQTT intercept handlers moved to app.owlcms.monitors.MQTTInterceptHandlers
 
-    /** Set by the SIGTERM handler so shutdown hooks can exit 0 instead of 143. */
-    private static volatile boolean sigTermReceived = false;
+    /** Set by the SIGTERM/SIGINT handler so shutdown hooks can exit 0. */
+    private static volatile boolean intentionalSignalReceived = false;
 
-    /** @return true if the JVM is shutting down because of SIGTERM. */
-    public static boolean isSigTermReceived() {
-        return sigTermReceived;
+    /** @return true if the JVM is shutting down because of an external signal (SIGTERM/SIGINT). */
+    public static boolean isIntentionalSignalReceived() {
+        return intentionalSignalReceived;
     }
 
     private static final int WARNING_MINUTES = 5;
@@ -203,18 +203,18 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
-        // Install SIGTERM handler early so the shutdown hook can distinguish
+        // Install signal handlers early so the shutdown hook can distinguish
         // an intentional external stop from a crash and exit 0 for Docker/systemd.
-        try {
-            Signal.handle(new Signal("TERM"), sig -> {
-                sigTermReceived = true;
-                logger.info("Received SIGTERM — flagging intentional shutdown");
-                // Trigger normal JVM shutdown so all hooks run.
-                System.exit(0);
-            });
-        } catch (IllegalArgumentException e) {
-            // Signal not available on this platform (e.g. some Windows JVMs).
-            logger.debug("SIGTERM handler not available: {}", e.getMessage());
+        for (String sigName : new String[] { "TERM", "INT" }) {
+            try {
+                Signal.handle(new Signal(sigName), sig -> {
+                    intentionalSignalReceived = true;
+                    logger.info("Received SIG{} — flagging intentional shutdown", sig.getName());
+                    System.exit(0);
+                });
+            } catch (IllegalArgumentException e) {
+                logger.debug("SIG{} handler not available: {}", sigName, e.getMessage());
+            }
         }
 
         // there is no config read so far.
