@@ -38,7 +38,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
-import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -51,7 +50,6 @@ import app.owlcms.nui.lifting.LiftingNavigationContent;
 import app.owlcms.nui.preparation.PreparationNavigationContent;
 import app.owlcms.nui.preparation.PublicRecordsContent;
 import app.owlcms.nui.preparation.RecordContent;
-import app.owlcms.nui.preparation.RecordsNavigationContent;
 import app.owlcms.nui.preparation.RecordsPreparationNavigationContent;
 import app.owlcms.nui.results.ResultsNavigationContent;
 import ch.qos.logback.classic.Logger;
