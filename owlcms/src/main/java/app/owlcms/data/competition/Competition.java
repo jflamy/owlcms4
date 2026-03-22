@@ -48,6 +48,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -2015,8 +2016,11 @@ public class Competition {
 
 		boolean explicitMixed = championship != null && championship.isMixed();
 		List<Athlete> mixedAthletes;
+		Set<Long> championshipCategoryIds = getChampionshipCategoryIds(championship);
 		if (explicitMixed) {
-			mixedAthletes = athletes.stream().filter(Athlete::isMixedTeamMember).collect(Collectors.toList());
+			mixedAthletes = athletes.stream()
+			        .filter(a -> isExplicitMixedTeamMember(a, championshipCategoryIds))
+			        .collect(Collectors.toList());
 		} else {
 			mixedAthletes = new ArrayList<>(sortedMen.size() + sortedWomen.size());
 			mixedAthletes.addAll(sortedMen);
@@ -2076,6 +2080,29 @@ public class Competition {
 		if (singleAgeGroup) {
 			reportTeamBest(sortedAthletes, sortedMen, sortedWomen);
 		}
+	}
+
+	private Set<Long> getChampionshipCategoryIds(Championship championship) {
+		if (championship == null) {
+			return Collections.emptySet();
+		}
+		return AgeGroupRepository.findFiltered(null, null, championship, null, true, -1, -1).stream()
+		        .map(AgeGroup::getCategories)
+		        .flatMap(List::stream)
+		        .map(Category::getId)
+		        .filter(id -> id != null)
+		        .collect(Collectors.toSet());
+	}
+
+	private boolean isExplicitMixedTeamMember(Athlete athlete, Set<Long> championshipCategoryIds) {
+		if (athlete == null || championshipCategoryIds == null || championshipCategoryIds.isEmpty()) {
+			return false;
+		}
+		return athlete.getParticipations().stream()
+		        .anyMatch(p -> p.getCategory() != null
+		                && p.getCategory().getId() != null
+		                && championshipCategoryIds.contains(p.getCategory().getId())
+		                && p.getMixedTeamMember());
 	}
 
 	private String getMedalsTemplateFileName() {

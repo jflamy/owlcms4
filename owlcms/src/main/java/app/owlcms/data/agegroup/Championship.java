@@ -334,8 +334,16 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return this.teamScoringSystem;
 	}
 
+	public boolean computePointsBased() {
+		return this.teamScoringSystem == null;
+	}
+
 	public Ranking getMixedTeamScoringSystem() {
 		return this.mixedTeamScoringSystem;
+	}
+
+	public boolean computeMixedPointsBased() {
+		return this.mixedTeamScoringSystem == null;
 	}
 
 	public boolean isExplicitMixedTeamMembers() {

@@ -968,11 +968,10 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getTotal();
 	}
 
-	// use Athlete implementation on this.
-//	@Override
-//	public int getTotalPoints() {
-//		return this.p.getTotalPoints();
-//	}
+	@Override
+	public int getTotalPoints() {
+		return this.p.getTotalPoints();
+	}
 
 	@Override
 	public int getTotalRank() {

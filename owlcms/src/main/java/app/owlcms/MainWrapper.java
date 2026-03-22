@@ -44,7 +44,7 @@ public class MainWrapper {
                         logger.info("Subprocess exited gracefully");
                     } else {
                         // Child didn't exit in time — force kill it and descendants
-                        logger.warn("Subprocess still running after 5s, force-killing");
+                        logger./**/warn("Subprocess still running after 5s, force-killing");
                         ProcessHandle ph = p.toHandle();
                         ph.descendants().forEach(child -> {
                             logger.info("Killing descendant PID {}", child.pid());

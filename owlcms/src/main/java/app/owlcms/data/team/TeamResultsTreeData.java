@@ -11,6 +11,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -18,14 +19,18 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -40,6 +45,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 	private HashMap<String, Object> reportingBeans;
 	private Ranking ranking;
 	private Championship championship;
+	private Set<Long> championshipCategoryIds;
 
 	public TeamResultsTreeData(String ageGroupPrefix, Championship ageDivision, Gender gender, Ranking ranking,
 	        boolean includeNotDone) {
@@ -69,19 +75,28 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		if (ageDivision == null) {
 			return;
 		}
-		for (Gender gender : Gender.mfmfValues()) {
-			if (this.genderFilterValue != null && gender != this.genderFilterValue) {
+		boolean explicitMixed = ageDivision.isExplicitMixedTeamMembers();
+
+		for (Gender gender : Gender.mfValues()) {
+			if (this.genderFilterValue != null && this.genderFilterValue != Gender.MF && gender != this.genderFilterValue) {
 				continue;
 			}
 
-			List<TeamTreeItem> curGenderTeams = getTeamItemsByGender().get(gender);
-			if (curGenderTeams == null) {
-				curGenderTeams = new ArrayList<>();
-				getTeamItemsByGender().put(gender, curGenderTeams);
-				//this.logger.debug("created list for gender {}: {}", gender, getTeamItemsByGender().get(gender));
+			List<TeamTreeItem> curGenderTeams = getOrCreateGenderTeams(gender);
+			doTeamGender(ageGroupPrefix, ageDivision, includeNotDone, gender, curGenderTeams, null);
+		}
+
+		if (explicitMixed) {
+			if (this.genderFilterValue == null || this.genderFilterValue == Gender.MF) {
+				List<TeamTreeItem> mixedTeams = getOrCreateGenderTeams(Gender.MF);
+				doTeamGender(ageGroupPrefix, ageDivision, includeNotDone, Gender.MF, mixedTeams, null);
 			}
-			TeamTreeItem curTeamItem = null;
-			curTeamItem = doTeamGender(ageGroupPrefix, ageDivision, includeNotDone, gender, curGenderTeams, curTeamItem);
+		} else if (this.genderFilterValue == null || this.genderFilterValue == Gender.MF) {
+			buildImplicitMixedTeams();
+			if (this.genderFilterValue == Gender.MF) {
+				getTeamItemsByGender().remove(Gender.M);
+				getTeamItemsByGender().remove(Gender.F);
+			}
 		}
 
 		dumpTeams();
@@ -132,51 +147,39 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 				        curTeamItem,
 				        curTeamName != null ? curTeamName : "-", rankingForGender);
 				boolean groupIsDone = groupIsDone(a);
-				Integer curPoints = gender == Gender.MF && ageDivision != null && ageDivision.isMixed()
-				        ? (combinedTotal ? a.getRawCombinedPoints() : a.getRawTotalPoints())
-				        : (combinedTotal ? a.getCombinedPoints() : a.getTotalPoints());
-				double curSinclair = a.getSinclairForDelta();
-				double curCatSinclair = a.getCategorySinclairForDelta();
-				double curSmf = a.getSmhfForDelta();
-				double curRobi = a.getRobi();
-				double curGamx = a.getGamx();
-				double curCatGamx = a.getCategoryGAMXForDelta();
-				double curQPoints = a.getQPoints();
-				double curCatQPoints = a.getCategoryQPointsForDelta();
-				double curQMasters = a.getQMasters();
-
 				Team curTeam = curTeamItem.getTeam();
-
-				boolean b = curTeam.getCounted() < maxCount;
-				boolean c = curPoints != null && curPoints > 0;
 
 				// if (debug) {
 				// logger.debug("---- Athlete {} {} {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
 				// curTeam.getCounted(), groupIsDone, b, c);
 				// }
 				boolean contributes = gender == Gender.MF && ageDivision != null && ageDivision.isMixed()
-				        ? a.isMixedTeamMember()
-				        : a.isTeamMember();
+				        ? isExplicitMixedTeamMember(a)
+				        : isTeamMember(a);
 				if (contributes) {
+					TeamTreeItem member = curTeamItem.addTreeItemChild(a, groupIsDone);
+					member.setScoringSystem(rankingForGender);
+					Integer memberPoints = gender == Gender.MF && ageDivision != null && ageDivision.isMixed()
+					        ? (combinedTotal ? member.getRawCombinedPoints() : member.getRawTotalPoints())
+					        : (combinedTotal ? member.getCombinedPoints() : member.getTotalPoints());
+					boolean b = curTeam.getCounted() < maxCount;
+					boolean c = memberPoints != null && memberPoints > 0;
 					if ((includeNotDone || groupIsDone) && b && c) {
-						curTeam.setPoints(curTeam.getPoints() + Math.round(curPoints));
+						curTeam.setPoints(curTeam.getPoints() + Math.round(memberPoints));
 					}
 					if (b) {
-						curTeam.setSinclairScore(curTeam.getSinclairScore() + curSinclair);
-						curTeam.setCatSinclairScore(curTeam.getCatSinclairScore() + curCatSinclair);
-						curTeam.setSmfScore(curTeam.getSmfScore() + curSmf);
+						curTeam.setSinclairScore(curTeam.getSinclairScore() + member.getSinclairScore());
+						curTeam.setCatSinclairScore(curTeam.getCatSinclairScore() + member.getCatSinclairMetric());
+						curTeam.setSmfScore(curTeam.getSmfScore() + member.getSmfScore());
 						curTeam.setCounted(curTeam.getCounted() + 1);
-						curTeam.setRobi(curTeam.getRobi() + curRobi);
-						curTeam.setGamx(curTeam.getGamx() + curGamx);
-						curTeam.setCatGamxScore(curTeam.getCatGamxScore() + curCatGamx);
-						curTeam.setQPoints(curTeam.getQPoints() + curQPoints);
-						curTeam.setCatQPointsScore(curTeam.getCatQPointsScore() + curCatQPoints);
-						curTeam.setQMasters(curTeam.getQMasters() + curQMasters);
+						curTeam.setRobi(curTeam.getRobi() + member.getRobiScore());
+						curTeam.setGamx(curTeam.getGamx() + member.getGamxScore());
+						curTeam.setCatGamxScore(curTeam.getCatGamxScore() + member.getCatGamxScore());
+						curTeam.setQPoints(curTeam.getQPoints() + member.getQPointsScore());
+						curTeam.setCatQPointsScore(curTeam.getCatQPointsScore() + member.getCatQPointsMetric());
+						curTeam.setQMasters(curTeam.getQMasters() + member.getQMastersScore());
 					}
 				}
-				curTeamItem.addTreeItemChild(a, groupIsDone);
-				List<TeamTreeItem> members = curTeamItem.getTeamMembers();
-				members.get(members.size() - 1).setScoringSystem(rankingForGender);
 				curTeam.setSize(curTeam.getSize() + 1);
 				prevTeamName = curTeamName;
 			}
@@ -219,6 +222,15 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		}
 	}
 
+	private void buildImplicitMixedTeams() {
+		List<TeamTreeItem> mixedTeams = new ArrayList<>();
+		mergeGenderTeamsIntoMixed(mixedTeams, getTeamItemsByGender().get(Gender.M));
+		mergeGenderTeamsIntoMixed(mixedTeams, getTeamItemsByGender().get(Gender.F));
+		if (!mixedTeams.isEmpty()) {
+			getTeamItemsByGender().put(Gender.MF, mixedTeams);
+		}
+	}
+
 	private TeamTreeItem findCurTeamItem(Map<Gender, List<TeamTreeItem>> teamItemsByGender, Gender gender,
 	        List<TeamTreeItem> curGenderTeams, String prevTeamName, TeamTreeItem curTeamItem, String curTeamName,
 	        Ranking rankingForGender) {
@@ -243,11 +255,25 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		return curTeamItem;
 	}
 
+	private List<TeamTreeItem> getOrCreateGenderTeams(Gender gender) {
+		List<TeamTreeItem> curGenderTeams = getTeamItemsByGender().get(gender);
+		if (curGenderTeams == null) {
+			curGenderTeams = new ArrayList<>();
+			getTeamItemsByGender().put(gender, curGenderTeams);
+		}
+		return curGenderTeams;
+	}
+
 	private Ranking getRankingForGender(Gender gender) {
 		if (this.championship != null) {
 			if (gender == Gender.MF) {
-				return this.championship.getMixedTeamScoringSystem() != null
-				        ? this.championship.getMixedTeamScoringSystem()
+				if (this.championship.isExplicitMixedTeamMembers()) {
+					return this.championship.getMixedTeamScoringSystem() != null
+					        ? this.championship.getMixedTeamScoringSystem()
+					        : Ranking.TOTAL;
+				}
+				return this.championship.getTeamScoringSystem() != null
+				        ? this.championship.getTeamScoringSystem()
 				        : Ranking.TOTAL;
 			}
 			return this.championship.getTeamScoringSystem() != null
@@ -293,7 +319,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					break;
 			}
 		}
-		return maxCount != null ? maxCount : Integer.MAX_VALUE;
+		return maxCount != null && maxCount > 0 ? maxCount : Integer.MAX_VALUE;
 	}
 
 	private boolean groupIsDone(Athlete a) {
@@ -303,11 +329,53 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		return this.doneGroups.contains(a.getGroup());
 	}
 
+	private void mergeGenderTeamsIntoMixed(List<TeamTreeItem> mixedTeams, List<TeamTreeItem> sourceTeams) {
+		if (sourceTeams == null) {
+			return;
+		}
+
+		Ranking mixedRanking = getRankingForGender(Gender.MF);
+		for (TeamTreeItem sourceTeam : sourceTeams) {
+			TeamTreeItem mixedTeam = mixedTeams.stream()
+			        .filter(team -> team.getName() != null && team.getName().contentEquals(sourceTeam.getName()))
+			        .findFirst()
+			        .orElseGet(() -> {
+				        TeamTreeItem created = new TeamTreeItem(sourceTeam.getName(), Gender.MF, null, false);
+				        created.setScoringSystem(mixedRanking);
+				        mixedTeams.add(created);
+				        return created;
+			        });
+
+			mergeTeamValues(mixedTeam.getTeam(), sourceTeam.getTeam());
+			for (TeamTreeItem sourceMember : sourceTeam.getTeamMembers()) {
+				mixedTeam.addTreeItemChild(sourceMember.getAthlete(), sourceMember.isDone());
+				List<TeamTreeItem> members = mixedTeam.getTeamMembers();
+				members.get(members.size() - 1).setScoringSystem(mixedRanking);
+			}
+		}
+	}
+
+	private void mergeTeamValues(Team target, Team source) {
+		target.setPoints(target.getPoints() + source.getPoints());
+		target.setSinclairScore(target.getSinclairScore() + source.getSinclairScore());
+		target.setCatSinclairScore(target.getCatSinclairScore() + source.getCatSinclairScore());
+		target.setSmfScore(target.getSmfScore() + source.getSmfScore());
+		target.setCounted(target.getCounted() + source.getCounted());
+		target.setRobi(target.getRobi() + source.getRobi());
+		target.setGamx(target.getGamx() + source.getGamx());
+		target.setCatGamxScore(target.getCatGamxScore() + source.getCatGamxScore());
+		target.setQPoints(target.getQPoints() + source.getQPoints());
+		target.setCatQPointsScore(target.getCatQPointsScore() + source.getCatQPointsScore());
+		target.setQMasters(target.getQMasters() + source.getQMasters());
+		target.setSize(target.getSize() + source.getSize());
+	}
+
 	private void init(String ageGroupPrefix, Championship ageDivision, boolean includeNotDone) {
 		if (this.debug) {
 			this.logger.setLevel(Level.DEBUG);
 		}
 		this.championship = ageDivision;
+		this.championshipCategoryIds = computeChampionshipCategoryIds(ageDivision);
 		// logger.debug("init tree {} {}", ageGroupPrefix, ageDivision);
 		this.reportingBeans = Competition.getCurrent().computeReportingInfo(ageGroupPrefix, ageDivision);
 		buildTeamItemTree(this.reportingBeans, ageGroupPrefix, ageDivision, includeNotDone);
@@ -321,6 +389,52 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 				addItems(teams, TeamTreeItem::getSortedTeamMembers);
 			}
 		}
+	}
+
+	private Set<Long> computeChampionshipCategoryIds(Championship championship) {
+		if (championship == null) {
+			return Set.of();
+		}
+		return AgeGroupRepository.findFiltered(null, null, championship, null, true, -1, -1).stream()
+		        .map(AgeGroup::getCategories)
+		        .flatMap(List::stream)
+		        .map(Category::getId)
+		        .filter(id -> id != null)
+		        .collect(Collectors.toSet());
+	}
+
+	private boolean isExplicitMixedTeamMember(Athlete athlete) {
+		if (athlete == null) {
+			return false;
+		}
+		if (athlete instanceof PAthlete pAthlete) {
+			return pAthlete.isMixedTeamMember();
+		}
+		if (this.championshipCategoryIds == null || this.championshipCategoryIds.isEmpty()) {
+			return false;
+		}
+		return athlete.getParticipations().stream()
+		        .anyMatch(p -> p.getCategory() != null
+		                && p.getCategory().getId() != null
+		                && this.championshipCategoryIds.contains(p.getCategory().getId())
+		                && p.getMixedTeamMember());
+	}
+
+	private boolean isTeamMember(Athlete athlete) {
+		if (athlete == null) {
+			return false;
+		}
+		if (athlete instanceof PAthlete pAthlete) {
+			return pAthlete.isTeamMember();
+		}
+		if (this.championshipCategoryIds == null || this.championshipCategoryIds.isEmpty()) {
+			return athlete.isTeamMember();
+		}
+		return athlete.getParticipations().stream()
+		        .anyMatch(p -> p.getCategory() != null
+		                && p.getCategory().getId() != null
+		                && this.championshipCategoryIds.contains(p.getCategory().getId())
+		                && p.getTeamMember());
 	}
 
 }
