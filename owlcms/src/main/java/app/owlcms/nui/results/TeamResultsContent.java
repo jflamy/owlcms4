@@ -27,7 +27,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -41,14 +40,15 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.streams.DownloadHandler;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.team.TeamResultsTreeData;
@@ -61,7 +61,7 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
-import app.owlcms.spreadsheet.JXLSCompetitionBook;
+import app.owlcms.spreadsheet.JXLSTeamResultsSheet;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -92,8 +92,7 @@ public class TeamResultsContent extends BaseContent
 	private String ageGroupPrefix;
 	private OwlcmsCrudGrid<TeamTreeItem> crudGrid;
 	private Group currentGroup;
-	private Button download;
-	private Anchor finalPackage;
+	private JXLSDownloader downloadDialog;
 	private DecimalFormat floatFormat;
 	// private ComboBox<Category> categoryFilter;
 	private ComboBox<Gender> genderFilter;
@@ -101,7 +100,6 @@ public class TeamResultsContent extends BaseContent
 	private ComboBox<Championship> topBarChampionshipSelect;
 	// private ComboBox<String> teamFilter;
 	private ComboBox<String> topBarAgeGroupPrefixSelect;
-	private JXLSCompetitionBook xlsWriter;
 
 	/**
 	 * Instantiates a new announcer content. Does nothing. Content is created in {@link #setParameter(BeforeEvent, String)} after URL parameters are parsed.
@@ -128,26 +126,14 @@ public class TeamResultsContent extends BaseContent
 	@Override
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
-		this.xlsWriter = new JXLSCompetitionBook(true, UI.getCurrent());
-		DownloadHandler downloadHandler = event -> {
-			event.setFileName(TITLE + "Report" + ".xls");
-			try (var is = this.xlsWriter.createInputStream()) {
-				is.transferTo(event.getOutputStream());
-			} catch (Exception ex) {
-				// Optionally log error
-			}
-		};
-		this.finalPackage = new Anchor(downloadHandler, "");
-		this.finalPackage.getStyle().set("margin-left", "1em");
-		this.download = new Button(Translator.translate(TITLE + ".Report"), new Icon(VaadinIcon.DOWNLOAD_ALT));
 
-		this.finalPackage.add(this.download);
-		HorizontalLayout buttons = new HorizontalLayout(this.finalPackage);
+		Button teamResultsDownloadButton = createTeamResultsDownloadButton();
+		HorizontalLayout buttons = new HorizontalLayout(teamResultsDownloadButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		this.topBar.getStyle().set("flex", "100 1");
 		this.topBar.removeAll();
-		// this.topBar.add(this.topBarChampionshipSelect, this.topBarAgeGroupPrefixSelect);
+		this.topBar.add(buttons);
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
 		return this.topBar;
@@ -486,6 +472,24 @@ public class TeamResultsContent extends BaseContent
 		});
 	}
 
+	private Button createTeamResultsDownloadButton() {
+		this.downloadDialog = new JXLSDownloader(
+		        () -> {
+			        JXLSTeamResultsSheet rs = new JXLSTeamResultsSheet(UI.getCurrent());
+			        rs.setChampionship(this.championship);
+			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
+			        rs.setGender(getGenderFilter() != null ? getGenderFilter().getValue() : null);
+			        return rs;
+		        },
+		        "/templates/teamResults",
+		        Competition::getComputedTeamResultsTemplateFileName,
+		        Competition::setTeamResultsTemplateFileName,
+		        Translator.translate(TITLE),
+		        Translator.translate("Download"));
+		this.downloadDialog.setProcessingMessage(Translator.translate("LongProcessing"));
+		return this.downloadDialog.createDownloadButton();
+	}
+
 	private String formatDouble(double d, int decimals) {
 		if (this.floatFormat == null) {
 			this.floatFormat = new DecimalFormat();
@@ -525,11 +529,6 @@ public class TeamResultsContent extends BaseContent
 			// championshipAgeGroupPrefixes, first,
 			// topBarAgeGroupPrefixSelect);
 
-			this.xlsWriter.setChampionship(championshipValue);
-			this.finalPackage.getElement().setAttribute("download",
-			        "results" + (getChampionship() != null ? "_" + getChampionship().getName()
-			                : (this.ageGroupPrefix != null ? "_" + this.ageGroupPrefix : "_all")) + ".xls");
-
 			String value = notEmpty ? first : null;
 			// logger.debug("setting prefix to {}", value);
 			this.topBarAgeGroupPrefixSelect.setValue(value);
@@ -552,10 +551,6 @@ public class TeamResultsContent extends BaseContent
 
 			// logger.debug("ageGroupPrefixSelectionListener {}",prefix);
 			// updateFilters(getChampionship(), getAgeGroupPrefix());
-			this.xlsWriter.setAgeGroupPrefix(this.ageGroupPrefix);
-			this.finalPackage.getElement().setAttribute("download",
-			        "results" + (getChampionship() != null ? "_" + getChampionship().getName()
-			                : (this.ageGroupPrefix != null ? "_" + this.ageGroupPrefix : "_all")) + ".xls");
 
 			if (this.crudGrid != null) {
 				this.crudGrid.refreshGrid();

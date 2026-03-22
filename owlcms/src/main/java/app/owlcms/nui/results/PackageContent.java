@@ -705,6 +705,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        JXLSWinningSheet rs = new JXLSWinningSheet(true);
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
+			        rs.setGender(this.gender);
 			        rs.setCategory(getCategoryValue());
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
@@ -735,6 +736,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 					JXLSCompetitionBook rs = new JXLSCompetitionBook(this.locationUI);
 					rs.setChampionship(this.championship);
 					rs.setAgeGroupPrefix(this.ageGroupPrefix);
+					rs.setGender(this.gender);
 					rs.setCategory(this.categoryValue);
 					rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
 					rs.setWinnersOnly(this.winnersOnly);
@@ -760,6 +762,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        JXLSWinningSheet rs = new JXLSWinningSheet(false);
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
+			        rs.setGender(this.gender);
 			        rs.setCategory(getCategoryValue());
 			        rs.setGroup(null);
 			        rs.setSortedAthletes((List<Athlete>) findAll());
