@@ -26,6 +26,7 @@ import app.owlcms.utils.BrowserUtils;
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -404,9 +405,8 @@ public class Main {
                         return null;
                     });
                 } else {
-                    // make sure there is a championship name as foreign key to Championship
-                    // (Championships are transient, not persisted)
-                    AgeGroupRepository.updateExistingChampionships();
+                    // bootstrap stored championships from age groups if Championship table is empty
+                    ChampionshipRepository.bootstrapFromAgeGroups();
                     // validate that categories are consistent with their age groups
                     AgeGroupRepository.validateCategoriesConsistency();
                 }

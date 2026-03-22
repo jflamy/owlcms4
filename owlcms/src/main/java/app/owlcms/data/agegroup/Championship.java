@@ -6,37 +6,48 @@
  *******************************************************************************/
 package app.owlcms.data.agegroup;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+
+import javax.persistence.Cacheable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
 
 /**
- * The Enum Championship.
+ * Championship entity.
  *
- * Divisions are listed in registration preference order.
+ * Represents a named championship grouping of age groups used for award computation.
+ * Persisted to the database; the static methods provide a thin cache over the DB.
  */
-public class Championship implements Comparable<Championship> {
+@Entity
+@Cacheable
+public class Championship implements Comparable<Championship>, Serializable {
 
-	// public static final String MASTERS = ChampionshipType.MASTERS.name();
-	// public static final String U = ChampionshipType.U.name();
-	// public static final String IWF = ChampionshipType.IWF.name();
-	// public static final String DEFAULT = ChampionshipType.DEFAULT.name();
+	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Championship.class);
 	private static Map<String, Championship> allChampionshipsMap;
-	// private static List<Championship> allChampionshipsList;
 	static Comparator<Championship> ct = (a, b) -> {
 		int compare = 0;
 		if (a == null || b == null) {
@@ -58,16 +69,21 @@ public class Championship implements Comparable<Championship> {
 
 	/**
 	 * Adds a championship, normalizing 'Masters' variants to canonical form.
+	 * Persists to database and updates the in-memory cache.
 	 */
 	public static Championship addChampionship(String nameString, ChampionshipType u2) {
+		if (allChampionshipsMap == null) {
+			findAll();
+		}
 		String canonicalName = canonicalizeChampionshipName(nameString);
 		ChampionshipType canonicalType = canonicalizeChampionshipType(canonicalName, u2);
-		Championship championship = allChampionshipsMap.get(canonicalName.toLowerCase());
+		Championship championship = allChampionshipsMap.get(canonicalName);
 		if (championship == null) {
 			Championship newChampionship = new Championship(canonicalName, canonicalType);
-			String key = canonicalName.toLowerCase();
-			allChampionshipsMap.put(key, newChampionship);
-			logger.debug("Added to map: key='{}', name='{}', type='{}'", key, newChampionship.getName(), newChampionship.getType());
+			newChampionship.populateScoringDefaults();
+			newChampionship = ChampionshipRepository.save(newChampionship);
+			allChampionshipsMap.put(canonicalName, newChampionship);
+			logger.debug("Added to map and DB: key='{}', name='{}', type='{}'", canonicalName, newChampionship.getName(), newChampionship.getType());
 			return newChampionship;
 		}
 		return championship;
@@ -94,67 +110,27 @@ public class Championship implements Comparable<Championship> {
 	   }
 
 	/**
-	 * Find all.
+	 * Find all championships from the stored Championship table.
 	 *
-	 * @return the collection
+	 * @return the sorted list
 	 */
 	public static List<Championship> findAll() {
-		ArrayList<Championship> allChampionshipsList = new ArrayList<>();
 		if (allChampionshipsMap == null || allChampionshipsMap.isEmpty()) {
-			allChampionshipsMap = new HashMap<>();
+			allChampionshipsMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			// default championships, always present.
-			// allChampionshipsMap.put(U, new Championship(ChampionshipType.U));
-			// allChampionshipsMap.put(MASTERS, new Championship(ChampionshipType.MASTERS));
-			// allChampionshipsMap.put(OLY, new Championship(ChampionshipType.OLY));
-			// allChampionshipsMap.put(IWF, new Championship(ChampionshipType.IWF));
-			String name = null;
-			name = Translator.translate("Division." + ChampionshipType.DEFAULT.name());
-			Championship defaultChamp = new Championship(name, ChampionshipType.DEFAULT);
-			allChampionshipsMap.put(name.toLowerCase(), defaultChamp);
-			logger.debug("Added to map: key='{}', name='{}', type='{}'", name.toLowerCase(), defaultChamp.getName(), defaultChamp.getType());
-			name = Translator.translate("Division." + ChampionshipType.MASTERS.name());
-			Championship mastersChamp = new Championship(name, ChampionshipType.MASTERS);
-			allChampionshipsMap.put(name.toLowerCase(), mastersChamp);
-			logger.debug("Added to map: key='{}', name='{}', type='{}'", name.toLowerCase(), mastersChamp.getName(), mastersChamp.getType());
-
-			// allChampionshipsMap.put(ADAPTIVE, new Championship(ChampionshipType.ADAPTIVE));
-
-			// additional championships.
-			List<String> allChampionships = AgeGroupRepository.allChampionshipsForAllAgeGroups();
-
-			for (String s : allChampionships) {
-				String typeString = null;
-				String nameString = null;
-				if (s.contains("¤")) {
-					String[] arr = s.split("¤");
-					if (arr.length > 1) {
-						typeString = arr[1];
-					} else {
-						typeString = "U";
-					}
-					nameString = arr[0];
-				} else {
-					typeString = s;
-					nameString = s;
-				}
-				ChampionshipType cType = ChampionshipType.U;
-				try {
-					cType = ChampionshipType.valueOf(typeString);
-				} catch (Exception e) {
-				}
-				addChampionship(nameString, cType);
+			List<Championship> stored = ChampionshipRepository.findAll();
+			if ((stored == null || stored.isEmpty()) && !AgeGroupRepository.findAll().isEmpty()) {
+				ChampionshipRepository.bootstrapFromAgeGroups();
+				stored = ChampionshipRepository.findAll();
 			}
-			allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
-			if (!allChampionshipsList.isEmpty()) {
-				allChampionshipsList.sort(Championship::compareTo);
-			}
-		} else {
-			allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
-			if (!allChampionshipsList.isEmpty()) {
-				allChampionshipsList.sort(Championship::compareTo);
+			if (stored != null) {
+				for (Championship c : stored) {
+					allChampionshipsMap.put(c.getName(), c);
+				}
 			}
 		}
+		ArrayList<Championship> allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
+		allChampionshipsList.sort(Championship::compareTo);
 		return allChampionshipsList;
 	}
 
@@ -187,6 +163,9 @@ public class Championship implements Comparable<Championship> {
 	}
 
 	public static Map<String, Championship> getMap() {
+		if (allChampionshipsMap == null) {
+			findAll();
+		}
 		return allChampionshipsMap;
 	}
 
@@ -198,10 +177,22 @@ public class Championship implements Comparable<Championship> {
 			return new Championship("", ChampionshipType.U);
 		}
 		String canonicalName = canonicalizeChampionshipName(championshipName);
-		return allChampionshipsMap.get(canonicalName.toLowerCase());
+		Championship cached = allChampionshipsMap.get(canonicalName);
+		if (cached != null) {
+			return cached;
+		}
+		// Fallback: check DB in case it was just created by another path
+		Championship fromDb = ChampionshipRepository.findByName(canonicalName);
+		if (fromDb != null) {
+			allChampionshipsMap.put(fromDb.getName(), fromDb);
+		}
+		return fromDb;
 	}
 
 	public static Championship ofType(ChampionshipType t) {
+		if (allChampionshipsMap == null) {
+			findAll();
+		}
 		// return first championship of the type
 		// we use reverse order to get Open and Senior and U20 first.
 		Optional<Championship> found = allChampionshipsMap.values().stream().sorted(Comparator.reverseOrder()).filter(v -> v.getType() == t).findFirst();
@@ -209,7 +200,10 @@ public class Championship implements Comparable<Championship> {
 	}
 
 	public static void remove(Championship c) {
-		allChampionshipsMap.remove(c.name.toLowerCase());
+		allChampionshipsMap.remove(c.getName());
+		if (c.getId() != null) {
+			ChampionshipRepository.delete(c);
+		}
 	}
 
 	public static void reset() {
@@ -218,10 +212,56 @@ public class Championship implements Comparable<Championship> {
 	}
 
 	public static void update(Championship c) {
+		ChampionshipRepository.save(c);
 	}
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+
+	@Column(unique = true, nullable = false)
 	private String name;
+
+	@Enumerated(EnumType.STRING)
 	private ChampionshipType type;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking scoringSystem;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking bestAthleteScoringSystem;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking bestSnatchScoringSystem;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking bestCJScoringSystem;
+
+	@Column(columnDefinition = "boolean default false")
+	private boolean snatchCJTotalMedals = false;
+
+	private Integer teamPoints1st;
+	private Integer teamPoints2nd;
+	private Integer teamPoints3rd;
+
+	private Integer mensBestN;
+	private Integer womensBestN;
+	private Integer mixedBestN;
+
+	private Integer maxTeamSize;
+	private Integer maxPerCategory;
+
+	@Column(columnDefinition = "boolean default false")
+	private boolean explicitMixedTeamMembers = false;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking teamScoringSystem;
+
+	@Enumerated(EnumType.STRING)
+	private Ranking mixedTeamScoringSystem;
+
+	public Championship() {
+	}
 
 	public Championship(ChampionshipType type) {
 		this.name = type.name();
@@ -238,8 +278,76 @@ public class Championship implements Comparable<Championship> {
 		return ct.compare(this, o);
 	}
 
+	public Long getId() {
+		return this.id;
+	}
+
 	public String getName() {
 		return this.name;
+	}
+
+	public Ranking getScoringSystem() {
+		return this.scoringSystem;
+	}
+
+	public Ranking getBestAthleteScoringSystem() {
+		return this.bestAthleteScoringSystem;
+	}
+
+	public Ranking getBestSnatchScoringSystem() {
+		return this.bestSnatchScoringSystem;
+	}
+
+	public Ranking getBestCJScoringSystem() {
+		return this.bestCJScoringSystem;
+	}
+
+	public boolean isSnatchCJTotalMedals() {
+		return this.snatchCJTotalMedals;
+	}
+
+	public Integer getTeamPoints1st() {
+		return this.teamPoints1st;
+	}
+
+	public Integer getTeamPoints2nd() {
+		return this.teamPoints2nd;
+	}
+
+	public Integer getTeamPoints3rd() {
+		return this.teamPoints3rd;
+	}
+
+	public Integer getMensBestN() {
+		return this.mensBestN;
+	}
+
+	public Integer getWomensBestN() {
+		return this.womensBestN;
+	}
+
+	public Integer getMixedBestN() {
+		return this.mixedBestN;
+	}
+
+	public Ranking getTeamScoringSystem() {
+		return this.teamScoringSystem;
+	}
+
+	public boolean computePointsBased() {
+		return this.teamScoringSystem == null;
+	}
+
+	public Ranking getMixedTeamScoringSystem() {
+		return this.mixedTeamScoringSystem;
+	}
+
+	public boolean computeMixedPointsBased() {
+		return this.mixedTeamScoringSystem == null;
+	}
+
+	public boolean isExplicitMixedTeamMembers() {
+		return this.explicitMixedTeamMembers;
 	}
 
 	public ChampionshipType getType() {
@@ -251,18 +359,151 @@ public class Championship implements Comparable<Championship> {
 	 *
 	 * @return true, if is default
 	 */
+	@JsonIgnore
 	public boolean isDefault() {
 		return this.getType() == ChampionshipType.DEFAULT;
 	}
 
+	@JsonIgnore
+	public boolean isMixed() {
+		return this.explicitMixedTeamMembers;
+	}
+
 	public void setName(String name) {
-		allChampionshipsMap.remove(this.name.toLowerCase());
+		if (allChampionshipsMap != null) {
+			allChampionshipsMap.remove(this.name);
+		}
 		this.name = name;
-		allChampionshipsMap.put(this.name.toLowerCase(), this);
+		if (allChampionshipsMap != null) {
+			allChampionshipsMap.put(this.name, this);
+		}
+		if (this.id != null) {
+			ChampionshipRepository.save(this);
+		}
+	}
+
+	public void setScoringSystem(Ranking scoringSystem) {
+		this.scoringSystem = scoringSystem;
+	}
+
+	public void setBestAthleteScoringSystem(Ranking bestAthleteScoringSystem) {
+		this.bestAthleteScoringSystem = bestAthleteScoringSystem;
+	}
+
+	public void setBestSnatchScoringSystem(Ranking bestSnatchScoringSystem) {
+		this.bestSnatchScoringSystem = bestSnatchScoringSystem;
+	}
+
+	public void setBestCJScoringSystem(Ranking bestCJScoringSystem) {
+		this.bestCJScoringSystem = bestCJScoringSystem;
+	}
+
+	public void setSnatchCJTotalMedals(boolean snatchCJTotalMedals) {
+		this.snatchCJTotalMedals = snatchCJTotalMedals;
+	}
+
+	public void setTeamPoints1st(Integer teamPoints1st) {
+		this.teamPoints1st = teamPoints1st;
+	}
+
+	public void setTeamPoints2nd(Integer teamPoints2nd) {
+		this.teamPoints2nd = teamPoints2nd;
+	}
+
+	public void setTeamPoints3rd(Integer teamPoints3rd) {
+		this.teamPoints3rd = teamPoints3rd;
+	}
+
+	public Integer getMaxTeamSize() {
+		return this.maxTeamSize != null ? this.maxTeamSize : 8;
+	}
+
+	public void setMaxTeamSize(Integer maxTeamSize) {
+		this.maxTeamSize = maxTeamSize;
+	}
+
+	public Integer getMaxPerCategory() {
+		return this.maxPerCategory != null && this.maxPerCategory > 0 ? this.maxPerCategory : 2;
+	}
+
+	public void setMaxPerCategory(Integer maxPerCategory) {
+		this.maxPerCategory = maxPerCategory;
+	}
+
+	public void setExplicitMixedTeamMembers(boolean explicitMixedTeamMembers) {
+		this.explicitMixedTeamMembers = explicitMixedTeamMembers;
+	}
+
+	public void setMensBestN(Integer mensBestN) {
+		this.mensBestN = mensBestN;
+	}
+
+	public void setWomensBestN(Integer womensBestN) {
+		this.womensBestN = womensBestN;
+	}
+
+	public void setMixedBestN(Integer mixedBestN) {
+		this.mixedBestN = mixedBestN;
+	}
+
+	public void setTeamScoringSystem(Ranking teamScoringSystem) {
+		this.teamScoringSystem = teamScoringSystem;
+	}
+
+	public void setMixedTeamScoringSystem(Ranking mixedTeamScoringSystem) {
+		this.mixedTeamScoringSystem = mixedTeamScoringSystem;
 	}
 
 	public void setType(ChampionshipType type) {
 		this.type = type;
+	}
+
+	public void populateScoringDefaults() {
+		Competition comp = Competition.getCurrent();
+		if (comp == null) {
+			return;
+		}
+		this.scoringSystem = comp.getScoringSystem();
+		this.bestAthleteScoringSystem = comp.getScoringSystem();
+		this.snatchCJTotalMedals = comp.isSnatchCJTotalMedals();
+		this.teamPoints1st = comp.getTeamPoints1st();
+		this.teamPoints2nd = comp.getTeamPoints2nd();
+		this.teamPoints3rd = comp.getTeamPoints3rd();
+		this.mensBestN = comp.getMensBestN();
+		this.womensBestN = comp.getWomensBestN();
+		this.mixedBestN = comp.getMixedBestNElseDefault();
+		this.maxTeamSize = comp.getMaxTeamSize();
+		this.maxPerCategory = comp.getMaxPerCategory();
+		this.explicitMixedTeamMembers = false;
+		this.teamScoringSystem = null;
+		this.mixedTeamScoringSystem = null;
+
+		List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, this, null, true, -1, -1);
+		for (AgeGroup ageGroup : ageGroups) {
+			if (ageGroup.getScoringSystem() != null) {
+				this.scoringSystem = ageGroup.getScoringSystem();
+			}
+			if (ageGroup.getBestAthleteScoringSystem() != null) {
+				this.bestAthleteScoringSystem = ageGroup.getBestAthleteScoringSystem();
+			}
+		}
+
+		this.bestSnatchScoringSystem = this.bestAthleteScoringSystem;
+		this.bestCJScoringSystem = this.bestAthleteScoringSystem;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null || getClass() != obj.getClass()) return false;
+		Championship other = (Championship) obj;
+		if (this.name == null || other.name == null) return false;
+		return this.name.equals(other.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return this.name != null ? this.name.hashCode() : 0;
 	}
 
 	@Override
@@ -273,45 +514,6 @@ public class Championship implements Comparable<Championship> {
 	public String translate() {
 		String tr = Translator.translateOrElseNull("Championship." + getName(), OwlcmsSession.getLocale());
 		return tr != null ? tr : getName();
-	}
-	
-	/**
-	 * Gets the best athlete scoring system from the age groups in this championship.
-	 * Uses majority vote - returns the scoring system used by most age groups.
-	 * 
-	 * @param ageGroupPrefix the age group prefix to filter by (optional, can be null)
-	 * @return the best athlete scoring system, or null if none found
-	 */
-	public Ranking getBestAthleteScoringSystem(String ageGroupPrefix) {
-		List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, this, null, true, -1, -1);
-		
-		// Filter by age group prefix if provided
-		if (ageGroupPrefix != null && !ageGroupPrefix.isBlank()) {
-			ageGroups = ageGroups.stream()
-				.filter(ag -> ageGroupPrefix.equals(ag.getCode()))
-				.toList();
-		}
-		
-		// Count occurrences of each scoring system
-		Map<Ranking, Integer> scoringSystemCounts = new HashMap<>();
-		for (AgeGroup ag : ageGroups) {
-			Ranking system = ag.getBestAthleteScoringSystem();
-			if (system != null) {
-				scoringSystemCounts.put(system, scoringSystemCounts.getOrDefault(system, 0) + 1);
-			}
-		}
-		
-		// Return the most common scoring system (majority vote)
-		Ranking mostCommon = null;
-		int maxCount = 0;
-		for (Map.Entry<Ranking, Integer> entry : scoringSystemCounts.entrySet()) {
-			if (entry.getValue() > maxCount) {
-				maxCount = entry.getValue();
-				mostCommon = entry.getKey();
-			}
-		}
-		
-		return mostCommon;
 	}
 
 }

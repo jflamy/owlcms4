@@ -150,7 +150,7 @@ public class AgeGroupDefinitionReader {
 								ag.setChampionshipType(ChampionshipType.U);
 							}
 
-							if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
+							if (ag.getChampionshipType().isMasters()) {
 								ag.setAlreadyGendered(true);
 							}
 						}
@@ -296,6 +296,12 @@ public class AgeGroupDefinitionReader {
 				}
 
 				if (ag != null && !skip) {
+					if (ag.getChampionshipName() == null || ag.getChampionshipName().isBlank()) {
+						ag.setChampionshipName(ag.getCode());
+					}
+					if (ag.getChampionshipType() == null) {
+						ag.setChampionshipType(ChampionshipType.U);
+					}
 					em.persist(ag);
 				}
 				iRow++;
@@ -354,6 +360,7 @@ public class AgeGroupDefinitionReader {
 			ageGroupByCodeGender.clear();
 			CategoryRepository.clearCodeMap();
 			createAgeGroups(workbook, templates, forcedInsertion, localizedName);
+			ChampionshipRepository.reconcileFromAgeGroups();
 			Championship.reset();
 			CategoryRepository.resetCodeMap();
 		} catch (Exception e) {

@@ -6,8 +6,11 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.util.Arrays;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
@@ -56,26 +59,44 @@ public class EditChampionshipsDialog extends Dialog {
 		Championship.getMap().values().stream().sorted((o1,o2)-> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
 			TextField nameField = new TextField();
 			nameField.setValue(c.getName());
+			ComboBox<ChampionshipType> typeField = createTypeField();
+			typeField.setValue(c.getType());
 			Button update = new Button(Translator.translate("Update"), e -> {
+				c.setType(typeField.getValue());
 				c.setName(nameField.getValue());
 				updateChampionshipsTable(championshipsTable);
+			});
+			Button details = new Button(Translator.translate("Sessions.EditDetails"), VaadinIcon.COG.create(), e -> {
+				new ChampionshipDetailsDialog(c, () -> updateChampionshipsTable(championshipsTable)).open();
 			});
 			Button delete = new Button(Translator.translate("Delete"), VaadinIcon.TRASH.create(), e -> {
 				Championship.remove(c);
 				updateChampionshipsTable(championshipsTable);
 			});
 			delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
-			HorizontalLayout ctRow = new HorizontalLayout(nameField, update, delete);
+			HorizontalLayout ctRow = new HorizontalLayout(nameField, typeField, update, details, delete);
 			championshipsTable.add(ctRow);
 		});
 		HorizontalLayout addRow = new HorizontalLayout();
 		TextField nameField = new TextField();
+		ComboBox<ChampionshipType> typeField = createTypeField();
+		typeField.setValue(ChampionshipType.U);
 		Button addButton = new Button(Translator.translate("Add"), VaadinIcon.PLUS.create(), e -> {
-			Championship.addChampionship(nameField.getValue(), ChampionshipType.U);
+			Championship.addChampionship(nameField.getValue(), typeField.getValue());
 			updateChampionshipsTable(championshipsTable);
 		});
-		addRow.add(nameField, addButton);
+		addRow.add(nameField, typeField, addButton);
 		championshipsTable.add(addRow);
 
+	}
+
+	private ComboBox<ChampionshipType> createTypeField() {
+		ComboBox<ChampionshipType> typeField = new ComboBox<>();
+		typeField.setItems(Arrays.asList(ChampionshipType.values()));
+		typeField.setItemLabelGenerator(type -> {
+			String translated = Translator.translateOrElseNull("Division." + type.name());
+			return translated != null ? translated + " (" + type.name() + ")" : type.name();
+		});
+		return typeField;
 	}
 }

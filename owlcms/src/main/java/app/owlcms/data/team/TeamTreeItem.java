@@ -60,6 +60,7 @@ public class TeamTreeItem {
 	private List<TeamTreeItem> teamMembers;
 	private boolean combinedPoints;
 	private NativeLabel membershipLabel;
+	private NativeLabel mixedMembershipLabel;
 	private boolean warning;
 	private Ranking scoringSystem;
 
@@ -75,15 +76,19 @@ public class TeamTreeItem {
 		this.combinedPoints = Competition.getCurrent().isSnatchCJTotalMedals();
 	}
 
-	public void addTreeItemChild(Athlete a, boolean done) {
+	public TeamTreeItem addTreeItemChild(Athlete a, boolean done) {
 		List<TeamTreeItem> members = getTeamMembers();
-		boolean already = members.stream().anyMatch(m -> m.getAthlete().getId().equals(a.getId()));
-		if (already) {
-			return;
+		TeamTreeItem existing = members.stream()
+		        .filter(m -> m.getAthlete().getId().equals(a.getId()))
+		        .findFirst()
+		        .orElse(null);
+		if (existing != null) {
+			return existing;
 		}
 		TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
 		child.setParent(this);
 		getTeamMembers().add(child);
+		return child;
 	}
 
 	public void addTreeItemChild(TeamSelectionTreeData teamSelectionTreeData, Athlete a, boolean done) {
@@ -146,6 +151,10 @@ public class TeamTreeItem {
 		return this.membershipLabel;
 	}
 
+	public NativeLabel getMixedMembershipLabel() {
+		return this.mixedMembershipLabel;
+	}
+
 	public String getName() {
 		if (this.athlete == null) {
 			return getTeam().getName();
@@ -172,6 +181,13 @@ public class TeamTreeItem {
 		return (this.team != null ? this.team.getScore() : Ranking.getRankingValue(this.athlete, this.scoringSystem));
 	}
 
+	public void setScoringSystem(Ranking scoringSystem) {
+		this.scoringSystem = scoringSystem;
+		if (this.team != null) {
+			this.team.setScoringSystem(scoringSystem);
+		}
+	}
+
 	public Double getSinclairScore() {
 		return (this.team != null ? this.team.getSinclairScore() : this.athlete.getSinclairForDelta());
 	}
@@ -182,6 +198,34 @@ public class TeamTreeItem {
 	
 	public Double getQMastersScore() {
 		return (this.team != null ? this.team.getQMasters() : this.athlete.getQMastersForDelta());
+	}
+
+	public Double getCatGamxScore() {
+		return (this.team != null ? this.team.getCatGamxScore() : this.athlete.getCategoryGAMXForDelta());
+	}
+
+	public Double getCatQPointsMetric() {
+		return (this.team != null ? this.team.getCatQPointsScore() : this.athlete.getCategoryQPointsForDelta());
+	}
+
+	public Double getCatSinclairMetric() {
+		return (this.team != null ? this.team.getCatSinclairScore() : this.athlete.getCategorySinclairForDelta());
+	}
+
+	public Double getGamxScore() {
+		return (this.team != null ? this.team.getGamx() : this.athlete.getGamx());
+	}
+
+	public int getRawCombinedPoints() {
+		return (this.athlete != null ? this.athlete.getRawCombinedPoints() : 0);
+	}
+
+	public int getRawTotalPoints() {
+		return (this.athlete != null ? this.athlete.getRawTotalPoints() : 0);
+	}
+
+	public Double getRobiScore() {
+		return (this.team != null ? this.team.getRobi() : this.athlete.getRobi());
 	}
 
 
@@ -221,6 +265,10 @@ public class TeamTreeItem {
 		return this.athlete.getTeam();
 	}
 
+	public boolean isDone() {
+		return this.done;
+	}
+
 	public Integer getTotalPoints() {
 		return (this.athlete != null ? this.athlete.getTotalPoints() : null);
 	}
@@ -229,12 +277,20 @@ public class TeamTreeItem {
 		return (this.athlete != null ? this.athlete.isTeamMember() : null);
 	}
 
+	public Boolean isMixedTeamMember() {
+		return (this.athlete != null ? this.athlete.isMixedTeamMember() : null);
+	}
+
 	public boolean isWarning() {
 		return this.warning;
 	}
 
 	public void setMembershipLabel(NativeLabel label) {
 		this.membershipLabel = label;
+	}
+
+	public void setMixedMembershipLabel(NativeLabel label) {
+		this.mixedMembershipLabel = label;
 	}
 
 	public void setParent(TeamTreeItem parent) {
@@ -247,16 +303,18 @@ public class TeamTreeItem {
 		}
 	}
 
+	public void setMixedTeamMember(boolean b) {
+		if (this.athlete != null) {
+			this.athlete.setMixedTeamMember(b);
+		}
+	}
+
 	public void setTeamMembers(List<TeamTreeItem> teamMembers) {
 		this.teamMembers = teamMembers;
 	}
 
 	public void setWarning(boolean contains) {
 		this.warning = contains;
-	}
-
-	private boolean isDone() {
-		return this.done;
 	}
 
 	private void setDone(boolean done) {

@@ -837,9 +837,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		if (this.getRankingSelector() != null) {
 			Ranking newRanking;
 			if (championship != null) {
-				// Get scoring system for the championship (across all age groups)
-				// The age group prefix will be recomputed by the cascade
-				newRanking = championship.getBestAthleteScoringSystem(null);
+				newRanking = championship.getBestAthleteScoringSystem();
 			} else {
 				newRanking = null;
 			}

@@ -9,10 +9,12 @@ package app.owlcms.data.agegroup;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -21,7 +23,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
@@ -80,11 +81,7 @@ public class AgeGroupRepository {
 		TreeSet<String> ts = new TreeSet<>();
 		for (AgeGroup ag : ageGroups) {
 			if (!activeOnly || ag.isActive()) {
-				if (ag.computeChampionshipName() != null && !ag.computeChampionshipName().isBlank()) {
-					ts.add(ag.computeChampionshipName());
-				} else if (ag.getAgeDivision() != null) {
-					ts.add(ag.getAgeDivision());
-				}
+				ts.add(ag.computeChampionshipName());
 			}
 		}
 		return new ArrayList<>(ts);
@@ -101,13 +98,7 @@ public class AgeGroupRepository {
 		});
 		TreeSet<String> ts = new TreeSet<>();
 		for (AgeGroup ag : ageGroups) {
-			if (ag.computeChampionshipName() != null && !ag.computeChampionshipName().isBlank()) {
-				ts.add(ag.computeChampionshipName() + "¤" + ag.getAgeDivision());
-			} else if (ag.getAgeDivision() != null) {
-				ts.add(ag.getAgeDivision());
-			} else {
-				logger.error("{} {} {}", ag.getId(), ag.code, ag.computeChampionshipName(), ag.getCategoriesAsString());
-			}
+			ts.add(ag.computeChampionshipName() + "¤" + ag.getChampionshipType().name());
 		}
 		return new ArrayList<>(ts);
 	}
@@ -143,8 +134,7 @@ public class AgeGroupRepository {
 				whereList.add("ag.code = :ageGroupPrefix");
 			}
 			if (championship != null) {
-				// Match on championshipName first; only fall back to ageDivision if championshipName is not set
-				whereList.add("((lower(ag.championshipName) = lower(:championshipName)) or ((ag.championshipName IS NULL OR ag.championshipName = '') AND lower(ag.ageDivision) = lower(:championshipName)))");
+				whereList.add("lower(ag.championshipName) = lower(:championshipName)");
 			}
 			String whereClause = "";
 			if (whereList.size() > 0) {
@@ -297,9 +287,8 @@ public class AgeGroupRepository {
 				List<String> resultSet = q.getResultList();
 				return resultSet;
 			} else {
-				// Match on championshipName first; only fall back to ageDivision if championshipName is not set
 				TypedQuery<String> q = em.createQuery(
-				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where ((lower(ag.championshipName) = lower(:championshipName)) or ((ag.championshipName IS NULL OR ag.championshipName = '') AND lower(ag.ageDivision) = lower(:championshipName)))",
+				        "select distinct ag.code from Participation p join p.category c join c.ageGroup ag where lower(ag.championshipName) = lower(:championshipName)",
 				        String.class);
 				q.setParameter("championshipName", championship.getName());
 				List<String> resultSet = q.getResultList();
@@ -394,11 +383,12 @@ public class AgeGroupRepository {
 			return resultList;
 		});
 		findFiltered.sort((ag1, ag2) -> {
-			int compare = 0;
-			ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
-			if (compare != 0) {
-				return -compare; // most generic first
-			}
+			//int compare = 0;
+			//*** this is missing an assignment to compare; current behavior might rely on this bug, so we comment out for now
+			// ObjectUtils.compare(ag1.getAgeDivision(), ag2.getAgeDivision());
+			// if (compare != 0) {
+			// 	return -compare; // most generic first
+			// }
 			return ag1.compareTo(ag2);
 		});
 		return findFiltered;
@@ -487,11 +477,7 @@ public class AgeGroupRepository {
 			return ag;
 		});
 
-		boolean needCleanUp = !ageGroup.getCode().equals(existing.getCode())
-		        || !ageGroup.getMinAge().equals(existing.getMinAge())
-		        || !ageGroup.getMaxAge().equals(existing.getMaxAge())
-		        || ageGroup.getGender() != existing.getGender()
-		        || existing.reassignmentHashCode() != ageGroup.reassignmentHashCode();
+		boolean needCleanUp = requiresAthleteReassignment(existing, ageGroup);
 
 		List<Athlete> assignedAthletes = AthleteRepository.findAthletesForAgeGroup(ageGroup);
 
@@ -539,18 +525,39 @@ public class AgeGroupRepository {
 
 	}
 
-	public static void updateExistingChampionships() {
-		JPAService.runInTransaction(em -> {
-			List<AgeGroup> ags = doFindAll(em);
-			for (AgeGroup a : ags) {
-				if (a.computeChampionshipName() == null || a.computeChampionshipName().isBlank()) {
-					a.setChampionshipName(a.getAgeDivision());
-				}
-				em.merge(a);
+	private static boolean requiresAthleteReassignment(AgeGroup existing, AgeGroup updated) {
+		if (existing == null || updated == null) {
+			return false;
+		}
+
+		// Championship-level edits do not affect age-group category assignment.
+		return !Objects.equals(updated.getMinAge(), existing.getMinAge())
+		        || !Objects.equals(updated.getMaxAge(), existing.getMaxAge())
+		        || updated.getGender() != existing.getGender()
+		        || !sameReassignmentCategories(existing, updated);
+	}
+
+	private static boolean sameReassignmentCategories(AgeGroup existing, AgeGroup updated) {
+		List<Category> existingCategories = normalizedCategoriesForReassignment(existing);
+		List<Category> updatedCategories = normalizedCategoriesForReassignment(updated);
+
+		if (existingCategories.size() != updatedCategories.size()) {
+			return false;
+		}
+
+		for (int index = 0; index < existingCategories.size(); index++) {
+			if (existingCategories.get(index).reassignmentHashCode() != updatedCategories.get(index).reassignmentHashCode()) {
+				return false;
 			}
-			em.flush();
-			return null;
-		});
+		}
+
+		return true;
+	}
+
+	private static List<Category> normalizedCategoriesForReassignment(AgeGroup ageGroup) {
+		return ageGroup.getCategories().stream()
+		        .sorted(Comparator.naturalOrder())
+		        .collect(Collectors.toList());
 	}
 
 	private static boolean hasDuplicateCodeGender(AgeGroup ageGroup, EntityManager em) {
@@ -693,8 +700,7 @@ public class AgeGroupRepository {
 	        Boolean active) {
 		List<String> whereList = new LinkedList<>();
 		if (championship != null) {
-			// Canonicalize both DB and parameter for matching
-			whereList.add("((LOWER(TRIM(ag.championshipName)) = :canonicalChampionshipName) or (LOWER(TRIM(ag.ageDivision)) = :canonicalChampionshipName))");
+			whereList.add("LOWER(TRIM(ag.championshipName)) = :canonicalChampionshipName");
 		}
 		if (name != null && name.trim().length() > 0) {
 			whereList.add("lower(ag.code) like :code");
@@ -717,7 +723,7 @@ public class AgeGroupRepository {
 	}
 
 	private static AgeGroup fixAg(AgeGroup ag) {
-		if (ag.getChampionshipType() == ChampionshipType.MASTERS) {
+		if (ag.getChampionshipType().isMasters()) {
 			ag.setAlreadyGendered(true);
 		}
 		if (ag.getCode().startsWith("!")) {

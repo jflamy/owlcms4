@@ -410,6 +410,26 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
+	public int getRawTotalPoints() {
+		return this.originalParticipation.getRawTotalPoints();
+	}
+
+	@Override
+	public int getRawSnatchPoints() {
+		return this.originalParticipation.getRawSnatchPoints();
+	}
+
+	@Override
+	public int getRawCleanJerkPoints() {
+		return this.originalParticipation.getRawCleanJerkPoints();
+	}
+
+	@Override
+	public int getRawCombinedPoints() {
+		return this.originalParticipation.getRawCombinedPoints();
+	}
+
+	@Override
 	public int getCombinedRank() {
 		return this.p.getCombinedRank();
 	}
@@ -919,6 +939,10 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getTeamMember();
 	}
 
+	public Boolean getMixedTeamMember() {
+		return this.p.getMixedTeamMember();
+	}
+
 	@Override
 	public Integer getTeamRobiRank() {
 		return this.a.getTeamRobiRank();
@@ -944,11 +968,10 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a.getTotal();
 	}
 
-	// use Athlete implementation on this.
-//	@Override
-//	public int getTotalPoints() {
-//		return this.p.getTotalPoints();
-//	}
+	@Override
+	public int getTotalPoints() {
+		return this.p.getTotalPoints();
+	}
 
 	@Override
 	public int getTotalRank() {
@@ -1006,6 +1029,10 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@Override
 	public boolean isTeamMember() {
 		return this.p.getTeamMember();
+	}
+
+	public boolean isMixedTeamMember() {
+		return this.p.getMixedTeamMember();
 	}
 
 	@Override
@@ -1101,6 +1128,10 @@ public class PAthlete extends Athlete implements IRankHolder {
 	@Override
 	public void setTeamMember(boolean member) {
 		this.p.setTeamMember(member);
+	}
+
+	public void setMixedTeamMember(boolean member) {
+		this.p.setMixedTeamMember(member);
 	}
 
 	@Override

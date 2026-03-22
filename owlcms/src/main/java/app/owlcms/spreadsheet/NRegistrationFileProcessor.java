@@ -108,6 +108,7 @@ public class NRegistrationFileProcessor {
 			if (isDeleteAthletes()) {
 				RCompetition.resetAthleteToEligibles();
 				RCompetition.resetAthleteToTeams();
+				RCompetition.resetAthleteToMixedTeams();
 			}
 
 			List<RAthlete> athletes = new ArrayList<>();
@@ -201,6 +202,7 @@ public class NRegistrationFileProcessor {
 					        // copy the participation categories away
 					        RCompetition.putEligibles(a.getId(), new LinkedHashSet<>(a.getEligibleCategories()));
 					        RCompetition.putTeams(a.getId(), a.computeTeams());
+							RCompetition.putMixedTeams(a.getId(), a.computeMixedTeams());
 					        a.getParticipations().clear();
 
 					        if (isDeleteSessions()) {
@@ -280,9 +282,15 @@ public class NRegistrationFileProcessor {
 				LinkedHashSet<Category> teams = RCompetition
 				        .getAthleteToTeams()
 				        .get(a2.getId());
+				LinkedHashSet<Category> mixedTeams = RCompetition
+				        .getAthleteToMixedTeams()
+				        .get(a2.getId());
 				if (teams == null) {
 					// logger.debug("no teams for athlete {}", a2.getFullId());
 					teams = new LinkedHashSet<Category>();
+				}
+				if (mixedTeams == null) {
+					mixedTeams = new LinkedHashSet<Category>();
 				}
 				// logger.debug("athlete {} eligibles {}", a2.getId(), eligibles);
 				if (eligibles != null) {
@@ -305,6 +313,7 @@ public class NRegistrationFileProcessor {
 							        p.getCategory().getComputedCode());
 							p.setTeamMember(false);
 						}
+						p.setMixedTeamMember(mixedTeams.contains(p.getCategory()));
 					}
 					// logger.debug("participations {} {}", a2.getShortName(), a2.getParticipations());
 					em.merge(a2);
@@ -333,6 +342,7 @@ public class NRegistrationFileProcessor {
 		Athlete.conditionalCopy(existingAthlete, sbdeAthlete, false, false, false);
 		RCompetition.putEligibles(existingAthlete.getId(), RCompetition.getEligibles(sbdeAthlete.getId()));
 		RCompetition.putTeams(existingAthlete.getId(), RCompetition.getTeams(sbdeAthlete.getId()));
+		RCompetition.putMixedTeams(existingAthlete.getId(), RCompetition.getMixedTeams(sbdeAthlete.getId()));
 		// System.err./**/println("< updateExistingAthlete");
 	}
 

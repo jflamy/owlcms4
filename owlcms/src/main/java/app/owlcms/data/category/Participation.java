@@ -76,6 +76,8 @@ public class Participation implements IRankHolder {
 	 */
 	@Column(columnDefinition = "boolean default true")
 	private boolean teamMember = true;
+	@Column(columnDefinition = "boolean default false")
+	private boolean mixedTeamMember = false;
 	@Column(columnDefinition = "integer default 0")
 	private int teamRobiRank;
 	@Column(columnDefinition = "integer default 0")
@@ -106,6 +108,7 @@ public class Participation implements IRankHolder {
 		this.combinedRank = p.combinedRank;
 		this.setCategoryScoreRank(p.getCategoryScoreRank());
 		this.setTeamMember(p.isTeamMember());
+		this.setMixedTeamMember(p.isMixedTeamMember());
 	}
 
 	protected Participation() {
@@ -167,6 +170,30 @@ public class Participation implements IRankHolder {
 		return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
 	}
 
+	@Transient
+	@JsonIgnore
+	public int getRawTotalPoints() {
+		return AthleteSorter.pointsFormula(this.totalRank);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawSnatchPoints() {
+		return AthleteSorter.pointsFormula(this.snatchRank);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawCleanJerkPoints() {
+		return AthleteSorter.pointsFormula(this.cleanJerkRank);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawCombinedPoints() {
+		return getRawSnatchPoints() + getRawCleanJerkPoints() + getRawTotalPoints();
+	}
+
 	public int getCombinedRank() {
 		return this.combinedRank;
 	}
@@ -179,6 +206,10 @@ public class Participation implements IRankHolder {
 
 	public int getCustomRank() {
 		return this.customRank;
+	}
+
+	public boolean getMixedTeamMember() {
+		return isMixedTeamMember();
 	}
 
 	public ParticipationId getId() {
@@ -246,7 +277,8 @@ public class Participation implements IRankHolder {
 		        + ", snatchRank=" + getSnatchRank()
 		        + ", cleanJerkRank=" + getCleanJerkRank()
 		        + ", totalRank=" + getTotalRank()
-		        + ", teamMember=" + getTeamMember() + "]";
+		        + ", teamMember=" + getTeamMember()
+		        + ", mixedTeamMember=" + getMixedTeamMember() + "]";
 	}
 
 	public void setAthlete(Athlete athlete) {
@@ -274,6 +306,10 @@ public class Participation implements IRankHolder {
 	public void setCustomRank(int customRank) {
 		this.customRank = customRank;
 		// logger.trace("customRank {}", long_dump());
+	}
+
+	public void setMixedTeamMember(boolean mixedTeamMember) {
+		this.mixedTeamMember = mixedTeamMember;
 	}
 
 	public void setSnatchRank(int snatchRank) {
@@ -325,8 +361,12 @@ public class Participation implements IRankHolder {
 		return "Participation [athlete=" + this.athlete + ", category=" + this.category + "]";
 	}
 
-	private boolean isTeamMember() {
+	public boolean isTeamMember() {
 		return this.teamMember;
+	}
+
+	public boolean isMixedTeamMember() {
+		return this.mixedTeamMember;
 	}
 
 	public ChampionshipType getChampionshipType() {

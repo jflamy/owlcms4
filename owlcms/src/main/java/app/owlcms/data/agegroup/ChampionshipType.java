@@ -18,6 +18,21 @@ public enum ChampionshipType {
 	IWF,
 
     /* All Ages: All bodyweight categories are present, no restriction on age */
-	DEFAULT,
+	DEFAULT;
+
+	/** True for MASTERS championships. */
+	public boolean isMasters() {
+		return this == MASTERS;
+	}
+
+	/** True for youth-style championships. */
+	public boolean isU() {
+		return this == U;
+	}
+
+	/** True for IWF championships. */
+	public boolean isIWF() {
+		return this == IWF;
+	}
 
 }

@@ -48,6 +48,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -223,6 +224,10 @@ public class Competition {
 	@Column(name = "mensTeamSize", columnDefinition = "integer default 8")
 	@JsonProperty("mensTeamSize")
 	private Integer mensBestN = 8;
+	/* this is really "keep best n results", backward compatibility with database exports */
+	@Column(name = "mixedTeamSize", columnDefinition = "integer default 8")
+	@JsonProperty("mixedTeamSize")
+	private Integer mixedBestN = 8;
 	@Column(columnDefinition = "integer default 8")
 	private Integer maxTeamSize = 8;
 	@Column(columnDefinition = "integer default 2")
@@ -601,6 +606,13 @@ public class Competition {
 			        Ranking.CAT_QPOINTS,
 			        Ranking.CAT_GAMX,
 			        Ranking.GAMX,
+			        Ranking.GAMX_M,
+			        Ranking.GAMX_MS,
+			        Ranking.GAMX_MC,
+			        Ranking.GAMX_U,
+			        Ranking.GAMX_A,
+			        Ranking.GAMX_S,
+			        Ranking.GAMX_C,
 			        Ranking.AGEFACTORS // Q-youth
 			)) {
 				if (RankingConfig.shouldCompute(ranking)) {
@@ -931,8 +943,12 @@ public class Competition {
 		if (Config.getCurrent().featureSwitch("GAMX")) {
 			RankingConfig.setUserEnabled(Ranking.GAMX, true);
 			RankingConfig.setUserEnabled(Ranking.GAMX_M, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_MS, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_MC, true);
 			RankingConfig.setUserEnabled(Ranking.GAMX_U, true);
 			RankingConfig.setUserEnabled(Ranking.GAMX_A, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_S, true);
+			RankingConfig.setUserEnabled(Ranking.GAMX_C, true);
 		}
 
 		if (Config.getCurrent().featureSwitch("usaw")) {
@@ -1167,8 +1183,18 @@ public class Competition {
 		return this.mensBestN != null ? this.mensBestN : this.maxTeamSize;
 	}
 
+	@Transient
+	@JsonIgnore
+	public Integer getMixedBestNElseDefault() {
+		return this.mixedBestN != null ? this.mixedBestN : this.maxTeamSize;
+	}
+
 	public Integer getMensBestN() {
 		return this.mensBestN;
+	}
+
+	public Integer getMixedBestN() {
+		return this.mixedBestN;
 	}
 
 	public String getOfficialsListTemplateFileName() {
@@ -1668,6 +1694,10 @@ public class Competition {
 		this.mensBestN = mensTeamSize;
 	}
 
+	public void setMixedBestN(Integer mixedTeamSize) {
+		this.mixedBestN = mixedTeamSize;
+	}
+
 	public void setOfficialsListTemplateFileName(String officialsListTemplateFileName) {
 		this.officialsListTemplateFileName = officialsListTemplateFileName;
 	}
@@ -1971,7 +2001,7 @@ public class Competition {
 	 * @param singleAgeGroup true if not called in a loop, can compute team stats.
 	 * @param ageGroupPrefix
 	 */
-	private void doTeamRankings(List<Athlete> athletes, String suffix, boolean singleAgeGroup) {
+	private void doTeamRankings(List<Athlete> athletes, String suffix, boolean singleAgeGroup, Championship championship) {
 		// team-oriented rankings. These rankings put all the athletes from the same
 		// team together, sorted according to their points, so the top n can be kept if
 		// needed.
@@ -1983,12 +2013,28 @@ public class Competition {
 		List<Athlete> sortedMen = new ArrayList<>();
 		List<Athlete> sortedWomen = new ArrayList<>();
 		splitPTeamMembersByGender(athletes, sortedMen, sortedWomen);
-		athletes = new ArrayList<>();
-		athletes.addAll(sortedMen);
-		athletes.addAll(sortedWomen);
+
+		boolean explicitMixed = championship != null && championship.isMixed();
+		List<Athlete> mixedAthletes;
+		Set<Long> championshipCategoryIds = getChampionshipCategoryIds(championship);
+		if (explicitMixed) {
+			mixedAthletes = athletes.stream()
+			        .filter(a -> isExplicitMixedTeamMember(a, championshipCategoryIds))
+			        .collect(Collectors.toList());
+		} else {
+			mixedAthletes = new ArrayList<>(sortedMen.size() + sortedWomen.size());
+			mixedAthletes.addAll(sortedMen);
+			mixedAthletes.addAll(sortedWomen);
+		}
+
+		Ranking bestScoring = championship != null && championship.getScoringSystem() != null
+		        ? championship.getScoringSystem()
+		        : Competition.getCurrent().getScoringSystem();
 
 		suffix = suffix != null ? suffix : "";
-		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.TOTAL);
+		sortedAthletes = explicitMixed
+		        ? AthleteSorter.teamPointsOrderCopyMixed(mixedAthletes, Ranking.TOTAL)
+		        : AthleteSorter.teamPointsOrderCopy(mixedAthletes, Ranking.TOTAL);
 		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.TOTAL);
 		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.TOTAL);
 		addToReportingBean("mTeam" + suffix, sortedMen);
@@ -1998,7 +2044,9 @@ public class Competition {
 			reportTeams(sortedAthletes, sortedMen, sortedWomen);
 		}
 
-		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.SNATCH_CJ_TOTAL);
+		sortedAthletes = explicitMixed
+		        ? AthleteSorter.teamPointsOrderCopyMixed(mixedAthletes, Ranking.SNATCH_CJ_TOTAL)
+		        : AthleteSorter.teamPointsOrderCopy(mixedAthletes, Ranking.SNATCH_CJ_TOTAL);
 		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.SNATCH_CJ_TOTAL);
 		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.SNATCH_CJ_TOTAL);
 		addToReportingBean("mCombined" + suffix, sortedMen);
@@ -2009,7 +2057,9 @@ public class Competition {
 		}
 
 		// this is per age group ranking
-		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Ranking.CUSTOM);
+		sortedAthletes = explicitMixed
+		        ? AthleteSorter.teamPointsOrderCopyMixed(mixedAthletes, Ranking.CUSTOM)
+		        : AthleteSorter.teamPointsOrderCopy(mixedAthletes, Ranking.CUSTOM);
 		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.CUSTOM);
 		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.CUSTOM);
 		addToReportingBean("mCustom" + suffix, sortedMen);
@@ -2019,15 +2069,40 @@ public class Competition {
 			reportCustom(sortedAthletes, sortedMen, sortedWomen);
 		}
 
-		sortedAthletes = AthleteSorter.teamPointsOrderCopy(athletes, Competition.getCurrent().getScoringSystem());
-		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Competition.getCurrent().getScoringSystem());
-		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Competition.getCurrent().getScoringSystem());
+		sortedAthletes = explicitMixed
+		        ? AthleteSorter.teamPointsOrderCopyMixed(mixedAthletes, bestScoring)
+		        : AthleteSorter.teamPointsOrderCopy(mixedAthletes, bestScoring);
+		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, bestScoring);
+		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, bestScoring);
 		addToReportingBean("mTeamBest" + suffix, sortedMen);
 		addToReportingBean("wTeamBest" + suffix, sortedWomen);
 		addToReportingBean("mwTeamBest" + suffix, sortedAthletes);
 		if (singleAgeGroup) {
 			reportTeamBest(sortedAthletes, sortedMen, sortedWomen);
 		}
+	}
+
+	private Set<Long> getChampionshipCategoryIds(Championship championship) {
+		if (championship == null) {
+			return Collections.emptySet();
+		}
+		return AgeGroupRepository.findFiltered(null, null, championship, null, true, -1, -1).stream()
+		        .map(AgeGroup::getCategories)
+		        .flatMap(List::stream)
+		        .map(Category::getId)
+		        .filter(id -> id != null)
+		        .collect(Collectors.toSet());
+	}
+
+	private boolean isExplicitMixedTeamMember(Athlete athlete, Set<Long> championshipCategoryIds) {
+		if (athlete == null || championshipCategoryIds == null || championshipCategoryIds.isEmpty()) {
+			return false;
+		}
+		return athlete.getParticipations().stream()
+		        .anyMatch(p -> p.getCategory() != null
+		                && p.getCategory().getId() != null
+		                && championshipCategoryIds.contains(p.getCategory().getId())
+		                && p.getMixedTeamMember());
 	}
 
 	private String getMedalsTemplateFileName() {
@@ -2097,13 +2172,6 @@ public class Competition {
 		this.reportingBeans.put("mQAge", sortedMen);
 		getOrCreateBean("wQAge");
 		this.reportingBeans.put("wQAge", sortedWomen);
-	}
-
-	private void reportTeamBest(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
-		getOrCreateBean("mTeamBest");
-		this.reportingBeans.put("mTeamBest", sortedMen);
-		getOrCreateBean("wTeamBest");
-		this.reportingBeans.put("wTeamBest", sortedWomen);
 	}
 
 	private void reportQPoints(List<Athlete> sortedMen, List<Athlete> sortedWomen) {
@@ -2224,7 +2292,7 @@ public class Competition {
 
 	private void teamRankings(List<Athlete> athletes, String ageGroupPrefix) {
 		clearTeamReportingBeans(ageGroupPrefix);
-		doTeamRankings(athletes, ageGroupPrefix, true);
+		doTeamRankings(athletes, ageGroupPrefix, true, null);
 	}
 
 	/**
@@ -2241,9 +2309,10 @@ public class Competition {
 
 		String adName = ad.getName();
 		adName = adName != null ? adName : "";
+		boolean explicitMixed = ad.isMixed();
 		for (String curAGPrefix : agePrefixes) {
 			List<Athlete> athletes = AgeGroupRepository.allPAthletesForAgeGroup(curAGPrefix);
-			doTeamRankings(athletes, adName, false);
+			doTeamRankings(athletes, adName, false, ad);
 		}
 
 		List<Athlete> sortedAthletes;
@@ -2255,7 +2324,11 @@ public class Competition {
 		sortedAthletes = getOrCreateBean("mwTeam" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.TOTAL);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.TOTAL);
-		AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.TOTAL);
+		if (explicitMixed) {
+			AthleteSorter.teamPointsOrderMixed(sortedAthletes, Ranking.TOTAL);
+		} else {
+			AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.TOTAL);
+		}
 
 		reportTeams(sortedAthletes, sortedMen, sortedWomen);
 
@@ -2264,7 +2337,11 @@ public class Competition {
 		sortedAthletes = getOrCreateBean("mwCombined" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.SNATCH_CJ_TOTAL);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.SNATCH_CJ_TOTAL);
-		AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.SNATCH_CJ_TOTAL);
+		if (explicitMixed) {
+			AthleteSorter.teamPointsOrderMixed(sortedAthletes, Ranking.SNATCH_CJ_TOTAL);
+		} else {
+			AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.SNATCH_CJ_TOTAL);
+		}
 
 		reportCombined(sortedAthletes, sortedMen, sortedWomen);
 
@@ -2273,7 +2350,11 @@ public class Competition {
 		sortedAthletes = getOrCreateBean("mwCustom" + adName);
 		AthleteSorter.teamPointsOrder(sortedMen, Ranking.CUSTOM);
 		AthleteSorter.teamPointsOrder(sortedWomen, Ranking.CUSTOM);
-		AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.CUSTOM);
+		if (explicitMixed) {
+			AthleteSorter.teamPointsOrderMixed(sortedAthletes, Ranking.CUSTOM);
+		} else {
+			AthleteSorter.teamPointsOrder(sortedAthletes, Ranking.CUSTOM);
+		}
 
 		reportCustom(sortedAthletes, sortedMen, sortedWomen);
 
@@ -2305,12 +2386,19 @@ public class Competition {
 
 		reportQAge(sortedMen, sortedWomen);
 
+		Ranking bestScoring = ad.getScoringSystem() != null ? ad.getScoringSystem() : Competition.getCurrent().getScoringSystem();
 		sortedMen = getOrCreateBean("mTeamBest" + adName);
 		sortedWomen = getOrCreateBean("wTeamBest" + adName);
-		AthleteSorter.teamPointsOrder(sortedMen, Competition.getCurrent().getScoringSystem());
-		AthleteSorter.teamPointsOrder(sortedWomen, Competition.getCurrent().getScoringSystem());
+		sortedAthletes = getOrCreateBean("mwTeamBest" + adName);
+		AthleteSorter.teamPointsOrder(sortedMen, bestScoring);
+		AthleteSorter.teamPointsOrder(sortedWomen, bestScoring);
+		if (explicitMixed) {
+			AthleteSorter.teamPointsOrderMixed(sortedAthletes, bestScoring);
+		} else {
+			AthleteSorter.teamPointsOrder(sortedAthletes, bestScoring);
+		}
 
-		reportTeamBest(sortedMen, sortedWomen);
+		reportTeamBest(sortedAthletes, sortedMen, sortedWomen);
 	}
 
 	public boolean isMasters20kg() {

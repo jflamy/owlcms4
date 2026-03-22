@@ -50,7 +50,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
-import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -523,11 +522,16 @@ public class Athlete {
 	}
 
 	public void addEligibleCategory(Category category, boolean teamMember) {
+		addEligibleCategory(category, teamMember, false);
+	}
+
+	public void addEligibleCategory(Category category, boolean teamMember, boolean mixedTeamMember) {
 		if (category == null) {
 			return;
 		}
 		Participation participation = new Participation(this, category);
 		participation.setTeamMember(teamMember);
+		participation.setMixedTeamMember(mixedTeamMember);
 
 		if (this.participations == null) {
 			setParticipations(new ArrayList<>());
@@ -1099,20 +1103,33 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Set<String> getMixedAgeGroupTeams() {
+		Set<String> s = new LinkedHashSet<>();
+		List<Participation> participations2 = getParticipations();
+		for (Participation p : participations2) {
+			Category category2 = p.getCategory();
+			if (category2 == null || category2.getAgeGroup() == null) {
+				continue;
+			}
+			if (p.getMixedTeamMember()) {
+				s.add(category2.getAgeGroup().getCode());
+			}
+		}
+		return s;
+	}
+
+	@Transient
+	@JsonIgnore
 	public String getAllCategoriesAsString() {
 		Category mrCat = getCategory();
 
-		String mainCategoryAsString = mrCat != null ? mrCat.getDisplayName() : "";
-		if (mrCat != null && !getMainRankings().getTeamMember()) {
-			mainCategoryAsString = mainCategoryAsString + RAthlete.NoTeamMarker;
-		}
+		String mainCategoryAsString = mrCat != null ? formatCategoryParticipation(mrCat.getDisplayName(), getMainRankings()) : "";
 
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
 		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
-			        String catName = p.getCategory().getDisplayName();
-			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
+			        return formatCategoryParticipation(p.getCategory().getDisplayName(), p);
 		        })
 		        .collect(Collectors.joining(";"));
 		if (eligiblesAsString.isBlank()) {
@@ -1937,24 +1954,27 @@ public class Athlete {
 		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
 		String mainCategory = mrCat != null ? mrCat.getDisplayName() : "";
 
-		String mainCategoryString = mainCategory;
-		if (mrCat != null && !getMainRankings().getTeamMember()) {
-			mainCategoryString = mainCategory + RAthlete.NoTeamMarker;
-		}
+		String mainCategoryString = formatCategoryParticipation(mainCategory, getMainRankings());
 
 		String eligiblesAsString = this.getParticipations().stream()
 		        .filter(p -> (p.getCategory() != mrCat))
 		        .sorted((a, b) -> a.getCategory().getAgeGroup().compareTo(b.getCategory().getAgeGroup()))
 		        .map(p -> {
-			        String catName = p.getCategory().getNameWithAgeGroup();
-			        return catName;
+			        return formatCategoryParticipation(p.getCategory().getNameWithAgeGroup(), p);
 		        })
 		        .collect(Collectors.joining(";"));
 		if (eligiblesAsString.isBlank()) {
 			return mainCategoryString;
 		} else {
-			return mainCategory + ";" + eligiblesAsString;
+			return mainCategoryString + ";" + eligiblesAsString;
 		}
+	}
+
+	private String formatCategoryParticipation(String categoryName, Participation participation) {
+		if (categoryName == null || categoryName.isBlank() || participation == null) {
+			return categoryName;
+		}
+		return RAthlete.appendMembershipMarkers(categoryName, participation.getTeamMember(), participation.getMixedTeamMember());
 	}
 
 	public Integer getEntryTotal() {
@@ -2109,6 +2129,30 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Double getGamxMS() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxMSRank() {
+		return 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxMC() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxMCRank() {
+		return 0;
+	}
+
+	@Transient
+	@JsonIgnore
 	public Double getGamxU() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
@@ -2151,6 +2195,30 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Double getGamxS() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxSRank() {
+		return 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxC() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Integer getGamxCRank() {
+		return 0;
+	}
+
+	@Transient
+	@JsonIgnore
 	public Double getGamxForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
@@ -2173,6 +2241,18 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public Double getGamxMSForDelta() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxMCForDelta() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
 	public Double getGamxUForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		try {
@@ -2191,6 +2271,18 @@ public class Athlete {
 		} catch (IndexOutOfBoundsException e) {
 			return 0.0D;
 		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxSForDelta() {
+		return 0.0D;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Double getGamxCForDelta() {
+		return 0.0D;
 	}
 
 	/**
@@ -2516,6 +2608,22 @@ public class Athlete {
 			AgeGroup ageGroup = p.getAgeGroup();
 			if (ageGroup != null) {
 				s.add(ageGroup.getDisplayName());
+			}
+		}
+		return s;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Set<String> getPossibleMixedAgeGroupTeams() {
+		Set<String> s = new LinkedHashSet<>();
+		List<Participation> participations2 = getParticipations();
+		List<Category> pcats = participations2.stream().map(p -> p.getCategory()).collect(Collectors.toList());
+		pcats.sort(new RegistrationPreferenceComparator());
+		for (Category p : pcats) {
+			AgeGroup ageGroup = p.getAgeGroup();
+			if (ageGroup != null && ageGroup.isMixedTeams()) {
+				s.add(ageGroup.getCode());
 			}
 		}
 		return s;
@@ -3354,6 +3462,12 @@ public class Athlete {
 		return isEligibleForTeamRanking();
 	}
 
+	@Transient
+	@JsonIgnore
+	public Boolean getMixedTeamMember() {
+		return (getMainRankings() != null ? getMainRankings().getMixedTeamMember() : false);
+	}
+
 	/**
 	 * Gets the team robi rank.
 	 *
@@ -3631,6 +3745,40 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public boolean isMixedTeamMember() {
+		return (getMainRankings() != null ? getMainRankings().getMixedTeamMember() : false);
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawTotalPoints() {
+		Participation mainRankings = getMainRankings();
+		return mainRankings != null ? mainRankings.getRawTotalPoints() : 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawSnatchPoints() {
+		Participation mainRankings = getMainRankings();
+		return mainRankings != null ? mainRankings.getRawSnatchPoints() : 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawCleanJerkPoints() {
+		Participation mainRankings = getMainRankings();
+		return mainRankings != null ? mainRankings.getRawCleanJerkPoints() : 0;
+	}
+
+	@Transient
+	@JsonIgnore
+	public int getRawCombinedPoints() {
+		Participation mainRankings = getMainRankings();
+		return mainRankings != null ? mainRankings.getRawCombinedPoints() : 0;
+	}
+
+	@Transient
+	@JsonIgnore
 	public boolean isValidation() {
 		return this.validation && !isSkipValidationsDuringImport();
 	}
@@ -3709,8 +3857,24 @@ public class Athlete {
 		// in a checkbox group
 		List<Participation> participations2 = getParticipations();
 		for (Participation p : participations2) {
-			// logger.debug("p.getCategory()={} p.getCategory().getAgeGroup()={}", p.getCategory(), p.getCategory() != null ? p.getCategory().getAgeGroup() : null);
-			p.setTeamMember(s.contains(p.getCategory().getAgeGroup().getDisplayName()));
+			Category category2 = p.getCategory();
+			if (category2 == null || category2.getAgeGroup() == null) {
+				continue;
+			}
+			p.setTeamMember(s.contains(category2.getAgeGroup().getDisplayName()));
+		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public void setMixedAgeGroupTeams(Set<String> s) {
+		List<Participation> participations2 = getParticipations();
+		for (Participation p : participations2) {
+			Category category2 = p.getCategory();
+			if (category2 == null || category2.getAgeGroup() == null) {
+				continue;
+			}
+			p.setMixedTeamMember(s.contains(category2.getAgeGroup().getCode()));
 		}
 	}
 
@@ -4882,6 +5046,10 @@ public class Athlete {
 		throw new UnsupportedOperationException("Team Membership should be updated via PAthlete");
 	}
 
+	public void setMixedTeamMember(boolean member) {
+		throw new UnsupportedOperationException("Mixed Team Membership should be updated via PAthlete");
+	}
+
 	/**
 	 * Sets the team robi rank.
 	 *
@@ -5970,7 +6138,7 @@ public class Athlete {
 			if (ag != null) {
 				Championship ad = ag.getChampionship();
 				if (ad != null) {
-					if (ad.getType() == ChampionshipType.MASTERS && !Competition.getCurrent().isMasters20kg()) {
+					if (ad.getType().isMasters() && !Competition.getCurrent().isMasters20kg()) {
 						double margin = 0.2D * entryTotal;
 						// we would round up the required total, so we round down the allowed margin
 						double floor = Math.floor(margin);
@@ -6478,6 +6646,14 @@ public class Athlete {
 	public LinkedHashSet<Category> computeTeams() {
 		LinkedHashSet<Category> collect = getParticipations().stream()
 		        .filter(p -> p.getTeamMember())
+		        .map(p -> p.getCategory())
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
+		return collect;
+	}
+
+	public LinkedHashSet<Category> computeMixedTeams() {
+		LinkedHashSet<Category> collect = getParticipations().stream()
+		        .filter(p -> p.getMixedTeamMember())
 		        .map(p -> p.getCategory())
 		        .collect(Collectors.toCollection(LinkedHashSet::new));
 		return collect;

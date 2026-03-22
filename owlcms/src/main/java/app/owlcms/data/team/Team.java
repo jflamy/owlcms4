@@ -130,6 +130,13 @@ public class Team {
 			case SMM:
 				return getSmfScore();
 			case GAMX:
+			case GAMX_M:
+			case GAMX_MS:
+			case GAMX_MC:
+			case GAMX_U:
+			case GAMX_A:
+			case GAMX_S:
+			case GAMX_C:
 				return getGamx();
 			default:
 				return 0D;
@@ -193,6 +200,10 @@ public class Team {
 	
 	public void setQMasters(double q) {
 		this.qMasters = q;
+	}
+
+	public void setScoringSystem(Ranking scoringSystem) {
+		this.scoringSystem = scoringSystem;
 	}
 
 

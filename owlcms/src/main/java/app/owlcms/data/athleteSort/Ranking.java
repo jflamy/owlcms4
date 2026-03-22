@@ -43,8 +43,12 @@ public enum Ranking {
 
 	GAMX("GAMX", true), // GAMX 2.0 scoring
 	GAMX_M("GAMX-M", true), // GAMX, age-adjusted for Masters
+	GAMX_MS("GAMX-MS", true), // Placeholder variation of GAMX-M
+	GAMX_MC("GAMX-MC", true), // Placeholder variation of GAMX-M
 	GAMX_U("GAMX-U", true), // GAMX, age-adjusted for 7-17 years old
 	GAMX_A("GAMX-A", true),// GAMX, age-adjusted for 13-40
+	GAMX_S("GAMX-S", true), // Placeholder variation of GAMX (age ignored)
+	GAMX_C("GAMX-C", true), // Placeholder variation of GAMX (age ignored)
 	CAT_GAMX("CatGAMX", true), // GAMX computed at category boundary
 	
 	ROBI("Robi", true), // IWF ROBI
@@ -120,11 +124,23 @@ public enum Ranking {
 			case GAMX_M:
 				value = curLifter.getGamxMRank();
 				break;
+			case GAMX_MS:
+				value = curLifter.getGamxMSRank();
+				break;
+			case GAMX_MC:
+				value = curLifter.getGamxMCRank();
+				break;
 			case GAMX_U:
 				value = curLifter.getGamxURank();
 				break;
 			case GAMX_A:
 				value = curLifter.getGamxARank();
+				break;
+			case GAMX_S:
+				value = curLifter.getGamxSRank();
+				break;
+			case GAMX_C:
+				value = curLifter.getGamxCRank();
 				break;
 			case QPOINTS:
 				value = curLifter.getqPointsRank();
@@ -216,11 +232,23 @@ public enum Ranking {
 			case GAMX_M:
 				d = curLifter.getGamxM();
 				break;
+			case GAMX_MS:
+				d = curLifter.getGamxMS();
+				break;
+			case GAMX_MC:
+				d = curLifter.getGamxMC();
+				break;
 			case GAMX_U:
 				d = curLifter.getGamxU();
 				break;
 			case GAMX_A:
 				d = curLifter.getGamxA();
+				break;
+			case GAMX_S:
+				d = curLifter.getGamxS();
+				break;
+			case GAMX_C:
+				d = curLifter.getGamxC();
 				break;
 			case CAT_GAMX:
 				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
@@ -276,13 +304,20 @@ public enum Ranking {
 			case SMM:
 			case GAMX:
 			case GAMX_M:
+			case GAMX_MS:
+			case GAMX_MC:
 			case GAMX_U:
 			case GAMX_A:
+			case GAMX_S:
+			case GAMX_C:
 			case QPOINTS:
 			case AGEFACTORS:
 			case QAGE:
 			case TOTAL:
-				return Translator.translate("RankingExplanation." + rankingType);
+				return switch (rankingType) {
+					case GAMX_MS, GAMX_MC, GAMX_S, GAMX_C -> rankingType.getReportingName();
+					default -> Translator.translate("RankingExplanation." + rankingType);
+				};
 			default:
 				throw new UnsupportedOperationException("not a score ranking " + rankingType);
 		}
@@ -302,20 +337,27 @@ public enum Ranking {
 			case SMM:
 			case GAMX:
 			case GAMX_M:
+			case GAMX_MS:
+			case GAMX_MC:
 			case GAMX_U:
 			case GAMX_A:
+			case GAMX_S:
+			case GAMX_C:
 			case QPOINTS:
 			case AGEFACTORS:
 			case QAGE:
 			case TOTAL:
-				return Translator.translate("Ranking." + rankingType);
+				return switch (rankingType) {
+					case GAMX_MS, GAMX_MC, GAMX_S, GAMX_C -> rankingType.getReportingName();
+					default -> Translator.translate("Ranking." + rankingType);
+				};
 			default:
 				throw new UnsupportedOperationException("not a score ranking " + rankingType);
 		}
 	}
 
 	public static List<Ranking> scoringSystems() {
-		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, GAMX_M, GAMX_U, GAMX_A, CAT_QPOINTS, CAT_GAMX, CAT_SINCLAIR));
+		List<Ranking> systems = new ArrayList<>(Arrays.asList(BW_SINCLAIR, SMM, ROBI, AGEFACTORS, QPOINTS, QAGE, GAMX, GAMX_M, GAMX_MS, GAMX_MC, GAMX_U, GAMX_A, GAMX_S, GAMX_C, CAT_QPOINTS, CAT_GAMX, CAT_SINCLAIR));
 		systems.removeIf(ranking -> !RankingConfig.shouldCompute(ranking));
 		return systems;
 	}

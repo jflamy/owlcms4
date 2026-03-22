@@ -344,10 +344,18 @@ public class AthleteSorter implements Serializable {
 				return curLifter.getGamxRank();
 			case GAMX_M:
 				return curLifter.getGamxMRank();
+			case GAMX_MS:
+				return curLifter.getGamxMSRank();
+			case GAMX_MC:
+				return curLifter.getGamxMCRank();
 			case GAMX_U:
 				return curLifter.getGamxURank();
 			case GAMX_A:
 				return curLifter.getGamxARank();
+			case GAMX_S:
+				return curLifter.getGamxSRank();
+			case GAMX_C:
+				return curLifter.getGamxCRank();
 			case QAGE:
 				return curLifter.getQMastersRank();
 			case QPOINTS:
@@ -458,6 +466,22 @@ public class AthleteSorter implements Serializable {
 		}
 	}
 
+	public static int pointsFormula(Integer rank, int firstPlacePoints, int secondPlacePoints, int thirdPlacePoints) {
+		if (rank == null || rank <= 0) {
+			return 0;
+		}
+		switch (rank) {
+			case 1:
+				return firstPlacePoints;
+			case 2:
+				return secondPlacePoints;
+			case 3:
+				return thirdPlacePoints;
+			default:
+				return Math.max(0, thirdPlacePoints - (rank - 3));
+		}
+	}
+
 	/**
 	 * @param a
 	 * @return normal points, unless in a Masters championship or a Masters session and IMWA team scoring is enabled
@@ -468,7 +492,7 @@ public class AthleteSorter implements Serializable {
 		boolean imwa = Competition.getCurrent().isImwa();
 		ChampionshipType championshipType = mr.getChampionshipType();
 		Group session = a.getGroup();
-		if (imwa && (championshipType == ChampionshipType.MASTERS || (session != null && session.isMasters()))) {
+		if (imwa && (championshipType.isMasters() || (session != null && session.isMasters()))) {
 			// IMWA lowers points for 1-person and two-person categories
 			Category category = a.getCategory();
 			int athleteCount = AthleteRepository.retrieveMastersAthleteCountForCategory(category);
@@ -605,8 +629,12 @@ public class AthleteSorter implements Serializable {
 			case QPOINTS:
 			case GAMX:
 			case GAMX_M:
+			case GAMX_MS:
+			case GAMX_MC:
 			case GAMX_U:
 			case GAMX_A:
+			case GAMX_S:
+			case GAMX_C:
 			case AGEFACTORS:
 			case QAGE:
 				// logger.debug("ranking type {}",rankingType);
@@ -648,8 +676,12 @@ public class AthleteSorter implements Serializable {
 			case QPOINTS:
 			case GAMX:
 			case GAMX_M:
+			case GAMX_MS:
+			case GAMX_MC:
 			case GAMX_U:
 			case GAMX_A:
+			case GAMX_S:
+			case GAMX_C:
 			case AGEFACTORS:
 			case QAGE:
 				resultsOrder(sorted, rankingType, true);
