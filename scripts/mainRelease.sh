@@ -31,13 +31,18 @@ echo ""
 echo "Pulling ${DEV_BRANCH}..."
 git pull --ff-only origin "${DEV_BRANCH}"
 
-# Step 2: Switch to mainXX
-echo "Switching to ${MAIN_BRANCH}..."
-git checkout "${MAIN_BRANCH}"
-
-# Step 3: Fast-forward merge from devXX
-echo "Merging ${DEV_BRANCH} into ${MAIN_BRANCH} (fast-forward only)..."
-git merge --ff-only "${DEV_BRANCH}"
+# Step 2: Switch to mainXX (create from devXX if it doesn't exist)
+if git show-ref --verify --quiet "refs/heads/${MAIN_BRANCH}" || \
+   git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
+  echo "Switching to existing ${MAIN_BRANCH}..."
+  git checkout "${MAIN_BRANCH}"
+  # Step 3: Fast-forward merge from devXX
+  echo "Merging ${DEV_BRANCH} into ${MAIN_BRANCH} (fast-forward only)..."
+  git merge --ff-only "${DEV_BRANCH}"
+else
+  echo "Creating ${MAIN_BRANCH} from ${DEV_BRANCH}..."
+  git checkout -b "${MAIN_BRANCH}" "${DEV_BRANCH}"
+fi
 
 # Step 4: Push the merged mainXX branch
 echo "Pushing ${MAIN_BRANCH}..."
