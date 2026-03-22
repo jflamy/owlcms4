@@ -311,6 +311,7 @@ public class Competition {
 	private String bodyWeightListTemplateFileName;
 	private String officialsListTemplateFileName;
 	private String teamsListTemplateFileName;
+	private String teamResultsTemplateFileName;
 	private String recordOrder;
 	private Ranking scoringSystem;
 	@Column(columnDefinition = "boolean default false")
@@ -850,6 +851,15 @@ public class Competition {
 
 	@Transient
 	@JsonIgnore
+	public String getComputedTeamResultsTemplateFileName() {
+		if (this.teamResultsTemplateFileName == null) {
+			return "TeamResults-A4.xlsx";
+		}
+		return this.teamResultsTemplateFileName;
+	}
+
+	@Transient
+	@JsonIgnore
 	public String getComputedTechnicalOfficialsTemplateFileName() {
 		if (this.technicalOfficialsTemplateFileName == null) {
 			return "toAssignments.xlsx";
@@ -1258,6 +1268,10 @@ public class Competition {
 
 	public String getTeamsListTemplateFileName() {
 		return this.teamsListTemplateFileName;
+	}
+
+	public String getTeamResultsTemplateFileName() {
+		return this.teamResultsTemplateFileName;
 	}
 
 	public String getTechnicalOfficialsTemplateFileName() {
@@ -1774,6 +1788,10 @@ public class Competition {
 
 	public void setTeamsListTemplateFileName(String teamsListTemplateFileName) {
 		this.teamsListTemplateFileName = teamsListTemplateFileName;
+	}
+
+	public void setTeamResultsTemplateFileName(String teamResultsTemplateFileName) {
+		this.teamResultsTemplateFileName = teamResultsTemplateFileName;
 	}
 
 	public void setTechnicalOfficialsTemplateFileName(String technicalOfficialsTemplateFileName) {
