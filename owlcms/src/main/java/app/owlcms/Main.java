@@ -61,6 +61,7 @@ import io.moquette.broker.config.IConfig;
 import io.moquette.broker.config.MemoryConfig;
 import io.moquette.interception.InterceptHandler;
 import app.owlcms.monitors.MQTTInterceptHandlers;
+import sun.misc.Signal;
 
 /**
  * Main class for launching owlcms using an embedded jetty server. Also start an
@@ -71,6 +72,14 @@ import app.owlcms.monitors.MQTTInterceptHandlers;
 public class Main {
 
     // MQTT intercept handlers moved to app.owlcms.monitors.MQTTInterceptHandlers
+
+    /** Set by the SIGTERM handler so shutdown hooks can exit 0 instead of 143. */
+    private static volatile boolean sigTermReceived = false;
+
+    /** @return true if the JVM is shutting down because of SIGTERM. */
+    public static boolean isSigTermReceived() {
+        return sigTermReceived;
+    }
 
     private static final int WARNING_MINUTES = 5;
     private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
@@ -194,6 +203,20 @@ public class Main {
      * @throws Exception the exception
      */
     public static void main(String... args) throws Exception {
+        // Install SIGTERM handler early so the shutdown hook can distinguish
+        // an intentional external stop from a crash and exit 0 for Docker/systemd.
+        try {
+            Signal.handle(new Signal("TERM"), sig -> {
+                sigTermReceived = true;
+                logger.info("Received SIGTERM — flagging intentional shutdown");
+                // Trigger normal JVM shutdown so all hooks run.
+                System.exit(0);
+            });
+        } catch (IllegalArgumentException e) {
+            // Signal not available on this platform (e.g. some Windows JVMs).
+            logger.debug("SIGTERM handler not available: {}", e.getMessage());
+        }
+
         // there is no config read so far.
         demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
         if (demoResetDelay != null) {
