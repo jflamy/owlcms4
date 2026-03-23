@@ -246,7 +246,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	private Integer mensBestN;
 	private Integer womensBestN;
+	private Integer mixedMensBestN;
+	private Integer mixedWomensBestN;
 	private Integer mixedBestN;
+	private Integer explicitTeamSize;
 
 	private Integer maxTeamSize;
 	private Integer maxPerCategory;
@@ -326,8 +329,20 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return this.womensBestN;
 	}
 
+	public Integer getMixedMensBestN() {
+		return this.mixedMensBestN;
+	}
+
+	public Integer getMixedWomensBestN() {
+		return this.mixedWomensBestN;
+	}
+
 	public Integer getMixedBestN() {
 		return this.mixedBestN;
+	}
+
+	public Integer getExplicitTeamSize() {
+		return this.explicitTeamSize != null ? this.explicitTeamSize : getMaxTeamSize();
 	}
 
 	public Ranking getTeamScoringSystem() {
@@ -442,8 +457,20 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.womensBestN = womensBestN;
 	}
 
+	public void setMixedMensBestN(Integer mixedMensBestN) {
+		this.mixedMensBestN = mixedMensBestN;
+	}
+
+	public void setMixedWomensBestN(Integer mixedWomensBestN) {
+		this.mixedWomensBestN = mixedWomensBestN;
+	}
+
 	public void setMixedBestN(Integer mixedBestN) {
 		this.mixedBestN = mixedBestN;
+	}
+
+	public void setExplicitTeamSize(Integer explicitTeamSize) {
+		this.explicitTeamSize = explicitTeamSize;
 	}
 
 	public void setTeamScoringSystem(Ranking teamScoringSystem) {
@@ -469,9 +496,15 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.teamPoints1st = comp.getTeamPoints1st();
 		this.teamPoints2nd = comp.getTeamPoints2nd();
 		this.teamPoints3rd = comp.getTeamPoints3rd();
-		this.mensBestN = comp.getMensBestN();
-		this.womensBestN = comp.getWomensBestN();
-		this.mixedBestN = comp.getMixedBestNElseDefault();
+		// bestN fields: 0 means "count all" (no scoring cap).
+		// maxTeamSize is the roster cap (how many athletes on a team).
+		// These are separate concepts; don't conflate them.
+		this.mensBestN = 0;
+		this.womensBestN = 0;
+		this.mixedMensBestN = 0;
+		this.mixedWomensBestN = 0;
+		this.mixedBestN = 0;
+		this.explicitTeamSize = comp.getMaxTeamSize();
 		this.maxTeamSize = comp.getMaxTeamSize();
 		this.maxPerCategory = comp.getMaxPerCategory();
 		this.explicitMixedTeamMembers = false;

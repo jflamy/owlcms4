@@ -412,13 +412,7 @@ public class TeamSelectionContent extends BaseContent
 				return new NativeLabel();
 			}
 			if (p.getAthlete() == null) {
-				long nb = p.getTeamMembers().stream().filter(this::isEffectiveMixedTeamMember).count();
-				Championship champ = getChampionship();
-				int maxSize = champ != null
-				        ? (champ.getMixedBestN() != null ? champ.getMixedBestN() : champ.getMaxTeamSize())
-				        : Competition.getCurrent().getMixedBestNElseDefault();
-				NativeLabel label = new NativeLabel(
-				        nb > maxSize ? nb + "\u26a0" : Long.toString(nb));
+				NativeLabel label = new NativeLabel(formatMixedTeamMemberCount(p.getTeamMembers()));
 				p.setMixedMembershipLabel(label);
 				return label;
 			}
@@ -573,6 +567,22 @@ public class TeamSelectionContent extends BaseContent
 		return (int) teamMembers.stream().filter(this::isEffectiveMixedTeamMember).count();
 	}
 
+	private String formatMixedTeamMemberCount(List<TeamTreeItem> teamMembers) {
+		int count = countMixedTeamMembers(teamMembers);
+		Championship champ = getChampionship();
+		if (champ == null) {
+			return Integer.toString(count);
+		}
+
+		boolean warn = champ.isExplicitMixedTeamMembers() && exceedsCap(count, champ.getExplicitTeamSize());
+
+		return warn ? count + "\u26a0" : Integer.toString(count);
+	}
+
+	private boolean exceedsCap(long count, Integer cap) {
+		return cap != null && cap > 0 && count > cap;
+	}
+
 	private void defineContent(OwlcmsCrudGrid<TeamTreeItem> crudGrid) {
 		crudGrid.setCrudListener(new LazyCrudListener<TeamTreeItem>() {
 			@Override
@@ -704,7 +714,7 @@ public class TeamSelectionContent extends BaseContent
 			return null;
 		}
 		if (parent.getMixedMembershipLabel() != null) {
-			parent.getMixedMembershipLabel().setText("" + (teamMembers != null ? countMixedTeamMembers(teamMembers) : 0));
+			parent.getMixedMembershipLabel().setText(teamMembers != null ? formatMixedTeamMemberCount(teamMembers) : "0");
 		}
 		return null;
 	}

@@ -188,7 +188,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        Translator.translate("EditChampionships.Title"),
 		        VaadinIcon.PENCIL.create(),
 		        e -> {
-			        new EditChampionshipsDialog(this).open();
+			        new EditChampionshipsDialog(() -> this.getCrud().refreshGrid()).open();
 		        });
 
 		FlexLayout buttons = new FlexLayout(

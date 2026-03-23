@@ -83,6 +83,9 @@ public class ChampionshipDetailsDialog extends Dialog {
 		medalsLayout.addFormItem(scoringSystemField, Translator.translate("Championship.totalMedalScoring"));
 
 		snatchCJTotalField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
 			scoringSystemField.setEnabled(!e.getValue());
 			if (e.getValue()) {
 				scoringSystemField.clear();
@@ -170,6 +173,9 @@ public class ChampionshipDetailsDialog extends Dialog {
 		teamLayout.addFormItem(teamScoringSystemField, Translator.translate("Championship.teamScoringSystem"));
 
 		teamMethodField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
 			boolean isScores = SUM_OF_SCORES.equals(e.getValue());
 			teamScoringSystemField.setEnabled(isScores);
 			if (isScores && teamScoringSystemField.getValue() == null) {
@@ -179,14 +185,6 @@ public class ChampionshipDetailsDialog extends Dialog {
 			}
 		});
 
-		IntegerField mensBestNField = new IntegerField();
-		mensBestNField.setValue(championship.getMensBestN() != null ? championship.getMensBestN() : 0);
-		teamLayout.addFormItem(mensBestNField, Translator.translate("Competition.mensTeamSize"));
-
-		IntegerField womensBestNField = new IntegerField();
-		womensBestNField.setValue(championship.getWomensBestN() != null ? championship.getWomensBestN() : 0);
-		teamLayout.addFormItem(womensBestNField, Translator.translate("Competition.womensTeamSize"));
-
 		IntegerField maxTeamSizeField = new IntegerField();
 		maxTeamSizeField.setValue(championship.getMaxTeamSize());
 		teamLayout.addFormItem(maxTeamSizeField, Translator.translate("Competition.AthletesPerTeam"));
@@ -194,6 +192,14 @@ public class ChampionshipDetailsDialog extends Dialog {
 		IntegerField maxPerCategoryField = new IntegerField();
 		maxPerCategoryField.setValue(championship.getMaxPerCategory());
 		teamLayout.addFormItem(maxPerCategoryField, Translator.translate("Competition.maxAthletesPerCategory"));
+
+		IntegerField mensBestNField = new IntegerField();
+		mensBestNField.setValue(zeroAsEmpty(championship.getMensBestN()));
+		teamLayout.addFormItem(mensBestNField, Translator.translate("Competition.mensTeamSize"));
+
+		IntegerField womensBestNField = new IntegerField();
+		womensBestNField.setValue(zeroAsEmpty(championship.getWomensBestN()));
+		teamLayout.addFormItem(womensBestNField, Translator.translate("Competition.womensTeamSize"));
 
 		content.add(teamLayout);
 
@@ -209,11 +215,12 @@ public class ChampionshipDetailsDialog extends Dialog {
 		mixedLayout.add(mixedTitle);
 		mixedLayout.setColspan(mixedTitle, 2);
 
+		IntegerField explicitTeamSizeField = new IntegerField();
+		explicitTeamSizeField.setValue(championship.getExplicitTeamSize());
+		explicitTeamSizeField.setEnabled(championship.isExplicitMixedTeamMembers());
+
 		Checkbox explicitMixedField = new Checkbox();
 		explicitMixedField.setValue(championship.isExplicitMixedTeamMembers());
-		var explicitMixedItem = mixedLayout.addFormItem(explicitMixedField,
-		        Translator.translate("Championship.explicitMixedTeamMembers"));
-		mixedLayout.setColspan(explicitMixedItem, 2);
 
 		// Mixed team ranking method: sum of points vs sum of scores
 		RadioButtonGroup<String> mixedMethodField = new RadioButtonGroup<>();
@@ -230,6 +237,9 @@ public class ChampionshipDetailsDialog extends Dialog {
 		mixedLayout.addFormItem(mixedTeamScoringSystemField, Translator.translate("Championship.teamScoringSystem"));
 
 		mixedMethodField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
 			boolean isScores = SUM_OF_SCORES.equals(e.getValue());
 			mixedTeamScoringSystemField.setEnabled(isScores);
 			if (isScores && mixedTeamScoringSystemField.getValue() == null) {
@@ -239,9 +249,30 @@ public class ChampionshipDetailsDialog extends Dialog {
 			}
 		});
 
+		explicitMixedField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
+			explicitTeamSizeField.setEnabled(Boolean.TRUE.equals(e.getValue()));
+		});
+
+		var explicitMixedItem = mixedLayout.addFormItem(explicitMixedField,
+		        Translator.translate("Championship.explicitMixedTeamMembers"));
+		mixedLayout.setColspan(explicitMixedItem, 2);
+
+		mixedLayout.addFormItem(explicitTeamSizeField, Translator.translate("Championship.explicitTeamSize"));
+
 		IntegerField mixedBestNField = new IntegerField();
-		mixedBestNField.setValue(championship.getMixedBestN() != null ? championship.getMixedBestN() : 0);
-		mixedLayout.addFormItem(mixedBestNField, Translator.translate("Championship.mixedTeamSize"));
+		mixedBestNField.setValue(zeroAsEmpty(championship.getMixedBestN()));
+		mixedLayout.addFormItem(mixedBestNField, Translator.translate("Championship.mixedBestN"));
+
+		IntegerField mixedMensBestNField = new IntegerField();
+		mixedMensBestNField.setValue(zeroAsEmpty(championship.getMixedMensBestN()));
+		mixedLayout.addFormItem(mixedMensBestNField, Translator.translate("Championship.mixedMensBestN"));
+
+		IntegerField mixedWomensBestNField = new IntegerField();
+		mixedWomensBestNField.setValue(zeroAsEmpty(championship.getMixedWomensBestN()));
+		mixedLayout.addFormItem(mixedWomensBestNField, Translator.translate("Championship.mixedWomensBestN"));
 
 		content.add(mixedLayout);
 
@@ -263,13 +294,16 @@ public class ChampionshipDetailsDialog extends Dialog {
 			championship.setTeamPoints1st(teamPoints1stField.getValue());
 			championship.setTeamPoints2nd(teamPoints2ndField.getValue());
 			championship.setTeamPoints3rd(teamPoints3rdField.getValue());
-			championship.setMensBestN(mensBestNField.getValue());
-			championship.setWomensBestN(womensBestNField.getValue());
+			championship.setMensBestN(emptyAsZero(mensBestNField.getValue()));
+			championship.setWomensBestN(emptyAsZero(womensBestNField.getValue()));
 			championship.setExplicitMixedTeamMembers(explicitMixedField.getValue());
+			championship.setExplicitTeamSize(explicitTeamSizeField.getValue());
 			// Mixed team scoring: null means sum-of-points, non-null means sum-of-scores
 			championship.setMixedTeamScoringSystem(
 					SUM_OF_SCORES.equals(mixedMethodField.getValue()) ? mixedTeamScoringSystemField.getValue() : null);
-			championship.setMixedBestN(mixedBestNField.getValue());
+			championship.setMixedBestN(emptyAsZero(mixedBestNField.getValue()));
+			championship.setMixedMensBestN(emptyAsZero(mixedMensBestNField.getValue()));
+			championship.setMixedWomensBestN(emptyAsZero(mixedWomensBestNField.getValue()));
 			championship.setMaxTeamSize(maxTeamSizeField.getValue());
 			championship.setMaxPerCategory(maxPerCategoryField.getValue());
 			Championship.update(championship);
@@ -293,6 +327,14 @@ public class ChampionshipDetailsDialog extends Dialog {
 		hr.getStyle().set("margin-top", "0.5em");
 		hr.getStyle().set("margin-bottom", "1.0em");
 		return hr;
+	}
+
+	private Integer emptyAsZero(Integer value) {
+		return value == null ? 0 : value;
+	}
+
+	private Integer zeroAsEmpty(Integer value) {
+		return value != null && value == 0 ? null : value;
 	}
 
 	private ComboBox<Ranking> createRankingCombo() {

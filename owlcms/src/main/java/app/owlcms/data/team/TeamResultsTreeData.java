@@ -86,13 +86,9 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 			doTeamGender(ageGroupPrefix, ageDivision, includeNotDone, gender, curGenderTeams, null);
 		}
 
-		if (explicitMixed) {
-			if (this.genderFilterValue == null || this.genderFilterValue == Gender.MF) {
-				List<TeamTreeItem> mixedTeams = getOrCreateGenderTeams(Gender.MF);
-				doTeamGender(ageGroupPrefix, ageDivision, includeNotDone, Gender.MF, mixedTeams, null);
-			}
-		} else if (this.genderFilterValue == null || this.genderFilterValue == Gender.MF) {
-			buildImplicitMixedTeams();
+		if (this.genderFilterValue == null || this.genderFilterValue == Gender.MF) {
+			List<TeamTreeItem> mixedTeams = getOrCreateGenderTeams(Gender.MF);
+			doTeamGender(ageGroupPrefix, ageDivision, includeNotDone, Gender.MF, mixedTeams, null);
 			if (this.genderFilterValue == Gender.MF) {
 				getTeamItemsByGender().remove(Gender.M);
 				getTeamItemsByGender().remove(Gender.F);
@@ -104,6 +100,9 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 
 	public TeamTreeItem doTeamGender(String ageGroupPrefix, Championship ageDivision, boolean includeNotDone, Gender gender, List<TeamTreeItem> curGenderTeams,
 	        TeamTreeItem curTeamItem) {
+		boolean mixedTeamCompetition = gender == Gender.MF;
+		boolean explicitMixedTeamCompetition = mixedTeamCompetition && ageDivision != null
+		        && ageDivision.isExplicitMixedTeamMembers();
 		String key = computeGenderKey(gender) + "Team"
 		        + (ageGroupPrefix != null ? ageGroupPrefix : ageDivision.getName());
 		Ranking rankingForGender = getRankingForGender(gender);
@@ -122,11 +121,13 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		        // })
 		        // .filter(a -> a.isTeamMember())
 		        .collect(Collectors.toList());
-		if (gender == Gender.MF && ageDivision != null && ageDivision.isMixed()) {
+		if (mixedTeamCompetition) {
 			AthleteSorter.teamPointsOrderMixed(athletes, rankingForGender);
 		} else {
 			AthleteSorter.teamPointsOrder(athletes, rankingForGender);
 		}
+		Map<String, Integer> mixedCountedByTeam = mixedTeamCompetition ? new HashMap<>() : null;
+		Map<String, Map<Gender, Integer>> mixedCountedByTeamAndGender = mixedTeamCompetition ? new HashMap<>() : null;
 
 		String prevTeamName = null;
 		if (athletes != null) {
@@ -134,18 +135,12 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 			        : Competition.getCurrent().isSnatchCJTotalMedals();
 			// count points for each team
 			for (Athlete a : athletes) {
-				// check if competition is a "best n results" team comp.
-				// if the competition is "top n", we can have "top 4 men" + "top 2 women", so we
-				// want the athlete's
-				// gender.
-				Integer maxCount = gender == Gender.MF && ageDivision != null && ageDivision.isMixed()
-				        ? getTopNTeamSize(Gender.MF)
-				        : getTopNTeamSize(a.getGender());
 				String curTeamName = a.getTeam();
+				String normalizedTeamName = curTeamName != null ? curTeamName : "-";
 				// logger.debug("a={} curTeam = {}",a, a.getTeam());
 				curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName,
 				        curTeamItem,
-				        curTeamName != null ? curTeamName : "-", rankingForGender);
+				        normalizedTeamName, rankingForGender);
 				boolean groupIsDone = groupIsDone(a);
 				Team curTeam = curTeamItem.getTeam();
 
@@ -153,16 +148,21 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 				// logger.debug("---- Athlete {} {} {} {} {} {} {} {}", curTeamName, a, a.getGender(), curPoints,
 				// curTeam.getCounted(), groupIsDone, b, c);
 				// }
-				boolean contributes = gender == Gender.MF && ageDivision != null && ageDivision.isMixed()
-				        ? isExplicitMixedTeamMember(a)
+				boolean contributes = mixedTeamCompetition
+				        ? isMixedTeamMember(a, explicitMixedTeamCompetition)
 				        : isTeamMember(a);
 				if (contributes) {
 					TeamTreeItem member = curTeamItem.addTreeItemChild(a, groupIsDone);
 					member.setScoringSystem(rankingForGender);
-					Integer memberPoints = gender == Gender.MF && ageDivision != null && ageDivision.isMixed()
+					Integer memberPoints = explicitMixedTeamCompetition
 					        ? (combinedTotal ? member.getRawCombinedPoints() : member.getRawTotalPoints())
 					        : (combinedTotal ? member.getCombinedPoints() : member.getTotalPoints());
-					boolean b = curTeam.getCounted() < maxCount;
+					int counted = mixedTeamCompetition
+					        ? getMixedCounted(normalizedTeamName, a.getGender(), mixedCountedByTeam,
+					                mixedCountedByTeamAndGender)
+					        : curTeam.getCounted();
+					Integer maxCount = mixedTeamCompetition ? getMixedTopNTeamSize(a.getGender()) : getTopNTeamSize(a.getGender());
+					boolean b = counted < maxCount;
 					boolean c = memberPoints != null && memberPoints > 0;
 					if ((includeNotDone || groupIsDone) && b && c) {
 						curTeam.setPoints(curTeam.getPoints() + Math.round(memberPoints));
@@ -178,6 +178,10 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 						curTeam.setQPoints(curTeam.getQPoints() + member.getQPointsScore());
 						curTeam.setCatQPointsScore(curTeam.getCatQPointsScore() + member.getCatQPointsMetric());
 						curTeam.setQMasters(curTeam.getQMasters() + member.getQMastersScore());
+						if (mixedTeamCompetition) {
+							incrementMixedCounted(normalizedTeamName, a.getGender(), mixedCountedByTeam,
+							        mixedCountedByTeamAndGender);
+						}
 					}
 				}
 				curTeam.setSize(curTeam.getSize() + 1);
@@ -222,15 +226,6 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		}
 	}
 
-	private void buildImplicitMixedTeams() {
-		List<TeamTreeItem> mixedTeams = new ArrayList<>();
-		mergeGenderTeamsIntoMixed(mixedTeams, getTeamItemsByGender().get(Gender.M));
-		mergeGenderTeamsIntoMixed(mixedTeams, getTeamItemsByGender().get(Gender.F));
-		if (!mixedTeams.isEmpty()) {
-			getTeamItemsByGender().put(Gender.MF, mixedTeams);
-		}
-	}
-
 	private TeamTreeItem findCurTeamItem(Map<Gender, List<TeamTreeItem>> teamItemsByGender, Gender gender,
 	        List<TeamTreeItem> curGenderTeams, String prevTeamName, TeamTreeItem curTeamItem, String curTeamName,
 	        Ranking rankingForGender) {
@@ -267,13 +262,8 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 	private Ranking getRankingForGender(Gender gender) {
 		if (this.championship != null) {
 			if (gender == Gender.MF) {
-				if (this.championship.isExplicitMixedTeamMembers()) {
-					return this.championship.getMixedTeamScoringSystem() != null
-					        ? this.championship.getMixedTeamScoringSystem()
-					        : Ranking.TOTAL;
-				}
-				return this.championship.getTeamScoringSystem() != null
-				        ? this.championship.getTeamScoringSystem()
+				return this.championship.getMixedTeamScoringSystem() != null
+				        ? this.championship.getMixedTeamScoringSystem()
 				        : Ranking.TOTAL;
 			}
 			return this.championship.getTeamScoringSystem() != null
@@ -322,6 +312,39 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		return maxCount != null && maxCount > 0 ? maxCount : Integer.MAX_VALUE;
 	}
 
+	private Integer getMixedTopNTeamSize(Gender athleteGender) {
+		if (this.championship != null) {
+			Integer overallMixedBestN = positiveCap(this.championship.getMixedBestN());
+			if (overallMixedBestN != null) {
+				return overallMixedBestN;
+			}
+			switch (athleteGender) {
+				case M:
+					return positiveCapOrUnlimited(this.championship.getMixedMensBestN());
+				case F:
+					return positiveCapOrUnlimited(this.championship.getMixedWomensBestN());
+				case I:
+					return 0;
+				case MF:
+				default:
+					return Integer.MAX_VALUE;
+			}
+		}
+
+		Competition comp = Competition.getCurrent();
+		switch (athleteGender) {
+			case M:
+				return positiveCapOrUnlimited(comp.getMensBestN());
+			case F:
+				return positiveCapOrUnlimited(comp.getWomensBestN());
+			case I:
+				return 0;
+			case MF:
+			default:
+				return positiveCapOrUnlimited(comp.getMixedBestNElseDefault());
+		}
+	}
+
 	private boolean groupIsDone(Athlete a) {
 		if (this.doneGroups == null) {
 			this.doneGroups = GroupRepository.findAll().stream().filter(g -> g.isDone()).collect(Collectors.toList());
@@ -329,45 +352,35 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		return this.doneGroups.contains(a.getGroup());
 	}
 
-	private void mergeGenderTeamsIntoMixed(List<TeamTreeItem> mixedTeams, List<TeamTreeItem> sourceTeams) {
-		if (sourceTeams == null) {
-			return;
+	private int getMixedCounted(String teamName, Gender athleteGender, Map<String, Integer> mixedCountedByTeam,
+	        Map<String, Map<Gender, Integer>> mixedCountedByTeamAndGender) {
+		if (positiveCap(this.championship != null ? this.championship.getMixedBestN() : null) != null) {
+			return mixedCountedByTeam.getOrDefault(teamName, 0);
 		}
-
-		Ranking mixedRanking = getRankingForGender(Gender.MF);
-		for (TeamTreeItem sourceTeam : sourceTeams) {
-			TeamTreeItem mixedTeam = mixedTeams.stream()
-			        .filter(team -> team.getName() != null && team.getName().contentEquals(sourceTeam.getName()))
-			        .findFirst()
-			        .orElseGet(() -> {
-				        TeamTreeItem created = new TeamTreeItem(sourceTeam.getName(), Gender.MF, null, false);
-				        created.setScoringSystem(mixedRanking);
-				        mixedTeams.add(created);
-				        return created;
-			        });
-
-			mergeTeamValues(mixedTeam.getTeam(), sourceTeam.getTeam());
-			for (TeamTreeItem sourceMember : sourceTeam.getTeamMembers()) {
-				mixedTeam.addTreeItemChild(sourceMember.getAthlete(), sourceMember.isDone());
-				List<TeamTreeItem> members = mixedTeam.getTeamMembers();
-				members.get(members.size() - 1).setScoringSystem(mixedRanking);
-			}
+		Map<Gender, Integer> countsByGender = mixedCountedByTeamAndGender.get(teamName);
+		if (countsByGender == null) {
+			return 0;
 		}
+		return countsByGender.getOrDefault(athleteGender, 0);
 	}
 
-	private void mergeTeamValues(Team target, Team source) {
-		target.setPoints(target.getPoints() + source.getPoints());
-		target.setSinclairScore(target.getSinclairScore() + source.getSinclairScore());
-		target.setCatSinclairScore(target.getCatSinclairScore() + source.getCatSinclairScore());
-		target.setSmfScore(target.getSmfScore() + source.getSmfScore());
-		target.setCounted(target.getCounted() + source.getCounted());
-		target.setRobi(target.getRobi() + source.getRobi());
-		target.setGamx(target.getGamx() + source.getGamx());
-		target.setCatGamxScore(target.getCatGamxScore() + source.getCatGamxScore());
-		target.setQPoints(target.getQPoints() + source.getQPoints());
-		target.setCatQPointsScore(target.getCatQPointsScore() + source.getCatQPointsScore());
-		target.setQMasters(target.getQMasters() + source.getQMasters());
-		target.setSize(target.getSize() + source.getSize());
+	private void incrementMixedCounted(String teamName, Gender athleteGender, Map<String, Integer> mixedCountedByTeam,
+	        Map<String, Map<Gender, Integer>> mixedCountedByTeamAndGender) {
+		mixedCountedByTeam.merge(teamName, 1, Integer::sum);
+		mixedCountedByTeamAndGender.computeIfAbsent(teamName, ignored -> new EnumMap<>(Gender.class))
+		        .merge(athleteGender, 1, Integer::sum);
+	}
+
+	private boolean isMixedTeamMember(Athlete athlete, boolean explicitMixedTeamCompetition) {
+		return explicitMixedTeamCompetition ? isExplicitMixedTeamMember(athlete) : isTeamMember(athlete);
+	}
+
+	private Integer positiveCap(Integer cap) {
+		return cap != null && cap > 0 ? cap : null;
+	}
+
+	private Integer positiveCapOrUnlimited(Integer cap) {
+		return positiveCap(cap) != null ? cap : Integer.MAX_VALUE;
 	}
 
 	private void init(String ageGroupPrefix, Championship ageDivision, boolean includeNotDone) {

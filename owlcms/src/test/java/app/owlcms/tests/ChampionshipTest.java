@@ -60,6 +60,25 @@ import ch.qos.logback.classic.Logger;
 
 public class ChampionshipTest {
 
+    private static class ChampionshipConfigSnapshot {
+
+        private final boolean explicitMixedTeamMembers;
+        private final Ranking teamScoringSystem;
+        private final Ranking mixedTeamScoringSystem;
+        private final Integer mixedBestN;
+        private final Integer mixedMensBestN;
+        private final Integer mixedWomensBestN;
+
+        private ChampionshipConfigSnapshot(Championship championship) {
+            this.explicitMixedTeamMembers = championship.isExplicitMixedTeamMembers();
+            this.teamScoringSystem = championship.getTeamScoringSystem();
+            this.mixedTeamScoringSystem = championship.getMixedTeamScoringSystem();
+            this.mixedBestN = championship.getMixedBestN();
+            this.mixedMensBestN = championship.getMixedMensBestN();
+            this.mixedWomensBestN = championship.getMixedWomensBestN();
+        }
+    }
+
     private static final String FIXTURE_RESOURCE = "/testDatabases/mixedTestsJRSR.mv.db";
     private static final String MEMORY_JDBC_URL = "jdbc:h2:mem:owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
     @SuppressWarnings("unused")
@@ -67,6 +86,7 @@ public class ChampionshipTest {
 
     private static Path fixtureDirectory;
     private static Map<ParticipationId, Boolean> originalMixedTeamMemberships;
+    private static Map<String, ChampionshipConfigSnapshot> originalChampionshipConfigs;
 
     @BeforeClass
     public static void setupTests() throws Exception {
@@ -87,11 +107,13 @@ public class ChampionshipTest {
 
         Competition.recomputeAllAthleteRanks();
         originalMixedTeamMemberships = snapshotMixedTeamMemberships();
+        originalChampionshipConfigs = snapshotChampionshipConfigs();
     }
 
     @After
     public void restoreMixedTeamMembershipsAfterEachTest() {
         restoreMixedTeamMemberships(originalMixedTeamMemberships);
+        restoreChampionshipConfigs(originalChampionshipConfigs);
     }
 
     @AfterClass
@@ -371,6 +393,72 @@ public class ChampionshipTest {
         }
     }
 
+            @Test
+            public void testJuniorImplicitMixedTeamsUseTop2MenTop2WomenWithMixedScoring() {
+            Championship junior = ChampionshipRepository.findByName("Junior");
+            assertNotNull("Junior championship should be loaded from fixture", junior);
+
+            configureMixedTeamRules(junior, false, null, Ranking.GAMX, 0, 2, 2);
+
+            Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
+            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
+                Ranking.GAMX, 0, 2, 2);
+
+            List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
+            assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
+                "junior implicit mixed top 2 men top 2 women");
+            }
+
+            @Test
+            public void testJuniorImplicitMixedTeamsUseTop3GenderNeutralWithMixedScoring() {
+            Championship junior = ChampionshipRepository.findByName("Junior");
+            assertNotNull("Junior championship should be loaded from fixture", junior);
+
+            configureMixedTeamRules(junior, false, null, Ranking.GAMX, 3, 2, 2);
+
+            Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
+            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
+                Ranking.GAMX, 3, 2, 2);
+
+            List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
+            assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
+                "junior implicit mixed top 3 gender neutral");
+            }
+
+            @Test
+            public void testSeniorExplicitMixedSubsetUsesTop2MenTop2Women() {
+            Championship senior = ChampionshipRepository.findByName("Senior");
+            assertNotNull("Senior championship should be loaded from fixture", senior);
+
+            Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+            applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+            configureMixedTeamRules(senior, true, null, Ranking.GAMX, 0, 2, 2);
+
+            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
+                Ranking.GAMX, 0, 2, 2);
+
+            List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
+            assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
+                "senior explicit mixed subset top 2 men top 2 women");
+            }
+
+            @Test
+            public void testSeniorExplicitMixedSubsetUsesTop3GenderNeutral() {
+            Championship senior = ChampionshipRepository.findByName("Senior");
+            assertNotNull("Senior championship should be loaded from fixture", senior);
+
+            Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+            applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+            configureMixedTeamRules(senior, true, null, Ranking.GAMX, 3, 2, 2);
+
+            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
+                Ranking.GAMX, 3, 2, 2);
+
+            List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
+            assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
+                "senior explicit mixed subset top 3 gender neutral");
+            }
+
     @Test
     public void testSeniorReportingBeansMatchTeamResults() {
         Championship senior = ChampionshipRepository.findByName("Senior");
@@ -596,6 +684,36 @@ public class ChampionshipTest {
         }
     }
 
+            private static void assertMixedTeamScoresMatchExpectedSelection(List<TeamTreeItem> teams,
+                Map<String, List<Participation>> contributingPoolByTeam,
+                Map<String, List<Participation>> expectedCountedByTeam,
+                String label) {
+            assertTrue(label + " should produce mixed teams", !teams.isEmpty());
+
+            for (TeamTreeItem team : teams) {
+                List<Participation> contributingPool = contributingPoolByTeam.getOrDefault(team.getName(), List.of());
+                List<Participation> expectedCounted = expectedCountedByTeam.getOrDefault(team.getName(), List.of());
+
+                assertEquals(label + " iterated athletes for team " + team.getName(), contributingPool.size(),
+                    team.getTeamMembers().size());
+                assertEquals(label + " counted athletes for team " + team.getName(), expectedCounted.size(),
+                    team.getCounted().intValue());
+
+                List<Long> expectedPoolIds = contributingPool.stream()
+                    .map(participation -> participation.getAthlete().getId())
+                    .collect(Collectors.toList());
+                List<Long> actualPoolIds = team.getTeamMembers().stream()
+                    .map(item -> item.getAthlete().getId())
+                    .collect(Collectors.toList());
+                assertEquals(label + " iterated athlete ids for team " + team.getName(), expectedPoolIds, actualPoolIds);
+
+                double expectedScore = expectedCounted.stream()
+                    .mapToDouble(participation -> getDirectGamxScore(participation))
+                    .sum();
+                assertRoundedTo2(label + " score for team " + team.getName(), expectedScore, team.getScore());
+            }
+            }
+
     private static Double getDirectGamxScore(Participation participation) {
         Athlete rankedAthlete = participation.getAthlete();
         assertNotNull("ranked athlete for participation " + participation.getId(), rankedAthlete);
@@ -682,6 +800,119 @@ public class ChampionshipTest {
                 .sorted(participationThenNameComparator())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    private static Map<String, ChampionshipConfigSnapshot> snapshotChampionshipConfigs() {
+        return ChampionshipRepository.findAll().stream()
+                .collect(Collectors.toMap(Championship::getName, ChampionshipConfigSnapshot::new));
+    }
+
+    private static void restoreChampionshipConfigs(Map<String, ChampionshipConfigSnapshot> configs) {
+        if (configs == null) {
+            return;
+        }
+        JPAService.runInTransaction(em -> {
+            List<Championship> championships = em.createQuery("select c from Championship c", Championship.class)
+                    .getResultList();
+            for (Championship championship : championships) {
+                ChampionshipConfigSnapshot snapshot = configs.get(championship.getName());
+                if (snapshot == null) {
+                    continue;
+                }
+                championship.setExplicitMixedTeamMembers(snapshot.explicitMixedTeamMembers);
+                championship.setTeamScoringSystem(snapshot.teamScoringSystem);
+                championship.setMixedTeamScoringSystem(snapshot.mixedTeamScoringSystem);
+                championship.setMixedBestN(snapshot.mixedBestN);
+                championship.setMixedMensBestN(snapshot.mixedMensBestN);
+                championship.setMixedWomensBestN(snapshot.mixedWomensBestN);
+            }
+            return null;
+        });
+    }
+
+    private static void configureMixedTeamRules(Championship championship, boolean explicitMixedTeamMembers,
+            Ranking teamScoringSystem, Ranking mixedTeamScoringSystem, Integer mixedBestN,
+            Integer mixedMensBestN, Integer mixedWomensBestN) {
+        championship.setExplicitMixedTeamMembers(explicitMixedTeamMembers);
+        championship.setTeamScoringSystem(teamScoringSystem);
+        championship.setMixedTeamScoringSystem(mixedTeamScoringSystem);
+        championship.setMixedBestN(mixedBestN);
+        championship.setMixedMensBestN(mixedMensBestN);
+        championship.setMixedWomensBestN(mixedWomensBestN);
+
+        JPAService.runInTransaction(em -> {
+            Championship managed = em.find(Championship.class, championship.getId());
+            managed.setExplicitMixedTeamMembers(explicitMixedTeamMembers);
+            managed.setTeamScoringSystem(teamScoringSystem);
+            managed.setMixedTeamScoringSystem(mixedTeamScoringSystem);
+            managed.setMixedBestN(mixedBestN);
+            managed.setMixedMensBestN(mixedMensBestN);
+            managed.setMixedWomensBestN(mixedWomensBestN);
+            return null;
+        });
+    }
+
+    private static Map<String, List<Participation>> computeExpectedMixedCountedByTeam(
+            Map<String, List<Participation>> contributingPoolByTeam,
+            Ranking ranking,
+            Integer mixedBestN,
+            Integer mixedMensBestN,
+            Integer mixedWomensBestN) {
+        LinkedHashMap<String, List<Participation>> expectedByTeam = new LinkedHashMap<>();
+
+        for (Map.Entry<String, List<Participation>> entry : contributingPoolByTeam.entrySet()) {
+            List<Participation> sortedPool = sortParticipationsByMixedRanking(entry.getValue(), ranking);
+            List<Participation> counted = new ArrayList<>();
+
+            Integer overallCap = positiveCap(mixedBestN);
+            if (overallCap != null) {
+                counted.addAll(sortedPool.stream().limit(overallCap).collect(Collectors.toList()));
+            } else {
+                int menCount = 0;
+                int womenCount = 0;
+                Integer menCap = positiveCapOrUnlimited(mixedMensBestN);
+                Integer womenCap = positiveCapOrUnlimited(mixedWomensBestN);
+                for (Participation participation : sortedPool) {
+                    Gender gender = participation.getAthlete().getGender();
+                    if (gender == Gender.M && menCount < menCap) {
+                        counted.add(participation);
+                        menCount++;
+                    } else if (gender == Gender.F && womenCount < womenCap) {
+                        counted.add(participation);
+                        womenCount++;
+                    }
+                }
+            }
+
+            expectedByTeam.put(entry.getKey(), counted);
+            entry.setValue(sortedPool);
+        }
+
+        return expectedByTeam;
+    }
+
+    private static List<Participation> sortParticipationsByMixedRanking(List<Participation> participations, Ranking ranking) {
+        Map<Long, Participation> participationByAthleteId = participations.stream()
+                .filter(participation -> participation.getAthlete() != null && participation.getAthlete().getId() != null)
+                .collect(Collectors.toMap(participation -> participation.getAthlete().getId(), participation -> participation,
+                        (left, right) -> left, LinkedHashMap::new));
+
+        List<Athlete> sortedAthletes = app.owlcms.data.athleteSort.AthleteSorter.teamPointsOrderCopyMixed(
+                participations.stream().map(Participation::getAthlete).collect(Collectors.toList()), ranking);
+
+        return sortedAthletes.stream()
+                .map(athlete -> participationByAthleteId.get(athlete.getId()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private static Integer positiveCap(Integer cap) {
+        return cap != null && cap > 0 ? cap : null;
+    }
+
+    private static Integer positiveCapOrUnlimited(Integer cap) {
+        Integer positiveCap = positiveCap(cap);
+        return positiveCap != null ? positiveCap : Integer.MAX_VALUE;
     }
 
     private static Comparator<Participation> participationThenNameComparator() {

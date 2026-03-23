@@ -78,6 +78,9 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		        Translator.translate("CompetitionInformation"));
 		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"),
 		        VaadinIcon.COG.create());
+		Button editChampionships = new Button(
+		        Translator.translate("DefineChampionships.Title"),
+		        e -> new EditChampionshipsDialog().open());
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, Translator.translate("DefineAgeGroups"));
 		Button officials = openInNewTabNoParam(TechnicalOfficialContent.class, Translator.translate("TechnicalOfficials"));
 		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
@@ -159,7 +162,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 			}
 			doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
 		} else {
-			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, ageGroups, officials, groups, platforms);
+			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, editChampionships, ageGroups, officials, groups,
+			        platforms);
 			doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
 			FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, coaches, teams);
 			doGroup(Translator.translate("Registration"), grid2, this, true);

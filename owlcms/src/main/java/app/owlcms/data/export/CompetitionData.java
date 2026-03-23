@@ -281,7 +281,10 @@ public class CompetitionData {
 							existing.setTeamPoints3rd(c.getTeamPoints3rd());
 							existing.setMensBestN(c.getMensBestN());
 							existing.setWomensBestN(c.getWomensBestN());
+							existing.setMixedMensBestN(c.getMixedMensBestN());
+							existing.setMixedWomensBestN(c.getMixedWomensBestN());
 							existing.setMixedBestN(c.getMixedBestN());
+							existing.setExplicitTeamSize(c.getExplicitTeamSize());
 							existing.setMaxTeamSize(c.getMaxTeamSize());
 							existing.setMaxPerCategory(c.getMaxPerCategory());
 							existing.setExplicitMixedTeamMembers(c.isExplicitMixedTeamMembers());

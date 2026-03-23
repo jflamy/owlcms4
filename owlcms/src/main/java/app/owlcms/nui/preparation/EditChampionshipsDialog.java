@@ -26,7 +26,11 @@ import app.owlcms.i18n.Translator;
 public class EditChampionshipsDialog extends Dialog {
 	VerticalLayout championshipsTable = new VerticalLayout();
 
-	public EditChampionshipsDialog(AgeGroupContent ageGroupContent) {
+	public EditChampionshipsDialog() {
+		this(null);
+	}
+
+	public EditChampionshipsDialog(Runnable closeAction) {
 		Dialog dialog = this;
 		dialog.setCloseOnEsc(true);
 		dialog.setCloseOnOutsideClick(true);
@@ -40,7 +44,9 @@ public class EditChampionshipsDialog extends Dialog {
 		HorizontalLayout buttons = new HorizontalLayout();
 		Button closeButton = new Button(Translator.translate("Close"), event -> {
 			dialog.close();
-			ageGroupContent.getCrud().refreshGrid();
+			if (closeAction != null) {
+				closeAction.run();
+			}
 
 		});
 		closeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
