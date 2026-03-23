@@ -63,16 +63,22 @@ public class ChampionshipTest {
     private static class ChampionshipConfigSnapshot {
 
         private final boolean explicitMixedTeamMembers;
+        private final Integer explicitTeamSize;
         private final Ranking teamScoringSystem;
         private final Ranking mixedTeamScoringSystem;
+        private final Integer mensBestN;
+        private final Integer womensBestN;
         private final Integer mixedBestN;
         private final Integer mixedMensBestN;
         private final Integer mixedWomensBestN;
 
         private ChampionshipConfigSnapshot(Championship championship) {
             this.explicitMixedTeamMembers = championship.isExplicitMixedTeamMembers();
+            this.explicitTeamSize = championship.getExplicitTeamSize();
             this.teamScoringSystem = championship.getTeamScoringSystem();
             this.mixedTeamScoringSystem = championship.getMixedTeamScoringSystem();
+            this.mensBestN = championship.getMensBestN();
+            this.womensBestN = championship.getWomensBestN();
             this.mixedBestN = championship.getMixedBestN();
             this.mixedMensBestN = championship.getMixedMensBestN();
             this.mixedWomensBestN = championship.getMixedWomensBestN();
@@ -399,14 +405,20 @@ public class ChampionshipTest {
             assertNotNull("Junior championship should be loaded from fixture", junior);
 
             configureMixedTeamRules(junior, false, null, Ranking.GAMX, 0, 2, 2);
+            assertPersistedMixedTeamRules("junior implicit mixed top 2 men top 2 women",
+                junior, false, null, Ranking.GAMX, 0, 2, 2);
 
             Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
             Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
                 Ranking.GAMX, 0, 2, 2);
+            printSelectedAthletes("junior implicit mixed top 2 men top 2 women | expected counted",
+                expectedCountedByTeam);
 
             List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
             assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
                 "junior implicit mixed top 2 men top 2 women");
+            assertMixedReportingBeanMatchesTree("junior implicit mixed top 2 men top 2 women",
+                junior, teams, null);
             }
 
             @Test
@@ -415,14 +427,20 @@ public class ChampionshipTest {
             assertNotNull("Junior championship should be loaded from fixture", junior);
 
             configureMixedTeamRules(junior, false, null, Ranking.GAMX, 3, 2, 2);
+            assertPersistedMixedTeamRules("junior implicit mixed top 3 gender neutral",
+                junior, false, null, Ranking.GAMX, 3, 2, 2);
 
             Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
             Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
                 Ranking.GAMX, 3, 2, 2);
+            printSelectedAthletes("junior implicit mixed top 3 gender neutral | expected counted",
+                expectedCountedByTeam);
 
             List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
             assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
                 "junior implicit mixed top 3 gender neutral");
+            assertMixedReportingBeanMatchesTree("junior implicit mixed top 3 gender neutral",
+                junior, teams, null);
             }
 
             @Test
@@ -431,15 +449,25 @@ public class ChampionshipTest {
             assertNotNull("Senior championship should be loaded from fixture", senior);
 
             Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+            printSelectedAthletes("senior explicit mixed subset top 2 men top 2 women | explicit roster",
+                explicitSubsetByTeam);
             applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+            assertPersistedExplicitMixedRoster("senior explicit mixed subset top 2 men top 2 women",
+                senior, explicitSubsetByTeam, 3, 3);
             configureMixedTeamRules(senior, true, null, Ranking.GAMX, 0, 2, 2);
+            assertPersistedMixedTeamRules("senior explicit mixed subset top 2 men top 2 women",
+                senior, true, null, Ranking.GAMX, 0, 2, 2);
 
             Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
                 Ranking.GAMX, 0, 2, 2);
+            printSelectedAthletes("senior explicit mixed subset top 2 men top 2 women | expected counted",
+                expectedCountedByTeam);
 
             List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
             assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
                 "senior explicit mixed subset top 2 men top 2 women");
+            assertMixedReportingBeanMatchesTree("senior explicit mixed subset top 2 men top 2 women",
+                senior, teams, explicitSubsetByTeam);
             }
 
             @Test
@@ -448,15 +476,25 @@ public class ChampionshipTest {
             assertNotNull("Senior championship should be loaded from fixture", senior);
 
             Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+            printSelectedAthletes("senior explicit mixed subset top 3 gender neutral | explicit roster",
+                explicitSubsetByTeam);
             applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+            assertPersistedExplicitMixedRoster("senior explicit mixed subset top 3 gender neutral",
+                senior, explicitSubsetByTeam, 3, 3);
             configureMixedTeamRules(senior, true, null, Ranking.GAMX, 3, 2, 2);
+            assertPersistedMixedTeamRules("senior explicit mixed subset top 3 gender neutral",
+                senior, true, null, Ranking.GAMX, 3, 2, 2);
 
             Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
                 Ranking.GAMX, 3, 2, 2);
+            printSelectedAthletes("senior explicit mixed subset top 3 gender neutral | expected counted",
+                expectedCountedByTeam);
 
             List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
             assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
                 "senior explicit mixed subset top 3 gender neutral");
+            assertMixedReportingBeanMatchesTree("senior explicit mixed subset top 3 gender neutral",
+                senior, teams, explicitSubsetByTeam);
             }
 
     @Test
@@ -710,6 +748,13 @@ public class ChampionshipTest {
                 double expectedScore = expectedCounted.stream()
                     .mapToDouble(participation -> getDirectGamxScore(participation))
                     .sum();
+                logger.info("{} | team={} | pool={} | counted={} | expectedSum={} | actualSum={}",
+                    label,
+                    team.getName(),
+                    describeParticipations(contributingPool),
+                    describeParticipations(expectedCounted),
+                    String.format(Locale.ROOT, "%.2f", expectedScore),
+                    String.format(Locale.ROOT, "%.2f", team.getScore()));
                 assertRoundedTo2(label + " score for team " + team.getName(), expectedScore, team.getScore());
             }
             }
@@ -758,6 +803,12 @@ public class ChampionshipTest {
         Double gamx = athlete.getGamx();
         String gamxText = gamx != null ? String.format(Locale.ROOT, "%.2f", gamx) : "null";
         return athlete.getFullName() + " [" + categoryName + ", GAMX=" + gamxText + "]";
+    }
+
+    private static String describeParticipations(List<Participation> participations) {
+        return participations.isEmpty()
+                ? "none"
+                : participations.stream().map(ChampionshipTest::describeAthlete).collect(Collectors.joining(", "));
     }
 
     private static Map<String, List<Participation>> selectMixedTeamMembers(Championship championship, int femaleCount,
@@ -820,8 +871,11 @@ public class ChampionshipTest {
                     continue;
                 }
                 championship.setExplicitMixedTeamMembers(snapshot.explicitMixedTeamMembers);
+                championship.setExplicitTeamSize(snapshot.explicitTeamSize);
                 championship.setTeamScoringSystem(snapshot.teamScoringSystem);
                 championship.setMixedTeamScoringSystem(snapshot.mixedTeamScoringSystem);
+                championship.setMensBestN(snapshot.mensBestN);
+                championship.setWomensBestN(snapshot.womensBestN);
                 championship.setMixedBestN(snapshot.mixedBestN);
                 championship.setMixedMensBestN(snapshot.mixedMensBestN);
                 championship.setMixedWomensBestN(snapshot.mixedWomensBestN);
@@ -851,6 +905,116 @@ public class ChampionshipTest {
             return null;
         });
     }
+
+            private static void assertPersistedMixedTeamRules(String label, Championship championship,
+                boolean explicitMixedTeamMembers, Ranking teamScoringSystem, Ranking mixedTeamScoringSystem,
+                Integer mixedBestN, Integer mixedMensBestN, Integer mixedWomensBestN) {
+            Championship persisted = ChampionshipRepository.findByName(championship.getName());
+            assertNotNull(label + " persisted championship", persisted);
+            assertEquals(label + " explicitMixedTeamMembers", explicitMixedTeamMembers,
+                persisted.isExplicitMixedTeamMembers());
+            assertEquals(label + " teamScoringSystem", teamScoringSystem, persisted.getTeamScoringSystem());
+            assertEquals(label + " mixedTeamScoringSystem", mixedTeamScoringSystem, persisted.getMixedTeamScoringSystem());
+            assertEquals(label + " mixedBestN", mixedBestN, persisted.getMixedBestN());
+            assertEquals(label + " mixedMensBestN", mixedMensBestN, persisted.getMixedMensBestN());
+            assertEquals(label + " mixedWomensBestN", mixedWomensBestN, persisted.getMixedWomensBestN());
+            logger.info("{} | persisted settings explicit={} teamScoring={} mixedScoring={} mixedBestN={} mixedMensBestN={} mixedWomensBestN={}",
+                label,
+                persisted.isExplicitMixedTeamMembers(),
+                persisted.getTeamScoringSystem(),
+                persisted.getMixedTeamScoringSystem(),
+                persisted.getMixedBestN(),
+                persisted.getMixedMensBestN(),
+                persisted.getMixedWomensBestN());
+            }
+
+            private static void assertPersistedExplicitMixedRoster(String label, Championship championship,
+                Map<String, List<Participation>> selectedByTeam, int expectedFemaleCount, int expectedMaleCount) {
+            Map<String, List<Participation>> actualByTeam = getChampionshipParticipations(championship).stream()
+                .filter(Participation::getMixedTeamMember)
+                .collect(Collectors.groupingBy(participation -> participation.getAthlete().getTeam(),
+                    LinkedHashMap::new, Collectors.toList()));
+
+            for (Map.Entry<String, List<Participation>> entry : selectedByTeam.entrySet()) {
+                String teamName = entry.getKey();
+                List<Participation> expected = entry.getValue().stream()
+                    .sorted(participationThenNameComparator())
+                    .collect(Collectors.toList());
+                List<Participation> actual = actualByTeam.getOrDefault(teamName, List.of()).stream()
+                    .sorted(participationThenNameComparator())
+                    .collect(Collectors.toList());
+
+                assertEquals(label + " persisted explicit roster size for " + teamName,
+                    expectedFemaleCount + expectedMaleCount, actual.size());
+                assertEquals(label + " persisted female count for " + teamName,
+                    expectedFemaleCount, actual.stream().filter(p -> p.getAthlete().getGender() == Gender.F).count());
+                assertEquals(label + " persisted male count for " + teamName,
+                    expectedMaleCount, actual.stream().filter(p -> p.getAthlete().getGender() == Gender.M).count());
+                assertEquals(label + " persisted roster ids for " + teamName,
+                    expected.stream().map(Participation::getId).collect(Collectors.toList()),
+                    actual.stream().map(Participation::getId).collect(Collectors.toList()));
+                logger.info("{} | persisted explicit roster | team={} | athletes={}",
+                    label, teamName, describeParticipations(actual));
+            }
+            }
+
+            private static void assertMixedReportingBeanMatchesTree(String label, Championship championship,
+                List<TeamTreeItem> teams, Map<String, List<Participation>> explicitRosterByTeam) {
+            HashMap<String, Object> beans = Competition.getCurrent().computeReportingInfo(null, championship);
+            String beanKey = "mwTeam" + championship.getName();
+
+            @SuppressWarnings("unchecked")
+            List<Athlete> mwTeam = (List<Athlete>) beans.get(beanKey);
+            assertNotNull(label + " | " + beanKey + " bean should exist", mwTeam);
+
+            for (Athlete a : mwTeam) {
+                assertTrue(label + " | " + beanKey + " athlete should be PAthlete: " + a.getFullName(),
+                    a instanceof PAthlete);
+            }
+
+            if (championship.isExplicitMixedTeamMembers() && explicitRosterByTeam != null) {
+                // Explicit: bean should contain only the explicitly selected athletes
+                Set<Long> selectedIds = explicitRosterByTeam.values().stream()
+                    .flatMap(List::stream)
+                    .map(p -> p.getAthlete().getId())
+                    .collect(Collectors.toSet());
+                for (Athlete a : mwTeam) {
+                    assertTrue(label + " | " + beanKey + " athlete should be in explicit selection: " + a.getFullName(),
+                        selectedIds.contains(a.getId()));
+                }
+                assertEquals(label + " | " + beanKey + " should contain all selected mixed members",
+                    selectedIds.size(), mwTeam.size());
+            } else {
+                // Implicit: bean should be union of mTeam + wTeam
+                @SuppressWarnings("unchecked")
+                List<Athlete> mTeam = (List<Athlete>) beans.get("mTeam" + championship.getName());
+                @SuppressWarnings("unchecked")
+                List<Athlete> wTeam = (List<Athlete>) beans.get("wTeam" + championship.getName());
+                if (mTeam != null && wTeam != null) {
+                    Set<Long> mwIds = mwTeam.stream().map(Athlete::getId).collect(Collectors.toSet());
+                    Set<Long> mPlusW = new java.util.HashSet<>();
+                    mPlusW.addAll(mTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
+                    mPlusW.addAll(wTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
+                    assertEquals(label + " | " + beanKey + " should be union of mTeam + wTeam", mPlusW, mwIds);
+                }
+            }
+
+            // Per-team: verify bean athletes include tree's iterated athletes
+            Map<String, Set<Long>> beanIdsByTeam = mwTeam.stream()
+                .filter(a -> a.getTeam() != null)
+                .collect(Collectors.groupingBy(Athlete::getTeam,
+                    Collectors.mapping(Athlete::getId, Collectors.toSet())));
+            for (TeamTreeItem team : teams) {
+                Set<Long> beanIds = beanIdsByTeam.getOrDefault(team.getName(), Set.of());
+                for (TeamTreeItem member : team.getTeamMembers()) {
+                    assertTrue(label + " | " + beanKey + " should contain iterated athlete "
+                        + member.getAthlete().getFullName() + " for team " + team.getName(),
+                        beanIds.contains(member.getAthlete().getId()));
+                }
+                logger.info("{} | {} bean for {} : beanCount={}, treeSize={}, treeCounted={}",
+                    label, beanKey, team.getName(), beanIds.size(), team.getSize(), team.getCounted());
+            }
+            }
 
     private static Map<String, List<Participation>> computeExpectedMixedCountedByTeam(
             Map<String, List<Participation>> contributingPoolByTeam,
