@@ -12,6 +12,7 @@ import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import jakarta.websocket.ContainerProvider;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.Main;
 import app.owlcms.apputils.LogbackConfigReloader;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -75,7 +76,15 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 		start();
 
 		// this gets called both when CTRL+C is pressed, and when main() terminates.
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> stop("Shutdown hook called, shutting down")));
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			stop("Shutdown hook called, shutting down");
+			if (Main.isIntentionalSignalReceived()) {
+				// Force exit 0 so Docker on-failure and other supervisors treat
+				// SIGTERM/SIGINT as an intentional stop rather than a crash.
+				startLogger.info("Intentional signal received — exiting with code 0");
+				Runtime.getRuntime().halt(0);
+			}
+		}));
 		//startLogger.info("Press CTRL+C to shutdown");
 
 	}

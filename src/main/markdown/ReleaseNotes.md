@@ -32,6 +32,9 @@
   - Define the set active record set (inactive records are not exported or editable)
   - Abiilty to export the database (including using the /competition/export backup from localhost or a machine in the backdoor list)
 
+65.0.0: Improved kill behavior:
+  - On macOS and Linux, using kill (kill -TERM) targeting owlcms is intercepted and interpreted as intentional stoppage without restart
+
 65.0.0: Added Sinclair 2028.  
   - The default remains the 2001-2004 values.
   - You should NOT switch without analysis, as the coefficients change quite a bit.

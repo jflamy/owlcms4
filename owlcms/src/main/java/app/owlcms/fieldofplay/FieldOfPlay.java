@@ -1086,15 +1086,6 @@ public class FieldOfPlay implements IUnregister {
 		}
 	}
 
-	public void haraKiri() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		System.exit(1);
-	}
-
 	private void checkFirstClockForLift() {
 		if (getAthleteTimer().getTimeRemaining() == 60000) {
 			if (this.isFirstSnatch()) {
