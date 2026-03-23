@@ -13,6 +13,7 @@
 66.0.0: Mixed Team Championships
   - Allow explicit nomination of a mixed team, or implicit men and women combined
   - A gender-equitable scoring system (e.g. GAMX) can be applied, independently of the gendered teams scoring
+  
 66.0.0: Enhanced definition of Championships
   - Championships now define all the awards
     - best athlete scoring systems
