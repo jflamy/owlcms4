@@ -16,6 +16,10 @@ Two variants are produced (identical content, different paper size):
 
 Empty sheets (no teams for that gender) are removed by `JXLSTeamResultsSheet.postProcess()`.
 
+Post-processing also hides the unused measure column per tab:
+- sum of points tabs hide column G (score)
+- sum of scores tabs hide column E (points)
+
 ## Row layout (each sheet identical)
 
 | Row | Cols  | Content | JXLS comment |
@@ -24,7 +28,7 @@ Empty sheets (no teams for that gender) are removed by `JXLSTeamResultsSheet.pos
 | 2   | A, D  | Championship name; ageGroupPrefix + gender label | — |
 | 3   | A–G   | Team summary: name, points (conditional), counted/size, score (conditional) | `jx:each(items="XXTeamItems" var="team" lastCell="G7")` |
 | 4   | A–G   | Column headers (#, Name, Category, Points, Done, scoring title) | — |
-| 5   | A–G   | Member row: name, gender, category, points, done, score | `jx:each(items="team.sortedTeamMembers" var="member" lastCell="G5")` |
+| 5   | A–G   | Member row: name, gender, category, points, done, score | `jx:each(items="team.countedTeamMembers" var="member" lastCell="G5")` |
 | 6   | A     | Spacer (inside outer loop) | — |
 | 7   | A     | Empty row (end of jx:area) | — |
 
@@ -36,6 +40,12 @@ Each sheet uses a prefix (`m` / `w` / `mw`) for its display beans:
 |------|------|-------------|
 | `mShowPoints` / `wShowPoints` / `mwShowPoints` | `Boolean` | true when points-based, false when score-based |
 | `mScoringTitle` / `wScoringTitle` / `mwScoringTitle` | `String` | Score column heading (e.g. "GAMX", "Total") |
+| `mTeamSize` / `wTeamSize` / `mwTeamSize` | `Integer` | Configured team-size denominator for the status column |
+
+### Team summary row (row 3) status denominator
+
+- **Done (col F)**: uses championship-configured team size when available, otherwise falls back to `team.size`
+  - `${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}`
 
 ### Team summary row (row 3) visibility
 
@@ -43,6 +53,8 @@ Each sheet uses a prefix (`m` / `w` / `mw`) for its display beans:
   - `${mShowPoints && team.points != 0 ? team.points : ""}`
 - **Score (col G)**: shown only when `xxxShowPoints` is false (score-based); zeros hidden
   - `${!mShowPoints && team.score != 0 ? team.score : ""}`
+
+At runtime, `postProcess()` hides column E on score-based tabs and column G on points-based tabs.
 
 ### Member row (row 5) visibility
 
@@ -60,6 +72,7 @@ Each sheet uses a prefix (`m` / `w` / `mw`) for its display beans:
 | `mwTeamItems` | `List<TeamTreeItem>` | Mixed teams (only if non-empty) |
 | `mShowPoints` / `wShowPoints` / `mwShowPoints` | `Boolean` | Per-sheet points visibility |
 | `mScoringTitle` / `wScoringTitle` / `mwScoringTitle` | `String` | Per-sheet score column label |
+| `mTeamSize` / `wTeamSize` / `mwTeamSize` | `Integer` | Per-sheet configured team size |
 | `competition` | `Competition` | Competition object |
 | `championship` | `Championship` | Selected championship (may be null) |
 | `ageGroupPrefix` | `String` | Selected age group prefix (may be null) |
@@ -68,7 +81,7 @@ Each sheet uses a prefix (`m` / `w` / `mw`) for its display beans:
 ## TeamTreeItem accessors (team-level)
 
 `getName()`, `getGender()`, `getPoints()` (int), `getScore()` (double),
-`getCounted()`, `getSize()`, `getSortedTeamMembers()` → list of member items.
+`getCounted()`, `getSize()`, `getCountedTeamMembers()` → list of counted member items.
 
 ## TeamTreeItem accessors (member-level)
 

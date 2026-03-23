@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -345,6 +346,46 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return this.explicitTeamSize != null ? this.explicitTeamSize : getMaxTeamSize();
 	}
 
+	@JsonIgnore
+	public int getConfiguredTeamSize(String ageGroupPrefix, Gender gender) {
+		if (gender == null) {
+			return getRosterSizeLimit(ageGroupPrefix, Gender.MF);
+		}
+
+		switch (gender) {
+			case M:
+				return getGenderedTeamSize(ageGroupPrefix, this.mensBestN, Gender.M);
+			case F:
+				return getGenderedTeamSize(ageGroupPrefix, this.womensBestN, Gender.F);
+			case MF:
+				return getMixedTeamSize(ageGroupPrefix);
+			case I:
+			default:
+				return 0;
+		}
+	}
+
+	@JsonIgnore
+	public int getGenderedTeamSize(String ageGroupPrefix, Gender gender) {
+		return getConfiguredTeamSize(ageGroupPrefix, gender);
+	}
+
+	@JsonIgnore
+	public int getMixedTeamSize(String ageGroupPrefix) {
+		Integer topNMixed = positiveCap(this.mixedBestN);
+		if (topNMixed != null) {
+			return topNMixed;
+		}
+
+		Integer topNMen = positiveCap(this.mixedMensBestN);
+		Integer topNWomen = positiveCap(this.mixedWomensBestN);
+		if (topNMen != null || topNWomen != null) {
+			return defaultZero(topNMen) + defaultZero(topNWomen);
+		}
+
+		return getRosterSizeLimit(ageGroupPrefix, Gender.MF);
+	}
+
 	public Ranking getTeamScoringSystem() {
 		return this.teamScoringSystem;
 	}
@@ -435,6 +476,29 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public void setMaxTeamSize(Integer maxTeamSize) {
 		this.maxTeamSize = maxTeamSize;
+	}
+
+	private int getGenderedTeamSize(String ageGroupPrefix, Integer configuredTopN, Gender gender) {
+		Integer topN = positiveCap(configuredTopN);
+		if (topN != null) {
+			return topN;
+		}
+		return getRosterSizeLimit(ageGroupPrefix, gender);
+	}
+
+	private int getRosterSizeLimit(String ageGroupPrefix, Gender gender) {
+		if (gender == Gender.MF && this.explicitMixedTeamMembers) {
+			return getExplicitTeamSize();
+		}
+		return getMaxTeamSize();
+	}
+
+	private Integer positiveCap(Integer value) {
+		return value != null && value > 0 ? value : null;
+	}
+
+	private int defaultZero(Integer value) {
+		return value != null ? value.intValue() : 0;
 	}
 
 	public Integer getMaxPerCategory() {

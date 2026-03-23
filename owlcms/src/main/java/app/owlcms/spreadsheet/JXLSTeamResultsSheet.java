@@ -101,6 +101,12 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 		this.hasWomen = !wTeams.isEmpty();
 		this.hasMixed = !mwTeams.isEmpty();
 
+		// Publish counted-only legacy beans too so Team Results templates that still
+		// reference mTeam/wTeam/mwTeam receive the same filtered subset as TeamTreeItem.
+		getReportingBeans().put("mTeam", flattenCountedMembers(mTeams));
+		getReportingBeans().put("wTeam", flattenCountedMembers(wTeams));
+		getReportingBeans().put("mwTeam", flattenCountedMembers(mwTeams));
+
 		// Per-sheet team lists.
 		if (this.hasMen) {
 			getReportingBeans().put("mTeamItems", mTeams);
@@ -111,7 +117,6 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 		if (this.hasMixed) {
 			getReportingBeans().put("mwTeamItems", mwTeams);
 		}
-
 		// Per-sheet display control: showPoints hides the team-level points sum
 		// on score-based tabs; scoringTitle labels the score column.
 		Ranking genderedDisplay = (genderedPointsBased && bestAthlete != null) ? bestAthlete : genderedRanking;
@@ -125,11 +130,33 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 		getReportingBeans().put("mScoringTitle", genderedTitle);
 		getReportingBeans().put("wScoringTitle", genderedTitle);
 		getReportingBeans().put("mwScoringTitle", mixedTitle);
+		getReportingBeans().put("mTeamSize", computeConfiguredTeamSize(championship, ageGroupPrefix, Gender.M));
+		getReportingBeans().put("wTeamSize", computeConfiguredTeamSize(championship, ageGroupPrefix, Gender.F));
+		getReportingBeans().put("mwTeamSize", computeConfiguredTeamSize(championship, ageGroupPrefix, Gender.MF));
 
 		logger.debug("team results: gendered={} display={} (pointsBased={}), mixed={} display={} (pointsBased={}), m={} w={} mw={}",
 				genderedRanking, genderedDisplay, genderedPointsBased,
 				mixedRanking, mixedDisplay, mixedPointsBased,
 				mTeams.size(), wTeams.size(), mwTeams.size());
+	}
+
+	private int computeConfiguredTeamSize(Championship championship, String ageGroupPrefix, Gender gender) {
+		if (championship == null) {
+			return 0;
+		}
+		return championship.getConfiguredTeamSize(ageGroupPrefix, gender);
+	}
+
+	private List<Athlete> flattenCountedMembers(List<TeamTreeItem> teams) {
+		List<Athlete> athletes = new ArrayList<>();
+		for (TeamTreeItem team : teams) {
+			for (TeamTreeItem member : team.getCountedTeamMembers()) {
+				if (member.getAthlete() != null) {
+					athletes.add(member.getAthlete());
+				}
+			}
+		}
+		return athletes;
 	}
 
 	@Override
@@ -170,9 +197,26 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 
 		for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
 			var sheet = workbook.getSheetAt(i);
+			applyMeasureColumnVisibility(sheet);
 			sheet.getHeader().setCenter(center.toString());
 		}
 		createStandardFooter(workbook);
+	}
+
+	private void applyMeasureColumnVisibility(org.apache.poi.ss.usermodel.Sheet sheet) {
+		Boolean showPoints = switch (sheet.getSheetName()) {
+			case "Men" -> (Boolean) getReportingBeans().get("mShowPoints");
+			case "Women" -> (Boolean) getReportingBeans().get("wShowPoints");
+			case "Mixed" -> (Boolean) getReportingBeans().get("mwShowPoints");
+			default -> null;
+		};
+		if (showPoints == null) {
+			return;
+		}
+
+		// E = points, G = score. Hide the unused measure column on each sheet.
+		sheet.setColumnHidden(4, !showPoints.booleanValue());
+		sheet.setColumnHidden(6, showPoints.booleanValue());
 	}
 
 	private Ranking computeTeamRanking(Championship championship, Gender gender) {

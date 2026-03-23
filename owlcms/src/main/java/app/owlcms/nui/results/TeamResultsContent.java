@@ -12,8 +12,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -27,6 +30,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -50,6 +54,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.team.TeamResultsDisplayRules;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.i18n.Translator;
@@ -97,6 +102,8 @@ public class TeamResultsContent extends BaseContent
 	// private ComboBox<Category> categoryFilter;
 	private ComboBox<Gender> genderFilter;
 	private OwlcmsLayout routerLayout;
+	private List<Grid.Column<TeamTreeItem>> scoreColumns = new ArrayList<>();
+	private Grid.Column<TeamTreeItem> statusColumn;
 	private ComboBox<Championship> topBarChampionshipSelect;
 	// private ComboBox<String> teamFilter;
 	private ComboBox<String> topBarAgeGroupPrefixSelect;
@@ -311,32 +318,12 @@ public class TeamResultsContent extends BaseContent
 				.setHeader(Translator.translate("Category"))
 				.setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.CENTER);
-		grid.addColumn(TeamTreeItem::getPoints, "points")
+		grid.addColumn(t -> shouldShowTeamSummaryPoints(t) ? t.getPoints() : null, "points")
 				.setHeader(Translator.translate("TeamResults.Points"))
 		        .setComparator((a, b) -> ObjectUtils.compare(a.getPoints(), b.getPoints(), false))
 				.setAutoWidth(true)
 		        .setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(t -> formatDouble(t.getQPointsScore(), 3))
-		        .setHeader(Translator.translate("Ranking.QPOINTS"))
-		        .setComparator((a, b) -> ObjectUtils.compare(a.getSinclairScore(), b.getSinclairScore(), false))
-				.setAutoWidth(true)
-		        .setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(t -> formatDouble(t.getQMastersScore(), 3))
-		        .setHeader(Translator.translate("Ranking.QAGE"))
-		        .setComparator((a, b) -> ObjectUtils.compare(a.getQMastersScore(), b.getQMastersScore(), false))
-				.setAutoWidth(true)
-		        .setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(t -> formatDouble(t.getSinclairScore(), 3))
-		        .setHeader(Translator.translate("Scoreboard.Sinclair"))
-		        .setComparator((a, b) -> ObjectUtils.compare(a.getSinclairScore(), b.getSinclairScore(), false))
-		        .setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(t -> formatDouble(t.getSmfScore(), 3))
-		        .setHeader(Translator.translate("smhf"))
-				.setAutoWidth(true)
-		        .setComparator((a, b) -> ObjectUtils.compare(a.getSmfScore(), b.getSmfScore(), false))
-		        .setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(TeamTreeItem::formatProgress).setHeader(Translator.translate("TeamResults.Status"))
-		        .setTextAlign(ColumnTextAlign.END);
+		updateScoreColumns(grid);
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(TeamTreeItem.class);
 		OwlcmsCrudGrid<TeamTreeItem> crudGrid = new OwlcmsCrudGrid<>(TeamTreeItem.class, gridLayout,
@@ -347,12 +334,10 @@ public class TeamResultsContent extends BaseContent
 				if (TeamResultsContent.this.topBar == null) {
 					return;
 				}
-				// logger.debug("refreshing grid {} {} {}",getAgeGroupPrefix(),
-				// getChampionship(),
-				// genderFilter.getValue());
 				TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getChampionship(),
 				        TeamResultsContent.this.genderFilter.getValue(), getTeamRanking(), false);
 				this.grid.setDataProvider(new TreeDataProvider<>(teamResultsTreeData));
+				updateScoreColumns((TreeGrid<TeamTreeItem>) this.grid);
 			}
 
 			@Override
@@ -504,7 +489,113 @@ public class TeamResultsContent extends BaseContent
 		return this.downloadDialog.createDownloadButton();
 	}
 
-	private String formatDouble(double d, int decimals) {
+	private Function<TeamTreeItem, Double> getScoreGetter(Ranking ranking) {
+		if (ranking == null) {
+			return t -> 0D;
+		}
+		switch (ranking) {
+			case BW_SINCLAIR:
+				return TeamTreeItem::getSinclairScore;
+			case QPOINTS:
+				return TeamTreeItem::getQPointsScore;
+			case QAGE:
+				return TeamTreeItem::getQMastersScore;
+			case SMM:
+				return TeamTreeItem::getSmfScore;
+			case GAMX:
+			case GAMX_M:
+			case GAMX_MS:
+			case GAMX_MC:
+			case GAMX_U:
+			case GAMX_A:
+			case GAMX_S:
+			case GAMX_C:
+				return TeamTreeItem::getGamxScore;
+			case ROBI:
+				return TeamTreeItem::getRobiScore;
+			case CAT_SINCLAIR:
+				return TeamTreeItem::getCatSinclairMetric;
+			case CAT_QPOINTS:
+				return TeamTreeItem::getCatQPointsMetric;
+			case CAT_GAMX:
+				return TeamTreeItem::getCatGamxScore;
+			default:
+				return TeamTreeItem::getScore;
+		}
+	}
+
+	private List<Ranking> getRequiredScoreRankings() {
+		Gender genderValue = this.genderFilter != null ? this.genderFilter.getValue() : null;
+		Ranking competitionScoring = Competition.getCurrent() != null ? Competition.getCurrent().getScoringSystem() : null;
+		return TeamResultsDisplayRules.getRequiredScoreRankings(getChampionship(), genderValue, competitionScoring);
+	}
+
+	private Ranking getChampionshipSelectedRanking(TeamTreeItem item) {
+		return TeamResultsDisplayRules.getChampionshipSelectedRanking(getChampionship(), item);
+	}
+
+	private boolean shouldShowTeamSummaryValue(TeamTreeItem item, Ranking ranking) {
+		return TeamResultsDisplayRules.shouldShowTeamSummaryValue(getChampionship(), item, ranking);
+	}
+
+	private boolean shouldShowTeamSummaryPoints(TeamTreeItem item) {
+		return TeamResultsDisplayRules.shouldShowTeamSummaryPoints(getChampionship(), item);
+	}
+
+	private void updateScoreColumns(TreeGrid<TeamTreeItem> grid) {
+		// Remove old score columns
+		for (Grid.Column<TeamTreeItem> col : this.scoreColumns) {
+			grid.removeColumn(col);
+		}
+		this.scoreColumns.clear();
+
+		// Remove status column (will be re-added at the end)
+		if (this.statusColumn != null) {
+			grid.removeColumn(this.statusColumn);
+		}
+
+		// Add dynamic score columns
+		List<Ranking> rankings = getRequiredScoreRankings();
+		for (Ranking ranking : rankings) {
+			Function<TeamTreeItem, Double> getter = getScoreGetter(ranking);
+			Grid.Column<TeamTreeItem> col = grid.addColumn(t -> {
+				if (!shouldShowTeamSummaryValue(t, ranking)) {
+					return "";
+				}
+				Double val = getter.apply(t);
+				return val != null ? formatDouble(val, 3) : "";
+			})
+					.setHeader(Ranking.getScoringTitle(ranking))
+					.setComparator((a, b) -> ObjectUtils.compare(getter.apply(a), getter.apply(b), false))
+					.setAutoWidth(true)
+					.setTextAlign(ColumnTextAlign.END);
+			this.scoreColumns.add(col);
+		}
+
+		// Re-add status column at the end
+		this.statusColumn = grid.addColumn(this::formatStatus)
+				.setHeader(Translator.translate("TeamResults.Status"))
+				.setTextAlign(ColumnTextAlign.END);
+	}
+
+	private String formatStatus(TeamTreeItem item) {
+		if (item == null) {
+			return "";
+		}
+		if (item.getAthlete() != null) {
+			return item.isDone() ? Translator.translate("Done") : "";
+		}
+
+		Championship currentChampionship = getChampionship();
+		if (currentChampionship == null) {
+			return item.formatProgress();
+		}
+
+		int configuredTeamSize = currentChampionship.getConfiguredTeamSize(getAgeGroupPrefix(), item.getGender());
+		return item.getCounted() + "/" + configuredTeamSize;
+	}
+
+	private String formatDouble(Double d, int decimals) {
 		if (this.floatFormat == null) {
 			this.floatFormat = new DecimalFormat();
 			this.floatFormat.setMinimumIntegerDigits(1);

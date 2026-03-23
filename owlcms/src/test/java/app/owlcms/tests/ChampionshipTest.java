@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -32,6 +33,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,9 +56,11 @@ import app.owlcms.data.category.ParticipationId;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.team.TeamResultsDisplayRules;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.spreadsheet.PAthlete;
+import app.owlcms.spreadsheet.JXLSTeamResultsSheet;
 import ch.qos.logback.classic.Logger;
 
 public class ChampionshipTest {
@@ -221,6 +226,106 @@ public class ChampionshipTest {
 
         List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
         assertTrue("senior mixed teams should be absent when no athlete has mixed-team membership", teams.isEmpty());
+    }
+
+    @Test
+    public void testMastersTeamSummaryShowsOnlyChampionshipSelectedScore() throws Exception {
+        Championship masters = ChampionshipRepository.findByName("Masters");
+        assertNotNull("Masters championship should be loaded from fixture", masters);
+
+        Competition competition = Competition.getCurrent();
+        Ranking originalCompetitionScoring = competition.getScoringSystem();
+
+        try {
+            competition.setScoringSystem(Ranking.BW_SINCLAIR);
+            masters.setTeamScoringSystem(Ranking.QPOINTS);
+            masters.setMixedTeamScoringSystem(Ranking.GAMX);
+
+            assertEquals("masters score columns should include selected and informational rankings",
+                List.of(Ranking.QPOINTS, Ranking.GAMX, Ranking.BW_SINCLAIR, Ranking.QAGE, Ranking.SMM),
+                TeamResultsDisplayRules.getRequiredScoreRankings(masters, null, competition.getScoringSystem()));
+
+            TeamTreeItem mensTeam = new TeamTreeItem("Test Men", Gender.M, null, false);
+            TeamTreeItem mixedTeam = new TeamTreeItem("Test Mixed", Gender.MF, null, false);
+            Athlete athlete = AthleteRepository.findAll().stream().findFirst().orElse(null);
+            assertNotNull("fixture should provide at least one athlete", athlete);
+            TeamTreeItem athleteItem = new TeamTreeItem(null, athlete.getGender(), athlete, true);
+
+            assertTrue("men's team should show selected QPoints total",
+                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.QPOINTS));
+            assertFalse("men's team should hide points total for score-based championships",
+                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mensTeam));
+            assertFalse("men's team should hide mixed GAMX total",
+                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.GAMX));
+            assertFalse("men's team should hide competition Sinclair total",
+                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.BW_SINCLAIR));
+            assertFalse("men's team should hide informational Q-Masters total",
+                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.QAGE));
+            assertFalse("men's team should hide informational SMHF total",
+                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.SMM));
+
+            assertTrue("mixed team should show selected GAMX total",
+                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mixedTeam, Ranking.GAMX));
+            assertFalse("mixed team should hide points total for score-based championships",
+                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mixedTeam));
+            assertFalse("mixed team should hide gendered QPoints total",
+                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mixedTeam, Ranking.QPOINTS));
+
+            masters.setTeamScoringSystem(null);
+            masters.setMixedTeamScoringSystem(null);
+            assertTrue("points-based men's championship should show points total",
+                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mensTeam));
+            assertTrue("points-based mixed championship should show points total",
+                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mixedTeam));
+
+            assertTrue("athlete rows should keep informational columns visible",
+                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, athleteItem, Ranking.QAGE));
+            assertTrue("athlete rows should keep best-athlete informational columns visible",
+                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, athleteItem, Ranking.BW_SINCLAIR));
+            assertTrue("athlete rows should keep points visible",
+                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, athleteItem));
+        } finally {
+            competition.setScoringSystem(originalCompetitionScoring);
+        }
+    }
+
+    @Test
+    public void testChampionshipConfiguredTeamSizeFollowsStatusRules() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+
+        senior.setMaxTeamSize(8);
+        senior.setExplicitTeamSize(6);
+        senior.setMensBestN(4);
+        senior.setWomensBestN(3);
+        senior.setMixedBestN(5);
+        senior.setMixedMensBestN(2);
+        senior.setMixedWomensBestN(2);
+        senior.setExplicitMixedTeamMembers(true);
+
+        assertEquals("gendered men should use mensBestN when configured", 4,
+            senior.getConfiguredTeamSize(null, Gender.M));
+        assertEquals("gendered women should use womensBestN when configured", 3,
+            senior.getConfiguredTeamSize(null, Gender.F));
+        assertEquals("mixed should prefer overall mixedBestN when configured", 5,
+            senior.getConfiguredTeamSize(null, Gender.MF));
+
+        senior.setMixedBestN(null);
+        assertEquals("mixed should use mixed men + women topN when overall mixedBestN is absent", 4,
+            senior.getConfiguredTeamSize(null, Gender.MF));
+
+        senior.setMixedMensBestN(null);
+        senior.setMixedWomensBestN(null);
+        assertEquals("explicit mixed should fall back to explicit roster size", 6,
+            senior.getConfiguredTeamSize(null, Gender.MF));
+
+        senior.setMensBestN(null);
+        assertEquals("gendered men should fall back to roster size when mensBestN is absent", 8,
+            senior.getConfiguredTeamSize(null, Gender.M));
+
+        senior.setExplicitMixedTeamMembers(false);
+        assertEquals("implicit mixed should fall back to max team size when no mixed topN is configured", 8,
+            senior.getConfiguredTeamSize(null, Gender.MF));
     }
 
     @Test
@@ -471,6 +576,72 @@ public class ChampionshipTest {
             }
 
             @Test
+            public void testSeniorTeamResultsExportUsesCountedMixedMembers() throws Exception {
+            Championship senior = ChampionshipRepository.findByName("Senior");
+            assertNotNull("Senior championship should be loaded from fixture", senior);
+
+            Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+            applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+            configureMixedTeamRules(senior, true, null, Ranking.GAMX, 0, 2, 2);
+
+            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
+                Ranking.GAMX, 0, 2, 2);
+            Set<Long> expectedCountedIds = expectedCountedByTeam.values().stream()
+                .flatMap(List::stream)
+                .map(participation -> participation.getAthlete().getId())
+                .collect(Collectors.toSet());
+
+            JXLSTeamResultsSheet sheet = new JXLSTeamResultsSheet(null);
+            sheet.setChampionship(senior);
+            sheet.setGender(Gender.MF);
+            invokeSetReportingInfo(sheet);
+
+            @SuppressWarnings("unchecked")
+            List<Athlete> mwTeam = (List<Athlete>) sheet.getReportingBeans().get("mwTeam");
+            assertNotNull("Team Results export should publish mwTeam bean", mwTeam);
+            assertEquals("Team Results export should only expose counted mixed members",
+                expectedCountedIds, mwTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
+
+            @SuppressWarnings("unchecked")
+            List<TeamTreeItem> mwTeamItems = (List<TeamTreeItem>) sheet.getReportingBeans().get("mwTeamItems");
+            assertNotNull("Team Results export should publish mwTeamItems", mwTeamItems);
+            assertEquals("Team Results export should publish configured mixed team size",
+                senior.getConfiguredTeamSize(null, Gender.MF),
+                ((Integer) sheet.getReportingBeans().get("mwTeamSize")).intValue());
+
+            Set<Long> exportedItemIds = mwTeamItems.stream()
+                .flatMap(team -> team.getCountedTeamMembers().stream())
+                .map(member -> member.getAthlete().getId())
+                .collect(Collectors.toSet());
+            assertEquals("Team Results export team items should match counted mixed members",
+                expectedCountedIds, exportedItemIds);
+            }
+
+    @Test
+    public void testTeamResultsTemplatesIterateCountedTeamMembers() throws Exception {
+        assertTeamResultsTemplateUsesCountedMembers("/templates/teamResults/TeamResults-A4.xlsx");
+        assertTeamResultsTemplateUsesCountedMembers("/templates/teamResults/TeamResults-Letter.xlsx");
+    }
+
+    @Test
+    public void testTeamResultsPostProcessHidesUnusedMeasureColumnPerTab() throws Exception {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+
+        try (Workbook workbook = createGeneratedTeamResultsWorkbook(senior, Gender.MF)) {
+            assertTrue("mixed score-based tab should hide points column E",
+                workbook.getSheet("Mixed").isColumnHidden(4));
+            assertFalse("mixed score-based tab should keep score column G visible",
+                workbook.getSheet("Mixed").isColumnHidden(6));
+
+            assertFalse("men's points-based tab should keep points column E visible",
+                workbook.getSheet("Men").isColumnHidden(4));
+            assertTrue("men's points-based tab should hide score column G",
+                workbook.getSheet("Men").isColumnHidden(6));
+        }
+    }
+
+            @Test
             public void testSeniorExplicitMixedSubsetUsesTop3GenderNeutral() {
             Championship senior = ChampionshipRepository.findByName("Senior");
             assertNotNull("Senior championship should be loaded from fixture", senior);
@@ -688,6 +859,47 @@ public class ChampionshipTest {
         TeamResultsTreeData teamResults = new TeamResultsTreeData(null, championship, gender, Ranking.GAMX, true);
         List<TeamTreeItem> teams = teamResults.getTeamItemsByGender().get(gender);
         return teams != null ? teams : List.of();
+    }
+
+    private static void invokeSetReportingInfo(JXLSTeamResultsSheet sheet) throws Exception {
+        Method method = JXLSTeamResultsSheet.class.getDeclaredMethod("setReportingInfo");
+        method.setAccessible(true);
+        method.invoke(sheet);
+    }
+
+    private static void assertTeamResultsTemplateUsesCountedMembers(String templateResource) throws Exception {
+        try (InputStream templateStream = ChampionshipTest.class.getResourceAsStream(templateResource)) {
+            assertNotNull("missing Team Results template: " + templateResource, templateStream);
+            try (Workbook workbook = WorkbookFactory.create(templateStream)) {
+                String statusValue = workbook.getSheet("Mixed")
+                    .getRow(2)
+                    .getCell(5)
+                    .getStringCellValue();
+                assertEquals("mixed status denominator should use configured team size for " + templateResource,
+                    "${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}",
+                    statusValue);
+
+                String mixedMemberLoop = workbook.getSheet("Mixed")
+                    .getRow(4)
+                    .getCell(0)
+                    .getCellComment()
+                    .getString()
+                    .getString();
+                assertEquals("mixed member loop should use counted team members for " + templateResource,
+                    "jx:each(items=\"team.countedTeamMembers\" var=\"member\" lastCell=\"G5\")",
+                    mixedMemberLoop);
+            }
+        }
+    }
+
+    private static Workbook createGeneratedTeamResultsWorkbook(Championship championship, Gender gender) throws Exception {
+        JXLSTeamResultsSheet sheet = new JXLSTeamResultsSheet(null);
+        sheet.setTemplateFileName("/templates/teamResults/TeamResults-A4.xlsx");
+        sheet.setChampionship(championship);
+        sheet.setGender(gender);
+        try (InputStream generatedStream = sheet.createInputStream()) {
+            return WorkbookFactory.create(generatedStream);
+        }
     }
 
     private static void assertMixedTeamScoresMatchSelectedGamx(List<TeamTreeItem> teams,

@@ -691,11 +691,9 @@ public class TeamSelectionContent extends BaseContent
 		em.merge(_getOriginalParticipation);
 		TeamTreeItem parent = tti.getParent();
 		List<TeamTreeItem> teamMembers = tti.getParent().getTeamMembers();
-		if (this.crudGrid != null) {
-			this.crudGrid.refreshGrid();
-			return null;
+		if (parent.getMembershipLabel() != null) {
+			parent.getMembershipLabel().setText("" + (teamMembers != null ? countTeamMembers(teamMembers) : 0));
 		}
-		parent.getMembershipLabel().setText("" + (teamMembers != null ? countTeamMembers(teamMembers) : 0));
 		return null;
 	}
 
@@ -709,10 +707,6 @@ public class TeamSelectionContent extends BaseContent
 		em.merge(originalParticipation);
 		TeamTreeItem parent = tti.getParent();
 		List<TeamTreeItem> teamMembers = tti.getParent().getTeamMembers();
-		if (this.crudGrid != null) {
-			this.crudGrid.refreshGrid();
-			return null;
-		}
 		if (parent.getMixedMembershipLabel() != null) {
 			parent.getMixedMembershipLabel().setText(teamMembers != null ? formatMixedTeamMemberCount(teamMembers) : "0");
 		}
