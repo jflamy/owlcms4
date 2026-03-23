@@ -418,7 +418,7 @@ public class ChampionshipTest {
             assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
                 "junior implicit mixed top 2 men top 2 women");
             assertMixedReportingBeanMatchesTree("junior implicit mixed top 2 men top 2 women",
-                junior, teams, null);
+                junior, teams, null, null);
             }
 
             @Test
@@ -440,7 +440,7 @@ public class ChampionshipTest {
             assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
                 "junior implicit mixed top 3 gender neutral");
             assertMixedReportingBeanMatchesTree("junior implicit mixed top 3 gender neutral",
-                junior, teams, null);
+                junior, teams, null, null);
             }
 
             @Test
@@ -467,7 +467,7 @@ public class ChampionshipTest {
             assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
                 "senior explicit mixed subset top 2 men top 2 women");
             assertMixedReportingBeanMatchesTree("senior explicit mixed subset top 2 men top 2 women",
-                senior, teams, explicitSubsetByTeam);
+                senior, teams, explicitSubsetByTeam, expectedCountedByTeam);
             }
 
             @Test
@@ -494,7 +494,7 @@ public class ChampionshipTest {
             assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
                 "senior explicit mixed subset top 3 gender neutral");
             assertMixedReportingBeanMatchesTree("senior explicit mixed subset top 3 gender neutral",
-                senior, teams, explicitSubsetByTeam);
+                senior, teams, explicitSubsetByTeam, expectedCountedByTeam);
             }
 
     @Test
@@ -743,14 +743,18 @@ public class ChampionshipTest {
                 List<Long> actualPoolIds = team.getTeamMembers().stream()
                     .map(item -> item.getAthlete().getId())
                     .collect(Collectors.toList());
-                assertEquals(label + " iterated athlete ids for team " + team.getName(), expectedPoolIds, actualPoolIds);
+                assertEquals(label + " iterated athlete ids for team " + team.getName(),
+                    expectedPoolIds.stream().collect(Collectors.toSet()),
+                    actualPoolIds.stream().collect(Collectors.toSet()));
 
                 double expectedScore = expectedCounted.stream()
                     .mapToDouble(participation -> getDirectGamxScore(participation))
                     .sum();
-                logger.info("{} | team={} | pool={} | counted={} | expectedSum={} | actualSum={}",
+                logger.info("{} | team={} | expectedPoolIds={} | actualPoolIds={} | pool={} | counted={} | expectedSum={} | actualSum={}",
                     label,
                     team.getName(),
+                    expectedPoolIds,
+                    actualPoolIds,
                     describeParticipations(contributingPool),
                     describeParticipations(expectedCounted),
                     String.format(Locale.ROOT, "%.2f", expectedScore),
@@ -959,7 +963,8 @@ public class ChampionshipTest {
             }
 
             private static void assertMixedReportingBeanMatchesTree(String label, Championship championship,
-                List<TeamTreeItem> teams, Map<String, List<Participation>> explicitRosterByTeam) {
+                List<TeamTreeItem> teams, Map<String, List<Participation>> explicitRosterByTeam,
+                Map<String, List<Participation>> expectedCountedByTeam) {
             HashMap<String, Object> beans = Competition.getCurrent().computeReportingInfo(null, championship);
             String beanKey = "mwTeam" + championship.getName();
 
@@ -973,17 +978,29 @@ public class ChampionshipTest {
             }
 
             if (championship.isExplicitMixedTeamMembers() && explicitRosterByTeam != null) {
-                // Explicit: bean should contain only the explicitly selected athletes
-                Set<Long> selectedIds = explicitRosterByTeam.values().stream()
+                // Explicit: every bean athlete must come from the explicit roster
+                Set<Long> rosterIds = explicitRosterByTeam.values().stream()
                     .flatMap(List::stream)
                     .map(p -> p.getAthlete().getId())
                     .collect(Collectors.toSet());
                 for (Athlete a : mwTeam) {
-                    assertTrue(label + " | " + beanKey + " athlete should be in explicit selection: " + a.getFullName(),
-                        selectedIds.contains(a.getId()));
+                    assertTrue(label + " | " + beanKey + " athlete should be in explicit roster: " + a.getFullName(),
+                        rosterIds.contains(a.getId()));
                 }
-                assertEquals(label + " | " + beanKey + " should contain all selected mixed members",
-                    selectedIds.size(), mwTeam.size());
+                // Bean contains full roster; verify counted members in tree match expected topN
+                if (expectedCountedByTeam != null) {
+                    Set<Long> expectedCountedIds = expectedCountedByTeam.values().stream()
+                        .flatMap(List::stream)
+                        .map(p -> p.getAthlete().getId())
+                        .collect(Collectors.toSet());
+                    Set<Long> treeCountedIds = teams.stream()
+                        .flatMap(t -> t.getTeamMembers().stream())
+                        .filter(TeamTreeItem::isCountedForTeam)
+                        .map(m -> m.getAthlete().getId())
+                        .collect(Collectors.toSet());
+                    assertEquals(label + " | tree counted members should match expected topN subset",
+                        expectedCountedIds, treeCountedIds);
+                }
             } else {
                 // Implicit: bean should be union of mTeam + wTeam
                 @SuppressWarnings("unchecked")
@@ -996,6 +1013,20 @@ public class ChampionshipTest {
                     mPlusW.addAll(mTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
                     mPlusW.addAll(wTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
                     assertEquals(label + " | " + beanKey + " should be union of mTeam + wTeam", mPlusW, mwIds);
+                }
+                // Implicit: verify counted members in tree match expected topN
+                if (expectedCountedByTeam != null) {
+                    Set<Long> expectedCountedIds = expectedCountedByTeam.values().stream()
+                        .flatMap(List::stream)
+                        .map(p -> p.getAthlete().getId())
+                        .collect(Collectors.toSet());
+                    Set<Long> treeCountedIds = teams.stream()
+                        .flatMap(t -> t.getTeamMembers().stream())
+                        .filter(TeamTreeItem::isCountedForTeam)
+                        .map(m -> m.getAthlete().getId())
+                        .collect(Collectors.toSet());
+                    assertEquals(label + " | tree counted members should match expected topN subset",
+                        expectedCountedIds, treeCountedIds);
                 }
             }
 

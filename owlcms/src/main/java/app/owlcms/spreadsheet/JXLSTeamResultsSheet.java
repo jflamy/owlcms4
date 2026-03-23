@@ -201,7 +201,7 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 	private void overrideScoringSystem(List<TeamTreeItem> teams, Ranking scoring) {
 		for (TeamTreeItem team : teams) {
 			team.setScoringSystem(scoring);
-			for (TeamTreeItem member : team.getSortedTeamMembers()) {
+			for (TeamTreeItem member : team.getCountedTeamMembers()) {
 				member.setScoringSystem(scoring);
 			}
 		}

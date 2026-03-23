@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,7 @@ public class TeamTreeItem {
 	private NativeLabel mixedMembershipLabel;
 	private boolean warning;
 	private Ranking scoringSystem;
+	private boolean countedForTeam;
 
 	public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
 		this.scoringSystem = Competition.getCurrent().getScoringSystem();
@@ -137,6 +139,17 @@ public class TeamTreeItem {
 
 	public Integer getCounted() {
 		return this.team != null ? this.team.getCounted() : null;
+	}
+
+	/**
+	 * For member nodes: whether this athlete was included in the team's topN scoring.
+	 */
+	public boolean isCountedForTeam() {
+		return this.countedForTeam;
+	}
+
+	public void setCountedForTeam(boolean countedForTeam) {
+		this.countedForTeam = countedForTeam;
 	}
 
 	public Integer getCustomPoints() {
@@ -248,6 +261,16 @@ public class TeamTreeItem {
 		}
 		getTeamMembers().sort(Comparator.comparing(TeamTreeItem::getPoints, (a, b) -> ObjectUtils.compare(a, b, true)));
 		return getTeamMembers();
+	}
+
+	/**
+	 * @return only team members that were included in the topN scoring, sorted by points.
+	 *         When no topN limit is configured, all members are counted and this returns the same as getSortedTeamMembers().
+	 */
+	public List<TeamTreeItem> getCountedTeamMembers() {
+		return getSortedTeamMembers().stream()
+		        .filter(TeamTreeItem::isCountedForTeam)
+		        .collect(Collectors.toList());
 	}
 
 	public Team getTeam() {

@@ -27,7 +27,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -58,6 +57,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.nui.preparation.EditChampionshipsDialog;
 import app.owlcms.nui.shared.IAthleteEditing;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -128,7 +128,11 @@ public class TeamResultsContent extends BaseContent
 		this.topBar = new FlexLayout();
 
 		Button teamResultsDownloadButton = createTeamResultsDownloadButton();
-		HorizontalLayout buttons = new HorizontalLayout(teamResultsDownloadButton);
+		Button editChampionshipsButton = new Button(
+			Translator.translate("EditChampionships.Title"),
+			VaadinIcon.PENCIL.create(),
+			e -> new EditChampionshipsDialog(() -> this.crudGrid.refreshGrid()).open());
+		HorizontalLayout buttons = new HorizontalLayout(teamResultsDownloadButton, editChampionshipsButton);
 		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 
 		this.topBar.getStyle().set("flex", "100 1");
@@ -391,6 +395,16 @@ public class TeamResultsContent extends BaseContent
 	}
 
 	protected void defineFilters(OwlcmsCrudGrid<TeamTreeItem> crudGrid2) {
+
+		Button recomputeRanksButton = new Button(Translator.translate("RecomputeRanks"),
+		        VaadinIcon.REFRESH.create(),
+		        e -> {
+			        Competition.recomputeAllAthleteRanks();
+			        crudGrid2.refreshGrid();
+		        });
+		recomputeRanksButton.getElement().setAttribute("title", Translator.translate("RecomputeRanks"));
+		recomputeRanksButton.getElement().setAttribute("theme", "secondary contrast small icon");
+		crudGrid2.getCrudLayout().addFilterComponent(recomputeRanksButton);
 
 		this.topBarAgeGroupPrefixSelect = new ComboBox<>();
 		this.topBarAgeGroupPrefixSelect.setPlaceholder(Translator.translate("AgeGroup"));

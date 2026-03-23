@@ -75,7 +75,6 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		if (ageDivision == null) {
 			return;
 		}
-		boolean explicitMixed = ageDivision.isExplicitMixedTeamMembers();
 
 		for (Gender gender : Gender.mfValues()) {
 			if (this.genderFilterValue != null && this.genderFilterValue != Gender.MF && gender != this.genderFilterValue) {
@@ -167,6 +166,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					if ((includeNotDone || groupIsDone) && b && c) {
 						curTeam.setPoints(curTeam.getPoints() + Math.round(memberPoints));
 					}
+					member.setCountedForTeam(b);
 					if (b) {
 						curTeam.setSinclairScore(curTeam.getSinclairScore() + member.getSinclairScore());
 						curTeam.setCatSinclairScore(curTeam.getCatSinclairScore() + member.getCatSinclairMetric());
@@ -399,7 +399,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		for (Gender g : Gender.values()) {
 			List<TeamTreeItem> teams = getTeamItemsByGender().get(g);
 			if (teams != null) {
-				addItems(teams, TeamTreeItem::getSortedTeamMembers);
+				addItems(teams, TeamTreeItem::getCountedTeamMembers);
 			}
 		}
 	}
