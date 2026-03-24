@@ -304,13 +304,6 @@ public class WebSocketSender {
 		logger.info("Registering startup data callbacks for WebSocket trackers (videoUrl={}, updateUrl={})", 
 				videoUrl, updateUrl);
 
-		// Export competition data once (for all connections)
-		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionDataStatic();
-		if (export == null) {
-			logger.error("Unable to build competition data payload for startup - aborting WebSocket registration");
-			return;
-		}
-
 		// Create translations ZIP bytes once
 		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
 			logger.error("Translations not available for startup send - aborting WebSocket registration");
@@ -336,17 +329,31 @@ public class WebSocketSender {
 		// Register for video data URL
 		if (videoUrl != null && !videoUrl.trim().isEmpty()
 		        && (videoUrl.startsWith("ws://") || videoUrl.startsWith("wss://"))) {
-			registerStartupCallbacksForUrl(videoUrl, export, translationsZipBytes, flagsZipBytes, picturesZipBytes, logosZipBytes);
+			registerStartupCallbacksForUrl(videoUrl, translationsZipBytes, flagsZipBytes, picturesZipBytes, logosZipBytes);
 		}
 
 		// Register for public results URL
 		if (updateUrl != null && !updateUrl.trim().isEmpty()
 		        && (updateUrl.startsWith("ws://") || updateUrl.startsWith("wss://"))) {
-			registerStartupCallbacksForUrl(updateUrl, export, translationsZipBytes, flagsZipBytes, picturesZipBytes, logosZipBytes);
+			registerStartupCallbacksForUrl(updateUrl, translationsZipBytes, flagsZipBytes, picturesZipBytes, logosZipBytes);
 		}
 	}
 
-	private static void registerStartupCallbacksForUrl(String url, CompetitionDataExport export,
+	private static byte[] createFreshDatabaseZipBytes(String url) {
+		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionDataStatic();
+		if (export == null) {
+			logger.error("Unable to build competition data payload for {}", url);
+			return new byte[0];
+		}
+
+		byte[] zipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+		if (zipBytes.length == 0) {
+			logger.error("No database ZIP available to send to {}", url);
+		}
+		return zipBytes;
+	}
+
+	private static void registerStartupCallbacksForUrl(String url,
 	        byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes, byte[] logosZipBytes) {
 		logger.info("Startup send mode for {}: BINARY(database_zip)", url);
 
@@ -358,12 +365,9 @@ public class WebSocketSender {
 				// Register missing data callbacks FIRST (before onOpenCallback)
 				// This ensures callbacks are available if the connection opens immediately
 				sender.setMissingDataCallback("database", () -> {
-					// Create ZIP on-demand when requested
-					byte[] zipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+						byte[] zipBytes = createFreshDatabaseZipBytes(url);
 					if (zipBytes.length > 0) {
 						sender.sendBinary("database_zip", zipBytes);
-					} else {
-						logger.error("No database ZIP available to send to {}", url);
 					}
 				});
 
@@ -397,7 +401,7 @@ public class WebSocketSender {
 
 					// Send database FIRST as binary ZIP
 					// Create ZIP now that socket is open - no race condition
-					byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+					byte[] databaseZipBytes = createFreshDatabaseZipBytes(url);
 					if (databaseZipBytes.length > 0) {
 						boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
 						if (sent) {
@@ -405,8 +409,6 @@ public class WebSocketSender {
 						} else {
 							logger.error("Could not send startup database_zip via WebSocket to {} (socket not ready)", url);
 						}
-					} else {
-						logger.error("No database ZIP prepared for startup send to {}", url);
 					}
 
 					// Send binary frames AFTER authentication (requires valid updateKey from database message)
