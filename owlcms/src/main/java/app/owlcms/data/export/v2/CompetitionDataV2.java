@@ -111,7 +111,7 @@ public class CompetitionDataV2 {
 			PipedInputStream in = new PipedInputStream(out);
 			new Thread(() -> {
 				try {
-					writerWithDefaultPrettyPrinter.writeValue(out, this.fromDatabase());
+					writerWithDefaultPrettyPrinter.writeValue(out, this);
 					out.flush();
 					out.close();
 				} catch (Throwable e) {

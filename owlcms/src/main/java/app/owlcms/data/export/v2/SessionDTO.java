@@ -19,7 +19,7 @@ import app.owlcms.data.platform.PlatformRepository;
  * Uses platform name/code instead of ID reference.
  */
 public class SessionDTO {
-	
+
 	private String name;
 	private String platformName;  // Instead of platform ID
 	private String description;

@@ -12,10 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.ObjectUtils;
@@ -528,10 +526,6 @@ public class TeamResultsContent extends BaseContent
 		Gender genderValue = this.genderFilter != null ? this.genderFilter.getValue() : null;
 		Ranking competitionScoring = Competition.getCurrent() != null ? Competition.getCurrent().getScoringSystem() : null;
 		return TeamResultsDisplayRules.getRequiredScoreRankings(getChampionship(), genderValue, competitionScoring);
-	}
-
-	private Ranking getChampionshipSelectedRanking(TeamTreeItem item) {
-		return TeamResultsDisplayRules.getChampionshipSelectedRanking(getChampionship(), item);
 	}
 
 	private boolean shouldShowTeamSummaryValue(TeamTreeItem item, Ranking ranking) {
