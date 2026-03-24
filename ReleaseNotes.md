@@ -8,6 +8,19 @@
 
 <br>
 
+**New in Release 66**
+
+66.0.0: Mixed Team Championships
+  - Allow explicit nomination of a mixed team, or implicit men and women combined
+  - A gender-equitable scoring system (e.g. GAMX) can be applied, independently of the gendered teams scoring
+  
+66.0.0: Enhanced definition of Championships
+  - Championships now define all the awards
+    - best athlete scoring systems
+    - medaling rules (total or per event), medaling on score or lifted weight
+    - points awarded
+    - scoring systems for gendered teams and for mixed teams
+
 **New in Release 65**
 
 65.0.0: Act as record repository :
