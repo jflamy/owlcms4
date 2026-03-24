@@ -2250,9 +2250,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 						String jsonDatabase = export.json();
 						double ratio = 100.0 * (1.0 - (double) databaseZipBytes.length / jsonDatabase.getBytes().length);
 						logger.info(
-							"{}sent database ZIP via WebSocket to {} ({} bytes, from {}, {:.1f}% reduction)",
+							"{}sent database ZIP via WebSocket to {} ({} bytes, from {}, {}% reduction)",
 							FieldOfPlay.getLoggingName(getFop()), url, databaseZipBytes.length,
-							jsonDatabase.getBytes().length, ratio
+							jsonDatabase.getBytes().length, String.format("%.1f", ratio)
 						);
 					} else {
 						logger.debug(
