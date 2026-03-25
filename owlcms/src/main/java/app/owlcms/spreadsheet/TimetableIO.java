@@ -162,7 +162,7 @@ public class TimetableIO {
      * @return List of imported timetable entries
      * @throws IOException If read fails
      */
-    //FIXME: errors are not reported to user, only logged - need to collect and report back in UI
+    //to be fixed: errors are not reported to user, only logged - need to collect and report back in UI
     public static List<TechnicalOfficialsTimetable> importTimetable(InputStream in) throws IOException {
         List<TechnicalOfficialsTimetable> result = new ArrayList<>();
 
