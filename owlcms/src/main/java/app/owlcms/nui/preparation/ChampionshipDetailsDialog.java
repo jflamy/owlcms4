@@ -18,6 +18,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -210,17 +211,23 @@ public class ChampionshipDetailsDialog extends Dialog {
 		FormLayout mixedLayout = new FormLayout();
 		mixedLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
 
+		Checkbox mixedTeamEnabledField = new Checkbox();
+		mixedTeamEnabledField.setValue(championship.isMixedTeamEnabled());
 		NativeLabel mixedTitle = new NativeLabel(Translator.translate("Championship.MixedTeam"));
 		mixedTitle.getStyle().set("font-weight", "bold");
-		mixedLayout.add(mixedTitle);
-		mixedLayout.setColspan(mixedTitle, 2);
+		HorizontalLayout mixedHeader = new HorizontalLayout(mixedTeamEnabledField, mixedTitle);
+		mixedHeader.setAlignItems(Alignment.CENTER);
+		mixedHeader.setSpacing(true);
+		mixedLayout.add(mixedHeader);
+		mixedLayout.setColspan(mixedHeader, 2);
 
 		IntegerField explicitTeamSizeField = new IntegerField();
 		explicitTeamSizeField.setValue(championship.getExplicitTeamSize());
-		explicitTeamSizeField.setEnabled(championship.isExplicitMixedTeamMembers());
+		explicitTeamSizeField.setEnabled(championship.isMixedTeamEnabled() && championship.isExplicitMixedTeamMembers());
 
 		Checkbox explicitMixedField = new Checkbox();
 		explicitMixedField.setValue(championship.isExplicitMixedTeamMembers());
+		explicitMixedField.setEnabled(championship.isMixedTeamEnabled());
 
 		// Mixed team ranking method: sum of points vs sum of scores
 		RadioButtonGroup<String> mixedMethodField = new RadioButtonGroup<>();
@@ -229,11 +236,12 @@ public class ChampionshipDetailsDialog extends Dialog {
 		mixedMethodField.setWidthFull();
 		String mixedMethodInitial = championship.getMixedTeamScoringSystem() != null ? SUM_OF_SCORES : SUM_OF_POINTS;
 		mixedMethodField.setValue(mixedMethodInitial);
+		mixedMethodField.setEnabled(championship.isMixedTeamEnabled());
 		mixedLayout.addFormItem(mixedMethodField, Translator.translate("Championship.teamRankingMethod"));
 
 		ComboBox<Ranking> mixedTeamScoringSystemField = createRankingCombo();
 		mixedTeamScoringSystemField.setValue(championship.getMixedTeamScoringSystem());
-		mixedTeamScoringSystemField.setEnabled(SUM_OF_SCORES.equals(mixedMethodInitial));
+		mixedTeamScoringSystemField.setEnabled(championship.isMixedTeamEnabled() && SUM_OF_SCORES.equals(mixedMethodInitial));
 		mixedLayout.addFormItem(mixedTeamScoringSystemField, Translator.translate("Championship.teamScoringSystem"));
 
 		mixedMethodField.addValueChangeListener(e -> {
@@ -264,15 +272,33 @@ public class ChampionshipDetailsDialog extends Dialog {
 
 		IntegerField mixedBestNField = new IntegerField();
 		mixedBestNField.setValue(zeroAsEmpty(championship.getMixedBestN()));
+		mixedBestNField.setEnabled(championship.isMixedTeamEnabled());
 		mixedLayout.addFormItem(mixedBestNField, Translator.translate("Championship.mixedBestN"));
 
 		IntegerField mixedMensBestNField = new IntegerField();
 		mixedMensBestNField.setValue(zeroAsEmpty(championship.getMixedMensBestN()));
+		mixedMensBestNField.setEnabled(championship.isMixedTeamEnabled());
 		mixedLayout.addFormItem(mixedMensBestNField, Translator.translate("Championship.mixedMensBestN"));
 
 		IntegerField mixedWomensBestNField = new IntegerField();
 		mixedWomensBestNField.setValue(zeroAsEmpty(championship.getMixedWomensBestN()));
+		mixedWomensBestNField.setEnabled(championship.isMixedTeamEnabled());
 		mixedLayout.addFormItem(mixedWomensBestNField, Translator.translate("Championship.mixedWomensBestN"));
+
+		// Enable/disable all mixed fields when the Mixed Team checkbox is toggled
+		mixedTeamEnabledField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
+			boolean enabled = Boolean.TRUE.equals(e.getValue());
+			mixedMethodField.setEnabled(enabled);
+			mixedTeamScoringSystemField.setEnabled(enabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
+			explicitMixedField.setEnabled(enabled);
+			explicitTeamSizeField.setEnabled(enabled && Boolean.TRUE.equals(explicitMixedField.getValue()));
+			mixedBestNField.setEnabled(enabled);
+			mixedMensBestNField.setEnabled(enabled);
+			mixedWomensBestNField.setEnabled(enabled);
+		});
 
 		content.add(mixedLayout);
 
@@ -297,6 +323,7 @@ public class ChampionshipDetailsDialog extends Dialog {
 			championship.setMensBestN(emptyAsZero(mensBestNField.getValue()));
 			championship.setWomensBestN(emptyAsZero(womensBestNField.getValue()));
 			championship.setExplicitMixedTeamMembers(explicitMixedField.getValue());
+			championship.setMixedTeamEnabled(mixedTeamEnabledField.getValue());
 			championship.setExplicitTeamSize(explicitTeamSizeField.getValue());
 			// Mixed team scoring: null means sum-of-points, non-null means sum-of-scores
 			championship.setMixedTeamScoringSystem(

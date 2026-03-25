@@ -258,6 +258,9 @@ public class Championship implements Comparable<Championship>, Serializable {
 	@Column(columnDefinition = "boolean default false")
 	private boolean explicitMixedTeamMembers = false;
 
+	@Column(columnDefinition = "boolean default false")
+	private boolean mixedTeamEnabled = false;
+
 	@Enumerated(EnumType.STRING)
 	private Ranking teamScoringSystem;
 
@@ -511,6 +514,14 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public void setExplicitMixedTeamMembers(boolean explicitMixedTeamMembers) {
 		this.explicitMixedTeamMembers = explicitMixedTeamMembers;
+	}
+
+	public boolean isMixedTeamEnabled() {
+		return this.mixedTeamEnabled;
+	}
+
+	public void setMixedTeamEnabled(boolean mixedTeamEnabled) {
+		this.mixedTeamEnabled = mixedTeamEnabled;
 	}
 
 	public void setMensBestN(Integer mensBestN) {

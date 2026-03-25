@@ -288,6 +288,7 @@ public class CompetitionData {
 							existing.setMaxTeamSize(c.getMaxTeamSize());
 							existing.setMaxPerCategory(c.getMaxPerCategory());
 							existing.setExplicitMixedTeamMembers(c.isExplicitMixedTeamMembers());
+							existing.setMixedTeamEnabled(c.isMixedTeamEnabled());
 							existing.setTeamScoringSystem(c.getTeamScoringSystem());
 							existing.setMixedTeamScoringSystem(c.getMixedTeamScoringSystem());
 							em.merge(existing);

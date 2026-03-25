@@ -35,6 +35,7 @@ public class ChampionshipDTO {
 	private Integer maxTeamSize;
 	private Integer maxPerCategory;
 	private boolean explicitMixedTeamMembers;
+	private boolean mixedTeamEnabled = false;
 	private Ranking teamScoringSystem;
 	private Ranking mixedTeamScoringSystem;
 
@@ -65,6 +66,7 @@ public class ChampionshipDTO {
 		dto.setMaxTeamSize(championship.getMaxTeamSize());
 		dto.setMaxPerCategory(championship.getMaxPerCategory());
 		dto.setExplicitMixedTeamMembers(championship.isExplicitMixedTeamMembers());
+		dto.setMixedTeamEnabled(championship.isMixedTeamEnabled());
 		dto.setTeamScoringSystem(championship.getTeamScoringSystem());
 		dto.setMixedTeamScoringSystem(championship.getMixedTeamScoringSystem());
 		return dto;
@@ -89,6 +91,7 @@ public class ChampionshipDTO {
 		championship.setMaxTeamSize(this.maxTeamSize);
 		championship.setMaxPerCategory(this.maxPerCategory);
 		championship.setExplicitMixedTeamMembers(this.explicitMixedTeamMembers);
+		championship.setMixedTeamEnabled(this.mixedTeamEnabled);
 		championship.setTeamScoringSystem(this.teamScoringSystem);
 		championship.setMixedTeamScoringSystem(this.mixedTeamScoringSystem);
 		return championship;
@@ -244,6 +247,14 @@ public class ChampionshipDTO {
 
 	public void setExplicitMixedTeamMembers(boolean explicitMixedTeamMembers) {
 		this.explicitMixedTeamMembers = explicitMixedTeamMembers;
+	}
+
+	public boolean isMixedTeamEnabled() {
+		return mixedTeamEnabled;
+	}
+
+	public void setMixedTeamEnabled(boolean mixedTeamEnabled) {
+		this.mixedTeamEnabled = mixedTeamEnabled;
 	}
 
 	public Ranking getTeamScoringSystem() {
