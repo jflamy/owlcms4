@@ -10,6 +10,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -50,6 +51,12 @@ import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class NRegistrationFileUploadDialog extends Dialog {
+	private static final Set<String> ACCEPTED_SPREADSHEET_EXTENSIONS = Set.of(".xls", ".xlsx");
+	private static final String XLS_CONTENT_TYPE = "application/vnd.ms-excel";
+	private static final String XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+	private static final String REGISTRATION_REPLACE_WARNING_KEY = "Upload.RegistrationWarningWillReplaceAll";
+	private static final String UNSUPPORTED_REGISTRATION_UPLOAD_MESSAGE = "Only XLSX and XLS formats are supported";
+	private static final String UNSUPPORTED_REGISTRATION_UPLOAD_MESSAGE_KEY = "Upload.UnsupportedSpreadsheetFormat";
 
 	public final static Logger logger = (Logger) LoggerFactory.getLogger(NRegistrationFileUploadDialog.class);
 	final static Logger jxlsLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.reader.SimpleBlockReaderImpl");
@@ -71,9 +78,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 		// Capture locale now while still on UI thread - will be used in upload callback
 		this.capturedLocale = OwlcmsSession.getLocale();
 
-		// Keep the exported-Excel translation in the master file, but in the interactive UI we
-		// show a simple English warning text (non-translated) and log the canonical warning if needed.
-		H5 label = new H5("Warning: this will replace all existing data.");
+		H5 label = new H5(Translator.translate(REGISTRATION_REPLACE_WARNING_KEY));
 		label.getStyle().set("color", "red");
 		H5 sbdeLabel = new H5(Translator.translate("SBDE.AthleteOptions_WARNING"));
 		sbdeLabel.getStyle().set("color", "red");
@@ -99,6 +104,11 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			        ? new NRegistrationFileProcessor(sbdeFormat, this.capturedLocale)
 			        : new NRegistrationFileProcessor(sbdeFormat, this.capturedLocale);
 			this.fileName = metadata.fileName();
+			if (!isAcceptedSpreadsheetUpload(metadata.fileName(), metadata.contentType())) {
+				logger.warn("Rejected registration upload fileName={} contentType={}", metadata.fileName(), metadata.contentType());
+				appendErrors(ta, getUnsupportedRegistrationUploadMessage());
+				return;
+			}
 			
 			// Check if this is a sessions-only file by looking at A2 of first sheet
 			boolean isSessionsOnly = false;
@@ -123,6 +133,8 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		Upload upload = new Upload(uploadHandler);
 		upload.setWidth("40em");
+		upload.setAcceptedFileTypes(XLS_CONTENT_TYPE, XLSX_CONTENT_TYPE, ".xls", ".xlsx");
+		upload.addFileRejectedListener(event -> appendErrors(ta, getUnsupportedRegistrationUploadMessage()));
 
 		H3 title = new H3(Translator.translate("UploadRegistrationFile"));
 		VerticalLayout vl;
@@ -380,6 +392,32 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			}
 			ta.setVisible(true);
 		}
+	}
+
+	private void appendErrors(TextArea ta, String message) {
+		if (message == null || message.isBlank()) {
+			return;
+		}
+		StringBuffer sb = new StringBuffer();
+		sb.append(message).append('\n');
+		updateDisplay(ta, sb);
+	}
+
+	private String getUnsupportedRegistrationUploadMessage() {
+		String translated = Translator.translateOrElseNull(UNSUPPORTED_REGISTRATION_UPLOAD_MESSAGE_KEY, capturedLocale);
+		return translated != null && !translated.isBlank() ? translated : UNSUPPORTED_REGISTRATION_UPLOAD_MESSAGE;
+	}
+
+	private boolean isAcceptedSpreadsheetUpload(String uploadedFileName, String contentType) {
+		String normalizedFileName = uploadedFileName == null ? "" : uploadedFileName.toLowerCase(Locale.ROOT);
+		boolean acceptedExtension = ACCEPTED_SPREADSHEET_EXTENSIONS.stream().anyMatch(normalizedFileName::endsWith);
+		if (!acceptedExtension) {
+			return false;
+		}
+		if (contentType == null || contentType.isBlank()) {
+			return true;
+		}
+		return XLS_CONTENT_TYPE.equalsIgnoreCase(contentType) || XLSX_CONTENT_TYPE.equalsIgnoreCase(contentType);
 	}
 
 	private void openRestartConfirmation() {
