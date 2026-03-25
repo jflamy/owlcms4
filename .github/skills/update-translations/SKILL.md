@@ -68,6 +68,7 @@ When updating wording, derive the key from the actual `Translator.*` call in cod
 - Leave regional-variant locale columns blank by default.
 - Exception: provide translations for `es_ES`, `es_SV`, `es_EC`, and `zh_HANT` when those columns are present.
 - Keep `es_419` blank.
+- Leave fake language columns such as `ia` and `io` blank if they are present in the header.
 - Leave the last two named columns blank.
 - Button text changes such as revising wording to `Keep Latest Official Records` are translation-update tasks and should normally reuse the existing key.
 - When revising existing UI wording, derive the key from the UI code that renders the text, label, tooltip, or menu item rather than guessing the key name.
@@ -92,6 +93,7 @@ When updating wording, derive the key from the actual `Translator.*` call in cod
 - For UI wording updates, inspect the button, label, tooltip, or menu definition in Java or frontend code to identify the exact translation key before preparing the `.tsv` row, usually by locating the relevant `Translator.*` call.
 - In this repository's translation TSVs, leave regional-variant locale columns blank except for `es_ES`, `es_SV`, `es_EC`, and `zh_HANT`.
 - In this repository's translation TSVs, keep `es_419` blank.
+- In this repository's translation TSVs, leave fake language columns such as `ia` and `io` blank.
 - In this repository's translation TSVs, leave the last two named columns blank.
 
 ## Expected Output
