@@ -149,7 +149,13 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		super.slaveBreakStart(e);
-		if (e.getBreakType() == BreakType.JURY || e.getBreakType() == BreakType.CHALLENGE) {
+	}
+
+	@Subscribe
+	public void slaveJuryNotification(UIEvent.JuryNotification e) {
+		JuryDeliberationEventType type = e.getDeliberationEventType();
+		if (type == JuryDeliberationEventType.START_DELIBERATION
+		        || type == JuryDeliberationEventType.CHALLENGE) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 				resetJuryVoting();
 			});

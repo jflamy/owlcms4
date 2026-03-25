@@ -7,6 +7,7 @@
 
 package app.owlcms.nui.referee;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.ShortcutRegistration;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -51,6 +55,7 @@ import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
@@ -74,10 +79,12 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private Icon[] juryIcons;
 	private Boolean[] juryVotes;
 	private Div[] juryVoteCells;
+	private Div refDecisionHost;
 	private Location location;
 	private UI locationUI;
 	private EventBus uiEventBus;
 	private Map<String, List<String>> urlParams;
+	private final List<ShortcutRegistration> registrations = new ArrayList<>();
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public JuryKeypadContent() {
@@ -93,7 +100,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	@Override
 	public String getPageTitle() {
-		return Translator.translate("Jury") + " keypad" + FieldOfPlay.getFopNameIfMultiple(getFop());
+		return Translator.translate("Jury_Keypad") + FieldOfPlay.getFopNameIfMultiple(getFop());
 	}
 
 	@Override
@@ -107,7 +114,13 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
-		if (e.getBreakType() == BreakType.JURY || e.getBreakType() == BreakType.CHALLENGE) {
+	}
+
+	@Subscribe
+	public void slaveJuryNotification(UIEvent.JuryNotification e) {
+		JuryDeliberationEventType deliberationType = e.getDeliberationEventType();
+		if (deliberationType == JuryDeliberationEventType.START_DELIBERATION
+		        || deliberationType == JuryDeliberationEventType.CHALLENGE) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetJuryVoting);
 		}
 	}
@@ -157,14 +170,76 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-		OwlcmsSession.withFop(fop -> this.uiEventBus = uiEventBusRegister(this, fop));
+		registerShortcuts();
+		OwlcmsSession.withFop(fop -> {
+			setFop(fop);
+			this.uiEventBus = uiEventBusRegister(this, fop);
+			attachLiveDecisions(fop);
+		});
+	}
+
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		clearShortcutRegistrations();
+		super.onDetach(detachEvent);
 	}
 
 	private Icon bigIcon(VaadinIcon iconDef, String color) {
 		Icon icon = iconDef.create();
-		icon.setSize("min(8rem, 15vh)");
+		icon.setSize("min(10rem, 18vh)");
 		icon.getStyle().set("color", color);
 		return icon;
+	}
+
+	private Key getBadKey(int index) {
+		switch (index) {
+			case 0:
+				return Key.DIGIT_2;
+			case 1:
+				return Key.DIGIT_4;
+			case 2:
+				return Key.DIGIT_6;
+			case 3:
+				return Key.DIGIT_8;
+			case 4:
+				return Key.DIGIT_0;
+			default:
+				return Key.UNIDENTIFIED;
+		}
+	}
+
+	private Key getGoodKey(int index) {
+		switch (index) {
+			case 0:
+				return Key.DIGIT_1;
+			case 1:
+				return Key.DIGIT_3;
+			case 2:
+				return Key.DIGIT_5;
+			case 3:
+				return Key.DIGIT_7;
+			case 4:
+				return Key.DIGIT_9;
+			default:
+				return Key.UNIDENTIFIED;
+		}
+	}
+
+	private void attachLiveDecisions(FieldOfPlay fop) {
+		if (fop == null || this.refDecisionHost == null) {
+			return;
+		}
+		this.refDecisionHost.removeAll();
+		this.liveDecisions = new JuryDisplayDecisionElement();
+		this.liveDecisions.setFop(fop);
+		this.liveDecisions.setDisplaySize("large");
+		this.liveDecisions.setSilenced(true);
+		this.liveDecisions.getElement().setAttribute("theme", "dark");
+		this.liveDecisions.getStyle().set("background-color", "black");
+		this.liveDecisions.getStyle().set("font-size", "100%");
+		Div refDecisionWrapper = new Div(this.liveDecisions);
+		refDecisionWrapper.getStyle().set("width", "60%").set("height", "100%");
+		this.refDecisionHost.add(refDecisionWrapper);
 	}
 
 	private void buildContent(VerticalLayout container) {
@@ -182,7 +257,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        .set("display", "grid")
 		        .set("grid-template-columns", "repeat(5, 1fr)")
 		        .set("grid-template-rows", "auto auto 22vh 12vh 2vh auto 22vh 12vh")
-		        .set("gap", "2px")
+		        .set("gap", "4px")
+		        .set("background", "black")
 		        .set("padding", "0.5rem")
 		        .set("box-sizing", "border-box")
 		        .set("max-height", "100vh")
@@ -192,12 +268,15 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.setAlignItems(Alignment.CENTER);
 		toolbar.setWidthFull();
-		H2 title = new H2(Translator.translate("Jury") + " keypad");
+		H2 title = new H2(Translator.translate("Jury_Keypad"));
 		title.getStyle().set("margin", "0");
 		ComboBox<FieldOfPlay> fopSelect = createFopSelect();
 		fopSelect.setValue(OwlcmsSession.getFop());
 		fopSelect.addValueChangeListener((e) -> {
+			setFop(e.getValue());
 			OwlcmsSession.setFop(e.getValue());
+			this.uiEventBus = uiEventBusRegister(this, e.getValue());
+			attachLiveDecisions(e.getValue());
 			if (this.location != null && this.locationUI != null) {
 				Location location2 = new Location(this.location.getPath(), new QueryParameters(this.urlParams));
 				URLUtils.replaceState(this.locationUI.getPage().getHistory(), null, location2, this.location);
@@ -209,48 +288,46 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 		// --- Row 2: Referee Decisions label ---
 		Div refLabel = new Div();
-		refLabel.setText("Referee Decisions");
+		refLabel.setText(Translator.translate("RefereeDecisions"));
 		refLabel.getStyle()
 		        .set("grid-column", "1 / -1").set("grid-row", "2")
+		        .set("background", "black")
 		        .set("color", "var(--lumo-secondary-text-color)")
+		        .set("display", "flex")
+		        .set("align-items", "flex-end")
 		        .set("font-size", "0.85rem")
 		        .set("font-weight", "bold")
-		        .set("padding", "0.25rem 0 0 0.25rem")
+		        .set("padding", "0 0 0.25rem 0.5rem")
 		        .set("text-transform", "uppercase")
 		        .set("letter-spacing", "0.05em");
 
 		// --- Row 3: Referee decision display (tall, above summon buttons) ---
-		this.liveDecisions = new JuryDisplayDecisionElement();
-		if (getFop() != null) {
-			this.liveDecisions.setFop(getFop());
-		}
-		this.liveDecisions.setDisplaySize("large");
-		this.liveDecisions.setSilenced(true);
-		this.liveDecisions.getElement().setAttribute("theme", "dark");
-		this.liveDecisions.getStyle().set("background-color", "black");
-		this.liveDecisions.getStyle().set("font-size", "100%");
-		Div refDecisionWrapper = new Div(this.liveDecisions);
-		refDecisionWrapper.getStyle().set("width", "60%").set("height", "100%");
-		Div refDecisionArea = new Div(refDecisionWrapper);
+		this.refDecisionHost = new Div();
+		this.refDecisionHost.setSizeFull();
+		this.refDecisionHost.getStyle()
+		        .set("display", "flex")
+		        .set("align-items", "flex-end")
+		        .set("justify-content", "center");
+		Div refDecisionArea = new Div(this.refDecisionHost);
 		refDecisionArea.setSizeFull();
 		refDecisionArea.getStyle()
 		        .set("background", "black")
 		        .set("display", "flex")
-		        .set("align-items", "center")
+		        .set("align-items", "flex-end")
 		        .set("justify-content", "center")
 		        .set("grid-column", "1 / -1")
 		        .set("grid-row", "3")
 		        .set("overflow", "hidden");
 
 		// --- Row 4: Summon buttons (compact) ---
-		Button leftSummon = createKeypadButton("Left Referee\nSummon", "contrast", () -> summonReferee(1));
-		leftSummon.getStyle().set("grid-column", "1").set("grid-row", "4");
-		Button centerSummon = createKeypadButton("Center Referee\nSummon", "contrast", () -> summonReferee(2));
-		centerSummon.getStyle().set("grid-column", "2").set("grid-row", "4");
-		Button rightSummon = createKeypadButton("Right Referee\nSummon", "contrast", () -> summonReferee(3));
-		rightSummon.getStyle().set("grid-column", "3").set("grid-row", "4");
-		Button allSummon = createKeypadButton(Translator.translate("BreakButton.SummonReferees"), "contrast", () -> summonReferee(0));
-		allSummon.getStyle().set("grid-column", "4").set("grid-row", "4");
+		Button allSummon = createKeypadButton(Translator.translate("JuryKeypad.SummonReferees"), "contrast", () -> summonReferee(0));
+		allSummon.getStyle().set("grid-column", "1").set("grid-row", "4");
+		Button leftSummon = createKeypadButton(Translator.translate("JuryKeypad.LeftRefereeSummon"), "contrast", () -> summonReferee(1));
+		leftSummon.getStyle().set("grid-column", "2").set("grid-row", "4");
+		Button centerSummon = createKeypadButton(Translator.translate("JuryKeypad.CenterRefereeSummon"), "contrast", () -> summonReferee(2));
+		centerSummon.getStyle().set("grid-column", "3").set("grid-row", "4");
+		Button rightSummon = createKeypadButton(Translator.translate("JuryKeypad.RightRefereeSummon"), "contrast", () -> summonReferee(3));
+		rightSummon.getStyle().set("grid-column", "4").set("grid-row", "4");
 		Button resumeBtn = createKeypadButton(Translator.translate("JuryNotification.END_JURY_BREAK"), "success primary", this::resumeCompetition);
 		resumeBtn.getStyle().set("grid-column", "5").set("grid-row", "4");
 
@@ -260,13 +337,16 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 		// --- Row 6: Jury Decisions label ---
 		Div juryLabel = new Div();
-		juryLabel.setText("Jury Decisions");
+		juryLabel.setText(Translator.translate("JuryDecisions"));
 		juryLabel.getStyle()
 		        .set("grid-column", "1 / -1").set("grid-row", "6")
+		        .set("background", "black")
 		        .set("color", "var(--lumo-secondary-text-color)")
+		        .set("display", "flex")
+		        .set("align-items", "flex-end")
 		        .set("font-size", "0.85rem")
 		        .set("font-weight", "bold")
-		        .set("padding", "0.25rem 0 0 0.25rem")
+		        .set("padding", "0 0 0.25rem 0.5rem")
 		        .set("text-transform", "uppercase")
 		        .set("letter-spacing", "0.05em");
 
@@ -361,9 +441,12 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private Button createKeypadButton(String label, String theme, Runnable action) {
 		Button button = new Button(label, e -> action.run());
+		button.addClassName("jury-keypad-button");
 		button.addThemeVariants(ButtonVariant.LUMO_LARGE);
 		button.getElement().setAttribute("theme", theme);
-		button.setSizeFull();
+		button.getStyle().set("width", "calc(100% - 6px)");
+		button.getStyle().set("height", "calc(100% - 6px)");
+		button.getStyle().set("place-self", "center");
 		button.getStyle().set("white-space", "normal");
 		button.getStyle().set("text-align", "center");
 		button.getStyle().set("font-size", "clamp(0.7rem, 1.6vw, 1rem)");
@@ -372,6 +455,46 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private int getNbJurors() {
 		return Competition.getCurrent().getJurySize();
+	}
+
+	private void clearShortcutRegistrations() {
+		for (ShortcutRegistration registration : this.registrations) {
+			registration.remove();
+		}
+		this.registrations.clear();
+	}
+
+	private void postJuryMemberDecision(int juryMember, boolean goodBad) {
+		OwlcmsSession.withFop(fop -> {
+			if (juryMember >= getNbJurors()) {
+				return;
+			}
+			fop.fopEventPost(new FOPEvent.JuryMemberDecisionUpdate(this, juryMember, goodBad));
+		});
+	}
+
+	private void registerShortcut(Runnable action, Key key) {
+		UI currentUi = UI.getCurrent();
+		if (currentUi == null || key == Key.UNIDENTIFIED) {
+			return;
+		}
+		this.registrations.add(currentUi.addShortcutListener(action::run, key));
+	}
+
+	private void registerShortcuts() {
+		clearShortcutRegistrations();
+		for (int index = 0; index < getNbJurors(); index++) {
+			final int juryMember = index;
+			registerShortcut(() -> postJuryMemberDecision(juryMember, true), getGoodKey(index));
+			registerShortcut(() -> postJuryMemberDecision(juryMember, false), getBadKey(index));
+		}
+		registerShortcut(this::startDeliberation, Key.KEY_D);
+		registerShortcut(this::startChallenge, Key.KEY_C);
+		registerShortcut(this::startTechnicalBreak, Key.KEY_T);
+		registerShortcut(() -> summonReferee(1), Key.KEY_H);
+		registerShortcut(() -> summonReferee(2), Key.KEY_I);
+		registerShortcut(() -> summonReferee(3), Key.KEY_J);
+		registerShortcut(() -> summonReferee(0), Key.KEY_K);
 	}
 
 	private void juryVote(Integer juryMember, Boolean goodBad, boolean sendFOPEvent) {

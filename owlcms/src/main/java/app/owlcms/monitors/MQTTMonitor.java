@@ -51,6 +51,7 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent.BreakStarted;
@@ -1071,19 +1072,25 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		// logger.debug("mqtt slaveBreakStart {} {}",e, e.getBreakType());
-		if (e.getBreakType() == BreakType.JURY) {
+		if (e.getBreakType() != BreakType.JURY && e.getBreakType() != BreakType.CHALLENGE) {
+			try {
+				publishMqttBreak(e);
+			} catch (MqttException e1) {
+			}
+		}
+	}
+
+	@Subscribe
+	public void slaveJuryNotification(UIEvent.JuryNotification e) {
+		JuryDeliberationEventType type = e.getDeliberationEventType();
+		if (type == JuryDeliberationEventType.START_DELIBERATION) {
 			try {
 				publishMqttJuryDeliberation();
 			} catch (MqttException e1) {
 			}
-		} else if (e.getBreakType() == BreakType.CHALLENGE) {
+		} else if (type == JuryDeliberationEventType.CHALLENGE) {
 			try {
 				publishMqttChallenge();
-			} catch (MqttException e1) {
-			}
-		} else {
-			try {
-				publishMqttBreak(e);
 			} catch (MqttException e1) {
 			}
 		}

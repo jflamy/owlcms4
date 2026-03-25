@@ -50,6 +50,8 @@ import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.simulation.CompetitionSimulator;
+import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
@@ -129,13 +131,26 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 	}
 
 	@Subscribe
+	public void slaveBreakStart(UIEvent.BreakStarted e) {
+	}
+
+	@Subscribe
+	public void slaveJuryNotification(UIEvent.JuryNotification e) {
+		JuryDeliberationEventType deliberationType = e.getDeliberationEventType();
+		if (deliberationType == JuryDeliberationEventType.START_DELIBERATION
+		        || deliberationType == JuryDeliberationEventType.CHALLENGE) {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
+		}
+	}
+
+	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetVote);
 	}
 
 	@Subscribe
 	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
-		if (!CompetitionSimulator.isRunning() || getJuryMemberNumber() == null) {
+		if (getJuryMemberNumber() == null) {
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this, () -> {
@@ -180,7 +195,15 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-		OwlcmsSession.withFop(fop -> this.uiEventBus = uiEventBusRegister(this, fop));
+		OwlcmsSession.withFop(this::bindToFop);
+	}
+
+	private void bindToFop(FieldOfPlay fop) {
+		if (fop == null) {
+			return;
+		}
+		setFop(fop);
+		this.uiEventBus = uiEventBusRegister(this, fop);
 	}
 
 	private Icon bigIcon(VaadinIcon iconDef, String color) {
@@ -215,7 +238,10 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 
 		ComboBox<FieldOfPlay> fopSelect = createFopSelect();
 		fopSelect.setValue(OwlcmsSession.getFop());
-		fopSelect.addValueChangeListener((e) -> OwlcmsSession.setFop(e.getValue()));
+		fopSelect.addValueChangeListener((e) -> {
+			OwlcmsSession.setFop(e.getValue());
+			bindToFop(e.getValue());
+		});
 
 		this.topRow = new HorizontalLayout();
 		this.topRow.add(labelWrapper, fopSelect, this.juryField);
@@ -324,6 +350,8 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 	}
 
 	private void resetVote() {
+		this.redTouched = false;
+		this.whiteTouched = false;
 		this.votingButtons.removeAll();
 		this.good = bigIcon(VaadinIcon.CHECK_CIRCLE, "white");
 		this.good.getElement().addEventListener("touchstart", this::whiteTouched);

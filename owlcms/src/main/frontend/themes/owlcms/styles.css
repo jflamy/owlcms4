@@ -122,3 +122,16 @@ vaadin-grid input[id^="input-vaadin-text-field"] {
     box-shadow: none !important;
     border-color: transparent !important;
 }
+
+vaadin-button.jury-keypad-button {
+    white-space: normal;
+}
+
+vaadin-button.jury-keypad-button::part(label) {
+    display: block;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    text-align: center;
+    line-height: 1.1;
+}
