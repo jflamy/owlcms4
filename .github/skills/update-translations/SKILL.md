@@ -37,6 +37,26 @@ This includes UI wording changes such as revising the text of an existing button
 
 If the task is to change existing UI wording, update the existing translation key row in the `.tsv` file unless the wording change represents a genuinely different concept that requires a new key.
 
+## Translator Class
+
+The `Translator` class used by `owlcms4` is located here:
+
+- `shared/src/main/java/app/owlcms/i18n/Translator.java`
+
+Do not look for `Translator` under `owlcms/src/main/java`; the implementation lives in the shared module and is imported as `app.owlcms.i18n.Translator`.
+
+Use the Java or frontend source that renders the UI to identify the exact translation key before preparing a TSV row.
+
+Common usage patterns:
+
+- `Translator.translate("Key")` for the normal UI translation lookup
+- `Translator.translate("Key", params...)` when the UI string uses parameters
+- `Translator.translateExplicitLocale("Key", locale)` when code pins a specific locale
+- `Translator.translateNoOverrideOrElseNull("Key", locale)` when code wants a nullable result instead of fallback markup
+- `Translator.translateOrElseEn("Key", locale)` when code explicitly falls back to English
+
+When updating wording, derive the key from the actual `Translator.*` call in code rather than guessing from the displayed English text.
+
 ## TSV Rules
 
 - The file must be tab-delimited, not comma-delimited.
@@ -65,10 +85,11 @@ If the task is to change existing UI wording, update the existing translation ke
 
 - `shared/src/main/resources/i18n/translation4.csv` is managed externally and must not be edited by hand.
 - The `.tsv` file is the proposal file for human review and later import into the translation workflow.
+- The runtime translation helper class is `shared/src/main/java/app/owlcms/i18n/Translator.java`.
 - If the task is only to add or change a few keys, create a focused `.tsv` file rather than a broad export.
 - If translation certainty is low for some languages, preserve the row structure and use the best domain-consistent wording available for review.
 - Wording refinements to existing UI strings should generally be treated as translation revisions, not as a reason to proliferate near-duplicate keys.
-- For UI wording updates, inspect the button, label, tooltip, or menu definition in Java or frontend code to identify the exact translation key before preparing the `.tsv` row.
+- For UI wording updates, inspect the button, label, tooltip, or menu definition in Java or frontend code to identify the exact translation key before preparing the `.tsv` row, usually by locating the relevant `Translator.*` call.
 - In this repository's translation TSVs, leave regional-variant locale columns blank except for `es_ES`, `es_SV`, `es_EC`, and `zh_HANT`.
 - In this repository's translation TSVs, keep `es_419` blank.
 - In this repository's translation TSVs, leave the last two named columns blank.
