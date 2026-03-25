@@ -21,6 +21,11 @@
     - points awarded
     - scoring systems for gendered teams and for mixed teams
 
+66.0.0: Jury Member and Jury Keypad for mobile devices
+  - added phone/small tablet support for Jury Member
+  - added tablet support for Jury Keypad.
+  - Jury Keypad can also be used on laptop with USB keypads (same shortcuts as current Jury console) 
+
 **New in Release 65**
 
 65.0.0: Act as record repository :
