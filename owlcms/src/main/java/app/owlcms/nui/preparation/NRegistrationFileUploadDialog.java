@@ -105,7 +105,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			        : new NRegistrationFileProcessor(sbdeFormat, this.capturedLocale);
 			this.fileName = metadata.fileName();
 			if (!isAcceptedSpreadsheetUpload(metadata.fileName(), metadata.contentType())) {
-				logger.warn("Rejected registration upload fileName={} contentType={}", metadata.fileName(), metadata.contentType());
+				logger./**/warn("Rejected registration upload fileName={} contentType={}", metadata.fileName(), metadata.contentType());
 				appendErrors(ta, getUnsupportedRegistrationUploadMessage());
 				return;
 			}
