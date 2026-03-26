@@ -10,10 +10,13 @@ That result may come from:
 - a solo referee decision
 - the announcer entering the final flags outcome
 
-For each such outcome, receivers should expect two decision events to be sent:
+Depending on decision class and feature toggles, receivers may receive either one or two decision events.
 
-- one when the decision outcome is first available
-- one after the reversal delay, even if that delay is empty (if the announcer enters a flag decision, there is no reversal delay afterwards)
+Normal expectation:
+
+- referee-originated decisions normally send `INITIAL_DECISION` and then `FULL_DECISION`
+- announcer entry sends only `FULL_DECISION` by default
+- announcer entry may also send `INITIAL_DECISION` if the announcer-entry initial-emission feature toggle is enabled
 
 ## Envelope Structure
 
@@ -53,10 +56,21 @@ Inside the payload, the current implementation carries:
 
 In both cases, the payload describes the current decision outcome for the lift, not the individual referee-voting process.
 
-In normal operation, both are sent for the same lift outcome:
+In normal referee-decision operation, both are sent for the same lift outcome:
 
 - `initialDecision` when the outcome first becomes available
 - `FULL_DECISION` after the reversal-delay phase completes
+
+For `ANNOUNCER_ENTRY` with default settings:
+
+- no `initialDecision` is sent
+- only `FULL_DECISION` is sent
+
+For `ANNOUNCER_ENTRY` when announcer-entry initial emission is enabled:
+
+- `initialDecision` is sent first
+- it must include `timingPolicy` so the receiver can see that this is a no-reversal-delay decision when applicable
+- `FULL_DECISION` follows immediately for no-reversal-delay announcer entry
 
 Current tracker-core behavior does not use `payload.decisionEventType` as the main dispatch key.
 
@@ -86,6 +100,13 @@ Inside `payload`, the receiver may see:
 - `mode`
 - `competitionName`
 
+Historical UI compatibility note:
+
+- current OWLCMS-style UI receivers still commonly use `singleReferee` to decide between one-light and three-light rendering
+- single-light compatibility remains the center-light convention using `d2`
+- older WebSocket receivers may depend on `singleReferee` and the existing one-light payload shape, so these legacy fields cannot be removed
+- new unambiguous fields may be added, but only alongside the legacy compatibility fields
+
 ## Current Consumer Behavior
 
 - tracker-core routes on outer `type=decision`
@@ -107,6 +128,8 @@ If the receiver wants richer lifecycle behavior:
 - use `timingPolicy` to decide whether to wait after `INITIAL_DECISION`
 - use `attemptId` to correlate `INITIAL_DECISION` and `FULL_DECISION`
 
+If announcer-entry initial emission is disabled, there is no `INITIAL_DECISION` decision point for announcer entry and receivers should act on `FULL_DECISION` only.
+
 ## WebSocket Example: `INITIAL_DECISION`
 
 ```json
@@ -119,7 +142,7 @@ If the receiver wants richer lifecycle behavior:
 		"d1": null,
 		"d2": true,
 		"d3": null,
-		"timingPolicy": "DELAYED",
+		"timingPolicy": "IMMEDIATE",
 		"attemptId": "37-5"
 	}
 }

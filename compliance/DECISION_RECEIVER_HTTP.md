@@ -10,10 +10,13 @@ That result may come from:
 - a solo referee decision
 - the announcer entering the final flags outcome
 
-For each such outcome, receivers should expect two decision events to be sent:
+Depending on decision class and feature toggles, receivers may receive either one or two decision events.
 
-- one when the decision outcome is first available
-- one after the reversal delay, even if that delay is empty (if the announcer enters a flag decision, there is no reversal delay afterwards)
+Normal expectation:
+
+- referee-originated decisions normally send `INITIAL_DECISION` and then `FULL_DECISION`
+- announcer entry sends only `FULL_DECISION` by default
+- announcer entry may also send `INITIAL_DECISION` if the announcer-entry initial-emission feature toggle is enabled
 
 ## Endpoint Structure
 
@@ -21,7 +24,7 @@ There is one HTTP decision endpoint.
 
 There are not separate HTTP endpoints for `INITIAL_DECISION` and `FULL_DECISION`.
 
-Both events are sent to the same configured decision URL.
+Any emitted decision events are sent to the same configured decision URL.
 
 The receiver tells them apart using the form field named `decisionEventType`.
 
@@ -89,6 +92,13 @@ For a receiver that only needs to display decisions, the practical fields are:
 - `timingPolicy`
 - `attemptId`
 
+Historical UI compatibility note:
+
+- current OWLCMS-style UI receivers still commonly use `singleReferee` to decide between one-light and three-light rendering
+- single-light compatibility remains the center-light convention using `d2`
+- older HTTP receivers may depend on `singleReferee` and the existing one-light payload shape, so these legacy fields cannot be removed
+- new unambiguous fields may be added, but only alongside the legacy compatibility fields
+
 ## What Changes Between `INITIAL_DECISION` And `FULL_DECISION`
 
 The endpoint does not change.
@@ -107,10 +117,21 @@ The receiver should treat them like this:
 
 In both cases, the payload describes the current decision outcome for the lift, not the individual referee-voting process.
 
-In normal operation, both are sent for the same lift outcome:
+In normal referee-decision operation, both are sent for the same lift outcome:
 
 - `initialDecision` when the outcome first becomes available
 - `FULL_DECISION` after the reversal-delay phase completes
+
+For `ANNOUNCER_ENTRY` with default settings:
+
+- no `initialDecision` is sent
+- only `FULL_DECISION` is sent
+
+For `ANNOUNCER_ENTRY` when announcer-entry initial emission is enabled:
+
+- `initialDecision` is sent first
+- it must include `timingPolicy` so the receiver can see that this is a no-reversal-delay decision when applicable
+- `FULL_DECISION` follows immediately for no-reversal-delay announcer entry
 
 ## Display Rules For HTTP Receivers
 
@@ -126,10 +147,14 @@ If your receiver wants to react earlier:
 - use `timingPolicy` to decide whether to wait for the final event
 - use `attemptId` to match `initialDecision` and `FULL_DECISION` for the same lift
 
-Even when the reversal delay is empty, the lifecycle is still the same conceptually:
+When announcer-entry initial emission is enabled and the reversal delay is empty, the lifecycle is still the same conceptually:
 
 - first event: initial outcome available
 - second event: final outcome event after the delay phase
+
+When announcer-entry initial emission is disabled:
+
+- there is only the final event for announcer entry
 
 Single-light compatibility stays the same:
 
@@ -154,6 +179,7 @@ Meaning:
 - same HTTP decision endpoint as always
 - this is the initial decision event because `decisionEventType=initialDecision`
 - a receiver may show center light now or wait, depending on its design
+- if `timingPolicy=IMMEDIATE`, this initial event represents a no-reversal-delay path and the final event should follow immediately
 
 ## HTTP Example: `FULL_DECISION`
 

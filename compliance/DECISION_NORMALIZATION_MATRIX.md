@@ -35,6 +35,19 @@ The normalization layer must:
 
 For consumers that inspect `INITIAL_DECISION`, the output must carry enough information to explain how the decision must be handled.
 
+Announcer entry never emits `INITIAL_DECISION`. Only referee-originated decisions (`SOLO_INPUT`, `THREE_REFEREE_INPUT`) emit it.
+
+Default behavior:
+
+- `SOLO_INPUT` and `THREE_REFEREE_INPUT` always emit `INITIAL_DECISION` followed by `FULL_DECISION`
+- `ANNOUNCER_ENTRY` emits only `FULL_DECISION`
+
+When `showDecisionsImmediately` is enabled:
+
+- `INITIAL_DECISION` is still emitted for referee-originated decisions (to trigger videos and downstream consumers)
+- `INITIAL_DECISION` carries `timingPolicy = IMMEDIATE` so the receiver knows `FULL_DECISION` will follow without delay
+- `ANNOUNCER_ENTRY` still emits only `FULL_DECISION`
+
 The receiver-side decision point happens when `INITIAL_DECISION` arrives.
 
 At that moment, the receiver must inspect `timingPolicy` to decide whether to:
@@ -73,7 +86,22 @@ Compatibility constraint:
 
 ## Core Concepts
 
-Three different concepts must remain separate.
+Four different concepts must remain separate.
+
+### Operating Mode
+
+How referee-originated inputs must be interpreted for this FOP.
+
+- `SOLO_REFEREE_MODE`
+- `THREE_REFEREE_MODE`
+
+Operating mode is configured independently from who entered the decision.
+
+In particular:
+
+- announcer entry can occur while the FOP is in `SOLO_REFEREE_MODE`
+- announcer entry can occur while the FOP is in `THREE_REFEREE_MODE`
+- `SOLO_REFEREE_MODE` only changes how referee-originated inputs are interpreted
 
 ### Input Kind
 
@@ -88,7 +116,11 @@ How the decision entered the system.
 It includes:
 
 - explicit decision entry from the announcer user interface
-- explicit decision entry from an announcer-operated solo referee device
+- explicit decision entry from an announcer-operated MQTT device using referee number `0`
+
+`SOLO_INPUT` means referee-originated input interpreted while the FOP is operating in `SOLO_REFEREE_MODE`.
+
+`THREE_REFEREE_INPUT` means referee-originated input interpreted while the FOP is operating in `THREE_REFEREE_MODE`.
 
 ### Display Form
 
@@ -99,23 +131,76 @@ How the decision should be rendered.
 
 ### Timing Policy
 
-Whether the decision should wait through the reversal window or not.
+Whether the decision goes through the reversal window before becoming official.
 
-- `IMMEDIATE`
-- `DELAYED`
+- `IMMEDIATE` — no reversal window; `FULL_DECISION` follows without delay
+- `DELAYED` — reversal window applies; `FULL_DECISION` is deferred by `REVERSAL_DELAY` (currently 3000ms)
 
-The timing policy is controlled independently per decision class.
+#### Current FieldOfPlay.java Behavior
 
-Policy flags:
+Today the code does not have a `timingPolicy` field. Instead, timing is controlled by two hard-wired mechanisms:
 
-- `announcerEntryIsImmediate` default `true`
-- `soloRefereeIsImmediate` default `false`
-- `threeRefereeIsImmediate` default `false`
+1. **`refereeForcedDecision` bypass**: Both announcer entry and solo referee input go through `simulateDecision()`, which sets `refereeForcedDecision = true`. In `processRefereeDecisions()`, the `isRefereeForcedDecision()` check calls `showDecisionNow()` directly — no `INITIAL_DECISION` is emitted, no reversal delay applies.
+
+2. **`REVERSAL_DELAY` constant**: Three-referee decisions that reach majority go through `processDecisionDelay()`, which calls `emitInitialDecisionEvent()` then schedules `showDecisionNow()` after `REVERSAL_DELAY` (3000ms). During this window, referees can change their vote.
+
+Current behavior summary:
+
+| Input path | Code mechanism | INITIAL_DECISION emitted | Reversal delay |
+|---|---|---|---|
+| Announcer entry | `simulateDecision` → `refereeForcedDecision=true` → `showDecisionNow` | No | None |
+| Solo referee | `doPossiblySoloRefereeUpdate` → `simulateDecision` → `refereeForcedDecision=true` → `showDecisionNow` | No | None |
+| Three referees (MQTT individual) | `processDecisionDelay` → `emitInitialDecisionEvent` + `showDecisionAfterDelay` | Yes | 3000ms |
+| Three referees (DecisionFullUpdate, immediate=false) | same as above | Yes | 3000ms |
+
+#### Normalization Target
+
+The normalized model replaces the `refereeForcedDecision` bypass with explicit `timingPolicy` derived from two concerns:
+
+1. **Announcer entry is always `IMMEDIATE`**: announcer decisions have no reversal window and never emit `INITIAL_DECISION`.
+
+2. **`showDecisionsImmediately` feature toggle** (default `false`, changeable live): when enabled, overrides referee-originated decisions to `IMMEDIATE`. This is a live toggle — it can be changed at any time during competition and takes effect on the next decision. This applies to both solo and three-referee input. Even when `IMMEDIATE`, referee-originated decisions still emit `INITIAL_DECISION` (to trigger videos and downstream consumers).
+
+Resulting `timingPolicy` resolution:
+
+| inputKind | `showDecisionsImmediately = false` | `showDecisionsImmediately = true` |
+|---|---|---|
+| `ANNOUNCER_ENTRY` | `IMMEDIATE` | `IMMEDIATE` |
+| `SOLO_INPUT` | `DELAYED` | `IMMEDIATE` |
+| `THREE_REFEREE_INPUT` | `DELAYED` | `IMMEDIATE` |
+
+Behavioral changes from current code:
+
+- **Solo input gets reversal delay** (default): today solo has no delay because it shares the `refereeForcedDecision` bypass with announcer entry. After normalization, solo goes through `processDecisionDelay()` and gets the 3-second reversal window.
+- **`showDecisionsImmediately` restores the old solo behavior globally**: when enabled, all referee-originated decisions skip the reversal delay, but `INITIAL_DECISION` is still emitted with `timingPolicy = IMMEDIATE`.
+
+#### Required FieldOfPlay.java Evolution
+
+To implement the normalization target, `FieldOfPlay.java` must change:
+
+1. **Remove the solo→simulateDecision collapse**: `doPossiblySoloRefereeUpdate()` must stop routing solo referee input through `simulateDecision()`. Instead, solo input must go through the same `processDecisionDelay()` path as three-referee input.
+
+2. **Stop setting `refereeForcedDecision` for solo input**: Only announcer entry should set `refereeForcedDecision = true`. Solo referee input must not use the forced-decision bypass.
+
+3. **Emit `INITIAL_DECISION` for solo input**: Since solo input now goes through `processDecisionDelay()`, `emitInitialDecisionEvent()` will be called, and the 3-second reversal window will apply by default.
+
+4. **Preserve the announcer-entry fast path**: Announcer entry continues to set `refereeForcedDecision = true` and call `showDecisionNow()` directly. Announcer entry never emits `INITIAL_DECISION`.
+
+5. **Add `showDecisionsImmediately` live toggle**: A runtime-changeable feature toggle on the FOP. When enabled, `processDecisionDelay()` still calls `emitInitialDecisionEvent()` but then calls `showDecisionNow()` instead of `showDecisionAfterDelay()`. The toggle takes effect on the next decision without requiring a restart.
+
+6. **Add `timingPolicy` to decision events**: Both `UIEvent.InitialDecision` and `UIEvent.Decision` (or their replacements) must carry `timingPolicy` so downstream consumers can distinguish `IMMEDIATE` from `DELAYED` without inferring it from the code path.
+
+Derived predicate for emission:
+
+- `isInitialDecisionEmitted(inputKind) = (inputKind != ANNOUNCER_ENTRY)`
+
+Meaning: referee-originated decisions (`SOLO_INPUT`, `THREE_REFEREE_INPUT`) always emit `INITIAL_DECISION`; announcer entry never does.
 
 ## Canonical Internal Fields
 
 Each incoming decision event must normalize to the following canonical fields before downstream decision logic runs.
 
+- `operatingMode`
 - `inputKind`
 - `majorityReached`
 - `decisionValue`
@@ -126,6 +211,7 @@ Each incoming decision event must normalize to the following canonical fields be
 
 Field meanings:
 
+- `operatingMode`: configured referee operating mode for the FOP. Values: `SOLO_REFEREE_MODE`, `THREE_REFEREE_MODE`
 - `inputKind`: normalized source category of the input. Values: `ANNOUNCER_ENTRY`, `SOLO_INPUT`, `THREE_REFEREE_INPUT`
 - `majorityReached`: true when this normalized input is sufficient to produce a decision lifecycle
 - `decisionValue`: the semantic decision after normalization, regardless of whether it came from explicit entry, solo collapse, or three-referee majority
@@ -135,7 +221,7 @@ Field meanings:
 Derived predicates:
 
 - `announcerEntry = (inputKind == ANNOUNCER_ENTRY)`
-- `soloMode = (inputKind == SOLO_INPUT)`
+- `soloMode = (operatingMode == SOLO_REFEREE_MODE)`
 - `singleRefereeLight = (inputKind != THREE_REFEREE_INPUT)`
 
 Derivation rules:
@@ -155,10 +241,11 @@ Derivation rules:
 	- set `decisionValue` to the posted good/bad value
 	- set `majorityReached = true`
 	- leave `rawRef1/rawRef2/rawRef3` unset because no actual referee lamp inputs exist
-	- this rule applies whether the explicit announcer decision came from the announcer UI or from an announcer-operated solo device
+	- this rule applies whether the explicit announcer decision came from the announcer UI or from an announcer-operated MQTT device using referee number `0`
 
 - Solo normalization also collapses to one explicit decision, regardless of device-side encoding:
 	- set `inputKind = SOLO_INPUT`
+	- this only applies when `operatingMode = SOLO_REFEREE_MODE` and the source is referee input, not announcer entry
 	- if the device sent one numbered referee input, use that first valid input as `decisionValue`
 	- if the device sent synthetic three whites or three reds, derive one solo `decisionValue` from that synthetic unanimity
 	- set `majorityReached = true` once that single solo decision is identified
@@ -169,52 +256,63 @@ Derivation rules:
 
 | Incoming form | Detection | inputKind | majorityReached | decisionValue | raw referee values | timingPolicy |
 |---|---|---|---|---|---|---|
-| Announcer button explicit decision | announcer UI posts explicit good/bad decision | `ANNOUNCER_ENTRY` | `true` | explicit good/bad | unset; no actual referee lamp inputs exist | `announcerEntryIsImmediate ? IMMEDIATE : DELAYED` |
-| Announcer-operated solo device explicit decision | parsed `DecisionUpdate.refIndex < 0` from announcer-operated solo device | `ANNOUNCER_ENTRY` | `true` | explicit good/bad | preserve raw pattern only if the device actually emitted referee-lamp-style values | `announcerEntryIsImmediate ? IMMEDIATE : DELAYED` |
-| Solo mode, one numbered referee input | `soloMode=true` and first valid referee input arrives | `SOLO_INPUT` | `true` on first valid input | value of that first valid input | preserve the received raw referee pattern as forensic evidence | `soloRefereeIsImmediate ? IMMEDIATE : DELAYED` |
-| Solo-capable device sends synthetic 3 whites / 3 reds | FOP configured `soloMode=true`, device emits full majority shape | `SOLO_INPUT` | `true` | derived from synthetic majority | preserve the received synthetic raw pattern as forensic evidence | `soloRefereeIsImmediate ? IMMEDIATE : DELAYED` |
-| Solo mode off, device sends 3 identical referee lights | `soloMode=false`, raw 3-light pattern such as 3 white or 3 red | `THREE_REFEREE_INPUT` | `true` once majority exists | computed majority | preserve actual individual lamp values | `threeRefereeIsImmediate ? IMMEDIATE : DELAYED` |
-| Normal three-referee updates before majority | `soloMode=false`, numbered referee updates, no majority yet | `THREE_REFEREE_INPUT` | `false` | none yet | preserve actual individual lamp values | no final timing decision yet |
-| Normal three-referee majority reached | `soloMode=false`, numbered inputs reach majority | `THREE_REFEREE_INPUT` | `true` | computed majority | preserve actual individual lamp values | `threeRefereeIsImmediate ? IMMEDIATE : DELAYED` |
+| Announcer button explicit decision | announcer UI posts explicit good/bad decision | `ANNOUNCER_ENTRY` | `true` | explicit good/bad | unset; no actual referee lamp inputs exist | `IMMEDIATE` (always) |
+| Announcer MQTT explicit decision | parsed `DecisionUpdate.refIndex < 0` from announcer MQTT input | `ANNOUNCER_ENTRY` | `true` | explicit good/bad | preserve raw pattern only if the device actually emitted referee-lamp-style values | `IMMEDIATE` (always) |
+| Solo mode, first numbered referee input | `operatingMode=SOLO_REFEREE_MODE` and first valid numbered referee input arrives | `SOLO_INPUT` | `true` on first valid input | value of that first valid input | preserve the received raw referee pattern as forensic evidence | `showDecisionsImmediately ? IMMEDIATE : DELAYED` |
+| Solo-capable device sends synthetic 3 whites / 3 reds | `operatingMode=SOLO_REFEREE_MODE`, source is referee input, device emits full majority shape | `SOLO_INPUT` | `true` | derived from synthetic majority | preserve the received synthetic raw pattern as forensic evidence | `showDecisionsImmediately ? IMMEDIATE : DELAYED` |
+| Three-referee mode, device sends 3 identical referee lights | `operatingMode=THREE_REFEREE_MODE`, raw 3-light pattern such as 3 white or 3 red | `THREE_REFEREE_INPUT` | `true` once majority exists | computed majority | preserve actual individual lamp values | `showDecisionsImmediately ? IMMEDIATE : DELAYED` |
+| Normal three-referee updates before majority | `operatingMode=THREE_REFEREE_MODE`, numbered referee updates, no majority yet | `THREE_REFEREE_INPUT` | `false` | none yet | preserve actual individual lamp values | no final timing decision yet |
+| Normal three-referee majority reached | `operatingMode=THREE_REFEREE_MODE`, numbered inputs reach majority | `THREE_REFEREE_INPUT` | `true` | computed majority | preserve actual individual lamp values | `showDecisionsImmediately ? IMMEDIATE : DELAYED` |
 
 ## Required Normalization Rules
 
-### Rule 1: Solo Mode Is Enforced At Ingestion
+### Rule 1: Operating Mode And Input Source Are Orthogonal
 
-If the FOP is in solo mode, the input must normalize to solo semantics regardless of the specific device-side encoding.
+Operating mode and input source must be modeled independently.
+
+Meaning:
+
+- announcer entry does not become `SOLO_INPUT` just because the FOP is in `SOLO_REFEREE_MODE`
+- solo referee semantics apply only to referee-originated inputs
+- announcer entry can override or replace a missing referee-device decision in any operating mode
+
+This rule is the reason `ANNOUNCER_ENTRY` can coexist with `operatingMode = SOLO_REFEREE_MODE`.
+
+### Rule 2: Solo Referee Semantics Apply Only To Referee Inputs
+
+If the FOP is in solo mode and the source is a referee input, the input must normalize to solo semantics regardless of the specific device-side encoding.
 
 Meaning:
 
 - do not let device-specific solo conventions leak into downstream logic
 - do not allow solo devices to create separate effective code paths because they emit synthetic three-light majorities
-- do not allow MQTT explicit single-input encodings such as `0 good` or `0 bad` to bypass solo normalization rules when they are true solo-referee inputs
+- the first valid referee decision received is the solo decision
 
 This rule does not override announcer semantics.
 
-If the source is known to be an announcer-operated solo device, the input normalizes as `ANNOUNCER_ENTRY`, not `SOLO_INPUT`.
+If the input is announcer entry, the input normalizes as `ANNOUNCER_ENTRY`, not `SOLO_INPUT`, even when `operatingMode = SOLO_REFEREE_MODE`.
 
 Examples of solo-mode-compatible encodings that must normalize to the same internal solo semantics:
 
 - a single numbered referee input while the FOP is configured for solo mode
-- MQTT explicit single-input values such as `0 good` or `0 bad`
 - synthetic three-light-equivalent solo device outputs such as three whites or three reds
 
-When solo mode is off, this rule does not apply.
+When the FOP is in `THREE_REFEREE_MODE`, this rule does not apply.
 
-With `soloMode=false`:
+With `operatingMode=THREE_REFEREE_MODE`:
 
 - three-referee interpretation is the default
 - announcer semantics are identified only by the announcer UI or by explicit announcer-equivalent single-input encoding such as MQTT `refIndex < 0`
 - a raw three-light pattern does not identify announcer intent
 
-### Rule 2: One-Light Display Is Separate From Solo Mode
+### Rule 3: One-Light Display Is Separate From Solo Mode
 
 One-light display is not the same thing as solo mode.
 
 One-light display applies when:
 
 - announcer entry is used
-- solo mode is used
+- solo referee input is used
 
 Three-light display applies when:
 
@@ -229,37 +327,74 @@ Specifically:
 
 If display form is ever allowed to differ from input kind, then `singleRefereeLight` must become a stored canonical field.
 
-### Rule 3: Timing Policy Is Separate From Input Form
+### Rule 4: Timing Policy Is Separate From Input Form
 
 Immediate versus delayed must not be inferred from input shape alone.
 
-Instead:
+Current code uses `refereeForcedDecision` as an implicit bypass that conflates announcer entry and solo input into the same no-delay path. The normalization target separates them:
 
-- announcer entry timing is controlled by `announcerEntryIsImmediate`
-- solo timing is controlled by `soloRefereeIsImmediate`
-- three-referee timing is controlled by `threeRefereeIsImmediate`
+- announcer entry is always `IMMEDIATE` — this is not configurable
+- referee-originated decisions (`SOLO_INPUT`, `THREE_REFEREE_INPUT`) are `DELAYED` by default
+- `showDecisionsImmediately` (default `false`, changeable live) is a global override: when enabled, referee-originated decisions also become `IMMEDIATE`. The toggle can be changed at any time during competition and takes effect on the next decision
 
-This keeps rules changes separate from the normalization design.
+Derived `timingPolicy` resolution:
 
-### Rule 4: INITIAL_DECISION And FULL_DECISION Share Semantics
+- `inputKind == ANNOUNCER_ENTRY` → `IMMEDIATE` (always)
+- `inputKind != ANNOUNCER_ENTRY && showDecisionsImmediately` → `IMMEDIATE`
+- `inputKind != ANNOUNCER_ENTRY && !showDecisionsImmediately` → `DELAYED`
+
+After normalization, `refereeForcedDecision` is set only for announcer entry, not for solo input. Solo input goes through `processDecisionDelay()` and gets the reversal window by default.
+
+### Rule 5: `INITIAL_DECISION` Emission Is Separate From Timing Policy
+
+Whether `INITIAL_DECISION` is emitted is not the same question as whether the decision has reversal delay.
+
+The derived predicate `isInitialDecisionEmitted(inputKind)` determines whether `INITIAL_DECISION` is emitted:
+
+- `isInitialDecisionEmitted(inputKind) = (inputKind != ANNOUNCER_ENTRY)`
+- for `SOLO_INPUT` and `THREE_REFEREE_INPUT`, `isInitialDecisionEmitted(inputKind)` is always `true`
+- for `ANNOUNCER_ENTRY`, `isInitialDecisionEmitted(inputKind)` is always `false`
+- announcer entry never emits `INITIAL_DECISION`
+
+When `showDecisionsImmediately` is enabled, referee-originated decisions still emit `INITIAL_DECISION` (to trigger videos and downstream consumers). The `INITIAL_DECISION` carries `timingPolicy = IMMEDIATE` so the receiver knows `FULL_DECISION` will follow without delay.
+
+### Rule 6: INITIAL_DECISION And FULL_DECISION Share Semantics
 
 Once the input is normalized and majority is reached:
 
-1. `INITIAL_DECISION` is emitted
+1. `INITIAL_DECISION` is emitted when `isInitialDecisionEmitted(inputKind)` is `true`
 2. `FULL_DECISION` is emitted immediately or after delay according to `timingPolicy`
 
-Both events must carry the same semantic flags derived from normalization.
+Both events carry the same `timingPolicy` derived from normalization (see Rule 4).
 
-Receiver interpretation:
+Receiver interpretation of `timingPolicy` on `INITIAL_DECISION`:
 
-- `INITIAL_DECISION` is the point where downstream presentation logic decides what to show next
-- `timingPolicy = DELAYED` tells the receiver it may switch to countdown or reversal-window presentation before `FULL_DECISION`
-- `timingPolicy = IMMEDIATE` tells the receiver not to expect that intentional waiting phase, FULL_DECISION will come immediately after.
+- `DELAYED` means a reversal window or countdown may be shown before `FULL_DECISION` arrives
+- `IMMEDIATE` means `FULL_DECISION` will follow immediately; no reversal-window presentation is expected
+
+For `ANNOUNCER_ENTRY`:
+
+- `isInitialDecisionEmitted(inputKind)` is `false`
+- only `FULL_DECISION` is emitted
+- `timingPolicy = IMMEDIATE`
+
+For `SOLO_INPUT` and `THREE_REFEREE_INPUT` with `showDecisionsImmediately = false` (default):
+
+- `isInitialDecisionEmitted(inputKind)` is `true`
+- `INITIAL_DECISION` is emitted with `timingPolicy = DELAYED`
+- `FULL_DECISION` follows after `REVERSAL_DELAY` (3000ms)
+
+For `SOLO_INPUT` and `THREE_REFEREE_INPUT` with `showDecisionsImmediately = true`:
+
+- `isInitialDecisionEmitted(inputKind)` is `true`
+- `INITIAL_DECISION` is emitted with `timingPolicy = IMMEDIATE`
+- `FULL_DECISION` follows immediately
 
 ## Canonical Model Recommendation
 
 The normalized event stores:
 
+- `operatingMode`
 - `inputKind`
 - `timingPolicy`
 - `majorityReached`
@@ -288,8 +423,14 @@ In solo mode, this distinction is slightly different from announcer entry:
 
 This prevents contradictory combinations such as:
 
-- `inputKind = THREE_REFEREE_INPUT` with `soloMode = true`
+- `inputKind = SOLO_INPUT` with `operatingMode = THREE_REFEREE_MODE`
+- `inputKind = THREE_REFEREE_INPUT` with `operatingMode = SOLO_REFEREE_MODE`
 - `inputKind = SOLO_INPUT` with `singleRefereeLight = false`
+
+The following combinations are valid and intentional:
+
+- `inputKind = ANNOUNCER_ENTRY` with `operatingMode = SOLO_REFEREE_MODE`
+- `inputKind = ANNOUNCER_ENTRY` with `operatingMode = THREE_REFEREE_MODE`
 
 ## Canonical Display Mapping
 
@@ -325,21 +466,58 @@ The normalization strategy removes that ambiguity by making every later stage co
 
 After normalization, forwarding uses the following compatibility fields.
 
+Compatibility rule:
+
+- existing HTTP receivers must continue to receive the legacy one-light compatibility fields
+- existing WebSocket receivers must continue to receive the legacy one-light compatibility fields
+- new unambiguous fields may be added alongside the legacy fields
+- new fields do not replace legacy fields in either transport
+
 HTTP can use:
 
 - legacy `singleReferee` as compatibility alias for `singleRefereeLight`
 - `announcerEntry`
 - `soloMode`
+- additive future fields such as `singleRefereeLight`, `inputKind`, and `timingPolicy`
 
 WebSocket can use:
 
-- `singleRefereeLight`
+- legacy `singleReferee` as compatibility alias for `singleRefereeLight`
 - `announcerEntry`
 - `soloMode`
+- additive future fields such as `singleRefereeLight`, `inputKind`, and `timingPolicy`
 
 In both transports, timing behavior is visible through event sequencing and explicit timing metadata, not inferred indirectly from how the decision arrived.
 
-These transport flags can be computed from `inputKind` at serialization time rather than stored independently in the normalized event.
+These transport flags can be computed from the normalized event at serialization time rather than stored independently.
+
+## Historical UI Receiver Compatibility
+
+Current OWLCMS UI receivers still use the historical one-light versus three-light contract.
+
+That contract is not driven by `inputKind` directly.
+
+Instead, it is driven by the legacy boolean `singleReferee` and by the historical forced-decision path.
+
+Observed current behavior:
+
+- `UIEvent.Decision` carries `singleReferee` rather than `inputKind`
+- when `singleReferee=true`, UI receivers show a single center light
+- when `singleReferee=false`, UI receivers show the three individual referee lights
+- historical scoreboard code also treats `refereeForcedDecision` the same as `singleReferee` for display purposes
+
+Current Java UI compatibility examples:
+
+- `DecisionElement` branches on `e.isSingleReferee()` and calls `showSingleDecision` versus `showDecisions`
+- `UIEvent.Decision` rewrites a single-light decision into center-light form by moving any lone `ref1` or `ref3` value into `ref2`
+- `NCurrentAthlete` shows one light when `getFop().isSingleReferee() || getFop().isRefereeForcedDecision()`
+
+Implication for normalization:
+
+- normalized `inputKind` and `timingPolicy` are the intended internal source of truth
+- legacy UI receivers still require compatibility fields and center-light shaping
+- HTTP and WebSocket forwarding must therefore preserve enough compatibility information for receivers that still only understand one-light versus three-light presentation
+- any new unambiguous feed fields must be additive rather than a replacement for `singleReferee` and center-light compatibility
 
 ## MQTT Explicit Single-Input Semantics
 
@@ -347,15 +525,26 @@ For MQTT messages, referee numbers `1`, `2`, and `3` map to internal referee ind
 
 MQTT referee number `0` translates to internal `refIndex = -1`.
 
-Normalization for MQTT referee number `0` uses the operating mode.
+Normalization for MQTT referee number `0` does not use the operating mode.
 
-When `soloMode=false`, there are 3 referees, but the announcer may have a device for decision input.
+MQTT referee number `0` is announcer-equivalent input.
+
+That means:
 
 - MQTT `0` input normalizes to `ANNOUNCER_ENTRY`
-- the announcer decision is not subject to reversal delay and uses `announcerEntryIsImmediate`
+- this is true in `SOLO_REFEREE_MODE`
+- this is true in `THREE_REFEREE_MODE`
+- the absence of a reversal timeout between `INITIAL_DECISION` and `FULL_DECISION` follows `ANNOUNCER_ENTRY`, not solo mode
+
+When `operatingMode=THREE_REFEREE_MODE`, there are 3 referees, but the announcer may have a device for decision input.
+
+- MQTT `0` input normalizes to `ANNOUNCER_ENTRY`
+- the announcer decision is always `IMMEDIATE` and not subject to reversal delay
 - a device that only emits raw 3-light patterns cannot be used for announcer entry in 3-referee mode
 - in that case, the announcer must use the announcer UI
 
-When `soloMode=true`:
+When `operatingMode=SOLO_REFEREE_MODE`:
 
-- MQTT `0` input normalizes to `SOLO_INPUT`
+- MQTT `0` input still normalizes to `ANNOUNCER_ENTRY`
+- the first valid numbered referee input normalizes to `SOLO_INPUT`
+- if the solo referee device is unavailable and the announcer enters the flags, that remains announcer entry, not solo input
