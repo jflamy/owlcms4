@@ -21,29 +21,10 @@
     - points awarded
     - scoring systems for gendered teams and for mixed teams
 
-66.0.0: Jury Member and Jury Keypad for mobile devices
-  - added phone/small tablet support for Jury Member
-  - added tablet support for Jury Keypad.
-  - Jury Keypad can also be used on laptop with USB keypads (same shortcuts as current Jury console) 
+66.0.0: Mobile device versions for jury member devices and jury president keypad
+  - Can act as jury member using a phone or tablet, and act as jury president using a tablet
 
-**New in Release 65**
-
-65.0.0: Act as record repository :
-  - Enable a separate dedicated OWLCMS instance to keep and edit records
-    - A new feature toggle "recordRepository" hides all the pages except records management
-    - Default access is read-only, with capability to export selected records and the database
-  - Ability to import the provisional records from a meet to accept them, thereby creating a full history
-  - Round-trip updating - export a subset of the records, update the file, and reload after making corrections or approving provisional records
-    - This does not delete records.
-  - Define the set active record set (inactive records are not exported or editable)
-  - Abiilty to export the database (including using the /competition/export backup from localhost or a machine in the backdoor list)
-
-65.0.0: Improved kill behavior:
-  - On macOS and Linux, using kill (kill -TERM) targeting owlcms is intercepted and interpreted as intentional stoppage without restart
-
-65.0.0: Added Sinclair 2028.  
-  - The default remains the 2001-2004 values.
-  - You should NOT switch without analysis, as the coefficients change quite a bit.
-  - Note that Q-Points or GAMX are better alternatives, for a number of reasons.
+66.0.0: Fix: Results records are extracted in competition results for a specific given category is selected
+  - The standard "protocol" look templates show the templates (Total, SnCjTot)
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
