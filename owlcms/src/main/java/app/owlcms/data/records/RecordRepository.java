@@ -28,6 +28,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
@@ -557,6 +558,47 @@ public class RecordRepository {
 			return resultList;
 		});
 		return findFiltered;
+	}
+
+	public static List<RecordEvent> findProvisionalRecordsForCategory(Category category) {
+		if (category == null || category.getGender() == null || category.getAgeGroup() == null) {
+			return List.of();
+		}
+
+		Integer minAge = category.getAgeGroup().getMinAge();
+		Integer maxAge = category.getAgeGroup().getMaxAge();
+		Double minWeight = category.getMinimumWeight();
+		Double maxWeight = category.getMaximumWeight();
+
+		if (minAge == null || maxAge == null || minWeight == null || maxWeight == null) {
+			return List.of();
+		}
+
+		return JPAService.runInTransaction(em -> {
+			String qlString = "SELECT rec FROM RecordEvent rec "
+			        + "WHERE (rec.active IS NULL OR rec.active = true) "
+			        + "AND rec.gender = :gender "
+			        + "AND rec.athleteAge IS NOT NULL "
+			        + "AND rec.athleteBW IS NOT NULL "
+			        + "AND rec.athleteAge >= :minAge "
+			        + "AND rec.athleteAge <= :maxAge "
+			        + "AND rec.athleteBW > :minWeight "
+			        + "AND rec.athleteBW <= :maxWeight "
+			        + "AND rec.groupNameString IS NOT NULL "
+			        + "AND TRIM(rec.groupNameString) <> '' "
+			        + "ORDER BY rec.recordFederation, rec.recordName, rec.gender, rec.ageGrpUpper, rec.ageGrpLower, rec.bwCatUpper, rec.recordLift, rec.recordValue";
+
+			Query query = em.createQuery(qlString);
+			query.setParameter("gender", category.getGender());
+			query.setParameter("minAge", minAge);
+			query.setParameter("maxAge", maxAge);
+			query.setParameter("minWeight", minWeight);
+			query.setParameter("maxWeight", maxWeight);
+
+			@SuppressWarnings("unchecked")
+			List<RecordEvent> resultList = query.getResultList();
+			return resultList;
+		});
 	}
 
 	/**

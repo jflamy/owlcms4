@@ -25,6 +25,8 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.records.RecordEvent;
+import app.owlcms.data.records.RecordRepository;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -176,6 +178,23 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
                 .collect(Collectors.toList());
         return athletes;
         // @formatter:on
+	}
+
+	@Override
+	protected Object createRecordsBean() {
+		Category category = getCategory();
+		if (category == null) {
+			return null;
+		}
+
+		return new LazyRecordEventList(() -> fetchCategoryRecords(category));
+	}
+
+	private List<RecordEvent> fetchCategoryRecords(Category category) {
+		logger.warn("*** lazily fetching records for winning sheet category {}", category);
+		List<RecordEvent> records = normalizeRecordEventsForTemplate(RecordRepository.findProvisionalRecordsForCategory(category));
+		logger.warn("{} records found for winning sheet category {}", records != null ? records.size() : 0, category);
+		return records;
 	}
 
 	/*

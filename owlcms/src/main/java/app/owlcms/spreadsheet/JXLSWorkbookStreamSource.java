@@ -17,6 +17,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 // using per-task Threads instead of a pooled ExecutorService avoids inheritable ThreadLocal
 // leakage from pooled threads. A dedicated daemon Thread is started for each request.
+import java.util.AbstractList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import java.time.LocalDateTime;
@@ -78,7 +79,9 @@ import ch.qos.logback.classic.Logger;
 import net.sf.jxls.transformer.XLSTransformer;
 
 /**
- * Encapsulate a spreadsheet as a StreamSource so that it can be used as a source of data when the user clicks on a link. This class converts the output stream
+ * Encapsulate a spreadsheet as a StreamSource so that it can be used as a
+ * source of data when the user clicks on a link. This class converts the output
+ * stream
  * to an input stream that the vaadin framework can consume.
  */
 @SuppressWarnings("serial")
@@ -96,10 +99,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		tagLogger.setLevel(Level.ERROR);
 	}
 
-	// prepareWithoutTemplate() removed — UI should use lightweight checks via defaultPreCheckFor(...) and
-	// writers should perform their own prepare() which may include template resolution as needed.
+	// prepareWithoutTemplate() removed — UI should use lightweight checks via
+	// defaultPreCheckFor(...) and
+	// writers should perform their own prepare() which may include template
+	// resolution as needed.
 
-		// No shared executor here; each download starts a short-lived daemon Thread.
+	// No shared executor here; each download starts a short-lived daemon Thread.
 
 	public static Ranking getBestLifterRankingThreadLocal() {
 		Ranking blss = bestLifterRankingSystem.get();
@@ -149,11 +154,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		init();
 	}
 
-
 	/**
 	 * Read the xls template and write the processed XLS file out.
 	 *
-	 * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream, com.vaadin.flow.server.VaadinSession)
+	 * @see com.vaadin.flow.server.StreamResourceWriter#accept(java.io.OutputStream,
+	 *      com.vaadin.flow.server.VaadinSession)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -174,12 +179,14 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	public InputStream createInputStream() {
 		logger.debug("createInputStream called {}\n", LoggerUtils.stackTrace());
 		// IMPORTANT: do NOT access VaadinSession or UI here. Pre-checks that require
-		// UI/Session must be executed by the caller (for example LazyDownloadButton.preCheck()).
-	// Return the background-driven InputStream immediately so Vaadin can stream it.
-	// Ensure reporting beans are available for the writer. Some callers may not invoke
-	// prepare() beforehand, so we keep this defensive initialization here as well.
-	setReportingInfo();
-	return doCreateStream();
+		// UI/Session must be executed by the caller (for example
+		// LazyDownloadButton.preCheck()).
+		// Return the background-driven InputStream immediately so Vaadin can stream it.
+		// Ensure reporting beans are available for the writer. Some callers may not
+		// invoke
+		// prepare() beforehand, so we keep this defensive initialization here as well.
+		setReportingInfo();
+		return doCreateStream();
 	}
 
 	protected InputStream doCreateStream() {
@@ -203,14 +210,22 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				}
 				writeStream(out);
 				// success: notify caller
-				try { if (this.doneCallback != null) this.doneCallback.accept(null); } catch (Throwable cb) { /* swallow */ }
+				try {
+					if (this.doneCallback != null)
+						this.doneCallback.accept(null);
+				} catch (Throwable cb) {
+					/* swallow */ }
 			} catch (Throwable t) {
 				// notify doneCallback with a user-friendly message when available
 				try {
 					if (this.doneCallback != null) {
-						try {this.doneCallback.accept(t); } catch (Throwable cb) { /* swallow */ }
+						try {
+							this.doneCallback.accept(t);
+						} catch (Throwable cb) {
+							/* swallow */ }
 					}
-				} catch (Throwable ignore) { }
+				} catch (Throwable ignore) {
+				}
 
 				if (t instanceof IOException) {
 					writerException.set((IOException) t);
@@ -390,7 +405,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		this.fileExtension = ext;
 	}
 
-	// getTemplate(Locale) now has a default implementation lower in the class; subclasses may override it.
+	// getTemplate(Locale) now has a default implementation lower in the class;
+	// subclasses may override it.
 
 	/**
 	 * Default concrete writeStream that reads the template and delegates to the
@@ -401,9 +417,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		File tempFile = null;
 		InputStream template = null;
 		try {
-			// Use the provided template stream if one was explicitly set via setInputStream().
-			// Otherwise, fetch the default template. In either case, wrap in BufferedInputStream
-			// for efficiency and mark/reset support, then copy to a temp file immediately so the
+			// Use the provided template stream if one was explicitly set via
+			// setInputStream().
+			// Otherwise, fetch the default template. In either case, wrap in
+			// BufferedInputStream
+			// for efficiency and mark/reset support, then copy to a temp file immediately
+			// so the
 			// original stream is available for reuse on subsequent downloads.
 			if (this.inputStream != null) {
 				template = new BufferedInputStream(this.inputStream);
@@ -453,7 +472,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	public void setSortedAthletes(List<Athlete> athletes) {
-		logger.debug("setSortedAthletes called, {} athletes {}", athletes != null ? athletes.size() : 0, LoggerUtils.whereFrom());
+		logger.debug("setSortedAthletes called, {} athletes {}", athletes != null ? athletes.size() : 0,
+				LoggerUtils.whereFrom());
 		this.sortedAthletes = athletes;
 	}
 
@@ -511,7 +531,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(shortDatePattern, currentLocale);
 
 		// Get a time formatter for the short time format in the current locale
-		DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(currentLocale);
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+				.withLocale(currentLocale);
 
 		// Format the current date and time
 		String formattedDate = now.format(dateFormatter);
@@ -525,8 +546,11 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	/**
-	 * Try the possible variations of a template based on locale. For "/templates/start/startList", ".xls", and a locale of fr_CA, the following names will be
-	 * tried /templates/start/startList_fr_CA.xls /templates/start/startList_fr.xls /templates/start/startList_en.xls
+	 * Try the possible variations of a template based on locale. For
+	 * "/templates/start/startList", ".xls", and a locale of fr_CA, the following
+	 * names will be
+	 * tried /templates/start/startList_fr_CA.xls /templates/start/startList_fr.xls
+	 * /templates/start/startList_en.xls
 	 *
 	 * @param templateName
 	 * @param extension
@@ -597,30 +621,28 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 			getReportingBeans().put("athletes", athletes);
 			getReportingBeans().put("lifters", athletes); // legacy
 		}
-		logger.debug("{} setReportingInfo called, group = {} athletes.size {} {}", this.getClass().getSimpleName(), getGroup(), athletes != null ? athletes.size() : "null", LoggerUtils.whereFrom());
-		Competition competition = Competition.getCurrent();
-		getReportingBeans().put("t", Translator.getMap());
-		getReportingBeans().put("tf", new JXLSFormatter());
-		getReportingBeans().put("competition", competition);
-		getReportingBeans().put("session", getGroup());
-		getReportingBeans().put("group", getGroup());// legacy
-		getReportingBeans().put("platforms", PlatformRepository.findAll());
-		getReportingBeans().put("coaches", CoachRepository.findAll());
-		getReportingBeans().put("tos", TechnicalOfficialRepository.findActive());
-
-		getReportingBeans().put("local", LocalResource.class);
-
-		// reuse existing logic for processing records
-		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null, false, false);
-		jxlsExportRecords.setGroup(getGroup());
-		jxlsExportRecords.getSortedAthletes();
-		logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
 		try {
-			List<RecordEvent> records = jxlsExportRecords.getRecords(getCategory());
-			logger.debug("{} records found", records.size());
-			getReportingBeans().put("records", records);
+			logger.debug("{} setReportingInfo called, group = {} category = {} championship = {} athletes.size {} {}",
+					this.getClass().getSimpleName(), getGroup(), getCategory(), getChampionship(),
+					athletes != null ? athletes.size() : "null",
+					LoggerUtils.whereFrom());
+			Competition competition = Competition.getCurrent();
+			getReportingBeans().put("t", Translator.getMap());
+			getReportingBeans().put("tf", new JXLSFormatter());
+			getReportingBeans().put("competition", competition);
+			getReportingBeans().put("session", getGroup());
+			getReportingBeans().put("group", getGroup());// legacy
+			getReportingBeans().put("platforms", PlatformRepository.findAll());
+			getReportingBeans().put("coaches", CoachRepository.findAll());
+			getReportingBeans().put("tos", TechnicalOfficialRepository.findActive());
+			getReportingBeans().put("local", LocalResource.class);
+
+			Object recordsBean = createRecordsBean();
+			if (recordsBean != null) {
+				getReportingBeans().put("records", recordsBean);
+			}
 		} catch (Exception e) {
-			// no records
+			logger.error("Exception while fetching records for session {} category {}", getGroup(), getCategory(), e);
 		}
 
 		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
@@ -630,18 +652,72 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		getReportingBeans().put("gender", getGender());
 
 		List<Group> sessions = GroupRepository.findAll().stream().sorted(Group.groupWeighinTimeComparator)
-		        .collect(Collectors.toList());
+				.collect(Collectors.toList());
 
 		// Ranking overallScoringSystem = this.getBestLifterScoringSystem();
-		// overallScoringSystem = overallScoringSystem != null ? overallScoringSystem : Competition.getCurrent().getScoringSystem();
+		// overallScoringSystem = overallScoringSystem != null ? overallScoringSystem :
+		// Competition.getCurrent().getScoringSystem();
 		Ranking overallScoringSystem = getBestLifterRankingThreadLocal();
 
 		// make available to the Athlete class in this Thread (and subThreads).
 		this.reportingBeans.put("bestRankingTitle",
-		        overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete"));
+				overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem)
+						: Translator.translate("BestAthlete"));
 
 		getReportingBeans().put("groups", sessions);
 		getReportingBeans().put("sessions", sessions);
+	}
+
+	protected Object createRecordsBean() {
+		logger.debug("fetching records for session {} category {}", getGroup(), getCategory());
+		JXLSExportRecords jxlsExportRecords = new JXLSExportRecords(null, false, false);
+		jxlsExportRecords.setGroup(getGroup());
+		jxlsExportRecords.computeSortedAthletes();
+		List<RecordEvent> records = normalizeRecordEventsForTemplate(jxlsExportRecords.getRecords(getCategory()));
+		logger.debug("{} records found", records != null ? records.size() : 0);
+		return records;
+	}
+
+	protected List<RecordEvent> normalizeRecordEventsForTemplate(List<RecordEvent> records) {
+		if (records == null) {
+			return null;
+		}
+		for (RecordEvent e : records) {
+			if (e.getBwCatUpper() > 250) {
+				e.setBwCatString(">" + e.getBwCatLower());
+			} else {
+				e.setBwCatString(Integer.toString(e.getBwCatUpper()));
+			}
+		}
+		return records;
+	}
+
+	protected static class LazyRecordEventList extends AbstractList<RecordEvent> {
+		private java.util.function.Supplier<List<RecordEvent>> supplier;
+		private List<RecordEvent> delegate;
+
+		protected LazyRecordEventList(java.util.function.Supplier<List<RecordEvent>> supplier) {
+			this.supplier = supplier;
+		}
+
+		@Override
+		public RecordEvent get(int index) {
+			return resolve().get(index);
+		}
+
+		@Override
+		public int size() {
+			return resolve().size();
+		}
+
+		private List<RecordEvent> resolve() {
+			if (this.delegate == null) {
+				List<RecordEvent> resolved = this.supplier.get();
+				this.delegate = resolved != null ? resolved : List.of();
+				this.supplier = null;
+			}
+			return this.delegate;
+		}
 	}
 
 	private boolean checkJxls3(Workbook tempWorkbook) throws IOException {
@@ -681,17 +757,19 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				logger.info("{} before transformWorkbook", this.getTemplateFileName());
 				long start = System.currentTimeMillis();
 				transformer.transformWorkbook(workbook, reportingInfo);
-				logger.info("{} after transformWorkbook ({} ms)", this.getTemplateFileName(), System.currentTimeMillis() - start);
+				logger.info("{} after transformWorkbook ({} ms)", this.getTemplateFileName(),
+						System.currentTimeMillis() - start);
 				if (workbook != null) {
 					postProcess(workbook);
 				}
 				logger.debug("after postprocess");
-				} else {
-					String localized = Translator.translate("NoAthletes");
-					logger./**/warn("No athletes: empty report.");
-					// treat as a validation failure -> stop processing and let caller handle the error
-					throw new StopProcessingException("NoAthletes", new RuntimeException(localized));
-				}
+			} else {
+				String localized = Translator.translate("NoAthletes");
+				logger./**/warn("No athletes: empty report.");
+				// treat as a validation failure -> stop processing and let caller handle the
+				// error
+				throw new StopProcessingException("NoAthletes", new RuntimeException(localized));
+			}
 		} catch (Throwable t) {
 			LoggerUtils.logError(logger, t);
 		}
@@ -710,7 +788,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	private void jxls3Transform(OutputStream stream, File templateFile) {
-		logger.debug("jxls3Transform called class={} template={}\n{}", this.getClass().getName(), templateFile, LoggerUtils.stackTrace());
+		logger.debug("jxls3Transform called class={} template={}\n{}", this.getClass().getName(), templateFile,
+				LoggerUtils.stackTrace());
 		Workbook workbook = null;
 		File tempFile = null;
 		try {
@@ -775,7 +854,8 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	/**
-	 * Default implementation of getTemplate. Subclasses may override to provide a custom template lookup.
+	 * Default implementation of getTemplate. Subclasses may override to provide a
+	 * custom template lookup.
 	 */
 	public InputStream getTemplate(Locale locale) throws IOException {
 		if (this.templateFileName != null) {
@@ -827,46 +907,51 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	}
 
 	/**
-	 * Optional pre-check invoked before creating the input stream. Implementations should return an Optional
-	 * containing an Exception when the download should be aborted early (for example when there's no data).
-	 * The default implementation performs basic reporting-info validation used by many JXLS exporters.
+	 * Optional pre-check invoked before creating the input stream. Implementations
+	 * should return an Optional
+	 * containing an Exception when the download should be aborted early (for
+	 * example when there's no data).
+	 * The default implementation performs basic reporting-info validation used by
+	 * many JXLS exporters.
 	 */
 	public Optional<Exception> prepare() {
-        try {
-			
-            setReportingInfo();
-            // Validate that the template exists and is readable on the UI thread.
-            // If a caller provided a custom template via setInputStream(), trust that they manage it properly.
-            // Otherwise, validate that the default template exists.
-            try {
-                if (this.inputStream == null) {
-                    // No custom template set; validate the default template can be loaded
-                    InputStream testTemplate = getTemplate(OwlcmsSession.getLocale());
-                    if (testTemplate != null) {
-                        testTemplate.close();
-                    }
-                }
-                // If inputStream is set, don't touch it - caller is responsible for managing it
-            } catch (IOException e) {
-                return Optional.of(e);
-            }
-            @SuppressWarnings("unchecked")
-            List<Athlete> athletes = (List<Athlete>) getReportingBeans().get("athletes");
-            int size = athletes != null ? athletes.size() : 0;
-            if (!(size == 0 ? isEmptyOk() : isSizeOk(size))) {
-                if (athletes == null || athletes.size() == 0) {
-                    String localized = Translator.translate("NoAthletes");
-                    return Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(localized)));
-                } else {
-                    String localized = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
-                    return Optional.of(new StopProcessingException("TooManyAthletes", new RuntimeException(localized)));
-                }
-            }
-			
-            return Optional.empty();
-        } catch (Exception e) {
+		try {
+
+			setReportingInfo();
+			// Validate that the template exists and is readable on the UI thread.
+			// If a caller provided a custom template via setInputStream(), trust that they
+			// manage it properly.
+			// Otherwise, validate that the default template exists.
+			try {
+				if (this.inputStream == null) {
+					// No custom template set; validate the default template can be loaded
+					InputStream testTemplate = getTemplate(OwlcmsSession.getLocale());
+					if (testTemplate != null) {
+						testTemplate.close();
+					}
+				}
+				// If inputStream is set, don't touch it - caller is responsible for managing it
+			} catch (IOException e) {
+				return Optional.of(e);
+			}
+			@SuppressWarnings("unchecked")
+			List<Athlete> athletes = (List<Athlete>) getReportingBeans().get("athletes");
+			int size = athletes != null ? athletes.size() : 0;
+			if (!(size == 0 ? isEmptyOk() : isSizeOk(size))) {
+				if (athletes == null || athletes.size() == 0) {
+					String localized = Translator.translate("NoAthletes");
+					return Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(localized)));
+				} else {
+					String localized = Translator.translate("TooManyAthletes", Integer.toString(getSizeLimit()));
+					return Optional.of(new StopProcessingException("TooManyAthletes", new RuntimeException(localized)));
+				}
+			}
+
+			return Optional.empty();
+		} catch (Exception e) {
 			e.printStackTrace();
-			
-            return Optional.of(e);
-        }
-    }}
+
+			return Optional.of(e);
+		}
+	}
+}
