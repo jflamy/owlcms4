@@ -202,15 +202,15 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
-		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleReferee());
+		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleLight());
 		// Backend now controls hiding down and showing decisions on all decision elements
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			if (e.isSingleReferee()) {
-				getElement().setProperty("singleRef", e.isSingleReferee());
+			if (e.isSingleLight()) {
+				getElement().setProperty("singleRef", e.isSingleLight());
 				this.getElement().callJsFunction("showSingleDecision", e.decision);
 				this.getElement().callJsFunction("setEnabled", false);
 			} else {
-				getElement().setProperty("singleRef", e.isSingleReferee());
+				getElement().setProperty("singleRef", e.isSingleLight());
 				this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
 				this.getElement().callJsFunction("setEnabled", false);
 			}

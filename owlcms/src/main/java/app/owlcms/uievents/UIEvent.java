@@ -32,6 +32,8 @@ import app.owlcms.fieldofplay.FOPError;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.InputKind;
+import app.owlcms.fieldofplay.TimingPolicy;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -482,7 +484,9 @@ public class UIEvent {
 		public Boolean ref2;
 		/** ref 3. */
 		public Boolean ref3;
-		private boolean singleReferee;
+		private boolean singleLight;
+		private TimingPolicy timingPolicy;
+		private InputKind inputKind;
 
 		/**
 		 * Instantiates a new referee decision.
@@ -492,17 +496,17 @@ public class UIEvent {
 		 * @param ref2     the ref 2
 		 * @param ref3     the ref 3
 		 * @param origin   the origin
-		 * @param b 
+		 * @param singleLight 
 		 */
-		public Decision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin, FieldOfPlay fop, boolean b) {
+		public Decision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, Object origin, FieldOfPlay fop, boolean singleLight) {
 			super(a, origin, fop);
 			this.decision = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;
 			this.ref3 = ref3;
 			this.setTrace(() -> LoggerUtils.stackTrace());
-			this.setSingleReferee(b);
-			if (isSingleReferee()) {
+			this.setSingleLight(singleLight);
+			if (isSingleLight()) {
 				if (this.ref1 != null) {
 					this.ref2 = this.ref1;
 					this.ref1 = null;
@@ -513,12 +517,27 @@ public class UIEvent {
 			}
 		}
 
-		public boolean isSingleReferee() {
-			return this.singleReferee;
+		public Decision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,
+		        Object origin, FieldOfPlay fop, boolean singleLight, TimingPolicy timingPolicy, InputKind inputKind) {
+			this(a, decision, ref1, ref2, ref3, origin, fop, singleLight);
+			this.timingPolicy = timingPolicy;
+			this.inputKind = inputKind;
 		}
 
-		public void setSingleReferee(boolean singleReferee) {
-			this.singleReferee = singleReferee;
+		public InputKind getInputKind() {
+			return this.inputKind;
+		}
+
+		public boolean isSingleLight() {
+			return this.singleLight;
+		}
+
+		public TimingPolicy getTimingPolicy() {
+			return this.timingPolicy;
+		}
+
+		public void setSingleLight(boolean singleLight) {
+			this.singleLight = singleLight;
 		}
 	}
 
@@ -528,21 +547,38 @@ public class UIEvent {
 		public Boolean ref1;
 		public Boolean ref2;
 		public Boolean ref3;
-		private boolean singleReferee;
+		private boolean singleLight;
+		private TimingPolicy timingPolicy;
+		private InputKind inputKind;
 
 		public InitialDecision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,
-		        Object origin, FieldOfPlay fop, boolean singleReferee) {
+		        Object origin, FieldOfPlay fop, boolean singleLight) {
 			super(a, origin, fop);
 			this.decision = decision;
 			this.ref1 = ref1;
 			this.ref2 = ref2;
 			this.ref3 = ref3;
-			this.singleReferee = singleReferee;
+			this.singleLight = singleLight;
 			this.setTrace(() -> LoggerUtils.stackTrace());
 		}
 
-		public boolean isSingleReferee() {
-			return this.singleReferee;
+		public InitialDecision(Athlete a, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,
+		        Object origin, FieldOfPlay fop, boolean singleLight, TimingPolicy timingPolicy, InputKind inputKind) {
+			this(a, decision, ref1, ref2, ref3, origin, fop, singleLight);
+			this.timingPolicy = timingPolicy;
+			this.inputKind = inputKind;
+		}
+
+		public InputKind getInputKind() {
+			return this.inputKind;
+		}
+
+		public boolean isSingleLight() {
+			return this.singleLight;
+		}
+
+		public TimingPolicy getTimingPolicy() {
+			return this.timingPolicy;
 		}
 	}
 
@@ -1189,10 +1225,10 @@ public class UIEvent {
 		public Long ref2Time;
 		public Boolean ref3;
 		public Long ref3Time;
-		public boolean singleReferee;
+		public boolean singleLight;
 
 		public RefereeUpdate(Athlete a, Boolean ref1, Boolean ref2, Boolean ref3, Long long1,
-		        Long long2, Long long3, Object origin, boolean singleReferee, FieldOfPlay fop) {
+		        Long long2, Long long3, Object origin, boolean singleLight, FieldOfPlay fop) {
 			super(a, origin, fop);
 			this.ref1 = ref1;
 			this.ref2 = ref2;
@@ -1200,11 +1236,11 @@ public class UIEvent {
 			this.ref1Time = long1;
 			this.ref2Time = long2;
 			this.ref3Time = long3;
-			this.singleReferee = singleReferee;
+			this.singleLight = singleLight;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
-			if (singleReferee) {
+			if (singleLight) {
 				if (this.ref1 != null) {
 					this.ref2 = this.ref1;
 					this.ref1 = null;
@@ -1216,12 +1252,12 @@ public class UIEvent {
 			this.logger.debug("RefereeUpdate {} {} {}\n{}", ref1, ref2, ref3, this.trace);
 		}
 
-		public boolean isSingleReferee() {
-			return singleReferee;
+		public boolean isSingleLight() {
+			return singleLight;
 		}
 
-		public void setSingleReferee(boolean singleReferee) {
-			this.singleReferee = singleReferee;
+		public void setSingleLight(boolean singleLight) {
+			this.singleLight = singleLight;
 		}
 	}
 

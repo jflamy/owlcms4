@@ -156,7 +156,7 @@ public class NCurrentAthlete extends Results {
 				}
 				
 				JsonArray decisions = Json.createArray();
-				if (getFop().isSingleReferee() || getFop().isRefereeForcedDecision()) {
+				if (e.isSingleLight()) {
 					decisions.set(0, e.ref2 != null ? e.ref2 : e.decision);
 				} else {
 					decisions.set(0, e.ref1);

@@ -1050,10 +1050,25 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (event instanceof UIEvent.InitialDecision) {
 			UIEvent.InitialDecision de = (UIEvent.InitialDecision) event;
 			mapPut(sb, "decision", de.decision != null ? de.decision.toString() : null);
-			mapPut(sb, "singleReferee", Boolean.toString(de.isSingleReferee()));
+			mapPut(sb, "singleReferee", Boolean.toString(de.isSingleLight())); // backward compat
+			mapPut(sb, "singleLight", Boolean.toString(de.isSingleLight()));
+			if (de.getTimingPolicy() != null) {
+				mapPut(sb, "timingPolicy", de.getTimingPolicy().name());
+			}
+			if (de.getInputKind() != null) {
+				mapPut(sb, "inputKind", de.getInputKind().name());
+			}
 		} else if (event instanceof UIEvent.Decision) {
 			UIEvent.Decision de = (UIEvent.Decision) event;
 			mapPut(sb, "decision", de.decision != null ? de.decision.toString() : null);
+			mapPut(sb, "singleReferee", Boolean.toString(de.isSingleLight())); // backward compat
+			mapPut(sb, "singleLight", Boolean.toString(de.isSingleLight()));
+			if (de.getTimingPolicy() != null) {
+				mapPut(sb, "timingPolicy", de.getTimingPolicy().name());
+			}
+			if (de.getInputKind() != null) {
+				mapPut(sb, "inputKind", de.getInputKind().name());
+			}
 		}
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));

@@ -1058,11 +1058,25 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		if (event instanceof UIEvent.InitialDecision) {
 			UIEvent.InitialDecision de = (UIEvent.InitialDecision) event;
 			mapPut(sb, "decision", de.decision != null ? de.decision.toString() : null);
-			mapPut(sb, "singleReferee", Boolean.toString(de.isSingleReferee()));
+			mapPut(sb, "singleReferee", Boolean.toString(de.isSingleLight())); // backward compat
+			mapPut(sb, "singleLight", Boolean.toString(de.isSingleLight()));
+			if (de.getTimingPolicy() != null) {
+				mapPut(sb, "timingPolicy", de.getTimingPolicy().name());
+			}
+			if (de.getInputKind() != null) {
+				mapPut(sb, "inputKind", de.getInputKind().name());
+			}
 		} else if (event instanceof UIEvent.Decision) {
 			UIEvent.Decision decisionEvent = (UIEvent.Decision) event;
 			mapPut(sb, "decision", decisionEvent.decision != null ? decisionEvent.decision.toString() : null);
-			mapPut(sb, "singleReferee", Boolean.toString(decisionEvent.isSingleReferee()));
+			mapPut(sb, "singleReferee", Boolean.toString(decisionEvent.isSingleLight())); // backward compat
+			mapPut(sb, "singleLight", Boolean.toString(decisionEvent.isSingleLight()));
+			if (decisionEvent.getTimingPolicy() != null) {
+				mapPut(sb, "timingPolicy", decisionEvent.getTimingPolicy().name());
+			}
+			if (decisionEvent.getInputKind() != null) {
+				mapPut(sb, "inputKind", decisionEvent.getInputKind().name());
+			}
 		}
 		mapPut(sb, "decisionsVisible", Boolean.toString(isDecisionLightsVisible()));
 		mapPut(sb, "down", Boolean.toString(isDown()));

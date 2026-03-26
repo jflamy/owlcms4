@@ -50,6 +50,7 @@ import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.InputKind;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -390,14 +391,17 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			// logger.debug("existing ref {} {}", i, goodBad);
 			// }
 			this.decisions.getStyle().set("background-color", "black");
-			if (fop.isSingleReferee()) {
-				// improbable situation, kludge to make it look ok when demonstrating
+			InputKind inputKind = fop.getCurrentInputKind();
+			boolean singleRef = inputKind == InputKind.ANNOUNCER_ENTRY || inputKind == InputKind.SOLO_INPUT;
+			if (singleRef) {
+				// Keep jury decision box sized for a single-light display when the current
+				// decision originated from announcer or solo-input normalization.
 				this.decisions.getStyle().set("font-size", "14vh");
 			} else {
 				this.decisions.getStyle().set("font-size", "100%");
 			}
 			
-			if (fop.isRefereeForcedDecision()) {
+			if (singleRef) {
 				this.decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(this.athleteUnderReview, null,
 				        curRefDecisions[1], null, null, curRefTimes[1], null, this, true, fop));
 			} else {

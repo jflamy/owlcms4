@@ -226,10 +226,27 @@ public class ForwarderPayloadBuilder {
 		mapPut(sb, "decisionsVisible", Boolean.toString(decisionLightsVisible));
 		mapPut(sb, "down", Boolean.toString(down));
 		
-		// Add singleReferee flag if this is a Decision event
+		// Add decision metadata flags
 		if (event instanceof UIEvent.Decision) {
 			UIEvent.Decision decisionEvent = (UIEvent.Decision) event;
-			mapPut(sb, "singleReferee", Boolean.toString(decisionEvent.isSingleReferee()));
+			mapPut(sb, "singleReferee", Boolean.toString(decisionEvent.isSingleLight())); // backward compat
+			mapPut(sb, "singleLight", Boolean.toString(decisionEvent.isSingleLight()));
+			if (decisionEvent.getTimingPolicy() != null) {
+				mapPut(sb, "timingPolicy", decisionEvent.getTimingPolicy().name());
+			}
+			if (decisionEvent.getInputKind() != null) {
+				mapPut(sb, "inputKind", decisionEvent.getInputKind().name());
+			}
+		} else if (event instanceof UIEvent.InitialDecision) {
+			UIEvent.InitialDecision initialDecisionEvent = (UIEvent.InitialDecision) event;
+			mapPut(sb, "singleReferee", Boolean.toString(initialDecisionEvent.isSingleLight())); // backward compat
+			mapPut(sb, "singleLight", Boolean.toString(initialDecisionEvent.isSingleLight()));
+			if (initialDecisionEvent.getTimingPolicy() != null) {
+				mapPut(sb, "timingPolicy", initialDecisionEvent.getTimingPolicy().name());
+			}
+			if (initialDecisionEvent.getInputKind() != null) {
+				mapPut(sb, "inputKind", initialDecisionEvent.getInputKind().name());
+			}
 		}
 
 		populateRecordInfoStrings(sb, records, fop);
