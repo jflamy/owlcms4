@@ -250,7 +250,7 @@ public class FieldOfPlay implements IUnregister {
 	private Queue<FOPEvent.WeightChange> deferredWeightChanges = new LinkedList<>();
 	private Athlete nextAthlete;
 	private TimerTask decisionDisplayTimer;
-	private boolean singleReferee;
+	private volatile boolean singleReferee;
 	private Sound finalWarningSound;
 	private Sound initialWarningSound;
 	private Sound timeOverSound;
@@ -1517,6 +1517,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void setSingleReferee(boolean solo) {
+		logger./**/warn("FieldOfPlay.setSingleReferee({}) on {} {}",
+		        solo, this.getName(), LoggerUtils.whereFrom());
 		this.singleReferee = solo;
 	}
 
@@ -1930,21 +1932,18 @@ public class FieldOfPlay implements IUnregister {
 			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(),
 			        goodLift, goodLift, goodLift));
 		} else if (isSingleReferee()) {
-			this.currentInputKind = InputKind.SOLO_INPUT;
+			this.logger.warn("{}solo referee decision path refIndex={} decision={} state={} {}",
+			        FieldOfPlay.getLoggingName(this), du.getRefIndex(), du.isDecision(), this.state,
+			        LoggerUtils.whereFrom());
 			boolean goodLift = du.isDecision();
-			getRefereeDecision()[0] = goodLift;
-			getRefereeDecision()[1] = goodLift;
-			getRefereeDecision()[2] = goodLift;
 			long now = System.currentTimeMillis();
-			getRefereeTime()[0] = now;
-			getRefereeTime()[1] = now;
-			getRefereeTime()[2] = now;
 			notifyDecisionWithoutClock(e.getOrigin());
 			setClockOwner(null);
 			if (getAthleteTimer().isRunning()) {
 				getAthleteTimer().stop();
 			}
 			setPreviousAthlete(e.getAthlete());
+			normalizeSoloDecision(goodLift, now);
 			processRefereeDecisions(e);
 			uiShowUpdateOnJuryScreen(e);
 		} else {
@@ -3230,9 +3229,7 @@ public class FieldOfPlay implements IUnregister {
 	 * @param e
 	 */
 	private void simulateDecision(ExplicitDecision ed) {
-		if (this.currentInputKind == null) {
-			this.currentInputKind = InputKind.ANNOUNCER_ENTRY;
-		}
+		this.currentInputKind = InputKind.ANNOUNCER_ENTRY;
 		long now = System.currentTimeMillis();
 		if (getAthleteTimer().isRunning()) {
 			getAthleteTimer().stop();
@@ -3681,18 +3678,39 @@ public class FieldOfPlay implements IUnregister {
 	private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
 		logger.debug("referee decisions {} {} {}\n{}", e.ref1, e.ref2, e.ref3, LoggerUtils.stackTrace());
 
+		Boolean ref1 = e.ref1;
+		Boolean ref2 = e.ref2;
+		Boolean ref3 = e.ref3;
+		Long ref1Time = e.ref1Time;
+		Long ref2Time = e.ref2Time;
+		Long ref3Time = e.ref3Time;
+
+		if (isSingleReferee()) {
+			Boolean firstDecision = ref2 != null ? ref2 : (ref1 != null ? ref1 : ref3);
+			if (firstDecision != null) {
+				Long firstDecisionTime = ref2 != null ? ref2Time : (ref1 != null ? ref1Time : ref3Time);
+				this.logger.warn("{}normalizing DecisionFullUpdate to solo input ref1={} ref2={} ref3={} state={} {}",
+				        FieldOfPlay.getLoggingName(this), e.ref1, e.ref2, e.ref3, this.state,
+				        LoggerUtils.whereFrom());
+				ref1 = firstDecision;
+				ref2 = firstDecision;
+				ref3 = firstDecision;
+				Long normalizedTime = firstDecisionTime != null ? firstDecisionTime : System.currentTimeMillis();
+				ref1Time = normalizedTime;
+				ref2Time = normalizedTime;
+				ref3Time = normalizedTime;
+			}
+		}
+
 		// it is not possible to go from a non-null decision that was given back to null
 		// this would indicate an event out of order.
-		boolean outOfOrder = (e.ref1 == null && getRefereeDecision()[0] != null)
-		        || (e.ref2 == null && getRefereeDecision()[1] != null)
-		        || (e.ref3 == null && getRefereeDecision()[2] != null);
+		boolean outOfOrder = isOutOfOrder(ref1, ref2, ref3);
 		if (!outOfOrder) {
-			getRefereeDecision()[0] = e.ref1;
-			getRefereeTime()[0] = e.ref1Time;
-			getRefereeDecision()[1] = e.ref2;
-			getRefereeTime()[1] = e.ref2Time;
-			getRefereeDecision()[2] = e.ref3;
-			getRefereeTime()[2] = e.ref3Time;
+			if (isSingleReferee() && ref1 != null) {
+				normalizeSoloDecision(ref1, ref1Time);
+			} else {
+				setRefereeDecisions(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time);
+			}
 			processRefereeDecisions(e);
 		} else {
 			// this should never happen, but the order of JavaScript callbacks
@@ -3705,6 +3723,28 @@ public class FieldOfPlay implements IUnregister {
 		getRefereeDecision()[e.getRefIndex()] = e.isDecision();
 		getRefereeTime()[e.getRefIndex()] = System.currentTimeMillis();
 		processRefereeDecisions(e);
+	}
+
+	private boolean isOutOfOrder(Boolean ref1, Boolean ref2, Boolean ref3) {
+		return (ref1 == null && getRefereeDecision()[0] != null)
+		        || (ref2 == null && getRefereeDecision()[1] != null)
+		        || (ref3 == null && getRefereeDecision()[2] != null);
+	}
+
+	private void normalizeSoloDecision(Boolean decision, Long decisionTime) {
+		Long normalizedTime = decisionTime != null ? decisionTime : System.currentTimeMillis();
+		this.currentInputKind = InputKind.SOLO_INPUT;
+		setRefereeDecisions(decision, decision, decision, normalizedTime, normalizedTime, normalizedTime);
+	}
+
+	private void setRefereeDecisions(Boolean ref1, Boolean ref2, Boolean ref3, Long ref1Time, Long ref2Time,
+	        Long ref3Time) {
+		getRefereeDecision()[0] = ref1;
+		getRefereeTime()[0] = ref1Time;
+		getRefereeDecision()[1] = ref2;
+		getRefereeTime()[1] = ref2Time;
+		getRefereeDecision()[2] = ref3;
+		getRefereeTime()[2] = ref3Time;
 	}
 
 	private List<Athlete> updateScoringSystemRanking(EntityManager em, List<Athlete> l) {

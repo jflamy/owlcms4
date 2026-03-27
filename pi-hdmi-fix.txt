@@ -1,0 +1,42 @@
+Raspberry Pi Bookworm - Force both HDMI to 1920x1080
+=====================================================
+
+OPTION 1: cmdline.txt (recommended)
+------------------------------------
+File: /boot/firmware/cmdline.txt
+
+Append to the END of the existing single line (do NOT create a new line):
+
+video=HDMI-A-1:1920x1080@60D video=HDMI-A-2:1920x1080@60D
+
+
+OPTION 2: config.txt
+---------------------
+File: /boot/firmware/config.txt
+
+Add at the end of the file:
+
+[all]
+hdmi_group=1
+hdmi_mode=16
+
+[HDMI:0]
+hdmi_group=1
+hdmi_mode=16
+
+[HDMI:1]
+hdmi_group=1
+hdmi_mode=16
+
+
+OPTION 3: labwc autostart (Wayland)
+-------------------------------------
+File: ~/.config/labwc/autostart
+
+Add this line:
+
+wlr-randr --output HDMI-A-1 --mode 1920x1080 --output HDMI-A-2 --mode 1920x1080
+
+
+Pick ONE option. Reboot after changes.
+Delete this file when done.

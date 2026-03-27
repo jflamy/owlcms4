@@ -35,6 +35,8 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	public JuryDisplayDecisionElement() {
 		this.setJury(true);
 		setDisplaySize("large");
+		logger./**/warn("JuryDisplayDecisionElement constructor: fop={} isSingleRef={} {}",
+		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(), LoggerUtils.whereFrom());
 		getElement().setProperty("singleRef", this.isSingleRef());
 		this.getElement().getStyle().set("font-size", "100%");
 		doReset();
@@ -45,6 +47,9 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	}
 
 	public void doReset() {
+		logger./**/warn("JuryDisplayDecisionElement doReset: fop={} isSingleRef={} ui={} {}",
+		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
+		        (ui != null ? "set" : "null"), LoggerUtils.whereFrom());
 		this.getElement().callJsFunction("reset", false);
 		getElement().setProperty("singleRef", this.isSingleRef());
 		if (this.isSingleRef()) {
@@ -93,10 +98,16 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		ui = UI.getCurrent();
+		logger./**/warn("JuryDisplayDecisionElement onAttach: fop={} isSingleRef={} parent={} {}",
+		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
+		        this.getParent().map(p -> p.getClass().getSimpleName()).orElse("none"),
+		        LoggerUtils.whereFrom());
 		super.onAttach(attachEvent);
 		if (this.fop == null) {
 			logger./**/warn("No FOP available for JuryDisplayDecisionElement onAttach {}", LoggerUtils.whereFrom());
+			return;
 		}
+		doReset();
 	}
 
 	@Override

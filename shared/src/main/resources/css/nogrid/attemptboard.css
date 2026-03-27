@@ -76,11 +76,10 @@
 	line-height: 12vh;
 	justify-self: start;
 	font-size: 10vh;
-	grid-area: firstName-start/firstName-start/firstName-end/firstName-end;
+	grid-area: firstName-start/firstName-start/firstName-end/name-end;
 	white-space: normal;
 	overflow: hidden;
 	font-weight: normal;
-	max-width: 76vw;
 	max-height: 12vh;
 	display: block;
 }

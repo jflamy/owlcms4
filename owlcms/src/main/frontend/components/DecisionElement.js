@@ -21,16 +21,16 @@ class DecisionElement extends LitElement {
         }
 
         :host([size="large"]) {
-          --attemptFontSize: 25vh;
+          --attempt-font-size: 25vh;
         }
 
         :host([size="x-large"]) {
-          --attemptFontSize: 40vh;
+          --attempt-font-size: 40vh;
         }
 
         :host(:not([size])),
         :host([size="small"]) {
-          --attemptFontSize: 1.2em;
+          --attempt-font-size: 1.2em;
         }
         .decisionWrapper {
           width: 100%;
@@ -56,19 +56,19 @@ class DecisionElement extends LitElement {
         }
 
         .soloDecision {
-            border-radius: 50%;
-            border: 2px solid var(--lumo-contrast);
-            margin: 0;
-            padding: 0;
-            width: var(--attemptFontSize, 20vh);
-            height: var(--attemptFontSize, 20vh);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          font-size: calc(var(--attemptFontSize, 20vh) * 0.6);
-            line-height: 1;
-            color: black;
-            align-self: center;
+          border-radius: 50%;
+          border: 2px solid var(--lumo-contrast);
+          margin: 0;
+          padding: 0;
+          width: var(--solo-decision-size, var(--attempt-font-size, 20vh));
+          height: var(--solo-decision-size, var(--attempt-font-size, 20vh));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: calc(var(--solo-decision-size, var(--attempt-font-size, 20vh)) * 0.6);
+          line-height: 1;
+          color: black;
+          align-self: center;
         }
 
         /* .soloDecision.none {

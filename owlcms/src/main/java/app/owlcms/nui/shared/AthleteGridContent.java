@@ -1063,7 +1063,9 @@ public abstract class AthleteGridContent extends BaseContent
 	protected void createDecisionLights() {
 		this.decisionDisplay = new JuryDisplayDecisionElement();
 		this.decisionDisplay.setFop(getFop());
+		this.decisionDisplay.doReset();
 		this.decisionDisplay.setSilenced(isDownSilenced());
+		this.decisionDisplay.setDisplaySize("small");
 		// Icon silenceIcon = AvIcons.MIC_OFF.create();
 		this.setDecisionLights(new HorizontalLayout(this.decisionDisplay));
 		this.getDecisionLights().addClassName("announcerLeft");
@@ -1072,6 +1074,7 @@ public abstract class AthleteGridContent extends BaseContent
 		this.decisionDisplay.getStyle().set("width", "9em");
 		// Set small size for top bar decision display
 		this.decisionDisplay.getStyle().set("--attemptFontSize", "1.2em");
+		this.decisionDisplay.getStyle().set("--soloDecisionSize", "1.8em");
 	}
 
 	/**

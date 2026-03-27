@@ -362,6 +362,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Override
 	protected void syncWithFop(boolean refreshGrid, FieldOfPlay fop) {
+		logger./**/warn("JuryContent syncWithFop: fop={} fop.isSingleReferee={} decisions={}",
+		        fop.getName(), fop.isSingleReferee(), (this.decisions != null ? "exists" : "null"));
 		super.syncWithFop(refreshGrid, fop);
 		
 		// Create decisions element if deferred from init (FOP was not available then)
@@ -505,6 +507,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		}
 		this.decisions = new JuryDisplayDecisionElement();
 		this.decisions.setFop(fop);
+		this.decisions.doReset();
 		this.decisions.setDisplaySize("large");
 		this.decisions.getElement().setAttribute("theme", "dark");
 		this.decisions.getStyle().set("background-color", "black");

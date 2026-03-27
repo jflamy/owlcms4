@@ -48,6 +48,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.InputKind;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -175,6 +176,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			setFop(fop);
 			this.uiEventBus = uiEventBusRegister(this, fop);
 			attachLiveDecisions(fop);
+			syncWithFopState(fop);
 		});
 	}
 
@@ -233,12 +235,16 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		this.liveDecisions = new JuryDisplayDecisionElement();
 		this.liveDecisions.setFop(fop);
 		this.liveDecisions.setDisplaySize("large");
+		this.liveDecisions.getStyle().set("--attemptFontSize", "18vh");
+		this.liveDecisions.getStyle().set("--soloDecisionSize", "14vh");
 		this.liveDecisions.setSilenced(true);
 		this.liveDecisions.getElement().setAttribute("theme", "dark");
 		this.liveDecisions.getStyle().set("background-color", "black");
 		this.liveDecisions.getStyle().set("font-size", "100%");
+		this.liveDecisions.getStyle().set("max-height", "100%");
+		this.liveDecisions.getStyle().set("overflow", "hidden");
 		Div refDecisionWrapper = new Div(this.liveDecisions);
-		refDecisionWrapper.getStyle().set("width", "60%").set("height", "100%");
+		refDecisionWrapper.getStyle().set("width", "60%").set("height", "100%").set("overflow", "hidden");
 		this.refDecisionHost.add(refDecisionWrapper);
 	}
 
@@ -277,6 +283,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			OwlcmsSession.setFop(e.getValue());
 			this.uiEventBus = uiEventBusRegister(this, e.getValue());
 			attachLiveDecisions(e.getValue());
+			syncWithFopState(e.getValue());
 			if (this.location != null && this.locationUI != null) {
 				Location location2 = new Location(this.location.getPath(), new QueryParameters(this.urlParams));
 				URLUtils.replaceState(this.locationUI.getPage().getHistory(), null, location2, this.location);
@@ -321,12 +328,16 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 		// --- Row 4: Summon buttons (compact) ---
 		Button allSummon = createKeypadButton(Translator.translate("JuryKeypad.SummonReferees"), "contrast", () -> summonReferee(0));
+		styleSummonButton(allSummon);
 		allSummon.getStyle().set("grid-column", "1").set("grid-row", "4");
 		Button leftSummon = createKeypadButton(Translator.translate("JuryKeypad.LeftRefereeSummon"), "contrast", () -> summonReferee(1));
+		styleSummonButton(leftSummon);
 		leftSummon.getStyle().set("grid-column", "2").set("grid-row", "4");
 		Button centerSummon = createKeypadButton(Translator.translate("JuryKeypad.CenterRefereeSummon"), "contrast", () -> summonReferee(2));
+		styleSummonButton(centerSummon);
 		centerSummon.getStyle().set("grid-column", "3").set("grid-row", "4");
 		Button rightSummon = createKeypadButton(Translator.translate("JuryKeypad.RightRefereeSummon"), "contrast", () -> summonReferee(3));
+		styleSummonButton(rightSummon);
 		rightSummon.getStyle().set("grid-column", "4").set("grid-row", "4");
 		Button resumeBtn = createKeypadButton(Translator.translate("JuryNotification.END_JURY_BREAK"), "success primary", this::resumeCompetition);
 		resumeBtn.getStyle().set("grid-column", "5").set("grid-row", "4");
@@ -392,7 +403,9 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		Button noLift = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary", () -> submitJuryDecision(false));
 		noLift.getStyle().set("grid-column", "1").set("grid-row", "8");
 		Button goodLift = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"), "success primary", () -> submitJuryDecision(true));
-		goodLift.getStyle().set("grid-column", "2").set("grid-row", "8");
+		goodLift.getStyle().set("grid-column", "2").set("grid-row", "8")
+		        .set("background-color", "#ffffff").set("background-image", "none").set("color", "#000000")
+		        .set("border", "1px solid #c8c8c8");
 		Button deliberate = createKeypadButton(Translator.translate("BreakButton.JuryDeliberation"), "primary contrast", this::startDeliberation);
 		deliberate.getStyle().set("grid-column", "3").set("grid-row", "8")
 		        .set("background-color", "#FFC107").set("color", "#000000");
@@ -453,6 +466,14 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		return button;
 	}
 
+	private void styleSummonButton(Button button) {
+		button.getStyle()
+		        .set("background-color", "#2f343a")
+		        .set("background-image", "none")
+		        .set("color", "#ffffff")
+		        .set("border", "1px solid #51565c");
+	}
+
 	private int getNbJurors() {
 		return Competition.getCurrent().getJurySize();
 	}
@@ -462,6 +483,18 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			registration.remove();
 		}
 		this.registrations.clear();
+	}
+
+	private boolean hasRefereeDecision(Boolean[] decisions) {
+		if (decisions == null) {
+			return false;
+		}
+		for (Boolean decision : decisions) {
+			if (decision != null) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void postJuryMemberDecision(int juryMember, boolean goodBad) {
@@ -495,6 +528,63 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		registerShortcut(() -> summonReferee(2), Key.KEY_I);
 		registerShortcut(() -> summonReferee(3), Key.KEY_J);
 		registerShortcut(() -> summonReferee(0), Key.KEY_K);
+	}
+
+	private void syncWithFopState(FieldOfPlay fop) {
+		if (fop == null) {
+			return;
+		}
+
+		resetJuryVoting();
+		Boolean[] curJuryDecisions = fop.getJuryMemberDecision();
+		if (curJuryDecisions != null) {
+			for (int i = 0; i < Math.min(curJuryDecisions.length, this.juryVotes.length); i++) {
+				if (curJuryDecisions[i] != null) {
+					juryVote(i, curJuryDecisions[i], false);
+				}
+			}
+		}
+
+		if (this.liveDecisions == null) {
+			return;
+		}
+
+		this.liveDecisions.setFop(fop);
+		this.liveDecisions.doReset();
+
+		Boolean[] curRefDecisions = fop.getRefereeDecision();
+		Long[] curRefTimes = fop.getRefereeTime();
+		if (!hasRefereeDecision(curRefDecisions)) {
+			return;
+		}
+
+		InputKind inputKind = fop.getCurrentInputKind();
+		boolean singleRef = inputKind == InputKind.ANNOUNCER_ENTRY || inputKind == InputKind.SOLO_INPUT;
+		if (singleRef) {
+			this.liveDecisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(
+			        fop.getAthleteUnderReview(),
+			        null,
+			        curRefDecisions[1],
+			        null,
+			        null,
+			        curRefTimes[1],
+			        null,
+			        this,
+			        true,
+			        fop));
+		} else {
+			this.liveDecisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(
+			        fop.getAthleteUnderReview(),
+			        curRefDecisions[0],
+			        curRefDecisions[1],
+			        curRefDecisions[2],
+			        curRefTimes[0],
+			        curRefTimes[1],
+			        curRefTimes[2],
+			        this,
+			        false,
+			        fop));
+		}
 	}
 
 	private void juryVote(Integer juryMember, Boolean goodBad, boolean sendFOPEvent) {
