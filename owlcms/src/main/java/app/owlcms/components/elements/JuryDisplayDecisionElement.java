@@ -35,7 +35,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	public JuryDisplayDecisionElement() {
 		this.setJury(true);
 		setDisplaySize("large");
-		logger./**/warn("JuryDisplayDecisionElement constructor: fop={} isSingleRef={} {}",
+		logger.debug("JuryDisplayDecisionElement constructor: fop={} isSingleRef={} {}",
 		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(), LoggerUtils.whereFrom());
 		getElement().setProperty("singleRef", this.isSingleRef());
 		this.getElement().getStyle().set("font-size", "100%");
@@ -47,7 +47,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	}
 
 	public void doReset() {
-		logger./**/warn("JuryDisplayDecisionElement doReset: fop={} isSingleRef={} ui={} {}",
+		logger.debug("JuryDisplayDecisionElement doReset: fop={} isSingleRef={} ui={} {}",
 		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
 		        (ui != null ? "set" : "null"), LoggerUtils.whereFrom());
 		this.getElement().callJsFunction("reset", false);

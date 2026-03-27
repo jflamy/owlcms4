@@ -1528,7 +1528,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	}
 
 	private void publishMqttResetAllDecisions() {
-		logger.debug("{}MQTT resetDecisions", FieldOfPlay.getLoggingName(this.getFop()));
+		//logger.debug("{}MQTT resetDecisions", FieldOfPlay.getLoggingName(this.getFop()));
 		try {
 			this.client.publish("owlcms/fop/resetDecisions/" + this.getFop().getName(),
 			        new MqttMessage("reset".getBytes(StandardCharsets.UTF_8)));

@@ -775,17 +775,17 @@ public class FieldOfPlay implements IUnregister {
 			uiShowPlates((BarbellOrPlatesChanged) e);
 			return;
 		} else if (e instanceof SwitchGroup) {
-			this.logger.debug("{}*** switching group", FieldOfPlay.getLoggingName(this));
 			Group oldGroup = this.getGroup();
 			if (oldGroup != null) {
 				oldGroup.doDone();
 			}
 			SwitchGroup switchGroup = (SwitchGroup) e;
 			Group newGroup = switchGroup.getGroup();
+			this.logger.info("{}switching group to {}", FieldOfPlay.getLoggingName(this), newGroup != null ? newGroup.getName() : "null");
 			var orig = e.getOrigin();
 			boolean inBreak = this.state == BREAK || this.state == INACTIVE;
 			if (Objects.equals(oldGroup, newGroup)) {
-				this.logger.debug("{}**** reloading", FieldOfPlay.getLoggingName(this));
+				//this.logger.trace("{}**** reloading", FieldOfPlay.getLoggingName(this));
 				loadGroup(newGroup, this, true);
 				pushOutSwitchGroup(orig);
 				uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -1301,7 +1301,7 @@ public class FieldOfPlay implements IUnregister {
 
 			int timeAllowed = getTimeAllowed();
 			Integer attemptsDone = getCurAthlete().getAttemptsDone();
-			this.logger.debug("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
+			this.logger.info("{}recomputed lifting order curAthlete={} prevlifter={} time={} attemptsDone={} [{}]",
 			        FieldOfPlay.getLoggingName(this),
 			        getCurAthlete() != null ? getCurAthlete().getFullName() : "",
 			        getPreviousAthlete() != null ? getPreviousAthlete().getFullName() : "",
@@ -1505,8 +1505,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void setSingleReferee(boolean solo) {
-		logger./**/warn("FieldOfPlay.setSingleReferee({}) on {} {}",
-		        solo, this.getName(), LoggerUtils.whereFrom());
+		logger.trace("FieldOfPlay.setSingleReferee({}) on {} {}", solo, this.getName(), LoggerUtils.whereFrom());
 		this.singleReferee = solo;
 	}
 
@@ -2686,8 +2685,8 @@ public class FieldOfPlay implements IUnregister {
 		long endLeaders = 0;
 
 		var initialList = getLiftingOrder();
-		this.logger.debug("{}=== recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this),
-		        recomputeCategoryRanks, LoggerUtils.whereFrom());
+		// this.logger.debug("{}=== recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this),
+		//         recomputeCategoryRanks, LoggerUtils.whereFrom());
 		if (recomputeCategoryRanks) {
 			// we update the ranks all athletes in our category, as well as the current scoring system
 			athletes = JPAService.runInTransaction(em -> {
@@ -2712,8 +2711,7 @@ public class FieldOfPlay implements IUnregister {
 			recomputeRecords(null);
 		} else {
 			if (recomputeCategoryRanks) {
-				// Trace athlete IDs sent to computeMedals
-				logger.debug("athletes sent to computeMedals IDs: {}", athletes == null ? null : athletes.stream().map(a -> a.getAbbreviatedName()).collect(Collectors.toList()));
+				//logger.trace("athletes sent to computeMedals IDs: {}", athletes == null ? null : athletes.stream().map(a -> a.getAbbreviatedName()).collect(Collectors.toList()));
 				setMedals(Competition.getCurrent().computeMedals(g, athletes));
 			}
 			endMedals = System.nanoTime();
@@ -2819,7 +2817,7 @@ public class FieldOfPlay implements IUnregister {
 	 * Reset decisions. Invoked when a fresh clock is given.
 	 */
 	private void resetDecisions() {
-		this.logger.debug("{}resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
+		//this.logger.trace("{}resetting all decisions on new clock", FieldOfPlay.getLoggingName(this));
 		setRefereeDecision(new Boolean[3]);
 		resetJuryDecisions();
 		setRefereeTime(new Long[3]);
@@ -2950,8 +2948,8 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void setClockOwnerInitialTimeAllowed(int timeAllowed) {
-		this.logger.debug("{}setClockOwnerInitialTimeAllowed timeAllowed={} {}", FieldOfPlay.getLoggingName(this),
-		        timeAllowed, LoggerUtils.whereFrom());
+		//this.logger.trace("{}setClockOwnerInitialTimeAllowed timeAllowed={} {}", FieldOfPlay.getLoggingName(this),
+		//        timeAllowed, LoggerUtils.whereFrom());
 		this.clockOwnerInitialTimeAllowed = timeAllowed;
 	}
 
@@ -3560,7 +3558,7 @@ public class FieldOfPlay implements IUnregister {
 	private void uiShowUpdateOnJuryScreen(FOPEvent e) {
 		InputKind inputKind = this.currentInputKind;
 		boolean singleRef = inputKind == InputKind.ANNOUNCER_ENTRY || inputKind == InputKind.SOLO_INPUT;
-		logger.debug("### uiShowUpdateOnJuryScreen inputKind={}", inputKind);
+		//logger.debug("### uiShowUpdateOnJuryScreen inputKind={}", inputKind);
 		pushOutUIEvent(new UIEvent.RefereeUpdate(getCurAthlete(),
 		        singleRef ? null : getRefereeDecision()[0],
 		        getRefereeDecision()[1],
@@ -3670,7 +3668,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void updateRefereeDecisions(FOPEvent.DecisionFullUpdate e) {
-		logger.debug("referee decisions {} {} {}\n{}", e.ref1, e.ref2, e.ref3, LoggerUtils.stackTrace());
+		//logger.debug("referee decisions {} {} {}\n{}", e.ref1, e.ref2, e.ref3, LoggerUtils.stackTrace());
 
 		Boolean ref1 = e.ref1;
 		Boolean ref2 = e.ref2;

@@ -205,7 +205,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		}
 		this.timeRemainingAtLastStop = this.timeRemaining;
 		if (this.serverTimer != null) {
-			this.logger.info("{}+++++ stopping serverTimer", FieldOfPlay.getLoggingName(this.fop));
+			this.logger.debug("{}+++++ stopping serverTimer", FieldOfPlay.getLoggingName(this.fop));
 			this.serverTimer.cancel();
 		}
 		getFop().pushOutUIEvent(new UIEvent.StopTime(this.timeRemaining, null, getFop()));
