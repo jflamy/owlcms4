@@ -736,10 +736,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			        switchLiveLightsMode(this, !this.isLiveLights(), true);
 			        FieldOfPlay fop2 = getFop();
 			        if (fop2 != null) {
-				        fop2.setAnnouncerDecisionImmediate(false);
 				        fop2.setSingleReferee(false);
 			        }
-			        switchImmediateDecisionMode(this, false, true);
 			        // switchSingleRefereeMode(this, false, true);
 			        e.getSource().setChecked(this.isLiveLights());
 			        subItemSingleRef.setChecked(false);
@@ -780,16 +778,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			switchSingleRefereeMode(this, singleReferee2, true);
 			FieldOfPlay fop2 = getFop();
 			if (fop2 != null) {
-				// fop2.setAnnouncerDecisionImmediate(false);
 				fop2.setSingleReferee(singleReferee2);
 			}
-			if (singleReferee2) {
-				switchImmediateDecisionMode(this, false, true);
-				// immediateDecision.setChecked(false);
-			}
-			// switchLiveLightsMode(this, !singleReferee2, true);
 			subItemSingleRef.setChecked(singleReferee2);
-			// immediateDecision.setChecked(!singleReferee2);
 			showDeclarations.setChecked(isLiveLights());
 			e.getSource().setChecked(singleReferee2);
 		});
@@ -831,10 +822,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		long now = System.currentTimeMillis();
 		long timeElapsed = now - this.previousBadMillis;
 		if (timeElapsed > 2000 || isSingleReferee()) {
-			if (isSingleReferee() && !fop.isAnnouncerDecisionImmediate()
-			        && (fop.getState() == FOPState.TIME_STOPPED || fop.getState() == FOPState.TIME_RUNNING)) {
-				fop.fopEventPost(new FOPEvent.DownSignal(this));
-			}
 			fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
 			        false, false, false));
 		}
@@ -847,16 +834,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		long timeElapsed = now - this.previousGoodMillis;
 		// no reason to give two decisions close together
 		if (timeElapsed > 2000 || isSingleReferee()) {
-			if (isSingleReferee() && !fop.isAnnouncerDecisionImmediate()
-			        && (fop.getState() == FOPState.TIME_STOPPED
-			                || fop.getState() == FOPState.TIME_RUNNING)) {
-				fop.fopEventPost(new FOPEvent.DownSignal(this));
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e1) {
-
-				}
-			}
 			fop.fopEventPost(
 			        new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
 			                true,

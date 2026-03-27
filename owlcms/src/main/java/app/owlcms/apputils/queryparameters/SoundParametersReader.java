@@ -91,30 +91,11 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 		processBooleanParam(params, SHOW_DECLARATIONS, (v) -> switchDeclarationsMode((Component) this, v, false, false));
 		processBooleanParam(params, CENTER_NOTIFICATIONS, (v) -> switchCenteringMode((Component) this, v, false, false));
 
-		// immediate is true by default, except if single ref.
-		List<String> immParams = params.get(IMMEDIATE);
-		boolean imm = true;
-		if (immParams != null && !immParams.isEmpty()) {
-			if (immParams.get(0).toLowerCase().equalsIgnoreCase("false")) {
-				imm = false;
-			} else if (immParams.get(0).toLowerCase().equalsIgnoreCase("true")) {
-				imm = true;
-			}
-		} else if (isSingleReferee()) {
-			imm = false;
-		}
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null && fop.getPlatform() != null) {
 			// Determine role name for UI settings storage from the class name
 			// AnnouncerContent -> "announcer", MarshallContent -> "marshall", etc.
 			String roleName = this.getClass().getSimpleName().replace("Content", "").toLowerCase();
-			
-			// Handle immediate decision mode (announcer-specific)
-			if (this instanceof AnnouncerContent) {
-				fop.setAnnouncerDecisionImmediate(imm);
-				switchImmediateDecisionMode((Component) this, imm, false);
-				updateParam(params, IMMEDIATE, imm ? null : "false");
-			}
 			
 			// If URL params are missing, restore from platform UI settings
 			// This preserves settings when the page is closed and reopened
@@ -241,17 +222,6 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 
 	public default void switchDownMode(Component target, boolean silent, boolean updateURL) {
 		switchDownMode(silent, updateURL, true);
-	}
-
-	public default void switchImmediateDecisionMode(Component component, boolean b, boolean updateURL) {
-		FieldOfPlay fop = OwlcmsSession.getFop();
-		if (fop == null) {
-			return;
-		}
-		fop.setAnnouncerDecisionImmediate(b);
-		if (updateURL) {
-			updateURLLocation(getLocationUI(), getLocation(), IMMEDIATE, b ? null : "false");
-		}
 	}
 
 	public default void switchLiveLightsMode(Component component, boolean liveLights, boolean updateURL) {

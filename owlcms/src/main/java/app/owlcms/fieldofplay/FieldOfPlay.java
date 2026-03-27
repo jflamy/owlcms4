@@ -229,7 +229,6 @@ public class FieldOfPlay implements IUnregister {
 	private List<RecordEvent> newRecords;
 	private List<RecordEvent> lastChallengedRecords;
 	private List<RecordEvent> lastNewRecords;
-	private boolean announcerDecisionImmediate = true;
 	private Boolean[] juryMemberDecision;
 	private Integer[] juryMemberTime;
 	private Athlete athleteUnderReview;
@@ -1172,10 +1171,6 @@ public class FieldOfPlay implements IUnregister {
 		        new SynchronousQueue<>()));
 	}
 
-	public boolean isAnnouncerDecisionImmediate() {
-		return this.announcerDecisionImmediate;
-	}
-
 	public boolean isCjStarted() {
 		return this.cjStarted;
 	}
@@ -1396,13 +1391,6 @@ public class FieldOfPlay implements IUnregister {
 	public void resetJuryDecisions() {
 		setJuryMemberDecision(new Boolean[5]);
 		this.juryMemberTime = new Integer[5];
-	}
-
-	/**
-	 * @param announcerDecisionImmediate the announcerDecisionImmediate to set
-	 */
-	public void setAnnouncerDecisionImmediate(boolean announcerDecisionImmediate) {
-		this.announcerDecisionImmediate = announcerDecisionImmediate;
 	}
 
 	/**
@@ -1929,7 +1917,7 @@ public class FieldOfPlay implements IUnregister {
 		if (du.getRefIndex() < 0) {
 			this.currentInputKind = InputKind.ANNOUNCER_ENTRY;
 			boolean goodLift = du.isDecision();
-			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), isAnnouncerDecisionImmediate(),
+			simulateDecision(new ExplicitDecision(e.getAthlete(), e.getStackTrace(), true, // announcer decisions are always immediate
 			        goodLift, goodLift, goodLift));
 		} else if (isSingleReferee()) {
 			this.logger.warn("{}solo referee decision path refIndex={} decision={} state={} {}",
@@ -2330,11 +2318,14 @@ public class FieldOfPlay implements IUnregister {
 			}
 		}
 		setGoodLift(null);
-		if (this.currentInputKind == InputKind.ANNOUNCER_ENTRY) {
+		if (this.currentInputKind == InputKind.ANNOUNCER_ENTRY
+		        && !Config.getCurrent().featureSwitch("announcerTriggersInitialDecision")) {
 			setGoodLift(nbWhite >= 1);
 			showDecisionNow(e.getOrigin());
 			return;
 		}
+		// Note: ANNOUNCER_ENTRY and SOLO_INPUT both normalize their single decision to 3 identical votes
+		// (all white or all red), so nbDecisions == 3 and the majority threshold below is always immediately met.
 		if (nbWhite >= 2 || nbRed >= 2) {
 			if (!this.downEmitted) {
 				emitDown(e);
@@ -2424,9 +2415,12 @@ public class FieldOfPlay implements IUnregister {
 		}
 		InputKind inputKind = this.currentInputKind;
 		boolean singleRef = inputKind == InputKind.ANNOUNCER_ENTRY || inputKind == InputKind.SOLO_INPUT;
-		Boolean pendingDecision = singleRef ? (nbWhite >= 1) : (nbWhite >= 2);
+		Boolean goodLift = singleRef ? (nbWhite >= 1) : (nbWhite >= 2);
 		TimingPolicy timingPolicy = isShowDecisionsImmediately() ? TimingPolicy.IMMEDIATE : TimingPolicy.DELAYED;
-		pushOutUIEvent(new UIEvent.InitialDecision(getCurAthlete(), pendingDecision,
+		this.logger.info("{}******* INITIAL_DECISION inputKind={} goodLift={} singleRef={} timingPolicy={} refs=[{},{},{}]",
+		        FieldOfPlay.getLoggingName(this), inputKind, goodLift, singleRef, timingPolicy,
+		        refereeDecisions[0], refereeDecisions[1], refereeDecisions[2]);
+		pushOutUIEvent(new UIEvent.InitialDecision(getCurAthlete(), goodLift,
 		        refereeDecisions[0], refereeDecisions[1], refereeDecisions[2],
 		        origin, this, singleRef, timingPolicy, inputKind));
 	}
@@ -2871,7 +2865,7 @@ public class FieldOfPlay implements IUnregister {
 		}
 		resetDecisions();
 		pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this, this));
-		transitionToLifting(e, this.group, this.announcerDecisionImmediate);
+		transitionToLifting(e, this.group, true); // announcer decision is always immediate
 
 		// if we are in TIME_STOPPED, this will create a loop as we will come back here.
 		// in that case, useEvent should be false so we simply restart the timer.
@@ -3240,7 +3234,7 @@ public class FieldOfPlay implements IUnregister {
 
 		this.setClockOwner(null);
 		DecisionFullUpdate ne = new DecisionFullUpdate(ed.getOrigin(), ed.getAthlete(), ed.ref1, ed.ref2, ed.ref3, now,
-		        now, now, isAnnouncerDecisionImmediate());
+		        now, now, true); // announcer decisions are always immediate
 		updateRefereeDecisions(ne);
 		uiShowUpdateOnJuryScreen(ed);
 		// needed to make sure 2min rule is triggered. The athlete we have just decided
@@ -3508,7 +3502,7 @@ public class FieldOfPlay implements IUnregister {
 
 	private synchronized void uiShowDownSignalOnSlaveDisplays(Object origin2) {
 		boolean fromAnnouncer = origin2 instanceof AnnouncerContent;
-		boolean announcerImmediate = fromAnnouncer && isAnnouncerDecisionImmediate();
+		boolean announcerImmediate = fromAnnouncer; // announcer decisions are always immediate
 		boolean emitSoundsOnServer2 = isEmitSoundsOnServer();
 		boolean downEmitted2 = isDownEmitted();
 		// this.logger.ddebug("showDownSignalOnSlaveDisplays fromAnnouncer {} announcerImmediate {} emitted={}", fromAnnouncer,
