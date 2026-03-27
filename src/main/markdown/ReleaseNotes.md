@@ -27,4 +27,16 @@
 66.0.0: Fix: Results records are extracted in competition results for a specific given category is selected
   - The standard "protocol" look templates show the templates (Total, SnCjTot)
 
+66.0.0: Clean-up of the solo referee/announcer/3-referee behavior wrt reversal delay and initial decision
+  - Solo referee decisions have a reversal delay, same as 3 referees.  Only the visual rendering changes (single referee light instead of 3)
+    - in solo referee mode, the first decision received from any referee is automatically the majority
+    - an indicator is propagated to modulate display
+  - Announcer input of a decision has no reversal delay because it usually follows flags or some incident
+    - no INITIAL_DECISION event is therefore sent
+    - unless the announcerTriggersInitialDecision feature toggle is sent (for example, to always have good/bad lift videos on a listener)
+
+66.0.0: showDecisionsImmediately feature toggle (off by default, TCRR still indicates a 3-second delay)
+  - Show the decision as soon as the 3 referees have given it. Note: this always sends INITIAL_DECISION
+
+
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
