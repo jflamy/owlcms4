@@ -205,7 +205,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		}
 		this.timeRemainingAtLastStop = this.timeRemaining;
 		if (this.serverTimer != null) {
-			this.logger.debug("{}+++++ stopping serverTimer", FieldOfPlay.getLoggingName(this.fop));
+			this.logger.debug("{}stopping serverTimer", FieldOfPlay.getLoggingName(this.fop));
 			this.serverTimer.cancel();
 		}
 		getFop().pushOutUIEvent(new UIEvent.StopTime(this.timeRemaining, null, getFop()));
@@ -236,21 +236,21 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		int nbStops = (timeRemaining) / 30000;
 		switch (nbStops) {
 			case 0 -> {
-				this.logger.debug("{}+++++ scheduling serverTimer timeOver {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
+				this.logger.debug("{}scheduling serverTimer timeOver {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
-						ProxyAthleteTimer.this.logger.info("{}+++++ running time over", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
+						ProxyAthleteTimer.this.logger.info("{}running time over", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						timeOver(this);
 					}
 				};
 			}
 			case 1 -> {
-				this.logger.debug("{}+++++ scheduling serverTimer finalWarning {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
+				this.logger.debug("{}scheduling serverTimer finalWarning {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
-						ProxyAthleteTimer.this.logger.info("{}+++++ running final warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
+						ProxyAthleteTimer.this.logger.info("{}running final warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						finalWarning(this);
 						// next task is time over, in 30sec.
 						ProxyAthleteTimer.this.serverTimer.schedule(computeTask(0), 30000);
@@ -258,7 +258,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				};
 			}
 			case 2 -> {
-				this.logger.debug("{}+++++ scheduling serverTimer 1:00 {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
+				this.logger.debug("{}scheduling serverTimer 1:00 {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
@@ -269,11 +269,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				};
 			}
 			case 3 -> {
-				this.logger.debug("{}+++++ scheduling server serverTimer initialWarning {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
+				this.logger.debug("{}scheduling server serverTimer initialWarning {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
-						ProxyAthleteTimer.this.logger.info("{}+++++ running initial warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
+						ProxyAthleteTimer.this.logger.info("{}running initial warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						initialWarning(this);
 						// next task is final warning, in 60 seconds.
 						ProxyAthleteTimer.this.serverTimer.schedule(computeTask(30000), 60000);
@@ -281,11 +281,11 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				};
 			}
 			case 4 -> {
-				this.logger.debug("{}+++++ scheduling server serverTimer 2:00 {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
+				this.logger.debug("{}scheduling server serverTimer 2:00 {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
-						ProxyAthleteTimer.this.logger.info("{}+++++ running 2:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
+						ProxyAthleteTimer.this.logger.info("{}running 2:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						// next task is initial warning, in 30s.
 						ProxyAthleteTimer.this.serverTimer.schedule(computeTask(90000), 30000);
 					}

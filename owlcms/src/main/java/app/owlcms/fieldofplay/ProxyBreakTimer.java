@@ -326,11 +326,11 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	}
 
 	private TimerTask computeTask(int timeRemaining2) {
-		this.logger.info("{}+++++ scheduling serverTimer break over {}", FieldOfPlay.getLoggingName(this.fop), this.timeRemaining);
+		this.logger.info("{}scheduling serverTimer break over {}", FieldOfPlay.getLoggingName(this.fop), this.timeRemaining);
 		return new TimerTask() {
 			@Override
 			public void run() {
-				ProxyBreakTimer.this.logger.info("{}+++++ running break over", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
+				ProxyBreakTimer.this.logger.info("{}running break over", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
 				timeOver(this);
 			}
 		};

@@ -42,7 +42,7 @@ public class BreakDialog extends Dialog {
 				if (cfop != null) {
 					cfop.getUiEventBus().unregister(this.content);
 				}
-				// logger.debug("++++++ unregistered {}", breakTimer.id);
+				// logger.debug("+unregistered {}", breakTimer.id);
 			} catch (Exception e1) {
 			}
 			try {

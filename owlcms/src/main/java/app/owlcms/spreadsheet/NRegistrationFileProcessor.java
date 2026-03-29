@@ -208,9 +208,9 @@ public class NRegistrationFileProcessor {
 					        if (isDeleteSessions()) {
 						        // reset the group that was cleared.
 						        String sessionCode = RCompetition.getSessionCode(a.getId());
-						        // logger.debug("++++++ prior session code for {} = {}", a.getFullId(), sessionCode);
+						        // logger.debug("+prior session code for {} = {}", a.getFullId(), sessionCode);
 						        a.setGroup(RCompetition.activeGroups.get(sessionCode));
-						        // logger.debug("++++++ new session for {} = {}", a.getFullId(), a.getGroup());
+						        // logger.debug("+new session for {} = {}", a.getFullId(), a.getGroup());
 					        }
 				        } else {
 					        // logger.debug("skipping prior {}",a.getAbbreviatedName());
