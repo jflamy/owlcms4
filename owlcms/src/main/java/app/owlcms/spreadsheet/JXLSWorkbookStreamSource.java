@@ -54,6 +54,7 @@ import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.coach.CoachRepository;
@@ -124,6 +125,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private List<Athlete> sortedAthletes;
 	private Championship championship;
 	private String ageGroupPrefix;
+	private Gender gender;
 	private Category category;
 	private boolean excludeNotWeighed;
 	private Group group;
@@ -299,6 +301,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 */
 	public Championship getChampionship() {
 		return this.championship;
+	}
+
+	public Gender getGender() {
+		return this.gender;
 	}
 
 	public java.util.function.Consumer<Throwable> getDoneCallback() {
@@ -622,6 +628,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		}
 
 		getReportingBeans().put("masters", Competition.getCurrent().isMasters());
+		getReportingBeans().put("championship", getChampionship());
+		getReportingBeans().put("ageGroupPrefix", getAgeGroupPrefix());
+		getReportingBeans().put("gender", getGender());
 
 		List<Group> sessions = GroupRepository.findAll().stream().sorted(Group.groupWeighinTimeComparator)
 		        .collect(Collectors.toList());
@@ -798,6 +807,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
+	}
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
 	}
 
 	public void setCategory(Category category) {
