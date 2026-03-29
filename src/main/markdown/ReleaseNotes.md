@@ -10,6 +10,8 @@
 
 **New in Release 65**
 
+65.1.0: Fix: it was previously possible to accidentally create two platforms with the same name, which prevented results from being produced. Integrity checks at startup and when importing will now correct this situation.  User interface checks have been added.
+
 65.0.0: Act as record repository :
   - Enable a separate dedicated OWLCMS instance to keep and edit records
     - A new feature toggle "recordRepository" hides all the pages except records management
