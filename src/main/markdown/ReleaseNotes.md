@@ -38,5 +38,7 @@
 66.0.0: showDecisionsImmediately feature toggle (off by default, TCRR still indicates a 3-second delay)
   - Show the decision as soon as the 3 referees have given it. Note: this always sends INITIAL_DECISION
 
+66.0.0: Fix: The Jury scoreboard again has the current attempt info.
+
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
