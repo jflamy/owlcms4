@@ -24,8 +24,8 @@
 66.0.0: Mobile device versions for jury member devices and jury president keypad
   - Can act as jury member using a phone or tablet, and act as jury president using a tablet
 
-66.0.0: Fix: Results records are extracted in competition results for a specific given category is selected
-  - The standard "protocol" look templates show the templates (Total, SnCjTot)
+66.0.0: Fix: For Competition Results templates, when a category is selected, the records for the category are extracted in the "records" variable.
+  - The standard "protocol" look templates (Total, SnCjTot) show the records 
 
 66.0.0: Clean-up of the solo referee/announcer/3-referee behavior wrt reversal delay and initial decision
   - Solo referee decisions have a reversal delay, same as 3 referees.  Only the visual rendering changes (single referee light instead of 3)

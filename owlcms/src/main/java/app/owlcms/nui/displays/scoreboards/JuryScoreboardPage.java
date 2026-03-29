@@ -42,7 +42,7 @@ public class JuryScoreboardPage extends WarmupNoLeadersPage {
 	@Override
 	public String getPageTitle() {
 		String suffix = FieldOfPlay.getFopNameIfMultiple(getFop());
-		return Translator.translate("JuryPanel.Jury") + suffix;
+		return Translator.translate("JuryScoreboard.Title") + suffix;
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class JuryScoreboardPage extends WarmupNoLeadersPage {
 		        SoundParameters.SHOW_DECLARATIONS, "false",
 		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
 		        SoundParameters.START_ORDER, "false",
-		        DisplayParameters.CURRENT_ATTEMPT, "false",
+		        DisplayParameters.CURRENT_ATTEMPT, "true",
 		        DisplayParameters.SHOW_MEDALS, "auto");
 		Map<String, String> fullMap = new TreeMap<>();
 		fullMap.putAll(initialMap);

@@ -111,7 +111,8 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        Translator.translate("Scoreboard.LiftingOrder"));
 			VerticalLayout intro1 = new VerticalLayout();
 			addP(intro1, Translator.translate("WarmupScoreboards.explanation"));
-			Button juryScoreboard = openInNewTabWithFopCurrentAttempt(JuryScoreboardPage.class, Translator.translate("Jury"));
+			Button juryScoreboard = openInNewTabWithFopCurrentAttempt(JuryScoreboardPage.class,
+			        Translator.translate("JuryScoreboard.Title"));
 			scoreboardWLeaders.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
 			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(
 			        scoreboard,
