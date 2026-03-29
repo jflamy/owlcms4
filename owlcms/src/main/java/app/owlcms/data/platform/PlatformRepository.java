@@ -6,8 +6,13 @@
  *******************************************************************************/
 package app.owlcms.data.platform;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,32 +38,113 @@ public class PlatformRepository {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(PlatformRepository.class);
 
 	public static void checkPlatforms() {
-		Set<String> checkPlatforms = PlatformRepository.findAll().stream().map(Platform::getName)
-		        .collect(Collectors.toSet());
-		if (checkPlatforms.isEmpty()) {
+		List<Platform> platforms = PlatformRepository.findAll();
+		if (platforms.isEmpty()) {
 			JPAService.runInTransaction(em -> {
 				Platform np = new Platform("A");
 				em.persist(np);
 				return np;
 			});
 		} else {
-			logger.debug("to be kept {}", checkPlatforms);
+			logger.debug("to be kept {}", platforms.stream().map(Platform::getName).collect(Collectors.toSet()));
 
-			Set<String> seen = new HashSet<>();
-			// delete all unused platforms
-			for (Platform pl : PlatformRepository.findAll()) {
-				String name = pl.getName();
-				if (name == null || name.isBlank() || seen.contains(name)) {
-					// we have already seen a platform with this name
-					// group will be connected with the first platform created with that name
-					PlatformRepository.delete(pl);
-					logger.info("removing duplicate or invalid entry for platform {}", name);
-				} else {
-					seen.add(name);
+			for (Platform platform : platforms) {
+				String normalizedName = normalizeName(platform.getName());
+				platform.setName(normalizedName);
+				if (normalizedName == null || normalizedName.isBlank()) {
+					PlatformRepository.delete(platform);
+					logger.info("removing invalid entry for platform {}", platform.getId());
+				}
+			}
+
+			fixDuplicates();
+
+			if (PlatformRepository.findAll().isEmpty()) {
+				JPAService.runInTransaction(em -> {
+					Platform np = new Platform("A");
+					em.persist(np);
+					return np;
+				});
+			}
+		}
+
+	}
+
+	public static void fixDuplicates() {
+		JPAService.runInTransaction(em -> {
+			@SuppressWarnings("unchecked")
+			List<Platform> platforms = em.createQuery("select c from Platform c order by c.id").getResultList();
+			Map<String, Platform> canonicalByName = new LinkedHashMap<>();
+			for (Platform platform : platforms) {
+				String normalizedName = normalizeName(platform.getName());
+				if (normalizedName == null || normalizedName.isBlank()) {
+					continue;
+				}
+
+				String normalizedKey = normalizeLookupKey(normalizedName);
+				Platform canonical = canonicalByName.get(normalizedKey);
+				if (canonical == null) {
+					platform.setName(normalizedName);
+					canonicalByName.put(normalizedKey, platform);
+					continue;
+				}
+
+				logger.info("collapsing duplicate platform '{}' ({}) into canonical platform '{}' ({})",
+				        platform.getName(), platform.getId(), canonical.getName(), canonical.getId());
+				reassignGroups(em, platform, canonical);
+				em.remove(platform);
+			}
+			return null;
+		});
+	}
+
+	public static List<Platform> fixDuplicates(List<Platform> importedPlatforms, List<Group> importedGroups) {
+		if (importedPlatforms == null) {
+			return null;
+		}
+
+		Map<String, Platform> canonicalByName = new LinkedHashMap<>();
+		List<Platform> canonicalPlatforms = new ArrayList<>();
+		for (Platform platform : importedPlatforms) {
+			String normalizedName = normalizeName(platform.getName());
+			platform.setName(normalizedName);
+			if (normalizedName == null || normalizedName.isBlank()) {
+				canonicalPlatforms.add(platform);
+				continue;
+			}
+
+			String normalizedKey = normalizeLookupKey(normalizedName);
+			Platform canonical = canonicalByName.get(normalizedKey);
+			if (canonical == null) {
+				canonicalByName.put(normalizedKey, platform);
+				canonicalPlatforms.add(platform);
+			} else if (!Objects.equals(canonical.getId(), platform.getId())) {
+				logger.warn("duplicate imported platform '{}' found with ids {} and {}; keeping {}",
+				        normalizedName, canonical.getId(), platform.getId(), canonical.getId());
+			}
+		}
+
+		if (importedGroups != null) {
+			for (Group group : importedGroups) {
+				Platform groupPlatform = group.getPlatform();
+				if (groupPlatform == null) {
+					continue;
+				}
+				String normalizedKey = normalizeLookupKey(groupPlatform.getName());
+				Platform canonical = normalizedKey != null ? canonicalByName.get(normalizedKey) : null;
+				if (canonical != null && canonical != groupPlatform) {
+					logger.warn("remapping imported group '{}' from duplicate platform id {} to canonical id {}",
+					        group.getName(), groupPlatform.getId(), canonical.getId());
+					group.setPlatform(canonical);
 				}
 			}
 		}
 
+		return canonicalPlatforms;
+	}
+
+	public static List<Platform> canonicalizeImportedPlatforms(List<Platform> importedPlatforms, List<Group> importedGroups) {
+		return fixDuplicates(importedPlatforms, importedGroups);
 	}
 
 	public static void createMissingPlatforms(List<RGroup> groups) {
@@ -160,12 +246,38 @@ public class PlatformRepository {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Platform findByName(String string) {
+		String normalizedName = normalizeName(string);
+		if (normalizedName == null || normalizedName.isBlank()) {
+			return null;
+		}
 		return JPAService.runInTransaction(em -> {
 			Query query = em.createQuery("select c from Platform c where lower(name) = lower(:string)");
-			query.setParameter("string", string);
+			query.setParameter("string", normalizedName);
 			List<Platform> resultList = query.getResultList();
 			return resultList.isEmpty() ? null : resultList.get(0);
 		});
+	}
+
+	public static boolean hasDuplicateName(Platform platform) {
+		if (platform == null) {
+			return false;
+		}
+
+		String normalizedKey = normalizeLookupKey(platform.getName());
+		if (normalizedKey == null) {
+			return false;
+		}
+
+		Long platformId = platform.getId();
+		return findAll().stream()
+		        .filter(existing -> !Objects.equals(existing.getId(), platformId))
+		        .map(Platform::getName)
+		        .map(PlatformRepository::normalizeLookupKey)
+		        .anyMatch(normalizedKey::equals);
+	}
+
+	public static String normalizeName(String name) {
+		return name == null ? null : name.trim();
 	}
 
 	/**
@@ -234,6 +346,24 @@ public class PlatformRepository {
 				fop.getFopEventBus().unregister(fop);
 				OwlcmsFactory.getFopByName().remove(fopName);
 			}
+		}
+	}
+
+	private static String normalizeLookupKey(String name) {
+		String normalizedName = normalizeName(name);
+		if (normalizedName == null || normalizedName.isBlank()) {
+			return null;
+		}
+		return normalizedName.toLowerCase(Locale.ROOT);
+	}
+
+	private static void reassignGroups(EntityManager em, Platform fromPlatform, Platform toPlatform) {
+		Query groupQuery = em.createQuery("select g from CompetitionGroup g join g.platform p where p.id = :platformId");
+		groupQuery.setParameter("platformId", fromPlatform.getId());
+		@SuppressWarnings("unchecked")
+		List<Group> groups = groupQuery.getResultList();
+		for (Group group : groups) {
+			group.setPlatform(toPlatform);
 		}
 	}
 }
