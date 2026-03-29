@@ -207,6 +207,7 @@ public class CompetitionData {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
+		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;
 	}
@@ -216,6 +217,7 @@ public class CompetitionData {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
+		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		// logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;
 	}

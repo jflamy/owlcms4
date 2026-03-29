@@ -208,6 +208,7 @@ public class CompetitionDataV2 {
 		CompetitionDataV2 newData;
 		try {
 			newData = mapper.readValue(serialized, CompetitionDataV2.class);
+			newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), null));
 			logger.info("V2 import: {} ageGroups, {} teams, {} sessions, {} athletes, {} platforms", 
 				newData.getAgeGroups() != null ? newData.getAgeGroups().size() : 0,
 				newData.getTeams() != null ? newData.getTeams().size() : 0,
@@ -256,6 +257,13 @@ public class CompetitionDataV2 {
 		// Flush to ensure categories from AgeGroups are available for lookup
 		em.flush();
 
+			if (updated.getPlatforms() != null) {
+				for (Platform p : updated.getPlatforms()) {
+					em.merge(p);
+				}
+				em.flush();
+			}
+
 		// Build team ID to name map for athlete import
 		Map<Integer, String> teamIdToNameMap = new HashMap<>();
 		if (updated.getTeams() != null) {
@@ -277,12 +285,6 @@ public class CompetitionDataV2 {
 		for (AthleteDTO aDto : updated.getAthletes()) {
 			Athlete a = aDto.toAthlete(em, teamIdToNameMap);
 			em.persist(a);
-		}
-		
-		if (updated.getPlatforms() != null) {
-			for (Platform p : updated.getPlatforms()) {
-				em.merge(p);
-			}
 		}
 
 		if (updated.getRecordConfig() != null) {
