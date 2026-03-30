@@ -196,6 +196,10 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			overallScoringSystem = Competition.getCurrent().getScoringSystem();
 		}
 
+		reportingBeans.put("championship", getChampionship());
+		reportingBeans.put("ageGroupPrefix", getAgeGroupPrefix());
+		reportingBeans.put("gender", getGender());
+
 		String brt = overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete");
 		reportingBeans.put("bestRankingTitle", brt);
 

@@ -7,6 +7,7 @@
 package app.owlcms.spreadsheet;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -54,6 +56,40 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 	public JXLSWinningSheet(boolean b) {
 		this.resultsByCategory = b;
+	}
+
+	@Override
+	protected void setReportingInfo() {
+		super.setReportingInfo();
+
+		Ranking ranking = resolveBestAthleteRanking();
+		if (ranking == null) {
+			return;
+		}
+
+		List<Athlete> sourceAthletes = getBestAthleteSource();
+		if (sourceAthletes == null || sourceAthletes.isEmpty()) {
+			getReportingBeans().put("mBest", List.of());
+			getReportingBeans().put("wBest", List.of());
+			return;
+		}
+
+		List<Athlete> rankedAthletes = AthleteSorter.resultsOrderCopy(
+				sourceAthletes.stream()
+						.map(a -> a instanceof PAthlete ? ((PAthlete) a)._getAthlete() : a)
+						.collect(Collectors.toMap(
+								Athlete::getFullId,
+								athlete -> athlete,
+								(existing, replacement) -> existing,
+								LinkedHashMap::new))
+						.values()
+						.stream()
+						.toList(),
+				ranking);
+
+		getReportingBeans().put("mBest", rankedAthletes.stream().filter(a -> a.getGender() == Gender.M).toList());
+		getReportingBeans().put("wBest", rankedAthletes.stream().filter(a -> a.getGender() == Gender.F).toList());
+		getReportingBeans().put("bestRankingTitle", Ranking.getScoringTitle(ranking));
 	}
 
 	@Override
@@ -224,6 +260,28 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 	private Ranking rankingOrder() {
 		return Ranking.CUSTOM;
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Athlete> getBestAthleteSource() {
+		Object athletes = getReportingBeans().get("athletes");
+		if (athletes instanceof List<?>) {
+			return ((List<?>) athletes).stream()
+					.filter(Athlete.class::isInstance)
+					.map(Athlete.class::cast)
+					.toList();
+		}
+		return computeSortedAthletes();
+	}
+
+	private Ranking resolveBestAthleteRanking() {
+		if (getChampionship() != null && getChampionship().getBestAthleteScoringSystem() != null) {
+			return getChampionship().getBestAthleteScoringSystem();
+		}
+		if (getBestLifterScoringSystem() != null) {
+			return getBestLifterScoringSystem();
+		}
+		return Competition.getCurrent().getScoringSystem();
 	}
 
 }
