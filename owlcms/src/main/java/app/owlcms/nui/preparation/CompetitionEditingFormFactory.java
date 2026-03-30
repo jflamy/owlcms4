@@ -662,7 +662,7 @@ public class CompetitionEditingFormFactory
 
 		TextField mixedTeamSizeField = new TextField();
 		layout.addFormItem(mixedTeamSizeField,
-		        labelWithHelp("Competition.mixedTeamSize", "Competition.teamSizeExplanation"));
+		        labelWithHelp("Championship.mixedTeamSize", "Competition.teamSizeExplanation"));
 		this.binder.forField(mixedTeamSizeField)
 		        .withNullRepresentation("")
 		        .withConverter(new StringToIntegerConverter(message))
