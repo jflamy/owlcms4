@@ -373,7 +373,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * @return 0 if clock has not been started, 120000 or 60000 depending on time allowed when clock is started
+	 * @return 0 if clock has not been started, or the configured one-minute/two-minute athlete clock value when started
 	 */
 	public int getClockOwnerInitialTimeAllowed() {
 		return this.clockOwnerInitialTimeAllowed;
@@ -585,15 +585,15 @@ public class FieldOfPlay implements IUnregister {
 			if (owner != null || a.getAttemptNumber() == 1) {
 				// clock has started for someone else, one minute
 				// first C&J, one minute (doesn't matter who lifted last during snatch)
-				timeAllowed = 60000;
+				timeAllowed = Competition.athleteTimerOneMinute;
 			} else {
-				timeAllowed = 120000;
+				timeAllowed = Competition.athleteTimerTwoMinutes;
 			}
 			if (owner == null) {
 				setClockOwnerInitialTimeAllowed(timeAllowed);
 			}
 		} else {
-			timeAllowed = 60000;
+			timeAllowed = Competition.athleteTimerOneMinute;
 			if (owner == null) {
 				setClockOwnerInitialTimeAllowed(timeAllowed);
 			}
@@ -1087,7 +1087,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void checkFirstClockForLift() {
-		if (getAthleteTimer().getTimeRemaining() == 60000) {
+		if (getAthleteTimer().getTimeRemaining() == Competition.athleteTimerOneMinute) {
 			if (this.isFirstSnatch()) {
 				getGroup().setFirstSnatchTime(LocalDateTime.now(), this);
 			} else if (this.isFirstCJ()) {
@@ -3414,9 +3414,10 @@ public class FieldOfPlay implements IUnregister {
 
 		// make sure decisions have been reset before setting state to time running
 		int time = getAthleteTimer().getTimeRemaining();
-		if (isForcedTime() || this.clockOwner != this.previousAthlete || (time == 60000 || time == 120000)) {
+		if (isForcedTime() || this.clockOwner != this.previousAthlete
+		        || (time == Competition.athleteTimerOneMinute || time == Competition.athleteTimerTwoMinutes)) {
 			resetDecisions();
-			if (time == 60000 || time == 120000) {
+			if (time == Competition.athleteTimerOneMinute || time == Competition.athleteTimerTwoMinutes) {
 				// new clock, use this as reference for late declarations.
 				setClockOwnerInitialTimeAllowed(time);
 			}

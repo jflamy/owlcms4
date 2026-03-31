@@ -445,9 +445,9 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 					fop2.fopEventPost(new FOPEvent.TimeStarted(this));
 				}
 			} else if (messageStr.equalsIgnoreCase("60")) {
-				fop2.fopEventPost(new FOPEvent.ForceTime(60000, this));
+				fop2.fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerOneMinute, this));
 			} else if (messageStr.equalsIgnoreCase("120")) {
-				fop2.fopEventPost(new FOPEvent.ForceTime(120000, this));
+				fop2.fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this));
 			} else {
 				logger.error("{}Malformed MQTT clock message topic='{}' message='{}'",
 				        FieldOfPlay.getLoggingName(fop2), topic, messageStr);

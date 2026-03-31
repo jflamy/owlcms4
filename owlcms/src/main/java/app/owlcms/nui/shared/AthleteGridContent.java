@@ -73,6 +73,7 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.components.elements.TimerElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.config.Config;
@@ -1317,11 +1318,11 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void do1Minute() {
-		getFop().fopEventPost(new FOPEvent.ForceTime(60000, this.getOrigin()));
+		getFop().fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerOneMinute, this.getOrigin()));
 	}
 
 	protected void do2Minutes() {
-		getFop().fopEventPost(new FOPEvent.ForceTime(120000, this.getOrigin()));
+		getFop().fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this.getOrigin()));
 	}
 
 	/**

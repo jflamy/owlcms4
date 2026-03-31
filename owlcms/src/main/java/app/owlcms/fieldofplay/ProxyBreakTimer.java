@@ -14,7 +14,6 @@ import java.util.TimerTask;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
@@ -239,10 +238,6 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		// logger.debug("posting {}", event);
 		getFop().pushOutUIEvent(event);
 		setRunning(true);
-
-		if (Config.getCurrent().featureSwitch("oldTimers")) {
-			return;
-		}
 
 		// if a break is running, need to stop it before starting another.
 		if (this.serverTimer != null) {

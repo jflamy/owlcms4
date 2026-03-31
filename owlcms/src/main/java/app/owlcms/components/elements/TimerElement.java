@@ -13,14 +13,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.internal.AllowInert;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
@@ -84,41 +82,6 @@ public abstract class TimerElement extends LitTemplate
 	protected Object getOrigin() {
 		return this.origin;
 	}
-
-	@AllowInert
-	@ClientCallable
-	abstract public void clientFinalWarning(String fopName);
-
-	@AllowInert
-	@ClientCallable
-	abstract public void clientInitialWarning(String fopName);
-
-	/**
-	 * Client requests that the server send back the remaining time. Intended to be used after client has been hidden and is made visible again.
-	 */
-	@AllowInert
-	@ClientCallable
-	abstract public void clientSyncTime(String fopName);
-
-	/**
-	 * Timer ran down to zero.
-	 */
-	@AllowInert
-	@ClientCallable
-	abstract public void clientTimeOver(String fopName);
-
-	@AllowInert
-	@ClientCallable
-	abstract public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from);
-
-	/**
-	 * Timer has been stopped on the client side.
-	 *
-	 * @param remainingTime
-	 */
-	@AllowInert
-	@ClientCallable
-	abstract public void clientTimerStopped(String fopName, double remainingTime, String from);
 
 	@Override
 	public void focus() {

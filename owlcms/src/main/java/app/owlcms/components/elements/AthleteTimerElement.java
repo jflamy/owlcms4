@@ -10,9 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.uievents.UIEvent;
@@ -44,118 +42,6 @@ public class AthleteTimerElement extends TimerElement {
 	public AthleteTimerElement(Object origin) {
 		this.setOrigin(origin);
 		logger.debug("### AthleteTimerElement created with origin={}\n{}", origin, LoggerUtils.stackTrace());
-	}
-
-	/**
-	 * @see app.owlcms.components.elements.TimerElement#clientTimeOver()
-	 */
-	@Override
-	@ClientCallable
-	public void clientFinalWarning(String fopName) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-			return;
-		}
-		if (this.fop == null || !fopName.contentEquals(this.fop.getName())) {
-			return;
-		}
-		logger.debug("{} Received final warning from client.", this.fop.getName());
-		getFopTimer(this.fop).finalWarning(this);
-	}
-
-	/**
-	 * @see app.owlcms.components.elements.TimerElement#clientTimeOver()
-	 */
-	@Override
-	@ClientCallable
-	public void clientInitialWarning(String fopName) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-			return;
-		}
-		if (this.fop == null || !fopName.contentEquals(this.fop.getName())) {
-			return;
-		}
-		logger.debug("{} Received initial warning from client.", this.fop.getName());
-		getFopTimer(this.fop).initialWarning(this);
-	}
-
-	/**
-	 * Set the remaining time when the timer element has been hidden for a long time.
-	 */
-	@Override
-	@ClientCallable
-	public void clientSyncTime(String fopName) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-		}
-		// timer should only get explicit changes
-		// OwlcmsSession.withFop(fop -> {
-		// if (!fopName.contentEquals(fop.getName())) {
-		// return;
-		// }
-		// logger.debug("{}{} fetching time", getClass().getSimpleName(), fop.getLoggingName());
-		// IProxyTimer fopTimer = getFopTimer(fop);
-		// doSetTimer(/*fopTimer.isIndefinite() ? null : */fopTimer.liveTimeRemaining());
-		// });
-		// return;
-	}
-
-	/**
-	 * Timer stopped
-	 *
-	 * @param remaining Time the remaining time
-	 */
-	@Override
-	@ClientCallable
-	public void clientTimeOver(String fopName) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-			return;
-		}
-		if (this.fop == null || (fopName != null && !fopName.contentEquals(this.fop.getName()))) {
-			return;
-		}
-		// logger.debug("{}Received time over.", fop.getLoggingName());
-		IProxyTimer fopTimer = getFopTimer(this.fop);
-		logger.debug("{} {} athlete time over received from client {}", fopName, this.fop.getName(), fopTimer.isIndefinite());
-		if (!fopTimer.isIndefinite()) {
-			getFopTimer(this.fop).timeOver(this);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
-	 */
-	@Override
-	@ClientCallable
-	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-			return;
-		}
-		// if (logger.isDebugEnabled())
-			 {
-			logger.warn/**/("timer {} starting on client: remaining = {}, late={}", from, remainingTime, lateMillis,
-			        delta(this.lastStartMillis));
-		}
-	}
-
-	/**
-	 * Timer stopped
-	 *
-	 * @param remaining Time the remaining time
-	 */
-	@Override
-	@ClientCallable
-	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-			return;
-		}
-		if (logger.isDebugEnabled()) {
-			logger.warn/**/("{} timer {} stopped on client: remaining = {}", fopName, from, remainingTime,
-			        delta(this.lastStopMillis));
-		}
-
-		// do not stop the server-side timer, this is getting called as a result of the
-		// server-side timer issuing a command. Otherwise we create an infinite loop.
 	}
 
 	public void detach() {

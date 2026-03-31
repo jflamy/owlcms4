@@ -85,6 +85,11 @@ import ch.qos.logback.classic.Logger;
 public class Competition {
 
 	public static final int SHORT_TEAM_LENGTH = 6;
+	// Athlete-timer milestones only. Do not reuse for breaks or pauses.
+	public static int athleteTimerTwoMinutes = 120000;
+	public static int athleteTimerInitialWarning = 90000;
+	public static int athleteTimerOneMinute = 60000;
+	public static int athleteTimerFinalWarning = 30000;
 	private static Competition competition;
 	@Transient
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
