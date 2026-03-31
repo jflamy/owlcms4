@@ -41,6 +41,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
@@ -81,6 +82,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private Boolean[] juryVotes;
 	private Div[] juryVoteCells;
 	private Div refDecisionHost;
+	private Button noLiftButton;
+	private Button goodLiftButton;
 	private Location location;
 	private UI locationUI;
 	private EventBus uiEventBus;
@@ -115,20 +118,32 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> updateJuryDecisionActions(e.getFop()));
+	}
+
+	@Subscribe
+	public void slaveBreakDone(UIEvent.BreakDone e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> setJuryDecisionActionsEnabled(false));
 	}
 
 	@Subscribe
 	public void slaveJuryNotification(UIEvent.JuryNotification e) {
-		JuryDeliberationEventType deliberationType = e.getDeliberationEventType();
-		if (deliberationType == JuryDeliberationEventType.START_DELIBERATION
-		        || deliberationType == JuryDeliberationEventType.CHALLENGE) {
-			UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetJuryVoting);
-		}
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			JuryDeliberationEventType deliberationType = e.getDeliberationEventType();
+			if (deliberationType == JuryDeliberationEventType.START_DELIBERATION
+			        || deliberationType == JuryDeliberationEventType.CHALLENGE) {
+				resetJuryVoting();
+			}
+			updateJuryDecisionActions(e.getFop());
+		});
 	}
 
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetJuryVoting);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			resetJuryVoting();
+			updateJuryDecisionActions(getFop());
+		});
 	}
 
 	@Subscribe
@@ -145,12 +160,18 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetJuryVoting);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			resetJuryVoting();
+			updateJuryDecisionActions(getFop());
+		});
 	}
 
 	@Subscribe
 	public void slaveTimeStarted(UIEvent.StartTime e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, this::resetJuryVoting);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			resetJuryVoting();
+			updateJuryDecisionActions(getFop());
+		});
 	}
 
 	protected ComboBox<FieldOfPlay> createFopSelect() {
@@ -400,12 +421,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 
 		// --- Row 8: Action buttons ---
-		Button noLift = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary", () -> submitJuryDecision(false));
-		noLift.getStyle().set("grid-column", "1").set("grid-row", "8");
-		Button goodLift = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"), "success primary", () -> submitJuryDecision(true));
-		goodLift.getStyle().set("grid-column", "2").set("grid-row", "8")
-		        .set("background-color", "#ffffff").set("background-image", "none").set("color", "#000000")
-		        .set("border", "1px solid #c8c8c8");
+		this.noLiftButton = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary", () -> submitJuryDecision(false));
+		this.noLiftButton.getStyle().set("grid-column", "1").set("grid-row", "8");
+		this.goodLiftButton = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"), "success primary", () -> submitJuryDecision(true));
+		this.goodLiftButton.getStyle().set("grid-column", "2").set("grid-row", "8");
 		Button deliberate = createKeypadButton(Translator.translate("BreakButton.JuryDeliberation"), "primary contrast", this::startDeliberation);
 		deliberate.getStyle().set("grid-column", "3").set("grid-row", "8")
 		        .set("background-color", "#FFC107").set("color", "#000000");
@@ -425,7 +444,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		for (Div emptyCell : emptyJuryCells) {
 			grid.add(emptyCell);
 		}
-		grid.add(noLift, goodLift, deliberate, challenge, technical);
+		grid.add(this.noLiftButton, this.goodLiftButton, deliberate, challenge, technical);
+		updateJuryDecisionActions(getFop());
 
 		container.add(grid);
 		container.setFlexGrow(1, grid);
@@ -535,6 +555,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			return;
 		}
 
+		updateJuryDecisionActions(fop);
 		resetJuryVoting();
 		Boolean[] curJuryDecisions = fop.getJuryMemberDecision();
 		if (curJuryDecisions != null) {
@@ -634,6 +655,10 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	private void startBreak(BreakType breakType) {
 		OwlcmsSession.withFop(fop -> {
+			if (isJuryDecisionPhase(breakType) && fop.getAthleteUnderReview() == null) {
+				NotificationUtils.errorNotification(Translator.translate("JuryDialog.NoCurrentAthlete"));
+				return;
+			}
 			fop.fopEventPost(new FOPEvent.BreakStarted(breakType, CountdownType.INDEFINITE, 0, null, true, this));
 		});
 	}
@@ -646,13 +671,49 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		startBreak(BreakType.TECHNICAL);
 	}
 
+	private boolean isJuryDecisionPhase(BreakType breakType) {
+		return breakType == BreakType.JURY || breakType == BreakType.CHALLENGE;
+	}
+
+	private boolean isJuryDecisionActive(FieldOfPlay fop) {
+		return fop != null
+		        && isJuryDecisionPhase(fop.getBreakType())
+		        && fop.getAthleteUnderReview() != null;
+	}
+
 	private void submitJuryDecision(boolean success) {
 		OwlcmsSession.withFop(fop -> {
-			if (fop.getAthleteUnderReview() == null) {
+			if (!isJuryDecisionActive(fop)) {
 				return;
 			}
 			fop.fopEventPost(new FOPEvent.JuryDecision(fop.getAthleteUnderReview(), this, success, true));
 		});
+	}
+
+	private void updateJuryDecisionActions(FieldOfPlay fop) {
+		boolean enabled = isJuryDecisionActive(fop);
+		setJuryDecisionActionsEnabled(enabled);
+	}
+
+	private void setJuryDecisionActionsEnabled(boolean enabled) {
+		if (this.noLiftButton != null) {
+			this.noLiftButton.setEnabled(enabled);
+			styleJuryDecisionButton(this.noLiftButton, enabled, "#b91c1c", "#7f1d1d", "#ffffff", "#d97777");
+		}
+		if (this.goodLiftButton != null) {
+			this.goodLiftButton.setEnabled(enabled);
+			styleJuryDecisionButton(this.goodLiftButton, enabled, "#ffffff", "#d9d9d9", "#000000", "#5c5c5c");
+		}
+	}
+
+	private void styleJuryDecisionButton(Button button, boolean enabled, String enabledBackground,
+	        String disabledBackground, String enabledTextColor, String disabledTextColor) {
+		button.getStyle()
+		        .set("background-color", enabled ? enabledBackground : disabledBackground)
+		        .set("background-image", "none")
+		        .set("color", enabled ? enabledTextColor : disabledTextColor)
+		        .set("border", enabled ? "1px solid rgba(200, 200, 200, 0.75)" : "1px solid rgba(160, 160, 160, 0.45)")
+		        .set("opacity", enabled ? "1" : "0.8");
 	}
 
 	private void summonReferee(int refNumber) {

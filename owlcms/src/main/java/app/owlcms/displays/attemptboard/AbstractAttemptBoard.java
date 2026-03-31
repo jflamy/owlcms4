@@ -12,6 +12,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -19,11 +21,11 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.littemplate.LitTemplate;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.ThemeList;
@@ -78,15 +80,11 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoard.class);
 	protected final static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	private static final int JURY_NOTIFICATION_DIALOG_DURATION_MS = 5000;
 
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
-	}
-
-	public static void doNotification(AbstractAttemptBoard attemptBoard, String text, String recordText, String theme,
-	        int duration) {
-		attemptBoard.doNotification(text, recordText, theme, duration);
 	}
 
 	/*
@@ -115,6 +113,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private Group group;
 	private boolean abbreviatedName;
 	private UI ui;
+	private Dialog juryNotificationDialog;
+	private Timer juryNotificationTimer;
 
 	/**
 	 * Instantiates a new attempt board.
@@ -433,33 +433,24 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			String text = "";
 			String reversalText = "";
 			if (e.getReversal() != null) {
 				reversalText = e.getReversal() ? Translator.translate("JuryNotification.Reversal")
 				        : Translator.translate("JuryNotification.Confirmed");
 			}
-			String style = "warning";
 			int previousAttemptNo;
 			switch (e.getDeliberationEventType()) {
 				case BAD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
-					text = Translator.translate("JuryNotification.BadLift", reversalText,
-					        "<br/>" + e.getAthlete().getFullName(),
-					        previousAttemptNo % 3 + 1);
-					style = "primary error";
-					doNotification(this, text, null, style, (int) (2 * FieldOfPlay.DECISION_VISIBLE_DURATION));
+					showJuryNotification(reversalText, Translator.translate("JuryDialog.BadLiftLabel"), e.getAthlete(),
+					        formatAttemptByIndex(previousAttemptNo), false, "failNotification",
+						        JURY_NOTIFICATION_DIALOG_DURATION_MS);
 					break;
 				case GOOD_LIFT:
 					previousAttemptNo = e.getAthlete().getAttemptsDone() - 1;
-					text = Translator.translate("JuryNotification.GoodLift", reversalText,
-					        "<br/>" + e.getAthlete().getFullName(),
-					        previousAttemptNo % 3 + 1);
-					style = "primary success";
-					doNotification(this, text,
-					        (e.getNewRecord() ? "<br/>" + Translator.translate("Scoreboard.NewRecord") : ""),
-					        style,
-					        (int) (2 * FieldOfPlay.DECISION_VISIBLE_DURATION));
+					showJuryNotification(reversalText, Translator.translate("JuryDialog.GoodLiftLabel"), e.getAthlete(),
+					        formatAttemptByIndex(previousAttemptNo), e.getNewRecord(), "successNotification",
+						        JURY_NOTIFICATION_DIALOG_DURATION_MS);
 					break;
 				default:
 					break;
@@ -807,6 +798,12 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.uiEventBus = uiEventBusRegister(this, fop);
 	}
 
+	@Override
+	protected void onDetach(DetachEvent detachEvent) {
+		clearJuryNotification();
+		super.onDetach(detachEvent);
+	}
+
 	protected void setAthletePictures(boolean athletePictures) {
 		this.athletePictures = athletePictures;
 	}
@@ -894,32 +891,15 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.getElement().setProperty("teamName", "");
 	}
 
-	private void doNotification(String text, String recordText, String theme, int duration) {
-		Notification n = new Notification();
-		// Notification theme styling is done in
-		// META-INF/resources/frontend/styles/shared-styles.html
-		n.getElement().getThemeList().add(theme);
-
-		n.setDuration(duration);
-		n.setPosition(Position.TOP_STRETCH);
-		Div label = new Div();
-		label.getElement().setProperty("innerHTML", text + (recordText != null ? recordText : ""));
-		label.getElement().setAttribute("style", "text: align-center");
-		label.addClickListener((event) -> n.close());
-		label.setWidth("70vw");
-		label.getStyle().set("font-size", "7vh");
-		n.add(label);
-
-		n.open();
+	private String formatAttempt(Athlete a) {
+		return formatAttemptByIndex(a.getAttemptsDone());
 	}
 
-	private String formatAttempt(Athlete a) {
-		Integer attemptsDone = a.getAttemptsDone();
-		int attemptNo = attemptsDone + 1;
-		// logger.debug("attemptNo {}",attemptNo);
+	private String formatAttemptByIndex(int attemptIndex) {
+		int attemptNo = attemptIndex % 3 + 1;
 		String translation = Translator.translateOrElseNull("AttemptBoard_lift_attempt_number", getLocale());
 		if (translation != null) {
-			if (attemptNo <= 3) {
+			if (attemptIndex < 3) {
 				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo,
 				        Translator.translate("AttemptBoard_lift.SNATCH"));
 			} else {
@@ -927,7 +907,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 				        Translator.translate("AttemptBoard_lift.CLEANJERK"));
 			}
 		} else {
-			translation = Translator.translate("AttemptBoard_attempt_number", ((attemptsDone % 3) + 1));
+			translation = Translator.translate("AttemptBoard_attempt_number", attemptNo);
 		}
 		return translation;
 	}
@@ -1056,6 +1036,63 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 				}
 			}
 		}
+	}
+
+	private void clearJuryNotification() {
+		cancelJuryNotificationTimer();
+		closeJuryNotificationDialog();
+	}
+
+	private void showJuryNotification(String status, String decision, Athlete athlete, String attempt, boolean newRecord,
+	        String notificationClass, int duration) {
+		clearJuryNotification();
+		Dialog dialog = ensureJuryNotificationDialog();
+		dialog.removeAll();
+		dialog.add(new JuryNotificationCard(status, decision, athlete, attempt, newRecord, notificationClass));
+		dialog.open();
+		scheduleJuryNotificationClose(duration);
+	}
+
+	private void cancelJuryNotificationTimer() {
+		if (this.juryNotificationTimer != null) {
+			this.juryNotificationTimer.cancel();
+			this.juryNotificationTimer.purge();
+			this.juryNotificationTimer = null;
+		}
+	}
+
+	private void closeJuryNotificationDialog() {
+		if (this.juryNotificationDialog != null) {
+			this.juryNotificationDialog.close();
+			this.juryNotificationDialog.removeAll();
+		}
+	}
+
+	private Dialog ensureJuryNotificationDialog() {
+		if (this.juryNotificationDialog == null) {
+			this.juryNotificationDialog = new Dialog();
+			this.juryNotificationDialog.addThemeName("jury-notification-dialog");
+			this.juryNotificationDialog.setCloseOnEsc(false);
+			this.juryNotificationDialog.setCloseOnOutsideClick(false);
+		}
+		return this.juryNotificationDialog;
+	}
+
+	private void scheduleJuryNotificationClose(int duration) {
+		if (duration <= 0 || this.ui == null) {
+			return;
+		}
+		cancelJuryNotificationTimer();
+		this.juryNotificationTimer = new Timer("jury-notification-dialog", true);
+		this.juryNotificationTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				UI currentUi = AbstractAttemptBoard.this.ui;
+				if (currentUi != null) {
+					currentUi.access(() -> clearJuryNotification());
+				}
+			}
+		}, duration);
 	}
 
 	@Override

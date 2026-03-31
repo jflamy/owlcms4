@@ -135,3 +135,114 @@ vaadin-button.jury-keypad-button::part(label) {
     text-align: center;
     line-height: 1.1;
 }
+
+vaadin-dialog-overlay[theme~="jury-notification-dialog"] {
+    width: 84vw;
+    max-width: 70rem;
+    min-width: 50rem;
+}
+
+vaadin-dialog-overlay[theme~="jury-notification-dialog"]::part(overlay) {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+}
+
+.jury-notification-card {
+    display: grid;
+    gap: 0.9rem;
+    min-width: 60rem;
+    max-width: 84vw;
+    padding: 1.5rem 1.8rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.45);
+}
+
+.jury-notification-card-success {
+    border: 0.35rem solid #0b5f19;
+    background: rgba(255, 255, 255, 0.96);
+    color: #0b5f19;
+}
+
+.jury-notification-card-error {
+    border: 0.35rem solid white;
+    background: rgba(154, 0, 0, 0.96);
+    color: white;
+}
+
+.jury-notification-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.jury-notification-status {
+    font-size: clamp(1.55rem, 2.65vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.jury-notification-decision {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+}
+
+.jury-notification-icon {
+    width: clamp(2.4rem, 5.5vw, 4.8rem);
+    height: clamp(2.4rem, 5.5vw, 4.8rem);
+    flex-shrink: 0;
+    color: inherit;
+}
+
+.jury-notification-decision-text {
+    font-size: clamp(2.4rem, 5.5vw, 4.8rem);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.jury-notification-athlete {
+    font-size: clamp(1.7rem, 3.6vw, 3rem);
+    line-height: 1.1;
+    font-weight: 700;
+}
+
+.jury-notification-attempt {
+    font-size: clamp(1.3rem, 2.4vw, 2.1rem);
+    line-height: 1.15;
+    opacity: 0.92;
+}
+
+.jury-notification-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.2rem;
+    padding: 0.15rem 0.8rem;
+    border-radius: 999px;
+    border: 0.18rem solid currentColor;
+    font-size: clamp(1rem, 1.45vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: inherit;
+}
+
+.jury-notification-chip-label {
+    opacity: 0.85;
+}
+
+.jury-notification-chip-record.jury-notification-chip-success {
+    background: rgba(255, 191, 0, 0.22);
+}
+
+.jury-notification-chip-record.jury-notification-chip-error {
+    background: rgba(255, 191, 0, 0.18);
+}

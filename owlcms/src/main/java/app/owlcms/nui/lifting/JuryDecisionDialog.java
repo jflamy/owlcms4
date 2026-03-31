@@ -111,11 +111,11 @@ public class JuryDecisionDialog extends Dialog {
 	if (juryDecision == JuryDeliberationEventType.GOOD_LIFT) {
 		juryDecisionDisplay = "<div style='color: green; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>" 
 			+ Translator.translate("JuryDialog.GoodLiftLabel").toUpperCase() + " " + reversalText + "</div>";
-		explanationText = Translator.translate("Announcer.JuryDecisionExplanation");
+		explanationText = Translator.translate("Announcer.DisplayDecisionAndAnnounce");
 	} else if (juryDecision == JuryDeliberationEventType.BAD_LIFT) {
 		juryDecisionDisplay = "<div style='color: red; font-size: xx-large; font-weight: bold; text-align: center; margin: 0.5em 0;'>" 
 			+ Translator.translate("JuryDialog.BadLiftLabel").toUpperCase() + " " + reversalText + "</div>";
-		explanationText = Translator.translate("Announcer.JuryDecisionExplanation");
+		explanationText = Translator.translate("Announcer.DisplayDecisionAndAnnounce");
 	} else {
 		// Show waiting status when jury is deliberating
 		waitingStatus = "<div style='color: #666; font-size: x-large; font-style: italic; text-align: center; margin: 0.5em 0;'>" 
@@ -146,9 +146,9 @@ public class JuryDecisionDialog extends Dialog {
 		buttonContainer.setSpacing(true);
 		
 		if (juryDecision != null) {
-			// Jury has made a decision - only show Resume button with primary theme
-			// Resume will apply the jury decision, then restart lifting
-			this.resumeButton = new Button(Translator.translate("JuryNotification.END_JURY_BREAK"));
+			// Jury has made a decision - only show Display Decision button with primary theme
+			// Display Decision will apply the jury decision, then restart lifting
+			this.resumeButton = new Button(Translator.translate("Announcer.DisplayDecision"));
 			this.resumeButton.getElement().setAttribute("theme", "primary");
 			this.resumeButton.addClickListener(c -> {
 				// First apply the jury decision (reversal or confirmation)
