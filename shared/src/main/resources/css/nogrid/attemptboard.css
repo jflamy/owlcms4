@@ -75,7 +75,7 @@
 	padding: 0; /* Logical */
 	line-height: 12vh;
 	justify-self: start;
-	font-size: 10vh;
+	font-size: min(10vh, 7vw);
 	grid-area: firstName-start/firstName-start/firstName-end/name-end;
 	white-space: normal;
 	overflow: hidden;
@@ -86,7 +86,7 @@
 
 .attemptBoard .firstNameWithPicture {
 	justify-self: start;
-	font-size: 9vh;
+	font-size: min(9vh, 7vw);
 	line-height: 10vh;
 	font-weight: normal;
 	grid-area: firstName-start/firstName-start/firstName-end/timer-start;
