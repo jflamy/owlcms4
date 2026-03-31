@@ -1,5 +1,6 @@
 package app.owlcms.nui.preparation;
 
+import java.util.EnumSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,10 +24,25 @@ import org.slf4j.LoggerFactory;
  */
 public class DocumentsPrecheckService {
     private static final Logger logger = (Logger) LoggerFactory.getLogger(DocumentsPrecheckService.class);
+    private static final EnumSet<PreCompetitionTemplate> LOT_NUMBER_REQUIRED_TEMPLATES = EnumSet.of(
+            PreCompetitionTemplate.START_LIST,
+            PreCompetitionTemplate.CARDS,
+            PreCompetitionTemplate.WEIGHIN,
+            PreCompetitionTemplate.INTRODUCTION,
+            PreCompetitionTemplate.EMPTY_PROTOCOL,
+            PreCompetitionTemplate.JURY);
 
     public static class PrecheckResult {
         public List<KitElement> present = new ArrayList<>();
         public int missing = 0;
+    }
+
+    public static String formatMissingLotNumbersMessage() {
+        return Translator.translate(
+                "WeighIn.LotNumbersMissing",
+                Translator.translate("PrepareCompetition"),
+                Translator.translate("EditAthletes"),
+                Translator.translate("DrawLotNumbers"));
     }
 
     /**
@@ -145,7 +161,11 @@ public class DocumentsPrecheckService {
             if (g != null) {
                 if (incomingCount == 0) {
                     outcome = Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(Translator.translate("NoAthletes"))));
+                } else if (requiresLotNumbers(templateEnum) && hasMissingLotNumbers(a)) {
+                    outcome = Optional.of(new MissingLotNumbersException());
                 }
+            } else if (allowNoSelection && requiresLotNumbers(templateEnum) && hasMissingLotNumbers(a)) {
+                outcome = Optional.of(new MissingLotNumbersException());
             }
 
             // logging removed
@@ -155,6 +175,17 @@ public class DocumentsPrecheckService {
         // logger removed
             return Optional.of(new Exception(t));
         }
+    }
+
+    private boolean hasMissingLotNumbers(List<Athlete> athletes) {
+        if (athletes == null || athletes.isEmpty()) {
+            return false;
+        }
+        return athletes.stream().anyMatch(a -> a.getLotNumber() == null || a.getLotNumber() <= 0);
+    }
+
+    private boolean requiresLotNumbers(PreCompetitionTemplate templateEnum) {
+        return templateEnum != null && LOT_NUMBER_REQUIRED_TEMPLATES.contains(templateEnum);
     }
 
     /**

@@ -282,7 +282,7 @@ public class DocumentDownloadDialog extends Dialog {
 
         // Document precheck exceptions provide their own translation keys
         if (e instanceof DocumentPrecheckException) {
-            text = Translator.translate(((DocumentPrecheckException) e).getTranslationKey());
+            text = ((DocumentPrecheckException) e).getDisplayMessage();
         }
         // All other exceptions: log them and use the message as-is
         else {

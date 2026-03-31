@@ -24,9 +24,6 @@
 66.0.0: Mobile device versions for jury member devices and jury president keypad
   - Can act as jury member using a phone or tablet, and act as jury president using a tablet
 
-66.0.0: Fix: For Competition Results templates, when a category is selected, the records for the category are extracted in the "records" variable.
-  - The standard "protocol" look templates (Total, SnCjTot) show the records 
-
 66.0.0: Clean-up of the solo referee/announcer/3-referee behavior wrt reversal delay and initial decision
   - Solo referee decisions have a reversal delay, same as 3 referees.  Only the visual rendering changes (single referee light instead of 3)
     - in solo referee mode, the first decision received from any referee is automatically the majority
@@ -38,7 +35,12 @@
 66.0.0: showDecisionsImmediately feature toggle (off by default, TCRR still indicates a 3-second delay)
   - Show the decision as soon as the 3 referees have given it. Note: this always sends INITIAL_DECISION
 
+66.0.0: Fix: For Competition Results templates, when a category is selected, the records for the category are extracted in the "records" variable.
+  - The standard "protocol" look templates (Total, SnCjTot) show the records 
+
 66.0.0: Fix: The Jury scoreboard again has the current attempt info.
+
+66.0.0: Fix: when producing competition results by registration category, the lot number was being used as identifier for the athlete, leading to problems if no lot numbers had been assigned (all were 0, collapsing to a single athlete)
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)

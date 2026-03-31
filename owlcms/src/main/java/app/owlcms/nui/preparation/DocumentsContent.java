@@ -407,36 +407,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	 * be null.
 	 */
 	private Optional<Exception> runDefaultScopePrecheck(PreCompetitionTemplate templateEnum, List<Athlete> a, Group g, boolean allowNoSelection) {
-		try {
-			if (!allowNoSelection && g == null) {
-				return Optional.of(new NoSessionException());
-			}
-
-			int incomingCount = a == null ? 0 : a.size();
-			String sampleIds = "";
-			if (a != null && !a.isEmpty()) {
-				sampleIds = a.stream().limit(10).map(ath -> String.valueOf(ath.getId())).collect(Collectors.joining(","));
-			}
-			String groupInfo = (g == null) ? "<no-group>" : (g.getId() + ":" + g.getName());
-			Optional<Exception> outcome = Optional.empty();
-
-			if (g != null) {
-				if (incomingCount == 0) {
-					outcome = Optional.of(new StopProcessingException("NoAthletes", new RuntimeException(Translator.translate("NoAthletes"))));
-				}
-			}
-
-			String resultText = outcome.isEmpty() ? "OK" : (outcome.get().getMessage() == null ? outcome.get().toString() : outcome.get().getMessage());
-			logger.debug("scopePrecheck %s for template=%s received: incomingCount=%d, sampleIds=[%s], group=%s, resolvedCount=%d, outcome=%s",
-			        allowNoSelection ? "allow-no-selection" : "default",
-			        templateEnum.name(), incomingCount, sampleIds, groupInfo, incomingCount, resultText);
-			return outcome;
-		} catch (Throwable t) {
-			LoggerUtils.logError(logger, t, true);
-			logger.debug("scopePrecheck %s for template=%s threw exception: %s", allowNoSelection ? "allow-no-selection" : "default", templateEnum.name(),
-			        t.toString());
-			return Optional.of(new Exception(t));
-		}
+		return this.precheckService.runDefaultScopePrecheck(templateEnum, a, g, allowNoSelection);
 	}
 
 	private Div createBodyweightButton() {
@@ -991,10 +962,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 		// Precheck: validate session requirement
 		BiFunction<List<Athlete>, Group, Optional<Exception>> pre = (a, grp) -> {
-			if (requiresSession && grp == null) {
-				return Optional.of(new NoSessionException());
-			}
-			return Optional.empty();
+			DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
+			return precheckService.runDefaultScopePrecheck(template, a, grp, !requiresSession);
 		};
 
 		Supplier<String> processingMessageSupplier = () -> "Processing";

@@ -54,6 +54,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -72,6 +73,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.nui.preparation.DocumentsPrecheckService;
 import app.owlcms.nui.preparation.DocumentsContent;
 import app.owlcms.nui.results.IFilterCascade;
 import app.owlcms.nui.shared.NAthleteRegistrationFormFactory;
@@ -203,6 +205,7 @@ public class WeighinContent extends BaseContent
 	private String team;
 	private Platform platform;
 	private NAthleteRegistrationFormFactory athleteEditingFormFactory;
+	private boolean missingLotNumbersWarningShown;
 
 	/**
 	 * Instantiates the athlete crudGrid
@@ -842,6 +845,7 @@ public class WeighinContent extends BaseContent
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		showMissingLotNumbersWarning();
 	}
 
 	protected List<Athlete> participationFindAll() {
@@ -1017,6 +1021,21 @@ public class WeighinContent extends BaseContent
 		}
 		AthleteRepository.assignStartNumbers(group);
 		refresh();
+	}
+
+	private void showMissingLotNumbersWarning() {
+		if (this.missingLotNumbersWarningShown) {
+			return;
+		}
+
+		boolean missingLotNumbers = AthleteRepository.findAll().stream()
+		        .anyMatch(a -> a.getLotNumber() == null || a.getLotNumber() <= 0);
+		if (!missingLotNumbers) {
+			return;
+		}
+
+		this.missingLotNumbersWarningShown = true;
+		NotificationUtils.errorNotification(DocumentsPrecheckService.formatMissingLotNumbersMessage());
 	}
 
 	private Group getCurrentGroup() {

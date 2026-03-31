@@ -1,5 +1,7 @@
 package app.owlcms.nui.preparation;
 
+import app.owlcms.i18n.Translator;
+
 /**
  * Base exception type for all document generation precheck failures.
  * Subclasses should override getTranslationKey() to provide appropriate
@@ -24,4 +26,14 @@ public abstract class DocumentPrecheckException extends Exception {
      * @return the translation key (e.g., "Documents.NoSession")
      */
     public abstract String getTranslationKey();
+
+    /**
+     * Return the user-facing message to display for this precheck failure.
+     * Subclasses may override when the message needs composed translated parts.
+     * 
+     * @return the translated display message
+     */
+    public String getDisplayMessage() {
+        return Translator.translate(getTranslationKey());
+    }
 }
