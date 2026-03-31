@@ -133,7 +133,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 					        }
 				        })
 				        .collect(Collectors.toMap(
-				                Athlete::getLotNumber,
+				                this::registrationCollapseKey,
 				                athlete -> athlete,
 				                (existing, replacement) -> existing))
 				        .values()
@@ -260,6 +260,21 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 	private Ranking rankingOrder() {
 		return Ranking.CUSTOM;
+	}
+
+	private Object registrationCollapseKey(Athlete athlete) {
+		Long athleteId = athlete.getId();
+		if (athleteId != null) {
+			return athleteId;
+		}
+
+		Athlete sourceAthlete = athlete instanceof PAthlete ? ((PAthlete) athlete)._getAthlete() : athlete;
+		Long sourceAthleteId = sourceAthlete != null ? sourceAthlete.getId() : null;
+		if (sourceAthleteId != null) {
+			return sourceAthleteId;
+		}
+
+		return sourceAthlete != null ? sourceAthlete : athlete;
 	}
 
 	@SuppressWarnings("unchecked")
