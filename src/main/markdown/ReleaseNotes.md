@@ -24,6 +24,9 @@
 66.0.0: Mobile device versions for jury member devices and jury president keypad
   - Can act as jury member using a phone or tablet, and act as jury president using a tablet
 
+66.0.0: Cleaner look for jury decisions on attempt board
+  - Also clarified instructions for the announcer when the jury gives the decision by pressing the buttons
+
 66.0.0: Clean-up of the solo referee/announcer/3-referee behavior wrt reversal delay and initial decision
   - Solo referee decisions have a reversal delay, same as 3 referees.  Only the visual rendering changes (single referee light instead of 3)
     - in solo referee mode, the first decision received from any referee is automatically the majority
