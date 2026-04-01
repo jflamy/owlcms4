@@ -97,12 +97,6 @@ class TimerElement extends LitElement {
     }
 
     console.warn("timer start " + seconds + " late = " + lateMillis + "ms");
-    this.$server.clientTimerStarting(
-      this.fopName,
-      seconds,
-      lateMillis,
-      (this.isIOS() ? "iPad" : "browser") + " " + from
-    );
 
     this.currentTime = seconds - lateMillis / 1000;
     if (
@@ -132,13 +126,6 @@ class TimerElement extends LitElement {
 
     this.running = false;
     console.warn("paused" + " running=false");
-    // if (this.$server != null) {
-    this.$server.clientTimerStopped(
-      this.fopName,
-      this.currentTime,
-      (this.isIOS() ? "iPad" : "browser") + " " + from
-    );
-
 
     console.warn("timer pause " + seconds);
     this.currentTime = seconds;
@@ -244,9 +231,6 @@ class TimerElement extends LitElement {
         this.soundTimeOver();
       }
 
-      // tell server to emit sound if server-side sounds
-      console.warn("timeOver " + this.fopName + " " + this.$server);
-      if (this.$server != null) this.$server.clientTimeOver(this.fopName);
       this._timeOverWarningGiven = true;
     }
     if (this.currentTime <= 30.05 && !this._finalWarningGiven) {
@@ -255,16 +239,12 @@ class TimerElement extends LitElement {
         console.warn("about to play final warning " + window.finalWarning);
         this.soundFinalWarning();
       }
-      // tell server to emit sound if server-side sounds
-      if (this.$server != null) this.$server.clientFinalWarning(this.fopName);
       this._finalWarningGiven = true;
     }
     if (this.currentTime <= 90.05 && !this._initialWarningGiven) {
       if (!this.silent) {
         this.soundInitialWarning();
       }
-      // tell server to emit sound if server-side sounds
-      if (this.$server != null) this.$server.clientInitialWarning(this.fopName);
       this._initialWarningGiven = true;
     }
 
@@ -278,8 +258,6 @@ class TimerElement extends LitElement {
     if ((this.currentTime < -0.1 && !this.countUp) || (this.currentTime >= this.startTime && this.countUp)) {
       console.warn("time over stop running " + this.$server + " running=false");
 
-      // timer is over; tell server to emit sound if server-side sounds
-      if (this.$server != null) this.$server.clientTimeOver(this.fopName);
       this.running = false;
       this.formatted_time = this._formatTime(0);
       this.currentTime = this.countUp ? this.startTime : 0;

@@ -245,7 +245,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		} else {
 			this.currentAttemptNumber = 0;
 		}
-		this.newClock = e.getTimeRemaining() == 60000 || e.getTimeRemaining() == 120000;
+		this.newClock = e.getTimeRemaining() == Competition.athleteTimerOneMinute
+		        || e.getTimeRemaining() == Competition.athleteTimerTwoMinutes;
 		// this is redundant because of slaveResetOnNewClock
 		if ((this.currentAthleteAtStart != this.previousAthleteAtStart)
 		        || (this.currentAttemptNumber != this.previousAttemptNumber)

@@ -12,7 +12,8 @@ import java.util.TimerTask;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
-import app.owlcms.data.config.Config;
+
+import app.owlcms.data.competition.Competition;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -180,13 +181,35 @@ public class ProxyAthleteTimer implements IProxyTimer {
 		getFop().pushOutUIEvent(
 		        new UIEvent.StartTime(time, null, getFop().isEmitSoundsOnServer(),
 		                LoggerUtils.stackTrace(), getFop()));
-		this.running = true;		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-			this.serverTimer = new Timer();
-			try {
-				this.serverTimer.schedule(computeTask(time), time % 30000);
-			} catch (IllegalArgumentException e) {
-				this.logger.debug("Timer schedule issue: {}", e.getMessage());
-			}
+		this.running = true;
+		this.serverTimer = new Timer();
+		scheduleTask(nextMilestoneTime(time), initialDelay(time));
+	}
+
+	private int initialDelay(int timeRemaining) {
+		int nextMilestone = nextMilestoneTime(timeRemaining);
+		return nextMilestone == 0 ? Math.max(timeRemaining, 0) : Math.max(timeRemaining - nextMilestone, 0);
+	}
+
+	private int nextMilestoneTime(int timeRemaining) {
+		if (timeRemaining >= Competition.athleteTimerTwoMinutes) {
+			return Competition.athleteTimerTwoMinutes;
+		} else if (timeRemaining >= Competition.athleteTimerInitialWarning) {
+			return Competition.athleteTimerInitialWarning;
+		} else if (timeRemaining >= Competition.athleteTimerOneMinute) {
+			return Competition.athleteTimerOneMinute;
+		} else if (timeRemaining >= Competition.athleteTimerFinalWarning) {
+			return Competition.athleteTimerFinalWarning;
+		} else {
+			return 0;
+		}
+	}
+
+	private void scheduleTask(int timeRemaining, int delayMillis) {
+		try {
+			this.serverTimer.schedule(computeTask(timeRemaining), Math.max(delayMillis, 0));
+		} catch (IllegalArgumentException e) {
+			this.logger.debug("Timer schedule issue: {}", e.getMessage());
 		}
 	}
 
@@ -233,9 +256,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 
 	private TimerTask computeTask(int timeRemaining2) {
 		final int timeRemaining = timeRemaining2;
-		int nbStops = (timeRemaining) / 30000;
-		switch (nbStops) {
-			case 0 -> {
+		if (timeRemaining == 0) {
 				this.logger.debug("{}scheduling serverTimer timeOver {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
@@ -244,56 +265,53 @@ public class ProxyAthleteTimer implements IProxyTimer {
 						timeOver(this);
 					}
 				};
-			}
-			case 1 -> {
+		} else if (timeRemaining == Competition.athleteTimerFinalWarning) {
 				this.logger.debug("{}scheduling serverTimer finalWarning {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
 						ProxyAthleteTimer.this.logger.info("{}running final warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						finalWarning(this);
-						// next task is time over, in 30sec.
-						ProxyAthleteTimer.this.serverTimer.schedule(computeTask(0), 30000);
+						// next task is time over after the configured final-warning interval.
+						scheduleTask(0, Competition.athleteTimerFinalWarning);
 					}
 				};
-			}
-			case 2 -> {
+		} else if (timeRemaining == Competition.athleteTimerOneMinute) {
 				this.logger.debug("{}scheduling serverTimer 1:00 {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
 						ProxyAthleteTimer.this.logger.info("{}running 1:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
-						// nothing to do, next task is final warning, in 30s.
-						ProxyAthleteTimer.this.serverTimer.schedule(computeTask(30000), 30000);
+						// nothing to do, next task is final warning.
+						scheduleTask(Competition.athleteTimerFinalWarning,
+						        Competition.athleteTimerOneMinute - Competition.athleteTimerFinalWarning);
 					}
 				};
-			}
-			case 3 -> {
+		} else if (timeRemaining == Competition.athleteTimerInitialWarning) {
 				this.logger.debug("{}scheduling server serverTimer initialWarning {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
 						ProxyAthleteTimer.this.logger.info("{}running initial warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						initialWarning(this);
-						// next task is final warning, in 60 seconds.
-						ProxyAthleteTimer.this.serverTimer.schedule(computeTask(30000), 60000);
+						// next task is final warning.
+						scheduleTask(Competition.athleteTimerFinalWarning,
+						        Competition.athleteTimerInitialWarning - Competition.athleteTimerFinalWarning);
 					}
 				};
-			}
-			case 4 -> {
+		} else if (timeRemaining == Competition.athleteTimerTwoMinutes) {
 				this.logger.debug("{}scheduling server serverTimer 2:00 {}", FieldOfPlay.getLoggingName(this.fop), timeRemaining);
 				return new TimerTask() {
 					@Override
 					public void run() {
 						ProxyAthleteTimer.this.logger.info("{}running 2:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
-						// next task is initial warning, in 30s.
-						ProxyAthleteTimer.this.serverTimer.schedule(computeTask(90000), 30000);
+						// next task is initial warning.
+						scheduleTask(Competition.athleteTimerInitialWarning,
+						        Competition.athleteTimerTwoMinutes - Competition.athleteTimerInitialWarning);
 					}
 				};
-			}
-			default -> {
-				throw new RuntimeException("timeRemaining " + timeRemaining + " nbStops " + nbStops);
-			}
+		} else {
+			throw new RuntimeException("timeRemaining " + timeRemaining);
 		}
 	}
 

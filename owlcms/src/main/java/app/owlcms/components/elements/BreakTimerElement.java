@@ -14,11 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.internal.AllowInert;
 
-import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.uievents.UIEvent;
@@ -54,86 +51,6 @@ public class BreakTimerElement extends TimerElement {
 	public BreakTimerElement(String parentName) {
 		this.id = IdUtils.getTimeBasedId();
 		logger.debug("### BreakTimerElement created with parentName={}\n{}", parentName, LoggerUtils.stackTrace());
-	}
-
-	@Override
-	public void clientFinalWarning(String fopName) {
-		// ignored
-	}
-
-	@Override
-	public void clientInitialWarning(String fopName) {
-		// ignored
-	}
-
-	/**
-	 * Set the remaining time when the timer element has been hidden for a long time.
-	 */
-	@Override
-	@AllowInert
-	@ClientCallable
-	public void clientSyncTime(String fopName) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-			return;
-		}
-		if (this.fop == null || !fopName.contentEquals(this.fop.getName())) {
-			return;
-		}
-		this.logger.debug("{}{} fetching time", getClass().getSimpleName(), FieldOfPlay.getLoggingName(this.fop));
-		IProxyTimer fopTimer = getFopTimer(this.fop);
-		doSetTimer(fopTimer.isIndefinite() ? null : fopTimer.liveTimeRemaining());
-	}
-
-	/**
-	 * Timer stopped
-	 *
-	 * @param remaining Time the remaining time
-	 */
-	@Override
-	@AllowInert
-	@ClientCallable
-	public void clientTimeOver(String fopName) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-			return;
-		}
-		if (this.fop == null || (fopName != null && !fopName.contentEquals(this.fop.getName()))) {
-			return;
-		}
-		// logger.debug("{}Received time over.", fop.getLoggingName());
-		IProxyTimer fopTimer = getFopTimer(this.fop);
-		// logger.debug("{} ============= {} break time over {}", fopName, fop.getName(), fopTimer.isIndefinite());
-		if (!fopTimer.isIndefinite()) {
-			getFopTimer(this.fop).timeOver(this);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see app.owlcms.displays.attemptboard.TimerElement#clientTimerStopped(double)
-	 */
-	@Override
-	@AllowInert
-	@ClientCallable
-	public void clientTimerStarting(String fopName, double remainingTime, double lateMillis, String from) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-		}
-		// logger.debug("timer {} starting on client: remaining = {}, late={}, roundtrip={}", from, remainingTime,
-		// lateMillis, delta(lastStartMillis));
-	}
-
-	/**
-	 * Timer stopped
-	 *
-	 * @param remaining Time the remaining time
-	 */
-	@Override
-	@AllowInert
-	@ClientCallable
-	public void clientTimerStopped(String fopName, double remainingTime, String from) {
-		if (!Config.getCurrent().featureSwitch("oldTimers")) {
-		}
-		// do not stop the server-side timer, otherwise we create an infinite loop.
 	}
 
 	public void setParent(String s) {

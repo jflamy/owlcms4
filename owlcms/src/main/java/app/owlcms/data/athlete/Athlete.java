@@ -5807,7 +5807,7 @@ public class Athlete {
 		// LoggerUtils.stackTrace());
 		if ((change1 == null || change1.isBlank()) && (change2 == null || change2.isBlank())) {
 			// validate declaration
-			if (clock < initialTime - 30000) {
+			if (clock < initialTime - Competition.athleteTimerFinalWarning) {
 				this.logger./**/warn("{}{} late declaration denied ({})", OwlcmsSession.getFopLoggingName(),
 				        this.getShortName(),
 				        clock / 1000.0);
@@ -5816,7 +5816,7 @@ public class Athlete {
 			this.logger.debug("{}{}valid declaration", OwlcmsSession.getFopLoggingName(), this.getShortName(),
 			        clock / 1000.0);
 		} else {
-			if (clock < 30000) {
+			if (clock < Competition.athleteTimerFinalWarning) {
 				this.logger./**/warn("{}{} late change denied after final warning ({})", OwlcmsSession.getFopLoggingName(),
 				        this.getShortName(), clock / 1000.0);
 				throw new RuleViolationException.MustChangeBeforeFinalWarning(this, clock);
