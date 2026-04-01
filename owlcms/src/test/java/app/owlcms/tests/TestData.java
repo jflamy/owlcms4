@@ -20,6 +20,8 @@ import javax.persistence.EntityManager;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -69,6 +71,8 @@ public class TestData {
             AgeGroupRepository.insertAgeGroups(em, divisions, "/agegroups/AgeGroups_Tests.xlsx");
             return null;
         });
+        ChampionshipRepository.reconcileFromAgeGroups();
+        Championship.reset();
         JPAService.runInTransaction(em -> {
             setupTestData(em, nbAthletes);
             return null;

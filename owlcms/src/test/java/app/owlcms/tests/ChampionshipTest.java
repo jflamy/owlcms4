@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -91,7 +92,7 @@ public class ChampionshipTest {
     }
 
     private static final String FIXTURE_RESOURCE = "/testDatabases/mixedTestsJRSR.mv.db";
-    private static final String MEMORY_JDBC_URL = "jdbc:h2:mem:owlcms;DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
+    private static String memoryJdbcUrl;
     @SuppressWarnings("unused")
     private static final Logger logger = (Logger) LoggerFactory.getLogger(ChampionshipTest.class);
 
@@ -102,7 +103,8 @@ public class ChampionshipTest {
     @BeforeClass
     public static void setupTests() throws Exception {
         Main.injectSuppliers();
-        System.setProperty("JDBC_DATABASE_URL", MEMORY_JDBC_URL);
+        memoryJdbcUrl = createMemoryJdbcUrl();
+        System.setProperty("JDBC_DATABASE_URL", memoryJdbcUrl);
         loadFixtureIntoMemoryDatabase();
         JPAService.init(true, false);
         Config.initConfig();
@@ -129,9 +131,14 @@ public class ChampionshipTest {
 
     @AfterClass
     public static void tearDownTests() throws Exception {
-        Championship.reset();
+        try {
+            Championship.reset();
+        } catch (Exception e) {
+            // DB may already be closed if setup failed
+        }
         Competition.setCurrent(null);
         JPAService.close();
+        memoryJdbcUrl = null;
         System.clearProperty("JDBC_DATABASE_URL");
         deleteFixtureDirectory();
     }
@@ -628,7 +635,7 @@ public class ChampionshipTest {
         Championship senior = ChampionshipRepository.findByName("Senior");
         assertNotNull("Senior championship should be loaded from fixture", senior);
 
-        try (Workbook workbook = createGeneratedTeamResultsWorkbook(senior, Gender.MF)) {
+        try (Workbook workbook = createGeneratedTeamResultsWorkbook(senior, null)) {
             assertTrue("mixed score-based tab should hide points column E",
                 workbook.getSheet("Mixed").isColumnHidden(4));
             assertFalse("mixed score-based tab should keep score column G visible",
@@ -831,10 +838,14 @@ public class ChampionshipTest {
             sourceStatement.execute("SCRIPT TO '" + escapedScriptFile + "'");
         }
 
-        try (Connection target = DriverManager.getConnection(MEMORY_JDBC_URL, "sa", "");
+        try (Connection target = DriverManager.getConnection(memoryJdbcUrl, "sa", "");
                 Statement targetStatement = target.createStatement()) {
             targetStatement.execute("RUNSCRIPT FROM '" + escapedScriptFile + "'");
         }
+    }
+
+    private static String createMemoryJdbcUrl() {
+        return "jdbc:h2:mem:championshipTest-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
     }
 
     private static void overrideFixtureEnabledRankings() {

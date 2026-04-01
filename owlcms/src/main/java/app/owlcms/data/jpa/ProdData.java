@@ -14,6 +14,8 @@ import javax.persistence.EntityManager;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.group.Group;
@@ -42,6 +44,8 @@ public class ProdData {
 			AgeGroupRepository.insertAgeGroups(em, null);
 			return null;
 		});
+		ChampionshipRepository.reconcileFromAgeGroups();
+		Championship.reset();
 		JPAService.runInTransaction(em -> {
 			setupEmptyCompetition(em);
 			return null;

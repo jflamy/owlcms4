@@ -429,11 +429,11 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public void setName(String name) {
-		if (allChampionshipsMap != null) {
+		if (allChampionshipsMap != null && this.name != null) {
 			allChampionshipsMap.remove(this.name);
 		}
 		this.name = name;
-		if (allChampionshipsMap != null) {
+		if (allChampionshipsMap != null && this.name != null) {
 			allChampionshipsMap.put(this.name, this);
 		}
 		if (this.id != null) {
