@@ -1050,11 +1050,11 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 
 	public void testDownSignal() throws MqttPersistenceException, MqttException {
 		try {
-			this.publishMqttTimeRemaining(90);
+			this.publishMqttTimeRemainingSeconds(Competition.athleteTimerInitialWarning / 1000);
 			Thread.sleep(1000);
-			this.publishMqttTimeRemaining(30);
+			this.publishMqttTimeRemainingSeconds(Competition.athleteTimerFinalWarning / 1000);
 			Thread.sleep(1000);
-			this.publishMqttTimeRemaining(0);
+			this.publishMqttTimeRemainingSeconds(0);
 			Thread.sleep(1000);
 			this.publishMqttDownSignal();
 		} catch (InterruptedException | MqttException e) {
@@ -1209,9 +1209,9 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	}
 
 	@Subscribe
-	public void slaveTimeRemaining(UIEvent.TimeRemaining e) {
-		int tr = e.getTimeRemaining();
-		publishMqttTimeRemaining(tr);
+	public void slaveTimeRemainingSeconds(UIEvent.TimeRemainingSeconds e) {
+		int secondsRemaining = e.getSecondsRemaining();
+		publishMqttTimeRemainingSeconds(secondsRemaining);
 	}
 
 	@Subscribe
@@ -1558,11 +1558,11 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		}
 	}
 
-	private void publishMqttTimeRemaining(int tr) {
-		logger.debug("{}MQTT timeRemaining {}", FieldOfPlay.getLoggingName(this.getFop()), tr);
+	private void publishMqttTimeRemainingSeconds(int secondsRemaining) {
+		logger.debug("{}MQTT timeRemaining {}", FieldOfPlay.getLoggingName(this.getFop()), secondsRemaining);
 		try {
 			this.client.publish("owlcms/fop/timeRemaining/" + this.getFop().getName(),
-			        new MqttMessage(Integer.toString(tr).getBytes(StandardCharsets.UTF_8)));
+			        new MqttMessage(Integer.toString(secondsRemaining).getBytes(StandardCharsets.UTF_8)));
 		} catch (MqttException e1) {
 			logger.error("could not publish timeRemaining {}", e1.getCause());
 		}

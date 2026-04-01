@@ -34,7 +34,25 @@ class TimerElement extends LitElement {
       _formattedTime: {
         type: String,
       },
+      initialWarningThresholdSeconds: {
+        type: Number,
+      },
+      finalWarningThresholdSeconds: {
+        type: Number,
+      },
     };
+  }
+
+  getInitialWarningThresholdSeconds() {
+    return Number.isFinite(this.initialWarningThresholdSeconds)
+      ? this.initialWarningThresholdSeconds
+      : -1;
+  }
+
+  getFinalWarningThresholdSeconds() {
+    return Number.isFinite(this.finalWarningThresholdSeconds)
+      ? this.finalWarningThresholdSeconds
+      : -1;
   }
 
   firstUpdated(_changedProperties) {
@@ -108,8 +126,10 @@ class TimerElement extends LitElement {
     }
 
     this.silent = silent;
-    this._initialWarningGiven = this.currentTime < 90;
-    this._finalWarningGiven = this.currentTime < 30;
+    const initialWarningThresholdSeconds = this.getInitialWarningThresholdSeconds();
+    const finalWarningThresholdSeconds = this.getFinalWarningThresholdSeconds();
+    this._initialWarningGiven = initialWarningThresholdSeconds < 0 || this.currentTime < initialWarningThresholdSeconds;
+    this._finalWarningGiven = finalWarningThresholdSeconds < 0 || this.currentTime < finalWarningThresholdSeconds;
     this._timeOverWarningGiven = this.currentTime < 0;
 
     this._elapsed = null;  // Will be initialized on first _decreaseTimer call
@@ -233,7 +253,8 @@ class TimerElement extends LitElement {
 
       this._timeOverWarningGiven = true;
     }
-    if (this.currentTime <= 30.05 && !this._finalWarningGiven) {
+    const finalWarningThresholdSeconds = this.getFinalWarningThresholdSeconds();
+    if (finalWarningThresholdSeconds >= 0 && this.currentTime <= finalWarningThresholdSeconds + 0.05 && !this._finalWarningGiven) {
       console.warn("final warning " + this.currentTime + " " + this.silent + " " + this.$server);
       if (!this.silent) {
         console.warn("about to play final warning " + window.finalWarning);
@@ -241,7 +262,8 @@ class TimerElement extends LitElement {
       }
       this._finalWarningGiven = true;
     }
-    if (this.currentTime <= 90.05 && !this._initialWarningGiven) {
+    const initialWarningThresholdSeconds = this.getInitialWarningThresholdSeconds();
+    if (initialWarningThresholdSeconds >= 0 && this.currentTime <= initialWarningThresholdSeconds + 0.05 && !this._initialWarningGiven) {
       if (!this.silent) {
         this.soundInitialWarning();
       }
@@ -296,6 +318,8 @@ class TimerElement extends LitElement {
     this.indefinite = false;
     this._elapsedTime = 0;
     this._formattedTime = "&nbsp;&nbsp;&nbsp;&nbsp;";
+    this.initialWarningThresholdSeconds = -1;
+    this.finalWarningThresholdSeconds = -1;
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
     this._timeOverWarningGiven = false;

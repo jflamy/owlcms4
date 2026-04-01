@@ -1502,31 +1502,31 @@ public class UIEvent {
 		}
 	}
 
-	static public class TimeRemaining extends UIEvent {
+	static public class TimeRemainingSeconds extends UIEvent {
 
-		private int timeRemaining;
+		private int secondsRemaining;
 
 		/**
-		 * Instantiates a new break done.
+		 * Instantiates a new athlete warning milestone event in seconds.
 		 *
 		 * @param origin    the origin
+		 * @param secondsRemaining milestone value in seconds
 		 * @param fop       originating field of play
-		 * @param breakType
 		 */
-		public TimeRemaining(Object origin, int timeRemaining, FieldOfPlay fop) {
+		public TimeRemainingSeconds(Object origin, int secondsRemaining, FieldOfPlay fop) {
 			super(origin, fop);
-			this.timeRemaining = timeRemaining;
+			this.secondsRemaining = secondsRemaining;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
 		}
 
-		public int getTimeRemaining() {
-			return this.timeRemaining;
+		public int getSecondsRemaining() {
+			return this.secondsRemaining;
 		}
 
-		public void setTimeRemaining(int timeRemaining) {
-			this.timeRemaining = timeRemaining;
+		public void setSecondsRemaining(int secondsRemaining) {
+			this.secondsRemaining = secondsRemaining;
 		}
 	}
 

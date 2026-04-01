@@ -96,6 +96,14 @@ public abstract class TimerElement extends LitTemplate
 		this.silenced = b;
 	}
 
+	protected double getInitialWarningThresholdSeconds() {
+		return -1.0D;
+	}
+
+	protected double getFinalWarningThresholdSeconds() {
+		return -1.0D;
+	}
+
 	public abstract void syncWithFopTimer(FieldOfPlay fop);
 
 	final protected long delta(long lastMillis) {
@@ -175,8 +183,17 @@ public abstract class TimerElement extends LitTemplate
 			getElement().setProperty("running", false);
 			getElement().setProperty("silent", true);
 			getElement().setProperty("fopName", fopName);
+			syncWarningThresholdProperties(getElement());
 		});
 		this.vsession = VaadinSession.getCurrent();
+	}
+
+	protected void syncWarningThresholdProperties(Element timerElement2) {
+		if (timerElement2 == null) {
+			return;
+		}
+		timerElement2.setProperty("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
+		timerElement2.setProperty("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
 	}
 
 	protected boolean isIndefinite() {
@@ -239,6 +256,7 @@ public abstract class TimerElement extends LitTemplate
 	protected void start(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
 		Element timerElement2 = getTimerElement();
 		if (timerElement2 != null && (indefinite || milliseconds != null)) {
+			syncWarningThresholdProperties(timerElement2);
 			double seconds = (indefinite) ? 0.0D : milliseconds / 1000.0D;
 			if (this instanceof BreakTimerElement) {
 				if (this.logger.isDebugEnabled()) {
@@ -285,6 +303,7 @@ public abstract class TimerElement extends LitTemplate
 			this.logger.debug("setDisplay {} {}", milliseconds, timerElement2);
 		}
 		if (timerElement2 != null) {
+			syncWarningThresholdProperties(timerElement2);
 			double seconds = indefinite ? 0.0D : (milliseconds != null ? milliseconds / 1000.0D : 0D);
 			timerElement2.callJsFunction("display", seconds, indefinite, silent, timerElement2);
 		}
@@ -293,6 +312,7 @@ public abstract class TimerElement extends LitTemplate
 	private void stop(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
 		Element timerElement2 = getTimerElement();
 		if (timerElement2 != null && (indefinite || milliseconds != null)) {
+			syncWarningThresholdProperties(timerElement2);
 			double seconds = (indefinite) ? 0.0D : milliseconds / 1000.0D;
 			if (this instanceof BreakTimerElement) {
 				this.logger.debug("stop {}s", seconds);

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 
+import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.uievents.UIEvent;
@@ -113,6 +114,16 @@ public class AthleteTimerElement extends TimerElement {
 	@Override
 	protected IProxyTimer getFopTimer(FieldOfPlay fop) {
 		return fop.getAthleteTimer();
+	}
+
+	@Override
+	protected double getInitialWarningThresholdSeconds() {
+		return Competition.athleteTimerInitialWarning / 1000.0D;
+	}
+
+	@Override
+	protected double getFinalWarningThresholdSeconds() {
+		return Competition.athleteTimerFinalWarning / 1000.0D;
 	}
 
 	@Override

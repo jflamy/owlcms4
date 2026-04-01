@@ -1182,6 +1182,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 		Integer breakMillisRemaining = null;
 		Integer athleteMillisRemaining = null;
+		Integer athleteTimeAllowed = null;
+		Integer athleteInitialWarningMillis = null;
+		Integer athleteFinalWarningMillis = null;
 		Long breakStartTimeMillis = null;
 		Long athleteStartTimeMillis = null;
 		Boolean indefiniteBreak = null;
@@ -1195,16 +1198,19 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			athleteTimerEventType = timerEventType;
 			athleteStartTimeMillis = null;
 			athleteMillisRemaining = st.getTimeRemaining();
+			athleteTimeAllowed = resolveAthleteTimeAllowed(athleteMillisRemaining);
 		} else if (e instanceof StartTime) {
 			athleteTimerEventType = timerEventType;
 			StartTime st = (StartTime) e;
 			athleteStartTimeMillis = System.currentTimeMillis();
 			athleteMillisRemaining = st.getTimeRemaining();
+			athleteTimeAllowed = resolveAthleteTimeAllowed(athleteMillisRemaining);
 		} else if (e instanceof StopTime) {
 			athleteTimerEventType = timerEventType;
 			StopTime st = (StopTime) e;
 			athleteStartTimeMillis = System.currentTimeMillis();
 			athleteMillisRemaining = st.getTimeRemaining();
+			athleteTimeAllowed = resolveAthleteTimeAllowed(athleteMillisRemaining);
 		} else if (e instanceof BreakSetTime) {
 			breakTimerEventType = timerEventType;
 			BreakSetTime bst = (BreakSetTime) e;
@@ -1230,12 +1236,19 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 
 		if (e instanceof StartTime || e instanceof SetTime || e instanceof StopTime) {
+			athleteInitialWarningMillis = resolveAthleteInitialWarningMillis(athleteTimeAllowed);
+			athleteFinalWarningMillis = resolveAthleteFinalWarningMillis(athleteTimeAllowed);
 			mapPut(sb, "athleteTimerEventType", athleteTimerEventType);
 			athleteMillisRemaining = athleteMillisRemaining != null ? athleteMillisRemaining : 0;
+			mapPut(sb, "timeAllowed", athleteTimeAllowed != null ? athleteTimeAllowed.toString() : null);
 			mapPut(sb, "athleteStartTimeMillis",
 			        athleteStartTimeMillis != null ? Long.toString(athleteStartTimeMillis) : null);
 			mapPut(sb, "athleteMillisRemaining",
 			        athleteMillisRemaining != null ? athleteMillisRemaining.toString() : null);
+			mapPut(sb, "athleteInitialWarningMillis",
+			        athleteInitialWarningMillis != null ? athleteInitialWarningMillis.toString() : null);
+			mapPut(sb, "athleteFinalWarningMillis",
+			        athleteFinalWarningMillis != null ? athleteFinalWarningMillis.toString() : null);
 		} else {
 			mapPut(sb, "breakTimerEventType", breakTimerEventType);
 			mapPut(sb, "break", String.valueOf(isBreak()));
@@ -1263,6 +1276,30 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return sb;
 	}
 
+	private Integer resolveAthleteTimeAllowed(Integer athleteMillisRemaining) {
+		if (this.timeAllowed != null && this.timeAllowed > 0) {
+			return this.timeAllowed;
+		}
+		return athleteMillisRemaining;
+	}
+
+	private Integer resolveAthleteInitialWarningMillis(Integer athleteTimeAllowed) {
+		if (athleteTimeAllowed == null || athleteTimeAllowed < 1) {
+			return null;
+		}
+		if (athleteTimeAllowed == Competition.athleteTimerOneMinute) {
+			return -1;
+		}
+		return Competition.athleteTimerInitialWarning <= athleteTimeAllowed ? Competition.athleteTimerInitialWarning : -1;
+	}
+
+	private Integer resolveAthleteFinalWarningMillis(Integer athleteTimeAllowed) {
+		if (athleteTimeAllowed == null || athleteTimeAllowed < 1) {
+			return null;
+		}
+		return Competition.athleteTimerFinalWarning <= athleteTimeAllowed ? Competition.athleteTimerFinalWarning : -1;
+	}
+
 	private synchronized Map<String, Object> createUpdate(UIEvent event) {
 		updateState();
 		Map<String, Object> sb = new LinkedHashMap<>();
@@ -1276,7 +1313,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		}
 		recomputeRemainingTimes(sb);
 
-		mapPut(sb, "uiEvent", event.getClass().getSimpleName());
+		mapPut(sb, "uiEvent", event != null ? event.getClass().getSimpleName() : "InitialSync");
 		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
 		String paramStylesDir = Config.getCurrent().getParamStylesDir();
 		mapPut(sb, "stylesDir", paramStylesDir);

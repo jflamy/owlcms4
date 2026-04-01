@@ -1585,7 +1585,7 @@ public class FieldOfPlay implements IUnregister {
 				this.finalWarningSound = new Sound(getSoundMixer(), "finalWarning.wav");
 				this.finalWarningSound.emit();
 			}
-			pushOutUIEvent(new UIEvent.TimeRemaining(this, 30, this));
+			pushOutUIEvent(new UIEvent.TimeRemainingSeconds(this, Competition.athleteTimerFinalWarning / 1000, this));
 			setFinalWarningEmitted(true);
 		}
 	}
@@ -1597,7 +1597,7 @@ public class FieldOfPlay implements IUnregister {
 				this.initialWarningSound = new Sound(getSoundMixer(), "initialWarning.wav");
 				this.initialWarningSound.emit();
 			}
-			pushOutUIEvent(new UIEvent.TimeRemaining(this, 90, this));
+			pushOutUIEvent(new UIEvent.TimeRemainingSeconds(this, Competition.athleteTimerInitialWarning / 1000, this));
 			setInitialWarningEmitted(true);
 		}
 	}
@@ -1610,7 +1610,7 @@ public class FieldOfPlay implements IUnregister {
 				this.timeOverSound.emit();
 
 			}
-			pushOutUIEvent(new UIEvent.TimeRemaining(this, 0, this));
+			pushOutUIEvent(new UIEvent.TimeRemainingSeconds(this, 0, this));
 			setTimeoutEmitted(true);
 		}
 	}
