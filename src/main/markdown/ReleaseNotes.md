@@ -10,6 +10,10 @@
 
 **New in Release 66**
 
+66.0.0-beta03: Fix: updating the websocket event forwarding URL did not correctly reset the forwarder
+
+66.0.0-beta03: Internal: timer events delays are no longer hard-coded
+
 66.0.0: Mixed Team Championships
   - Allow explicit nomination of a mixed team, or implicit men and women combined
   - A gender-equitable scoring system (e.g. GAMX) can be applied, independently of the gendered teams scoring

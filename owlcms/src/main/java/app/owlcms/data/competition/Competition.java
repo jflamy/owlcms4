@@ -6,8 +6,11 @@
  *******************************************************************************/
 package app.owlcms.data.competition;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
+import java.util.Properties;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -70,6 +73,7 @@ import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.DateTimeUtils;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -94,6 +98,53 @@ public class Competition {
 	@Transient
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
 	private static final boolean SCORING_SYSTEM_ONLY = true;
+
+	/**
+	 * Load timer milestone values from timing/timing.properties.
+	 * Looks first in the local override directory, then on the classpath.
+	 * Falls back to the compiled-in defaults if the file is not found or a key is missing.
+	 */
+	public static void loadTimingConfig() {
+		Properties props = new Properties();
+		try (InputStream is = ResourceWalker.getFileOrResource("/timing/timing.properties")) {
+			props.load(is);
+		} catch (FileNotFoundException e) {
+			logger.debug("timing/timing.properties not found, using compiled-in defaults");
+			return;
+		} catch (IOException e) {
+			logger.warn("could not read timing/timing.properties: {}", e.getMessage());
+			return;
+		}
+		int prev;
+		prev = athleteTimerTwoMinutes;
+		athleteTimerTwoMinutes   = parseTimingProp(props, "athleteTimerTwoMinutes",   athleteTimerTwoMinutes);
+		if (athleteTimerTwoMinutes != prev) logger.info("timing override: athleteTimerTwoMinutes = {} ms (was {})", athleteTimerTwoMinutes, prev);
+
+		prev = athleteTimerInitialWarning;
+		athleteTimerInitialWarning = parseTimingProp(props, "athleteTimerInitialWarning", athleteTimerInitialWarning);
+		if (athleteTimerInitialWarning != prev) logger.info("timing override: athleteTimerInitialWarning = {} ms (was {})", athleteTimerInitialWarning, prev);
+
+		prev = athleteTimerOneMinute;
+		athleteTimerOneMinute    = parseTimingProp(props, "athleteTimerOneMinute",    athleteTimerOneMinute);
+		if (athleteTimerOneMinute != prev) logger.info("timing override: athleteTimerOneMinute = {} ms (was {})", athleteTimerOneMinute, prev);
+
+		prev = athleteTimerFinalWarning;
+		athleteTimerFinalWarning = parseTimingProp(props, "athleteTimerFinalWarning", athleteTimerFinalWarning);
+		if (athleteTimerFinalWarning != prev) logger.info("timing override: athleteTimerFinalWarning = {} ms (was {})", athleteTimerFinalWarning, prev);
+	}
+
+	private static int parseTimingProp(Properties props, String key, int defaultValue) {
+		String v = props.getProperty(key);
+		if (v == null) {
+			return defaultValue;
+		}
+		try {
+			return Integer.parseInt(v.trim());
+		} catch (NumberFormatException e) {
+			logger.warn("timing.properties: invalid value for {} = '{}', using default {}", key, v, defaultValue);
+			return defaultValue;
+		}
+	}
 
 	public static void debugRanks(String label, Athlete a) {
 		logger./**/warn("{} {} {} {} {} {}", label, System.identityHashCode(a), a.getId(), a.getShortName(),

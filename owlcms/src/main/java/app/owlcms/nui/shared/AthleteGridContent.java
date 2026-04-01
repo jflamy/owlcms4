@@ -984,13 +984,18 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void create1MinButton() {
-		this._1min = new Button("1:00", (e) -> do1Minute());
+		this._1min = new Button(formatDuration(Competition.athleteTimerOneMinute), (e) -> do1Minute());
 		this._1min.getElement().setAttribute("theme", "icon");
 	}
 
 	protected void create2MinButton() {
-		this._2min = new Button("2:00", (e) -> do2Minutes());
+		this._2min = new Button(formatDuration(Competition.athleteTimerTwoMinutes), (e) -> do2Minutes());
 		this._2min.getElement().setAttribute("theme", "icon");
+	}
+
+	private static String formatDuration(int millis) {
+		int totalSeconds = millis / 1000;
+		return String.format("%d:%02d", totalSeconds / 60, totalSeconds % 60);
 	}
 
 	/**
