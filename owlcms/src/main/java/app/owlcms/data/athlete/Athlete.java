@@ -1433,11 +1433,17 @@ public class Athlete {
 	}
 
 	public int getCategoryScoreRank() {
-		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
+		if (shouldHidePublishedCategoryScore()) {
 			return 0;
 		} else {
 			return (getMainRankings() != null ? getMainRankings().getCategoryScoreRank() : -1);
 		}
+	}
+
+	@Transient
+	@JsonIgnore
+	private boolean shouldHidePublishedCategoryScore() {
+		return JXLSWorkbookStreamSource.isNoInterimScoresInResults() && !isDone();
 	}
 
 	@Transient
@@ -2088,16 +2094,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getGamx() {
-		Integer total = getBestCleanJerk() + getBestSnatch();
-		try {
-			if (total > 0) {
-				return GAMX2.getGamx(this, total);
-			} else {
-				return 0.0D;
-			}
-		} catch (IndexOutOfBoundsException e) {
-			return 0.0D;
+		if (!isDone()) {
+			return getGamxForDelta();
 		}
+		return getTotal() > 0 ? getGamxForDelta() : 0.0D;
 	}
 
 	@Transient
@@ -2109,16 +2109,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getGamxM() {
-		Integer total = getBestCleanJerk() + getBestSnatch();
-		try {
-			if (total > 0) {
-				return GAMX2.getGamxM(this, total);
-			} else {
-				return 0.0D;
-			}
-		} catch (IndexOutOfBoundsException e) {
-			return 0.0D;
+		if (!isDone()) {
+			return getGamxMForDelta();
 		}
+		return getTotal() > 0 ? getGamxMForDelta() : 0.0D;
 	}
 
 	@Transient
@@ -2154,16 +2148,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getGamxU() {
-		Integer total = getBestCleanJerk() + getBestSnatch();
-		try {
-			if (total > 0) {
-				return GAMX2.getGamxU(this, total);
-			} else {
-				return 0.0D;
-			}
-		} catch (IndexOutOfBoundsException e) {
-			return 0.0D;
+		if (!isDone()) {
+			return getGamxUForDelta();
 		}
+		return getTotal() > 0 ? getGamxUForDelta() : 0.0D;
 	}
 
 	@Transient
@@ -2175,16 +2163,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getGamxA() {
-		Integer total = getBestCleanJerk() + getBestSnatch();
-		try {
-			if (total > 0) {
-				return GAMX2.getGamxA(this, total);
-			} else {
-				return 0.0D;
-			}
-		} catch (IndexOutOfBoundsException e) {
-			return 0.0D;
+		if (!isDone()) {
+			return getGamxAForDelta();
 		}
+		return getTotal() > 0 ? getGamxAForDelta() : 0.0D;
 	}
 
 	@Transient
@@ -2759,13 +2741,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getqPoints() {
-		Integer bestCleanJerk = getBestCleanJerk();
-		Integer bestSnatch = getBestSnatch();
-		if (bestCleanJerk == 0 || bestSnatch == 0) {
-			return 0.0D;
+		if (!isDone()) {
+			return getqPointsForDelta();
 		}
-		Integer total = bestCleanJerk + bestSnatch;
-		return qPointsCoefficients.getQPoints(this, total);
+		return getTotal() > 0 ? getqPointsForDelta() : 0.0D;
 	}
 
 	/**
@@ -2969,11 +2948,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getSinclair() {
-		final Double bodyWeight1 = getBodyWeight();
-		if (bodyWeight1 == null) {
-			return 0.0;
+		if (!isDone()) {
+			return getSinclairForDelta();
 		}
-		return getSinclair(bodyWeight1);
+		return getTotal() > 0 ? getSinclairForDelta() : 0.0D;
 	}
 
 	/**
@@ -3059,8 +3037,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getSmhf() {
-		double d = getMastersSinclair() * getSmhfFactor();
-		return d;
+		if (!isDone()) {
+			return getSmhfForDelta();
+		}
+		return getTotal() > 0 ? getSmhfForDelta() : 0.0D;
 	}
 
 	@Transient
@@ -6005,10 +5985,8 @@ public class Athlete {
 		if (bodyWeight1 == null) {
 			return 0.0;
 		}
-		Integer bestCleanJerk = getBestCleanJerk();
-		Integer bestSnatch = getBestSnatch();
-		Integer total1 = bestCleanJerk + bestSnatch;
-		if (bestCleanJerk == null || bestSnatch == null || total1 == null || total1 < 0.1 || (this.getGender() == null)) {
+		Integer total1 = getTotal();
+		if (total1 == null || total1 < 0.1 || (this.getGender() == null)) {
 			return 0.0;
 		}
 		SinclairCoefficients mastersSinclair = getSinclairProperties2020();
@@ -6411,12 +6389,10 @@ public class Athlete {
 	@JsonIgnore
 	@Deprecated
 	public Double getAgeAdjustedTotal() {
-		Integer total = getBestCleanJerk() + getBestSnatch();
-		if (total == 0) {
-			return 0.0D;
-		} else {
+		if (!isDone()) {
 			return getAgeAdjustedTotalForDelta();
 		}
+		return getTotal() > 0 ? getAgeAdjustedTotalForDelta() : 0.0D;
 	}
 
 	@Transient
@@ -6465,13 +6441,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCategoryScore() {
-		double d;
-		if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-			d = (getTotal() > 0) ? getCategoryScoreForDelta() : 0.0D;
-		} else {
-			d = getCategoryScoreForDelta();
+		if (shouldHidePublishedCategoryScore()) {
+			return 0.0D;
 		}
-		return d;
+		return computedCategoryScore();
 	}
 
 	@Transient
@@ -6483,8 +6456,17 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCategoryScoreForDelta() {
-		Double computedScore = computedCategoryScore();
-		return computedScore;
+		AgeGroup ageGroup = getAgeGroup();
+
+		if (ageGroup == null) {
+			return 0.0D;
+		}
+		Ranking scoringSystem = ageGroup.getComputedScoringSystem();
+		if (scoringSystem != null) {
+			return Ranking.getRankingValueForDelta(this, scoringSystem);
+		} else {
+			return 0.0D;
+		}
 	}
 
 	@Transient
@@ -6496,13 +6478,13 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCategorySinclair() {
-		return (getTotal() > 0.0) ? getCategorySinclairForDelta() : 0.0D;
+		return (!isDone() || getTotal() > 0.0) ? getCategorySinclairForDelta() : 0.0D;
 	}
 
 	@Transient
 	@JsonIgnore
 	public Double getCategoryQPoints() {
-		return (getTotal() > 0.0) ? getCategoryQPointsForDelta() : 0.0D;
+		return (!isDone() || getTotal() > 0.0) ? getCategoryQPointsForDelta() : 0.0D;
 	}
 
 	/**
@@ -6576,7 +6558,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Double getCategoryGAMX() {
-		return (getTotal() > 0.0) ? getCategoryGAMXForDelta() : 0.0D;
+		return (!isDone() || getTotal() > 0.0) ? getCategoryGAMXForDelta() : 0.0D;
 	}
 
 	@Transient

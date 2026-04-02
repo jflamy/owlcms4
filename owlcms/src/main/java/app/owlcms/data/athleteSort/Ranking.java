@@ -84,6 +84,9 @@ public enum Ranking {
 		if (!RankingConfig.shouldCompute(rankingType)) {
 			return 0;
 		}
+		if (shouldHideIncompletePublishedScore(curLifter, rankingType)) {
+			return 0;
+		}
 		switch (rankingType) {
 			case SNATCH:
 				value = curLifter.getSnatchRank();
@@ -158,6 +161,109 @@ public enum Ranking {
 		return value == null ? 0 : value;
 	}
 
+	private static boolean shouldHideIncompletePublishedScore(Athlete curLifter, Ranking rankingType) {
+		return curLifter != null
+		        && JXLSWorkbookStreamSource.isNoInterimScoresInResults()
+		        && !curLifter.isDone()
+		        && switch (rankingType) {
+		        case SNATCH, CLEANJERK, TOTAL, SNATCH_CJ_TOTAL -> false;
+		        default -> true;
+		        };
+	}
+
+	private static Ranking resolveRankingType(Athlete curLifter, Ranking rankingType) {
+		if (rankingType == CATEGORY_SCORE) {
+			return curLifter.getComputedScoringSystem();
+		}
+		return rankingType;
+	}
+
+	public static double getRankingValueForDelta(Athlete curLifter, Ranking rankingType) {
+		if (rankingType == null) {
+			return 0D;
+		}
+		if (!RankingConfig.shouldCompute(rankingType)) {
+			return 0D;
+		}
+		Double d = 0D;
+		Integer i = 0;
+		rankingType = resolveRankingType(curLifter, rankingType);
+		switch (rankingType) {
+			case SNATCH:
+				i = curLifter.getBestSnatch();
+				d = i != null ? i.doubleValue() : null;
+				break;
+			case CLEANJERK:
+				i = curLifter.getBestCleanJerk();
+				d = i != null ? i.doubleValue() : null;
+				break;
+			case TOTAL:
+				i = curLifter.getTotal();
+				d = i != null ? i.doubleValue() : null;
+				break;
+			case ROBI:
+				d = curLifter.getRobi();
+				break;
+			case CUSTOM:
+				d = curLifter.getCustomScore();
+				break;
+			case SNATCH_CJ_TOTAL:
+				d = 0D;
+				break;
+			case BW_SINCLAIR:
+				d = curLifter.getSinclairForDelta();
+				break;
+			case CAT_SINCLAIR:
+				d = curLifter.getCategorySinclairForDelta();
+				break;
+			case CAT_QPOINTS:
+				d = curLifter.getCategoryQPointsForDelta();
+				break;
+			case SMM:
+				d = curLifter.getSmhfForDelta();
+				break;
+			case GAMX:
+				d = curLifter.getGamxForDelta();
+				break;
+			case GAMX_M:
+				d = curLifter.getGamxMForDelta();
+				break;
+			case GAMX_MS:
+				d = curLifter.getGamxMSForDelta();
+				break;
+			case GAMX_MC:
+				d = curLifter.getGamxMCForDelta();
+				break;
+			case GAMX_U:
+				d = curLifter.getGamxUForDelta();
+				break;
+			case GAMX_A:
+				d = curLifter.getGamxAForDelta();
+				break;
+			case GAMX_S:
+				d = curLifter.getGamxSForDelta();
+				break;
+			case GAMX_C:
+				d = curLifter.getGamxCForDelta();
+				break;
+			case CAT_GAMX:
+				d = curLifter.getCategoryGAMXForDelta();
+				break;
+			case AGEFACTORS:
+				d = curLifter.getQYouthForDelta();
+				break;
+			case QPOINTS:
+				d = curLifter.getQPointsForDelta();
+				break;
+			case QAGE:
+				d = curLifter.getQMastersForDelta();
+				break;
+			case CATEGORY_SCORE:
+				throw new RuntimeException("can't happen, CATEGORY_SCORE loop");
+		}
+		return d != null ? d : 0D;
+	}
+
 	/**
 	 * @param curLifter
 	 * @param rankingType
@@ -170,12 +276,13 @@ public enum Ranking {
 		if (!RankingConfig.shouldCompute(rankingType)) {
 			return 0D;
 		}
+		Ranking originalRankingType = rankingType;
+		if (shouldHideIncompletePublishedScore(curLifter, originalRankingType)) {
+			return 0D;
+		}
 		Double d = 0D;
 		Integer i = 0;
-		if (rankingType == CATEGORY_SCORE) {
-			// indirection -- find the category scoring system
-			rankingType = curLifter.getComputedScoringSystem();
-		}
+		rankingType = resolveRankingType(curLifter, rankingType);
 		switch (rankingType) {
 			case SNATCH:
 				i = curLifter.getBestSnatch();
@@ -199,32 +306,16 @@ public enum Ranking {
 				d = 0D; // no such thing
 				break;
 			case BW_SINCLAIR:
-				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-					d = curLifter.getSinclair();
-				} else {
-					d = curLifter.getSinclairForDelta();
-				}
+				d = curLifter.getSinclair();
 				break;
 			case CAT_SINCLAIR:
-				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-					d = curLifter.getCategorySinclair();
-				} else {
-					d = curLifter.getCategorySinclairForDelta();
-				}
+				d = curLifter.getCategorySinclair();
 				break;
 			case CAT_QPOINTS:
-				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-					d = curLifter.getCategoryQPoints();
-				} else {
-					d = curLifter.getCategoryQPointsForDelta();
-				}
+				d = curLifter.getCategoryQPoints();
 				break;
 			case SMM:
-				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-					d = curLifter.getSmhf();
-				} else {
-					d = curLifter .getSmhfForDelta();
-				}
+				d = curLifter.getSmhf();
 				break;
 			case GAMX:
 				d = curLifter.getGamx();
@@ -251,32 +342,16 @@ public enum Ranking {
 				d = curLifter.getGamxC();
 				break;
 			case CAT_GAMX:
-				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-					d = curLifter.getCategoryGAMX();
-				} else {
-					d = curLifter.getCategoryGAMXForDelta();
-				}
+				d = curLifter.getCategoryGAMX();
 				break;
 			case AGEFACTORS:
-				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-					d = curLifter.getQYouth();
-				} else {
-					d = curLifter.getQYouthForDelta();
-				}
+				d = curLifter.getQYouth();
 				break;
 			case QPOINTS:
-				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-					d = curLifter.getQPoints();
-				} else {
-					d = curLifter.getQPointsForDelta();
-				}
+				d = curLifter.getQPoints();
 				break;
 			case QAGE:
-				if (JXLSWorkbookStreamSource.isNoInterimScoresInResults()) {
-					d = curLifter.getQMasters();
-				} else {
-					d = curLifter.getQMastersForDelta();
-				}
+				d = curLifter.getQMasters();
 				break;
 			case CATEGORY_SCORE:
 				throw new RuntimeException("can't happen, CATEGORY_SCORE loop");
