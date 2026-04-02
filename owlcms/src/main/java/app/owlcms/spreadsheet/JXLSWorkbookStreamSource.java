@@ -118,6 +118,21 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		bestLifterRankingSystem.set(bestLifterRankingValue);
 	}
 
+	protected static void setThreadLocalPresentationContext(Ranking bestLifterRankingValue, boolean hideInterimScoresInResults) {
+		setBestLifterRankingThreadLocal(bestLifterRankingValue);
+		setNoInterimScoresInResults(hideInterimScoresInResults);
+	}
+	protected static void clearThreadLocalPresentationContext() {
+		try {
+			bestLifterRankingSystem.remove();
+		} catch (Throwable ignore) {
+		}
+		try {
+			noInterimScoresInResults.remove();
+		} catch (Throwable ignore) {
+		}
+	}
+
 	protected static void setNoInterimScoresInResults(boolean noInterimScoresInResultsP) {
 		noInterimScoresInResults.set(noInterimScoresInResultsP);
 	}
@@ -144,9 +159,14 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private boolean emptyOk = false;
 	private Integer pageLength = null;
 	private Ranking bestLifterScoringSystem;
+	private boolean respectNoInterimScoresInResults;
 	private Integer lastLine;
 	private Integer firstMergeLine;
 	private List<Integer> mergeColumnList;
+
+	protected boolean shouldHideInterimScoresInResults() {
+		return this.respectNoInterimScoresInResults && Config.getCurrent().featureSwitch("noInterimScoresInResults");
+	}
 
 	public JXLSWorkbookStreamSource() {
 		this.ui = UI.getCurrent();
@@ -166,11 +186,13 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		try {
 			session.lock();
 			logger.debug("getting {}", getBestLifterScoringSystem());
+			setThreadLocalPresentationContext(getBestLifterScoringSystem(), shouldHideInterimScoresInResults());
 			writeStream(stream);
 		} catch (Throwable t) {
 			LoggerUtils.logError(logger, t);
 			logger.error("writeStream failed: {}", LoggerUtils.stackTrace(t));
 		} finally {
+			clearThreadLocalPresentationContext();
 			session.unlock();
 		}
 	}
@@ -185,7 +207,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		// Ensure reporting beans are available for the writer. Some callers may not
 		// invoke
 		// prepare() beforehand, so we keep this defensive initialization here as well.
-		setReportingInfo();
+		try {
+			setThreadLocalPresentationContext(getBestLifterScoringSystem(), shouldHideInterimScoresInResults());
+			setReportingInfo();
+		} finally {
+			clearThreadLocalPresentationContext();
+		}
 		return doCreateStream();
 	}
 
@@ -205,9 +232,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				// Propagate instance field values to ThreadLocal for cross-cutting concerns.
 				// The ThreadLocal is read by classes (e.g., Athlete.getBestLifterScore()) that
 				// don't have direct access to this JXLSWorkbookStreamSource instance.
-				if (this.bestLifterScoringSystem != null) {
-					setBestLifterRankingThreadLocal(this.bestLifterScoringSystem);
-				}
+				setThreadLocalPresentationContext(this.bestLifterScoringSystem, this.shouldHideInterimScoresInResults());
 				writeStream(out);
 				// success: notify caller
 				try {
@@ -245,14 +270,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 					OwlcmsSessionThreadLocal.remove();
 				} catch (Throwable ignore) {
 				}
-				try {
-					bestLifterRankingSystem.remove();
-				} catch (Throwable ignore) {
-				}
-				try {
-					noInterimScoresInResults.remove();
-				} catch (Throwable ignore) {
-				}
+				clearThreadLocalPresentationContext();
 				try {
 					out.close();
 				} catch (IOException e) {
@@ -902,6 +920,10 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		this.bestLifterScoringSystem = bestLifterScoringSystem;
 	}
 
+	public void setRespectNoInterimScoresInResults(boolean respectNoInterimScoresInResults) {
+		this.respectNoInterimScoresInResults = respectNoInterimScoresInResults;
+	}
+
 	public void setEmptyOk(boolean emptyOk) {
 		this.emptyOk = emptyOk;
 	}
@@ -916,8 +938,12 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	 */
 	public Optional<Exception> prepare() {
 		try {
-
-			setReportingInfo();
+			setThreadLocalPresentationContext(getBestLifterScoringSystem(), shouldHideInterimScoresInResults());
+			try {
+				setReportingInfo();
+			} finally {
+				clearThreadLocalPresentationContext();
+			}
 			// Validate that the template exists and is readable on the UI thread.
 			// If a caller provided a custom template via setInputStream(), trust that they
 			// manage it properly.

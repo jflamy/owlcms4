@@ -703,6 +703,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSWinningSheet rs = new JXLSWinningSheet(true);
+			        rs.setRespectNoInterimScoresInResults(true);
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setGender(this.gender);
@@ -734,6 +735,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.downloadDialog = new JXLSDownloader(
 				() -> {
 					JXLSCompetitionBook rs = new JXLSCompetitionBook(this.locationUI);
+					rs.setRespectNoInterimScoresInResults(true);
 					rs.setChampionship(this.championship);
 					rs.setAgeGroupPrefix(this.ageGroupPrefix);
 					rs.setGender(this.gender);
@@ -760,6 +762,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		this.downloadDialog = new JXLSDownloader(
 		        () -> {
 			        JXLSWinningSheet rs = new JXLSWinningSheet(false);
+			        rs.setRespectNoInterimScoresInResults(true);
 			        rs.setChampionship(this.championship);
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setGender(this.gender);

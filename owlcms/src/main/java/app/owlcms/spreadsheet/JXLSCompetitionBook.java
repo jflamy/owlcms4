@@ -191,7 +191,6 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		keepProvisionalRecords(records, reportingBeans);
 
 		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
-		JXLSWorkbookStreamSource.setNoInterimScoresInResults(Config.getCurrent().featureSwitch("noInterimScoresInResults"));
 		if (overallScoringSystem == null) {
 			overallScoringSystem = Competition.getCurrent().getScoringSystem();
 		}
