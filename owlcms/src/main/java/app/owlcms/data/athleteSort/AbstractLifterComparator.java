@@ -951,8 +951,8 @@ public class AbstractLifterComparator {
 	}
 
 	int compareScore(Athlete lifter1, Athlete lifter2) {
-		Double lifter1Value = lifter1.computedCategoryScore();
-		Double lifter2Value = lifter2.computedCategoryScore();
+		Double lifter1Value = Ranking.getRankingValue(lifter1, Ranking.CATEGORY_SCORE);
+		Double lifter2Value = Ranking.getRankingValue(lifter2, Ranking.CATEGORY_SCORE);
 		final Double notScored = 0D;
 		if (lifter1Value == null) {
 			lifter1Value = notScored;
