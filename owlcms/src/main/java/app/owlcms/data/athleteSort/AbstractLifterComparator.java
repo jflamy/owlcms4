@@ -951,20 +951,13 @@ public class AbstractLifterComparator {
 	}
 
 	int compareScore(Athlete lifter1, Athlete lifter2) {
-		Double lifter1Value = Ranking.getRankingValue(lifter1, Ranking.CATEGORY_SCORE);
-		Double lifter2Value = Ranking.getRankingValue(lifter2, Ranking.CATEGORY_SCORE);
-		final Double notScored = 0D;
-		if (lifter1Value == null) {
-			lifter1Value = notScored;
-		}
-		if (lifter2Value == null) {
-			lifter2Value = notScored;
-		}
-		if (lifter1Value <= 0.0001 && lifter2Value < 0.0001) {
+		double lifter1Value = Ranking.getRankingValue(lifter1, Ranking.CATEGORY_SCORE);
+		double lifter2Value = Ranking.getRankingValue(lifter2, Ranking.CATEGORY_SCORE);
+		if (lifter1Value <= 0.0001 && lifter2Value <= 0.0001) {
 			// avoid going to full tie break; need something stable.
 			return ObjectUtils.compare(lifter1.getId(), lifter2.getId());
 		}
-		return lifter1Value.compareTo(lifter2Value);
+		return Double.compare(lifter1Value, lifter2Value);
 	}
 
 	/**
