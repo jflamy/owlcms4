@@ -10,11 +10,17 @@
 
 **New in Release 66**
 
-66.0.0-beta03: Fix: updating the websocket event forwarding URL did not correctly reset the forwarder
+66.0.0-beta05: Fix: reported scores on result sheets are now correctly 0 when the athlete is done and has no total
+
+66.0.0-beta05: Fix: the noInterimScoresInResults toggle was not systematically applied on the competition results page
+  - the individual session pages still show the current session in-progress scores as they may be required to plan for awards
 
 66.0.0-beta04: Configurable timing
-  - For large school-age competitions, creating a `local/timing/timing.properties` as in [this example}(https://github.com/jflamy/owlcms4/issues/1386#issuecomment-4170813795) allows changing the durations of the one minute and two minute intervals to have the lifts proceed faster.
+  - For large school-age competitions, creating a `local/timing/timing.properties` as in [this example](https://github.com/jflamy/owlcms4/issues/1386#issuecomment-4170813795) allows changing the durations of the one minute and two minute intervals to have the lifts proceed faster.
   - The values of the warnings times are also propagated to owlcms-tracker so they can be used (e.g. to change timer colours)
+
+66.0.0-beta03: Fix: updating the websocket event forwarding URL did not correctly reset the forwarder
+
 
 66.0.0: Mixed Team Championships
   - Allow explicit nomination of a mixed team, or implicit men and women combined
