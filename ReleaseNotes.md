@@ -10,7 +10,12 @@
 
 **New in Release 66**
 
-66.0.0-beta05: Fix: reported scores on result sheets are now correctly 0 when the athlete is done and has no total
+66.0.0-beta06: Record Management
+  - the record editing page will now correctly warn that editing an existing record and changing the age or bodyweight categories does NOT create a new record
+  - the sorting order in the grid is now done correctly when existing records are adjusted for new categories
+  - the exports using the dataExchange templates now use a 999 as the marker for the super heavy category.
+
+66.0.0-beta05: Fix: reported scores on result sheets are now correctly zero when the athlete is done and has no total
 
 66.0.0-beta05: Fix: the noInterimScoresInResults toggle was not systematically applied on the competition results page
   - the individual session pages still show the current session in-progress scores as they may be required to plan for awards
@@ -20,7 +25,6 @@
   - The values of the warnings times are also propagated to owlcms-tracker so they can be used (e.g. to change timer colours)
 
 66.0.0-beta03: Fix: updating the websocket event forwarding URL did not correctly reset the forwarder
-
 
 66.0.0: Mixed Team Championships
   - Allow explicit nomination of a mixed team, or implicit men and women combined
