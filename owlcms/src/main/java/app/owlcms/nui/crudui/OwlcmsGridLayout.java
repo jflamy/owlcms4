@@ -30,6 +30,7 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsGridLayout.class);
 	
 	private OwlcmsCrudGrid<?> owlcmsCrudGrid;
+	private H3 dialogCaption;
 
 	/**
 	 * Instantiates a new owlcms crudGrid layout.
@@ -102,6 +103,12 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		this.owlcmsCrudGrid = grid;
 	}
 
+	public void updateDialogCaption(String caption) {
+		if (this.dialogCaption != null) {
+			this.dialogCaption.setText(caption);
+		}
+	}
+
 	@Override
 	public void showDialog(String caption, Component form) {
 		VerticalLayout dialogLayout = new VerticalLayout(form);
@@ -109,10 +116,10 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		dialogLayout.setMargin(false);
 		dialogLayout.setPadding(false);
 
-		H3 h3 = new H3(caption);
-		h3.getStyle().set("margin-top", "0");
-		h3.getStyle().set("margin-bottom", "0");
-		this.dialog = new Dialog(h3, dialogLayout);
+		this.dialogCaption = new H3(caption);
+		this.dialogCaption.getStyle().set("margin-top", "0");
+		this.dialogCaption.getStyle().set("margin-bottom", "0");
+		this.dialog = new Dialog(this.dialogCaption, dialogLayout);
 		this.dialog.setWidth(this.formWindowWidth);
 		
 		// Add dialog close listener for focus management

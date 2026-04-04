@@ -50,7 +50,7 @@ public class PublicRecordsContent extends RecordContent {
 		Button exportRecordsButton = createExportRecordsButton();
 
 		Button loginButton = new Button(Translator.translate("Edit"),
-		        e -> UI.getCurrent().navigate(RecordContent.class));
+		        e -> UI.getCurrent().navigate("preparation/records", getLocation().getQueryParameters()));
 		loginButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 		loginButton.getElement().getStyle().set("margin-right", "1em");
 

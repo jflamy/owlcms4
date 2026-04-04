@@ -6,7 +6,9 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
@@ -23,11 +25,13 @@ import app.owlcms.nui.crudui.OwlcmsGridLayout;
 @SuppressWarnings("serial")
 final class RecordGrid extends OwlcmsCrudGrid<RecordEvent> {
 	private final Runnable refreshCallback;
+	private final Supplier<List<RecordEvent>> itemsSupplier;
 
 	RecordGrid(Class<RecordEvent> domainType, OwlcmsGridLayout crudLayout, OwlcmsCrudFormFactory<RecordEvent> owlcmsCrudFormFactory,
-	        Grid<RecordEvent> grid, Runnable refreshCallback) {
+	        Grid<RecordEvent> grid, Runnable refreshCallback, Supplier<List<RecordEvent>> itemsSupplier) {
 		super(domainType, crudLayout, owlcmsCrudFormFactory, grid);
 		this.refreshCallback = refreshCallback;
+		this.itemsSupplier = itemsSupplier;
 	}
 
 	public Set<RecordEvent> getSelectedItems() {
@@ -45,6 +49,11 @@ final class RecordGrid extends OwlcmsCrudGrid<RecordEvent> {
 			this.refreshCallback.run();
 		}
 		refreshGrid();
+	}
+
+	@Override
+	public void refreshGrid() {
+		reloadGridData();
 	}
 
 	@Override
@@ -83,7 +92,7 @@ final class RecordGrid extends OwlcmsCrudGrid<RecordEvent> {
 			try {
 				RecordEvent updatedObject = this.updateOperation.perform(domainObject);
 				this.grid.asSingleSelect().clear();
-				refreshGrid();
+				reloadGridData();
 				this.grid.asSingleSelect().setValue(updatedObject);
 				this.grid.deselect(updatedObject);
 				showNotification(this.savedMessage);
@@ -97,6 +106,14 @@ final class RecordGrid extends OwlcmsCrudGrid<RecordEvent> {
 				throw e2;
 			}
 		});
+	}
+
+	private void reloadGridData() {
+		if (this.itemsSupplier == null) {
+			super.refreshGrid();
+			return;
+		}
+		this.grid.setItems(this.itemsSupplier.get());
 	}
 
 	private void gridSelectionChanged(RecordEvent item) {

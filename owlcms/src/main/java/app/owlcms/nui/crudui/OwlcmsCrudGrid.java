@@ -349,6 +349,12 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		focusOutsideThenBackToTriggeringItem();
 	}
 
+	public void updateDialogCaption(String caption) {
+		if (this.getOwlcmsGridLayout() != null) {
+			this.getOwlcmsGridLayout().updateDialogCaption(caption);
+		}
+	}
+
 	/**
 	 * Replace the grid with a new one (e.g., when columns need to change).
 	 * Preserves all filter components and layout, only replacing the grid itself.

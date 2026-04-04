@@ -7,8 +7,13 @@
 package app.owlcms.nui.preparation;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -34,10 +39,15 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.Location;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.utils.URLUtils;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.records.RecordEvent;
@@ -84,6 +94,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	protected boolean readOnly;
 	boolean documentPage;
+	private boolean updatingFilters;
 	protected RecordGrid crud;
 	protected OwlcmsCrudFormFactory<RecordEvent> editingFormFactory;
 	protected OwlcmsLayout routerLayout;
@@ -121,7 +132,83 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.documentPage = path.contains("documents");
 	}
 
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		Location location = event.getLocation();
+		setLocation(location);
+		setLocationUI(event.getUI());
+
+		Map<String, List<String>> params = location.getQueryParameters().getParameters();
+
+		this.updatingFilters = true;
+		try {
+			String fed = getFirstParam(params, "federation");
+			String recName = getFirstParam(params, "recordName");
+			String ag = getFirstParam(params, "ageGroup");
+			String g = getFirstParam(params, "gender");
+			String n = getFirstParam(params, "name");
+			String prov = getFirstParam(params, "provisional");
+			String curHist = getFirstParam(params, "currentHistory");
+
+			// Federation first (dependent filters rely on it)
+			if (fed != null && !fed.isBlank()) {
+				setFederation(fed);
+				this.federationFilter.setValue(fed);
+			} else {
+				autoSelectSingleFederation();
+			}
+
+			// Populate dependent combo items
+			refreshDependentFilterOptions();
+
+			if (recName != null && !recName.isBlank()) {
+				setRecordName(recName);
+				this.recordNameFilter.setValue(recName);
+			}
+			if (ag != null && !ag.isBlank()) {
+				setAgeGroup(ag);
+				this.ageGroupFilter.setValue(ag);
+			}
+			if (g != null) {
+				try {
+					Gender gv = Gender.valueOf(g);
+					setGender(gv);
+					this.genderFilter.setValue(gv);
+				} catch (IllegalArgumentException ignored) {
+				}
+			}
+			if (n != null && !n.isBlank()) {
+				setName(n);
+				this.nameFilter.setValue(n);
+			}
+			if (prov != null) {
+				try {
+					this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.valueOf(prov));
+				} catch (IllegalArgumentException ignored) {
+				}
+			}
+			if (curHist != null) {
+				try {
+					this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.valueOf(curHist));
+				} catch (IllegalArgumentException ignored) {
+				}
+			}
+			syncCurrentHistoryFilterForProvisional();
+		} finally {
+			this.updatingFilters = false;
+		}
+
+		this.crud.refreshGrid();
+		updateUrlParameters();
+	}
+
 	public void closeDialog() {
+	}
+
+	public void updateDialogCaption(String caption) {
+		if (this.crud != null) {
+			this.crud.updateDialogCaption(caption);
+		}
 	}
 
 	@Override
@@ -397,16 +484,23 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	 * Filter methods
 	 */
 	public void clearFilters() {
-		this.federationFilter.clear();
-		autoSelectSingleFederation();
-		this.recordNameFilter.clear();
-		this.ageGroupFilter.clear();
-		refreshDependentFilterOptions();
-		this.genderFilter.clear();
-		this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
-		this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
-		syncCurrentHistoryFilterForProvisional();
-		this.nameFilter.clear();
+		this.updatingFilters = true;
+		try {
+			this.federationFilter.clear();
+			autoSelectSingleFederation();
+			this.recordNameFilter.clear();
+			this.ageGroupFilter.clear();
+			refreshDependentFilterOptions();
+			this.genderFilter.clear();
+			setGender(null);
+			this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
+			this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
+			syncCurrentHistoryFilterForProvisional();
+			this.nameFilter.clear();
+			setName(null);
+		} finally {
+			this.updatingFilters = false;
+		}
 	}
 
 	public String getFederation() {
@@ -465,6 +559,51 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.currentHistoryFilter.setValue(currentHistoryFilter);
 	}
 
+	// ---- URL parameter persistence ----
+
+	private String getFirstParam(Map<String, List<String>> params, String key) {
+		List<String> values = params.get(key);
+		if (values == null || values.isEmpty()) {
+			return null;
+		}
+		String val = values.get(0);
+		return (val != null && !val.isBlank()) ? URLDecoder.decode(val, StandardCharsets.UTF_8) : null;
+	}
+
+	private void updateUrlParameters() {
+		if (this.updatingFilters || getLocationUI() == null || getLocation() == null) {
+			return;
+		}
+		HashMap<String, List<String>> params = new HashMap<>();
+		if (federation != null && !federation.isBlank()) {
+			params.put("federation", List.of(federation));
+		}
+		if (recordName != null && !recordName.isBlank()) {
+			params.put("recordName", List.of(recordName));
+		}
+		if (ageGroup != null && !ageGroup.isBlank()) {
+			params.put("ageGroup", List.of(ageGroup));
+		}
+		if (gender != null) {
+			params.put("gender", List.of(gender.name()));
+		}
+		if (name != null && !name.isBlank()) {
+			params.put("name", List.of(name));
+		}
+		RecordFilters.ProvisionalFilter pv = this.provisionalFilter.getValue();
+		if (pv != null && pv != RecordFilters.ProvisionalFilter.ALL) {
+			params.put("provisional", List.of(pv.name()));
+		}
+		RecordFilters.CurrentHistoryFilter cv = this.currentHistoryFilter.getValue();
+		if (cv != null && cv != RecordFilters.CurrentHistoryFilter.CURRENT) {
+			params.put("currentHistory", List.of(cv.name()));
+		}
+
+		Location newLocation = new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params)));
+		getLocationUI().getPage().getHistory().replaceState(null, newLocation);
+		setLocation(newLocation);
+	}
+
 	/**
 	 * Get filtered records using RecordRepository to ensure consistency between grid and export
 	 */
@@ -507,6 +646,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			setFederation(e.getValue());
 			refreshDependentFilterOptions();
 			crud.refreshGrid();
+			updateUrlParameters();
 		});
 		this.federationFilter.setWidth("12em");
 		crud.getCrudLayout().addFilterComponent(this.federationFilter);
@@ -522,6 +662,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			setRecordName(e.getValue());
 			refreshDependentFilterOptions();
 			crud.refreshGrid();
+			updateUrlParameters();
 		});
 		this.recordNameFilter.setWidth("12em");
 		crud.getCrudLayout().addFilterComponent(this.recordNameFilter);
@@ -536,6 +677,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			setAgeGroup(e.getValue());
 			refreshDependentFilterOptions();
 			crud.refreshGrid();
+			updateUrlParameters();
 		});
 		this.ageGroupFilter.setWidth("10em");
 		crud.getCrudLayout().addFilterComponent(this.ageGroupFilter);
@@ -548,7 +690,10 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.genderFilter.setClearButtonVisible(true);
 		this.genderFilter.addValueChangeListener(e -> {
 			setGender(e.getValue());
-			crud.refreshGrid();
+			if (!this.updatingFilters) {
+				crud.refreshGrid();
+				updateUrlParameters();
+			}
 		});
 		this.genderFilter.setWidth("8em");
 		crud.getCrudLayout().addFilterComponent(this.genderFilter);
@@ -559,7 +704,10 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		this.nameFilter.addValueChangeListener(e -> {
 			setName(e.getValue());
-			crud.refreshGrid();
+			if (!this.updatingFilters) {
+				crud.refreshGrid();
+				updateUrlParameters();
+			}
 		});
 		this.nameFilter.setWidth("12em");
 		crud.getCrudLayout().addFilterComponent(this.nameFilter);
@@ -573,7 +721,10 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.provisionalFilter.addValueChangeListener(e -> {
 			setProvisionalFilter(e.getValue());
 			syncCurrentHistoryFilterForProvisional();
-			crud.refreshGrid();
+			if (!this.updatingFilters) {
+				crud.refreshGrid();
+				updateUrlParameters();
+			}
 		});
 		this.provisionalFilter.setWidth("10em");
 		
@@ -592,7 +743,10 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.currentHistoryFilter.addValueChangeListener(e -> {
 			setCurrentHistoryFilter(e.getValue());
 			syncCurrentHistoryFilterForProvisional();
-			crud.refreshGrid();
+			if (!this.updatingFilters) {
+				crud.refreshGrid();
+				updateUrlParameters();
+			}
 		});
 		this.currentHistoryFilter.setWidth("12em");
 		crud.getCrudLayout().addFilterComponent(this.currentHistoryFilter);
@@ -603,6 +757,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		clearFilters.addClickListener(event -> {
 			clearFilters();
 			crud.refreshGrid();
+			updateUrlParameters();
 		});
 		crud.getCrudLayout().addFilterComponent(clearFilters);
 	}
@@ -621,17 +776,12 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	protected void refreshFilterOptionsFromRepository() {
 		String selectedFederation = this.federationFilter.getValue();
-		List<String> availableFederations = RecordRepository.findDistinctFederations();
+		List<String> availableFederations = preserveSelectedValue(RecordRepository.findDistinctFederations(), selectedFederation);
 		this.federationFilter.setItems(availableFederations);
 
 		if (selectedFederation != null && !selectedFederation.isBlank()) {
-			if (availableFederations.contains(selectedFederation)) {
-				this.federationFilter.setValue(selectedFederation);
-				setFederation(selectedFederation);
-			} else {
-				this.federationFilter.clear();
-				setFederation(null);
-			}
+			this.federationFilter.setValue(selectedFederation);
+			setFederation(selectedFederation);
 		} else {
 			autoSelectSingleFederation();
 		}
@@ -665,16 +815,17 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	private void updateSingleValueFilter(ComboBox<String> filter, List<String> availableValues, String selectedValue,
 	        java.util.function.Consumer<String> setter) {
-		filter.setItems(availableValues);
+		List<String> valuesToShow = preserveSelectedValue(availableValues, selectedValue);
+		filter.setItems(valuesToShow);
 
-		if (availableValues.isEmpty()) {
+		if (valuesToShow.isEmpty()) {
 			filter.clear();
 			filter.setReadOnly(true);
 			setter.accept(null);
 			return;
 		}
 
-		if (availableValues.size() == 1) {
+		if (availableValues.size() == 1 && (selectedValue == null || selectedValue.isBlank() || availableValues.contains(selectedValue))) {
 			String onlyValue = availableValues.get(0);
 			if (!onlyValue.equals(filter.getValue())) {
 				filter.setValue(onlyValue);
@@ -686,14 +837,17 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 		filter.setReadOnly(false);
 		if (selectedValue != null) {
-			if (availableValues.contains(selectedValue)) {
-				filter.setValue(selectedValue);
-				setter.accept(selectedValue);
-			} else {
-				filter.clear();
-				setter.accept(null);
-			}
+			filter.setValue(selectedValue);
+			setter.accept(selectedValue);
 		}
+	}
+
+	private List<String> preserveSelectedValue(List<String> availableValues, String selectedValue) {
+		List<String> valuesToShow = new ArrayList<>(availableValues);
+		if (selectedValue != null && !selectedValue.isBlank() && !valuesToShow.contains(selectedValue)) {
+			valuesToShow.add(0, selectedValue);
+		}
+		return valuesToShow;
 	}
 
 	protected void syncCurrentHistoryFilterForProvisional() {
@@ -716,7 +870,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	protected GridCrud<RecordEvent> createGrid(OwlcmsCrudFormFactory<RecordEvent> crudFormFactory) {
 		Grid<RecordEvent> grid = new Grid<>(RecordEvent.class, false);
 		this.crud = new RecordGrid(RecordEvent.class, new OwlcmsGridLayout(RecordEvent.class), crudFormFactory, grid,
-		        this::refreshFilterOptionsFromRepository);
+		        this::refreshFilterOptionsFromRepository, this::getFilteredRecords);
 		grid.getThemeNames().add("row-stripes");
 		
 		// Record identification columns

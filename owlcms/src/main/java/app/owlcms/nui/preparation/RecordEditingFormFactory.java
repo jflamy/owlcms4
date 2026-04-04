@@ -25,6 +25,7 @@ import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -50,6 +51,18 @@ public class RecordEditingFormFactory
 	@SuppressWarnings("unused")
 	private Logger logger = (Logger) LoggerFactory.getLogger(RecordEditingFormFactory.class);
 	private RecordContent origin;
+	private TextField recordFederationField;
+	private TextField recordNameField;
+	private TextField ageGrpField;
+	private ComboBox<Gender> genderField;
+	private ComboBox<Ranking> recordLiftField;
+	private IntegerField ageGrpLowerField;
+	private IntegerField ageGrpUpperField;
+	private IntegerField bwCatLowerField;
+	private IntegerField bwCatUpperField;
+	private Paragraph categoryChangeWarning;
+	private CrudOperation currentOperation;
+	private RecordEvent originalRecordSnapshot;
 	ComboBox<Platform> platformField;
 
 	public RecordEditingFormFactory(Class<RecordEvent> domainType, RecordContent recordContent) {
@@ -58,8 +71,9 @@ public class RecordEditingFormFactory
 	}
 
 	@Override
-	public RecordEvent add(RecordEvent RecordEvent) {
-		return RecordRepository.save(RecordEvent);
+	public RecordEvent add(RecordEvent recordEvent) {
+		recordEvent.syncBodyWeightCategoryString();
+		return RecordRepository.save(recordEvent);
 	}
 
 	@Override
@@ -105,14 +119,22 @@ public class RecordEditingFormFactory
 	        ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
 
+		this.currentOperation = operation;
+		this.originalRecordSnapshot = operation == CrudOperation.UPDATE ? copyRecordDefinition(aFromDb) : null;
+
 		this.binder = buildBinder(operation, aFromDb);
 
 		Component footer = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
 		        updateButtonClickListener, deleteButtonClickListener, true);
 
+		this.categoryChangeWarning = createCategoryChangeWarning();
+		Component warningArea = createWarningArea();
 		Component form = recordEventLayout();
-		var mainLayout = new VerticalLayout(form, footer);
+		var mainLayout = new VerticalLayout(warningArea, form, footer);
+		mainLayout.setMargin(false);
+		mainLayout.setPadding(false);
 		this.binder.readBean(aFromDb);
+		refreshPreviewState();
 		return mainLayout;
 	}
 
@@ -143,7 +165,8 @@ public class RecordEditingFormFactory
 	 */
 	@Override
 	public RecordEvent update(RecordEvent ageGroup) {
-		RecordEvent saved = RecordRepository.save(ageGroup);
+		ageGroup.syncBodyWeightCategoryString();
+		RecordEvent saved = RecordRepository.save(ageGroup, this.originalRecordSnapshot);
 		// logger.trace("saved {}", saved.getCategories().get(0).longDump());
 		this.origin.closeDialog();
 		// origin.highlightResetButton();
@@ -172,24 +195,28 @@ public class RecordEditingFormFactory
 		layout.setColspan(title, 2);
 
 		TextField recordFederationField = new TextField(Translator.translate("RecordEvent.Federation"));
+		this.recordFederationField = recordFederationField;
 		layout.add(recordFederationField);
 		this.binder.forField(recordFederationField)
 		        .withNullRepresentation("")
 		        .bind(RecordEvent::getRecordFederation, RecordEvent::setRecordFederation);
 
 		TextField recordNameField = new TextField(Translator.translate("RecordEvent.Name"));
+		this.recordNameField = recordNameField;
 		layout.add(recordNameField);
 		this.binder.forField(recordNameField)
 		        .withNullRepresentation("")
 		        .bind(RecordEvent::getRecordName, RecordEvent::setRecordName);
 
 		TextField ageGrpField = new TextField(Translator.translate("AgeGroup"));
+		this.ageGrpField = ageGrpField;
 		layout.add(ageGrpField);
 		this.binder.forField(ageGrpField)
 		        .withNullRepresentation("")
 		        .bind(RecordEvent::getAgeGrp, RecordEvent::setAgeGrp);
 
 		ComboBox<Gender> genderField = new ComboBox<>(Translator.translate("Gender"));
+		this.genderField = genderField;
 		genderField.setItems(Gender.values());
 		layout.add(genderField);
 		this.binder.forField(genderField)
@@ -199,24 +226,37 @@ public class RecordEditingFormFactory
 		FormLayout collapsibleLayout = createLayout();
 
 		IntegerField ageGrpLowerField = new IntegerField(Translator.translate("RecordEvent.AgeLower"));
+		this.ageGrpLowerField = ageGrpLowerField;
 		collapsibleLayout.add(ageGrpLowerField);
 		this.binder.forField(ageGrpLowerField)
 		        .bind(RecordEvent::getAgeGrpLower, RecordEvent::setAgeGrpLower);
 
 		IntegerField ageGrpUpperField = new IntegerField(Translator.translate("RecordEvent.AgeUpper"));
+		this.ageGrpUpperField = ageGrpUpperField;
 		collapsibleLayout.add(ageGrpUpperField);
 		this.binder.forField(ageGrpUpperField)
 		        .bind(RecordEvent::getAgeGrpUpper, RecordEvent::setAgeGrpUpper);
 
 		IntegerField bwCatLowerField = new IntegerField(Translator.translate("RecordEvent.BWLower"));
+		this.bwCatLowerField = bwCatLowerField;
 		collapsibleLayout.add(bwCatLowerField);
 		this.binder.forField(bwCatLowerField)
 		        .bind(RecordEvent::getBwCatLower, RecordEvent::setBwCatLower);
 
 		IntegerField bwCatUpperField = new IntegerField(Translator.translate("RecordEvent.BWUpper"));
+		this.bwCatUpperField = bwCatUpperField;
 		collapsibleLayout.add(bwCatUpperField);
 		this.binder.forField(bwCatUpperField)
 		        .bind(RecordEvent::getBwCatUpper, RecordEvent::setBwCatUpper);
+
+		registerPreviewRefresh(recordFederationField);
+		registerPreviewRefresh(recordNameField);
+		registerPreviewRefresh(ageGrpField);
+		registerPreviewRefresh(genderField);
+		registerPreviewRefresh(ageGrpLowerField);
+		registerPreviewRefresh(ageGrpUpperField);
+		registerPreviewRefresh(bwCatLowerField);
+		registerPreviewRefresh(bwCatUpperField);
 
 		Details ageGroupDetails = new Details(Translator.translate("RecordEvent.AgeBodyweightDetails"), collapsibleLayout);
 		ageGroupDetails.getStyle().set("margin-right", "-1em");
@@ -236,11 +276,13 @@ public class RecordEditingFormFactory
 		layout.setColspan(title, 2);
 
 		ComboBox<Ranking> recordLiftField = new ComboBox<>(Translator.translate("RecordEvent.Lift"));
+		this.recordLiftField = recordLiftField;
 		recordLiftField.setItems(Ranking.SNATCH, Ranking.CLEANJERK, Ranking.TOTAL);
 		recordLiftField.setItemLabelGenerator(ranking -> Translator.translate("Record." + ranking));
 		layout.add(recordLiftField);
 		this.binder.forField(recordLiftField)
 		        .bind(RecordEvent::getRecordLift, RecordEvent::setRecordLift);
+		registerPreviewRefresh(recordLiftField);
 
 		NumberField recordValueField = new NumberField(Translator.translate("RecordEvent.Value"));
 		layout.add(recordValueField);
@@ -341,6 +383,156 @@ public class RecordEditingFormFactory
 		hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
 		hr.getStyle().set("height", "2px");
 		return hr;
+	}
+
+	private Paragraph createCategoryChangeWarning() {
+		Paragraph warning = new Paragraph();
+		warning.setVisible(false);
+		warning.getStyle().set("margin", "0");
+		warning.getStyle().set("padding", "0.75em 1em");
+		warning.getStyle().set("background-color", "var(--lumo-warning-color-10pct)");
+		warning.getStyle().set("border-left", "4px solid var(--lumo-warning-color)");
+		warning.getStyle().set("color", "var(--lumo-body-text-color)");
+		warning.getStyle().set("border-radius", "var(--lumo-border-radius-m)");
+		warning.getStyle().set("box-sizing", "border-box");
+		warning.setWidthFull();
+		return warning;
+	}
+
+	private Component createWarningArea() {
+		FormLayout layout = createLayout();
+		layout.add(this.categoryChangeWarning);
+		layout.setColspan(this.categoryChangeWarning, 2);
+		return layout;
+	}
+
+	private RecordEvent copyRecordDefinition(RecordEvent source) {
+		if (source == null) {
+			return null;
+		}
+		RecordEvent copy = new RecordEvent();
+		copy.setId(source.getId());
+		copy.setRecordFederation(source.getRecordFederation());
+		copy.setRecordName(source.getRecordName());
+		copy.setAgeGrp(source.getAgeGrp());
+		copy.setGender(source.getGender());
+		copy.setRecordLift(source.getRecordLift());
+		copy.setAgeGrpLower(source.getAgeGrpLower());
+		copy.setAgeGrpUpper(source.getAgeGrpUpper());
+		copy.setBwCatLower(source.getBwCatLower());
+		copy.setBwCatUpper(source.getBwCatUpper());
+		copy.setGroupNameString(source.getGroupNameString());
+		return copy;
+	}
+
+	private void registerPreviewRefresh(HasValue<?, ?> field) {
+		field.addValueChangeListener(event -> refreshPreviewState());
+	}
+
+	private void refreshPreviewState() {
+		refreshDialogCaption();
+		refreshCategoryChangeWarning();
+	}
+
+	private void refreshDialogCaption() {
+		if (this.origin == null || this.currentOperation == null || this.currentOperation == CrudOperation.DELETE) {
+			return;
+		}
+		this.origin.updateDialogCaption(buildPreviewCaption());
+	}
+
+	private String buildPreviewCaption() {
+		String titlePrefix = this.currentOperation == CrudOperation.ADD ? Translator.translate("Add") : Translator.translate("Update");
+		String previewName = buildPreviewName();
+		if (previewName == null || previewName.isBlank()) {
+			return titlePrefix + " " + Translator.translate("RecordEvent.Title");
+		}
+		return titlePrefix + " " + Translator.translate("RecordEvent.Title") + " " + previewName;
+	}
+
+	private void refreshCategoryChangeWarning() {
+		if (this.categoryChangeWarning == null) {
+			return;
+		}
+		boolean showWarning = shouldShowCategoryChangeWarning();
+		this.categoryChangeWarning.setVisible(showWarning);
+		if (showWarning) {
+			this.categoryChangeWarning.setText(Translator.translate("RecordEvent.WarningCurrentCategoryChange"));
+		}
+	}
+
+	private boolean shouldShowCategoryChangeWarning() {
+		if (this.currentOperation != CrudOperation.UPDATE || this.originalRecordSnapshot == null) {
+			return false;
+		}
+		return RecordRepository.wouldRedefineCurrentOfficialRecord(this.originalRecordSnapshot, buildPreviewDefinition());
+	}
+
+	private RecordEvent buildPreviewDefinition() {
+		RecordEvent preview = copyRecordDefinition(this.originalRecordSnapshot);
+		if (preview == null) {
+			return null;
+		}
+		if (this.recordFederationField != null) {
+			preview.setRecordFederation(this.recordFederationField.getValue());
+		}
+		if (this.recordNameField != null) {
+			preview.setRecordName(this.recordNameField.getValue());
+		}
+		if (this.ageGrpField != null) {
+			preview.setAgeGrp(this.ageGrpField.getValue());
+		}
+		if (this.genderField != null) {
+			preview.setGender(this.genderField.getValue());
+		}
+		if (this.recordLiftField != null) {
+			preview.setRecordLift(this.recordLiftField.getValue());
+		}
+		if (this.ageGrpLowerField != null && this.ageGrpLowerField.getValue() != null) {
+			preview.setAgeGrpLower(this.ageGrpLowerField.getValue());
+		}
+		if (this.ageGrpUpperField != null && this.ageGrpUpperField.getValue() != null) {
+			preview.setAgeGrpUpper(this.ageGrpUpperField.getValue());
+		}
+		if (this.bwCatLowerField != null && this.bwCatLowerField.getValue() != null) {
+			preview.setBwCatLower(this.bwCatLowerField.getValue());
+		}
+		if (this.bwCatUpperField != null && this.bwCatUpperField.getValue() != null) {
+			preview.setBwCatUpper(this.bwCatUpperField.getValue());
+		}
+		return preview;
+	}
+
+	private String buildPreviewName() {
+		StringBuilder preview = new StringBuilder();
+
+		if (this.recordNameField != null && this.recordNameField.getValue() != null && !this.recordNameField.getValue().isBlank()) {
+			preview.append(this.recordNameField.getValue().trim());
+		}
+		if (this.recordLiftField != null && this.recordLiftField.getValue() != null) {
+			appendPreviewPart(preview, Translator.translate("Record." + this.recordLiftField.getValue()));
+		}
+		if (this.ageGrpField != null && this.ageGrpField.getValue() != null && !this.ageGrpField.getValue().isBlank()) {
+			appendPreviewPart(preview, this.ageGrpField.getValue().trim());
+		}
+		if (this.bwCatLowerField != null && this.bwCatUpperField != null && this.bwCatUpperField.getValue() != null) {
+			RecordEvent previewRecord = new RecordEvent();
+			previewRecord.setBwCatLower(this.bwCatLowerField.getValue() != null ? this.bwCatLowerField.getValue() : 0);
+			previewRecord.setBwCatUpper(this.bwCatUpperField.getValue());
+			appendPreviewPart(preview, previewRecord.getBwCatString());
+		}
+
+		return preview.toString();
+	}
+
+	private void appendPreviewPart(StringBuilder preview, String value) {
+		if (value == null || value.isBlank()) {
+			return;
+		}
+		if (preview.length() > 0) {
+			preview.append(' ');
+		}
+		preview.append(value);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
