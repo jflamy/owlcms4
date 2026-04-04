@@ -99,6 +99,41 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		return newRecord;
 	}
 
+	public static String computeBodyWeightCategoryCode(Integer bwCatLower, Integer bwCatUpper) {
+		if (bwCatLower == null || bwCatUpper == null) {
+			return null;
+		}
+		if (bwCatUpper >= 199) {
+			return ">" + bwCatLower;
+		}
+		return Integer.toString(bwCatUpper);
+	}
+
+	public static Integer normalizeImportedBodyWeightCategoryUpper(String bwCatString) {
+		if (bwCatString == null || bwCatString.isBlank()) {
+			return null;
+		}
+
+		String trimmed = bwCatString.trim();
+		if (trimmed.startsWith(">") || trimmed.startsWith("+") || trimmed.endsWith("+")) {
+			return 999;
+		}
+
+		try {
+			int parsed = Integer.parseInt(trimmed);
+			return parsed >= 199 ? 999 : parsed;
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	public static Integer computeBodyWeightCategorySortValue(Integer bwCatUpper, String bwCatString) {
+		if (bwCatUpper != null) {
+			return bwCatUpper >= 199 ? 999 : bwCatUpper;
+		}
+		return normalizeImportedBodyWeightCategoryUpper(bwCatString);
+	}
+
 	@Column(columnDefinition = "boolean default true")
 	private Boolean active = true;
 	private Double athleteBW;
@@ -223,15 +258,20 @@ public class RecordEvent implements Comparable<RecordEvent> {
 	}
 
 	public String getBwCatString() {
+		String computed = computeBodyWeightCategoryCode(this.bwCatLower, this.bwCatUpper);
+		String displayValue = computed != null ? computed : this.bwCatString;
+		if (displayValue == null) {
+			return null;
+		}
 		// if bwCatString is an integer over 900, it is a super-heavyweight
 		// then we use the catLower translated to get the + or > according to locale.
 		// also when the string has ">" or "+" we use the catLower (legacy)
-		if (this.bwCatString != null && (this.bwCatString.contains(">") || this.bwCatString.contains("+"))) {
+		if (displayValue.contains(">") || displayValue.contains("+")) {
 			return Translator.translate("catAboveFormat", this.bwCatLower);
 		}
-		if (this.bwCatString != null) {
+		if (displayValue != null) {
 			try {
-				int bw = Integer.parseInt(this.bwCatString);
+				int bw = Integer.parseInt(displayValue);
 				if (bw >= 199) {
 					return Translator.translate("catAboveFormat", this.bwCatLower);
 				}
@@ -239,11 +279,15 @@ public class RecordEvent implements Comparable<RecordEvent> {
 				// not an integer, ignore
 			}
 		}
-		return this.bwCatString;
+		return displayValue;
 	}
 
 	public Integer getBwCatUpper() {
 		return this.bwCatUpper;
+	}
+
+	public Integer getBwCatUpperForSort() {
+		return computeBodyWeightCategorySortValue(this.bwCatUpper, this.bwCatString);
 	}
 
 	/**
@@ -481,6 +525,7 @@ public class RecordEvent implements Comparable<RecordEvent> {
 
 	public void setBwCatLower(int intExact) {
 		this.bwCatLower = intExact;
+		syncBodyWeightCategoryString();
 	}
 
 	public void setBwCatString(String cellValue) {
@@ -489,6 +534,14 @@ public class RecordEvent implements Comparable<RecordEvent> {
 
 	public void setBwCatUpper(Integer bwCatUpper) {
 		this.bwCatUpper = bwCatUpper;
+		syncBodyWeightCategoryString();
+	}
+
+	public void syncBodyWeightCategoryString() {
+		String computed = computeBodyWeightCategoryCode(this.bwCatLower, this.bwCatUpper);
+		if (computed != null) {
+			this.bwCatString = computed;
+		}
 	}
 
 	/**

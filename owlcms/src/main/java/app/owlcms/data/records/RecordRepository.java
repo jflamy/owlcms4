@@ -628,9 +628,44 @@ public class RecordRepository {
 	 * @return the group
 	 */
 	public static RecordEvent save(RecordEvent Record) {
+		return save(Record, null);
+	}
+
+	public static boolean isCurrentOfficialRecord(RecordEvent record) {
+		if (record == null || isProvisional(record)) {
+			return false;
+		}
+		return JPAService.runInTransaction(em -> {
+			StringBuilder queryBuilder = new StringBuilder(
+			        "SELECT rec FROM RecordEvent rec WHERE (rec.groupNameString IS NULL OR TRIM(rec.groupNameString) = '')");
+			Map<String, Object> parameters = new LinkedHashMap<>();
+			appendLogicalKeyConditions(queryBuilder, parameters, record);
+			queryBuilder.append(" ORDER BY rec.recordValue DESC, rec.id DESC");
+
+			Query query = em.createQuery(queryBuilder.toString());
+			parameters.forEach(query::setParameter);
+
+			@SuppressWarnings("unchecked")
+			List<RecordEvent> matches = query.getResultList();
+			return !matches.isEmpty() && Objects.equals(matches.get(0).getId(), record.getId());
+		});
+	}
+
+	public static boolean wouldRedefineCurrentOfficialRecord(RecordEvent originalRecord, RecordEvent updatedRecord) {
+		if (!shouldPropagateOfficialLogicalKeyUpdate(originalRecord, updatedRecord)) {
+			return false;
+		}
+		return isCurrentOfficialRecord(originalRecord);
+	}
+
+	public static RecordEvent save(RecordEvent Record, RecordEvent originalRecord) {
+		Record.syncBodyWeightCategoryString();
 		RecordEvent nRecord = JPAService.runInTransaction(em -> {
 			// the category objects that have a null age group must be removed.
 			try {
+				if (shouldPropagateOfficialLogicalKeyUpdate(originalRecord, Record)) {
+					propagateOfficialLogicalKeyUpdate(em, originalRecord, Record);
+				}
 				if (isProvisional(Record)) {
 					RecordEvent duplicate = findExactDuplicate(em, Record);
 					if (duplicate != null) {
@@ -648,6 +683,54 @@ public class RecordRepository {
 		});
 
 		return nRecord;
+	}
+
+	private static boolean shouldPropagateOfficialLogicalKeyUpdate(RecordEvent originalRecord, RecordEvent updatedRecord) {
+		if (originalRecord == null || updatedRecord == null) {
+			return false;
+		}
+		if (isProvisional(originalRecord) || isProvisional(updatedRecord)) {
+			return false;
+		}
+		return !sameOfficialRecordDefinition(originalRecord, updatedRecord);
+	}
+
+	private static boolean sameOfficialRecordDefinition(RecordEvent left, RecordEvent right) {
+		return Objects.equals(left.getRecordFederation(), right.getRecordFederation())
+		        && Objects.equals(left.getRecordName(), right.getRecordName())
+		        && Objects.equals(left.getAgeGrp(), right.getAgeGrp())
+		        && Objects.equals(left.getGender(), right.getGender())
+		        && Objects.equals(left.getRecordLift(), right.getRecordLift())
+		        && Objects.equals(left.getAgeGrpLower(), right.getAgeGrpLower())
+		        && Objects.equals(left.getAgeGrpUpper(), right.getAgeGrpUpper())
+		        && Objects.equals(left.getBwCatLower(), right.getBwCatLower())
+		        && Objects.equals(left.getBwCatUpper(), right.getBwCatUpper());
+	}
+
+	private static void propagateOfficialLogicalKeyUpdate(EntityManager em, RecordEvent originalRecord, RecordEvent updatedRecord) {
+		StringBuilder queryBuilder = new StringBuilder(
+		        "UPDATE RecordEvent rec SET rec.recordFederation = :newRecordFederation, rec.recordName = :newRecordName, rec.ageGrp = :newAgeGrp, rec.gender = :newGender, rec.recordLift = :newRecordLift, rec.ageGrpLower = :newAgeGrpLower, rec.ageGrpUpper = :newAgeGrpUpper, rec.bwCatLower = :newBwCatLower, rec.bwCatUpper = :newBwCatUpper, rec.bwCatString = :newBwCatString WHERE (rec.groupNameString IS NULL OR TRIM(rec.groupNameString) = '')");
+		Map<String, Object> parameters = new LinkedHashMap<>();
+
+		appendLogicalKeyConditions(queryBuilder, parameters, originalRecord);
+
+		Query query = em.createQuery(queryBuilder.toString());
+		parameters.forEach(query::setParameter);
+		query.setParameter("newRecordFederation", updatedRecord.getRecordFederation());
+		query.setParameter("newRecordName", updatedRecord.getRecordName());
+		query.setParameter("newAgeGrp", updatedRecord.getAgeGrp());
+		query.setParameter("newGender", updatedRecord.getGender());
+		query.setParameter("newRecordLift", updatedRecord.getRecordLift());
+		query.setParameter("newAgeGrpLower", updatedRecord.getAgeGrpLower());
+		query.setParameter("newAgeGrpUpper", updatedRecord.getAgeGrpUpper());
+		query.setParameter("newBwCatLower", updatedRecord.getBwCatLower());
+		query.setParameter("newBwCatUpper", updatedRecord.getBwCatUpper());
+		query.setParameter("newBwCatString", RecordEvent.computeBodyWeightCategoryCode(updatedRecord.getBwCatLower(), updatedRecord.getBwCatUpper()));
+
+		int updatedCount = query.executeUpdate();
+		if (updatedCount > 0) {
+			logger.info("updated {} official record entries from {} to {}", updatedCount, originalRecord.getKey(), updatedRecord.getKey());
+		}
 	}
 
 	static RecordEvent findExactDuplicate(EntityManager em, RecordEvent candidate) {
@@ -1067,7 +1150,7 @@ public class RecordRepository {
 
 			// Add ordering - category information before lift type
 			queryBuilder.append(
-			        " ORDER BY rec.recordFederation, rec.recordName, rec.gender, rec.ageGrpUpper, rec.ageGrpLower, rec.bwCatUpper, rec.recordLift, rec.recordValue");
+			        " ORDER BY rec.recordFederation, rec.recordName, rec.gender, rec.ageGrpUpper, rec.ageGrpLower, rec.bwCatUpper ASC NULLS LAST, rec.recordLift, rec.recordValue");
 
 			Query query = em.createQuery(queryBuilder.toString());
 
@@ -1096,6 +1179,8 @@ public class RecordRepository {
 			return queryResults;
 		});
 
+		allResults.sort(RecordRepository::compareGridOrder);
+
 		// logger.debug("findWithFilters fetched {} records (federation={}, ageGroup={}, gender={}, nameFilter={}, provisional={}, currentHistory={})", //$NON-NLS-1$
 		//         allResults.size(), federation, ageGroup, gender, nameFilter, provisionalFilter, currentHistoryFilter);
 		// logger.debug(LoggerUtils.whereFrom());
@@ -1111,43 +1196,56 @@ public class RecordRepository {
 			                        record -> record.orElseThrow(() -> new IllegalStateException("No record found")))))
 			        .values()
 			        .stream()
-			        .sorted((r1, r2) -> {
-				        // Re-apply the same ordering as the query - category before lift
-				        int fedComp = ObjectUtils.compare(r1.getRecordFederation(), r2.getRecordFederation());
-				        if (fedComp != 0)
-					        return fedComp;
-
-				        int nameComp = ObjectUtils.compare(r1.getRecordName(), r2.getRecordName());
-				        if (nameComp != 0)
-					        return nameComp;
-
-				        int genderComp = ObjectUtils.compare(r1.getGender(), r2.getGender());
-				        if (genderComp != 0)
-					        return genderComp;
-
-				        int ageUpperComp = ObjectUtils.compare(r1.getAgeGrpUpper(), r2.getAgeGrpUpper());
-				        if (ageUpperComp != 0)
-					        return ageUpperComp;
-
-				        int ageLowerComp = ObjectUtils.compare(r1.getAgeGrpLower(), r2.getAgeGrpLower());
-				        if (ageLowerComp != 0)
-					        return ageLowerComp;
-
-				        int bwComp = ObjectUtils.compare(r1.getBwCatUpper(), r2.getBwCatUpper());
-				        if (bwComp != 0)
-					        return bwComp;
-
-				        int liftComp = ObjectUtils.compare(r1.getRecordLift(), r2.getRecordLift());
-				        if (liftComp != 0)
-					        return liftComp;
-
-				        return ObjectUtils.compare(r1.getRecordValue(), r2.getRecordValue());
-			        })
+			        .sorted(RecordRepository::compareGridOrder)
 			        .collect(Collectors.toList());
 		}
 
 		// For HISTORY or null, return all results as-is
 		return allResults;
+	}
+
+	private static int compareGridOrder(RecordEvent left, RecordEvent right) {
+		int fedComp = ObjectUtils.compare(left.getRecordFederation(), right.getRecordFederation());
+		if (fedComp != 0) {
+			return fedComp;
+		}
+
+		int nameComp = ObjectUtils.compare(left.getRecordName(), right.getRecordName());
+		if (nameComp != 0) {
+			return nameComp;
+		}
+
+		int genderComp = ObjectUtils.compare(left.getGender(), right.getGender());
+		if (genderComp != 0) {
+			return genderComp;
+		}
+
+		int ageGroupComp = ObjectUtils.compare(left.getAgeGrp(), right.getAgeGrp());
+		if (ageGroupComp != 0) {
+			return ageGroupComp;
+		}
+
+		int bwComp = ObjectUtils.compare(left.getBwCatUpperForSort(), right.getBwCatUpperForSort(), true);
+		if (bwComp != 0) {
+			return bwComp;
+		}
+
+		int liftComp = ObjectUtils.compare(left.getRecordLift(), right.getRecordLift());
+		if (liftComp != 0) {
+			return liftComp;
+		}
+
+		int ageUpperComp = ObjectUtils.compare(left.getAgeGrpUpper(), right.getAgeGrpUpper());
+		if (ageUpperComp != 0) {
+			return ageUpperComp;
+		}
+
+		int ageLowerComp = ObjectUtils.compare(left.getAgeGrpLower(), right.getAgeGrpLower());
+		if (ageLowerComp != 0) {
+			return ageLowerComp;
+		}
+
+		return ObjectUtils.compare(left.getRecordValue(), right.getRecordValue());
 	}
 
 	public static String normalizeCurrentHistoryFilter(String provisionalFilter, String currentHistoryFilter) {
