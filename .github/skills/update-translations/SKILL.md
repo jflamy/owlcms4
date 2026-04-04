@@ -65,11 +65,11 @@ When updating wording, derive the key from the actual `Translator.*` call in cod
 - Use the existing key if revising a translation.
 - Use a new key only when the source text represents a genuinely new concept.
 - Keep unrelated translation keys out of the `.tsv` file.
-- Leave regional-variant locale columns blank by default.
-- Exception: provide translations for `es_ES`, `es_SV`, `es_EC`, and `zh_HANT` when those columns are present.
-- Keep `es_419` blank.
+- Provide translations for all base language columns: `en`, `es`, `fr`, `pt`, `ru`, `de`, `sv`, `da`, `fi`, `no`, `fo`, `hu`, `ro`, `pl`, `hy`, `he`, `ar`, `el`, `ja`, `zh_HANT`, `et`.
+- Leave regional-variant locale columns blank by default (`en_US`, `en_CA`, `fr_CA`, `fr_FR`, `es_419`).
+- Exception: provide translations for the regional variants `es_ES`, `es_SV`, and `es_EC`.
 - Leave fake language columns such as `ia` and `io` blank if they are present in the header.
-- Leave the last two named columns blank.
+- Leave the last two unnamed trailing columns blank.
 - Button text changes such as revising wording to `Keep Latest Official Records` are translation-update tasks and should normally reuse the existing key.
 - When revising existing UI wording, derive the key from the UI code that renders the text, label, tooltip, or menu item rather than guessing the key name.
 
@@ -91,10 +91,10 @@ When updating wording, derive the key from the actual `Translator.*` call in cod
 - If translation certainty is low for some languages, preserve the row structure and use the best domain-consistent wording available for review.
 - Wording refinements to existing UI strings should generally be treated as translation revisions, not as a reason to proliferate near-duplicate keys.
 - For UI wording updates, inspect the button, label, tooltip, or menu definition in Java or frontend code to identify the exact translation key before preparing the `.tsv` row, usually by locating the relevant `Translator.*` call.
-- In this repository's translation TSVs, leave regional-variant locale columns blank except for `es_ES`, `es_SV`, `es_EC`, and `zh_HANT`.
-- In this repository's translation TSVs, keep `es_419` blank.
+- In this repository's translation TSVs, provide translations for all base language columns (`en`, `es`, `fr`, `pt`, `ru`, `de`, `sv`, `da`, `fi`, `no`, `fo`, `hu`, `ro`, `pl`, `hy`, `he`, `ar`, `el`, `ja`, `zh_HANT`, `et`).
+- In this repository's translation TSVs, leave regional-variant columns blank (`en_US`, `en_CA`, `fr_CA`, `fr_FR`, `es_419`) except for `es_ES`, `es_SV`, and `es_EC` which should have translations.
 - In this repository's translation TSVs, leave fake language columns such as `ia` and `io` blank.
-- In this repository's translation TSVs, leave the last two named columns blank.
+- In this repository's translation TSVs, leave the last two unnamed trailing columns blank.
 
 ## Expected Output
 
