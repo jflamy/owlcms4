@@ -644,6 +644,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 				return;
 			}
 			setFederation(e.getValue());
+			resetFederationCascade();
 			refreshDependentFilterOptions();
 			crud.refreshGrid();
 			updateUrlParameters();
@@ -811,6 +812,13 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 		updateSingleValueFilter(this.recordNameFilter, availableRecordNames, selectedRecordName, this::setRecordName);
 		updateSingleValueFilter(this.ageGroupFilter, availableAgeGroups, selectedAgeGroup, this::setAgeGroup);
+	}
+
+	private void resetFederationCascade() {
+		this.recordNameFilter.clear();
+		this.ageGroupFilter.clear();
+		setRecordName(null);
+		setAgeGroup(null);
 	}
 
 	private void updateSingleValueFilter(ComboBox<String> filter, List<String> availableValues, String selectedValue,
