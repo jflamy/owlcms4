@@ -24,6 +24,16 @@ Note that the best idea is to create a zip after your cleanup and renaming,  and
 
 ![120_localtemplates](img/Preparation/120_localtemplates.png)
 
+### Creating a Federation-Oriented setup
+
+To distribute your custom setup, update your kit in the control panel, then use the Rename button to give it a meaningful label (your federation's acronym for example)
+![image-20260406162015819](img/UploadingLocalSettings/image-20260406162015819.png)
+
+Then you can use the `Save installed OWLCMS version as zip` menu entry to create your kit
+![image-20260406162110146](img/UploadingLocalSettings/image-20260406162110146.png)
+
+Peoplewill then be able to download your zip and install it using the `Install OWLCMS Version from Zip` in the same menu.
+
 ### Uploading to a cloud-based setup
 
 Cloud-based setups are created on demand, and do not include persistent local files.  The local customizations are stored inside the database as a zip file, and unzipped when the application starts (or a new zip is uploaded).

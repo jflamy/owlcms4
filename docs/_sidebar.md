@@ -41,6 +41,7 @@
   * [Automatic Scene Switching](OBSSceneSwitching)
   * [Replays](JuryReplays)
 * Advanced Topics
+  * [Team Championships](TeamChampionships)
   * [Optional Modified Competition Rules](ModifiedRules)
   * [Competition Options Reference](2600AdvancedPreCompetitionSetup)
   * [System Settings Reference](2120AdvancedSystemSettings)
