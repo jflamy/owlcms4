@@ -61,6 +61,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.team.Team;
+import app.owlcms.data.team.TeamSelectionDisplayRules;
 import app.owlcms.data.team.TeamSelectionTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.i18n.Translator;
@@ -379,6 +380,9 @@ public class TeamSelectionContent extends BaseContent
 		        .setTextAlign(ColumnTextAlign.CENTER);
 
 		ComponentRenderer<Component, TeamTreeItem> membershipRenderer = new ComponentRenderer<>(p -> {
+			if (!TeamSelectionDisplayRules.shouldShowMembershipColumn(getChampionship(), getSelectedGender(), p)) {
+				return new NativeLabel();
+			}
 			if (p.getAthlete() == null) {
 				long nb = p.getTeamMembers().stream().filter(pa -> pa.isTeamMember()).count();
 				Championship champ = getChampionship();
@@ -408,7 +412,8 @@ public class TeamSelectionContent extends BaseContent
 		        .setSortable(true).setTextAlign(ColumnTextAlign.CENTER);
 
 		ComponentRenderer<Component, TeamTreeItem> mixedMembershipRenderer = new ComponentRenderer<>(p -> {
-			if (!canInspectMixedMembership()) {
+			if (!canInspectMixedMembership()
+			        || !TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(getChampionship(), getSelectedGender(), p)) {
 				return new NativeLabel();
 			}
 			if (p.getAthlete() == null) {
@@ -731,6 +736,10 @@ public class TeamSelectionContent extends BaseContent
 		        : Boolean.TRUE.equals(item.isTeamMember());
 	}
 
+	private Gender getSelectedGender() {
+		return this.genderFilter != null ? this.genderFilter.getValue() : null;
+	}
+
 	private void updateGenderFilterOptions(Championship championship) {
 		if (this.genderFilter == null) {
 			return;
@@ -747,13 +756,14 @@ public class TeamSelectionContent extends BaseContent
 
 	private void updateMixedTeamUi(Championship championship, Gender selectedGender) {
 		if (this.mixedMembershipColumn != null) {
-			this.mixedMembershipColumn.setVisible(championship != null && selectedGender == Gender.MF);
+			this.mixedMembershipColumn.setVisible(
+			        TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(championship, selectedGender));
 		}
 	}
 
 	private void updateMembershipColumnVisibility(Gender selectedGender) {
 		if (this.membershipColumn != null) {
-			this.membershipColumn.setVisible(selectedGender != Gender.MF);
+			this.membershipColumn.setVisible(TeamSelectionDisplayRules.shouldShowMembershipColumn(selectedGender));
 		}
 	}
 

@@ -58,6 +58,8 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.team.TeamResultsDisplayRules;
+import app.owlcms.data.team.TeamSelectionDisplayRules;
+import app.owlcms.data.team.TeamSelectionTreeData;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.spreadsheet.PAthlete;
@@ -236,6 +238,25 @@ public class ChampionshipTest {
     }
 
     @Test
+    public void testSeniorTeamSelectionWithoutGenderFilterAlsoShowsMixedTeams() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+
+        Set<String> mixedRootNames = computeTeamSelectionRootNames(senior, Gender.MF).stream()
+                .filter(name -> name != null && !name.isBlank())
+                .collect(Collectors.toSet());
+        assertFalse("senior team selection should expose mixed roots when MF is selected", mixedRootNames.isEmpty());
+
+        Map<Gender, Set<String>> unfilteredRootNames = computeTeamSelectionRootNamesByGender(senior, null);
+        assertFalse("senior team selection without gender filter should still expose men's roots",
+                unfilteredRootNames.getOrDefault(Gender.M, Set.of()).isEmpty());
+        assertFalse("senior team selection without gender filter should still expose women's roots",
+                unfilteredRootNames.getOrDefault(Gender.F, Set.of()).isEmpty());
+        assertTrue("senior team selection without gender filter should also expose mixed roots",
+                unfilteredRootNames.getOrDefault(Gender.MF, Set.of()).containsAll(mixedRootNames));
+    }
+
+    @Test
     public void testMastersTeamSummaryShowsOnlyChampionshipSelectedScore() throws Exception {
         Championship masters = ChampionshipRepository.findByName("Masters");
         assertNotNull("Masters championship should be loaded from fixture", masters);
@@ -295,6 +316,59 @@ public class ChampionshipTest {
             competition.setScoringSystem(originalCompetitionScoring);
         }
     }
+
+        @Test
+        public void testTeamSelectionDisplayRulesUseMixedMembershipColumnForMixedRowsWhenUnfiltered() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+        assertTrue("Senior championship should enable mixed teams for the preparation view", senior.isMixedTeamEnabled());
+
+        TeamTreeItem mensTeam = new TeamTreeItem("EGY", Gender.M, null, false);
+        TeamTreeItem mixedTeam = new TeamTreeItem("EGY", Gender.MF, null, false);
+
+        Athlete maleAthlete = getChampionshipParticipations(senior).stream()
+            .map(Participation::getAthlete)
+            .filter(Objects::nonNull)
+            .filter(a -> a.getGender() == Gender.M)
+            .findFirst()
+            .orElse(null);
+        Athlete femaleAthlete = getChampionshipParticipations(senior).stream()
+            .map(Participation::getAthlete)
+            .filter(Objects::nonNull)
+            .filter(a -> a.getGender() == Gender.F)
+            .findFirst()
+            .orElse(null);
+        assertNotNull("fixture should provide at least one senior male athlete", maleAthlete);
+        assertNotNull("fixture should provide at least one senior female athlete", femaleAthlete);
+
+        TeamTreeItem mensAthleteItem = new TeamTreeItem(null, maleAthlete.getGender(), maleAthlete, true);
+        mensAthleteItem.setParent(mensTeam);
+        TeamTreeItem mixedAthleteItem = new TeamTreeItem(null, femaleAthlete.getGender(), femaleAthlete, true);
+        mixedAthleteItem.setParent(mixedTeam);
+
+        assertTrue("unfiltered team selection should keep the standard membership column visible",
+            TeamSelectionDisplayRules.shouldShowMembershipColumn((Gender) null));
+        assertTrue("unfiltered team selection should also show the mixed membership column",
+            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null));
+
+        assertTrue("gendered team roots should use the standard membership column",
+            TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mensTeam));
+        assertFalse("gendered team roots should not use the mixed membership column",
+            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mensTeam));
+        assertTrue("gendered team athletes should use the standard membership column",
+            TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mensAthleteItem));
+        assertFalse("gendered team athletes should not use the mixed membership column",
+            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mensAthleteItem));
+
+        assertFalse("mixed team roots should not use the standard membership column when unfiltered",
+            TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mixedTeam));
+        assertTrue("mixed team roots should use the mixed membership column when unfiltered",
+            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mixedTeam));
+        assertFalse("mixed team athletes should not use the standard membership column when unfiltered",
+            TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mixedAthleteItem));
+        assertTrue("mixed team athletes should use the mixed membership column when unfiltered",
+            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mixedAthleteItem));
+        }
 
     @Test
     public void testChampionshipConfiguredTeamSizeFollowsStatusRules() {
@@ -870,6 +944,26 @@ public class ChampionshipTest {
         TeamResultsTreeData teamResults = new TeamResultsTreeData(null, championship, gender, Ranking.GAMX, true);
         List<TeamTreeItem> teams = teamResults.getTeamItemsByGender().get(gender);
         return teams != null ? teams : List.of();
+    }
+
+    private static Map<Gender, Set<String>> computeTeamSelectionRootNamesByGender(Championship championship, Gender gender) {
+        return computeTeamSelectionRoots(championship, gender).stream()
+                .filter(root -> root.getGender() != null)
+                .collect(Collectors.groupingBy(TeamTreeItem::getGender,
+                        () -> new EnumMap<>(Gender.class),
+                        Collectors.mapping(TeamTreeItem::getName, Collectors.toSet())));
+    }
+
+    private static Set<String> computeTeamSelectionRootNames(Championship championship, Gender gender) {
+        return computeTeamSelectionRoots(championship, gender).stream()
+                .map(TeamTreeItem::getName)
+                .collect(Collectors.toSet());
+    }
+
+    private static List<TeamTreeItem> computeTeamSelectionRoots(Championship championship, Gender gender) {
+        TeamSelectionTreeData teamSelection = new TeamSelectionTreeData(null, championship, gender,
+                Ranking.SNATCH_CJ_TOTAL, false);
+        return new ArrayList<>(teamSelection.getRootItems());
     }
 
     private static void invokeSetReportingInfo(JXLSTeamResultsSheet sheet) throws Exception {

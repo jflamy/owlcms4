@@ -174,6 +174,9 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 			for (Gender gender : Gender.mfValues()) {
 				buildGenderTeamItems(participations, gender);
 			}
+			if (championship != null && championship.isMixedTeamEnabled()) {
+				buildMixedTeamItems(participations, championship);
+			}
 		}
 		for (TeamTreeItem t : this.teams) {
 			t.getTeam().setSize(checkCounts(t, championship));
