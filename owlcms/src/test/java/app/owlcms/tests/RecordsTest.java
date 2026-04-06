@@ -35,7 +35,6 @@ import app.owlcms.data.records.RecordDefinitionReader;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
-import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

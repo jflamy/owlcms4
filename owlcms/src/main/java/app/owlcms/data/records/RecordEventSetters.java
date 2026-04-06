@@ -12,7 +12,6 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Gender;
-import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 public class RecordEventSetters {
