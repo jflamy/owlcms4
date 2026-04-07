@@ -40,11 +40,14 @@ import ch.qos.logback.classic.Logger;
  */
 public class RAthlete {
 
-	public static final String NoTeamMarker = "/NoTeam";
-	public static final String YesTeamValue = "YesTeam";
-	public static final String NoTeamValue = "NoTeam";
-	public static final String YesMixedValue = "YesMixed";
-	public static final String NoMixedValue = "NoMixed";
+	private static final String YesTeamMarker = "+T";
+	private static final String NoTeamMarker = "-T";
+	private static final String YesMixedMarker = "+MT";
+	private static final String NoMixedMarker = "-MT";
+	private static final String YesTeamValue = "YesTeam";
+	private static final String NoTeamValue = "NoTeam";
+	private static final String YesMixedValue = "YesMixed";
+	private static final String NoMixedValue = "NoMixed";
 	private Pattern legacyPattern;
 	Athlete a;
 	final Logger logger = (Logger) LoggerFactory.getLogger(RAthlete.class);
@@ -77,10 +80,10 @@ public class RAthlete {
 	public static String appendMembershipMarkers(String categoryName, boolean teamMember, boolean mixedTeamMember) {
 		List<String> markers = new ArrayList<>();
 		if (!teamMember) {
-			markers.add(NoTeamValue);
+			markers.add(NoTeamMarker);
 		}
 		if (mixedTeamMember) {
-			markers.add(YesMixedValue);
+			markers.add(YesMixedMarker);
 		}
 		if (markers.isEmpty()) {
 			return categoryName;
@@ -507,7 +510,7 @@ public class RAthlete {
 
 		if (mainCategoryMixedTeamMember && !c.getAgeGroup().isMixedTeams()) {
 			throw new Exception(Translator.translate("Upload.CategoryNotFoundByName",
-			        c.getDisplayName() + "/" + YesMixedValue));
+			        c.getDisplayName() + "/" + YesMixedMarker));
 		}
 
 		boolean addedToMainCat = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge,
@@ -533,7 +536,7 @@ public class RAthlete {
 					if (c2 != null) {
 					if (participationSpec.mixedTeamMember && !c2.getAgeGroup().isMixedTeams()) {
 						throw new Exception(Translator.translate("Upload.CategoryNotFoundByName",
-						        participationSpec.categoryName + "/" + YesMixedValue));
+							        participationSpec.categoryName + "/" + YesMixedMarker));
 					}
 					boolean addedToEligible = addIfEligible(eligibleCategories, teams, athleteQTotal, athleteAge,
 					        participationSpec.teamMember, c2);
@@ -595,21 +598,21 @@ public class RAthlete {
 		}
 
 		for (String marker : markerSection.split(",")) {
-			String normalized = marker.trim();
+			String normalized = normalizeMembershipMarker(marker);
 			if (normalized.isEmpty()) {
 				continue;
 			}
-			switch (normalized.toLowerCase()) {
-				case "yesteam":
+			switch (normalized) {
+				case YesTeamMarker:
 					teamMember = true;
 					break;
-				case "noteam":
+				case NoTeamMarker:
 					teamMember = false;
 					break;
-				case "yesmixed":
+				case YesMixedMarker:
 					mixedTeamMember = true;
 					break;
-				case "nomixed":
+				case NoMixedMarker:
 					mixedTeamMember = false;
 					break;
 				default:
@@ -619,17 +622,52 @@ public class RAthlete {
 		return new ParticipationSpec(categoryName, teamMember, mixedTeamMember);
 	}
 
+	private String normalizeMembershipMarker(String marker) {
+		String trimmed = marker != null ? marker.trim() : "";
+		if (matchesMarker(trimmed, YesTeamMarker, YesTeamValue)) {
+			return YesTeamMarker;
+		}
+		if (matchesMarker(trimmed, NoTeamMarker, NoTeamValue)) {
+			return NoTeamMarker;
+		}
+		if (matchesMarker(trimmed, YesMixedMarker, YesMixedValue)) {
+			return YesMixedMarker;
+		}
+		if (matchesMarker(trimmed, NoMixedMarker, NoMixedValue)) {
+			return NoMixedMarker;
+		}
+		return trimmed;
+	}
+
+	private boolean matchesMarker(String value, String... acceptedValues) {
+		for (String acceptedValue : acceptedValues) {
+			if (acceptedValue.equalsIgnoreCase(value)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private boolean isStandaloneMarkerToken(String token) {
-		String normalized = token != null ? token.trim().toLowerCase() : "";
-		return normalized.equals("yesteam") || normalized.equals("noteam")
-		        || normalized.equals("yesmixed") || normalized.equals("nomixed");
+		String normalized = normalizeMembershipMarker(token);
+		return normalized.equals(YesTeamMarker) || normalized.equals(NoTeamMarker)
+		        || normalized.equals(YesMixedMarker) || normalized.equals(NoMixedMarker);
 	}
 
 	private boolean useLegacyUsawSplit(String value, boolean usaw) {
 		if (!usaw) {
 			return false;
 		}
-		return !value.matches("(?i).*\\/(YesTeam|NoTeam|YesMixed|NoMixed)(,.*)?$");
+		String markerPattern = String.join("|",
+		        Pattern.quote(YesTeamMarker),
+		        Pattern.quote(NoTeamMarker),
+		        Pattern.quote(YesMixedMarker),
+		        Pattern.quote(NoMixedMarker),
+		        Pattern.quote(YesTeamValue),
+		        Pattern.quote(NoTeamValue),
+		        Pattern.quote(YesMixedValue),
+		        Pattern.quote(NoMixedValue));
+		return !value.matches("(?i).*\\/(" + markerPattern + ")(,.*)?$");
 	}
 
 	private void setCategoryHeuristics(String categoryName) throws Exception {

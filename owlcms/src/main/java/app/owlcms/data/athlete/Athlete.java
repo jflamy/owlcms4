@@ -3350,10 +3350,7 @@ public class Athlete {
 	public String getSortedCategoriesAsString() {
 		String eligiblesAsString = this.getParticipations().stream()
 		        .sorted((a, b) -> a.getCategory().getMedalingSortCode().compareTo(b.getCategory().getMedalingSortCode()))
-		        .map(p -> {
-			        String catName = p.getCategory().getDisplayName();
-			        return catName + (!p.getTeamMember() ? RAthlete.NoTeamMarker : "");
-		        })
+		        .map(p -> formatCategoryParticipation(p.getCategory().getDisplayName(), p))
 		        .collect(Collectors.joining(";"));
 		return eligiblesAsString;
 	}
