@@ -10,21 +10,7 @@
 
 **New in Release 66**
 
-66.0.0-beta06: Record Management
-  - the record editing page will now correctly warn that editing an existing record and changing the age or bodyweight categories does NOT create a new record
-  - the sorting order in the grid is now done correctly when existing records are adjusted for new categories
-  - the exports using the dataExchange templates now use a 999 as the marker for the super heavy category.
-
-66.0.0-beta05: Fix: reported scores on result sheets are now correctly zero when the athlete is done and has no total
-
-66.0.0-beta05: Fix: the noInterimScoresInResults toggle was not systematically applied on the competition results page
-  - the individual session pages still show the current session in-progress scores as they may be required to plan for awards
-
-66.0.0-beta04: Configurable timing
-  - For large school-age competitions, creating a `local/timing/timing.properties` as in [this example](https://github.com/jflamy/owlcms4/issues/1386#issuecomment-4170813795) allows changing the durations of the one minute and two minute intervals to have the lifts proceed faster.
-  - The values of the warnings times are also propagated to owlcms-tracker so they can be used (e.g. to change timer colours)
-
-66.0.0-beta03: Fix: updating the websocket event forwarding URL did not correctly reset the forwarder
+66.0.0-rc03: Championships now have a "use the default competitions settings" checkbox, on by default.
 
 66.0.0: Mixed Team Championships
   - Allow explicit nomination of a mixed team, or implicit men and women combined
@@ -43,6 +29,15 @@
 66.0.0: Cleaner look for jury decisions on attempt board
   - Also clarified instructions for the announcer when the jury gives the decision by pressing the buttons
 
+66.0.0: Record Management
+  - the record editing page will now correctly warn that editing an existing record and changing the age or bodyweight categories does NOT create a new record
+  - the sorting order in the grid is now done correctly when existing records are adjusted for new categories
+  - the exports using the dataExchange templates now use a 999 as the marker for the super heavy category.
+
+66.0.0: Configurable timing
+  - For large school-age competitions, creating a `local/timing/timing.properties` as in [this example](https://github.com/jflamy/owlcms4/issues/1386#issuecomment-4170813795) allows changing the durations of the one minute and two minute intervals to have the lifts proceed faster.
+  - The values of the warnings times are also propagated to owlcms-tracker so they can be used (e.g. to change timer colours)
+
 66.0.0: Clean-up of the solo referee/announcer/3-referee behavior wrt reversal delay and initial decision
   - Solo referee decisions have a reversal delay, same as 3 referees.  Only the visual rendering changes (single referee light instead of 3)
     - in solo referee mode, the first decision received from any referee is automatically the majority
@@ -60,6 +55,13 @@
 66.0.0: Fix: The Jury scoreboard again has the current attempt info.
 
 66.0.0: Fix: when producing competition results by registration category, the lot number was being used as identifier for the athlete, leading to problems if no lot numbers had been assigned (all were 0, collapsing to a single athlete)
+
+66.0.0: Fix: reported scores on result sheets are now correctly zero when the athlete is done and has no total
+
+66.0.0: Fix: the noInterimScoresInResults toggle was not systematically applied on the competition results page
+  - the individual session pages still show the current session in-progress scores as they may be required to plan for awards
+
+66.0.0: Fix: updating the websocket event forwarding URL did not correctly reset the forwarder
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
