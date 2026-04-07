@@ -1452,8 +1452,13 @@ public class Competition {
 		return this.roundRobinOrder;
 	}
 
-	public boolean isSinclair() {
+	public boolean isScoreMedalChampionship() {
 		return this.sinclairMeet || Config.getCurrent().featureSwitch("SinclairMeet");
+	}
+
+	@Deprecated
+	public boolean isSinclair() {
+		return isScoreMedalChampionship();
 	}
 
 	public boolean isSnatchCJTotalMedals() {
@@ -2059,8 +2064,9 @@ public class Competition {
 		// logger.trace("{} {}", wBeanName, sortedWomen);
 		// additional entry in the map so we can have a simple book with
 		// just the global score.
-		this.reportingBeans.put("mBest", AthleteSorter.resultsOrderCopy(sortedMen, Competition.getCurrent().getScoringSystem()));
-		this.reportingBeans.put("wBest", AthleteSorter.resultsOrderCopy(sortedWomen, Competition.getCurrent().getScoringSystem()));
+		Ranking defaultScoring = Championship.of(null).getScoringSystem();
+		this.reportingBeans.put("mBest", AthleteSorter.resultsOrderCopy(sortedMen, defaultScoring));
+		this.reportingBeans.put("wBest", AthleteSorter.resultsOrderCopy(sortedWomen, defaultScoring));
 	}
 
 	/**
@@ -2101,9 +2107,8 @@ public class Competition {
 			mixedAthletes.addAll(sortedWomen);
 		}
 
-		Ranking bestScoring = championship != null && championship.getScoringSystem() != null
-		        ? championship.getScoringSystem()
-		        : Competition.getCurrent().getScoringSystem();
+		Championship effectiveChampionship = championship != null ? championship : Championship.of(null);
+		Ranking bestScoring = effectiveChampionship.getScoringSystem();
 
 		suffix = suffix != null ? suffix : "";
 		sortedAthletes = explicitMixed
@@ -2460,7 +2465,7 @@ public class Competition {
 
 		reportQAge(sortedMen, sortedWomen);
 
-		Ranking bestScoring = ad.getScoringSystem() != null ? ad.getScoringSystem() : Competition.getCurrent().getScoringSystem();
+		Ranking bestScoring = ad.getScoringSystem() != null ? ad.getScoringSystem() : Championship.of(null).getScoringSystem();
 		sortedMen = getOrCreateBean("mTeamBest" + adName);
 		sortedWomen = getOrCreateBean("wTeamBest" + adName);
 		sortedAthletes = getOrCreateBean("mwTeamBest" + adName);

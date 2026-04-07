@@ -130,8 +130,8 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 
 		String prevTeamName = null;
 		if (athletes != null) {
-			boolean combinedTotal = ageDivision != null ? ageDivision.isSnatchCJTotalMedals()
-			        : Competition.getCurrent().isSnatchCJTotalMedals();
+			Championship effectiveChampionship = ageDivision != null ? ageDivision : Championship.of(null);
+			boolean combinedTotal = effectiveChampionship.isSnatchCJTotalMedals();
 			// count points for each team
 			for (Athlete a : athletes) {
 				String curTeamName = a.getTeam();
@@ -241,7 +241,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 			if (found != null) {
 				curTeamItem = found;
 			} else {
-				curTeamItem = new TeamTreeItem(curTeamName, gender, null, false);
+				curTeamItem = new TeamTreeItem(curTeamName, gender, null, false, this.championship);
 				curTeamItem.setScoringSystem(rankingForGender);
 				curTeamItem.getTeam().setSize(AthleteRepository.countTeamMembers(curTeamName, gender));
 				teamItemsByGender.get(gender).add(curTeamItem);

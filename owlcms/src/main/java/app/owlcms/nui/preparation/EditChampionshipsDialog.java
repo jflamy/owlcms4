@@ -69,7 +69,7 @@ public class EditChampionshipsDialog extends Dialog {
 			typeField.setValue(c.getType());
 			Button update = new Button(Translator.translate("Update"), e -> {
 				c.setType(typeField.getValue());
-				c.setName(nameField.getValue());
+				c.rename(nameField.getValue());
 				updateChampionshipsTable(championshipsTable);
 			});
 			Button details = new Button(Translator.translate("Sessions.EditDetails"), VaadinIcon.COG.create(), e -> {

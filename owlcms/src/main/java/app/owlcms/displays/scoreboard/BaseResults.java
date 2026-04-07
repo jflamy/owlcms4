@@ -31,6 +31,7 @@ import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
@@ -615,15 +616,13 @@ public class BaseResults extends LitTemplate
 	protected String computedScore(Athlete a) {
 		AgeGroup ageGroup = a.getAgeGroup();
 		Ranking ageGroupScoringSystem = ageGroup != null ? ageGroup.getComputedScoringSystem() : null;
+		Championship athleteChampionship = ageGroup != null ? ageGroup.getChampionship() : Championship.of(null);
 
-		Competition current = Competition.getCurrent();
-		boolean sinclair = current.isSinclair();
-		Competition current2 = Competition.getCurrent();
-		boolean displayGlobal = current2.isDisplayScores();
-		Competition current3 = Competition.getCurrent();
-		Ranking scoringSystem = current3.getScoringSystem();
+		boolean scoreMedalChampionship = athleteChampionship.isScoreMedalChampionship();
+		boolean displayGlobal = Competition.getCurrent().isDisplayScores();
+		Ranking scoringSystem = athleteChampionship.getScoringSystem();
 
-		if (ageGroupScoringSystem != null && !sinclair && !displayGlobal) {
+		if (ageGroupScoringSystem != null && !scoreMedalChampionship && !displayGlobal) {
 			Participation p = null;
 			String athleteCatCode = a.getCategory() != null ? a.getCategory().getCode() : null;
 			if (a.getParticipations() != null && a.getParticipations().size() > 0 && athleteCatCode != null) {
@@ -656,18 +655,17 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected String computedScoreRank(Athlete a) {
-		Ranking ageGroupScoringSystem = a.getAgeGroup().getComputedScoringSystem();
+		AgeGroup ageGroup = a.getAgeGroup();
+		Ranking ageGroupScoringSystem = ageGroup != null ? ageGroup.getComputedScoringSystem() : null;
+		Championship athleteChampionship = ageGroup != null ? ageGroup.getChampionship() : Championship.of(null);
 
-		Competition current = Competition.getCurrent();
-		boolean sinclair = current.isSinclair();
-		Competition current2 = Competition.getCurrent();
-		boolean displayGlobal = current2.isDisplayScoreRanks();
-		Competition current3 = Competition.getCurrent();
-		Ranking bestLifterScoringSystem = current3.getScoringSystem();
+		boolean scoreMedalChampionship = athleteChampionship.isScoreMedalChampionship();
+		boolean displayGlobal = Competition.getCurrent().isDisplayScoreRanks();
+		Ranking bestLifterScoringSystem = athleteChampionship.getScoringSystem();
 
 		String result;
 		if (a.isEligibleForIndividualRanking()) {
-			if (ageGroupScoringSystem != null && !sinclair && !displayGlobal) {
+			if (ageGroupScoringSystem != null && !scoreMedalChampionship && !displayGlobal) {
 				Participation p = null;
 				String athleteCatCode = a.getCategory() != null ? a.getCategory().getCode() : null;
 				if (a.getParticipations() != null && a.getParticipations().size() > 0 && athleteCatCode != null) {
@@ -704,12 +702,15 @@ public class BaseResults extends LitTemplate
 		}
 		if (curAthlete.getGender() != null) {
 			this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
+			boolean scoreMedalChampionship = Championship.anyScoreMedalChampionship(fop.getActiveChampionships());
 
-			if (Competition.getCurrent().isSinclair()) {
-				Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+			if (scoreMedalChampionship) {
+				Ranking scoringSystem = curAthlete.getAgeGroup() != null
+				        ? curAthlete.getAgeGroup().getChampionship().getScoringSystem()
+				        : Championship.of(null).getScoringSystem();
 				List<Athlete> sortedAthletes = new ArrayList<>(
 				        Competition.getCurrent().getGlobalScoreRanking(curAthlete.getGender()));
-				this.displayOrder = AthleteSorter.topScore(sortedAthletes, 3).topAthletes;
+				this.displayOrder = AthleteSorter.topScore(sortedAthletes, 3, scoringSystem).topAthletes;
 				this.getElement().setProperty("categoryName", Ranking.getScoringTitle(scoringSystem));
 			} else {
 				List<Athlete> leaders = fop.getLeaders();
@@ -723,7 +724,7 @@ public class BaseResults extends LitTemplate
 					this.displayOrder = leaders;
 				}
 			}
-			if ((!done || Competition.getCurrent().isSinclair()) && this.displayOrder != null
+			if ((!done || scoreMedalChampionship) && this.displayOrder != null
 			        && this.displayOrder.size() > 0) {
 				// null as second argument because we do not highlight current athletes in the
 				// leaderboard
@@ -1196,12 +1197,13 @@ public class BaseResults extends LitTemplate
 
 		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 		this.getElement().setProperty("logoSrc", getLogoSrc());
+		boolean anyMultiMedal = Championship.anyMultiMedal(fop.getActiveChampionships());
+		boolean scoreMedalChampionship = Championship.anyScoreMedalChampionship(fop.getActiveChampionships());
 
 		getElement().setProperty("showTotal", true);
 		getElement().setProperty("showBest", true); // overridden by media queries, not a variable
-		getElement().setProperty("showLiftRanks",
-		        Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
-		getElement().setProperty("showTotalRank", !Competition.getCurrent().isSinclair());
+		getElement().setProperty("showLiftRanks", anyMultiMedal && !scoreMedalChampionship);
+		getElement().setProperty("showTotalRank", !scoreMedalChampionship);
 		getElement().setProperty("video", this.video);
 		getElement().setProperty("currentAttempt", this.currentAttempt);
 		getElement().setProperty("showMedals", this.showMedals);
@@ -1232,10 +1234,11 @@ public class BaseResults extends LitTemplate
 		}
 		setTranslationMap();
 
-		boolean showScore = scoring[0] || Competition.getCurrent().isDisplayScores() || Competition.getCurrent().isSinclair();
+		boolean scoreMedalChampionship = fop != null && Championship.anyScoreMedalChampionship(fop.getActiveChampionships());
+		boolean showScore = scoring[0] || Competition.getCurrent().isDisplayScores() || scoreMedalChampionship;
 		this.getElement().setProperty("showSinclair", showScore);
 
-		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks() || Competition.getCurrent().isSinclair();
+		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks() || scoreMedalChampionship;
 		if (Config.getCurrent().featureSwitch("noSinclairRank")) {
 			showScoreRank = false;
 		} else if (Config.getCurrent().featureSwitch("displayBestScoreRank")) {
@@ -1290,7 +1293,10 @@ public class BaseResults extends LitTemplate
 		updateGroupInfo(liftType);
 		// getAgeGroupNamesJson must be called before getAthletesJson
 		if (Config.getCurrent().featureSwitch("displayBestScore")) {
-			this.getElement().setProperty("scoringName", Translator.translate("Scoreboard." + Competition.getCurrent().getScoringSystem().name()));
+			Championship scoringChampionship = fop.getCurAthlete() != null && fop.getCurAthlete().getAgeGroup() != null
+			        ? fop.getCurAthlete().getAgeGroup().getChampionship()
+			        : fop.getActiveChampionships().stream().findFirst().orElse(Championship.of(null));
+			this.getElement().setProperty("scoringName", Translator.translate("Scoreboard." + scoringChampionship.getScoringSystem().name()));
 		} else {
 			this.getElement().setProperty("scoringName", Translator.translate("Score"));
 		}

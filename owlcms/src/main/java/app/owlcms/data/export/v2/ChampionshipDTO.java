@@ -36,6 +36,7 @@ public class ChampionshipDTO {
 	private Integer maxPerCategory;
 	private boolean explicitMixedTeamMembers;
 	private boolean mixedTeamEnabled = false;
+	private boolean useCompetitionDefaults = false;
 	private Ranking teamScoringSystem;
 	private Ranking mixedTeamScoringSystem;
 
@@ -69,6 +70,7 @@ public class ChampionshipDTO {
 		dto.setMixedTeamEnabled(championship.isMixedTeamEnabled());
 		dto.setTeamScoringSystem(championship.getTeamScoringSystem());
 		dto.setMixedTeamScoringSystem(championship.getMixedTeamScoringSystem());
+		dto.setUseCompetitionDefaults(championship.usesCompetitionDefaults());
 		return dto;
 	}
 
@@ -94,6 +96,7 @@ public class ChampionshipDTO {
 		championship.setMixedTeamEnabled(this.mixedTeamEnabled);
 		championship.setTeamScoringSystem(this.teamScoringSystem);
 		championship.setMixedTeamScoringSystem(this.mixedTeamScoringSystem);
+		championship.setUseCompetitionDefaults(this.useCompetitionDefaults);
 		return championship;
 	}
 
@@ -271,5 +274,13 @@ public class ChampionshipDTO {
 
 	public void setMixedTeamScoringSystem(Ranking mixedTeamScoringSystem) {
 		this.mixedTeamScoringSystem = mixedTeamScoringSystem;
+	}
+
+	public boolean isUseCompetitionDefaults() {
+		return useCompetitionDefaults;
+	}
+
+	public void setUseCompetitionDefaults(boolean useCompetitionDefaults) {
+		this.useCompetitionDefaults = useCompetitionDefaults;
 	}
 }

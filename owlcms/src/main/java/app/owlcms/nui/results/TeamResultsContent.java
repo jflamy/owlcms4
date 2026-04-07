@@ -524,7 +524,8 @@ public class TeamResultsContent extends BaseContent
 
 	private List<Ranking> getRequiredScoreRankings() {
 		Gender genderValue = this.genderFilter != null ? this.genderFilter.getValue() : null;
-		Ranking competitionScoring = Competition.getCurrent() != null ? Competition.getCurrent().getScoringSystem() : null;
+		Championship effectiveChampionship = getChampionship() != null ? getChampionship() : Championship.of(null);
+		Ranking competitionScoring = effectiveChampionship.getScoringSystem();
 		return TeamResultsDisplayRules.getRequiredScoreRankings(getChampionship(), genderValue, competitionScoring);
 	}
 

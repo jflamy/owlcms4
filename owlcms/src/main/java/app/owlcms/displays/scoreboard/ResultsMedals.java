@@ -110,7 +110,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		this.teamFlags = URLUtils.checkFlags();
 		doMedals(this.getFop());
 
-		if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+		if (!resolveLiftRankVisibility(this.getFop())) {
 			getElement().setProperty("noLiftRanks", "noranks");
 		}
 		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
@@ -461,7 +461,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	 * @return
 	 */
 	protected JsonValue getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
-		this.snatchCJTotalMedals = Competition.getCurrent().isSnatchCJTotalMedals();
+		FieldOfPlay fop = _unused != null ? _unused : getFop();
+		this.snatchCJTotalMedals = resolveLiftRankVisibility(fop);
 		JsonArray jath = Json.createArray();
 		AtomicInteger athx = new AtomicInteger(0);
 		// Category prevCat = null;
@@ -665,7 +666,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			this.getMedals().put(this.getCategory().getCode(), catMedals);
 		}
 		setDisplay();
-		this.getElement().setProperty("showLiftRanks", Competition.getCurrent().isSnatchCJTotalMedals());
+		this.getElement().setProperty("showLiftRanks", resolveLiftRankVisibility(fop2));
 		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop2.getName()));
 		computeMedalsJson(this.getMedals());
 	}
@@ -676,7 +677,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		this.teamFlags = URLUtils.checkFlags();
 		doMedals(this.getFop());
 
-		if (!Competition.getCurrent().isSnatchCJTotalMedals()) {
+		if (!resolveLiftRankVisibility(this.getFop())) {
 			getElement().setProperty("noLiftRanks", "noranks");
 		}
 		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
@@ -779,6 +780,16 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			return true;
 		}
 		return false;
+	}
+
+	private boolean resolveLiftRankVisibility(FieldOfPlay fop) {
+		if (getCategory() != null && getCategory().getAgeGroup() != null) {
+			return getCategory().getAgeGroup().getChampionship().isSnatchCJTotalMedals();
+		}
+		if (fop != null) {
+			return Championship.anyMultiMedal(fop.getActiveChampionships());
+		}
+		return Championship.of(null).isSnatchCJTotalMedals();
 	}
 
 	private void medalsInit() {

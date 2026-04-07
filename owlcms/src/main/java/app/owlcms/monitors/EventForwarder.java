@@ -941,16 +941,19 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			setLiftingOrderAthletes(null);
 		}
 
-		// String sinclair = Competition.getCurrent().isSinclair() ? "sinclair" : "nosinclair";
+		// String sinclair = Competition.getCurrent().isScoreMedalChampionship() ? "sinclair" : "nosinclair";
 		// String ranks = Competition.getCurrent().isSnatchCJTotalMedals() ? "ranks" : "noranks";
 		// setNoLiftRanks(sinclair + " " + ranks);
 
 		// getElement().setProperty("showTotal", true);
 		// getElement().setProperty("showBest", true);
-		setShowLiftRanks(Competition.getCurrent().isSnatchCJTotalMedals() && !Competition.getCurrent().isSinclair());
-		setShowTotalRank(!Competition.getCurrent().isSinclair());
-		setShowSinclair(Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScores());
-		setShowSinclairRank(Competition.getCurrent().isSinclair() || Competition.getCurrent().isDisplayScoreRanks());
+		var activeChampionships = this.fop != null ? this.fop.getActiveChampionships() : Collections.singleton(Championship.of(null));
+		boolean anyMultiMedal = Championship.anyMultiMedal(activeChampionships);
+		boolean scoreMedalChampionship = Championship.anyScoreMedalChampionship(activeChampionships);
+		setShowLiftRanks(anyMultiMedal && !scoreMedalChampionship);
+		setShowTotalRank(!scoreMedalChampionship);
+		setShowSinclair(scoreMedalChampionship || Competition.getCurrent().isDisplayScores());
+		setShowSinclairRank(scoreMedalChampionship || Competition.getCurrent().isDisplayScoreRanks());
 
 		computeLeaders();
 		JsonValue recordsJson = this.fop.getRecordsJson();
@@ -959,14 +962,19 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private String computedScore(Athlete a) {
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		Ranking scoringSystem = a.getAgeGroup() != null
+		        ? a.getAgeGroup().getChampionship().getScoringSystem()
+		        : Championship.of(null).getScoringSystem();
 		double value = Ranking.getRankingValue(a, scoringSystem);
 		String score = value > 0.001 ? String.format("%.3f", value) : "-";
 		return score;
 	}
 
 	private String computedScoreRank(Athlete a) {
-		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
+		Ranking scoringSystem = a.getAgeGroup() != null
+		        ? a.getAgeGroup().getChampionship().getScoringSystem()
+		        : Championship.of(null).getScoringSystem();
+		Integer value = Ranking.getRanking(a, scoringSystem);
 		return value != null && value > 0 ? "" + value : "-";
 	}
 
@@ -1357,7 +1365,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "translationMap", this.translationMap.toJson());
 		mapPut(sb, "hidden", String.valueOf(this.hidden));
 		mapPut(sb, "wideTeamNames", String.valueOf(this.wideTeamNames));
-		mapPut(sb, "sinclairMeet", Boolean.toString(Competition.getCurrent().isSinclair()));
+		var activeChampionships = this.fop != null ? this.fop.getActiveChampionships() : Collections.singleton(Championship.of(null));
+		mapPut(sb, "sinclairMeet", Boolean.toString(Championship.anyScoreMedalChampionship(activeChampionships)));
 
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));
 		mapPut(sb, "mode", getBoardMode());

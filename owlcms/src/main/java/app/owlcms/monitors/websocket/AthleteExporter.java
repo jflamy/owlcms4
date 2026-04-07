@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -396,13 +397,18 @@ public class AthleteExporter {
 	}
 
 	private static String computedScore(Athlete a) {
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		Ranking scoringSystem = a.getAgeGroup() != null
+		        ? a.getAgeGroup().getChampionship().getScoringSystem()
+		        : Championship.of(null).getScoringSystem();
 		double value = Ranking.getRankingValue(a, scoringSystem);
 		return value > 0.001 ? String.format("%.3f", value) : "-";
 	}
 
 	private static String computedScoreRank(Athlete a) {
-		Integer value = Ranking.getRanking(a, Competition.getCurrent().getScoringSystem());
+		Ranking scoringSystem = a.getAgeGroup() != null
+		        ? a.getAgeGroup().getChampionship().getScoringSystem()
+		        : Championship.of(null).getScoringSystem();
+		Integer value = Ranking.getRanking(a, scoringSystem);
 		return value != null && value > 0 ? "" + value : "-";
 	}
 }

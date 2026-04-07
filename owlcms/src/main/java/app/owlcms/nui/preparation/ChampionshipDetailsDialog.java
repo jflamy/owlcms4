@@ -26,6 +26,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.DefaultChampionship;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
@@ -63,6 +64,11 @@ public class ChampionshipDetailsDialog extends Dialog {
 		typeField.setValue(championship.getType());
 		typeLayout.addFormItem(typeField, Translator.translate("Championship.Type"));
 
+		Checkbox useDefaultsField = new Checkbox("Use default competition settings");
+		useDefaultsField.setValue(championship.usesCompetitionDefaults());
+		typeLayout.add(useDefaultsField);
+		typeLayout.setColspan(useDefaultsField, 2);
+
 		content.add(typeLayout);
 
 		// --- Medals section ---
@@ -87,7 +93,7 @@ public class ChampionshipDetailsDialog extends Dialog {
 			if (!e.isFromClient()) {
 				return;
 			}
-			scoringSystemField.setEnabled(!e.getValue());
+			scoringSystemField.setEnabled(!Boolean.TRUE.equals(useDefaultsField.getValue()) && !e.getValue());
 			if (e.getValue()) {
 				scoringSystemField.clear();
 			}
@@ -285,20 +291,75 @@ public class ChampionshipDetailsDialog extends Dialog {
 		mixedWomensBestNField.setEnabled(championship.isMixedTeamEnabled());
 		mixedLayout.addFormItem(mixedWomensBestNField, Translator.translate("Championship.mixedWomensBestN"));
 
+		Runnable refreshEffectiveDefaults = () -> {
+			Championship effective = Boolean.TRUE.equals(useDefaultsField.getValue())
+			        ? DefaultChampionship.getInstance()
+			        : championship;
+			boolean useDefaults = Boolean.TRUE.equals(useDefaultsField.getValue());
+
+			snatchCJTotalField.setValue(effective.isSnatchCJTotalMedals());
+			scoringSystemField.setValue(effective.getScoringSystem());
+			bestAthleteField.setValue(effective.getBestAthleteScoringSystem());
+			bestSnatchField.setValue(effective.getBestSnatchScoringSystem());
+			bestCJField.setValue(effective.getBestCJScoringSystem());
+			teamPoints1stField.setValue(effective.getTeamPoints1st() != null ? effective.getTeamPoints1st() : 0);
+			teamPoints2ndField.setValue(effective.getTeamPoints2nd() != null ? effective.getTeamPoints2nd() : 0);
+			teamPoints3rdField.setValue(effective.getTeamPoints3rd() != null ? effective.getTeamPoints3rd() : 0);
+			maxTeamSizeField.setValue(effective.getMaxTeamSize());
+			maxPerCategoryField.setValue(effective.getMaxPerCategory());
+			mensBestNField.setValue(zeroAsEmpty(effective.getMensBestN()));
+			womensBestNField.setValue(zeroAsEmpty(effective.getWomensBestN()));
+			mixedBestNField.setValue(zeroAsEmpty(effective.getMixedBestN()));
+
+			snatchCJTotalField.setEnabled(!useDefaults);
+			scoringSystemField.setEnabled(!useDefaults && !Boolean.TRUE.equals(snatchCJTotalField.getValue()));
+			bestAthleteField.setEnabled(!useDefaults);
+			bestSnatchField.setEnabled(!useDefaults);
+			bestCJField.setEnabled(!useDefaults);
+			teamPoints1stField.setEnabled(!useDefaults);
+			teamPoints2ndField.setEnabled(!useDefaults);
+			teamPoints3rdField.setEnabled(!useDefaults);
+			teamMethodField.setEnabled(!useDefaults);
+			teamScoringSystemField.setEnabled(!useDefaults && SUM_OF_SCORES.equals(teamMethodField.getValue()));
+			maxTeamSizeField.setEnabled(!useDefaults);
+			maxPerCategoryField.setEnabled(!useDefaults);
+			mensBestNField.setEnabled(!useDefaults);
+			womensBestNField.setEnabled(!useDefaults);
+			boolean mixedEnabled = Boolean.TRUE.equals(mixedTeamEnabledField.getValue());
+			mixedTeamEnabledField.setEnabled(!useDefaults);
+			mixedMethodField.setEnabled(!useDefaults && mixedEnabled);
+			mixedTeamScoringSystemField.setEnabled(!useDefaults && mixedEnabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
+			explicitMixedField.setEnabled(!useDefaults && mixedEnabled);
+			explicitTeamSizeField.setEnabled(!useDefaults && mixedEnabled && Boolean.TRUE.equals(explicitMixedField.getValue()));
+			mixedBestNField.setEnabled(!useDefaults && mixedEnabled);
+			mixedMensBestNField.setEnabled(!useDefaults && mixedEnabled);
+			mixedWomensBestNField.setEnabled(!useDefaults && mixedEnabled);
+		};
+
+		useDefaultsField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
+			refreshEffectiveDefaults.run();
+		});
+
 		// Enable/disable all mixed fields when the Mixed Team checkbox is toggled
 		mixedTeamEnabledField.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
 				return;
 			}
 			boolean enabled = Boolean.TRUE.equals(e.getValue());
-			mixedMethodField.setEnabled(enabled);
-			mixedTeamScoringSystemField.setEnabled(enabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
-			explicitMixedField.setEnabled(enabled);
-			explicitTeamSizeField.setEnabled(enabled && Boolean.TRUE.equals(explicitMixedField.getValue()));
-			mixedBestNField.setEnabled(enabled);
-			mixedMensBestNField.setEnabled(enabled);
-			mixedWomensBestNField.setEnabled(enabled);
+			boolean notDefaults = !Boolean.TRUE.equals(useDefaultsField.getValue());
+			mixedMethodField.setEnabled(enabled && notDefaults);
+			mixedTeamScoringSystemField.setEnabled(enabled && notDefaults && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
+			explicitMixedField.setEnabled(enabled && notDefaults);
+			explicitTeamSizeField.setEnabled(enabled && notDefaults && Boolean.TRUE.equals(explicitMixedField.getValue()));
+			mixedBestNField.setEnabled(enabled && notDefaults);
+			mixedMensBestNField.setEnabled(enabled && notDefaults);
+			mixedWomensBestNField.setEnabled(enabled && notDefaults);
 		});
+
+		refreshEffectiveDefaults.run();
 
 		content.add(mixedLayout);
 
@@ -309,6 +370,7 @@ public class ChampionshipDetailsDialog extends Dialog {
 
 		Button saveButton = new Button(Translator.translate("Update"), event -> {
 			championship.setType(typeField.getValue());
+			championship.setUseCompetitionDefaults(useDefaultsField.getValue());
 			championship.setScoringSystem(scoringSystemField.getValue());
 			championship.setBestAthleteScoringSystem(bestAthleteField.getValue());
 			championship.setBestSnatchScoringSystem(bestSnatchField.getValue());

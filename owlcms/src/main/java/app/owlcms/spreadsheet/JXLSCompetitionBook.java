@@ -191,7 +191,9 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		if (overallScoringSystem == null) {
-			overallScoringSystem = Competition.getCurrent().getScoringSystem();
+			overallScoringSystem = getChampionship() != null
+			        ? getChampionship().getBestAthleteScoringSystem()
+			        : Championship.of(null).getBestAthleteScoringSystem();
 		}
 
 		reportingBeans.put("championship", getChampionship());

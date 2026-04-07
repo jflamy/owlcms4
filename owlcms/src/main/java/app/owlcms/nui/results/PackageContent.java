@@ -383,8 +383,12 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	}
 
 	public Ranking getScoringSystem() {
-		// Return global default if not yet set
-		return this.scoringSystem != null ? this.scoringSystem : Competition.getCurrent().getScoringSystem();
+		if (this.scoringSystem != null) {
+			return this.scoringSystem;
+		}
+		Championship effectiveChampionship = this.championship != null ? this.championship : Championship.of(null);
+		Ranking championshipScoring = effectiveChampionship.getBestAthleteScoringSystem();
+		return championshipScoring != null ? championshipScoring : effectiveChampionship.getScoringSystem();
 	}
 
 	@Override
@@ -592,7 +596,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 				bestAthleteScoringSelected(event.getValue());
 			});
 			// Initialize to current value or global default
-			Ranking initialValue = this.scoringSystem != null ? this.scoringSystem : Competition.getCurrent().getScoringSystem();
+			Ranking initialValue = getScoringSystem();
 			scoringCombo.setValue(initialValue);
 			if (this.scoringSystem == null) {
 				setScoringSystem(initialValue); // Set field on first initialization
@@ -684,7 +688,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
 			ranking = getRankingSelector().getValue();
 		} else {
-			ranking = Competition.getCurrent().getScoringSystem();
+			ranking = getScoringSystem();
 		}
 		return ranking;
 	}
@@ -694,7 +698,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
 			ranking = getRankingSelector().getValue();
 		} else {
-			ranking = Competition.getCurrent().getScoringSystem();
+			ranking = getScoringSystem();
 		}
 		return ranking;
 	}
@@ -848,7 +852,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 				newRanking = null;
 			}
 			if (newRanking == null) {
-				newRanking = Competition.getCurrent().getScoringSystem();
+				newRanking = Championship.of(null).getBestAthleteScoringSystem();
 			}
 			// Update dropdown and field, then refresh grid via helper
 			this.getRankingSelector().setValue(newRanking);

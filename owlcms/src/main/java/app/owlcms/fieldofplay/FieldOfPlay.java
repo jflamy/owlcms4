@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,8 @@ import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.DefaultChampionship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -330,6 +333,19 @@ public class FieldOfPlay implements IUnregister {
 
 	public LinkedHashMap<String, Participation> getAgeGroupMap() {
 		return this.ageGroupMap;
+	}
+
+	public Set<Championship> getActiveChampionships() {
+		LinkedHashSet<Championship> activeChampionships = new LinkedHashSet<>();
+		if (this.ageGroupMap != null) {
+			for (String ageGroupCode : this.ageGroupMap.keySet()) {
+				AgeGroup ageGroup = AgeGroupRepository.findByName(ageGroupCode);
+				if (ageGroup != null) {
+					activeChampionships.add(ageGroup.getChampionship());
+				}
+			}
+		}
+		return activeChampionships.isEmpty() ? Collections.singleton(DefaultChampionship.getInstance()) : activeChampionships;
 	}
 
 	/**
@@ -1757,7 +1773,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private Ranking computeResultOrderRanking(boolean groupDone) {
-		boolean _3medals = Competition.getCurrent().isSnatchCJTotalMedals();
+		boolean _3medals = Championship.anyMultiMedal(getActiveChampionships());
 		if (groupDone || (isCjStarted() && !_3medals)) {
 			// this falls back to TOTAL for categories that are not score-based
 			return Ranking.CATEGORY_SCORE;
@@ -2550,7 +2566,7 @@ public class FieldOfPlay implements IUnregister {
 			logger.error("medalistLeaders called with null medalists");
 			medalists = Collections.emptyList();
 		}
-		boolean snatchCjTotal = Competition.getCurrent().isSnatchCJTotalMedals();
+		boolean snatchCjTotal = Championship.anyMultiMedal(getActiveChampionships());
 		var eligible = medalists.stream()
 		        .filter(this::hasNonZeroTotal)
 		        .toList();
@@ -2587,7 +2603,7 @@ public class FieldOfPlay implements IUnregister {
 			Group group3 = m.getGroup();
 			return group2 != null && group3 != null && !group3.equals(group2);
 		}).toList();
-		boolean snatchCjTotal = Competition.getCurrent().isSnatchCJTotalMedals();
+		boolean snatchCjTotal = Championship.anyMultiMedal(getActiveChampionships());
 		var eligible = medalists.stream()
 		        .filter(this::hasStarted)
 		        .filter(this::hasNonZeroTotal)

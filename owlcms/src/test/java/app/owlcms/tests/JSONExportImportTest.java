@@ -8,6 +8,7 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -52,5 +53,35 @@ public class JSONExportImportTest {
 			fail(e.getMessage());
 		}
 	}
+
+    @Test
+    public void useCompetitionDefaultsRoundTripsThroughCompetitionDataJson() {
+        Championship source = ChampionshipRepository.findAll().stream().findFirst().orElse(null);
+        assertNotNull("expected at least one championship", source);
+
+        JPAService.runInTransaction(em -> {
+            Championship managed = em.find(Championship.class, source.getId());
+            managed.setUseCompetitionDefaults(true);
+            return null;
+        });
+        Championship.reset();
+
+        CompetitionData competitionData = new CompetitionData();
+        try {
+            String serialized = competitionData.exportDataAsString();
+            assertTrue("serialized JSON should include useCompetitionDefaults", serialized.contains("\"useCompetitionDefaults\""));
+
+            CompetitionData imported = competitionData.importDataFromString(serialized);
+            Championship importedChampionship = imported.getChampionships().stream()
+                    .filter(championship -> championship.getName().equals(source.getName()))
+                    .findFirst()
+                    .orElse(null);
+            assertNotNull("championship should be present after import", importedChampionship);
+            assertTrue("useCompetitionDefaults should round-trip through CompetitionData JSON",
+                    importedChampionship.usesCompetitionDefaults());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
 
 }
