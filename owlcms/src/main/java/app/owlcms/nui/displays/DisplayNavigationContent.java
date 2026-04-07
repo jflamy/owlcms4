@@ -23,9 +23,9 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.displays.attemptboards.AthleteFacingAttemptBoardPage;
@@ -148,7 +148,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        juryDecisions1);
 			doGroup(Translator.translate("PublicScoreboards"), intro11, grid11, this);
 
-			Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+			Ranking scoringSystem = Championship.of(null).getScoringSystem();
 			String scoringTitle = Ranking.getScoringTitle(scoringSystem);
 
 			Button medals = openInNewTabWithFop(MedalsPage.class, Translator.translate("CeremonyType.MEDALS"));

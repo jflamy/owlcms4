@@ -169,7 +169,8 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	 */
 	@Override
 	public String getPageTitle() {
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		Championship championship = getChampionship() != null ? getChampionship() : Championship.of(null);
+		Ranking scoringSystem = championship.getTeamScoringSystem() != null ? championship.getTeamScoringSystem() : Ranking.TOTAL;
 		String ssText = Ranking.getScoringTitle(scoringSystem);
 		return Translator.translate("Scoreboard.TopTeamsScore", ssText);
 	}

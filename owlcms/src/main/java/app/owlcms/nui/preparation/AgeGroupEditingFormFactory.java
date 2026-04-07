@@ -112,7 +112,7 @@ public class AgeGroupEditingFormFactory
 		formLayout.getStyle().set("--vaadin-form-item-label-width", "15em");
 		formLayout.setWidth("50em");
 
-		this.binder = buildBinder(null, aFromDb);
+		this.binder = buildBinder(operation, aFromDb);
 		String message = Translator.translate("AgeFormat");
 
 		TextField codeField = new TextField();
@@ -165,15 +165,9 @@ public class AgeGroupEditingFormFactory
 		championshipField.setRequiredIndicatorVisible(false);
 		championshipField.setAllowCustomValue(true);
 
-		// If age group references a championship that doesn't exist yet, track its name
-		Championship initialChampionship = aFromDb.getChampionship();
 		String initialName = aFromDb.getChampionshipName();
-		if (initialChampionship == null && initialName != null && !initialName.isBlank()) {
-			this.pendingChampionshipName = initialName;
-			championshipField.setPlaceholder(initialName);
-		} else {
-			this.pendingChampionshipName = null;
-		}
+		Championship initialChampionship = Championship.findStored(initialName);
+		this.pendingChampionshipName = null;
 
 		Button editChampionshipButton = new Button(Translator.translate("Sessions.EditDetails"), e -> {
 			Championship selected = championshipField.getValue();
@@ -195,6 +189,7 @@ public class AgeGroupEditingFormFactory
 			if (found != null) {
 				championshipField.setValue(found);
 				this.pendingChampionshipName = null;
+				championshipField.setPlaceholder("");
 				editChampionshipButton.setEnabled(true);
 			} else {
 				this.pendingChampionshipName = customValue.trim();
@@ -209,15 +204,24 @@ public class AgeGroupEditingFormFactory
 			Championship val = e.getValue();
 			if (val != null) {
 				this.pendingChampionshipName = null;
+				championshipField.setPlaceholder("");
 				editChampionshipButton.setEnabled(val.getId() != null);
 			} else if (this.pendingChampionshipName == null) {
+				championshipField.setPlaceholder("");
 				editChampionshipButton.setEnabled(false);
 			}
 		});
 
 		// Binder preserves pending championship name when ComboBox value is null
-		this.binder.forField(championshipField).bind(
-			AgeGroup::getChampionship,
+		this.binder.forField(championshipField)
+			.withValidator((championship, ctx) -> {
+				if (championship != null || (this.pendingChampionshipName != null && !this.pendingChampionshipName.isBlank())) {
+					return ValidationResult.ok();
+				}
+				return ValidationResult.error(Translator.translate("ThisFieldIsRequired"));
+			})
+			.bind(
+			ag -> Championship.findStored(ag.getChampionshipName()),
 			(ag, championship) -> {
 				if (championship != null) {
 					ag.setChampionship(championship);
@@ -289,6 +293,12 @@ public class AgeGroupEditingFormFactory
 		// }
 
 		this.binder.readBean(aFromDb);
+		if (CrudOperation.ADD.equals(operation)) {
+			Championship defaultChampionship = Championship.ofType(ChampionshipType.U);
+			if (defaultChampionship != null) {
+				championshipField.setValue(defaultChampionship);
+			}
+		}
 
 		Component footerLayout = this.buildFooter(operation, aFromDb, cancelButtonClickListener,
 		        updateButtonClickListener, deleteButtonClickListener, false);
@@ -335,8 +345,8 @@ public class AgeGroupEditingFormFactory
 	public AgeGroup update(AgeGroup ageGroup) {
 		// Create championship if it doesn't exist yet
 		String champName = ageGroup.getChampionshipName();
-		if (champName != null && !champName.isBlank() && Championship.of(champName) == null) {
-			Championship.addChampionship(champName, ChampionshipType.U);
+		if (champName != null && !champName.isBlank()) {
+			Championship.ensureStored(champName, ChampionshipType.U);
 		}
 
 		// array is used to workaround Java language restriction on setting variables in lambda

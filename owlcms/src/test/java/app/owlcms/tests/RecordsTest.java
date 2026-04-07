@@ -205,7 +205,7 @@ public class RecordsTest {
 
     @Test
     public void currentRecordsStaySequentiallyOrderedAfterCategoryEdit() {
-        RecordRepository.save(createRecord(51.0D, null));
+        RecordRepository.save(createRecord(51.0D, null, Ranking.SNATCH, 45));
         RecordRepository.save(createRecord(61.0D, null, Ranking.CLEANJERK, 45));
         RecordRepository.save(createRecord(112.0D, null, Ranking.TOTAL, 45));
         RecordEvent edited = RecordRepository.save(createRecord(63.0D, null, Ranking.SNATCH, 48));

@@ -56,7 +56,6 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -386,7 +385,8 @@ public class TeamSelectionContent extends BaseContent
 			if (p.getAthlete() == null) {
 				long nb = p.getTeamMembers().stream().filter(pa -> pa.isTeamMember()).count();
 				Championship champ = getChampionship();
-				int maxSize = champ != null ? champ.getMaxTeamSize() : Competition.getCurrent().getMaxTeamSize();
+				Championship effectiveChampionship = champ != null ? champ : Championship.of(null);
+				int maxSize = effectiveChampionship.getMaxTeamSize();
 				NativeLabel label = new NativeLabel(
 				        nb > maxSize ? nb + "\u26a0" : nb + "");
 				p.setMembershipLabel(label);

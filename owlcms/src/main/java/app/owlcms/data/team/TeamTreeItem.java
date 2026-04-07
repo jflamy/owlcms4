@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.html.NativeLabel;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
@@ -67,15 +67,20 @@ public class TeamTreeItem {
 	private boolean countedForTeam;
 
 	public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done) {
-		this.scoringSystem = Competition.getCurrent().getScoringSystem();
+		this(curTeamName, gender, teamMember, done, Championship.of(null));
+	}
+
+	public TeamTreeItem(String curTeamName, Gender gender, Athlete teamMember, boolean done, Championship championship) {
+		Championship effectiveChampionship = championship != null ? championship : Championship.of(null);
+		this.scoringSystem = effectiveChampionship.getScoringSystem();
 		this.athlete = teamMember;
 		this.setDone(done);
 		if (this.athlete == null) {
 			// this node is a team
-			this.setTeam(new Team(curTeamName, gender));
+			this.setTeam(new Team(curTeamName, gender, this.scoringSystem));
 			this.setTeamMembers(new ArrayList<>());
 		}
-		this.combinedPoints = Competition.getCurrent().isSnatchCJTotalMedals();
+		this.combinedPoints = effectiveChampionship.isSnatchCJTotalMedals();
 	}
 
 	public TeamTreeItem addTreeItemChild(Athlete a, boolean done) {
@@ -87,14 +92,16 @@ public class TeamTreeItem {
 		if (existing != null) {
 			return existing;
 		}
-		TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
+		Championship championship = a.getAgeGroup() != null ? a.getAgeGroup().getChampionship() : Championship.of(null);
+		TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done, championship);
 		child.setParent(this);
 		getTeamMembers().add(child);
 		return child;
 	}
 
 	public void addTreeItemChild(TeamSelectionTreeData teamSelectionTreeData, Athlete a, boolean done) {
-		TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done);
+		Championship championship = a.getAgeGroup() != null ? a.getAgeGroup().getChampionship() : Championship.of(null);
+		TeamTreeItem child = new TeamTreeItem(null, a.getGender(), a, done, championship);
 		child.setParent(this);
 		getTeamMembers().add(child);
 		teamSelectionTreeData.addItem(this, child);

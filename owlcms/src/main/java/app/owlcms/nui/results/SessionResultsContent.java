@@ -52,6 +52,7 @@ import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
@@ -138,7 +139,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	}
 
 	public static String computeScore(Ranking scoringSystem, Athlete a) {
-		var compSS = Competition.getCurrent().getScoringSystem();
+		var compSS = Championship.of(null).getBestAthleteScoringSystem();
 		var ageGroup = a.getAgeGroup();
 
 		Ranking ss;
@@ -146,10 +147,12 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		    // use the dropdown selection if it is present.
 		    ss = scoringSystem;
 		} else if (ageGroup != null) {
-			ss = ageGroup.getBestAthleteScoringSystem() != null ?  ageGroup.getBestAthleteScoringSystem() : compSS;
+			Championship athleteChampionship = ageGroup.getChampionship();
+			ss = ageGroup.getBestAthleteScoringSystem() != null ? ageGroup.getBestAthleteScoringSystem()
+			        : athleteChampionship.getBestAthleteScoringSystem();
 		} else {
 			// defensive
-			ss = Competition.getCurrent().getScoringSystem();
+			ss = compSS;
 		}
 		return Ranking.getScoringTitle(ss) + " " + String.format(OwlcmsSession.getLocale(), "%7.2f", Ranking.getRankingValue(a, ss));
 	}
@@ -587,7 +590,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
 			ranking = getRankingSelector().getValue();
 		} else {
-			ranking = getScoringSystem() != null ? getScoringSystem() : Competition.getCurrent().getScoringSystem();
+			ranking = getScoringSystem() != null ? getScoringSystem() : Championship.of(null).getScoringSystem();
 		}
 		logger.debug("computeScoringSystem {}", ranking);
 		return ranking;

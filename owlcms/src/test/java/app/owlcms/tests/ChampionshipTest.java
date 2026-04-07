@@ -9,6 +9,8 @@ package app.owlcms.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -48,6 +50,8 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
+import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.agegroup.DefaultChampionship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -72,6 +76,7 @@ public class ChampionshipTest {
     private static class ChampionshipConfigSnapshot {
 
         private final boolean explicitMixedTeamMembers;
+        private final boolean mixedTeamEnabled;
         private final Integer explicitTeamSize;
         private final Ranking teamScoringSystem;
         private final Ranking mixedTeamScoringSystem;
@@ -83,6 +88,7 @@ public class ChampionshipTest {
 
         private ChampionshipConfigSnapshot(Championship championship) {
             this.explicitMixedTeamMembers = championship.isExplicitMixedTeamMembers();
+            this.mixedTeamEnabled = championship.isMixedTeamEnabled();
             this.explicitTeamSize = championship.getExplicitTeamSize();
             this.teamScoringSystem = championship.getTeamScoringSystem();
             this.mixedTeamScoringSystem = championship.getMixedTeamScoringSystem();
@@ -120,6 +126,10 @@ public class ChampionshipTest {
         // Override the fixture's persisted ranking settings so this test controls
         // exactly which global/category scoring systems are computed.
         overrideFixtureEnabledRankings();
+
+        // The fixture database predates the mixedTeamEnabled column.
+        // Set the correct values for each championship.
+        initFixtureMixedTeamEnabled();
 
         Competition.recomputeAllAthleteRanks();
         originalMixedTeamMemberships = snapshotMixedTeamMemberships();
@@ -175,6 +185,30 @@ public class ChampionshipTest {
 
         assertEquals("championship names from OWLCMS API",
             List.of("Masters", "Youth", "Junior", "Senior", "Open"), championshipNames);
+    }
+
+    @Test
+    public void testMissingChampionshipCanBeDetectedAndCreatedWithoutLosingDefaultFallback() {
+        String championshipName = "Temporary Championship " + UUID.randomUUID();
+
+        assertNull("missing championship should not have a stored row yet",
+                Championship.findStored(championshipName));
+        assertSame("missing championship should still resolve to the default fallback",
+                DefaultChampionship.getInstance(), Championship.of(championshipName));
+
+        Championship created = Championship.ensureStored(championshipName, ChampionshipType.U);
+        try {
+            assertNotNull("ensureStored should create a championship row", created);
+            assertNotNull("created championship should be persisted", created.getId());
+            assertEquals("created championship name", championshipName, created.getName());
+
+            Championship stored = Championship.findStored(championshipName);
+            assertNotNull("stored championship should now be discoverable", stored);
+            assertEquals("stored championship id should match created row", created.getId(), stored.getId());
+        } finally {
+            ChampionshipRepository.delete(created);
+            Championship.reset();
+        }
     }
 
     @Test
@@ -923,6 +957,18 @@ public class ChampionshipTest {
         return "jdbc:h2:mem:championshipTest-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1;TRACE_LEVEL_FILE=4";
     }
 
+    private static void initFixtureMixedTeamEnabled() {
+        JPAService.runInTransaction(em -> {
+            for (Championship c : em.createQuery("select c from Championship c", Championship.class).getResultList()) {
+                // Senior and Open have mixed teams; others do not
+                boolean mixed = "Senior".equals(c.getName()) || "Open".equals(c.getName());
+                c.setMixedTeamEnabled(mixed);
+            }
+            return null;
+        });
+        Championship.reset();
+    }
+
     private static void overrideFixtureEnabledRankings() {
         Competition competition = Competition.getCurrent();
         competition.setEnabledRankings(List.of(
@@ -1193,6 +1239,7 @@ public class ChampionshipTest {
                     continue;
                 }
                 championship.setExplicitMixedTeamMembers(snapshot.explicitMixedTeamMembers);
+                championship.setMixedTeamEnabled(snapshot.mixedTeamEnabled);
                 championship.setExplicitTeamSize(snapshot.explicitTeamSize);
                 championship.setTeamScoringSystem(snapshot.teamScoringSystem);
                 championship.setMixedTeamScoringSystem(snapshot.mixedTeamScoringSystem);

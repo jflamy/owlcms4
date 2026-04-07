@@ -1,4 +1,5 @@
 > This page provides information about the main competition options that are used in most competitions.  The full set of options is described in the [Competition Options Reference](2600AdvancedPreCompetitionSetup) page.
+> There can also be several Championships contested simultaneously at the same event -- if that is the case, the relevant options selected below will be the used by default, and you can adjust for each championship.  See the [Championships](Championships) page for details.
 
 The first step in preparing for a competition is to provide general information about the meet and define the major settings. To reach the competition options, use the "Prepare Competition" menu entry.
 
@@ -14,7 +15,11 @@ First, the name and other data about the competition and hosting federation is p
 
 #### Competition Rules
 
-The screen allows selecting common variations on IWF rules.  For most competitions, the options that need to be checked are outlined below.  See the [Advanced Pre-Competition Options](2600AdvancedPreCompetitionSetup) page for the others.
+The screen allows selecting common variations on IWF rules.  
+
+- For most competitions, the options that need to be checked are outlined below. 
+- There can be several Championships contested simultaneously at the same event -- if that is the case, the relevant options selected below will be the used by default, and you can adjust for each championship.  See the [Championships](Championships) page for details.
+- See the [Advanced Pre-Competition Options](2600AdvancedPreCompetitionSetup) page the full list of competition otions
 
 ![30](nimg/2100PreCompetitionSetup/31.png)
 

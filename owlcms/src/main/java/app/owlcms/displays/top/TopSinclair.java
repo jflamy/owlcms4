@@ -24,6 +24,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
@@ -139,15 +140,16 @@ public class TopSinclair extends AbstractTop {
 
 	       // create copies because we want to change the list
 	       AthleteSorter.TopScore topScores;
+	       this.scoringSystem = getEffectiveScoringSystem();
 	       List<Athlete> sortedMen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.M));
 	       int limitMen = Math.min(nbAthletes, sortedMen2.size());
-	       topScores = (AthleteSorter.topScore(sortedMen2, limitMen));
+	       topScores = (AthleteSorter.topScore(sortedMen2, limitMen, this.scoringSystem));
 	       setSortedMen(topScores.topAthletes);
 	       this.topManScore = topScores.best;
 
 	       List<Athlete> sortedWomen2 = new ArrayList<>(competition.getGlobalScoreRanking(Gender.F));
 	       int limitWomen = Math.min(nbAthletes, sortedWomen2.size());
-	       topScores = (AthleteSorter.topScore(sortedWomen2, limitWomen));
+	       topScores = (AthleteSorter.topScore(sortedWomen2, limitWomen, this.scoringSystem));
 	       setSortedWomen(topScores.topAthletes);
 	       this.topWomanScore = topScores.best;
 
@@ -160,15 +162,16 @@ public class TopSinclair extends AbstractTop {
 
 	       // Use the filtered lists instead of global rankings
 	       AthleteSorter.TopScore topScores;
+	       this.scoringSystem = getEffectiveScoringSystem();
 	       List<Athlete> sortedMen2 = new ArrayList<>(filteredMen != null ? filteredMen : Collections.emptyList());
 	       int limitMen = Math.min(nbAthletes, sortedMen2.size());
-	       topScores = (AthleteSorter.topScore(sortedMen2, limitMen));
+	       topScores = (AthleteSorter.topScore(sortedMen2, limitMen, this.scoringSystem));
 	       setSortedMen(topScores.topAthletes);
 	       this.topManScore = topScores.best;
 
 	       List<Athlete> sortedWomen2 = new ArrayList<>(filteredWomen != null ? filteredWomen : Collections.emptyList());
 	       int limitWomen = Math.min(nbAthletes, sortedWomen2.size());
-	       topScores = (AthleteSorter.topScore(sortedWomen2, limitWomen));
+	       topScores = (AthleteSorter.topScore(sortedWomen2, limitWomen, this.scoringSystem));
 	       setSortedWomen(topScores.topAthletes);
 	       this.topWomanScore = topScores.best;
 
@@ -371,7 +374,7 @@ public class TopSinclair extends AbstractTop {
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
-		String scoringTitle = Ranking.getScoringTitle(Competition.getCurrent().getScoringSystem());
+		String scoringTitle = Ranking.getScoringTitle(getEffectiveScoringSystem());
 		translations.put("ScoringTitle", scoringTitle != null ? scoringTitle : Translator.translate("Sinclair"));
 		this.getElement().setPropertyJson("t", translations);
 	}
@@ -392,7 +395,7 @@ public class TopSinclair extends AbstractTop {
 
 	private JsonValue getAthletesJson(List<Athlete> list2, boolean overrideTeamWidth) {
 		JsonArray jath = Json.createArray();
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		Ranking scoringSystem = this.scoringSystem != null ? this.scoringSystem : getEffectiveScoringSystem();
 		int athx = 0;
 		List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
 		if (overrideTeamWidth) {
@@ -591,7 +594,7 @@ public class TopSinclair extends AbstractTop {
 	}
 
 	private void updateBottom() {
-	       Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+	       Ranking scoringSystem = this.scoringSystem != null ? this.scoringSystem : getEffectiveScoringSystem();
 	       String ssTitle = Ranking.getScoringTitle(scoringSystem);
 	       getElement().setProperty("fullName", Translator.translate("Scoreboard.TopScore"));
 	       Gender gender = this.getGender();
@@ -631,6 +634,11 @@ public class TopSinclair extends AbstractTop {
 			// crude hack due to unexplained behavior of syncWithFop().
 			ui.getPage().reload();
 		});
+	}
+
+	private Ranking getEffectiveScoringSystem() {
+		Championship championship = getChampionship() != null ? getChampionship() : Championship.of(null);
+		return championship.getScoringSystem();
 	}
 
 }

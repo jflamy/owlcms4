@@ -1,25 +1,25 @@
 
-In OWLCMS a Competition and can have multiple Championships being held at the same time.
+In OWLCMS a Competition can have multiple Championships being held at the same time. A championship defines a set of awards for part of a competition.
+By default, there is a championship created for created for each age group, with men and women together.
+Championships inherit their default values from the Competition settings.
 
-Each Championship is typically for one age group (Masters are the common exception).  A championship defines a set of awards for a subset of the competition.
+Each Championship is normally for one age group (Masters are the exception where many age groups share awards)
 - it determines if there are medals for total only or for each of the lifts
 - it determines how medals are awarded: it can be the traditional weight lifted, or a score like QPoints, GAMX, Sinclair etc.
 - it determines the best athlete awards and the score used
 - it determines the Team Championships and how teams are given
-
-By default, Championships are created for each age group, with men and women together.
-In simple competitions, you will probably only use the Open championship.
-
-Masters are the exception, where multiple age groups are put together.
-You can create additional championships (for example to group Youth age groups together).
+>
 Note that currently an age group can only belong to a single championship.
 
 ### Standard Championships
 
-In this first example, we are defining a traditional Junior Championship
+In this first example, we are defining a traditional Junior Championship.  
+
 ![image-20260406153626313](img/Championships/image-20260406153626313.png)
 
-![image-20260406153719838](img/Championships/image-20260406153719838.png)
+We intentionally uncheck the "Use default values" checkbox to illustrate.
+
+![image-20260407150611635](img/Championships/image-20260407150611635.png)
 
 In this example,
 
@@ -35,13 +35,13 @@ It would have been possible to use other rules, for example
 
 ### **Score Based Championships**
 
-In the next example, instead of adding points, the winner is determined by adding the scores of the team members
+In the next example, instead of adding points as in the conventional championships, the winner of the gender-based team championship is determined by adding the scores of the team members
 
 ![image-20260406154120359](img/Championships/image-20260406154120359.png)
 
-### Points-based Mixed Championships
+### Mixed Championships
 
-Traditionally, mixed teams championships were defined by adding the points of the men and women teams.  The example below does this
+Traditionally, mixed teams championships are defined by adding the points of the men and women teams.  The example below does this
 
 - The format selected is "sum of points"
 - the "Explicit Team Members" is NOT selected, so the two men and women teams are combined
@@ -50,7 +50,7 @@ Traditionally, mixed teams championships were defined by adding the points of th
 
 ### **Score-based Mixed Championships**
 
-There are now scoring formulas that are equitable for men and women, such that it is possible to add them together.  In this competition, the Senior championship has a mixed championship.
+There are now scoring formulas that are equitable for men and women, such that it is possible to add men and women scores together.  This can work both with "all men and all women team members count", or with a new capability, naming an explicit mixed team.
 
 - "Sum of Scores"  is selected
 - We also decide to select the team members explicitly instead of just combining the men and women, and the team will be a maximum of 8. 

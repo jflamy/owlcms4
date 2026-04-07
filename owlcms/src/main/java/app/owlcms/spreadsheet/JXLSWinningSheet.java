@@ -296,7 +296,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		if (getBestLifterScoringSystem() != null) {
 			return getBestLifterScoringSystem();
 		}
-		return Competition.getCurrent().getScoringSystem();
+		return Championship.of(null).getBestAthleteScoringSystem();
 	}
 
 }

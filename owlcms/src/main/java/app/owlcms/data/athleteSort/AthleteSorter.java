@@ -19,6 +19,7 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -789,7 +790,10 @@ public class AthleteSorter implements Serializable {
 	}
 
 	public static TopScore topScore(List<Athlete> sortedAthletes, int nbAthletes) {
-		Ranking scoringSystem = Competition.getCurrent().getScoringSystem();
+		return topScore(sortedAthletes, nbAthletes, Championship.of(null).getScoringSystem());
+	}
+
+	public static TopScore topScore(List<Athlete> sortedAthletes, int nbAthletes, Ranking scoringSystem) {
 		if (!RankingConfig.shouldCompute(scoringSystem)) {
 			return new TopScore(0.0D, List.of());
 		}

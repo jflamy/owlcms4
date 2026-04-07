@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.competition.Competition;
@@ -63,7 +64,8 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 					}
 					// logger.trace("Competition.getCurrent().isSnatchCJTotalMedals()
 					// {}",Competition.getCurrent().isSnatchCJTotalMedals());
-					if (Competition.getCurrent().isSnatchCJTotalMedals()) {
+					Championship championship = p.getAgeGroup() != null ? p.getAgeGroup().getChampionship() : Championship.of(null);
+					if (championship.isSnatchCJTotalMedals()) {
 						if (p.getSnatchRank() <= 3) {
 							sa.add(new MAthlete((PAthlete) p, Ranking.SNATCH, p.getSnatchRank(),
 							                (double) p.getBestSnatch()));

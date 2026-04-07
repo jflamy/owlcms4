@@ -30,7 +30,6 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Level;
@@ -44,6 +43,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 	private Gender genderFilterValue;
 	private final Logger logger = (Logger) LoggerFactory.getLogger(TeamSelectionTreeData.class);
 	private Ranking ranking;
+	private Championship championship;
 	private Map<String, List<TeamTreeItem>> teamsByName = new TreeMap<>();
 	private Set<TeamTreeItem> teams = new TreeSet<>((a, b) -> {
 		if (a.getAthlete() == null && b.getAthlete() == null) {
@@ -253,7 +253,8 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 		List<String> illegalCounts = new ArrayList<>();
 		int nbMembers = 0;
 		boolean mixedTeam = teamItem.getGender() == Gender.MF;
-		int maxPerCat = championship != null ? championship.getMaxPerCategory() : Competition.getCurrent().getMaxPerCategory();
+		Championship effectiveChampionship = championship != null ? championship : Championship.of(null);
+		int maxPerCat = effectiveChampionship.getMaxPerCategory();
 		for (TeamTreeItem t : teamMembers) {
 			boolean countedMember = mixedTeam ? effectiveMixedMembership(t, championship) : Boolean.TRUE.equals(t.isTeamMember());
 			if (!countedMember) {
@@ -305,7 +306,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 		if (found != null) {
 			curTeamItem = found;
 		} else {
-			curTeamItem = new TeamTreeItem(curTeamName, gender, null, false);
+			curTeamItem = new TeamTreeItem(curTeamName, gender, null, false, this.championship);
 			curTeamItem.getTeam().setSize(AthleteRepository.countTeamMembers(curTeamName, gender));
 			this.teamsByName.get(curTeamName).add(curTeamItem);
 		}
@@ -327,6 +328,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 		if (this.debug) {
 			this.logger.setLevel(Level.DEBUG);
 		}
+		this.championship = championship;
 		Collection<Participation> athletes = findAll(ageGroupPrefix, championship, gender, null, null);
 		buildTeamItemTree(athletes, ageGroupPrefix, championship, includeNotDone);
 		if (this.debug) {
