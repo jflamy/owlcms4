@@ -3,7 +3,6 @@ package app.owlcms.spreadsheet;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -20,7 +19,6 @@ import app.owlcms.data.technicalofficial.TeamRole;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.servlet.StopProcessingException;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -28,23 +26,6 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
 
     public XLSXTechnicalOfficialsExport(UI ui) {
         super(ui);
-    }
-
-    public Optional<Exception> preCheck() {
-        try {
-            List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
-            if (officials == null || officials.isEmpty()) {
-                return Optional.of(new StopProcessingException(Translator.translate("export.noTechnicalOfficials"), null));
-            }
-            return Optional.empty();
-        } catch (Exception e) {
-            return Optional.of(e);
-        }
-    }
-
-    @Override
-    public Optional<Exception> prepare() {
-        return preCheck();
     }
 
     final private static Logger logger = (Logger) LoggerFactory.getLogger(XLSXTechnicalOfficialsExport.class);
@@ -108,6 +89,9 @@ public class XLSXTechnicalOfficialsExport extends XLSXWorkbookStreamSource {
 
             // Add data rows
             List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
+            if (officials == null) {
+                officials = List.of();
+            }
             int rowNum = 1;
             for (TechnicalOfficial official : officials) {
                 Row row = sheet.createRow(rowNum++);
