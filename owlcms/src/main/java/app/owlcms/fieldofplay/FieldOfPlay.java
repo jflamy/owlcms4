@@ -584,7 +584,7 @@ public class FieldOfPlay implements IUnregister {
 			setForcedTime(false);
 			int timeRemaining = getAthleteTimer().getTimeRemaining();
 			setClockOwnerInitialTimeAllowed(timeRemaining);
-			this.logger.debug("{}===== forced time {}", FieldOfPlay.getLoggingName(this), timeRemaining);
+			this.logger.debug("{}forced time {}", FieldOfPlay.getLoggingName(this), timeRemaining);
 			return timeRemaining;
 		}
 		Athlete a = getCurAthlete();
@@ -614,7 +614,7 @@ public class FieldOfPlay implements IUnregister {
 				setClockOwnerInitialTimeAllowed(timeAllowed);
 			}
 		}
-		// logger.trace("{}==== timeAllowed={} owner={} prev={} cur={}",
+		// logger.trace("{}timeAllowed={} owner={} prev={} cur={}",
 		// getLoggingName(), timeAllowed, owner,
 		// getPreviousAthlete(), a);
 		return timeAllowed;
@@ -801,7 +801,7 @@ public class FieldOfPlay implements IUnregister {
 			var orig = e.getOrigin();
 			boolean inBreak = this.state == BREAK || this.state == INACTIVE;
 			if (Objects.equals(oldGroup, newGroup)) {
-				//this.logger.trace("{}**** reloading", FieldOfPlay.getLoggingName(this));
+				//this.logger.trace("{}reloading", FieldOfPlay.getLoggingName(this));
 				loadGroup(newGroup, this, true);
 				pushOutSwitchGroup(orig);
 				uiDisplayCurrentAthleteAndTime(true, e, false);
@@ -1264,7 +1264,7 @@ public class FieldOfPlay implements IUnregister {
 			}
 
 			if (this.logger.isTraceEnabled()) {
-				this.logger.trace("{}**** loading data for group {} [already={} forced={} from={}]",
+				this.logger.trace("{}loading data for group {} [already={} forced={} from={}]",
 				        FieldOfPlay.getLoggingName(this),
 				        loadGroupName,
 				        alreadyLoaded,
@@ -1419,7 +1419,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void setBreakType(BreakType breakType) {
-		// logger.debug("****** FOP {} setBreakType {} from {}", System.identityHashCode(this), breakType,
+		// logger.debug("FOP {} setBreakType {} from {}", System.identityHashCode(this), breakType,
 		// LoggerUtils.whereFrom());
 		this.breakType = breakType;
 	}
@@ -2059,9 +2059,9 @@ public class FieldOfPlay implements IUnregister {
 		Athlete changingAthlete = wc.getAthlete();
 
 		Integer newWeight = changingAthlete.getNextAttemptRequestedWeight();
-		// logger.debug("&&1 cur={} curWeight={} changing={} newWeight={}", getCurAthlete(), curWeight, changingAthlete,
+		// logger.debug("1 cur={} curWeight={} changing={} newWeight={}", getCurAthlete(), curWeight, changingAthlete,
 		// newWeight);
-		// logger.debug("&&2 clockOwner={} clockLastStopped={} state={}", getClockOwner(),
+		// logger.debug("2 clockOwner={} clockLastStopped={} state={}", getClockOwner(),
 		// getAthleteTimer().getTimeRemainingAtLastStop(), state);
 
 		boolean stopAthleteTimer = false;
@@ -2069,21 +2069,21 @@ public class FieldOfPlay implements IUnregister {
 			// time is running
 			if (changingAthlete.equals(getClockOwner())) {
 				reason = "1";
-				// logger.trace("&&3.A clock IS running for changing athlete {}",
+				// logger.trace("3.A clock IS running for changing athlete {}",
 				// changingAthlete);
 				// X is the current lifter
 				// if a real change (and not simply a declaration that does not change weight),
 				// make sure clock is stopped.
 				if (this.curWeight != newWeight) {
 					reason = "2";
-					// logger.trace("&&3.A.A1 weight change for clock owner: clock running: stop
+					// logger.trace("3.A.A1 weight change for clock owner: clock running: stop
 					// clock");
 					getAthleteTimer().stop(); // memorize time
 					stopAthleteTimer = true; // make sure we broacast to clients
 					doWeightChange(wc, changingAthlete, getClockOwner(), stopAthleteTimer);
 				} else {
 					reason = "3";
-					// logger.trace("&&3.A.B declaration at same weight for clock owner: leave clock
+					// logger.trace("3.A.B declaration at same weight for clock owner: leave clock
 					// running");
 					// no actual weight change. this is most likely a declaration.
 					// we do the call to trigger a notification on official's screens, but request
@@ -2093,32 +2093,32 @@ public class FieldOfPlay implements IUnregister {
 				}
 			} else {
 				reason = "4";
-				// logger.trace("&&3.B clock running, but NOT for changing athlete, do not
+				// logger.trace("3.B clock running, but NOT for changing athlete, do not
 				// update attempt board");
 				weightChangeDoNotDisturb(wc);
 				// return;
 			}
 		} else if (getClockOwner() != null && !getAthleteTimer().isRunning()) {
 			reason = "5";
-			// logger.trace("&&3.B clock NOT running for changing athlete {}",
+			// logger.trace("3.B clock NOT running for changing athlete {}",
 			// changingAthlete);
 			// time was started (there is an owner) but is not currently running
 			// time was likely stopped by timekeeper because coach signaled change of weight
 			doWeightChange(wc, changingAthlete, getClockOwner(), true);
 		} else {
 			reason = "6";
-			// logger.trace("&&3.C1 no clock owner, time is not running");
+			// logger.trace("3.C1 no clock owner, time is not running");
 			// time is not running
 			recomputeLiftingOrder(true, wc.isResultChange());
 
 			setStateUnlessInBreak(CURRENT_ATHLETE_DISPLAYED);
-			// logger.trace("&&3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
+			// logger.trace("3.C2 displaying, curAthlete={}, state={}", getCurAthlete(), state);
 
 			// send an update even in a break (announcer/marshall need to refresh)
 			uiDisplayCurrentAthleteAndTime(true, wc, false);
 		}
 		if (this.timingLogger.isDebugEnabled()) {
-			this.timingLogger.debug("{}*** doWeightChange {} {} {}", FieldOfPlay.getLoggingName(this),
+			this.timingLogger.debug("{}doWeightChange {} {} {}", FieldOfPlay.getLoggingName(this),
 			        (System.nanoTime() - start) / 1000000.0, resultChange, reason);
 		}
 	}
@@ -2141,14 +2141,14 @@ public class FieldOfPlay implements IUnregister {
 		} else if (currentDisplayAffected) {
 			newState = CURRENT_ATHLETE_DISPLAYED;
 		}
-		this.logger.trace("&&3.X change for {}, new cur = {}, displayAffected = {}, switching to {}", changingAthlete,
+		this.logger.trace("3.X change for {}, new cur = {}, displayAffected = {}, switching to {}", changingAthlete,
 		        getCurAthlete(), currentDisplayAffected, newState);
 		setStateUnlessInBreak(newState);
 		uiDisplayCurrentAthleteAndTime(currentDisplayAffected, wc, false);
 	}
 
 	private void emitDown(FOPEvent e) {
-		// this.logger.debug("*** {}Emitting down {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom(2));
+		// this.logger.debug("{}Emitting down {}", FieldOfPlay.getLoggingName(this), LoggerUtils.whereFrom(2));
 		getAthleteTimer().stop(); // paranoia
 		this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
 		setClockOwner(null); // athlete has lifted, time does not keep running for them
@@ -2318,7 +2318,7 @@ public class FieldOfPlay implements IUnregister {
 	 * events resulting from decisions received so far (down signal, stopping timer, all decisions entered, etc.)
 	 */
 	private void processRefereeDecisions(FOPEvent e) {
-		// logger.debug("*** process referee decisions");
+		// logger.debug("process referee decisions");
 		int nbRed = 0;
 		int nbWhite = 0;
 		int nbDecisions = 0;
@@ -2388,28 +2388,28 @@ public class FieldOfPlay implements IUnregister {
 			// Notify announcer/timekeeper if decision was received without clock
 			notifyDecisionWithoutClock(e.getOrigin());
 			setGoodLift(nbWhite >= 2);
-			// logger.debug("*** 3 decisions");
+			// logger.debug("3 decisions");
 			processDecisionDelay(e);
 		}
 	}
 
 	public void processDecisionDelay(FOPEvent e) {
 		if (!isDecisionDisplayScheduled()) {
-			// logger.debug("*** not scheduled");
+			// logger.debug("not scheduled");
 			if (e instanceof FOPEvent.DecisionFullUpdate) {
 				if (((FOPEvent.DecisionFullUpdate) e).isImmediate()) {
-					// logger.debug("*** is Immediate, full update NOW");
+					// logger.debug("is Immediate, full update NOW");
 					showDecisionNow(e.getOrigin());
 				} else if (isShowDecisionsImmediately()) {
 					emitInitialDecisionEvent(e.getOrigin());
 					showDecisionNow(e.getOrigin());
 				} else {
-					// logger.debug("*** NOT immediate, full update scheduling");
+					// logger.debug("NOT immediate, full update scheduling");
 					emitInitialDecisionEvent(e.getOrigin());
 					showDecisionAfterDelay(e.getOrigin(), REVERSAL_DELAY);
 				}
 			} else {
-				// logger.debug("*** partial update scheduling");
+				// logger.debug("partial update scheduling");
 				emitInitialDecisionEvent(this);
 				if (isShowDecisionsImmediately()) {
 					showDecisionNow(this);
@@ -2418,7 +2418,7 @@ public class FieldOfPlay implements IUnregister {
 				}
 			}
 		} else {
-			// logger.debug("*** already scheduled");
+			// logger.debug("already scheduled");
 		}
 	}
 
@@ -2432,7 +2432,7 @@ public class FieldOfPlay implements IUnregister {
 		boolean singleRef = inputKind == InputKind.ANNOUNCER_ENTRY || inputKind == InputKind.SOLO_INPUT;
 		Boolean goodLift = singleRef ? (nbWhite >= 1) : (nbWhite >= 2);
 		TimingPolicy timingPolicy = isShowDecisionsImmediately() ? TimingPolicy.IMMEDIATE : TimingPolicy.DELAYED;
-		this.logger.info("{}******* INITIAL_DECISION inputKind={} goodLift={} singleRef={} timingPolicy={} refs=[{},{},{}]",
+		this.logger.info("{}INITIAL_DECISION inputKind={} goodLift={} singleRef={} timingPolicy={} refs=[{},{},{}]",
 		        FieldOfPlay.getLoggingName(this), inputKind, goodLift, singleRef, timingPolicy,
 		        refereeDecisions[0], refereeDecisions[1], refereeDecisions[2]);
 		pushOutUIEvent(new UIEvent.InitialDecision(getCurAthlete(), goodLift,
@@ -2701,7 +2701,7 @@ public class FieldOfPlay implements IUnregister {
 		long endLeaders = 0;
 
 		var initialList = getLiftingOrder();
-		// this.logger.debug("{}=== recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this),
+		// this.logger.debug("{}recompute ranks recomputeCategoryRanks={} [{}]", FieldOfPlay.getLoggingName(this),
 		//         recomputeCategoryRanks, LoggerUtils.whereFrom());
 		if (recomputeCategoryRanks) {
 			// we update the ranks all athletes in our category, as well as the current scoring system
@@ -2780,7 +2780,7 @@ public class FieldOfPlay implements IUnregister {
 		}
 
 		if (this.timingLogger.isDebugEnabled()) {
-			this.timingLogger.debug("{}*** {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
+			this.timingLogger.debug("{} {} total={}ms, fetch/assign={}ms medals={}ms liftingOrder={}ms leaders={}ms",
 			        FieldOfPlay.getLoggingName(this),
 			        recomputeCategoryRanks ? "recomputeOrderAndRanks" : "recompute order",
 			        (endLeaders - startAssignRanks) / 1000000.0,
@@ -2949,7 +2949,7 @@ public class FieldOfPlay implements IUnregister {
 			breakTimer2.setTimeRemaining(0, false);
 			breakTimer2.setEnd(e.getTargetTime());
 		}
-		// logger.debug("******* setBreakParams {} {} isIndefinite={}", breakType2, countdownType2,
+		// logger.debug("setBreakParams {} {} isIndefinite={}", breakType2, countdownType2,
 		// breakTimer2.isIndefinite());
 	}
 
@@ -3158,7 +3158,7 @@ public class FieldOfPlay implements IUnregister {
 	 * and announce.
 	 */
 	private void showDecisionNow(Object origin) {
-		// logger.debug("*** Show decision now - enter");
+		// logger.debug("Show decision now - enter");
 		// we need to recompute majority, since they may have been reversal
 		int nbWhite = 0;
 		for (int i = 0; i < 3; i++) {
@@ -3196,7 +3196,7 @@ public class FieldOfPlay implements IUnregister {
 		// must also set state prior to sending event, so that state monitor shows new
 		// state.
 		setState(DECISION_VISIBLE);
-		// logger.debug("*** Show decision now - doit");
+		// logger.debug("Show decision now - doit");
 		// use "this" because the origin must also show the decision.
 
 		uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), getRefereeTime(),
@@ -3339,7 +3339,7 @@ public class FieldOfPlay implements IUnregister {
 					        CountdownType.DURATION, LoggerUtils.stackTrace(), getBreakTimer().isIndefinite(), this));
 					return;
 				} else {
-					// logger.debug("{}****** break switch: from {} to {} {}", getLoggingName(), getBreakType(),
+					// logger.debug("{}break switch: from {} to {} {}", getLoggingName(), getBreakType(),
 					// newBreak, newCountdownType);
 					breakTimer.stop();
 					setBreakParams(e, breakTimer, newBreak, newCountdownType);
@@ -3349,7 +3349,7 @@ public class FieldOfPlay implements IUnregister {
 				}
 			} else {
 				// we are in a break, resume if needed
-				// logger.debug("{}******* resuming break : current {} new {}", getLoggingName(), getBreakType(),
+				// logger.debug("{}resuming break : current {} new {}", getLoggingName(), getBreakType(),
 				// e.getBreakType());
 				if (!breakTimer.isIndefinite()) {
 					breakTimer.setOrigin(e.getOrigin());
@@ -3534,7 +3534,7 @@ public class FieldOfPlay implements IUnregister {
 			}).start();
 			setDownEmitted(true);
 		}
-		// logger.debug("*** pushing down");
+		// logger.debug("pushing down");
 		pushOutUIEvent(new UIEvent.DownSignal(origin2, this));
 	}
 

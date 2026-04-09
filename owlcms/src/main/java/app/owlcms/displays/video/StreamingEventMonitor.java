@@ -517,12 +517,12 @@ public class StreamingEventMonitor extends LitTemplate implements FOPParametersR
 				        isNotEmpty(fop.getChallengedRecords()), null));
 				significant[0] = true;
 			} else {
-				// logger.trace("*** EventMonitor ignored duplicate {} {}",
+				// logger.trace("EventMonitor ignored duplicate {} {}",
 				// fop.getBreakType(),
 				// fop.getCeremonyType());
 			}
 		} else {
-			// logger.trace("*** EventMonitor non break {}", fop.getState());
+			// logger.trace("EventMonitor non break {}", fop.getState());
 		}
 		this.logger.debug(">>>>>>EventMonitor sync significant {}", significant[0]);
 		return significant[0];

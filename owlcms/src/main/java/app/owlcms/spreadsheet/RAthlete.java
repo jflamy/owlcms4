@@ -558,7 +558,7 @@ public class RAthlete {
 			//logger.debug("no other part");
 		}
 
-		//logger.debug("*** {} this.a.getCategory {} {}",this.a.getId(), this.a.getCategory(), eligibleCategories);
+		//logger.debug("{} this.a.getCategory {} {}",this.a.getId(), this.a.getCategory(), eligibleCategories);
 		RCompetition.putEligibles(this.a.getId(), eligibleCategories);
 		RCompetition.putTeams(this.a.getId(), teams);
 		RCompetition.putMixedTeams(this.a.getId(), mixedTeams);

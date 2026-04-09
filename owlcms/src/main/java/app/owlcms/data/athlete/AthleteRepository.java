@@ -401,7 +401,7 @@ public class AthleteRepository {
 			        // .peek(result -> {
 			        // Category cat = (Category) result[0];
 			        // int count = ((Long) result[1]).intValue();
-			        // logger.debug("*** cat {} count {}", cat.getCode(), count);
+			        // logger.debug("cat {} count {}", cat.getCode(), count);
 			        // })
 			        .collect(Collectors.toMap(result -> ((String) result[0]), result -> ((Long) result[1]).intValue())));
 			return null;

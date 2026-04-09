@@ -68,7 +68,7 @@ public class ResultsLiftingOrder extends Results {
 			boolean prevSnatchNotDone = prev.getAttemptsDone() < 3;
 			boolean curSnatchDoneCJNotStarted = cur.getAttemptsDone() == 3 || cur.withdrawnFromSnatch();
 			if (prevSnatchNotDone && curSnatchDoneCJNotStarted) {
-//				logger.debug("**** {} separator1 {} prev {} prevSnatchNotDone={} cur {} curSnatchDoneCJNotStarted={}",
+//				logger.debug("{} separator1 {} prev {} prevSnatchNotDone={} cur {} curSnatchDoneCJNotStarted={}",
 //						System.identityHashCode(this),
 //						prev.getAbbreviatedName(), prevSnatchNotDone,
 //				        cur.getAbbreviatedName(), curSnatchDoneCJNotStarted);
@@ -77,7 +77,7 @@ public class ResultsLiftingOrder extends Results {
 			}
 			boolean prevCJNotDone = prev.getAttemptsDone() < 6;
 			boolean curIsCJDone = (cur.getAttemptsDone() >= 6 || cur.withdrawnFromCJ());
-//			logger.debug("**** {} separator2 {} prev {} prevCJNotDone={} cur {} curIsCJDone={}",
+//			logger.debug("{} separator2 {} prev {} prevCJNotDone={} cur {} curIsCJDone={}",
 //					System.identityHashCode(this),
 //					prev.getAbbreviatedName(), prevCJNotDone,
 //			        cur.getAbbreviatedName(), curIsCJDone);

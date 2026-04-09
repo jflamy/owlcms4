@@ -652,16 +652,16 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	private void doMedals(FieldOfPlay fop2) {
 		if (this.getCategory() == null) {
 			if (this.getGroup() != null) {
-				// logger.debug("=== getgroup {}", this.getGroup());
+				// logger.debug("getgroup {}", this.getGroup());
 				this.setMedals(Competition.getCurrent().getMedals(this.getGroup(), isOnlyFinished()));
 			} else {
-				// logger.debug("=== getgroup from FOP {}", fop2.getGroup());
+				// logger.debug("getgroup from FOP {}", fop2.getGroup());
 				this.setMedals(Competition.getCurrent().getMedals(fop2.getGroup(), isOnlyFinished()));
 			}
 			// this.getElement().setProperty("fillerDisplay", "");
 		} else {
 			List<Athlete> catMedals = Competition.getCurrent().computeMedalsForCategory(this.getCategory());
-			// logger.debug("=== group {} category {} catMedals {}", getGroup(), getCategory(), catMedals.stream().map(a -> a.getAbbreviatedName()).toList());
+			// logger.debug("group {} category {} catMedals {}", getGroup(), getCategory(), catMedals.stream().map(a -> a.getAbbreviatedName()).toList());
 			this.setMedals(new TreeMap<>());
 			this.getMedals().put(this.getCategory().getCode(), catMedals);
 		}

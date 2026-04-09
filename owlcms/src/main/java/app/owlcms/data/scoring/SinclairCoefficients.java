@@ -132,7 +132,7 @@ public class SinclairCoefficients {
 		if (this.getProps() == null) {
 			loadProps();
 		}
-		// logger.debug("**** loadCoefficicients {} {}",getProps().get("sinclair.menCoefficient"), LoggerUtils.stackTrace());
+		// logger.debug("loadCoefficicients {} {}",getProps().get("sinclair.menCoefficient"), LoggerUtils.stackTrace());
 		this.menCoefficient = Double.valueOf((String) this.getProps().get("sinclair.menCoefficient"));
 		this.menMaxWeight = Double.valueOf((String) this.getProps().get("sinclair.menMaxWeight"));
 		this.womenCoefficient = Double.valueOf((String) this.getProps().get("sinclair.womenCoefficient"));
@@ -147,13 +147,13 @@ public class SinclairCoefficients {
 		try {
 			InputStream stream = ResourceWalker.getResourceAsStream(name);
 			if (this.getProps() != null) {
-				// logger.debug("**** props already loaded {}",this.sinclairYear);
+				// logger.debug("props already loaded {}",this.sinclairYear);
 				return;
 			}
-			// logger.debug("**** loading props {}", this.sinclairYear);
+			// logger.debug("loading props {}", this.sinclairYear);
 			this.setProps(new Properties());
 			this.getProps().load(stream);
-			// logger.debug("**** props loaded {} {}",this.sinclairYear, getProps().get("sinclair.womenCoefficient"));
+			// logger.debug("props loaded {} {}",this.sinclairYear, getProps().get("sinclair.womenCoefficient"));
 		} catch (Throwable e) {
 			this.logger.error("could not load {} because {}\n{}", name, e, LoggerUtils.stackTrace(e));
 		}

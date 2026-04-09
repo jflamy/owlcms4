@@ -51,12 +51,12 @@ public class OwlcmsFactory {
 	}
 
 	public static void awaitLatch() throws InterruptedException {
-		// logger.debug("***** awaitLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
+		// logger.debug("awaitLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
 		latch.await();
 	}
 
 	public static void countDownLatch() throws InterruptedException {
-		// logger.debug("***** countDownLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
+		// logger.debug("countDownLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
 		latch.countDown();
 	}
 
@@ -206,7 +206,7 @@ public class OwlcmsFactory {
 	}
 
 	private static CountDownLatch getInitializationLatch() {
-		// logger.debug("***** getInitializationLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
+		// logger.debug("getInitializationLatch {} {}",latch.getCount(), LoggerUtils.whereFrom());
 		return latch;
 	}
 

@@ -112,7 +112,7 @@ public class AgeGroupInfoFactory {
 			agi.addAthlete(a);
 		}
 		// for (AgeGroupInfo agi: ageGroupMap.values()) {
-		// //logger.debug("***** {} {} {} {} {}", agi.getAgeGroup(), agi.getWeightClassRange(), agi.getBestSubCategory(), agi.isUnanimous(), agi.getList());
+		// //logger.debug("{} {} {} {} {}", agi.getAgeGroup(), agi.getWeightClassRange(), agi.getBestSubCategory(), agi.isUnanimous(), agi.getList());
 		// }
 		return ageGroupMap.values().stream().toList();
 	}

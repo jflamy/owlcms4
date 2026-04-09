@@ -120,7 +120,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	 */
 	public AbstractAttemptBoard() {
 		OwlcmsFactory.waitDBInitialized();
-		// logger.debug("*** AttemptBoard new {}", LoggerUtils.whereFrom());
+		// logger.debug("AttemptBoard new {}", LoggerUtils.whereFrom());
 		// athleteTimer.setOrigin(this);
 		this.getElement().setProperty("kgSymbol", Translator.translate("KgSymbol"));
 		this.getElement().setProperty("STOP", Translator.translate("STOP"));
@@ -738,7 +738,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	protected void doEmpty(FieldOfPlay fop2) {
-		// logger.debug("****doEmpty");
+		// logger.debug("doEmpty");
 		if (fop2.getGroup() == null) {
 			setDisplayedWeight("");
 		}
@@ -751,7 +751,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	protected void doNotEmpty(FieldOfPlay fop2) {
-		// logger.debug("****doNotEmpty {}",LoggerUtils.stackTrace());
+		// logger.debug("doNotEmpty {}",LoggerUtils.stackTrace());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setBoardMode(fop2.getState(), fop2.getBreakType(), fop2.getCeremonyType(), this.getElement());
 		});

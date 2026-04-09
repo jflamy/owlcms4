@@ -3021,7 +3021,7 @@ public class Athlete {
 		}
 		Integer total1 = getBestCleanJerk() + getBestSnatch();
 		Double sinclair = getSinclair(bodyWeight1, total1);
-		// if (getLastName().equals("Brunelle")) logger.debug("================ {} {} {} {} {}", getAbbreviatedName(), bodyWeight1, total1, sinclair,
+		// if (getLastName().equals("Brunelle")) logger.debug("{} {} {} {} {}", getAbbreviatedName(), bodyWeight1, total1, sinclair,
 		// LoggerUtils.whereFrom());
 		return sinclair;
 	}
@@ -3953,7 +3953,7 @@ public class Athlete {
 	}
 
 	public void setCheckTiming(boolean checkTiming) {
-		// logger.debug("===== setting timing check {}, {}", checkTiming, LoggerUtils.stackTrace());
+		// logger.debug("setting timing check {}, {}", checkTiming, LoggerUtils.stackTrace());
 		this.checkTiming = checkTiming;
 	}
 
@@ -5916,7 +5916,7 @@ public class Athlete {
 				        - Math.abs(zeroIfInvalid(getCleanJerk1ActualLift()));
 				break;
 		}
-		// logger.debug("++++ athlete {}, requestedWeight {}, attempt {}, cumulativeProgression {} {}",
+		// logger.debug("athlete {}, requestedWeight {}, attempt {}, cumulativeProgression {} {}",
 		// this.getLastName(), requestedWeight, attempt, progression, LoggerUtils.whereFrom());
 		return progression;
 	}

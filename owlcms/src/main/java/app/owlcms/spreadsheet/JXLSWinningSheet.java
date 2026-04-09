@@ -227,7 +227,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	}
 
 	private List<RecordEvent> fetchCategoryRecords(Category category) {
-		logger.warn("*** lazily fetching records for winning sheet category {}", category);
+		logger.warn("lazily fetching records for winning sheet category {}", category);
 		List<RecordEvent> records = normalizeRecordEventsForTemplate(RecordRepository.findProvisionalRecordsForCategory(category));
 		logger.warn("{} records found for winning sheet category {}", records != null ? records.size() : 0, category);
 		return records;

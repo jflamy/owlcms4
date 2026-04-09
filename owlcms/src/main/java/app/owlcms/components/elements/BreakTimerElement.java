@@ -60,7 +60,7 @@ public class BreakTimerElement extends TimerElement {
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		if (this.uiEventLogger.isDebugEnabled()) {
-			this.uiEventLogger.debug("&&& break done {} {}", this.parentName, e.getOrigin());
+			this.uiEventLogger.debug("break done {} {}", this.parentName, e.getOrigin());
 		}
 		doStopTimer(0);
 	}
@@ -68,7 +68,7 @@ public class BreakTimerElement extends TimerElement {
 	@Subscribe
 	public void slaveBreakPause(UIEvent.BreakPaused e) {
 		if (this.uiEventLogger.isDebugEnabled()) {
-			this.uiEventLogger.debug("&&& breakTimerElement pause {} {}", this.parentName, e.getMillis());
+			this.uiEventLogger.debug("breakTimerElement pause {} {}", this.parentName, e.getMillis());
 		}
 		doStopTimer(e.getMillis());
 	}
@@ -81,7 +81,7 @@ public class BreakTimerElement extends TimerElement {
 		} else {
 			milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
 			if (this.uiEventLogger.isDebugEnabled()) {
-				this.uiEventLogger.debug("&&& breakTimerElement set {} {} {} {} {}", this.parentName,
+				this.uiEventLogger.debug("breakTimerElement set {} {} {} {} {}", this.parentName,
 				        formatDuration(milliseconds), e.isIndefinite(), this.id, LoggerUtils.stackTrace());
 			}
 
@@ -96,7 +96,7 @@ public class BreakTimerElement extends TimerElement {
 		}
 		Integer tr = e.isIndefinite() ? null : e.getMillis();
 		if (this.uiEventLogger.isDebugEnabled()) {
-			this.uiEventLogger.debug("&&& breakTimerElement start {} {} {} {}", this.parentName, tr, e.getOrigin(),
+			this.uiEventLogger.debug("breakTimerElement start {} {} {} {}", this.parentName, tr, e.getOrigin(),
 			        LoggerUtils.whereFrom());
 		}
 		if (Boolean.TRUE.equals(e.getPaused())) {
@@ -119,19 +119,19 @@ public class BreakTimerElement extends TimerElement {
 		IProxyTimer breakTimer = getFopTimer(fop);
 		if (breakTimer != null) {
 			if (this.uiEventLogger.isDebugEnabled()) {
-				this.uiEventLogger.debug("&&& breakTimerElement sync running {} indefinite {}",
+				this.uiEventLogger.debug("breakTimerElement sync running {} indefinite {}",
 				        breakTimer.isRunning(),
 				        breakTimer.isIndefinite());
 			}
 			if (breakTimer.isRunning()) {
 				if (breakTimer.isIndefinite()) {
 					if (this.uiEventLogger.isDebugEnabled()) {
-						this.uiEventLogger.debug("&&& indefinite {}", breakTimer.liveTimeRemaining());
+						this.uiEventLogger.debug("indefinite {}", breakTimer.liveTimeRemaining());
 					}
 					doStartTimer(null, fop.isEmitSoundsOnServer());
 				} else {
 					if (this.uiEventLogger.isDebugEnabled()) {
-						this.uiEventLogger.debug("&&& live {}", breakTimer.liveTimeRemaining());
+						this.uiEventLogger.debug("live {}", breakTimer.liveTimeRemaining());
 					}
 					doStartTimer(breakTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
 				}
@@ -165,7 +165,7 @@ public class BreakTimerElement extends TimerElement {
 			this.logger.error("BreakTimerElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
 			return;
 		}
-		this.uiEventLogger.trace("&&& breakTimerElement register {} {}", this.parentName, LoggerUtils.whereFrom());
+		this.uiEventLogger.trace("breakTimerElement register {} {}", this.parentName, LoggerUtils.whereFrom());
 		uiEventBusRegister(this, this.fop);
 		syncWithFopTimer(this.fop);
 	}

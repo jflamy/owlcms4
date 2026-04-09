@@ -1533,7 +1533,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	}
 
 	private void setLiftResultChanged(Boolean liftResultChanged) {
-		// logger.debug("*** liftResultChanged {}", liftResultChanged);
+		// logger.debug("liftResultChanged {}", liftResultChanged);
 		this.liftResultChanged = liftResultChanged;
 	}
 

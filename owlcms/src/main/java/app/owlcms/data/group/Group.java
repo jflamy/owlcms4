@@ -1684,22 +1684,22 @@ public class Group implements Comparable<Group> {
 	}
 
 	public void setFirstSnatchTime(LocalDateTime now, FieldOfPlay fop) {
-		logger.debug("{}%%%%%%%%% {} setFirstSnatchTime {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
+		logger.debug("{} {} setFirstSnatchTime {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
 		this.firstSnatchTime = now;
 	}
 
 	public void setFirstCJTime(LocalDateTime now, FieldOfPlay fop) {
-		logger.debug("{}%%%%%%%%% {} setFirstCJTime {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
+		logger.debug("{} {} setFirstCJTime {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
 		this.firstCJTime = now;
 	}
 
 	public void setLastSnatchDecisionTime(LocalDateTime now, Group session, FieldOfPlay fop) {
-		logger.debug("{}%%%%%%%%% {} setLastSnatchDecision {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
+		logger.debug("{} {} setLastSnatchDecision {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
 		this.lastSnatchDecisionTime = now;
 	}
 
 	public void setLastCJDecisionTime(LocalDateTime now, Group session, FieldOfPlay fop) {
-		logger.debug("{}%%%%%%%%% {} setLastCJDecision {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
+		logger.debug("{} {} setLastCJDecision {} {}", FieldOfPlay.getLoggingName(fop), this, now, LoggerUtils.whereFrom());
 		this.lastCJDecisionTime = now;
 	}
 

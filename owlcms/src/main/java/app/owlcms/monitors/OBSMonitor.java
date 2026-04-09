@@ -491,11 +491,11 @@ public class OBSMonitor extends LitTemplate implements FOPParametersReader,
 					        isNotEmpty(fop.getChallengedRecords()), null));
 					significant[0] = true;
 				} else {
-					// logger.trace("*** OBSMonitor ignored duplicate {} {}", fop.getBreakType(),
+					// logger.trace("OBSMonitor ignored duplicate {} {}", fop.getBreakType(),
 					// fop.getCeremonyType());
 				}
 			} else {
-				// logger.trace("*** OBSMonitor non break {}", fop.getState());
+				// logger.trace("OBSMonitor non break {}", fop.getState());
 			}
 		});
 		this.logger.debug(">>>>>>OBSMonitor sync significant {}", significant[0]);

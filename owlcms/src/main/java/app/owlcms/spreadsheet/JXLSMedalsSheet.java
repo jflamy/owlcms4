@@ -45,7 +45,7 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 
 	@Override
 	public List<Athlete> computeSortedAthletes() {
-		// logger.debug("%%% getSortedAthletes() {}",sortedAthletes.stream().map(a->a.getAbbreviatedName()).toList());
+		// logger.debug("getSortedAthletes() {}",sortedAthletes.stream().map(a->a.getAbbreviatedName()).toList());
 		var sa = this.getSortedAthletes();
 		if (sa != null) {
 			return sa;
@@ -77,10 +77,10 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 					}
 
 					if (p.getComputedScoringSystem() == Ranking.TOTAL && p.getTotalRank() <= 3) {
-						// logger.debug("+++ adding total {}", p);
+						// logger.debug("adding total {}", p);
 						sa.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), (double) p.getTotal()));
 					} else if (p.getCategoryScoreRank() <= 3) {
-						// logger.debug("+++ adding score {}", p);
+						// logger.debug("adding score {}", p);
 						sa.add(new MAthlete((PAthlete) p, Ranking.CATEGORY_SCORE, p.getCategoryScoreRank(), (p.getCategoryScore())));
 					}
 				}

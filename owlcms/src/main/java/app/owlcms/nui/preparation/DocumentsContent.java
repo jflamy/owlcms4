@@ -1561,7 +1561,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        defaultScopePrecheckFor(template),
 		        (a, g) -> {
 			        JXLSWeighInSheet rs = new JXLSWeighInSheet(); // Create a new weigh-in sheet
-			        logger.debug("============ group g {} {}", g, LoggerUtils.stackTrace());
+			        logger.debug("group g {} {}", g, LoggerUtils.stackTrace());
 			        rs.setGroup(g);
 			        return rs;
 		        });
@@ -1810,7 +1810,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 					if (cell != null && cell.getCellType() != CellType.BLANK) {
 						if (isMerging) {
 
-							logger.debug("**** {}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
+							logger.debug("{}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
 							        (char) ('A' + col), firstRow + 1);
 							int regionSize = (row.getRowNum() - 1) - firstRow;
 							logger.debug("     region size = {}", regionSize);
@@ -1827,12 +1827,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 							}
 
 							// start a new merge
-							logger.debug("**** {}{}: starting merge 1", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+							logger.debug("{}{}: starting merge 1", (char) ('A' + col), row.getRowNum() + 1, isMerging);
 							firstRow = row.getRowNum();
 							style = cell.getCellStyle(); // capture the style
 							isMerging = true;
 						} else {
-							logger.debug("**** {}{}: starting merge 2", (char) ('A' + col), row.getRowNum() + 1, isMerging);
+							logger.debug("{}{}: starting merge 2", (char) ('A' + col), row.getRowNum() + 1, isMerging);
 							firstRow = row.getRowNum();
 							style = cell.getCellStyle(); // capture the style
 							isMerging = true;
@@ -1841,7 +1841,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				}
 				// Merge the bottom region if needed
 				if (isMerging) {
-					logger.debug("**** {}{}: merging bottom from {}{}", (char) ('A' + col), sheet.getLastRowNum() + 1,
+					logger.debug("{}{}: merging bottom from {}{}", (char) ('A' + col), sheet.getLastRowNum() + 1,
 					        (char) ('A' + col), firstRow + 1);
 					CellRangeAddress region = new CellRangeAddress(firstRow, sheet.getLastRowNum(), col, col);
 					sheet.addMergedRegion(region);

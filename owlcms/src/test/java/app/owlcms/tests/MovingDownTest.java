@@ -735,7 +735,7 @@ public class MovingDownTest {
     private Athlete change1(final Athlete lifter, final String weight, FieldOfPlay fopState) {
         Athlete updated = JPAService.runInTransaction(em -> {
             int attempt = lifter.getAttemptsDone() + 1;
-            logger.debug("***1 attempt {} change 1 for athlete {}: {}", attempt, lifter, weight);
+            logger.debug("1 attempt {} change 1 for athlete {}: {}", attempt, lifter, weight);
             lifter.setCheckTiming(true);
             switch (attempt) {
             case 1:
@@ -757,7 +757,7 @@ public class MovingDownTest {
                 lifter.setCleanJerk3Change1(weight);
                 break;
             }
-            logger.debug("***2 attempt {} change 1 for athlete {}: {} {}", attempt, lifter, weight,
+            logger.debug("2 attempt {} change 1 for athlete {}: {} {}", attempt, lifter, weight,
                     lifter.getNextAttemptRequestedWeight());
             return em.merge(lifter);
         });
@@ -773,7 +773,7 @@ public class MovingDownTest {
     private Athlete change2(final Athlete lifter, final String weight, FieldOfPlay fopState) {
         Athlete updated = JPAService.runInTransaction(em -> {
             int attempt = lifter.getAttemptsDone() + 1;
-            logger.debug("***1 attempt {} change 2 for athlete {}: {}", attempt, lifter, weight);
+            logger.debug("1 attempt {} change 2 for athlete {}: {}", attempt, lifter, weight);
             lifter.setCheckTiming(true);
             switch (attempt) {
             case 1:
@@ -795,7 +795,7 @@ public class MovingDownTest {
                 lifter.setCleanJerk3Change2(weight);
                 break;
             }
-            logger.debug("***2 attempt {} change 2 for athlete {}: {} {}", attempt, lifter, weight,
+            logger.debug("2 attempt {} change 2 for athlete {}: {} {}", attempt, lifter, weight,
                     lifter.getNextAttemptRequestedWeight());
             return em.merge(lifter);
         });
@@ -811,7 +811,7 @@ public class MovingDownTest {
     private Athlete declaration(final Athlete lifter, final String weight, FieldOfPlay fopState) {
         Athlete updated = JPAService.runInTransaction(em -> {
             int attempt = lifter.getAttemptsDone() + 1;
-            logger.info("*** attempt {} declaration for athlete {}: {}", attempt, lifter, weight);
+            logger.info("attempt {} declaration for athlete {}: {}", attempt, lifter, weight);
             lifter.setCheckTiming(true);
             switch (attempt) {
             case 1:

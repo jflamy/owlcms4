@@ -92,7 +92,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	public void setSilenced(boolean b) {
-		// this.logger.debug("======= {} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.stackTrace());
+		// this.logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.stackTrace());
 		this.silenced = b;
 	}
 

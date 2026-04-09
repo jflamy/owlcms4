@@ -134,7 +134,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 			computeTimeRemaining();
 		}
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("{}==== setting Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
+			this.logger.debug("{}setting Time -- timeRemaining = {} ({})", FieldOfPlay.getLoggingName(getFop()),
 		        timeRemaining,
 		        LoggerUtils.whereFrom());
 		}

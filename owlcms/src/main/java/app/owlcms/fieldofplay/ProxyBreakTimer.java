@@ -220,7 +220,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	@Override
 	public void start() {
 		BreakType breakType = getFop().getBreakType();
-		// logger.debug("{}****** starting break with breakType = {} from={}", FieldOfPlay.getLoggingName(fop), breakType, LoggerUtils.whereFrom());
+		// logger.debug("{}starting break with breakType = {} from={}", FieldOfPlay.getLoggingName(fop), breakType, LoggerUtils.whereFrom());
 		if (breakType == null) {
 			this.logger.error("null breaktype {}", LoggerUtils.stackTrace());
 		}
@@ -294,7 +294,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void timeOver(Object origin) {
-		// logger.debug("****** break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
+		// logger.debug("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
 		// LoggerUtils.whereFrom());
 	this.logger.info("ProxyBreakTimer.timeOver() called (running={}, indefinite={}, getTimeRemaining={} )", isRunning(), isIndefinite(), getTimeRemaining());
 	if (isRunning() && !isIndefinite()) {
@@ -307,7 +307,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 				return;
 			}
 			// should emit sound at end of break
-			// logger.debug("******* timeOver \n{}", LoggerUtils.whereFrom());
+			// logger.debug("timeOver \n{}", LoggerUtils.whereFrom());
 			getFop().pushOutUIEvent(new UIEvent.BreakDone(origin, getFop().getBreakType(), getFop()));
 			getFop().fopEventPost(new FOPEvent.BreakDone(getFop().getBreakType(), origin));
 		}

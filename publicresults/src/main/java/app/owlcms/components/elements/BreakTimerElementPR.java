@@ -113,7 +113,7 @@ public class BreakTimerElementPR extends TimerElementPR {
     @Subscribe
     public void slaveBreakPause(BreakTimerEvent.BreakPaused e) {
         if (!this.parentName.startsWith("BreakManagement")) {
-            this.uiEventLogger.trace("&&& breakTimerElement pause {} {}", this.parentName, e.getTimeRemaining());
+            this.uiEventLogger.trace("breakTimerElement pause {} {}", this.parentName, e.getTimeRemaining());
         }
         doStopTimer(e.getTimeRemaining());
     }
@@ -128,7 +128,7 @@ public class BreakTimerElementPR extends TimerElementPR {
         Integer milliseconds;
 
         milliseconds = e.isIndefinite() ? null : e.getTimeRemaining();
-        this.uiEventLogger.debug("&&& breakTimer set {} {} {} {}", this.parentName, formatDuration(milliseconds),
+        this.uiEventLogger.debug("breakTimer set {} {} {} {}", this.parentName, formatDuration(milliseconds),
                 e.isIndefinite(), LoggerUtils.whereFrom());
         doSetTimer(milliseconds);
     }
@@ -141,7 +141,7 @@ public class BreakTimerElementPR extends TimerElementPR {
             return;
         }
         Integer tr = e.isIndefinite() ? null : e.getTimeRemaining();
-        this.uiEventLogger.debug("&&& breakTimer start {} {} {}", this.parentName, tr, LoggerUtils.whereFrom());
+        this.uiEventLogger.debug("breakTimer start {} {} {}", this.parentName, tr, LoggerUtils.whereFrom());
         doStartTimer(tr, true); // true means "silent".
     }
 

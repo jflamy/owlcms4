@@ -907,7 +907,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	@Subscribe
 	void slaveJuryNotification(UIEvent.JuryNotification e) {
-//		logger.debug("===== slaveJuryNotification {} new record = {} waitForAnnouncer = {} trace\n{}",
+//		logger.debug("slaveJuryNotification {} new record = {} waitForAnnouncer = {} trace\n{}",
 //		        e.getDeliberationEventType(),
 //		        e.getNewRecord(),
 //		        e.isWaitForAnnouncer(),

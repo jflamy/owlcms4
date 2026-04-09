@@ -1619,7 +1619,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		List<Category> cats = editedAthlete.getParticipations().stream()
 		        .map(p -> p.getCategory())
 		        .filter(c -> isRegularBWCategory(c)) // not an open category due to lower bound
-		        // .peek(c -> logger.debug("*** cat {} {} {}", c, c.getMinimumWeight(), c.getMaximumWeight()))
+		        // .peek(c -> logger.debug("cat {} {} {}", c, c.getMinimumWeight(), c.getMaximumWeight()))
 		        .toList();
 		if (cats.isEmpty()) {
 			Integer age = editedAthlete.getAge();
@@ -1786,7 +1786,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	        List<Category> allEligibles,
 	        boolean recomputeEligibles) {
 
-		// logger.debug("===== updating category fields {} {}\n{}", selectedCategory, bestMatch, LoggerUtils.stackTrace());
+		// logger.debug("updating category fields {} {}\n{}", selectedCategory, bestMatch, LoggerUtils.stackTrace());
 		LinkedHashSet<Category> newEligibles = new LinkedHashSet<>();
 		Set<Category> prevEligibles;
 		if (recomputeEligibles) {

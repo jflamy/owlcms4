@@ -516,7 +516,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 			}
 		}
 
-		//logger.debug("***** athletesFindAll: found {} athletes with category: {}, without participations: {}, without category: {}", regCatAthletes.size(), found2.size(), found3.size());
+		//logger.debug("athletesFindAll: found {} athletes with category: {}, without participations: {}, without category: {}", regCatAthletes.size(), found2.size(), found3.size());
 
 		updateURLLocations();
 		return regCatAthletesList;
