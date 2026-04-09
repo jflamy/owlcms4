@@ -26,7 +26,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
@@ -44,7 +43,9 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
+import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -82,6 +83,14 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private Boolean[] juryVotes;
 	private Div[] juryVoteCells;
 	private Div refDecisionHost;
+	private Div reviewAttempt;
+	private Div reviewFiller;
+	private boolean reviewFrozen;
+	private Div reviewHeader;
+	private Div reviewLot;
+	private Div reviewName;
+	private AthleteTimerElement reviewTimer;
+	private Div reviewTimerFrozen;
 	private Button noLiftButton;
 	private Button goodLiftButton;
 	private Location location;
@@ -118,12 +127,20 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> updateJuryDecisionActions(e.getFop()));
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			updateJuryDecisionActions(e.getFop());
+			BreakType bt = e.getBreakType();
+			if (bt != BreakType.JURY && bt != BreakType.CHALLENGE) {
+				clearReviewHeader();
+			}
+		});
 	}
 
 	@Subscribe
 	public void slaveBreakDone(UIEvent.BreakDone e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> setJuryDecisionActionsEnabled(false));
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			setJuryDecisionActionsEnabled(false);
+		});
 	}
 
 	@Subscribe
@@ -135,6 +152,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 				resetJuryVoting();
 			}
 			updateJuryDecisionActions(e.getFop());
+			updateReviewHeader(e.getFop());
 		});
 	}
 
@@ -143,7 +161,22 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetJuryVoting();
 			updateJuryDecisionActions(getFop());
+			freezeReviewTimer();
 		});
+	}
+
+	@Subscribe
+	public void slaveShowDecision(UIEvent.Decision e) {
+		// Decision is now displayed on the attempt board.  Freeze the header so
+		// the live timer does not pick up the next athlete's SetTime event
+		// (particularly important for announcer/solo decisions where clockOwner
+		// is cleared before the decision is shown).
+		UIEventProcessor.uiAccess(this, this.uiEventBus, this::freezeReviewTimer);
+	}
+
+	@Subscribe
+	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		// Header stays visible until next clock start (mirrors JuryDisplayDecisionElement lifecycle)
 	}
 
 	@Subscribe
@@ -171,6 +204,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			resetJuryVoting();
 			updateJuryDecisionActions(getFop());
+			clearReviewHeader();
+			updateReviewHeader(e.getFop());
 		});
 	}
 
@@ -295,14 +330,14 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		HorizontalLayout toolbar = new HorizontalLayout();
 		toolbar.setAlignItems(Alignment.CENTER);
 		toolbar.setWidthFull();
-		H2 title = new H2(Translator.translate("Jury_Keypad"));
-		title.getStyle().set("margin", "0");
+		Div title = buildReviewHeader();
 		ComboBox<FieldOfPlay> fopSelect = createFopSelect();
 		fopSelect.setValue(OwlcmsSession.getFop());
 		fopSelect.addValueChangeListener((e) -> {
 			setFop(e.getValue());
 			OwlcmsSession.setFop(e.getValue());
 			this.uiEventBus = uiEventBusRegister(this, e.getValue());
+			syncReviewTimer(e.getValue());
 			attachLiveDecisions(e.getValue());
 			syncWithFopState(e.getValue());
 			if (this.location != null && this.locationUI != null) {
@@ -555,6 +590,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			return;
 		}
 
+		syncReviewTimer(fop);
+		updateReviewHeader(fop);
 		updateJuryDecisionActions(fop);
 		resetJuryVoting();
 		Boolean[] curJuryDecisions = fop.getJuryMemberDecision();
@@ -647,6 +684,167 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			fop.fopEventPost(new FOPEvent.StartLifting(this));
 		});
 		resetJuryVoting();
+		clearReviewHeader();
+	}
+
+	private Div buildReviewHeader() {
+		this.reviewHeader = new Div();
+		this.reviewHeader.getStyle()
+		        .set("display", "flex")
+		        .set("align-items", "baseline")
+		        .set("gap", "0.75rem")
+		        .set("min-width", "0");
+
+		this.reviewFiller = new Div();
+		this.reviewFiller.setText(Translator.translate("Jury_Keypad"));
+		this.reviewFiller.getStyle()
+		        .set("margin", "0")
+		        .set("font-size", "2rem")
+		        .set("font-weight", "600")
+		        .set("white-space", "nowrap")
+		        .set("color", "white")
+		        .set("line-height", "1");
+
+		this.reviewLot = new Div();
+		this.reviewLot.getStyle()
+		        .set("display", "inline-flex")
+		        .set("align-items", "center")
+		        .set("justify-content", "center")
+		        .set("min-width", "3rem")
+		        .set("height", "3rem")
+		        .set("padding", "0 0.5rem")
+		        .set("background", "#b91c1c")
+		        .set("color", "#ffffff")
+		        .set("font-size", "1.8rem")
+		        .set("font-weight", "700");
+
+		this.reviewName = new Div();
+		this.reviewName.getStyle()
+		        .set("min-width", "0")
+		        .set("overflow", "hidden")
+		        .set("text-overflow", "ellipsis")
+		        .set("white-space", "nowrap")
+		        .set("font-size", "1.9rem")
+		        .set("font-weight", "600");
+
+		this.reviewAttempt = new Div();
+		this.reviewAttempt.getStyle()
+		        .set("white-space", "nowrap")
+		        .set("font-size", "1.5rem")
+		        .set("color", "var(--lumo-secondary-text-color)");
+
+		this.reviewTimer = new AthleteTimerElement(this);
+		this.reviewTimer.setSilenced(true);
+		this.reviewTimer.getStyle()
+		        .set("min-width", "5rem")
+		        .set("font-size", "1.5rem")
+		        .set("display", "block");
+
+		this.reviewTimerFrozen = new Div();
+		this.reviewTimerFrozen.getStyle()
+		        .set("min-width", "5rem")
+		        .set("font-size", "1.5rem")
+		        .set("white-space", "nowrap")
+		        .set("font-variant-numeric", "tabular-nums");
+
+		this.reviewHeader.add(this.reviewFiller, this.reviewLot, this.reviewName,
+		        this.reviewAttempt, this.reviewTimer, this.reviewTimerFrozen);
+		clearReviewHeader();
+		return this.reviewHeader;
+	}
+
+	private void clearReviewHeader() {
+		if (this.reviewFiller == null) {
+			return;
+		}
+		this.reviewFrozen = false;
+		this.reviewFiller.setVisible(true);
+		if (this.reviewLot != null) this.reviewLot.setVisible(false);
+		if (this.reviewName != null) this.reviewName.setVisible(false);
+		if (this.reviewAttempt != null) this.reviewAttempt.setVisible(false);
+		if (this.reviewTimer != null) this.reviewTimer.setVisible(false);
+		if (this.reviewTimerFrozen != null) this.reviewTimerFrozen.setVisible(false);
+	}
+
+	private String formatReviewAttempt(Athlete athlete) {
+		if (athlete == null) {
+			return "";
+		}
+		String liftType = athlete.getAttemptsDone() >= 3
+		        ? Translator.translate("Clean_and_Jerk")
+		        : Translator.translate("Snatch");
+		return liftType + " " + athlete.getAttemptNumber();
+	}
+
+	private Athlete resolveReviewAthlete(FieldOfPlay fop) {
+		if (fop == null) {
+			return null;
+		}
+		Athlete clockOwner = fop.getClockOwner();
+		if (clockOwner != null) {
+			return clockOwner;
+		}
+		return isJuryDecisionActive(fop) ? fop.getAthleteUnderReview() : null;
+	}
+
+	private void syncReviewTimer(FieldOfPlay fop) {
+		if (fop == null || this.reviewTimer == null) {
+			return;
+		}
+		this.reviewTimer.setFop(fop);
+		uiEventBusRegister(this.reviewTimer, fop);
+		this.reviewTimer.syncWithFop(fop);
+	}
+
+	private void updateReviewHeader(FieldOfPlay fop) {
+		if (this.reviewFiller == null || this.reviewFrozen) {
+			return;
+		}
+		Athlete athlete = resolveReviewAthlete(fop);
+		if (athlete == null) {
+			clearReviewHeader();
+			return;
+		}
+		this.reviewLot.setText(athlete.getLotNumber() != null ? athlete.getLotNumber().toString() : "-");
+		this.reviewName.setText(athlete.getFullName() != null ? athlete.getFullName() : "");
+		this.reviewAttempt.setText(formatReviewAttempt(athlete));
+		this.reviewFiller.setVisible(false);
+		this.reviewLot.setVisible(true);
+		this.reviewName.setVisible(true);
+		this.reviewAttempt.setVisible(true);
+		// If clockOwner is null the athlete came from athleteUnderReview
+		// (jury break) — show the frozen stopped time, not the live timer.
+		if (fop.getClockOwner() != null) {
+			syncReviewTimer(fop);
+			this.reviewTimer.setVisible(true);
+			this.reviewTimerFrozen.setVisible(false);
+		} else {
+			freezeReviewTimer();
+		}
+	}
+
+	private void freezeReviewTimer() {
+		if (this.reviewTimerFrozen == null || this.reviewTimer == null) {
+			return;
+		}
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
+			int millis = fop.getAthleteTimer().getTimeRemainingAtLastStop();
+			this.reviewTimerFrozen.setText(formatTime(millis));
+		}
+		this.reviewTimer.setVisible(false);
+		this.reviewTimerFrozen.setVisible(true);
+		this.reviewFrozen = true;
+	}
+
+	private String formatTime(int milliseconds) {
+		if (milliseconds <= 0) {
+			return "0:00";
+		}
+		int totalSeconds = (milliseconds + 999) / 1000;
+		int minutes = totalSeconds / 60;
+		int seconds = totalSeconds % 60;
+		return minutes + ":" + String.format("%02d", seconds);
 	}
 
 	private void startChallenge() {
