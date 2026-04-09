@@ -1021,13 +1021,13 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 		this.bodyWeightField = new LocalizedDecimalField();
 		boolean deduct250g = Boolean.TRUE.equals(Competition.getCurrent().getDeduct250g());
-		logger.debug("{} deduct250g initial state={} (expect false to hide scaleWeight)", LoggerUtils.whereFrom(), deduct250g);
+		logger.trace("{} deduct250g initial state={} (expect false to hide scaleWeight)", LoggerUtils.whereFrom(), deduct250g);
 		if (deduct250g) {
-			logger.debug("{} deduct250g=true -> adding scaleWeight field", LoggerUtils.whereFrom());
+			logger.trace("{} deduct250g=true -> adding scaleWeight field", LoggerUtils.whereFrom());
 			this.bodyWeightField.setReadOnly(true);
 			layoutAddFormItem(layout, this.scaleWeightField, Translator.translate("ScaleWeight"));
 		} else {
-			logger.debug("{} deduct250g=false -> not adding scaleWeight field", LoggerUtils.whereFrom());
+			logger.trace("{} deduct250g=false -> not adding scaleWeight field", LoggerUtils.whereFrom());
 			this.bodyWeightField.setReadOnly(false);
 		}
 		this.bodyWeightField.getWrappedTextField().setAllowedCharPattern("[0-9.,]");
