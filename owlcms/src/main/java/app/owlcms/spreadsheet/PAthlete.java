@@ -24,9 +24,11 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.IRankHolder;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import ch.qos.logback.classic.Logger;
@@ -161,12 +163,32 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getBestLifterRank() {
-		return this.a.getBestLifterRank();
+		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
+		if (scoringSystem == null) {
+			Category cat = this.p.getCategory();
+			if (cat != null && cat.getAgeGroup() != null) {
+				scoringSystem = cat.getAgeGroup().getBestAthleteScoringSystem();
+			}
+		}
+		if (scoringSystem == null) {
+			scoringSystem = Competition.getCurrent().getScoringSystem();
+		}
+		return Ranking.getRanking(this.a, scoringSystem);
 	}
 
 	@Override
 	public Double getBestLifterScore() {
-		return this.a.getBestLifterScore();
+		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
+		if (scoringSystem == null) {
+			Category cat = this.p.getCategory();
+			if (cat != null && cat.getAgeGroup() != null) {
+				scoringSystem = cat.getAgeGroup().getBestAthleteScoringSystem();
+			}
+		}
+		if (scoringSystem == null) {
+			scoringSystem = Competition.getCurrent().getScoringSystem();
+		}
+		return Ranking.getRankingValue(this.a, scoringSystem);
 	}
 
 	@Override
