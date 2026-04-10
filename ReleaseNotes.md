@@ -10,6 +10,8 @@
 
 **New in Release 65**
 
+65.1.1: The Competition Results full eligibility results did not show the correct score for the age group (would sometimes fall back to competition-wide)
+
 65.1.0: Fix: it was previously possible to accidentally create two platforms with the same name, which prevented results from being produced. Integrity checks at startup and when importing will now correct this situation.  User interface checks have been added.
 
 65.1.0: JXLS templates now receive "championship", "ageGroupPrefix" (the age group without the gender), and "gender" as template variables
