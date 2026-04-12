@@ -10,6 +10,10 @@
 
 **New in Release 66**
 
+66.0.0-rc05: Fix stale error notification on Announcer/Marshal screens when athlete waits until first CJ to adjust 20kg rule violation
+
+66.0.0-rc05: Merge fix from 65.1 to display the correct score according to the age group on the eligibility category competition results
+
 66.0.0-rc04: The jury keypad panel now shows the information about the athlete being adjudicated
 
 66.0.0: Mixed Team Championships
