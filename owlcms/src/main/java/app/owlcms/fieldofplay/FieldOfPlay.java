@@ -245,6 +245,7 @@ public class FieldOfPlay implements IUnregister {
 	private AgeGroup videoAgeGroup;
 	private List<Athlete> resultsOrder;
 	private boolean cjBreakDisplayed;
+	private Long missingKgWarnedAthleteId;
 	private EventForwarder eventForwarder;
 	private WebSocketEventForwarder webSocketEventForwarder;
 	private JuryDecision toBeAnnouncedJuryDecision;
@@ -3025,6 +3026,7 @@ public class FieldOfPlay implements IUnregister {
 		// logger.trace("setting curAthlete to {} [{}]", athlete,
 		// LoggerUtils.whereFrom());
 		this.curAthlete = athlete;
+		this.missingKgWarnedAthleteId = null;
 	}
 
 	private void setDecisionDisplayScheduled(boolean decisionDisplayScheduled) {
@@ -3780,17 +3782,25 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void warnMissingKg() {
-		int missingKg = this.getCurAthlete().startingTotalDelta();
+		Athlete cur = this.getCurAthlete();
+		int missingKg = cur.startingTotalDelta();
 		if (missingKg > 0) {
+			Long curId = cur.getId();
+			if (curId != null && curId.equals(this.missingKgWarnedAthleteId)) {
+				return; // already warned for this athlete
+			}
+			this.missingKgWarnedAthleteId = curId;
 			pushOutUIEvent(
 			        new UIEvent.Notification(
-			                this.getCurAthlete(),
+			                cur,
 			                this,
 			                UIEvent.Notification.Level.ERROR,
 			                "RuleViolation.StartingWeightCurrent",
-			                0, // 3 * UIEvent.Notification.NORMAL_DURATION,
+			                0,
 			                this,
 			                Integer.toString(missingKg)));
+		} else {
+			this.missingKgWarnedAthleteId = null;
 		}
 	}
 

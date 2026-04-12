@@ -7,7 +7,11 @@
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,8 +26,10 @@ import org.junit.Test;
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -218,6 +224,32 @@ public class AthleteTest {
         athlete.setFullBirthDate(LocalDate.now().minusYears(30));
         athlete.setGender(Gender.F);
         assertEquals("Sinclair2020 144kg for 68.5kg female athlete ", 179.8088D ,athlete.getSmhf(), 0.0005D);
+    }
+
+    @Test
+    public void testStartingTotalViolationClearsWhenCorrected() throws Exception {
+        Competition.getCurrent().setEnforce20kgRule(true);
+        athlete.setValidation(true);
+        athlete.setQualifyingTotal(185);
+
+        try {
+            athlete.validateStartingTotalsRule(60, 80, 185);
+            fail("Expected 20kg rule violation for insufficient starting total");
+        } catch (RuleViolationException.Rule15_20Violated expected) {
+            // expected
+        }
+
+        assertTrue("violation flag should be set after a failed validation", getStartingTotalViolation(athlete));
+
+        athlete.validateStartingTotalsRule(60, 125, 185);
+
+        assertFalse("violation flag should clear after the starting total is corrected", getStartingTotalViolation(athlete));
+    }
+
+    private boolean getStartingTotalViolation(Athlete athlete) throws Exception {
+        Field field = Athlete.class.getDeclaredField("startingTotalViolation");
+        field.setAccessible(true);
+        return field.getBoolean(athlete);
     }
 
 }

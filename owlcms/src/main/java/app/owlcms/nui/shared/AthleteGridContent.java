@@ -805,7 +805,14 @@ public abstract class AthleteGridContent extends BaseContent
 				// to show that time is not running.
 				buttonsTimeStopped();
 			}
-			e.doNotification();
+			Notification n = e.doNotification();
+			String notifString = e.getNotificationString();
+			if (notifString != null && notifString.equals("RuleViolation.StartingWeightCurrent")) {
+				if (this.missingKgNotification != null) {
+					this.missingKgNotification.close();
+				}
+				this.missingKgNotification = n;
+			}
 		});
 	}
 
@@ -885,6 +892,10 @@ public abstract class AthleteGridContent extends BaseContent
 		// logger.debug("athletegrid slaveUpdateAnnouncerBar {}", fop.getName());
 		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
 			clearRecordNotifications();
+			if (this.missingKgNotification != null && athlete != null && athlete.startingTotalDelta() <= 0) {
+				this.missingKgNotification.close();
+				this.missingKgNotification = null;
+			}
 			warnOthersIfCurrent(e, athlete, fop);
 			doUpdateTopBar(athlete, e.getTimeAllowed());
 		});
@@ -1340,6 +1351,7 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	
 	protected List<Notification> notifications = new ArrayList<>();
+	protected Notification missingKgNotification;
 	private boolean publicDisplay;
 	protected void doNotification(String text, String theme) {
 		Notification n = new Notification();

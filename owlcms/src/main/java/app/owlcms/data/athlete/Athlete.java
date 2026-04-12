@@ -5431,7 +5431,7 @@ public class Athlete {
 			        (startNumber2 != null ? startNumber2.toString() : "-"),
 			        snatch1Request, cleanJerk1Request, missing, qualTotal);
 		} else {
-			this.setStartingTotalViolation(true);
+			this.setStartingTotalViolation(false);
 			// logger.debug("OK margin={}", -(missing));
 			return true;
 		}

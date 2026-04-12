@@ -994,7 +994,7 @@ public class UIEvent {
 			}
 		}
 
-		public void doNotification() {
+		public com.vaadin.flow.component.notification.Notification doNotification() {
 			com.vaadin.flow.component.notification.Notification n = new com.vaadin.flow.component.notification.Notification();
 			Div div = new Div();
 			String close = "\u00A0\u00A0\u00A0\u2715";
@@ -1027,6 +1027,7 @@ public class UIEvent {
 			}
 			n.setDuration(getMsDuration() != null ? getMsDuration() : NORMAL_DURATION);
 			n.open();
+			return n;
 		}
 
 		public String getFopEventString() {

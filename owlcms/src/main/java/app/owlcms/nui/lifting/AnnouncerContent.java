@@ -369,15 +369,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Override
 	@Subscribe
 	public void slaveNotification(UIEvent.Notification e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			String fopEventString = e.getFopEventString();
-			if (fopEventString != null && fopEventString.contentEquals("TimeStarted")) {
-				// time started button was selected, but denied. reset the colors
-				// to show that time is not running.
-				buttonsTimeStopped();
-			}
-			e.doNotification();
-		});
+		super.slaveNotification(e);
 	}
 
 	@Subscribe
