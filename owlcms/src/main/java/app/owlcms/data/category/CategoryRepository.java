@@ -126,7 +126,7 @@ public class CategoryRepository {
 		allEligible = allEligible.stream()
 		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
 		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
-		        .filter(c -> (c.getAgeGroup() != null && c.getAgeGroup().isActive()))
+		        .filter(c -> Boolean.TRUE.equals(c.isActive()))
 		        .collect(Collectors.toList());
 
 		// the most specific category should be returned first, and will be used as registration category.
@@ -214,7 +214,7 @@ public class CategoryRepository {
 		// sort comparison to put more specific category age before. M30 before O21, O21
 		// also before SR (MASTERS, then
 		// U, then IWF/other)
-		findFiltered = findFiltered.stream().filter(c -> c.getAgeGroup().isActive())
+		findFiltered = findFiltered.stream().filter(c -> Boolean.TRUE.equals(c.isActive()))
 		        .sorted(new RegistrationPreferenceComparator()).collect(Collectors.toList());
 		return findFiltered;
 	}
@@ -224,7 +224,7 @@ public class CategoryRepository {
 		Boolean active = true;
 		List<Category> findFiltered = findFiltered((String) null, gender, ageDivision, (AgeGroup) null, age, bodyWeight,
 		        active, -1, -1);
-		findFiltered = findFiltered.stream().filter(c -> c.getAgeGroup().isActive())
+		findFiltered = findFiltered.stream().filter(c -> Boolean.TRUE.equals(c.isActive()))
 		        .sorted(new RegistrationPreferenceComparator()).collect(Collectors.toList());
 		return findFiltered;
 	}
@@ -442,8 +442,8 @@ public class CategoryRepository {
 	}
 
 	public static void fixCategories() {
-		// get all categories for all age groups; if the code in the category does not match the computed code, fix it.
-		// use eager fetch join to load both categories and their age groups in a single query, avoiding N+1 problem.
+		// Fix category codes and active flags in a single pass.
+		// Use eager fetch join to load both categories and their age groups in a single query, avoiding N+1 problem.
 		JPAService.runInTransaction(em -> {
 			List<Category> allCats = em.createQuery(
 			        "select c from Category c join fetch c.ageGroup ag order by ag.ageDivision, ag.minAge, ag.maxAge, c.code",
@@ -451,21 +451,34 @@ public class CategoryRepository {
 			        .getResultList();
 
 			int count = 0;
-			int fixedCount = 0;
+			int fixedCodes = 0;
+			int fixedActive = 0;
 			for (Category c : allCats) {
+				// Fix code if it doesn't match the computed code
 				String computedCode = c.getComputedCode();
 				if (!c.getCode().equals(computedCode)) {
 					logger.info("fixing category code from {} to {}", c.getCode(), computedCode);
 					c.setCode(computedCode);
-					fixedCount++;
+					fixedCodes++;
+				}
 
-					if (++count % 50 == 0) {
-						em.flush(); // Periodic flush without clear
-					}
+				// Fix stored active flag if it doesn't match the age group's active status.
+				// Category.isActive() derives from the age group at runtime, but the stored
+				// field may be stale from older versions or imports.
+				AgeGroup ag = c.getAgeGroup();
+				boolean expected = ag.isActive();
+				if (!Boolean.valueOf(expected).equals(c.getStoredActive())) {
+					logger.info("fixing category active flag for {} from {} to {}", c.getCode(), c.getStoredActive(), expected);
+					c.setActive(expected);
+					fixedActive++;
+				}
+
+				if (++count % 50 == 0) {
+					em.flush();
 				}
 			}
 			em.flush();
-			logger.info("Fixed {} category codes out of {} total categories", fixedCount, allCats.size());
+			logger.info("Fixed {} codes and {} active flags out of {} total categories", fixedCodes, fixedActive, allCats.size());
 			return null;
 		});
 	}

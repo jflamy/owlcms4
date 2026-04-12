@@ -1274,7 +1274,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			if (!isChangeListenersEnabled()) {
 				return;
 			}
-			// logger.trace("eligible Field recomputed {}",LoggerUtils.whereFrom());
 			setChangeListenersEnabled(false); // prevent recursion.
 			// false as last argument: do not reset to all eligible categories
 			Category categor = this.categoryField.getValue();
@@ -1377,7 +1376,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		List<Category> allAgeEligible = CategoryRepository.findByGenderAgeBW(gender, 
 		        athlete.getAge(), null);
 		for (Category c : allAgeEligible) {
-			if (c.getAgeGroup() != null && c.getAgeGroup().isActive()) {
+			if (c.getAgeGroup() != null && Boolean.TRUE.equals(c.isActive())) {
 				eligibilityAgeGroups.add(c.getAgeGroup());
 			}
 		}
@@ -1412,7 +1411,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			        null, gender, null, ageGroup, null, null, true, -1, -1);
 			
 			for (Category c : ageGroupCategories) {
-				if (c.getAgeGroup() == null || !c.getAgeGroup().isActive()) {
+				if (c.getAgeGroup() == null || !Boolean.TRUE.equals(c.isActive())) {
 					continue;
 				}
 				
@@ -1538,7 +1537,6 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				// body weight, gender, date
 				this.allEligible = findEligibleCategories(genderField, getAgeFromFields(), bodyWeightField,
 				        selectedCategory, qualifyingTotalField2);
-				//logger.debug("cat {} eli {}", selectedCategory, this.allEligible.get(0).getAgeGroup());
 				if (selectedCategory != null && categoryIsEligible(selectedCategory, this.allEligible) && selectedCategory.getMaximumWeight() < 999) {
 					// current registration category is amongst eligibles. Don't recompute anything.
 					//logger.debug("leave alone");
@@ -1801,7 +1799,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			// allEligibles so that database updates work.
 			for (Category oldEligible : prevEligibles) {
 				for (Category newEligible : filteredEligibles) {
-					if (newEligible.getCode().contentEquals(oldEligible.getCode()) && newEligible.isActive()) {
+					if (newEligible.getCode().contentEquals(oldEligible.getCode()) && Boolean.TRUE.equals(newEligible.isActive())) {
 						//logger.debug("substituting eligibles {} {}", newEligible.longDump(), System.identityHashCode(newEligible));
 						newEligibles.add(newEligible);
 						break;
@@ -1853,7 +1851,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 				}
 			}
 
-			if (matchingEligible == null) {
+			if (matchingEligible == null && selectedCategory != null) {
 				Set<Category> priorEligibles = eligibleField.getValue();
 				// need to recompute the eligibility categories outright before declaring there is none.
 				Double inferBW = inferBW(selectedCategory);

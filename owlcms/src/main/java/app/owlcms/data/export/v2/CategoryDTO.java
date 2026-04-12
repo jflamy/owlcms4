@@ -43,7 +43,7 @@ public class CategoryDTO {
 		dto.setMaximumWeight(category.getMaximumWeight());
 		dto.setMinimumWeight(category.getMinimumWeight());
 		dto.setGender(category.getGender());
-		dto.setActive(category.isActive());
+		dto.setActive(Boolean.TRUE.equals(category.isActive()));
 		dto.setQualifyingTotal(category.getQualifyingTotal());
 		dto.setWrSr(category.getWrSr());
 		dto.setWrJr(category.getWrJr());

@@ -113,8 +113,8 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	Double maximumWeight; // exclusive
 	/** The minimum weight. */
 	Double minimumWeight; // inclusive
-	@Column(columnDefinition = "boolean default false")
-	private boolean active;
+	@Column(columnDefinition = "boolean default false", nullable = true)
+	private Boolean active;
 	@ManyToOne(fetch = FetchType.EAGER) // ok in this case
 	@JoinColumn(name = "agegroup_id")
 	@JsonIdentityReference(alwaysAsId = true)
@@ -148,19 +148,21 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	public Category(Category c) {
-		this(c.minimumWeight, c.maximumWeight, c.getGender(), c.active, c.getWrYth(), c.getWrJr(), c.getWrSr(),
+		this(c.minimumWeight, c.maximumWeight, c.getGender(), c.isActive(), c.getWrYth(), c.getWrJr(), c.getWrSr(),
 		        c.ageGroup,
 		        c.qualifyingTotal);
 	}
 
-	public Category(Double minimumWeight, Double maximumWeight, Gender gender, boolean active, Integer wrYth,
+	public Category(Double minimumWeight, Double maximumWeight, Gender gender, Boolean active, Integer wrYth,
 	        Integer wrJr, Integer wrSr, AgeGroup ageGroup, Integer qualifyingTotal) {
 		this();
 		this.setMinimumWeight(minimumWeight);
 		this.setMaximumWeight(maximumWeight);
 		this.setGender(gender);
-		this.setActive(active);
 		this.setAgeGroup(ageGroup);
+		if (ageGroup == null) {
+			this.setActive(active);
+		}
 		this.setWrYth(wrYth);
 		this.setWrJr(wrJr);
 		this.setWrSr(wrSr);
@@ -247,11 +249,20 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the active
 	 */
 	public Boolean getActive() {
-		return this.active;
+		return this.ageGroup != null ? this.ageGroup.isActive() : this.active;
 	}
 
 	public AgeGroup getAgeGroup() {
 		return this.ageGroup;
+	}
+
+	/**
+	 * Returns the raw stored active field, bypassing derivation from age group.
+	 * Used only for consistency checks that need to compare stored vs. derived values.
+	 */
+	@Transient
+	public Boolean getStoredActive() {
+		return this.active;
 	}
 
 	@Transient
@@ -552,13 +563,13 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the boolean
 	 */
 	public Boolean isActive() {
-		return this.active;
+		return this.ageGroup != null ? this.ageGroup.isActive() : this.active;
 	}
 
 	public String longDump() {
 		return "Category " + System.identityHashCode(this)
 		        + " [name=" + getSafeName()
-		        + ", active=" + this.active
+		        + ", active=" + isActive()
 		        + ", id=" + getId()
 		        + ", minimumWeight=" + this.minimumWeight
 		        + ", maximumWeight=" + this.maximumWeight + ", ageGroup="
@@ -584,12 +595,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return set.stream().anyMatch(c -> this.getCode().contentEquals(c.getCode()));
 	}
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
 	/**
-	 * Sets the active.
+	 * Sets the stored active flag. Accepts Boolean (nullable) to support
+	 * detached categories where active is null.
 	 *
 	 * @param active the new active
 	 */
@@ -599,6 +607,11 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	public void setAgeGroup(AgeGroup ageGroup) {
 		this.ageGroup = ageGroup;
+		if (ageGroup != null) {
+			this.active = ageGroup.isActive();
+		} else {
+			this.active = null;
+		}
 	}
 
 	public void setCode(String code) {

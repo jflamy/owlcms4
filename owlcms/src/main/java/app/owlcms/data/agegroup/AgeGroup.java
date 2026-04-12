@@ -485,6 +485,12 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	public void setActive(boolean active) {
 		this.active = active;
+		// Propagate to stored field in child categories for persistence/query consistency.
+		// Category.isActive() derives from the age group anyway, but keeping the stored
+		// field in sync avoids stale values if the category is later detached.
+		for (Category category : this.categories) {
+			category.setActive(active);
+		}
 	}
 
 	public void setAgeDivision(String ageDivision) {
@@ -502,6 +508,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	public void setCategories(List<Category> value) {
 		this.categories = value;
+		if (this.categories != null) {
+			for (Category category : this.categories) {
+				if (category != null) {
+					category.setAgeGroup(this);
+				}
+			}
+		}
 	}
 
 	public void setChampionship(Championship championship) {
