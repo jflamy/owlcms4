@@ -10,16 +10,6 @@
 
 **New in Release 66**
 
-66.0.0-rc07: Fix: It was no longer possible to export only the best provisional records
-
-66.0.0-rc06: Fix: Updated the "Out of Competition" translation string for Eligibility Status (was "Invited")
-
-66.0.0-rc06: Fix: During weigh-in the eligible categories could be cleared because they were mistakenly considered inactive.
-
-66.0.0-rc05: Fix: Stale error notification on Announcer/Marshal screens when athlete waits until first CJ to adjust 20kg rule violation
-
-66.0.0-rc05: Fix: (merged from 65.1) Display the correct score according to the age group on the eligibility category competition results
-
 66.0.0: Mixed Team Championships
   - Allow explicit nomination of a mixed team, or implicit men and women combined
   - A gender-equitable scoring system (e.g. GAMX) can be applied, independently of the gendered teams scoring
@@ -71,6 +61,16 @@
   - the individual session pages still show the current session in-progress scores as they may be required to plan for awards
 
 66.0.0: Fix: updating the websocket event forwarding URL did not correctly reset the forwarder
+
+66.0.0: Fix: It was no longer possible to export only the best provisional records
+
+66.0.0: Fix: Updated the "Out of Competition" translation string for Eligibility Status (was "Invited")
+
+66.0.0: Fix: During weigh-in the eligible categories could be cleared because they were mistakenly considered inactive.
+
+66.0.0: Fix: Stale error notification on Announcer/Marshal screens when athlete waits until first CJ to adjust 20kg rule violation
+
+66.0.0: Fix: (merged from 65.1) Display the correct score according to the age group on the eligibility category competition results
 
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
