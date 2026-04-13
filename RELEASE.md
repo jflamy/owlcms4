@@ -65,21 +65,13 @@ A stable release should be cut from the main/stable branch IMMEDIATELY AFTER doi
 
 Suggested flow:
 
-1. Switch to the stable branch (e.g., `master`).
-2. Merge the latest prerelease branch into stable.
-3. Update the release notes for "Stable" wording -- removing the detailed update log from the prereleases
-4. Update the default revision on line 2 of `release.sh` to a final semver (no `-rc`, `-beta`, etc.).
-5. Commit.
-6. Run:
+1. Update the release notes - clean up -rcXX from the version numbers, put the routine fixes at the bottom of the list
+2. Run the following script that will switch to main (creating it if needed), push everything, and come back to dev.
 
 ```bash
-./release.sh
+./scripts/mainRelease.sh
 ```
 
-7. IMPORTANT After the release is complete,
-  - Switch to the the prerelease branch again
-  - Merge stable back into prerelease to keep both lines in sync.
-  - Commit and push
 
 ## Requirements
 
