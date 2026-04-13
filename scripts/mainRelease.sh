@@ -22,6 +22,33 @@ fi
 VERSION_NUM="${BASH_REMATCH[1]}"
 MAIN_BRANCH="main${VERSION_NUM}"
 DEV_BRANCH="dev${VERSION_NUM}"
+ORIGINAL_BRANCH="${CURRENT_BRANCH}"
+COMPLETED="false"
+
+restore_original_branch_on_exit() {
+  local exit_code=$?
+
+  if [[ "${COMPLETED}" == "true" ]]; then
+    return "${exit_code}"
+  fi
+
+  local active_branch
+  active_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+
+  if [[ -n "${active_branch}" && "${active_branch}" != "${ORIGINAL_BRANCH}" ]]; then
+    echo ""
+    echo "mainRelease.sh did not complete successfully." >&2
+    echo "Restoring original branch ${ORIGINAL_BRANCH} from ${active_branch}..." >&2
+    if ! git checkout "${ORIGINAL_BRANCH}"; then
+      echo "WARNING: Failed to restore branch ${ORIGINAL_BRANCH}." >&2
+      echo "         Please switch back manually after reviewing the working tree state." >&2
+    fi
+  fi
+
+  return "${exit_code}"
+}
+
+trap restore_original_branch_on_exit EXIT
 
 echo "Dev branch:  ${DEV_BRANCH}"
 echo "Main branch: ${MAIN_BRANCH}"
@@ -78,6 +105,8 @@ git merge --ff-only "${MAIN_BRANCH}"
 # Step 9: Push the merged devXX branch
 echo "Pushing ${DEV_BRANCH}..."
 git push origin "${DEV_BRANCH}"
+
+COMPLETED="true"
 
 echo ""
 echo "Done! Both ${DEV_BRANCH} and ${MAIN_BRANCH} are now in sync and pushed."
