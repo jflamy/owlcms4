@@ -26,7 +26,7 @@
   
 66.0.0: Enhanced definition of Championships
   - Championships use the default competitions settings (checkbox, on by default)
-  - Championships are used to override define the awards
+  - Championships are used to define specific awards that differ from the default, including
     - best athlete scoring systems
     - medaling rules (total or per event), medaling on score or lifted weight
     - points awarded
