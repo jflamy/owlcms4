@@ -10,11 +10,13 @@
 
 **New in Release 66**
 
-66.0.0-rc05: Fix stale error notification on Announcer/Marshal screens when athlete waits until first CJ to adjust 20kg rule violation
+66.0.0-rc06: Fix: Clarified the "Out of Competition" translation string for Eligibility Status (was "Invited")
 
-66.0.0-rc05: Merge fix from 65.1 to display the correct score according to the age group on the eligibility category competition results
+66.0.0-rc06: Fix: During weigh-in the eligible categories could be cleared because they were mistakenly considered inactive.
 
-66.0.0-rc04: The jury keypad panel now shows the information about the athlete being adjudicated
+66.0.0-rc05: Fix: Stale error notification on Announcer/Marshal screens when athlete waits until first CJ to adjust 20kg rule violation
+
+66.0.0-rc05: Fix: (merged from 65.1) Display the correct score according to the age group on the eligibility category competition results
 
 66.0.0: Mixed Team Championships
   - Allow explicit nomination of a mixed team, or implicit men and women combined
@@ -28,7 +30,6 @@
     - points awarded
     - scoring systems for gendered teams and for mixed teams
   
-
 66.0.0: Mobile device versions for jury member devices and jury president keypad
   - Can act as jury member using a phone or tablet, and act as jury president using a tablet
 
