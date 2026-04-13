@@ -10,7 +10,9 @@
 
 **New in Release 66**
 
-66.0.0-rc06: Fix: Clarified the "Out of Competition" translation string for Eligibility Status (was "Invited")
+66.0.0-rc07: Fix: It was no longer possible to export only the best provisional records
+
+66.0.0-rc06: Fix: Updated the "Out of Competition" translation string for Eligibility Status (was "Invited")
 
 66.0.0-rc06: Fix: During weigh-in the eligible categories could be cleared because they were mistakenly considered inactive.
 
