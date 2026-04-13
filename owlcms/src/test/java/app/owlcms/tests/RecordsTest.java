@@ -86,11 +86,11 @@ public class RecordsTest {
     }
 
     @Test
-    public void provisionalCurrentFilterUsesHistoryView() {
+    public void provisionalCurrentFilterKeepsHighestProvisionalOnly() {
         RecordRepository.save(createRecord(100.0D, "A"));
         RecordRepository.save(createRecord(101.0D, "A"));
 
-        List<RecordEvent> provisionalRecords = RecordRepository.findWithFilters(
+        List<RecordEvent> currentProvisionals = RecordRepository.findWithFilters(
                 null,
                 null,
                 null,
@@ -100,7 +100,20 @@ public class RecordsTest {
                 "CURRENT",
                 null);
 
-        assertEquals(2, provisionalRecords.size());
+        assertEquals(1, currentProvisionals.size());
+        assertEquals(101.0D, currentProvisionals.get(0).getRecordValue(), 0.001D);
+
+        List<RecordEvent> provisionalHistory = RecordRepository.findWithFilters(
+                null,
+                null,
+                null,
+                null,
+                null,
+                "PROVISIONAL",
+                "HISTORY",
+                null);
+
+        assertEquals(2, provisionalHistory.size());
     }
 
     @Test

@@ -1249,9 +1249,6 @@ public class RecordRepository {
 	}
 
 	public static String normalizeCurrentHistoryFilter(String provisionalFilter, String currentHistoryFilter) {
-		if ("PROVISIONAL".equals(provisionalFilter)) {
-			return "HISTORY";
-		}
 		return currentHistoryFilter;
 	}
 

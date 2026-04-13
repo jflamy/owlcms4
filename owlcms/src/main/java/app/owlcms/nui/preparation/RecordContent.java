@@ -551,12 +551,26 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.provisionalFilter.setValue(provisionalFilter);
 	}
 
+	private String getProvisionalFilterName() {
+		RecordFilters.ProvisionalFilter provisional = this.provisionalFilter != null
+		        ? this.provisionalFilter.getValue()
+		        : null;
+		return provisional != null ? provisional.name() : RecordFilters.ProvisionalFilter.ALL.name();
+	}
+
 	public RecordFilters.CurrentHistoryFilter getCurrentHistoryFilter() {
 		return this.currentHistoryFilter.getValue();
 	}
 
 	public void setCurrentHistoryFilter(RecordFilters.CurrentHistoryFilter currentHistoryFilter) {
 		this.currentHistoryFilter.setValue(currentHistoryFilter);
+	}
+
+	private String getCurrentHistoryFilterName() {
+		RecordFilters.CurrentHistoryFilter currentHistory = this.currentHistoryFilter != null
+		        ? this.currentHistoryFilter.getValue()
+		        : null;
+		return currentHistory != null ? currentHistory.name() : RecordFilters.CurrentHistoryFilter.CURRENT.name();
 	}
 
 	// ---- URL parameter persistence ----
@@ -609,15 +623,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	 */
 	protected List<RecordEvent> getFilteredRecords() {
 		// Convert enum values to strings for the repository method
-		String provisionalFilterStr = "ALL";
-		if (this.provisionalFilter != null && this.provisionalFilter.getValue() != null) {
-			provisionalFilterStr = this.provisionalFilter.getValue().name();
-		}
+		String provisionalFilterStr = getProvisionalFilterName();
 		
-		String currentHistoryFilterStr = "HISTORY"; // Default to showing all records
-		if (this.currentHistoryFilter != null && this.currentHistoryFilter.getValue() != null) {
-			currentHistoryFilterStr = this.currentHistoryFilter.getValue().name();
-		}
+		String currentHistoryFilterStr = getCurrentHistoryFilterName();
 		currentHistoryFilterStr = RecordRepository.normalizeCurrentHistoryFilter(provisionalFilterStr, currentHistoryFilterStr);
 		
 		return RecordRepository.findWithFilters(
@@ -718,7 +726,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.provisionalFilter.setItems(RecordFilters.ProvisionalFilter.values());
 		this.provisionalFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
 		this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
-		this.provisionalFilter.setClearButtonVisible(true);
+		this.provisionalFilter.setClearButtonVisible(false);
 		this.provisionalFilter.addValueChangeListener(e -> {
 			setProvisionalFilter(e.getValue());
 			syncCurrentHistoryFilterForProvisional();
@@ -740,7 +748,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.currentHistoryFilter.setItems(RecordFilters.CurrentHistoryFilter.values());
 		this.currentHistoryFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
 		this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
-		this.currentHistoryFilter.setClearButtonVisible(true);
+		this.currentHistoryFilter.setClearButtonVisible(false);
 		this.currentHistoryFilter.addValueChangeListener(e -> {
 			setCurrentHistoryFilter(e.getValue());
 			syncCurrentHistoryFilterForProvisional();
@@ -754,13 +762,13 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		syncCurrentHistoryFilterForProvisional();
 
 		// Clear filters button
-		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
-		clearFilters.addClickListener(event -> {
+		Button clearFiltersButton = new Button(null, VaadinIcon.CLOSE.create());
+		clearFiltersButton.addClickListener(event -> {
 			clearFilters();
 			crud.refreshGrid();
 			updateUrlParameters();
 		});
-		crud.getCrudLayout().addFilterComponent(clearFilters);
+		crud.getCrudLayout().addFilterComponent(clearFiltersButton);
 	}
 
 	protected void autoSelectSingleFederation() {
@@ -859,13 +867,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	}
 
 	protected void syncCurrentHistoryFilterForProvisional() {
-		boolean provisionalOnly = this.provisionalFilter != null
-		        && this.provisionalFilter.getValue() == RecordFilters.ProvisionalFilter.PROVISIONAL;
 		if (this.currentHistoryFilter != null) {
-			if (provisionalOnly && this.currentHistoryFilter.getValue() != RecordFilters.CurrentHistoryFilter.HISTORY) {
-				this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.HISTORY);
-			}
-			this.currentHistoryFilter.setEnabled(!provisionalOnly);
+			this.currentHistoryFilter.setEnabled(true);
 		}
 	}
 
