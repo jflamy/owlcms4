@@ -333,7 +333,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	// Provide the lightweight default preCheck used historically when callers passed null.
 	private BiFunction<List<Athlete>, Group, Optional<Exception>> defaultScopePrecheckFor(PreCompetitionTemplate templateEnum) {
-		return (a, g) -> runDefaultScopePrecheck(templateEnum, a, g, false);
+		return (a, g) -> adaptDocumentPrecheck(templateEnum, runDefaultScopePrecheck(templateEnum, a, g, false));
 	}
 
 	// Cards scope precheck isolated as a class-level variable so it can be reused by credential variants
@@ -364,7 +364,20 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	// teams) where a global report may be generated without selecting a specific
 	// session/group.
 	private BiFunction<List<Athlete>, Group, Optional<Exception>> defaultScopePrecheckAllowNoSelectionFor(PreCompetitionTemplate templateEnum) {
-		return (a, g) -> runDefaultScopePrecheck(templateEnum, a, g, true);
+		return (a, g) -> adaptDocumentPrecheck(templateEnum, runDefaultScopePrecheck(templateEnum, a, g, true));
+	}
+
+	private Optional<Exception> adaptDocumentPrecheck(PreCompetitionTemplate templateEnum, Optional<Exception> result) {
+		if (result == null || result.isEmpty()) {
+			return result;
+		}
+
+		Exception exception = result.get();
+		if (exception instanceof MissingLotNumbersException && templateEnum != PreCompetitionTemplate.WEIGHIN) {
+			return Optional.of(new WarningMissingLotNumbersException(exception.getMessage(), exception));
+		}
+
+		return result;
 	}
 
 	private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter) {
@@ -820,7 +833,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        groupSupplier,
 		        "WeighinForm",
 		        true, // requires session selection
-		        false); // don't generate start numbers
+		        false, // don't generate start numbers
+		        true); // keep missing lot numbers blocking for weigh-in workflow
 	}
 
 	/**
@@ -835,7 +849,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        groupSupplier,
 		        "AthleteCards",
 		        true, // requires session selection
-		        false); // don't generate start numbers
+		        false, // don't generate start numbers
+		        false); // allow missing lot numbers warning for document generation
 	}
 
 	/**
@@ -850,7 +865,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        groupSupplier,
 		        "EmptyProtocolSheet",
 		        true, // requires session selection
-		        !Competition.getCurrent().isManualStartNumbers()); // generate start numbers before creating
+		        !Competition.getCurrent().isManualStartNumbers(), // generate start numbers before creating
+		        false); // allow missing lot numbers warning for document generation
 	}
 
 	/**
@@ -865,7 +881,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        groupSupplier,
 		        "Jury",
 		        true, // requires session selection
-		        !Competition.getCurrent().isManualStartNumbers()); // generate start numbers before creating
+		        !Competition.getCurrent().isManualStartNumbers(), // generate start numbers before creating
+		        false); // allow missing lot numbers warning for document generation
 	}
 
 	/**
@@ -881,7 +898,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        groupSupplier,
 		        "INTRODUCTION",
 		        true, // requires session selection
-		        !Competition.getCurrent().isManualStartNumbers()); // generate start numbers before creating
+		        !Competition.getCurrent().isManualStartNumbers(), // generate start numbers before creating
+		        false); // allow missing lot numbers warning for document generation
 	}
 
 	/**
@@ -899,7 +917,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	        Supplier<Group> groupSupplier,
 	        String translationKey,
 	        boolean requiresSession,
-	        boolean generateStartNumbers) {
+	        boolean generateStartNumbers,
+	        boolean missingLotNumbersBlocking) {
 
 		Button openDialog = new Button(
 		        Translator.translate(translationKey),
@@ -916,7 +935,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			        // Create kit element based on template
 			        // The precheck inside the element will handle the session requirement validation
 			        List<KitElement> kit = new java.util.ArrayList<>();
-			        KitElement elem = createKitElementForTemplate(template, g, requiresSession);
+			        KitElement elem = createKitElementForTemplate(template, g, requiresSession, missingLotNumbersBlocking);
 			        if (elem != null) {
 				        kit.add(elem);
 			        }
@@ -952,7 +971,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	 * @param requiresSession Whether this document requires a session to be selected
 	 * @return KitElement configured for the template
 	 */
-	private static KitElement createKitElementForTemplate(PreCompetitionTemplate template, Group g, boolean requiresSession) {
+	private static KitElement createKitElementForTemplate(PreCompetitionTemplate template, Group g, boolean requiresSession,
+	        boolean missingLotNumbersBlocking) {
 		String resourceFolder = template.folder + "/";
 		resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
 		String templateFile = template.templateFileNameSupplier.get();
@@ -963,7 +983,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		// Precheck: validate session requirement
 		BiFunction<List<Athlete>, Group, Optional<Exception>> pre = (a, grp) -> {
 			DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
-			return precheckService.runDefaultScopePrecheck(template, a, grp, !requiresSession);
+			Optional<Exception> v = precheckService.runDefaultScopePrecheck(template, a, grp, !requiresSession);
+			if (v != null && v.isPresent() && !missingLotNumbersBlocking && v.get() instanceof MissingLotNumbersException) {
+				Exception warning = v.get();
+				return Optional.of(new WarningMissingLotNumbersException(warning.getMessage(), warning));
+			}
+			return v;
 		};
 
 		Supplier<String> processingMessageSupplier = () -> "Processing";

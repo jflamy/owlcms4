@@ -36,4 +36,11 @@ public abstract class DocumentPrecheckException extends Exception {
     public String getDisplayMessage() {
         return Translator.translate(getTranslationKey());
     }
+
+    /**
+     * Return whether this precheck should block document generation.
+     */
+    public boolean isBlocking() {
+        return true;
+    }
 }

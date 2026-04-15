@@ -77,6 +77,11 @@ public class DocumentsPrecheckService {
                         result.missing++;
                         continue;
                     }
+
+                    if (!isBlockingPrecheck(e)) {
+                        result.present.add(ke);
+                        continue;
+                    }
                 } else {
                     result.present.add(ke);
                 }
@@ -108,6 +113,13 @@ public class DocumentsPrecheckService {
             throw new AtLeastOneTemplateRequiredException();
         }
         return r.present.isEmpty() ? elements : r.present;
+    }
+
+    public boolean isBlockingPrecheck(Exception exception) {
+        if (exception instanceof DocumentPrecheckException) {
+            return ((DocumentPrecheckException) exception).isBlocking();
+        }
+        return true;
     }
 
     /**

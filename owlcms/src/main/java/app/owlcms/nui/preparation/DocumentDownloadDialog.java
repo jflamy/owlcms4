@@ -196,12 +196,18 @@ public class DocumentDownloadDialog extends Dialog {
         }
 
         try {
-            // Step 1: Check template selection
             DocumentsPrecheckService svc = new DocumentsPrecheckService();
+            Exception warning = null;
+
+            // Step 1: Check template selection
             Optional<Exception> templateResult = svc.runTemplateSetPrecheck(kitElements);
             if (templateResult.isPresent()) {
-                reportPrecheckErrors(List.of(templateResult.get()));
-                return;
+                Exception e = templateResult.get();
+                if (svc.isBlockingPrecheck(e)) {
+                    reportPrecheckErrors(List.of(e));
+                    return;
+                }
+                warning = e;
             }
 
             // Step 2: Check scope (session/athletes) if suppliers are available
@@ -230,16 +236,24 @@ public class DocumentDownloadDialog extends Dialog {
                         Exception e = scopeResult.get();
                         // Template exceptions are already handled in step 1
                         if (!(e instanceof TemplateException)) {
-                            reportPrecheckErrors(List.of(e));
-                            return;
+                            if (svc.isBlockingPrecheck(e)) {
+                                reportPrecheckErrors(List.of(e));
+                                return;
+                            }
+                            if (warning == null) {
+                                warning = e;
+                            }
                         }
                     }
                 }
             }
 
-            // All prechecks passed
-            clearProcessing();
-            setDownloadEnabled(true);
+            if (warning != null) {
+                reportPrecheckErrors(List.of(warning));
+            } else {
+                clearProcessing();
+                setDownloadEnabled(true);
+            }
 
         } catch (Throwable t) {
             LoggerUtils.logError(logger, t);
@@ -277,12 +291,15 @@ public class DocumentDownloadDialog extends Dialog {
         }
 
         String text = null;
+        boolean blocking = true;
         // pick the first meaningful error to display
         Exception e = errors.get(0);
 
         // Document precheck exceptions provide their own translation keys
         if (e instanceof DocumentPrecheckException) {
-            text = ((DocumentPrecheckException) e).getDisplayMessage();
+            DocumentPrecheckException precheck = (DocumentPrecheckException) e;
+            text = precheck.getDisplayMessage();
+            blocking = precheck.isBlocking();
         }
         // All other exceptions: log them and use the message as-is
         else {
@@ -297,20 +314,20 @@ public class DocumentDownloadDialog extends Dialog {
         if (processingParagraph == null) {
             processingParagraph = new Paragraph(text);
             processingParagraph.setId("documents-processing");
-            processingParagraph.getStyle().set("color", "var(--lumo-error-text-color)");
+            processingParagraph.getStyle().set("color", blocking ? "var(--lumo-error-text-color)" : "var(--lumo-warning-text-color)");
             processingParagraph.getStyle().set("font-weight", "bold");
             processingParagraph.getStyle().set("text-align", "center");
             processingParagraph.getStyle().set("font-size", "large");
             add(processingParagraph);
         } else {
             processingParagraph.setText(text);
-            processingParagraph.getStyle().set("color", "var(--lumo-error-text-color)");
+            processingParagraph.getStyle().set("color", blocking ? "var(--lumo-error-text-color)" : "var(--lumo-warning-text-color)");
             processingParagraph.getStyle().set("font-weight", "bold");
             processingParagraph.getStyle().set("text-align", "center");
             processingParagraph.getStyle().set("font-size", "large");
         }
 
-        setDownloadEnabled(false);
+        setDownloadEnabled(!blocking);
     }
 
     /**
