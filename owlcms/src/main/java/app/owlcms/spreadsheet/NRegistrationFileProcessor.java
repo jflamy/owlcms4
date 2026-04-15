@@ -242,7 +242,7 @@ public class NRegistrationFileProcessor {
 						toBeMerged.add(existingAthlete);
 					}
 				} else {
-					errorConsumer.accept("Existing athlete ignored: " + athleteKey);
+					errorConsumer.accept(Translator.translate("Upload.ExistingAthleteIgnored", athleteKey));
 					logger.error("Existing Athlete Entry {} {}", athleteKey, existingAthlete.getId());
 				}
 			} else {
@@ -642,7 +642,7 @@ public class NRegistrationFileProcessor {
 			try {
 				a.setFullBirthDate(s);
 			} catch (Exception e) {
-				throw new IllegalArgumentException("Invalid birth date: " + s);
+				throw new IllegalArgumentException(e.getMessage());
 			}
 		}, DelayedSetter.BIRTHDATE));
 		base.put("M/F", new AthleteHeaderInfo((a, s, c) -> {
@@ -669,7 +669,7 @@ public class NRegistrationFileProcessor {
 			try {
 				a.setGroup(s);
 			} catch (Exception e) {
-				throw new IllegalArgumentException("Invalid group: " + s);
+				throw new IllegalArgumentException(e.getMessage());
 			}
 		}, null));
 		base.put("Card.entryTotal", new AthleteHeaderInfo((a, s, c) -> {
@@ -781,8 +781,9 @@ public class NRegistrationFileProcessor {
 				if (setter == null) {
 					logger.debug("No setter found for group header '{}'", headerValue);
 					// append a newline so each error appears on its own line when displayed
-					errors.add(MessageFormat.format("Ignoring unknown column ''{0}'' at sheet {1} [{2}]\n",
-					        headerValue, cell.getSheet().getSheetName(), cell.getAddress()));
+					errors.add(MessageFormat.format(
+					        Translator.translate("Registration.UnknownColumnIgnored"),
+					        headerValue, cell.getSheet().getSheetName(), cell.getAddress()) + "\n");
 					setter = (rg, c) -> {
 						/* noop */ };
 				}
@@ -1075,15 +1076,16 @@ public class NRegistrationFileProcessor {
 					        Translator.translate("Upload.CannotDetermineRegistrationCategory"), errorConsumer);
 				}
 				if (genderMissing) {
-					reportCellError(delayedSetterCells[DelayedSetter.GENDER.ordinal()], "Missing gender", errorConsumer);
+					reportCellError(delayedSetterCells[DelayedSetter.GENDER.ordinal()],
+					        Translator.translate("Upload.MissingGender"), errorConsumer);
 				}
 				if ((categoryBlank || numericCategoryOnly) && birthDateMissing) {
-					reportCellError(delayedSetterCells[DelayedSetter.BIRTHDATE.ordinal()], "Missing birth date",
-					        errorConsumer);
+					reportCellError(delayedSetterCells[DelayedSetter.BIRTHDATE.ordinal()],
+					        Translator.translate("Upload.MissingBirthDate"), errorConsumer);
 				}
 				if (categoryBlank && bodyWeightMissing) {
-					reportCellError(delayedSetterCells[DelayedSetter.BODYWEIGHT.ordinal()], "Missing body weight",
-					        errorConsumer);
+					reportCellError(delayedSetterCells[DelayedSetter.BODYWEIGHT.ordinal()],
+					        Translator.translate("Upload.MissingBodyWeight"), errorConsumer);
 				}
 
 				// second pass, call the delayed setters in the correct order.

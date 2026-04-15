@@ -148,19 +148,22 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 
 			String errors = importMessages.toString();
 			String blankCategoryMessage = Translator.translate("Upload.CannotDetermineRegistrationCategory");
+			String missingGenderMessage = Translator.translate("Upload.MissingGender");
+			String missingBirthDateMessage = Translator.translate("Upload.MissingBirthDate");
+			String missingBodyWeightMessage = Translator.translate("Upload.MissingBodyWeight");
 			assertTrue("The blank category row with complete data should still report the category-cell error", errors.contains("G5 " + blankCategoryMessage));
 			assertTrue("The blank category row with missing gender should report the category-cell error", errors.contains("G12 " + blankCategoryMessage));
 			assertTrue("The blank category row with missing body weight should report the category-cell error", errors.contains("G13 " + blankCategoryMessage));
-			assertTrue("The missing-gender row should report the gender-cell error", errors.contains("F12 Missing gender"));
-			assertTrue("The numeric-only missing-birth-date row should report the birth-date-cell error", errors.contains("E3 Missing birth date"));
-			assertTrue("The blank-category missing-body-weight row should report the body-weight-cell error", errors.contains("K13 Missing body weight"));
+			assertTrue("The missing-gender row should report the gender-cell error", errors.contains("F12 " + missingGenderMessage));
+			assertTrue("The numeric-only missing-birth-date row should report the birth-date-cell error", errors.contains("E3 " + missingBirthDateMessage));
+			assertTrue("The blank-category missing-body-weight row should report the body-weight-cell error", errors.contains("K13 " + missingBodyWeightMessage));
 			assertTrue("The invalid explicit U15 category should still be reported", errors.contains("U15 M 79+"));
 			assertEquals("Every blank category row should report the category-cell error", 3,
 				countOccurrences(errors, blankCategoryMessage));
-			assertEquals("The missing-gender rule should fire once", 1, countOccurrences(errors, "Missing gender"));
-			assertEquals("Only the numeric-category row should report a missing birth date", 1, countOccurrences(errors, "Missing birth date"));
+			assertEquals("The missing-gender rule should fire once", 1, countOccurrences(errors, missingGenderMessage));
+			assertEquals("Only the numeric-category row should report a missing birth date", 1, countOccurrences(errors, missingBirthDateMessage));
 			assertEquals("Only the blank-category row missing body weight should report missing body weight", 1,
-				countOccurrences(errors, "Missing body weight"));
+				countOccurrences(errors, missingBodyWeightMessage));
 		}
 	}
 
