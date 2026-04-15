@@ -94,15 +94,22 @@ else
   ./release.sh "$@"
 fi
 
-# Step 7: Switch back to devXX
+# Step 7: Refresh local mainXX from origin after release.sh.
+# release.sh triggers CI-side release commits and may or may not leave the local
+# branch advanced to the remote tip, depending on local branch tracking/state.
+# Pull explicitly here so the merge-back to devXX always uses the released main tip.
+echo "Refreshing ${MAIN_BRANCH} from origin..."
+git pull --ff-only origin "${MAIN_BRANCH}"
+
+# Step 8: Switch back to devXX
 echo "Switching back to ${DEV_BRANCH}..."
 git checkout "${DEV_BRANCH}"
 
-# Step 8: Fast-forward merge from mainXX
+# Step 9: Fast-forward merge from mainXX
 echo "Merging ${MAIN_BRANCH} into ${DEV_BRANCH} (fast-forward only)..."
 git merge --ff-only "${MAIN_BRANCH}"
 
-# Step 9: Push the merged devXX branch
+# Step 10: Push the merged devXX branch
 echo "Pushing ${DEV_BRANCH}..."
 git push origin "${DEV_BRANCH}"
 
