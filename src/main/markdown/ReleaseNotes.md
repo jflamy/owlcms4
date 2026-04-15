@@ -10,6 +10,13 @@
 
 **New in Release 66**
 
+66.0.1: Lack of lot numbers is now a stern warning on pre-competition document production instead of a blocker.
+
+66.0.1: Improved registration file processing
+  - no automatic inference of categories if any of the birth, gender or body weight information is missing
+  - blank categories are accepted if not inferable (assumed to be filled interactively)
+  - explicitly listed categories never are completed by inference
+
 66.0.0: Mixed Team Championships
   - Allow explicit nomination of a mixed team, or implicit men and women combined
   - A gender-equitable scoring system (e.g. GAMX) can be applied, independently of the gendered teams scoring
