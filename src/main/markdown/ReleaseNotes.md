@@ -10,6 +10,8 @@
 
 **New in Release 66**
 
+66.0.1: Session results scoring system drop down was not taken into account.  Now behaves the same as competition results.
+
 66.0.1: Lack of lot numbers is now a stern warning on pre-competition document production instead of a blocker.
 
 66.0.1: Improved registration file processing

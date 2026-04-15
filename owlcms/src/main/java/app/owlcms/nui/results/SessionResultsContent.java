@@ -201,7 +201,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	 */
 	@Override
 	public AthleteCrudGrid createCrudGrid(OwlcmsCrudFormFactory<Athlete> crudFormFactory) {
-		Grid<Athlete> grid = SessionResultsContent.createResultGrid(null);
+		Grid<Athlete> grid = SessionResultsContent.createResultGrid(this.getScoringSystem());
 
 		OwlcmsGridLayout gridLayout = new OwlcmsGridLayout(Athlete.class);
 		AthleteCrudGrid crudGrid = new AthleteCrudGrid(Athlete.class, gridLayout, crudFormFactory, grid) {
@@ -349,7 +349,12 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	}
 
 	public Ranking getScoringSystem() {
-		return this.scoringSystem; // not reliable.
+		if (this.scoringSystem != null) {
+			return this.scoringSystem;
+		}
+		Championship effectiveChampionship = Championship.of(null);
+		Ranking championshipScoring = effectiveChampionship.getBestAthleteScoringSystem();
+		return championshipScoring != null ? championshipScoring : effectiveChampionship.getScoringSystem();
 	}
 
 	@Override
@@ -540,7 +545,6 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			scoringCombo.setWidth("30ch");
 			this.setRankingSelector(scoringCombo);
 			getCrudLayout(crud).addFilterComponent(scoringCombo);
-			scoringCombo.setValue(computeScoringSystem());
 			scoringCombo.addValueChangeListener(event -> {
 				if (!event.isFromClient()) {
 					return;
@@ -548,6 +552,11 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 				setScoringSystem(event.getValue());
 				resetGrid();
 			});
+			Ranking initialValue = getScoringSystem();
+			scoringCombo.setValue(initialValue);
+			if (this.scoringSystem == null) {
+				setScoringSystem(initialValue);
+			}
 		}
 	}
 
@@ -590,7 +599,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		if (getRankingSelector() != null && getRankingSelector().getValue() != null) {
 			ranking = getRankingSelector().getValue();
 		} else {
-			ranking = getScoringSystem() != null ? getScoringSystem() : Championship.of(null).getScoringSystem();
+			ranking = getScoringSystem();
 		}
 		logger.debug("computeScoringSystem {}", ranking);
 		return ranking;
@@ -687,15 +696,9 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	}
 
 	private void resetGrid() {
-		// we cannot just reset the data provider because we are changing columns.
-		// brute-force way to recompute the grid layout without reloading the page.
-		var g = this.getCrudGrid().getCrudLayout();
-		var parent = ((Component) g).getParent().get();
-		parent.getChildren().forEach(c -> c.removeFromParent());
-		parent.removeFromParent();
-		this.setRankingSelector(null);
-		this.setGenderFilter(null);
-		init();
+		Grid<Athlete> newGrid = SessionResultsContent.createResultGrid(this.getScoringSystem());
+		this.getCrudGrid().replaceGrid(newGrid);
+		this.getCrudGrid().refreshGrid();
 	}
 
 	private void setCurrentGroup(Group currentGroup) {
