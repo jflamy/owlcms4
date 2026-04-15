@@ -754,6 +754,11 @@ public class RAthlete {
 			candidates.add(baseName);
 		}
 
+		String strippedGender = stripRedundantGenderToken(baseName);
+		if (!strippedGender.contentEquals(baseName)) {
+			candidates.add(strippedGender);
+		}
+
 		// if +number or number+ is present, add >number as candidate using regex replaceAll
 		String nc = baseName.replaceAll("(\\d+)[+]", ">$1");
 		if (!nc.contentEquals(baseName)) {
@@ -763,7 +768,24 @@ public class RAthlete {
 		if (!nc.contentEquals(baseName)) {	
 			candidates.add(nc);
 		}
+		if (!strippedGender.contentEquals(baseName)) {
+			nc = strippedGender.replaceAll("(\\d+)[+]", ">$1");
+			if (!nc.contentEquals(strippedGender)) {
+				candidates.add(nc);
+			}
+			nc = strippedGender.replaceAll("[+](\\d+)", ">$1");
+			if (!nc.contentEquals(strippedGender)) {
+				candidates.add(nc);
+			}
+		}
 		logger.debug("candidates: {}",candidates);
 		return candidates;
+	}
+
+	private String stripRedundantGenderToken(String categoryName) {
+		if (categoryName == null) {
+			return "";
+		}
+		return categoryName.replaceFirst("^(.+?)\\s+[mMfFwW]\\s+(\\d+(?:[+]|)|>\\d+)$", "$1 $2").trim();
 	}
 }

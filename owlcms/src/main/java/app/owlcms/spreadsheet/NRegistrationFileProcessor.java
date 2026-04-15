@@ -868,6 +868,21 @@ public class NRegistrationFileProcessor {
 		//LoggerUtils.logError(logger, e, true);
 	}
 
+	private boolean isBlankValue(String value) {
+		return value == null || value.isBlank();
+	}
+
+	private boolean isNumericCategoryOnly(String categoryValue) {
+		return categoryValue != null && categoryValue.trim().matches("\\d+");
+	}
+
+	private void reportCellError(Cell cell, String message, Consumer<String> errorConsumer) {
+		if (cell == null || message == null || message.isBlank()) {
+			return;
+		}
+		processException(null, null, cell, new IllegalArgumentException(message), errorConsumer);
+	}
+
 	// ... header row detection removed; SBDE uses fixed header row at index 1 when Session is in A2
 
 	private List<RAthlete> readAthletes(Workbook workbook, RCompetition rComp, Consumer<String> errorConsumer, int rowsToSkip) {
@@ -1037,12 +1052,71 @@ public class NRegistrationFileProcessor {
 					break rows;
 				}
 
+				for (int delayedOrder = 0; delayedOrder < DelayedSetter.values().length; delayedOrder++) {
+					Integer setterColumn = this.delayedSetterColumns[delayedOrder];
+					if (setterColumn != null && setterColumn < athleteHeaderStopColumn
+					        && delayedSetterCells[delayedOrder] == null) {
+						Cell delayedCell = row.getCell(setterColumn, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+						delayedSetterCells[delayedOrder] = delayedCell;
+						delayedSetterValues[delayedOrder] = cellToString(delayedCell).trim();
+					}
+				}
+
+				String categoryValue = delayedSetterValues[DelayedSetter.CATEGORY.ordinal()];
+				boolean categoryBlank = isBlankValue(categoryValue);
+				boolean numericCategoryOnly = isNumericCategoryOnly(categoryValue);
+				boolean genderMissing = isBlankValue(delayedSetterValues[DelayedSetter.GENDER.ordinal()]);
+				boolean birthDateMissing = isBlankValue(delayedSetterValues[DelayedSetter.BIRTHDATE.ordinal()]);
+				boolean bodyWeightMissing = isBlankValue(delayedSetterValues[DelayedSetter.BODYWEIGHT.ordinal()]);
+				boolean canAutoAssignBlankCategory = !genderMissing && !birthDateMissing && !bodyWeightMissing;
+
+				if (categoryBlank) {
+					reportCellError(delayedSetterCells[DelayedSetter.CATEGORY.ordinal()],
+					        Translator.translate("Upload.CannotDetermineRegistrationCategory"), errorConsumer);
+				}
+				if (genderMissing) {
+					reportCellError(delayedSetterCells[DelayedSetter.GENDER.ordinal()], "Missing gender", errorConsumer);
+				}
+				if ((categoryBlank || numericCategoryOnly) && birthDateMissing) {
+					reportCellError(delayedSetterCells[DelayedSetter.BIRTHDATE.ordinal()], "Missing birth date",
+					        errorConsumer);
+				}
+				if (categoryBlank && bodyWeightMissing) {
+					reportCellError(delayedSetterCells[DelayedSetter.BODYWEIGHT.ordinal()], "Missing body weight",
+					        errorConsumer);
+				}
+
 				// second pass, call the delayed setters in the correct order.
 				for (int delayedOrder = 0; delayedOrder < DelayedSetter.values().length; delayedOrder++) {
 					Integer setterColumn = this.delayedSetterColumns[delayedOrder];
 					this.logger.debug("delayed setter [{}] {} {}", delayedOrder, DelayedSetter.values()[delayedOrder],
 					        setterColumn);
-					if (setterColumn != null && delayedSetterCells[delayedOrder] != null) {
+					if (setterColumn == null || delayedSetterCells[delayedOrder] == null) {
+						continue;
+					}
+					if (delayedOrder == DelayedSetter.GENDER.ordinal() && genderMissing) {
+						continue;
+					}
+					if (delayedOrder == DelayedSetter.BIRTHDATE.ordinal() && birthDateMissing) {
+						continue;
+					}
+					if (delayedOrder == DelayedSetter.BODYWEIGHT.ordinal() && bodyWeightMissing) {
+						continue;
+					}
+					if (delayedOrder == DelayedSetter.CATEGORY.ordinal()) {
+						if (categoryBlank) {
+							if (!canAutoAssignBlankCategory) {
+								continue;
+							}
+						} else if (numericCategoryOnly) {
+							boolean canUseNumericCategory = ra.getAthlete().getGender() != null
+							        && ra.getAthlete().getFullBirthDate() != null;
+							if (!canUseNumericCategory) {
+								continue;
+							}
+						}
+					}
+					if (this.setterForColumn[setterColumn] != null) {
 						this.setterForColumn[setterColumn].accept(ra, delayedSetterValues[delayedOrder],
 						        delayedSetterCells[delayedOrder]);
 					}
