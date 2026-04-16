@@ -2819,6 +2819,12 @@ public class FieldOfPlay implements IUnregister {
 		// logger.debug("recompute record map");
 		this.groupRecords.clear();
 		for (Athlete a : athletes) {
+			if (!hasCompleteRecordLookupProfile(a)) {
+				this.displayableRecordsByAthlete.put(a, List.of());
+				this.eligibleRecordsByAthlete.put(a, List.of());
+				continue;
+			}
+
 			List<RecordEvent> displayableRecords = RecordFilter.computeDisplayableRecordsForAthlete(a);
 			this.displayableRecordsByAthlete.put(a, displayableRecords);
 
@@ -2828,6 +2834,13 @@ public class FieldOfPlay implements IUnregister {
 
 			this.groupRecords.addAll(displayableRecords);
 		}
+	}
+
+	private boolean hasCompleteRecordLookupProfile(Athlete athlete) {
+		return athlete != null
+		        && athlete.getFullBirthDate() != null
+		        && athlete.getGender() != null
+		        && athlete.getBodyWeight() != null;
 	}
 
 	/**

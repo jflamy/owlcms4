@@ -9,6 +9,7 @@ package app.owlcms.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -290,6 +291,30 @@ public class RecordsTest {
     }
 
     @Test
+    public void missingBirthDatePreventsChallengeableRecordLookupInFieldOfPlay() {
+        Athlete athlete = createAthleteForChallengeableRecordLookup();
+        athlete.setFullBirthDate(null);
+
+        assertNoChallengeableRecordsForIncompleteAthlete(athlete);
+    }
+
+    @Test
+    public void missingGenderPreventsChallengeableRecordLookupInFieldOfPlay() {
+        Athlete athlete = createAthleteForChallengeableRecordLookup();
+        athlete.setGender(null);
+
+        assertNoChallengeableRecordsForIncompleteAthlete(athlete);
+    }
+
+    @Test
+    public void missingBodyWeightPreventsChallengeableRecordLookupInFieldOfPlay() {
+        Athlete athlete = createAthleteForChallengeableRecordLookup();
+        athlete.setBodyWeight(null);
+
+        assertNoChallengeableRecordsForIncompleteAthlete(athlete);
+    }
+
+    @Test
     public void redefiningHistoricalOfficialRecordDoesNotTriggerWarningRule() {
         RecordEvent historical = RecordRepository.save(createRecord(100.0D, null));
         RecordRepository.save(createRecord(105.0D, null));
@@ -507,5 +532,27 @@ public class RecordsTest {
 		record.setBwCatString(Integer.toString(bwCatUpper));
 		return record;
 	}
+
+    private void assertNoChallengeableRecordsForIncompleteAthlete(Athlete athlete) {
+        RecordRepository.save(createRecord(100.0D, null));
+
+        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(List.of(athlete), new MockCountdownTimer(),
+                new MockCountdownTimer());
+        fopState.recomputeRecords(athlete);
+
+        assertNotNull(fopState.getChallengedRecords());
+        assertEquals(0, fopState.getChallengedRecords().size());
+    }
+
+    private Athlete createAthleteForChallengeableRecordLookup() {
+        Athlete athlete = new Athlete();
+        athlete.setFirstName("Test");
+        athlete.setLastName("Lifter");
+        athlete.setFullBirthDate(LocalDate.now().minusYears(30));
+        athlete.setGender(Gender.F);
+        athlete.setBodyWeight(75.0D);
+        athlete.setSnatch1Declaration("101");
+        return athlete;
+    }
 
 }
