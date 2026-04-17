@@ -342,9 +342,13 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			if (a == null || a.isEmpty()) {
 				return Optional.of(new NoAthletesException());
 			}
+			if (a.stream().anyMatch(ath -> ath.getLotNumber() == null || ath.getLotNumber() <= 0)) {
+				return Optional.of(new WarningMissingLotNumbersException());
+			}
 			return Optional.empty();
 		} else {
-			int total = athletesFindAll(true).size();
+			List<Athlete> allAthletes = athletesFindAll(true);
+			int total = allAthletes.size();
 			if (total == 0) {
 				return Optional.of(new NoAthletesException());
 			}
@@ -355,8 +359,20 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			if (total > 150) {
 				return Optional.of(new TooManyAthletesException());
 			}
+			if (allAthletes.stream().anyMatch(ath -> ath.getLotNumber() == null || ath.getLotNumber() <= 0)) {
+				return Optional.of(new WarningMissingLotNumbersException());
+			}
 			return Optional.empty();
 		}
+	};
+
+	private final BiFunction<List<Athlete>, Group, Optional<Exception>> blockingCardsScopePrecheck = (a, g) -> {
+		Optional<Exception> result = cardsScopePrecheck.apply(a, g);
+		if (result != null && result.isPresent() && result.get() instanceof WarningMissingLotNumbersException) {
+			Exception warning = result.get();
+			return Optional.of(new MissingLotNumbersException(warning.getMessage(), warning));
+		}
+		return result;
 	};
 
 	// Variant of default scope precheck that allows no session to be selected. Used for
@@ -850,7 +866,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		        "AthleteCards",
 		        true, // requires session selection
 		        false, // don't generate start numbers
-		        false); // allow missing lot numbers warning for document generation
+		        true); // block cards generation when lot numbers are missing
 	}
 
 	/**
@@ -1362,7 +1378,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		// use total athletes and require >0 and less than 100, and check for reasonable selection (not too many athletes)
 		return defineKit("cards",
 		        templateDefinition,
-		        cardsScopePrecheck,
+		        blockingCardsScopePrecheck,
 		        (a, g) -> {
 			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
 			        xlsWriter.setGroup(g);
