@@ -24,6 +24,7 @@ import app.owlcms.i18n.Translator;
 public class ResultsRankingOrder extends Results {
 
 	public ResultsRankingOrder() {
+		getElement().setProperty("showCategoryHeaders", true);
 	}
 
 	@Override

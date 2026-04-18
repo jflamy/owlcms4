@@ -84,14 +84,10 @@ class Results extends LitElement {
                   <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
                 </tr>
                 ${(this.athletes ?? []).map(
-                    (item) =>
+                    (item, index, athletes) =>
                       html`
                         ${item?.isSpacer
-                          ? html`
-                            <tr>
-                              <td class="spacer" style="grid-column: 1 / -1; justify-content: left;">&nbsp;</td>
-                            </tr>
-                          `
+                          ? this.renderSpacerRow(item, index, athletes)
                           : html`
                             <tr class="${"athlete" + (item?.classname ?? "")}">
                               <td class="${"start " + (item?.classname ?? "")}">
@@ -129,7 +125,7 @@ class Results extends LitElement {
                               <td class="best">
                                 <div .innerHTML="${item?.bestSnatch} "></div>
                               </td>
-                              <td class="rank">
+                              <td class="${"rank " + (item?.snatchMedal ?? "")}">
                                 <div .innerHTML="${item?.snatchRank} "></div>
                               </td>
                               <td class="vspacer"></td>
@@ -143,20 +139,20 @@ class Results extends LitElement {
                               <td class="best">
                                 <div .innerHTML="${item?.bestCleanJerk}"></div>
                               </td>
-                              <td class="rank">
+                              <td class="${"rank " + (item?.cleanJerkMedal ?? "")}">
                                 <div .innerHTML="${item?.cleanJerkRank}"></div>
                               </td>
                               <td class="vspacer"></td>    
                               <td class="total">
                                 <div>${item?.total}</div>
                               </td>
-                              <td class="totalRank">
+                              <td class="${"totalRank " + (item?.totalMedal ?? "")}">
                                 <div .innerHTML="${item?.totalRank}"></div>
                               </td>
                               <td class="sinclair">
                                 <div>${item?.sinclair}</div>
                               </td>
-                              <td class="sinclairRank">
+                              <td class="${"sinclairRank " + (item?.sinclairMedal ?? "")}">
                                 <div>${item?.sinclairRank}</div>
                               </td>
                             </tr>
@@ -201,7 +197,7 @@ class Results extends LitElement {
                                       <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
                                 <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestSnatch}"></div></td>
-                                <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.snatchRank}"></div></td>
+                                <td class="${"rank " + (item?.snatchMedal ?? "")}" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.snatchRank}"></div></td>
                                 <td class="vspacer" style="${this.leadingAthleteStyles()} "></td>
                                 ${(item?.cattempts ?? []).map(
                                   (attempt, index) =>
@@ -209,12 +205,12 @@ class Results extends LitElement {
                                       <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
                                 <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestCleanJerk}"></div></td>
-                                <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.cleanJerkRank}"></div></td>
+                                <td class="${"rank " + (item?.cleanJerkMedal ?? "")}" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.cleanJerkRank}"></div></td>
                                 <td class="vspacer sinclairVspacer"></td>
                                 <td class="total" style="${this.leadingAthleteStyles()} "> <div>${item?.total}</div></td>
-                                <td class="totalRank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.totalRank}"></div></td>
+                                <td class="${"totalRank " + (item?.totalMedal ?? "")}" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.totalRank}"></div></td>
                                 <td class="sinclair" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclair}</div></td>
-                                <td class="sinclairRank" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclairRank}</div></td>
+                                <td class="${"sinclairRank " + (item?.sinclairMedal ?? "")}" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclairRank}</div></td>
                               </tr>
                           `
                           : html``}
@@ -302,6 +298,7 @@ class Results extends LitElement {
       colorOverride: {},
       video: {},
       currentAttempt: {},
+      showCategoryHeaders: {type: Boolean},
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
@@ -402,6 +399,29 @@ class Results extends LitElement {
     return "line-height: var(--bottomSpacerHeight)";
   }
 
+  hasMultipleCategorySections(athletes = this.athletes ?? []) {
+    return athletes.filter((item) => item?.isSpacer).length > 1;
+  }
+
+  renderSpacerRow(_item, index, athletes) {
+    if (this.showCategoryHeaders && this.hasMultipleCategorySections(athletes)) {
+      const categoryTitle = athletes[index + 1]?.category ?? "";
+      if (categoryTitle) {
+        return html`
+          <tr>
+            <td class="categoryGroupHeader" style="margin-top: ${index > 0 ? "0.4em" : "0"};">${categoryTitle}</td>
+          </tr>
+        `;
+      }
+    }
+
+    return html`
+      <tr>
+        <td class="spacer" style="grid-column: 1 / -1; justify-content: left;">&nbsp;</td>
+      </tr>
+    `;
+  }
+
   athleteClasses() {
     var classes = "results "
     + (this.showTotal ? " total" : " nototal")
@@ -453,6 +473,7 @@ class Results extends LitElement {
   constructor() {
     super();
     this.mode = "WAIT";
+    this.showCategoryHeaders = false;
   }
  }
 

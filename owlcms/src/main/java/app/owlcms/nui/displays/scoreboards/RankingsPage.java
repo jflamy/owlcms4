@@ -24,7 +24,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route("displays/rankings")
 
-public class RankingsPage extends MedalsPage {
+public class RankingsPage extends AbstractResultsDisplayPage {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(RankingsPage.class);
 
@@ -62,8 +62,7 @@ public class RankingsPage extends MedalsPage {
 		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
 		        SoundParameters.START_ORDER, "false",
 		        DisplayParameters.CURRENT_ATTEMPT, "false",
-		        DisplayParameters.SHOW_MEDALS, "auto",
-		        DisplayParameters.TOP_N, Integer.toString(DisplayParameters.DEFAULT_TOP_N));
+		        DisplayParameters.SHOW_MEDALS, "auto");
 		Map<String, String> fullMap = new TreeMap<>();
 		fullMap.putAll(initialMap);
 		fullMap.putAll(additionalMap);

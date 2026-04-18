@@ -898,13 +898,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		int attemptNo = attemptIndex % 3 + 1;
 		String translation = Translator.translateOrElseNull("AttemptBoard_lift_attempt_number", getLocale());
 		if (translation != null) {
-			if (attemptIndex < 3) {
-				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo,
-				        Translator.translate("AttemptBoard_lift.SNATCH"));
-			} else {
-				translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo - 3,
-				        Translator.translate("AttemptBoard_lift.CLEANJERK"));
-			}
+			String liftKey = attemptIndex < 3 ? "AttemptBoard_lift.SNATCH" : "AttemptBoard_lift.CLEANJERK";
+			translation = Translator.translate("AttemptBoard_lift_attempt_number", attemptNo,
+			        Translator.translate(liftKey));
 		} else {
 			translation = Translator.translate("AttemptBoard_attempt_number", attemptNo);
 		}

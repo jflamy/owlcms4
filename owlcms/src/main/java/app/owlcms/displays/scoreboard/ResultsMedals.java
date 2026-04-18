@@ -196,7 +196,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			logger.error("category without ageGroup: {}", cat);
 		}
 		Ranking scoringSystem = ageGroup2 != null ? ageGroup2.getScoringSystem() : null;
-		String rankingTitle = Translator.translate("Rank");
+		String rankingTitle = Translator.translate("Scoreboard.Rank");
 		if (scoringSystem != null && scoringSystem != Ranking.TOTAL) {
 			String scoreScoringTitle = Translator.translate("Score");
 			scoreScoringTitle = Ranking.getScoringTitle(scoringSystem);

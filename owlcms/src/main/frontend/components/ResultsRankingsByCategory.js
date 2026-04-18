@@ -202,10 +202,20 @@ class ResultsRankingsByCategory extends LitElement {
       twOverride: {},
       colorOverride: {},
       video: {},
+      currentAttempt: {},
+      showTotal: {type: Boolean},
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
+      showTotalRank: {type: Boolean},
       showSinclair: {type: Boolean},
+      showSinclairRank: {type: Boolean},
       showSinclairRanks: {type: Boolean},
+      showLeaders: {type: Boolean},
+      showRecords: {type: Boolean},
+      resultLines: {},
+      leaderLines: {},
+      leadersLineHeight: {},
+      leaderFillerHeight: {},
       showMedals: {type: String}, // "auto", "true", or "false"
 
       // translation map
@@ -258,15 +268,23 @@ class ResultsRankingsByCategory extends LitElement {
   }
 
   athleteClasses() {
+    const showSinclairRank = this.showSinclairRank ?? this.showSinclairRanks;
     return "results "
+      + (this.showTotal ? " total" : " nototal")
       + (this.showLiftRanks ? " ranks" : " noranks")
+      + (this.showBest ? " best" : " nobest")
+      + (this.showTotalRank ? " totalRank" : " nototalRank")
       + (this.showSinclair ? " sinclair" : " nosinclair")
-      + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
+      + (showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;
   }
 
   athleteStyles() {
-    return "display:grid"
+    return "display:grid "
+      + (this.resultLines ? ("; --top: calc(" + this.resultLines + ")") : "")
+      + (this.leaderLines ? "; --bottom: " + this.leaderLines : "")
+      + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "")
+      + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "")
       + (this.twOverride ? "; " + this.twOverride : "");
   }
 
