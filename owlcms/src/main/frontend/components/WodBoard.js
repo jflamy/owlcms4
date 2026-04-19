@@ -1,5 +1,7 @@
 import { html, LitElement, css } from "lit";
 
+import { stylesheetHref } from "./stylesheetHref.js";
+
 class WodBoard extends LitElement {
   static get is() {
     return "wod-board";
@@ -28,7 +30,7 @@ class WodBoard extends LitElement {
     const a = this.athletes || [];
     const [a1, a2, a3, a4] = [a[0] || {}, a[1] || {}, a[2] || {}, a[3] || {}];
     return html`
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "") + ".css"}" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}" />
       <div class="timer-overlay">
         <div class="timer-frame">
           <timer-element id="breakTimer"></timer-element>

@@ -1,5 +1,7 @@
 import { html, LitElement, css } from "lit";
 
+import { stylesheetHref } from "./stylesheetHref.js";
+
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
@@ -58,8 +60,8 @@ export class NCurrentAthlete extends LitElement {
 
   render() {
     return html`
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css"/>
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/ncurrentathlete" + (this.autoversion ?? "")}.css"/>
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}"/>
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "ncurrentathlete")}"/>
 
       <div class="lower-third-container">
         <div class="circle-container">

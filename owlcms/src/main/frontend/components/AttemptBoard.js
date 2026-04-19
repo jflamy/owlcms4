@@ -1,6 +1,7 @@
 import { html, LitElement, css } from "lit";
 import { styleMap } from 'lit/directives/style-map.js';
 import { classMap } from 'lit/directives/class-map.js';
+import { stylesheetHref } from "./stylesheetHref.js";
 
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
@@ -16,9 +17,9 @@ class CurrentAttempt extends LitElement {
 
   render() {
     return html` 
-    <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "") + ".css"}"/>
+    <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}"/>
     <!-- link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/resultsCustomization" + (this.autoversion ?? "") + ".css"}"/ -->
-    <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/attemptboard" + (this.autoversion ?? "") + ".css"}"/>
+    <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "attemptboard")}"/>
 
     <div class="${this.wrapperClasses()}" style="${this.colorOverride}">
       <div class="${this.wrapperClasses()} bigTitle" style="${this.waitingStyles()}">

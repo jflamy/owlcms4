@@ -1,4 +1,5 @@
 import { html, LitElement, css } from "lit";
+import { stylesheetHref } from "./stylesheetHref.js";
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
@@ -13,8 +14,8 @@ class TopSinclair extends LitElement {
 
   render() {
     return html` 
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/topSinclair" + (this.autoversion ?? "")}.css" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "topSinclair")}" />
       <div class="notused" style="display:none">
         <timer-element id="timer"></timer-element>
         <timer-element id="breakTimer"></timer-element>

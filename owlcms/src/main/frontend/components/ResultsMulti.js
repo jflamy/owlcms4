@@ -1,4 +1,5 @@
 import { html, LitElement, css } from "lit";
+import { stylesheetHref } from "./stylesheetHref.js";
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
@@ -13,9 +14,9 @@ class ResultsFull extends LitElement {
 
   render() {
     return html`
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "") + ".css"}" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/resultsMulti" + (this.autoversion ?? "") + ".css"}" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/resultsMultiCustomization" + (this.autoversion ?? "") + ".css"}" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "resultsMulti")}" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "resultsMultiCustomization")}" />
 
       <div class="${this.wrapperClasses()}" style="${this.sizeOverride} ${this.colorOverride}">
         <div class="blockPositioningWrapper">

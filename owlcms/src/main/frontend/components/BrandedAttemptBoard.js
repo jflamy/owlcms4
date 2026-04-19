@@ -1,6 +1,7 @@
 import { html, LitElement, css } from "lit";
 import { styleMap } from 'lit/directives/style-map.js';
 import { classMap } from 'lit/directives/class-map.js';
+import { stylesheetHref } from "./stylesheetHref.js";
 
 /*******************************************************************************
  * Copyright (c) 2009-2024 Jean-François Lamy
@@ -82,7 +83,7 @@ class CurrentAttempt extends LitElement {
 
   render() {
     return html` 
-    <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "") + ".css"}"/>
+    <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}"/>
 
     <div class="wrapper">
       <div class="attemptBoardGrid" style="height: 100%">

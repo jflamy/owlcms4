@@ -1,4 +1,5 @@
 import { html, LitElement, css } from "lit";
+import { stylesheetHref } from "./stylesheetHref.js";
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
@@ -13,8 +14,8 @@ class Monitor extends LitElement {
 
   render() {
     return html`
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "")}.css" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "eventmonitor" + (this.autoversion ?? "")}.css" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, `${this.video ?? ""}colors`) }" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, `${this.video ?? ""}eventmonitor`) }" />
       <div class="wrapper">
         <div class="${"notification " + (this.notificationClass ?? "")}">
           ${this.title}

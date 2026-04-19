@@ -1,4 +1,5 @@
 import { html, LitElement, css } from "lit";
+import { stylesheetHref } from "./stylesheetHref.js";
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
@@ -13,8 +14,8 @@ class CurrentAthlete extends LitElement {
 
   render() {
     return html` 
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/colors" + (this.autoversion ?? "")}.css"/>
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/currentathlete" + (this.autoversion ?? "")}.css"/>
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}"/>
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "currentathlete")}"/>
      
       <div class="${this.wrapperClasses()}" style="${this.colorOverride}">
         <div class="waiting" style="${this.waitingStyles()}">
