@@ -10,6 +10,11 @@
 
 **New in Release 66**
 
+66.1.0-rc01: Ranking order and medal scoreboard improvements
+  - medals shown as circles, row heights reduced
+  - show category headers
+  - respect styling for warmup room, public and broadcast variants
+
 66.0.1-rc02: Athlete Cards production gets an error message and denial if lot numbers have not been assigned
 
 66.0.1-rc01: Athlete with no birth date is now correctly excluded from challenging records
