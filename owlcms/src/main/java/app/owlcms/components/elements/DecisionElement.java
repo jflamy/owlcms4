@@ -68,7 +68,7 @@ public class DecisionElement extends LitTemplate
 
 	public void setFop(FieldOfPlay fop) {
 		this.fop = fop;
-		logger.warn("DecisionElement.setFop: fop={} isSingleRef={} isJuryMode={} {}",
+		logger.debug("DecisionElement.setFop: fop={} isSingleRef={} isJuryMode={} {}",
 		        (fop != null ? fop.getName() : "null"), this.isSingleRef(), this.isJuryMode(),
 		        LoggerUtils.whereFrom());
 		getElement().setProperty("singleRef", this.isSingleRef());
