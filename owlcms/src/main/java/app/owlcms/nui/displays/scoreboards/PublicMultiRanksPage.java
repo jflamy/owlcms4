@@ -56,8 +56,8 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 			return;
 		}
 		this.ui.access(() -> {
-			getMedalsBoard().setVisible(false);
-			getResultsBoard().setVisible(true);
+			getMedalsBoard().getStyle().set("display", "none");
+			getResultsBoard().getStyle().set("display", "block");
 		});
 	}
 
@@ -67,11 +67,18 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 			return;
 		}
 		this.ui.access(() -> {
-			getMedalsBoard().setDarkMode(getResultsBoard().isDarkMode());
-			getMedalsBoard().setTeamWidth(getResultsBoard().getTeamWidth());
-			getMedalsBoard().setEmFontSize(getResultsBoard().getEmFontSize());
-			getMedalsBoard().setVisible(true);
-			getResultsBoard().setVisible(false);
+			/* copy current parameters from results board to medals board */
+			this.getMedalsBoard().setDownSilenced(true);
+			this.getMedalsBoard().setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
+			this.getMedalsBoard().setVideo(((DisplayParameters) getBoard()).isVideo());
+			this.getMedalsBoard().setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
+			this.getMedalsBoard().setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
+			this.getMedalsBoard().setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
+			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
+			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
+			computeStylesDir(this.getMedalsBoard());
+			getMedalsBoard().getStyle().set("display", "block");
+			getResultsBoard().getStyle().set("display", "none");
 		});
 	}
 
@@ -86,6 +93,14 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 		this.setMedalsBoard(new ResultsMedals());
 		this.setBoard(board);
 		this.setResultsBoard(board);
+
+		getMedalsBoard().setDownSilenced(true);
+		getMedalsBoard().setDarkMode(board.isDarkMode());
+		getMedalsBoard().setVideo(board.isVideo());
+		getMedalsBoard().setPublicDisplay(board.isPublicDisplay());
+		getMedalsBoard().setSingleReferee(board.isSingleReferee());
+		getMedalsBoard().setAbbreviatedName(board.isAbbreviatedName());
+		computeStylesDir(getMedalsBoard());
 
 		this.ui = UI.getCurrent();
 
@@ -122,7 +137,7 @@ public class PublicMultiRanksPage extends AbstractResultsDisplayPage {
 		this.setMedalsBoard(getMedalsBoard());
 
 		this.addComponent((Component) board);
-		getMedalsBoard().setVisible(false);
+		getMedalsBoard().getStyle().set("display", "none");
 		this.addComponent(getMedalsBoard());
 	}
 

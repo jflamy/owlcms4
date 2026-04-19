@@ -405,12 +405,12 @@ class Results extends LitElement {
   }
 
   renderSpacerRow(_item, index, athletes) {
-    if (this.showCategoryHeaders && this.hasMultipleCategorySections(athletes)) {
+    if (this.showCategoryHeaders && (this.hasMultipleCategorySections(athletes) || this.hasAttribute("always-category-header"))) {
       const categoryTitle = athletes[index + 1]?.category ?? "";
       if (categoryTitle) {
         return html`
           <tr>
-            <td class="categoryGroupHeader" style="margin-top: ${index > 0 ? "0.4em" : "0"};">${categoryTitle}</td>
+            <td class="categoryGroupHeader" style="margin-top: ${index > 0 ? "0.4em" : "var(--firstCategorySpacerHeight, 0)"};">${categoryTitle}</td>
           </tr>
         `;
       }

@@ -38,6 +38,7 @@
     --rankWidth: var(--liftResultWidth);
     --rankVisibility: visible;
     --totalRankWidth: var(--liftResultWidth);
+    --medalSize: 1.75em;
     --totalRankVisibility: visible;
 
     --bestWidth: var(--liftResultWidth);
@@ -61,6 +62,26 @@
 
     /* flag height */
     --flagHeight: calc(var(--athleteNameFontSize)*1.4);
+}
+
+:host([ranking-order]) * {
+    --startWidth: 0;
+    --startVisibility: hidden;
+    --firstCategorySpacerHeight: 0.4em;
+}
+
+:host([ranking-order]) .filler {
+    background-color: var(--blockBackgroundColor);
+}
+
+:host([ranking-order]) .light table.results {
+    --spacerWidth: 1vh;
+    --rowSmallSpacerHeight: 0;
+}
+
+:host([ranking-order]) .dark table.results {
+    --spacerWidth: 1vh;
+    --rowSmallSpacerHeight: 0.25vh;
 }
 
 @media screen and (orientation: landscape) {
@@ -296,22 +317,57 @@ td.custom2 div {
 
 /* Medal colors for rankings display */
 :host table.results tr td.rank.medal1,
-:host table.results tr td.totalRank.medal1,
-:host table.results tr td.sinclairRank.medal1 {
-    background-color: gold;
-    color: black;
-}
 :host table.results tr td.rank.medal2,
+:host table.results tr td.rank.medal3,
+:host table.results tr td.totalRank.medal1,
 :host table.results tr td.totalRank.medal2,
-:host table.results tr td.sinclairRank.medal2 {
-    background-color: silver;
+:host table.results tr td.totalRank.medal3,
+:host table.results tr td.sinclairRank.medal1,
+:host table.results tr td.sinclairRank.medal2,
+:host table.results tr td.sinclairRank.medal3 {
+    background-color: var(--BackgroundColor);
+    line-height: 1;
+}
+
+:host table.results tr td.rank.medal1 > div,
+:host table.results tr td.rank.medal2 > div,
+:host table.results tr td.rank.medal3 > div,
+:host table.results tr td.totalRank.medal1 > div,
+:host table.results tr td.totalRank.medal2 > div,
+:host table.results tr td.totalRank.medal3 > div,
+:host table.results tr td.sinclairRank.medal1 > div,
+:host table.results tr td.sinclairRank.medal2 > div,
+:host table.results tr td.sinclairRank.medal3 > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--medalSize);
+    height: var(--medalSize);
+    padding: 0;
+    margin: 0 auto;
+    border-radius: 50%;
+    box-sizing: border-box;
+    line-height: 1;
+    font-weight: 700;
     color: black;
 }
-:host table.results tr td.rank.medal3,
-:host table.results tr td.totalRank.medal3,
-:host table.results tr td.sinclairRank.medal3 {
+
+:host table.results tr td.rank.medal1 > div,
+:host table.results tr td.totalRank.medal1 > div,
+:host table.results tr td.sinclairRank.medal1 > div {
+    background-color: gold;
+}
+
+:host table.results tr td.rank.medal2 > div,
+:host table.results tr td.totalRank.medal2 > div,
+:host table.results tr td.sinclairRank.medal2 > div {
+    background-color: silver;
+}
+
+:host table.results tr td.rank.medal3 > div,
+:host table.results tr td.totalRank.medal3 > div,
+:host table.results tr td.sinclairRank.medal3 > div {
     background-color: #CD7F32;
-    color: black;
 }
 
 :host table.results td.categoryGroupHeader {

@@ -35,11 +35,12 @@ import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.JuryDecisionsPage;
 import app.owlcms.nui.displays.scoreboards.JuryScoreboardPage;
 import app.owlcms.nui.displays.scoreboards.MedalsPage;
+import app.owlcms.nui.displays.scoreboards.PublicMedalsPage;
 import app.owlcms.nui.displays.scoreboards.PublicMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.PublicNoLeadersPage;
 import app.owlcms.nui.displays.scoreboards.PublicRankingOrderPage;
 import app.owlcms.nui.displays.scoreboards.PublicScoreboardPage;
-import app.owlcms.nui.displays.scoreboards.RankingsPage;
+import app.owlcms.nui.displays.scoreboards.WarmupRankingOrderPage;
 import app.owlcms.data.config.Config;
 import app.owlcms.nui.displays.scoreboards.PublicStartListPage;
 import app.owlcms.nui.displays.scoreboards.WarmupLiftingOrderPage;
@@ -109,6 +110,9 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        Translator.translate("ScoreboardMultiRanksButton"));
 			Button liftingOrder = openInNewTabWithFopCurrentAttempt(WarmupLiftingOrderPage.class,
 			        Translator.translate("Scoreboard.LiftingOrder"));
+			Button scoreboardRankings = openInNewTabWithFop(WarmupRankingOrderPage.class,
+			        Translator.translate("Scoreboard.RankingOrderButton"));
+			Button medals = openInNewTabWithFop(MedalsPage.class, Translator.translate("CeremonyType.MEDALS"));
 			VerticalLayout intro1 = new VerticalLayout();
 			addP(intro1, Translator.translate("WarmupScoreboards.explanation"));
 			Button juryScoreboard = openInNewTabWithFopCurrentAttempt(JuryScoreboardPage.class,
@@ -119,7 +123,8 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        scoreboardWLeaders,
 			        liftingOrder,
 			        scoreboardMultiRanks,
-			        juryScoreboard);
+			        scoreboardRankings,
+			        medals);
 			doGroup(Translator.translate("WarmupScoreboards"), intro1, grid1, this);
 
 			Button scoreboard1 = openInNewTabWithFopNoCurrentAttempt(PublicNoLeadersPage.class, Translator.translate("Scoreboard"));
@@ -128,30 +133,31 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			scoreboardWLeaders1.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
 			Button scoreboardMultiRanks1 = openInNewTabWithFopNoCurrentAttempt(PublicMultiRanksPage.class,
 			        Translator.translate("ScoreboardMultiRanksButton"));
-			// Default: RankingsPage (no current athlete). Toggle: PublicRankingOrderPage (with current athlete)
-			Button scoreboardRankings1 = Config.getCurrent().featureSwitch("rankingsWithCurrentAttempt")
-			        ? openInNewTabWithFopNoCurrentAttempt(PublicRankingOrderPage.class,
-			                Translator.translate("Scoreboard.RankingOrderButton"))
-			        : openInNewTabWithFop(RankingsPage.class,
-			                Translator.translate("Scoreboard.RankingOrderButton"));
+			Button scoreboardRankings1 = openInNewTabWithFopQueryParameters(PublicRankingOrderPage.class,
+			        Translator.translate("Scoreboard.RankingOrderButton"), "currentAttempt=false&showMedals=true");
 			Button startList1 = openInNewTabWithFopNoCurrentAttempt(PublicStartListPage.class, Translator.translate("Scoreboard.StartList"));
 			Button juryDecisions1 = openInNewTabWithFopNoCurrentAttempt(JuryDecisionsPage.class,
 			        Translator.translate("JuryDecisions.Title"));
+			Button publicMedals1 = openInNewTabWithFop(PublicMedalsPage.class, Translator.translate("CeremonyType.MEDALS"));
 			VerticalLayout intro11 = new VerticalLayout();
 			addP(intro11, Translator.translate("PublicScoreboards.explanation"));
 			FlexibleGridLayout grid11 = HomeNavigationContent.navigationGrid(
 			        scoreboard1,
 			        scoreboardWLeaders1,
-			        scoreboardRankings1,
 			        scoreboardMultiRanks1,
 			        startList1,
-			        juryDecisions1);
+			        publicMedals1,
+			        scoreboardRankings1);
 			doGroup(Translator.translate("PublicScoreboards"), intro11, grid11, this);
+
+			FlexibleGridLayout juryGrid = HomeNavigationContent.navigationGrid(
+			        juryScoreboard,
+			        juryDecisions1);
+			doGroup(Translator.translate("Jury"), juryGrid, this);
 
 			Ranking scoringSystem = Championship.of(null).getScoringSystem();
 			String scoringTitle = Ranking.getScoringTitle(scoringSystem);
 
-			Button medals = openInNewTabWithFop(MedalsPage.class, Translator.translate("CeremonyType.MEDALS"));
 			Button topSinclair = openInNewTabWithFop(TopSinclairPage.class,
 			        Translator.translate("Scoreboard.TopScore", scoringTitle));
 			Button topTeams = openInNewTabWithFop(TopTeamsPage.class, Translator.translate("Scoreboard.TopTeams"));
@@ -160,7 +166,6 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			VerticalLayout intro111 = new VerticalLayout();
 			FlexibleGridLayout grid111 = HomeNavigationContent.navigationGrid(
 			        topTeams,
-			        medals,
 			        topSinclair,
 			        topTeamsSinclair);
 

@@ -21,6 +21,7 @@ import com.vaadin.flow.component.dependency.JsModule;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -97,6 +98,10 @@ public class ResultsRankings extends Results {
 		athleteJson.put("totalMedal", "");
 		athleteJson.put("sinclairMedal", "");
 
+		if (!shouldShowMedalsForAthlete(athlete)) {
+			return;
+		}
+
 		Participation mainRankings = athlete.getMainRankings();
 		if (mainRankings == null) {
 			this.logger.error("main rankings null for {}", athlete);
@@ -116,6 +121,19 @@ public class ResultsRankings extends Results {
 			int scoreRank = mainRankings.getCategoryScoreRank();
 			athleteJson.put("sinclairMedal", scoreRank >= 1 && scoreRank <= 3 ? "medal" + scoreRank : "");
 		}
+	}
+
+	private boolean shouldShowMedalsForAthlete(Athlete athlete) {
+		String showMedals = isShowMedals();
+		if ("true".equalsIgnoreCase(showMedals)) {
+			return true;
+		}
+		if ("false".equalsIgnoreCase(showMedals)) {
+			return false;
+		}
+
+		Category category = athlete != null ? athlete.getCategory() : null;
+		return category != null && !AthleteRepository.getAllUnfinishedCategories().contains(category);
 	}
 
 	private Ranking determineDisplayRanking(FieldOfPlay fop) {

@@ -94,6 +94,7 @@ public class PublicRankingOrderPage extends AbstractResultsDisplayPage {
 
 	protected void createComponents() {
 		var board = new ResultsRankingOrder();
+		board.getElement().setAttribute("always-category-header", "true");
 		setMedalsBoard(new ResultsMedals());
 		this.setBoard(board);
 

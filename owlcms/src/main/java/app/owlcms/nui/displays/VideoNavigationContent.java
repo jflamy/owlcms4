@@ -50,11 +50,10 @@ import app.owlcms.nui.displays.scoreboards.CurrentAthletePage;
 import app.owlcms.nui.displays.scoreboards.JuryDecisionsPage;
 import app.owlcms.nui.displays.scoreboards.MedalsPage;
 import app.owlcms.nui.displays.scoreboards.NCurrentAthletePage;
+import app.owlcms.nui.displays.scoreboards.PublicRankingOrderPage;
 import app.owlcms.nui.displays.scoreboards.PublicStartListPage;
-import app.owlcms.nui.displays.scoreboards.RankingsPage;
 import app.owlcms.nui.displays.scoreboards.WarmupMultiRanksPage;
 import app.owlcms.nui.displays.scoreboards.WarmupNoLeadersPage;
-import app.owlcms.nui.displays.scoreboards.WarmupRankingOrderPage;
 import app.owlcms.nui.displays.scoreboards.WarmupScoreboardPage;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
@@ -156,8 +155,8 @@ public class VideoNavigationContent extends BaseNavigationContent
 			openInNewTabWithResultsQueryParameters(class1);
 		});
 		rankings.addClickListener((e) -> {
-			Class<RankingsPage> class1 = RankingsPage.class;
-			openInNewTabWithResultsQueryParameters(class1);
+			Class<PublicRankingOrderPage> class1 = PublicRankingOrderPage.class;
+			openInNewTabWithResultsQueryParameters(class1, true);
 		});
 		VerticalLayout intro1a = new VerticalLayout();
 		// addP(intro1, Translator.translate("darkModeSelect"));
@@ -183,8 +182,8 @@ public class VideoNavigationContent extends BaseNavigationContent
 		scoreboardWLeaders.getElement().setAttribute("title", Translator.translate("ScoreboardWLeadersMouseOver"));
 		Button scoreboardMultiRanks = openInNewTabWithFopQueryParameters(WarmupMultiRanksPage.class,
 		        Translator.translate("ScoreboardMultiRanksButton"), "video=true&currentAttempt=false");
-		Button scoreboardRankings = openInNewTabWithFopQueryParameters(WarmupRankingOrderPage.class,
-		        Translator.translate("Scoreboard.RankingOrderButton"), "video=true&currentAttempt=false");
+		Button scoreboardRankings = openInNewTabWithFopQueryParameters(PublicRankingOrderPage.class,
+		        Translator.translate("Scoreboard.RankingOrderButton"), "video=true&currentAttempt=false&showMedals=true");
 
 		VerticalLayout intro1 = new VerticalLayout();
 		// addP(intro1, Translator.translate("darkModeSelect"));
@@ -315,6 +314,10 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	private void openInNewTabWithResultsQueryParameters(Class<?> class1) {
+		openInNewTabWithResultsQueryParameters(class1, false);
+	}
+
+	private void openInNewTabWithResultsQueryParameters(Class<?> class1, boolean showMedals) {
 		Map<String, String> params = new TreeMap<>();
 		Category medalCategory2 = getMedalCategory();
 		Group groupToUse = null;
@@ -348,6 +351,9 @@ public class VideoNavigationContent extends BaseNavigationContent
 			params.put("fop", fop.getName());
 		}
 		params.put("video", "true");
+		if (showMedals) {
+			params.put("showMedals", "true");
+		}
 		QueryParameters qp = QueryParameters.simple(params);
 		doOpenInNewTab(class1,
 		        Translator.translate("CeremonyType.MEDALS"),
