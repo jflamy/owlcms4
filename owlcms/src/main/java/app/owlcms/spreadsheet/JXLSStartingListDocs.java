@@ -132,9 +132,7 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 			// check if this is a VFE sheet.
 			String stringCellValue = headerRow.getCell(catColumn + 1 + 1).getStringCellValue();
 			if (stringCellValue.contentEquals(Translator.translate("Change"))) {
-				// the team membership column remains, hidden.
-				// cat change + entry change + team membership = 3
-				listColumnVFEOffset = 3; // entry + entry change + cat change = 3
+				return;
 			}
 
 			int offset = 0;
@@ -210,7 +208,7 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 			}
 			sheet.setColumnHidden(sourceCol, true);
 
-			// sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, listColumn - 1 + prefixes.size()));
+			sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, listColumn - 1 + prefixes.size()));
 			w.setPrintArea(0, 0, listColumn - 1 + prefixes.size(), 0, lastLine);
 		});
 	}
