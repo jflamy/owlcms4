@@ -168,8 +168,18 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 			int lastLine = 0;
 			int sourceCol = listColumn - 1 + listColumnVFEOffset;
 			int nonContentCounter = 0;
+			if (vfeTemplate) {
+				copySourceCellAcrossGeneratedColumns(sheet.getRow(6), sourceCol, listColumn + listColumnVFEOffset,
+				        prefixes.size());
+			}
 			for (Row r : sheet) {
 				if (r.getRowNum() < 7) {
+					continue;
+				}
+				if (vfeTemplate && r.getRowNum() == 7) {
+					copySourceCellAsMergedHeader(sheet, r, sourceCol, listColumn + listColumnVFEOffset,
+					        prefixes.size());
+					nonContentCounter = 0;
 					continue;
 				}
 
@@ -235,9 +245,7 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 			sheet.setColumnHidden(sourceCol, true);
 
 			int lastColumn = listColumn - 1 + prefixes.size() + listColumnVFEOffset;
-			if (!vfeTemplate) {
-				sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, lastColumn));
-			}
+			sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, lastColumn));
 			w.setPrintArea(0, 0, lastColumn, 0, lastLine);
 		});
 	}
@@ -264,6 +272,39 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 		case _NONE:
 		default:
 			break;
+		}
+	}
+
+	private void copySourceCellAcrossGeneratedColumns(Row row, int sourceCol, int firstTargetCol, int columnCount) {
+		if (row == null) {
+			return;
+		}
+		Cell sourceCell = row.getCell(sourceCol);
+		if (sourceCell == null) {
+			return;
+		}
+		for (int offset = 0; offset < columnCount; offset++) {
+			Cell targetCell = row.createCell(firstTargetCol + offset);
+			copyCellValueAndStyle(sourceCell, targetCell);
+		}
+	}
+
+	private void copySourceCellAsMergedHeader(Sheet sheet, Row row, int sourceCol, int firstTargetCol, int columnCount) {
+		if (row == null) {
+			return;
+		}
+		Cell sourceCell = row.getCell(sourceCol);
+		if (sourceCell == null) {
+			return;
+		}
+		for (int offset = 0; offset < columnCount; offset++) {
+			Cell targetCell = row.createCell(firstTargetCol + offset);
+			targetCell.setCellStyle(sourceCell.getCellStyle());
+		}
+		copyCellValueAndStyle(sourceCell, row.getCell(firstTargetCol));
+		if (columnCount > 1) {
+			sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), firstTargetCol,
+			        firstTargetCol + columnCount - 1));
 		}
 	}
 
