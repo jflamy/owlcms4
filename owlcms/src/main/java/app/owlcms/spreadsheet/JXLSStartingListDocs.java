@@ -120,133 +120,163 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 
 	public void createTeamColumns(int listColumn, int catColumn) {
 		setPostProcessor((w) -> {
-			int listColumnVFEOffset = 0;
-			boolean vfeTemplate = false;
+			String translatedVfe = Translator.translateOrElseNull("VFE");
+			String teamMembershipTitle = Translator.translateOrElseNull("TeamMembership.Title");
 
-			List<String> prefixes = AgeGroupRepository.findAgeGroupPrefixes(null);
-			Sheet sheet = w.getSheetAt(0);
+			// One column per age-group code (e.g. "PAN"). Each bucket aggregates every AG-name
+			// that maps to that code; for DEFAULT championships the same code (PAN) appears as
+			// two AGs (one per gender) whose names are "F" and "M", so both feed the same column.
+			List<AgeGroupBucket> buckets = collectAgeGroupBuckets();
 
-			Row headerRow = sheet.getRow(5);
-			int categoryWidth = sheet.getColumnWidth(catColumn + 1);
-			CellStyle style = headerRow.getCell(catColumn + 1).getCellStyle();
+			for (int sheetIndex = 0; sheetIndex < w.getNumberOfSheets(); sheetIndex++) {
+				int listColumnVFEOffset = 0;
+				boolean vfeTemplate = false;
 
-			// check if this is a VFE sheet.
-			Row templateMarkerRow = sheet.getRow(4);
-			Cell templateMarkerCell = templateMarkerRow != null ? templateMarkerRow.getCell(0) : null;
-			if (templateMarkerCell != null && templateMarkerCell.getCellType() == CellType.STRING
-			        ) {
-				String templateMarker = templateMarkerCell.getStringCellValue();
-				if ("VFE".equals(templateMarker)) {
-					vfeTemplate = true;
-				}
-				String translatedVfe = Translator.translateOrElseNull("VFE");
-				if (translatedVfe != null && translatedVfe.equals(templateMarker)) {
-					vfeTemplate = true;
-				}
-			}
+				Sheet sheet = w.getSheetAt(sheetIndex);
 
-			if (vfeTemplate) {
-				String teamMembershipTitle = Translator.translateOrElseNull("TeamMembership.Title");
-				int sourceColumnFromHeader = findColumn(headerRow, teamMembershipTitle);
-				if (sourceColumnFromHeader >= 0) {
-					listColumnVFEOffset = sourceColumnFromHeader - (listColumn - 1);
-				} else {
-					// Current VFE template keeps the split source list in column J.
-					listColumnVFEOffset = 1;
-				}
-			}
-
-			int offset = 0;
-			for (String pr : prefixes) {
-				sheet.setColumnWidth(listColumn + offset + listColumnVFEOffset, categoryWidth);
-				headerRow.createCell(listColumn + offset + listColumnVFEOffset);
-				headerRow.getCell(listColumn + offset + listColumnVFEOffset).setCellValue(pr);
-				headerRow.getCell(listColumn + offset + listColumnVFEOffset).setCellStyle(style);
-				offset++;
-			}
-
-			int lastLine = 0;
-			int sourceCol = listColumn - 1 + listColumnVFEOffset;
-			int nonContentCounter = 0;
-			if (vfeTemplate) {
-				copySourceCellAcrossGeneratedColumns(sheet.getRow(6), sourceCol, listColumn + listColumnVFEOffset,
-				        prefixes.size());
-			}
-			for (Row r : sheet) {
-				if (r.getRowNum() < 7) {
+				Row headerRow = sheet.getRow(5);
+				if (headerRow == null) {
 					continue;
 				}
-				if (vfeTemplate && r.getRowNum() == 7) {
-					copySourceCellAsMergedHeader(sheet, r, sourceCol, listColumn + listColumnVFEOffset,
-					        prefixes.size());
-					nonContentCounter = 0;
-					continue;
+				int categoryWidth = sheet.getColumnWidth(catColumn + 1);
+				Cell styleCell = headerRow.getCell(catColumn + 1);
+				if (styleCell == null) {
+					styleCell = headerRow.createCell(catColumn + 1);
+				}
+				CellStyle style = styleCell.getCellStyle();
+
+				// check if this is a VFE sheet.
+				Row templateMarkerRow = sheet.getRow(4);
+				Cell templateMarkerCell = templateMarkerRow != null ? templateMarkerRow.getCell(0) : null;
+				if (templateMarkerCell != null && templateMarkerCell.getCellType() == CellType.STRING) {
+					String templateMarker = templateMarkerCell.getStringCellValue();
+					if ("VFE".equals(templateMarker)) {
+						vfeTemplate = true;
+					}
+					if (translatedVfe != null && translatedVfe.equals(templateMarker)) {
+						vfeTemplate = true;
+					}
 				}
 
-				Cell firstCell = r.getCell(0);
-				Cell nameCell = r.getCell(3);
-				boolean firstCellNonBlank = firstCell != null
-				        && (firstCell.getCellType() == CellType.STRING && !firstCell.getStringCellValue().isBlank());
-				boolean nameCellNonBlank = nameCell != null
-				        && (nameCell.getCellType() == CellType.STRING && !nameCell.getStringCellValue().isBlank());
-				boolean contentRow = firstCellNonBlank && nameCellNonBlank;
+				if (vfeTemplate) {
+					int sourceColumnFromHeader = findColumn(headerRow, teamMembershipTitle);
+					if (sourceColumnFromHeader >= 0) {
+						listColumnVFEOffset = sourceColumnFromHeader - (listColumn - 1);
+					} else {
+						// Current VFE template keeps the split source list in column J.
+						listColumnVFEOffset = 1;
+					}
+				}
 
-				Cell catCell = r.getCell(catColumn);
-				if (contentRow) {
-					// split the categories and create individual cells
-					Cell eligibleCatsCell = r.getCell(sourceCol);
-					String eligibleCatsString = eligibleCatsCell.getStringCellValue();
-					CellStyle categoryStyle = catCell.getCellStyle();
-					if (eligibleCatsString != null && !eligibleCatsString.isBlank()) {
-						String[] eligibleCats = eligibleCatsString.split(";");
-						
-						for (int prefixOffset = 0; prefixOffset < prefixes.size(); prefixOffset++) {
-							int targetCol = listColumn + prefixOffset + listColumnVFEOffset;
-							r.createCell(targetCol);
-							r.getCell(targetCol).setCellStyle(categoryStyle);
-							for (String catString : eligibleCats) {
-								if (catString.startsWith(prefixes.get(prefixOffset))) {
-									r.getCell(targetCol).setCellValue(catString);
+				// When there is only one bucket, the single generated column also carries the
+				// team-membership header (via the merged copy at row 7), so it needs to be wide
+				// enough to fit e.g. "Pertenencia al Equipo". Reuse the width of the source column
+				// (J in the VFE template) which was sized for that header.
+				int singleColumnWidth = sheet.getColumnWidth(listColumn - 1 + listColumnVFEOffset);
+				int generatedWidth = (buckets.size() == 1) ? singleColumnWidth : categoryWidth;
+
+				int offset = 0;
+				for (AgeGroupBucket b : buckets) {
+					sheet.setColumnWidth(listColumn + offset + listColumnVFEOffset, generatedWidth);
+					headerRow.createCell(listColumn + offset + listColumnVFEOffset);
+					headerRow.getCell(listColumn + offset + listColumnVFEOffset).setCellValue(b.label);
+					headerRow.getCell(listColumn + offset + listColumnVFEOffset).setCellStyle(style);
+					offset++;
+				}
+
+				int lastLine = 0;
+				int sourceCol = listColumn - 1 + listColumnVFEOffset;
+				int nonContentCounter = 0;
+				if (vfeTemplate) {
+					copySourceCellAcrossGeneratedColumns(sheet.getRow(6), sourceCol, listColumn + listColumnVFEOffset,
+					        buckets.size());
+				}
+				for (Row r : sheet) {
+					if (r.getRowNum() < 7) {
+						continue;
+					}
+					if (vfeTemplate && r.getRowNum() == 7) {
+						copySourceCellAsMergedHeader(sheet, r, sourceCol, listColumn + listColumnVFEOffset,
+						        buckets.size());
+						nonContentCounter = 0;
+						continue;
+					}
+
+					Cell firstCell = r.getCell(0);
+					Cell nameCell = r.getCell(3);
+					boolean firstCellNonBlank = firstCell != null
+					        && (firstCell.getCellType() == CellType.STRING && !firstCell.getStringCellValue().isBlank());
+					boolean nameCellNonBlank = nameCell != null
+					        && (nameCell.getCellType() == CellType.STRING && !nameCell.getStringCellValue().isBlank());
+					boolean contentRow = firstCellNonBlank && nameCellNonBlank;
+
+					Cell catCell = r.getCell(catColumn);
+					if (contentRow) {
+						// split the categories and create individual cells
+						Cell eligibleCatsCell = r.getCell(sourceCol);
+						String eligibleCatsString = eligibleCatsCell.getStringCellValue();
+						CellStyle categoryStyle = catCell.getCellStyle();
+						if (eligibleCatsString != null && !eligibleCatsString.isBlank()) {
+							String[] eligibleCats = eligibleCatsString.split(";");
+
+							for (int bucketOffset = 0; bucketOffset < buckets.size(); bucketOffset++) {
+								int targetCol = listColumn + bucketOffset + listColumnVFEOffset;
+								r.createCell(targetCol);
+								r.getCell(targetCol).setCellStyle(categoryStyle);
+								AgeGroupBucket bucket = buckets.get(bucketOffset);
+								for (String catString : eligibleCats) {
+									String trimmed = catString.trim();
+									if (bucket.matches(trimmed)) {
+										int lastSpace = trimmed.lastIndexOf(' ');
+										String display = (lastSpace > 0) ? trimmed.substring(0, lastSpace) : trimmed;
+										r.getCell(targetCol).setCellValue(display);
+									}
 								}
 							}
-						}
-					} else {
-						for (int prefixOffset = 0; prefixOffset < prefixes.size(); prefixOffset++) {
-							int targetCol = listColumn + prefixOffset + listColumnVFEOffset;
-							r.createCell(targetCol);
-							r.getCell(targetCol).setCellStyle(categoryStyle);
-						}
-					}
-					nonContentCounter = 0;
-				} else {
-					Cell endCell = r.getCell(listColumn - 1);
-					Cell sourceCell = r.getCell(sourceCol);
-					if (endCell != null && catCell != null) {
-						CellStyle endCellStyle = endCell.getCellStyle();
-						for (int prefixOffset = 0; prefixOffset < prefixes.size(); prefixOffset++) {
-							int targetCol = listColumn + prefixOffset + listColumnVFEOffset;
-							Cell targetCell = r.createCell(targetCol);
-							if (vfeTemplate && sourceCell != null) {
-								copyCellValueAndStyle(sourceCell, targetCell);
-							} else {
-								CellStyle categoryStyle = catCell.getCellStyle();
-								targetCell.setCellStyle(categoryStyle);
+						} else {
+							for (int bucketOffset = 0; bucketOffset < buckets.size(); bucketOffset++) {
+								int targetCol = listColumn + bucketOffset + listColumnVFEOffset;
+								r.createCell(targetCol);
+								r.getCell(targetCol).setCellStyle(categoryStyle);
 							}
 						}
-						r.createCell(listColumn - 1 + prefixes.size() + listColumnVFEOffset);
-						r.getCell(listColumn - 1 + prefixes.size() + listColumnVFEOffset).setCellStyle(endCellStyle);
+						nonContentCounter = 0;
+					} else {
+						Cell endCell = r.getCell(listColumn - 1);
+						Cell sourceCell = r.getCell(sourceCol);
+						if (endCell != null && catCell != null) {
+							CellStyle endCellStyle = endCell.getCellStyle();
+							for (int bucketOffset = 0; bucketOffset < buckets.size(); bucketOffset++) {
+								int targetCol = listColumn + bucketOffset + listColumnVFEOffset;
+								Cell targetCell = r.createCell(targetCol);
+								if (vfeTemplate && sourceCell != null) {
+									copyCellValueAndStyle(sourceCell, targetCell);
+								} else {
+									CellStyle categoryStyle = catCell.getCellStyle();
+									targetCell.setCellStyle(categoryStyle);
+								}
+							}
+							r.createCell(listColumn - 1 + buckets.size() + listColumnVFEOffset);
+							r.getCell(listColumn - 1 + buckets.size() + listColumnVFEOffset).setCellStyle(endCellStyle);
+						}
+						nonContentCounter++;
 					}
-					nonContentCounter++;
+					if (nonContentCounter > 5) {
+						break;
+					}
 				}
-				if (nonContentCounter > 5) {
-					break;
-				}
-			}
-			sheet.setColumnHidden(sourceCol, true);
+				sheet.setColumnHidden(sourceCol, true);
 
-			int lastColumn = listColumn - 1 + prefixes.size() + listColumnVFEOffset;
-			sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, lastColumn));
-			w.setPrintArea(0, 0, lastColumn, 0, lastLine);
+				int lastColumn = listColumn - 1 + buckets.size() + listColumnVFEOffset;
+				sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, lastColumn));
+			}
+
+			// Clear the print area on every sheet as the LAST step. Excel will auto-detect
+			// each sheet's used range when printing; leaving any stale print area inherited
+			// from the cloned template causes pages to print blank.
+			for (int sheetIndex = 0; sheetIndex < w.getNumberOfSheets(); sheetIndex++) {
+				w.removePrintArea(sheetIndex);
+			}
 		});
 	}
 
@@ -297,14 +327,72 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 		if (sourceCell == null) {
 			return;
 		}
+		// Build a centered variant of the source style so the merged header text is
+		// horizontally centered across the generated columns (and centered within a
+		// single column when there is only one bucket).
+		CellStyle centerStyle = sheet.getWorkbook().createCellStyle();
+		centerStyle.cloneStyleFrom(sourceCell.getCellStyle());
+		centerStyle.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
 		for (int offset = 0; offset < columnCount; offset++) {
 			Cell targetCell = row.createCell(firstTargetCol + offset);
-			targetCell.setCellStyle(sourceCell.getCellStyle());
+			targetCell.setCellStyle(centerStyle);
 		}
 		copyCellValueAndStyle(sourceCell, row.getCell(firstTargetCol));
+		row.getCell(firstTargetCol).setCellStyle(centerStyle);
 		if (columnCount > 1) {
 			sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), firstTargetCol,
 			        firstTargetCol + columnCount - 1));
+		}
+	}
+
+	/**
+	 * One bucket per age-group code (e.g. "PAN"). Each bucket aggregates the AG-name prefixes
+	 * that route data into it. For DEFAULT-championship age groups the same code typically appears
+	 * twice (one AG per gender) with names "F"/"M"; both are folded into a single bucket so men and
+	 * women share one column. For other championship types the AG-name (e.g. "JR M") is its own
+	 * bucket. Order follows {@link AgeGroupRepository#findAgeGroups(app.owlcms.data.group.Group)}
+	 * which is by minAge,maxAge.
+	 */
+	private List<AgeGroupBucket> collectAgeGroupBuckets() {
+		java.util.LinkedHashMap<String, AgeGroupBucket> byCode = new java.util.LinkedHashMap<>();
+		for (app.owlcms.data.agegroup.AgeGroup ag : AgeGroupRepository.findAgeGroups(null)) {
+			String code = ag.getCode();
+			String name = ag.getName();
+			if (code == null || code.isBlank() || name == null || name.isBlank()) {
+				continue;
+			}
+			AgeGroupBucket bucket = byCode.get(code);
+			if (bucket == null) {
+				bucket = new AgeGroupBucket(code);
+				byCode.put(code, bucket);
+			}
+			bucket.prefixes.add(name);
+		}
+		return new java.util.ArrayList<>(byCode.values());
+	}
+
+	/**
+	 * One generated team-membership column. Holds the header label (the age-group code) and the
+	 * set of category-name prefixes that should be routed into the column.
+	 */
+	private static final class AgeGroupBucket {
+		final String label;
+		final java.util.LinkedHashSet<String> prefixes = new java.util.LinkedHashSet<>();
+
+		AgeGroupBucket(String label) {
+			this.label = label;
+		}
+
+		boolean matches(String catString) {
+			if (catString == null) {
+				return false;
+			}
+			for (String p : this.prefixes) {
+				if (catString.equals(p) || catString.startsWith(p + " ")) {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 
