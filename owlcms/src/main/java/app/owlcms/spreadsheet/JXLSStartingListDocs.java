@@ -121,6 +121,7 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 	public void createTeamColumns(int listColumn, int catColumn) {
 		setPostProcessor((w) -> {
 			int listColumnVFEOffset = 0;
+			boolean vfeTemplate = false;
 
 			List<String> prefixes = AgeGroupRepository.findAgeGroupPrefixes(null);
 			Sheet sheet = w.getSheetAt(0);
@@ -130,9 +131,29 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 			CellStyle style = headerRow.getCell(catColumn + 1).getCellStyle();
 
 			// check if this is a VFE sheet.
-			String stringCellValue = headerRow.getCell(catColumn + 1 + 1).getStringCellValue();
-			if (stringCellValue.contentEquals(Translator.translate("Change"))) {
-				return;
+			Row templateMarkerRow = sheet.getRow(4);
+			Cell templateMarkerCell = templateMarkerRow != null ? templateMarkerRow.getCell(0) : null;
+			if (templateMarkerCell != null && templateMarkerCell.getCellType() == CellType.STRING
+			        ) {
+				String templateMarker = templateMarkerCell.getStringCellValue();
+				if ("VFE".equals(templateMarker)) {
+					vfeTemplate = true;
+				}
+				String translatedVfe = Translator.translateOrElseNull("VFE");
+				if (translatedVfe != null && translatedVfe.equals(templateMarker)) {
+					vfeTemplate = true;
+				}
+			}
+
+			if (vfeTemplate) {
+				String teamMembershipTitle = Translator.translateOrElseNull("TeamMembership.Title");
+				int sourceColumnFromHeader = findColumn(headerRow, teamMembershipTitle);
+				if (sourceColumnFromHeader >= 0) {
+					listColumnVFEOffset = sourceColumnFromHeader - (listColumn - 1);
+				} else {
+					// Current VFE template keeps the split source list in column J.
+					listColumnVFEOffset = 1;
+				}
 			}
 
 			int offset = 0;
@@ -189,13 +210,18 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 					nonContentCounter = 0;
 				} else {
 					Cell endCell = r.getCell(listColumn - 1);
+					Cell sourceCell = r.getCell(sourceCol);
 					if (endCell != null && catCell != null) {
 						CellStyle endCellStyle = endCell.getCellStyle();
 						for (int prefixOffset = 0; prefixOffset < prefixes.size(); prefixOffset++) {
-							CellStyle categoryStyle = catCell.getCellStyle();
 							int targetCol = listColumn + prefixOffset + listColumnVFEOffset;
-							r.createCell(targetCol);
-							r.getCell(targetCol).setCellStyle(categoryStyle);
+							Cell targetCell = r.createCell(targetCol);
+							if (vfeTemplate && sourceCell != null) {
+								copyCellValueAndStyle(sourceCell, targetCell);
+							} else {
+								CellStyle categoryStyle = catCell.getCellStyle();
+								targetCell.setCellStyle(categoryStyle);
+							}
 						}
 						r.createCell(listColumn - 1 + prefixes.size() + listColumnVFEOffset);
 						r.getCell(listColumn - 1 + prefixes.size() + listColumnVFEOffset).setCellStyle(endCellStyle);
@@ -208,9 +234,51 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 			}
 			sheet.setColumnHidden(sourceCol, true);
 
-			sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, listColumn - 1 + prefixes.size()));
-			w.setPrintArea(0, 0, listColumn - 1 + prefixes.size(), 0, lastLine);
+			int lastColumn = listColumn - 1 + prefixes.size() + listColumnVFEOffset;
+			if (!vfeTemplate) {
+				sheet.addMergedRegion(new CellRangeAddress(4, 4, 0, lastColumn));
+			}
+			w.setPrintArea(0, 0, lastColumn, 0, lastLine);
 		});
+	}
+
+	private void copyCellValueAndStyle(Cell sourceCell, Cell targetCell) {
+		targetCell.setCellStyle(sourceCell.getCellStyle());
+		switch (sourceCell.getCellType()) {
+		case STRING:
+			targetCell.setCellValue(sourceCell.getStringCellValue());
+			break;
+		case NUMERIC:
+			targetCell.setCellValue(sourceCell.getNumericCellValue());
+			break;
+		case BOOLEAN:
+			targetCell.setCellValue(sourceCell.getBooleanCellValue());
+			break;
+		case FORMULA:
+			targetCell.setCellFormula(sourceCell.getCellFormula());
+			break;
+		case ERROR:
+			targetCell.setCellErrorValue(sourceCell.getErrorCellValue());
+			break;
+		case BLANK:
+		case _NONE:
+		default:
+			break;
+		}
+	}
+
+	private int findColumn(Row row, String expectedValue) {
+		if (row == null || expectedValue == null) {
+			return -1;
+		}
+		for (int column = row.getFirstCellNum(); column < row.getLastCellNum(); column++) {
+			Cell cell = row.getCell(column);
+			if (cell != null && cell.getCellType() == CellType.STRING
+			        && expectedValue.equals(cell.getStringCellValue())) {
+				return column;
+			}
+		}
+		return -1;
 	}
 
 	public Consumer<Workbook> getPostProcessor() {
