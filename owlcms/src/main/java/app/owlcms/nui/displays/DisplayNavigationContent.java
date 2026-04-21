@@ -41,7 +41,6 @@ import app.owlcms.nui.displays.scoreboards.PublicNoLeadersPage;
 import app.owlcms.nui.displays.scoreboards.PublicRankingOrderPage;
 import app.owlcms.nui.displays.scoreboards.PublicScoreboardPage;
 import app.owlcms.nui.displays.scoreboards.WarmupRankingOrderPage;
-import app.owlcms.data.config.Config;
 import app.owlcms.nui.displays.scoreboards.PublicStartListPage;
 import app.owlcms.nui.displays.scoreboards.WarmupLiftingOrderPage;
 import app.owlcms.nui.displays.scoreboards.WarmupMultiRanksPage;
