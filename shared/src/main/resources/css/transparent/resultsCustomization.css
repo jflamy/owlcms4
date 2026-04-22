@@ -65,6 +65,7 @@
 :host([ranking-order]) * {
     --startWidth: 0;
     --startVisibility: hidden;
+    --firstCategorySpacerHeight: 0.4em;
 }
 
 .blockPositioningWrapper {

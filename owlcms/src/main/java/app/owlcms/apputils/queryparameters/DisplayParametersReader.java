@@ -167,7 +167,9 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		Double tWidth;
 		try {
 			tWidth = (twParams != null && !twParams.isEmpty() ? Double.parseDouble(twParams.get(0)) : 0.0D);
-			if (isVideo() && tWidth <= 0.1D && videoStyles != null && !videoStyles.endsWith("grid")) {
+			if (isPublicDisplay() && tWidth <= 0.1D && publicStyles != null && !publicStyles.endsWith("grid")) {
+				switchTeamWidth(null, true);
+			} else if (isVideo() && tWidth <= 0.1D && videoStyles != null && !videoStyles.endsWith("grid")) {
 				switchTeamWidth(9.0D, true);
 			} else if (tWidth > 0.0D) {
 				switchTeamWidth(tWidth, false);
