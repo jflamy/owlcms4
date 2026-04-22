@@ -120,62 +120,6 @@ public class SessionAssignmentGenerator {
         return map;
     }
 
-    private static String sessionFieldName(OfficialRole role) {
-        if (role == null) {
-            return "unknown";
-        }
-        switch (role) {
-            case CENTER_REFEREE:
-                return "referee2";
-            case LEFT_REFEREE:
-                return "referee1";
-            case RIGHT_REFEREE:
-                return "referee3";
-            case REFEREE_RESERVE:
-                return "reserve";
-            case JURY_PRESIDENT:
-                return "jury1";
-            case JURY_A:
-                return "jury2";
-            case JURY_B:
-                return "jury3";
-            case JURY_C:
-                return "jury4";
-            case JURY_D:
-                return "jury5";
-            case JURY_RESERVE:
-                return "reserveJury";
-            case TIMEKEEPER:
-                return "timeKeeper";
-            case TECHNICAL_CONTROLLER1:
-                return "technicalController";
-            case TECHNICAL_CONTROLLER2:
-                return "technicalController2";
-            case MARSHAL1:
-                return "marshall";
-            case MARSHAL2:
-                return "marshal2";
-            case ANNOUNCER:
-                return "announcer";
-            case WEIGHIN1:
-                return "weighIn1";
-            case WEIGHIN2:
-                return "weighIn2";
-            case DOCTOR:
-                return "doctor";
-            case DOCTOR2:
-                return "doctor2";
-            case DOCTOR3:
-                return "doctor3";
-            case COMPETITION_SECRETARY:
-                return "competitionSecretary";
-            case COMPETITION_SECRETARY2:
-                return "competitionSecretary2";
-            default:
-                return role.name();
-        }
-    }
-
     /**
      * Generate session assignments for all sessions based on the timetable.
      * 
@@ -192,8 +136,6 @@ public class SessionAssignmentGenerator {
                 logger./**/warn("No timetable entries found - cannot generate assignments");
                 return 0;
             }
-
-            logger./**/warn("Generating session assignments from {} timetable entries", timetableEntries.size());
 
             // Clear all existing assignments for all sessions before generating new ones
             logger.info("Clearing all existing session assignments before generating new assignments");
@@ -350,13 +292,6 @@ public class SessionAssignmentGenerator {
                     if (setter != null) {
                         setter.accept(session, officialName);
                         count++;
-                        logger./**/warn(
-                            "Session assignment generated: session='{}' team={} official='{}' teamRole=REFEREE assignedRole={} field={}",
-                            session.getName(),
-                            teamNumber,
-                            officialName,
-                            assignedRole,
-                            sessionFieldName(assignedRole));
                     }
                 }
             }
@@ -435,13 +370,6 @@ public class SessionAssignmentGenerator {
                     if (setter != null) {
                         setter.accept(session, presidentName);
                         count++;
-                        logger./**/warn(
-                            "Session assignment generated: session='{}' team={} official='{}' teamRole=JURY_PRESIDENT assignedRole={} field={}",
-                            session.getName(),
-                            teamNumber,
-                            presidentName,
-                            OfficialRole.JURY_PRESIDENT,
-                            sessionFieldName(OfficialRole.JURY_PRESIDENT));
                     }
                 }
             }
@@ -471,13 +399,6 @@ public class SessionAssignmentGenerator {
                         if (setter != null) {
                             setter.accept(session, officialName);
                             count++;
-                            logger./**/warn(
-                                "Session assignment generated: session='{}' team={} official='{}' teamRole=JURY assignedRole={} field={}",
-                                session.getName(),
-                                teamNumber,
-                                officialName,
-                                assignedRole,
-                                sessionFieldName(assignedRole));
                         }
                     }
                 }
@@ -497,13 +418,6 @@ public class SessionAssignmentGenerator {
                         if (setter != null) {
                             setter.accept(session, officialName);
                             count++;
-                            logger./**/warn(
-                                "Session assignment generated: session='{}' team={} official='{}' teamRole=JURY assignedRole={} field={}",
-                                session.getName(),
-                                teamNumber,
-                                officialName,
-                                staticRole,
-                                sessionFieldName(staticRole));
                         }
                     }
                 }
@@ -582,21 +496,11 @@ public class SessionAssignmentGenerator {
                             setter.accept(session, officialName);
                             em.merge(session);
                             count++;
-                            logger./**/warn(
-                                "Session assignment generated: session='{}' team={} official='{}' teamRole={} assignedRole={} field={}",
-                                session.getName(),
-                                teamNumber,
-                                officialName,
-                                teamRole,
-                                position,
-                                sessionFieldName(position));
                         }
                     }
                 }
             }
         }
-
-        logger./**/warn("Session assignment generation completed with {} assignments", count);
 
         return count;
     }
