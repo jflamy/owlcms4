@@ -10,6 +10,10 @@
 
 **New in Release 66**
 
+66.1.0-rc02: Updated templates
+  - VFE Teams form now one sheet per team
+  - PanAm protocol with all ITO roles listed
+ 
 66.1.0-rc01: Ranking order and medal scoreboard improvements
   - medals shown as circles, row heights reduced
   - show category headers
