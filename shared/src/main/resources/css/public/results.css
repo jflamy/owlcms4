@@ -185,6 +185,13 @@ table.results.sinclair.nosinclairRank {
     --birthWidth: 10ch;
 }
 
+:host .wrapper.Results table.results {
+    --nameWidth: 1fr;
+    --clubWidth: 30ch;
+    --categoryWidth: 11ch;
+    --birthWidth: 10ch;
+}
+
 /* default cell colors, backgrounds and borders */
 :host table.results tr td,
 :host table.results tr th {
@@ -242,6 +249,11 @@ table.results.sinclair.nosinclairRank {
     gap: 0.5em;
 }
 
+:host .wrapper.Results table.results tr td.club {
+    justify-content: flex-start !important;
+    gap: 0.5em;
+}
+
 table.results tr td.club div.clubName {
     display:flex;
     align-content:center;
@@ -251,6 +263,12 @@ table.results tr td.club div.clubName {
 }
 
 :host([ranking-order]) table.results tr td.club div.clubName {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1em;
+}
+
+:host .wrapper.Results table.results tr td.club div.clubName {
     justify-content: flex-start;
     align-items: center;
     gap: 1em;
