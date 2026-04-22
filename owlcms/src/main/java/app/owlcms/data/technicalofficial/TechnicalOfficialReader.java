@@ -122,6 +122,7 @@ public class TechnicalOfficialReader {
         headerMap.put(Translator.translate("TechnicalOfficial.Affiliation"), AFFILIATION);
         headerMap.put(Translator.translate("TechnicalOfficial.Accreditation"), ACCREDITATION_ROLE);
         headerMap.put(Translator.translate("TechnicalOfficial.Active"), ACTIVE);
+        headerMap.put(Translator.translate("Team"), TEAM);
         headerMap.put(Translator.translate("TechnicalOfficials.TeamRole"), TEAM_ROLE);
         
         List<String> unmatchedHeaders = new ArrayList<>();

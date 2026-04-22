@@ -169,9 +169,8 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        buttonClickEvent -> {
 			        TimetableUploadDialog dialog = new TimetableUploadDialog();
 			        dialog.setCallback(() -> {
-				        // Timetable updated - refresh button state and show notification
+				        // Timetable updated and assignments regenerated - refresh button state
 				        generateAssignmentsButton.setEnabled(hasTimetableEntries());
-				        Notification.show(Translator.translate("Timetable.ImportedSuccessfully"));
 			        });
 			        dialog.open();
 		        });

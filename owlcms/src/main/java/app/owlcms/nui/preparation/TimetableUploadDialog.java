@@ -19,10 +19,12 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.technicalofficial.SessionAssignmentGenerator;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
-import app.owlcms.spreadsheet.TimetableIO;
 import app.owlcms.i18n.Translator;
+import app.owlcms.spreadsheet.TimetableIO;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -43,10 +45,13 @@ public class TimetableUploadDialog extends Dialog {
 
         UploadHandler uploadHandler = UploadHandler.inMemory((metadata, bytes) -> {
             try {
+                logger.warn("Timetable import started fileName={} contentType={} size={} {}",
+                        metadata.fileName(), metadata.contentType(), bytes.length, LoggerUtils.whereFrom());
                 ByteArrayInputStream is = new ByteArrayInputStream(bytes);
                 List<TechnicalOfficialsTimetable> entries = TimetableIO.importTimetable(is);
 
                 if (entries.isEmpty()) {
+                    logger.warn("Timetable import produced no entries fileName={} {}", metadata.fileName(), LoggerUtils.whereFrom());
                     errorArea.setValue(Translator.translate("Timetable.NoEntriesFound"));
                     errorArea.setVisible(true);
                     return;
@@ -62,8 +67,13 @@ public class TimetableUploadDialog extends Dialog {
                     return null;
                 });
 
-                errorArea.setValue(Translator.translate("Timetable.ImportedSuccessfully") + ": " + entries.size() + " " +
-                        Translator.translate("Timetable.entries"));
+                    int assignmentCount = SessionAssignmentGenerator.generateSessionAssignments();
+                    logger.warn("Timetable import completed fileName={} entries={} assignments={} {}",
+                        metadata.fileName(), entries.size(), assignmentCount, LoggerUtils.whereFrom());
+
+                    errorArea.setValue(Translator.translate("Timetable.ImportedSuccessfully") + ": " + entries.size() + " " +
+                        Translator.translate("Timetable.entries") + "\n" +
+                        Translator.translate("Timetable.AssignmentsGenerated", assignmentCount));
                 errorArea.setVisible(true);
 
                 if (callback != null) {
