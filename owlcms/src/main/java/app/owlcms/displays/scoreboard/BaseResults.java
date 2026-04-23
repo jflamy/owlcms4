@@ -1378,12 +1378,20 @@ public class BaseResults extends LitTemplate
 		Group group = fop.getGroup();
 		String description = null;
 		if (group != null) {
-			description = group.getDescription();
+			description = getNormalizedGroupDescription(group);
 			if (description == null) {
 				description = Translator.translate("Group_number", group.getName());
 			}
 		}
 		this.getElement().setProperty("groupDescription", description != null ? description : "");
+	}
+
+	private String getNormalizedGroupDescription(Group group) {
+		if (group == null) {
+			return null;
+		}
+		String description = group.getDescription();
+		return description != null && !description.isBlank() ? description : null;
 	}
 
 	private void setDisplayTypeProperty(String displayType) {
@@ -1464,7 +1472,7 @@ public class BaseResults extends LitTemplate
 	}
 
 	private void updateGroupInfo(String liftType) {
-		String groupDescription = this.curGroup != null ? this.curGroup.getDescription() : null;
+		String groupDescription = getNormalizedGroupDescription(this.curGroup);
 		if (this.curGroup != null && this.curGroup.isDone()) {
 			setGroupNameProperty(groupDescription != null ? groupDescription : "\u00a0");
 			setLiftsDoneProperty("");
