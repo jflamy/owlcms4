@@ -132,6 +132,9 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		if (athletes != null) {
 			Championship effectiveChampionship = ageDivision != null ? ageDivision : Championship.of(null);
 			boolean combinedTotal = effectiveChampionship.isSnatchCJTotalMedals();
+			boolean pointsBasedTeamCompetition = mixedTeamCompetition
+			        ? effectiveChampionship.computeMixedPointsBased()
+			        : effectiveChampionship.computePointsBased();
 			// count points for each team
 			for (Athlete a : athletes) {
 				String curTeamName = a.getTeam();
@@ -163,11 +166,12 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					Integer maxCount = mixedTeamCompetition ? getMixedTopNTeamSize(a.getGender()) : getTopNTeamSize(a.getGender());
 					boolean b = counted < maxCount;
 					boolean c = memberPoints != null && memberPoints > 0;
-					if ((includeNotDone || groupIsDone) && b && c) {
+					boolean countedForTeam = b && groupIsDone && (!pointsBasedTeamCompetition || c);
+					if (groupIsDone && b && c) {
 						curTeam.setPoints(curTeam.getPoints() + Math.round(memberPoints));
 					}
-					member.setCountedForTeam(b);
-					if (b) {
+					member.setCountedForTeam(countedForTeam);
+					if (countedForTeam) {
 						curTeam.setSinclairScore(curTeam.getSinclairScore() + member.getSinclairScore());
 						curTeam.setCatSinclairScore(curTeam.getCatSinclairScore() + member.getCatSinclairMetric());
 						curTeam.setSmfScore(curTeam.getSmfScore() + member.getSmfScore());

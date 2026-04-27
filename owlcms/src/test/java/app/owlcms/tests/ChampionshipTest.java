@@ -61,6 +61,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.ParticipationId;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.team.TeamResultsDisplayRules;
 import app.owlcms.data.team.TeamSelectionDisplayRules;
@@ -592,6 +593,111 @@ public class ChampionshipTest {
                     exp[2], summedMemberPoints);
             logger.info("Senior men's team {} : size={}, counted={}, points={}, summedMemberPoints={}",
                 team.getName(), team.getSize(), team.getCounted(), team.getPoints(), summedMemberPoints);
+        }
+    }
+
+        @Test
+        public void testPointBasedTeamResultsIgnoreUnfinishedGroups() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+        assertTrue("Senior championship in fixture should be points-based", senior.computePointsBased());
+
+        List<TeamTreeItem> initialTeams = computeTeamResults(senior, Gender.M);
+        TeamTreeItem initialTeam = initialTeams.stream()
+            .filter(team -> !team.getCountedTeamMembers().isEmpty())
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("expected at least one counted men's team"));
+        TeamTreeItem initialMember = initialTeam.getCountedTeamMembers().get(0);
+        Athlete initialAthlete = initialMember.getAthlete();
+        assertNotNull("counted athlete should be present", initialAthlete);
+        assertNotNull("counted athlete should belong to a group", initialAthlete.getGroup());
+        assertNotNull("counted athlete should have point score", initialMember.getPoints());
+
+        Long groupId = initialAthlete.getGroup().getId();
+        Long athleteId = initialAthlete.getId();
+        String teamName = initialTeam.getName();
+        int originalTeamPoints = initialTeam.getPoints();
+        int originalCounted = initialTeam.getCounted();
+        int removedMemberPoints = initialMember.getPoints();
+        boolean originalDone = setGroupDone(groupId, false);
+        assertTrue("selected group should start done in fixture", originalDone);
+
+        try {
+            List<TeamTreeItem> updatedTeams = computeTeamResults(senior, Gender.M);
+            TeamTreeItem updatedTeam = updatedTeams.stream()
+                .filter(team -> teamName.equals(team.getName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("missing team after marking group unfinished: " + teamName));
+
+            assertEquals("unfinished group athlete should not add team points",
+                originalTeamPoints - removedMemberPoints, updatedTeam.getPoints().intValue());
+            assertEquals("unfinished group athlete should not consume a counted slot",
+                originalCounted - 1, updatedTeam.getCounted().intValue());
+
+            TeamTreeItem unfinishedMember = updatedTeam.getTeamMembers().stream()
+                .filter(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId()))
+                .findFirst()
+                .orElse(null);
+            assertNotNull("unfinished athlete should still be present in team member pool", unfinishedMember);
+            assertNull("unfinished athlete should not show awarded points", unfinishedMember.getPoints());
+            assertFalse("unfinished athlete should not be counted for the team", unfinishedMember.isCountedForTeam());
+            assertFalse("unfinished athlete should not appear in counted team members",
+                updatedTeam.getCountedTeamMembers().stream()
+                    .anyMatch(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId())));
+        } finally {
+            setGroupDone(groupId, originalDone);
+        }
+        }
+
+    @Test
+    public void testScoreBasedTeamResultsIgnoreUnfinishedGroups() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+        assertFalse("Senior mixed teams in fixture should be score-based", senior.computeMixedPointsBased());
+
+        List<TeamTreeItem> initialTeams = computeTeamResults(senior, Gender.MF);
+        TeamTreeItem initialTeam = initialTeams.stream()
+            .filter(team -> !team.getCountedTeamMembers().isEmpty())
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("expected at least one counted mixed team"));
+        TeamTreeItem initialMember = initialTeam.getCountedTeamMembers().get(0);
+        Athlete initialAthlete = initialMember.getAthlete();
+        assertNotNull("counted mixed athlete should be present", initialAthlete);
+        assertNotNull("counted mixed athlete should belong to a group", initialAthlete.getGroup());
+        assertNotNull("counted mixed athlete should have score", initialMember.getScore());
+
+        Long groupId = initialAthlete.getGroup().getId();
+        Long athleteId = initialAthlete.getId();
+        String teamName = initialTeam.getName();
+        double originalTeamScore = initialTeam.getScore();
+        int originalCounted = initialTeam.getCounted();
+        double removedMemberScore = initialMember.getScore();
+        boolean originalDone = setGroupDone(groupId, false);
+        assertTrue("selected mixed group should start done in fixture", originalDone);
+
+        try {
+            List<TeamTreeItem> updatedTeams = computeTeamResults(senior, Gender.MF);
+            TeamTreeItem updatedTeam = updatedTeams.stream()
+                .filter(team -> teamName.equals(team.getName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("missing mixed team after marking group unfinished: " + teamName));
+
+            assertRoundedTo2("unfinished group athlete should not add mixed team score",
+                originalTeamScore - removedMemberScore, updatedTeam.getScore());
+            assertEquals("unfinished group athlete should not consume a counted mixed slot",
+                originalCounted - 1, updatedTeam.getCounted().intValue());
+
+            TeamTreeItem unfinishedMember = updatedTeam.getTeamMembers().stream()
+                .filter(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId()))
+                .findFirst()
+                .orElse(null);
+            assertNotNull("unfinished mixed athlete should still be present in team member pool", unfinishedMember);
+            assertFalse("unfinished mixed athlete should not be counted for the team", unfinishedMember.isCountedForTeam());
+            assertFalse("unfinished mixed athlete should not appear in counted team members",
+                updatedTeam.getCountedTeamMembers().stream()
+                    .anyMatch(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId())));
+        } finally {
+            setGroupDone(groupId, originalDone);
         }
     }
 
@@ -1250,6 +1356,16 @@ public class ChampionshipTest {
                 championship.setMixedWomensBestN(snapshot.mixedWomensBestN);
             }
             return null;
+        });
+    }
+
+    private static boolean setGroupDone(Long groupId, boolean done) {
+        return JPAService.runInTransaction(em -> {
+            Group group = em.find(Group.class, groupId);
+            assertNotNull("group should exist for id " + groupId, group);
+            boolean previousDone = group.isDone();
+            group.setDone(done);
+            return previousDone;
         });
     }
 
