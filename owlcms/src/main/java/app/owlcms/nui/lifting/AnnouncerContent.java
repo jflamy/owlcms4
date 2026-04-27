@@ -83,12 +83,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	private static final long DECISION_DEBOUNCE_MILLIS = 500L;
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-	private long previousBadMillis = 0L;
-	private long previousGoodMillis = 0L;
+	private Boolean previousDecision;
+	private long previousDecisionMillis = 0L;
 	private HorizontalLayout timerButtons;
 	private boolean singleReferee;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
@@ -809,28 +810,29 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void badLift() {
-		var fop = getFop();
-		long now = System.currentTimeMillis();
-		long timeElapsed = now - this.previousBadMillis;
-		if (timeElapsed > 2000 || isSingleReferee()) {
-			fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), false,
-			        false, false, false));
-		}
-		this.previousBadMillis = now;
+		postDecision(false);
 	}
 
 	private void goodLift() {
+		postDecision(true);
+	}
+
+	private void postDecision(boolean decision) {
 		var fop = getFop();
-		long now = System.currentTimeMillis();
-		long timeElapsed = now - this.previousGoodMillis;
-		// no reason to give two decisions close together
-		if (timeElapsed > 2000 || isSingleReferee()) {
-			fop.fopEventPost(
-			        new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), true, true,
-			                true,
-			                true));
+		if (fop == null || !isDecisionDebounceExpired(decision)) {
+			return;
 		}
-		this.previousGoodMillis = now;
+		fop.fopEventPost(new FOPEvent.ExplicitDecision(fop.getCurAthlete(), this.getOrigin(), decision,
+		        decision, decision, decision));
+	}
+
+	private boolean isDecisionDebounceExpired(boolean decision) {
+		long now = System.currentTimeMillis();
+		long timeElapsed = now - this.previousDecisionMillis;
+		boolean repeatedDecision = this.previousDecision != null && this.previousDecision == decision;
+		this.previousDecision = decision;
+		this.previousDecisionMillis = now;
+		return !repeatedDecision || timeElapsed > DECISION_DEBOUNCE_MILLIS;
 	}
 
 	private void juryDecisionDialog(UIEvent.JuryNotification e, JuryDeliberationEventType juryDecision) {
