@@ -1337,8 +1337,8 @@ public class FieldOfPlay implements IUnregister {
 		Integer totalRequest = attemptsDone >= 3 && bestSnatch != null && bestSnatch > 0 ? (bestSnatch + request)
 		        : null;
 
-		List<RecordEvent> eligibleRecords = this.eligibleRecordsByAthlete.get(curAthlete);
-		List<RecordEvent> displayableRecords = this.displayableRecordsByAthlete.get(curAthlete);
+		List<RecordEvent> eligibleRecords = this.eligibleRecordsByAthlete.getOrDefault(curAthlete, List.of());
+		List<RecordEvent> displayableRecords = this.displayableRecordsByAthlete.getOrDefault(curAthlete, List.of());
 		boolean showAllFederationRecords = computeShowInformationalRecords(eligibleRecords, displayableRecords);
 		boolean showAllCategoryRecords = computeShowAllGroupRecords();
 		List<RecordEvent> challengedRecords = RecordFilter.computeChallengedRecords(

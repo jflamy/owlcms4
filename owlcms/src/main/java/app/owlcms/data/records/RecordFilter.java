@@ -211,6 +211,9 @@ public class RecordFilter {
 	        Integer cjRequest,
 	        Integer totalRequest) {
 		List<RecordEvent> challengedRecords = new ArrayList<>();
+		if (eligibleRecords == null) {
+			return challengedRecords;
+		}
 		challengedRecords
 		        .addAll(eligibleRecords.stream()
 		                .filter(rec -> rec.getRecordLift() == Ranking.SNATCH && snatchRequest != null
