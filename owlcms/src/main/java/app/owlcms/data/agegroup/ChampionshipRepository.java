@@ -126,10 +126,7 @@ public class ChampionshipRepository {
 					throw new IllegalStateException("AgeGroup " + ag.getCode() + " is missing championshipName");
 				}
 				String canonical = Championship.canonicalizeChampionshipName(champName);
-				ChampionshipType agType = ag.getChampionshipType();
-				if (agType == null) {
-					agType = ChampionshipType.U;
-				}
+				ChampionshipType agType = ag.getConfiguredChampionshipType();
 				nameToType.put(canonical, agType); // last wins
 			}
 

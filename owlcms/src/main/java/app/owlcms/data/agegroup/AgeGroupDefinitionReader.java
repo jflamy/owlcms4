@@ -150,7 +150,7 @@ public class AgeGroupDefinitionReader {
 								ag.setChampionshipType(ChampionshipType.U);
 							}
 
-							if (ag.getChampionshipType().isMasters()) {
+							if (ag.getConfiguredChampionshipType().isMasters()) {
 								ag.setAlreadyGendered(true);
 							}
 						}
@@ -167,7 +167,7 @@ public class AgeGroupDefinitionReader {
 							if (ag.getGender() == null) {
 								reportError(iRow, iColumn, cellValue, new IllegalArgumentException("You must indicate a Gender M or F"));
 							} else {
-								if (ag.getChampionshipType() == ChampionshipType.DEFAULT) {
+								if (ag.getConfiguredChampionshipType() == ChampionshipType.DEFAULT) {
 									countDefaults[ag.getGender().ordinal()] = countDefaults[ag.getGender().ordinal()] + 1;
 									int nbDefaults = countDefaults[ag.getGender().ordinal()];
 									if (nbDefaults > 1) {
@@ -211,7 +211,7 @@ public class AgeGroupDefinitionReader {
 							// age division is active according to spreadsheet, unless we are given an
 							// explicit list of championship types as override (e.g. to setup tests or demos)
 							if (ag != null) {
-								ChampionshipType aDiv = ag.getChampionshipType();
+								ChampionshipType aDiv = ag.getConfiguredChampionshipType();
 								boolean forcedActive = forcedInsertion != null ? forcedInsertion.contains(aDiv) : false;
 								ag.setActive(forcedInsertion != null ? forcedActive : explicitlyActive);
 							}
@@ -299,7 +299,7 @@ public class AgeGroupDefinitionReader {
 					if (ag.getChampionshipName() == null || ag.getChampionshipName().isBlank()) {
 						ag.setChampionshipName(ag.getCode());
 					}
-					if (ag.getChampionshipType() == null) {
+					if (ag.getStoredChampionshipType() == null) {
 						ag.setChampionshipType(ChampionshipType.U);
 					}
 					em.persist(ag);

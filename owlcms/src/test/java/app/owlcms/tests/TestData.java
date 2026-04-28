@@ -6,13 +6,19 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.persistence.EntityManager;
@@ -73,6 +79,7 @@ public class TestData {
         });
         ChampionshipRepository.reconcileFromAgeGroups();
         Championship.reset();
+        assertLegacyChampionshipMigrationSane();
         JPAService.runInTransaction(em -> {
             setupTestData(em, nbAthletes);
             return null;
@@ -104,6 +111,43 @@ public class TestData {
         AthleteSorter.registrationOrder(athletes);
         AthleteSorter.testAssignStartNumbers(athletes);
     }
+
+        @SuppressWarnings("unchecked")
+        private static void assertLegacyChampionshipMigrationSane() {
+        Map<String, ChampionshipType> legacyChampionships = JPAService.runInTransaction(em -> {
+            List<Object[]> rows = em.createQuery("select ag.championshipName, ag.championshipType from AgeGroup ag")
+                .getResultList();
+            Map<String, ChampionshipType> result = new LinkedHashMap<>();
+            for (Object[] row : rows) {
+            String championshipName = (String) row[0];
+            ChampionshipType championshipType = (ChampionshipType) row[1];
+            result.put(championshipName, championshipType != null ? championshipType : ChampionshipType.U);
+            }
+            return result;
+        });
+
+        assertFalse("synthetic test database should load legacy age groups before migration",
+            legacyChampionships.isEmpty());
+
+        for (Map.Entry<String, ChampionshipType> entry : legacyChampionships.entrySet()) {
+            String championshipName = entry.getKey();
+            ChampionshipType legacyType = entry.getValue();
+
+            assertNotNull("legacy age group should have a championship name before migration verification",
+                championshipName);
+
+            Championship stored = ChampionshipRepository.findByName(championshipName);
+            assertNotNull("migration should create a stored championship for legacy name '" + championshipName + "'",
+                stored);
+            assertEquals("stored championship should inherit the legacy age-group type for '" + championshipName + "'",
+                legacyType, stored.getType());
+        }
+
+        assertNotNull("legacy synthetic categories should exist before sample athletes are created",
+            CategoryRepository.findByCode("Open_M81"));
+        assertNotNull("legacy synthetic categories should exist before athlete fixtures are created",
+            CategoryRepository.findByCode("Open_M73"));
+        }
 
     protected static void createAthlete(EntityManager em, Random r, Athlete p, double nextDouble, int catLimit) {
         p.setBodyWeight(81 - nextDouble);

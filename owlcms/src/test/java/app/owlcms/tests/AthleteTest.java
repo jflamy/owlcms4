@@ -23,11 +23,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -245,6 +248,29 @@ public class AthleteTest {
         athlete.validateStartingTotalsRule(60, 125, 185);
 
         assertFalse("violation flag should clear after the starting total is corrected", getStartingTotalViolation(athlete));
+    }
+
+    @Test
+    public void testRequiredInitialAttemptsUsesReferencedChampionshipTypeAfterMigration() {
+        Competition.getCurrent().setEnforce20kgRule(true);
+        Competition.getCurrent().setImwa(true);
+
+        AgeGroup openAgeGroup = new AgeGroup();
+        openAgeGroup.setCode("M");
+        openAgeGroup.setGender(Gender.M);
+        openAgeGroup.setMinAge(15);
+        openAgeGroup.setMaxAge(40);
+        openAgeGroup.setChampionshipName("Masters");
+        openAgeGroup.setChampionshipType(ChampionshipType.U);
+
+        Category openCategory = new Category(60.0, 65.0, Gender.M, true, 0, 0, 0, openAgeGroup, 0);
+        athlete.setParticipations(new ArrayList<>());
+        athlete.getParticipations().add(new Participation(athlete, openCategory));
+        athlete.computeCategory(openCategory);
+        athlete.setEntryTotal(250);
+
+        assertEquals("Stored championship data should win over stale age-group championshipType values after migration",
+                "200", athlete.getRequiredInitialAttempts());
     }
 
     private boolean getStartingTotalViolation(Athlete athlete) throws Exception {

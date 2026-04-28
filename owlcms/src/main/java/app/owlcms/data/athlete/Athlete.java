@@ -50,6 +50,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -6117,18 +6118,16 @@ public class Athlete {
 		if (cat != null) {
 			AgeGroup ag = cat.getAgeGroup();
 			if (ag != null) {
-				Championship ad = ag.getChampionship();
-				if (ad != null) {
-					if (ad.getType().isMasters() && !Competition.getCurrent().isMasters20kg()) {
-						double margin = 0.2D * entryTotal;
-						// we would round up the required total, so we round down the allowed margin
-						double floor = Math.floor(margin);
-						int asInt = (int) Math.round(floor);
-						// getLogger().trace("margin = {} floor = {} asInt = {} required = {}", margin,
-						// floor, asInt,
-						// entryTotal - asInt);
-						return asInt;
-					}
+				ChampionshipType championshipType = ag.getChampionshipType();
+				if (championshipType != null && championshipType.isMasters() && !Competition.getCurrent().isMasters20kg()) {
+					double margin = 0.2D * entryTotal;
+					// we would round up the required total, so we round down the allowed margin
+					double floor = Math.floor(margin);
+					int asInt = (int) Math.round(floor);
+					// getLogger().trace("margin = {} floor = {} asInt = {} required = {}", margin,
+					// floor, asInt,
+					// entryTotal - asInt);
+					return asInt;
 				}
 			}
 		} else {

@@ -296,13 +296,23 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return this.championshipName;
 	}
 
+	ChampionshipType getStoredChampionshipType() {
+		return this.championshipType;
+	}
+
+	ChampionshipType getConfiguredChampionshipType() {
+		return this.championshipType != null ? this.championshipType : ChampionshipType.U;
+	}
+
 	public ChampionshipType getChampionshipType() {
-		if (this.championshipType == null) {
-			Championship of = Championship.of(this.computeChampionshipName());
-			return of != null ? of.getType() : ChampionshipType.U;
-		} else {
-			return this.championshipType;
+		String championshipName = this.getChampionshipName();
+		if (championshipName != null && !championshipName.isBlank()) {
+			Championship stored = Championship.findStored(championshipName);
+			if (stored != null && stored.getType() != null) {
+				return stored.getType();
+			}
 		}
+		return getConfiguredChampionshipType();
 	}
 
 	@Transient
