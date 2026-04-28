@@ -164,7 +164,7 @@
 .attemptBoard .flagWithPicture {
 	justify-self: center;
 	justify-content: center;
-	align-self: start;
+	align-self: center;
 	grid-area: teamName-start/barbell-start/barbell-start/barbell-end;
 	z-index: 0;
 	place-items: center;
@@ -175,7 +175,7 @@
 }
 .attemptBoard .flagWithPicture > img {
 	height: 18vh;
-	align-self: start;
+	align-self: center;
 }
 
 /* Apply border only when the flag container actually has an image */
