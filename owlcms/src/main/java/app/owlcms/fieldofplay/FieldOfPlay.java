@@ -2771,11 +2771,8 @@ public class FieldOfPlay implements IUnregister {
 			endDisplayOrder = System.nanoTime();
 
 			List<Athlete> liftingOrder2 = getLiftingOrder();
-			Athlete previousCurrentAthlete = this.curAthlete;
 			Athlete nextCurrentAthlete = liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0) : null;
-			if (nextCurrentAthlete != null && nextCurrentAthlete.isForcedAsCurrent()
-			        && (previousCurrentAthlete == null
-			                || !Objects.equals(previousCurrentAthlete.getId(), nextCurrentAthlete.getId()))) {
+			if (nextCurrentAthlete != null && nextCurrentAthlete.isForcedAsCurrent()) {
 				nextCurrentAthlete.resetForcedAsCurrent();
 				AthleteRepository.save(nextCurrentAthlete);
 			}
