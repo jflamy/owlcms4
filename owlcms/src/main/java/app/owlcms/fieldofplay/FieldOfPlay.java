@@ -64,7 +64,6 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.records.RecordConfig;
@@ -157,26 +156,6 @@ public class FieldOfPlay implements IUnregister {
 			return " " + fop.getName();
 		}
 		return "";
-	}
-
-	/**
-	 * Instantiates a new field of play state. This constructor is only used for testing using mock timers.
-	 *
-	 * @param athletes the athletes
-	 * @param timer1   the athleteTimer
-	 */
-	public static FieldOfPlay mockFieldOfPlay(List<Athlete> athletes, IProxyTimer timer1, IProxyTimer breakTimer1) {
-		FieldOfPlay mFop = new FieldOfPlay();
-		mFop.name = "test";
-		mFop.fopEventBus = new EventBus("FOP-" + mFop.name);
-		mFop.uiEventBus = new EventBus("UI-" + mFop.name);
-		mFop.eventForwardingBus = new EventBus("POST-" + mFop.name);
-		mFop.setTestingMode(true);
-		Group group = GroupRepository.findByName("A");
-		mFop.setGroup(group);
-		mFop.init(athletes, timer1, breakTimer1, true);
-		mFop.fopEventBus.register(mFop);
-		return mFop;
 	}
 
 	private LinkedHashMap<String, Participation> ageGroupMap = new LinkedHashMap<>();

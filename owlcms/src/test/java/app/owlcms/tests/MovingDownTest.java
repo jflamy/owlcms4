@@ -36,6 +36,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -375,7 +376,7 @@ public class MovingDownTest {
         final String resName = "/initialCheck.txt";
 
         List<Athlete> allAthletes = AthleteRepository.findAll();
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(allAthletes, new MockCountdownTimer(),
+        FieldOfPlay fopState = MockFieldOfPlay.create(allAthletes, new MockCountdownTimer(),
                 new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         AthleteSorter.displayOrder(allAthletes);
@@ -869,7 +870,7 @@ public class MovingDownTest {
     }
 
     private FieldOfPlay emptyFieldOfPlay() {
-        FieldOfPlay mockFieldOfPlay = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(),
+        FieldOfPlay mockFieldOfPlay = MockFieldOfPlay.create(new ArrayList<Athlete>(), new MockCountdownTimer(),
                 new MockCountdownTimer());
         mockFieldOfPlay.setState(FOPState.CURRENT_ATHLETE_DISPLAYED);
         return mockFieldOfPlay;

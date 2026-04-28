@@ -35,6 +35,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 
@@ -409,7 +410,7 @@ public class LiftDefinitionTest {
 
     @Before
     public void setupTest() {
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(new ArrayList<Athlete>(), new MockCountdownTimer(),
+        FieldOfPlay fopState = MockFieldOfPlay.create(new ArrayList<Athlete>(), new MockCountdownTimer(),
                 new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);

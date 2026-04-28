@@ -31,6 +31,7 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -71,7 +72,7 @@ public class AthleteSorterTest {
 
     @Test
     public void liftSequence2() {
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
+        FieldOfPlay fopState = MockFieldOfPlay.create(athletes, new MockCountdownTimer(),
                 new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);
@@ -112,7 +113,7 @@ public class AthleteSorterTest {
 
     @Test
     public void medalsBodyWeight() {
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
+        FieldOfPlay fopState = MockFieldOfPlay.create(athletes, new MockCountdownTimer(),
                 new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);
@@ -156,7 +157,7 @@ public class AthleteSorterTest {
 
     @Test
     public void medalsEarlierTotals() {
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
+        FieldOfPlay fopState = MockFieldOfPlay.create(athletes, new MockCountdownTimer(),
                 new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(LOGGER_LEVEL);

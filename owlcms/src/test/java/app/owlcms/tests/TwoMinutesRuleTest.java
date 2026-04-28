@@ -32,6 +32,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -106,7 +107,7 @@ public class TwoMinutesRuleTest {
         });
         AthleteRepository.resetParticipations(false, true);
         athletes = AthleteRepository.findAll();
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
+        FieldOfPlay fopState = MockFieldOfPlay.create(athletes, new MockCountdownTimer(),
                 new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(Level.INFO);

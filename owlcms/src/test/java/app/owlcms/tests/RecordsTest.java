@@ -10,6 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,6 +37,7 @@ import app.owlcms.data.records.RecordDefinitionReader;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -357,7 +359,7 @@ public class RecordsTest {
         });
         AthleteRepository.resetParticipations(false, true);
         athletes = AthleteRepository.findAll();
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(athletes, new MockCountdownTimer(),
+        FieldOfPlay fopState = MockFieldOfPlay.create(athletes, new MockCountdownTimer(),
                 new MockCountdownTimer());
         OwlcmsSession.setFop(fopState);
         fopState.getLogger().setLevel(Level.INFO);
@@ -536,7 +538,9 @@ public class RecordsTest {
     private void assertNoChallengeableRecordsForIncompleteAthlete(Athlete athlete) {
         RecordRepository.save(createRecord(100.0D, null));
 
-        FieldOfPlay fopState = FieldOfPlay.mockFieldOfPlay(List.of(athlete), new MockCountdownTimer(),
+        // Empty lifting order: the test exercises recomputeRecords(athlete) directly,
+        // it does not need the athlete to be in the FOP's lifting order.
+        FieldOfPlay fopState = MockFieldOfPlay.create(new ArrayList<Athlete>(), new MockCountdownTimer(),
                 new MockCountdownTimer());
         fopState.recomputeRecords(athlete);
 
