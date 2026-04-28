@@ -289,9 +289,9 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@JsonIgnore
 	@Transient
 	public String getComputedCode() {
-		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
+		String ageGroupCode = (this.ageGroup != null ? this.ageGroup.getCode() : "");
 
-		if (agName == null || agName.isEmpty()) {
+		if (ageGroupCode == null || ageGroupCode.isEmpty()) {
 			String catName = getGender() + getCodeLimitString();
 			return catName;
 		} else {
