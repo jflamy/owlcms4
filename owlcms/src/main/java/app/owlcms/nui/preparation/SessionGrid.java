@@ -16,11 +16,11 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 
-@SuppressWarnings("serial")
 final class SessionGrid extends OwlcmsCrudGrid<Group> {
 	SessionGrid(Class<Group> domainType, OwlcmsGridLayout crudLayout, OwlcmsCrudFormFactory<Group> owlcmsCrudFormFactory, Grid<Group> grid) {
 		super(domainType, crudLayout, owlcmsCrudFormFactory, grid);
@@ -72,9 +72,10 @@ final class SessionGrid extends OwlcmsCrudGrid<Group> {
 	}
 
 	void updateButtonClicked(Group domainObject) {
-		showForm(CrudOperation.UPDATE, domainObject, false, this.savedMessage, event -> {
+		Group currentGroup = reloadGroup(domainObject);
+		showForm(CrudOperation.UPDATE, currentGroup, false, this.savedMessage, event -> {
 			try {
-				Group updatedObject = this.updateOperation.perform(domainObject);
+				Group updatedObject = this.updateOperation.perform(currentGroup);
 				this.grid.asSingleSelect().clear();
 				refreshGrid();
 				this.grid.asSingleSelect().setValue(updatedObject);
@@ -90,6 +91,15 @@ final class SessionGrid extends OwlcmsCrudGrid<Group> {
 				throw e2;
 			}
 		});
+	}
+
+	private Group reloadGroup(Group domainObject) {
+		if (domainObject == null || domainObject.getId() == null) {
+			return domainObject;
+		}
+
+		Group currentGroup = GroupRepository.getById(domainObject.getId());
+		return currentGroup != null ? currentGroup : domainObject;
 	}
 
 	private void gridSelectionChanged(Group item) {
