@@ -27,7 +27,6 @@ import ch.qos.logback.classic.Logger;
  * @author jflamy
  *
  */
-@SuppressWarnings("serial")
 public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
@@ -184,7 +183,6 @@ public class JXLSStartingListDocs extends JXLSWorkbookStreamSource {
 					offset++;
 				}
 
-				int lastLine = 0;
 				int sourceCol = listColumn - 1 + listColumnVFEOffset;
 				int nonContentCounter = 0;
 				if (vfeTemplate) {
