@@ -27,7 +27,9 @@ import ch.qos.logback.classic.Logger;
  * 
  * Implements rotation logic:
  * - Referees: center → reserve → right → left → center (skip reserve if team has 3 members)
- * - Jury: if reserve exists: rotate through A→B→C→D→reserve; if no reserve, static positions
+ * - Jury: president stays fixed; jury members rotate according to jury size
+ *   - 3-person jury: 2 active members (+ optional reserve if a 3rd member exists)
+ *   - 5-person jury: 4 active members (+ optional reserve if a 5th member exists)
  * 
  * Assignments are stored directly in Group entity fields (jury1, jury2, referee1, etc.)
  */
@@ -124,7 +126,6 @@ public class SessionAssignmentGenerator {
      * Generate session assignments for all sessions based on the timetable.
      * 
      * Officials are grouped by their TeamRole and team number.
-     * All officialRole values are cleared before new assignments are generated.
      * 
      * @return Number of assignments generated
      */
@@ -144,13 +145,8 @@ public class SessionAssignmentGenerator {
                 em.merge(group);
             }
 
-            // Get all technical officials and clear their officialRole
+            // Get all technical officials
             List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
-            logger.info("Clearing officialRole for all {} technical officials", officials.size());
-            for (TechnicalOfficial official : officials) {
-                official.setOfficialRole(null);
-                em.merge(official);
-            }
 
             // Get all sessions in chronological order (by competition time if available, otherwise by name)
             List<Group> sessions = GroupRepository.findAll().stream()
@@ -307,9 +303,11 @@ public class SessionAssignmentGenerator {
 
     /**
      * Process jury teams with rotation.
-     * A jury team = JURY_PRESIDENT + JURY members.
-     * If 5+ members (with reserve): rotate through A→B→C→D→reserve
-     * If 4 or fewer members: static positions
+     * A jury team = one non-rotating president + rotating jury members.
+     *
+     * Jury-member counts determine the jury size:
+     * - 2 or 3 members -> 3-person jury (A, B, optional reserve)
+     * - 4 or 5 members -> 5-person jury (A, B, C, D, optional reserve)
      */
     private static int processJuryTeams(EntityManager em, List<Group> allSessions,
             Map<TeamRole, Map<Integer, List<TechnicalOfficial>>> officialsByTeamRoleAndTeam,
@@ -375,50 +373,22 @@ public class SessionAssignmentGenerator {
             }
 
             int memberCount = members.size();
-            boolean hasReserve = memberCount >= 5;
+            OfficialRole[] rotationCycle = getJuryRotationCycle(memberCount);
 
-            if (hasReserve) {
-                // Rotation: A, B, C, D, Reserve
-                OfficialRole[] rotationCycle = {
-                        OfficialRole.JURY_A, OfficialRole.JURY_B, OfficialRole.JURY_C,
-                        OfficialRole.JURY_D, OfficialRole.JURY_RESERVE
-                };
+            for (int officialIndex = 0; officialIndex < Math.min(memberCount, rotationCycle.length); officialIndex++) {
+                TechnicalOfficial official = members.get(officialIndex);
+                String officialName = official.getFullName();
 
-                for (int officialIndex = 0; officialIndex < Math.min(memberCount, rotationCycle.length); officialIndex++) {
-                    TechnicalOfficial official = members.get(officialIndex);
-                    String officialName = official.getFullName();
+                for (int sessionIndex = 0; sessionIndex < sortedTeamSessions.size(); sessionIndex++) {
+                    Group session = sortedTeamSessions.get(sessionIndex);
 
-                    for (int sessionIndex = 0; sessionIndex < sortedTeamSessions.size(); sessionIndex++) {
-                        Group session = sortedTeamSessions.get(sessionIndex);
+                    int rotatedPosition = (officialIndex + sessionIndex) % rotationCycle.length;
+                    OfficialRole assignedRole = rotationCycle[rotatedPosition];
 
-                        // Calculate rotated position
-                        int rotatedPosition = (officialIndex + sessionIndex) % rotationCycle.length;
-                        OfficialRole assignedRole = rotationCycle[rotatedPosition];
-
-                        BiConsumer<Group, String> setter = setterMap.get(assignedRole);
-                        if (setter != null) {
-                            setter.accept(session, officialName);
-                            count++;
-                        }
-                    }
-                }
-            } else {
-                // No reserve - assign static positions A, B, C, D
-                OfficialRole[] staticRoles = {
-                        OfficialRole.JURY_A, OfficialRole.JURY_B, OfficialRole.JURY_C, OfficialRole.JURY_D
-                };
-
-                for (int officialIndex = 0; officialIndex < Math.min(memberCount, staticRoles.length); officialIndex++) {
-                    TechnicalOfficial official = members.get(officialIndex);
-                    String officialName = official.getFullName();
-                    OfficialRole staticRole = staticRoles[officialIndex];
-
-                    BiConsumer<Group, String> setter = setterMap.get(staticRole);
-                    for (Group session : sortedTeamSessions) {
-                        if (setter != null) {
-                            setter.accept(session, officialName);
-                            count++;
-                        }
+                    BiConsumer<Group, String> setter = setterMap.get(assignedRole);
+                    if (setter != null) {
+                        setter.accept(session, officialName);
+                        count++;
                     }
                 }
             }
@@ -430,6 +400,33 @@ public class SessionAssignmentGenerator {
         }
 
         return count;
+    }
+
+    private static OfficialRole[] getJuryRotationCycle(int memberCount) {
+        if (memberCount <= 0) {
+            return new OfficialRole[0];
+        }
+
+        if (memberCount <= 3) {
+            return memberCount == 3
+                    ? new OfficialRole[] { OfficialRole.JURY_A, OfficialRole.JURY_B, OfficialRole.JURY_RESERVE }
+                    : memberCount == 2
+                            ? new OfficialRole[] { OfficialRole.JURY_A, OfficialRole.JURY_B }
+                            : new OfficialRole[] { OfficialRole.JURY_A };
+        }
+
+        return memberCount >= 5
+                ? new OfficialRole[] {
+                        OfficialRole.JURY_A,
+                        OfficialRole.JURY_B,
+                        OfficialRole.JURY_C,
+                        OfficialRole.JURY_D,
+                        OfficialRole.JURY_RESERVE }
+                : new OfficialRole[] {
+                        OfficialRole.JURY_A,
+                        OfficialRole.JURY_B,
+                        OfficialRole.JURY_C,
+                        OfficialRole.JURY_D };
     }
 
     /**
