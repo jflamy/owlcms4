@@ -283,13 +283,28 @@ public class ChampionshipDetailsDialog extends Dialog {
 
 		IntegerField mixedMensBestNField = new IntegerField();
 		mixedMensBestNField.setValue(zeroAsEmpty(championship.getMixedMensBestN()));
-		mixedMensBestNField.setEnabled(championship.isMixedTeamEnabled());
-		mixedLayout.addFormItem(mixedMensBestNField, Translator.translate("Championship.mixedMensBestN"));
+		mixedLayout.addFormItem(mixedMensBestNField, Translator.translate("Competition.mensTeamSize"));
 
 		IntegerField mixedWomensBestNField = new IntegerField();
 		mixedWomensBestNField.setValue(zeroAsEmpty(championship.getMixedWomensBestN()));
-		mixedWomensBestNField.setEnabled(championship.isMixedTeamEnabled());
-		mixedLayout.addFormItem(mixedWomensBestNField, Translator.translate("Championship.mixedWomensBestN"));
+		mixedLayout.addFormItem(mixedWomensBestNField, Translator.translate("Competition.womensTeamSize"));
+
+		Runnable refreshMixedTopNFieldState = () -> {
+			boolean mixedEnabled = Boolean.TRUE.equals(mixedTeamEnabledField.getValue());
+			boolean notDefaults = !Boolean.TRUE.equals(useDefaultsField.getValue());
+			Integer mixedBestNValue = mixedBestNField.getValue();
+			boolean useSplitCaps = mixedBestNValue == null || mixedBestNValue <= 0;
+			boolean enableSplitCaps = mixedEnabled && notDefaults && useSplitCaps;
+			mixedMensBestNField.setEnabled(enableSplitCaps);
+			mixedWomensBestNField.setEnabled(enableSplitCaps);
+		};
+
+		mixedBestNField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
+			refreshMixedTopNFieldState.run();
+		});
 
 		Runnable refreshEffectiveDefaults = () -> {
 			Championship effective = Boolean.TRUE.equals(useDefaultsField.getValue())
@@ -332,8 +347,7 @@ public class ChampionshipDetailsDialog extends Dialog {
 			explicitMixedField.setEnabled(!useDefaults && mixedEnabled);
 			explicitTeamSizeField.setEnabled(!useDefaults && mixedEnabled && Boolean.TRUE.equals(explicitMixedField.getValue()));
 			mixedBestNField.setEnabled(!useDefaults && mixedEnabled);
-			mixedMensBestNField.setEnabled(!useDefaults && mixedEnabled);
-			mixedWomensBestNField.setEnabled(!useDefaults && mixedEnabled);
+			refreshMixedTopNFieldState.run();
 		};
 
 		useDefaultsField.addValueChangeListener(e -> {
@@ -355,8 +369,7 @@ public class ChampionshipDetailsDialog extends Dialog {
 			explicitMixedField.setEnabled(enabled && notDefaults);
 			explicitTeamSizeField.setEnabled(enabled && notDefaults && Boolean.TRUE.equals(explicitMixedField.getValue()));
 			mixedBestNField.setEnabled(enabled && notDefaults);
-			mixedMensBestNField.setEnabled(enabled && notDefaults);
-			mixedWomensBestNField.setEnabled(enabled && notDefaults);
+			refreshMixedTopNFieldState.run();
 		});
 
 		refreshEffectiveDefaults.run();
