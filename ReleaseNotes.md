@@ -10,6 +10,12 @@
 
 **New in Release 66**
 
+66.1.0-rc03: Mixed team championships: when top N mixed is blank or 0, the men and women top-N fields are enabled and use the standard men and women labels
+
+66.1.0-rc03: Timetable-based technical official generation now clears stale assignments and applies the correct 3-person and 5-person jury rotation
+
+66.1.0-rc03: Session Edit Details now reloads the current session instead of reopening stale data
+
 66.1.0-rc02: Updated templates
   - VFE Teams form now one sheet per team
   - PanAm protocol with all ITO roles listed
