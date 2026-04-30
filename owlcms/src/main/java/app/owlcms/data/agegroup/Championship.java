@@ -409,7 +409,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public Integer getExplicitTeamSize() {
-		return this.explicitTeamSize != null ? this.explicitTeamSize : getMaxTeamSize();
+		return this.explicitTeamSize != null ? this.explicitTeamSize : getDefaultExplicitMixedTeamSize();
 	}
 
 	@JsonIgnore
@@ -500,15 +500,23 @@ public class Championship implements Comparable<Championship>, Serializable {
 	 * Must only be called on fully-constructed, managed entities.
 	 */
 	public void rename(String newName) {
-		if (allChampionshipsMap != null && this.name != null) {
-			allChampionshipsMap.remove(this.name);
+		if (newName == null) {
+			return;
 		}
-		this.name = newName;
-		if (allChampionshipsMap != null && this.name != null) {
+		String canonicalNewName = canonicalizeChampionshipName(newName.trim());
+		if (canonicalNewName == null || canonicalNewName.isBlank() || canonicalNewName.equals(this.name)) {
+			return;
+		}
+
+		String oldName = this.name;
+		Championship renamed = this.id != null ? ChampionshipRepository.rename(this, canonicalNewName) : this;
+		this.name = renamed != null ? renamed.getName() : canonicalNewName;
+
+		if (allChampionshipsMap != null) {
+			if (oldName != null) {
+				allChampionshipsMap.remove(oldName);
+			}
 			allChampionshipsMap.put(this.name, this);
-		}
-		if (this.id != null) {
-			ChampionshipRepository.save(this);
 		}
 	}
 
@@ -562,6 +570,15 @@ public class Championship implements Comparable<Championship>, Serializable {
 			return topN;
 		}
 		return getRosterSizeLimit(ageGroupPrefix, gender);
+	}
+
+	private int getDefaultExplicitMixedTeamSize() {
+		return AgeGroupRepository.findFiltered(null, null, this, null, true, -1, -1).stream()
+		        .map(AgeGroup::getCategories)
+		        .mapToInt(List::size)
+		        .filter(categoryCount -> categoryCount > 0)
+		        .min()
+		        .orElse(getMaxTeamSize());
 	}
 
 	private int getRosterSizeLimit(String ageGroupPrefix, Gender gender) {
@@ -708,8 +725,8 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.mixedMensBestN = 0;
 		this.mixedWomensBestN = 0;
 		this.mixedBestN = 0;
-		this.explicitTeamSize = comp.getMaxTeamSize();
 		this.maxTeamSize = comp.getMaxTeamSize();
+		this.explicitTeamSize = getDefaultExplicitMixedTeamSize();
 		this.maxPerCategory = comp.getMaxPerCategory();
 		this.explicitMixedTeamMembers = false;
 		this.teamScoringSystem = null;

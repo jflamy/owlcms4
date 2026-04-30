@@ -61,6 +61,34 @@ public class ChampionshipRepository {
 		});
 	}
 
+	public static Championship rename(Championship championship, String newName) {
+		if (championship == null || newName == null) {
+			return championship;
+		}
+		String canonicalNewName = Championship.canonicalizeChampionshipName(newName.trim());
+		return JPAService.runInTransaction(em -> {
+			Championship managed = championship.getId() != null ? em.find(Championship.class, championship.getId()) : championship;
+			if (managed == null) {
+				return null;
+			}
+			String oldName = managed.getName();
+			if (oldName != null && oldName.equals(canonicalNewName)) {
+				return managed;
+			}
+
+			TypedQuery<AgeGroup> query = em.createQuery(
+			        "select ag from AgeGroup ag where lower(trim(ag.championshipName)) = :championshipName",
+			        AgeGroup.class);
+			query.setParameter("championshipName", oldName != null ? oldName.trim().toLowerCase() : null);
+			for (AgeGroup ageGroup : query.getResultList()) {
+				ageGroup.setChampionshipName(canonicalNewName);
+			}
+
+			managed.setName(canonicalNewName);
+			return em.merge(managed);
+		});
+	}
+
 	/**
 	 * Delete a championship.
 	 */

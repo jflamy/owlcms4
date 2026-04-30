@@ -447,6 +447,66 @@ public class ChampionshipTest {
     }
 
     @Test
+    public void testMixedExplicitTeamSizeDefaultsToSmallestChampionshipCategoryCount() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+
+        int expectedDefault = AgeGroupRepository.findFiltered(null, null, senior, null, true, -1, -1).stream()
+            .map(AgeGroup::getCategories)
+            .mapToInt(List::size)
+            .filter(categoryCount -> categoryCount > 0)
+            .min()
+            .orElse(senior.getMaxTeamSize());
+
+        senior.setMixedBestN(null);
+        senior.setMixedMensBestN(null);
+        senior.setMixedWomensBestN(null);
+        senior.setExplicitMixedTeamMembers(true);
+        senior.setExplicitTeamSize(null);
+
+        assertTrue("fixture should provide at least one positive championship category count", expectedDefault > 0);
+        assertEquals("explicit mixed default should use the smallest category count across championship age groups",
+            expectedDefault, senior.getExplicitTeamSize().intValue());
+        assertEquals("configured mixed team size should use the computed explicit default when no cap is configured",
+            expectedDefault, senior.getConfiguredTeamSize(null, Gender.MF));
+
+        senior.setExplicitTeamSize(expectedDefault + 1);
+        assertEquals("configured explicit size should override the computed mixed default",
+            expectedDefault + 1, senior.getConfiguredTeamSize(null, Gender.MF));
+    }
+
+    @Test
+    public void testChampionshipRenameUpdatesCacheAndAgeGroupReferences() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+
+        List<AgeGroup> originalAgeGroups = AgeGroupRepository.findFiltered(null, null, senior, null, true, -1, -1);
+        assertFalse("fixture should provide age groups for Senior championship", originalAgeGroups.isEmpty());
+
+        String originalName = senior.getName();
+        String renamedName = originalName + " Renamed";
+
+        try {
+            senior.rename(renamedName);
+
+            Championship renamed = Championship.findStored(renamedName);
+            assertNotNull("renamed championship should be available from cache/db by its new name", renamed);
+            assertNull("old championship name should no longer resolve after rename", Championship.findStored(originalName));
+
+            List<AgeGroup> renamedAgeGroups = AgeGroupRepository.findFiltered(null, null, renamed, null, true, -1, -1);
+            assertEquals("renamed championship should retain the same age-group membership",
+                originalAgeGroups.size(), renamedAgeGroups.size());
+            assertTrue("age groups should carry the renamed championship name",
+                renamedAgeGroups.stream().allMatch(ageGroup -> renamedName.equals(ageGroup.getChampionshipName())));
+        } finally {
+            Championship renamed = Championship.findStored(renamedName);
+            if (renamed != null) {
+                renamed.rename(originalName);
+            }
+        }
+    }
+
+    @Test
     public void testSeniorMixedTeamScoresWithFirstFemaleInSmallestCategory() {
         Championship senior = ChampionshipRepository.findByName("Senior");
         assertNotNull("Senior championship should be loaded from fixture", senior);

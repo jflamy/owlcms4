@@ -24,6 +24,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextField;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.DefaultChampionship;
@@ -54,6 +55,11 @@ public class ChampionshipDetailsDialog extends Dialog {
 		// --- Championship Type ---
 		FormLayout typeLayout = new FormLayout();
 		typeLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
+
+		TextField nameField = new TextField();
+		nameField.setValue(championship.getName());
+		nameField.setRequiredIndicatorVisible(true);
+		typeLayout.addFormItem(nameField, Translator.translate("Name"));
 
 		ComboBox<ChampionshipType> typeField = new ComboBox<>();
 		typeField.setItems(Arrays.asList(ChampionshipType.values()));
@@ -270,16 +276,15 @@ public class ChampionshipDetailsDialog extends Dialog {
 			explicitTeamSizeField.setEnabled(Boolean.TRUE.equals(e.getValue()));
 		});
 
-		var explicitMixedItem = mixedLayout.addFormItem(explicitMixedField,
+		mixedLayout.addFormItem(explicitMixedField,
 		        Translator.translate("Championship.explicitMixedTeamMembers"));
-		mixedLayout.setColspan(explicitMixedItem, 2);
-
 		mixedLayout.addFormItem(explicitTeamSizeField, Translator.translate("Championship.explicitTeamSize"));
 
 		IntegerField mixedBestNField = new IntegerField();
 		mixedBestNField.setValue(zeroAsEmpty(championship.getMixedBestN()));
 		mixedBestNField.setEnabled(championship.isMixedTeamEnabled());
-		mixedLayout.addFormItem(mixedBestNField, Translator.translate("Championship.mixedBestN"));
+		var mixedBestNItem = mixedLayout.addFormItem(mixedBestNField, Translator.translate("Championship.mixedBestN"));
+		mixedLayout.setColspan(mixedBestNItem, 2);
 
 		IntegerField mixedMensBestNField = new IntegerField();
 		mixedMensBestNField.setValue(zeroAsEmpty(championship.getMixedMensBestN()));
@@ -382,6 +387,13 @@ public class ChampionshipDetailsDialog extends Dialog {
 		buttons.setJustifyContentMode(JustifyContentMode.END);
 
 		Button saveButton = new Button(Translator.translate("Update"), event -> {
+			String updatedName = nameField.getValue() != null ? nameField.getValue().trim() : "";
+			if (updatedName.isBlank()) {
+				nameField.setInvalid(true);
+				nameField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
+				return;
+			}
+			nameField.setInvalid(false);
 			championship.setType(typeField.getValue());
 			championship.setUseCompetitionDefaults(useDefaultsField.getValue());
 			championship.setScoringSystem(scoringSystemField.getValue());
@@ -408,6 +420,9 @@ public class ChampionshipDetailsDialog extends Dialog {
 			championship.setMixedWomensBestN(emptyAsZero(mixedWomensBestNField.getValue()));
 			championship.setMaxTeamSize(maxTeamSizeField.getValue());
 			championship.setMaxPerCategory(maxPerCategoryField.getValue());
+			if (!updatedName.equals(championship.getName())) {
+				championship.rename(updatedName);
+			}
 			Championship.update(championship);
 			if (onSave != null) {
 				onSave.run();
