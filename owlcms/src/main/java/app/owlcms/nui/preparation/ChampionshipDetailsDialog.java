@@ -38,6 +38,9 @@ public class ChampionshipDetailsDialog extends Dialog {
 
 	private static final String SUM_OF_POINTS = "Championship.sumOfPoints";
 	private static final String SUM_OF_SCORES = "Championship.sumOfScores";
+	private static final String MIXED_SELECTION_EXPLICIT = "mixedSelection.explicit";
+	private static final String MIXED_SELECTION_OVERALL = "mixedSelection.overall";
+	private static final String MIXED_SELECTION_PER_GENDER = "mixedSelection.perGender";
 
 	public ChampionshipDetailsDialog(Championship championship, Runnable onSave) {
 		setCloseOnEsc(true);
@@ -235,11 +238,6 @@ public class ChampionshipDetailsDialog extends Dialog {
 
 		IntegerField explicitTeamSizeField = new IntegerField();
 		explicitTeamSizeField.setValue(championship.getExplicitTeamSize());
-		explicitTeamSizeField.setEnabled(championship.isMixedTeamEnabled() && championship.isExplicitMixedTeamMembers());
-
-		Checkbox explicitMixedField = new Checkbox();
-		explicitMixedField.setValue(championship.isExplicitMixedTeamMembers());
-		explicitMixedField.setEnabled(championship.isMixedTeamEnabled());
 
 		// Mixed team ranking method: sum of points vs sum of scores
 		RadioButtonGroup<String> mixedMethodField = new RadioButtonGroup<>();
@@ -256,6 +254,18 @@ public class ChampionshipDetailsDialog extends Dialog {
 		mixedTeamScoringSystemField.setEnabled(championship.isMixedTeamEnabled() && SUM_OF_SCORES.equals(mixedMethodInitial));
 		mixedLayout.addFormItem(mixedTeamScoringSystemField, Translator.translate("Championship.teamScoringSystem"));
 
+		RadioButtonGroup<String> mixedSelectionField = new RadioButtonGroup<>();
+		mixedSelectionField.setItems(List.of(
+		        MIXED_SELECTION_EXPLICIT,
+		        MIXED_SELECTION_OVERALL,
+		        MIXED_SELECTION_PER_GENDER));
+		mixedSelectionField.setItemLabelGenerator(this::translateMixedSelectionMode);
+		mixedSelectionField.setWidthFull();
+		mixedSelectionField.setValue(determineMixedSelectionMode(championship));
+		mixedSelectionField.setEnabled(championship.isMixedTeamEnabled());
+		mixedLayout.add(mixedSelectionField);
+		mixedLayout.setColspan(mixedSelectionField, 2);
+
 		mixedMethodField.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
 				return;
@@ -269,46 +279,53 @@ public class ChampionshipDetailsDialog extends Dialog {
 			}
 		});
 
-		explicitMixedField.addValueChangeListener(e -> {
-			if (!e.isFromClient()) {
-				return;
-			}
-			explicitTeamSizeField.setEnabled(Boolean.TRUE.equals(e.getValue()));
-		});
-
-		mixedLayout.addFormItem(explicitMixedField,
-		        Translator.translate("Championship.explicitMixedTeamMembers"));
-		mixedLayout.addFormItem(explicitTeamSizeField, Translator.translate("Championship.explicitTeamSize"));
+		var explicitTeamSizeItem = mixedLayout.addFormItem(explicitTeamSizeField,
+		        Translator.translate("Championship.explicitTeamSize"));
+		mixedLayout.setColspan(explicitTeamSizeItem, 2);
 
 		IntegerField mixedBestNField = new IntegerField();
 		mixedBestNField.setValue(zeroAsEmpty(championship.getMixedBestN()));
-		mixedBestNField.setEnabled(championship.isMixedTeamEnabled());
 		var mixedBestNItem = mixedLayout.addFormItem(mixedBestNField, Translator.translate("Championship.mixedBestN"));
 		mixedLayout.setColspan(mixedBestNItem, 2);
 
 		IntegerField mixedMensBestNField = new IntegerField();
 		mixedMensBestNField.setValue(zeroAsEmpty(championship.getMixedMensBestN()));
-		mixedLayout.addFormItem(mixedMensBestNField, Translator.translate("Competition.mensTeamSize"));
+		var mixedMensBestNItem = mixedLayout.addFormItem(mixedMensBestNField, Translator.translate("Competition.mensTeamSize"));
 
 		IntegerField mixedWomensBestNField = new IntegerField();
 		mixedWomensBestNField.setValue(zeroAsEmpty(championship.getMixedWomensBestN()));
-		mixedLayout.addFormItem(mixedWomensBestNField, Translator.translate("Competition.womensTeamSize"));
+		var mixedWomensBestNItem = mixedLayout.addFormItem(mixedWomensBestNField, Translator.translate("Competition.womensTeamSize"));
 
-		Runnable refreshMixedTopNFieldState = () -> {
+		Runnable refreshMixedSelectionFieldState = () -> {
 			boolean mixedEnabled = Boolean.TRUE.equals(mixedTeamEnabledField.getValue());
 			boolean notDefaults = !Boolean.TRUE.equals(useDefaultsField.getValue());
-			Integer mixedBestNValue = mixedBestNField.getValue();
-			boolean useSplitCaps = mixedBestNValue == null || mixedBestNValue <= 0;
-			boolean enableSplitCaps = mixedEnabled && notDefaults && useSplitCaps;
-			mixedMensBestNField.setEnabled(enableSplitCaps);
-			mixedWomensBestNField.setEnabled(enableSplitCaps);
+			boolean enableSelectedMode = mixedEnabled && notDefaults;
+			String mixedSelectionMode = mixedSelectionField.getValue();
+			boolean explicitSelection = MIXED_SELECTION_EXPLICIT.equals(mixedSelectionMode);
+			boolean overallSelection = MIXED_SELECTION_OVERALL.equals(mixedSelectionMode);
+			boolean perGenderSelection = MIXED_SELECTION_PER_GENDER.equals(mixedSelectionMode);
+
+			mixedSelectionField.setVisible(mixedEnabled);
+			mixedSelectionField.setEnabled(enableSelectedMode);
+
+			explicitTeamSizeItem.setVisible(mixedEnabled && explicitSelection);
+			explicitTeamSizeField.setEnabled(enableSelectedMode && explicitSelection);
+
+			mixedBestNItem.setVisible(mixedEnabled && overallSelection);
+			mixedBestNField.setEnabled(enableSelectedMode && overallSelection);
+
+			mixedMensBestNItem.setVisible(mixedEnabled && perGenderSelection);
+			mixedMensBestNField.setEnabled(enableSelectedMode && perGenderSelection);
+
+			mixedWomensBestNItem.setVisible(mixedEnabled && perGenderSelection);
+			mixedWomensBestNField.setEnabled(enableSelectedMode && perGenderSelection);
 		};
 
-		mixedBestNField.addValueChangeListener(e -> {
+		mixedSelectionField.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
 				return;
 			}
-			refreshMixedTopNFieldState.run();
+			refreshMixedSelectionFieldState.run();
 		});
 
 		Runnable refreshEffectiveDefaults = () -> {
@@ -329,7 +346,11 @@ public class ChampionshipDetailsDialog extends Dialog {
 			maxPerCategoryField.setValue(effective.getMaxPerCategory());
 			mensBestNField.setValue(zeroAsEmpty(effective.getMensBestN()));
 			womensBestNField.setValue(zeroAsEmpty(effective.getWomensBestN()));
+			explicitTeamSizeField.setValue(effective.getExplicitTeamSize());
 			mixedBestNField.setValue(zeroAsEmpty(effective.getMixedBestN()));
+			mixedMensBestNField.setValue(zeroAsEmpty(effective.getMixedMensBestN()));
+			mixedWomensBestNField.setValue(zeroAsEmpty(effective.getMixedWomensBestN()));
+			mixedSelectionField.setValue(determineMixedSelectionMode(effective));
 
 			snatchCJTotalField.setEnabled(!useDefaults);
 			scoringSystemField.setEnabled(!useDefaults && !Boolean.TRUE.equals(snatchCJTotalField.getValue()));
@@ -349,10 +370,7 @@ public class ChampionshipDetailsDialog extends Dialog {
 			mixedTeamEnabledField.setEnabled(!useDefaults);
 			mixedMethodField.setEnabled(!useDefaults && mixedEnabled);
 			mixedTeamScoringSystemField.setEnabled(!useDefaults && mixedEnabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
-			explicitMixedField.setEnabled(!useDefaults && mixedEnabled);
-			explicitTeamSizeField.setEnabled(!useDefaults && mixedEnabled && Boolean.TRUE.equals(explicitMixedField.getValue()));
-			mixedBestNField.setEnabled(!useDefaults && mixedEnabled);
-			refreshMixedTopNFieldState.run();
+			refreshMixedSelectionFieldState.run();
 		};
 
 		useDefaultsField.addValueChangeListener(e -> {
@@ -371,10 +389,7 @@ public class ChampionshipDetailsDialog extends Dialog {
 			boolean notDefaults = !Boolean.TRUE.equals(useDefaultsField.getValue());
 			mixedMethodField.setEnabled(enabled && notDefaults);
 			mixedTeamScoringSystemField.setEnabled(enabled && notDefaults && SUM_OF_SCORES.equals(mixedMethodField.getValue()));
-			explicitMixedField.setEnabled(enabled && notDefaults);
-			explicitTeamSizeField.setEnabled(enabled && notDefaults && Boolean.TRUE.equals(explicitMixedField.getValue()));
-			mixedBestNField.setEnabled(enabled && notDefaults);
-			refreshMixedTopNFieldState.run();
+			refreshMixedSelectionFieldState.run();
 		});
 
 		refreshEffectiveDefaults.run();
@@ -388,12 +403,27 @@ public class ChampionshipDetailsDialog extends Dialog {
 
 		Button saveButton = new Button(Translator.translate("Update"), event -> {
 			String updatedName = nameField.getValue() != null ? nameField.getValue().trim() : "";
+			String mixedSelectionMode = mixedSelectionField.getValue();
 			if (updatedName.isBlank()) {
 				nameField.setInvalid(true);
 				nameField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
 				return;
 			}
+			if (MIXED_SELECTION_EXPLICIT.equals(mixedSelectionMode)
+			        && (explicitTeamSizeField.getValue() == null || explicitTeamSizeField.getValue() <= 0)) {
+				explicitTeamSizeField.setInvalid(true);
+				explicitTeamSizeField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
+				return;
+			}
+			if (MIXED_SELECTION_OVERALL.equals(mixedSelectionMode)
+			        && (mixedBestNField.getValue() == null || mixedBestNField.getValue() <= 0)) {
+				mixedBestNField.setInvalid(true);
+				mixedBestNField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
+				return;
+			}
 			nameField.setInvalid(false);
+			explicitTeamSizeField.setInvalid(false);
+			mixedBestNField.setInvalid(false);
 			championship.setType(typeField.getValue());
 			championship.setUseCompetitionDefaults(useDefaultsField.getValue());
 			championship.setScoringSystem(scoringSystemField.getValue());
@@ -409,15 +439,18 @@ public class ChampionshipDetailsDialog extends Dialog {
 			championship.setTeamPoints3rd(teamPoints3rdField.getValue());
 			championship.setMensBestN(emptyAsZero(mensBestNField.getValue()));
 			championship.setWomensBestN(emptyAsZero(womensBestNField.getValue()));
-			championship.setExplicitMixedTeamMembers(explicitMixedField.getValue());
+			championship.setExplicitMixedTeamMembers(MIXED_SELECTION_EXPLICIT.equals(mixedSelectionMode));
 			championship.setMixedTeamEnabled(mixedTeamEnabledField.getValue());
 			championship.setExplicitTeamSize(explicitTeamSizeField.getValue());
 			// Mixed team scoring: null means sum-of-points, non-null means sum-of-scores
 			championship.setMixedTeamScoringSystem(
 					SUM_OF_SCORES.equals(mixedMethodField.getValue()) ? mixedTeamScoringSystemField.getValue() : null);
-			championship.setMixedBestN(emptyAsZero(mixedBestNField.getValue()));
-			championship.setMixedMensBestN(emptyAsZero(mixedMensBestNField.getValue()));
-			championship.setMixedWomensBestN(emptyAsZero(mixedWomensBestNField.getValue()));
+			championship.setMixedBestN(MIXED_SELECTION_OVERALL.equals(mixedSelectionMode)
+			        ? emptyAsZero(mixedBestNField.getValue()) : 0);
+			championship.setMixedMensBestN(MIXED_SELECTION_PER_GENDER.equals(mixedSelectionMode)
+			        ? emptyAsZero(mixedMensBestNField.getValue()) : 0);
+			championship.setMixedWomensBestN(MIXED_SELECTION_PER_GENDER.equals(mixedSelectionMode)
+			        ? emptyAsZero(mixedWomensBestNField.getValue()) : 0);
 			championship.setMaxTeamSize(maxTeamSizeField.getValue());
 			championship.setMaxPerCategory(maxPerCategoryField.getValue());
 			if (!updatedName.equals(championship.getName())) {
@@ -462,5 +495,28 @@ public class ChampionshipDetailsDialog extends Dialog {
 		combo.setWidth("20em");
 		combo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "30em");
 		return combo;
+	}
+
+	private String determineMixedSelectionMode(Championship championship) {
+		if (championship != null && championship.isExplicitMixedTeamMembers()) {
+			return MIXED_SELECTION_EXPLICIT;
+		}
+		return championship != null && championship.getMixedBestN() != null && championship.getMixedBestN() > 0
+		        ? MIXED_SELECTION_OVERALL
+		        : MIXED_SELECTION_PER_GENDER;
+	}
+
+	private String translateMixedSelectionMode(String mode) {
+		switch (mode) {
+			case MIXED_SELECTION_EXPLICIT:
+				return Translator.translate("Championship.explicitMixedTeamMembers");
+			case MIXED_SELECTION_OVERALL:
+				return Translator.translate("Championship.mixedBestN");
+			case MIXED_SELECTION_PER_GENDER:
+				return Translator.translate("Competition.mensTeamSize") + " + "
+				        + Translator.translate("Competition.womensTeamSize");
+			default:
+				return mode;
+		}
 	}
 }
