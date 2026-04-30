@@ -140,7 +140,7 @@ public class SessionAssignmentGenerator {
 
             // Clear all existing assignments for all sessions before generating new ones
             logger.info("Clearing all existing session assignments before generating new assignments");
-            for (Group group : GroupRepository.findAll()) {
+            for (Group group : GroupRepository.doFindAll(em)) {
                 group.clearAllAssignments();
                 em.merge(group);
             }
@@ -149,7 +149,7 @@ public class SessionAssignmentGenerator {
             List<TechnicalOfficial> officials = TechnicalOfficialRepository.findAll();
 
             // Get all sessions in chronological order (by competition time if available, otherwise by name)
-            List<Group> sessions = GroupRepository.findAll().stream()
+            List<Group> sessions = GroupRepository.doFindAll(em).stream()
                     .sorted((g1, g2) -> {
                         // Sort by competition time if both have it
                         if (g1.getCompetitionTime() != null && g2.getCompetitionTime() != null) {

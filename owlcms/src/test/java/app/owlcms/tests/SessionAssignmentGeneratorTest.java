@@ -36,6 +36,9 @@ import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
 
 public class SessionAssignmentGeneratorTest {
 
+	private static final String FIRST_SESSION_NAME = "M1";
+	private static final String SECOND_SESSION_NAME = "M2";
+
 	@BeforeClass
 	public static void setupTests() {
 		Main.injectSuppliers();
@@ -67,8 +70,8 @@ public class SessionAssignmentGeneratorTest {
 
 	@Test
 	public void generateSessionAssignmentsClearsStaleAssignmentsBeforeRebuilding() {
-		Group session = GroupRepository.findByName("A");
-		assertNotNull("Expected initial session A", session);
+		Group session = GroupRepository.findByName(FIRST_SESSION_NAME);
+		assertNotNull("Expected initial session " + FIRST_SESSION_NAME, session);
 
 		session.setJury4("Montero, David");
 		session.setJury5("Alarcon, Jose");
@@ -94,7 +97,7 @@ public class SessionAssignmentGeneratorTest {
 		int assignmentCount = SessionAssignmentGenerator.generateSessionAssignments();
 		assertEquals("Expected president + 2 jury + 3 referees", 6, assignmentCount);
 
-		Group refreshed = GroupRepository.findByName("A");
+		Group refreshed = GroupRepository.findByName(FIRST_SESSION_NAME);
 		assertNotNull(refreshed);
 
 		assertEquals("Ortiz, Maritza", refreshed.getJury1());
@@ -120,8 +123,8 @@ public class SessionAssignmentGeneratorTest {
 
 	@Test
 	public void generateSessionAssignmentsUsesThreePersonJuryRotation() {
-		Group sessionA = GroupRepository.findByName("A");
-		Group sessionB = GroupRepository.findByName("B");
+		Group sessionA = GroupRepository.findByName(FIRST_SESSION_NAME);
+		Group sessionB = GroupRepository.findByName(SECOND_SESSION_NAME);
 		assertNotNull(sessionA);
 		assertNotNull(sessionB);
 
@@ -138,8 +141,8 @@ public class SessionAssignmentGeneratorTest {
 		int assignmentCount = SessionAssignmentGenerator.generateSessionAssignments();
 		assertEquals("Expected 2 president assignments and 3 rotating jury-member assignments per session", 8, assignmentCount);
 
-		Group refreshedA = GroupRepository.findByName("A");
-		Group refreshedB = GroupRepository.findByName("B");
+		Group refreshedA = GroupRepository.findByName(FIRST_SESSION_NAME);
+		Group refreshedB = GroupRepository.findByName(SECOND_SESSION_NAME);
 		assertEquals("Ortiz, Maritza", refreshedA.getJury1());
 		assertEquals("Ortiz, Maritza", refreshedB.getJury1());
 
@@ -158,8 +161,8 @@ public class SessionAssignmentGeneratorTest {
 
 	@Test
 	public void generateSessionAssignmentsUsesFivePersonJuryRotationWithoutReserveWhenOnlyFourMembers() {
-		Group sessionA = GroupRepository.findByName("A");
-		Group sessionB = GroupRepository.findByName("B");
+		Group sessionA = GroupRepository.findByName(FIRST_SESSION_NAME);
+		Group sessionB = GroupRepository.findByName(SECOND_SESSION_NAME);
 		assertNotNull(sessionA);
 		assertNotNull(sessionB);
 
@@ -177,8 +180,8 @@ public class SessionAssignmentGeneratorTest {
 		int assignmentCount = SessionAssignmentGenerator.generateSessionAssignments();
 		assertEquals("Expected 2 president assignments and 4 rotating jury-member assignments per session", 10, assignmentCount);
 
-		Group refreshedA = GroupRepository.findByName("A");
-		Group refreshedB = GroupRepository.findByName("B");
+		Group refreshedA = GroupRepository.findByName(FIRST_SESSION_NAME);
+		Group refreshedB = GroupRepository.findByName(SECOND_SESSION_NAME);
 		assertEquals("Ortiz, Maritza", refreshedA.getJury1());
 		assertEquals("Ortiz, Maritza", refreshedB.getJury1());
 
