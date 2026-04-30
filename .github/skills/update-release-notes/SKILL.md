@@ -23,21 +23,25 @@ Do not update the repository-root `ReleaseNotes.md` unless the user explicitly a
 
 Add or revise release note entries in the existing house style, with short user-facing wording.
 
+Each release note entry should cover one user-facing theme only.
+
 ## Workflow
 
 1. Read `src/main/markdown/ReleaseNotes.md`.
 2. Find the current release section the change belongs to.
 3. Add a concise entry in the same formatting style already used in the file.
 4. Prefer user-visible behavior over implementation details.
-5. If useful, add one or two flat sub-bullets for clarification.
-6. Avoid duplicate entries.
-7. Leave unrelated release notes unchanged.
+5. Keep one user-facing theme per entry; if there are multiple themes, add multiple separate entries.
+6. Use one or two flat sub-bullets only when they clarify the same theme.
+7. Avoid duplicate entries.
+8. Leave unrelated release notes unchanged.
 
 ## Writing Rules
 
 - Use the existing release number section already present in the file.
 - Do not create a new release heading unless the user explicitly asks.
 - Keep wording brief and concrete.
+- One entry per user-facing topic. Do not group unrelated fixes or features under one heading.
 - Mention the visible outcome, not internal class names, unless the user asks for technical detail.
 - If a change affects exports, templates, or generated documents, describe the exported result from the user perspective.
 - Match the punctuation and indentation style already in the file.
@@ -53,7 +57,8 @@ Add or revise release note entries in the existing house style, with short user-
 When using this skill:
 
 - Edit only the intended release notes file.
-- Add the new entry under the appropriate release section.
+- Add the new entry or entries under the appropriate release section.
+- Split unrelated themes into separate entries instead of using one umbrella heading.
 - Summarize what was added.
 - If relevant, remind the user which file should be staged.
 
