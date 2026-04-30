@@ -21,6 +21,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.i18n.Translator;
@@ -64,10 +65,23 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 		Gender gender = getGender();
 
 		// Each gender group uses its own ranking from the championship.
+		// Gendered (M/W) tabs use championship.teamScoringSystem.
+		// Mixed (MF) tab uses championship.mixedTeamScoringSystem.
+		// These must remain segregated — no cross-tab leakage from competition-wide
+		// best-athlete scoring or from one championship setting to the other.
 		Ranking genderedRanking = computeTeamRanking(championship, Gender.M);
 		Ranking mixedRanking = computeTeamRanking(championship, Gender.MF);
 
-		// Build the tree — internally calls getRankingForGender() per gender group.
+		// Ensure the per-tab scoring systems are computed for athletes — otherwise
+		// Ranking.getRankingValue() returns 0 (gated by RankingConfig.shouldCompute)
+		// and member.score cells render blank even when the team total is populated
+		// via the team-level accumulator.
+		RankingConfig.updateMustCompute();
+
+		// Build the tree — internally calls getRankingForGender() per gender group,
+		// so M/F items already carry teamScoringSystem and MF items already carry
+		// mixedTeamScoringSystem. Each gender has its own list of TeamTreeItem
+		// instances, so per-gender overrides cannot leak across tabs.
 		TeamResultsTreeData treeData = new TeamResultsTreeData(
 				ageGroupPrefix, championship, gender, genderedRanking, false);
 		Map<Gender, List<TeamTreeItem>> teamsByGender = treeData.getTeamItemsByGender();
@@ -85,17 +99,13 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 		List<TeamTreeItem> wTeams = sortTeams(teamsByGender.getOrDefault(Gender.F, List.of()), genderedComparator);
 		List<TeamTreeItem> mwTeams = sortTeams(teamsByGender.getOrDefault(Gender.MF, List.of()), mixedComparator);
 
-		// When points-based, the tree was built with TOTAL as scoring system.
-		// Override with bestAthleteScoringSystem so the score column shows the
-		// championship scoring (e.g. GAMX) instead of total kg.
-		Ranking bestAthlete = championship != null ? championship.getBestAthleteScoringSystem() : null;
-		if (genderedPointsBased && bestAthlete != null) {
-			overrideScoringSystem(mTeams, bestAthlete);
-			overrideScoringSystem(wTeams, bestAthlete);
-		}
-		if (mixedPointsBased && bestAthlete != null) {
-			overrideScoringSystem(mwTeams, bestAthlete);
-		}
+		// Re-assert per-gender scoring on the items we just sorted, so each tab is
+		// guaranteed to use its own championship scoring system. When points-based,
+		// the score column is hidden by applyMeasureColumnVisibility(); the value
+		// still flows through team/member.score for any template that references it.
+		overrideScoringSystem(mTeams, genderedRanking);
+		overrideScoringSystem(wTeams, genderedRanking);
+		overrideScoringSystem(mwTeams, mixedRanking);
 
 		this.hasMen = !mTeams.isEmpty();
 		this.hasWomen = !wTeams.isEmpty();
@@ -118,11 +128,10 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 			getReportingBeans().put("mwTeamItems", mwTeams);
 		}
 		// Per-sheet display control: showPoints hides the team-level points sum
-		// on score-based tabs; scoringTitle labels the score column.
-		Ranking genderedDisplay = (genderedPointsBased && bestAthlete != null) ? bestAthlete : genderedRanking;
-		Ranking mixedDisplay = (mixedPointsBased && bestAthlete != null) ? bestAthlete : mixedRanking;
-		String genderedTitle = Ranking.getScoringTitle(genderedDisplay);
-		String mixedTitle = Ranking.getScoringTitle(mixedDisplay);
+		// on score-based tabs; scoringTitle labels the score column. Each tab uses
+		// its own scoring system so titles stay segregated.
+		String genderedTitle = Ranking.getScoringTitle(genderedRanking);
+		String mixedTitle = Ranking.getScoringTitle(mixedRanking);
 
 		getReportingBeans().put("mShowPoints", genderedPointsBased);
 		getReportingBeans().put("wShowPoints", genderedPointsBased);
@@ -134,9 +143,9 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 		getReportingBeans().put("wTeamSize", computeConfiguredTeamSize(championship, ageGroupPrefix, Gender.F));
 		getReportingBeans().put("mwTeamSize", computeConfiguredTeamSize(championship, ageGroupPrefix, Gender.MF));
 
-		logger.debug("team results: gendered={} display={} (pointsBased={}), mixed={} display={} (pointsBased={}), m={} w={} mw={}",
-				genderedRanking, genderedDisplay, genderedPointsBased,
-				mixedRanking, mixedDisplay, mixedPointsBased,
+		logger.debug("team results: gendered={} (pointsBased={}), mixed={} (pointsBased={}), m={} w={} mw={}",
+				genderedRanking, genderedPointsBased,
+				mixedRanking, mixedPointsBased,
 				mTeams.size(), wTeams.size(), mwTeams.size());
 	}
 

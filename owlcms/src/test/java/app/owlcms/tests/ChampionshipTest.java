@@ -904,6 +904,151 @@ public class ChampionshipTest {
             }
 
     @Test
+    public void testSeniorTeamResultsExportUsesMixedChampionshipScoring() throws Exception {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+
+        Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+        applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+        // Mixed championship explicitly uses GAMX so the score column is meaningful.
+        configureMixedTeamRules(senior, true, null, Ranking.GAMX, 0, 2, 2);
+
+        JXLSTeamResultsSheet sheet = new JXLSTeamResultsSheet(null);
+        sheet.setChampionship(senior);
+        sheet.setGender(Gender.MF);
+        invokeSetReportingInfo(sheet);
+
+        assertEquals("Mixed export should use the mixed-team scoring title",
+                Ranking.getScoringTitle(Ranking.GAMX), sheet.getReportingBeans().get("mwScoringTitle"));
+
+        @SuppressWarnings("unchecked")
+        List<TeamTreeItem> mwTeamItems = (List<TeamTreeItem>) sheet.getReportingBeans().get("mwTeamItems");
+        assertNotNull("Team Results export should publish mwTeamItems", mwTeamItems);
+        assertFalse("Team Results export should publish mixed teams", mwTeamItems.isEmpty());
+
+        for (TeamTreeItem team : mwTeamItems) {
+            double expectedTeamScore = 0.0D;
+            for (TeamTreeItem member : team.getCountedTeamMembers()) {
+                double expectedMemberScore = Ranking.getRankingValue(member.getAthlete(), Ranking.GAMX);
+                assertRoundedTo2("Mixed export member score should follow mixed championship scoring for "
+                        + member.getAthlete().getFullName(), expectedMemberScore, member.getScore());
+                expectedTeamScore += expectedMemberScore;
+            }
+            assertRoundedTo2("Mixed export team score should follow mixed championship scoring for "
+                    + team.getName(), expectedTeamScore, team.getScore());
+        }
+    }
+
+    /**
+     * Verify that men's, women's, and mixed sheets each use their own championship
+     * scoring system and that no value leaks across tabs. The mixed scoring system
+     * (GAMX) must not appear on the gendered tabs, and the gendered scoring system
+     * (BW_SINCLAIR) must not appear on the mixed tab.
+     */
+    @Test
+    public void testTeamResultsExportSegregatesScoringSystemsPerSheet() throws Exception {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
+
+        Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+        applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+        // Distinct scoring systems for gendered vs mixed tabs.
+        configureMixedTeamRules(senior, true, Ranking.BW_SINCLAIR, Ranking.GAMX, 0, 2, 2);
+
+        JXLSTeamResultsSheet sheet = new JXLSTeamResultsSheet(null);
+        sheet.setChampionship(senior);
+        sheet.setGender(Gender.MF);
+        invokeSetReportingInfo(sheet);
+
+        Map<String, Object> beans = sheet.getReportingBeans();
+
+        // Titles must be segregated per tab.
+        assertEquals("Men's tab should use gendered (BW_SINCLAIR) scoring title",
+                Ranking.getScoringTitle(Ranking.BW_SINCLAIR), beans.get("mScoringTitle"));
+        assertEquals("Women's tab should use gendered (BW_SINCLAIR) scoring title",
+                Ranking.getScoringTitle(Ranking.BW_SINCLAIR), beans.get("wScoringTitle"));
+        assertEquals("Mixed tab should use mixed (GAMX) scoring title",
+                Ranking.getScoringTitle(Ranking.GAMX), beans.get("mwScoringTitle"));
+
+        // showPoints flags must reflect per-tab configuration (both non-points-based here).
+        assertEquals("Men's tab should not be points-based when team scoring is set",
+                Boolean.FALSE, beans.get("mShowPoints"));
+        assertEquals("Women's tab should not be points-based when team scoring is set",
+                Boolean.FALSE, beans.get("wShowPoints"));
+        assertEquals("Mixed tab should not be points-based when mixed scoring is set",
+                Boolean.FALSE, beans.get("mwShowPoints"));
+
+        @SuppressWarnings("unchecked")
+        List<TeamTreeItem> mTeamItems = (List<TeamTreeItem>) beans.get("mTeamItems");
+        @SuppressWarnings("unchecked")
+        List<TeamTreeItem> wTeamItems = (List<TeamTreeItem>) beans.get("wTeamItems");
+        @SuppressWarnings("unchecked")
+        List<TeamTreeItem> mwTeamItems = (List<TeamTreeItem>) beans.get("mwTeamItems");
+
+        // Mixed must always be present (the export targets the Mixed sheet).
+        assertNotNull("Mixed items must be present", mwTeamItems);
+        assertFalse("Mixed items must not be empty", mwTeamItems.isEmpty());
+
+        // Item objects must not be shared across tabs (per-gender lists are disjoint).
+        Set<TeamTreeItem> all = new java.util.HashSet<>();
+        if (mTeamItems != null) {
+            for (TeamTreeItem t : mTeamItems) {
+                assertTrue("Men's TeamTreeItem must be unique to its tab", all.add(t));
+                for (TeamTreeItem m : t.getCountedTeamMembers()) {
+                    assertTrue("Men's member TeamTreeItem must be unique to its tab", all.add(m));
+                }
+            }
+        }
+        if (wTeamItems != null) {
+            for (TeamTreeItem t : wTeamItems) {
+                assertTrue("Women's TeamTreeItem must be unique to its tab", all.add(t));
+                for (TeamTreeItem m : t.getCountedTeamMembers()) {
+                    assertTrue("Women's member TeamTreeItem must be unique to its tab", all.add(m));
+                }
+            }
+        }
+        for (TeamTreeItem t : mwTeamItems) {
+            assertTrue("Mixed TeamTreeItem must be unique to its tab", all.add(t));
+            for (TeamTreeItem m : t.getCountedTeamMembers()) {
+                assertTrue("Mixed member TeamTreeItem must be unique to its tab", all.add(m));
+            }
+        }
+
+        // Each item must compute its score using its tab's scoring system —
+        // no cross-tab leakage. We assert this through the public getScore()
+        // surface, which is what the Excel template reads.
+        if (mTeamItems != null) {
+            for (TeamTreeItem t : mTeamItems) {
+                for (TeamTreeItem m : t.getCountedTeamMembers()) {
+                    double expected = Ranking.getRankingValue(m.getAthlete(), Ranking.BW_SINCLAIR);
+                    assertRoundedTo2("Men's member must use gendered (BW_SINCLAIR) scoring for "
+                            + m.getAthlete().getFullName(), expected, m.getScore());
+                }
+            }
+        }
+        if (wTeamItems != null) {
+            for (TeamTreeItem t : wTeamItems) {
+                for (TeamTreeItem m : t.getCountedTeamMembers()) {
+                    double expected = Ranking.getRankingValue(m.getAthlete(), Ranking.BW_SINCLAIR);
+                    assertRoundedTo2("Women's member must use gendered (BW_SINCLAIR) scoring for "
+                            + m.getAthlete().getFullName(), expected, m.getScore());
+                }
+            }
+        }
+        for (TeamTreeItem t : mwTeamItems) {
+            double expectedTeam = 0.0D;
+            for (TeamTreeItem m : t.getCountedTeamMembers()) {
+                double expected = Ranking.getRankingValue(m.getAthlete(), Ranking.GAMX);
+                assertRoundedTo2("Mixed member must use mixed (GAMX) scoring for "
+                        + m.getAthlete().getFullName(), expected, m.getScore());
+                expectedTeam += expected;
+            }
+            assertRoundedTo2("Mixed team score must accumulate mixed (GAMX) scoring for "
+                    + t.getName(), expectedTeam, t.getScore());
+        }
+    }
+
+    @Test
     public void testTeamResultsTemplatesIterateCountedTeamMembers() throws Exception {
         assertTeamResultsTemplateUsesCountedMembers("/templates/teamResults/TeamResults-A4.xlsx");
         assertTeamResultsTemplateUsesCountedMembers("/templates/teamResults/TeamResults-Letter.xlsx");

@@ -13,6 +13,7 @@ import java.util.Set;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.competition.Competition;
 
 /**
@@ -122,6 +123,28 @@ public class RankingConfig {
 				mustCompute.add(bestAthleteScoring);
 			}
 		}
+
+		// Add team and mixed-team scoring systems from all championships so that
+		// per-athlete values used by team-results exports are computed.
+		addChampionshipTeamScorings();
+	}
+
+	/** Register team and mixed-team scoring systems from every championship. */
+	private static void addChampionshipTeamScorings() {
+		List<Championship> championships = Championship.findAll();
+		if (championships == null) {
+			return;
+		}
+		for (Championship c : championships) {
+			Ranking team = c.getTeamScoringSystem();
+			if (team != null && getAllScoringRankings().contains(team)) {
+				mustCompute.add(team);
+			}
+			Ranking mixed = c.getMixedTeamScoringSystem();
+			if (mixed != null && getAllScoringRankings().contains(mixed)) {
+				mustCompute.add(mixed);
+			}
+		}
 	}
 
 	/**
@@ -162,6 +185,9 @@ public class RankingConfig {
 				}
 			}
 		}
+
+		// Also include team scoring systems configured per championship.
+		addChampionshipTeamScorings();
 	}
 
 	/**
