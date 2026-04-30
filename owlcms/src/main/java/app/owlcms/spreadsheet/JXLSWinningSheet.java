@@ -6,13 +6,21 @@
  *******************************************************************************/
 package app.owlcms.spreadsheet;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.ss.usermodel.Header;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +50,10 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	final private static Logger jexlLogger = (Logger) LoggerFactory.getLogger("org.apache.commons.jexl2.JexlEngine");
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWinningSheet.class);
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
+	private static final DateTimeFormatter IWF_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static final int CATEGORY_COLUMN = 5;
+	private static final int BIRTH_DATE_COLUMN = 8;
+	private static final int[] ATTEMPT_COLUMNS = { 9, 10, 11, 14, 15, 16 };
 	private static final boolean ORDER_BY_CATEGORIES = false;
 	static {
 		logger.setLevel(Level.INFO);
@@ -256,6 +268,93 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		}
 
 		createStandardFooter(workbook);
+		postProcessIwfFlatWorkbook(workbook);
+	}
+
+	private void postProcessIwfFlatWorkbook(Workbook workbook) {
+		String templateFileName = Competition.getCurrent().getComputedResultsTemplateFileName();
+		if (templateFileName == null || !templateFileName.startsWith("IWF")) {
+			return;
+		}
+
+		Sheet sheet = workbook.getSheetAt(0);
+		for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+			Row row = sheet.getRow(rowIndex);
+			if (row == null) {
+				continue;
+			}
+
+			normalizeIwfBirthDate(row.getCell(BIRTH_DATE_COLUMN));
+			normalizeIwfCategoryGender(row.getCell(CATEGORY_COLUMN));
+			for (int attemptColumn : ATTEMPT_COLUMNS) {
+				normalizeIwfAttempt(row.getCell(attemptColumn));
+			}
+		}
+	}
+
+	private void normalizeIwfBirthDate(Cell cell) {
+		if (cell == null) {
+			return;
+		}
+
+		LocalDate date = null;
+		if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+			date = cell.getLocalDateTimeCellValue().toLocalDate();
+		} else if (cell.getCellType() == CellType.STRING) {
+			String text = cell.getStringCellValue().trim();
+			if (text.isEmpty() || text.indexOf('/') >= 0) {
+				return;
+			}
+			try {
+				date = LocalDate.parse(text);
+			} catch (DateTimeParseException ignored) {
+				return;
+			}
+		}
+
+		if (date != null) {
+			cell.setCellValue(IWF_DATE_FORMATTER.format(date));
+		}
+	}
+
+	private void normalizeIwfCategoryGender(Cell cell) {
+		if (cell == null || cell.getCellType() != CellType.STRING) {
+			return;
+		}
+		String value = cell.getStringCellValue();
+		if (value.equals("F")) {
+			cell.setCellValue("W");
+		} else if (value.startsWith("F ")) {
+			cell.setCellValue("W" + value.substring(1));
+		}
+	}
+
+	private void normalizeIwfAttempt(Cell cell) {
+		if (cell == null) {
+			return;
+		}
+
+		if (cell.getCellType() == CellType.NUMERIC) {
+			double value = cell.getNumericCellValue();
+			if (value < 0) {
+				cell.setCellValue("*" + formatAttemptWeight(Math.abs(value)));
+			}
+			return;
+		}
+
+		if (cell.getCellType() == CellType.STRING) {
+			String value = cell.getStringCellValue().trim();
+			if (value.startsWith("-")) {
+				cell.setCellValue("*" + value.substring(1));
+			}
+		}
+	}
+
+	private String formatAttemptWeight(double value) {
+		if (value == Math.rint(value)) {
+			return Long.toString(Math.round(value));
+		}
+		return Double.toString(value);
 	}
 
 	private Ranking rankingOrder() {
