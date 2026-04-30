@@ -10,6 +10,10 @@
 
 **New in Release 66**
 
+66.1.0-rc04: Mixed Team Championships
+  - Fixed Excel output to respect the championship scoring scheme
+  - Use radio buttons to select explicit, top n mixed, or top n per gender for the mixed championship UI
+  
 66.1.0-rc03: Mixed team championships: when top N mixed is blank or 0, the men and women top-N fields are enabled and use the standard men and women labels
 
 66.1.0-rc03: Timetable-based technical official generation now clears stale assignments and applies the correct 3-person and 5-person jury rotation
