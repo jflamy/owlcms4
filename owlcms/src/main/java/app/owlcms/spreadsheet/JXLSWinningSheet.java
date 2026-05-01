@@ -51,6 +51,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWinningSheet.class);
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
 	private static final DateTimeFormatter IWF_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static final int BODYWEIGHT_CATEGORY_COLUMN = 0;
 	private static final int GENDER_COLUMN = 5;
 	private static final int BIRTH_DATE_COLUMN = 4;
 	private static final int[] ATTEMPT_COLUMNS = { 9, 10, 11, 13, 14, 15 };
@@ -284,11 +285,34 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				continue;
 			}
 
+			normalizeIwfBodyweightCategory(row.getCell(BODYWEIGHT_CATEGORY_COLUMN));
 			normalizeIwfBirthDate(row.getCell(BIRTH_DATE_COLUMN));
 			normalizeIwfGender(row.getCell(GENDER_COLUMN));
 			for (int attemptColumn : ATTEMPT_COLUMNS) {
 				normalizeIwfAttempt(row.getCell(attemptColumn));
 			}
+		}
+	}
+
+	private void normalizeIwfBodyweightCategory(Cell cell) {
+		if (cell == null || cell.getCellType() != CellType.STRING) {
+			return;
+		}
+
+		String value = cell.getStringCellValue();
+		if (value == null) {
+			return;
+		}
+
+		String trimmed = value.trim();
+		if (trimmed.length() <= 1) {
+			return;
+		}
+
+		if (trimmed.startsWith("+") || trimmed.startsWith(">")) {
+			cell.setCellValue("p" + trimmed.substring(1));
+		} else if (trimmed.endsWith("+")) {
+			cell.setCellValue("p" + trimmed.substring(0, trimmed.length() - 1));
 		}
 	}
 
