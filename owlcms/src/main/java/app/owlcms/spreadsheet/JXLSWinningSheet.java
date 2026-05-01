@@ -51,9 +51,9 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(JXLSWinningSheet.class);
 	final private static Logger tagLogger = (Logger) LoggerFactory.getLogger("net.sf.jxls.tag.ForEachTag");
 	private static final DateTimeFormatter IWF_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-	private static final int CATEGORY_COLUMN = 5;
-	private static final int BIRTH_DATE_COLUMN = 8;
-	private static final int[] ATTEMPT_COLUMNS = { 9, 10, 11, 14, 15, 16 };
+	private static final int GENDER_COLUMN = 5;
+	private static final int BIRTH_DATE_COLUMN = 4;
+	private static final int[] ATTEMPT_COLUMNS = { 9, 10, 11, 13, 14, 15 };
 	private static final boolean ORDER_BY_CATEGORIES = false;
 	static {
 		logger.setLevel(Level.INFO);
@@ -285,7 +285,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 			}
 
 			normalizeIwfBirthDate(row.getCell(BIRTH_DATE_COLUMN));
-			normalizeIwfCategoryGender(row.getCell(CATEGORY_COLUMN));
+			normalizeIwfGender(row.getCell(GENDER_COLUMN));
 			for (int attemptColumn : ATTEMPT_COLUMNS) {
 				normalizeIwfAttempt(row.getCell(attemptColumn));
 			}
@@ -317,15 +317,13 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		}
 	}
 
-	private void normalizeIwfCategoryGender(Cell cell) {
+	private void normalizeIwfGender(Cell cell) {
 		if (cell == null || cell.getCellType() != CellType.STRING) {
 			return;
 		}
 		String value = cell.getStringCellValue();
 		if (value.equals("F")) {
 			cell.setCellValue("W");
-		} else if (value.startsWith("F ")) {
-			cell.setCellValue("W" + value.substring(1));
 		}
 	}
 
