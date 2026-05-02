@@ -3,14 +3,15 @@
 Scrape IWF (International Weightlifting Federation) world records from their website.
 
 Usage:
-  python scrape_iwf_records.py [--output <output.xlsx>]
+    python scrape_iwf_records.py [--output <output.xlsx>] [--output-dir <dir>]
 
 Behavior:
 - Scrapes https://iwf.sport/results/world-records/
 - Iterates through all combinations of age groups and genders
 - Extracts current world records for each combination
 - Produces output in owlCMS Excel format matching the structure from convert_iwf_pdf_to_owlcms.py
-- Output defaults to I:/My Drive/records/IWF/IWF_scraped_YYYY-MM-DD_HHMMSS.xlsx
+- Output defaults to I:/My Drive/records/IWF/IWF_scraped_YYYY-MM-DD_HHMMSS.xlsx on Windows
+- On Linux, use --output-dir or OWLCMS_RECORDS_DIR to target a mounted Google Drive path for cron jobs
 
 Requirements:
 - selenium (pip install selenium)
@@ -20,13 +21,17 @@ Requirements:
 Examples:
   python scrape_iwf_records.py
   python scrape_iwf_records.py --output "IWF_records.xlsx"
+    python scrape_iwf_records.py --output-dir "/mnt/gdrive/records/IWF"
 """
 from __future__ import annotations
 
 import argparse
+import os
+import shutil
+import subprocess
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from urllib.parse import urlencode
 
 from openpyxl import Workbook
@@ -71,6 +76,8 @@ AGE_GROUP_MAP = {
     "U15": ("U15", 0, 15),
 }
 
+WINDOWS_RECORDS_ROOT = Path("I:/My Drive/records")
+
 
 def _normalize_date(date_str: str) -> str:
     """Normalize various date formats to yyyy-mm-dd."""
@@ -99,6 +106,35 @@ def _normalize_date(date_str: str) -> str:
             continue
     
     return date_str
+
+
+def _default_output_dir(federation: str) -> Path:
+    configured_root = os.environ.get("OWLCMS_RECORDS_DIR")
+    if configured_root:
+        return Path(configured_root).expanduser() / federation
+
+    if os.name == "nt":
+        return WINDOWS_RECORDS_ROOT / federation
+
+    return Path.home() / "records" / federation
+
+
+def copy_to_destination(source_path: Path, destination_path: Path) -> Path:
+    """Copy the scraped workbook to the requested destination path."""
+    destination_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_path, destination_path)
+    print(f"Copied {source_path} to {destination_path}")
+    return destination_path
+
+
+def _maybe_open_output(path: Path) -> None:
+    if os.name != "nt":
+        return
+
+    try:
+        subprocess.run(["explorer", str(path)], check=False)
+    except Exception as exc:
+        print(f"Could not open file automatically: {exc}")
 
 
 def scrape_records(url: str = "https://iwf.sport/results/world-records/") -> List[Dict[str, Any]]:
@@ -402,24 +438,27 @@ def write_to_excel(records: List[Dict[str, Any]], output_path: Path) -> None:
     print(f"\nWrote {output_path}")
 
 
-def main():
+def main() -> int:
     p = argparse.ArgumentParser(
         description="Scrape IWF world records from their website.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("--output", type=Path, default=None,
                    help="Output owlCMS xlsx file (default: I:/My Drive/records/IWF/IWF_scraped_YYYY-MM-DD_HHMMSS.xlsx)")
+    p.add_argument("--output-dir", type=Path, default=None,
+                   help="Directory for timestamped output, e.g. a mounted Google Drive path for cron jobs")
     args = p.parse_args()
     
     # Always use timestamp in filename
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    
+    destination_xlsx: Optional[Path] = None
+    output_dir = (args.output_dir.expanduser() if args.output_dir else _default_output_dir("IWF"))
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     if args.output:
-        # If user provided output path, add timestamp before extension
-        output_xlsx = args.output.with_stem(f"{args.output.stem}_{timestamp}")
+        destination_xlsx = args.output.expanduser()
+        output_xlsx = output_dir / f"{args.output.stem}_{timestamp}{args.output.suffix or '.xlsx'}"
     else:
-        output_dir = Path("I:/My Drive/records/IWF")
-        output_dir.mkdir(parents=True, exist_ok=True)
         output_xlsx = output_dir / f"IWF_scraped_{timestamp}.xlsx"
     
     # Scrape records
@@ -427,20 +466,20 @@ def main():
     
     if not records:
         print("No records found!")
-        return
+        return 1
     
     print(f"\nTotal records scraped: {len(records)}")
     
     # Write to Excel
     write_to_excel(records, output_xlsx)
-    
-    # Open the file in explorer
-    import subprocess
-    try:
-        subprocess.run(["explorer", str(output_xlsx)], check=False)
-    except Exception as e:
-        print(f"Could not open file automatically: {e}")
+
+    final_path = output_xlsx
+    if destination_xlsx:
+        final_path = copy_to_destination(output_xlsx, destination_xlsx)
+
+    _maybe_open_output(final_path)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

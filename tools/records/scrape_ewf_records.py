@@ -3,14 +3,15 @@
 Scrape EWF (European Weightlifting Federation) records from the live EWF pages.
 
 Usage:
-  python scrape_ewf_records.py [--output <output.xlsx>]
+    python scrape_ewf_records.py [--output <output.xlsx>] [--output-dir <dir>]
 
 Behavior:
 - Visits the six live EWF record pages for Senior/Junior/Youth and Women/Men
 - Resolves the current "Download CSV" link from each page
 - Parses the CSV rows into owlCMS record format
 - Produces a single Excel workbook with one sheet per age group/gender combination
-- Output defaults to I:/My Drive/records/EWF/EWF_scraped_YYYY-MM-DD_HHMMSS.xlsx
+- Output defaults to I:/My Drive/records/EWF/EWF_scraped_YYYY-MM-DD_HHMMSS.xlsx on Windows
+- On Linux, use --output-dir or OWLCMS_RECORDS_DIR to target a mounted Google Drive path for cron jobs
 
 Requirements:
 - openpyxl (pip install openpyxl)
@@ -18,6 +19,7 @@ Requirements:
 Examples:
   python scrape_ewf_records.py
   python scrape_ewf_records.py --output "EWF_records.xlsx"
+    python scrape_ewf_records.py --output-dir "/mnt/gdrive/records/EWF"
 """
 from __future__ import annotations
 
@@ -25,6 +27,7 @@ import argparse
 import csv
 import html
 import io
+import os
 import re
 import shutil
 import subprocess
@@ -67,6 +70,7 @@ AGE_GROUP_MAP = {
 AGE_GROUPS = ["Senior", "Junior", "Youth"]
 GENDERS = ["Women", "Men"]
 PAGE_URL_PATTERN = "https://ewf.sport/{age_group}-{gender}/"
+WINDOWS_RECORDS_ROOT = Path("I:/My Drive/records")
 REQUEST_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -122,6 +126,17 @@ def _normalize_date(date_str: str) -> str:
             continue
 
     return date_str
+
+
+def _default_output_dir(federation: str) -> Path:
+    configured_root = os.environ.get("OWLCMS_RECORDS_DIR")
+    if configured_root:
+        return Path(configured_root).expanduser() / federation
+
+    if os.name == "nt":
+        return WINDOWS_RECORDS_ROOT / federation
+
+    return Path.home() / "records" / federation
 
 
 def _clean_field(value: str) -> str:
@@ -357,6 +372,16 @@ def copy_to_destination(source_path: Path, destination_path: Path) -> Path:
     return destination_path
 
 
+def _maybe_open_output(path: Path) -> None:
+    if os.name != "nt":
+        return
+
+    try:
+        subprocess.run(["explorer", str(path)], check=False)
+    except Exception as exc:
+        print(f"Could not open file automatically: {exc}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Scrape live EWF records and write an owlCMS workbook.",
@@ -368,16 +393,22 @@ def main() -> int:
         default=None,
         help="Output owlCMS xlsx file (default: I:/My Drive/records/EWF/EWF_scraped_YYYY-MM-DD_HHMMSS.xlsx)",
     )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=None,
+        help="Directory for timestamped output, e.g. a mounted Google Drive path for cron jobs",
+    )
     args = parser.parse_args()
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     destination_xlsx: Optional[Path] = None
+    output_dir = (args.output_dir.expanduser() if args.output_dir else _default_output_dir("EWF"))
+    output_dir.mkdir(parents=True, exist_ok=True)
     if args.output:
-        destination_xlsx = args.output
-        output_xlsx = args.output.with_stem(f"{args.output.stem}_{timestamp}")
+        destination_xlsx = args.output.expanduser()
+        output_xlsx = output_dir / f"{args.output.stem}_{timestamp}{args.output.suffix or '.xlsx'}"
     else:
-        output_dir = Path("I:/My Drive/records/EWF")
-        output_dir.mkdir(parents=True, exist_ok=True)
         output_xlsx = output_dir / f"EWF_scraped_{timestamp}.xlsx"
 
     records = scrape_records()
@@ -396,10 +427,7 @@ def main() -> int:
     if destination_xlsx:
         final_path = copy_to_destination(output_xlsx, destination_xlsx)
 
-    try:
-        subprocess.run(["explorer", str(final_path)], check=False)
-    except Exception as exc:
-        print(f"Could not open file automatically: {exc}")
+    _maybe_open_output(final_path)
 
     return 0
 
