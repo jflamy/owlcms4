@@ -10,36 +10,40 @@
 
 **New in Release 66**
 
-66.1.0-rc05: Template for IWF flat file format added (use with the Registration Category Results)
+66.1.0: Fixed attempt board display of clean & jerk attempt number
 
-66.1.0-rc04: Mixed Team Championships
+66.1.0: (source repository) Updated the tools/records script to fetch IWF and EWF records
+
+66.1.0: Template for IWF flat file format added (use with the Registration Category Results)
+
+66.1.0: Mixed Team Championships
   - Fixed Excel output to respect the championship scoring scheme
   - Use radio buttons to select explicit, top n mixed, or top n per gender for the mixed championship UI
 
-66.1.0-rc03: Mixed team championships: when top N mixed is blank or 0, the men and women top-N fields are enabled and use the standard men and women labels
+66.1.0: Mixed team championships: when top N mixed is blank or 0, the men and women top-N fields are enabled and use the standard men and women labels
 
-66.1.0-rc03: Timetable-based technical official generation now clears stale assignments and applies the correct 3-person and 5-person jury rotation
+66.1.0: Timetable-based technical official generation now clears stale assignments and applies the correct 3-person and 5-person jury rotation
 
-66.1.0-rc03: Session Edit Details now reloads the current session instead of reopening stale data
+66.1.0: Session Edit Details now reloads the current session instead of reopening stale data
 
-66.1.0-rc02: Updated templates
+66.1.0: Updated templates
   - VFE Teams form now one sheet per team
   - PanAm protocol with all ITO roles listed
 
-66.1.0-rc02: Fixed public scoreboards to show the session name in the header when the description is blank
+66.1.0: Fixed public scoreboards to show the session name in the header when the description is blank
  
-66.1.0-rc01: Ranking order and medal scoreboard improvements
+66.1.0: Ranking order and medal scoreboard improvements
   - medals shown as circles, row heights reduced
   - show category headers
   - respect styling for warmup room, public and broadcast variants
 
-66.0.1-rc02: Athlete Cards production gets an error message and denial if lot numbers have not been assigned
+66.0.1: Athlete Cards production gets an error message and denial if lot numbers have not been assigned
 
-66.0.1-rc01: Athlete with no birth date is now correctly excluded from challenging records
+66.0.1: Athlete with no birth date is now correctly excluded from challenging records
 
-66.0.1-rc01: Session results scoring system drop down was not taken into account.  Now behaves the same as competition results.
+66.0.1: Session results scoring system drop down was not taken into account.  Now behaves the same as competition results.
 
-66.0.1-r01: Lack of lot numbers is now a stern warning on pre-competition document production instead of a blocker.
+66.0.1: Lack of lot numbers is now a stern warning on pre-competition document production instead of a blocker.
 
 66.0.1: Improved registration file processing
   - no automatic inference of categories if any of the birth, gender or body weight information is missing
