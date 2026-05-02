@@ -24,10 +24,10 @@ Examples:
 from __future__ import annotations
 
 import argparse
-import time
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any
+from urllib.parse import urlencode
 
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
@@ -133,44 +133,52 @@ def scrape_records(url: str = "https://iwf.sport/results/world-records/") -> Lis
         # Second dropdown: Age group
         age_group_select = driver.find_element(By.NAME, "ranking_agegroup")
         age_group = Select(age_group_select)
-        age_group_options = [opt.text for opt in age_group.options if opt.text.strip()]
+        age_group_options = [
+            (opt.text.strip(), opt.get_attribute("value"))
+            for opt in age_group.options
+            if opt.text.strip()
+        ]
         
         # Third dropdown: Gender
         gender_select = driver.find_element(By.ID, "ranking_gender")
         gender = Select(gender_select)
-        gender_options = [opt.text for opt in gender.options if opt.text.strip()]
+        gender_options = [
+            (opt.text.strip(), opt.get_attribute("value"))
+            for opt in gender.options
+            if opt.text.strip()
+        ]
         
-        print(f"Age groups: {age_group_options}")
-        print(f"Genders: {gender_options}")
+        print(f"Age groups: {[name for name, _ in age_group_options]}")
+        print(f"Genders: {[name for name, _ in gender_options]}")
         
         # Iterate through all combinations
-        for age_group_name in age_group_options:
-            for gender_name in gender_options:
+        for age_group_name, age_group_value in age_group_options:
+            for gender_name, gender_value in gender_options:
                 print(f"\nProcessing {age_group_name} - {gender_name}...")
-                
-                # Select age group
-                age_group_select = driver.find_element(By.NAME, "ranking_agegroup")
-                age_group = Select(age_group_select)
-                age_group.select_by_visible_text(age_group_name)
-                
-                # Select gender
-                gender_select = driver.find_element(By.ID, "ranking_gender")
-                gender = Select(gender_select)
-                gender.select_by_visible_text(gender_name)
-                
-                # Trigger form submission via JavaScript
-                driver.execute_script("document.querySelector('input[type=\"submit\"][value=\"Search\"]').click();")
-                
-                # Wait for results to load
-                time.sleep(1)
+
+                query_url = f"{url}?{urlencode({'ranking_curprog': 'current', 'ranking_agegroup': age_group_value, 'ranking_gender': gender_value})}"
+                driver.get(query_url)
                 
                 try:
-                    # Wait for results to load - look for h2 category headers
-                    wait.until(EC.presence_of_element_located((By.TAG_NAME, "h2")))
-                    time.sleep(1)  # Extra wait for dynamic content
+                    # Load the server-rendered results page for the current combination.
+                    wait.until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "div.title__event h2"))
+                    )
+
+                    wait.until(
+                        lambda d: any(
+                            age_group_name.lower() in heading.text.strip().lower()
+                            and gender_name.lower() in heading.text.strip().lower()
+                            for heading in d.find_elements(By.CSS_SELECTOR, "div.title__event h2")
+                        )
+                    )
+
+                    wait.until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, "div.results__title h2"))
+                    )
                     
-                    # Find all h2 headers (these contain bodyweight categories)
-                    category_headers = driver.find_elements(By.TAG_NAME, "h2")
+                    # Find all category headers (these contain bodyweight categories)
+                    category_headers = driver.find_elements(By.CSS_SELECTOR, "div.results__title h2")
                     
                     # Parse age group info
                     age_code, age_low, age_upper = AGE_GROUP_MAP.get(age_group_name, (age_group_name, 0, 0))
