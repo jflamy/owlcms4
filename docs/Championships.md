@@ -11,51 +11,55 @@ Each Championship is normally for one age group (Masters are the exception where
 >
 Note that currently an age group can only belong to a single championship.
 
+To edit championships, use the Define Championships button on the Prepare Competition page
+![image-20260501205014483](img/Championships/image-20260501205014483.png)
+
 ### Standard Championships
 
-In this first example, we are defining a traditional Junior Championship.  
+As a first example, we use a traditional Junior Championship.  
 
-![image-20260406153626313](img/Championships/image-20260406153626313.png)
+![image-20260501204828475](img/Championships/image-20260501204828475.png)
 
-We intentionally uncheck the "Use default values" checkbox to illustrate.
+We intentionally uncheck the "Use default values" checkbox to change the medals that can be won.
 
-![image-20260407150611635](img/Championships/image-20260407150611635.png)
+![image-20260501205525473](img/Championships/image-20260501205525473.png)
 
 In this example,
 
-- There are medals for total
-- The best Athletes are determined using Sinclair
+- There are medals for snatch, clean and jerk, and total.
+- The best Athletes are determined using GAMX as adopted by IWF
 - Team points follow the normal IWF rules 28 25 23 then 22, 21, etc.
 - Teams win according to the sum of points
 - There are 8 athletes per team, maximum 2 per category.   *Team Selection is explained [Below](#team-selection)*
 
-It would have been possible to use other rules, for example
+Rules can then be adjusted
 
-- No matter how many athletes registered for the team take the top 3 men and top 2 women (or whatever)
+- Smaller teams, smaller limits per category
+- Use different rules for the team (take top N men and top M women, for example)
 
 ### **Score Based Championships**
 
-In the next example, instead of adding points as in the conventional championships, the winner of the gender-based team championship is determined by adding the scores of the team members
+Many federation use score-based systems to assign a score to a team.,  This is done by changing the radio button and selecting a scoring system.
 
-![image-20260406154120359](img/Championships/image-20260406154120359.png)
+![image-20260501205759881](img/Championships/image-20260501205759881.png)
 
 ### Mixed Championships
 
-Traditionally, mixed teams championships are defined by adding the points of the men and women teams.  The example below does this
+Historically, mixed teams championships are defined by adding the points of the men and women teams.  The example below does this
 
 - The format selected is "sum of points"
-- the "Explicit Team Members" is NOT selected, so the two men and women teams are combined
+- Because adding two teams together yields a large number of participants, team members are explicitly selected, or the top N results are used, or the top N men and top N women are used
 
-![image-20260406154432459](img/Championships/image-20260406154432459.png)
+![image-20260501212233278](img/Championships/image-20260501212233278.png)
 
 ### **Score-based Mixed Championships**
 
-There are now scoring formulas that are equitable for men and women, such that it is possible to add men and women scores together.  This can work both with "all men and all women team members count", or with a new capability, naming an explicit mixed team.
+There are now scoring formulas such as the GAMX series that are equitable for men and women, such that it is possible to add men and women scores together. "Sum of Scores"  is selected
 
-- "Sum of Scores"  is selected
-- We also decide to select the team members explicitly instead of just combining the men and women, and the team will be a maximum of 8. 
+- In this example, instead of selecting the team members explicitly, we use the top 4 men scores and the top 4 women scores
+- to include all the men and all the women, simply set the top N value to the size of the teams, thereby including all athletes.
 
-![image-20260406155057282](img/Championships/image-20260406155057282.png)
+![image-20260501212359805](img/Championships/image-20260501212359805.png)
 
 - We could have just added the men+women teams together, and we could have decided to just pick the best n men and best n women instead of naming them in advance.  Each championship can have its 
 
