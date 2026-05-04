@@ -8,6 +8,8 @@ package app.owlcms.nui.preparation;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,7 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.UploadHandler;
 
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.technicalofficial.OfficialRole;
 import app.owlcms.data.technicalofficial.SessionAssignmentGenerator;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
@@ -46,6 +49,7 @@ public class TimetableUploadDialog extends Dialog {
             try {
                 ByteArrayInputStream is = new ByteArrayInputStream(bytes);
                 List<TechnicalOfficialsTimetable> entries = TimetableIO.importTimetable(is);
+                logger.info("Timetable upload parsed entries by role: {}", countEntriesByRole(entries));
 
                 if (entries.isEmpty()) {
                     errorArea.setValue(Translator.translate("Timetable.NoEntriesFound"));
@@ -60,6 +64,8 @@ public class TimetableUploadDialog extends Dialog {
                         em.persist(entry);
                     }
                     em.flush();
+                    List<TechnicalOfficialsTimetable> storedEntries = TechnicalOfficialsTimetableRepository.findAll(em);
+                    logger.info("Timetable upload stored entries by role after persist: {}", countEntriesByRole(storedEntries));
                     return null;
                 });
 
@@ -98,6 +104,11 @@ public class TimetableUploadDialog extends Dialog {
 
     public void setCallback(Runnable callback) {
         this.callback = callback;
+    }
+
+    private static Map<OfficialRole, Long> countEntriesByRole(List<TechnicalOfficialsTimetable> entries) {
+        return entries.stream()
+                .collect(Collectors.groupingBy(TechnicalOfficialsTimetable::getRoleCategory, Collectors.counting()));
     }
 
 }

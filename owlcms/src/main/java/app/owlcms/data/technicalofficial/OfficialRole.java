@@ -26,6 +26,7 @@ public enum OfficialRole {
     ANNOUNCER("Announcer", "Announcer"),
 
     // For federations that do not use the referees as weigh-in staff
+    WEIGHIN("Weighin", "Weighin"),
     WEIGHIN1("Weighin1", "Weighin"),
     WEIGHIN2("Weighin2", "Weighin"),
 
@@ -75,7 +76,8 @@ public enum OfficialRole {
     public boolean isGenericTeamRole() {
         return this == JURY || this == REFEREE || this == MARSHALL || 
                this == TIMEKEEPER || this == TECHNICAL_CONTROLLER || 
-               this == DOCTOR || this == COMPETITION_SECRETARY;
+               this == DOCTOR || this == COMPETITION_SECRETARY ||
+               this == ANNOUNCER || this == WEIGHIN;
     }
 
     /**
@@ -97,6 +99,8 @@ public enum OfficialRole {
                 return java.util.List.of(COMPETITION_SECRETARY, COMPETITION_SECRETARY2);
             case TIMEKEEPER:
                 return java.util.List.of(TIMEKEEPER);
+            case WEIGHIN:
+                return java.util.List.of(WEIGHIN1, WEIGHIN2);
             default:
                 return java.util.List.of(this);
         }

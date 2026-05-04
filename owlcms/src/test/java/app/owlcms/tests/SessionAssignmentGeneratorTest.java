@@ -11,8 +11,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.AfterClass;
@@ -33,6 +36,7 @@ import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
+import app.owlcms.spreadsheet.TimetableIO;
 
 public class SessionAssignmentGeneratorTest {
 
@@ -119,6 +123,44 @@ public class SessionAssignmentGeneratorTest {
 				setOf("Alarcon, Jose", "Carpio, Victor", "Nunez, Maria"),
 				setOf(refreshed.getReferee1(), refreshed.getReferee2(), refreshed.getReferee3()));
 		assertNull("Referee reserve must be cleared when the team only has three members", refreshed.getReserve());
+	}
+
+	@Test
+	public void timetableExportImportRoundTripsAnnouncerAssignments() throws Exception {
+		Group session = GroupRepository.findByName(FIRST_SESSION_NAME);
+		assertNotNull("Expected initial session " + FIRST_SESSION_NAME, session);
+
+		TechnicalOfficialsTimetable announcerEntry = new TechnicalOfficialsTimetable(session, OfficialRole.ANNOUNCER, 3);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		TimetableIO.exportTimetable(out, List.of(announcerEntry));
+
+		List<TechnicalOfficialsTimetable> importedEntries = TimetableIO.importTimetable(
+				new ByteArrayInputStream(out.toByteArray()));
+
+		assertEquals(1, importedEntries.size());
+		TechnicalOfficialsTimetable importedEntry = importedEntries.get(0);
+		assertEquals(FIRST_SESSION_NAME, importedEntry.getGroup().getName());
+		assertEquals(OfficialRole.ANNOUNCER, importedEntry.getRoleCategory());
+		assertEquals(Integer.valueOf(3), importedEntry.getTeamNumber());
+	}
+
+	@Test
+	public void timetableExportImportRoundTripsWeighInTeamAssignments() throws Exception {
+		Group session = GroupRepository.findByName(FIRST_SESSION_NAME);
+		assertNotNull("Expected initial session " + FIRST_SESSION_NAME, session);
+
+		TechnicalOfficialsTimetable weighInEntry = new TechnicalOfficialsTimetable(session, OfficialRole.WEIGHIN, 4);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		TimetableIO.exportTimetable(out, List.of(weighInEntry));
+
+		List<TechnicalOfficialsTimetable> importedEntries = TimetableIO.importTimetable(
+				new ByteArrayInputStream(out.toByteArray()));
+
+		assertEquals(1, importedEntries.size());
+		TechnicalOfficialsTimetable importedEntry = importedEntries.get(0);
+		assertEquals(FIRST_SESSION_NAME, importedEntry.getGroup().getName());
+		assertEquals(OfficialRole.WEIGHIN, importedEntry.getRoleCategory());
+		assertEquals(Integer.valueOf(4), importedEntry.getTeamNumber());
 	}
 
 	@Test

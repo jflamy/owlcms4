@@ -75,6 +75,7 @@ public enum TeamRole {
     )),
 
     WEIGHIN("WeighIn", EnumSet.of(
+            OfficialRole.WEIGHIN,
             OfficialRole.WEIGHIN1,
             OfficialRole.WEIGHIN2
     ));

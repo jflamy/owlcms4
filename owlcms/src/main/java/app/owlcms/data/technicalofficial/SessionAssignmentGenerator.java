@@ -82,6 +82,7 @@ public class SessionAssignmentGenerator {
                 return TeamRole.COMPETITION_SECRETARY;
             case ANNOUNCER:
                 return TeamRole.ANNOUNCER;
+            case WEIGHIN:
             case WEIGHIN1:
             case WEIGHIN2:
                 return TeamRole.WEIGHIN;
@@ -133,6 +134,8 @@ public class SessionAssignmentGenerator {
         return JPAService.runInTransaction(em -> {
             // Get all timetable entries
             List<TechnicalOfficialsTimetable> timetableEntries = TechnicalOfficialsTimetableRepository.findAll(em);
+                logger.info("Session assignment generator loaded timetable entries by role: {}", timetableEntries.stream()
+                    .collect(Collectors.groupingBy(TechnicalOfficialsTimetable::getRoleCategory, Collectors.counting())));
             if (timetableEntries.isEmpty()) {
                 logger./**/warn("No timetable entries found - cannot generate assignments");
                 return 0;
@@ -200,8 +203,18 @@ public class SessionAssignmentGenerator {
                             .computeIfAbsent(teamRole, k -> new HashMap<>())
                             .computeIfAbsent(entry.getTeamNumber(), k -> new HashSet<>())
                             .add(entry.getGroup());
+                } else {
+                    logger./**/warn("Timetable role {} does not map to a team role for session {} team {}",
+                        timetableRole,
+                        entry.getGroup() != null ? entry.getGroup().getName() : null,
+                        entry.getTeamNumber());
                 }
             }
+                logger.info("Session assignment generator sessions by team role: {}", sessionsByTeamRoleAndTeam.entrySet().stream()
+                    .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().entrySet().stream()
+                            .collect(Collectors.toMap(Map.Entry::getKey, teamEntry -> teamEntry.getValue().size())))));
 
             Map<OfficialRole, BiConsumer<Group, String>> setterMap = sessionRoleSetterMap();
             int assignmentCount = 0;

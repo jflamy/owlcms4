@@ -10,7 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -38,6 +42,17 @@ import ch.qos.logback.classic.Logger;
 public class TimetableIO {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(TimetableIO.class);
+    private static final String[] TIMETABLE_COLUMNS = {
+            "JURY",
+            "REFEREE",
+            "MARSHALL",
+            "TIMEKEEPER",
+            "ANNOUNCER",
+            "WEIGHIN",
+            "TECHNICAL_CONTROLLER",
+            "DOCTOR",
+            "COMPETITION_SECRETARY"
+    };
 
     /**
      * Export timetable entries to XLSX format.
@@ -81,28 +96,21 @@ public class TimetableIO {
             // - REFEREE -> referee1..referee3, reserve
             // - MARSHALL -> marshall, marshall2
             // - TIMEKEEPER -> timeKeeper
+            // - ANNOUNCER -> announcer
+            // - WEIGHIN -> weighIn1, weighIn2
             // - TECHNICAL_CONTROLLER -> technicalController, technicalController2
             // - DOCTOR -> doctor, doctor2, doctor3
             // - COMPETITION_SECRETARY -> competitionSecretary, competitionSecretary2
-            String[] timetableColumns = {
-                "JURY",
-                "REFEREE",
-                "MARSHALL",
-                "TIMEKEEPER",
-                "TECHNICAL_CONTROLLER",
-                "DOCTOR",
-                "COMPETITION_SECRETARY"
-            };
 
             // Build a map of (session, role) -> teamNumber from existing entries
-            java.util.Map<String, java.util.Map<String, Integer>> sessionRoleTeamMap = new java.util.HashMap<>();
+            Map<String, Map<String, Integer>> sessionRoleTeamMap = new HashMap<>();
             if (timetableEntries != null) {
                 for (TechnicalOfficialsTimetable entry : timetableEntries) {
                     if (entry.getGroup() != null && entry.getRoleCategory() != null) {
                         String sessionName = entry.getGroup().getName();
                         String roleName = entry.getRoleCategory().name();
                         sessionRoleTeamMap
-                            .computeIfAbsent(sessionName, k -> new java.util.HashMap<>())
+                            .computeIfAbsent(sessionName, k -> new HashMap<>())
                             .put(roleName, entry.getTeamNumber());
                     }
                 }
@@ -115,9 +123,9 @@ public class TimetableIO {
             sessionHeader.setCellValue(Translator.translate("Session"));
             sessionHeader.setCellStyle(headerStyle);
 
-            for (int i = 0; i < timetableColumns.length; i++) {
+            for (int i = 0; i < TIMETABLE_COLUMNS.length; i++) {
                 Cell cell = headerRow.createCell(i + 1);
-                cell.setCellValue(timetableColumns[i]);
+                cell.setCellValue(TIMETABLE_COLUMNS[i]);
                 cell.setCellStyle(headerStyle);
             }
 
@@ -128,10 +136,10 @@ public class TimetableIO {
                 row.createCell(0).setCellValue(group.getName());
                 
                 // Fill in team numbers for each role category if they exist
-                java.util.Map<String, Integer> roleTeamMap = sessionRoleTeamMap.get(group.getName());
+                Map<String, Integer> roleTeamMap = sessionRoleTeamMap.get(group.getName());
                 if (roleTeamMap != null) {
-                    for (int i = 0; i < timetableColumns.length; i++) {
-                        Integer teamNumber = roleTeamMap.get(timetableColumns[i]);
+                    for (int i = 0; i < TIMETABLE_COLUMNS.length; i++) {
+                        Integer teamNumber = roleTeamMap.get(TIMETABLE_COLUMNS[i]);
                         if (teamNumber != null) {
                             row.createCell(i + 1).setCellValue(teamNumber);
                         }
@@ -141,7 +149,7 @@ public class TimetableIO {
 
             // Autosize columns
             sheet.autoSizeColumn(0);
-            for (int i = 0; i < timetableColumns.length; i++) {
+            for (int i = 0; i < TIMETABLE_COLUMNS.length; i++) {
                 sheet.autoSizeColumn(i + 1);
             }
 
@@ -166,17 +174,6 @@ public class TimetableIO {
     public static List<TechnicalOfficialsTimetable> importTimetable(InputStream in) throws IOException {
         List<TechnicalOfficialsTimetable> result = new ArrayList<>();
 
-        // Define timetable role categories (must match export order)
-        String[] timetableColumns = {
-            "JURY",
-            "REFEREE",
-            "MARSHALL",
-            "TIMEKEEPER",
-            "TECHNICAL_CONTROLLER",
-            "DOCTOR",
-            "COMPETITION_SECRETARY"
-        };
-
         try {
             Workbook workbook = WorkbookFactory.create(in);
             Sheet sheet = workbook.getSheetAt(0);
@@ -190,13 +187,36 @@ public class TimetableIO {
             }
 
             // Build map of role category name -> column index
-            java.util.Map<String, Integer> roleColumnMap = new java.util.HashMap<>();
+            Map<String, Integer> roleColumnMap = new LinkedHashMap<>();
+            List<String> rawHeaders = new ArrayList<>();
             for (int col = 1; col < headerRow.getLastCellNum(); col++) {
                 Cell cell = headerRow.getCell(col);
                 if (cell != null) {
-                    String headerValue = getCellValueAsString(cell).trim().toUpperCase();
+                    String rawHeaderValue = getCellValueAsString(cell).trim();
+                    if (rawHeaderValue.isEmpty()) {
+                        continue;
+                    }
+                    String headerValue = rawHeaderValue.toUpperCase(Locale.ROOT);
+                    rawHeaders.add(col + ":" + rawHeaderValue + " -> " + headerValue);
                     roleColumnMap.put(headerValue, col);
                 }
+            }
+            logger.info("Timetable import header row raw/normalized headers: {}", rawHeaders);
+            logger.info("Timetable import recognized canonical header columns: {}", roleColumnMap);
+
+            List<String> missingCanonicalHeaders = new ArrayList<>();
+            for (String timetableColumn : TIMETABLE_COLUMNS) {
+                if (!roleColumnMap.containsKey(timetableColumn)) {
+                    missingCanonicalHeaders.add(timetableColumn);
+                }
+            }
+            if (!missingCanonicalHeaders.isEmpty()) {
+                logger./**/warn("Timetable import missing canonical headers: {}", missingCanonicalHeaders);
+            }
+
+            Map<String, Integer> importedRoleCounts = new LinkedHashMap<>();
+            for (String timetableColumn : TIMETABLE_COLUMNS) {
+                importedRoleCounts.put(timetableColumn, 0);
             }
 
             // Process data rows (matrix format: Session | JURY | REFEREE | ... )
@@ -225,7 +245,7 @@ public class TimetableIO {
                     }
 
                     // Process each role category column
-                    for (String roleCategory : timetableColumns) {
+                    for (String roleCategory : TIMETABLE_COLUMNS) {
                         Integer colIndex = roleColumnMap.get(roleCategory);
                         if (colIndex == null) {
                             continue;
@@ -261,11 +281,18 @@ public class TimetableIO {
 
                         TechnicalOfficialsTimetable entry = new TechnicalOfficialsTimetable(group, role, teamNumber);
                         result.add(entry);
+                        importedRoleCounts.merge(roleCategory, 1, Integer::sum);
                     }
 
                 } catch (Exception e) {
                     logger./**/warn("Error parsing row {}: {}", i + 1, e.getMessage());
                 }
+            }
+
+            logger.info("Timetable import created {} entries by role: {}", result.size(), importedRoleCounts);
+            if (importedRoleCounts.getOrDefault("JURY", 0) == 0) {
+                logger./**/warn("Timetable import created no JURY entries. JURY header present: {}, column: {}",
+                        roleColumnMap.containsKey("JURY"), roleColumnMap.get("JURY"));
             }
 
             workbook.close();
