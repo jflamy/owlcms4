@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Scrape IWF (International Weightlifting Federation) world records from their website.
 

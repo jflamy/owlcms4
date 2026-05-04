@@ -4,6 +4,32 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
+/*
+ * Record import replacement logic (see createRecords() and RecordRepository):
+ *
+ * OFFICIAL records (groupNameString is null or empty in the imported row):
+ *   1. First pass: for each unique logical key (federation + recordName + ageGroup +
+ *      gender + bwCat + liftType) found in the import file, ALL existing official
+ *      records with that key are deleted before the new ones are inserted
+ *      (clearOfficialRecordsMatchingLogicalKey). This replaces the full historical
+ *      set for that slot.
+ *   2. Second pass: provisional records (groupNameString IS NOT NULL AND <> '') that
+ *      share the same logical key AND have identical recordValue, athleteName,
+ *      recordDate, event, and eventLocation are also deleted
+ *      (clearMatchingProvisionalRecordsForImportedOfficial). Only exact matches are
+ *      removed; other provisionals for the same slot survive.
+ *   3. The incoming official record is then persisted.
+ *
+ * PROVISIONAL records (groupNameString is non-empty, e.g. set during a competition):
+ *   - No deletions are performed before insertion.
+ *   - If an exact duplicate already exists (same key + value + athlete + date + event),
+ *     the incoming row is skipped (findExactDuplicate check).
+ *   - Otherwise the provisional record is persisted.
+ *
+ * Consequence: provisional records are never removed by a file import unless the
+ * imported file contains an official record with the exact same value/athlete/event
+ * details as the provisional.
+ */
 package app.owlcms.data.records;
 
 import java.io.FileNotFoundException;
