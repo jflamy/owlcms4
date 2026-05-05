@@ -10,7 +10,9 @@
 
 **New in Release 66**
 
-66.2.0: Addition of a WEIGHIN role to the TO teams time table to handle the situation where specific referees are assigned to the weighin (a subset of the session referees, or someone else)
+66.2.0: Referee Timetable
+  - Addition of a WEIGHIN role to the TO teams time table to handle the situation where specific referees are assigned to the weighin (a subset of the session referees, or someone else)
+  - Improved the referee assignment logic
 
 66.2.0: Normalization of country flags.  
   - If a flag is not directly found under the team ame, it will be looked up in a Country-to-IOC code map so that only the acronym names are needed.

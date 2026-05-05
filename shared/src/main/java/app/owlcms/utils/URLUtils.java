@@ -423,7 +423,7 @@ public class URLUtils {
             return values;
         }
 
-        node.fields().forEachRemaining(entry -> values.put(entry.getKey(), entry.getValue().asText()));
+        node.properties().forEach(entry -> values.put(entry.getKey(), entry.getValue().asText()));
         return values;
     }
 

@@ -6,7 +6,6 @@
  *******************************************************************************/
 package app.owlcms.data.team;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
 import org.apache.commons.lang3.ObjectUtils;
