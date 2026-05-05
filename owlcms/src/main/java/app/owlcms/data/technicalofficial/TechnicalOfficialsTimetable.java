@@ -20,7 +20,9 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.group.Group;
@@ -81,12 +83,39 @@ public class TechnicalOfficialsTimetable {
         this.group = group;
     }
 
+    @JsonIgnore
     public OfficialRole getRoleCategory() {
         return roleCategory;
     }
 
+    @JsonIgnore
     public void setRoleCategory(OfficialRole roleCategory) {
         this.roleCategory = roleCategory;
+    }
+
+    @JsonProperty("roleCategory")
+    public String getRoleCategoryJson() {
+        if (roleCategory == null) {
+            return null;
+        }
+        return roleCategory == OfficialRole.WEIGHIN ? OfficialRole.WEIGHIN1.name() : roleCategory.name();
+    }
+
+    @JsonProperty("roleCategory")
+    public void setRoleCategoryJson(String roleCategoryValue) {
+        if (roleCategoryValue == null || roleCategoryValue.isBlank()) {
+            this.roleCategory = null;
+            return;
+        }
+
+        if ("WEIGHIN".equalsIgnoreCase(roleCategoryValue)
+                || "WEIGHIN1".equalsIgnoreCase(roleCategoryValue)
+                || "WEIGHIN2".equalsIgnoreCase(roleCategoryValue)) {
+            this.roleCategory = OfficialRole.WEIGHIN;
+            return;
+        }
+
+        this.roleCategory = OfficialRole.valueOf(roleCategoryValue);
     }
 
     public Integer getTeamNumber() {

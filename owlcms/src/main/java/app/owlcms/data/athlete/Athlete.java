@@ -2281,8 +2281,16 @@ public class Athlete {
 	 *
 	 * @return the score value according to the global scoring system
 	 */
+	@Transient
+	@JsonIgnore
 	public Double getGlobalScore() {
 		return Ranking.getRankingValue(this, Championship.of(null).getScoringSystem());
+	}
+
+	@Transient
+	@JsonIgnore
+	public void setGlobalScore(Double ignored) {
+		// ignored, necessary for bean introspection
 	}
 
 	/**
