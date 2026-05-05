@@ -8,12 +8,15 @@ package app.owlcms.utils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.Normalizer;
+import java.util.HashMap;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,8 @@ import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import ch.qos.logback.classic.Logger;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import elemental.json.JsonValue;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -46,6 +51,26 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class URLUtils {
     final private static Logger logger = (Logger) LoggerFactory.getLogger(URLUtils.class);
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private static final String FLAG_LOOKUP_MAP_RESOURCE = "/mappings/country-code-map.json";
+    private static volatile FlagLookupData flagLookupData;
+
+    private static class FlagLookupData {
+        private final Map<String, String> flagAliasToCode;
+        private final Map<String, String> normalizedFlagAliasToCode;
+        private final Map<String, String> flagCodeToName;
+
+        private FlagLookupData(Map<String, String> flagAliasToCode, Map<String, String> normalizedFlagAliasToCode,
+                Map<String, String> flagCodeToName) {
+            this.flagAliasToCode = flagAliasToCode;
+            this.normalizedFlagAliasToCode = normalizedFlagAliasToCode;
+            this.flagCodeToName = flagCodeToName;
+        }
+
+        private static FlagLookupData empty() {
+            return new FlagLookupData(Map.of(), Map.of(), Map.of());
+        }
+    }
 
     public static String buildAbsoluteURL(HttpServletRequest request, String resourcePath) {
         int port = URLUtils.getServerPort(request);
@@ -247,6 +272,15 @@ public class URLUtils {
         }
     }
 
+    public static String getImgTagFromResourcePath(String resourcePath, String style) {
+        if (resourcePath == null || resourcePath.isBlank()) {
+            return null;
+        }
+
+        String imageUrl = appendAutoVersion("local/" + resourcePath);
+        return "<img " + style + " src='" + imageUrl + "'></img>";
+    }
+
     private static String appendAutoVersion(String url) {
         String av = StartupUtils.getAutoVersion();
         return (av == null || av.isEmpty()) ? url : url + "?v=" + av;
@@ -300,6 +334,25 @@ public class URLUtils {
             return null;
         }
         String teamFileName = sanitizeFilename(team);
+        String directPath = findFlagResourcePath(teamFileName, exts);
+        if (directPath != null) {
+            return directPath;
+        }
+
+        String mappedFlagCode = lookupFlagCode(team);
+        if (mappedFlagCode == null) {
+            return null;
+        }
+
+        String mappedFileName = sanitizeFilename(mappedFlagCode);
+        if (mappedFileName.equals(teamFileName)) {
+            return null;
+        }
+
+        return findFlagResourcePath(mappedFileName, exts);
+    }
+
+    private static String findFlagResourcePath(String teamFileName, String[] exts) {
         for (String ext : exts) {
             try {
                 ResourceWalker.getFileOrResourcePath("flags/" + teamFileName + ext);
@@ -310,4 +363,80 @@ public class URLUtils {
         }
         return null;
 	}
+
+    private static String lookupFlagCode(String team) {
+        if (team == null || team.isBlank()) {
+            return null;
+        }
+
+        FlagLookupData map = getFlagLookupData();
+        String trimmedTeam = team.trim();
+        String upperTeam = trimmedTeam.toUpperCase();
+
+        if (map.flagCodeToName.containsKey(upperTeam)) {
+            return upperTeam;
+        }
+
+        String directMatch = map.flagAliasToCode.get(trimmedTeam);
+        if (directMatch != null) {
+            return directMatch;
+        }
+
+        return map.normalizedFlagAliasToCode.get(normalizeFlagLookupKey(trimmedTeam));
+    }
+
+    private static FlagLookupData getFlagLookupData() {
+        if (flagLookupData != null) {
+            return flagLookupData;
+        }
+
+        synchronized (URLUtils.class) {
+            if (flagLookupData == null) {
+                flagLookupData = loadFlagLookupData();
+            }
+        }
+
+        return flagLookupData;
+    }
+
+    private static FlagLookupData loadFlagLookupData() {
+        try (InputStream input = URLUtils.class.getResourceAsStream(FLAG_LOOKUP_MAP_RESOURCE)) {
+            if (input == null) {
+                logger.warn("Flag lookup map resource not found: {}", FLAG_LOOKUP_MAP_RESOURCE);
+                return FlagLookupData.empty();
+            }
+
+            JsonNode root = JSON_MAPPER.readTree(input);
+            return new FlagLookupData(
+                    readStringMap(root.path("flagAliasToCode")),
+                    readStringMap(root.path("normalizedFlagAliasToCode")),
+                    readStringMap(root.path("flagCodeToName")));
+        } catch (IOException e) {
+            logger.warn("Failed to load flag lookup map {}", FLAG_LOOKUP_MAP_RESOURCE, e);
+            return FlagLookupData.empty();
+        }
+    }
+
+    private static Map<String, String> readStringMap(JsonNode node) {
+        Map<String, String> values = new HashMap<>();
+        if (!node.isObject()) {
+            return values;
+        }
+
+        node.fields().forEachRemaining(entry -> values.put(entry.getKey(), entry.getValue().asText()));
+        return values;
+    }
+
+    private static String normalizeFlagLookupKey(String value) {
+        String normalized = Normalizer.normalize(value, Normalizer.Form.NFKD)
+                .replaceAll("\\p{M}+", "")
+                .replace("'", "")
+                .replace("’", "")
+                .replace("&", " and ")
+                .replaceAll("\\([^)]*\\)", " ")
+                .replaceAll("[^a-zA-Z0-9]+", " ")
+                .trim()
+                .toLowerCase();
+        return normalized;
+    }
 }

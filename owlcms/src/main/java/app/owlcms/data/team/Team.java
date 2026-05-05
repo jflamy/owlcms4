@@ -40,13 +40,8 @@ public class Team {
 	}
 
 	public static String getImgTag(String teamName, String style) {
-		String teamFileName = URLUtils.sanitizeFilename(teamName);
-
-		return Arrays.stream(getFlagExtensions())
-		        .map(ext -> URLUtils.getImgTag("flags/", teamFileName, ext, style))
-		        .filter(img -> img != null)
-		        .findFirst()
-		        .orElse(null);
+		String resourcePath = URLUtils.getFlagResourcePath(teamName, getFlagExtensions());
+		return URLUtils.getImgTagFromResourcePath(resourcePath, style);
 	}
 
 	private int counted;

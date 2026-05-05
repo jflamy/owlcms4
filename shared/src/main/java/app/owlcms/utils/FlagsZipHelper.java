@@ -48,8 +48,12 @@ public class FlagsZipHelper {
 	 */
 	public static byte[] createFlagsZipBytes() {
 		Path flagsPath = getFlagsDirectory();
-		if (flagsPath == null || !Files.exists(flagsPath)) {
-			logger.debug("Flags directory not found at {}", flagsPath);
+		Path mappingsFile = getMappingsFile();
+		boolean hasFlagsDirectory = flagsPath != null && Files.exists(flagsPath);
+		boolean hasMappingsFile = mappingsFile != null && Files.exists(mappingsFile);
+
+		if (!hasFlagsDirectory && !hasMappingsFile) {
+			logger.debug("Neither flags directory nor mappings file found (flagsPath={}, mappingsFile={})", flagsPath, mappingsFile);
 			return new byte[0];
 		}
 
@@ -58,7 +62,12 @@ public class FlagsZipHelper {
 			// Count files while zipping so we can log how many were included
 			int[] fileCount = new int[1];
 			fileCount[0] = 0;
-			zipDirectory(flagsPath, "", zipOut, fileCount);
+			if (hasFlagsDirectory) {
+				zipDirectory(flagsPath, "", zipOut, fileCount);
+			}
+			if (hasMappingsFile) {
+				addMappingsFile(zipOut, mappingsFile, fileCount);
+			}
 			zipOut.finish();
 			zipOut.flush();
 		} catch (IOException e) {
@@ -86,6 +95,25 @@ public class FlagsZipHelper {
 			logger.info("Created flags ZIP archive from {}: {} bytes", flagsPath, result.length);
 		}
 		return result;
+	}
+
+	private static Path getMappingsFile() {
+		try {
+			return ResourceWalker.getFileOrResourcePath("mappings/country-code-map.json");
+		} catch (FileNotFoundException e) {
+			logger.debug("Mappings file not found for flags ZIP");
+			return null;
+		}
+	}
+
+	private static void addMappingsFile(ZipOutputStream zipOut, Path mappingsFile, int[] fileCount) throws IOException {
+		ZipEntry zipEntry = new ZipEntry("mappings/country-code-map.json");
+		zipOut.putNextEntry(zipEntry);
+		Files.copy(mappingsFile, zipOut);
+		zipOut.closeEntry();
+		if (fileCount != null) {
+			fileCount[0]++;
+		}
 	}
 
 	/**
@@ -142,11 +170,14 @@ public class FlagsZipHelper {
 	 */
 	public static boolean hasFlagsAvailable() {
 		Path flagsPath = getFlagsDirectory();
-		if (flagsPath == null) {
-			logger./**/warn("hasFlagsAvailable: getFlagsDirectory() returned null");
-			return false;
-		}
-		if (!Files.exists(flagsPath)) {
+		Path mappingsFile = getMappingsFile();
+		boolean hasMappingsFile = mappingsFile != null && Files.exists(mappingsFile);
+
+		if (flagsPath == null || !Files.exists(flagsPath)) {
+			if (hasMappingsFile) {
+				logger.debug("hasFlagsAvailable: using mappings file without flags directory: {}", mappingsFile);
+				return true;
+			}
 			logger./**/warn("hasFlagsAvailable: flags path does not exist: {}", flagsPath);
 			return false;
 		}
@@ -159,6 +190,10 @@ public class FlagsZipHelper {
 				fileCount = stream.filter(Files::isRegularFile).count();
 			}
 			boolean available = fileCount > 0;
+			if (!available && hasMappingsFile) {
+				logger.debug("hasFlagsAvailable: no flag files, but mappings file is available: {}", mappingsFile);
+				return true;
+			}
 			if (!available) {
 				logger./**/warn("hasFlagsAvailable: flags directory exists but is empty: {} (filesystem: {})", 
 						flagsPath, flagsPath.getFileSystem().getClass().getSimpleName());

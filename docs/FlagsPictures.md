@@ -8,10 +8,15 @@ Warning:  This feature is new and may evolve.  It has been implemented in the si
 
 ![Flag](img/Displays/Flag.png)
 
-The current implementation is very simple and is meant for inter-provincial or international meets where the team name matches the flag.
+The current implementation first looks for an exact team-name match and then falls back to a short-code mapping for IOC country names, selected non-IOC aliases, and common subdivision names.
 
 - Flags are expected to be in `.svg`, `.png`, `.jpg`, `.jpeg`, or `.webp` format and are copied to the `local/flags` folder in the installation directory.
   - In the above example, the team name for the athlete is CAN and the flag is expected to be found in the `local/flags/CAN.svg` file.
+- If an exact match is not found, OWLCMS will try a built-in mapping of IOC country names, selected aliases, and subdivision names to their short codes.
+  - Example: a team name of `Chinese Taipei` will match `TPE.svg`.
+  - Example: a team name of `Ontario` will match `ON.svg`.
+  - Example: a team name of `California` will match `CA.svg`.
+- The mappings file is sent to tracker clients inside the `flags_zip` startup resource, so tracker-side flag fallback uses the same code table as OWLCMS without carrying its own embedded copy.
 - The file name cannot include the characters `: \ / * ? | < > ' "`  If these are present in the team name, they will be replaced by `_`. A team name `Good/Bad Lifts` will need to have its logo stored as `Good_Bad Lifts.svg` (or `Good_Bad Lifts.png`, etc.).
 - All the other characters in the spelling of the file name must be identical to the team name (spaces, lower and upper case, accented characters, etc.).  Only the characters listed above are replaced.
 - If the flag is not found, the space will be left empty.

@@ -393,7 +393,7 @@ public class WebSocketSender {
 					}
 				});
 
-				// Single onOpenCallback that sends all three data types
+				// Single onOpenCallback that sends startup resources
 				// IMPORTANT: Send database first (binary) to authenticate if needed,
 				// then send binary frames (translations_zip, flags_zip) which require prior auth
 				sender.setOnOpenCallback(() -> {
