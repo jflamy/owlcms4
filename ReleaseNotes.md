@@ -10,6 +10,14 @@
 
 **New in Release 66**
 
+66.2.0: Referee Timetable
+  - Addition of a WEIGHIN role to the TO teams time table to handle the situation where specific referees are assigned to the weighin (a subset of the session referees, or someone else)
+  - Improved the referee assignment logic
+
+66.2.0: Normalization of country flags.  
+  - If a flag is not directly found under the team ame, it will be looked up in a Country-to-IOC code map so that only the acronym names are needed.
+  - This table is sent to tracker along with the flags
+
 66.1.0: Fixed attempt board display of clean & jerk attempt number
 
 66.1.0: (source repository) Updated the tools/records script to fetch IWF and EWF records
