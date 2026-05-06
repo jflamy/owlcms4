@@ -37,7 +37,6 @@ import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.export.FormatDetector;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -45,7 +44,7 @@ import app.owlcms.spreadsheet.NRegistrationFileProcessor;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.AthleteOptions;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor.SessionOptions;
 import app.owlcms.spreadsheet.RCompetition;
-import org.apache.maven.artifact.versioning.ComparableVersion;
+import app.owlcms.utils.RestartUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -74,7 +73,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 	public NRegistrationFileUploadDialog(boolean sbdeFormat) {
 		this.sbdeFormat = sbdeFormat;
-		this.isRestartScenario = checkIfRestartScenario();
+		this.isRestartScenario = RestartUtils.isRestartScenario();
 		// Capture locale now while still on UI thread - will be used in upload callback
 		this.capturedLocale = OwlcmsSession.getLocale();
 
@@ -455,27 +454,11 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			        } catch (InterruptedException e) {
 				        Thread.currentThread().interrupt();
 			        }
-			        FormatDetector.checkAndRestartIfNeeded();
+			        RestartUtils.triggerRestartIfNeeded(sbdeFormat ? "SBDE registration import completed" : "Registration import completed");
 		        }
 		).open();
 		if (ui != null) {
 			ui.push();
-		}
-	}
-
-	private boolean checkIfRestartScenario() {
-		String controlPanelVersion = System.getenv("OWLCMS_CONTROLPANEL");
-		if (controlPanelVersion == null || controlPanelVersion.trim().isEmpty()) {
-			return false;
-		}
-
-		try {
-			ComparableVersion currentVersion = new ComparableVersion(controlPanelVersion);
-			ComparableVersion minVersion = new ComparableVersion("3.1.0-alpha00");
-			return currentVersion.compareTo(minVersion) >= 0;
-		} catch (Exception e) {
-			logger.error("Error checking control panel version: {}", e.getMessage());
-			return false;
 		}
 	}
 

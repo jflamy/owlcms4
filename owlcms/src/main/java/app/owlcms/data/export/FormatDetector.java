@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.RestartUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -179,29 +179,4 @@ public class FormatDetector {
 		}
 	}
 	
-	/**
-	 * Check if OWLCMS_CONTROLPANEL version is > 3.1.0 and trigger restart if needed.
-	 * This allows the control panel or app.owlcms.MainWrapper to restart the application after an import.
-	 */
-	public static void checkAndRestartIfNeeded() {
-		String controlPanelVersion = System.getenv("OWLCMS_CONTROLPANEL");
-		if (controlPanelVersion == null || controlPanelVersion.trim().isEmpty()) {
-			return; // No control panel version set, no restart needed
-		}
-		
-		try {
-			ComparableVersion currentVersion = new ComparableVersion(controlPanelVersion);
-			ComparableVersion minVersion = new ComparableVersion("3.1.0-alpha00");
-			
-			if (currentVersion.compareTo(minVersion) >= 0) {
-				logger.info("OWLCMS_CONTROLPANEL version {} >= 3.1.0-alpha00, triggering restart", controlPanelVersion);
-				System.err.println("OWLCMS: Triggering restart via System.exit(1)");
-				// Give time for logs to flush before exit
-				Thread.sleep(500);
-				System.exit(1); // Exit with non-zero to trigger wrapper restart
-			}
-		} catch (Exception e) {
-			logger.error("Error checking control panel version: {}", e.getMessage());
-		}
-	}
 }

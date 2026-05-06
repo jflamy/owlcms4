@@ -77,6 +77,10 @@ public class Main {
     /** Set by the SIGTERM/SIGINT handler so shutdown hooks can exit 0. */
     private static volatile boolean intentionalSignalReceived = false;
 
+    public static void prepareForExit() {
+        MQTTMonitor.disableReconnectForAll();
+    }
+
     /** @return true if the JVM is shutting down because of an external signal (SIGTERM/SIGINT). */
     public static boolean isIntentionalSignalReceived() {
         return intentionalSignalReceived;
@@ -210,6 +214,7 @@ public class Main {
             try {
                 Signal.handle(new Signal(sigName), sig -> {
                     intentionalSignalReceived = true;
+                    prepareForExit();
                     logger.info("Received SIG{} — flagging intentional shutdown", sig.getName());
                     System.exit(0);
                 });
@@ -304,6 +309,7 @@ public class Main {
 
             // Bind a shutdown hook
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                prepareForExit();
                 logger.info("Stopping broker");
                 mqttBroker.stopServer();
                 logger.info("Broker stopped");
@@ -314,6 +320,7 @@ public class Main {
     }
 
     public static void stopMQTT() {
+        prepareForExit();
         mqttBroker.stopServer();
     }
 
@@ -589,6 +596,7 @@ public class Main {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("public demo server shut down");
         }));
+        prepareForExit();
         System.exit(0);
     }
 

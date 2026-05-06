@@ -31,8 +31,8 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.RestartUtils;
 import ch.qos.logback.classic.Logger;
-import org.apache.maven.artifact.versioning.ComparableVersion;
 
 @SuppressWarnings("serial")
 public class JsonUploadDialog extends Dialog {
@@ -45,7 +45,7 @@ public class JsonUploadDialog extends Dialog {
 
 	public JsonUploadDialog(UI ui) {
 		this.ui = ui;
-		this.isRestartScenario = checkIfRestartScenario();
+		this.isRestartScenario = RestartUtils.isRestartScenario();
 		// Capture from session—safe here because the constructor runs on the UI thread.
 		// OwlcmsSession.getLocale() correctly resolves fr_CA, ru_CA, etc.
 		this.capturedLocale = OwlcmsSession.getLocale();
@@ -128,7 +128,7 @@ public class JsonUploadDialog extends Dialog {
 			        } catch (InterruptedException e) {
 				        Thread.currentThread().interrupt();
 			        }
-			        FormatDetector.checkAndRestartIfNeeded();
+			        RestartUtils.triggerRestartIfNeeded("JSON import completed");
 			        if (ui != null) {
 				        ui.getPage().reload();
 			        }
@@ -189,25 +189,6 @@ public class JsonUploadDialog extends Dialog {
 				ta.setVisible(true);
 			}
 			throw new IOException("Import failed: " + e1.getMessage(), e1);
-		}
-	}
-
-	/**
-	 * Check if we're in a restart scenario (OWLCMS_CONTROLPANEL >= 3.1.0)
-	 */
-	private boolean checkIfRestartScenario() {
-		String controlPanelVersion = System.getenv("OWLCMS_CONTROLPANEL");
-		if (controlPanelVersion == null || controlPanelVersion.trim().isEmpty()) {
-			return false;
-		}
-		
-		try {
-			ComparableVersion currentVersion = new ComparableVersion(controlPanelVersion);
-			ComparableVersion minVersion = new ComparableVersion("3.1.0-alpha00");
-			return currentVersion.compareTo(minVersion) >= 0;
-		} catch (Exception e) {
-			logger.error("Error checking control panel version: {}", e.getMessage());
-			return false;
 		}
 	}
 

@@ -72,6 +72,7 @@ import ch.qos.logback.classic.Logger;
 public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegistration {
 
 	private boolean active;
+	private volatile boolean reconnectEnabled = true;
 
 	/**
 	 * This inner class contains the routines executed when an MQTT message is received.
@@ -112,7 +113,9 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			        cause.getLocalizedMessage());
 			// Called when the client lost the connection to the broker
 			try {
-				connectionLoop(MQTTMonitor.this.client);
+				if (MQTTMonitor.this.isReconnectEnabled()) {
+					connectionLoop(MQTTMonitor.this.client);
+				}
 			} catch (Throwable e) {
 				logger.error("connectionLost {}", e);
 			}
@@ -506,6 +509,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			MQTTMonitor monitor = e.getValue();
 			logger.info("unregistering MQTT monitor for platform {}", monitor.getMonitoredFopName());
 			monitor.setFop(null);
+			monitor.disableReconnect();
 			FieldOfPlay fop2 = OwlcmsFactory.getFOPByName(monitor.getMonitoredFopName());
 			if (fop2 != null) {
 				fop2.setEventForwarder(null);
@@ -522,6 +526,16 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			}
 		}
 		mqttMonitorByName.clear();
+	}
+
+	public static void disableReconnectForAll() {
+		synchronized (mqttMonitorByName) {
+			for (MQTTMonitor monitor : mqttMonitorByName.values()) {
+				if (monitor != null) {
+					monitor.disableReconnect();
+				}
+			}
+		}
 	}
 
 	private MqttAsyncClient client;
@@ -1238,6 +1252,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		// explicitly use the generic subscriber overload (not a Vaadin Component)
 		this.uiEventBusRegisterNoUI((Object) this, this.getFop());
 		this.getFop().getFopEventBus().register(this);
+		enableReconnect();
 
 		try {
 			logger.info("{}starting MQTT monitoring for {}", FieldOfPlay.getLoggingName(this.getFop()), System.identityHashCode(this));
@@ -1260,7 +1275,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	}
 
 	private void connectionLoop(MqttAsyncClient mqttAsyncClient) {
-		while (!mqttAsyncClient.isConnected()) {
+		while (!mqttAsyncClient.isConnected() && isReconnectEnabled()) {
 			try {
 				// doConnect will generate a new client Id, and wait for completion
 				// client.reconnect() and automaticReconnection do not work as I expect.
@@ -1641,8 +1656,20 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		return active;
 	}
 
+	public boolean isReconnectEnabled() {
+		return reconnectEnabled;
+	}
+
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	public void enableReconnect() {
+		this.reconnectEnabled = true;
+	}
+
+	public void disableReconnect() {
+		this.reconnectEnabled = false;
 	}
 
 	/**
