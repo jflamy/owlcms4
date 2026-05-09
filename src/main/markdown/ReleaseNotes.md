@@ -10,6 +10,8 @@
 
 **New in Release 66**
 
+66.2.0: Fixed Jury Decision sizing on attempt board (esp. 4K displays)
+
 66.2.0: Referee Timetable
   - Addition of a WEIGHIN role to the TO teams time table to handle the situation where specific referees are assigned to the weighin (a subset of the session referees, or someone else)
   - Improved the referee assignment logic
