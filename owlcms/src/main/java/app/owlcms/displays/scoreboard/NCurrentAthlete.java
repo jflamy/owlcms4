@@ -9,6 +9,8 @@ package app.owlcms.displays.scoreboard;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +18,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.dom.Element;
 
@@ -61,6 +64,8 @@ public class NCurrentAthlete extends Results {
 	}
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private EventBus uiEventBus;
+	private Timer decisionTimer;
+	private UI ui;
 
 	public NCurrentAthlete(AbstractDisplayPage page) {
 		uiEventLogger.setLevel(Level.INFO);
@@ -148,6 +153,7 @@ public class NCurrentAthlete extends Results {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			try {
 				if (logger.isDebugEnabled()) logger.debug("showing decision");
+				cancelDecisionTimer();
 				setDisplay();
 
 				Athlete athlete = e.getAthlete() != null ? e.getAthlete() : getFop().getCurAthlete();
@@ -169,12 +175,44 @@ public class NCurrentAthlete extends Results {
 				setShowAthleteClock(this.getElement(), false);
 				setShowBreakClock(this.getElement(), false);
 				this.getElement().setProperty("showDetails", true);
+
+				// After 5 s: hide decision; after 7 s: re-sync with FOP
+				UI capturedUi = this.ui;
+				FieldOfPlay fop = getFop();
+				this.decisionTimer = new Timer("decision-hide", true);
+				this.decisionTimer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						if (capturedUi != null) {
+							capturedUi.access(() -> {
+								setShowDecisions(getElement(), false);
+								setDetails(getElement(), false);
+							});
+						}
+					}
+				}, 5000);
+				this.decisionTimer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						if (capturedUi != null) {
+							capturedUi.access(() -> syncWithFOP(
+									new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), NCurrentAthlete.this, fop)));
+						}
+					}
+				}, 7000);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		});
 	}
 	
+	private void cancelDecisionTimer() {
+		if (this.decisionTimer != null) {
+			this.decisionTimer.cancel();
+			this.decisionTimer = null;
+		}
+	}
+
 	@Override
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
@@ -242,6 +280,7 @@ public class NCurrentAthlete extends Results {
 	@Subscribe
 	public void slaveStartLifting(UIEvent.StartLifting e) {
 		uiLog(e);
+		cancelDecisionTimer();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			setShowDecisions(this.getElement(), false);
@@ -309,6 +348,7 @@ public class NCurrentAthlete extends Results {
 		computeStylesDir(this);
 
 		// liftsDone = AthleteSorter.countLiftsDone(order);
+		this.ui = UI.getCurrent();
 		syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
 		// we listen on uiEventBus.
 		this.uiEventBus = uiEventBusRegister(this, fop);
