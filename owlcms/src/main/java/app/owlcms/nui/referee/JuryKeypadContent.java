@@ -133,6 +133,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			if (bt != BreakType.JURY && bt != BreakType.CHALLENGE) {
 				clearReviewHeader();
 			}
+			getUI().ifPresent(ui -> ui.beforeClientResponse(this,
+			        ignored -> syncLiveRefereeDecisions(e.getFop())));
 		});
 	}
 
@@ -140,6 +142,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	public void slaveBreakDone(UIEvent.BreakDone e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setJuryDecisionActionsEnabled(false);
+			getUI().ifPresent(ui -> ui.beforeClientResponse(this,
+			        ignored -> syncLiveRefereeDecisions(e.getFop())));
 		});
 	}
 
@@ -603,7 +607,11 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			}
 		}
 
-		if (this.liveDecisions == null) {
+		syncLiveRefereeDecisions(fop);
+	}
+
+	private void syncLiveRefereeDecisions(FieldOfPlay fop) {
+		if (fop == null || this.liveDecisions == null) {
 			return;
 		}
 
