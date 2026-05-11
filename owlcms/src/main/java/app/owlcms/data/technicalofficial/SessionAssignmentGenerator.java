@@ -218,18 +218,18 @@ public class SessionAssignmentGenerator {
                             .collect(Collectors.toMap(Map.Entry::getKey, teamEntry -> teamEntry.getValue().size())))));
 
             Map<OfficialRole, BiConsumer<Group, String>> setterMap = sessionRoleSetterMap();
-            int assignmentCount = 0;
+            int generatedAssignmentCount = 0;
 
             // Process REFEREE teams with rotation
-            assignmentCount += processRefereeTeams(em, sessions, officialsByTeamRoleAndTeam, sessionsByTeamRoleAndTeam, setterMap);
+            generatedAssignmentCount += processRefereeTeams(em, sessions, officialsByTeamRoleAndTeam, sessionsByTeamRoleAndTeam, setterMap);
 
             // Process JURY teams with rotation (JURY_PRESIDENT + JURY members)
-            assignmentCount += processJuryTeams(em, sessions, officialsByTeamRoleAndTeam, sessionsByTeamRoleAndTeam, setterMap);
+            generatedAssignmentCount += processJuryTeams(em, sessions, officialsByTeamRoleAndTeam, sessionsByTeamRoleAndTeam, setterMap);
 
             // Process non-rotating roles (MARSHAL, TC, TIMEKEEPER, ANNOUNCER, WEIGHIN, DOCTOR, COMPETITION_SECRETARY)
-            assignmentCount += processNonRotatingRoles(em, sessions, officialsByTeamRoleAndTeam, sessionsByTeamRoleAndTeam, setterMap);
+            generatedAssignmentCount += processNonRotatingRoles(em, sessions, officialsByTeamRoleAndTeam, sessionsByTeamRoleAndTeam, setterMap);
 
-            return assignmentCount;
+            return generatedAssignmentCount;
         });
         OwlcmsFactory.refreshActiveFOPGroups();
         return assignmentCount;

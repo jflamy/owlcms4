@@ -17,7 +17,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.RestartUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
