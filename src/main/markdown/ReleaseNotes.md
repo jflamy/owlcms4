@@ -10,6 +10,10 @@
 
 **New in Release 66**
 
+66.2.0: Advanced registration file update has a new "safe" mode to update only the TOs and descriptions.  This will also update an ongoing session.
+
+66.2.0: Fix: on the mobile device Jury president keypad, the referee decisions were cleared at the beginning of a break
+
 66.2.0: Fixed Jury Decision sizing on attempt board (esp. 4K displays)
 
 66.2.0: Referee Timetable
