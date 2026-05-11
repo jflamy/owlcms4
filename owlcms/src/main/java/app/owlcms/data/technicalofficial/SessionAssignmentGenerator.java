@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.init.OwlcmsFactory;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -131,7 +132,7 @@ public class SessionAssignmentGenerator {
      * @return Number of assignments generated
      */
     public static int generateSessionAssignments() {
-        return JPAService.runInTransaction(em -> {
+        int assignmentCount = JPAService.runInTransaction(em -> {
             // Get all timetable entries
             List<TechnicalOfficialsTimetable> timetableEntries = TechnicalOfficialsTimetableRepository.findAll(em);
                 logger.info("Session assignment generator loaded timetable entries by role: {}", timetableEntries.stream()
@@ -230,6 +231,8 @@ public class SessionAssignmentGenerator {
 
             return assignmentCount;
         });
+        OwlcmsFactory.refreshActiveFOPGroups();
+        return assignmentCount;
     }
 
     /**

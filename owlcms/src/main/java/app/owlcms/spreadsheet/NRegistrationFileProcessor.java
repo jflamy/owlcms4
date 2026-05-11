@@ -61,7 +61,7 @@ public class NRegistrationFileProcessor {
 	}
 
 	public enum SessionOptions {
-		IGNORE_SESSIONS, DELETE_SESSIONS, UPDATE_ADD_SESSIONS
+		IGNORE_SESSIONS, UPDATE_OFFICIALS_AND_DESCRIPTION, DELETE_SESSIONS, UPDATE_ADD_SESSIONS
 	}
 
 	public enum AthleteOptions {
@@ -80,6 +80,7 @@ public class NRegistrationFileProcessor {
 	private SessionOptions sessionOptions;
 	private AthleteOptions athleteOptions;
 	private Locale locale;
+	private boolean lastImportWasLiveSafe;
 
 	public NRegistrationFileProcessor(boolean sbdeFormat, Locale locale) {
 		this.sbdeFormat = sbdeFormat;
@@ -1263,6 +1264,71 @@ public class NRegistrationFileProcessor {
 		return sessionOptions == SessionOptions.DELETE_SESSIONS;
 	}
 
+	public boolean isUpdateAddSessions() {
+		return sessionOptions == SessionOptions.UPDATE_ADD_SESSIONS;
+	}
+
+	public boolean isUpdateOfficialsAndDescription() {
+		return sessionOptions == SessionOptions.UPDATE_OFFICIALS_AND_DESCRIPTION;
+	}
+
+	/**
+	 * @return true when the most recent {@link #doProcessGroups(InputStream, boolean, Consumer, Runnable)} call
+	 *         applied changes via the live-safe path (no FOP teardown, no platform changes, only TO + description fields).
+	 */
+	public boolean wasLiveSafeImport() {
+		return this.lastImportWasLiveSafe;
+	}
+
+	/**
+	 * Apply only safe (TO + description) field changes from parsed sessions onto the corresponding existing
+	 * database groups. Goes through {@link GroupRepository#save(Group)} so the active-FOP refresh hook fires.
+	 *
+	 * <p>Sessions without a matching DB entry are silently skipped. Other spreadsheet changes (platform, times,
+	 * masters flag) are ignored — use the restart-required path to apply structural changes.
+	 */
+	public void applySafeSessionUpdates(List<RGroup> parsed) {
+		if (parsed == null || parsed.isEmpty()) {
+			return;
+		}
+		for (RGroup rg : parsed) {
+			String name = rg.getGroupName();
+			if (name == null || name.isBlank()) {
+				continue;
+			}
+			Group existing = GroupRepository.findByName(name);
+			if (existing == null) {
+				continue;
+			}
+			Group src = rg.getGroup();
+			existing.setDescription(src.getDescription());
+			existing.setAnnouncer(src.getAnnouncer());
+			existing.setMarshall(src.getMarshall());
+			existing.setMarshal2(src.getMarshal2());
+			existing.setTimeKeeper(src.getTimeKeeper());
+			existing.setTechnicalController(src.getTechnicalController());
+			existing.setTechnicalController2(src.getTechnicalController2());
+			existing.setReferee1(src.getReferee1());
+			existing.setReferee2(src.getReferee2());
+			existing.setReferee3(src.getReferee3());
+			existing.setReserve(src.getReserve());
+			existing.setJury1(src.getJury1());
+			existing.setJury2(src.getJury2());
+			existing.setJury3(src.getJury3());
+			existing.setJury4(src.getJury4());
+			existing.setJury5(src.getJury5());
+			existing.setReserveJury(src.getReserveJury());
+			existing.setWeighIn1(src.getWeighIn1());
+			existing.setWeighIn2(src.getWeighIn2());
+			existing.setDoctor(src.getDoctor());
+			existing.setDoctor2(src.getDoctor2());
+			existing.setDoctor3(src.getDoctor3());
+			existing.setCompetitionSecretary(src.getCompetitionSecretary());
+			existing.setCompetitionSecretary2(src.getCompetitionSecretary2());
+			GroupRepository.save(existing);
+		}
+	}
+
 	/**
 	 * Read groups (sessions) from the workbook using a header-driven approach.
 	 * 
@@ -1409,7 +1475,16 @@ public class NRegistrationFileProcessor {
 			}
 			this.logger.info(dataReadMsg);
 			if (!determineValidSessionsOnly) {
-				updatePlatformsAndSessions(parsed);
+				if (isUpdateOfficialsAndDescription()) {
+					// Live-safe path: only update officials and description on existing sessions.
+					// Other changes in the spreadsheet (platform, times, masters flag, new sessions) are ignored.
+					applySafeSessionUpdates(parsed);
+					this.lastImportWasLiveSafe = true;
+				} else {
+					// UPDATE_ADD_SESSIONS or any other write path: always full update, restart required.
+					updatePlatformsAndSessions(parsed);
+					this.lastImportWasLiveSafe = false;
+				}
 			}
 			
 			// Populate activeGroups so athlete processing can validate group references.

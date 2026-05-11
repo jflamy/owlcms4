@@ -18,6 +18,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -140,8 +141,9 @@ public class GroupRepository {
 	 * @return the group
 	 */
 	public static Group save(Group group) {
-		logger./**/warn("saving {}", group.fullDump());
-		return JPAService.runInTransaction(em -> em.merge(group));
+		Group saved = JPAService.runInTransaction(em -> em.merge(group));
+		OwlcmsFactory.refreshActiveFOPGroup(saved);
+		return saved;
 	}
 
 	public List<Category> allCategories(Group g) {

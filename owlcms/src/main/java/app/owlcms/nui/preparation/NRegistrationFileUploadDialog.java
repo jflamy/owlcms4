@@ -119,7 +119,15 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			
 			try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
 				processInput(inputStream, ta, isSessionsOnly);
-				openRestartConfirmation();
+				boolean liveSafe = this.processor != null
+				        && this.processor.wasLiveSafeImport()
+				        && !isProcessAthletes()
+				        && !(this.sbdeFormat && !isSessionsOnly);
+				if (liveSafe) {
+					showLiveSafeSuccess(ta);
+				} else {
+					openRestartConfirmation();
+				}
 			} catch (Exception e) {
 				logger.error("Error processing uploaded registration file", e);
 				throw new RuntimeException(e);
@@ -455,6 +463,36 @@ public class NRegistrationFileUploadDialog extends Dialog {
 				        Thread.currentThread().interrupt();
 			        }
 			        RestartUtils.triggerRestartIfNeeded(sbdeFormat ? "SBDE registration import completed" : "Registration import completed");
+		        }
+		).open();
+		if (ui != null) {
+			ui.push();
+		}
+	}
+
+	/**
+	 * Show a brief success message and close the dialog without prompting for restart.
+	 * Used when the import only updated officials and/or session description on existing sessions
+	 * (no platform changes, no time changes, no new/deleted sessions, no athlete changes).
+	 */
+	private void showLiveSafeSuccess(TextArea ta) {
+		UI ui = this.getUI().orElse(UI.getCurrent());
+		String titleKey = isRestartScenario ? "ImportR.Success" : "Import.Success";
+		String message = Translator.translateOrElseEn("SBDE.LiveSafeSuccess", capturedLocale);
+		if (message == null || message.isBlank()) {
+			message = "Officials and session descriptions were updated. No restart is needed.";
+		}
+		appendErrors(ta, message);
+		new ConfirmationDialog(
+		        Translator.translate(titleKey),
+		        message,
+		        Translator.translate("OK"),
+		        null,
+		        () -> {
+			        NRegistrationFileUploadDialog.this.close();
+			        if (ui != null) {
+				        ui.push();
+			        }
 		        }
 		).open();
 		if (ui != null) {

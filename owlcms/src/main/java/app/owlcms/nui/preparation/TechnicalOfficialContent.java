@@ -38,6 +38,7 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TOLevel;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
@@ -208,6 +209,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 					        }
 					        return groups.size();
 				        });
+		        		OwlcmsFactory.refreshActiveFOPGroups();
 				        Notification.show(Translator.translate("Timetable.AssignmentsCleared", count));
 			        } catch (Exception e) {
 				        logger.error("Error clearing session assignments", e);
