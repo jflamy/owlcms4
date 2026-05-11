@@ -42,6 +42,7 @@ public class SessionAssignmentGeneratorTest {
 
 	private static final String FIRST_SESSION_NAME = "M1";
 	private static final String SECOND_SESSION_NAME = "M2";
+	private static long nextTechnicalOfficialId;
 
 	@BeforeClass
 	public static void setupTests() {
@@ -65,15 +66,13 @@ public class SessionAssignmentGeneratorTest {
 		Config.initConfig();
 		ProdData.insertInitialData(0);
 		app.owlcms.init.OwlcmsFactory.initDefaultFOP();
-		JPAService.runInTransaction(em -> {
-			TechnicalOfficialRepository.deleteAll(em);
-			TechnicalOfficialsTimetableRepository.deleteAll(em);
-			return null;
-		});
+		resetTechnicalOfficialFixtures();
 	}
 
 	@Test
 	public void generateSessionAssignmentsClearsStaleAssignmentsBeforeRebuilding() {
+		resetTechnicalOfficialFixtures();
+
 		Group session = GroupRepository.findByName(FIRST_SESSION_NAME);
 		assertNotNull("Expected initial session " + FIRST_SESSION_NAME, session);
 
@@ -127,8 +126,11 @@ public class SessionAssignmentGeneratorTest {
 
 	@Test
 	public void timetableExportImportRoundTripsAnnouncerAssignments() throws Exception {
+		resetTechnicalOfficialFixtures();
+
 		Group session = GroupRepository.findByName(FIRST_SESSION_NAME);
 		assertNotNull("Expected initial session " + FIRST_SESSION_NAME, session);
+		createOfficial("Rivera", "Ana", TeamRole.ANNOUNCER, 3);
 
 		TechnicalOfficialsTimetable announcerEntry = new TechnicalOfficialsTimetable(session, OfficialRole.ANNOUNCER, 3);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -146,8 +148,11 @@ public class SessionAssignmentGeneratorTest {
 
 	@Test
 	public void timetableExportImportRoundTripsWeighInTeamAssignments() throws Exception {
+		resetTechnicalOfficialFixtures();
+
 		Group session = GroupRepository.findByName(FIRST_SESSION_NAME);
 		assertNotNull("Expected initial session " + FIRST_SESSION_NAME, session);
+		createOfficial("Valdez", "Sofia", TeamRole.WEIGHIN, 4);
 
 		TechnicalOfficialsTimetable weighInEntry = new TechnicalOfficialsTimetable(session, OfficialRole.WEIGHIN, 4);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -165,6 +170,8 @@ public class SessionAssignmentGeneratorTest {
 
 	@Test
 	public void generateSessionAssignmentsUsesThreePersonJuryRotation() {
+		resetTechnicalOfficialFixtures();
+
 		Group sessionA = GroupRepository.findByName(FIRST_SESSION_NAME);
 		Group sessionB = GroupRepository.findByName(SECOND_SESSION_NAME);
 		assertNotNull(sessionA);
@@ -185,6 +192,7 @@ public class SessionAssignmentGeneratorTest {
 
 		Group refreshedA = GroupRepository.findByName(FIRST_SESSION_NAME);
 		Group refreshedB = GroupRepository.findByName(SECOND_SESSION_NAME);
+
 		assertEquals("Ortiz, Maritza", refreshedA.getJury1());
 		assertEquals("Ortiz, Maritza", refreshedB.getJury1());
 
@@ -203,6 +211,8 @@ public class SessionAssignmentGeneratorTest {
 
 	@Test
 	public void generateSessionAssignmentsUsesFivePersonJuryRotationWithoutReserveWhenOnlyFourMembers() {
+		resetTechnicalOfficialFixtures();
+
 		Group sessionA = GroupRepository.findByName(FIRST_SESSION_NAME);
 		Group sessionB = GroupRepository.findByName(SECOND_SESSION_NAME);
 		assertNotNull(sessionA);
@@ -224,6 +234,7 @@ public class SessionAssignmentGeneratorTest {
 
 		Group refreshedA = GroupRepository.findByName(FIRST_SESSION_NAME);
 		Group refreshedB = GroupRepository.findByName(SECOND_SESSION_NAME);
+
 		assertEquals("Ortiz, Maritza", refreshedA.getJury1());
 		assertEquals("Ortiz, Maritza", refreshedB.getJury1());
 
@@ -242,6 +253,7 @@ public class SessionAssignmentGeneratorTest {
 
 	private static TechnicalOfficial createOfficial(String lastName, String firstName, TeamRole teamRole, int teamNumber) {
 		TechnicalOfficial official = new TechnicalOfficial();
+		official.setId(nextTechnicalOfficialId++);
 		official.setLastName(lastName);
 		official.setFirstName(firstName);
 		official.setTeamRole(teamRole);
@@ -260,5 +272,14 @@ public class SessionAssignmentGeneratorTest {
 
 	private static Set<String> setOf(String... values) {
 		return new HashSet<>(Arrays.asList(values));
+	}
+
+	private static void resetTechnicalOfficialFixtures() {
+		nextTechnicalOfficialId = 1L;
+		JPAService.runInTransaction(em -> {
+			TechnicalOfficialsTimetableRepository.deleteAll(em);
+			TechnicalOfficialRepository.deleteAll(em);
+			return null;
+		});
 	}
 }
