@@ -10,7 +10,11 @@
 
 **New in Release 66**
 
-66.2.0: Advanced registration file update has a new "safe" mode to update only the TOs and descriptions.  This will also update an ongoing session.
+66.2.0: Fix: Updates to running session
+  - Editing referees, description and CJ break duration from the web page will now work for the session in progress
+  - Advanced registration file update has a new "safe" mode to update only the TOs and descriptions.
+
+62.2.0: In the source directory, the script to scrape IWF records now correctly handles the Nation
 
 66.2.0: Fix: on the mobile device Jury president keypad, the referee decisions were cleared at the beginning of a break
 
