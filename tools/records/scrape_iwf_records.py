@@ -119,6 +119,23 @@ def _default_output_dir(federation: str) -> Path:
     return Path.home() / "records" / federation
 
 
+def _extract_nation_code(detail_div) -> str:
+    """Extract the IWF three-letter nation code from the record detail block."""
+    flag_images = detail_div.find_elements(By.CSS_SELECTOR, "span.flag img")
+    for flag_image in flag_images:
+        nation_code = (flag_image.get_attribute("alt") or "").strip()
+        if nation_code:
+            return nation_code
+
+    nation_columns = detail_div.find_elements(By.CSS_SELECTOR, "div.col-3.not__cell__767")
+    if len(nation_columns) >= 2:
+        nation_text = nation_columns[1].text.strip()
+        if nation_text:
+            return nation_text.split()[-1]
+
+    return ""
+
+
 def copy_to_destination(source_path: Path, destination_path: Path) -> Path:
     """Copy the scraped workbook to the requested destination path."""
     destination_path.parent.mkdir(parents=True, exist_ok=True)
@@ -323,6 +340,7 @@ def scrape_records(url: str = "https://iwf.sport/results/world-records/") -> Lis
                                 born_str = ""
                                 
                                 if detail_divs:
+                                    nation = _extract_nation_code(detail_divs[0])
                                     detail_paragraphs = detail_divs[0].find_elements(By.TAG_NAME, "p")
                                     
                                     # Parse all paragraphs by content
