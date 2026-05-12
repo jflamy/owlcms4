@@ -59,10 +59,18 @@ echo "Pulling ${DEV_BRANCH}..."
 git pull --ff-only origin "${DEV_BRANCH}"
 
 # Step 2: Switch to mainXX (create from devXX if it doesn't exist)
-if git show-ref --verify --quiet "refs/heads/${MAIN_BRANCH}" || \
-   git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
+if git show-ref --verify --quiet "refs/heads/${MAIN_BRANCH}"; then
   echo "Switching to existing ${MAIN_BRANCH}..."
   git checkout "${MAIN_BRANCH}"
+  if git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
+    git branch --set-upstream-to="origin/${MAIN_BRANCH}" "${MAIN_BRANCH}"
+  fi
+  # Step 3: Fast-forward merge from devXX
+  echo "Merging ${DEV_BRANCH} into ${MAIN_BRANCH} (fast-forward only)..."
+  git merge --ff-only "${DEV_BRANCH}"
+elif git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
+  echo "Switching to existing origin/${MAIN_BRANCH}..."
+  git checkout --track "origin/${MAIN_BRANCH}"
   # Step 3: Fast-forward merge from devXX
   echo "Merging ${DEV_BRANCH} into ${MAIN_BRANCH} (fast-forward only)..."
   git merge --ff-only "${DEV_BRANCH}"
@@ -73,7 +81,7 @@ fi
 
 # Step 4: Push the merged mainXX branch
 echo "Pushing ${MAIN_BRANCH}..."
-git push origin "${MAIN_BRANCH}"
+git push -u origin "${MAIN_BRANCH}"
 
 # Step 5: Extract default REVISION from release.sh and remove suffix
 # release.sh uses format: REVISION="${1:-64.0.4-rc02}"
