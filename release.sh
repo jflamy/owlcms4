@@ -89,39 +89,14 @@ if ! git restore --source=HEAD --worktree -- "${TRANSLATION_CSV}"; then
 fi
 
 if ! diff --strip-trailing-cr -q "${TRANSLATION_CSV}" "${REMOTE_TMP}" >/dev/null 2>&1; then
-  echo "WARNING: translation4.csv does not match the Google Sheets source!" >&2
-  echo "         The HEAD version on this branch is out of date." >&2
+  echo "ERROR: translation4.csv does not match the Google Sheets source!" >&2
+  echo "       The HEAD version on this branch is out of date." >&2
   echo ""
   echo "Running translation consistency check..."
   PROMPT_DOWNLOAD=false ./scripts/check-translation-diff.sh || true
   echo ""
-  read -p "Refresh translation4.csv from Google Sheets now and exit? (y/N): " -r REFRESH
-  if [[ "${REFRESH}" =~ ^[Yy]$ ]]; then
-    echo "Updating ${TRANSLATION_CSV} from Google Sheets..."
-    if [[ -f "${TRANSLATION_CSV}" ]]; then
-		BACKUP_FILE="${TRANSLATION_CSV}.bak"
-      echo "Moving existing file aside: ${BACKUP_FILE}"
-      mv "${TRANSLATION_CSV}" "${BACKUP_FILE}"
-    fi
-    if ! cp "${REMOTE_TMP}" "${TRANSLATION_CSV}"; then
-      if [[ -n "${BACKUP_FILE:-}" && -f "${BACKUP_FILE}" ]]; then
-        echo "Restoring backup..."
-        mv "${BACKUP_FILE}" "${TRANSLATION_CSV}"
-      fi
-      echo "ERROR: Failed to refresh ${TRANSLATION_CSV}." >&2
-      exit 4
-    fi
-    echo "translation4.csv was refreshed."
-    echo "Aborting release after refreshing translation4.csv. Please review/commit the updated file, then rerun release.sh." >&2
-    exit 4
-  fi
-
-  read -p "Do you want to proceed anyway? (y/N): " -r PROCEED
-  if [[ ! "${PROCEED}" =~ ^[Yy]$ ]]; then
-    echo "Aborting. Update translation4.csv from Google Sheets before releasing." >&2
-    exit 4
-  fi
-  echo "Proceeding despite translation mismatch..."
+  echo "Aborting. Update, commit and push translation4.csv from Google Sheets before releasing." >&2
+  exit 4
 else
   echo "translation4.csv matches Google Sheets source."
 fi
