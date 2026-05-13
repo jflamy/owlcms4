@@ -10,6 +10,8 @@
 
 **New in Release 66**
 
+66.2.1: Fix: Lower-Thirds could show the next athlete instead of the Challenge status.
+
 66.2.0: Fix: Updates to running session
   - Editing referees, description and CJ break duration from the web page will now work for the session in progress
   - Advanced registration file update has a new "safe" mode to update only the TOs and descriptions.
