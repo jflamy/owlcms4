@@ -39,6 +39,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.GroupDone;
 import app.owlcms.utils.CSSUtils;
@@ -446,6 +447,10 @@ public class NCurrentAthlete extends Results {
 		if (state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE) {
 			return;
 		}
+		if (state == FOPState.BREAK && fop.getBreakType() != null && fop.getBreakType().isInterruption()) {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> showInterruption(fop.getBreakType()));
+			return;
+		}
 		uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			Athlete a = e.getAthlete();
@@ -510,7 +515,45 @@ public class NCurrentAthlete extends Results {
 		if (isDecisionStickyActive(e)) {
 			return;
 		}
+		BreakType breakType = breakTypeFromJuryNotification(e);
+		if (breakType != null) {
+			uiLog(e);
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> showInterruption(breakType));
+			return;
+		}
 		super.slaveJuryNotification(e);
+	}
+
+	private BreakType breakTypeFromJuryNotification(UIEvent.JuryNotification e) {
+		JuryDeliberationEventType eventType = e.getDeliberationEventType();
+		if (eventType == null) {
+			return null;
+		}
+		switch (eventType) {
+			case START_DELIBERATION:
+				return BreakType.JURY;
+			case CHALLENGE:
+				return BreakType.CHALLENGE;
+			case MARSHALL:
+				return BreakType.MARSHAL;
+			case TECHNICAL_PAUSE:
+				return BreakType.TECHNICAL;
+			default:
+				return null;
+		}
+	}
+
+	private void showInterruption(BreakType breakType) {
+		Element element = this.getElement();
+		element.setProperty("mode", "INTERRUPTION");
+		element.setProperty("breakType", breakType.name());
+		element.setProperty("fullName", inferMessage(breakType, null, true));
+		element.setProperty("team", "");
+		element.setProperty("lift", "");
+		setShowDecisions(element, false);
+		setShowAthleteClock(element, false);
+		setShowBreakClock(element, false);
+		setDetails(element, false);
 	}
 
 	public void setDecisionStickMillis(int decisionStickMillis) {
