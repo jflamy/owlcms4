@@ -12,6 +12,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -274,7 +275,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 	private void postProcessIwfFlatWorkbook(Workbook workbook) {
 		String templateFileName = Competition.getCurrent().getComputedResultsTemplateFileName();
-		if (templateFileName == null || !templateFileName.startsWith("IWF")) {
+		if (!isIwfFlatFileTemplate(templateFileName)) {
 			return;
 		}
 
@@ -292,6 +293,14 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 				normalizeIwfAttempt(row.getCell(attemptColumn));
 			}
 		}
+	}
+
+	static boolean isIwfFlatFileTemplate(String templateFileName) {
+		if (templateFileName == null) {
+			return false;
+		}
+		String normalized = templateFileName.replaceAll("[^A-Za-z0-9]", "").toLowerCase(Locale.ROOT);
+		return normalized.contains("iwf") && normalized.contains("flatfile");
 	}
 
 	private void normalizeIwfBodyweightCategory(Cell cell) {
