@@ -21,7 +21,9 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.export.v2.AthleteDTO;
 import app.owlcms.data.export.v2.TeamDTO;
+import app.owlcms.data.team.Team;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.URLUtils;
 
 /**
  * Exports athlete data in V2 DTO format for WebSocket transmission.
@@ -356,8 +358,8 @@ public class AthleteExporter {
 		if (team != null) {
 			int teamLength = team.length();
 			displayInfo.put("teamLength", teamLength);
-			String flagPath = "/local/flags/" + team + ".svg";
-			displayInfo.put("flagURL", flagPath);
+			String flagResourcePath = !team.isBlank() ? URLUtils.getFlagResourcePath(team, Team.getFlagExtensions()) : null;
+			displayInfo.put("flagURL", flagResourcePath != null ? "/local/" + flagResourcePath : "");
 			displayInfo.put("flagClass", teamLength <= Competition.SHORT_TEAM_LENGTH ? "shortTeam" : "longTeam");
 		} else {
 			displayInfo.put("teamLength", 0);

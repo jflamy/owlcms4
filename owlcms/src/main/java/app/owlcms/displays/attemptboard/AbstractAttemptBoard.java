@@ -7,7 +7,6 @@
 package app.owlcms.displays.attemptboard;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -636,10 +635,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 		String team = a.getTeam();
 		this.getElement().setProperty("teamFlagImg", "");
-		String teamFileName = URLUtils.sanitizeFilename(team);
-		if (this.teamFlags && !team.isBlank()) {
-			Arrays.stream(Team.getFlagExtensions())
-			        .anyMatch(ext -> URLUtils.setImgProp("teamFlagImg", "flags/", teamFileName, ext, this));
+		if (this.teamFlags && team != null && !team.isBlank()) {
+			String flagImg = Team.getImgTag(team, "");
+			this.getElement().setProperty("teamFlagImg", flagImg != null ? flagImg : "");
 		}
 
 		this.getElement().setProperty("teamName", computeTeamName(a));
