@@ -10,6 +10,8 @@
 
 **New in Release 66**
 
+66.2.1: _IWF_FlatFile template; use this to produce competition results in the flat file format expected by IWF
+
 66.2.1: The scoreboards and attempt boards now normalize official country names (e.g. Australia) to their IOC code (AUS) for the purpose of locating flags.
 
 66.2.1: Fix: Lower-Thirds now always show the Challenge status correctly.
