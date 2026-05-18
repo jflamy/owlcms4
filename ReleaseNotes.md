@@ -10,7 +10,11 @@
 
 **New in Release 66**
 
-66.2.1: Fix: Lower-Thirds could show the next athlete instead of the Challenge status.
+66.2.1: _IWF_FlatFile template; use this to produce competition results in the flat file format expected by IWF
+
+66.2.1: The scoreboards and attempt boards now normalize official country names (e.g. Australia) to their IOC code (AUS) for the purpose of locating flags.
+
+66.2.1: Fix: Lower-Thirds now always show the Challenge status correctly.
 
 66.2.0: Fix: Updates to running session
   - Editing referees, description and CJ break duration from the web page will now work for the session in progress
