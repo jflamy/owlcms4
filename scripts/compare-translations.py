@@ -3,6 +3,7 @@
 import csv
 import sys
 
+
 if len(sys.argv) != 3:
     print(
         "Usage: compare-translations.py <local_csv> <remote_csv>",
@@ -14,37 +15,67 @@ LOCAL_FILE = sys.argv[1]
 REMOTE_FILE = sys.argv[2]
 
 # Read both files
-with open(LOCAL_FILE, 'r', encoding='utf-8') as f:
+with open(LOCAL_FILE, 'r', encoding='utf-8-sig', newline='') as f:
     local_reader = csv.reader(f)
     local_rows = list(local_reader)
 
-with open(REMOTE_FILE, 'r', encoding='utf-8') as f:
+with open(REMOTE_FILE, 'r', encoding='utf-8-sig', newline='') as f:
     remote_reader = csv.reader(f)
     remote_rows = list(remote_reader)
 
 # Get header (language codes)
 header = local_rows[0] if local_rows else []
+remote_header = remote_rows[0] if remote_rows else []
 languages = header[1:] if len(header) > 1 else []
 
 # Build dictionaries keyed by translation key
 local_dict = {}
 local_key_order = []
-for row in local_rows[1:]:
+local_key_line_numbers = {}
+for line_number, row in enumerate(local_rows[1:], start=2):
     if row and len(row) > 0:
         key = row[0]
+        local_key_line_numbers.setdefault(key, []).append(line_number)
+        if not key:
+            continue
         local_dict[key] = row
         local_key_order.append(key)
 
 remote_dict = {}
 remote_key_order = []
-for row in remote_rows[1:]:
+remote_key_line_numbers = {}
+for line_number, row in enumerate(remote_rows[1:], start=2):
     if row and len(row) > 0:
         key = row[0]
+        remote_key_line_numbers.setdefault(key, []).append(line_number)
+        if not key:
+            continue
         remote_dict[key] = row
         remote_key_order.append(key)
 
 # Find differences
 differences = []
+
+if header != remote_header:
+    differences.append({
+        'key': 'Header',
+        'type': 'header_changed',
+        'local': header,
+        'remote': remote_header,
+    })
+
+for source_name, key_line_numbers in (
+    ('HEAD-refreshed local copy', local_key_line_numbers),
+    ('Google Sheets', remote_key_line_numbers),
+):
+    if '' in key_line_numbers:
+        differences.append({
+            'key': 'Blank column 1',
+            'type': 'blank_column_1',
+            'source': source_name,
+            'lines': key_line_numbers[''],
+        })
+
 all_keys = list(local_key_order)
 for key in remote_key_order:
     if key not in local_dict:
@@ -57,16 +88,16 @@ for key in all_keys:
     if key not in local_dict:
         differences.append({
             'key': key,
-            'type': 'missing_local',
-            'details': 'Key exists in Google Sheets but not in the HEAD-refreshed local copy'
+            'type': 'remote_only',
+            'details': 'Column 1 value appears only in Google Sheets'
         })
         continue
 
     if key not in remote_dict:
         differences.append({
             'key': key,
-            'type': 'missing_remote',
-            'details': 'Key exists in the HEAD-refreshed local copy but not in Google Sheets'
+            'type': 'local_only',
+            'details': 'Column 1 value appears only in the HEAD-refreshed local copy'
         })
         continue
 
@@ -80,11 +111,12 @@ for key in all_keys:
 
         if local_val != remote_val:
             lang = languages[i-1] if (i-1) < len(languages) else f'col{i}'
-            changed_languages.append({
+            lang_diff = {
                 'lang': lang,
                 'local': local_val[:50] + '...' if len(local_val) > 50 else local_val,
                 'remote': remote_val[:50] + '...' if len(remote_val) > 50 else remote_val
-            })
+            }
+            changed_languages.append(lang_diff)
 
     if changed_languages:
         differences.append({
@@ -101,13 +133,23 @@ if not differences:
 print(f"Found {len(differences)} keys with differences:\n")
 
 for diff in differences:
-    if diff['type'] == 'missing_local':
-        print(f"  {diff['key']}")
-        print(f"  Missing from HEAD-refreshed local copy")
+    if diff['type'] == 'header_changed':
+        print("  Header")
+        print("  Language column layout differs between files")
+        print(f"    Local: {','.join(diff['local'])}")
+        print(f"    Remote: {','.join(diff['remote'])}")
         print()
-    elif diff['type'] == 'missing_remote':
+    elif diff['type'] == 'blank_column_1':
+        print("  Blank column 1")
+        print(f"  {diff['source']} has empty column-1 cells on line(s): {', '.join(str(line) for line in diff['lines'])}")
+        print()
+    elif diff['type'] == 'remote_only':
         print(f"  {diff['key']}")
-        print(f"  Missing from Google Sheets")
+        print(f"  Row only in Google Sheets")
+        print()
+    elif diff['type'] == 'local_only':
+        print(f"  {diff['key']}")
+        print(f"  Row only in HEAD-refreshed local copy")
         print()
     elif diff['type'] == 'changed':
         print(f"  {diff['key']}")

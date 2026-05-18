@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="${1:-66.2.1-rc01}"
+REVISION="${1:-66.2.1-rc02}"
 set -euo pipefail
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
@@ -33,6 +33,11 @@ fi
 
 if ! command -v git >/dev/null 2>&1; then
   echo "ERROR: 'git' not found on PATH." >&2
+  exit 1
+fi
+
+if ! command -v python >/dev/null 2>&1; then
+  echo "ERROR: 'python' not found on PATH." >&2
   exit 1
 fi
 
@@ -73,29 +78,47 @@ if git ls-remote --tags origin | grep -q "refs/tags/${REVISION}$"; then
   exit 3
 fi
 
-# Check that translation4.csv, refreshed from HEAD, matches the Google Sheets source.
-# Local edits to translation4.csv are intentionally discarded for this check.
+# Check that the HEAD version of translation4.csv matches the Google Sheets source.
+# The release workflow builds from committed files, so compare a temporary HEAD
+# copy without overwriting the worktree file the user may be inspecting.
 TRANSLATION_CSV="shared/src/main/resources/i18n/translation4.csv"
 GOOGLE_SHEET_URL="https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE/export?format=csv"
 
 echo "Checking translation4.csv against Google Sheets source..."
 REMOTE_TMP=$(mktemp)
-trap "rm -f ${REMOTE_TMP}" EXIT
-curl -sL "${GOOGLE_SHEET_URL}" > "${REMOTE_TMP}"
-
-if ! git restore --source=HEAD --worktree -- "${TRANSLATION_CSV}"; then
-  echo "ERROR: Could not refresh ${TRANSLATION_CSV} from HEAD." >&2
+LOCAL_HEAD_TMP=$(mktemp)
+trap "rm -f ${REMOTE_TMP} ${LOCAL_HEAD_TMP}" EXIT
+if ! curl -fsSL --retry 3 --retry-delay 2 --max-time 120 --connect-timeout 30 \
+  -o "${REMOTE_TMP}" "${GOOGLE_SHEET_URL}"; then
+  echo "ERROR: Could not download Google Sheets translation CSV." >&2
   exit 4
 fi
 
-if ! diff --strip-trailing-cr -q "${TRANSLATION_CSV}" "${REMOTE_TMP}" >/dev/null 2>&1; then
+if [[ ! -s "${REMOTE_TMP}" ]]; then
+  echo "ERROR: Downloaded Google Sheets translation CSV is empty." >&2
+  exit 4
+fi
+
+if head -c 200 "${REMOTE_TMP}" | grep -qi '<html'; then
+  echo "ERROR: Google Sheets download returned HTML instead of CSV." >&2
+  exit 4
+fi
+
+if ! head -1 "${REMOTE_TMP}" | grep -q '^key,'; then
+  echo "ERROR: Downloaded file does not look like a translation CSV." >&2
+  echo "First line: $(head -1 "${REMOTE_TMP}")" >&2
+  exit 4
+fi
+
+if ! git show "HEAD:${TRANSLATION_CSV}" > "${LOCAL_HEAD_TMP}"; then
+  echo "ERROR: Could not read ${TRANSLATION_CSV} from HEAD." >&2
+  exit 4
+fi
+
+if ! python ./scripts/compare-translations.py "${LOCAL_HEAD_TMP}" "${REMOTE_TMP}"; then
   echo "ERROR: translation4.csv does not match the Google Sheets source!" >&2
-  echo "       The HEAD version on this branch is out of date." >&2
-  echo ""
-  echo "Running translation consistency check..."
-  PROMPT_DOWNLOAD=false ./scripts/check-translation-diff.sh || true
-  echo ""
-  echo "Aborting. Update, commit and push translation4.csv from Google Sheets before releasing." >&2
+  echo "       The committed HEAD version on this branch is out of date." >&2
+  echo "       Update, commit and push translation4.csv from Google Sheets before releasing." >&2
   exit 4
 else
   echo "translation4.csv matches Google Sheets source."
