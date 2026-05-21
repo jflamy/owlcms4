@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.jetty;
 
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.LogbackConfigReloader;
+import app.owlcms.endpoints.ControlPanelServlet;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -52,6 +54,13 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 	public EmbeddedJetty(CountDownLatch countDownLatch, String appName) {
 		this.setLatch(countDownLatch);
 		this.setAppName(appName);
+	}
+
+	@Override
+	protected WebAppContext createWebAppContext() throws IOException {
+		WebAppContext context = super.createWebAppContext();
+		context.addServlet(ControlPanelServlet.class, "/controlpanel/stop");
+		return context;
 	}
 
 	public CountDownLatch getLatch() {
