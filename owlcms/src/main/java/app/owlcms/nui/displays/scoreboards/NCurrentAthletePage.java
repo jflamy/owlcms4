@@ -37,21 +37,12 @@ import ch.qos.logback.classic.Logger;
 public class NCurrentAthletePage extends AbstractResultsDisplayPage implements BeforeEnterObserver {
 
 	private static final String DECISION_STICK_MILLIS = "decision";
-    private static final String DECISION_STICK_TRACE_MARKER = "decision-stick-trace-2026-05-09";
     private static final int DEFAULT_DECISION_STICK_MILLIS = 5000;
 
     Logger logger = (Logger) LoggerFactory.getLogger(NCurrentAthletePage.class);
     Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
     Map<String, List<String>> urlParameterMap = new HashMap<>();
     private int decisionStickMillis = DEFAULT_DECISION_STICK_MILLIS;
-
-    private String traceLabel() {
-        return "NCurrentAthletePage[" + System.identityHashCode(this) + "|" + DECISION_STICK_TRACE_MARKER + "]";
-    }
-
-    private static String fopName(FieldOfPlay fieldOfPlay) {
-        return fieldOfPlay != null ? fieldOfPlay.getName() : "null";
-    }
 
     @Override
     public void addDialogContent(Component target, VerticalLayout vl) {
@@ -75,7 +66,6 @@ public class NCurrentAthletePage extends AbstractResultsDisplayPage implements B
     protected void init() {
         this.logger = (Logger) LoggerFactory.getLogger(NCurrentAthletePage.class);
         this.uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
-        this.logger.warn("{} init", traceLabel());
         var board = new NCurrentAthlete(this);
         this.setBoard(board);
 
@@ -110,9 +100,6 @@ public class NCurrentAthletePage extends AbstractResultsDisplayPage implements B
         board.setFop(this.getFop());
         board.setLeadersDisplay(true);
         board.setRecordsDisplay(true);
-        this.logger.warn("{} onAttach ui={} fop={} decisionStickMillis={} boardInstance={}", traceLabel(),
-            attachEvent.getUI().getUIId(), fopName(this.getFop()), this.decisionStickMillis,
-            System.identityHashCode(board));
         ((NCurrentAthlete) board).setDecisionStickMillis(this.decisionStickMillis);
 
         this.addComponentAsFirst((Component) board);
@@ -122,9 +109,6 @@ public class NCurrentAthletePage extends AbstractResultsDisplayPage implements B
     public Map<String, List<String>> readParams(Location location, Map<String, List<String>> parametersMap) {
         Map<String, List<String>> params = super.readParams(location, parametersMap);
         readDecisionStickMillis(params);
-        this.logger.warn("{} readParams path={} paramsDecision={} effectiveDecisionStickMillis={} boardInstance={}", traceLabel(),
-                location.getPath(), params.get(DECISION_STICK_MILLIS), this.decisionStickMillis,
-                System.identityHashCode(this.getBoard()));
         ((NCurrentAthlete) this.getBoard()).setDecisionStickMillis(this.decisionStickMillis);
         return params;
     }
@@ -135,17 +119,12 @@ public class NCurrentAthletePage extends AbstractResultsDisplayPage implements B
 			throw new AccessDeniedException();
 		}
         readDecisionStickMillis(event.getLocation().getQueryParameters().getParameters());
-		this.logger.warn("{} beforeEnter path={} paramsDecision={} effectiveDecisionStickMillis={}", traceLabel(),
-		        event.getLocation().getPath(), event.getLocation().getQueryParameters().getParameters().get(DECISION_STICK_MILLIS),
-		        this.decisionStickMillis);
 	}
 
     private void readDecisionStickMillis(Map<String, List<String>> params) {
         this.decisionStickMillis = DEFAULT_DECISION_STICK_MILLIS;
         List<String> decisionValues = params.get(DECISION_STICK_MILLIS);
         if (decisionValues == null || decisionValues.isEmpty()) {
-            this.logger.warn("{} readDecisionStickMillis no parameter; defaulting to {}", traceLabel(),
-                    this.decisionStickMillis);
             return;
         }
         try {
@@ -153,8 +132,6 @@ public class NCurrentAthletePage extends AbstractResultsDisplayPage implements B
         } catch (NumberFormatException ignored) {
             this.decisionStickMillis = DEFAULT_DECISION_STICK_MILLIS;
         }
-        this.logger.warn("{} readDecisionStickMillis raw={} effective={}", traceLabel(), decisionValues,
-                this.decisionStickMillis);
     }
     
     

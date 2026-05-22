@@ -61,7 +61,6 @@ public class NCurrentAthlete extends Results {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(NCurrentAthlete.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	private static final String DECISION_STICK_TRACE_MARKER = "decision-stick-trace-2026-05-09";
 
 	static {
 		logger.setLevel(Level.INFO);
@@ -73,34 +72,12 @@ public class NCurrentAthlete extends Results {
 	private Timer decisionTimer;
 	private volatile long decisionStickyUntil;
 	private UI ui;
-	private final int traceInstanceId = System.identityHashCode(this);
 
 	public NCurrentAthlete(AbstractDisplayPage page) {
 		uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		setDarkMode(true);
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
-		logger.warn("{} constructed autoversion={}", traceLabel(), StartupUtils.getAutoVersion());
-	}
-
-	private String traceLabel() {
-		return "NCurrentAthlete[" + this.traceInstanceId + "|" + DECISION_STICK_TRACE_MARKER + "]";
-	}
-
-	private long decisionStickyRemainingMillis() {
-		return Math.max(0, this.decisionStickyUntil - System.currentTimeMillis());
-	}
-
-	private static String athleteName(Athlete athlete) {
-		return athlete != null ? athlete.getFullName() : "null";
-	}
-
-	private static String fopName(FieldOfPlay fieldOfPlay) {
-		return fieldOfPlay != null ? fieldOfPlay.getName() : "null";
-	}
-
-	private static int uiId(UI ui) {
-		return ui != null ? ui.getUIId() : -1;
 	}
 
 	private static boolean isSingleLight(FieldOfPlay fop) {
@@ -196,16 +173,10 @@ public class NCurrentAthlete extends Results {
 	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		uiLog(e);
-		logger.warn(
-		        "{} slaveDecision received decision={} ref1={} ref2={} ref3={} singleLight={} eventFop={} eventAthlete={} configuredStickMillis={} stickyRemaining={} ui={}",
-		        traceLabel(), e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), fopName(e.getFop()),
-		        athleteName(e.getAthlete()), this.decisionStickMillis, decisionStickyRemainingMillis(), uiId(this.ui));
 		if (e.decision == null && isDecisionStickyActive(e)) {
 			return;
 		}
 		if (e.decision == null) {
-			logger.warn("{} slaveDecision waiting for decision; clearing visible decision state ui={} fop={}", traceLabel(),
-			        uiId(this.ui), fopName(getFop()));
 			if (logger.isDebugEnabled()) logger.debug("waiting for decision");
 			setShowDecisions(this.getElement(), false);
 			setShowAthleteClock(this.getElement(), false);
@@ -219,14 +190,11 @@ public class NCurrentAthlete extends Results {
 				cancelDecisionTimer();
 
 				Athlete athlete = e.getAthlete() != null ? e.getAthlete() : getFop().getCurAthlete();
-				logger.warn("{} showing decision decision={} athlete={} eventFop={} boardFop={} stickMillis={} ui={}",
-				        traceLabel(), e.decision, athleteName(athlete), fopName(e.getFop()), fopName(getFop()),
-				        this.decisionStickMillis, uiId(this.ui));
 				showDecision(athlete, e.getFop(), e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight());
 
 				scheduleDecisionStick();
 			} catch (Exception e1) {
-				logger.warn("{} exception while showing decision\n{}", traceLabel(), LoggerUtils.stackTrace(e1));
+				logger.warn("exception while showing decision\n{}", LoggerUtils.stackTrace(e1));
 			}
 		});
 	}
@@ -260,8 +228,6 @@ public class NCurrentAthlete extends Results {
 		this.getElement().setProperty("fullName", athlete.getFullName() != null ? athlete.getFullName() : "");
 		this.getElement().setProperty("team", athlete.getTeam() != null ? formatTeam(athlete) : "");
 		this.getElement().setProperty("lift", formatAttempt(attemptNumber));
-		logger.warn("{} set decision athlete text athlete={} team={} attemptNumber={} fop={} ui={}", traceLabel(),
-		        athleteName(athlete), formatTeam(athlete), attemptNumber, fopName(fop), uiId(this.ui));
 	}
 
 	private boolean recoverDecisionVisibleStick(UIEvent.SwitchGroup e) {
@@ -270,13 +236,10 @@ public class NCurrentAthlete extends Results {
 		}
 		FieldOfPlay fop = e.getFop();
 		if (fop == null) {
-			logger.warn("{} cannot recover DECISION_VISIBLE stick: no fop ui={}", traceLabel(), uiId(this.ui));
 			return false;
 		}
 		Boolean decision = fop.getGoodLift();
 		if (decision == null) {
-			logger.warn("{} cannot recover DECISION_VISIBLE stick: no stored decision fop={} ui={}", traceLabel(),
-			        fopName(fop), uiId(this.ui));
 			return false;
 		}
 
@@ -291,11 +254,6 @@ public class NCurrentAthlete extends Results {
 		Boolean ref2 = refereeDecision(fop, 1);
 		Boolean ref3 = refereeDecision(fop, 2);
 		boolean singleLight = isSingleLight(fop);
-		logger.warn(
-		        "{} recovering DECISION_VISIBLE stick decision={} ref1={} ref2={} ref3={} singleLight={} inputKind={} reviewAthlete={} switchAthlete={} currentAthlete={} fop={} stickMillis={} ui={}",
-		        traceLabel(), decision, ref1, ref2, ref3, singleLight, fop.getCurrentInputKind(), athleteName(athlete),
-		        athleteName(e.getAthlete()), athleteName(fop.getCurAthlete()), fopName(fop), this.decisionStickMillis,
-		        uiId(this.ui));
 		cancelDecisionTimer();
 		showDecision(athlete, fop, decision, ref1, ref2, ref3, singleLight);
 		scheduleDecisionStick();
@@ -303,10 +261,6 @@ public class NCurrentAthlete extends Results {
 	}
 	
 	private void cancelDecisionTimer() {
-		if (this.decisionTimer != null || this.decisionStickyUntil > 0) {
-			logger.warn("{} cancelDecisionTimer timerPresent={} stickyRemaining={} ui={} fop={}", traceLabel(),
-			        this.decisionTimer != null, decisionStickyRemainingMillis(), uiId(this.ui), fopName(getFop()));
-		}
 		this.decisionStickyUntil = 0;
 		if (this.decisionTimer != null) {
 			this.decisionTimer.cancel();
@@ -316,52 +270,31 @@ public class NCurrentAthlete extends Results {
 
 	private boolean isDecisionStickyActive(UIEvent e) {
 		boolean active = this.decisionStickyUntil > System.currentTimeMillis();
-		if (active) {
-			logger.warn("{} blocking event={} eventFop={} eventAthlete={} stickyRemaining={} ui={}", traceLabel(),
-			        e.getClass().getSimpleName(), fopName(e.getFop()), athleteName(e.getAthlete()),
-			        decisionStickyRemainingMillis(), uiId(this.ui));
-		}
 		return active;
 	}
 
 	private void scheduleDecisionStick() {
 		if (this.decisionStickMillis <= 0) {
-			logger.warn("{} decision stick disabled; not scheduling ui={} fop={}", traceLabel(), uiId(this.ui),
-			        fopName(getFop()));
 			return;
 		}
 		UI capturedUi = this.ui;
 		FieldOfPlay fop = getFop();
 		if (capturedUi == null || fop == null) {
-			logger.warn("{} cannot schedule decision stick capturedUi={} fop={} stickMillis={}", traceLabel(),
-			        uiId(capturedUi), fopName(fop), this.decisionStickMillis);
 			return;
 		}
 		long stickyUntil = System.currentTimeMillis() + this.decisionStickMillis;
 		this.decisionStickyUntil = stickyUntil;
 		Timer timer = new Timer("decision-stick", true);
 		this.decisionTimer = timer;
-		logger.warn(
-		        "{} scheduling decision stick delayMillis={} stickyUntil={} capturedUi={} fop={} state={} athlete={} timer={}",
-		        traceLabel(), this.decisionStickMillis, stickyUntil, uiId(capturedUi), fopName(fop), fop.getState(),
-		        athleteName(fop.getCurAthlete()), System.identityHashCode(timer));
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				logger.warn("{} decision stick timer fired timer={} capturedUi={} stickyRemaining={} fop={}", traceLabel(),
-				        System.identityHashCode(timer), uiId(capturedUi), decisionStickyRemainingMillis(), fopName(fop));
 				try {
 					capturedUi.access(() -> {
 						if (NCurrentAthlete.this.decisionStickyUntil != stickyUntil) {
-							logger.warn("{} stale decision stick timer ignored timer={} expectedStickyUntil={} actualStickyUntil={}",
-							        traceLabel(), System.identityHashCode(timer), stickyUntil,
-							        NCurrentAthlete.this.decisionStickyUntil);
 							timer.cancel();
 							return;
 						}
-						logger.warn("{} decision stick timer resyncing capturedUi={} fop={} state={} athlete={} timer={}",
-						        traceLabel(), uiId(capturedUi), fopName(fop), fop.getState(), athleteName(fop.getCurAthlete()),
-						        System.identityHashCode(timer));
 						clearDecisionStick(timer, stickyUntil);
 						syncWithFOP(
 						        new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), NCurrentAthlete.this, fop),
@@ -369,8 +302,6 @@ public class NCurrentAthlete extends Results {
 					});
 					timer.cancel();
 				} catch (UIDetachedException ignored) {
-					logger.warn("{} decision stick timer found detached UI capturedUi={} timer={} stickyRemaining={}", traceLabel(),
-					        uiId(capturedUi), System.identityHashCode(timer), decisionStickyRemainingMillis());
 					clearDecisionStick(timer, stickyUntil);
 				}
 			}
@@ -378,9 +309,6 @@ public class NCurrentAthlete extends Results {
 	}
 
 	private void clearDecisionStick(Timer timer, long stickyUntil) {
-		logger.warn("{} clearDecisionStick timer={} stickyMatch={} timerMatch={} stickyRemaining={}", traceLabel(),
-		        System.identityHashCode(timer), this.decisionStickyUntil == stickyUntil, this.decisionTimer == timer,
-		        decisionStickyRemainingMillis());
 		if (this.decisionStickyUntil == stickyUntil) {
 			this.decisionStickyUntil = 0;
 		}
@@ -558,8 +486,6 @@ public class NCurrentAthlete extends Results {
 
 	public void setDecisionStickMillis(int decisionStickMillis) {
 		this.decisionStickMillis = Math.max(0, decisionStickMillis);
-		logger.warn("{} setDecisionStickMillis requested={} effective={} ui={} fop={}", traceLabel(), decisionStickMillis,
-		        this.decisionStickMillis, uiId(this.ui), fopName(getFop()));
 		if (this.decisionStickMillis == 0) {
 			cancelDecisionTimer();
 		}
@@ -613,9 +539,6 @@ public class NCurrentAthlete extends Results {
 		computeStylesDir(this);
 
 		this.ui = UI.getCurrent();
-		logger.warn("{} attached ui={} eventUi={} fop={} state={} group={} athlete={} stickMillis={} componentId={}",
-		        traceLabel(), uiId(this.ui), uiId(attachEvent.getUI()), fopName(fop), fop.getState(), fop.getGroup(),
-		        athleteName(fop.getCurAthlete()), this.decisionStickMillis, getId().orElse(""));
 		syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
 		// we listen on uiEventBus.
 		this.uiEventBus = uiEventBusRegister(this, fop);
@@ -625,8 +548,6 @@ public class NCurrentAthlete extends Results {
 
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
-		logger.warn("{} detached ui={} fop={} stickyRemaining={} timerPresent={}", traceLabel(), uiId(this.ui),
-		        fopName(getFop()), decisionStickyRemainingMillis(), this.decisionTimer != null);
 		cancelDecisionTimer();
 		this.ui = null;
 		super.onDetach(detachEvent);
