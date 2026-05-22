@@ -65,6 +65,7 @@ public class JXLSDownloader {
 	private ComboBox<Resource> templateSelect;
 	private String processingMessage;
 	private Predicate<String> nameFilter;
+	private Supplier<String> fileNamePrefixSupplier;
 	// Optional pre-check invoked before activating the download/dialog. Return Optional.empty() on OK
 	// or Optional.of(Exception) to indicate a validation error that should be shown to the user.
 	private Supplier<Optional<Exception>> preCheckSupplier;
@@ -209,6 +210,10 @@ public class JXLSDownloader {
 		this.processingMessage = processingMessage;
 	}
 
+	public void setFileNamePrefixSupplier(Supplier<String> fileNamePrefixSupplier) {
+		this.fileNamePrefixSupplier = fileNamePrefixSupplier;
+	}
+
 	private Dialog createDialog() {
 		// Button innerButton = new Button(buttonLabel, new Icon(VaadinIcon.DOWNLOAD_ALT));
 		this.dialog = new DocumentDownloadDialog();
@@ -312,9 +317,7 @@ public class JXLSDownloader {
 			String targetFileName = getTargetFileName();
 			this.logger.debug("(2) targetFileName final = {}", targetFileName);
 
-			Supplier<String> supplier = () -> getTargetFileName();
-
-			Anchor nDownloadAnchor = doCreateActualDownloadButton(this.xlsWriter, supplier.get());
+			Anchor nDownloadAnchor = doCreateActualDownloadButton(this.xlsWriter, targetFileName);
 			// if downloadAnchor is null, same as add nDownloadAnchor
 			templateSelection.replace(this.downloadAnchor, nDownloadAnchor);
 			this.downloadAnchor = nDownloadAnchor;
@@ -430,6 +433,10 @@ public class JXLSDownloader {
 			        + extension;
 		} else {
 			fileName = templateName.replaceAll("[.]" + extension, "") + suffix + "." + extension;
+		}
+		String fileNamePrefix = this.fileNamePrefixSupplier != null ? this.fileNamePrefixSupplier.get() : null;
+		if (fileNamePrefix != null && !fileNamePrefix.isBlank()) {
+			fileName = fileNamePrefix.trim() + "_" + fileName;
 		}
 
 		// if (outputFileName != null) {

@@ -281,10 +281,28 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			Competition::setCurrentRecordsTemplateFileName,
 			Translator.translate("RecordEvent.ExportRecords"),
 			Translator.translate("Download"));
+		downloadDialog.setFileNamePrefixSupplier(this::getRecordExportFileNamePrefix);
 		Button exportButton = downloadDialog.createDownloadButton();
 		exportButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		exportButton.getElement().getStyle().set("margin-right", "1em");
 		return exportButton;
+	}
+
+	private String getRecordExportFileNamePrefix() {
+		StringBuilder prefix = new StringBuilder();
+		appendFileNamePart(prefix, getFederation());
+		appendFileNamePart(prefix, getRecordName());
+		return prefix.toString();
+	}
+
+	private static void appendFileNamePart(StringBuilder prefix, String value) {
+		if (value == null || value.isBlank()) {
+			return;
+		}
+		if (prefix.length() > 0) {
+			prefix.append("_");
+		}
+		prefix.append(value.trim());
 	}
 
 	private Button createAcceptProvisionalRecordsButton() {

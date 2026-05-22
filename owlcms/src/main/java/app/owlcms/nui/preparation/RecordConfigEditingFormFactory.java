@@ -294,7 +294,9 @@ public class RecordConfigEditingFormFactory extends OwlcmsCrudFormFactory<Record
 		this.loadedField = new LoadedRecordsField(() -> {
 			RecordConfig current = RecordConfig.getCurrent();
 			current.addMissing(RecordRepository.findAllRecordNames());
-			this.ofBinding.read(current);
+			if (this.ofBinding != null) {
+				this.ofBinding.read(current);
+			}
 		});
 		this.loadedField.setWidthFull();
 		this.binder.forField(this.loadedField).bind(RecordConfig::getLoadedFiles, RecordConfig::setLoadedFiles);
