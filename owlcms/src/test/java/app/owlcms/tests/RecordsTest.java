@@ -34,6 +34,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordDefinitionReader;
+import app.owlcms.data.records.RecordFilter;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -137,6 +138,50 @@ public class RecordsTest {
 
         assertEquals(1, provisionalRecords.size());
         assertNotNull(provisionalRecords.get(0));
+    }
+
+    @Test
+    public void currentCompetitionProvisionalFilterDropsBlankAndStaleEvents() {
+        RecordEvent current = createRecord(102.0D, "A");
+        current.setEvent("Current Event");
+        RecordEvent blank = createRecord(103.0D, "A");
+        blank.setEvent("");
+        RecordEvent stale = createRecord(104.0D, "A");
+        stale.setEvent("Old Event");
+        RecordEvent official = createRecord(105.0D, null);
+        official.setEvent("Current Event");
+
+        List<RecordEvent> provisionalRecords = RecordFilter.keepCurrentCompetitionProvisionalRecords(
+                Arrays.asList(current, blank, stale, official),
+                "Current Event");
+
+        assertEquals(1, provisionalRecords.size());
+        assertEquals(102.0D, provisionalRecords.get(0).getRecordValue(), 0.001D);
+    }
+
+    @Test
+    public void genericProvisionalQueriesKeepStaleEventsForCleanup() {
+        RecordEvent current = createRecord(102.0D, "A");
+        current.setEvent("Current Event");
+        RecordRepository.save(current);
+        RecordEvent blank = createRecord(103.0D, "A");
+        blank.setEvent("");
+        RecordRepository.save(blank);
+        RecordEvent stale = createRecord(104.0D, "A");
+        stale.setEvent("Old Event");
+        RecordRepository.save(stale);
+
+        List<RecordEvent> provisionalRecords = RecordRepository.findWithFilters(
+                null,
+                null,
+                null,
+                null,
+                null,
+                "PROVISIONAL",
+                "HISTORY",
+                null);
+
+        assertEquals(3, provisionalRecords.size());
     }
 
     @Test

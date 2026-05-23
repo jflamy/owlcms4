@@ -134,6 +134,11 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 		createStandardFooter(workbook);
 	}
 
+	@Override
+	protected boolean shouldFilterStaleProvisionalRecords() {
+		return true;
+	}
+
 	private List<Athlete> unwrapAthletesAsNeeded(List<Athlete> rankedAthletes) {
 		List<Athlete> pAthletes;
 		if (this.resultsByCategory) {

@@ -65,6 +65,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordEvent;
+import app.owlcms.data.records.RecordFilter;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
@@ -693,8 +694,20 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		jxlsExportRecords.setGroup(getGroup());
 		jxlsExportRecords.computeSortedAthletes();
 		List<RecordEvent> records = normalizeRecordEventsForTemplate(jxlsExportRecords.getRecords(getCategory()));
+		records = filterStaleProvisionalRecords(records);
 		logger.debug("{} records found", records != null ? records.size() : 0);
 		return records;
+	}
+
+	protected List<RecordEvent> filterStaleProvisionalRecords(List<RecordEvent> records) {
+		if (!shouldFilterStaleProvisionalRecords()) {
+			return records;
+		}
+		return RecordFilter.keepCurrentCompetitionProvisionalRecords(records, Competition.getCurrent().getCompetitionName());
+	}
+
+	protected boolean shouldFilterStaleProvisionalRecords() {
+		return false;
 	}
 
 	protected List<RecordEvent> normalizeRecordEventsForTemplate(List<RecordEvent> records) {

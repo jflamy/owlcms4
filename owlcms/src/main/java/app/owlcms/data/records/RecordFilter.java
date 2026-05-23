@@ -261,6 +261,27 @@ public class RecordFilter {
 		return filterEligibleRecordsForAthlete(curAthlete, candidateRecords);
 	}
 
+	public static List<RecordEvent> keepCurrentCompetitionProvisionalRecords(Collection<RecordEvent> records,
+	        String currentEvent) {
+		if (records == null) {
+			return null;
+		}
+		return records.stream()
+		        .filter(record -> isCurrentCompetitionProvisionalRecord(record, currentEvent))
+		        .collect(Collectors.toList());
+	}
+
+	public static boolean isCurrentCompetitionProvisionalRecord(RecordEvent record, String currentEvent) {
+		if (record == null || !RecordRepository.isProvisional(record)) {
+			return false;
+		}
+		String recordEvent = record.getEvent();
+		if (recordEvent == null || recordEvent.isBlank() || currentEvent == null || currentEvent.isBlank()) {
+			return false;
+		}
+		return recordEvent.trim().equals(currentEvent.trim());
+	}
+
 	public static List<RecordEvent> filterEligibleRecordsForAthlete(Athlete curAthlete,
 	        Collection<RecordEvent> candidateRecords) {
 		List<RecordEvent> records;

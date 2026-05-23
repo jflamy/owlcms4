@@ -10,6 +10,10 @@
 
 **New in Release 66**
 
+66.2.2: Add the record federation and record name if present when exporting records
+
+66.2.2: Fix: Protocol sheets and results books no longer include stale provisional records from another event
+
 66.2.2: Accept stop requests from localhost over http to allow clean stop requests from the controlpanel CLI
 
 66.2.1: _IWF_FlatFile template; use this to produce competition results in the flat file format expected by IWF

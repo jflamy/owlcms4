@@ -124,6 +124,11 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		workbook.setForceFormulaRecalculation(true);
 	}
 
+	@Override
+	protected boolean shouldFilterStaleProvisionalRecords() {
+		return true;
+	}
+
 	private void overwritePointsSheet(Workbook workbook) {
 		Sheet pointsSheet = workbook.getSheet("Points");
 		if (pointsSheet == null) {
@@ -186,7 +191,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			}
 		}
 
-		// Filter records to only those RecordEvent objects with non-null and non-empty group field
+		// Filter records to current-event provisional rows for the result book.
 		keepProvisionalRecords(records, reportingBeans);
 
 		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
@@ -248,8 +253,8 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 				if (!recordList.isEmpty() && recordList.get(0) instanceof RecordEvent) {
 					List<RecordEvent> filtered = recordList.stream()
 						.map(o -> (RecordEvent) o)
-						.filter(r -> r != null && r.getGroupNameString() != null && !r.getGroupNameString().isBlank())
 						.toList();
+					filtered = filterStaleProvisionalRecords(filtered);
 					reportingBeans.put("records", filtered);
 				} else {
 					reportingBeans.put("records", records);
