@@ -10,7 +10,9 @@
 
 **New in Release 66**
 
-66.2.2: Add the record federation and record name if present when exporting records
+62.2.2: When loading Registration or SBDE, use both "Session" and "Group" to look up the translated keywords.
+
+66.2.2: When exporting records, prefix the file name with the record federation and record name (if selected as filters)
 
 66.2.2: Fix: Protocol sheets and results books no longer include stale provisional records from another event
 
