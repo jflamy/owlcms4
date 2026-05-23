@@ -88,7 +88,7 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 		}
 
 		MAthlete[] array = sa.toArray(new MAthlete[0]);
-		Arrays.sort(array, new MAthlete.MedalComparator());
+		Arrays.sort(array, new MAthlete.MedalComparator(group));
 		sa = Arrays.asList(array).stream()
 		        // .peek(m -> logger.debug("{} {} {} {}", m.getCategory(), m.getAbbreviatedName(), m.getRankingText(), m.getLiftRank()))
 		        .filter(m -> m.getLiftRank() >= 1 && m.getLiftRank() <= 3)

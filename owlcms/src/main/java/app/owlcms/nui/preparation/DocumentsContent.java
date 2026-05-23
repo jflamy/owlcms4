@@ -131,7 +131,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private OwlcmsLayout routerLayout;
 	private FlexLayout topBar;
 
-	// Default error processor used by kit-definition helpers. Uses notifyError with current UI.
+	// Default error processor used by kit-definition helpers. Uses notifyError with
+	// current UI.
 	private final BiConsumer<Throwable, String> defaultErrorProcessor = (e, m) -> notifyError(e, UI.getCurrent(), m);
 
 	/**
@@ -187,17 +188,17 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 		if (this.documentPage) {
 			FlexLayout buttons = new FlexLayout(
-			        new NativeLabel(Translator.translate("Documents.Registration")),
-			        categoriesListButton, bwButton, teamsListButton,
-			        createRule(),
-			        new NativeLabel(Translator.translate("Documents.StartBook")),
-			        startListButton, scheduleButton, officialSchedule, checkInButton, credentialsButton,
-			        createRule(),
-			        new NativeLabel(Translator.translate("Documents.PreWeighIn")),
-			        cardsButton, weighInButton, spacer(), preWeighInKitButton,
-			        createRule(),
-			        new NativeLabel(Translator.translate("Documents.PostWeighIn")),
-			        introductionButton, emptyProtocolButton, juryButton, spacer(), postWeighInKitButton);
+					new NativeLabel(Translator.translate("Documents.Registration")),
+					categoriesListButton, bwButton, teamsListButton,
+					createRule(),
+					new NativeLabel(Translator.translate("Documents.StartBook")),
+					startListButton, scheduleButton, officialSchedule, checkInButton, credentialsButton,
+					createRule(),
+					new NativeLabel(Translator.translate("Documents.PreWeighIn")),
+					cardsButton, weighInButton, spacer(), preWeighInKitButton,
+					createRule(),
+					new NativeLabel(Translator.translate("Documents.PostWeighIn")),
+					introductionButton, emptyProtocolButton, juryButton, spacer(), postWeighInKitButton);
 			buttons.getStyle().set("flex-wrap", "wrap");
 			buttons.getStyle().set("gap", "1ex");
 			buttons.getStyle().set("margin-left", "5em");
@@ -257,9 +258,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	@SuppressWarnings("unchecked")
 	private List<Athlete> athletesFindAll(boolean sessionOrder) {
 		List<Athlete> found = participationFindAll();
-		// for cards and starting lists we only want the actual athlete, without duplicates
+		// for cards and starting lists we only want the actual athlete, without
+		// duplicates
 		Set<Athlete> regCatAthletes = found.stream().map(pa -> ((PAthlete) pa)._getAthlete())
-		        .collect(Collectors.toSet());
+				.collect(Collectors.toSet());
 
 		// we also need athletes with no participations (implies no category)
 		List<Athlete> noCat = AthleteRepository.findAthletesNoParticipations();
@@ -292,8 +294,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement defineKit(String id, PreCompetitionTemplate templateEnum,
-	        BiFunction<List<Athlete>, Group, Optional<Exception>> explicitPreCheck,
-	        BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
+			BiFunction<List<Athlete>, Group, Optional<Exception>> explicitPreCheck,
+			BiFunction<List<Athlete>, Group, JXLSWorkbookStreamSource> writerFactory) {
 		try {
 			// logger removed
 			String resourceFolder = templateEnum.folder + "/";
@@ -318,11 +320,13 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				}
 			};
 
-			Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(templateEnum.folder, (f) -> matchExtension(templateEnum, f));
+			Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(templateEnum.folder,
+					(f) -> matchExtension(templateEnum, f));
 			Supplier<String> selectedTemplateSupplier = () -> templateEnum.templateFileNameSupplier.get();
 
-			KitElement kitElement = new KitElement(id, templateEnum, templateName, ext, isp, 1, writerFactory, pre, processingMessageSupplier,
-			        availableTemplatesSupplier, selectedTemplateSupplier);
+			KitElement kitElement = new KitElement(id, templateEnum, templateName, ext, isp, 1, writerFactory, pre,
+					processingMessageSupplier,
+					availableTemplatesSupplier, selectedTemplateSupplier);
 			return kitElement;
 		} catch (Exception e2) {
 			logger.error("Unexpected exception: {}", e2.toString());
@@ -331,12 +335,15 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		}
 	}
 
-	// Provide the lightweight default preCheck used historically when callers passed null.
-	private BiFunction<List<Athlete>, Group, Optional<Exception>> defaultScopePrecheckFor(PreCompetitionTemplate templateEnum) {
+	// Provide the lightweight default preCheck used historically when callers
+	// passed null.
+	private BiFunction<List<Athlete>, Group, Optional<Exception>> defaultScopePrecheckFor(
+			PreCompetitionTemplate templateEnum) {
 		return (a, g) -> adaptDocumentPrecheck(templateEnum, runDefaultScopePrecheck(templateEnum, a, g, false));
 	}
 
-	// Cards scope precheck isolated as a class-level variable so it can be reused by credential variants
+	// Cards scope precheck isolated as a class-level variable so it can be reused
+	// by credential variants
 	private final BiFunction<List<Athlete>, Group, Optional<Exception>> cardsScopePrecheck = (a, g) -> {
 		if (g != null) {
 			if (a == null || a.isEmpty()) {
@@ -355,7 +362,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			if (total >= 100) {
 				return Optional.of(new TooManyAthletesException());
 			}
-			// Check reasonable selection: if no session selected and too many athletes overall
+			// Check reasonable selection: if no session selected and too many athletes
+			// overall
 			if (total > 150) {
 				return Optional.of(new TooManyAthletesException());
 			}
@@ -375,11 +383,13 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return result;
 	};
 
-	// Variant of default scope precheck that allows no session to be selected. Used for
+	// Variant of default scope precheck that allows no session to be selected. Used
+	// for
 	// templates that make sense for the whole competition (categories, bodyweight,
 	// teams) where a global report may be generated without selecting a specific
 	// session/group.
-	private BiFunction<List<Athlete>, Group, Optional<Exception>> defaultScopePrecheckAllowNoSelectionFor(PreCompetitionTemplate templateEnum) {
+	private BiFunction<List<Athlete>, Group, Optional<Exception>> defaultScopePrecheckAllowNoSelectionFor(
+			PreCompetitionTemplate templateEnum) {
 		return (a, g) -> adaptDocumentPrecheck(templateEnum, runDefaultScopePrecheck(templateEnum, a, g, true));
 	}
 
@@ -398,11 +408,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter) {
 		List<Resource> resourceList = new ResourceWalker().getResourceList(
-		        resourceDirectoryLocation,
-		        ResourceWalker::relativeName,
-		        nameFilter,
-		        OwlcmsSession.getLocale(),
-		        Config.getCurrent().isLocalTemplatesOnly());
+				resourceDirectoryLocation,
+				ResourceWalker::relativeName,
+				nameFilter,
+				OwlcmsSession.getLocale(),
+				Config.getCurrent().isLocalTemplatesOnly());
 		List<Resource> prioritizedList = xlsxPriority(resourceList);
 		return prioritizedList;
 	}
@@ -422,7 +432,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		String prevName = "";
 		for (Resource r : resourceList) {
 			String curName = r.getFileName();
-			if (curName.endsWith(".xlsx") || curName.endsWith(".xlsm") || (curName.endsWith(".xls") && !prevName.contentEquals(curName + "x"))) {
+			if (curName.endsWith(".xlsx") || curName.endsWith(".xlsm")
+					|| (curName.endsWith(".xls") && !prevName.contentEquals(curName + "x"))) {
 				proritizedList.add(r);
 			}
 			prevName = curName;
@@ -432,42 +443,48 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	/**
-	 * Shared logic for default scope prechecks. If allowNoSelection is false, a missing group (g==null) results in a NoSession exception; otherwise group may
+	 * Shared logic for default scope prechecks. If allowNoSelection is false, a
+	 * missing group (g==null) results in a NoSession exception; otherwise group may
 	 * be null.
 	 */
-	private Optional<Exception> runDefaultScopePrecheck(PreCompetitionTemplate templateEnum, List<Athlete> a, Group g, boolean allowNoSelection) {
+	private Optional<Exception> runDefaultScopePrecheck(PreCompetitionTemplate templateEnum, List<Athlete> a, Group g,
+			boolean allowNoSelection) {
 		return this.precheckService.runDefaultScopePrecheck(templateEnum, a, g, allowNoSelection);
 	}
 
 	private Div createBodyweightButton() {
 		return createDocumentDownloadButton(
-		        PreCompetitionTemplate.BY_BODYWEIGHT,
-		        null,
-		        () -> prepareBodyweight(PreCompetitionTemplate.BY_BODYWEIGHT, getSortedSelection()),
-		        false);
+				PreCompetitionTemplate.BY_BODYWEIGHT,
+				null,
+				() -> prepareBodyweight(PreCompetitionTemplate.BY_BODYWEIGHT, getSortedSelection()),
+				false);
 	}
 
 	/**
-	 * Helper to create a document button that opens a dialog for single-document-type selection. Allows multi-session downloads through the
-	 * DocumentDownloadDialog. Treats single document as a special case of document set with only one template type.
+	 * Helper to create a document button that opens a dialog for
+	 * single-document-type selection. Allows multi-session downloads through the
+	 * DocumentDownloadDialog. Treats single document as a special case of document
+	 * set with only one template type.
 	 */
 	private Div createSingleDocumentButton(PreCompetitionTemplate templateDefinition, boolean primary,
-	        java.util.function.BiFunction<PreCompetitionTemplate, List<Group>, List<KitElement>> prepareFunction) {
+			java.util.function.BiFunction<PreCompetitionTemplate, List<Group>, List<KitElement>> prepareFunction) {
 		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        List<Group> selectionSnapshot = new ArrayList<>(getSortedSelection());
-			        List<KitElement> kit = prepareFunction.apply(templateDefinition, selectionSnapshot);
-			        Supplier<List<Group>> selectedSessionsSupplier = () -> selectionSnapshot;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        Group g = (!selectionSnapshot.isEmpty()) ? selectionSnapshot.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
-			        dialog.open();
-		        });
+				Translator.translate(templateDefinition.name()),
+				VaadinIcon.DOWNLOAD_ALT.create(),
+				(e) -> {
+					List<Group> selectionSnapshot = new ArrayList<>(getSortedSelection());
+					List<KitElement> kit = prepareFunction.apply(templateDefinition, selectionSnapshot);
+					Supplier<List<Group>> selectedSessionsSupplier = () -> selectionSnapshot;
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						Group g = (!selectionSnapshot.isEmpty()) ? selectionSnapshot.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					};
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier,
+									computeAthletesSupplier));
+					dialog.open();
+				});
 		if (primary) {
 			openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 		}
@@ -480,42 +497,50 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private Div createCategoriesButton() {
 		return createDocumentDownloadButton(
-		        PreCompetitionTemplate.BY_CATEGORY,
-		        null,
-		        () -> prepareCategories(PreCompetitionTemplate.BY_CATEGORY, getSortedSelection()),
-		        false);
+				PreCompetitionTemplate.BY_CATEGORY,
+				null,
+				() -> prepareCategories(PreCompetitionTemplate.BY_CATEGORY, getSortedSelection()),
+				false);
 	}
 
 	private Div createCheckinButton() {
 		return createDocumentDownloadButton(
-		        PreCompetitionTemplate.CHECKIN,
-		        null,
-		        () -> prepareCheckin(PreCompetitionTemplate.CHECKIN, getSortedSelection()),
-		        false);
+				PreCompetitionTemplate.CHECKIN,
+				null,
+				() -> prepareCheckin(PreCompetitionTemplate.CHECKIN, getSortedSelection()),
+				false);
 	}
 
 	/**
-	 * Delegates to DocumentDownloadDialog.createDoItButtonForKits to centralize wiring. The caller must provide the currently-sorted selection so the method
-	 * does not call getSortedSelection() itself (avoids duplicate preparation/work).
+	 * Delegates to DocumentDownloadDialog.createDoItButtonForKits to centralize
+	 * wiring. The caller must provide the currently-sorted selection so the method
+	 * does not call getSortedSelection() itself (avoids duplicate
+	 * preparation/work).
 	 */
-	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog, Supplier<List<Group>> selectedSessionsSupplier,
-	        Supplier<List<Athlete>> computeAthletesSupplier) {
+	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog,
+			Supplier<List<Group>> selectedSessionsSupplier,
+			Supplier<List<Athlete>> computeAthletesSupplier) {
 		return createDoItButtonForKits(kit, dialog, selectedSessionsSupplier, computeAthletesSupplier, null);
 	}
 
 	/**
-	 * Delegates to DocumentDownloadDialog.createDoItButtonForKits to centralize wiring. The caller must provide the currently-sorted selection so the method
-	 * does not call getSortedSelection() itself (avoids duplicate preparation/work).
+	 * Delegates to DocumentDownloadDialog.createDoItButtonForKits to centralize
+	 * wiring. The caller must provide the currently-sorted selection so the method
+	 * does not call getSortedSelection() itself (avoids duplicate
+	 * preparation/work).
 	 */
-	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog, Supplier<List<Group>> selectedSessionsSupplier,
-	        Supplier<List<Athlete>> computeAthletesSupplier, Supplier<String> zipBaseOverride) {
+	private Component createDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog,
+			Supplier<List<Group>> selectedSessionsSupplier,
+			Supplier<List<Athlete>> computeAthletesSupplier, Supplier<String> zipBaseOverride) {
 		// Build suppliers used by the dialog helper
 		Supplier<String> baseFile = () -> {
 			if (kit == null || kit.isEmpty())
 				return "undefined";
 			if (kit.size() == 1) {
-				// Single-element kit: base name derived from the selected template (if any), fallback to element name
-				String selected = kit.get(0).selectedTemplateSupplier() == null ? null : kit.get(0).selectedTemplateSupplier().get();
+				// Single-element kit: base name derived from the selected template (if any),
+				// fallback to element name
+				String selected = kit.get(0).selectedTemplateSupplier() == null ? null
+						: kit.get(0).selectedTemplateSupplier().get();
 				String raw = selected == null || selected.isBlank() ? kit.get(0).name() : selected;
 				String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
 				return stripSuffix(justName);
@@ -527,14 +552,16 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				return id.replaceAll("[^A-Za-z0-9]", "");
 			}
 		};
-		// stream/ui precheck are provided to the dialog via helper method references below
+		// stream/ui precheck are provided to the dialog via helper method references
+		// below
 
 		Supplier<String> extSupplier = () -> {
 			String ext = kit.get(0).extension();
 			return ext == null || ext.isBlank() ? ".xlsx" : (ext.startsWith(".") ? ext : ("." + ext));
 		};
 
-		// Use the dialog helper to create and wire the control; pass method references for domain helpers
+		// Use the dialog helper to create and wire the control; pass method references
+		// for domain helpers
 		Supplier<String> zipBase = () -> {
 			if (zipBaseOverride != null)
 				return zipBaseOverride.get();
@@ -545,65 +572,73 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		};
 
 		return dialog.createDoItButtonForKitsWithHelpers(
-		        baseFile,
-		        kit,
-		        selectedSessionsSupplier,
-		        computeAthletesSupplier,
-		        (selSessions, k) -> zipKitToInputStream(selSessions, k, (e, m) -> notifyError(e, UI.getCurrent(), m), t -> {
-			        /* no-op */}, UI.getCurrent()),
-		        (selSessions, k) -> {
-			        try {
-				        return excelKitElement(selSessions, k, UI.getCurrent(), t -> {
-				        });
-			        } catch (IOException ioe) {
-				        throw new RuntimeException(ioe);
-			        }
-		        },
-		        (elements, g, athletes, d) -> precheckService.runSetScopePrecheckOrThrow(elements, g, athletes, d),
-		        (elements, g, athletes, d) -> precheckService.filterElementsByScopePrecheckOrThrow(elements, g, athletes, d),
-		        zipBase,
-		        extSupplier,
-		        VaadinIcon.DOWNLOAD_ALT.create());
+				baseFile,
+				kit,
+				selectedSessionsSupplier,
+				computeAthletesSupplier,
+				(selSessions, k) -> zipKitToInputStream(selSessions, k, (e, m) -> notifyError(e, UI.getCurrent(), m),
+						t -> {
+							/* no-op */},
+						UI.getCurrent()),
+				(selSessions, k) -> {
+					try {
+						return excelKitElement(selSessions, k, UI.getCurrent(), t -> {
+						});
+					} catch (IOException ioe) {
+						throw new RuntimeException(ioe);
+					}
+				},
+				(elements, g, athletes, d) -> precheckService.runSetScopePrecheckOrThrow(elements, g, athletes, d),
+				(elements, g, athletes, d) -> precheckService.filterElementsByScopePrecheckOrThrow(elements, g,
+						athletes, d),
+				zipBase,
+				extSupplier,
+				VaadinIcon.DOWNLOAD_ALT.create());
 	}
 
 	private Div createDocumentDownloadButton(PreCompetitionTemplate templateDefinition,
-	        Runnable preAction,
-	        Supplier<List<KitElement>> elementSupplier,
-	        boolean primary) {
+			Runnable preAction,
+			Supplier<List<KitElement>> elementSupplier,
+			boolean primary) {
 		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        if (preAction != null) {
-				        preAction.run();
-			        }
-			        // logger removed
-			        List<KitElement> kit = elementSupplier.get();
-			        // Create dialog that receives the precomputed kit and builds the do-it control
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-				                if (kits == null || kits.isEmpty())
-					                return "undefined";
-				                if (kits.size() == 1) {
-					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-					                return stripSuffix(justName);
-				                } else {
-					                String id = kits.get(0).id();
-					                if (id == null || id.isBlank())
-						                return "document-set";
-					                return id.replaceAll("[^A-Za-z0-9]", "");
-				                }
-			                }));
-			        dialog.open();
-		        });
+				Translator.translate(templateDefinition.name()),
+				VaadinIcon.DOWNLOAD_ALT.create(),
+				(e) -> {
+					if (preAction != null) {
+						preAction.run();
+					}
+					// logger removed
+					List<KitElement> kit = elementSupplier.get();
+					// Create dialog that receives the precomputed kit and builds the do-it control
+					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					};
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier,
+									computeAthletesSupplier, () -> {
+										if (kits == null || kits.isEmpty())
+											return "undefined";
+										if (kits.size() == 1) {
+											String selected = kits.get(0).selectedTemplateSupplier() == null ? null
+													: kits.get(0).selectedTemplateSupplier().get();
+											String raw = selected == null || selected.isBlank() ? kits.get(0).name()
+													: selected;
+											String justName = org.apache.commons.io.FilenameUtils
+													.getName(raw == null ? "" : raw);
+											return stripSuffix(justName);
+										} else {
+											String id = kits.get(0).id();
+											if (id == null || id.isBlank())
+												return "document-set";
+											return id.replaceAll("[^A-Za-z0-9]", "");
+										}
+									}));
+					dialog.open();
+				});
 		if (primary) {
 			openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 		}
@@ -617,36 +652,41 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private Div createFullScheduleButton() {
 		PreCompetitionTemplate templateDefinition = PreCompetitionTemplate.SCHEDULE;
 		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        List<KitElement> kit = prepareSchedule(templateDefinition, getSortedSelection());
-			        // Create the dialog with a factory that receives the precomputed kit list
-			        // so the dialog can add a do-it control that does not re-run preparation.
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-				                if (kits == null || kits.isEmpty())
-					                return "undefined";
-				                if (kits.size() == 1) {
-					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-					                return stripSuffix(justName);
-				                } else {
-					                String id = kits.get(0).id();
-					                if (id == null || id.isBlank())
-						                return "document-set";
-					                return id.replaceAll("[^A-Za-z0-9]", "");
-				                }
-			                }));
-			        dialog.open();
-		        });
+				Translator.translate(templateDefinition.name()),
+				VaadinIcon.DOWNLOAD_ALT.create(),
+				(e) -> {
+					List<KitElement> kit = prepareSchedule(templateDefinition, getSortedSelection());
+					// Create the dialog with a factory that receives the precomputed kit list
+					// so the dialog can add a do-it control that does not re-run preparation.
+					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					};
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier,
+									computeAthletesSupplier, () -> {
+										if (kits == null || kits.isEmpty())
+											return "undefined";
+										if (kits.size() == 1) {
+											String selected = kits.get(0).selectedTemplateSupplier() == null ? null
+													: kits.get(0).selectedTemplateSupplier().get();
+											String raw = selected == null || selected.isBlank() ? kits.get(0).name()
+													: selected;
+											String justName = org.apache.commons.io.FilenameUtils
+													.getName(raw == null ? "" : raw);
+											return stripSuffix(justName);
+										} else {
+											String id = kits.get(0).id();
+											if (id == null || id.isBlank())
+												return "document-set";
+											return id.replaceAll("[^A-Za-z0-9]", "");
+										}
+									}));
+					dialog.open();
+				});
 		return new Div(openDialog);
 	}
 
@@ -660,14 +700,16 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		Grid<Group> grid = new Grid<>(Group.class, false);
 		this.crud = new DocumentsGrid(Group.class, new OwlcmsGridLayout(Group.class), crudFormFactory, grid);
 		grid.getThemeNames().add("row-stripes");
-		grid.addColumn(Group::getName).setHeader(Translator.translate("Name")).setComparator(Group::compareTo).setAutoWidth(true);
+		grid.addColumn(Group::getName).setHeader(Translator.translate("Name")).setComparator(Group::compareTo)
+				.setAutoWidth(true);
 		grid.addColumn(Group::getDescription).setHeader(Translator.translate("Group.Description")).setAutoWidth(true);
 		grid.addColumn(Group::size).setHeader(Translator.translate("GroupSize")).setTextAlign(ColumnTextAlign.CENTER);
 		grid.addColumn(LocalDateTimeField.getRenderer(Group::getWeighInTime, this.getLocale()))
-		        .setHeader(Translator.translate("WeighInTime")).setComparator(Group::compareToWeighIn);
+				.setHeader(Translator.translate("WeighInTime")).setComparator(Group::compareToWeighIn);
 		grid.addColumn(LocalDateTimeField.getRenderer(Group::getCompetitionTime, this.getLocale()))
-		        .setHeader(Translator.translate("StartTime"));
-		grid.addColumn(Group::getPlatform).setHeader(Translator.translate("Platform")).setTextAlign(ColumnTextAlign.CENTER);
+				.setHeader(Translator.translate("StartTime"));
+		grid.addColumn(Group::getPlatform).setHeader(Translator.translate("Platform"))
+				.setTextAlign(ColumnTextAlign.CENTER);
 
 		for (Column<Group> c : grid.getColumns()) {
 			c.setResizable(true);
@@ -690,78 +732,88 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private Div createOfficialsButton() {
 		PreCompetitionTemplate templateDefinition = PreCompetitionTemplate.OFFICIALS;
 		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        List<KitElement> kit = prepareOfficials(getSortedSelection());
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> {
-				                if (kits == null || kits.isEmpty())
-					                return "undefined";
-				                if (kits.size() == 1) {
-					                String selected = kits.get(0).selectedTemplateSupplier() == null ? null : kits.get(0).selectedTemplateSupplier().get();
-					                String raw = selected == null || selected.isBlank() ? kits.get(0).name() : selected;
-					                String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
-					                return stripSuffix(justName);
-				                } else {
-					                String id = kits.get(0).id();
-					                if (id == null || id.isBlank())
-						                return "document-set";
-					                return id.replaceAll("[^A-Za-z0-9]", "");
-				                }
-			                }));
-			        dialog.open();
-		        });
+				Translator.translate(templateDefinition.name()),
+				VaadinIcon.DOWNLOAD_ALT.create(),
+				(e) -> {
+					List<KitElement> kit = prepareOfficials(getSortedSelection());
+					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					};
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier,
+									computeAthletesSupplier, () -> {
+										if (kits == null || kits.isEmpty())
+											return "undefined";
+										if (kits.size() == 1) {
+											String selected = kits.get(0).selectedTemplateSupplier() == null ? null
+													: kits.get(0).selectedTemplateSupplier().get();
+											String raw = selected == null || selected.isBlank() ? kits.get(0).name()
+													: selected;
+											String justName = org.apache.commons.io.FilenameUtils
+													.getName(raw == null ? "" : raw);
+											return stripSuffix(justName);
+										} else {
+											String id = kits.get(0).id();
+											if (id == null || id.isBlank())
+												return "document-set";
+											return id.replaceAll("[^A-Za-z0-9]", "");
+										}
+									}));
+					dialog.open();
+				});
 		return new Div(openDialog);
 	}
 
 	private Div createPostWeighInButton() {
 		Button openDialog = new Button(
-		        Translator.translate("Documents.Kits"),
-		        VaadinIcon.ARCHIVE.create(),
-		        (e) -> {
-			        List<KitElement> kit = preparePostWeighInKit(getSortedSelection());
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "PostWeighIn"));
-			        dialog.open();
-		        });
+				Translator.translate("Documents.Kits"),
+				VaadinIcon.ARCHIVE.create(),
+				(e) -> {
+					List<KitElement> kit = preparePostWeighInKit(getSortedSelection());
+					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					};
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier,
+									computeAthletesSupplier, () -> "PostWeighIn"));
+					dialog.open();
+				});
 		return new Div(openDialog);
 	}
 
 	private Div createPreWeighInButton() {
 		Button openDialog = new Button(
-		        Translator.translate("Documents.Kits"),
-		        VaadinIcon.ARCHIVE.create(),
-		        (e) -> {
-			        List<KitElement> kit = preparePreWeighInKit(getSortedSelection());
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "PreWeighIn"));
-			        dialog.open();
-		        });
+				Translator.translate("Documents.Kits"),
+				VaadinIcon.ARCHIVE.create(),
+				(e) -> {
+					List<KitElement> kit = preparePreWeighInKit(getSortedSelection());
+					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					};
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier,
+									computeAthletesSupplier, () -> "PreWeighIn"));
+					dialog.open();
+				});
 		return new Div(openDialog);
 	}
 
 	private List<KitElement> prepareCredentials(List<Group> selectedItems) {
 		List<KitElement> elements = new ArrayList<>();
-		// Use same PreCompetitionTemplate.CARDS for athlete credentials, and reuse a generic template for TO/Coach
+		// Use same PreCompetitionTemplate.CARDS for athlete credentials, and reuse a
+		// generic template for TO/Coach
 		elements.add(doElementAthleteCredentials(PreCompetitionTemplate.ATHLETE_CREDENTIALS));
 		elements.add(doElementCoachCredentials(PreCompetitionTemplate.COACH_CREDENTIALS));
 		elements.add(doElementTOCredentials(PreCompetitionTemplate.TO_CREDENTIALS));
@@ -770,139 +822,151 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private Div createCredentialsButton() {
 		Button openDialog = new Button(
-		        Translator.translate("Credentials"),
-		        VaadinIcon.ARCHIVE.create(),
-		        (e) -> {
-			        List<KitElement> kit = prepareCredentials(getSortedSelection());
-			        logger.debug("credentials kit {}", kit);
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(
-			                kit,
-			                selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(
-			                        kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "Credentials"));
-			        dialog.open();
-		        });
+				Translator.translate("Credentials"),
+				VaadinIcon.ARCHIVE.create(),
+				(e) -> {
+					List<KitElement> kit = prepareCredentials(getSortedSelection());
+					logger.debug("credentials kit {}", kit);
+					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					};
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(
+							kit,
+							selectedSessionsSupplier, computeAthletesSupplier,
+							(d, kits) -> createDoItButtonForKits(
+									kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "Credentials"));
+					dialog.open();
+				});
 		return new Div(openDialog);
 	}
 
 	/**
-	 * Public factory method to create a standalone Technical Official credentials button that can be used from TechnicalOfficialContent page.
+	 * Public factory method to create a standalone Technical Official credentials
+	 * button that can be used from TechnicalOfficialContent page.
 	 */
 	public static Div createTOCredentialsButton() {
 		Button openDialog = new Button(
-		        Translator.translate("TO_CREDENTIALS"),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        List<KitElement> kit = new java.util.ArrayList<>();
-			        kit.add(createTOCredentialsElement());
-			        Supplier<List<Group>> selectedSessionsSupplier = () -> java.util.Collections.emptyList();
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> java.util.Collections.emptyList();
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(
-			                kit,
-			                selectedSessionsSupplier,
-			                computeAthletesSupplier,
-			                (d, kits) -> createStaticDoItButtonForKits(
-			                        kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "TOCredentials"));
-			        dialog.open();
-		        });
+				Translator.translate("TO_CREDENTIALS"),
+				VaadinIcon.DOWNLOAD_ALT.create(),
+				(e) -> {
+					List<KitElement> kit = new java.util.ArrayList<>();
+					kit.add(createTOCredentialsElement());
+					Supplier<List<Group>> selectedSessionsSupplier = () -> java.util.Collections.emptyList();
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> java.util.Collections.emptyList();
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(
+							kit,
+							selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createStaticDoItButtonForKits(
+									kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "TOCredentials"));
+					dialog.open();
+				});
 		return new Div(openDialog);
 	}
 
 	/**
-	 * Public factory method to create a standalone Coach credentials button that can be used from CoachContent page.
+	 * Public factory method to create a standalone Coach credentials button that
+	 * can be used from CoachContent page.
 	 */
 	public static Div createCoachCredentialsButton() {
 		Button openDialog = new Button(
-		        Translator.translate("COACH_CREDENTIALS"),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        List<KitElement> kit = new java.util.ArrayList<>();
-			        kit.add(createCoachCredentialsElement());
-			        Supplier<List<Group>> selectedSessionsSupplier = () -> java.util.Collections.emptyList();
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> java.util.Collections.emptyList();
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(
-			                kit,
-			                selectedSessionsSupplier,
-			                computeAthletesSupplier,
-			                (d, kits) -> createStaticDoItButtonForKits(
-			                        kits, d, selectedSessionsSupplier, computeAthletesSupplier, () -> "CoachCredentials"));
-			        dialog.open();
-		        });
+				Translator.translate("COACH_CREDENTIALS"),
+				VaadinIcon.DOWNLOAD_ALT.create(),
+				(e) -> {
+					List<KitElement> kit = new java.util.ArrayList<>();
+					kit.add(createCoachCredentialsElement());
+					Supplier<List<Group>> selectedSessionsSupplier = () -> java.util.Collections.emptyList();
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> java.util.Collections.emptyList();
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(
+							kit,
+							selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createStaticDoItButtonForKits(
+									kits, d, selectedSessionsSupplier, computeAthletesSupplier,
+									() -> "CoachCredentials"));
+					dialog.open();
+				});
 		return new Div(openDialog);
 	}
 
 	/**
-	 * Public factory method to create a weigh-in form button with custom group selection. Used by WeighinContent which has its own group selection mechanism.
+	 * Public factory method to create a weigh-in form button with custom group
+	 * selection. Used by WeighinContent which has its own group selection
+	 * mechanism.
 	 * 
 	 * @param groupSupplier Supplier that returns the currently selected group
 	 * @return Button wrapped in Div
 	 */
 	public static Button createWeighInButtonForGroup(Supplier<Group> groupSupplier) {
 		return createDocumentButtonForGroup(
-		        PreCompetitionTemplate.WEIGHIN,
-		        groupSupplier,
-		        "WeighinForm",
-		        true, // requires session selection
-		        false, // don't generate start numbers
-		        true); // keep missing lot numbers blocking for weigh-in workflow
+				PreCompetitionTemplate.WEIGHIN,
+				groupSupplier,
+				"WeighinForm",
+				true, // requires session selection
+				false, // don't generate start numbers
+				true); // keep missing lot numbers blocking for weigh-in workflow
 	}
 
 	/**
-	 * Public factory method to create an athlete cards button with custom group selection. Used by WeighinContent which has its own group selection mechanism.
+	 * Public factory method to create an athlete cards button with custom group
+	 * selection. Used by WeighinContent which has its own group selection
+	 * mechanism.
 	 * 
 	 * @param groupSupplier Supplier that returns the currently selected group
 	 * @return Button wrapped in Div
 	 */
 	public static Button createCardsButtonForGroup(Supplier<Group> groupSupplier) {
 		return createDocumentButtonForGroup(
-		        PreCompetitionTemplate.CARDS,
-		        groupSupplier,
-		        "AthleteCards",
-		        true, // requires session selection
-		        false, // don't generate start numbers
-		        true); // block cards generation when lot numbers are missing
+				PreCompetitionTemplate.CARDS,
+				groupSupplier,
+				"AthleteCards",
+				true, // requires session selection
+				false, // don't generate start numbers
+				true); // block cards generation when lot numbers are missing
 	}
 
 	/**
-	 * Public factory method to create an empty protocol button with custom group selection. Used by WeighinContent which has its own group selection mechanism.
+	 * Public factory method to create an empty protocol button with custom group
+	 * selection. Used by WeighinContent which has its own group selection
+	 * mechanism.
 	 * 
 	 * @param groupSupplier Supplier that returns the currently selected group
 	 * @return Button wrapped in Div
 	 */
 	public static Button createEmptyProtocolButtonForGroup(Supplier<Group> groupSupplier) {
 		return createDocumentButtonForGroup(
-		        PreCompetitionTemplate.EMPTY_PROTOCOL,
-		        groupSupplier,
-		        "EmptyProtocolSheet",
-		        true, // requires session selection
-		        !Competition.getCurrent().isManualStartNumbers(), // generate start numbers before creating
-		        false); // allow missing lot numbers warning for document generation
+				PreCompetitionTemplate.EMPTY_PROTOCOL,
+				groupSupplier,
+				"EmptyProtocolSheet",
+				true, // requires session selection
+				!Competition.getCurrent().isManualStartNumbers(), // generate start numbers before creating
+				false); // allow missing lot numbers warning for document generation
 	}
 
 	/**
-	 * Public factory method to create a jury sheet button with custom group selection. Used by WeighinContent which has its own group selection mechanism.
+	 * Public factory method to create a jury sheet button with custom group
+	 * selection. Used by WeighinContent which has its own group selection
+	 * mechanism.
 	 * 
 	 * @param groupSupplier Supplier that returns the currently selected group
 	 * @return Button wrapped in Div
 	 */
 	public static Button createJuryButtonForGroup(Supplier<Group> groupSupplier) {
 		return createDocumentButtonForGroup(
-		        PreCompetitionTemplate.JURY,
-		        groupSupplier,
-		        "Jury",
-		        true, // requires session selection
-		        !Competition.getCurrent().isManualStartNumbers(), // generate start numbers before creating
-		        false); // allow missing lot numbers warning for document generation
+				PreCompetitionTemplate.JURY,
+				groupSupplier,
+				"Jury",
+				true, // requires session selection
+				!Competition.getCurrent().isManualStartNumbers(), // generate start numbers before creating
+				false); // allow missing lot numbers warning for document generation
 	}
 
 	/**
-	 * Public factory method to create an introduction sheet button with custom group selection. Used by WeighinContent which has its own group selection
+	 * Public factory method to create an introduction sheet button with custom
+	 * group selection. Used by WeighinContent which has its own group selection
 	 * mechanism.
 	 * 
 	 * @param groupSupplier Supplier that returns the currently selected group
@@ -910,72 +974,80 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	 */
 	public static Button createIntroductionButtonForGroup(Supplier<Group> groupSupplier) {
 		return createDocumentButtonForGroup(
-		        PreCompetitionTemplate.INTRODUCTION,
-		        groupSupplier,
-		        "INTRODUCTION",
-		        true, // requires session selection
-		        !Competition.getCurrent().isManualStartNumbers(), // generate start numbers before creating
-		        false); // allow missing lot numbers warning for document generation
+				PreCompetitionTemplate.INTRODUCTION,
+				groupSupplier,
+				"INTRODUCTION",
+				true, // requires session selection
+				!Competition.getCurrent().isManualStartNumbers(), // generate start numbers before creating
+				false); // allow missing lot numbers warning for document generation
 	}
 
 	/**
-	 * Helper method to create a document button for a specific group with custom logic.
+	 * Helper method to create a document button for a specific group with custom
+	 * logic.
 	 * 
 	 * @param template             The template to use
-	 * @param groupSupplier        Supplier that returns the currently selected group
+	 * @param groupSupplier        Supplier that returns the currently selected
+	 *                             group
 	 * @param translationKey       Translation key for button label
-	 * @param requiresSession      Whether this document requires a session to be selected
-	 * @param generateStartNumbers Whether to generate start numbers before creating document
+	 * @param requiresSession      Whether this document requires a session to be
+	 *                             selected
+	 * @param generateStartNumbers Whether to generate start numbers before creating
+	 *                             document
 	 * @return Button configured for the document type
 	 */
 	private static Button createDocumentButtonForGroup(
-	        PreCompetitionTemplate template,
-	        Supplier<Group> groupSupplier,
-	        String translationKey,
-	        boolean requiresSession,
-	        boolean generateStartNumbers,
-	        boolean missingLotNumbersBlocking) {
+			PreCompetitionTemplate template,
+			Supplier<Group> groupSupplier,
+			String translationKey,
+			boolean requiresSession,
+			boolean generateStartNumbers,
+			boolean missingLotNumbersBlocking) {
 
 		Button openDialog = new Button(
-		        Translator.translate(translationKey),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        Group g = groupSupplier.get();
+				Translator.translate(translationKey),
+				VaadinIcon.DOWNLOAD_ALT.create(),
+				(e) -> {
+					Group g = groupSupplier.get();
 
-			        // Generate start numbers if needed (only if session is selected)
-			        if (generateStartNumbers && g != null) {
-				        List<Athlete> athletes = groupAthletes(g, true);
-				        AthleteRepository.assignStartNumbers(athletes);
-			        }
+					// Generate start numbers if needed (only if session is selected)
+					if (generateStartNumbers && g != null) {
+						List<Athlete> athletes = groupAthletes(g, true);
+						AthleteRepository.assignStartNumbers(athletes);
+					}
 
-			        // Create kit element based on template
-			        // The precheck inside the element will handle the session requirement validation
-			        List<KitElement> kit = new java.util.ArrayList<>();
-			        KitElement elem = createKitElementForTemplate(template, g, requiresSession, missingLotNumbersBlocking);
-			        if (elem != null) {
-				        kit.add(elem);
-			        }
+					// Create kit element based on template
+					// The precheck inside the element will handle the session requirement
+					// validation
+					List<KitElement> kit = new java.util.ArrayList<>();
+					KitElement elem = createKitElementForTemplate(template, g, requiresSession,
+							missingLotNumbersBlocking);
+					if (elem != null) {
+						kit.add(elem);
+					}
 
-			        // Create dialog - it will open and show error message if precheck fails
-			        Supplier<List<Group>> selectedSessionsSupplier = () -> {
-				        Group currentGroup = groupSupplier.get();
-				        return currentGroup != null ? java.util.Collections.singletonList(currentGroup) : java.util.Collections.emptyList();
-			        };
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        Group currentGroup = groupSupplier.get();
-				        List<Athlete> athls = currentGroup != null ? groupAthletes(currentGroup, false) : java.util.Collections.emptyList();
-				        return athls;
-			        };
+					// Create dialog - it will open and show error message if precheck fails
+					Supplier<List<Group>> selectedSessionsSupplier = () -> {
+						Group currentGroup = groupSupplier.get();
+						return currentGroup != null ? java.util.Collections.singletonList(currentGroup)
+								: java.util.Collections.emptyList();
+					};
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						Group currentGroup = groupSupplier.get();
+						List<Athlete> athls = currentGroup != null ? groupAthletes(currentGroup, false)
+								: java.util.Collections.emptyList();
+						return athls;
+					};
 
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(
-			                kit,
-			                selectedSessionsSupplier,
-			                computeAthletesSupplier,
-			                (d, kits) -> createStaticDoItButtonForKits(
-			                        kits, d, selectedSessionsSupplier, computeAthletesSupplier,
-			                        () -> template.name()));
-			        dialog.open();
-		        });
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(
+							kit,
+							selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createStaticDoItButtonForKits(
+									kits, d, selectedSessionsSupplier, computeAthletesSupplier,
+									() -> template.name()));
+					dialog.open();
+				});
 		return openDialog;
 	}
 
@@ -984,11 +1056,13 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	 * 
 	 * @param template        The template to use
 	 * @param g               The group (may be null)
-	 * @param requiresSession Whether this document requires a session to be selected
+	 * @param requiresSession Whether this document requires a session to be
+	 *                        selected
 	 * @return KitElement configured for the template
 	 */
-	private static KitElement createKitElementForTemplate(PreCompetitionTemplate template, Group g, boolean requiresSession,
-	        boolean missingLotNumbersBlocking) {
+	private static KitElement createKitElementForTemplate(PreCompetitionTemplate template, Group g,
+			boolean requiresSession,
+			boolean missingLotNumbersBlocking) {
 		String resourceFolder = template.folder + "/";
 		resourceFolder = resourceFolder.endsWith("/") ? resourceFolder : (resourceFolder + "/");
 		String templateFile = template.templateFileNameSupplier.get();
@@ -1000,7 +1074,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		BiFunction<List<Athlete>, Group, Optional<Exception>> pre = (a, grp) -> {
 			DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
 			Optional<Exception> v = precheckService.runDefaultScopePrecheck(template, a, grp, !requiresSession);
-			if (v != null && v.isPresent() && !missingLotNumbersBlocking && v.get() instanceof MissingLotNumbersException) {
+			if (v != null && v.isPresent() && !missingLotNumbersBlocking
+					&& v.get() instanceof MissingLotNumbersException) {
 				Exception warning = v.get();
 				return Optional.of(new WarningMissingLotNumbersException(warning.getMessage(), warning));
 			}
@@ -1010,11 +1085,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		Supplier<String> processingMessageSupplier = () -> "Processing";
 		Supplier<List<Resource>> availableTemplatesSupplier = () -> {
 			List<Resource> resourceList = new ResourceWalker().getResourceList(
-			        template.folder,
-			        ResourceWalker::relativeName,
-			        (f) -> (f.endsWith(".xlsx") || f.endsWith(".xlsm")),
-			        OwlcmsSession.getLocale(),
-			        Config.getCurrent().isLocalTemplatesOnly());
+					template.folder,
+					ResourceWalker::relativeName,
+					(f) -> (f.endsWith(".xlsx") || f.endsWith(".xlsm")),
+					OwlcmsSession.getLocale(),
+					Config.getCurrent().isLocalTemplatesOnly());
 			return resourceList;
 		};
 		Supplier<String> selectedTemplateSupplier = () -> template.templateFileNameSupplier.get();
@@ -1043,8 +1118,6 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 					JXLSCategoriesListDocs intro = new JXLSCategoriesListDocs();
 					intro.setGroup(grp);
 					if (a != null) {
-						AthleteSorter.displayOrder(a);
-						// a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
 						a.sort(new StartNumberOrderComparator());
 					}
 					intro.setSortedAthletes(a);
@@ -1055,30 +1128,32 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		};
 
 		return new KitElement(
-		        template.name().toLowerCase(),
-		        template,
-		        templateName,
-		        ext,
-		        isp,
-		        1,
-		        writerFactory,
-		        pre,
-		        processingMessageSupplier,
-		        availableTemplatesSupplier,
-		        selectedTemplateSupplier);
+				template.name().toLowerCase(),
+				template,
+				templateName,
+				ext,
+				isp,
+				1,
+				writerFactory,
+				pre,
+				processingMessageSupplier,
+				availableTemplatesSupplier,
+				selectedTemplateSupplier);
 	}
 
 	/**
-	 * Create the static do-it button for credential downloads (no instance context needed).
+	 * Create the static do-it button for credential downloads (no instance context
+	 * needed).
 	 */
 	private static Component createStaticDoItButtonForKits(List<KitElement> kit, DocumentDownloadDialog dialog,
-	        Supplier<List<Group>> selectedSessionsSupplier, Supplier<List<Athlete>> computeAthletesSupplier,
-	        Supplier<String> zipBaseOverride) {
+			Supplier<List<Group>> selectedSessionsSupplier, Supplier<List<Athlete>> computeAthletesSupplier,
+			Supplier<String> zipBaseOverride) {
 		Supplier<String> baseFile = () -> {
 			if (kit == null || kit.isEmpty())
 				return "undefined";
 			if (kit.size() == 1) {
-				String selected = kit.get(0).selectedTemplateSupplier() == null ? null : kit.get(0).selectedTemplateSupplier().get();
+				String selected = kit.get(0).selectedTemplateSupplier() == null ? null
+						: kit.get(0).selectedTemplateSupplier().get();
 				String raw = selected == null || selected.isBlank() ? kit.get(0).name() : selected;
 				String justName = org.apache.commons.io.FilenameUtils.getName(raw == null ? "" : raw);
 				return stripSuffix(justName);
@@ -1105,47 +1180,47 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		};
 
 		return dialog.createDoItButtonForKitsWithHelpers(
-		        baseFile,
-		        kit,
-		        selectedSessionsSupplier,
-		        computeAthletesSupplier,
-		        (selSessions, k) -> {
-			        UI ui = UI.getCurrent();
-			        BiConsumer<Throwable, String> errorProcessor = (ex, msg) -> {
-				        ui.access(() -> {
-					        Notification.show(msg != null ? msg : ex.getMessage());
-				        });
-			        };
-			        return zipKitToInputStreamStatic(selSessions, k, errorProcessor, t -> {
-			        }, ui);
-		        },
-		        (selSessions, k) -> {
-			        try {
-				        UI ui = UI.getCurrent();
-				        return excelKitElementStatic(selSessions, k, ui, t -> {
-				        });
-			        } catch (IOException ioe) {
-				        throw new RuntimeException(ioe);
-			        }
-		        },
-		        (elements, g, athletes, d) -> {
-			        DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
-			        return precheckService.runSetScopePrecheckOrThrow(elements, g, athletes, d);
-		        },
-		        (elements, g, athletes, d) -> {
-			        DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
-			        return precheckService.filterElementsByScopePrecheckOrThrow(elements, g, athletes, d);
-		        },
-		        zipBase,
-		        extSupplier,
-		        VaadinIcon.DOWNLOAD_ALT.create());
+				baseFile,
+				kit,
+				selectedSessionsSupplier,
+				computeAthletesSupplier,
+				(selSessions, k) -> {
+					UI ui = UI.getCurrent();
+					BiConsumer<Throwable, String> errorProcessor = (ex, msg) -> {
+						ui.access(() -> {
+							Notification.show(msg != null ? msg : ex.getMessage());
+						});
+					};
+					return zipKitToInputStreamStatic(selSessions, k, errorProcessor, t -> {
+					}, ui);
+				},
+				(selSessions, k) -> {
+					try {
+						UI ui = UI.getCurrent();
+						return excelKitElementStatic(selSessions, k, ui, t -> {
+						});
+					} catch (IOException ioe) {
+						throw new RuntimeException(ioe);
+					}
+				},
+				(elements, g, athletes, d) -> {
+					DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
+					return precheckService.runSetScopePrecheckOrThrow(elements, g, athletes, d);
+				},
+				(elements, g, athletes, d) -> {
+					DocumentsPrecheckService precheckService = new DocumentsPrecheckService();
+					return precheckService.filterElementsByScopePrecheckOrThrow(elements, g, athletes, d);
+				},
+				zipBase,
+				extSupplier,
+				VaadinIcon.DOWNLOAD_ALT.create());
 	}
 
 	/**
 	 * Static version of excelKitElement for use with standalone credential buttons.
 	 */
 	private static InputStream excelKitElementStatic(List<Group> selectedSessions, List<KitElement> elements, UI ui,
-	        Consumer<Throwable> doneCallback) throws IOException {
+			Consumer<Throwable> doneCallback) throws IOException {
 		Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
 		KitElement elem = elements.get(0);
 
@@ -1241,11 +1316,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		Supplier<String> processingMessageSupplier = () -> "Processing";
 		Supplier<List<Resource>> availableTemplatesSupplier = () -> {
 			List<Resource> resourceList = new ResourceWalker().getResourceList(
-			        templateEnum.folder,
-			        ResourceWalker::relativeName,
-			        (f) -> (f.endsWith(".xlsx") || f.endsWith(".xlsm")),
-			        OwlcmsSession.getLocale(),
-			        Config.getCurrent().isLocalTemplatesOnly());
+					templateEnum.folder,
+					ResourceWalker::relativeName,
+					(f) -> (f.endsWith(".xlsx") || f.endsWith(".xlsm")),
+					OwlcmsSession.getLocale(),
+					Config.getCurrent().isLocalTemplatesOnly());
 			return resourceList;
 		};
 		Supplier<String> selectedTemplateSupplier = () -> templateEnum.templateFileNameSupplier.get();
@@ -1259,7 +1334,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		};
 
 		return new KitElement("toCredentials", templateEnum, templateName, ext, isp, 1, writerFactory, pre,
-		        processingMessageSupplier, availableTemplatesSupplier, selectedTemplateSupplier);
+				processingMessageSupplier, availableTemplatesSupplier, selectedTemplateSupplier);
 	}
 
 	/**
@@ -1282,11 +1357,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		Supplier<String> processingMessageSupplier = () -> "Processing";
 		Supplier<List<Resource>> availableTemplatesSupplier = () -> {
 			List<Resource> resourceList = new ResourceWalker().getResourceList(
-			        templateEnum.folder,
-			        ResourceWalker::relativeName,
-			        (f) -> (f.endsWith(".xlsx") || f.endsWith(".xlsm")),
-			        OwlcmsSession.getLocale(),
-			        Config.getCurrent().isLocalTemplatesOnly());
+					templateEnum.folder,
+					ResourceWalker::relativeName,
+					(f) -> (f.endsWith(".xlsx") || f.endsWith(".xlsm")),
+					OwlcmsSession.getLocale(),
+					Config.getCurrent().isLocalTemplatesOnly());
 			return resourceList;
 		};
 		Supplier<String> selectedTemplateSupplier = () -> templateEnum.templateFileNameSupplier.get();
@@ -1300,7 +1375,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		};
 
 		return new KitElement("coachCredentials", templateEnum, templateName, ext, isp, 1, writerFactory, pre,
-		        processingMessageSupplier, availableTemplatesSupplier, selectedTemplateSupplier);
+				processingMessageSupplier, availableTemplatesSupplier, selectedTemplateSupplier);
 	}
 
 	private Hr createRule() {
@@ -1314,20 +1389,22 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private Div createStartListButton() {
 		PreCompetitionTemplate templateDefinition = PreCompetitionTemplate.START_LIST;
 		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        List<KitElement> kit = prepareStartList(templateDefinition, getSortedSelection());
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
-			        dialog.open();
-		        });
+				Translator.translate(templateDefinition.name()),
+				VaadinIcon.DOWNLOAD_ALT.create(),
+				(e) -> {
+					List<KitElement> kit = prepareStartList(templateDefinition, getSortedSelection());
+					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					};
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier,
+									computeAthletesSupplier));
+					dialog.open();
+				});
 		openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 		return new Div(openDialog);
 	}
@@ -1335,21 +1412,24 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private Div createTeamsButton() {
 		PreCompetitionTemplate templateDefinition = PreCompetitionTemplate.BY_TEAM;
 		Button openDialog = new Button(
-		        Translator.translate(templateDefinition.name()),
-		        VaadinIcon.DOWNLOAD_ALT.create(),
-		        (e) -> {
-			        List<KitElement> kit = prepareTeam(templateDefinition, getSortedSelection());
-			        Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
-			        Supplier<List<Athlete>> computeAthletesSupplier = () -> {
-				        List<Group> ss = getSortedSelection();
-				        Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
-				        return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
-			        };
-			        DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier, computeAthletesSupplier,
-			                (d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier, computeAthletesSupplier));
-			        dialog.open();
-		        });
-		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
+				Translator.translate(templateDefinition.name()),
+				VaadinIcon.DOWNLOAD_ALT.create(),
+				(e) -> {
+					List<KitElement> kit = prepareTeam(templateDefinition, getSortedSelection());
+					Supplier<List<Group>> selectedSessionsSupplier = this::getSortedSelection;
+					Supplier<List<Athlete>> computeAthletesSupplier = () -> {
+						List<Group> ss = getSortedSelection();
+						Group g = (ss != null && ss.size() > 0) ? ss.get(0) : null;
+						return (g != null) ? groupAthletes(g, true) : athletesFindAll(true);
+					};
+					DocumentDownloadDialog dialog = new DocumentDownloadDialog(kit, selectedSessionsSupplier,
+							computeAthletesSupplier,
+							(d, kits) -> createDoItButtonForKits(kits, d, selectedSessionsSupplier,
+									computeAthletesSupplier));
+					dialog.open();
+				});
+		// openDialog.addThemeVariants(ButtonVariant.LUMO_SUCCESS,
+		// ButtonVariant.LUMO_PRIMARY);
 		return new Div(openDialog);
 	}
 
@@ -1358,257 +1438,267 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private KitElement doElementBodyweight(PreCompetitionTemplate templateDefinition) {
-		// Use the enum name so the dialog can detect the element and add a template selector
+		// Use the enum name so the dialog can detect the element and add a template
+		// selector
 		// (DocumentDownloadDialog maps normalized id -> PreCompetitionTemplates enum).
 		return defineKit(PreCompetitionTemplate.BY_BODYWEIGHT.name(),
-		        templateDefinition,
-		        defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
-		        (a, ignored) -> {
-			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
-			        startingXlsWriter.setGroup(null);
-			        // get current version of athletes.
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll(false)));
-			        startingXlsWriter.createAgeGroupColumns(10, 7);
-			        return startingXlsWriter;
-		        });
+				templateDefinition,
+				defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
+				(a, ignored) -> {
+					JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+					startingXlsWriter.setGroup(null);
+					// get current version of athletes.
+					startingXlsWriter.setSortedAthletes(AthleteSorter.registrationBWCopy(athletesFindAll(false)));
+					startingXlsWriter.createAgeGroupColumns(10, 7);
+					return startingXlsWriter;
+				});
 	}
 
 	private KitElement doElementCards(PreCompetitionTemplate templateDefinition) {
-		// CARDS: when a single session is selected require some athletes; when no session selected
-		// use total athletes and require >0 and less than 100, and check for reasonable selection (not too many athletes)
+		// CARDS: when a single session is selected require some athletes; when no
+		// session selected
+		// use total athletes and require >0 and less than 100, and check for reasonable
+		// selection (not too many athletes)
 		return defineKit("cards",
-		        templateDefinition,
-		        blockingCardsScopePrecheck,
-		        (a, g) -> {
-			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-			        xlsWriter.setGroup(g);
-			        return xlsWriter;
-		        });
+				templateDefinition,
+				blockingCardsScopePrecheck,
+				(a, g) -> {
+					JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+					xlsWriter.setGroup(g);
+					return xlsWriter;
+				});
 	}
 
 	/**
-	 * Athlete credentials use the same scope precheck as cards (require some athletes for a selected session, and reasonable total counts when no session is
+	 * Athlete credentials use the same scope precheck as cards (require some
+	 * athletes for a selected session, and reasonable total counts when no session
+	 * is
 	 * selected).
 	 */
 	private KitElement doElementAthleteCredentials(PreCompetitionTemplate templateDefinition) {
 		return defineKit("athleteCredentials",
-		        templateDefinition,
-		        cardsScopePrecheck,
-		        (a, g) -> {
-			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-			        xlsWriter.setGroup(g);
-			        return xlsWriter;
-		        });
+				templateDefinition,
+				cardsScopePrecheck,
+				(a, g) -> {
+					JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+					xlsWriter.setGroup(g);
+					return xlsWriter;
+				});
 	}
 
 	/**
-	 * Technical Official (TO) credentials allow no selection (global report), reuse the allow-no-selection precheck.
+	 * Technical Official (TO) credentials allow no selection (global report), reuse
+	 * the allow-no-selection precheck.
 	 */
 	private KitElement doElementTOCredentials(PreCompetitionTemplate templateDefinition) {
 		return defineKit("toCredentials",
-		        templateDefinition,
-		        defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
-		        (a, g) -> {
-			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-			        // setReportingInfo will add the the TOs to
-			        // the reporting beans using #TechnicalOfficialRepository.findActive()
-			        xlsWriter.setGroup(g);
-			        xlsWriter.setSortedAthletes(List.of());
-			        xlsWriter.setEmptyOk(true);
-			        return xlsWriter;
-		        });
+				templateDefinition,
+				defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
+				(a, g) -> {
+					JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+					// setReportingInfo will add the the TOs to
+					// the reporting beans using #TechnicalOfficialRepository.findActive()
+					xlsWriter.setGroup(g);
+					xlsWriter.setSortedAthletes(List.of());
+					xlsWriter.setEmptyOk(true);
+					return xlsWriter;
+				});
 	}
 
 	/**
-	 * Coach credentials allow no selection (global report), reuse the allow-no-selection precheck.
+	 * Coach credentials allow no selection (global report), reuse the
+	 * allow-no-selection precheck.
 	 */
 	private KitElement doElementCoachCredentials(PreCompetitionTemplate templateDefinition) {
 		return defineKit("coachCredentials",
-		        templateDefinition,
-		        defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
-		        (a, g) -> {
-			        JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
-			        // setReportingInfo will add the the coaches to
-			        // the reporting beans.
-			        xlsWriter.setGroup(null);
-			        xlsWriter.setSortedAthletes(List.of());
-			        xlsWriter.setEmptyOk(true);
-			        return xlsWriter;
-		        });
+				templateDefinition,
+				defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
+				(a, g) -> {
+					JXLSCardsDocs xlsWriter = new JXLSCardsDocs();
+					// setReportingInfo will add the the coaches to
+					// the reporting beans.
+					xlsWriter.setGroup(null);
+					xlsWriter.setSortedAthletes(List.of());
+					xlsWriter.setEmptyOk(true);
+					return xlsWriter;
+				});
 	}
 
 	private KitElement doElementCategories(PreCompetitionTemplate template) {
 		return defineKit(PreCompetitionTemplate.BY_CATEGORY.name(),
-		        template,
-		        defaultScopePrecheckAllowNoSelectionFor(template),
-		        (a, ignored) -> {
-			        JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
-			        xlsWriter.setGroup(null);
-			        // use the rules from JXLSCategoriesListDocs
-			        // var athletes = participationFindAll();
-			        // athletes.sort(RegistrationOrderComparator.athleteReportOrderComparator);
-			        // xlsWriter.setSortedAthletes(athletes);
-			        return xlsWriter;
-		        });
+				template,
+				defaultScopePrecheckAllowNoSelectionFor(template),
+				(a, ignored) -> {
+					JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
+					xlsWriter.setGroup(null);
+					// use the rules from JXLSCategoriesListDocs
+					// var athletes = participationFindAll();
+					// athletes.sort(RegistrationOrderComparator.athleteReportOrderComparator);
+					// xlsWriter.setSortedAthletes(athletes);
+					return xlsWriter;
+				});
 	}
 
 	private KitElement doElementCheckin(PreCompetitionTemplate template) {
 		return defineKit("checkin",
-		        template,
-		        defaultScopePrecheckAllowNoSelectionFor(template),
-		        (a, ignored) -> {
-			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
-			        startingXlsWriter.setGroup(null);
-			        startingXlsWriter.setPostProcessor(null);
-			        List<Athlete> athletesFindAll = athletesFindAll(true);
-			        // logger removed
-			        startingXlsWriter.setSortedAthletes(athletesFindAll);
-			        return startingXlsWriter;
-		        });
+				template,
+				defaultScopePrecheckAllowNoSelectionFor(template),
+				(a, ignored) -> {
+					JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+					startingXlsWriter.setGroup(null);
+					startingXlsWriter.setPostProcessor(null);
+					List<Athlete> athletesFindAll = athletesFindAll(true);
+					// logger removed
+					startingXlsWriter.setSortedAthletes(athletesFindAll);
+					return startingXlsWriter;
+				});
 	}
 
 	private KitElement doElementEmptyProtocol(PreCompetitionTemplate template) {
 		return defineKit("emptyProtocol",
-		        template,
-		        (a, g) -> {
-			        // Require session selection
-			        if (g == null) {
-				        return Optional.of(new NoSessionException());
-			        }
-			        return Optional.empty();
-		        },
-		        (a, g) -> {
-			        AthleteRepository.assignStartNumbersUnlessManual(a);
-			        JXLSResultSheet rs = new JXLSResultSheet(false);
-			        rs.setGroup(g);
-			        rs.setSortedAthletes(a);
-			        return rs;
-		        });
+				template,
+				(a, g) -> {
+					// Require session selection
+					if (g == null) {
+						return Optional.of(new NoSessionException());
+					}
+					return Optional.empty();
+				},
+				(a, g) -> {
+					AthleteRepository.assignStartNumbersUnlessManual(a);
+					JXLSResultSheet rs = new JXLSResultSheet(false);
+					rs.setGroup(g);
+					rs.setSortedAthletes(a);
+					return rs;
+				});
 	}
 
 	private KitElement doElementIntroduction(PreCompetitionTemplate template) {
 		return defineKit("introduction",
-		        template,
-		        (a, g) -> {
-			        // Require session selection
-			        if (g == null) {
-				        return Optional.of(new NoSessionException());
-			        }
-			        return Optional.empty();
-		        },
-		        (a, g) -> {
-			        AthleteRepository.assignStartNumbersUnlessManual(a);
-			        JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
-			        xlsWriter.setGroup(g);
+				template,
+				(a, g) -> {
+					// Require session selection
+					if (g == null) {
+						return Optional.of(new NoSessionException());
+					}
+					return Optional.empty();
+				},
+				(a, g) -> {
+					AthleteRepository.assignStartNumbersUnlessManual(a);
+					JXLSCategoriesListDocs xlsWriter = new JXLSCategoriesListDocs();
+					xlsWriter.setGroup(g);
 
-			        // sort to the desired order
-			        a.sort((x, y) -> ObjectUtils.compare(x.getCategoryCode(), y.getCategoryCode()));
-			        xlsWriter.setSortedAthletes(a);
-			        return xlsWriter;
-		        });
+					a.sort(new StartNumberOrderComparator());
+					xlsWriter.setSortedAthletes(a);
+					return xlsWriter;
+				});
 	}
 
 	private KitElement doElementJury(PreCompetitionTemplate template) {
 		return defineKit("jury",
-		        template,
-		        defaultScopePrecheckFor(template),
-		        (a, g) -> {
-			        AthleteRepository.assignStartNumbersUnlessManual(a);
-			        JXLSJurySheet rs = new JXLSJurySheet();
-			        rs.setGroup(g);
-			        rs.setSortedAthletes(a);
-			        return rs;
-		        });
+				template,
+				defaultScopePrecheckFor(template),
+				(a, g) -> {
+					AthleteRepository.assignStartNumbersUnlessManual(a);
+					JXLSJurySheet rs = new JXLSJurySheet();
+					rs.setGroup(g);
+					rs.setSortedAthletes(a);
+					return rs;
+				});
 	}
 
 	private KitElement doElementOfficials() {
 		return defineKit("officials",
-		        PreCompetitionTemplate.OFFICIALS,
-		        defaultScopePrecheckAllowNoSelectionFor(PreCompetitionTemplate.OFFICIALS),
-		        (a, ignored) -> {
-			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			        xlsWriter.setGroup(null);
-			        xlsWriter.setSortedAthletes(List.of());
-			        xlsWriter.setEmptyOk(true);
-			        return xlsWriter;
-		        });
+				PreCompetitionTemplate.OFFICIALS,
+				defaultScopePrecheckAllowNoSelectionFor(PreCompetitionTemplate.OFFICIALS),
+				(a, ignored) -> {
+					JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+					xlsWriter.setGroup(null);
+					xlsWriter.setSortedAthletes(List.of());
+					xlsWriter.setEmptyOk(true);
+					return xlsWriter;
+				});
 	}
 
 	private KitElement doElementSchedule() {
 		return defineKit("schedule",
-		        PreCompetitionTemplate.SCHEDULE,
-		        defaultScopePrecheckAllowNoSelectionFor(PreCompetitionTemplate.SCHEDULE),
-		        (a, ignored) -> {
-			        // schedule is currently a variation on starting list
-			        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-			        xlsWriter.setPostProcessor((w) -> {
-				        if (xlsWriter.getFirstMergeLine() != null) {
-					        logger.debug("merging {} {}", xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
-					        // merged columns
-					        fixMerges(w, xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
-					        fixLastLine(w);
-				        } else {
-					        // simple schedule with no nested merged columns
-					        xlsWriter.setPostProcessor(null);
-					        xlsWriter.setSortedAthletes(a);
-				        }
-			        });
+				PreCompetitionTemplate.SCHEDULE,
+				defaultScopePrecheckAllowNoSelectionFor(PreCompetitionTemplate.SCHEDULE),
+				(a, ignored) -> {
+					// schedule is currently a variation on starting list
+					JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+					xlsWriter.setPostProcessor((w) -> {
+						if (xlsWriter.getFirstMergeLine() != null) {
+							logger.debug("merging {} {}", xlsWriter.getFirstMergeLine(),
+									xlsWriter.getMergeColumnList());
+							// merged columns
+							fixMerges(w, xlsWriter.getFirstMergeLine(), xlsWriter.getMergeColumnList());
+							fixLastLine(w);
+						} else {
+							// simple schedule with no nested merged columns
+							xlsWriter.setPostProcessor(null);
+							xlsWriter.setSortedAthletes(a);
+						}
+					});
 
-			        return xlsWriter;
-		        });
+					return xlsWriter;
+				});
 	}
 
 	private KitElement doElementStartList(PreCompetitionTemplate templateDefinition) {
 		return defineKit("startList",
-		        templateDefinition,
-		        defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
-		        (a, ignored) -> {
-			        logger.debug("doElementStartList for {}", templateDefinition.name());
-			        try {
-				        JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
-				        logger.debug("doElementStartList created xlsWriter for {}: {}", templateDefinition.name(), xlsWriter);
-				        xlsWriter.setGroup(null);
-				        // get current version of athletes.
-				        List<Athlete> athletesFindAll = athletesFindAll(true);
-				        xlsWriter.setSortedAthletes(athletesFindAll);
-				        xlsWriter.setPostProcessor(null);
-				        return xlsWriter;
-			        } catch (Throwable e) {
-				        e.printStackTrace();
-			        }
-			        return null;
-		        });
+				templateDefinition,
+				defaultScopePrecheckAllowNoSelectionFor(templateDefinition),
+				(a, ignored) -> {
+					logger.debug("doElementStartList for {}", templateDefinition.name());
+					try {
+						JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
+						logger.debug("doElementStartList created xlsWriter for {}: {}", templateDefinition.name(),
+								xlsWriter);
+						xlsWriter.setGroup(null);
+						// get current version of athletes.
+						List<Athlete> athletesFindAll = athletesFindAll(true);
+						xlsWriter.setSortedAthletes(athletesFindAll);
+						xlsWriter.setPostProcessor(null);
+						return xlsWriter;
+					} catch (Throwable e) {
+						e.printStackTrace();
+					}
+					return null;
+				});
 	}
 
 	private KitElement doElementTeam(PreCompetitionTemplate template) {
 		return defineKit(PreCompetitionTemplate.BY_TEAM.name(),
-		        template,
-		        defaultScopePrecheckAllowNoSelectionFor(template),
-		        (a, ignored) -> {
-			        JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
-			        startingXlsWriter.setGroup(null);
-			        // get current version of athletes.
-			        startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(athletesFindAll(false)));
-			        startingXlsWriter.createTeamColumns(9, 6);
-			        return startingXlsWriter;
-		        });
+				template,
+				defaultScopePrecheckAllowNoSelectionFor(template),
+				(a, ignored) -> {
+					JXLSStartingListDocs startingXlsWriter = new JXLSStartingListDocs();
+					startingXlsWriter.setGroup(null);
+					// get current version of athletes.
+					startingXlsWriter.setSortedAthletes(AthleteSorter.registrationOrderCopy(athletesFindAll(false)));
+					startingXlsWriter.createTeamColumns(9, 6);
+					return startingXlsWriter;
+				});
 	}
 
 	private KitElement doElementWeighIn(PreCompetitionTemplate template) {
 		// Use the enum name so the dialog can add a template selector. Weigh-in
-		// requires a selected session, so use the default precheck that enforces a session.
+		// requires a selected session, so use the default precheck that enforces a
+		// session.
 		return defineKit(PreCompetitionTemplate.WEIGHIN.name(),
-		        template,
-		        defaultScopePrecheckFor(template),
-		        (a, g) -> {
-			        JXLSWeighInSheet rs = new JXLSWeighInSheet(); // Create a new weigh-in sheet
-			        logger.debug("group g {} {}", g, LoggerUtils.stackTrace());
-			        rs.setGroup(g);
-			        return rs;
-		        });
+				template,
+				defaultScopePrecheckFor(template),
+				(a, g) -> {
+					JXLSWeighInSheet rs = new JXLSWeighInSheet(); // Create a new weigh-in sheet
+					logger.debug("group g {} {}", g, LoggerUtils.stackTrace());
+					rs.setGroup(g);
+					return rs;
+				});
 	}
 
-	private static void doKitElementStatic(KitElement elem, String seq, ZipOutputStream zipOut, Group g, List<Athlete> athletes) throws IOException {
+	private static void doKitElementStatic(KitElement elem, String seq, ZipOutputStream zipOut, Group g,
+			List<Athlete> athletes) throws IOException {
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory().apply(athletes, g);
 
 		// apply default if the factory did not set
@@ -1636,7 +1726,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		xlsWriter.setInputStream(is);
 		xlsWriter.setTemplateFileName(elem.name());
 		InputStream in = xlsWriter.createInputStream();
-		// Handle null group for documents that don't require a session (e.g., coach credentials)
+		// Handle null group for documents that don't require a session (e.g., coach
+		// credentials)
 		String groupName = (g != null) ? g.getName() : "All";
 		String name = seq + "_" + elem.id() + "_" + groupName + "." + elem.extension();
 		ZipUtils.zipStream(in, name, false, zipOut);
@@ -1658,21 +1749,24 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private static void doPrintScriptStatic(ZipOutputStream zipOut) {
 		try {
-			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.bat"), "print.bat", false, zipOut);
-			// ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.ps1"), "print.ps1", false, zipOut);
+			ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.bat"), "print.bat", false,
+					zipOut);
+			// ZipUtils.zipStream(ResourceWalker.getFileOrResource("/templates/scripts/print.ps1"),
+			// "print.ps1", false, zipOut);
 		} catch (IOException e) {
 			LoggerUtils.logError(logger, e, true);
 		}
 	}
 
-	private InputStream excelKitElement(List<Group> selectedSessions, List<KitElement> elements, UI ui, Consumer<Throwable> doneCallback)
-	        throws IOException {
+	private InputStream excelKitElement(List<Group> selectedSessions, List<KitElement> elements, UI ui,
+			Consumer<Throwable> doneCallback)
+			throws IOException {
 		// always called with a single template
 		// for items that are one per session, selected sessions will be non-empty.
 		logger.debug("excelKitElement for {} elements and {} sessions {}",
-		        (elements == null ? "null" : elements.size()),
-		        (selectedSessions == null ? "null" : selectedSessions.size()),
-		        LoggerUtils.whereFrom());
+				(elements == null ? "null" : elements.size()),
+				(selectedSessions == null ? "null" : selectedSessions.size()),
+				LoggerUtils.whereFrom());
 
 		Group g = (selectedSessions != null && selectedSessions.size() > 0) ? selectedSessions.get(0) : null;
 		KitElement elem = elements.get(0);
@@ -1683,9 +1777,9 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		}
 
 		logger.debug("g = {} athletes = {} for element {} {}", g,
-		        (athletes == null ? "null" : athletes.size()),
-		        elem.id(),
-		        LoggerUtils.whereFrom());
+				(athletes == null ? "null" : athletes.size()),
+				elem.id(),
+				LoggerUtils.whereFrom());
 
 		// writerFactory can apply custom sorting order to the athletes
 		JXLSWorkbookStreamSource xlsWriter = elem.writerFactory().apply(athletes, g);
@@ -1744,16 +1838,19 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		try {
 			xlsWriter.setUi(ui);
 			// logger removed
-			// if an exception happens here, it is caught in the caller, it needs to close the dialog.
+			// if an exception happens here, it is caught in the caller, it needs to close
+			// the dialog.
 			in = xlsWriter.createInputStream();
 			return in;
 		} catch (Exception e) {
 			// logger removed
 			LoggerUtils.logError(logger, e, true);
-			// ensure the dialog (or processing indicator) is closed via the provided callback
+			// ensure the dialog (or processing indicator) is closed via the provided
+			// callback
 			try {
 				if (doneCallback != null) {
-					logger.info("Invoking doneCallback to close dialog from DocumentsContent.excelKitElement catch: {}", LoggerUtils.stackTrace());
+					logger.info("Invoking doneCallback to close dialog from DocumentsContent.excelKitElement catch: {}",
+							LoggerUtils.stackTrace());
 					// convert exception to Throwable and pass it
 					try {
 						doneCallback.accept(e);
@@ -1770,7 +1867,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private InputStream excelToInputStream(List<Group> selectedSessions,
-	        List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback, UI ui) {
+			List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback,
+			UI ui) {
 		String context = LoggerUtils.stackTrace();
 		try {
 			return excelKitElement(selectedSessions, elements, ui, doneCallback);
@@ -1783,26 +1881,26 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 	private List<Athlete> filterAthletes(List<Athlete> athletes) {
 		Stream<Athlete> stream = athletes.stream()
-		        .filter(a -> {
-			        Platform platformFilterValue = getPlatform();
-			        if (platformFilterValue == null) {
-				        return true;
-			        }
-			        Platform athletePlaform = a.getGroup() != null
-			                ? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
-			                : null;
-			        return platformFilterValue.equals(athletePlaform);
-		        })
-		        .map(a -> {
-			        if (a.getTeam() == null) {
-				        a.setTeam("");
-			        }
-			        return a;
-		        });
+				.filter(a -> {
+					Platform platformFilterValue = getPlatform();
+					if (platformFilterValue == null) {
+						return true;
+					}
+					Platform athletePlaform = a.getGroup() != null
+							? (a.getGroup().getPlatform() != null ? a.getGroup().getPlatform() : null)
+							: null;
+					return platformFilterValue.equals(athletePlaform);
+				})
+				.map(a -> {
+					if (a.getTeam() == null) {
+						a.setTeam("");
+					}
+					return a;
+				});
 
 		List<Athlete> found = stream.sorted(
-		        groupCategoryComparator())
-		        .collect(Collectors.toList());
+				groupCategoryComparator())
+				.collect(Collectors.toList());
 		return found;
 	}
 
@@ -1852,7 +1950,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						if (isMerging) {
 
 							logger.debug("{}{}: merging from {}{}", (char) ('A' + col), row.getRowNum() + 1,
-							        (char) ('A' + col), firstRow + 1);
+									(char) ('A' + col), firstRow + 1);
 							int regionSize = (row.getRowNum() - 1) - firstRow;
 							logger.debug("     region size = {}", regionSize);
 							if (regionSize > 0) {
@@ -1883,7 +1981,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				// Merge the bottom region if needed
 				if (isMerging) {
 					logger.debug("{}{}: merging bottom from {}{}", (char) ('A' + col), sheet.getLastRowNum() + 1,
-					        (char) ('A' + col), firstRow + 1);
+							(char) ('A' + col), firstRow + 1);
 					CellRangeAddress region = new CellRangeAddress(firstRow, sheet.getLastRowNum(), col, col);
 					sheet.addMergedRegion(region);
 					Cell cell22 = sheet.getRow(firstRow).getCell(col);
@@ -2067,9 +2165,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private List<KitElement> prepareWeighIn(PreCompetitionTemplate template, List<Group> selectedItems) {
-		// Do NOT require a selected session here; allow weigh-in to be generated for the
+		// Do NOT require a selected session here; allow weigh-in to be generated for
+		// the
 		// whole competition when no session is selected. The element's precheck will
-		// enforce session/no-session semantics via defaultScopePrecheckAllowNoSelectionFor.
+		// enforce session/no-session semantics via
+		// defaultScopePrecheckAllowNoSelectionFor.
 		List<KitElement> elements = new ArrayList<>();
 		elements.add(doElementWeighIn(template));
 		return elements;
@@ -2097,12 +2197,13 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	private void updateURLLocations() {
 	}
 
-	private static ZipOutputStream zipKitStatic(List<Group> selectedItems, List<KitElement> elements, PipedOutputStream os,
-	        BiConsumer<Throwable, String> errorProcessor) throws IOException {
+	private static ZipOutputStream zipKitStatic(List<Group> selectedItems, List<KitElement> elements,
+			PipedOutputStream os,
+			BiConsumer<Throwable, String> errorProcessor) throws IOException {
 		logger.debug("zipKitStatic called with {} sessions and {} elements {}",
-		        selectedItems == null ? "null" : selectedItems.size(),
-		        elements == null ? "null" : elements.size(),
-		        LoggerUtils.whereFrom());
+				selectedItems == null ? "null" : selectedItems.size(),
+				elements == null ? "null" : elements.size(),
+				LoggerUtils.whereFrom());
 		int i = 1;
 		ZipOutputStream zipOut = null;
 		try {
@@ -2111,9 +2212,11 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 
 			boolean anyProcessed = false;
 
-			// Handle case where no sessions are selected (for documents that don't require sessions)
+			// Handle case where no sessions are selected (for documents that don't require
+			// sessions)
 			if (selectedItems == null || selectedItems.isEmpty()) {
-				// Process elements that can work without a session (e.g., coach credentials, categories)
+				// Process elements that can work without a session (e.g., coach credentials,
+				// categories)
 				for (KitElement elem : elements) {
 					// Skip elements without a template selected (user chose to skip this document)
 					if (elem.selectedTemplateSupplier() != null) {
@@ -2152,8 +2255,10 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						i++;
 					}
 				}
-			} // Only throw NoSession if nothing was processed AND we have elements with templates.
-			// Elements may legitimately process with no sessions (emptyOk flag on their writers).
+			} // Only throw NoSession if nothing was processed AND we have elements with
+				// templates.
+				// Elements may legitimately process with no sessions (emptyOk flag on their
+				// writers).
 			if (!anyProcessed) {
 				// Check if any elements actually have templates selected
 				boolean anyTemplateSelected = false;
@@ -2182,12 +2287,12 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private InputStream zipKitToInputStream(List<Group> selectedItems, List<KitElement> elements,
-	        BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback, UI ui) {
+			BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback, UI ui) {
 		return zipKitToInputStreamStatic(selectedItems, elements, errorProcessor, doneCallback, ui);
 	}
 
 	private static InputStream zipKitToInputStreamStatic(List<Group> selectedItems, List<KitElement> elements,
-	        BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback, UI ui) {
+			BiConsumer<Throwable, String> errorProcessor, Consumer<Throwable> doneCallback, UI ui) {
 		PipedOutputStream out;
 		PipedInputStream in;
 		try {
@@ -2217,7 +2322,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				} catch (Throwable ignore) {
 				}
 			} catch (Throwable t) {
-				// Ensure unexpected errors are logged; zipKitToOutputStream reports via errorProcessor
+				// Ensure unexpected errors are logged; zipKitToOutputStream reports via
+				// errorProcessor
 				LoggerUtils.logError(logger, t, true);
 				try {
 					if (dc != null)
@@ -2226,7 +2332,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				}
 				throw t;
 			} finally {
-				// Defensive cleanup of thread-local state copied into this thread via InheritableThreadLocal
+				// Defensive cleanup of thread-local state copied into this thread via
+				// InheritableThreadLocal
 				try {
 					OwlcmsSessionThreadLocal.remove();
 				} catch (Throwable ignore) {
@@ -2239,8 +2346,9 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return in;
 	}
 
-	private static void zipKitToOutputStreamStatic(List<Group> selectedItems, List<KitElement> elements, BiConsumer<Throwable, String> errorProcessor,
-	        PipedOutputStream out) {
+	private static void zipKitToOutputStreamStatic(List<Group> selectedItems, List<KitElement> elements,
+			BiConsumer<Throwable, String> errorProcessor,
+			PipedOutputStream out) {
 		try {
 			zipKitStatic(selectedItems, elements, out, errorProcessor);
 			out.flush();
@@ -2263,7 +2371,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return z;
 	}
 
-	// Precheck orchestration was moved to DocumentsPrecheckService to keep UI wiring
+	// Precheck orchestration was moved to DocumentsPrecheckService to keep UI
+	// wiring
 	// (DocumentsContent) separate from domain precheck logic. Use precheckService
 	// where prechecks are needed.
 

@@ -150,23 +150,56 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 
 		return compare;
 	};
+
+	public static boolean useMastersAgeGroupOrder(Group group) {
+		if (isMastersCompetition()) {
+			return true;
+		}
+		return group != null && group.isMasters();
+	}
+
+	public static boolean useMastersAgeGroupOrder(Athlete lifter1, Athlete lifter2) {
+		if (isMastersCompetition()) {
+			return true;
+		}
+		return isMastersSession(lifter1) && isMastersSession(lifter2);
+	}
+
+	public static int compareMastersAgeGroupOrder(Athlete lifter1, Athlete lifter2) {
+		return compareMastersAgeGroupOrder(lifter1, lifter2, useMastersAgeGroupOrder(lifter1, lifter2));
+	}
+
+	public static int compareMastersAgeGroupOrder(Athlete lifter1, Athlete lifter2, boolean mastersAgeGroupOrder) {
+		if (!mastersAgeGroupOrder) {
+			return 0;
+		}
+		AgeGroup ageGroup1 = lifter1 != null ? lifter1.getAgeGroup() : null;
+		AgeGroup ageGroup2 = lifter2 != null ? lifter2.getAgeGroup() : null;
+		return -ageGroupRegistrationComparator.compare(ageGroup1, ageGroup2);
+	}
+
+	private static boolean isMastersSession(Athlete lifter) {
+		Group group = lifter != null ? lifter.getGroup() : null;
+		return group != null && group.isMasters();
+	}
+
+	private static boolean isMastersCompetition() {
+		Competition competition = Competition.getCurrent();
+		return competition != null && competition.isMasters();
+	}
 	
 	public static Comparator<Athlete> athleteRegistrationOrderComparator = (lifter1, lifter2) -> {
 		int compare;
 		// normally part of the same group when this is called, but never too careful.
-		// both athletes are lifting in Masters sessions
-		Group group1 = lifter1.getGroup();
-		boolean lifter1Masters = group1 != null ? group1.isMasters() : false;
-		Group group2 = lifter2.getGroup();
-		boolean lifter2Masters = group2 != null ? group2.isMasters() : false;
-		boolean bothMasters = lifter1Masters && lifter2Masters;
+		boolean mastersAgeGroupOrder = useMastersAgeGroupOrder(lifter1, lifter2);
 		
-		if (Competition.getCurrent().isDisplayByAgeGroup() || bothMasters) {
+		if (Competition.getCurrent().isDisplayByAgeGroup() || mastersAgeGroupOrder) {
 			compare = ageGroupRegistrationComparator.compare(lifter1.getAgeGroup(), lifter2.getAgeGroup());
 			if (compare != 0) {
+				int ageGroupCompare = mastersAgeGroupOrder ? -compare : compare;
 				traceComparison("ageGroupRegistrationComparator ageGroup", lifter1, lifter1.getAgeGroup(), lifter2,
-				        lifter2.getAgeGroup(), compare);
-				return bothMasters ? -compare : compare;
+				        lifter2.getAgeGroup(), ageGroupCompare);
+				return ageGroupCompare;
 			}
 		} else {
 			compare = ObjectUtils.compare(lifter1.getGender(), lifter2.getGender());
