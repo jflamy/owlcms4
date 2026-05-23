@@ -1126,6 +1126,16 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 			        this.snatch1DeclarationField);
 		});
 		bb3.withValidator(v3);
+		Validator<Integer> v3a = Validator.from((entryTotal) -> {
+			try {
+				Category category = this.categoryField != null ? this.categoryField.getValue() : null;
+				return isIgnoreErrors() || category == null || !category.requiresEntryTotalConfirmation(entryTotal);
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			}
+			return true;
+		}, Translator.translate("EntryTotalBelowCategoryQualifyingTotal_MustForce"));
+		bb3.withValidator(v3a);
 		bindField(bb3, this.qualifyingTotalField, Athlete::getQualifyingTotal, Athlete::setQualifyingTotal);
 		layoutAddFormItem(layout, this.qualifyingTotalField, Translator.translate("EntryTotal"));
 

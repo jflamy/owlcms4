@@ -428,6 +428,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return this.qualifyingTotal;
 	}
 
+	public boolean requiresEntryTotalConfirmation(Integer entryTotal) {
+		int categoryQualifyingTotal = getQualifyingTotal();
+		return categoryQualifyingTotal > 0
+		        && (entryTotal == null || entryTotal <= 0 || entryTotal < categoryQualifyingTotal);
+	}
+
 	/**
 	 * Gets the name.
 	 *

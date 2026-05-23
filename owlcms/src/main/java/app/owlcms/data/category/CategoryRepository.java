@@ -115,7 +115,7 @@ public class CategoryRepository {
 	}
 
 	public static List<Category> doFindEligibleCategories(Athlete a, Gender gender, Integer ageFromFields, Double bw,
-	        int qualifyingTotal) {
+	        int ignoredEntryTotal) {
 
 		List<Category> allEligible = CategoryRepository.findByGenderAgeBW(gender, ageFromFields, null);
 
@@ -124,7 +124,6 @@ public class CategoryRepository {
 		allEligible.sort(new RegistrationPreferenceComparator());
 
 		allEligible = allEligible.stream()
-		        .filter(c -> (qualifyingTotal >= c.getQualifyingTotal()))
 		        .filter(c -> (bw == null || (bw > c.getMinimumWeight() && bw <= c.getMaximumWeight())))
 		        .filter(c -> Boolean.TRUE.equals(c.isActive()))
 		        .collect(Collectors.toList());
