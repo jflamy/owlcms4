@@ -10,17 +10,19 @@
 
 **New in Release 66**
 
-62.2.2: Masters: medals now respect oldest age groups first protocol order
+62.3.0: Masters: medals now respect oldest age groups first protocol order
 
-62.2.2: When loading Registration or SBDE, use both "Session" and "Group" to look up the translated keywords.
+62.3.0: When loading Registration or SBDE, use both "Session" and "Group" to look up the translated keywords.
 
-66.2.2: IMWA medals now exclude athletes who finish below a category qualifying total.
+62.3.0: IMWA medals now exclude athletes who finish below a category qualifying total.
 
-66.2.2: When exporting records, prefix the file name with the record federation and record name (if selected as filters)
+62.3.0: Entry totals below the selected category qualifying total now require explicit confirmation instead of filtering category eligibility.
 
-66.2.2: Fix: Protocol sheets and results books no longer include stale provisional records from another event
+62.3.0: When exporting records, prefix the file name with the record federation and record name (if selected as filters)
 
-66.2.2: Accept stop requests from localhost over http to allow clean stop requests from the controlpanel CLI
+62.3.0: Fix: Protocol sheets and results books no longer include stale provisional records from another event
+
+62.3.0: Accept stop requests from localhost over http to allow clean stop requests from the controlpanel CLI
 
 66.2.1: _IWF_FlatFile template; use this to produce competition results in the flat file format expected by IWF
 
