@@ -10,7 +10,11 @@
 
 **New in Release 66**
 
+62.2.2: Masters: medals now respect oldest age groups first protocol order
+
 62.2.2: When loading Registration or SBDE, use both "Session" and "Group" to look up the translated keywords.
+
+66.2.2: IMWA medals now exclude athletes who finish below a category qualifying total.
 
 66.2.2: When exporting records, prefix the file name with the record federation and record name (if selected as filters)
 

@@ -119,10 +119,11 @@ public class MultiCategoryRankSetter {
 		for (Participation p : a.getParticipations()) {
 			Category curCat = p.getCategory();
 			if (curCat.sameAs(category)) {
+				boolean eligible = AthleteSorter.isEligibleForIndividualRanking(a, curCat);
 				switch (r) {
 					case SNATCH: {
 						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
-						if (!zero && a.isEligibleForIndividualRanking()) {
+						if (!zero && eligible) {
 							this.snatchRank = curRankings.getSnatchRank();
 							this.snatchRank = this.snatchRank + 1;
 							p.setSnatchRank(this.snatchRank);
@@ -130,14 +131,14 @@ public class MultiCategoryRankSetter {
 							// logger.debug("setting snatch rank {} {} {} p={} a={}", a, curCat, snatchRank, System.identityHashCode(p),
 							// System.identityHashCode(p.getAthlete()));
 						} else {
-							p.setSnatchRank(a.isEligibleForIndividualRanking() ? 0 : -1);
+							p.setSnatchRank(eligible ? 0 : -1);
 							// logger.debug("skipping snatch rank {} {} {}", a, curCat, this.snatchRank);
 						}
 					}
 						break;
 					case CLEANJERK: {
 						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
-						if (!zero && a.isEligibleForIndividualRanking()) {
+						if (!zero && eligible) {
 							this.cjRank = curRankings.getCleanJerkRank();
 							this.cjRank = this.cjRank + 1;
 							p.setCleanJerkRank(this.cjRank);
@@ -145,14 +146,14 @@ public class MultiCategoryRankSetter {
 							// logger.debug("setting clean&jerk rank {} {} {} p {} a {}", a, curCat, cjRank, System.identityHashCode(p), //
 							// System.identityHashCode(p.getAthlete()));
 						} else {
-							p.setCleanJerkRank(a.isEligibleForIndividualRanking() ? 0 : -1);
+							p.setCleanJerkRank(eligible ? 0 : -1);
 							// logger.debug("skipping clean&jerk rank {} {} {}", a, curCat, 0);
 						}
 					}
 						break;
 					case TOTAL: {
 						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
-						if (!zero && a.isEligibleForIndividualRanking()) {
+						if (!zero && eligible) {
 							this.totalRank = curRankings.getTotalRank();
 							this.totalRank = this.totalRank + 1;
 							p.setTotalRank(this.totalRank);
@@ -161,7 +162,7 @@ public class MultiCategoryRankSetter {
 							// System.identityHashCode(p.getAthlete()));
 
 						} else {
-							p.setTotalRank(a.isEligibleForIndividualRanking() ? 0 : -1);
+							p.setTotalRank(eligible ? 0 : -1);
 							// logger.debug("skipping total rank {} {} {}", a, curCat, totalRank);
 						}
 					}
@@ -169,7 +170,6 @@ public class MultiCategoryRankSetter {
 					   case CATEGORY_SCORE: {
 						   CategoryRankingHolder curRankings = getCategoryRankings(curCat);
 						   double rankingValue = Ranking.getRankingValue(a, Ranking.CATEGORY_SCORE);
-						   boolean eligible = a.isEligibleForIndividualRanking();
 						   boolean zeroValue = rankingValue <= 0;
 						   //logger.debug("[CATEGORY_SCORE] Athlete: {} | Category: {} | rankingValue: {} | eligible: {} | Participation ID: {}", a.getAbbreviatedName(), curCat.getCode(), rankingValue, eligible, System.identityHashCode(p));
 						   if (!zeroValue && eligible) {
@@ -186,7 +186,7 @@ public class MultiCategoryRankSetter {
 						   break;
 					case CUSTOM: {
 						CategoryRankingHolder curRankings = getCategoryRankings(curCat);
-						if (!zero && a.isEligibleForIndividualRanking()) {
+						if (!zero && eligible) {
 							this.customRank = curRankings.getCustomRank();
 							this.customRank = this.customRank + 1;
 							p.setCustomRank(this.customRank);
@@ -195,7 +195,7 @@ public class MultiCategoryRankSetter {
 							// System.identityHashCode(p),
 							// System.identityHashCode(curRankings));
 						} else {
-							p.setCustomRank(a.isEligibleForIndividualRanking() ? 0 : -1);
+							p.setCustomRank(eligible ? 0 : -1);
 							// logger.debug("skipping custom rank {} {} {}", a, curCat, 0);
 						}
 						break;

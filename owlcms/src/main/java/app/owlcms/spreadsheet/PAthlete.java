@@ -24,6 +24,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.IRankHolder;
@@ -504,7 +505,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public EligibleForIndividualRankingStatus getEffectiveIndividualEligibilityStatus() {
-		return this.a.getEffectiveIndividualEligibilityStatus();
+		return AthleteSorter.getEffectiveIndividualEligibilityStatus(this.a, getCategory());
 	}
 
 	@Override
@@ -1030,7 +1031,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public boolean isEligibleForIndividualRanking() {
-		return this.a.isEligibleForIndividualRanking();
+		return AthleteSorter.isEligibleForIndividualRanking(this.a, getCategory());
 	}
 
 	@Override
@@ -1045,7 +1046,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public boolean isInvited() {
-		return this.a.isInvited();
+		return !isEligibleForIndividualRanking();
 	}
 
 	@Override

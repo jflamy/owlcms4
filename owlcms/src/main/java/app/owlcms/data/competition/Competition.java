@@ -582,11 +582,39 @@ public class Competition {
 			}
 
 			// logger./**/warn("medalists for {}", category);
+			clearRanksForCategoryOutOfCompetition(currentCategoryPAthletes, category);
 			getPAthletes(category, medalsByCategory.get(category.getCode()), false);
 		}
 		logger.info("computeMedalsByCategory nbAthletes={} time={}ms", rankedAthletes.size(), System.currentTimeMillis() - before);
 		saveAthletes(rankedAthletes);
 		return medalsByCategory;
+	}
+
+	private void clearRanksForCategoryOutOfCompetition(List<Athlete> categoryAthletes, Category category) {
+		for (Athlete categoryAthlete : categoryAthletes) {
+			if (AthleteSorter.isEligibleForIndividualRanking(categoryAthlete, category)) {
+				continue;
+			}
+			Participation participation = categoryAthlete.getMainRankings();
+			clearCategoryRanks(participation);
+			if (categoryAthlete instanceof PAthlete) {
+				Participation originalParticipation = ((PAthlete) categoryAthlete)._getOriginalParticipation();
+				if (originalParticipation != participation) {
+					clearCategoryRanks(originalParticipation);
+				}
+			}
+		}
+	}
+
+	private void clearCategoryRanks(Participation participation) {
+		if (participation == null) {
+			return;
+		}
+		participation.setSnatchRank(-1);
+		participation.setCleanJerkRank(-1);
+		participation.setTotalRank(-1);
+		participation.setCategoryScoreRank(-1);
+		participation.setCustomRank(-1);
 	}
 
 	/*

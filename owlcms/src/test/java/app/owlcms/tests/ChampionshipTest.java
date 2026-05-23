@@ -262,6 +262,59 @@ public class ChampionshipTest {
                 hasRankedParticipation);
     }
 
+            @Test
+            public void testImwaMedalsExcludeAthleteBelowCategoryQualifyingTotal() {
+            Competition competition = Competition.getCurrent();
+            boolean originalImwa = competition.isImwa();
+
+            List<Athlete> weighedIn = AthleteRepository.findAllByGroupAndWeighIn(null, true);
+            TreeMap<String, List<Athlete>> medals = competition.computeMedalsByCategory(weighedIn);
+            List<Athlete> jrF48 = medals.get("JR_F48");
+            assertNotNull("JR_F48 should be in medal map", jrF48);
+
+            Athlete gold = jrF48.stream()
+                .filter(a -> a.getTotalRank() == 1)
+                .findFirst().orElse(null);
+            assertNotNull("JR_F48 should have a gold medalist", gold);
+            assertTrue("fixture medalist should be a category participation wrapper", gold instanceof PAthlete);
+
+            PAthlete goldParticipation = (PAthlete) gold;
+            Athlete goldAthlete = goldParticipation._getAthlete();
+            Category category = goldParticipation.getCategory();
+            int originalQualifyingTotal = category.getQualifyingTotal();
+
+            try {
+                competition.setImwa(true);
+                category.setQualifyingTotal(gold.getTotal() + 1);
+
+                TreeMap<String, List<Athlete>> imwaMedals = competition.computeMedalsByCategory(weighedIn);
+                List<Athlete> imwaJrF48 = imwaMedals.get(category.getCode());
+
+                assertNotNull("JR_F48 should still be in medal map", imwaJrF48);
+                assertFalse("athlete below the category QT should not be a medalist under IMWA rules",
+                    imwaJrF48.stream().anyMatch(a -> Objects.equals(a.getId(), gold.getId())
+                        && a.getTotalRank() >= 1 && a.getTotalRank() <= 3));
+                Participation currentParticipation = goldAthlete.getParticipations().stream()
+                        .filter(p -> p.getCategory().sameAs(category))
+                        .findFirst().orElse(null);
+                assertNotNull("real participation should still exist for " + category.getCode(), currentParticipation);
+                assertEquals("below-QT participation should be marked out of classification", -1,
+                    currentParticipation.getTotalRank());
+
+                competition.setImwa(false);
+                TreeMap<String, List<Athlete>> nonImwaMedals = competition.computeMedalsByCategory(weighedIn);
+                List<Athlete> nonImwaJrF48 = nonImwaMedals.get(category.getCode());
+
+                assertTrue("same QT should not exclude the medalist when IMWA rules are off",
+                    nonImwaJrF48.stream().anyMatch(a -> Objects.equals(a.getId(), gold.getId())
+                        && a.getTotalRank() == 1));
+            } finally {
+                category.setQualifyingTotal(originalQualifyingTotal);
+                competition.setImwa(originalImwa);
+                competition.computeMedalsByCategory(weighedIn);
+            }
+            }
+
     @Test
     public void testSeniorMixedTeamsWithNoAthletesAreAbsent() {
         Championship senior = ChampionshipRepository.findByName("Senior");

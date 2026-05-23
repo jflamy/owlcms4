@@ -23,6 +23,7 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -369,21 +370,29 @@ public class AthleteSorter implements Serializable {
 		return 0;
 	}
 
-	/**
-	 * Check that Athlete is one of the howMany previous athletes. The list of athletes is assumed to have been sorted with {@link #liftTimeOrderCopy}
-	 *
-	 * @param Athlete       the athlete
-	 * @param sortedLifters the sorted lifters
-	 * @param howMany       the how many
-	 * @return true if Athlete is found and meets criterion.
-	 * @see #liftingOrder(List)
-	 */
-	static public boolean isRecentLifter(Athlete Athlete, List<Athlete> sortedLifters, int howMany) {
-		int rank = sortedLifters.indexOf(Athlete);
-		if (rank >= 0 && rank <= howMany - 1) {
-			return true;
+	public static EligibleForIndividualRankingStatus getEffectiveIndividualEligibilityStatus(Athlete athlete, Category category) {
+		EligibleForIndividualRankingStatus status = athlete.getEffectiveIndividualEligibilityStatus();
+		if (status == EligibleForIndividualRankingStatus.ELIGIBLE
+		        && isOutOfCompetitionForCategoryQualifyingTotal(athlete, category)) {
+			return EligibleForIndividualRankingStatus.OOC_QUALIFICATION;
 		}
-		return false;
+		return status;
+	}
+
+	public static boolean isEligibleForIndividualRanking(Athlete athlete, Category category) {
+		return getEffectiveIndividualEligibilityStatus(athlete, category) == EligibleForIndividualRankingStatus.ELIGIBLE;
+	}
+
+	private static boolean isOutOfCompetitionForCategoryQualifyingTotal(Athlete athlete, Category category) {
+		if (athlete == null || category == null || category.getQualifyingTotal() <= 0) {
+			return false;
+		}
+		Competition competition = Competition.getCurrent();
+		if (competition == null || !competition.isImwa() || !athlete.isDone(null)) {
+			return false;
+		}
+		Integer total = athlete.getTotal();
+		return total == null || total < category.getQualifyingTotal();
 	}
 
 	/**
