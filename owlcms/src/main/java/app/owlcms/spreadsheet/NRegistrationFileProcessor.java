@@ -471,7 +471,9 @@ public class NRegistrationFileProcessor {
 
 	private Map<String, CellSetterRG> buildGroupSetterMap() {
 		Map<String, CellSetterRG> base = new HashMap<>();
-		base.put("Group", (rg, cell) -> rg.setGroupName(cellToString(cell)));
+		CellSetterRG groupNameSetter = (rg, cell) -> rg.setGroupName(cellToString(cell));
+		base.put("Group", groupNameSetter);
+		base.put("Session", groupNameSetter);
 		base.put("Platform", (rg, cell) -> rg.setPlatform(cellToString(cell)));
 		base.put("Group.Description", (rg, cell) -> rg.setDescription(cellToString(cell)));
 		base.put("Division.MASTERS", (rg, cell) -> rg.setMasters(cellToString(cell)));
@@ -1404,11 +1406,11 @@ public class NRegistrationFileProcessor {
 					} catch (Exception ex) {
 						// ignore
 					}
+					boolean isSessionSheet = isSessionHeader || isGroupHeader;
 					this.logger.debug(
-					        "Sheet '{}' A2='{}'. headerMatches(Session)={} session={} (session current='{}' en='{}'; session key current='{}' en='{}')",
+					        "Sheet '{}' A2='{}'. headerMatches(Session)={} headerMatches(Group)={} (session current='{}' en='{}'; group current='{}' en='{}')",
 					        sheet.getSheetName(), a2Text, isSessionHeader, isGroupHeader, tSessionCur, tSessionEng, tGroupCur, tGroupEng);
-					// Only accept the sheet when the canonical A2 key 'Group' matches.
-					if (!isGroupHeader) {
+					if (!isSessionSheet) {
 						// not the sessions sheet -> skip
 						continue;
 					}
