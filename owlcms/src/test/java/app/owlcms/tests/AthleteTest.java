@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.AfterClass;
@@ -84,6 +85,47 @@ public class AthleteTest {
     public void testCategoryComputation() {
         // Test the category computation logic
         assertEquals("Category", "M 73", athlete.getCategory().toString());
+    }
+
+    @Test
+    public void testEntryTotalDoesNotFilterEligibleCategories() {
+        Category registrationCategory = CategoryRepository.findByCode("Open_M73");
+        int originalQualifyingTotal = registrationCategory.getQualifyingTotal();
+
+        try {
+            registrationCategory.setQualifyingTotal(999);
+            CategoryRepository.save(registrationCategory);
+
+            List<Category> eligibleCategories = CategoryRepository.doFindEligibleCategories(athlete, athlete.getGender(),
+                    athlete.getAge(), athlete.getBodyWeight(), 1);
+
+            assertTrue("entry total below category qualifying total should not remove category eligibility",
+                    eligibleCategories.stream().anyMatch(c -> c.sameAs(registrationCategory)));
+        } finally {
+            registrationCategory.setQualifyingTotal(originalQualifyingTotal);
+            CategoryRepository.save(registrationCategory);
+        }
+    }
+
+    @Test
+    public void testEntryTotalBelowCategoryQualifyingTotalRequiresConfirmation() {
+        Category category = new Category();
+        category.setQualifyingTotal(100);
+
+        assertTrue("entry total below category qualifying total should require confirmation",
+                category.requiresEntryTotalConfirmation(99));
+        assertFalse("entry total equal to category qualifying total should not require confirmation",
+                category.requiresEntryTotalConfirmation(100));
+        assertFalse("entry total above category qualifying total should not require confirmation",
+                category.requiresEntryTotalConfirmation(101));
+        assertTrue("blank entry total should require confirmation when category has a qualifying total",
+                category.requiresEntryTotalConfirmation(null));
+        assertTrue("zero entry total should require confirmation when category has a qualifying total",
+                category.requiresEntryTotalConfirmation(0));
+
+        category.setQualifyingTotal(0);
+        assertFalse("category without qualifying total should not require confirmation",
+                category.requiresEntryTotalConfirmation(0));
     }
 
     /**
