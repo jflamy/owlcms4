@@ -548,19 +548,21 @@ public class NRegistrationFileProcessor {
 		for (Map.Entry<String, CellSetterRG> e : base.entrySet()) {
 			String key = e.getKey();
 			CellSetterRG setter = e.getValue();
-			// Only register translations as valid header names. Do not register the canonical key itself.
+			// Register translations as valid header names (not the canonical key itself).
+			// translateNoOverrideOrElseNull uses the locale captured by the UI before the upload callback.
 			try {
 				// current locale translation
-				String tCurrent = Translator.translateExplicitLocale(key, this.locale);
+				String tCurrent = Translator.translateNoOverrideOrElseNull(key, this.locale);
 				if (tCurrent != null && !tCurrent.isBlank()) {
 					result.putIfAbsent(tCurrent.trim().toLowerCase(), setter);
 				}
 			} catch (Exception ex) {
 				// ignore translation failures
 			}
+			// Also register English translation so spreadsheets in English are accepted
+			// even when the system language is not English.
 			try {
-				// English explicit translation
-				String tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
+				String tEng = Translator.translateNoOverrideOrElseNull(key, Locale.ENGLISH);
 				if (tEng != null && !tEng.isBlank()) {
 					result.putIfAbsent(tEng.trim().toLowerCase(), setter);
 				}
@@ -695,22 +697,27 @@ public class NRegistrationFileProcessor {
 		for (Map.Entry<String, AthleteHeaderInfo> e : base.entrySet()) {
 			String key = e.getKey();
 			AthleteHeaderInfo info = e.getValue();
-			// translate in current locale and in English, register both
+			// translate in current locale and in English, register both.
+			// translateNoOverrideOrElseNull uses the locale captured by the UI before the upload callback.
+			// For multi-word keys (space-separated parts), only register the combined result when ALL parts translate.
 			try {
 				String tCurrent = null;
 				if (key.contains(" ")) {
-					// split the key on spaces and translate each part separately, then rejoin with spaces
 					String[] parts = key.split(" ");
 					StringBuilder sb = new StringBuilder();
+					boolean allOk = true;
 					for (String part : parts) {
-						String translated = Translator.translateExplicitLocale(part, this.locale);
+						String translated = Translator.translateNoOverrideOrElseNull(part, this.locale);
 						if (translated != null && !translated.isBlank()) {
 							sb.append(translated).append(" ");
+						} else {
+							allOk = false;
+							break;
 						}
 					}
-					tCurrent = sb.toString().trim();
+					tCurrent = allOk ? sb.toString().trim() : null;
 				} else {
-					tCurrent = Translator.translateExplicitLocale(key, this.locale);
+					tCurrent = Translator.translateNoOverrideOrElseNull(key, this.locale);
 				}
 				if (tCurrent != null && !tCurrent.isBlank()) {
 					logger.debug("Athlete header: '{}' -> current locale '{}' (lowercase: '{}')", key, tCurrent, tCurrent.trim().toLowerCase());
@@ -719,22 +726,26 @@ public class NRegistrationFileProcessor {
 			} catch (Exception ex) {
 				logger./**/warn("Failed to translate athlete header '{}': {}", key, ex.getMessage());
 			}
-			// also register the explicit English translation
+			// Also register English translation so spreadsheets in English are accepted
+			// even when the system language is not English.
 			try {
 				String tEng = null;
 				if (key.contains(" ")) {
-					// split the key on spaces and translate each part separately, then rejoin with spaces
 					String[] parts = key.split(" ");
 					StringBuilder sb = new StringBuilder();
+					boolean allOk = true;
 					for (String part : parts) {
-						String translated = Translator.translateExplicitLocale(part, Locale.ENGLISH);
+						String translated = Translator.translateNoOverrideOrElseNull(part, Locale.ENGLISH);
 						if (translated != null && !translated.isBlank()) {
 							sb.append(translated).append(" ");
+						} else {
+							allOk = false;
+							break;
 						}
 					}
-					tEng = sb.toString().trim();
+					tEng = allOk ? sb.toString().trim() : null;
 				} else {
-					tEng = Translator.translateExplicitLocale(key, Locale.ENGLISH);
+					tEng = Translator.translateNoOverrideOrElseNull(key, Locale.ENGLISH);
 				}
 				if (tEng != null && !tEng.isBlank()) {
 					logger.debug("Athlete header: '{}' -> English '{}' (lowercase: '{}')", key, tEng, tEng.trim().toLowerCase());
@@ -816,7 +827,7 @@ public class NRegistrationFileProcessor {
 		}
 		String trimmed = valueRead.trim();
 		try {
-			String tCurrent = Translator.translate(canonicalKey);
+			String tCurrent = Translator.translateNoOverrideOrElseNull(canonicalKey, this.locale);
 			if (tCurrent != null && !tCurrent.isBlank() && trimmed.equalsIgnoreCase(tCurrent.trim())) {
 				return true;
 			}
@@ -824,7 +835,7 @@ public class NRegistrationFileProcessor {
 			// ignore translation errors
 		}
 		try {
-			String tEng = Translator.translateExplicitLocale(canonicalKey, Locale.ENGLISH);
+			String tEng = Translator.translateNoOverrideOrElseNull(canonicalKey, Locale.ENGLISH);
 			if (tEng != null && !tEng.isBlank() && trimmed.equalsIgnoreCase(tEng.trim())) {
 				return true;
 			}
@@ -833,8 +844,8 @@ public class NRegistrationFileProcessor {
 		}
 		// Fallback: compare normalized forms (remove non-alphanumerics, collapse spaces, lowercase)
 		try {
-			String tCurrent = Translator.translate(canonicalKey);
-			String tEng = Translator.translateExplicitLocale(canonicalKey, Locale.ENGLISH);
+			String tCurrent = Translator.translateNoOverrideOrElseNull(canonicalKey, this.locale);
+			String tEng = Translator.translateNoOverrideOrElseNull(canonicalKey, Locale.ENGLISH);
 			String normRead = normalizeHeader(trimmed);
 			if (tCurrent != null && !tCurrent.isBlank() && normalizeHeader(tCurrent).equals(normRead))
 				return true;
@@ -1387,22 +1398,22 @@ public class NRegistrationFileProcessor {
 					String tGroupCur = "";
 					String tGroupEng = "";
 					try {
-						tSessionCur = Translator.translate("Session");
+						tSessionCur = Translator.translateNoOverrideOrElseNull("Session", this.locale);
 					} catch (Exception ex) {
 						// ignore
 					}
 					try {
-						tSessionEng = Translator.translateExplicitLocale("Session", Locale.ENGLISH);
+						tSessionEng = Translator.translateNoOverrideOrElseNull("Session", Locale.ENGLISH);
 					} catch (Exception ex) {
 						// ignore
 					}
 					try {
-						tGroupCur = Translator.translate("Group");
+						tGroupCur = Translator.translateNoOverrideOrElseNull("Group", this.locale);
 					} catch (Exception ex) {
 						// ignore
 					}
 					try {
-						tGroupEng = Translator.translateExplicitLocale("Group", Locale.ENGLISH);
+						tGroupEng = Translator.translateNoOverrideOrElseNull("Group", Locale.ENGLISH);
 					} catch (Exception ex) {
 						// ignore
 					}

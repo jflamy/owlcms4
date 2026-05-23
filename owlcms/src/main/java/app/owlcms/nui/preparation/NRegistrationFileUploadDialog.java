@@ -358,10 +358,10 @@ public class NRegistrationFileUploadDialog extends Dialog {
 			// Check if A2 matches "Group" or "Session" canonical key
 			String trimmed = cellValue.trim();
 			try {
-				String tGroupCur = Translator.translate("Group");
-				String tGroupEng = Translator.translateExplicitLocale("Group", Locale.ENGLISH);
-				String tSessionCur = Translator.translate("Session");
-				String tSessionEng = Translator.translateExplicitLocale("Session", Locale.ENGLISH);
+				String tGroupCur = Translator.translateNoOverrideOrElseNull("Group", this.capturedLocale);
+				String tGroupEng = Translator.translateNoOverrideOrElseNull("Group", Locale.ENGLISH);
+				String tSessionCur = Translator.translateNoOverrideOrElseNull("Session", this.capturedLocale);
+				String tSessionEng = Translator.translateNoOverrideOrElseNull("Session", Locale.ENGLISH);
 				
 				if ((tGroupCur != null && trimmed.equalsIgnoreCase(tGroupCur)) ||
 					(tGroupEng != null && trimmed.equalsIgnoreCase(tGroupEng)) ||
