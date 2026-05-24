@@ -3,26 +3,18 @@
 ### Conventions
 
 - All topics start with `owlcms`.
-
   - `owlcms/fop` means the field of play is emitting the events
 
 - Message topics typically end with the platform name
-
   - _In all example messages, `A` is the name of the current platform._  You will need to use the **correct platform name instead of A**
-
   - Message definitions start with the topic name, followed by the payload
-
     - Parameters to the message are shown in the form `:parameter` ; the actual messages do not include the `:` this is just a convention to identify what information will be substituted.
 
   - Example
-
     - you will see the message definition be `owlcms/clock/A :action:`
-
     - If the platform is called "Z", and you want to start the clock, the actual message would be
-
-      topic:  `owlcms/clock/Z`
-
-      payload: `start`
+      <br>topic:  `owlcms/clock/Z`
+      <br>payload: `start`
 
 
 ### Messages Published by owlcms
