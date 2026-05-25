@@ -7,8 +7,6 @@
 package app.owlcms.spreadsheet;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
@@ -42,9 +40,7 @@ public class JXLSCategoriesListDocs extends JXLSWorkbookStreamSource {
 	public List<Athlete> computeSortedAthletes() {
 		if (getSortedAthletes() != null) {
 			if (getGroup() != null) {
-				// exclude athletes that have no body weight or a 0 start number
-				List<Athlete> athletes = getSortedAthletes().stream().filter(a -> a.getStartNumber() > 0 && a.getBodyWeight() != null && a.getBodyWeight() > 0)
-				        .collect(Collectors.toList());
+				List<Athlete> athletes = filterWeighedIfWeighInStarted(getSortedAthletes());
 				athletes.sort(new StartNumberOrderComparator());
 				return athletes;
 			} else {

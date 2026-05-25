@@ -397,6 +397,17 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		return this.getSortedAthletes();
 	}
 
+	protected List<Athlete> filterWeighedIfWeighInStarted(List<Athlete> athletes) {
+		if (athletes == null || athletes.stream().noneMatch(this::hasBodyWeight)) {
+			return athletes;
+		}
+		return athletes.stream().filter(this::hasBodyWeight).collect(Collectors.toList());
+	}
+
+	private boolean hasBodyWeight(Athlete athlete) {
+		return athlete != null && athlete.getBodyWeight() != null && athlete.getBodyWeight() > 0;
+	}
+
 	public String getTemplateFileName() {
 		return this.templateFileName;
 	}

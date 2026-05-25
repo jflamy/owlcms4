@@ -33,8 +33,10 @@ public class JXLSJurySheet extends JXLSWorkbookStreamSource {
 
 	@Override
 	public List<Athlete> computeSortedAthletes() {
-		List<Athlete> athletes = AthleteSorter
-		        .displayOrderCopy(AthleteRepository.findAllByGroupAndWeighIn(getGroup(), isExcludeNotWeighed()));
+		List<Athlete> athletes = getSortedAthletes() != null
+				? getSortedAthletes()
+				: AthleteRepository.findAllByGroupAndWeighIn(getGroup(), null);
+		athletes = AthleteSorter.displayOrderCopy(filterWeighedIfWeighInStarted(athletes));
 		// this.nbAthletes = athletes.size();
 		return athletes;
 	}

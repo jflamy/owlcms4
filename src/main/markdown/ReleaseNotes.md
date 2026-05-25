@@ -10,6 +10,8 @@
 
 **New in Release 66**
 
+62.3.0: Producing intro sheets, empty protocols and jury sheets is possible even if no athletes have been weighed in, for small meets where handwritten strikeouts are acceptable. 
+
 62.3.0: Masters: medals now respect oldest age groups first protocol order
 
 62.3.0: When loading Registration or SBDE, use both "Session" and "Group" to look up the translated keywords.

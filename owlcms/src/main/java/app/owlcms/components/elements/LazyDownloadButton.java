@@ -36,6 +36,7 @@ import com.vaadin.flow.server.streams.TransferProgressListener;
 import com.vaadin.flow.shared.Registration;
 
 import app.owlcms.i18n.Translator;
+import app.owlcms.servlet.StopProcessingException;
 import app.owlcms.spreadsheet.InputStreamWrapper;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.spreadsheet.XLSXWorkbookStreamSource;
@@ -274,7 +275,7 @@ public class LazyDownloadButton extends Button {
 								        }
 								        if (fastEx != null) {
 									        final IOException ex = fastEx;
-									        final String msg = ex.getMessage() == null ? ex.toString() : ex.getMessage();
+									        final String msg = getUserFacingErrorMessage(ex);
 									        optionalUI.ifPresent(ui -> {
 										        showDownloadErrorNotification(ui, msg, ex);
 										        errorNotified.set(true);
@@ -290,7 +291,7 @@ public class LazyDownloadButton extends Button {
 							                -1 // content length - unknown
 							        );
 						        } catch (Exception e) {
-							        return DownloadResponse.error(500, e.getMessage());
+							        return DownloadResponse.error(500, getUserFacingErrorMessage(e));
 						        }
 					        }, new TransferProgressListener() {
 						        @Override
@@ -318,23 +319,24 @@ public class LazyDownloadButton extends Button {
 
 						        @Override
 						        public void onError(TransferContext tc, IOException error) {
+							        String errorMessage = getUserFacingErrorMessage(error);
 							        // Only show the notification if we haven't already (preCheck or fast-fail)
 							        if (!errorNotified.getAndSet(true)) {
 								        try {
 									        UI ui = tc.getUI();
 									        if (ui != null) {
-										        ui.access(() -> showDownloadErrorNotification(ui, error.getMessage(), error));
+										        ui.access(() -> showDownloadErrorNotification(ui, errorMessage, error));
 									        } else {
 										        // No UI available on context; fall back to logging
-										        logger.error("Download failed: {}", error.getMessage(), error);
+										        logger.error("Download failed: {}", errorMessage, error);
 									        }
 								        } catch (Exception e) {
 									        // Ensure we still log the original error even if UI access fails
-									        logger.error("Download failed (notify failed): {}", error.getMessage(), error);
+									        logger.error("Download failed (notify failed): {}", errorMessage, error);
 								        }
 							        } else {
 								        // Still log the error even if notification was already shown
-								        logger.error("Download failed (already notified): {}", error.getMessage(), error);
+								        logger.error("Download failed (already notified): {}", errorMessage, error);
 							        }
 							        if (errorCallback != null) {
 								        try {
@@ -445,16 +447,50 @@ public class LazyDownloadButton extends Button {
 			if (ui == null)
 				return;
 			ui.access(() -> {
-				String body = message == null ? Translator.translate("Download.failed") : Translator.translate("Download.failed", message);
+				String displayMessage = getUserFacingErrorMessage(error);
+				if (displayMessage == null) {
+					displayMessage = message;
+				}
+				String body = displayMessage == null ? Translator.translate("Download.failed") : Translator.translate("Download.failed", displayMessage);
 				Notification notification = new Notification(body);
 				notification.setDuration(5000);
 				notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 				notification.open();
-				logger.error("Download failed: {}", message, error);
+				logger.error("Download failed: {}", displayMessage, error);
 			});
 		} catch (Exception e) {
 			// If UI access fails, still log the original error
 			logger.error("Download failed (and UI notify failed): {}", message, error);
 		}
+	}
+
+	private String getUserFacingErrorMessage(Throwable error) {
+		StopProcessingException stopProcessing = findStopProcessingException(error);
+		if (stopProcessing != null) {
+			Throwable cause = stopProcessing.getCause();
+			if (cause != null && cause.getMessage() != null && !cause.getMessage().isBlank()) {
+				return cause.getMessage();
+			}
+
+			String translationKey = stopProcessing.getMessage();
+			return translationKey == null || translationKey.isBlank()
+					? Translator.translate("Download.failed")
+					: Translator.translate(translationKey);
+		}
+
+		return error == null || error.getMessage() == null ? null : error.getMessage();
+	}
+
+	private StopProcessingException findStopProcessingException(Throwable error) {
+		Throwable current = error;
+		int depth = 0;
+		while (current != null && depth < 20) {
+			if (current instanceof StopProcessingException) {
+				return (StopProcessingException) current;
+			}
+			current = current.getCause();
+			depth++;
+		}
+		return null;
 	}
 }

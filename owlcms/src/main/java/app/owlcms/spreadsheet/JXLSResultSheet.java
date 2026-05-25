@@ -64,7 +64,7 @@ public class JXLSResultSheet extends JXLSWorkbookStreamSource {
 				// sometimes we are given the actual original athletes, so we are careful.
 				List<Athlete> unwrappedAthletes = unwrapAthletesAsNeeded(sa);
 				Set<Athlete> noDuplicates = new HashSet<>(unwrappedAthletes);
-				sa = AthleteSorter.displayOrderCopy(new ArrayList<>(noDuplicates));
+				sa = AthleteSorter.displayOrderCopy(filterWeighedIfWeighInStarted(new ArrayList<>(noDuplicates)));
 				this.setSortedAthletes(sa);
 				return sa;
 			}
