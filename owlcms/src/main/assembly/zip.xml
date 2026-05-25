@@ -17,6 +17,7 @@
                 <include>gamx**/**</include>
                 <include>robi**/**</include>
                 <include>iwf**/**</include>
+                <include>timing**/**</include>
                 <include>templates**/**</include>
                 <include>flags**/**</include>
                 <include>pictures**/**</include>
