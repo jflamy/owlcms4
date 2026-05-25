@@ -94,14 +94,16 @@ public class Competition {
 	public static int athleteTimerInitialWarning = 90000;
 	public static int athleteTimerOneMinute = 60000;
 	public static int athleteTimerFinalWarning = 30000;
+	private static final String ATHLETE_TIMER_TWO_MINUTES_ENV = "OWLCMS_ATHLETE_TIMER_TWO_MINUTES";
+	private static final String ATHLETE_TIMER_ONE_MINUTE_ENV = "OWLCMS_ATHLETE_TIMER_ONE_MINUTE";
 	private static Competition competition;
 	@Transient
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
 	private static final boolean SCORING_SYSTEM_ONLY = true;
 
 	/**
-	 * Load timer milestone values from timing/timing.properties.
-	 * Looks first in the local override directory, then on the classpath.
+	 * Load timer milestone values from timing/timing.properties and environment variables.
+	 * Looks first in the local override directory, then on the classpath; environment variables override file values.
 	 * Falls back to the compiled-in defaults if the file is not found or a key is missing.
 	 */
 	public static void loadTimingConfig() {
@@ -110,14 +112,13 @@ public class Competition {
 			props.load(is);
 		} catch (FileNotFoundException e) {
 			logger.debug("timing/timing.properties not found, using compiled-in defaults");
-			return;
 		} catch (IOException e) {
 			logger.warn("could not read timing/timing.properties: {}", e.getMessage());
-			return;
 		}
 		int prev;
 		prev = athleteTimerTwoMinutes;
 		athleteTimerTwoMinutes   = parseTimingProp(props, "athleteTimerTwoMinutes",   athleteTimerTwoMinutes);
+		athleteTimerTwoMinutes   = parseTimingEnv(ATHLETE_TIMER_TWO_MINUTES_ENV, athleteTimerTwoMinutes);
 		if (athleteTimerTwoMinutes != prev) logger.info("timing override: athleteTimerTwoMinutes = {} ms (was {})", athleteTimerTwoMinutes, prev);
 
 		prev = athleteTimerInitialWarning;
@@ -126,6 +127,7 @@ public class Competition {
 
 		prev = athleteTimerOneMinute;
 		athleteTimerOneMinute    = parseTimingProp(props, "athleteTimerOneMinute",    athleteTimerOneMinute);
+		athleteTimerOneMinute    = parseTimingEnv(ATHLETE_TIMER_ONE_MINUTE_ENV, athleteTimerOneMinute);
 		if (athleteTimerOneMinute != prev) logger.info("timing override: athleteTimerOneMinute = {} ms (was {})", athleteTimerOneMinute, prev);
 
 		prev = athleteTimerFinalWarning;
@@ -142,6 +144,19 @@ public class Competition {
 			return Integer.parseInt(v.trim());
 		} catch (NumberFormatException e) {
 			logger.warn("timing.properties: invalid value for {} = '{}', using default {}", key, v, defaultValue);
+			return defaultValue;
+		}
+	}
+
+	private static int parseTimingEnv(String envVar, int defaultValue) {
+		String v = System.getenv(envVar);
+		if (v == null) {
+			return defaultValue;
+		}
+		try {
+			return Integer.parseInt(v.trim());
+		} catch (NumberFormatException e) {
+			logger.warn("environment: invalid value for {} = '{}', using default {}", envVar, v, defaultValue);
 			return defaultValue;
 		}
 	}

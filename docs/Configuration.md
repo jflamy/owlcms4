@@ -35,6 +35,15 @@ Parameters can be set in several ways:
 | useCompetitionDate        | OWLCMS_USECOMPETITIONDATE | default=false<br />If present and true, the ages will be computed relative to the stored competition date.  Useful when loading a database from a previous year. |
 | featureSwitches           | OWLCMS_FEATURESWITCHES    | List of feature switches.  Overrides the ones in the database. |
 
+### Athlete Timer Parameters
+
+The athlete timer milestones can be changed by copying `timing/timing.properties` to the `local/` directory, or to the directory set by `OWLCMS_LOCALDIR`, and editing the millisecond values. The following environment variables override the corresponding file values.
+
+| Environment Variable Name          | Description                                      |
+| ---------------------------------- | ------------------------------------------------ |
+| OWLCMS_ATHLETE_TIMER_ONE_MINUTE    | Overrides the `athleteTimerOneMinute` value.     |
+| OWLCMS_ATHLETE_TIMER_TWO_MINUTES   | Overrides the `athleteTimerTwoMinutes` value.    |
+
 ### Remote Public Results and Video parameters
 
 | System Property Name (-D) | Environment Variable Name | Description                                                  |
