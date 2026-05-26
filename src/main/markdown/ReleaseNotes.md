@@ -10,6 +10,8 @@
 
 **New in Release 66**
 
+62.3.0: When using IWF-style timetable referee assignments, added a "Clear Timetable" feature to allow going back to session-by-session explicit assignments.
+
 62.3.0: Producing intro sheets, empty protocols and jury sheets is possible even if no athletes have been weighed in, for small meets where handwritten strikeouts are acceptable. 
 
 62.3.0: Masters: medals now respect oldest age groups first protocol order
