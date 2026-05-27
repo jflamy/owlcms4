@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import io.moquette.broker.Server;
 
 /**
  * This class receives and emits MQTT events.
@@ -1748,8 +1750,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 
 	/**
 	 * Reconcile the application registry with the broker's session list.
-	 * This method uses reflection to attempt to extract a list of active client ids
-	 * from the embedded Moquette broker instance (`Main.mqttBroker`). It will
+	 * This method uses the embedded Moquette broker instance exposed by Main. It will
 	 * remove any global client id that is not present in the broker's authoritative list.
 	 */
 	private static void reconcileWithBroker() {
@@ -1759,56 +1760,15 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		}
 		
 		try {
-			// Main.mqttBroker is private; access it reflectively to avoid visibility issues
-			Object broker = null;
-			try {
-				java.lang.reflect.Field f = Main.class.getDeclaredField("mqttBroker");
-				f.setAccessible(true);
-				broker = f.get(null);
-			} catch (Throwable t) {
-				// fallback: try public field access (unlikely)
-				try { broker = Main.class.getField("mqttBroker").get(null); } catch (Throwable t2) {}
-			}
+			Server broker = Main.getMqttBroker();
 			if (broker == null) return;
 
-			java.util.Set<String> brokerClients = new java.util.HashSet<>();
-
-			Class<?> cls = broker.getClass();
-			// Try public methods first
-			for (java.lang.reflect.Method m : cls.getMethods()) {
-				String name = m.getName().toLowerCase();
-				if (!(name.contains("session") || name.contains("sessions") || name.contains("client") || name.contains("clients") )) continue;
-				try {
-					Object res = m.invoke(broker);
-					if (res == null) continue;
-					collectClientIdsFromObject(res, brokerClients);
-				} catch (Throwable t) {
-					// ignore individual method failures
-				}
+			Set<String> brokerClients = new HashSet<>();
+			for (io.moquette.broker.ClientDescriptor cd : broker.listConnectedClients()) {
+				brokerClients.add(cd.getClientID());
 			}
 
-			// If nothing found, try declared fields
-			if (brokerClients.isEmpty()) {
-				for (java.lang.reflect.Field f : cls.getDeclaredFields()) {
-					String fname = f.getName().toLowerCase();
-					if (!(fname.contains("session") || fname.contains("sessions") || fname.contains("client") || fname.contains("clients"))) continue;
-					try {
-						f.setAccessible(true);
-						Object val = f.get(broker);
-						if (val == null) continue;
-						collectClientIdsFromObject(val, brokerClients);
-					} catch (Throwable t) {
-						// ignore
-					}
-				}
-			}
-
-			if (brokerClients.isEmpty()) {
-				// nothing to reconcile
-				return;
-			}
-
-			java.util.Set<String> known = new java.util.HashSet<>(MQTTInterceptHandlers.getGlobalActiveClientIds());
+			Set<String> known = new HashSet<>(MQTTInterceptHandlers.getGlobalActiveClientIds());
 			for (String k : known) {
 				if (!brokerClients.contains(k)) {
 					// remove stale
@@ -1821,74 +1781,6 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			}
 		} catch (Throwable t) {
 			logger.debug("Unexpected error during broker reconciliation", t);
-		}
-	}
-
-	private static void collectClientIdsFromObject(Object res, java.util.Set<String> out) {
-		if (res == null) return;
-		if (res instanceof java.util.Collection) {
-			for (Object e : (java.util.Collection<?>) res) {
-				if (e == null) continue;
-				if (e instanceof String) {
-					out.add(((String) e).trim());
-				} else {
-					// try common getter names
-					try {
-						java.lang.reflect.Method m = e.getClass().getMethod("getClientID");
-						Object v = m.invoke(e);
-						if (v != null) out.add(v.toString());
-						continue;
-					} catch (Throwable t) {
-					}
-					try {
-						java.lang.reflect.Method m = e.getClass().getMethod("clientID");
-						Object v = m.invoke(e);
-						if (v != null) out.add(v.toString());
-						continue;
-					} catch (Throwable t) {
-					}
-					try {
-						java.lang.reflect.Method m = e.getClass().getMethod("getClientId");
-						Object v = m.invoke(e);
-						if (v != null) out.add(v.toString());
-						continue;
-					} catch (Throwable t) {
-					}
-					// fallback to toString tokenizing
-					String s = e.toString();
-					if (s != null && s.length() > 0) {
-						// split on non-word to pick client id-like tokens
-						for (String token : s.split("[^A-Za-z0-9_\\-]+")) {
-							if (token.length() > 1) out.add(token);
-						}
-					}
-				}
-			}
-		} else if (res instanceof java.util.Map) {
-			out.addAll(((java.util.Map<?, ?>) res).keySet().stream().map(Object::toString).collect(java.util.stream.Collectors.toSet()));
-		} else {
-			// try to inspect object for iterable-like methods
-			try {
-				java.lang.reflect.Method m = res.getClass().getMethod("getAllClientIds");
-				Object v = m.invoke(res);
-				collectClientIdsFromObject(v, out);
-				return;
-			} catch (Throwable t) {
-			}
-			try {
-				java.lang.reflect.Method m = res.getClass().getMethod("connectedClients");
-				Object v = m.invoke(res);
-				collectClientIdsFromObject(v, out);
-				return;
-			} catch (Throwable t) {
-			}
-			// last resort: toString tokenization
-			String s = res.toString();
-			if (s != null && s.length() > 0) {
-				for (String token : s.split("[^A-Za-z0-9_\\-]+")) {
-					if (token.length() > 1) out.add(token);
-				}
-			}
 		}
 	}
 

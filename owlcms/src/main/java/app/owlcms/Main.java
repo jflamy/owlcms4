@@ -99,7 +99,7 @@ public class Main {
     private static InitialData initialData;
     public static String mqttStartup;
     private static Integer demoResetDelay;
-    private static Server mqttBroker;
+    private static volatile Server mqttBroker;
 
     public static EmbeddedJetty doRun() {
         EmbeddedJetty embeddedJetty = new EmbeddedJetty(null, "owlcms")
@@ -244,7 +244,6 @@ public class Main {
 
     }
 
-    @SuppressWarnings("deprecation")
     public static void startMQTT() {
         Config conf = Config.getCurrent();
         Boolean mqttInternal = conf.getMqttInternal();
@@ -282,12 +281,6 @@ public class Main {
         mqttConfig.setProperty(IConfig.WEB_SOCKET_PATH_PROPERTY_NAME, wsPath);
         logger.info("Configuring MQTT websocket on port {} path {}", wsPort, wsPath);
 
-        mqttBroker = new Server();
-        List<InterceptHandler> userHandlers = new java.util.ArrayList<>();
-        userHandlers.add(new MQTTInterceptHandlers.PublisherListener());
-        userHandlers.add(new MQTTInterceptHandlers.ConnectionListener());
-        userHandlers.add(new MQTTInterceptHandlers.SubscribeListener());
-
         if (Config.getCurrent().getParamMqttServer() != null && !Config.getCurrent().getParamMqttServer().isBlank()) {
             logger.info("MQTT Server overridden by environment or system parameter, not starting embedded MQTT");
             return;
@@ -296,22 +289,26 @@ public class Main {
             logger.info("Internal MQTT server not enabled, skipping");
             return;
         }
-        if (Config.getCurrent().getMqttInternal() == null) {
-            // default should be true if not set previously
-            Config.getCurrent().setMqttInternal(true);
-        }
+
+        final Server broker = new Server();
+        List<InterceptHandler> userHandlers = new java.util.ArrayList<>();
+        userHandlers.add(new MQTTInterceptHandlers.PublisherListener());
+        userHandlers.add(new MQTTInterceptHandlers.ConnectionListener());
+        userHandlers.add(new MQTTInterceptHandlers.SubscribeListener());
 
         try {
             long now = System.currentTimeMillis();
             logger.info("starting MQTT broker.");
-            mqttBroker.startServer(mqttConfig, userHandlers);
+            broker.startServer(mqttConfig, userHandlers);
+            mqttBroker = broker;
             logger.info("started MQTT broker ({} ms).", System.currentTimeMillis() - now);
 
             // Bind a shutdown hook
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 prepareForExit();
                 logger.info("Stopping broker");
-                mqttBroker.stopServer();
+                clearMqttBroker(broker);
+                broker.stopServer();
                 logger.info("Broker stopped");
             }));
         } catch (Exception e) {
@@ -319,9 +316,23 @@ public class Main {
         }
     }
 
+    public static Server getMqttBroker() {
+        return mqttBroker;
+    }
+
+    private static void clearMqttBroker(Server broker) {
+        if (mqttBroker == broker) {
+            mqttBroker = null;
+        }
+    }
+
     public static void stopMQTT() {
         prepareForExit();
-        mqttBroker.stopServer();
+        Server broker = mqttBroker;
+        if (broker != null) {
+            clearMqttBroker(broker);
+            broker.stopServer();
+        }
     }
 
     /**
