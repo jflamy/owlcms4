@@ -38,10 +38,15 @@ import com.vaadin.flow.router.Route;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
+import app.owlcms.data.jpa.JPAService;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.data.technicalofficial.SessionAssignmentGenerator;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TOLevel;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
+import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
@@ -103,6 +108,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	private ComboBox<TechnicalOfficial.Role> roleFilter = new ComboBox<>();
 	private TechnicalOfficial.Role roleValue;
 	private Button generateAssignmentsButton;
+	private Button clearTimetableButton;
 
 	/**
 	 * Instantiates the TechnicalOfficial crudGrid.
@@ -170,8 +176,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        buttonClickEvent -> {
 			        TimetableUploadDialog dialog = new TimetableUploadDialog();
 			        dialog.setCallback(() -> {
-				        // Timetable updated and assignments regenerated - refresh button state
-				        generateAssignmentsButton.setEnabled(hasTimetableEntries());
+				        updateTimetableButtons();
 			        });
 			        dialog.open();
 		        });
@@ -185,7 +190,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			                null,
 			                () -> {
 				                try {
-					                int count = app.owlcms.data.technicalofficial.SessionAssignmentGenerator.generateSessionAssignments();
+					                int count = SessionAssignmentGenerator.generateSessionAssignments();
 					                Notification.show(Translator.translate("Timetable.AssignmentsGenerated", count));
 				                } catch (Exception e) {
 					                logger.error("Error generating session assignments", e);
@@ -194,16 +199,35 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			                }
 			        ).open();
 		        });
-		// Enable button only if timetable has entries
-		generateAssignmentsButton.setEnabled(hasTimetableEntries());
+
+		clearTimetableButton = new Button(Translator.translate("Timetable.ClearTimetable"),
+		        new Icon(VaadinIcon.TRASH),
+		        buttonClickEvent -> {
+			        new ConfirmationDialog(
+			                Translator.translate("Timetable.ClearTimetable"),
+			                Translator.translate("Timetable.ClearTimetableWarning"),
+			                Translator.translate("Delete"),
+			                null,
+			                () -> {
+				                try {
+					                int count = clearTimetableEntries();
+					                updateTimetableButtons();
+					                Notification.show(Translator.translate("Timetable.TimetableCleared", count));
+				                } catch (Exception e) {
+					                logger.error("Error clearing timetable", e);
+					                Notification.show(Translator.translate("Timetable.TimetableClearFailed") + ": " + e.getMessage());
+				                }
+			                }
+			        ).open();
+		        });
 
 		Button clearAssignmentsButton = new Button(Translator.translate("Timetable.ClearSessionAssignments"),
 		        new Icon(VaadinIcon.ERASER),
 		        buttonClickEvent -> {
 			        try {
-				        int count = app.owlcms.data.jpa.JPAService.runInTransaction(em -> {
-					        List<app.owlcms.data.group.Group> groups = app.owlcms.data.group.GroupRepository.findAll();
-					        for (app.owlcms.data.group.Group group : groups) {
+				        int count = JPAService.runInTransaction(em -> {
+					        List<Group> groups = GroupRepository.findAll();
+					        for (Group group : groups) {
 						        group.clearAllAssignments();
 						        em.merge(group);
 					        }
@@ -216,6 +240,8 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 				        Notification.show(Translator.translate("Timetable.AssignmentClearFailed") + ": " + e.getMessage());
 			        }
 		        });
+
+		updateTimetableButtons();
 
 		FlexLayout buttons = new FlexLayout(
 		        new NativeLabel(Translator.translate("TechnicalOfficials.ImportExport")),
@@ -233,6 +259,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        new NativeLabel(Translator.translate("Timetable.TeamAssignments")),
 		        downloadTimetableDiv,
 		        uploadTimetableButton,
+		        clearTimetableButton,
 		        generateAssignmentsButton,
 		        clearAssignmentsButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
@@ -256,12 +283,26 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		return hr;
 	}
 
-	private boolean hasTimetableEntries() {
-		return app.owlcms.data.jpa.JPAService.runInTransaction(em -> {
-			List<app.owlcms.data.technicalofficial.TechnicalOfficialsTimetable> entries = 
-				app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository.findAll(em);
-			return !entries.isEmpty();
+	private int clearTimetableEntries() {
+		return JPAService.runInTransaction(em -> {
+			int count = TechnicalOfficialsTimetableRepository.findAll(em).size();
+			TechnicalOfficialsTimetableRepository.deleteAll(em);
+			return count;
 		});
+	}
+
+	private boolean hasTimetableEntries() {
+		return JPAService.runInTransaction(em -> !TechnicalOfficialsTimetableRepository.findAll(em).isEmpty());
+	}
+
+	private void updateTimetableButtons() {
+		boolean hasEntries = hasTimetableEntries();
+		if (this.generateAssignmentsButton != null) {
+			this.generateAssignmentsButton.setEnabled(hasEntries);
+		}
+		if (this.clearTimetableButton != null) {
+			this.clearTimetableButton.setEnabled(hasEntries);
+		}
 	}
 
 	private Object refreshGrid() {

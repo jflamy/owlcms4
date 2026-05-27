@@ -163,25 +163,6 @@ public class MQTTInterceptHandlers {
 			logger.debug("Received on topic: {} from clientId={} transport={} content: {}", msg.getTopicName(),
 			        clientId, transport, decodedPayload);
 
-			// Log potential recipients and their transport (snapshot)
-			try {
-				java.util.Set<String> recipients = getGlobalActiveClientIds();
-				if (!recipients.isEmpty()) {
-					StringBuilder sb = new StringBuilder();
-					int count = 0;
-					for (String rid : recipients) {
-						String t = connectionTransport.getOrDefault(rid, "unknown");
-						if (count++ > 0) {
-							sb.append(',');
-						}
-						sb.append(rid).append('(').append(t).append(')');
-					}
-					logger.debug("Dispatching publish on topic {} to {} clients: {}", msg.getTopicName(),
-					        recipients.size(), sb.toString());
-				}
-			} catch (Throwable t) {
-				// ignore diagnostics
-			}
 			try {
 				clientId = null;
 				try {

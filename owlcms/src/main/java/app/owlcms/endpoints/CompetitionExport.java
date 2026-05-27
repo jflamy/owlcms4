@@ -23,13 +23,19 @@ package app.owlcms.endpoints;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.function.Supplier;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.export.CompetitionData;
+import app.owlcms.data.export.v2.CompetitionDataV2;
+import app.owlcms.init.OwlcmsSession;
+import app.owlcms.init.OwlcmsSessionThreadLocal;
+import app.owlcms.spreadsheet.JXLSSBDEExport;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
 import ch.qos.logback.classic.Logger;
@@ -53,8 +59,40 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author Jean-François Lamy
  *
  */
-@WebServlet("/competition/export")
+@WebServlet(urlPatterns = {
+        CompetitionExport.LEGACY_JSON_V1_PATH,
+        CompetitionExport.JSON_V1_PATH,
+        CompetitionExport.JSON_V2_PATH,
+        CompetitionExport.SBDE_PATH
+})
 public class CompetitionExport extends HttpServlet {
+
+	static final String LEGACY_JSON_V1_PATH = "/competition/export";
+	static final String JSON_V1_PATH = "/competition/export/json/1";
+	static final String JSON_V2_PATH = "/competition/export/json/2";
+	static final String SBDE_PATH = "/competition/export/sbde";
+	private static final DateTimeFormatter EXPORT_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH'h'mm';'ss");
+	private static final String JSON_CONTENT_TYPE = "application/json";
+	private static final String XLS_CONTENT_TYPE = "application/vnd.ms-excel";
+	private static final String XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+	private static class ExportPayload {
+		private final Supplier<InputStream> inputStreamSupplier;
+		private final String contentType;
+		private final String fileName;
+		private final boolean text;
+
+		private ExportPayload(Supplier<InputStream> inputStreamSupplier, String contentType, String fileName, boolean text) {
+			this.inputStreamSupplier = inputStreamSupplier;
+			this.contentType = contentType;
+			this.fileName = fileName;
+			this.text = text;
+		}
+
+		private InputStream openStream() {
+			return this.inputStreamSupplier.get();
+		}
+	}
 
 	// Helpers (can be refactored to public utility class)
 	// ----------------------------------------
@@ -99,7 +137,7 @@ public class CompetitionExport extends HttpServlet {
 	 */
 	private void processRequest(HttpServletRequest request, HttpServletResponse response, boolean content)
 	        throws IOException {
-		logger.info("processing competition state request");
+		logger.info("processing competition export request {}", request.getServletPath());
 		// use proxyutils because this is a plain servlet, not a Vaadin servlet
 		String host = ProxyUtils.getClientIp(request);
 		boolean allowed = AccessUtils.isLocalhost(host) || AccessUtils.checkBackdoor(host);
@@ -121,19 +159,31 @@ public class CompetitionExport extends HttpServlet {
 		// Prepare streams.
 		InputStream inputStream = null;
 		OutputStream output = null;
-		PrintWriter printWriter = null;
 
 		try {
-			// Open streams.
-			output = response.getOutputStream();
-			printWriter = new PrintWriter(output, true, StandardCharsets.UTF_8);
-			response.setContentType("application/json");
-			response.setCharacterEncoding("UTF-8");
+			installRequestSession(request);
+			ExportPayload payload = createPayload(request.getServletPath());
+			if (payload == null) {
+				response.setStatus(404);
+				response.flushBuffer();
+				return;
+			}
 
-			inputStream = new CompetitionData().exportData();
-			inputStream.transferTo(output);
-			output.flush();
-			printWriter.flush();
+			// Open streams.
+			response.setContentType(payload.contentType);
+			if (payload.text) {
+				response.setCharacterEncoding("UTF-8");
+			}
+			if (payload.fileName != null) {
+				response.setHeader("Content-Disposition", "attachment; filename=\"" + payload.fileName + "\"");
+			}
+
+			if (content) {
+				output = response.getOutputStream();
+				inputStream = payload.openStream();
+				inputStream.transferTo(output);
+				output.flush();
+			}
 
 			response.setStatus(200);
 			response.flushBuffer();
@@ -141,16 +191,44 @@ public class CompetitionExport extends HttpServlet {
 			logger.error("{}", LoggerUtils.stackTrace(t));
 			response.setStatus(500);
 		} finally {
+			OwlcmsSessionThreadLocal.remove();
 			if (output != null) {
 				output.close();
-			}
-			if (printWriter != null) {
-				printWriter.close();
 			}
 			if (inputStream != null) {
 				inputStream.close();
 			}
 		}
+	}
+
+	private ExportPayload createPayload(String path) {
+		if (LEGACY_JSON_V1_PATH.equals(path) || JSON_V1_PATH.equals(path)) {
+			return new ExportPayload(() -> new CompetitionData().exportData(), JSON_CONTENT_TYPE, null, true);
+		}
+		if (JSON_V2_PATH.equals(path)) {
+			return new ExportPayload(() -> new CompetitionDataV2().exportData(null, null), JSON_CONTENT_TYPE, null, true);
+		}
+		if (SBDE_PATH.equals(path)) {
+			JXLSSBDEExport sbdeExport = new JXLSSBDEExport(null);
+			String extension = sbdeExport.getFileExtension();
+			if (extension == null || extension.isBlank()) {
+				extension = ".xlsx";
+			}
+			String fileName = "SBDE_" + LocalDateTime.now().withNano(0).format(EXPORT_TIMESTAMP_FORMAT) + extension;
+			return new ExportPayload(sbdeExport::createInputStream, excelContentType(extension), fileName, false);
+		}
+		return null;
+	}
+
+	private String excelContentType(String extension) {
+		return ".xls".equals(extension) ? XLS_CONTENT_TYPE : XLSX_CONTENT_TYPE;
+	}
+
+	private void installRequestSession(HttpServletRequest request) {
+		OwlcmsSession requestSession = new OwlcmsSession();
+		OwlcmsSessionThreadLocal.set(requestSession);
+		Locale locale = request.getLocale();
+		requestSession.setLocale(locale != null ? locale : Locale.ENGLISH);
 	}
 
 }

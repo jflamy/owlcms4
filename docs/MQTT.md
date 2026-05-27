@@ -61,6 +61,43 @@ On Windows, you can do as follows
 
 3. You can also use the three equivalent environment variables OWLCMS_MQTTUSERNAME, OWLCMS_MQTTPASSWORD and OWLCMS_MQTTPORT
 
+### MQTT over WebSocket
+
+When owlcms starts the embedded MQTT server, it also enables MQTT over WebSocket. WebSocket clients must use the path `/mqtt`.
+
+Most clients should connect through the normal owlcms HTTP port:
+
+```text
+ws://<owlcms-host>:<owlcms-http-port>/mqtt
+```
+
+For a local owlcms instance using the default HTTP port, this is:
+
+```text
+ws://localhost:8080/mqtt
+```
+
+For a cloud deployment such as Fly.io, use the HTTPS/WebSocket Secure endpoint:
+
+```text
+wss://<your-app>.fly.dev/mqtt
+```
+
+Internally, owlcms proxies these connections to the embedded Moquette WebSocket listener. That direct listener defaults to port `9090`. This is an advanced/internal setting; most installations should leave it unchanged and should not expose it publicly.
+
+If the internal port conflicts with another process, it can be changed with either:
+
+```bash
+-DmqttWsPort=9090
+OWLCMS_MQTTWSPORT=9090
+```
+
+For direct broker testing only, a client that can reach the embedded Moquette WebSocket port may use:
+
+```text
+ws://<owlcms-host>:9090/mqtt
+```
+
 
 
 ## Using an External MQTT Server

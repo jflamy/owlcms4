@@ -10,6 +10,13 @@
 
 **New in Release 66**
 
+66.3.0: New competition export endpoints in addition to the existing `/competition/export` (which is unchanged):
+  - `/competition/export/json/1` — same JSON format as the legacy endpoint
+  - `/competition/export/json/2` — new JSON v2 format
+  - `/competition/export/sbde` — downloads the competition data as an SBDE Excel registration spreadsheet
+
+62.3.0: When using IWF-style timetable referee assignments, added a "Clear Timetable" feature to allow going back to session-by-session explicit assignments.
+
 62.3.0: Producing intro sheets, empty protocols and jury sheets is possible even if no athletes have been weighed in, for small meets where handwritten strikeouts are acceptable. 
 
 62.3.0: Masters: medals now respect oldest age groups first protocol order

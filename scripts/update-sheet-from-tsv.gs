@@ -16,8 +16,8 @@
  *
  * SAFETY
  * - Only cells whose current value differs from the proposed value are updated.
+ * - Keys not found in the sheet are appended as new rows on Apply.
  * - Formula cells are skipped and reported.
- * - Keys not found in the sheet are reported but do not cause errors.
  * - The active sheet (the tab selected when you open the menu) is used.
  *   Make sure you are on the correct tab before opening the menu.
  */
@@ -129,7 +129,8 @@ function applyTsvTranslationUpdates(tsvText, apply) {
   }
 
   var updates = [];
-  var missingKeys = [];
+  var addedRows = [];
+  var addedRowByKey = {};
   var missingCols = {};
   var formulaSkips = [];
 
@@ -139,7 +140,17 @@ function applyTsvTranslationUpdates(tsvText, apply) {
     if (!key) continue;
 
     if (!rowByKey.hasOwnProperty(key)) {
-      missingKeys.push(key);
+      var addedRow = addedRowByKey[key];
+      if (!addedRow) {
+        addedRow = {
+          key: key,
+          rowValues: buildNewSheetRow(key, sheetHeader.length),
+          populatedColumns: []
+        };
+        addedRows.push(addedRow);
+        addedRowByKey[key] = addedRow;
+      }
+      populateNewSheetRow(addedRow, tsvHeader, tsvRow, sheetColByName, SKIPPED_COLUMNS, missingCols);
       continue;
     }
     var sheetRowIdx = rowByKey[key];
@@ -191,10 +202,19 @@ function applyTsvTranslationUpdates(tsvText, apply) {
       sheet.getRange(updates[u].row1, updates[u].col1).setValue(updates[u].newVal);
     }
   }
+  if (apply && addedRows.length > 0) {
+    var appendStartRow = sheet.getLastRow() + 1;
+    sheet.getRange(appendStartRow, 1, addedRows.length, sheetHeader.length)
+      .setValues(addedRows.map(function(addedRow) { return addedRow.rowValues; }));
+  }
 
   // Build report
   var lines = [];
-  lines.push((apply ? 'Applied' : 'Preview') + ': ' + updates.length + ' cell(s) would be updated');
+  if (apply) {
+    lines.push('Applied: ' + updates.length + ' cell(s) updated, ' + addedRows.length + ' row(s) added');
+  } else {
+    lines.push('Preview: ' + updates.length + ' cell(s) would be updated, ' + addedRows.length + ' row(s) would be added');
+  }
   lines.push('Active sheet: ' + sheet.getName());
   lines.push('');
 
@@ -209,10 +229,15 @@ function applyTsvTranslationUpdates(tsvText, apply) {
     lines.push('');
   }
 
-  if (missingKeys.length > 0) {
-    lines.push('Keys not found in sheet (' + missingKeys.length + '):');
-    for (var mk = 0; mk < missingKeys.length; mk++) {
-      lines.push('  ' + missingKeys[mk]);
+  if (addedRows.length > 0) {
+    lines.push((apply ? 'Rows added' : 'Rows to add') + ' (' + addedRows.length + '):');
+    for (var ar = 0; ar < addedRows.length; ar++) {
+      var rowToAdd = addedRows[ar];
+      lines.push('  ' + rowToAdd.key);
+      for (var pc = 0; pc < rowToAdd.populatedColumns.length; pc++) {
+        var populatedColumn = rowToAdd.populatedColumns[pc];
+        lines.push('    ' + populatedColumn.col + ': ' + populatedColumn.value);
+      }
     }
     lines.push('');
   }
@@ -225,6 +250,45 @@ function applyTsvTranslationUpdates(tsvText, apply) {
   }
 
   return lines.join('\n');
+}
+
+function buildNewSheetRow(key, columnCount) {
+  var row = [];
+  for (var c = 0; c < columnCount; c++) {
+    row.push('');
+  }
+  row[0] = key;
+  return row;
+}
+
+function populateNewSheetRow(addedRow, tsvHeader, tsvRow, sheetColByName, skippedColumns, missingCols) {
+  var populatedColumnByName = {};
+  for (var existing = 0; existing < addedRow.populatedColumns.length; existing++) {
+    populatedColumnByName[addedRow.populatedColumns[existing].col] = addedRow.populatedColumns[existing];
+  }
+
+  for (var tc = 0; tc < tsvHeader.length; tc++) {
+    var colName = tsvHeader[tc];
+    if (skippedColumns[colName]) continue;
+
+    if (!sheetColByName.hasOwnProperty(colName)) {
+      missingCols[colName] = true;
+      continue;
+    }
+
+    var sheetColIdx = sheetColByName[colName];
+    var newVal = tc < tsvRow.length ? tsvRow[tc] : '';
+    addedRow.rowValues[sheetColIdx] = newVal;
+
+    if (newVal !== '') {
+      if (!populatedColumnByName[colName]) {
+        populatedColumnByName[colName] = { col: colName, value: newVal };
+        addedRow.populatedColumns.push(populatedColumnByName[colName]);
+      } else {
+        populatedColumnByName[colName].value = newVal;
+      }
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
