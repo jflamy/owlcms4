@@ -7,9 +7,12 @@
 package app.owlcms.spreadsheet;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -22,6 +25,7 @@ import com.vaadin.flow.component.UI;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -47,6 +51,8 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		Workbook workbook = null;
 		try {
 			workbook = new XSSFWorkbook();
+			ChampionshipRepository.normalizeDefaultTypes();
+			ChampionshipRepository.normalizeCompetitionDefaultFlags();
 			Sheet sheet = workbook.createSheet(AGE_GROUPS_SHEET_NAME);
 			Row header = sheet.createRow(0);
 			header.createCell(0).setCellValue("code");
@@ -91,7 +97,7 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 				}
 				rowNum++;
 			}
-			writeChampionshipsSheet(workbook.createSheet(CHAMPIONSHIPS_SHEET_NAME));
+			writeChampionshipsSheet(workbook.createSheet(CHAMPIONSHIPS_SHEET_NAME), ageGroups);
 			workbook.write(stream);
 			if (this.doneCallback != null) {
 				this.doneCallback.accept(null);
@@ -119,24 +125,25 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		return preCheck();
 	}
 
-	private void writeChampionshipsSheet(Sheet sheet) {
+	private void writeChampionshipsSheet(Sheet sheet, List<AgeGroup> ageGroups) {
 		String[] headers = {
 		        "name",
 		        "type",
+		        "competitionTemplate",
 		        "useCompetitionDefaults",
+		        "snatchCJTotalMedals",
 		        "scoringSystem",
 		        "bestAthleteScoringSystem",
 		        "bestSnatchScoringSystem",
 		        "bestCJScoringSystem",
-		        "snatchCJTotalMedals",
 		        "teamPoints1st",
 		        "teamPoints2nd",
 		        "teamPoints3rd",
-		        "mensBestN",
-		        "womensBestN",
 		        "teamScoringSystem",
 		        "maxTeamSize",
 		        "maxPerCategory",
+		        "mensBestN",
+		        "womensBestN",
 		        "mixedTeamEnabled",
 		        "mixedTeamScoringSystem",
 		        "explicitMixedTeamMembers",
@@ -150,33 +157,76 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			header.createCell(i).setCellValue(headers[i]);
 		}
 
+		List<Championship> championships = findChampionshipsForExport(ageGroups);
 		int rowNum = 1;
-		for (Championship championship : Championship.findAll()) {
+		for (Championship championship : championships) {
 			Row row = sheet.createRow(rowNum++);
-			row.createCell(0).setCellValue(championship.getName());
+			row.createCell(0).setCellValue(championship.isCompetitionTemplate() ? Championship.COMPETITION_TEMPLATE_NAME : championship.getName());
 			row.createCell(1).setCellValue(championship.getType().name());
-			row.createCell(2).setCellValue(championship.usesCompetitionDefaults());
-			setRankingCell(row, 3, championship.getScoringSystem());
-			setRankingCell(row, 4, championship.getBestAthleteScoringSystem());
-			setRankingCell(row, 5, championship.getBestSnatchScoringSystem());
-			setRankingCell(row, 6, championship.getBestCJScoringSystem());
-			row.createCell(7).setCellValue(championship.isSnatchCJTotalMedals());
-			setIntegerCell(row, 8, championship.getTeamPoints1st());
-			setIntegerCell(row, 9, championship.getTeamPoints2nd());
-			setIntegerCell(row, 10, championship.getTeamPoints3rd());
-			setIntegerCell(row, 11, championship.getMensBestN());
-			setIntegerCell(row, 12, championship.getWomensBestN());
-			setRankingCell(row, 13, championship.getTeamScoringSystem());
-			setIntegerCell(row, 14, championship.getMaxTeamSize());
-			setIntegerCell(row, 15, championship.getMaxPerCategory());
-			row.createCell(16).setCellValue(championship.isMixedTeamEnabled());
-			setRankingCell(row, 17, championship.getMixedTeamScoringSystem());
-			row.createCell(18).setCellValue(championship.isExplicitMixedTeamMembers());
-			setIntegerCell(row, 19, championship.getExplicitTeamSize());
-			setIntegerCell(row, 20, championship.getMixedBestN());
-			setIntegerCell(row, 21, championship.getMixedMensBestN());
-			setIntegerCell(row, 22, championship.getMixedWomensBestN());
+			row.createCell(2).setCellValue(championship.isCompetitionTemplate());
+			row.createCell(3).setCellValue(championship.usesCompetitionDefaults());
+			row.createCell(4).setCellValue(championship.isSnatchCJTotalMedals());
+			setRankingCell(row, 5, championship.getScoringSystem());
+			setRankingCell(row, 6, championship.getBestAthleteScoringSystem());
+			setRankingCell(row, 7, championship.getBestSnatchScoringSystem());
+			setRankingCell(row, 8, championship.getBestCJScoringSystem());
+			setIntegerCell(row, 9, championship.getTeamPoints1st());
+			setIntegerCell(row, 10, championship.getTeamPoints2nd());
+			setIntegerCell(row, 11, championship.getTeamPoints3rd());
+			setRankingCell(row, 12, championship.getTeamScoringSystem());
+			setIntegerCell(row, 13, normalizeTeamSize(championship.getMaxTeamSize()));
+			setIntegerCell(row, 14, championship.getMaxPerCategory());
+			setIntegerCell(row, 15, championship.getMensBestN());
+			setIntegerCell(row, 16, championship.getWomensBestN());
+			row.createCell(17).setCellValue(championship.isMixedTeamEnabled());
+			setRankingCell(row, 18, championship.getMixedTeamScoringSystem());
+			row.createCell(19).setCellValue(championship.isExplicitMixedTeamMembers());
+			setIntegerCell(row, 20, championship.getExplicitTeamSize());
+			setIntegerCell(row, 21, championship.getMixedBestN());
+			setIntegerCell(row, 22, championship.getMixedMensBestN());
+			setIntegerCell(row, 23, championship.getMixedWomensBestN());
 		}
+	}
+
+	private List<Championship> findChampionshipsForExport(List<AgeGroup> ageGroups) {
+		Map<String, Championship> championships = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		Championship template = null;
+		for (Championship championship : Championship.findAllIncludingTemplate()) {
+			String key = championship.isCompetitionTemplate()
+			        ? Championship.COMPETITION_TEMPLATE_NAME
+			        : Championship.canonicalizeChampionshipName(championship.getName());
+			championships.put(key, championship);
+			if (championship.isCompetitionTemplate()) {
+				template = championship;
+			}
+		}
+		if (template == null) {
+			template = ChampionshipRepository.ensureCompetitionTemplate();
+			championships.put(Championship.COMPETITION_TEMPLATE_NAME, template);
+		}
+
+		for (AgeGroup ageGroup : ageGroups) {
+			String championshipName = Championship.canonicalizeChampionshipName(ageGroup.computeChampionshipName());
+			if (championshipName == null || championshipName.isBlank() || championships.containsKey(championshipName)) {
+				continue;
+			}
+			Championship championship = new Championship(championshipName, ageGroup.getChampionshipType());
+			championship.copyCompetitionSettingsFrom(template);
+			championship.setUseCompetitionDefaults(true);
+			championships.put(championshipName, championship);
+		}
+
+		List<Championship> exportChampionships = new ArrayList<>(championships.values());
+		exportChampionships.sort(Comparator.comparing(Championship::isCompetitionTemplate).reversed()
+		        .thenComparing(Championship::compareTo));
+		return exportChampionships;
+	}
+
+	private static final int LEGACY_UNBOUNDED_TEAM_SIZE = 50;
+	private static final int UNBOUNDED_TEAM_SIZE = 999;
+
+	private static Integer normalizeTeamSize(Integer size) {
+		return (size != null && size == LEGACY_UNBOUNDED_TEAM_SIZE) ? UNBOUNDED_TEAM_SIZE : size;
 	}
 
 	private void setIntegerCell(Row row, int column, Integer value) {
@@ -185,10 +235,10 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		}
 	}
 
+	private static final String POINTS_SENTINEL = "POINTS";
+
 	private void setRankingCell(Row row, int column, Ranking ranking) {
-		if (ranking != null) {
-			row.createCell(column).setCellValue(ranking.getReportingName());
-		}
+		row.createCell(column).setCellValue(ranking != null ? ranking.getReportingName() : POINTS_SENTINEL);
 	}
 
 }

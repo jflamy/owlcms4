@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -101,9 +102,15 @@ public class CompetitionDataV2 {
 	public CompetitionDataV2() {
 	}
 
-	public InputStream exportData() {
+	private static ObjectMapper createMapper() {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return mapper;
+	}
+
+	public InputStream exportData() {
+		ObjectMapper mapper = createMapper();
 		try {
 			ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
 
@@ -128,8 +135,7 @@ public class CompetitionDataV2 {
 		if (ui != null) {
 			ui.access(() -> notification.open());
 		}
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
+		ObjectMapper mapper = createMapper();
 		try {
 			ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
 
@@ -157,7 +163,7 @@ public class CompetitionDataV2 {
 		// Set export timestamp in ISO 8601 format
 		setExportDate(Instant.now().toString());
 
-		setChampionships(Championship.findAll().stream()
+		setChampionships(Championship.findAllIncludingTemplate().stream()
 			.map(ChampionshipDTO::fromChampionship)
 			.collect(Collectors.toList()));
 		
@@ -211,8 +217,7 @@ public class CompetitionDataV2 {
 	}
 
 	public CompetitionDataV2 importData(InputStream serialized) {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
+		ObjectMapper mapper = createMapper();
 		CompetitionDataV2 newData;
 		try {
 			newData = mapper.readValue(serialized, CompetitionDataV2.class);
@@ -261,11 +266,15 @@ public class CompetitionDataV2 {
 			if (updated.getChampionships() != null) {
 				for (ChampionshipDTO championshipDto : updated.getChampionships()) {
 					Championship championship = championshipDto.toChampionship();
-					Championship existing = ChampionshipRepository.findByName(championship.getName());
+					Championship existing = championship.isCompetitionTemplate()
+					        ? ChampionshipRepository.ensureCompetitionTemplate(em)
+					        : ChampionshipRepository.findByName(championship.getName());
 					if (existing == null) {
 						em.persist(championship);
 					} else {
+						existing.setCompetitionTemplate(championship.isCompetitionTemplate());
 						existing.setType(championship.getType());
+						existing.setUseCompetitionDefaults(championship.usesCompetitionDefaults());
 						existing.setScoringSystem(championship.getScoringSystem());
 						existing.setBestAthleteScoringSystem(championship.getBestAthleteScoringSystem());
 						existing.setBestSnatchScoringSystem(championship.getBestSnatchScoringSystem());
@@ -283,6 +292,7 @@ public class CompetitionDataV2 {
 						existing.setMaxTeamSize(championship.getMaxTeamSize());
 						existing.setMaxPerCategory(championship.getMaxPerCategory());
 						existing.setExplicitMixedTeamMembers(championship.isExplicitMixedTeamMembers());
+						existing.setMixedTeamEnabled(championship.isMixedTeamEnabled());
 						existing.setTeamScoringSystem(championship.getTeamScoringSystem());
 						existing.setMixedTeamScoringSystem(championship.getMixedTeamScoringSystem());
 						em.merge(existing);

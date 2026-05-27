@@ -411,7 +411,7 @@ public class AgeGroupRepository {
 	public static void insertAgeGroups(EntityManager em, EnumSet<ChampionshipType> forcedInsertion) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName("/agegroups/AgeGroups_2025-06.xlsx");
-			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(forcedInsertion, localizedName);
+			AgeGroupDefinitionReader.doInsertAgeGroups(forcedInsertion, localizedName);
 			RankingConfig.updateMustCompute();
 		} catch (FileNotFoundException e1) {
 			// ignore
@@ -421,7 +421,7 @@ public class AgeGroupRepository {
 	public static void insertAgeGroups(EntityManager em, EnumSet<ChampionshipType> forcedInsertion, String resourceName) {
 		try {
 			String localizedName = ResourceWalker.getLocalizedResourceName(resourceName);
-			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(forcedInsertion, localizedName);
+			AgeGroupDefinitionReader.doInsertAgeGroups(forcedInsertion, localizedName);
 			RankingConfig.updateMustCompute();
 		} catch (FileNotFoundException e1) {
 			throw new RuntimeException(e1);
@@ -430,7 +430,7 @@ public class AgeGroupRepository {
 
 	public static void reloadDefinitions(InputStream inputStream) {
 		cleanUpExisting();
-		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(inputStream);
+		AgeGroupDefinitionReader.doInsertAgeGroups(inputStream);
 		AthleteRepository.resetParticipations(false, true);
 		RankingConfig.updateMustCompute();
 	}
@@ -439,7 +439,7 @@ public class AgeGroupRepository {
 		cleanUpExisting();
 		try {
 			AgeGroupDefinitionReader.setErrorCollector(errorCollector);
-			AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(inputStream);
+			AgeGroupDefinitionReader.doInsertAgeGroups(inputStream);
 		} finally {
 			AgeGroupDefinitionReader.setErrorCollector(null);
 		}
@@ -449,7 +449,7 @@ public class AgeGroupRepository {
 
 	public static void reloadDefinitions(String localizedFileName) {
 		cleanUpExisting();
-		AgeGroupDefinitionReader.doInsertRobiAndAgeGroups(null, "/agegroups/" + localizedFileName);
+		AgeGroupDefinitionReader.doInsertAgeGroups(null, "/agegroups/" + localizedFileName);
 		AthleteRepository.resetParticipations(false, true);
 		RankingConfig.updateMustCompute();
 	}

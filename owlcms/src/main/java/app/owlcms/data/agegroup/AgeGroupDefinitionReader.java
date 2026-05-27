@@ -36,7 +36,6 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
-import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
@@ -59,7 +58,7 @@ public class AgeGroupDefinitionReader {
 	private static final String ACTIVE_HEADER = "active";
 	private static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupDefinitionReader.class);
 	static DataFormatter formatter = new DataFormatter();
-	private static int[] countDefaults = new int[Gender.values().length];
+	private static String defaultChampionshipName;
 	private static Map<String, AgeGroup> ageGroupByCodeGender = new HashMap<>();
 	private static ThreadLocal<Consumer<String>> errorCollector = new ThreadLocal<>();
 
@@ -67,27 +66,24 @@ public class AgeGroupDefinitionReader {
 		errorCollector.set(collector);
 	}
 
-	public static void doInsertRobiAndAgeGroups(InputStream ageGroupStream) {
+	public static void doInsertAgeGroups(InputStream ageGroupStream) {
 		Logger mainLogger = Main.getStartupLogger();
-		Map<String, Category> templates = loadRobi(mainLogger);
-		loadAgeGroupStream(null, "custom upload", mainLogger, templates, ageGroupStream);
+		loadAgeGroupStream(null, "custom upload", mainLogger, ageGroupStream);
 	}
 
 	@SuppressWarnings("null")
-	static void createAgeGroups(Workbook workbook, Map<String, Category> templates,
+	static void createAgeGroups(Workbook workbook,
 	        EnumSet<ChampionshipType> forcedInsertion,
 	        String localizedName) {
 
-		for (int i = 0; i < Gender.values().length; i++) {
-			countDefaults[i] = 0;
-		}
+		defaultChampionshipName = null;
 		JPAService.runInTransaction(em -> {
 			Sheet championshipsSheet = getSheet(workbook, CHAMPIONSHIPS_SHEET_NAME);
 			boolean simplifiedAgeGroups = championshipsSheet != null;
+			ChampionshipRepository.ensureCompetitionTemplate(em);
 			Map<String, ChampionshipType> importedChampionshipTypes = simplifiedAgeGroups
 			        ? createChampionships(championshipsSheet, em)
 			        : new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-			Map<String, Championship> createdLegacyChampionships = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 			Sheet sheet = getAgeGroupsSheet(workbook, simplifiedAgeGroups);
 			Iterator<Row> rowIterator = sheet.rowIterator();
 			int iRow;
@@ -131,9 +127,6 @@ public class AgeGroupDefinitionReader {
 
 				setAgeGroupRanking(row, iRow, scoringColumn, ag, true);
 				setAgeGroupRanking(row, iRow, bestAthleteColumn, ag, false);
-				if (!simplifiedAgeGroups) {
-					ensureLegacyChampionship(em, ag, createdLegacyChampionships);
-				}
 
 				Iterator<Cell> cellIterator = row.cellIterator();
 				while (cellIterator.hasNext()) {
@@ -193,9 +186,12 @@ public class AgeGroupDefinitionReader {
 			Competition comp = Competition.getCurrent();
 			Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
 			comp2.setAgeGroupsFileName(localizedName);
+			ChampionshipRepository.normalizeDefaultTypes(em);
+			ChampionshipRepository.normalizeCompetitionDefaultFlags(em);
 
 			return null;
 		});
+		Championship.reset();
 	}
 
 	private static AgeGroup createAgeGroupFromRow(Row row, int iRow, boolean simplifiedAgeGroups,
@@ -239,7 +235,8 @@ public class AgeGroupDefinitionReader {
 			championshipType = ChampionshipType.U;
 		}
 		ag.setChampionshipType(championshipType);
-		if (ag.getAgeDivision() == null || ag.getAgeDivision().isBlank()) {
+		if (ag.getAgeDivision() == null || ag.getAgeDivision().isBlank()
+		        || ag.getAgeDivision().equalsIgnoreCase(ChampionshipType.IWF.name())) {
 			ag.setAgeDivision(championshipType.name());
 		}
 
@@ -284,20 +281,22 @@ public class AgeGroupDefinitionReader {
 				continue;
 			}
 
+			boolean competitionTemplate = getBooleanValue(row, headerColumns, "competitiontemplate", false);
 			String name = getCellText(row, columnIndex(headerColumns, "name", 0));
-			if (name == null || name.isBlank()) {
+			if (!competitionTemplate && (name == null || name.isBlank())) {
 				continue;
 			}
-			String canonicalName = Championship.canonicalizeChampionshipName(name.trim());
+			String canonicalName = competitionTemplate ? Championship.COMPETITION_TEMPLATE_NAME : Championship.canonicalizeChampionshipName(name.trim());
 			ChampionshipType type = parseChampionshipType(iRow, columnIndex(headerColumns, "type", 1),
 			        getCellText(row, columnIndex(headerColumns, "type", 1)), ChampionshipType.U);
-			Championship championship = findChampionship(em, canonicalName);
+			Championship championship = competitionTemplate ? ChampionshipRepository.ensureCompetitionTemplate(em) : findChampionship(em, canonicalName);
 			if (championship == null) {
 				championship = new Championship(canonicalName, type);
 			} else {
 				championship.setType(type);
 			}
 
+			championship.setCompetitionTemplate(competitionTemplate);
 			championship.setUseCompetitionDefaults(getBooleanValue(row, headerColumns, "usecompetitiondefaults", true));
 			championship.setScoringSystem(getRankingValue(row, iRow, headerColumns, "scoringsystem"));
 			championship.setBestAthleteScoringSystem(getRankingValue(row, iRow, headerColumns, "bestathletescoringsystem"));
@@ -310,7 +309,7 @@ public class AgeGroupDefinitionReader {
 			championship.setMensBestN(getIntegerValue(row, iRow, headerColumns, "mensbestn"));
 			championship.setWomensBestN(getIntegerValue(row, iRow, headerColumns, "womensbestn"));
 			championship.setTeamScoringSystem(getRankingValue(row, iRow, headerColumns, "teamscoringsystem"));
-			championship.setMaxTeamSize(getIntegerValue(row, iRow, headerColumns, "maxteamsize"));
+			championship.setMaxTeamSize(normalizeTeamSize(getIntegerValue(row, iRow, headerColumns, "maxteamsize")));
 			championship.setMaxPerCategory(getIntegerValue(row, iRow, headerColumns, "maxpercategory"));
 			championship.setMixedTeamEnabled(getBooleanValue(row, headerColumns, "mixedteamenabled", false));
 			championship.setMixedTeamScoringSystem(getRankingValue(row, iRow, headerColumns, "mixedteamscoringsystem"));
@@ -325,7 +324,9 @@ public class AgeGroupDefinitionReader {
 			} else {
 				em.merge(championship);
 			}
-			importedTypes.put(canonicalName, type);
+			if (!competitionTemplate) {
+				importedTypes.put(canonicalName, type);
+			}
 		}
 		deleteOmittedChampionships(em, importedTypes);
 		return importedTypes;
@@ -334,6 +335,9 @@ public class AgeGroupDefinitionReader {
 	private static void deleteOmittedChampionships(EntityManager em, Map<String, ChampionshipType> importedTypes) {
 		TypedQuery<Championship> query = em.createQuery("select c from Championship c", Championship.class);
 		for (Championship championship : query.getResultList()) {
+			if (championship.isCompetitionTemplate()) {
+				continue;
+			}
 			String canonicalName = Championship.canonicalizeChampionshipName(championship.getName());
 			if (!importedTypes.containsKey(canonicalName)) {
 				em.remove(championship);
@@ -348,44 +352,9 @@ public class AgeGroupDefinitionReader {
 
 	private static Championship findChampionship(EntityManager em, String name) {
 		TypedQuery<Championship> query = em.createQuery(
-		        "select c from Championship c where lower(c.name) = :name", Championship.class);
+		        "select c from Championship c where lower(c.name) = :name and c.competitionTemplate = false", Championship.class);
 		query.setParameter("name", name.toLowerCase());
 		return query.getResultList().stream().findFirst().orElse(null);
-	}
-
-	private static void ensureLegacyChampionship(EntityManager em, AgeGroup ageGroup,
-	        Map<String, Championship> createdLegacyChampionships) {
-		String name = Championship.canonicalizeChampionshipName(ageGroup.getChampionshipName());
-		if (name == null || name.isBlank()) {
-			return;
-		}
-		Championship championship = createdLegacyChampionships.get(name);
-		if (championship == null) {
-			if (findChampionship(em, name) != null) {
-				return;
-			}
-			championship = new Championship(name, ageGroup.getConfiguredChampionshipType());
-			championship.populateScoringDefaults();
-			em.persist(championship);
-			createdLegacyChampionships.put(name, championship);
-		}
-		applyLegacyScoring(championship, ageGroup.getScoringSystem(), ageGroup.getBestAthleteScoringSystem());
-	}
-
-	private static void applyLegacyScoring(Championship championship, Ranking scoringSystem,
-	        Ranking bestAthleteScoringSystem) {
-		if (scoringSystem == null && bestAthleteScoringSystem == null) {
-			return;
-		}
-		championship.setUseCompetitionDefaults(false);
-		if (scoringSystem != null) {
-			championship.setScoringSystem(scoringSystem);
-		}
-		if (bestAthleteScoringSystem != null) {
-			championship.setBestAthleteScoringSystem(bestAthleteScoringSystem);
-			championship.setBestSnatchScoringSystem(bestAthleteScoringSystem);
-			championship.setBestCJScoringSystem(bestAthleteScoringSystem);
-		}
 	}
 
 	private static boolean getBooleanValue(Row row, Map<String, Integer> headerColumns, String header, boolean defaultValue) {
@@ -451,12 +420,20 @@ public class AgeGroupDefinitionReader {
 		return getRankingValue(row, iRow, columnIndex(headerColumns, header, -1));
 	}
 
+	private static final String POINTS_SENTINEL = "POINTS";
+	private static final int LEGACY_UNBOUNDED_TEAM_SIZE = 50;
+	private static final int UNBOUNDED_TEAM_SIZE = 999;
+
+	private static Integer normalizeTeamSize(Integer size) {
+		return (size != null && size == LEGACY_UNBOUNDED_TEAM_SIZE) ? UNBOUNDED_TEAM_SIZE : size;
+	}
+
 	private static Ranking getRankingValue(Row row, int iRow, int column) {
 		if (column < 0) {
 			return null;
 		}
 		String cellValue = getCellText(row, column);
-		if (cellValue == null || cellValue.isBlank()) {
+		if (cellValue == null || cellValue.isBlank() || cellValue.equalsIgnoreCase(POINTS_SENTINEL)) {
 			return null;
 		}
 		Ranking rv = Ranking.rankingByReportingName.get(cellValue.toLowerCase());
@@ -512,7 +489,11 @@ public class AgeGroupDefinitionReader {
 			return defaultValue;
 		}
 		try {
-			return ChampionshipType.valueOf(cellValue.trim().toUpperCase());
+			ChampionshipType parsed = ChampionshipType.valueOf(cellValue.trim().toUpperCase());
+			if (parsed == ChampionshipType.IWF) {
+				logger.warn("Replaced legacy Championship Type IWF with U at row {}, column {}", iRow + 1, cellName(column, iRow));
+			}
+			return ChampionshipType.normalizeOrDefault(parsed);
 		} catch (IllegalArgumentException e) {
 			reportError(iRow, column, cellValue, new IllegalArgumentException("Unknown Championship Type " + cellValue));
 			return defaultValue;
@@ -546,14 +527,17 @@ public class AgeGroupDefinitionReader {
 
 	private static void validateAgeGroupIdentity(AgeGroup ag, int iRow, int iColumn, EntityManager em) {
 		if (ag.getConfiguredChampionshipType() == ChampionshipType.DEFAULT) {
-			countDefaults[ag.getGender().ordinal()] = countDefaults[ag.getGender().ordinal()] + 1;
-			int nbDefaults = countDefaults[ag.getGender().ordinal()];
-			if (nbDefaults > 1) {
-				IllegalArgumentException ex = new IllegalArgumentException(
-				        "You can only have one DEFAULT for Men and one DEFAULT for Women");
-				reportError(iRow, 0, ag.getCode(), ex);
-				em.getTransaction().setRollbackOnly();
-				throw ex;
+			String canonical = Championship.canonicalizeChampionshipName(ag.computeChampionshipName());
+			if (defaultChampionshipName == null) {
+				defaultChampionshipName = canonical;
+			} else if (!defaultChampionshipName.equalsIgnoreCase(canonical)) {
+				logger.warn("Reverted extra DEFAULT age group '{}' championship '{}' to U; DEFAULT already belongs to '{}'",
+				        ag.getCode(), canonical, defaultChampionshipName);
+				ag.setChampionshipType(ChampionshipType.U);
+				if (ag.getAgeDivision() == null || ag.getAgeDivision().isBlank()
+				        || ag.getAgeDivision().equalsIgnoreCase(ChampionshipType.DEFAULT.name())) {
+					ag.setAgeDivision(ChampionshipType.U.name());
+				}
 			}
 		}
 
@@ -569,11 +553,10 @@ public class AgeGroupDefinitionReader {
 		}
 	}
 
-	static void doInsertRobiAndAgeGroups(EnumSet<ChampionshipType> forcedInsertion, String localizedFileName) {
+	static void doInsertAgeGroups(EnumSet<ChampionshipType> forcedInsertion, String localizedFileName) {
 		Logger mainLogger = Main.getStartupLogger();
-		Map<String, Category> templates = loadRobi(mainLogger);
 		InputStream ageGroupStream = findAgeGroupFile(localizedFileName, mainLogger);
-		loadAgeGroupStream(forcedInsertion, localizedFileName, mainLogger, templates, ageGroupStream);
+		loadAgeGroupStream(forcedInsertion, localizedFileName, mainLogger, ageGroupStream);
 	}
 
 	private static Object cellName(int iColumn, int iRow) {
@@ -592,15 +575,14 @@ public class AgeGroupDefinitionReader {
 	}
 
 	private static void loadAgeGroupStream(EnumSet<ChampionshipType> forcedInsertion, String localizedName,
-	        Logger mainLogger,
-	        Map<String, Category> templates, InputStream localizedResourceAsStream1) {
+	        Logger mainLogger, InputStream localizedResourceAsStream1) {
 		try (Workbook workbook = WorkbookFactory
 		        .create(localizedResourceAsStream1)) {
 			logger.info("loading age group configuration file {}", localizedName);
 			mainLogger.info("loading age group definitions {}", localizedName);
 			ageGroupByCodeGender.clear();
 			CategoryRepository.clearCodeMap();
-			createAgeGroups(workbook, templates, forcedInsertion, localizedName);
+			createAgeGroups(workbook, forcedInsertion, localizedName);
 			Championship.reset();
 			CategoryRepository.resetCodeMap();
 		} catch (Exception e) {
@@ -618,21 +600,6 @@ public class AgeGroupDefinitionReader {
 			return null;
 		}
 		return code.trim().toUpperCase() + "_" + gender.name();
-	}
-
-	private static Map<String, Category> loadRobi(Logger mainLogger) {
-		InputStream localizedResourceAsStream;
-		Map<String, Category> templates = new TreeMap<>();
-		try {
-			localizedResourceAsStream = ResourceWalker.getResourceAsStream(RobiCategories.ROBI_CATEGORIES_XLSX);
-			try (Workbook workbook = WorkbookFactory.create(localizedResourceAsStream)) {
-				templates = RobiCategories.createCategoryTemplates(workbook);
-			}
-		} catch (Exception e) {
-			logger.error("could not process RobiCategories configuration\n{}", LoggerUtils./**/stackTrace(e));
-			mainLogger.error("could not process RobiCategories configuration. See logs for details");
-		}
-		return templates;
 	}
 
 	private static void reportError(int iRow, int iColumn, String cellValue, Exception e) {
