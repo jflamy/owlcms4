@@ -60,6 +60,7 @@ When updating wording, derive the key from the actual `Translator.*` call in cod
 ## TSV Rules
 
 - The file must be tab-delimited, not comma-delimited.
+- Do not use quoted TSV fields or RFC-style CSV quoting. Double quote characters (`"`) inside a value are literal text and must not affect parsing.
 - The header must exactly match the header from `translation4.csv`.
 - Include one row per translation key being added or edited.
 - Use the existing key if revising a translation.
@@ -95,6 +96,7 @@ When updating wording, derive the key from the actual `Translator.*` call in cod
 - In this repository's translation TSVs, leave regional-variant columns blank (`en_US`, `en_CA`, `fr_CA`, `fr_FR`, `es_419`) except for `es_ES`, `es_SV`, and `es_EC` which should have translations.
 - In this repository's translation TSVs, leave fake language columns such as `ia` and `io` blank.
 - In this repository's translation TSVs, leave the last two unnamed trailing columns blank.
+- In this repository's translation TSVs, treat `"` as ordinary text, including in language values such as abbreviations. Do not add escaping or parser assumptions around double quotes.
 
 ## Expected Output
 

@@ -292,35 +292,15 @@ function populateNewSheetRow(addedRow, tsvHeader, tsvRow, sheetColByName, skippe
 }
 
 // ---------------------------------------------------------------------------
-// TSV parser  (handles optional RFC-4180-style quoted fields)
+// TSV parser: fields are plain tab-delimited text; double quotes are literal.
 // ---------------------------------------------------------------------------
 
 function parseTsv(text) {
   text = String(text || '').replace(/^\uFEFF/, '');
-  var rows = [];
-  var row = [];
-  var value = '';
-  var inQuotes = false;
-
-  for (var i = 0; i < text.length; i++) {
-    var ch = text[i];
-    var nx = text[i + 1];
-
-    if (ch === '"') {
-      if (inQuotes && nx === '"') { value += '"'; i++; }
-      else { inQuotes = !inQuotes; }
-      continue;
-    }
-    if (!inQuotes && ch === '\t') { row.push(value); value = ''; continue; }
-    if (!inQuotes && (ch === '\n' || ch === '\r')) {
-      if (ch === '\r' && nx === '\n') i++;
-      row.push(value);
-      rows.push(row);
-      row = []; value = '';
-      continue;
-    }
-    value += ch;
-  }
-  if (value.length > 0 || row.length > 0) { row.push(value); rows.push(row); }
-  return rows.filter(function(r) { return r.some(function(c) { return c !== ''; }); });
+  return text
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .split('\n')
+    .map(function(line) { return line.split('\t'); })
+    .filter(function(row) { return row.some(function(c) { return c !== ''; }); });
 }
