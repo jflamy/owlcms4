@@ -36,7 +36,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.agegroup.AgeGroup;
-import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.IdUtils;
@@ -316,11 +315,7 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		String catName = getLimitString();
 		String result;
 		if (isAlreadyGendered()) {
-			// this takes priority over DEFAULT championship
 			result = agName + " " + catName;
-		} else if (getChampionshipType() == ChampionshipType.DEFAULT) {
-			// legacy case - just the gender and the category.
-			result = getTranslatedGender() + " " + catName;
 		} else {
 			result = agName + " " + catName;
 		}
@@ -503,35 +498,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 *
 	 * @return the wr
 	 */
-	@Transient
-	@JsonIgnore
-	public Integer getWr() {
-		if (this.ageGroup == null) {
-			return 0;
-		}
-		int wr = 0;
-		if (!this.ageGroup.getChampionshipType().isIWF()) {
-			wr = 0;
-		} else if (this.ageGroup.getMaxAge() == 999) {
-			wr = getWrSr();
-		} else if (this.ageGroup.getMaxAge() == 20) {
-			wr = getWrJr();
-		} else if (this.ageGroup.getMaxAge() == 17) {
-			wr = getWrYth();
-		} else {
-			wr = 0;
-		}
-		// logger./**/warn("wr({} {} {} {}) = {}",ageGroup, ageGroup.getAgeDivision(),
-		// ageGroup.getMaxAge(),
-		// getCode(),wr);
-		return wr;
-	}
-
-	/**
-	 * Gets the wr.
-	 *
-	 * @return the wr
-	 */
 	public Integer getWr(int age) {
 		int wr;
 		// logger./**/warn("{} {} {} {} {}", this.getCode(), age, getWrYth(), getWrJr(),
@@ -702,13 +668,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	@Override
 	public String toString() {
 		return getDisplayName();
-	}
-
-	@JsonIgnore
-	@Transient
-	ChampionshipType getChampionshipType() {
-		ChampionshipType championshipType = this.ageGroup != null ? this.ageGroup.getChampionshipType() : null;
-		return championshipType;
 	}
 
 	@JsonIgnore

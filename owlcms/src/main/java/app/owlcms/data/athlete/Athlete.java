@@ -2899,26 +2899,12 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Integer getRobiWr() {
-		Participation mainRankings;
-		Category c;
-		if ((mainRankings = getMainRankings()) == null || (c = mainRankings.getCategory()) == null) {
+		Category robiC = RobiCategories.findRobiCategory(this);
+		if (robiC == null) {
 			return null;
 		}
-		Integer wr = c.getWr();
-		if (wr == null || wr <= 0.000001) {
-			// not an IWF category, find what the IWF Robi would be for age/body weight
-			Category robiC = RobiCategories.findRobiCategory(this);
-			if (robiC == null) {
-				return null;
-			}
-			Integer age = getAge();
-			if (age != null) {
-				wr = robiC.getWr(age);
-			} else {
-				return robiC.getWr(999);
-			}
-		}
-		return wr;
+		Integer age = getAge();
+		return robiC.getWr(age != null ? age : 999);
 	}
 
 	@Transient

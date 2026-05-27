@@ -23,9 +23,6 @@ public class CategoryDTO {
 	private Gender gender;
 	private boolean active;
 	private int qualifyingTotal;
-	private Integer wrSr;
-	private Integer wrJr;
-	private Integer wrYth;
 	
 	public CategoryDTO() {
 	}
@@ -45,9 +42,6 @@ public class CategoryDTO {
 		dto.setGender(category.getGender());
 		dto.setActive(Boolean.TRUE.equals(category.isActive()));
 		dto.setQualifyingTotal(category.getQualifyingTotal());
-		dto.setWrSr(category.getWrSr());
-		dto.setWrJr(category.getWrJr());
-		dto.setWrYth(category.getWrYth());
 		return dto;
 	}
 	
@@ -64,9 +58,6 @@ public class CategoryDTO {
 		cat.setGender(this.gender);
 		cat.setActive(this.active);
 		cat.setQualifyingTotal(this.qualifyingTotal);
-		cat.setWrSr(this.wrSr);
-		cat.setWrJr(this.wrJr);
-		cat.setWrYth(this.wrYth);
 		return cat;
 	}
 	
@@ -128,27 +119,4 @@ public class CategoryDTO {
 		this.qualifyingTotal = qualifyingTotal;
 	}
 	
-	public Integer getWrSr() {
-		return wrSr;
-	}
-	
-	public void setWrSr(Integer wrSr) {
-		this.wrSr = wrSr;
-	}
-	
-	public Integer getWrJr() {
-		return wrJr;
-	}
-	
-	public void setWrJr(Integer wrJr) {
-		this.wrJr = wrJr;
-	}
-	
-	public Integer getWrYth() {
-		return wrYth;
-	}
-	
-	public void setWrYth(Integer wrYth) {
-		this.wrYth = wrYth;
-	}
 }
