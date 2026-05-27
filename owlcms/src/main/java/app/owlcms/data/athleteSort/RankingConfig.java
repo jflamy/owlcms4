@@ -131,7 +131,7 @@ public class RankingConfig {
 
 	/** Register team and mixed-team scoring systems from every championship. */
 	private static void addChampionshipTeamScorings() {
-		List<Championship> championships = Championship.findAll();
+		List<Championship> championships = Championship.findAllIncludingTemplate();
 		if (championships == null) {
 			return;
 		}

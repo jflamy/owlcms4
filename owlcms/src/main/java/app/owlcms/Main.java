@@ -428,7 +428,7 @@ public class Main {
                         break;
                     case BENCHMARK:
                         BenchmarkData.insertInitialData(
-                                EnumSet.of(ChampionshipType.IWF, ChampionshipType.MASTERS));
+                                EnumSet.of(ChampionshipType.U, ChampionshipType.MASTERS));
                         break;
                 }
             } else {

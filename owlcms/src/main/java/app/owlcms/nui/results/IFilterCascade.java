@@ -232,10 +232,7 @@ public interface IFilterCascade {
 			boolean notEmpty = championshipAgeGroupPrefixes.size() > 0;
 			// this.getAgeGroupFilter().setEnabled(notEmpty);
 			this.getAgeGroupFilter().setVisible(championshipAgeGroupPrefixes.size() > 1);
-			String first = (notEmpty && championshipValue.getType().isIWF())
-			        || (championshipAgeGroupPrefixes.size() == 1)
-			                ? championshipAgeGroupPrefixes.get(0)
-			                : null;
+			String first = notEmpty ? championshipAgeGroupPrefixes.get(0) : null;
 
 			String ageGroupPrefix2 = getAgeGroupPrefix();
 			if (championshipAgeGroupPrefixes.contains(ageGroupPrefix2)) {

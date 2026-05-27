@@ -301,7 +301,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	ChampionshipType getConfiguredChampionshipType() {
-		return this.championshipType != null ? this.championshipType : ChampionshipType.U;
+		return ChampionshipType.normalizeOrDefault(this.championshipType);
 	}
 
 	public ChampionshipType getChampionshipType() {
@@ -323,7 +323,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 	
 	public void setChampionshipType(ChampionshipType c) {
-		this.championshipType = c;
+		this.championshipType = ChampionshipType.normalizeLegacy(c);
 	}
 
 	public String getCode() {
@@ -504,7 +504,9 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	public void setAgeDivision(String ageDivision) {
-		this.ageDivision = ageDivision;
+		this.ageDivision = ageDivision != null && ageDivision.trim().equalsIgnoreCase(ChampionshipType.IWF.name())
+		        ? ChampionshipType.U.name()
+		        : ageDivision;
 	}
 
 	@Transient

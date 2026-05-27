@@ -623,8 +623,7 @@ public class TeamResultsContent extends BaseContent
 			this.topBarAgeGroupPrefixSelect.setItems(championshipAgeGroupPrefixes);
 			boolean notEmpty = championshipAgeGroupPrefixes.size() > 0;
 			this.topBarAgeGroupPrefixSelect.setEnabled(notEmpty);
-			String first = (notEmpty && championshipValue.getType().isIWF()) ? championshipAgeGroupPrefixes.get(0)
-			        : null;
+			String first = notEmpty ? championshipAgeGroupPrefixes.get(0) : null;
 			// logger.debug("championship {} ag {} first {} select {}", championshipValue,
 			// championshipAgeGroupPrefixes, first,
 			// topBarAgeGroupPrefixSelect);

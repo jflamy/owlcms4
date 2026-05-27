@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -48,6 +49,10 @@ import ch.qos.logback.classic.Logger;
 public class Championship implements Comparable<Championship>, Serializable {
 
 	private static final long serialVersionUID = 1L;
+	public static final String COMPETITION_TEMPLATE_NAME = "COMPETITION_TEMPLATE";
+	private static final int DEFAULT_TEAM_SIZE = 8;
+	private static final int UNBOUNDED_TEAM_SIZE = 999;
+	private static final int LEGACY_UNBOUNDED_TEAM_SIZE = 50;
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Championship.class);
 	private static Map<String, Championship> allChampionshipsMap;
@@ -85,7 +90,8 @@ public class Championship implements Comparable<Championship>, Serializable {
 			Championship newChampionship = new Championship(canonicalName, canonicalType);
 			newChampionship.populateScoringDefaults();
 			newChampionship = ChampionshipRepository.save(newChampionship);
-			allChampionshipsMap.put(canonicalName, newChampionship);
+			Championship.reset();
+			newChampionship = allChampionshipsMap.get(canonicalName);
 			logger.debug("Added to map and DB: key='{}', name='{}', type='{}'", canonicalName, newChampionship.getName(), newChampionship.getType());
 			return newChampionship;
 		}
@@ -99,7 +105,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 		if (name != null && name.equals("Masters")) {
 			return ChampionshipType.MASTERS;
 		}
-		return type != null ? type : ChampionshipType.U;
+		return ChampionshipType.normalizeOrDefault(type);
 	}
 
 	   /**
@@ -131,6 +137,26 @@ public class Championship implements Comparable<Championship>, Serializable {
 					allChampionshipsMap.put(c.getName(), c);
 				}
 			}
+		}
+		ArrayList<Championship> allChampionshipsList = new ArrayList<>(allChampionshipsMap.values().stream()
+		        .filter(c -> !c.isCompetitionTemplate()).toList());
+		allChampionshipsList.sort(Championship::compareTo);
+		return allChampionshipsList;
+	}
+
+	public static Championship findCompetitionTemplate() {
+		if (allChampionshipsMap == null) {
+			findAll();
+		}
+		return allChampionshipsMap.values().stream()
+		        .filter(Championship::isCompetitionTemplate)
+		        .findFirst()
+		        .orElse(null);
+	}
+
+	public static List<Championship> findAllIncludingTemplate() {
+		if (allChampionshipsMap == null) {
+			findAll();
 		}
 		ArrayList<Championship> allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
 		allChampionshipsList.sort(Championship::compareTo);
@@ -204,7 +230,11 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public static Championship of(String championshipName) {
 		Championship stored = findStored(championshipName);
-		return stored != null ? stored : DefaultChampionship.getInstance();
+		if (stored != null) {
+			return stored;
+		}
+		Championship template = findCompetitionTemplate();
+		return template != null ? template : DefaultChampionship.getInstance();
 	}
 
 	public static boolean anyMultiMedal(Set<Championship> championships) {
@@ -221,11 +251,14 @@ public class Championship implements Comparable<Championship>, Serializable {
 		}
 		// return first championship of the type
 		// we use reverse order to get Open and Senior and U20 first.
-		Optional<Championship> found = allChampionshipsMap.values().stream().sorted(Comparator.reverseOrder()).filter(v -> v.getType() == t).findFirst();
+		Optional<Championship> found = allChampionshipsMap.values().stream().filter(v -> !v.isCompetitionTemplate()).sorted(Comparator.reverseOrder()).filter(v -> v.getType() == t).findFirst();
 		return found.isPresent() ? found.get() : null;
 	}
 
 	public static void remove(Championship c) {
+		if (c.isCompetitionTemplate()) {
+			return;
+		}
 		allChampionshipsMap.remove(c.getName());
 		if (c.getId() != null) {
 			ChampionshipRepository.delete(c);
@@ -289,6 +322,9 @@ public class Championship implements Comparable<Championship>, Serializable {
 	@Column(columnDefinition = "boolean default false")
 	private boolean mixedTeamEnabled = false;
 
+	@Column(columnDefinition = "boolean default false")
+	private boolean competitionTemplate = false;
+
 	@Enumerated(EnumType.STRING)
 	private Ranking teamScoringSystem;
 
@@ -299,8 +335,9 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public Championship(ChampionshipType type) {
-		this.name = type.name();
-		this.setType(type);
+		ChampionshipType normalized = ChampionshipType.normalizeOrDefault(type);
+		this.name = normalized.name();
+		this.setType(normalized);
 		this.useCompetitionDefaults = true;
 	}
 
@@ -473,7 +510,22 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public ChampionshipType getType() {
+		return ChampionshipType.normalizeOrDefault(this.type);
+	}
+
+	ChampionshipType getStoredType() {
 		return this.type;
+	}
+
+	public boolean isCompetitionTemplate() {
+		return this.competitionTemplate;
+	}
+
+	public void setCompetitionTemplate(boolean competitionTemplate) {
+		this.competitionTemplate = competitionTemplate;
+		if (competitionTemplate) {
+			this.useCompetitionDefaults = false;
+		}
 	}
 
 	/**
@@ -564,6 +616,13 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.maxTeamSize = maxTeamSize;
 	}
 
+	private Integer creationMaxTeamSize(Integer maxTeamSize) {
+		if (maxTeamSize == null || maxTeamSize <= 0 || maxTeamSize == LEGACY_UNBOUNDED_TEAM_SIZE) {
+			return UNBOUNDED_TEAM_SIZE;
+		}
+		return maxTeamSize;
+	}
+
 	private int getGenderedTeamSize(String ageGroupPrefix, Integer configuredTopN, Gender gender) {
 		Integer topN = positiveCap(configuredTopN);
 		if (topN != null) {
@@ -605,11 +664,63 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	@JsonProperty("useCompetitionDefaults")
 	public boolean usesCompetitionDefaults() {
-		return this.useCompetitionDefaults;
+		return this.useCompetitionDefaults && !this.competitionTemplate;
 	}
 
 	public void setUseCompetitionDefaults(boolean useCompetitionDefaults) {
-		this.useCompetitionDefaults = useCompetitionDefaults;
+		this.useCompetitionDefaults = !this.competitionTemplate && useCompetitionDefaults;
+	}
+
+	public boolean hasSameCompetitionSettingsAs(Championship template) {
+		if (template == null) {
+			return false;
+		}
+		return Objects.equals(this.scoringSystem, template.scoringSystem)
+		        && Objects.equals(this.bestAthleteScoringSystem, template.bestAthleteScoringSystem)
+		        && Objects.equals(this.bestSnatchScoringSystem, template.bestSnatchScoringSystem)
+		        && Objects.equals(this.bestCJScoringSystem, template.bestCJScoringSystem)
+		        && this.snatchCJTotalMedals == template.snatchCJTotalMedals
+		        && Objects.equals(this.teamPoints1st, template.teamPoints1st)
+		        && Objects.equals(this.teamPoints2nd, template.teamPoints2nd)
+		        && Objects.equals(this.teamPoints3rd, template.teamPoints3rd)
+		        && Objects.equals(this.mensBestN, template.mensBestN)
+		        && Objects.equals(this.womensBestN, template.womensBestN)
+		        && Objects.equals(this.mixedMensBestN, template.mixedMensBestN)
+		        && Objects.equals(this.mixedWomensBestN, template.mixedWomensBestN)
+		        && Objects.equals(this.mixedBestN, template.mixedBestN)
+		        && Objects.equals(this.explicitTeamSize, template.explicitTeamSize)
+		        && Objects.equals(this.maxTeamSize, template.maxTeamSize)
+		        && Objects.equals(this.maxPerCategory, template.maxPerCategory)
+		        && this.explicitMixedTeamMembers == template.explicitMixedTeamMembers
+		        && this.mixedTeamEnabled == template.mixedTeamEnabled
+		        && Objects.equals(this.teamScoringSystem, template.teamScoringSystem)
+		        && Objects.equals(this.mixedTeamScoringSystem, template.mixedTeamScoringSystem);
+	}
+
+	public void copyCompetitionSettingsFrom(Championship template) {
+		if (template == null) {
+			return;
+		}
+		this.scoringSystem = template.scoringSystem;
+		this.bestAthleteScoringSystem = template.bestAthleteScoringSystem;
+		this.bestSnatchScoringSystem = template.bestSnatchScoringSystem;
+		this.bestCJScoringSystem = template.bestCJScoringSystem;
+		this.snatchCJTotalMedals = template.snatchCJTotalMedals;
+		this.teamPoints1st = template.teamPoints1st;
+		this.teamPoints2nd = template.teamPoints2nd;
+		this.teamPoints3rd = template.teamPoints3rd;
+		this.mensBestN = template.mensBestN;
+		this.womensBestN = template.womensBestN;
+		this.mixedMensBestN = template.mixedMensBestN;
+		this.mixedWomensBestN = template.mixedWomensBestN;
+		this.mixedBestN = template.mixedBestN;
+		this.explicitTeamSize = template.explicitTeamSize;
+		this.maxTeamSize = template.maxTeamSize;
+		this.maxPerCategory = template.maxPerCategory;
+		this.explicitMixedTeamMembers = template.explicitMixedTeamMembers;
+		this.mixedTeamEnabled = template.mixedTeamEnabled;
+		this.teamScoringSystem = template.teamScoringSystem;
+		this.mixedTeamScoringSystem = template.mixedTeamScoringSystem;
 	}
 
 	@JsonIgnore
@@ -631,27 +742,16 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public void copyCompetitionDefaults() {
-		Competition comp = getCompetitionDefaults();
+		Championship comp = getCompetitionDefaults();
 		if (comp == null) {
 			return;
 		}
-		this.scoringSystem = comp.getScoringSystem();
-		this.bestAthleteScoringSystem = comp.getScoringSystem();
-		this.bestSnatchScoringSystem = comp.getScoringSystem();
-		this.bestCJScoringSystem = comp.getScoringSystem();
-		this.snatchCJTotalMedals = comp.isSnatchCJTotalMedals();
-		this.teamPoints1st = comp.getTeamPoints1st();
-		this.teamPoints2nd = comp.getTeamPoints2nd();
-		this.teamPoints3rd = comp.getTeamPoints3rd();
-		this.mensBestN = comp.getMensBestN();
-		this.womensBestN = comp.getWomensBestN();
-		this.mixedBestN = comp.getMixedBestN();
-		this.maxTeamSize = comp.getMaxTeamSize();
-		this.maxPerCategory = comp.getMaxPerCategory();
+		copyCompetitionSettingsFrom(comp);
 	}
 
-	protected Competition getCompetitionDefaults() {
-		return Competition.getCurrent();
+	protected Championship getCompetitionDefaults() {
+		Championship template = Championship.findCompetitionTemplate();
+		return template != null && template != this ? template : DefaultChampionship.getInstance();
 	}
 
 	public void setMaxPerCategory(Integer maxPerCategory) {
@@ -703,11 +803,11 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public void setType(ChampionshipType type) {
-		this.type = type;
+		this.type = ChampionshipType.normalizeOrDefault(type);
 	}
 
 	public void populateScoringDefaults() {
-		Competition comp = Competition.getCurrent();
+		Championship comp = getCompetitionDefaults();
 		if (comp == null) {
 			return;
 		}
@@ -717,15 +817,15 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.teamPoints1st = comp.getTeamPoints1st();
 		this.teamPoints2nd = comp.getTeamPoints2nd();
 		this.teamPoints3rd = comp.getTeamPoints3rd();
-		// bestN fields: 0 means "count all" (no scoring cap).
+		// bestN fields: null means "not configured" (no scoring cap).
 		// maxTeamSize is the roster cap (how many athletes on a team).
 		// These are separate concepts; don't conflate them.
-		this.mensBestN = 0;
-		this.womensBestN = 0;
-		this.mixedMensBestN = 0;
-		this.mixedWomensBestN = 0;
-		this.mixedBestN = 0;
-		this.maxTeamSize = comp.getMaxTeamSize();
+		this.mensBestN = null;
+		this.womensBestN = null;
+		this.mixedMensBestN = null;
+		this.mixedWomensBestN = null;
+		this.mixedBestN = null;
+		this.maxTeamSize = creationMaxTeamSize(comp.getMaxTeamSize());
 		this.explicitTeamSize = getDefaultExplicitMixedTeamSize();
 		this.maxPerCategory = comp.getMaxPerCategory();
 		this.explicitMixedTeamMembers = false;
@@ -744,6 +844,32 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 		this.bestSnatchScoringSystem = this.bestAthleteScoringSystem;
 		this.bestCJScoringSystem = this.bestAthleteScoringSystem;
+	}
+
+	public void populateCompetitionTemplateDefaults(Competition comp) {
+		this.name = COMPETITION_TEMPLATE_NAME;
+		this.type = ChampionshipType.U;
+		setCompetitionTemplate(true);
+		this.scoringSystem = comp != null ? comp.getScoringSystem() : Ranking.BW_SINCLAIR;
+		this.bestAthleteScoringSystem = this.scoringSystem;
+		this.bestSnatchScoringSystem = this.scoringSystem;
+		this.bestCJScoringSystem = this.scoringSystem;
+		this.snatchCJTotalMedals = comp != null && comp.isSnatchCJTotalMedals();
+		this.teamPoints1st = comp != null ? comp.getTeamPoints1st() : 28;
+		this.teamPoints2nd = comp != null ? comp.getTeamPoints2nd() : 25;
+		this.teamPoints3rd = comp != null ? comp.getTeamPoints3rd() : 23;
+		this.mensBestN = null;
+		this.womensBestN = null;
+		this.mixedMensBestN = null;
+		this.mixedWomensBestN = null;
+		this.mixedBestN = null;
+		this.maxTeamSize = DEFAULT_TEAM_SIZE;
+		this.explicitTeamSize = DEFAULT_TEAM_SIZE;
+		this.maxPerCategory = comp != null ? comp.getMaxPerCategory() : 2;
+		this.explicitMixedTeamMembers = false;
+		this.mixedTeamEnabled = false;
+		this.teamScoringSystem = null;
+		this.mixedTeamScoringSystem = null;
 	}
 
 	@Override

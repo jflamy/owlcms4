@@ -53,6 +53,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -1245,10 +1246,18 @@ public class Competition {
 	}
 
 	public Integer getMaxPerCategory() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getMaxPerCategory();
+		}
 		return this.maxPerCategory != null && this.maxPerCategory > 0 ? this.maxPerCategory : 2;
 	}
 
 	public Integer getMaxTeamSize() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getMaxTeamSize();
+		}
 		return this.maxTeamSize;
 	}
 
@@ -1289,20 +1298,36 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public Integer getMenBestNElseDefault() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getMensBestN();
+		}
 		return this.mensBestN != null ? this.mensBestN : this.maxTeamSize;
 	}
 
 	@Transient
 	@JsonIgnore
 	public Integer getMixedBestNElseDefault() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getMixedBestN();
+		}
 		return this.mixedBestN != null ? this.mixedBestN : this.maxTeamSize;
 	}
 
 	public Integer getMensBestN() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getMensBestN();
+		}
 		return this.mensBestN;
 	}
 
 	public Integer getMixedBestN() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getMixedBestN();
+		}
 		return this.mixedBestN;
 	}
 
@@ -1340,6 +1365,10 @@ public class Competition {
 	}
 
 	public Ranking getScoringSystem() {
+		Championship template = getCompetitionTemplate();
+		if (template != null && template.getScoringSystem() != null) {
+			return template.getScoringSystem();
+		}
 		if (this.scoringSystem == null) {
 			return Ranking.BW_SINCLAIR;
 		}
@@ -1389,10 +1418,18 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public Integer getWomenBestNElseDefault() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getWomensBestN();
+		}
 		return this.womensBestN != null ? this.womensBestN : this.maxTeamSize;
 	}
 
 	public Integer getWomensBestN() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getWomensBestN();
+		}
 		return this.womensBestN;
 	}
 
@@ -1505,6 +1542,10 @@ public class Competition {
 	}
 
 	public boolean isSnatchCJTotalMedals() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.isSnatchCJTotalMedals();
+		}
 		return this.snatchCJTotalMedals;
 	}
 
@@ -1794,10 +1835,12 @@ public class Competition {
 
 	public void setMaxPerCategory(Integer maxPerCategory) {
 		this.maxPerCategory = maxPerCategory;
+		ChampionshipRepository.updateCompetitionTemplate(template -> template.setMaxPerCategory(maxPerCategory));
 	}
 
 	public void setMaxTeamSize(Integer maxTeamSize) {
 		this.maxTeamSize = maxTeamSize;
+		ChampionshipRepository.updateCompetitionTemplate(template -> template.setMaxTeamSize(maxTeamSize));
 	}
 
 	public void setMedalScheduleTemplateFileName(String medalScheduleTemplateFileName) {
@@ -1810,10 +1853,12 @@ public class Competition {
 
 	public void setMensBestN(Integer mensTeamSize) {
 		this.mensBestN = mensTeamSize;
+		ChampionshipRepository.updateCompetitionTemplate(template -> template.setMensBestN(mensTeamSize));
 	}
 
 	public void setMixedBestN(Integer mixedTeamSize) {
 		this.mixedBestN = mixedTeamSize;
+		ChampionshipRepository.updateCompetitionTemplate(template -> template.setMixedBestN(mixedTeamSize));
 	}
 
 	public void setOfficialsListTemplateFileName(String officialsListTemplateFileName) {
@@ -1860,6 +1905,12 @@ public class Competition {
 			return;
 		}
 		this.scoringSystem = scoringSystem;
+		ChampionshipRepository.updateCompetitionTemplate(template -> {
+			template.setScoringSystem(scoringSystem);
+			template.setBestAthleteScoringSystem(scoringSystem);
+			template.setBestSnatchScoringSystem(scoringSystem);
+			template.setBestCJScoringSystem(scoringSystem);
+		});
 	}
 
 	public void setShorterBreakDuration(Integer shorterBreakDuration) {
@@ -1884,6 +1935,7 @@ public class Competition {
 
 	public void setSnatchCJTotalMedals(boolean snatchCJTotalMedals) {
 		this.snatchCJTotalMedals = snatchCJTotalMedals;
+		ChampionshipRepository.updateCompetitionTemplate(template -> template.setSnatchCJTotalMedals(snatchCJTotalMedals));
 	}
 
 	public void setStartListTemplateFileName(String startingListFileName) {
@@ -1929,30 +1981,50 @@ public class Competition {
 
 	public void setWomensBestN(Integer womensTeamSize) {
 		this.womensBestN = womensTeamSize;
+		ChampionshipRepository.updateCompetitionTemplate(template -> template.setWomensBestN(womensTeamSize));
 	}
 
 	public Integer getTeamPoints1st() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getTeamPoints1st();
+		}
 		return this.teamPoints1st;
 	}
 
 	public Integer getTeamPoints2nd() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getTeamPoints2nd();
+		}
 		return this.teamPoints2nd;
 	}
 
 	public Integer getTeamPoints3rd() {
+		Championship template = getCompetitionTemplate();
+		if (template != null) {
+			return template.getTeamPoints3rd();
+		}
 		return this.teamPoints3rd;
+	}
+
+	private Championship getCompetitionTemplate() {
+		return ChampionshipRepository.findCompetitionTemplate();
 	}
 
 	public void setTeamPoints1st(Integer teamPoints1st) {
 		this.teamPoints1st = teamPoints1st;
+		ChampionshipRepository.updateCompetitionTemplate(template -> template.setTeamPoints1st(teamPoints1st));
 	}
 
 	public void setTeamPoints2nd(Integer teamPoints2nd) {
 		this.teamPoints2nd = teamPoints2nd;
+		ChampionshipRepository.updateCompetitionTemplate(template -> template.setTeamPoints2nd(teamPoints2nd));
 	}
 
 	public void setTeamPoints3rd(Integer teamPoints3rd) {
 		this.teamPoints3rd = teamPoints3rd;
+		ChampionshipRepository.updateCompetitionTemplate(template -> template.setTeamPoints3rd(teamPoints3rd));
 	}
 
 	@Override
