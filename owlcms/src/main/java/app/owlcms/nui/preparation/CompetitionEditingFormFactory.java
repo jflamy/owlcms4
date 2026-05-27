@@ -18,7 +18,6 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -30,6 +29,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -39,11 +39,10 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
-import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.EmailValidator;
-import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import app.owlcms.components.fields.LocalizedIntegerField;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.competition.Competition;
@@ -69,6 +68,7 @@ public class CompetitionEditingFormFactory
 	
 	// Reference to sinclairYear radio buttons for enabling/disabling
 	private RadioButtonGroup<Integer> sinclairYear;
+	private ChampionshipDetailsForm championshipDefaultsEditor;
 
 	CompetitionEditingFormFactory(Class<Competition> domainType, CompetitionContent origin) {
 		super(domainType);
@@ -135,14 +135,13 @@ public class CompetitionEditingFormFactory
 
 		FormLayout competitionLayout = competitionForm();
 		FormLayout federationLayout = federationForm();
-		FormLayout teamsLayout = teamsForm();
 		FormLayout generalRulesLayout = generalRulesForm();
 		FormLayout nonMastersRulesLayout = nonMastersRulesForm();
 		FormLayout mastersRulesLayout = mastersRulesForm();
 		FormLayout breakDurationLayout = breakDurationForm();
 		FormLayout specialLayout = specialRulesForm();
-		FormLayout teamPointsLayout = teamPointsForm();
 		FormLayout pointScoresForm = pointScoresForm();
+		this.championshipDefaultsEditor = new ChampionshipDetailsForm(ChampionshipRepository.ensureCompetitionTemplate());
 
 		Component footer = this.buildFooter(operation, comp, cancelButtonClickListener,
 		        c -> {
@@ -159,13 +158,15 @@ public class CompetitionEditingFormFactory
 		                generalRulesLayout, separator(),
 		                nonMastersRulesLayout, separator(),
 		                mastersRulesLayout, separator(),
-		                breakDurationLayout, separator(),
-		                teamsLayout));
+		                breakDurationLayout));
+		ts.add(Translator.translate("Competition.DefaultScoringMedalingRulesTab"),
+		        new VerticalLayout(
+		                scoringMedalingRulesIntro(), separator(),
+		                this.championshipDefaultsEditor, separator(),
+		                pointScoresForm));
 		ts.add(Translator.translate("Competition.specialRulesTitle"),
 		        new VerticalLayout(
-		                pointScoresForm, separator(),
-		                specialLayout, separator(),
-		                teamPointsLayout));
+		                specialLayout));
 
 		VerticalLayout mainLayout = new VerticalLayout(
 		        footer,
@@ -180,6 +181,16 @@ public class CompetitionEditingFormFactory
 	@Override
 	public Button buildOperationButton(CrudOperation operation, Competition domainObject,
 	        ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
+		if ((operation == CrudOperation.UPDATE || operation == CrudOperation.ADD) && gridCallBackAction != null) {
+			Button button = doBuildButton(operation);
+			button.addClickListener(event -> {
+				if (this.championshipDefaultsEditor != null && !this.championshipDefaultsEditor.validateForm()) {
+					return;
+				}
+				performOperationAndCallback(operation, domainObject, gridCallBackAction, false);
+			});
+			return button;
+		}
 		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
 	}
 
@@ -207,6 +218,9 @@ public class CompetitionEditingFormFactory
 
 	@Override
 	public Competition update(Competition competition) {
+		if (this.championshipDefaultsEditor != null && !this.championshipDefaultsEditor.save()) {
+			return competition;
+		}
 		// Save current RankingConfig state to competition before persisting
 		competition.saveRankingConfig();
 		Competition saved = CompetitionRepository.save(competition);
@@ -353,7 +367,7 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(federationEMailField, Translator.translate("Competition.federationEMail"));
 		this.binder.forField(federationEMailField)
 		        .withNullRepresentation("")
-		        .withValidator(new EmailValidator("Invalid Email Address"))
+		        .withValidator(new EmailValidator(Translator.translate("InvalidEmailAddress")))
 		        .bind(Competition::getFederationEMail, Competition::setFederationEMail);
 
 		TextField federationWebSiteField = new TextField();
@@ -380,32 +394,10 @@ public class CompetitionEditingFormFactory
 
 	private FormLayout pointScoresForm() {
 		FormLayout layout = createLayout();
-		// (Moved) main point-scores header will be displayed above the global scoring selection
 
-		// Main point-scores header (moved here so it labels the global scoring section)
 		Component mainScoresTitle = createTitle("Competition.pointScoresTitle");
 		layout.add(mainScoresTitle);
 		layout.setColspan(mainScoresTitle, 2);
-
-		ComboBox<Ranking> scoringCombo = new ComboBox<>();
-		// Use unfiltered list - this dropdown SELECTS what to compute, not filtered by what's computed
-		scoringCombo.setItems(RankingConfig.getAllScoringRankings());
-		scoringCombo.setItemLabelGenerator(r -> Ranking.getScoringExplanation(r));
-		scoringCombo.setWidth("50ch");
-		scoringCombo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "50ch");
-		layout.addFormItem(scoringCombo, Translator.translate("Competition.scoringSystemTitle"));
-		this.binder.forField(scoringCombo).bind(Competition::getScoringSystem, Competition::setScoringSystem);
-		
-		// When global scoring system changes, update mustCompute and refresh checkboxes
-		scoringCombo.addValueChangeListener(e -> {
-			RankingConfig.updateMustCompute(e.getValue());
-			refreshRankingCheckboxes();
-		});
-
-		// Visual separator before ranking selection
-		Hr hrSeparator = separator();
-		layout.add(hrSeparator);
-		layout.setColspan(hrSeparator, 2);
 
 		// Scoring systems section
 		Component scoringTitle = createTitle("ScoringSystems");
@@ -497,6 +489,20 @@ public class CompetitionEditingFormFactory
 		return layout;
 	}
 
+	private HorizontalLayout scoringMedalingRulesIntro() {
+		Paragraph paragraph = new Paragraph(Translator.translate("Competition.DefaultScoringMedalingRulesIntro"));
+		paragraph.getStyle().set("margin-top", "0");
+		paragraph.getStyle().set("margin-bottom", "0");
+
+		Button editChampionships = new Button(Translator.translate("EditChampionships.Title"), VaadinIcon.COG.create(),
+		        event -> new EditChampionshipsDialog().open());
+
+		HorizontalLayout layout = new HorizontalLayout(paragraph, editChampionships);
+		layout.setAlignItems(Alignment.CENTER);
+		layout.setWidthFull();
+		return layout;
+	}
+
 	/**
 	 * Create a checkbox for a ranking system.
 	 * Stores reference in rankingCheckboxes map for later refresh.
@@ -516,25 +522,6 @@ public class CompetitionEditingFormFactory
 		});
 		rankingCheckboxes.put(r, cb);
 		return cb;
-	}
-
-	/**
-	 * Refresh all ranking checkboxes to reflect current mustCompute state.
-	 * Called when global scoring system changes.
-	 */
-	private void refreshRankingCheckboxes() {
-		for (java.util.Map.Entry<Ranking, Checkbox> entry : rankingCheckboxes.entrySet()) {
-			Ranking r = entry.getKey();
-			Checkbox cb = entry.getValue();
-			boolean mustCompute = RankingConfig.isMustCompute(r);
-			cb.setReadOnly(mustCompute);
-			if (mustCompute) {
-				cb.getStyle().set("font-weight", "bold");
-			} else {
-				cb.getStyle().remove("font-weight");
-			}
-			cb.setValue(RankingConfig.shouldCompute(r));
-		}
 	}
 
 	/**
@@ -560,11 +547,6 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(enforce20kgRuleField, Translator.translate("Competition.enforce20kgRule"));
 		this.binder.forField(enforce20kgRuleField)
 		        .bind(Competition::isEnforce20kgRule, Competition::setEnforce20kgRule);
-		
-		Checkbox snatchCJTotalField = new Checkbox();
-		layout.addFormItem(snatchCJTotalField, Translator.translate("Competition.snatchCJTotalMedals"));
-		this.binder.forField(snatchCJTotalField)
-		        .bind(Competition::isSnatchCJTotalMedals, Competition::setSnatchCJTotalMedals);
 		
 		Checkbox deduct250gField = new Checkbox();
 				layout.addFormItem(deduct250gField, Translator.translate("Competition.isDeduct250g"));
@@ -634,59 +616,6 @@ public class CompetitionEditingFormFactory
 		return hr;
 	}
 
-	private FormLayout teamPointsForm() {
-		String message = Translator.translate("Competition.teamSizeInvalid");
-
-		FormLayout layout = createLayout();
-		Component title = createTitle("Competition.teamPointsTitle");
-		layout.add(title);
-		layout.setColspan(title, 2);
-
-		TextField mensTeamSizeField = new TextField();
-		layout.addFormItem(mensTeamSizeField,
-		        labelWithHelp("Competition.mensTeamSize", "Competition.teamSizeExplanation"));
-		this.binder.forField(mensTeamSizeField)
-		        .withNullRepresentation("")
-		        .withConverter(new StringToIntegerConverter(message))
-		        .withValidator(new IntegerRangeValidator(message, 0, 99))
-		        .bind(Competition::getMensBestN, Competition::setMensBestN);
-
-		TextField womensTeamSizeField = new TextField();
-		layout.addFormItem(womensTeamSizeField,
-		        labelWithHelp("Competition.womensTeamSize", "Competition.teamSizeExplanation"));
-		this.binder.forField(womensTeamSizeField)
-		        .withNullRepresentation("")
-		        .withConverter(new StringToIntegerConverter(message))
-		        .withValidator(new IntegerRangeValidator(message, 0, 99))
-		        .bind(Competition::getWomensBestN, Competition::setWomensBestN);
-
-		TextField mixedTeamSizeField = new TextField();
-		layout.addFormItem(mixedTeamSizeField,
-		        labelWithHelp("Championship.mixedTeamSize", "Competition.teamSizeExplanation"));
-		this.binder.forField(mixedTeamSizeField)
-		        .withNullRepresentation("")
-		        .withConverter(new StringToIntegerConverter(message))
-		        .withValidator(new IntegerRangeValidator(message, 0, 99))
-		        .bind(Competition::getMixedBestN, Competition::setMixedBestN);
-
-		IntegerField teamPoints1stField = new IntegerField();
-		layout.addFormItem(teamPoints1stField, Translator.translate("Competition.teamPoints1st"));
-		this.binder.forField(teamPoints1stField)
-		        .bind(Competition::getTeamPoints1st, Competition::setTeamPoints1st);
-
-		IntegerField teamPoints2ndField = new IntegerField();
-		layout.addFormItem(teamPoints2ndField, Translator.translate("Competition.teamPoints2nd"));
-		this.binder.forField(teamPoints2ndField)
-		        .bind(Competition::getTeamPoints2nd, Competition::setTeamPoints2nd);
-
-		IntegerField teamPoints3rdField = new IntegerField();
-		layout.addFormItem(teamPoints3rdField, Translator.translate("Competition.teamPoints3rd"));
-		this.binder.forField(teamPoints3rdField)
-		        .bind(Competition::getTeamPoints3rd, Competition::setTeamPoints3rd);
-
-		return layout;
-	}
-
 	private void setBinder(Binder<Competition> buildBinder) {
 		this.binder = buildBinder;
 	}
@@ -719,25 +648,6 @@ public class CompetitionEditingFormFactory
 		layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
 		this.binder.forField(wakeUpDelayField).bind(Competition::getRefereeWakeUpDelay,
 		        Competition::setRefereeWakeUpDelay);
-
-		return layout;
-	}
-
-	private FormLayout teamsForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Competition.teamRules");
-		layout.add(title);
-		layout.setColspan(title, 2);
-
-		LocalizedIntegerField maxTeamSize = new LocalizedIntegerField();
-		layout.addFormItem(maxTeamSize, Translator.translate("Competition.AthletesPerTeam"));
-		this.binder.forField(maxTeamSize)
-		        .bind(Competition::getMaxTeamSize, Competition::setMaxTeamSize);
-
-		LocalizedIntegerField maxPerCategory = new LocalizedIntegerField();
-		layout.addFormItem(maxPerCategory, Translator.translate("Competition.maxAthletesPerCategory"));
-		this.binder.forField(maxPerCategory)
-		        .bind(Competition::getMaxPerCategory, Competition::setMaxPerCategory);
 
 		return layout;
 	}

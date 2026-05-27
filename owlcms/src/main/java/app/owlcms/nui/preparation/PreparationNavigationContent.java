@@ -78,9 +78,8 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 		        Translator.translate("CompetitionInformation"));
 		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"),
 		        VaadinIcon.COG.create());
-		Button editChampionships = new Button(
-		        Translator.translate("DefineChampionships.Title"),
-		        e -> new EditChampionshipsDialog().open());
+		Button editChampionships = openInNewTabNoParam(ChampionshipsContent.class,
+		        Translator.translate("DefineChampionships.Title"));
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, Translator.translate("DefineAgeGroups"));
 		Button officials = openInNewTabNoParam(TechnicalOfficialContent.class, Translator.translate("TechnicalOfficials"));
 		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
