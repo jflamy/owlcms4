@@ -170,7 +170,6 @@ public class CompetitionExport extends HttpServlet {
 			}
 
 			// Open streams.
-			inputStream = payload.inputStream;
 			response.setContentType(payload.contentType);
 			if (payload.text) {
 				response.setCharacterEncoding("UTF-8");
