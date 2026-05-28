@@ -839,6 +839,8 @@ public class RecordRepository {
 			clearNewRecords();
 		} catch (IOException e) {
 		}
+		int identifiedCount = 0;
+		int addedCount = 0;
 		LinkedList<ActualLiftInfo> lifts = new LinkedList<>();
 		for (Athlete a : AthleteRepository.findAll()) {
 			for (int i = 1; i <= 6; i++) {
@@ -850,8 +852,10 @@ public class RecordRepository {
 					ali.setLift(lift);
 					ali.setLiftNo(i);
 					LocalDateTime liftTime = a.getLiftTime(i);
-					if (liftTime == null) {
-						System.err.println(a.getAbbreviatedName() + " " + i);
+					if (liftTime == null && lift != 0) {
+						logger./**/warn(
+						        "recomputeNewRecords found athlete={} liftNo={} lift={} with missing liftTime; chronological replay may be inaccurate",
+						        a.getAbbreviatedName(), i, lift);
 					}
 					ali.setT(liftTime);
 					lifts.add(ali);
@@ -881,8 +885,10 @@ public class RecordRepository {
 
 				if (ali.getLiftNo() <= 3 && mr.getRecordLift() == Ranking.SNATCH && ali.getLift() > mr.getRecordValue()) {
 					improvedRecord = improveRecord(ali, mr, ali.getLift());
-					if (improvedRecord != null)
+					if (improvedRecord != null) {
 						improvedRecords.add(improvedRecord);
+						identifiedCount++;
+					}
 				} else {
 					// cj lift may improve CJ and may improve Total
 					var bestSnatch = ali.getA().getBestSnatch();
@@ -892,22 +898,29 @@ public class RecordRepository {
 					}
 					if (ali.getLiftNo() > 3 && mr.getRecordLift() == Ranking.CLEANJERK && ali.getLift() > mr.getRecordValue()) {
 						improvedRecord = improveRecord(ali, mr, ali.getLift());
-						if (improvedRecord != null)
+						if (improvedRecord != null) {
 							improvedRecords.add(improvedRecord);
+							identifiedCount++;
+						}
 					}
 					if (ali.getLiftNo() > 3 && mr.getRecordLift() == Ranking.TOTAL && total > mr.getRecordValue()) {
 						// logger.debug("checking total for {} {} --- {} ",ali.getA(),ali.getLiftNo(), mr.getRecordValue());
 						improvedRecord = improveRecord(ali, mr, total);
-						if (improvedRecord != null)
+						if (improvedRecord != null) {
 							improvedRecords.add(improvedRecord);
+							identifiedCount++;
+						}
 					}
 				}
 			}
 
 			for (RecordEvent r : improvedRecords) {
-				save(r);
+				if (save(r) != null) {
+					addedCount++;
+				}
 			}
 		}
+		logger.info("recomputeNewRecords summary: identified {} improved records, added {} provisional record entries", identifiedCount, addedCount);
 
 	}
 
@@ -941,7 +954,9 @@ public class RecordRepository {
 
 		// this marks the record as provisional
 		nmr.setGroupNameString(ali.getA().getGroup().getName());
-		logger.info("!!! recomputed record {} {} {} {}", nmr.getAthleteName(), nmr.getAgeGrp(), nmr.getRecordLift(), nmr.getRecordValue());
+		logger.info(
+		        "recomputeNewRecords identified athlete={} liftNo={} recordFederation={} ageGrp={} recordLift={} recordValue={}",
+		        nmr.getAthleteName(), ali.getLiftNo(), nmr.getRecordFederation(), nmr.getAgeGrp(), nmr.getRecordLift(), nmr.getRecordValue());
 		return nmr;
 	}
 
