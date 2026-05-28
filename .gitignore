@@ -50,7 +50,6 @@ database/owlcms.mv.db
 /.vscode/.env.linux
 /.vscode/.env.mac
 /.code-workspace
-jfl*.*
 
 # GPT assistant workspace (hidden, local)
 .gpt/
