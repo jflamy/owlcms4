@@ -62,9 +62,6 @@ git pull --ff-only origin "${DEV_BRANCH}"
 if git show-ref --verify --quiet "refs/heads/${MAIN_BRANCH}"; then
   echo "Switching to existing ${MAIN_BRANCH}..."
   git checkout "${MAIN_BRANCH}"
-  if git show-ref --verify --quiet "refs/remotes/origin/${MAIN_BRANCH}"; then
-    git branch --set-upstream-to="origin/${MAIN_BRANCH}" "${MAIN_BRANCH}"
-  fi
   # Step 3: Fast-forward merge from devXX
   echo "Merging ${DEV_BRANCH} into ${MAIN_BRANCH} (fast-forward only)..."
   git merge --ff-only "${DEV_BRANCH}"
@@ -81,7 +78,7 @@ fi
 
 # Step 4: Push the merged mainXX branch
 echo "Pushing ${MAIN_BRANCH}..."
-git push -u origin "${MAIN_BRANCH}"
+git push origin "${MAIN_BRANCH}"
 
 # Step 5: Extract default REVISION from release.sh and remove suffix
 # release.sh uses format: REVISION="${1:-64.0.4-rc02}"
@@ -96,10 +93,10 @@ echo "Base revision (suffix removed): ${BASE_REVISION}"
 # Step 6: Launch release.sh with base revision (or use passed arguments if provided)
 if [[ $# -eq 0 ]]; then
   echo "Launching release.sh ${BASE_REVISION}..."
-  ./release.sh "${BASE_REVISION}"
+  DO_GIT_PULL=false ./release.sh "${BASE_REVISION}"
 else
   echo "Launching release.sh $@..."
-  ./release.sh "$@"
+  DO_GIT_PULL=false ./release.sh "$@"
 fi
 
 # Step 7: Refresh local mainXX from origin after release.sh.

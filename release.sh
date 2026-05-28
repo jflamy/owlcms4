@@ -13,7 +13,7 @@ set -euo pipefail
 #   - Commits + pushes release note sources (src/main/markdown/*) and release.sh before triggering
 #     (so CI builds what you see)
 #   - Runs the workflow on the current git branch
-#   - After a successful run, does a safe git pull --ff-only
+#   - After a successful run, does a safe git pull --ff-only from origin/<current branch>
 
 if [[ -z "${REVISION}" ]]; then
   echo "ERROR: REVISION must be defined or passed as the first argument: ./release.sh 65.0.0-beta01" >&2
@@ -235,7 +235,7 @@ else
 fi
 
 if [[ "${DO_GIT_PULL}" == "true" ]]; then
-  echo "Updating local repo via git pull (--ff-only)…"
+  echo "Updating local repo via git pull from origin/${GIT_REF} (--ff-only)…"
 
   if [[ -n "$(git status --porcelain)" ]]; then
     echo "ERROR: Working tree is not clean; refusing to run git pull." >&2
@@ -243,7 +243,7 @@ if [[ "${DO_GIT_PULL}" == "true" ]]; then
     exit 2
   fi
 
-  git pull --ff-only
+  git pull --ff-only origin "${GIT_REF}"
 fi
 
 if [[ "${RUN_FAILED}" == "true" ]]; then
