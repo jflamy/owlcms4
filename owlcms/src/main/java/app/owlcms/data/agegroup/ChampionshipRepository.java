@@ -235,6 +235,11 @@ public class ChampionshipRepository {
 			ensureCompetitionTemplate(em);
 			TypedQuery<AgeGroup> q = em.createQuery("select ag from AgeGroup ag", AgeGroup.class);
 			List<AgeGroup> ageGroups = q.getResultList();
+			normalizeAgeGroupChampionshipNames(em, ageGroups);
+			TypedQuery<Championship> cq = em.createQuery(
+			        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
+			List<Championship> championships = cq.getResultList();
+			materializeRequiredChampionships(em, ageGroups, championships);
 			for (AgeGroup ag : ageGroups) {
 				String champName = ag.getChampionshipName();
 				if (champName == null || champName.isBlank()) {
@@ -268,6 +273,29 @@ public class ChampionshipRepository {
 		Championship.reset();
 	}
 
+	public static Championship materializeForAgeGroup(AgeGroup ageGroup) {
+		if (ageGroup == null) {
+			return null;
+		}
+		Championship championship = JPAService.runInTransaction(em -> {
+			TypedQuery<AgeGroup> aq = em.createQuery("select ag from AgeGroup ag order by ag.id", AgeGroup.class);
+			List<AgeGroup> ageGroups = aq.getResultList();
+			TypedQuery<Championship> cq = em.createQuery(
+			        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
+			List<Championship> championships = cq.getResultList();
+			return materializeChampionship(em, effectiveChampionshipName(ageGroup), ageGroup.getConfiguredChampionshipType(),
+			        ageGroups, championships);
+		});
+		Championship.reset();
+		return championship;
+	}
+
+	public static void materializeIfRequired(AgeGroup ageGroup) {
+		if (requiresMaterializedChampionship(ageGroup)) {
+			materializeForAgeGroup(ageGroup);
+		}
+	}
+
 	public static void normalizeDefaultTypes() {
 		Boolean changed = JPAService.runInTransaction(em -> normalizeDefaultTypes(em));
 		if (Boolean.TRUE.equals(changed)) {
@@ -290,12 +318,13 @@ public class ChampionshipRepository {
 		        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
 		for (Championship championship : query.getResultList()) {
 			boolean sameAsTemplate = championship.hasSameCompetitionSettingsAs(template);
-			if (championship.usesCompetitionDefaults() != sameAsTemplate) {
-				championship.setUseCompetitionDefaults(sameAsTemplate);
+			boolean shouldUseCompetitionDefaults = sameAsTemplate;
+			if (championship.usesCompetitionDefaults() != shouldUseCompetitionDefaults) {
+				championship.setUseCompetitionDefaults(shouldUseCompetitionDefaults);
 				em.merge(championship);
 				changed = true;
 				logger.info("Updated competition default flag for championship '{}': {}",
-				        championship.getName(), sameAsTemplate);
+				        championship.getName(), shouldUseCompetitionDefaults);
 			}
 		}
 		if (changed) {
@@ -312,6 +341,8 @@ public class ChampionshipRepository {
 		List<Championship> championships = championshipQuery.getResultList();
 		TypedQuery<AgeGroup> ageGroupQuery = em.createQuery("select ag from AgeGroup ag order by ag.id", AgeGroup.class);
 		List<AgeGroup> ageGroups = ageGroupQuery.getResultList();
+		changed |= normalizeAgeGroupChampionshipNames(em, ageGroups);
+		changed |= materializeRequiredChampionships(em, ageGroups, championships);
 		for (Championship championship : championships) {
 			if (championship.getStoredType() == ChampionshipType.IWF) {
 				logger.info("Reverted legacy IWF championship '{}' to U", championship.getName());
@@ -371,6 +402,121 @@ public class ChampionshipRepository {
 
 		if (changed) {
 			em.flush();
+		}
+		return changed;
+	}
+
+	private static boolean materializeRequiredChampionships(EntityManager em, List<AgeGroup> ageGroups,
+	        List<Championship> championships) {
+		boolean changed = false;
+		for (AgeGroup ageGroup : ageGroups) {
+			if (!requiresMaterializedChampionship(ageGroup)) {
+				continue;
+			}
+			String championshipName = effectiveChampionshipName(ageGroup);
+			Championship existing = findChampionship(championshipName, championships);
+			boolean usedDefaults = existing != null && existing.usesCompetitionDefaults();
+			Championship championship = materializeChampionship(em, championshipName, ageGroup.getConfiguredChampionshipType(),
+			        ageGroups, championships);
+			changed |= championship != null && (existing == null || usedDefaults);
+		}
+		return changed;
+	}
+
+	private static Championship materializeChampionship(EntityManager em, String championshipName, ChampionshipType type,
+	        List<AgeGroup> ageGroups, List<Championship> championships) {
+		if (championshipName == null || championshipName.isBlank()) {
+			return null;
+		}
+		Championship championship = findChampionship(championshipName, championships);
+		if (championship == null) {
+			Championship template = ensureCompetitionTemplate(em);
+			championship = new Championship(championshipName, canonicalizeType(championshipName, type));
+			championship.copyCompetitionSettingsFrom(template);
+			applyAgeGroupScoringOverrides(championship, championshipName, ageGroups);
+			championship.setUseCompetitionDefaults(championship.hasSameCompetitionSettingsAs(template));
+			em.persist(championship);
+			championships.add(championship);
+			logger.info("Materialized championship '{}' from age groups", championshipName);
+		} else {
+			Championship template = ensureCompetitionTemplate(em);
+			ChampionshipType canonicalType = canonicalizeType(championshipName, type);
+			if (championship.getType() != canonicalType) {
+				championship.setType(canonicalType);
+			}
+			if (championship.usesCompetitionDefaults()) {
+				championship.copyCompetitionSettingsFrom(template);
+				applyAgeGroupScoringOverrides(championship, championshipName, ageGroups);
+				championship.setUseCompetitionDefaults(championship.hasSameCompetitionSettingsAs(template));
+			}
+			em.merge(championship);
+		}
+		return championship;
+	}
+
+	private static Championship findChampionship(String championshipName, List<Championship> championships) {
+		for (Championship championship : championships) {
+			String name = Championship.canonicalizeChampionshipName(championship.getName());
+			if (name != null && name.equalsIgnoreCase(championshipName)) {
+				return championship;
+			}
+		}
+		return null;
+	}
+
+	private static boolean requiresMaterializedChampionship(AgeGroup ageGroup) {
+		String championshipName = effectiveChampionshipName(ageGroup);
+		String selfName = Championship.canonicalizeChampionshipName(ageGroup.getCode());
+		return championshipName != null && !championshipName.isBlank()
+		        && (!championshipName.equalsIgnoreCase(selfName)
+		                || ageGroup.getConfiguredChampionshipType() != ChampionshipType.U
+		                || ageGroup.getScoringSystem() != null
+		                || ageGroup.getBestAthleteScoringSystem() != null
+		                || Boolean.FALSE.equals(ageGroup.getMedals()));
+	}
+
+	private static String effectiveChampionshipName(AgeGroup ageGroup) {
+		String name = ageGroup.getChampionshipName();
+		if (name == null || name.isBlank() || name.trim().equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME)) {
+			name = ageGroup.getCode();
+		}
+		return Championship.canonicalizeChampionshipName(name != null ? name.trim() : null);
+	}
+
+	private static void applyAgeGroupScoringOverrides(Championship championship, String championshipName,
+	        List<AgeGroup> ageGroups) {
+		for (AgeGroup ageGroup : ageGroups) {
+			String effectiveName = effectiveChampionshipName(ageGroup);
+			if (effectiveName == null || !effectiveName.equalsIgnoreCase(championshipName)) {
+				continue;
+			}
+			if (ageGroup.getScoringSystem() != null) {
+				championship.setScoringSystem(ageGroup.getScoringSystem());
+			} else if (ageGroup.getConfiguredChampionshipType() != ChampionshipType.U) {
+				championship.setScoringSystem(ageGroup.getComputedScoringSystem());
+			}
+			if (ageGroup.getBestAthleteScoringSystem() != null) {
+				championship.setBestAthleteScoringSystem(ageGroup.getBestAthleteScoringSystem());
+				championship.setBestSnatchScoringSystem(ageGroup.getBestAthleteScoringSystem());
+				championship.setBestCJScoringSystem(ageGroup.getBestAthleteScoringSystem());
+			}
+		}
+	}
+
+	private static boolean normalizeAgeGroupChampionshipNames(EntityManager em, List<AgeGroup> ageGroups) {
+		boolean changed = false;
+		for (AgeGroup ageGroup : ageGroups) {
+			String name = ageGroup.getChampionshipName();
+			if (name != null && !name.isBlank() && !name.trim().equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME)) {
+				continue;
+			}
+			String code = ageGroup.getCode();
+			if (code == null || code.isBlank()) {
+				continue;
+			}
+			ageGroup.setChampionshipName(Championship.canonicalizeChampionshipName(code.trim()));
+			em.merge(ageGroup);
+			changed = true;
 		}
 		return changed;
 	}

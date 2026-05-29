@@ -341,17 +341,31 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        item -> {
 			        Championship championship = item.getChampionship();
 			        logger.trace("createGrid age division {}", championship);
-			        String tr = (championship != null ? championship.translate() : "?");
-			        return tr;
+			        if (championship != null && !championship.isCompetitionTemplate()) {
+				        return championship.translate();
+			        }
+			        String championshipName = item.getChampionshipName();
+			        if (championshipName == null || championshipName.isBlank()
+			                || championshipName.trim().equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME)) {
+				        championshipName = item.getCode();
+			        }
+			        return championshipName != null && !championshipName.isBlank() ? championshipName : "?";
 		        }))
 		        .setHeader(Translator.translate("Championship"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
 			        Ranking ss = item.getScoringSystem();
-			        String tr = (ss != null ? Translator.translate("Ranking." + ss) : "");
-			        return tr;
+			        Championship championship = item.getChampionship();
+			        return rankingText(ss != null ? ss : championship != null ? championship.getScoringSystem() : null);
 		        }))
 		        .setHeader(Translator.translate("CeremonyType.MEDALS"));
+		grid.addColumn(new TextRenderer<>(
+		        item -> {
+			        Ranking ss = item.getBestAthleteScoringSystem();
+			        Championship championship = item.getChampionship();
+			        return rankingText(ss != null ? ss : championship != null ? championship.getBestAthleteScoringSystem() : null);
+		        }))
+		        .setHeader(Translator.translate("Championship.bestAthleteScoringSystem"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
 			        Gender gender = item.getGender();
@@ -368,6 +382,10 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.getCrud().setCrudListener(this);
 		this.getCrud().setClickRowToUpdate(true);
 		return this.getCrud();
+	}
+
+	private static String rankingText(Ranking ranking) {
+		return ranking != null ? Translator.translate("Ranking." + ranking) : "";
 	}
 
 	/**

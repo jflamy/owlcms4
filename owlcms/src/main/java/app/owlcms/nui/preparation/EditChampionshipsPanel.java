@@ -6,19 +6,25 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
@@ -29,18 +35,18 @@ import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class EditChampionshipsPanel extends VerticalLayout {
-	private VerticalLayout championshipsTable = new VerticalLayout();
+	private static final String NAME_COLUMN_WIDTH = "12em";
+
+	private Grid<ChampionshipRow> championshipsTable = new Grid<>(ChampionshipRow.class, false);
 	private Checkbox hideCompetitionDefaults;
 
 	public EditChampionshipsPanel() {
 		setPadding(false);
 		setSpacing(false);
 		setWidthFull();
-		this.championshipsTable.setPadding(false);
-		this.championshipsTable.setSpacing(false);
-		this.championshipsTable.setWidthFull();
-		this.championshipsTable.getStyle().set("gap", "0.25rem");
+		configureChampionshipsTable();
 
+		ChampionshipRepository.normalizeDefaultTypes();
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();
 		this.hideCompetitionDefaults = new Checkbox(Translator.translate("EditChampionships.HideCompetitionDefaults"));
 		this.hideCompetitionDefaults.setValue(true);
@@ -50,12 +56,35 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		add(this.hideCompetitionDefaults, this.championshipsTable);
 	}
 
+	private void configureChampionshipsTable() {
+		this.championshipsTable.setWidthFull();
+		this.championshipsTable.getStyle().set("margin-top", "1em");
+		this.championshipsTable.setAllRowsVisible(true);
+		this.championshipsTable.getThemeNames().add("row-stripes");
+		Column<ChampionshipRow> nameColumn = this.championshipsTable.addColumn(new ComponentRenderer<>(this::nameCell))
+		        .setHeader(Translator.translate("Name"))
+		        .setWidth(NAME_COLUMN_WIDTH)
+		        .setFlexGrow(0);
+		Column<ChampionshipRow> typeColumn = this.championshipsTable.addColumn(new ComponentRenderer<>(this::typeCell))
+		        .setHeader(Translator.translate("Championship.Type"))
+		        .setAutoWidth(true)
+		        .setFlexGrow(0);
+		Column<ChampionshipRow> actionsColumn = this.championshipsTable.addColumn(new ComponentRenderer<>(this::actionsCell))
+		        .setHeader("")
+		        .setAutoWidth(true)
+		        .setFlexGrow(1);
+
+		for (Column<ChampionshipRow> column : List.of(nameColumn, typeColumn, actionsColumn)) {
+			column.setResizable(true);
+		}
+	}
+
 	public void updateChampionshipsTable() {
-		this.championshipsTable.removeAll();
 		boolean hideDefaultRows = this.hideCompetitionDefaults == null
 		        || Boolean.TRUE.equals(this.hideCompetitionDefaults.getValue());
 		Map<String, ChampionshipCandidate> candidates = championshipCandidates();
 		Map<String, Championship> explicitChampionships = explicitChampionships();
+		List<ChampionshipRow> rows = new ArrayList<>();
 
 		for (ChampionshipCandidate candidate : candidates.values()) {
 			Championship existing = explicitChampionships.remove(candidate.name);
@@ -63,75 +92,78 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			if (hideDefaultRows && usesDefaults) {
 				continue;
 			}
-			Button championshipButton = championshipButton(candidate.name, () -> {
-				Championship championship = Championship.findStored(candidate.name);
-				if (championship == null) {
-					championship = Championship.addChampionship(candidate.name, candidate.type);
-				}
-				new ChampionshipDetailsDialog(championship, this::updateChampionshipsTable).open();
-			});
-			HorizontalLayout ctRow = championshipRow(candidate.name, candidate.type, championshipButton);
-			if (existing != null) {
-				if (!existing.usesCompetitionDefaults()) {
-					Button reset = resetButton(() -> {
-						ChampionshipRepository.resetToCompetitionDefaults(existing);
-						updateChampionshipsTable();
-					});
-					ctRow.add(reset);
-				}
-			}
-			this.championshipsTable.add(ctRow);
+			rows.add(new ChampionshipRow(candidate.name, candidate.type, existing, false));
 		}
 
 		explicitChampionships.values().stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
 			if (hideDefaultRows && c.usesCompetitionDefaults()) {
 				return;
 			}
-			Button championshipButton = championshipButton(c.getName(), () -> {
-				new ChampionshipDetailsDialog(c, this::updateChampionshipsTable).open();
-			});
-			Button reset = resetButton(() -> {
-				ChampionshipRepository.resetToCompetitionDefaults(c);
-				updateChampionshipsTable();
-			});
-			Button delete = deleteButton(() -> {
-				Championship.remove(c);
-				updateChampionshipsTable();
-			});
-			HorizontalLayout ctRow = championshipRow(c.getName(), c.getType(), championshipButton);
-			if (!c.usesCompetitionDefaults()) {
-				ctRow.add(reset);
-			}
-			ctRow.add(delete);
-			this.championshipsTable.add(ctRow);
+			rows.add(new ChampionshipRow(c.getName(), c.getType(), c, true));
 		});
-		HorizontalLayout addRow = new HorizontalLayout();
-		addRow.setAlignItems(FlexComponent.Alignment.CENTER);
-		addRow.setWidthFull();
-		addRow.getStyle().set("margin-top", "0.5rem");
-		TextField nameField = new TextField();
-		nameField.setWidth("12em");
-		ComboBox<ChampionshipType> typeField = createTypeField();
-		typeField.setValue(ChampionshipType.U);
-		Button addButton = new Button(Translator.translate("Add"), VaadinIcon.PLUS.create(), e -> {
-			Championship.addChampionship(nameField.getValue(), typeField.getValue());
-			updateChampionshipsTable();
-		});
-		addRow.add(nameField, typeField, addButton);
-		this.championshipsTable.add(addRow);
-
+		rows.add(ChampionshipRow.addRow());
+		this.championshipsTable.setItems(rows);
 	}
 
-	private HorizontalLayout championshipRow(String name, ChampionshipType type, Button editButton) {
-		Span nameText = fixedText(name, "12em");
-		Span typeText = fixedText(championshipListTypeLabel(type), "7em");
+	private Component nameCell(ChampionshipRow row) {
+		if (!row.addRow) {
+			return new Span(row.name);
+		}
+		TextField nameField = new TextField();
+		nameField.setAriaLabel(Translator.translate("Name"));
+		nameField.setPlaceholder(Translator.translate("Name"));
+		nameField.setWidthFull();
+		nameField.addValueChangeListener(e -> row.name = e.getValue());
+		return nameField;
+	}
 
-		HorizontalLayout row = new HorizontalLayout(nameText, typeText, editButton);
-		row.setAlignItems(FlexComponent.Alignment.CENTER);
-		row.setWidthFull();
-		row.getStyle().set("column-gap", "0.75rem");
-		row.getStyle().set("min-height", "2.25rem");
-		return row;
+	private Component typeCell(ChampionshipRow row) {
+		if (!row.addRow) {
+			return new Span(championshipListTypeLabel(row.type));
+		}
+		ComboBox<ChampionshipType> typeField = createTypeField();
+		typeField.setAriaLabel(Translator.translate("Championship.Type"));
+		typeField.setValue(row.type);
+		typeField.addValueChangeListener(e -> row.type = e.getValue());
+		return typeField;
+	}
+
+	private Component actionsCell(ChampionshipRow row) {
+		if (!row.addRow) {
+			return championshipActions(row);
+		}
+		Button addButton = new Button(Translator.translate("Add"), VaadinIcon.PLUS.create(), e -> {
+			Championship.addChampionship(row.name, row.type);
+			updateChampionshipsTable();
+		});
+		return addButton;
+	}
+
+	private HorizontalLayout championshipActions(ChampionshipRow row) {
+		HorizontalLayout actions = new HorizontalLayout();
+		actions.setAlignItems(FlexComponent.Alignment.CENTER);
+		actions.setSpacing(true);
+		Button championshipButton = championshipButton(row.name, () -> {
+			Championship championship = row.championship != null ? row.championship : Championship.findStored(row.name);
+			if (championship == null) {
+				championship = Championship.addChampionship(row.name, row.type);
+			}
+			new ChampionshipDetailsDialog(championship, this::updateChampionshipsTable).open();
+		});
+		actions.add(championshipButton);
+		if (row.championship != null && !row.championship.usesCompetitionDefaults()) {
+			actions.add(resetButton(() -> {
+				ChampionshipRepository.resetToCompetitionDefaults(row.championship);
+				updateChampionshipsTable();
+			}));
+		}
+		if (row.extraExplicit) {
+			actions.add(deleteButton(() -> {
+				Championship.remove(row.championship);
+				updateChampionshipsTable();
+			}));
+		}
+		return actions;
 	}
 
 	private Button championshipButton(String name, Runnable action) {
@@ -153,19 +185,8 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		return button;
 	}
 
-	private Span fixedText(String text, String width) {
-		Span span = new Span(text);
-		span.setWidth(width);
-		span.getStyle().set("flex-shrink", "0");
-		return span;
-	}
-
 	private String championshipListTypeLabel(ChampionshipType type) {
-		return switch (ChampionshipType.normalizeOrDefault(type)) {
-			case MASTERS -> Translator.translate("Championship.TypeShort.MASTERS");
-			case DEFAULT -> Translator.translate("Championship.TypeShort.DEFAULT");
-			default -> "";
-		};
+		return Translator.translate(ChampionshipType.normalizeOrDefault(type).labelKey());
 	}
 
 	private Map<String, ChampionshipCandidate> championshipCandidates() {
@@ -201,11 +222,35 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		}
 	}
 
+	private static class ChampionshipRow {
+		private String name;
+		private ChampionshipType type;
+		private final Championship championship;
+		private final boolean extraExplicit;
+		private final boolean addRow;
+
+		static ChampionshipRow addRow() {
+			return new ChampionshipRow("", ChampionshipType.U, null, false, true);
+		}
+
+		ChampionshipRow(String name, ChampionshipType type, Championship championship, boolean extraExplicit) {
+			this(name, type, championship, extraExplicit, false);
+		}
+
+		ChampionshipRow(String name, ChampionshipType type, Championship championship, boolean extraExplicit, boolean addRow) {
+			this.name = name;
+			this.type = type != null ? type : ChampionshipType.U;
+			this.championship = championship;
+			this.extraExplicit = extraExplicit;
+			this.addRow = addRow;
+		}
+	}
+
 	private ComboBox<ChampionshipType> createTypeField() {
 		ComboBox<ChampionshipType> typeField = new ComboBox<>();
 		typeField.setItems(ChampionshipType.selectableValues());
 		typeField.setItemLabelGenerator(type -> Translator.translate(type.labelKey()));
-		typeField.setWidth("28em");
+		typeField.setWidthFull();
 		return typeField;
 	}
 }

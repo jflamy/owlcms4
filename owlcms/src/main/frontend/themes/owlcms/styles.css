@@ -99,11 +99,7 @@ vaadin-grid ::part(focus-ring-inner) {
 vaadin-grid vaadin-text-field::part(focus-ring),
 vaadin-grid vaadin-text-field::part(focusRing),
 vaadin-grid vaadin-text-field::part(focus-ring-inner),
-vaadin-grid vaadin-text-field::part(input-field),
-vaadin-grid vaadin-text-field::part(value),
-vaadin-grid vaadin-text-field::part(internal-input),
 vaadin-grid vaadin-text-area::part(focus-ring),
-vaadin-grid vaadin-text-area::part(input-field),
 vaadin-grid vaadin-select::part(focus-ring),
 vaadin-grid vaadin-combo-box::part(focus-ring) {
     display: none !important;

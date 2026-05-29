@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 
@@ -26,6 +27,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
+import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.i18n.Translator;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -61,8 +63,6 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			header.createCell(3).setCellValue("from");
 			header.createCell(4).setCellValue("to");
 			header.createCell(5).setCellValue("active");
-			header.createCell(6).setCellValue("agegroupscoring");
-			header.createCell(7).setCellValue("agegroupbestathlete");
 
 			List<AgeGroup> ageGroups = AgeGroupRepository.findAll();
 			ageGroups.sort(Comparator
@@ -74,7 +74,7 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			for (AgeGroup ag : ageGroups) {
 				Row curRow = sheet.createRow(rowNum);
 				curRow.createCell(0).setCellValue((ag.isAlreadyGendered() ? "!" : "") + ag.getCode());
-				String championshipName = ag.getChampionshipName();
+				String championshipName = effectiveChampionshipName(ag);
 				if (championshipName != null && !championshipName.equalsIgnoreCase(ag.getCode())) {
 					curRow.createCell(1).setCellValue(championshipName);
 				}
@@ -82,12 +82,7 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 				curRow.createCell(3).setCellValue(ag.getMinAge());
 				curRow.createCell(4).setCellValue(ag.getMaxAge());
 				curRow.createCell(5).setCellValue(ag.isActive());
-				Ranking scoringSystem = ag.getComputedScoringSystem();
-				curRow.createCell(6).setCellValue(scoringSystem == Ranking.TOTAL ? "" : scoringSystem.getReportingName());
-				Ranking bestScoringSystem = ag.getBestAthleteScoringSystem();
-				curRow.createCell(7).setCellValue(bestScoringSystem != null ? bestScoringSystem.getReportingName() : "");
-
-				int cellNum = 8;
+				int cellNum = 6;
 				for (Category cat : ag.getCategories()) {
 					Double maximumWeight = cat.getMaximumWeight();
 					int val = (int) (maximumWeight + 0.5);
@@ -206,20 +201,80 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		}
 
 		for (AgeGroup ageGroup : ageGroups) {
-			String championshipName = Championship.canonicalizeChampionshipName(ageGroup.computeChampionshipName());
+			String championshipName = effectiveChampionshipName(ageGroup);
 			if (championshipName == null || championshipName.isBlank() || championships.containsKey(championshipName)) {
 				continue;
 			}
 			Championship championship = new Championship(championshipName, ageGroup.getChampionshipType());
 			championship.copyCompetitionSettingsFrom(template);
-			championship.setUseCompetitionDefaults(true);
+			applyAgeGroupScoringOverrides(championship, championshipName, ageGroups);
+			championship.setUseCompetitionDefaults(false);
 			championships.put(championshipName, championship);
 		}
 
-		List<Championship> exportChampionships = new ArrayList<>(championships.values());
+		Championship templateForExport = template;
+		List<Championship> exportChampionships = new ArrayList<>(championships.values().stream()
+		        .filter(championship -> championship.isCompetitionTemplate() || !hasSameExportedSettingsAs(championship, templateForExport))
+		        .toList());
 		exportChampionships.sort(Comparator.comparing(Championship::isCompetitionTemplate).reversed()
 		        .thenComparing(Championship::compareTo));
 		return exportChampionships;
+	}
+
+	private String effectiveChampionshipName(AgeGroup ageGroup) {
+		String championshipName = ageGroup.getChampionshipName();
+		if (championshipName == null || championshipName.isBlank()
+		        || championshipName.trim().equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME)) {
+			championshipName = ageGroup.getCode();
+		}
+		return Championship.canonicalizeChampionshipName(championshipName != null ? championshipName.trim() : null);
+	}
+
+	private void applyAgeGroupScoringOverrides(Championship championship, String championshipName, List<AgeGroup> ageGroups) {
+		Ranking bestAthleteScoringSystem = null;
+		for (AgeGroup ageGroup : ageGroups) {
+			String effectiveName = effectiveChampionshipName(ageGroup);
+			if (effectiveName == null || !effectiveName.equalsIgnoreCase(championshipName)) {
+				continue;
+			}
+			if (ageGroup.getScoringSystem() != null) {
+				championship.setScoringSystem(ageGroup.getScoringSystem());
+			} else if (ageGroup.getChampionshipType() != null && ageGroup.getChampionshipType() != ChampionshipType.U) {
+				championship.setScoringSystem(ageGroup.getComputedScoringSystem());
+			}
+			if (ageGroup.getBestAthleteScoringSystem() != null) {
+				bestAthleteScoringSystem = ageGroup.getBestAthleteScoringSystem();
+			}
+		}
+		if (bestAthleteScoringSystem != null) {
+			championship.setBestAthleteScoringSystem(bestAthleteScoringSystem);
+			championship.setBestSnatchScoringSystem(bestAthleteScoringSystem);
+			championship.setBestCJScoringSystem(bestAthleteScoringSystem);
+		}
+	}
+
+	private boolean hasSameExportedSettingsAs(Championship championship, Championship template) {
+		return championship != null && template != null
+		        && championship.isSnatchCJTotalMedals() == template.isSnatchCJTotalMedals()
+		        && Objects.equals(championship.getScoringSystem(), template.getScoringSystem())
+		        && Objects.equals(championship.getBestAthleteScoringSystem(), template.getBestAthleteScoringSystem())
+		        && Objects.equals(championship.getBestSnatchScoringSystem(), template.getBestSnatchScoringSystem())
+		        && Objects.equals(championship.getBestCJScoringSystem(), template.getBestCJScoringSystem())
+		        && Objects.equals(championship.getTeamPoints1st(), template.getTeamPoints1st())
+		        && Objects.equals(championship.getTeamPoints2nd(), template.getTeamPoints2nd())
+		        && Objects.equals(championship.getTeamPoints3rd(), template.getTeamPoints3rd())
+		        && Objects.equals(championship.getTeamScoringSystem(), template.getTeamScoringSystem())
+		        && Objects.equals(normalizeTeamSize(championship.getMaxTeamSize()), normalizeTeamSize(template.getMaxTeamSize()))
+		        && Objects.equals(championship.getMaxPerCategory(), template.getMaxPerCategory())
+		        && Objects.equals(championship.getMensBestN(), template.getMensBestN())
+		        && Objects.equals(championship.getWomensBestN(), template.getWomensBestN())
+		        && championship.isMixedTeamEnabled() == template.isMixedTeamEnabled()
+		        && Objects.equals(championship.getMixedTeamScoringSystem(), template.getMixedTeamScoringSystem())
+		        && championship.isExplicitMixedTeamMembers() == template.isExplicitMixedTeamMembers()
+		        && Objects.equals(championship.getExplicitTeamSize(), template.getExplicitTeamSize())
+		        && Objects.equals(championship.getMixedBestN(), template.getMixedBestN())
+		        && Objects.equals(championship.getMixedMensBestN(), template.getMixedMensBestN())
+		        && Objects.equals(championship.getMixedWomensBestN(), template.getMixedWomensBestN());
 	}
 
 	private static final int LEGACY_UNBOUNDED_TEAM_SIZE = 50;

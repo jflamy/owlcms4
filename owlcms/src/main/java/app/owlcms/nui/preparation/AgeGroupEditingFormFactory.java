@@ -43,6 +43,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.AssignedAthletesException;
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.RankingConfig;
@@ -57,6 +58,7 @@ public class AgeGroupEditingFormFactory
         extends OwlcmsCrudFormFactory<AgeGroup>
         implements CustomFormFactory<AgeGroup> {
 
+	private static final String SELF_CHAMPIONSHIP_NAME = "<self>";
 	private CategoryGridField catField;
 	@SuppressWarnings("unused")
 	private Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupEditingFormFactory.class);
@@ -157,25 +159,34 @@ public class AgeGroupEditingFormFactory
 		codeInfo.setAlignItems(Alignment.CENTER);
 		formLayout.addFormItem(codeInfo, createLabel(Translator.translate("AgeGroupCode")));
 
+		ChampionshipRepository.materializeIfRequired(aFromDb);
 		ComboBox<Championship> championshipField = new ComboBox<>();
+		Championship selfChampionship = new Championship(SELF_CHAMPIONSHIP_NAME, ChampionshipType.U);
 		List<Championship> list = new ArrayList<>(Championship.findAll());
+		list.add(0, selfChampionship);
 		championshipField.setItems(new ListDataProvider<>(list));
-		championshipField.setItemLabelGenerator((ad) -> ad.getName());
+		championshipField.setItemLabelGenerator((ad) -> ad == selfChampionship ? selfChampionshipLabel(codeField.getValue()) : ad.getName());
 		championshipField.setRequired(true);
 		championshipField.setRequiredIndicatorVisible(false);
 		championshipField.setAllowCustomValue(true);
 
-		String initialName = aFromDb.getChampionshipName();
-		Championship initialChampionship = Championship.findStored(initialName);
 		this.pendingChampionshipName = null;
 
 		Button editChampionshipButton = new Button(Translator.translate("Sessions.EditDetails"), e -> {
-			Championship selected = championshipField.getValue();
-			if (selected != null && selected.getId() != null) {
-				new ChampionshipDetailsDialog(selected, null).open();
+			Championship selected = materializeSelectedChampionship(aFromDb, codeField.getValue(), championshipField.getValue(),
+			        selfChampionship);
+			if (selected == null) {
+				return;
 			}
+			if (!list.contains(selected)) {
+				list.add(selected);
+				championshipField.setItems(new ListDataProvider<>(list));
+			}
+			this.pendingChampionshipName = null;
+			championshipField.setValue(selected);
+			new ChampionshipDetailsDialog(selected, () -> this.origin.getCrud().refreshGrid()).open();
 		});
-		editChampionshipButton.setEnabled(initialChampionship != null && initialChampionship.getId() != null);
+		editChampionshipButton.setEnabled(true);
 
 		// Handle user typing a new championship name
 		championshipField.addCustomValueSetListener(event -> {
@@ -195,7 +206,7 @@ public class AgeGroupEditingFormFactory
 				this.pendingChampionshipName = customValue.trim();
 				championshipField.setValue(null);
 				championshipField.setPlaceholder(customValue.trim());
-				editChampionshipButton.setEnabled(false);
+				editChampionshipButton.setEnabled(true);
 			}
 		});
 
@@ -205,7 +216,7 @@ public class AgeGroupEditingFormFactory
 			if (val != null) {
 				this.pendingChampionshipName = null;
 				championshipField.setPlaceholder("");
-				editChampionshipButton.setEnabled(val.getId() != null);
+				editChampionshipButton.setEnabled(true);
 			} else if (this.pendingChampionshipName == null) {
 				championshipField.setPlaceholder("");
 				editChampionshipButton.setEnabled(false);
@@ -221,9 +232,14 @@ public class AgeGroupEditingFormFactory
 				return ValidationResult.error(Translator.translate("ThisFieldIsRequired"));
 			})
 			.bind(
-			ag -> Championship.findStored(ag.getChampionshipName()),
+			ag -> {
+				Championship stored = Championship.findStored(effectiveChampionshipName(ag));
+				return stored != null ? stored : selfChampionship;
+			},
 			(ag, championship) -> {
-				if (championship != null) {
+				if (championship == selfChampionship) {
+					ag.setChampionshipName(effectiveSelfChampionshipName(codeField.getValue(), ag));
+				} else if (championship != null) {
 					ag.setChampionship(championship);
 				} else if (this.pendingChampionshipName != null) {
 					ag.setChampionshipName(this.pendingChampionshipName);
@@ -343,11 +359,7 @@ public class AgeGroupEditingFormFactory
 	 */
 	@Override
 	public AgeGroup update(AgeGroup ageGroup) {
-		// Create championship if it doesn't exist yet
-		String champName = ageGroup.getChampionshipName();
-		if (champName != null && !champName.isBlank()) {
-			Championship.ensureStored(champName, ChampionshipType.U);
-		}
+		ChampionshipRepository.materializeIfRequired(ageGroup);
 
 		// array is used to workaround Java language restriction on setting variables in lambda
 		AgeGroup[] saved = new AgeGroup[1];
@@ -389,6 +401,50 @@ public class AgeGroupEditingFormFactory
 	private Component createLabel(String translate) {
 		Div label = new Div(translate);
 		return label;
+	}
+
+	private Championship materializeSelectedChampionship(AgeGroup source, String code, Championship selected,
+	        Championship selfChampionship) {
+		String championshipName = null;
+		if (selected == selfChampionship) {
+			championshipName = effectiveSelfChampionshipName(code, source);
+		} else if (selected != null && selected.getId() != null) {
+			return selected;
+		} else if (selected != null) {
+			championshipName = selected.getName();
+		} else if (this.pendingChampionshipName != null) {
+			championshipName = this.pendingChampionshipName;
+		}
+		if (championshipName == null || championshipName.isBlank()) {
+			return null;
+		}
+		AgeGroup materialized = new AgeGroup();
+		materialized.setCode(effectiveSelfChampionshipName(code, source));
+		materialized.setChampionshipName(championshipName);
+		materialized.setChampionshipType(source.getChampionshipType());
+		materialized.setScoringSystem(source.getScoringSystem());
+		materialized.setBestAthleteScoringSystem(source.getBestAthleteScoringSystem());
+		materialized.setMedals(source.getMedals());
+		return ChampionshipRepository.materializeForAgeGroup(materialized);
+	}
+
+	private static String selfChampionshipLabel(String code) {
+		String trimmed = code != null ? code.trim() : "";
+		return trimmed.isBlank() ? SELF_CHAMPIONSHIP_NAME : SELF_CHAMPIONSHIP_NAME + " (" + trimmed + ")";
+	}
+
+	private static String effectiveSelfChampionshipName(String code, AgeGroup fallback) {
+		String effectiveCode = code != null && !code.isBlank() ? code : fallback.getCode();
+		return effectiveCode != null ? Championship.canonicalizeChampionshipName(effectiveCode.trim()) : null;
+	}
+
+	private static String effectiveChampionshipName(AgeGroup ageGroup) {
+		String championshipName = ageGroup.getChampionshipName();
+		if (championshipName == null || championshipName.isBlank()
+		        || championshipName.trim().equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME)) {
+			championshipName = ageGroup.getCode();
+		}
+		return Championship.canonicalizeChampionshipName(championshipName != null ? championshipName.trim() : null);
 	}
 
 	private boolean hasDuplicateCodeGender(AgeGroup currentAgeGroup, String code, Gender gender) {

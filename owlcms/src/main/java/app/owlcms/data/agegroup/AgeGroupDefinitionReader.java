@@ -620,16 +620,17 @@ public class AgeGroupDefinitionReader {
 	}
 
 	private static String safeGetTextValue(Cell cell) {
-		try {
-			return cell.getStringCellValue();
-		} catch (IllegalStateException e) {
-			if (cell.getCellType() == CellType.NUMERIC || cell.getCellType() == CellType.BOOLEAN) {
-				String strValue = formatter.formatCellValue(cell);
-				return strValue;
-			} else {
-				logger.error("cannot extract string from cell {}", cell.getAddress());
-				throw new IllegalStateException("cannot extract string from cell " + cell.getAddress());
-			}
+		switch (cell.getCellType()) {
+			case STRING:
+				return cell.getStringCellValue();
+			case NUMERIC:
+			case BOOLEAN:
+			case FORMULA:
+				return formatter.formatCellValue(cell);
+			case BLANK:
+				return "";
+			default:
+				return "";
 		}
 	}
 

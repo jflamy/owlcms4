@@ -21,7 +21,7 @@ public class ChampionshipsContent extends BaseContent implements OwlcmsContent {
 
 	public ChampionshipsContent() {
 		EditChampionshipsPanel panel = new EditChampionshipsPanel();
-		panel.setMaxWidth("52em");
+		panel.setWidthFull();
 		fillH(panel, this);
 	}
 
