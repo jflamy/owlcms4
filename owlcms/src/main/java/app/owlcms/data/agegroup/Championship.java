@@ -513,10 +513,6 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return ChampionshipType.normalizeOrDefault(this.type);
 	}
 
-	ChampionshipType getStoredType() {
-		return this.type;
-	}
-
 	public boolean isCompetitionTemplate() {
 		return this.competitionTemplate;
 	}

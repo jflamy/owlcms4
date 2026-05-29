@@ -336,6 +336,11 @@ public class ChampionshipRepository {
 	static boolean normalizeDefaultTypes(EntityManager em) {
 		boolean changed = false;
 
+		// One-shot migration of any legacy IWF rows (championships + age groups).
+		// IWF is no longer used as a championship type; treat as U. Bulk JPQL runs
+		// before loading entities so the persistence context stays in sync.
+		changed |= migrateLegacyIwfRows(em);
+
 		TypedQuery<Championship> championshipQuery = em.createQuery(
 		        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
 		List<Championship> championships = championshipQuery.getResultList();
@@ -343,28 +348,6 @@ public class ChampionshipRepository {
 		List<AgeGroup> ageGroups = ageGroupQuery.getResultList();
 		changed |= normalizeAgeGroupChampionshipNames(em, ageGroups);
 		changed |= materializeRequiredChampionships(em, ageGroups, championships);
-		for (Championship championship : championships) {
-			if (championship.getStoredType() == ChampionshipType.IWF) {
-				logger.info("Reverted legacy IWF championship '{}' to U", championship.getName());
-				championship.setType(ChampionshipType.U);
-				em.merge(championship);
-				changed = true;
-			}
-		}
-
-		for (AgeGroup ageGroup : ageGroups) {
-			if (ageGroup.getStoredChampionshipType() == ChampionshipType.IWF || isLegacyIwfAgeDivision(ageGroup)) {
-				logger.info("Reverted legacy IWF age group '{}' championship '{}' to U",
-				        ageGroup.getCode(), ageGroup.computeChampionshipName());
-				ageGroup.setChampionshipType(ChampionshipType.U);
-				if (ageGroup.getAgeDivision() == null || ageGroup.getAgeDivision().isBlank()
-				        || ageGroup.getAgeDivision().equalsIgnoreCase(ChampionshipType.IWF.name())) {
-					ageGroup.setAgeDivision(ChampionshipType.U.name());
-				}
-				em.merge(ageGroup);
-				changed = true;
-			}
-		}
 
 		String defaultChampionshipName = findDefaultChampionshipName(ageGroups, championships);
 
@@ -521,9 +504,32 @@ public class ChampionshipRepository {
 		return changed;
 	}
 
-	private static boolean isLegacyIwfAgeDivision(AgeGroup ageGroup) {
-		return ageGroup.getAgeDivision() != null
-		        && ageGroup.getAgeDivision().trim().equalsIgnoreCase(ChampionshipType.IWF.name());
+	/**
+	 * Bulk-migrate any legacy IWF rows (Championship.type, AgeGroup.championshipType,
+	 * AgeGroup.ageDivision) to U. Idempotent: a no-op when no IWF rows remain.
+	 */
+	private static boolean migrateLegacyIwfRows(EntityManager em) {
+		int championships = em.createQuery(
+		        "update Championship c set c.type = :u where c.type = :iwf")
+		        .setParameter("u", ChampionshipType.U)
+		        .setParameter("iwf", ChampionshipType.IWF)
+		        .executeUpdate();
+		int ageGroupTypes = em.createQuery(
+		        "update AgeGroup ag set ag.championshipType = :u where ag.championshipType = :iwf")
+		        .setParameter("u", ChampionshipType.U)
+		        .setParameter("iwf", ChampionshipType.IWF)
+		        .executeUpdate();
+		int ageDivisions = em.createQuery(
+		        "update AgeGroup ag set ag.ageDivision = :u where lower(ag.ageDivision) = :iwf")
+		        .setParameter("u", ChampionshipType.U.name())
+		        .setParameter("iwf", ChampionshipType.IWF.name().toLowerCase())
+		        .executeUpdate();
+		if (championships > 0 || ageGroupTypes > 0 || ageDivisions > 0) {
+			logger.info("Migrated legacy IWF rows: championships={}, ageGroupTypes={}, ageDivisions={}",
+			        championships, ageGroupTypes, ageDivisions);
+			return true;
+		}
+		return false;
 	}
 
 	private static String findDefaultChampionshipName(List<AgeGroup> ageGroups, List<Championship> championships) {

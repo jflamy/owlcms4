@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -199,6 +201,8 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			template = ChampionshipRepository.ensureCompetitionTemplate();
 			championships.put(Championship.COMPETITION_TEMPLATE_NAME, template);
 		}
+		Set<String> explicitAgeGroupChampionshipNames = explicitAgeGroupChampionshipNames(ageGroups);
+		Set<String> referencedChampionshipNames = referencedChampionshipNames(ageGroups);
 
 		for (AgeGroup ageGroup : ageGroups) {
 			String championshipName = effectiveChampionshipName(ageGroup);
@@ -212,13 +216,71 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			championships.put(championshipName, championship);
 		}
 
+		// Export rule: a championship is omitted when reading the AgeGroups sheet alone
+		// would recreate it identically. It is included iff ANY of:
+		//   1. it is the competition template (always)
+		//   2. its settings differ from the template (divergent)
+		//   3. an age group references it under a name different from its own code
+		//      (e.g. JR -> Junior); reading AgeGroups would otherwise lose the name
+		//   4. it has no referencing age group at all (stored but unused; would be
+		//      lost on round-trip)
 		Championship templateForExport = template;
 		List<Championship> exportChampionships = new ArrayList<>(championships.values().stream()
-		        .filter(championship -> championship.isCompetitionTemplate() || !hasSameExportedSettingsAs(championship, templateForExport))
+		        .filter(championship -> championship.isCompetitionTemplate()
+		                || !hasSameExportedSettingsAs(championship, templateForExport)
+		                || hasExplicitAgeGroupChampionshipName(championship, explicitAgeGroupChampionshipNames)
+		                || isUnreferenced(championship, referencedChampionshipNames))
 		        .toList());
 		exportChampionships.sort(Comparator.comparing(Championship::isCompetitionTemplate).reversed()
 		        .thenComparing(Championship::compareTo));
 		return exportChampionships;
+	}
+
+	private boolean hasExplicitAgeGroupChampionshipName(Championship championship, Set<String> explicitAgeGroupChampionshipNames) {
+		return explicitAgeGroupChampionshipNames.contains(exportKey(championship));
+	}
+
+	private boolean isUnreferenced(Championship championship, Set<String> referencedChampionshipNames) {
+		return !referencedChampionshipNames.contains(exportKey(championship));
+	}
+
+	private String exportKey(Championship championship) {
+		return championship.isCompetitionTemplate()
+		        ? Championship.COMPETITION_TEMPLATE_NAME
+		        : Championship.canonicalizeChampionshipName(championship.getName());
+	}
+
+	/**
+	 * Canonical names of championships referenced by at least one age group via
+	 * the age group's effective championship name (explicit name, or — if none —
+	 * the age group's own code). The competition template is never returned.
+	 */
+	private Set<String> referencedChampionshipNames(List<AgeGroup> ageGroups) {
+		Set<String> names = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		for (AgeGroup ageGroup : ageGroups) {
+			String name = effectiveChampionshipName(ageGroup);
+			if (name != null && !name.isBlank()) {
+				names.add(name);
+			}
+		}
+		return names;
+	}
+
+	private Set<String> explicitAgeGroupChampionshipNames(List<AgeGroup> ageGroups) {
+		Set<String> names = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+		for (AgeGroup ageGroup : ageGroups) {
+			String championshipName = ageGroup.getChampionshipName();
+			if (championshipName == null || championshipName.isBlank()
+			        || championshipName.trim().equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME)) {
+				continue;
+			}
+			String canonicalName = Championship.canonicalizeChampionshipName(championshipName.trim());
+			String selfName = Championship.canonicalizeChampionshipName(ageGroup.getCode());
+			if (canonicalName != null && !canonicalName.equalsIgnoreCase(selfName)) {
+				names.add(canonicalName);
+			}
+		}
+		return names;
 	}
 
 	private String effectiveChampionshipName(AgeGroup ageGroup) {
