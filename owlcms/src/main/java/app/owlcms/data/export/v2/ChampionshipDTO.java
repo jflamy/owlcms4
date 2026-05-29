@@ -6,15 +6,28 @@
  *******************************************************************************/
 package app.owlcms.data.export.v2;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.export.StoredChampionshipMixin;
 
 /**
  * DTO for Championship in V2 export format.
  * Uses championship name as the symbolic key referenced by AgeGroupDTO.championshipName.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ChampionshipDTO {
+
+	/**
+	 * Mapper that reads {@link Championship} via stored fields (using the shared
+	 * mixin) so the V2 export is "dumb" and reflects the database, not values
+	 * resolved through the competition-template defaults.
+	 */
+	private static final ObjectMapper STORED_FIELD_MAPPER = new ObjectMapper()
+	        .addMixIn(Championship.class, StoredChampionshipMixin.class);
 
 	private String name;
 	private ChampionshipType type;
@@ -48,32 +61,8 @@ public class ChampionshipDTO {
 		if (championship == null) {
 			return null;
 		}
-		ChampionshipDTO dto = new ChampionshipDTO();
-		dto.setName(championship.isCompetitionTemplate() ? Championship.COMPETITION_TEMPLATE_NAME : championship.getName());
-		dto.setType(championship.getType());
-		dto.setCompetitionTemplate(championship.isCompetitionTemplate());
-		dto.setScoringSystem(championship.getScoringSystem());
-		dto.setBestAthleteScoringSystem(championship.getBestAthleteScoringSystem());
-		dto.setBestSnatchScoringSystem(championship.getBestSnatchScoringSystem());
-		dto.setBestCJScoringSystem(championship.getBestCJScoringSystem());
-		dto.setSnatchCJTotalMedals(championship.isSnatchCJTotalMedals());
-		dto.setTeamPoints1st(championship.getTeamPoints1st());
-		dto.setTeamPoints2nd(championship.getTeamPoints2nd());
-		dto.setTeamPoints3rd(championship.getTeamPoints3rd());
-		dto.setMensBestN(championship.getMensBestN());
-		dto.setWomensBestN(championship.getWomensBestN());
-		dto.setMixedMensBestN(championship.getMixedMensBestN());
-		dto.setMixedWomensBestN(championship.getMixedWomensBestN());
-		dto.setMixedBestN(championship.getMixedBestN());
-		dto.setExplicitTeamSize(championship.getExplicitTeamSize());
-		dto.setMaxTeamSize(championship.getMaxTeamSize());
-		dto.setMaxPerCategory(championship.getMaxPerCategory());
-		dto.setExplicitMixedTeamMembers(championship.isExplicitMixedTeamMembers());
-		dto.setMixedTeamEnabled(championship.isMixedTeamEnabled());
-		dto.setTeamScoringSystem(championship.getTeamScoringSystem());
-		dto.setMixedTeamScoringSystem(championship.getMixedTeamScoringSystem());
-		dto.setUseCompetitionDefaults(championship.usesCompetitionDefaults());
-		return dto;
+		// Copies stored fields (not smart getters) via the shared mixin.
+		return STORED_FIELD_MAPPER.convertValue(championship, ChampionshipDTO.class);
 	}
 
 	public Championship toChampionship() {

@@ -72,9 +72,15 @@ public class CompetitionData {
 	public CompetitionData() {
 	}
 
-	public InputStream exportData() {
+	private ObjectMapper createExportMapper() {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());
+		mapper.addMixIn(Championship.class, StoredChampionshipMixin.class);
+		return mapper;
+	}
+
+	public InputStream exportData() {
+		ObjectMapper mapper = createExportMapper();
 		try {
 			ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
 
@@ -99,8 +105,7 @@ public class CompetitionData {
 		if (ui != null) {
 			ui.access(() -> notification.open());
 		}
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
+		ObjectMapper mapper = createExportMapper();
 		try {
 			ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
 
@@ -130,8 +135,7 @@ public class CompetitionData {
 	 * @return
 	 */
 	public String exportDataAsString() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
+		ObjectMapper mapper = createExportMapper();
 		ObjectWriter writerWithDefaultPrettyPrinter = mapper.writerWithDefaultPrettyPrinter();
 		String serialized;
 		try {
