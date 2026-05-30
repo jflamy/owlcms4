@@ -18,6 +18,7 @@ import app.owlcms.i18n.Translator;
 
 @SuppressWarnings("serial")
 public class ChampionshipDetailsDialog extends Dialog {
+	private boolean saved;
 
 	public ChampionshipDetailsDialog(Championship championship, Runnable onSave) {
 		championship = normalizeForEditing(championship);
@@ -26,6 +27,13 @@ public class ChampionshipDetailsDialog extends Dialog {
 		boolean templateMode = championship.isCompetitionTemplate();
 		setHeaderTitle((templateMode ? Translator.translate("Competition.Defaults") : championship.getName()) + " — " + Translator.translate("Sessions.EditDetails"));
 		setWidth("80em");
+		if (onSave != null) {
+			addOpenedChangeListener(event -> {
+				if (!event.isOpened() && this.saved) {
+					onSave.run();
+				}
+			});
+		}
 
 		ChampionshipDetailsForm form = new ChampionshipDetailsForm(championship);
 		add(form);
@@ -38,9 +46,7 @@ public class ChampionshipDetailsDialog extends Dialog {
 			if (!form.save()) {
 				return;
 			}
-			if (onSave != null) {
-				onSave.run();
-			}
+			this.saved = true;
 			close();
 		});
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -52,6 +58,12 @@ public class ChampionshipDetailsDialog extends Dialog {
 
 	private Championship normalizeForEditing(Championship championship) {
 		if (championship == null || championship.isCompetitionTemplate()) {
+			return championship;
+		}
+		// Transient championships (e.g. created from the Add row) must keep their
+		// unsaved identity so the form's duplicate-name validation can detect a
+		// collision with an existing stored championship of the same name.
+		if (championship.getId() == null) {
 			return championship;
 		}
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();

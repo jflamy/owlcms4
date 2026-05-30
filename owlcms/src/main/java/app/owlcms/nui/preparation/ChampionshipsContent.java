@@ -10,6 +10,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -20,6 +21,11 @@ public class ChampionshipsContent extends BaseContent implements OwlcmsContent {
 	private OwlcmsLayout routerLayout;
 
 	public ChampionshipsContent() {
+		// Reconcile any drift between stored championship fields and the
+		// useCompetitionDefaults flag before showing the editor, so the user
+		// sees an accurate picture.
+		ChampionshipRepository.normalizeDefaultTypes();
+		ChampionshipRepository.normalizeCompetitionDefaultFlags();
 		EditChampionshipsPanel panel = new EditChampionshipsPanel();
 		panel.setWidthFull();
 		fillH(panel, this);
@@ -27,7 +33,7 @@ public class ChampionshipsContent extends BaseContent implements OwlcmsContent {
 
 	@Override
 	public FlexLayout createMenuArea() {
-		return new FlexLayout();
+		return AgeGroupActionsMenu.build(null);
 	}
 
 	@Override

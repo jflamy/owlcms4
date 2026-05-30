@@ -26,24 +26,42 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
+import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
 public class EditChampionshipsPanel extends VerticalLayout {
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(EditChampionshipsPanel.class);
+	static final String DIALOG_TABLE_WIDTH = "76em";
 	private static final String NAME_COLUMN_WIDTH = "12em";
+	private static final String TYPE_COLUMN_WIDTH = "34em";
+	private static final String ACTIONS_COLUMN_WIDTH = "26em";
 
+	private final boolean fullWidth;
 	private Grid<ChampionshipRow> championshipsTable = new Grid<>(ChampionshipRow.class, false);
 	private Checkbox hideCompetitionDefaults;
 
 	public EditChampionshipsPanel() {
+		this(true);
+	}
+
+	public EditChampionshipsPanel(boolean fullWidth) {
+		this.fullWidth = fullWidth;
 		setPadding(false);
 		setSpacing(false);
-		setWidthFull();
+		if (this.fullWidth) {
+			setWidthFull();
+		} else {
+			setWidth(DIALOG_TABLE_WIDTH);
+			setMaxWidth("calc(100vw - 4rem)");
+		}
 		configureChampionshipsTable();
 
 		ChampionshipRepository.normalizeDefaultTypes();
@@ -57,7 +75,12 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	}
 
 	private void configureChampionshipsTable() {
-		this.championshipsTable.setWidthFull();
+		if (this.fullWidth) {
+			this.championshipsTable.setWidthFull();
+		} else {
+			this.championshipsTable.setWidth(DIALOG_TABLE_WIDTH);
+			this.championshipsTable.setMaxWidth("calc(100vw - 4rem)");
+		}
 		this.championshipsTable.getStyle().set("margin-top", "1em");
 		this.championshipsTable.setAllRowsVisible(true);
 		this.championshipsTable.getThemeNames().add("row-stripes");
@@ -67,12 +90,17 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		        .setFlexGrow(0);
 		Column<ChampionshipRow> typeColumn = this.championshipsTable.addColumn(new ComponentRenderer<>(this::typeCell))
 		        .setHeader(Translator.translate("Championship.Type"))
-		        .setAutoWidth(true)
 		        .setFlexGrow(0);
 		Column<ChampionshipRow> actionsColumn = this.championshipsTable.addColumn(new ComponentRenderer<>(this::actionsCell))
 		        .setHeader("")
-		        .setAutoWidth(true)
-		        .setFlexGrow(1);
+		        .setFlexGrow(this.fullWidth ? 1 : 0);
+		if (this.fullWidth) {
+			typeColumn.setAutoWidth(true);
+			actionsColumn.setAutoWidth(true);
+		} else {
+			typeColumn.setWidth(TYPE_COLUMN_WIDTH);
+			actionsColumn.setWidth(ACTIONS_COLUMN_WIDTH);
+		}
 
 		for (Column<ChampionshipRow> column : List.of(nameColumn, typeColumn, actionsColumn)) {
 			column.setResizable(true);
@@ -133,8 +161,25 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			return championshipActions(row);
 		}
 		Button addButton = new Button(Translator.translate("Add"), VaadinIcon.PLUS.create(), e -> {
-			Championship.addChampionship(row.name, row.type);
-			updateChampionshipsTable();
+			String rawName = row.name != null ? row.name.trim() : "";
+			if (rawName.isBlank()) {
+				showAddError(Translator.translate("ThisFieldIsRequired"));
+				return;
+			}
+			String canonicalName = Championship.canonicalizeChampionshipName(rawName);
+			if (findExistingChampionship(canonicalName) != null) {
+				logger.warn("Rejected new championship '{}': duplicate of existing championship", canonicalName);
+				showAddError(Translator.translate("Championship.NameAlreadyExists", canonicalName));
+				return;
+			}
+			if (implicitChampionshipNameExists(canonicalName)) {
+				logger.warn("Rejected new championship '{}': implicit championship from age groups already exists",
+				        canonicalName);
+				showAddError(Translator.translate("Championship.NameAlreadyExists", canonicalName));
+				return;
+			}
+			Championship championship = Championship.addChampionship(canonicalName, row.type);
+			new ChampionshipDetailsDialog(championship, this::updateChampionshipsTable).open();
 		});
 		return addButton;
 	}
@@ -170,6 +215,30 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		Button button = new Button(Translator.translate("Edit"), VaadinIcon.PENCIL.create(), e -> action.run());
 		button.addThemeVariants(ButtonVariant.LUMO_SMALL);
 		return button;
+	}
+
+	private Championship findExistingChampionship(String canonicalName) {
+		for (Championship existing : Championship.findAllIncludingTemplate()) {
+			if (existing.getName() != null
+			        && existing.getName().trim().equalsIgnoreCase(canonicalName.trim())) {
+				return existing;
+			}
+		}
+		return null;
+	}
+
+	private boolean implicitChampionshipNameExists(String canonicalName) {
+		for (AgeGroup ageGroup : AgeGroupRepository.findAll()) {
+			String implicitName = Championship.canonicalizeChampionshipName(ageGroup.computeChampionshipName());
+			if (implicitName != null && implicitName.trim().equalsIgnoreCase(canonicalName.trim())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void showAddError(String message) {
+		NotificationUtils.errorNotification(message);
 	}
 
 	private Button resetButton(Runnable action) {

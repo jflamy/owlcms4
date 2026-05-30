@@ -24,19 +24,21 @@ public class EditChampionshipsDialog extends Dialog {
 	public EditChampionshipsDialog(Runnable closeAction) {
 		setCloseOnEsc(true);
 		setCloseOnOutsideClick(true);
-		setWidth("52em");
+		setWidth(EditChampionshipsPanel.DIALOG_TABLE_WIDTH);
 		setMaxWidth("calc(100vw - 2rem)");
 		setHeaderTitle(Translator.translate("EditChampionships.Title"));
+		if (closeAction != null) {
+			addOpenedChangeListener(event -> {
+				if (!event.isOpened()) {
+					closeAction.run();
+				}
+			});
+		}
 
-		add(new EditChampionshipsPanel());
+		add(new EditChampionshipsPanel(false));
 
 		HorizontalLayout buttons = new HorizontalLayout();
-		Button closeButton = new Button(Translator.translate("Close"), event -> {
-			close();
-			if (closeAction != null) {
-				closeAction.run();
-			}
-		});
+		Button closeButton = new Button(Translator.translate("Close"), event -> close());
 		closeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 		buttons.add(closeButton);
