@@ -500,6 +500,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		if (updatedName.isBlank()) {
 			nameField.setInvalid(true);
 			nameField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
+			nameField.setAutofocus(true);
+			nameField.focus();
 			return false;
 		}
 		if (templateMode) {

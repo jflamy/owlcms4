@@ -8,6 +8,14 @@
 
 <br>
 
+**New in Release 67**
+
+66.3.0: Championship handling improvements
+  - All default rules for medals and awards can now be set from the Competition Rules page
+  - Individual Championships can inherit the defaults or override them. They are defined on the Define Championships page.
+  - Each Age Group is connected to a Championship.  If the Championship name is left empty when creating the age group, a Championship with the same name will be assumed.
+  - Multiple age groups can refer to the same Championship. This is how Masters championships are defined.
+
 **New in Release 66**
 
 66.3.0: New competition export endpoints in addition to the existing `/competition/export` (which is unchanged):

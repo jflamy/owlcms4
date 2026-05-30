@@ -19,20 +19,25 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 @Route(value = "preparation/championships", layout = OwlcmsLayout.class)
 public class ChampionshipsContent extends BaseContent implements OwlcmsContent {
 	private OwlcmsLayout routerLayout;
+	private EditChampionshipsPanel panel;
 
 	public ChampionshipsContent() {
 		// Recompute default status from stored championship fields before showing
 		// the editor, so the user sees an accurate picture.
 		ChampionshipRepository.normalizeDefaultTypes();
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();
-		EditChampionshipsPanel panel = new EditChampionshipsPanel();
-		panel.setWidthFull();
-		fillH(panel, this);
+		this.panel = new EditChampionshipsPanel();
+		this.panel.setWidthFull();
+		fillH(this.panel, this);
 	}
 
 	@Override
 	public FlexLayout createMenuArea() {
-		return AgeGroupActionsMenu.build(null);
+		return AgeGroupActionsMenu.build(() -> {
+			ChampionshipRepository.normalizeDefaultTypes();
+			ChampionshipRepository.normalizeCompetitionDefaultFlags();
+			this.panel.updateChampionshipsTable();
+		});
 	}
 
 	@Override

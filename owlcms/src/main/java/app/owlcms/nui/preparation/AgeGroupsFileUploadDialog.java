@@ -66,7 +66,7 @@ public class AgeGroupsFileUploadDialog extends Dialog {
 		Upload upload = new Upload(uploadHandler);
 		upload.setWidth("40em");
 
-		H3 title = new H3(Translator.translate("AgeGroups.UploadCustom"));
+		H3 title = new H3(Translator.translate("AgeGroups.ImportDefinitions"));
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);
 		add(vl);
 	}

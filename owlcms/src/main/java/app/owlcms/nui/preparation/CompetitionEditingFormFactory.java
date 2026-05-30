@@ -50,6 +50,7 @@ import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -494,13 +495,19 @@ public class CompetitionEditingFormFactory
 		paragraph.getStyle().set("margin-top", "0");
 		paragraph.getStyle().set("margin-bottom", "0");
 
-		Button editChampionships = new Button(Translator.translate("EditChampionships.Title"), VaadinIcon.COG.create(),
-		        event -> new EditChampionshipsDialog().open());
+		Button editChampionships = new Button(Translator.translate("EditChampionships.Title"), VaadinIcon.COG.create());
+		editChampionships.getElement().setAttribute("onClick",
+		        getWindowOpenerFromClassNoParam(ChampionshipsContent.class));
 
 		HorizontalLayout layout = new HorizontalLayout(paragraph, editChampionships);
 		layout.setAlignItems(Alignment.CENTER);
 		layout.setWidthFull();
 		return layout;
+	}
+
+	private <T extends Component> String getWindowOpenerFromClassNoParam(Class<T> targetClass) {
+		return "window.open('" + URLUtils.getUrlFromTargetClass(targetClass) + "','"
+		        + targetClass.getSimpleName() + "')";
 	}
 
 	/**

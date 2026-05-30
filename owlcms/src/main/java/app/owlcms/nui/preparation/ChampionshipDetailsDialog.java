@@ -25,7 +25,11 @@ public class ChampionshipDetailsDialog extends Dialog {
 		setCloseOnEsc(true);
 		setCloseOnOutsideClick(true);
 		boolean templateMode = championship.isCompetitionTemplate();
-		setHeaderTitle((templateMode ? Translator.translate("Competition.Defaults") : championship.getName()) + " — " + Translator.translate("Sessions.EditDetails"));
+		String title = templateMode ? Translator.translate("Competition.Defaults") : championship.getName();
+		if (!templateMode && (title == null || title.isBlank())) {
+			title = Translator.translate("Add");
+		}
+		setHeaderTitle(title + " — " + Translator.translate("Sessions.EditDetails"));
 		setWidth("80em");
 		if (onSave != null) {
 			addOpenedChangeListener(event -> {

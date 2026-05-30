@@ -20,8 +20,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -40,6 +38,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.IdUtils;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import ch.qos.logback.classic.Logger;
 
@@ -141,7 +140,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	@JsonIgnore
 	private Long id;
 	private Integer qualificationTotal;
@@ -157,10 +155,12 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	private Boolean medals = true;
 	
 	public AgeGroup() {
+		this.id = IdUtils.getTimeBasedId();
 	}
 
 	public AgeGroup(String code, boolean active, Integer minAge, Integer maxAge, Gender gender,
 	        String ageDivisionName, Integer qualificationTotal) {
+		this.id = IdUtils.getTimeBasedId();
 		this.active = active;
 		this.code = code;
 		this.minAge = minAge;
@@ -447,7 +447,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	@Override
 	public int hashCode() {
-		return getId().hashCode();
+		return Long.hashCode(this.id);
 	}
 
 	public boolean isActive() {

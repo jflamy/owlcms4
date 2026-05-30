@@ -84,7 +84,7 @@ final class AgeGroupActionsMenu {
 			}
 		});
 
-		Button uploadCustom = new Button(Translator.translate("AgeGroups.UploadCustom"),
+		Button uploadCustom = new Button(Translator.translate("AgeGroups.ImportDefinitions"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> {
 			        AgeGroupsFileUploadDialog ageGroupsFileUploadDialog = new AgeGroupsFileUploadDialog();

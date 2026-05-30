@@ -166,7 +166,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 				        }).open();
 			}
 		});
-		Button uploadCustom = new Button(Translator.translate("AgeGroups.UploadCustom"),
+		Button uploadCustom = new Button(Translator.translate("AgeGroups.ImportDefinitions"),
 		        new Icon(VaadinIcon.UPLOAD_ALT),
 		        buttonClickEvent -> {
 			        AgeGroupsFileUploadDialog ageGroupsFileUploadDialog = new AgeGroupsFileUploadDialog();
@@ -188,7 +188,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        Translator.translate("EditChampionships.Title"),
 		        VaadinIcon.PENCIL.create(),
 		        e -> {
-			        new EditChampionshipsDialog(() -> this.getCrud().refreshGrid()).open();
+			        UI.getCurrent().navigate(ChampionshipsContent.class);
 		        });
 
 		FlexLayout buttons = new FlexLayout(
