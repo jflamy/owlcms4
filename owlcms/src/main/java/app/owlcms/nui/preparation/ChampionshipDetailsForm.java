@@ -6,8 +6,11 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+
+import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -24,16 +27,21 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 import app.owlcms.data.agegroup.Championship;
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.agegroup.DefaultChampionship;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.i18n.Translator;
+import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class ChampionshipDetailsForm extends VerticalLayout {
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(ChampionshipDetailsForm.class);
 
 	private static final String SUM_OF_POINTS = "Championship.sumOfPoints";
 	private static final String SUM_OF_SCORES = "Championship.sumOfScores";
@@ -61,6 +69,12 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		nameField.setValue(templateMode ? Championship.COMPETITION_TEMPLATE_NAME : championship.getName());
 		nameField.setRequiredIndicatorVisible(true);
 		nameField.setEnabled(!templateMode);
+		nameField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
+		nameField.addValueChangeListener(e -> {
+			if (e.isFromClient()) {
+				validateChampionshipName(nameField, e.getValue() != null ? e.getValue().trim() : "", templateMode);
+			}
+		});
 		typeLayout.addFormItem(nameField, Translator.translate("Name"));
 
 		ComboBox<ChampionshipType> typeField = new ComboBox<>();
@@ -95,8 +109,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		snatchCJTotalField.setValue(championship.isSnatchCJTotalMedals());
 		medalsLayout.addFormItem(snatchCJTotalField, Translator.translate("Competition.snatchCJTotalMedals"));
 
-		ComboBox<Ranking> scoringSystemField = createRankingCombo();
-		scoringSystemField.setValue(championship.getScoringSystem());
+		ComboBox<Ranking> scoringSystemField = createMedalScoringCombo();
+		scoringSystemField.setValue(medalScoringForDisplay(championship.getScoringSystem()));
 		scoringSystemField.setEnabled(!championship.isSnatchCJTotalMedals());
 		medalsLayout.addFormItem(scoringSystemField, Translator.translate("Championship.totalMedalScoring"));
 
@@ -107,6 +121,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			scoringSystemField.setEnabled(!Boolean.TRUE.equals(useDefaultsField.getValue()) && !e.getValue());
 			if (e.getValue()) {
 				scoringSystemField.clear();
+			} else if (scoringSystemField.getValue() == null) {
+				scoringSystemField.setValue(Ranking.TOTAL);
 			}
 		});
 
@@ -328,7 +344,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			boolean useDefaults = Boolean.TRUE.equals(useDefaultsField.getValue());
 
 			snatchCJTotalField.setValue(effective.isSnatchCJTotalMedals());
-			scoringSystemField.setValue(effective.getScoringSystem());
+			scoringSystemField.setValue(medalScoringForDisplay(effective.getScoringSystem()));
 			bestAthleteField.setValue(effective.getBestAthleteScoringSystem());
 			bestSnatchField.setValue(effective.getBestSnatchScoringSystem());
 			bestCJField.setValue(effective.getBestCJScoringSystem());
@@ -390,14 +406,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		this.validateHandler = () -> {
 			String updatedName = nameField.getValue() != null ? nameField.getValue().trim() : "";
 			String mixedSelectionMode = mixedSelectionField.getValue();
-			boolean valid = true;
-			if (updatedName.isBlank()) {
-				nameField.setInvalid(true);
-				nameField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
-				valid = false;
-			} else {
-				nameField.setInvalid(false);
-			}
+			boolean valid = validateChampionshipName(nameField, updatedName, templateMode);
 			if (MIXED_SELECTION_EXPLICIT.equals(mixedSelectionMode)
 			        && (explicitTeamSizeField.getValue() == null || explicitTeamSizeField.getValue() <= 0)) {
 				explicitTeamSizeField.setInvalid(true);
@@ -422,7 +431,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			String mixedSelectionMode = mixedSelectionField.getValue();
 			championship.setType(templateMode ? ChampionshipType.U : typeField.getValue());
 			championship.setUseCompetitionDefaults(!templateMode && useDefaultsField.getValue());
-			championship.setScoringSystem(scoringSystemField.getValue());
+			championship.setScoringSystem(medalScoringForStorage(scoringSystemField.getValue()));
 			championship.setBestAthleteScoringSystem(bestAthleteField.getValue());
 			championship.setBestSnatchScoringSystem(bestSnatchField.getValue());
 			championship.setBestCJScoringSystem(bestCJField.getValue());
@@ -451,6 +460,70 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 				championship.rename(updatedName);
 			}
 		};
+
+		validateChampionshipName(nameField, nameField.getValue() != null ? nameField.getValue().trim() : "", templateMode);
+	}
+
+	private boolean validateChampionshipName(TextField nameField, String updatedName, boolean templateMode) {
+		String canonicalUpdatedName = Championship.canonicalizeChampionshipName(updatedName);
+		if (updatedName.isBlank()) {
+			nameField.setInvalid(true);
+			nameField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
+			return false;
+		}
+		if (templateMode) {
+			nameField.setInvalid(false);
+			return true;
+		}
+		Championship duplicate = findStoredDuplicate(canonicalUpdatedName);
+		if (duplicate != null) {
+			logger.warn("Rejected championship rename from '{}' to '{}': duplicate championship '{}' already exists",
+			        this.championship.getName(), canonicalUpdatedName, duplicate.getName());
+			nameField.setInvalid(true);
+			nameField.setErrorMessage(Translator.translate("Championship.NameAlreadyExists", canonicalUpdatedName));
+			return false;
+		}
+		if (this.championship.getId() == null && implicitChampionshipNameExists(canonicalUpdatedName)) {
+			logger.warn("Rejected new championship '{}': implicit championship from age groups already exists",
+			        canonicalUpdatedName);
+			nameField.setInvalid(true);
+			nameField.setErrorMessage(Translator.translate("Championship.NameAlreadyExists", canonicalUpdatedName));
+			return false;
+		}
+		nameField.setInvalid(false);
+		return true;
+	}
+
+	private Championship findStoredDuplicate(String canonicalName) {
+		for (Championship existing : Championship.findAllIncludingTemplate()) {
+			if (sameChampionship(existing)) {
+				continue;
+			}
+			if (sameName(existing.getName(), canonicalName)) {
+				return existing;
+			}
+		}
+		return null;
+	}
+
+	private boolean sameChampionship(Championship existing) {
+		Long editedId = this.championship.getId();
+		Long existingId = existing.getId();
+		return editedId != null && existingId != null && editedId.equals(existingId);
+	}
+
+	private boolean implicitChampionshipNameExists(String canonicalName) {
+		for (AgeGroup ageGroup : AgeGroupRepository.findAll()) {
+			String implicitName = Championship.canonicalizeChampionshipName(ageGroup.computeChampionshipName());
+			if (sameName(implicitName, canonicalName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean sameName(String first, String second) {
+		return first != null && second != null && first.trim().equalsIgnoreCase(second.trim());
 	}
 
 	public boolean validateForm() {
@@ -501,6 +574,24 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		combo.setWidth("20em");
 		combo.getElement().getStyle().set("--vaadin-combo-box-overlay-width", "30em");
 		return combo;
+	}
+
+	private ComboBox<Ranking> createMedalScoringCombo() {
+		ComboBox<Ranking> combo = createRankingCombo();
+		List<Ranking> items = new ArrayList<>();
+		items.add(Ranking.TOTAL);
+		items.addAll(RankingConfig.getAllScoringRankings());
+		combo.setItems(items);
+		combo.setClearButtonVisible(false);
+		return combo;
+	}
+
+	private Ranking medalScoringForDisplay(Ranking scoringSystem) {
+		return scoringSystem != null ? scoringSystem : Ranking.TOTAL;
+	}
+
+	private Ranking medalScoringForStorage(Ranking scoringSystem) {
+		return scoringSystem == Ranking.TOTAL ? null : scoringSystem;
 	}
 
 	private String determineMixedSelectionMode(Championship championship) {
