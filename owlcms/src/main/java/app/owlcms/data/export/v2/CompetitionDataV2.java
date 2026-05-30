@@ -274,7 +274,6 @@ public class CompetitionDataV2 {
 					} else {
 						existing.setCompetitionTemplate(championship.isCompetitionTemplate());
 						existing.setType(championship.getType());
-						existing.setUseCompetitionDefaults(championship.usesCompetitionDefaults());
 						existing.setScoringSystem(championship.getScoringSystem());
 						existing.setBestAthleteScoringSystem(championship.getBestAthleteScoringSystem());
 						existing.setBestSnatchScoringSystem(championship.getBestSnatchScoringSystem());

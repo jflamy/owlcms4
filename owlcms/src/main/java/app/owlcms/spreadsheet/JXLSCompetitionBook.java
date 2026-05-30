@@ -152,7 +152,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			if (pointsCell == null) {
 				pointsCell = row.createCell(1);
 			}
-			pointsCell.setCellValue(AthleteSorter.pointsFormula(rank));
+			pointsCell.setCellValue(AthleteSorter.pointsFormula(rank, getChampionship()));
 		}
 	}
 

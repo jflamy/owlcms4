@@ -20,13 +20,10 @@ public class DefaultChampionship extends Championship {
 
 	private DefaultChampionship() {
 		super("Competition Defaults", ChampionshipType.DEFAULT);
-		// usesCompetitionDefaults() is overridden to always return true; no need
-		// to invoke the parent setter (which would trigger a DB lookup on the
-		// singleton's static initialization).
 	}
 
 	@Override
-	public boolean usesCompetitionDefaults() {
+	public boolean computeUsesCompetitionDefaults() {
 		return true;
 	}
 
@@ -59,7 +56,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getBestSnatchScoringSystem();
 		}
-		return Competition.getCurrent().getScoringSystem();
+		return null;
 	}
 
 	@Override
@@ -68,7 +65,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getBestCJScoringSystem();
 		}
-		return Competition.getCurrent().getScoringSystem();
+		return null;
 	}
 
 	@Override

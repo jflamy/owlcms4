@@ -32,6 +32,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.agegroup.DefaultChampionship;
 import app.owlcms.data.athleteSort.Ranking;
@@ -87,7 +88,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		typeLayout.setColspan(typeItem, 2);
 
 		Checkbox useDefaultsField = new Checkbox(Translator.translate("Championship.UseCompetitionDefaults"));
-		useDefaultsField.setValue(championship.usesCompetitionDefaults());
+		useDefaultsField.setValue(championship.computeUsesCompetitionDefaults());
 		useDefaultsField.setEnabled(!templateMode);
 		typeLayout.add(useDefaultsField);
 		typeLayout.setColspan(useDefaultsField, 2);
@@ -180,8 +181,14 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 
 		NativeLabel teamTitle = new NativeLabel(Translator.translate("Championship.MenWomenTeams"));
 		teamTitle.getStyle().set("font-weight", "bold");
-		teamLayout.add(teamTitle);
-		teamLayout.setColspan(teamTitle, 2);
+		Checkbox menWomenTeamsEnabledField = new Checkbox();
+		menWomenTeamsEnabledField.setValue(true);
+		menWomenTeamsEnabledField.setEnabled(false);
+		HorizontalLayout teamHeader = new HorizontalLayout(menWomenTeamsEnabledField, teamTitle);
+		teamHeader.setAlignItems(Alignment.CENTER);
+		teamHeader.setSpacing(true);
+		teamLayout.add(teamHeader);
+		teamLayout.setColspan(teamHeader, 2);
 
 		RadioButtonGroup<String> teamMethodField = new RadioButtonGroup<>();
 		teamMethodField.setItems(teamMethodItems);
@@ -536,6 +543,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		}
 		this.writeHandler.run();
 		Championship.update(this.championship);
+		ChampionshipRepository.normalizeCompetitionDefaultFlags();
 		Championship.reset();
 		return true;
 	}

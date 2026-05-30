@@ -450,30 +450,21 @@ public class AthleteSorter implements Serializable {
 		return sorted;
 	}
 
-	/**
-	 * @param rank
-	 * @param curLifter
-	 * @return
-	 */
-	public static int pointsFormula(Integer rank) {
+	public static int pointsFormula(Integer rank, Participation participation) {
+		return pointsFormula(rank, championshipFrom(participation));
+	}
+
+	public static int pointsFormula(Integer rank, Championship championship) {
 		if (rank == null || rank <= 0) {
 			return 0;
 		}
-		Competition competition = Competition.getCurrent();
-		int firstPlacePoints = competition != null && competition.getTeamPoints1st() != null ? competition.getTeamPoints1st() : 28;
-		int secondPlacePoints = competition != null && competition.getTeamPoints2nd() != null ? competition.getTeamPoints2nd() : 25;
-		int thirdPlacePoints = competition != null && competition.getTeamPoints3rd() != null ? competition.getTeamPoints3rd() : 23;
-
-		switch (rank) {
-			case 1:
-				return firstPlacePoints;
-			case 2:
-				return secondPlacePoints;
-			case 3:
-				return thirdPlacePoints;
-			default:
-				return Math.max(0, thirdPlacePoints - (rank - 3));
+		if (championship == null) {
+			throw new IllegalArgumentException("Team points calculation requires a championship");
 		}
+		return pointsFormula(rank,
+		        firstPlacePoints(championship),
+		        secondPlacePoints(championship),
+		        thirdPlacePoints(championship));
 	}
 
 	public static int pointsFormula(Integer rank, int firstPlacePoints, int secondPlacePoints, int thirdPlacePoints) {
@@ -500,6 +491,7 @@ public class AthleteSorter implements Serializable {
 		Participation mr = a.getMainRankings();
 		int totalPoints = 0;
 		boolean imwa = Competition.getCurrent().isImwa();
+		Championship championship = championshipFrom(mr);
 		ChampionshipType championshipType = mr.getChampionshipType();
 		Group session = a.getGroup();
 		if (imwa && (championshipType.isMasters() || (session != null && session.isMasters()))) {
@@ -512,11 +504,11 @@ public class AthleteSorter implements Serializable {
 			}
 			// logger.debug("athlete {} category {} rank={} count={}", a.getAbbreviatedName(), category, rank, athleteCount);
 			if (athleteCount == 1) {
-				totalPoints = 23;
+				totalPoints = thirdPlacePoints(championship);
 			} else if (athleteCount == 2) {
-				totalPoints = (rank == 1) ? 25 : ((rank == 2) ? 23 : 0);
+				totalPoints = (rank == 1) ? secondPlacePoints(championship) : ((rank == 2) ? thirdPlacePoints(championship) : 0);
 			} else {
-				totalPoints = AthleteSorter.pointsFormula(rank);
+				totalPoints = AthleteSorter.pointsFormula(rank, championship);
 			}
 		} else {
 			//
@@ -534,7 +526,28 @@ public class AthleteSorter implements Serializable {
 		if (rank == null || rank <= 0) {
 			return 0;
 		}
-		return pointsFormula(rank);
+		Participation mainRankings = curLifter != null ? curLifter.getMainRankings() : null;
+		return pointsFormula(rank, mainRankings);
+	}
+
+	private static Championship championshipFrom(Participation participation) {
+		if (participation == null || participation.getCategory() == null
+		        || participation.getCategory().getAgeGroup() == null) {
+			return null;
+		}
+		return participation.getCategory().getAgeGroup().getChampionship();
+	}
+
+	private static int firstPlacePoints(Championship championship) {
+		return championship.getTeamPoints1st() != null ? championship.getTeamPoints1st() : 0;
+	}
+
+	private static int secondPlacePoints(Championship championship) {
+		return championship.getTeamPoints2nd() != null ? championship.getTeamPoints2nd() : 0;
+	}
+
+	private static int thirdPlacePoints(Championship championship) {
+		return championship.getTeamPoints3rd() != null ? championship.getTeamPoints3rd() : 0;
 	}
 
 	static public List<Athlete> registrationBWCopy(List<Athlete> toBeSorted) {

@@ -297,7 +297,6 @@ public class AgeGroupDefinitionReader {
 			}
 
 			championship.setCompetitionTemplate(competitionTemplate);
-			championship.setUseCompetitionDefaults(getBooleanValue(row, headerColumns, "usecompetitiondefaults", true));
 			championship.setScoringSystem(getRankingValue(row, iRow, headerColumns, "scoringsystem"));
 			championship.setBestAthleteScoringSystem(getRankingValue(row, iRow, headerColumns, "bestathletescoringsystem"));
 			championship.setBestSnatchScoringSystem(getRankingValue(row, iRow, headerColumns, "bestsnatchscoringsystem"));

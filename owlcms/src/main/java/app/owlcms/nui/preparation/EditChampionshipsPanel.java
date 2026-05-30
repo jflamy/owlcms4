@@ -116,7 +116,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 
 		for (ChampionshipCandidate candidate : candidates.values()) {
 			Championship existing = explicitChampionships.remove(candidate.name);
-			boolean usesDefaults = existing == null || existing.usesCompetitionDefaults();
+			boolean usesDefaults = existing == null || existing.computeUsesCompetitionDefaults();
 			if (hideDefaultRows && usesDefaults) {
 				continue;
 			}
@@ -124,7 +124,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		}
 
 		explicitChampionships.values().stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
-			if (hideDefaultRows && c.usesCompetitionDefaults()) {
+			if (hideDefaultRows && c.computeUsesCompetitionDefaults()) {
 				return;
 			}
 			rows.add(new ChampionshipRow(c.getName(), c.getType(), c, true));
@@ -196,7 +196,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			new ChampionshipDetailsDialog(championship, this::updateChampionshipsTable).open();
 		});
 		actions.add(championshipButton);
-		if (row.championship != null && !row.championship.usesCompetitionDefaults()) {
+		if (row.championship != null && !row.championship.computeUsesCompetitionDefaults()) {
 			actions.add(resetButton(() -> {
 				ChampionshipRepository.resetToCompetitionDefaults(row.championship);
 				updateChampionshipsTable();

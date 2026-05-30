@@ -157,7 +157,7 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getCleanJerkPoints() {
-		return isTeamMember() ? AthleteSorter.pointsFormula(this.cleanJerkRank) : 0;
+		return isTeamMember() ? AthleteSorter.pointsFormula(this.cleanJerkRank, this) : 0;
 	}
 
 	public int getCleanJerkRank() {
@@ -173,19 +173,19 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getRawTotalPoints() {
-		return AthleteSorter.pointsFormula(this.totalRank);
+		return AthleteSorter.pointsFormula(this.totalRank, this);
 	}
 
 	@Transient
 	@JsonIgnore
 	public int getRawSnatchPoints() {
-		return AthleteSorter.pointsFormula(this.snatchRank);
+		return AthleteSorter.pointsFormula(this.snatchRank, this);
 	}
 
 	@Transient
 	@JsonIgnore
 	public int getRawCleanJerkPoints() {
-		return AthleteSorter.pointsFormula(this.cleanJerkRank);
+		return AthleteSorter.pointsFormula(this.cleanJerkRank, this);
 	}
 
 	@Transient
@@ -201,7 +201,7 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getCustomPoints() {
-		return isTeamMember() ? AthleteSorter.pointsFormula(this.customRank) : 0;
+		return isTeamMember() ? AthleteSorter.pointsFormula(this.customRank, this) : 0;
 	}
 
 	public int getCustomRank() {
@@ -219,7 +219,7 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getSnatchPoints() {
-		return isTeamMember() ? AthleteSorter.pointsFormula(this.snatchRank) : 0;
+		return isTeamMember() ? AthleteSorter.pointsFormula(this.snatchRank, this) : 0;
 	}
 
 	public int getSnatchRank() {
@@ -257,7 +257,7 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getTotalPoints() {
-		return isTeamMember() ? AthleteSorter.pointsFormula(this.totalRank) : 0;
+		return isTeamMember() ? AthleteSorter.pointsFormula(this.totalRank, this) : 0;
 	}
 
 	public int getTotalRank() {

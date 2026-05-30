@@ -87,7 +87,6 @@ public class ChampionshipRepository {
 		if (!templates.isEmpty()) {
 			Championship template = templates.get(0);
 			template.setCompetitionTemplate(true);
-			template.setUseCompetitionDefaults(false);
 			for (int i = 1; i < templates.size(); i++) {
 				Championship duplicate = templates.get(i);
 				duplicate.setCompetitionTemplate(false);
@@ -327,27 +326,7 @@ public class ChampionshipRepository {
 		TypedQuery<Championship> query = em.createQuery(
 		        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
 		for (Championship championship : query.getResultList()) {
-			boolean sameAsTemplate = championship.hasSameCompetitionSettingsAs(template);
-			if (championship.usesCompetitionDefaults()) {
-				// Flag says "follow the template" — make the stored fields agree.
-				// Required for raw-field exports (JSON V2 / mixin) and any other code
-				// path that reads the row directly rather than via the smart getters.
-				if (!sameAsTemplate) {
-					championship.copyCompetitionSettingsFrom(template);
-					em.merge(championship);
-					changed = true;
-					logger.info("Reset championship '{}' settings to competition template (flagged as defaults)",
-					        championship.getName());
-				}
-			} else if (sameAsTemplate) {
-				// Settings already identical to the template; promote to the
-				// "follows defaults" representation so future template edits propagate.
-				championship.setUseCompetitionDefaults(true);
-				em.merge(championship);
-				changed = true;
-				logger.info("Enabled competition defaults for championship '{}' (settings match template)",
-				        championship.getName());
-			}
+			championship.computeCompetitionDefaultDifferences(template, true);
 		}
 		if (changed) {
 			em.flush();
@@ -420,7 +399,8 @@ public class ChampionshipRepository {
 			}
 			String championshipName = effectiveChampionshipName(ageGroup);
 			Championship existing = findChampionship(championshipName, championships);
-			boolean usedDefaults = existing != null && existing.usesCompetitionDefaults();
+			Championship template = ensureCompetitionTemplate(em);
+			boolean usedDefaults = existing != null && !existing.computeDifferentFromCompetitionDefaults(template);
 			Championship championship = materializeChampionship(em, championshipName, ageGroup.getConfiguredChampionshipType(),
 			        ageGroups, championships);
 			changed |= championship != null && (existing == null || usedDefaults);
@@ -439,7 +419,6 @@ public class ChampionshipRepository {
 			championship = new Championship(championshipName, canonicalizeType(championshipName, type));
 			championship.copyCompetitionSettingsFrom(template);
 			applyAgeGroupScoringOverrides(championship, championshipName, ageGroups);
-			championship.setUseCompetitionDefaults(championship.hasSameCompetitionSettingsAs(template));
 			em.persist(championship);
 			championships.add(championship);
 			logger.info("Materialized championship '{}' from age groups", championshipName);
@@ -449,10 +428,9 @@ public class ChampionshipRepository {
 			if (championship.getType() != canonicalType) {
 				championship.setType(canonicalType);
 			}
-			if (championship.usesCompetitionDefaults()) {
+			if (!championship.computeDifferentFromCompetitionDefaults(template)) {
 				championship.copyCompetitionSettingsFrom(template);
 				applyAgeGroupScoringOverrides(championship, championshipName, ageGroups);
-				championship.setUseCompetitionDefaults(championship.hasSameCompetitionSettingsAs(template));
 			}
 			em.merge(championship);
 		}
@@ -502,8 +480,6 @@ public class ChampionshipRepository {
 			}
 			if (ageGroup.getBestAthleteScoringSystem() != null) {
 				championship.setBestAthleteScoringSystem(ageGroup.getBestAthleteScoringSystem());
-				championship.setBestSnatchScoringSystem(ageGroup.getBestAthleteScoringSystem());
-				championship.setBestCJScoringSystem(ageGroup.getBestAthleteScoringSystem());
 			}
 		}
 	}

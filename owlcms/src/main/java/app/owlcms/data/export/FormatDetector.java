@@ -100,9 +100,9 @@ public class FormatDetector {
 				new CompetitionData().restore(inputStream);
 			}
 
-			// JSON payloads can come from external tools or older exports and may carry
-			// inconsistent useCompetitionDefaults flags. Normalize so stored fields and
-			// flags agree before the application starts using the imported data.
+			// JSON payloads can come from external tools or older exports. Recompute
+			// championship default status from stored fields before the application
+			// starts using the imported data.
 			try {
 				ChampionshipRepository.normalizeDefaultTypes();
 				ChampionshipRepository.normalizeCompetitionDefaultFlags();

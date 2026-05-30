@@ -1908,8 +1908,8 @@ public class Competition {
 		ChampionshipRepository.updateCompetitionTemplate(template -> {
 			template.setScoringSystem(scoringSystem);
 			template.setBestAthleteScoringSystem(scoringSystem);
-			template.setBestSnatchScoringSystem(scoringSystem);
-			template.setBestCJScoringSystem(scoringSystem);
+			template.setBestSnatchScoringSystem(null);
+			template.setBestCJScoringSystem(null);
 		});
 	}
 

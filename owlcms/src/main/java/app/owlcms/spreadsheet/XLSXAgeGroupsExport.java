@@ -127,7 +127,6 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		        "name",
 		        "type",
 		        "competitionTemplate",
-		        "useCompetitionDefaults",
 		        "snatchCJTotalMedals",
 		        "scoringSystem",
 		        "bestAthleteScoringSystem",
@@ -161,27 +160,26 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			row.createCell(0).setCellValue(championship.isCompetitionTemplate() ? Championship.COMPETITION_TEMPLATE_NAME : championship.getName());
 			row.createCell(1).setCellValue(championship.getType().name());
 			row.createCell(2).setCellValue(championship.isCompetitionTemplate());
-			row.createCell(3).setCellValue(championship.usesCompetitionDefaults());
-			row.createCell(4).setCellValue(championship.isSnatchCJTotalMedals());
-			setRankingCell(row, 5, championship.getScoringSystem());
-			setRankingCell(row, 6, championship.getBestAthleteScoringSystem());
-			setRankingCell(row, 7, championship.getBestSnatchScoringSystem());
-			setRankingCell(row, 8, championship.getBestCJScoringSystem());
-			setIntegerCell(row, 9, championship.getTeamPoints1st());
-			setIntegerCell(row, 10, championship.getTeamPoints2nd());
-			setIntegerCell(row, 11, championship.getTeamPoints3rd());
-			setRankingCell(row, 12, championship.getTeamScoringSystem());
-			setIntegerCell(row, 13, normalizeTeamSize(championship.getMaxTeamSize()));
-			setIntegerCell(row, 14, championship.getMaxPerCategory());
-			setIntegerCell(row, 15, championship.getMensBestN());
-			setIntegerCell(row, 16, championship.getWomensBestN());
-			row.createCell(17).setCellValue(championship.isMixedTeamEnabled());
-			setRankingCell(row, 18, championship.getMixedTeamScoringSystem());
-			row.createCell(19).setCellValue(championship.isExplicitMixedTeamMembers());
-			setIntegerCell(row, 20, championship.getExplicitTeamSize());
-			setIntegerCell(row, 21, championship.getMixedBestN());
-			setIntegerCell(row, 22, championship.getMixedMensBestN());
-			setIntegerCell(row, 23, championship.getMixedWomensBestN());
+			row.createCell(3).setCellValue(championship.isSnatchCJTotalMedals());
+			setRankingCell(row, 4, championship.getScoringSystem());
+			setRankingCell(row, 5, championship.getBestAthleteScoringSystem());
+			setNullableRankingCell(row, 6, championship.getBestSnatchScoringSystem());
+			setNullableRankingCell(row, 7, championship.getBestCJScoringSystem());
+			setIntegerCell(row, 8, championship.getTeamPoints1st());
+			setIntegerCell(row, 9, championship.getTeamPoints2nd());
+			setIntegerCell(row, 10, championship.getTeamPoints3rd());
+			setRankingCell(row, 11, championship.getTeamScoringSystem());
+			setIntegerCell(row, 12, normalizeTeamSize(championship.getMaxTeamSize()));
+			setIntegerCell(row, 13, championship.getMaxPerCategory());
+			setIntegerCell(row, 14, championship.getMensBestN());
+			setIntegerCell(row, 15, championship.getWomensBestN());
+			row.createCell(16).setCellValue(championship.isMixedTeamEnabled());
+			setRankingCell(row, 17, championship.getMixedTeamScoringSystem());
+			row.createCell(18).setCellValue(championship.isExplicitMixedTeamMembers());
+			setIntegerCell(row, 19, championship.getExplicitTeamSize());
+			setIntegerCell(row, 20, championship.getMixedBestN());
+			setIntegerCell(row, 21, championship.getMixedMensBestN());
+			setIntegerCell(row, 22, championship.getMixedWomensBestN());
 		}
 	}
 
@@ -212,7 +210,6 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			Championship championship = new Championship(championshipName, ageGroup.getChampionshipType());
 			championship.copyCompetitionSettingsFrom(template);
 			applyAgeGroupScoringOverrides(championship, championshipName, ageGroups);
-			championship.setUseCompetitionDefaults(false);
 			championships.put(championshipName, championship);
 		}
 
@@ -310,8 +307,6 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		}
 		if (bestAthleteScoringSystem != null) {
 			championship.setBestAthleteScoringSystem(bestAthleteScoringSystem);
-			championship.setBestSnatchScoringSystem(bestAthleteScoringSystem);
-			championship.setBestCJScoringSystem(bestAthleteScoringSystem);
 		}
 	}
 
@@ -356,6 +351,12 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 
 	private void setRankingCell(Row row, int column, Ranking ranking) {
 		row.createCell(column).setCellValue(ranking != null ? ranking.getReportingName() : POINTS_SENTINEL);
+	}
+
+	private void setNullableRankingCell(Row row, int column, Ranking ranking) {
+		if (ranking != null) {
+			row.createCell(column).setCellValue(ranking.getReportingName());
+		}
 	}
 
 }

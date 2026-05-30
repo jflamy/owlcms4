@@ -21,9 +21,8 @@ public class ChampionshipsContent extends BaseContent implements OwlcmsContent {
 	private OwlcmsLayout routerLayout;
 
 	public ChampionshipsContent() {
-		// Reconcile any drift between stored championship fields and the
-		// useCompetitionDefaults flag before showing the editor, so the user
-		// sees an accurate picture.
+		// Recompute default status from stored championship fields before showing
+		// the editor, so the user sees an accurate picture.
 		ChampionshipRepository.normalizeDefaultTypes();
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();
 		EditChampionshipsPanel panel = new EditChampionshipsPanel();
