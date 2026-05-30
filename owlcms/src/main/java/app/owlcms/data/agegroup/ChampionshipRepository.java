@@ -354,6 +354,33 @@ public class ChampionshipRepository {
 		}
 	}
 
+	/**
+	 * Single canonical entry point for creating a new championship row.
+	 * Both the manual "Add championship" action and the auto-materialization
+	 * triggered by saving an AgeGroup go through this method, so the resulting
+	 * row always inherits the competition template (and any per-age-group
+	 * scoring overrides) the same way.
+	 */
+	public static Championship createChampionship(String championshipName, ChampionshipType type) {
+		if (championshipName == null || championshipName.isBlank()) {
+			return null;
+		}
+		String canonical = Championship.canonicalizeChampionshipName(championshipName);
+		Championship created = JPAService.runInTransaction(em -> {
+			TypedQuery<AgeGroup> aq = em.createQuery("select ag from AgeGroup ag order by ag.id", AgeGroup.class);
+			List<AgeGroup> ageGroups = aq.getResultList();
+			TypedQuery<Championship> cq = em.createQuery(
+			        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
+			List<Championship> championships = cq.getResultList();
+			Championship result = materializeChampionship(em, canonical, type, ageGroups, championships);
+			normalizeDefaultTypes(em);
+			normalizeCompetitionDefaultFlags(em);
+			return result;
+		});
+		Championship.reset();
+		return created;
+	}
+
 	public static void normalizeDefaultTypes() {
 		Boolean changed = JPAService.runInTransaction(em -> normalizeDefaultTypes(em));
 		if (Boolean.TRUE.equals(changed)) {

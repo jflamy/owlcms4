@@ -76,7 +76,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	/**
 	 * Adds a championship, normalizing 'Masters' variants to canonical form.
-	 * Persists to database and updates the in-memory cache.
+	 * Delegates to the single canonical creation primitive in
+	 * {@link ChampionshipRepository#createChampionship(String, ChampionshipType)}
+	 * so the row inherits the competition template the same way an auto-materialized
+	 * one does.
 	 */
 	public static Championship addChampionship(String nameString, ChampionshipType u2) {
 		if (allChampionshipsMap == null) {
@@ -84,17 +87,22 @@ public class Championship implements Comparable<Championship>, Serializable {
 		}
 		String canonicalName = canonicalizeChampionshipName(nameString);
 		ChampionshipType canonicalType = canonicalizeChampionshipType(canonicalName, u2);
-		Championship championship = allChampionshipsMap.get(canonicalName);
-		if (championship == null) {
-			Championship newChampionship = new Championship(canonicalName, canonicalType);
-			newChampionship.populateScoringDefaults();
-			newChampionship = ChampionshipRepository.save(newChampionship);
-			Championship.reset();
-			newChampionship = allChampionshipsMap.get(canonicalName);
-			logger.debug("Added to map and DB: key='{}', name='{}', type='{}'", canonicalName, newChampionship.getName(), newChampionship.getType());
-			return newChampionship;
+		Championship existing = allChampionshipsMap.get(canonicalName);
+		if (existing != null) {
+			return existing;
 		}
-		return championship;
+		Championship created = ChampionshipRepository.createChampionship(canonicalName, canonicalType);
+		// createChampionship resets the cache; refresh and return the canonical cached instance.
+		Championship cached = allChampionshipsMap != null ? allChampionshipsMap.get(canonicalName) : null;
+		if (cached == null) {
+			cached = findStored(canonicalName);
+		}
+		if (cached != null) {
+			logger.debug("Added to map and DB: key='{}', name='{}', type='{}'", canonicalName, cached.getName(),
+			        cached.getType());
+			return cached;
+		}
+		return created;
 	}
 
 	/**
@@ -872,27 +880,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 		if (comp == null) {
 			return;
 		}
-		this.scoringSystem = comp.getScoringSystem();
-		this.bestAthleteScoringSystem = comp.getScoringSystem();
-		this.snatchCJTotalMedals = comp.isSnatchCJTotalMedals();
-		this.teamPoints1st = comp.getTeamPoints1st();
-		this.teamPoints2nd = comp.getTeamPoints2nd();
-		this.teamPoints3rd = comp.getTeamPoints3rd();
-		// bestN fields: null means "not configured" (no scoring cap).
-		// maxTeamSize is the roster cap (how many athletes on a team).
-		// These are separate concepts; don't conflate them.
-		this.mensBestN = null;
-		this.womensBestN = null;
-		this.mixedMensBestN = null;
-		this.mixedWomensBestN = null;
-		this.mixedBestN = null;
-		this.maxTeamSize = creationMaxTeamSize(comp.getMaxTeamSize());
-		this.explicitTeamSize = getDefaultExplicitMixedTeamSize();
-		this.maxPerCategory = comp.getMaxPerCategory();
-		this.explicitMixedTeamMembers = false;
-		this.genderedTeamsEnabled = true;
-		this.teamScoringSystem = null;
-		this.mixedTeamScoringSystem = null;
+		// Inherit every settable field from the competition template so a freshly
+		// materialized championship starts out aligned with the defaults. Per-age-group
+		// scoring overrides (if any) are then layered on top.
+		copyCompetitionSettingsFrom(comp);
 
 		List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, this, null, true, -1, -1);
 		for (AgeGroup ageGroup : ageGroups) {
