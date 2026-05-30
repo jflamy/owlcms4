@@ -56,8 +56,11 @@ public class JSONExportImportTest {
 
     @Test
     public void useCompetitionDefaultsRoundTripsThroughCompetitionDataJson() {
-        Championship source = ChampionshipRepository.findAll().stream().findFirst().orElse(null);
-        assertNotNull("expected at least one championship", source);
+        Championship source = Championship.findAll().stream()
+                .filter(c -> !c.isCompetitionTemplate())
+                .findFirst()
+                .orElse(null);
+        assertNotNull("expected at least one non-template championship", source);
 
         JPAService.runInTransaction(em -> {
             Championship managed = em.find(Championship.class, source.getId());
@@ -69,7 +72,7 @@ public class JSONExportImportTest {
         CompetitionData competitionData = new CompetitionData();
         try {
             String serialized = competitionData.exportDataAsString();
-            assertTrue("serialized JSON should include useCompetitionDefaults", serialized.contains("\"useCompetitionDefaults\""));
+            assertFalse("serialized JSON should not include removed useCompetitionDefaults field", serialized.contains("\"useCompetitionDefaults\""));
 
             CompetitionData imported = competitionData.importDataFromString(serialized);
             Championship importedChampionship = imported.getChampionships().stream()

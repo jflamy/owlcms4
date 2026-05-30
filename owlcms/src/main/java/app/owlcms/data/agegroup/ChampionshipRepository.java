@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.agegroup;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -109,9 +110,46 @@ public class ChampionshipRepository {
 
 		Championship template = new Championship(Championship.COMPETITION_TEMPLATE_NAME, ChampionshipType.U);
 		template.populateCompetitionTemplateDefaults(Competition.getCurrent());
+		applyLegacyTemplateTeamSizeDefaults(em, template);
 		em.persist(template);
 		logger.info("Created competition championship template: name='{}'", template.getName());
 		return template;
+	}
+
+	private static void applyLegacyTemplateTeamSizeDefaults(EntityManager em, Championship template) {
+		Integer inferredTeamSize = inferLegacyTemplateTeamSize(em, template.getMaxTeamSize());
+		if (inferredTeamSize == null) {
+			return;
+		}
+		template.setMaxTeamSize(inferredTeamSize);
+		template.setMensBestN(capTemplateBestN(template.getMensBestN(), inferredTeamSize));
+		template.setWomensBestN(capTemplateBestN(template.getWomensBestN(), inferredTeamSize));
+	}
+
+	private static Integer inferLegacyTemplateTeamSize(EntityManager em, Integer templateMaxTeamSize) {
+		if (templateMaxTeamSize == null || templateMaxTeamSize != 8) {
+			return null;
+		}
+		TypedQuery<Championship> query = em.createQuery(
+		        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
+		List<Integer> candidateCaps = new ArrayList<>();
+		for (Championship championship : query.getResultList()) {
+			addLegacyTeamSizeCandidate(candidateCaps, championship.getMaxTeamSize(), templateMaxTeamSize);
+			addLegacyTeamSizeCandidate(candidateCaps, championship.getMensBestN(), templateMaxTeamSize);
+			addLegacyTeamSizeCandidate(candidateCaps, championship.getWomensBestN(), templateMaxTeamSize);
+			addLegacyTeamSizeCandidate(candidateCaps, championship.getMixedBestN(), templateMaxTeamSize);
+		}
+		return candidateCaps.stream().min(Integer::compareTo).orElse(null);
+	}
+
+	private static void addLegacyTeamSizeCandidate(List<Integer> candidateCaps, Integer value, Integer templateMaxTeamSize) {
+		if (value != null && value > 0 && value < templateMaxTeamSize) {
+			candidateCaps.add(value);
+		}
+	}
+
+	private static Integer capTemplateBestN(Integer bestN, Integer teamSize) {
+		return bestN != null && bestN > teamSize ? teamSize : bestN;
 	}
 
 	public static void updateCompetitionTemplate(Consumer<Championship> updater) {

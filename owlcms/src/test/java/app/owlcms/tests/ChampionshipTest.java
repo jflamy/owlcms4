@@ -169,7 +169,14 @@ public class ChampionshipTest {
 
     @Test
     public void testFixtureChampionshipsAreAvailable() {
-        assertEquals("stored championship count", 5, ChampionshipRepository.findAll().size());
+        Championship template = ChampionshipRepository.ensureCompetitionTemplate();
+        assertNotNull("competition template should be created from legacy fixture", template);
+        assertEquals("competition template men's best N", Integer.valueOf(5), template.getMensBestN());
+        assertEquals("competition template women's best N", Integer.valueOf(5), template.getWomensBestN());
+        assertEquals("competition template mixed best N", Integer.valueOf(8), template.getMixedBestN());
+        assertEquals("competition template max team size", Integer.valueOf(5), template.getMaxTeamSize());
+
+        assertEquals("stored non-template championship count", 5, ChampionshipRepository.findAll().size());
 
         Championship senior = ChampionshipRepository.findByName("Senior");
         assertNotNull("Senior championship should be loaded from fixture", senior);

@@ -303,7 +303,7 @@ public class AthleteTest {
         openAgeGroup.setMinAge(15);
         openAgeGroup.setMaxAge(40);
         openAgeGroup.setChampionshipName("Masters");
-        openAgeGroup.setChampionshipType(ChampionshipType.U);
+        openAgeGroup.setChampionshipType(ChampionshipType.MASTERS);
 
         Category openCategory = new Category(60.0, 65.0, Gender.M, true, 0, 0, 0, openAgeGroup, 0);
         athlete.setParticipations(new ArrayList<>());

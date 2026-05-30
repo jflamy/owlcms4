@@ -617,6 +617,18 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return maxTeamSize;
 	}
 
+	private Integer creationBestN(Integer bestN, Integer maxTeamSize) {
+		if (bestN == null || bestN <= 0) {
+			return bestN;
+		}
+		Integer normalizedMaxTeamSize = creationMaxTeamSize(maxTeamSize);
+		if (normalizedMaxTeamSize != null && normalizedMaxTeamSize != UNBOUNDED_TEAM_SIZE
+		        && bestN > normalizedMaxTeamSize) {
+			return normalizedMaxTeamSize;
+		}
+		return bestN;
+	}
+
 	private int getGenderedTeamSize(String ageGroupPrefix, Integer configuredTopN, Gender gender) {
 		Integer topN = positiveCap(configuredTopN);
 		if (topN != null) {
@@ -908,12 +920,12 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.teamPoints1st = comp != null ? comp.getTeamPoints1st() : 28;
 		this.teamPoints2nd = comp != null ? comp.getTeamPoints2nd() : 25;
 		this.teamPoints3rd = comp != null ? comp.getTeamPoints3rd() : 23;
-		this.mensBestN = null;
-		this.womensBestN = null;
+		this.maxTeamSize = comp != null ? creationMaxTeamSize(comp.getMaxTeamSize()) : DEFAULT_TEAM_SIZE;
+		this.mensBestN = comp != null ? creationBestN(comp.getMensBestN(), comp.getMaxTeamSize()) : null;
+		this.womensBestN = comp != null ? creationBestN(comp.getWomensBestN(), comp.getMaxTeamSize()) : null;
 		this.mixedMensBestN = null;
 		this.mixedWomensBestN = null;
-		this.mixedBestN = null;
-		this.maxTeamSize = DEFAULT_TEAM_SIZE;
+		this.mixedBestN = comp != null ? comp.getMixedBestN() : null;
 		this.explicitTeamSize = DEFAULT_TEAM_SIZE;
 		this.maxPerCategory = comp != null ? comp.getMaxPerCategory() : 2;
 		this.explicitMixedTeamMembers = false;
