@@ -10,7 +10,9 @@
 
 **New in Release 67**
 
-66.3.0: Championship handling improvements
+66.3.0-beta02: Unify championship creation paths to correctly use the competition-level template defaults
+
+66.3.0-beta01: Championship handling improvements
   - All default rules for medals and awards can now be set from the Competition Rules page
   - Individual Championships can inherit the defaults or override them. They are defined on the Define Championships page.
   - Each Age Group is connected to a Championship.  If the Championship name is left empty when creating the age group, a Championship with the same name will be assumed.
