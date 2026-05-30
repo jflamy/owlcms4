@@ -163,7 +163,7 @@ public class CompetitionDataV2 {
 		// Set export timestamp in ISO 8601 format
 		setExportDate(Instant.now().toString());
 
-		setChampionships(ChampionshipRepository.findAll().stream()
+		setChampionships(ChampionshipRepository.findAllIncludingTemplate().stream()
 			.map(ChampionshipDTO::fromChampionship)
 			.collect(Collectors.toList()));
 		

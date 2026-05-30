@@ -126,10 +126,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 		if (allChampionshipsMap == null || allChampionshipsMap.isEmpty()) {
 			allChampionshipsMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-			List<Championship> stored = ChampionshipRepository.findAll();
+			List<Championship> stored = ChampionshipRepository.findAllIncludingTemplate();
 			if ((stored == null || stored.isEmpty()) && !AgeGroupRepository.findAll().isEmpty()) {
 				ChampionshipRepository.bootstrapFromAgeGroups();
-				stored = ChampionshipRepository.findAll();
+				stored = ChampionshipRepository.findAllIncludingTemplate();
 			}
 			if (stored != null) {
 				for (Championship c : stored) {

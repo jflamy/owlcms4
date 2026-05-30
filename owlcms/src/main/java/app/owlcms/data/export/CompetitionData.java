@@ -163,7 +163,7 @@ public class CompetitionData {
 		setCompetitionForExport(Competition.getCurrent());
 		setRecords(RecordRepository.findAll());
 		setRecordConfig(RecordConfig.getCurrent());
-		setChampionships(ChampionshipRepository.findAll());
+		setChampionships(ChampionshipRepository.findAllIncludingTemplate());
 		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
 		setTechnicalOfficialsTimetable(
 			JPAService.runInTransaction(em -> TechnicalOfficialsTimetableRepository.findAll(em)));
@@ -412,7 +412,7 @@ public class CompetitionData {
 						em.remove(agX);
 					}
 				}
-				for (Championship c : ChampionshipRepository.findAll()) {
+				for (Championship c : ChampionshipRepository.findAllIncludingTemplate()) {
 					Championship cX = em.find(Championship.class, c.getId());
 					if (cX != null) {
 						em.remove(cX);

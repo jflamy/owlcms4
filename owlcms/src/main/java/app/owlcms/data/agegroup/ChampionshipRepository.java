@@ -26,12 +26,23 @@ public class ChampionshipRepository {
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(ChampionshipRepository.class);
 
 	/**
-	 * Find all stored championships.
+	 * Find all real stored championships, excluding the competition template.
 	 */
-	@SuppressWarnings("unchecked")
 	public static List<Championship> findAll() {
 		return JPAService.runInTransaction(em -> {
-			return em.createQuery("select c from Championship c").getResultList();
+			return em.createQuery(
+			        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class)
+			        .getResultList();
+		});
+	}
+
+	/**
+	 * Find all stored championships, including the competition template.
+	 */
+	public static List<Championship> findAllIncludingTemplate() {
+		return JPAService.runInTransaction(em -> {
+			return em.createQuery("select c from Championship c order by c.id", Championship.class)
+			        .getResultList();
 		});
 	}
 
