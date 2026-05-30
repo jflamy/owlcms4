@@ -36,8 +36,12 @@ if ! command -v git >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! command -v python >/dev/null 2>&1; then
-  echo "ERROR: 'python' not found on PATH." >&2
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON=python3
+elif command -v python >/dev/null 2>&1; then
+  PYTHON=python
+else
+  echo "ERROR: neither 'python3' nor 'python' found on PATH." >&2
   exit 1
 fi
 
@@ -115,7 +119,7 @@ if ! git show "HEAD:${TRANSLATION_CSV}" > "${LOCAL_HEAD_TMP}"; then
   exit 4
 fi
 
-if ! python ./scripts/compare-translations.py "${LOCAL_HEAD_TMP}" "${REMOTE_TMP}"; then
+if ! "${PYTHON}" ./scripts/compare-translations.py "${LOCAL_HEAD_TMP}" "${REMOTE_TMP}"; then
   echo "ERROR: translation4.csv does not match the Google Sheets source!" >&2
   echo "       The committed HEAD version on this branch is out of date." >&2
   echo "       Update, commit and push translation4.csv from Google Sheets before releasing." >&2
