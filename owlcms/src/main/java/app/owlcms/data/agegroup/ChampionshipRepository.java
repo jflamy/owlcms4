@@ -137,6 +137,16 @@ public class ChampionshipRepository {
 			if (oldName != null && oldName.equals(canonicalNewName)) {
 				return managed;
 			}
+			TypedQuery<Championship> duplicateQuery = em.createQuery(
+			        "select c from Championship c where lower(trim(c.name)) = :name", Championship.class);
+			duplicateQuery.setParameter("name", canonicalNewName.trim().toLowerCase());
+			for (Championship duplicate : duplicateQuery.getResultList()) {
+				if (!duplicate.getId().equals(managed.getId())) {
+					logger.warn("Rejected championship rename from '{}' to '{}': duplicate championship '{}' already exists",
+					        oldName, canonicalNewName, duplicate.getName());
+					throw new IllegalArgumentException("Championship " + canonicalNewName + " already exists");
+				}
+			}
 
 			TypedQuery<AgeGroup> query = em.createQuery(
 			        "select ag from AgeGroup ag where lower(trim(ag.championshipName)) = :championshipName",
@@ -318,13 +328,25 @@ public class ChampionshipRepository {
 		        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
 		for (Championship championship : query.getResultList()) {
 			boolean sameAsTemplate = championship.hasSameCompetitionSettingsAs(template);
-			boolean shouldUseCompetitionDefaults = sameAsTemplate;
-			if (championship.usesCompetitionDefaults() != shouldUseCompetitionDefaults) {
-				championship.setUseCompetitionDefaults(shouldUseCompetitionDefaults);
+			if (championship.usesCompetitionDefaults()) {
+				// Flag says "follow the template" — make the stored fields agree.
+				// Required for raw-field exports (JSON V2 / mixin) and any other code
+				// path that reads the row directly rather than via the smart getters.
+				if (!sameAsTemplate) {
+					championship.copyCompetitionSettingsFrom(template);
+					em.merge(championship);
+					changed = true;
+					logger.info("Reset championship '{}' settings to competition template (flagged as defaults)",
+					        championship.getName());
+				}
+			} else if (sameAsTemplate) {
+				// Settings already identical to the template; promote to the
+				// "follows defaults" representation so future template edits propagate.
+				championship.setUseCompetitionDefaults(true);
 				em.merge(championship);
 				changed = true;
-				logger.info("Updated competition default flag for championship '{}': {}",
-				        championship.getName(), shouldUseCompetitionDefaults);
+				logger.info("Enabled competition defaults for championship '{}' (settings match template)",
+				        championship.getName());
 			}
 		}
 		if (changed) {

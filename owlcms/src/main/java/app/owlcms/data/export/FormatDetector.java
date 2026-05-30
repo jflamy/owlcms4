@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -97,6 +98,17 @@ public class FormatDetector {
 				new CompetitionDataV2().restore(inputStream);
 			} else {
 				new CompetitionData().restore(inputStream);
+			}
+
+			// JSON payloads can come from external tools or older exports and may carry
+			// inconsistent useCompetitionDefaults flags. Normalize so stored fields and
+			// flags agree before the application starts using the imported data.
+			try {
+				ChampionshipRepository.normalizeDefaultTypes();
+				ChampionshipRepository.normalizeCompetitionDefaultFlags();
+			} catch (Exception normalizeError) {
+				logger.warn("Championship normalization after JSON import failed: {}",
+				        normalizeError.toString());
 			}
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);

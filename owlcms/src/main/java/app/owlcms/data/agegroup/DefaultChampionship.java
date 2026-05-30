@@ -20,7 +20,9 @@ public class DefaultChampionship extends Championship {
 
 	private DefaultChampionship() {
 		super("Competition Defaults", ChampionshipType.DEFAULT);
-		super.setUseCompetitionDefaults(true);
+		// usesCompetitionDefaults() is overridden to always return true; no need
+		// to invoke the parent setter (which would trigger a DB lookup on the
+		// singleton's static initialization).
 	}
 
 	@Override

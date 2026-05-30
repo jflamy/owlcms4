@@ -369,21 +369,21 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public Ranking getBestAthleteScoringSystem() {
 		if (usesCompetitionDefaults()) {
-			return getCompetitionDefaults().getScoringSystem();
+			return getCompetitionDefaults().getBestAthleteScoringSystem();
 		}
 		return this.bestAthleteScoringSystem;
 	}
 
 	public Ranking getBestSnatchScoringSystem() {
 		if (usesCompetitionDefaults()) {
-			return getCompetitionDefaults().getScoringSystem();
+			return getCompetitionDefaults().getBestSnatchScoringSystem();
 		}
 		return this.bestSnatchScoringSystem;
 	}
 
 	public Ranking getBestCJScoringSystem() {
 		if (usesCompetitionDefaults()) {
-			return getCompetitionDefaults().getScoringSystem();
+			return getCompetitionDefaults().getBestCJScoringSystem();
 		}
 		return this.bestCJScoringSystem;
 	}
@@ -557,7 +557,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 		}
 
 		String oldName = this.name;
-		Championship renamed = this.id != null ? ChampionshipRepository.rename(this, canonicalNewName) : this;
+		Championship renamed = this.id != null ? ChampionshipRepository.rename(this, canonicalNewName) : null;
 		this.name = renamed != null ? renamed.getName() : canonicalNewName;
 
 		if (allChampionshipsMap != null) {
@@ -664,7 +664,15 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public void setUseCompetitionDefaults(boolean useCompetitionDefaults) {
-		this.useCompetitionDefaults = !this.competitionTemplate && useCompetitionDefaults;
+		boolean effective = !this.competitionTemplate && useCompetitionDefaults;
+		boolean transitionedToDefaults = effective && !this.useCompetitionDefaults;
+		this.useCompetitionDefaults = effective;
+		if (transitionedToDefaults) {
+			// Raw-field exports (JSON V2 mixin) read stored fields directly,
+			// so a row flagged as "uses defaults" must physically hold the template
+			// values. Copy them now to keep the database self-consistent.
+			copyCompetitionDefaults();
+		}
 	}
 
 	public boolean hasSameCompetitionSettingsAs(Championship template) {
