@@ -140,7 +140,6 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		        "maxPerCategory",
 		        "mensBestN",
 		        "womensBestN",
-		        "mixedTeamEnabled",
 		        "mixedTeamScoringSystem",
 		        "explicitMixedTeamMembers",
 		        "explicitTeamSize",
@@ -161,25 +160,24 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			row.createCell(1).setCellValue(championship.getType().name());
 			row.createCell(2).setCellValue(championship.isCompetitionTemplate());
 			row.createCell(3).setCellValue(championship.isSnatchCJTotalMedals());
-			setRankingCell(row, 4, championship.getScoringSystem());
-			setRankingCell(row, 5, championship.getBestAthleteScoringSystem());
+			setNullableRankingCell(row, 4, championship.getScoringSystem());
+			setNullableRankingCell(row, 5, championship.getBestAthleteScoringSystem());
 			setNullableRankingCell(row, 6, championship.getBestSnatchScoringSystem());
 			setNullableRankingCell(row, 7, championship.getBestCJScoringSystem());
 			setIntegerCell(row, 8, championship.getTeamPoints1st());
 			setIntegerCell(row, 9, championship.getTeamPoints2nd());
 			setIntegerCell(row, 10, championship.getTeamPoints3rd());
-			setRankingCell(row, 11, championship.getTeamScoringSystem());
+			setTeamScoringCell(row, 11, championship.isGenderedTeamsEnabled(), championship.getTeamScoringSystem());
 			setIntegerCell(row, 12, normalizeTeamSize(championship.getMaxTeamSize()));
 			setIntegerCell(row, 13, championship.getMaxPerCategory());
 			setIntegerCell(row, 14, championship.getMensBestN());
 			setIntegerCell(row, 15, championship.getWomensBestN());
-			row.createCell(16).setCellValue(championship.isMixedTeamEnabled());
-			setRankingCell(row, 17, championship.getMixedTeamScoringSystem());
-			row.createCell(18).setCellValue(championship.isExplicitMixedTeamMembers());
-			setIntegerCell(row, 19, championship.getExplicitTeamSize());
-			setIntegerCell(row, 20, championship.getMixedBestN());
-			setIntegerCell(row, 21, championship.getMixedMensBestN());
-			setIntegerCell(row, 22, championship.getMixedWomensBestN());
+			setTeamScoringCell(row, 16, championship.isMixedTeamEnabled(), championship.getMixedTeamScoringSystem());
+			row.createCell(17).setCellValue(championship.isExplicitMixedTeamMembers());
+			setIntegerCell(row, 18, championship.getExplicitTeamSize());
+			setIntegerCell(row, 19, championship.getMixedBestN());
+			setIntegerCell(row, 20, championship.getMixedMensBestN());
+			setIntegerCell(row, 21, championship.getMixedWomensBestN());
 		}
 	}
 
@@ -320,6 +318,7 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		        && Objects.equals(championship.getTeamPoints1st(), template.getTeamPoints1st())
 		        && Objects.equals(championship.getTeamPoints2nd(), template.getTeamPoints2nd())
 		        && Objects.equals(championship.getTeamPoints3rd(), template.getTeamPoints3rd())
+		        && championship.isGenderedTeamsEnabled() == template.isGenderedTeamsEnabled()
 		        && Objects.equals(championship.getTeamScoringSystem(), template.getTeamScoringSystem())
 		        && Objects.equals(normalizeTeamSize(championship.getMaxTeamSize()), normalizeTeamSize(template.getMaxTeamSize()))
 		        && Objects.equals(championship.getMaxPerCategory(), template.getMaxPerCategory())
@@ -349,13 +348,15 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 
 	private static final String POINTS_SENTINEL = "POINTS";
 
-	private void setRankingCell(Row row, int column, Ranking ranking) {
-		row.createCell(column).setCellValue(ranking != null ? ranking.getReportingName() : POINTS_SENTINEL);
+	private void setTeamScoringCell(Row row, int column, boolean enabled, Ranking ranking) {
+		if (enabled) {
+			row.createCell(column).setCellValue(ranking != null ? Ranking.getScoringTitle(ranking) : POINTS_SENTINEL);
+		}
 	}
 
 	private void setNullableRankingCell(Row row, int column, Ranking ranking) {
 		if (ranking != null) {
-			row.createCell(column).setCellValue(ranking.getReportingName());
+			row.createCell(column).setCellValue(Ranking.getScoringTitle(ranking));
 		}
 	}
 

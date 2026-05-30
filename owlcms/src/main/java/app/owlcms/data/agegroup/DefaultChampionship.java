@@ -175,6 +175,12 @@ public class DefaultChampionship extends Championship {
 	}
 
 	@Override
+	public boolean isGenderedTeamsEnabled() {
+		Championship template = template();
+		return template != null ? template.isGenderedTeamsEnabled() : super.isGenderedTeamsEnabled();
+	}
+
+	@Override
 	public boolean isMixedTeamEnabled() {
 		Championship template = template();
 		return template != null ? template.isMixedTeamEnabled() : super.isMixedTeamEnabled();

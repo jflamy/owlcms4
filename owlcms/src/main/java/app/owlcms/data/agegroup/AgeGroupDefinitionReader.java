@@ -12,6 +12,7 @@ import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
@@ -307,11 +308,14 @@ public class AgeGroupDefinitionReader {
 			championship.setTeamPoints3rd(getIntegerValue(row, iRow, headerColumns, "teampoints3rd"));
 			championship.setMensBestN(getIntegerValue(row, iRow, headerColumns, "mensbestn"));
 			championship.setWomensBestN(getIntegerValue(row, iRow, headerColumns, "womensbestn"));
-			championship.setTeamScoringSystem(getRankingValue(row, iRow, headerColumns, "teamscoringsystem"));
+			TeamScoringValue teamScoring = getTeamScoringValue(row, iRow, headerColumns, "teamscoringsystem");
+			championship.setGenderedTeamsEnabled(teamScoring.enabled);
+			championship.setTeamScoringSystem(teamScoring.ranking);
 			championship.setMaxTeamSize(normalizeTeamSize(getIntegerValue(row, iRow, headerColumns, "maxteamsize")));
 			championship.setMaxPerCategory(getIntegerValue(row, iRow, headerColumns, "maxpercategory"));
-			championship.setMixedTeamEnabled(getBooleanValue(row, headerColumns, "mixedteamenabled", false));
-			championship.setMixedTeamScoringSystem(getRankingValue(row, iRow, headerColumns, "mixedteamscoringsystem"));
+			TeamScoringValue mixedScoring = getTeamScoringValue(row, iRow, headerColumns, "mixedteamscoringsystem");
+			championship.setMixedTeamEnabled(mixedScoring.enabled);
+			championship.setMixedTeamScoringSystem(mixedScoring.ranking);
 			championship.setExplicitMixedTeamMembers(getBooleanValue(row, headerColumns, "explicitmixedteammembers", false));
 			championship.setExplicitTeamSize(getIntegerValue(row, iRow, headerColumns, "explicitteamsize"));
 			championship.setMixedBestN(getIntegerValue(row, iRow, headerColumns, "mixedbestn"));
@@ -419,6 +423,20 @@ public class AgeGroupDefinitionReader {
 		return getRankingValue(row, iRow, columnIndex(headerColumns, header, -1));
 	}
 
+	private static TeamScoringValue getTeamScoringValue(Row row, int iRow, Map<String, Integer> headerColumns, String header) {
+		return getTeamScoringValue(row, iRow, columnIndex(headerColumns, header, -1));
+	}
+
+	private static class TeamScoringValue {
+		private final boolean enabled;
+		private final Ranking ranking;
+
+		private TeamScoringValue(boolean enabled, Ranking ranking) {
+			this.enabled = enabled;
+			this.ranking = ranking;
+		}
+	}
+
 	private static final String POINTS_SENTINEL = "POINTS";
 	private static final int LEGACY_UNBOUNDED_TEAM_SIZE = 50;
 	private static final int UNBOUNDED_TEAM_SIZE = 999;
@@ -432,14 +450,58 @@ public class AgeGroupDefinitionReader {
 			return null;
 		}
 		String cellValue = getCellText(row, column);
-		if (cellValue == null || cellValue.isBlank() || cellValue.equalsIgnoreCase(POINTS_SENTINEL)) {
+		if (cellValue == null || cellValue.isBlank()) {
 			return null;
 		}
-		Ranking rv = Ranking.rankingByReportingName.get(cellValue.toLowerCase());
+		return parseRankingValue(cellValue, iRow, column);
+	}
+
+	private static TeamScoringValue getTeamScoringValue(Row row, int iRow, int column) {
+		if (column < 0) {
+			return new TeamScoringValue(false, null);
+		}
+		String cellValue = getCellText(row, column);
+		if (cellValue == null || cellValue.isBlank()) {
+			return new TeamScoringValue(false, null);
+		}
+		if (cellValue.equalsIgnoreCase(POINTS_SENTINEL)) {
+			return new TeamScoringValue(true, null);
+		}
+		return new TeamScoringValue(true, parseRankingValue(cellValue, iRow, column));
+	}
+
+	private static Ranking parseRankingValue(String cellValue, int iRow, int column) {
+		Ranking rv = getRankingFromExportValue(cellValue);
 		if (rv == null) {
 			reportError(iRow, column, cellValue, new IllegalArgumentException(cellValue));
 		}
 		return rv;
+	}
+
+	private static Ranking getRankingFromExportValue(String cellValue) {
+		for (Ranking candidate : Ranking.values()) {
+			if (matchesExportedRankingTitle(cellValue, candidate)) {
+				return candidate;
+			}
+		}
+		return null;
+	}
+
+	private static boolean matchesExportedRankingTitle(String cellValue, Ranking ranking) {
+		for (Locale locale : Translator.getAllAvailableLocales()) {
+			String exportedTitle = exportedRankingTitle(ranking, locale);
+			if (exportedTitle != null && exportedTitle.equalsIgnoreCase(cellValue.trim())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static String exportedRankingTitle(Ranking ranking, Locale locale) {
+		return switch (ranking) {
+		case GAMX_MS, GAMX_MC, GAMX_S, GAMX_C -> ranking.getReportingName();
+		default -> Translator.translateOrElseNull("Ranking." + ranking, locale);
+		};
 	}
 
 	private static Sheet getAgeGroupsSheet(Workbook workbook, boolean simplifiedAgeGroups) {

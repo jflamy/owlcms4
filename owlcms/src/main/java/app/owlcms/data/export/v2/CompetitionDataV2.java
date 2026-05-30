@@ -291,6 +291,7 @@ public class CompetitionDataV2 {
 						existing.setMaxTeamSize(championship.getMaxTeamSize());
 						existing.setMaxPerCategory(championship.getMaxPerCategory());
 						existing.setExplicitMixedTeamMembers(championship.isExplicitMixedTeamMembers());
+						existing.setGenderedTeamsEnabled(championship.isGenderedTeamsEnabled());
 						existing.setMixedTeamEnabled(championship.isMixedTeamEnabled());
 						existing.setTeamScoringSystem(championship.getTeamScoringSystem());
 						existing.setMixedTeamScoringSystem(championship.getMixedTeamScoringSystem());

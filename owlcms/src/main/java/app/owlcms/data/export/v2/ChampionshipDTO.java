@@ -48,6 +48,7 @@ public class ChampionshipDTO {
 	private Integer maxTeamSize;
 	private Integer maxPerCategory;
 	private boolean explicitMixedTeamMembers;
+	private boolean genderedTeamsEnabled = true;
 	private boolean mixedTeamEnabled = false;
 	private boolean competitionTemplate = false;
 	private Ranking teamScoringSystem;
@@ -84,6 +85,7 @@ public class ChampionshipDTO {
 		championship.setMaxTeamSize(this.maxTeamSize);
 		championship.setMaxPerCategory(this.maxPerCategory);
 		championship.setExplicitMixedTeamMembers(this.explicitMixedTeamMembers);
+		championship.setGenderedTeamsEnabled(this.genderedTeamsEnabled);
 		championship.setMixedTeamEnabled(this.mixedTeamEnabled);
 		championship.setTeamScoringSystem(this.teamScoringSystem);
 		championship.setMixedTeamScoringSystem(this.mixedTeamScoringSystem);
@@ -240,6 +242,14 @@ public class ChampionshipDTO {
 
 	public void setExplicitMixedTeamMembers(boolean explicitMixedTeamMembers) {
 		this.explicitMixedTeamMembers = explicitMixedTeamMembers;
+	}
+
+	public boolean isGenderedTeamsEnabled() {
+		return genderedTeamsEnabled;
+	}
+
+	public void setGenderedTeamsEnabled(boolean genderedTeamsEnabled) {
+		this.genderedTeamsEnabled = genderedTeamsEnabled;
 	}
 
 	public boolean isMixedTeamEnabled() {

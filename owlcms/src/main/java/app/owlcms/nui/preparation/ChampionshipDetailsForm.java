@@ -182,8 +182,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		NativeLabel teamTitle = new NativeLabel(Translator.translate("Championship.MenWomenTeams"));
 		teamTitle.getStyle().set("font-weight", "bold");
 		Checkbox menWomenTeamsEnabledField = new Checkbox();
-		menWomenTeamsEnabledField.setValue(true);
-		menWomenTeamsEnabledField.setEnabled(false);
+		menWomenTeamsEnabledField.setValue(championship.isGenderedTeamsEnabled());
 		HorizontalLayout teamHeader = new HorizontalLayout(menWomenTeamsEnabledField, teamTitle);
 		teamHeader.setAlignItems(Alignment.CENTER);
 		teamHeader.setSpacing(true);
@@ -196,19 +195,22 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		teamMethodField.setWidthFull();
 		String teamMethodInitial = championship.getTeamScoringSystem() != null ? SUM_OF_SCORES : SUM_OF_POINTS;
 		teamMethodField.setValue(teamMethodInitial);
+		teamMethodField.setEnabled(championship.isGenderedTeamsEnabled());
 		teamLayout.addFormItem(teamMethodField, Translator.translate("Championship.teamRankingMethod"));
 
 		ComboBox<Ranking> teamScoringSystemField = createRankingCombo();
 		teamScoringSystemField.setValue(championship.getTeamScoringSystem());
-		teamScoringSystemField.setEnabled(SUM_OF_SCORES.equals(teamMethodInitial));
+		teamScoringSystemField.setEnabled(championship.isGenderedTeamsEnabled() && SUM_OF_SCORES.equals(teamMethodInitial));
 		teamLayout.addFormItem(teamScoringSystemField, Translator.translate("Championship.teamScoringSystem"));
 
 		teamMethodField.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
 				return;
 			}
+			boolean teamEnabled = Boolean.TRUE.equals(menWomenTeamsEnabledField.getValue());
+			boolean notDefaults = !Boolean.TRUE.equals(useDefaultsField.getValue());
 			boolean isScores = SUM_OF_SCORES.equals(e.getValue());
-			teamScoringSystemField.setEnabled(isScores);
+			teamScoringSystemField.setEnabled(teamEnabled && notDefaults && isScores);
 			if (isScores && teamScoringSystemField.getValue() == null) {
 				teamScoringSystemField.setValue(Ranking.GAMX);
 			} else if (!isScores) {
@@ -358,11 +360,17 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			teamPoints1stField.setValue(effective.getTeamPoints1st() != null ? effective.getTeamPoints1st() : 0);
 			teamPoints2ndField.setValue(effective.getTeamPoints2nd() != null ? effective.getTeamPoints2nd() : 0);
 			teamPoints3rdField.setValue(effective.getTeamPoints3rd() != null ? effective.getTeamPoints3rd() : 0);
+			menWomenTeamsEnabledField.setValue(effective.isGenderedTeamsEnabled());
+			teamMethodField.setValue(effective.getTeamScoringSystem() != null ? SUM_OF_SCORES : SUM_OF_POINTS);
+			teamScoringSystemField.setValue(effective.getTeamScoringSystem());
 			maxTeamSizeField.setValue(effective.getMaxTeamSize());
 			maxPerCategoryField.setValue(effective.getMaxPerCategory());
 			mensBestNField.setValue(zeroAsEmpty(effective.getMensBestN()));
 			womensBestNField.setValue(zeroAsEmpty(effective.getWomensBestN()));
 			explicitTeamSizeField.setValue(effective.getExplicitTeamSize());
+			mixedTeamEnabledField.setValue(effective.isMixedTeamEnabled());
+			mixedMethodField.setValue(effective.getMixedTeamScoringSystem() != null ? SUM_OF_SCORES : SUM_OF_POINTS);
+			mixedTeamScoringSystemField.setValue(effective.getMixedTeamScoringSystem());
 			mixedBestNField.setValue(zeroAsEmpty(effective.getMixedBestN()));
 			mixedMensBestNField.setValue(zeroAsEmpty(effective.getMixedMensBestN()));
 			mixedWomensBestNField.setValue(zeroAsEmpty(effective.getMixedWomensBestN()));
@@ -376,8 +384,10 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			teamPoints1stField.setEnabled(!useDefaults);
 			teamPoints2ndField.setEnabled(!useDefaults);
 			teamPoints3rdField.setEnabled(!useDefaults);
-			teamMethodField.setEnabled(!useDefaults);
-			teamScoringSystemField.setEnabled(!useDefaults && SUM_OF_SCORES.equals(teamMethodField.getValue()));
+			boolean genderedEnabled = Boolean.TRUE.equals(menWomenTeamsEnabledField.getValue());
+			menWomenTeamsEnabledField.setEnabled(!useDefaults);
+			teamMethodField.setEnabled(!useDefaults && genderedEnabled);
+			teamScoringSystemField.setEnabled(!useDefaults && genderedEnabled && SUM_OF_SCORES.equals(teamMethodField.getValue()));
 			maxTeamSizeField.setEnabled(!useDefaults);
 			maxPerCategoryField.setEnabled(!useDefaults);
 			mensBestNField.setEnabled(!useDefaults);
@@ -407,14 +417,25 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			refreshMixedSelectionFieldState.run();
 		});
 
+		menWomenTeamsEnabledField.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
+			boolean enabled = Boolean.TRUE.equals(e.getValue());
+			boolean notDefaults = !Boolean.TRUE.equals(useDefaultsField.getValue());
+			teamMethodField.setEnabled(enabled && notDefaults);
+			teamScoringSystemField.setEnabled(enabled && notDefaults && SUM_OF_SCORES.equals(teamMethodField.getValue()));
+		});
+
 		refreshEffectiveDefaults.run();
 		add(mixedLayout);
 
 		this.validateHandler = () -> {
 			String updatedName = nameField.getValue() != null ? nameField.getValue().trim() : "";
 			String mixedSelectionMode = mixedSelectionField.getValue();
+			boolean mixedEnabled = Boolean.TRUE.equals(mixedTeamEnabledField.getValue());
 			boolean valid = validateChampionshipName(nameField, updatedName, templateMode);
-			if (MIXED_SELECTION_EXPLICIT.equals(mixedSelectionMode)
+			if (mixedEnabled && MIXED_SELECTION_EXPLICIT.equals(mixedSelectionMode)
 			        && (explicitTeamSizeField.getValue() == null || explicitTeamSizeField.getValue() <= 0)) {
 				explicitTeamSizeField.setInvalid(true);
 				explicitTeamSizeField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
@@ -422,7 +443,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			} else {
 				explicitTeamSizeField.setInvalid(false);
 			}
-			if (MIXED_SELECTION_OVERALL.equals(mixedSelectionMode)
+			if (mixedEnabled && MIXED_SELECTION_OVERALL.equals(mixedSelectionMode)
 			        && (mixedBestNField.getValue() == null || mixedBestNField.getValue() <= 0)) {
 				mixedBestNField.setInvalid(true);
 				mixedBestNField.setErrorMessage(Translator.translate("ThisFieldIsRequired"));
@@ -443,18 +464,21 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			championship.setBestSnatchScoringSystem(bestSnatchField.getValue());
 			championship.setBestCJScoringSystem(bestCJField.getValue());
 			championship.setSnatchCJTotalMedals(snatchCJTotalField.getValue());
+			boolean genderedEnabled = Boolean.TRUE.equals(menWomenTeamsEnabledField.getValue());
+			championship.setGenderedTeamsEnabled(genderedEnabled);
 			championship.setTeamScoringSystem(
-			        SUM_OF_SCORES.equals(teamMethodField.getValue()) ? teamScoringSystemField.getValue() : null);
+			        genderedEnabled && SUM_OF_SCORES.equals(teamMethodField.getValue()) ? teamScoringSystemField.getValue() : null);
 			championship.setTeamPoints1st(teamPoints1stField.getValue());
 			championship.setTeamPoints2nd(teamPoints2ndField.getValue());
 			championship.setTeamPoints3rd(teamPoints3rdField.getValue());
 			championship.setMensBestN(mensBestNField.getValue());
 			championship.setWomensBestN(womensBestNField.getValue());
 			championship.setExplicitMixedTeamMembers(MIXED_SELECTION_EXPLICIT.equals(mixedSelectionMode));
-			championship.setMixedTeamEnabled(mixedTeamEnabledField.getValue());
+			boolean mixedEnabled = Boolean.TRUE.equals(mixedTeamEnabledField.getValue());
+			championship.setMixedTeamEnabled(mixedEnabled);
 			championship.setExplicitTeamSize(explicitTeamSizeField.getValue());
 			championship.setMixedTeamScoringSystem(
-			        SUM_OF_SCORES.equals(mixedMethodField.getValue()) ? mixedTeamScoringSystemField.getValue() : null);
+			        mixedEnabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()) ? mixedTeamScoringSystemField.getValue() : null);
 			championship.setMixedBestN(MIXED_SELECTION_OVERALL.equals(mixedSelectionMode)
 			        ? mixedBestNField.getValue() : null);
 			championship.setMixedMensBestN(MIXED_SELECTION_PER_GENDER.equals(mixedSelectionMode)

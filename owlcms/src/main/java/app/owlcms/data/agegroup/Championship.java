@@ -315,6 +315,9 @@ public class Championship implements Comparable<Championship>, Serializable {
 	@Column(columnDefinition = "boolean default false")
 	private boolean explicitMixedTeamMembers = false;
 
+	@Column(columnDefinition = "boolean default true")
+	private boolean genderedTeamsEnabled = true;
+
 	@Column(columnDefinition = "boolean default false")
 	private boolean mixedTeamEnabled = false;
 
@@ -485,6 +488,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public Ranking getTeamScoringSystem() {
 		return this.teamScoringSystem;
+	}
+
+	public boolean isGenderedTeamsEnabled() {
+		return this.genderedTeamsEnabled;
 	}
 
 	public boolean computePointsBased() {
@@ -711,6 +718,8 @@ public class Championship implements Comparable<Championship>, Serializable {
 		addDifference(differences, "maxPerCategory", this.maxPerCategory, competitionDefaults.maxPerCategory);
 		addDifference(differences, "explicitMixedTeamMembers", this.explicitMixedTeamMembers,
 		        competitionDefaults.explicitMixedTeamMembers);
+		addDifference(differences, "genderedTeamsEnabled", this.genderedTeamsEnabled,
+		        competitionDefaults.genderedTeamsEnabled);
 		addDifference(differences, "mixedTeamEnabled", this.mixedTeamEnabled, competitionDefaults.mixedTeamEnabled);
 		addDifference(differences, "teamScoringSystem", this.teamScoringSystem, competitionDefaults.teamScoringSystem);
 		addDifference(differences, "mixedTeamScoringSystem", this.mixedTeamScoringSystem,
@@ -753,6 +762,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.maxTeamSize = template.maxTeamSize;
 		this.maxPerCategory = template.maxPerCategory;
 		this.explicitMixedTeamMembers = template.explicitMixedTeamMembers;
+		this.genderedTeamsEnabled = template.genderedTeamsEnabled;
 		this.mixedTeamEnabled = template.mixedTeamEnabled;
 		this.teamScoringSystem = template.teamScoringSystem;
 		this.mixedTeamScoringSystem = template.mixedTeamScoringSystem;
@@ -795,6 +805,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public void setExplicitMixedTeamMembers(boolean explicitMixedTeamMembers) {
 		this.explicitMixedTeamMembers = explicitMixedTeamMembers;
+	}
+
+	public void setGenderedTeamsEnabled(boolean genderedTeamsEnabled) {
+		this.genderedTeamsEnabled = genderedTeamsEnabled;
 	}
 
 	public boolean isMixedTeamEnabled() {
@@ -864,6 +878,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.explicitTeamSize = getDefaultExplicitMixedTeamSize();
 		this.maxPerCategory = comp.getMaxPerCategory();
 		this.explicitMixedTeamMembers = false;
+		this.genderedTeamsEnabled = true;
 		this.teamScoringSystem = null;
 		this.mixedTeamScoringSystem = null;
 
@@ -902,6 +917,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.explicitTeamSize = DEFAULT_TEAM_SIZE;
 		this.maxPerCategory = comp != null ? comp.getMaxPerCategory() : 2;
 		this.explicitMixedTeamMembers = false;
+		this.genderedTeamsEnabled = true;
 		this.mixedTeamEnabled = false;
 		this.teamScoringSystem = null;
 		this.mixedTeamScoringSystem = null;
