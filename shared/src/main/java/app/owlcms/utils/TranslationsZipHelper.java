@@ -93,6 +93,7 @@ public class TranslationsZipHelper {
 	 * 
 	 * @return Map structure with "locales" key containing all locale translation maps and a checksum
 	 */
+	@SuppressWarnings("deprecation")
 	private static Map<String, Object> buildTranslationsStructure() {
 		Map<String, Object> root = new HashMap<>();
 		Map<String, Map<String, String>> localesMap = new HashMap<>();
