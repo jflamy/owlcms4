@@ -8,13 +8,6 @@
 
 <br>
 
-**New in Release 67**
-
-67.0.0: There is now a full set of defaults for Championships, editable from the Competition rules page.
-  - There is a Define Championships page to add/edit Championships that have different rules
-  - Each age group belongs to a (single) Championship.  By default, one is created automatically with the competition settings.
-  - A new export format captures all the non-standard templates (settings changed or name changed)
-
 **New in Release 66**
 
 66.3.0: New competition export endpoints in addition to the existing `/competition/export` (which is unchanged):
