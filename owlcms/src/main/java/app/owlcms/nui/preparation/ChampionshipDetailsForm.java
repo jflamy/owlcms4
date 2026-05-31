@@ -571,6 +571,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		Championship.update(this.championship);
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();
 		Championship.reset();
+		RankingConfig.updateMustCompute();
 		return true;
 	}
 

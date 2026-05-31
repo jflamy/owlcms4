@@ -41,6 +41,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 
 	private final boolean fullWidth;
 	private Grid<ChampionshipRow> championshipsTable = new Grid<>(ChampionshipRow.class, false);
+	private Checkbox showActiveChampionshipsOnly;
 	private Checkbox hideCompetitionDefaults;
 
 	public EditChampionshipsPanel() {
@@ -61,6 +62,9 @@ public class EditChampionshipsPanel extends VerticalLayout {
 
 		ChampionshipRepository.normalizeDefaultTypes();
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();
+		this.showActiveChampionshipsOnly = new Checkbox(Translator.translate("Active"));
+		this.showActiveChampionshipsOnly.setValue(true);
+		this.showActiveChampionshipsOnly.addValueChangeListener(e -> updateChampionshipsTable());
 		this.hideCompetitionDefaults = new Checkbox(Translator.translate("EditChampionships.HideCompetitionDefaults"));
 		this.hideCompetitionDefaults.setValue(true);
 		this.hideCompetitionDefaults.addValueChangeListener(e -> updateChampionshipsTable());
@@ -74,6 +78,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		gridLayout.setMainComponent(this.championshipsTable);
 		gridLayout.addToolbarComponent(createRefreshButton());
 		gridLayout.addToolbarComponent(createAddButton());
+		gridLayout.addFilterComponent(this.showActiveChampionshipsOnly);
 		gridLayout.addFilterComponent(this.hideCompetitionDefaults);
 		return gridLayout;
 	}
@@ -132,9 +137,11 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	}
 
 	public void updateChampionshipsTable() {
+		boolean activeOnly = this.showActiveChampionshipsOnly == null
+		        || Boolean.TRUE.equals(this.showActiveChampionshipsOnly.getValue());
 		boolean hideDefaultRows = this.hideCompetitionDefaults == null
 		        || Boolean.TRUE.equals(this.hideCompetitionDefaults.getValue());
-		Map<String, ChampionshipCandidate> candidates = championshipCandidates();
+		Map<String, ChampionshipCandidate> candidates = championshipCandidates(activeOnly);
 		Map<String, Championship> explicitChampionships = explicitChampionships();
 		List<ChampionshipRow> rows = new ArrayList<>();
 
@@ -147,12 +154,14 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			rows.add(new ChampionshipRow(candidate.name, candidate.type, existing, false));
 		}
 
-		explicitChampionships.values().stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
-			if (hideDefaultRows && c.computeUsesCompetitionDefaults()) {
-				return;
-			}
-			rows.add(new ChampionshipRow(c.getName(), c.getType(), c, true));
-		});
+		if (!activeOnly) {
+			explicitChampionships.values().stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
+				if (hideDefaultRows && c.computeUsesCompetitionDefaults()) {
+					return;
+				}
+				rows.add(new ChampionshipRow(c.getName(), c.getType(), c, true));
+			});
+		}
 		this.championshipsTable.setItems(rows);
 	}
 
@@ -218,10 +227,13 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		return Translator.translate(ChampionshipType.normalizeOrDefault(type).labelKey());
 	}
 
-	private Map<String, ChampionshipCandidate> championshipCandidates() {
+	private Map<String, ChampionshipCandidate> championshipCandidates(boolean activeOnly) {
 		Map<String, ChampionshipCandidate> candidates = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		for (AgeGroup ageGroup : AgeGroupRepository.findAll()) {
-			String name = Championship.canonicalizeChampionshipName(ageGroup.computeChampionshipName());
+			if (activeOnly && !ageGroup.isActive()) {
+				continue;
+			}
+			String name = effectiveChampionshipName(ageGroup);
 			if (name == null || name.isBlank()) {
 				continue;
 			}
@@ -229,6 +241,15 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			candidates.putIfAbsent(name, new ChampionshipCandidate(name, type));
 		}
 		return candidates;
+	}
+
+	private String effectiveChampionshipName(AgeGroup ageGroup) {
+		String name = ageGroup.computeChampionshipName();
+		if (name == null || name.isBlank()
+		        || name.trim().equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME)) {
+			name = ageGroup.getCode();
+		}
+		return Championship.canonicalizeChampionshipName(name != null ? name.trim() : null);
 	}
 
 	private Map<String, Championship> explicitChampionships() {

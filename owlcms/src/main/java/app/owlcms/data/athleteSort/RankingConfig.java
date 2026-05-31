@@ -106,45 +106,71 @@ public class RankingConfig {
 			}
 		}
 		
-		// Add scoring systems from all age groups
-		List<AgeGroup> ageGroups = AgeGroupRepository.findAll();
-		for (AgeGroup ag : ageGroups) {
-			if (!ag.isActive()) {
-				continue;
-			}
-			// Medal scoring system
-			Ranking scoringSystem = ag.getComputedScoringSystem();
-			if (scoringSystem != null && getAllScoringRankings().contains(scoringSystem)) {
-				mustCompute.add(scoringSystem);
-			}
-			// Best athlete scoring system
-			Ranking bestAthleteScoring = ag.getBestAthleteScoringSystem();
-			if (bestAthleteScoring != null && getAllScoringRankings().contains(bestAthleteScoring)) {
-				mustCompute.add(bestAthleteScoring);
-			}
-		}
-
-		// Add team and mixed-team scoring systems from all championships so that
-		// per-athlete values used by team-results exports are computed.
-		addChampionshipTeamScorings();
+		addRequiredRankingsForActiveAgeGroups(AgeGroupRepository.findAll());
 	}
 
-	/** Register team and mixed-team scoring systems from every championship. */
-	private static void addChampionshipTeamScorings() {
-		List<Championship> championships = Championship.findAllIncludingTemplate();
-		if (championships == null) {
+	private static void addRequiredRankingsForActiveAgeGroups(List<AgeGroup> ageGroups) {
+		if (ageGroups == null) {
 			return;
 		}
-		for (Championship c : championships) {
-			Ranking team = c.getTeamScoringSystem();
-			if (team != null && getAllScoringRankings().contains(team)) {
-				mustCompute.add(team);
+		for (AgeGroup ageGroup : ageGroups) {
+			if (ageGroup == null || !ageGroup.isActive()) {
+				continue;
 			}
-			Ranking mixed = c.getMixedTeamScoringSystem();
-			if (mixed != null && getAllScoringRankings().contains(mixed)) {
-				mustCompute.add(mixed);
-			}
+			addRequiredRanking(ageGroup.getComputedScoringSystem());
+			addRequiredRanking(ageGroup.getBestAthleteScoringSystem());
+			addRequiredRankingsForChampionship(Championship.of(ageGroup.computeChampionshipName()));
 		}
+	}
+
+	private static void addRequiredRankingsForChampionship(Championship championship) {
+		if (championship == null) {
+			return;
+		}
+		addRequiredRanking(championship.getScoringSystem());
+		addRequiredRanking(championship.getBestAthleteScoringSystem());
+		addRequiredRanking(championship.getBestSnatchScoringSystem());
+		addRequiredRanking(championship.getBestCJScoringSystem());
+		if (championship.isGenderedTeamsEnabled()) {
+			addRequiredRanking(championship.getTeamScoringSystem());
+		}
+		if (championship.isMixedTeamEnabled()) {
+			addRequiredRanking(championship.getMixedTeamScoringSystem());
+		}
+	}
+
+	private static void addRequiredRanking(Ranking ranking) {
+		if (ranking != null && getAllScoringRankings().contains(ranking)) {
+			mustCompute.add(ranking);
+		}
+	}
+
+	/**
+	 * Return all configured scoring systems that can be selected in championship
+	 * definitions and optional competition scoring computation.
+	 */
+	public static Set<Ranking> getAllScoringRankings() {
+		return EnumSet.of(
+			Ranking.BW_SINCLAIR, Ranking.SMM, Ranking.CAT_SINCLAIR,
+			Ranking.QPOINTS, Ranking.AGEFACTORS, Ranking.QAGE, Ranking.CAT_QPOINTS,
+			Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.GAMX_S, Ranking.GAMX_C, Ranking.CAT_GAMX, 
+			Ranking.ROBI);
+	}
+
+	/**
+	 * Get all category value rankings.
+	 *
+	 * @return set containing SNATCH, CLEANJERK, TOTAL, CUSTOM, SNATCH_CJ_TOTAL, CATEGORY_SCORE
+	 */
+	public static Set<Ranking> getCategoryRankings() {
+		return EnumSet.of(
+			Ranking.SNATCH, Ranking.CLEANJERK, Ranking.TOTAL, Ranking.CUSTOM,
+			Ranking.SNATCH_CJ_TOTAL, Ranking.CATEGORY_SCORE
+		);
+	}
+
+	private RankingConfig() {
+		// Utility class - no instantiation
 	}
 
 	/**
@@ -168,26 +194,7 @@ public class RankingConfig {
 		if (globalScoring != null && getAllScoringRankings().contains(globalScoring)) {
 			mustCompute.add(globalScoring);
 		}
-		
-		// Add scoring systems from provided age groups
-		if (ageGroups != null) {
-			for (AgeGroup ag : ageGroups) {
-				if (!ag.isActive()) {
-					continue;
-				}
-				Ranking scoringSystem = ag.getComputedScoringSystem();
-				if (scoringSystem != null && getAllScoringRankings().contains(scoringSystem)) {
-					mustCompute.add(scoringSystem);
-				}
-				Ranking bestAthleteScoring = ag.getBestAthleteScoringSystem();
-				if (bestAthleteScoring != null && getAllScoringRankings().contains(bestAthleteScoring)) {
-					mustCompute.add(bestAthleteScoring);
-				}
-			}
-		}
-
-		// Also include team scoring systems configured per championship.
-		addChampionshipTeamScorings();
+		addRequiredRankingsForActiveAgeGroups(ageGroups);
 	}
 
 	/**
@@ -238,10 +245,6 @@ public class RankingConfig {
 		resetUserDefaults();
 	}
 
-	private RankingConfig() {
-		// Utility class - no instantiation
-	}
-
 	/**
 	 * Get all Sinclair-based rankings.
 	 *
@@ -276,30 +279,5 @@ public class RankingConfig {
 	 */
 	public static Set<Ranking> getRobiRankings() {
 		return EnumSet.of(Ranking.ROBI);
-	}
-
-	/**
-	 * Get all global scoring system rankings (all non-category rankings).
-	 *
-	 * @return set containing all global scoring systems
-	 */
-	public static Set<Ranking> getAllScoringRankings() {
-		return EnumSet.of(
-			Ranking.BW_SINCLAIR, Ranking.SMM, Ranking.CAT_SINCLAIR,
-			Ranking.QPOINTS, Ranking.AGEFACTORS, Ranking.QAGE, Ranking.CAT_QPOINTS,
-			Ranking.GAMX, Ranking.GAMX_M, Ranking.GAMX_MS, Ranking.GAMX_MC, Ranking.GAMX_U, Ranking.GAMX_A, Ranking.GAMX_S, Ranking.GAMX_C, Ranking.CAT_GAMX, 
-			Ranking.ROBI);
-	}
-
-	/**
-	 * Get all category value rankings.
-	 *
-	 * @return set containing SNATCH, CLEANJERK, TOTAL, CUSTOM, SNATCH_CJ_TOTAL, CATEGORY_SCORE
-	 */
-	public static Set<Ranking> getCategoryRankings() {
-		return EnumSet.of(
-			Ranking.SNATCH, Ranking.CLEANJERK, Ranking.TOTAL, Ranking.CUSTOM,
-			Ranking.SNATCH_CJ_TOTAL, Ranking.CATEGORY_SCORE
-		);
 	}
 }

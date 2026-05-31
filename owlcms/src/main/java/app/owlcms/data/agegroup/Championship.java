@@ -171,17 +171,36 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public static List<Championship> findAllUsed(boolean activeOnly) {
-		var results = new ArrayList<Championship>();
+		var results = new TreeMap<String, Championship>(String.CASE_INSENSITIVE_ORDER);
 		findAll();
-		List<String> names = AgeGroupRepository.allActiveChampionshipsNames(activeOnly).stream()
-		        .map(n -> canonicalizeChampionshipName(n))
-		        .sorted().distinct().toList();
-		for (String n : names) {
-			Championship of = Championship.of(n);
-			results.add(of);
+		for (AgeGroup ageGroup : AgeGroupRepository.findAll()) {
+			if (activeOnly && !ageGroup.isActive()) {
+				continue;
+			}
+			String name = effectiveChampionshipName(ageGroup);
+			if (name == null || name.isBlank()) {
+				continue;
+			}
+			Championship championship = findStored(name);
+			if (championship == null) {
+				championship = new Championship(name,
+				        canonicalizeChampionshipType(name, ageGroup.getConfiguredChampionshipType()));
+			}
+			if (!championship.isCompetitionTemplate()) {
+				results.put(championship.getName(), championship);
+			}
 		}
-		results.sort(ct.reversed());
-		return results;
+		var sortedResults = new ArrayList<>(results.values());
+		sortedResults.sort(ct.reversed());
+		return sortedResults;
+	}
+
+	private static String effectiveChampionshipName(AgeGroup ageGroup) {
+		String name = ageGroup.computeChampionshipName();
+		if (name == null || name.isBlank() || name.trim().equalsIgnoreCase(COMPETITION_TEMPLATE_NAME)) {
+			name = ageGroup.getCode();
+		}
+		return canonicalizeChampionshipName(name != null ? name.trim() : null);
 	}
 
 	/**
@@ -756,7 +775,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	private void traceCompetitionDefaultDifferences(List<String> differences, boolean traceWhenDifferent) {
 		if (traceWhenDifferent && !differences.isEmpty()) {
-			logger.warn("CHAMPIONSHIP_DEFAULT_TRACE '{}' differs from competition defaults: {}", this.name,
+			logger.debug("CHAMPIONSHIP_DEFAULT_TRACE '{}' differs from competition defaults: {}", this.name,
 			        differences);
 		}
 	}

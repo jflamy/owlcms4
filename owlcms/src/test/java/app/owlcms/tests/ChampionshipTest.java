@@ -57,6 +57,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.ParticipationId;
@@ -194,6 +195,105 @@ public class ChampionshipTest {
 
         assertEquals("championship names from OWLCMS API",
             List.of("Masters", "Youth", "Junior", "Senior", "Open"), championshipNames);
+    }
+
+    @Test
+    public void testUsedChampionshipsExcludeCompetitionTemplateAndKeepDefaultChampionship() {
+        Championship template = ChampionshipRepository.ensureCompetitionTemplate();
+        assertNotNull("competition template should exist", template);
+        Championship open = ChampionshipRepository.findByName("Open");
+        assertNotNull("Open championship should be loaded from fixture", open);
+        assertEquals("Open should be the DEFAULT championship type", ChampionshipType.DEFAULT, open.getType());
+
+        AgeGroup ageGroup = AgeGroupRepository.findAll().stream()
+                .filter(AgeGroup::isActive)
+                .filter(ag -> !"Open".equalsIgnoreCase(ag.getChampionshipName()))
+                .findFirst().orElse(null);
+        assertNotNull("fixture should have an active non-Open age group", ageGroup);
+
+        String originalChampionshipName = ageGroup.getChampionshipName();
+        try {
+            JPAService.runInTransaction(em -> {
+                AgeGroup managedAgeGroup = em.find(AgeGroup.class, ageGroup.getId());
+                managedAgeGroup.setChampionshipName(template.getName());
+                return null;
+            });
+            Championship.reset();
+
+            List<Championship> usedChampionships = Championship.findAllUsed(true);
+
+            assertFalse("used championships should not include the competition template",
+                    usedChampionships.stream().anyMatch(Championship::isCompetitionTemplate));
+            assertFalse("used championships should not include the competition template name",
+                    usedChampionships.stream().anyMatch(c -> template.getName().equals(c.getName())));
+                assertTrue("used championships should keep the Open DEFAULT championship",
+                    usedChampionships.stream().anyMatch(c -> "Open".equals(c.getName())
+                        && c.getType() == ChampionshipType.DEFAULT));
+        } finally {
+            JPAService.runInTransaction(em -> {
+                AgeGroup managedAgeGroup = em.find(AgeGroup.class, ageGroup.getId());
+                managedAgeGroup.setChampionshipName(originalChampionshipName);
+                return null;
+            });
+            Championship.reset();
+        }
+    }
+
+    @Test
+    public void testRequiredRankingsIncludeTemplateForActiveAgeGroupsAndExcludeUnusedChampionships() {
+        RankingConfig.updateMustCompute();
+        Set<Ranking> baseline = RankingConfig.getMustCompute();
+        Ranking templateRequired = firstOptionalRankingNotIn(baseline, null);
+        Ranking unusedRequired = firstOptionalRankingNotIn(baseline, templateRequired);
+        assertNotNull("fixture should leave at least one optional ranking available", templateRequired);
+        assertNotNull("fixture should leave a second optional ranking available", unusedRequired);
+
+        Championship template = ChampionshipRepository.ensureCompetitionTemplate();
+        assertNotNull("competition template should exist", template);
+        Ranking originalTemplateBestAthlete = template.getBestAthleteScoringSystem();
+
+        AgeGroup ageGroup = AgeGroupRepository.findAll().stream()
+                .filter(AgeGroup::isActive)
+                .findFirst().orElse(null);
+        assertNotNull("fixture should have an active age group", ageGroup);
+
+        String originalChampionshipName = ageGroup.getChampionshipName();
+        Championship unusedChampionship = null;
+        try {
+            JPAService.runInTransaction(em -> {
+                Championship managedTemplate = em.find(Championship.class, template.getId());
+                managedTemplate.setBestAthleteScoringSystem(templateRequired);
+                AgeGroup managedAgeGroup = em.find(AgeGroup.class, ageGroup.getId());
+                managedAgeGroup.setChampionshipName(Championship.COMPETITION_TEMPLATE_NAME);
+                return null;
+            });
+
+            unusedChampionship = Championship.ensureStored("Unused Ranking " + UUID.randomUUID(), ChampionshipType.U);
+            unusedChampionship.setGenderedTeamsEnabled(true);
+            unusedChampionship.setTeamScoringSystem(unusedRequired);
+            Championship.update(unusedChampionship);
+            Championship.reset();
+
+            RankingConfig.updateMustCompute();
+
+            assertTrue("active age group using competition template should require template scoring",
+                    RankingConfig.isMustCompute(templateRequired));
+            assertFalse("unreferenced stored championship scoring should remain optional",
+                    RankingConfig.isMustCompute(unusedRequired));
+        } finally {
+            JPAService.runInTransaction(em -> {
+                Championship managedTemplate = em.find(Championship.class, template.getId());
+                managedTemplate.setBestAthleteScoringSystem(originalTemplateBestAthlete);
+                AgeGroup managedAgeGroup = em.find(AgeGroup.class, ageGroup.getId());
+                managedAgeGroup.setChampionshipName(originalChampionshipName);
+                return null;
+            });
+            if (unusedChampionship != null) {
+                ChampionshipRepository.delete(unusedChampionship);
+            }
+            Championship.reset();
+            RankingConfig.updateMustCompute();
+        }
     }
 
     @Test
@@ -1599,6 +1699,13 @@ public class ChampionshipTest {
     private static Map<String, ChampionshipConfigSnapshot> snapshotChampionshipConfigs() {
         return ChampionshipRepository.findAll().stream()
                 .collect(Collectors.toMap(Championship::getName, ChampionshipConfigSnapshot::new));
+    }
+
+    private static Ranking firstOptionalRankingNotIn(Set<Ranking> baseline, Ranking excluded) {
+        return RankingConfig.getAllScoringRankings().stream()
+                .filter(ranking -> !baseline.contains(ranking))
+                .filter(ranking -> ranking != excluded)
+                .findFirst().orElse(null);
     }
 
     private static void restoreChampionshipConfigs(Map<String, ChampionshipConfigSnapshot> configs) {

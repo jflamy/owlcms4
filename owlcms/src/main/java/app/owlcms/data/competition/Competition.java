@@ -691,7 +691,7 @@ public class Competition {
 		if (scoringSystemOnly) {
 			// long beforeReporting = System.currentTimeMillis();
 			Ranking scoringSystem = getScoringSystem();
-			if (RankingConfig.shouldCompute(scoringSystem)) {
+			if (RankingConfig.getAllScoringRankings().contains(scoringSystem) && RankingConfig.shouldCompute(scoringSystem)) {
 				doReporting(nodupAthletes, scoringSystem, true);
 			}
 			// long afterReporting = System.currentTimeMillis();
