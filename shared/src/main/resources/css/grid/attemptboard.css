@@ -342,6 +342,12 @@
 	grid-area: timer-start/timer-start/timer-end/timer-end;
 	align-self: center;
 	justify-self: center;
+	min-width: 5ch;
+	text-align: center;
+	white-space: nowrap;
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: "tnum";
+	font-kerning: none;
 }
 
 @media screen and (max-width: 1025px) {
