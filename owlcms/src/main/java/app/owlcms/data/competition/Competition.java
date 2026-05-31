@@ -2114,7 +2114,7 @@ public class Competition {
 						// iterate over all age groups present in championship ad
 						teamRankingsForAgeDivision(ad);
 					} else {
-						teamRankings(athletes, ageGroupPrefix);
+						teamRankings(athletes, ageGroupPrefix, ad);
 					}
 				}
 
@@ -2205,9 +2205,12 @@ public class Competition {
 		suffix = suffix != null ? suffix : "";
 
 		List<Athlete> sortedAthletes;
-		List<Athlete> sortedMen = new ArrayList<>();
-		List<Athlete> sortedWomen = new ArrayList<>();
-		splitPTeamMembersByGender(athletes, sortedMen, sortedWomen);
+		List<Athlete> sortedMen;
+		List<Athlete> sortedWomen;
+		List<Athlete> teamMen = new ArrayList<>();
+		List<Athlete> teamWomen = new ArrayList<>();
+		splitPTeamMembersByGender(athletes, teamMen, teamWomen);
+		boolean genderedTeamsEnabled = championship == null || championship.isGenderedTeamsEnabled();
 
 		boolean explicitMixed = championship != null && championship.isMixed();
 		List<Athlete> mixedAthletes;
@@ -2217,9 +2220,9 @@ public class Competition {
 			        .filter(a -> isExplicitMixedTeamMember(a, championshipCategoryIds))
 			        .collect(Collectors.toList());
 		} else {
-			mixedAthletes = new ArrayList<>(sortedMen.size() + sortedWomen.size());
-			mixedAthletes.addAll(sortedMen);
-			mixedAthletes.addAll(sortedWomen);
+			mixedAthletes = new ArrayList<>(teamMen.size() + teamWomen.size());
+			mixedAthletes.addAll(teamMen);
+			mixedAthletes.addAll(teamWomen);
 		}
 
 		Championship effectiveChampionship = championship != null ? championship : Championship.of(null);
@@ -2229,8 +2232,8 @@ public class Competition {
 		sortedAthletes = explicitMixed
 		        ? AthleteSorter.teamPointsOrderCopyMixed(mixedAthletes, Ranking.TOTAL)
 		        : AthleteSorter.teamPointsOrderCopy(mixedAthletes, Ranking.TOTAL);
-		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.TOTAL);
-		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.TOTAL);
+		sortedMen = genderedTeamsEnabled ? AthleteSorter.teamPointsOrderCopy(teamMen, Ranking.TOTAL) : List.of();
+		sortedWomen = genderedTeamsEnabled ? AthleteSorter.teamPointsOrderCopy(teamWomen, Ranking.TOTAL) : List.of();
 		addToReportingBean("mTeam" + suffix, sortedMen);
 		addToReportingBean("wTeam" + suffix, sortedWomen);
 		addToReportingBean("mwTeam" + suffix, sortedAthletes);
@@ -2241,8 +2244,8 @@ public class Competition {
 		sortedAthletes = explicitMixed
 		        ? AthleteSorter.teamPointsOrderCopyMixed(mixedAthletes, Ranking.SNATCH_CJ_TOTAL)
 		        : AthleteSorter.teamPointsOrderCopy(mixedAthletes, Ranking.SNATCH_CJ_TOTAL);
-		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.SNATCH_CJ_TOTAL);
-		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.SNATCH_CJ_TOTAL);
+		sortedMen = genderedTeamsEnabled ? AthleteSorter.teamPointsOrderCopy(teamMen, Ranking.SNATCH_CJ_TOTAL) : List.of();
+		sortedWomen = genderedTeamsEnabled ? AthleteSorter.teamPointsOrderCopy(teamWomen, Ranking.SNATCH_CJ_TOTAL) : List.of();
 		addToReportingBean("mCombined" + suffix, sortedMen);
 		addToReportingBean("wCombined" + suffix, sortedWomen);
 		addToReportingBean("mwCombined" + suffix, sortedAthletes);
@@ -2254,8 +2257,8 @@ public class Competition {
 		sortedAthletes = explicitMixed
 		        ? AthleteSorter.teamPointsOrderCopyMixed(mixedAthletes, Ranking.CUSTOM)
 		        : AthleteSorter.teamPointsOrderCopy(mixedAthletes, Ranking.CUSTOM);
-		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, Ranking.CUSTOM);
-		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, Ranking.CUSTOM);
+		sortedMen = genderedTeamsEnabled ? AthleteSorter.teamPointsOrderCopy(teamMen, Ranking.CUSTOM) : List.of();
+		sortedWomen = genderedTeamsEnabled ? AthleteSorter.teamPointsOrderCopy(teamWomen, Ranking.CUSTOM) : List.of();
 		addToReportingBean("mCustom" + suffix, sortedMen);
 		addToReportingBean("wCustom" + suffix, sortedWomen);
 		addToReportingBean("mwCustom" + suffix, sortedAthletes);
@@ -2266,8 +2269,8 @@ public class Competition {
 		sortedAthletes = explicitMixed
 		        ? AthleteSorter.teamPointsOrderCopyMixed(mixedAthletes, bestScoring)
 		        : AthleteSorter.teamPointsOrderCopy(mixedAthletes, bestScoring);
-		sortedMen = AthleteSorter.teamPointsOrderCopy(sortedMen, bestScoring);
-		sortedWomen = AthleteSorter.teamPointsOrderCopy(sortedWomen, bestScoring);
+		sortedMen = genderedTeamsEnabled ? AthleteSorter.teamPointsOrderCopy(teamMen, bestScoring) : List.of();
+		sortedWomen = genderedTeamsEnabled ? AthleteSorter.teamPointsOrderCopy(teamWomen, bestScoring) : List.of();
 		addToReportingBean("mTeamBest" + suffix, sortedMen);
 		addToReportingBean("wTeamBest" + suffix, sortedWomen);
 		addToReportingBean("mwTeamBest" + suffix, sortedAthletes);
@@ -2484,9 +2487,9 @@ public class Competition {
 		logger.debug("updated reporting data");
 	}
 
-	private void teamRankings(List<Athlete> athletes, String ageGroupPrefix) {
+	private void teamRankings(List<Athlete> athletes, String ageGroupPrefix, Championship championship) {
 		clearTeamReportingBeans(ageGroupPrefix);
-		doTeamRankings(athletes, ageGroupPrefix, true, null);
+		doTeamRankings(athletes, ageGroupPrefix, true, championship);
 	}
 
 	/**

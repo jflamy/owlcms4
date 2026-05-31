@@ -76,13 +76,15 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 			return;
 		}
 
-		for (Gender gender : Gender.mfValues()) {
-			if (this.genderFilterValue != null && this.genderFilterValue != Gender.MF && gender != this.genderFilterValue) {
-				continue;
-			}
+		if (ageDivision.isGenderedTeamsEnabled()) {
+			for (Gender gender : Gender.mfValues()) {
+				if (this.genderFilterValue != null && this.genderFilterValue != Gender.MF && gender != this.genderFilterValue) {
+					continue;
+				}
 
-			List<TeamTreeItem> curGenderTeams = getOrCreateGenderTeams(gender);
-			doTeamGender(ageGroupPrefix, ageDivision, includeNotDone, gender, curGenderTeams, null);
+				List<TeamTreeItem> curGenderTeams = getOrCreateGenderTeams(gender);
+				doTeamGender(ageGroupPrefix, ageDivision, includeNotDone, gender, curGenderTeams, null);
+			}
 		}
 
 		if (this.genderFilterValue == null || this.genderFilterValue == Gender.MF) {

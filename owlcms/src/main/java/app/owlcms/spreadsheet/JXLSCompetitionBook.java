@@ -7,6 +7,7 @@
 package app.owlcms.spreadsheet;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,9 @@ import net.sf.jxls.transformer.XLSTransformer;
 public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 	private static final long serialVersionUID = 1L;
+	private static final List<String> GENDERED_TEAM_SHEET_NAMES = List.of(
+	        "MT", "WT", "MCT", "WCT", "MXT", "WXT",
+	        "Men", "Men Summary", "Women", "Women Summary");
 	private Championship ageDivision;
 	private String ageGroupPrefix;
 	@SuppressWarnings("unused")
@@ -120,6 +124,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	protected void postProcess(Workbook workbook) {
 		super.postProcess(workbook);
 		overwritePointsSheet(workbook);
+		removeGenderedTeamSheets(workbook);
 		translateSheets(workbook);
 		workbook.setForceFormulaRecalculation(true);
 	}
@@ -153,6 +158,18 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 				pointsCell = row.createCell(1);
 			}
 			pointsCell.setCellValue(AthleteSorter.pointsFormula(rank, getChampionship()));
+		}
+	}
+
+	private void removeGenderedTeamSheets(Workbook workbook) {
+		if (isGenderedTeamsEnabled()) {
+			return;
+		}
+		for (int sheetIndex = workbook.getNumberOfSheets() - 1; sheetIndex >= 0; sheetIndex--) {
+			Sheet sheet = workbook.getSheetAt(sheetIndex);
+			if (GENDERED_TEAM_SHEET_NAMES.contains(sheet.getSheetName())) {
+				workbook.removeSheetAt(sheetIndex);
+			}
 		}
 	}
 
@@ -204,6 +221,10 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		reportingBeans.put("championship", getChampionship());
 		reportingBeans.put("ageGroupPrefix", getAgeGroupPrefix());
 		reportingBeans.put("gender", getGender());
+		boolean genderedTeamsEnabled = isGenderedTeamsEnabled();
+		if (!genderedTeamsEnabled) {
+			clearGenderedTeamBeans(reportingBeans);
+		}
 
 		String brt = overallScoringSystem != null ? Ranking.getScoringTitle(overallScoringSystem) : Translator.translate("BestAthlete");
 		reportingBeans.put("bestRankingTitle", brt);
@@ -232,9 +253,9 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			@SuppressWarnings("unchecked")
 			Collection<Athlete> wBest = (Collection<Athlete>) reportingBeans.get("wBest");
 
-			List<Athlete> mTeamBest = mBest != null ? new java.util.ArrayList<>(mBest) : List.of();
-			List<Athlete> wTeamBest = wBest != null ? new java.util.ArrayList<>(wBest) : List.of();
-			List<Athlete> mwTeamBest = new java.util.ArrayList<>(mTeamBest.size() + wTeamBest.size());
+			List<Athlete> mTeamBest = genderedTeamsEnabled && mBest != null ? new ArrayList<>(mBest) : List.of();
+			List<Athlete> wTeamBest = genderedTeamsEnabled && wBest != null ? new ArrayList<>(wBest) : List.of();
+			List<Athlete> mwTeamBest = new ArrayList<>(mTeamBest.size() + wTeamBest.size());
 			mwTeamBest.addAll(mTeamBest);
 			mwTeamBest.addAll(wTeamBest);
 
@@ -243,6 +264,17 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			reportingBeans.put("mwTeamBest", AthleteSorter.teamPointsOrderCopyMixed(mwTeamBest, overallScoringSystem));
 		}
 		setReportingBeans(reportingBeans);
+	}
+
+	private boolean isGenderedTeamsEnabled() {
+		return getChampionship() == null || getChampionship().isGenderedTeamsEnabled();
+	}
+
+	private void clearGenderedTeamBeans(HashMap<String, Object> reportingBeans) {
+		for (String beanName : List.of("mTeam", "wTeam", "mCombined", "wCombined", "mCustom", "wCustom",
+		        "mTeamBest", "wTeamBest", "mClubs", "wClubs")) {
+			reportingBeans.put(beanName, List.of());
+		}
 	}
 
 	private void keepProvisionalRecords(Object records, HashMap<String, Object> reportingBeans) {
