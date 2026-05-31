@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+66.3.0-beta03: Scoring Systems selected in championships are now computed as a matter of course.  Additional ones can be added on the competition rules page.
+
 66.3.0-beta02: Unify championship creation paths to correctly use the competition-level template defaults
 
 66.3.0-beta01: Championship handling improvements
