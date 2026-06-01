@@ -75,3 +75,4 @@ __pycache__/
 **/.settings/org.eclipse.debug.core.prefs
 **/.settings/org.eclipse.core.resources.prefs
 scripts/check-translation-diff.sh
+.DS_Store
