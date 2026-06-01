@@ -84,7 +84,7 @@ public class RecordRepository {
 		JPAService.runInTransaction(em -> {
 			try {
 				// do not delete records set in the current competition.
-				int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(rec.groupNameString) <> ''")
+				int deletedCount = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(BOTH ' ' FROM rec.groupNameString) <> ''")
 				        .executeUpdate();
 				if (deletedCount >= 0) {
 					logger.info("deleted {} provisional record entries", deletedCount);
@@ -438,7 +438,7 @@ public class RecordRepository {
 
 	static void clearMatchingProvisionalRecordsForImportedOfficial(EntityManager em, RecordEvent record) {
 		StringBuilder queryBuilder = new StringBuilder(
-		        "DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(rec.groupNameString) <> ''");
+		        "DELETE FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(BOTH ' ' FROM rec.groupNameString) <> ''");
 		Map<String, Object> parameters = new LinkedHashMap<>();
 		appendLogicalKeyConditions(queryBuilder, parameters, record);
 		appendEqualityCondition(queryBuilder, parameters, "rec.recordValue", "recordValue", record.getRecordValue());
@@ -469,7 +469,7 @@ public class RecordRepository {
 
 	static int countMatchingProvisionalRecordsForImportedOfficial(EntityManager em, RecordEvent record) {
 		StringBuilder queryBuilder = new StringBuilder(
-		        "SELECT COUNT(rec) FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(rec.groupNameString) <> ''");
+		        "SELECT COUNT(rec) FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(BOTH ' ' FROM rec.groupNameString) <> ''");
 		Map<String, Object> parameters = new LinkedHashMap<>();
 		appendLogicalKeyConditions(queryBuilder, parameters, record);
 		appendEqualityCondition(queryBuilder, parameters, "rec.recordValue", "recordValue", record.getRecordValue());
@@ -565,7 +565,7 @@ public class RecordRepository {
 		JPAService.runInTransaction(em -> {
 			// temporary diagnostic: track unexpected records without fileName
 			Query missing = em.createQuery(
-			        "SELECT rec.id FROM RecordEvent rec WHERE rec.fileName IS NULL OR TRIM(rec.fileName) = ''");
+			        "SELECT rec.id FROM RecordEvent rec WHERE rec.fileName IS NULL OR TRIM(BOTH ' ' FROM rec.fileName) = ''");
 			if (!missing.getResultList().isEmpty()) {
 				logger.error("findAllLoadedRecords detected {} records missing fileName {}", missing.getResultList().size(), LoggerUtils.whereFrom());
 			}
@@ -653,7 +653,7 @@ public class RecordRepository {
 			        + "AND rec.athleteBW > :minWeight "
 			        + "AND rec.athleteBW <= :maxWeight "
 			        + "AND rec.groupNameString IS NOT NULL "
-			        + "AND TRIM(rec.groupNameString) <> '' "
+			        + "AND TRIM(BOTH ' ' FROM rec.groupNameString) <> '' "
 			        + "ORDER BY rec.recordFederation, rec.recordName, rec.gender, rec.ageGrpUpper, rec.ageGrpLower, rec.bwCatUpper, rec.recordLift, rec.recordValue";
 
 			Query query = em.createQuery(qlString);
@@ -705,7 +705,7 @@ public class RecordRepository {
 		}
 		return JPAService.runInTransaction(em -> {
 			StringBuilder queryBuilder = new StringBuilder(
-			        "SELECT rec FROM RecordEvent rec WHERE (rec.groupNameString IS NULL OR TRIM(rec.groupNameString) = '')");
+			        "SELECT rec FROM RecordEvent rec WHERE (rec.groupNameString IS NULL OR TRIM(BOTH ' ' FROM rec.groupNameString) = '')");
 			Map<String, Object> parameters = new LinkedHashMap<>();
 			appendLogicalKeyConditions(queryBuilder, parameters, record);
 			queryBuilder.append(" ORDER BY rec.recordValue DESC, rec.id DESC");
@@ -777,7 +777,7 @@ public class RecordRepository {
 
 	private static void propagateOfficialLogicalKeyUpdate(EntityManager em, RecordEvent originalRecord, RecordEvent updatedRecord) {
 		StringBuilder queryBuilder = new StringBuilder(
-		        "UPDATE RecordEvent rec SET rec.recordFederation = :newRecordFederation, rec.recordName = :newRecordName, rec.ageGrp = :newAgeGrp, rec.gender = :newGender, rec.recordLift = :newRecordLift, rec.ageGrpLower = :newAgeGrpLower, rec.ageGrpUpper = :newAgeGrpUpper, rec.bwCatLower = :newBwCatLower, rec.bwCatUpper = :newBwCatUpper, rec.bwCatString = :newBwCatString WHERE (rec.groupNameString IS NULL OR TRIM(rec.groupNameString) = '')");
+		        "UPDATE RecordEvent rec SET rec.recordFederation = :newRecordFederation, rec.recordName = :newRecordName, rec.ageGrp = :newAgeGrp, rec.gender = :newGender, rec.recordLift = :newRecordLift, rec.ageGrpLower = :newAgeGrpLower, rec.ageGrpUpper = :newAgeGrpUpper, rec.bwCatLower = :newBwCatLower, rec.bwCatUpper = :newBwCatUpper, rec.bwCatString = :newBwCatString WHERE (rec.groupNameString IS NULL OR TRIM(BOTH ' ' FROM rec.groupNameString) = '')");
 		Map<String, Object> parameters = new LinkedHashMap<>();
 
 		appendLogicalKeyConditions(queryBuilder, parameters, originalRecord);

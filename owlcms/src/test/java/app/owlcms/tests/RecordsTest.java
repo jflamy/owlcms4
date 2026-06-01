@@ -42,6 +42,8 @@ import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 
 public class RecordsTest {
     private static Group gA;
@@ -370,6 +372,50 @@ public class RecordsTest {
         updated.setBwCatUpper(81);
 
         assertEquals(false, RecordRepository.wouldRedefineCurrentOfficialRecord(historical, updated));
+    }
+
+    /**
+     * Regression test for HHH000174 ("Function template anticipated 4 arguments, but 1 arguments encountered").
+     * Hibernate's TRIM function template is positional and 4-arg; calling TRIM(x) with a single argument
+     * triggers the warning. The fixed JPQL uses the standards-compliant TRIM(BOTH FROM x) form.
+     * This test exercises the public repository methods whose JPQL contains TRIM and asserts that
+     * Hibernate did not emit HHH000174.
+     */
+    @Test
+    public void trimJpqlDoesNotTriggerHibernateFunctionTemplateWarning() throws Exception {
+        Logger root = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.setContext(root.getLoggerContext());
+        appender.start();
+        root.addAppender(appender);
+        try {
+            // Seed both official and provisional rows so each query path actually runs.
+            RecordEvent provisional = createRecord(100.0D, "A");
+            RecordRepository.save(provisional);
+            RecordEvent official = RecordRepository.save(createRecord(105.0D, null));
+            RecordEvent updatedDefinition = copyRecordDefinition(official);
+            updatedDefinition.setBwCatUpper(81);
+
+            // Exercise every public method whose JPQL was changed to TRIM(BOTH FROM ...).
+            RecordRepository.findAllLoadedRecords();
+            RecordRepository.isCurrentOfficialRecord(official);
+            RecordRepository.save(official, copyRecordDefinition(official)); // no-op propagate path
+            // Force propagate path with a real definition change.
+            RecordRepository.save(updatedDefinition, copyRecordDefinition(official));
+            RecordRepository.clearNewRecords();
+        } finally {
+            root.detachAppender(appender);
+            appender.stop();
+        }
+
+        List<String> offending = appender.list.stream()
+                .filter(e -> e.getLevel().isGreaterOrEqual(Level.WARN))
+                .map(ILoggingEvent::getFormattedMessage)
+                .filter(msg -> msg != null && msg.contains("HHH000174"))
+                .toList();
+
+        assertEquals("Hibernate emitted HHH000174 (TRIM template arg mismatch): " + offending,
+                List.of(), offending);
     }
 
     @Test
