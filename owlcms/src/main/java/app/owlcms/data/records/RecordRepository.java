@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -452,6 +453,73 @@ public class RecordRepository {
 		if (deletedCount > 0) {
 			logger.info("deleted {} provisional record entries replaced by imported official {} {}", deletedCount, record.getKey(), record.getRecordValue());
 		}
+	}
+
+	// ---- Counting helpers used for import preview (read-only, no side-effects) ----
+
+	static int countOfficialRecordsMatchingLogicalKey(EntityManager em, RecordEvent record) {
+		StringBuilder queryBuilder = new StringBuilder(
+		        "SELECT COUNT(rec) FROM RecordEvent rec WHERE (rec.groupNameString IS NULL OR rec.groupNameString = '')");
+		Map<String, Object> parameters = new LinkedHashMap<>();
+		appendLogicalKeyConditions(queryBuilder, parameters, record);
+		Query query = em.createQuery(queryBuilder.toString());
+		parameters.forEach(query::setParameter);
+		return ((Number) query.getSingleResult()).intValue();
+	}
+
+	static int countMatchingProvisionalRecordsForImportedOfficial(EntityManager em, RecordEvent record) {
+		StringBuilder queryBuilder = new StringBuilder(
+		        "SELECT COUNT(rec) FROM RecordEvent rec WHERE rec.groupNameString IS NOT NULL AND TRIM(rec.groupNameString) <> ''");
+		Map<String, Object> parameters = new LinkedHashMap<>();
+		appendLogicalKeyConditions(queryBuilder, parameters, record);
+		appendEqualityCondition(queryBuilder, parameters, "rec.recordValue", "recordValue", record.getRecordValue());
+		appendEqualityCondition(queryBuilder, parameters, "rec.athleteName", "athleteName", record.getAthleteName());
+		appendEqualityCondition(queryBuilder, parameters, "rec.recordDate", "recordDate", record.getRecordDate());
+		appendEqualityCondition(queryBuilder, parameters, "rec.event", "event", record.getEvent());
+		appendEqualityCondition(queryBuilder, parameters, "rec.eventLocation", "eventLocation", record.getEventLocation());
+		Query query = em.createQuery(queryBuilder.toString());
+		parameters.forEach(query::setParameter);
+		return ((Number) query.getSingleResult()).intValue();
+	}
+
+	// ---- Bulk helpers for selected-row operations ----
+
+	/**
+	 * Set active/inactive state for specific record IDs.
+	 *
+	 * @param ids    record IDs to update
+	 * @param active desired state
+	 */
+	public static void setActiveForRecordIds(Collection<Long> ids, boolean active) {
+		if (ids == null || ids.isEmpty()) {
+			return;
+		}
+		JPAService.runInTransaction(em -> {
+			int updated = em.createQuery("UPDATE RecordEvent rec SET rec.active = :active WHERE rec.id IN :ids")
+			        .setParameter("active", active)
+			        .setParameter("ids", ids)
+			        .executeUpdate();
+			logger.info("{} {} record entries by id list", active ? "activated" : "deactivated", updated);
+			return null;
+		});
+	}
+
+	/**
+	 * Delete specific records by id, regardless of filter state.
+	 *
+	 * @param ids record IDs to delete
+	 */
+	public static void deleteRecordsByIds(Collection<Long> ids) {
+		if (ids == null || ids.isEmpty()) {
+			return;
+		}
+		JPAService.runInTransaction(em -> {
+			int deleted = em.createQuery("DELETE FROM RecordEvent rec WHERE rec.id IN :ids")
+			        .setParameter("ids", ids)
+			        .executeUpdate();
+			logger.info("deleted {} record entries by id list", deleted);
+			return null;
+		});
 	}
 
 	/**
@@ -965,10 +1033,25 @@ public class RecordRepository {
 	 *
 	 * @return the list of federations
 	 */
+	private static String buildActiveFilterClause(String activeFilter) {
+		if ("ALL".equals(activeFilter)) {
+			return "1=1";
+		} else if ("INACTIVE".equals(activeFilter)) {
+			return "rec.active = false";
+		} else {
+			return "(rec.active IS NULL OR rec.active = true)";
+		}
+	}
+
 	public static List<String> findDistinctFederations() {
+		return findDistinctFederations("ACTIVE");
+	}
+
+	public static List<String> findDistinctFederations(String activeFilter) {
+		String clause = buildActiveFilterClause(activeFilter);
 		return JPAService.runInTransaction(em -> {
 			return em.createQuery(
-			        "SELECT DISTINCT rec.recordFederation FROM RecordEvent rec WHERE rec.recordFederation IS NOT NULL AND (rec.active IS NULL OR rec.active = true) ORDER BY rec.recordFederation",
+			        "SELECT DISTINCT rec.recordFederation FROM RecordEvent rec WHERE rec.recordFederation IS NOT NULL AND " + clause + " ORDER BY rec.recordFederation",
 			        String.class)
 			        .getResultList();
 		});
@@ -989,12 +1072,17 @@ public class RecordRepository {
 	}
 
 	public static List<String> findDistinctRecordNames(String federation, String ageGroup) {
+		return findDistinctRecordNames(federation, ageGroup, "ACTIVE");
+	}
+
+	public static List<String> findDistinctRecordNames(String federation, String ageGroup, String activeFilter) {
 		if (federation == null || federation.isBlank()) {
 			return List.of();
 		}
+		String clause = buildActiveFilterClause(activeFilter);
 		return JPAService.runInTransaction(em -> {
 			StringBuilder queryBuilder = new StringBuilder(
-			        "SELECT DISTINCT rec.recordName FROM RecordEvent rec WHERE rec.recordName IS NOT NULL AND rec.recordFederation = :federation AND (rec.active IS NULL OR rec.active = true)");
+			        "SELECT DISTINCT rec.recordName FROM RecordEvent rec WHERE rec.recordName IS NOT NULL AND rec.recordFederation = :federation AND " + clause);
 			if (ageGroup != null && !ageGroup.isBlank()) {
 				queryBuilder.append(" AND rec.ageGrp = :ageGroup");
 			}
@@ -1027,12 +1115,17 @@ public class RecordRepository {
 	}
 
 	public static List<String> findDistinctAgeGroups(String federation, String recordName) {
+		return findDistinctAgeGroups(federation, recordName, "ACTIVE");
+	}
+
+	public static List<String> findDistinctAgeGroups(String federation, String recordName, String activeFilter) {
 		if (federation == null || federation.isBlank()) {
 			return List.of();
 		}
+		String clause = buildActiveFilterClause(activeFilter);
 		return JPAService.runInTransaction(em -> {
 			StringBuilder queryBuilder = new StringBuilder(
-			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL AND rec.recordFederation = :federation AND (rec.active IS NULL OR rec.active = true)");
+			        "SELECT DISTINCT rec.ageGrp FROM RecordEvent rec WHERE rec.ageGrp IS NOT NULL AND rec.recordFederation = :federation AND " + clause);
 			if (recordName != null && !recordName.isBlank()) {
 				queryBuilder.append(" AND rec.recordName = :recordName");
 			}
@@ -1112,11 +1205,38 @@ public class RecordRepository {
 	        String provisionalFilter, // "ALL", "PROVISIONAL", "OFFICIAL"
 	        String currentHistoryFilter, // "CURRENT", "HISTORY"
 	        String session) {
+		return findWithFilters(federation, recordName, ageGroup, gender, nameFilter, provisionalFilter, currentHistoryFilter, session, "ACTIVE");
+	}
+
+	/**
+	 * Find records with the full set of filters including active/inactive state.
+	 *
+	 * @param activeFilter "ACTIVE" (default) — only active records, "INACTIVE" — only inactive, "ALL" — no active filter
+	 */
+	public static List<RecordEvent> findWithFilters(
+	        String federation,
+	        String recordName,
+	        String ageGroup,
+	        Gender gender,
+	        String nameFilter,
+	        String provisionalFilter, // "ALL", "PROVISIONAL", "OFFICIAL"
+	        String currentHistoryFilter, // "CURRENT", "HISTORY"
+	        String session,
+	        String activeFilter) {
 		String effectiveCurrentHistoryFilter = normalizeCurrentHistoryFilter(provisionalFilter, currentHistoryFilter);
 		@SuppressWarnings("unchecked")
 		List<RecordEvent> allResults = JPAService.runInTransaction(em -> {
-			// Start with base query
-			StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE (rec.active IS NULL OR rec.active = true)");
+			// Base query — active filter applied immediately
+			String activeClause;
+			if ("INACTIVE".equals(activeFilter)) {
+				activeClause = "rec.active = false";
+			} else if ("ALL".equals(activeFilter)) {
+				activeClause = "1=1";
+			} else {
+				// Default: ACTIVE (treat null as active for backward compatibility)
+				activeClause = "(rec.active IS NULL OR rec.active = true)";
+			}
+			StringBuilder queryBuilder = new StringBuilder("SELECT rec FROM RecordEvent rec WHERE " + activeClause);
 			List<String> parameters = new ArrayList<>();
 
 			// Federation filter

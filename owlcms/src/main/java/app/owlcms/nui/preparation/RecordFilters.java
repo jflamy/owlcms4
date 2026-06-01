@@ -29,4 +29,15 @@ public class RecordFilters {
 			return "RecordEvent." + this.name();
 		}
 	}
+
+	public enum ActiveFilter {
+		ACTIVE,
+		INACTIVE,
+		ALL;
+
+		public String getKey() {
+			return "RecordEvent.ActiveFilter." + this.name();
+		}
+	}
 }
+

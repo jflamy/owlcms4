@@ -28,7 +28,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.AccessUtils;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
@@ -56,7 +55,6 @@ public class RecordsPreparationNavigationContent extends BaseNavigationContent
 	}
 
 	public RecordsPreparationNavigationContent() {
-		boolean backdoorAccess = AccessUtils.isBackdoorAccess();
 		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"),
 		        VaadinIcon.COG.create());
 
@@ -84,20 +82,14 @@ public class RecordsPreparationNavigationContent extends BaseNavigationContent
 			exportJsonV2Div.setWidthFull();
 		}
 
-		if (backdoorAccess) {
-			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(config);
-			doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
-		}
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(config);
+		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
 
 		FlexibleGridLayout grid5;
 		if (exportJsonV2Div != null) {
-			grid5 = backdoorAccess
-			        ? HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div, uploadJson)
-			        : HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div);
+			grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div, uploadJson);
 		} else {
-			grid5 = backdoorAccess
-			        ? HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson)
-			        : HomeNavigationContent.navigationGrid(exportJsonDiv);
+			grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
 		}
 		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
 

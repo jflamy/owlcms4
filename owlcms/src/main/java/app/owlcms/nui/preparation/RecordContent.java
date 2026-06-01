@@ -14,6 +14,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -23,6 +25,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 
@@ -83,6 +86,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	protected ComboBox<Gender> genderFilter = new ComboBox<>();
 	protected ComboBox<RecordFilters.ProvisionalFilter> provisionalFilter = new ComboBox<>();
 	protected ComboBox<RecordFilters.CurrentHistoryFilter> currentHistoryFilter = new ComboBox<>();
+	protected Checkbox activeOnlyFilter = new Checkbox();
 	protected TextField nameFilter = new TextField();
 
 	// Filter values
@@ -149,6 +153,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			String n = getFirstParam(params, "name");
 			String prov = getFirstParam(params, "provisional");
 			String curHist = getFirstParam(params, "currentHistory");
+			String activeParam = getFirstParam(params, "activeFilter");
+			this.activeOnlyFilter.setValue(!"ALL".equals(activeParam));
 
 			// Federation first (dependent filters rely on it)
 			if (fed != null && !fed.isBlank()) {
@@ -214,33 +220,40 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	@Override
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
-
 		this.topBar.getStyle().set("flex", "100 1");
-		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
-		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
+		this.topBar.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
 		applyRecordsOnlyToolbarOffset();
 
-		// Add export button for filtered records
-		Button exportRecordsButton = createExportRecordsButton();
-		
-		// Add Accept Provisional Records button
-		Button acceptProvisionalRecordsButton = createAcceptProvisionalRecordsButton();
-		
-		// Add Recompute Records button
-		Button recomputeRecordsButton = createRecomputeRecordsButton();
-		
-		// Add Keep Current Records button
-		Button keepLatestOfficialRecordsButton = createKeepLatestOfficialRecordsButton();
-		
-		// Add Remove Selected button
-		Button removeSelectedButton = createRemoveSelectedButton();
-
-		this.topBar.add(exportRecordsButton, createImportButton(), recomputeRecordsButton,
-		        acceptProvisionalRecordsButton, keepLatestOfficialRecordsButton, removeSelectedButton);
+		// Row 1: Import / Export
+		HorizontalLayout row1 = new HorizontalLayout(
+				createExportRecordsButton(),
+				createImportButton());
+		row1.setAlignItems(FlexComponent.Alignment.CENTER);
+		row1.setPadding(false);
+		row1.setSpacing(true);
 		if (Config.getCurrent().isRecordRepository()) {
-			this.topBar.add(createLogoutButton());
+			row1.add(createLogoutButton());
 		}
 
+		// Row 2: Record-set status mutations (acts on currently filtered records)
+		HorizontalLayout row2 = new HorizontalLayout(
+				createMarkActiveButton(true),
+				createMarkActiveButton(false),
+				createRemoveSelectedButton());
+		row2.setAlignItems(FlexComponent.Alignment.CENTER);
+		row2.setPadding(false);
+		row2.setSpacing(true);
+
+		// Row 3: Provisional / computation actions
+		HorizontalLayout row3 = new HorizontalLayout(
+				createRecomputeRecordsButton(),
+				createAcceptProvisionalRecordsButton(),
+				createKeepLatestOfficialRecordsButton());
+		row3.setAlignItems(FlexComponent.Alignment.CENTER);
+		row3.setPadding(false);
+		row3.setSpacing(true);
+
+		this.topBar.add(row1, row2, row3);
 		return this.topBar;
 	}
 
@@ -251,11 +264,18 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	protected Button createImportButton() {
 		Button importButton = new Button(Translator.translate("Import"), buttonClickEvent -> {
-			UI.getCurrent().navigate(RecordsConfigContent.class);
+			new RecordImportDialog(this::refreshAfterRecordImport).open();
 		});
+		importButton.setIcon(VaadinIcon.UPLOAD_ALT.create());
 		importButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 		importButton.getElement().getStyle().set("margin-right", "1em");
 		return importButton;
+	}
+
+	private void refreshAfterRecordImport() {
+		refreshFilterOptionsFromRepository();
+		this.crud.refreshGrid();
+		updateUrlParameters();
 	}
 
 	private Button createLogoutButton() {
@@ -381,40 +401,21 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	private Button createRemoveSelectedButton() {
 		Button removeSelectedButton = new Button(Translator.translate("RecordEvent.DeleteSelected"),
 			buttonClickEvent -> {
-				// Show confirmation dialog before performing the deletion
+				Set<RecordEvent> selected = this.crud.getSelectedItems();
+				if (selected.isEmpty()) {
+					return;
+				}
 				ConfirmationDialog confirmDialog = new ConfirmationDialog(
 					Translator.translate("RecordEvent.DeleteSelected"),
 					Translator.translate("RecordEvent.DeleteSelectedExplanation"),
-					null, // No confirmation message after deletion
+					null,
 					() -> {
-						try {
-							// Use the same filter parameters as the grid display
-							String provisionalFilterStr = "ALL";
-							if (this.provisionalFilter != null && this.provisionalFilter.getValue() != null) {
-								provisionalFilterStr = this.provisionalFilter.getValue().name();
-							}
-							
-							String currentHistoryFilterStr = "HISTORY"; // Default to showing all records
-							if (this.currentHistoryFilter != null && this.currentHistoryFilter.getValue() != null) {
-								currentHistoryFilterStr = this.currentHistoryFilter.getValue().name();
-							}
-							
-							// Delete all records matching the current filters
-							RecordRepository.deleteRecordsWithFilters(
-								getFederation(),
-								getRecordName(),
-								getAgeGroup(),
-								getGender(),
-								getName(),
-								provisionalFilterStr,
-								currentHistoryFilterStr
-							);
-							
-							// Refresh the grid to show the updated records
-							this.crud.refreshGrid();
-						} catch (IOException e) {
-							throw new RuntimeException(e);
-						}
+						List<Long> ids = selected.stream()
+						        .map(RecordEvent::getId)
+						        .filter(id -> id != null)
+						        .collect(Collectors.toList());
+						RecordRepository.deleteRecordsByIds(ids);
+						this.crud.refreshGrid();
 					}
 				);
 				confirmDialog.open();
@@ -422,6 +423,32 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		removeSelectedButton.getElement().getStyle().set("margin-right", "1em");
 		removeSelectedButton.getElement().setAttribute("title", Translator.translate("RecordEvent.DeleteSelectedExplanation"));
 		return removeSelectedButton;
+	}
+
+	private Button createMarkActiveButton(boolean active) {
+		String labelKey = active ? "RecordEvent.MarkFilteredActive" : "RecordEvent.MarkFilteredInactive";
+		Button btn = new Button(Translator.translate(labelKey), e -> {
+			List<RecordEvent> filtered = getFilteredRecords();
+			if (filtered.isEmpty()) {
+				return;
+			}
+			List<Long> ids = filtered.stream()
+			        .map(RecordEvent::getId)
+			        .filter(id -> id != null)
+			        .collect(Collectors.toList());
+			String confirmKey = active ? "RecordEvent.MarkFilteredActiveConfirm" : "RecordEvent.MarkFilteredInactiveConfirm";
+			ConfirmationDialog cd = new ConfirmationDialog(
+					Translator.translate(labelKey),
+					Translator.translate(confirmKey, ids.size()),
+					null,
+					() -> {
+						RecordRepository.setActiveForRecordIds(ids, active);
+						this.crud.refreshGrid();
+					});
+			cd.open();
+		});
+		btn.getElement().getStyle().set("margin-right", "1em");
+		return btn;
 	}
 
 	@Override
@@ -516,6 +543,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			syncCurrentHistoryFilterForProvisional();
 			this.nameFilter.clear();
 			setName(null);
+			this.activeOnlyFilter.setValue(true);
 		} finally {
 			this.updatingFilters = false;
 		}
@@ -630,6 +658,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		if (cv != null && cv != RecordFilters.CurrentHistoryFilter.CURRENT) {
 			params.put("currentHistory", List.of(cv.name()));
 		}
+		if (Boolean.FALSE.equals(this.activeOnlyFilter.getValue())) {
+			params.put("activeFilter", List.of("ALL"));
+		}
 
 		Location newLocation = new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params)));
 		getLocationUI().getPage().getHistory().replaceState(null, newLocation);
@@ -653,7 +684,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			getGender(),
 			getName(),
 			provisionalFilterStr,
-			currentHistoryFilterStr, null
+			currentHistoryFilterStr, null,
+			Boolean.TRUE.equals(this.activeOnlyFilter.getValue()) ? "ACTIVE" : "ALL"
 		);
 	}
 
@@ -779,6 +811,18 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		crud.getCrudLayout().addFilterComponent(this.currentHistoryFilter);
 		syncCurrentHistoryFilterForProvisional();
 
+		// Active-only filter checkbox
+		this.activeOnlyFilter.setLabel(Translator.translate("Active"));
+		this.activeOnlyFilter.setValue(true);
+		this.activeOnlyFilter.addValueChangeListener(e -> {
+			if (!this.updatingFilters) {
+				refreshFilterOptionsFromRepository();
+				crud.refreshGrid();
+				updateUrlParameters();
+			}
+		});
+		crud.getCrudLayout().addFilterComponent(this.activeOnlyFilter);
+
 		// Clear filters button
 		Button clearFiltersButton = new Button(null, VaadinIcon.CLOSE.create());
 		clearFiltersButton.addClickListener(event -> {
@@ -789,12 +833,16 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		crud.getCrudLayout().addFilterComponent(clearFiltersButton);
 	}
 
+	private String getActiveFilterStr() {
+		return Boolean.TRUE.equals(this.activeOnlyFilter.getValue()) ? "ACTIVE" : "ALL";
+	}
+
 	protected void autoSelectSingleFederation() {
 		if (this.federationFilter.getValue() != null && !this.federationFilter.getValue().isBlank()) {
 			return;
 		}
 
-		List<String> availableFederations = RecordRepository.findDistinctFederations();
+		List<String> availableFederations = RecordRepository.findDistinctFederations(getActiveFilterStr());
 		if (availableFederations.size() == 1) {
 			this.federationFilter.setValue(availableFederations.get(0));
 			setFederation(availableFederations.get(0));
@@ -803,7 +851,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 
 	protected void refreshFilterOptionsFromRepository() {
 		String selectedFederation = this.federationFilter.getValue();
-		List<String> availableFederations = preserveSelectedValue(RecordRepository.findDistinctFederations(), selectedFederation);
+		List<String> availableFederations = preserveSelectedValue(RecordRepository.findDistinctFederations(getActiveFilterStr()), selectedFederation);
 		this.federationFilter.setItems(availableFederations);
 
 		if (selectedFederation != null && !selectedFederation.isBlank()) {
@@ -833,8 +881,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			return;
 		}
 
-		List<String> availableRecordNames = RecordRepository.findDistinctRecordNames(selectedFederation, selectedAgeGroup);
-		List<String> availableAgeGroups = RecordRepository.findDistinctAgeGroups(selectedFederation, selectedRecordName);
+		List<String> availableRecordNames = RecordRepository.findDistinctRecordNames(selectedFederation, selectedAgeGroup, getActiveFilterStr());
+		List<String> availableAgeGroups = RecordRepository.findDistinctAgeGroups(selectedFederation, selectedRecordName, getActiveFilterStr());
 
 		updateSingleValueFilter(this.recordNameFilter, availableRecordNames, selectedRecordName, this::setRecordName);
 		updateSingleValueFilter(this.ageGroupFilter, availableAgeGroups, selectedAgeGroup, this::setAgeGroup);
@@ -904,14 +952,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		
 		// Record identification columns
 		grid.addColumn(RecordEvent::getRecordFederation).setHeader(Translator.translate("Competition.federationTitle")).setAutoWidth(true);
-		grid.addColumn(RecordEvent::getRecordName).setHeader(Translator.translate("RecordEvent.Name")).setAutoWidth(true);
-		grid.addColumn(RecordEvent::getAgeGrp).setHeader(Translator.translate("AgeGroup")).setAutoWidth(true);
-		grid.addColumn(RecordEvent::getGender).setHeader(Translator.translate("Gender")).setAutoWidth(true);
-		grid.addColumn(RecordEvent::getBwCatString).setHeader(Translator.translate("Category")).setAutoWidth(true);
+		grid.addColumn(RecordEvent::getRecordName).setHeader(Translator.translate("RecordEvent.Name")).setAutoWidth(true).setFlexGrow(0);
+		grid.addColumn(RecordEvent::getAgeGrp).setHeader(Translator.translate("AgeGroup")).setAutoWidth(true).setFlexGrow(0);
+		grid.addColumn(RecordEvent::getGender).setHeader(Translator.translate("Gender")).setAutoWidth(true).setFlexGrow(0);
+		grid.addColumn(RecordEvent::getBwCatString).setHeader(Translator.translate("Category")).setAutoWidth(true).setFlexGrow(0);
 		
 		// Record details columns
 		grid.addColumn(re -> re.getRecordLift() != null ? Translator.translate("Record." + re.getRecordLift()) : "")
-		    .setHeader(Translator.translate("RecordEvent.Lift")).setAutoWidth(true);
+		    .setHeader(Translator.translate("RecordEvent.Lift")).setAutoWidth(true).setFlexGrow(0);
 		grid.addColumn(RecordEvent::getRecordValue).setHeader(Translator.translate("RecordEvent.Value")).setAutoWidth(true);
 		grid.addColumn(RecordEvent::getAthleteName).setHeader(Translator.translate("RecordEvent.AthleteName")).setAutoWidth(true);
 		grid.addColumn(RecordEvent::getNation).setHeader(Translator.translate("RecordEvent.Nation")).setAutoWidth(true);
@@ -930,6 +978,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 				Translator.translate("RecordEvent.OFFICIAL");
 		}).setHeader(Translator.translate("RecordEvent.Status")).setAutoWidth(true);
 
+		// Active column (read-only checkbox)
+		grid.addComponentColumn(recordEvent -> {
+			Checkbox cb = new Checkbox();
+			cb.setValue(Boolean.TRUE.equals(recordEvent.getActive()));
+			cb.setReadOnly(true);
+			return cb;
+		}).setHeader(Translator.translate("Active")).setAutoWidth(true).setFlexGrow(0);
+
 		for (Column<RecordEvent> c : grid.getColumns()) {
 			c.setResizable(true);
 		}
@@ -944,7 +1000,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			this.crud.setDeleteOperationVisible(false);
 		} else {
 			this.crud.setClickRowToUpdate(true);
-			grid.setSelectionMode(SelectionMode.SINGLE);
+			grid.setSelectionMode(SelectionMode.MULTI);
 		}
 		return this.crud;
 	}

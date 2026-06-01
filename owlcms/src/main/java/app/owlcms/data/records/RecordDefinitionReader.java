@@ -46,6 +46,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 
+import javax.persistence.EntityManager;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -233,6 +235,186 @@ public class RecordDefinitionReader {
 			}
 
 			for (RecordEvent importedRecord : importedRecords) {
+				try {
+					if (!RecordRepository.isProvisional(importedRecord)) {
+						RecordRepository.clearMatchingProvisionalRecordsForImportedOfficial(em, importedRecord);
+					}
+					if (RecordRepository.isProvisional(importedRecord)
+					        && RecordRepository.findExactDuplicate(em, importedRecord) != null) {
+						logger.info("skipping duplicate provisional record {} {}", importedRecord.getKey(), importedRecord.getRecordValue());
+						continue;
+					}
+					em.persist(importedRecord);
+					iRecord++;
+					if (iRecord % 100 == 0) {
+						em.flush();
+						em.clear();
+					}
+				} catch (Exception e) {
+					logger.error("could not persist RecordEvent {}", LoggerUtils./**/stackTrace(e));
+				}
+			}
+			em.flush();
+			em.clear();
+
+			Competition comp = Competition.getCurrent();
+			Competition comp2 = em.contains(comp) ? comp : em.merge(comp);
+			comp2.setAgeGroupsFileName(name);
+			startupLogger.info("inserted {} record entries.", iRecord);
+			logger.info("inserted {} record entries.", iRecord);
+			errors.add(Translator.translate("Records.Inserted", iRecord));
+			return errors;
+		});
+	}
+
+	/**
+	 * Parse records from a workbook into memory WITHOUT persisting anything.
+	 * Use {@link #previewImport(List)} to compute impact, then
+	 * {@link #importParsedRecords(List, String, String)} to persist.
+	 *
+	 * @param workbook  already-opened workbook
+	 * @param name      original file name (stored on record for traceability)
+	 * @param baseName  file name without extension (used as fileName key)
+	 * @param errors    list to append parse errors to
+	 * @return list of parsed records, not yet saved to the database
+	 */
+	public List<RecordEvent> parseRecordsFromWorkbook(Workbook workbook, String name, String baseName, List<String> errors) {
+		List<RecordEvent> importedRecords = new ArrayList<>();
+		CellSetter[] setterTable = null;
+
+		for (Sheet sheet : workbook) {
+			for (Row row : sheet) {
+				int iRow = row.getRowNum();
+				if (iRow == 0) {
+					setterTable = createSetterTableFromHeaderRow(row, errors);
+					continue;
+				}
+
+				RecordEvent rec = new RecordEvent();
+				rec.setFileName(baseName);
+
+				boolean error = false;
+				for (Cell cell : row) {
+					try {
+						int iColumn = cell.getAddress().getColumn();
+						if (setterTable != null && iColumn < setterTable.length) {
+							setterTable[iColumn].set(rec, cell);
+						}
+					} catch (Exception e) {
+						if (!isEmptyRow(rec)) {
+							logger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(), e.getMessage());
+							errors.add(MessageFormat.format("{0}[{1}] {2} ", sheet.getSheetName(),
+							        cell.getAddress(), e.getMessage()));
+							error = true;
+						}
+					}
+				}
+
+				if (!error && !isEmptyRow(rec)) {
+					try {
+						rec.fillDefaults();
+					} catch (RecordEvent.MissingAgeGroup | RecordEvent.MissingGender | RecordEvent.UnknownIWFBodyWeightCategory e1) {
+						errors.add(e1.getMessage() + " row " + iRow);
+						continue;
+					}
+					importedRecords.add(rec);
+				}
+			}
+		}
+		return importedRecords;
+	}
+
+	/**
+	 * Compute the import impact of the given parsed records without making any database changes.
+	 * The counts mirror the actual replacement logic in {@link #importParsedRecords}.
+	 *
+	 * @param parsedRecords records returned by {@link #parseRecordsFromWorkbook}
+	 * @return impact summary
+	 */
+	public RecordImportImpact previewImport(List<RecordEvent> parsedRecords) {
+		RecordImportImpact impact = new RecordImportImpact();
+		impact.setTotalImported(parsedRecords.size());
+
+		// Use a map keyed by (federation|recordName|ageGrp) for the summary rows
+		java.util.Map<String, RecordImportImpactRow> rowMap = new java.util.LinkedHashMap<>();
+
+		// Counts per logical key (to avoid double-counting when multiple import rows share a key)
+		java.util.Set<String> officialKeysAccounted = new java.util.HashSet<>();
+
+		int officialImported = 0;
+		int provisionalImported = 0;
+
+		JPAService.runInTransaction(em -> {
+			for (RecordEvent rec : parsedRecords) {
+				boolean isProvisional = RecordRepository.isProvisional(rec);
+				String bundleKey = rec.getRecordFederation() + "|" + rec.getRecordName() + "|" + rec.getAgeGrp();
+				RecordImportImpactRow row = rowMap.computeIfAbsent(bundleKey,
+				        k -> new RecordImportImpactRow(rec.getRecordFederation(), rec.getRecordName(), rec.getAgeGrp()));
+				row.incrementImportedCount();
+
+				if (!isProvisional) {
+					// Count official replacements per logical key only once
+					String logicalKey = rec.getKey();
+					if (officialKeysAccounted.add(logicalKey)) {
+						int toReplace = RecordRepository.countOfficialRecordsMatchingLogicalKey(em, rec);
+						row.setOfficialToReplace(row.getOfficialToReplace() + toReplace);
+						int toRemoveProv = RecordRepository.countMatchingProvisionalRecordsForImportedOfficial(em, rec);
+						row.setProvisionalToRemove(row.getProvisionalToRemove() + toRemoveProv);
+					}
+				} else {
+					// Provisional: count duplicates that will be skipped
+					if (RecordRepository.findExactDuplicate(em, rec) != null) {
+						row.setDuplicateProvisionalToSkip(row.getDuplicateProvisionalToSkip() + 1);
+					}
+				}
+			}
+			return null;
+		});
+
+		// Tally totals from rows
+		for (RecordImportImpactRow row : rowMap.values()) {
+			impact.addRow(row);
+			impact.setOfficialToReplace(impact.getOfficialToReplace() + row.getOfficialToReplace());
+			impact.setProvisionalToRemove(impact.getProvisionalToRemove() + row.getProvisionalToRemove());
+			impact.setDuplicateProvisionalToSkip(impact.getDuplicateProvisionalToSkip() + row.getDuplicateProvisionalToSkip());
+		}
+
+		// Count official vs provisional totals
+		for (RecordEvent rec : parsedRecords) {
+			if (RecordRepository.isProvisional(rec)) {
+				provisionalImported++;
+			} else {
+				officialImported++;
+			}
+		}
+		impact.setOfficialImported(officialImported);
+		impact.setProvisionalImported(provisionalImported);
+
+		return impact;
+	}
+
+	/**
+	 * Persist already-parsed records using the same replacement logic as {@link #createRecords}.
+	 * Call this only after the user has confirmed the import preview.
+	 *
+	 * @param parsedRecords records from {@link #parseRecordsFromWorkbook}
+	 * @param name          original file name (used to update competition metadata)
+	 * @param baseName      base name without extension
+	 * @return list of messages/errors from the import
+	 */
+	public List<String> importParsedRecords(List<RecordEvent> parsedRecords, String name, String baseName) {
+		return JPAService.runInTransaction(em -> {
+			int iRecord = 0;
+			List<String> errors = new ArrayList<>();
+
+			Set<String> clearedOfficialKeys = new HashSet<>();
+			for (RecordEvent importedRecord : parsedRecords) {
+				if (!RecordRepository.isProvisional(importedRecord) && clearedOfficialKeys.add(importedRecord.getKey())) {
+					RecordRepository.clearOfficialRecordsMatchingLogicalKey(em, importedRecord);
+				}
+			}
+
+			for (RecordEvent importedRecord : parsedRecords) {
 				try {
 					if (!RecordRepository.isProvisional(importedRecord)) {
 						RecordRepository.clearMatchingProvisionalRecordsForImportedOfficial(em, importedRecord);

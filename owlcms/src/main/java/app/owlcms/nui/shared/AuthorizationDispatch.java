@@ -129,6 +129,7 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 			return false;
 		}
 		return path.equals("preparation/recordsConfig")
+		        || path.equals("preparation/config")
 		        || path.equals("preparation/recordsConfig")
 		        || path.equals("preparation/records");
 	}
@@ -137,7 +138,7 @@ public interface AuthorizationDispatch extends BeforeEnterObserver {
 		if (path == null || path.isBlank()) {
 			return false;
 		}
-		return path.equals("preparation/config");
+		return false;
 	}
 
 	private static boolean isMobileRefereeMode() {
