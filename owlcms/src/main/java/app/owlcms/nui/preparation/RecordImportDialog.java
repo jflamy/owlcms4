@@ -76,6 +76,7 @@ public class RecordImportDialog extends Dialog {
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, bytes) -> {
 			handleUpload(metadata.fileName(), bytes);
 		}).whenStart(() -> {
+			clearPendingImport();
 			clearPreview();
 			this.confirmButton.setEnabled(false);
 		});
@@ -120,6 +121,7 @@ public class RecordImportDialog extends Dialog {
 
 		} catch (Exception e) {
 			logger.error("Error reading records file {}", fileName, e);
+			clearPendingImport();
 			clearPreview();
 			this.previewArea.add(new Span(Translator.translate("Records.couldNotProcess", fileName)));
 			this.previewArea.setVisible(true);
@@ -175,7 +177,12 @@ public class RecordImportDialog extends Dialog {
 	private void clearPreview() {
 		this.previewArea.removeAll();
 		this.previewArea.setVisible(false);
+	}
+
+	private void clearPendingImport() {
 		this.pendingRecords = null;
+		this.pendingFileName = null;
+		this.pendingBaseName = null;
 	}
 
 	private void doImport() {

@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -401,8 +400,11 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	private Button createRemoveSelectedButton() {
 		Button removeSelectedButton = new Button(Translator.translate("RecordEvent.DeleteSelected"),
 			buttonClickEvent -> {
-				Set<RecordEvent> selected = this.crud.getSelectedItems();
-				if (selected.isEmpty()) {
+				List<Long> ids = this.crud.getSelectedItems().stream()
+				        .map(RecordEvent::getId)
+				        .filter(id -> id != null)
+				        .collect(Collectors.toList());
+				if (ids.isEmpty()) {
 					return;
 				}
 				ConfirmationDialog confirmDialog = new ConfirmationDialog(
@@ -410,11 +412,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 					Translator.translate("RecordEvent.DeleteSelectedExplanation"),
 					null,
 					() -> {
-						List<Long> ids = selected.stream()
-						        .map(RecordEvent::getId)
-						        .filter(id -> id != null)
-						        .collect(Collectors.toList());
 						RecordRepository.deleteRecordsByIds(ids);
+						refreshFilterOptionsFromRepository();
 						this.crud.refreshGrid();
 					}
 				);
