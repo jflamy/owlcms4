@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-beta06: fixed records import
+
 67.0.0-beta05: reworked the Records editing page
   - all features are on a single page
   - event-specific or historical prior-categories records can be marked as inactive for less clutter.
