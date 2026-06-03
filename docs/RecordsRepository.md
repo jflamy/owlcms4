@@ -9,11 +9,13 @@ This allows a federation to have an easy to use way to keep, update and publish 
 In order to run OWLCMS in record repository mode, you need to 2 things:
 
 1. Set a password on the Access Control page of the systems settings
-2. set the `recordsOnly` Feature Toggle on the system settings Customization page
+2. set the `recordRepository` Feature Toggle on the system settings Customization page
 
-![image-20260316145936676](img/RecordsRepository/image-20260316145936676.png)
+![image-20260603170559265](img/RecordsRepository/image-20260603170559265.png)
 
+You should also set a password if the repository is on a cloud setup
 
+![image-20260603170916451](img/RecordsRepository/image-20260603170916451.png)
 
 ## Public Access
 
@@ -21,27 +23,33 @@ After setting a password and enabling the toggle, the default page for the site 
 
 Users can filter the records they need, and export them in Excel data interchange format to load in OWLCMS, or in display format as a basis for publishing them.
 
-![image-20260316150252833](img/RecordsRepository/image-20260316150252833.png)
+![image-20260603172928765](img/RecordsRepository/image-20260603172928765.png)
 
 ## Editing Access
 
-In order to edit records, the green Edit button can be used.  The user is then asked to enter the password.  This enables the full capabilities
+In order to edit records, the green Login button is used. The user is then asked to enter the password if one is set. This enables the full capabilities
 
-![image-20260316150528967](img/RecordsRepository/image-20260316150528967.png)
+![image-20260603173332695](img/RecordsRepository/image-20260603173332695.png)
 
-## Importing and Selecting Active Records
+## Importing New Records From A Competition 
 
-To import records, the process is the same, using the green Import button.  This opens the normal record import page.  Note that de-selecting active record types makes them invisible, as if they had been deleted.  This can allow a bulk export of all active items, which can sometimes be faster than selecting individual filters.
+The repository will often be used to import new Provisional records from a competition.  To do so, simply use the import button, with the file produced while exporting the provisional records from the competition. (see [Exporting New Records](2500RecordsManagement#exporting-new-records))
+![image-20260603182955220](img/RecordsRepository/image-20260603182955220.png)
 
-![image-20260316150904624](img/RecordsRepository/image-20260316150904624.png)
+## Accepting New Records
+
+To accept the new records
+
+1. Clear all filters, or filter down to the subset where you want to accept the provisional records
+2. Accept Provisional Records -- this will make them Official
+3. If you don't wish to keep a full historical trace, use the Keep ony the current records
+
+![image-20260603183149747](img/RecordsRepository/image-20260603183149747.png)
 
 ### Managing the Repository
 
-There is no dedicated button to access the "Prepare Competition" page.  You need to edit the URL at the top of the page and enter `reportsPreparation`  -- the `reportsPreparation` page will add an additional `Configuration` option to the menu
-![image-20260316151218369](img/RecordsRepository/image-20260316151218369.png)
+Finally, using the Manage Records at the top, you can remove records, or hide them (make them inactive). Inactive records are useful to keep historical records that were set with different categories.
 
+It is often simpler, conceptually, to delete records prior to importing new files.  You are strongly encouraged to make backups if you use this approach 
 
-You will then get the relevant subset of administration options.
-![image-20260316151329219](img/RecordsRepository/image-20260316151329219.png)
-
-Note that if you set up the repository in this mode on the cloud, you can take a backup by using the `competition/export`URL (`https://myrepository.fly.dev/competition/export`) will work.  No password is required since you are already making your records public.
+![image-20260603183504174](img/RecordsRepository/image-20260603183504174.png)

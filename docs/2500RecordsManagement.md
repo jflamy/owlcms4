@@ -19,62 +19,63 @@ If records are broken during a meet, they are stored in the database with the se
 
 ## Record Management
 
-The Record Management pages reached from the Records menu entry
+The Record Management pages reached from the Records menu item
 
-![image-20260316104251849](img/2500RecordsManagement/image-20260316104251849.png)
+![image-20260603115701984](img/2500RecordsManagement/image-20260603115701984.png)
 
 ### Loading Records
 
-To reach the page where record definition files are loaded, click on the "Import and Configure Records" left button.
-You can then load record files as you wish. 
+To add records to the database, use the Import button
 
-![image-20260316104621433](img/2500RecordsManagement/image-20260316104621433.png)
+![image-20260603150656099](img/2500RecordsManagement/image-20260603150656099.png)
 
-For our example, we will load records for regional youth games, and the normal regional records.  After loading the two files, we have the following situation:
+This works like the other Upload features in OWLCMS. 
 
-- In our provincial record files, we had several record age groups.  We unchecked the SR records because they are not relevant for this event
-- We can control in what order the records will be shown.  We want our event records shown first, above the provincial records.
+![image-20260603150835603](img/2500RecordsManagement/image-20260603150835603.png)
 
-![image-20260316112013845](img/2500RecordsManagement/image-20260316112013845.png)
+After selection, a summary of the to-be-imported file is shown for confirmation
+
+![image-20260603151850494](img/2500RecordsManagement/image-20260603151850494.png)
+
+And the content is updated
+
+![image-20260603163555701](img/2500RecordsManagement/image-20260603163555701.png)
+
+We then upload a second set of files, for national records, and we can filter what records are shown
+
+![image-20260603163759906](img/2500RecordsManagement/image-20260603163759906.png)
+
+### Editing Individual Records
+
+Clicking on a record opens an editing form
+
+![image-20260603163945194](img/2500RecordsManagement/image-20260603163945194.png)
 
 ## Display Options
 
-There are additional display options in the top section
+The Display Options button controls the order in which records will be shown on the scoreboards. In addition, 
 
-Normally, the scoreboard will only show the records for which the current athlete is eligible (for the age groups and federations in which he is eligible)
+- Normally, only the records from the athlete's category and those he is eligible to beat are shown
+- You can choose to show all categories in the session, and all federations in the session
 
-- You may want show all the federations (the South American records and PanAm records would be shown for Canadian athletes even though they are not eligible to beat the South American record -- see [Controlling Eligibility](#controlling-eligibility) below
+![image-20260603164959645](img/2500RecordsManagement/image-20260603164959645.png)
 
-- You can select to show all the records for all the athletes in the session during the whole session instead
-
-## Viewing Records
-
-Using the other button ("Edit and Export Records")  we can see the records we have loaded
-
-![image-20260316120438213](img/2500RecordsManagement/image-20260316120438213.png)
-
-## Updating Records Interactively
-
-The first option to update records is to edit them directly in the database, and re-export the records after doing the edits.
-To do so, click on the record.
-
-![image-20260316121328976](img/2500RecordsManagement/image-20260316121328976.png)
-
-NOTE:  if you enter something in the Competition Group at the bottom, this normally indicates the session in which the record was broken, and is understood to mean that the record is provisional.
-
-## Exporting New Records and Updating Using Files
+## Exporting New Records
 
 At the end of the competition, all new records are marked as provisional.  You can see the new records by using the Status dropdown in the filter bar and selecting "Provisional".  For example
-![image-20260316141613882](img/2500RecordsManagement/image-20260316141613882.png)
+
+![image-20260603165604416](img/2500RecordsManagement/image-20260603165604416.png)
 
 Using the Export Records at the top and choosing a "dataExchange" template will produce an Excel File that you can then load into OWLCMS or in a [Record Repository](RecordRepository)
-![image-20260316141805170](img/2500RecordsManagement/image-20260316141805170.png)
+![image-20260603165707050](img/2500RecordsManagement/image-20260603165707050.png)
 
-The resulting file is in the exact same format as the record inputs, so you can merge it in Excel format if you prefer. As mentioned earlier, it is the presence of information in the Group column that indicates that the record is provisional.  To approve the records, you either clear the cells before loading, or you use the "Accept Proviional Records" button in the application after loading.
+The resulting file is in the exact same format as the record inputs, so you can merge it in Excel format if you prefer.
 
-![image-20260316142118946](img/2500RecordsManagement/image-20260316142118946.png)
+> It is the presence of information in the Group column that indicates that the record is provisional.  To approve the records, you either clear the cells before loading, or you use the "Accept Proviional Records" button in the application after loading.
 
-## Producing Records for Publishing
+![image-20260603165937078](img/2500RecordsManagement/image-20260603165937078.png)
+
+## Publishing Records
 
 When Exporting, you can select templates. For inclusion on a Web site, you can use the "display" templates.  This will give you an output where the column heading are translated in your langage.
 
@@ -87,10 +88,10 @@ For example, exporting Masters records in the sheets format yields an Excel of t
 
 ## Recomputing Records
 
-Say for example you loaded an obsolete version of a record file, or forgot to load one, and you realize after the competition has started.  No problem. You can recompute all records that were improved by using the "Recompute Recordsbutton in the top bar.
+Mistakes happen. Say you loaded an obsolete version of a record file, or forgot to load a record file, and you realize after the competition has started.  No problem. You can recompute all records that were improved by using the "Recompute Recordsbutton in the top bar.
 This will essentially replay all the lifts in the competition order, so the improved records are recomputed in the correct order.
 
-## Controlling Eligibility
+## Record Eligibility
 
 For each record definition there is a Federation field.  In the screenshot below the federations are UMWF and CMWF.   Some athletes are eligible to UMWF but not CMWF.  The information about record eligibility is part of the athlete registration form (found under Edit Athlete Entries during the preparation).
 
