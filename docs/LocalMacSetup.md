@@ -40,9 +40,11 @@ If you later download an updated DMG file and execute it, you will be prompted t
 
 1. Open the Terminal application
 
-2. Type the following
+2. Type the following (or move your cursor on the text, copy to clipboard, right-click to paste in Terminal, then ⏎ Return )
 
-   `xattr -rc /Applications/owlcms.app`
+   ```
+   xattr -rc /Applications/owlcms.app
+   ```
 
-3. Start again
+3. Start owlcms again
 
