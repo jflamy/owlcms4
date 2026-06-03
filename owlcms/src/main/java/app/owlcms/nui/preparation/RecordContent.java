@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -26,18 +25,22 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 
 import app.owlcms.data.competition.Competition;
+import app.owlcms.components.fields.GridField;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.spreadsheet.JXLSExportRecords;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -48,10 +51,10 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
-import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.utils.URLUtils;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
@@ -226,7 +229,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		// Row 1: Import / Export
 		HorizontalLayout row1 = new HorizontalLayout(
 				createExportRecordsButton(),
-				createImportButton());
+				createImportButton(),
+				createManageRecordsButton(),
+				createDisplayOrderButton());
 		row1.setAlignItems(FlexComponent.Alignment.CENTER);
 		row1.setPadding(false);
 		row1.setSpacing(true);
@@ -234,25 +239,16 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			row1.add(createLogoutButton());
 		}
 
-		// Row 2: Record-set status mutations (acts on currently filtered records)
+		// Row 2: Provisional / computation actions
 		HorizontalLayout row2 = new HorizontalLayout(
-				createMarkActiveButton(true),
-				createMarkActiveButton(false),
-				createRemoveSelectedButton());
+				createRecomputeRecordsButton(),
+				createAcceptProvisionalRecordsButton(),
+				createKeepLatestOfficialRecordsButton());
 		row2.setAlignItems(FlexComponent.Alignment.CENTER);
 		row2.setPadding(false);
 		row2.setSpacing(true);
 
-		// Row 3: Provisional / computation actions
-		HorizontalLayout row3 = new HorizontalLayout(
-				createRecomputeRecordsButton(),
-				createAcceptProvisionalRecordsButton(),
-				createKeepLatestOfficialRecordsButton());
-		row3.setAlignItems(FlexComponent.Alignment.CENTER);
-		row3.setPadding(false);
-		row3.setSpacing(true);
-
-		this.topBar.add(row1, row2, row3);
+		this.topBar.add(row1, row2);
 		return this.topBar;
 	}
 
@@ -269,6 +265,98 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		importButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 		importButton.getElement().getStyle().set("margin-right", "1em");
 		return importButton;
+	}
+
+	protected Button createDisplayOrderButton() {
+		Button displayOrderButton = new Button(Translator.translate("Records.DisplayOptions"),
+		        buttonClickEvent -> openDisplayOrderDialog());
+		displayOrderButton.getElement().getStyle().set("margin-right", "1em");
+		displayOrderButton.getElement().setAttribute("title", Translator.translate("Records.DisplayOptions"));
+		return displayOrderButton;
+	}
+
+	protected Button createManageRecordsButton() {
+		Button manageButton = new Button(Translator.translate("Records.ManageButton"),
+		        buttonClickEvent -> new RecordManagementDialog(() -> {
+			        refreshFilterOptionsFromRepository();
+			        this.crud.refreshGrid();
+		        }).open());
+		manageButton.setIcon(VaadinIcon.LIST_OL.create());
+		manageButton.getElement().getStyle().set("margin-right", "1em");
+		manageButton.getElement().setAttribute("title", Translator.translate("Records.ManageExplanation"));
+		return manageButton;
+	}
+
+	private void openDisplayOrderDialog() {
+		RecordConfig current = RecordConfig.getCurrent();
+
+		GridField<String> orderingField = new GridField<>(getOrderedActiveRecordNames(current), true,
+		        Translator.translate("Records.NoDisplayOrderRecords"));
+		Checkbox showAllCategoriesField = new Checkbox(Translator.translate("Records.AllCategories"));
+		showAllCategoriesField.setValue(Boolean.TRUE.equals(current.getShowAllCategoryRecords()));
+		Checkbox showAllFederationsField = new Checkbox(Translator.translate("Records.AllFederations"));
+		showAllFederationsField.setValue(Boolean.TRUE.equals(current.getShowAllFederations()));
+
+		Dialog dialog = new Dialog();
+		dialog.setHeaderTitle(Translator.translate("Records.DisplayOptions"));
+		dialog.getHeader().add(createDialogHeaderCloseButton(dialog));
+		dialog.setWidth("60em");
+		dialog.setCloseOnEsc(true);
+		dialog.setCloseOnOutsideClick(true);
+
+		Paragraph instructions = new Paragraph(Translator.translate("Records.OrderingField"));
+		instructions.getStyle().set("margin-top", "0");
+
+		Button cancelButton = new Button(Translator.translate("Cancel"), event -> dialog.close());
+		Button saveButton = new Button(Translator.translate("Records.UpdateDisplayOptions"), event -> {
+			current.setRecordOrder(new ArrayList<>(orderingField.getValue()));
+			current.setShowAllCategoryRecords(showAllCategoriesField.getValue());
+			current.setShowAllFederations(showAllFederationsField.getValue());
+			RecordConfig.setCurrent(current);
+			dialog.close();
+		});
+		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+		HorizontalLayout buttons = new HorizontalLayout(cancelButton, saveButton);
+		buttons.setWidthFull();
+		buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+
+		VerticalLayout content = new VerticalLayout(
+		        instructions,
+		        orderingField,
+		        showAllCategoriesField,
+		        showAllFederationsField,
+		        buttons);
+		content.setPadding(false);
+		content.setSpacing(true);
+		content.setAlignItems(FlexComponent.Alignment.STRETCH);
+
+		dialog.add(content);
+		dialog.open();
+	}
+
+	private Button createDialogHeaderCloseButton(Dialog dialog) {
+		Button closeButton = new Button(VaadinIcon.CLOSE.create(), event -> dialog.close());
+		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		closeButton.getElement().setAttribute("aria-label", Translator.translate("Close"));
+		closeButton.getElement().setAttribute("title", Translator.translate("Close"));
+		return closeButton;
+	}
+
+	private ArrayList<String> getOrderedActiveRecordNames(RecordConfig current) {
+		ArrayList<String> activeRecordNames = new ArrayList<>(RecordRepository.findDistinctRecordNames());
+		ArrayList<String> orderedActiveNames = current.getRecordOrder() == null
+		        ? new ArrayList<>()
+		        : new ArrayList<>(current.getRecordOrder());
+
+		orderedActiveNames.removeIf(name -> !activeRecordNames.contains(name));
+		for (String activeName : activeRecordNames) {
+			if (!orderedActiveNames.contains(activeName)) {
+				orderedActiveNames.add(activeName);
+			}
+		}
+
+		return orderedActiveNames;
 	}
 
 	private void refreshAfterRecordImport() {
@@ -327,34 +415,16 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	private Button createAcceptProvisionalRecordsButton() {
 		Button acceptProvisionalRecordsButton = new Button(Translator.translate("Preparation.ClearNewRecords"),
 			buttonClickEvent -> {
-				try {
-					// Use the same filter parameters as the grid display
-					String provisionalFilterStr = "ALL";
-					if (this.provisionalFilter != null && this.provisionalFilter.getValue() != null) {
-						provisionalFilterStr = this.provisionalFilter.getValue().name();
+				List<RecordEvent> visibleRecords = getFilteredRecords();
+				ArrayList<Long> visibleRecordIds = new ArrayList<>();
+				for (RecordEvent visibleRecord : visibleRecords) {
+					if (visibleRecord.getId() != null) {
+						visibleRecordIds.add(visibleRecord.getId());
 					}
-					
-					String currentHistoryFilterStr = "HISTORY"; // Default to showing all records
-					if (this.currentHistoryFilter != null && this.currentHistoryFilter.getValue() != null) {
-						currentHistoryFilterStr = this.currentHistoryFilter.getValue().name();
-					}
-					
-					// Accept provisional rows only for the filtered records.
-					RecordRepository.acceptProvisionalRecordsWithFilters(
-						getFederation(),
-						getRecordName(),
-						getAgeGroup(),
-						getGender(),
-						getName(),
-						provisionalFilterStr,
-						currentHistoryFilterStr
-					);
-					
-					// Refresh the grid to show the updated records
-					this.crud.refreshGrid();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
 				}
+
+				RecordRepository.acceptProvisionalRecordsByIds(visibleRecordIds);
+				this.crud.refreshGrid();
 			});
 		acceptProvisionalRecordsButton.getElement().getStyle().set("margin-right", "1em");
 		acceptProvisionalRecordsButton.getElement().setAttribute("title", Translator.translate("Preparation.ClearNewRecordsExplanation"));
@@ -395,59 +465,6 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		keepLatestOfficialRecordsButton.getElement().getStyle().set("margin-right", "1em");
 		keepLatestOfficialRecordsButton.getElement().setAttribute("title", Translator.translate("RecordEvent.KeepCurrentRecordsExplanation"));
 		return keepLatestOfficialRecordsButton;
-	}
-
-	private Button createRemoveSelectedButton() {
-		Button removeSelectedButton = new Button(Translator.translate("RecordEvent.DeleteSelected"),
-			buttonClickEvent -> {
-				List<Long> ids = this.crud.getSelectedItems().stream()
-				        .map(RecordEvent::getId)
-				        .filter(id -> id != null)
-				        .collect(Collectors.toList());
-				if (ids.isEmpty()) {
-					return;
-				}
-				ConfirmationDialog confirmDialog = new ConfirmationDialog(
-					Translator.translate("RecordEvent.DeleteSelected"),
-					Translator.translate("RecordEvent.DeleteSelectedExplanation"),
-					null,
-					() -> {
-						RecordRepository.deleteRecordsByIds(ids);
-						refreshFilterOptionsFromRepository();
-						this.crud.refreshGrid();
-					}
-				);
-				confirmDialog.open();
-			});
-		removeSelectedButton.getElement().getStyle().set("margin-right", "1em");
-		removeSelectedButton.getElement().setAttribute("title", Translator.translate("RecordEvent.DeleteSelectedExplanation"));
-		return removeSelectedButton;
-	}
-
-	private Button createMarkActiveButton(boolean active) {
-		String labelKey = active ? "RecordEvent.MarkFilteredActive" : "RecordEvent.MarkFilteredInactive";
-		Button btn = new Button(Translator.translate(labelKey), e -> {
-			List<RecordEvent> filtered = getFilteredRecords();
-			if (filtered.isEmpty()) {
-				return;
-			}
-			List<Long> ids = filtered.stream()
-			        .map(RecordEvent::getId)
-			        .filter(id -> id != null)
-			        .collect(Collectors.toList());
-			String confirmKey = active ? "RecordEvent.MarkFilteredActiveConfirm" : "RecordEvent.MarkFilteredInactiveConfirm";
-			ConfirmationDialog cd = new ConfirmationDialog(
-					Translator.translate(labelKey),
-					Translator.translate(confirmKey, ids.size()),
-					null,
-					() -> {
-						RecordRepository.setActiveForRecordIds(ids, active);
-						this.crud.refreshGrid();
-					});
-			cd.open();
-		});
-		btn.getElement().getStyle().set("margin-right", "1em");
-		return btn;
 	}
 
 	@Override
@@ -948,7 +965,15 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.crud = new RecordGrid(RecordEvent.class, new OwlcmsGridLayout(RecordEvent.class), crudFormFactory, grid,
 		        this::refreshFilterOptionsFromRepository, this::getFilteredRecords);
 		grid.getThemeNames().add("row-stripes");
-		
+
+		// Active column (read-only checkbox) - shown first
+		grid.addComponentColumn(recordEvent -> {
+			Checkbox cb = new Checkbox();
+			cb.setValue(Boolean.TRUE.equals(recordEvent.getActive()));
+			cb.setReadOnly(true);
+			return cb;
+		}).setHeader(Translator.translate("Active")).setAutoWidth(true).setFlexGrow(0);
+
 		// Record identification columns
 		grid.addColumn(RecordEvent::getRecordFederation).setHeader(Translator.translate("Competition.federationTitle")).setAutoWidth(true);
 		grid.addColumn(RecordEvent::getRecordName).setHeader(Translator.translate("RecordEvent.Name")).setAutoWidth(true).setFlexGrow(0);
@@ -977,14 +1002,6 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 				Translator.translate("RecordEvent.OFFICIAL");
 		}).setHeader(Translator.translate("RecordEvent.Status")).setAutoWidth(true);
 
-		// Active column (read-only checkbox)
-		grid.addComponentColumn(recordEvent -> {
-			Checkbox cb = new Checkbox();
-			cb.setValue(Boolean.TRUE.equals(recordEvent.getActive()));
-			cb.setReadOnly(true);
-			return cb;
-		}).setHeader(Translator.translate("Active")).setAutoWidth(true).setFlexGrow(0);
-
 		for (Column<RecordEvent> c : grid.getColumns()) {
 			c.setResizable(true);
 		}
@@ -999,7 +1016,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			this.crud.setDeleteOperationVisible(false);
 		} else {
 			this.crud.setClickRowToUpdate(true);
-			grid.setSelectionMode(SelectionMode.MULTI);
+			grid.setSelectionMode(SelectionMode.NONE);
 		}
 		return this.crud;
 	}

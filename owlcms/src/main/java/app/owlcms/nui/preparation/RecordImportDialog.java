@@ -65,13 +65,13 @@ public class RecordImportDialog extends Dialog {
 		this.capturedLocale = OwlcmsSession.getLocale();
 
 		setWidth("70em");
-		setHeaderTitle(Translator.translate("Records.ImportDialog.Title"));
+		setHeaderTitle(translate("Records.ImportDialog.Title"));
 
 		VerticalLayout content = new VerticalLayout();
 		content.setPadding(false);
 		content.setSpacing(true);
 
-		Paragraph instructions = new Paragraph(Translator.translate("Records.ImportDialog.Instructions"));
+		Paragraph instructions = new Paragraph(translate("Records.ImportDialog.Instructions"));
 
 		UploadHandler uploadHandler = UploadHandler.inMemory((metadata, bytes) -> {
 			handleUpload(metadata.fileName(), bytes);
@@ -94,11 +94,11 @@ public class RecordImportDialog extends Dialog {
 		add(content);
 
 		// Footer
-		this.confirmButton = new Button(Translator.translate("Records.ImportDialog.ConfirmButton"), e -> doImport());
+		this.confirmButton = new Button(translate("Records.ImportDialog.ConfirmButton"), e -> doImport());
 		this.confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		this.confirmButton.setEnabled(false);
 
-		Button cancelButton = new Button(Translator.translate("Cancel"), e -> close());
+		Button cancelButton = new Button(translate("Cancel"), e -> close());
 		getFooter().add(cancelButton, this.confirmButton);
 	}
 
@@ -123,7 +123,7 @@ public class RecordImportDialog extends Dialog {
 			logger.error("Error reading records file {}", fileName, e);
 			clearPendingImport();
 			clearPreview();
-			this.previewArea.add(new Span(Translator.translate("Records.couldNotProcess", fileName)));
+			this.previewArea.add(new Span(translate("Records.couldNotProcess", fileName)));
 			this.previewArea.setVisible(true);
 			this.confirmButton.setEnabled(false);
 		}
@@ -132,7 +132,7 @@ public class RecordImportDialog extends Dialog {
 	private void showPreview(RecordImportImpact impact, List<String> errors) {
 		clearPreview();
 
-		this.previewArea.add(new H3(Translator.translate("Records.ImportDialog.PreviewTitle")));
+		this.previewArea.add(new H3(translate("Records.ImportDialog.PreviewTitle")));
 		this.previewArea.add(summaryLine("Records.ImportDialog.TotalRecords", impact.getTotalImported()));
 		this.previewArea.add(summaryLine("Records.ImportDialog.OfficialImported", impact.getOfficialImported()));
 		this.previewArea.add(summaryLine("Records.ImportDialog.ProvisionalImported", impact.getProvisionalImported()));
@@ -143,19 +143,19 @@ public class RecordImportDialog extends Dialog {
 		if (!impact.getRows().isEmpty()) {
 			Grid<RecordImportImpactRow> grid = new Grid<>(RecordImportImpactRow.class, false);
 			grid.addColumn(RecordImportImpactRow::getRecordFederation)
-			        .setHeader(Translator.translate("Records.ImportDialog.Col.Federation")).setAutoWidth(true);
+			        .setHeader(translate("Records.ImportDialog.Col.Federation")).setAutoWidth(true);
 			grid.addColumn(RecordImportImpactRow::getRecordName)
-			        .setHeader(Translator.translate("Records.ImportDialog.Col.RecordName")).setAutoWidth(true);
+			        .setHeader(translate("Records.ImportDialog.Col.RecordName")).setAutoWidth(true);
 			grid.addColumn(RecordImportImpactRow::getAgeGrp)
-			        .setHeader(Translator.translate("Records.ImportDialog.Col.AgeGroup")).setAutoWidth(true);
+			        .setHeader(translate("Records.ImportDialog.Col.AgeGroup")).setAutoWidth(true);
 			grid.addColumn(RecordImportImpactRow::getImportedCount)
-			        .setHeader(Translator.translate("Records.ImportDialog.Col.Imported")).setAutoWidth(true);
+			        .setHeader(translate("Records.ImportDialog.Col.Imported")).setAutoWidth(true);
 			grid.addColumn(RecordImportImpactRow::getOfficialToReplace)
-			        .setHeader(Translator.translate("Records.ImportDialog.Col.OfficialToReplace")).setAutoWidth(true);
+			        .setHeader(translate("Records.ImportDialog.Col.OfficialToReplace")).setAutoWidth(true);
 			grid.addColumn(RecordImportImpactRow::getProvisionalToRemove)
-			        .setHeader(Translator.translate("Records.ImportDialog.Col.ProvisionalToRemove")).setAutoWidth(true);
+			        .setHeader(translate("Records.ImportDialog.Col.ProvisionalToRemove")).setAutoWidth(true);
 			grid.addColumn(RecordImportImpactRow::getDuplicateProvisionalToSkip)
-			        .setHeader(Translator.translate("Records.ImportDialog.Col.DuplicateSkipped")).setAutoWidth(true);
+			        .setHeader(translate("Records.ImportDialog.Col.DuplicateSkipped")).setAutoWidth(true);
 			grid.setItems(impact.getRows());
 			grid.setAllRowsVisible(true);
 			this.previewArea.add(grid);
@@ -171,7 +171,11 @@ public class RecordImportDialog extends Dialog {
 	}
 
 	private Span summaryLine(String key, int value) {
-		return new Span(Translator.translate(key) + ": " + value);
+		return new Span(translate(key) + ": " + value);
+	}
+
+	private String translate(String key, Object... params) {
+		return new Translator().getTranslationExplicitLocale(key, this.capturedLocale, params);
 	}
 
 	private void clearPreview() {

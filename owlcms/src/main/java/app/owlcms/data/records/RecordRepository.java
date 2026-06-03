@@ -43,6 +43,7 @@ import ch.qos.logback.classic.Logger;
 public class RecordRepository {
 
 	static Logger logger = (Logger) LoggerFactory.getLogger(RecordRepository.class);
+	private static final int ID_UPDATE_BATCH_SIZE = 200;
 
 	public static void clearByExample(RecordEvent re) {
 		JPAService.runInTransaction(em -> {
@@ -397,6 +398,64 @@ public class RecordRepository {
 		});
 	}
 
+	/**
+	 * Set the active status of all records matching the supplied scope filters. Any null/blank filter
+	 * is treated as a wildcard, so a federation-only call affects every record under that federation.
+	 *
+	 * @param federation filter by federation (null/blank for no filter)
+	 * @param recordName filter by record name (null/blank for no filter)
+	 * @param ageGroup   filter by age group (null/blank for no filter)
+	 * @param gender     filter by gender (null for no filter)
+	 * @param active     true to activate, false to deactivate
+	 */
+	public static void setActiveWithFilters(
+	        String federation,
+	        String recordName,
+	        String ageGroup,
+	        Gender gender,
+	        boolean active) {
+
+		JPAService.runInTransaction(em -> {
+			try {
+				StringBuilder queryBuilder = new StringBuilder("UPDATE RecordEvent rec SET rec.active = :active WHERE 1=1");
+
+				if (federation != null && !federation.isBlank()) {
+					queryBuilder.append(" AND rec.recordFederation = :federation");
+				}
+				if (recordName != null && !recordName.isBlank()) {
+					queryBuilder.append(" AND rec.recordName = :recordName");
+				}
+				if (ageGroup != null && !ageGroup.isBlank()) {
+					queryBuilder.append(" AND rec.ageGrp = :ageGroup");
+				}
+				if (gender != null) {
+					queryBuilder.append(" AND rec.gender = :gender");
+				}
+
+				Query query = em.createQuery(queryBuilder.toString());
+				query.setParameter("active", active);
+				if (federation != null && !federation.isBlank()) {
+					query.setParameter("federation", federation);
+				}
+				if (recordName != null && !recordName.isBlank()) {
+					query.setParameter("recordName", recordName);
+				}
+				if (ageGroup != null && !ageGroup.isBlank()) {
+					query.setParameter("ageGroup", ageGroup);
+				}
+				if (gender != null) {
+					query.setParameter("gender", gender);
+				}
+
+				int updated = query.executeUpdate();
+				logger.info("{} {} record entries matching the specified filters", active ? "activated" : "deactivated", updated);
+			} catch (Exception e) {
+				LoggerUtils.logError(logger, e);
+			}
+			return null;
+		});
+	}
+
 	// public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
 	// Integer cjRequest, Integer totalRequest) {
 	// List<RecordEvent> records = findFiltered(gender, age, bw, null, null);
@@ -505,6 +564,30 @@ public class RecordRepository {
 	}
 
 	/**
+	 * Accept provisional records for specific visible record IDs only.
+	 *
+	 * @param ids visible record IDs to update
+	 */
+	public static void acceptProvisionalRecordsByIds(Collection<Long> ids) {
+		if (ids == null || ids.isEmpty()) {
+			return;
+		}
+		JPAService.runInTransaction(em -> {
+			List<Long> idList = new ArrayList<>(ids);
+			int updated = 0;
+			for (int start = 0; start < idList.size(); start += ID_UPDATE_BATCH_SIZE) {
+				List<Long> batch = idList.subList(start, Math.min(start + ID_UPDATE_BATCH_SIZE, idList.size()));
+				updated += em.createQuery(
+				        "UPDATE RecordEvent rec SET rec.groupNameString = NULL WHERE rec.id IN :ids AND rec.groupNameString IS NOT NULL AND TRIM(BOTH ' ' FROM rec.groupNameString) <> ''")
+				        .setParameter("ids", batch)
+				        .executeUpdate();
+			}
+			logger.info("accepted {} provisional record entries by id list", updated);
+			return null;
+		});
+	}
+
+	/**
 	 * Delete specific records by id, regardless of filter state.
 	 *
 	 * @param ids record IDs to delete
@@ -571,7 +654,7 @@ public class RecordRepository {
 			}
 
 			Query q = em.createNativeQuery(
-			        "SELECT DISTINCT a.fileName, a.recordFederation, a.recordName, a.ageGrp, a.active FROM RecordEvent a");
+			        "SELECT DISTINCT a.fileName, a.recordFederation, a.recordName, a.ageGrp, a.gender, a.active FROM RecordEvent a");
 			@SuppressWarnings("unchecked")
 			List<Object[]> records = q.getResultList();
 
@@ -581,7 +664,23 @@ public class RecordRepository {
 				e.setRecordFederation((String) a[1]);
 				e.setRecordName((String) a[2]);
 				e.setAgeGrp((String) a[3]);
-				Object activeVal = a[4];
+				Object genderVal = a[4];
+				if (genderVal != null) {
+					try {
+						if (genderVal instanceof Number) {
+							int ord = ((Number) genderVal).intValue();
+							Gender[] values = Gender.values();
+							if (ord >= 0 && ord < values.length) {
+								e.setGender(values[ord]);
+							}
+						} else {
+							e.setGender(Gender.valueOf(genderVal.toString()));
+						}
+					} catch (IllegalArgumentException iae) {
+						// ignore unrecognized gender values
+					}
+				}
+				Object activeVal = a[5];
 				e.setActive(activeVal == null ? true : (Boolean) activeVal);
 				recordEventStubs.add(e);
 			}

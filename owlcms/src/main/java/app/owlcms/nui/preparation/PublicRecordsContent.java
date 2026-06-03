@@ -14,7 +14,11 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.apputils.AccessUtils;
+import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
+import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.home.LoginView;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
 /**
@@ -48,15 +52,27 @@ public class PublicRecordsContent extends RecordContent {
 		applyRecordsOnlyToolbarOffset();
 
 		Button exportRecordsButton = createExportRecordsButton();
+		boolean pinExpected = hasAccessPassword();
 
-		Button loginButton = new Button(Translator.translate("Edit"),
-		        e -> UI.getCurrent().navigate("preparation/records", getLocation().getQueryParameters()));
+		Button loginButton = new Button(Translator.translate(pinExpected ? "Login" : "Edit"), e -> {
+			if (!pinExpected || AccessUtils.isBackdoorAccess()) {
+				UI.getCurrent().navigate("preparation/records", getLocation().getQueryParameters());
+				return;
+			}
+			OwlcmsSession.setRequestedUrl("preparation/records");
+			OwlcmsSession.setRequestedQueryParameters(getLocation().getQueryParameters());
+			UI.getCurrent().navigate(LoginView.LOGIN);
+		});
 		loginButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
 		loginButton.getElement().getStyle().set("margin-right", "1em");
 
-		Button importButton = createImportButton();
-
-		this.topBar.add(exportRecordsButton, loginButton, importButton);
+		this.topBar.add(exportRecordsButton, loginButton);
 		return this.topBar;
+	}
+
+	private boolean hasAccessPassword() {
+		String paramPin = Config.getCurrent().getParamPin();
+		String dbPin = Config.getCurrent().getPin();
+		return (paramPin != null && !paramPin.isBlank()) || (dbPin != null && !dbPin.isBlank());
 	}
 }

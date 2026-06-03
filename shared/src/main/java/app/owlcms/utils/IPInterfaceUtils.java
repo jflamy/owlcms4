@@ -271,10 +271,9 @@ public class IPInterfaceUtils {
 				}
 				if (addr.isLoopbackAddress()) {
 					loopback.add(siteURLString);
-				} else if (ifaceName.startsWith("wlan") || ifaceName.startsWith("wlp")
-				        || ifaceDisplay.contains("wireless")) {
+				} else if (isWirelessInterface(ifaceName, ifaceDisplay)) {
 					wireless.add(siteURLString);
-				} else if (ifaceName.startsWith("eth") || ifaceName.startsWith("enp")) {
+				} else if (isWiredInterface(ifaceName)) {
 					wired.add(siteURLString);
 				} else {
 					// on certain versions of macOS, wireless and wired interfaces are both "en"
@@ -284,6 +283,33 @@ public class IPInterfaceUtils {
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
 		}
+	}
+
+	private boolean isMacOs() {
+		String osName = System.getProperty("os.name", "").toLowerCase();
+		return osName.startsWith("mac");
+	}
+
+	private boolean isWirelessInterface(String ifaceName, String ifaceDisplay) {
+		String normalizedName = ifaceName == null ? "" : ifaceName.toLowerCase();
+		String normalizedDisplay = ifaceDisplay == null ? "" : ifaceDisplay.toLowerCase();
+
+		if (normalizedName.startsWith("wlan") || normalizedName.startsWith("wlp")
+		        || normalizedDisplay.contains("wireless")) {
+			return true;
+		}
+
+		return isMacOs() && normalizedName.equals("en0");
+	}
+
+	private boolean isWiredInterface(String ifaceName) {
+		String normalizedName = ifaceName == null ? "" : ifaceName.toLowerCase();
+
+		if (normalizedName.startsWith("eth") || normalizedName.startsWith("enp")) {
+			return true;
+		}
+
+		return isMacOs() && normalizedName.startsWith("en") && !normalizedName.equals("en0");
 	}
 
 	private boolean virtual(String displayName) {

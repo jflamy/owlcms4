@@ -40,6 +40,7 @@ public class GridField<T> extends CustomField<List<T>> {
 	@SuppressWarnings("unchecked")
 	public GridField(List<T> rows, boolean draggable, String messageString) {
 		super(new ArrayList<>(rows));
+		this.presentationStrings = new ArrayList<>(rows);
 
 		this.message = new NativeLabel();
 		this.message.setText(messageString);
