@@ -354,9 +354,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        .setHeader(Translator.translate("Championship"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
-			        Ranking ss = item.getScoringSystem();
-			        Championship championship = item.getChampionship();
-			        return rankingText(ss != null ? ss : championship != null ? championship.getScoringSystem() : null);
+			        return medalsText(item);
 		        }))
 		        .setHeader(Translator.translate("CeremonyType.MEDALS"));
 		grid.addColumn(new TextRenderer<>(
@@ -386,6 +384,17 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 
 	private static String rankingText(Ranking ranking) {
 		return ranking != null ? Translator.translate("Ranking." + ranking) : "";
+	}
+
+	private static String medalsText(AgeGroup ageGroup) {
+		Championship championship = ageGroup.getChampionship();
+		if (championship != null && championship.isSnatchCJTotalMedals()) {
+			return String.join(" ",
+			        Translator.translate("Results.Snatch_abbrev"),
+			        Translator.translate("Results.CJ_abbrev"),
+			        Translator.translate("Results.Total"));
+		}
+		return rankingText(ageGroup.getComputedScoringSystem());
 	}
 
 	/**

@@ -333,10 +333,16 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@Transient
 	@JsonIgnore
 	public Ranking getComputedScoringSystem() {
-		if (this.scoringSystem == null) {
-			return Ranking.TOTAL;
+		Championship championship = Championship.findStored(this.computeChampionshipName());
+		if (championship != null && championship.getScoringSystem() != null) {
+			return championship.getScoringSystem();
 		}
-		return this.scoringSystem;
+		if (this.scoringSystem != null) {
+			return this.scoringSystem;
+		}
+		Championship defaultChampionship = Championship.of(this.computeChampionshipName());
+		Ranking defaultScoringSystem = defaultChampionship != null ? defaultChampionship.getScoringSystem() : null;
+		return defaultScoringSystem != null ? defaultScoringSystem : Ranking.TOTAL;
 	}
 
 	@JsonIgnore
@@ -390,7 +396,8 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@Transient
 	@JsonIgnore
 	public Ranking getMedalScoringSystem() {
-		return this.scoringSystem != null && this.scoringSystem.isMedalScore() ? this.scoringSystem : null;
+		Ranking scoringSystem = getComputedScoringSystem();
+		return scoringSystem != null && scoringSystem.isMedalScore() ? scoringSystem : null;
 	}
 
 	public Integer getMinAge() {

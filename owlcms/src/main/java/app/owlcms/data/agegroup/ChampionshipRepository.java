@@ -253,34 +253,12 @@ public class ChampionshipRepository {
 			return (Long) em.createQuery("select count(c) from Championship c").getSingleResult();
 		});
 		if (count > 0) {
-			ensureCompetitionTemplate();
-			migrateScoringFieldsIfNeeded();
-			normalizeDefaultTypes();
-			normalizeCompetitionDefaultFlags();
-			logger.debug("Championship table already has {} rows, skipping bootstrap", count);
+			reconcileFromAgeGroups();
+			logger.debug("Championship table already has {} rows, reconciled from age groups", count);
 			return;
 		}
-		logger.info("Creating competition championship template for legacy age groups");
-		ensureCompetitionTemplate();
-		normalizeDefaultTypes();
-		normalizeCompetitionDefaultFlags();
-	}
-
-	private static void migrateScoringFieldsIfNeeded() {
-		JPAService.runInTransaction(em -> {
-			TypedQuery<Championship> query = em.createQuery(
-			        "select c from Championship c where c.scoringSystem is null and c.competitionTemplate = false", Championship.class);
-			List<Championship> championshipsNeedingMigration = query.getResultList();
-			for (Championship championship : championshipsNeedingMigration) {
-				championship.populateScoringDefaults();
-				em.merge(championship);
-				logger.info("Migrated scoring fields for championship '{}'", championship.getName());
-			}
-			if (!championshipsNeedingMigration.isEmpty()) {
-				em.flush();
-			}
-			return null;
-		});
+		logger.info("Creating championships for legacy age groups");
+		reconcileFromAgeGroups();
 	}
 
 	/**

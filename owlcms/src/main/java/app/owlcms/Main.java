@@ -445,12 +445,9 @@ public class Main {
                         AgeGroupRepository.insertAgeGroups(em, null);
                         return null;
                     });
-                } else {
-                    // bootstrap stored championships from age groups if Championship table is empty
-                    ChampionshipRepository.bootstrapFromAgeGroups();
-                    // validate that categories are consistent with their age groups
-                    AgeGroupRepository.validateCategoriesConsistency();
                 }
+                ChampionshipRepository.reconcileFromAgeGroups();
+                AgeGroupRepository.validateCategoriesConsistency();
                 List<Config> configs = ConfigRepository.findAll();
                 if (configs.isEmpty()) {
                     logger.debug("adding config object");

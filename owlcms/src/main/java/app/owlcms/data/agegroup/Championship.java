@@ -809,14 +809,8 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	@JsonIgnore
 	public boolean isScoreMedalChampionship() {
-		if (computeUsesCompetitionDefaults()) {
-			return getCompetitionDefaults().isScoreMedalChampionship();
-		}
-		List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, this, null, true, -1, -1);
-		if (ageGroups != null && !ageGroups.isEmpty()) {
-			return ageGroups.stream().anyMatch(ag -> ag != null && ag.getMedalScoringSystem() != null);
-		}
-		return this.scoringSystem != null && this.scoringSystem.isMedalScore();
+		Ranking scoringSystem = getScoringSystem();
+		return scoringSystem != null && scoringSystem.isMedalScore();
 	}
 
 	@Deprecated

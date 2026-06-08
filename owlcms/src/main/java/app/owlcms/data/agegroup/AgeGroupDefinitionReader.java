@@ -478,7 +478,11 @@ public class AgeGroupDefinitionReader {
 		return rv;
 	}
 
-	private static Ranking getRankingFromExportValue(String cellValue) {
+	static Ranking getRankingFromExportValue(String cellValue) {
+		Ranking ranking = Ranking.rankingByReportingName.get(cellValue.trim().toLowerCase(Locale.ROOT));
+		if (ranking != null) {
+			return ranking;
+		}
 		for (Ranking candidate : Ranking.values()) {
 			if (matchesExportedRankingTitle(cellValue, candidate)) {
 				return candidate;

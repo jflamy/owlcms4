@@ -376,6 +376,8 @@ public class CompetitionDataV2 {
 		}
 		return null;
 		});
+		ChampionshipRepository.reconcileFromAgeGroups();
+		Championship.reset();
 		
 		RecordConfig current = RecordConfig.getCurrent();
 		current.addMissing(RecordRepository.findAllRecordNames());
