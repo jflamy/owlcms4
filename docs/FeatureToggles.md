@@ -35,6 +35,7 @@ These switches change the default behavior of the interface
 | childrenEquipment         | If present, it is assumed that all platforms have 2,5kg and 5kg large discs, and have 5kg and 10kg bars | Only available as a feature switch. |
 | noInterimScoresInResults  | If present, scoreboards will show interim scores, but result sheets will not (on the result sheets QPoints will be 0 if total is 0) | Only available as a feature switch. |
 | masters20kg               | If present, the Masters 20% rule is ignored.  Used in mixed Masters and Seniors championships that do not follow IMWA rules. | Activated as a competition rule.    |
+| previousSessionMedalsOnly  | If present, scoreboards will only show medalists from previous sessions, and not the best 3 results | Only available as a feature switch. |
 
 ### Specialty Features
 

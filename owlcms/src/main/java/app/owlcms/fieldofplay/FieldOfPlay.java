@@ -2584,20 +2584,31 @@ public class FieldOfPlay implements IUnregister {
 			return group2 != null && group3 != null && !group3.equals(group2);
 		}).toList();
 		boolean snatchCjTotal = Championship.anyMultiMedal(getActiveChampionships());
-		var eligible = medalists.stream()
+		var started = medalists.stream()
 		        .filter(this::hasStarted)
+		        .toList();
+		var eligible = started.stream()
 		        .filter(this::hasNonZeroTotal)
 		        .toList();
-		
-		// Get top 3 by total among previous group athletes (not overall rank 1-3)
-		List<Athlete> top3ByTotal = eligible.stream()
-		        .sorted((a, b) -> Integer.compare(rankOrMax(a.getTotalRank()), rankOrMax(b.getTotalRank())))
-		        .limit(3)
-		        .collect(Collectors.toList());
-		
+
 		List<Athlete> leaders;
-		if (snatchCjTotal) {
-			// Top 3 totals from previous groups + snatch medalists + CJ medalists
+		if (Config.getCurrent().featureSwitch("previousSessionMedalsOnly")) {
+			if (snatchCjTotal) {
+				leaders = started.stream()
+				        .filter(this::isMedalEligibleAnyLift)
+				        .sorted((a, b) -> Integer.compare(rankOrMax(a.getTotalRank()), rankOrMax(b.getTotalRank())))
+				        .collect(Collectors.toList());
+			} else {
+				leaders = started.stream()
+				        .filter(a -> isRankInRange(a.getTotalRank(), 3))
+				        .sorted((a, b) -> Integer.compare(a.getTotalRank(), b.getTotalRank()))
+				        .collect(Collectors.toList());
+			}
+		} else if (snatchCjTotal) {
+			List<Athlete> top3ByTotal = eligible.stream()
+			        .sorted((a, b) -> Integer.compare(rankOrMax(a.getTotalRank()), rankOrMax(b.getTotalRank())))
+			        .limit(3)
+			        .collect(Collectors.toList());
 			Set<Athlete> leaderSet = new HashSet<>(top3ByTotal);
 			eligible.stream()
 			        .filter(a -> isRankInRange(a.getSnatchRank(), 3) || isRankInRange(a.getCleanJerkRank(), 3))
@@ -2606,8 +2617,10 @@ public class FieldOfPlay implements IUnregister {
 			        .sorted((a, b) -> Integer.compare(rankOrMax(a.getTotalRank()), rankOrMax(b.getTotalRank())))
 			        .collect(Collectors.toList());
 		} else {
-			// Total-only: top 3 totals from previous groups
-			leaders = top3ByTotal;
+			leaders = eligible.stream()
+			        .sorted((a, b) -> Integer.compare(rankOrMax(a.getTotalRank()), rankOrMax(b.getTotalRank())))
+			        .limit(3)
+			        .collect(Collectors.toList());
 		}
 		setLeaders(leaders);
 	}
