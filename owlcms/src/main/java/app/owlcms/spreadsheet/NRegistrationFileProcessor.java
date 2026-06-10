@@ -229,17 +229,22 @@ public class NRegistrationFileProcessor {
 			Athlete sbdeAthlete = r.getAthlete();
 			String athleteKey = athleteKey(sbdeAthlete);
 
+			// Capture eligibles/teams from the SBDE athlete now, before the next
+			// SBDE athlete overwrites the null-keyed entry in the RCompetition maps.
+			// (All SBDE athletes have id==null since they are not yet persisted.)
+			LinkedHashSet<Category> sbdeEligibles = RCompetition.getEligibles(sbdeAthlete.getId());
+			LinkedHashSet<Category> sbdeTeams = RCompetition.getTeams(sbdeAthlete.getId());
+			LinkedHashSet<Category> sbdeMixedTeams = RCompetition.getMixedTeams(sbdeAthlete.getId());
+
 			Athlete existingAthlete = priorAthletes.get(athleteKey(sbdeAthlete));
 			if (existingAthlete != null) {
 				if (isUpdateExistingAthletes() || isDeleteAthletes()) {
 					existingAthlete.getParticipations().clear();
-					// logger.debug("* existing athlete {} {} {}", existingAthlete.getAbbreviatedName(),
-					// existingAthlete.getId(),existingAthlete.getParticipations());
-					// logger.debug("* sbde {} {}", sbdeAthlete.getAbbreviatedName(), sbdeAthlete.getId(), sbdeAthlete.getParticipations());
 
 					// can't happen, mutually exclusive from enclosing conditions, paranoia.
 					if (!isOnlyAddAthletes()) {
-						updateExistingAthlete(existingAthlete, sbdeAthlete);
+						updateExistingAthlete(existingAthlete, sbdeAthlete,
+						        sbdeEligibles, sbdeTeams, sbdeMixedTeams);
 						toBeMerged.add(existingAthlete);
 					}
 				} else {
@@ -248,7 +253,8 @@ public class NRegistrationFileProcessor {
 				}
 			} else {
 				sbdeAthlete.setCategoryFinished(false);
-				// logger.debug("adding sbdeAthlete {} {}", sbdeAthlete.getShortName(), sbdeAthlete.getId());
+				// Store eligibles under a temporary negative key so they survive the loop.
+				// New athletes will get a real ID after persist; step 3 will find them by ID.
 				toBeMerged.add(sbdeAthlete);
 			}
 		});
@@ -273,7 +279,7 @@ public class NRegistrationFileProcessor {
 		JPAService.runInTransaction(em -> {
 			// logger.debug(") step 3 - database athletes");
 			AthleteRepository.findAll().stream().forEach(a2 -> {
-				if (isPriorAthlete(a2)) {
+				if (isOnlyAddAthletes() && isPriorAthlete(a2)) {
 					// logger.debug("skipping prior athlete {}",a2.getAbbreviatedName());
 					return;
 				}
@@ -336,15 +342,23 @@ public class NRegistrationFileProcessor {
 	 * @param existingAthlete
 	 * @param sbdeAthlete
 	 */
-	private void updateExistingAthlete(Athlete existingAthlete, Athlete sbdeAthlete) {
+	private void updateExistingAthlete(Athlete existingAthlete, Athlete sbdeAthlete,
+	        LinkedHashSet<Category> sbdeEligibles, LinkedHashSet<Category> sbdeTeams,
+	        LinkedHashSet<Category> sbdeMixedTeams) {
 		// keep the bw, declarations, changes, and actual lifts from the existing athlete
 		// must fix participations to point to the existing athlete, not the sbde athlete.
-		// System.err./**/println("> updateExistingAthlete");
 		Athlete.conditionalCopy(existingAthlete, sbdeAthlete, false, false, false);
-		RCompetition.putEligibles(existingAthlete.getId(), RCompetition.getEligibles(sbdeAthlete.getId()));
-		RCompetition.putTeams(existingAthlete.getId(), RCompetition.getTeams(sbdeAthlete.getId()));
-		RCompetition.putMixedTeams(existingAthlete.getId(), RCompetition.getMixedTeams(sbdeAthlete.getId()));
-		// System.err./**/println("< updateExistingAthlete");
+		// Apply the SBDE eligibles/teams (captured before the null-key was overwritten).
+		// If the SBDE carries categories, use them; otherwise preserve the existing ones from step 1.
+		if (sbdeEligibles != null) {
+			RCompetition.putEligibles(existingAthlete.getId(), sbdeEligibles);
+		}
+		if (sbdeTeams != null) {
+			RCompetition.putTeams(existingAthlete.getId(), sbdeTeams);
+		}
+		if (sbdeMixedTeams != null) {
+			RCompetition.putMixedTeams(existingAthlete.getId(), sbdeMixedTeams);
+		}
 	}
 
 	private String athleteKey(Athlete a) {

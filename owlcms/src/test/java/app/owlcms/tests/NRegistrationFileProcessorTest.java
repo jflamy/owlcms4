@@ -8,9 +8,12 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -21,12 +24,15 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.Main;
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
 import app.owlcms.spreadsheet.NRegistrationFileProcessor;
+import app.owlcms.spreadsheet.RCompetition;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -64,6 +70,39 @@ public class NRegistrationFileProcessorTest {
 
     public NRegistrationFileProcessorTest() {
         logger.setLevel(Level.INFO);
+    }
+
+    @Test
+    public void testUpdateExistingAthletePreservesFederationCodesAndTeamMembershipData() throws Exception {
+        Athlete existingAthlete = new Athlete();
+        existingAthlete.setId(42L);
+        existingAthlete.setFederationCodes("OLD");
+
+        Athlete incomingAthlete = new Athlete();
+        incomingAthlete.setFederationCodes("NEW");
+
+        Athlete.conditionalCopy(existingAthlete, incomingAthlete, false, false, false);
+
+        assertEquals("Federation codes should be updated during metadata-only refresh", "NEW",
+                existingAthlete.getFederationCodes());
+
+        LinkedHashSet<Category> eligibles = new LinkedHashSet<>();
+        LinkedHashSet<Category> teams = new LinkedHashSet<>();
+        LinkedHashSet<Category> mixedTeams = new LinkedHashSet<>();
+
+        NRegistrationFileProcessor processor = new NRegistrationFileProcessor(false, Locale.ENGLISH);
+        Method updateMethod = NRegistrationFileProcessor.class.getDeclaredMethod(
+                "updateExistingAthlete", Athlete.class, Athlete.class,
+                LinkedHashSet.class, LinkedHashSet.class, LinkedHashSet.class);
+        updateMethod.setAccessible(true);
+        updateMethod.invoke(processor, existingAthlete, incomingAthlete, eligibles, teams, mixedTeams);
+
+        assertSame("The updated athlete should keep the captured eligible-category set", eligibles,
+                RCompetition.getEligibles(existingAthlete.getId()));
+        assertSame("The updated athlete should keep the captured team-membership set", teams,
+                RCompetition.getTeams(existingAthlete.getId()));
+        assertSame("The updated athlete should keep the captured mixed-team set", mixedTeams,
+                RCompetition.getMixedTeams(existingAthlete.getId()));
     }
 
     @Test
