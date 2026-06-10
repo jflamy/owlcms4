@@ -13,6 +13,9 @@
   "folders": [
     {
       "path": "."
+    },
+    {
+      "path": "../owlcms-meets"
     }
   ],
   "settings": {

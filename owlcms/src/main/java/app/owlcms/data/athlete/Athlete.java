@@ -161,11 +161,11 @@ public class Athlete {
 			// System.err./**/println(">> conditionalCopy copied group " + dest.getGroup());
 			dest.setStartNumber(src.getStartNumber());
 			dest.setLotNumber(src.getLotNumber());
-			dest.setEntryTotal(src.getEntryTotal());
 
 			dest.computeCategory(src.getCategory());
 
 			if (copyChanges) {
+				dest.setEntryTotal(src.getEntryTotal());
 				dest.setSnatch1Declaration(src.getSnatch1Declaration());
 				dest.setSnatch1Change1(src.getSnatch1Change1());
 				dest.setSnatch1Change2(src.getSnatch1Change2());
@@ -237,6 +237,7 @@ public class Athlete {
 			dest.setCoach(src.getCoach());
 			dest.setCustom1(src.getCustom1());
 			dest.setCustom2(src.getCustom2());
+			dest.setFederationCodes(src.getFederationCodes());
 
 			if (copyResults) {
 				// Category-specific results are in the participation objects
