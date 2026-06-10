@@ -10,6 +10,8 @@
 
 **New in Release 66**
 
+66.4.0: Updating record eligibility in the SBDE file was not taken into account when updating athletes during a competition.
+
 66.3.0: New competition export endpoints in addition to the existing `/competition/export` (which is unchanged):
   - `/competition/export/json/1` — same JSON format as the legacy endpoint
   - `/competition/export/json/2` — new JSON v2 format
