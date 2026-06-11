@@ -35,6 +35,7 @@
     // Debug and terminal
     "debug.toolBarLocation": "docked",
     "debug.allowBreakpointsEverywhere": true,
+    "editor.fontLigatures": false,
     "editor.stickyScroll.enabled": false,
     "workbench.tree.enableStickyScroll": false,
     // Explorer auto-reveal when switching tabs
