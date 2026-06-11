@@ -10,12 +10,14 @@
 
 **New in Release 67**
 
-67.0.0-beta06: fixed records import
+67.0.0-beta08: SBDE Update athlete non-lifting data mode was not processing record eligibilities, and not reapplying categories and teams correctly.
 
 67.0.0-beta07: reworked the Records editing page
   - all features are on a single page
   - event-specific or historical prior-categories records can be marked as inactive for less clutter.
   - redid the documentation
+
+67.0.0-beta06: fixed records import
 
 67.0.0-beta04: Fixed timer display jitter on the attempt board (e.g. 1:12 to 1:11)
 
