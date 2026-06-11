@@ -13,6 +13,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
@@ -50,6 +51,7 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
@@ -112,12 +114,16 @@ public class BaseResults extends LitTemplate
 	private String showMedals = "auto";
 	private int topN = DisplayParameters.DEFAULT_TOP_N;
 	private boolean groupPinnedFromURL;
+	// captured on the UI thread; getAthleteJson runs in uiAccess closures on event-bus threads
+	// where OwlcmsSession.getLocale() is unreliable.
+	private Locale capturedLocale = Locale.ENGLISH;
 
 	public BaseResults() {
 		this.uiEventLogger.setLevel(Level.INFO);
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
+		this.capturedLocale = OwlcmsSession.getLocale();
 
 		overrideColors(this.getElement());
 	}
@@ -923,6 +929,20 @@ public class BaseResults extends LitTemplate
 		return ageGroups;
 	}
 
+	protected String getCustom1Label() {
+		return Config.getCurrent().featureSwitch("displayBodyWeight")
+		        ? Translator.translate("Scoreboard.BodyWeight")
+		        : Translator.translate("Scoreboard.Custom1");
+	}
+
+	protected String getCustom1Value(Athlete a) {
+		if (Config.getCurrent().featureSwitch("displayBodyWeight")) {
+			Double bodyWeight = a.getBodyWeight();
+			return bodyWeight != null ? String.format(this.capturedLocale, "%.2f", bodyWeight) : "";
+		}
+		return a.getCustom1() != null ? a.getCustom1() : "";
+	}
+
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		boolean bestScore = Config.getCurrent().featureSwitch("displayBestScore");
 		boolean bestScoreRank = Config.getCurrent().featureSwitch("displayBestScoreRank");
@@ -961,7 +981,7 @@ public class BaseResults extends LitTemplate
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 
-		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
+		ja.put("custom1", getCustom1Value(a));
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
 		if (a.getComputedScoringSystem() != Ranking.TOTAL || bestScore || bestScoreRank) {
@@ -1169,6 +1189,8 @@ public class BaseResults extends LitTemplate
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
+		// onAttach runs on the UI thread; refresh the captured locale for use in event-bus callbacks.
+		this.capturedLocale = OwlcmsSession.getLocale();
 		// fop obtained via FOPParameters interface default methods.
 		FieldOfPlay fop = getFop();
 		if (fop == null) {
@@ -1202,6 +1224,7 @@ public class BaseResults extends LitTemplate
 
 		getElement().setProperty("showTotal", true);
 		getElement().setProperty("showBest", true); // overridden by media queries, not a variable
+		getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch("displayBodyWeight"));
 		getElement().setProperty("showLiftRanks", anyMultiMedal && !scoreMedalChampionship);
 		getElement().setProperty("showTotalRank", !scoreMedalChampionship);
 		getElement().setProperty("video", this.video);
@@ -1239,7 +1262,9 @@ public class BaseResults extends LitTemplate
 		this.getElement().setProperty("showSinclair", showScore);
 
 		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks() || scoreMedalChampionship;
-		if (Config.getCurrent().featureSwitch("noSinclairRank")) {
+		boolean noBestScoreRank = Config.getCurrent().featureSwitch("noBestScoreRank")
+		        || Config.getCurrent().featureSwitch("noSinclairRank");
+		if (noBestScoreRank) {
 			showScoreRank = false;
 		} else if (Config.getCurrent().featureSwitch("displayBestScoreRank")) {
 			showScoreRank = true;
@@ -1257,6 +1282,9 @@ public class BaseResults extends LitTemplate
 			if (curKey.startsWith("Scoreboard.")) {
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
+		}
+		if (Config.getCurrent().featureSwitch("displayBodyWeight")) {
+			translations.put("Custom1", getCustom1Label());
 		}
 		translations.put("ScoringTitle", Translator.translate("Score"));
 		if (!Config.getCurrent().featureSwitch("medalistsAsLeaders")) {

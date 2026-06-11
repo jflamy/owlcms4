@@ -275,6 +275,7 @@ class ResultsRankingsByCategory extends LitElement {
       + (this.showLiftRanks ? " ranks" : " noranks")
       + (this.showBest ? " best" : " nobest")
       + (this.showTotalRank ? " totalRank" : " nototalRank")
+      + (this.showCustom1 ? " custom1" : " nocustom1")
       + (this.showSinclair ? " sinclair" : " nosinclair")
       + (showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;

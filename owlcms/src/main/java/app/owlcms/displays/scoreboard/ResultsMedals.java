@@ -436,7 +436,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			}
 		}
 
-		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
+		ja.put("custom1", getCustom1Value(a));
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
 		String prop = null;
@@ -493,6 +493,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		this.setUi(attachEvent.getUI());
+		this.getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch("displayBodyWeight"));
 		// we listen on uiEventBus.
 		FieldOfPlay fop = getFop();
 		this.uiEventBus = uiEventBusRegister(this, fop);
@@ -508,6 +509,9 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			if (curKey.startsWith("Scoreboard.")) {
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
+		}
+		if (Config.getCurrent().featureSwitch("displayBodyWeight")) {
+			translations.put("Custom1", getCustom1Label());
 		}
 		this.getElement().setPropertyJson("t", translations);
 	}

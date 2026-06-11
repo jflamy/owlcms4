@@ -112,7 +112,7 @@ public class ResultsMultiRanks extends Results {
 			}
 		}
 
-		ja.put("custom1", a.getCustom1() != null ? a.getCustom1() : "");
+		ja.put("custom1", getCustom1Value(a));
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
 		boolean notDone = a.getAttemptsDone() < 6;

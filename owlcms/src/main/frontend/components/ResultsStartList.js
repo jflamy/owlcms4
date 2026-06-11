@@ -158,6 +158,7 @@ class ResultsStartList extends LitElement {
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
       showSinclairRanks: {type: Boolean},
+      showCustom1: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
       logoSrc: {},
@@ -256,6 +257,7 @@ class ResultsStartList extends LitElement {
     + (this.showLiftRanks ? " ranks" : " noranks")
     + (this.showBest ? " best" : " nobest")
     + (this.showTotalRank ? " totalRank" : " nototalRank")
+    + (this.showCustom1 ? " custom1" : " nocustom1")
     + (this.showSinclair ? " sinclair" : " nosinclair")
     + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
     ;

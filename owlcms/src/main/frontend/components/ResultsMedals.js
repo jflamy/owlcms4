@@ -207,6 +207,7 @@ class ResultsMedals extends LitElement {
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
       showSinclairRanks: {type: Boolean},
+      showCustom1: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
 
@@ -277,6 +278,7 @@ class ResultsMedals extends LitElement {
     return "results medals " 
       + (this.showLiftRanks ? "" : " noranks") 
      // + (this.showBest ? "" : " nobest")
+      + (this.showCustom1 ? " custom1" : " nocustom1")
       + (this.showSinclair ? " sinclair" : " nosinclair")
       + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
       ;

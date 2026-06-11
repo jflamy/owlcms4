@@ -266,6 +266,27 @@ td.flags div.flags {
     display: flex;
 }
 
+table.results.custom1 {
+    --custom1Width: minmax(7ch, min-content);
+    --custom1Visibility: visible;
+}
+
+/* The column-visibility variables are declared on the universal selector (*),
+   so they are applied directly to every cell and override the value inherited
+   from table.results.custom1. Force the cells visible explicitly. */
+table.results.custom1 th.custom1,
+table.results.custom1 td.custom1 {
+    --custom1Visibility: visible;
+    visibility: visible;
+    /* enough room for a body weight like 199.99 */
+    min-width: 7ch;
+}
+
+table.results.nocustom1 {
+    --custom1Width: 0;
+    --custom1Visibility: hidden;
+}
+
 td.custom1 div {
     /* pre-wrap is used for multiple lines custom1 custom2 */
     /* white-space: pre-wrap; */
