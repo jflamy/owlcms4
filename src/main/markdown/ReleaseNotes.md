@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-beta09: Starting from a version 65 or older database (as in Update/Import) would fail when attempting to migrate to the new Championship template structure.
+
 67.0.0-beta08: SBDE Update athlete non-lifting data mode was not processing record eligibilities, and not reapplying categories and teams correctly.
 
 67.0.0-beta07: reworked the Records editing page

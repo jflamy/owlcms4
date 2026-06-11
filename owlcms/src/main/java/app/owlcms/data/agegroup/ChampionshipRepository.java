@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -25,6 +26,13 @@ import ch.qos.logback.classic.Logger;
 public class ChampionshipRepository {
 
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(ChampionshipRepository.class);
+
+	/**
+	 * Guards against re-entrant reconciliation: Competition.getCurrent() and
+	 * Championship.findAll() can lazily trigger bootstrapFromAgeGroups() while a
+	 * reconcile is already running, which would create a duplicate template.
+	 */
+	private static final ThreadLocal<Boolean> RECONCILING = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
 	/**
 	 * Find all real stored championships, excluding the competition template.
@@ -108,8 +116,16 @@ public class ChampionshipRepository {
 			return em.merge(template);
 		}
 
+		// Template creation is the only place that needs the legacy competition-level
+		// defaults. Read the competition row directly from this EntityManager:
+		// Competition.getCurrent() must NOT be used here because its first-load
+		// initialization (ranking config) walks age groups and lazily re-enters
+		// Championship bootstrap, which would create the template a second time.
+		Competition competition = em
+		        .createQuery("select c from Competition c", Competition.class)
+		        .getResultList().stream().findFirst().orElse(null);
 		Championship template = new Championship(Championship.COMPETITION_TEMPLATE_NAME, ChampionshipType.U);
-		template.populateCompetitionTemplateDefaults(Competition.getCurrent());
+		template.populateCompetitionTemplateDefaults(competition);
 		applyLegacyTemplateTeamSizeDefaults(em, template);
 		em.persist(template);
 		logger.info("Created competition championship template: name='{}'", template.getName());
@@ -267,8 +283,16 @@ public class ChampionshipRepository {
 	 * row already exists.
 	 */
 	public static void reconcileFromAgeGroups() {
-		JPAService.runInTransaction(em -> {
-			ensureCompetitionTemplate(em);
+		if (Boolean.TRUE.equals(RECONCILING.get())) {
+			// Re-entrant call: Competition.getCurrent() or Championship.findAll() invoked
+			// from within an ongoing reconcile triggered the lazy bootstrap again.
+			logger.debug("reconcileFromAgeGroups reentrant call skipped {}", LoggerUtils.whereFrom());
+			return;
+		}
+		RECONCILING.set(Boolean.TRUE);
+		try {
+			JPAService.runInTransaction(em -> {
+				ensureCompetitionTemplate(em);
 			TypedQuery<AgeGroup> q = em.createQuery("select ag from AgeGroup ag", AgeGroup.class);
 			List<AgeGroup> ageGroups = q.getResultList();
 			normalizeAgeGroupChampionshipNames(em, ageGroups);
@@ -301,11 +325,14 @@ public class ChampionshipRepository {
 				}
 			}
 
-			em.flush();
-			normalizeDefaultTypes(em);
-			normalizeCompetitionDefaultFlags(em);
-			return null;
-		});
+				em.flush();
+				normalizeDefaultTypes(em);
+				normalizeCompetitionDefaultFlags(em);
+				return null;
+			});
+		} finally {
+			RECONCILING.remove();
+		}
 		Championship.reset();
 	}
 
@@ -319,8 +346,9 @@ public class ChampionshipRepository {
 			TypedQuery<Championship> cq = em.createQuery(
 			        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
 			List<Championship> championships = cq.getResultList();
-			return materializeChampionship(em, effectiveChampionshipName(ageGroup), ageGroup.getConfiguredChampionshipType(),
-			        ageGroups, championships);
+			Championship template = ensureCompetitionTemplate(em);
+			return materializeChampionship(em, template, effectiveChampionshipName(ageGroup),
+			        ageGroup.getConfiguredChampionshipType(), ageGroups, championships);
 		});
 		Championship.reset();
 		return championship;
@@ -350,7 +378,8 @@ public class ChampionshipRepository {
 			TypedQuery<Championship> cq = em.createQuery(
 			        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
 			List<Championship> championships = cq.getResultList();
-			Championship result = materializeChampionship(em, canonical, type, ageGroups, championships);
+			Championship template = ensureCompetitionTemplate(em);
+			Championship result = materializeChampionship(em, template, canonical, type, ageGroups, championships);
 			normalizeDefaultTypes(em);
 			normalizeCompetitionDefaultFlags(em);
 			return result;
@@ -447,29 +476,28 @@ public class ChampionshipRepository {
 	private static boolean materializeRequiredChampionships(EntityManager em, List<AgeGroup> ageGroups,
 	        List<Championship> championships) {
 		boolean changed = false;
+		Championship template = ensureCompetitionTemplate(em);
 		for (AgeGroup ageGroup : ageGroups) {
 			if (!requiresMaterializedChampionship(ageGroup)) {
 				continue;
 			}
 			String championshipName = effectiveChampionshipName(ageGroup);
 			Championship existing = findChampionship(championshipName, championships);
-			Championship template = ensureCompetitionTemplate(em);
 			boolean usedDefaults = existing != null && !existing.computeDifferentFromCompetitionDefaults(template);
-			Championship championship = materializeChampionship(em, championshipName, ageGroup.getConfiguredChampionshipType(),
-			        ageGroups, championships);
+			Championship championship = materializeChampionship(em, template, championshipName,
+			        ageGroup.getConfiguredChampionshipType(), ageGroups, championships);
 			changed |= championship != null && (existing == null || usedDefaults);
 		}
 		return changed;
 	}
 
-	private static Championship materializeChampionship(EntityManager em, String championshipName, ChampionshipType type,
-	        List<AgeGroup> ageGroups, List<Championship> championships) {
+	private static Championship materializeChampionship(EntityManager em, Championship template, String championshipName,
+	        ChampionshipType type, List<AgeGroup> ageGroups, List<Championship> championships) {
 		if (championshipName == null || championshipName.isBlank()) {
 			return null;
 		}
 		Championship championship = findChampionship(championshipName, championships);
 		if (championship == null) {
-			Championship template = ensureCompetitionTemplate(em);
 			championship = new Championship(championshipName, canonicalizeType(championshipName, type));
 			championship.copyCompetitionSettingsFrom(template);
 			applyAgeGroupScoringOverrides(championship, championshipName, ageGroups);
@@ -477,7 +505,6 @@ public class ChampionshipRepository {
 			championships.add(championship);
 			logger.info("Materialized championship '{}' from age groups", championshipName);
 		} else {
-			Championship template = ensureCompetitionTemplate(em);
 			ChampionshipType canonicalType = canonicalizeType(championshipName, type);
 			if (championship.getType() != canonicalType) {
 				championship.setType(canonicalType);
