@@ -46,6 +46,8 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	private FieldOfPlay fop;
 	private boolean groupDone;
 	private List<Group> groups;
+	private final boolean skipDone;
+	private CompetitionSimulator simulator;
 
 	// private EventBus fopEventBus;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FOPSimulator.class);
@@ -56,8 +58,17 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	private volatile boolean stopped;
 
 	public FOPSimulator(FieldOfPlay f, List<Group> groups) {
+		this(f, groups, false);
+	}
+
+	public FOPSimulator(FieldOfPlay f, List<Group> groups, boolean skipDone) {
 		this.fop = f;
 		this.groups = groups;
+		this.skipDone = skipDone;
+	}
+
+	public void setCompetitionSimulator(CompetitionSimulator simulator) {
+		this.simulator = simulator;
 	}
 
 	public void go() throws InterruptedException {
@@ -358,6 +369,9 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		}
 		if (curGs != null && curGs.size() > 0) {
 			Group g = curGs.get(0);
+			if (this.skipDone && this.simulator != null) {
+				this.simulator.prepareSkipDoneGroup(g);
+			}
 			this.logger.info("########## waiting to start group {} of {}", g, curGs);
 			if (!sleepQuietly(6000)) {
 				return false;

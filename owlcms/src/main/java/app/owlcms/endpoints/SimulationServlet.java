@@ -111,7 +111,9 @@ public class SimulationServlet extends HttpServlet {
 		String action = getAction(request);
 		String message = null;
 		if ("start".equalsIgnoreCase(action)) {
-			message = startSimulation();
+			boolean skipDone = "on".equalsIgnoreCase(request.getParameter("skipDone"))
+			        || "true".equalsIgnoreCase(request.getParameter("skipDone"));
+			message = startSimulation(skipDone);
 		} else if ("stop".equalsIgnoreCase(action)) {
 			message = stopSimulation();
 		}
@@ -125,13 +127,13 @@ public class SimulationServlet extends HttpServlet {
 		writePage(response, message);
 	}
 
-	private static synchronized String startSimulation() {
+	private static synchronized String startSimulation(boolean skipDone) {
 		if (CompetitionSimulator.isRunning()) {
 			return "Simulation is already running.";
 		}
 		simulationThread = new Thread(() -> {
 			try {
-				new CompetitionSimulator().runSimulation();
+				new CompetitionSimulator(skipDone).runSimulation();
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				logger./**/warn("simulation thread interrupted");
@@ -141,7 +143,7 @@ public class SimulationServlet extends HttpServlet {
 		}, "competition-simulation");
 		simulationThread.setDaemon(true);
 		simulationThread.start();
-		return "Simulation start requested.";
+		return skipDone ? "Simulation start requested (skip done)." : "Simulation start requested.";
 	}
 
 	private static synchronized String stopSimulation() {
@@ -197,6 +199,7 @@ public class SimulationServlet extends HttpServlet {
 			pw.println("<p>" + message + "</p>");
 		}
 		pw.println("<form method='post' action=''>");
+		pw.println("<p><label><input type='checkbox' name='skipDone' value='on'> Skip sessions already done (defer weigh-in, keep existing results)</label></p>");
 		pw.println("<button type='submit' name='action' value='start'>Start</button>");
 		pw.println("<button type='submit' name='action' value='stop'>Stop</button>");
 		pw.println("</form>");

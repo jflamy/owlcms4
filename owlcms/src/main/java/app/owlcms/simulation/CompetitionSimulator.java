@@ -71,8 +71,14 @@ public class CompetitionSimulator {
 	}
 
 	private Random r = new Random(0);
+	private final boolean skipDone;
 
 	public CompetitionSimulator() {
+		this(false);
+	}
+
+	public CompetitionSimulator(boolean skipDone) {
+		this.skipDone = skipDone;
 	}
 
 	public String runSimulation() throws InterruptedException {
@@ -92,7 +98,11 @@ public class CompetitionSimulator {
 			        return ObjectUtils.compare(ta, tb, true);
 		        }).collect(Collectors.toList());
 
-		clearLifts();
+		if (this.skipDone) {
+			gs = gs.stream().filter(g -> !g.isDone()).collect(Collectors.toList());
+		} else {
+			clearLifts();
+		}
 
 		int i = 0;
 		for (Group g : gs) {
@@ -100,12 +110,16 @@ public class CompetitionSimulator {
 				return "simulation stopped.";
 			}
 
-			List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
-
-			// if (as.size() == 0) {
-			as = weighIn(g);
-			// }
-			as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
+			List<Athlete> as;
+			if (this.skipDone) {
+				as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
+			} else {
+				as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
+				if (as.isEmpty()) {
+					as = weighIn(g);
+				}
+				as = AthleteRepository.findAllByGroupAndWeighIn(g, true);
+			}
 			if (as.size() == 0) {
 				logger.info("skipping group {} size {}", g.getName(), as.size());
 				continue;
@@ -145,7 +159,8 @@ public class CompetitionSimulator {
 				return "simulation stopped.";
 			}
 			FieldOfPlay f = OwlcmsFactory.getFOPByName(p.getName());
-			FOPSimulator fopSimulator = new FOPSimulator(f, groupsByPlatform.get(p));
+			FOPSimulator fopSimulator = new FOPSimulator(f, groupsByPlatform.get(p), this.skipDone);
+			fopSimulator.setCompetitionSimulator(this);
 			registeredSimulators.add(fopSimulator);
 			fopSimulator.go();
 		}
@@ -169,8 +184,30 @@ public class CompetitionSimulator {
 		});
 	}
 
-	private List<Athlete> weighIn(Group g) {
+	List<Athlete> weighIn(Group g) {
 		List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
+		weighInAthletes(as);
+		return as;
+	}
+
+	/**
+	 * Prepare a not-done session for re-simulation in skip-done mode.
+	 *
+	 * A not-done session may contain a mix of weighed-in and not-weighed-in athletes (left over from a
+	 * previous simulation, or added afterwards). To get a clean, consistent run we clear any leftover
+	 * lifts and then re-weigh the whole session, re-randomizing body weight and openers for every
+	 * athlete.
+	 */
+	void prepareSkipDoneGroup(Group g) {
+		List<Athlete> as = AthleteRepository.findAllByGroupAndWeighIn(g, null);
+		for (Athlete a : as) {
+			a.clearLifts();
+			AthleteRepository.save(a);
+		}
+		weighInAthletes(as);
+	}
+
+	private void weighInAthletes(List<Athlete> as) {
 		Random r = new Random();
 		for (Athlete a : as) {
 			Category c = a.getCategory();
@@ -212,7 +249,6 @@ public class CompetitionSimulator {
 				AthleteRepository.save(a);
 			}
 		}
-		return as;
 	}
 
 }
