@@ -1262,6 +1262,22 @@ public class ChampionshipTest {
     }
 
     @Test
+    public void testTeamResultsSummaryTemplatesUseSingleRowTeamLoop() throws Exception {
+        assertTeamResultsSummaryTemplateUsesSingleRowTeamLoop(
+            "/templates/teamResults/TeamResults-Summary-A4.xlsx",
+            "${mwShowPoints && team.points != 0 ? team.points : \"\"}");
+        assertTeamResultsSummaryTemplateUsesSingleRowTeamLoop(
+            "/templates/teamResults/TeamResults-Summary-Letter.xlsx",
+            "${mwShowPoints && team.points != 0 ? team.points : \"\"}");
+        assertTeamResultsSummaryTemplateUsesSingleRowTeamLoop(
+            "/templates/teamResults/TeamResults-TotalOnly-Summary-A4.xlsx",
+            "${mwShowPoints && team.totalOnlyPoints != 0 ? team.totalOnlyPoints : \"\"}");
+        assertTeamResultsSummaryTemplateUsesSingleRowTeamLoop(
+            "/templates/teamResults/TeamResults-TotalOnly-Summary-Letter.xlsx",
+            "${mwShowPoints && team.totalOnlyPoints != 0 ? team.totalOnlyPoints : \"\"}");
+    }
+
+    @Test
     public void testMixedTeamResultsCountedMembersFollowRankingOrder() {
         Championship junior = ChampionshipRepository.findByName("Junior");
         assertNotNull("Junior championship should be loaded from fixture", junior);
@@ -1585,6 +1601,61 @@ public class ChampionshipTest {
                 assertEquals("mixed member loop should use counted team members for " + templateResource,
                     "jx:each(items=\"team.countedTeamMembers\" var=\"member\" lastCell=\"G5\")",
                     mixedMemberLoop);
+            }
+        }
+    }
+
+    private static void assertTeamResultsSummaryTemplateUsesSingleRowTeamLoop(String templateResource,
+            String teamPointsExpression) throws Exception {
+        try (InputStream templateStream = ChampionshipTest.class.getResourceAsStream(templateResource)) {
+            assertNotNull("missing Team Results summary template: " + templateResource, templateStream);
+            try (Workbook workbook = WorkbookFactory.create(templateStream)) {
+                String areaComment = workbook.getSheet("Mixed")
+                    .getRow(0)
+                    .getCell(0)
+                    .getCellComment()
+                    .getString()
+                    .getString();
+                assertEquals("summary template area should end on the team row for " + templateResource,
+                    "jx:area(lastCell=\"G4\")",
+                    areaComment);
+
+                String statusHeader = workbook.getSheet("Mixed")
+                    .getRow(2)
+                    .getCell(5)
+                    .getStringCellValue();
+                assertEquals("summary template should use the team status header for " + templateResource,
+                    "${t.get(\"TeamResults.Status\")}",
+                    statusHeader);
+
+                String teamLoop = workbook.getSheet("Mixed")
+                    .getRow(3)
+                    .getCell(0)
+                    .getCellComment()
+                    .getString()
+                    .getString();
+                assertEquals("summary template should iterate one row per team for " + templateResource,
+                    "jx:each(items=\"mwTeamItems\" var=\"team\" lastCell=\"G4\")",
+                    teamLoop);
+
+                String teamStatus = workbook.getSheet("Mixed")
+                    .getRow(3)
+                    .getCell(5)
+                    .getStringCellValue();
+                assertEquals("summary template should keep the configured team-size denominator for " + templateResource,
+                    "${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}",
+                    teamStatus);
+
+                String teamPoints = workbook.getSheet("Mixed")
+                    .getRow(3)
+                    .getCell(4)
+                    .getStringCellValue();
+                assertEquals("summary template should use the expected points getter for " + templateResource,
+                    teamPointsExpression,
+                    teamPoints);
+
+                assertNull("summary template should not create a detail row for " + templateResource,
+                    workbook.getSheet("Mixed").getRow(4));
             }
         }
     }
