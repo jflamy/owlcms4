@@ -359,9 +359,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		        .setHeader(Translator.translate("CeremonyType.MEDALS"));
 		grid.addColumn(new TextRenderer<>(
 		        item -> {
-			        Ranking ss = item.getBestAthleteScoringSystem();
-			        Championship championship = item.getChampionship();
-			        return rankingText(ss != null ? ss : championship != null ? championship.getBestAthleteScoringSystem() : null);
+			        return rankingText(item.computedBestAthleteScoringSystem());
 		        }))
 		        .setHeader(Translator.translate("Championship.bestAthleteScoringSystem"));
 		grid.addColumn(new TextRenderer<>(

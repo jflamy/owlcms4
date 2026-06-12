@@ -118,7 +118,7 @@ public class RankingConfig {
 				continue;
 			}
 			addRequiredRanking(ageGroup.getComputedScoringSystem());
-			addRequiredRanking(ageGroup.getBestAthleteScoringSystem());
+			addRequiredRanking(ageGroup.computedBestAthleteScoringSystem());
 			addRequiredRankingsForChampionship(Championship.of(ageGroup.computeChampionshipName()));
 		}
 	}

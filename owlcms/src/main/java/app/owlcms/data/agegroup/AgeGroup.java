@@ -333,16 +333,12 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	@Transient
 	@JsonIgnore
 	public Ranking getComputedScoringSystem() {
-		Championship championship = Championship.findStored(this.computeChampionshipName());
-		if (championship != null && championship.getScoringSystem() != null) {
-			return championship.getScoringSystem();
-		}
-		if (this.scoringSystem != null) {
-			return this.scoringSystem;
-		}
-		Championship defaultChampionship = Championship.of(this.computeChampionshipName());
-		Ranking defaultScoringSystem = defaultChampionship != null ? defaultChampionship.getScoringSystem() : null;
-		return defaultScoringSystem != null ? defaultScoringSystem : Ranking.TOTAL;
+		// Age groups delegate their (medal) scoring system to their championship. The age group's own
+		// stored scoringSystem field is only consulted during the initial migration
+		// (Championship.populateScoringDefaults), never at runtime.
+		Championship championship = getChampionship();
+		Ranking scoringSystem = championship != null ? championship.getScoringSystem() : null;
+		return scoringSystem != null ? scoringSystem : Ranking.TOTAL;
 	}
 
 	@JsonIgnore
@@ -609,15 +605,13 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	/**
-	 * Best athlete scoring system with fallback: age group override, then the age group's championship,
-	 * then the competition defaults.
+	 * Best athlete scoring system. Age groups delegate to their championship; the age group's own
+	 * stored bestAthleteScoringSystem field is only consulted during the initial migration
+	 * (Championship.populateScoringDefaults), never at runtime.
 	 */
 	@Transient
 	@JsonIgnore
 	public Ranking computedBestAthleteScoringSystem() {
-		if (this.bestAthleteScoringSystem != null) {
-			return this.bestAthleteScoringSystem;
-		}
 		Championship championship = getChampionship();
 		Ranking championshipBest = championship != null ? championship.getBestAthleteScoringSystem() : null;
 		if (championshipBest != null) {
