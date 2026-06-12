@@ -10,6 +10,18 @@
 
 **New in Release 67**
 
+67.0.0-beta11: Additional templates for team results, including total-only (when 3-medals are awarded but total only is needed) and summary variants (no athlete details)
+
+67.0.0-beta11: When filtering athletes, the first age group of a championship was selected by default.  Now only happens if there is a single age group.
+
+67.0.0-beta11: Competition book output now uses competition defaults and fallback translations correctly when no championship is selected.
+
+67.0.0-beta11: Best-athlete scoring are correct when no championship filter is selected, in UI and in Excel competition results
+
+67.0.0-beta11: Simulation can skip completed sessions and has been made more robust regarding start and stop.
+
+67.0.0-beta11: Records would not be shown until a display order was selected or an import was made.
+
 67.0.0-beta10: Resurrected settings to display body weight and best athlete scores on scoreboard (typically requested for Sinclair meets)
   - Done using feature toggles. Use `displayBodyWeight,displayBestScore,noBestScoreRank` for such a case.
 
