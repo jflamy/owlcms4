@@ -171,9 +171,9 @@ public class RecordDefinitionReader {
 	}
 
 	public List<String> createRecords(Workbook workbook, String name, String baseName) {
-		return JPAService.runInTransaction(em -> {
+		List<String> errors = JPAService.runInTransaction(em -> {
 			int iRecord = 0;
-			List<String> errors = new ArrayList<>();
+			List<String> errorList = new ArrayList<>();
 			List<RecordEvent> importedRecords = new ArrayList<>();
 			CellSetter[] setterTable = null;
 
@@ -182,7 +182,7 @@ public class RecordDefinitionReader {
 					int iRow = row.getRowNum();
 					if (iRow == 0) {
 						// Process header row to create setter table
-						setterTable = createSetterTableFromHeaderRow(row, errors);
+						setterTable = createSetterTableFromHeaderRow(row, errorList);
 						continue;
 					}
 
@@ -207,7 +207,7 @@ public class RecordDefinitionReader {
 							// do not report errors on empty rows
 							if (!isEmptyRow(rec)) {
 								logger.error("{}[{}] {} ", sheet.getSheetName(), cell.getAddress(), e.getMessage());
-								errors.add(MessageFormat.format("{0}[{1}] {2} ", sheet.getSheetName(),
+								errorList.add(MessageFormat.format("{0}[{1}] {2} ", sheet.getSheetName(),
 								        cell.getAddress(), e.getMessage()));
 								error = true;
 							}
@@ -260,9 +260,14 @@ public class RecordDefinitionReader {
 			comp2.setAgeGroupsFileName(name);
 			startupLogger.info("inserted {} record entries.", iRecord);
 			logger.info("inserted {} record entries.", iRecord);
-			errors.add(Translator.translate("Records.Inserted", iRecord));
-			return errors;
+			errorList.add(Translator.translate("Records.Inserted", iRecord));
+			return errorList;
 		});
+		// Make the newly loaded record names known to the display ordering, otherwise
+		// RecordFilter.buildRecordJson returns null and no records are shown until a
+		// database export/import is performed (issue #766).
+		RecordConfig.getCurrent().addMissing(RecordRepository.findAllRecordNames());
+		return errors;
 	}
 
 	/**
@@ -401,9 +406,9 @@ public class RecordDefinitionReader {
 	 * @return list of messages/errors from the import
 	 */
 	public List<String> importParsedRecords(List<RecordEvent> parsedRecords, String name, String baseName) {
-		return JPAService.runInTransaction(em -> {
+		List<String> errors = JPAService.runInTransaction(em -> {
 			int iRecord = 0;
-			List<String> errors = new ArrayList<>();
+			List<String> errorList = new ArrayList<>();
 
 			Set<String> clearedOfficialKeys = new HashSet<>();
 			for (RecordEvent importedRecord : parsedRecords) {
@@ -440,9 +445,14 @@ public class RecordDefinitionReader {
 			comp2.setAgeGroupsFileName(name);
 			startupLogger.info("inserted {} record entries.", iRecord);
 			logger.info("inserted {} record entries.", iRecord);
-			errors.add(Translator.translate("Records.Inserted", iRecord));
-			return errors;
+			errorList.add(Translator.translate("Records.Inserted", iRecord));
+			return errorList;
 		});
+		// Make the newly imported record names known to the display ordering, otherwise
+		// RecordFilter.buildRecordJson returns null and no records are shown until a
+		// database export/import is performed (issue #766).
+		RecordConfig.getCurrent().addMissing(RecordRepository.findAllRecordNames());
+		return errors;
 	}
 
 	public void loadRecords() {
