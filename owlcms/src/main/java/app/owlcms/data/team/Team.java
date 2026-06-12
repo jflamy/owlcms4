@@ -58,6 +58,7 @@ public class Team {
 	private double qPoints = 0.0D;
 	private Ranking scoringSystem;
 	private double qMasters = 0.0D;
+	private int totalOnlyPoints = 0;
 
 	public Team(String curTeamName, Gender gender) {
 		this(curTeamName, gender, Championship.of(null).getScoringSystem());
@@ -190,6 +191,14 @@ public class Team {
 
 	public void setPoints(int points) {
 		this.points = points;
+	}
+
+	public int getTotalOnlyPoints() {
+		return this.totalOnlyPoints;
+	}
+
+	public void setTotalOnlyPoints(int totalOnlyPoints) {
+		this.totalOnlyPoints = totalOnlyPoints;
 	}
 
 	public void setQPoints(double q) {

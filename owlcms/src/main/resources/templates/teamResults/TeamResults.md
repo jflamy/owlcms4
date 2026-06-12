@@ -82,11 +82,28 @@ At runtime, `postProcess()` hides column E on score-based tabs and column G on p
 
 `getName()`, `getGender()`, `getPoints()` (int), `getScore()` (double),
 `getCounted()`, `getSize()`, `getCountedTeamMembers()` → list of counted member items.
+`getTotalOnlyPoints()` (int) — sum of each counted member's raw total-place points,
+regardless of the `snatchCJTotalMedals` setting.  Use this in a "total-only" variant
+template to always show points derived from total rank only.
 
 ## TeamTreeItem accessors (member-level)
 
 `getName()`, `getGender()`, `getCategory()`, `getPoints()` (Integer, null if not done),
 `getScore()` (Double), `isDone()`.
+`getTotalOnlyPoints()` (int) — the athlete's raw total-place points (0 if not done).
+
+## Total-only variant template
+
+Create `TeamResults-TotalOnly-A4.xlsx` / `TeamResults-TotalOnly-Letter.xlsx` based on
+the standard template but replace every points expression as follows:
+
+| Standard expression | Total-only replacement |
+|---|---|
+| `${team.points != 0 ? team.points : ""}` | `${team.totalOnlyPoints != 0 ? team.totalOnlyPoints : ""}` |
+| `${member.points != null && member.points != 0 ? member.points : ""}` | `${member.totalOnlyPoints != 0 ? member.totalOnlyPoints : ""}` |
+
+The user selects this template via the existing template-picker in the download dialog.
+No UI or code changes are needed beyond the template file itself.
 
 ## Scoring override
 

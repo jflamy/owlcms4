@@ -174,6 +174,7 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					}
 					member.setCountedForTeam(countedForTeam);
 					if (countedForTeam) {
+						curTeam.setTotalOnlyPoints(curTeam.getTotalOnlyPoints() + member.getRawTotalPoints());
 						curTeam.setSinclairScore(curTeam.getSinclairScore() + member.getSinclairScore());
 						curTeam.setCatSinclairScore(curTeam.getCatSinclairScore() + member.getCatSinclairMetric());
 						curTeam.setSmfScore(curTeam.getSmfScore() + member.getSmfScore());
@@ -266,17 +267,30 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 	}
 
 	private Ranking getRankingForGender(Gender gender) {
+		Ranking pointFallbackRanking = getPointFallbackRanking();
 		if (this.championship != null) {
 			if (gender == Gender.MF) {
 				return this.championship.getMixedTeamScoringSystem() != null
 				        ? this.championship.getMixedTeamScoringSystem()
-				        : Ranking.TOTAL;
+				        : pointFallbackRanking;
 			}
 			return this.championship.getTeamScoringSystem() != null
 			        ? this.championship.getTeamScoringSystem()
-			        : Ranking.TOTAL;
+			        : pointFallbackRanking;
 		}
-		return this.ranking != null ? this.ranking : Ranking.TOTAL;
+		if (this.ranking != null) {
+			return this.ranking;
+		}
+		Competition currentCompetition = Competition.getCurrent();
+		return currentCompetition != null && currentCompetition.isSnatchCJTotalMedals()
+		        ? Ranking.SNATCH_CJ_TOTAL
+		        : Ranking.TOTAL;
+	}
+
+	private Ranking getPointFallbackRanking() {
+		return this.championship != null && this.championship.isSnatchCJTotalMedals()
+		        ? Ranking.SNATCH_CJ_TOTAL
+		        : Ranking.TOTAL;
 	}
 
 	private Integer getTopNTeamSize(Gender gender) {

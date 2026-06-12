@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.After;
@@ -994,6 +995,52 @@ public class ChampionshipTest {
                 junior, teams, null, null);
             }
 
+    @Test
+    public void testJuniorImplicitMixedTeamsUseTop3GenderNeutralWithPointScoring() {
+            Championship junior = ChampionshipRepository.findByName("Junior");
+            assertNotNull("Junior championship should be loaded from fixture", junior);
+
+            configureMixedTeamRules(junior, false, null, null, 3, 2, 2);
+            assertPersistedMixedTeamRules("junior implicit mixed top 3 gender neutral points",
+                junior, false, null, null, 3, 2, 2);
+
+            boolean combinedTotal = junior.isSnatchCJTotalMedals();
+            Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
+            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
+                combinedTotal ? Ranking.SNATCH_CJ_TOTAL : Ranking.TOTAL, 3, 2, 2);
+            printSelectedAthletes("junior implicit mixed top 3 gender neutral points | expected counted",
+                expectedCountedByTeam);
+
+            List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
+            assertFalse("junior implicit mixed top 3 gender neutral points should produce mixed teams", teams.isEmpty());
+
+            for (TeamTreeItem team : teams) {
+                List<Participation> expectedCounted = expectedCountedByTeam.getOrDefault(team.getName(), List.of());
+                List<TeamTreeItem> actualCounted = team.getCountedTeamMembers();
+
+                assertEquals("counted athletes for team " + team.getName(), expectedCounted.size(),
+                    team.getCounted().intValue());
+                assertEquals("counted member rows for team " + team.getName(), expectedCounted.size(),
+                    actualCounted.size());
+
+                Set<Long> expectedIds = expectedCounted.stream()
+                    .map(participation -> participation.getAthlete().getId())
+                    .collect(Collectors.toSet());
+                Set<Long> actualIds = actualCounted.stream()
+                    .map(item -> item.getAthlete().getId())
+                    .collect(Collectors.toSet());
+                assertEquals("counted athlete ids for team " + team.getName(), expectedIds, actualIds);
+
+                int expectedPoints = expectedCounted.stream()
+                    .mapToInt(participation -> combinedTotal
+                        ? participation.getCombinedPoints()
+                        : participation.getTotalPoints())
+                    .sum();
+                assertEquals("team points for team " + team.getName(), expectedPoints,
+                    team.getPoints().intValue());
+            }
+    }
+
             @Test
             public void testSeniorExplicitMixedSubsetUsesTop2MenTop2Women() {
             Championship senior = ChampionshipRepository.findByName("Senior");
@@ -1212,6 +1259,29 @@ public class ChampionshipTest {
     public void testTeamResultsTemplatesIterateCountedTeamMembers() throws Exception {
         assertTeamResultsTemplateUsesCountedMembers("/templates/teamResults/TeamResults-A4.xlsx");
         assertTeamResultsTemplateUsesCountedMembers("/templates/teamResults/TeamResults-Letter.xlsx");
+    }
+
+    @Test
+    public void testMixedTeamResultsCountedMembersFollowRankingOrder() {
+        Championship junior = ChampionshipRepository.findByName("Junior");
+        assertNotNull("Junior championship should be loaded from fixture", junior);
+
+        configureMixedTeamRules(junior, false, null, Ranking.GAMX, 3, 2, 2);
+
+        List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
+        assertFalse("Junior mixed team results should contain teams", teams.isEmpty());
+
+        for (TeamTreeItem team : teams) {
+            List<TeamTreeItem> counted = team.getCountedTeamMembers();
+            assertFalse("Team " + team.getName() + " should have counted members", counted.isEmpty());
+
+            for (int i = 0; i < counted.size() - 1; i++) {
+                Double current = counted.get(i).getScore();
+                Double next = counted.get(i + 1).getScore();
+                assertTrue("Counted mixed members should be ordered by descending ranking score for team " + team.getName(),
+                        current == null || next == null || current >= next);
+            }
+        }
     }
 
     @Test
@@ -1944,6 +2014,32 @@ public class ChampionshipTest {
     }
 
     private static List<Participation> sortParticipationsByMixedRanking(List<Participation> participations, Ranking ranking) {
+        if (ranking == Ranking.TOTAL || ranking == Ranking.SNATCH_CJ_TOTAL || ranking == Ranking.CUSTOM) {
+            List<Participation> sortedParticipations = new ArrayList<>(participations);
+            sortedParticipations.sort((left, right) -> {
+                String leftTeam = left.getAthlete() != null ? left.getAthlete().getTeam() : null;
+                String rightTeam = right.getAthlete() != null ? right.getAthlete().getTeam() : null;
+                int compareTeam = ObjectUtils.compare(leftTeam, rightTeam, true);
+                if (compareTeam != 0) {
+                    return compareTeam;
+                }
+
+                int comparePoints;
+                if (ranking == Ranking.SNATCH_CJ_TOTAL) {
+                    comparePoints = Integer.compare(left.getCombinedPoints(), right.getCombinedPoints());
+                } else if (ranking == Ranking.CUSTOM) {
+                    comparePoints = Integer.compare(left.getCustomPoints(), right.getCustomPoints());
+                } else {
+                    comparePoints = Integer.compare(left.getTotalPoints(), right.getTotalPoints());
+                }
+                if (comparePoints != 0) {
+                    return -comparePoints;
+                }
+                return 0;
+            });
+            return sortedParticipations;
+        }
+
         Map<Long, Participation> participationByAthleteId = participations.stream()
                 .filter(participation -> participation.getAthlete() != null && participation.getAthlete().getId() != null)
                 .collect(Collectors.toMap(participation -> participation.getAthlete().getId(), participation -> participation,

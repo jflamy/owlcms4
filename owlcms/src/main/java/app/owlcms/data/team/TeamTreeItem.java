@@ -244,6 +244,10 @@ public class TeamTreeItem {
 		return (this.athlete != null ? this.athlete.getRawTotalPoints() : 0);
 	}
 
+	public int getTotalOnlyPoints() {
+		return (this.team != null ? this.team.getTotalOnlyPoints() : getRawTotalPoints());
+	}
+
 	public Double getRobiScore() {
 		return (this.team != null ? this.team.getRobi() : this.athlete.getRobi());
 	}
@@ -266,7 +270,15 @@ public class TeamTreeItem {
 		if (getTeamMembers() == null) {
 			return Collections.emptyList();
 		}
-		getTeamMembers().sort(Comparator.comparing(TeamTreeItem::getPoints, (a, b) -> ObjectUtils.compare(a, b, true)));
+		if (this.scoringSystem == Ranking.TOTAL || this.scoringSystem == Ranking.SNATCH_CJ_TOTAL) {
+			getTeamMembers().sort(Comparator
+			        .comparing(TeamTreeItem::getPoints, Comparator.nullsLast(Integer::compareTo))
+			        .reversed());
+		} else {
+			getTeamMembers().sort(Comparator
+			        .comparing(TeamTreeItem::getScore, Comparator.nullsLast(Double::compareTo))
+			        .reversed());
+		}
 		return getTeamMembers();
 	}
 
