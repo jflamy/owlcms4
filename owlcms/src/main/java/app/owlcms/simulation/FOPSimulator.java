@@ -175,7 +175,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	}
 
 	public void unregister() {
-		this.logger.debug("unregister simulator {}", this.fop.getName());
+		this.logger.debug("unregister simulator {}", this.fop != null ? this.fop.getName() : null);
 		if (this.uiEventBus != null) {
 			this.uiEventBus.unregister(this);
 		}
@@ -214,7 +214,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		if (USE_MQTT_TIMER && mm != null) {
 			try {
 				mm.simulateStartAthleteTimer();
-			} catch (MqttException e) {
+			} catch (MqttException | RuntimeException e) {
 				LoggerUtils.logError(this.logger, e);
 			}
 
@@ -231,7 +231,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		if (USE_MQTT_TIMER && mm != null) {
 			try {
 				mm.simulateStopAthleteTimer();
-			} catch (MqttException e) {
+			} catch (MqttException | RuntimeException e) {
 				LoggerUtils.logError(this.logger, e);
 			}
 		} else {
@@ -249,7 +249,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 				mm.publishRefDecision(0, goodLift(r));
 				mm.publishRefDecision(1, goodLift(r));
 				mm.publishRefDecision(2, goodLift(r));
-			} catch (MqttException e) {
+			} catch (MqttException | RuntimeException e) {
 				LoggerUtils.logError(this.logger, e);
 			}
 		} else {

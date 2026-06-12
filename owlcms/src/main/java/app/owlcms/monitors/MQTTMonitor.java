@@ -44,6 +44,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.group.Group;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -1031,18 +1032,20 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		}
 	}
 
-	@SuppressWarnings("unused")
 	public void simulateStartAthleteTimer() throws MqttPersistenceException, MqttException {
 		Athlete currentAthlete = getFop().getCurAthlete();
-		int attemptNumber = currentAthlete.getAttemptNumber();
-		LiftDefinition.Stage liftType = currentAthlete.getAttemptsDone() >= 3 ? LiftDefinition.Stage.CLEANJERK : LiftDefinition.Stage.SNATCH;
+		Group group = getFop().getGroup();
 
-		if (currentAthlete != null) {
+		if (currentAthlete != null && group != null) {
+			int attemptNumber = currentAthlete.getAttemptNumber();
+			LiftDefinition.Stage liftType = currentAthlete.getAttemptsDone() >= 3 ? LiftDefinition.Stage.CLEANJERK
+			        : LiftDefinition.Stage.SNATCH;
+
 			Map<String, Object> payload = new TreeMap<>();
 			payload.put("athleteName", currentAthlete.getFullName());
 			payload.put("liftType", liftType.toString());
 			payload.put("attemptNumber", attemptNumber);
-			payload.put("session", getFop().getGroup().getName());
+			payload.put("session", group.getName());
 
 			String json;
 			try {
@@ -1053,7 +1056,9 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			this.client.publish("owlcms/clock/" + this.getFop().getName(),
 			        new MqttMessage(("start " + json).getBytes(StandardCharsets.UTF_8)));
 		} else {
-			// can't happen
+			// curAthlete/group transiently null during a state transition (e.g. while a
+			// concurrent screen is reloading the group). Still start the clock; the
+			// payload is only informational.
 			this.client.publish("owlcms/clock/" + this.getFop().getName(),
 			        new MqttMessage("start".getBytes(StandardCharsets.UTF_8)));
 		}
