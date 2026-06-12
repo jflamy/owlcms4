@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-beta11: When filtering athletes, the first age group of a championship was selected by default.  Now only happens if there is a single age group.
+
 67.0.0-beta10: Resurrected settings to display body weight and best athlete scores on scoreboard (typically requested for Sinclair meets)
   - Done using feature toggles. Use `displayBodyWeight,displayBestScore,noBestScoreRank` for such a case.
 
