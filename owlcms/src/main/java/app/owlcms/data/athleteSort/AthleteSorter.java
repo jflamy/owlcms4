@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.agegroup.DefaultChampionship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
@@ -459,7 +460,7 @@ public class AthleteSorter implements Serializable {
 			return 0;
 		}
 		if (championship == null) {
-			throw new IllegalArgumentException("Team points calculation requires a championship");
+			championship = DefaultChampionship.getInstance();
 		}
 		return pointsFormula(rank,
 		        firstPlacePoints(championship),
