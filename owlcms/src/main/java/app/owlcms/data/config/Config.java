@@ -132,6 +132,7 @@ public class Config {
 	@Column(name = "localcontent", nullable = true)
 	private Blob localOverride;
 	private String publicResultsURL;
+	private String defaultPaperSize;
 	private String updatekey;
 	private String videoDataURL;
 	private String videoDataKey;
@@ -224,6 +225,10 @@ public class Config {
 	 */
 	public Locale getDefaultLocale() {
 		return this.defaultLocale;
+	}
+
+	public String getDefaultPaperSize() {
+		return this.defaultPaperSize;
 	}
 
 	public String getDisplayPin() {
@@ -953,6 +958,10 @@ public class Config {
 
 	public void setDefaultLocale(Locale defaultLocale) {
 		this.defaultLocale = defaultLocale;
+	}
+
+	public void setDefaultPaperSize(String defaultPaperSize) {
+		this.defaultPaperSize = defaultPaperSize;
 	}
 
 	public void setDisplayPin(String displayPin) {

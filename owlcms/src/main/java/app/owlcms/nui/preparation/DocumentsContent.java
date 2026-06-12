@@ -104,6 +104,7 @@ import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.Resource;
+import app.owlcms.utils.TemplateResourceUtils;
 import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -321,7 +322,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 			};
 
 			Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(templateEnum.folder,
-					(f) -> matchExtension(templateEnum, f));
+					(f) -> matchExtension(templateEnum, f), templateEnum.templateFileNameSupplier.get());
 			Supplier<String> selectedTemplateSupplier = () -> templateEnum.templateFileNameSupplier.get();
 
 			KitElement kitElement = new KitElement(id, templateEnum, templateName, ext, isp, 1, writerFactory, pre,
@@ -406,7 +407,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		return result;
 	}
 
-	private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter) {
+	private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter,
+			String selectedTemplateName) {
 		List<Resource> resourceList = new ResourceWalker().getResourceList(
 				resourceDirectoryLocation,
 				ResourceWalker::relativeName,
@@ -414,7 +416,8 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				OwlcmsSession.getLocale(),
 				Config.getCurrent().isLocalTemplatesOnly());
 		List<Resource> prioritizedList = xlsxPriority(resourceList);
-		return prioritizedList;
+		return TemplateResourceUtils.filterTemplatesByPaperSize(prioritizedList, selectedTemplateName,
+		        OwlcmsSession.getLocale());
 	}
 
 	public boolean matchExtension(PreCompetitionTemplate template, String f) {

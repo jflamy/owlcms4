@@ -36,6 +36,7 @@ import com.vaadin.flow.component.html.H4;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.TemplateResourceUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
@@ -749,7 +750,8 @@ public class DocumentDownloadDialog extends Dialog {
     }
 
     private void addTemplateSelection(FormLayout layout, PreCompetitionTemplate template) {
-        List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> matchExtension(template, f));
+        List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> matchExtension(template, f),
+                template.templateFileNameSupplier.get());
         ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 
         templateSelect.addValueChangeListener(e -> {
@@ -808,7 +810,7 @@ public class DocumentDownloadDialog extends Dialog {
                                     break;
                                 }
                                 Supplier<List<Resource>> availableTemplatesSupplier = () -> computeResourceList(template.folder,
-                                        (f) -> matchExtension(template, f));
+                                        (f) -> matchExtension(template, f), template.templateFileNameSupplier.get());
                                 Supplier<String> selectedTemplateSupplier = () -> template.templateFileNameSupplier.get();
                                 // Update the existing KitElement in-place
                                 ke.setName(newFullName);
@@ -842,7 +844,8 @@ public class DocumentDownloadDialog extends Dialog {
         }
     }
 
-    private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter) {
+    private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter,
+            String selectedTemplateName) {
         List<Resource> resourceList = new ResourceWalker().getResourceList(
                 resourceDirectoryLocation,
                 ResourceWalker::relativeName,
@@ -850,7 +853,8 @@ public class DocumentDownloadDialog extends Dialog {
                 OwlcmsSession.getLocale(),
                 Config.getCurrent().isLocalTemplatesOnly());
         List<Resource> prioritizedList = xlsxPriority(resourceList);
-        return prioritizedList;
+        return TemplateResourceUtils.filterTemplatesByPaperSize(prioritizedList, selectedTemplateName,
+                OwlcmsSession.getLocale());
     }
 
     private FormLayout createLayout() {

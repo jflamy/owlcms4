@@ -33,6 +33,7 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.Resource;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.TemplateResourceUtils;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
@@ -104,7 +105,8 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 	}
 
 	private void addTemplateSelection(FormLayout layout, PreCompetitionTemplate template, Dialog dialog) {
-		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> matchExtension(template, f));
+		List<Resource> prioritizedList = computeResourceList(template.folder, (f) -> matchExtension(template, f),
+		        template.templateFileNameSupplier.get());
 		ComboBox<Resource> templateSelect = createTemplateSelect(layout, template.name(), prioritizedList, template.templateFileNameSupplier.get());
 
 		templateSelect.addValueChangeListener(e -> {
@@ -147,7 +149,8 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		}
 	}
 
-	private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter) {
+	private List<Resource> computeResourceList(String resourceDirectoryLocation, Predicate<String> nameFilter,
+	        String selectedTemplateName) {
 		List<Resource> resourceList = new ResourceWalker().getResourceList(
 		        resourceDirectoryLocation,
 		        ResourceWalker::relativeName,
@@ -155,7 +158,8 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		        OwlcmsSession.getLocale(),
 		        Config.getCurrent().isLocalTemplatesOnly());
 		List<Resource> prioritizedList = xlsxPriority(resourceList);
-		return prioritizedList;
+		return TemplateResourceUtils.filterTemplatesByPaperSize(prioritizedList, selectedTemplateName,
+		        OwlcmsSession.getLocale());
 	}
 
 	private FormLayout createLayout() {

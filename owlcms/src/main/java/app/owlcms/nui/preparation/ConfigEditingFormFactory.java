@@ -39,6 +39,7 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -68,6 +69,7 @@ import app.owlcms.nui.shared.CustomFormFactory;
 import app.owlcms.nui.shared.DownloadButtonFactory;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.TemplateResourceUtils;
 import app.owlcms.utils.TimeZoneUtils;
 import app.owlcms.utils.ZipUtils;
 import ch.qos.logback.classic.Logger;
@@ -132,6 +134,7 @@ public class ConfigEditingFormFactory
 		this.binder = buildBinder(operation, config);
 
 		FormLayout accessLayout = accessForm();
+		FormLayout paperLayout = paperSizeForm();
 		FormLayout tzLayout = tzForm();
 		FormLayout languageLayout = presentationForm();
 		FormLayout publicResultsLayout = publicResultsForm();
@@ -157,7 +160,7 @@ public class ConfigEditingFormFactory
 		tabSheet = new TabSheet();
 		tabSheet.add(Translator.translate("Config.LanguageTab"),
 		        new VerticalLayout(new Div(), languageLayout, separator(),
-		                tzLayout, separator(), translationLayout));
+		                paperLayout, separator(), tzLayout, separator(), translationLayout));
 		tabSheet.add(Translator.translate("Config.ConnexionsTab"),
 		        new VerticalLayout(
 		                new Div(),
@@ -495,6 +498,72 @@ public class ConfigEditingFormFactory
 		layout.addFormItem(clearField, Translator.translate("Config.MQTTEnableInternal"));
 		this.binder.forField(clearField)
 		        .bind(Config::isMqttInternal, Config::setMqttInternal);
+
+		return layout;
+	}
+
+	private FormLayout paperSizeForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Config.DefaultPaperSizeTitle");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		ComboBox<String> paperSizeField = new ComboBox<>();
+		Paragraph mismatchWarning = new Paragraph();
+		mismatchWarning.setVisible(false);
+		mismatchWarning.getStyle().set("color", "var(--lumo-error-text-color)");
+		mismatchWarning.getStyle().set("margin", "0.25em 0 0");
+		mismatchWarning.getStyle().set("font-weight", "500");
+		paperSizeField.setWidthFull();
+		paperSizeField.setItems("LETTER", "A4", "None");
+		paperSizeField.setItemLabelGenerator(value -> switch (value) {
+		        case "LETTER" -> Translator.translate("Config.PaperSize.LETTER");
+		        case "A4" -> Translator.translate("Config.PaperSize.A4");
+		        case "None" -> Translator.translate("Config.PaperSize.None");
+		        default -> value;
+		});
+		paperSizeField.setClearButtonVisible(true);
+		layout.addFormItem(paperSizeField, Translator.translate("Config.DefaultPaperSizeLabel"));
+		layout.add(mismatchWarning);
+		layout.setColspan(mismatchWarning, 2);
+		this.binder.forField(paperSizeField)
+		        .bind(Config::getDefaultPaperSize, Config::setDefaultPaperSize);
+
+		Runnable refreshMismatchWarning = () -> {
+			String browserTimeZoneId = this.browserZoneId;
+			if (browserTimeZoneId == null || browserTimeZoneId.isBlank()) {
+				mismatchWarning.setVisible(false);
+				return;
+			}
+			String expectedPaperSize = TemplateResourceUtils.resolvedBrowserDefaultPaperSize(browserTimeZoneId);
+			String selectedPaperSize = paperSizeField.getValue();
+			boolean mismatch = selectedPaperSize != null
+			        && !selectedPaperSize.equalsIgnoreCase(expectedPaperSize)
+			        && !"None".equalsIgnoreCase(expectedPaperSize);
+			mismatchWarning.setVisible(mismatch);
+			if (mismatch) {
+				String browserZoneText = TimeZoneUtils.toIdWithOffsetString(TimeZone.getTimeZone(browserTimeZoneId));
+				mismatchWarning.setText(Translator.translate("Config.DefaultPaperSizeMismatchWarning", browserZoneText));
+			}
+		};
+		paperSizeField.addValueChangeListener(event -> refreshMismatchWarning.run());
+
+		if (UI.getCurrent() != null) {
+			UI.getCurrent().getPage().executeJs("return Intl.DateTimeFormat().resolvedOptions().timeZone")
+			        .then(String.class, (browserTimeZoneId) -> {
+					this.browserZoneId = browserTimeZoneId;
+					String resolvedPaperSize = TemplateResourceUtils.resolvedDefaultPaperSize(browserTimeZoneId);
+					Config currentConfig = Config.getCurrent();
+					if (currentConfig.getDefaultPaperSize() == null || currentConfig.getDefaultPaperSize().isBlank()) {
+						currentConfig.setDefaultPaperSize(resolvedPaperSize);
+						Config.setCurrent(currentConfig);
+					}
+					if (paperSizeField.getValue() == null || paperSizeField.getValue().isBlank()) {
+						paperSizeField.setValue(currentConfig.getDefaultPaperSize());
+					}
+					refreshMismatchWarning.run();
+			        });
+		}
 
 		return layout;
 	}
