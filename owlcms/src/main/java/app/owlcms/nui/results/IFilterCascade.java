@@ -239,8 +239,8 @@ public interface IFilterCascade {
 				// prefix is valid
 				this.getAgeGroupFilter().setValue(ageGroupPrefix2);
 			} else {
-				// this will trigger other changes and eventually, refresh the grid
-				String value = notEmpty ? first : null;
+				// Only auto-select the age group when there is exactly one available candidate.
+				String value = (championshipAgeGroupPrefixes.size() == 1) ? first : null;
 				this.getAgeGroupFilter().setValue(value);
 				if (value == null) {
 					doAgeGroupPrefixRefresh(null);
