@@ -1241,8 +1241,9 @@ public class Athlete {
 		// if we are invoked from a printing thread, the value will be defined.
 		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		if (scoringSystem == null) {
-			Championship championship = getAgeGroup() != null ? getAgeGroup().getChampionship() : Championship.of(null);
-			scoringSystem = championship.getBestAthleteScoringSystem();
+			AgeGroup ageGroup = getAgeGroup();
+			scoringSystem = ageGroup != null ? ageGroup.computedBestAthleteScoringSystem()
+			        : Championship.of(null).getBestAthleteScoringSystem();
 		}
 		return Ranking.getRanking(this, scoringSystem);
 	}
@@ -1254,8 +1255,9 @@ public class Athlete {
 		// scoringSystem will be set by JXLSWorkbookStreamSource.doCreateStream() when running in a print thread
 		// fallback to the global scoring system (like getBestLifterRank() does)
 		if (scoringSystem == null) {
-			Championship championship = getAgeGroup() != null ? getAgeGroup().getChampionship() : Championship.of(null);
-			scoringSystem = championship.getBestAthleteScoringSystem();
+			AgeGroup ageGroup = getAgeGroup();
+			scoringSystem = ageGroup != null ? ageGroup.computedBestAthleteScoringSystem()
+			        : Championship.of(null).getBestAthleteScoringSystem();
 		}
 		return Ranking.getRankingValue(this, scoringSystem);
 	}

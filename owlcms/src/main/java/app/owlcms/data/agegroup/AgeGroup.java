@@ -607,16 +607,36 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	public Ranking getBestAthleteScoringSystem() {
 		return bestAthleteScoringSystem;
 	}
+
+	/**
+	 * Best athlete scoring system with fallback: age group override, then the age group's championship,
+	 * then the competition defaults.
+	 */
+	@Transient
+	@JsonIgnore
+	public Ranking computedBestAthleteScoringSystem() {
+		if (this.bestAthleteScoringSystem != null) {
+			return this.bestAthleteScoringSystem;
+		}
+		Championship championship = getChampionship();
+		Ranking championshipBest = championship != null ? championship.getBestAthleteScoringSystem() : null;
+		if (championshipBest != null) {
+			return championshipBest;
+		}
+		Championship defaults = Championship.of(null);
+		return defaults != null ? defaults.getBestAthleteScoringSystem() : null;
+	}
 	
 	public String getBestAthleteScoringSystemTitle() {
 		var explicitBLR = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		if (explicitBLR != null) {
 			return Translator.translate("Ranking."+explicitBLR);
-		} else if (bestAthleteScoringSystem != null) {
-			return Translator.translate("Ranking."+bestAthleteScoringSystem);
-		} else {
-			return Translator.translate("Ranking." + Championship.of(null).getScoringSystem());
 		}
+		Ranking computed = computedBestAthleteScoringSystem();
+		if (computed != null) {
+			return Translator.translate("Ranking." + computed);
+		}
+		return Translator.translate("Ranking." + Championship.of(null).getScoringSystem());
 	}
 
 	public Boolean getMedals() {

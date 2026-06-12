@@ -147,9 +147,8 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		    // use the dropdown selection if it is present.
 		    ss = scoringSystem;
 		} else if (ageGroup != null) {
-			Championship athleteChampionship = ageGroup.getChampionship();
-			ss = ageGroup.getBestAthleteScoringSystem() != null ? ageGroup.getBestAthleteScoringSystem()
-			        : athleteChampionship.getBestAthleteScoringSystem();
+			// same resolution as the Excel results: age group override, then championship, then competition defaults
+			ss = ageGroup.computedBestAthleteScoringSystem();
 		} else {
 			// defensive
 			ss = compSS;

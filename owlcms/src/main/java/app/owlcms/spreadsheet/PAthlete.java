@@ -168,7 +168,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 		if (scoringSystem == null) {
 			Category cat = this.p.getCategory();
 			if (cat != null && cat.getAgeGroup() != null) {
-				scoringSystem = cat.getAgeGroup().getBestAthleteScoringSystem();
+				scoringSystem = cat.getAgeGroup().computedBestAthleteScoringSystem();
 			}
 		}
 		if (scoringSystem == null) {
@@ -183,7 +183,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 		if (scoringSystem == null) {
 			Category cat = this.p.getCategory();
 			if (cat != null && cat.getAgeGroup() != null) {
-				scoringSystem = cat.getAgeGroup().getBestAthleteScoringSystem();
+				scoringSystem = cat.getAgeGroup().computedBestAthleteScoringSystem();
 			}
 		}
 		if (scoringSystem == null) {

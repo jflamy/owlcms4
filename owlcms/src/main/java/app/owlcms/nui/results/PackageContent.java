@@ -386,9 +386,27 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		if (this.scoringSystem != null) {
 			return this.scoringSystem;
 		}
+		// When no championship is selected and more than one championship is in use, there is no single
+		// best-athlete scoring system: each athlete is scored using its own championship's rule.
+		// Returning null makes SessionResultsContent.computeScore compute a per-athlete score.
+		if (this.championship == null && hasMultipleChampionships()) {
+			return null;
+		}
 		Championship effectiveChampionship = this.championship != null ? this.championship : Championship.of(null);
 		Ranking championshipScoring = effectiveChampionship.getBestAthleteScoringSystem();
 		return championshipScoring != null ? championshipScoring : effectiveChampionship.getScoringSystem();
+	}
+
+	/**
+	 * @return true if more than one championship is in use, in which case no single best-athlete scoring
+	 *         system applies and each athlete is scored using its own championship's rule.
+	 */
+	private boolean hasMultipleChampionships() {
+		List<Championship> items = getChampionshipItems();
+		if (items == null) {
+			items = Championship.findAllUsed(true);
+		}
+		return items != null && items.size() > 1;
 	}
 
 	@Override
@@ -715,9 +733,11 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
 
-			        // For eligibility category results, only use scoring system when a championship is selected.
-			        // Without a championship, pass null to ignore the global dropdown value.
-			        Ranking computeScoringSystem = (this.championship != null) ? computeScoringSystem() : null;
+		        // For eligibility category results, only pass a scoring system when one is actually
+		        // selected (championship default or explicit dropdown choice). Otherwise pass null so
+		        // each athlete is scored using its own championship's best-athlete rule.
+		        Ranking computeScoringSystem = (this.championship != null || this.scoringSystem != null)
+		                ? computeScoringSystem() : null;
 			        logger.debug("setBestLifterScoringSystem {} {}", computeScoringSystem);
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
 
@@ -848,10 +868,14 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			Ranking newRanking;
 			if (championship != null) {
 				newRanking = championship.getBestAthleteScoringSystem();
-			} else {
+				if (newRanking == null) {
+					newRanking = Championship.of(null).getBestAthleteScoringSystem();
+				}
+			} else if (hasMultipleChampionships()) {
+				// No championship selected and more than one championship in use: leave the selection
+				// empty so each athlete is scored using its own championship's best-athlete rule.
 				newRanking = null;
-			}
-			if (newRanking == null) {
+			} else {
 				newRanking = Championship.of(null).getBestAthleteScoringSystem();
 			}
 			// Update dropdown and field, then refresh grid via helper
