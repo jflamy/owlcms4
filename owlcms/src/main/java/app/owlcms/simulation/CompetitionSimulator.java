@@ -27,6 +27,7 @@ import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.NaturalOrderComparator;
 import ch.qos.logback.classic.Level;
@@ -153,13 +154,19 @@ public class CompetitionSimulator {
 			s.stop();
 		}
 		registeredSimulators.clear();
+		resetFopsForSimulation(ps);
 
 		for (Platform p : ps) {
 			if (!isRunning()) {
 				return "simulation stopped.";
 			}
+			List<Group> platformGroups = groupsByPlatform.get(p);
+			if (platformGroups == null || platformGroups.isEmpty()) {
+				logger.info("skipping platform {} with no simulation groups", p.getName());
+				continue;
+			}
 			FieldOfPlay f = OwlcmsFactory.getFOPByName(p.getName());
-			FOPSimulator fopSimulator = new FOPSimulator(f, groupsByPlatform.get(p), this.skipDone);
+			FOPSimulator fopSimulator = new FOPSimulator(f, platformGroups, this.skipDone);
 			fopSimulator.setCompetitionSimulator(this);
 			registeredSimulators.add(fopSimulator);
 			fopSimulator.go();
@@ -170,6 +177,21 @@ public class CompetitionSimulator {
 			Competition.getCurrent().setSimulation(false);
 		}
 		return "simulation done.";
+	}
+
+	private void resetFopsForSimulation(List<Platform> platforms) {
+		for (Platform platform : platforms) {
+			FieldOfPlay fieldOfPlay = OwlcmsFactory.getFOPByName(platform.getName());
+			if (fieldOfPlay == null) {
+				continue;
+			}
+			logger.info("resetting FOP {} before simulation", platform.getName());
+			fieldOfPlay.getAthleteTimer().stop();
+			fieldOfPlay.getBreakTimer().stop();
+			fieldOfPlay.loadGroup(null, this, true);
+			fieldOfPlay.setBreakType(null);
+			fieldOfPlay.setState(FOPState.INACTIVE);
+		}
 	}
 
 	private void clearLifts() {
