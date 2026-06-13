@@ -821,6 +821,9 @@ public class UIEvent {
 		private Athlete previousAthlete;
 		private Integer timeAllowed;
 		private Integer newWeight;
+		private boolean timerShouldRun;
+		private int timerMillisRemaining;
+		private boolean timerStateValid;
 
 		/**
 		 * Instantiates a new lifting order updated command.
@@ -882,6 +885,45 @@ public class UIEvent {
 
 		public Integer getNewWeight() {
 			return this.newWeight;
+		}
+
+		/**
+		 * Authoritative timer truth captured on the FOP thread when this recompute was pushed: should
+		 * the athlete clock be running ({@code true}) or stopped ({@code false})? Used by clients to
+		 * re-assert the correct timer state when a {@code StartTime}/{@code StopTime} was reordered,
+		 * dropped, or never emitted (see reason 5 in doWeightChange).
+		 *
+		 * @return true if the athlete clock should be running
+		 */
+		public boolean isTimerShouldRun() {
+			return this.timerShouldRun;
+		}
+
+		public void setTimerShouldRun(boolean timerShouldRun) {
+			this.timerShouldRun = timerShouldRun;
+		}
+
+		/**
+		 * @return the authoritative milliseconds remaining on the athlete clock at the time of this recompute
+		 */
+		public int getTimerMillisRemaining() {
+			return this.timerMillisRemaining;
+		}
+
+		public void setTimerMillisRemaining(int timerMillisRemaining) {
+			this.timerMillisRemaining = timerMillisRemaining;
+		}
+
+		/**
+		 * @return true if the timer truth carried by this event is meaningful (false during a break, when
+		 *         clients must not re-assert the athlete clock)
+		 */
+		public boolean isTimerStateValid() {
+			return this.timerStateValid;
+		}
+
+		public void setTimerStateValid(boolean timerStateValid) {
+			this.timerStateValid = timerStateValid;
 		}
 
 		/**
@@ -1582,6 +1624,7 @@ public class UIEvent {
 	private Athlete athlete;
 	private Object origin;
 	private FieldOfPlay fop;
+	private long sequence;
 
 	private UIEvent(Athlete athlete, Object origin, FieldOfPlay fop) {
 		this(origin, fop);
@@ -1629,6 +1672,20 @@ public class UIEvent {
 
 	public void setOrigin(Object origin) {
 		this.origin = origin;
+	}
+
+	/**
+	 * Per-FOP monotonic sequence number, assigned when the event is pushed out. Used by clients to
+	 * drop timer events that arrive out of order on the asynchronous UI event bus.
+	 *
+	 * @return the sequence number (0 if never pushed)
+	 */
+	public long getSequence() {
+		return this.sequence;
+	}
+
+	public void setSequence(long sequence) {
+		this.sequence = sequence;
 	}
 
 	protected void setTrace(Supplier<String> stackTrace) {

@@ -61,7 +61,7 @@ public class AthleteTimerElement extends TimerElement {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), milliseconds,
 		        e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		doSetTimer(milliseconds);
+		doSetTimer(milliseconds, e.getSequence());
 	}
 
 	// @Subscribe
@@ -76,13 +76,36 @@ public class AthleteTimerElement extends TimerElement {
 	//// }
 	// }
 
+	/**
+	 * Re-assert the authoritative athlete-timer truth carried by every recompute. This corrects the
+	 * client clock when a {@link UIEvent.StartTime}/{@link UIEvent.StopTime} was reordered, dropped,
+	 * or never emitted (reason 5 in doWeightChange). The sequence gate inside the do*Timer methods
+	 * guarantees this can only correct the clock, never override a newer real timer event; the
+	 * {@code elementRunning} guard keeps it idempotent so an already-correct clock is left untouched
+	 * (no per-recompute restart/stutter).
+	 */
+	@Subscribe
+	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
+		if (!e.isTimerStateValid()) {
+			return;
+		}
+		boolean serverSound = this.fop != null && this.fop.isEmitSoundsOnServer();
+		reassertTimerState(e.isTimerShouldRun(), e.getTimerMillisRemaining(), serverSound, e.getSequence(), () -> {
+			String state = e.isTimerShouldRun() ? "RUNNING" : "STOPPED";
+			String oldState = e.isTimerShouldRun() ? "client stopped" : "client running";
+			logger./**/warn("{}timer re-assert: server says {}@{}ms but {} - correcting (seq={}) {}",
+			        FieldOfPlay.getLoggingName(this.fop), state, e.getTimerMillisRemaining(), oldState, e.getSequence(),
+			        LoggerUtils.whereFrom());
+		});
+	}
+
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		Integer milliseconds = e.getTimeRemaining();
 		uiEventLogger.debug(">>> start received {} {}", e, milliseconds);
-		doStartTimer(milliseconds, e.isServerSound());
+		doStartTimer(milliseconds, e.isServerSound(), e.getSequence());
 	}
 
 	@Subscribe
@@ -90,18 +113,20 @@ public class AthleteTimerElement extends TimerElement {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		Integer milliseconds = e.getTimeRemaining();
-		doStopTimer(milliseconds);
+		doStopTimer(milliseconds, e.getSequence());
 	}
 
 	public void syncWithFop(FieldOfPlay fop) {
 		init(fop.getName());
-		// sync with current status of FOP
+		// sync with current status of FOP. Seed the sequence with the current FOP value so that any
+		// older in-flight timer event is dropped after this sync.
+		long seedSeq = fop.getUiEventSequence();
 		IProxyTimer athleteTimer = getFopTimer(fop);
 		if (athleteTimer != null) {
 			if (athleteTimer.isRunning()) {
-				doStartTimer(athleteTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
+				doStartTimer(athleteTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer(), seedSeq);
 			} else {
-				doSetTimer(athleteTimer.getTimeRemaining());
+				doSetTimer(athleteTimer.getTimeRemaining(), seedSeq);
 			}
 		}
 	}
@@ -146,13 +171,15 @@ public class AthleteTimerElement extends TimerElement {
 			return;
 		}
 		init(this.fop.getName());
-		// sync with current status of FOP
+		// sync with current status of FOP. Seed the sequence with the current FOP value so that any
+		// older in-flight timer event is dropped after this sync.
+		long seedSeq = this.fop.getUiEventSequence();
 		IProxyTimer fopTimer = getFopTimer(this.fop);
 		if (fopTimer != null) {
 			if (fopTimer.isRunning()) {
-				doStartTimer(fopTimer.liveTimeRemaining(), isSilenced() || this.fop.isEmitSoundsOnServer());
+				doStartTimer(fopTimer.liveTimeRemaining(), isSilenced() || this.fop.isEmitSoundsOnServer(), seedSeq);
 			} else {
-				doSetTimer(fopTimer.getTimeRemaining());
+				doSetTimer(fopTimer.getTimeRemaining(), seedSeq);
 			}
 		}
 		// we listen on uiEventBus.

@@ -35,6 +35,7 @@ import java.util.TreeMap;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -1279,8 +1280,18 @@ public class FieldOfPlay implements IUnregister {
 		}
 	}
 
+	private final AtomicLong uiEventSequence = new AtomicLong(0);
+
+	/**
+	 * @return the current value of the per-FOP UI event sequence (peek, does not increment)
+	 */
+	public long getUiEventSequence() {
+		return this.uiEventSequence.get();
+	}
+
 	public void pushOutUIEvent(UIEvent event) {
-		// logger.debug("!!!! {}",event);
+		// stamp a per-FOP monotonic sequence so clients can drop out-of-order timer events
+		event.setSequence(this.uiEventSequence.incrementAndGet());
 		getUiEventBus().post(event);
 		getEventForwardingBus().post(event);
 	}
@@ -3499,10 +3510,18 @@ public class FieldOfPlay implements IUnregister {
 
 		// logger.trace("uiDisplayCurrentAthleteAndTime {} {} {} previous {} current {} change {} from[{}]", curAthlete2, nextAthlete, newWeight,
 		// getPrevWeight(), curWeight, newWeight, LoggerUtils.whereFrom());
-		pushOutUIEvent(new UIEvent.LiftingOrderUpdated(curAthlete2, nextAthlete, getPreviousAthlete(),
+		UIEvent.LiftingOrderUpdated lou = new UIEvent.LiftingOrderUpdated(curAthlete2, nextAthlete, getPreviousAthlete(),
 		        changingAthlete,
 		        getLiftingOrder(), getDisplayOrder(), clock, currentDisplayAffected, displayToggle, e.getOrigin(),
-		        inBreak, newWeight, this));
+		        inBreak, newWeight, this);
+		// carry the authoritative athlete-timer truth so clients can re-assert it if a StartTime/StopTime
+		// was reordered, dropped, or never emitted. Not meaningful during a break.
+		boolean timerRunning = getAthleteTimer().isRunning();
+		lou.setTimerShouldRun(timerRunning);
+		lou.setTimerMillisRemaining(timerRunning ? getAthleteTimer().liveTimeRemaining()
+		        : getAthleteTimer().getTimeRemaining());
+		lou.setTimerStateValid(!inBreak);
+		pushOutUIEvent(lou);
 		setPrevWeight(this.curWeight);
 
 		// cur athlete can be null during some tests.

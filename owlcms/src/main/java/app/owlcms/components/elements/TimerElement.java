@@ -114,12 +114,92 @@ public abstract class TimerElement extends LitTemplate
 		}
 	}
 
+	/**
+	 * Last applied timer-event sequence number for this element. Timer events travel on an
+	 * asynchronous, multi-threaded bus, so their delivery order is not guaranteed. Each event
+	 * carries a per-FOP monotonic sequence; we only apply events newer than the last one applied.
+	 */
+	private volatile long lastAppliedTimerSeq = 0L;
+
+	/**
+	 * Best-effort record of whether this element's timer was last told to run. Used only to make the
+	 * {@code LiftingOrderUpdated} timer re-assertion idempotent (avoid restarting an already-running
+	 * clock on every recompute). Correctness is enforced by the sequence gate, not by this flag.
+	 */
+	private volatile boolean elementRunning = false;
+
+	protected boolean isElementRunning() {
+		return this.elementRunning;
+	}
+
+	protected void reassertTimerState(boolean shouldRun, Integer milliseconds, boolean serverSound, long seq,
+	        Runnable onMismatch) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (isStaleTimerEvent(seq)) {
+				return;
+			}
+			if (shouldRun) {
+				if (this.elementRunning) {
+					return;
+				}
+				onMismatch.run();
+				this.elementRunning = true;
+				setServerSound(serverSound);
+				setIndefinite(milliseconds == null);
+				setMsRemaining(milliseconds);
+				String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+				this.lastStartMillis = System.currentTimeMillis();
+				getElement().setProperty("silent", isSilent());
+				start(milliseconds, isIndefinite(), isSilent(), parent);
+				if (ui != null) {
+					ui.push(); // should not be required...
+				}
+			} else {
+				if (!this.elementRunning) {
+					return;
+				}
+				onMismatch.run();
+				this.elementRunning = false;
+				setMsRemaining(milliseconds);
+				String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
+				this.lastStopMillis = System.currentTimeMillis();
+				stop(getMsRemaining(), isIndefinite(), isSilent(), parent);
+			}
+		});
+	}
+
+	/**
+	 * Drop timer events that arrive out of order. MUST be called on the UI thread (inside a
+	 * {@code uiAccess} block) so that the compare-and-update is atomic for this element.
+	 *
+	 * @param seq the event sequence; 0 means "not sequence-checked" (break timer / direct sync) and is always applied
+	 * @return true if the event is stale and must be ignored
+	 */
+	private boolean isStaleTimerEvent(long seq) {
+		if (seq == 0L) {
+			return false;
+		}
+		if (seq <= this.lastAppliedTimerSeq) {
+			return true;
+		}
+		this.lastAppliedTimerSeq = seq;
+		return false;
+	}
+
 	protected final void doSetTimer(Integer milliseconds) {
+		doSetTimer(milliseconds, 0L);
+	}
+
+	protected final void doSetTimer(Integer milliseconds, long seq) {
 		if (this.logger.isDebugEnabled()) {
 		this.logger.debug("{} doSetTimer {} {}", this, milliseconds,
 		        LoggerUtils.stackTrace());
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (isStaleTimerEvent(seq)) {
+				return;
+			}
+			this.elementRunning = false;
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
 			initTime(milliseconds);
 			stop(getMsRemaining(), isIndefinite(), isSilenced(), parent);
@@ -128,10 +208,18 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected void doStartTimer(Integer milliseconds, boolean serverSound) {
+		doStartTimer(milliseconds, serverSound, 0L);
+	}
+
+	protected void doStartTimer(Integer milliseconds, boolean serverSound, long seq) {
 		this.logger.debug("{} doStartTimer {}", this, milliseconds);
 		setServerSound(serverSound);
 		// String trace = LoggerUtils.stackTrace();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (isStaleTimerEvent(seq)) {
+				return;
+			}
+			this.elementRunning = true;
 			setIndefinite(milliseconds == null);
 			setMsRemaining(milliseconds);
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
@@ -148,7 +236,15 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected void doStopTimer(Integer milliseconds) {
+		doStopTimer(milliseconds, 0L);
+	}
+
+	protected void doStopTimer(Integer milliseconds, long seq) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (isStaleTimerEvent(seq)) {
+				return;
+			}
+			this.elementRunning = false;
 			setMsRemaining(milliseconds);
 			String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
 			this.lastStopMillis = System.currentTimeMillis();
