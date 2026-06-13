@@ -20,6 +20,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.competition.Competition;
@@ -36,10 +38,10 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "preparation/competition", layout = OwlcmsLayout.class)
 public class CompetitionContent extends Composite<VerticalLayout>
-        implements CrudLayout, OwlcmsContent, CrudListener<Competition> {
+        implements CrudLayout, OwlcmsContent, CrudListener<Competition>, BeforeEnterObserver {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(CompetitionContent.class);
-	private OwlcmsCrudFormFactory<Competition> factory;
+	private CompetitionEditingFormFactory factory;
 	private OwlcmsLayout routerLayout;
 
 	/**
@@ -47,11 +49,27 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	 */
 	public CompetitionContent() {
 		initLoggers();
-		this.factory = createFormFactory();
+		this.factory = (CompetitionEditingFormFactory) createFormFactory();
 		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, Competition.getCurrent(), false, null,
 		        event -> {
 		        });
 		fillH(form, getContent());
+	}
+
+	/**
+	 * Open directly on a specific tab when a {@code tab} query parameter is present
+	 * (e.g. {@code preparation/competition?tab=2} for the default championship rules).
+	 */
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		event.getLocation().getQueryParameters().getParameters().getOrDefault("tab", java.util.List.of())
+		        .stream().findFirst().ifPresent(value -> {
+			        try {
+				        this.factory.selectTab(Integer.parseInt(value));
+			        } catch (NumberFormatException e) {
+				        // ignore invalid tab parameter
+			        }
+		        });
 	}
 
 	@Override
@@ -114,6 +132,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 
 	@Override
 	public void setHeaderContent() {
+		this.routerLayout.setMenuArea(createMenuArea());
 		this.routerLayout.setMenuTitle(getPageTitle());
 		this.routerLayout.showLocaleDropdown(true);
 		this.routerLayout.setDrawerOpened(false);

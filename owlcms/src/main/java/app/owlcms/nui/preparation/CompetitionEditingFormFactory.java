@@ -58,6 +58,9 @@ public class CompetitionEditingFormFactory
         extends OwlcmsCrudFormFactory<Competition>
         implements CustomFormFactory<Competition> {
 
+	/** Index of the tab holding the default championship scoring/medaling rules. */
+	public static final int DEFAULT_CHAMPIONSHIP_TAB = 2;
+
 	String browserZoneId;
 	@SuppressWarnings("unused")
 	private Logger logger = (Logger) LoggerFactory.getLogger(CompetitionEditingFormFactory.class);
@@ -70,6 +73,7 @@ public class CompetitionEditingFormFactory
 	// Reference to sinclairYear radio buttons for enabling/disabling
 	private RadioButtonGroup<Integer> sinclairYear;
 	private ChampionshipDetailsForm championshipDefaultsEditor;
+	private TabSheet tabSheet;
 
 	CompetitionEditingFormFactory(Class<Competition> domainType, CompetitionContent origin) {
 		super(domainType);
@@ -150,6 +154,7 @@ public class CompetitionEditingFormFactory
 		        }, deleteButtonClickListener, false);
 
 		TabSheet ts = new TabSheet();
+		this.tabSheet = ts;
 		ts.add(Translator.translate("Competition.InformationTab"),
 		        new VerticalLayout(
 		                competitionLayout, separator(),
@@ -226,6 +231,17 @@ public class CompetitionEditingFormFactory
 		competition.saveRankingConfig();
 		Competition saved = CompetitionRepository.save(competition);
 		return saved;
+	}
+
+	/**
+	 * Select the given tab in the editing TabSheet (no-op if out of range).
+	 *
+	 * @param index zero-based tab index
+	 */
+	public void selectTab(int index) {
+		if (this.tabSheet != null && index >= 0 && index < this.tabSheet.getTabCount()) {
+			this.tabSheet.setSelectedIndex(index);
+		}
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

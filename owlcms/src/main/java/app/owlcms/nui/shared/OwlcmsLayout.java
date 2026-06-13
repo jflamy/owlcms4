@@ -191,6 +191,9 @@ public class OwlcmsLayout extends AppLayout {
 		this.header.setFlexGrow(1.0D, getMenuArea());
 		this.header.setWidth("100%");
 		this.header.setAlignItems(Alignment.CENTER);
+		// keep the language selection pinned to the top even when the menu area wraps
+		// onto multiple rows and makes the header taller
+		getLocaleDropDown().getStyle().set("align-self", "flex-start");
 
 		clearNavBar();
 		addToNavbar(false, this.header);

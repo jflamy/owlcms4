@@ -20,6 +20,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.RouteConfiguration;
 
 import app.owlcms.apputils.NotificationUtils;
 import app.owlcms.components.ConfirmationDialog;
@@ -110,19 +111,55 @@ final class AgeGroupActionsMenu {
 		        VaadinIcon.PENCIL.create(),
 		        e -> UI.getCurrent().navigate(AgeGroupContent.class));
 
+		Button editChampionshipDefaults = new Button(
+		        Translator.translate("Competition.DefaultScoringMedalingRulesTab"),
+		        VaadinIcon.TROPHY.create(),
+		        e -> {
+			        String url = RouteConfiguration.forSessionScope().getUrl(CompetitionContent.class)
+			                + "?tab=" + CompetitionEditingFormFactory.DEFAULT_CHAMPIONSHIP_TAB;
+			        UI.getCurrent().getPage().open(url, "_blank");
+		        });
+
 		FlexLayout buttons = new FlexLayout(
-		        new NativeLabel(Translator.translate("AgeGroups.Predefined")),
-		        reloadDefinition,
+		        row(Translator.translate("AgeGroups.Predefined"), reloadDefinition),
 		        hr(),
-		        new NativeLabel(Translator.translate("AgeGroups.Custom")),
-		        exportAgeGroups, uploadCustom, editAgeGroups);
-		buttons.getStyle().set("flex-wrap", "wrap");
+		        row(Translator.translate("AgeGroups.Custom"),
+		                exportAgeGroups, uploadCustom, editAgeGroups, editChampionshipDefaults));
+		buttons.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
 		buttons.getStyle().set("flex", "100 1");
-		buttons.setAlignItems(FlexComponent.Alignment.BASELINE);
 		buttons.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		return buttons;
+	}
+
+	/**
+	 * Build a row with a left-hand label that spans the row height (vertically
+	 * centered) and a wrapping group of action components on the right. Uses a CSS
+	 * grid so the button column always starts at the same fixed offset, keeping the
+	 * buttons' left edge aligned across rows and on every wrapped line.
+	 *
+	 * @param labelText the row label
+	 * @param items     the action components (buttons, layouts, etc.)
+	 * @return the populated row
+	 */
+	private static Div row(String labelText, com.vaadin.flow.component.Component... items) {
+		NativeLabel label = new NativeLabel(labelText);
+		label.getStyle().set("align-self", "center");
+
+		FlexLayout itemsLayout = new FlexLayout(items);
+		itemsLayout.getStyle().set("flex-wrap", "wrap");
+		itemsLayout.getStyle().set("gap", "1ex");
+		itemsLayout.getStyle().set("justify-content", "flex-start");
+		itemsLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+		Div rowLayout = new Div(label, itemsLayout);
+		rowLayout.getStyle().set("display", "grid");
+		rowLayout.getStyle().set("grid-template-columns", "12em 1fr");
+		rowLayout.getStyle().set("column-gap", "1ex");
+		rowLayout.getStyle().set("align-items", "center");
+		rowLayout.setWidthFull();
+		return rowLayout;
 	}
 
 	private static Hr hr() {
