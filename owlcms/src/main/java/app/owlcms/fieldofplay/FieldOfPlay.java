@@ -434,6 +434,12 @@ public class FieldOfPlay implements IUnregister {
 		return this.eventForwardingBus;
 	}
 
+	public void forceResendCurrentStateToLegacyDisplay() {
+		if (this.eventForwarder != null) {
+			this.eventForwarder.forceResendCurrentState();
+		}
+	}
+
 	/**
 	 * @return the fopEventBus
 	 */

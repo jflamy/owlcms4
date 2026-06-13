@@ -868,6 +868,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
+		translations.put("ScoringTitle", Translator.translate("Score"));
 		setTranslationMap(translations);
 	}
 
@@ -2465,13 +2466,17 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	private void sendPost(String url, String updateKey, Map<String, ?> parameters, String messageType) {
+		sendPost(url, updateKey, parameters, messageType, false);
+	}
+
+	private void sendPost(String url, String updateKey, Map<String, ?> parameters, String messageType, boolean force) {
 		if (url == null) {
 			return;
 		}
 
 		// Check if URL is WebSocket (ws:// or wss://)
 		if (url.startsWith("ws://") || url.startsWith("wss://")) {
-			sendWebSocket(url, messageType, parameters);
+			sendWebSocket(url, messageType, parameters, force);
 			return;
 		}
 
@@ -2482,7 +2487,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
-		if (hashCode != previousDebounceHash || (deltaMillis > 1000)) {
+		if (force || hashCode != previousDebounceHash || (deltaMillis > 1000)) {
 			new Thread(() -> doPost(url, updateKey, parameters)).start();
 
 			this.debouncingHash.put(url, hashCode);
@@ -2494,7 +2499,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	/**
 	 * Send data via WebSocket connection with message type
 	 */
-	private void sendWebSocket(String url, String messageType, Map<String, ?> parameters) {
+	private void sendWebSocket(String url, String messageType, Map<String, ?> parameters, boolean force) {
 		// Determine which URL this is (publicResults or videoData)
 		Config current = Config.getCurrent();
 		String publicResultsUrl = current.getParamUpdateUrl();
@@ -2529,7 +2534,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
-		if (hashCode != previousDebounceHash || (deltaMillis > 1000)) {
+		if (force || hashCode != previousDebounceHash || (deltaMillis > 1000)) {
 			// Create sender with onOpen callback to send database/translations/flags
 			// Callback fires on EVERY connection (including reconnects) because tracker may have restarted
 			Runnable onOpenCallback = () -> {

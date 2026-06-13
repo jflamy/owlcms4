@@ -161,7 +161,7 @@
     },
     {
       "type": "java",
-      "name": "🟩 WS large demo owlcms memory tandem",
+      "name": "🟩 large demo owlcms memory tandem",
       "request": "launch",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",

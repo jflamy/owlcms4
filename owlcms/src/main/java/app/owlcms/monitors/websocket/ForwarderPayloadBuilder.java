@@ -459,6 +459,7 @@ public class ForwarderPayloadBuilder {
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
+		translations.put("ScoringTitle", Translator.translate("Score"));
 		return translations;
 	}
 

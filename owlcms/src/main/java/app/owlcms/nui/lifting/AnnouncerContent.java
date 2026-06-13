@@ -533,6 +533,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			        // fop.loadGroup(group, this, true);
 			        fop.fopEventPost(new FOPEvent.SwitchGroup(group, this));
 			        syncWithFop(true, fop); // loadgroup does not refresh grid, true=ask for refresh
+			        fop.forceResendCurrentStateToLegacyDisplay();
 		        });
 		this.reset.getElement().setProperty("title", Translator.translate("Announcer.ReloadGroupTooltip"));
 
@@ -804,6 +805,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		super.onAttach(attachEvent);
 		this.ui = UI.getCurrent();
 		createTopBarGroupSelect();
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
+			fop.forceResendCurrentStateToLegacyDisplay();
+		}
 		// setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
 		// setCenterNotifications(Config.getCurrent().featureSwitch("centerAnnouncerNotifications"));
 		defineFilters(this.getCrudGrid());

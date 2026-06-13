@@ -854,6 +854,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
+		translations.put("ScoringTitle", Translator.translate("Score"));
 		setTranslationMap(translations);
 	}
 
@@ -1939,6 +1940,22 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.keepaliveThread.start();
 	}
 
+	public synchronized void forceResendCurrentState() {
+		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(),
+		        this.fop.getCeremonyType()));
+		this.lastUpdate = createUpdate(null);
+
+		Config current = Config.getCurrent();
+		String updateUrl = current.getParamUpdateUrl();
+		String videoUrl = current.getParamVideoDataUpdateUrl();
+		if (updateUrl == null && videoUrl == null) {
+			return;
+		}
+
+		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate, true);
+		sendPost(updateUrl, current.getParamUpdateKey(), this.lastUpdate, true);
+	}
+
 	private void pushUpdateDoIt(UIEvent e2) {
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(),
 		        this.fop.getCeremonyType()));
@@ -2034,13 +2051,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private void sendPost(String url, String updateKey, Map<String, String> parameters) {
+		sendPost(url, updateKey, parameters, false);
+	}
+
+	private void sendPost(String url, String updateKey, Map<String, String> parameters, boolean force) {
 		if (url == null) {
 			return;
 		}
 		
 		// Check if this URL is in backoff due to repeated failures
 		Long failureTime = failureTimeByUrl.get(url);
-		if (failureTime != null) {
+		if (!force && failureTime != null) {
 			long timeSinceFailure = System.currentTimeMillis() - failureTime;
 			if (timeSinceFailure < FAILURE_BACKOFF_MS) {
 				// Still in backoff period, skip this attempt
@@ -2062,12 +2083,15 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
-		if (hashCode != previousDebounceHash || (deltaMillis > 1000)) {
+		if (force || hashCode != previousDebounceHash || (deltaMillis > 1000)) {
 			// Only log timer POSTs when debug flag is enabled
 			if (DEBUG_TIMER_EVENTS && url != null && url.contains("/timer")) {
 				logger.debug("{}sendPost TIMER: url={}, hashCode={}, prevHash={}, deltaMs={} {}", 
 					FieldOfPlay.getLoggingName(getFop()), url, hashCode, previousDebounceHash, deltaMillis,
 					LoggerUtils.whereFrom());
+			}
+			if (force) {
+				failureTimeByUrl.remove(url);
 			}
 			new Thread(() -> doPost(url, updateKey, parameters)).start();
 

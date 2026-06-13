@@ -11,14 +11,22 @@ class ResultsPR extends LitElement {
     return "results-template-pr";
   }
 
+  stylesheetHref(assetName) {
+    const autoVersion = this.autoversion ?? this.autoVersion ?? "";
+    const videoPrefix = typeof this.video === "string" && this.video !== "true" && this.video !== "false"
+      ? this.video
+      : "";
+    return `local/${this.stylesDir ?? ""}/${videoPrefix}${assetName}${autoVersion}.css`;
+  }
+
   render() {
     this.$server.visibilityStatus(!window.document.hidden);
     return html`
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "colors" + (this.autoversion ?? "") + ".css"}" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "results" + (this.autoversion ?? "") + ".css"}" />
-      <link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/" + (this.video ?? "") + "publicresultsCustomization" + (this.autoversion ?? "") + ".css"}" />
+      <link rel="stylesheet" type="text/css" .href="${this.stylesheetHref("colors")}" />
+      <link rel="stylesheet" type="text/css" .href="${this.stylesheetHref("results")}" />
+      <link rel="stylesheet" type="text/css" .href="${this.stylesheetHref("publicresultsCustomization")}" />
 
-      <div class="${this.wrapperClasses()}"  style="${this.sizeOverride}">
+      <div class="${this.wrapperClasses()}" style="${this.sizeOverride ?? ""} ${this.colorOverride ?? ""}">
         <div class="blockPositioningWrapper">
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
@@ -60,7 +68,7 @@ class ResultsPR extends LitElement {
           </div>
 
           <table class="${this.athleteClasses()}" style="${this.athleteStyles()}">
-            ${this.athletes 
+            ${this.athletes
               ? html`
                 <tr class="head">
                   <th class="groupCol" .innerHTML="${this.t?.Start}"></th>
@@ -85,16 +93,12 @@ class ResultsPR extends LitElement {
                   <th class="sinclairRank" .innerHTML="${this.t?.Rank}"></th>
                 </tr>
                 ${(this.athletes ?? []).map(
-                    (item) => 
+                    (item, index, athletes) =>
                       html`
-                        ${item?.isSpacer 
-                          ? html`
-                            <tr>
-                              <td class="spacer" style="grid-column: 1 / -1; justify-content: left;" innerHTML="-" ></td>
-                            </tr>
-                          `
+                        ${item?.isSpacer
+                          ? this.renderSpacerRow(item, index, athletes)
                           : html`
-                            <tr class="athlete">
+                            <tr class="${"athlete" + (item?.classname ?? "")}">
                               <td class="${"start " + (item?.classname ?? "")}">
                                 <div class="${item?.classname}"> ${item?.startNumber}</div>
                               </td>
@@ -121,43 +125,43 @@ class ResultsPR extends LitElement {
                               </td>
                               <td class="vspacer"></td>
                               ${(item?.sattempts ?? []).map(
-                                (attempt, index) => 
+                                (attempt, index) =>
                                   html`
-                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">   
+                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">
                                       <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
                                     </td>
                                   `)}
                               <td class="best">
                                 <div .innerHTML="${item?.bestSnatch} "></div>
                               </td>
-                              <td class="rank">
+                              <td class="${"rank " + (item?.snatchMedal ?? "")}">
                                 <div .innerHTML="${item?.snatchRank} "></div>
                               </td>
                               <td class="vspacer"></td>
                               ${(item?.cattempts ?? []).map(
-                                (attempt, index) => 
+                                (attempt, index) =>
                                   html`
                                     <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">
-                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div> 
+                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
                                     </td>
                                   `)}
                               <td class="best">
                                 <div .innerHTML="${item?.bestCleanJerk}"></div>
                               </td>
-                              <td class="rank">
+                              <td class="${"rank " + (item?.cleanJerkMedal ?? "")}">
                                 <div .innerHTML="${item?.cleanJerkRank}"></div>
                               </td>
                               <td class="vspacer"></td>
                               <td class="total">
                                 <div>${item?.total}</div>
                               </td>
-                              <td class="totalRank">
+                              <td class="${"totalRank " + (item?.totalMedal ?? "")}">
                                 <div .innerHTML="${item?.totalRank}"></div>
                               </td>
                               <td class="sinclair">
                                 <div>${item?.sinclair}</div>
                               </td>
-                              <td class="sinclairRank">
+                              <td class="${"sinclairRank " + (item?.sinclairMedal ?? "")}">
                                 <div>${item?.sinclairRank}</div>
                               </td>
                             </tr>
@@ -165,12 +169,12 @@ class ResultsPR extends LitElement {
                   `)}
               `
               : html``}
-            <tr>
-              <td class="filler" .style="grid-column: 1 / -1; ${this.fillerStyles()}"> &nbsp; </td>
-            </tr>
             ${this.leaders
               ? html`
                 <tbody class="leaders" style="${this.leadersStyles()}">
+                  <tr>
+                    <td class="filler" style="grid-column: 1 / -1; ${this.fillerStyles()}"> &nbsp; </td>
+                  </tr>
                   <tr class="head">
                     <td class="leaderTitle" .innerHTML="${(this.t?.Leaders ?? "") + " " + (this.categoryName ?? "")}"></td>
                   </tr>
@@ -178,9 +182,9 @@ class ResultsPR extends LitElement {
                     <td class="headerSpacer" innerHTML="&nbsp;" style="${"grid-column: 1 / -1; justify-content: left; " + this.leadingAthleteStyles()}"></td>
                   </tr>
                   ${(this.leaders ?? []).map(
-                    (item, index) => 
+                    (item, index) =>
                       html`
-                        ${!item?.isSpacer 
+                        ${!item?.isSpacer
                           ? html`
                               <tr class="athlete">
                                 <td class="groupCol" style="${this.leadingAthleteStyles()} "> <div>${item?.subCategory}</div></td>
@@ -197,25 +201,25 @@ class ResultsPR extends LitElement {
                                 </td>
                                 <td class="vspacer"></td>
                                 ${(item?.sattempts ?? []).map(
-                                  (attempt, index) => 
+                                  (attempt, index) =>
                                     html`
                                       <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
                                 <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestSnatch}"></div></td>
-                                <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.snatchRank}"></div></td>
+                                <td class="${"rank " + (item?.snatchMedal ?? "")}" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.snatchRank}"></div></td>
                                 <td class="vspacer" style="${this.leadingAthleteStyles()} "></td>
                                 ${(item?.cattempts ?? []).map(
-                                  (attempt, index) => 
+                                  (attempt, index) =>
                                     html`
                                       <td class="${(attempt ?.liftStatus ?? "") + " " + (attempt?.className ?? "")}"><div>${attempt?.stringValue}</div></td>
                                     `)}
                                 <td class="best" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.bestCleanJerk}"></div></td>
-                                <td class="rank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.cleanJerkRank}"></div></td>
-                                <td class="vspacer"></td>
+                                <td class="${"rank " + (item?.cleanJerkMedal ?? "")}" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.cleanJerkRank}"></div></td>
+                                <td class="vspacer sinclairVspacer"></td>
                                 <td class="total" style="${this.leadingAthleteStyles()} "> <div>${item?.total}</div></td>
-                                <td class="totalRank" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.totalRank}"></div></td>
+                                <td class="${"totalRank " + (item?.totalMedal ?? "")}" style="${this.leadingAthleteStyles()} "> <div .innerHTML="${item?.totalRank}"></div></td>
                                 <td class="sinclair" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclair}</div></td>
-                                <td class="sinclairRank" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclairRank}</div></td>
+                                <td class="${"sinclairRank " + (item?.sinclairMedal ?? "")}" style="${this.leadingAthleteStyles()} "> <div>${item?.sinclairRank}</div></td>
                               </tr>
                           `
                           : html``}
@@ -233,14 +237,14 @@ class ResultsPR extends LitElement {
                     <div class="recordName recordTitle">${this.t?.records}</div>
                     <div class="recordLiftTypeSpacer"><span class="recordLiftTypeSpacer">&nbsp;</span></div>
                     ${(this.records?.recordNames ?? []).map(
-                      (n, index) => 
+                      (n, index) =>
                         html`
                           <div class="recordName">${n}</div>
                         `)}
                   </div>
 
                   ${(this.records?.recordTable ?? []).map(
-                    (c, index) => 
+                    (c, index) =>
                       html`
                         <div class="${c?.recordClass}">
                           <div class="recordCat" .innerHTML="${c?.cat}"></div>
@@ -248,21 +252,21 @@ class ResultsPR extends LitElement {
                           <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordCJ}</span></div>
                           <div class="recordLiftType"><span class="recordLiftType">${this.t?.recordT}</span></div>
                           ${(c?.records ?? []).map(
-                            (r, index) => 
+                            (r, index) =>
                               html`
                                 <div class="${"recordCell " + (r?.snatchHighlight ?? "")} ">${r?.SNATCH}</div>
                                 <div class="${"recordCell " + (r?.cjHighlight ?? "")} ">${r?.CLEANJERK}</div>
                                 <div class="${"recordCell " + (r?.totalHighlight ?? "")} ">${r?.TOTAL}</div>
-                            `)}
+                              `)}
                         </div>
                       `)}
                   <div class="${"recordNotification " + (this.recordKind ?? "")}"> ${this.recordMessage} </div>
-                  <div style="position: absolute; bottom: 2em; right: 1em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+                  <div class="branding" style="position: absolute; bottom: 2em; right: 2em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
                 </div>
               </div>
             `
-            : html`<div style="line-height: 1.25em">&nbsp;
-              <div style="position: absolute; bottom: 0.5em; right: 1em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+            : html`<div style="${this.bottomSpacerStyles()}">&nbsp;
+              <div class="branding" style="position: absolute; bottom: 0.5em; right: 2em; align-items: center; font-weight: 100; font-size: 1.6vh; line-height: 1.25em"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
             `}
         </div>
@@ -282,6 +286,11 @@ class ResultsPR extends LitElement {
       displayType: {},
       groupName: {},
       groupDescription: {},
+      groupInfo: {},
+      platformName: {},
+      scoreboardType: {},
+      categoryName: {},
+      liftsDone: {},
       
       // during lifting
       athletes: { type: Object },
@@ -298,13 +307,27 @@ class ResultsPR extends LitElement {
       teamWidthClass: {},
       sizeOverride: {},
       twOverride: {},
+      colorOverride: {},
       video: {},
+      currentAttempt: {},
+      showCategoryHeaders: { type: Boolean },
+      showTotal: { type: Boolean },
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
+      showTotalRank: { type: Boolean },
       showSinclair: {type: Boolean},
+      showSinclairRank: { type: Boolean },
       showSinclairRanks: {type: Boolean},
+      showCustom1: { type: Boolean },
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
+      resultLines: {},
+      leaderLines: {},
+      leadersLineHeight: {},
+      leaderFillerHeight: {},
+      hiddenGridStyle: {},
+      recordKind: {},
+      recordMessage: {},
 
       // translation map
       t: { type: Object },
@@ -313,6 +336,7 @@ class ResultsPR extends LitElement {
       javaComponentId: {},
       stylesDir: {},
       autoVersion: {},
+      autoversion: {},
     };
   }
 
@@ -323,7 +347,7 @@ class ResultsPR extends LitElement {
   }
 
   start() {
-    this.renderRoot.querySelector("#timer").start();
+    this.renderRoot.querySelector("#timer-pr").start();
   }
 
   _isEqualTo(title, string) {
@@ -332,9 +356,11 @@ class ResultsPR extends LitElement {
 
   wrapperClasses() {
     var classes = "wrapper";
+    classes = classes + (this.platformName ? " " + this.platformName : "");
     classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
+    classes = classes + (this.scoreboardType ? " " + this.scoreboardType : "");
     return classes;
   }
 
@@ -343,7 +369,7 @@ class ResultsPR extends LitElement {
   }
 
   attemptBarStyles() {
-    return "display: " + (this.mode === "WAIT" || this.video ? "none" : "block");
+    return "display: " + (this.mode === "WAIT" || this.isVideoMode() || !this.showAttempt() ? "none" : "block");
   }
 
   athleteInfoStyles() {
@@ -351,15 +377,15 @@ class ResultsPR extends LitElement {
   }
 
   fullNameStyles() {
-    return  "display: " + (this.mode === "WAIT" ? "none" : "flex");
+    return  "display: " + (this.mode === "WAIT" ? "none" : "block");
   }
 
   teamNameStyles() {
-    return "display: " + ((this.isBreak()) ? "none" : "flex");
+    return "display: " + (this.isBreak() ? "none" : "block");
   }
 
   attemptStyles() {
-    return "display: " + ((this.isBreak()) ? "none" : "flex");
+    return "display: " + (this.isBreak() ? "none" : "flex");
   }
 
   startNumberStyles() {
@@ -372,8 +398,8 @@ class ResultsPR extends LitElement {
   }
 
   athleteTimerStyles() {
-   //return "display:" + ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "flex" : "none");
-   return "display: " + (this.isBreak() ? "none" : "flex");
+   let visible = ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "flex" : "none");
+   return "display: " + (this.isBreak() ? "none" : visible);
   }
 
   breakTimerStyles() {
@@ -385,29 +411,75 @@ class ResultsPR extends LitElement {
   }
 
   videoHeaderStyles() {
-    return "display: " + ((this.mode !== "WAIT" && this.video)? "flex" : "none");
+    return "display: " + ((this.mode !== "WAIT" && (this.isVideoMode() || !this.showAttempt())) ? "flex" : "none");
+  }
+
+  bottomSpacerStyles() {
+    return "line-height: var(--bottomSpacerHeight)";
+  }
+
+  hasMultipleCategorySections(athletes = this.athletes ?? []) {
+    return athletes.filter((item) => item?.isSpacer).length > 1;
+  }
+
+  renderSpacerRow(_item, index, athletes) {
+    if (this.showCategoryHeaders && (this.hasMultipleCategorySections(athletes) || this.hasAttribute("always-category-header"))) {
+      const categoryTitle = athletes[index + 1]?.category ?? "";
+      if (categoryTitle) {
+        return html`
+          <tr>
+            <td class="categoryGroupHeader" style="margin-top: ${index > 0 ? "0.4em" : "var(--firstCategorySpacerHeight, 0)"};">${categoryTitle}</td>
+          </tr>
+        `;
+      }
+    }
+
+    return html`
+      <tr>
+        <td class="spacer" style="grid-column: 1 / -1; justify-content: left;">&nbsp;</td>
+      </tr>
+    `;
+  }
+
+  showAttempt() {
+    if (this.currentAttempt == null) {
+      return true;
+    }
+
+    return this.currentAttempt === true || this.currentAttempt === "true";
+  }
+
+  isVideoMode() {
+    return this.video === true
+      || this.video === "true"
+      || (typeof this.video === "string" && this.video.length > 0 && this.video !== "false");
+  }
+
+  showSinclairRankValue() {
+    return this.showSinclairRank ?? this.showSinclairRanks;
   }
 
   athleteClasses() {
+    const showSinclairRank = this.showSinclairRankValue();
     var classes = "results " 
     + (this.showTotal ? " total" : " nototal")
     + (this.showLiftRanks ? " ranks" : " noranks") 
     + (this.showBest ? " best" : " nobest")
     + (this.showTotalRank ? " totalRank" : " nototalRank")
+    + (this.showCustom1 ? " custom1" : " nocustom1")
     + (this.showSinclair ? " sinclair" : " nosinclair")
-    + (this.showSinclairRank ? " sinclairRank" : " nosinclairRank")
+    + (showSinclairRank ? " sinclairRank" : " nosinclairRank")
     ;
-    console.warn("athleteClasses = "+classes);
     return classes;
 }
 
   athleteStyles() {
     return (this.mode === "WAIT" ? "display: none" : "display:grid ")
-      + (this.resultLines ? ("; --top: " + this.resultLines) : "") 
+      + (this.resultLines ? ("; --top: calc(" + this.resultLines + ")") : "")
       + (this.leaderLines ? "; --bottom: " + this.leaderLines : "")
-      + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "") 
-      + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "") 
-      + (this.twOverride ? "; " + this.twOverride : "") 
+      + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "")
+      + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "")
+      + (this.twOverride ? "; " + this.twOverride : "")
   }
 
   leadersStyles() {
@@ -439,6 +511,7 @@ class ResultsPR extends LitElement {
   constructor() {
     super();
     this.mode = "WAIT";
+    this.showCategoryHeaders = false;
   }
  }
 
