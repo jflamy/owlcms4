@@ -154,22 +154,28 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        juryDecisions1);
 			doGroup(Translator.translate("Jury"), juryGrid, this);
 
-			Ranking scoringSystem = Championship.of(null).getScoringSystem();
-			String scoringTitle = Ranking.getScoringTitle(scoringSystem);
+			Ranking bestAthleteScoring = Championship.of(null).getBestAthleteScoringSystem();
+			String bestAthleteTitle = Ranking.getScoringTitle(bestAthleteScoring);
+			Ranking teamScoring = Championship.of(null).getTeamScoringSystem() != null
+			        ? Championship.of(null).getTeamScoringSystem()
+			        : Ranking.TOTAL;
+			String teamScoringTitle = Ranking.getScoringTitle(teamScoring);
 
 			Button topSinclair = openInNewTabWithFop(TopSinclairPage.class,
-			        Translator.translate("Scoreboard.TopScore", scoringTitle));
+			        Translator.translate("Scoreboard.TopScore", bestAthleteTitle));
 			Button topTeams = openInNewTabWithFop(TopTeamsPage.class, Translator.translate("Scoreboard.TopTeams"));
 			Button topTeamsSinclair = openInNewTabWithFop(TopTeamsSinclairPage.class,
-			        Translator.translate("Scoreboard.TopTeamsScore", scoringTitle));
+			        Translator.translate("Scoreboard.TopTeamsScore", teamScoringTitle));
 			VerticalLayout intro111 = new VerticalLayout();
 			FlexibleGridLayout grid111 = HomeNavigationContent.navigationGrid(
 			        topTeams,
 			        topSinclair,
 			        topTeamsSinclair);
 
-			if (scoringSystem == Ranking.ROBI) {
+			if (bestAthleteScoring == Ranking.ROBI) {
 				topSinclair.setEnabled(false);
+			}
+			if (teamScoring == Ranking.ROBI) {
 				topTeamsSinclair.setEnabled(false);
 			}
 			doGroup(Translator.translate("Scoreboard.RankingOrder"), intro111, grid111, this);
