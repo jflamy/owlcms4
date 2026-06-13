@@ -630,7 +630,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		if (computed != null) {
 			return Translator.translate("Ranking." + computed);
 		}
-		return Translator.translate("Ranking." + Championship.of(null).getScoringSystem());
+		return Translator.translate("Ranking." + Championship.of(null).getBestAthleteScoringSystem());
 	}
 
 	public Boolean getMedals() {

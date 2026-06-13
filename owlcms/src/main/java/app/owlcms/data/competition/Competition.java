@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -386,6 +387,13 @@ public class Competition {
 	private String teamResultsTemplateFileName;
 	private String recordOrder;
 	private Ranking scoringSystem;
+	/**
+	 * Once true, the championship template is the single source of truth for the
+	 * championship/medal/team default values; the legacy columns above are wiped and
+	 * the value accessors delegate to the template. Value setters throw once migrated.
+	 */
+	@Column(columnDefinition = "boolean default false")
+	private boolean migrated = false;
 	@Column(columnDefinition = "boolean default false")
 	private boolean displayScores = false;
 	@Column(columnDefinition = "boolean default false")
@@ -1139,9 +1147,18 @@ public class Competition {
 
 	@Transient
 	@JsonIgnore
-	synchronized public List<Athlete> getGlobalScoreRanking(Gender gender) {
+	synchronized public List<Athlete> getGlobalRanking(Gender gender, Ranking ranking) {
+		if (gender == null || ranking == null) {
+			return Collections.emptyList();
+		}
 		return getListOrElseRecompute(
-		        gender == Gender.F ? getScoringSystem().getWReportingName() : getScoringSystem().getMReportingName());
+		        gender == Gender.F ? ranking.getWReportingName() : ranking.getMReportingName());
+	}
+
+	@Transient
+	@JsonIgnore
+	synchronized public List<Athlete> getGlobalScoreRanking(Gender gender) {
+		return getGlobalRanking(gender, getScoringSystem());
 	}
 
 	/**
@@ -1246,17 +1263,21 @@ public class Competition {
 	}
 
 	public Integer getMaxPerCategory() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getMaxPerCategory();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getMaxPerCategory();
+			}
 		}
 		return this.maxPerCategory != null && this.maxPerCategory > 0 ? this.maxPerCategory : 2;
 	}
 
 	public Integer getMaxTeamSize() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getMaxTeamSize();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getMaxTeamSize();
+			}
 		}
 		return this.maxTeamSize;
 	}
@@ -1298,9 +1319,11 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public Integer getMenBestNElseDefault() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getMensBestN();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getMensBestN();
+			}
 		}
 		return this.mensBestN != null ? this.mensBestN : this.maxTeamSize;
 	}
@@ -1308,25 +1331,31 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public Integer getMixedBestNElseDefault() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getMixedBestN();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getMixedBestN();
+			}
 		}
 		return this.mixedBestN != null ? this.mixedBestN : this.maxTeamSize;
 	}
 
 	public Integer getMensBestN() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getMensBestN();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getMensBestN();
+			}
 		}
 		return this.mensBestN;
 	}
 
 	public Integer getMixedBestN() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getMixedBestN();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getMixedBestN();
+			}
 		}
 		return this.mixedBestN;
 	}
@@ -1360,19 +1389,105 @@ public class Competition {
 		return this.resultsTemplateFileName;
 	}
 
+	@Transient
+	@JsonIgnore
+	public Ranking getLegacyCompetitionScoringSystem() {
+		return this.scoringSystem == null ? Ranking.BW_SINCLAIR : this.scoringSystem;
+	}
+
+	public boolean isMigrated() {
+		return this.migrated;
+	}
+
+	public void setMigrated(boolean migrated) {
+		this.migrated = migrated;
+	}
+
+	private void assertNotMigrated() {
+		if (this.migrated) {
+			throw new UnsupportedOperationException(
+			        "Competition championship values are migrated; edit the championship template instead of Competition");
+		}
+	}
+
+	/**
+	 * One-time migration: validate that the championship template faithfully represents the
+	 * legacy Competition championship/medal/team values, then flip {@code migrated} to true and
+	 * wipe the legacy columns. After this, the template is the single source of truth and the
+	 * Competition value accessors delegate to it. Team-size fields are excluded from the sanity
+	 * check because they are intentionally re-derived by legacy team-size inference.
+	 *
+	 * @return true if the Competition is migrated (already, or as a result of this call)
+	 */
+	@Transient
+	@JsonIgnore
+	public boolean migrateToChampionship(Championship template) {
+		if (this.migrated) {
+			return true;
+		}
+		if (template == null) {
+			return false;
+		}
+		Ranking expectedBestAthlete = getLegacyCompetitionScoringSystem();
+		Ranking expectedMedal = isScoreMedalChampionship() ? expectedBestAthlete : Ranking.TOTAL;
+		Integer expectedMaxPerCategory = this.maxPerCategory != null && this.maxPerCategory > 0 ? this.maxPerCategory : 2;
+		boolean sane = template.getBestAthleteScoringSystem() == expectedBestAthlete
+		        && template.getScoringSystem() == expectedMedal
+		        && template.isSnatchCJTotalMedals() == this.snatchCJTotalMedals
+		        && Objects.equals(template.getTeamPoints1st(), this.teamPoints1st)
+		        && Objects.equals(template.getTeamPoints2nd(), this.teamPoints2nd)
+		        && Objects.equals(template.getTeamPoints3rd(), this.teamPoints3rd)
+		        && Objects.equals(template.getMaxPerCategory(), expectedMaxPerCategory);
+		if (!sane) {
+			logger.error(
+			        "Championship migration sanity check failed; leaving Competition as source of truth. "
+			                + "medal expected={} actual={}, bestAthlete expected={} actual={}",
+			        expectedMedal, template.getScoringSystem(), expectedBestAthlete,
+			        template.getBestAthleteScoringSystem());
+			return false;
+		}
+		// Migration succeeded: the championship template is now the single source of truth.
+		// Wipe the legacy columns so nothing forensic remains and NON_NULL serialization never
+		// re-triggers the now-throwing setters on a subsequent import.
+		this.scoringSystem = null;
+		this.sinclairMeet = false;
+		this.snatchCJTotalMedals = false;
+		this.teamPoints1st = null;
+		this.teamPoints2nd = null;
+		this.teamPoints3rd = null;
+		this.maxTeamSize = null;
+		this.maxPerCategory = null;
+		this.mensBestN = null;
+		this.womensBestN = null;
+		this.mixedBestN = null;
+		this.migrated = true;
+		return true;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Ranking getBestAthleteScoringSystem() {
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null && template.getBestAthleteScoringSystem() != null) {
+				return template.getBestAthleteScoringSystem();
+			}
+		}
+		return getLegacyCompetitionScoringSystem();
+	}
+
 	public String getScheduleTemplateFileName() {
 		return this.scheduleTemplateFileName;
 	}
 
 	public Ranking getScoringSystem() {
-		Championship template = getCompetitionTemplate();
-		if (template != null && template.getScoringSystem() != null) {
-			return template.getScoringSystem();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null && template.getScoringSystem() != null) {
+				return template.getScoringSystem();
+			}
 		}
-		if (this.scoringSystem == null) {
-			return Ranking.BW_SINCLAIR;
-		}
-		return this.scoringSystem;
+		return isScoreMedalChampionship() ? getLegacyCompetitionScoringSystem() : Ranking.TOTAL;
 	}
 
 	public Integer getShorterBreakDuration() {
@@ -1418,17 +1533,21 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public Integer getWomenBestNElseDefault() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getWomensBestN();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getWomensBestN();
+			}
 		}
 		return this.womensBestN != null ? this.womensBestN : this.maxTeamSize;
 	}
 
 	public Integer getWomensBestN() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getWomensBestN();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getWomensBestN();
+			}
 		}
 		return this.womensBestN;
 	}
@@ -1542,9 +1661,11 @@ public class Competition {
 	}
 
 	public boolean isSnatchCJTotalMedals() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.isSnatchCJTotalMedals();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.isSnatchCJTotalMedals();
+			}
 		}
 		return this.snatchCJTotalMedals;
 	}
@@ -1834,13 +1955,13 @@ public class Competition {
 	}
 
 	public void setMaxPerCategory(Integer maxPerCategory) {
+		assertNotMigrated();
 		this.maxPerCategory = maxPerCategory;
-		ChampionshipRepository.updateCompetitionTemplate(template -> template.setMaxPerCategory(maxPerCategory));
 	}
 
 	public void setMaxTeamSize(Integer maxTeamSize) {
+		assertNotMigrated();
 		this.maxTeamSize = maxTeamSize;
-		ChampionshipRepository.updateCompetitionTemplate(template -> template.setMaxTeamSize(maxTeamSize));
 	}
 
 	public void setMedalScheduleTemplateFileName(String medalScheduleTemplateFileName) {
@@ -1852,13 +1973,13 @@ public class Competition {
 	}
 
 	public void setMensBestN(Integer mensTeamSize) {
+		assertNotMigrated();
 		this.mensBestN = mensTeamSize;
-		ChampionshipRepository.updateCompetitionTemplate(template -> template.setMensBestN(mensTeamSize));
 	}
 
 	public void setMixedBestN(Integer mixedTeamSize) {
+		assertNotMigrated();
 		this.mixedBestN = mixedTeamSize;
-		ChampionshipRepository.updateCompetitionTemplate(template -> template.setMixedBestN(mixedTeamSize));
 	}
 
 	public void setOfficialsListTemplateFileName(String officialsListTemplateFileName) {
@@ -1899,18 +2020,8 @@ public class Competition {
 	}
 
 	public void setScoringSystem(Ranking scoringSystem) {
-		if (!Ranking.scoringSystems().contains(scoringSystem)) {
-			//throw new IllegalArgumentException(scoringSystem + " is not a scoring system");
-			logger.error("{} is not a scoring system", scoringSystem);
-			return;
-		}
+		assertNotMigrated();
 		this.scoringSystem = scoringSystem;
-		ChampionshipRepository.updateCompetitionTemplate(template -> {
-			template.setScoringSystem(scoringSystem);
-			template.setBestAthleteScoringSystem(scoringSystem);
-			template.setBestSnatchScoringSystem(null);
-			template.setBestCJScoringSystem(null);
-		});
 	}
 
 	public void setShorterBreakDuration(Integer shorterBreakDuration) {
@@ -1926,6 +2037,13 @@ public class Competition {
 	}
 
 	public void setSinclair(boolean b) {
+		if (this.migrated) {
+			// Tolerate idempotent re-binding (e.g. Jackson re-import); throw only on a real change.
+			if (b == isSinclair()) {
+				return;
+			}
+			assertNotMigrated();
+		}
 		this.sinclairMeet = b;
 	}
 
@@ -1934,8 +2052,14 @@ public class Competition {
 	}
 
 	public void setSnatchCJTotalMedals(boolean snatchCJTotalMedals) {
+		if (this.migrated) {
+			// Tolerate idempotent re-binding (e.g. Jackson re-import); throw only on a real change.
+			if (snatchCJTotalMedals == isSnatchCJTotalMedals()) {
+				return;
+			}
+			assertNotMigrated();
+		}
 		this.snatchCJTotalMedals = snatchCJTotalMedals;
-		ChampionshipRepository.updateCompetitionTemplate(template -> template.setSnatchCJTotalMedals(snatchCJTotalMedals));
 	}
 
 	public void setStartListTemplateFileName(String startingListFileName) {
@@ -1980,30 +2104,36 @@ public class Competition {
 	}
 
 	public void setWomensBestN(Integer womensTeamSize) {
+		assertNotMigrated();
 		this.womensBestN = womensTeamSize;
-		ChampionshipRepository.updateCompetitionTemplate(template -> template.setWomensBestN(womensTeamSize));
 	}
 
 	public Integer getTeamPoints1st() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getTeamPoints1st();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getTeamPoints1st();
+			}
 		}
 		return this.teamPoints1st;
 	}
 
 	public Integer getTeamPoints2nd() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getTeamPoints2nd();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getTeamPoints2nd();
+			}
 		}
 		return this.teamPoints2nd;
 	}
 
 	public Integer getTeamPoints3rd() {
-		Championship template = getCompetitionTemplate();
-		if (template != null) {
-			return template.getTeamPoints3rd();
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.getTeamPoints3rd();
+			}
 		}
 		return this.teamPoints3rd;
 	}
@@ -2013,18 +2143,18 @@ public class Competition {
 	}
 
 	public void setTeamPoints1st(Integer teamPoints1st) {
+		assertNotMigrated();
 		this.teamPoints1st = teamPoints1st;
-		ChampionshipRepository.updateCompetitionTemplate(template -> template.setTeamPoints1st(teamPoints1st));
 	}
 
 	public void setTeamPoints2nd(Integer teamPoints2nd) {
+		assertNotMigrated();
 		this.teamPoints2nd = teamPoints2nd;
-		ChampionshipRepository.updateCompetitionTemplate(template -> template.setTeamPoints2nd(teamPoints2nd));
 	}
 
 	public void setTeamPoints3rd(Integer teamPoints3rd) {
+		assertNotMigrated();
 		this.teamPoints3rd = teamPoints3rd;
-		ChampionshipRepository.updateCompetitionTemplate(template -> template.setTeamPoints3rd(teamPoints3rd));
 	}
 
 	@Override

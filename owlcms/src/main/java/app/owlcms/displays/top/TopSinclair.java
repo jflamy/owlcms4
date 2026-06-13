@@ -360,7 +360,7 @@ public class TopSinclair extends AbstractTop {
 			this.uiEventBus = uiEventBusRegister(this, fop);
 		}
 		Competition competition = Competition.getCurrent();
-		this.scoringSystem = competition.getScoringSystem();
+		this.scoringSystem = getEffectiveScoringSystem();
 		doUpdate(competition);
 	}
 
@@ -637,8 +637,10 @@ public class TopSinclair extends AbstractTop {
 	}
 
 	private Ranking getEffectiveScoringSystem() {
-		Championship championship = getChampionship() != null ? getChampionship() : Championship.of(null);
-		return championship.getScoringSystem();
+		Championship championship = getAgeGroup() != null && getAgeGroup().getChampionship() != null
+		        ? getAgeGroup().getChampionship()
+		        : getChampionship() != null ? getChampionship() : Championship.of(null);
+		return championship.getBestAthleteScoringSystem();
 	}
 
 }

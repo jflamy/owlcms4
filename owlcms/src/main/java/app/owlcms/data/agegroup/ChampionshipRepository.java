@@ -113,7 +113,9 @@ public class ChampionshipRepository {
 				em.merge(duplicate);
 				logger.warn("Removed duplicate competition template marker from championship '{}'", duplicate.getName());
 			}
-			return em.merge(template);
+			Championship merged = em.merge(template);
+			migrateCompetitionIfNeeded(em, merged);
+			return merged;
 		}
 
 		// Template creation is the only place that needs the legacy competition-level
@@ -128,8 +130,32 @@ public class ChampionshipRepository {
 		template.populateCompetitionTemplateDefaults(competition);
 		applyLegacyTemplateTeamSizeDefaults(em, template);
 		em.persist(template);
+		migrateCompetitionIfNeeded(em, template);
 		logger.info("Created competition championship template: name='{}'", template.getName());
 		return template;
+	}
+
+	/**
+	 * One-time migration of legacy Competition-level championship defaults into the template.
+	 * The template (default championship) must already be populated. Validates the values via
+	 * {@link Competition#migrateToChampionship(Championship)}; on success the Competition flips
+	 * its {@code migrated} flag and wipes the legacy columns, after which the template is the
+	 * single source of truth. Idempotent: skips once the Competition is already migrated.
+	 */
+	private static void migrateCompetitionIfNeeded(EntityManager em, Championship template) {
+		if (template == null) {
+			return;
+		}
+		Competition competition = em
+		        .createQuery("select c from Competition c", Competition.class)
+		        .getResultList().stream().findFirst().orElse(null);
+		if (competition == null || competition.isMigrated()) {
+			return;
+		}
+		if (competition.migrateToChampionship(template)) {
+			em.merge(competition);
+			logger.info("Migrated legacy Competition championship defaults into template '{}'", template.getName());
+		}
 	}
 
 	private static void applyLegacyTemplateTeamSizeDefaults(EntityManager em, Championship template) {

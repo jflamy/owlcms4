@@ -14,7 +14,6 @@ import java.util.Set;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
-import app.owlcms.data.competition.Competition;
 
 /**
  * Configuration for which rankings should be computed.
@@ -97,13 +96,10 @@ public class RankingConfig {
 	public static void updateMustCompute() {
 		mustCompute.clear();
 		
-		// Add global scoring system from Competition
-		Competition comp = Competition.getCurrent();
-		if (comp != null) {
-			Ranking globalScoring = comp.getScoringSystem();
-			if (globalScoring != null && getAllScoringRankings().contains(globalScoring)) {
-				mustCompute.add(globalScoring);
-			}
+		Championship defaults = Championship.of(null);
+		if (defaults != null) {
+			addRequiredRanking(defaults.getScoringSystem());
+			addRequiredRanking(defaults.getBestAthleteScoringSystem());
 		}
 		
 		addRequiredRankingsForActiveAgeGroups(AgeGroupRepository.findAll());

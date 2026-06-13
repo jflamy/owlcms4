@@ -305,14 +305,21 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 			}
 
 			java.util.List<app.owlcms.data.athlete.Athlete> allMen = Competition.getCurrent()
-			        .getGlobalScoreRanking(app.owlcms.data.athlete.Gender.M);
+			        .getGlobalRanking(app.owlcms.data.athlete.Gender.M, effectiveBestAthleteScoring(championship, ageGroup));
 			java.util.List<app.owlcms.data.athlete.Athlete> allWomen = Competition.getCurrent()
-			        .getGlobalScoreRanking(app.owlcms.data.athlete.Gender.F);
+			        .getGlobalRanking(app.owlcms.data.athlete.Gender.F, effectiveBestAthleteScoring(championship, ageGroup));
 			java.util.List<app.owlcms.data.athlete.Athlete> filteredMen = filterAthletesByChampionshipAndAgeGroup(allMen, championship, ageGroup);
 			java.util.List<app.owlcms.data.athlete.Athlete> filteredWomen = filterAthletesByChampionshipAndAgeGroup(allWomen, championship, ageGroup);
 			// Use the new method that works with filtered lists instead of overriding them
 			topSinclairBoard.doUpdateWithFilteredLists(filteredMen, filteredWomen);
 		}
+	}
+
+	private Ranking effectiveBestAthleteScoring(Championship championship, AgeGroup ageGroup) {
+		Championship effectiveChampionship = ageGroup != null && ageGroup.getChampionship() != null
+		        ? ageGroup.getChampionship()
+		        : championship != null ? championship : Championship.of(null);
+		return effectiveChampionship.getBestAthleteScoringSystem();
 	}
 
 	@Override
@@ -337,9 +344,11 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 
 	@Override
 	public String getPageTitle() {
-		Championship championship = getChampionship() != null ? getChampionship() : Championship.of(null);
+		Championship championship = getAgeGroup() != null && getAgeGroup().getChampionship() != null
+		        ? getAgeGroup().getChampionship()
+		        : getChampionship() != null ? getChampionship() : Championship.of(null);
 		return Translator.translate("Scoreboard.TopScore",
-		        Ranking.getScoringTitle(championship.getScoringSystem()));
+		        Ranking.getScoringTitle(championship.getBestAthleteScoringSystem()));
 	}
 
 	@Override

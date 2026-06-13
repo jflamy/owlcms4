@@ -828,8 +828,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	protected Championship getCompetitionDefaults() {
-		Championship template = Championship.findCompetitionTemplate();
-		return template != null && template != this ? template : DefaultChampionship.getInstance();
+		// Always hand back the DefaultChampionship sentinel: it is the canonical typed
+		// accessor over the persisted competition template row. Never return the raw
+		// template entity, so there is a single resolution path for default values.
+		return DefaultChampionship.getInstance();
 	}
 
 	public void setMaxPerCategory(Integer maxPerCategory) {
@@ -916,8 +918,9 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.name = COMPETITION_TEMPLATE_NAME;
 		this.type = ChampionshipType.U;
 		setCompetitionTemplate(true);
-		this.scoringSystem = comp != null ? comp.getScoringSystem() : Ranking.BW_SINCLAIR;
-		this.bestAthleteScoringSystem = this.scoringSystem;
+		Ranking legacyScoring = comp != null ? comp.getLegacyCompetitionScoringSystem() : Ranking.BW_SINCLAIR;
+		this.scoringSystem = comp != null && comp.isScoreMedalChampionship() ? legacyScoring : Ranking.TOTAL;
+		this.bestAthleteScoringSystem = legacyScoring;
 		this.bestSnatchScoringSystem = null;
 		this.bestCJScoringSystem = null;
 		this.snatchCJTotalMedals = comp != null && comp.isSnatchCJTotalMedals();

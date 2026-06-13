@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
@@ -29,7 +30,6 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.IRankHolder;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import ch.qos.logback.classic.Logger;
@@ -172,7 +172,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 			}
 		}
 		if (scoringSystem == null) {
-			scoringSystem = Competition.getCurrent().getScoringSystem();
+			scoringSystem = Championship.of(null).getBestAthleteScoringSystem();
 		}
 		return Ranking.getRanking(this.a, scoringSystem);
 	}
@@ -187,7 +187,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 			}
 		}
 		if (scoringSystem == null) {
-			scoringSystem = Competition.getCurrent().getScoringSystem();
+			scoringSystem = Championship.of(null).getBestAthleteScoringSystem();
 		}
 		return Ranking.getRankingValue(this.a, scoringSystem);
 	}

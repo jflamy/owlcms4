@@ -7,12 +7,18 @@
 package app.owlcms.data.agegroup;
 
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.competition.Competition;
 
 public class DefaultChampionship extends Championship {
 
 	private static final long serialVersionUID = 1L;
 	private static final DefaultChampionship INSTANCE = new DefaultChampionship();
+	private static final Ranking DEFAULT_MEDAL_SCORING = Ranking.TOTAL;
+	private static final Ranking DEFAULT_BEST_ATHLETE_SCORING = Ranking.BW_SINCLAIR;
+	private static final int DEFAULT_TEAM_POINTS_1ST = 28;
+	private static final int DEFAULT_TEAM_POINTS_2ND = 25;
+	private static final int DEFAULT_TEAM_POINTS_3RD = 23;
+	private static final int DEFAULT_MAX_TEAM_SIZE = 8;
+	private static final int DEFAULT_MAX_PER_CATEGORY = 2;
 
 	public static DefaultChampionship getInstance() {
 		return INSTANCE;
@@ -38,7 +44,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getScoringSystem();
 		}
-		return Competition.getCurrent().getScoringSystem();
+		return DEFAULT_MEDAL_SCORING;
 	}
 
 	@Override
@@ -47,7 +53,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getBestAthleteScoringSystem();
 		}
-		return Competition.getCurrent().getScoringSystem();
+		return DEFAULT_BEST_ATHLETE_SCORING;
 	}
 
 	@Override
@@ -74,7 +80,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.isSnatchCJTotalMedals();
 		}
-		return Competition.getCurrent().isSnatchCJTotalMedals();
+		return false;
 	}
 
 	@Override
@@ -83,7 +89,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getTeamPoints1st();
 		}
-		return Competition.getCurrent().getTeamPoints1st();
+		return DEFAULT_TEAM_POINTS_1ST;
 	}
 
 	@Override
@@ -92,7 +98,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getTeamPoints2nd();
 		}
-		return Competition.getCurrent().getTeamPoints2nd();
+		return DEFAULT_TEAM_POINTS_2ND;
 	}
 
 	@Override
@@ -101,7 +107,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getTeamPoints3rd();
 		}
-		return Competition.getCurrent().getTeamPoints3rd();
+		return DEFAULT_TEAM_POINTS_3RD;
 	}
 
 	@Override
@@ -110,7 +116,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getMensBestN();
 		}
-		return Competition.getCurrent().getMensBestN();
+		return null;
 	}
 
 	@Override
@@ -119,7 +125,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getWomensBestN();
 		}
-		return Competition.getCurrent().getWomensBestN();
+		return null;
 	}
 
 	@Override
@@ -128,7 +134,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getMixedBestN();
 		}
-		return Competition.getCurrent().getMixedBestN();
+		return null;
 	}
 
 	@Override
@@ -149,8 +155,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getMaxTeamSize();
 		}
-		Integer competitionMaxTeamSize = Competition.getCurrent().getMaxTeamSize();
-		return competitionMaxTeamSize != null ? competitionMaxTeamSize : 8;
+		return DEFAULT_MAX_TEAM_SIZE;
 	}
 
 	@Override
@@ -159,7 +164,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.getMaxPerCategory();
 		}
-		return Competition.getCurrent().getMaxPerCategory();
+		return DEFAULT_MAX_PER_CATEGORY;
 	}
 
 	@Override
@@ -204,7 +209,7 @@ public class DefaultChampionship extends Championship {
 		if (template != null) {
 			return template.isScoreMedalChampionship();
 		}
-		return Competition.getCurrent().isScoreMedalChampionship();
+		return getScoringSystem() != null && getScoringSystem().isMedalScore();
 	}
 
 	private Championship template() {

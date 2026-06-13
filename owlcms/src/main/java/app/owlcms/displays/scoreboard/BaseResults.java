@@ -715,7 +715,7 @@ public class BaseResults extends LitTemplate
 				        ? curAthlete.getAgeGroup().getChampionship().getScoringSystem()
 				        : Championship.of(null).getScoringSystem();
 				List<Athlete> sortedAthletes = new ArrayList<>(
-				        Competition.getCurrent().getGlobalScoreRanking(curAthlete.getGender()));
+				        Competition.getCurrent().getGlobalRanking(curAthlete.getGender(), scoringSystem));
 				this.displayOrder = AthleteSorter.topScore(sortedAthletes, 3, scoringSystem).topAthletes;
 				this.getElement().setProperty("categoryName", Ranking.getScoringTitle(scoringSystem));
 			} else {

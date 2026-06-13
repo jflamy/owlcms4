@@ -163,10 +163,37 @@ public class ChampionshipTest {
     @Test
     public void testCompetitionLoadedFromFixture() {
         Competition competition = Competition.getCurrent();
+        Ranking expectedMedalScoring = competition.isScoreMedalChampionship()
+            ? competition.getLegacyCompetitionScoringSystem()
+            : Ranking.TOTAL;
 
         assertEquals("competition name", "6th Islamic Solidarity Games", competition.getCompetitionName());
-        assertEquals("competition scoring system", Ranking.BW_SINCLAIR, competition.getScoringSystem());
+        assertEquals("legacy competition scoring system", Ranking.BW_SINCLAIR,
+            competition.getLegacyCompetitionScoringSystem());
+        assertEquals("competition best athlete scoring system", Ranking.BW_SINCLAIR,
+            competition.getBestAthleteScoringSystem());
+        assertEquals("competition medal scoring system", expectedMedalScoring,
+            competition.getScoringSystem());
         assertEquals("mixed team size", Integer.valueOf(8), competition.getMixedBestN());
+    }
+
+    @Test
+    public void testLegacyCompetitionScoringMigratesToSeparateTemplateDefaults() {
+        Competition competition = Competition.getCurrent();
+        Championship template = ChampionshipRepository.ensureCompetitionTemplate();
+        Ranking legacyScoring = competition.getLegacyCompetitionScoringSystem();
+        Ranking expectedMedalScoring = competition.isScoreMedalChampionship() ? legacyScoring : Ranking.TOTAL;
+        Championship defaults = Championship.of(null);
+
+        assertNotNull("competition template should be created from legacy fixture", template);
+        assertEquals("template medal scoring should follow the legacy score-medal flag",
+                expectedMedalScoring, template.getScoringSystem());
+        assertEquals("template best athlete scoring should preserve the legacy competition scoring",
+                legacyScoring, template.getBestAthleteScoringSystem());
+        assertEquals("default championship medal scoring should come from championship defaults",
+                expectedMedalScoring, defaults.getScoringSystem());
+        assertEquals("default championship best athlete scoring should come from championship defaults",
+                legacyScoring, defaults.getBestAthleteScoringSystem());
     }
 
     @Test
