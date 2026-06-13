@@ -10,6 +10,14 @@
 
 **New in Release 67**
 
+67.0.0-beta12: Refactored migration to new championship data model
+
+67.0.0-beta12: Default paper sizes can be set in the language and settings page, default based on person's location
+
+67.0.0-beta12: Fixed conditions under which a simulation would not process a platform until a lift was done manually
+
+67.0.0-beta12: Improved sequencing of timer and mqtt events, better enforcement of timer running or not.
+
 67.0.0-beta11: Additional templates for team results, including total-only (when 3-medals are awarded but total only is needed) and summary variants (no athlete details)
 
 67.0.0-beta11: When filtering athletes, the first age group of a championship was selected by default.  Now only happens if there is a single age group.
