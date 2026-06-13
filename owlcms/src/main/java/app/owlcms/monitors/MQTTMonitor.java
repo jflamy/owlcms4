@@ -21,6 +21,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -76,6 +78,16 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 
 	private boolean active;
 	private volatile boolean reconnectEnabled = true;
+	/**
+	 * Serial executor so that received MQTT messages are handed downstream in arrival order.
+	 * Single-threaded (FIFO) preserves ordering; submit() returns immediately so the Paho
+	 * callback thread is never blocked. Daemon thread so it can never hold up JVM shutdown.
+	 */
+	private final ExecutorService messageExecutor = Executors.newSingleThreadExecutor(r -> {
+		Thread t = new Thread(r, "MQTT-" + getMonitoredFopName());
+		t.setDaemon(true);
+		return t;
+	});
 
 	/**
 	 * This inner class contains the routines executed when an MQTT message is received.
@@ -141,7 +153,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			} catch (Throwable t) {
 				// ignore
 			}
-			new Thread(() -> {
+			MQTTMonitor.this.messageExecutor.submit(() -> {
 				String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
 				logger.info("{}MQTT received {} : {}", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr.trim());
 
@@ -176,7 +188,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 					logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
 					        FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
 				}
-			}).start();
+			});
 				// Some broker runtime intercepts may expose the publisher client id or remote address
 				// on a different object available to intercept handlers. Here we have only the topic
 				// and message payload; no additional session object is available so skip this step.
@@ -517,6 +529,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			if (fop2 != null) {
 				fop2.setEventForwarder(null);
 			}
+			monitor.messageExecutor.shutdown();
 			try {
 				monitor.client.disconnect();
 				monitor.setActive(false);
