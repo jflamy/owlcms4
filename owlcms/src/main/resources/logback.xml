@@ -60,6 +60,8 @@
     <logger name="org.atmosphere.websocket.DefaultWebSocketProcessor" level="ERROR" />
     <logger name="com.vaadin.flow.internal.nodefeature.ElementListenerMap" level="WARN" />
     <logger name="org.eclipse.jetty.ee10.annotations.AnnotationParser" level="ERROR" />
+    <!-- benign Moquette session-eviction race when a client reconnects with the same clientId (e.g. config_configmonitor) -->
+    <logger name="io.moquette.broker.MQTTConnection" level="ERROR" />
 
     <!-- log all info to file; warnings and above unless logger specifies another level -->
     <root level="WARN">
