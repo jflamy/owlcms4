@@ -10,6 +10,10 @@
 
 **New in Release 67**
 
+67.0.0-beta14: Removed leftover code that would pollute publicresults when tracker was enabled.
+
+67.0.0-beta14: (publicresults) Fixed layout issues and transient white outline for record box
+
 67.0.0-beta13: Robustness of age group to championship migration
 
 67.0.0-beta12: Refactored migration to new championship data model
