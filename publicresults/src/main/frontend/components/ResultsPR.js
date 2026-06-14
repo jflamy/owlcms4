@@ -260,7 +260,7 @@ class ResultsPR extends LitElement {
                               `)}
                         </div>
                       `)}
-                  <div class="${"recordNotification " + (this.recordKind ?? "")}"> ${this.recordMessage} </div>
+                  <div class="${"recordNotification " + (this.recordKind || "none")}"> ${this.recordMessage} </div>
                   <div class="branding" style="position: absolute; bottom: 2em; right: 2em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
                 </div>
               </div>
