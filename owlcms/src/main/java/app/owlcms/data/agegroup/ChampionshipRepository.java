@@ -432,9 +432,11 @@ public class ChampionshipRepository {
 		Championship template = findCompetitionTemplate(em);
 		boolean changed = template == null;
 		template = ensureCompetitionTemplate(em);
+		changed |= template.normalizeInheritedScoringFields(null);
 		TypedQuery<Championship> query = em.createQuery(
 		        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
 		for (Championship championship : query.getResultList()) {
+			changed |= championship.normalizeInheritedScoringFields(template);
 			championship.computeCompetitionDefaultDifferences(template, true);
 		}
 		if (changed) {

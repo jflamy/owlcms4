@@ -1395,6 +1395,22 @@ public class Competition {
 		return this.scoringSystem == null ? Ranking.BW_SINCLAIR : this.scoringSystem;
 	}
 
+	@Transient
+	@JsonIgnore
+	private Ranking getLegacyCompetitionBestAthleteScoringSystemForMigration() {
+		Ranking legacyScoring = getLegacyCompetitionScoringSystem();
+		// Legacy Competition stored medal and best-athlete scoring in the same field.
+		// TOTAL is meaningful for medals but is not a valid best-athlete ranking.
+		return RankingConfig.getAllScoringRankings().contains(legacyScoring) ? legacyScoring : null;
+	}
+
+	@Transient
+	@JsonIgnore
+	public Ranking getLegacyCompetitionBestAthleteScoringSystemOrDefault() {
+		Ranking legacyBestAthlete = getLegacyCompetitionBestAthleteScoringSystemForMigration();
+		return legacyBestAthlete != null ? legacyBestAthlete : Ranking.BW_SINCLAIR;
+	}
+
 	public boolean isMigrated() {
 		return this.migrated;
 	}
@@ -1428,10 +1444,11 @@ public class Competition {
 		if (template == null) {
 			return false;
 		}
-		Ranking expectedBestAthlete = getLegacyCompetitionScoringSystem();
-		Ranking expectedMedal = isScoreMedalChampionship() ? expectedBestAthlete : Ranking.TOTAL;
+		Ranking legacyScoring = getLegacyCompetitionScoringSystem();
+		Ranking expectedBestAthlete = getLegacyCompetitionBestAthleteScoringSystemForMigration();
+		Ranking expectedMedal = isSnatchCJTotalMedals() || !isScoreMedalChampionship() ? Ranking.TOTAL : legacyScoring;
 		Integer expectedMaxPerCategory = this.maxPerCategory != null && this.maxPerCategory > 0 ? this.maxPerCategory : 2;
-		boolean sane = template.getBestAthleteScoringSystem() == expectedBestAthlete
+		boolean sane = (expectedBestAthlete == null || template.getBestAthleteScoringSystem() == expectedBestAthlete)
 		        && template.getScoringSystem() == expectedMedal
 		        && template.isSnatchCJTotalMedals() == this.snatchCJTotalMedals
 		        && Objects.equals(template.getTeamPoints1st(), this.teamPoints1st)

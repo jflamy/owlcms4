@@ -19,7 +19,8 @@
         "envFile": "${workspaceFolder}/.vscode/.env.mac"
       },
       "env": {
-        "OWLCMS_MEMORYMODE": "false"
+        "OWLCMS_MEMORYMODE": "false",
+        //"OWLCMS_VIDEODATA": "wss://fhq-tracker.fly.dev/ws"
       }
     },
     {

@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -31,6 +33,9 @@ import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.utils.LoggerUtils;
+
+import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 public class EditChampionshipsPanel extends VerticalLayout {
@@ -38,6 +43,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	private static final String NAME_COLUMN_WIDTH = "12em";
 	private static final String TYPE_COLUMN_WIDTH = "34em";
 	private static final String ACTIONS_COLUMN_WIDTH = "26em";
+	private static final Logger logger = (Logger) LoggerFactory.getLogger(EditChampionshipsPanel.class);
 
 	private final boolean fullWidth;
 	private Grid<ChampionshipRow> championshipsTable = new Grid<>(ChampionshipRow.class, false);
@@ -67,7 +73,8 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		this.showActiveChampionshipsOnly.addValueChangeListener(e -> updateChampionshipsTable());
 		this.hideCompetitionDefaults = new Checkbox(Translator.translate("EditChampionships.HideCompetitionDefaults"));
 		this.hideCompetitionDefaults.setValue(true);
-		this.hideCompetitionDefaults.addValueChangeListener(e -> updateChampionshipsTable());
+		this.hideCompetitionDefaults
+		        .addValueChangeListener(e -> updateChampionshipsTable(Boolean.TRUE.equals(e.getValue())));
 
 		updateChampionshipsTable();
 		add(createGridLayout());
@@ -137,6 +144,10 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	}
 
 	public void updateChampionshipsTable() {
+		updateChampionshipsTable(false);
+	}
+
+	private void updateChampionshipsTable(boolean traceDifferentChampionships) {
 		boolean activeOnly = this.showActiveChampionshipsOnly == null
 		        || Boolean.TRUE.equals(this.showActiveChampionshipsOnly.getValue());
 		boolean hideDefaultRows = this.hideCompetitionDefaults == null
@@ -148,6 +159,9 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		for (ChampionshipCandidate candidate : candidates.values()) {
 			Championship existing = explicitChampionships.remove(candidate.name);
 			boolean usesDefaults = existing == null || existing.computeUsesCompetitionDefaults();
+			if (traceDifferentChampionships && hideDefaultRows && existing != null && !usesDefaults) {
+				warnCompetitionDefaultDifferences(existing);
+			}
 			if (hideDefaultRows && usesDefaults) {
 				continue;
 			}
@@ -156,13 +170,25 @@ public class EditChampionshipsPanel extends VerticalLayout {
 
 		if (!activeOnly) {
 			explicitChampionships.values().stream().sorted((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName())).forEach(c -> {
-				if (hideDefaultRows && c.computeUsesCompetitionDefaults()) {
+				boolean usesDefaults = c.computeUsesCompetitionDefaults();
+				if (traceDifferentChampionships && hideDefaultRows && !usesDefaults) {
+					warnCompetitionDefaultDifferences(c);
+				}
+				if (hideDefaultRows && usesDefaults) {
 					return;
 				}
 				rows.add(new ChampionshipRow(c.getName(), c.getType(), c, true));
 			});
 		}
 		this.championshipsTable.setItems(rows);
+	}
+
+	private void warnCompetitionDefaultDifferences(Championship championship) {
+		List<String> differences = championship.computeCompetitionDefaultDifferences(Championship.of(null));
+		if (!differences.isEmpty()) {
+			logger.warn("CHAMPIONSHIP_DEFAULT_TRACE '{}' differs from competition defaults: {} {}",
+			        championship.getName(), differences, LoggerUtils.whereFrom());
+		}
 	}
 
 	private Component nameCell(ChampionshipRow row) {

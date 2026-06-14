@@ -626,7 +626,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 	}
 
 	private Ranking medalScoringForStorage(Ranking scoringSystem) {
-		return scoringSystem == Ranking.TOTAL ? null : scoringSystem;
+		return scoringSystem != null ? scoringSystem : Ranking.TOTAL;
 	}
 
 	private String determineMixedSelectionMode(Championship championship) {

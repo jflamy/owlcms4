@@ -33,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
 import ch.qos.logback.classic.Logger;
@@ -384,18 +385,38 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return this.name;
 	}
 
-	public Ranking getScoringSystem() {
-		if (computeUsesCompetitionDefaults()) {
-			return getCompetitionDefaults().getScoringSystem();
+	private Ranking resolveMedalScoringSystem(Championship competitionDefaults) {
+		if (this.snatchCJTotalMedals) {
+			return Ranking.TOTAL;
 		}
-		return this.scoringSystem;
+		if (this.scoringSystem != null) {
+			return this.scoringSystem;
+		}
+		if (this.competitionTemplate) {
+			return Ranking.TOTAL;
+		}
+		Ranking inherited = competitionDefaults != null ? competitionDefaults.getScoringSystem() : null;
+		return inherited != null ? inherited : Ranking.TOTAL;
+	}
+
+	private Ranking resolveBestAthleteScoringSystem(Championship competitionDefaults) {
+		if (this.bestAthleteScoringSystem != null
+		        && RankingConfig.getAllScoringRankings().contains(this.bestAthleteScoringSystem)) {
+			return this.bestAthleteScoringSystem;
+		}
+		if (this.competitionTemplate) {
+			return Ranking.BW_SINCLAIR;
+		}
+		Ranking inherited = competitionDefaults != null ? competitionDefaults.getBestAthleteScoringSystem() : null;
+		return inherited != null ? inherited : Ranking.BW_SINCLAIR;
+	}
+
+	public Ranking getScoringSystem() {
+		return resolveMedalScoringSystem(getCompetitionDefaults());
 	}
 
 	public Ranking getBestAthleteScoringSystem() {
-		if (computeUsesCompetitionDefaults()) {
-			return getCompetitionDefaults().getBestAthleteScoringSystem();
-		}
-		return this.bestAthleteScoringSystem;
+		return resolveBestAthleteScoringSystem(getCompetitionDefaults());
 	}
 
 	public Ranking getBestSnatchScoringSystem() {
@@ -735,34 +756,35 @@ public class Championship implements Comparable<Championship>, Serializable {
 			traceCompetitionDefaultDifferences(differences, traceWhenDifferent);
 			return differences;
 		}
-		addDifference(differences, "scoringSystem", this.scoringSystem, competitionDefaults.scoringSystem);
-		addDifference(differences, "bestAthleteScoringSystem", this.bestAthleteScoringSystem,
-		        competitionDefaults.bestAthleteScoringSystem);
+		addDifference(differences, "scoringSystem", resolveMedalScoringSystem(competitionDefaults),
+		        competitionDefaults.getScoringSystem());
+		addDifference(differences, "bestAthleteScoringSystem", resolveBestAthleteScoringSystem(competitionDefaults),
+		        competitionDefaults.getBestAthleteScoringSystem());
 		addDifference(differences, "bestSnatchScoringSystem", this.bestSnatchScoringSystem,
-		        competitionDefaults.bestSnatchScoringSystem);
+		        competitionDefaults.getBestSnatchScoringSystem());
 		addDifference(differences, "bestCJScoringSystem", this.bestCJScoringSystem,
-		        competitionDefaults.bestCJScoringSystem);
+		        competitionDefaults.getBestCJScoringSystem());
 		addDifference(differences, "snatchCJTotalMedals", this.snatchCJTotalMedals,
-		        competitionDefaults.snatchCJTotalMedals);
-		addDifference(differences, "teamPoints1st", this.teamPoints1st, competitionDefaults.teamPoints1st);
-		addDifference(differences, "teamPoints2nd", this.teamPoints2nd, competitionDefaults.teamPoints2nd);
-		addDifference(differences, "teamPoints3rd", this.teamPoints3rd, competitionDefaults.teamPoints3rd);
-		addDifference(differences, "mensBestN", this.mensBestN, competitionDefaults.mensBestN);
-		addDifference(differences, "womensBestN", this.womensBestN, competitionDefaults.womensBestN);
-		addDifference(differences, "mixedMensBestN", this.mixedMensBestN, competitionDefaults.mixedMensBestN);
-		addDifference(differences, "mixedWomensBestN", this.mixedWomensBestN, competitionDefaults.mixedWomensBestN);
-		addDifference(differences, "mixedBestN", this.mixedBestN, competitionDefaults.mixedBestN);
-		addDifference(differences, "explicitTeamSize", this.explicitTeamSize, competitionDefaults.explicitTeamSize);
-		addDifference(differences, "maxTeamSize", this.maxTeamSize, competitionDefaults.maxTeamSize);
-		addDifference(differences, "maxPerCategory", this.maxPerCategory, competitionDefaults.maxPerCategory);
+		        competitionDefaults.isSnatchCJTotalMedals());
+		addDifference(differences, "teamPoints1st", this.teamPoints1st, competitionDefaults.getTeamPoints1st());
+		addDifference(differences, "teamPoints2nd", this.teamPoints2nd, competitionDefaults.getTeamPoints2nd());
+		addDifference(differences, "teamPoints3rd", this.teamPoints3rd, competitionDefaults.getTeamPoints3rd());
+		addDifference(differences, "mensBestN", this.mensBestN, competitionDefaults.getMensBestN());
+		addDifference(differences, "womensBestN", this.womensBestN, competitionDefaults.getWomensBestN());
+		addDifference(differences, "mixedMensBestN", this.mixedMensBestN, competitionDefaults.getMixedMensBestN());
+		addDifference(differences, "mixedWomensBestN", this.mixedWomensBestN, competitionDefaults.getMixedWomensBestN());
+		addDifference(differences, "mixedBestN", this.mixedBestN, competitionDefaults.getMixedBestN());
+		addDifference(differences, "explicitTeamSize", this.explicitTeamSize, competitionDefaults.getExplicitTeamSize());
+		addDifference(differences, "maxTeamSize", this.maxTeamSize, competitionDefaults.getMaxTeamSize());
+		addDifference(differences, "maxPerCategory", this.maxPerCategory, competitionDefaults.getMaxPerCategory());
 		addDifference(differences, "explicitMixedTeamMembers", this.explicitMixedTeamMembers,
-		        competitionDefaults.explicitMixedTeamMembers);
+		        competitionDefaults.isExplicitMixedTeamMembers());
 		addDifference(differences, "genderedTeamsEnabled", this.genderedTeamsEnabled,
-		        competitionDefaults.genderedTeamsEnabled);
-		addDifference(differences, "mixedTeamEnabled", this.mixedTeamEnabled, competitionDefaults.mixedTeamEnabled);
-		addDifference(differences, "teamScoringSystem", this.teamScoringSystem, competitionDefaults.teamScoringSystem);
+		        competitionDefaults.isGenderedTeamsEnabled());
+		addDifference(differences, "mixedTeamEnabled", this.mixedTeamEnabled, competitionDefaults.isMixedTeamEnabled());
+		addDifference(differences, "teamScoringSystem", this.teamScoringSystem, competitionDefaults.getTeamScoringSystem());
 		addDifference(differences, "mixedTeamScoringSystem", this.mixedTeamScoringSystem,
-		        competitionDefaults.mixedTeamScoringSystem);
+		        competitionDefaults.getMixedTeamScoringSystem());
 		traceCompetitionDefaultDifferences(differences, traceWhenDifferent);
 		return differences;
 	}
@@ -780,31 +802,46 @@ public class Championship implements Comparable<Championship>, Serializable {
 		}
 	}
 
+	boolean normalizeInheritedScoringFields(Championship competitionDefaults) {
+		boolean changed = false;
+		Ranking normalizedScoring = resolveMedalScoringSystem(competitionDefaults);
+		if (!Objects.equals(this.scoringSystem, normalizedScoring)) {
+			this.scoringSystem = normalizedScoring;
+			changed = true;
+		}
+		Ranking normalizedBestAthlete = resolveBestAthleteScoringSystem(competitionDefaults);
+		if (!Objects.equals(this.bestAthleteScoringSystem, normalizedBestAthlete)) {
+			this.bestAthleteScoringSystem = normalizedBestAthlete;
+			changed = true;
+		}
+		return changed;
+	}
+
 	public void copyCompetitionSettingsFrom(Championship template) {
 		if (template == null) {
 			return;
 		}
-		this.scoringSystem = template.scoringSystem;
-		this.bestAthleteScoringSystem = template.bestAthleteScoringSystem;
-		this.bestSnatchScoringSystem = template.bestSnatchScoringSystem;
-		this.bestCJScoringSystem = template.bestCJScoringSystem;
-		this.snatchCJTotalMedals = template.snatchCJTotalMedals;
-		this.teamPoints1st = template.teamPoints1st;
-		this.teamPoints2nd = template.teamPoints2nd;
-		this.teamPoints3rd = template.teamPoints3rd;
-		this.mensBestN = template.mensBestN;
-		this.womensBestN = template.womensBestN;
-		this.mixedMensBestN = template.mixedMensBestN;
-		this.mixedWomensBestN = template.mixedWomensBestN;
-		this.mixedBestN = template.mixedBestN;
-		this.explicitTeamSize = template.explicitTeamSize;
-		this.maxTeamSize = template.maxTeamSize;
-		this.maxPerCategory = template.maxPerCategory;
-		this.explicitMixedTeamMembers = template.explicitMixedTeamMembers;
-		this.genderedTeamsEnabled = template.genderedTeamsEnabled;
-		this.mixedTeamEnabled = template.mixedTeamEnabled;
-		this.teamScoringSystem = template.teamScoringSystem;
-		this.mixedTeamScoringSystem = template.mixedTeamScoringSystem;
+		this.scoringSystem = template.getScoringSystem();
+		this.bestAthleteScoringSystem = template.getBestAthleteScoringSystem();
+		this.bestSnatchScoringSystem = template.getBestSnatchScoringSystem();
+		this.bestCJScoringSystem = template.getBestCJScoringSystem();
+		this.snatchCJTotalMedals = template.isSnatchCJTotalMedals();
+		this.teamPoints1st = template.getTeamPoints1st();
+		this.teamPoints2nd = template.getTeamPoints2nd();
+		this.teamPoints3rd = template.getTeamPoints3rd();
+		this.mensBestN = template.getMensBestN();
+		this.womensBestN = template.getWomensBestN();
+		this.mixedMensBestN = template.getMixedMensBestN();
+		this.mixedWomensBestN = template.getMixedWomensBestN();
+		this.mixedBestN = template.getMixedBestN();
+		this.explicitTeamSize = template.getExplicitTeamSize();
+		this.maxTeamSize = template.getMaxTeamSize();
+		this.maxPerCategory = template.getMaxPerCategory();
+		this.explicitMixedTeamMembers = template.isExplicitMixedTeamMembers();
+		this.genderedTeamsEnabled = template.isGenderedTeamsEnabled();
+		this.mixedTeamEnabled = template.isMixedTeamEnabled();
+		this.teamScoringSystem = template.getTeamScoringSystem();
+		this.mixedTeamScoringSystem = template.getMixedTeamScoringSystem();
 	}
 
 	@JsonIgnore
@@ -919,8 +956,12 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.type = ChampionshipType.U;
 		setCompetitionTemplate(true);
 		Ranking legacyScoring = comp != null ? comp.getLegacyCompetitionScoringSystem() : Ranking.BW_SINCLAIR;
-		this.scoringSystem = comp != null && comp.isScoreMedalChampionship() ? legacyScoring : Ranking.TOTAL;
-		this.bestAthleteScoringSystem = legacyScoring;
+		Ranking legacyBestAthlete = comp != null ? comp.getLegacyCompetitionBestAthleteScoringSystemOrDefault()
+		        : Ranking.BW_SINCLAIR;
+		this.scoringSystem = comp != null && comp.isScoreMedalChampionship() && !comp.isSnatchCJTotalMedals()
+		        ? legacyScoring
+		        : Ranking.TOTAL;
+		this.bestAthleteScoringSystem = legacyBestAthlete;
 		this.bestSnatchScoringSystem = null;
 		this.bestCJScoringSystem = null;
 		this.snatchCJTotalMedals = comp != null && comp.isSnatchCJTotalMedals();
