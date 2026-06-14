@@ -1416,8 +1416,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private void doPost(String url, String updateKey, Map<String, String> parameters) {
-		// Skip WebSocket URLs - they are handled by WebSocketEventForwarder
 		if (!isActive()) {
+			return;
+		}
+
+		// Never issue an HTTP POST to a WebSocket URL; those are handled by WebSocketEventForwarder.
+		if (url == null || url.startsWith("ws://") || url.startsWith("wss://")) {
 			return;
 		}
 		
@@ -2058,7 +2062,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		if (url == null) {
 			return;
 		}
-		
+
+		// HTTP forwarder must never post to a WebSocket URL; those are handled by WebSocketEventForwarder.
+		if (url.startsWith("ws://") || url.startsWith("wss://")) {
+			logger.debug("{}ignoring WebSocket URL in EventForwarder (handled by WebSocketEventForwarder): {}",
+			        FieldOfPlay.getLoggingName(getFop()), url);
+			return;
+		}
+
 		// Check if this URL is in backoff due to repeated failures
 		Long failureTime = failureTimeByUrl.get(url);
 		if (!force && failureTime != null) {
