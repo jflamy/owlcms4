@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-beta13: Robustness of age group to championship migration
+
 67.0.0-beta12: Refactored migration to new championship data model
 
 67.0.0-beta12: Default paper sizes can be set in the language and settings page, default based on person's location
