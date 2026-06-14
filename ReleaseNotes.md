@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-beta15: Symmetrical guards to prevent simultaneously active tracker and publicresults URLs from interfering with each other
+
 67.0.0-beta14: Removed leftover code that would pollute publicresults when tracker was enabled.
 
 67.0.0-beta14: (publicresults) Fixed layout issues and transient white outline for record box
