@@ -644,6 +644,7 @@ public class Athlete {
 			this.setBodyWeight(null);
 			this.setSnatch1Declaration("");
 			this.setCleanJerk1Declaration("");
+			this.setStartNumber(0);
 		} finally {
 			this.setValidation(validate);
 			this.setLoggerLevel(prevLevel);
