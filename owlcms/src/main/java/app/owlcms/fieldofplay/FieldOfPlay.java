@@ -160,6 +160,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private LinkedHashMap<String, Participation> ageGroupMap = new LinkedHashMap<>();
+	private Set<Championship> activeChampionships = new LinkedHashSet<>();
 	private IProxyTimer athleteTimer;
 	private IProxyTimer breakTimer;
 	private BreakType breakType;
@@ -317,16 +318,9 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public Set<Championship> getActiveChampionships() {
-		LinkedHashSet<Championship> activeChampionships = new LinkedHashSet<>();
-		if (this.ageGroupMap != null) {
-			for (String ageGroupCode : this.ageGroupMap.keySet()) {
-				AgeGroup ageGroup = AgeGroupRepository.findByName(ageGroupCode);
-				if (ageGroup != null) {
-					activeChampionships.add(ageGroup.getChampionship());
-				}
-			}
-		}
-		return activeChampionships.isEmpty() ? Collections.singleton(DefaultChampionship.getInstance()) : activeChampionships;
+		return this.activeChampionships.isEmpty()
+		        ? Collections.singleton(DefaultChampionship.getInstance())
+		        : new LinkedHashSet<>(this.activeChampionships);
 	}
 
 	/**
@@ -1116,8 +1110,13 @@ public class FieldOfPlay implements IUnregister {
 		this.setLiftingOrder(athletes);
 		List<AgeGroup> allAgeGroups = AgeGroupRepository.findAgeGroups(getGroup());
 		this.ageGroupMap = new LinkedHashMap<>();
+		this.activeChampionships = new LinkedHashSet<>();
 		for (AgeGroup ag : allAgeGroups) {
 			this.ageGroupMap.put(ag.getCode(), null);
+			Championship championship = ag.getChampionship();
+			if (championship != null) {
+				this.activeChampionships.add(championship);
+			}
 		}
 		this.setMedals(new TreeMap<>());
 		// if (this.getGroup() != null) {
