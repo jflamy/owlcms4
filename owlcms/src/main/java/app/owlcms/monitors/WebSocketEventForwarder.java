@@ -6,9 +6,6 @@
  *******************************************************************************/
 package app.owlcms.monitors;
 
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -20,28 +17,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
@@ -55,7 +34,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
@@ -92,7 +70,6 @@ import app.owlcms.utils.DatabaseZipHelper;
 import app.owlcms.utils.FlagsZipHelper;
 import app.owlcms.utils.TranslationsZipHelper;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -107,7 +84,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private static final int KEEPALIVE_INTERVAL = 15000;
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(WebSocketEventForwarder.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	public static final Object singleThreadLock = new Object();
 	private static Map<String, WebSocketEventForwarder> eventForwarderByName = new HashMap<>();
 
 	synchronized public static WebSocketEventForwarder initEventForwarderByName(String name, FieldOfPlay fieldOfPlay) {
@@ -189,13 +165,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				}
 			}
 		}
-	}
-
-	private static ObjectMapper createObjectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
-		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-		return mapper;
 	}
 
 	private boolean NO_KEEPALIVE = false;
@@ -301,8 +270,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			this.currentVideoDataUrl = null;
 		}
 	}
-
-	private static final ObjectMapper JSON_MAPPER = createObjectMapper();
 
 	private WebSocketEventForwarder(String name, FieldOfPlay emittingFop) {
 		this.setForwardedFopName(name);
@@ -1577,70 +1544,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		pushUpdate(e);
 	}
 
-	private void doPost(String url, String updateKey, Map<String, ?> parameters) {
-		HttpPost post = new HttpPost(url);
-		// add request parameters or form parameters
-		List<NameValuePair> urlParameters = new ArrayList<>();
-		parameters.entrySet().stream()
-		        .forEach((e) -> {
-			        String value = convertParameterValue(e.getValue());
-			        if (value != null) {
-				        urlParameters.add(new BasicNameValuePair(e.getKey(), value));
-			        }
-		        });
-
-		boolean done = false;
-		int nbTries = 0;
-		// send post. if the local configuration files are missing, we are sent back a
-		// 412 code.
-		// we send the configuration files as well.
-		while (!done && nbTries <= 1) {
-			try {
-				post.setEntity(new UrlEncodedFormEntity(urlParameters, "UTF-8"));
-				try (CloseableHttpClient httpClient = HttpClients.createDefault();
-				        CloseableHttpResponse response = httpClient.execute(post)) {
-					StatusLine statusLine = response.getStatusLine();
-					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-					if (statusCode != null && statusCode != 200) {
-						synchronized (singleThreadLock) {
-							if (nbTries == 0 && statusCode != null && statusCode == 412) {
-								logger.error("{}missing remote configuration {} {} {}",
-								        FieldOfPlay.getLoggingName(getFop()), url,
-								        statusLine,
-								        LoggerUtils.whereFrom(1));
-								sendConfig(url, updateKey);
-								nbTries++;
-							} else if (nbTries == 0 && statusCode != null && statusCode == 428) {
-								logger.debug("{}hub returned 428 - sending database {} {} {}",
-								        FieldOfPlay.getLoggingName(getFop()), url,
-								        statusLine,
-								        LoggerUtils.whereFrom(1));
-								sendDatabase(url, updateKey);
-								nbTries++;
-							} else {
-								logger.error("{}could not post to {} {} {}", FieldOfPlay.getLoggingName(getFop()), url,
-								        statusLine,
-								        LoggerUtils.whereFrom(1));
-								done = true;
-							}
-						}
-					} else {
-						done = true;
-					}
-				} catch (Exception e1) {
-					logger.error("{}could not post to {} {}", FieldOfPlay.getLoggingName(getFop()), url,
-					        LoggerUtils.exceptionMessage(e1));
-					done = true;
-				}
-			} catch (UnsupportedEncodingException e2) {
-				// can't happen.
-				logger.error("{}could not post to {} {}", FieldOfPlay.getLoggingName(getFop()), url,
-				        LoggerUtils.exceptionMessage(e2));
-				done = true;
-			}
-		}
-	}
-
 	private void doUpdate(Athlete a, UIEvent e) {
 		logger.trace("doUpdate {} {}", a, a != null ? a.getAttemptsDone() : null);
 		boolean leaveTopAlone = false;
@@ -1942,27 +1845,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		wr.put(key, value);
 	}
 
-	private String convertParameterValue(Object value) {
-		if (value == null) {
-			return null;
-		}
-		if (value instanceof CompetitionData) {
-			return ((CompetitionData) value).exportDataAsString();
-		}
-		if (value instanceof JsonValue) {
-			return convertParameterValue(convertJsonValue((JsonValue) value));
-		}
-		if (value instanceof Map || value instanceof Iterable || value.getClass().isArray()) {
-			try {
-				return JSON_MAPPER.writeValueAsString(value);
-			} catch (JsonProcessingException e) {
-				logger.debug("{}could not serialize parameter value {}", FieldOfPlay.getLoggingName(getFop()),
-				        LoggerUtils.exceptionMessage(e));
-			}
-		}
-		return value.toString();
-	}
-
 	// Competition data export and hash computation delegated to ForwarderPayloadBuilder
 
 	private Object convertJsonValue(JsonValue value) {
@@ -2012,8 +1894,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		if (decisionUrl == null && videoUrl == null) {
 			return;
 		}
-		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap(), "decision");
-		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap(), "decision");
+		sendWebSocketMessage(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap(), "decision");
+		sendWebSocketMessage(decisionUrl, current.getUpdatekey(), getLastDecisionMap(), "decision");
 	}
 
 	private void pushDecision(JuryNotification e) {
@@ -2026,8 +1908,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap(), "decision");
-		sendPost(decisionUrl, current.getUpdatekey(), getLastDecisionMap(), "decision");
+		sendWebSocketMessage(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap(), "decision");
+		sendWebSocketMessage(decisionUrl, current.getUpdatekey(), getLastDecisionMap(), "decision");
 	}
 
 	private synchronized void pushTimer(UIEvent e) {
@@ -2040,8 +1922,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), getLastTimerMap(), "timer");
-		sendPost(timerUrl, current.getUpdatekey(), getLastTimerMap(), "timer");
+		sendWebSocketMessage(videoUrl, current.getParamVideoDataKey(), getLastTimerMap(), "timer");
+		sendWebSocketMessage(timerUrl, current.getUpdatekey(), getLastTimerMap(), "timer");
 	}
 
 	/**
@@ -2085,8 +1967,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate, "update");
-		sendPost(updateUrl, current.getParamUpdateKey(), this.lastUpdate, "update");
+		sendWebSocketMessage(videoUrl, current.getParamVideoDataKey(), this.lastUpdate, "update");
+		sendWebSocketMessage(updateUrl, current.getParamUpdateKey(), this.lastUpdate, "update");
 	}
 
 	private void recomputeRemainingTimes(Map<String, Object> sb) {
@@ -2203,65 +2085,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			logger.debug("{}recomputeRemainingTimes failed: {}", FieldOfPlay.getLoggingName(getFop()), LoggerUtils.exceptionMessage(ex));
 		}
 
-	}
-
-	private void sendConfig(String url, String updateKey) {
-		if (url == null || updateKey == null) {
-			logger.error("cannot send config info, url or updateKey is null");
-			return;
-		}
-		Config current = Config.getCurrent();
-		String destination = url.replaceAll("/update", "") + "/config";
-		// wait for previous send to finish.
-		// no consequences sending it multiple times in a row -- we have no idea why it
-		// is being requested again.
-		synchronized (current) {
-			try {
-				logger.info("{}sending config", FieldOfPlay.getLoggingName(getFop()));
-				HttpPost post = new HttpPost(destination);
-
-				MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-				builder.addPart("updateKey", new StringBody(updateKey, ContentType.TEXT_PLAIN));
-
-				try {
-					PipedOutputStream out = new PipedOutputStream();
-					PipedInputStream in = new PipedInputStream(out);
-					new Thread(() -> {
-						try {
-							ResourceWalker.zipPublicResultsConfig(out);
-							out.flush();
-							out.close();
-						} catch (Throwable e) {
-							throw new RuntimeException(e);
-						}
-					}).start();
-					builder.addBinaryBody("local", in, ContentType.create("application/zip"), "local.zip");
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-
-				HttpEntity entity = builder.build();
-
-				post.setEntity(entity);
-				try (CloseableHttpClient httpClient = HttpClients.createDefault();
-				        CloseableHttpResponse response = httpClient.execute(post)) {
-					StatusLine statusLine = response.getStatusLine();
-					Integer statusCode = statusLine != null ? statusLine.getStatusCode() : null;
-					if (statusCode != null && statusCode != 200) {
-						logger.error("{}could not send config to {} {} {}", FieldOfPlay.getLoggingName(getFop()),
-						        destination,
-						        statusLine,
-						        LoggerUtils.whereFrom(1));
-					}
-					EntityUtils.toString(response.getEntity());
-				} catch (Exception e1) {
-					logger.error("{}could not send config to {} {}", FieldOfPlay.getLoggingName(getFop()), destination,
-					        LoggerUtils.exceptionMessage(e1));
-				}
-			} catch (Exception e2) {
-				logger.error("{}could not send config to {} {}", FieldOfPlay.getLoggingName(getFop()), destination, e2);
-			}
-		}
 	}
 	/**
 	 * Send competition database via WebSocket using compressed binary ZIP format.
@@ -2465,11 +2288,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		logger.debug("{}HTTP endpoint for translations not implemented ({})", FieldOfPlay.getLoggingName(getFop()), url);
 	}
 
-	private void sendPost(String url, String updateKey, Map<String, ?> parameters, String messageType) {
-		sendPost(url, updateKey, parameters, messageType, false);
+	private void sendWebSocketMessage(String url, String updateKey, Map<String, ?> parameters, String messageType) {
+		sendWebSocketMessage(url, updateKey, parameters, messageType, false);
 	}
 
-	private void sendPost(String url, String updateKey, Map<String, ?> parameters, String messageType, boolean force) {
+	private void sendWebSocketMessage(String url, String updateKey, Map<String, ?> parameters, String messageType, boolean force) {
 		if (url == null) {
 			return;
 		}
@@ -2479,20 +2302,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			sendWebSocket(url, messageType, parameters, force);
 			return;
 		}
-
-		Integer previousDebounceHash = this.debouncingHash.get(url);
-		Long previousDebounceMillis = this.debouncingMillis.get(url);
-		long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
-		Integer hashCode = ForwarderPayloadBuilder.computeParametersHash(parameters);
-
-		// debounce, sometimes several identical updates in a rapid succession
-		// identical updates are ok after 1 sec.
-		if (force || hashCode != previousDebounceHash || (deltaMillis > 1000)) {
-			new Thread(() -> doPost(url, updateKey, parameters)).start();
-
-			this.debouncingHash.put(url, hashCode);
-			this.debouncingMillis.put(url, System.currentTimeMillis());
-		}
+		logger.debug("{}ignoring non-WebSocket URL in WebSocketEventForwarder: {}", FieldOfPlay.getLoggingName(getFop()), url);
 
 	}
 
