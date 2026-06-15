@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-beta16: Refactored authentication for simultaneous tracker and publicresults usage, fixed exponential backoff on authentication failure.
+
 67.0.0-beta15: Symmetrical guards to prevent simultaneously active tracker and publicresults URLs from interfering with each other
 
 67.0.0-beta14: Removed leftover code that would pollute publicresults when tracker was enabled.
