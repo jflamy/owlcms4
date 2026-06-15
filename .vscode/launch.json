@@ -20,7 +20,9 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        //"OWLCMS_VIDEODATA": "wss://fhq-tracker.fly.dev/ws"
+        //"OWLCMS_VIDEODATA": "wss://fhq-tracker.fly.dev/ws",
+        //"OWLCMS_VIDEODATA": "",
+        //"OWLCMS_REMOTE": ""
       }
     },
     {
@@ -42,7 +44,10 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
+        // "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
+        // "OWLCMS_VIDEODATAKEY": "tracker",
+        // "OWLCMS_REMOTE": "http://127.0.0.1:8082",
+        // "OWLCMS_UPDATEKEY": "publicresults"
       }
     },
     {
@@ -251,7 +256,8 @@
         "envFile": "${workspaceFolder}/.vscode/.env.mac"
       },
       "env": {
-        "OWLCMS_PORT": "8082"
+        "OWLCMS_PORT": "8082",
+        "OWLCMS_UPDATEKEY": "publicresults"
       }
     },
 
@@ -269,6 +275,14 @@
       "configurations": [
         "🟨 WS owlcms no reset",
         "🔳 OWLCMS Tracker - Normal Mode"
+      ]
+    },
+    {
+      "name": "🟪 trio o + t + p",
+      "configurations": [
+        "🟨 WS owlcms no reset",
+        "🔳 OWLCMS Tracker - Normal Mode",
+        "🟠 tandem publicresults"
       ]
     },
     {

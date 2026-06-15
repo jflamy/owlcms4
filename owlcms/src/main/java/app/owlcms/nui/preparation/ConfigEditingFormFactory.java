@@ -61,8 +61,7 @@ import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
-import app.owlcms.monitors.EventForwarder;
-import app.owlcms.monitors.WebSocketEventForwarder;
+import app.owlcms.monitors.ForwarderSetup;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
@@ -239,20 +238,13 @@ public class ConfigEditingFormFactory
 			
 			Config saved = Config.setCurrent(config);
 			
-			// Always reinitialize forwarders after saving connection settings.
-			EventForwarder.reinitializeForAllFOPs();
-			WebSocketEventForwarder.reinitializeForAllFOPs();
+			ForwarderSetup.reinitializeIfDestinationsChanged(oldConfig, config);
 			
 			// If childrenEquipment toggle was just added, update all platforms with children equipment defaults
 			if (childrenEquipmentAdded) {
 				applyChildrenEquipmentToAllPlatforms();
 			}
 			
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// ignored
-			}
 			UI.getCurrent().getPage().reload();
 			return saved;
 		} finally {

@@ -92,6 +92,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.monitors.EventForwarder;
+import app.owlcms.monitors.ForwarderSetup;
 import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.monitors.IUnregister;
 import app.owlcms.monitors.MQTTMonitor;
@@ -281,9 +282,7 @@ public class FieldOfPlay implements IUnregister {
 		this.setPlatform(platform2);
 
 		this.fopEventBus.register(this);
-		this.setEventForwarder(EventForwarder.initEventForwarderByName(this.name, this));
-		// Also initialize WebSocket forwarder for ws:// and wss:// URLs
-		this.setWebSocketEventForwarder(WebSocketEventForwarder.initEventForwarderByName(this.name, this));
+		ForwarderSetup.initializeForFop(this.name, this);
 	}
 
 	public void broadcast(String string) {

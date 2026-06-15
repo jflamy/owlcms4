@@ -105,7 +105,8 @@ public class TimerReceiverServlet extends HttpServlet implements Traceable {
         String breakTimerEventTypeString = req.getParameter("breakTimerEventType");
         String fopName = req.getParameter("fopName");
         
-        logger.debug("processing timer request {} {} {}", fopName, athleteTimerEventTypeString, breakTimerEventTypeString);
+        logger.debug("processing timer request {} {}", fopName,
+                athleteTimerEventTypeString != null ? athleteTimerEventTypeString : breakTimerEventTypeString);
 
         int athleteMillis = computeAthleteTargetDuration(req);
         int breakMillis = computeBreakTargetDuration(req);

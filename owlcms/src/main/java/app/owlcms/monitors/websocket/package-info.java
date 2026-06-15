@@ -14,7 +14,6 @@
  *   <li>{@link app.owlcms.monitors.websocket.AttemptStatus} - Enum for attempt display status (good, bad, current, next, request, empty)</li>
  *   <li>{@link app.owlcms.monitors.websocket.AthleteExporter} - Static utilities for exporting athlete data in V2 format</li>
  *   <li>{@link app.owlcms.monitors.websocket.ForwarderPayloadBuilder} - Creates payload maps for update, timer, and decision messages</li>
- *   <li>{@link app.owlcms.monitors.websocket.WebSocketSender} - Handles WebSocket/HTTP communication with debouncing</li>
  *   <li>{@link app.owlcms.monitors.websocket.WebSocketEventSender} - Low-level WebSocket connection manager with pooling and reconnection</li>
  * </ul>
  * 

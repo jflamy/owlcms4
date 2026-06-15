@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -101,7 +101,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private static Map<String, Object> configLockByDestination = Collections.synchronizedMap(new HashMap<>());
 	private static Map<String, Boolean> configSendingInProgress = Collections.synchronizedMap(new HashMap<>());
 	private static Map<String, Long> configAttemptTimeByDestination = Collections.synchronizedMap(new HashMap<>());
-	private static Map<String, EventForwarder> eventForwarderByName = new HashMap<>();
+	private static Map<String, Map<String, EventForwarder>> eventForwardersByName = new HashMap<>();
 	
 	// Debug flag for detailed timer event logging
 	private static final boolean DEBUG_TIMER_EVENTS = Boolean.parseBoolean(
@@ -150,38 +150,52 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	synchronized public static EventForwarder initEventForwarderByName(String name, FieldOfPlay fieldOfPlay) {
-		// Check if there are any HTTP URLs to forward to
-		String updateUrl = Config.getCurrent().getParamPublicResultsURL();
-		String updateUrlV = Config.getCurrent().getParamVideoDataURL();
-		boolean hasHttpUrl = false;
-		
-		if (updateUrl != null && !updateUrl.trim().isEmpty() && 
-		    (updateUrl.startsWith("http://") || updateUrl.startsWith("https://"))) {
-			hasHttpUrl = true;
+		List<ForwardingDestination> destinations = httpDestinations(Config.getCurrent());
+		Map<String, EventForwarder> existingByUrl = eventForwardersByName.computeIfAbsent(name, ignored -> new HashMap<>());
+		Map<String, EventForwarder> desiredByUrl = new HashMap<>();
+
+		for (ForwardingDestination destination : destinations) {
+			EventForwarder forwarder = existingByUrl.get(destination.getBaseUrl());
+			if (forwarder == null || !Objects.equals(forwarder.updateKey, destination.getUpdateKey())) {
+				if (forwarder != null) {
+					forwarder.unregister();
+				}
+				logger.info("{}creating HTTP event forwarder for {}", FieldOfPlay.getLoggingName(fieldOfPlay), destination.getBaseUrl());
+				forwarder = new EventForwarder(name, fieldOfPlay, destination);
+			} else {
+				logger.info("{}reusing HTTP event forwarder for {}", FieldOfPlay.getLoggingName(fieldOfPlay), destination.getBaseUrl());
+				forwarder.setFop(fieldOfPlay);
+			}
+			desiredByUrl.put(destination.getBaseUrl(), forwarder);
 		}
-		if (updateUrlV != null && !updateUrlV.trim().isEmpty() && 
-		    (updateUrlV.startsWith("http://") || updateUrlV.startsWith("https://"))) {
-			hasHttpUrl = true;
+
+		for (Map.Entry<String, EventForwarder> entry : existingByUrl.entrySet()) {
+			if (!desiredByUrl.containsKey(entry.getKey())) {
+				logger.info("{}removing HTTP event forwarder for {}", FieldOfPlay.getLoggingName(fieldOfPlay), entry.getKey());
+				entry.getValue().unregister();
+			}
 		}
-		
-		if (!hasHttpUrl) {
+
+		if (desiredByUrl.isEmpty()) {
+			eventForwardersByName.remove(name);
 			logger.info("{}no HTTP URLs configured, skipping EventForwarder creation", FieldOfPlay.getLoggingName(fieldOfPlay));
 			return null;
 		}
-		
-		EventForwarder eventForwarder = eventForwarderByName.get(name);
-		if (eventForwarder == null) {
-			logger.info("{}creating event forwarder", FieldOfPlay.getLoggingName(fieldOfPlay));
-			EventForwarder newForwarder = new EventForwarder(name, fieldOfPlay);
-			eventForwarderByName.put(name, newForwarder);
-			return newForwarder;
-		} else {
-			// reusing the found forwarder, forcing the values
-			logger.info("{}reusing event forwarder", FieldOfPlay.getLoggingName(fieldOfPlay));
-			eventForwarder.getFop().setEventForwarder(eventForwarder);
-			eventForwarder.setFop(fieldOfPlay);
-			return eventForwarder;
+
+		eventForwardersByName.put(name, desiredByUrl);
+		EventForwarder firstForwarder = desiredByUrl.values().iterator().next();
+		fieldOfPlay.setEventForwarder(firstForwarder);
+		return firstForwarder;
+	}
+
+	private static List<ForwardingDestination> httpDestinations(Config config) {
+		List<ForwardingDestination> destinations = new ArrayList<>();
+		for (ForwardingDestination destination : ForwardingDestination.fromConfig(config)) {
+			if (destination.isHttp()) {
+				destinations.add(destination);
+			}
 		}
+		return destinations;
 	}
 
 	/**
@@ -192,31 +206,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	synchronized public static void reinitializeForAllFOPs() {
 		logger.info("reinitializing HTTP event forwarders for all FOPs after config change");
 
-		Config current = Config.getCurrent();
-		String publicResultsUrl = current.getParamPublicResultsURL();
-		String videoDataUrl = current.getParamVideoDataURL();
-
-		boolean hasPublicResultsHttp = publicResultsUrl != null && !publicResultsUrl.trim().isEmpty()
-				&& (publicResultsUrl.startsWith("http://") || publicResultsUrl.startsWith("https://"));
-		boolean hasVideoDataHttp = videoDataUrl != null && !videoDataUrl.trim().isEmpty()
-				&& (videoDataUrl.startsWith("http://") || videoDataUrl.startsWith("https://"));
-		boolean hasHttpTarget = hasPublicResultsHttp || hasVideoDataHttp;
-
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
-			EventForwarder existing = fop.getEventForwarder();
-			if (existing == null) {
-				EventForwarder newForwarder = initEventForwarderByName(fop.getName(), fop);
-				if (newForwarder != null) {
-					fop.setEventForwarder(newForwarder);
-					logger.info("{}created HTTP event forwarder after config change", FieldOfPlay.getLoggingName(fop));
-					newForwarder.pushUpdate(null);
-				}
-			} else {
-				if (hasHttpTarget) {
-					logger.info("{}triggering update on existing HTTP event forwarder", FieldOfPlay.getLoggingName(fop));
-					existing.pushUpdate(null);
-				} else {
-					logger.info("{}HTTP forwarding targets disabled in config; existing forwarder remains idle", FieldOfPlay.getLoggingName(fop));
+			EventForwarder forwarder = initEventForwarderByName(fop.getName(), fop);
+			if (forwarder != null) {
+				logger.info("{}triggering update on HTTP event forwarders", FieldOfPlay.getLoggingName(fop));
+				for (EventForwarder destinationForwarder : eventForwardersByName.get(fop.getName()).values()) {
+					destinationForwarder.pushUpdate(null);
 				}
 			}
 		}
@@ -277,12 +272,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private String forwardedFopName;
 	private String liftType;
 	private String liftTypeKey;
-	Map<String, Integer> debouncingHash = new HashMap<>();
-	Map<String, Long> debouncingMillis = new HashMap<>();
-	// Per-URL locks to prevent socket timeout on one URL from blocking other URLs
-	private Map<String, Object> postLockByUrl = new ConcurrentHashMap<>();
-	// Track URLs that are experiencing continuous failures to implement exponential backoff
-	private Map<String, Long> failureTimeByUrl = new ConcurrentHashMap<>();
+	private String baseUrl;
+	private String updateKey;
+	private Integer debouncingHash;
+	private Long debouncingMillis;
+	private final Object postLock = new Object();
+	private Long failureTime;
 	private static final long FAILURE_BACKOFF_MS = 30000; // 30 second backoff before retrying failed URL
 
 	/**
@@ -292,65 +287,28 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 * @return true if there are HTTP/HTTPS URLs configured, false otherwise
 	 */
 	public boolean isActive() {
-		String publicUrl = Config.getCurrent().getParamPublicResultsURL();
-		String videoUrl = Config.getCurrent().getParamVideoDataURL();
-		
-		boolean hasPublicUrl = publicUrl != null && !publicUrl.trim().isEmpty() 
-			&& (publicUrl.startsWith("http://") || publicUrl.startsWith("https://"));
-		boolean hasVideoUrl = videoUrl != null && !videoUrl.trim().isEmpty()
-			&& (videoUrl.startsWith("http://") || videoUrl.startsWith("https://"));
-		
-		return hasPublicUrl || hasVideoUrl;
+		return this.baseUrl != null;
 	}
 
-	private EventForwarder(String name, FieldOfPlay emittingFop) {
+	private EventForwarder(String name, FieldOfPlay emittingFop, ForwardingDestination destination) {
+		this.baseUrl = destination.getBaseUrl();
+		this.updateKey = destination.getUpdateKey();
 		this.setForwardedFopName(name);
 		this.setFop(emittingFop);
-		logger.debug("EventForwarder created: instance={} fop={} fopId={} {}", 
+		logger.debug("EventForwarder created: instance={} fop={} fopId={} destination={} {}", 
 			System.identityHashCode(this),
 			emittingFop.getName(),
 			System.identityHashCode(emittingFop),
+			this.baseUrl,
 			LoggerUtils.whereFrom());
 
 		this.translatorResetTimeStamp = 0L;
-
-		// update key is actually not mandatory
-		// String updateKey = Config.getCurrent().getParamUpdateKey();
-		String updateUrl = Config.getCurrent().getParamPublicResultsURL();
-		boolean publicResultsEnabled = false;
-		if (updateUrl == null || updateUrl.trim().isEmpty()) {
-			logger.info("{}publicresults not enabled.", FieldOfPlay.getLoggingName(getFop()));
-		} else if (updateUrl.startsWith("ws://") || updateUrl.startsWith("wss://")) {
-			logger.info("{}ignoring WebSocket publicresults URL (handled by WebSocketEventForwarder): {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
-		} else {
-			publicResultsEnabled = true;
-			logger.info("{}publicresults enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
-		}
-		if (emittingFop.getState() != null) {
-			pushUpdate(null);
-		}
-
-		// update key is actually not mandatory
-		// String updateKeyV = Config.getCurrent().getParamVideoDataKey();
-		String updateUrlV = Config.getCurrent().getParamVideoDataURL();
-		boolean videoResultsEnabled = false;
-		if (updateUrlV == null || updateUrlV.trim().isEmpty()) {
-			logger.info("{}video data not enabled.", FieldOfPlay.getLoggingName(getFop()));		
-		} else if (updateUrlV.startsWith("ws://") || updateUrlV.startsWith("wss://")) {
-			logger.info("{}ignoring WebSocket video data URL (handled by WebSocketEventForwarder): {}", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
-		} else {
-			videoResultsEnabled = true;	
-			logger.info("{}video data enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
-		}
+		logger.info("{}HTTP forwarding enabled for {}", FieldOfPlay.getLoggingName(getFop()), this.baseUrl);
 		if (emittingFop.getState() != null) {
 			pushUpdate(null);
 		}
 		
 		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch("noForwarderKeepAlive");
-		if (!publicResultsEnabled && !videoResultsEnabled) {
-			this.NO_KEEPALIVE = true;
-			logger.info("{} event forwading keepalive disabled", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
-		}
 		
 	}
 
@@ -1040,7 +998,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
 		mapPut(sb, "decisionEventType", det == DecisionEventType.INITIAL_DECISION ? "initialDecision" : det.toString());
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "mode", getBoardMode());
 
 		// competition state
@@ -1091,7 +1049,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
 
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "mode", getBoardMode());
 
 		// competition state
@@ -1146,7 +1104,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private synchronized Map<String, String> createTimer(UIEvent e) {
 		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "fopName", getFop().getName());
 		setMapFopState(sb);
 		mapPut(sb, "mode", getBoardMode());
@@ -1293,7 +1251,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 
 		mapPut(sb, "uiEvent", event != null ? event.getClass().getSimpleName() : "InitialSync");
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		String paramStylesDir = Config.getCurrent().getParamStylesDir();
 		mapPut(sb, "stylesDir", paramStylesDir);
 
@@ -1425,10 +1383,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return;
 		}
 		
-		// Get or create per-URL lock to prevent one URL's socket timeout from blocking other URLs
-		Object urlLock = postLockByUrl.computeIfAbsent(url, k -> new Object());
-		
-		synchronized (urlLock) {
+		synchronized (postLock) {
 			// add request parameters or form parameters
 			List<NameValuePair> urlParameters = new ArrayList<>();
 			parameters.entrySet().stream()
@@ -1546,12 +1501,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 										LoggerUtils.whereFrom(1));
 								done = true;
 								// Mark URL as failed and enter backoff
-								failureTimeByUrl.put(url, System.currentTimeMillis());
+								failureTime = System.currentTimeMillis();
 							}
 						} else {
 							done = true;
 							// Clear failure tracking on success
-							failureTimeByUrl.remove(url);
+							failureTime = null;
 							// Keep per-destination configSent true until that destination returns 412 again
 						}
 					} catch (Exception e1) {
@@ -1559,7 +1514,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 						        LoggerUtils.exceptionMessage(e1), LoggerUtils.whereFrom(1));
 						done = true;
 						// Mark URL as failed and enter backoff
-						failureTimeByUrl.put(url, System.currentTimeMillis());
+						failureTime = System.currentTimeMillis();
 					}
 				} catch (UnsupportedEncodingException e2) {
 					// can't happen.
@@ -1567,7 +1522,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					        LoggerUtils.exceptionMessage(e2));
 					done = true;
 					// Mark URL as failed and enter backoff
-					failureTimeByUrl.put(url, System.currentTimeMillis());
+					failureTime = System.currentTimeMillis();
 				}
 			}
 		}
@@ -1857,41 +1812,31 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
-		Config current = Config.getCurrent();
-		String decisionUrl = current.getParamDecisionUrl();
-		String videoUrl = current.getParamVideoDataDecisionUrl();
-
 		setLastDecisionMap(createDecision(e, det));
 		if (det == DecisionEventType.INITIAL_DECISION || det == DecisionEventType.FULL_DECISION) {
-			logger.warn("{} forwarding decision event {} d1={} d2={} d3={} decisionUrl={} videoUrl={} {}",
+			logger.warn("{} forwarding decision event {} d1={} d2={} d3={} destination={} {}",
 					FieldOfPlay.getLoggingName(getFop()),
 					det,
 					getDecisionLight1(),
 					getDecisionLight2(),
 					getDecisionLight3(),
-					decisionUrl,
-					videoUrl,
+					decisionUrl(),
 					LoggerUtils.whereFrom());
 		}
-		if (decisionUrl == null && videoUrl == null) {
+		if (!isActive()) {
 			return;
 		}
-		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap());
-		sendPost(decisionUrl, current.getParamUpdateKey(), getLastDecisionMap());
+		sendPost(decisionUrl(), getLastDecisionMap());
 	}
 
 	private void pushDecision(JuryNotification e) {
-		Config current = Config.getCurrent();
-		String decisionUrl = current.getParamDecisionUrl();
-		String videoUrl = current.getParamVideoDataDecisionUrl();
 		setLastDecisionMap(createJuryEvent(e));
 
-		if (decisionUrl == null && videoUrl == null) {
+		if (!isActive()) {
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap());
-		sendPost(decisionUrl, current.getParamUpdateKey(), getLastDecisionMap());
+		sendPost(decisionUrl(), getLastDecisionMap());
 	}
 
 	private synchronized void pushTimer(UIEvent e) {
@@ -1903,17 +1848,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				LoggerUtils.whereFrom());
 		}
 		
-		Config current = Config.getCurrent();
-		String timerUrl = current.getParamTimerUrl();
-		String videoUrl = current.getParamVideoDataTimerUrl();
-
 		setLastTimerMap(createTimer(e));
-		if (timerUrl == null && videoUrl == null) {
+		if (!isActive()) {
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), getLastTimerMap());
-		sendPost(timerUrl, current.getParamUpdateKey(), getLastTimerMap());
+		sendPost(timerUrl(), getLastTimerMap());
 	}
 
 	/**
@@ -1949,15 +1889,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		        this.fop.getCeremonyType()));
 		this.lastUpdate = createUpdate(null);
 
-		Config current = Config.getCurrent();
-		String updateUrl = current.getParamUpdateUrl();
-		String videoUrl = current.getParamVideoDataUpdateUrl();
-		if (updateUrl == null && videoUrl == null) {
+		if (!isActive()) {
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate, true);
-		sendPost(updateUrl, current.getParamUpdateKey(), this.lastUpdate, true);
+		sendPost(updateUrl(), this.lastUpdate, true);
 	}
 
 	private void pushUpdateDoIt(UIEvent e2) {
@@ -1965,15 +1901,23 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		        this.fop.getCeremonyType()));
 		this.lastUpdate = createUpdate(e2);
 
-		Config current = Config.getCurrent();
-		String updateUrl = current.getParamUpdateUrl();
-		String videoUrl = Config.getCurrent().getParamVideoDataUpdateUrl();
-		if (updateUrl == null && videoUrl == null) {
+		if (!isActive()) {
 			return;
 		}
 
-		sendPost(videoUrl, current.getParamVideoDataKey(), this.lastUpdate);
-		sendPost(updateUrl, current.getParamUpdateKey(), this.lastUpdate);
+		sendPost(updateUrl(), this.lastUpdate);
+	}
+
+	private String updateUrl() {
+		return baseUrl + "/update";
+	}
+
+	private String timerUrl() {
+		return baseUrl + "/timer";
+	}
+
+	private String decisionUrl() {
+		return baseUrl + "/decision";
 	}
 
 	private static String configDestinationForUrl(String url) {
@@ -2054,11 +1998,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		}
 	}
 
-	private void sendPost(String url, String updateKey, Map<String, String> parameters) {
-		sendPost(url, updateKey, parameters, false);
+	private void sendPost(String url, Map<String, String> parameters) {
+		sendPost(url, parameters, false);
 	}
 
-	private void sendPost(String url, String updateKey, Map<String, String> parameters, boolean force) {
+	private void sendPost(String url, Map<String, String> parameters, boolean force) {
 		if (url == null) {
 			return;
 		}
@@ -2070,8 +2014,6 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			return;
 		}
 
-		// Check if this URL is in backoff due to repeated failures
-		Long failureTime = failureTimeByUrl.get(url);
 		if (!force && failureTime != null) {
 			long timeSinceFailure = System.currentTimeMillis() - failureTime;
 			if (timeSinceFailure < FAILURE_BACKOFF_MS) {
@@ -2081,16 +2023,19 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				return;
 			} else {
 				// Backoff period expired, clear it and try again
-				failureTimeByUrl.remove(url);
+				failureTime = null;
 				logger.info("{}sendPost retrying {} after backoff period", 
 					FieldOfPlay.getLoggingName(getFop()), url);
 			}
 		}
 		
-		Integer previousDebounceHash = this.debouncingHash.get(url);
-		Long previousDebounceMillis = this.debouncingMillis.get(url);
+		Map<String, String> postParameters = new HashMap<>(parameters);
+		postParameters.put("updateKey", updateKey);
+
+		Integer previousDebounceHash = this.debouncingHash;
+		Long previousDebounceMillis = this.debouncingMillis;
 		long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
-		Integer hashCode = parameters.hashCode();
+		Integer hashCode = postParameters.hashCode();
 
 		// debounce, sometimes several identical updates in a rapid succession
 		// identical updates are ok after 1 sec.
@@ -2102,12 +2047,12 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 					LoggerUtils.whereFrom());
 			}
 			if (force) {
-				failureTimeByUrl.remove(url);
+				failureTime = null;
 			}
-			new Thread(() -> doPost(url, updateKey, parameters)).start();
+			new Thread(() -> doPost(url, this.updateKey, postParameters)).start();
 
-			this.debouncingHash.put(url, hashCode);
-			this.debouncingMillis.put(url, System.currentTimeMillis());
+			this.debouncingHash = hashCode;
+			this.debouncingMillis = System.currentTimeMillis();
 		}
 
 	}

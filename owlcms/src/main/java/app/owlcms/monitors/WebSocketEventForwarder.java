@@ -6,6 +6,8 @@
  *******************************************************************************/
 package app.owlcms.monitors;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -17,6 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -64,10 +67,11 @@ import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.monitors.websocket.AthleteExporter;
 import app.owlcms.monitors.websocket.ForwarderPayloadBuilder;
 import app.owlcms.monitors.websocket.ForwarderPayloadBuilder.CompetitionDataExport;
-import app.owlcms.monitors.websocket.WebSocketSender;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
 import app.owlcms.utils.DatabaseZipHelper;
 import app.owlcms.utils.FlagsZipHelper;
+import app.owlcms.utils.LogosZipHelper;
+import app.owlcms.utils.PicturesZipHelper;
 import app.owlcms.utils.TranslationsZipHelper;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
@@ -84,44 +88,64 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private static final int KEEPALIVE_INTERVAL = 15000;
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(WebSocketEventForwarder.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
-	private static Map<String, WebSocketEventForwarder> eventForwarderByName = new HashMap<>();
+	private static Map<String, Map<String, WebSocketEventForwarder>> eventForwardersByName = new HashMap<>();
 
 	synchronized public static WebSocketEventForwarder initEventForwarderByName(String name, FieldOfPlay fieldOfPlay) {
-		// Check if there are any WebSocket URLs to forward to
-		String updateUrl = Config.getCurrent().getParamPublicResultsURL();
-		String updateUrlV = Config.getCurrent().getParamVideoDataURL();
-		boolean hasWebSocketUrl = false;
-		
-		if (updateUrl != null && !updateUrl.trim().isEmpty() && 
-		    (updateUrl.startsWith("ws://") || updateUrl.startsWith("wss://"))) {
-			hasWebSocketUrl = true;
+		List<ForwardingDestination> destinations = webSocketDestinations(Config.getCurrent());
+		Map<String, WebSocketEventForwarder> existingByUrl = eventForwardersByName.computeIfAbsent(name, ignored -> new HashMap<>());
+		Map<String, WebSocketEventForwarder> desiredByUrl = new HashMap<>();
+
+		for (ForwardingDestination destination : destinations) {
+			WebSocketEventForwarder forwarder = existingByUrl.get(destination.getBaseUrl());
+			if (forwarder == null || !Objects.equals(forwarder.updateKey, destination.getUpdateKey())) {
+				if (forwarder != null) {
+					forwarder.unregister();
+				}
+				logger.info("{}creating WebSocket event forwarder for {}", FieldOfPlay.getLoggingName(fieldOfPlay), destination.getBaseUrl());
+				forwarder = new WebSocketEventForwarder(name, fieldOfPlay, destination);
+			} else {
+				logger.info("{}reusing WebSocket event forwarder for {}", FieldOfPlay.getLoggingName(fieldOfPlay), destination.getBaseUrl());
+				forwarder.setFop(fieldOfPlay);
+			}
+			desiredByUrl.put(destination.getBaseUrl(), forwarder);
 		}
-		if (updateUrlV != null && !updateUrlV.trim().isEmpty() && 
-		    (updateUrlV.startsWith("ws://") || updateUrlV.startsWith("wss://"))) {
-			hasWebSocketUrl = true;
+
+		for (Map.Entry<String, WebSocketEventForwarder> entry : existingByUrl.entrySet()) {
+			if (!desiredByUrl.containsKey(entry.getKey())) {
+				logger.info("{}removing WebSocket event forwarder for {}", FieldOfPlay.getLoggingName(fieldOfPlay), entry.getKey());
+				entry.getValue().unregister();
+			}
 		}
-		
-		if (!hasWebSocketUrl) {
+
+		if (desiredByUrl.isEmpty()) {
+			eventForwardersByName.remove(name);
+			fieldOfPlay.setWebSocketEventForwarder(null);
 			logger.info("{}no WebSocket URLs configured, skipping WebSocketEventForwarder creation", FieldOfPlay.getLoggingName(fieldOfPlay));
 			return null;
 		}
-		
-		WebSocketEventForwarder eventForwarder = eventForwarderByName.get(name);
-		if (eventForwarder == null) {
-			logger.info("{}creating websocket event forwarder", FieldOfPlay.getLoggingName(fieldOfPlay));
-			WebSocketEventForwarder newForwarder = new WebSocketEventForwarder(name, fieldOfPlay);
-			eventForwarderByName.put(name, newForwarder);
-			return newForwarder;
-		} else {
-			// reusing the found forwarder, forcing the values
-			logger.info("{}reusing websocket event forwarder", FieldOfPlay.getLoggingName(fieldOfPlay));
-			eventForwarder.setFop(fieldOfPlay);
-			return eventForwarder;
+
+		eventForwardersByName.put(name, desiredByUrl);
+		WebSocketEventForwarder firstForwarder = desiredByUrl.values().iterator().next();
+		fieldOfPlay.setWebSocketEventForwarder(firstForwarder);
+		return firstForwarder;
+	}
+
+	private static List<ForwardingDestination> webSocketDestinations(Config config) {
+		List<ForwardingDestination> destinations = new ArrayList<>();
+		for (ForwardingDestination destination : ForwardingDestination.fromConfig(config)) {
+			if (destination.isWebSocket()) {
+				destinations.add(destination);
+			}
 		}
+		return destinations;
 	}
 
 	synchronized public static WebSocketEventForwarder getEventForwarderByName(String name) {
-		return eventForwarderByName.get(name);
+		Map<String, WebSocketEventForwarder> forwardersByUrl = eventForwardersByName.get(name);
+		if (forwardersByUrl == null || forwardersByUrl.isEmpty()) {
+			return null;
+		}
+		return forwardersByUrl.values().iterator().next();
 	}
 
 	/**
@@ -133,35 +157,13 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	synchronized public static void reinitializeForAllFOPs() {
 		logger.info("reinitializing WebSocket event forwarders for all FOPs after config change");
 		
-		// Get current URL configuration
-		Config current = Config.getCurrent();
-		String publicResultsUrl = current.getParamPublicResultsURL();
-		String videoDataUrl = current.getParamVideoDataURL();
-		
-		boolean hasPublicResultsWs = publicResultsUrl != null && !publicResultsUrl.trim().isEmpty()
-			&& (publicResultsUrl.startsWith("ws://") || publicResultsUrl.startsWith("wss://"));
-		boolean hasVideoDataWs = videoDataUrl != null && !videoDataUrl.trim().isEmpty()
-			&& (videoDataUrl.startsWith("ws://") || videoDataUrl.startsWith("wss://"));
-		
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
-			WebSocketEventForwarder existing = fop.getWebSocketEventForwarder();
-			if (existing == null) {
-				// No forwarder exists - try to create one if URLs are now configured
-				WebSocketEventForwarder newForwarder = initEventForwarderByName(fop.getName(), fop);
-				if (newForwarder != null) {
-					fop.setWebSocketEventForwarder(newForwarder);
-					logger.info("{}created WebSocket event forwarder after config change", FieldOfPlay.getLoggingName(fop));
-					// Trigger an initial update to establish connection
-					newForwarder.pushUpdate(null);
-				}
-			} else {
-				// Forwarder exists - check for URL removal and close stale connections
-				existing.closeStaleConnections(hasPublicResultsWs, hasVideoDataWs);
-				
-				// Trigger an update which will detect URL changes and open new connections
-				if (hasPublicResultsWs || hasVideoDataWs) {
-					logger.info("{}triggering update on existing WebSocket event forwarder", FieldOfPlay.getLoggingName(fop));
-					existing.pushUpdate(null);
+			WebSocketEventForwarder forwarder = initEventForwarderByName(fop.getName(), fop);
+			Map<String, WebSocketEventForwarder> forwardersByUrl = eventForwardersByName.get(fop.getName());
+			if (forwarder != null && forwardersByUrl != null) {
+				logger.info("{}triggering update on WebSocket event forwarders", FieldOfPlay.getLoggingName(fop));
+				for (WebSocketEventForwarder destinationForwarder : forwardersByUrl.values()) {
+					destinationForwarder.pushUpdate(null);
 				}
 			}
 		}
@@ -222,11 +224,10 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private String forwardedFopName;
 	private String liftType;
 	private String liftTypeKey;
-	Map<String, Integer> debouncingHash = new HashMap<>();
-	Map<String, Long> debouncingMillis = new HashMap<>();
-	// Track current WebSocket URLs to detect changes
-	private String currentPublicResultsUrl = null;
-	private String currentVideoDataUrl = null;
+	private String baseUrl;
+	private String updateKey;
+	private Integer debouncingHash;
+	private Long debouncingMillis;
 
 	/**
 	 * Check if this forwarder has any active WebSocket URLs to send to.
@@ -235,99 +236,24 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * @return true if there are ws:// or wss:// URLs configured, false otherwise
 	 */
 	public boolean isActive() {
-		String publicUrl = Config.getCurrent().getParamPublicResultsURL();
-		String videoUrl = Config.getCurrent().getParamVideoDataURL();
-		
-		boolean hasPublicUrl = publicUrl != null && !publicUrl.trim().isEmpty() 
-			&& (publicUrl.startsWith("ws://") || publicUrl.startsWith("wss://"));
-		boolean hasVideoUrl = videoUrl != null && !videoUrl.trim().isEmpty()
-			&& (videoUrl.startsWith("ws://") || videoUrl.startsWith("wss://"));
-		
-		return hasPublicUrl || hasVideoUrl;
+		return this.baseUrl != null;
 	}
 
-	/**
-	 * Close WebSocket connections for URLs that have been removed from config.
-	 * Called when config is saved to clean up stale connections.
-	 * 
-	 * @param hasPublicResultsWs true if a valid publicResults WebSocket URL is configured
-	 * @param hasVideoDataWs true if a valid videoData WebSocket URL is configured
-	 */
-	public void closeStaleConnections(boolean hasPublicResultsWs, boolean hasVideoDataWs) {
-		// Close publicResults connection if URL was removed
-		if (!hasPublicResultsWs && this.currentPublicResultsUrl != null) {
-			logger.info("{}PublicResults WebSocket URL removed, closing connection to {}",
-			        FieldOfPlay.getLoggingName(getFop()), this.currentPublicResultsUrl);
-			WebSocketEventSender.closeSender(this.currentPublicResultsUrl);
-			this.currentPublicResultsUrl = null;
-		}
-		
-		// Close videoData connection if URL was removed
-		if (!hasVideoDataWs && this.currentVideoDataUrl != null) {
-			logger.info("{}VideoData WebSocket URL removed, closing connection to {}",
-			        FieldOfPlay.getLoggingName(getFop()), this.currentVideoDataUrl);
-			WebSocketEventSender.closeSender(this.currentVideoDataUrl);
-			this.currentVideoDataUrl = null;
-		}
-	}
-
-	private WebSocketEventForwarder(String name, FieldOfPlay emittingFop) {
+	private WebSocketEventForwarder(String name, FieldOfPlay emittingFop, ForwardingDestination destination) {
+		this.baseUrl = destination.getBaseUrl();
+		this.updateKey = destination.getUpdateKey();
+		logger.warn("{}***** OWLCMS key trace: WebSocketEventForwarder selected destination={} updateKey={}",
+		        FieldOfPlay.getLoggingName(emittingFop), this.baseUrl, debugKey(this.updateKey));
 		this.setForwardedFopName(name);
 		this.setFop(emittingFop);
-		// logger.debug("|||| eventForwarder {} {} {}", System.identityHashCode(this),
-		// emittingFop.getName(),System.identityHashCode(emittingFop));
-
-		this.postBus = getFop().getEventForwardingBus();
-		this.postBus.register(this);
 
 		this.translatorResetTimeStamp = 0L;
-
-		// update key is actually not mandatory
-		// String updateKey = Config.getCurrent().getParamUpdateKey();
-		String updateUrl = Config.getCurrent().getParamPublicResultsURL();
-		boolean publicResultsEnabled = false;
-		boolean publicResultsIsWebSocket = false;
-		if (updateUrl == null || updateUrl.trim().isEmpty()) {
-			logger.info("{}publicresults not enabled.", FieldOfPlay.getLoggingName(getFop()));
-		} else if (updateUrl.startsWith("http://") || updateUrl.startsWith("https://")) {
-			logger.info("{}ignoring HTTP publicresults URL (handled by EventForwarder): {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
-		} else {
-			publicResultsEnabled = true;
-			publicResultsIsWebSocket = updateUrl.startsWith("ws://") || updateUrl.startsWith("wss://");
-			logger.info("{}publicresults enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrl);
-		}
+		logger.info("{}WebSocket forwarding enabled for {}", FieldOfPlay.getLoggingName(getFop()), this.baseUrl);
 		if (emittingFop.getState() != null) {
 			pushUpdate(null);
 		}
 
-		// update key is actually not mandatory
-		// String updateKeyV = Config.getCurrent().getParamVideoDataKey();
-		String updateUrlV = Config.getCurrent().getParamVideoDataURL();
-		boolean videoResultsEnabled = false;
-		boolean videoResultsIsWebSocket = false;
-		if (updateUrlV == null || updateUrlV.trim().isEmpty()) {
-			logger.info("{}video data not enabled.", FieldOfPlay.getLoggingName(getFop()));
-		} else if (updateUrlV.startsWith("http://") || updateUrlV.startsWith("https://")) {
-			logger.info("{}ignoring HTTP video data URL (handled by EventForwarder): {}", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
-		} else {
-			videoResultsEnabled = true;
-			videoResultsIsWebSocket = updateUrlV.startsWith("ws://") || updateUrlV.startsWith("wss://");
-			logger.info("{}video data enabled, pushing to {}", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
-		}
-		if (emittingFop.getState() != null) {
-			pushUpdate(null);
-		}
-
-		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch("noForwarderKeepAlive");
-		// Disable keepalive if using WebSocket (persistent connection doesn't need keepalive)
-		if (publicResultsIsWebSocket || videoResultsIsWebSocket) {
-			this.NO_KEEPALIVE = true;
-			logger.info("{}event forwarding keepalive disabled (WebSocket protocol)", FieldOfPlay.getLoggingName(getFop()));
-		}
-		if (!publicResultsEnabled && !videoResultsEnabled) {
-			this.NO_KEEPALIVE = true;
-			logger.info("{}event forwading keepalive disabled", FieldOfPlay.getLoggingName(getFop()), updateUrlV);
-		}
+		this.NO_KEEPALIVE = true;
 	}
 
 	/**
@@ -816,14 +742,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	// Database is now embedded in the update message for both HTTP and WebSocket
 }	@Override
 	public void unregister() {
-		// we do nothing. We now have exactly one EventForwarder per name
-		// and we reuse it if we ever recreate the field of play
-
-		// logger.info("unregistering event forwarder for platform {}",getForwardedFopName());
-		// this.postBus.unregister(this);
-		// this.setFop(null);
-		// OwlcmsFactory.getFOPByName(getForwardedFopName()).setEventForwarder(null);
-		// eventForwarderByName.remove(getForwardedFopName());
+		logger.info("{}unregistering WebSocket event forwarder for {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
+		if (baseUrl != null) {
+			WebSocketEventSender.closeSender(baseUrl);
+		}
+		setFop(null);
 	}
 
 	protected void setTranslationMap() {
@@ -1017,7 +940,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
 		mapPut(sb, "decisionEventType", det == DecisionEventType.INITIAL_DECISION ? "initialDecision" : det.toString());
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "mode", getBoardMode());
 
 		// competition state
@@ -1066,7 +989,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
 
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "mode", getBoardMode());
 
 		// competition state
@@ -1145,7 +1068,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private synchronized Map<String, String> createTimer(UIEvent e) {
 		updateState();
 		Map<String, String> sb = new LinkedHashMap<>();
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "fopName", getFop().getName());
 		setMapFopState(sb);
 		mapPut(sb, "mode", getBoardMode());
@@ -1290,7 +1213,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		recomputeRemainingTimes(sb);
 
 		mapPut(sb, "uiEvent", event != null ? event.getClass().getSimpleName() : "InitialSync");
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		String paramStylesDir = Config.getCurrent().getParamStylesDir();
 		mapPut(sb, "stylesDir", paramStylesDir);
 
@@ -1886,44 +1809,30 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
-		Config current = Config.getCurrent();
-		String decisionUrl = current.getParamDecisionUrl();
-		String videoUrl = current.getParamVideoDataDecisionUrl();
-
 		setLastDecisionMap(createDecision(e, det));
-		if (decisionUrl == null && videoUrl == null) {
+		if (!isActive()) {
 			return;
 		}
-		sendWebSocketMessage(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap(), "decision");
-		sendWebSocketMessage(decisionUrl, current.getUpdatekey(), getLastDecisionMap(), "decision");
+		sendWebSocketMessage(getLastDecisionMap(), "decision");
 	}
 
 	private void pushDecision(JuryNotification e) {
-		Config current = Config.getCurrent();
-		String decisionUrl = current.getParamDecisionUrl();
-		String videoUrl = current.getParamVideoDataDecisionUrl();
 		setLastDecisionMap(createJuryEvent(e));
 
-		if (decisionUrl == null && videoUrl == null) {
+		if (!isActive()) {
 			return;
 		}
 
-		sendWebSocketMessage(videoUrl, current.getParamVideoDataKey(), getLastDecisionMap(), "decision");
-		sendWebSocketMessage(decisionUrl, current.getUpdatekey(), getLastDecisionMap(), "decision");
+		sendWebSocketMessage(getLastDecisionMap(), "decision");
 	}
 
 	private synchronized void pushTimer(UIEvent e) {
-		Config current = Config.getCurrent();
-		String timerUrl = current.getParamTimerUrl();
-		String videoUrl = current.getParamVideoDataTimerUrl();
-
 		setLastTimerMap(createTimer(e));
-		if (timerUrl == null && videoUrl == null) {
+		if (!isActive()) {
 			return;
 		}
 
-		sendWebSocketMessage(videoUrl, current.getParamVideoDataKey(), getLastTimerMap(), "timer");
-		sendWebSocketMessage(timerUrl, current.getUpdatekey(), getLastTimerMap(), "timer");
+		sendWebSocketMessage(getLastTimerMap(), "timer");
 	}
 
 	/**
@@ -1959,16 +1868,12 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		        this.fop.getCeremonyType()));
 		this.lastUpdate = createUpdate(e2);
 
-		Config current = Config.getCurrent();
-		String updateUrl = current.getParamUpdateUrl();
-		String videoUrl = Config.getCurrent().getParamVideoDataUpdateUrl();
-		logger.debug("pushUpdateDoIt: updateUrl={} videoUrl={} {}", updateUrl, videoUrl, LoggerUtils.whereFrom());
-		if (updateUrl == null && videoUrl == null) {
+		logger.debug("pushUpdateDoIt: url={} {}", baseUrl, LoggerUtils.whereFrom());
+		if (!isActive()) {
 			return;
 		}
 
-		sendWebSocketMessage(videoUrl, current.getParamVideoDataKey(), this.lastUpdate, "update");
-		sendWebSocketMessage(updateUrl, current.getParamUpdateKey(), this.lastUpdate, "update");
+		sendWebSocketMessage(this.lastUpdate, "update");
 	}
 
 	private void recomputeRemainingTimes(Map<String, Object> sb) {
@@ -2099,13 +2004,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * - Typical database: ~700KB JSON → ~200KB ZIP
 	 * - Scales better than JSON for competitions with 100+ athletes
 	 * 
-	 * @param url the WebSocket URL to send the database to
-	 * @param updateKey the update key for validation (optional, not used for WebSocket)
 	 */
-	public void sendDatabase(String url, String updateKey) {
-		logger.info("{}sendDatabase called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+	public void sendDatabase() {
+		logger.info("{}sendDatabase called for url: {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
 
-		if (url == null) {
+		if (!isActive()) {
 			logger.error("cannot send database, url is null");
 			return;
 		}
@@ -2116,83 +2019,43 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			return;
 		}
 
-		// Only support WebSocket for database transmission
-		if (url.startsWith("ws://") || url.startsWith("wss://")) {
-			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
-			if (sender != null) {
-				// Compress database using binary ZIP format
-				// Use export.structure() (parsed object) not export.json() (string)
-				// to avoid double-encoding issues
-				byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(
-					export.structure()
-				);
+		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
+		if (sender != null) {
+			byte[] databaseZipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
 
-				if (databaseZipBytes.length > 0) {
-					boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
-					if (sent) {
-						// Log compression ratio for reference
-						String jsonDatabase = export.json();
-						double ratio = 100.0 * (1.0 - (double) databaseZipBytes.length / jsonDatabase.getBytes().length);
-						logger.info(
-							"{}sent database ZIP via WebSocket to {} ({} bytes, from {}, {}% reduction)",
-							FieldOfPlay.getLoggingName(getFop()), url, databaseZipBytes.length,
-							jsonDatabase.getBytes().length, String.format("%.1f", ratio)
-						);
-					} else {
-						logger.debug(
-							"{}could not send database ZIP via WebSocket to {} (socket not ready)",
-							FieldOfPlay.getLoggingName(getFop()), url
-						);
-					}
+			if (databaseZipBytes.length > 0) {
+				boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
+				if (sent) {
+					String jsonDatabase = export.json();
+					double ratio = 100.0 * (1.0 - (double) databaseZipBytes.length / jsonDatabase.getBytes().length);
+					logger.info(
+						"{}sent database ZIP via WebSocket to {} ({} bytes, from {}, {}% reduction)",
+						FieldOfPlay.getLoggingName(getFop()), baseUrl, databaseZipBytes.length,
+						jsonDatabase.getBytes().length, String.format("%.1f", ratio)
+					);
 				} else {
-					logger.error("{}failed to create database ZIP for {}",
-						FieldOfPlay.getLoggingName(getFop()), url);
+					logger.debug(
+						"{}could not send database ZIP via WebSocket to {} (socket not ready)",
+						FieldOfPlay.getLoggingName(getFop()), baseUrl
+					);
 				}
+			} else {
+				logger.error("{}failed to create database ZIP for {}",
+					FieldOfPlay.getLoggingName(getFop()), baseUrl);
 			}
-			return;
 		}
-
-		logger.debug("{}database transmission requires WebSocket ({})",
-			FieldOfPlay.getLoggingName(getFop()), url);
-	}
-
-	/**
-	 * Send competition database via WebSocket using compressed binary ZIP format.
-	 * Convenience method without update key parameter.
-	 * 
-	 * @param url the WebSocket URL to send the database to
-	 */
-	public void sendDatabase(String url) {
-		sendDatabase(url, null);
 	}
 
 	/**
 	 * Send competition database via WebSocket using compressed binary ZIP format.
 	 * PRIMARY static method to broadcast database to all remote trackers/scoreboards.
-	 * 
-	 * @param updateKey the update key for validation (optional, not used for WebSocket binary format)
-	 */
-	public static void sendDatabaseToAll(String updateKey) {
-		String[] urls = new String[2];
-		urls[0] = Config.getCurrent().getParamPublicResultsURL();
-		urls[1] = Config.getCurrent().getParamVideoDataURL();
-
-		for (String url : urls) {
-			if (url != null && !url.trim().isEmpty() &&
-				(url.startsWith("ws://") || url.startsWith("wss://"))) {
-				for (WebSocketEventForwarder forwarder : eventForwarderByName.values()) {
-					forwarder.sendDatabase(url, updateKey);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Send competition database via WebSocket using compressed binary ZIP format.
-	 * Static convenience method without update key.
 	 */
 	public static void sendDatabaseToAll() {
-		sendDatabaseToAll(null);
+		for (Map<String, WebSocketEventForwarder> forwardersByUrl : eventForwardersByName.values()) {
+			for (WebSocketEventForwarder forwarder : forwardersByUrl.values()) {
+				forwarder.sendDatabase();
+			}
+		}
 	}
 
 	/**
@@ -2200,12 +2063,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * Called when the remote system requests flags (via 428 response with "flags" in missing array).
 	 * Uses binary transmission for maximum efficiency.
 	 * 
-	 * @param url the WebSocket URL to send flags to
 	 */
-	private void sendFlags(String url) {
-		logger.debug("{}sendFlags called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+	private void sendFlags() {
+		logger.debug("{}sendFlags called for url: {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
 
-		if (url == null) {
+		if (!isActive()) {
 			logger.error("cannot send flags, url is null");
 			return;
 		}
@@ -2215,30 +2077,22 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			return;
 		}
 
-		// Check if URL is WebSocket
-		if (url.startsWith("ws://") || url.startsWith("wss://")) {
-			// Send via WebSocket as binary data (most efficient)
-			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
-			if (sender != null) {
-				byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
-				if (flagsZipBytes.length > 0) {
-					boolean sent = sender.sendBinary("flags_zip", flagsZipBytes);
-					if (sent) {
-						logger.debug("{}sent flags_zip ZIP via WebSocket binary to {} ({} bytes)",
-						        FieldOfPlay.getLoggingName(getFop()), url, flagsZipBytes.length);
-					} else {
-						logger.debug("{}could not send flags_zip ZIP via WebSocket to {} (socket not ready)",
-						        FieldOfPlay.getLoggingName(getFop()), url);
-					}
+		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
+		if (sender != null) {
+			byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
+			if (flagsZipBytes.length > 0) {
+				boolean sent = sender.sendBinary("flags_zip", flagsZipBytes);
+				if (sent) {
+					logger.debug("{}sent flags_zip ZIP via WebSocket binary to {} ({} bytes)",
+					        FieldOfPlay.getLoggingName(getFop()), baseUrl, flagsZipBytes.length);
 				} else {
-					logger.debug("{}failed to create flags ZIP for {}", FieldOfPlay.getLoggingName(getFop()), url);
+					logger.debug("{}could not send flags_zip ZIP via WebSocket to {} (socket not ready)",
+					        FieldOfPlay.getLoggingName(getFop()), baseUrl);
 				}
+			} else {
+				logger.debug("{}failed to create flags ZIP for {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
 			}
-			return;
 		}
-
-		// HTTP endpoints for flags are not typically used, but log a warning
-		logger.debug("{}HTTP endpoint for flags not implemented ({})", FieldOfPlay.getLoggingName(getFop()), url);
 	}
 
 	/**
@@ -2247,12 +2101,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * Sends complete translation maps with regional variant merging (e.g., fr-CA gets all fr keys + 10 overrides).
 	 * Uses binary transmission for maximum efficiency.
 	 * 
-	 * @param url the WebSocket URL to send translations to
 	 */
-	private void sendTranslations(String url) {
-		logger.debug("{}sendTranslations called for url: {}", FieldOfPlay.getLoggingName(getFop()), url);
+	private void sendTranslations() {
+		logger.debug("{}sendTranslations called for url: {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
 
-		if (url == null) {
+		if (!isActive()) {
 			logger.error("cannot send translations, url is null");
 			return;
 		}
@@ -2262,83 +2115,42 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			return;
 		}
 
-		// Check if URL is WebSocket
-		if (url.startsWith("ws://") || url.startsWith("wss://")) {
-			// Send via WebSocket as binary data (most efficient)
-			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url);
-			if (sender != null) {
-				byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
-				if (translationsZipBytes.length > 0) {
-					boolean sent = sender.sendBinary("translations_zip", translationsZipBytes);
-					if (sent) {
-						logger.debug("{}sent translations ZIP via WebSocket binary to {} ({} bytes with all 26 locales)",
-						        FieldOfPlay.getLoggingName(getFop()), url, translationsZipBytes.length);
-					} else {
-						logger.debug("{}could not send translations ZIP via WebSocket to {} (socket not ready)",
-						        FieldOfPlay.getLoggingName(getFop()), url);
-					}
+		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
+		if (sender != null) {
+			byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
+			if (translationsZipBytes.length > 0) {
+				boolean sent = sender.sendBinary("translations_zip", translationsZipBytes);
+				if (sent) {
+					logger.debug("{}sent translations ZIP via WebSocket binary to {} ({} bytes with all 26 locales)",
+					        FieldOfPlay.getLoggingName(getFop()), baseUrl, translationsZipBytes.length);
 				} else {
-					logger.debug("{}failed to create translations ZIP for {}", FieldOfPlay.getLoggingName(getFop()), url);
+					logger.debug("{}could not send translations ZIP via WebSocket to {} (socket not ready)",
+					        FieldOfPlay.getLoggingName(getFop()), baseUrl);
 				}
+			} else {
+				logger.debug("{}failed to create translations ZIP for {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
 			}
-			return;
 		}
-
-		// HTTP endpoints for translations are not typically used, but log a warning
-		logger.debug("{}HTTP endpoint for translations not implemented ({})", FieldOfPlay.getLoggingName(getFop()), url);
 	}
 
-	private void sendWebSocketMessage(String url, String updateKey, Map<String, ?> parameters, String messageType) {
-		sendWebSocketMessage(url, updateKey, parameters, messageType, false);
+	private void sendWebSocketMessage(Map<String, ?> parameters, String messageType) {
+		sendWebSocketMessage(parameters, messageType, false);
 	}
 
-	private void sendWebSocketMessage(String url, String updateKey, Map<String, ?> parameters, String messageType, boolean force) {
-		if (url == null) {
+	private void sendWebSocketMessage(Map<String, ?> parameters, String messageType, boolean force) {
+		if (!isActive()) {
 			return;
 		}
 
-		// Check if URL is WebSocket (ws:// or wss://)
-		if (url.startsWith("ws://") || url.startsWith("wss://")) {
-			sendWebSocket(url, messageType, parameters, force);
-			return;
-		}
-		logger.debug("{}ignoring non-WebSocket URL in WebSocketEventForwarder: {}", FieldOfPlay.getLoggingName(getFop()), url);
-
+		sendWebSocket(messageType, parameters, force);
 	}
 
 	/**
 	 * Send data via WebSocket connection with message type
 	 */
-	private void sendWebSocket(String url, String messageType, Map<String, ?> parameters, boolean force) {
-		// Determine which URL this is (publicResults or videoData)
-		Config current = Config.getCurrent();
-		String publicResultsUrl = current.getParamUpdateUrl();
-		String videoDataUrl = current.getParamVideoDataUpdateUrl();
-		
-		boolean isPublicResults = url != null && url.equals(publicResultsUrl);
-		boolean isVideoData = url != null && url.equals(videoDataUrl);
-		
-		// Check if URL has changed and close old connection if needed
-		if (isPublicResults && this.currentPublicResultsUrl != null && !this.currentPublicResultsUrl.equals(url)) {
-			logger.info("{}PublicResults URL changed from {} to {}, closing old connection",
-			        FieldOfPlay.getLoggingName(getFop()), this.currentPublicResultsUrl, url);
-			WebSocketEventSender.closeSender(this.currentPublicResultsUrl);
-			this.currentPublicResultsUrl = url;
-		} else if (isPublicResults && this.currentPublicResultsUrl == null) {
-			this.currentPublicResultsUrl = url;
-		}
-		
-		if (isVideoData && this.currentVideoDataUrl != null && !this.currentVideoDataUrl.equals(url)) {
-			logger.info("{}VideoData URL changed from {} to {}, closing old connection",
-			        FieldOfPlay.getLoggingName(getFop()), this.currentVideoDataUrl, url);
-			WebSocketEventSender.closeSender(this.currentVideoDataUrl);
-			this.currentVideoDataUrl = url;
-		} else if (isVideoData && this.currentVideoDataUrl == null) {
-			this.currentVideoDataUrl = url;
-		}
-		
-		Integer previousDebounceHash = this.debouncingHash.get(url);
-		Long previousDebounceMillis = this.debouncingMillis.get(url);
+	private void sendWebSocket(String messageType, Map<String, ?> parameters, boolean force) {
+		Integer previousDebounceHash = this.debouncingHash;
+		Long previousDebounceMillis = this.debouncingMillis;
 		long deltaMillis = System.currentTimeMillis() - (previousDebounceMillis != null ? previousDebounceMillis : 0);
 		Integer hashCode = ForwarderPayloadBuilder.computeParametersHash(parameters);
 
@@ -2348,56 +2160,27 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			// Create sender with onOpen callback to send database/translations/flags
 			// Callback fires on EVERY connection (including reconnects) because tracker may have restarted
 			Runnable onOpenCallback = () -> {
-				Config currentCallback = Config.getCurrent();
-				String updateKey = currentCallback.getParamUpdateKey();
-				if (updateKey == null) {
-					updateKey = currentCallback.getParamVideoDataKey();
-				}
 				logger.info("{}WebSocket connection established to {}, proactively sending database and translations",
-				        FieldOfPlay.getLoggingName(getFop()), url);
-				
-				// Send database (binary ZIP format)
-				sendDatabase(url, updateKey);
-				
-				// Send translations
-				sendTranslations(url);
-				
-				// Send flags if available
-				sendFlags(url);
+				        FieldOfPlay.getLoggingName(getFop()), baseUrl);
+				sendDatabase();
+				sendTranslations();
+				sendFlags();
 			};
 			
-			// Pass URL supplier and callback so they're set BEFORE connection starts
-			WebSocketEventSender sender;
-			if (isPublicResults) {
-				sender = WebSocketEventSender.getOrCreate(url, () -> Config.getCurrent().getParamUpdateUrl(), onOpenCallback);
-			} else if (isVideoData) {
-				sender = WebSocketEventSender.getOrCreate(url, () -> Config.getCurrent().getParamVideoDataUpdateUrl(), onOpenCallback);
-			} else {
-				sender = WebSocketEventSender.getOrCreate(url, () -> url, onOpenCallback);
-			}
+			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, onOpenCallback, updateKey);
 			
 			if (sender != null) {
-				
-				// Set up callback for 428 status response (database requested) - fallback for reconnection
-				sender.setMissingDataCallback("database", () -> {
-					Config currentCallback = Config.getCurrent();
-					String updateKey = currentCallback.getParamUpdateKey();
-					if (updateKey == null) {
-						updateKey = currentCallback.getParamVideoDataKey();
-					}
-				// Send database (binary ZIP format)
-				sendDatabase(url, updateKey);
-			});
-				// Set up callback for 428 status response (translations requested) - fallback for reconnection
-				sender.setMissingDataCallback("translations", () -> {
-					sendTranslations(url);
-				});
+				// Set up callback for 428 status response (database requested)
+				sender.setMissingDataCallback("database", () -> sendDatabase());
+				// Set up callback for 428 status response (translations requested)
+				sender.setMissingDataCallback("translations", () -> sendTranslations());
+				sender.setMissingDataCallback("flags", () -> sendFlags());
 
 				sender.send(messageType, parameters);
 			}
 
-			this.debouncingHash.put(url, hashCode);
-			this.debouncingMillis.put(url, System.currentTimeMillis());
+			this.debouncingHash = hashCode;
+			this.debouncingMillis = System.currentTimeMillis();
 		}
 	}
 
@@ -2436,8 +2219,29 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	/**
 	 * @param fop the fop to set
 	 */
-	private void setFop(FieldOfPlay fop) {
-		this.fop = fop;
+	private void setFop(FieldOfPlay newFop) {
+		if (this.fop == newFop) {
+			return;
+		}
+
+		EventBus previousBus = this.postBus;
+		if (previousBus != null) {
+			try {
+				previousBus.unregister(this);
+			} catch (IllegalArgumentException ex) {
+				logger.debug("WebSocketEventForwarder was not registered on previous bus, ignoring: {}", ex.getMessage());
+			}
+		}
+
+		this.fop = newFop;
+		this.postBus = newFop != null ? newFop.getEventForwardingBus() : null;
+		if (this.postBus != null) {
+			try {
+				this.postBus.register(this);
+			} catch (IllegalArgumentException ex) {
+				logger.debug("WebSocketEventForwarder already registered on event bus for FOP {}: {}", newFop.getName(), ex.getMessage());
+			}
+		}
 	}
 
 	private void setFopState(FOPState state) {
@@ -2562,13 +2366,137 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	/**
-	 * Register startup data callbacks for WebSocket connections.
-	 * Delegates to WebSocketSender.registerStartupDataCallbacks().
-	 * 
-	 * @param videoUrl the video data WebSocket URL (if configured)
-	 * @param updateUrl the public results WebSocket URL (if configured)
+	 * Register startup data callbacks for configured WebSocket destinations.
 	 */
-	public static void registerStartupDataCallbacks(String videoUrl, String updateUrl) {
-		WebSocketSender.registerStartupDataCallbacks(videoUrl, updateUrl);
+	public static void registerStartupDataCallbacks() {
+		List<ForwardingDestination> destinations = webSocketDestinations(Config.getCurrent());
+		logger.info("Registering startup data callbacks for {} WebSocket destinations", destinations.size());
+
+		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
+			logger.error("Translations not available for startup send - aborting WebSocket registration");
+			return;
+		}
+
+		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
+		byte[] flagsZipBytes = FlagsZipHelper.hasFlagsAvailable()
+		        ? FlagsZipHelper.createFlagsZipBytes()
+		        : new byte[0];
+		byte[] picturesZipBytes = PicturesZipHelper.hasPicturesAvailable()
+		        ? PicturesZipHelper.createPicturesZipBytes()
+		        : new byte[0];
+		byte[] logosZipBytes = LogosZipHelper.hasLogosAvailable()
+		        ? LogosZipHelper.createLogosZipBytes()
+		        : new byte[0];
+
+		for (ForwardingDestination destination : destinations) {
+			registerStartupCallbacksForDestination(destination, translationsZipBytes, flagsZipBytes,
+			        picturesZipBytes, logosZipBytes);
+		}
+	}
+
+	private static byte[] createFreshDatabaseZipBytes(String url) {
+		CompetitionDataExport export = ForwarderPayloadBuilder.exportCompetitionDataStatic();
+		if (export == null) {
+			logger.error("Unable to build competition data payload for {}", url);
+			return new byte[0];
+		}
+
+		byte[] zipBytes = DatabaseZipHelper.createDatabaseZipBytes(export.structure());
+		if (zipBytes.length == 0) {
+			logger.error("No database ZIP available to send to {}", url);
+		}
+		return zipBytes;
+	}
+
+	private static void registerStartupCallbacksForDestination(ForwardingDestination destination,
+			byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes, byte[] logosZipBytes) {
+		String url = destination.getBaseUrl();
+		String updateKey = destination.getUpdateKey();
+		logger.warn("***** OWLCMS key trace: startup callbacks selected destination={} updateKey={}", url,
+		        debugKey(updateKey));
+		logger.info("Startup send mode for {}: BINARY(database_zip)", url);
+
+		synchronized (WebSocketEventSender.class) {
+			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url, () -> url, null, updateKey);
+			if (sender != null) {
+				sender.setMissingDataCallback("database", () -> {
+					byte[] zipBytes = createFreshDatabaseZipBytes(url);
+					if (zipBytes.length > 0) {
+						sender.sendBinary("database_zip", zipBytes);
+					}
+				});
+
+				sender.setMissingDataCallback("translations", () -> sender.sendBinary("translations_zip", translationsZipBytes));
+				sender.setMissingDataCallback("flags", () -> sender.sendBinary("flags_zip", flagsZipBytes));
+				sender.setMissingDataCallback("pictures", () -> {
+					if (picturesZipBytes.length > 0) {
+						sender.sendBinary("pictures_zip", picturesZipBytes);
+					}
+				});
+				sender.setMissingDataCallback("logos", () -> {
+					if (logosZipBytes.length > 0) {
+						sender.sendBinary("logos_zip", logosZipBytes);
+					}
+				});
+
+				sender.setOnOpenCallback(() -> {
+					logger.info("WebSocket connected to {}, sending startup data (mode=BINARY)", url);
+					byte[] databaseZipBytes = createFreshDatabaseZipBytes(url);
+					if (databaseZipBytes.length > 0) {
+						boolean sent = sender.sendBinary("database_zip", databaseZipBytes);
+						if (sent) {
+							logger.info("Sent startup database_zip via WebSocket to {}", url);
+						} else {
+							logger.error("Could not send startup database_zip via WebSocket to {} (socket not ready)", url);
+						}
+					}
+
+					boolean sentTranslations = sender.sendBinary("translations_zip", translationsZipBytes);
+					if (sentTranslations) {
+						logger.info("Sent startup translations_zip via WebSocket to {}", url);
+					} else {
+						logger.error("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
+					}
+
+					if (flagsZipBytes.length > 0) {
+						boolean sentFlags = sender.sendBinary("flags_zip", flagsZipBytes);
+						if (sentFlags) {
+							logger.info("Sent startup flags_zip via WebSocket to {}", url);
+						} else {
+							logger.error("Could not send startup flags_zip via WebSocket to {} (socket not ready)", url);
+						}
+					}
+				});
+			}
+		}
+	}
+
+	private static String debugKey(String key) {
+		if (key == null) {
+			return "<null>";
+		}
+		if (key.isBlank()) {
+			return "<blank>";
+		}
+		return "<prefix=" + maskPrefix(key) + " length=" + key.length() + " sha256=" + sha256Prefix(key)
+		        + " equalsPublicresults=" + Objects.equals(key, "publicresults") + ">";
+	}
+
+	private static String maskPrefix(String key) {
+		int shown = Math.min(4, key.length());
+		return key.substring(0, shown) + "...";
+	}
+
+	private static String sha256Prefix(String key) {
+		try {
+			byte[] digest = MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8));
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < Math.min(6, digest.length); i++) {
+				sb.append(String.format("%02x", digest[i]));
+			}
+			return sb.toString();
+		} catch (Exception e) {
+			return "unavailable";
+		}
 	}
 }

@@ -9,14 +9,20 @@ package app.owlcms.monitors.websocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +62,11 @@ public class WebSocketEventSender {
 		t.setDaemon(true);
 		return t;
 	});
+	private static final ExecutorService startupExecutor = Executors.newSingleThreadExecutor(r -> {
+		Thread t = new Thread(r, "WebSocket-Startup-Sender");
+		t.setDaemon(true);
+		return t;
+	});
 	
 	private static ObjectMapper createObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
@@ -65,14 +76,15 @@ public class WebSocketEventSender {
 	}
 
 	/**
-	 * Get or create a WebSocketEventSender for the given URL.
-	 * Uses a supplier to dynamically fetch the current URL on reconnects.
-	 * Optionally accepts a callback to invoke on connection open (including reconnects).
+	 * Get or create a WebSocketEventSender for the given URL with the update key
+	 * explicitly selected by the caller for this destination. The key may be null
+	 * when the destination has no configured authentication key.
 	 */
 	public static synchronized WebSocketEventSender getOrCreate(
-			String url, 
+			String url,
 			java.util.function.Supplier<String> urlSupplier,
-			Runnable onOpenCallback) {
+			Runnable onOpenCallback,
+			String updateKey) {
 		if (url == null || url.trim().isEmpty()) {
 			logger.debug("getOrCreate: null or empty URL, returning null");
 			return null;
@@ -80,46 +92,30 @@ public class WebSocketEventSender {
 		
 		WebSocketEventSender sender = sendersByUrl.get(url);
 		if (sender == null) {
+			logger.warn("***** OWLCMS key trace: creating WebSocketEventSender url={} updateKey={}", url,
+			        debugKey(updateKey));
 			logger.info("Creating new WebSocketEventSender for {} {}", url, LoggerUtils.whereFrom());
-			sender = new WebSocketEventSender(url, urlSupplier);
+			sender = new WebSocketEventSender(url, urlSupplier, updateKey);
 			// Set callback BEFORE connecting to avoid race condition
 			if (onOpenCallback != null) {
 				sender.setOnOpenCallback(onOpenCallback);
 			}
+			// Publish the sender before connect() so onOpen callbacks that send startup
+			// resources retrieve this keyed instance instead of creating a second one.
+			sendersByUrl.put(url, sender);
 			// Now connect - callback is ready to fire
 			sender.connect();
-			sendersByUrl.put(url, sender);
 		} else {
+			logger.warn("***** OWLCMS key trace: reusing WebSocketEventSender url={} updateKey={}", url,
+			        debugKey(updateKey));
 			logger.debug("Reusing existing WebSocketEventSender for {} (connected: {}) {}", 
 					url, sender.isConnected(), LoggerUtils.whereFrom());
+			sender.setUpdateKey(updateKey);
+			if (onOpenCallback != null) {
+				sender.setOnOpenCallback(onOpenCallback);
+			}
 		}
 		return sender;
-	}
-	
-	/**
-	 * Get or create a WebSocketEventSender for the given URL (without onOpen callback).
-	 */
-	public static synchronized WebSocketEventSender getOrCreate(String url, java.util.function.Supplier<String> urlSupplier) {
-		return getOrCreate(url, urlSupplier, null);
-	}
-	
-	/**
-	 * Get or create a WebSocketEventSender for the given URL (legacy compatibility).
-	 */
-	public static synchronized WebSocketEventSender getOrCreate(String url) {
-		return getOrCreate(url, () -> url, null);
-	}
-	
-	/**
-	 * Close sender for old URL and create new sender for updated URL.
-	 * Used when URL configuration changes (e.g., port correction).
-	 */
-	public static synchronized WebSocketEventSender updateUrl(String oldUrl, String newUrl) {
-		if (oldUrl != null && !oldUrl.equals(newUrl)) {
-			logger.info("WebSocket URL changed from {} to {}, closing old connection and creating new one", oldUrl, newUrl);
-			closeSender(oldUrl);
-		}
-		return getOrCreate(newUrl);
 	}
 
 	/**
@@ -175,13 +171,18 @@ public class WebSocketEventSender {
 	private int reconnectAttempts = 0;
 	private boolean intentionallyClosed = false;
 	private boolean connecting = false;
+	private boolean connectionOpened = false;
 	private Map<String, Runnable> missingDataCallbacks = new HashMap<>();
 	private Runnable onOpenCallback = null;
 	private ScheduledFuture<?> pendingReconnect = null; // Track pending reconnect to cancel duplicates
+	// Update key for THIS connection, determined once (by URL matching) by the forwarder and
+	// propagated here explicitly. Stamped on every outgoing frame (text and binary). null = no key.
+	private volatile String updateKey = null;
 
-	private WebSocketEventSender(String url, java.util.function.Supplier<String> urlSupplier) {
+	private WebSocketEventSender(String url, java.util.function.Supplier<String> urlSupplier, String updateKey) {
 		this.url = url;
 		this.urlSupplier = urlSupplier;
+		this.updateKey = updateKey;
 		// DO NOT call connect() here - getOrCreate() will call it after setting callbacks
 		// This avoids race condition where connection opens before callbacks are registered
 	}
@@ -205,6 +206,18 @@ public class WebSocketEventSender {
 		synchronized (this) {
 			this.onOpenCallback = callback;
 		}
+	}
+
+	/**
+	 * Set the update key for this connection. The key is determined once by the caller
+	 * (by matching this connection's URL against the configured publicResults/videoData
+	 * URLs) and propagated here explicitly. It is stamped on every outgoing frame.
+	 * @param updateKey the key to stamp, or null/empty to send frames without a key
+	 */
+	public void setUpdateKey(String updateKey) {
+		logger.warn("***** OWLCMS key trace: WebSocketEventSender.setUpdateKey url={} updateKey={}", url,
+		        debugKey(updateKey));
+		this.updateKey = updateKey;
 	}
 
 	private synchronized void connect() {
@@ -242,14 +255,28 @@ public class WebSocketEventSender {
 				@Override
 				public void onOpen(ServerHandshake handshake) {
 					logger.info("✓ Connection established: {} (protocol version: {})", url, PROTOCOL_VERSION);
+					Runnable callback;
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
-						reconnectAttempts = 0;
-						if (onOpenCallback != null) {
-							// Invoke the on-open callback on every successful connection
-							// (including reconnects) so initial data can be re-sent.
-							onOpenCallback.run();
-						}
+						connectionOpened = true;
+						// Do NOT reset the backoff counter here. The WebSocket handshake (onOpen)
+						// only means the transport upgraded; the receiver authenticates the first
+						// frame and, if the key is rejected, closes with code 1008. We learn the
+						// outcome deterministically in onClose, so the counter is reset there.
+						callback = onOpenCallback;
+					}
+					if (callback != null) {
+						// Invoke the on-open callback on every successful connection (including
+						// reconnects) so initial data can be re-sent. Keep this outside the sender
+						// monitor and off the Java-WebSocket callback thread.
+						startupExecutor.submit(() -> {
+							try {
+								callback.run();
+							} catch (Throwable t) {
+								logger.warn("WebSocket on-open startup callback failed for {}: {}", url,
+								        LoggerUtils.exceptionMessage(t));
+							}
+						});
 					}
 				}
 
@@ -267,8 +294,19 @@ public class WebSocketEventSender {
 					} else {
 						logger.info("Connection closed by local: {} (code: {}, reason: {})", url, code, reason);
 					}
+					// Close code 1008 (policy violation) is the receiver's deterministic
+					// "authentication denied" signal (e.g. missing/invalid update key). Keep the
+					// backoff counter so repeated denials escalate instead of hammering at 1s.
+					// Any other close resets the counter only if this connection actually opened.
+					// Refused handshakes report onError followed by onClose(code -1); those must
+					// keep the counter so refused reconnects back off 1, 2, 4, 8, 16, 30.
+					boolean authDenied = code == CloseFrame.POLICY_VALIDATION;
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
+						if (!authDenied && connectionOpened) {
+							reconnectAttempts = 0;
+						}
+						connectionOpened = false;
 						// Null out the client reference so java-websocket can GC its threads
 						client = null;
 					}
@@ -311,7 +349,6 @@ public class WebSocketEventSender {
 
 	private void scheduleReconnect() {
 		final int delayMs;
-		
 		synchronized (this) {
 			if (intentionallyClosed) {
 				logger.debug("Skipping reconnect for {} because it was intentionally closed", url);
@@ -419,11 +456,13 @@ public class WebSocketEventSender {
 		}
 
 		try {
+			Map<String, Object> payload = withResolvedUpdateKey(data);
+
 			// Wrap payload with message type and protocol version for robustness
 			Map<String, Object> wrapper = new HashMap<>();
 			wrapper.put("version", PROTOCOL_VERSION);
 			wrapper.put("type", messageType);
-			wrapper.put("payload", data);
+			wrapper.put("payload", payload);
 			
 			// Convert to JSON string using Jackson
 			String jsonPayload = objectMapper.writeValueAsString(wrapper);
@@ -434,6 +473,52 @@ public class WebSocketEventSender {
 		} catch (Exception e) {
 			logger.error("Failed to send WebSocket message to {}: {}", url, LoggerUtils.exceptionMessage(e));
 		}
+	}
+
+	private Map<String, Object> withResolvedUpdateKey(Map<String, ?> data) {
+		Map<String, Object> payload = new LinkedHashMap<>();
+		if (data != null) {
+			payload.putAll(data);
+		}
+		String key = this.updateKey;
+		if (key != null && !key.isEmpty()) {
+			payload.put("updateKey", key);
+		} else {
+			payload.remove("updateKey");
+		}
+		return payload;
+	}
+
+	private JsonNode withResolvedUpdateKey(JsonNode payloadNode) {
+		if (!(payloadNode instanceof ObjectNode)) {
+			return payloadNode;
+		}
+		ObjectNode payload = ((ObjectNode) payloadNode).deepCopy();
+		String key = this.updateKey;
+		if (key != null && !key.isEmpty()) {
+			payload.put("updateKey", key);
+		} else {
+			payload.remove("updateKey");
+		}
+		return payload;
+	}
+
+	private Object withResolvedUpdateKey(Object payload) {
+		if (payload instanceof Map<?, ?>) {
+			Map<?, ?> source = (Map<?, ?>) payload;
+			Map<String, Object> mappedPayload = new LinkedHashMap<>();
+			for (Map.Entry<?, ?> entry : source.entrySet()) {
+				Object key = entry.getKey();
+				if (key != null) {
+					mappedPayload.put(key.toString(), entry.getValue());
+				}
+			}
+			return withResolvedUpdateKey(mappedPayload);
+		}
+		if (payload instanceof JsonNode) {
+			return withResolvedUpdateKey((JsonNode) payload);
+		}
+		return payload;
 	}
 	
 	/**
@@ -452,7 +537,7 @@ public class WebSocketEventSender {
 
 		try {
 			// Parse the JSON payload into a JsonNode (parse once)
-			JsonNode payloadNode = objectMapper.readTree(jsonPayload);
+			JsonNode payloadNode = withResolvedUpdateKey(objectMapper.readTree(jsonPayload));
 			
 			// Create wrapper as JSON structure with protocol version
 			ObjectNode wrapper = objectMapper.createObjectNode();
@@ -487,12 +572,13 @@ public class WebSocketEventSender {
 		try {
 			// Parse the raw JSON payload
 			Object parsedPayload = objectMapper.readValue(jsonPayload, Object.class);
+			Object payload = withResolvedUpdateKey(parsedPayload);
 			
 			// Wrap with message type and protocol version
 			Map<String, Object> wrapper = new HashMap<>();
 			wrapper.put("version", PROTOCOL_VERSION);
 			wrapper.put("type", messageType);
-			wrapper.put("payload", parsedPayload);
+			wrapper.put("payload", payload);
 			
 			// Convert to JSON string using Jackson
 			String wrappedJson = objectMapper.writeValueAsString(wrapper);
@@ -519,11 +605,13 @@ public class WebSocketEventSender {
 		}
 
 		try {
+			Object outboundPayload = withResolvedUpdateKey(payload);
+
 			// Wrap with message type and protocol version
 			Map<String, Object> wrapper = new HashMap<>();
 			wrapper.put("version", PROTOCOL_VERSION);
 			wrapper.put("type", messageType);
-			wrapper.put("payload", payload);
+			wrapper.put("payload", outboundPayload);
 			
 			// Convert to JSON string using Jackson
 			String wrappedJson = objectMapper.writeValueAsString(wrapper);
@@ -566,11 +654,24 @@ public class WebSocketEventSender {
 		}
 
 		try {
+			logger.warn("***** OWLCMS key trace: sending binary messageType={} url={} updateKey={}", messageType, url,
+			        debugKey(this.updateKey));
 			byte[] versionBytes = PROTOCOL_VERSION.getBytes("UTF-8");
 			byte[] typeBytes = messageType.getBytes("UTF-8");
-			
+
+			// Optional key trailer: every frame carries the update key so the receiver can
+			// authenticate the connection from the first frame it sees (text or binary).
+			// The key is the one propagated to this connection; senders with no key configured
+			// omit the trailer and remain compatible.
+			byte[] keyBytes = (this.updateKey != null && !this.updateKey.isEmpty())
+					? this.updateKey.getBytes("UTF-8")
+					: null;
+			boolean hasKey = keyBytes != null && keyBytes.length > 0;
+			int trailerLength = hasKey ? (keyBytes.length + 4 + KEY_TRAILER_MAGIC.length) : 0;
+
 			// Create buffer: 4 bytes (version length) + version bytes + 4 bytes (type length) + type bytes + binary data
-			ByteBuffer frame = ByteBuffer.allocate(4 + versionBytes.length + 4 + typeBytes.length + binaryData.length);
+			// + optional trailer: key bytes + 4 bytes (key length) + magic marker
+			ByteBuffer frame = ByteBuffer.allocate(4 + versionBytes.length + 4 + typeBytes.length + binaryData.length + trailerLength);
 			
 			// Write version length as big-endian int
 			frame.putInt(versionBytes.length);
@@ -586,13 +687,22 @@ public class WebSocketEventSender {
 			
 			// Write binary data
 			frame.put(binaryData);
+
+			// Write optional key trailer AFTER the payload: [key bytes][4-byte key length][magic marker].
+			// The receiver detects the magic at the end of the frame, reads the preceding length,
+			// recovers the key, and treats everything before it as the payload.
+			if (hasKey) {
+				frame.put(keyBytes);
+				frame.putInt(keyBytes.length);
+				frame.put(KEY_TRAILER_MAGIC);
+			}
 			
 			// Flip to prepare for reading
 			frame.flip();
 			
 			client.send(frame);
-			logger.info("Sent binary WebSocket message version='{}' type='{}' to {} ({} bytes total, {} bytes payload)",
-					PROTOCOL_VERSION, messageType, url, frame.capacity(), binaryData.length);
+			logger.info("Sent binary WebSocket message version='{}' type='{}' to {} ({} bytes total, {} bytes payload{})",
+					PROTOCOL_VERSION, messageType, url, frame.capacity(), binaryData.length, hasKey ? ", keyed" : "");
 			return true;
 		} catch (Exception e) {
 			logger.error("Failed to send binary WebSocket message to {}: {}", url, LoggerUtils.exceptionMessage(e));
@@ -600,10 +710,47 @@ public class WebSocketEventSender {
 		}
 	}
 
+	private static String debugKey(String key) {
+		if (key == null) {
+			return "<null>";
+		}
+		if (key.isBlank()) {
+			return "<blank>";
+		}
+		return "<prefix=" + maskPrefix(key) + " length=" + key.length() + " sha256=" + sha256Prefix(key)
+		        + " equalsPublicresults=" + Objects.equals(key, "publicresults") + ">";
+	}
+
+	private static String maskPrefix(String key) {
+		int shown = Math.min(4, key.length());
+		return key.substring(0, shown) + "...";
+	}
+
+	private static String sha256Prefix(String key) {
+		try {
+			byte[] digest = MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8));
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < Math.min(6, digest.length); i++) {
+				sb.append(String.format("%02x", digest[i]));
+			}
+			return sb.toString();
+		} catch (Exception e) {
+			return "unavailable";
+		}
+	}
+
+	/**
+	 * Marker placed at the very end of a keyed binary frame so the receiver can detect
+	 * the optional key trailer. Chosen to be extremely unlikely to occur as the final
+	 * bytes of a ZIP payload.
+	 */
+	private static final byte[] KEY_TRAILER_MAGIC = { (byte) 0xA5, 'K', 'E', 'Y' };
+
 	/**
 	 * Close the WebSocket connection
 	 */
 	public void close() {
+		WebSocketClient toClose;
 		synchronized (this) {
 			intentionallyClosed = true;
 			connecting = false;
@@ -612,15 +759,18 @@ public class WebSocketEventSender {
 				pendingReconnect.cancel(false);
 				pendingReconnect = null;
 			}
-		}
-		if (client != null) {
-			try {
-				client.closeBlocking();
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				logger.debug("Interrupted while closing WebSocket to {}", url);
-			}
+			toClose = client;
 			client = null;
+		}
+		if (toClose != null) {
+			// Non-blocking close: never call closeBlocking() here. This method is invoked
+			// from the static-synchronized forwarder reconfiguration path (config update /
+			// UI thread). If the remote endpoint stops responding to the close handshake,
+			// closeBlocking() would block until the connection-lost timeout (~60s) while
+			// holding the WebSocketEventForwarder class monitor, freezing the whole app.
+			// The closing handshake and thread teardown proceed asynchronously in the
+			// java-websocket client; intentionallyClosed prevents any reconnect.
+			toClose.close();
 		}
 	}
 
