@@ -26,6 +26,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
@@ -217,14 +218,24 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		actions.add(championshipButton);
 		if (row.championship != null && !row.championship.computeUsesCompetitionDefaults()) {
 			actions.add(resetButton(() -> {
-				ChampionshipRepository.resetToCompetitionDefaults(row.championship);
-				updateChampionshipsTable();
+				new ConfirmationDialog(
+				        Translator.translate("Championship.ResetToDefaults"),
+				        Translator.translate("Championship.ResetToDefaultsWarning", row.name),
+				        null, () -> {
+					        ChampionshipRepository.resetToCompetitionDefaults(row.championship);
+					        updateChampionshipsTable();
+				        }).open();
 			}));
 		}
 		if (row.extraExplicit) {
 			actions.add(deleteButton(() -> {
-				Championship.remove(row.championship);
-				updateChampionshipsTable();
+				new ConfirmationDialog(
+				        Translator.translate("Delete"),
+				        Translator.translate("Championship.DeleteWarning", row.name),
+				        null, () -> {
+					        Championship.remove(row.championship);
+					        updateChampionshipsTable();
+				        }).open();
 			}));
 		}
 		return actions;
