@@ -33,11 +33,13 @@ public final class ForwarderSetup {
 	}
 
 	public static void reinitializeIfDestinationsChanged(Config oldConfig, Config newConfig) {
+		// For now, always log the resolved forwarder configuration on every config update so the
+		// active URLs and where each value came from (environment variable vs database) are visible.
+		ForwardingDestination.logConfiguration(newConfig);
 		if (!destinationsChanged(oldConfig, newConfig)) {
 			logger.debug("forwarding destinations unchanged after config update; skipping forwarder reinitialization");
 			return;
 		}
-		ForwardingDestination.logConfiguration(newConfig);
 		FORWARDER_REINITIALIZE_EXECUTOR.submit(() -> {
 			try {
 				EventForwarder.reinitializeForAllFOPs();
