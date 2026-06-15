@@ -6,8 +6,6 @@
  *******************************************************************************/
 package app.owlcms.monitors;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -242,8 +240,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private WebSocketEventForwarder(String name, FieldOfPlay emittingFop, ForwardingDestination destination) {
 		this.baseUrl = destination.getBaseUrl();
 		this.updateKey = destination.getUpdateKey();
-		logger.warn("{}***** OWLCMS key trace: WebSocketEventForwarder selected destination={} updateKey={}",
-		        FieldOfPlay.getLoggingName(emittingFop), this.baseUrl, debugKey(this.updateKey));
 		this.setForwardedFopName(name);
 		this.setFop(emittingFop);
 
@@ -2412,8 +2408,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes, byte[] logosZipBytes) {
 		String url = destination.getBaseUrl();
 		String updateKey = destination.getUpdateKey();
-		logger.warn("***** OWLCMS key trace: startup callbacks selected destination={} updateKey={}", url,
-		        debugKey(updateKey));
 		logger.info("Startup send mode for {}: BINARY(database_zip)", url);
 
 		synchronized (WebSocketEventSender.class) {
@@ -2468,35 +2462,6 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 					}
 				});
 			}
-		}
-	}
-
-	private static String debugKey(String key) {
-		if (key == null) {
-			return "<null>";
-		}
-		if (key.isBlank()) {
-			return "<blank>";
-		}
-		return "<prefix=" + maskPrefix(key) + " length=" + key.length() + " sha256=" + sha256Prefix(key)
-		        + " equalsPublicresults=" + Objects.equals(key, "publicresults") + ">";
-	}
-
-	private static String maskPrefix(String key) {
-		int shown = Math.min(4, key.length());
-		return key.substring(0, shown) + "...";
-	}
-
-	private static String sha256Prefix(String key) {
-		try {
-			byte[] digest = MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8));
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < Math.min(6, digest.length); i++) {
-				sb.append(String.format("%02x", digest[i]));
-			}
-			return sb.toString();
-		} catch (Exception e) {
-			return "unavailable";
 		}
 	}
 }

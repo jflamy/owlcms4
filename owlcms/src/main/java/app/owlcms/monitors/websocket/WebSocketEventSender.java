@@ -9,12 +9,9 @@ package app.owlcms.monitors.websocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -92,8 +89,6 @@ public class WebSocketEventSender {
 		
 		WebSocketEventSender sender = sendersByUrl.get(url);
 		if (sender == null) {
-			logger.warn("***** OWLCMS key trace: creating WebSocketEventSender url={} updateKey={}", url,
-			        debugKey(updateKey));
 			logger.info("Creating new WebSocketEventSender for {} {}", url, LoggerUtils.whereFrom());
 			sender = new WebSocketEventSender(url, urlSupplier, updateKey);
 			// Set callback BEFORE connecting to avoid race condition
@@ -106,8 +101,6 @@ public class WebSocketEventSender {
 			// Now connect - callback is ready to fire
 			sender.connect();
 		} else {
-			logger.warn("***** OWLCMS key trace: reusing WebSocketEventSender url={} updateKey={}", url,
-			        debugKey(updateKey));
 			logger.debug("Reusing existing WebSocketEventSender for {} (connected: {}) {}", 
 					url, sender.isConnected(), LoggerUtils.whereFrom());
 			sender.setUpdateKey(updateKey);
@@ -215,8 +208,6 @@ public class WebSocketEventSender {
 	 * @param updateKey the key to stamp, or null/empty to send frames without a key
 	 */
 	public void setUpdateKey(String updateKey) {
-		logger.warn("***** OWLCMS key trace: WebSocketEventSender.setUpdateKey url={} updateKey={}", url,
-		        debugKey(updateKey));
 		this.updateKey = updateKey;
 	}
 
@@ -318,7 +309,7 @@ public class WebSocketEventSender {
 
 				@Override
 				public void onError(Exception ex) {
-					logger.info("✗ WebSocket error for {} - {}", url, LoggerUtils.exceptionMessage(ex));
+					logger.error("✗ WebSocket error for {} - {}", url, LoggerUtils.exceptionMessage(ex));
 					synchronized (WebSocketEventSender.this) {
 						connecting = false;
 					}
@@ -654,8 +645,6 @@ public class WebSocketEventSender {
 		}
 
 		try {
-			logger.warn("***** OWLCMS key trace: sending binary messageType={} url={} updateKey={}", messageType, url,
-			        debugKey(this.updateKey));
 			byte[] versionBytes = PROTOCOL_VERSION.getBytes("UTF-8");
 			byte[] typeBytes = messageType.getBytes("UTF-8");
 
@@ -707,35 +696,6 @@ public class WebSocketEventSender {
 		} catch (Exception e) {
 			logger.error("Failed to send binary WebSocket message to {}: {}", url, LoggerUtils.exceptionMessage(e));
 			return false;
-		}
-	}
-
-	private static String debugKey(String key) {
-		if (key == null) {
-			return "<null>";
-		}
-		if (key.isBlank()) {
-			return "<blank>";
-		}
-		return "<prefix=" + maskPrefix(key) + " length=" + key.length() + " sha256=" + sha256Prefix(key)
-		        + " equalsPublicresults=" + Objects.equals(key, "publicresults") + ">";
-	}
-
-	private static String maskPrefix(String key) {
-		int shown = Math.min(4, key.length());
-		return key.substring(0, shown) + "...";
-	}
-
-	private static String sha256Prefix(String key) {
-		try {
-			byte[] digest = MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8));
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < Math.min(6, digest.length); i++) {
-				sb.append(String.format("%02x", digest[i]));
-			}
-			return sb.toString();
-		} catch (Exception e) {
-			return "unavailable";
 		}
 	}
 

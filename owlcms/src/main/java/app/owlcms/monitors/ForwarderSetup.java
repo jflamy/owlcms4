@@ -28,6 +28,7 @@ public final class ForwarderSetup {
 	}
 
 	public static void registerStartupDataCallbacks() {
+		ForwardingDestination.logConfiguration(Config.getCurrent());
 		WebSocketEventForwarder.registerStartupDataCallbacks();
 	}
 
@@ -36,6 +37,7 @@ public final class ForwarderSetup {
 			logger.debug("forwarding destinations unchanged after config update; skipping forwarder reinitialization");
 			return;
 		}
+		ForwardingDestination.logConfiguration(newConfig);
 		FORWARDER_REINITIALIZE_EXECUTOR.submit(() -> {
 			try {
 				EventForwarder.reinitializeForAllFOPs();

@@ -6,8 +6,6 @@
  *******************************************************************************/
 package app.owlcms.monitors;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -20,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.config.Config;
+import app.owlcms.utils.StartupUtils;
 
 /**
  * One forwarding destination: a normalized base URL and its explicitly paired update key.
@@ -77,12 +76,39 @@ public final class ForwardingDestination {
 		String publicResultsKey = config.getParamUpdateKey();
 		String videoDataUrl = config.getParamVideoDataURL();
 		String videoDataKey = config.getParamVideoDataKey();
-		logger.warn("***** OWLCMS key trace: forwarding destinations publicResultsUrl={} publicResultsKey={} videoDataUrl={} videoDataKey={} videoKeySameAsPublicKey={}",
-		        publicResultsUrl, debugKey(publicResultsKey), videoDataUrl, debugKey(videoDataKey),
-		        Objects.equals(videoDataKey, publicResultsKey));
+		logger.debug(
+		        "forwarder configuration: publicResults URL={} (from {}), updateKey {} (from {}); videoData URL={} (from {}), videoDataKey {} (from {})",
+		        publicResultsUrl, source("remote", publicResultsUrl),
+		        keyPresence(publicResultsKey), source("updateKey", publicResultsKey),
+		        videoDataUrl, source("videodata", videoDataUrl),
+		        keyPresence(videoDataKey), source("videoDataKey", videoDataKey));
 		addDestination(destinationsByUrl, conflictedUrls, publicResultsUrl, publicResultsKey);
 		addDestination(destinationsByUrl, conflictedUrls, videoDataUrl, videoDataKey);
 		return new ArrayList<>(destinationsByUrl.values());
+	}
+
+	/**
+	 * Emit a single INFO-level summary of the resolved forwarder configuration. Unlike
+	 * {@link #fromConfig(Config)} (which is called once per FOP and per protocol), this is meant to
+	 * be called once globally: at startup and once per config-change reconciliation. The URLs are
+	 * shown together with where each value came from (environment variable, database, or unset), and
+	 * the keys are reduced to their first/last characters so stale values can be spotted without
+	 * exposing the secret.
+	 */
+	public static void logConfiguration(Config config) {
+		if (config == null) {
+			return;
+		}
+		String publicResultsUrl = config.getParamPublicResultsURL();
+		String publicResultsKey = config.getParamUpdateKey();
+		String videoDataUrl = config.getParamVideoDataURL();
+		String videoDataKey = config.getParamVideoDataKey();
+		logger.info(
+		        "forwarder configuration: publicResults URL={} (from {}), updateKey {} (from {}); videoData URL={} (from {}), videoDataKey {} (from {})",
+		        publicResultsUrl, source("remote", publicResultsUrl),
+		        keyPresence(publicResultsKey), source("updateKey", publicResultsKey),
+		        videoDataUrl, source("videodata", videoDataUrl),
+		        keyPresence(videoDataKey), source("videoDataKey", videoDataKey));
 	}
 
 	private static void addDestination(Map<String, ForwardingDestination> destinationsByUrl, Set<String> conflictedUrls,
@@ -140,32 +166,28 @@ public final class ForwardingDestination {
 		return Objects.hash(baseUrl, updateKey);
 	}
 
-	private static String debugKey(String key) {
-		if (key == null) {
-			return "<null>";
+	/**
+	 * Indicate where a resolved value comes from: a runtime override (environment variable or
+	 * system property) or the saved database configuration. Used for INFO-level diagnostics.
+	 */
+	private static String source(String envParam, String resolvedValue) {
+		if (resolvedValue == null || resolvedValue.isBlank()) {
+			return "unset";
 		}
-		if (key.isBlank()) {
-			return "<blank>";
-		}
-		return "<prefix=" + maskPrefix(key) + " length=" + key.length() + " sha256=" + sha256Prefix(key)
-		        + " equalsPublicresults=" + Objects.equals(key, "publicresults") + ">";
+		return StartupUtils.getStringParam(envParam) != null ? "environment variable" : "database";
 	}
 
-	private static String maskPrefix(String key) {
-		int shown = Math.min(4, key.length());
-		return key.substring(0, shown) + "...";
-	}
-
-	private static String sha256Prefix(String key) {
-		try {
-			byte[] digest = MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8));
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < Math.min(6, digest.length); i++) {
-				sb.append(String.format("%02x", digest[i]));
-			}
-			return sb.toString();
-		} catch (Exception e) {
-			return "unavailable";
+	/**
+	 * Show the first and last characters of a key (with its length) so that stale values can be
+	 * spotted in the log without exposing the full secret.
+	 */
+	private static String keyPresence(String key) {
+		if (key == null || key.isBlank()) {
+			return "none";
 		}
+		if (key.length() == 1) {
+			return key.charAt(0) + "\u2026 (len 1)";
+		}
+		return key.charAt(0) + "\u2026" + key.charAt(key.length() - 1) + " (len " + key.length() + ")";
 	}
 }

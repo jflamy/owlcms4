@@ -7,17 +7,14 @@
 package app.owlcms.data.config;
 
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
@@ -684,18 +681,14 @@ public class Config {
 	@Transient
 	@JsonIgnore
 	public String getParamUpdateKey() {
-		String source = "environment OWLCMS_UPDATEKEY";
 		String uKey = StartupUtils.getStringParam("updateKey");
 		if (uKey == null) {
-			source = "saved Config.updatekey";
-			// use pin from database
+			// use key from database
 			uKey = this.updatekey;
 			if (uKey == null || uKey.isBlank()) {
-				source = "not configured";
 				uKey = null;
 			}
 		}
-		logger.warn("***** OWLCMS key trace: getParamUpdateKey selected source={} key={}", source, debugKey(uKey));
 		return uKey;
 	}
 
@@ -733,56 +726,15 @@ public class Config {
 	@Transient
 	@JsonIgnore
 	public String getParamVideoDataKey() {
-		String source = "environment OWLCMS_VIDEODATAKEY";
 		String uKey = StartupUtils.getStringParam("videoDataKey");
 		if (uKey == null) {
-			source = "saved Config.videoDataKey";
-			// use pin from database
+			// use key from database
 			uKey = this.getVideoDataKey();
 			if (uKey == null || uKey.isBlank()) {
-				source = "not configured";
 				uKey = null;
 			}
 		}
-		String updateKey = StartupUtils.getStringParam("updateKey");
-		if (updateKey == null) {
-			updateKey = this.updatekey;
-			if (updateKey == null || updateKey.isBlank()) {
-				updateKey = null;
-			}
-		}
-		logger.warn("***** OWLCMS key trace: getParamVideoDataKey selected source={} key={} sameAsUpdateKey={}",
-		        source, debugKey(uKey), Objects.equals(uKey, updateKey));
 		return uKey;
-	}
-
-	private static String debugKey(String key) {
-		if (key == null) {
-			return "<null>";
-		}
-		if (key.isBlank()) {
-			return "<blank>";
-		}
-		return "<prefix=" + maskPrefix(key) + " length=" + key.length() + " sha256=" + sha256Prefix(key)
-		        + " equalsPublicresults=" + Objects.equals(key, "publicresults") + ">";
-	}
-
-	private static String maskPrefix(String key) {
-		int shown = Math.min(4, key.length());
-		return key.substring(0, shown) + "...";
-	}
-
-	private static String sha256Prefix(String key) {
-		try {
-			byte[] digest = MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8));
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < Math.min(6, digest.length); i++) {
-				sb.append(String.format("%02x", digest[i]));
-			}
-			return sb.toString();
-		} catch (Exception e) {
-			return "unavailable";
-		}
 	}
 
 	@Transient
