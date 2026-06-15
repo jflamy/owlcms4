@@ -20,14 +20,15 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        //"OWLCMS_VIDEODATA": "wss://fhq-tracker.fly.dev/ws",
-        //"OWLCMS_VIDEODATA": "",
-        //"OWLCMS_REMOTE": ""
+        // "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
+        // "OWLCMS_VIDEODATAKEY": "amalauxpattes",
+        // "OWLCMS_REMOTE": "http://127.0.0.1:8082",
+        // "OWLCMS_UPDATEKEY": "mapetitevache"
       }
     },
     {
       "type": "java",
-      "name": "🟨 WS owlcms no reset",
+      "name": "🟨 owlcms → tracker",
       "request": "launch",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
@@ -44,10 +45,57 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        // "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
-        // "OWLCMS_VIDEODATAKEY": "tracker",
+        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
+        // "OWLCMS_VIDEODATAKEY": "amalauxpattes",
         // "OWLCMS_REMOTE": "http://127.0.0.1:8082",
-        // "OWLCMS_UPDATEKEY": "publicresults"
+        // "OWLCMS_UPDATEKEY": "mapetitevache"
+      }
+    },
+    {
+      "type": "java",
+      "name": "🟨 owlcms → publicresults",
+      "request": "launch",
+      "mainClass": "${config:owlcms.mainClass}",
+      "projectName": "owlcms",
+      "cwd": "${workspaceFolder}/owlcms",
+      "vmArgs": "${config:owlcms.vmArgs}",
+      "windows": {
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+      },
+      "linux": {
+        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+      },
+      "osx": {
+        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+      },
+      "env": {
+        "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_REMOTE": "http://127.0.0.1:8082",
+        "OWLCMS_UPDATEKEY": "mapetitevache"
+      }
+    },
+    {
+      "type": "java",
+      "name": "🟨 owlcms → tracker + publicresults",
+      "request": "launch",
+      "mainClass": "${config:owlcms.mainClass}",
+      "projectName": "owlcms",
+      "cwd": "${workspaceFolder}/owlcms",
+      "vmArgs": "${config:owlcms.vmArgs}",
+      "windows": {
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+      },
+      "linux": {
+        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+      },
+      "osx": {
+        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+      },
+      "env": {
+        "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
+        "OWLCMS_REMOTE": "http://127.0.0.1:8082",
+        "OWLCMS_UPDATEKEY": "mapetitevache"
       }
     },
     {
@@ -217,30 +265,7 @@
     },
     {
       "type": "java",
-      "name": "🟠 tandem owlcms",
-      "request": "launch",
-      "mainClass": "${config:owlcms.mainClass}",
-      "projectName": "owlcms",
-      "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
-      "env": {
-        "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_PORT": "8081",
-        "OWLCMS_REMOTE": "http://localhost:8082"
-      }
-    },
-    {
-      "type": "java",
-      "name": "🟠 tandem publicresults",
+      "name": "🟠 publicresults",
       "request": "launch",
       "mainClass": "app.owlcms.publicresults.Main",
       "projectName": "publicresults",
@@ -257,13 +282,12 @@
       },
       "env": {
         "OWLCMS_PORT": "8082",
-        "OWLCMS_UPDATEKEY": "publicresults"
+        "OWLCMS_UPDATEKEY": "mapetitevache"
       }
     },
-
     {
       "type": "java",
-      "name": "♦️ RunResults",
+      "name": "♦️ Playwright Loadtesting",
       "request": "launch",
       "mainClass": "playwright.RunResults",
       "projectName": "playwright"
@@ -273,37 +297,30 @@
     {
       "name": "🟪 owlcms + tracker",
       "configurations": [
-        "🟨 WS owlcms no reset",
-        "🔳 OWLCMS Tracker - Normal Mode"
+        "🟨 owlcms → tracker",
+        "🔳 tracker normal"
       ]
     },
     {
-      "name": "🟪 trio o + t + p",
+      "name": "🟪 owlcms + publicresults",
       "configurations": [
-        "🟨 WS owlcms no reset",
-        "🔳 OWLCMS Tracker - Normal Mode",
-        "🟠 tandem publicresults"
+        "🟨 owlcms → publicresults",
+        "🟠 publicresults"
+      ]
+    },
+    {
+      "name": "🟪 owlcms + tracker + publicresults",
+      "configurations": [
+        "🟨 owlcms → tracker + publicresults",
+        "🔳 tracker normal",
+        "🟠 publicresults"
       ]
     },
     {
       "name": "🟪 owlcms + tracker learning",
       "configurations": [
-        "🟨 WS owlcms no reset",
-        "🔳 OWLCMS Tracker - Learning Mode"
-      ]
-    },
-    {
-      "name": "🟪 tandem owlcms + publicresults",
-      "configurations": [
-        "🟠 tandem owlcms",
-        "🟠 tandem publicresults"
-      ]
-    },
-    {
-      "name": "🟪 WS large demo + publicresults",
-      "configurations": [
-        "🟩 WS large demo owlcms memory tandem",
-        "🟠 tandem publicresults"
+        "🟨 owlcms → tracker",
+        "🔳 tracker learning"
       ]
     }
   ]
