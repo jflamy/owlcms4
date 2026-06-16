@@ -14,6 +14,7 @@ import java.util.concurrent.CyclicBarrier;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
+import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 
@@ -26,8 +27,8 @@ import com.microsoft.playwright.Playwright;
  * @author Jean-François Lamy
  */
 public class RunResults {
-    private static final String DEFAULT_URL = "http://192.168.1.174:8096/start-order?fop=A";
-    private static final int DEFAULT_NB_REMOTE_USERS = 30;
+    private static final String DEFAULT_URL = "https://owlcmstracker.fly.dev/lifting-order?fop=WHITE";
+    private static final int DEFAULT_NB_REMOTE_USERS = 50;
     private static final int POLLING_DELAY_SECONDS = 0; // set to 0 to disable polling
     private static final int POLLING_DELAY_MILLISECONDS = POLLING_DELAY_SECONDS*1000;
     private static Map<BrowserContext,Page> activePages = new HashMap<>();
@@ -58,7 +59,13 @@ public class RunResults {
         try (Playwright playwright = Playwright.create()) {
             
             // create a single browser; we will create independent sessions.
-            Browser browser = playwright.chromium().launch();
+            BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions();
+            String browserChannel = System.getenv("PLAYWRIGHT_BROWSER_CHANNEL");
+            if (browserChannel != null && !browserChannel.isBlank()) {
+                launchOptions.setChannel(browserChannel.trim());
+                System.out.println("Using Playwright browser channel: " + browserChannel.trim());
+            }
+            Browser browser = playwright.chromium().launch(launchOptions);
             for (int i = 0; i < nbRemoteUsers; i++) {
                 // create two tabs in each incognito session, switch to the publicresults one
                 // this will allow closing the tab, or switching to the other one.
