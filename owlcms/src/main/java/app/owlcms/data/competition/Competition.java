@@ -1419,13 +1419,6 @@ public class Competition {
 		this.migrated = migrated;
 	}
 
-	private void assertNotMigrated() {
-		if (this.migrated) {
-			throw new UnsupportedOperationException(
-			        "Competition championship values are migrated; edit the championship template instead of Competition");
-		}
-	}
-
 	/**
 	 * One-time migration: validate that the championship template faithfully represents the
 	 * legacy Competition championship/medal/team values, then flip {@code migrated} to true and
@@ -1972,12 +1965,19 @@ public class Competition {
 	}
 
 	public void setMaxPerCategory(Integer maxPerCategory) {
-		assertNotMigrated();
+		if (this.migrated) {
+			// Legacy field is dead: the championship template owns this value. Ignore writes
+			// (e.g. Jackson re-import of an exported migrated competition).
+			return;
+		}
 		this.maxPerCategory = maxPerCategory;
 	}
 
 	public void setMaxTeamSize(Integer maxTeamSize) {
-		assertNotMigrated();
+		if (this.migrated) {
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
+		}
 		this.maxTeamSize = maxTeamSize;
 	}
 
@@ -1990,12 +1990,18 @@ public class Competition {
 	}
 
 	public void setMensBestN(Integer mensTeamSize) {
-		assertNotMigrated();
+		if (this.migrated) {
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
+		}
 		this.mensBestN = mensTeamSize;
 	}
 
 	public void setMixedBestN(Integer mixedTeamSize) {
-		assertNotMigrated();
+		if (this.migrated) {
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
+		}
 		this.mixedBestN = mixedTeamSize;
 	}
 
@@ -2037,7 +2043,10 @@ public class Competition {
 	}
 
 	public void setScoringSystem(Ranking scoringSystem) {
-		assertNotMigrated();
+		if (this.migrated) {
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
+		}
 		this.scoringSystem = scoringSystem;
 	}
 
@@ -2055,11 +2064,8 @@ public class Competition {
 
 	public void setSinclair(boolean b) {
 		if (this.migrated) {
-			// Tolerate idempotent re-binding (e.g. Jackson re-import); throw only on a real change.
-			if (b == isSinclair()) {
-				return;
-			}
-			assertNotMigrated();
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
 		}
 		this.sinclairMeet = b;
 	}
@@ -2070,11 +2076,8 @@ public class Competition {
 
 	public void setSnatchCJTotalMedals(boolean snatchCJTotalMedals) {
 		if (this.migrated) {
-			// Tolerate idempotent re-binding (e.g. Jackson re-import); throw only on a real change.
-			if (snatchCJTotalMedals == isSnatchCJTotalMedals()) {
-				return;
-			}
-			assertNotMigrated();
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
 		}
 		this.snatchCJTotalMedals = snatchCJTotalMedals;
 	}
@@ -2121,7 +2124,10 @@ public class Competition {
 	}
 
 	public void setWomensBestN(Integer womensTeamSize) {
-		assertNotMigrated();
+		if (this.migrated) {
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
+		}
 		this.womensBestN = womensTeamSize;
 	}
 
@@ -2160,17 +2166,26 @@ public class Competition {
 	}
 
 	public void setTeamPoints1st(Integer teamPoints1st) {
-		assertNotMigrated();
+		if (this.migrated) {
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
+		}
 		this.teamPoints1st = teamPoints1st;
 	}
 
 	public void setTeamPoints2nd(Integer teamPoints2nd) {
-		assertNotMigrated();
+		if (this.migrated) {
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
+		}
 		this.teamPoints2nd = teamPoints2nd;
 	}
 
 	public void setTeamPoints3rd(Integer teamPoints3rd) {
-		assertNotMigrated();
+		if (this.migrated) {
+			// Legacy field is dead: the championship template owns this value. Ignore writes.
+			return;
+		}
 		this.teamPoints3rd = teamPoints3rd;
 	}
 
