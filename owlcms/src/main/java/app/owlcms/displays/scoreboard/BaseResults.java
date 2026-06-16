@@ -7,7 +7,6 @@
 package app.owlcms.displays.scoreboard;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -710,25 +709,15 @@ public class BaseResults extends LitTemplate
 			this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
 			boolean scoreMedalChampionship = Championship.anyScoreMedalChampionship(fop.getActiveChampionships());
 
-			if (scoreMedalChampionship) {
-				Ranking scoringSystem = curAthlete.getAgeGroup() != null
-				        ? curAthlete.getAgeGroup().getChampionship().getScoringSystem()
-				        : Championship.of(null).getScoringSystem();
-				List<Athlete> sortedAthletes = new ArrayList<>(
-				        Competition.getCurrent().getGlobalRanking(curAthlete.getGender(), scoringSystem));
-				this.displayOrder = AthleteSorter.topScore(sortedAthletes, 3, scoringSystem).topAthletes;
-				this.getElement().setProperty("categoryName", Ranking.getScoringTitle(scoringSystem));
+			List<Athlete> leaders = fop.getLeaders();
+			// 0 total is not shown -- cannot be a leader from a prior group
+			// (when medalistsAsLeaders is false, we show prior group leaders)
+			if (!Config.getCurrent().featureSwitch("medalistsAsLeaders") && leaders != null) {
+				this.displayOrder = leaders.stream()
+					.filter(a -> a.getTotal() > 0)
+					.toList();
 			} else {
-				List<Athlete> leaders = fop.getLeaders();
-				// 0 total is not shown -- cannot be a leader from a prior group
-				// (when medalistsAsLeaders is false, we show prior group leaders)
-				if (!Config.getCurrent().featureSwitch("medalistsAsLeaders") && leaders != null) {
-					this.displayOrder = leaders.stream()
-						.filter(a -> a.getTotal() > 0)
-						.toList();
-				} else {
-					this.displayOrder = leaders;
-				}
+				this.displayOrder = leaders;
 			}
 			if ((!done || scoreMedalChampionship) && this.displayOrder != null
 			        && this.displayOrder.size() > 0) {

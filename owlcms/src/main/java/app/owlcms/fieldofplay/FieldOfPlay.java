@@ -2537,6 +2537,9 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			setLeaders(null);
 		}
+		if (getLeaders() == null) {
+			return;
+		}
 		List<Athlete> nLeaders = new ArrayList<Athlete>(getLeaders().size());
 		for (Athlete a : getLeaders()) {
 			// the leaders come from the medals computation. This does not reflect the last requested weight changes
@@ -2671,6 +2674,9 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	public void previousGroupScoreLeaders(List<Athlete> medalists) {
+		if (medalists == null) {
+			medalists = Collections.emptyList();
+		}
 		medalists = medalists.stream().filter(m -> {
 			Group group2 = this.getGroup();
 			Group group3 = m.getGroup();
@@ -2678,6 +2684,7 @@ public class FieldOfPlay implements IUnregister {
 		}).toList();
 		List<Athlete> scoreMedalists = medalists.stream()
 				.filter(a -> hasStarted(a))
+				.filter(a -> a.getCategoryScoreRank() > 0)
 		        .sorted((a, b) -> ObjectUtils.compare(a.getCategoryScoreRank(), b.getCategoryScoreRank()))
 		        .limit(3)
 		        .collect(Collectors.toList());
