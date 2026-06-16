@@ -10,6 +10,16 @@
 
 **New in Release 67**
 
+67.0.0-beta17: score-based medaling categories as eligibility categories were improperly handled, causing heavy processing and wrong column selection in leader sections.
+
+67.0.0-beta17: fixed JSON export round-trip after a database has been migrated post beta13
+
+67.0.0-beta17: styling adjustments for very wide category names
+
+67.0.0-beta17: confirmation dialogs for resetting a championship to defaults or deleting a championship.
+
+67.0.0-beta17: fix live changes to event forwarding destinations
+
 67.0.0-beta16: Refactored authentication for simultaneous tracker and publicresults usage, fixed exponential backoff on authentication failure.
 
 67.0.0-beta15: Symmetrical guards to prevent simultaneously active tracker and publicresults URLs from interfering with each other
