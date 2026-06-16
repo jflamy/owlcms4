@@ -20,10 +20,13 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
+        // default is to ignore event forwarding
+        // uncomment the blank videodata and remote to use what is in the database
         "OWLCMS_VIDEODATA": "",
-        // "OWLCMS_VIDEODATAKEY": "amalauxpattes",
         "OWLCMS_REMOTE": "",
-        // "OWLCMS_UPDATEKEY": "mapetitevache"
+
+        //"OWLCMS_VIDEODATAKEY": "amalauxpattes",
+        //"OWLCMS_UPDATEKEY": "mapetitevache"
       }
     },
     {
@@ -290,7 +293,17 @@
       "name": "♦️ Playwright Loadtesting",
       "request": "launch",
       "mainClass": "playwright.RunResults",
-      "projectName": "playwright"
+      "projectName": "playwright",
+      "args": [
+        "https://owlcmstracker.fly.dev/lifting-order?fop=WHITE",
+        "100"
+      ],
+      "vmArgs": "",
+      "console": "integratedTerminal",
+      "env": {
+        "PLAYWRIGHT_BROWSER_CHANNEL": "chrome",
+        "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
+      }
     }
   ],
   "compounds": [

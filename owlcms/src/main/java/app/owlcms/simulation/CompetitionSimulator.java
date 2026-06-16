@@ -8,9 +8,12 @@ package app.owlcms.simulation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -73,13 +76,26 @@ public class CompetitionSimulator {
 
 	private Random r = new Random(0);
 	private final boolean skipDone;
+	private final String skipBefore;
+	private final Set<String> platformFilter;
+	private static final NaturalOrderComparator<String> groupNameComparator = new NaturalOrderComparator<>();
 
 	public CompetitionSimulator() {
 		this(false);
 	}
 
 	public CompetitionSimulator(boolean skipDone) {
+		this(skipDone, null);
+	}
+
+	public CompetitionSimulator(boolean skipDone, String skipBefore) {
+		this(skipDone, skipBefore, null);
+	}
+
+	public CompetitionSimulator(boolean skipDone, String skipBefore, String platforms) {
 		this.skipDone = skipDone;
+		this.skipBefore = normalizeSkipBefore(skipBefore);
+		this.platformFilter = parsePlatformFilter(platforms);
 	}
 
 	public String runSimulation() throws InterruptedException {
@@ -92,17 +108,30 @@ public class CompetitionSimulator {
 
 		Map<Platform, List<Group>> groupsByPlatform = new TreeMap<>();
 		List<Platform> ps = PlatformRepository.findAll().stream().collect(Collectors.toList());
+		List<Platform> simulationPlatforms = ps;
+		if (!this.platformFilter.isEmpty()) {
+			simulationPlatforms = ps.stream().filter(p -> platformMatchesFilter(p.getName(), this.platformFilter))
+			        .collect(Collectors.toList());
+		}
 		List<Group> gs = GroupRepository.findAll().stream().sorted(new NaturalOrderComparator<>())
 		        .sorted((a, b) -> {
 			        LocalDateTime ta = a.getCompetitionTime();
 			        LocalDateTime tb = b.getCompetitionTime();
 			        return ObjectUtils.compare(ta, tb, true);
 		        }).collect(Collectors.toList());
+		if (this.skipBefore != null) {
+			gs = gs.stream().filter(g -> !isBeforeSkipBoundary(g.getName(), this.skipBefore))
+			        .collect(Collectors.toList());
+		}
+		if (!this.platformFilter.isEmpty()) {
+			gs = gs.stream().filter(g -> platformMatchesFilter(g.getPlatform(), this.platformFilter))
+			        .collect(Collectors.toList());
+		}
 
 		if (this.skipDone) {
 			gs = gs.stream().filter(g -> !g.isDone()).collect(Collectors.toList());
 		} else {
-			clearLifts();
+			clearLifts(gs);
 		}
 
 		int i = 0;
@@ -154,9 +183,9 @@ public class CompetitionSimulator {
 			s.stop();
 		}
 		registeredSimulators.clear();
-		resetFopsForSimulation(ps);
+		resetFopsForSimulation(simulationPlatforms);
 
-		for (Platform p : ps) {
+		for (Platform p : simulationPlatforms) {
 			if (!isRunning()) {
 				return "simulation stopped.";
 			}
@@ -194,16 +223,68 @@ public class CompetitionSimulator {
 		}
 	}
 
-	private void clearLifts() {
+	private void clearLifts(List<Group> groups) {
 		JPAService.runInTransaction(em -> {
-			List<Athlete> athletes = AthleteRepository.doFindAll(em);
-			for (Athlete a : athletes) {
-				a.clearLifts();
-				em.merge(a);
+			for (Group g : groups) {
+				List<Athlete> athletes = AthleteRepository.doFindAllByGroupAndWeighIn(em, g, null, null);
+				for (Athlete a : athletes) {
+					a.clearLifts();
+					em.merge(a);
+				}
 			}
 			em.flush();
 			return null;
 		});
+	}
+
+	static boolean isBeforeSkipBoundary(String groupName, String skipBefore) {
+		String boundary = normalizeSkipBefore(skipBefore);
+		if (groupName == null || boundary == null) {
+			return false;
+		}
+
+		int compare;
+		if (Character.isDigit(boundary.charAt(0))) {
+			compare = groupNameComparator.compare(groupName, boundary);
+		} else {
+			compare = groupName.compareToIgnoreCase(boundary);
+		}
+		return compare < 0;
+	}
+
+	private static String normalizeSkipBefore(String skipBefore) {
+		if (skipBefore == null || skipBefore.isBlank()) {
+			return null;
+		}
+		return skipBefore.trim();
+	}
+
+	static Set<String> parsePlatformFilter(String platforms) {
+		Set<String> parsed = new HashSet<>();
+		if (platforms == null || platforms.isBlank()) {
+			return parsed;
+		}
+		for (String platform : platforms.split(",")) {
+			String normalized = platform.trim().toLowerCase(Locale.ROOT);
+			if (!normalized.isEmpty()) {
+				parsed.add(normalized);
+			}
+		}
+		return parsed;
+	}
+
+	private static boolean platformMatchesFilter(Platform platform, Set<String> platformFilter) {
+		return platform != null && platformMatchesFilter(platform.getName(), platformFilter);
+	}
+
+	static boolean platformMatchesFilter(String platformName, Set<String> platformFilter) {
+		if (platformFilter == null || platformFilter.isEmpty()) {
+			return true;
+		}
+		if (platformName == null) {
+			return false;
+		}
+		return platformFilter.contains(platformName.trim().toLowerCase(Locale.ROOT));
 	}
 
 	List<Athlete> weighIn(Group g) {

@@ -113,7 +113,9 @@ public class SimulationServlet extends HttpServlet {
 		if ("start".equalsIgnoreCase(action)) {
 			boolean skipDone = "on".equalsIgnoreCase(request.getParameter("skipDone"))
 			        || "true".equalsIgnoreCase(request.getParameter("skipDone"));
-			message = startSimulation(skipDone);
+			String skipBefore = request.getParameter("skipBefore");
+			String platforms = request.getParameter("platforms");
+			message = startSimulation(skipDone, skipBefore, platforms);
 		} else if ("stop".equalsIgnoreCase(action)) {
 			message = stopSimulation();
 		}
@@ -127,13 +129,13 @@ public class SimulationServlet extends HttpServlet {
 		writePage(response, message);
 	}
 
-	private static synchronized String startSimulation(boolean skipDone) {
+	private static synchronized String startSimulation(boolean skipDone, String skipBefore, String platforms) {
 		if (CompetitionSimulator.isRunning()) {
 			return "Simulation is already running.";
 		}
 		simulationThread = new Thread(() -> {
 			try {
-				new CompetitionSimulator(skipDone).runSimulation();
+				new CompetitionSimulator(skipDone, skipBefore, platforms).runSimulation();
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				logger./**/warn("simulation thread interrupted");
@@ -143,7 +145,27 @@ public class SimulationServlet extends HttpServlet {
 		}, "competition-simulation");
 		simulationThread.setDaemon(true);
 		simulationThread.start();
-		return skipDone ? "Simulation start requested (skip done)." : "Simulation start requested.";
+		boolean hasSkipBefore = skipBefore != null && !skipBefore.isBlank();
+		boolean hasPlatforms = platforms != null && !platforms.isBlank();
+		if (!skipDone && !hasSkipBefore && !hasPlatforms) {
+			return "Simulation start requested.";
+		}
+
+		StringBuilder options = new StringBuilder("Simulation start requested (");
+		String separator = "";
+		if (skipDone) {
+			options.append("skip done");
+			separator = ", ";
+		}
+		if (hasSkipBefore) {
+			options.append(separator).append("skip before boundary");
+			separator = ", ";
+		}
+		if (hasPlatforms) {
+			options.append(separator).append("platform filter");
+		}
+		options.append(").");
+		return options.toString();
 	}
 
 	private static synchronized String stopSimulation() {
@@ -200,6 +222,8 @@ public class SimulationServlet extends HttpServlet {
 		}
 		pw.println("<form method='post' action=''>");
 		pw.println("<p><label><input type='checkbox' name='skipDone' value='on'> Skip sessions already done (defer weigh-in, keep existing results)</label></p>");
+		pw.println("<p><label>Skip sessions before <input type='text' name='skipBefore'></label></p>");
+		pw.println("<p><label>Only platforms <input type='text' name='platforms' placeholder='blue, red'></label></p>");
 		pw.println("<button type='submit' name='action' value='start'>Start</button>");
 		pw.println("<button type='submit' name='action' value='stop'>Stop</button>");
 		pw.println("</form>");
