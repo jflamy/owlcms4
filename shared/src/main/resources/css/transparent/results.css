@@ -181,14 +181,14 @@ table.results.sinclair.nosinclairRank {
 :host([ranking-order]) table.results {
     --nameWidth: 1fr;
     --clubWidth: 30ch;
-    --categoryWidth: 11ch;
+    --categoryWidth: minmax(12ch, max-content);
     --birthWidth: 10ch;
 }
 
 :host .wrapper.Results table.results {
     --nameWidth: 1fr;
     --clubWidth: 30ch;
-    --categoryWidth: 11ch;
+    --categoryWidth: minmax(12ch, max-content);
     --birthWidth: 10ch;
 }
 

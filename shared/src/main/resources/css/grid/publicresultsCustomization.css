@@ -19,7 +19,7 @@
     --spacerWidth: 1vh;
 
     /* normally these do not need to change */
-    --categoryWidth: 11ch;
+    --categoryWidth: minmax(12ch, max-content);
     --categoryVisibility: visible;
 
     --liftResultWidth: 6ch;

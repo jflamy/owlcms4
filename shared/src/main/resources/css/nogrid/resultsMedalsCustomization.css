@@ -20,7 +20,7 @@
     --spacerWidth: 1vh;
 
     /* normally these do not need to change */
-    --categoryWidth: 10ch;
+    --categoryWidth: minmax(12ch, max-content);
     --liftResultWidth: 6ch;
 
     /* to show these columns 
