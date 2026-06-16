@@ -62,6 +62,7 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.monitors.ForwarderSetup;
+import app.owlcms.monitors.ForwardingDestination;
 import app.owlcms.monitors.websocket.WebSocketEventSender;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
@@ -83,6 +84,7 @@ public class ConfigEditingFormFactory
 	@SuppressWarnings("unused")
 	private ConfigContent origin;
 	private TabSheet tabSheet;
+	private List<ForwardingDestination> forwardingDestinationsBeforeEdit;
 	private static final String TAB_INDEX_KEY = "config.selectedTabIndex";
 
 	ConfigEditingFormFactory(Class<Config> domainType, ConfigContent origin) {
@@ -129,6 +131,11 @@ public class ConfigEditingFormFactory
 	        ComponentEventListener<ClickEvent<Button>> cancelButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> updateButtonClickListener,
 	        ComponentEventListener<ClickEvent<Button>> deleteButtonClickListener, Button... buttons) {
+
+		// Capture the forwarding destinations before the binder writes the edited values into the
+		// bean. The grid edits Config.getCurrent() in place, so once the binder runs there is no
+		// longer an unmodified copy to compare against.
+		this.forwardingDestinationsBeforeEdit = ForwardingDestination.fromConfig(config);
 
 		this.binder = buildBinder(operation, config);
 
@@ -238,7 +245,7 @@ public class ConfigEditingFormFactory
 			
 			Config saved = Config.setCurrent(config);
 			
-			ForwarderSetup.reinitializeIfDestinationsChanged(oldConfig, config);
+			ForwarderSetup.reinitializeIfDestinationsChanged(this.forwardingDestinationsBeforeEdit, config);
 			
 			// If childrenEquipment toggle was just added, update all platforms with children equipment defaults
 			if (childrenEquipmentAdded) {
