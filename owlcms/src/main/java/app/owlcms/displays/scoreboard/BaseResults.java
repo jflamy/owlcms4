@@ -707,7 +707,9 @@ public class BaseResults extends LitTemplate
 		}
 		if (curAthlete.getGender() != null) {
 			this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
-			boolean scoreMedalChampionship = Championship.anyScoreMedalChampionship(fop.getActiveChampionships());
+			// Bottom-leaders visibility follows the current athlete's registration category, not every
+			// participation in the field of play.
+			boolean scoreMedalChampionship = curAthlete.getComputedScoringSystem() != Ranking.TOTAL;
 
 			List<Athlete> leaders = fop.getLeaders();
 			// 0 total is not shown -- cannot be a leader from a prior group
@@ -1208,14 +1210,21 @@ public class BaseResults extends LitTemplate
 
 		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 		this.getElement().setProperty("logoSrc", getLogoSrc());
-		boolean anyMultiMedal = Championship.anyMultiMedal(fop.getActiveChampionships());
-		boolean scoreMedalChampionship = Championship.anyScoreMedalChampionship(fop.getActiveChampionships());
+		// Rank columns are derived from the registration categories actually displayed, not from the
+		// participation-derived active championships. A stray participation in a score-medal championship
+		// must not hide the Total rank for total-medal registration categories.
+		List<Athlete> registrationAthletes = this.displayOrder != null ? this.displayOrder : Collections.emptyList();
+		boolean hasScoreMedals = registrationHasScoreMedals(registrationAthletes);
+		boolean hasTotalMedals = registrationHasTotalMedals(registrationAthletes);
+		boolean hasMultiMedals = registrationHasMultiMedals(registrationAthletes);
+		// Total rank is withdrawn only when every displayed registration category medals by score.
+		boolean scoreOnly = hasScoreMedals && !hasTotalMedals;
 
 		getElement().setProperty("showTotal", true);
 		getElement().setProperty("showBest", true); // overridden by media queries, not a variable
 		getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch("displayBodyWeight"));
-		getElement().setProperty("showLiftRanks", anyMultiMedal && !scoreMedalChampionship);
-		getElement().setProperty("showTotalRank", !scoreMedalChampionship);
+		getElement().setProperty("showLiftRanks", hasMultiMedals && !scoreOnly);
+		getElement().setProperty("showTotalRank", !scoreOnly);
 		getElement().setProperty("video", this.video);
 		getElement().setProperty("currentAttempt", this.currentAttempt);
 		getElement().setProperty("showMedals", this.showMedals);
@@ -1234,23 +1243,20 @@ public class BaseResults extends LitTemplate
 			setWideTeamNames(false);
 			this.getElement().setProperty("competitionName", Competition.getCurrent().getCompetitionName());
 
-			List<Athlete> athletes = fop.getDisplayOrder();
+			List<Athlete> athletes = getOrder(fop);
 			if (athletes != null && athletes.size() > 0) {
-				boolean any = athletes.stream()
-				        .map(a -> a.getAgeGroup())
-				        .filter(ageGroup -> ageGroup != null)
-				        .map(agegroup -> agegroup.getComputedScoringSystem())
-				        .anyMatch(s -> s != Ranking.TOTAL);
-				scoring[0] = any;
+				scoring[0] = registrationHasScoreMedals(athletes);
 			}
 		}
 		setTranslationMap();
 
-		boolean scoreMedalChampionship = fop != null && Championship.anyScoreMedalChampionship(fop.getActiveChampionships());
-		boolean showScore = scoring[0] || Competition.getCurrent().isDisplayScores() || scoreMedalChampionship;
+		// Column visibility is based on the registration categories actually displayed, not on every
+		// participation in the field of play. A secondary participation in a score-medal championship
+		// must not turn on the scalar Score/Rank columns for a total-medal registration category.
+		boolean showScore = scoring[0] || Competition.getCurrent().isDisplayScores();
 		this.getElement().setProperty("showSinclair", showScore);
 
-		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks() || scoreMedalChampionship;
+		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks();
 		boolean noBestScoreRank = Config.getCurrent().featureSwitch("noBestScoreRank")
 		        || Config.getCurrent().featureSwitch("noSinclairRank");
 		if (noBestScoreRank) {
@@ -1261,6 +1267,39 @@ public class BaseResults extends LitTemplate
 		this.getElement().setProperty("showSinclairRank", showScoreRank);
 
 		this.displayOrder = ImmutableList.of();
+	}
+
+	/**
+	 * Whether any displayed registration category awards medals by score (non-TOTAL scoring).
+	 *
+	 * Registration-category based so that a secondary participation in a score-medal championship does
+	 * not affect the columns shown for a total-medal registration category.
+	 */
+	protected boolean registrationHasScoreMedals(List<Athlete> athletes) {
+		return athletes.stream()
+		        .map(Athlete::getComputedScoringSystem)
+		        .anyMatch(s -> s != Ranking.TOTAL);
+	}
+
+	/**
+	 * Whether any displayed registration category awards medals by total.
+	 */
+	protected boolean registrationHasTotalMedals(List<Athlete> athletes) {
+		return athletes.stream()
+		        .map(Athlete::getComputedScoringSystem)
+		        .anyMatch(s -> s == Ranking.TOTAL);
+	}
+
+	/**
+	 * Whether any displayed registration category awards snatch/clean&jerk/total medals.
+	 */
+	protected boolean registrationHasMultiMedals(List<Athlete> athletes) {
+		return athletes.stream()
+		        .map(Athlete::getAgeGroup)
+		        .filter(ageGroup -> ageGroup != null)
+		        .map(AgeGroup::getChampionship)
+		        .filter(championship -> championship != null)
+		        .anyMatch(Championship::isSnatchCJTotalMedals);
 	}
 
 	protected void setTranslationMap() {
