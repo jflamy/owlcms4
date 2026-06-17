@@ -282,15 +282,9 @@ public class ConfigEditingFormFactory
 	private void applyChildrenEquipmentToAllPlatforms() {
 		logger.info("childrenEquipment toggle added - applying children's equipment defaults to all platforms");
 		for (Platform platform : PlatformRepository.findAll()) {
-			// Enable light bars
-			platform.setNbB_5(1);
-			platform.setNbB_10(1);
-			platform.setNbB_15(1);
-			platform.setNbB_20(1);
-			// Enable extra large plates for kids
-			platform.setNbL_2_5(1);
-			platform.setNbL_5(1);
-			PlatformRepository.save(platform);
+			if (platform.applyChildrenEquipment()) {
+				PlatformRepository.save(platform);
+			}
 		}
 	}
 

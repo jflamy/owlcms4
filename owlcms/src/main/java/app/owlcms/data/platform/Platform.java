@@ -234,18 +234,52 @@ public class Platform implements Serializable, Comparable<Platform> {
 		this.setNbL_20(1);
 		this.setNbL_25(3);
 
-		// Check if childrenEquipment feature is enabled for initial defaults
-		boolean childrenEquipment = Config.getCurrent().featureSwitch("childrenEquipment");
-		
-		// large plates for kid competitions (enabled if childrenEquipment)
-		this.setNbL_2_5(childrenEquipment ? 1 : 0);
-		this.setNbL_5(childrenEquipment ? 1 : 0);
-
-		// available bars (5kg, 10kg enabled if childrenEquipment)
-		this.setNbB_5(childrenEquipment ? 1 : 0);
-		this.setNbB_10(childrenEquipment ? 1 : 0);
+		// regulation bars (15kg, 20kg always available)
 		this.setNbB_15(1);
 		this.setNbB_20(1);
+
+		// children's equipment (large 2.5/5 plates, 5/10 light bars): 
+		// set them to be available by default when the
+		// childrenEquipment toggle is set, off otherwise
+		if (Config.getCurrent().featureSwitch("childrenEquipment")) {
+			applyChildrenEquipment();
+		} else {
+			this.setNbL_2_5(0);
+			this.setNbL_5(0);
+			this.setNbB_5(0);
+			this.setNbB_10(0);
+		}
+	}
+
+	/**
+	 * When the {@code childrenEquipment} feature switch is on, make sure this platform carries the
+	 * children's equipment (large 2.5/5 kg plates and the 5/10 kg light bars). The caller is
+	 * responsible for persisting the platform when this method returns {@code true}.
+	 *
+	 * @return {@code true} if the equipment was changed and the platform should be saved,
+	 *         {@code false} if the toggle is off or the platform is already equipped
+	 */
+	public boolean applyChildrenEquipment() {
+		if (!Config.getCurrent().featureSwitch("childrenEquipment")) {
+			return false;
+		}
+		// only change if the platform is not already equipped for children, to avoid
+		// redundant database writes
+		boolean alreadyEquipped = getNbB_5() > 0 && getNbB_10() > 0
+		        && getNbB_15() > 0 && getNbB_20() > 0
+		        && getNbL_2_5() > 0 && getNbL_5() > 0;
+		if (alreadyEquipped) {
+			return false;
+		}
+		// light bars
+		setNbB_5(1);
+		setNbB_10(1);
+		setNbB_15(1);
+		setNbB_20(1);
+		// extra large plates for kids
+		setNbL_2_5(1);
+		setNbL_5(1);
+		return true;
 	}
 
 	@Override

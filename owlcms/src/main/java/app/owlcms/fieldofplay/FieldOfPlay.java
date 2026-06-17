@@ -67,7 +67,6 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
-import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordFilter;
@@ -1238,9 +1237,9 @@ public class FieldOfPlay implements IUnregister {
 		resetDecisions();
 
 		// When the childrenEquipment feature switch is on, the platform must carry the
-		// children's plates/bars (large 2.5/5, light 5/10 bars). The switch is global, so
-		// each platform is brought back in line with it whenever a session is loaded.
-		applyChildrenEquipmentIfNeeded();
+		// children's plates/bars (large 2.5/5, light 5/10 bars). Enforcement is done eagerly
+		// via ConfigEditingFormFactory when the toggle is added (remove+re-add trick), using
+		// Platform.applyChildrenEquipment(). No per-session enforcement is done here.
 
 		if (group != null) {
 			// debounce spurious requests due to misconfigured client that would trigger
@@ -1679,44 +1678,14 @@ public class FieldOfPlay implements IUnregister {
 		changePlatformEquipment(this.curAthlete, this.curWeight);
 	}
 
-	/**
-	 * When the {@code childrenEquipment} feature switch is on, make sure this platform carries the
-	 * children's equipment (large 2.5/5 kg plates and the 5/10 kg light bars). The switch is global,
-	 * so the platform is brought back in line with it every time a session is loaded. To remove the
-	 * children's equipment for a single platform, turn the feature switch off, save, then uncheck the
-	 * boxes for that platform; platforms previously configured for children are not affected.
-	 */
-	private void applyChildrenEquipmentIfNeeded() {
-		Platform platform = getPlatform();
-		if (platform == null || !Config.getCurrent().featureSwitch("childrenEquipment")) {
-			return;
-		}
-		// only write if the platform is not already equipped for children, to avoid
-		// redundant database writes (this runs on every session load)
-		boolean alreadyEquipped = platform.getNbB_5() > 0 && platform.getNbB_10() > 0
-		        && platform.getNbB_15() > 0 && platform.getNbB_20() > 0
-		        && platform.getNbL_2_5() > 0 && platform.getNbL_5() > 0;
-		if (alreadyEquipped) {
-			return;
-		}
-		// light bars
-		platform.setNbB_5(1);
-		platform.setNbB_10(1);
-		platform.setNbB_15(1);
-		platform.setNbB_20(1);
-		// extra large plates for kids
-		platform.setNbL_2_5(1);
-		platform.setNbL_5(1);
-		PlatformRepository.save(platform, false);
-	}
-
 	private void changePlatformEquipment(Athlete a, Integer newWeight) {
 		// skip during unit tests or results editing
 		if (getPlatform() == null || a == null) {
 			return;
 		}
 		boolean use15Bar = false;
-		// Note: childrenEquipment feature switch resets equipment when a session is loaded (see loadGroup).
+		// Note: childrenEquipment is enforced eagerly when the toggle is added (see
+		// Platform.applyChildrenEquipment), not on session load.
 		// TC screen can still override settings during the session.
 		AgeGroup ageGroup = a.getAgeGroup();
 		boolean boysLightBarAllowed = Config.getCurrent().featureSwitch("lightBarU13")
