@@ -8,12 +8,16 @@ package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.Test;
 
+import app.owlcms.utils.Resource;
 import app.owlcms.utils.TemplateResourceUtils;
 
 public class TemplateResourceUtilsTest {
@@ -85,5 +89,149 @@ public class TemplateResourceUtilsTest {
 		assertTrue(TemplateResourceUtils.hasPaperSizeSuffix("Template_LETTER_es-SV.xlsx", "LETTER"));
 		assertTrue(TemplateResourceUtils.hasPaperSizeSuffix("Template_A4.xlsx", "A4"));
 		assertFalse(TemplateResourceUtils.hasPaperSizeSuffix("Template-es-SV.xlsx", "LETTER"));
+	}
+
+	// ---------------------------------------------------------------------------
+	// Helpers
+	// ---------------------------------------------------------------------------
+
+	/** Creates a Resource with a fake (non-existent) path — sufficient for filtering tests. */
+	private static Resource res(String fileName) {
+		return new Resource(fileName, Path.of("fake", fileName));
+	}
+
+	// ---------------------------------------------------------------------------
+	// filterTemplatesByPaperSize — display name assignment
+	// ---------------------------------------------------------------------------
+
+	/**
+	 * Single LETTER variant, LETTER locale: the paper-size suffix and extension are
+	 * stripped and set as the display name.
+	 */
+	@Test
+	public void singleLetterVariant_displayNameStripped() {
+		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
+		        List.of(res("NestedStartList-LETTER.xlsx")), null, Locale.US);
+		assertEquals(1, result.size());
+		assertEquals("NestedStartList", result.get(0).getDisplayName());
+		assertEquals("NestedStartList", result.get(0).toString());
+	}
+
+	/**
+	 * LETTER + A4 variants, LETTER preferred, nothing currently selected:
+	 * only the LETTER file survives; its display name is stripped.
+	 */
+	@Test
+	public void twoVariants_onlyPreferredKept_displayNameStripped() {
+		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
+		        List.of(res("NestedStartList-LETTER.xlsx"), res("NestedStartList-A4.xlsx")),
+		        null, Locale.US);
+		assertEquals(1, result.size());
+		assertEquals("NestedStartList-LETTER.xlsx", result.get(0).getFileName());
+		assertEquals("NestedStartList", result.get(0).getDisplayName());
+	}
+
+	/**
+	 * LETTER + A4 variants, LETTER preferred, A4 is the currently-selected template:
+	 * both survive (A4 kept as the saved template), both strip to the same key →
+	 * collision → both display the full file name.
+	 */
+	@Test
+	public void twoVariants_selectedNonPreferred_collision_fullNameShown() {
+		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
+		        List.of(res("NestedStartList-LETTER.xlsx"), res("NestedStartList-A4.xlsx")),
+		        "NestedStartList-A4.xlsx", Locale.US);
+		assertEquals(2, result.size());
+		for (Resource r : result) {
+			assertNull("collision: displayName must be null for " + r.getFileName(), r.getDisplayName());
+			assertTrue("collision: toString() must return full fileName",
+			        r.toString().equals(r.getFileName()));
+		}
+	}
+
+	/**
+	 * foo-LETTER.xlsx + foo.xlsx (no paper-size suffix), LETTER preferred, nothing selected:
+	 * both group under key "foo"; only foo-LETTER.xlsx matches the preferred size →
+	 * it survives alone → strip count == 1 → displayName = "foo".
+	 */
+	@Test
+	public void paperSizeAndNoSuffixVariant_onlyPaperSizeKept_displayNameStripped() {
+		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
+		        List.of(res("foo-LETTER.xlsx"), res("foo.xlsx")), null, Locale.US);
+		assertEquals(1, result.size());
+		assertEquals("foo-LETTER.xlsx", result.get(0).getFileName());
+		assertEquals("foo", result.get(0).getDisplayName());
+	}
+
+	/**
+	 * foo-LETTER.xlsx + foo.xlsx, LETTER preferred, foo.xlsx is the selected template:
+	 * both survive; both strip to "foo" → collision → full file names shown.
+	 */
+	@Test
+	public void paperSizeAndNoSuffixVariant_selectedNoSuffix_collision_fullNameShown() {
+		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
+		        List.of(res("foo-LETTER.xlsx"), res("foo.xlsx")), "foo.xlsx", Locale.US);
+		assertEquals(2, result.size());
+		for (Resource r : result) {
+			assertNull("collision: displayName must be null for " + r.getFileName(), r.getDisplayName());
+		}
+	}
+
+	/**
+	 * Two completely different templates, LETTER preferred:
+	 * each has its own key → no collision → both get stripped display names.
+	 */
+	@Test
+	public void twoDistinctTemplates_bothGetStrippedDisplayNames() {
+		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
+		        List.of(res("StartList-LETTER.xlsx"), res("Protocol-LETTER.xlsx")), null, Locale.US);
+		assertEquals(2, result.size());
+		assertEquals("StartList", result.stream().filter(r -> r.getFileName().startsWith("StartList"))
+		        .findFirst().get().getDisplayName());
+		assertEquals("Protocol", result.stream().filter(r -> r.getFileName().startsWith("Protocol"))
+		        .findFirst().get().getDisplayName());
+	}
+
+	/**
+	 * The locale-based API only returns "LETTER" (US/CA) or "A4" (everything else).
+	 * "None" is only reachable via the timezone-based path. So a non-US/CA locale
+	 * (e.g. es-MX) resolves to A4 and filters normally: only the A4 variant survives
+	 * and gets a stripped display name.
+	 */
+	@Test
+	public void nonUsLocale_resolvesToA4_filtersNormally() {
+		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
+		        List.of(res("foo-LETTER.xlsx"), res("foo-A4.xlsx")), null,
+		        Locale.forLanguageTag("es-MX"));
+		assertEquals(1, result.size());
+		assertEquals("foo-A4.xlsx", result.get(0).getFileName());
+		assertEquals("foo", result.get(0).getDisplayName());
+	}
+
+	/**
+	 * LOCALE_NO_PAPER_SIZE sentinel: filter returns all resources unchanged, no display names set.
+	 * This is the testable equivalent of Config.defaultPaperSize == "None".
+	 */
+	@Test
+	public void noPaperSizeSentinel_allResourcesReturnedUnfiltered() {
+		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
+		        List.of(res("foo-LETTER.xlsx"), res("foo-A4.xlsx")), null,
+		        TemplateResourceUtils.LOCALE_NO_PAPER_SIZE);
+		assertEquals(2, result.size());
+		for (Resource r : result) {
+			assertNull("None path: displayName must not be set", r.getDisplayName());
+		}
+	}
+
+	/**
+	 * LETTER variant with locale suffix, LETTER preferred:
+	 * the locale suffix is preserved in the display name, paper-size token stripped.
+	 */
+	@Test
+	public void localeSuffixPreservedInDisplayName() {
+		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
+		        List.of(res("Template_LETTER-es-SV.xlsx")), null, Locale.US);
+		assertEquals(1, result.size());
+		assertEquals("Template-es-SV", result.get(0).getDisplayName());
 	}
 }

@@ -20,6 +20,7 @@ import ch.qos.logback.classic.Logger;
 public class Resource implements Comparable<Resource> {
 
     String fileName;
+    String displayName;
     Path filePath;
 	Logger logger = (Logger) LoggerFactory.getLogger(Resource.class);
 
@@ -37,6 +38,14 @@ public class Resource implements Comparable<Resource> {
         return IOUtils.toByteArray(getStream());
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
     public String getFileName() {
         return fileName;
     }
@@ -51,7 +60,7 @@ public class Resource implements Comparable<Resource> {
 
     @Override
     public String toString() {
-        return getFileName();
+        return displayName != null ? displayName : getFileName();
     }
     
     public String normalizedName() {

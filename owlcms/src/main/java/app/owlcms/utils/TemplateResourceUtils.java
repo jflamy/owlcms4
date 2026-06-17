@@ -16,10 +16,16 @@ import java.util.Map;
 import java.util.Set;
 
 import app.owlcms.data.config.Config;
-import app.owlcms.init.OwlcmsSession;
 
 public final class TemplateResourceUtils {
 	private static final Set<String> LETTER_COUNTRIES = Set.of("CA", "US");
+
+	/**
+	 * Sentinel locale for "no enforced paper size" (equivalent to the Config value "None").
+	 * Pass this to {@link #filterTemplatesByPaperSize} to return all resources unfiltered.
+	 * Uses Interlingua ("ia"), a real IANA language tag that is never used as an actual locale.
+	 */
+	public static final Locale LOCALE_NO_PAPER_SIZE = Locale.forLanguageTag("ia");
 
 	/**
 	 * Maps IANA browser timezone IDs to a representative locale. Timezones for US
@@ -135,6 +141,10 @@ public final class TemplateResourceUtils {
 		if (configured != null && !configured.isBlank()) {
 			return configured;
 		}
+		// Sentinel: caller explicitly requests no paper-size enforcement
+		if (LOCALE_NO_PAPER_SIZE.equals(locale)) {
+			return "None";
+		}
 		String country = locale != null ? locale.getCountry() : null;
 		if (country != null && LETTER_COUNTRIES.contains(country.toUpperCase(Locale.ROOT))) {
 			return "LETTER";
@@ -185,10 +195,6 @@ public final class TemplateResourceUtils {
 		return "None";
 	}
 
-	public static List<Resource> filterTemplatesByPaperSize(List<Resource> resources, String selectedTemplateName) {
-		return filterTemplatesByPaperSize(resources, selectedTemplateName, resolveLocale());
-	}
-
 	public static List<Resource> filterTemplatesByPaperSize(List<Resource> resources, String selectedTemplateName,
 	        Locale locale) {
 		if (resources == null || resources.isEmpty()) {
@@ -234,31 +240,44 @@ public final class TemplateResourceUtils {
 			}
 		}
 
+		// Assign display names: strip paper-size suffix and extension.
+		// If two resources in the filtered list would produce the same stripped name
+		// (collision), leave both displayNames unset so the full file name is shown.
+		Map<String, Integer> strippedCount = new LinkedHashMap<>();
+		for (Resource r : filtered) {
+			String stripped = stripPaperSizeSuffix(r.getFileName());
+			strippedCount.merge(stripped, 1, Integer::sum);
+		}
+		for (Resource r : filtered) {
+			String stripped = stripPaperSizeSuffix(r.getFileName());
+			if (strippedCount.get(stripped) == 1) {
+				r.setDisplayName(stripped);
+			}
+			// collision → displayName stays null → toString() returns full fileName
+		}
+
 		return filtered;
 	}
 
-	private static Locale resolveLocale() {
-		try {
-			Locale sessionLocale = OwlcmsSession.getLocale();
-			if (sessionLocale != null) {
-				return sessionLocale;
-			}
-		} catch (RuntimeException ignored) {
-			// Fall back to the JVM default locale in non-UI/background contexts.
-		}
-		return Locale.getDefault();
-	}
-
+	/**
+	 * Returns a collision key / display name for a template file name by stripping:
+	 * <ol>
+	 *   <li>the file extension (so {@code foo.xlsx} and {@code foo.xls} produce the same key and collide), and</li>
+	 *   <li>the paper-size token ({@code -A4}, {@code -LETTER}, {@code -LEGAL}, case-insensitive) when it
+	 *       immediately precedes the end of the base name or an optional locale suffix
+	 *       (e.g. {@code -en}, {@code -en_US}).</li>
+	 * </ol>
+	 * Any trailing locale suffix is preserved in the returned value.
+	 */
 	public static String stripPaperSizeSuffix(String templateName) {
 		if (templateName == null) {
 			return null;
 		}
-		String withoutExtension = templateName;
+		// Step 1: strip extension — foo.xlsx and foo.xls both become "foo"
 		int extensionIndex = templateName.lastIndexOf('.');
-		if (extensionIndex > 0) {
-			withoutExtension = templateName.substring(0, extensionIndex);
-		}
-		return withoutExtension.replaceFirst("(?i)([-_])(A4|LETTER|LEGAL)(?=(?:[-_][A-Za-z]{2}(?:[-_][A-Za-z]{2})?)?(?:\\.[^.]+)?$)", "");
+		String withoutExtension = extensionIndex > 0 ? templateName.substring(0, extensionIndex) : templateName;
+		// Step 2: strip paper-size token; locale suffix (e.g. -en_US) is preserved via lookahead
+		return withoutExtension.replaceFirst("(?i)[-_](A4|LETTER|LEGAL)(?=(?:[-_][A-Za-z]{2}(?:[-_][A-Za-z]{2})?)?$)", "");
 	}
 
 	public static boolean hasPaperSizeSuffix(String templateName, String paperSize) {
