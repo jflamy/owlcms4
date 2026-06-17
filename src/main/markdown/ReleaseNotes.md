@@ -25,7 +25,9 @@
   - summary tables without the athlete details
   - total-only (when 3 medals are awarded but total only is used for team rankings)
 
-67.0.0: Default paper sizes can be set in the language and settings page, default based on person's location
+67.0.0: Default paper sizes can be set in the language and settings page
+  - the default is based on person's location inferred from the time zone.
+  - if stripping the paper size results in collisions with locally cleaned up names, both will be shown without stripping.s
 
 67.0.0: Display body weight and best athlete scores on scoreboard
   - Resurrected and updated old feature, enabled using feature toggles.
