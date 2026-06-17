@@ -1441,7 +1441,14 @@ public class Competition {
 		Ranking expectedBestAthlete = getLegacyCompetitionBestAthleteScoringSystemForMigration();
 		Ranking expectedMedal = isSnatchCJTotalMedals() || !isScoreMedalChampionship() ? Ranking.TOTAL : legacyScoring;
 		Integer expectedMaxPerCategory = this.maxPerCategory != null && this.maxPerCategory > 0 ? this.maxPerCategory : 2;
-		boolean sane = (expectedBestAthlete == null || template.getBestAthleteScoringSystem() == expectedBestAthlete)
+		// The legacy single scoringSystem field is only a deliberate best-athlete choice when it
+		// also drove the medals (a score-medal meet). When medals are by TOTAL, that field is just
+		// a leftover default and must not veto migration: the template's best-athlete value wins.
+		boolean legacyBestAthleteReliable = expectedMedal != Ranking.TOTAL;
+		boolean bestAthleteSane = !legacyBestAthleteReliable
+		        || expectedBestAthlete == null
+		        || template.getBestAthleteScoringSystem() == expectedBestAthlete;
+		boolean sane = bestAthleteSane
 		        && template.getScoringSystem() == expectedMedal
 		        && template.isSnatchCJTotalMedals() == this.snatchCJTotalMedals
 		        && Objects.equals(template.getTeamPoints1st(), this.teamPoints1st)
