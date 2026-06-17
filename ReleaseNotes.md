@@ -10,70 +10,36 @@
 
 **New in Release 67**
 
-67.0.0-beta17: score-based medaling categories as eligibility categories were improperly handled, causing heavy processing and wrong column selection in leader sections.
-
-67.0.0-beta17: fixed JSON export round-trip after a database has been migrated post beta13
-
-67.0.0-beta17: styling adjustments for very wide category names
-
-67.0.0-beta17: confirmation dialogs for resetting a championship to defaults or deleting a championship.
-
-67.0.0-beta17: fix live changes to event forwarding destinations
-
-67.0.0-beta16: Refactored authentication for simultaneous tracker and publicresults usage, fixed exponential backoff on authentication failure.
-
-67.0.0-beta15: Symmetrical guards to prevent simultaneously active tracker and publicresults URLs from interfering with each other
-
-67.0.0-beta14: Removed leftover code that would pollute publicresults when tracker was enabled.
-
-67.0.0-beta14: (publicresults) Fixed layout issues and transient white outline for record box
-
-67.0.0-beta13: Robustness of age group to championship migration
-
-67.0.0-beta12: Refactored migration to new championship data model
-
-67.0.0-beta12: Default paper sizes can be set in the language and settings page, default based on person's location
-
-67.0.0-beta12: Fixed conditions under which a simulation would not process a platform until a lift was done manually
-
-67.0.0-beta12: Improved sequencing of timer and mqtt events, better enforcement of timer running or not.
-
-67.0.0-beta11: Additional templates for team results, including total-only (when 3-medals are awarded but total only is needed) and summary variants (no athlete details)
-
-67.0.0-beta11: When filtering athletes, the first age group of a championship was selected by default.  Now only happens if there is a single age group.
-
-67.0.0-beta11: Competition book output now uses competition defaults and fallback translations correctly when no championship is selected.
-
-67.0.0-beta11: Best-athlete scoring are correct when no championship filter is selected, in UI and in Excel competition results
-
-67.0.0-beta11: Simulation can skip completed sessions and has been made more robust regarding start and stop.
-
-67.0.0-beta11: Records would not be shown until a display order was selected or an import was made.
-
-67.0.0-beta10: Resurrected settings to display body weight and best athlete scores on scoreboard (typically requested for Sinclair meets)
-  - Done using feature toggles. Use `displayBodyWeight,displayBestScore,noBestScoreRank` for such a case.
-
-67.0.0-beta09: Starting from a version 65 or older database (as in Update/Import) would fail when attempting to migrate to the new Championship template structure.
-
-67.0.0-beta08: SBDE Update athlete non-lifting data mode was not processing record eligibilities, and not reapplying categories and teams correctly.
-
-67.0.0-beta07: reworked the Records editing page
+67.0.0: Reworked the Records page
   - all features are on a single page
   - event-specific or historical prior-categories records can be marked as inactive for less clutter.
   - redid the documentation
 
-67.0.0-beta06: fixed records import
-
-67.0.0-beta04: Fixed timer display jitter on the attempt board (e.g. 1:12 to 1:11)
-
-67.0.0-beta03: Scoring Systems selected in championships are now computed as a matter of course.  Additional ones can be added on the competition rules page.
-
-67.0.0-beta02: Unify championship creation paths to correctly use the competition-level template defaults
-
-67.0.0-beta01: Championship handling improvements
+67.0.0: Championship handling improvements
   - All default rules for medals and awards can now be set from the Competition Rules page
   - Individual Championships can inherit the defaults or override them. They are defined on the Define Championships page.
   - Each Age Group is connected to a Championship.  If the Championship name is left empty when creating the age group, a Championship with the same name will be assumed.
   - Multiple age groups can refer to the same Championship. This is how Masters championships are defined.
+
+67.0.0: Additional templates for team results
+  - summary tables without the athlete details
+  - total-only (when 3 medals are awarded but total only is used for team rankings)
+
+67.0.0: Default paper sizes can be set in the language and settings page
+  - the default is based on person's location inferred from the time zone.
+  - if stripping the paper size results in collisions with locally cleaned up names, both will be shown without stripping.s
+
+67.0.0: Display body weight and best athlete scores on scoreboard
+  - Resurrected and updated old feature, enabled using feature toggles.
+  - Use `displayBodyWeight,displayBestScore,noBestScoreRank` for a "best Sinclair score" meet.
+
+67.0.0: Fixed the Competition Results competitonResults template
+  - When no championship is selected, and no best athlete scheme is forced by the dropdown, the best athlete score for each age group is used
+
+67.0.0: Fixed the SBDE "Update athlete non-lifting data" mode to process record federation eligibilies and eligibility categories correctly
+
+67.0.0: Fixed authentication and interference issues when attempting to feed publicresults and tracker at the same time, or multiple trackers
+
+67.0.0: Robustness: Improved sequencing of timer and mqtt events, better enforcement of timer running or not.
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
