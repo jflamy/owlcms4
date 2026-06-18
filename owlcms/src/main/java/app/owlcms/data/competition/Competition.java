@@ -201,6 +201,13 @@ public class Competition {
 		}
 	}
 
+	public static void syncCurrentAfterMigration(Competition migratedCompetition) {
+		if (competition != null && migratedCompetition != null
+		        && Objects.equals(competition.getId(), migratedCompetition.getId())) {
+			competition.copyMigrationStateFrom(migratedCompetition);
+		}
+	}
+
 	public static void splitByGender(List<Athlete> athletes, List<Athlete> sortedMen, List<Athlete> sortedWomen) {
 		for (Athlete l : athletes) {
 			Gender gender = l.getGender();
@@ -1392,13 +1399,32 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public Ranking getLegacyCompetitionScoringSystem() {
+		Ranking migratedBestAthlete = getMigratedCompetitionBestAthleteScoringSystem();
+		if (migratedBestAthlete != null) {
+			return migratedBestAthlete;
+		}
+		return getRawLegacyCompetitionScoringSystem();
+	}
+
+	private Ranking getRawLegacyCompetitionScoringSystem() {
 		return this.scoringSystem == null ? Ranking.BW_SINCLAIR : this.scoringSystem;
+	}
+
+	private Ranking getMigratedCompetitionBestAthleteScoringSystem() {
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			Ranking bestAthleteScoring = template != null ? template.getBestAthleteScoringSystem() : null;
+			if (RankingConfig.getAllScoringRankings().contains(bestAthleteScoring)) {
+				return bestAthleteScoring;
+			}
+		}
+		return null;
 	}
 
 	@Transient
 	@JsonIgnore
 	private Ranking getLegacyCompetitionBestAthleteScoringSystemForMigration() {
-		Ranking legacyScoring = getLegacyCompetitionScoringSystem();
+		Ranking legacyScoring = getRawLegacyCompetitionScoringSystem();
 		// Legacy Competition stored medal and best-athlete scoring in the same field.
 		// TOTAL is meaningful for medals but is not a valid best-athlete ranking.
 		return RankingConfig.getAllScoringRankings().contains(legacyScoring) ? legacyScoring : null;
@@ -1407,6 +1433,10 @@ public class Competition {
 	@Transient
 	@JsonIgnore
 	public Ranking getLegacyCompetitionBestAthleteScoringSystemOrDefault() {
+		Ranking migratedBestAthlete = getMigratedCompetitionBestAthleteScoringSystem();
+		if (migratedBestAthlete != null) {
+			return migratedBestAthlete;
+		}
 		Ranking legacyBestAthlete = getLegacyCompetitionBestAthleteScoringSystemForMigration();
 		return legacyBestAthlete != null ? legacyBestAthlete : Ranking.BW_SINCLAIR;
 	}
@@ -1466,6 +1496,17 @@ public class Competition {
 		// Migration succeeded: the championship template is now the single source of truth.
 		// Wipe the legacy columns so nothing forensic remains and NON_NULL serialization never
 		// re-triggers the now-throwing setters on a subsequent import.
+		clearLegacyColumns();
+		this.migrated = true;
+		return true;
+	}
+
+	/**
+	 * Reset all legacy championship/medal/team-scoring columns to their wiped state. The
+	 * championship template is the single source of truth once migrated, so this is the one
+	 * place that knows the full set of legacy columns.
+	 */
+	private void clearLegacyColumns() {
 		this.scoringSystem = null;
 		this.sinclairMeet = false;
 		this.snatchCJTotalMedals = false;
@@ -1477,8 +1518,15 @@ public class Competition {
 		this.mensBestN = null;
 		this.womensBestN = null;
 		this.mixedBestN = null;
-		this.migrated = true;
-		return true;
+	}
+
+	private void copyMigrationStateFrom(Competition source) {
+		// A migrated source has already had its legacy columns wiped, so mirroring that wiped
+		// state on the cached singleton is equivalent to copying the (now-null/false) values.
+		if (source.migrated) {
+			clearLegacyColumns();
+		}
+		this.migrated = source.migrated;
 	}
 
 	@Transient
@@ -1669,6 +1717,12 @@ public class Competition {
 	}
 
 	public boolean isScoreMedalChampionship() {
+		if (this.migrated) {
+			Championship template = getCompetitionTemplate();
+			if (template != null) {
+				return template.isScoreMedalChampionship();
+			}
+		}
 		return this.sinclairMeet || Config.getCurrent().featureSwitch("SinclairMeet");
 	}
 
