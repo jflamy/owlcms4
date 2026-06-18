@@ -1434,6 +1434,24 @@ public class RecordRepository {
 			        .collect(Collectors.toList());
 		}
 
+		// For THIS_COMPETITION filter: show records that match the current competition name
+		if ("THIS_COMPETITION".equals(effectiveCurrentHistoryFilter)) {
+			String currentCompetitionName = Competition.getCurrent() != null 
+				? Competition.getCurrent().getCompetitionName() 
+				: null;
+			return allResults.stream()
+			        .filter(r -> currentCompetitionName != null && currentCompetitionName.equals(r.getEvent()))
+			        .collect(Collectors.groupingBy(
+			                RecordEvent::getKey,
+			                Collectors.collectingAndThen(
+			                        Collectors.maxBy((r1, r2) -> Double.compare(r1.getRecordValue(), r2.getRecordValue())),
+			                        record -> record.orElseThrow(() -> new IllegalStateException("No record found")))))
+			        .values()
+			        .stream()
+			        .sorted(RecordRepository::compareGridOrder)
+			        .collect(Collectors.toList());
+		}
+
 		// For HISTORY or null, return all results as-is
 		return allResults;
 	}

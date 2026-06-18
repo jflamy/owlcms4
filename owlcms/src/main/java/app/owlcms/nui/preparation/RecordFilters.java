@@ -23,7 +23,8 @@ public class RecordFilters {
 	
 	public enum CurrentHistoryFilter {
 		CURRENT,
-		HISTORY;
+		HISTORY,
+		THIS_COMPETITION;
 
 		public String getKey() {
 			return "RecordEvent." + this.name();

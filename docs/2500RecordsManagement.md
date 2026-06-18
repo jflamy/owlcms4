@@ -62,11 +62,13 @@ The Display Options button controls the order in which records will be shown on 
 
 ## Exporting New Records
 
-At the end of the competition, all new records are marked as provisional.  You can see the new records by using the Status dropdown in the filter bar and selecting "Provisional".  For example
+At the end of the competition, you can export records by using the "This Competition" filter. The filtering is based on the competition name.
+Note that new records are also marked as provisional, so you can also use that status.
 
-![image-20260603165604416](img/2500RecordsManagement/image-20260603165604416.png)
+![image-20260618092520914](img/2500RecordsManagement/image-20260618092520914.png)
 
-Using the Export Records at the top and choosing a "dataExchange" template will produce an Excel File that you can then load into OWLCMS or in a [Record Repository](RecordRepository)
+
+Use a "dataExchange" template will produce an Excel File that you can then load into OWLCMS or in a [Record Repository](RecordRepository)
 ![image-20260603165707050](img/2500RecordsManagement/image-20260603165707050.png)
 
 The resulting file is in the exact same format as the record inputs, so you can merge it in Excel format if you prefer.

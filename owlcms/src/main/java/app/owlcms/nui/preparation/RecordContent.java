@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -811,7 +812,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		crud.getCrudLayout().addFilterComponent(provisionalLayout);
 
 		// Current/History filter 
-		this.currentHistoryFilter.setItems(RecordFilters.CurrentHistoryFilter.values());
+		List<RecordFilters.CurrentHistoryFilter> filterOptions = new ArrayList<>(
+			Arrays.asList(RecordFilters.CurrentHistoryFilter.CURRENT, RecordFilters.CurrentHistoryFilter.HISTORY)
+		);
+		// Only offer "THIS_COMPETITION" filter if not in record repository mode
+		if (!Config.getCurrent().isRecordRepository()) {
+			filterOptions.add(RecordFilters.CurrentHistoryFilter.THIS_COMPETITION);
+		}
+		this.currentHistoryFilter.setItems(filterOptions);
 		this.currentHistoryFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
 		this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
 		this.currentHistoryFilter.setClearButtonVisible(false);
