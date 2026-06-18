@@ -68,6 +68,7 @@ import app.owlcms.monitors.websocket.ForwarderPayloadBuilder.CompetitionDataExpo
 import app.owlcms.monitors.websocket.WebSocketEventSender;
 import app.owlcms.utils.DatabaseZipHelper;
 import app.owlcms.utils.FlagsZipHelper;
+import app.owlcms.utils.GamxZipHelper;
 import app.owlcms.utils.LogosZipHelper;
 import app.owlcms.utils.PicturesZipHelper;
 import app.owlcms.utils.TranslationsZipHelper;
@@ -2092,6 +2093,43 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	/**
+	 * Send the GAMX parameter tables as a zipped archive via WebSocket.
+	 * Called when the remote system requests gamx (via 428 response with "gamx" in missing array),
+	 * which only happens when a tracker plugin declares {@code requires: ['gamx_zip']}.
+	 * Uses binary transmission for maximum efficiency.
+	 */
+	private void sendGamx() {
+		logger.debug("{}sendGamx called for url: {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
+
+		if (!isActive()) {
+			logger.error("cannot send gamx, url is null");
+			return;
+		}
+
+		if (!GamxZipHelper.hasGamxAvailable()) {
+			logger.debug("{}gamx not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
+			return;
+		}
+
+		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
+		if (sender != null) {
+			byte[] gamxZipBytes = GamxZipHelper.createGamxZipBytes();
+			if (gamxZipBytes.length > 0) {
+				boolean sent = sender.sendBinary("gamx_zip", gamxZipBytes);
+				if (sent) {
+					logger.debug("{}sent gamx_zip ZIP via WebSocket binary to {} ({} bytes)",
+					        FieldOfPlay.getLoggingName(getFop()), baseUrl, gamxZipBytes.length);
+				} else {
+					logger.debug("{}could not send gamx_zip ZIP via WebSocket to {} (socket not ready)",
+					        FieldOfPlay.getLoggingName(getFop()), baseUrl);
+				}
+			} else {
+				logger.debug("{}failed to create gamx ZIP for {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
+			}
+		}
+	}
+
+	/**
 	 * Send all translations for all 26 locales as a zipped JSON archive via WebSocket.
 	 * Called when the remote system requests translations (via 428 response with "translations" in missing array).
 	 * Sends complete translation maps with regional variant merging (e.g., fr-CA gets all fr keys + 10 overrides).
@@ -2171,6 +2209,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				// Set up callback for 428 status response (translations requested)
 				sender.setMissingDataCallback("translations", () -> sendTranslations());
 				sender.setMissingDataCallback("flags", () -> sendFlags());
+				// GAMX is delivered lazily: only sent when a tracker plugin requires it (428 response)
+				sender.setMissingDataCallback("gamx_zip", () -> sendGamx());
 
 				sender.send(messageType, parameters);
 			}
@@ -2383,10 +2423,13 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		byte[] logosZipBytes = LogosZipHelper.hasLogosAvailable()
 		        ? LogosZipHelper.createLogosZipBytes()
 		        : new byte[0];
+		byte[] gamxZipBytes = GamxZipHelper.hasGamxAvailable()
+		        ? GamxZipHelper.createGamxZipBytes()
+		        : new byte[0];
 
 		for (ForwardingDestination destination : destinations) {
 			registerStartupCallbacksForDestination(destination, translationsZipBytes, flagsZipBytes,
-			        picturesZipBytes, logosZipBytes);
+			        picturesZipBytes, logosZipBytes, gamxZipBytes);
 		}
 	}
 
@@ -2405,7 +2448,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	private static void registerStartupCallbacksForDestination(ForwardingDestination destination,
-			byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes, byte[] logosZipBytes) {
+			byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes, byte[] logosZipBytes,
+			byte[] gamxZipBytes) {
 		String url = destination.getBaseUrl();
 		String updateKey = destination.getUpdateKey();
 		logger.info("Startup send mode for {}: BINARY(database_zip)", url);
@@ -2430,6 +2474,12 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				sender.setMissingDataCallback("logos", () -> {
 					if (logosZipBytes.length > 0) {
 						sender.sendBinary("logos_zip", logosZipBytes);
+					}
+				});
+				// GAMX is delivered lazily: only sent when a tracker plugin requires it (428 response)
+				sender.setMissingDataCallback("gamx_zip", () -> {
+					if (gamxZipBytes.length > 0) {
+						sender.sendBinary("gamx_zip", gamxZipBytes);
 					}
 				});
 

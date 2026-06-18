@@ -224,7 +224,7 @@ public class GAMX2ComparisonTest {
 				mastersAge58, bodyMass, mastersTotal, masters58GAMX));
 
 		// Find total needed as SENIOR to match that GAMX (age normalized to 25)
-		int seniorTotal = GAMX2.kgTarget(Gender.M, null, masters58GAMX, bodyMass, GAMX2.Variant.SENIOR);
+		int seniorTotal = GAMX2.kgTarget(Gender.M, null, masters58GAMX, bodyMass, GAMX2.Variant.SENIOR, GAMX2.Lift.TOTAL);
 
 		// Verify the SENIOR total produces equivalent GAMX
 		double seniorGAMX = GAMX2.computeGamx(Gender.M, null, bodyMass, seniorTotal, GAMX2.Variant.SENIOR);
@@ -258,7 +258,7 @@ public class GAMX2ComparisonTest {
 		double mastersAge25 = 25.0;
 		
 		// Find total needed for 25-year-old MASTERS to match 58-year-old's GAMX
-		int masters25Total = GAMX2.kgTarget(Gender.M, mastersAge25, masters58GAMX, bodyMass, GAMX2.Variant.MASTERS);
+		int masters25Total = GAMX2.kgTarget(Gender.M, mastersAge25, masters58GAMX, bodyMass, GAMX2.Variant.MASTERS, GAMX2.Lift.TOTAL);
 
 		// Verify the 25-year-old MASTERS total produces equivalent GAMX
 		double masters25GAMX = GAMX2.computeGamx(Gender.M, mastersAge25, bodyMass, masters25Total, GAMX2.Variant.MASTERS);
@@ -327,7 +327,7 @@ public class GAMX2ComparisonTest {
 			double targetGAMX = (Double) testCase[1];
 
 			// Compute required total using kgTarget
-			int computedTotal = GAMX2.kgTarget(Gender.M, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
+			int computedTotal = GAMX2.kgTarget(Gender.M, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR, GAMX2.Lift.TOTAL);
 
 			if (computedTotal == 0) {
 				failed++;
@@ -369,7 +369,7 @@ public class GAMX2ComparisonTest {
 			double targetGAMX = (Double) testCase[1];
 
 			// Compute required total using kgTarget
-			int computedTotal = GAMX2.kgTarget(Gender.F, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
+			int computedTotal = GAMX2.kgTarget(Gender.F, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR, GAMX2.Lift.TOTAL);
 
 			if (computedTotal == 0) {
 				failed++;
@@ -419,8 +419,8 @@ public class GAMX2ComparisonTest {
 			double bodyMass = (Double) point[1];
 			double targetGAMX = (Double) point[2];
 
-			int formulaResult = GAMX2.kgTarget(gender, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
-			int iterativeResult = GAMX2.kgTargetIterative(gender, targetGAMX, bodyMass, GAMX2.Variant.SENIOR);
+			int formulaResult = GAMX2.kgTarget(gender, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR, GAMX2.Lift.TOTAL);
+			int iterativeResult = GAMX2.kgTargetIterative(gender, null, targetGAMX, bodyMass, GAMX2.Variant.SENIOR, GAMX2.Lift.TOTAL);
 
 			if (formulaResult == iterativeResult) {
 				matches++;
@@ -472,7 +472,7 @@ public class GAMX2ComparisonTest {
 			double opponentRounded = Math.round(opponentGAMX * 100.0) / 100.0;
 
 			// Find the total needed to beat opponent
-			int totalToBeat = GAMX2.kgTarget(gender, null, opponentGAMX, bodyMass, GAMX2.Variant.SENIOR);
+			int totalToBeat = GAMX2.kgTarget(gender, null, opponentGAMX, bodyMass, GAMX2.Variant.SENIOR, GAMX2.Lift.TOTAL);
 
 			// Compute our GAMX at that total
 			double ourGAMX = GAMX2.computeGamx(gender, bodyMass, totalToBeat, GAMX2.Variant.SENIOR);

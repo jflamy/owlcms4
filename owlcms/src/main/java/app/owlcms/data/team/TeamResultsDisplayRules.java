@@ -21,7 +21,7 @@ public final class TeamResultsDisplayRules {
 	}
 
 	public static List<Ranking> getRequiredScoreRankings(Championship championship, Gender genderFilter,
-			Ranking competitionScoring) {
+			Ranking bestAthleteScoring) {
 		Set<Ranking> rankings = new LinkedHashSet<>();
 
 		if (championship != null) {
@@ -46,8 +46,8 @@ public final class TeamResultsDisplayRules {
 				}
 			}
 
-			if (competitionScoring != null) {
-				rankings.add(competitionScoring);
+			if (bestAthleteScoring != null) {
+				rankings.add(bestAthleteScoring);
 			}
 
 			if (championship.getType() != null && championship.getType().isMasters()) {

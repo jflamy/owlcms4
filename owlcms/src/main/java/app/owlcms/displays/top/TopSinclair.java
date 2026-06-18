@@ -448,19 +448,9 @@ public class TopSinclair extends AbstractTop {
 				case GAMX_A:
 				case GAMX_S:
 				case GAMX_C:
-					if (curGender == Gender.F) {
-						int tot = a.getBestSnatch() + a.getBestCleanJerk();
-						needed = GAMX2.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
-						if (needed < 0) {
-							needed = 0;
-						}
-					} else {
-						int tot = a.getBestSnatch() + a.getBestCleanJerk();
-						needed = GAMX2.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
-						if (needed < 0) {
-							needed = 0;
-						}
-					}
+					double topScore = curGender == Gender.F ? this.topWomanScore : this.topManScore;
+					int currentTotal = a.getBestSnatch() + a.getBestCleanJerk();
+					needed = Math.max(0, GAMX2.kgTarget(a, topScore, scoringSystem) - currentTotal);
 					break;
 				case QPOINTS:
 					if (curGender == Gender.F) {
