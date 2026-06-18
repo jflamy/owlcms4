@@ -10,7 +10,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -53,7 +52,6 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
-import app.owlcms.data.agegroup.DefaultChampionship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -163,37 +161,39 @@ public class ChampionshipTest {
     @Test
     public void testCompetitionLoadedFromFixture() {
         Competition competition = Competition.getCurrent();
-        Ranking expectedMedalScoring = competition.isScoreMedalChampionship()
-            ? competition.getLegacyCompetitionScoringSystem()
-            : Ranking.TOTAL;
+        Championship template = ChampionshipRepository.ensureCompetitionTemplate();
 
+        assertTrue("competition should be migrated once the template exists", competition.isMigrated());
         assertEquals("competition name", "6th Islamic Solidarity Games", competition.getCompetitionName());
-        assertEquals("legacy competition scoring system", Ranking.BW_SINCLAIR,
-            competition.getLegacyCompetitionScoringSystem());
-        assertEquals("competition best athlete scoring system", Ranking.BW_SINCLAIR,
-            competition.getBestAthleteScoringSystem());
-        assertEquals("competition medal scoring system", expectedMedalScoring,
-            competition.getScoringSystem());
+        assertEquals("competition template best athlete scoring system", Ranking.BW_SINCLAIR,
+                template.getBestAthleteScoringSystem());
+        assertEquals("competition best athlete scoring system", template.getBestAthleteScoringSystem(),
+                competition.getBestAthleteScoringSystem());
+        assertEquals("competition medal scoring system", template.getScoringSystem(),
+                competition.getScoringSystem());
         assertEquals("mixed team size", Integer.valueOf(8), competition.getMixedBestN());
     }
 
     @Test
-    public void testLegacyCompetitionScoringMigratesToSeparateTemplateDefaults() {
+    public void testCompetitionTemplateDefaultsArePostMigrationSourceOfTruth() {
         Competition competition = Competition.getCurrent();
         Championship template = ChampionshipRepository.ensureCompetitionTemplate();
-        Ranking legacyScoring = competition.getLegacyCompetitionScoringSystem();
-        Ranking expectedMedalScoring = competition.isScoreMedalChampionship() ? legacyScoring : Ranking.TOTAL;
         Championship defaults = Championship.of(null);
 
+        assertTrue("competition should be marked migrated once the template exists", competition.isMigrated());
         assertNotNull("competition template should be created from legacy fixture", template);
-        assertEquals("template medal scoring should follow the legacy score-medal flag",
-                expectedMedalScoring, template.getScoringSystem());
-        assertEquals("template best athlete scoring should preserve the legacy competition scoring",
-                legacyScoring, template.getBestAthleteScoringSystem());
+        assertEquals("template medal scoring should stay separate from best-athlete scoring",
+                Ranking.TOTAL, template.getScoringSystem());
+        assertEquals("template best athlete scoring should use the best-athlete fallback",
+                Ranking.BW_SINCLAIR, template.getBestAthleteScoringSystem());
+        assertEquals("competition medal scoring should come from the migrated template",
+                template.getScoringSystem(), competition.getScoringSystem());
+        assertEquals("competition best athlete scoring should come from the migrated template",
+                template.getBestAthleteScoringSystem(), competition.getBestAthleteScoringSystem());
         assertEquals("default championship medal scoring should come from championship defaults",
-                expectedMedalScoring, defaults.getScoringSystem());
+                template.getScoringSystem(), defaults.getScoringSystem());
         assertEquals("default championship best athlete scoring should come from championship defaults",
-                legacyScoring, defaults.getBestAthleteScoringSystem());
+                template.getBestAthleteScoringSystem(), defaults.getBestAthleteScoringSystem());
     }
 
     @Test
@@ -222,7 +222,7 @@ public class ChampionshipTest {
                 .collect(Collectors.toList());
 
         assertEquals("championship names from OWLCMS API",
-            List.of("Masters", "Youth", "Junior", "Senior", "Open"), championshipNames);
+                List.of("Masters", "Youth", "Junior", "Senior", "Open"), championshipNames);
     }
 
     @Test
@@ -239,7 +239,8 @@ public class ChampionshipTest {
                 .findFirst().orElse(null);
         assertNotNull("fixture should have an active non-Open age group", ageGroup);
 
-        String originalChampionshipName = ageGroup.getChampionshipName();
+                String originalChampionshipName = ageGroup.getChampionshipName();
+                String fallbackChampionshipName = ageGroup.getCode();
         try {
             JPAService.runInTransaction(em -> {
                 AgeGroup managedAgeGroup = em.find(AgeGroup.class, ageGroup.getId());
@@ -254,9 +255,8 @@ public class ChampionshipTest {
                     usedChampionships.stream().anyMatch(Championship::isCompetitionTemplate));
             assertFalse("used championships should not include the competition template name",
                     usedChampionships.stream().anyMatch(c -> template.getName().equals(c.getName())));
-                assertTrue("used championships should keep the Open DEFAULT championship",
-                    usedChampionships.stream().anyMatch(c -> "Open".equals(c.getName())
-                        && c.getType() == ChampionshipType.DEFAULT));
+                        assertTrue("used championships should keep the age-group fallback championship",
+                                        usedChampionships.stream().anyMatch(c -> fallbackChampionshipName.equals(c.getName())));
         } finally {
             JPAService.runInTransaction(em -> {
                 AgeGroup managedAgeGroup = em.find(AgeGroup.class, ageGroup.getId());
@@ -327,11 +327,18 @@ public class ChampionshipTest {
     @Test
     public void testMissingChampionshipCanBeDetectedAndCreatedWithoutLosingDefaultFallback() {
         String championshipName = "Temporary Championship " + UUID.randomUUID();
+        ChampionshipRepository.ensureCompetitionTemplate();
+        Championship defaults = Championship.of(null);
 
         assertNull("missing championship should not have a stored row yet",
                 Championship.findStored(championshipName));
-        assertSame("missing championship should still resolve to the default fallback",
-                DefaultChampionship.getInstance(), Championship.of(championshipName));
+        Championship fallback = Championship.of(championshipName);
+        assertNotNull("missing championship should still resolve to the default championship", fallback);
+        assertEquals("missing championship fallback name", defaults.getName(), fallback.getName());
+        assertEquals("missing championship fallback medal scoring", defaults.getScoringSystem(),
+                fallback.getScoringSystem());
+        assertEquals("missing championship fallback best athlete scoring", defaults.getBestAthleteScoringSystem(),
+                fallback.getBestAthleteScoringSystem());
 
         Championship created = Championship.ensureStored(championshipName, ChampionshipType.U);
         try {
@@ -370,7 +377,7 @@ public class ChampionshipTest {
                 .findFirst().orElse(null);
         assertNotNull("JR_F48 should have a gold medalist", jrF48Gold);
         assertTrue("JR_F48 gold medalist should be Pouramin, got " + jrF48Gold.getLastName(),
-            "POURAMIN".equalsIgnoreCase(jrF48Gold.getLastName()));
+                "POURAMIN".equalsIgnoreCase(jrF48Gold.getLastName()));
         assertRoundedTo2("JR_F48 gold GAMX", 871.21D, jrF48Gold.getGamx());
 
         // Spot-check SR_F48: gold should be ALTUN
@@ -381,8 +388,8 @@ public class ChampionshipTest {
                 .findFirst().orElse(null);
         assertNotNull("SR_F48 should have a gold medalist", srF48Gold);
         assertTrue("SR_F48 gold medalist should be Altun, got " + srF48Gold.getLastName(),
-            "ALTUN".equalsIgnoreCase(srF48Gold.getLastName()));
-            assertRoundedTo2("SR_F48 gold GAMX", 1026.14D, srF48Gold.getGamx());
+                "ALTUN".equalsIgnoreCase(srF48Gold.getLastName()));
+        assertRoundedTo2("SR_F48 gold GAMX", 1026.14D, srF48Gold.getGamx());
 
         // Spot-check: verify ranks are stored on participations in the database
         Athlete anyAthlete = weighedIn.stream()
@@ -397,58 +404,58 @@ public class ChampionshipTest {
                 hasRankedParticipation);
     }
 
-            @Test
-            public void testImwaMedalsExcludeAthleteBelowCategoryQualifyingTotal() {
-            Competition competition = Competition.getCurrent();
-            boolean originalImwa = competition.isImwa();
+    @Test
+    public void testImwaMedalsExcludeAthleteBelowCategoryQualifyingTotal() {
+        Competition competition = Competition.getCurrent();
+        boolean originalImwa = competition.isImwa();
 
-            List<Athlete> weighedIn = AthleteRepository.findAllByGroupAndWeighIn(null, true);
-            TreeMap<String, List<Athlete>> medals = competition.computeMedalsByCategory(weighedIn);
-            List<Athlete> jrF48 = medals.get("JR_F48");
-            assertNotNull("JR_F48 should be in medal map", jrF48);
+        List<Athlete> weighedIn = AthleteRepository.findAllByGroupAndWeighIn(null, true);
+        TreeMap<String, List<Athlete>> medals = competition.computeMedalsByCategory(weighedIn);
+        List<Athlete> jrF48 = medals.get("JR_F48");
+        assertNotNull("JR_F48 should be in medal map", jrF48);
 
-            Athlete gold = jrF48.stream()
+        Athlete gold = jrF48.stream()
                 .filter(a -> a.getTotalRank() == 1)
                 .findFirst().orElse(null);
-            assertNotNull("JR_F48 should have a gold medalist", gold);
-            assertTrue("fixture medalist should be a category participation wrapper", gold instanceof PAthlete);
+        assertNotNull("JR_F48 should have a gold medalist", gold);
+        assertTrue("fixture medalist should be a category participation wrapper", gold instanceof PAthlete);
 
-            PAthlete goldParticipation = (PAthlete) gold;
-            Athlete goldAthlete = goldParticipation._getAthlete();
-            Category category = goldParticipation.getCategory();
-            int originalQualifyingTotal = category.getQualifyingTotal();
+        PAthlete goldParticipation = (PAthlete) gold;
+        Athlete goldAthlete = goldParticipation._getAthlete();
+        Category category = goldParticipation.getCategory();
+        int originalQualifyingTotal = category.getQualifyingTotal();
 
-            try {
-                competition.setImwa(true);
-                category.setQualifyingTotal(gold.getTotal() + 1);
+        try {
+            competition.setImwa(true);
+            category.setQualifyingTotal(gold.getTotal() + 1);
 
-                TreeMap<String, List<Athlete>> imwaMedals = competition.computeMedalsByCategory(weighedIn);
-                List<Athlete> imwaJrF48 = imwaMedals.get(category.getCode());
+            TreeMap<String, List<Athlete>> imwaMedals = competition.computeMedalsByCategory(weighedIn);
+            List<Athlete> imwaJrF48 = imwaMedals.get(category.getCode());
 
-                assertNotNull("JR_F48 should still be in medal map", imwaJrF48);
-                assertFalse("athlete below the category QT should not be a medalist under IMWA rules",
+            assertNotNull("JR_F48 should still be in medal map", imwaJrF48);
+            assertFalse("athlete below the category QT should not be a medalist under IMWA rules",
                     imwaJrF48.stream().anyMatch(a -> Objects.equals(a.getId(), gold.getId())
-                        && a.getTotalRank() >= 1 && a.getTotalRank() <= 3));
-                Participation currentParticipation = goldAthlete.getParticipations().stream()
-                        .filter(p -> p.getCategory().sameAs(category))
-                        .findFirst().orElse(null);
-                assertNotNull("real participation should still exist for " + category.getCode(), currentParticipation);
-                assertEquals("below-QT participation should be marked out of classification", -1,
+                            && a.getTotalRank() >= 1 && a.getTotalRank() <= 3));
+            Participation currentParticipation = goldAthlete.getParticipations().stream()
+                    .filter(p -> p.getCategory().sameAs(category))
+                    .findFirst().orElse(null);
+            assertNotNull("real participation should still exist for " + category.getCode(), currentParticipation);
+            assertEquals("below-QT participation should be marked out of classification", -1,
                     currentParticipation.getTotalRank());
 
-                competition.setImwa(false);
-                TreeMap<String, List<Athlete>> nonImwaMedals = competition.computeMedalsByCategory(weighedIn);
-                List<Athlete> nonImwaJrF48 = nonImwaMedals.get(category.getCode());
+            competition.setImwa(false);
+            TreeMap<String, List<Athlete>> nonImwaMedals = competition.computeMedalsByCategory(weighedIn);
+            List<Athlete> nonImwaJrF48 = nonImwaMedals.get(category.getCode());
 
-                assertTrue("same QT should not exclude the medalist when IMWA rules are off",
+            assertTrue("same QT should not exclude the medalist when IMWA rules are off",
                     nonImwaJrF48.stream().anyMatch(a -> Objects.equals(a.getId(), gold.getId())
-                        && a.getTotalRank() == 1));
-            } finally {
-                category.setQualifyingTotal(originalQualifyingTotal);
-                competition.setImwa(originalImwa);
-                competition.computeMedalsByCategory(weighedIn);
-            }
-            }
+                            && a.getTotalRank() == 1));
+        } finally {
+            category.setQualifyingTotal(originalQualifyingTotal);
+            competition.setImwa(originalImwa);
+            competition.computeMedalsByCategory(weighedIn);
+        }
+    }
 
     @Test
     public void testSeniorMixedTeamsWithNoAthletesAreAbsent() {
@@ -495,8 +502,9 @@ public class ChampionshipTest {
             masters.setMixedTeamScoringSystem(Ranking.GAMX);
 
             assertEquals("masters score columns should include selected and informational rankings",
-                List.of(Ranking.QPOINTS, Ranking.GAMX, Ranking.BW_SINCLAIR, Ranking.QAGE, Ranking.SMM),
-                TeamResultsDisplayRules.getRequiredScoreRankings(masters, null, competition.getScoringSystem()));
+                    List.of(Ranking.QPOINTS, Ranking.GAMX, Ranking.BW_SINCLAIR, Ranking.QAGE, Ranking.SMM),
+                    TeamResultsDisplayRules.getRequiredScoreRankings(masters, null,
+                            competition.getBestAthleteScoringSystem()));
 
             TeamTreeItem mensTeam = new TeamTreeItem("Test Men", Gender.M, null, false);
             TeamTreeItem mixedTeam = new TeamTreeItem("Test Mixed", Gender.MF, null, false);
@@ -505,64 +513,65 @@ public class ChampionshipTest {
             TeamTreeItem athleteItem = new TeamTreeItem(null, athlete.getGender(), athlete, true);
 
             assertTrue("men's team should show selected QPoints total",
-                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.QPOINTS));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.QPOINTS));
             assertFalse("men's team should hide points total for score-based championships",
-                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mensTeam));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mensTeam));
             assertFalse("men's team should hide mixed GAMX total",
-                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.GAMX));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.GAMX));
             assertFalse("men's team should hide competition Sinclair total",
-                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.BW_SINCLAIR));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.BW_SINCLAIR));
             assertFalse("men's team should hide informational Q-Masters total",
-                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.QAGE));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.QAGE));
             assertFalse("men's team should hide informational SMHF total",
-                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.SMM));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mensTeam, Ranking.SMM));
 
             assertTrue("mixed team should show selected GAMX total",
-                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mixedTeam, Ranking.GAMX));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mixedTeam, Ranking.GAMX));
             assertFalse("mixed team should hide points total for score-based championships",
-                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mixedTeam));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mixedTeam));
             assertFalse("mixed team should hide gendered QPoints total",
-                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mixedTeam, Ranking.QPOINTS));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, mixedTeam, Ranking.QPOINTS));
 
             masters.setTeamScoringSystem(null);
             masters.setMixedTeamScoringSystem(null);
             assertTrue("points-based men's championship should show points total",
-                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mensTeam));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mensTeam));
             assertTrue("points-based mixed championship should show points total",
-                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mixedTeam));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, mixedTeam));
 
             assertTrue("athlete rows should keep informational columns visible",
-                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, athleteItem, Ranking.QAGE));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, athleteItem, Ranking.QAGE));
             assertTrue("athlete rows should keep best-athlete informational columns visible",
-                TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, athleteItem, Ranking.BW_SINCLAIR));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryValue(masters, athleteItem, Ranking.BW_SINCLAIR));
             assertTrue("athlete rows should keep points visible",
-                TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, athleteItem));
+                    TeamResultsDisplayRules.shouldShowTeamSummaryPoints(masters, athleteItem));
         } finally {
             competition.setScoringSystem(originalCompetitionScoring);
         }
     }
 
-        @Test
-        public void testTeamSelectionDisplayRulesUseMixedMembershipColumnForMixedRowsWhenUnfiltered() {
+    @Test
+    public void testTeamSelectionDisplayRulesUseMixedMembershipColumnForMixedRowsWhenUnfiltered() {
         Championship senior = ChampionshipRepository.findByName("Senior");
         assertNotNull("Senior championship should be loaded from fixture", senior);
-        assertTrue("Senior championship should enable mixed teams for the preparation view", senior.isMixedTeamEnabled());
+        assertTrue("Senior championship should enable mixed teams for the preparation view",
+                senior.isMixedTeamEnabled());
 
         TeamTreeItem mensTeam = new TeamTreeItem("EGY", Gender.M, null, false);
         TeamTreeItem mixedTeam = new TeamTreeItem("EGY", Gender.MF, null, false);
 
         Athlete maleAthlete = getChampionshipParticipations(senior).stream()
-            .map(Participation::getAthlete)
-            .filter(Objects::nonNull)
-            .filter(a -> a.getGender() == Gender.M)
-            .findFirst()
-            .orElse(null);
+                .map(Participation::getAthlete)
+                .filter(Objects::nonNull)
+                .filter(a -> a.getGender() == Gender.M)
+                .findFirst()
+                .orElse(null);
         Athlete femaleAthlete = getChampionshipParticipations(senior).stream()
-            .map(Participation::getAthlete)
-            .filter(Objects::nonNull)
-            .filter(a -> a.getGender() == Gender.F)
-            .findFirst()
-            .orElse(null);
+                .map(Participation::getAthlete)
+                .filter(Objects::nonNull)
+                .filter(a -> a.getGender() == Gender.F)
+                .findFirst()
+                .orElse(null);
         assertNotNull("fixture should provide at least one senior male athlete", maleAthlete);
         assertNotNull("fixture should provide at least one senior female athlete", femaleAthlete);
 
@@ -572,28 +581,28 @@ public class ChampionshipTest {
         mixedAthleteItem.setParent(mixedTeam);
 
         assertTrue("unfiltered team selection should keep the standard membership column visible",
-            TeamSelectionDisplayRules.shouldShowMembershipColumn((Gender) null));
+                TeamSelectionDisplayRules.shouldShowMembershipColumn((Gender) null));
         assertTrue("unfiltered team selection should also show the mixed membership column",
-            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null));
+                TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null));
 
         assertTrue("gendered team roots should use the standard membership column",
-            TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mensTeam));
+                TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mensTeam));
         assertFalse("gendered team roots should not use the mixed membership column",
-            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mensTeam));
+                TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mensTeam));
         assertTrue("gendered team athletes should use the standard membership column",
-            TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mensAthleteItem));
+                TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mensAthleteItem));
         assertFalse("gendered team athletes should not use the mixed membership column",
-            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mensAthleteItem));
+                TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mensAthleteItem));
 
         assertFalse("mixed team roots should not use the standard membership column when unfiltered",
-            TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mixedTeam));
+                TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mixedTeam));
         assertTrue("mixed team roots should use the mixed membership column when unfiltered",
-            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mixedTeam));
+                TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mixedTeam));
         assertFalse("mixed team athletes should not use the standard membership column when unfiltered",
-            TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mixedAthleteItem));
+                TeamSelectionDisplayRules.shouldShowMembershipColumn(senior, null, mixedAthleteItem));
         assertTrue("mixed team athletes should use the mixed membership column when unfiltered",
-            TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mixedAthleteItem));
-        }
+                TeamSelectionDisplayRules.shouldShowMixedMembershipColumn(senior, null, mixedAthleteItem));
+    }
 
     @Test
     public void testChampionshipConfiguredTeamSizeFollowsStatusRules() {
@@ -610,28 +619,28 @@ public class ChampionshipTest {
         senior.setExplicitMixedTeamMembers(true);
 
         assertEquals("gendered men should use mensBestN when configured", 4,
-            senior.getConfiguredTeamSize(null, Gender.M));
+                senior.getConfiguredTeamSize(null, Gender.M));
         assertEquals("gendered women should use womensBestN when configured", 3,
-            senior.getConfiguredTeamSize(null, Gender.F));
+                senior.getConfiguredTeamSize(null, Gender.F));
         assertEquals("mixed should prefer overall mixedBestN when configured", 5,
-            senior.getConfiguredTeamSize(null, Gender.MF));
+                senior.getConfiguredTeamSize(null, Gender.MF));
 
         senior.setMixedBestN(null);
         assertEquals("mixed should use mixed men + women topN when overall mixedBestN is absent", 4,
-            senior.getConfiguredTeamSize(null, Gender.MF));
+                senior.getConfiguredTeamSize(null, Gender.MF));
 
         senior.setMixedMensBestN(null);
         senior.setMixedWomensBestN(null);
         assertEquals("explicit mixed should fall back to explicit roster size", 6,
-            senior.getConfiguredTeamSize(null, Gender.MF));
+                senior.getConfiguredTeamSize(null, Gender.MF));
 
         senior.setMensBestN(null);
         assertEquals("gendered men should fall back to roster size when mensBestN is absent", 8,
-            senior.getConfiguredTeamSize(null, Gender.M));
+                senior.getConfiguredTeamSize(null, Gender.M));
 
         senior.setExplicitMixedTeamMembers(false);
         assertEquals("implicit mixed should fall back to max team size when no mixed topN is configured", 8,
-            senior.getConfiguredTeamSize(null, Gender.MF));
+                senior.getConfiguredTeamSize(null, Gender.MF));
     }
 
     @Test
@@ -640,11 +649,11 @@ public class ChampionshipTest {
         assertNotNull("Senior championship should be loaded from fixture", senior);
 
         int expectedDefault = AgeGroupRepository.findFiltered(null, null, senior, null, true, -1, -1).stream()
-            .map(AgeGroup::getCategories)
-            .mapToInt(List::size)
-            .filter(categoryCount -> categoryCount > 0)
-            .min()
-            .orElse(senior.getMaxTeamSize());
+                .map(AgeGroup::getCategories)
+                .mapToInt(List::size)
+                .filter(categoryCount -> categoryCount > 0)
+                .min()
+                .orElse(senior.getMaxTeamSize());
 
         senior.setMixedBestN(null);
         senior.setMixedMensBestN(null);
@@ -654,13 +663,13 @@ public class ChampionshipTest {
 
         assertTrue("fixture should provide at least one positive championship category count", expectedDefault > 0);
         assertEquals("explicit mixed default should use the smallest category count across championship age groups",
-            expectedDefault, senior.getExplicitTeamSize().intValue());
+                expectedDefault, senior.getExplicitTeamSize().intValue());
         assertEquals("configured mixed team size should use the computed explicit default when no cap is configured",
-            expectedDefault, senior.getConfiguredTeamSize(null, Gender.MF));
+                expectedDefault, senior.getConfiguredTeamSize(null, Gender.MF));
 
         senior.setExplicitTeamSize(expectedDefault + 1);
         assertEquals("configured explicit size should override the computed mixed default",
-            expectedDefault + 1, senior.getConfiguredTeamSize(null, Gender.MF));
+                expectedDefault + 1, senior.getConfiguredTeamSize(null, Gender.MF));
     }
 
     @Test
@@ -679,13 +688,14 @@ public class ChampionshipTest {
 
             Championship renamed = Championship.findStored(renamedName);
             assertNotNull("renamed championship should be available from cache/db by its new name", renamed);
-            assertNull("old championship name should no longer resolve after rename", Championship.findStored(originalName));
+            assertNull("old championship name should no longer resolve after rename",
+                    Championship.findStored(originalName));
 
             List<AgeGroup> renamedAgeGroups = AgeGroupRepository.findFiltered(null, null, renamed, null, true, -1, -1);
             assertEquals("renamed championship should retain the same age-group membership",
-                originalAgeGroups.size(), renamedAgeGroups.size());
+                    originalAgeGroups.size(), renamedAgeGroups.size());
             assertTrue("age groups should carry the renamed championship name",
-                renamedAgeGroups.stream().allMatch(ageGroup -> renamedName.equals(ageGroup.getChampionshipName())));
+                    renamedAgeGroups.stream().allMatch(ageGroup -> renamedName.equals(ageGroup.getChampionshipName())));
         } finally {
             Championship renamed = Championship.findStored(renamedName);
             if (renamed != null) {
@@ -700,7 +710,8 @@ public class ChampionshipTest {
         assertNotNull("Senior championship should be loaded from fixture", senior);
         assertFalse("Senior mixed teams in fixture should be score-based", senior.computeMixedPointsBased());
 
-        // Select candidates from the original fixture state, then apply (which clears all others)
+        // Select candidates from the original fixture state, then apply (which clears
+        // all others)
         Map<String, List<Participation>> selectedByTeam = selectMixedTeamMembers(senior, 1, 0);
         printSelectedAthletes("Senior mixed first female", selectedByTeam);
         applyMixedTeamMemberships(senior, selectedByTeam);
@@ -713,7 +724,7 @@ public class ChampionshipTest {
             Double expectedGamx = getDirectGamxScore(participation);
             assertNotNull("selected athlete GAMX for " + entry.getKey(), expectedGamx);
             logger.info("Senior first-female athlete {} ({}) GAMX={}",
-                athlete.getFullName(), entry.getKey(), String.format(Locale.ROOT, "%.2f", expectedGamx));
+                    athlete.getFullName(), entry.getKey(), String.format(Locale.ROOT, "%.2f", expectedGamx));
         }
 
         // Verify from the team side: iteration contains only the selected athlete and
@@ -721,7 +732,7 @@ public class ChampionshipTest {
         List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
         for (TeamTreeItem team : teams) {
             logger.info("Senior mixed first-female team {} : size={}, counted={}, score={}",
-                team.getName(), team.getSize(), team.getCounted(), team.getScore());
+                    team.getName(), team.getSize(), team.getCounted(), team.getScore());
             List<Participation> selected = selectedByTeam.getOrDefault(team.getName(), List.of());
             assertEquals("counted for " + team.getName(), selected.size(), team.getCounted().intValue());
             assertEquals("iterated athletes for " + team.getName(), selected.size(), team.getTeamMembers().size());
@@ -751,7 +762,7 @@ public class ChampionshipTest {
         List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
         for (TeamTreeItem team : teams) {
             logger.info("Senior mixed two+two team {} : size={}, counted={}, score={}",
-                team.getName(), team.getSize(), team.getCounted(), team.getScore());
+                    team.getName(), team.getSize(), team.getCounted(), team.getScore());
         }
         assertMixedTeamScoresMatchSelectedGamx(teams, selectedByTeam,
                 "senior mixed first two females and first two males");
@@ -775,7 +786,7 @@ public class ChampionshipTest {
         Participation juniorParticipation = findParticipationForChampionship(athlete, junior);
         assertNotNull("POURAMIN from IRI should also exist for Junior championship", juniorParticipation);
         assertFalse("Senior and Junior participations should be distinct for " + athlete.getFullName(),
-            selectedParticipation.getId().equals(juniorParticipation.getId()));
+                selectedParticipation.getId().equals(juniorParticipation.getId()));
 
         selectedParticipation.setMixedTeamMember(true);
         AthleteRepository.save(athlete);
@@ -786,18 +797,20 @@ public class ChampionshipTest {
         Participation reloadedJuniorParticipation = findParticipationForChampionship(reloadedAthlete, junior);
 
         assertTrue("selected Senior participation should be explicit mixed member for " + athlete.getFullName(),
-            reloadedSelectedParticipation.getMixedTeamMember());
+                reloadedSelectedParticipation.getMixedTeamMember());
         assertFalse("Junior participation should not be the selected Senior participation for " + athlete.getFullName(),
-            reloadedSelectedParticipation.getId().equals(reloadedJuniorParticipation.getId()));
+                reloadedSelectedParticipation.getId().equals(reloadedJuniorParticipation.getId()));
         assertFalse("Junior participation should remain non-explicit for " + athlete.getFullName(),
-            Boolean.TRUE.equals(reloadedJuniorParticipation.getMixedTeamMember()));
+                Boolean.TRUE.equals(reloadedJuniorParticipation.getMixedTeamMember()));
 
         List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
         TeamTreeItem team = teams.stream()
-            .filter(item -> item.getName().equals(reloadedAthlete.getTeam()))
+                .filter(item -> item.getName().equals(reloadedAthlete.getTeam()))
                 .findFirst()
                 .orElse(null);
-        assertNotNull("team results should include " + reloadedAthlete.getTeam() + " for " + reloadedAthlete.getFullName(), team);
+        assertNotNull(
+                "team results should include " + reloadedAthlete.getTeam() + " for " + reloadedAthlete.getFullName(),
+                team);
         assertEquals("counted athletes for " + reloadedAthlete.getTeam(), 1, team.getCounted().intValue());
         assertEquals("iterated athletes for " + reloadedAthlete.getTeam(), 1, team.getTeamMembers().size());
 
@@ -820,11 +833,10 @@ public class ChampionshipTest {
         assertEquals("senior men's team count", 4, teams.size());
 
         Map<String, int[]> expected = Map.of(
-            "EGY", new int[] { 5, 5, 372 },
-            "IRI", new int[] { 5, 5, 332 },
-            "TUR", new int[] { 5, 5, 342 },
-            "UZB", new int[] { 5, 5, 399 }
-        );
+                "EGY", new int[] { 5, 5, 372 },
+                "IRI", new int[] { 5, 5, 332 },
+                "TUR", new int[] { 5, 5, 342 },
+                "UZB", new int[] { 5, 5, 399 });
 
         for (TeamTreeItem team : teams) {
             int[] exp = expected.get(team.getName());
@@ -841,12 +853,12 @@ public class ChampionshipTest {
             assertEquals("team points should equal summed athlete points for " + team.getName(),
                     exp[2], summedMemberPoints);
             logger.info("Senior men's team {} : size={}, counted={}, points={}, summedMemberPoints={}",
-                team.getName(), team.getSize(), team.getCounted(), team.getPoints(), summedMemberPoints);
+                    team.getName(), team.getSize(), team.getCounted(), team.getPoints(), summedMemberPoints);
         }
     }
 
-        @Test
-        public void testPointBasedTeamResultsIgnoreUnfinishedGroups() {
+    @Test
+    public void testPointBasedTeamResultsIgnoreUnfinishedGroups() {
         Championship senior = ChampionshipRepository.findByName("Senior");
         assertNotNull("Senior championship should be loaded from fixture", senior);
         assertTrue("Senior championship in fixture should be points-based", senior.computePointsBased());
@@ -854,9 +866,9 @@ public class ChampionshipTest {
 
         List<TeamTreeItem> initialTeams = computeTeamResults(senior, Gender.M);
         TeamTreeItem initialTeam = initialTeams.stream()
-            .filter(team -> !team.getCountedTeamMembers().isEmpty())
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("expected at least one counted men's team"));
+                .filter(team -> !team.getCountedTeamMembers().isEmpty())
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("expected at least one counted men's team"));
         TeamTreeItem initialMember = initialTeam.getCountedTeamMembers().get(0);
         Athlete initialAthlete = initialMember.getAthlete();
         assertNotNull("counted athlete should be present", initialAthlete);
@@ -875,29 +887,30 @@ public class ChampionshipTest {
         try {
             List<TeamTreeItem> updatedTeams = computeTeamResults(senior, Gender.M);
             TeamTreeItem updatedTeam = updatedTeams.stream()
-                .filter(team -> teamName.equals(team.getName()))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("missing team after marking group unfinished: " + teamName));
+                    .filter(team -> teamName.equals(team.getName()))
+                    .findFirst()
+                    .orElseThrow(() -> new AssertionError("missing team after marking group unfinished: " + teamName));
 
             assertEquals("unfinished group athlete should not add team points",
-                originalTeamPoints - removedMemberPoints, updatedTeam.getPoints().intValue());
+                    originalTeamPoints - removedMemberPoints, updatedTeam.getPoints().intValue());
             assertEquals("unfinished group athlete should not consume a counted slot",
-                originalCounted - 1, updatedTeam.getCounted().intValue());
+                    originalCounted - 1, updatedTeam.getCounted().intValue());
 
             TeamTreeItem unfinishedMember = updatedTeam.getTeamMembers().stream()
-                .filter(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId()))
-                .findFirst()
-                .orElse(null);
+                    .filter(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId()))
+                    .findFirst()
+                    .orElse(null);
             assertNotNull("unfinished athlete should still be present in team member pool", unfinishedMember);
             assertNull("unfinished athlete should not show awarded points", unfinishedMember.getPoints());
             assertFalse("unfinished athlete should not be counted for the team", unfinishedMember.isCountedForTeam());
             assertFalse("unfinished athlete should not appear in counted team members",
-                updatedTeam.getCountedTeamMembers().stream()
-                    .anyMatch(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId())));
+                    updatedTeam.getCountedTeamMembers().stream()
+                            .anyMatch(member -> member.getAthlete() != null
+                                    && athleteId.equals(member.getAthlete().getId())));
         } finally {
             setGroupDone(groupId, originalDone);
         }
-        }
+    }
 
     @Ignore("Score-based mixed-team totals may include unfinished groups because scores are monotonic.")
     @Test
@@ -909,9 +922,9 @@ public class ChampionshipTest {
 
         List<TeamTreeItem> initialTeams = computeTeamResults(senior, Gender.MF);
         TeamTreeItem initialTeam = initialTeams.stream()
-            .filter(team -> !team.getCountedTeamMembers().isEmpty())
-            .findFirst()
-            .orElseThrow(() -> new AssertionError("expected at least one counted mixed team"));
+                .filter(team -> !team.getCountedTeamMembers().isEmpty())
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("expected at least one counted mixed team"));
         TeamTreeItem initialMember = initialTeam.getCountedTeamMembers().get(0);
         Athlete initialAthlete = initialMember.getAthlete();
         assertNotNull("counted mixed athlete should be present", initialAthlete);
@@ -930,24 +943,27 @@ public class ChampionshipTest {
         try {
             List<TeamTreeItem> updatedTeams = computeTeamResults(senior, Gender.MF);
             TeamTreeItem updatedTeam = updatedTeams.stream()
-                .filter(team -> teamName.equals(team.getName()))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("missing mixed team after marking group unfinished: " + teamName));
+                    .filter(team -> teamName.equals(team.getName()))
+                    .findFirst()
+                    .orElseThrow(
+                            () -> new AssertionError("missing mixed team after marking group unfinished: " + teamName));
 
             assertRoundedTo2("unfinished group athlete should not add mixed team score",
-                originalTeamScore - removedMemberScore, updatedTeam.getScore());
+                    originalTeamScore - removedMemberScore, updatedTeam.getScore());
             assertEquals("unfinished group athlete should not consume a counted mixed slot",
-                originalCounted - 1, updatedTeam.getCounted().intValue());
+                    originalCounted - 1, updatedTeam.getCounted().intValue());
 
             TeamTreeItem unfinishedMember = updatedTeam.getTeamMembers().stream()
-                .filter(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId()))
-                .findFirst()
-                .orElse(null);
+                    .filter(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId()))
+                    .findFirst()
+                    .orElse(null);
             assertNotNull("unfinished mixed athlete should still be present in team member pool", unfinishedMember);
-            assertFalse("unfinished mixed athlete should not be counted for the team", unfinishedMember.isCountedForTeam());
+            assertFalse("unfinished mixed athlete should not be counted for the team",
+                    unfinishedMember.isCountedForTeam());
             assertFalse("unfinished mixed athlete should not appear in counted team members",
-                updatedTeam.getCountedTeamMembers().stream()
-                    .anyMatch(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId())));
+                    updatedTeam.getCountedTeamMembers().stream()
+                            .anyMatch(member -> member.getAthlete() != null
+                                    && athleteId.equals(member.getAthlete().getId())));
         } finally {
             setGroupDone(groupId, originalDone);
         }
@@ -963,11 +979,10 @@ public class ChampionshipTest {
         assertEquals("junior implicit mixed team count", 4, juniorMixedTeams.size());
 
         Map<String, int[]> expected = Map.of(
-            "EGY", new int[] { 4, 4, 324 },
-            "IRI", new int[] { 6, 6, 433 },
-            "TUR", new int[] { 1, 1, 84 },
-            "UZB", new int[] { 3, 3, 243 }
-        );
+                "EGY", new int[] { 4, 4, 324 },
+                "IRI", new int[] { 6, 6, 433 },
+                "TUR", new int[] { 1, 1, 84 },
+                "UZB", new int[] { 3, 3, 243 });
 
         for (TeamTreeItem team : juniorMixedTeams) {
             int[] exp = expected.get(team.getName());
@@ -978,164 +993,164 @@ public class ChampionshipTest {
         }
     }
 
-            @Test
-            public void testJuniorImplicitMixedTeamsUseTop2MenTop2WomenWithMixedScoring() {
-            Championship junior = ChampionshipRepository.findByName("Junior");
-            assertNotNull("Junior championship should be loaded from fixture", junior);
+    @Test
+    public void testJuniorImplicitMixedTeamsUseTop2MenTop2WomenWithMixedScoring() {
+        Championship junior = ChampionshipRepository.findByName("Junior");
+        assertNotNull("Junior championship should be loaded from fixture", junior);
 
-            configureMixedTeamRules(junior, false, null, Ranking.GAMX, 0, 2, 2);
-            assertPersistedMixedTeamRules("junior implicit mixed top 2 men top 2 women",
+        configureMixedTeamRules(junior, false, null, Ranking.GAMX, 0, 2, 2);
+        assertPersistedMixedTeamRules("junior implicit mixed top 2 men top 2 women",
                 junior, false, null, Ranking.GAMX, 0, 2, 2);
 
-            Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
-            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
+        Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
+        Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
                 Ranking.GAMX, 0, 2, 2);
-            printSelectedAthletes("junior implicit mixed top 2 men top 2 women | expected counted",
+        printSelectedAthletes("junior implicit mixed top 2 men top 2 women | expected counted",
                 expectedCountedByTeam);
 
-            List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
-            assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
+        List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
+        assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
                 "junior implicit mixed top 2 men top 2 women");
-            assertMixedReportingBeanMatchesTree("junior implicit mixed top 2 men top 2 women",
+        assertMixedReportingBeanMatchesTree("junior implicit mixed top 2 men top 2 women",
                 junior, teams, null, null);
-            }
+    }
 
-            @Test
-            public void testJuniorImplicitMixedTeamsUseTop3GenderNeutralWithMixedScoring() {
-            Championship junior = ChampionshipRepository.findByName("Junior");
-            assertNotNull("Junior championship should be loaded from fixture", junior);
+    @Test
+    public void testJuniorImplicitMixedTeamsUseTop3GenderNeutralWithMixedScoring() {
+        Championship junior = ChampionshipRepository.findByName("Junior");
+        assertNotNull("Junior championship should be loaded from fixture", junior);
 
-            configureMixedTeamRules(junior, false, null, Ranking.GAMX, 3, 2, 2);
-            assertPersistedMixedTeamRules("junior implicit mixed top 3 gender neutral",
+        configureMixedTeamRules(junior, false, null, Ranking.GAMX, 3, 2, 2);
+        assertPersistedMixedTeamRules("junior implicit mixed top 3 gender neutral",
                 junior, false, null, Ranking.GAMX, 3, 2, 2);
 
-            Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
-            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
+        Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
+        Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
                 Ranking.GAMX, 3, 2, 2);
-            printSelectedAthletes("junior implicit mixed top 3 gender neutral | expected counted",
+        printSelectedAthletes("junior implicit mixed top 3 gender neutral | expected counted",
                 expectedCountedByTeam);
 
-            List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
-            assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
+        List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
+        assertMixedTeamScoresMatchExpectedSelection(teams, candidatePoolByTeam, expectedCountedByTeam,
                 "junior implicit mixed top 3 gender neutral");
-            assertMixedReportingBeanMatchesTree("junior implicit mixed top 3 gender neutral",
+        assertMixedReportingBeanMatchesTree("junior implicit mixed top 3 gender neutral",
                 junior, teams, null, null);
-            }
+    }
 
     @Test
     public void testJuniorImplicitMixedTeamsUseTop3GenderNeutralWithPointScoring() {
-            Championship junior = ChampionshipRepository.findByName("Junior");
-            assertNotNull("Junior championship should be loaded from fixture", junior);
+        Championship junior = ChampionshipRepository.findByName("Junior");
+        assertNotNull("Junior championship should be loaded from fixture", junior);
 
-            configureMixedTeamRules(junior, false, null, null, 3, 2, 2);
-            assertPersistedMixedTeamRules("junior implicit mixed top 3 gender neutral points",
+        configureMixedTeamRules(junior, false, null, null, 3, 2, 2);
+        assertPersistedMixedTeamRules("junior implicit mixed top 3 gender neutral points",
                 junior, false, null, null, 3, 2, 2);
 
-            boolean combinedTotal = junior.isSnatchCJTotalMedals();
-            Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
-            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
+        boolean combinedTotal = junior.isSnatchCJTotalMedals();
+        Map<String, List<Participation>> candidatePoolByTeam = getMixedCandidatesByTeam(junior);
+        Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(candidatePoolByTeam,
                 combinedTotal ? Ranking.SNATCH_CJ_TOTAL : Ranking.TOTAL, 3, 2, 2);
-            printSelectedAthletes("junior implicit mixed top 3 gender neutral points | expected counted",
+        printSelectedAthletes("junior implicit mixed top 3 gender neutral points | expected counted",
                 expectedCountedByTeam);
 
-            List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
-            assertFalse("junior implicit mixed top 3 gender neutral points should produce mixed teams", teams.isEmpty());
+        List<TeamTreeItem> teams = computeTeamResults(junior, Gender.MF);
+        assertFalse("junior implicit mixed top 3 gender neutral points should produce mixed teams", teams.isEmpty());
 
-            for (TeamTreeItem team : teams) {
-                List<Participation> expectedCounted = expectedCountedByTeam.getOrDefault(team.getName(), List.of());
-                List<TeamTreeItem> actualCounted = team.getCountedTeamMembers();
+        for (TeamTreeItem team : teams) {
+            List<Participation> expectedCounted = expectedCountedByTeam.getOrDefault(team.getName(), List.of());
+            List<TeamTreeItem> actualCounted = team.getCountedTeamMembers();
 
-                assertEquals("counted athletes for team " + team.getName(), expectedCounted.size(),
+            assertEquals("counted athletes for team " + team.getName(), expectedCounted.size(),
                     team.getCounted().intValue());
-                assertEquals("counted member rows for team " + team.getName(), expectedCounted.size(),
+            assertEquals("counted member rows for team " + team.getName(), expectedCounted.size(),
                     actualCounted.size());
 
-                Set<Long> expectedIds = expectedCounted.stream()
+            Set<Long> expectedIds = expectedCounted.stream()
                     .map(participation -> participation.getAthlete().getId())
                     .collect(Collectors.toSet());
-                Set<Long> actualIds = actualCounted.stream()
+            Set<Long> actualIds = actualCounted.stream()
                     .map(item -> item.getAthlete().getId())
                     .collect(Collectors.toSet());
-                assertEquals("counted athlete ids for team " + team.getName(), expectedIds, actualIds);
+            assertEquals("counted athlete ids for team " + team.getName(), expectedIds, actualIds);
 
-                int expectedPoints = expectedCounted.stream()
+            int expectedPoints = expectedCounted.stream()
                     .mapToInt(participation -> combinedTotal
-                        ? participation.getCombinedPoints()
-                        : participation.getTotalPoints())
+                            ? participation.getCombinedPoints()
+                            : participation.getTotalPoints())
                     .sum();
-                assertEquals("team points for team " + team.getName(), expectedPoints,
+            assertEquals("team points for team " + team.getName(), expectedPoints,
                     team.getPoints().intValue());
-            }
+        }
     }
 
-            @Test
-            public void testSeniorExplicitMixedSubsetUsesTop2MenTop2Women() {
-            Championship senior = ChampionshipRepository.findByName("Senior");
-            assertNotNull("Senior championship should be loaded from fixture", senior);
+    @Test
+    public void testSeniorExplicitMixedSubsetUsesTop2MenTop2Women() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
 
-            Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
-            printSelectedAthletes("senior explicit mixed subset top 2 men top 2 women | explicit roster",
+        Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+        printSelectedAthletes("senior explicit mixed subset top 2 men top 2 women | explicit roster",
                 explicitSubsetByTeam);
-            applyMixedTeamMemberships(senior, explicitSubsetByTeam);
-            assertPersistedExplicitMixedRoster("senior explicit mixed subset top 2 men top 2 women",
+        applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+        assertPersistedExplicitMixedRoster("senior explicit mixed subset top 2 men top 2 women",
                 senior, explicitSubsetByTeam, 3, 3);
-            configureMixedTeamRules(senior, true, null, Ranking.GAMX, 0, 2, 2);
-            assertPersistedMixedTeamRules("senior explicit mixed subset top 2 men top 2 women",
+        configureMixedTeamRules(senior, true, null, Ranking.GAMX, 0, 2, 2);
+        assertPersistedMixedTeamRules("senior explicit mixed subset top 2 men top 2 women",
                 senior, true, null, Ranking.GAMX, 0, 2, 2);
 
-            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
+        Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
                 Ranking.GAMX, 0, 2, 2);
-            printSelectedAthletes("senior explicit mixed subset top 2 men top 2 women | expected counted",
+        printSelectedAthletes("senior explicit mixed subset top 2 men top 2 women | expected counted",
                 expectedCountedByTeam);
 
-            List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
-            assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
+        List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
+        assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
                 "senior explicit mixed subset top 2 men top 2 women");
-            assertMixedReportingBeanMatchesTree("senior explicit mixed subset top 2 men top 2 women",
+        assertMixedReportingBeanMatchesTree("senior explicit mixed subset top 2 men top 2 women",
                 senior, teams, explicitSubsetByTeam, expectedCountedByTeam);
-            }
+    }
 
-            @Test
-            public void testSeniorTeamResultsExportUsesCountedMixedMembers() throws Exception {
-            Championship senior = ChampionshipRepository.findByName("Senior");
-            assertNotNull("Senior championship should be loaded from fixture", senior);
+    @Test
+    public void testSeniorTeamResultsExportUsesCountedMixedMembers() throws Exception {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
 
-            Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
-            applyMixedTeamMemberships(senior, explicitSubsetByTeam);
-            configureMixedTeamRules(senior, true, null, Ranking.GAMX, 0, 2, 2);
+        Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+        applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+        configureMixedTeamRules(senior, true, null, Ranking.GAMX, 0, 2, 2);
 
-            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
+        Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
                 Ranking.GAMX, 0, 2, 2);
-            Set<Long> expectedCountedIds = expectedCountedByTeam.values().stream()
+        Set<Long> expectedCountedIds = expectedCountedByTeam.values().stream()
                 .flatMap(List::stream)
                 .map(participation -> participation.getAthlete().getId())
                 .collect(Collectors.toSet());
 
-            JXLSTeamResultsSheet sheet = new JXLSTeamResultsSheet(null);
-            sheet.setChampionship(senior);
-            sheet.setGender(Gender.MF);
-            invokeSetReportingInfo(sheet);
+        JXLSTeamResultsSheet sheet = new JXLSTeamResultsSheet(null);
+        sheet.setChampionship(senior);
+        sheet.setGender(Gender.MF);
+        invokeSetReportingInfo(sheet);
 
-            @SuppressWarnings("unchecked")
-            List<Athlete> mwTeam = (List<Athlete>) sheet.getReportingBeans().get("mwTeam");
-            assertNotNull("Team Results export should publish mwTeam bean", mwTeam);
-            assertEquals("Team Results export should only expose counted mixed members",
+        @SuppressWarnings("unchecked")
+        List<Athlete> mwTeam = (List<Athlete>) sheet.getReportingBeans().get("mwTeam");
+        assertNotNull("Team Results export should publish mwTeam bean", mwTeam);
+        assertEquals("Team Results export should only expose counted mixed members",
                 expectedCountedIds, mwTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
 
-            @SuppressWarnings("unchecked")
-            List<TeamTreeItem> mwTeamItems = (List<TeamTreeItem>) sheet.getReportingBeans().get("mwTeamItems");
-            assertNotNull("Team Results export should publish mwTeamItems", mwTeamItems);
-            assertEquals("Team Results export should publish configured mixed team size",
+        @SuppressWarnings("unchecked")
+        List<TeamTreeItem> mwTeamItems = (List<TeamTreeItem>) sheet.getReportingBeans().get("mwTeamItems");
+        assertNotNull("Team Results export should publish mwTeamItems", mwTeamItems);
+        assertEquals("Team Results export should publish configured mixed team size",
                 senior.getConfiguredTeamSize(null, Gender.MF),
                 ((Integer) sheet.getReportingBeans().get("mwTeamSize")).intValue());
 
-            Set<Long> exportedItemIds = mwTeamItems.stream()
+        Set<Long> exportedItemIds = mwTeamItems.stream()
                 .flatMap(team -> team.getCountedTeamMembers().stream())
                 .map(member -> member.getAthlete().getId())
                 .collect(Collectors.toSet());
-            assertEquals("Team Results export team items should match counted mixed members",
+        assertEquals("Team Results export team items should match counted mixed members",
                 expectedCountedIds, exportedItemIds);
-            }
+    }
 
     @Test
     public void testSeniorTeamResultsExportUsesMixedChampionshipScoring() throws Exception {
@@ -1204,7 +1219,8 @@ public class ChampionshipTest {
         assertEquals("Mixed tab should use mixed (GAMX) scoring title",
                 Ranking.getScoringTitle(Ranking.GAMX), beans.get("mwScoringTitle"));
 
-        // showPoints flags must reflect per-tab configuration (both non-points-based here).
+        // showPoints flags must reflect per-tab configuration (both non-points-based
+        // here).
         assertEquals("Men's tab should not be points-based when team scoring is set",
                 Boolean.FALSE, beans.get("mShowPoints"));
         assertEquals("Women's tab should not be points-based when team scoring is set",
@@ -1291,17 +1307,17 @@ public class ChampionshipTest {
     @Test
     public void testTeamResultsSummaryTemplatesUseSingleRowTeamLoop() throws Exception {
         assertTeamResultsSummaryTemplateUsesSingleRowTeamLoop(
-            "/templates/teamResults/TeamResults-Summary-A4.xlsx",
-            "${mwShowPoints && team.points != 0 ? team.points : \"\"}");
+                "/templates/teamResults/TeamResults-Summary-A4.xlsx",
+                "${mwShowPoints && team.points != 0 ? team.points : \"\"}");
         assertTeamResultsSummaryTemplateUsesSingleRowTeamLoop(
-            "/templates/teamResults/TeamResults-Summary-Letter.xlsx",
-            "${mwShowPoints && team.points != 0 ? team.points : \"\"}");
+                "/templates/teamResults/TeamResults-Summary-Letter.xlsx",
+                "${mwShowPoints && team.points != 0 ? team.points : \"\"}");
         assertTeamResultsSummaryTemplateUsesSingleRowTeamLoop(
-            "/templates/teamResults/TeamResults-TotalOnly-Summary-A4.xlsx",
-            "${mwShowPoints && team.totalOnlyPoints != 0 ? team.totalOnlyPoints : \"\"}");
+                "/templates/teamResults/TeamResults-TotalOnly-Summary-A4.xlsx",
+                "${mwShowPoints && team.totalOnlyPoints != 0 ? team.totalOnlyPoints : \"\"}");
         assertTeamResultsSummaryTemplateUsesSingleRowTeamLoop(
-            "/templates/teamResults/TeamResults-TotalOnly-Summary-Letter.xlsx",
-            "${mwShowPoints && team.totalOnlyPoints != 0 ? team.totalOnlyPoints : \"\"}");
+                "/templates/teamResults/TeamResults-TotalOnly-Summary-Letter.xlsx",
+                "${mwShowPoints && team.totalOnlyPoints != 0 ? team.totalOnlyPoints : \"\"}");
     }
 
     @Test
@@ -1321,7 +1337,9 @@ public class ChampionshipTest {
             for (int i = 0; i < counted.size() - 1; i++) {
                 Double current = counted.get(i).getScore();
                 Double next = counted.get(i + 1).getScore();
-                assertTrue("Counted mixed members should be ordered by descending ranking score for team " + team.getName(),
+                assertTrue(
+                        "Counted mixed members should be ordered by descending ranking score for team "
+                                + team.getName(),
                         current == null || next == null || current >= next);
             }
         }
@@ -1334,43 +1352,43 @@ public class ChampionshipTest {
 
         try (Workbook workbook = createGeneratedTeamResultsWorkbook(senior, null)) {
             assertTrue("mixed score-based tab should hide points column E",
-                workbook.getSheet("Mixed").isColumnHidden(4));
+                    workbook.getSheet("Mixed").isColumnHidden(4));
             assertFalse("mixed score-based tab should keep score column G visible",
-                workbook.getSheet("Mixed").isColumnHidden(6));
+                    workbook.getSheet("Mixed").isColumnHidden(6));
 
             assertFalse("men's points-based tab should keep points column E visible",
-                workbook.getSheet("Men").isColumnHidden(4));
+                    workbook.getSheet("Men").isColumnHidden(4));
             assertTrue("men's points-based tab should hide score column G",
-                workbook.getSheet("Men").isColumnHidden(6));
+                    workbook.getSheet("Men").isColumnHidden(6));
         }
     }
 
-            @Test
-            public void testSeniorExplicitMixedSubsetUsesTop3GenderNeutral() {
-            Championship senior = ChampionshipRepository.findByName("Senior");
-            assertNotNull("Senior championship should be loaded from fixture", senior);
+    @Test
+    public void testSeniorExplicitMixedSubsetUsesTop3GenderNeutral() {
+        Championship senior = ChampionshipRepository.findByName("Senior");
+        assertNotNull("Senior championship should be loaded from fixture", senior);
 
-            Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
-            printSelectedAthletes("senior explicit mixed subset top 3 gender neutral | explicit roster",
+        Map<String, List<Participation>> explicitSubsetByTeam = selectMixedTeamMembers(senior, 3, 3);
+        printSelectedAthletes("senior explicit mixed subset top 3 gender neutral | explicit roster",
                 explicitSubsetByTeam);
-            applyMixedTeamMemberships(senior, explicitSubsetByTeam);
-            assertPersistedExplicitMixedRoster("senior explicit mixed subset top 3 gender neutral",
+        applyMixedTeamMemberships(senior, explicitSubsetByTeam);
+        assertPersistedExplicitMixedRoster("senior explicit mixed subset top 3 gender neutral",
                 senior, explicitSubsetByTeam, 3, 3);
-            configureMixedTeamRules(senior, true, null, Ranking.GAMX, 3, 2, 2);
-            assertPersistedMixedTeamRules("senior explicit mixed subset top 3 gender neutral",
+        configureMixedTeamRules(senior, true, null, Ranking.GAMX, 3, 2, 2);
+        assertPersistedMixedTeamRules("senior explicit mixed subset top 3 gender neutral",
                 senior, true, null, Ranking.GAMX, 3, 2, 2);
 
-            Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
+        Map<String, List<Participation>> expectedCountedByTeam = computeExpectedMixedCountedByTeam(explicitSubsetByTeam,
                 Ranking.GAMX, 3, 2, 2);
-            printSelectedAthletes("senior explicit mixed subset top 3 gender neutral | expected counted",
+        printSelectedAthletes("senior explicit mixed subset top 3 gender neutral | expected counted",
                 expectedCountedByTeam);
 
-            List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
-            assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
+        List<TeamTreeItem> teams = computeTeamResults(senior, Gender.MF);
+        assertMixedTeamScoresMatchExpectedSelection(teams, explicitSubsetByTeam, expectedCountedByTeam,
                 "senior explicit mixed subset top 3 gender neutral");
-            assertMixedReportingBeanMatchesTree("senior explicit mixed subset top 3 gender neutral",
+        assertMixedReportingBeanMatchesTree("senior explicit mixed subset top 3 gender neutral",
                 senior, teams, explicitSubsetByTeam, expectedCountedByTeam);
-            }
+    }
 
     @Test
     public void testSeniorReportingBeansMatchTeamResults() {
@@ -1390,7 +1408,8 @@ public class ChampionshipTest {
         assertNotNull("mTeamSenior bean should exist", mTeam);
         assertTrue("mTeamSenior should not be empty", !mTeam.isEmpty());
 
-        // All athletes in the mTeam bean should be Male PAthletes marked as team members
+        // All athletes in the mTeam bean should be Male PAthletes marked as team
+        // members
         for (Athlete a : mTeam) {
             assertTrue("mTeamSenior athlete should be PAthlete: " + a.getFullName(), a instanceof PAthlete);
             assertEquals("mTeamSenior athlete gender: " + a.getFullName(), Gender.M, a.getGender());
@@ -1398,7 +1417,8 @@ public class ChampionshipTest {
         }
 
         // Sum points per team from mTeam bean and compare to tree data.
-        // The tree uses combinedPoints (snatch+CJ+total) when snatchCJTotalMedals is set.
+        // The tree uses combinedPoints (snatch+CJ+total) when snatchCJTotalMedals is
+        // set.
         boolean combinedTotal = senior.isSnatchCJTotalMedals();
         List<TeamTreeItem> menTeams = computeTeamResults(senior, Gender.M);
         Map<String, Integer> beanPointsByTeam = mTeam.stream()
@@ -1469,7 +1489,8 @@ public class ChampionshipTest {
         }
 
         // Compare mTeam bean points to tree data.
-        // The tree uses combinedPoints (snatch+CJ+total) when snatchCJTotalMedals is set.
+        // The tree uses combinedPoints (snatch+CJ+total) when snatchCJTotalMedals is
+        // set.
         boolean combinedTotal = junior.isSnatchCJTotalMedals();
         List<TeamTreeItem> menTeams = computeTeamResults(junior, Gender.M);
         Map<String, Integer> beanPointsByTeam = mTeam.stream()
@@ -1560,10 +1581,9 @@ public class ChampionshipTest {
     private static void overrideFixtureEnabledRankings() {
         Competition competition = Competition.getCurrent();
         competition.setEnabledRankings(List.of(
-            Ranking.BW_SINCLAIR.name(),
-            Ranking.GAMX.name(),
-            Ranking.CAT_GAMX.name()
-        ));
+                Ranking.BW_SINCLAIR.name(),
+                Ranking.GAMX.name(),
+                Ranking.CAT_GAMX.name()));
         JPAService.runInTransaction(em -> {
             em.merge(competition);
             return null;
@@ -1581,7 +1601,8 @@ public class ChampionshipTest {
         return teams != null ? teams : List.of();
     }
 
-    private static Map<Gender, Set<String>> computeTeamSelectionRootNamesByGender(Championship championship, Gender gender) {
+    private static Map<Gender, Set<String>> computeTeamSelectionRootNamesByGender(Championship championship,
+            Gender gender) {
         return computeTeamSelectionRoots(championship, gender).stream()
                 .filter(root -> root.getGender() != null)
                 .collect(Collectors.groupingBy(TeamTreeItem::getGender,
@@ -1612,22 +1633,22 @@ public class ChampionshipTest {
             assertNotNull("missing Team Results template: " + templateResource, templateStream);
             try (Workbook workbook = WorkbookFactory.create(templateStream)) {
                 String statusValue = workbook.getSheet("Mixed")
-                    .getRow(2)
-                    .getCell(5)
-                    .getStringCellValue();
+                        .getRow(2)
+                        .getCell(5)
+                        .getStringCellValue();
                 assertEquals("mixed status denominator should use configured team size for " + templateResource,
-                    "${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}",
-                    statusValue);
+                        "${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}",
+                        statusValue);
 
                 String mixedMemberLoop = workbook.getSheet("Mixed")
-                    .getRow(4)
-                    .getCell(0)
-                    .getCellComment()
-                    .getString()
-                    .getString();
+                        .getRow(4)
+                        .getCell(0)
+                        .getCellComment()
+                        .getString()
+                        .getString();
                 assertEquals("mixed member loop should use counted team members for " + templateResource,
-                    "jx:each(items=\"team.countedTeamMembers\" var=\"member\" lastCell=\"G5\")",
-                    mixedMemberLoop);
+                        "jx:each(items=\"team.countedTeamMembers\" var=\"member\" lastCell=\"G5\")",
+                        mixedMemberLoop);
             }
         }
     }
@@ -1638,56 +1659,58 @@ public class ChampionshipTest {
             assertNotNull("missing Team Results summary template: " + templateResource, templateStream);
             try (Workbook workbook = WorkbookFactory.create(templateStream)) {
                 String areaComment = workbook.getSheet("Mixed")
-                    .getRow(0)
-                    .getCell(0)
-                    .getCellComment()
-                    .getString()
-                    .getString();
+                        .getRow(0)
+                        .getCell(0)
+                        .getCellComment()
+                        .getString()
+                        .getString();
                 assertEquals("summary template area should end on the team row for " + templateResource,
-                    "jx:area(lastCell=\"G4\")",
-                    areaComment);
+                        "jx:area(lastCell=\"G4\")",
+                        areaComment);
 
                 String statusHeader = workbook.getSheet("Mixed")
-                    .getRow(2)
-                    .getCell(5)
-                    .getStringCellValue();
+                        .getRow(2)
+                        .getCell(5)
+                        .getStringCellValue();
                 assertEquals("summary template should use the team status header for " + templateResource,
-                    "${t.get(\"TeamResults.Status\")}",
-                    statusHeader);
+                        "${t.get(\"TeamResults.Status\")}",
+                        statusHeader);
 
                 String teamLoop = workbook.getSheet("Mixed")
-                    .getRow(3)
-                    .getCell(0)
-                    .getCellComment()
-                    .getString()
-                    .getString();
+                        .getRow(3)
+                        .getCell(0)
+                        .getCellComment()
+                        .getString()
+                        .getString();
                 assertEquals("summary template should iterate one row per team for " + templateResource,
-                    "jx:each(items=\"mwTeamItems\" var=\"team\" lastCell=\"G4\")",
-                    teamLoop);
+                        "jx:each(items=\"mwTeamItems\" var=\"team\" lastCell=\"G4\")",
+                        teamLoop);
 
                 String teamStatus = workbook.getSheet("Mixed")
-                    .getRow(3)
-                    .getCell(5)
-                    .getStringCellValue();
-                assertEquals("summary template should keep the configured team-size denominator for " + templateResource,
-                    "${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}",
-                    teamStatus);
+                        .getRow(3)
+                        .getCell(5)
+                        .getStringCellValue();
+                assertEquals(
+                        "summary template should keep the configured team-size denominator for " + templateResource,
+                        "${team.counted}/${mwTeamSize != 0 ? mwTeamSize : team.size}",
+                        teamStatus);
 
                 String teamPoints = workbook.getSheet("Mixed")
-                    .getRow(3)
-                    .getCell(4)
-                    .getStringCellValue();
+                        .getRow(3)
+                        .getCell(4)
+                        .getStringCellValue();
                 assertEquals("summary template should use the expected points getter for " + templateResource,
-                    teamPointsExpression,
-                    teamPoints);
+                        teamPointsExpression,
+                        teamPoints);
 
                 assertNull("summary template should not create a detail row for " + templateResource,
-                    workbook.getSheet("Mixed").getRow(4));
+                        workbook.getSheet("Mixed").getRow(4));
             }
         }
     }
 
-    private static Workbook createGeneratedTeamResultsWorkbook(Championship championship, Gender gender) throws Exception {
+    private static Workbook createGeneratedTeamResultsWorkbook(Championship championship, Gender gender)
+            throws Exception {
         JXLSTeamResultsSheet sheet = new JXLSTeamResultsSheet(null);
         sheet.setTemplateFileName("/templates/teamResults/TeamResults-A4.xlsx");
         sheet.setChampionship(championship);
@@ -1709,18 +1732,18 @@ public class ChampionshipTest {
                     team.getTeamMembers().size());
 
             Map<Long, TeamTreeItem> iteratedAthletesById = team.getTeamMembers().stream()
-                .collect(Collectors.toMap(item -> item.getAthlete().getId(), item -> item));
+                    .collect(Collectors.toMap(item -> item.getAthlete().getId(), item -> item));
 
             double expectedScore = 0.0D;
             for (Participation selectedParticipation : selectedParticipations) {
                 Athlete selectedAthlete = selectedParticipation.getAthlete();
-            TeamTreeItem iteratedAthlete = iteratedAthletesById.get(selectedAthlete.getId());
+                TeamTreeItem iteratedAthlete = iteratedAthletesById.get(selectedAthlete.getId());
                 Double expectedAthleteScore = getDirectGamxScore(selectedParticipation);
 
-            assertNotNull(label + " missing iterated athlete for team " + team.getName() + ": "
-                + selectedAthlete.getFullName(), iteratedAthlete);
-            assertRoundedTo2(label + " iterated athlete score for team " + team.getName() + ": "
-                + selectedAthlete.getFullName(),
+                assertNotNull(label + " missing iterated athlete for team " + team.getName() + ": "
+                        + selectedAthlete.getFullName(), iteratedAthlete);
+                assertRoundedTo2(label + " iterated athlete score for team " + team.getName() + ": "
+                        + selectedAthlete.getFullName(),
                         expectedAthleteScore, iteratedAthlete.getScore());
                 expectedScore += expectedAthleteScore;
             }
@@ -1729,35 +1752,36 @@ public class ChampionshipTest {
         }
     }
 
-            private static void assertMixedTeamScoresMatchExpectedSelection(List<TeamTreeItem> teams,
-                Map<String, List<Participation>> contributingPoolByTeam,
-                Map<String, List<Participation>> expectedCountedByTeam,
-                String label) {
-            assertTrue(label + " should produce mixed teams", !teams.isEmpty());
+    private static void assertMixedTeamScoresMatchExpectedSelection(List<TeamTreeItem> teams,
+            Map<String, List<Participation>> contributingPoolByTeam,
+            Map<String, List<Participation>> expectedCountedByTeam,
+            String label) {
+        assertTrue(label + " should produce mixed teams", !teams.isEmpty());
 
-            for (TeamTreeItem team : teams) {
-                List<Participation> contributingPool = contributingPoolByTeam.getOrDefault(team.getName(), List.of());
-                List<Participation> expectedCounted = expectedCountedByTeam.getOrDefault(team.getName(), List.of());
+        for (TeamTreeItem team : teams) {
+            List<Participation> contributingPool = contributingPoolByTeam.getOrDefault(team.getName(), List.of());
+            List<Participation> expectedCounted = expectedCountedByTeam.getOrDefault(team.getName(), List.of());
 
-                assertEquals(label + " iterated athletes for team " + team.getName(), contributingPool.size(),
+            assertEquals(label + " iterated athletes for team " + team.getName(), contributingPool.size(),
                     team.getTeamMembers().size());
-                assertEquals(label + " counted athletes for team " + team.getName(), expectedCounted.size(),
+            assertEquals(label + " counted athletes for team " + team.getName(), expectedCounted.size(),
                     team.getCounted().intValue());
 
-                List<Long> expectedPoolIds = contributingPool.stream()
+            List<Long> expectedPoolIds = contributingPool.stream()
                     .map(participation -> participation.getAthlete().getId())
                     .collect(Collectors.toList());
-                List<Long> actualPoolIds = team.getTeamMembers().stream()
+            List<Long> actualPoolIds = team.getTeamMembers().stream()
                     .map(item -> item.getAthlete().getId())
                     .collect(Collectors.toList());
-                assertEquals(label + " iterated athlete ids for team " + team.getName(),
+            assertEquals(label + " iterated athlete ids for team " + team.getName(),
                     expectedPoolIds.stream().collect(Collectors.toSet()),
                     actualPoolIds.stream().collect(Collectors.toSet()));
 
-                double expectedScore = expectedCounted.stream()
+            double expectedScore = expectedCounted.stream()
                     .mapToDouble(participation -> getDirectGamxScore(participation))
                     .sum();
-                logger.info("{} | team={} | expectedPoolIds={} | actualPoolIds={} | pool={} | counted={} | expectedSum={} | actualSum={}",
+            logger.info(
+                    "{} | team={} | expectedPoolIds={} | actualPoolIds={} | pool={} | counted={} | expectedSum={} | actualSum={}",
                     label,
                     team.getName(),
                     expectedPoolIds,
@@ -1766,9 +1790,9 @@ public class ChampionshipTest {
                     describeParticipations(expectedCounted),
                     String.format(Locale.ROOT, "%.2f", expectedScore),
                     String.format(Locale.ROOT, "%.2f", team.getScore()));
-                assertRoundedTo2(label + " score for team " + team.getName(), expectedScore, team.getScore());
-            }
-            }
+            assertRoundedTo2(label + " score for team " + team.getName(), expectedScore, team.getScore());
+        }
+    }
 
     private static Double getDirectGamxScore(Participation participation) {
         Athlete rankedAthlete = participation.getAthlete();
@@ -1778,7 +1802,8 @@ public class ChampionshipTest {
         return gamx;
     }
 
-    private static void applyMixedTeamMemberships(Championship championship, Map<String, List<Participation>> selectedByTeam) {
+    private static void applyMixedTeamMemberships(Championship championship,
+            Map<String, List<Participation>> selectedByTeam) {
         Set<ParticipationId> selectedParticipationIds = selectedByTeam.values().stream()
                 .flatMap(List::stream)
                 .filter(participation -> participation != null && participation.getId() != null)
@@ -1810,7 +1835,8 @@ public class ChampionshipTest {
 
     private static String describeAthlete(Participation participation) {
         Athlete athlete = participation.getAthlete();
-        String categoryName = participation.getCategory() != null ? participation.getCategory().getNameWithAgeGroup() : "?";
+        String categoryName = participation.getCategory() != null ? participation.getCategory().getNameWithAgeGroup()
+                : "?";
         Double gamx = athlete.getGamx();
         String gamxText = gamx != null ? String.format(Locale.ROOT, "%.2f", gamx) : "null";
         return athlete.getFullName() + " [" + categoryName + ", GAMX=" + gamxText + "]";
@@ -1835,7 +1861,8 @@ public class ChampionshipTest {
         }
 
         long totalSelected = selectedByTeam.values().stream().mapToLong(List::size).sum();
-        assertTrue("expected at least one mixed-team athlete selection for " + championship.getName(), totalSelected > 0);
+        assertTrue("expected at least one mixed-team athlete selection for " + championship.getName(),
+                totalSelected > 0);
         return selectedByTeam;
     }
 
@@ -1935,19 +1962,20 @@ public class ChampionshipTest {
         });
     }
 
-            private static void assertPersistedMixedTeamRules(String label, Championship championship,
-                boolean explicitMixedTeamMembers, Ranking teamScoringSystem, Ranking mixedTeamScoringSystem,
-                Integer mixedBestN, Integer mixedMensBestN, Integer mixedWomensBestN) {
-            Championship persisted = ChampionshipRepository.findByName(championship.getName());
-            assertNotNull(label + " persisted championship", persisted);
-            assertEquals(label + " explicitMixedTeamMembers", explicitMixedTeamMembers,
+    private static void assertPersistedMixedTeamRules(String label, Championship championship,
+            boolean explicitMixedTeamMembers, Ranking teamScoringSystem, Ranking mixedTeamScoringSystem,
+            Integer mixedBestN, Integer mixedMensBestN, Integer mixedWomensBestN) {
+        Championship persisted = ChampionshipRepository.findByName(championship.getName());
+        assertNotNull(label + " persisted championship", persisted);
+        assertEquals(label + " explicitMixedTeamMembers", explicitMixedTeamMembers,
                 persisted.isExplicitMixedTeamMembers());
-            assertEquals(label + " teamScoringSystem", teamScoringSystem, persisted.getTeamScoringSystem());
-            assertEquals(label + " mixedTeamScoringSystem", mixedTeamScoringSystem, persisted.getMixedTeamScoringSystem());
-            assertEquals(label + " mixedBestN", mixedBestN, persisted.getMixedBestN());
-            assertEquals(label + " mixedMensBestN", mixedMensBestN, persisted.getMixedMensBestN());
-            assertEquals(label + " mixedWomensBestN", mixedWomensBestN, persisted.getMixedWomensBestN());
-            logger.info("{} | persisted settings explicit={} teamScoring={} mixedScoring={} mixedBestN={} mixedMensBestN={} mixedWomensBestN={}",
+        assertEquals(label + " teamScoringSystem", teamScoringSystem, persisted.getTeamScoringSystem());
+        assertEquals(label + " mixedTeamScoringSystem", mixedTeamScoringSystem, persisted.getMixedTeamScoringSystem());
+        assertEquals(label + " mixedBestN", mixedBestN, persisted.getMixedBestN());
+        assertEquals(label + " mixedMensBestN", mixedMensBestN, persisted.getMixedMensBestN());
+        assertEquals(label + " mixedWomensBestN", mixedWomensBestN, persisted.getMixedWomensBestN());
+        logger.info(
+                "{} | persisted settings explicit={} teamScoring={} mixedScoring={} mixedBestN={} mixedMensBestN={} mixedWomensBestN={}",
                 label,
                 persisted.isExplicitMixedTeamMembers(),
                 persisted.getTeamScoringSystem(),
@@ -1955,122 +1983,122 @@ public class ChampionshipTest {
                 persisted.getMixedBestN(),
                 persisted.getMixedMensBestN(),
                 persisted.getMixedWomensBestN());
-            }
+    }
 
-            private static void assertPersistedExplicitMixedRoster(String label, Championship championship,
-                Map<String, List<Participation>> selectedByTeam, int expectedFemaleCount, int expectedMaleCount) {
-            Map<String, List<Participation>> actualByTeam = getChampionshipParticipations(championship).stream()
+    private static void assertPersistedExplicitMixedRoster(String label, Championship championship,
+            Map<String, List<Participation>> selectedByTeam, int expectedFemaleCount, int expectedMaleCount) {
+        Map<String, List<Participation>> actualByTeam = getChampionshipParticipations(championship).stream()
                 .filter(Participation::getMixedTeamMember)
                 .collect(Collectors.groupingBy(participation -> participation.getAthlete().getTeam(),
-                    LinkedHashMap::new, Collectors.toList()));
+                        LinkedHashMap::new, Collectors.toList()));
 
-            for (Map.Entry<String, List<Participation>> entry : selectedByTeam.entrySet()) {
-                String teamName = entry.getKey();
-                List<Participation> expected = entry.getValue().stream()
+        for (Map.Entry<String, List<Participation>> entry : selectedByTeam.entrySet()) {
+            String teamName = entry.getKey();
+            List<Participation> expected = entry.getValue().stream()
                     .sorted(participationThenNameComparator())
                     .collect(Collectors.toList());
-                List<Participation> actual = actualByTeam.getOrDefault(teamName, List.of()).stream()
+            List<Participation> actual = actualByTeam.getOrDefault(teamName, List.of()).stream()
                     .sorted(participationThenNameComparator())
                     .collect(Collectors.toList());
 
-                assertEquals(label + " persisted explicit roster size for " + teamName,
+            assertEquals(label + " persisted explicit roster size for " + teamName,
                     expectedFemaleCount + expectedMaleCount, actual.size());
-                assertEquals(label + " persisted female count for " + teamName,
+            assertEquals(label + " persisted female count for " + teamName,
                     expectedFemaleCount, actual.stream().filter(p -> p.getAthlete().getGender() == Gender.F).count());
-                assertEquals(label + " persisted male count for " + teamName,
+            assertEquals(label + " persisted male count for " + teamName,
                     expectedMaleCount, actual.stream().filter(p -> p.getAthlete().getGender() == Gender.M).count());
-                assertEquals(label + " persisted roster ids for " + teamName,
+            assertEquals(label + " persisted roster ids for " + teamName,
                     expected.stream().map(Participation::getId).collect(Collectors.toList()),
                     actual.stream().map(Participation::getId).collect(Collectors.toList()));
-                logger.info("{} | persisted explicit roster | team={} | athletes={}",
+            logger.info("{} | persisted explicit roster | team={} | athletes={}",
                     label, teamName, describeParticipations(actual));
-            }
-            }
+        }
+    }
 
-            private static void assertMixedReportingBeanMatchesTree(String label, Championship championship,
-                List<TeamTreeItem> teams, Map<String, List<Participation>> explicitRosterByTeam,
-                Map<String, List<Participation>> expectedCountedByTeam) {
-            HashMap<String, Object> beans = Competition.getCurrent().computeReportingInfo(null, championship);
-            String beanKey = "mwTeam" + championship.getName();
+    private static void assertMixedReportingBeanMatchesTree(String label, Championship championship,
+            List<TeamTreeItem> teams, Map<String, List<Participation>> explicitRosterByTeam,
+            Map<String, List<Participation>> expectedCountedByTeam) {
+        HashMap<String, Object> beans = Competition.getCurrent().computeReportingInfo(null, championship);
+        String beanKey = "mwTeam" + championship.getName();
 
-            @SuppressWarnings("unchecked")
-            List<Athlete> mwTeam = (List<Athlete>) beans.get(beanKey);
-            assertNotNull(label + " | " + beanKey + " bean should exist", mwTeam);
+        @SuppressWarnings("unchecked")
+        List<Athlete> mwTeam = (List<Athlete>) beans.get(beanKey);
+        assertNotNull(label + " | " + beanKey + " bean should exist", mwTeam);
 
-            for (Athlete a : mwTeam) {
-                assertTrue(label + " | " + beanKey + " athlete should be PAthlete: " + a.getFullName(),
+        for (Athlete a : mwTeam) {
+            assertTrue(label + " | " + beanKey + " athlete should be PAthlete: " + a.getFullName(),
                     a instanceof PAthlete);
-            }
+        }
 
-            if (championship.isExplicitMixedTeamMembers() && explicitRosterByTeam != null) {
-                // Explicit: every bean athlete must come from the explicit roster
-                Set<Long> rosterIds = explicitRosterByTeam.values().stream()
+        if (championship.isExplicitMixedTeamMembers() && explicitRosterByTeam != null) {
+            // Explicit: every bean athlete must come from the explicit roster
+            Set<Long> rosterIds = explicitRosterByTeam.values().stream()
                     .flatMap(List::stream)
                     .map(p -> p.getAthlete().getId())
                     .collect(Collectors.toSet());
-                for (Athlete a : mwTeam) {
-                    assertTrue(label + " | " + beanKey + " athlete should be in explicit roster: " + a.getFullName(),
+            for (Athlete a : mwTeam) {
+                assertTrue(label + " | " + beanKey + " athlete should be in explicit roster: " + a.getFullName(),
                         rosterIds.contains(a.getId()));
-                }
-                // Bean contains full roster; verify counted members in tree match expected topN
-                if (expectedCountedByTeam != null) {
-                    Set<Long> expectedCountedIds = expectedCountedByTeam.values().stream()
-                        .flatMap(List::stream)
-                        .map(p -> p.getAthlete().getId())
-                        .collect(Collectors.toSet());
-                    Set<Long> treeCountedIds = teams.stream()
-                        .flatMap(t -> t.getTeamMembers().stream())
-                        .filter(TeamTreeItem::isCountedForTeam)
-                        .map(m -> m.getAthlete().getId())
-                        .collect(Collectors.toSet());
-                    assertEquals(label + " | tree counted members should match expected topN subset",
-                        expectedCountedIds, treeCountedIds);
-                }
-            } else {
-                // Implicit: bean should be union of mTeam + wTeam
-                @SuppressWarnings("unchecked")
-                List<Athlete> mTeam = (List<Athlete>) beans.get("mTeam" + championship.getName());
-                @SuppressWarnings("unchecked")
-                List<Athlete> wTeam = (List<Athlete>) beans.get("wTeam" + championship.getName());
-                if (mTeam != null && wTeam != null) {
-                    Set<Long> mwIds = mwTeam.stream().map(Athlete::getId).collect(Collectors.toSet());
-                    Set<Long> mPlusW = new java.util.HashSet<>();
-                    mPlusW.addAll(mTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
-                    mPlusW.addAll(wTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
-                    assertEquals(label + " | " + beanKey + " should be union of mTeam + wTeam", mPlusW, mwIds);
-                }
-                // Implicit: verify counted members in tree match expected topN
-                if (expectedCountedByTeam != null) {
-                    Set<Long> expectedCountedIds = expectedCountedByTeam.values().stream()
-                        .flatMap(List::stream)
-                        .map(p -> p.getAthlete().getId())
-                        .collect(Collectors.toSet());
-                    Set<Long> treeCountedIds = teams.stream()
-                        .flatMap(t -> t.getTeamMembers().stream())
-                        .filter(TeamTreeItem::isCountedForTeam)
-                        .map(m -> m.getAthlete().getId())
-                        .collect(Collectors.toSet());
-                    assertEquals(label + " | tree counted members should match expected topN subset",
-                        expectedCountedIds, treeCountedIds);
-                }
             }
+            // Bean contains full roster; verify counted members in tree match expected topN
+            if (expectedCountedByTeam != null) {
+                Set<Long> expectedCountedIds = expectedCountedByTeam.values().stream()
+                        .flatMap(List::stream)
+                        .map(p -> p.getAthlete().getId())
+                        .collect(Collectors.toSet());
+                Set<Long> treeCountedIds = teams.stream()
+                        .flatMap(t -> t.getTeamMembers().stream())
+                        .filter(TeamTreeItem::isCountedForTeam)
+                        .map(m -> m.getAthlete().getId())
+                        .collect(Collectors.toSet());
+                assertEquals(label + " | tree counted members should match expected topN subset",
+                        expectedCountedIds, treeCountedIds);
+            }
+        } else {
+            // Implicit: bean should be union of mTeam + wTeam
+            @SuppressWarnings("unchecked")
+            List<Athlete> mTeam = (List<Athlete>) beans.get("mTeam" + championship.getName());
+            @SuppressWarnings("unchecked")
+            List<Athlete> wTeam = (List<Athlete>) beans.get("wTeam" + championship.getName());
+            if (mTeam != null && wTeam != null) {
+                Set<Long> mwIds = mwTeam.stream().map(Athlete::getId).collect(Collectors.toSet());
+                Set<Long> mPlusW = new java.util.HashSet<>();
+                mPlusW.addAll(mTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
+                mPlusW.addAll(wTeam.stream().map(Athlete::getId).collect(Collectors.toSet()));
+                assertEquals(label + " | " + beanKey + " should be union of mTeam + wTeam", mPlusW, mwIds);
+            }
+            // Implicit: verify counted members in tree match expected topN
+            if (expectedCountedByTeam != null) {
+                Set<Long> expectedCountedIds = expectedCountedByTeam.values().stream()
+                        .flatMap(List::stream)
+                        .map(p -> p.getAthlete().getId())
+                        .collect(Collectors.toSet());
+                Set<Long> treeCountedIds = teams.stream()
+                        .flatMap(t -> t.getTeamMembers().stream())
+                        .filter(TeamTreeItem::isCountedForTeam)
+                        .map(m -> m.getAthlete().getId())
+                        .collect(Collectors.toSet());
+                assertEquals(label + " | tree counted members should match expected topN subset",
+                        expectedCountedIds, treeCountedIds);
+            }
+        }
 
-            // Per-team: verify bean athletes include tree's iterated athletes
-            Map<String, Set<Long>> beanIdsByTeam = mwTeam.stream()
+        // Per-team: verify bean athletes include tree's iterated athletes
+        Map<String, Set<Long>> beanIdsByTeam = mwTeam.stream()
                 .filter(a -> a.getTeam() != null)
                 .collect(Collectors.groupingBy(Athlete::getTeam,
-                    Collectors.mapping(Athlete::getId, Collectors.toSet())));
-            for (TeamTreeItem team : teams) {
-                Set<Long> beanIds = beanIdsByTeam.getOrDefault(team.getName(), Set.of());
-                for (TeamTreeItem member : team.getTeamMembers()) {
-                    assertTrue(label + " | " + beanKey + " should contain iterated athlete "
+                        Collectors.mapping(Athlete::getId, Collectors.toSet())));
+        for (TeamTreeItem team : teams) {
+            Set<Long> beanIds = beanIdsByTeam.getOrDefault(team.getName(), Set.of());
+            for (TeamTreeItem member : team.getTeamMembers()) {
+                assertTrue(label + " | " + beanKey + " should contain iterated athlete "
                         + member.getAthlete().getFullName() + " for team " + team.getName(),
                         beanIds.contains(member.getAthlete().getId()));
-                }
-                logger.info("{} | {} bean for {} : beanCount={}, treeSize={}, treeCounted={}",
+            }
+            logger.info("{} | {} bean for {} : beanCount={}, treeSize={}, treeCounted={}",
                     label, beanKey, team.getName(), beanIds.size(), team.getSize(), team.getCounted());
-            }
-            }
+        }
+    }
 
     private static Map<String, List<Participation>> computeExpectedMixedCountedByTeam(
             Map<String, List<Participation>> contributingPoolByTeam,
@@ -2111,7 +2139,8 @@ public class ChampionshipTest {
         return expectedByTeam;
     }
 
-    private static List<Participation> sortParticipationsByMixedRanking(List<Participation> participations, Ranking ranking) {
+    private static List<Participation> sortParticipationsByMixedRanking(List<Participation> participations,
+            Ranking ranking) {
         if (ranking == Ranking.TOTAL || ranking == Ranking.SNATCH_CJ_TOTAL || ranking == Ranking.CUSTOM) {
             List<Participation> sortedParticipations = new ArrayList<>(participations);
             sortedParticipations.sort((left, right) -> {
@@ -2139,8 +2168,10 @@ public class ChampionshipTest {
         }
 
         Map<Long, Participation> participationByAthleteId = participations.stream()
-                .filter(participation -> participation.getAthlete() != null && participation.getAthlete().getId() != null)
-                .collect(Collectors.toMap(participation -> participation.getAthlete().getId(), participation -> participation,
+                .filter(participation -> participation.getAthlete() != null
+                        && participation.getAthlete().getId() != null)
+                .collect(Collectors.toMap(participation -> participation.getAthlete().getId(),
+                        participation -> participation,
                         (left, right) -> left, LinkedHashMap::new));
 
         List<Athlete> sortedAthletes = app.owlcms.data.athleteSort.AthleteSorter.teamPointsOrderCopyMixed(
@@ -2182,9 +2213,12 @@ public class ChampionshipTest {
                 String.CASE_INSENSITIVE_ORDER)
                 .thenComparing(Participation::getCategory)
                 .thenComparing(participation -> participation.getAthlete().getLastName(), String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(participation -> participation.getAthlete().getFirstName(), String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(participation -> participation.getId() != null ? participation.getId().athleteId : Long.MAX_VALUE)
-                .thenComparing(participation -> participation.getId() != null ? participation.getId().categoryId : Long.MAX_VALUE);
+                .thenComparing(participation -> participation.getAthlete().getFirstName(),
+                        String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(participation -> participation.getId() != null ? participation.getId().athleteId
+                        : Long.MAX_VALUE)
+                .thenComparing(participation -> participation.getId() != null ? participation.getId().categoryId
+                        : Long.MAX_VALUE);
     }
 
     private static List<Participation> getChampionshipParticipations(Championship championship) {
@@ -2201,41 +2235,41 @@ public class ChampionshipTest {
                 .collect(Collectors.toList());
     }
 
-                private static Set<Long> getChampionshipCategoryIds(Championship championship) {
-                List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, championship, null, true, -1, -1);
-                return ageGroups.stream()
-                    .map(AgeGroup::getCategories)
-                    .flatMap(List::stream)
-                    .map(Category::getId)
-                    .filter(id -> id != null)
-                    .collect(Collectors.toSet());
-                }
+    private static Set<Long> getChampionshipCategoryIds(Championship championship) {
+        List<AgeGroup> ageGroups = AgeGroupRepository.findFiltered(null, null, championship, null, true, -1, -1);
+        return ageGroups.stream()
+                .map(AgeGroup::getCategories)
+                .flatMap(List::stream)
+                .map(Category::getId)
+                .filter(id -> id != null)
+                .collect(Collectors.toSet());
+    }
 
-                private static Participation findChampionshipParticipationForAthlete(Championship championship, String lastName,
-                    String team) {
-                Participation participation = getChampionshipParticipations(championship).stream()
+    private static Participation findChampionshipParticipationForAthlete(Championship championship, String lastName,
+            String team) {
+        Participation participation = getChampionshipParticipations(championship).stream()
                 .filter(p -> p.getAthlete() != null)
-                    .filter(p -> lastName.equalsIgnoreCase(p.getAthlete().getLastName()))
-                    .filter(p -> team.equalsIgnoreCase(p.getAthlete().getTeam()))
+                .filter(p -> lastName.equalsIgnoreCase(p.getAthlete().getLastName()))
+                .filter(p -> team.equalsIgnoreCase(p.getAthlete().getTeam()))
                 .findFirst()
                 .orElse(null);
-                assertNotNull("expected athlete " + lastName + " from " + team + " in " + championship.getName()
-                    + " championship participations", participation);
-                return participation;
-                }
+        assertNotNull("expected athlete " + lastName + " from " + team + " in " + championship.getName()
+                + " championship participations", participation);
+        return participation;
+    }
 
-                private static Participation findParticipationForChampionship(Athlete athlete, Championship championship) {
-                Set<Long> categoryIds = getChampionshipCategoryIds(championship);
-                Participation participation = athlete.getParticipations().stream()
-                    .filter(p -> p.getCategory() != null
+    private static Participation findParticipationForChampionship(Athlete athlete, Championship championship) {
+        Set<Long> categoryIds = getChampionshipCategoryIds(championship);
+        Participation participation = athlete.getParticipations().stream()
+                .filter(p -> p.getCategory() != null
                         && p.getCategory().getId() != null
                         && categoryIds.contains(p.getCategory().getId()))
-                    .findFirst()
-                    .orElse(null);
-                assertNotNull("expected " + athlete.getFullName() + " to have a participation in " + championship.getName(),
-                    participation);
-                return participation;
-                }
+                .findFirst()
+                .orElse(null);
+        assertNotNull("expected " + athlete.getFullName() + " to have a participation in " + championship.getName(),
+                participation);
+        return participation;
+    }
 
     private static Map<ParticipationId, Boolean> snapshotMixedTeamMemberships() {
         return JPAService.runInTransaction(em -> em.createQuery("select p from Participation p", Participation.class)

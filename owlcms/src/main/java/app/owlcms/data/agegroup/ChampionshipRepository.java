@@ -154,6 +154,7 @@ public class ChampionshipRepository {
 		}
 		if (competition.migrateToChampionship(template)) {
 			em.merge(competition);
+			Competition.syncCurrentAfterMigration(competition);
 			logger.info("Migrated legacy Competition championship defaults into template '{}'", template.getName());
 		}
 	}

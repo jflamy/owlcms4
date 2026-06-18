@@ -14,6 +14,14 @@ workspace from an automated agent, without invoking Maven.
 - The generic VS Code test runner tool returns `No tests found in the files`
   when given a Java test file path.
 
+## Permission
+
+- You do NOT need to ask for permission to run the test file you are currently
+  fixing or editing. Running these tests via the Java Test Runner
+  (`java.test.editor.run`) is a safe, read-only verification step — just run it.
+- The `mvn`/build human-consent rule still applies: never fall back to
+  `mvn test` to run tests without explicit human consent.
+
 ## Why the generic runner is insufficient
 
 The generic VS Code test runner tool (`runTests`) does not discover Java tests
