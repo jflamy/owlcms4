@@ -6,7 +6,7 @@
 	"image": "mcr.microsoft.com/devcontainers/java:21-bullseye",
 
 	"features": {
-		"ghcr.io/devcontainers/features/node:1": {
+		"ghcr.io/devcontainers/features/node:2": {
 			"version": "22",
 			"nodeGypDependencies": true,
 			"installYarnUsingApt": true
