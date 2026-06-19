@@ -1,7 +1,6 @@
 package app.owlcms.data.jpa;
 
 import java.lang.reflect.Field;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -86,9 +85,9 @@ public class UtcNormalizationMigration {
                 Object value = field.get(entity);
                 if (value instanceof LocalDateTime) {
                     field.set(entity, toUtc((LocalDateTime) value));
-                } else if (value instanceof LocalDate) {
-                    field.set(entity, toUtc((LocalDate) value));
                 }
+                // LocalDate values are civil calendar dates (birth date,
+                // competition dates) and are stored verbatim: never normalized.
             } catch (Exception e) {
                 logger.error("UtcNormalizationMigration: error normalizing field {} in {}: {}", field.getName(), entity.getClass().getSimpleName(), e.toString());
             }
@@ -98,10 +97,5 @@ public class UtcNormalizationMigration {
     private static LocalDateTime toUtc(LocalDateTime ldt) {
         if (ldt == null) return null;
         return ldt.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
-    }
-
-    private static LocalDate toUtc(LocalDate ld) {
-        if (ld == null) return null;
-        return ld.atStartOfDay(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC).toLocalDate();
     }
 }
