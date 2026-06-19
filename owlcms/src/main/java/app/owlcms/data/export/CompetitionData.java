@@ -163,7 +163,9 @@ public class CompetitionData {
 		setCompetitionForExport(Competition.getCurrent());
 		setRecords(RecordRepository.findAll());
 		setRecordConfig(RecordConfig.getCurrent());
-		setChampionships(ChampionshipRepository.findAllIncludingTemplate());
+		// Read championships through the cache (Championship.findAllIncludingTemplate) rather than
+		// the per-call DB query in ChampionshipRepository.
+		setChampionships(Championship.findAllIncludingTemplate());
 		setTechnicalOfficials(TechnicalOfficialRepository.findAll());
 		setTechnicalOfficialsTimetable(
 			JPAService.runInTransaction(em -> TechnicalOfficialsTimetableRepository.findAll(em)));

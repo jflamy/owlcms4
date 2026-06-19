@@ -54,7 +54,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
-import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -2223,7 +2222,13 @@ public class Competition {
 	}
 
 	private Championship getCompetitionTemplate() {
-		return ChampionshipRepository.findCompetitionTemplate();
+		// Use the cached lookup (static allChampionshipsMap, invalidated by Championship.reset() on
+		// save) instead of ChampionshipRepository.findCompetitionTemplate(), which runs a full DB
+		// transaction + HQL query on every call. This accessor backs hot getters (getScoringSystem,
+		// getBestAthleteScoringSystem, getTeamPointsNth, getMaxTeamSize, ...) that are evaluated many
+		// times during reporting/rendering, so a per-call DB query would blow up the same way the
+		// final-package grid did.
+		return Championship.findCompetitionTemplate();
 	}
 
 	public void setTeamPoints1st(Integer teamPoints1st) {
