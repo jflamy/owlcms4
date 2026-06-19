@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-rc02: End Of Competition results fixed (a cache was not being used resulting in performance issue).
+
 67.0.0: Reworked the Records page
   - all features are on a single page
   - event-specific or historical prior-categories records can be marked as inactive for less clutter.
