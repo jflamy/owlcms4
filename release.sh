@@ -1,13 +1,39 @@
 #!/usr/bin/env bash
-REVISION="${1:-67.0.0-rc02}"
 set -euo pipefail
+
+# Parse arguments: the first positional argument is the revision; flags may
+# appear in any order.
+SKIP_TRANSLATIONS="${SKIP_TRANSLATIONS:-false}"
+REVISION=""
+for arg in "$@"; do
+  case "${arg}" in
+    --skipTranslations)
+      SKIP_TRANSLATIONS=true
+      ;;
+    --*)
+      echo "ERROR: unknown option '${arg}'." >&2
+      exit 1
+      ;;
+    *)
+      if [[ -z "${REVISION}" ]]; then
+        REVISION="${arg}"
+      fi
+      ;;
+  esac
+done
+REVISION="${REVISION:-67.0.0-rc02}"
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
 # and watches the run until completion.
 #
 # Usage:
 #   ./release.sh 67.0.0-beta04
+#   ./release.sh 67.0.0-beta04 --skipTranslations
 #   BUILD_IMAGES=false ./release.sh 67.0.0-beta04
+#
+# Options:
+#   --skipTranslations   Skip the translation4.csv vs Google Sheets comparison.
+#                        The build will use the translations committed on the branch.
 #
 # Defaults:
 #   - Commits + pushes release note sources (src/main/markdown/*) and release.sh before triggering
@@ -68,6 +94,7 @@ echo "Branch:    ${GIT_REF}"
 echo "Commit:    ${DO_COMMIT}"
 echo "Push:      ${DO_PUSH}"
 echo "Git pull:  ${DO_GIT_PULL}"
+echo "Skip transl: ${SKIP_TRANSLATIONS}"
 
 # Check if the tag already exists locally or remotely.
 if git rev-parse "${REVISION}" >/dev/null 2>&1; then
@@ -88,6 +115,9 @@ fi
 TRANSLATION_CSV="shared/src/main/resources/i18n/translation4.csv"
 GOOGLE_SHEET_URL="https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE/export?format=csv"
 
+if [[ "${SKIP_TRANSLATIONS}" == "true" ]]; then
+  echo "Skipping translation4.csv comparison (--skipTranslations); the build will use the translations committed on this branch."
+else
 echo "Checking translation4.csv against Google Sheets source..."
 REMOTE_TMP=$(mktemp)
 LOCAL_HEAD_TMP=$(mktemp)
@@ -126,6 +156,7 @@ if ! "${PYTHON}" ./scripts/compare-translations.py "${LOCAL_HEAD_TMP}" "${REMOTE
   exit 4
 else
   echo "translation4.csv matches Google Sheets source."
+fi
 fi
 
 if [[ "${DO_COMMIT}" == "true" ]]; then
