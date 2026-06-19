@@ -10,12 +10,6 @@
 
 **New in Release 66**
 
-66.5.0: Pesky "birth dates go back one year" when reloading database in a different time zone problem fixed.
-
-66.4.0: SBDE file fixes for the "Only Update Athlete Information, do not touch lifts" mode
-  - Record eligibilities were not updated
-  - Categories were not correctly carried over.
-
 66.3.0: New competition export endpoints in addition to the existing `/competition/export` (which is unchanged):
   - `/competition/export/json/1` — same JSON format as the legacy endpoint
   - `/competition/export/json/2` — new JSON v2 format
