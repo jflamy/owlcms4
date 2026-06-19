@@ -19,7 +19,9 @@
         "envFile": "${workspaceFolder}/.vscode/.env.mac"
       },
       "env": {
-        "OWLCMS_MEMORYMODE": "false"
+        "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_PORT": 8083,
+        "OWLCMS_ENABLEEMBEDDEDMQTT": "false"
       }
     },
     {
