@@ -213,6 +213,11 @@ public class DefaultChampionship extends Championship {
 	}
 
 	private Championship template() {
-		return ChampionshipRepository.findCompetitionTemplate();
+		// Use the cached lookup (static allChampionshipsMap, invalidated by Championship.reset()
+		// on save) instead of ChampionshipRepository.findCompetitionTemplate(), which runs a full
+		// DB transaction + HQL query on every call. template() is invoked from hot getters such as
+		// getTeamPoints2nd(), which the sort comparators evaluate for every comparison; hitting the
+		// database per comparison made the final-package grid appear to hang.
+		return Championship.findCompetitionTemplate();
 	}
 }

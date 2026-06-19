@@ -163,7 +163,9 @@ public class CompetitionDataV2 {
 		// Set export timestamp in ISO 8601 format
 		setExportDate(Instant.now().toString());
 
-		setChampionships(ChampionshipRepository.findAllIncludingTemplate().stream()
+		// Read championships through the cache (Championship.findAllIncludingTemplate) rather than
+		// the per-call DB query in ChampionshipRepository.
+		setChampionships(Championship.findAllIncludingTemplate().stream()
 			.map(ChampionshipDTO::fromChampionship)
 			.collect(Collectors.toList()));
 		
