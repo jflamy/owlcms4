@@ -8,6 +8,13 @@
 
 <br>
 
+**New in Release 67.1**
+
+67.1.0-beta01: Refactored GAMX
+  - added GAMX variants for snatch and clean&jerk (for seniors and masters)
+  - changed the format to JSON so the same tables would be used for tracker
+  - packaged the tables as a zip so tracker can fetch them
+
 **New in Release 67**
 
 67.0.0-rc02: End Of Competition results fixed (a cache was not being used resulting in performance issue).
