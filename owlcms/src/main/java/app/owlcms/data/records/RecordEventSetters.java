@@ -53,7 +53,8 @@ public class RecordEventSetters {
     public static void setAgeUpper(RecordEvent rec, Cell cell) {
         int value = Math.toIntExact(Math.round(cell.getNumericCellValue()));
         if (value < rec.getAgeGrpLower()) {
-            throw new IllegalArgumentException(value + " upper limit on age category should be >= to " + rec.getAgeGrpLower());
+            throw new IllegalArgumentException(
+                    value + " upper limit on age category should be >= to " + rec.getAgeGrpLower());
         }
         rec.setAgeGrpUpper(value);
     }
@@ -76,7 +77,8 @@ public class RecordEventSetters {
             }
 
             if (rec.getBwCatUpper() != null && rec.getBwCatUpper() < rec.getBwCatLower()) {
-                throw new IllegalArgumentException(cellValue + " upper limit on bodyweight category should be >= to " + rec.getBwCatLower());
+                throw new IllegalArgumentException(
+                        cellValue + " upper limit on bodyweight category should be >= to " + rec.getBwCatLower());
             }
         } else if (cell.getCellType() == CellType.NUMERIC) {
             long cellValue = Math.round(cell.getNumericCellValue());
@@ -84,11 +86,12 @@ public class RecordEventSetters {
             rec.setBwCatUpper(normalizedUpper);
 
             if (rec.getBwCatUpper() <= rec.getBwCatLower()) {
-                throw new IllegalArgumentException(cellValue + " upper limit on bodyweight category should be > to " + rec.getBwCatLower());
+                throw new IllegalArgumentException(
+                        cellValue + " upper limit on bodyweight category should be > to " + rec.getBwCatLower());
             }
         } else {
-            throw new IllegalArgumentException("Unexpected cell type " + cell.getCellType() + 
-                " at [" + cell.getSheet().getSheetName() + "," + cell.getAddress() + "]");
+            throw new IllegalArgumentException("Unexpected cell type " + cell.getCellType() +
+                    " at [" + cell.getSheet().getSheetName() + "," + cell.getAddress() + "]");
         }
     }
 
@@ -174,6 +177,7 @@ public class RecordEventSetters {
         if (cellValue != null && cellValue.isBlank()) {
             return;
         }
+        cellValue = cellValue != null ? cellValue.trim() : cellValue;
         try {
             LocalDate date = LocalDate.parse(cellValue, ymdFormatter);
             if (type.equals("birth")) {

@@ -22,6 +22,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
@@ -57,6 +58,7 @@ public class RecordImportDialog extends Dialog {
 	private String pendingBaseName;
 
 	private Button confirmButton;
+	private Button cancelButton;
 	private VerticalLayout previewArea;
 
 	public RecordImportDialog(Runnable afterImport) {
@@ -98,8 +100,8 @@ public class RecordImportDialog extends Dialog {
 		this.confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		this.confirmButton.setEnabled(false);
 
-		Button cancelButton = new Button(translate("Cancel"), e -> close());
-		getFooter().add(cancelButton, this.confirmButton);
+		this.cancelButton = new Button(translate("Cancel"), e -> close());
+		getFooter().add(this.cancelButton, this.confirmButton);
 	}
 
 	private void handleUpload(String fileName, byte[] bytes) {
@@ -117,7 +119,20 @@ public class RecordImportDialog extends Dialog {
 
 			RecordImportImpact impact = reader.previewImport(parsed);
 			showPreview(impact, errors);
-			this.confirmButton.setEnabled(!parsed.isEmpty());
+			
+			// Show confirm button only if there are no errors and records were parsed
+			boolean hasErrors = !errors.isEmpty();
+			this.confirmButton.setVisible(!hasErrors && !parsed.isEmpty());
+			this.confirmButton.setEnabled(!hasErrors && !parsed.isEmpty());
+			
+			// Make cancel button primary when there are errors
+			if (hasErrors) {
+				this.confirmButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+				this.cancelButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			} else {
+				this.confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+				this.cancelButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			}
 
 		} catch (Exception e) {
 			logger.error("Error reading records file {}", fileName, e);
@@ -125,46 +140,50 @@ public class RecordImportDialog extends Dialog {
 			clearPreview();
 			this.previewArea.add(new Span(translate("Records.couldNotProcess", fileName)));
 			this.previewArea.setVisible(true);
+			this.confirmButton.setVisible(false);
 			this.confirmButton.setEnabled(false);
+			this.confirmButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			this.cancelButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		}
 	}
 
 	private void showPreview(RecordImportImpact impact, List<String> errors) {
 		clearPreview();
 
-		this.previewArea.add(new H3(translate("Records.ImportDialog.PreviewTitle")));
-		this.previewArea.add(summaryLine("Records.ImportDialog.TotalRecords", impact.getTotalImported()));
-		this.previewArea.add(summaryLine("Records.ImportDialog.OfficialImported", impact.getOfficialImported()));
-		this.previewArea.add(summaryLine("Records.ImportDialog.ProvisionalImported", impact.getProvisionalImported()));
-		this.previewArea.add(summaryLine("Records.ImportDialog.OfficialToReplace", impact.getOfficialToReplace()));
-		this.previewArea.add(summaryLine("Records.ImportDialog.ProvisionalToRemove", impact.getProvisionalToRemove()));
-		this.previewArea.add(summaryLine("Records.ImportDialog.DuplicateSkipped", impact.getDuplicateProvisionalToSkip()));
-
-		if (!impact.getRows().isEmpty()) {
-			Grid<RecordImportImpactRow> grid = new Grid<>(RecordImportImpactRow.class, false);
-			grid.addColumn(RecordImportImpactRow::getRecordFederation)
-			        .setHeader(translate("Records.ImportDialog.Col.Federation")).setAutoWidth(true);
-			grid.addColumn(RecordImportImpactRow::getRecordName)
-			        .setHeader(translate("Records.ImportDialog.Col.RecordName")).setAutoWidth(true);
-			grid.addColumn(RecordImportImpactRow::getAgeGrp)
-			        .setHeader(translate("Records.ImportDialog.Col.AgeGroup")).setAutoWidth(true);
-			grid.addColumn(RecordImportImpactRow::getImportedCount)
-			        .setHeader(translate("Records.ImportDialog.Col.Imported")).setAutoWidth(true);
-			grid.addColumn(RecordImportImpactRow::getOfficialToReplace)
-			        .setHeader(translate("Records.ImportDialog.Col.OfficialToReplace")).setAutoWidth(true);
-			grid.addColumn(RecordImportImpactRow::getProvisionalToRemove)
-			        .setHeader(translate("Records.ImportDialog.Col.ProvisionalToRemove")).setAutoWidth(true);
-			grid.addColumn(RecordImportImpactRow::getDuplicateProvisionalToSkip)
-			        .setHeader(translate("Records.ImportDialog.Col.DuplicateSkipped")).setAutoWidth(true);
-			grid.setItems(impact.getRows());
-			grid.setAllRowsVisible(true);
-			this.previewArea.add(grid);
-		}
-
 		if (!errors.isEmpty()) {
-			Paragraph errorPara = new Paragraph(String.join("\n", errors));
-			errorPara.getStyle().set("color", "var(--lumo-error-color)");
-			this.previewArea.add(errorPara);
+			this.previewArea.add(new H3(translate("Errors")));
+			Pre errorComponent = new Pre(String.join("\n", errors));
+			errorComponent.getStyle().set("color", "var(--lumo-error-color)");
+			this.previewArea.add(errorComponent);
+		} else {
+			this.previewArea.add(new H3(translate("Records.ImportDialog.PreviewTitle")));
+			this.previewArea.add(summaryLine("Records.ImportDialog.TotalRecords", impact.getTotalImported()));
+			this.previewArea.add(summaryLine("Records.ImportDialog.OfficialImported", impact.getOfficialImported()));
+			this.previewArea.add(summaryLine("Records.ImportDialog.ProvisionalImported", impact.getProvisionalImported()));
+			this.previewArea.add(summaryLine("Records.ImportDialog.OfficialToReplace", impact.getOfficialToReplace()));
+			this.previewArea.add(summaryLine("Records.ImportDialog.ProvisionalToRemove", impact.getProvisionalToRemove()));
+			this.previewArea.add(summaryLine("Records.ImportDialog.DuplicateSkipped", impact.getDuplicateProvisionalToSkip()));
+
+			if (!impact.getRows().isEmpty()) {
+				Grid<RecordImportImpactRow> grid = new Grid<>(RecordImportImpactRow.class, false);
+				grid.addColumn(RecordImportImpactRow::getRecordFederation)
+				        .setHeader(translate("Records.ImportDialog.Col.Federation")).setAutoWidth(true);
+				grid.addColumn(RecordImportImpactRow::getRecordName)
+				        .setHeader(translate("Records.ImportDialog.Col.RecordName")).setAutoWidth(true);
+				grid.addColumn(RecordImportImpactRow::getAgeGrp)
+				        .setHeader(translate("Records.ImportDialog.Col.AgeGroup")).setAutoWidth(true);
+				grid.addColumn(RecordImportImpactRow::getImportedCount)
+				        .setHeader(translate("Records.ImportDialog.Col.Imported")).setAutoWidth(true);
+				grid.addColumn(RecordImportImpactRow::getOfficialToReplace)
+				        .setHeader(translate("Records.ImportDialog.Col.OfficialToReplace")).setAutoWidth(true);
+				grid.addColumn(RecordImportImpactRow::getProvisionalToRemove)
+				        .setHeader(translate("Records.ImportDialog.Col.ProvisionalToRemove")).setAutoWidth(true);
+				grid.addColumn(RecordImportImpactRow::getDuplicateProvisionalToSkip)
+				        .setHeader(translate("Records.ImportDialog.Col.DuplicateSkipped")).setAutoWidth(true);
+				grid.setItems(impact.getRows());
+				grid.setAllRowsVisible(true);
+				this.previewArea.add(grid);
+			}
 		}
 
 		this.previewArea.setVisible(true);
