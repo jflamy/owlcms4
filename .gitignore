@@ -46,6 +46,7 @@ database/owlcms.mv.db
 
 # Local environment file
 .env
+/local/
 /.vscode/.env.windows
 /.vscode/.env.linux
 /.vscode/.env.mac
