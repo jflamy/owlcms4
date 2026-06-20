@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-rc03: Record file import errors were not formatted adequately.
+
 67.0.0-rc02: End Of Competition results fixed (a cache was not being used resulting in performance issue).
 
 67.0.0: Reworked the Records page
