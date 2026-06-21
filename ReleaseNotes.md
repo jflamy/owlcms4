@@ -10,14 +10,6 @@
 
 **New in Release 67**
 
-67.0.0-rc03: Fix for lift rank visibility
-  - force computation on every session load based on the actual registration categories shown on the board.
-
-67.0.0-rc03: Fix for missed decision display
-  - remove unwarranted thread on attempt board handling of decision visibility that could create a race
-  - add a timed backstop in case the decision visible event push is somehow missed
-
-
 67.0.0-rc02: End Of Competition results fixed (a cache was not being used resulting in performance issue).
 
 67.0.0: Reworked the Records page
@@ -51,5 +43,12 @@
 67.0.0: Fixed authentication and interference issues when attempting to feed publicresults and tracker at the same time, or multiple trackers
 
 67.0.0: Robustness: Improved sequencing of timer and mqtt events, better enforcement of timer running or not.
+
+67.0.0-rc03: Fix for lift rank visibility
+  - force computation on every session load based on the actual registration categories shown on the board.
+
+67.0.0-rc03: Fix for rare, intermittent missed decision display
+  - remove unwarranted thread on attempt board handling of decision visibility that could create a race
+  - add a timed backstop in case the decision visible event push is somehow missed
 
 For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
