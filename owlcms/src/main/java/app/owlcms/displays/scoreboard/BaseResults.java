@@ -1210,21 +1210,10 @@ public class BaseResults extends LitTemplate
 
 		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
 		this.getElement().setProperty("logoSrc", getLogoSrc());
-		// Rank columns are derived from the registration categories actually displayed, not from the
-		// participation-derived active championships. A stray participation in a score-medal championship
-		// must not hide the Total rank for total-medal registration categories.
-		List<Athlete> registrationAthletes = this.displayOrder != null ? this.displayOrder : Collections.emptyList();
-		boolean hasScoreMedals = registrationHasScoreMedals(registrationAthletes);
-		boolean hasTotalMedals = registrationHasTotalMedals(registrationAthletes);
-		boolean hasMultiMedals = registrationHasMultiMedals(registrationAthletes);
-		// Total rank is withdrawn only when every displayed registration category medals by score.
-		boolean scoreOnly = hasScoreMedals && !hasTotalMedals;
 
 		getElement().setProperty("showTotal", true);
 		getElement().setProperty("showBest", true); // overridden by media queries, not a variable
 		getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch("displayBodyWeight"));
-		getElement().setProperty("showLiftRanks", hasMultiMedals && !scoreOnly);
-		getElement().setProperty("showTotalRank", !scoreOnly);
 		getElement().setProperty("video", this.video);
 		getElement().setProperty("currentAttempt", this.currentAttempt);
 		getElement().setProperty("showMedals", this.showMedals);
@@ -1236,6 +1225,8 @@ public class BaseResults extends LitTemplate
 
 	protected void resultsInit() {
 		boolean scoring[] = { false };
+		boolean totalMedals[] = { false };
+		boolean multiMedals[] = { false };
 		FieldOfPlay fop = getFop();
 		if (fop != null) {
 			setId("scoreboard-" + fop.getName());
@@ -1246,6 +1237,8 @@ public class BaseResults extends LitTemplate
 			List<Athlete> athletes = getOrder(fop);
 			if (athletes != null && athletes.size() > 0) {
 				scoring[0] = registrationHasScoreMedals(athletes);
+				totalMedals[0] = registrationHasTotalMedals(athletes);
+				multiMedals[0] = registrationHasMultiMedals(athletes);
 			}
 		}
 		setTranslationMap();
@@ -1265,6 +1258,14 @@ public class BaseResults extends LitTemplate
 			showScoreRank = true;
 		}
 		this.getElement().setProperty("showSinclairRank", showScoreRank);
+
+		// Lift/total rank columns track the registration categories actually displayed, recomputed on
+		// every group switch (not only on attach) so a freshly loaded group reveals its snatch/CJ/total
+		// ranks without requiring a page refresh. Total rank is withdrawn only when every displayed
+		// registration category medals by score.
+		boolean scoreOnly = scoring[0] && !totalMedals[0];
+		this.getElement().setProperty("showLiftRanks", multiMedals[0] && !scoreOnly);
+		this.getElement().setProperty("showTotalRank", !scoreOnly);
 
 		this.displayOrder = ImmutableList.of();
 	}
