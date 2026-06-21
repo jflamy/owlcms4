@@ -20,8 +20,8 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        // default is to ignore event forwarding
-        // uncomment the blank videodata and remote to use what is in the database
+        // default is to ignore event forwarding by forcing "" as URL
+        // comment out the next two lines to use what is in the database
         "OWLCMS_VIDEODATA": "",
         "OWLCMS_REMOTE": "",
 
@@ -48,10 +48,11 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
-        "OWLCMS_REMOTE": "",
+
+        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",  //"wss://fhq-tracker.fly.dev/ws",
         // "OWLCMS_VIDEODATAKEY": "amalauxpattes",
-        // "OWLCMS_REMOTE": "http://127.0.0.1:8082",
+        
+        "OWLCMS_REMOTE": "", //"http://127.0.0.1:8082",
         // "OWLCMS_UPDATEKEY": "mapetitevache"
       }
     },
@@ -97,9 +98,11 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
         "OWLCMS_REMOTE": "http://127.0.0.1:8082",
-        "OWLCMS_UPDATEKEY": "mapetitevache"
+        "OWLCMS_UPDATEKEY": "mapetitevache",
+
+        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
+        "OWLCMS_VIDEODATAKEY": "amalauxpattes"
       }
     },
     {
