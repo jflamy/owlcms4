@@ -141,7 +141,7 @@ public class ResultsRankings extends Results {
 			return Ranking.CATEGORY_SCORE;
 		}
 
-		boolean anyMultiMedal = Championship.anyMultiMedal(fop.getActiveChampionships());
+		boolean anyMultiMedal = Championship.anyMultiMedal(fop.getScoreboardChampionships());
 		Athlete currentAthlete = fop.getCurAthlete();
 		boolean groupDone = currentAthlete != null && currentAthlete.getAttemptsDone() >= 6;
 		if (groupDone || (fop.isCjStarted() && !anyMultiMedal)) {
