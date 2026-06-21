@@ -6,7 +6,10 @@
  *******************************************************************************/
 package app.owlcms.components.elements;
 
+import static app.owlcms.fieldofplay.FOPState.DECISION_VISIBLE;
+
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +25,11 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.TimingPolicy;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -41,6 +46,7 @@ public class DecisionElement extends LitTemplate
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	private static final long INITIAL_DECISION_FALLBACK_DELAY_MS = FieldOfPlay.REVERSAL_DELAY + 150L;
 
 	static {
 		logger.setLevel(Level.INFO);
@@ -54,6 +60,7 @@ public class DecisionElement extends LitTemplate
 	private boolean publicFacing;
 	protected boolean downSlave;
 	protected FieldOfPlay fop;
+	private final AtomicLong decisionDisplayGeneration = new AtomicLong();
 
 	public DecisionElement() {
 	}
@@ -176,6 +183,7 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		this.decisionDisplayGeneration.incrementAndGet();
 		if (isDontReset()) {
 			return;
 		}
@@ -188,6 +196,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		logger.debug("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
+		logger.warn("decisionElement slaveDownSignal origin={} juryMode={}", this.getOrigin(), isJuryMode());
 		if (isJuryMode()) {
 			// jury mode doesn't show down signal
 			return;
@@ -205,6 +214,7 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		this.decisionDisplayGeneration.incrementAndGet();
 		if (isDontReset()) {
 			return;
 		}
@@ -217,26 +227,72 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
 		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleLight());
+		logger.warn("decisionElement slaveShowDecision origin={} singleLight={} refs=[{},{},{}]", this.getOrigin(),
+		        e.isSingleLight(), e.ref1, e.ref2, e.ref3);
 		// Backend now controls hiding down and showing decisions on all decision elements
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			if (e.isSingleLight()) {
-				getElement().setProperty("singleRef", e.isSingleLight());
-				this.getElement().callJsFunction("showSingleDecision", e.decision);
-				this.getElement().callJsFunction("setEnabled", false);
-			} else {
-				getElement().setProperty("singleRef", e.isSingleLight());
-				this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
-				this.getElement().callJsFunction("setEnabled", false);
-			}
+			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight());
 		});
 	}
 
 	@Subscribe
+	public void slaveInitialDecision(UIEvent.InitialDecision e) {
+		logger.warn("decisionElement slaveInitialDecision origin={} timingPolicy={} singleLight={} refs=[{},{},{}]",
+		        this.getOrigin(), e.getTimingPolicy(), e.isSingleLight(), e.ref1, e.ref2, e.ref3);
+		if (e.getTimingPolicy() != TimingPolicy.DELAYED) {
+			return;
+		}
+		long generation = this.decisionDisplayGeneration.incrementAndGet();
+		new DelayTimer().schedule(() -> {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+				if (generation != this.decisionDisplayGeneration.get()) {
+					return;
+				}
+				if (this.fop == null || this.fop.getState() != DECISION_VISIBLE) {
+					logger.warn("decisionElement initialDecision fallback skipped origin={} fopState={}",
+					        this.getOrigin(), this.fop != null ? this.fop.getState() : null);
+					return;
+				}
+				Boolean[] currentDecisions = this.fop.getRefereeDecision();
+				Boolean ref1 = e.isSingleLight() ? null : currentDecisions[0];
+				Boolean ref2 = currentDecisions[1];
+				Boolean ref3 = e.isSingleLight() ? null : currentDecisions[2];
+				Boolean goodLift = computeGoodLift(ref1, ref2, ref3, e.isSingleLight());
+				logger.warn("decisionElement initialDecision fallback showing decision origin={} refs=[{},{},{}]",
+				        this.getOrigin(), ref1, ref2, ref3);
+				showDecisionLights(goodLift, ref1, ref2, ref3, e.isSingleLight());
+			});
+		}, INITIAL_DECISION_FALLBACK_DELAY_MS);
+	}
+
+	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
+		this.decisionDisplayGeneration.incrementAndGet();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			// uiEventLogger.debug("!!! slaveStartTimer enable");
 			this.getElement().callJsFunction("setEnabled", true);
 		});
+	}
+
+	private void showDecisionLights(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight) {
+		this.decisionDisplayGeneration.incrementAndGet();
+		if (singleLight) {
+			getElement().setProperty("singleRef", true);
+			this.getElement().callJsFunction("showSingleDecision", decision);
+			this.getElement().callJsFunction("setEnabled", false);
+		} else {
+			getElement().setProperty("singleRef", false);
+			this.getElement().callJsFunction("showDecisions", false, ref1, ref2, ref3);
+			this.getElement().callJsFunction("setEnabled", false);
+		}
+	}
+
+	private Boolean computeGoodLift(Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight) {
+		int whites = 0;
+		whites += Boolean.TRUE.equals(ref1) ? 1 : 0;
+		whites += Boolean.TRUE.equals(ref2) ? 1 : 0;
+		whites += Boolean.TRUE.equals(ref3) ? 1 : 0;
+		return singleLight ? whites >= 1 : whites >= 2;
 	}
 
 	@Subscribe

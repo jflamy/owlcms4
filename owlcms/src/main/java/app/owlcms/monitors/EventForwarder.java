@@ -906,13 +906,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		// getElement().setProperty("showTotal", true);
 		// getElement().setProperty("showBest", true);
-		var activeChampionships = this.fop != null ? this.fop.getActiveChampionships() : Collections.singleton(Championship.of(null));
-		boolean anyMultiMedal = Championship.anyMultiMedal(activeChampionships);
-		boolean scoreMedalChampionship = Championship.anyScoreMedalChampionship(activeChampionships);
-		setShowLiftRanks(anyMultiMedal && !scoreMedalChampionship);
-		setShowTotalRank(!scoreMedalChampionship);
-		setShowSinclair(scoreMedalChampionship || Competition.getCurrent().isDisplayScores());
-		setShowSinclairRank(scoreMedalChampionship || Competition.getCurrent().isDisplayScoreRanks());
+		var scoreboardChampionships = this.fop != null ? this.fop.getScoreboardChampionships() : Collections.singleton(Championship.of(null));
+		boolean hasMultiMedals = Championship.anyMultiMedal(scoreboardChampionships);
+		boolean hasScoreMedals = Championship.anyScoreMedalChampionship(scoreboardChampionships);
+		boolean hasTotalMedals = scoreboardChampionships.stream()
+		        .anyMatch(c -> c != null && !c.isScoreMedalChampionship());
+		// Total/lift ranks are withdrawn only when every shown registration category medals by score.
+		boolean scoreOnly = hasScoreMedals && !hasTotalMedals;
+		setShowLiftRanks(hasMultiMedals && !scoreOnly);
+		setShowTotalRank(!scoreOnly);
+		setShowSinclair(hasScoreMedals || Competition.getCurrent().isDisplayScores());
+		setShowSinclairRank(hasScoreMedals || Competition.getCurrent().isDisplayScoreRanks());
 
 		computeLeaders();
 		JsonValue recordsJson = this.fop.getRecordsJson();
@@ -1324,7 +1328,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "translationMap", this.translationMap.toJson());
 		mapPut(sb, "hidden", String.valueOf(this.hidden));
 		mapPut(sb, "wideTeamNames", String.valueOf(this.wideTeamNames));
-		var activeChampionships = this.fop != null ? this.fop.getActiveChampionships() : Collections.singleton(Championship.of(null));
+		var activeChampionships = this.fop != null ? this.fop.getScoreboardChampionships() : Collections.singleton(Championship.of(null));
 		mapPut(sb, "sinclairMeet", Boolean.toString(Championship.anyScoreMedalChampionship(activeChampionships)));
 
 		setBoardMode(computeBoardModeName(this.fop.getState(), this.fop.getBreakType(), this.fop.getCeremonyType()));

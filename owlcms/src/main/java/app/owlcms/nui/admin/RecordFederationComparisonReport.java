@@ -139,7 +139,9 @@ public class RecordFederationComparisonReport extends Composite<VerticalLayout>
 			return List.of();
 		}
 		String normalized = federationCodes.replaceAll("[ ]*,[ ]*", ",");
-		return List.of(normalized.split("[;,]"));
+		return Stream.of(normalized.split("[;,]"))
+		        .filter(f -> !f.isBlank())
+		        .collect(Collectors.toList());
 	}
 
 	private static String trimmed(String value) {

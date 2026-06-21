@@ -791,7 +791,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			return getCategory().getAgeGroup().getChampionship().isSnatchCJTotalMedals();
 		}
 		if (fop != null) {
-			return Championship.anyMultiMedal(fop.getActiveChampionships());
+			return Championship.anyMultiMedal(fop.getScoreboardChampionships());
 		}
 		return Championship.of(null).isSnatchCJTotalMedals();
 	}
