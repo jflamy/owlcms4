@@ -162,6 +162,8 @@ public class FieldOfPlay implements IUnregister {
 
 	private LinkedHashMap<String, Participation> ageGroupMap = new LinkedHashMap<>();
 	private Set<Championship> activeChampionships = new LinkedHashSet<>();
+	private Set<Championship> scoreboardChampionships = new LinkedHashSet<>();
+	private boolean scoreboardChampionshipsComputed;
 	private IProxyTimer athleteTimer;
 	private IProxyTimer breakTimer;
 	private BreakType breakType;
@@ -320,6 +322,39 @@ public class FieldOfPlay implements IUnregister {
 		return this.activeChampionships.isEmpty()
 		        ? Collections.singleton(DefaultChampionship.getInstance())
 		        : new LinkedHashSet<>(this.activeChampionships);
+	}
+
+	public Set<Championship> getScoreboardChampionships() {
+		return this.scoreboardChampionshipsComputed
+		        ? new LinkedHashSet<>(this.scoreboardChampionships)
+		        : getActiveChampionships();
+	}
+
+	private Set<String> deriveScoreboardChampionshipNames(List<Athlete> athletes) {
+		if (athletes == null || athletes.isEmpty()) {
+			return new LinkedHashSet<>();
+		}
+		return athletes.stream()
+		        .map(Athlete::getCategory)
+		        .filter(category -> category != null)
+		        .map(Category::getAgeGroup)
+		        .filter(ageGroup -> ageGroup != null)
+		        .map(AgeGroup::getChampionshipName)
+		        .filter(championshipName -> championshipName != null && !championshipName.isBlank())
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
+	}
+
+	private void refreshScoreboardChampionships(List<Athlete> athletes) {
+		Set<String> derivedNames = deriveScoreboardChampionshipNames(athletes);
+		if (derivedNames.isEmpty() || this.activeChampionships.isEmpty()) {
+			this.scoreboardChampionships = new LinkedHashSet<>();
+			this.scoreboardChampionshipsComputed = false;
+			return;
+		}
+		this.scoreboardChampionships = this.activeChampionships.stream()
+		        .filter(championship -> championship != null && derivedNames.contains(championship.getName()))
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
+		this.scoreboardChampionshipsComputed = true;
 	}
 
 	/**
@@ -1117,6 +1152,7 @@ public class FieldOfPlay implements IUnregister {
 				this.activeChampionships.add(championship);
 			}
 		}
+		refreshScoreboardChampionships(athletes);
 		this.setMedals(new TreeMap<>());
 		// if (this.getGroup() != null) {
 		// Competition.getCurrent().computeMedals(this.getGroup());
@@ -3073,6 +3109,7 @@ public class FieldOfPlay implements IUnregister {
 	 */
 	private void setDisplayOrder(List<Athlete> displayOrder) {
 		this.displayOrder = displayOrder;
+		refreshScoreboardChampionships(displayOrder);
 	}
 
 	private synchronized void setDownEmitted(boolean downEmitted) {
@@ -3113,6 +3150,7 @@ public class FieldOfPlay implements IUnregister {
 
 	private void setLiftingOrder(List<Athlete> liftingOrder) {
 		this.liftingOrder = liftingOrder;
+		refreshScoreboardChampionships(liftingOrder);
 	}
 
 	private void setLightBarInUse(boolean b) {
