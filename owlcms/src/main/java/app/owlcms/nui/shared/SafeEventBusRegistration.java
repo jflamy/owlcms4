@@ -7,7 +7,9 @@
 package app.owlcms.nui.shared;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.slf4j.LoggerFactory;
@@ -23,7 +25,7 @@ import ch.qos.logback.classic.Logger;
 // @formatter:off
 public interface SafeEventBusRegistration {
 
-	Map<Object, EventBus> BUS_REGISTRY = Collections.synchronizedMap(new WeakHashMap<>());
+	Map<Object, Set<EventBus>> BUS_REGISTRY = Collections.synchronizedMap(new WeakHashMap<>());
 
 	Logger logger = (Logger) LoggerFactory.getLogger(SafeEventBusRegistration.class);
 
@@ -38,18 +40,11 @@ public interface SafeEventBusRegistration {
 		UI ui = c.getUI().orElse(null);
 		EventBus uiEventBus = fop.getUiEventBus();
 
-		EventBus previousBus = BUS_REGISTRY.get(c);
-		if (previousBus != null && previousBus != uiEventBus) {
-			try {
-				previousBus.unregister(c);
-				logger.error("Component {} was registered to a different bus ({}); unregistering before switching", c.getClass().getName(), previousBus.identifier());
-			} catch (Exception ex) {
-				logger.error("Failed to unregister component {} from previous bus {}", c.getClass().getName(), previousBus.identifier(), ex);
+		synchronized (BUS_REGISTRY) {
+			Set<EventBus> registeredBuses = BUS_REGISTRY.get(c);
+			if (registeredBuses != null && registeredBuses.contains(uiEventBus)) {
+				return uiEventBus; // already on the correct bus
 			}
-		}
-
-		if (previousBus == uiEventBus) {
-			return uiEventBus; // already on the correct bus
 		}
 
 		try {
@@ -60,7 +55,9 @@ public interface SafeEventBusRegistration {
 			// trace the registration
 			logger.debug("automatic: register {} class={} from {}", Integer.toHexString(System.identityHashCode(c)), c.getClass().getSimpleName(), uiEventBus.identifier());
 			uiEventBus.register(c);
-			BUS_REGISTRY.put(c, uiEventBus);
+			synchronized (BUS_REGISTRY) {
+				BUS_REGISTRY.computeIfAbsent(c, key -> new HashSet<>()).add(uiEventBus);
+			}
 		} catch (Exception ex) {
 			logger.error("Failed to register component {} on UI bus {}", c.getClass().getName(), uiEventBus.identifier(), ex);
 		}
@@ -90,17 +87,11 @@ public interface SafeEventBusRegistration {
 			return null;
 		}
 		EventBus uiEventBus = fop.getUiEventBus();
-		EventBus previousBus = BUS_REGISTRY.get(subscriber);
-		if (previousBus != null && previousBus != uiEventBus) {
-			try {
-				previousBus.unregister(subscriber);
-				logger.error("Subscriber {} was registered to a different bus ({}); unregistering before switching", subscriber, previousBus.identifier());
-			} catch (Exception ex) {
-				logger.error("Failed to unregister subscriber {} from previous bus {}", subscriber, previousBus.identifier(), ex);
+		synchronized (BUS_REGISTRY) {
+			Set<EventBus> registeredBuses = BUS_REGISTRY.get(subscriber);
+			if (registeredBuses != null && registeredBuses.contains(uiEventBus)) {
+				return uiEventBus;
 			}
-		}
-		if (previousBus == uiEventBus) {
-			return uiEventBus;
 		}
 		try {
 			uiEventBus.unregister(subscriber);
@@ -108,7 +99,9 @@ public interface SafeEventBusRegistration {
 		}
 		try {
 			uiEventBus.register(subscriber);
-			BUS_REGISTRY.put(subscriber, uiEventBus);
+			synchronized (BUS_REGISTRY) {
+				BUS_REGISTRY.computeIfAbsent(subscriber, key -> new HashSet<>()).add(uiEventBus);
+			}
 		} catch (Exception ex) {
 			logger.error("Failed to register subscriber {} on UI bus {}", subscriber, uiEventBus.identifier(), ex);
 		}
@@ -117,9 +110,21 @@ public interface SafeEventBusRegistration {
 	}
 
     public default void unregister(Object subscriber, EventBus uiEventBus) {
+		if (uiEventBus == null) {
+			return;
+		}
 		logger.trace("explicit: unregister {} from {}", subscriber, uiEventBus.identifier());
 		try {uiEventBus.unregister(subscriber);} catch (Exception ex) {}
-		BUS_REGISTRY.remove(subscriber, uiEventBus);
+		synchronized (BUS_REGISTRY) {
+			Set<EventBus> registeredBuses = BUS_REGISTRY.get(subscriber);
+			if (registeredBuses == null) {
+				return;
+			}
+			registeredBuses.remove(uiEventBus);
+			if (registeredBuses.isEmpty()) {
+				BUS_REGISTRY.remove(subscriber);
+			}
+		}
     }
 
 }

@@ -8,8 +8,10 @@
 package app.owlcms.nui.displays.top;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.TopParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -45,6 +48,16 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	@Override
 	public boolean isIgnoreFopFromURL() {
 		return true;
+	}
+
+	@Override
+	public boolean isIgnoreGroupFromURL() {
+		return true;
+	}
+
+	@Override
+	protected boolean shouldRegisterPageOnUiEventBus() {
+		return false;
 	}
 
 	Logger logger = (Logger) LoggerFactory.getLogger(TopSinclairPage.class);
@@ -84,10 +97,8 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	public void addDialogContent(Component target, VerticalLayout vl) {
 		DisplayOptions.addLightingEntries(vl, target, this);
 
-		// Championship and AgeGroup selection (filtered)
 		com.vaadin.flow.component.combobox.ComboBox<app.owlcms.data.agegroup.Championship> championshipComboBox = new com.vaadin.flow.component.combobox.ComboBox<>();
-		com.vaadin.flow.component.combobox.ComboBox<app.owlcms.data.agegroup.AgeGroup> ageGroupComboBox = new com.vaadin.flow.component.combobox.ComboBox<>();
-		// Use the same logic as TopTeamsSinclairPage: show all championships, no null
+		com.vaadin.flow.component.combobox.ComboBox<String> ageGroupPrefixComboBox = new com.vaadin.flow.component.combobox.ComboBox<>();
 		java.util.List<app.owlcms.data.agegroup.Championship> championships = app.owlcms.data.agegroup.Championship.findAllUsed(true);
 		championshipComboBox.setItems(championships);
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());
@@ -98,47 +109,37 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		championshipComboBox.addValueChangeListener(e -> {
 			app.owlcms.data.agegroup.Championship championship = e.getValue();
 			setChampionship(championship);
-			// Clear age group selection when championship changes
-			setAgeGroup(null);
-			// Populate age groups for the selected championship
-			java.util.List<app.owlcms.data.agegroup.AgeGroup> championshipAgeGroups = getAgeGroupsForChampionship(championship);
-			ageGroupComboBox.setItems(championshipAgeGroups);
-			ageGroupComboBox.setValue(null); // No age group selected by default
-			// Always refresh the board with filtered athletes
-			refreshFilteredBoard(championship, null);
+			String existingAgeGroupPrefix = getAgeGroupPrefix();
+			java.util.List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, championship);
+			if (existingAgeGroupPrefix != null && activeAgeGroups != null
+			        && activeAgeGroups.contains(existingAgeGroupPrefix)) {
+				ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
+			} else {
+				ageGroupPrefixComboBox.clear();
+			}
 			updateURLLocations();
 			// Restart timer after value change
 			restartDialogTimer();
 		});
-		ageGroupComboBox.setPlaceholder(app.owlcms.i18n.Translator.translate("AgeGroup"));
-		ageGroupComboBox.setItemLabelGenerator(ag -> ag != null ? ag.getName() : "");
-		ageGroupComboBox.setClearButtonVisible(true);
+		ageGroupPrefixComboBox.setPlaceholder(app.owlcms.i18n.Translator.translate("AgeGroup"));
+		ageGroupPrefixComboBox.setClearButtonVisible(true);
 		// Reset timer when user starts editing
-		ageGroupComboBox.addFocusListener(e -> restartDialogTimer());
-		ageGroupComboBox.addValueChangeListener(e -> {
-			app.owlcms.data.agegroup.AgeGroup selectedAgeGroup = e.getValue();
-			setAgeGroup(selectedAgeGroup);
-			// Refresh with both championship and age group filters
-			refreshFilteredBoard(getChampionship(), selectedAgeGroup);
+		ageGroupPrefixComboBox.addFocusListener(e -> restartDialogTimer());
+		ageGroupPrefixComboBox.addValueChangeListener(e -> {
+			setAgeGroupPrefix(e.getValue());
 			updateURLLocations();
 			// Restart timer after value change
 			restartDialogTimer();
 		});
-		// Set up age group options for initial load
-		java.util.List<app.owlcms.data.agegroup.AgeGroup> initialAgeGroups = getAgeGroupsForChampionship(getChampionship());
-		ageGroupComboBox.setItems(initialAgeGroups);
-		if (getAgeGroup() != null && initialAgeGroups.contains(getAgeGroup())) {
-			ageGroupComboBox.setValue(getAgeGroup());
-		} else {
-			ageGroupComboBox.setValue(null);
-		}
+		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getChampionship());
+		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
 		if (championships.contains(getChampionship())) {
 			championshipComboBox.setValue(getChampionship());
 		} else {
 			championshipComboBox.setValue(null);
 		}
 		vl.add(new com.vaadin.flow.component.html.NativeLabel(app.owlcms.i18n.Translator.translate("SelectAgeGroup")),
-		        new com.vaadin.flow.component.orderedlayout.HorizontalLayout(championshipComboBox, ageGroupComboBox));
+		        new com.vaadin.flow.component.orderedlayout.HorizontalLayout(championshipComboBox, ageGroupPrefixComboBox));
 
 
 		// Gender selection ComboBox (M / F only, null = no filtering)
@@ -220,11 +221,13 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	/**
 	 * Gets the age groups associated with a championship.
 	 */
-	private java.util.List<app.owlcms.data.agegroup.AgeGroup> getAgeGroupsForChampionship(app.owlcms.data.agegroup.Championship championship) {
-		if (championship == null) {
-			return new java.util.ArrayList<>();
-		}
-		return app.owlcms.data.agegroup.AgeGroupRepository.findFiltered(null, null, championship, null, true, -1, -1);
+	private java.util.List<String> setAgeGroupPrefixItems(
+	        com.vaadin.flow.component.combobox.ComboBox<String> ageGroupPrefixComboBox,
+	        app.owlcms.data.agegroup.Championship championship) {
+		java.util.List<String> activeAgeGroups = app.owlcms.data.agegroup.AgeGroupRepository
+		        .findActiveAndUsedAgeGroupNames(championship);
+		ageGroupPrefixComboBox.setItems(activeAgeGroups);
+		return activeAgeGroups;
 	}
 
 	/**
@@ -234,60 +237,42 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	 * If both are specified, returns athletes from the specific age group.
 	 */
 	private java.util.List<app.owlcms.data.athlete.Athlete> filterAthletesByChampionshipAndAgeGroup(
-	        java.util.List<app.owlcms.data.athlete.Athlete> athletes,
+	        java.util.List<app.owlcms.data.athlete.Athlete> rankedAthletes,
 	        app.owlcms.data.agegroup.Championship championship,
 	        app.owlcms.data.agegroup.AgeGroup ageGroup) {
-		if (championship == null && ageGroup == null)
-			return athletes;
+		if (championship == null && ageGroup == null) {
+			return rankedAthletes;
+		}
 
-		logger.debug("Filtering {} athletes with championship={} (name={}), ageGroup={} (code={})",
-		        athletes.size(),
-		        championship != null ? championship.getName() : "null",
-		        championship != null ? championship.getName() : "null",
-		        ageGroup != null ? ageGroup.getCode() : "null",
-		        ageGroup != null ? ageGroup.getCode() : "null");
-
-		java.util.List<app.owlcms.data.athlete.Athlete> filtered = new java.util.ArrayList<>();
-
-		for (app.owlcms.data.athlete.Athlete athlete : athletes) {
-			java.util.List<app.owlcms.data.category.Participation> participations = athlete.getParticipations();
-			if (participations != null) {
-				for (app.owlcms.data.category.Participation p : participations) {
-					app.owlcms.data.category.Category cat = p.getCategory();
-					if (cat != null && cat.getAgeGroup() != null) {
-						app.owlcms.data.agegroup.AgeGroup athleteAgeGroup = cat.getAgeGroup();
-
-						// Check championship match
-						String selectedChampionshipName = championship != null ? championship.getName() : null;
-						String athleteChampionshipName = athleteAgeGroup.computeChampionshipName();
-						boolean championshipMatch = championship == null ||
-						        (selectedChampionshipName != null && selectedChampionshipName.equals(athleteChampionshipName));
-
-						// Check age group match (if specified)
-						boolean ageGroupMatch = ageGroup == null ||
-						        (ageGroup.getCode() != null && ageGroup.getCode().equals(athleteAgeGroup.getCode()));
-
-						// Debug logging
-						if (logger.isDebugEnabled()) {
-							logger.debug("Filtering athlete {}: selected championship={}, selected ageGroup={}, athlete championship={}, athlete ageGroup={}, championshipMatch={}, ageGroupMatch={}",
-							        athlete.getFullName(),
-							        championship != null ? championship.getName() : "null",
-							        ageGroup != null ? ageGroup.getCode() : "null",
-							        athleteChampionshipName,
-							        athleteAgeGroup.getCode(),
-							        championshipMatch,
-							        ageGroupMatch);
-						}
-
-						if (championshipMatch && ageGroupMatch) {
-							filtered.add(athlete);
-							break;
-						}
-					}
-				}
+		String ageGroupCode = getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()
+		        ? getAgeGroupPrefix()
+		        : ageGroup != null ? ageGroup.getCode() : null;
+		Set<Long> eligibleAthleteIds = new HashSet<>();
+		for (app.owlcms.data.athlete.Athlete athlete : AgeGroupRepository
+		        .allWeighedInPAthletesForAgeGroupAgeDivision(ageGroupCode, championship)) {
+			if (athlete != null && athlete.getGroup() != null && athlete.getId() != null) {
+				eligibleAthleteIds.add(athlete.getId());
 			}
 		}
-		logger.debug("Filtered {} athletes down to {} athletes", athletes.size(), filtered.size());
+
+		logger.debug("Filtering {} ranked athletes with championship={} ageGroup={} eligibleAthletes={}",
+		        rankedAthletes != null ? rankedAthletes.size() : 0,
+		        championship != null ? championship.getName() : "null",
+		        ageGroupCode,
+		        eligibleAthleteIds.size());
+
+		java.util.List<app.owlcms.data.athlete.Athlete> filtered = new java.util.ArrayList<>();
+		if (rankedAthletes == null || rankedAthletes.isEmpty() || eligibleAthleteIds.isEmpty()) {
+			return filtered;
+		}
+
+		for (app.owlcms.data.athlete.Athlete athlete : rankedAthletes) {
+			if (athlete != null && athlete.getId() != null && eligibleAthleteIds.contains(athlete.getId())) {
+				filtered.add(athlete);
+			}
+		}
+		logger.debug("Filtered {} ranked athletes down to {} athletes",
+		        rankedAthletes.size(), filtered.size());
 		return filtered;
 	}
 
@@ -296,11 +281,10 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	 */
 	private void refreshFilteredBoard(app.owlcms.data.agegroup.Championship championship, app.owlcms.data.agegroup.AgeGroup ageGroup) {
 		if (this.getBoard() instanceof app.owlcms.displays.top.TopSinclair topSinclairBoard) {
-			// Reset filtered results flag if no filtering is applied
-			if (championship == null && ageGroup == null) {
+			boolean hasAgeGroupFilter = (getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank()) || ageGroup != null;
+			if (championship == null && !hasAgeGroupFilter) {
 				topSinclairBoard.setUseFilteredResults(false);
 			} else {
-				// If any filtering is applied, use filtered results
 				topSinclairBoard.setUseFilteredResults(true);
 			}
 
@@ -361,13 +345,15 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		this.gender = gender;
 		((TopSinclair) this.getBoard()).setGender(gender);
 		// Re-apply championship filtering after gender change
-		refreshFilteredBoard(getChampionship(), getAgeGroup());
+		refreshFilteredBoard(getChampionship(), null);
 	}
 
 	@Override
 	public final void setAgeGroup(AgeGroup ag) {
 		this.ageGroup = ag;
+		this.ageGroupPrefix = ag != null ? ag.getCode() : null;
 		((TopSinclair) this.getBoard()).setAgeGroup(ag);
+		((TopSinclair) this.getBoard()).setAgeGroupPrefix(this.ageGroupPrefix);
 		// Re-apply championship filtering after age group change
 		refreshFilteredBoard(getChampionship(), ag);
 	}
@@ -375,9 +361,11 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	@Override
 	public void setAgeGroupPrefix(String ageGroupPrefix) {
 		this.ageGroupPrefix = ageGroupPrefix;
+		this.ageGroup = null;
+		((TopSinclair) this.getBoard()).setAgeGroup(null);
 		((TopSinclair) this.getBoard()).setAgeGroupPrefix(ageGroupPrefix);
 		// Re-apply championship filtering after age group prefix change
-		refreshFilteredBoard(getChampionship(), getAgeGroup());
+		refreshFilteredBoard(getChampionship(), null);
 	}
 
 	@Override
@@ -385,7 +373,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		this.category = cat;
 		((TopSinclair) this.getBoard()).setCategory(cat);
 		// Re-apply championship filtering after category change
-		refreshFilteredBoard(getChampionship(), getAgeGroup());
+		refreshFilteredBoard(getChampionship(), null);
 	}
 
 	@Override
@@ -393,7 +381,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		this.ageDivision = ageDivision;
 		((TopSinclair) this.getBoard()).setChampionship(ageDivision);
 		// Trigger filtering when championship is set programmatically (e.g., from URL parameters)
-		refreshFilteredBoard(ageDivision, getAgeGroup());
+		refreshFilteredBoard(ageDivision, null);
 	}
 
 	@Override
@@ -406,7 +394,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		this.displayLifts = displayLifts;
 		((TopSinclair) this.getBoard()).setDisplayLifts(displayLifts);
 		// Re-apply championship filtering after display lifts change
-		refreshFilteredBoard(getChampionship(), getAgeGroup());
+		refreshFilteredBoard(getChampionship(), null);
 	}
 
 	@Override
@@ -446,7 +434,7 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 		super.onAttach(attachEvent);
 		((TopSinclair) this.getBoard()).setDisplayLifts(this.displayLifts);
 		// Always refresh the board with the current championship filter on attach
-		refreshFilteredBoard(getChampionship(), getAgeGroup());
+		refreshFilteredBoard(getChampionship(), null);
 	}
 
 	   private void updateURLLocations() {
@@ -496,6 +484,22 @@ public class TopSinclairPage extends AbstractResultsDisplayPage implements TopPa
 	   public java.util.HashMap<String, java.util.List<String>> readParams(com.vaadin.flow.router.Location location, java.util.Map<String, java.util.List<String>> parametersMap) {
 		   // Use default param reading, but treat missing/empty gender as null (all athletes)
 		   var params = TopParametersReader.super.readParams(location, parametersMap);
+		   java.util.List<String> ageDivisionParams = parametersMap.get("ad");
+		   String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() && ageDivisionParams.get(0) != null && !ageDivisionParams.get(0).isEmpty())
+				   ? ageDivisionParams.get(0)
+				   : null;
+		   Championship resolvedChampionship = Championship.resolveDisplayChampionship(ageDivisionName, true);
+		   setChampionship(resolvedChampionship);
+		   updateParam(params, "ad", resolvedChampionship != null ? resolvedChampionship.getName() : null);
+
+		   java.util.List<String> ageGroupParams = parametersMap.get("ag");
+		   String ageGroupCode = (ageGroupParams != null && !ageGroupParams.isEmpty() && ageGroupParams.get(0) != null
+				   && !ageGroupParams.get(0).isEmpty())
+					   ? ageGroupParams.get(0)
+					   : null;
+		   setAgeGroupPrefix(ageGroupCode);
+		   updateParam(params, "ag", ageGroupCode);
+
 		   java.util.List<String> genderParams = params.get("gender");
 		   String genderString = (genderParams != null && !genderParams.isEmpty() && genderParams.get(0) != null && !genderParams.get(0).isEmpty())
 				   ? genderParams.get(0)

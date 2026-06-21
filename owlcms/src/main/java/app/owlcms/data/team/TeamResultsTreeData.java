@@ -133,13 +133,15 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 		String prevTeamName = null;
 		if (athletes != null) {
 			Championship effectiveChampionship = ageDivision != null ? ageDivision : Championship.of(null);
-			boolean combinedTotal = effectiveChampionship.isSnatchCJTotalMedals();
 			boolean pointsBasedTeamCompetition = mixedTeamCompetition
 			        ? effectiveChampionship.computeMixedPointsBased()
 			        : effectiveChampionship.computePointsBased();
 			// count points for each team
 			for (Athlete a : athletes) {
 				String curTeamName = a.getTeam();
+				if (shouldSkipTeamScoring(curTeamName)) {
+					continue;
+				}
 				String normalizedTeamName = curTeamName != null ? curTeamName : "-";
 				// logger.debug("a={} curTeam = {}",a, a.getTeam());
 				curTeamItem = findCurTeamItem(getTeamItemsByGender(), gender, curGenderTeams, prevTeamName,
@@ -159,8 +161,8 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 					TeamTreeItem member = curTeamItem.addTreeItemChild(a, groupIsDone);
 					member.setScoringSystem(rankingForGender);
 					Integer memberPoints = explicitMixedTeamCompetition
-					        ? (combinedTotal ? member.getRawCombinedPoints() : member.getRawTotalPoints())
-					        : (combinedTotal ? member.getCombinedPoints() : member.getTotalPoints());
+					        ? member.getConfiguredRawPoints()
+					        : member.getConfiguredPoints();
 					int counted = mixedTeamCompetition
 					        ? getMixedCounted(normalizedTeamName, a.getGender(), mixedCountedByTeam,
 					                mixedCountedByTeamAndGender)
@@ -196,6 +198,15 @@ public class TeamResultsTreeData extends TreeData<TeamTreeItem> {
 			}
 		}
 		return curTeamItem;
+	}
+
+	private boolean shouldSkipTeamScoring(String teamName) {
+		if (teamName == null) {
+			return true;
+		}
+		String normalizedTeamName = teamName.trim();
+		return normalizedTeamName.isEmpty()
+		        || "Unaffiliated".equalsIgnoreCase(normalizedTeamName);
 	}
 
 	private String computeGenderKey(Gender gender) {

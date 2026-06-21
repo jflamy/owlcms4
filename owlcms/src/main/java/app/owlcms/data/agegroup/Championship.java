@@ -196,6 +196,43 @@ public class Championship implements Comparable<Championship>, Serializable {
 		return sortedResults;
 	}
 
+	public static Championship findDefaultDisplayChampionship(boolean activeOnly) {
+		List<Championship> usedChampionships = findAllUsed(activeOnly);
+		for (Championship championship : usedChampionships) {
+			if (championship != null && championship.isDefault()) {
+				return championship;
+			}
+		}
+		Championship storedDefault = ofType(ChampionshipType.DEFAULT);
+		if (storedDefault != null) {
+			return storedDefault;
+		}
+		return usedChampionships.isEmpty() ? null : usedChampionships.get(0);
+	}
+
+	public static Championship resolveDisplayChampionship(String championshipName, boolean activeOnly) {
+		String normalized = championshipName != null ? canonicalizeChampionshipName(championshipName.trim()) : null;
+		if (normalized == null || normalized.isBlank() || normalized.equalsIgnoreCase(COMPETITION_TEMPLATE_NAME)) {
+			Championship displayDefault = findDefaultDisplayChampionship(activeOnly);
+			return displayDefault != null ? displayDefault : of(null);
+		}
+
+		for (Championship championship : findAllUsed(activeOnly)) {
+			if (championship != null && championship.getName() != null
+			        && championship.getName().equalsIgnoreCase(normalized)) {
+				return championship;
+			}
+		}
+
+		Championship stored = findStored(normalized);
+		if (stored != null && !stored.isCompetitionTemplate()) {
+			return stored;
+		}
+
+		Championship displayDefault = findDefaultDisplayChampionship(activeOnly);
+		return displayDefault != null ? displayDefault : of(null);
+	}
+
 	private static String effectiveChampionshipName(AgeGroup ageGroup) {
 		String name = ageGroup.computeChampionshipName();
 		if (name == null || name.isBlank() || name.trim().equalsIgnoreCase(COMPETITION_TEMPLATE_NAME)) {

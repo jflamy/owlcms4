@@ -98,10 +98,9 @@ public class TopTeamsSinclair extends AbstractTop {
 
 	public void doUpdate(Competition competition) {
 		FieldOfPlay fop = getFop();
-		if (fop == null) {
-			return;
+		if (fop != null) {
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 		}
-		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
 		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getChampionship(),
 		        null,

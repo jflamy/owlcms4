@@ -132,6 +132,28 @@ public class AthleteTimerElement extends TimerElement {
 	}
 
 	@Override
+	protected void onFopAssignedWhileAttached() {
+		bindToFopIfReady();
+	}
+
+	private void bindToFopIfReady() {
+		if (this.fop == null) {
+			return;
+		}
+		init(this.fop.getName());
+		long seedSeq = this.fop.getUiEventSequence();
+		IProxyTimer fopTimer = getFopTimer(this.fop);
+		if (fopTimer != null) {
+			if (fopTimer.isRunning()) {
+				doStartTimer(fopTimer.liveTimeRemaining(), isSilenced() || this.fop.isEmitSoundsOnServer(), seedSeq);
+			} else {
+				doSetTimer(fopTimer.getTimeRemaining(), seedSeq);
+			}
+		}
+		this.uiEventBus = uiEventBusRegister(this, this.fop);
+	}
+
+	@Override
 	public void syncWithFopTimer(FieldOfPlay fop) {
 		// only used by break timer
 	}
@@ -167,23 +189,9 @@ public class AthleteTimerElement extends TimerElement {
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent); // Guard and UI setup
 		if (this.fop == null) {
-			logger.error("AthleteTimerElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
 			return;
 		}
-		init(this.fop.getName());
-		// sync with current status of FOP. Seed the sequence with the current FOP value so that any
-		// older in-flight timer event is dropped after this sync.
-		long seedSeq = this.fop.getUiEventSequence();
-		IProxyTimer fopTimer = getFopTimer(this.fop);
-		if (fopTimer != null) {
-			if (fopTimer.isRunning()) {
-				doStartTimer(fopTimer.liveTimeRemaining(), isSilenced() || this.fop.isEmitSoundsOnServer(), seedSeq);
-			} else {
-				doSetTimer(fopTimer.getTimeRemaining(), seedSeq);
-			}
-		}
-		// we listen on uiEventBus.
-		uiEventBusRegister(this, this.fop);
+		bindToFopIfReady();
 	}
 
 }

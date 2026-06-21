@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.html.NativeLabel;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -192,7 +193,7 @@ public class TeamTreeItem {
 		if (this.athlete == null) {
 			pts = getTeam().getPoints();
 		} else {
-			pts = isDone() ? (this.combinedPoints ? getCombinedPoints() : getTotalPoints()) : null;
+			pts = isDone() ? getConfiguredPoints() : null;
 		}
 		return pts;
 	}
@@ -244,8 +245,26 @@ public class TeamTreeItem {
 		return (this.athlete != null ? this.athlete.getRawTotalPoints() : 0);
 	}
 
+	public Integer getConfiguredPoints() {
+		if (usesTotalOnlyTeamPoints()) {
+			return getTotalPoints();
+		}
+		return this.combinedPoints ? getCombinedPoints() : getTotalPoints();
+	}
+
+	public int getConfiguredRawPoints() {
+		if (usesTotalOnlyTeamPoints()) {
+			return getRawTotalPoints();
+		}
+		return this.combinedPoints ? getRawCombinedPoints() : getRawTotalPoints();
+	}
+
 	public int getTotalOnlyPoints() {
 		return (this.team != null ? this.team.getTotalOnlyPoints() : getRawTotalPoints());
+	}
+
+	private boolean usesTotalOnlyTeamPoints() {
+		return this.combinedPoints && Config.getCurrent().featureSwitch("teamPointsTotalOnly");
 	}
 
 	public Double getRobiScore() {

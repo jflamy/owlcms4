@@ -293,6 +293,7 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
         if (this.timer == null) {
             this.timer = new BreakTimerElement("");
         }
+        this.timer.setFop(getFop());
         this.timer.setSilenced(this.isSilenced());
 
         H1 header = new H1("WodKeeper");

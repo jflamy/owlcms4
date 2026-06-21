@@ -401,17 +401,23 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 		return this.board;
 	}
 
+	protected boolean shouldRegisterPageOnUiEventBus() {
+		return true;
+	}
+
 	protected abstract void init();
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		FieldOfPlay fop = getFop();
-		if (fop == null) {
-			logger.error("No FOP provided to {} before attach; aborting registration", this.getClass().getSimpleName());
-			return;
+		if (shouldRegisterPageOnUiEventBus()) {
+			FieldOfPlay fop = getFop();
+			if (fop == null) {
+				logger.error("No FOP provided to {} before attach; aborting registration", this.getClass().getSimpleName());
+				return;
+			}
+			uiEventBusRegister(this, fop);
 		}
-		uiEventBusRegister(this, fop);
 		if (isShowInitialDialog()) {
 			openDialog(getDialog());
 		}

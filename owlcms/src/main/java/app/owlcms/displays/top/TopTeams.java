@@ -98,10 +98,9 @@ public class TopTeams extends AbstractTop {
 
 	public void doUpdate(Competition competition) {
 		FieldOfPlay fop = getFop();
-		if (fop == null) {
-			return;
+		if (fop != null) {
+			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 		}
-		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), getElement());
 
 		TeamResultsTreeData teamResultsTreeData = new TeamResultsTreeData(getAgeGroupPrefix(), getChampionship(),
 		        (Gender) null,
@@ -213,8 +212,15 @@ public class TopTeams extends AbstractTop {
 	}
 
 	private String computeAgeGroupSuffix() {
+		boolean hasChampionship = getChampionship() != null && getChampionship().getName() != null
+		        && !getChampionship().getName().isBlank();
+		boolean hasAgeGroup = getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank();
 		String suffix = null;
-		if (getAgeGroupPrefix() != null) {
+		if (hasChampionship && hasAgeGroup) {
+			suffix = getChampionship().getName() + " " + getAgeGroupPrefix();
+		} else if (hasChampionship) {
+			suffix = getChampionship().getName();
+		} else if (hasAgeGroup) {
 			suffix = getAgeGroupPrefix();
 		}
 		return (suffix != null ? " &ndash; " + suffix : "");

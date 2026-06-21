@@ -72,7 +72,20 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	public void setFop(FieldOfPlay fop) {
+		FieldOfPlay previousFop = this.fop;
+		if (previousFop == fop) {
+			return; // no change: avoid redundant re-register / timer resync
+		}
+		if (previousFop != null && this.uiEventBus != null) {
+			unregister(this, previousFop.getUiEventBus());
+		}
 		this.fop = fop;
+		if (this.getUI().isPresent()) {
+			onFopAssignedWhileAttached();
+		}
+	}
+
+	protected void onFopAssignedWhileAttached() {
 	}
 
 	public void setOrigin(Object origin) {

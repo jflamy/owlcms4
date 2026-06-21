@@ -57,6 +57,16 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		// intentionally empty. superclass will call init() as required.
 	}
 
+	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
+	@Override
+	protected boolean shouldRegisterPageOnUiEventBus() {
+		return false;
+	}
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
 	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
@@ -76,10 +86,11 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 			setChampionship(championship);
 			String existingAgeGroupPrefix = getAgeGroupPrefix();
 			List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, championship);
-			if (existingAgeGroupPrefix != null) {
+			if (existingAgeGroupPrefix != null && activeAgeGroups != null
+			        && activeAgeGroups.contains(existingAgeGroupPrefix)) {
 				ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
-			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && !championship.getType().isMasters()) {
-				ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
+			} else {
+				ageGroupPrefixComboBox.clear();
 			}
 		});
 		ageGroupPrefixComboBox.setPlaceholder(Translator.translate("AgeGroup"));
@@ -167,12 +178,7 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		// no age division
 		String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() ? ageDivisionParams.get(0)
 		        : null);
-		try {
-			setChampionship(Championship.of(ageDivisionName));
-		} catch (Exception e) {
-			List<Championship> ageDivisions = Championship.findAllUsed(true);
-			setChampionship((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
-		}
+		setChampionship(Championship.resolveDisplayChampionship(ageDivisionName, true));
 		// remove if now null
 		String value = getChampionship() != null ? getChampionship().getName() : null;
 		updateParam(params1, "ad", value);
