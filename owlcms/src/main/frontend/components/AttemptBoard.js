@@ -34,7 +34,7 @@ class CurrentAttempt extends LitElement {
         <div class="${this.firstNameClasses()}" style="${this.firstNameStyles()}">
           <div style="${this.firstNameSizeOverride}">${this.firstName}</div>
         </div>
-        <div class="teamName" style="${this.teamNameStyles()}">
+        <div class="${this.teamNameClasses()}" style="${this.teamNameStyles()}">
           ${this.teamName}
         </div>
         <div class="${this.teamFlagImgClasses()}" style="${this.teamFlagImgStyles()}" .innerHTML="${this.teamFlagImg}"></div>
@@ -48,8 +48,8 @@ class CurrentAttempt extends LitElement {
         <div class="startNumber" style="${this.startNumberStyles()}">
           <span>${this.startNumber}</span>
         </div>
-        <div class="category" style="${this.attemptStyles()}">
-          <span style="white-space: nowrap;">${this.category}</span>
+        <div class=${classMap({ category: true, longCategory: this.isLongCategory() })} style="${this.attemptStyles()}">
+          ${this.categoryContent()}
         </div>
         <div class="attempt" style="${this.attemptStyles()}">
           <span .innerHTML="${this.attempt}"></span>
@@ -130,6 +130,21 @@ class CurrentAttempt extends LitElement {
     return this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY"
   }
 
+  isLongCategory() {
+    return (this.category ?? "").length > 10;
+  }
+
+  categoryContent() {
+    const cat = this.category ?? "";
+    const words = cat.trim().split(/\s+/);
+    if (words.length < 4) {
+      return html`<span style="white-space: nowrap;">${cat}</span>`;
+    }
+    const first = words.slice(0, words.length - 2).join(" ");
+    const last = words.slice(words.length - 2).join(" ");
+    return html`<span style="white-space: pre;">${first + "\n" + last}</span>`;
+  }
+
   wrapperClasses() {
     var classes = "wrapper dark";
     classes = classes + (this.platformName ? " " + this.platformName : "");
@@ -142,6 +157,16 @@ class CurrentAttempt extends LitElement {
       (this.decisionVisible ? " hideBecauseDecision" : "") +
       ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
   }
+  teamNameClasses() {
+    const hasPicture = this.athleteImg || this.athletePictures;
+    const hasFlag = Boolean(this.teamFlagImg) && this.mode === "CURRENT_ATHLETE" && !this.isBreak();
+    const teamName = this.teamName ?? "";
+    const longTeamName = teamName.length > 28 ? " longTeamName" : "";
+    if (hasPicture && hasFlag) return "teamName teamNameWithPictureAndFlag" + longTeamName;
+    if (hasPicture) return "teamName teamNameWithPicture" + longTeamName;
+    return "teamName" + longTeamName;
+  }
+
   teamFlagImgClasses() {
     var mainClass = (this.athleteImg || this.athletePictures) ? "flagWithPicture" : "flag";
     return mainClass +
@@ -189,12 +214,12 @@ class CurrentAttempt extends LitElement {
   }
 
   teamFlagImgStyles() {
-    return "display: " + (this.isBreak() ? "none" : (this.mode === "CURRENT_ATHLETE" ? "grid" : "none"));
+    return "display: " + (this.isBreak() ? "none" : (this.mode === "CURRENT_ATHLETE" && this.teamFlagImg ? "grid" : "none"));
   }
 
 
   athleteImgStyles() {
-    return "display: " + ((this.mode === "CURRENT_ATHLETE" && !(this.recordAttempt || this.recordBroken)) ? "grid" : "none");
+    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.athleteImg || this.athletePictures) && !(this.recordAttempt || this.recordBroken)) ? "grid" : "none");
   }
 
   recordMessageClasses() {
@@ -228,7 +253,7 @@ class CurrentAttempt extends LitElement {
   }
 
   breakTimerStyles() {
-    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none");
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none") + "; grid-area: timer-start/barbell-start/timer-end/timer-end;";
   }
 
   barbellStyles() {
