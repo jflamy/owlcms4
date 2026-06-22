@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
+REVISION="${REVISION:-66.5.0-rc02}"
 set -euo pipefail
 
-# Parse arguments: the first positional argument is the revision; flags may
-# appear in any order.
+# The first positional argument is the revision; if omitted, the default above is used.
+# Flags may appear in any order.
 SKIP_TRANSLATIONS="${SKIP_TRANSLATIONS:-false}"
-REVISION=""
 for arg in "$@"; do
   case "${arg}" in
     --skipTranslations)
@@ -15,13 +15,10 @@ for arg in "$@"; do
       exit 1
       ;;
     *)
-      if [[ -z "${REVISION}" ]]; then
-        REVISION="${arg}"
-      fi
+      REVISION="${arg}"
       ;;
   esac
 done
-REVISION="${REVISION:-66.5.0-rc01}"
 
 # Triggers the GitHub Actions workflow `.github/workflows/release.yaml`
 # and watches the run until completion.
