@@ -10,6 +10,15 @@
 
 **New in Release 66**
 
+66.5.0: Fix for "birth date is wrong" 
+  - When opening results loaded in one timezone in another timezone, the birth date could move by one day (and for January 1, to the previous year)
+  - To fix, load the registration file again in version 66.5
+  - If data is already in database, contact owlcms@jflamy.dev for hotfix procedure
+
+66.4.0: SBDE file fixes for the "Only Update Athlete Information, do not touch lifts" mode
+  - Record eligibilities were not updated
+  - Categories were not correctly carried over.
+
 66.3.0: New competition export endpoints in addition to the existing `/competition/export` (which is unchanged):
   - `/competition/export/json/1` — same JSON format as the legacy endpoint
   - `/competition/export/json/2` — new JSON v2 format
