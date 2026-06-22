@@ -16,6 +16,12 @@
     },
     {
       "path": "../meets"
+    },
+    {
+      "path": "../tracker"
+    },
+    {
+      "path": "../tracker-core"
     }
   ],
   "settings": {
