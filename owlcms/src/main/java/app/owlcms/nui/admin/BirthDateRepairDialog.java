@@ -40,6 +40,7 @@ final class BirthDateRepairDialog extends Dialog {
 		content.setPadding(false);
 		content.setSpacing(true);
 		content.setAlignItems(FlexComponent.Alignment.STRETCH);
+		content.getStyle().set("min-height", "0");
 
 		content.add(warningText());
 		content.add(summary(preview, skippedSummary));
@@ -112,8 +113,11 @@ final class BirthDateRepairDialog extends Dialog {
 
 		content.add(new H3("Jan 1 / Dec 31 Rows To Review"));
 		Grid<BirthDateRepairRow> reviewGrid = baseGrid(rowsToReview, skippedAthleteIds, skippedSummary);
-		reviewGrid.setAllRowsVisible(true);
 		content.add(reviewGrid);
+		content.setFlexGrow(1, reviewGrid);
+
+		setHeight("min(52rem, calc(100vh - 2rem))");
+		content.setHeightFull();
 	}
 
 	private Grid<BirthDateRepairRow> baseGrid(List<BirthDateRepairRow> rows, Set<Long> skippedAthleteIds,
@@ -129,6 +133,9 @@ final class BirthDateRepairDialog extends Dialog {
 		        .setHeader("Skip")
 		        .setAutoWidth(true)
 		        .setFlexGrow(0);
+		grid.setWidthFull();
+		grid.setHeightFull();
+		grid.setMinHeight("10rem");
 		grid.setItems(rows);
 		grid.getThemeNames().add("row-stripes");
 		return grid;
