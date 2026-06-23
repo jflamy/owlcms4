@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
+import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -84,6 +86,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	private static final long DECISION_DEBOUNCE_MILLIS = 500L;
+	private static final long WAKE_UP_REF_GRACE_PERIOD_MILLIS = 2000L;
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
@@ -98,6 +101,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private boolean declarations;
 	private boolean centerNotifications;
 	private UI ui;
+	private Notification waitingForDecisionNotification;
+	private TimerTask waitingForDecisionNotificationTask;
+	private long waitingForDecisionNotificationGeneration;
 
 	public AnnouncerContent() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -355,10 +361,91 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.stoppageAckNotification.open();
 	}
 
+	private void closeWaitingForDecisionNotification() {
+		if (this.waitingForDecisionNotification != null) {
+			this.waitingForDecisionNotification.close();
+			this.waitingForDecisionNotification = null;
+		}
+	}
+
+	private void cancelWaitingForDecisionNotificationTask() {
+		this.waitingForDecisionNotificationGeneration++;
+		if (this.waitingForDecisionNotificationTask != null) {
+			this.waitingForDecisionNotificationTask.cancel();
+			this.waitingForDecisionNotificationTask = null;
+		}
+	}
+
+	private boolean isWaitingForDecisionNotificationShown() {
+		return this.waitingForDecisionNotification != null && this.waitingForDecisionNotification.isOpened();
+	}
+
+	private void clearWaitingForDecisionReminder() {
+		logger.warn("{}announcer waiting-for-decision clear", FieldOfPlay.getLoggingName(getFop()));
+		cancelWaitingForDecisionNotificationTask();
+		closeWaitingForDecisionNotification();
+	}
+
+	private void scheduleWaitingForDecisionNotification(int missingReferee) {
+		cancelWaitingForDecisionNotificationTask();
+		closeWaitingForDecisionNotification();
+		final long generation = this.waitingForDecisionNotificationGeneration;
+		logger.warn("{}announcer waiting-for-decision schedule ref={} delayMs={}",
+		        FieldOfPlay.getLoggingName(getFop()), missingReferee, WAKE_UP_REF_GRACE_PERIOD_MILLIS);
+		this.waitingForDecisionNotificationTask = new DelayTimer().schedule(() -> {
+			UI targetUi = this.ui != null ? this.ui : currentUI;
+			if (targetUi == null) {
+				return;
+			}
+			targetUi.access(() -> {
+				if (generation != this.waitingForDecisionNotificationGeneration) {
+					return;
+				}
+				showWaitingForDecisionNotification(missingReferee);
+				this.waitingForDecisionNotificationTask = null;
+			});
+		}, WAKE_UP_REF_GRACE_PERIOD_MILLIS);
+	}
+
+	private void showWaitingForDecisionNotification(int missingReferee) {
+		logger.warn("{}announcer waiting-for-decision show ref={}", FieldOfPlay.getLoggingName(getFop()), missingReferee);
+		closeWaitingForDecisionNotification();
+		Notification notification = new Notification();
+		notification.getElement().getThemeList().add("error");
+		notification.setDuration(0);
+
+		Div label = new Div(Translator.translate("Announcer.WaitingForDecisionFromReferee", missingReferee));
+		NativeButton closeButton = new NativeButton("X");
+		closeButton.getStyle().set("margin-left", "1em");
+		closeButton.addClickListener(event -> {
+			notification.close();
+			if (this.waitingForDecisionNotification == notification) {
+				this.waitingForDecisionNotification = null;
+			}
+		});
+
+		HorizontalLayout content = new HorizontalLayout(label, closeButton);
+		content.setPadding(false);
+		content.setSpacing(true);
+		content.setAlignItems(FlexComponent.Alignment.CENTER);
+		if (isCenterNotifications()) {
+			label.getStyle().set("font-size", "x-large");
+			notification.setPosition(Position.MIDDLE);
+		} else {
+			label.getStyle().set("font-size", "large");
+			notification.setPosition(Position.TOP_START);
+		}
+
+		notification.add(content);
+		notification.open();
+		this.waitingForDecisionNotification = notification;
+	}
+
 	@Subscribe
 	@Override
 	public void slaveStartLifting(UIEvent.StartLifting s) {
 		currentUI.access(() -> {
+			clearWaitingForDecisionReminder();
 			super.slaveStartLifting(s);
 			if (this.stoppageAckNotification != null) {
 				this.stoppageAckNotification.close();
@@ -376,6 +463,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			clearWaitingForDecisionReminder();
 			hideLiveDecisions();
 
 			if (e == null || e.decision == null) {
@@ -412,6 +500,35 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			buttonsTimeStarted();
 			displayLiveDecisions();
+		});
+	}
+
+	@Subscribe
+	public void slaveDownSignal(UIEvent.DownSignal e) {
+		// Down alone is not enough to identify the missing referee. Announcer reminders
+		// follow the same trigger as the referee wake-up logic: two votes received and one missing.
+	}
+
+	@Subscribe
+	public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
+		logger.warn("{}announcer slaveWakeUpRef on={} ref={}", FieldOfPlay.getLoggingName(getFop()), e.on, e.ref);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (e.on) {
+				scheduleWaitingForDecisionNotification(e.ref);
+			} else {
+				cancelWaitingForDecisionNotificationTask();
+				if (!isWaitingForDecisionNotificationShown()) {
+					closeWaitingForDecisionNotification();
+				}
+			}
+		});
+	}
+
+	@Subscribe
+	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			clearWaitingForDecisionReminder();
+			syncWithFop(true, getFop());
 		});
 	}
 
