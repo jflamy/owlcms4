@@ -10,6 +10,12 @@
 
 **New in Release 67.1**
 
+67.1.0-beta01: Adjusted the "start using collar" threshold rules
+  - Made them relative to bar weight. Specified for men's bar, adjusted for actual bar. 40 threshold means 35 for women's bar
+  - Default on new databases is now 25 as per IWF rules -- always use collars
+  - If 2.5kg bumpers are toggled on (or childrenEquipment feature toggle is active) threshold is 30, so that on a men's bar 25 is loaded with large 2.5kg bumpers and no collars (20 kg for women's bar)
+  - Special rules (usawCollars, lightBarU13, lightBarU15) still have precedence.
+
 67.1.0-beta01: Refactored GAMX
   - added GAMX variants for snatch and clean&jerk (for seniors and masters)
   - changed the format to JSON so the same tables would be used for tracker
