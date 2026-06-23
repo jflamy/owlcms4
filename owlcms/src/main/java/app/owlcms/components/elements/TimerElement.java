@@ -31,6 +31,8 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import elemental.json.Json;
+import elemental.json.JsonObject;
 
 /**
  * Countdown timer element.
@@ -56,6 +58,8 @@ public abstract class TimerElement extends LitTemplate
 	private boolean serverSound;
 	private boolean silenced = true;
 	private Element timerElement;
+	private long timerCommandSequence;
+	private long timerSettingsSequence;
 	private Object origin;
 	protected EventBus uiEventBus;
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
@@ -94,6 +98,7 @@ public abstract class TimerElement extends LitTemplate
 	public void setSilenced(boolean b) {
 		// this.logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.stackTrace());
 		this.silenced = b;
+		syncTimerSettings();
 	}
 
 	protected double getInitialWarningThresholdSeconds() {
@@ -149,7 +154,6 @@ public abstract class TimerElement extends LitTemplate
 				setMsRemaining(milliseconds);
 				String parent = DebugUtils.getOwlcmsParentName(this.getParent().get());
 				this.lastStartMillis = System.currentTimeMillis();
-				getElement().setProperty("silent", isSilent());
 				start(milliseconds, isIndefinite(), isSilent(), parent);
 				if (ui != null) {
 					ui.push(); // should not be required...
@@ -227,7 +231,6 @@ public abstract class TimerElement extends LitTemplate
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug("server starting timer {}, {}, {}", parent, milliseconds, this.lastStartMillis);
 			}
-			getElement().setProperty("silent", isSilent());
 			start(milliseconds, isIndefinite(), isSilent(), parent);
 			if (ui != null) {
 				ui.push(); // should not be required...
@@ -264,32 +267,24 @@ public abstract class TimerElement extends LitTemplate
 	protected void init(String fopName) {
 		this.fopName = fopName;
 		setTimerElement(this.getElement());
-		double seconds = 0.00D;
-		setMsRemaining(0);
-		// setSilenced(true);
-		setIndefinite(false);
 		if (UI.getCurrent() == null) {
 			return;
 		}
-		// logger.debug("init 0");
-		UI.getCurrent().access(() -> {
-			getElement().setProperty("startTime", 0.0D);
-			getElement().setProperty("currentTime", seconds);
-			getElement().setProperty("countUp", false);
-			getElement().setProperty("running", false);
-			getElement().setProperty("silent", true);
-			getElement().setProperty("fopName", fopName);
-			syncWarningThresholdProperties(getElement());
-		});
 		this.vsession = VaadinSession.getCurrent();
+		syncTimerSettings();
 	}
 
-	protected void syncWarningThresholdProperties(Element timerElement2) {
+	private void syncTimerSettings() {
+		Element timerElement2 = getTimerElement();
 		if (timerElement2 == null) {
 			return;
 		}
-		timerElement2.setProperty("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
-		timerElement2.setProperty("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
+		JsonObject payload = Json.createObject();
+		payload.put("sequence", Long.toString(++this.timerSettingsSequence));
+		payload.put("silent", isSilent());
+		payload.put("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
+		payload.put("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
+		timerElement2.setPropertyJson("timerSettingsPayload", payload);
 	}
 
 	protected boolean isIndefinite() {
@@ -329,7 +324,6 @@ public abstract class TimerElement extends LitTemplate
 		// // tell the javascript to stay quiet
 		// setSilenced(true);
 		// setTimerElement(null);
-		// getElement().setProperty("silent", true);
 	}
 
 	protected void setIndefinite(boolean indefinite) {
@@ -352,16 +346,29 @@ public abstract class TimerElement extends LitTemplate
 	protected void start(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
 		Element timerElement2 = getTimerElement();
 		if (timerElement2 != null && (indefinite || milliseconds != null)) {
-			syncWarningThresholdProperties(timerElement2);
 			double seconds = (indefinite) ? 0.0D : milliseconds / 1000.0D;
 			if (this instanceof BreakTimerElement) {
 				if (this.logger.isDebugEnabled()) {
 					this.logger.debug("start {}s", seconds);
 				}
 			}
-			timerElement2.callJsFunction("start", seconds, indefinite, silent, timerElement2,
-			        Long.toString(System.currentTimeMillis()), from);
+			setTimerCommand(timerElement2, "start", seconds, indefinite, silent, from);
 		}
+	}
+
+	private void setTimerCommand(Element timerElement2, String command, double seconds, Boolean indefinite, Boolean silent,
+	        String from) {
+		JsonObject payload = Json.createObject();
+		payload.put("sequence", Long.toString(++this.timerCommandSequence));
+		payload.put("command", command);
+		payload.put("seconds", seconds);
+		payload.put("indefinite", Boolean.TRUE.equals(indefinite));
+		payload.put("silent", Boolean.TRUE.equals(silent));
+		payload.put("serverMillis", Long.toString(System.currentTimeMillis()));
+		payload.put("from", from != null ? from : "");
+		payload.put("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
+		payload.put("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
+		timerElement2.setPropertyJson("timerCommandPayload", payload);
 	}
 
 	@SuppressWarnings("unused")
@@ -399,22 +406,19 @@ public abstract class TimerElement extends LitTemplate
 			this.logger.debug("setDisplay {} {}", milliseconds, timerElement2);
 		}
 		if (timerElement2 != null) {
-			syncWarningThresholdProperties(timerElement2);
 			double seconds = indefinite ? 0.0D : (milliseconds != null ? milliseconds / 1000.0D : 0D);
-			timerElement2.callJsFunction("display", seconds, indefinite, silent, timerElement2);
+			setTimerCommand(timerElement2, "display", seconds, indefinite, silent, null);
 		}
 	}
 
 	private void stop(Integer milliseconds, Boolean indefinite, Boolean silent, String from) {
 		Element timerElement2 = getTimerElement();
 		if (timerElement2 != null && (indefinite || milliseconds != null)) {
-			syncWarningThresholdProperties(timerElement2);
 			double seconds = (indefinite) ? 0.0D : milliseconds / 1000.0D;
 			if (this instanceof BreakTimerElement) {
 				this.logger.debug("stop {}s", seconds);
 			}
-			timerElement2.callJsFunction("pause", seconds, indefinite, silent, timerElement2,
-			        Long.toString(System.currentTimeMillis()), from);
+			setTimerCommand(timerElement2, "pause", seconds, indefinite, silent, from);
 		}
 	}
 }
