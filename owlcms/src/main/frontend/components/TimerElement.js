@@ -40,7 +40,126 @@ class TimerElement extends LitElement {
       finalWarningThresholdSeconds: {
         type: Number,
       },
+      timerStatePayload: {
+        type: Object,
+      },
+      timerSettingsPayload: {
+        type: Object,
+      },
+      timerCommandPayload: {
+        type: Object,
+      },
     };
+  }
+
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    if (changedProperties.has("timerStatePayload")) {
+      this._applyTimerState();
+    }
+    if (changedProperties.has("timerSettingsPayload")) {
+      this._applyTimerSettings();
+    }
+    if (changedProperties.has("timerCommandPayload")) {
+      this._applyTimerCommand();
+    }
+  }
+
+  _applyTimerState() {
+    const payload = this.timerStatePayload;
+    if (!payload) {
+      return;
+    }
+    this._stopAnimation();
+    this.startTime = Number.isFinite(payload.startTime) ? payload.startTime : 60;
+    this.currentTime = Number.isFinite(payload.currentTime) ? payload.currentTime : 0;
+    this.countUp = Boolean(payload.countUp);
+    this.running = Boolean(payload.running);
+    this.silent = Boolean(payload.silent);
+    this.fopName = payload.fopName || "";
+    this.initialWarningThresholdSeconds = Number.isFinite(payload.initialWarningThresholdSeconds)
+      ? payload.initialWarningThresholdSeconds
+      : -1;
+    this.finalWarningThresholdSeconds = Number.isFinite(payload.finalWarningThresholdSeconds)
+      ? payload.finalWarningThresholdSeconds
+      : -1;
+    this._elapsed = null;
+    this.updateTime(this.currentTime);
+    if (this.running) {
+      this._scheduleTimerFrame();
+    }
+  }
+
+  _applyTimerSettings() {
+    const payload = this.timerSettingsPayload;
+    if (!payload) {
+      return;
+    }
+    this.silent = Boolean(payload.silent);
+    this.initialWarningThresholdSeconds = Number.isFinite(payload.initialWarningThresholdSeconds)
+      ? payload.initialWarningThresholdSeconds
+      : -1;
+    this.finalWarningThresholdSeconds = Number.isFinite(payload.finalWarningThresholdSeconds)
+      ? payload.finalWarningThresholdSeconds
+      : -1;
+  }
+
+  _applyTimerCommand() {
+    const payload = this.timerCommandPayload;
+    if (!payload || !payload.command) {
+      return;
+    }
+    this.initialWarningThresholdSeconds = Number.isFinite(payload.initialWarningThresholdSeconds)
+      ? payload.initialWarningThresholdSeconds
+      : -1;
+    this.finalWarningThresholdSeconds = Number.isFinite(payload.finalWarningThresholdSeconds)
+      ? payload.finalWarningThresholdSeconds
+      : -1;
+    const seconds = Number.isFinite(payload.seconds) ? payload.seconds : 0;
+    const indefinite = Boolean(payload.indefinite);
+    const silent = Boolean(payload.silent);
+    this.silent = silent;
+    if (this._isNoopTimerCommand(payload.command, seconds, indefinite)) {
+      return;
+    }
+    if (payload.command === "start") {
+      this._start(seconds, indefinite, silent, payload.serverMillis, payload.from);
+    } else if (payload.command === "pause") {
+      this._pause(seconds, indefinite, silent, payload.serverMillis, payload.from);
+    } else if (payload.command === "display") {
+      this._display(seconds, indefinite, silent);
+    } else {
+      console.warn("unknown timer command " + payload.command);
+    }
+  }
+
+  _isNoopTimerCommand(command, seconds, indefinite) {
+    if (command === "pause") {
+      return !indefinite && !this.running && this._timeEquals(this.currentTime, seconds);
+    }
+    if (command === "display") {
+      return !indefinite && !this.running && this._timeEquals(this.currentTime, seconds)
+        && !this._initialWarningGiven && !this._finalWarningGiven && !this._timeOverWarningGiven;
+    }
+    return false;
+  }
+
+  _timeEquals(left, right) {
+    return Number.isFinite(left) && Number.isFinite(right) && Math.abs(left - right) < 0.001;
+  }
+
+  _scheduleTimerFrame() {
+    if (this._animationFrameId !== null) {
+      window.cancelAnimationFrame(this._animationFrameId);
+    }
+    this._animationFrameId = window.requestAnimationFrame(this._decreaseTimer);
+  }
+
+  _stopAnimation() {
+    if (this._animationFrameId !== null) {
+      window.cancelAnimationFrame(this._animationFrameId);
+      this._animationFrameId = null;
+    }
   }
 
   getInitialWarningThresholdSeconds() {
@@ -96,8 +215,10 @@ class TimerElement extends LitElement {
     this.renderRoot.querySelector('#timeOver').play();
   }
 
-  start(seconds, indefinite, silent, element, serverMillis, from) {
+  _start(seconds, indefinite, silent, serverMillis, from) {
+    this._stopAnimation();
     if (indefinite) {
+      this.running = false;
       console.warn("timer indefinite " + seconds);
       this._indefinite();
       return;
@@ -108,7 +229,8 @@ class TimerElement extends LitElement {
       // iPad devices can react several seconds late; catch up with time
       // this assumes that iPad is in sync with NTP time (it should be)
       var localMillis = Date.now();
-      lateMillis = localMillis - parseInt(serverMillis, 10);
+      var serverMillisInt = parseInt(serverMillis, 10);
+      lateMillis = Number.isFinite(serverMillisInt) ? localMillis - serverMillisInt : 0;
       if (lateMillis < 0) {
         lateMillis = 0;
       }
@@ -135,11 +257,14 @@ class TimerElement extends LitElement {
     this._elapsed = null;  // Will be initialized on first _decreaseTimer call
     this.running = true;
     console.warn("timer running " + this.currentTime);
-    window.requestAnimationFrame(this._decreaseTimer);
+    this._scheduleTimerFrame();
   }
 
-  pause(seconds, indefinite, silent, element, serverMillis, from) {
+  _pause(seconds, indefinite, silent, serverMillis, from) {
+    this._stopAnimation();
+    this.silent = silent;
     if (indefinite) {
+      this.running = false;
       this._indefinite();
       return;
     }
@@ -154,7 +279,9 @@ class TimerElement extends LitElement {
     this.updateTime(this.currentTime)
   }
 
-  display(seconds, indefinite, silent, element) {
+  _display(seconds, indefinite, silent) {
+    this._stopAnimation();
+    this.silent = silent;
     this.running = false;
     console.warn("display " + indefinite + " " + seconds + " running=false");
     if (indefinite) {
@@ -228,6 +355,7 @@ class TimerElement extends LitElement {
   }
 
   _decreaseTimer(timestamp) {
+    this._animationFrameId = null;
     //console.warn(timestamp + " " + this.running);
     if (!this.running) {
       return;
@@ -274,16 +402,17 @@ class TimerElement extends LitElement {
     this.updateTime(this.currentTime)
 
     // console.warn(this._formattedTime);
-    this._elapsed = now;
-    window.requestAnimationFrame(this._decreaseTimer);
-
     if ((this.currentTime < -0.1 && !this.countUp) || (this.currentTime >= this.startTime && this.countUp)) {
       console.warn("time over stop running " + this.$server + " running=false");
 
       this.running = false;
       this.formatted_time = this._formatTime(0);
       this.currentTime = this.countUp ? this.startTime : 0;
+      return;
     }
+
+    this._elapsed = now;
+    this._scheduleTimerFrame();
   }
 
   _formatTime(ntime) {
@@ -320,6 +449,10 @@ class TimerElement extends LitElement {
     this._formattedTime = "&nbsp;&nbsp;&nbsp;&nbsp;";
     this.initialWarningThresholdSeconds = -1;
     this.finalWarningThresholdSeconds = -1;
+    this.timerStatePayload = null;
+    this.timerSettingsPayload = null;
+    this.timerCommandPayload = null;
+    this._animationFrameId = null;
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;
     this._timeOverWarningGiven = false;

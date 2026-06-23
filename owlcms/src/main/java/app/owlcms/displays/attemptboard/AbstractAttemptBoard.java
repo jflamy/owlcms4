@@ -350,6 +350,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	@Override
 	public void setSilenced(boolean silenced) {
 		this.athleteTimer.setSilenced(silenced);
+		this.breakTimer.setSilenced(silenced);
 		this.silenced = silenced;
 	}
 
