@@ -25,6 +25,7 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.InputKind;
 import app.owlcms.fieldofplay.TimingPolicy;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
@@ -34,6 +35,7 @@ import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
+import elemental.json.JsonObject;
 
 /**
  * ExplicitDecision display element.
@@ -43,7 +45,7 @@ import elemental.json.Json;
 @JsModule("./components/DecisionElement.js")
 @Uses(Icon.class)
 public class DecisionElement extends LitTemplate
-        implements SafeEventBusRegistration {
+		implements SafeEventBusRegistration {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
@@ -62,6 +64,7 @@ public class DecisionElement extends LitTemplate
 	protected boolean downSlave;
 	protected FieldOfPlay fop;
 	private final AtomicLong decisionDisplayGeneration = new AtomicLong();
+	private final AtomicLong decisionPayloadSequence = new AtomicLong();
 
 	public DecisionElement() {
 	}
@@ -82,8 +85,8 @@ public class DecisionElement extends LitTemplate
 		}
 		this.fop = fop;
 		logger.debug("DecisionElement.setFop: fop={} isSingleRef={} isJuryMode={} {}",
-		        (fop != null ? fop.getName() : "null"), this.isSingleRef(), this.isJuryMode(),
-		        LoggerUtils.whereFrom());
+				(fop != null ? fop.getName() : "null"), this.isSingleRef(), this.isJuryMode(),
+				LoggerUtils.whereFrom());
 		getElement().setProperty("singleRef", this.isSingleRef());
 		if (changed && this.getUI().isPresent()) {
 			bindToFopIfReady();
@@ -108,7 +111,8 @@ public class DecisionElement extends LitTemplate
 
 	@ClientCallable
 	/**
-	 * client side only sends after timer has been started until decision reset or break
+	 * client side only sends after timer has been started until decision reset or
+	 * break
 	 *
 	 * @param ref1
 	 * @param ref2
@@ -118,8 +122,8 @@ public class DecisionElement extends LitTemplate
 	 * @param ref3Time
 	 */
 	public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time,
-	        Integer ref2Time,
-	        Integer ref3Time) {
+			Integer ref2Time,
+			Integer ref3Time) {
 		Object origin = this.getOrigin();
 		if (this.fop != null && fopName.contentEquals(this.fop.getName())) {
 			if (this.isSingleRef()) {
@@ -127,23 +131,24 @@ public class DecisionElement extends LitTemplate
 				Boolean decision = ref1 != null ? ref1 : (ref2 != null ? ref2 : ref3);
 				if (refIndex != null && decision != null) {
 					logger.warn("DecisionElement solo referee update refIndex={} decision={} {}",
-					        refIndex, decision, LoggerUtils.whereFrom());
+							refIndex, decision, LoggerUtils.whereFrom());
 					this.fop.fopEventPost(new FOPEvent.DecisionUpdate(origin, refIndex, decision));
 					return;
 				}
 			}
-			//logger.debug("masterRefereeUpdate {} {} {}",ref1, ref2, ref3);
+			// logger.debug("masterRefereeUpdate {} {} {}",ref1, ref2, ref3);
 			this.fop.fopEventPost(
-			        new FOPEvent.DecisionFullUpdate(origin, this.fop.getCurAthlete(), ref1, ref2, ref3,
-			                Long.valueOf(ref1Time),
-			                Long.valueOf(ref2Time),
-			                Long.valueOf(ref3Time), false));
+					new FOPEvent.DecisionFullUpdate(origin, this.fop.getCurAthlete(), ref1, ref2, ref3,
+							Long.valueOf(ref1Time),
+							Long.valueOf(ref2Time),
+							Long.valueOf(ref3Time), false));
 		}
 	}
 
 	@ClientCallable
 	/**
-	 * client side only sends after timer has been started until decision reset or break
+	 * client side only sends after timer has been started until decision reset or
+	 * break
 	 *
 	 * @param decision
 	 * @param ref1
@@ -158,6 +163,14 @@ public class DecisionElement extends LitTemplate
 		}
 	}
 
+	@ClientCallable
+	public void decisionPayloadApplied(String sequence, String mode, Boolean singleRef, Boolean announcerForced,
+	        Boolean ref1, Boolean ref2, Boolean ref3) {
+		logger.warn("{}decisionElement applied decisionPayload sequence={} mode={} singleRef={} announcerForced={} refs=[{},{},{}] parent={}",
+		        FieldOfPlay.getLoggingName(this.fop), sequence, mode, singleRef, announcerForced, ref1, ref2, ref3,
+		        this.getOrigin());
+	}
+
 	public void setDontReset(boolean dontReset) {
 		this.dontReset = dontReset;
 	}
@@ -167,17 +180,16 @@ public class DecisionElement extends LitTemplate
 		getElement().setProperty("jury", juryMode);
 	}
 
-
 	public void setDisplaySize(String size) {
 		String normalized = size == null ? "small" : size.toLowerCase(Locale.ROOT);
 		switch (normalized) {
-		case "small":
-		case "large":
-		case "x-large":
-			getElement().setProperty("size", normalized);
-			break;
-		default:
-			throw new IllegalArgumentException("Unsupported decision element size: " + size);
+			case "small":
+			case "large":
+			case "x-large":
+				getElement().setProperty("size", normalized);
+				break;
+			default:
+				throw new IllegalArgumentException("Unsupported decision element size: " + size);
 		}
 	}
 
@@ -217,15 +229,16 @@ public class DecisionElement extends LitTemplate
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		logger.debug("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
 		logger.warn("{}decisionElement slaveDownSignal origin={} juryMode={}", FieldOfPlay.getLoggingName(this.fop),
-		        this.getOrigin(), isJuryMode());
+				this.getOrigin(), isJuryMode());
 		if (isJuryMode()) {
 			// jury mode doesn't show down signal
 			return;
 		}
-		// Backend now controls showing down on all decision elements including the keystroke master
+		// Backend now controls showing down on all decision elements including the
+		// keystroke master
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
-			        this.getParent().get().getClass().getSimpleName());
+					this.getParent().get().getClass().getSimpleName());
 			getElement().setProperty("singleRef", this.isSingleRef());
 			boolean emitSoundsOnServer = (this.fop != null && this.fop.isEmitSoundsOnServer());
 			showDownSignal(isSilenced() || emitSoundsOnServer);
@@ -248,20 +261,25 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
-		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleLight());
-		logger.warn("{}decisionElement slaveShowDecision origin={} singleLight={} refs=[{},{},{}]",
-		        FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), e.isSingleLight(), e.ref1, e.ref2, e.ref3);
-		// Backend now controls hiding down and showing decisions on all decision elements
+		boolean announcerForced = e.getInputKind() == InputKind.ANNOUNCER_ENTRY;
+		// logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3,
+		// e.isSingleLight());
+		logger.warn("{}decisionElement slaveShowDecision origin={} singleLight={} announcerForced={} refs=[{},{},{}]",
+				FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), e.isSingleLight(), announcerForced, e.ref1,
+				e.ref2, e.ref3);
+		// Backend now controls hiding down and showing decisions on all decision
+		// elements
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight());
+			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), announcerForced);
 		});
 	}
 
 	@Subscribe
 	public void slaveInitialDecision(UIEvent.InitialDecision e) {
-		logger.warn("{}decisionElement slaveInitialDecision origin={} timingPolicy={} singleLight={} refs=[{},{},{}]",
-		        FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), e.getTimingPolicy(), e.isSingleLight(), e.ref1,
-		        e.ref2, e.ref3);
+		boolean announcerForced = e.getInputKind() == InputKind.ANNOUNCER_ENTRY;
+		logger.warn("{}decisionElement slaveInitialDecision origin={} timingPolicy={} singleLight={} announcerForced={} refs=[{},{},{}]",
+				FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), e.getTimingPolicy(), e.isSingleLight(),
+				announcerForced, e.ref1, e.ref2, e.ref3);
 		if (e.getTimingPolicy() != TimingPolicy.DELAYED) {
 			return;
 		}
@@ -273,8 +291,8 @@ public class DecisionElement extends LitTemplate
 				}
 				if (this.fop == null || this.fop.getState() != DECISION_VISIBLE) {
 					logger.warn("{}decisionElement initialDecision fallback skipped origin={} fopState={}",
-					        FieldOfPlay.getLoggingName(this.fop), this.getOrigin(),
-					        this.fop != null ? this.fop.getState() : null);
+							FieldOfPlay.getLoggingName(this.fop), this.getOrigin(),
+							this.fop != null ? this.fop.getState() : null);
 					return;
 				}
 				Boolean[] currentDecisions = this.fop.getRefereeDecision();
@@ -283,8 +301,8 @@ public class DecisionElement extends LitTemplate
 				Boolean ref3 = e.isSingleLight() ? null : currentDecisions[2];
 				Boolean goodLift = computeGoodLift(ref1, ref2, ref3, e.isSingleLight());
 				logger.warn("{}decisionElement initialDecision fallback showing decision origin={} refs=[{},{},{}]",
-				        FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), ref1, ref2, ref3);
-				showDecisionLights(goodLift, ref1, ref2, ref3, e.isSingleLight());
+						FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), ref1, ref2, ref3);
+				showDecisionLights(goodLift, ref1, ref2, ref3, e.isSingleLight(), announcerForced);
 			});
 		}, INITIAL_DECISION_FALLBACK_DELAY_MS);
 	}
@@ -302,40 +320,30 @@ public class DecisionElement extends LitTemplate
 		});
 	}
 
-	protected void showDecisionLights(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight) {
+	protected void showDecisionLights(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight,
+	        boolean announcerForced) {
 		this.decisionDisplayGeneration.incrementAndGet();
-		setDecisionProperties(decision, ref1, ref2, ref3, singleLight);
+		setDecisionProperties(decision, ref1, ref2, ref3, singleLight, announcerForced);
 	}
 
-	protected void setDecisionProperties(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight) {
-		getElement().setProperty("singleRef", singleLight);
-		setNullableBooleanProperty("decision", decision);
-		setNullableBooleanProperty("ref1", ref1);
-		setNullableBooleanProperty("ref2", singleLight ? (ref2 != null ? ref2 : decision) : ref2);
-		setNullableBooleanProperty("ref3", ref3);
-		getElement().setProperty("_downShown", false);
-		getElement().setProperty("_showDecision", true);
+	protected void setDecisionProperties(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,
+			boolean singleLight, boolean announcerForced) {
+		Boolean displayedRef2 = singleLight ? (ref2 != null ? ref2 : decision) : ref2;
+		sendDecisionPayload("decision", ref1, displayedRef2, ref3, singleLight, true, announcerForced);
 		setEnabled(false);
 	}
 
 	protected void resetDecisionDisplay() {
-		getElement().setProperty("singleRef", this.isSingleRef());
 		clearDecisionProperties(false);
 	}
 
 	protected void clearDecisionProperties(boolean showDecision) {
-		setNullableBooleanProperty("decision", null);
-		setNullableBooleanProperty("ref1", null);
-		setNullableBooleanProperty("ref2", null);
-		setNullableBooleanProperty("ref3", null);
-		getElement().setProperty("_downShown", false);
-		getElement().setProperty("_showDecision", showDecision);
+		sendDecisionPayload("reset", null, null, null, this.isSingleRef(), showDecision, false);
 		setEnabled(false);
 	}
 
 	protected void showDownSignal(boolean silent) {
-		getElement().setProperty("_downShown", true);
-		getElement().setProperty("_showDecision", false);
+		sendDecisionPayload("down", null, null, null, this.isSingleRef(), false, false);
 		if (!silent) {
 			this.getElement().callJsFunction("playDownSound");
 		}
@@ -345,11 +353,31 @@ public class DecisionElement extends LitTemplate
 		getElement().setProperty("enabled", enabled);
 	}
 
-	protected void setNullableBooleanProperty(String propertyName, Boolean value) {
+	/**
+	 * Batch every decision display transition (down, decision, reset) into a single
+	 * ordered payload. The JS applies it atomically and uses the monotonic sequence
+	 * to drop stale/out-of-order payloads, so there is never an intermediate render
+	 * between the down signal and the decision boxes.
+	 */
+	private void sendDecisionPayload(String mode, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight,
+			boolean showDecision, boolean announcerForced) {
+		JsonObject payload = Json.createObject();
+		payload.put("sequence", Long.toString(this.decisionPayloadSequence.incrementAndGet()));
+		payload.put("mode", mode);
+		payload.put("singleRef", singleLight);
+		payload.put("announcerForced", announcerForced);
+		payload.put("showDecision", showDecision);
+		putNullableBoolean(payload, "ref1", ref1);
+		putNullableBoolean(payload, "ref2", ref2);
+		putNullableBoolean(payload, "ref3", ref3);
+		getElement().setPropertyJson("decisionPayload", payload);
+	}
+
+	private void putNullableBoolean(JsonObject payload, String key, Boolean value) {
 		if (value == null) {
-			getElement().setPropertyJson(propertyName, Json.createNull());
+			payload.put(key, Json.createNull());
 		} else {
-			getElement().setProperty(propertyName, value.booleanValue());
+			payload.put(key, value.booleanValue());
 		}
 	}
 
@@ -381,7 +409,8 @@ public class DecisionElement extends LitTemplate
 	}
 
 	/*
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+	 * AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {

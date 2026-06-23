@@ -151,10 +151,6 @@ class DecisionElement extends LitElement {
       singleRef: {
         type: Boolean,
         reflect: true,
-        hasChanged: (newValue, oldValue) => {
-          console.warn(`hasChanged called for singleRef: old=${oldValue}, new=${newValue}`);
-          return newValue !== oldValue;
-        },
       },
       enabled: {
         type: Boolean,
@@ -178,6 +174,9 @@ class DecisionElement extends LitElement {
       size: {
         type: String,
         reflect: true
+      },
+      decisionPayload: {
+        type: Object,
       }
     };
   }
@@ -198,6 +197,10 @@ class DecisionElement extends LitElement {
     this._downShown = false;
     this._showDecision = false;
     this.size = "small";
+    this.decisionPayload = null;
+    // sequence of the last decisionPayload applied; drops stale/out-of-order payloads.
+    this._lastDecisionSequence = 0;
+    this._localDownSoundPlayed = false;
     // important - the handlers must be bound so "this" is the current DecisionElement instance.
     this._readRef = this._readRef.bind(this);
     this.initSounds = this.initSounds.bind(this)
@@ -239,81 +242,139 @@ class DecisionElement extends LitElement {
   _readRef(e) {
     if (!this.enabled || this.jury) return;
 
-    var key = e.key;
-    console.warn("de key " + key);
     switch (e.key) {
       case "1":
         this.ref1 = true;
         this.ref1Time = Date.now();
-        this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "2":
         this.ref1 = false;
         this.ref1Time = Date.now();
-        this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "3":
         this.ref2 = true;
         this.ref2Time = Date.now();
-        this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "4":
         this.ref2 = false;
         this.ref2Time = Date.now();
-        this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "5":
-        this.ref3= true;
+        this.ref3 = true;
         this.ref3Time = Date.now();
-        this._majority(this.ref1, this.ref2, this.ref3);
         break;
       case "6":
-        this.ref3= false;
+        this.ref3 = false;
         this.ref3Time = Date.now();
-        this._majority(this.ref1, this.ref2, this.ref3);
+        break;
+      default:
+        return;
+    }
+    // Keyboard-driven: this device issues the down itself as soon as a majority
+    // agrees, for zero-latency feedback. The server still broadcasts the
+    // authoritative down and the decision lights back through decisionPayload.
+    this._issueLocalDownIfMajority();
+    this.masterRefereeUpdate(this.ref1, this.ref2, this.ref3);
+  }
+
+  /* Local down for keyboard-driven decisions. Sets the down state directly (it does
+     not consume a decisionPayload sequence), so the later server "down" payload is
+     idempotent and the "decision" payload still flips to the lights atomically. */
+  _issueLocalDownIfMajority() {
+    if (this._downShown) {
+      return;
+    }
+    let whites = 0;
+    let reds = 0;
+    for (const ref of [this.ref1, this.ref2, this.ref3]) {
+      if (ref === true) {
+        whites++;
+      } else if (ref === false) {
+        reds++;
+      }
+    }
+    if (whites >= 2 || reds >= 2) {
+      this.singleRef = false;
+      this._downShown = true;
+      this._showDecision = false;
+      if (!this.silent) {
+        this.doDown();
+        this._localDownSoundPlayed = true;
+      }
+    }
+  }
+
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    if (changedProperties.has("decisionPayload")) {
+      this._applyDecisionPayload();
+    }
+  }
+
+  /* The server batches every display transition (down, decision, reset) into a
+     single ordered decisionPayload. Applying it atomically here guarantees there
+     is never an intermediate render between the down signal and the decision
+     boxes. A monotonic sequence drops stale/out-of-order payloads (e.g. the
+     ignored initial decision arriving after the real one). */
+  _applyDecisionPayload() {
+    const payload = this.decisionPayload;
+    if (!payload) {
+      return;
+    }
+    const seq = Number(payload.sequence);
+    if (Number.isFinite(seq)) {
+      if (seq <= this._lastDecisionSequence) {
+        return;
+      }
+      this._lastDecisionSequence = seq;
+    }
+    if (payload.singleRef !== undefined && payload.singleRef !== null) {
+      this.singleRef = Boolean(payload.singleRef);
+    }
+    switch (payload.mode) {
+      case "down":
+        this._downShown = true;
+        this._showDecision = false;
+        break;
+      case "decision":
+        this.ref1 = this._coerceRef(payload.ref1);
+        this.ref2 = this._coerceRef(payload.ref2);
+        this.ref3 = this._coerceRef(payload.ref3);
+        this._downShown = false;
+        this._showDecision = true;
+        this._localDownSoundPlayed = false;
+        break;
+      case "reset":
+        this.ref1 = null;
+        this.ref2 = null;
+        this.ref3 = null;
+        this._downShown = false;
+        this._showDecision = Boolean(payload.showDecision);
+        this._localDownSoundPlayed = false;
         break;
       default:
         break;
     }
+    this._traceDecisionPayloadApplied(payload);
   }
 
-  /* this is called based on browser input.
-     immediate feedback is given if majority has been reached */
-  _majority(ref1, ref2, ref3) {
-    var countWhite = 0;
-    var countRed = 0;
-    var maj = false;
-    this._showDecision = false;
+  _coerceRef(value) {
+    return value === true ? true : value === false ? false : null;
+  }
 
-    if (ref1 === true) {
-      countWhite++;
-    } else if (ref1 === false) {
-      countRed++;
+  _traceDecisionPayloadApplied(payload) {
+    if (!this.$server?.decisionPayloadApplied) {
+      return;
     }
-    if (ref2 === true) {
-      countWhite++;
-    } else if (ref2 === false) {
-      countRed++;
-    }
-    if (ref3 === true) {
-      countWhite++;
-    } else if (ref3 === false) {
-      countRed++;
-    }
-    var count = countWhite + countRed;
-    if (!this._downShown && (countWhite == 2 || countRed == 2)) {
-      this.decision = countWhite >= 2;
-      this.singleRef = false;
-      if (!this.jury) this._showDown();
-    }
-    if (countWhite + countRed >= 3) {
-      this.decision = countWhite >= 2;
-      maj = countWhite >= 2;
-    } else {
-      maj = undefined;
-    }
-    this.masterRefereeUpdate(ref1, ref2, ref3);
-    return maj;
+    this.$server.decisionPayloadApplied(
+      String(payload.sequence ?? ""),
+      String(payload.mode ?? ""),
+      payload.singleRef === true,
+      payload.announcerForced === true,
+      this._coerceRef(payload.ref1),
+      this._coerceRef(payload.ref2),
+      this._coerceRef(payload.ref3)
+    );
   }
 
   /* the individual values are set in the this.refN properties. this tells the server that the
@@ -381,16 +442,11 @@ class DecisionElement extends LitElement {
     return "display: grid";
   }
 
-  _showDown(silent = false) {
-    console.debug("de showDown -- " + !this.silent + " " + !silent);
-    if (!this.silent && !silent) {
-      this.doDown();
-    }
-    this._downShown = true;
-    this._showDecision = false;
-  }
-
   playDownSound() {
+    if (this._localDownSoundPlayed) {
+      this._localDownSoundPlayed = false;
+      return;
+    }
     if (!this.silent) {
       this.doDown();
     }
