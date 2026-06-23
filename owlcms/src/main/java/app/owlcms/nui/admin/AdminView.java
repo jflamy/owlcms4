@@ -16,7 +16,9 @@ import com.vaadin.flow.router.RouteConfiguration;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.monitors.websocket.WebSocketEventSender;
 import app.owlcms.nui.shared.AuthorizationDispatch;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.RestartUtils;
@@ -48,6 +50,15 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 			System.exit(0);
 		});
 		Button restart = new Button("Restart", event -> RestartUtils.triggerRestart("Admin restart requested"));
+		Button reloadTranslations = new Button("Reload Translation Strings", event -> {
+			Translator.reset();
+			WebSocketEventSender.sendTranslationsToAll();
+		});
+		Span reloadTranslationsNote = new Span(
+		        "Reload the translation file and push updated strings to connected clients. Refresh browser pages to see the new text.");
+		reloadTranslationsNote.getStyle().set("color", "var(--lumo-secondary-text-color)");
+		HorizontalLayout reloadTranslationsAction = new HorizontalLayout(reloadTranslations, reloadTranslationsNote);
+		reloadTranslationsAction.setAlignItems(FlexComponent.Alignment.CENTER);
 		Button federationReport = new Button("Record Federation Report", event -> {
 			String url = RouteConfiguration.forSessionScope().getUrl(RecordFederationComparisonReport.class);
 			UI.getCurrent().getPage().open(url, "_blank");
@@ -67,7 +78,7 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 		HorizontalLayout repairBirthDatesAction = new HorizontalLayout(repairBirthDates, repairBirthDatesNote);
 		repairBirthDatesAction.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		content.add(title, stop, restart, federationReportAction, repairBirthDatesAction);
+		content.add(title, stop, restart, reloadTranslationsAction, federationReportAction, repairBirthDatesAction);
 	}
 
 	@Override
