@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-rc06: Clean-up of decision display code to strictly use the LitElement reactive properties
+
 67.0.0-rc05: Added Date hot fix capability to /admin page.  Can be used to identify athletes at risk of being in wrong category.
 
 67.0.0-rc04: fixed attempt board CSS for long team names and long categories + barbell centering + long break durations
