@@ -12,6 +12,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.fieldofplay.InputKind;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
@@ -134,7 +135,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 			getElement().setProperty("singleRef", e.isSingleLight());
 			getElement().setProperty("jury", true);
 			setDecisionProperties(e.isSingleLight() ? e.ref2 : computeGoodLift(e.ref1, e.ref2, e.ref3, false),
-			        e.ref1, e.ref2, e.ref3, e.isSingleLight());
+			        e.ref1, e.ref2, e.ref3, e.isSingleLight(), false);
 			setDecisionTimes(intBox(e.ref1Time), intBox(e.ref2Time), intBox(e.ref3Time));
 		});
 	}
@@ -144,7 +145,8 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	public void slaveShowDecision(UIEvent.Decision e) {
 		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleLight());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight());
+			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(),
+			        e.getInputKind() == InputKind.ANNOUNCER_ENTRY);
 		});
 	}
 
