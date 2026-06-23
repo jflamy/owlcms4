@@ -204,31 +204,18 @@ class DecisionElement extends LitElement {
   }
 
   connectedCallback() {
-    console.warn("decision element connected");
     super.connectedCallback();
-    this._init();
+    // The server (DecisionElement.java) is the single source of truth for the
+    // decision state. Never clear ref/decision properties here: on re-attach the
+    // server re-syncs them, and self-clearing would race that sync and blank the boxes.
     document.body.addEventListener('keydown', this._readRef);
     document.addEventListener('initSounds', this.initSounds);
   }
 
   disconnectedCallback() {
-    console.warn("decision element disconnected");
     document.body.removeEventListener('keydown', this._readRef);
     document.removeEventListener('initSounds', this.initSounds);
     super.disconnectedCallback();
-  }
-
-  firstUpdated(_changedProperties) {
-    super.firstUpdated(_changedProperties);
-    console.debug("decision ready " + Array.from(_changedProperties.keys()));
-    this._init();
-  }
-
-  _init() {
-    this.downShown = false;
-    this.ref1 = null;
-    this.ref2 = null;
-    this.ref3 = null;
   }
 
   initSounds() {
@@ -290,10 +277,6 @@ class DecisionElement extends LitElement {
     }
   }
 
-  _registerVote(code) {
-    console.debug("de vote " + key);
-  }
-
   /* this is called based on browser input.
      immediate feedback is given if majority has been reached */
   _majority(ref1, ref2, ref3) {
@@ -321,7 +304,7 @@ class DecisionElement extends LitElement {
     if (!this._downShown && (countWhite == 2 || countRed == 2)) {
       this.decision = countWhite >= 2;
       this.singleRef = false;
-      if (!this.jury) this.showDown(true);
+      if (!this.jury) this._showDown();
     }
     if (countWhite + countRed >= 3) {
       this.decision = countWhite >= 2;
@@ -391,7 +374,6 @@ class DecisionElement extends LitElement {
   }
 
   decisionsStyles() {
-    console.warn("changing decision style " + (this._downShown ? "none" : "flex"));
     return "display: " + (this._downShown ? "none" : "flex");
   }
 
@@ -399,90 +381,19 @@ class DecisionElement extends LitElement {
     return "display: grid";
   }
 
-  /*
-  This is called from the browser side when the decision is taken locally (majority vote from keypads).
-  It can also be called from the server side when the decision is taken elsewhere.
-  The server side is responsible for not calling this again if the event took place in this element.
-  */
-  showDown(isMaster, silent) {
+  _showDown(silent = false) {
     console.debug("de showDown -- " + !this.silent + " " + !silent);
     if (!this.silent && !silent) {
       this.doDown();
     }
     this._downShown = true;
-
-    // Backend now controls when to hide down and show decisions
-    // No automatic timer - wait for backend showDecisions() or showSingleDecision() call
+    this._showDecision = false;
   }
 
-  hideDown() {
-    this._downShown = false;
-  }
-
-  showDecisions(isMaster, ref1, ref2, ref3) {
-    console.warn("de showDecision: " + ref1 + " " + ref2 + " " + ref3);
-    this.ref1 = ref1;
-    this.ref2 = ref2;
-    this.ref3 = ref3;
-    this.hideDown();
-    this.singleRef = false;
-    this._showDecision = true;
-    console.debug("de showDecisions");
-  }
-
-  showSingleDecision(decision) {
-    console.warn("de showSingleDecision: " + decision);
-    this.ref1 = null;
-    this.ref2 = decision;
-    this.ref3 = null;
-    this.hideDown();
-    this.singleRef = true;
-    this._showDecision = true;
-    console.debug("de showSingleDecision");
-  }
-
-  showDecisionsForJury(ref1, ref2, ref3, ref1Time, ref2Time, ref3Time) {
-    console.warn("de showDecisionsForJury: " + ref1 + " " + ref2 + " " + ref3);
-    this.ref1 = ref1;
-    this.ref2 = ref2;
-    this.ref3 = ref3;
-    this.ref1Time = ref1Time;
-    this.ref2Time = ref2Time;
-    this.ref3Time = ref3Time;
-    this.hideDown();
-    this.singleRef = false;
-    this.jury = true;
-    this._showDecision = true;
-    console.warn("de showDecisionsForJury>");
-  }
-
-  showSingleDecisionForJury(decision) {
-    console.warn("de showSingleDecisionForJury: " + decision);
-    this.ref1 = null;
-    this.ref2 = decision;
-    this.ref3 = null;
-    this.hideDown();
-    this.singleRef = true;
-    this.jury = true;
-    this._showDecision = true;
-    console.warn("de showSingleDecisionForJury");
-  }
-
-  reset(isMaster) {
-    console.warn("de reset " + isMaster);
-    this.hideDecisions();
-    this._init();
-  }
-
-  hideDecisions() {
-    // tell our parent to hide us.
-    this.dispatchEvent(
-      new CustomEvent("hide", { bubbles: true, composed: true })
-    );
-  }
-
-  setEnabled(isEnabled) {
-    this.enabled = isEnabled;
+  playDownSound() {
+    if (!this.silent) {
+      this.doDown();
+    }
   }
 
 }

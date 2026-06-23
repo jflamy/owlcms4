@@ -19,6 +19,7 @@ import app.owlcms.uievents.UIEvent.DecisionReset;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import elemental.json.Json;
 
 @SuppressWarnings("serial")
 public class JuryDisplayDecisionElement extends DecisionElement {
@@ -50,14 +51,10 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		logger.debug("JuryDisplayDecisionElement doReset: fop={} isSingleRef={} ui={} {}",
 		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
 		        (ui != null ? "set" : "null"), LoggerUtils.whereFrom());
-		this.getElement().callJsFunction("reset", false);
 		getElement().setProperty("singleRef", this.isSingleRef());
-		if (this.isSingleRef()) {
-			this.getElement().callJsFunction("showSingleDecisionForJury", (Boolean) null);
-		} else {
-			this.getElement().callJsFunction("showDecisionsForJury", (Boolean) null, (Boolean) null, (Boolean) null,
-			        0, 0, 0);
-		}
+		getElement().setProperty("jury", true);
+		clearDecisionProperties(true);
+		setDecisionTimes(0, 0, 0);
 		if (ui != null) {
 			ui.push();
 		}
@@ -125,9 +122,8 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 			uiEventLogger.debug("!!! {} down ({})", this.getOrigin(),
 			        this.getParent().get().getClass().getSimpleName());
 			boolean emitSoundsOnServer = (this.fop != null && this.fop.isEmitSoundsOnServer());
-			this.getElement().callJsFunction("showDown", false,
-			        isSilenced() || emitSoundsOnServer);
 			getElement().setProperty("singleRef", this.isSingleRef());
+			showDownSignal(isSilenced() || emitSoundsOnServer);
 		});
 	}
 
@@ -136,14 +132,10 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			// logger.debug("{} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
 			getElement().setProperty("singleRef", e.isSingleLight());
-			if (e.isSingleLight()) {
-				this.getElement().callJsFunction("showSingleDecisionForJury", e.ref2);
-			} else {
-				this.getElement().callJsFunction("showDecisionsForJury", e.ref1, e.ref2, e.ref3,
-				        intBox(e.ref1Time),
-				        intBox(e.ref2Time),
-				        intBox(e.ref3Time));
-			}
+			getElement().setProperty("jury", true);
+			setDecisionProperties(e.isSingleLight() ? e.ref2 : computeGoodLift(e.ref1, e.ref2, e.ref3, false),
+			        e.ref1, e.ref2, e.ref3, e.isSingleLight());
+			setDecisionTimes(intBox(e.ref1Time), intBox(e.ref2Time), intBox(e.ref3Time));
 		});
 	}
 
@@ -152,16 +144,15 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	public void slaveShowDecision(UIEvent.Decision e) {
 		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleLight());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			if (e.isSingleLight()) {
-				getElement().setProperty("singleRef", e.isSingleLight());
-				this.getElement().callJsFunction("showSingleDecision", e.decision);
-			} else {
-				getElement().setProperty("singleRef", e.isSingleLight());
-				this.getElement().callJsFunction("showDecisions", false, e.ref1, e.ref2, e.ref3);
-			}
+			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight());
 		});
 	}
 
+	// FIXME: double listener -- the base class DecisionElement also @Subscribes to
+	// UIEvent.StartTime (slaveStartTimer). Because the method names differ, the
+	// EventBus registers both, so a single StartTime event runs both the base
+	// handler (generation++, setEnabled(true)) and this one (doReset). Consolidate
+	// into a single StartTime handler.
 	@Subscribe
 	public void slaveStartTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
@@ -175,6 +166,20 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	private Integer intBox(Long ref1Time) {
 		return ref1Time != null ? ref1Time.intValue() : null;
+	}
+
+	private void setDecisionTimes(Integer ref1Time, Integer ref2Time, Integer ref3Time) {
+		setNullableIntegerProperty("ref1Time", ref1Time);
+		setNullableIntegerProperty("ref2Time", ref2Time);
+		setNullableIntegerProperty("ref3Time", ref3Time);
+	}
+
+	private void setNullableIntegerProperty(String propertyName, Integer value) {
+		if (value == null) {
+			getElement().setPropertyJson(propertyName, Json.createNull());
+		} else {
+			getElement().setProperty(propertyName, value.intValue());
+		}
 	}
 
 }

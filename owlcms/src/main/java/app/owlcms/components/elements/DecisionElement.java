@@ -33,6 +33,7 @@ import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import elemental.json.Json;
 
 /**
  * ExplicitDecision display element.
@@ -194,26 +195,29 @@ public class DecisionElement extends LitTemplate
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			logger.debug("slaveBreakStart disable");
-			this.getElement().callJsFunction("setEnabled", true);
+			setEnabled(true);
 		});
 	}
 
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
-		this.decisionDisplayGeneration.incrementAndGet();
+		long generation = this.decisionDisplayGeneration.incrementAndGet();
 		if (isDontReset()) {
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			getElement().setProperty("singleRef", this.isSingleRef());
-			getElement().callJsFunction("reset", false);
+			if (generation != this.decisionDisplayGeneration.get()) {
+				return;
+			}
+			resetDecisionDisplay();
 		});
 	}
 
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		logger.debug("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
-		logger.warn("decisionElement slaveDownSignal origin={} juryMode={}", this.getOrigin(), isJuryMode());
+		logger.warn("{}decisionElement slaveDownSignal origin={} juryMode={}", FieldOfPlay.getLoggingName(this.fop),
+		        this.getOrigin(), isJuryMode());
 		if (isJuryMode()) {
 			// jury mode doesn't show down signal
 			return;
@@ -224,28 +228,29 @@ public class DecisionElement extends LitTemplate
 			        this.getParent().get().getClass().getSimpleName());
 			getElement().setProperty("singleRef", this.isSingleRef());
 			boolean emitSoundsOnServer = (this.fop != null && this.fop.isEmitSoundsOnServer());
-			this.getElement().callJsFunction("showDown", false,
-			        isSilenced() || emitSoundsOnServer);
+			showDownSignal(isSilenced() || emitSoundsOnServer);
 		});
 	}
 
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
-		this.decisionDisplayGeneration.incrementAndGet();
+		long generation = this.decisionDisplayGeneration.incrementAndGet();
 		if (isDontReset()) {
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			getElement().setProperty("singleRef", this.isSingleRef());
-			getElement().callJsFunction("reset", false);
+			if (generation != this.decisionDisplayGeneration.get()) {
+				return;
+			}
+			resetDecisionDisplay();
 		});
 	}
 
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
 		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleLight());
-		logger.warn("decisionElement slaveShowDecision origin={} singleLight={} refs=[{},{},{}]", this.getOrigin(),
-		        e.isSingleLight(), e.ref1, e.ref2, e.ref3);
+		logger.warn("{}decisionElement slaveShowDecision origin={} singleLight={} refs=[{},{},{}]",
+		        FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), e.isSingleLight(), e.ref1, e.ref2, e.ref3);
 		// Backend now controls hiding down and showing decisions on all decision elements
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight());
@@ -254,8 +259,9 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveInitialDecision(UIEvent.InitialDecision e) {
-		logger.warn("decisionElement slaveInitialDecision origin={} timingPolicy={} singleLight={} refs=[{},{},{}]",
-		        this.getOrigin(), e.getTimingPolicy(), e.isSingleLight(), e.ref1, e.ref2, e.ref3);
+		logger.warn("{}decisionElement slaveInitialDecision origin={} timingPolicy={} singleLight={} refs=[{},{},{}]",
+		        FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), e.getTimingPolicy(), e.isSingleLight(), e.ref1,
+		        e.ref2, e.ref3);
 		if (e.getTimingPolicy() != TimingPolicy.DELAYED) {
 			return;
 		}
@@ -266,8 +272,9 @@ public class DecisionElement extends LitTemplate
 					return;
 				}
 				if (this.fop == null || this.fop.getState() != DECISION_VISIBLE) {
-					logger.warn("decisionElement initialDecision fallback skipped origin={} fopState={}",
-					        this.getOrigin(), this.fop != null ? this.fop.getState() : null);
+					logger.warn("{}decisionElement initialDecision fallback skipped origin={} fopState={}",
+					        FieldOfPlay.getLoggingName(this.fop), this.getOrigin(),
+					        this.fop != null ? this.fop.getState() : null);
 					return;
 				}
 				Boolean[] currentDecisions = this.fop.getRefereeDecision();
@@ -275,36 +282,78 @@ public class DecisionElement extends LitTemplate
 				Boolean ref2 = currentDecisions[1];
 				Boolean ref3 = e.isSingleLight() ? null : currentDecisions[2];
 				Boolean goodLift = computeGoodLift(ref1, ref2, ref3, e.isSingleLight());
-				logger.warn("decisionElement initialDecision fallback showing decision origin={} refs=[{},{},{}]",
-				        this.getOrigin(), ref1, ref2, ref3);
+				logger.warn("{}decisionElement initialDecision fallback showing decision origin={} refs=[{},{},{}]",
+				        FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), ref1, ref2, ref3);
 				showDecisionLights(goodLift, ref1, ref2, ref3, e.isSingleLight());
 			});
 		}, INITIAL_DECISION_FALLBACK_DELAY_MS);
 	}
 
+	// FIXME: double listener -- JuryDisplayDecisionElement also @Subscribes to
+	// UIEvent.StartTime (slaveStartTime). Both this base handler (generation++,
+	// setEnabled(true)) and the jury handler (doReset) fire for one StartTime event
+	// on a jury element. Consolidate into a single StartTime handler.
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		this.decisionDisplayGeneration.incrementAndGet();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			// uiEventLogger.debug("!!! slaveStartTimer enable");
-			this.getElement().callJsFunction("setEnabled", true);
+			setEnabled(true);
 		});
 	}
 
-	private void showDecisionLights(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight) {
+	protected void showDecisionLights(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight) {
 		this.decisionDisplayGeneration.incrementAndGet();
-		if (singleLight) {
-			getElement().setProperty("singleRef", true);
-			this.getElement().callJsFunction("showSingleDecision", decision);
-			this.getElement().callJsFunction("setEnabled", false);
-		} else {
-			getElement().setProperty("singleRef", false);
-			this.getElement().callJsFunction("showDecisions", false, ref1, ref2, ref3);
-			this.getElement().callJsFunction("setEnabled", false);
+		setDecisionProperties(decision, ref1, ref2, ref3, singleLight);
+	}
+
+	protected void setDecisionProperties(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight) {
+		getElement().setProperty("singleRef", singleLight);
+		setNullableBooleanProperty("decision", decision);
+		setNullableBooleanProperty("ref1", ref1);
+		setNullableBooleanProperty("ref2", singleLight ? (ref2 != null ? ref2 : decision) : ref2);
+		setNullableBooleanProperty("ref3", ref3);
+		getElement().setProperty("_downShown", false);
+		getElement().setProperty("_showDecision", true);
+		setEnabled(false);
+	}
+
+	protected void resetDecisionDisplay() {
+		getElement().setProperty("singleRef", this.isSingleRef());
+		clearDecisionProperties(false);
+	}
+
+	protected void clearDecisionProperties(boolean showDecision) {
+		setNullableBooleanProperty("decision", null);
+		setNullableBooleanProperty("ref1", null);
+		setNullableBooleanProperty("ref2", null);
+		setNullableBooleanProperty("ref3", null);
+		getElement().setProperty("_downShown", false);
+		getElement().setProperty("_showDecision", showDecision);
+		setEnabled(false);
+	}
+
+	protected void showDownSignal(boolean silent) {
+		getElement().setProperty("_downShown", true);
+		getElement().setProperty("_showDecision", false);
+		if (!silent) {
+			this.getElement().callJsFunction("playDownSound");
 		}
 	}
 
-	private Boolean computeGoodLift(Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight) {
+	protected void setEnabled(boolean enabled) {
+		getElement().setProperty("enabled", enabled);
+	}
+
+	protected void setNullableBooleanProperty(String propertyName, Boolean value) {
+		if (value == null) {
+			getElement().setPropertyJson(propertyName, Json.createNull());
+		} else {
+			getElement().setProperty(propertyName, value.booleanValue());
+		}
+	}
+
+	protected Boolean computeGoodLift(Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight) {
 		int whites = 0;
 		whites += Boolean.TRUE.equals(ref1) ? 1 : 0;
 		whites += Boolean.TRUE.equals(ref2) ? 1 : 0;
@@ -316,7 +365,7 @@ public class DecisionElement extends LitTemplate
 	public void slaveStopTimer(UIEvent.StopTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			// uiEventLogger.debug("!!! slaveStopTimer enable");
-			this.getElement().callJsFunction("setEnabled", true);
+			setEnabled(true);
 		});
 	}
 
