@@ -10,6 +10,12 @@
 
 **New in Release 67**
 
+67.0.0-rc07: Further clean-up of decistion display to make the actions atomic and remove the empty box intermediate state
+
+67.0.0-rc07: Notification to announcer when waiting on a decision from referee (as opposed to a stuck down signal display)
+
+67.0.0-rc07: Clean-up of timer display code to strictly use the LitElement reactive properties
+
 67.0.0-rc06: Clean-up of decision display code to strictly use the LitElement reactive properties
 
 67.0.0-rc05: Added Date hot fix capability to /admin page.  Can be used to identify athletes at risk of being in wrong category.
