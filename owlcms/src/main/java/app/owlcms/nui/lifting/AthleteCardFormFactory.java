@@ -1394,10 +1394,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			expectedCol = CJ1 + (attemptsDone - 3); // CJ1, CJ2, or CJ3
 		}
 
-		// Compute expected row from athlete data by scanning from bottom up
-		// This crosschecks what the TextFields show against the authoritative athlete data
-		int expectedRow = computeExpectedRowFromAthlete(a, expectedCol);
-
 		// When not updating results (e.g., marshal screen), skip the ACTUAL row
 		// since those cells are readonly and should not receive focus
 		// Rows top-to-bottom: AUTOMATIC(2), DECLARATION(3), CHANGE1(4), CHANGE2(5), ACTUAL(6)
@@ -1418,15 +1414,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			}
 		}
 
-		// Crosscheck: verify TextField-based row matches athlete data-based row
-		// Both should agree on where the focus should go (or both should be -1 if no empty cell)
-		if (targetRow != expectedRow) {
-			logger.error("setFocus mismatch: TextField row={} but athlete data expects row={} for col={} (attemptsDone={}, updatingResults={}) {}",
-			        targetRow >= 0 ? targetRow + 1 : "none",
-			        expectedRow >= 0 ? expectedRow + 1 : "none",
-			        expectedCol, attemptsDone, isUpdatingResults(), LoggerUtils.whereFrom());
-		}
-
 		if (targetCol >= 0 && targetRow >= 0) {
 			// a suitable cell was found, set focus
 			this.textfields[targetRow][targetCol].setAutofocus(true);
@@ -1434,102 +1421,6 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			this.textfields[targetRow][targetCol].focus();
 			this.textfields[targetRow][targetCol].addClassName("current");
 		}
-	}
-
-	/**
-	 * Compute the expected row for focus based on athlete data (not TextField values).
-	 * Scans from ACTUAL up to DECLARATION to find the topmost empty field.
-	 * 
-	 * @param a the athlete
-	 * @param col the column (SNATCH1..CJ3)
-	 * @return the expected row index (0-based), or -1 if all fields are filled
-	 */
-	private int computeExpectedRowFromAthlete(Athlete a, int col) {
-		// Get the athlete's values for this column (lift)
-		String declaration = getAthleteValueForCell(a, DECLARATION, col);
-		String change1 = getAthleteValueForCell(a, CHANGE1, col);
-		String change2 = getAthleteValueForCell(a, CHANGE2, col);
-		String actual = getAthleteValueForCell(a, ACTUAL, col);
-
-		// When not updating results, skip ACTUAL row
-		int bottomRow = isUpdatingResults() ? ACTUAL : CHANGE2;
-
-		// Scan from bottom up, find topmost empty in contiguous block
-		int expectedRow = -1;
-		for (int row = bottomRow; row > AUTOMATIC; row--) {
-			String value;
-			switch (row) {
-				case DECLARATION: value = declaration; break;
-				case CHANGE1: value = change1; break;
-				case CHANGE2: value = change2; break;
-				case ACTUAL: value = actual; break;
-				default: value = null;
-			}
-			boolean empty = value == null || value.isBlank();
-			if (empty) {
-				expectedRow = row - 1; // 0-based index
-			} else {
-				break;
-			}
-		}
-		return expectedRow;
-	}
-
-	/**
-	 * Get the athlete's value for a specific cell (row, col) using the athlete's getter methods.
-	 */
-	private String getAthleteValueForCell(Athlete a, int row, int col) {
-		switch (col) {
-			case SNATCH1:
-				switch (row) {
-					case DECLARATION: return a.getSnatch1Declaration();
-					case CHANGE1: return a.getSnatch1Change1();
-					case CHANGE2: return a.getSnatch1Change2();
-					case ACTUAL: return a.getSnatch1ActualLift();
-				}
-				break;
-			case SNATCH2:
-				switch (row) {
-					case DECLARATION: return a.getSnatch2Declaration();
-					case CHANGE1: return a.getSnatch2Change1();
-					case CHANGE2: return a.getSnatch2Change2();
-					case ACTUAL: return a.getSnatch2ActualLift();
-				}
-				break;
-			case SNATCH3:
-				switch (row) {
-					case DECLARATION: return a.getSnatch3Declaration();
-					case CHANGE1: return a.getSnatch3Change1();
-					case CHANGE2: return a.getSnatch3Change2();
-					case ACTUAL: return a.getSnatch3ActualLift();
-				}
-				break;
-			case CJ1:
-				switch (row) {
-					case DECLARATION: return a.getCleanJerk1Declaration();
-					case CHANGE1: return a.getCleanJerk1Change1();
-					case CHANGE2: return a.getCleanJerk1Change2();
-					case ACTUAL: return a.getCleanJerk1ActualLift();
-				}
-				break;
-			case CJ2:
-				switch (row) {
-					case DECLARATION: return a.getCleanJerk2Declaration();
-					case CHANGE1: return a.getCleanJerk2Change1();
-					case CHANGE2: return a.getCleanJerk2Change2();
-					case ACTUAL: return a.getCleanJerk2ActualLift();
-				}
-				break;
-			case CJ3:
-				switch (row) {
-					case DECLARATION: return a.getCleanJerk3Declaration();
-					case CHANGE1: return a.getCleanJerk3Change1();
-					case CHANGE2: return a.getCleanJerk3Change2();
-					case ACTUAL: return a.getCleanJerk3ActualLift();
-				}
-				break;
-		}
-		return null;
 	}
 
 	private void setLiftResultChanged(Boolean liftResultChanged) {
