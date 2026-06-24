@@ -87,7 +87,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private Div reviewFiller;
 	private boolean reviewFrozen;
 	private Div reviewHeader;
-	private Div reviewLot;
+	private Div reviewStartNumber;
 	private Div reviewName;
 	private AthleteTimerElement reviewTimer;
 	private Div reviewTimerFrozen;
@@ -713,8 +713,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        .set("color", "white")
 		        .set("line-height", "1");
 
-		this.reviewLot = new Div();
-		this.reviewLot.getStyle()
+		this.reviewStartNumber = new Div();
+		this.reviewStartNumber.getStyle()
 		        .set("display", "inline-flex")
 		        .set("align-items", "center")
 		        .set("justify-content", "center")
@@ -755,7 +755,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        .set("white-space", "nowrap")
 		        .set("font-variant-numeric", "tabular-nums");
 
-		this.reviewHeader.add(this.reviewFiller, this.reviewLot, this.reviewName,
+		this.reviewHeader.add(this.reviewFiller, this.reviewStartNumber, this.reviewName,
 		        this.reviewAttempt, this.reviewTimer, this.reviewTimerFrozen);
 		clearReviewHeader();
 		return this.reviewHeader;
@@ -767,7 +767,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		}
 		this.reviewFrozen = false;
 		this.reviewFiller.setVisible(true);
-		if (this.reviewLot != null) this.reviewLot.setVisible(false);
+		if (this.reviewStartNumber != null) this.reviewStartNumber.setVisible(false);
 		if (this.reviewName != null) this.reviewName.setVisible(false);
 		if (this.reviewAttempt != null) this.reviewAttempt.setVisible(false);
 		if (this.reviewTimer != null) this.reviewTimer.setVisible(false);
@@ -813,11 +813,12 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 			clearReviewHeader();
 			return;
 		}
-		this.reviewLot.setText(athlete.getLotNumber() != null ? athlete.getLotNumber().toString() : "-");
+		this.reviewStartNumber
+		        .setText(athlete.getStartNumber() != null ? athlete.getStartNumber().toString() : "-");
 		this.reviewName.setText(athlete.getFullName() != null ? athlete.getFullName() : "");
 		this.reviewAttempt.setText(formatReviewAttempt(athlete));
 		this.reviewFiller.setVisible(false);
-		this.reviewLot.setVisible(true);
+		this.reviewStartNumber.setVisible(true);
 		this.reviewName.setVisible(true);
 		this.reviewAttempt.setVisible(true);
 		// If clockOwner is null the athlete came from athleteUnderReview
