@@ -41,6 +41,7 @@
 /* Prevent content minimum size from inflating fr tracks */
 .attemptBoard > * {
 	min-width: 0;
+	min-height: 0;
 }
 
 .attemptBoard .lastName {
@@ -234,21 +235,29 @@
 	justify-content: center;
 	align-items: center;
 	place-items: center;
-	align-self: center;
+	place-content: center;
+	align-self: stretch;
 	grid-area: lastName-start/timer-start/startNumber-start/timer-end;
 	z-index: 0;
 	flex-direction: column;
+	position: relative;
 	width: 100%;
 	height: 100%;
+	max-width: 100%;
+	max-height: 100%;
+	overflow: hidden;
 }
 
 .attemptBoard .picture > img {
 	display: block;
+	position: absolute;
+	inset: 0;
+	width: 100%;
 	height: 100%;
-	width: auto;
 	max-height: 100%;
 	max-width: 100%;
 	object-fit: contain;
+	object-position: center center;
 }
 
 .attemptBoard .recordNotification {
