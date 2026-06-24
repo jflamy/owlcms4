@@ -10,6 +10,15 @@
 
 **New in Release 67**
 
+67.0.0-rc09: Improved late decision reversal robustness
+  - added a 15-second cooldown where all decisions are ignored, so the late reversal is not understood as a clock-not-started on the next athlete
+
+67.0.0-rc09: Improved announcer/decision robustness
+  - paced announcer notifications to avoid toast override and logged confirmation from client back to server logs
+
+67.0.0-rc09: Attempt board layout fixes
+  - fixed reactive break-timer alignment and athlete picture sizing.
+
 67.0.0-rc08: Further clean-up of attempt board processing done on event reception
 
 67.0.0-rc07: Further clean-up of decistion display to make the actions atomic and remove the empty box intermediate state
