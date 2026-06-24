@@ -459,11 +459,16 @@ public class Competition {
 	 * @return for each category represented in group g where all athletes have lifted, the medals
 	 */
 	public TreeMap<String, List<Athlete>> computeMedals(Group g) {
+		return computeMedals(null, g);
+	}
+
+	public TreeMap<String, List<Athlete>> computeMedals(FieldOfPlay fop, Group g) {
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(g, false);
 		// Trace the IDs of the ranked athletes
-		logger.trace("computeMedals: rankedAthletes IDs: {}", rankedAthletes == null ? null : rankedAthletes.stream().map(a -> a.getId()).toList());
-		var medals = computeMedals(g, rankedAthletes);
-		logger.debug("ranked athletes for group {} {}", g, rankedAthletes.size());// rankedAthletes.stream().map(a -> a.getLastName()).toList());
+		logger.trace("{}computeMedals rankedAthletes IDs: {}", FieldOfPlay.getLoggingName(fop),
+		        rankedAthletes == null ? null : rankedAthletes.stream().map(a -> a.getId()).toList());
+		var medals = computeMedals(fop, g, rankedAthletes);
+		logger.debug("{}ranked athletes for group {} {}", FieldOfPlay.getLoggingName(fop), g, rankedAthletes.size());// rankedAthletes.stream().map(a -> a.getLastName()).toList());
 		return medals;
 	}
 
@@ -473,6 +478,10 @@ public class Competition {
 	 * @return for each category, medal-winnning athletes in snatch, clean & jerk and total.
 	 */
 	public TreeMap<String, List<Athlete>> computeMedals(Group g, List<Athlete> rankedAthletes) {
+		return computeMedals(null, g, rankedAthletes);
+	}
+
+	public TreeMap<String, List<Athlete>> computeMedals(FieldOfPlay fop, Group g, List<Athlete> rankedAthletes) {
 		if (g == null) {
 			return new TreeMap<>();
 		}
@@ -486,12 +495,16 @@ public class Competition {
 			return medalsPerCategory;
 		}
 
-		TreeMap<String, List<Athlete>> groupMedalsByCategory = computeMedalsByCategory(rankedAthletes);
+		TreeMap<String, List<Athlete>> groupMedalsByCategory = computeMedalsByCategory(fop, rankedAthletes);
 		this.medalsByGroup.put(g, groupMedalsByCategory);
 		return groupMedalsByCategory;
 	}
 
 	public TreeMap<String, List<Athlete>> computeMedalsByCategory(List<Athlete> rankedAthletes) {
+		return computeMedalsByCategory(null, rankedAthletes);
+	}
+
+	public TreeMap<String, List<Athlete>> computeMedalsByCategory(FieldOfPlay fop, List<Athlete> rankedAthletes) {
 		// logger.debug("computeMedalsByCategory athletes {}\n{}", rankedAthletes.size(), LoggerUtils.stackTrace());
 		var before = System.currentTimeMillis();
 
@@ -615,8 +628,9 @@ public class Competition {
 			clearRanksForCategoryOutOfCompetition(currentCategoryPAthletes, category);
 			getPAthletes(category, medalsByCategory.get(category.getCode()), false);
 		}
-		logger.info("computeMedalsByCategory nbAthletes={} time={}ms", rankedAthletes.size(), System.currentTimeMillis() - before);
-		saveAthletes(rankedAthletes);
+		logger.info("{}computeMedalsByCategory nbAthletes={} time={}ms", FieldOfPlay.getLoggingName(fop),
+		        rankedAthletes.size(), System.currentTimeMillis() - before);
+		saveAthletes(fop, rankedAthletes);
 		return medalsByCategory;
 	}
 
@@ -655,9 +669,13 @@ public class Competition {
 	 * @return
 	 */
 	public List<Athlete> computeMedalsForCategory(Category category) {
+		return computeMedalsForCategory(null, category);
+	}
+
+	public List<Athlete> computeMedalsForCategory(FieldOfPlay fop, Category category) {
 		// brute force - reuse what works
 		List<Athlete> rankedAthletes = AthleteRepository.findAthletesForGlobalRanking(null, false);
-		List<Athlete> treeSet = computeMedalsByCategory(rankedAthletes).get(category.getCode());
+		List<Athlete> treeSet = computeMedalsByCategory(fop, rankedAthletes).get(category.getCode());
 		// logger.trace("computeMedalsForCategory {}",treeSet);
 		return treeSet;
 	}
@@ -1289,9 +1307,13 @@ public class Competition {
 	}
 
 	public TreeMap<String, List<Athlete>> getMedals(Group g, boolean onlyFinished) {
+		return getMedals(null, g, onlyFinished);
+	}
+
+	public TreeMap<String, List<Athlete>> getMedals(FieldOfPlay fop, Group g, boolean onlyFinished) {
 		TreeMap<String, List<Athlete>> medals;
 		if (this.medalsByGroup == null || (medals = this.medalsByGroup.get(g)) == null || g == null) {
-			medals = computeMedals(g);
+			medals = computeMedals(fop, g);
 		}
 		final TreeMap<String, List<Athlete>> m = new TreeMap<>(medals);
 		// logger.debug("medals categories keyset {}", medals.keySet());
@@ -2677,7 +2699,7 @@ public class Competition {
 	}
 
 	@SuppressWarnings("unused")
-	private void saveAthletes(List<Athlete> updatedAthletes) {
+	private void saveAthletes(FieldOfPlay fop, List<Athlete> updatedAthletes) {
 		var msBefore = System.currentTimeMillis();
 		JPAService.runInTransaction(em -> {
 			for (Athlete a : updatedAthletes) {
@@ -2689,7 +2711,8 @@ public class Competition {
 			}
 			return null;
 		});
-		logger.info("computeMedalsByCategory saving {}ms", System.currentTimeMillis() - msBefore);
+		logger.info("{}computeMedalsByCategory saving {}ms", FieldOfPlay.getLoggingName(fop),
+		        System.currentTimeMillis() - msBefore);
 	}
 
 	@SuppressWarnings({ "unchecked", "unused" })

@@ -362,7 +362,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 	}
 
 	private void selectVideoContext(Group g, Category c, FieldOfPlay fop) {
-		Competition.getCurrent().computeMedals(g);
+		Competition.getCurrent().computeMedals(fop, g);
 		fop.setVideoGroup(g);
 		fop.setVideoCategory(c);
 		setMedalGroup(g);

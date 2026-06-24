@@ -2801,7 +2801,7 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			if (recomputeCategoryRanks) {
 				//logger.trace("athletes sent to computeMedals IDs: {}", athletes == null ? null : athletes.stream().map(a -> a.getAbbreviatedName()).collect(Collectors.toList()));
-				setMedals(Competition.getCurrent().computeMedals(g, athletes));
+				setMedals(Competition.getCurrent().computeMedals(this, g, athletes));
 			}
 			endMedals = System.nanoTime();
 
