@@ -149,7 +149,7 @@ public class DecisionElement extends LitTemplate
 	@ClientCallable
 	public void decisionPayloadApplied(String sequence, String mode, Boolean singleRef, Boolean announcerForced,
 	        Boolean ref1, Boolean ref2, Boolean ref3) {
-		logger.warn("{}decisionElement applied decisionPayload sequence={} mode={} singleRef={} announcerForced={} refs=[{},{},{}] parent={}",
+		logger.debug("{}decisionElement applied decisionPayload sequence={} mode={} singleRef={} announcerForced={} refs=[{},{},{}] parent={}",
 		        FieldOfPlay.getLoggingName(this.fop), sequence, mode, singleRef, announcerForced, ref1, ref2, ref3,
 		        this.getOrigin());
 	}
