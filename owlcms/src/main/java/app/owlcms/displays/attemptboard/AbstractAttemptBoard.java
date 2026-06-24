@@ -983,37 +983,37 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private void spotlightNewRecord(List<RecordEvent> records) {
-		if (ui != null) {
-			ui.push();
-		}
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-		}
+		// if (ui != null) {
+		// 	ui.push();
+		// }
+		// try {
+		// 	Thread.sleep(200);
+		// } catch (InterruptedException e) {
+		// }
 		this.getElement().setProperty("recordBroken", true);
 		this.getElement().setProperty("recordAttempt", false);
 		String prefix = Translator.translate("Scoreboard.NewRecord(s)", records.size());
 		computeMessageProperties(records, prefix);
-		if (ui != null) {
-			ui.push();
-		}
+		// if (ui != null) {
+		// 	ui.push();
+		// }
 	}
 
 	private void spotlightRecordAttempt(List<RecordEvent> records) {
-		if (ui != null) {
-			ui.push();
-		}
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-		}
+		// if (ui != null) {
+		// 	ui.push();
+		// }
+		// try {
+		// 	Thread.sleep(200);
+		// } catch (InterruptedException e) {
+		// }
 		this.getElement().setProperty("recordBroken", false);
 		this.getElement().setProperty("recordAttempt", true);
 		String prefix = Translator.translate("Scoreboard.RecordAttempt(s)", records.size());
 		computeMessageProperties(records, prefix);
-		if (ui != null) {
-			ui.push();
-		}
+		// if (ui != null) {
+		// 	ui.push();
+		// }
 	}
 
 	public void computeMessageProperties(List<RecordEvent> records, String prefix) {
