@@ -987,7 +987,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 					String platform = genericParts.length >= 1 ? genericParts[genericParts.length - 1] : null;
 					if (device != null && !device.isBlank()) {
 						String finalDesc = (platform != null && platform.equals(device)) ? device : (platform != null ? platform + " " + device : device);
-						logger.debug("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}' (overrode mqtt)", finalDesc, publishingClientId, topic);
+						logger.trace("Assigned descriptor='{}' to publishing clientId='{}' from topic='{}' (overrode mqtt)", finalDesc, publishingClientId, topic);
 						return finalDesc;
 					}
 				}
