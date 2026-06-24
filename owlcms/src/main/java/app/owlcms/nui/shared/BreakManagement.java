@@ -143,7 +143,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.logger.setLevel(Level.DEBUG);
 		FieldOfPlay effectiveFop = Objects.requireNonNull(fop, "FieldOfPlay required");
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("BreakManagement request {} {} {} {}", requestedBreak, requestedCountdownType,
+			this.logger.debug("{}BreakManagement request {} {} {} {}",
+			        FieldOfPlay.getLoggingName(effectiveFop), requestedBreak, requestedCountdownType,
 			        effectiveFop.getState(),
 			        effectiveFop.getBreakType());
 		}
@@ -168,7 +169,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			this.requestedCountdownType = requestedCountdownType;
 		}
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("request {}", this.requestedBreak);
+			this.logger.debug("{}request {}", logPrefix(), this.requestedBreak);
 		}
 		this.setBreakType(this.requestedBreak);
 		this.setCountdownType(this.requestedCountdownType);
@@ -177,7 +178,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		createUI(parentDialog);
 		setEnablement();
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("request done {}", this.requestedBreak);
+			this.logger.debug("{}request done {}", logPrefix(), this.requestedBreak);
 		}
 	}
 
@@ -193,6 +194,10 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		this.fop = Objects.requireNonNull(fop, "FieldOfPlay required");
 		setFop(this.fop);
 		initFromFOP(parentDialog);
+	}
+    
+	private String logPrefix() {
+		return FieldOfPlay.getLoggingName(this.fop);
 	}
 
 	/**
@@ -281,7 +286,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void assembleDialog(VerticalLayout dialogLayout) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("assembleDialog {} {}", this.requestedBreak, LoggerUtils.whereFrom());
+			this.logger.debug("{}assembleDialog {} {}", logPrefix(), this.requestedBreak,
+			        LoggerUtils.whereFrom());
 			// createTimerDisplay();
 			// dialogLayout.add(timer);
 		}
@@ -321,7 +327,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		                && (this.fop.getBreakType().isCountdown()
 		                        || this.fop.getBreakType() == BreakType.GROUP_DONE))) {
 			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("selecting tab");
+				this.logger.debug("{}selecting tab", logPrefix());
 			}
 			ts.setSelectedTab(getBreakType().isInterruption() ? iTab : bTab);
 		}
@@ -330,7 +336,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	}
 
 	private void computeDefaultTimeValues() {
-		logger.debug("setting default duration as default {} {}", LoggerUtils.whereFrom(), this.fop.getBreakType());
+		logger.debug("{}setting default duration as default {} {}", logPrefix(), LoggerUtils.whereFrom(),
+		        this.fop.getBreakType());
 		setDurationField(DEFAULT_DURATION);
 
 		if (this.fop.getGroup() != null
@@ -544,7 +551,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		        		                this));
 		        		setMedalGroup(g);
 		        		setMedalCategory(c);
-		        		this.logger.info("switching {} to {} {}", currentFop, g.getName() != null ? g.getName() : "-",
+		        		this.logger.info("{}switching {} to {} {}", logPrefix(), currentFop,
+		        		        g.getName() != null ? g.getName() : "-",
 		        		        c != null ? c.getNameWithAgeGroup() : "");
 		        		currentFop.getUiEventBus().post(new UIEvent.CeremonyStarted(CeremonyType.MEDALS, g, c, LoggerUtils.stackTrace(), this, currentFop));
 		        		currentFop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c, currentFop));
@@ -722,7 +730,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private VerticalLayout createInterruptionColumn() {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("createInterruptionColumn {}", LoggerUtils.whereFrom());
+			this.logger.debug("{}createInterruptionColumn {}", logPrefix(), LoggerUtils.whereFrom());
 		}
 		this.interruptionRadios = new RadioButtonGroup<>();
 		this.interruptionRadios.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
@@ -740,7 +748,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				return;
 			}
 			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("setting interruption radios to {} from {}", e.getValue(), LoggerUtils.whereFrom());
+				this.logger.debug("{}setting interruption radios to {} from {}", logPrefix(), e.getValue(),
+				        LoggerUtils.whereFrom());
 			}
 			setEnablement();
 			this.stopCompetition.setEnabled(true);
@@ -752,7 +761,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		BreakType bt = getBreakType();
 		setInterruptionRadios(this.interruptions.contains(bt) ? bt : BreakType.TECHNICAL);
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("interruptionRadios {} value={}", this.interruptions, this.interruptionRadios.getValue());
+			this.logger.debug("{}interruptionRadios {} value={}", logPrefix(), this.interruptions,
+			        this.interruptionRadios.getValue());
 		}
 
 		Div title1 = new Div(label("InterruptionType.Title"));
@@ -842,7 +852,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void initFromFOP(Dialog parentDialog) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("BreakManagement FOP");
+			this.logger.debug("{}BreakManagement FOP", logPrefix());
 		}
 		if (this.fop == null) {
 			this.logger.error("BreakManagement initialised without FieldOfPlay");
@@ -856,7 +866,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		                : (this.requestedBreak != null ? this.requestedBreak : BreakType.TECHNICAL),
 		        countdownType2 != null ? countdownType2 : mapBreakTypeToDurationValue(breakType2));
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("after initState");
+			this.logger.debug("{}after initState", logPrefix());
 		}
 		createUI(parentDialog);
 		setEnablement();
@@ -964,7 +974,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void setBreakTimerFromFields(boolean interruption) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("setBreakTimerFromFields from={}", LoggerUtils.whereFrom());
+			this.logger.debug("{}setBreakTimerFromFields from={}", logPrefix(), LoggerUtils.whereFrom());
 		}
 		LocalDateTime now = LocalDateTime.now();
 
@@ -984,7 +994,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		}
 
 		final CountdownType curCType = cType;
-		this.logger.debug("--- interruption {} {} {}", interruption, curCType, bType);
+		this.logger.debug("{}--- interruption {} {} {}", logPrefix(), interruption, curCType, bType);
 		FieldOfPlay currentFop = this.fop;
 		if (currentFop == null) {
 			return;
@@ -1011,14 +1021,14 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void setBreakType(BreakType breakType) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("set break type {} from {}", breakType, LoggerUtils.whereFrom());
+			this.logger.debug("{}set break type {} from {}", logPrefix(), breakType, LoggerUtils.whereFrom());
 		}
 		this.breakType = breakType;
 	}
 
 	private void setBreakValue(BreakType breakType) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("setBreakValue {} from {}", breakType, LoggerUtils.whereFrom());
+			this.logger.debug("{}setBreakValue {} from {}", logPrefix(), breakType, LoggerUtils.whereFrom());
 		}
 
 		// figure out what the best countdown match would be
@@ -1054,7 +1064,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			}
 		}
 
-		this.logger.debug("countdownRadios inferred as {}", this.countdownRadios.getValue());
+		this.logger.debug("{}countdownRadios inferred as {}", logPrefix(), this.countdownRadios.getValue());
 
 		// this.countdownRadios.setValue(this.countdowns.contains(breakType) ? breakType : null);
 		// setInterruptionRadios(this.interruptions.contains(breakType) ? breakType : null);
@@ -1073,7 +1083,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 				this.endCountdown.setEnabled(true);
 			} else {
 				if (this.logger.isDebugEnabled()) {
-					this.logger.debug("disabling countdown start");
+					this.logger.debug("{}disabling countdown start", logPrefix());
 				}
 				enableStartCountdown(true);
 				this.endCountdown.setEnabled(true);
@@ -1124,13 +1134,14 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void setCountdownType(CountdownType countdownType) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("setCountdownType {} from {}", countdownType, LoggerUtils.whereFrom());
+			this.logger.debug("{}setCountdownType {} from {}", logPrefix(), countdownType,
+			        LoggerUtils.whereFrom());
 		}
 		this.countdownType = countdownType;
 	}
 
 	private void setCountdownTypeValue(CountdownType ct2) {
-		this.logger.debug("setting countdownTypeRadios {} from {}", ct2, LoggerUtils.whereFrom());
+		this.logger.debug("{}setting countdownTypeRadios {} from {}", logPrefix(), ct2, LoggerUtils.whereFrom());
 		setCountdownType(ct2);
 		this.countdownTypeRadios.setValue(ct2);
 		setCountdownFieldVisibility(ct2);
@@ -1138,7 +1149,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	}
 
 	private void setDurationField(Duration duration) {
-		logger.debug("{} {}", duration, LoggerUtils.whereFrom());
+		logger.debug("{}setDurationField {} {}", logPrefix(), duration, LoggerUtils.whereFrom());
 		this.durationField.setValue(duration);
 	}
 
@@ -1199,7 +1210,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void setInterruptionRadios(BreakType breakType) {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("set interruption radios to {} from {}", breakType, LoggerUtils.whereFrom());
+			this.logger.debug("{}set interruption radios to {} from {}", logPrefix(), breakType,
+			        LoggerUtils.whereFrom());
 		}
 		this.interruptionRadios.setValue(breakType);
 	}
@@ -1264,7 +1276,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void switchToDuration() {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("switchToDuration from {}", LoggerUtils.whereFrom());
+			this.logger.debug("{}switchToDuration from {}", logPrefix(), LoggerUtils.whereFrom());
 		}
 		this.noCountdown.setVisible(false);
 		this.waitText.setVisible(false);
@@ -1280,7 +1292,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void switchToIndefinite() {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("switchToIndefinite from {}", LoggerUtils.stackTrace());
+			this.logger.debug("{}switchToIndefinite from {}", logPrefix(), LoggerUtils.stackTrace());
 		}
 		this.noCountdown.setVisible(false);
 		this.waitText.setVisible(true);
@@ -1294,7 +1306,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void switchToNoCountdown() {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("switchToNoCountdown from {}", LoggerUtils.whereFrom());
+			this.logger.debug("{}switchToNoCountdown from {}", logPrefix(), LoggerUtils.whereFrom());
 		}
 		this.noCountdown.setVisible(true);
 		this.waitText.setVisible(false);
@@ -1308,7 +1320,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 
 	private void switchToTarget() {
 		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("switchToTarget breaktype={} from {} ", getBreakType(), LoggerUtils.whereFrom());
+			this.logger.debug("{}switchToTarget breaktype={} from {} ", logPrefix(), getBreakType(),
+			        LoggerUtils.whereFrom());
 		}
 		this.noCountdown.setVisible(false);
 		this.waitText.setVisible(false);
@@ -1352,7 +1365,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 					BreakType breakType2 = this.fop.getBreakType();
 					if (breakType2 == BreakType.GROUP_DONE || fopState == FOPState.INACTIVE) {
 						if (this.logger.isDebugEnabled()) {
-							this.logger.debug("syncWithFOP: explicit BEFORE_INTRODUCTION");
+								this.logger.debug("{}syncWithFOP: explicit BEFORE_INTRODUCTION", logPrefix());
 						}
 						breakType2 = BreakType.BEFORE_INTRODUCTION;
 						this.countdownRadios.setValue(breakType2);
