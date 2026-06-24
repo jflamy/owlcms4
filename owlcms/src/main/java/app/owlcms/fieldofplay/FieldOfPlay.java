@@ -129,6 +129,7 @@ import elemental.json.JsonValue;
 public class FieldOfPlay implements IUnregister {
 
 	public static final long DECISION_VISIBLE_DURATION = 3500;
+	public static final long DECISION_INPUT_IGNORE_WINDOW_MS = 15000;
 	public static final int REVERSAL_DELAY = 3000;
 	private static final int DEFAULT_BREAK_DURATION = 10 * 60 * 1000;
 	private static final int WAKEUP_DURATION_MS = 20000;
@@ -246,6 +247,7 @@ public class FieldOfPlay implements IUnregister {
 	private boolean lightBarInUse;
 	private boolean showDecisionsImmediately;
 	private InputKind currentInputKind;
+	private long ignoreDecisionInputsUntil;
 
 	public FieldOfPlay() {
 	}
@@ -833,6 +835,10 @@ public class FieldOfPlay implements IUnregister {
 			return;
 		} else if (e instanceof JuryMemberDecisionUpdate) {
 			doJuryMemberDecisionUpdate((JuryMemberDecisionUpdate) e);
+			return;
+		}
+
+		if (shouldIgnoreDecisionInputDuringCooldown(e)) {
 			return;
 		}
 
@@ -2240,6 +2246,19 @@ public class FieldOfPlay implements IUnregister {
 		return this.initialWarningEmitted;
 	}
 
+	private boolean shouldIgnoreDecisionInputDuringCooldown(FOPEvent e) {
+		long now = System.currentTimeMillis();
+		if (now >= this.ignoreDecisionInputsUntil) {
+			return false;
+		}
+		if (!(e instanceof DecisionUpdate) && !(e instanceof DecisionFullUpdate) && !(e instanceof ExplicitDecision)) {
+			return false;
+		}
+		this.logger.info("{}ignoring decision input during post-decision cooldown state={} remaining={}ms event={}",
+		        FieldOfPlay.getLoggingName(this), this.state, this.ignoreDecisionInputsUntil - now, e);
+		return true;
+	}
+
 	private void notifyRecords(List<RecordEvent> records, boolean newRecord, int newRecordValue) {
 		if (records == null || records.isEmpty()) {
 			return;
@@ -3271,6 +3290,7 @@ public class FieldOfPlay implements IUnregister {
 		// must also set state prior to sending event, so that state monitor shows new
 		// state.
 		setState(DECISION_VISIBLE);
+		this.ignoreDecisionInputsUntil = System.currentTimeMillis() + DECISION_INPUT_IGNORE_WINDOW_MS;
 		// logger.debug("Show decision now - doit");
 		// use "this" because the origin must also show the decision.
 
