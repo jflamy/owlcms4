@@ -253,7 +253,7 @@ class CurrentAttempt extends LitElement {
   }
 
   breakTimerStyles() {
-    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none") + "; grid-area: timer-start/barbell-start/timer-end/timer-end;";
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none");
   }
 
   barbellStyles() {

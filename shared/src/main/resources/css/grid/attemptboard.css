@@ -428,7 +428,8 @@
 	/* color: #99CCFF; */
 	color: var(--breakTimerColor);
 	grid-area: timer-start/barbell-start/timer-end/timer-end;
-	justify-self: end;
+	justify-self: stretch;
+	justify-items: end;
 	text-align: right;
 }
 
