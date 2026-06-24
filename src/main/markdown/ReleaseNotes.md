@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-rc08: Further clean-up of attempt board processing done on event reception
+
 67.0.0-rc07: Further clean-up of decistion display to make the actions atomic and remove the empty box intermediate state
 
 67.0.0-rc07: Notification to announcer when waiting on a decision from referee (as opposed to a stuck down signal display)
