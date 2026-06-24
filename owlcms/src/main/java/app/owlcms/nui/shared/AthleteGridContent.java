@@ -7,6 +7,7 @@
 
 package app.owlcms.nui.shared;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
@@ -98,6 +100,7 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.NaturalOrderComparator;
@@ -284,6 +287,9 @@ public abstract class AthleteGridContent extends BaseContent
 	ArrayList<Notification> recordNotifications;
 	protected Notification stoppageAckNotification;
 	protected UI currentUI;
+	private final ArrayDeque<Runnable> pendingNotificationOpens = new ArrayDeque<>();
+	private volatile boolean notificationTickScheduled;
+	private static final long NOTIFICATION_PACING_MILLIS = 120L;
 
 	private void addRecordNotification(Notification n) {
 		recordNotifications.add(n);
@@ -736,21 +742,21 @@ public abstract class AthleteGridContent extends BaseContent
 				case CALL_REFEREES:
 					text = Translator.translate("JuryNotification." + et.name());
 					if (!this.summonNotificationSent) {
-						doNotification(text, style);
+						doNotification(text, style, "jury[" + et.name() + "]");
 					}
 					this.summonNotificationSent = true;
 					return;
 				case START_DELIBERATION:
 					text = Translator.translate("JuryNotification." + et.name());
 					if (!this.deliberationNotificationSent) {
-						doNotification(text, style);
+						doNotification(text, style, "jury[" + et.name() + "]");
 					}
 					this.deliberationNotificationSent = true;
 					return;
 				case CHALLENGE:
 					text = Translator.translate("JuryNotification." + et.name());
 					if (!this.deliberationNotificationSent) {
-						doNotification(text, style);
+						doNotification(text, style, "jury[" + et.name() + "]");
 					}
 					this.deliberationNotificationSent = true;
 					return;
@@ -792,7 +798,7 @@ public abstract class AthleteGridContent extends BaseContent
 				default:
 					break;
 			}
-			doNotification(text, style);
+			doNotification(text, style, "jury[" + et.name() + "]");
 		});
 	}
 
@@ -1354,6 +1360,10 @@ public abstract class AthleteGridContent extends BaseContent
 	protected Notification missingKgNotification;
 	private boolean publicDisplay;
 	protected void doNotification(String text, String theme) {
+		doNotification(text, theme, "doNotification[" + theme + "]");
+	}
+
+	protected void doNotification(String text, String theme, String diagnosticTag) {
 		Notification n = new Notification();
 		n.getElement().getThemeList().add(theme);
 		n.setDuration(6000);
@@ -1370,7 +1380,99 @@ public abstract class AthleteGridContent extends BaseContent
 		}
 		n.add(label);
 		notifications.add(n);
-		n.open();
+		instrumentAndPace(n, diagnosticTag, null);
+	}
+
+	/**
+	 * Pace notification openings by draining queued {@code open()} calls one at a time, separated by
+	 * {@value #NOTIFICATION_PACING_MILLIS} ms. This is a mitigation for the observed symptom that a toast
+	 * is, on rare occasions, not displayed; the exact cause is not confirmed. The visible behaviour is
+	 * otherwise unchanged: toasts still appear in the same position and stack/scroll, just released a
+	 * fraction of a second apart. Must be called on the UI thread.
+	 */
+	protected void paceNotificationOpen(Runnable openAction) {
+		this.pendingNotificationOpens.add(openAction);
+		scheduleNotificationTick();
+	}
+
+	private void scheduleNotificationTick() {
+		if (this.notificationTickScheduled || this.pendingNotificationOpens.isEmpty()) {
+			return;
+		}
+		UI ui = UI.getCurrent();
+		if (ui == null) {
+			ui = this.currentUI;
+		}
+		if (ui == null) {
+			// no UI available to pace on; open immediately so nothing is lost
+			Runnable next = this.pendingNotificationOpens.poll();
+			if (next != null) {
+				next.run();
+			}
+			return;
+		}
+		this.notificationTickScheduled = true;
+		final UI tickUI = ui;
+		new DelayTimer().schedule(() -> {
+			try {
+				tickUI.access(this::drainOneNotification);
+			} catch (Exception e) {
+				this.notificationTickScheduled = false;
+			}
+		}, NOTIFICATION_PACING_MILLIS);
+	}
+
+	private void drainOneNotification() {
+		this.notificationTickScheduled = false;
+		Runnable next = this.pendingNotificationOpens.poll();
+		if (next != null) {
+			next.run();
+		}
+		scheduleNotificationTick();
+	}
+
+	/**
+	 * Instrument a notification and pace its opening. {@code openGuard} (may be {@code null}) is
+	 * evaluated on the UI thread immediately before the (paced) open: if it returns {@code false} the
+	 * open is skipped, which lets callers drop a notification that was closed or superseded while it was
+	 * waiting in the pacing queue.
+	 *
+	 * The DOM {@code opened-changed} listener is the client-side confirmation that the browser put the
+	 * notification in the DOM. Closed transitions are ignored to keep the diagnostics focused on the
+	 * confirmation we care about. The timing baseline and the {@code server open()} log are taken at the
+	 * real open, not at enqueue time, so the reported {@code +Nms} reflects the server-to-client
+	 * round-trip rather than the pacing delay.
+	 */
+	protected void instrumentAndPace(Notification n, String tag, BooleanSupplier openGuard) {
+		final String ctx = notifContext();
+		final long[] openStamp = { 0L };
+		n.getElement().addEventListener("opened-changed", e -> {
+			boolean opened = e.getEventData().getBoolean("event.detail.value");
+			if (!opened) {
+				return;
+			}
+			long base = openStamp[0];
+			logger.warn("{}notif {} client opened +{}ms", ctx, tag,
+			        base > 0 ? System.currentTimeMillis() - base : -1);
+		}).addEventData("event.detail.value");
+		paceNotificationOpen(() -> {
+			if (openGuard != null && !openGuard.getAsBoolean()) {
+				return;
+			}
+			openStamp[0] = System.currentTimeMillis();
+			logger.trace("{}notif {} server open()", ctx, tag);
+			n.open();
+		});
+	}
+
+	/**
+	 * Context prefix for notification diagnostics, following the existing lifting log convention: a
+	 * fixed-width FOP prefix plus a lowercase role token derived from the content class name, e.g.
+	 * {@code FOP A    announcer } or {@code FOP B    marshall }.
+	 */
+	protected String notifContext() {
+		String roleName = getClass().getSimpleName().replace("Content", "").toLowerCase();
+		return FieldOfPlay.getLoggingName(getFop()) + roleName + " ";
 	}
 
 	protected void doStartTime() {
@@ -1551,6 +1653,8 @@ public abstract class AthleteGridContent extends BaseContent
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		currentUI = attachEvent.getUI();;
+		// Keep pending opens: ordinary warnings, including marshal weight-change notifications, use this queue.
+		this.notificationTickScheduled = false;
 		// create the top bar.
 		syncWithFop(true, getFop());
 		// we listen on uiEventBus.
@@ -1802,16 +1906,20 @@ public abstract class AthleteGridContent extends BaseContent
 		        && showDeclarations
 		        && curDisplayAthlete.equals(((UIEvent.LiftingOrderUpdated) e).getChangingAthlete())) {
 			String text = null;
+			String diagnosticTag = null;
 			int declaring = curDisplayAthlete.isDeclaring();
 			if (declaring > 0) {
 				text = Translator.translate("Declaration_current_athlete_with_change", curDisplayAthlete.getFullName());
+				diagnosticTag = "declaration[currentWithChange]";
 			} else if (declaring == 0) {
 				text = Translator.translate("Declaration_current_athlete", curDisplayAthlete.getFullName());
+				diagnosticTag = "declaration[current]";
 			} else {
 				text = Translator.translate("Weight_change_current_athlete", curDisplayAthlete.getFullName());
+				diagnosticTag = "marshalWeightChange[currentAthlete]";
 			}
 			if (text != null && !ackDialogIsOpened()) {
-				doNotification(text, "warning");
+				doNotification(text, "warning", diagnosticTag);
 			}
 		}
 
@@ -1828,7 +1936,8 @@ public abstract class AthleteGridContent extends BaseContent
 			        && Integer.compare(this.prevWeight, newWeight) != 0) {
 				// logger.debug("warnOthersIfCurrent {} {} {} -- {}", curAthlete, this.prevWeight, newWeight, LoggerUtils.whereFrom());
 				if (!ackDialogIsOpened()) {
-					doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info");
+					doNotification(Translator.translate("Notification.WeightToBeLoaded", newWeight), "info",
+					        "weightToBeLoaded");
 				}
 				this.prevWeight = newWeight;
 			}
@@ -1836,7 +1945,7 @@ public abstract class AthleteGridContent extends BaseContent
 			if (e instanceof UIEvent.LiftingOrderUpdated && curDisplayAthlete != null && !curDisplayAthlete.equals(curAthlete)) {
 				String text = Translator.translate("ChangeOfAthlete", curAthlete.getFullName());
 				if (text != null && !ackDialogIsOpened()) {
-					doNotification(text, "warning");
+					doNotification(text, "warning", "changeOfAthlete");
 				}
 			}
 				

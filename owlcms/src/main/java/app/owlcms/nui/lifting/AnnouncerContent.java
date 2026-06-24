@@ -57,6 +57,7 @@ import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -104,6 +105,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private Notification waitingForDecisionNotification;
 	private TimerTask waitingForDecisionNotificationTask;
 	private long waitingForDecisionNotificationGeneration;
+	private Notification decisionNotification;
 
 	public AnnouncerContent() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -310,7 +312,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 				default:
 					break;
 			}
-			doNotification(text, style);
+			doNotification(text, style, "jury[" + et.name() + "]");
 		});
 	}
 
@@ -469,30 +471,67 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			if (e == null || e.decision == null) {
 				return;
 			}
-			// this.slaveUpdateGrid(e);
-			int d = e.decision ? 1 : 0;
-			String text = Translator.translate("NoLift_GoodLift", d, e.getAthlete().getFullName());
-
-			Notification n = new Notification();
-			String themeName = e.decision ? "success" : "error";
-			n.getElement().getThemeList().add(themeName);
-
-			Div label = new Div();
-			label.add(text);
-			label.addClickListener((event) -> n.close());
-			label.setSizeFull();
-			label.getStyle().set("font-size", "large");
-			n.add(label);
-			if (isCenterNotifications()) {
-				n.setPosition(Position.MIDDLE);
-				label.getStyle().set("font-size", "x-large");
-			} else {
-				n.setPosition(Position.TOP_START);
-			}
-			n.setDuration(5000);
-			n.open();
+			showDecisionNotification(e.decision, e.getAthlete().getFullName());
 			setDecisionLights(null);
 		});
+	}
+
+	/**
+	 * Display the good lift / no lift notification.
+	 *
+	 * The notification reference is kept so a newer decision, state sync, or close event can supersede a
+	 * queued open before it reaches the browser.
+	 */
+	private void showDecisionNotification(boolean goodLift, String fullName) {
+		closeDecisionNotification();
+		int d = goodLift ? 1 : 0;
+		String text = Translator.translate("NoLift_GoodLift", d, fullName);
+
+		Notification n = new Notification();
+		String themeName = goodLift ? "success" : "error";
+		n.getElement().getThemeList().add(themeName);
+
+		Div label = new Div();
+		label.add(text);
+		label.addClickListener((event) -> n.close());
+		label.setSizeFull();
+		label.getStyle().set("font-size", "large");
+		n.add(label);
+		if (isCenterNotifications()) {
+			n.setPosition(Position.MIDDLE);
+			label.getStyle().set("font-size", "x-large");
+		} else {
+			n.setPosition(Position.TOP_START);
+		}
+		n.setDuration(5000);
+		n.addOpenedChangeListener(ev -> {
+			if (!ev.isOpened() && this.decisionNotification == n) {
+				this.decisionNotification = null;
+			}
+		});
+		this.decisionNotification = n;
+		instrumentAndPace(n, "decision[" + (goodLift ? "good" : "no") + "]",
+		        () -> this.decisionNotification == n);
+	}
+
+	private void closeDecisionNotification() {
+		if (this.decisionNotification != null) {
+			this.decisionNotification.close();
+			this.decisionNotification = null;
+		}
+	}
+
+	@Override
+	protected void syncWithFop(boolean refreshGrid, FieldOfPlay fop) {
+		super.syncWithFop(refreshGrid, fop);
+		// The field of play is the source of truth after attach/refresh. If it still exposes a visible
+		// decision, make sure this page also has a matching decision notification.
+		if (fop != null && fop.getState() == FOPState.DECISION_VISIBLE && fop.getGoodLift() != null
+		        && fop.getAthleteUnderReview() != null) {
+			showDecisionNotification(fop.getGoodLift(), fop.getAthleteUnderReview().getFullName());
+		} else {
+			closeDecisionNotification();
+		}
 	}
 
 	@Subscribe
