@@ -10,6 +10,8 @@
 
 **New in Release 67**
 
+67.0.0-rc10: Add logging for diagnosing announcer page that does not update
+
 67.0.0-rc09: Improved late decision reversal robustness
   - added a 15-second cooldown where all decisions are ignored, so the late reversal is not understood as a clock-not-started on the next athlete
 
@@ -39,7 +41,6 @@
 67.0.0-rc03: Fix for missed decision display
   - remove unwarranted thread on attempt board handling of decision visibility that could create a race
   - add a timed backstop in case the decision visible event push is somehow missed
-
 
 67.0.0-rc02: End Of Competition results fixed (a cache was not being used resulting in performance issue).
 
