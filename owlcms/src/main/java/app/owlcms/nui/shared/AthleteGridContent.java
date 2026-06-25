@@ -891,12 +891,36 @@ public abstract class AthleteGridContent extends BaseContent
 		});
 	}
 
+	private void logAnnouncerLiftingOrderUpdate(String phase, UIEvent.LiftingOrderUpdated e) {
+		if (!(this instanceof AnnouncerContent)) {
+			return;
+		}
+		Athlete athlete = e.getAthlete();
+		Athlete nextAthlete = e.getNextAthlete();
+		Athlete previousAthlete = e.getPreviousAthlete();
+		Athlete changingAthlete = e.getChangingAthlete();
+		logger.warn(
+		        "{}announcer liftingOrder {} attached={} inBreak={} timeAllowed={} cur={} next={} prev={} changing={} origin={} {}",
+		        FieldOfPlay.getLoggingName(e.getFop()),
+		        phase,
+		        this.topBar != null && this.topBar.getUI().isPresent(),
+		        e.isInBreak(),
+		        e.getTimeAllowed(),
+		        athlete == null ? null : athlete.getFullName(),
+		        nextAthlete == null ? null : nextAthlete.getFullName(),
+		        previousAthlete == null ? null : previousAthlete.getFullName(),
+		        changingAthlete == null ? null : changingAthlete.getFullName(),
+		        e.getOrigin() == null ? null : e.getOrigin().getClass().getSimpleName(),
+		        LoggerUtils.whereFrom());
+	}
+
 	@Subscribe
 	public void slaveUpdateAnnouncerBar(UIEvent.LiftingOrderUpdated e) {
 		Athlete athlete = e.getAthlete();
 		var fop = e.getFop();
-		// logger.debug("athletegrid slaveUpdateAnnouncerBar {}", fop.getName());
+		logAnnouncerLiftingOrderUpdate("received", e);
 		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
+			logAnnouncerLiftingOrderUpdate("applied", e);
 			clearRecordNotifications();
 			if (this.missingKgNotification != null && athlete != null && athlete.startingTotalDelta() <= 0) {
 				this.missingKgNotification.close();

@@ -464,7 +464,15 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
+		logAnnouncerDecisionVisible("received", e == null ? null : e.getFop(),
+		        e == null ? null : e.decision,
+		        e == null || e.getAthlete() == null ? null : e.getAthlete().getFullName(),
+		        e == null ? null : e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			logAnnouncerDecisionVisible("applied", e == null ? null : e.getFop(),
+			        e == null ? null : e.decision,
+			        e == null || e.getAthlete() == null ? null : e.getAthlete().getFullName(),
+			        e == null ? null : e.getOrigin());
 			clearWaitingForDecisionReminder();
 			hideLiveDecisions();
 
@@ -521,6 +529,19 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		}
 	}
 
+	private void logAnnouncerDecisionVisible(String phase, FieldOfPlay fop, Boolean goodLift, String fullName,
+	        Object origin) {
+		logger.warn("{}announcer decisionVisible {} attached={} state={} decision={} athlete={} origin={} {}",
+		        FieldOfPlay.getLoggingName(fop),
+		        phase,
+		        this.getUI().isPresent(),
+		        fop == null ? null : fop.getState(),
+		        goodLift,
+		        fullName,
+		        origin == null ? null : origin.getClass().getSimpleName(),
+		        LoggerUtils.whereFrom());
+	}
+
 	@Override
 	protected void syncWithFop(boolean refreshGrid, FieldOfPlay fop) {
 		super.syncWithFop(refreshGrid, fop);
@@ -528,6 +549,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		// decision, make sure this page also has a matching decision notification.
 		if (fop != null && fop.getState() == FOPState.DECISION_VISIBLE && fop.getGoodLift() != null
 		        && fop.getAthleteUnderReview() != null) {
+			logAnnouncerDecisionVisible("sync", fop, fop.getGoodLift(), fop.getAthleteUnderReview().getFullName(), null);
 			showDecisionNotification(fop.getGoodLift(), fop.getAthleteUnderReview().getFullName());
 		} else {
 			closeDecisionNotification();
