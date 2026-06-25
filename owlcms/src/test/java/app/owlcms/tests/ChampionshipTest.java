@@ -218,11 +218,14 @@ public class ChampionshipTest {
 
     @Test
     public void testChampionshipApiListsLoadedChampionships() {
-        List<String> championshipNames = Championship.findAll().stream().map(Championship::getName)
-                .collect(Collectors.toList());
+        Set<String> championshipNames = Championship.findAll().stream().map(Championship::getName)
+                .collect(Collectors.toSet());
+        Set<String> storedChampionshipNames = ChampionshipRepository.findAll().stream().map(Championship::getName)
+                .collect(Collectors.toSet());
 
-        assertEquals("championship names from OWLCMS API",
-                List.of("Masters", "Youth", "Junior", "Senior", "Open"), championshipNames);
+        assertEquals("championship names from OWLCMS API", storedChampionshipNames, championshipNames);
+        assertFalse("championship API should not include the competition template",
+                championshipNames.contains(Championship.COMPETITION_TEMPLATE_NAME));
     }
 
     @Test

@@ -326,6 +326,7 @@ public class CompetitionData {
 			return null;
 		});
 		ChampionshipRepository.reconcileFromAgeGroups();
+		Competition.setCurrent(CompetitionRepository.findAll().stream().findFirst().orElse(null));
 		Championship.reset();
 //		CategoryRepository.resetCodeMap();
 //		// register the new FOPs for events and MQTT

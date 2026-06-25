@@ -2247,6 +2247,9 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private boolean shouldIgnoreDecisionInputDuringCooldown(FOPEvent e) {
+		if (isTestingMode()) {
+			return false;
+		}
 		long now = System.currentTimeMillis();
 		if (now >= this.ignoreDecisionInputsUntil) {
 			return false;

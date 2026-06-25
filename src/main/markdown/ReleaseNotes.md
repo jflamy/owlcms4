@@ -10,6 +10,11 @@
 
 **New in Release 67**
 
+67.1.0-rc11:Added automated tests for migration from version 66 (partial championships) and version 65 (no championships in DB) for both JSON and datebase files.
+
+67.0.0-rc10: Fixed championship migration from older databases and JSON exports
+  - older 65.x and 66.x competitions now restore the expected championships and migrated competition defaults.
+
 67.0.0-rc10: Add logging for diagnosing announcer page that does not update
 
 67.0.0-rc09: Improved late decision reversal robustness

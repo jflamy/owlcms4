@@ -559,13 +559,8 @@ public class ChampionshipRepository {
 
 	private static boolean requiresMaterializedChampionship(AgeGroup ageGroup) {
 		String championshipName = effectiveChampionshipName(ageGroup);
-		String selfName = Championship.canonicalizeChampionshipName(ageGroup.getCode());
 		return championshipName != null && !championshipName.isBlank()
-		        && (!championshipName.equalsIgnoreCase(selfName)
-		                || ageGroup.getConfiguredChampionshipType() != ChampionshipType.U
-		                || ageGroup.getScoringSystem() != null
-		                || ageGroup.getBestAthleteScoringSystem() != null
-		                || Boolean.FALSE.equals(ageGroup.getMedals()));
+		        && !championshipName.equalsIgnoreCase(Championship.COMPETITION_TEMPLATE_NAME);
 	}
 
 	private static String effectiveChampionshipName(AgeGroup ageGroup) {
