@@ -30,6 +30,36 @@
     },
     {
       "type": "java",
+      "name": "🟨 owlcms no reset + file logs",
+      "request": "launch",
+      "mainClass": "${config:owlcms.mainClass}",
+      "projectName": "owlcms",
+      "cwd": "${workspaceFolder}/owlcms",
+      "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
+      "windows": {
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+      },
+      "linux": {
+        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+      },
+      "osx": {
+        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+      },
+      "env": {
+        // default is to ignore event forwarding by forcing "" as URL
+        // comment out the next two lines to use what is in the database
+        "OWLCMS_VIDEODATA": "",
+        "OWLCMS_REMOTE": "",
+        //"OWLCMS_VIDEODATAKEY": "amalauxpattes",
+        //"OWLCMS_UPDATEKEY": "mapetitevache"
+
+        // temporary for playwright testings
+        //"OWLCMS_MEMORYMODE": "true",
+        //"OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
+      }
+    },
+    {
+      "type": "java",
       "name": "🟨 owlcms → tracker",
       "request": "launch",
       "mainClass": "${config:owlcms.mainClass}",
@@ -308,9 +338,34 @@
         "PLAYWRIGHT_BROWSER_CHANNEL": "chrome",
         "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
       }
+    },
+    {
+      "type": "java",
+      "name": "♦️ Playwright Announcer Updates",
+      "request": "launch",
+      "mainClass": "playwright.UpdateCheck",
+      "projectName": "playwright",
+      "cwd": "${workspaceFolder}/playwright",
+      "vmArgs": "",
+      "console": "integratedTerminal",
+      "env": {
+        "OWLCMS_FOPS": "RED,WHITE,BLUE",
+        "OWLCMS_BASE_URL": "http://192.168.1.177:8080",
+        "OWLCMS_MQTT_URI": "tcp://192.168.1.177:1883",
+        "OWLCMS_PLAYWRIGHT_HEADLESS": "false",
+        "PLAYWRIGHT_BROWSER_CHANNEL": "chrome",
+        "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
+      }
     }
   ],
   "compounds": [
+    {
+      "name": "♦️ owlcms logs + playwright announcer",
+      "configurations": [
+        "🟨 owlcms no reset + file logs",
+        "♦️ Playwright Announcer Updates"
+      ]
+    },
     {
       "name": "🟪 owlcms + tracker",
       "configurations": [
