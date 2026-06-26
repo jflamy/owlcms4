@@ -689,7 +689,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 		this.topBar.removeAll();
 		this.topBar.setSizeFull();
-		this.topBar.add(getTopBarLeft(), topBarRight, this.breaks);
+		this.topBar.add(getTopBarLeft(), topBarRight);
 
 		this.topBar.setJustifyContentMode(FlexComponent.JustifyContentMode.START);
 		this.topBar.setAlignItems(FlexComponent.Alignment.CENTER);
