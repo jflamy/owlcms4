@@ -24,6 +24,8 @@
         // comment out the next two lines to use what is in the database
         "OWLCMS_VIDEODATA": "",
         "OWLCMS_REMOTE": "",
+        "OWLCMS_PORT": "8081",
+        "OWLCMS_ENABLEEMBEDDEDMQTT": "false",
         //"OWLCMS_VIDEODATAKEY": "amalauxpattes",
         //"OWLCMS_UPDATEKEY": "mapetitevache"
       }
@@ -217,7 +219,7 @@
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_PORT": "8081",
         //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
-        "OWLCMS_VIDEODATA": "wss://fhq.fly.dev/ws"
+        //"OWLCMS_VIDEODATA": "wss://fhq.fly.dev/ws"
       }
     },
     {
