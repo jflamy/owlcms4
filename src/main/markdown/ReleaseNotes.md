@@ -10,6 +10,8 @@
 
 **New in Release 66**
 
+66.6.0: Total below qualifying total denies the total medal, not the lift medals
+
 66.5.0: Fix for "birth date is wrong" 
   - When opening results loaded in one timezone in another timezone, the birth date could move by one day (and for January 1, to the previous year)
   - To fix, load the registration file again in version 66.5
