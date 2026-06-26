@@ -33,6 +33,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -138,7 +139,9 @@ public class OwlcmsLayout extends AppLayout {
 
 	public void setMenuTitle(Component topBarTitle) {
 		Component curTitle = getViewTitle();
-		remove(curTitle);
+		// curTitle lives inside the header, not in the AppLayout navbar slot, so it must
+		// be detached from its actual parent rather than through AppLayout.remove().
+		removeFromActualParent(curTitle);
 		setViewTitle(topBarTitle);
 		updateHeader(this.margin);
 	}
@@ -184,9 +187,18 @@ public class OwlcmsLayout extends AppLayout {
 
 	public void updateHeader(boolean margin) {
 		this.margin = margin;
-		this.header.removeAll();
 		this.header.setMargin(margin);
 		this.header.setPadding(false);
+		// Detach the shared header components from whatever parent currently claims them
+		// before re-adding them in canonical order. This keeps both sides of each
+		// parent/child link consistent and prevents Vaadin's optimistic removeFromParent()
+		// during add() from hitting a parent that no longer lists the child
+		// ("Trying to detach an element from parent that does not have it.").
+		removeFromActualParent(getDrawerToggle());
+		removeFromActualParent(getViewTitle());
+		removeFromActualParent(getMenuArea());
+		removeFromActualParent(getLocaleDropDown());
+		this.header.removeAll();
 		this.header.add(getDrawerToggle(), getViewTitle(), getMenuArea(), getLocaleDropDown());
 		this.header.setFlexGrow(1.0D, getMenuArea());
 		this.header.setWidth("100%");
@@ -373,6 +385,26 @@ public class OwlcmsLayout extends AppLayout {
 
 	private void setViewTitle(Component topBarTitle) {
 		this.viewTitle = topBarTitle;
+	}
+
+	/**
+	 * Detach a component from its actual current parent, if any.
+	 *
+	 * Only removes the child when the recorded parent really lists it, so a parent/child link
+	 * that is out of sync cannot trigger the "Trying to detach an element from parent that does
+	 * not have it." assertion. After this call the component is safe to add to a new parent.
+	 *
+	 * @param component the component to detach (may be {@code null})
+	 */
+	private void removeFromActualParent(Component component) {
+		if (component == null) {
+			return;
+		}
+		Element element = component.getElement();
+		Element parent = element.getParent();
+		if (parent != null && parent.getChildren().anyMatch(e -> e.equals(element))) {
+			parent.removeChild(element);
+		}
 	}
 
 	private void refreshDrawerIfNeeded() {
