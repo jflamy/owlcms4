@@ -56,6 +56,7 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
@@ -636,22 +637,31 @@ public class Competition {
 
 	private void clearRanksForCategoryOutOfCompetition(List<Athlete> categoryAthletes, Category category) {
 		for (Athlete categoryAthlete : categoryAthletes) {
-			if (AthleteSorter.isEligibleForIndividualRanking(categoryAthlete, category)) {
+			EligibleForIndividualRankingStatus status = AthleteSorter.getEffectiveIndividualEligibilityStatus(categoryAthlete, category);
+			if (status == EligibleForIndividualRankingStatus.ELIGIBLE) {
 				continue;
 			}
 			Participation participation = categoryAthlete.getMainRankings();
-			clearCategoryRanks(participation);
+			clearCategoryRanks(participation, status);
 			if (categoryAthlete instanceof PAthlete) {
 				Participation originalParticipation = ((PAthlete) categoryAthlete)._getOriginalParticipation();
 				if (originalParticipation != participation) {
-					clearCategoryRanks(originalParticipation);
+					clearCategoryRanks(originalParticipation, status);
 				}
 			}
 		}
 	}
 
-	private void clearCategoryRanks(Participation participation) {
+	private void clearCategoryRanks(Participation participation, EligibleForIndividualRankingStatus status) {
 		if (participation == null) {
+			return;
+		}
+		if (status == EligibleForIndividualRankingStatus.OOC_QUALIFICATION) {
+			Integer total = participation.getAthlete() != null ? participation.getAthlete().getTotal() : null;
+			int rank = total != null && total <= 0 ? 0 : -1;
+			participation.setTotalRank(rank);
+			participation.setCategoryScoreRank(rank);
+			participation.setCustomRank(rank);
 			return;
 		}
 		participation.setSnatchRank(-1);
