@@ -30,16 +30,11 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 public class GroupSelectionMenu extends MenuBar {
 
-	static Icon xIcon;
 	Logger logger = (Logger) LoggerFactory.getLogger(GroupSelectionMenu.class);
-	{
-		xIcon = new Icon(VaadinIcon.CLOSE_SMALL);
-		xIcon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
-	}
 
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
 	        Consumer<Group> whenChecked, Consumer<Group> whenUnselected) {
-		this(groups, curGroup, fop2, whenChecked, whenUnselected, xIcon, Translator.translate("NoGroup"), true);
+		this(groups, curGroup, fop2, whenChecked, whenUnselected, createUnselectedIcon(), Translator.translate("NoGroup"), true);
 	}
 
 	public GroupSelectionMenu(List<Group> groups, Group curGroup, FieldOfPlay fop2,
@@ -119,6 +114,12 @@ public class GroupSelectionMenu extends MenuBar {
 		MenuItem separator = subMenu.addItem(ruler);
 		separator.getElement().setAttribute("style",
 		        "margin-top: -1em; margin-bottom: -1em; margin-left: -1em; margin-right: 0em; padding: 0px; padding-left: -1em; width: 100%");
+	}
+
+	private static Icon createUnselectedIcon() {
+		Icon icon = new Icon(VaadinIcon.CLOSE_SMALL);
+		icon.getElement().setAttribute("style", "margin: 0px; padding: 0px");
+		return icon;
 	}
 
 	private String describedName(Group g) {
