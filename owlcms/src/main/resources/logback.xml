@@ -15,9 +15,7 @@
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
-            <pattern>
-                %d{HH:mm:ss.SSS} %-5level %-75msg [%logger{100}:%L %M]%n
-            </pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %-75msg [%logger{100}:%L %M]%n</pattern>
         </encoder>
     </appender>
 
@@ -37,9 +35,7 @@
         <target>System.out</target>
         <encoder>
             <charset>UTF-8</charset>
-            <pattern>
-                %d{HH:mm:ss.SSS} %-5level %-75msg %n
-            </pattern>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) %-75msg [%logger{100}:%L %M]%n</pattern>
         </encoder>
     </appender>
 
