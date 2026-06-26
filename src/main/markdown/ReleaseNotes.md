@@ -10,6 +10,10 @@
 
 **New in Release 67**
 
+67.1.0-rc12: Ability to check that announcer screens update correctly during a simulation as soon as there is a lifting order change.
+
+67.1.0-rc12: More fixes for potential race conditions in Announcer display
+
 67.1.0-rc11:Added automated tests for migration from version 66 (partial championships) and version 65 (no championships in DB) for both JSON and datebase files.
 
 67.0.0-rc10: Fixed championship migration from older databases and JSON exports
