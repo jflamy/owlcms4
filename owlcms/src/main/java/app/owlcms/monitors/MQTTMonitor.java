@@ -47,6 +47,7 @@ import app.owlcms.data.athlete.LiftDefinition;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
+import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -75,6 +76,7 @@ import io.moquette.broker.Server;
  * @author Jean-François Lamy
  */
 public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegistration {
+	private static final String PLAYWRIGHT_DONE_TOPIC = "owlcms/fop/playwright/done";
 
 	private boolean active;
 	private volatile boolean reconnectEnabled = true;
@@ -1165,6 +1167,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	public void slaveGroupDone(UIEvent.GroupDone e) {
 		try {
 			publishMqttGroupDone(e);
+			publishMqttPlaywrightDoneIfAllGroupsDone(e);
 		} catch (MqttException e1) {
 			logger.error(e1.toString());
 		}
@@ -1462,6 +1465,28 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		        new MqttMessage(BreakType.GROUP_DONE.name().getBytes(StandardCharsets.UTF_8)));
 	}
 
+	private void publishMqttPlaywrightDoneIfAllGroupsDone(GroupDone e) throws MqttPersistenceException, MqttException {
+		if (getFop() == null || this.client == null || !allGroupsDone()) {
+			return;
+		}
+		Group group = e.getGroup();
+		Map<String, Object> payload = new TreeMap<>();
+		payload.put("group", group == null ? "" : group.getName());
+		payload.put("reason", "allGroupsDone");
+		payload.put("sequence", e.getSequence());
+		try {
+			String json = new ObjectMapper().writeValueAsString(payload);
+			this.client.publish(PLAYWRIGHT_DONE_TOPIC, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+		} catch (JsonProcessingException e1) {
+			logger.debug("{}MQTT playwright done publish failed", FieldOfPlay.getLoggingName(getFop()), e1);
+		}
+	}
+
+	private boolean allGroupsDone() {
+		List<Group> groups = GroupRepository.findAll();
+		return !groups.isEmpty() && groups.stream().allMatch(Group::isDone);
+	}
+
 	private void publishMqttJuryDeliberation() throws MqttPersistenceException, MqttException {
 		String topic = "owlcms/fop/juryDeliberation/" + this.getFop().getName();
 		this.client.publish(topic, new MqttMessage());
@@ -1504,6 +1529,67 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		}
 		String topic = "owlcms/fop/liftingOrderUpdated/" + this.getFop().getName();
 		this.client.publish(topic, new MqttMessage());
+	}
+
+	public void publishMqttPlaywrightLiftingOrder(UIEvent.LiftingOrderUpdated e) {
+		if (getFop() == null || this.client == null) {
+			return;
+		}
+		if (e.isInBreak()) {
+			publishMqttPlaywrightPause(e, "liftingOrderInBreak");
+			return;
+		}
+		Athlete athlete = e.getAthlete();
+		Map<String, Object> payload = new TreeMap<>();
+		payload.put("athleteName", athlete == null ? "" : athlete.getFullName());
+		payload.put("displayName", athlete == null ? "" : formatPlaywrightDisplayName(athlete));
+		payload.put("attempt", athlete == null ? "" : formatPlaywrightAttempt(athlete));
+		payload.put("attemptNumber", athlete == null ? null : athlete.getAttemptNumber());
+		payload.put("attemptsDone", athlete == null ? null : athlete.getAttemptsDone());
+		payload.put("inBreak", e.isInBreak());
+		// requestedWeight: the authoritative current requested weight, always present
+		// so the watcher can verify the rendered display even when the event was not
+		// triggered by a weight change.
+		payload.put("requestedWeight", athlete == null ? null : athlete.getNextAttemptRequestedWeight());
+		// newWeight: change indicator, only set when the weight changed for this event
+		payload.put("newWeight", e.getNewWeight());
+		payload.put("sequence", e.getSequence());
+		try {
+			String json = new ObjectMapper().writeValueAsString(payload);
+			this.client.publish("owlcms/fop/playwright/currentAthlete/" + this.getFop().getName(),
+			        new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+		} catch (JsonProcessingException | MqttException e1) {
+			logger.debug("{}MQTT playwright publish failed", FieldOfPlay.getLoggingName(getFop()), e1);
+		}
+	}
+
+	public void publishMqttPlaywrightPause(UIEvent e, String reason) {
+		if (getFop() == null || this.client == null) {
+			return;
+		}
+		Map<String, Object> payload = new TreeMap<>();
+		payload.put("reason", reason);
+		payload.put("sequence", e.getSequence());
+		try {
+			String json = new ObjectMapper().writeValueAsString(payload);
+			this.client.publish("owlcms/fop/playwright/pause/" + this.getFop().getName(),
+			        new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
+		} catch (JsonProcessingException | MqttException e1) {
+			logger.debug("{}MQTT playwright pause publish failed", FieldOfPlay.getLoggingName(getFop()), e1);
+		}
+	}
+
+	private String formatPlaywrightDisplayName(Athlete athlete) {
+		String lastName = athlete.getLastName() == null ? "" : athlete.getLastName().toUpperCase();
+		String firstName = athlete.getFirstName() == null ? "" : athlete.getFirstName();
+		Integer startNumber = athlete.getStartNumber();
+		String startNumberText = startNumber != null && startNumber > 0 ? startNumber.toString() : "";
+		return (lastName + " " + firstName + startNumberText).trim();
+	}
+
+	private String formatPlaywrightAttempt(Athlete athlete) {
+		String liftName = athlete.getAttemptsDone() >= 3 ? "C&J" : "Snatch";
+		return liftName + " #" + athlete.getAttemptNumber();
 	}
 
 	private void publishMqttRefereeDecision(Boolean ref1, Boolean ref2, Boolean ref3) {

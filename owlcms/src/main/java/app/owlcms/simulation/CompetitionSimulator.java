@@ -78,6 +78,7 @@ public class CompetitionSimulator {
 	private final boolean skipDone;
 	private final String skipBefore;
 	private final Set<String> platformFilter;
+	private final boolean randomDeclarationJumps;
 	private static final NaturalOrderComparator<String> groupNameComparator = new NaturalOrderComparator<>();
 
 	public CompetitionSimulator() {
@@ -93,9 +94,14 @@ public class CompetitionSimulator {
 	}
 
 	public CompetitionSimulator(boolean skipDone, String skipBefore, String platforms) {
+		this(skipDone, skipBefore, platforms, false);
+	}
+
+	public CompetitionSimulator(boolean skipDone, String skipBefore, String platforms, boolean randomDeclarationJumps) {
 		this.skipDone = skipDone;
 		this.skipBefore = normalizeSkipBefore(skipBefore);
 		this.platformFilter = parsePlatformFilter(platforms);
+		this.randomDeclarationJumps = randomDeclarationJumps;
 	}
 
 	public String runSimulation() throws InterruptedException {
@@ -195,7 +201,7 @@ public class CompetitionSimulator {
 				continue;
 			}
 			FieldOfPlay f = OwlcmsFactory.getFOPByName(p.getName());
-			FOPSimulator fopSimulator = new FOPSimulator(f, platformGroups, this.skipDone);
+			FOPSimulator fopSimulator = new FOPSimulator(f, platformGroups, this.skipDone, this.randomDeclarationJumps);
 			fopSimulator.setCompetitionSimulator(this);
 			registeredSimulators.add(fopSimulator);
 			fopSimulator.go();

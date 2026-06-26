@@ -24,10 +24,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.apputils.AccessUtils;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ProxyUtils;
@@ -109,13 +111,11 @@ public class SimulationServlet extends HttpServlet {
 		}
 
 		String action = getAction(request);
+		SimulationFormValues formValues = SimulationFormValues.from(request);
 		String message = null;
 		if ("start".equalsIgnoreCase(action)) {
-			boolean skipDone = "on".equalsIgnoreCase(request.getParameter("skipDone"))
-			        || "true".equalsIgnoreCase(request.getParameter("skipDone"));
-			String skipBefore = request.getParameter("skipBefore");
-			String platforms = request.getParameter("platforms");
-			message = startSimulation(skipDone, skipBefore, platforms);
+			message = startSimulation(formValues.skipDone(), formValues.skipBefore(), formValues.platforms(),
+			        formValues.randomDeclarationJumps());
 		} else if ("stop".equalsIgnoreCase(action)) {
 			message = stopSimulation();
 		}
@@ -126,16 +126,17 @@ public class SimulationServlet extends HttpServlet {
 			return;
 		}
 
-		writePage(response, message);
+		writePage(response, message, formValues);
 	}
 
-	private static synchronized String startSimulation(boolean skipDone, String skipBefore, String platforms) {
+	private static synchronized String startSimulation(boolean skipDone, String skipBefore, String platforms,
+	        boolean randomDeclarationJumps) {
 		if (CompetitionSimulator.isRunning()) {
 			return "Simulation is already running.";
 		}
 		simulationThread = new Thread(() -> {
 			try {
-				new CompetitionSimulator(skipDone, skipBefore, platforms).runSimulation();
+				new CompetitionSimulator(skipDone, skipBefore, platforms, randomDeclarationJumps).runSimulation();
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				logger./**/warn("simulation thread interrupted");
@@ -147,7 +148,7 @@ public class SimulationServlet extends HttpServlet {
 		simulationThread.start();
 		boolean hasSkipBefore = skipBefore != null && !skipBefore.isBlank();
 		boolean hasPlatforms = platforms != null && !platforms.isBlank();
-		if (!skipDone && !hasSkipBefore && !hasPlatforms) {
+		if (!skipDone && !hasSkipBefore && !hasPlatforms && !randomDeclarationJumps) {
 			return "Simulation start requested.";
 		}
 
@@ -163,6 +164,10 @@ public class SimulationServlet extends HttpServlet {
 		}
 		if (hasPlatforms) {
 			options.append(separator).append("platform filter");
+			separator = ", ";
+		}
+		if (randomDeclarationJumps) {
+			options.append(separator).append("random declaration jumps");
 		}
 		options.append(").");
 		return options.toString();
@@ -205,11 +210,12 @@ public class SimulationServlet extends HttpServlet {
 		return pathInfo.startsWith("/") ? pathInfo.substring(1) : pathInfo;
 	}
 
-	private void writePage(HttpServletResponse response, String message) throws IOException {
+	private void writePage(HttpServletResponse response, String message, SimulationFormValues formValues) throws IOException {
 		response.reset();
 		response.setStatus(200);
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setContentType("text/html;charset=UTF-8");
+		String platformList = platformList();
 
 		OutputStream output = response.getOutputStream();
 		PrintWriter pw = new PrintWriter(output, true, StandardCharsets.UTF_8);
@@ -218,12 +224,22 @@ public class SimulationServlet extends HttpServlet {
 		pw.println("<h2>Simulation</h2>");
 		pw.println("<p>Status: " + (CompetitionSimulator.isRunning() ? "running" : "stopped") + "</p>");
 		if (message != null && !message.isBlank()) {
-			pw.println("<p>" + message + "</p>");
+			pw.println("<p>" + html(message) + "</p>");
 		}
 		pw.println("<form method='post' action=''>");
-		pw.println("<p><label><input type='checkbox' name='skipDone' value='on'> Skip sessions already done (defer weigh-in, keep existing results)</label></p>");
-		pw.println("<p><label>Skip sessions before <input type='text' name='skipBefore'></label></p>");
-		pw.println("<p><label>Only platforms <input type='text' name='platforms' placeholder='blue, red'></label></p>");
+		pw.println("<p><label><input type='checkbox' name='skipDone' value='on'"
+		        + checked(formValues.skipDone())
+		        + "> Skip sessions already done (defer weigh-in, keep existing results)</label></p>");
+		pw.println("<p><label><input type='checkbox' name='randomDeclarationJumps' value='on'"
+		        + checked(formValues.randomDeclarationJumps())
+		        + "> Randomly declare +2 or +3 kg instead of +1 kg 25% of the time</label></p>");
+		pw.println("<p><label>Skip sessions before <input type='text' name='skipBefore' value='"
+		        + htmlAttribute(formValues.skipBefore()) + "'></label></p>");
+		pw.println("<p><label>Only platforms <input type='text' name='platforms' placeholder='"
+		        + htmlAttribute(platformList) + "' value='" + htmlAttribute(formValues.platforms()) + "'></label></p>");
+		if (!platformList.isBlank()) {
+			pw.println("<p>Available platforms: " + html(platformList) + "</p>");
+		}
 		pw.println("<button type='submit' name='action' value='start'>Start</button>");
 		pw.println("<button type='submit' name='action' value='stop'>Stop</button>");
 		pw.println("</form>");
@@ -231,6 +247,44 @@ public class SimulationServlet extends HttpServlet {
 		pw.flush();
 		output.flush();
 		output.close();
+	}
+
+	private static String platformList() {
+		return PlatformRepository.findAll().stream()
+		        .map(platform -> platform.getName())
+		        .filter(name -> name != null && !name.isBlank())
+		        .sorted(String.CASE_INSENSITIVE_ORDER)
+		        .collect(Collectors.joining(", "));
+	}
+
+	private static String checked(boolean checked) {
+		return checked ? " checked" : "";
+	}
+
+	private static String html(String value) {
+		return value == null ? "" : value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+	}
+
+	private static String htmlAttribute(String value) {
+		return html(value).replace("\"", "&quot;").replace("'", "&#39;");
+	}
+
+	private record SimulationFormValues(boolean skipDone, boolean randomDeclarationJumps, String skipBefore,
+	        String platforms) {
+		static SimulationFormValues from(HttpServletRequest request) {
+			return new SimulationFormValues(isChecked(request, "skipDone"), isChecked(request, "randomDeclarationJumps"),
+			        value(request, "skipBefore"), value(request, "platforms"));
+		}
+
+		private static boolean isChecked(HttpServletRequest request, String parameterName) {
+			String value = request.getParameter(parameterName);
+			return "on".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value);
+		}
+
+		private static String value(HttpServletRequest request, String parameterName) {
+			String value = request.getParameter(parameterName);
+			return value != null ? value : "";
+		}
 	}
 
 }

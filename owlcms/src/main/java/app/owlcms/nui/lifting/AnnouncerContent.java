@@ -784,10 +784,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.startNumber.setVisible(false);
 		getFirstNameWrapper().add(this.firstName, this.startNumber);
 		Div fullName = new Div(this.lastName, getFirstNameWrapper());
+		fullName.getElement().setAttribute("data-testid", "current-athlete-name");
 
 		this.attempt = new H2();
+		this.attempt.getElement().setAttribute("data-testid", "current-athlete-attempt");
 		this.weight = new H2();
 		this.weight.setText("");
+		this.weight.getElement().setAttribute("data-testid", "current-athlete-weight");
 		if (this.timer == null) {
 			this.timer = new AthleteTimerElement(this);
 		}

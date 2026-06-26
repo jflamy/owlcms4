@@ -1340,6 +1340,17 @@ public class FieldOfPlay implements IUnregister {
 	public void pushOutUIEvent(UIEvent event) {
 		// stamp a per-FOP monotonic sequence so clients can drop out-of-order timer events
 		event.setSequence(this.uiEventSequence.incrementAndGet());
+		if (event instanceof UIEvent.LiftingOrderUpdated liftingOrderUpdated) {
+			MQTTMonitor mqttMonitor = getMqttMonitor();
+			if (mqttMonitor != null) {
+				mqttMonitor.publishMqttPlaywrightLiftingOrder(liftingOrderUpdated);
+			}
+		} else if (event instanceof UIEvent.BreakStarted || event instanceof UIEvent.GroupDone) {
+			MQTTMonitor mqttMonitor = getMqttMonitor();
+			if (mqttMonitor != null) {
+				mqttMonitor.publishMqttPlaywrightPause(event, event.getClass().getSimpleName());
+			}
+		}
 		getUiEventBus().post(event);
 		getEventForwardingBus().post(event);
 	}
@@ -2247,7 +2258,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private boolean shouldIgnoreDecisionInputDuringCooldown(FOPEvent e) {
-		if (isTestingMode()) {
+		if (isTestingMode() || CompetitionSimulator.isRunning()) {
 			return false;
 		}
 		long now = System.currentTimeMillis();

@@ -47,6 +47,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	private boolean groupDone;
 	private List<Group> groups;
 	private final boolean skipDone;
+	private final boolean randomDeclarationJumps;
 	private CompetitionSimulator simulator;
 
 	// private EventBus fopEventBus;
@@ -58,13 +59,18 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	private volatile boolean stopped;
 
 	public FOPSimulator(FieldOfPlay f, List<Group> groups) {
-		this(f, groups, false);
+		this(f, groups, false, false);
 	}
 
 	public FOPSimulator(FieldOfPlay f, List<Group> groups, boolean skipDone) {
+		this(f, groups, skipDone, false);
+	}
+
+	public FOPSimulator(FieldOfPlay f, List<Group> groups, boolean skipDone, boolean randomDeclarationJumps) {
 		this.fop = f;
 		this.groups = groups;
 		this.skipDone = skipDone;
+		this.randomDeclarationJumps = randomDeclarationJumps;
 	}
 
 	public void setCompetitionSimulator(CompetitionSimulator simulator) {
@@ -208,6 +214,9 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			// doDone(fop.getGroup());
 			return;
 		}
+		if (skipLiftDuringBreak(a, "before timer start")) {
+			return;
+		}
 
 		MQTTMonitor mm = this.fop.getMqttMonitor();
 		// do a lift in group g: start timer
@@ -227,6 +236,10 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			return;
 		}
 
+		if (skipLiftDuringBreak(a, "before timer stop")) {
+			return;
+		}
+
 		// stop time and get decisions
 		if (USE_MQTT_TIMER && mm != null) {
 			try {
@@ -240,6 +253,10 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 		// wait for clock to run down a bit
 		if (!sleepQuietly(1000)) {
+			return;
+		}
+
+		if (skipLiftDuringBreak(a, "before referee decisions")) {
 			return;
 		}
 
@@ -299,6 +316,9 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		if (!sleepQuietly(1000)) {
 			return;
 		}
+		if (skipLiftDuringBreak(athlete, "after next-athlete delay")) {
+			return;
+		}
 		doLift(athlete);
 	}
 
@@ -307,6 +327,9 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			return;
 		}
 		if (!sleepQuietly(2000)) {
+			return;
+		}
+		if (skipLiftDuringBreak(null, "after declaration delay")) {
 			return;
 		}
 
@@ -318,13 +341,11 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 		String declaration = athlete.getCurrentDeclaration();
 		String automatic = athlete.getCurrentAutomatic();
-		if (declaration == null || declaration.isBlank()) {
-			// do a fake declaration at the automatic progression to force a recompute (for
-			// perfomance testing)
+		if ((declaration == null || declaration.isBlank()) && shouldDeclareRandomJump()) {
 			if (automatic != null && !automatic.isBlank()) {
 				try {
 					int autoAsInt = Integer.parseInt(automatic);
-					doDeclaration(athlete, Integer.toString(autoAsInt + 1));
+					doDeclaration(athlete, Integer.toString(autoAsInt + declarationIncrement()));
 					this.fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, false));
 				} catch (NumberFormatException e1) {
 					// ignore
@@ -335,6 +356,9 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		// recompute lifting order based on exception
 		order = this.fop.getLiftingOrder();
 		athlete = order.size() > 0 ? order.get(0) : null;
+		if (skipLiftDuringBreak(athlete, "before declared lift")) {
+			return;
+		}
 		doLift(athlete);
 	}
 
@@ -357,6 +381,14 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	private boolean goodLift(Random r) {
 		return r.nextFloat() < 0.7;
+	}
+
+	private boolean shouldDeclareRandomJump() {
+		return this.randomDeclarationJumps && r.nextFloat() < 0.25F;
+	}
+
+	private int declarationIncrement() {
+		return r.nextBoolean() ? 2 : 3;
 	}
 
 	private void setOrigin(Object origin) {
@@ -410,6 +442,22 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	private boolean isActive() {
 		return !this.stopped && CompetitionSimulator.isRunning();
+	}
+
+	private boolean isInBreak() {
+		return isActive() && this.fop != null && this.fop.getState() == app.owlcms.fieldofplay.FOPState.BREAK;
+	}
+
+	private boolean skipLiftDuringBreak(Athlete athlete, String phase) {
+		if (!isInBreak()) {
+			return false;
+		}
+		this.logger.info("{}simulation in break {}; skipping lift phase={} athlete={}",
+		        FieldOfPlay.getLoggingName(this.fop),
+		        this.fop.getBreakType(),
+		        phase,
+		        athlete != null ? athlete.getFullName() : "(no athlete)");
+		return true;
 	}
 
 	private boolean sleepQuietly(long millis) {
