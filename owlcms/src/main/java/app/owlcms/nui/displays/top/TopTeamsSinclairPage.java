@@ -66,6 +66,11 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		return true;
 	}
 
+	@Override
+	protected boolean shouldRegisterPageOnUiEventBus() {
+		return false;
+	}
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#addDialogContent(com.vaadin.flow.component.Component,
 	 *      com.vaadin.flow.component.orderedlayout.VerticalLayout)
@@ -199,19 +204,7 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		   String ageDivisionName = (ageDivisionParams != null && !ageDivisionParams.isEmpty() && ageDivisionParams.get(0) != null && !ageDivisionParams.get(0).isEmpty())
 				   ? ageDivisionParams.get(0)
 				   : null;
-		   if (ageDivisionName == null) {
-			   // Default to first available championship if present
-			   List<Championship> ageDivisions = Championship.findAllUsed(true);
-			   Championship first = (ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null;
-			   setChampionship(first);
-		   } else {
-			   try {
-				   setChampionship(Championship.of(ageDivisionName));
-			   } catch (Exception e) {
-				   List<Championship> ageDivisions = Championship.findAllUsed(true);
-				   setChampionship((ageDivisions != null && !ageDivisions.isEmpty()) ? ageDivisions.get(0) : null);
-			   }
-		   }
+		   setChampionship(Championship.resolveDisplayChampionship(ageDivisionName, true));
 		   String value = getChampionship() != null ? getChampionship().getName() : null;
 		   updateParam(params1, "ad", value);
 

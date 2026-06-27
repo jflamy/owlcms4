@@ -227,7 +227,7 @@
     },
     {
       "type": "java",
-      "name": "🟩 WS large demo owlcms memory",
+      "name": "🟩 WS small demo owlcms memory",
       "request": "launch",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
@@ -244,10 +244,9 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "true",
-        "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
+        "OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
         "OWLCMS_PORT": "8081",
-        //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
-        "OWLCMS_VIDEODATA": "wss://fhq.fly.dev/ws"
+        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
       }
     },
     {

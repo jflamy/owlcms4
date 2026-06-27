@@ -448,19 +448,9 @@ public class TopSinclair extends AbstractTop {
 				case GAMX_A:
 				case GAMX_S:
 				case GAMX_C:
-					if (curGender == Gender.F) {
-						int tot = a.getBestSnatch() + a.getBestCleanJerk();
-						needed = GAMX2.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
-						if (needed < 0) {
-							needed = 0;
-						}
-					} else {
-						int tot = a.getBestSnatch() + a.getBestCleanJerk();
-						needed = GAMX2.kgTarget(curGender, this.topWomanScore, a.getBodyWeight()) - tot;
-						if (needed < 0) {
-							needed = 0;
-						}
-					}
+					double topScore = curGender == Gender.F ? this.topWomanScore : this.topManScore;
+					int currentTotal = a.getBestSnatch() + a.getBestCleanJerk();
+					needed = Math.max(0, GAMX2.kgTarget(a, topScore, scoringSystem) - currentTotal);
 					break;
 				case QPOINTS:
 					if (curGender == Gender.F) {
@@ -599,11 +589,14 @@ public class TopSinclair extends AbstractTop {
 	       getElement().setProperty("fullName", Translator.translate("Scoreboard.TopScore"));
 	       Gender gender = this.getGender();
 
+		       String championshipSuffix = computeChampionshipSuffix();
+
 			   if (gender == null || gender == Gender.M) {
 		       List<Athlete> sortedMen2 = getSortedMen();
 		       sortedMen2 = nodups(sortedMen2);
 		       this.getElement().setProperty("topSinclairMen",
-			       sortedMen2 != null && sortedMen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreMen", ssTitle)
+			       sortedMen2 != null && sortedMen2.size() > 0
+				       ? Translator.translate("Scoreboard.TopScoreMen", ssTitle) + championshipSuffix
 				       : "");
 		       JsonValue mAthletesJson = getAthletesJson(sortedMen2, true);
 		       this.getElement().setPropertyJson("sortedMen", mAthletesJson);
@@ -616,7 +609,8 @@ public class TopSinclair extends AbstractTop {
 		       List<Athlete> sortedWomen2 = getSortedWomen();
 		       sortedWomen2 = nodups(sortedWomen2);
 		       this.getElement().setProperty("topSinclairWomen",
-			       sortedWomen2 != null && sortedWomen2.size() > 0 ? Translator.translate("Scoreboard.TopScoreWomen", ssTitle)
+			       sortedWomen2 != null && sortedWomen2.size() > 0
+				       ? Translator.translate("Scoreboard.TopScoreWomen", ssTitle) + championshipSuffix
 				       : "");
 		       JsonValue wAthletesJson = getAthletesJson(sortedWomen2, true);
 		       this.getElement().setPropertyJson("sortedWomen", wAthletesJson);
@@ -641,6 +635,21 @@ public class TopSinclair extends AbstractTop {
 		        ? getAgeGroup().getChampionship()
 		        : getChampionship() != null ? getChampionship() : Championship.of(null);
 		return championship.getBestAthleteScoringSystem();
+	}
+
+	private String computeChampionshipSuffix() {
+		boolean hasChampionship = getChampionship() != null && getChampionship().getName() != null
+		        && !getChampionship().getName().isBlank();
+		boolean hasAgeGroup = getAgeGroupPrefix() != null && !getAgeGroupPrefix().isBlank();
+		String suffix = null;
+		if (hasChampionship && hasAgeGroup) {
+			suffix = getChampionship().getName() + " " + getAgeGroupPrefix();
+		} else if (hasChampionship) {
+			suffix = getChampionship().getName();
+		} else if (hasAgeGroup) {
+			suffix = getAgeGroupPrefix();
+		}
+		return (suffix != null ? " &ndash; " + suffix : "");
 	}
 
 }

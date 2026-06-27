@@ -78,11 +78,28 @@ public class DecisionElement extends LitTemplate
 	}
 
 	public void setFop(FieldOfPlay fop) {
+		FieldOfPlay previousFop = this.fop;
+		boolean changed = previousFop != fop;
+		if (changed && previousFop != null && this.uiEventBus != null) {
+			unregister(this, previousFop.getUiEventBus());
+		}
 		this.fop = fop;
 		logger.debug("DecisionElement.setFop: fop={} isSingleRef={} isJuryMode={} {}",
 				(fop != null ? fop.getName() : "null"), this.isSingleRef(), this.isJuryMode(),
 				LoggerUtils.whereFrom());
 		getElement().setProperty("singleRef", this.isSingleRef());
+		if (changed && this.getUI().isPresent()) {
+			bindToFopIfReady();
+		}
+	}
+
+	private void bindToFopIfReady() {
+		if (this.fop == null) {
+			return;
+		}
+		init(this.fop.getName());
+		this.fopEventBus = this.fop.getFopEventBus();
+		this.uiEventBus = uiEventBusRegister(this, this.fop);
 	}
 
 	/**
@@ -399,14 +416,9 @@ public class DecisionElement extends LitTemplate
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		if (this.fop == null) {
-			logger.error("DecisionElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
 			return;
 		}
-		// defensive: needed to make sure the update is processed on the right fop
-		init(this.fop.getName());
-		// we send on fopEventBus, listen on uiEventBus.
-		this.fopEventBus = this.fop.getFopEventBus();
-		this.uiEventBus = uiEventBusRegister(this, this.fop);
+		bindToFopIfReady();
 	}
 
 	private void init(String fopName) {

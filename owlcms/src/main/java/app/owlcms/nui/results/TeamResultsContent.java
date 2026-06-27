@@ -525,8 +525,8 @@ public class TeamResultsContent extends BaseContent
 	private List<Ranking> getRequiredScoreRankings() {
 		Gender genderValue = this.genderFilter != null ? this.genderFilter.getValue() : null;
 		Championship effectiveChampionship = getChampionship() != null ? getChampionship() : Championship.of(null);
-		Ranking competitionScoring = effectiveChampionship.getScoringSystem();
-		return TeamResultsDisplayRules.getRequiredScoreRankings(getChampionship(), genderValue, competitionScoring);
+		Ranking bestAthleteScoring = effectiveChampionship.getBestAthleteScoringSystem();
+		return TeamResultsDisplayRules.getRequiredScoreRankings(getChampionship(), genderValue, bestAthleteScoring);
 	}
 
 	private boolean shouldShowTeamSummaryValue(TeamTreeItem item, Ranking ranking) {

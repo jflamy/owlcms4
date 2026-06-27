@@ -171,8 +171,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 	@Column(name = "nonStandardBarAvailable")
 	@JsonProperty("nonStandardBarAvailable")
 	private Boolean useNonStandardBar = false;
-	@Column(columnDefinition = "integer default 40")
-	private Integer collarThreshold = 40;
+	@Column(columnDefinition = "integer default 25")
+	private Integer collarThreshold = 25;
 
 	/**
 	 * UI settings for different roles (announcer, marshall, jury, etc.) stored as JSON.
@@ -248,6 +248,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 			this.setNbL_5(0);
 			this.setNbB_5(0);
 			this.setNbB_10(0);
+			// no large 2.5kg bumpers available: collars start at the IWF default
+			this.setCollarThreshold(25);
 		}
 	}
 
@@ -279,6 +281,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 		// extra large plates for kids
 		setNbL_2_5(1);
 		setNbL_5(1);
+		// large 2.5kg bumpers are available: use them before collars on a 20kg bar
+		setCollarThreshold(30);
 		return true;
 	}
 

@@ -255,9 +255,26 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		TextField collarThresholdField = new TextField();
 		collarThresholdField.setWidth("5ch");
 		collarThresholdField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
-		collar.addFormItem(collarThresholdField, Translator.translate("NoCollarsUnder"));
+		collarThresholdField.setHelperText(Translator.translate("CollarThresholdExplanation"));
+		collar.addFormItem(collarThresholdField, Translator.translate("CollarThreshold"));
 		binder.forField(collarThresholdField).withConverter(converter).bind(Platform::getCollarThreshold, Platform::setCollarThreshold);
 		collarThresholdField.setAutoselect(true);
+
+		// Toggling the large 2.5kg bumpers on bumps the collar threshold to 30 if it is below 30,
+		// so the bar sits at the correct height. Toggling them off does not change the threshold.
+		nbL2_5.addValueChangeListener(e -> {
+			if (Boolean.TRUE.equals(e.getValue())) {
+				Integer current = null;
+				try {
+					current = Integer.valueOf(collarThresholdField.getValue().trim());
+				} catch (NumberFormatException ex) {
+					// no usable current value
+				}
+				if (current == null || current < 30) {
+					collarThresholdField.setValue("30");
+				}
+			}
+		});
 
 		Checkbox nbB5 = new Checkbox();
 		lightBar.addFormItem(nbB5, Translator.translate("Kg", 5));

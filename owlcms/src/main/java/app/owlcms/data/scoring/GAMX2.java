@@ -6,16 +6,15 @@
  *******************************************************************************/
 package app.owlcms.data.scoring;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -30,12 +29,12 @@ import ch.qos.logback.classic.Logger;
  * Formula: GAMX = qnorm(pBCCG(total, mu, sigma, nu)) * 100 + 1000
  * 
  * This implementation supports four parameter variants:
- * - SENIOR: Senior parameters (uses params_sen CSV files) - standard GAMX
- * - AGE_ADJUSTED: Age-adjusted parameters (uses params_iwf CSV files) - GAMX-A
- * - U17: U17 parameters (uses params_usa CSV files) - GAMX-U
- * - MASTERS: Masters athlete parameters (uses params_mas CSV files) - GAMX-M
+ * - SENIOR: Senior parameters (params-*-sen-*.json) - standard GAMX
+ * - AGE_ADJUSTED: Age-adjusted parameters (params-total-age-*.json) - GAMX-A
+ * - U17: U17 parameters (params-total-u17-*.json) - GAMX-U
+ * - MASTERS: Masters athlete parameters (params-*-mas-*.json) - GAMX-M
  * 
- * Parameters (mu, sigma, nu) are interpolated from CSV tables based on body mass.
+ * Parameters (mu, sigma, nu) are interpolated from JSON tables based on body mass.
  */
 public class GAMX2 {
 
@@ -43,17 +42,26 @@ public class GAMX2 {
 	private static final NormalDistribution NORMAL = new NormalDistribution(0, 1);
 
 	/**
-	 * Parameter set variants
+	 * Lift types (TOTAL, SNATCH, CJ)
 	 */
-	public enum Variant {
-		SENIOR,   // Senior parameters (params_sen) - standard GAMX
-		AGE_ADJUSTED,      // Age-Adjusted IWF Data 13-40 (params_iwf) - GAMX-A
-		U17,      // U17 parameters (params_usa) - GAMX-U
-		MASTERS   // Masters parameters (params_mas) - GAMX-M
+	public enum Lift {
+		TOTAL,    // Total (3 lifts combined) - params-total-*.json
+		SNATCH,   // Snatch only - params-snatch-*.json
+		CJ        // Clean & Jerk only - params-cj-*.json
 	}
 
 	/**
-	 * A single row from the parameter CSV file
+	 * Parameter set variants
+	 */
+	public enum Variant {
+		SENIOR,   // Senior parameters (params-*-sen) - standard GAMX
+		AGE_ADJUSTED,      // Age-Adjusted IWF Data 13-40 (params-total-age) - GAMX-A
+		U17,      // U17 parameters (params-total-u17) - GAMX-U
+		MASTERS   // Masters parameters (params-*-mas) - GAMX-M
+	}
+
+	/**
+	 * A single row from the parameter JSON file
 	 */
 	private static class ParamRow {
 		final double age;        // normalized to 25.0 for SENIOR variant
@@ -100,8 +108,9 @@ public class GAMX2 {
 		}
 	}
 
-	// Cache: variant -> gender -> ArrayList of ParamRow (pre-allocated for performance)
-	private static final Map<Variant, Map<Gender, ArrayList<ParamRow>>> parameterCache = new EnumMap<>(Variant.class);
+	// Cache: lift -> variant -> gender -> ArrayList of ParamRow (3-level hierarchy)
+	private static final Map<Lift, Map<Variant, Map<Gender, ArrayList<ParamRow>>>> parameterCache = 
+		new EnumMap<>(Lift.class);
 
 	/**
 	 * Compute GAMX score for an athlete using the default SENIOR variant.
@@ -145,6 +154,40 @@ public class GAMX2 {
 	 */
 	public static double getGamxM(Athlete a, Integer liftedWeight) {
 		return getGamx(a, liftedWeight, Variant.MASTERS);
+	}
+
+	/**
+	 * Compute GAMX-Snatch score for an athlete using SNATCH parameters.
+	 * 
+	 * @param a            the athlete
+	 * @param snatchWeight snatch weight lifted in kg
+	 * @return GAMX-Snatch score, or 0.0 if inputs invalid
+	 */
+	public static double getGamxSnatch(Athlete a, Integer snatchWeight) {
+		if (a == null || snatchWeight == null || snatchWeight <= 0) {
+			return 0.0;
+		}
+		Gender gender = a.getGender();
+		Double bodyMass = a.getBodyWeight();
+		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
+		return computeGamxForLift(gender, age, bodyMass, snatchWeight, Variant.SENIOR, Lift.SNATCH);
+	}
+
+	/**
+	 * Compute GAMX-CJ (Clean & Jerk) score for an athlete using CJ parameters.
+	 * 
+	 * @param a            the athlete
+	 * @param cjWeight     clean & jerk weight lifted in kg
+	 * @return GAMX-CJ score, or 0.0 if inputs invalid
+	 */
+	public static double getGamxCJ(Athlete a, Integer cjWeight) {
+		if (a == null || cjWeight == null || cjWeight <= 0) {
+			return 0.0;
+		}
+		Gender gender = a.getGender();
+		Double bodyMass = a.getBodyWeight();
+		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
+		return computeGamxForLift(gender, age, bodyMass, cjWeight, Variant.SENIOR, Lift.CJ);
 	}
 
 	/**
@@ -223,7 +266,7 @@ public class GAMX2 {
 	}
 
 	/**
-	 * Compute GAMX score with age parameter.
+	 * Compute GAMX score with age parameter (internal, for TOTAL lift only).
 	 * 
 	 * @param gender   Gender.MALE or Gender.FEMALE
 	 * @param age      athlete's age (required for AGE_ADJUSTED, U17, MASTERS; ignored for SENIOR)
@@ -233,12 +276,28 @@ public class GAMX2 {
 	 * @return GAMX score, or 0.0 if inputs invalid
 	 */
 	public static double computeGamx(Gender gender, Double age, Double bodyMass, int total, Variant variant) {
-		if (gender == null || bodyMass == null || bodyMass <= 0 || total <= 0) {
+		return computeGamxForLift(gender, age, bodyMass, total, variant, Lift.TOTAL);
+	}
+
+	/**
+	 * Compute GAMX score for a specific lift (TOTAL, SNATCH, or CJ).
+	 * Internal method supporting all lift types and variants.
+	 * 
+	 * @param gender   Gender.MALE or Gender.FEMALE
+	 * @param age      athlete's age (required for AGE_ADJUSTED, U17, MASTERS; ignored for SENIOR)
+	 * @param bodyMass body mass in kg
+	 * @param weight   lifted weight in kg
+	 * @param variant  which parameter set to use
+	 * @param lift     which lift type to use (TOTAL, SNATCH, or CJ)
+	 * @return GAMX score, or 0.0 if inputs invalid
+	 */
+	private static double computeGamxForLift(Gender gender, Double age, Double bodyMass, int weight, Variant variant, Lift lift) {
+		if (gender == null || bodyMass == null || bodyMass <= 0 || weight <= 0) {
 			return 0.0;
 		}
 
 		// Ensure parameters are loaded
-		loadParameters(variant);
+		loadParametersForLift(variant, lift);
 
 		// Age handling: SENIOR always uses 25.0, other variants require actual age
 		double normalizedAge;
@@ -252,16 +311,22 @@ public class GAMX2 {
 			normalizedAge = age;
 		}
 
-		// Get parameter table for this gender
-		Map<Gender, ArrayList<ParamRow>> genderMap = parameterCache.get(variant);
+		// Get parameter table for this lift and gender
+		Map<Variant, Map<Gender, ArrayList<ParamRow>>> variantMap = parameterCache.get(lift);
+		if (variantMap == null) {
+			logger.error("No parameters loaded for lift {}", lift);
+			return 0.0;
+		}
+
+		Map<Gender, ArrayList<ParamRow>> genderMap = variantMap.get(variant);
 		if (genderMap == null) {
-			logger.error("No parameters loaded for variant {}", variant);
+			logger.error("No parameters loaded for lift {} variant {}", lift, variant);
 			return 0.0;
 		}
 
 		ArrayList<ParamRow> params = genderMap.get(gender);
 		if (params == null || params.isEmpty()) {
-			logger.error("No parameters for gender {} variant {}", gender, variant);
+			logger.error("No parameters for gender {} lift {} variant {}", gender, lift, variant);
 			return 0.0;
 		}
 
@@ -272,7 +337,7 @@ public class GAMX2 {
 		}
 
 		// Compute GAMX score
-		return computeGamxCore(total, interp.mu, interp.sigma, interp.nu);
+		return computeGamxCore(weight, interp.mu, interp.sigma, interp.nu);
 	}
 
 	/**
@@ -286,17 +351,23 @@ public class GAMX2 {
 	 * @param targetScore the target GAMX score (must strictly exceed this at 2 decimal precision)
 	 * @param bodyMass    body mass in kg
 	 * @param variant     which parameter set to use
+	 * @param lift        which lift dimension (TOTAL, SNATCH, CJ)
 	 * @return minimum total in kg that strictly exceeds targetScore, or 0 if impossible
 	 */
-	public static int kgTarget(Gender gender, Double age, double targetScore, double bodyMass, Variant variant) {
+	public static int kgTarget(Gender gender, Double age, double targetScore, double bodyMass, Variant variant, Lift lift) {
 		if (gender == null || bodyMass <= 0) {
 			return 0;
 		}
 
-		// Ensure parameters are loaded
-		loadParameters(variant);
+		// Ensure parameters are loaded for the requested lift
+		loadParametersForLift(variant, lift);
 
-		Map<Gender, ArrayList<ParamRow>> genderMap = parameterCache.get(variant);
+		Map<Variant, Map<Gender, ArrayList<ParamRow>>> variantMap = parameterCache.get(lift);
+		if (variantMap == null) {
+			return 0;
+		}
+
+		Map<Gender, ArrayList<ParamRow>> genderMap = variantMap.get(variant);
 		if (genderMap == null) {
 			return 0;
 		}
@@ -377,20 +448,27 @@ public class GAMX2 {
 	 * Find the total needed to achieve a target GAMX score using iterative binary search.
 	 * 
 	 * @param gender      Gender.MALE or Gender.FEMALE
+	 * @param age         athlete's age (required for AGE_ADJUSTED, U17, MASTERS; ignored for SENIOR)
 	 * @param targetScore the target GAMX score
 	 * @param bodyMass    body mass in kg
 	 * @param variant     which parameter set to use
+	 * @param lift        which lift dimension (TOTAL, SNATCH, CJ)
 	 * @return total in kg needed, or 0 if impossible
 	 */
-	public static int kgTargetIterative(Gender gender, double targetScore, double bodyMass, Variant variant) {
+	public static int kgTargetIterative(Gender gender, Double age, double targetScore, double bodyMass, Variant variant, Lift lift) {
 		if (gender == null || bodyMass <= 0) {
 			return 0;
 		}
 
-		// Ensure parameters are loaded
-		loadParameters(variant);
+		// Ensure parameters are loaded for the requested lift
+		loadParametersForLift(variant, lift);
 
-		Map<Gender, ArrayList<ParamRow>> genderMap = parameterCache.get(variant);
+		Map<Variant, Map<Gender, ArrayList<ParamRow>>> variantMap = parameterCache.get(lift);
+		if (variantMap == null) {
+			return 0;
+		}
+
+		Map<Gender, ArrayList<ParamRow>> genderMap = variantMap.get(variant);
 		if (genderMap == null) {
 			return 0;
 		}
@@ -400,8 +478,17 @@ public class GAMX2 {
 			return 0;
 		}
 
-		// Normalize age: use 25.0 for SENIOR variant
-		double normalizedAge = SENIOR_AGE;
+		// Age handling: SENIOR always uses 25.0, other variants require actual age
+		double normalizedAge;
+		if (variant == Variant.SENIOR) {
+			normalizedAge = SENIOR_AGE;
+		} else {
+			if (age == null || age <= 0) {
+				logger.error("Age required for variant {} but not provided", variant);
+				return 0;
+			}
+			normalizedAge = age;
+		}
 
 		InterpolatedParams interp = interpolateParams(params, normalizedAge, bodyMass);
 		if (!interp.success) {
@@ -433,34 +520,6 @@ public class GAMX2 {
 	}
 
 	/**
-	 * Find the total needed to achieve a target GAMX score using SENIOR variant.
-	 */
-	public static int kgTarget(Gender gender, double targetScore, double bodyMass) {
-		return kgTarget(gender, null, targetScore, bodyMass, Variant.SENIOR);
-	}
-
-	/**
-	 * Find the total needed to achieve a target GAMX-A (AGE_ADJUSTED) score.
-	 */
-	public static int kgTargetA(Gender gender, double targetScore, double bodyMass) {
-		return kgTarget(gender, null, targetScore, bodyMass, Variant.AGE_ADJUSTED);
-	}
-
-	/**
-	 * Find the total needed to achieve a target GAMX-U (U17) score.
-	 */
-	public static int kgTargetU(Gender gender, double targetScore, double bodyMass) {
-		return kgTarget(gender, null, targetScore, bodyMass, Variant.U17);
-	}
-
-	/**
-	 * Find the total needed to achieve a target GAMX-M (Masters) score.
-	 */
-	public static int kgTargetM(Gender gender, double targetScore, double bodyMass) {
-		return kgTarget(gender, null, targetScore, bodyMass, Variant.MASTERS);
-	}
-
-	/**
 	 * Find the total needed to achieve a target GAMX score for an athlete.
 	 * Automatically determines body weight (actual vs category) and variant based on Ranking.
 	 * 
@@ -485,17 +544,18 @@ public class GAMX2 {
 			bodyMass = a.getBodyWeight();
 		}
 		
-		// Map Ranking to Variant
+		// Map Ranking to Variant (age-sensitive variants require the athlete's age)
 		Variant variant = switch (ranking) {
-			case GAMX, CAT_GAMX -> Variant.SENIOR;
-			case GAMX_M -> Variant.MASTERS;
+			case GAMX_M, GAMX_MS, GAMX_MC -> Variant.MASTERS;
 			case GAMX_U -> Variant.U17;
 			case GAMX_A -> Variant.AGE_ADJUSTED;
+			// GAMX, CAT_GAMX, and the senior snatch/CJ placeholders (GAMX_S, GAMX_C) ignore age
+			case GAMX, CAT_GAMX, GAMX_S, GAMX_C -> Variant.SENIOR;
 			default -> Variant.SENIOR;
 		};
 		
 		Double age = a.getAge() != null ? a.getAge().doubleValue() : null;
-		return kgTarget(a.getGender(), age, targetScore, bodyMass, variant);
+		return kgTarget(a.getGender(), age, targetScore, bodyMass, variant, Lift.TOTAL);
 	}
 
 	/**
@@ -786,53 +846,68 @@ public class GAMX2 {
 	}
 
 	/**
-	 * Load parameters for a variant if not already cached.
+	 * Load parameters for a variant and lift type if not already cached.
 	 */
-	private static synchronized void loadParameters(Variant variant) {
-		if (parameterCache.containsKey(variant)) {
-			return;
+	private static synchronized void loadParametersForLift(Variant variant, Lift lift) {
+		Map<Variant, Map<Gender, ArrayList<ParamRow>>> variantMap = parameterCache.get(lift);
+		if (variantMap != null && variantMap.containsKey(variant)) {
+			return; // Already loaded
 		}
 
-		String menFile = getResourcePath(variant, Gender.M);
-		String womenFile = getResourcePath(variant, Gender.F);
+		// Initialize maps if needed
+		if (variantMap == null) {
+			variantMap = new EnumMap<>(Variant.class);
+			parameterCache.put(lift, variantMap);
+		}
 
-		ArrayList<ParamRow> menParams = loadCsv(menFile);
-		ArrayList<ParamRow> womenParams = loadCsv(womenFile);
+		String menFile = getResourcePath(variant, Gender.M, lift);
+		String womenFile = getResourcePath(variant, Gender.F, lift);
+
+		ArrayList<ParamRow> menParams = loadJson(menFile);
+		ArrayList<ParamRow> womenParams = loadJson(womenFile);
 
 		Map<Gender, ArrayList<ParamRow>> genderMap = new EnumMap<>(Gender.class);
 		genderMap.put(Gender.M, menParams);
 		genderMap.put(Gender.F, womenParams);
-		parameterCache.put(variant, genderMap);
+		variantMap.put(variant, genderMap);
 
-		logger.info("Loaded GAMX parameters for {}: {} men rows, {} women rows",
-		        variant, menParams.size(), womenParams.size());
+		logger.info("Loaded GAMX parameters for lift {} variant {}: {} men rows, {} women rows",
+		        lift, variant, menParams.size(), womenParams.size());
 	}
 
 	/**
-	 * Get resource path for a parameter file.
+	 * Get resource path for a parameter JSON file.
+	 * Format: params-{lift}-{variant}-{gender}.json
 	 */
-	private static String getResourcePath(Variant variant, Gender gender) {
-		String prefix = switch (variant) {
-			case SENIOR -> "params_sen";
-			case AGE_ADJUSTED -> "params_iwf";
-			case U17 -> "params_usa";
-			case MASTERS -> "params_mas";
+	private static String getResourcePath(Variant variant, Gender gender, Lift lift) {
+		String liftPrefix = switch (lift) {
+			case TOTAL -> "total";
+			case SNATCH -> "snatch";
+			case CJ -> "cj";
 		};
-		String suffix = (gender == Gender.M) ? "_men.csv" : "_wom.csv";
-		return "/gamx/" + prefix + suffix;
+		String variantPart = switch (variant) {
+			case SENIOR -> "sen";
+			case AGE_ADJUSTED -> "age";
+			case U17 -> "u17";
+			case MASTERS -> "mas";
+		};
+		String genderSuffix = (gender == Gender.M) ? "men" : "wom";
+		return "/gamx/params-" + liftPrefix + "-" + variantPart + "-" + genderSuffix + ".json";
 	}
 
 	/**
-	 * Load a CSV parameter file.
-	 * Format: bodyMass,mu,sigma,nu (SENIOR) or age,bodyMass,mu,sigma,nu (age-dependent)
-	 * Pre-allocates ArrayList based on variant type for optimal performance.
+	 * Load a JSON parameter file as array-of-arrays.
+	 * Format: [[bodyMass, mu, sigma, nu], ...] (SENIOR) 
+	 *      or [[age, bodyMass, mu, sigma, nu], ...] (age-dependent)
 	 */
-	private static ArrayList<ParamRow> loadCsv(String resourcePath) {
-		// Estimate capacity based on file type to avoid reallocations
-		int estimatedCapacity = resourcePath.contains("params_sen") ? 1600 :
-		                       resourcePath.contains("params_iwf") ? 45000 :
-		                       resourcePath.contains("params_usa") ? 30000 :
-		                       resourcePath.contains("params_mas") ? 100000 : 10000;
+	private static ArrayList<ParamRow> loadJson(String resourcePath) {
+		// Estimate capacity based on file type
+		int estimatedCapacity = resourcePath.contains("params-snatch-sen") || resourcePath.contains("params-cj-sen") ? 1600 :
+		                       resourcePath.contains("params-total-sen") ? 1600 :
+		                       resourcePath.contains("params-total-age") ? 45000 :
+		                       resourcePath.contains("params-total-u17") ? 30000 :
+		                       resourcePath.contains("params-snatch-mas") || resourcePath.contains("params-cj-mas") ? 100000 :
+		                       resourcePath.contains("params-total-mas") ? 100000 : 10000;
 		ArrayList<ParamRow> rows = new ArrayList<>(estimatedCapacity);
 
 		try {
@@ -842,57 +917,21 @@ public class GAMX2 {
 				return rows;
 			}
 
-			try (BufferedReader reader = new BufferedReader(
-			        new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+			// Read JSON using Jackson ObjectMapper
+			ObjectMapper mapper = new ObjectMapper();
+			double[][] data = mapper.readValue(stream, double[][].class);
 
-				String line;
-				boolean firstLine = true;
-				boolean hasAgeColumn = false;
+			// Determine if age-dependent by inspecting row structure (5 columns = age-dependent)
 
-				while ((line = reader.readLine()) != null) {
-					// Check header to determine format
-					if (firstLine) {
-						firstLine = false;
-						// Check if header contains "age" column
-						String headerLower = line.toLowerCase();
-						hasAgeColumn = headerLower.contains("age") && headerLower.contains("bmass");
-						continue;
-					}
-
-					// Skip empty lines
-					line = line.trim();
-					if (line.isEmpty()) {
-						continue;
-					}
-
-					String[] parts = line.split(",");
-					int expectedCols = hasAgeColumn ? 5 : 4;
-					if (parts.length < expectedCols) {
-						logger.error("Invalid CSV line in {}: expected {} columns, got {}", 
-						    resourcePath, expectedCols, parts.length);
-						continue;
-					}
-
-					try {
-						if (hasAgeColumn) {
-							// Format: age, bodyMass, mu, sigma, nu
-							double age = Double.parseDouble(parts[0].trim());
-							double bodyMass = Double.parseDouble(parts[1].trim());
-							double mu = Double.parseDouble(parts[2].trim());
-							double sigma = Double.parseDouble(parts[3].trim());
-							double nu = Double.parseDouble(parts[4].trim());
-							rows.add(new ParamRow(age, bodyMass, mu, sigma, nu));
-						} else {
-							// Format: bodyMass, mu, sigma, nu (SENIOR - normalize to age 25.0)
-							double bodyMass = Double.parseDouble(parts[0].trim());
-							double mu = Double.parseDouble(parts[1].trim());
-							double sigma = Double.parseDouble(parts[2].trim());
-							double nu = Double.parseDouble(parts[3].trim());
-							rows.add(new ParamRow(SENIOR_AGE, bodyMass, mu, sigma, nu));
-						}
-					} catch (NumberFormatException e) {
-						logger.error("Failed to parse CSV line in {}: {}", resourcePath, line);
-					}
+			for (double[] row : data) {
+				if (row.length == 4) {
+					// Format: [bodyMass, mu, sigma, nu] (SENIOR)
+					rows.add(new ParamRow(SENIOR_AGE, row[0], row[1], row[2], row[3]));
+				} else if (row.length == 5) {
+					// Format: [age, bodyMass, mu, sigma, nu] (age-dependent)
+					rows.add(new ParamRow(row[0], row[1], row[2], row[3], row[4]));
+				} else {
+					logger.error("Invalid JSON row length {} in {}: expected 4 or 5 columns", row.length, resourcePath);
 				}
 			}
 
@@ -902,6 +941,8 @@ public class GAMX2 {
 
 		return rows;
 	}
+
+
 
 	/**
 	 * For backwards compatibility with GAMX.java API

@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.UI;
 
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
@@ -51,6 +50,20 @@ public class BreakTimerElement extends TimerElement {
 	public BreakTimerElement(String parentName) {
 		this.id = IdUtils.getTimeBasedId();
 		logger.debug("### BreakTimerElement created with parentName={}\n{}", parentName, LoggerUtils.stackTrace());
+	}
+
+	@Override
+	protected void onFopAssignedWhileAttached() {
+		bindToFopIfReady();
+	}
+
+	private void bindToFopIfReady() {
+		if (this.fop == null) {
+			return;
+		}
+		this.uiEventLogger.trace("breakTimerElement register {} {}", this.parentName, LoggerUtils.whereFrom());
+		this.uiEventBus = uiEventBusRegister(this, this.fop);
+		syncWithFopTimer(this.fop);
 	}
 
 	public void setParent(String s) {
@@ -160,14 +173,11 @@ public class BreakTimerElement extends TimerElement {
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		this.ui = UI.getCurrent();
+		super.onAttach(attachEvent);
 		if (this.fop == null) {
-			this.logger.error("BreakTimerElement requires explicit FOP before attach {}", LoggerUtils.whereFrom());
 			return;
 		}
-		this.uiEventLogger.trace("breakTimerElement register {} {}", this.parentName, LoggerUtils.whereFrom());
-		uiEventBusRegister(this, this.fop);
-		syncWithFopTimer(this.fop);
+		bindToFopIfReady();
 	}
 
 	private String formatDuration(Integer milliseconds) {

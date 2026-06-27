@@ -1759,26 +1759,26 @@ public class FieldOfPlay implements IUnregister {
 			this.setBarWeight(nonStandardBarWeight);
 			this.setLightBarInUse((a.getGender() == Gender.F && nonStandardBarWeight != 15) ||
 			        (a.getGender() == Gender.M && nonStandardBarWeight != 20));
-			this.setUseCollarsIfAvailable(this.curWeight >= getPlatform().getCollarThreshold());
+			this.setUseCollarsIfAvailable(shouldUseCollars(newWeight, nonStandardBarWeight));
 		} else if (newWeight <= 14 && getPlatform().getNbB_5() > 0) {
 			this.logger.trace("<= 14");
 			this.setLightBarInUse(true);
 			this.setBarWeight(5);
-			this.setUseCollarsIfAvailable(false);
+			this.setUseCollarsIfAvailable(shouldUseCollars(newWeight, 5));
 		} else if (newWeight <= 19 && getPlatform().getNbB_10() > 0) {
 			this.logger.trace("<= 19");
 			this.setLightBarInUse(true);
 			this.setBarWeight(10);
-			this.setUseCollarsIfAvailable(false);
-		} else if ((newWeight < getPlatform().getCollarThreshold() && (getPlatform().getNbB_20() == 0 || use15Bar) && (getPlatform().getNbB_15() > 0))) {
-			this.logger.trace("< 40 15");
+			this.setUseCollarsIfAvailable(shouldUseCollars(newWeight, 10));
+		} else if ((!shouldUseCollars(newWeight, 15) && (getPlatform().getNbB_20() == 0 || use15Bar) && (getPlatform().getNbB_15() > 0))) {
+			this.logger.trace("15kg bar no collars");
 			this.setLightBarInUse(a.getGender() != Gender.F);
 			this.setBarWeight(15);
 			this.setUseCollarsIfAvailable(false);
 		} else {
-			boolean useCollars = newWeight >= getPlatform().getCollarThreshold();
-			if ((useCollars && (getPlatform().getNbB_20() == 0 || use15Bar) && (getPlatform().getNbB_15() > 0))) {
-				this.logger.trace(">=40 15 collars");
+			boolean useCollarsWith15Bar = shouldUseCollars(newWeight, 15);
+			if ((useCollarsWith15Bar && (getPlatform().getNbB_20() == 0 || use15Bar) && (getPlatform().getNbB_15() > 0))) {
+				this.logger.trace("15kg bar with collars");
 				this.setLightBarInUse(a.getGender() != Gender.F);
 				this.setBarWeight(15);
 				this.setUseCollarsIfAvailable(true);
@@ -1810,9 +1810,17 @@ public class FieldOfPlay implements IUnregister {
 				this.logger.trace("standard -> using {}kg bar", actualBar);
 				this.setLightBarInUse(actualBar != standardBar);
 				this.setBarWeight(actualBar);
-				this.setUseCollarsIfAvailable(useCollars);
+				this.setUseCollarsIfAvailable(shouldUseCollars(newWeight, actualBar));
 			}
 		}
+	}
+
+	private int getCollarThresholdForBar(int barWeight) {
+		return getPlatform().getCollarThreshold() - (20 - barWeight);
+	}
+
+	private boolean shouldUseCollars(Integer weight, int barWeight) {
+		return weight >= getCollarThresholdForBar(barWeight);
 	}
 
 	private void checkDeferredWeightChanges() {
