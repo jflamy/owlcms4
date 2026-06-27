@@ -407,7 +407,7 @@ public class ChampionshipTest {
                 hasRankedParticipation);
     }
 
-    @Test
+        @Test
         public void testCategoryQualifyingTotalExcludesAthleteFromTotalMedals() {
         Competition competition = Competition.getCurrent();
         boolean originalImwa = competition.isImwa();
@@ -426,7 +426,14 @@ public class ChampionshipTest {
         PAthlete goldParticipation = (PAthlete) gold;
         Athlete goldAthlete = goldParticipation._getAthlete();
         Category category = goldParticipation.getCategory();
+        Championship championship = Championship.of(category.getAgeGroup().getChampionshipName());
         int originalQualifyingTotal = category.getQualifyingTotal();
+        int originalSnatchRank = gold.getSnatchRank();
+        int originalCleanJerkRank = gold.getCleanJerkRank();
+        assertTrue("fixture category should award snatch, clean and jerk, and total medals",
+                championship.isSnatchCJTotalMedals());
+        assertTrue("fixture medalist should have a snatch rank", originalSnatchRank > 0);
+        assertTrue("fixture medalist should have a clean and jerk rank", originalCleanJerkRank > 0);
 
         try {
             competition.setImwa(true);
@@ -445,6 +452,10 @@ public class ChampionshipTest {
             assertNotNull("real participation should still exist for " + category.getCode(), currentParticipation);
             assertEquals("below-QT participation should be marked out of classification", -1,
                     currentParticipation.getTotalRank());
+            assertEquals("below-QT participation should keep snatch rank", originalSnatchRank,
+                    currentParticipation.getSnatchRank());
+            assertEquals("below-QT participation should keep clean and jerk rank", originalCleanJerkRank,
+                    currentParticipation.getCleanJerkRank());
 
             competition.setImwa(false);
             TreeMap<String, List<Athlete>> nonImwaMedals = competition.computeMedalsByCategory(weighedIn);
@@ -453,6 +464,10 @@ public class ChampionshipTest {
             assertFalse("same QT should exclude the medalist from total medals even when IMWA rules are off",
                     nonImwaJrF48.stream().anyMatch(a -> Objects.equals(a.getId(), gold.getId())
                             && a.getTotalRank() == 1));
+            assertEquals("below-QT participation should keep snatch rank when IMWA rules are off", originalSnatchRank,
+                    currentParticipation.getSnatchRank());
+            assertEquals("below-QT participation should keep clean and jerk rank when IMWA rules are off",
+                    originalCleanJerkRank, currentParticipation.getCleanJerkRank());
         } finally {
             category.setQualifyingTotal(originalQualifyingTotal);
             competition.setImwa(originalImwa);
