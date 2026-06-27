@@ -408,7 +408,7 @@ public class ChampionshipTest {
     }
 
     @Test
-    public void testImwaMedalsExcludeAthleteBelowCategoryQualifyingTotal() {
+        public void testCategoryQualifyingTotalExcludesAthleteFromTotalMedals() {
         Competition competition = Competition.getCurrent();
         boolean originalImwa = competition.isImwa();
 
@@ -450,7 +450,7 @@ public class ChampionshipTest {
             TreeMap<String, List<Athlete>> nonImwaMedals = competition.computeMedalsByCategory(weighedIn);
             List<Athlete> nonImwaJrF48 = nonImwaMedals.get(category.getCode());
 
-            assertTrue("same QT should not exclude the medalist when IMWA rules are off",
+            assertFalse("same QT should exclude the medalist from total medals even when IMWA rules are off",
                     nonImwaJrF48.stream().anyMatch(a -> Objects.equals(a.getId(), gold.getId())
                             && a.getTotalRank() == 1));
         } finally {
