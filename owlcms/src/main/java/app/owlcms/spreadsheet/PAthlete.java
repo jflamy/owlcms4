@@ -993,7 +993,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getTotalPoints() {
-		return this.p.getTotalPoints();
+		return isTeamMember() ? AthleteSorter.imwaPointsFormula(this) : 0;
 	}
 
 	@Override
