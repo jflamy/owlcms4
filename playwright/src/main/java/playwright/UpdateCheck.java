@@ -53,7 +53,7 @@ public class UpdateCheck {
     private static final String ATHLETE_WEIGHT_SELECTOR = "[data-testid='current-athlete-weight']";
     private static final String PLAYWRIGHT_DONE_TOPIC = "owlcms/fop/playwright/done";
     static final Duration STARTUP_SNAPSHOT_TIMEOUT = Duration.ofSeconds(3);
-    private static final Duration PLAYWRIGHT_EXPECTED_TIMEOUT = Duration.ofMillis(500);
+    private static final Duration PLAYWRIGHT_EXPECTED_TIMEOUT = Duration.ofMillis(1500);
     private static final long[] STARTUP_RETRY_DELAYS_MS = { 2000, 5000, 10000 };
 
     public static void main(String[] args) throws Exception {
@@ -249,6 +249,7 @@ public class UpdateCheck {
 
     private static void stopOnStalledPage(Config config, CleanLog log, String fop, String trigger) {
         log.stop(fop, "announcer page stalled after " + trigger + "; stopping watcher");
+        log.browserInspection(fop, config);
         requestOwlcmsStop(buildStopUrl(config.baseUrl()), log, fop);
     }
 
@@ -311,11 +312,21 @@ public class UpdateCheck {
     static BrowserType.LaunchOptions launchOptions(Config config) {
         BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions()
                 .setHeadless(config.headless());
-        String browserChannel = System.getenv("PLAYWRIGHT_BROWSER_CHANNEL");
+        String browserChannel = browserChannel();
         if (browserChannel != null && !browserChannel.isBlank()) {
             launchOptions.setChannel(browserChannel.trim());
         }
         return launchOptions;
+    }
+
+    static String browserChannel() {
+        return System.getenv("PLAYWRIGHT_BROWSER_CHANNEL");
+    }
+
+    static String browserLaunchDetails(Config config) {
+        return "browser=chromium headless=" + config.headless()
+                + " channel=" + firstNonBlank(browserChannel(), "default")
+                + " skipDownload=" + firstNonBlank(System.getenv("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD"), "false");
     }
 
     static Response navigateWithRetry(Page page, String url, String fop, String pageName) {
@@ -366,6 +377,10 @@ public class UpdateCheck {
     }
 
     static Snapshot readSnapshot(MonitoredPlatform platform) {
+        return readSnapshotRead(platform).snapshot();
+    }
+
+    static SnapshotRead readSnapshotRead(MonitoredPlatform platform) {
         try {
             Page page = platform.page();
             String athleteName = readTextBySelector(page, ATHLETE_NAME_SELECTOR);
@@ -374,6 +389,7 @@ public class UpdateCheck {
             // Extract just the numeric part of weight (e.g., "84 kg" -> "84")
             weight = weight.replaceAll("[^0-9]", "");
             String bodyText = readBodyText(page);
+            String pageSummary = readPageSummary(page, bodyText);
             if (athleteName.isBlank() || attempt.isBlank()) {
                 AthleteDisplay fallback = readTopBarDisplay(page);
                 if (fallback.name().isBlank() || fallback.attempt().isBlank()) {
@@ -384,11 +400,24 @@ public class UpdateCheck {
             }
             String gridFirstCell = readGridFirstCell(page);
             if (athleteName.isBlank() && attempt.isBlank() && weight.isBlank() && gridFirstCell.isBlank()) {
-                return null;
+                return SnapshotRead.empty("no readable athlete, attempt, weight, or grid cell", pageSummary);
             }
-            return new Snapshot(platform.fop(), athleteName, attempt, weight, gridFirstCell);
+            Snapshot snapshot = new Snapshot(platform.fop(), athleteName, attempt, weight, gridFirstCell);
+            if (attempt.isBlank()) {
+                return SnapshotRead.of(snapshot, "empty attempt", pageSummary);
+            }
+            if (athleteName.isBlank()) {
+                return SnapshotRead.of(snapshot, "empty athlete", pageSummary);
+            }
+            if (weight.isBlank()) {
+                return SnapshotRead.of(snapshot, "empty weight", pageSummary);
+            }
+            if (gridFirstCell.isBlank()) {
+                return SnapshotRead.of(snapshot, "empty grid cell", pageSummary);
+            }
+            return SnapshotRead.of(snapshot, "ok", pageSummary);
         } catch (PlaywrightException e) {
-            return null;
+            return SnapshotRead.empty("PlaywrightException: " + e.getMessage(), "");
         }
     }
 
@@ -484,6 +513,38 @@ public class UpdateCheck {
         } catch (PlaywrightException e) {
             return "";
         }
+    }
+
+    private static String readPageSummary(Page page, String bodyText) {
+        return "url=" + readUrl(page)
+                + " title='" + readTitle(page) + "'"
+                + " selectors[name=" + count(page, ATHLETE_NAME_SELECTOR)
+                + " attempt=" + count(page, ATHLETE_ATTEMPT_SELECTOR)
+                + " weight=" + count(page, ATHLETE_WEIGHT_SELECTOR) + "]"
+                + " body='" + abbreviate(normalize(bodyText), 240) + "'";
+    }
+
+    private static String readUrl(Page page) {
+        try {
+            return page.url();
+        } catch (PlaywrightException e) {
+            return "<unavailable>";
+        }
+    }
+
+    private static String readTitle(Page page) {
+        try {
+            return normalize(page.title());
+        } catch (PlaywrightException e) {
+            return "<unavailable>";
+        }
+    }
+
+    private static String abbreviate(String text, int maxLength) {
+        if (text == null || text.length() <= maxLength) {
+            return text == null ? "" : text;
+        }
+        return text.substring(0, maxLength) + "...";
     }
 
     private static String readTextBySelector(Page page, String selector) {
@@ -633,6 +694,27 @@ public class UpdateCheck {
         }
     }
 
+    record SnapshotRead(Snapshot snapshot, String reason, String pageSummary) {
+        static SnapshotRead of(Snapshot snapshot, String reason, String pageSummary) {
+            return new SnapshotRead(snapshot, reason, pageSummary);
+        }
+
+        static SnapshotRead empty(String reason, String pageSummary) {
+            return new SnapshotRead(null, reason, pageSummary);
+        }
+
+        String summary() {
+            String suffix = pageSummary == null || pageSummary.isBlank() ? "" : "; " + pageSummary;
+            if (snapshot == null) {
+                return reason + suffix;
+            }
+            return reason + " snapshot[name='" + snapshot.athleteName()
+                    + "' attempt='" + snapshot.attempt()
+                    + "' weight='" + snapshot.weight()
+                    + "' gridCell='" + snapshot.gridFirstCell() + "']" + suffix;
+        }
+    }
+
     record AthleteDisplay(String name, String attempt) {
     }
 
@@ -651,6 +733,8 @@ public class UpdateCheck {
     static class ExpectationState {
         private boolean athleteConfirmed;
         private boolean gridConfirmed;
+        private int snapshotReads;
+        private SnapshotRead lastSnapshotRead;
         private final long startedAtMillis;
 
         ExpectationState() {
@@ -675,6 +759,19 @@ public class UpdateCheck {
 
         long elapsedMillis() {
             return Math.max(0, System.currentTimeMillis() - this.startedAtMillis);
+        }
+
+        void recordSnapshotRead(SnapshotRead snapshotRead) {
+            this.snapshotReads++;
+            this.lastSnapshotRead = snapshotRead;
+        }
+
+        int snapshotReads() {
+            return this.snapshotReads;
+        }
+
+        String lastSnapshotReadSummary() {
+            return this.lastSnapshotRead != null ? this.lastSnapshotRead.summary() : "no DOM poll attempted";
         }
     }
 
@@ -831,6 +928,18 @@ public class UpdateCheck {
 
         void openPage(String fop, String role, String url) {
             logger.info("[{}] OPEN {} {}", fop, role, url);
+        }
+
+        void browserLaunch(String fop, Config config) {
+            logger.info("[{}] LAUNCH {} inspect=browser remains open after stall until Enter/Ctrl-C", fop,
+                browserLaunchDetails(config));
+        }
+
+        void browserInspection(String fop, Config config) {
+            logger./**/warn("[{}] INSPECT {} url={} browser remains open while stalled; press Enter/Ctrl-C to finish",
+                fop,
+                browserLaunchDetails(config),
+                buildUrl(config.baseUrl(), config.announcerPath(), fop));
         }
 
         void navigation(String fop, String role, Response response) {

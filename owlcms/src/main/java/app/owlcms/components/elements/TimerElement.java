@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.Tag;
@@ -24,6 +25,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -44,6 +46,13 @@ public abstract class TimerElement extends LitTemplate
         implements SafeEventBusRegistration, Focusable<Div> {
 
 	// Note: onAttach is abstract - subclasses must implement and call super.onAttach() first
+	private static final String TRACE_TIMER_CLIENT_RENDER_SCRIPT = "return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => {"
+	        + " const timer = this.shadowRoot && this.shadowRoot.querySelector('#timer');"
+	        + " const text = timer && timer.innerText ? timer.innerText.trim().replace(/\\s+/g, ' ') : '';"
+	        + " const payload = this.timerCommandPayload || {};"
+	        + " resolve(\"payloadCommand='\" + (payload.command || '') + \"' payloadSeconds=\" + payload.seconds"
+	        + " + \" display='\" + text + \"' running=\" + this.running + \" currentTime=\" + this.currentTime);"
+	        + "})));";
 
 	public long lastStartMillis;
 	public long lastStopMillis;
@@ -59,6 +68,8 @@ public abstract class TimerElement extends LitTemplate
 	private boolean silenced = true;
 	private Element timerElement;
 	private long timerCommandSequence;
+	public long lastClientStoppedSequence;
+	public long lastClientStoppedMillis;
 	private long timerSettingsSequence;
 	private Object origin;
 	protected EventBus uiEventBus;
@@ -372,7 +383,8 @@ public abstract class TimerElement extends LitTemplate
 	private void setTimerCommand(Element timerElement2, String command, double seconds, Boolean indefinite, Boolean silent,
 	        String from) {
 		JsonObject payload = Json.createObject();
-		payload.put("sequence", Long.toString(++this.timerCommandSequence));
+		long sequence = ++this.timerCommandSequence;
+		payload.put("sequence", Long.toString(sequence));
 		payload.put("command", command);
 		payload.put("seconds", seconds);
 		payload.put("indefinite", Boolean.TRUE.equals(indefinite));
@@ -382,6 +394,51 @@ public abstract class TimerElement extends LitTemplate
 		payload.put("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
 		payload.put("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
 		timerElement2.setPropertyJson("timerCommandPayload", payload);
+		traceAnnouncerTimerClientRender(command, seconds, sequence);
+	}
+
+	private void traceAnnouncerTimerClientRender(String command, double seconds, long sequence) {
+		if (!Config.getCurrent().featureSwitch("playwright") || !isAnnouncerAthleteTimer() || getUI().isEmpty()) {
+			return;
+		}
+		final String ctx = FieldOfPlay.getLoggingName(this.fop) + "announcer timer ";
+		final long stamp = System.currentTimeMillis();
+		try {
+			getElement().executeJs(TRACE_TIMER_CLIENT_RENDER_SCRIPT).then(String.class, rendered -> {
+				this.logger.warn("{}{} client rendered +{}ms seq={} seconds={} {}", ctx, command,
+				        System.currentTimeMillis() - stamp, sequence, seconds, rendered != null ? rendered : "<null>");
+			});
+		} catch (RuntimeException e) {
+			this.logger.debug("{}{} client render callback failed", ctx, command, e);
+		}
+	}
+
+	@ClientCallable
+	public void clientTimerStopped(String sequence, String display, Boolean running, Double currentTime) {
+		long parsedSequence = parseTimerCommandSequence(sequence);
+		this.lastClientStoppedSequence = parsedSequence;
+		this.lastClientStoppedMillis = System.currentTimeMillis();
+		if (Config.getCurrent().featureSwitch("playwright") && isAnnouncerAthleteTimer()) {
+			this.logger.warn("{}announcer timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
+			        FieldOfPlay.getLoggingName(this.fop), parsedSequence, display, running, currentTime);
+		}
+	}
+
+	private long parseTimerCommandSequence(String sequence) {
+		if (sequence == null || sequence.isBlank()) {
+			return 0L;
+		}
+		try {
+			return Long.parseLong(sequence);
+		} catch (NumberFormatException e) {
+			return 0L;
+		}
+	}
+
+	private boolean isAnnouncerAthleteTimer() {
+		Object origin = getOrigin();
+		return this instanceof AthleteTimerElement && origin != null
+		        && "AnnouncerContent".equals(origin.getClass().getSimpleName());
 	}
 
 	@SuppressWarnings("unused")

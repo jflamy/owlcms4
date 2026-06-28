@@ -122,6 +122,29 @@ public abstract class AthleteGridContent extends BaseContent
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AthleteGridContent.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	private static final String TRACE_HEADER_CLIENT_RENDER_SCRIPT = "return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => {"
+	        + " const text = el => (el && el.innerText ? el.innerText.trim().replace(/\\s+/g, ' ') : '');"
+	        + " const name = text(this.querySelector('[data-testid=\\\"current-athlete-name\\\"]'));"
+	        + " const attempt = text(this.querySelector('[data-testid=\\\"current-athlete-attempt\\\"]'));"
+	        + " const weight = text(this.querySelector('[data-testid=\\\"current-athlete-weight\\\"]'));"
+	        + " resolve(\"name='\" + name + \"' attempt='\" + attempt + \"' weight='\" + weight + \"'\");"
+	        + "})));";
+	private static final String TRACE_GRID_CLIENT_RENDER_SCRIPT = "return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => {"
+	        + " const grid = this;"
+	        + " const text = el => (el && el.innerText ? el.innerText.trim().replace(/\\s+/g, ' ') : '');"
+	        + " const yellowSpan = grid.querySelector('span.yellow');"
+	        + " const weight = text(yellowSpan);"
+	        + " const yellowCell = yellowSpan ? yellowSpan.closest('vaadin-grid-cell-content') : null;"
+	        + " const yellowSlot = yellowCell ? yellowCell.getAttribute('slot') : null;"
+	        + " const slotEl = grid.shadowRoot && yellowSlot ? grid.shadowRoot.querySelector('slot[name=\\\"' + yellowSlot + '\\\"]') : null;"
+	        + " const tr = slotEl ? slotEl.closest('tr') : null;"
+	        + " const firstSlot = tr ? tr.querySelector('td slot') : null;"
+	        + " const firstSlotName = firstSlot ? firstSlot.getAttribute('name') : null;"
+	        + " const firstCell = firstSlotName ? grid.querySelector('vaadin-grid-cell-content[slot=\\\"' + firstSlotName + '\\\"]') : null;"
+	        + " const startNumber = text(firstCell);"
+	        + " const cells = grid.querySelectorAll('vaadin-grid-cell-content').length;"
+	        + " resolve(\"cells=\" + cells + \" start='\" + startNumber + \"' weight='\" + weight + \"' gridCell='\" + startNumber + \"|\" + weight + \"'\");"
+	        + "})));";
 	static {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
@@ -916,6 +939,7 @@ public abstract class AthleteGridContent extends BaseContent
 		logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom());
 		UIEventProcessor.uiAccess(this.getCrudGrid(), this.uiEventBus, e, () -> {
 			this.getCrudGrid().refreshGrid();
+			traceAnnouncerGridClientRender("grid decision");
 		});
 	}
 
@@ -932,6 +956,7 @@ public abstract class AthleteGridContent extends BaseContent
 		logger.debug("{} {}", e.getOrigin(), LoggerUtils.whereFrom());
 		UIEventProcessor.uiAccess(this.getCrudGrid(), this.uiEventBus, e, () -> {
 			this.getCrudGrid().refreshGrid();
+			traceAnnouncerGridClientRender("grid liftingOrder");
 		});
 	}
 
@@ -1468,6 +1493,34 @@ public abstract class AthleteGridContent extends BaseContent
 		});
 	}
 
+	protected void traceAnnouncerHeaderClientRender() {
+		traceAnnouncerClientRender(this.topBar, "header", TRACE_HEADER_CLIENT_RENDER_SCRIPT);
+	}
+
+	protected void traceAnnouncerGridClientRender(String tag) {
+		if (this.getCrudGrid() == null) {
+			return;
+		}
+		traceAnnouncerClientRender(this.getCrudGrid().getGrid(), tag, TRACE_GRID_CLIENT_RENDER_SCRIPT);
+	}
+
+	private void traceAnnouncerClientRender(Component component, String tag, String script) {
+		if (!Config.getCurrent().featureSwitch("playwright") || !(this instanceof AnnouncerContent)
+		        || component == null || component.getUI().isEmpty()) {
+			return;
+		}
+		final String ctx = notifContext();
+		final long stamp = System.currentTimeMillis();
+		try {
+			component.getElement().executeJs(script).then(String.class, rendered -> {
+				logger.warn("{}{} client rendered +{}ms {}", ctx, tag, System.currentTimeMillis() - stamp,
+				        rendered != null ? rendered : "<null>");
+			});
+		} catch (RuntimeException e) {
+			logger.debug("{}{} client render callback failed", ctx, tag, e);
+		}
+	}
+
 	/**
 	 * Context prefix for notification diagnostics, following the existing lifting log convention: a
 	 * fixed-width FOP prefix plus a lowercase role token derived from the content class name, e.g.
@@ -1574,6 +1627,7 @@ public abstract class AthleteGridContent extends BaseContent
 			if (getFop().getState() != FOPState.BREAK && this.breakDialog != null && this.breakDialog.isOpened()) {
 				this.breakDialog.close();
 			}
+			traceAnnouncerHeaderClientRender();
 		});
 	}
 
@@ -1716,6 +1770,7 @@ public abstract class AthleteGridContent extends BaseContent
 					this.getCrudGrid().sort(null);
 				}
 				this.getCrudGrid().refreshGrid();
+				traceAnnouncerGridClientRender("grid syncWithFop");
 			}
 		}
 

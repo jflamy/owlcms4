@@ -26,6 +26,7 @@ class MonitoredPlatform {
     }
 
     static MonitoredPlatform open(Playwright playwright, UpdateCheck.Config config, String fop, UpdateCheck.CleanLog log) {
+        log.browserLaunch(fop, config);
         Browser browser = playwright.chromium().launch(UpdateCheck.launchOptions(config));
         BrowserContext context = browser.newContext();
         Page page = context.newPage();
@@ -164,6 +165,7 @@ class MonitoredPlatform {
             if (supersede.applied()) {
                 currentSequence = supersede.sequence();
                 expected = supersede.expected();
+                // New MQTT reference gets a fresh timing/poll window.
                 state = new UpdateCheck.ExpectationState();
                 deadline = supersede.deadline();
             }
@@ -180,6 +182,7 @@ class MonitoredPlatform {
             if (supersede.applied()) {
                 currentSequence = supersede.sequence();
                 expected = supersede.expected();
+                // New MQTT reference gets a fresh timing/poll window.
                 state = new UpdateCheck.ExpectationState();
                 deadline = supersede.deadline();
                 continue;
@@ -189,7 +192,7 @@ class MonitoredPlatform {
         if (expectedDisplayVisible(expected, state, log)) {
             return new UpdateCheck.VerificationResult(true, currentSequence, this.fop);
         }
-        logExpectedMiss(expected, log);
+        logExpectedMiss(expected, state, log);
         return new UpdateCheck.VerificationResult(false, currentSequence, this.fop);
     }
 
@@ -212,7 +215,9 @@ class MonitoredPlatform {
 
     private boolean expectedDisplayVisible(UpdateCheck.ExpectedDisplay expected, UpdateCheck.ExpectationState state,
             UpdateCheck.CleanLog log) {
-        UpdateCheck.Snapshot snapshot = UpdateCheck.readSnapshot(this);
+        UpdateCheck.SnapshotRead snapshotRead = UpdateCheck.readSnapshotRead(this);
+        state.recordSnapshotRead(snapshotRead);
+        UpdateCheck.Snapshot snapshot = snapshotRead.snapshot();
         if (snapshot == null) {
             return false;
         }
@@ -238,28 +243,44 @@ class MonitoredPlatform {
         return athleteOk && gridOk;
     }
 
-    private void logExpectedMiss(UpdateCheck.ExpectedDisplay expected, UpdateCheck.CleanLog log) {
-        UpdateCheck.Snapshot current = UpdateCheck.readSnapshot(this);
+    private void logExpectedMiss(UpdateCheck.ExpectedDisplay expected, UpdateCheck.ExpectationState state,
+            UpdateCheck.CleanLog log) {
+        String lastPollSummary = state.lastSnapshotReadSummary();
+        int inWindowPolls = state.snapshotReads();
+        UpdateCheck.SnapshotRead finalRead = UpdateCheck.readSnapshotRead(this);
+        state.recordSnapshotRead(finalRead);
+        UpdateCheck.Snapshot current = finalRead.snapshot();
         if (current == null) {
-            log.status(this.fop, "playwright expected " + expected.display() + " but got (no snapshot)", false);
+            log.status(this.fop, "playwright timed out after " + state.elapsedMillis() + "ms / "
+                + inWindowPolls + " polls; expected " + expected.display() + " but got no snapshot: "
+                + finalRead.summary() + "; last poll: " + lastPollSummary, false);
             return;
         }
         // Report exactly what failed
         if (!UpdateCheck.normalize(current.athleteName()).equals(UpdateCheck.normalize(expected.displayName()))) {
             log.status(this.fop, "playwright expected athlete " + expected.displayName() + " but saw "
-                    + current.athleteName(), false);
+                    + visibleValue(current.athleteName()) + " after " + state.elapsedMillis() + "ms / "
+                    + state.snapshotReads() + " polls", false);
         } else if (!UpdateCheck.digitsOnly(current.attempt()).equals(UpdateCheck.digitsOnly(expected.attempt()))) {
             log.status(this.fop, "playwright expected attempt " + expected.attempt() + " but saw "
-                    + current.attempt(), false);
+                    + visibleValue(current.attempt()) + " after " + state.elapsedMillis() + "ms / "
+                    + state.snapshotReads() + " polls", false);
         } else if (!UpdateCheck.digitsOnly(current.weight()).equals(UpdateCheck.digitsOnly(expected.weight()))) {
             log.status(this.fop, "playwright expected weight " + expected.weight() + " but header shows "
-                    + current.weight(), false);
+                    + visibleValue(current.weight()) + " after " + state.elapsedMillis() + "ms / "
+                    + state.snapshotReads() + " polls", false);
         } else if (!UpdateCheck.gridConfirmed(current, expected)) {
             log.status(this.fop, "playwright grid not confirmed: header weight=" + current.weight()
                     + " expected weight=" + expected.weight()
-                    + " gridCell='" + current.gridFirstCell() + "'", false);
+                    + " gridCell='" + current.gridFirstCell() + "' after " + state.elapsedMillis() + "ms / "
+                    + state.snapshotReads() + " polls", false);
         } else {
-            log.status(this.fop, "playwright expected " + expected.display() + " but confirmation failed", false);
+            log.status(this.fop, "playwright expected " + expected.display() + " but confirmation failed after "
+                    + state.elapsedMillis() + "ms / " + state.snapshotReads() + " polls", false);
         }
+    }
+
+    private static String visibleValue(String value) {
+        return value == null || value.isBlank() ? "<empty>" : value;
     }
 }

@@ -120,12 +120,15 @@ class TimerElement extends LitElement {
     const silent = Boolean(payload.silent);
     this.silent = silent;
     if (this._isNoopTimerCommand(payload.command, seconds, indefinite)) {
+      if (payload.command === "pause") {
+        this._notifyServerTimerStopped(payload.sequence);
+      }
       return;
     }
     if (payload.command === "start") {
       this._start(seconds, indefinite, silent, payload.serverMillis, payload.from);
     } else if (payload.command === "pause") {
-      this._pause(seconds, indefinite, silent, payload.serverMillis, payload.from);
+      this._pause(seconds, indefinite, silent, payload.serverMillis, payload.from, payload.sequence);
     } else if (payload.command === "display") {
       this._display(seconds, indefinite, silent);
     } else {
@@ -266,6 +269,7 @@ class TimerElement extends LitElement {
     if (indefinite) {
       this.running = false;
       this._indefinite();
+      this._notifyServerTimerStopped(sequence);
       return;
     }
 
@@ -277,6 +281,18 @@ class TimerElement extends LitElement {
 
     // this._formattedTime = this._formatTime(this.currentTime);
     this.updateTime(this.currentTime)
+    this._notifyServerTimerStopped(sequence);
+  }
+
+  _notifyServerTimerStopped(sequence) {
+    if (!this.$server || typeof this.$server.clientTimerStopped !== "function") {
+      return;
+    }
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      const timer = this.shadowRoot && this.shadowRoot.querySelector('#timer');
+      const display = timer && timer.innerText ? timer.innerText.trim().replace(/\s+/g, ' ') : '';
+      this.$server.clientTimerStopped(String(sequence || ''), display, Boolean(this.running), Number(this.currentTime));
+    }));
   }
 
   _display(seconds, indefinite, silent) {
