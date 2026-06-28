@@ -157,6 +157,9 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getCleanJerkPoints() {
+		if (AthleteSorter.isTotalOnlyTeamPoints(this)) {
+			return 0;
+		}
 		return isTeamMember() ? AthleteSorter.pointsFormula(this.cleanJerkRank, this) : 0;
 	}
 
@@ -219,6 +222,9 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getSnatchPoints() {
+		if (AthleteSorter.isTotalOnlyTeamPoints(this)) {
+			return 0;
+		}
 		return isTeamMember() ? AthleteSorter.pointsFormula(this.snatchRank, this) : 0;
 	}
 
