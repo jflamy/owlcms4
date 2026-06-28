@@ -32,6 +32,7 @@
       "type": "java",
       "name": "🟨 owlcms no reset + file logs",
       "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
@@ -349,8 +350,8 @@
       "console": "integratedTerminal",
       "env": {
         "OWLCMS_FOPS": "RED,WHITE,BLUE",
-        "OWLCMS_BASE_URL": "http://192.168.1.177:8080",
-        "OWLCMS_MQTT_URI": "tcp://192.168.1.177:1883",
+        "OWLCMS_BASE_URL": "http://127.0.0.1:8080",
+        "OWLCMS_MQTT_URI": "tcp://127.0.0.1:1883",
         "OWLCMS_PLAYWRIGHT_HEADLESS": "false",
         "PLAYWRIGHT_BROWSER_CHANNEL": "chrome",
         "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"

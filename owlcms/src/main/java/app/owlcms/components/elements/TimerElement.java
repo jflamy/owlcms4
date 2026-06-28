@@ -25,6 +25,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
 
 import app.owlcms.apputils.DebugUtils;
+import app.owlcms.Main;
 import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
@@ -53,6 +54,7 @@ public abstract class TimerElement extends LitTemplate
 	        + " resolve(\"payloadCommand='\" + (payload.command || '') + \"' payloadSeconds=\" + payload.seconds"
 	        + " + \" display='\" + text + \"' running=\" + this.running + \" currentTime=\" + this.currentTime);"
 	        + "})));";
+	private static final AtomicBoolean playwrightTimerTripwireTriggered = new AtomicBoolean(false);
 
 	public long lastStartMillis;
 	public long lastStopMillis;
@@ -164,11 +166,11 @@ public abstract class TimerElement extends LitTemplate
 	protected void reassertTimerState(boolean shouldRun, Integer milliseconds, boolean serverSound, long seq,
 	        Runnable onMismatch) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			if (isStaleTimerEvent(seq)) {
-				return;
-			}
 			if (shouldRun) {
 				if (this.elementRunning) {
+					return;
+				}
+				if (isStaleTimerEvent(seq)) {
 					return;
 				}
 				onMismatch.run();
@@ -184,6 +186,9 @@ public abstract class TimerElement extends LitTemplate
 				}
 			} else {
 				if (!this.elementRunning) {
+					return;
+				}
+				if (isStaleTimerEvent(seq)) {
 					return;
 				}
 				onMismatch.run();
@@ -243,9 +248,26 @@ public abstract class TimerElement extends LitTemplate
 		this.logger.debug("{} doStartTimer {}", this, milliseconds);
 		setServerSound(serverSound);
 		// String trace = LoggerUtils.stackTrace();
+		// TEMPORARY (playwright) diagnostic: symmetric with doStopTimer so we can see the seq the
+		// start applied with and the resulting lastAppliedTimerSeq, to reason about whether a later
+		// StopTime is being stale-dropped. Remove once root cause confirmed.
+		boolean timerDebug = isControlAthleteTimer() && Config.getCurrent().featureSwitch("playwright");
+		if (timerDebug) {
+			this.logger.warn("{}doStartTimer subscriber fired seq={} ms={} lastAppliedSeq={} elementRunning={} {}",
+			        FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, this.lastAppliedTimerSeq,
+			        this.elementRunning, LoggerUtils.whereFrom());
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (isStaleTimerEvent(seq)) {
+				if (timerDebug) {
+					this.logger.warn("{}doStartTimer STALE-DROPPED seq={} lastAppliedSeq={}",
+					        FieldOfPlay.getLoggingName(this.fop), seq, this.lastAppliedTimerSeq);
+				}
 				return;
+			}
+			if (timerDebug) {
+				this.logger.warn("{}doStartTimer applying start seq={} ms={}",
+				        FieldOfPlay.getLoggingName(this.fop), seq, milliseconds);
 			}
 			this.elementRunning = true;
 			setIndefinite(milliseconds == null);
@@ -267,9 +289,26 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected void doStopTimer(Integer milliseconds, long seq) {
+		// TEMPORARY (playwright) diagnostic: proves slaveStopTimer reached doStopTimer (subscriber
+		// fired) and that the uiAccess command actually ran. Distinguishes a bus-delivery gap from a
+		// stale-gate drop for the missed-StopTime investigation. Remove once root cause confirmed.
+		boolean timerDebug = isControlAthleteTimer() && Config.getCurrent().featureSwitch("playwright");
+		if (timerDebug) {
+			this.logger.warn("{}doStopTimer subscriber fired seq={} ms={} lastAppliedSeq={} elementRunning={} {}",
+			        FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, this.lastAppliedTimerSeq,
+			        this.elementRunning, LoggerUtils.whereFrom());
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (isStaleTimerEvent(seq)) {
+				if (timerDebug) {
+					this.logger.warn("{}doStopTimer STALE-DROPPED seq={} lastAppliedSeq={}",
+					        FieldOfPlay.getLoggingName(this.fop), seq, this.lastAppliedTimerSeq);
+				}
 				return;
+			}
+			if (timerDebug) {
+				this.logger.warn("{}doStopTimer applying stop seq={} ms={}",
+				        FieldOfPlay.getLoggingName(this.fop), seq, milliseconds);
 			}
 			this.elementRunning = false;
 			setMsRemaining(milliseconds);
@@ -306,9 +345,56 @@ public abstract class TimerElement extends LitTemplate
 		JsonObject payload = Json.createObject();
 		payload.put("sequence", Long.toString(++this.timerSettingsSequence));
 		payload.put("silent", isSilent());
+		payload.put("serverTickEnabled", isServerTickEnabled());
+		payload.put("serverRunningCheckEnabled", isServerRunningCheckEnabled());
 		payload.put("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
 		payload.put("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
 		timerElement2.setPropertyJson("timerSettingsPayload", payload);
+	}
+
+	private boolean isServerTickEnabled() {
+		return Config.getCurrent().featureSwitch("playwright") && isAnnouncerAthleteTimer();
+	}
+
+	private boolean isServerRunningCheckEnabled() {
+		return isControlAthleteTimer();
+	}
+
+	/**
+	 * The server-authoritative running check is a safety net that only matters on the operator
+	 * control surfaces (announcer, marshal) where the clock is driven. Display boards are excluded
+	 * to bound the per-second callback load. Matching is done by superclass simple name to avoid a
+	 * components -> nui layering dependency.
+	 */
+	public boolean isControlAthleteTimerForDiagnostics() {
+		return isControlAthleteTimer();
+	}
+
+	public String describeTimerForDiagnostics() {
+		Object origin = getOrigin();
+		String originName = origin == null ? "null" : origin.getClass().getSimpleName();
+		String fopName = this.fop == null ? "null" : this.fop.getName();
+		String busName = this.uiEventBus == null ? "null" : this.uiEventBus.identifier();
+		String parentName = this.getParent().map(DebugUtils::getOwlcmsParentName).orElse("none");
+		return String.format("%s{control=%s,origin=%s,fop=%s,bus=%s,parent=%s,attached=%s,running=%s,lastSeq=%s}",
+		        this.instanceId, isControlAthleteTimer(), originName, fopName, busName, parentName,
+		        this.getUI().isPresent(), this.elementRunning, this.lastAppliedTimerSeq);
+	}
+
+	private boolean isControlAthleteTimer() {
+		if (!(this instanceof AthleteTimerElement)) {
+			return false;
+		}
+		Object origin = getOrigin();
+		if (origin == null) {
+			return false;
+		}
+		for (Class<?> c = origin.getClass(); c != null && c != Object.class; c = c.getSuperclass()) {
+			if ("AthleteGridContent".equals(c.getSimpleName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	protected boolean isIndefinite() {
@@ -389,6 +475,8 @@ public abstract class TimerElement extends LitTemplate
 		payload.put("seconds", seconds);
 		payload.put("indefinite", Boolean.TRUE.equals(indefinite));
 		payload.put("silent", Boolean.TRUE.equals(silent));
+		payload.put("serverTickEnabled", isServerTickEnabled());
+		payload.put("serverRunningCheckEnabled", isServerRunningCheckEnabled());
 		payload.put("serverMillis", Long.toString(System.currentTimeMillis()));
 		payload.put("from", from != null ? from : "");
 		payload.put("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
@@ -422,6 +510,60 @@ public abstract class TimerElement extends LitTemplate
 			this.logger.warn("{}announcer timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
 			        FieldOfPlay.getLoggingName(this.fop), parsedSequence, display, running, currentTime);
 		}
+	}
+
+	@ClientCallable
+	public void clientTimerTick(String display, Double currentTime) {
+		if (!isServerTickEnabled()) {
+			return;
+		}
+		this.logger.warn("{}announcer timer tick display='{}' currentTime={}",
+		        FieldOfPlay.getLoggingName(this.fop), display, currentTime);
+		if (("0:56".equals(display) || "1:56".equals(display))
+		        && playwrightTimerTripwireTriggered.compareAndSet(false, true)) {
+			this.logger.warn("{}TEMPORARY playwright timer tripwire display='{}' currentTime={} - stopping OWLCMS",
+			        FieldOfPlay.getLoggingName(this.fop), display, currentTime);
+			new Thread(() -> {
+				Main.prepareForExit();
+				try {
+					Thread.sleep(250L);
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				}
+				System.exit(0);
+			}, "Playwright-Timer-Tripwire").start();
+		}
+	}
+
+	@ClientCallable
+	public void clientTimerRunningCheck(String display, Double currentTime) {
+		correctStoppedServerTimerFromTick(display, currentTime);
+	}
+
+	/**
+	 * Fire-and-forget correction: when the client is about to render a lower second but the
+	 * authoritative FOP timer is already stopped, push a corrective stop() so the client halts at the
+	 * server's recorded stop time. The client does not wait for a reply.
+	 */
+	private void correctStoppedServerTimerFromTick(String display, Double currentTime) {
+		if (!(this instanceof AthleteTimerElement) || this.fop == null || !this.elementRunning) {
+			return;
+		}
+		IProxyTimer fopTimer = getFopTimer(this.fop);
+		if (fopTimer == null || fopTimer.isRunning()) {
+			return;
+		}
+		Integer milliseconds = fopTimer.getTimeRemainingAtLastStop();
+		this.elementRunning = false;
+		setMsRemaining(milliseconds);
+		String parent = DebugUtils.getOwlcmsParentName(this.getParent().orElse(null));
+		this.lastStopMillis = System.currentTimeMillis();
+		if (Config.getCurrent().featureSwitch("playwright") && isAnnouncerAthleteTimer()) {
+			this.logger.warn(
+			        "{}announcer timer tick correction display='{}' currentTime={} serverStoppedAt={}ms parent={}",
+			        FieldOfPlay.getLoggingName(this.fop), display, currentTime, milliseconds, parent);
+		}
+		stop(getMsRemaining(), isIndefinite(), isSilent(), parent);
 	}
 
 	private long parseTimerCommandSequence(String sequence) {

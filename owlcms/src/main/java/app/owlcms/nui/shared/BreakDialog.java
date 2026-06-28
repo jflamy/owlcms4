@@ -40,7 +40,7 @@ public class BreakDialog extends Dialog {
 			try {
 				FieldOfPlay cfop = fop;
 				if (cfop != null) {
-					cfop.getUiEventBus().unregister(this.content);
+					SafeEventBusRegistration.unregisterSubscriber(this.content, cfop.getUiEventBus());
 				}
 				// logger.debug("+unregistered {}", breakTimer.id);
 			} catch (Exception e1) {
@@ -76,7 +76,7 @@ public class BreakDialog extends Dialog {
 			try {
 				FieldOfPlay cfop = fop;
 				if (cfop != null) {
-					cfop.getUiEventBus().unregister(this.content);
+					SafeEventBusRegistration.unregisterSubscriber(this.content, cfop.getUiEventBus());
 				}
 			} catch (Exception e1) {
 			}

@@ -18,7 +18,9 @@ import com.google.common.eventbus.EventBus;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.components.elements.TimerElement;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -28,6 +30,106 @@ public interface SafeEventBusRegistration {
 	Map<Object, Set<EventBus>> BUS_REGISTRY = Collections.synchronizedMap(new WeakHashMap<>());
 
 	Logger logger = (Logger) LoggerFactory.getLogger(SafeEventBusRegistration.class);
+
+	public static int registeredSubscriberCount(EventBus uiEventBus, String simpleClassName) {
+		if (uiEventBus == null || simpleClassName == null) {
+			return 0;
+		}
+		synchronized (BUS_REGISTRY) {
+			int count = 0;
+			for (Map.Entry<Object, Set<EventBus>> entry : BUS_REGISTRY.entrySet()) {
+				Object subscriber = entry.getKey();
+				Set<EventBus> registeredBuses = entry.getValue();
+				if (subscriber != null && simpleClassName.equals(subscriber.getClass().getSimpleName())
+				        && registeredBuses != null && registeredBuses.contains(uiEventBus)) {
+					count++;
+				}
+			}
+			return count;
+		}
+	}
+
+	public static int registeredControlAthleteTimerCount(EventBus uiEventBus) {
+		if (uiEventBus == null) {
+			return 0;
+		}
+		synchronized (BUS_REGISTRY) {
+			int count = 0;
+			for (Map.Entry<Object, Set<EventBus>> entry : BUS_REGISTRY.entrySet()) {
+				Object subscriber = entry.getKey();
+				Set<EventBus> registeredBuses = entry.getValue();
+				if (subscriber instanceof TimerElement timerElement && timerElement.isControlAthleteTimerForDiagnostics()
+				        && registeredBuses != null && registeredBuses.contains(uiEventBus)) {
+					count++;
+				}
+			}
+			return count;
+		}
+	}
+
+	public static String registeredTimerDetails(EventBus uiEventBus) {
+		if (uiEventBus == null) {
+			return "[]";
+		}
+		synchronized (BUS_REGISTRY) {
+			StringBuilder details = new StringBuilder("[");
+			for (Map.Entry<Object, Set<EventBus>> entry : BUS_REGISTRY.entrySet()) {
+				Object subscriber = entry.getKey();
+				Set<EventBus> registeredBuses = entry.getValue();
+				if (subscriber instanceof TimerElement timerElement && registeredBuses != null
+				        && registeredBuses.contains(uiEventBus)) {
+					if (details.length() > 1) {
+						details.append(", ");
+					}
+					details.append(timerElement.describeTimerForDiagnostics());
+				}
+			}
+			details.append("]");
+			return details.toString();
+		}
+	}
+
+	public static void unregisterSubscriber(Object subscriber, EventBus uiEventBus) {
+		if (uiEventBus == null) {
+			return;
+		}
+		boolean removedFromRegistry = false;
+		try {
+			uiEventBus.unregister(subscriber);
+		} catch (Exception ex) {
+		}
+		synchronized (BUS_REGISTRY) {
+			Set<EventBus> registeredBuses = BUS_REGISTRY.get(subscriber);
+			if (registeredBuses != null) {
+				removedFromRegistry = registeredBuses.remove(uiEventBus);
+				if (registeredBuses.isEmpty()) {
+					BUS_REGISTRY.remove(subscriber);
+				}
+			}
+		}
+		logger.warn("uiBus OUT subscriber={} class={} bus={} registryHad={} {}",
+		        Integer.toHexString(System.identityHashCode(subscriber)),
+		        subscriber != null ? subscriber.getClass().getSimpleName() : "null", uiEventBus.identifier(),
+		        removedFromRegistry, LoggerUtils.whereFrom());
+	}
+
+	public static void registerSubscriber(Object subscriber, EventBus uiEventBus) {
+		if (uiEventBus == null) {
+			return;
+		}
+		try {
+			uiEventBus.register(subscriber);
+			synchronized (BUS_REGISTRY) {
+				BUS_REGISTRY.computeIfAbsent(subscriber, key -> new HashSet<>()).add(uiEventBus);
+			}
+			logger.warn("uiBus IN subscriber={} class={} bus={} {}",
+			        Integer.toHexString(System.identityHashCode(subscriber)),
+			        subscriber != null ? subscriber.getClass().getSimpleName() : "null", uiEventBus.identifier(),
+			        LoggerUtils.whereFrom());
+		} catch (Exception ex) {
+			logger.error("Failed to register subscriber {} on UI bus {}", subscriber, uiEventBus.identifier(), ex);
+		}
+	}
 
 	public default EventBus uiEventBusRegister(Component c, FieldOfPlay fop) {
 
@@ -43,24 +145,25 @@ public interface SafeEventBusRegistration {
 		synchronized (BUS_REGISTRY) {
 			Set<EventBus> registeredBuses = BUS_REGISTRY.get(c);
 			if (registeredBuses != null && registeredBuses.contains(uiEventBus)) {
+				// TEMPORARY (timer-gap) trace: confirm the control timer stays registered.
+				if ("AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+					logger.warn("uiBus already-registered {} bus={} {}",
+					        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier(),
+					        LoggerUtils.whereFrom());
+				}
 				return uiEventBus; // already on the correct bus
 			}
 		}
 
-		try {
-			uiEventBus.unregister(c);
-		} catch (Exception ignored) {
+		// TEMPORARY (timer-gap) trace: a fresh register here means the component was OFF the bus.
+		if ("AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+			logger.warn("uiBus FRESH-register {} bus={} {}",
+			        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier(),
+			        LoggerUtils.whereFrom());
 		}
-		try {
-			// trace the registration
-			logger.debug("automatic: register {} class={} from {}", Integer.toHexString(System.identityHashCode(c)), c.getClass().getSimpleName(), uiEventBus.identifier());
-			uiEventBus.register(c);
-			synchronized (BUS_REGISTRY) {
-				BUS_REGISTRY.computeIfAbsent(c, key -> new HashSet<>()).add(uiEventBus);
-			}
-		} catch (Exception ex) {
-			logger.error("Failed to register component {} on UI bus {}", c.getClass().getName(), uiEventBus.identifier(), ex);
-		}
+
+		unregisterSubscriber(c, uiEventBus);
+		registerSubscriber(c, uiEventBus);
 
 		// Do NOT overwrite session FOP here to avoid cross-FOP contamination
 		// OwlcmsSession.setFop(fop);
@@ -70,11 +173,21 @@ public interface SafeEventBusRegistration {
 			return uiEventBus;
 		}
 		ui.addBeforeLeaveListener((e) -> {
+			// TEMPORARY (timer-gap) trace
+			if ("AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+				logger.warn("uiBus beforeLeave-unregister {} bus={}",
+				        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier());
+			}
 			unregister(c, uiEventBus);
 		});
 		ui.addDetachListener((e) -> {
 			// trace the unregistration
 			logger.debug("automatic: unregister {} class={} from {}", Integer.toHexString(System.identityHashCode(c)), c.getClass().getSimpleName(), uiEventBus.identifier());
+			// TEMPORARY (timer-gap) trace
+			if ("AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+				logger.warn("uiBus uiDetach-unregister {} bus={}",
+				        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier());
+			}
 			unregister(c, uiEventBus);
 		});
 		return uiEventBus;
@@ -93,38 +206,17 @@ public interface SafeEventBusRegistration {
 				return uiEventBus;
 			}
 		}
-		try {
-			uiEventBus.unregister(subscriber);
-		} catch (Exception ignored) {
-		}
-		try {
-			uiEventBus.register(subscriber);
-			synchronized (BUS_REGISTRY) {
-				BUS_REGISTRY.computeIfAbsent(subscriber, key -> new HashSet<>()).add(uiEventBus);
-			}
-		} catch (Exception ex) {
-			logger.error("Failed to register subscriber {} on UI bus {}", subscriber, uiEventBus.identifier(), ex);
-		}
+		unregisterSubscriber(subscriber, uiEventBus);
+		registerSubscriber(subscriber, uiEventBus);
 
 		return uiEventBus;
 	}
 
-    public default void unregister(Object subscriber, EventBus uiEventBus) {
+	public default void unregister(Object subscriber, EventBus uiEventBus) {
 		if (uiEventBus == null) {
 			return;
 		}
-		logger.trace("explicit: unregister {} from {}", subscriber, uiEventBus.identifier());
-		try {uiEventBus.unregister(subscriber);} catch (Exception ex) {}
-		synchronized (BUS_REGISTRY) {
-			Set<EventBus> registeredBuses = BUS_REGISTRY.get(subscriber);
-			if (registeredBuses == null) {
-				return;
-			}
-			registeredBuses.remove(uiEventBus);
-			if (registeredBuses.isEmpty()) {
-				BUS_REGISTRY.remove(subscriber);
-			}
-		}
-    }
+		unregisterSubscriber(subscriber, uiEventBus);
+	}
 
 }

@@ -49,6 +49,12 @@ class TimerElement extends LitElement {
       timerCommandPayload: {
         type: Object,
       },
+      serverTickEnabled: {
+        type: Boolean,
+      },
+      serverRunningCheckEnabled: {
+        type: Boolean,
+      },
     };
   }
 
@@ -76,6 +82,8 @@ class TimerElement extends LitElement {
     this.countUp = Boolean(payload.countUp);
     this.running = Boolean(payload.running);
     this.silent = Boolean(payload.silent);
+    this.serverTickEnabled = Boolean(payload.serverTickEnabled);
+    this.serverRunningCheckEnabled = Boolean(payload.serverRunningCheckEnabled);
     this.fopName = payload.fopName || "";
     this.initialWarningThresholdSeconds = Number.isFinite(payload.initialWarningThresholdSeconds)
       ? payload.initialWarningThresholdSeconds
@@ -96,6 +104,8 @@ class TimerElement extends LitElement {
       return;
     }
     this.silent = Boolean(payload.silent);
+    this.serverTickEnabled = Boolean(payload.serverTickEnabled);
+    this.serverRunningCheckEnabled = Boolean(payload.serverRunningCheckEnabled);
     this.initialWarningThresholdSeconds = Number.isFinite(payload.initialWarningThresholdSeconds)
       ? payload.initialWarningThresholdSeconds
       : -1;
@@ -119,6 +129,8 @@ class TimerElement extends LitElement {
     const indefinite = Boolean(payload.indefinite);
     const silent = Boolean(payload.silent);
     this.silent = silent;
+    this.serverTickEnabled = Boolean(payload.serverTickEnabled);
+    this.serverRunningCheckEnabled = Boolean(payload.serverRunningCheckEnabled);
     if (this._isNoopTimerCommand(payload.command, seconds, indefinite)) {
       if (payload.command === "pause") {
         this._notifyServerTimerStopped(payload.sequence);
@@ -263,7 +275,7 @@ class TimerElement extends LitElement {
     this._scheduleTimerFrame();
   }
 
-  _pause(seconds, indefinite, silent, serverMillis, from) {
+  _pause(seconds, indefinite, silent, serverMillis, from, sequence) {
     this._stopAnimation();
     this.silent = silent;
     if (indefinite) {
@@ -322,6 +334,9 @@ class TimerElement extends LitElement {
         this.requestUpdate();
         console.warn("displayed " + newTime + " : " + (s ? s.innerHTML : "-"));
         this.lastTime = newTime;
+        if (this.running && this.serverTickEnabled) {
+          this._notifyServerTimerTick(newTime);
+        }
       } else {
         console.warn("no root to update");
       }
@@ -329,6 +344,20 @@ class TimerElement extends LitElement {
     } else {
       // console.warn("same time "+newTime);
     }
+  }
+
+  _notifyServerTimerTick(display) {
+    if (!this.$server || typeof this.$server.clientTimerTick !== "function") {
+      return;
+    }
+    this.$server.clientTimerTick(String(display || ''), Number(this.currentTime));
+  }
+
+  _notifyServerRunningCheck(display) {
+    if (!this.serverRunningCheckEnabled || !this.$server || typeof this.$server.clientTimerRunningCheck !== "function") {
+      return;
+    }
+    this.$server.clientTimerRunningCheck(String(display || ''), Number(this.currentTime));
   }
 
   reset(element) {
@@ -414,6 +443,17 @@ class TimerElement extends LitElement {
       this._initialWarningGiven = true;
     }
 
+    const nextDisplay = this._formatTime(this.currentTime);
+    if (nextDisplay !== this.lastTime) {
+      // Fire-and-forget authoritative check: do NOT block the animation frame.
+      // If the FOP timer is actually stopped, the server replies with a
+      // corrective stop() command that lands asynchronously and halts us.
+      this._notifyServerRunningCheck(nextDisplay);
+    }
+    if (!this.running) {
+      return;
+    }
+
     //this._formattedTime = this._formatTime(this.currentTime);
     this.updateTime(this.currentTime)
 
@@ -468,6 +508,8 @@ class TimerElement extends LitElement {
     this.timerStatePayload = null;
     this.timerSettingsPayload = null;
     this.timerCommandPayload = null;
+    this.serverTickEnabled = false;
+    this.serverRunningCheckEnabled = false;
     this._animationFrameId = null;
     this._initialWarningGiven = false;
     this._finalWarningGiven = false;

@@ -14,6 +14,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.server.Command;
 
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
 
 public interface UIEventProcessor {
@@ -52,12 +53,12 @@ public interface UIEventProcessor {
 				}
 			} catch (UIDetachedException e1) {
 				if (uiEventBus != null) {
-					uiEventBus.unregister(attachedComponent);
+					SafeEventBusRegistration.unregisterSubscriber(attachedComponent, uiEventBus);
 				}
 			}
 		} else if (uiEventBus != null) {
 			try {
-				uiEventBus.unregister(attachedComponent);
+				SafeEventBusRegistration.unregisterSubscriber(attachedComponent, uiEventBus);
 			} catch (Exception exc) {
 				// ignore
 			}

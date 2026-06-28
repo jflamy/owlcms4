@@ -183,7 +183,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	public void unregister() {
 		this.logger.debug("unregister simulator {}", this.fop != null ? this.fop.getName() : null);
 		if (this.uiEventBus != null) {
-			this.uiEventBus.unregister(this);
+			SafeEventBusRegistration.unregisterSubscriber(this, this.uiEventBus);
 		}
 	}
 

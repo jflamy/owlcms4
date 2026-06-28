@@ -161,7 +161,8 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 								// explicitly unregister from the UI event bus, then log and close the dialog
 								try {
 									if (AthleteCardFormFactory.this.uiEventBus != null) {
-										AthleteCardFormFactory.this.uiEventBus.unregister(FormComponent.this);
+										SafeEventBusRegistration.unregisterSubscriber(FormComponent.this,
+										        AthleteCardFormFactory.this.uiEventBus);
 									}
 								} catch (Exception ex) {
 									// ignore unregister failures

@@ -70,6 +70,7 @@ import app.owlcms.data.platform.Platform;
 import app.owlcms.data.records.RecordConfig;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordFilter;
+import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.fieldofplay.FOPEvent.BarbellOrPlatesChanged;
 import app.owlcms.fieldofplay.FOPEvent.CeremonyDone;
 import app.owlcms.fieldofplay.FOPEvent.CeremonyStarted;
@@ -1340,6 +1341,17 @@ public class FieldOfPlay implements IUnregister {
 	public void pushOutUIEvent(UIEvent event) {
 		// stamp a per-FOP monotonic sequence so clients can drop out-of-order timer events
 		event.setSequence(this.uiEventSequence.incrementAndGet());
+		// TEMPORARY (timer-gap) trace: decide whether missed StartTime/StopTime is a registration gap.
+		if ((event instanceof UIEvent.StartTime || event instanceof UIEvent.StopTime)
+		        && Config.getCurrent().featureSwitch("playwright")) {
+			int athleteTimerSubscribers = SafeEventBusRegistration.registeredSubscriberCount(getUiEventBus(),
+			        "AthleteTimerElement");
+			int controlAthleteTimerSubscribers = SafeEventBusRegistration.registeredControlAthleteTimerCount(getUiEventBus());
+			this.logger.warn("{}uiBus pre-post {} seq={} athleteTimerSubscribers={} controlAthleteTimerSubscribers={} timers={}",
+			        FieldOfPlay.getLoggingName(this), event.getClass().getSimpleName(), event.getSequence(),
+			        athleteTimerSubscribers, controlAthleteTimerSubscribers,
+			        SafeEventBusRegistration.registeredTimerDetails(getUiEventBus()));
+		}
 		if (event instanceof UIEvent.LiftingOrderUpdated liftingOrderUpdated) {
 			MQTTMonitor mqttMonitor = getMqttMonitor();
 			if (mqttMonitor != null) {

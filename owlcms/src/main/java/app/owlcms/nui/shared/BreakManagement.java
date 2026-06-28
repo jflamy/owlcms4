@@ -794,7 +794,7 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			currentFop.fopEventPost(new FOPEvent.StartLifting(this.getOrigin()));
 			enableStartCountdown(true);
 			this.endCountdown.setEnabled(false);
-			currentFop.getUiEventBus().unregister(this);
+			SafeEventBusRegistration.unregisterSubscriber(this, currentFop.getUiEventBus());
 			dialog.close();
 		};
 	}
