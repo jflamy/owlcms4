@@ -8,6 +8,8 @@ package app.owlcms.data.group;
 
 import java.util.List;
 
+import javax.persistence.CacheRetrieveMode;
+import javax.persistence.CacheStoreMode;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -131,6 +133,8 @@ public class GroupRepository {
 	public static Group getById(Long id, EntityManager em) {
 		Query query = em.createQuery("select u from CompetitionGroup u where u.id=:id");
 		query.setParameter("id", id);
+		query.setHint("javax.persistence.cache.retrieveMode", CacheRetrieveMode.BYPASS);
+		query.setHint("javax.persistence.cache.storeMode", CacheStoreMode.REFRESH);
 		return (Group) query.getResultList().stream().findFirst().orElse(null);
 	}
 
