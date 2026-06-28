@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="${REVISION:-66.6.0}"
+REVISION="${REVISION:-66.6.1-rc01}"
 set -euo pipefail
 
 # The first positional argument is the revision; if omitted, the default above is used.

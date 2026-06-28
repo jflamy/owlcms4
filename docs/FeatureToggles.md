@@ -34,6 +34,7 @@ These switches change the default behavior of the interface
 | lightBarU13               | Ignore the 20kg bar when a youth age group includes athletes 12 or younger (U13, U11, U9 for example). | Only available as a feature switch. |
 | childrenEquipment         | If present, it is assumed that all platforms have 2,5kg and 5kg large discs, and have 5kg and 10kg bars | Only available as a feature switch. |
 | noInterimScoresInResults  | If present, scoreboards will show interim scores, but result sheets will not (on the result sheets QPoints will be 0 if total is 0) | Only available as a feature switch. |
+| totalTeamPointsOnly       | If present, team points are awarded from total rankings only, even when medals are awarded separately for snatch, clean and jerk, and total. Snatch and clean and jerk team points are reported as 0. | Only available as a feature switch. |
 | masters20kg               | If present, the Masters 20% rule is ignored.  Used in mixed Masters and Seniors championships that do not follow IMWA rules. | Activated as a competition rule.    |
 
 ### Specialty Features
