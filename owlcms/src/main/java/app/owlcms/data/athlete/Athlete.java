@@ -1721,6 +1721,9 @@ public class Athlete {
 	@JsonIgnore
 	public int getCleanJerkPoints() {
 		Participation mr = getMainRankings();
+		if (AthleteSorter.isTotalOnlyTeamPoints(mr)) {
+			return 0;
+		}
 		int points = (mr != null ? mr.getCleanJerkPoints() : 0);
 		return points;
 	}
@@ -3333,6 +3336,9 @@ public class Athlete {
 	 */
 	public int getSnatchPoints() {
 		Participation mr = getMainRankings();
+		if (AthleteSorter.isTotalOnlyTeamPoints(mr)) {
+			return 0;
+		}
 		int points = (mr != null ? mr.getSnatchPoints() : 0);
 		return points;
 	}

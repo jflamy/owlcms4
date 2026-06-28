@@ -323,6 +323,67 @@ public class ChampionshipTest {
             }
 
     @Test
+    public void testTeamPointsCanOnlyComeFromTotal() {
+        Competition competition = Competition.getCurrent();
+        Config config = Config.getCurrent();
+        boolean originalImwa = competition.isImwa();
+        boolean originalSnatchCJTotalMedals = competition.isSnatchCJTotalMedals();
+        String originalFeatureSwitches = config.getFeatureSwitches();
+
+        Participation participation = AthleteRepository.findAll().stream()
+                .flatMap(a -> a.getParticipations().stream())
+                .filter(p -> p.getCategory() != null)
+                .findFirst().orElse(null);
+        assertNotNull("fixture should have a category participation", participation);
+
+        PAthlete mastersAthlete = new PAthlete(participation);
+        Participation scoringParticipation = mastersAthlete.getMainRankings();
+        scoringParticipation.setTeamMember(true);
+        scoringParticipation.setSnatchRank(1);
+        scoringParticipation.setCleanJerkRank(1);
+        scoringParticipation.setTotalRank(1);
+        Athlete sourceAthlete = mastersAthlete._getAthlete();
+        Group originalGroup = sourceAthlete.getGroup();
+        Group mastersGroup = new Group("Masters team points test");
+        mastersGroup.setMasters(true);
+
+        try {
+            sourceAthlete.setGroup(mastersGroup);
+            competition.setImwa(true);
+            competition.setSnatchCJTotalMedals(true);
+
+            assertEquals("IMWA Masters snatch team points", 0, mastersAthlete.getSnatchPoints());
+            assertEquals("IMWA Masters clean and jerk team points", 0, mastersAthlete.getCleanJerkPoints());
+            assertTrue("IMWA Masters total team points should still score", mastersAthlete.getTotalPoints() > 0);
+            assertEquals("IMWA Masters combined points should equal total points only",
+                    mastersAthlete.getTotalPoints(), mastersAthlete.getCombinedPoints().intValue());
+
+            competition.setImwa(false);
+            competition.setSnatchCJTotalMedals(false);
+
+            assertEquals("total-only snatch team points", 0, mastersAthlete.getSnatchPoints());
+            assertEquals("total-only clean and jerk team points", 0, mastersAthlete.getCleanJerkPoints());
+            assertTrue("total-only total team points should still score", mastersAthlete.getTotalPoints() > 0);
+            assertEquals("total-only combined points should equal total points only",
+                    mastersAthlete.getTotalPoints(), mastersAthlete.getCombinedPoints().intValue());
+
+            competition.setSnatchCJTotalMedals(true);
+            config.setFeatureSwitches("totalTeamPointsOnly");
+
+            assertEquals("feature-toggle snatch team points", 0, mastersAthlete.getSnatchPoints());
+            assertEquals("feature-toggle clean and jerk team points", 0, mastersAthlete.getCleanJerkPoints());
+            assertTrue("feature-toggle total team points should still score", mastersAthlete.getTotalPoints() > 0);
+            assertEquals("feature-toggle combined points should equal total points only",
+                    mastersAthlete.getTotalPoints(), mastersAthlete.getCombinedPoints().intValue());
+        } finally {
+            sourceAthlete.setGroup(originalGroup);
+            config.setFeatureSwitches(originalFeatureSwitches);
+            competition.setImwa(originalImwa);
+            competition.setSnatchCJTotalMedals(originalSnatchCJTotalMedals);
+        }
+    }
+
+    @Test
     public void testSeniorMixedTeamsWithNoAthletesAreAbsent() {
         Championship senior = ChampionshipRepository.findByName("Senior");
         assertNotNull("Senior championship should be loaded from fixture", senior);
