@@ -10,6 +10,12 @@
 
 **New in Release 66**
 
+66.6.1: Forceful retrieval of sessions from database to ensure that edits to TOs are reflected on documents
+
+66.6.1: Fix IMWA team scoring (lower points to winners of categories with low number of athletes, always total only)
+
+66.6.1: Fix: jury sheets and empty protocol sheets now use updated session technical officials after editing sessions
+
 66.6.0: Total below qualifying total denies the total medal, not the lift medals
 
 66.5.0: Fix for "birth date is wrong" 
