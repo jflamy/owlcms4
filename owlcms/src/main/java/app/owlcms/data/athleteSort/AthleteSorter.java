@@ -28,6 +28,7 @@ import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
@@ -56,6 +57,7 @@ public class AthleteSorter implements Serializable {
 	}
 
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AthleteSorter.class);
+	private static final String TOTAL_TEAM_POINTS_ONLY = "totalTeamPointsOnly";
 
 	public static List<Athlete> assignCategoryRanks(EntityManager em, Group g) {
 		List<Athlete> impactedAthletes;
@@ -556,11 +558,8 @@ public class AthleteSorter implements Serializable {
 	public static int imwaPointsFormula(Athlete a) {
 		Participation mr = a.getMainRankings();
 		int totalPoints = 0;
-		boolean imwa = Competition.getCurrent().isImwa();
 		Championship championship = championshipFrom(mr);
-		ChampionshipType championshipType = mr.getChampionshipType();
-		Group session = a.getGroup();
-		if (imwa && (championshipType.isMasters() || (session != null && session.isMasters()))) {
+		if (isImwaMastersTeamPoints(mr)) {
 			// IMWA lowers points for 1-person and two-person categories
 			Category category = a.getCategory();
 			int athleteCount = AthleteRepository.retrieveMastersAthleteCountForCategory(category);
@@ -581,6 +580,24 @@ public class AthleteSorter implements Serializable {
 			totalPoints = (mr != null ? mr.getTotalPoints() : 0);
 		}
 		return totalPoints;
+	}
+
+	public static boolean isTotalOnlyTeamPoints(Participation p) {
+		Competition competition = Competition.getCurrent();
+		return p != null && (!competition.isSnatchCJTotalMedals()
+		        || Config.getCurrent().featureSwitch(TOTAL_TEAM_POINTS_ONLY)
+		        || isImwaMastersTeamPoints(p));
+	}
+
+	private static boolean isImwaMastersTeamPoints(Participation p) {
+		Competition competition = Competition.getCurrent();
+		if (p == null || !competition.isImwa()) {
+			return false;
+		}
+		ChampionshipType championshipType = p.getChampionshipType();
+		Athlete athlete = p.getAthlete();
+		Group session = athlete != null ? athlete.getGroup() : null;
+		return (championshipType != null && championshipType.isMasters()) || (session != null && session.isMasters());
 	}
 
 	/**
