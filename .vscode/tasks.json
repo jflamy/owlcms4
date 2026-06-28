@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "clear owlcms file logs",
+      "type": "shell",
+      "command": "rm -f logs/*.log",
+      "options": {
+        "cwd": "${workspaceFolder}/owlcms"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
