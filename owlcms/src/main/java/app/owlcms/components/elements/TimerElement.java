@@ -367,7 +367,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private boolean isServerTickEnabled() {
-		return Config.getCurrent().featureSwitch("playwright") && isAnnouncerAthleteTimer();
+		return Config.getCurrent().featureSwitch("playwright") && isDisplayAthleteTimer();
 	}
 
 	private boolean isServerRunningCheckEnabled() {
@@ -524,14 +524,14 @@ public abstract class TimerElement extends LitTemplate
 		payload.put("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
 		payload.put("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
 		timerElement2.setPropertyJson("timerCommandPayload", payload);
-		traceAnnouncerTimerClientRender(command, seconds, sequence);
+		traceDisplayTimerClientRender(command, seconds, sequence);
 	}
 
-	private void traceAnnouncerTimerClientRender(String command, double seconds, long sequence) {
-		if (!Config.getCurrent().featureSwitch("playwright") || !isAnnouncerAthleteTimer() || getUI().isEmpty()) {
+	private void traceDisplayTimerClientRender(String command, double seconds, long sequence) {
+		if (!Config.getCurrent().featureSwitch("playwright") || !isDisplayAthleteTimer() || getUI().isEmpty()) {
 			return;
 		}
-		final String ctx = FieldOfPlay.getLoggingName(this.fop) + "announcer timer ";
+		final String ctx = FieldOfPlay.getLoggingName(this.fop) + timerDiagnosticRole() + " timer ";
 		final long stamp = System.currentTimeMillis();
 		try {
 			getElement().executeJs(TRACE_TIMER_CLIENT_RENDER_SCRIPT).then(String.class, rendered -> {
@@ -548,9 +548,9 @@ public abstract class TimerElement extends LitTemplate
 		long parsedSequence = parseTimerCommandSequence(sequence);
 		this.lastClientStoppedSequence = parsedSequence;
 		this.lastClientStoppedMillis = System.currentTimeMillis();
-		if (Config.getCurrent().featureSwitch("playwright") && isAnnouncerAthleteTimer()) {
-			this.logger.warn("{}announcer timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
-			        FieldOfPlay.getLoggingName(this.fop), parsedSequence, display, running, currentTime);
+		if (Config.getCurrent().featureSwitch("playwright") && isDisplayAthleteTimer()) {
+			this.logger.warn("{}{} timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
+			        FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), parsedSequence, display, running, currentTime);
 		}
 	}
 
@@ -559,8 +559,8 @@ public abstract class TimerElement extends LitTemplate
 		if (!isServerTickEnabled()) {
 			return;
 		}
-		this.logger.warn("{}announcer timer tick display='{}' currentTime={}",
-		        FieldOfPlay.getLoggingName(this.fop), display, currentTime);
+		this.logger.warn("{}{} timer tick display='{}' currentTime={}",
+		        FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), display, currentTime);
 		if (("0:56".equals(display) || "1:56".equals(display))
 		        && playwrightTimerTripwireTriggered.compareAndSet(false, true)) {
 			this.logger.warn("{}TEMPORARY playwright timer tripwire display='{}' currentTime={} - stopping OWLCMS",
@@ -631,6 +631,10 @@ public abstract class TimerElement extends LitTemplate
 		Object origin = getOrigin();
 		return this instanceof AthleteTimerElement && origin != null
 		        && "AnnouncerContent".equals(origin.getClass().getSimpleName());
+	}
+
+	private boolean isDisplayAthleteTimer() {
+		return isAnnouncerAthleteTimer() || isAttemptBoardAthleteTimer();
 	}
 
 	@SuppressWarnings("unused")
