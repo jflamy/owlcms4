@@ -48,12 +48,30 @@ public class UpdateCheck {
     private static final String DEFAULT_MQTT_URI = "tcp://192.168.1.177:1883";
     private static final String DEFAULT_FOP = "WHITE";
     private static final String DEFAULT_ANNOUNCER_PATH = "/lifting/announcer";
+    private static final String DEFAULT_ATTEMPT_BOARD_PATH = "/displays/attemptBoard";
+    private static final String DEFAULT_BOARDS = "announcer";
     static final String ATHLETE_NAME_SELECTOR = "[data-testid='current-athlete-name']";
     static final String ATHLETE_ATTEMPT_SELECTOR = "[data-testid='current-athlete-attempt']";
-    private static final String ATHLETE_WEIGHT_SELECTOR = "[data-testid='current-athlete-weight']";
+    static final String ATHLETE_WEIGHT_SELECTOR = "[data-testid='current-athlete-weight']";
+
+    enum BoardRole {
+        ANNOUNCER, ATTEMPT
+    }
+
+    interface SnapshotReader {
+        SnapshotRead read(MonitoredPage page);
+        void waitForReady(com.microsoft.playwright.Page page, java.time.Duration timeout);
+    }
+
+    interface DisplayMatcher {
+        boolean expectedDisplayVisible(ExpectedDisplay expected, ExpectationState state,
+                CleanLog log, MonitoredPage page);
+        void logExpectedMiss(ExpectedDisplay expected, ExpectationState state,
+                CleanLog log, MonitoredPage page);
+    }
     private static final String PLAYWRIGHT_DONE_TOPIC = "owlcms/fop/playwright/done";
     static final Duration STARTUP_SNAPSHOT_TIMEOUT = Duration.ofSeconds(3);
-    private static final Duration PLAYWRIGHT_EXPECTED_TIMEOUT = Duration.ofMillis(1500);
+    private static final Duration DEFAULT_PLAYWRIGHT_EXPECTED_TIMEOUT = Duration.ofMillis(3000);
     private static final long[] STARTUP_RETRY_DELAYS_MS = { 2000, 5000, 10000 };
 
     public static void main(String[] args) throws Exception {
@@ -66,9 +84,15 @@ public class UpdateCheck {
         log.value("Stop URL", buildStopUrl(config.baseUrl()));
         log.value("MQTT", config.mqttUri());
         log.value("FOPs", String.join(",", config.fops()));
+        log.value("Boards", config.boards().stream().map(r -> r.name().toLowerCase())
+                .collect(Collectors.joining(",")));
+        log.value("Expected display timeout", config.expectedTimeout().toMillis() + "ms");
+        log.value("Announcer path", config.announcerPath());
+        log.value("Attempt board path", config.attemptBoardPath());
         log.value("Decision", config.decisionWord());
         log.value("Headless", Boolean.toString(config.headless()));
         log.value("Publish MQTT", Boolean.toString(config.publish()));
+        log.value("Playwright log", System.getProperty("OWLCMS_PLAYWRIGHT_LOG", "logs/playwright.log"));
 
         try (MqttEventCollector mqtt = MqttEventCollector.connect(config.mqttUri());
             Playwright playwright = Playwright.create()) {
@@ -140,7 +164,7 @@ public class UpdateCheck {
         }
 
         for (MonitoredPlatform platform : platforms) {
-            platform.startWatching(running, PLAYWRIGHT_EXPECTED_TIMEOUT, log);
+            platform.startWatching(running, config.expectedTimeout(), log);
         }
         if (config.publish()) {
             publishDecisionSequence(mqtt, config, log);
@@ -153,13 +177,14 @@ public class UpdateCheck {
                 break;
             }
             if (mqtt.lostAfterStart.get()) {
-                stopOnStalledPage(config, log, "(all)", "MQTT connection loss");
+                log.stop("(all)", "MQTT connection loss");
+                requestOwlcmsStop(buildStopUrl(config.baseUrl()), log, "(all)");
                 stalled = true;
                 break;
             }
-            MonitoredPlatform stalledPlatform = firstStalledPlatform(platforms);
-            if (stalledPlatform != null) {
-                stopOnStalledPage(config, log, stalledPlatform.fop(), stalledPlatform.stallReason());
+            MonitoredPage stalledPage = firstStalledPage(platforms);
+            if (stalledPage != null) {
+                stopOnStalledPage(config, log, stalledPage.fop(), stalledPage.role(), stalledPage.stallReason());
                 stalled = true;
                 break;
             }
@@ -171,10 +196,11 @@ public class UpdateCheck {
         }
     }
 
-    private static MonitoredPlatform firstStalledPlatform(List<MonitoredPlatform> platforms) {
+    private static MonitoredPage firstStalledPage(List<MonitoredPlatform> platforms) {
         for (MonitoredPlatform platform : platforms) {
-            if (platform.stalled()) {
-                return platform;
+            MonitoredPage p = platform.firstStalledPage();
+            if (p != null) {
+                return p;
             }
         }
         return null;
@@ -211,9 +237,19 @@ public class UpdateCheck {
         // by their digits only so the check is language-independent: the attempt label
         // (e.g. "Snatch #2" / "Arraché #2") and the weight unit ("88 kg") differ by
         // locale, but the significant digits do not.
-        return normalize(snapshot.athleteName()).equals(normalize(expected.displayName()))
+        return athleteNameMatches(snapshot.athleteName(), expected.displayName())
                 && digitsOnly(snapshot.attempt()).equals(digitsOnly(expected.attempt()))
                 && digitsOnly(snapshot.weight()).equals(digitsOnly(expected.weight()));
+    }
+
+    static boolean athleteNameMatches(String actual, String expected) {
+        return athleteNameKey(actual).equals(athleteNameKey(expected));
+    }
+
+    private static String athleteNameKey(String text) {
+        return normalize(text)
+                .replaceAll("(?i)\\s*\\(ext\\.\\)", "")
+                .replaceAll("\\s+(?=\\d+$)", "");
     }
 
     static String digitsOnly(String text) {
@@ -221,10 +257,12 @@ public class UpdateCheck {
     }
 
     static ExpectedDisplay parseExpectedDisplay(MqttEvent event) {
-        return new ExpectedDisplay(jsonString(event.payload(), "displayName"),
-                jsonString(event.payload(), "attempt"),
-                jsonLong(event.payload(), "sequence"),
-                jsonLong(event.payload(), "requestedWeight") + "");
+        String payload = event.payload();
+        return new ExpectedDisplay(
+                jsonString(payload, "displayName"),
+                jsonString(payload, "attempt"),
+                jsonLong(payload, "sequence"),
+                jsonLong(payload, "requestedWeight") + "");
     }
 
     static String pauseReason(MqttEvent event) {
@@ -233,7 +271,7 @@ public class UpdateCheck {
         return reason + " seq=" + sequence;
     }
 
-    private static String jsonString(String json, String key) {
+    static String jsonString(String json, String key) {
         Matcher matcher = Pattern.compile("\\\"" + Pattern.quote(key) + "\\\"\\s*:\\s*\\\"((?:\\\\.|[^\\\"])*)\\\"")
                 .matcher(json);
         if (!matcher.find()) {
@@ -247,9 +285,10 @@ public class UpdateCheck {
         return matcher.find() ? Long.parseLong(matcher.group(1)) : -1L;
     }
 
-    private static void stopOnStalledPage(Config config, CleanLog log, String fop, String trigger) {
-        log.stop(fop, "announcer page stalled after " + trigger + "; stopping watcher");
-        log.browserInspection(fop, config);
+    /** Returns "true"/"false" if the key is a JSON boolean, or null if absent/null. */
+    private static void stopOnStalledPage(Config config, CleanLog log, String fop, BoardRole role, String trigger) {
+        log.stop(fop, role, "page stalled after " + trigger + "; stopping watcher");
+        log.browserInspection(fop, role, config);
         requestOwlcmsStop(buildStopUrl(config.baseUrl()), log, fop);
     }
 
@@ -291,11 +330,13 @@ public class UpdateCheck {
 
     private static void waitForInitialDisplay(List<MonitoredPlatform> platforms, CleanLog log) {
         for (MonitoredPlatform platform : platforms) {
-            Snapshot snapshot = waitForSnapshot(platform, STARTUP_SNAPSHOT_TIMEOUT);
-            if (snapshot != null) {
-                log.status(platform.fop(), "initial athlete: " + snapshot.display(), true);
-            } else {
-                log.status(platform.fop(), "no initial athlete displayed", false);
+            for (MonitoredPage mp : platform.pages()) {
+                Snapshot snapshot = waitForSnapshot(mp, STARTUP_SNAPSHOT_TIMEOUT);
+                if (snapshot != null) {
+                    log.status(mp.fop(), mp.role(), "initial athlete: " + snapshot.display(), true);
+                } else {
+                    log.status(mp.fop(), mp.role(), "no initial athlete displayed", false);
+                }
             }
         }
     }
@@ -362,11 +403,11 @@ public class UpdateCheck {
         }
     }
 
-    private static Snapshot waitForSnapshot(MonitoredPlatform platform, Duration timeout) {
+    private static Snapshot waitForSnapshot(MonitoredPage mp, Duration timeout) {
         long deadline = System.currentTimeMillis() + timeout.toMillis();
         Snapshot last = null;
         while (System.currentTimeMillis() < deadline) {
-            last = readSnapshot(platform);
+            last = readSnapshot(mp);
             if (last != null && !last.athleteName().isBlank() && !last.athleteName().equals("-")
                     && !last.athleteName().equals("–")) {
                 return last;
@@ -376,49 +417,12 @@ public class UpdateCheck {
         return null;
     }
 
-    static Snapshot readSnapshot(MonitoredPlatform platform) {
-        return readSnapshotRead(platform).snapshot();
+    static Snapshot readSnapshot(MonitoredPage mp) {
+        return readSnapshotRead(mp).snapshot();
     }
 
-    static SnapshotRead readSnapshotRead(MonitoredPlatform platform) {
-        try {
-            Page page = platform.page();
-            String athleteName = readTextBySelector(page, ATHLETE_NAME_SELECTOR);
-            String attempt = readTextBySelector(page, ATHLETE_ATTEMPT_SELECTOR);
-            String weight = readTextBySelector(page, ATHLETE_WEIGHT_SELECTOR);
-            // Extract just the numeric part of weight (e.g., "84 kg" -> "84")
-            weight = weight.replaceAll("[^0-9]", "");
-            String bodyText = readBodyText(page);
-            String pageSummary = readPageSummary(page, bodyText);
-            if (athleteName.isBlank() || attempt.isBlank()) {
-                AthleteDisplay fallback = readTopBarDisplay(page);
-                if (fallback.name().isBlank() || fallback.attempt().isBlank()) {
-                    fallback = parseAthleteDisplay(bodyText, platform.fop());
-                }
-                athleteName = firstNonBlank(athleteName, fallback.name());
-                attempt = firstNonBlank(attempt, fallback.attempt());
-            }
-            String gridFirstCell = readGridFirstCell(page);
-            if (athleteName.isBlank() && attempt.isBlank() && weight.isBlank() && gridFirstCell.isBlank()) {
-                return SnapshotRead.empty("no readable athlete, attempt, weight, or grid cell", pageSummary);
-            }
-            Snapshot snapshot = new Snapshot(platform.fop(), athleteName, attempt, weight, gridFirstCell);
-            if (attempt.isBlank()) {
-                return SnapshotRead.of(snapshot, "empty attempt", pageSummary);
-            }
-            if (athleteName.isBlank()) {
-                return SnapshotRead.of(snapshot, "empty athlete", pageSummary);
-            }
-            if (weight.isBlank()) {
-                return SnapshotRead.of(snapshot, "empty weight", pageSummary);
-            }
-            if (gridFirstCell.isBlank()) {
-                return SnapshotRead.of(snapshot, "empty grid cell", pageSummary);
-            }
-            return SnapshotRead.of(snapshot, "ok", pageSummary);
-        } catch (PlaywrightException e) {
-            return SnapshotRead.empty("PlaywrightException: " + e.getMessage(), "");
-        }
+    static SnapshotRead readSnapshotRead(MonitoredPage mp) {
+        return mp.snapshotReader().read(mp);
     }
 
     static AthleteDisplay readTopBarDisplay(Page page) {
@@ -444,123 +448,6 @@ public class UpdateCheck {
             // fall through to body-based extraction
         }
         return new AthleteDisplay("", "");
-    }
-
-    private static AthleteDisplay parseAthleteDisplay(String bodyText, String platform) {
-        String normalizedBody = normalize(bodyText);
-        Pattern pattern = Pattern.compile("\\b" + Pattern.quote(platform)
-                + "\\s+(.+?)\\s+((?:Snatch|Clean\\s+and\\s+Jerk|Clean\\s*&\\s*Jerk|C&J)\\s*#?\\d+\\s+\\d+\\s*kg)",
-                Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(normalizedBody);
-        if (!matcher.find()) {
-            return new AthleteDisplay("", "");
-        }
-        String athleteName = normalize(matcher.group(1)).replaceFirst("^[^\\p{Alnum}]+", "").trim();
-        return new AthleteDisplay(athleteName, normalize(matcher.group(2)));
-    }
-
-    private static String readGridFirstCell(Page page) {
-        try {
-            // For Vaadin Grid, get the first data row's start number and weight.
-            // The weight in the current athlete row is highlighted with class="yellow".
-            // We locate the yellow span structurally (no translatable text), follow its
-            // slot into the grid's shadow DOM to find its <tr>, then read the first cell
-            // of that same row to get the start number.
-            Object cellData = page.evaluate("() => {"
-                    + "const grid = document.querySelector('vaadin-grid');"
-                    + "if (!grid) return '';"
-                    + "const yellowSpan = grid.querySelector('span.yellow');"
-                    + "if (!yellowSpan) return '';"
-                    + "const weight = yellowSpan.innerText.trim();"
-                    + "const yellowCell = yellowSpan.closest('vaadin-grid-cell-content');"
-                    + "const yellowSlot = yellowCell ? yellowCell.getAttribute('slot') : null;"
-                    + "const shadowRoot = grid.shadowRoot;"
-                    + "let startNumber = '';"
-                    + "if (shadowRoot && yellowSlot) {"
-                    + "  const slotEl = shadowRoot.querySelector('slot[name=\"' + yellowSlot + '\"]');"
-                    + "  if (slotEl) {"
-                    + "    const tr = slotEl.closest('tr');"
-                    + "    if (tr) {"
-                    + "      const firstTd = tr.querySelector('td');"
-                    + "      const firstSlot = firstTd ? firstTd.querySelector('slot') : null;"
-                    + "      const firstSlotName = firstSlot ? firstSlot.getAttribute('name') : null;"
-                    + "      if (firstSlotName) {"
-                    + "        const firstCellContent = grid.querySelector('vaadin-grid-cell-content[slot=\"' + firstSlotName + '\"]');"
-                    + "        if (firstCellContent) {"
-                    + "          startNumber = firstCellContent.innerText.trim();"
-                    + "        }"
-                    + "      }"
-                    + "    }"
-                    + "  }"
-                    + "}"
-                    + "return startNumber + '|' + weight;"
-                    + "}");
-            String result = cellData != null ? cellData.toString().trim() : "";
-            // Only return if we have a valid start number and weight (e.g., "8|84")
-            if (!result.isBlank() && !result.equals("|") && !result.startsWith("|")) {
-                return result;
-            }
-        } catch (Exception e) {
-            // fall through
-        }
-        return "";
-    }
-
-    private static String readBodyText(Page page) {
-        try {
-            Object value = page.evaluate("() => document.body ? document.body.innerText : ''");
-            return value != null ? value.toString() : "";
-        } catch (PlaywrightException e) {
-            return "";
-        }
-    }
-
-    private static String readPageSummary(Page page, String bodyText) {
-        return "url=" + readUrl(page)
-                + " title='" + readTitle(page) + "'"
-                + " selectors[name=" + count(page, ATHLETE_NAME_SELECTOR)
-                + " attempt=" + count(page, ATHLETE_ATTEMPT_SELECTOR)
-                + " weight=" + count(page, ATHLETE_WEIGHT_SELECTOR) + "]"
-                + " body='" + abbreviate(normalize(bodyText), 240) + "'";
-    }
-
-    private static String readUrl(Page page) {
-        try {
-            return page.url();
-        } catch (PlaywrightException e) {
-            return "<unavailable>";
-        }
-    }
-
-    private static String readTitle(Page page) {
-        try {
-            return normalize(page.title());
-        } catch (PlaywrightException e) {
-            return "<unavailable>";
-        }
-    }
-
-    private static String abbreviate(String text, int maxLength) {
-        if (text == null || text.length() <= maxLength) {
-            return text == null ? "" : text;
-        }
-        return text.substring(0, maxLength) + "...";
-    }
-
-    private static String readTextBySelector(Page page, String selector) {
-        try {
-            Object value = page.evaluate("selector => {"
-                    + "const element = document.querySelector(selector);"
-                    + "return element ? element.innerText : '';"
-                    + "}", selector);
-            return value != null ? normalize(value.toString()) : "";
-        } catch (PlaywrightException e) {
-            return "";
-        }
-    }
-
-    private static String firstNonBlank(String preferred, String fallback) {
-        return preferred != null && !preferred.isBlank() ? preferred : fallback;
     }
 
     private static String fopFromTopic(String topic) {
@@ -610,6 +497,10 @@ public class UpdateCheck {
         }
     }
 
+    private static String firstNonBlank(String preferred, String fallback) {
+        return preferred != null && !preferred.isBlank() ? preferred : fallback;
+    }
+
     static String normalize(String text) {
         return text == null ? "" : text.replaceAll("[\\p{Z}\\s]+", " ").trim();
     }
@@ -628,7 +519,8 @@ public class UpdateCheck {
     }
 
     record Config(String baseUrl, String mqttUri, List<String> fops, String announcerPath,
-            Duration timeout, boolean headless, boolean publish, boolean publishDown,
+            String attemptBoardPath, List<BoardRole> boards,
+            Duration timeout, Duration expectedTimeout, boolean headless, boolean publish, boolean publishDown,
             String decisionWord, long decisionSpacingMillis) {
         static Config fromArgs(String[] args) {
             Map<String, String> values = Arrays.stream(args)
@@ -638,20 +530,27 @@ public class UpdateCheck {
 
             List<String> fops = parseFops(firstNonBlank(values.get("fops"), values.get("platforms"), values.get("fop"),
                     values.get("platform"), env("OWLCMS_FOPS"), env("OWLCMS_FOP"), DEFAULT_FOP));
+            List<BoardRole> boards = parseBoards(firstNonBlank(values.get("boards"),
+                    env("OWLCMS_PLAYWRIGHT_BOARDS"), DEFAULT_BOARDS));
             boolean headless = Boolean.parseBoolean(firstNonBlank(values.get("headless"), env("OWLCMS_PLAYWRIGHT_HEADLESS"),
                     env("PLAYWRIGHT_HEADLESS"), "false"));
             String decisionWord = firstNonBlank(values.get("decision"), env("OWLCMS_DECISION"), "good").toLowerCase(Locale.ROOT);
             if (!decisionWord.equals("good") && !decisionWord.equals("bad")) {
                 throw new IllegalArgumentException("--decision must be good or bad");
             }
-                String baseUrl = firstNonBlank(values.get("baseUrl"), values.get("url"), env("OWLCMS_BASE_URL"),
+            String baseUrl = firstNonBlank(values.get("baseUrl"), values.get("url"), env("OWLCMS_BASE_URL"),
                     env("OWLCMS_URL"), DEFAULT_BASE_URL);
             return new Config(
                     baseUrl,
                     firstNonBlank(values.get("mqtt"), env("OWLCMS_MQTT_URI"), DEFAULT_MQTT_URI),
                     fops,
                     firstNonBlank(values.get("announcerPath"), env("OWLCMS_ANNOUNCER_PATH"), DEFAULT_ANNOUNCER_PATH),
+                    firstNonBlank(values.get("attemptBoardPath"), env("OWLCMS_ATTEMPT_BOARD_PATH"), DEFAULT_ATTEMPT_BOARD_PATH),
+                    boards,
                     Duration.ofSeconds(Long.parseLong(firstNonBlank(values.get("timeoutSeconds"), env("OWLCMS_TIMEOUT_SECONDS"), "20"))),
+                        Duration.ofMillis(Long.parseLong(firstNonBlank(values.get("expectedTimeoutMillis"),
+                            env("OWLCMS_PLAYWRIGHT_EXPECTED_TIMEOUT_MILLIS"),
+                            Long.toString(DEFAULT_PLAYWRIGHT_EXPECTED_TIMEOUT.toMillis())))),
                     headless,
                     Boolean.parseBoolean(firstNonBlank(values.get("publish"), env("OWLCMS_PUBLISH"), "false")),
                     Boolean.parseBoolean(firstNonBlank(values.get("publishDown"), env("OWLCMS_PUBLISH_DOWN"), "true")),
@@ -671,6 +570,19 @@ public class UpdateCheck {
             return fops;
         }
 
+        private static List<BoardRole> parseBoards(String raw) {
+            List<BoardRole> roles = Arrays.stream(raw.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isBlank())
+                    .map(s -> BoardRole.valueOf(s.toUpperCase(Locale.ROOT)))
+                    .distinct()
+                    .toList();
+            if (roles.isEmpty()) {
+                throw new IllegalArgumentException("At least one board role is required");
+            }
+            return roles;
+        }
+
         private static String env(String name) {
             return System.getenv(name);
         }
@@ -684,8 +596,8 @@ public class UpdateCheck {
             throw new IllegalArgumentException("No non-blank value supplied");
         }
     }
-
-    record Snapshot(String platform, String athleteName, String attempt, String weight, String gridFirstCell) {
+    record Snapshot(String platform, BoardRole role, String athleteName, String attempt, String weight,
+            String gridFirstCell) {
         String display() {
             if (attempt.isBlank()) {
                 return athleteName;
@@ -724,7 +636,7 @@ public class UpdateCheck {
         }
     }
 
-    record VerificationResult(boolean matched, long lastSequence, String fop) {
+    record VerificationResult(boolean matched, long lastSequence, String fop, BoardRole role) {
     }
 
     record MqttEvent(String topic, String payload, long sequence, long receivedAtMillis) {
@@ -913,6 +825,11 @@ public class UpdateCheck {
     }
 
     static class CleanLog {
+
+        private static String tag(String fop, BoardRole role) {
+            return fop + " " + role.name().toLowerCase();
+        }
+
         void section(String title) {
             logger.info("");
             logger.info("== {} ==", title);
@@ -926,8 +843,8 @@ public class UpdateCheck {
             logger.info(message);
         }
 
-        void openPage(String fop, String role, String url) {
-            logger.info("[{}] OPEN {} {}", fop, role, url);
+        void openPage(String fop, BoardRole role, String url) {
+            logger.info("[{}] OPEN {}", tag(fop, role), url);
         }
 
         void browserLaunch(String fop, Config config) {
@@ -935,32 +852,76 @@ public class UpdateCheck {
                 browserLaunchDetails(config));
         }
 
-        void browserInspection(String fop, Config config) {
+        void browserInspection(String fop, BoardRole role, Config config) {
+            String path = role == BoardRole.ANNOUNCER ? config.announcerPath() : config.attemptBoardPath();
             logger./**/warn("[{}] INSPECT {} url={} browser remains open while stalled; press Enter/Ctrl-C to finish",
-                fop,
+                tag(fop, role),
                 browserLaunchDetails(config),
-                buildUrl(config.baseUrl(), config.announcerPath(), fop));
+                buildUrl(config.baseUrl(), path, fop));
         }
 
-        void navigation(String fop, String role, Response response) {
+        void navigation(String fop, BoardRole role, Response response) {
             String status = response != null ? Integer.toString(response.status()) : "no-response";
             String url = response != null ? response.url() : "";
-            logger.info("[{}] NAV  {} status={} {}", fop, role, status, url);
+            logger.info("[{}] NAV  {}", tag(fop, role), status + " " + url);
         }
 
-        void testIds(String fop, int nameCount, int attemptCount, AthleteDisplay fallback) {
-            boolean ok = nameCount > 0 && attemptCount > 0;
+        void testIds(String fop, BoardRole role, SnapshotRead initial) {
+            Snapshot s = initial.snapshot();
+            boolean ok = s != null && !s.athleteName().isBlank();
             if (ok) {
-                status(fop, "test ids name=" + nameCount + " attempt=" + attemptCount, true);
-            } else if (!fallback.name().isBlank() && !fallback.attempt().isBlank()) {
-                status(fop, "top-bar fallback name=" + fallback.name() + " attempt=" + fallback.attempt(), true);
+                status(fop, role, "initial snapshot: " + s.display(), true);
             } else {
-                status(fop, "test ids name=" + nameCount + " attempt=" + attemptCount, false);
+                status(fop, role, "no initial snapshot: " + initial.reason(), false);
             }
         }
 
         void publish(String fop, String topic, String payload) {
             logger.info("[{}] PUB  {}{}", fop, topic, payload.isBlank() ? "" : " " + payload);
+        }
+
+        void status(String fop, BoardRole role, String label, boolean ok) {
+            if (ok) {
+                logger.info("[{}] OK   {}", tag(fop, role), label);
+            } else {
+                logger./**/warn("[{}] MISS {}", tag(fop, role), label);
+            }
+        }
+
+        void stop(String fop, BoardRole role, String label) {
+            logger./**/warn("[{}] STOP {}", tag(fop, role), label);
+        }
+
+        void expecting(String fop, BoardRole role, ExpectedDisplay expected) {
+            logger.info("[{}] EXPECTING {}", tag(fop, role), expected.display());
+        }
+
+        void superceded(String fop, BoardRole role, ExpectedDisplay previous, String replacement) {
+            logger.info("[{}] SUPERCEDED {} -> {}", tag(fop, role), previous.display(), replacement);
+        }
+
+        void pause(String fop, BoardRole role, String payload) {
+            logger.info("[{}] PAUSE{}", tag(fop, role), payload.isBlank() ? "" : " " + payload);
+        }
+
+        void confirmedAthlete(String fop, BoardRole role, long elapsedMillis, Snapshot snapshot) {
+            logger.info("[{}] CONFIRMED HEADER [{} ms] name={} attempt#={} weight={}", tag(fop, role), elapsedMillis,
+                    snapshot.athleteName(), digitsOnly(snapshot.attempt()), digitsOnly(snapshot.weight()));
+        }
+
+        void confirmedDisplay(String fop, BoardRole role, long elapsedMillis, Snapshot snapshot) {
+            logger.info("[{}] CONFIRMED DISPLAY [{} ms] name={} attempt#={} weight={}", tag(fop, role), elapsedMillis,
+                    snapshot.athleteName(), digitsOnly(snapshot.attempt()), digitsOnly(snapshot.weight()));
+        }
+
+        void confirmedGrid(String fop, BoardRole role, long elapsedMillis) {
+            logger.info("[{}] CONFIRMED GRID [{} ms]", tag(fop, role), elapsedMillis);
+        }
+
+        // ---- FOP-only variants kept for MQTT/supervisor messages without a role ----
+
+        void stop(String fop, String label) {
+            logger./**/warn("[{}] STOP {}", fop, label);
         }
 
         void status(String fop, String label, boolean ok) {
@@ -969,31 +930,6 @@ public class UpdateCheck {
             } else {
                 logger./**/warn("[{}] MISS {}", fop, label);
             }
-        }
-
-        void stop(String fop, String label) {
-            logger./**/warn("[{}] STOP {}", fop, label);
-        }
-
-        void expecting(String fop, ExpectedDisplay expected) {
-            logger.info("[{}] EXPECTING {}", fop, expected.display());
-        }
-
-        void superceded(String fop, ExpectedDisplay previous, String replacement) {
-            logger.info("[{}] SUPERCEDED {} -> {}", fop, previous.display(), replacement);
-        }
-
-        void pause(String fop, String payload) {
-            logger.info("[{}] PAUSE{}", fop, payload.isBlank() ? "" : " " + payload);
-        }
-
-        void confirmedAthlete(String fop, long elapsedMillis, Snapshot snapshot) {
-            logger.info("[{}] CONFIRMED HEADER [{} ms] name={} attempt#={} weight={}", fop, elapsedMillis,
-                    snapshot.athleteName(), digitsOnly(snapshot.attempt()), digitsOnly(snapshot.weight()));
-        }
-
-        void confirmedGrid(String fop, long elapsedMillis) {
-            logger.info("[{}] CONFIRMED GRID [{} ms]", fop, elapsedMillis);
         }
 
     }
