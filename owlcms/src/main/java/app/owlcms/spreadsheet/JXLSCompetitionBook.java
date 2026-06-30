@@ -176,14 +176,9 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	protected void setReportingInfo() {
-		// Propagate the instance field to the thread-local so that super.setReportingInfo(),
-		// the override logic below, and Athlete.getBestLifterScore()/getBestLifterRank()
-		// all see the dropdown-selected scoring system on the main thread.
-		// (JXLSResultSheet does this in computeSortedAthletes(); JXLSCompetitionBook
-		// returns null from computeSortedAthletes(), so we must set it here.)
-		if (getBestLifterScoringSystem() != null) {
-			JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(getBestLifterScoringSystem());
-		}
+		Ranking resolvedScoringSystem = resolveBestAthleteScoringSystem();
+		setBestLifterScoringSystem(resolvedScoringSystem);
+		JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(resolvedScoringSystem);
 
 		Competition competition = Competition.getCurrent();
 		competition.computeReportingInfo(getAgeGroupPrefix(), getChampionship());
@@ -211,12 +206,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 		// Filter records to current-event provisional rows for the result book.
 		keepProvisionalRecords(records, reportingBeans);
 
-		Ranking overallScoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
-		if (overallScoringSystem == null) {
-			overallScoringSystem = getChampionship() != null
-			        ? getChampionship().getBestAthleteScoringSystem()
-			        : Championship.of(null).getBestAthleteScoringSystem();
-		}
+		Ranking overallScoringSystem = resolvedScoringSystem;
 
 		reportingBeans.put("championship", getChampionship());
 		reportingBeans.put("ageGroupPrefix", getAgeGroupPrefix());
@@ -233,19 +223,17 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			if (isWinnersOnly()) {
 				Collection<Athlete> bestMen = ((Collection<Athlete>) reportingBeans
 				        .get(overallScoringSystem.getMReportingName()));
-				if (this.winnersOnly) {
-					bestMen = bestMen.stream().filter(a -> a.getTotalRank() == 1).toList();
-				}
+				bestMen = reportScopedBestAthletes(bestMen, overallScoringSystem, this.winnersOnly);
 				reportingBeans.put("mBest", bestMen);
 				Collection<Athlete> bestWomen = ((Collection<Athlete>) reportingBeans
 				        .get(overallScoringSystem.getWReportingName()));
-				if (this.winnersOnly) {
-					bestWomen = bestWomen.stream().filter(a -> a.getTotalRank() == 1).toList();
-				}
+				bestWomen = reportScopedBestAthletes(bestWomen, overallScoringSystem, this.winnersOnly);
 				reportingBeans.put("wBest", bestWomen);
 			} else {
-				reportingBeans.put("mBest", reportingBeans.get(overallScoringSystem.getMReportingName()));
-				reportingBeans.put("wBest", reportingBeans.get(overallScoringSystem.getWReportingName()));
+				reportingBeans.put("mBest", reportScopedBestAthletes(
+				        (Collection<Athlete>) reportingBeans.get(overallScoringSystem.getMReportingName()), overallScoringSystem, false));
+				reportingBeans.put("wBest", reportScopedBestAthletes(
+				        (Collection<Athlete>) reportingBeans.get(overallScoringSystem.getWReportingName()), overallScoringSystem, false));
 			}
 
 			@SuppressWarnings("unchecked")
@@ -264,6 +252,36 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 			reportingBeans.put("mwTeamBest", AthleteSorter.teamPointsOrderCopyMixed(mwTeamBest, overallScoringSystem));
 		}
 		setReportingBeans(reportingBeans);
+	}
+
+	private Collection<Athlete> reportScopedBestAthletes(Collection<Athlete> athletes, Ranking overallScoringSystem,
+	        boolean winnersOnly) {
+		if (athletes == null) {
+			return List.of();
+		}
+		List<Athlete> reportRows = athletes.stream()
+		        .map(this::copyReportRow)
+		        .filter(a -> !winnersOnly || a.getTotalRank() == 1 || !a.isEligibleForIndividualRanking())
+		        .toList();
+		AthleteSorter.assignOverallRanksAndPoints(reportRows, overallScoringSystem);
+		return reportRows;
+	}
+
+	private Athlete copyReportRow(Athlete athlete) {
+		if (athlete instanceof PAthlete pAthlete) {
+			return new PAthlete(pAthlete._getOriginalParticipation());
+		}
+		return athlete;
+	}
+
+	private Ranking resolveBestAthleteScoringSystem() {
+		if (getChampionship() != null && getChampionship().getBestAthleteScoringSystem() != null) {
+			return getChampionship().getBestAthleteScoringSystem();
+		}
+		if (getBestLifterScoringSystem() != null) {
+			return getBestLifterScoringSystem();
+		}
+		return Championship.of(null).getBestAthleteScoringSystem();
 	}
 
 	private boolean isGenderedTeamsEnabled() {

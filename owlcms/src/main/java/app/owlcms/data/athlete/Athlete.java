@@ -1239,6 +1239,9 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public int getBestLifterRank() {
+		if (!isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		// if we are invoked from a printing thread, the value will be defined.
 		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		if (scoringSystem == null) {
@@ -1444,6 +1447,9 @@ public class Athlete {
 	}
 
 	public int getCategoryScoreRank() {
+		if (!isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		if (shouldHidePublishedCategoryScore()) {
 			return 0;
 		} else {
@@ -1734,6 +1740,9 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public int getCleanJerkRank() {
+		if (!isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		return (getMainRankings() != null ? getMainRankings().getCleanJerkRank() : -1);
 	}
 
@@ -1922,6 +1931,9 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public int getCustomRank() {
+		if (!isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		return (getMainRankings() != null ? getMainRankings().getCategoryScoreRank() : -1);
 	}
 
@@ -3333,6 +3345,9 @@ public class Athlete {
 	}
 
 	public int getSnatchRank() {
+		if (!isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		int snatchRank;
 		if (getMainRankings() != null) {
 			snatchRank = getMainRankings().getSnatchRank();
@@ -3521,6 +3536,9 @@ public class Athlete {
 	}
 
 	public int getTotalRank() {
+		if (!isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		return (getMainRankings() != null ? getMainRankings().getTotalRank() : -1);
 	}
 

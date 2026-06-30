@@ -9,7 +9,9 @@ package app.owlcms.tests;
 import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -24,15 +26,20 @@ import app.owlcms.Main;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
+import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.athleteSort.WinningOrderComparator;
+import app.owlcms.data.category.Participation;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
+import app.owlcms.spreadsheet.PAthlete;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -301,6 +308,92 @@ public class AthleteSorterTest {
         // on the constructor to disable exclusion of incomplete data.
         athletes = AthleteRepository.findAll();
         OwlcmsSession.withFop(fop -> fop.testBefore());
+    }
+
+    @Test
+    public void oocAthleteKeepsExtraBestAthleteRanks() {
+        Athlete ooc = athletes.stream()
+                .filter(a -> a.getCategory() != null && !a.getParticipations().isEmpty())
+                .findFirst()
+                .orElseThrow();
+        EligibleForIndividualRankingStatus previousEligibility = ooc.getIndividualEligibilityStatus();
+        ooc.setGender(Gender.M);
+        Participation mainRankings = ooc.getMainRankings();
+        mainRankings.setSnatchRank(1);
+        mainRankings.setCleanJerkRank(1);
+        mainRankings.setTotalRank(1);
+        mainRankings.setCustomRank(1);
+        mainRankings.setCategoryScoreRank(1);
+        ooc.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.OOC_INVITED);
+
+        EnumMap<Ranking, Boolean> previousConfig = RankingConfig.getConfig();
+        try {
+            assertCategoryRanksAreExtra(ooc);
+            assertCategoryRanksAreExtra(new PAthlete(mainRankings));
+
+            AthleteSorter.assignCategoryRanks(new ArrayList<>(List.of(ooc)), Ranking.SNATCH);
+            AthleteSorter.assignCategoryRanks(new ArrayList<>(List.of(ooc)), Ranking.CLEANJERK);
+            AthleteSorter.assignCategoryRanks(new ArrayList<>(List.of(ooc)), Ranking.TOTAL);
+            AthleteSorter.assignCategoryRanks(new ArrayList<>(List.of(ooc)), Ranking.CUSTOM);
+            AthleteSorter.assignCategoryRanks(new ArrayList<>(List.of(ooc)), Ranking.CATEGORY_SCORE);
+
+            assertCategoryRanksAreExtra(ooc);
+
+            for (Ranking ranking : RankingConfig.getAllScoringRankings()) {
+                RankingConfig.setUserEnabled(ranking, true);
+                AthleteSorter.assignOverallRanksAndPoints(List.of(ooc), ranking);
+                JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(ranking);
+                assertEquals(-1, ooc.getBestLifterRank());
+            }
+
+            assertEquals(Integer.valueOf(-1), ooc.getSinclairRank());
+            assertEquals(-1, ooc.getCatSinclairRank());
+            assertEquals(Integer.valueOf(-1), ooc.getCatQPointsRank());
+            assertEquals(Integer.valueOf(-1), ooc.getCatGAMXRank());
+            assertEquals(-1, ooc.getSmhfRank());
+            assertEquals(Integer.valueOf(-1), ooc.getqPointsRank());
+            assertEquals(-1, ooc.getQMastersRank());
+            assertEquals(Integer.valueOf(-1), ooc.getGamxRank());
+            assertEquals(Integer.valueOf(-1), ooc.getGamxMRank());
+            assertEquals(Integer.valueOf(-1), ooc.getGamxURank());
+            assertEquals(Integer.valueOf(-1), ooc.getGamxARank());
+            assertEquals(Integer.valueOf(-1), ooc.getQYouthRank());
+        } finally {
+            for (Ranking ranking : RankingConfig.getAllScoringRankings()) {
+                RankingConfig.setUserEnabled(ranking, previousConfig.getOrDefault(ranking, false));
+            }
+            ooc.setIndividualEligibilityStatus(previousEligibility);
+            JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(null);
+        }
+    }
+
+    @Test
+    public void pAthleteBestLifterRankUsesReportRowRank() {
+        Athlete athlete = athletes.stream()
+                .filter(a -> a.getCategory() != null && !a.getParticipations().isEmpty())
+                .findFirst()
+                .orElseThrow();
+        Participation participation = athlete.getMainRankings();
+        PAthlete pAthlete = new PAthlete(participation);
+
+        athlete.setSinclairRank(77);
+        pAthlete.setSinclairRank(3);
+
+        try {
+            JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(Ranking.BW_SINCLAIR);
+            assertEquals(3, pAthlete.getBestLifterRank());
+            assertEquals(Integer.valueOf(77), athlete.getSinclairRank());
+        } finally {
+            JXLSWorkbookStreamSource.setBestLifterRankingThreadLocal(null);
+        }
+    }
+
+    private void assertCategoryRanksAreExtra(Athlete athlete) {
+        assertEquals(-1, athlete.getSnatchRank());
+        assertEquals(-1, athlete.getCleanJerkRank());
+        assertEquals(-1, athlete.getTotalRank());
+        assertEquals(-1, athlete.getCustomRank());
+        assertEquals(-1, athlete.getCategoryScoreRank());
     }
 
     /**
