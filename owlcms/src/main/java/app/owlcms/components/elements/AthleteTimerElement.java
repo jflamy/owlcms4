@@ -93,9 +93,9 @@ public class AthleteTimerElement extends TimerElement {
 		reassertTimerState(e.isTimerShouldRun(), e.getTimerMillisRemaining(), serverSound, e.getSequence(), () -> {
 			String state = e.isTimerShouldRun() ? "RUNNING" : "STOPPED";
 			String oldState = e.isTimerShouldRun() ? "client stopped" : "client running";
-			logger./**/warn("{}timer re-assert: server says {}@{}ms but {} - correcting (seq={}) {}",
+			logger./**/warn("{}timer re-assert: server says {}@{}ms but {} - correcting seq={} timer={} {}",
 			        FieldOfPlay.getLoggingName(this.fop), state, e.getTimerMillisRemaining(), oldState, e.getSequence(),
-			        LoggerUtils.whereFrom());
+			        describeTimerForDiagnostics(), LoggerUtils.whereFrom());
 		});
 	}
 

@@ -58,7 +58,7 @@ public interface SafeEventBusRegistration {
 			for (Map.Entry<Object, Set<EventBus>> entry : BUS_REGISTRY.entrySet()) {
 				Object subscriber = entry.getKey();
 				Set<EventBus> registeredBuses = entry.getValue();
-				if (subscriber instanceof TimerElement timerElement && timerElement.isControlAthleteTimerForDiagnostics()
+				if (subscriber instanceof TimerElement timerElement && timerElement.isAthleteTimerOnControlPageForDiagnostics()
 				        && registeredBuses != null && registeredBuses.contains(uiEventBus)) {
 					count++;
 				}

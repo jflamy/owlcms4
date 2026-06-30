@@ -296,6 +296,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			this.breakTimer.setFop(fop);
 		}
 		if (this.athleteTimer != null) {
+			this.athleteTimer.setOrigin(this);
 			this.athleteTimer.setFop(fop);
 		}
 		if (this.decisions != null) {

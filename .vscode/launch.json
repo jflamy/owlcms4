@@ -346,13 +346,52 @@
       "mainClass": "playwright.UpdateCheck",
       "projectName": "playwright",
       "cwd": "${workspaceFolder}/playwright",
-      "vmArgs": "",
+      "vmArgs": "-DOWLCMS_PLAYWRIGHT_LOG=logs/playwright.log",
       "console": "integratedTerminal",
       "env": {
         "OWLCMS_FOPS": "RED,WHITE,BLUE",
         "OWLCMS_BASE_URL": "http://127.0.0.1:8080",
         "OWLCMS_MQTT_URI": "tcp://127.0.0.1:1883",
         "OWLCMS_PLAYWRIGHT_HEADLESS": "false",
+        "OWLCMS_PLAYWRIGHT_BOARDS": "announcer",
+        "PLAYWRIGHT_BROWSER_CHANNEL": "chrome",
+        "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
+      }
+    },
+    {
+      "type": "java",
+      "name": "♦️ Playwright Attempt Board Updates",
+      "request": "launch",
+      "mainClass": "playwright.UpdateCheck",
+      "projectName": "playwright",
+      "cwd": "${workspaceFolder}/playwright",
+      "vmArgs": "-DOWLCMS_PLAYWRIGHT_LOG=logs/playwright.log",
+      "console": "integratedTerminal",
+      "env": {
+        "OWLCMS_FOPS": "RED,WHITE,BLUE",
+        "OWLCMS_BASE_URL": "http://127.0.0.1:8080",
+        "OWLCMS_MQTT_URI": "tcp://127.0.0.1:1883",
+        "OWLCMS_PLAYWRIGHT_HEADLESS": "false",
+        "OWLCMS_PLAYWRIGHT_BOARDS": "attempt",
+        "PLAYWRIGHT_BROWSER_CHANNEL": "chrome",
+        "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
+      }
+    },
+    {
+      "type": "java",
+      "name": "♦️ Playwright Announcer + Attempt Board Updates",
+      "request": "launch",
+      "mainClass": "playwright.UpdateCheck",
+      "projectName": "playwright",
+      "cwd": "${workspaceFolder}/playwright",
+      "vmArgs": "-DOWLCMS_PLAYWRIGHT_LOG=logs/playwright.log",
+      "console": "integratedTerminal",
+      "env": {
+        "OWLCMS_FOPS": "RED,WHITE,BLUE",
+        "OWLCMS_BASE_URL": "http://127.0.0.1:8080",
+        "OWLCMS_MQTT_URI": "tcp://127.0.0.1:1883",
+        "OWLCMS_PLAYWRIGHT_HEADLESS": "false",
+        "OWLCMS_PLAYWRIGHT_BOARDS": "announcer,attempt",
         "PLAYWRIGHT_BROWSER_CHANNEL": "chrome",
         "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1"
       }
@@ -364,6 +403,20 @@
       "configurations": [
         "🟨 owlcms no reset + file logs",
         "♦️ Playwright Announcer Updates"
+      ]
+    },
+    {
+      "name": "♦️ owlcms logs + playwright attempt",
+      "configurations": [
+        "🟨 owlcms no reset + file logs",
+        "♦️ Playwright Attempt Board Updates"
+      ]
+    },
+    {
+      "name": "♦️ owlcms logs + playwright combined",
+      "configurations": [
+        "🟨 owlcms no reset + file logs",
+        "♦️ Playwright Announcer + Attempt Board Updates"
       ]
     },
     {

@@ -28,10 +28,10 @@ class CurrentAttempt extends LitElement {
         <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
       </div>
       <div class="attemptBoard" style="${this.activeStyles()}">
-        <div id="lastNameDiv" class="${this.lastNameClasses()}" style="${this.lastNameStyles()}">
+        <div id="lastNameDiv" data-testid="attempt-board-last-name" class="${this.lastNameClasses()}" style="${this.lastNameStyles()}">
           <div style="${this.nameSizeOverride}">${this.lastName}</div>
         </div>
-        <div class="${this.firstNameClasses()}" style="${this.firstNameStyles()}">
+        <div data-testid="attempt-board-first-name" class="${this.firstNameClasses()}" style="${this.firstNameStyles()}">
           <div style="${this.firstNameSizeOverride}">${this.firstName}</div>
         </div>
         <div class="${this.teamNameClasses()}" style="${this.teamNameStyles()}">
@@ -45,16 +45,16 @@ class CurrentAttempt extends LitElement {
             speed="${this.recordMessageSpeed}"
           ></css-ticker>
         </div>
-        <div class="startNumber" style="${this.startNumberStyles()}">
+        <div data-testid="attempt-board-start-number" class="startNumber" style="${this.startNumberStyles()}">
           <span>${this.startNumber}</span>
         </div>
         <div class=${classMap({ category: true, longCategory: this.isLongCategory() })} style="${this.attemptStyles()}">
           ${this.categoryContent()}
         </div>
-        <div class="attempt" style="${this.attemptStyles()}">
+        <div data-testid="attempt-board-attempt" class="attempt" style="${this.attemptStyles()}">
           <span .innerHTML="${this.attempt}"></span>
         </div>
-        <div class="weight" style="${this.weightStyles()}">
+        <div data-testid="attempt-board-weight" class="weight" style="${this.weightStyles()}">
           <span style="white-space: nowrap;">${this.weight}<span style="font-size: 75%">${this.kgSymbol}</span></span>
         </div>
         <div class="barbell" style="${this.barbellStyles()}">

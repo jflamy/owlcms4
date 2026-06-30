@@ -445,9 +445,8 @@ class TimerElement extends LitElement {
 
     const nextDisplay = this._formatTime(this.currentTime);
     if (nextDisplay !== this.lastTime) {
-      // Fire-and-forget authoritative check: do NOT block the animation frame.
-      // If the FOP timer is actually stopped, the server replies with a
-      // corrective stop() command that lands asynchronously and halts us.
+      // Playwright observe-only diagnostic: do NOT block the animation frame.
+      // If the FOP timer is already stopped, the server records failure evidence.
       this._notifyServerRunningCheck(nextDisplay);
     }
     if (!this.running) {
