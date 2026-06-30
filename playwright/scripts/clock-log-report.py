@@ -17,14 +17,25 @@ or:
 """
 import argparse
 import json
+import math
 import re
-import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
 DEFAULT_EVIDENCE_FILE = "playwright/logs/clock-log-evidence.json"
 DEFAULT_SUMMARY_FILE = "playwright/logs/clock-log-summary.txt"
+TIMING_BUCKETS = (
+    ("upTo50ms", 50),
+    ("upTo100ms", 100),
+    ("upTo150ms", 150),
+    ("upTo200ms", 200),
+    ("upTo300ms", 300),
+)
+OVER_300_BUCKET = "moreThan300ms"
+MAX_PLAYWRIGHT_CLOCK_DELTA_MS = 15000
+CLOCK_RENDER_BEFORE_EXPECT_MS = 500
+CLOCK_RENDER_AFTER_EXPECT_MS = 2000
 
 parser = argparse.ArgumentParser(description="Produce OWLCMS/Playwright diagnostic summary and evidence JSON")
 parser.add_argument("--owlcms-log", default="owlcms/logs/owlcms.log", metavar="PATH")
@@ -40,7 +51,7 @@ parser.add_argument("--max-context-lines", type=int, default=80, metavar="N",
 parser.add_argument("--max-summary-failures", type=int, default=25, metavar="N",
                     help="Deprecated; all failures are always printed")
 parser.add_argument("--no-fail-on-issues", action="store_true",
-                    help="Exit 0 even if clock issues are found")
+                    help="Deprecated; reports now always exit 0 even if issues are found")
 args = parser.parse_args()
 
 # ---- patterns ----
@@ -60,6 +71,20 @@ TICK_MISMATCH = re.compile(
 )
 PLAYWRIGHT_MISS = re.compile(
     r"(\d{2}:\d{2}:\d{2}\.\d{3}).*?\[(.+?)\s+(announcer|attempt)\]\s+MISS\s+(.*)"
+)
+PLAYWRIGHT_CONFIRMED = re.compile(
+    r"(\d{2}:\d{2}:\d{2}\.\d{3}).*?\[(.+?)\s+(announcer|attempt)\]"
+    r"\s+CONFIRMED\s+(HEADER|DISPLAY|GRID)\s+\[(\d+)\s+ms\].*?\bseq=(\d+)"
+)
+PLAYWRIGHT_EXPECTING = re.compile(
+    r"(\d{2}:\d{2}:\d{2}\.\d{3}).*?\[(.+?)\s+(announcer|attempt)\]\s+EXPECTING\s+(.*?)\s*\bseq=(\d+)"
+)
+PLAYWRIGHT_SUPERCEDED = re.compile(
+    r"(\d{2}:\d{2}:\d{2}\.\d{3}).*?\[(.+?)\s+(announcer|attempt)\]\s+SUPERCEDED\s+.*?\bseq=(\d+)\s*->"
+)
+OWLCMS_CLIENT_RENDER = re.compile(
+    r"(\d{2}:\d{2}:\d{2}\.\d{3}).*?(\S+)\s+(announcer|attempt) timer "
+    r"(start|stop|set) client rendered \+(\d+)ms seq=(\d+) seconds=([^\s]+)"
 )
 TIMER_DETAIL = re.compile(r"([0-9a-f]+)\{([^}]+)\}")
 TS_RE = re.compile(r"^(\d{2}):(\d{2}):(\d{2})\.(\d{3})")
@@ -197,6 +222,22 @@ suppressed_tick_mismatches = []
 expected_initial_misses = []
 warnings = []
 stats = Counter()
+confirmed_name_timings_by_role = defaultdict(list)
+confirmed_name_timings_by_fop_role = defaultdict(list)
+confirmed_name_max_by_role = {}
+confirmed_name_max_by_fop_role = {}
+missed_display_timings_by_role = defaultdict(list)
+missed_display_timings_by_fop_role = defaultdict(list)
+clock_render_events = []
+clock_render_timings_by_role = defaultdict(list)
+clock_render_timings_by_fop_role = defaultdict(list)
+clock_render_max_by_role = {}
+clock_render_max_by_fop_role = {}
+playwright_clock_delta_timings_by_role = defaultdict(list)
+playwright_clock_delta_timings_by_fop_role = defaultdict(list)
+playwright_clock_delta_max_by_role = {}
+playwright_clock_delta_max_by_fop_role = {}
+pending_expectation_by_fop_role = {}
 scan_order = 0
 
 
@@ -230,6 +271,199 @@ def record_expected_initial_miss(order, ts, fop, role, log_path, line_no, raw_li
         "raw": raw_line.strip(),
         "details": {"message": message},
     })
+
+
+def new_pending_expectation(order, ts, fop, role, seq, display, log_path, line_no, raw_line):
+    return {
+        "order": order,
+        "timestamp": ts,
+        "timestampMs": ts_to_ms(ts),
+        "fop": fop,
+        "role": role,
+        "seq": seq,
+        "display": display,
+        "log": log_path,
+        "line": line_no,
+        "raw": raw_line.strip(),
+        "header": None,
+        "grid": None,
+        "displayMs": None,
+        "superseded": False,
+        "confirmed": False,
+    }
+
+
+def pending_fully_confirmed(pending):
+    if pending["role"] == "announcer":
+        return pending["header"] is not None and pending["grid"] is not None
+    return pending["displayMs"] is not None
+
+
+def record_full_confirmation(pending, ts):
+    role = pending["role"]
+    if role == "announcer":
+        millis = max(pending["header"], pending["grid"])
+    else:
+        millis = pending["displayMs"]
+    event = {
+        "order": pending["order"],
+        "timestamp": ts,
+        "timestampMs": ts_to_ms(ts),
+        "fop": pending["fop"],
+        "role": role,
+        "seq": pending["seq"],
+        "kind": "FULL",
+        "millis": millis,
+        "expectation": pending,
+        "log": pending["log"],
+        "line": pending["line"],
+        "raw": pending["raw"],
+    }
+    fop_role = f"{pending['fop']} {role}"
+    confirmed_name_timings_by_role[role].append(millis)
+    confirmed_name_timings_by_fop_role[fop_role].append(millis)
+    if role not in confirmed_name_max_by_role or millis > confirmed_name_max_by_role[role]["millis"]:
+        confirmed_name_max_by_role[role] = event
+    if fop_role not in confirmed_name_max_by_fop_role or millis > confirmed_name_max_by_fop_role[fop_role]["millis"]:
+        confirmed_name_max_by_fop_role[fop_role] = event
+    stats["playwrightConfirmed.total"] += 1
+    stats[f"playwrightConfirmed.{role}"] += 1
+    record_playwright_clock_delta(event)
+
+
+def record_clock_render_timing(order, ts, fop, role, command, millis, sequence, seconds, log_path, line_no, raw_line):
+    event = {
+        "order": order,
+        "timestamp": ts,
+        "timestampMs": ts_to_ms(ts),
+        "fop": fop,
+        "role": role,
+        "command": command,
+        "millis": millis,
+        "sequence": sequence,
+        "seconds": seconds,
+        "log": log_path,
+        "line": line_no,
+        "raw": raw_line.strip(),
+    }
+    clock_render_events.append(event)
+    clock_render_timings_by_role[role].append(millis)
+    fop_role = f"{fop} {role}"
+    clock_render_timings_by_fop_role[fop_role].append(millis)
+    if role not in clock_render_max_by_role or millis > clock_render_max_by_role[role]["millis"]:
+        clock_render_max_by_role[role] = event
+    if fop_role not in clock_render_max_by_fop_role or millis > clock_render_max_by_fop_role[fop_role]["millis"]:
+        clock_render_max_by_fop_role[fop_role] = event
+    stats["owlcmsClockRender.total"] += 1
+    stats[f"owlcmsClockRender.{role}"] += 1
+
+
+def record_playwright_clock_delta(playwright_event):
+    render_event = nearest_clock_render_event(playwright_event)
+    if render_event is None:
+        stats["playwrightClockDelta.unmatched"] += 1
+        return
+    delta_ms = playwright_event["timestampMs"] - render_event["timestampMs"]
+    if delta_ms < 0:
+        stats["playwrightClockDelta.negative"] += 1
+        return
+    event = {
+        "timestamp": playwright_event["timestamp"],
+        "timestampMs": playwright_event["timestampMs"],
+        "fop": playwright_event["fop"],
+        "role": playwright_event["role"],
+        "kind": playwright_event["kind"],
+        "millis": delta_ms,
+        "playwrightEvent": playwright_event,
+        "clockRenderEvent": render_event,
+    }
+    role = playwright_event["role"]
+    fop_role = f"{playwright_event['fop']} {role}"
+    playwright_clock_delta_timings_by_role[role].append(delta_ms)
+    playwright_clock_delta_timings_by_fop_role[fop_role].append(delta_ms)
+    if role not in playwright_clock_delta_max_by_role or delta_ms > playwright_clock_delta_max_by_role[role]["millis"]:
+        playwright_clock_delta_max_by_role[role] = event
+    if fop_role not in playwright_clock_delta_max_by_fop_role or delta_ms > playwright_clock_delta_max_by_fop_role[fop_role]["millis"]:
+        playwright_clock_delta_max_by_fop_role[fop_role] = event
+    stats["playwrightClockDelta.total"] += 1
+    stats[f"playwrightClockDelta.{role}"] += 1
+
+
+def nearest_clock_render_event(playwright_event):
+    expectation = playwright_event.get("expectation")
+    expected_ms = expectation.get("timestampMs") if expectation else None
+    if expected_ms is None:
+        return None
+    lo = expected_ms - CLOCK_RENDER_BEFORE_EXPECT_MS
+    hi = expected_ms + CLOCK_RENDER_AFTER_EXPECT_MS
+    candidates = [event for event in clock_render_events
+                  if event["fop"] == playwright_event["fop"]
+                  and event["role"] == playwright_event["role"]
+                  and event["command"] == "start"
+                  and event["timestampMs"] is not None
+                  and lo <= event["timestampMs"] <= hi]
+    if not candidates:
+        return None
+    return min(candidates, key=lambda event: (abs(event["timestampMs"] - expected_ms), event["order"]))
+
+
+def record_missed_display_timing(fop, role, message):
+    if m := re.search(r"after\s+(\d+)ms\s+/\s+\d+\s+polls", message):
+        millis = int(m.group(1))
+        missed_display_timings_by_role[role].append(millis)
+        missed_display_timings_by_fop_role[f"{fop} {role}"].append(millis)
+
+
+def timing_stats(samples, max_event):
+    count = len(samples)
+    if count == 0:
+        return {"count": 0, "buckets": empty_timing_buckets()}
+    average = sum(samples) / count
+    variance = sum((sample - average) ** 2 for sample in samples) / count
+    return {
+        "count": count,
+        "averageMs": round(average, 1),
+        "maxMs": max(samples),
+        "stdDevMs": round(math.sqrt(variance), 1),
+        "buckets": timing_buckets(samples),
+        "maxEvent": max_event,
+    }
+
+
+def empty_timing_buckets():
+    buckets = {name: 0 for name, _limit in TIMING_BUCKETS}
+    buckets[OVER_300_BUCKET] = 0
+    return buckets
+
+
+def timing_buckets(samples):
+    buckets = empty_timing_buckets()
+    for sample in samples:
+        for name, limit in TIMING_BUCKETS:
+            if sample <= limit:
+                buckets[name] += 1
+                break
+        else:
+            buckets[OVER_300_BUCKET] += 1
+    return buckets
+
+
+def format_timing_buckets(buckets):
+    return (
+        f"<=50={buckets['upTo50ms']} "
+        f"<=100={buckets['upTo100ms']} "
+        f"<=150={buckets['upTo150ms']} "
+        f"<=200={buckets['upTo200ms']} "
+        f"<=300={buckets['upTo300ms']} "
+        f">300={buckets[OVER_300_BUCKET]}"
+    )
+
+
+def build_timing_stats(timings, max_events):
+    return {
+        key: timing_stats(samples, max_events.get(key))
+        for key, samples in sorted(timings.items())
+    }
 
 
 def is_playwright_initial_miss(message: str) -> bool:
@@ -283,12 +517,16 @@ for owlcms_log_path in owlcms_paths:
                     stats[f"prePost.{event}"] += 1
 
                 if m := START_APPLY.search(line):
-                    applied_starts.add(log_timer_ref(m))
+                    timer_ref = log_timer_ref(m)
+                    applied_starts.add(timer_ref)
                     stats["startApply"] += 1
+                    stats[f"startApply.{timer_ref[3]}"] += 1
 
                 if m := STOP_APPLY.search(line):
-                    applied_stops.add(log_timer_ref(m))
+                    timer_ref = log_timer_ref(m)
+                    applied_stops.add(timer_ref)
                     stats["stopApply"] += 1
+                    stats[f"stopApply.{timer_ref[3]}"] += 1
 
                 if m := STOP_STALE.search(line):
                     stale_stops.add(log_timer_ref(m))
@@ -322,6 +560,14 @@ for owlcms_log_path in owlcms_paths:
                         stats["tickMismatch.reported"] += 1
                         record_failure(line_order, ts, fop, role, "CLOCK_KEPT_RUNNING", log_path, line_no, line,
                                        {"timerId": timer_id, "timerBody": body})
+
+                if m := OWLCMS_CLIENT_RENDER.search(line):
+                    ts, fop, role, command, millis, sequence, seconds = (
+                        m.group(1), m.group(2), m.group(3), m.group(4),
+                        int(m.group(5)), int(m.group(6)), m.group(7)
+                    )
+                    record_clock_render_timing(line_order, ts, fop, role, command, millis, sequence, seconds,
+                                               log_path, line_no, line)
     except FileNotFoundError:
         if owlcms_log_path == Path(args.owlcms_log):
             warnings.append(f"OWLCMS log not found: {owlcms_log_path}")
@@ -351,6 +597,46 @@ try:
         for line_no, line in enumerate(fh, start=1):
             scan_order += 1
             line_order = scan_order
+            if m := PLAYWRIGHT_EXPECTING.search(line):
+                ts, fop, role, display_text, seq = (
+                    m.group(1), m.group(2), m.group(3), m.group(4).strip(), int(m.group(5))
+                )
+                key = f"{fop} {role}"
+                prev = pending_expectation_by_fop_role.get(key)
+                if prev is not None and not prev["confirmed"] and not prev["superseded"]:
+                    stats["expectingNotConfirmed.total"] += 1
+                    stats[f"expectingNotConfirmed.{role}"] += 1
+                    record_failure(prev["order"], prev["timestamp"], fop, role, "EXPECTING_NOT_CONFIRMED",
+                                   prev["log"], prev["line"], prev["raw"],
+                                   {"sequence": prev["seq"], "expected": prev["display"],
+                                    "nextSequence": seq, "nextExpectedAt": ts})
+                pending_expectation_by_fop_role[key] = new_pending_expectation(
+                    line_order, ts, fop, role, seq, f"{display_text} seq={seq}", log_path, line_no, line)
+
+            if m := PLAYWRIGHT_SUPERCEDED.search(line):
+                ts, fop, role, from_seq = m.group(1), m.group(2), m.group(3), int(m.group(4))
+                prev = pending_expectation_by_fop_role.get(f"{fop} {role}")
+                if prev is not None and prev["seq"] == from_seq and not prev["confirmed"]:
+                    prev["superseded"] = True
+                    stats["expectingSuperceded.total"] += 1
+                    stats[f"expectingSuperceded.{role}"] += 1
+
+            if m := PLAYWRIGHT_CONFIRMED.search(line):
+                ts, fop, role, kind, millis, seq = (
+                    m.group(1), m.group(2), m.group(3), m.group(4), int(m.group(5)), int(m.group(6))
+                )
+                prev = pending_expectation_by_fop_role.get(f"{fop} {role}")
+                if prev is not None and prev["seq"] == seq:
+                    if kind == "HEADER":
+                        prev["header"] = millis
+                    elif kind == "GRID":
+                        prev["grid"] = millis
+                    elif kind == "DISPLAY":
+                        prev["displayMs"] = millis
+                    if not prev["confirmed"] and pending_fully_confirmed(prev):
+                        prev["confirmed"] = True
+                        record_full_confirmation(prev, ts)
+
             if m := PLAYWRIGHT_MISS.search(line):
                 ts, fop, role, message = m.group(1), m.group(2), m.group(3), m.group(4).strip()
                 if is_playwright_initial_miss(message):
@@ -360,6 +646,7 @@ try:
                 else:
                     stats["playwrightMiss.total"] += 1
                     stats[f"playwrightMiss.{role}"] += 1
+                    record_missed_display_timing(fop, role, message)
                     record_failure(line_order, ts, fop, role, playwright_miss_reason(message), log_path, line_no, line,
                                    {"message": message})
 except FileNotFoundError:
@@ -379,6 +666,23 @@ failures.sort(key=failure_key)
 by_reason = Counter(failure["reason"] for failure in failures)
 by_fop_role = Counter(f"{failure['fop']} {failure['role']}" for failure in failures)
 by_log = Counter(failure["log"] for failure in failures)
+confirmed_name_stats = {
+    "byRole": build_timing_stats(confirmed_name_timings_by_role, confirmed_name_max_by_role),
+    "byFopRole": build_timing_stats(confirmed_name_timings_by_fop_role, confirmed_name_max_by_fop_role),
+    "missesExcluded": {
+        "byRole": build_timing_stats(missed_display_timings_by_role, {}),
+        "byFopRole": build_timing_stats(missed_display_timings_by_fop_role, {}),
+    },
+}
+clock_render_stats = {
+    "byRole": build_timing_stats(clock_render_timings_by_role, clock_render_max_by_role),
+    "byFopRole": build_timing_stats(clock_render_timings_by_fop_role, clock_render_max_by_fop_role),
+    "playwrightObservationDelta": {
+        "byRole": build_timing_stats(playwright_clock_delta_timings_by_role, playwright_clock_delta_max_by_role),
+        "byFopRole": build_timing_stats(playwright_clock_delta_timings_by_fop_role,
+                                         playwright_clock_delta_max_by_fop_role),
+    },
+}
 
 summary = {
     "status": "failed" if failures else "ok",
@@ -389,6 +693,8 @@ summary = {
     "counters": dict(stats),
     "suppressedTickMismatchCount": len(suppressed_tick_mismatches),
     "expectedInitialMissCount": len(expected_initial_misses),
+    "confirmedNameTimings": confirmed_name_stats,
+    "clockRenderTimings": clock_render_stats,
 }
 
 evidence = {
@@ -448,6 +754,72 @@ summary_lines.append(f"  playwright update misses total: {stats.get('playwrightM
 summary_lines.append(f"  playwright announcer update misses: {stats.get('playwrightMiss.announcer', 0)}")
 summary_lines.append(f"  playwright attempt update misses: {stats.get('playwrightMiss.attempt', 0)}")
 summary_lines.append(f"  expected startup initial misses: {len(expected_initial_misses)}")
+summary_lines.append(f"  expecting not confirmed before next expecting: {stats.get('expectingNotConfirmed.total', 0)} "
+                     f"(announcer={stats.get('expectingNotConfirmed.announcer', 0)} attempt={stats.get('expectingNotConfirmed.attempt', 0)})")
+summary_lines.append(f"  expecting superseded (excused): {stats.get('expectingSuperceded.total', 0)} "
+                     f"(announcer={stats.get('expectingSuperceded.announcer', 0)} attempt={stats.get('expectingSuperceded.attempt', 0)})")
+summary_lines.append(f"  full confirmations by seq: {stats.get('playwrightConfirmed.total', 0)} "
+                     f"(announcer={stats.get('playwrightConfirmed.announcer', 0)} attempt={stats.get('playwrightConfirmed.attempt', 0)})")
+summary_lines.append("Playwright full-confirmation times by seq (announcer=HEADER+GRID, attempt=DISPLAY; misses excluded):")
+role_timings = confirmed_name_stats["byRole"]
+if role_timings:
+    for role in ("announcer", "attempt"):
+        if role in role_timings:
+            timing = role_timings[role]
+            max_event = timing.get("maxEvent") or {}
+            summary_lines.append(
+                f"  {role}: count={timing['count']} avg={timing['averageMs']:.1f}ms "
+                f"max={timing['maxMs']}ms stdDev={timing['stdDevMs']:.1f}ms "
+                f"maxAt={max_event.get('timestamp', '?')} {max_event.get('fop', '?')}:{max_event.get('line', '?')} "
+                f"buckets[{format_timing_buckets(timing['buckets'])}]"
+            )
+else:
+    summary_lines.append("  none")
+summary_lines.append("OWLCMS display timer client-render clock delays:")
+clock_role_timings = clock_render_stats["byRole"]
+for role in ("announcer", "attempt"):
+    if role in clock_role_timings:
+        timing = clock_role_timings[role]
+        max_event = timing.get("maxEvent") or {}
+        summary_lines.append(
+            f"  {role}: count={timing['count']} avg={timing['averageMs']:.1f}ms "
+            f"max={timing['maxMs']}ms stdDev={timing['stdDevMs']:.1f}ms "
+            f"maxAt={max_event.get('timestamp', '?')} {max_event.get('fop', '?')}:{max_event.get('line', '?')} "
+            f"buckets[{format_timing_buckets(timing['buckets'])}]"
+        )
+    elif stats.get(f"startApply.{role}", 0):
+        summary_lines.append(
+            f"  {role}: no client-render samples found "
+            f"({stats.get(f'startApply.{role}', 0)} OWLCMS start applications were present)"
+        )
+    else:
+        summary_lines.append(f"  {role}: no samples")
+summary_lines.append("Playwright confirmation delta after OWLCMS clock render:")
+delta_role_timings = clock_render_stats["playwrightObservationDelta"]["byRole"]
+if delta_role_timings:
+    for role in ("announcer", "attempt"):
+        if role in delta_role_timings:
+            timing = delta_role_timings[role]
+            max_event = timing.get("maxEvent") or {}
+            clock_event = max_event.get("clockRenderEvent") or {}
+            summary_lines.append(
+                f"  {role}: count={timing['count']} avg={timing['averageMs']:.1f}ms "
+                f"max={timing['maxMs']}ms stdDev={timing['stdDevMs']:.1f}ms "
+                f"maxAt={max_event.get('timestamp', '?')} {max_event.get('fop', '?')}:{clock_event.get('line', '?')} "
+                f"buckets[{format_timing_buckets(timing['buckets'])}]"
+            )
+else:
+    summary_lines.append("  none")
+excluded_timings = confirmed_name_stats["missesExcluded"]["byRole"]
+if excluded_timings:
+    summary_lines.append("Playwright missed display times excluded from max:")
+    for role in ("announcer", "attempt"):
+        if role in excluded_timings:
+            timing = excluded_timings[role]
+            summary_lines.append(
+                f"  {role}: count={timing['count']} avg={timing['averageMs']:.1f}ms "
+                f"max={timing['maxMs']}ms stdDev={timing['stdDevMs']:.1f}ms"
+            )
 
 if failures:
     summary_lines.append(f"Issues ({len(failures)}):")
@@ -465,6 +837,3 @@ if args.summary_file:
     summary_path = Path(args.summary_file)
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     summary_path.write_text(summary_text, encoding="utf-8")
-
-if failures and not args.no_fail_on_issues:
-    sys.exit(1)

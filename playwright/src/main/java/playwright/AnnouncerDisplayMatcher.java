@@ -10,7 +10,7 @@ class AnnouncerDisplayMatcher implements UpdateCheck.DisplayMatcher {
     @Override
     public boolean expectedDisplayVisible(UpdateCheck.ExpectedDisplay expected,
             UpdateCheck.ExpectationState state, UpdateCheck.CleanLog log, MonitoredPage mp) {
-        UpdateCheck.SnapshotRead snapshotRead = mp.snapshotReader().read(mp);
+        UpdateCheck.SnapshotRead snapshotRead = mp.readSnapshot();
         state.recordSnapshotRead(snapshotRead);
         UpdateCheck.Snapshot snapshot = snapshotRead.snapshot();
         if (snapshot == null) {
@@ -20,11 +20,11 @@ class AnnouncerDisplayMatcher implements UpdateCheck.DisplayMatcher {
         boolean gridOk = UpdateCheck.gridConfirmed(snapshot, expected);
         if (athleteOk && !state.athleteConfirmed()) {
             state.confirmAthlete();
-            log.confirmedAthlete(mp.fop(), mp.role(), state.elapsedMillis(), snapshot);
+            log.confirmedAthlete(mp.fop(), mp.role(), state.elapsedMillis(), expected.sequence(), snapshot);
         }
         if (gridOk && !state.gridConfirmed()) {
             state.confirmGrid();
-            log.confirmedGrid(mp.fop(), mp.role(), state.elapsedMillis());
+            log.confirmedGrid(mp.fop(), mp.role(), state.elapsedMillis(), expected.sequence());
         }
         return athleteOk && gridOk;
     }
@@ -34,7 +34,7 @@ class AnnouncerDisplayMatcher implements UpdateCheck.DisplayMatcher {
             UpdateCheck.CleanLog log, MonitoredPage mp) {
         String lastPollSummary = state.lastSnapshotReadSummary();
         int inWindowPolls = state.snapshotReads();
-        UpdateCheck.SnapshotRead finalRead = mp.snapshotReader().read(mp);
+        UpdateCheck.SnapshotRead finalRead = mp.readSnapshot();
         state.recordSnapshotRead(finalRead);
         UpdateCheck.Snapshot current = finalRead.snapshot();
         String fop = mp.fop();

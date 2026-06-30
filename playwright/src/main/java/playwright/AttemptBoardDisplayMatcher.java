@@ -13,7 +13,7 @@ class AttemptBoardDisplayMatcher implements UpdateCheck.DisplayMatcher {
     @Override
     public boolean expectedDisplayVisible(UpdateCheck.ExpectedDisplay expected,
             UpdateCheck.ExpectationState state, UpdateCheck.CleanLog log, MonitoredPage mp) {
-        UpdateCheck.SnapshotRead snapshotRead = mp.snapshotReader().read(mp);
+        UpdateCheck.SnapshotRead snapshotRead = mp.readSnapshot();
         state.recordSnapshotRead(snapshotRead);
         UpdateCheck.Snapshot snapshot = snapshotRead.snapshot();
         if (snapshot == null) {
@@ -22,7 +22,7 @@ class AttemptBoardDisplayMatcher implements UpdateCheck.DisplayMatcher {
         boolean athleteOk = UpdateCheck.matchesExpected(snapshot, expected);
         if (athleteOk && !state.athleteConfirmed()) {
             state.confirmAthlete();
-            log.confirmedDisplay(mp.fop(), mp.role(), state.elapsedMillis(), snapshot);
+            log.confirmedDisplay(mp.fop(), mp.role(), state.elapsedMillis(), expected.sequence(), snapshot);
         }
         return athleteOk;
     }
@@ -32,7 +32,7 @@ class AttemptBoardDisplayMatcher implements UpdateCheck.DisplayMatcher {
             UpdateCheck.CleanLog log, MonitoredPage mp) {
         String lastPollSummary = state.lastSnapshotReadSummary();
         int inWindowPolls = state.snapshotReads();
-        UpdateCheck.SnapshotRead finalRead = mp.snapshotReader().read(mp);
+        UpdateCheck.SnapshotRead finalRead = mp.readSnapshot();
         state.recordSnapshotRead(finalRead);
         UpdateCheck.Snapshot current = finalRead.snapshot();
         String fop = mp.fop();

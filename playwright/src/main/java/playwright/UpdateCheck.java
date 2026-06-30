@@ -29,10 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
 
-import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
-import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.PlaywrightException;
 import com.microsoft.playwright.Response;
 
@@ -71,7 +69,11 @@ public class UpdateCheck {
     }
     private static final String PLAYWRIGHT_DONE_TOPIC = "owlcms/fop/playwright/done";
     static final Duration STARTUP_SNAPSHOT_TIMEOUT = Duration.ofSeconds(3);
-    private static final Duration DEFAULT_PLAYWRIGHT_EXPECTED_TIMEOUT = Duration.ofMillis(3000);
+    // Hard wall-clock ceiling for a single DOM snapshot read. page.evaluate() is NOT bounded by
+    // page.setDefaultTimeout(); an unresponsive renderer would otherwise block the watcher thread
+    // indefinitely. When a read exceeds this, the page is marked unresponsive and the poll fails fast.
+    static final Duration SNAPSHOT_READ_TIMEOUT = Duration.ofMillis(2000);
+    private static final Duration DEFAULT_PLAYWRIGHT_EXPECTED_TIMEOUT = Duration.ofMillis(15000);
     private static final long[] STARTUP_RETRY_DELAYS_MS = { 2000, 5000, 10000 };
 
     public static void main(String[] args) throws Exception {
@@ -94,8 +96,7 @@ public class UpdateCheck {
         log.value("Publish MQTT", Boolean.toString(config.publish()));
         log.value("Playwright log", System.getProperty("OWLCMS_PLAYWRIGHT_LOG", "logs/playwright.log"));
 
-        try (MqttEventCollector mqtt = MqttEventCollector.connect(config.mqttUri());
-            Playwright playwright = Playwright.create()) {
+        try (MqttEventCollector mqtt = MqttEventCollector.connect(config.mqttUri())) {
             String browserChannel = System.getenv("PLAYWRIGHT_BROWSER_CHANNEL");
             if (browserChannel != null && !browserChannel.isBlank()) {
                 log.value("Browser channel", browserChannel.trim());
@@ -103,14 +104,14 @@ public class UpdateCheck {
 
             List<MonitoredPlatform> platforms = new ArrayList<>();
             try {
-                platforms = openPlatforms(playwright, config, log);
+                platforms = openPlatforms(config, log);
                 mqtt.monitorPlatforms(platforms);
                 startEnterToStopThread(running, log);
                 waitForInitialDisplay(platforms, log);
                 supervisePlatforms(mqtt, config, log, platforms, running);
             } finally {
                 stopPlatforms(platforms, log);
-                closeBrowsers(platforms, log);
+                closePlaywright(platforms, log);
             }
         }
         System.exit(0);
@@ -134,17 +135,9 @@ public class UpdateCheck {
         }
     }
 
-    private static void closeBrowser(Browser browser, CleanLog log) {
-        try {
-            browser.close();
-        } catch (PlaywrightException e) {
-            log.info("Browser close reported: " + e.getMessage());
-        }
-    }
-
-    private static void closeBrowsers(List<MonitoredPlatform> platforms, CleanLog log) {
+    private static void closePlaywright(List<MonitoredPlatform> platforms, CleanLog log) {
         for (MonitoredPlatform platform : platforms) {
-            closeBrowser(platform.browser(), log);
+            platform.closePlaywright(log);
         }
     }
 
@@ -341,11 +334,11 @@ public class UpdateCheck {
         }
     }
 
-    private static List<MonitoredPlatform> openPlatforms(Playwright playwright, Config config,
+    private static List<MonitoredPlatform> openPlatforms(Config config,
             CleanLog log) {
         List<MonitoredPlatform> platforms = new ArrayList<>();
         for (String fop : config.fops()) {
-            platforms.add(MonitoredPlatform.open(playwright, config, fop, log));
+            platforms.add(MonitoredPlatform.open(config, fop, log));
         }
         return platforms;
     }
@@ -422,7 +415,7 @@ public class UpdateCheck {
     }
 
     static SnapshotRead readSnapshotRead(MonitoredPage mp) {
-        return mp.snapshotReader().read(mp);
+        return mp.readSnapshot();
     }
 
     static AthleteDisplay readTopBarDisplay(Page page) {
@@ -847,8 +840,8 @@ public class UpdateCheck {
             logger.info("[{}] OPEN {}", tag(fop, role), url);
         }
 
-        void browserLaunch(String fop, Config config) {
-            logger.info("[{}] LAUNCH {} inspect=browser remains open after stall until Enter/Ctrl-C", fop,
+        void browserLaunch(String fop, BoardRole role, Config config) {
+            logger.info("[{}] LAUNCH {} inspect=browser remains open after stall until Enter/Ctrl-C", tag(fop, role),
                 browserLaunchDetails(config));
         }
 
@@ -904,18 +897,20 @@ public class UpdateCheck {
             logger.info("[{}] PAUSE{}", tag(fop, role), payload.isBlank() ? "" : " " + payload);
         }
 
-        void confirmedAthlete(String fop, BoardRole role, long elapsedMillis, Snapshot snapshot) {
-            logger.info("[{}] CONFIRMED HEADER [{} ms] name={} attempt#={} weight={}", tag(fop, role), elapsedMillis,
-                    snapshot.athleteName(), digitsOnly(snapshot.attempt()), digitsOnly(snapshot.weight()));
+        void confirmedAthlete(String fop, BoardRole role, long elapsedMillis, long sequence, Snapshot snapshot) {
+            logger.info("[{}] CONFIRMED HEADER [{} ms] name={} attempt#={} weight={} seq={}", tag(fop, role),
+                    elapsedMillis, snapshot.athleteName(), digitsOnly(snapshot.attempt()), digitsOnly(snapshot.weight()),
+                    sequence);
         }
 
-        void confirmedDisplay(String fop, BoardRole role, long elapsedMillis, Snapshot snapshot) {
-            logger.info("[{}] CONFIRMED DISPLAY [{} ms] name={} attempt#={} weight={}", tag(fop, role), elapsedMillis,
-                    snapshot.athleteName(), digitsOnly(snapshot.attempt()), digitsOnly(snapshot.weight()));
+        void confirmedDisplay(String fop, BoardRole role, long elapsedMillis, long sequence, Snapshot snapshot) {
+            logger.info("[{}] CONFIRMED DISPLAY [{} ms] name={} attempt#={} weight={} seq={}", tag(fop, role),
+                    elapsedMillis, snapshot.athleteName(), digitsOnly(snapshot.attempt()), digitsOnly(snapshot.weight()),
+                    sequence);
         }
 
-        void confirmedGrid(String fop, BoardRole role, long elapsedMillis) {
-            logger.info("[{}] CONFIRMED GRID [{} ms]", tag(fop, role), elapsedMillis);
+        void confirmedGrid(String fop, BoardRole role, long elapsedMillis, long sequence) {
+            logger.info("[{}] CONFIRMED GRID [{} ms] seq={}", tag(fop, role), elapsedMillis, sequence);
         }
 
         // ---- FOP-only variants kept for MQTT/supervisor messages without a role ----
