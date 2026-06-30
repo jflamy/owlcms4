@@ -715,11 +715,15 @@ public class Competition {
 	}
 
 	public void doGlobalRankings(List<Athlete> athletes, Boolean scoringSystemOnly) {
+		doGlobalRankings(athletes, scoringSystemOnly, false);
+	}
+
+	public void doGlobalRankings(List<Athlete> athletes, Boolean scoringSystemOnly, boolean participationScopedRanks) {
 		// long beforeDedup = System.currentTimeMillis();
-		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(Athlete::getFullId));
+		TreeSet<Athlete> noDup = new TreeSet<>(Comparator.comparing(a -> globalRankingKey(a, participationScopedRanks)));
 		for (Athlete pAthlete : athletes) {
 			Athlete athlete;
-			if (pAthlete instanceof PAthlete) {
+			if (pAthlete instanceof PAthlete && !participationScopedRanks) {
 				athlete = ((PAthlete) pAthlete)._getAthlete();
 				noDup.add(athlete);
 			} else {
@@ -765,6 +769,15 @@ public class Competition {
 			// long afterReporting = System.currentTimeMillis();
 			// logger.trace("------------------------- full reporting {}ms", afterReporting - beforeReporting);
 		}
+	}
+
+	private String globalRankingKey(Athlete athlete, boolean participationScopedRanks) {
+		if (participationScopedRanks && athlete instanceof PAthlete pAthlete) {
+			Category category = pAthlete.getCategory();
+			String categoryCode = category != null ? category.getComputedCode() : "";
+			return pAthlete.getFullId() + "|" + categoryCode;
+		}
+		return athlete.getFullId();
 	}
 
 	@Override
@@ -2378,7 +2391,7 @@ public class Competition {
 					}
 				}
 
-				doGlobalRankings(athletes, false);
+				doGlobalRankings(athletes, false, ageGroupPrefix != null || ad != null);
 			} catch (Throwable t) {
 				t.printStackTrace();
 				throw t;

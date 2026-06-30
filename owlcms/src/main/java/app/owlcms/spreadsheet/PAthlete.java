@@ -164,6 +164,9 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getBestLifterRank() {
+		if (!this.a.isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
 		if (scoringSystem == null) {
 			Category cat = this.p.getCategory();
@@ -174,7 +177,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 		if (scoringSystem == null) {
 			scoringSystem = Championship.of(null).getBestAthleteScoringSystem();
 		}
-		return Ranking.getRanking(this.a, scoringSystem);
+		return Ranking.getRanking(this, scoringSystem);
 	}
 
 	@Override
@@ -279,6 +282,9 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getCategoryScoreRank() {
+		if (!this.a.isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		return this.p.getCategoryScoreRank();
 	}
 
@@ -409,6 +415,9 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getCleanJerkRank() {
+		if (!this.a.isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		return this.p.getCleanJerkRank();
 	}
 
@@ -489,6 +498,9 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getCustomRank() {
+		if (!this.a.isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		return this.p.getCustomRank();
 	}
 
@@ -783,7 +795,8 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public Integer getSinclairRank() {
-		return this.a.getSinclairRank();
+		Integer rowRank = super.getSinclairRank();
+		return rowRank != null ? rowRank : this.a.getSinclairRank();
 	}
 
 	@Override
@@ -919,6 +932,9 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getSnatchRank() {
+		if (!this.a.isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		return this.p.getSnatchRank();
 	}
 
@@ -998,6 +1014,9 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public int getTotalRank() {
+		if (!this.a.isEligibleForIndividualRanking()) {
+			return -1;
+		}
 		return this.p.getTotalRank();
 	}
 
@@ -1075,12 +1094,52 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public void setCatSinclairRank(int i) {
-		this.a.setCatSinclairRank(i);
+		super.setCatSinclairRank(i);
 	}
 
 	@Override
 	public void setCatQPointsRank(int i) {
-		this.a.setCatQPointsRank(i);
+		super.setCatQPointsRank(i);
+	}
+
+	@Override
+	public void setCatGAMXRank(Integer catGAMXRank) {
+		super.setCatGAMXRank(catGAMXRank);
+	}
+
+	@Override
+	public void setGamxRank(Integer rank) {
+		super.setGamxRank(rank);
+	}
+
+	@Override
+	public void setGamxMRank(Integer rank) {
+		super.setGamxMRank(rank);
+	}
+
+	@Override
+	public void setGamxURank(Integer rank) {
+		super.setGamxURank(rank);
+	}
+
+	@Override
+	public void setGamxARank(Integer rank) {
+		super.setGamxARank(rank);
+	}
+
+	@Override
+	public void setQMastersRank(int qAgeRank2) {
+		super.setQMastersRank(qAgeRank2);
+	}
+
+	@Override
+	public void setqPointsRank(Integer qPointsRank) {
+		super.setqPointsRank(qPointsRank);
+	}
+
+	@Override
+	public void setQYouthRank(Integer ageAdjustedTotalRank) {
+		super.setQYouthRank(ageAdjustedTotalRank);
 	}
 
 	@Override
@@ -1120,7 +1179,7 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public void setRobiRank(Integer robiRank) {
-		this.a.setRobiRank(robiRank);
+		super.setRobiRank(robiRank);
 	}
 
 	@Override
@@ -1130,12 +1189,12 @@ public class PAthlete extends Athlete implements IRankHolder {
 
 	@Override
 	public void setSinclairRank(Integer sinclairRank) {
-		this.a.setSinclairRank(sinclairRank);
+		super.setSinclairRank(sinclairRank);
 	}
 
 	@Override
 	public void setSmhfRank(int i) {
-		this.a.setSmhfRank(i);
+		super.setSmhfRank(i);
 	}
 
 	@Override

@@ -172,7 +172,7 @@ public class AthleteSorter implements Serializable {
 				rs = new OverallRankSetter();
 			}
 
-			if (!curLifter.isEligibleForIndividualRanking()) {
+			if (!isEligibleForOverallRanking(curLifter)) {
 				rs.increment(curLifter, rankingType, false, false);
 				logger.trace("not eligible {}  {} rank={} total={}", curLifter, rankingType,
 				        getRank(curLifter, rankingType), curLifter.getTotal());
@@ -190,6 +190,23 @@ public class AthleteSorter implements Serializable {
 			}
 			prevGender = curGender;
 		}
+	}
+
+	private static boolean isEligibleForOverallRanking(Athlete athlete) {
+		if (athlete instanceof PAthlete) {
+			athlete = ((PAthlete) athlete)._getAthlete();
+		}
+		return athlete != null && athlete.isEligibleForIndividualRanking();
+	}
+
+	static private boolean equals(Object o1, Object o2) {
+		if (o1 == null && o2 == null) {
+			return true;
+		}
+		if (o1 != null) {
+			return o1.equals(o2);
+		}
+		return false; // o1 is null but not o2
 	}
 
 	/**
@@ -984,16 +1001,6 @@ public class AthleteSorter implements Serializable {
 				break;
 		}
 		return 0;
-	}
-
-	static private boolean equals(Object o1, Object o2) {
-		if (o1 == null && o2 == null) {
-			return true;
-		}
-		if (o1 != null) {
-			return o1.equals(o2);
-		}
-		return false; // o1 is null but not o2
 	}
 
 }
