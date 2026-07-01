@@ -10,11 +10,12 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -25,6 +26,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -42,6 +44,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -87,9 +90,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	protected ComboBox<String> recordNameFilter = new ComboBox<>();
 	protected ComboBox<String> ageGroupFilter = new ComboBox<>();
 	protected ComboBox<Gender> genderFilter = new ComboBox<>();
-	protected ComboBox<RecordFilters.ProvisionalFilter> provisionalFilter = new ComboBox<>();
-	protected ComboBox<RecordFilters.CurrentHistoryFilter> currentHistoryFilter = new ComboBox<>();
-	protected Checkbox activeOnlyFilter = new Checkbox();
+	protected RadioButtonGroup<RecordFilters.TimeRange> timeRangeFilter = new RadioButtonGroup<>();
+	protected CheckboxGroup<RecordFilters.ProvisionalFilter> approvalStatusFilter = new CheckboxGroup<>();
+	protected RadioButtonGroup<RecordFilters.CurrentHistoryFilter> historicalFilter = new RadioButtonGroup<>();
 	protected TextField nameFilter = new TextField();
 
 	// Filter values
@@ -154,10 +157,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			String ag = getFirstParam(params, "ageGroup");
 			String g = getFirstParam(params, "gender");
 			String n = getFirstParam(params, "name");
-			String prov = getFirstParam(params, "provisional");
-			String curHist = getFirstParam(params, "currentHistory");
-			String activeParam = getFirstParam(params, "activeFilter");
-			this.activeOnlyFilter.setValue(!"ALL".equals(activeParam));
+			String timeRange = getFirstParam(params, "timeRange");
+			String approval = getFirstParam(params, "approval");
+			String historical = getFirstParam(params, "historical");
 
 			// Federation first (dependent filters rely on it)
 			if (fed != null && !fed.isBlank()) {
@@ -190,19 +192,21 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 				setName(n);
 				this.nameFilter.setValue(n);
 			}
-			if (prov != null) {
+			if (timeRange != null) {
 				try {
-					this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.valueOf(prov));
+					this.timeRangeFilter.setValue(RecordFilters.TimeRange.valueOf(timeRange));
 				} catch (IllegalArgumentException ignored) {
 				}
 			}
-			if (curHist != null) {
+			if (approval != null) {
+				this.approvalStatusFilter.setValue(parseApprovalParam(approval));
+			}
+			if (historical != null) {
 				try {
-					this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.valueOf(curHist));
+					this.historicalFilter.setValue(RecordFilters.CurrentHistoryFilter.valueOf(historical));
 				} catch (IllegalArgumentException ignored) {
 				}
 			}
-			syncCurrentHistoryFilterForProvisional();
 		} finally {
 			this.updatingFilters = false;
 		}
@@ -555,12 +559,11 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			refreshDependentFilterOptions();
 			this.genderFilter.clear();
 			setGender(null);
-			this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
-			this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
-			syncCurrentHistoryFilterForProvisional();
+			this.timeRangeFilter.setValue(RecordFilters.TimeRange.ALL_RECORDS);
+			this.approvalStatusFilter.setValue(defaultApprovalSelection());
+			this.historicalFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
 			this.nameFilter.clear();
 			setName(null);
-			this.activeOnlyFilter.setValue(true);
 		} finally {
 			this.updatingFilters = false;
 		}
@@ -606,34 +609,83 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.name = name;
 	}
 
-	public RecordFilters.ProvisionalFilter getProvisionalFilter() {
-		return this.provisionalFilter.getValue();
+	public Set<RecordFilters.ProvisionalFilter> getApprovalStatus() {
+		return this.approvalStatusFilter.getValue();
 	}
 
-	public void setProvisionalFilter(RecordFilters.ProvisionalFilter provisionalFilter) {
-		this.provisionalFilter.setValue(provisionalFilter);
-	}
-
+	/**
+	 * Map the approval-status checkbox selection to the repository provisional-filter string.
+	 *
+	 * @return "ALL" when both are selected, "PROVISIONAL"/"OFFICIAL" when only one is selected, or
+	 *         {@code null} when neither is selected (no records should be shown).
+	 */
 	private String getProvisionalFilterName() {
-		RecordFilters.ProvisionalFilter provisional = this.provisionalFilter != null
-		        ? this.provisionalFilter.getValue()
+		Set<RecordFilters.ProvisionalFilter> selection = this.approvalStatusFilter != null
+		        ? this.approvalStatusFilter.getValue()
 		        : null;
-		return provisional != null ? provisional.name() : RecordFilters.ProvisionalFilter.ALL.name();
+		boolean provisional = selection != null && selection.contains(RecordFilters.ProvisionalFilter.PROVISIONAL);
+		boolean official = selection != null && selection.contains(RecordFilters.ProvisionalFilter.OFFICIAL);
+		if (provisional && official) {
+			return RecordFilters.ProvisionalFilter.ALL.name();
+		}
+		if (provisional) {
+			return RecordFilters.ProvisionalFilter.PROVISIONAL.name();
+		}
+		if (official) {
+			return RecordFilters.ProvisionalFilter.OFFICIAL.name();
+		}
+		return null;
+	}
+
+	private boolean isThisCompetitionOnly() {
+		return this.timeRangeFilter != null
+		        && this.timeRangeFilter.getValue() == RecordFilters.TimeRange.THIS_COMPETITION;
 	}
 
 	public RecordFilters.CurrentHistoryFilter getCurrentHistoryFilter() {
-		return this.currentHistoryFilter.getValue();
+		return this.historicalFilter.getValue();
 	}
 
 	public void setCurrentHistoryFilter(RecordFilters.CurrentHistoryFilter currentHistoryFilter) {
-		this.currentHistoryFilter.setValue(currentHistoryFilter);
+		this.historicalFilter.setValue(currentHistoryFilter);
 	}
 
 	private String getCurrentHistoryFilterName() {
-		RecordFilters.CurrentHistoryFilter currentHistory = this.currentHistoryFilter != null
-		        ? this.currentHistoryFilter.getValue()
+		RecordFilters.CurrentHistoryFilter currentHistory = this.historicalFilter != null
+		        ? this.historicalFilter.getValue()
 		        : null;
 		return currentHistory != null ? currentHistory.name() : RecordFilters.CurrentHistoryFilter.CURRENT.name();
+	}
+
+	/**
+	 * Default approval selection: both provisional and official records.
+	 */
+	private Set<RecordFilters.ProvisionalFilter> defaultApprovalSelection() {
+		Set<RecordFilters.ProvisionalFilter> selection = new LinkedHashSet<>();
+		selection.add(RecordFilters.ProvisionalFilter.PROVISIONAL);
+		selection.add(RecordFilters.ProvisionalFilter.OFFICIAL);
+		return selection;
+	}
+
+	/**
+	 * Parse the comma-separated {@code approval} URL parameter into a selection set.
+	 */
+	private Set<RecordFilters.ProvisionalFilter> parseApprovalParam(String approval) {
+		Set<RecordFilters.ProvisionalFilter> selection = new LinkedHashSet<>();
+		if (approval == null || approval.isBlank()) {
+			return selection;
+		}
+		for (String part : approval.split(",")) {
+			try {
+				RecordFilters.ProvisionalFilter value = RecordFilters.ProvisionalFilter.valueOf(part.trim());
+				if (value == RecordFilters.ProvisionalFilter.PROVISIONAL
+				        || value == RecordFilters.ProvisionalFilter.OFFICIAL) {
+					selection.add(value);
+				}
+			} catch (IllegalArgumentException ignored) {
+			}
+		}
+		return selection;
 	}
 
 	// ---- URL parameter persistence ----
@@ -667,18 +719,25 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		if (name != null && !name.isBlank()) {
 			params.put("name", List.of(name));
 		}
-		RecordFilters.ProvisionalFilter pv = this.provisionalFilter.getValue();
-		if (pv != null && pv != RecordFilters.ProvisionalFilter.ALL) {
-			params.put("provisional", List.of(pv.name()));
+		RecordFilters.TimeRange tr = this.timeRangeFilter.getValue();
+		if (tr != null && tr != RecordFilters.TimeRange.ALL_RECORDS) {
+			params.put("timeRange", List.of(tr.name()));
 		}
-		RecordFilters.CurrentHistoryFilter cv = this.currentHistoryFilter.getValue();
+		Set<RecordFilters.ProvisionalFilter> approval = this.approvalStatusFilter.getValue();
+		if (approval != null && !approval.equals(defaultApprovalSelection())) {
+			List<String> approvalNames = new ArrayList<>();
+			if (approval.contains(RecordFilters.ProvisionalFilter.PROVISIONAL)) {
+				approvalNames.add(RecordFilters.ProvisionalFilter.PROVISIONAL.name());
+			}
+			if (approval.contains(RecordFilters.ProvisionalFilter.OFFICIAL)) {
+				approvalNames.add(RecordFilters.ProvisionalFilter.OFFICIAL.name());
+			}
+			params.put("approval", List.of(String.join(",", approvalNames)));
+		}
+		RecordFilters.CurrentHistoryFilter cv = this.historicalFilter.getValue();
 		if (cv != null && cv != RecordFilters.CurrentHistoryFilter.CURRENT) {
-			params.put("currentHistory", List.of(cv.name()));
+			params.put("historical", List.of(cv.name()));
 		}
-		if (Boolean.FALSE.equals(this.activeOnlyFilter.getValue())) {
-			params.put("activeFilter", List.of("ALL"));
-		}
-
 		Location newLocation = new Location(getLocation().getPath(), new QueryParameters(URLUtils.cleanParams(params)));
 		getLocationUI().getPage().getHistory().replaceState(null, newLocation);
 		setLocation(newLocation);
@@ -690,10 +749,14 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	protected List<RecordEvent> getFilteredRecords() {
 		// Convert enum values to strings for the repository method
 		String provisionalFilterStr = getProvisionalFilterName();
-		
+
+		// Neither approval status selected: show nothing.
+		if (provisionalFilterStr == null) {
+			return List.of();
+		}
+
 		String currentHistoryFilterStr = getCurrentHistoryFilterName();
-		currentHistoryFilterStr = RecordRepository.normalizeCurrentHistoryFilter(provisionalFilterStr, currentHistoryFilterStr);
-		
+
 		return RecordRepository.findWithFilters(
 			getFederation(),
 			getRecordName(),
@@ -702,7 +765,8 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			getName(),
 			provisionalFilterStr,
 			currentHistoryFilterStr, null,
-			Boolean.TRUE.equals(this.activeOnlyFilter.getValue()) ? "ACTIVE" : "ALL"
+			getActiveFilterStr(),
+			isThisCompetitionOnly()
 		);
 	}
 
@@ -710,6 +774,16 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	 * Define the filters for the record grid
 	 */
 	protected void defineFilters(GridCrud<RecordEvent> crud) {
+		// All filter controls are laid out ourselves in a VerticalLayout (row1, row2)
+		// so that row2 (Time Range / Approval Status / Historical Data) is guaranteed
+		// to appear on its own line, regardless of the crudui library's own filter
+		// row wrap behavior.
+		HorizontalLayout filterRow1 = new HorizontalLayout();
+		filterRow1.setPadding(false);
+		filterRow1.setSpacing(true);
+		filterRow1.setAlignItems(FlexComponent.Alignment.CENTER);
+		filterRow1.getStyle().set("flex-wrap", "wrap");
+
 		// Federation filter
 		this.federationFilter.setPlaceholder(Translator.translate("RecordEvent.Federation"));
 		this.federationFilter.setItems(RecordRepository.findDistinctFederations());
@@ -725,7 +799,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			updateUrlParameters();
 		});
 		this.federationFilter.setWidth("12em");
-		crud.getCrudLayout().addFilterComponent(this.federationFilter);
+		filterRow1.add(this.federationFilter);
 		autoSelectSingleFederation();
 
 		// Record Name filter
@@ -741,7 +815,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			updateUrlParameters();
 		});
 		this.recordNameFilter.setWidth("12em");
-		crud.getCrudLayout().addFilterComponent(this.recordNameFilter);
+		filterRow1.add(this.recordNameFilter);
 
 		// Age Group filter
 		this.ageGroupFilter.setPlaceholder(Translator.translate("AgeGroup"));
@@ -756,7 +830,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			updateUrlParameters();
 		});
 		this.ageGroupFilter.setWidth("10em");
-		crud.getCrudLayout().addFilterComponent(this.ageGroupFilter);
+		filterRow1.add(this.ageGroupFilter);
 		refreshDependentFilterOptions();
 
 		// Gender filter
@@ -772,7 +846,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			}
 		});
 		this.genderFilter.setWidth("8em");
-		crud.getCrudLayout().addFilterComponent(this.genderFilter);
+		filterRow1.add(this.genderFilter);
 
 		// Name filter (for record name or athlete name)
 		this.nameFilter.setPlaceholder(Translator.translate("Name"));
@@ -786,79 +860,103 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 			}
 		});
 		this.nameFilter.setWidth("12em");
-		crud.getCrudLayout().addFilterComponent(this.nameFilter);
+		filterRow1.add(this.nameFilter);
 
-		// Provisional filter
-		NativeLabel provisionalLabel = new NativeLabel(Translator.translate("RecordEvent.Status"));
-		this.provisionalFilter.setItems(RecordFilters.ProvisionalFilter.values());
-		this.provisionalFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
-		this.provisionalFilter.setValue(RecordFilters.ProvisionalFilter.ALL);
-		this.provisionalFilter.setClearButtonVisible(false);
-		this.provisionalFilter.addValueChangeListener(e -> {
-			setProvisionalFilter(e.getValue());
-			syncCurrentHistoryFilterForProvisional();
-			if (!this.updatingFilters) {
-				crud.refreshGrid();
-				updateUrlParameters();
-			}
-		});
-		this.provisionalFilter.setWidth("10em");
-		
-		HorizontalLayout provisionalLayout = new HorizontalLayout(provisionalLabel, this.provisionalFilter);
-		provisionalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-		provisionalLayout.setSpacing(false);
-		provisionalLabel.getStyle().set("margin-right", "0.5em");
-		
-		crud.getCrudLayout().addFilterComponent(provisionalLayout);
+		// Second filter row: Time Range, Approval Status, Historical Data laid out
+		// horizontally. The three axes are independent of each other.
+		HorizontalLayout filterRow2 = new HorizontalLayout();
+		filterRow2.setPadding(false);
+		filterRow2.setSpacing(true);
+		filterRow2.setAlignItems(FlexComponent.Alignment.CENTER);
+		filterRow2.getStyle().set("column-gap", "4.5em");
+		filterRow2.getStyle().set("flex-wrap", "wrap");
 
-		// Current/History filter 
-		List<RecordFilters.CurrentHistoryFilter> filterOptions = new ArrayList<>(
-			Arrays.asList(RecordFilters.CurrentHistoryFilter.CURRENT, RecordFilters.CurrentHistoryFilter.HISTORY)
-		);
-		// Only offer "THIS_COMPETITION" filter if not in record repository mode
+		// Row 1: Time Range (only meaningful when there is a current competition).
+		// Record-repository mode has no notion of a competition, so hide the whole row.
 		if (!Config.getCurrent().isRecordRepository()) {
-			filterOptions.add(RecordFilters.CurrentHistoryFilter.THIS_COMPETITION);
+			this.timeRangeFilter.setItems(RecordFilters.TimeRange.values());
+			this.timeRangeFilter.setItemLabelGenerator(filter -> Translator.translate(
+			        filter == RecordFilters.TimeRange.THIS_COMPETITION
+			                ? "RecordEvent.ThisCompetitionOnly"
+			                : "RecordEvent.AllRecords"));
+			this.timeRangeFilter.setValue(RecordFilters.TimeRange.ALL_RECORDS);
+			this.timeRangeFilter.addValueChangeListener(e -> {
+				if (!this.updatingFilters) {
+					crud.refreshGrid();
+					updateUrlParameters();
+				}
+			});
+			filterRow2.add(buildFilterBlock("RecordEvent.TimeRangeTitle", this.timeRangeFilter));
+		} else {
+			this.timeRangeFilter.setValue(RecordFilters.TimeRange.ALL_RECORDS);
 		}
-		this.currentHistoryFilter.setItems(filterOptions);
-		this.currentHistoryFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
-		this.currentHistoryFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
-		this.currentHistoryFilter.setClearButtonVisible(false);
-		this.currentHistoryFilter.addValueChangeListener(e -> {
-			setCurrentHistoryFilter(e.getValue());
-			syncCurrentHistoryFilterForProvisional();
+
+		// Row 2: Approval Status (provisional / official), both selected by default.
+		this.approvalStatusFilter.setItems(
+		        RecordFilters.ProvisionalFilter.PROVISIONAL, RecordFilters.ProvisionalFilter.OFFICIAL);
+		this.approvalStatusFilter.setItemLabelGenerator(filter -> Translator.translate(filter.getKey()));
+		this.approvalStatusFilter.setValue(defaultApprovalSelection());
+		this.approvalStatusFilter.addValueChangeListener(e -> {
 			if (!this.updatingFilters) {
 				crud.refreshGrid();
 				updateUrlParameters();
 			}
 		});
-		this.currentHistoryFilter.setWidth("12em");
-		crud.getCrudLayout().addFilterComponent(this.currentHistoryFilter);
-		syncCurrentHistoryFilterForProvisional();
+		filterRow2.add(buildFilterBlock("RecordEvent.ApprovalStatusTitle", this.approvalStatusFilter));
 
-		// Active-only filter checkbox
-		this.activeOnlyFilter.setLabel(Translator.translate("Active"));
-		this.activeOnlyFilter.setValue(true);
-		this.activeOnlyFilter.addValueChangeListener(e -> {
+		// Row 3: Historical Data (only current vs. include superseded).
+		this.historicalFilter.setItems(
+		        RecordFilters.CurrentHistoryFilter.CURRENT, RecordFilters.CurrentHistoryFilter.HISTORY);
+		this.historicalFilter.setItemLabelGenerator(filter -> Translator.translate(
+		        filter == RecordFilters.CurrentHistoryFilter.CURRENT
+		                ? "RecordEvent.OnlyCurrentRecords"
+		                : "RecordEvent.IncludeSuperseded"));
+		this.historicalFilter.setValue(RecordFilters.CurrentHistoryFilter.CURRENT);
+		this.historicalFilter.addValueChangeListener(e -> {
 			if (!this.updatingFilters) {
-				refreshFilterOptionsFromRepository();
 				crud.refreshGrid();
 				updateUrlParameters();
 			}
 		});
-		crud.getCrudLayout().addFilterComponent(this.activeOnlyFilter);
+		filterRow2.add(buildFilterBlock("RecordEvent.HistoricalDataTitle", this.historicalFilter));
 
-		// Clear filters button
+		// Clear filters button (stays on row 1)
 		Button clearFiltersButton = new Button(null, VaadinIcon.CLOSE.create());
 		clearFiltersButton.addClickListener(event -> {
 			clearFilters();
 			crud.refreshGrid();
 			updateUrlParameters();
 		});
-		crud.getCrudLayout().addFilterComponent(clearFiltersButton);
+		filterRow1.add(clearFiltersButton);
+
+		// Stack row1 above row2 ourselves so the new block is always on its own line.
+		VerticalLayout filterRows = new VerticalLayout(filterRow1, filterRow2);
+		filterRows.setPadding(false);
+		filterRows.setSpacing(false);
+		filterRows.getStyle().set("gap", "0.5em");
+		crud.getCrudLayout().addFilterComponent(filterRows);
+		hideCrudFilterIcon();
+	}
+
+	private void hideCrudFilterIcon() {
+		com.vaadin.flow.component.Component filterLayout = this.crud.getOwlcmsGridLayout().getFilterLayout();
+		filterLayout.getChildren()
+		        .filter(component -> "vaadin-icon".equals(component.getElement().getTag()))
+		        .forEach(component -> component.getElement().getStyle().set("visibility", "hidden"));
+		filterLayout.getElement().getChildren()
+		        .filter(element -> "vaadin-icon".equals(element.getTag()))
+		        .forEach(element -> {
+			        element.getStyle().set("visibility", "hidden");
+			        element.getStyle().remove("display");
+			        element.getStyle().remove("width");
+			        element.getStyle().remove("min-width");
+			        element.getStyle().remove("margin");
+			        element.getStyle().remove("padding");
+		        });
 	}
 
 	private String getActiveFilterStr() {
-		return Boolean.TRUE.equals(this.activeOnlyFilter.getValue()) ? "ACTIVE" : "ALL";
+		return "ACTIVE";
 	}
 
 	protected void autoSelectSingleFederation() {
@@ -957,9 +1055,22 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 	}
 
 	protected void syncCurrentHistoryFilterForProvisional() {
-		if (this.currentHistoryFilter != null) {
-			this.currentHistoryFilter.setEnabled(true);
-		}
+	}
+
+	/**
+	 * Build one filter block: label above the filter control.
+	 */
+	private VerticalLayout buildFilterBlock(String labelKey, com.vaadin.flow.component.Component control) {
+		NativeLabel label = new NativeLabel(Translator.translate(labelKey));
+		label.getStyle().set("font-weight", "600");
+		VerticalLayout block = new VerticalLayout(label, control);
+		block.setWidth(null);
+		block.setAlignItems(FlexComponent.Alignment.START);
+		block.setSpacing(false);
+		block.setPadding(false);
+		block.getStyle().set("flex", "0 0 auto");
+		control.getElement().getStyle().set("width", "auto");
+		return block;
 	}
 
 	/**
@@ -973,14 +1084,6 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.crud = new RecordGrid(RecordEvent.class, new OwlcmsGridLayout(RecordEvent.class), crudFormFactory, grid,
 		        this::refreshFilterOptionsFromRepository, this::getFilteredRecords);
 		grid.getThemeNames().add("row-stripes");
-
-		// Active column (read-only checkbox) - shown first
-		grid.addComponentColumn(recordEvent -> {
-			Checkbox cb = new Checkbox();
-			cb.setValue(Boolean.TRUE.equals(recordEvent.getActive()));
-			cb.setReadOnly(true);
-			return cb;
-		}).setHeader(Translator.translate("Active")).setAutoWidth(true).setFlexGrow(0);
 
 		// Record identification columns
 		grid.addColumn(RecordEvent::getRecordFederation).setHeader(Translator.translate("Competition.federationTitle")).setAutoWidth(true);

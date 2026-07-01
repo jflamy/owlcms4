@@ -1322,6 +1322,38 @@ public class RecordRepository {
 	        String currentHistoryFilter, // "CURRENT", "HISTORY"
 	        String session,
 	        String activeFilter) {
+		return findWithFilters(federation, recordName, ageGroup, gender, nameFilter, provisionalFilter,
+		        currentHistoryFilter, session, activeFilter, false);
+	}
+
+	/**
+	 * Find records with the full set of filters, including the independent "this competition only"
+	 * time-range axis.
+	 *
+	 * <p>
+	 * The three filtering axes are independent of each other:
+	 * <ul>
+	 * <li>approval status (via {@code provisionalFilter}: ALL / PROVISIONAL / OFFICIAL)</li>
+	 * <li>time range (via {@code thisCompetitionOnly}: restrict to records set in the current
+	 * competition)</li>
+	 * <li>historical data (via {@code currentHistoryFilter}: CURRENT keeps only the best record per
+	 * key, HISTORY keeps superseded records as well)</li>
+	 * </ul>
+	 *
+	 * @param thisCompetitionOnly when {@code true}, keep only records whose event matches the current
+	 *                            competition name; applied before the current/history grouping
+	 */
+	public static List<RecordEvent> findWithFilters(
+	        String federation,
+	        String recordName,
+	        String ageGroup,
+	        Gender gender,
+	        String nameFilter,
+	        String provisionalFilter, // "ALL", "PROVISIONAL", "OFFICIAL"
+	        String currentHistoryFilter, // "CURRENT", "HISTORY"
+	        String session,
+	        String activeFilter,
+	        boolean thisCompetitionOnly) {
 		String effectiveCurrentHistoryFilter = normalizeCurrentHistoryFilter(provisionalFilter, currentHistoryFilter);
 		@SuppressWarnings("unchecked")
 		List<RecordEvent> allResults = JPAService.runInTransaction(em -> {
@@ -1419,28 +1451,22 @@ public class RecordRepository {
 		//         allResults.size(), federation, ageGroup, gender, nameFilter, provisionalFilter, currentHistoryFilter);
 		// logger.debug(LoggerUtils.whereFrom());
 
-		// Apply current/history filter in Java (since it requires grouping logic)
-		if ("CURRENT".equals(effectiveCurrentHistoryFilter)) {
-			// Group by record key and keep only the best (highest recordValue) record for each key (i.e., for each lift)
-			return allResults.stream()
-			        .collect(Collectors.groupingBy(
-			                RecordEvent::getKey,
-			                Collectors.collectingAndThen(
-			                        Collectors.maxBy((r1, r2) -> Double.compare(r1.getRecordValue(), r2.getRecordValue())),
-			                        record -> record.orElseThrow(() -> new IllegalStateException("No record found")))))
-			        .values()
-			        .stream()
-			        .sorted(RecordRepository::compareGridOrder)
-			        .collect(Collectors.toList());
-		}
-
-		// For THIS_COMPETITION filter: show records that match the current competition name
-		if ("THIS_COMPETITION".equals(effectiveCurrentHistoryFilter)) {
-			String currentCompetitionName = Competition.getCurrent() != null 
-				? Competition.getCurrent().getCompetitionName() 
-				: null;
-			return allResults.stream()
+		// Time-range axis: restrict to the current competition before the current/history grouping.
+		// This is independent of approval status and of current/history.
+		List<RecordEvent> scopedResults = allResults;
+		if (thisCompetitionOnly) {
+			String currentCompetitionName = Competition.getCurrent() != null
+			        ? Competition.getCurrent().getCompetitionName()
+			        : null;
+			scopedResults = allResults.stream()
 			        .filter(r -> currentCompetitionName != null && currentCompetitionName.equals(r.getEvent()))
+			        .collect(Collectors.toList());
+		}
+
+		// Historical-data axis: CURRENT keeps only the best (highest recordValue) record per key,
+		// HISTORY (or null) keeps superseded records as well.
+		if ("CURRENT".equals(effectiveCurrentHistoryFilter)) {
+			return scopedResults.stream()
 			        .collect(Collectors.groupingBy(
 			                RecordEvent::getKey,
 			                Collectors.collectingAndThen(
@@ -1452,8 +1478,8 @@ public class RecordRepository {
 			        .collect(Collectors.toList());
 		}
 
-		// For HISTORY or null, return all results as-is
-		return allResults;
+		// For HISTORY or null, return the (possibly competition-scoped) results as-is
+		return scopedResults;
 	}
 
 	private static int compareGridOrder(RecordEvent left, RecordEvent right) {

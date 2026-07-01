@@ -20,11 +20,22 @@ public class RecordFilters {
 			return "RecordEvent." + this.name();
 		}
 	}
-	
+
+	/**
+	 * Time range axis, independent of approval status and current/history.
+	 */
+	public enum TimeRange {
+		THIS_COMPETITION,
+		ALL_RECORDS;
+
+		public String getKey() {
+			return "RecordEvent." + this.name();
+		}
+	}
+
 	public enum CurrentHistoryFilter {
 		CURRENT,
-		HISTORY,
-		THIS_COMPETITION;
+		HISTORY;
 
 		public String getKey() {
 			return "RecordEvent." + this.name();
