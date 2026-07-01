@@ -64,6 +64,8 @@ abstract class ChampionshipLegacyMigrationSupport {
     protected void loadFixtureIntoMemoryDatabase(String fixtureResource, String copiedFileName)
             throws IOException, ReflectiveOperationException, SQLException {
         Main.injectSuppliers();
+        JPAService.close();
+        Competition.setCurrent(null);
         memoryJdbcUrl = createMemoryJdbcUrl();
         System.setProperty("JDBC_DATABASE_URL", memoryJdbcUrl);
         fixtureDirectory = Files.createTempDirectory("championship-migration-test-db-");
@@ -96,6 +98,8 @@ abstract class ChampionshipLegacyMigrationSupport {
 
     protected void initializeImportDatabase() throws ReflectiveOperationException {
         Main.injectSuppliers();
+        JPAService.close();
+        Competition.setCurrent(null);
         memoryJdbcUrl = createMemoryJdbcUrl();
         System.setProperty("JDBC_DATABASE_URL", memoryJdbcUrl);
 

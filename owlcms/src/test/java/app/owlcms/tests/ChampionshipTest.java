@@ -62,6 +62,7 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.ParticipationId;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.team.TeamResultsDisplayRules;
@@ -479,6 +480,12 @@ public class ChampionshipTest {
     public void testTeamPointsCanOnlyComeFromTotal() {
         Competition competition = Competition.getCurrent();
         Config config = Config.getCurrent();
+        boolean originalMigrated = competition.isMigrated();
+        // A prior test in the suite may have left the shared Competition singleton
+        // migrated. Once migrated, setSnatchCJTotalMedals() silently no-ops because the
+        // championship template becomes the source of truth, which breaks this test's
+        // direct manipulation of the legacy flag.
+        competition.setMigrated(false);
         boolean originalImwa = competition.isImwa();
         boolean originalSnatchCJTotalMedals = competition.isSnatchCJTotalMedals();
         String originalFeatureSwitches = config.getFeatureSwitches();
@@ -521,7 +528,7 @@ public class ChampionshipTest {
                     mastersAthlete.getTotalPoints(), mastersAthlete.getCombinedPoints().intValue());
 
             competition.setSnatchCJTotalMedals(true);
-            config.setFeatureSwitches("totalTeamPointsOnly");
+            config.setFeatureSwitches(FeatureSwitch.TEAM_POINTS_TOTAL_ONLY.getId());
 
             assertEquals("feature-toggle snatch team points", 0, mastersAthlete.getSnatchPoints());
             assertEquals("feature-toggle clean and jerk team points", 0, mastersAthlete.getCleanJerkPoints());
@@ -533,6 +540,7 @@ public class ChampionshipTest {
             config.setFeatureSwitches(originalFeatureSwitches);
             competition.setImwa(originalImwa);
             competition.setSnatchCJTotalMedals(originalSnatchCJTotalMedals);
+            competition.setMigrated(originalMigrated);
         }
     }
 
