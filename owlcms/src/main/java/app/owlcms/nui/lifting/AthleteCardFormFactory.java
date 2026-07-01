@@ -39,6 +39,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.Autocomplete;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
@@ -676,7 +677,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        .bind(Athlete::getSnatch1ActualLift, Athlete::setSnatch1ActualLift);
 		atRowAndColumn(this.gridLayout, this.snatch1ActualLift, ACTUAL, SNATCH1);
 
-		this.snatch2AutomaticProgression = new TextField();
+		this.snatch2AutomaticProgression = createAthleteCardTextField();
 		this.snatch2AutomaticProgression.setReadOnly(true);
 		this.snatch2AutomaticProgression.setTabIndex(-1);
 		this.binder.forField(this.snatch2AutomaticProgression).bind(Athlete::getSnatch2AutomaticProgression,
@@ -728,7 +729,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        .bind(Athlete::getSnatch2ActualLift, Athlete::setSnatch2ActualLift);
 		atRowAndColumn(this.gridLayout, this.snatch2ActualLift, ACTUAL, SNATCH2);
 
-		this.snatch3AutomaticProgression = new TextField();
+		this.snatch3AutomaticProgression = createAthleteCardTextField();
 		this.snatch3AutomaticProgression.setReadOnly(true);
 		this.snatch3AutomaticProgression.setTabIndex(-1);
 		this.binder.forField(this.snatch3AutomaticProgression).bind(Athlete::getSnatch3AutomaticProgression,
@@ -822,7 +823,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        .bind(Athlete::getCleanJerk1ActualLift, Athlete::setCleanJerk1ActualLift);
 		atRowAndColumn(this.gridLayout, this.cj1ActualLift, ACTUAL, CJ1);
 
-		this.cj2AutomaticProgression = new TextField();
+		this.cj2AutomaticProgression = createAthleteCardTextField();
 		this.cj2AutomaticProgression.setReadOnly(true);
 		this.cj2AutomaticProgression.setTabIndex(-1);
 		this.binder.forField(this.cj2AutomaticProgression).bind(Athlete::getCleanJerk2AutomaticProgression,
@@ -873,7 +874,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		        .bind(Athlete::getCleanJerk2ActualLift, Athlete::setCleanJerk2ActualLift);
 		atRowAndColumn(this.gridLayout, this.cj2ActualLift, ACTUAL, CJ2);
 
-		this.cj3AutomaticProgression = new TextField();
+		this.cj3AutomaticProgression = createAthleteCardTextField();
 		this.cj3AutomaticProgression.setReadOnly(true);
 		this.cj3AutomaticProgression.setTabIndex(-1);
 		this.binder.forField(this.cj3AutomaticProgression).bind(Athlete::getCleanJerk3AutomaticProgression,
@@ -1051,7 +1052,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	}
 
 	private TextField createActualWeightField(int row, int col) {
-		TextField tf = new TextField();
+		TextField tf = createAthleteCardTextField();
 		tf.setPattern("^[-]{0,1}\\d*$");
 		tf.setAllowedCharPattern("[0-9-]");
 		tf.setValueChangeMode(ValueChangeMode.ON_CHANGE);
@@ -1065,7 +1066,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	}
 
 	private TextField createPositiveWeightField(int row, int col) {
-		TextField tf = new TextField();
+		TextField tf = createAthleteCardTextField();
 		tf.setPattern("^(350|3[0-4][0-9]|2[0-9]{2}|1[0-9]{2}|[1-9][0-9]?|0)$");
 		tf.setMaxLength(3);
 		tf.setAllowedCharPattern("[0-9]");
@@ -1076,6 +1077,12 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 				tf.focus();
 			}
 		});
+		return tf;
+	}
+
+	private TextField createAthleteCardTextField() {
+		TextField tf = new TextField();
+		tf.setAutocomplete(Autocomplete.OFF);
 		return tf;
 	}
 
