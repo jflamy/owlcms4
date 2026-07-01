@@ -16,7 +16,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import app.owlcms.data.agegroup.ChampionshipRepository;
+import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.config.Config;
 import app.owlcms.data.export.v2.CompetitionDataV2;
+import app.owlcms.data.platform.Platform;
+import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -90,10 +94,14 @@ public class FormatDetector {
 			}
 			
 			logger.info("Detected JSON format version: {}", version);
-			
+
+			// Capture whether the database is currently empty (no athletes).
+			// Used below to decide whether to apply childrenEquipment to platforms.
+			boolean priorDatabaseEmpty = AthleteRepository.findAll().isEmpty();
+
 			// Reset stream to beginning for full import
 			inputStream.reset();
-			
+
 			if ("2.0".equals(version)) {
 				new CompetitionDataV2().restore(inputStream);
 			} else {
@@ -109,6 +117,23 @@ public class FormatDetector {
 			} catch (Exception normalizeError) {
 				logger.warn("Championship normalization after JSON import failed: {}",
 				        normalizeError.toString());
+			}
+
+			// If the prior database had no athletes and the imported config has the
+			// childrenEquipment feature toggle, apply children's equipment defaults
+			// to all platforms now (platforms were created without the toggle active).
+			try {
+				if (priorDatabaseEmpty && Config.getCurrent().featureSwitch("childrenEquipment")) {
+					logger.info("childrenEquipment feature present in imported config - applying children's equipment defaults to all platforms");
+					for (Platform platform : PlatformRepository.findAll()) {
+						if (platform.applyChildrenEquipment()) {
+							PlatformRepository.save(platform);
+						}
+					}
+				}
+			} catch (Exception childrenEquipmentError) {
+				logger.warn("childrenEquipment platform update after JSON import failed: {}",
+				        childrenEquipmentError.toString());
 			}
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
