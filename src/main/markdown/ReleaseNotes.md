@@ -10,25 +10,27 @@
 
 **New in Release 67.1**
 
-67.1.0-beta01: Adjusted the behavior of `childrenEquipment` toggle.
-  - When importing into an empty (no athletes) database, if this toggle is present, the 5kg 10kg bars and large 2.5kg and 5kg plates will be configured ona all platforms.
-  - Unsetting and setting this toggle anew reapplies the children equipment to all platforms
-  - Otherwise, the setting does nothing so that changes made afterward (e.g. removing a light bar on a platform) are not lost.
-
 67.1.0-beta01: Fix for "Birth year moved to previous year"
   - Birth date is now correctly stored as a local date not affected by time zones (earlier attempts to fix were incomplete).
   - Newly loaded data will be correct.  Contact maintainer if you need to fix an older database.
 
-67.1.0-beta01: Adjusted the "start using collar" threshold rules
+67.1.0-beta01: Adjusted the "start using collar when" threshold rules
   - Made them relative to bar weight. Specified for men's bar, adjusted for actual bar. 40 threshold means 35 for women's bar
+  - 40 threshold means "when 20kg is added to the bar"; so collars are not used for 39 (20 + 2x5 + 2x2) but would be at 40 (20 + 2x5 + 2xcollars)
   - Default on new databases is now 25 as per IWF rules -- always use collars
-  - If 2.5kg bumpers are toggled on (or childrenEquipment feature toggle is active) the threshold is 30, so that on a men's bar 25 is loaded with large 2.5kg bumpers and no collars (20 kg for women's bar)
+  - If 2.5kg technique plagtes are toggled on (or childrenEquipment feature toggle is active) the threshold is 30, 
+    - so that on a men's bar 25 is loaded with large 2.5kg technique plates and no collars (20 kg for women's bar)
   - Special rules (usawCollars, lightBarU13, lightBarU15) still have precedence.
 
 67.1.0-beta01: Refactored GAMX
   - added GAMX variants for snatch and clean&jerk (for seniors and masters)
   - changed the format to JSON so the same tables would be used for tracker
   - packaged the tables as a zip so tracker can fetch them
+
+67.1.0-beta01: Adjusted the behavior of `childrenEquipment` toggle.
+  - When importing into an empty (no athletes) database, if this toggle is present, the 5kg 10kg bars and large 2.5kg and 5kg plates will be configured ona all platforms.
+  - Unsetting and setting this toggle anew reapplies the children equipment to all platforms
+  - Otherwise, the setting does nothing so that changes made afterward (e.g. removing a light bar on a platform) are not lost.
 
 67.1.0: Attempt board layout fixes
   - fixed reactive break-timer alignment and athlete picture sizing.
