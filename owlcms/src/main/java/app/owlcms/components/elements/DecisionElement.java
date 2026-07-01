@@ -320,13 +320,13 @@ public class DecisionElement extends LitTemplate
 		}, INITIAL_DECISION_FALLBACK_DELAY_MS);
 	}
 
-	// FIXME: double listener -- JuryDisplayDecisionElement also @Subscribes to
-	// UIEvent.StartTime (slaveStartTime). Both this base handler (generation++,
-	// setEnabled(true)) and the jury handler (doReset) fire for one StartTime event
-	// on a jury element. Consolidate into a single StartTime handler.
 	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		this.decisionDisplayGeneration.incrementAndGet();
+		onStartTimer(e);
+	}
+
+	protected void onStartTimer(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			// uiEventLogger.debug("!!! slaveStartTimer enable");
 			setEnabled(true);

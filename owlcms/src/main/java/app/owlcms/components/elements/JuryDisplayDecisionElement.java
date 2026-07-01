@@ -150,13 +150,8 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		});
 	}
 
-	// FIXME: double listener -- the base class DecisionElement also @Subscribes to
-	// UIEvent.StartTime (slaveStartTimer). Because the method names differ, the
-	// EventBus registers both, so a single StartTime event runs both the base
-	// handler (generation++, setEnabled(true)) and this one (doReset). Consolidate
-	// into a single StartTime handler.
-	@Subscribe
-	public void slaveStartTime(UIEvent.StartTime e) {
+	@Override
+	protected void onStartTimer(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			getElement().setProperty("singleRef", this.isSingleRef());
 			doReset();
