@@ -35,3 +35,10 @@
 :host(.current) {
 	--vaadin-input-field-border-width : 1px;
 }
+
+:host(.collar-threshold-field) [part="input-field"] {
+	align-self: flex-start;
+	box-sizing: border-box;
+	flex: none;
+	width: 5ch;
+}

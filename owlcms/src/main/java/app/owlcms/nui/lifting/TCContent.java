@@ -62,6 +62,7 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "lifting/tc", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/plates.css")
+@CssImport(value = "./styles/text-field-theme.css", themeFor = "vaadin-text-field")
 public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TCContent.class);
@@ -253,7 +254,8 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		binder.forField(nbC2_5).withConverter(bc).bind(Platform::getNbC_2_5, Platform::setNbC_2_5);
 
 		TextField collarThresholdField = new TextField();
-		collarThresholdField.setWidth("5ch");
+		collarThresholdField.setWidth("18em");
+		collarThresholdField.addClassName("collar-threshold-field");
 		collarThresholdField.addThemeVariants(TextFieldVariant.LUMO_ALIGN_CENTER);
 		collarThresholdField.setHelperText(Translator.translate("CollarThresholdExplanation"));
 		collar.addFormItem(collarThresholdField, Translator.translate("CollarThreshold"));
