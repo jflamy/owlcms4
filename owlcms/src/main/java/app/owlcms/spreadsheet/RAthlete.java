@@ -25,6 +25,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -462,8 +463,8 @@ public class RAthlete {
 			return;
 		}
 		// create a parts as in the legacy
-		boolean usaw = Config.getCurrent().featureSwitch("usawSessionBlocks");
-		if (Config.getCurrent().featureSwitch("usawSessionBlocks")) {
+		boolean usaw = Config.getCurrent().featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS);
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
 			s = s.replaceAll("(\\d+)\\s?kg", "$1");
 		}
 

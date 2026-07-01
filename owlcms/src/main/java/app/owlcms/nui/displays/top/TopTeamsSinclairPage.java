@@ -34,6 +34,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.displays.options.DisplayOptions;
 import app.owlcms.displays.top.TopTeamsSinclair;
 import app.owlcms.i18n.Translator;
@@ -298,11 +299,11 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		        DisplayParameters.VIDEO, "false",
 		        DisplayParameters.PUBLIC, "false",
 		        SoundParameters.SINGLEREF, "false",
-		        DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch("shortScoreboardNames")));
+		        DisplayParameters.ABBREVIATED, Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.SHORT_SCOREBOARD_NAMES)));
 		var additionalMap = Map.of(
-		        SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch("noLiveLights")),
+		        SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS)),
 		        SoundParameters.SHOW_DECLARATIONS, "false",
-		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
+		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.CENTER_ANNOUNCER_NOTIFICATIONS)),
 		        SoundParameters.START_ORDER, "false",
 		        DisplayParameters.CURRENT_ATTEMPT, "false",
 		        DisplayParameters.SHOW_MEDALS, "auto");

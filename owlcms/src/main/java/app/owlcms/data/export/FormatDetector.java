@@ -18,6 +18,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
@@ -123,7 +124,7 @@ public class FormatDetector {
 			// childrenEquipment feature toggle, apply children's equipment defaults
 			// to all platforms now (platforms were created without the toggle active).
 			try {
-				if (priorDatabaseEmpty && Config.getCurrent().featureSwitch("childrenEquipment")) {
+				if (priorDatabaseEmpty && Config.getCurrent().featureSwitch(FeatureSwitch.CHILDREN_EQUIPMENT)) {
 					logger.info("childrenEquipment feature present in imported config - applying children's equipment defaults to all platforms");
 					for (Platform platform : PlatformRepository.findAll()) {
 						if (platform.applyChildrenEquipment()) {

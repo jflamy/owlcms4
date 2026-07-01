@@ -41,6 +41,7 @@ import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.team.Team;
@@ -408,7 +409,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		if (Config.getCurrent().featureSwitch("playwright")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			logger./*playwright*/warn("{}attemptBoard slaveDownSignal received origin={} self={}", FieldOfPlay.getLoggingName(getFop()),
 			        e.getOrigin(), this.getOrigin());
 		}
@@ -424,7 +425,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveInitialDecision(UIEvent.InitialDecision e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		if (Config.getCurrent().featureSwitch("playwright")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			logger./*playwright*/warn("{}attemptBoard slaveInitialDecision received origin={} self={} goodLift={} timingPolicy={}",
 			        FieldOfPlay.getLoggingName(getFop()), e.getOrigin(), this.getOrigin(), e.decision, e.getTimingPolicy());
 		}
@@ -518,7 +519,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		if (Config.getCurrent().featureSwitch("playwright")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			logger./*playwright*/warn("{}attemptBoard slaveRefereeDecision received origin={} self={} goodLift={}",
 			        FieldOfPlay.getLoggingName(getFop()), e.getOrigin(), this.getOrigin(), e.decision);
 		}
@@ -691,7 +692,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			team = "";
 		}
 
-		if (Config.getCurrent().featureSwitch("customTeamName")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.CUSTOM_TEAM_NAME)) {
 			var customTeamFormatString = Translator.translateOrElseNull("AttemptBoard.TeamFormat");
 			if (customTeamFormatString != null) {
 				String custom1 = a.getCustom1();
@@ -1031,7 +1032,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private void spotlightRecords(FieldOfPlay fop, Athlete a) {
-		if (Config.getCurrent().featureSwitch("disableRecordHighlight")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISABLE_RECORD_HIGHLIGHT)) {
 			if (ui != null) {
 				ui.push();
 			}

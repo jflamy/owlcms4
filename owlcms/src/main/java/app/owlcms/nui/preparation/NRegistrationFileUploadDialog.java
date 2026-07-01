@@ -37,6 +37,7 @@ import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
@@ -332,7 +333,7 @@ public class NRegistrationFileUploadDialog extends Dialog {
 	}
 
 	private boolean isProcessAthletes() {
-		boolean updatesAllowed = !Config.getCurrent().featureSwitch("noAthleteUpdates");
+		boolean updatesAllowed = !Config.getCurrent().featureSwitch(FeatureSwitch.NO_ATHLETE_UPDATES);
 		return updatesAllowed && this.fileName != null && !this.fileName.contains("_sessions");
 	}
 

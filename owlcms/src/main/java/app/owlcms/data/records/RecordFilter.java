@@ -26,6 +26,7 @@ import com.google.common.collect.Multimap;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
@@ -45,7 +46,7 @@ public class RecordFilter {
 	        Athlete a) {
 
 		if (recordNameIsCategory == null) {
-			recordNameIsCategory = Config.getCurrent().featureSwitch("recordNameIsCategory");
+			recordNameIsCategory = Config.getCurrent().featureSwitch(FeatureSwitch.RECORD_NAME_IS_CATEGORY);
 			logger.debug("setting recordNameIsCategory {}", recordNameIsCategory);
 		}
 

@@ -43,7 +43,7 @@ public class RegistrationPreferenceComparator implements Comparator<Category> {
 		} else if (c1 != null && c2 == null) {
 			return -1;
 		} else if (c1 != null && c2 != null) {
-			// if (!Config.getCurrent().featureSwitch("oldCatOrder")) {
+			// if (!Config.getCurrent().featureSwitch(FeatureSwitch.OLD_CAT_ORDER)) {
 				return ObjectUtils.compare(c1.getMedalingSortCode(), c2.getMedalingSortCode());
 			// } else {
 			// 	/obsolete

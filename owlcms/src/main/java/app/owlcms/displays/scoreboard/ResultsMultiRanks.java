@@ -21,6 +21,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -66,8 +67,8 @@ public class ResultsMultiRanks extends Results {
 
 	@Override
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
-		boolean bestScore = Config.getCurrent().featureSwitch("displayBestScore");
-		boolean bestScoreRank = Config.getCurrent().featureSwitch("displayBestScoreRank");
+		boolean bestScore = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE);
+		boolean bestScoreRank = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK);
 
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
@@ -232,7 +233,7 @@ public class ResultsMultiRanks extends Results {
 
 	public boolean isChampionshipRanks() {
 		var group2 = getGroup();
-		return Config.getCurrent().featureSwitch("championshipGrouping") || (group2 != null && group2.isMasters());
+		return Config.getCurrent().featureSwitch(FeatureSwitch.CHAMPIONSHIP_GROUPING) || (group2 != null && group2.isMasters());
 	}
 
 	private JsonArray getChampionshipNamesJson(LinkedHashMap<String, Participation> agMap) {
@@ -266,7 +267,7 @@ public class ResultsMultiRanks extends Results {
 			return "-";
 		}
 		var championshipName = (group2.isMasters()
-		        || Config.getCurrent().featureSwitch("championshipGrouping")) ? ag.computeChampionshipName() : ag.getCode();
+		        || Config.getCurrent().featureSwitch(FeatureSwitch.CHAMPIONSHIP_GROUPING)) ? ag.computeChampionshipName() : ag.getCode();
 		return championshipName;
 	}
 

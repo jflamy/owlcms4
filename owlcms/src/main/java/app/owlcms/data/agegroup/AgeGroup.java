@@ -37,6 +37,7 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import app.owlcms.utils.IdUtils;
 import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
@@ -82,7 +83,7 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		}
 		
 		// for readability
-		if (!Competition.getCurrent().getDisplayByAgeGroup() && Config.getCurrent().featureSwitch("bwClassThenAgeGroup")) {
+		if (!Competition.getCurrent().getDisplayByAgeGroup() && Config.getCurrent().featureSwitch(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP)) {
 			return ObjectUtils.compare(a.getChampionshipName(), b.getChampionshipName());
 		}
 

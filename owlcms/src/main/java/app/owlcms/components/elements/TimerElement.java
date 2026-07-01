@@ -27,6 +27,7 @@ import com.vaadin.flow.server.VaadinSession;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.Main;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -385,11 +386,11 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private boolean isServerTickEnabled() {
-		return Config.getCurrent().featureSwitch("playwright") && isDisplayAthleteTimer();
+		return Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) && isDisplayAthleteTimer();
 	}
 
 	private boolean isServerRunningCheckEnabled() {
-		return Config.getCurrent().featureSwitch("playwright")
+		return Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)
 				&& (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
 	}
 
@@ -430,7 +431,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private boolean isPlaywrightTimerDiagnosticEnabled() {
-		return Config.getCurrent().featureSwitch("playwright")
+		return Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)
 				&& (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
 	}
 
@@ -553,7 +554,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private void traceDisplayTimerClientRender(String command, double seconds, long sequence) {
-		if (!Config.getCurrent().featureSwitch("playwright") || !isDisplayAthleteTimer() || getUI().isEmpty()) {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) || !isDisplayAthleteTimer() || getUI().isEmpty()) {
 			return;
 		}
 		final String ctx = FieldOfPlay.getLoggingName(this.fop) + timerDiagnosticRole() + " timer ";
@@ -573,7 +574,7 @@ public abstract class TimerElement extends LitTemplate
 		long parsedSequence = parseTimerCommandSequence(sequence);
 		this.lastClientStoppedSequence = parsedSequence;
 		this.lastClientStoppedMillis = System.currentTimeMillis();
-		if (Config.getCurrent().featureSwitch("playwright") && isDisplayAthleteTimer()) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) && isDisplayAthleteTimer()) {
 			this.logger./*playwright*/warn(
 					"{}{} timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
 					FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), parsedSequence, display, running,

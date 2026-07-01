@@ -38,6 +38,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.data.group.GroupRepository;
@@ -71,7 +72,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	 * Instantiates a new preparation navigation content.
 	 */
 	public PreparationNavigationContent() {
-		boolean recordsPreparation = Config.getCurrent().featureSwitch("recordsPreparation")
+		boolean recordsPreparation = Config.getCurrent().featureSwitch(FeatureSwitch.RECORDS_PREPARATION)
 		        || Boolean.TRUE.equals(OwlcmsSession.getAttribute("recordsPreparation"));
 
 		Button competition = openInNewTabNoParam(CompetitionContent.class,
@@ -139,7 +140,7 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 		// V2 export button (conditional on feature switch)
 		Div exportJsonV2Div = null;
-		if (Config.getCurrent().featureSwitch("v2Export")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.V2_EXPORT)) {
 			Notification notification3 = new Notification(Translator.translate("LongProcessing"));
 			notification3.setPosition(Position.TOP_END);
 			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton("owlcmsDatabase",

@@ -37,6 +37,7 @@ import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
@@ -440,7 +441,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		ja.put("custom2", a.getCustom2() != null ? a.getCustom2() : "");
 
 		String prop = null;
-		if (!Config.getCurrent().featureSwitch("medalsForCategoryOnly")) {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALS_FOR_CATEGORY_ONLY)) {
 			// only show flags when medals are for a single category
 			String team = a.getTeam();
 			if (this.teamFlags && !team.isBlank()) {
@@ -493,7 +494,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		this.setUi(attachEvent.getUI());
-		this.getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch("displayBodyWeight"));
+		this.getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT));
 		// we listen on uiEventBus.
 		FieldOfPlay fop = getFop();
 		this.uiEventBus = uiEventBusRegister(this, fop);
@@ -510,7 +511,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
-		if (Config.getCurrent().featureSwitch("displayBodyWeight")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)) {
 			translations.put("Custom1", getCustom1Label());
 		}
 		this.getElement().setPropertyJson("t", translations);

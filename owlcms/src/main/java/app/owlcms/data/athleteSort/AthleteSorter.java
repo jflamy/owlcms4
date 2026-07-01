@@ -29,6 +29,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
@@ -57,7 +58,6 @@ public class AthleteSorter implements Serializable {
 	}
 
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(AthleteSorter.class);
-	private static final String TOTAL_TEAM_POINTS_ONLY = "totalTeamPointsOnly";
 
 	public static List<Athlete> assignCategoryRanks(EntityManager em, Group g) {
 		List<Athlete> impactedAthletes;
@@ -602,7 +602,7 @@ public class AthleteSorter implements Serializable {
 	public static boolean isTotalOnlyTeamPoints(Participation p) {
 		Competition competition = Competition.getCurrent();
 		return p != null && (!competition.isSnatchCJTotalMedals()
-		        || Config.getCurrent().featureSwitch(TOTAL_TEAM_POINTS_ONLY)
+		        || Config.getCurrent().featureSwitch(FeatureSwitch.TEAM_POINTS_TOTAL_ONLY)
 		        || isImwaMastersTeamPoints(p));
 	}
 

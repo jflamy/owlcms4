@@ -53,6 +53,7 @@ import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
@@ -115,9 +116,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        SoundParameters.DOWNSILENT, "true",
 		        SoundParameters.IMMEDIATE, "true",
 		        SoundParameters.SINGLEREF, "false",
-		        SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch("noLiveLights")),
+		        SoundParameters.LIVE_LIGHTS, Boolean.toString(!Config.getCurrent().featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS)),
 		        SoundParameters.SHOW_DECLARATIONS, "false",
-		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
+		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.CENTER_ANNOUNCER_NOTIFICATIONS)),
 		        SoundParameters.START_ORDER, "false")));
 	}
 
@@ -383,7 +384,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void clearWaitingForDecisionReminder() {
-		if (Config.getCurrent().featureSwitch("playwright")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			logger./*playwright*/warn("{}announcer waiting-for-decision clear", FieldOfPlay.getLoggingName(getFop()));
 		}
 		cancelWaitingForDecisionNotificationTask();
@@ -394,7 +395,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		cancelWaitingForDecisionNotificationTask();
 		closeWaitingForDecisionNotification();
 		final long generation = this.waitingForDecisionNotificationGeneration;
-		if (Config.getCurrent().featureSwitch("playwright")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			logger./*playwright*/warn("{}announcer waiting-for-decision schedule ref={} delayMs={}",
 			        FieldOfPlay.getLoggingName(getFop()), missingReferee, WAKE_UP_REF_GRACE_PERIOD_MILLIS);
 		}
@@ -414,7 +415,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void showWaitingForDecisionNotification(int missingReferee) {
-		if (Config.getCurrent().featureSwitch("playwright")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			logger./*playwright*/warn("{}announcer waiting-for-decision show ref={}", FieldOfPlay.getLoggingName(getFop()), missingReferee);
 		}
 		closeWaitingForDecisionNotification();
@@ -537,7 +538,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	private void logAnnouncerDecisionVisible(String phase, FieldOfPlay fop, Boolean goodLift, String fullName,
 	        Object origin) {
-		if (!Config.getCurrent().featureSwitch("playwright")) {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			return;
 		}
 		logger./*playwright*/warn("{}announcer decisionVisible {} attached={} state={} decision={} athlete={} origin={} {}",
@@ -581,7 +582,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Subscribe
 	public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
-		if (Config.getCurrent().featureSwitch("playwright")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			logger./*playwright*/warn("{}announcer slaveWakeUpRef on={} ref={}", FieldOfPlay.getLoggingName(getFop()), e.on, e.ref);
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
@@ -740,7 +741,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	protected void createStartTimeButton() {
 		super.createStartTimeButton();
 		boolean notSpanish = !OwlcmsSession.getLocale().getLanguage().startsWith("es");
-		boolean keepSpanishKeypadShortcut = Config.getCurrent().featureSwitch("keepSpanishHyphenShortcut");
+		boolean keepSpanishKeypadShortcut = Config.getCurrent().featureSwitch(FeatureSwitch.KEEP_SPANISH_HYPHEN_SHORTCUT);
 		currentUI.access(() -> {
 			currentUI.addShortcutListener(() -> doStartTime(), Key.COMMA);
 			if (notSpanish || keepSpanishKeypadShortcut) {
@@ -1001,8 +1002,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		if (fop != null) {
 			fop.forceResendCurrentStateToLegacyDisplay();
 		}
-		// setLiveLights(!Config.getCurrent().featureSwitch("noLiveLights"));
-		// setCenterNotifications(Config.getCurrent().featureSwitch("centerAnnouncerNotifications"));
+		// setLiveLights(!Config.getCurrent().featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS));
+		// setCenterNotifications(Config.getCurrent().featureSwitch(FeatureSwitch.CENTER_ANNOUNCER_NOTIFICATIONS));
 		defineFilters(this.getCrudGrid());
 	}
 

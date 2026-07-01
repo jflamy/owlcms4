@@ -55,6 +55,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.fieldofplay.FOPState;
@@ -308,7 +309,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			pushUpdate(null);
 		}
 		
-		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch("noForwarderKeepAlive");
+		this.NO_KEEPALIVE = Config.getCurrent().featureSwitch(FeatureSwitch.NO_FORWARDER_KEEP_ALIVE);
 		
 	}
 
@@ -1818,7 +1819,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
 		setLastDecisionMap(createDecision(e, det));
 		if ((det == DecisionEventType.INITIAL_DECISION || det == DecisionEventType.FULL_DECISION)
-				&& Config.getCurrent().featureSwitch("playwright")) {
+				&& Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			logger./*playwright*/warn("{} forwarding decision event {} d1={} d2={} d3={} destination={} {}",
 					FieldOfPlay.getLoggingName(getFop()),
 					det,

@@ -36,6 +36,7 @@ import app.owlcms.components.GroupCategorySelectionMenu;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.displays.video.StreamingEventMonitor;
@@ -204,7 +205,7 @@ public class VideoNavigationContent extends BaseNavigationContent
 		FlexibleGridLayout grid3;
 		Button attempt = openInNewTabWithFopQueryParameters(PublicFacingAttemptBoardPage.class,
 		        Translator.translate("AttemptBoard"), "video=true");
-		if (Config.getCurrent().featureSwitch("iwfLook")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.IWF_LOOK)) {
 			Button nCurrentAthlete = openInNewTabWithFopQueryParameters(NCurrentAthletePage.class,
 			        Translator.translate("CurrentAthleteTitle") + " (New)", "video=true");
 			grid3 = HomeNavigationContent.navigationGrid(nCurrentAthlete, attempt);

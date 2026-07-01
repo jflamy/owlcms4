@@ -61,6 +61,7 @@ import app.owlcms.data.category.RegistrationPreferenceComparator;
 import app.owlcms.data.category.RobiCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.DisplayGroup;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.LocalDateAttributeConverter;
@@ -516,7 +517,7 @@ public class Athlete {
 	}
 
 	protected boolean fixNamesP() {
-		return !Config.getCurrent().featureSwitch("dontFixNames");
+		return !Config.getCurrent().featureSwitch(FeatureSwitch.DONT_FIX_NAMES);
 	}
 
 	public void addEligibleCategory(Category category) {
@@ -898,7 +899,7 @@ public class Athlete {
 	}
 
 	public String computeFixedFirstName(Locale loc, String firstName2) {
-		if (Config.getCurrent().featureSwitch("dontFixNames")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.DONT_FIX_NAMES)) {
 			return firstName2;
 		}
 		// Check if first name is all caps (or all caps with hyphens and spaces)
@@ -3391,7 +3392,7 @@ public class Athlete {
 	}
 
 	public String getSubCategory() {
-		if (Config.getCurrent().featureSwitch("UseCustom2AsSubCategory")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.USE_CUSTOM2_AS_SUB_CATEGORY)) {
 			return (this.getCustom2() != null && !this.getCustom2().isBlank()) ? this.getCustom2() : "";
 		} else {
 			return this.subCategory != null ? this.subCategory : "";
@@ -5743,7 +5744,7 @@ public class Athlete {
 			int referenceProgression = reference.getProgression();
 
 			if (currentProgression == referenceProgression) {
-				if (Config.getCurrent().featureSwitch("playwright")) {
+				if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 					getLogger()./*playwright*/warn("{}progression({}) {} == referenceProgression({}) {}",
 					        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
 					        referenceProgression);
@@ -5755,7 +5756,7 @@ public class Athlete {
 
 			// check again.
 			if (currentProgression == referenceProgression) {
-				if (Config.getCurrent().featureSwitch("playwright")) {
+				if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 					getLogger()./*playwright*/warn("{}cumulativeProgression({}) {} == referenceCumulativeProgression({}) {}",
 					        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
 					        referenceProgression);
@@ -5764,7 +5765,7 @@ public class Athlete {
 			} else
 
 			if (currentProgression > referenceProgression) {
-				if (Config.getCurrent().featureSwitch("playwright")) {
+				if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 					getLogger()./*playwright*/warn("{}currentProgression({}) {} > referenceProgression({}) {}",
 					        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
 					        referenceProgression);

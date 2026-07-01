@@ -61,6 +61,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.platform.PlatformRepository;
@@ -167,7 +168,7 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private List<Integer> mergeColumnList;
 
 	protected boolean shouldHideInterimScoresInResults() {
-		return this.respectNoInterimScoresInResults && Config.getCurrent().featureSwitch("noInterimScoresInResults");
+		return this.respectNoInterimScoresInResults && Config.getCurrent().featureSwitch(FeatureSwitch.NO_INTERIM_SCORES_IN_RESULTS);
 	}
 
 	public JXLSWorkbookStreamSource() {

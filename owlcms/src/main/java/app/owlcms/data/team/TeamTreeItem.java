@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.html.NativeLabel;
 
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -264,7 +265,7 @@ public class TeamTreeItem {
 	}
 
 	private boolean usesTotalOnlyTeamPoints() {
-		return this.combinedPoints && Config.getCurrent().featureSwitch("teamPointsTotalOnly");
+		return this.combinedPoints && Config.getCurrent().featureSwitch(FeatureSwitch.TEAM_POINTS_TOTAL_ONLY);
 	}
 
 	public Double getRobiScore() {

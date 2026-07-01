@@ -57,6 +57,7 @@ import com.vaadin.flow.data.validator.RegexpValidator;
 
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
@@ -239,8 +240,8 @@ public class ConfigEditingFormFactory
 			Config oldConfig = Config.getCurrent();
 			
 			// Check if childrenEquipment toggle is being ADDED (wasn't active before, now is)
-			boolean hadChildrenEquipment = oldConfig != null && oldConfig.featureSwitch("childrenEquipment");
-			boolean willHaveChildrenEquipment = containsFeatureSwitch(config.getFeatureSwitches(), "childrenEquipment");
+			boolean hadChildrenEquipment = oldConfig != null && oldConfig.featureSwitch(FeatureSwitch.CHILDREN_EQUIPMENT);
+			boolean willHaveChildrenEquipment = containsFeatureSwitch(config.getFeatureSwitches(), FeatureSwitch.CHILDREN_EQUIPMENT);
 			boolean childrenEquipmentAdded = !hadChildrenEquipment && willHaveChildrenEquipment;
 			
 			Config saved = Config.setCurrent(config);
@@ -262,13 +263,13 @@ public class ConfigEditingFormFactory
 	/**
 	 * Check if a feature switch is present in a comma/semicolon/space-separated string.
 	 */
-	private boolean containsFeatureSwitch(String switches, String toggle) {
+	private boolean containsFeatureSwitch(String switches, FeatureSwitch toggle) {
 		if (switches == null || switches.trim().isEmpty()) {
 			return false;
 		}
 		String[] parts = switches.toLowerCase().split("[,; ]");
 		for (String part : parts) {
-			if (part.trim().equalsIgnoreCase(toggle)) {
+			if (part.trim().equalsIgnoreCase(toggle.getId())) {
 				return true;
 			}
 		}

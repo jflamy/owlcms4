@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Blob;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -198,24 +197,31 @@ public class Config {
 		return this.id != null && this.id.equals(other.getId());
 	}
 
-	public boolean featureSwitch(String string) {
-		return featureSwitch(string, true);
+	public boolean featureSwitch(FeatureSwitch featureSwitch) {
+		return featureSwitch(featureSwitch, true);
 	}
 
-	public boolean featureSwitch(String string, boolean trueIfPresent) {
+	public boolean featureSwitch(FeatureSwitch featureSwitch, boolean trueIfPresent) {
 		String paramFeatureSwitches = getParamFeatureSwitches();
 		if (paramFeatureSwitches == null) {
 			return !trueIfPresent;
 		}
-		String[] switches = paramFeatureSwitches.toLowerCase().split("[,; ]");
-		boolean present = Arrays.asList(switches).contains(string.toLowerCase());
+		String id = featureSwitch.getId().toLowerCase(Locale.ROOT);
+		String[] switches = paramFeatureSwitches.toLowerCase(Locale.ROOT).split("[,; ]");
+		boolean present = false;
+		for (String toggle : switches) {
+			if (toggle.equals(id)) {
+				present = true;
+				break;
+			}
+		}
 		return trueIfPresent ? present : !present;
 	}
 
 	@Transient
 	@JsonIgnore
 	public boolean isRecordRepository() {
-		return featureSwitch("recordRepository") || featureSwitch("recordsOnly");
+		return featureSwitch(FeatureSwitch.RECORD_REPOSITORY) || featureSwitch(FeatureSwitch.RECORDS_ONLY);
 	}
 
 	/**
@@ -942,7 +948,7 @@ public class Config {
 	}
 
 	public boolean isLocalTemplatesOnly() {
-		return this.localTemplatesOnly || featureSwitch("localTemplatesOnly");
+		return this.localTemplatesOnly || featureSwitch(FeatureSwitch.LOCAL_TEMPLATES_ONLY);
 	}
 
 	public boolean isMqttInternal() {

@@ -30,6 +30,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
@@ -72,7 +73,7 @@ public class RecordsPreparationNavigationContent extends BaseNavigationContent
 
 		// V2 export button (conditional on feature switch)
 		Div exportJsonV2Div = null;
-		if (Config.getCurrent().featureSwitch("v2Export")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.V2_EXPORT)) {
 			Notification notification3 = new Notification(Translator.translate("LongProcessing"));
 			notification3.setPosition(Position.TOP_END);
 			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton("owlcmsDatabase",

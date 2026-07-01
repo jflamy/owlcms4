@@ -46,6 +46,7 @@ import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -107,7 +108,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		        SoundParameters.SINGLEREF, "false",
 		        SoundParameters.LIVE_LIGHTS, "true",
 		        SoundParameters.SHOW_DECLARATIONS, "false",
-		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch("centerAnnouncerNotifications")),
+		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.CENTER_ANNOUNCER_NOTIFICATIONS)),
 		        SoundParameters.START_ORDER, "false")));
 	}
 

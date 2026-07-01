@@ -51,6 +51,7 @@ import app.owlcms.data.athleteSort.AbstractLifterComparator;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
@@ -156,7 +157,7 @@ public class Group implements Comparable<Group> {
 			return compare;
 		}
 
-		if (Config.getCurrent().featureSwitch("usawSessionBlocks")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
 			var lifter1SessionBlock = lifter1Group.getSessionBlock();
 			var lifter2SessionBlock = lifter2Group.getSessionBlock();
 			// null sessionBlocks go last.
@@ -1256,7 +1257,7 @@ public class Group implements Comparable<Group> {
 	@Transient
 	@JsonIgnore
 	public Integer getSessionBlock() {
-		if (Config.getCurrent().featureSwitch("usawSessionBlocks")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
 			Matcher matcher = this.pattern.matcher(this.getName());
 			if (matcher.find()) {
 				String number = matcher.group(1);

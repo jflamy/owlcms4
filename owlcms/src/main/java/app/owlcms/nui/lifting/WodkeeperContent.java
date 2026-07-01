@@ -34,6 +34,7 @@ import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
@@ -311,7 +312,7 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
 
     @Override
     protected void createTopBarGroupSelect() {
-        if (Config.getCurrent().featureSwitch("enableTimeKeeperSessionSwitch")) {
+        if (Config.getCurrent().featureSwitch(FeatureSwitch.ENABLE_TIME_KEEPER_SESSION_SWITCH)) {
             List<Group> groups = GroupRepository.findAll();
             groups.sort(Group.groupSelectionComparator);
 
@@ -499,7 +500,7 @@ public class WodkeeperContent extends AthleteGridContent implements HasDynamicTi
     private void registerShortcuts() {
         UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.COMMA);
         boolean notSpanish = !OwlcmsSession.getLocale().getLanguage().startsWith("es");
-        boolean keepSpanishKeypadShortcut = Config.getCurrent().featureSwitch("keepSpanishHyphenShortcut");
+        boolean keepSpanishKeypadShortcut = Config.getCurrent().featureSwitch(FeatureSwitch.KEEP_SPANISH_HYPHEN_SHORTCUT);
         if (notSpanish || keepSpanishKeypadShortcut) {
             UI.getCurrent().addShortcutListener(() -> doStartTime(), Key.SLASH);
         }

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.Component;
 
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.nui.displays.SoundEntries;
 import app.owlcms.nui.lifting.MarshallContent;
 import ch.qos.logback.classic.Logger;
@@ -35,7 +36,7 @@ public interface SoundParameters extends FOPParameters, SoundEntries {
 	}
 
 	public default boolean isDeclarations() {
-		return Config.getCurrent().featureSwitch("showDeclarationsToAnnouncer");
+		return Config.getCurrent().featureSwitch(FeatureSwitch.SHOW_DECLARATIONS_TO_ANNOUNCER);
 	}
 
 	public default boolean isDownSilenced() {
@@ -43,7 +44,7 @@ public interface SoundParameters extends FOPParameters, SoundEntries {
 	}
 
 	public default boolean isLiveLights() {
-		return !Config.getCurrent().featureSwitch("noLiveLights");
+		return !Config.getCurrent().featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS);
 	}
 
 	public default boolean isSilenced() {

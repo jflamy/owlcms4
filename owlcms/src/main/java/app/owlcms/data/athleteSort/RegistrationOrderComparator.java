@@ -16,6 +16,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import ch.qos.logback.classic.Logger;
 
@@ -62,7 +63,7 @@ public class RegistrationOrderComparator extends AbstractLifterComparator implem
 			return compare;
 		}
 
-		if (!Competition.getCurrent().isDisplayByAgeGroup() && Config.getCurrent().featureSwitch("bwClassThenAgeGroup")) {
+		if (!Competition.getCurrent().isDisplayByAgeGroup() && Config.getCurrent().featureSwitch(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP)) {
 			// for scoreboard readability, we group by age group within the bodyweight category.
 			// (used in South America)
 			compare = AgeGroup.registrationComparator.compare(category1.getAgeGroup(), category2.getAgeGroup());

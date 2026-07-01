@@ -79,6 +79,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
@@ -323,7 +324,7 @@ public abstract class AthleteGridContent extends BaseContent
 	 */
 	public AthleteGridContent() {
 		init();
-		this.stopButtonVariant = Config.getCurrent().featureSwitch("blackStopButton") ? "contrast" : "error";
+		this.stopButtonVariant = Config.getCurrent().featureSwitch(FeatureSwitch.BLACK_STOP_BUTTON) ? "contrast" : "error";
 		this.breakTimerElement = new BreakTimerElement(this.getTopBarTitle() + "_" + this.id);
 		this.recordNotifications = new ArrayList<>();
 	}
@@ -1480,7 +1481,7 @@ public abstract class AthleteGridContent extends BaseContent
 				return;
 			}
 			long base = openStamp[0];
-			if (Config.getCurrent().featureSwitch("playwright")) {
+			if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 				logger./*playwright*/warn("{}notif {} client opened +{}ms", ctx, tag,
 				        base > 0 ? System.currentTimeMillis() - base : -1);
 			}
@@ -1507,7 +1508,7 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	private void traceAnnouncerClientRender(Component component, String tag, String script) {
-		if (!Config.getCurrent().featureSwitch("playwright") || !(this instanceof AnnouncerContent)
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) || !(this instanceof AnnouncerContent)
 		        || component == null || component.getUI().isEmpty()) {
 			return;
 		}
@@ -1959,7 +1960,7 @@ public abstract class AthleteGridContent extends BaseContent
 		Athlete curDisplayAthlete = this.displayedAthlete;
 
 		// marshal weight change warnings not to self and not to announcer
-		boolean showDeclarationsToAnnouncer = Config.getCurrent().featureSwitch("showDeclarationsToAnnouncer") || isDeclarations();
+		boolean showDeclarationsToAnnouncer = Config.getCurrent().featureSwitch(FeatureSwitch.SHOW_DECLARATIONS_TO_ANNOUNCER) || isDeclarations();
 		boolean showDeclarations = (showDeclarationsToAnnouncer || !(this instanceof AnnouncerContent));
 		if (this != e.getOrigin() && curDisplayAthlete != null
 		        && e instanceof UIEvent.LiftingOrderUpdated

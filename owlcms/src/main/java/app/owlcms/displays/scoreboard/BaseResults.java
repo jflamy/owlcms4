@@ -43,6 +43,7 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.team.Team;
 import app.owlcms.displays.video.StylesDirSelection;
@@ -714,7 +715,7 @@ public class BaseResults extends LitTemplate
 			List<Athlete> leaders = fop.getLeaders();
 			// 0 total is not shown -- cannot be a leader from a prior group
 			// (when medalistsAsLeaders is false, we show prior group leaders)
-			if (!Config.getCurrent().featureSwitch("medalistsAsLeaders") && leaders != null) {
+			if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS) && leaders != null) {
 				this.displayOrder = leaders.stream()
 					.filter(a -> a.getTotal() > 0)
 					.toList();
@@ -747,12 +748,12 @@ public class BaseResults extends LitTemplate
 			// logger.debug("isPublicDisplay {} {} {} {}",
 			// isPublicDisplay(),
 			// Config.getCurrent().getParamPublicStylesDir().endsWith("grid"),
-			// Config.getCurrent().featureSwitch("stretchPublic"),
-			// (isPublicDisplay() && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchPublic")))
+			// Config.getCurrent().featureSwitch(FeatureSwitch.STRETCH_PUBLIC),
+			// (isPublicDisplay() && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch(FeatureSwitch.STRETCH_PUBLIC)))
 			// );
 			boolean noStretch = (isPublicDisplay()
-			        && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchPublic")))
-			        || (isVideo() && !(Config.getCurrent().getParamVideoStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch("stretchVideo")));
+			        && !(Config.getCurrent().getParamPublicStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch(FeatureSwitch.STRETCH_PUBLIC)))
+			        || (isVideo() && !(Config.getCurrent().getParamVideoStylesDir().endsWith("grid") || Config.getCurrent().featureSwitch(FeatureSwitch.STRETCH_VIDEO)));
 			// noStretch = no filler line to push the leaderboard down
 			this.getElement().setProperty("leaderLines", normal - (noStretch ? 1 : 0));
 		} else {
@@ -845,7 +846,7 @@ public class BaseResults extends LitTemplate
 		this.setDisplay();
 	}
 
-	boolean iwfLook = Config.getCurrent().featureSwitch("iwfLook");
+	boolean iwfLook = Config.getCurrent().featureSwitch(FeatureSwitch.IWF_LOOK);
 
 	protected void doUpdate(Athlete a, UIEvent e) {
 		// logger.trace("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() :
@@ -921,13 +922,13 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected String getCustom1Label() {
-		return Config.getCurrent().featureSwitch("displayBodyWeight")
+		return Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)
 		        ? Translator.translate("Scoreboard.BodyWeight")
 		        : Translator.translate("Scoreboard.Custom1");
 	}
 
 	protected String getCustom1Value(Athlete a) {
-		if (Config.getCurrent().featureSwitch("displayBodyWeight")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)) {
 			Double bodyWeight = a.getBodyWeight();
 			return bodyWeight != null ? String.format(this.capturedLocale, "%.2f", bodyWeight) : "";
 		}
@@ -935,8 +936,8 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
-		boolean bestScore = Config.getCurrent().featureSwitch("displayBestScore");
-		boolean bestScoreRank = Config.getCurrent().featureSwitch("displayBestScoreRank");
+		boolean bestScore = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE);
+		boolean bestScoreRank = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK);
 
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
@@ -1154,7 +1155,7 @@ public class BaseResults extends LitTemplate
 	 */
 	protected BiPredicate<Athlete, Athlete> getSeparatorPredicate() {
 		boolean displayByAgeGroup = Competition.getCurrent().isByAgeGroup();
-		boolean bwClassThenAgeGroup = Config.getCurrent().featureSwitch("bwClassThenAgeGroup");
+		boolean bwClassThenAgeGroup = Config.getCurrent().featureSwitch(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP);
 		// logger.debug("displayByAgeGroup {} bwClassThenAgeGroup {}", displayByAgeGroup, bwClassThenAgeGroup);
 		BiPredicate<Athlete, Athlete> separator = (cur, prev) -> {
 			if (prev == null) {
@@ -1213,7 +1214,7 @@ public class BaseResults extends LitTemplate
 
 		getElement().setProperty("showTotal", true);
 		getElement().setProperty("showBest", true); // overridden by media queries, not a variable
-		getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch("displayBodyWeight"));
+		getElement().setProperty("showCustom1", Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT));
 		getElement().setProperty("video", this.video);
 		getElement().setProperty("currentAttempt", this.currentAttempt);
 		getElement().setProperty("showMedals", this.showMedals);
@@ -1250,11 +1251,11 @@ public class BaseResults extends LitTemplate
 		this.getElement().setProperty("showSinclair", showScore);
 
 		boolean showScoreRank = scoring[0] || Competition.getCurrent().isDisplayScoreRanks();
-		boolean noBestScoreRank = Config.getCurrent().featureSwitch("noBestScoreRank")
-		        || Config.getCurrent().featureSwitch("noSinclairRank");
+		boolean noBestScoreRank = Config.getCurrent().featureSwitch(FeatureSwitch.NO_BEST_SCORE_RANK)
+		        || Config.getCurrent().featureSwitch(FeatureSwitch.NO_SINCLAIR_RANK);
 		if (noBestScoreRank) {
 			showScoreRank = false;
-		} else if (Config.getCurrent().featureSwitch("displayBestScoreRank")) {
+		} else if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK)) {
 			showScoreRank = true;
 		}
 		this.getElement().setProperty("showSinclairRank", showScoreRank);
@@ -1312,11 +1313,11 @@ public class BaseResults extends LitTemplate
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
 		}
-		if (Config.getCurrent().featureSwitch("displayBodyWeight")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)) {
 			translations.put("Custom1", getCustom1Label());
 		}
 		translations.put("ScoringTitle", Translator.translate("Score"));
-		if (!Config.getCurrent().featureSwitch("medalistsAsLeaders")) {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)) {
 			translations.put("Leaders", Translator.translate("Leaders.PreviousGroups"));
 		}
 		this.getElement().setPropertyJson("t", translations);
@@ -1349,7 +1350,7 @@ public class BaseResults extends LitTemplate
 
 		updateGroupInfo(liftType);
 		// getAgeGroupNamesJson must be called before getAthletesJson
-		if (Config.getCurrent().featureSwitch("displayBestScore")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE)) {
 			Championship scoringChampionship = fop.getCurAthlete() != null && fop.getCurAthlete().getAgeGroup() != null
 			        ? fop.getCurAthlete().getAgeGroup().getChampionship()
 			        : fop.getActiveChampionships().stream().findFirst().orElse(Championship.of(null));

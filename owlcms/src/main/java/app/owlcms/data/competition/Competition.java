@@ -65,6 +65,7 @@ import app.owlcms.data.athleteSort.WinningOrderComparator;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -1105,7 +1106,7 @@ public class Competition {
 			RankingConfig.setUserEnabled(Ranking.CAT_SINCLAIR, true);
 		}
 
-		if (Config.getCurrent().featureSwitch("GAMX")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.GAMX)) {
 			RankingConfig.setUserEnabled(Ranking.GAMX, true);
 			RankingConfig.setUserEnabled(Ranking.GAMX_M, true);
 			RankingConfig.setUserEnabled(Ranking.GAMX_MS, true);
@@ -1116,7 +1117,7 @@ public class Competition {
 			RankingConfig.setUserEnabled(Ranking.GAMX_C, true);
 		}
 
-		if (Config.getCurrent().featureSwitch("usaw")) {
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.USAW)) {
 			RankingConfig.setUserEnabled(Ranking.QPOINTS, true);
 			RankingConfig.setUserEnabled(Ranking.QAGE, true);      // Q-masters
 			RankingConfig.setUserEnabled(Ranking.AGEFACTORS, true); // Q-youth
@@ -1693,15 +1694,15 @@ public class Competition {
 	}
 
 	public boolean isDisplayScoreRanks() {
-		return this.displayScoreRanks || Config.getCurrent().featureSwitch("displayBestScoreRank");
+		return this.displayScoreRanks || Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK);
 	}
 
 	public boolean isDisplayScores() {
-		return this.displayScores || Config.getCurrent().featureSwitch("displayBestScore");
+		return this.displayScores || Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE);
 	}
 
 	public boolean isManualStartNumbers() {
-		return this.manualStartNumbers || Config.getCurrent().featureSwitch("manualStartNumbers");
+		return this.manualStartNumbers || Config.getCurrent().featureSwitch(FeatureSwitch.MANUAL_START_NUMBERS);
 	}
 
 	public void setManualStartNumbers(boolean manualStartNumbers) {
@@ -1725,7 +1726,7 @@ public class Competition {
 	}
 
 	public boolean isGenderInclusive() {
-		return Config.getCurrent().featureSwitch("genderInclusive");
+		return Config.getCurrent().featureSwitch(FeatureSwitch.GENDER_INCLUSIVE);
 	}
 
 	public boolean isGenderOrder() {
@@ -1767,7 +1768,7 @@ public class Competition {
 				return template.isScoreMedalChampionship();
 			}
 		}
-		return this.sinclairMeet || Config.getCurrent().featureSwitch("SinclairMeet");
+		return this.sinclairMeet || Config.getCurrent().featureSwitch(FeatureSwitch.SINCLAIR_MEET);
 	}
 
 	@Deprecated
@@ -2873,7 +2874,7 @@ public class Competition {
 	}
 
 	public boolean isMasters20kg() {
-		return !imwa || Config.getCurrent().featureSwitch("masters20kg");
+		return !imwa || Config.getCurrent().featureSwitch(FeatureSwitch.MASTERS_20KG);
 	}
 
 	// public void setMasters20kg(boolean masters20kg) {
