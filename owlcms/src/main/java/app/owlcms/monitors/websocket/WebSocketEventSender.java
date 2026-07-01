@@ -10,8 +10,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -52,6 +54,7 @@ public class WebSocketEventSender {
 	public static final String PROTOCOL_VERSION = "64.0.0";
 	
 	private static Map<String, WebSocketEventSender> sendersByUrl = new HashMap<>();
+	private static Runnable refreshDataCallback;
 	private static ObjectMapper objectMapper = createObjectMapper();
 	// Single shared executor for all reconnect scheduling - daemon thread so it doesn't block shutdown
 	private static ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -136,6 +139,12 @@ public class WebSocketEventSender {
 	 * Used when translations are reloaded to broadcast the updated translations.
 	 */
 	public static synchronized void sendTranslationsToAll() {
+		boolean hasConnectedSender = sendersByUrl.values().stream().anyMatch(WebSocketEventSender::isConnected);
+		if (!hasConnectedSender) {
+			logger.debug("no connected WebSocket clients, skipping translations ZIP broadcast");
+			return;
+		}
+
 		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
 			logger.debug("translations not available, cannot send to all clients");
 			return;
@@ -156,6 +165,16 @@ public class WebSocketEventSender {
 		}
 		logger.debug("sent translations ZIP to {}/{} connected WebSocket clients ({} bytes)",
 		        sentCount, sendersByUrl.size(), translationsZipBytes.length);
+	}
+
+	public static synchronized void setRefreshDataCallback(Runnable callback) {
+		refreshDataCallback = callback;
+	}
+
+	private static synchronized void runRefreshDataCallback() {
+		if (refreshDataCallback != null) {
+			refreshDataCallback.run();
+		}
 	}
 
 	private String url;
@@ -405,9 +424,15 @@ public class WebSocketEventSender {
 				if (missingObj instanceof java.util.List) {
 					missingList = (java.util.List<?>) missingObj;
 				}
+				boolean refresh = isRefreshRequest(response.get("refresh"), missingList);
 				
 				if (missingList != null && !missingList.isEmpty()) {
 					logger.debug("WebSocket server {} returned 428 - missing data: {}", url, missingList);
+					if (refresh) {
+						logger.info("WebSocket server {} requested refreshed missing data: {}", url, missingList);
+						runRefreshDataCallback();
+					}
+					Set<Runnable> invokedCallbacks = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
 					
 					// Check what types of data are missing and invoke appropriate callbacks
 					for (Object missing : missingList) {
@@ -415,6 +440,10 @@ public class WebSocketEventSender {
 						Runnable callback = missingDataCallbacks.get(missingType);
 						
 						if (callback != null) {
+							if (!invokedCallbacks.add(callback)) {
+								logger.debug("Skipping duplicate callback for missing data alias: {}", missingType);
+								continue;
+							}
 							logger.info("Invoking callback for missing data type: {}", missingType);
 							callback.run();
 						} else {
@@ -431,6 +460,18 @@ public class WebSocketEventSender {
 		} catch (Exception e) {
 			logger.debug("WebSocket message from {} not a status response: {}", url, message);
 		}
+	}
+
+	private boolean isRefreshRequest(Object refreshObj, java.util.List<?> missingList) {
+		if (refreshObj instanceof Boolean refreshBoolean) {
+			return refreshBoolean;
+		}
+		if (refreshObj instanceof String refreshString) {
+			return Boolean.parseBoolean(refreshString);
+		}
+		return missingList != null && missingList.stream()
+		        .map(missing -> missing != null ? missing.toString() : "")
+		        .anyMatch(missingType -> missingType.equals("database") || missingType.equals("database_zip"));
 	}
 
 	/**

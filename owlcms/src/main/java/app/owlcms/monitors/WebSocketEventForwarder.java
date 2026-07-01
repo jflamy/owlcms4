@@ -88,6 +88,11 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(WebSocketEventForwarder.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	private static Map<String, Map<String, WebSocketEventForwarder>> eventForwardersByName = new HashMap<>();
+	private static StartupDataZipBytes startupDataZipBytes;
+
+	static {
+		WebSocketEventSender.setRefreshDataCallback(WebSocketEventForwarder::clearStartupDataZipBytes);
+	}
 
 	synchronized public static WebSocketEventForwarder initEventForwarderByName(String name, FieldOfPlay fieldOfPlay) {
 		List<ForwardingDestination> destinations = webSocketDestinations(Config.getCurrent());
@@ -155,6 +160,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 */
 	synchronized public static void reinitializeForAllFOPs() {
 		logger.info("reinitializing WebSocket event forwarders for all FOPs after config change");
+		clearStartupDataZipBytes();
 		
 		for (FieldOfPlay fop : OwlcmsFactory.getFOPs()) {
 			WebSocketEventForwarder forwarder = initEventForwarderByName(fop.getName(), fop);
@@ -166,6 +172,42 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				}
 			}
 		}
+	}
+
+	private static synchronized void clearStartupDataZipBytes() {
+		startupDataZipBytes = null;
+	}
+
+	private static synchronized StartupDataZipBytes getOrCreateStartupDataZipBytes() {
+		if (startupDataZipBytes != null) {
+			return startupDataZipBytes;
+		}
+
+		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
+			logger.error("Translations not available for startup send - aborting WebSocket registration");
+			return null;
+		}
+
+		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
+		byte[] flagsZipBytes = FlagsZipHelper.hasFlagsAvailable()
+		        ? FlagsZipHelper.createFlagsZipBytes()
+		        : new byte[0];
+		byte[] picturesZipBytes = PicturesZipHelper.hasPicturesAvailable()
+		        ? PicturesZipHelper.createPicturesZipBytes()
+		        : new byte[0];
+		byte[] logosZipBytes = LogosZipHelper.hasLogosAvailable()
+		        ? LogosZipHelper.createLogosZipBytes()
+		        : new byte[0];
+		byte[] gamxZipBytes = GamxZipHelper.hasGamxAvailable()
+		        ? GamxZipHelper.createGamxZipBytes()
+		        : new byte[0];
+
+		startupDataZipBytes = new StartupDataZipBytes(translationsZipBytes, flagsZipBytes,
+		        picturesZipBytes, logosZipBytes, gamxZipBytes);
+		return startupDataZipBytes;
+	}
+
+	private record StartupDataZipBytes(byte[] translations, byte[] flags, byte[] pictures, byte[] logos, byte[] gamx) {
 	}
 
 	private boolean NO_KEEPALIVE = false;
@@ -2073,26 +2115,85 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			return;
 		}
 
-		if (!FlagsZipHelper.hasFlagsAvailable()) {
-			logger.debug("{}flags not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
+		StartupDataZipBytes startupData = getOrCreateStartupDataZipBytes();
+		if (startupData == null) {
 			return;
 		}
 
 		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
 		if (sender != null) {
-			byte[] flagsZipBytes = FlagsZipHelper.createFlagsZipBytes();
-			if (flagsZipBytes.length > 0) {
-				boolean sent = sender.sendBinary("flags_zip", flagsZipBytes);
-				if (sent) {
-					logger.debug("{}sent flags_zip ZIP via WebSocket binary to {} ({} bytes)",
-					        FieldOfPlay.getLoggingName(getFop()), baseUrl, flagsZipBytes.length);
-				} else {
-					logger.debug("{}could not send flags_zip ZIP via WebSocket to {} (socket not ready)",
-					        FieldOfPlay.getLoggingName(getFop()), baseUrl);
-				}
-			} else {
-				logger.debug("{}failed to create flags ZIP for {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
-			}
+			sendCachedZipData(sender, "flags_zip", startupData.flags());
+		}
+	}
+
+	private void sendStartupDataZipBytes() {
+		StartupDataZipBytes startupData = getOrCreateStartupDataZipBytes();
+		if (startupData == null) {
+			return;
+		}
+		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
+		if (sender == null) {
+			return;
+		}
+		sendCachedZipData(sender, "translations_zip", startupData.translations());
+		sendCachedZipData(sender, "flags_zip", startupData.flags());
+	}
+
+	private void sendCachedZipData(WebSocketEventSender sender, String messageType, byte[] zipBytes) {
+		if (zipBytes.length == 0) {
+			return;
+		}
+		boolean sent = sender.sendBinary(messageType, zipBytes);
+		if (sent) {
+			logger.info("{}sent cached {} via WebSocket to {}",
+			        FieldOfPlay.getLoggingName(getFop()), messageType, baseUrl);
+		} else {
+			logger.error("{}could not send cached {} via WebSocket to {} (socket not ready)",
+			        FieldOfPlay.getLoggingName(getFop()), messageType, baseUrl);
+		}
+	}
+
+	/**
+	 * Send athlete pictures as a zipped archive via WebSocket when a tracker requests them.
+	 */
+	private void sendPictures() {
+		logger.debug("{}sendPictures called for url: {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
+
+		if (!isActive()) {
+			logger.error("cannot send pictures, url is null");
+			return;
+		}
+
+		StartupDataZipBytes startupData = getOrCreateStartupDataZipBytes();
+		if (startupData == null) {
+			return;
+		}
+
+		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
+		if (sender != null) {
+			sendCachedZipData(sender, "pictures_zip", startupData.pictures());
+		}
+	}
+
+	/**
+	 * Send logos as a zipped archive via WebSocket when a tracker requests them.
+	 */
+	private void sendLogos() {
+		logger.debug("{}sendLogos called for url: {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
+
+		if (!isActive()) {
+			logger.error("cannot send logos, url is null");
+			return;
+		}
+
+		StartupDataZipBytes startupData = getOrCreateStartupDataZipBytes();
+		if (startupData == null) {
+			return;
+		}
+
+		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
+		if (sender != null) {
+			sendCachedZipData(sender, "logos_zip", startupData.logos());
 		}
 	}
 
@@ -2110,26 +2211,14 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			return;
 		}
 
-		if (!GamxZipHelper.hasGamxAvailable()) {
-			logger.debug("{}gamx not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
+		StartupDataZipBytes startupData = getOrCreateStartupDataZipBytes();
+		if (startupData == null) {
 			return;
 		}
 
 		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
 		if (sender != null) {
-			byte[] gamxZipBytes = GamxZipHelper.createGamxZipBytes();
-			if (gamxZipBytes.length > 0) {
-				boolean sent = sender.sendBinary("gamx_zip", gamxZipBytes);
-				if (sent) {
-					logger.debug("{}sent gamx_zip ZIP via WebSocket binary to {} ({} bytes)",
-					        FieldOfPlay.getLoggingName(getFop()), baseUrl, gamxZipBytes.length);
-				} else {
-					logger.debug("{}could not send gamx_zip ZIP via WebSocket to {} (socket not ready)",
-					        FieldOfPlay.getLoggingName(getFop()), baseUrl);
-				}
-			} else {
-				logger.debug("{}failed to create gamx ZIP for {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
-			}
+			sendCachedZipData(sender, "gamx_zip", startupData.gamx());
 		}
 	}
 
@@ -2148,26 +2237,14 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			return;
 		}
 
-		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
-			logger.debug("{}translations not available, cannot send", FieldOfPlay.getLoggingName(getFop()));
+		StartupDataZipBytes startupData = getOrCreateStartupDataZipBytes();
+		if (startupData == null) {
 			return;
 		}
 
 		WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, null, updateKey);
 		if (sender != null) {
-			byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
-			if (translationsZipBytes.length > 0) {
-				boolean sent = sender.sendBinary("translations_zip", translationsZipBytes);
-				if (sent) {
-					logger.debug("{}sent translations ZIP via WebSocket binary to {} ({} bytes with all 26 locales)",
-					        FieldOfPlay.getLoggingName(getFop()), baseUrl, translationsZipBytes.length);
-				} else {
-					logger.debug("{}could not send translations ZIP via WebSocket to {} (socket not ready)",
-					        FieldOfPlay.getLoggingName(getFop()), baseUrl);
-				}
-			} else {
-				logger.debug("{}failed to create translations ZIP for {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
-			}
+			sendCachedZipData(sender, "translations_zip", startupData.translations());
 		}
 	}
 
@@ -2198,23 +2275,23 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			// Create sender with onOpen callback to send database/translations/flags
 			// Callback fires on EVERY connection (including reconnects) because tracker may have restarted
 			Runnable onOpenCallback = () -> {
-				logger.info("{}WebSocket connection established to {}, proactively sending database and translations",
+				logger.info("{}WebSocket connection established to {}, proactively sending database and startup data",
 				        FieldOfPlay.getLoggingName(getFop()), baseUrl);
 				sendDatabase();
-				sendTranslations();
-				sendFlags();
+				sendStartupDataZipBytes();
 			};
 			
 			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(baseUrl, () -> baseUrl, onOpenCallback, updateKey);
 			
 			if (sender != null) {
-				// Set up callback for 428 status response (database requested)
-				sender.setMissingDataCallback("database", () -> sendDatabase());
-				// Set up callback for 428 status response (translations requested)
-				sender.setMissingDataCallback("translations", () -> sendTranslations());
-				sender.setMissingDataCallback("flags", () -> sendFlags());
+				// Set up callbacks for 428 status responses.
+				registerMissingDataCallbackAliases(sender, "database", () -> sendDatabase());
+				registerMissingDataCallbackAliases(sender, "translations", () -> sendTranslations());
+				registerMissingDataCallbackAliases(sender, "flags", () -> sendFlags());
+				registerMissingDataCallbackAliases(sender, "pictures", () -> sendPictures());
+				registerMissingDataCallbackAliases(sender, "logos", () -> sendLogos());
 				// GAMX is delivered lazily: only sent when a tracker plugin requires it (428 response)
-				sender.setMissingDataCallback("gamx_zip", () -> sendGamx());
+				registerMissingDataCallbackAliases(sender, "gamx", () -> sendGamx());
 
 				sender.send(messageType, parameters);
 			}
@@ -2411,30 +2488,24 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	public static void registerStartupDataCallbacks() {
 		List<ForwardingDestination> destinations = webSocketDestinations(Config.getCurrent());
 		logger.info("Registering startup data callbacks for {} WebSocket destinations", destinations.size());
-
-		if (!TranslationsZipHelper.hasTranslationsAvailable()) {
-			logger.error("Translations not available for startup send - aborting WebSocket registration");
+		if (destinations.isEmpty()) {
+			logger.info("No WebSocket destinations configured; skipping startup data callback registration");
 			return;
 		}
 
-		byte[] translationsZipBytes = TranslationsZipHelper.createTranslationsZipBytes();
-		byte[] flagsZipBytes = FlagsZipHelper.hasFlagsAvailable()
-		        ? FlagsZipHelper.createFlagsZipBytes()
-		        : new byte[0];
-		byte[] picturesZipBytes = PicturesZipHelper.hasPicturesAvailable()
-		        ? PicturesZipHelper.createPicturesZipBytes()
-		        : new byte[0];
-		byte[] logosZipBytes = LogosZipHelper.hasLogosAvailable()
-		        ? LogosZipHelper.createLogosZipBytes()
-		        : new byte[0];
-		byte[] gamxZipBytes = GamxZipHelper.hasGamxAvailable()
-		        ? GamxZipHelper.createGamxZipBytes()
-		        : new byte[0];
+		StartupDataZipBytes startupData = getOrCreateStartupDataZipBytes();
+		if (startupData == null) {
+			return;
+		}
 
 		for (ForwardingDestination destination : destinations) {
-			registerStartupCallbacksForDestination(destination, translationsZipBytes, flagsZipBytes,
-			        picturesZipBytes, logosZipBytes, gamxZipBytes);
+			registerStartupCallbacksForDestination(destination, startupData);
 		}
+	}
+
+	private static void registerMissingDataCallbackAliases(WebSocketEventSender sender, String baseName, Runnable callback) {
+		sender.setMissingDataCallback(baseName, callback);
+		sender.setMissingDataCallback(baseName + "_zip", callback);
 	}
 
 	private static byte[] createFreshDatabaseZipBytes(String url) {
@@ -2452,8 +2523,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	private static void registerStartupCallbacksForDestination(ForwardingDestination destination,
-			byte[] translationsZipBytes, byte[] flagsZipBytes, byte[] picturesZipBytes, byte[] logosZipBytes,
-			byte[] gamxZipBytes) {
+			StartupDataZipBytes startupData) {
 		String url = destination.getBaseUrl();
 		String updateKey = destination.getUpdateKey();
 		logger.info("Startup send mode for {}: BINARY(database_zip)", url);
@@ -2461,31 +2531,37 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		synchronized (WebSocketEventSender.class) {
 			WebSocketEventSender sender = WebSocketEventSender.getOrCreate(url, () -> url, null, updateKey);
 			if (sender != null) {
-				sender.setMissingDataCallback("database", () -> {
+				Runnable databaseCallback = () -> {
 					byte[] zipBytes = createFreshDatabaseZipBytes(url);
 					if (zipBytes.length > 0) {
 						sender.sendBinary("database_zip", zipBytes);
 					}
-				});
+				};
+				registerMissingDataCallbackAliases(sender, "database", databaseCallback);
 
-				sender.setMissingDataCallback("translations", () -> sender.sendBinary("translations_zip", translationsZipBytes));
-				sender.setMissingDataCallback("flags", () -> sender.sendBinary("flags_zip", flagsZipBytes));
-				sender.setMissingDataCallback("pictures", () -> {
-					if (picturesZipBytes.length > 0) {
-						sender.sendBinary("pictures_zip", picturesZipBytes);
+				Runnable translationsCallback = () -> sender.sendBinary("translations_zip", startupData.translations());
+				registerMissingDataCallbackAliases(sender, "translations", translationsCallback);
+				Runnable flagsCallback = () -> sender.sendBinary("flags_zip", startupData.flags());
+				registerMissingDataCallbackAliases(sender, "flags", flagsCallback);
+				Runnable picturesCallback = () -> {
+					if (startupData.pictures().length > 0) {
+						sender.sendBinary("pictures_zip", startupData.pictures());
 					}
-				});
-				sender.setMissingDataCallback("logos", () -> {
-					if (logosZipBytes.length > 0) {
-						sender.sendBinary("logos_zip", logosZipBytes);
+				};
+				registerMissingDataCallbackAliases(sender, "pictures", picturesCallback);
+				Runnable logosCallback = () -> {
+					if (startupData.logos().length > 0) {
+						sender.sendBinary("logos_zip", startupData.logos());
 					}
-				});
+				};
+				registerMissingDataCallbackAliases(sender, "logos", logosCallback);
 				// GAMX is delivered lazily: only sent when a tracker plugin requires it (428 response)
-				sender.setMissingDataCallback("gamx_zip", () -> {
-					if (gamxZipBytes.length > 0) {
-						sender.sendBinary("gamx_zip", gamxZipBytes);
+				Runnable gamxCallback = () -> {
+					if (startupData.gamx().length > 0) {
+						sender.sendBinary("gamx_zip", startupData.gamx());
 					}
-				});
+				};
+				registerMissingDataCallbackAliases(sender, "gamx", gamxCallback);
 
 				sender.setOnOpenCallback(() -> {
 					logger.info("WebSocket connected to {}, sending startup data (mode=BINARY)", url);
@@ -2499,15 +2575,15 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 						}
 					}
 
-					boolean sentTranslations = sender.sendBinary("translations_zip", translationsZipBytes);
+					boolean sentTranslations = sender.sendBinary("translations_zip", startupData.translations());
 					if (sentTranslations) {
 						logger.info("Sent startup translations_zip via WebSocket to {}", url);
 					} else {
 						logger.error("Could not send startup translations_zip via WebSocket to {} (socket not ready)", url);
 					}
 
-					if (flagsZipBytes.length > 0) {
-						boolean sentFlags = sender.sendBinary("flags_zip", flagsZipBytes);
+					if (startupData.flags().length > 0) {
+						boolean sentFlags = sender.sendBinary("flags_zip", startupData.flags());
 						if (sentFlags) {
 							logger.info("Sent startup flags_zip via WebSocket to {}", url);
 						} else {
