@@ -5743,9 +5743,11 @@ public class Athlete {
 			int referenceProgression = reference.getProgression();
 
 			if (currentProgression == referenceProgression) {
-				getLogger().warn("{}progression({}) {} == referenceProgression({}) {}",
-				        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
-				        referenceProgression);
+				if (Config.getCurrent().featureSwitch("playwright")) {
+					getLogger()./*playwright*/warn("{}progression({}) {} == referenceProgression({}) {}",
+					        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
+					        referenceProgression);
+				}
 				// look back to previous attempt if any to determine who actually lifted first.
 				currentProgression = this.getCumulativeProgression(requestedWeight);
 				referenceProgression = reference.getCumulativeProgression();
@@ -5753,16 +5755,20 @@ public class Athlete {
 
 			// check again.
 			if (currentProgression == referenceProgression) {
-				getLogger().warn("{}cumulativeProgression({}) {} == referenceCumulativeProgression({}) {}",
-				        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
-				        referenceProgression);
+				if (Config.getCurrent().featureSwitch("playwright")) {
+					getLogger()./*playwright*/warn("{}cumulativeProgression({}) {} == referenceCumulativeProgression({}) {}",
+					        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
+					        referenceProgression);
+				}
 				checkSameProgression(reference, requestedWeight, currentProgression, referenceProgression);
 			} else
 
 			if (currentProgression > referenceProgression) {
-				getLogger().warn("{}currentProgression({}) {} > referenceProgression({}) {}",
-				        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
-				        referenceProgression);
+				if (Config.getCurrent().featureSwitch("playwright")) {
+					getLogger()./*playwright*/warn("{}currentProgression({}) {} > referenceProgression({}) {}",
+					        fopLoggingName, this.getLastName(), currentProgression, reference.getAthlete().getLastName(),
+					        referenceProgression);
+				}
 				// larger progression means a smaller previous attempt, hence lifted earlier
 				// than the last lift.
 				// so we should already have lifted.

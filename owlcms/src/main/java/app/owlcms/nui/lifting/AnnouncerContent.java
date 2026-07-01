@@ -383,7 +383,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void clearWaitingForDecisionReminder() {
-		logger.warn("{}announcer waiting-for-decision clear", FieldOfPlay.getLoggingName(getFop()));
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}announcer waiting-for-decision clear", FieldOfPlay.getLoggingName(getFop()));
+		}
 		cancelWaitingForDecisionNotificationTask();
 		closeWaitingForDecisionNotification();
 	}
@@ -392,8 +394,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		cancelWaitingForDecisionNotificationTask();
 		closeWaitingForDecisionNotification();
 		final long generation = this.waitingForDecisionNotificationGeneration;
-		logger.warn("{}announcer waiting-for-decision schedule ref={} delayMs={}",
-		        FieldOfPlay.getLoggingName(getFop()), missingReferee, WAKE_UP_REF_GRACE_PERIOD_MILLIS);
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}announcer waiting-for-decision schedule ref={} delayMs={}",
+			        FieldOfPlay.getLoggingName(getFop()), missingReferee, WAKE_UP_REF_GRACE_PERIOD_MILLIS);
+		}
 		this.waitingForDecisionNotificationTask = new DelayTimer().schedule(() -> {
 			UI targetUi = this.ui != null ? this.ui : currentUI;
 			if (targetUi == null) {
@@ -410,7 +414,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	private void showWaitingForDecisionNotification(int missingReferee) {
-		logger.warn("{}announcer waiting-for-decision show ref={}", FieldOfPlay.getLoggingName(getFop()), missingReferee);
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}announcer waiting-for-decision show ref={}", FieldOfPlay.getLoggingName(getFop()), missingReferee);
+		}
 		closeWaitingForDecisionNotification();
 		Notification notification = new Notification();
 		notification.getElement().getThemeList().add("error");
@@ -531,7 +537,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	private void logAnnouncerDecisionVisible(String phase, FieldOfPlay fop, Boolean goodLift, String fullName,
 	        Object origin) {
-		logger.warn("{}announcer decisionVisible {} attached={} state={} decision={} athlete={} origin={} {}",
+		if (!Config.getCurrent().featureSwitch("playwright")) {
+			return;
+		}
+		logger./*playwright*/warn("{}announcer decisionVisible {} attached={} state={} decision={} athlete={} origin={} {}",
 		        FieldOfPlay.getLoggingName(fop),
 		        phase,
 		        this.getUI().isPresent(),
@@ -572,7 +581,9 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 
 	@Subscribe
 	public void slaveWakeUpRef(UIEvent.WakeUpRef e) {
-		logger.warn("{}announcer slaveWakeUpRef on={} ref={}", FieldOfPlay.getLoggingName(getFop()), e.on, e.ref);
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}announcer slaveWakeUpRef on={} ref={}", FieldOfPlay.getLoggingName(getFop()), e.on, e.ref);
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (e.on) {
 				scheduleWaitingForDecisionNotification(e.ref);

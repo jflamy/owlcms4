@@ -1480,8 +1480,10 @@ public abstract class AthleteGridContent extends BaseContent
 				return;
 			}
 			long base = openStamp[0];
-			logger.warn("{}notif {} client opened +{}ms", ctx, tag,
-			        base > 0 ? System.currentTimeMillis() - base : -1);
+			if (Config.getCurrent().featureSwitch("playwright")) {
+				logger./*playwright*/warn("{}notif {} client opened +{}ms", ctx, tag,
+				        base > 0 ? System.currentTimeMillis() - base : -1);
+			}
 		}).addEventData("event.detail.value");
 		paceNotificationOpen(() -> {
 			if (openGuard != null && !openGuard.getAsBoolean()) {
@@ -1513,7 +1515,7 @@ public abstract class AthleteGridContent extends BaseContent
 		final long stamp = System.currentTimeMillis();
 		try {
 			component.getElement().executeJs(script).then(String.class, rendered -> {
-				logger.warn("{}{} client rendered +{}ms {}", ctx, tag, System.currentTimeMillis() - stamp,
+				logger./*playwright*/warn("{}{} client rendered +{}ms {}", ctx, tag, System.currentTimeMillis() - stamp,
 				        rendered != null ? rendered : "<null>");
 			});
 		} catch (RuntimeException e) {

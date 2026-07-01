@@ -23,6 +23,7 @@ import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.InputKind;
@@ -130,8 +131,10 @@ public class DecisionElement extends LitTemplate
 				Integer refIndex = ref1 != null ? 0 : (ref2 != null ? 1 : (ref3 != null ? 2 : null));
 				Boolean decision = ref1 != null ? ref1 : (ref2 != null ? ref2 : ref3);
 				if (refIndex != null && decision != null) {
-					logger.warn("DecisionElement solo referee update refIndex={} decision={} {}",
-							refIndex, decision, LoggerUtils.whereFrom());
+					if (Config.getCurrent().featureSwitch("playwright")) {
+						logger./*playwright*/warn("DecisionElement solo referee update refIndex={} decision={} {}",
+								refIndex, decision, LoggerUtils.whereFrom());
+					}
 					this.fop.fopEventPost(new FOPEvent.DecisionUpdate(origin, refIndex, decision));
 					return;
 				}
@@ -228,8 +231,10 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		logger.debug("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
-		logger.warn("{}decisionElement slaveDownSignal origin={} juryMode={}", FieldOfPlay.getLoggingName(this.fop),
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}decisionElement slaveDownSignal origin={} juryMode={}", FieldOfPlay.getLoggingName(this.fop),
 				this.getOrigin(), isJuryMode());
+		}
 		if (isJuryMode()) {
 			// jury mode doesn't show down signal
 			return;
@@ -264,9 +269,11 @@ public class DecisionElement extends LitTemplate
 		boolean announcerForced = e.getInputKind() == InputKind.ANNOUNCER_ENTRY;
 		// logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3,
 		// e.isSingleLight());
-		logger.warn("{}decisionElement slaveShowDecision origin={} singleLight={} announcerForced={} refs=[{},{},{}]",
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}decisionElement slaveShowDecision origin={} singleLight={} announcerForced={} refs=[{},{},{}]",
 				FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), e.isSingleLight(), announcerForced, e.ref1,
 				e.ref2, e.ref3);
+		}
 		// Backend now controls hiding down and showing decisions on all decision
 		// elements
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
@@ -277,9 +284,11 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveInitialDecision(UIEvent.InitialDecision e) {
 		boolean announcerForced = e.getInputKind() == InputKind.ANNOUNCER_ENTRY;
-		logger.warn("{}decisionElement slaveInitialDecision origin={} timingPolicy={} singleLight={} announcerForced={} refs=[{},{},{}]",
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}decisionElement slaveInitialDecision origin={} timingPolicy={} singleLight={} announcerForced={} refs=[{},{},{}]",
 				FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), e.getTimingPolicy(), e.isSingleLight(),
 				announcerForced, e.ref1, e.ref2, e.ref3);
+		}
 		if (e.getTimingPolicy() != TimingPolicy.DELAYED) {
 			return;
 		}
@@ -290,9 +299,11 @@ public class DecisionElement extends LitTemplate
 					return;
 				}
 				if (this.fop == null || this.fop.getState() != DECISION_VISIBLE) {
-					logger.warn("{}decisionElement initialDecision fallback skipped origin={} fopState={}",
-							FieldOfPlay.getLoggingName(this.fop), this.getOrigin(),
-							this.fop != null ? this.fop.getState() : null);
+					if (Config.getCurrent().featureSwitch("playwright")) {
+						logger./*playwright*/warn("{}decisionElement initialDecision fallback skipped origin={} fopState={}",
+								FieldOfPlay.getLoggingName(this.fop), this.getOrigin(),
+								this.fop != null ? this.fop.getState() : null);
+					}
 					return;
 				}
 				Boolean[] currentDecisions = this.fop.getRefereeDecision();
@@ -300,8 +311,10 @@ public class DecisionElement extends LitTemplate
 				Boolean ref2 = currentDecisions[1];
 				Boolean ref3 = e.isSingleLight() ? null : currentDecisions[2];
 				Boolean goodLift = computeGoodLift(ref1, ref2, ref3, e.isSingleLight());
-				logger.warn("{}decisionElement initialDecision fallback showing decision origin={} refs=[{},{},{}]",
-						FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), ref1, ref2, ref3);
+				if (Config.getCurrent().featureSwitch("playwright")) {
+					logger./*playwright*/warn("{}decisionElement initialDecision fallback showing decision origin={} refs=[{},{},{}]",
+							FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), ref1, ref2, ref3);
+				}
 				showDecisionLights(goodLift, ref1, ref2, ref3, e.isSingleLight(), announcerForced);
 			});
 		}, INITIAL_DECISION_FALLBACK_DELAY_MS);

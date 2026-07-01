@@ -1817,8 +1817,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
 		setLastDecisionMap(createDecision(e, det));
-		if (det == DecisionEventType.INITIAL_DECISION || det == DecisionEventType.FULL_DECISION) {
-			logger.warn("{} forwarding decision event {} d1={} d2={} d3={} destination={} {}",
+		if ((det == DecisionEventType.INITIAL_DECISION || det == DecisionEventType.FULL_DECISION)
+				&& Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{} forwarding decision event {} d1={} d2={} d3={} destination={} {}",
 					FieldOfPlay.getLoggingName(getFop()),
 					det,
 					getDecisionLight1(),

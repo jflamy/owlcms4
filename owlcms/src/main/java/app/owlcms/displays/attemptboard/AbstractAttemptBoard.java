@@ -408,8 +408,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		logger.warn("{}attemptBoard slaveDownSignal received origin={} self={}", FieldOfPlay.getLoggingName(getFop()),
-		        e.getOrigin(), this.getOrigin());
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}attemptBoard slaveDownSignal received origin={} self={}", FieldOfPlay.getLoggingName(getFop()),
+			        e.getOrigin(), this.getOrigin());
+		}
 		// Make the decision element container visible on the UI thread, in order with
 		// the subsequent Decision/Reset events. (A previous version used a detached
 		// thread here, which queued this property change out of order.)
@@ -422,8 +424,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveInitialDecision(UIEvent.InitialDecision e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		logger.warn("{}attemptBoard slaveInitialDecision received origin={} self={} goodLift={} timingPolicy={}",
-		        FieldOfPlay.getLoggingName(getFop()), e.getOrigin(), this.getOrigin(), e.decision, e.getTimingPolicy());
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}attemptBoard slaveInitialDecision received origin={} self={} goodLift={} timingPolicy={}",
+			        FieldOfPlay.getLoggingName(getFop()), e.getOrigin(), this.getOrigin(), e.decision, e.getTimingPolicy());
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			this.getElement().setProperty("decisionVisible", true);
 		});
@@ -514,8 +518,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveRefereeDecision(UIEvent.Decision e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
-		logger.warn("{}attemptBoard slaveRefereeDecision received origin={} self={} goodLift={}",
-		        FieldOfPlay.getLoggingName(getFop()), e.getOrigin(), this.getOrigin(), e.decision);
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("{}attemptBoard slaveRefereeDecision received origin={} self={} goodLift={}",
+			        FieldOfPlay.getLoggingName(getFop()), e.getOrigin(), this.getOrigin(), e.decision);
+		}
 		// hide the athleteTimer except if the decision came from this ui.
 		// this does not actually display the down signal, it makes it so the decision
 		// element can show the down or decision.

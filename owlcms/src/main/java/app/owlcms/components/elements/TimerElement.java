@@ -44,16 +44,17 @@ import elemental.json.JsonObject;
 @Tag("timer-element")
 @JsModule("./components/TimerElement.js")
 public abstract class TimerElement extends LitTemplate
-        implements SafeEventBusRegistration, Focusable<Div> {
+		implements SafeEventBusRegistration, Focusable<Div> {
 
-	// Note: onAttach is abstract - subclasses must implement and call super.onAttach() first
+	// Note: onAttach is abstract - subclasses must implement and call
+	// super.onAttach() first
 	private static final String TRACE_TIMER_CLIENT_RENDER_SCRIPT = "return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => {"
-	        + " const timer = this.shadowRoot && this.shadowRoot.querySelector('#timer');"
-	        + " const text = timer && timer.innerText ? timer.innerText.trim().replace(/\\s+/g, ' ') : '';"
-	        + " const payload = this.timerCommandPayload || {};"
-	        + " resolve(\"payloadCommand='\" + (payload.command || '') + \"' payloadSeconds=\" + payload.seconds"
-	        + " + \" display='\" + text + \"' running=\" + this.running + \" currentTime=\" + this.currentTime);"
-	        + "})));";
+			+ " const timer = this.shadowRoot && this.shadowRoot.querySelector('#timer');"
+			+ " const text = timer && timer.innerText ? timer.innerText.trim().replace(/\\s+/g, ' ') : '';"
+			+ " const payload = this.timerCommandPayload || {};"
+			+ " resolve(\"payloadCommand='\" + (payload.command || '') + \"' payloadSeconds=\" + payload.seconds"
+			+ " + \" display='\" + text + \"' running=\" + this.running + \" currentTime=\" + this.currentTime);"
+			+ "})));";
 	private static final long SERVER_RUNNING_CHECK_STOP_GRACE_MILLIS = 750L;
 	private static final AtomicBoolean playwrightTimerTripwireTriggered = new AtomicBoolean(false);
 
@@ -124,7 +125,8 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	public void setSilenced(boolean b) {
-		// this.logger.debug("{} silenced = {} from {}", this.getClass().getSimpleName(), b, LoggerUtils.stackTrace());
+		// this.logger.debug("{} silenced = {} from {}",
+		// this.getClass().getSimpleName(), b, LoggerUtils.stackTrace());
 		this.silenced = b;
 		syncTimerSettings();
 	}
@@ -148,16 +150,22 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	/**
-	 * Last applied timer-event sequence number for this element. Timer events travel on an
-	 * asynchronous, multi-threaded bus, so their delivery order is not guaranteed. Each event
-	 * carries a per-FOP monotonic sequence; we only apply events newer than the last one applied.
+	 * Last applied timer-event sequence number for this element. Timer events
+	 * travel on an
+	 * asynchronous, multi-threaded bus, so their delivery order is not guaranteed.
+	 * Each event
+	 * carries a per-FOP monotonic sequence; we only apply events newer than the
+	 * last one applied.
 	 */
 	private volatile long lastAppliedTimerSeq = 0L;
 
 	/**
-	 * Best-effort record of whether this element's timer was last told to run. Used only to make the
-	 * {@code LiftingOrderUpdated} timer re-assertion idempotent (avoid restarting an already-running
-	 * clock on every recompute). Correctness is enforced by the sequence gate, not by this flag.
+	 * Best-effort record of whether this element's timer was last told to run. Used
+	 * only to make the
+	 * {@code LiftingOrderUpdated} timer re-assertion idempotent (avoid restarting
+	 * an already-running
+	 * clock on every recompute). Correctness is enforced by the sequence gate, not
+	 * by this flag.
 	 */
 	private volatile boolean elementRunning = false;
 
@@ -166,7 +174,7 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	protected void reassertTimerState(boolean shouldRun, Integer milliseconds, boolean serverSound, long seq,
-	        Runnable onMismatch) {
+			Runnable onMismatch) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (shouldRun) {
 				this.recentStopCommandMillis = 0L;
@@ -206,10 +214,13 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	/**
-	 * Drop timer events that arrive out of order. MUST be called on the UI thread (inside a
-	 * {@code uiAccess} block) so that the compare-and-update is atomic for this element.
+	 * Drop timer events that arrive out of order. MUST be called on the UI thread
+	 * (inside a
+	 * {@code uiAccess} block) so that the compare-and-update is atomic for this
+	 * element.
 	 *
-	 * @param seq the event sequence; 0 means "not sequence-checked" (break timer / direct sync) and is always applied
+	 * @param seq the event sequence; 0 means "not sequence-checked" (break timer /
+	 *            direct sync) and is always applied
 	 * @return true if the event is stale and must be ignored
 	 */
 	private boolean isStaleTimerEvent(long seq) {
@@ -229,8 +240,8 @@ public abstract class TimerElement extends LitTemplate
 
 	protected final void doSetTimer(Integer milliseconds, long seq) {
 		if (this.logger.isDebugEnabled()) {
-		this.logger.debug("{} doSetTimer {} {}", this, milliseconds,
-		        LoggerUtils.stackTrace());
+			this.logger.debug("{} doSetTimer {} {}", this, milliseconds,
+					LoggerUtils.stackTrace());
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (isStaleTimerEvent(seq)) {
@@ -253,28 +264,31 @@ public abstract class TimerElement extends LitTemplate
 		this.logger.debug("{} doStartTimer {}", this, milliseconds);
 		setServerSound(serverSound);
 		// String trace = LoggerUtils.stackTrace();
-		// TEMPORARY (playwright) diagnostic: symmetric with doStopTimer so we can see the seq the
-		// start applied with and the resulting lastAppliedTimerSeq, to reason about whether a later
+		// TEMPORARY (playwright) diagnostic: symmetric with doStopTimer so we can see
+		// the seq the
+		// start applied with and the resulting lastAppliedTimerSeq, to reason about
+		// whether a later
 		// StopTime is being stale-dropped. Remove once root cause confirmed.
 		boolean timerDebug = isPlaywrightTimerDiagnosticEnabled();
 		if (timerDebug) {
-			this.logger.warn("{}doStartTimer subscriber fired seq={} ms={} timer={} lastAppliedSeq={} elementRunning={} {}",
-			        FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics(),
-			        this.lastAppliedTimerSeq, this.elementRunning, LoggerUtils.whereFrom());
+			this.logger./*playwright*/warn(
+					"{}doStartTimer subscriber fired seq={} ms={} timer={} lastAppliedSeq={} elementRunning={} {}",
+					FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics(),
+					this.lastAppliedTimerSeq, this.elementRunning, LoggerUtils.whereFrom());
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (isStaleTimerEvent(seq)) {
 				if (timerDebug) {
-					this.logger.warn("{}doStartTimer STALE-DROPPED seq={} timer={} lastAppliedSeq={}",
-					        FieldOfPlay.getLoggingName(this.fop), seq, describeTimerForDiagnostics(),
-					        this.lastAppliedTimerSeq);
+					this.logger./*playwright*/warn("{}doStartTimer STALE-DROPPED seq={} timer={} lastAppliedSeq={}",
+							FieldOfPlay.getLoggingName(this.fop), seq, describeTimerForDiagnostics(),
+							this.lastAppliedTimerSeq);
 				}
 				return;
 			}
 			this.recentStopCommandMillis = 0L;
 			if (timerDebug) {
-				this.logger.warn("{}doStartTimer applying start seq={} ms={} timer={}",
-				        FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics());
+				this.logger./*playwright*/warn("{}doStartTimer applying start seq={} ms={} timer={}",
+						FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics());
 			}
 			this.elementRunning = true;
 			setIndefinite(milliseconds == null);
@@ -298,14 +312,18 @@ public abstract class TimerElement extends LitTemplate
 	protected void doStopTimer(Integer milliseconds, long seq) {
 		long stopAcceptedMillis = System.currentTimeMillis();
 		this.recentStopCommandMillis = stopAcceptedMillis;
-		// TEMPORARY (playwright) diagnostic: proves slaveStopTimer reached doStopTimer (subscriber
-		// fired) and that the uiAccess command actually ran. Distinguishes a bus-delivery gap from a
-		// stale-gate drop for the missed-StopTime investigation. Remove once root cause confirmed.
+		// TEMPORARY (playwright) diagnostic: proves slaveStopTimer reached doStopTimer
+		// (subscriber
+		// fired) and that the uiAccess command actually ran. Distinguishes a
+		// bus-delivery gap from a
+		// stale-gate drop for the missed-StopTime investigation. Remove once root cause
+		// confirmed.
 		boolean timerDebug = isPlaywrightTimerDiagnosticEnabled();
 		if (timerDebug) {
-			this.logger.warn("{}doStopTimer subscriber fired seq={} ms={} timer={} lastAppliedSeq={} elementRunning={} {}",
-			        FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics(),
-			        this.lastAppliedTimerSeq, this.elementRunning, LoggerUtils.whereFrom());
+			this.logger./*playwright*/warn(
+					"{}doStopTimer subscriber fired seq={} ms={} timer={} lastAppliedSeq={} elementRunning={} {}",
+					FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics(),
+					this.lastAppliedTimerSeq, this.elementRunning, LoggerUtils.whereFrom());
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (isStaleTimerEvent(seq)) {
@@ -313,15 +331,15 @@ public abstract class TimerElement extends LitTemplate
 					this.recentStopCommandMillis = 0L;
 				}
 				if (timerDebug) {
-					this.logger.warn("{}doStopTimer STALE-DROPPED seq={} timer={} lastAppliedSeq={}",
-					        FieldOfPlay.getLoggingName(this.fop), seq, describeTimerForDiagnostics(),
-					        this.lastAppliedTimerSeq);
+					this.logger./*playwright*/warn("{}doStopTimer STALE-DROPPED seq={} timer={} lastAppliedSeq={}",
+							FieldOfPlay.getLoggingName(this.fop), seq, describeTimerForDiagnostics(),
+							this.lastAppliedTimerSeq);
 				}
 				return;
 			}
 			if (timerDebug) {
-				this.logger.warn("{}doStopTimer applying stop seq={} ms={} timer={}",
-				        FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics());
+				this.logger./*playwright*/warn("{}doStopTimer applying stop seq={} ms={} timer={}",
+						FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics());
 			}
 			this.elementRunning = false;
 			setMsRemaining(milliseconds);
@@ -372,12 +390,14 @@ public abstract class TimerElement extends LitTemplate
 
 	private boolean isServerRunningCheckEnabled() {
 		return Config.getCurrent().featureSwitch("playwright")
-		        && (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
+				&& (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
 	}
 
 	/**
-	 * The Playwright-only server-authoritative running check is a diagnostic safety net for athlete
-	 * timers that Playwright is verifying: operator control surfaces and attempt boards. Matching is
+	 * The Playwright-only server-authoritative running check is a diagnostic safety
+	 * net for athlete
+	 * timers that Playwright is verifying: operator control surfaces and attempt
+	 * boards. Matching is
 	 * done by simple names to avoid a components -> nui layering dependency.
 	 */
 	public boolean isAthleteTimerOnControlPageForDiagnostics() {
@@ -390,9 +410,10 @@ public abstract class TimerElement extends LitTemplate
 		String fopName = this.fop == null ? "null" : this.fop.getName();
 		String busName = this.uiEventBus == null ? "null" : this.uiEventBus.identifier();
 		String parentName = this.getParent().map(DebugUtils::getOwlcmsParentName).orElse("none");
-		return String.format("%s{role=%s,control=%s,origin=%s,fop=%s,bus=%s,parent=%s,attached=%s,running=%s,lastSeq=%s}",
-		        this.instanceId, timerDiagnosticRole(), isAthleteTimerOnControlPage(), originName, fopName, busName,
-		        parentName, this.getUI().isPresent(), this.elementRunning, this.lastAppliedTimerSeq);
+		return String.format(
+				"%s{role=%s,control=%s,origin=%s,fop=%s,bus=%s,parent=%s,attached=%s,running=%s,lastSeq=%s}",
+				this.instanceId, timerDiagnosticRole(), isAthleteTimerOnControlPage(), originName, fopName, busName,
+				parentName, this.getUI().isPresent(), this.elementRunning, this.lastAppliedTimerSeq);
 	}
 
 	private String timerDiagnosticRole() {
@@ -410,7 +431,7 @@ public abstract class TimerElement extends LitTemplate
 
 	private boolean isPlaywrightTimerDiagnosticEnabled() {
 		return Config.getCurrent().featureSwitch("playwright")
-		        && (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
+				&& (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
 	}
 
 	private boolean isAttemptBoardAthleteTimer() {
@@ -457,15 +478,18 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	/*
-	 * Subclasses MUST call super.onAttach(attachEvent) first to ensure guard is checked.
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component. AttachEvent)
+	 * Subclasses MUST call super.onAttach(attachEvent) first to ensure guard is
+	 * checked.
+	 * 
+	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.
+	 * AttachEvent)
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		// Guard against double-attach - subclasses must call this via super.onAttach()
 		if (!this.attached.compareAndSet(false, true)) {
 			this.logger.debug("TimerElement.onAttach called twice for instance={} parent={} - ignoring", instanceId,
-				DebugUtils.getOwlcmsParentName(this.getParent().orElse(null)));
+					DebugUtils.getOwlcmsParentName(this.getParent().orElse(null)));
 			return; // Silently ignore subsequent attach calls
 		}
 		this.ui = UI.getCurrent();
@@ -508,8 +532,9 @@ public abstract class TimerElement extends LitTemplate
 		}
 	}
 
-	private void setTimerCommand(Element timerElement2, String command, double seconds, Boolean indefinite, Boolean silent,
-	        String from) {
+	private void setTimerCommand(Element timerElement2, String command, double seconds, Boolean indefinite,
+			Boolean silent,
+			String from) {
 		JsonObject payload = Json.createObject();
 		long sequence = ++this.timerCommandSequence;
 		payload.put("sequence", Long.toString(sequence));
@@ -535,8 +560,8 @@ public abstract class TimerElement extends LitTemplate
 		final long stamp = System.currentTimeMillis();
 		try {
 			getElement().executeJs(TRACE_TIMER_CLIENT_RENDER_SCRIPT).then(String.class, rendered -> {
-				this.logger.warn("{}{} client rendered +{}ms seq={} seconds={} {}", ctx, command,
-				        System.currentTimeMillis() - stamp, sequence, seconds, rendered != null ? rendered : "<null>");
+				this.logger./*playwright*/warn("{}{} client rendered +{}ms seq={} seconds={} {}", ctx, command,
+						System.currentTimeMillis() - stamp, sequence, seconds, rendered != null ? rendered : "<null>");
 			});
 		} catch (RuntimeException e) {
 			this.logger.debug("{}{} client render callback failed", ctx, command, e);
@@ -549,8 +574,10 @@ public abstract class TimerElement extends LitTemplate
 		this.lastClientStoppedSequence = parsedSequence;
 		this.lastClientStoppedMillis = System.currentTimeMillis();
 		if (Config.getCurrent().featureSwitch("playwright") && isDisplayAthleteTimer()) {
-			this.logger.warn("{}{} timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
-			        FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), parsedSequence, display, running, currentTime);
+			this.logger./*playwright*/warn(
+					"{}{} timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
+					FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), parsedSequence, display, running,
+					currentTime);
 		}
 	}
 
@@ -559,12 +586,13 @@ public abstract class TimerElement extends LitTemplate
 		if (!isServerTickEnabled()) {
 			return;
 		}
-		this.logger.warn("{}{} timer tick display='{}' currentTime={}",
-		        FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), display, currentTime);
+		this.logger./*playwright*/warn("{}{} timer tick display='{}' currentTime={}",
+				FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), display, currentTime);
 		if (("0:56".equals(display) || "1:56".equals(display))
-		        && playwrightTimerTripwireTriggered.compareAndSet(false, true)) {
-			this.logger.warn("{}TEMPORARY playwright timer tripwire display='{}' currentTime={} - stopping OWLCMS",
-			        FieldOfPlay.getLoggingName(this.fop), display, currentTime);
+				&& playwrightTimerTripwireTriggered.compareAndSet(false, true)) {
+			this.logger./*playwright*/warn(
+					"{}TEMPORARY playwright timer tripwire display='{}' currentTime={} - stopping OWLCMS",
+					FieldOfPlay.getLoggingName(this.fop), display, currentTime);
 			new Thread(() -> {
 				Main.prepareForExit();
 				try {
@@ -586,9 +614,12 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	/**
-	 * Playwright observe-only check: when the client is about to render a lower second but the
-	 * authoritative FOP timer is already stopped, record evidence. Do not send a corrective timer
-	 * command from this path; Playwright diagnostics must fail rather than compensate.
+	 * Playwright observe-only check: when the client is about to render a lower
+	 * second but the
+	 * authoritative FOP timer is already stopped, record evidence. Do not send a
+	 * corrective timer
+	 * command from this path; Playwright diagnostics must fail rather than
+	 * compensate.
 	 */
 	private void reportStoppedServerTimerFromTick(String display, Double currentTime) {
 		if (!(this instanceof AthleteTimerElement) || this.fop == null || !this.elementRunning) {
@@ -604,10 +635,10 @@ public abstract class TimerElement extends LitTemplate
 		Integer milliseconds = fopTimer.getTimeRemainingAtLastStop();
 		String parent = DebugUtils.getOwlcmsParentName(this.getParent().orElse(null));
 		if (isPlaywrightTimerDiagnosticEnabled()) {
-			this.logger.warn(
-			        "{}timer tick mismatch timer={} display='{}' currentTime={} serverStoppedAt={}ms parent={} observeOnly=true",
-			        FieldOfPlay.getLoggingName(this.fop), describeTimerForDiagnostics(), display, currentTime,
-			        milliseconds, parent);
+			this.logger./*playwright*/warn(
+					"{}timer tick mismatch timer={} display='{}' currentTime={} serverStoppedAt={}ms parent={} observeOnly=true",
+					FieldOfPlay.getLoggingName(this.fop), describeTimerForDiagnostics(), display, currentTime,
+					milliseconds, parent);
 		}
 	}
 
@@ -630,7 +661,7 @@ public abstract class TimerElement extends LitTemplate
 	private boolean isAnnouncerAthleteTimer() {
 		Object origin = getOrigin();
 		return this instanceof AthleteTimerElement && origin != null
-		        && "AnnouncerContent".equals(origin.getClass().getSimpleName());
+				&& "AnnouncerContent".equals(origin.getClass().getSimpleName());
 	}
 
 	private boolean isDisplayAthleteTimer() {
@@ -640,7 +671,7 @@ public abstract class TimerElement extends LitTemplate
 	@SuppressWarnings("unused")
 	private String formatDuration(Integer milliseconds) {
 		return (milliseconds != null && milliseconds >= 0) ? DurationFormatUtils.formatDurationHMS(milliseconds)
-		        : (milliseconds != null ? milliseconds.toString() : "-");
+				: (milliseconds != null ? milliseconds.toString() : "-");
 	}
 
 	private Integer getMsRemaining() {

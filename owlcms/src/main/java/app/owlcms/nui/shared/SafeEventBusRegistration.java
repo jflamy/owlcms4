@@ -19,6 +19,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.components.elements.TimerElement;
+import app.owlcms.data.config.Config;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
@@ -107,10 +108,12 @@ public interface SafeEventBusRegistration {
 				}
 			}
 		}
-		logger.warn("uiBus OUT subscriber={} class={} bus={} registryHad={} {}",
-		        Integer.toHexString(System.identityHashCode(subscriber)),
-		        subscriber != null ? subscriber.getClass().getSimpleName() : "null", uiEventBus.identifier(),
-		        removedFromRegistry, LoggerUtils.whereFrom());
+		if (Config.getCurrent().featureSwitch("playwright")) {
+			logger./*playwright*/warn("uiBus OUT subscriber={} class={} bus={} registryHad={} {}",
+			        Integer.toHexString(System.identityHashCode(subscriber)),
+			        subscriber != null ? subscriber.getClass().getSimpleName() : "null", uiEventBus.identifier(),
+			        removedFromRegistry, LoggerUtils.whereFrom());
+		}
 	}
 
 	public static void registerSubscriber(Object subscriber, EventBus uiEventBus) {
@@ -122,10 +125,12 @@ public interface SafeEventBusRegistration {
 			synchronized (BUS_REGISTRY) {
 				BUS_REGISTRY.computeIfAbsent(subscriber, key -> new HashSet<>()).add(uiEventBus);
 			}
-			logger.warn("uiBus IN subscriber={} class={} bus={} {}",
-			        Integer.toHexString(System.identityHashCode(subscriber)),
-			        subscriber != null ? subscriber.getClass().getSimpleName() : "null", uiEventBus.identifier(),
-			        LoggerUtils.whereFrom());
+			if (Config.getCurrent().featureSwitch("playwright")) {
+				logger./*playwright*/warn("uiBus IN subscriber={} class={} bus={} {}",
+				        Integer.toHexString(System.identityHashCode(subscriber)),
+				        subscriber != null ? subscriber.getClass().getSimpleName() : "null", uiEventBus.identifier(),
+				        LoggerUtils.whereFrom());
+			}
 		} catch (Exception ex) {
 			logger.error("Failed to register subscriber {} on UI bus {}", subscriber, uiEventBus.identifier(), ex);
 		}
@@ -146,8 +151,8 @@ public interface SafeEventBusRegistration {
 			Set<EventBus> registeredBuses = BUS_REGISTRY.get(c);
 			if (registeredBuses != null && registeredBuses.contains(uiEventBus)) {
 				// TEMPORARY (timer-gap) trace: confirm the control timer stays registered.
-				if ("AthleteTimerElement".equals(c.getClass().getSimpleName())) {
-					logger.warn("uiBus already-registered {} bus={} {}",
+				if (Config.getCurrent().featureSwitch("playwright") && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+				logger./*playwright*/warn("uiBus already-registered {} bus={} {}",
 					        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier(),
 					        LoggerUtils.whereFrom());
 				}
@@ -156,8 +161,8 @@ public interface SafeEventBusRegistration {
 		}
 
 		// TEMPORARY (timer-gap) trace: a fresh register here means the component was OFF the bus.
-		if ("AthleteTimerElement".equals(c.getClass().getSimpleName())) {
-			logger.warn("uiBus FRESH-register {} bus={} {}",
+		if (Config.getCurrent().featureSwitch("playwright") && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+			logger./*playwright*/warn("uiBus FRESH-register {} bus={} {}",
 			        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier(),
 			        LoggerUtils.whereFrom());
 		}
@@ -174,8 +179,8 @@ public interface SafeEventBusRegistration {
 		}
 		ui.addBeforeLeaveListener((e) -> {
 			// TEMPORARY (timer-gap) trace
-			if ("AthleteTimerElement".equals(c.getClass().getSimpleName())) {
-				logger.warn("uiBus beforeLeave-unregister {} bus={}",
+			if (Config.getCurrent().featureSwitch("playwright") && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+				logger./*playwright*/warn("uiBus beforeLeave-unregister {} bus={}",
 				        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier());
 			}
 			unregister(c, uiEventBus);
@@ -184,8 +189,8 @@ public interface SafeEventBusRegistration {
 			// trace the unregistration
 			logger.debug("automatic: unregister {} class={} from {}", Integer.toHexString(System.identityHashCode(c)), c.getClass().getSimpleName(), uiEventBus.identifier());
 			// TEMPORARY (timer-gap) trace
-			if ("AthleteTimerElement".equals(c.getClass().getSimpleName())) {
-				logger.warn("uiBus uiDetach-unregister {} bus={}",
+			if (Config.getCurrent().featureSwitch("playwright") && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+				logger./*playwright*/warn("uiBus uiDetach-unregister {} bus={}",
 				        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier());
 			}
 			unregister(c, uiEventBus);
