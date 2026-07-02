@@ -116,7 +116,7 @@ final class AgeGroupActionsMenu {
 		        VaadinIcon.TROPHY.create(),
 		        e -> {
 			        String url = RouteConfiguration.forSessionScope().getUrl(CompetitionContent.class)
-			                + "?tab=" + CompetitionEditingFormFactory.DEFAULT_CHAMPIONSHIP_TAB;
+			                + "/" + CompetitionEditingFormFactory.DEFAULT_CHAMPIONSHIP_TAB;
 			        UI.getCurrent().getPage().open(url, "_blank");
 		        });
 

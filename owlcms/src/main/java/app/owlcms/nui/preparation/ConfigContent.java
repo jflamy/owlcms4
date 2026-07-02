@@ -21,11 +21,12 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.data.config.Config;
 import app.owlcms.i18n.Translator;
-import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
@@ -38,12 +39,12 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "preparation/config", layout = OwlcmsLayout.class)
+@Route(value = "preparation/config/:tab?", layout = OwlcmsLayout.class)
 public class ConfigContent extends Composite<VerticalLayout>
-        implements CrudLayout, OwlcmsContent, CrudListener<Config> {
+	implements CrudLayout, OwlcmsContent, CrudListener<Config>, BeforeEnterObserver {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(ConfigContent.class);
-	private OwlcmsCrudFormFactory<Config> factory;
+	private ConfigEditingFormFactory factory;
 	private OwlcmsLayout routerLayout;
 
 	/**
@@ -98,6 +99,22 @@ public class ConfigContent extends Composite<VerticalLayout>
 	@Override
 	public String getMenuTitle() {
 		return getPageTitle();
+	}
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		event.getRouteParameters().get("tab").ifPresent(tab -> selectTab(tab));
+	}
+
+	private void selectTab(String tab) {
+		if (tab == null || tab.isBlank()) {
+			return;
+		}
+		try {
+			this.factory.selectTab(Integer.parseInt(tab));
+		} catch (NumberFormatException e) {
+			// ignore invalid tab parameter
+		}
 	}
 
 	/**
@@ -168,10 +185,10 @@ public class ConfigContent extends Composite<VerticalLayout>
 	 *
 	 * @return the form factory that will create the actual form on demand
 	 */
-	protected OwlcmsCrudFormFactory<Config> createFormFactory() {
+	protected ConfigEditingFormFactory createFormFactory() {
 		// ConfigEditingFormFactory competitionEditingFormFactory = new ConfigEditingFormFactory(Config.class);
 		// createFormLayout(competitionEditingFormFactory);
-		OwlcmsCrudFormFactory<Config> competitionEditingFormFactory = new ConfigEditingFormFactory(
+		ConfigEditingFormFactory competitionEditingFormFactory = new ConfigEditingFormFactory(
 		        Config.class, this);
 		return competitionEditingFormFactory;
 	}

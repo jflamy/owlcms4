@@ -48,12 +48,12 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.streams.UploadHandler;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.validator.RegexpValidator;
+import com.vaadin.flow.router.Location;
 
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
@@ -87,7 +87,14 @@ public class ConfigEditingFormFactory
 	private ConfigContent origin;
 	private TabSheet tabSheet;
 	private List<ForwardingDestination> forwardingDestinationsBeforeEdit;
-	private static final String TAB_INDEX_KEY = "config.selectedTabIndex";
+	private static final String CONFIG_ROUTE = "preparation/config";
+
+	// Zero-based tab indices. The URL uses these values directly, so "/0" is equivalent to "/".
+	public static final int LANGUAGE_TAB = 0;
+	public static final int CONNECTIONS_TAB = 1;
+	public static final int ACCESS_CONTROL_TAB = 2;
+	public static final int FEATURES_TAB = 3;
+	public static final int CUSTOMIZATION_TAB = 4;
 
 	ConfigEditingFormFactory(Class<Config> domainType, ConfigContent origin) {
 		super(domainType);
@@ -185,15 +192,9 @@ public class ConfigEditingFormFactory
 		                templateSelectionLayout, separator(),
 		                localOverrideLayout));
 		
-		// Restore saved tab index from session
-		Integer savedTabIndex = (Integer) VaadinSession.getCurrent().getAttribute(TAB_INDEX_KEY);
-		if (savedTabIndex != null && savedTabIndex < tabSheet.getChildren().count()) {
-			tabSheet.setSelectedIndex(savedTabIndex);
-		}
-		
-		// Listen for tab changes to save the selection
+		// Listen for tab changes to preserve the selection in the URL.
 		tabSheet.addSelectedChangeListener(event -> {
-			VaadinSession.getCurrent().setAttribute(TAB_INDEX_KEY, tabSheet.getSelectedIndex());
+			updateTabLocation();
 		});
 
 		VerticalLayout mainLayout = new VerticalLayout(
@@ -212,6 +213,12 @@ public class ConfigEditingFormFactory
 	public Button buildOperationButton(CrudOperation operation, Config domainObject,
 	        ComponentEventListener<ClickEvent<Button>> gridCallBackAction) {
 		return super.buildOperationButton(operation, domainObject, gridCallBackAction);
+	}
+
+	public void selectTab(int tabIndex) {
+		if (this.tabSheet != null && tabIndex >= 0 && tabIndex < this.tabSheet.getTabCount()) {
+			this.tabSheet.setSelectedIndex(tabIndex);
+		}
 	}
 
 	@Override
@@ -234,10 +241,6 @@ public class ConfigEditingFormFactory
 	public Config update(Config config) {
 		try {
 			config.setSkipReading(true);
-			// Save current tab index before reload
-			if (tabSheet != null) {
-				VaadinSession.getCurrent().setAttribute(TAB_INDEX_KEY, tabSheet.getSelectedIndex());
-			}
 			Config oldConfig = Config.getCurrent();
 			
 			// Check if childrenEquipment toggle is being ADDED (wasn't active before, now is)
@@ -254,11 +257,24 @@ public class ConfigEditingFormFactory
 				applyChildrenEquipmentToAllPlatforms();
 			}
 			
-			UI.getCurrent().getPage().reload();
+			// Capture the target tab now, before the CRUD grid callback re-renders the form.
+			// Defer the actual navigation to the very end of the round-trip so it runs AFTER
+			// the grid callback, otherwise the fresh (tab 0) render would override our URL.
+			UI ui = UI.getCurrent();
+			String target = "/" + selectedTabLocation();
+			ui.beforeClientResponse(ui, ctx -> ui.getPage().setLocation(target));
 			return saved;
 		} finally {
 			config.setSkipReading(false);
 		}
+	}
+
+	private void updateTabLocation() {
+		UI.getCurrent().getPage().getHistory().replaceState(null, new Location(selectedTabLocation()));
+	}
+
+	private String selectedTabLocation() {
+		return CONFIG_ROUTE + "/" + this.tabSheet.getSelectedIndex();
 	}
 	
 	/**

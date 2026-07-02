@@ -36,7 +36,7 @@ import ch.qos.logback.classic.Logger;
  * Class PreparationNavigationContent.
  */
 @SuppressWarnings("serial")
-@Route(value = "preparation/competition", layout = OwlcmsLayout.class)
+@Route(value = "preparation/competition/:tab?", layout = OwlcmsLayout.class)
 public class CompetitionContent extends Composite<VerticalLayout>
         implements CrudLayout, OwlcmsContent, CrudListener<Competition>, BeforeEnterObserver {
 
@@ -57,19 +57,18 @@ public class CompetitionContent extends Composite<VerticalLayout>
 	}
 
 	/**
-	 * Open directly on a specific tab when a {@code tab} query parameter is present
-	 * (e.g. {@code preparation/competition?tab=2} for the default championship rules).
+	 * Open directly on a specific tab when a {@code tab} route parameter is present
+	 * (e.g. {@code preparation/competition/2} for the default championship rules).
 	 */
 	@Override
 	public void beforeEnter(BeforeEnterEvent event) {
-		event.getLocation().getQueryParameters().getParameters().getOrDefault("tab", java.util.List.of())
-		        .stream().findFirst().ifPresent(value -> {
-			        try {
-				        this.factory.selectTab(Integer.parseInt(value));
-			        } catch (NumberFormatException e) {
-				        // ignore invalid tab parameter
-			        }
-		        });
+		event.getRouteParameters().get("tab").ifPresent(value -> {
+			try {
+				this.factory.selectTab(Integer.parseInt(value));
+			} catch (NumberFormatException e) {
+				// ignore invalid tab parameter
+			}
+		});
 	}
 
 	@Override

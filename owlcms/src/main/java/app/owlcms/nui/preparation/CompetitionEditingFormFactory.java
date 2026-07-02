@@ -16,6 +16,7 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -40,6 +41,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.router.Location;
 
 import app.owlcms.components.fields.LocalizedIntegerField;
 import app.owlcms.data.agegroup.ChampionshipRepository;
@@ -58,8 +60,14 @@ public class CompetitionEditingFormFactory
         extends OwlcmsCrudFormFactory<Competition>
         implements CustomFormFactory<Competition> {
 
+	// Zero-based tab indices. The URL uses these values directly, so "/0" is equivalent to "/".
+	public static final int INFORMATION_TAB = 0;
+	public static final int RULES_TAB = 1;
 	/** Index of the tab holding the default championship scoring/medaling rules. */
 	public static final int DEFAULT_CHAMPIONSHIP_TAB = 2;
+	public static final int SPECIAL_RULES_TAB = 3;
+
+	private static final String COMPETITION_ROUTE = "preparation/competition";
 
 	String browserZoneId;
 	@SuppressWarnings("unused")
@@ -174,6 +182,9 @@ public class CompetitionEditingFormFactory
 		        new VerticalLayout(
 		                specialLayout));
 
+		// Listen for tab changes to preserve the selection in the URL.
+		ts.addSelectedChangeListener(event -> updateTabLocation());
+
 		VerticalLayout mainLayout = new VerticalLayout(
 		        footer,
 		        ts);
@@ -230,6 +241,11 @@ public class CompetitionEditingFormFactory
 		// Save current RankingConfig state to competition before persisting
 		competition.saveRankingConfig();
 		Competition saved = CompetitionRepository.save(competition);
+		// Capture the target tab now and defer the navigation to the very end of the
+		// round-trip so it runs AFTER the CRUD grid callback, restoring the selected tab.
+		UI ui = UI.getCurrent();
+		String target = "/" + selectedTabLocation();
+		ui.beforeClientResponse(ui, ctx -> ui.getPage().setLocation(target));
 		return saved;
 	}
 
@@ -242,6 +258,14 @@ public class CompetitionEditingFormFactory
 		if (this.tabSheet != null && index >= 0 && index < this.tabSheet.getTabCount()) {
 			this.tabSheet.setSelectedIndex(index);
 		}
+	}
+
+	private void updateTabLocation() {
+		UI.getCurrent().getPage().getHistory().replaceState(null, new Location(selectedTabLocation()));
+	}
+
+	private String selectedTabLocation() {
+		return COMPETITION_ROUTE + "/" + this.tabSheet.getSelectedIndex();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
