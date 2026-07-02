@@ -8,12 +8,11 @@ package app.owlcms.data.config;
 
 public enum FeatureSwitchSection {
 	USER_INTERFACE_OVERRIDE("FeatureSwitchSection.UserInterfaceOverride"),
+	SCOREBOARD_OPTIONS("FeatureSwitchSection.ScoreboardOptions"),
 	GENERAL_OPTIONS("FeatureSwitchSection.GeneralOptions"),
 	SPECIALTY_FEATURES("FeatureSwitchSection.SpecialtyFeatures"),
 	CURRENT_FEATURES("FeatureSwitchSection.CurrentFeatures"),
-	OBSOLETE("FeatureSwitchSection.Obsolete"),
-	USE_AT_YOUR_OWN_RISK("FeatureSwitchSection.UseAtYourOwnRisk"),
-	INTERNAL("FeatureSwitchSection.Internal");
+	USE_AT_YOUR_OWN_RISK("FeatureSwitchSection.UseAtYourOwnRisk");
 
 	private final String translationKey;
 

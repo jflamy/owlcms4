@@ -1106,23 +1106,6 @@ public class Competition {
 			RankingConfig.setUserEnabled(Ranking.CAT_SINCLAIR, true);
 		}
 
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.GAMX)) {
-			RankingConfig.setUserEnabled(Ranking.GAMX, true);
-			RankingConfig.setUserEnabled(Ranking.GAMX_M, true);
-			RankingConfig.setUserEnabled(Ranking.GAMX_MS, true);
-			RankingConfig.setUserEnabled(Ranking.GAMX_MC, true);
-			RankingConfig.setUserEnabled(Ranking.GAMX_U, true);
-			RankingConfig.setUserEnabled(Ranking.GAMX_A, true);
-			RankingConfig.setUserEnabled(Ranking.GAMX_S, true);
-			RankingConfig.setUserEnabled(Ranking.GAMX_C, true);
-		}
-
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.USAW)) {
-			RankingConfig.setUserEnabled(Ranking.QPOINTS, true);
-			RankingConfig.setUserEnabled(Ranking.QAGE, true);      // Q-masters
-			RankingConfig.setUserEnabled(Ranking.AGEFACTORS, true); // Q-youth
-		}
-
 		// Update mustCompute from age groups and global scoring system
 		RankingConfig.updateMustCompute();
 	}
@@ -2874,7 +2857,7 @@ public class Competition {
 	}
 
 	public boolean isMasters20kg() {
-		return !imwa || Config.getCurrent().featureSwitch(FeatureSwitch.MASTERS_20KG);
+		return !imwa;
 	}
 
 	// public void setMasters20kg(boolean masters20kg) {

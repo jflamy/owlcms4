@@ -11,9 +11,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
@@ -35,6 +37,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.AccessUtils;
@@ -62,6 +67,9 @@ public class Config {
 	public static final String FAKE_PIN = "\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF\u25CF";
 	public static final int SHORT_TEAM_LENGTH = 6;
 	private static Config current;
+	private static final ObjectMapper FEATURE_SWITCH_JSON_MAPPER = new ObjectMapper();
+	private static final TypeReference<LinkedHashMap<String, Boolean>> FEATURE_SWITCH_JSON_TYPE = new TypeReference<>() {
+	};
 	@Transient
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
 
@@ -92,6 +100,7 @@ public class Config {
 			}
 			return null;
 		});
+		migrateCurrentFeatureSwitchesToJson();
 
 		JPAService.runInTransaction(em -> {
 			RecordConfig f = RecordConfig.getCurrent();
@@ -105,7 +114,15 @@ public class Config {
 		Competition.loadTimingConfig();
 	}
 
+	private static void migrateCurrentFeatureSwitchesToJson() {
+		Config config = getCurrent();
+		if (config.migrateFeatureSwitchesToJson()) {
+			Config.setCurrent(config);
+		}
+	}
+
 	public static Config setCurrent(Config config) {
+		config.migrateFeatureSwitchesToJson();
 		current = ConfigRepository.save(config);
 		return current;
 	}
@@ -142,6 +159,9 @@ public class Config {
 	@JsonIgnore
 	private boolean skipReading;
 	private String featureSwitches;
+	@Lob
+	@Column(name = "featureSwitchJson")
+	private String featureSwitchJson;
 	@Column(columnDefinition = "boolean default false")
 	private boolean localTemplatesOnly;
 	@Transient
@@ -202,26 +222,117 @@ public class Config {
 	}
 
 	public boolean featureSwitch(FeatureSwitch featureSwitch, boolean trueIfPresent) {
-		String paramFeatureSwitches = getParamFeatureSwitches();
-		if (paramFeatureSwitches == null) {
+		Set<String> activeSwitches = getParamFeatureSwitchIds();
+		if (activeSwitches.isEmpty()) {
 			return !trueIfPresent;
 		}
 		String id = featureSwitch.getId().toLowerCase(Locale.ROOT);
-		String[] switches = paramFeatureSwitches.toLowerCase(Locale.ROOT).split("[,; ]");
-		boolean present = false;
-		for (String toggle : switches) {
-			if (toggle.equals(id)) {
-				present = true;
-				break;
-			}
-		}
+		boolean present = activeSwitches.contains(id);
 		return trueIfPresent ? present : !present;
 	}
 
 	@Transient
 	@JsonIgnore
 	public boolean isRecordRepository() {
-		return featureSwitch(FeatureSwitch.RECORD_REPOSITORY) || featureSwitch(FeatureSwitch.RECORDS_ONLY);
+		return featureSwitch(FeatureSwitch.RECORD_REPOSITORY);
+	}
+
+	boolean migrateFeatureSwitchesToJson() {
+		if (this.featureSwitchJson != null && !this.featureSwitchJson.isBlank()) {
+			return false;
+		}
+		LinkedHashMap<String, Boolean> switches = parseLegacyFeatureSwitches(this.featureSwitches);
+		if (switches.isEmpty()) {
+			return false;
+		}
+		this.featureSwitchJson = writeFeatureSwitchJson(switches);
+		this.featureSwitches = toLegacyFeatureSwitchString(switches);
+		return true;
+	}
+
+	private Set<String> getParamFeatureSwitchIds() {
+		Set<String> activeSwitches = new LinkedHashSet<>();
+		applyFeatureSwitchOverrides(activeSwitches, parseLegacyFeatureSwitches(StartupUtils.getStringParam("featureSwitches")));
+		applyFeatureSwitchOverrides(activeSwitches, getConfiguredFeatureSwitches());
+		return activeSwitches;
+	}
+
+	private LinkedHashMap<String, Boolean> getConfiguredFeatureSwitches() {
+		if (this.featureSwitchJson != null && !this.featureSwitchJson.isBlank()) {
+			return readFeatureSwitchJson(this.featureSwitchJson);
+		}
+		return parseLegacyFeatureSwitches(this.featureSwitches);
+	}
+
+	private static void applyFeatureSwitchOverrides(Set<String> activeSwitches,
+	        Map<String, Boolean> featureSwitches) {
+		for (Map.Entry<String, Boolean> entry : featureSwitches.entrySet()) {
+			String id = entry.getKey().toLowerCase(Locale.ROOT);
+			if (Boolean.TRUE.equals(entry.getValue())) {
+				activeSwitches.add(id);
+			} else {
+				activeSwitches.remove(id);
+			}
+		}
+	}
+
+	private static LinkedHashMap<String, Boolean> parseLegacyFeatureSwitches(String featureSwitches) {
+		LinkedHashMap<String, Boolean> switches = new LinkedHashMap<>();
+		if (featureSwitches == null || featureSwitches.isBlank()) {
+			return switches;
+		}
+		String[] parts = featureSwitches.split("[,; ]");
+		for (String part : parts) {
+			String token = part.trim();
+			if (token.isBlank()) {
+				continue;
+			}
+			boolean enabled = !token.startsWith("-");
+			String id = enabled ? token : token.substring(1);
+			FeatureSwitch.fromId(id).ifPresentOrElse(
+			        featureSwitch -> switches.put(featureSwitch.getId(), enabled),
+			        () -> logger.warn("Ignoring unknown feature switch '{}'", token));
+		}
+		return switches;
+	}
+
+	private static LinkedHashMap<String, Boolean> readFeatureSwitchJson(String featureSwitchJson) {
+		LinkedHashMap<String, Boolean> switches = new LinkedHashMap<>();
+		if (featureSwitchJson == null || featureSwitchJson.isBlank()) {
+			return switches;
+		}
+		try {
+			LinkedHashMap<String, Boolean> parsed = FEATURE_SWITCH_JSON_MAPPER.readValue(featureSwitchJson,
+			        FEATURE_SWITCH_JSON_TYPE);
+			for (Map.Entry<String, Boolean> entry : parsed.entrySet()) {
+				FeatureSwitch.fromId(entry.getKey()).ifPresentOrElse(
+				        featureSwitch -> switches.put(featureSwitch.getId(), Boolean.TRUE.equals(entry.getValue())),
+				        () -> logger.warn("Ignoring unknown feature switch '{}' in JSON", entry.getKey()));
+			}
+		} catch (JsonProcessingException e) {
+			throw new IllegalArgumentException("Invalid feature switch JSON", e);
+		}
+		return switches;
+	}
+
+	private static String writeFeatureSwitchJson(LinkedHashMap<String, Boolean> switches) {
+		if (switches.isEmpty()) {
+			return null;
+		}
+		try {
+			return FEATURE_SWITCH_JSON_MAPPER.writeValueAsString(switches);
+		} catch (JsonProcessingException e) {
+			throw new IllegalStateException("Unable to write feature switch JSON", e);
+		}
+	}
+
+	private static String toLegacyFeatureSwitchString(LinkedHashMap<String, Boolean> switches) {
+		if (switches.isEmpty()) {
+			return null;
+		}
+		return switches.entrySet().stream()
+		        .map(entry -> Boolean.TRUE.equals(entry.getValue()) ? entry.getKey() : "-" + entry.getKey())
+		        .collect(java.util.stream.Collectors.joining(","));
 	}
 
 	/**
@@ -252,7 +363,30 @@ public class Config {
 	}
 
 	public String getFeatureSwitches() {
+		if ((this.featureSwitches == null || this.featureSwitches.isBlank())
+		        && this.featureSwitchJson != null && !this.featureSwitchJson.isBlank()) {
+			return toLegacyFeatureSwitchString(readFeatureSwitchJson(this.featureSwitchJson));
+		}
 		return this.featureSwitches;
+	}
+
+	public String getFeatureSwitchJson() {
+		migrateFeatureSwitchesToJson();
+		return this.featureSwitchJson;
+	}
+
+	public boolean getFeatureSwitchValue(FeatureSwitch featureSwitch) {
+		return Boolean.TRUE.equals(getConfiguredFeatureSwitches().get(featureSwitch.getId()));
+	}
+
+	public void setFeatureSwitchValue(FeatureSwitch featureSwitch, boolean enabled) {
+		LinkedHashMap<String, Boolean> switches = getConfiguredFeatureSwitches();
+		if (enabled) {
+			switches.put(featureSwitch.getId(), true);
+		} else {
+			switches.remove(featureSwitch.getId());
+		}
+		setFeatureSwitches(switches);
 	}
 
 	/**
@@ -440,40 +574,7 @@ public class Config {
 	@Transient
 	@JsonIgnore
 	public String getParamFeatureSwitches() {
-		// Start with environment variable as initial set
-		String envSwitches = StartupUtils.getStringParam("featureSwitches");
-		
-		// Build the active set of switches
-		Set<String> activeSwitches = new LinkedHashSet<>();
-		if (envSwitches != null && !envSwitches.isBlank()) {
-			String[] envArray = envSwitches.toLowerCase().split("[,; ]");
-			for (String sw : envArray) {
-				if (!sw.isBlank()) {
-					activeSwitches.add(sw.trim());
-				}
-			}
-		}
-		
-		// Process database switches - they can add or remove switches
-		String dbSwitches = Config.getCurrent().getFeatureSwitches();
-		if (dbSwitches != null && !dbSwitches.isBlank()) {
-			String[] dbArray = dbSwitches.toLowerCase().split("[,; ]");
-			for (String sw : dbArray) {
-				sw = sw.trim();
-				if (!sw.isBlank()) {
-					if (sw.startsWith("-")) {
-						// Remove switch (starts with "-")
-						String switchToRemove = sw.substring(1);
-						activeSwitches.remove(switchToRemove);
-					} else {
-						// Add switch
-						activeSwitches.add(sw);
-					}
-				}
-			}
-		}
-		
-		// Return combined switches as comma-separated string, or null if empty
+		Set<String> activeSwitches = getParamFeatureSwitchIds();
 		return activeSwitches.isEmpty() ? null : String.join(",", activeSwitches);
 	}
 
@@ -1004,7 +1105,18 @@ public class Config {
 	}
 
 	public void setFeatureSwitches(String featureSwitches) {
-		this.featureSwitches = featureSwitches;
+		LinkedHashMap<String, Boolean> switches = parseLegacyFeatureSwitches(featureSwitches);
+		setFeatureSwitches(switches);
+	}
+
+	public void setFeatureSwitchJson(String featureSwitchJson) {
+		LinkedHashMap<String, Boolean> switches = readFeatureSwitchJson(featureSwitchJson);
+		setFeatureSwitches(switches);
+	}
+
+	private void setFeatureSwitches(LinkedHashMap<String, Boolean> switches) {
+		this.featureSwitchJson = writeFeatureSwitchJson(switches);
+		this.featureSwitches = toLegacyFeatureSwitchString(switches);
 	}
 
 	public void setIgnoreCaching(boolean ignoreCaching) {

@@ -40,7 +40,6 @@ import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.home.HomeNavigationContent;
@@ -59,7 +58,8 @@ import ch.qos.logback.classic.Logger;
  */
 @SuppressWarnings("serial")
 @Route(value = "preparation", layout = OwlcmsLayout.class)
-public class PreparationNavigationContent extends BaseNavigationContent implements NavigationPage, HasDynamicTitle, BeforeEnterObserver {
+public class PreparationNavigationContent extends BaseNavigationContent
+		implements NavigationPage, HasDynamicTitle, BeforeEnterObserver {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(PreparationNavigationContent.class);
 	static {
@@ -72,17 +72,15 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	 * Instantiates a new preparation navigation content.
 	 */
 	public PreparationNavigationContent() {
-		boolean recordsPreparation = Config.getCurrent().featureSwitch(FeatureSwitch.RECORDS_PREPARATION)
-		        || Boolean.TRUE.equals(OwlcmsSession.getAttribute("recordsPreparation"));
-
 		Button competition = openInNewTabNoParam(CompetitionContent.class,
-		        Translator.translate("CompetitionInformation"));
+				Translator.translate("CompetitionInformation"));
 		Button config = openInNewTabNoParam(ConfigContent.class, Translator.translate("Config.Title"),
-		        VaadinIcon.COG.create());
+				VaadinIcon.COG.create());
 		Button editChampionships = openInNewTabNoParam(ChampionshipsContent.class,
-		        Translator.translate("DefineChampionships.Title"));
+				Translator.translate("DefineChampionships.Title"));
 		Button ageGroups = openInNewTabNoParam(AgeGroupContent.class, Translator.translate("DefineAgeGroups"));
-		Button officials = openInNewTabNoParam(TechnicalOfficialContent.class, Translator.translate("TechnicalOfficials"));
+		Button officials = openInNewTabNoParam(TechnicalOfficialContent.class,
+				Translator.translate("TechnicalOfficials"));
 		Button groups = openInNewTabNoParam(SessionContent.class, Translator.translate("DefineGroups"));
 		Button platforms = openInNewTabNoParam(PlatformContent.class, Translator.translate("DefineFOP"));
 
@@ -93,16 +91,17 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 			// ignore throwable, just close notification on completion
 			notification.close();
 		}));
-		Div downloadDiv = DownloadButtonFactory.createDynamicJXLSDownloadButton("Registration", Translator.translate("DownloadRegistrationTemplate"),
-		        emptyRegistrationWriter,
-		        notification);
+		Div downloadDiv = DownloadButtonFactory.createDynamicJXLSDownloadButton("Registration",
+				Translator.translate("DownloadRegistrationTemplate"),
+				emptyRegistrationWriter,
+				notification);
 		downloadDiv.setWidthFull();
 
 		Button upload = new Button(Translator.translate("UploadRegistrations"), new Icon(VaadinIcon.UPLOAD_ALT),
-		        buttonClickEvent -> new NRegistrationFileUploadDialog(false).open());
+				buttonClickEvent -> new NRegistrationFileUploadDialog(false).open());
 		Button sbdeUpload = new Button(Translator.translate("AdvancedPreparation.Import"),
-		        new Icon(VaadinIcon.UPLOAD_ALT),
-		        buttonClickEvent -> new NRegistrationFileUploadDialog(true).open());
+				new Icon(VaadinIcon.UPLOAD_ALT),
+				buttonClickEvent -> new NRegistrationFileUploadDialog(true).open());
 		var registrationWriter = new JXLSSBDEExport(UI.getCurrent());
 		Notification notification1 = new Notification(Translator.translate("LongProcessing"));
 		notification1.setPosition(Position.TOP_END);
@@ -111,8 +110,9 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 			notification1.close();
 		}));
 
-		Div sbdeDiv = DownloadButtonFactory.createDynamicJXLSDownloadButton("SBDE", Translator.translate("AdvancedPreparation.Export"), registrationWriter,
-		        notification1);
+		Div sbdeDiv = DownloadButtonFactory.createDynamicJXLSDownloadButton("SBDE",
+				Translator.translate("AdvancedPreparation.Export"), registrationWriter,
+				notification1);
 		sbdeDiv.setWidthFull();
 
 		Button athletes = openInNewTabNoParam(RegistrationContent.class, Translator.translate("EditAthletes"));
@@ -120,20 +120,20 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 
 		Button coaches = openInNewTabNoParam(CoachContent.class, Translator.translate("EditCoaches"));
 		Button teams = openInNewTabNoParam(TeamSelectionContent.class,
-		        Translator.translate(TeamSelectionContent.TITLE));
+				Translator.translate(TeamSelectionContent.TITLE));
 
 		Button documents = openInNewTab(DocumentsContent.class, Translator.translate("Documents.Title"), "documents");
 		documents.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
 
 		Button uploadJson = new Button(Translator.translate("ExportDatabase.UploadJson"),
-		        new Icon(VaadinIcon.UPLOAD_ALT),
-		        buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
+				new Icon(VaadinIcon.UPLOAD_ALT),
+				buttonClickEvent -> new JsonUploadDialog(UI.getCurrent()).open());
 
 		Notification notification2 = new Notification(Translator.translate("LongProcessing"));
 		notification2.setPosition(Position.TOP_END);
 		// notification2.addThemeVariants(NotificationVariant.LUMO_WARNING);
 		Div exportJsonDiv = DownloadButtonFactory.createDynamicJsonDownloadButton("owlcmsDatabase",
-		        Translator.translate("ExportDatabase.DownloadJson"), notification2);
+				Translator.translate("ExportDatabase.DownloadJson"), notification2);
 		Optional<Component> exportJsonButton = exportJsonDiv.getChildren().findFirst();
 		exportJsonButton.ifPresent(c -> ((Button) c).setWidth("100%"));
 		exportJsonDiv.setWidthFull();
@@ -144,44 +144,32 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 			Notification notification3 = new Notification(Translator.translate("LongProcessing"));
 			notification3.setPosition(Position.TOP_END);
 			exportJsonV2Div = DownloadButtonFactory.createDynamicJsonV2DownloadButton("owlcmsDatabase",
-			        Translator.translate("ExportDatabase.DownloadJsonV2"), notification3);
+					Translator.translate("ExportDatabase.DownloadJsonV2"), notification3);
 			Optional<Component> exportJsonV2Button = exportJsonV2Div.getChildren().findFirst();
 			exportJsonV2Button.ifPresent(c -> ((Button) c).setWidth("100%"));
 			exportJsonV2Div.setWidthFull();
 		}
 
-		if (recordsPreparation) {
-			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(config);
-			doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
+		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, editChampionships,
+				ageGroups, officials, groups,
+				platforms);
+		doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
+		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, coaches, teams);
+		doGroup(Translator.translate("Registration"), grid2, this, true);
+		FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(documents);
+		doGroup(Translator.translate("Documents.Title"), grid3, this, true);
 
-			FlexibleGridLayout grid5;
-			if (exportJsonV2Div != null) {
-				grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div, uploadJson);
-			} else {
-				grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
-			}
-			doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
+		FlexibleGridLayout grid5;
+		if (exportJsonV2Div != null) {
+			grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div, uploadJson);
 		} else {
-			FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(competition, config, editChampionships, ageGroups, officials, groups,
-			        platforms);
-			doGroup(Translator.translate("PreCompetitionSetup"), grid1, this, true);
-			FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(downloadDiv, upload, athletes, coaches, teams);
-			doGroup(Translator.translate("Registration"), grid2, this, true);
-			FlexibleGridLayout grid3 = HomeNavigationContent.navigationGrid(documents);
-			doGroup(Translator.translate("Documents.Title"), grid3, this, true);
-
-			FlexibleGridLayout grid5;
-			if (exportJsonV2Div != null) {
-				grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, exportJsonV2Div, uploadJson);
-			} else {
-				grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
-			}
-			doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
-
-			FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(sbdeDiv, sbdeUpload);
-			doHiddenGroup(Translator.translate("AdvancedPreparation.Title"),
-			        new Div(Translator.translate("AdvancedPreparation.Explanation")), grid6, this, true);
+			grid5 = HomeNavigationContent.navigationGrid(exportJsonDiv, uploadJson);
 		}
+		doGroup(Translator.translate("ExportDatabase.ExportImport"), grid5, this, true);
+
+		FlexibleGridLayout grid6 = HomeNavigationContent.navigationGrid(sbdeDiv, sbdeUpload);
+		doHiddenGroup(Translator.translate("AdvancedPreparation.Title"),
+				new Div(Translator.translate("AdvancedPreparation.Explanation")), grid6, this, true);
 
 		DebugUtils.gc();
 	}
@@ -216,12 +204,15 @@ public class PreparationNavigationContent extends BaseNavigationContent implemen
 	/**
 	 * Parse the http query parameters
 	 *
-	 * Note: because we have the @Route, the parameters are parsed *before* our parent layout is created.
+	 * Note: because we have the @Route, the parameters are parsed *before* our
+	 * parent layout is created.
 	 *
 	 * @param event     Vaadin navigation event
-	 * @param parameter null in this case -- we don't want a vaadin "/" parameter. This allows us to add query parameters instead.
+	 * @param parameter null in this case -- we don't want a vaadin "/" parameter.
+	 *                  This allows us to add query parameters instead.
 	 *
-	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent, java.lang.String)
+	 * @see app.owlcms.apputils.queryparameters.FOPParameters#setParameter(com.vaadin.flow.router.BeforeEvent,
+	 *      java.lang.String)
 	 */
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

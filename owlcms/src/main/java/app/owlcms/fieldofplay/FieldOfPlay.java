@@ -2473,6 +2473,10 @@ public class FieldOfPlay implements IUnregister {
 			}
 		}
 		setGoodLift(null);
+		// normally announcer entry displays the decision immedeiately. 
+		// It skips down and initial decision because it occurs when flags were used.
+		// if ANNOUNCER_TRIGGERS_INITIAL_DECISION is set, we go on, so a video processor watching INITIAL_DECISION
+		// events will show good lift/bad lift even on a flag decision
 		if (this.currentInputKind == InputKind.ANNOUNCER_ENTRY
 				&& !Config.getCurrent().featureSwitch(FeatureSwitch.ANNOUNCER_TRIGGERS_INITIAL_DECISION)) {
 			setGoodLift(nbWhite >= 1);

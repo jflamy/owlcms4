@@ -31,7 +31,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 
 import app.owlcms.components.ConfirmationDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
 import com.vaadin.flow.component.html.Div;
@@ -42,6 +41,7 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.markdown.Markdown;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -58,6 +58,7 @@ import com.vaadin.flow.data.validator.RegexpValidator;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.config.FeatureSwitchSection;
 import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
@@ -149,7 +150,7 @@ public class ConfigEditingFormFactory
 		FormLayout templateSelectionLayout = templateSelectionForm();
 		FormLayout localOverrideLayout = localOverrideForm();
 		FormLayout translationLayout = translationForm();
-		FormLayout featuresLayout = featuresForm();
+		Component featuresLayout = featuresForm(config);
 		FormLayout stylesLayout = stylesForm();
 		FormLayout mqttLayout = mqttForm();
 
@@ -181,8 +182,8 @@ public class ConfigEditingFormFactory
 		        new VerticalLayout(new Div(),
 		                stylesLayout, separator(),
 		                templateSelectionLayout, separator(),
-		                localOverrideLayout, separator(),
-		                featuresLayout));
+		                localOverrideLayout));
+		tabSheet.add("Features", new VerticalLayout(new Div(), featuresLayout));
 		
 		// Restore saved tab index from session
 		Integer savedTabIndex = (Integer) VaadinSession.getCurrent().getAttribute(TAB_INDEX_KEY);
@@ -359,21 +360,80 @@ public class ConfigEditingFormFactory
 		return title;
 	}
 
-	private FormLayout featuresForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Config.FeatureSwitchesTitle");
-		layout.add(title);
-		layout.setColspan(title, 2);
+	private Component createDescription(String string) {
+		Markdown description = new Markdown(Translator.translate(string));
+		description.getStyle()
+		        .set("margin", "0 0 var(--lumo-space-s) 0")
+		        .set("color", "var(--lumo-secondary-text-color)")
+		        .set("white-space", "normal")
+		        .set("overflow-wrap", "anywhere");
+		return description;
+	}
 
-		TextField featureSwitchesField = new TextField();
-		featureSwitchesField.setWidthFull();
-		FormItem fi = layout.addFormItem(featureSwitchesField, Translator.translate("Config.FeatureSwitchesLabel"));
-		layout.setColspan(fi, 2);
-		this.binder.forField(featureSwitchesField)
-		        .withNullRepresentation("")
-		        .bind(Config::getFeatureSwitches, Config::setFeatureSwitches);
+	private Component featuresForm(Config config) {
+		VerticalLayout layout = new VerticalLayout();
+		layout.setMargin(false);
+		layout.setPadding(false);
+		layout.setSpacing(false);
+		layout.setWidthFull();
+
+		for (FeatureSwitchSection section : FeatureSwitchSection.values()) {
+			VerticalLayout sectionLayout = new VerticalLayout();
+			sectionLayout.setMargin(false);
+			sectionLayout.setPadding(false);
+			sectionLayout.setSpacing(false);
+			sectionLayout.setWidthFull();
+			sectionLayout.getStyle().set("margin-bottom", "var(--lumo-space-m)");
+			Component title = createTitle(section.getTranslationKey());
+			sectionLayout.add(title);
+			sectionLayout.add(createDescription(section.getTranslationKey() + ".Description"));
+
+			int switchesInSection = 0;
+			for (FeatureSwitch featureSwitch : FeatureSwitch.values()) {
+				if (featureSwitch.getSection() != section) {
+					continue;
+				}
+				sectionLayout.add(featureSwitchRow(config, featureSwitch, switchesInSection > 0));
+				switchesInSection++;
+			}
+
+			if (switchesInSection > 0) {
+				layout.add(sectionLayout);
+			}
+		}
 
 		return layout;
+	}
+
+	private Component featureSwitchRow(Config config, FeatureSwitch featureSwitch, boolean delimiterAbove) {
+		Checkbox enabled = new Checkbox();
+		enabled.setValue(config.getFeatureSwitchValue(featureSwitch));
+		enabled.addValueChangeListener(e -> config.setFeatureSwitchValue(featureSwitch, e.getValue()));
+		enabled.getStyle().set("justify-self", "center");
+
+		Span label = new Span(featureSwitch.getId());
+		label.getStyle().set("font-weight", "600");
+
+		Markdown description = new Markdown(Translator.translate(featureSwitch.getTranslationKey()));
+		description.getStyle()
+		        .set("margin", "0")
+		        .set("color", "var(--lumo-secondary-text-color)")
+		        .set("white-space", "normal")
+		        .set("overflow-wrap", "anywhere");
+
+		Div row = new Div(enabled, label, description);
+		row.setWidthFull();
+		row.getStyle()
+		        .set("display", "grid")
+		        .set("grid-template-columns", "3rem 18rem 42rem")
+		        .set("align-items", "start")
+		        .set("gap", "var(--lumo-space-m)")
+		        .set("min-height", "0")
+		        .set("padding", "var(--lumo-space-s) 0 0");
+		if (delimiterAbove) {
+			row.getStyle().set("border-top", "1px solid var(--lumo-contrast-10pct)");
+		}
+		return row;
 	}
 
 	private FormLayout localOverrideForm() {

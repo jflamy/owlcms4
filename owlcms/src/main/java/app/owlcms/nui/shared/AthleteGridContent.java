@@ -1960,7 +1960,7 @@ public abstract class AthleteGridContent extends BaseContent
 		Athlete curDisplayAthlete = this.displayedAthlete;
 
 		// marshal weight change warnings not to self and not to announcer
-		boolean showDeclarationsToAnnouncer = Config.getCurrent().featureSwitch(FeatureSwitch.SHOW_DECLARATIONS_TO_ANNOUNCER) || isDeclarations();
+		boolean showDeclarationsToAnnouncer = isDeclarations();
 		boolean showDeclarations = (showDeclarationsToAnnouncer || !(this instanceof AnnouncerContent));
 		if (this != e.getOrigin() && curDisplayAthlete != null
 		        && e instanceof UIEvent.LiftingOrderUpdated

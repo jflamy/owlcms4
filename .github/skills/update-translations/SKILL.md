@@ -79,6 +79,7 @@ When updating wording, derive the key from the actual `Translator.*` call in cod
 - Use Olympic Weightlifting terminology.
 - Use competition management software terminology where applicable.
 - Follow the capitalization rules of each language.
+- script allowed only after translation done using agent language translation know-how has been used
 - Prefer terminology already used elsewhere in the project when the same concept already exists.
 - Keep wording consistent across related keys.
 - Avoid overly literal translations when domain terminology has a standard accepted form.

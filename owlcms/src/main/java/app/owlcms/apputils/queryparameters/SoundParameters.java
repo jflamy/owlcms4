@@ -36,7 +36,7 @@ public interface SoundParameters extends FOPParameters, SoundEntries {
 	}
 
 	public default boolean isDeclarations() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.SHOW_DECLARATIONS_TO_ANNOUNCER);
+		return false;
 	}
 
 	public default boolean isDownSilenced() {
