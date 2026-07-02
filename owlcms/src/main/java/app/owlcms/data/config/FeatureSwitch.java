@@ -50,10 +50,9 @@ public enum FeatureSwitch {
 
     USAW_SESSION_BLOCKS("usawSessionBlocks", FeatureSwitchSection.SPECIALTY_FEATURES),
     USAW_COLLARS("usawCollars", FeatureSwitchSection.SPECIALTY_FEATURES),
-    MQTT_DOWN_SIGNAL("mqttDownSignal", FeatureSwitchSection.USER_INTERFACE_OVERRIDE),
+    MQTT_DOWN_SIGNAL("mqttDownSignal", FeatureSwitchSection.SPECIALTY_FEATURES),
     BLACK_STOP_BUTTON("blackStopButton", FeatureSwitchSection.SPECIALTY_FEATURES),
     KEEP_SPANISH_HYPHEN_SHORTCUT("keepSpanishHyphenShortcut", FeatureSwitchSection.SPECIALTY_FEATURES),
-
     ANNOUNCER_TRIGGERS_INITIAL_DECISION("announcerTriggersInitialDecision", FeatureSwitchSection.SPECIALTY_FEATURES),
 
     GENDER_INCLUSIVE("genderInclusive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
@@ -62,7 +61,7 @@ public enum FeatureSwitch {
     SINCLAIR_MEET("SinclairMeet", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     PLAYWRIGHT("playwright", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     V2_EXPORT("v2Export", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-    NO_FORWARDER_KEEP_ALIVE("noForwarderKeepAlive", FeatureSwitchSection.SPECIALTY_FEATURES),
+    NO_FORWARDER_KEEP_ALIVE("noForwarderKeepAlive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     IWF_LOOK("iwfLook", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK);
 
     private static final Map<String, FeatureSwitch> BY_ID = buildLookup();

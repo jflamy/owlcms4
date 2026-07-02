@@ -27,22 +27,29 @@ function findRepoRoot(startDir = process.cwd()) {
 }
 
 function resolveMarkdownFile(mdFile) {
-  if (path.isAbsolute(mdFile)) {
+  if (fs.existsSync(mdFile)) {
     return path.resolve(mdFile);
   }
 
-  const resolvedRelativePath = path.resolve(mdFile);
-  if (fs.existsSync(resolvedRelativePath)) {
-    return resolvedRelativePath;
+  let candidate = mdFile;
+  if (!mdFile.toLowerCase().endsWith(".md")) {
+    candidate = mdFile + ".md";
+    if (fs.existsSync(candidate)) {
+      return path.resolve(candidate);
+    }
+  }
+
+  if (path.isAbsolute(mdFile)) {
+    return path.resolve(candidate);
   }
 
   const repoRoot = findRepoRoot();
   if (!repoRoot) {
-    return resolvedRelativePath;
+    return path.resolve(candidate);
   }
 
   const docsRoot = path.join(repoRoot, "docs");
-  const docsRelativePath = mdFile.replace(/^docs[\\/]/, "");
+  const docsRelativePath = candidate.replace(/^docs[\\/]/, "");
   return path.resolve(docsRoot, docsRelativePath);
 }
 

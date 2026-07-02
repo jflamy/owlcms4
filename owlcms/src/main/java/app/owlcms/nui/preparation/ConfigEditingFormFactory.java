@@ -185,7 +185,7 @@ public class ConfigEditingFormFactory
 		tabSheet.add(Translator.translate("Config.AccessControlTab"),
 		        new VerticalLayout(
 		                new Div(), accessLayout));
-		tabSheet.add("Features", new VerticalLayout(new Div(), featuresLayout));
+		tabSheet.add(Translator.translate("Config.FeaturesTab"), new VerticalLayout(new Div(), featuresLayout));
 		tabSheet.add(Translator.translate("Config.CustomizationTab"),
 		        new VerticalLayout(new Div(),
 		                stylesLayout, separator(),
