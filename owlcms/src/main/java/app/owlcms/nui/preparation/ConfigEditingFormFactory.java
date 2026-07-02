@@ -178,12 +178,12 @@ public class ConfigEditingFormFactory
 		tabSheet.add(Translator.translate("Config.AccessControlTab"),
 		        new VerticalLayout(
 		                new Div(), accessLayout));
+		tabSheet.add("Features", new VerticalLayout(new Div(), featuresLayout));
 		tabSheet.add(Translator.translate("Config.CustomizationTab"),
 		        new VerticalLayout(new Div(),
 		                stylesLayout, separator(),
 		                templateSelectionLayout, separator(),
 		                localOverrideLayout));
-		tabSheet.add("Features", new VerticalLayout(new Div(), featuresLayout));
 		
 		// Restore saved tab index from session
 		Integer savedTabIndex = (Integer) VaadinSession.getCurrent().getAttribute(TAB_INDEX_KEY);
