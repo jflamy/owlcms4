@@ -36,7 +36,11 @@ There are two remediesns for this
 
 ## 2. Fixing "Start Denied after an Update"
 
-If you later download an updated DMG file and execute it, you will be prompted to replace or keep the existing app. Use "Replace".   However, you will still be denied execution. but for a different reason.  macOS memorized a fingerprint for the version you initially accepted, but the fingerprint of the new version does not match.  The fix is as follows
+If you later download an updated DMG file and execute it, you will be prompted to replace or keep the existing app. Use "Replace".   When you launch the program, you will likely get a denial like this.
+
+<img src="img/LocalMacSetup/image-20260703080716068.png" alt="image-20260703080716068" style="zoom:50%;" />
+
+The reason is that macOS memorized a fingerprint for the version you initially accepted, but the new version does not match.  The program is then put in "quarantine". The fix is as follows
 
 1. Open the Terminal application
 
