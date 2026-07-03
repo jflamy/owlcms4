@@ -10,8 +10,14 @@
 
 **New in Release 67.1**
 
+67.1.0-beta04: Referee and Jury Decisions on scoreboard (experimental)
+  - When enabled by `decisionSection` feature toggle, IWF-style display of the referee decisions and jury decisions
+  - By default, referee decisions are shown live, and only the first jury vote is shown (same as IWF)
+  - Feature toggles are present to apply the (recommended) 3-second hiding period and to show the second jury vote for actual reversal or confirmation
+  - A stopwatch showing the time spent in deliberation or challenge can be enabled
+  
 67.1.0-beta03: Records Eligibility Report
-- On Records page: shows how many athletes are eligible for each record, to spot missing loads or mistyped federation codes
+  - On Records page: shows how many athletes are eligible for each record, to spot missing loads or mistyped federation codes
 
 67.1.0: Feature Switches Interactive Page
   - The features can now be toggled interactively from a tab on the Language and System Settings page
