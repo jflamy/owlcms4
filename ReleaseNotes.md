@@ -10,7 +10,10 @@
 
 **New in Release 67.1**
 
-67.1.0 Feature Switches Usability
+67.1.0-beta03: Records Eligibility Report
+- On Records page: shows how many athletes are eligible for each record, to spot missing loads or mistyped federation codes
+
+67.1.0: Feature Switches Interactive Page
   - The features can now be toggled interactively from a tab on the Language and System Settings page
   - Each switch is documented (and the documentation is translated)
   - A backward compatible string is exported in addition to a new extensible JSON torage format; starting with this version the new format is used on import if present.
@@ -32,7 +35,8 @@
   - changed the format to JSON so the same tables would be used for tracker
   - packaged the tables as a zip so tracker can fetch them
 
-67.1.0: Adjusted the behavior of `childrenEquipment` toggle.
+67.1.0: Adjusted the behaviour of `childrenEquipment` toggle.
+
   - When importing into an empty (no athletes) database, if this toggle is present, the 5kg 10kg bars and large 2.5kg and 5kg plates will be configured on all platforms.
   - Unsetting and setting this toggle reapplies the children equipment to all platforms
   - Otherwise, the childrenEqupment setting is ignored. In this way changes made (e.g. removing a light bar on a platform) are not lost.
