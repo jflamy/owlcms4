@@ -53,6 +53,7 @@ import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteConfiguration;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.utils.URLUtils;
@@ -63,6 +64,7 @@ import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.nui.admin.RecordFederationComparisonReport;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.shared.OwlcmsContent;
@@ -235,8 +237,9 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		HorizontalLayout row1 = new HorizontalLayout(
 				createExportRecordsButton(),
 				createImportButton(),
+				createDisplayOrderButton(),
 				createManageRecordsButton(),
-				createDisplayOrderButton());
+				createEligibilityReportButton());
 		row1.setAlignItems(FlexComponent.Alignment.CENTER);
 		row1.setPadding(false);
 		row1.setSpacing(true);
@@ -290,6 +293,20 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		manageButton.getElement().getStyle().set("margin-right", "1em");
 		manageButton.getElement().setAttribute("title", Translator.translate("Records.ManageExplanation"));
 		return manageButton;
+	}
+
+	protected Button createEligibilityReportButton() {
+		Button eligibilityReportButton = new Button(Translator.translate("Records.EligibilityReport"),
+		        buttonClickEvent -> {
+			        String url = RouteConfiguration.forSessionScope()
+			                .getUrl(RecordFederationComparisonReport.class);
+			        UI.getCurrent().getPage().open(url, "_blank");
+		        });
+		eligibilityReportButton.setIcon(VaadinIcon.TABLE.create());
+		eligibilityReportButton.getElement().getStyle().set("margin-right", "1em");
+		eligibilityReportButton.getElement().setAttribute("title",
+		        Translator.translate("Records.EligibilityReportTooltip"));
+		return eligibilityReportButton;
 	}
 
 	private void openDisplayOrderDialog() {

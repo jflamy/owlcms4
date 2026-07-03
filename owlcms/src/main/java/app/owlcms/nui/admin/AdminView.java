@@ -1,9 +1,9 @@
 package app.owlcms.nui.admin;
 
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -12,7 +12,6 @@ import com.vaadin.flow.router.AccessDeniedException;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteConfiguration;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.AccessUtils;
@@ -59,15 +58,6 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 		reloadTranslationsNote.getStyle().set("color", "var(--lumo-secondary-text-color)");
 		HorizontalLayout reloadTranslationsAction = new HorizontalLayout(reloadTranslations, reloadTranslationsNote);
 		reloadTranslationsAction.setAlignItems(FlexComponent.Alignment.CENTER);
-		Button federationReport = new Button("Record Federation Report", event -> {
-			String url = RouteConfiguration.forSessionScope().getUrl(RecordFederationComparisonReport.class);
-			UI.getCurrent().getPage().open(url, "_blank");
-		});
-		Span federationReportNote = new Span(
-		        "Show how many records are loaded for each federation, and how many athletes are eligible.");
-		federationReportNote.getStyle().set("color", "var(--lumo-secondary-text-color)");
-		HorizontalLayout federationReportAction = new HorizontalLayout(federationReport, federationReportNote);
-		federationReportAction.setAlignItems(FlexComponent.Alignment.CENTER);
 		Button repairBirthDates = new Button("Repair Birth Dates", event -> {
 			BirthDateRepairDialog dialog = new BirthDateRepairDialog(event.getSource());
 			dialog.open();
@@ -78,7 +68,16 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 		HorizontalLayout repairBirthDatesAction = new HorizontalLayout(repairBirthDates, repairBirthDatesNote);
 		repairBirthDatesAction.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		content.add(title, stop, restart, reloadTranslationsAction, federationReportAction, repairBirthDatesAction);
+		content.add(title, stop, restart, reloadTranslationsAction, separator(), repairBirthDatesAction);
+	}
+
+	private Hr separator() {
+		Hr hr = new Hr();
+		hr.getStyle().set("margin-top", "0.5em");
+		hr.getStyle().set("margin-bottom", "1.0em");
+		hr.getStyle().set("background-color", "var(--lumo-contrast-30pct)");
+		hr.getStyle().set("height", "2px");
+		return hr;
 	}
 
 	@Override

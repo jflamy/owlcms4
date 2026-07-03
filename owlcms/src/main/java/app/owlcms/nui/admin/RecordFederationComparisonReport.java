@@ -12,35 +12,20 @@ import java.util.stream.Stream;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.AccessDeniedException;
-import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.apputils.AccessUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.records.RecordEvent;
 import app.owlcms.data.records.RecordRepository;
-import app.owlcms.init.OwlcmsSession;
+import app.owlcms.i18n.Translator;
 import app.owlcms.nui.shared.AuthorizationDispatch;
 
 @SuppressWarnings("serial")
 @Route("admin/record-federation-report")
 public class RecordFederationComparisonReport extends Composite<VerticalLayout>
         implements HasDynamicTitle, AuthorizationDispatch {
-
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		AuthorizationDispatch.super.beforeEnter(event);
-		if (!OwlcmsSession.isAuthenticated()) {
-			return;
-		}
-		String clientIp = AccessUtils.getClientIp();
-		if (!AccessUtils.checkBackdoor(clientIp)) {
-			throw new AccessDeniedException();
-		}
-	}
 
 	public RecordFederationComparisonReport() {
 		VerticalLayout content = getContent();
@@ -67,7 +52,7 @@ public class RecordFederationComparisonReport extends Composite<VerticalLayout>
 				flaggedEligibilityAthletes.add(new BlankEligibilityAthlete(
 				        describeAthlete(athlete),
 				        federationCodes,
-				        "Counted for all loaded federations because eligibility data is blank"));
+				        Translator.translate("Records.EligBlankIssue")));
 				continue;
 			}
 			boolean containsEmptyFederationToken = false;
@@ -82,7 +67,7 @@ public class RecordFederationComparisonReport extends Composite<VerticalLayout>
 				flaggedEligibilityAthletes.add(new BlankEligibilityAthlete(
 				        describeAthlete(athlete),
 				        federationCodes,
-				        "Malformed eligibility data contains an empty federation token and contributes to the empty federation row"));
+				        Translator.translate("Records.EligMalformedIssue")));
 			}
 		}
 
@@ -153,7 +138,7 @@ public class RecordFederationComparisonReport extends Composite<VerticalLayout>
 		if (fullName != null && !fullName.isBlank()) {
 			return fullName;
 		}
-		return "(unnamed athlete)";
+		return Translator.translate("Records.EligUnnamedAthlete");
 	}
 
 	public static String buildHtmlContent(ReportData report) {
@@ -176,19 +161,27 @@ public class RecordFederationComparisonReport extends Composite<VerticalLayout>
 		        + ".record-federation-report .flag{color:#b00020;font-weight:bold;}"
 		        + ".record-federation-report .eligibility-code{font-family:monospace;white-space:pre-wrap;}"
 		        + ".record-federation-report ul{padding-left:1.5rem;}</style>");
-		html.append("<h1>Record Federation Comparison</h1>");
+		html.append("<h1>").append(Translator.translate("Records.EligibilityReport")).append("</h1>");
 		if (summaries.isEmpty()) {
-			html.append("<p>There are no loaded federations.</p>");
+			html.append("<p>").append(Translator.translate("Records.EligNoFederations")).append("</p>");
 			appendBlankEligibilitySection(html, blankEligibilityAthletes);
 			html.append("</div>");
 			return html.toString();
 		}
-		html.append("<table><thead><tr><th>Federation</th><th>Loaded Records</th><th>Athlete Eligibility Count</th><th>Flags</th></tr></thead><tbody>");
+		html.append("<table><thead><tr><th>")
+		    .append(Translator.translate("Records.EligFederationCol"))
+		    .append("</th><th>")
+		    .append(Translator.translate("Records.EligLoadedRecordsCol"))
+		    .append("</th><th>")
+		    .append(Translator.translate("Records.EligAthleteCountCol"))
+		    .append("</th><th>")
+		    .append(Translator.translate("Records.EligFlagsCol"))
+		    .append("</th></tr></thead><tbody>");
 		for (FederationParticipationSummary summary : summaries) {
 			String rowClass = summary.isMissingAthletes() || summary.isMissingLoadedRecords() ? "warning" : "";
 			String flags = Stream.of(
-			        summary.isMissingLoadedRecords() ? "No loaded records" : null,
-			        summary.isMissingAthletes() ? "No athletes" : null)
+			        summary.isMissingLoadedRecords() ? Translator.translate("Records.EligNoRecordsFlag") : null,
+			        summary.isMissingAthletes() ? Translator.translate("Records.EligNoAthletesFlag") : null)
 			        .filter(Objects::nonNull)
 			        .collect(Collectors.joining(", "));
 			if (flags.isBlank()) {
@@ -217,14 +210,17 @@ public class RecordFederationComparisonReport extends Composite<VerticalLayout>
 		if (blankEligibilityAthletes.isEmpty()) {
 			return;
 		}
-		html.append("<h2>Athletes With Blank Or Malformed Eligibility Data</h2>");
+		html.append("<h2>").append(Translator.translate("Records.EligBlankHeading"))
+		        .append("</h2>");
 		html.append("<ul>");
 		for (BlankEligibilityAthlete athlete : blankEligibilityAthletes) {
 			html.append("<li>")
 			    .append(escapeHtml(athlete.getAthleteName()))
 			    .append(" - ")
 			    .append(escapeHtml(athlete.getIssueDescription()))
-			    .append(" - eligibility data <span class='eligibility-code'>&laquo;")
+			    .append(" - ")
+			    .append(Translator.translate("Records.EligDataLabel"))
+			    .append(" <span class='eligibility-code'>&laquo;")
 			    .append(escapeHtml(athlete.getDisplayEligibilityData()))
 			    .append("&raquo;</span></li>");
 		}
@@ -234,7 +230,8 @@ public class RecordFederationComparisonReport extends Composite<VerticalLayout>
 	public static String buildHtmlReport(List<FederationParticipationSummary> summaries) {
 		StringBuilder html = new StringBuilder();
 		html.append("<!DOCTYPE html>");
-		html.append("<html><head><meta charset='utf-8'><title>Record Federation Comparison</title></head><body>");
+		html.append("<html><head><meta charset='utf-8'><title>").append(Translator.translate("Records.EligibilityReport"))
+		        .append("</title></head><body>");
 		html.append(buildHtmlContent(summaries));
 		html.append("</body></html>");
 		return html.toString();
@@ -249,7 +246,7 @@ public class RecordFederationComparisonReport extends Composite<VerticalLayout>
 
 	@Override
 	public String getPageTitle() {
-		return "Record Federation Comparison";
+		return Translator.translate("Records.EligibilityReport");
 	}
 
 	public static class ReportData {

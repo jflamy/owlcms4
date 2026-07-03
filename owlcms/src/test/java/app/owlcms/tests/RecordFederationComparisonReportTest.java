@@ -19,6 +19,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.records.RecordEvent;
+import app.owlcms.i18n.Translator;
 import app.owlcms.nui.admin.RecordFederationComparisonReport.BlankEligibilityAthlete;
 import app.owlcms.nui.admin.RecordFederationComparisonReport;
 import app.owlcms.nui.admin.RecordFederationComparisonReport.FederationParticipationSummary;
@@ -120,7 +121,7 @@ public class RecordFederationComparisonReportTest {
 		assertEquals("   ", blankEligibilityAthletes.get(1).getDisplayEligibilityData());
 
 		String html = RecordFederationComparisonReport.buildHtmlContent(report);
-		assertTrue(html.contains("Athletes With Blank Or Malformed Eligibility Data"));
+		assertTrue(html.contains(Translator.translate("Records.EligBlankHeading")));
 		assertTrue(html.contains(blankEligibilityAthletes.get(0).getAthleteName()));
 		assertTrue(html.contains(blankEligibilityAthletes.get(1).getAthleteName()));
 		assertTrue(html.contains(blankEligibilityAthletes.get(0).getIssueDescription()));
@@ -151,7 +152,7 @@ public class RecordFederationComparisonReportTest {
 		assertEquals(1, byFederation.get("").getAthleteCount());
 
 		String html = RecordFederationComparisonReport.buildHtmlContent(report);
-		assertTrue(html.contains("Athletes With Blank Or Malformed Eligibility Data"));
+		assertTrue(html.contains(Translator.translate("Records.EligBlankHeading")));
 		assertTrue(html.contains(flaggedEligibilityAthletes.get(0).getAthleteName()));
 		assertTrue(html.contains(flaggedEligibilityAthletes.get(0).getIssueDescription()));
 		assertTrue(html.contains("&laquo;US, ,CA&raquo;"));
