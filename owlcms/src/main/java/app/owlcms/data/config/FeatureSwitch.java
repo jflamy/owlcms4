@@ -62,6 +62,10 @@ public enum FeatureSwitch {
     PLAYWRIGHT("playwright", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     V2_EXPORT("v2Export", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     NO_FORWARDER_KEEP_ALIVE("noForwarderKeepAlive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
+    DECISION_SECTION("decisionSection", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
+    DECISION_SECTION_REF_FINAL_ONLY("decisionSectionRefFinalOnly", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
+    DECISION_SECTION_SHOW_BOTH_JURY_VOTES("decisionSectionShowBothJuryVotes", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
+    DECISION_SECTION_STOPWATCH("decisionSectionStopwatch", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     IWF_LOOK("iwfLook", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK);
 
     private static final Map<String, FeatureSwitch> BY_ID = buildLookup();

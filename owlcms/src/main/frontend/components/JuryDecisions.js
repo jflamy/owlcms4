@@ -18,12 +18,14 @@ export class JuryDecisions extends LitElement {
     return {
       decisions: { type: Array },
       showJuryDecisions: { type: Boolean },
+      stylesDir: { type: String },
     };
   }
 
   constructor() {
     super();
     this.showDecisions = false;
+    this.decisions = [];
   }
 
   render() {

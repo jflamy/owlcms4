@@ -2450,7 +2450,76 @@ public class FieldOfPlay implements IUnregister {
 				showJuryMemberDecisionsNow(origin, (reds == jurySize || whites == jurySize), jurySize,
 						getJuryMemberDecision());
 			}).start();
+			scheduleAutoJuryDecision(reds, whites, jurySize);
 		}
+	}
+
+	/**
+	 * Verdict implied by the jury votes: unanimity is required for a 3-person jury, a
+	 * majority for a larger one. Returns null when the votes do not decide.
+	 */
+	private Boolean juryVerdict(int reds, int whites, int jurySize) {
+		if (jurySize <= 3) {
+			if (whites == jurySize) {
+				return Boolean.TRUE;
+			}
+			if (reds == jurySize) {
+				return Boolean.FALSE;
+			}
+		} else {
+			if (whites > jurySize / 2) {
+				return Boolean.TRUE;
+			}
+			if (reds > jurySize / 2) {
+				return Boolean.FALSE;
+			}
+		}
+		return null;
+	}
+
+	private boolean juryDeliberationInProgress() {
+		BreakType bt = getBreakType();
+		return bt == BreakType.JURY || bt == BreakType.CHALLENGE;
+	}
+
+	/**
+	 * When the jury votes decide the lift (unanimous for 3 jurors, majority for 5), send
+	 * the decision as if the jury Good Lift / Bad Lift button had been pressed, after a
+	 * 1.5s grace period during which a juror can still change their vote. The votes are
+	 * re-validated when the grace period expires, so a changed vote or a decision already
+	 * entered manually cancels the automatic one.
+	 */
+	private void scheduleAutoJuryDecision(int reds, int whites, int jurySize) {
+		Boolean verdict = juryVerdict(reds, whites, jurySize);
+		if (verdict == null || !juryDeliberationInProgress()) {
+			return;
+		}
+		new DelayTimer(isTestingMode()).schedule(() -> {
+			if (!juryDeliberationInProgress() || this.toBeAnnouncedJuryDecision != null) {
+				return;
+			}
+			// re-validate: all jurors still voted and the verdict is unchanged.
+			Boolean[] votes = getJuryMemberDecision();
+			int nbRed2 = 0;
+			int nbWhite2 = 0;
+			int nbDecisions2 = 0;
+			for (int i = 0; i < jurySize; i++) {
+				if (votes != null && votes[i] != null) {
+					if (votes[i]) {
+						nbWhite2++;
+					} else {
+						nbRed2++;
+					}
+					nbDecisions2++;
+				}
+			}
+			if (nbDecisions2 != jurySize || !verdict.equals(juryVerdict(nbRed2, nbWhite2, jurySize))) {
+				return;
+			}
+			logger.info("{}automatic jury decision {} ({} white, {} red)", FieldOfPlay.getLoggingName(this),
+					verdict ? "good lift" : "no lift", nbWhite2, nbRed2);
+			fopEventPost(new FOPEvent.JuryDecision(getAthleteUnderReview(), this, verdict, true));
+		}, 1500);
 	}
 
 	/**

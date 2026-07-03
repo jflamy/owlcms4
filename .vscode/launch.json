@@ -254,12 +254,12 @@
     },
     {
       "type": "java",
-      "name": "🟩 large demo owlcms memory tandem",
+      "name": "🟩 EDIT large demo owlcms memory",
       "request": "launch",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
+      "vmArgs": "${config:owlcms.vmArgs} -Dvaadin.frontend.hotdeploy=true",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
@@ -273,8 +273,8 @@
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
         "OWLCMS_PORT": "8081",
-        "OWLCMS_REMOTE": "http://localhost:8082",
-        "OWLCMS_FEATURESWITCHES": "noForwarderKeepAlive",
+        //"OWLCMS_REMOTE": "http://localhost:8082",
+        //"OWLCMS_FEATURESWITCHES": "decisionSection",
         //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
         //"OWLCMS_VIDEODATA": "wss://fhq.fly.dev/ws"
       }

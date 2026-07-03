@@ -131,6 +131,12 @@ class TimerElement extends LitElement {
     this.silent = silent;
     this.serverTickEnabled = Boolean(payload.serverTickEnabled);
     this.serverRunningCheckEnabled = Boolean(payload.serverRunningCheckEnabled);
+    // Count-up (stopwatch) support: the server sets countUp=true (and an upper
+    // bound via startTime) for stopwatch timers. Absent for normal countdowns.
+    this.countUp = Boolean(payload.countUp);
+    if (Number.isFinite(payload.startTime)) {
+      this.startTime = payload.startTime;
+    }
     if (this._isNoopTimerCommand(payload.command, seconds, indefinite)) {
       if (payload.command === "pause") {
         this._notifyServerTimerStopped(payload.sequence);

@@ -20,6 +20,26 @@ class Results extends LitElement {
 
       <div class="${this.wrapperClasses()}" style="${this.sizeOverride} ${this.colorOverride}">
         <div class="blockPositioningWrapper">
+          <div class="decisionSection" style="${this.decisionSectionStyles()}">
+            <div class="dsTimerSlot">
+              <div class="timer athleteTimer" style="${this.dsAthleteTimerStyles()}">
+                <timer-element id="decisionSectionTimer"></timer-element>
+              </div>
+              <div class="timer breakTime" style="${this.dsBreakTimerStyles()}">
+                <timer-element id="decisionSectionBreakTimer"></timer-element>
+              </div>
+              <div class="timer breakTime" style="${this.dsStopwatchStyles()}">
+                <timer-element id="decisionSectionStopwatch"></timer-element>
+              </div>
+            </div>
+            <div class="dsRefereeSlot">
+              <decision-element id="decisionSectionReferee"></decision-element>
+            </div>
+            <div class="dsJuryMessage" style="${this.dsJuryMessageStyles()}">${this.juryMessage}</div>
+            <div class="dsJurySlot">
+              ${(this.juryDecisions ?? []).map(d => html`<vaadin-icon class="juryIcon ${d}" icon="${this.juryIcon(d)}"></vaadin-icon>`)}
+            </div>
+          </div>
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
               <div class="competitionName">${this.competitionName}</div>
@@ -307,6 +327,10 @@ class Results extends LitElement {
       showCustom1: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
+      showDecisionSection: {type: Boolean},
+      juryDecisions: {type: Array},
+      juryMessage: {},
+      dsShowStopwatch: {type: Boolean},
       logoSrc: {},
 
       // translation map
@@ -390,6 +414,51 @@ class Results extends LitElement {
 
   decisionStyles() {
     return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "flex" : "none");
+  }
+
+  decisionSectionStyles() {
+    const juryScoreboard = (this.scoreboardType ?? "").includes("Jury");
+    return (this.showDecisionSection && this.mode !== "WAIT" && !juryScoreboard) ? "display:flex" : "display:none";
+  }
+
+  juryIcon(decision) {
+    switch (decision) {
+      case "voted":
+        return "vaadin:circle";
+      case "white":
+        return "vaadin:check-circle";
+      case "red":
+        return "vaadin:close-circle";
+      default:
+        return "vaadin:circle-thin";
+    }
+  }
+
+  dsAthleteTimerStyles() {
+    // In the decision section the timer stays visible for the whole current-athlete
+    // phase (including while a decision is shown), alongside referee and jury lights.
+    let visible = ((this.mode === "CURRENT_ATHLETE") ? "flex" : "none");
+    return "display: " + (this.isBreak() ? "none" : visible);
+  }
+
+  dsBreakTimerStyles() {
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
+  }
+
+  dsStopwatchStyles() {
+    // Count up only while a jury deliberation / challenge is actually in progress.
+    // Hide it the moment the break ends (mode leaves INTERRUPTION), exactly like the
+    // break bar hides the Challenge notification. White text for now.
+    const visible = this.stopwatchVisible();
+    return "color: white; display: " + (visible ? "flex" : "none");
+  }
+
+  stopwatchVisible() {
+    return Boolean(this.dsShowStopwatch) && Boolean(this.juryMessage) && this.mode === "INTERRUPTION";
+  }
+
+  dsJuryMessageStyles() {
+    return "display: " + (this.juryMessage ? "block" : "none");
   }
 
   videoHeaderStyles() {
@@ -477,6 +546,10 @@ class Results extends LitElement {
     super();
     this.mode = "WAIT";
     this.showCategoryHeaders = false;
+    this.showDecisionSection = false;
+    this.juryDecisions = [];
+    this.juryMessage = "";
+    this.dsShowStopwatch = false;
   }
  }
 

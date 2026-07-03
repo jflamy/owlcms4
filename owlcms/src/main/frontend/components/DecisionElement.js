@@ -49,7 +49,7 @@ class DecisionElement extends LitElement {
 
         .decision {
           border-radius: 5%;
-          border: 2px solid var(--lumo-contrast);
+          border: var(--decision-border-width, 2px) solid var(--lumo-contrast);
           margin: 3%;
           /* 	background-color: #333333; */
           width: 30%;
@@ -57,7 +57,7 @@ class DecisionElement extends LitElement {
 
         .soloDecision {
           border-radius: 50%;
-          border: 2px solid var(--lumo-contrast);
+          border: var(--decision-border-width, 2px) solid var(--lumo-contrast);
           margin: 0;
           padding: 0;
           width: var(--solo-decision-size, var(--attempt-font-size, 20vh));
@@ -85,7 +85,7 @@ class DecisionElement extends LitElement {
 
         .none {
           background-color: var(--lumo-contrast-20pct);
-          border: 2px dashed var(--lumo-contrast);
+          border: var(--decision-border-width, 2px) dashed var(--lumo-contrast);
         }
 
         .invisible {

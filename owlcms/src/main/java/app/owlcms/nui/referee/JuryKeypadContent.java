@@ -222,6 +222,36 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		return fopSelect;
 	}
 
+	/** 3 / 5 jury member selection; rebuilds the keypad when changed. */
+	private ComboBox<Integer> createJurySizeSelect() {
+		ComboBox<Integer> jurySizeSelect = new ComboBox<>();
+		jurySizeSelect.setItems(3, 5);
+		jurySizeSelect.setAriaLabel(Translator.translate("Jury"));
+		jurySizeSelect.setWidth("5rem");
+		int nbJurors = getNbJurors();
+		if (nbJurors == 3 || nbJurors == 5) {
+			jurySizeSelect.setValue(nbJurors);
+		}
+		jurySizeSelect.addValueChangeListener((e) -> {
+			if (e.getValue() == null || !e.isFromClient()) {
+				return;
+			}
+			Competition.getCurrent().setJurySize(e.getValue());
+			rebuild();
+		});
+		return jurySizeSelect;
+	}
+
+	/** Rebuild the keypad layout (used when the number of jurors changes). */
+	private void rebuild() {
+		this.removeAll();
+		buildContent(this);
+		registerShortcuts();
+		FieldOfPlay fop = getFop();
+		attachLiveDecisions(fop);
+		syncWithFopState(fop);
+	}
+
 	protected void init() {
 		this.setBoxSizing(BoxSizing.BORDER_BOX);
 		this.setSizeFull();
@@ -349,7 +379,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 				URLUtils.replaceState(this.locationUI.getPage().getHistory(), null, location2, this.location);
 			}
 		});
-		toolbar.add(title, fopSelect);
+		toolbar.add(title, fopSelect, createJurySizeSelect());
 		toolbar.expand(title);
 		toolbar.getStyle().set("grid-column", "1 / -1").set("grid-row", "1");
 

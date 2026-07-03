@@ -71,6 +71,11 @@ public class JuryDecisions extends BaseResults {
 		getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 	}
 
+	/** No-arg constructor required for {@code @Id} injection when embedded in another board. */
+	public JuryDecisions() {
+		this((AbstractDisplayPage) null);
+	}
+
 	@Override
 	public void doBreak(UIEvent e) {
 		ui.access(() -> {
@@ -254,7 +259,6 @@ public class JuryDecisions extends BaseResults {
 		this.uiEventBus = uiEventBusRegister(this, fop);
 		logger.debug("JuryDecisions registered on uiEventBus for fop {}", fop.getName());
 		getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
-		getElement().setProperty("showJuryDecisions", true);
 		getElement().setPropertyJson("decisions", Json.createArray());
 	}
 

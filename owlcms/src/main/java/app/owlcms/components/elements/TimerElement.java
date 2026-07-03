@@ -140,6 +140,22 @@ public abstract class TimerElement extends LitTemplate
 		return -1.0D;
 	}
 
+	/**
+	 * @return true if this timer counts up (stopwatch) instead of down. Subclasses
+	 *         override to enable the count-up behaviour on the client.
+	 */
+	protected boolean isCountUpTimer() {
+		return false;
+	}
+
+	/**
+	 * @return the upper bound, in seconds, at which a count-up (stopwatch) timer
+	 *         stops. Ignored unless {@link #isCountUpTimer()} is true.
+	 */
+	protected double getCountUpMaxSeconds() {
+		return 3599.0D;
+	}
+
 	public abstract void syncWithFopTimer(FieldOfPlay fop);
 
 	final protected long delta(long lastMillis) {
@@ -549,6 +565,11 @@ public abstract class TimerElement extends LitTemplate
 		payload.put("from", from != null ? from : "");
 		payload.put("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
 		payload.put("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
+		if (isCountUpTimer()) {
+			// Stopwatch timers count up from the given seconds towards an upper bound.
+			payload.put("countUp", true);
+			payload.put("startTime", getCountUpMaxSeconds());
+		}
 		timerElement2.setPropertyJson("timerCommandPayload", payload);
 		traceDisplayTimerClientRender(command, seconds, sequence);
 	}
@@ -698,7 +719,7 @@ public abstract class TimerElement extends LitTemplate
 		}
 	}
 
-	private void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {
+	protected void setDisplay(Integer milliseconds, Boolean indefinite, Boolean silent) {
 		Element timerElement2 = getTimerElement();
 		if (this instanceof BreakTimerElement) {// && this.logger.isDebugEnabled()) {
 			this.logger.debug("setDisplay {} {}", milliseconds, timerElement2);

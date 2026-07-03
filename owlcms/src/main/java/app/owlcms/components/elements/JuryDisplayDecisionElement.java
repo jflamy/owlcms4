@@ -33,6 +33,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	}
 
 	private UI ui;
+	private boolean finalOnly = false;
 
 	public JuryDisplayDecisionElement() {
 		this.setJury(true);
@@ -79,8 +80,10 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		if (e.isDisplayToggle()) {
 			return;
 		}
-		// Only reset if this is not a jury break that we just created
-		if (this.fop != null && this.fop.getBreakType() != BreakType.JURY) {
+		// Only reset if this is not a jury deliberation or challenge break: those
+		// deliberate about the decision currently shown, which must stay visible.
+		if (this.fop != null && this.fop.getBreakType() != BreakType.JURY
+		        && this.fop.getBreakType() != BreakType.CHALLENGE) {
 			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 				uiEventLogger.debug("{} break start -> reset", this.getOrigin());
 				doReset();
@@ -111,6 +114,9 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	@Override
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
+		if (this.finalOnly) {
+			return;
+		}
 		// logger.debug("jury slaveDownSignal {} {} {} {}", this, this.getOrigin(), e.getOrigin(), isSilenced());
 		if (isSilenced()) {
 			// we emitted the down signal, don't do it again.
@@ -128,8 +134,21 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		});
 	}
 
+	@Override
+	@Subscribe
+	public void slaveInitialDecision(UIEvent.InitialDecision e) {
+		if (this.finalOnly) {
+			// Wait for the full decision; do not show the partial (majority-based) decision.
+			return;
+		}
+		super.slaveInitialDecision(e);
+	}
+
 	@Subscribe
 	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
+		if (this.finalOnly) {
+			return;
+		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			// logger.debug("{} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
 			getElement().setProperty("singleRef", e.isSingleLight());
@@ -163,6 +182,10 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	private Integer intBox(Long ref1Time) {
 		return ref1Time != null ? ref1Time.intValue() : null;
+	}
+
+	public void setFinalOnly(boolean finalOnly) {
+		this.finalOnly = finalOnly;
 	}
 
 	private void setDecisionTimes(Integer ref1Time, Integer ref2Time, Integer ref3Time) {
