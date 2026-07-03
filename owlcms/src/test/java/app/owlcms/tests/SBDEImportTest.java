@@ -58,6 +58,7 @@ public class SBDEImportTest {
     private static final Set<String> PART_1_SESSIONS = Set.of("1", "2");
     private static final Set<String> PART_2_SESSIONS = Set.of("3", "4", "5");
     private static final String CHANGED_REFEREE = "Poulin, Manon";
+    private static final String CHANGED_RECORD_ELIGIBILITIES = "QC,CA";
 
     @BeforeClass
     public static void setupTests() {
@@ -114,10 +115,14 @@ public class SBDEImportTest {
             liftsBeforeReload, LiftSnapshot.from(findAthleteById(athlete.getId())));
 
         String changedFirstName = athlete.getFirstName() + " Changed";
-        changeAthleteName(athlete, changedFirstName);
+        assertNotEquals("fixture should let the test change record eligibilities",
+            CHANGED_RECORD_ELIGIBILITIES, athlete.getFederationCodes());
+        changeAthleteNameAndRecordEligibilities(athlete, changedFirstName, CHANGED_RECORD_ELIGIBILITIES);
         Athlete changedAthlete = findAthleteById(athlete.getId());
         assertEquals("change-athlete operation should update the athlete name",
             changedFirstName, changedAthlete.getFirstName());
+        assertEquals("change-athlete operation should update record eligibilities",
+            CHANGED_RECORD_ELIGIBILITIES, changedAthlete.getFederationCodes());
         assertEquals("change-athlete operation should preserve existing lifts",
             liftsBeforeReload, LiftSnapshot.from(changedAthlete));
 
@@ -131,6 +136,13 @@ public class SBDEImportTest {
                 expectedAthleteCount(PART_1_SESSIONS) + expectedAthleteCount(PART_2_SESSIONS),
                 AthleteRepository.findAll().size());
         assertLiftSnapshotsForSessions(PART_1_SESSIONS, part1LiftSnapshots);
+        Athlete changedAthleteAfterAdditionalImport = findAthleteById(athlete.getId());
+        assertEquals("changed athlete first name should stay modified after adding part 2",
+            changedFirstName, changedAthleteAfterAdditionalImport.getFirstName());
+        assertEquals("changed athlete record eligibilities should stay modified after adding part 2",
+            CHANGED_RECORD_ELIGIBILITIES, changedAthleteAfterAdditionalImport.getFederationCodes());
+        assertEquals("changed athlete lifts should stay modified after adding part 2",
+            liftsBeforeReload, LiftSnapshot.from(changedAthleteAfterAdditionalImport));
         assertEquals("session 1 referee should stay modified after adding part 2",
             CHANGED_REFEREE, GroupRepository.findByName("1").getReferee1());
         assertSessionsPresent(PART_2_SESSIONS);
@@ -354,12 +366,14 @@ public class SBDEImportTest {
         return JPAService.runInTransaction(em -> AthleteRepository.getById(id, em));
     }
 
-    private void changeAthleteName(Athlete athlete, String newFirstName) {
+    private void changeAthleteNameAndRecordEligibilities(Athlete athlete, String newFirstName,
+            String recordEligibilities) {
         JPAService.runInTransaction(em -> {
             Athlete managed = em.find(Athlete.class, athlete.getId());
             Athlete edited = new Athlete();
             Athlete.conditionalCopy(edited, managed, true, true, true);
             edited.setFirstName(newFirstName);
+            edited.setFederationCodes(recordEligibilities);
             Athlete.conditionalCopy(managed, edited, true, true, true);
             em.merge(managed);
             return null;
