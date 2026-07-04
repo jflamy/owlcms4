@@ -149,6 +149,7 @@ public class CompetitionEditingFormFactory
 		FormLayout competitionLayout = competitionForm();
 		FormLayout federationLayout = federationForm();
 		FormLayout generalRulesLayout = generalRulesForm();
+		FormLayout juryRulesLayout = juryRulesForm();
 		FormLayout nonMastersRulesLayout = nonMastersRulesForm();
 		FormLayout mastersRulesLayout = mastersRulesForm();
 		FormLayout breakDurationLayout = breakDurationForm();
@@ -170,7 +171,7 @@ public class CompetitionEditingFormFactory
 		ts.add(Translator.translate("Competition.RulesTab"),
 		        new VerticalLayout(
 		                generalRulesLayout, separator(),
-		                nonMastersRulesLayout, separator(),
+		                juryRulesLayout, separator(),
 		                mastersRulesLayout, separator(),
 		                breakDurationLayout));
 		ts.add(Translator.translate("Competition.DefaultScoringMedalingRulesTab"),
@@ -180,7 +181,8 @@ public class CompetitionEditingFormFactory
 		                pointScoresForm));
 		ts.add(Translator.translate("Competition.specialRulesTitle"),
 		        new VerticalLayout(
-		                specialLayout));
+		                specialLayout, separator(),
+		                nonMastersRulesLayout));
 
 		// Listen for tab changes to preserve the selection in the URL.
 		ts.addSelectedChangeListener(event -> updateTabLocation());
@@ -601,11 +603,6 @@ public class CompetitionEditingFormFactory
 		this.binder.forField(useBirthYearField)
 		        .bind(Competition::isUseBirthYear, Competition::setUseBirthYear);
 
-		Checkbox announcerControlledJuryField = new Checkbox();
-		layout.addFormItem(announcerControlledJuryField, Translator.translate("Competition.announcerControlledJury"));
-		this.binder.forField(announcerControlledJuryField)
-		        .bind(Competition::isAnnouncerControlledJuryDecision, Competition::setAnnouncerControlledJuryDecision);
-
 		Checkbox customScoreField = new Checkbox();
 		layout.addFormItem(customScoreField,
 		        labelWithHelp("Competition.customScore", "Competition.customScoreExplanation"));
@@ -615,6 +612,25 @@ public class CompetitionEditingFormFactory
 		return layout;
 	}
 	
+	private FormLayout juryRulesForm() {
+		FormLayout layout = createLayout();
+		Component title = createTitle("Jury");
+		layout.add(title);
+		layout.setColspan(title, 2);
+
+		Checkbox announcerControlledJuryField = new Checkbox();
+		layout.addFormItem(announcerControlledJuryField, Translator.translate("Competition.announcerControlledJury"));
+		this.binder.forField(announcerControlledJuryField)
+		        .bind(Competition::isAnnouncerControlledJuryDecision, Competition::setAnnouncerControlledJuryDecision);
+
+		Checkbox videoPlaybackTechnologyField = new Checkbox();
+		layout.addFormItem(videoPlaybackTechnologyField, Translator.translate("Competition.videoPlaybackTechnology"));
+		this.binder.forField(videoPlaybackTechnologyField)
+		        .bind(Competition::isVideoPlaybackTechnology, Competition::setVideoPlaybackTechnology);
+
+		return layout;
+	}
+
 	private FormLayout nonMastersRulesForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("Competition.nonMastersRulesTitle");

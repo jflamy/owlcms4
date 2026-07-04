@@ -411,6 +411,8 @@ public class Competition {
 	private boolean displayByAgeGroup;
 	@Column(columnDefinition = "boolean default true")
 	private boolean announcerControlledJuryDecision = true;
+	@Column(columnDefinition = "boolean default false")
+	private boolean videoPlaybackTechnology = false;
 	private String currentRecordsTemplateFileName;
 	/**
 	 * JSON array of Ranking enum names that are enabled (shouldCompute=true).
@@ -1215,7 +1217,7 @@ public class Competition {
 	}
 
 	public Integer getJurySize() {
-		if (this.jurySize == null || this.jurySize < 3) {
+		if (this.jurySize == null || (this.jurySize != 3 && this.jurySize != 5)) {
 			return 3;
 		}
 		return this.jurySize;
@@ -1652,6 +1654,14 @@ public class Competition {
 
 	public boolean isAnnouncerControlledJuryDecision() {
 		return this.announcerControlledJuryDecision;
+	}
+
+	public boolean isVideoPlaybackTechnology() {
+		return this.videoPlaybackTechnology;
+	}
+
+	public void setVideoPlaybackTechnology(boolean videoPlaybackTechnology) {
+		this.videoPlaybackTechnology = videoPlaybackTechnology;
 	}
 
 	public boolean isAnnouncerLiveDecisions() {

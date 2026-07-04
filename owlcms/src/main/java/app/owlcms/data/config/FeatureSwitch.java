@@ -66,6 +66,7 @@ public enum FeatureSwitch {
     DECISION_SECTION_REF_FINAL_ONLY("decisionSectionRefFinalOnly", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     DECISION_SECTION_SHOW_BOTH_JURY_VOTES("decisionSectionShowBothJuryVotes", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     DECISION_SECTION_STOPWATCH("decisionSectionStopwatch", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
+    REQUIRE_JURY_PRESIDENT_DECISION("requireJuryPresidentDecision", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     IWF_LOOK("iwfLook", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK);
 
     private static final Map<String, FeatureSwitch> BY_ID = buildLookup();

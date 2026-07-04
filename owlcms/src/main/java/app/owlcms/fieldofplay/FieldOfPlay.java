@@ -2450,29 +2450,45 @@ public class FieldOfPlay implements IUnregister {
 				showJuryMemberDecisionsNow(origin, (reds == jurySize || whites == jurySize), jurySize,
 						getJuryMemberDecision());
 			}).start();
-			scheduleAutoJuryDecision(reds, whites, jurySize);
+			scheduleAutoJuryDecision(jurySize);
 		}
 	}
 
 	/**
-	 * Verdict implied by the jury votes: unanimity is required for a 3-person jury, a
-	 * majority for a larger one. Returns null when the votes do not decide.
+	 * Verdict implied by the jury votes for a 5-person jury using simple majority.
 	 */
 	private Boolean juryVerdict(int reds, int whites, int jurySize) {
-		if (jurySize <= 3) {
-			if (whites == jurySize) {
-				return Boolean.TRUE;
+		if (whites > jurySize / 2) {
+			return Boolean.TRUE;
+		}
+		if (reds > jurySize / 2) {
+			return Boolean.FALSE;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the majority referee decision, or null if the original referee decision
+	 * is not available.
+	 */
+	private Boolean refereeMajority(Boolean[] refereeDecisions) {
+		if (refereeDecisions == null) {
+			return null;
+		}
+		int nbRed = 0;
+		int nbWhite = 0;
+		for (Boolean d : refereeDecisions) {
+			if (Boolean.TRUE.equals(d)) {
+				nbWhite++;
+			} else if (Boolean.FALSE.equals(d)) {
+				nbRed++;
 			}
-			if (reds == jurySize) {
-				return Boolean.FALSE;
-			}
-		} else {
-			if (whites > jurySize / 2) {
-				return Boolean.TRUE;
-			}
-			if (reds > jurySize / 2) {
-				return Boolean.FALSE;
-			}
+		}
+		if (nbWhite >= 2) {
+			return Boolean.TRUE;
+		}
+		if (nbRed >= 2) {
+			return Boolean.FALSE;
 		}
 		return null;
 	}
@@ -2483,42 +2499,117 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	/**
-	 * When the jury votes decide the lift (unanimous for 3 jurors, majority for 5), send
-	 * the decision as if the jury Good Lift / Bad Lift button had been pressed, after a
-	 * 1.5s grace period during which a juror can still change their vote. The votes are
-	 * re-validated when the grace period expires, so a changed vote or a decision already
-	 * entered manually cancels the automatic one.
+	 * Compute the effective auto-jury verdict given jury vote counts and the referee
+	 * decision under review, used as fallback when the jury is not unanimous:
+	 * <ul>
+	 *   <li>3-person jury, unanimous white: good lift.</li>
+	 *   <li>3-person jury, unanimous red: bad lift.</li>
+	 *   <li>3-person jury, not unanimous: referee decision stands (referee majority).</li>
+	 *   <li>5-person jury with VPT: simple majority wins.</li>
+	 *   <li>5-person jury without VPT: unanimity required; a non-unanimous result
+	 *       confirms the referee decision (same as 3-person non-unanimous rule).</li>
+	 * </ul>
+	 * Returns null if the fallback referee decision is unavailable.
 	 */
-	private void scheduleAutoJuryDecision(int reds, int whites, int jurySize) {
-		Boolean verdict = juryVerdict(reds, whites, jurySize);
-		if (verdict == null || !juryDeliberationInProgress()) {
+	private Boolean effectiveJuryVerdict(int reds, int whites, int jurySize,
+	        Boolean[] refereeDecisions) {
+		if (jurySize == 3) {
+			if (whites == jurySize) {
+				return Boolean.TRUE;
+			}
+			if (reds == jurySize) {
+				return Boolean.FALSE;
+			}
+			// Non-unanimous 3-person jury: original referee decision stands.
+			return refereeMajority(refereeDecisions);
+		}
+		// 5-person jury.
+		// With Video Playback Technology, a majority suffices.
+		// Without VPT, unanimity is required; a non-unanimous outcome confirms the
+		// referee decision (same principle as the 3-person non-unanimous rule).
+		if (Competition.getCurrent().isVideoPlaybackTechnology()) {
+			return juryVerdict(reds, whites, jurySize);
+		}
+		// No VPT: require unanimity.
+		if (whites == jurySize) {
+			return Boolean.TRUE;
+		}
+		if (reds == jurySize) {
+			return Boolean.FALSE;
+		}
+		// Non-unanimous without VPT: referee decision stands.
+		return refereeMajority(refereeDecisions);
+	}
+
+	/**
+	 * Tally the current jury votes and compute the effective verdict. Returns null if
+	 * not all jurors have voted yet, or if the referee-decision fallback is unavailable.
+	 */
+	private Boolean computeCurrentJuryVerdict(int jurySize) {
+		Boolean[] votes = getJuryMemberDecision();
+		int reds = 0, whites = 0, decisions = 0;
+		for (int i = 0; i < jurySize; i++) {
+			if (votes != null && votes[i] != null) {
+				if (votes[i]) {
+					whites++;
+				} else {
+					reds++;
+				}
+				decisions++;
+			}
+		}
+		if (decisions != jurySize) {
+			return null; // not all voted yet
+		}
+		return effectiveJuryVerdict(reds, whites, jurySize, getRefereeDecision());
+	}
+
+	/**
+	 * When the jury votes are complete, send the effective decision as if the jury Good
+	 * Lift / Bad Lift button had been pressed, after a 1.5s grace period during which a
+	 * juror can still change their vote.
+	 * <ul>
+	 *   <li>5-person jury with VPT: majority wins.</li>
+	 *   <li>5-person jury without VPT: unanimous required, otherwise referee decision stands.</li>
+	 *   <li>3-person jury, unanimous: that verdict wins.</li>
+	 *   <li>3-person jury, not unanimous: referee decision stands.</li>
+	 * </ul>
+	 * {@code athleteUnderReview} and {@code refereeDecision[]} are stable for the
+	 * duration of the deliberation break; the delayed callback revalidates the current
+	 * verdict before posting.
+	 */
+	private void scheduleAutoJuryDecision(int jurySize) {
+		// If the feature toggle is on, the jury president must press Good/Bad Lift manually.
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.REQUIRE_JURY_PRESIDENT_DECISION)) {
+			return;
+		}
+		if (!juryDeliberationInProgress()) {
+			return;
+		}
+		final Boolean verdict = computeCurrentJuryVerdict(jurySize);
+		if (verdict == null) {
 			return;
 		}
 		new DelayTimer(isTestingMode()).schedule(() -> {
-			if (!juryDeliberationInProgress() || this.toBeAnnouncedJuryDecision != null) {
+			if (Config.getCurrent().featureSwitch(FeatureSwitch.REQUIRE_JURY_PRESIDENT_DECISION)
+			        || Competition.getCurrent().getJurySize() != jurySize
+			        || !juryDeliberationInProgress()
+			        || this.toBeAnnouncedJuryDecision != null) {
 				return;
 			}
-			// re-validate: all jurors still voted and the verdict is unchanged.
-			Boolean[] votes = getJuryMemberDecision();
-			int nbRed2 = 0;
-			int nbWhite2 = 0;
-			int nbDecisions2 = 0;
-			for (int i = 0; i < jurySize; i++) {
-				if (votes != null && votes[i] != null) {
-					if (votes[i]) {
-						nbWhite2++;
-					} else {
-						nbRed2++;
-					}
-					nbDecisions2++;
-				}
-			}
-			if (nbDecisions2 != jurySize || !verdict.equals(juryVerdict(nbRed2, nbWhite2, jurySize))) {
+			// Re-validate using the exact same computation: all jurors must still have
+			// voted and the verdict must be unchanged (a juror may have changed their vote).
+			Boolean recomputedVerdict = computeCurrentJuryVerdict(jurySize);
+			if (!verdict.equals(recomputedVerdict)) {
 				return;
 			}
-			logger.info("{}automatic jury decision {} ({} white, {} red)", FieldOfPlay.getLoggingName(this),
-					verdict ? "good lift" : "no lift", nbWhite2, nbRed2);
-			fopEventPost(new FOPEvent.JuryDecision(getAthleteUnderReview(), this, verdict, true));
+			logger.info("{}automatic jury decision {}", FieldOfPlay.getLoggingName(this),
+					verdict ? "good lift" : "no lift");
+			Athlete athlete = getAthleteUnderReview();
+			if (athlete == null) {
+				return;
+			}
+			fopEventPost(new FOPEvent.JuryDecision(athlete, this, verdict, true));
 		}, 1500);
 	}
 
