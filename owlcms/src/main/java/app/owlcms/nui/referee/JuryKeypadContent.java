@@ -84,6 +84,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	private Div[] juryVoteCells;
 	private Div refDecisionHost;
 	private Div reviewAttempt;
+	private Div reviewWeight;
 	private Div reviewFiller;
 	private boolean reviewFrozen;
 	private Div reviewHeader;
@@ -491,14 +492,14 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 
 		// --- Row 8: Action buttons ---
 		this.noLiftButton = createKeypadButton(Translator.translate("JuryDialog.BadLiftLabel"), "error primary", () -> submitJuryDecision(false));
-		this.noLiftButton.getStyle().set("grid-column", "1").set("grid-row", "8");
+		this.noLiftButton.getStyle().set("grid-column", "3").set("grid-row", "8");
 		this.goodLiftButton = createKeypadButton(Translator.translate("JuryDialog.GoodLiftLabel"), "success primary", () -> submitJuryDecision(true));
-		this.goodLiftButton.getStyle().set("grid-column", "2").set("grid-row", "8");
+		this.goodLiftButton.getStyle().set("grid-column", "4").set("grid-row", "8");
 		Button deliberate = createKeypadButton(Translator.translate("BreakButton.JuryDeliberation"), "primary contrast", this::startDeliberation);
-		deliberate.getStyle().set("grid-column", "3").set("grid-row", "8")
+		deliberate.getStyle().set("grid-column", "1").set("grid-row", "8")
 		        .set("background-color", "#FFC107").set("color", "#000000");
 		Button challenge = createKeypadButton(Translator.translate("BreakButton.CHALLENGE"), "primary contrast", this::startChallenge);
-		challenge.getStyle().set("grid-column", "4").set("grid-row", "8")
+		challenge.getStyle().set("grid-column", "2").set("grid-row", "8")
 		        .set("background-color", "#FFC107").set("color", "#000000");
 		Button technical = createKeypadButton(Translator.translate("BreakType.TECHNICAL"), "primary", this::startTechnicalBreak);
 		technical.getStyle().set("grid-column", "5").set("grid-row", "8");
@@ -730,7 +731,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		this.reviewHeader.getStyle()
 		        .set("display", "flex")
 		        .set("align-items", "baseline")
-		        .set("gap", "0.75rem")
+		        .set("gap", "1.5rem")
 		        .set("min-width", "0");
 
 		this.reviewFiller = new Div();
@@ -771,22 +772,32 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        .set("font-size", "1.5rem")
 		        .set("color", "var(--lumo-secondary-text-color)");
 
+		this.reviewWeight = new Div();
+		this.reviewWeight.getStyle()
+		        .set("white-space", "nowrap")
+		        .set("font-size", "1.9rem")
+		        .set("color", "aqua");
+
 		this.reviewTimer = new AthleteTimerElement(this);
 		this.reviewTimer.setSilenced(true);
 		this.reviewTimer.getStyle()
 		        .set("min-width", "5rem")
-		        .set("font-size", "1.5rem")
+		        .set("font-size", "1.9rem")
+		        .set("font-weight", "bold")
+		        .set("color", "yellow")
 		        .set("display", "block");
 
 		this.reviewTimerFrozen = new Div();
 		this.reviewTimerFrozen.getStyle()
 		        .set("min-width", "5rem")
-		        .set("font-size", "1.5rem")
+		        .set("font-size", "1.9rem")
+		        .set("font-weight", "bold")
+		        .set("color", "yellow")
 		        .set("white-space", "nowrap")
 		        .set("font-variant-numeric", "tabular-nums");
 
 		this.reviewHeader.add(this.reviewFiller, this.reviewStartNumber, this.reviewName,
-		        this.reviewAttempt, this.reviewTimer, this.reviewTimerFrozen);
+		        this.reviewAttempt, this.reviewWeight, this.reviewTimer, this.reviewTimerFrozen);
 		clearReviewHeader();
 		return this.reviewHeader;
 	}
@@ -800,6 +811,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		if (this.reviewStartNumber != null) this.reviewStartNumber.setVisible(false);
 		if (this.reviewName != null) this.reviewName.setVisible(false);
 		if (this.reviewAttempt != null) this.reviewAttempt.setVisible(false);
+		if (this.reviewWeight != null) this.reviewWeight.setVisible(false);
 		if (this.reviewTimer != null) this.reviewTimer.setVisible(false);
 		if (this.reviewTimerFrozen != null) this.reviewTimerFrozen.setVisible(false);
 	}
@@ -847,10 +859,15 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		        .setText(athlete.getStartNumber() != null ? athlete.getStartNumber().toString() : "-");
 		this.reviewName.setText(athlete.getFullName() != null ? athlete.getFullName() : "");
 		this.reviewAttempt.setText(formatReviewAttempt(athlete));
+		Integer weight = athlete.getNextAttemptRequestedWeight();
+		String kgSymbol = Translator.translate("KgSymbol");
+		this.reviewWeight.getElement().setProperty("innerHTML",
+		        weight + "<span style=\"font-size:75%\">" + kgSymbol + "</span>");
 		this.reviewFiller.setVisible(false);
 		this.reviewStartNumber.setVisible(true);
 		this.reviewName.setVisible(true);
 		this.reviewAttempt.setVisible(true);
+		this.reviewWeight.setVisible(true);
 		// If clockOwner is null the athlete came from athleteUnderReview
 		// (jury break) — show the frozen stopped time, not the live timer.
 		if (fop.getClockOwner() != null) {
