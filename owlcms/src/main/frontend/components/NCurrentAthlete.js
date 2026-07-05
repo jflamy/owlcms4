@@ -92,6 +92,13 @@ export class NCurrentAthlete extends LitElement {
               )}
             </div>
             <decision-element id="decisions" style="display:none"></decision-element>
+            <!-- hidden elements required because we subclass the results page -->
+            <div class="notused" style="display:none">
+              <timer-element id="decisionSectionTimer"></timer-element>
+              <timer-element id="decisionSectionBreakTimer"></timer-element>
+              <timer-element id="decisionSectionStopwatch"></timer-element>
+              <decision-element id="decisionSectionReferee"></decision-element>
+            </div>
           </div>
           <div class="bottom-row spacer"></div>
           <div class="bottom-row bottom-left grid-cell" style="grid-column: 2 / span 3;">

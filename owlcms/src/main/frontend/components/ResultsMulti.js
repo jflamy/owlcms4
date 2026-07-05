@@ -43,6 +43,13 @@ class ResultsFull extends LitElement {
               <div class="decisionBox" style="${this.decisionStyles()}">
                 <decision-element style="width: 100%" id="decisions"></decision-element>
               </div>
+              <!-- hidden elements required because we subclass the results page -->
+              <div class="notused" style="display:none">
+                <timer-element id="decisionSectionTimer"></timer-element>
+                <timer-element id="decisionSectionBreakTimer"></timer-element>
+                <timer-element id="decisionSectionStopwatch"></timer-element>
+                <decision-element id="decisionSectionReferee"></decision-element>
+              </div>
             </div>
           </div>
           <div class="group" style="${this.attemptBarStyles()}">

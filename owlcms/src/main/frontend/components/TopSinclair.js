@@ -20,6 +20,10 @@ class TopSinclair extends LitElement {
         <timer-element id="timer"></timer-element>
         <timer-element id="breakTimer"></timer-element>
         <decision-element id="decisions"></decision-element>
+        <timer-element id="decisionSectionTimer"></timer-element>
+        <timer-element id="decisionSectionBreakTimer"></timer-element>
+        <timer-element id="decisionSectionStopwatch"></timer-element>
+        <decision-element id="decisionSectionReferee"></decision-element>
       </div> 
       <div id="resultBoardDiv" class="${this.activeClasses()} ${this.darkMode??"dark"}">
         ${this.topSinclairWomen

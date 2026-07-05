@@ -49,6 +49,12 @@ class ResultsMedals extends LitElement {
           <div class="decisionBox" style="display:none">
             <decision-element style="width: 100%" id="decisions"></decision-element>
           </div>
+          <div class="notused" style="display:none">
+            <timer-element id="decisionSectionTimer"></timer-element>
+            <timer-element id="decisionSectionBreakTimer"></timer-element>
+            <timer-element id="decisionSectionStopwatch"></timer-element>
+            <decision-element id="decisionSectionReferee"></decision-element>
+          </div>
 
           ${this.medalCategories
             ? html`
