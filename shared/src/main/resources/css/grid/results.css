@@ -949,3 +949,27 @@ div.ellipsis {
 .recordNotification.none {
     z-index: -10;
 }
+
+
+/* Projected rank text in the decision section bottom bar */
+.decisionSection .dsProjectedRanksSlot {
+    font-size: var(--dsProjectedRankFontSize, 0.85em);
+}
+
+/* Overlay mode: no decision/timer active — text fills the full section and centers */
+.decisionSection .dsProjectedRanksSlot.pjOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+/* Inline mode: decision lights active — text fills remaining space after the lights */
+.decisionSection .dsProjectedRanksSlot.pjInline {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}

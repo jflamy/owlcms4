@@ -197,6 +197,7 @@ public class FieldOfPlay implements IUnregister {
 	private long lastGroupLoaded;
 	private List<Athlete> leaders;
 	private List<Athlete> liftingOrder;
+	private ProjectedRank projectedRank;
 	private int liftsDoneAtLastStart;
 	final private Logger logger = (Logger) LoggerFactory.getLogger(FieldOfPlay.class);
 	private TreeMap<String, List<Athlete>> medals;
@@ -3010,9 +3011,199 @@ public class FieldOfPlay implements IUnregister {
 		setLeaders(scoreMedalists);
 	}
 
+	/**
+	 * Projected rank for the current athlete if the next lift succeeds, compared against the current leaders list.
+	 *
+	 * <p><b>Display cases based on record contents:</b>
+	 * <ul>
+	 *   <li><b>(a) Snatch phase</b>: {@code totalRank = -1} — display "Athlete would be Nth in snatch"</li>
+	 *   <li><b>(b) CJ phase, valid snatch</b>: {@code totalRank >= 1} — display "Athlete would be Nth in CJ, Xth in Total"</li>
+	 *   <li><b>(c) CJ phase, bombed in snatch</b>: {@code totalRank = -1} — display "Athlete would be Nth in CJ" (no total possible)</li>
+	 * </ul>
+	 * Ranks {@code > 3} mean off the podium for that discipline.
+	 * {@code computeProjectedRank()} returns {@code null} when there is no current athlete, no leaders list, or no next attempt.
+	 * </p>
+	 *
+	 * @param liftRank   projected snatch rank (snatch phase) or CJ rank (CJ phase); 1 = best
+	 * @param totalRank  projected total rank when a valid total is possible; -1 otherwise
+	 */
+	public record ProjectedRank(int liftRank, int totalRank) {}
+
+	/**
+	 * Computes the projected rank(s) for the current athlete assuming the next lift succeeds.
+	 * <p>
+	 * During snatch phase: returns the projected snatch rank vs. the leaders, totalRank = -1.
+	 * During CJ phase: returns the projected CJ rank and either the projected total rank, or totalRank = -1 if the athlete bombed in snatch.
+	 * </p>
+	 * Uses the medals list for the current athlete's category directly so that the result is correct
+	 * regardless of the MEDALISTS_AS_LEADERS setting and works in single-group competitions.
+	 * Returns null if the computation is not meaningful (no current athlete, no medals, no next attempt, etc.).
+	 */
+	private ProjectedRank computeProjectedRank() {
+		Athlete cur = getCurAthlete();
+		if (cur == null) {
+			return null;
+		}
+		// Use medals list directly instead of the display-filtered leaders list.
+		// This works whether MEDALISTS_AS_LEADERS is on or off, and in single-group competitions.
+		if (getMedals() == null) {
+			return null;
+		}
+		Category medalCategory = findProjectedRankMedalCategory(cur);
+		if (medalCategory == null) {
+			this.logger.warn("{}projectedRank: no medal category cur={} mainRankings={} currentCategory={} medals={}",
+			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(),
+			        cur.getMainRankings() != null && cur.getMainRankings().getCategory() != null
+			                ? cur.getMainRankings().getCategory().getComputedCode()
+			                : "null",
+			        cur.getCategory() != null ? cur.getCategory().getComputedCode() : "null",
+			        getMedals().keySet());
+			return null;
+		}
+		List<Athlete> medalists = getMedals().get(medalCategory.getComputedCode());
+		if (medalists == null || medalists.isEmpty()) {
+			this.logger.warn("{}projectedRank: no medalists cur={} medalCategory={} medals={}",
+			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), medalCategory.getComputedCode(), getMedals().keySet());
+			return null;
+		}
+		this.logger.warn("{}projectedRank: cur={} medalCategory={} medalists={}",
+		        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), medalCategory.getComputedCode(),
+		        medalists.stream().map(a -> a.getAbbreviatedName() + ":" + a.getId()).toList());
+		// Refresh current-group athletes with up-to-date lifting-order data (same as recomputeCurrentLeaders).
+		List<Athlete> competitors = new ArrayList<>();
+		for (Athlete a : medalists) {
+			if (a.getId().equals(cur.getId())) {
+				this.logger.warn("{}projectedRank: skip self cur={} medalist={}:{}", FieldOfPlay.getLoggingName(this),
+				        cur.getAbbreviatedName(), a.getAbbreviatedName(), a.getId());
+				continue; // skip self
+			}
+			Athlete fresh = null;
+			List<Athlete> lo = getLiftingOrder();
+			if (lo != null) {
+				for (Athlete g : lo) {
+					if (g.getId().equals(a.getId())) {
+						fresh = g;
+						break;
+					}
+				}
+			}
+			competitors.add(fresh != null ? fresh : a);
+			this.logger.warn("{}projectedRank: competitor cur={} medalist={}:{} fresh={} s={} cj={} total={}",
+			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), a.getAbbreviatedName(), a.getId(),
+			        fresh != null, (fresh != null ? fresh : a).getBestSnatch(), (fresh != null ? fresh : a).getBestCleanJerk(),
+			        (fresh != null ? fresh : a).getTotal());
+		}
+		if (competitors.isEmpty()) {
+			this.logger.warn("{}projectedRank: no competitors cur={} medalCategory={} medalistCount={}",
+			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), medalCategory.getComputedCode(), medalists.size());
+			return null;
+		}
+		Integer nextWeight = cur.getNextAttemptRequestedWeight();
+		if (nextWeight == null || nextWeight <= 0) {
+			this.logger.warn("{}projectedRank: no next weight cur={} nextWeight={}", FieldOfPlay.getLoggingName(this),
+			        cur.getAbbreviatedName(), nextWeight);
+			return null;
+		}
+
+		if (!isCjStarted()) {
+			// snatch phase: rank the projected snatch against leaders' best snatches
+			int projectedSnatch = nextWeight;
+			int snatchRank = 1;
+			for (Athlete leader : competitors) {
+				if (leader.getId().equals(cur.getId())) {
+					continue;
+				}
+				int leaderSnatch = leader.getBestSnatch();
+				boolean tiebreakerAhead = leaderSnatch == projectedSnatch && isTiebreakerAhead(leader, cur);
+				boolean ahead = leaderSnatch > projectedSnatch || tiebreakerAhead;
+				this.logger.warn("{}projectedRank: snatch compare cur={} projected={} leader={} leaderSnatch={} tiebreakerAhead={} ahead={} rankBefore={}",
+				        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), projectedSnatch,
+				        leader.getAbbreviatedName(), leaderSnatch, tiebreakerAhead, ahead, snatchRank);
+				if (ahead) {
+					snatchRank++;
+				}
+			}
+			this.logger.warn("{}projectedRank: snatch result cur={} projected={} rank={}", FieldOfPlay.getLoggingName(this),
+			        cur.getAbbreviatedName(), projectedSnatch, snatchRank);
+			return new ProjectedRank(snatchRank, -1);
+		} else {
+			// CJ phase: always compute CJ rank; compute total rank only if snatch was not bombed
+			int bestSnatch = cur.getBestSnatch();
+			int projectedCJ = nextWeight;
+			int projectedTotal = bestSnatch > 0 ? bestSnatch + nextWeight : -1;
+			int cjRank = 1;
+			int totalRank = bestSnatch > 0 ? 1 : -1; // -1 = case (c): bombed in snatch, no total possible
+			for (Athlete leader : competitors) {
+				if (leader.getId().equals(cur.getId())) {
+					continue;
+				}
+				int leaderCJ = leader.getBestCleanJerk();
+				boolean cjTiebreakerAhead = leaderCJ == projectedCJ && isTiebreakerAhead(leader, cur);
+				boolean cjAhead = leaderCJ > projectedCJ || cjTiebreakerAhead;
+				this.logger.warn("{}projectedRank: cj compare cur={} projectedCJ={} leader={} leaderCJ={} tiebreakerAhead={} ahead={} cjRankBefore={}",
+				        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), projectedCJ,
+				        leader.getAbbreviatedName(), leaderCJ, cjTiebreakerAhead, cjAhead, cjRank);
+				if (cjAhead) {
+					cjRank++;
+				}
+				if (projectedTotal > 0) {
+					int leaderTotal = leader.getTotal();
+					boolean totalTiebreakerAhead = leaderTotal == projectedTotal && isTiebreakerAhead(leader, cur);
+					boolean totalAhead = leaderTotal > projectedTotal || totalTiebreakerAhead;
+					this.logger.warn("{}projectedRank: total compare cur={} projectedTotal={} leader={} leaderTotal={} tiebreakerAhead={} ahead={} totalRankBefore={}",
+					        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), projectedTotal,
+					        leader.getAbbreviatedName(), leaderTotal, totalTiebreakerAhead, totalAhead, totalRank);
+					if (totalAhead) {
+						totalRank++;
+					}
+				}
+			}
+			this.logger.warn("{}projectedRank: cj result cur={} projectedCJ={} projectedTotal={} cjRank={} totalRank={}",
+			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), projectedCJ, projectedTotal, cjRank, totalRank);
+			return new ProjectedRank(cjRank, totalRank);
+		}
+	}
+
+	private Category findProjectedRankMedalCategory(Athlete cur) {
+		Participation mainRankings = cur.getMainRankings();
+		Category mainCategory = mainRankings != null ? mainRankings.getCategory() : null;
+		if (mainCategory != null && getMedals().containsKey(mainCategory.getComputedCode())) {
+			return mainCategory;
+		}
+
+		Category currentCategory = cur.getCategory();
+		if (currentCategory != null && getMedals().containsKey(currentCategory.getComputedCode())) {
+			return currentCategory;
+		}
+		return null;
+	}
+
+	/**
+	 * Returns true if {@code leader} beats {@code cur} on tiebreakers (lighter bodyweight, then lower lot number).
+	 */
+	private boolean isTiebreakerAhead(Athlete leader, Athlete cur) {
+		double leaderBW = leader.getBodyWeight() != null ? leader.getBodyWeight() : 0;
+		double curBW = cur.getBodyWeight() != null ? cur.getBodyWeight() : 0;
+		if (leaderBW < curBW) {
+			return true;
+		}
+		if (leaderBW > curBW) {
+			return false;
+		}
+		// same bodyweight: lower lot number lifts first and therefore wins the tiebreak
+		int leaderLot = leader.getLotNumber() != null ? leader.getLotNumber() : Integer.MAX_VALUE;
+		int curLot = cur.getLotNumber() != null ? cur.getLotNumber() : Integer.MAX_VALUE;
+		return leaderLot < curLot;
+	}
+
 	private void recomputeLeadersAndRecords(List<Athlete> athletes) {
 		recomputeCurrentLeaders(athletes);
+		this.projectedRank = computeProjectedRank();
 		recomputeRecords(getCurAthlete());
+	}
+
+	public ProjectedRank getProjectedRank() {
+		return this.projectedRank;
 	}
 
 	/**

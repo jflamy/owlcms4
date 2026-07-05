@@ -26,6 +26,8 @@ public enum FeatureSwitch {
     CHAMPIONSHIP_GROUPING("championshipGrouping", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DISPLAY_BEST_SCORE("displayBestScore", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DISPLAY_BEST_SCORE_RANK("displayBestScoreRank", FeatureSwitchSection.SCOREBOARD_OPTIONS),
+    DISPLAY_PROJECTED_RANKS("displayProjectedRanks", FeatureSwitchSection.SCOREBOARD_OPTIONS),
+    DISPLAY_SCOREBOARD_TIMERS("displayScoreboardTimers", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     NO_BEST_SCORE_RANK("noBestScoreRank", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     NO_SINCLAIR_RANK("noSinclairRank", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DISPLAY_BODY_WEIGHT("displayBodyWeight", FeatureSwitchSection.SCOREBOARD_OPTIONS),

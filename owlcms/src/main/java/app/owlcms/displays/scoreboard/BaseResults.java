@@ -49,6 +49,7 @@ import app.owlcms.data.team.Team;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
+import app.owlcms.fieldofplay.FieldOfPlay.ProjectedRank;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -698,14 +699,17 @@ public class BaseResults extends LitTemplate
 	protected void computeLeaders(boolean done) {
 		FieldOfPlay fop = getFop();
 		if (fop == null) {
+			clearProjectedRankText();
 			return;
 		}
 		Athlete curAthlete = fop.getCurAthlete();
 		if (curAthlete == null) {
+			clearProjectedRankText();
 			this.getElement().setPropertyJson("leaders", Json.createNull());
 			setBottomSize(1);
 			return;
 		}
+		computeProjectedRankText(fop);
 		if (curAthlete.getGender() != null) {
 			this.getElement().setProperty("categoryName", curAthlete.getCategory().getDisplayName());
 			// Bottom-leaders visibility follows the current athlete's registration category, not every
@@ -734,6 +738,46 @@ public class BaseResults extends LitTemplate
 				setBottomSize(1);
 			}
 		}
+	}
+
+	private void computeProjectedRankText(FieldOfPlay fop) {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_PROJECTED_RANKS)) {
+			this.logger.warn("projectedRank: feature switch off");
+			clearProjectedRankText();
+			return;
+		}
+		// Snatch rank is only meaningful when snatch medals exist (multi-medal championship).
+		// CJ / total rank is meaningful in all competition types (total-only, score, or multi-medal).
+		if (!fop.isCjStarted() && !Championship.anyMultiMedal(fop.getActiveChampionships())) {
+			this.logger.warn("projectedRank: snatch phase with no multi-medal championship — cjStarted={} activeChampionships={}",
+			        fop.isCjStarted(), fop.getActiveChampionships());
+			clearProjectedRankText();
+			return;
+		}
+
+		ProjectedRank projectedRank = fop.getProjectedRank();
+		if (projectedRank == null) {
+			this.logger.warn("projectedRank: getProjectedRank() returned null — medals={} curAthlete={}",
+			        fop.getMedals() != null ? fop.getMedals().keySet() : "null",
+			        fop.getCurAthlete() != null ? fop.getCurAthlete().getAbbreviatedName() : "null");
+			clearProjectedRankText();
+			return;
+		}
+
+		this.logger.warn("projectedRank: liftRank={} totalRank={}", projectedRank.liftRank(), projectedRank.totalRank());
+		String projectedRankText;
+		if (!fop.isCjStarted()) {
+			projectedRankText = Translator.translate("Scoreboard.ProjectedRank.Snatch", projectedRank.liftRank());
+		} else if (projectedRank.totalRank() >= 1) {
+			projectedRankText = Translator.translate("Scoreboard.ProjectedRank.CJandTotal", projectedRank.liftRank(), projectedRank.totalRank());
+		} else {
+			projectedRankText = Translator.translate("Scoreboard.ProjectedRank.CJonly", projectedRank.liftRank());
+		}
+		this.getElement().setProperty("projectedRankText", projectedRankText);
+	}
+
+	private void clearProjectedRankText() {
+		this.getElement().setProperty("projectedRankText", "");
 	}
 
 	/**

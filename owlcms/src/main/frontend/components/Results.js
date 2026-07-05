@@ -21,7 +21,7 @@ class Results extends LitElement {
       <div class="${this.wrapperClasses()}" style="${this.sizeOverride} ${this.colorOverride}">
         <div class="blockPositioningWrapper">
           <div class="decisionSection" style="${this.decisionSectionStyles()}">
-            <div class="dsTimerSlot">
+            <div class="dsTimerSlot" style="${this.dsTimerSlotStyles()}">
               <div class="timer athleteTimer" style="${this.dsAthleteTimerStyles()}">
                 <timer-element id="decisionSectionTimer"></timer-element>
               </div>
@@ -32,13 +32,14 @@ class Results extends LitElement {
                 <timer-element id="decisionSectionStopwatch"></timer-element>
               </div>
             </div>
-            <div class="dsRefereeSlot">
+            <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
               <decision-element id="decisionSectionReferee"></decision-element>
             </div>
             <div class="dsJuryMessage" style="${this.dsJuryMessageStyles()}">${this.juryMessage}</div>
-            <div class="dsJurySlot">
+            <div class="dsJurySlot" style="${this.dsJurySlotStyles()}">
               ${(this.juryDecisions ?? []).map(d => html`<vaadin-icon class="juryIcon ${d}" icon="${this.juryIcon(d)}"></vaadin-icon>`)}
             </div>
+            <div class="dsProjectedRanksSlot ${this.dsProjectedRanksMode()}" style="${this.dsProjectedRanksStyles()}">${this.projectedRankText}</div>
           </div>
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
@@ -328,6 +329,9 @@ class Results extends LitElement {
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
       showDecisionSection: {type: Boolean},
+      showProjectedRanks: {type: Boolean},
+      showScoreboardTimers: {type: Boolean},
+      projectedRankText: {},
       juryDecisions: {type: Array},
       juryMessage: {},
       dsShowStopwatch: {type: Boolean},
@@ -418,7 +422,37 @@ class Results extends LitElement {
 
   decisionSectionStyles() {
     const juryScoreboard = (this.scoreboardType ?? "").includes("Jury");
-    return (this.showDecisionSection && this.mode !== "WAIT" && !juryScoreboard) ? "display:flex" : "display:none";
+    if (this.mode === "WAIT" || juryScoreboard) return "display:none";
+    if (this.showDecisionSection) return "display:flex; position: relative";
+    if (this.showScoreboardTimers) return "display:flex; position: relative";
+    if (this.showProjectedRanks && this.projectedRankText) return "display:flex; position: relative";
+    return "display:none";
+  }
+
+  dsTimerSlotStyles() {
+    return (this.showDecisionSection || this.showScoreboardTimers) ? "" : "display:none";
+  }
+
+  dsRefereeSlotStyles() {
+    return this.showDecisionSection ? "" : "display:none";
+  }
+
+  dsJurySlotStyles() {
+    return this.showDecisionSection ? "" : "display:none";
+  }
+
+  dsProjectedRanksStyles() {
+    if (!this.showProjectedRanks || !this.projectedRankText) return "display:none";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "display:none";
+    return "";  // CSS class (pjOverlay or pjInline) handles layout
+  }
+
+  dsProjectedRanksMode() {
+    if (!this.showProjectedRanks || !this.projectedRankText) return "";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "";
+    // pjOverlay: absolute, fills full decisionSection (clock floats above)
+    // pjInline:  flex item, fills remaining space to right of lights
+    return this.showDecisionSection ? "pjInline" : "pjOverlay";
   }
 
   juryIcon(decision) {
@@ -435,6 +469,7 @@ class Results extends LitElement {
   }
 
   dsAthleteTimerStyles() {
+    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
     // In the decision section the timer stays visible for the whole current-athlete
     // phase (including while a decision is shown), alongside referee and jury lights.
     let visible = ((this.mode === "CURRENT_ATHLETE") ? "flex" : "none");
@@ -442,6 +477,7 @@ class Results extends LitElement {
   }
 
   dsBreakTimerStyles() {
+    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
     return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
   }
 
@@ -458,7 +494,7 @@ class Results extends LitElement {
   }
 
   dsJuryMessageStyles() {
-    return "display: " + (this.juryMessage ? "block" : "none");
+    return "display: " + (this.showDecisionSection && this.juryMessage ? "block" : "none");
   }
 
   videoHeaderStyles() {
@@ -547,6 +583,9 @@ class Results extends LitElement {
     this.mode = "WAIT";
     this.showCategoryHeaders = false;
     this.showDecisionSection = false;
+    this.showProjectedRanks = false;
+    this.showScoreboardTimers = false;
+    this.projectedRankText = "";
     this.juryDecisions = [];
     this.juryMessage = "";
     this.dsShowStopwatch = false;

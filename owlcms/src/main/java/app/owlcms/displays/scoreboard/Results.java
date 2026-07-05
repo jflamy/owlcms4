@@ -74,6 +74,10 @@ public class Results extends BaseResults {
 		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
 		this.getElement().setProperty("showDecisionSection",
 		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION));
+		this.getElement().setProperty("showProjectedRanks",
+		        Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_PROJECTED_RANKS));
+		this.getElement().setProperty("showScoreboardTimers",
+		        Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_SCOREBOARD_TIMERS));
 		overrideColors(this.getElement());
 	}
 
@@ -148,6 +152,12 @@ public class Results extends BaseResults {
 		if (this.decisionSectionStopwatch != null) {
 			this.decisionSectionStopwatch.setSilenced(true);
 			this.decisionSectionStopwatch.setFop(fop);
+		}
+		// Always give the jury display element a FOP so it initialises cleanly even when
+		// DECISION_SECTION is off (it is always present in the DOM, just hidden).
+		if (this.dsRefereeDecisions != null) {
+			this.dsRefereeDecisions.setSilenced(true);
+			this.dsRefereeDecisions.setFop(fop);
 		}
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION)) {
 			syncDecisionSection(fop);
