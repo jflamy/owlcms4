@@ -17,15 +17,9 @@ Run Python helper logic with the right interpreter, without tripping over shell 
 
 ## Interpreter Selection
 
-1. Check the available interpreter before running Python:
-
-```bash
-command -v python3 || command -v python
-```
-
-2. Prefer `python3` when it exists, especially on macOS where `python` may be absent.
-3. Do not activate virtual environments for this repo unless the user explicitly asks.
-4. Use the selected interpreter consistently for the current task.
+1. **On this machine, `python` does not exist. Always use `python3` directly — do not probe with `which python` or `command -v python` first.**
+2. Do not activate virtual environments for this repo unless the user explicitly asks.
+3. Use `python3` consistently for the whole task.
 
 ## Default Approach
 
@@ -38,7 +32,7 @@ command -v python3 || command -v python
 ## Shell Rules
 
 - Use bash-compatible syntax for commands.
-- Do not assume `python` exists; verify or use `python3`.
+- `python` does not exist here; always use `python3`.
 - Avoid inline heredocs for Python snippets in Git Bash or mixed shell environments.
 - Avoid long `python3 -c` commands when nested quotes, XML, JSON, or regular expressions make shell parsing fragile.
 
@@ -50,12 +44,6 @@ command -v python3 || command -v python
 - Do not stage, commit, or push unless explicitly requested.
 
 ## Preferred Patterns
-
-Interpreter check:
-
-```bash
-command -v python3 || command -v python
-```
 
 Short one-liner:
 
@@ -73,14 +61,14 @@ python3 path/to/temp_script.py
 
 When using this skill:
 
-- Verify the interpreter first when the environment is not already known.
-- Choose `python3` over `python` when available.
+- Use `python3` directly; no interpreter probing.
 - Keep side effects explicit and narrowly scoped.
 - Report what was changed or measured.
 
 ## Do Not
 
-- Do not call `python` blindly on macOS.
+- Do not call `python` — it does not exist on this machine; use `python3`.
+- Do not probe for the interpreter (`which python`, `command -v python`) before running.
 - Do not use Python heredocs for inline scripts in Git Bash or cross-platform sessions.
 - Do not overwrite source files before checking expected match counts.
 - Do not leave temporary helper scripts behind unless they are intentionally useful.
