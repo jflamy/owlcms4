@@ -10,6 +10,10 @@
 
 **New in Release 67.1**
 
+67.1.0-beta06: Break timer sounds
+  - Delays and sounds configured in local/timing/timing.properties.
+  - Defaults at 1:00, 0:30, 0:00; same sounds as for athletes (can be customized by adding .wav and .mp3 to local/sounds)
+
 67.1.0-beta05: Display projected rank (if lift is successful) on scoreboard. See `displayProjectedRanks` feature toggle
 
 67.1.0-beta05: Display timer at bottom of public scoreboards (when the attempt information is not shown at the top).  See `displayScoreboardTimers` feature toggle.
