@@ -1382,6 +1382,12 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	}
 
 	@Subscribe
+	public void slaveBreakTimeRemainingSeconds(UIEvent.BreakTimeRemainingSeconds e) {
+		int secondsRemaining = e.getSecondsRemaining();
+		publishMqttBreakTimeRemainingSeconds(secondsRemaining);
+	}
+
+	@Subscribe
 	public void slaveTimeRemainingSeconds(UIEvent.TimeRemainingSeconds e) {
 		int secondsRemaining = e.getSecondsRemaining();
 		publishMqttTimeRemainingSeconds(secondsRemaining);
@@ -1807,6 +1813,16 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 					new MqttMessage(Integer.toString(secondsRemaining).getBytes(StandardCharsets.UTF_8)));
 		} catch (MqttException e1) {
 			logger.error("could not publish timeRemaining {}", e1.getCause());
+		}
+	}
+
+	private void publishMqttBreakTimeRemainingSeconds(int secondsRemaining) {
+		logger.debug("{}MQTT breakTimeRemaining {}", FieldOfPlay.getLoggingName(this.getFop()), secondsRemaining);
+		try {
+			publish("owlcms/fop/breakTimeRemaining/" + this.getFop().getName(),
+					new MqttMessage(Integer.toString(secondsRemaining).getBytes(StandardCharsets.UTF_8)));
+		} catch (MqttException e1) {
+			logger.error("could not publish breakTimeRemaining {}", e1.getCause());
 		}
 	}
 

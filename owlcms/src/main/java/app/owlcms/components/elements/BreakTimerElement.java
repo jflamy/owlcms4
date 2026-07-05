@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 
+import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.uievents.UIEvent;
@@ -115,7 +118,8 @@ public class BreakTimerElement extends TimerElement {
 		if (Boolean.TRUE.equals(e.getPaused())) {
 			doSetTimer(tr);
 		} else {
-			doStartTimer(tr, true); // true means "silent".
+			boolean serverSound = this.fop != null && this.fop.isEmitSoundsOnServer();
+			doStartTimer(tr, isBreakTimerSoundsDisabled() || isSilenced() || serverSound);
 		}
 	}
 
@@ -141,12 +145,12 @@ public class BreakTimerElement extends TimerElement {
 					if (this.uiEventLogger.isDebugEnabled()) {
 						this.uiEventLogger.debug("indefinite {}", breakTimer.liveTimeRemaining());
 					}
-					doStartTimer(null, fop.isEmitSoundsOnServer());
+					doStartTimer(null, isBreakTimerSoundsDisabled() || isSilenced() || fop.isEmitSoundsOnServer());
 				} else {
 					if (this.uiEventLogger.isDebugEnabled()) {
 						this.uiEventLogger.debug("live {}", breakTimer.liveTimeRemaining());
 					}
-					doStartTimer(breakTimer.liveTimeRemaining(), isSilenced() || fop.isEmitSoundsOnServer());
+					doStartTimer(breakTimer.liveTimeRemaining(), isBreakTimerSoundsDisabled() || isSilenced() || fop.isEmitSoundsOnServer());
 				}
 			} else {
 				// If the break timer is not currently running, prefer showing the last-stopped
@@ -166,6 +170,35 @@ public class BreakTimerElement extends TimerElement {
 	@Override
 	protected IProxyTimer getFopTimer(FieldOfPlay fop) {
 		return fop.getBreakTimer();
+	}
+
+	private boolean isBreakTimerSoundsDisabled() {
+		return !Config.getCurrent().featureSwitch(FeatureSwitch.BREAK_TIMER_SOUNDS);
+	}
+
+	@Override
+	protected double getInitialWarningThresholdSeconds() {
+		return Competition.breakTimerInitialWarning / 1000.0D;
+	}
+
+	@Override
+	protected double getFinalWarningThresholdSeconds() {
+		return Competition.breakTimerFinalWarning / 1000.0D;
+	}
+
+	@Override
+	protected String getInitialWarningSoundBaseName() {
+		return Competition.breakTimerInitialWarningSound;
+	}
+
+	@Override
+	protected String getFinalWarningSoundBaseName() {
+		return Competition.breakTimerFinalWarningSound;
+	}
+
+	@Override
+	protected String getTimeOverSoundBaseName() {
+		return Competition.breakTimerTimeOverSound;
 	}
 
 	/*

@@ -238,7 +238,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 	@Override
 	public void timeOver(Object origin) {
 		// avoid sending multiple events to FOP
-		boolean needToSendEvent = !getFop().isTimeoutEmitted();
+		boolean needToSendEvent = !getFop().isAthleteTimeoutEmitted();
 		if (needToSendEvent) {
 			getFop().emitTimeOver();
 			getFop().fopEventPost(new FOPEvent.TimeOver(origin));

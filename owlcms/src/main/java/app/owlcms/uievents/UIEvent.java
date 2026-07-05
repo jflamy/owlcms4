@@ -1573,6 +1573,34 @@ public class UIEvent {
 		}
 	}
 
+	static public class BreakTimeRemainingSeconds extends UIEvent {
+
+		private int secondsRemaining;
+
+		/**
+		 * Instantiates a new break warning milestone event in seconds.
+		 *
+		 * @param origin    the origin
+		 * @param secondsRemaining milestone value in seconds
+		 * @param fop       originating field of play
+		 */
+		public BreakTimeRemainingSeconds(Object origin, int secondsRemaining, FieldOfPlay fop) {
+			super(origin, fop);
+			this.secondsRemaining = secondsRemaining;
+			if (this.trace == null || this.trace.isBlank()) {
+				this.setTrace(() -> LoggerUtils.stackTrace());
+			}
+		}
+
+		public int getSecondsRemaining() {
+			return this.secondsRemaining;
+		}
+
+		public void setSecondsRemaining(int secondsRemaining) {
+			this.secondsRemaining = secondsRemaining;
+		}
+	}
+
 	public static class VideoRefresh extends UIEvent {
 		private Group group;
 		private Category category;

@@ -13,9 +13,9 @@ class TimerElement extends LitElement {
 
   render() {
     return html`
-      <audio preload="auto" id="finalWarning" src="../local/sounds/finalWarning.mp3"></audio>
-      <audio preload="auto" id="initialWarning" src="../local/sounds/initialWarning.mp3"></audio>
-      <audio preload="auto" id="timeOver" src="../local/sounds/timeOver.mp3"></audio>
+      <audio preload="auto" id="finalWarning" src="${this.finalWarningSoundUrl}"></audio>
+      <audio preload="auto" id="initialWarning" src="${this.initialWarningSoundUrl}"></audio>
+      <audio preload="auto" id="timeOver" src="${this.timeOverSoundUrl}"></audio>
       <div id="timer" .innerHTML="&nbsp;&nbsp;&nbsp;&nbsp;"></div>`;
   }
 
@@ -48,6 +48,15 @@ class TimerElement extends LitElement {
       },
       timerCommandPayload: {
         type: Object,
+      },
+      initialWarningSoundUrl: {
+        type: String,
+      },
+      finalWarningSoundUrl: {
+        type: String,
+      },
+      timeOverSoundUrl: {
+        type: String,
       },
       serverTickEnabled: {
         type: Boolean,
@@ -112,6 +121,7 @@ class TimerElement extends LitElement {
     this.finalWarningThresholdSeconds = Number.isFinite(payload.finalWarningThresholdSeconds)
       ? payload.finalWarningThresholdSeconds
       : -1;
+    this._applySoundUrls(payload);
   }
 
   _applyTimerCommand() {
@@ -131,6 +141,7 @@ class TimerElement extends LitElement {
     this.silent = silent;
     this.serverTickEnabled = Boolean(payload.serverTickEnabled);
     this.serverRunningCheckEnabled = Boolean(payload.serverRunningCheckEnabled);
+    this._applySoundUrls(payload);
     // Count-up (stopwatch) support: the server sets countUp=true (and an upper
     // bound via startTime) for stopwatch timers. Absent for normal countdowns.
     this.countUp = Boolean(payload.countUp);
@@ -167,6 +178,18 @@ class TimerElement extends LitElement {
 
   _timeEquals(left, right) {
     return Number.isFinite(left) && Number.isFinite(right) && Math.abs(left - right) < 0.001;
+  }
+
+  _applySoundUrls(payload) {
+    if (typeof payload.initialWarningSoundUrl === "string" && payload.initialWarningSoundUrl.length > 0) {
+      this.initialWarningSoundUrl = payload.initialWarningSoundUrl;
+    }
+    if (typeof payload.finalWarningSoundUrl === "string" && payload.finalWarningSoundUrl.length > 0) {
+      this.finalWarningSoundUrl = payload.finalWarningSoundUrl;
+    }
+    if (typeof payload.timeOverSoundUrl === "string" && payload.timeOverSoundUrl.length > 0) {
+      this.timeOverSoundUrl = payload.timeOverSoundUrl;
+    }
   }
 
   _scheduleTimerFrame() {
@@ -510,6 +533,9 @@ class TimerElement extends LitElement {
     this._formattedTime = "&nbsp;&nbsp;&nbsp;&nbsp;";
     this.initialWarningThresholdSeconds = -1;
     this.finalWarningThresholdSeconds = -1;
+    this.initialWarningSoundUrl = "../local/sounds/initialWarning.mp3";
+    this.finalWarningSoundUrl = "../local/sounds/finalWarning.mp3";
+    this.timeOverSoundUrl = "../local/sounds/timeOver.mp3";
     this.timerStatePayload = null;
     this.timerSettingsPayload = null;
     this.timerCommandPayload = null;

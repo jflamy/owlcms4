@@ -140,6 +140,30 @@ public abstract class TimerElement extends LitTemplate
 		return -1.0D;
 	}
 
+	protected String getInitialWarningSoundBaseName() {
+		return "initialWarning";
+	}
+
+	protected String getFinalWarningSoundBaseName() {
+		return "finalWarning";
+	}
+
+	protected String getTimeOverSoundBaseName() {
+		return "timeOver";
+	}
+
+	protected String getInitialWarningSoundUrl() {
+		return "../local/sounds/" + getInitialWarningSoundBaseName() + ".mp3";
+	}
+
+	protected String getFinalWarningSoundUrl() {
+		return "../local/sounds/" + getFinalWarningSoundBaseName() + ".mp3";
+	}
+
+	protected String getTimeOverSoundUrl() {
+		return "../local/sounds/" + getTimeOverSoundBaseName() + ".mp3";
+	}
+
 	/**
 	 * @return true if this timer counts up (stopwatch) instead of down. Subclasses
 	 *         override to enable the count-up behaviour on the client.
@@ -398,6 +422,9 @@ public abstract class TimerElement extends LitTemplate
 		payload.put("serverRunningCheckEnabled", isServerRunningCheckEnabled());
 		payload.put("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
 		payload.put("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
+		payload.put("initialWarningSoundUrl", getInitialWarningSoundUrl());
+		payload.put("finalWarningSoundUrl", getFinalWarningSoundUrl());
+		payload.put("timeOverSoundUrl", getTimeOverSoundUrl());
 		timerElement2.setPropertyJson("timerSettingsPayload", payload);
 	}
 
@@ -565,6 +592,9 @@ public abstract class TimerElement extends LitTemplate
 		payload.put("from", from != null ? from : "");
 		payload.put("initialWarningThresholdSeconds", getInitialWarningThresholdSeconds());
 		payload.put("finalWarningThresholdSeconds", getFinalWarningThresholdSeconds());
+		payload.put("initialWarningSoundUrl", getInitialWarningSoundUrl());
+		payload.put("finalWarningSoundUrl", getFinalWarningSoundUrl());
+		payload.put("timeOverSoundUrl", getTimeOverSoundUrl());
 		if (isCountUpTimer()) {
 			// Stopwatch timers count up from the given seconds towards an upper bound.
 			payload.put("countUp", true);

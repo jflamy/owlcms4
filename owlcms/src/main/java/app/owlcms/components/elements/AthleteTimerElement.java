@@ -174,6 +174,21 @@ public class AthleteTimerElement extends TimerElement {
 	}
 
 	@Override
+	protected String getInitialWarningSoundBaseName() {
+		return Competition.athleteTimerInitialWarningSound;
+	}
+
+	@Override
+	protected String getFinalWarningSoundBaseName() {
+		return Competition.athleteTimerFinalWarningSound;
+	}
+
+	@Override
+	protected String getTimeOverSoundBaseName() {
+		return Competition.athleteTimerTimeOverSound;
+	}
+
+	@Override
 	protected boolean isIndefinite() {
 		return false;
 	}

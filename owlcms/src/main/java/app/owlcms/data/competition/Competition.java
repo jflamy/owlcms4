@@ -92,11 +92,21 @@ import ch.qos.logback.classic.Logger;
 public class Competition {
 
 	public static final int SHORT_TEAM_LENGTH = 6;
-	// Athlete-timer milestones only. Do not reuse for breaks or pauses.
+	// Athlete-timer milestones only.
 	public static int athleteTimerTwoMinutes = 120000;
 	public static int athleteTimerInitialWarning = 90000;
 	public static int athleteTimerOneMinute = 60000;
 	public static int athleteTimerFinalWarning = 30000;
+	// Break-timer milestones only.
+	public static int breakTimerInitialWarning = 60000;
+	public static int breakTimerFinalWarning = 30000;
+	// Sound values are basenames. The server resolves .wav and the browser resolves .mp3.
+	public static String athleteTimerInitialWarningSound = "initialWarning";
+	public static String athleteTimerFinalWarningSound = "finalWarning";
+	public static String athleteTimerTimeOverSound = "timeOver";
+	public static String breakTimerInitialWarningSound = "initialWarning";
+	public static String breakTimerFinalWarningSound = "finalWarning";
+	public static String breakTimerTimeOverSound = "timeOver";
 	private static final String ATHLETE_TIMER_TWO_MINUTES_ENV = "OWLCMS_ATHLETE_TIMER_TWO_MINUTES";
 	private static final String ATHLETE_TIMER_ONE_MINUTE_ENV = "OWLCMS_ATHLETE_TIMER_ONE_MINUTE";
 	private static Competition competition;
@@ -136,6 +146,38 @@ public class Competition {
 		prev = athleteTimerFinalWarning;
 		athleteTimerFinalWarning = parseTimingProp(props, "athleteTimerFinalWarning", athleteTimerFinalWarning);
 		if (athleteTimerFinalWarning != prev) logger.info("timing override: athleteTimerFinalWarning = {} ms (was {})", athleteTimerFinalWarning, prev);
+
+		prev = breakTimerInitialWarning;
+		breakTimerInitialWarning = parseTimingProp(props, "breakTimerInitialWarning", breakTimerInitialWarning);
+		if (breakTimerInitialWarning != prev) logger.info("timing override: breakTimerInitialWarning = {} ms (was {})", breakTimerInitialWarning, prev);
+
+		prev = breakTimerFinalWarning;
+		breakTimerFinalWarning = parseTimingProp(props, "breakTimerFinalWarning", breakTimerFinalWarning);
+		if (breakTimerFinalWarning != prev) logger.info("timing override: breakTimerFinalWarning = {} ms (was {})", breakTimerFinalWarning, prev);
+
+		String prevSound = athleteTimerInitialWarningSound;
+		athleteTimerInitialWarningSound = parseTimingSoundProp(props, "athleteTimerInitialWarningSound", athleteTimerInitialWarningSound);
+		if (!Objects.equals(athleteTimerInitialWarningSound, prevSound)) logger.info("timing override: athleteTimerInitialWarningSound = {} (was {})", athleteTimerInitialWarningSound, prevSound);
+
+		prevSound = athleteTimerFinalWarningSound;
+		athleteTimerFinalWarningSound = parseTimingSoundProp(props, "athleteTimerFinalWarningSound", athleteTimerFinalWarningSound);
+		if (!Objects.equals(athleteTimerFinalWarningSound, prevSound)) logger.info("timing override: athleteTimerFinalWarningSound = {} (was {})", athleteTimerFinalWarningSound, prevSound);
+
+		prevSound = athleteTimerTimeOverSound;
+		athleteTimerTimeOverSound = parseTimingSoundProp(props, "athleteTimerTimeOverSound", athleteTimerTimeOverSound);
+		if (!Objects.equals(athleteTimerTimeOverSound, prevSound)) logger.info("timing override: athleteTimerTimeOverSound = {} (was {})", athleteTimerTimeOverSound, prevSound);
+
+		prevSound = breakTimerInitialWarningSound;
+		breakTimerInitialWarningSound = parseTimingSoundProp(props, "breakTimerInitialWarningSound", breakTimerInitialWarningSound);
+		if (!Objects.equals(breakTimerInitialWarningSound, prevSound)) logger.info("timing override: breakTimerInitialWarningSound = {} (was {})", breakTimerInitialWarningSound, prevSound);
+
+		prevSound = breakTimerFinalWarningSound;
+		breakTimerFinalWarningSound = parseTimingSoundProp(props, "breakTimerFinalWarningSound", breakTimerFinalWarningSound);
+		if (!Objects.equals(breakTimerFinalWarningSound, prevSound)) logger.info("timing override: breakTimerFinalWarningSound = {} (was {})", breakTimerFinalWarningSound, prevSound);
+
+		prevSound = breakTimerTimeOverSound;
+		breakTimerTimeOverSound = parseTimingSoundProp(props, "breakTimerTimeOverSound", breakTimerTimeOverSound);
+		if (!Objects.equals(breakTimerTimeOverSound, prevSound)) logger.info("timing override: breakTimerTimeOverSound = {} (was {})", breakTimerTimeOverSound, prevSound);
 	}
 
 	private static int parseTimingProp(Properties props, String key, int defaultValue) {
@@ -162,6 +204,27 @@ public class Competition {
 			logger.warn("environment: invalid value for {} = '{}', using default {}", envVar, v, defaultValue);
 			return defaultValue;
 		}
+	}
+
+	private static String parseTimingSoundProp(Properties props, String key, String defaultValue) {
+		String v = props.getProperty(key);
+		if (v == null) {
+			return defaultValue;
+		}
+		String trimmed = v.trim();
+		if (trimmed.isBlank()) {
+			logger.warn("timing.properties: blank value for {} = '{}', using default {}", key, v, defaultValue);
+			return defaultValue;
+		}
+		return normalizeTimingSoundName(trimmed);
+	}
+
+	private static String normalizeTimingSoundName(String soundName) {
+		String lowerCase = soundName.toLowerCase(Locale.ROOT);
+		if (lowerCase.endsWith(".wav") || lowerCase.endsWith(".mp3")) {
+			return soundName.substring(0, soundName.lastIndexOf('.'));
+		}
+		return soundName;
 	}
 
 	public static void debugRanks(String label, Athlete a) {

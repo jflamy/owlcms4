@@ -188,12 +188,16 @@ public class FieldOfPlay implements IUnregister {
 	private boolean downEmitted;
 	@SuppressWarnings("unused")
 	private Tone downSignal;
-	private boolean finalWarningEmitted;
+	private boolean athleteFinalWarningEmitted;
+	private boolean athleteInitialWarningEmitted;
+	private boolean athleteTimeoutEmitted;
+	private boolean breakFinalWarningEmitted;
+	private boolean breakInitialWarningEmitted;
+	private boolean breakTimeoutEmitted;
 	private EventBus fopEventBus = null;
 	private boolean forcedTime = false;
 	private Boolean goodLift;
 	private Group group = null;
-	private boolean initialWarningEmitted;
 	private long lastGroupLoaded;
 	private List<Athlete> leaders;
 	private List<Athlete> liftingOrder;
@@ -210,7 +214,6 @@ public class FieldOfPlay implements IUnregister {
 	private Long[] refereeTime;
 	private FOPState state;
 	private boolean testingMode;
-	private boolean timeoutEmitted;
 	final private Logger timingLogger = (Logger) LoggerFactory.getLogger(this.logger.getName() + "_Timing");
 	private EventBus uiEventBus = null;
 	// final private Logger uiEventLogger = (Logger)
@@ -248,6 +251,9 @@ public class FieldOfPlay implements IUnregister {
 	private Sound finalWarningSound;
 	private Sound initialWarningSound;
 	private Sound timeOverSound;
+	private Sound breakFinalWarningSound;
+	private Sound breakInitialWarningSound;
+	private Sound breakTimeOverSound;
 	private boolean useCollarsIfAvailable;
 	private int barWeight;
 	private boolean lightBarInUse;
@@ -1265,8 +1271,8 @@ public class FieldOfPlay implements IUnregister {
 		return this.testingMode;
 	}
 
-	public synchronized boolean isTimeoutEmitted() {
-		return this.timeoutEmitted;
+	public synchronized boolean isAthleteTimeoutEmitted() {
+		return this.athleteTimeoutEmitted;
 	}
 
 	public boolean isUseCollarsIfAvailable() {
@@ -1690,40 +1696,90 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	void emitFinalWarning() {
-		if (!isFinalWarningEmitted()) {
+		if (!isAthleteFinalWarningEmitted()) {
 			this.logger.info("{}Final Warning", FieldOfPlay.getLoggingName(this));
 			if (isEmitSoundsOnServer()) {
-				this.finalWarningSound = new Sound(getSoundMixer(), "finalWarning.wav");
+				this.finalWarningSound = new Sound(getSoundMixer(), Competition.athleteTimerFinalWarningSound + ".wav");
 				this.finalWarningSound.emit();
 			}
 			pushOutUIEvent(new UIEvent.TimeRemainingSeconds(this, Competition.athleteTimerFinalWarning / 1000, this));
-			setFinalWarningEmitted(true);
+			setAthleteFinalWarningEmitted(true);
+		}
+	}
+
+	void emitBreakFinalWarning() {
+		if (!isBreakTimerSoundsEnabled()) {
+			return;
+		}
+		if (!isBreakFinalWarningEmitted()) {
+			this.logger.info("{}Break Final Warning", FieldOfPlay.getLoggingName(this));
+			if (isEmitSoundsOnServer()) {
+				this.breakFinalWarningSound = new Sound(getSoundMixer(), Competition.breakTimerFinalWarningSound + ".wav");
+				this.breakFinalWarningSound.emit();
+			}
+			pushOutUIEvent(new UIEvent.BreakTimeRemainingSeconds(this, Competition.breakTimerFinalWarning / 1000, this));
+			setBreakFinalWarningEmitted(true);
 		}
 	}
 
 	void emitInitialWarning() {
-		if (!isInitialWarningEmitted()) {
+		if (!isAthleteInitialWarningEmitted()) {
 			this.logger.info("{}Initial Warning", FieldOfPlay.getLoggingName(this));
 			if (isEmitSoundsOnServer()) {
-				this.initialWarningSound = new Sound(getSoundMixer(), "initialWarning.wav");
+				this.initialWarningSound = new Sound(getSoundMixer(), Competition.athleteTimerInitialWarningSound + ".wav");
 				this.initialWarningSound.emit();
 			}
 			pushOutUIEvent(new UIEvent.TimeRemainingSeconds(this, Competition.athleteTimerInitialWarning / 1000, this));
-			setInitialWarningEmitted(true);
+			setAthleteInitialWarningEmitted(true);
+		}
+	}
+
+	void emitBreakInitialWarning() {
+		if (!isBreakTimerSoundsEnabled()) {
+			return;
+		}
+		if (!isBreakInitialWarningEmitted()) {
+			this.logger.info("{}Break Initial Warning", FieldOfPlay.getLoggingName(this));
+			if (isEmitSoundsOnServer()) {
+				this.breakInitialWarningSound = new Sound(getSoundMixer(), Competition.breakTimerInitialWarningSound + ".wav");
+				this.breakInitialWarningSound.emit();
+			}
+			pushOutUIEvent(new UIEvent.BreakTimeRemainingSeconds(this, Competition.breakTimerInitialWarning / 1000, this));
+			setBreakInitialWarningEmitted(true);
 		}
 	}
 
 	void emitTimeOver() {
-		if (!isTimeoutEmitted()) {
+		if (!isAthleteTimeoutEmitted()) {
 			this.logger.info("{}Time Over", FieldOfPlay.getLoggingName(this));
 			if (isEmitSoundsOnServer()) {
-				this.timeOverSound = new Sound(getSoundMixer(), "timeOver.wav");
+				this.timeOverSound = new Sound(getSoundMixer(), Competition.athleteTimerTimeOverSound + ".wav");
 				this.timeOverSound.emit();
 
 			}
 			pushOutUIEvent(new UIEvent.TimeRemainingSeconds(this, 0, this));
-			setTimeoutEmitted(true);
+			setAthleteTimeoutEmitted(true);
 		}
+	}
+
+	void emitBreakTimeOver() {
+		if (!isBreakTimerSoundsEnabled()) {
+			return;
+		}
+		if (!isBreakTimeoutEmitted()) {
+			this.logger.info("{}Break Time Over", FieldOfPlay.getLoggingName(this));
+			if (isEmitSoundsOnServer()) {
+				this.breakTimeOverSound = new Sound(getSoundMixer(), Competition.breakTimerTimeOverSound + ".wav");
+				this.breakTimeOverSound.emit();
+
+			}
+			pushOutUIEvent(new UIEvent.BreakTimeRemainingSeconds(this, 0, this));
+			setBreakTimeoutEmitted(true);
+		}
+	}
+
+	private boolean isBreakTimerSoundsEnabled() {
+		return Config.getCurrent().featureSwitch(FeatureSwitch.BREAK_TIMER_SOUNDS);
 	}
 
 	/**
@@ -2315,16 +2371,28 @@ public class FieldOfPlay implements IUnregister {
 		return this.downEmitted;
 	}
 
-	private synchronized boolean isFinalWarningEmitted() {
-		return this.finalWarningEmitted;
+	private synchronized boolean isAthleteFinalWarningEmitted() {
+		return this.athleteFinalWarningEmitted;
+	}
+
+	private synchronized boolean isBreakFinalWarningEmitted() {
+		return this.breakFinalWarningEmitted;
 	}
 
 	private boolean isForcedTime() {
 		return this.forcedTime;
 	}
 
-	private synchronized boolean isInitialWarningEmitted() {
-		return this.initialWarningEmitted;
+	private synchronized boolean isAthleteInitialWarningEmitted() {
+		return this.athleteInitialWarningEmitted;
+	}
+
+	private synchronized boolean isBreakInitialWarningEmitted() {
+		return this.breakInitialWarningEmitted;
+	}
+
+	private synchronized boolean isBreakTimeoutEmitted() {
+		return this.breakTimeoutEmitted;
 	}
 
 	private boolean shouldIgnoreDecisionInputDuringCooldown(FOPEvent e) {
@@ -3359,13 +3427,23 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void resetEmittedFlags() {
-		setInitialWarningEmitted(false);
-		setFinalWarningEmitted(false);
-		setTimeoutEmitted(false);
+		resetAthleteTimerWarningFlags();
 		setDownEmitted(false);
 		setDecisionDisplayScheduled(false);
 		setClockStoppedDecisionsAllowed(false);
 		this.decisionReceivedWithoutClock = false;
+	}
+
+	void resetAthleteTimerWarningFlags() {
+		setAthleteInitialWarningEmitted(false);
+		setAthleteFinalWarningEmitted(false);
+		setAthleteTimeoutEmitted(false);
+	}
+
+	void resetBreakTimerWarningFlags() {
+		setBreakInitialWarningEmitted(false);
+		setBreakFinalWarningEmitted(false);
+		setBreakTimeoutEmitted(false);
 	}
 
 	/**
@@ -3571,9 +3649,14 @@ public class FieldOfPlay implements IUnregister {
 		this.downEmitted = downEmitted;
 	}
 
-	private synchronized void setFinalWarningEmitted(boolean finalWarningEmitted) {
-		this.logger.trace("finalWarningEmitted {}", finalWarningEmitted);
-		this.finalWarningEmitted = finalWarningEmitted;
+	private synchronized void setAthleteFinalWarningEmitted(boolean athleteFinalWarningEmitted) {
+		this.logger.trace("athleteFinalWarningEmitted {}", athleteFinalWarningEmitted);
+		this.athleteFinalWarningEmitted = athleteFinalWarningEmitted;
+	}
+
+	private synchronized void setBreakFinalWarningEmitted(boolean breakFinalWarningEmitted) {
+		this.logger.trace("breakFinalWarningEmitted {}", breakFinalWarningEmitted);
+		this.breakFinalWarningEmitted = breakFinalWarningEmitted;
 	}
 
 	private void setForcedTime(boolean b) {
@@ -3587,9 +3670,14 @@ public class FieldOfPlay implements IUnregister {
 		this.goodLift = goodLift;
 	}
 
-	private synchronized void setInitialWarningEmitted(boolean initialWarningEmitted) {
-		this.logger.trace("initialWarningEmitted {}", initialWarningEmitted);
-		this.initialWarningEmitted = initialWarningEmitted;
+	private synchronized void setAthleteInitialWarningEmitted(boolean athleteInitialWarningEmitted) {
+		this.logger.trace("athleteInitialWarningEmitted {}", athleteInitialWarningEmitted);
+		this.athleteInitialWarningEmitted = athleteInitialWarningEmitted;
+	}
+
+	private synchronized void setBreakInitialWarningEmitted(boolean breakInitialWarningEmitted) {
+		this.logger.trace("breakInitialWarningEmitted {}", breakInitialWarningEmitted);
+		this.breakInitialWarningEmitted = breakInitialWarningEmitted;
 	}
 
 	private void setLastChallengedRecords(List<RecordEvent> challengedRecords) {
@@ -3662,9 +3750,14 @@ public class FieldOfPlay implements IUnregister {
 		}
 	}
 
-	private synchronized void setTimeoutEmitted(boolean timeoutEmitted) {
-		this.logger.trace("timeoutEmitted {}", timeoutEmitted);
-		this.timeoutEmitted = timeoutEmitted;
+	private synchronized void setAthleteTimeoutEmitted(boolean athleteTimeoutEmitted) {
+		this.logger.trace("athleteTimeoutEmitted {}", athleteTimeoutEmitted);
+		this.athleteTimeoutEmitted = athleteTimeoutEmitted;
+	}
+
+	private synchronized void setBreakTimeoutEmitted(boolean breakTimeoutEmitted) {
+		this.logger.trace("breakTimeoutEmitted {}", breakTimeoutEmitted);
+		this.breakTimeoutEmitted = breakTimeoutEmitted;
 	}
 
 	private void setUseCollarsIfAvailable(boolean b) {

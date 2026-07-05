@@ -14,6 +14,7 @@ import java.util.TimerTask;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.competition.Competition;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
@@ -62,7 +63,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
 	@Override
 	public void finalWarning(Object origin) {
-		// ignored
+		getFop().emitBreakFinalWarning();
 	}
 
 	/**
@@ -102,7 +103,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void initialWarning(Object origin) {
-		// ignored
+		getFop().emitBreakInitialWarning();
 	}
 
 	/**
@@ -237,6 +238,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		        getFop().getCountdownType(), LoggerUtils.stackTrace(), this.isIndefinite(), getFop());
 		// logger.debug("posting {}", event);
 		getFop().pushOutUIEvent(event);
+		getFop().resetBreakTimerWarningFlags();
 		setRunning(true);
 
 		// if a break is running, need to stop it before starting another.
@@ -245,12 +247,34 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 			this.serverTimer.cancel();
 		}
 		this.serverTimer = new Timer();
-		TimerTask timerTask = computeTask(this.timeRemaining);
-		if (this.timeRemaining >= 0) {
-			this.logger.debug("ProxyBreakTimer.start(): scheduling serverTimer to run in {} ms", this.timeRemaining);
-			this.serverTimer.schedule(timerTask, this.timeRemaining);
+		if (this.isIndefinite() || millisRemaining < 0) {
+			this.logger.debug("ProxyBreakTimer.start(): not scheduling serverTimer (indefinite={} timeRemaining={})",
+			        this.isIndefinite(), millisRemaining);
 		} else {
-			this.logger.debug("ProxyBreakTimer.start(): not scheduling serverTimer (timeRemaining={})", this.timeRemaining);
+			scheduleTask(nextMilestoneTime(millisRemaining), initialDelay(millisRemaining));
+		}
+	}
+
+	private int initialDelay(int timeRemaining) {
+		int nextMilestone = nextMilestoneTime(timeRemaining);
+		return nextMilestone == 0 ? Math.max(timeRemaining, 0) : Math.max(timeRemaining - nextMilestone, 0);
+	}
+
+	private int nextMilestoneTime(int timeRemaining) {
+		if (timeRemaining >= Competition.breakTimerInitialWarning) {
+			return Competition.breakTimerInitialWarning;
+		} else if (timeRemaining >= Competition.breakTimerFinalWarning) {
+			return Competition.breakTimerFinalWarning;
+		} else {
+			return 0;
+		}
+	}
+
+	private void scheduleTask(int timeRemaining, int delayMillis) {
+		try {
+			this.serverTimer.schedule(computeTask(timeRemaining), Math.max(delayMillis, 0));
+		} catch (IllegalArgumentException e) {
+			this.logger.debug("Timer schedule issue: {}", e.getMessage());
 		}
 	}
 
@@ -308,6 +332,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 			}
 			// should emit sound at end of break
 			// logger.debug("timeOver \n{}", LoggerUtils.whereFrom());
+			getFop().emitBreakTimeOver();
 			getFop().pushOutUIEvent(new UIEvent.BreakDone(origin, getFop().getBreakType(), getFop()));
 			getFop().fopEventPost(new FOPEvent.BreakDone(getFop().getBreakType(), origin));
 		}
@@ -322,13 +347,37 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 
 	private TimerTask computeTask(int timeRemaining2) {
 		this.logger.info("{}scheduling serverTimer break over {}", FieldOfPlay.getLoggingName(this.fop), this.timeRemaining);
-		return new TimerTask() {
-			@Override
-			public void run() {
-				ProxyBreakTimer.this.logger.info("{}running break over", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
-				timeOver(this);
-			}
-		};
+		final int timeRemaining = timeRemaining2;
+		if (timeRemaining == 0) {
+			return new TimerTask() {
+				@Override
+				public void run() {
+					ProxyBreakTimer.this.logger.info("{}running break over", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
+					timeOver(this);
+				}
+			};
+		} else if (timeRemaining == Competition.breakTimerFinalWarning) {
+			return new TimerTask() {
+				@Override
+				public void run() {
+					ProxyBreakTimer.this.logger.info("{}running break final warning", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
+					finalWarning(this);
+					scheduleTask(0, Competition.breakTimerFinalWarning);
+				}
+			};
+		} else if (timeRemaining == Competition.breakTimerInitialWarning) {
+			return new TimerTask() {
+				@Override
+				public void run() {
+					ProxyBreakTimer.this.logger.info("{}running break initial warning", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
+					initialWarning(this);
+					scheduleTask(Competition.breakTimerFinalWarning,
+					        Competition.breakTimerInitialWarning - Competition.breakTimerFinalWarning);
+				}
+			};
+		} else {
+			throw new RuntimeException("timeRemaining " + timeRemaining);
+		}
 	}
 
 	/**
