@@ -742,29 +742,22 @@ public class BaseResults extends LitTemplate
 
 	private void computeProjectedRankText(FieldOfPlay fop) {
 		if (!Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_PROJECTED_RANKS)) {
-			this.logger.warn("projectedRank: feature switch off");
 			clearProjectedRankText();
 			return;
 		}
 		// Snatch rank is only meaningful when snatch medals exist (multi-medal championship).
 		// CJ / total rank is meaningful in all competition types (total-only, score, or multi-medal).
 		if (!fop.isCjStarted() && !Championship.anyMultiMedal(fop.getActiveChampionships())) {
-			this.logger.warn("projectedRank: snatch phase with no multi-medal championship — cjStarted={} activeChampionships={}",
-			        fop.isCjStarted(), fop.getActiveChampionships());
 			clearProjectedRankText();
 			return;
 		}
 
 		ProjectedRank projectedRank = fop.getProjectedRank();
 		if (projectedRank == null) {
-			this.logger.warn("projectedRank: getProjectedRank() returned null — medals={} curAthlete={}",
-			        fop.getMedals() != null ? fop.getMedals().keySet() : "null",
-			        fop.getCurAthlete() != null ? fop.getCurAthlete().getAbbreviatedName() : "null");
 			clearProjectedRankText();
 			return;
 		}
 
-		this.logger.warn("projectedRank: liftRank={} totalRank={}", projectedRank.liftRank(), projectedRank.totalRank());
 		String projectedRankText;
 		if (!fop.isCjStarted()) {
 			projectedRankText = Translator.translate("Scoreboard.ProjectedRank.Snatch", projectedRank.liftRank());

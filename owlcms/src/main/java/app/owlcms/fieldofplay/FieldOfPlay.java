@@ -3051,30 +3051,16 @@ public class FieldOfPlay implements IUnregister {
 		}
 		Category medalCategory = findProjectedRankMedalCategory(cur);
 		if (medalCategory == null) {
-			this.logger.warn("{}projectedRank: no medal category cur={} mainRankings={} currentCategory={} medals={}",
-			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(),
-			        cur.getMainRankings() != null && cur.getMainRankings().getCategory() != null
-			                ? cur.getMainRankings().getCategory().getComputedCode()
-			                : "null",
-			        cur.getCategory() != null ? cur.getCategory().getComputedCode() : "null",
-			        getMedals().keySet());
 			return null;
 		}
 		List<Athlete> medalists = getMedals().get(medalCategory.getComputedCode());
 		if (medalists == null || medalists.isEmpty()) {
-			this.logger.warn("{}projectedRank: no medalists cur={} medalCategory={} medals={}",
-			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), medalCategory.getComputedCode(), getMedals().keySet());
 			return null;
 		}
-		this.logger.warn("{}projectedRank: cur={} medalCategory={} medalists={}",
-		        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), medalCategory.getComputedCode(),
-		        medalists.stream().map(a -> a.getAbbreviatedName() + ":" + a.getId()).toList());
 		// Refresh current-group athletes with up-to-date lifting-order data (same as recomputeCurrentLeaders).
 		List<Athlete> competitors = new ArrayList<>();
 		for (Athlete a : medalists) {
 			if (a.getId().equals(cur.getId())) {
-				this.logger.warn("{}projectedRank: skip self cur={} medalist={}:{}", FieldOfPlay.getLoggingName(this),
-				        cur.getAbbreviatedName(), a.getAbbreviatedName(), a.getId());
 				continue; // skip self
 			}
 			Athlete fresh = null;
@@ -3088,20 +3074,12 @@ public class FieldOfPlay implements IUnregister {
 				}
 			}
 			competitors.add(fresh != null ? fresh : a);
-			this.logger.warn("{}projectedRank: competitor cur={} medalist={}:{} fresh={} s={} cj={} total={}",
-			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), a.getAbbreviatedName(), a.getId(),
-			        fresh != null, (fresh != null ? fresh : a).getBestSnatch(), (fresh != null ? fresh : a).getBestCleanJerk(),
-			        (fresh != null ? fresh : a).getTotal());
 		}
 		if (competitors.isEmpty()) {
-			this.logger.warn("{}projectedRank: no competitors cur={} medalCategory={} medalistCount={}",
-			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), medalCategory.getComputedCode(), medalists.size());
 			return null;
 		}
 		Integer nextWeight = cur.getNextAttemptRequestedWeight();
 		if (nextWeight == null || nextWeight <= 0) {
-			this.logger.warn("{}projectedRank: no next weight cur={} nextWeight={}", FieldOfPlay.getLoggingName(this),
-			        cur.getAbbreviatedName(), nextWeight);
 			return null;
 		}
 
@@ -3116,15 +3094,10 @@ public class FieldOfPlay implements IUnregister {
 				int leaderSnatch = leader.getBestSnatch();
 				boolean tiebreakerAhead = leaderSnatch == projectedSnatch && isTiebreakerAhead(leader, cur);
 				boolean ahead = leaderSnatch > projectedSnatch || tiebreakerAhead;
-				this.logger.warn("{}projectedRank: snatch compare cur={} projected={} leader={} leaderSnatch={} tiebreakerAhead={} ahead={} rankBefore={}",
-				        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), projectedSnatch,
-				        leader.getAbbreviatedName(), leaderSnatch, tiebreakerAhead, ahead, snatchRank);
 				if (ahead) {
 					snatchRank++;
 				}
 			}
-			this.logger.warn("{}projectedRank: snatch result cur={} projected={} rank={}", FieldOfPlay.getLoggingName(this),
-			        cur.getAbbreviatedName(), projectedSnatch, snatchRank);
 			return new ProjectedRank(snatchRank, -1);
 		} else {
 			// CJ phase: always compute CJ rank; compute total rank only if snatch was not bombed
@@ -3140,9 +3113,6 @@ public class FieldOfPlay implements IUnregister {
 				int leaderCJ = leader.getBestCleanJerk();
 				boolean cjTiebreakerAhead = leaderCJ == projectedCJ && isTiebreakerAhead(leader, cur);
 				boolean cjAhead = leaderCJ > projectedCJ || cjTiebreakerAhead;
-				this.logger.warn("{}projectedRank: cj compare cur={} projectedCJ={} leader={} leaderCJ={} tiebreakerAhead={} ahead={} cjRankBefore={}",
-				        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), projectedCJ,
-				        leader.getAbbreviatedName(), leaderCJ, cjTiebreakerAhead, cjAhead, cjRank);
 				if (cjAhead) {
 					cjRank++;
 				}
@@ -3150,16 +3120,11 @@ public class FieldOfPlay implements IUnregister {
 					int leaderTotal = leader.getTotal();
 					boolean totalTiebreakerAhead = leaderTotal == projectedTotal && isTiebreakerAhead(leader, cur);
 					boolean totalAhead = leaderTotal > projectedTotal || totalTiebreakerAhead;
-					this.logger.warn("{}projectedRank: total compare cur={} projectedTotal={} leader={} leaderTotal={} tiebreakerAhead={} ahead={} totalRankBefore={}",
-					        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), projectedTotal,
-					        leader.getAbbreviatedName(), leaderTotal, totalTiebreakerAhead, totalAhead, totalRank);
 					if (totalAhead) {
 						totalRank++;
 					}
 				}
 			}
-			this.logger.warn("{}projectedRank: cj result cur={} projectedCJ={} projectedTotal={} cjRank={} totalRank={}",
-			        FieldOfPlay.getLoggingName(this), cur.getAbbreviatedName(), projectedCJ, projectedTotal, cjRank, totalRank);
 			return new ProjectedRank(cjRank, totalRank);
 		}
 	}
