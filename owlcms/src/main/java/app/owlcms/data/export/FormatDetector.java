@@ -22,6 +22,7 @@ import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
+import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
 
@@ -40,6 +41,7 @@ public class FormatDetector {
 	 * @throws Exception if import fails
 	 */
 	public static void importData(InputStream inputStream) throws Exception {
+		OwlcmsFactory.setImportInProgress(true);
 		try {
 			// Ensure stream supports mark/reset
 			if (!inputStream.markSupported()) {
@@ -139,6 +141,8 @@ public class FormatDetector {
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
 			throw e;
+		} finally {
+			OwlcmsFactory.setImportInProgress(false);
 		}
 	}
 

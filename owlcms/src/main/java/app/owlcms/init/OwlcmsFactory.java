@@ -45,8 +45,9 @@ public class OwlcmsFactory {
 	/** The fop by name. */
 	private static Map<String, FieldOfPlay> fopByName = null;
 	private static FieldOfPlay defaultFOP;
-	private static CountDownLatch latch = new CountDownLatch(1);
+	private static volatile CountDownLatch latch = new CountDownLatch(1);
 	private static EventBus appEventBus;
+	private static volatile boolean importInProgress = false;
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsFactory.class);
 	static {
 		logger.setLevel(Level.INFO);
@@ -67,6 +68,21 @@ public class OwlcmsFactory {
 			appEventBus = new EventBus();
 		}
 		return appEventBus;
+	}
+
+	public static boolean isImportInProgress() {
+		return importInProgress;
+	}
+
+	public static synchronized void setImportInProgress(boolean importInProgress) {
+		if (importInProgress && !OwlcmsFactory.importInProgress) {
+			// re-arm the initialization latch so HTTP request processing blocks
+			// (same mechanism as during startup) until the import is done
+			latch = new CountDownLatch(1);
+		} else if (!importInProgress && OwlcmsFactory.importInProgress) {
+			latch.countDown();
+		}
+		OwlcmsFactory.importInProgress = importInProgress;
 	}
 
 	public static String getBuildTimestamp() {

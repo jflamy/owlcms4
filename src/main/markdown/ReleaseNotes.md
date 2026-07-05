@@ -13,6 +13,7 @@
 67.1.0-beta05: Display projected rank (if lift is successful) on scoreboard. See `displayProjectedRanks` feature toggle
 
 67.1.0-beta05: Display timer at bottom of public scoreboards (when the attempt information is not shown at the top).  See `displayScoreboardTimers` feature toggle.
+
 67.1.0-beta05: Jury Second Vote
   - If Jury votes a second time to end deliberation/challenge, send the decision directly (unless feature toggle `requireJuryPresidentDecision` is on)
   - New "VPT in use" setting on the competition rules to apply the correct rules.
