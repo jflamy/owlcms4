@@ -135,7 +135,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 	private LocalizedIntegerField qualifyingTotalField;
 	private LocalizedIntegerField snatch1DeclarationField;
 	private LocalizedIntegerField startNumberField;
-	private TextField teamField;
+	private ComboBox<String> teamField;
 	private TextField wrappedBWTextField;
 	private LocalizedIntegerField yobField;
 	private ComboBox<EligibleForIndividualRankingStatus> individualEligibilityField;
@@ -880,8 +880,15 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.genderField.setItems(Arrays.asList(Gender.mfValues()));
 		layoutAddFormItem(layout, this.genderField, Translator.translate("Gender"));
 
-		this.teamField = new TextField();
-		this.teamField.setSizeFull();
+		this.teamField = new ComboBox<>();
+		List<String> allTeams = new ArrayList<>(AthleteRepository.findAllTeams());
+		allTeams.sort(new NaturalOrderComparator<>());
+		this.teamField.setItems(allTeams);
+		this.teamField.setAllowCustomValue(true);
+		this.teamField.addCustomValueSetListener(e -> this.teamField.setValue(e.getDetail()));
+		this.teamField.setClearButtonVisible(true);
+		this.teamField.getStyle().set("--vaadin-combo-box-overlay-width", "30em");
+		this.teamField.setWidthFull();
 		bindField(this.binder.forField(this.teamField), this.teamField, Athlete::getTeam, Athlete::setTeam);
 		layoutAddFormItem(layout, this.teamField, Translator.translate("Team"));
 
