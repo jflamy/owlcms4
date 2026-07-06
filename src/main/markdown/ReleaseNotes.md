@@ -10,6 +10,10 @@
 
 **New in Release 67.1**
 
+67.0.0-beta07: Team Names can be selected from the list of previously entered ones (filtering as you type)
+
+67.1.0-beta07: Ignore MQTT Devices during simulation (to avoid perturbing the flow of events)
+
 67.1.0-beta06: Break timer sounds
   - Delays and sounds configured in local/timing/timing.properties.
   - Defaults at 1:00, 0:30, 0:00; same sounds as for athletes (can be customized by adding .wav and .mp3 to local/sounds)
