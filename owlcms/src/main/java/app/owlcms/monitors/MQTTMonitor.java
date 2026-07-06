@@ -153,6 +153,8 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 
 		@Override
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
+			String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
+
 			// Drop all device-initiated MQTT traffic while a database import is running.
 			// The FOP map and database are in a partial state during import, so processing
 			// decisions, clock events, or config queries could act on the wrong platform.
@@ -175,47 +177,47 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			} catch (Throwable t) {
 				// ignore
 			}
+			String dispatchedMessageStr = messageStr;
 			MQTTMonitor.this.messageExecutor.submit(() -> {
 				if (OwlcmsFactory.isImportInProgress()) {
 					logger.debug("{}MQTT executor task dropped, import in progress: {}",
 							FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic);
 					return;
 				}
-				String messageStr = new String(message.getPayload(), StandardCharsets.UTF_8);
 				logger.info("{}MQTT received {} : {}", FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic,
-						messageStr.trim());
+						dispatchedMessageStr.trim());
 
 				if (topic.endsWith(this.decisionTopicName) || topic.endsWith(this.deprecatedDecisionTopicName)) {
-					postFopEventRefereeDecisionUpdate(topic, messageStr);
+					postFopEventRefereeDecisionUpdate(topic, dispatchedMessageStr);
 				} else if (topic.endsWith(this.downEmittedTopicName)) {
-					postFopEventDownEmitted(topic, messageStr);
+					postFopEventDownEmitted(topic, dispatchedMessageStr);
 				} else if (topic.endsWith(this.clockTopicName)) {
-					postFopTimeEvents(topic, messageStr);
+					postFopTimeEvents(topic, dispatchedMessageStr);
 				} else if (topic.endsWith(this.juryBreakTopicName)) {
-					postFopJuryBreakEvents(topic, messageStr);
+					postFopJuryBreakEvents(topic, dispatchedMessageStr);
 				} else if (topic.endsWith(this.juryMemberDecisionTopicName)) {
-					postFopEventJuryMemberDecisionUpdate(topic, messageStr);
+					postFopEventJuryMemberDecisionUpdate(topic, dispatchedMessageStr);
 				} else if (topic.endsWith(this.juryDecisionTopicName)) {
-					postFopEventJuryDecision(topic, messageStr);
+					postFopEventJuryDecision(topic, dispatchedMessageStr);
 				} else if (topic.endsWith(this.jurySummonTopicName)) {
-					postFopEventSummonReferee(topic, messageStr);
+					postFopEventSummonReferee(topic, dispatchedMessageStr);
 				} else if (topic.endsWith(this.configTopicName)) {
 					this.setMonitorActive(true);
 					publishMqttConfig("owlcms/fop/config");
 				} else if (topic.endsWith(this.testTopicName)) {
-					long before = Long.parseLong(messageStr);
+					long before = Long.parseLong(dispatchedMessageStr);
 					logger.info("{} timing = {}", getFop(), System.currentTimeMillis() - before);
 				} else if (topic.startsWith("$SYS/")) {
 					// broker system topic; try to parse connect/disconnect lines (Moquette may
 					// publish status here)
 					try {
-						parseSysTopic(topic, messageStr);
+						parseSysTopic(topic, dispatchedMessageStr);
 					} catch (Throwable t) {
 						// ignore
 					}
 				} else {
 					logger.error("{}Malformed MQTT unrecognized topic message topic='{}' message='{}'",
-							FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, messageStr);
+							FieldOfPlay.getLoggingName(MQTTMonitor.this.getFop()), topic, dispatchedMessageStr);
 				}
 			});
 			// Some broker runtime intercepts may expose the publisher client id or remote
@@ -549,6 +551,10 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	}
 
 	public static MqttAsyncClient createMQTTClient(FieldOfPlay fop) throws MqttException {
+		return createMQTTClient(fop, fop.getName() + "_owlcms_" + startupId());
+	}
+
+	private static MqttAsyncClient createMQTTClient(FieldOfPlay fop, String clientId) throws MqttException {
 		String server = Config.getCurrent().getParamMqttServer();
 		server = (server != null && !server.isBlank() ? server : "127.0.0.1");
 		String port = Config.getCurrent().getParamMqttPort();
@@ -556,18 +562,16 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		String string = port.startsWith("8") ? "ssl://" : "tcp://";
 		logger.info("connecting to MQTT {}{}:{}", string, server, port);
 
-		// Use a stable client id indicating this server instance for the FOP: e.g.
-		// "A_owlcms_12345"
-		// Append the global startup id when available so multiple server instances
-		// remain unique
-		String startupId = (Main.mqttStartup != null && !Main.mqttStartup.isBlank()) ? Main.mqttStartup
-				: Long.toString(System.currentTimeMillis());
-		String clientId = fop.getName() + "_owlcms_" + startupId;
 		MqttAsyncClient client = new MqttAsyncClient(
 				string + server + ":" + port,
 				clientId, // ClientId
 				new MemoryPersistence()); // Persistence
 		return client;
+	}
+
+	private static String startupId() {
+		return (Main.mqttStartup != null && !Main.mqttStartup.isBlank()) ? Main.mqttStartup
+				: Long.toString(System.currentTimeMillis());
 	}
 
 	public static MQTTMonitor getMqttMonitorByName(String name) {
@@ -603,10 +607,16 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			monitor.messageExecutor.shutdown();
 			try {
 				monitor.client.disconnect();
+				if (monitor.simulatorClient != null) {
+					monitor.simulatorClient.disconnect();
+				}
 				monitor.setActive(false);
 			} catch (MqttException ex) {
 				try {
 					monitor.client.disconnectForcibly();
+					if (monitor.simulatorClient != null) {
+						monitor.simulatorClient.disconnectForcibly();
+					}
 				} catch (MqttException e1) {
 					LoggerUtils.logError(logger, e1);
 				}
@@ -626,6 +636,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 	}
 
 	private MqttAsyncClient client;
+	private MqttAsyncClient simulatorClient;
 	private FieldOfPlay fop;
 	private String password;
 	private String userName;
@@ -999,10 +1010,27 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		this.client.publish(topic, message);
 	}
 
+	private void publishSimulator(String topic, MqttMessage message) throws MqttException, MqttPersistenceException {
+		if (OwlcmsFactory.isImportInProgress()) {
+			return;
+		}
+		getSimulatorClient().publish(topic, message);
+	}
+
+	private synchronized MqttAsyncClient getSimulatorClient() throws MqttException {
+		if (this.simulatorClient == null || !this.simulatorClient.isConnected()) {
+			String clientId = this.getFop().getName() + "_owlcms_simulator_" + startupId();
+			this.simulatorClient = createMQTTClient(this.getFop(), clientId);
+			MqttConnectOptions connOpts = setUpConnectionOptions(this.userName, this.password);
+			this.simulatorClient.connect(connOpts).waitForCompletion();
+		}
+		return this.simulatorClient;
+	}
+
 	public void publishRefDecision(int i, boolean goodLift) throws MqttPersistenceException, MqttException {
 		// 0 is the announcer decision, bump by 1.
 		String message = Integer.toString(i + 1) + " " + (goodLift ? "good" : "bad");
-		publish("owlcms/refbox/decision/" + this.getFop().getName(),
+		publishSimulator("owlcms/refbox/decision/" + this.getFop().getName(),
 				new MqttMessage(message.getBytes(StandardCharsets.UTF_8)));
 	}
 
@@ -1202,19 +1230,19 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			} catch (JsonProcessingException e) {
 				json = "";
 			}
-			publish("owlcms/clock/" + this.getFop().getName(),
+			publishSimulator("owlcms/clock/" + this.getFop().getName(),
 					new MqttMessage(("start " + json).getBytes(StandardCharsets.UTF_8)));
 		} else {
 			// curAthlete/group transiently null during a state transition (e.g. while a
 			// concurrent screen is reloading the group). Still start the clock; the
 			// payload is only informational.
-			publish("owlcms/clock/" + this.getFop().getName(),
+			publishSimulator("owlcms/clock/" + this.getFop().getName(),
 					new MqttMessage("start".getBytes(StandardCharsets.UTF_8)));
 		}
 	}
 
 	public void simulateStopAthleteTimer() throws MqttPersistenceException, MqttException {
-		publish("owlcms/clock/" + this.getFop().getName(),
+		publishSimulator("owlcms/clock/" + this.getFop().getName(),
 				new MqttMessage("stop".getBytes(StandardCharsets.UTF_8)));
 	}
 

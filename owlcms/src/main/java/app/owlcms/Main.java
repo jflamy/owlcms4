@@ -265,6 +265,7 @@ public class Main {
         mqttConfig.setProperty(IConfig.ALLOW_ANONYMOUS_PROPERTY_NAME,
                 Boolean.toString(Config.getCurrent().getParamMqttUserName() == null));
         mqttConfig.setProperty(IConfig.AUTHENTICATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthenticator");
+        mqttConfig.setProperty(IConfig.AUTHORIZATOR_CLASS_NAME, "app.owlcms.init.MoquetteAuthorizatorPolicy");
         mqttConfig.setProperty(IConfig.PORT_PROPERTY_NAME, Config.getCurrent().getParamMqttPort());
         mqttConfig.setProperty(IConfig.BUFFER_FLUSH_MS_PROPERTY_NAME, Integer.toString(0));
         mqttConfig.setProperty(IConfig.PERSISTENCE_ENABLED_PROPERTY_NAME, Boolean.FALSE.toString());
