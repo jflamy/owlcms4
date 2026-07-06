@@ -55,7 +55,6 @@
         "OWLCMS_REMOTE": "",
         //"OWLCMS_VIDEODATAKEY": "amalauxpattes",
         //"OWLCMS_UPDATEKEY": "mapetitevache"
-
         // temporary for playwright testings
         //"OWLCMS_MEMORYMODE": "true",
         //"OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
@@ -256,10 +255,11 @@
       "type": "java",
       "name": "🟩 EDIT large demo owlcms memory",
       "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs} -Dvaadin.frontend.hotdeploy=true",
+      "vmArgs": "${config:owlcms.vmArgs} -Dvaadin.frontend.hotdeploy=true -Dlogback.configurationFile=logback.xml",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
@@ -277,29 +277,6 @@
         //"OWLCMS_FEATURESWITCHES": "decisionSection",
         //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
         //"OWLCMS_VIDEODATA": "wss://fhq.fly.dev/ws"
-      }
-    },
-    {
-      "type": "java",
-      "name": "🟩 large demo owlcms memory edit",
-      "request": "launch",
-      "mainClass": "${config:owlcms.mainClass}",
-      "projectName": "owlcms",
-      "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
-      "env": {
-        "OWLCMS_MEMORYMODE": "true",
-        "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        "OWLCMS_PORT": "8081"
       }
     },
     {
