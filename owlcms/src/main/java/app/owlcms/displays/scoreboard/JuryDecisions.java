@@ -301,7 +301,7 @@ public class JuryDecisions extends BaseResults {
 	}
 
 	private int getNbJurors() {
-		return Competition.getCurrent().getJurySize();
+		return getFop().getJurySize();
 	}
 
 	private void resetJuryVoting() {

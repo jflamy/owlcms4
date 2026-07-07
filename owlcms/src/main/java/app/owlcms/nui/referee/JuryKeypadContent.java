@@ -124,6 +124,7 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		QueryParameters queryParameters = this.location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters();
 		this.urlParams = readParams(this.location, parametersMap);
+		rebuild();
 	}
 
 	@Subscribe
@@ -223,21 +224,25 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 		return fopSelect;
 	}
 
-	/** 3 / 5 jury member selection; rebuilds the keypad when changed. */
+	/** 0 / 3 / 5 jury member selection; rebuilds the keypad when changed. */
 	private ComboBox<Integer> createJurySizeSelect() {
 		ComboBox<Integer> jurySizeSelect = new ComboBox<>();
-		jurySizeSelect.setItems(3, 5);
+		jurySizeSelect.setItems(0, 3, 5);
 		jurySizeSelect.setAriaLabel(Translator.translate("Jury"));
 		jurySizeSelect.setWidth("5rem");
 		int nbJurors = getNbJurors();
-		if (nbJurors == 3 || nbJurors == 5) {
+		if (nbJurors == 0 || nbJurors == 3 || nbJurors == 5) {
 			jurySizeSelect.setValue(nbJurors);
 		}
 		jurySizeSelect.addValueChangeListener((e) -> {
 			if (e.getValue() == null || !e.isFromClient()) {
 				return;
 			}
-			Competition.getCurrent().setJurySize(e.getValue());
+			FieldOfPlay fop = getFop();
+			if (fop == null) {
+				return;
+			}
+			fop.setJurySize(e.getValue());
 			rebuild();
 		});
 		return jurySizeSelect;
@@ -565,7 +570,8 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	}
 
 	private int getNbJurors() {
-		return Competition.getCurrent().getJurySize();
+		FieldOfPlay fop = getFop();
+		return fop != null ? fop.getJurySize() : Competition.getCurrent().getJurySize();
 	}
 
 	private void clearShortcutRegistrations() {

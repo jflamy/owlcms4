@@ -37,7 +37,9 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
@@ -110,6 +112,12 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		        SoundParameters.SHOW_DECLARATIONS, "false",
 		        SoundParameters.CENTER_NOTIFICATIONS, Boolean.toString(Config.getCurrent().featureSwitch(FeatureSwitch.CENTER_ANNOUNCER_NOTIFICATIONS)),
 		        SoundParameters.START_ORDER, "false")));
+	}
+
+	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		super.setParameter(event, parameter);
+		setNbJurors(getFop().getJurySize());
 	}
 
 	/**
@@ -319,6 +327,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				        this.timer.setSilenced(this.isSilenced());
 			        }
 		        });
+			subMenu2.addItem("0", (e) -> {
+				this.setNbJurors(0);
+			});
 		subMenu2.addItem("3", (e) -> {
 			this.setNbJurors(3);
 		});
@@ -348,7 +359,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Override
 	protected void init() {
-		setNbJurors(Competition.getCurrent().getJurySize());
+		init(getNbJurors());
 	}
 
 	protected void init(int nbj) {
@@ -357,7 +368,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		this.registrations = new ArrayList<>();
 		this.setBoxSizing(BoxSizing.BORDER_BOX);
 		this.setSizeFull();
-		Competition.getCurrent().setJurySize(nbj);
+		if (getFop() != null) {
+			getFop().setJurySize(nbj);
+		}
 		buildJuryBox(this);
 		buildRefereeBox(this);
 	}
@@ -605,7 +618,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	private int getNbJurors() {
-		return Competition.getCurrent().getJurySize();
+		FieldOfPlay fop = getFop();
+		return fop != null ? fop.getJurySize() : Competition.getCurrent().getJurySize();
 	}
 
 	private HorizontalLayout juryDecisionButtons() {
@@ -758,7 +772,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	private void setNbJurors(int nbJurors) {
 		this.removeAll();
-		Competition.getCurrent().setJurySize(nbJurors);
+		if (getFop() != null) {
+			getFop().setJurySize(nbJurors);
+		}
 		init(nbJurors);
 	}
 

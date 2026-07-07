@@ -1280,7 +1280,8 @@ public class Competition {
 	}
 
 	public Integer getJurySize() {
-		if (this.jurySize == null || (this.jurySize != 3 && this.jurySize != 5)) {
+		if (this.jurySize == null || (this.jurySize != 0 && this.jurySize != 3
+		        && this.jurySize != 5)) {
 			return 3;
 		}
 		return this.jurySize;
@@ -2093,6 +2094,9 @@ public class Competition {
 	}
 
 	public void setJurySize(Integer jurySize) {
+		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 5)
+		        ? jurySize
+		        : 3;
 		FieldOfPlay fop = OwlcmsSession.getFop();
 		if (fop != null) {
 			MQTTMonitor mqttMonitor = fop.getMqttMonitor();
@@ -2100,7 +2104,6 @@ public class Competition {
 				mqttMonitor.publishMqttConfig();
 			}
 		}
-		this.jurySize = jurySize;
 	}
 
 	public void setJuryTemplateFileName(String juryTemplateFileName) {

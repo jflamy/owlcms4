@@ -19,7 +19,6 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.components.elements.StopwatchTimerElement;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPState;
@@ -208,7 +207,7 @@ public class Results extends BaseResults {
 	}
 
 	private int getNbJurors() {
-		return Competition.getCurrent().getJurySize();
+		return getFop().getJurySize();
 	}
 
 	/** Show one empty placeholder circle per juror. */

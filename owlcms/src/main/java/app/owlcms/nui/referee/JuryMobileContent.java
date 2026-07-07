@@ -40,7 +40,6 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.FOPParametersReader;
-import app.owlcms.data.competition.Competition;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
@@ -328,7 +327,7 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 	}
 
 	private int getMaximumJuryMembers() {
-		return Math.min(MAX_JURY_MEMBERS, Competition.getCurrent().getJurySize());
+		return Math.min(MAX_JURY_MEMBERS, OwlcmsSession.getFop().getJurySize());
 	}
 
 	private Object getOrigin() {

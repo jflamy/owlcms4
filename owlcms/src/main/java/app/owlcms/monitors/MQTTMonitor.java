@@ -1595,7 +1595,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				.collect(Collectors.toList()) : new ArrayList<>();
 		payload.put("platforms", platforms);
 		payload.put("version", StartupUtils.getVersion());
-		payload.put("jurySize", Competition.getCurrent().getJurySize());
+		payload.put("jurySize", mqttJurySize());
 		try {
 			String json = new ObjectMapper().writeValueAsString(payload);
 			logger.info("{}{} MQTT Config: {}", FieldOfPlay.getLoggingName(this.getFop()),
@@ -1606,6 +1606,15 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		} catch (JsonProcessingException | MqttException e) {
 			logger.error("Error publishing MQTT config to topic {}", topic, e);
 		}
+	}
+
+	private int mqttJurySize() {
+		// The config response is published by a FOP monitor; use that FOP's active
+		// jury size. 0 is replaced by 3 because 0 was not a prior option for MQTT
+		// refereeing devices.
+		FieldOfPlay fop = getFop();
+		int jurySize = fop != null ? fop.getJurySize() : Competition.getCurrent().getJurySize();
+		return jurySize == 0 ? 3 : jurySize;
 	}
 
 	private void publishMqttDownSignal() throws MqttException, MqttPersistenceException {

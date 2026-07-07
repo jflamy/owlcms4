@@ -19,6 +19,7 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
@@ -617,6 +618,13 @@ public class CompetitionEditingFormFactory
 		Component title = createTitle("Jury");
 		layout.add(title);
 		layout.setColspan(title, 2);
+
+		ComboBox<Integer> jurySizeField = new ComboBox<>();
+		jurySizeField.setItems(0, 3, 5);
+		layout.addFormItem(jurySizeField,
+		        Translator.translate("Competition.jurySize"));
+		this.binder.forField(jurySizeField)
+		        .bind(Competition::getJurySize, Competition::setJurySize);
 
 		Checkbox announcerControlledJuryField = new Checkbox();
 		layout.addFormItem(announcerControlledJuryField, Translator.translate("Competition.announcerControlledJury"));

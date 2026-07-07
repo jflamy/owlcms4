@@ -228,6 +228,7 @@ public class FieldOfPlay implements IUnregister {
 	private List<RecordEvent> lastNewRecords;
 	private Boolean[] juryMemberDecision;
 	private Integer[] juryMemberTime;
+	private Integer jurySize;
 	private Athlete athleteUnderReview;
 	Map<Athlete, List<RecordEvent>> displayableRecordsByAthlete = new HashMap<>();
 	Map<Athlete, List<RecordEvent>> eligibleRecordsByAthlete = new HashMap<>();
@@ -1279,6 +1280,23 @@ public class FieldOfPlay implements IUnregister {
 		return this.useCollarsIfAvailable;
 	}
 
+	public int getJurySize() {
+		if (this.jurySize == null) {
+			return Competition.getCurrent().getJurySize();
+		}
+		return this.jurySize;
+	}
+
+	public void setJurySize(Integer jurySize) {
+		this.jurySize = jurySize != null && (jurySize == 0 || jurySize == 3 || jurySize == 5)
+		        ? jurySize
+		        : Competition.getCurrent().getJurySize();
+		MQTTMonitor mqttMonitor = getMqttMonitor();
+		if (mqttMonitor != null) {
+			mqttMonitor.publishMqttConfig();
+		}
+	}
+
 	/**
 	 * all grids get their athletes from this method.
 	 *
@@ -1290,6 +1308,7 @@ public class FieldOfPlay implements IUnregister {
 		String thisGroupName = this.getGroup() != null ? this.getGroup().getName() : null;
 		String loadGroupName = group != null ? group.getName() : null;
 
+		setCompetitionDefaultJurySizeIfUnset();
 		boolean alreadyLoaded = thisGroupName == loadGroupName;
 		this.setPrevWeight(0);
 		if (loadGroupName != null && alreadyLoaded && !forceLoad) {
@@ -1353,6 +1372,12 @@ public class FieldOfPlay implements IUnregister {
 		} else {
 			this.logger.debug("{}null group", FieldOfPlay.getLoggingName(this));
 			init(new ArrayList<>(), this.athleteTimer, this.breakTimer, alreadyLoaded);
+		}
+	}
+
+	private void setCompetitionDefaultJurySizeIfUnset() {
+		if (this.jurySize == null) {
+			this.jurySize = Competition.getCurrent().getJurySize();
 		}
 	}
 
@@ -2489,9 +2514,9 @@ public class FieldOfPlay implements IUnregister {
 	 * @param refIndex
 	 */
 	private void processJuryMemberDecisions(Object origin, int refIndex) {
-		this.logger.debug("process jury member decisions {} {} {} {}", Competition.getCurrent().getJurySize(),
+		this.logger.debug("process jury member decisions {} {} {} {}", getJurySize(),
 				getJuryMemberDecision()[0], getJuryMemberDecision()[1], getJuryMemberDecision()[2]);
-		int jurySize = Competition.getCurrent().getJurySize();
+		int jurySize = getJurySize();
 		showJuryMemberDecisionReceived(this, refIndex, getJuryMemberDecision(), jurySize);
 		int nbRed = 0;
 		int nbWhite = 0;
@@ -2661,7 +2686,7 @@ public class FieldOfPlay implements IUnregister {
 		}
 		new DelayTimer(isTestingMode()).schedule(() -> {
 			if (Config.getCurrent().featureSwitch(FeatureSwitch.REQUIRE_JURY_PRESIDENT_DECISION)
-			        || Competition.getCurrent().getJurySize() != jurySize
+			        || getJurySize() != jurySize
 			        || !juryDeliberationInProgress()
 			        || this.toBeAnnouncedJuryDecision != null) {
 				return;
