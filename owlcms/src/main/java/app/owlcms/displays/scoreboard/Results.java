@@ -376,6 +376,7 @@ public class Results extends BaseResults {
 	public void slaveJuryStartTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			initJuryDecisions();
+			clearDecisionSectionDecisionAthlete();
 		});
 	}
 
@@ -385,6 +386,7 @@ public class Results extends BaseResults {
 		}
 		boolean immediateDecisionActive = fop.isShowDecisionsImmediately() && fop.getGoodLift() != null;
 		if (fop.getState() != FOPState.DECISION_VISIBLE && !immediateDecisionActive) {
+			clearDecisionSectionDecisionAthlete();
 			return;
 		}
 		Boolean[] curRefDecisions = fop.getRefereeDecision();
@@ -416,6 +418,7 @@ public class Results extends BaseResults {
 		                        + (Boolean.TRUE.equals(ref3) ? 1 : 0)) >= 2);
 		// origin must NOT be this page: the element ignores events whose origin is its
 		// parent (self-origin filter in uiAccessIgnoreIfSelfOrigin).
+		setDecisionSectionDecisionAthlete(fop.getAthleteUnderReview());
 		this.dsRefereeDecisions.slaveShowDecision(new UIEvent.Decision(
 		        fop.getAthleteUnderReview(), goodLift, ref1, ref2, ref3,
 		        this.dsRefereeDecisions, fop, singleRef, timingPolicy, inputKind));

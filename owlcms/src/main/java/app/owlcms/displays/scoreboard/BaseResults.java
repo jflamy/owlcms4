@@ -273,6 +273,32 @@ public class BaseResults extends LitTemplate
 		return this.currentAttempt;
 	}
 
+	protected void clearDecisionSectionDecisionAthlete() {
+		this.getElement().setProperty("decisionSectionDecisionActive", false);
+		this.getElement().setProperty("decisionSectionStartNumber", "");
+		this.getElement().setProperty("decisionSectionAthleteName", "");
+	}
+
+	protected void setDecisionSectionDecisionAthlete(Athlete athlete) {
+		this.getElement().setProperty("decisionSectionDecisionActive", true);
+		Integer startNumber = athlete != null ? athlete.getStartNumber() : null;
+		this.getElement().setProperty("decisionSectionStartNumber", startNumber != null ? startNumber.toString() : "");
+		this.getElement().setProperty("decisionSectionAthleteName", decisionSectionAthleteName(athlete));
+	}
+
+	private String decisionSectionAthleteName(Athlete athlete) {
+		if (athlete == null) {
+			return "";
+		}
+		String fullName = isAbbreviatedName()
+		        ? (athlete.getAbbreviatedName() != null ? athlete.getAbbreviatedName() : "")
+		        : (athlete.getFullName() != null ? athlete.getFullName() : "");
+		if (!athlete.isEligibleForIndividualRanking() && !fullName.isBlank()) {
+			return Translator.translate("Scoreboard.Extra/Invited", fullName);
+		}
+		return fullName;
+	}
+
 	/**
 	 * @see app.owlcms.apputils.queryparameters.DisplayParameters#pushEmSize(Element)
 	 */
@@ -522,12 +548,21 @@ public class BaseResults extends LitTemplate
 	}
 
 	@Subscribe
+	public void slaveInitialDecision(UIEvent.InitialDecision e) {
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			setDecisionSectionDecisionAthlete(e.getAthlete());
+		});
+	}
+
+	@Subscribe
 	public void slaveDecision(UIEvent.Decision e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", true);
 			Athlete a = e.getAthlete();
+			setDecisionSectionDecisionAthlete(a);
 			// -1 because if decision in on snatch 3 we don't want to show CJ
 			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), e.getFop());
 		});
@@ -539,6 +574,8 @@ public class BaseResults extends LitTemplate
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", false);
+			// Athlete name in the decision section remains visible until the next clock
+			// start or break — see slaveJuryStartTime / slaveStartBreak / slaveStartLifting.
 			Athlete a = e.getAthlete();
 			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), e.getFop());
 		});
@@ -589,6 +626,7 @@ public class BaseResults extends LitTemplate
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
+			clearDecisionSectionDecisionAthlete();
 			doBreak(e);
 		});
 	}
@@ -599,6 +637,7 @@ public class BaseResults extends LitTemplate
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", false);
+			clearDecisionSectionDecisionAthlete();
 			this.getElement().setProperty("recordName", "");
 			syncWithFOP();
 		});

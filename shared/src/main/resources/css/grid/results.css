@@ -650,6 +650,7 @@ td {
     display: flex;
     flex-direction: row;
     align-items: center;
+    position: relative;
     width: 100%;
     --ds-light-width: 1.2em;
     padding-block: 0.2em;
@@ -673,6 +674,68 @@ td {
     display: flex;
     align-items: center;
     height: 1.5em;
+}
+
+.decisionSection .dsDecisionAthlete {
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 0.35em;
+    background-color: var(--NameBackgroundColor);
+    color: var(--NameTextColor);
+    font-size: 0.667em;
+    font-weight: bold;
+    padding-inline: 0.15em;
+    padding-block: 0.1em;
+    height: calc(var(--ds-light-width) * 1.5);
+}
+
+.decisionSection .dsDecisionAthlete .dsDecisionStartNumber {
+    font-size: 70%;
+    font-weight: bold;
+    border-width: 0.2ex;
+    border-style: solid;
+    border-color: var(--startNumberBoxColor);
+    min-width: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+
+.decisionSection .dsDecisionAthlete .dsDecisionAthleteName {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.decisionSection .dsStopwatch {
+    color: white;
+}
+
+.decisionSection .dsBranding {
+    position: absolute;
+    bottom: 0.2em;
+    right: 0.3em;
+    display: flex;
+    align-items: center;
+    font-weight: 100;
+    font-size: 1.6vh;
+    line-height: 1.25em;
+    padding: 0.25em 0.2em;
+    opacity: 0.6;
+}
+
+.decisionSection .dsBranding .brandingLogo {
+    height: 1.25em;
+    margin-bottom: -0.2em;
+}
+
+.wrapper.dsActive .branding {
+    display: none !important;
 }
 
 .decisionSection .dsRefereeSlot {

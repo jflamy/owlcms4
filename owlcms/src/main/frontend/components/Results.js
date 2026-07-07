@@ -28,9 +28,13 @@ class Results extends LitElement {
               <div class="timer breakTime" style="${this.dsBreakTimerStyles()}">
                 <timer-element id="decisionSectionBreakTimer"></timer-element>
               </div>
-              <div class="timer breakTime" style="${this.dsStopwatchStyles()}">
+              <div class="timer breakTime dsStopwatch" style="${this.dsStopwatchStyles()}">
                 <timer-element id="decisionSectionStopwatch"></timer-element>
               </div>
+            </div>
+            <div class="dsDecisionAthlete name" style="${this.dsDecisionAthleteStyles()}">
+              <span class="dsDecisionStartNumber">${this.decisionSectionStartNumber}</span>
+              <span class="dsDecisionAthleteName ellipsis">${this.decisionSectionAthleteName}</span>
             </div>
             <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
               <decision-element id="decisionSectionReferee"></decision-element>
@@ -40,6 +44,7 @@ class Results extends LitElement {
               ${(this.juryDecisions ?? []).map(d => html`<vaadin-icon class="juryIcon ${d}" icon="${this.juryIcon(d)}"></vaadin-icon>`)}
             </div>
             <div class="dsProjectedRanksSlot ${this.dsProjectedRanksMode()}" style="${this.dsProjectedRanksStyles()}">${this.projectedRankText}</div>
+            <div class="dsBranding"><img class="brandingLogo" src="local/logos/owlcms-logo.svg">&nbsp;owlcms</div>
           </div>
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
@@ -331,6 +336,9 @@ class Results extends LitElement {
       showDecisionSection: {type: Boolean},
       showProjectedRanks: {type: Boolean},
       showScoreboardTimers: {type: Boolean},
+      decisionSectionDecisionActive: {type: Boolean},
+      decisionSectionStartNumber: {},
+      decisionSectionAthleteName: {},
       projectedRankText: {},
       juryDecisions: {type: Array},
       juryMessage: {},
@@ -368,6 +376,7 @@ class Results extends LitElement {
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
     classes = classes + (this.scoreboardType ? " " + this.scoreboardType : "");
+    classes = classes + (this.showDecisionSection && this.mode !== "WAIT" && !(this.scoreboardType ?? "").includes("Jury") ? " dsActive" : "");
     return classes;
   }
 
@@ -423,14 +432,19 @@ class Results extends LitElement {
   decisionSectionStyles() {
     const juryScoreboard = (this.scoreboardType ?? "").includes("Jury");
     if (this.mode === "WAIT" || juryScoreboard) return "display:none";
-    if (this.showDecisionSection) return "display:flex; position: relative";
-    if (this.showScoreboardTimers) return "display:flex; position: relative";
-    if (this.showProjectedRanks && this.projectedRankText) return "display:flex; position: relative";
+    if (this.showDecisionSection) return "display:flex";
+    if (this.showScoreboardTimers) return "display:flex";
+    if (this.showProjectedRanks && this.projectedRankText) return "display:flex";
     return "display:none";
   }
 
   dsTimerSlotStyles() {
+    if (this.showDecisionSection && this.decisionSectionDecisionActive) return "display:none";
     return (this.showDecisionSection || this.showScoreboardTimers) ? "" : "display:none";
+  }
+
+  dsDecisionAthleteStyles() {
+    return "display: " + (this.showDecisionSection && this.decisionSectionDecisionActive ? "flex" : "none");
   }
 
   dsRefereeSlotStyles() {
@@ -486,7 +500,7 @@ class Results extends LitElement {
     // Hide it the moment the break ends (mode leaves INTERRUPTION), exactly like the
     // break bar hides the Challenge notification. White text for now.
     const visible = this.stopwatchVisible();
-    return "color: white; display: " + (visible ? "flex" : "none");
+    return "display: " + (visible ? "flex" : "none");
   }
 
   stopwatchVisible() {
@@ -585,6 +599,9 @@ class Results extends LitElement {
     this.showDecisionSection = false;
     this.showProjectedRanks = false;
     this.showScoreboardTimers = false;
+    this.decisionSectionDecisionActive = false;
+    this.decisionSectionStartNumber = "";
+    this.decisionSectionAthleteName = "";
     this.projectedRankText = "";
     this.juryDecisions = [];
     this.juryMessage = "";
