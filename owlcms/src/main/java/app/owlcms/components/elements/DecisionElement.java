@@ -61,6 +61,7 @@ public class DecisionElement extends LitTemplate
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
+	public static final long MINIMUM_DOWN_SIGNAL_VISIBLE_MS = 1500L;
 	private static final long INITIAL_DECISION_FALLBACK_DELAY_MS = FieldOfPlay.REVERSAL_DELAY + 150L;
 
 	static {
@@ -78,6 +79,12 @@ public class DecisionElement extends LitTemplate
 	private final AtomicLong decisionDisplayGeneration = new AtomicLong();
 	private final AtomicLong decisionPayloadSequence = new AtomicLong();
 	private boolean immediatePreviewWindowActive;
+	/** Minimum time the down signal must be visible before showing an IMMEDIATE decision. 0 = show immediately. */
+	private long downSignalHoldMs = 0;
+	/** Last time this element received a down signal. Used for minimum down-signal visibility. */
+	private volatile long downSignalVisibleSince = 0;
+	/** True while waiting for the minimum down-signal visibility; blocks live referee updates from overwriting the down signal. */
+	protected volatile boolean downSignalHoldPending = false;
 
 	public DecisionElement() {
 	}
@@ -190,6 +197,15 @@ public class DecisionElement extends LitTemplate
 		this.dontReset = dontReset;
 	}
 
+	/**
+	 * Set the minimum time the down signal stays visible before an IMMEDIATE decision replaces it.
+	 * 0 (default) = show decision immediately. Attempt and decision boards should set this
+	 * to a non-zero value so athletes and spectators see the down signal.
+	 */
+	public void setDownSignalHoldMs(long downSignalHoldMs) {
+		this.downSignalHoldMs = downSignalHoldMs;
+	}
+
 	public void setJury(boolean juryMode) {
 		this.setJuryMode(juryMode);
 		getElement().setProperty("jury", juryMode);
@@ -230,6 +246,7 @@ public class DecisionElement extends LitTemplate
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		long generation = this.decisionDisplayGeneration.incrementAndGet();
 		this.immediatePreviewWindowActive = false;
+		this.downSignalHoldPending = false;
 		if (isDontReset()) {
 			return;
 		}
@@ -243,6 +260,7 @@ public class DecisionElement extends LitTemplate
 
 	@Subscribe
 	public void slaveDownSignal(UIEvent.DownSignal e) {
+		markDownSignalVisible();
 		logger.debug("!!! slaveDownSignal  downSlave {} emitter {}", isDownSlave(), this.getOrigin() == e.getOrigin());
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			logger./*playwright*/warn("{}decisionElement slaveDownSignal origin={} juryMode={}", FieldOfPlay.getLoggingName(this.fop),
@@ -267,6 +285,7 @@ public class DecisionElement extends LitTemplate
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
 		long generation = this.decisionDisplayGeneration.incrementAndGet();
 		this.immediatePreviewWindowActive = false;
+		this.downSignalHoldPending = false;
 		if (isDontReset()) {
 			return;
 		}
@@ -282,6 +301,7 @@ public class DecisionElement extends LitTemplate
 	public void slaveShowDecision(UIEvent.Decision e) {
 		boolean announcerForced = e.getInputKind() == InputKind.ANNOUNCER_ENTRY;
 		this.immediatePreviewWindowActive = false;
+		this.downSignalHoldPending = false;
 		// logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3,
 		// e.isSingleLight());
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
@@ -306,9 +326,7 @@ public class DecisionElement extends LitTemplate
 		}
 		if (e.getTimingPolicy() == TimingPolicy.IMMEDIATE) {
 			this.immediatePreviewWindowActive = true;
-			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-				showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), announcerForced);
-			});
+			showImmediateDecisionAfterMinimumDownSignal(e, announcerForced);
 			return;
 		}
 		this.immediatePreviewWindowActive = false;
@@ -348,8 +366,12 @@ public class DecisionElement extends LitTemplate
 		if (!this.immediatePreviewWindowActive) {
 			return;
 		}
+		if (this.downSignalHoldPending) {
+			// During the down-signal hold window, do not overwrite the down display.
+			return;
+		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			if (!this.immediatePreviewWindowActive) {
+			if (!this.immediatePreviewWindowActive || this.downSignalHoldPending) {
 				return;
 			}
 			Boolean decision = e.isSingleLight() ? e.ref2 : computeGoodLift(e.ref1, e.ref2, e.ref3, false);
@@ -361,6 +383,7 @@ public class DecisionElement extends LitTemplate
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		this.decisionDisplayGeneration.incrementAndGet();
 		this.immediatePreviewWindowActive = false;
+		this.downSignalHoldPending = false;
 		onStartTimer(e);
 	}
 
@@ -375,6 +398,47 @@ public class DecisionElement extends LitTemplate
 	        boolean announcerForced) {
 		this.decisionDisplayGeneration.incrementAndGet();
 		setDecisionProperties(decision, ref1, ref2, ref3, singleLight, announcerForced);
+	}
+
+	protected void markDownSignalVisible() {
+		this.downSignalVisibleSince = System.currentTimeMillis();
+	}
+
+	protected void showImmediateDecisionAfterMinimumDownSignal(UIEvent.InitialDecision e, boolean announcerForced) {
+		long remainingHoldMs = remainingDownSignalHoldMs();
+		if (remainingHoldMs > 0) {
+			this.downSignalHoldPending = true;
+			new DelayTimer().schedule(() -> {
+				UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+					this.downSignalHoldPending = false;
+					if (!isImmediatePreviewWindowActive()) {
+						return; // slaveShowDecision or reset already fired
+					}
+					showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), announcerForced);
+				});
+			}, remainingHoldMs);
+		} else {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+				showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), announcerForced);
+			});
+		}
+	}
+
+	protected boolean isImmediatePreviewWindowActive() {
+		return this.immediatePreviewWindowActive;
+	}
+
+	private long remainingDownSignalHoldMs() {
+		long minimumVisibleMs = this.downSignalHoldMs;
+		if (minimumVisibleMs <= 0) {
+			return 0;
+		}
+		long visibleSince = this.downSignalVisibleSince;
+		if (visibleSince <= 0) {
+			return minimumVisibleMs;
+		}
+		long visibleForMs = System.currentTimeMillis() - visibleSince;
+		return Math.max(0, minimumVisibleMs - visibleForMs);
 	}
 
 	protected void setDecisionProperties(Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,

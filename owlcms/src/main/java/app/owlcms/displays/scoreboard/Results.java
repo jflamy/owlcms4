@@ -194,6 +194,7 @@ public class Results extends BaseResults {
 			this.dsRefereeDecisions.setFinalOnly(Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_REF_FINAL_ONLY));
 			this.dsRefereeDecisions.setLiveRefereeUpdates(true);
 			this.dsRefereeDecisions.setLiveRefereeUpdatesDuringImmediateWindowOnly(true);
+			this.dsRefereeDecisions.setDownSignalHoldMs(DecisionElement.MINIMUM_DOWN_SIGNAL_VISIBLE_MS);
 			this.dsRefereeDecisions.setSilenced(true);
 			this.dsRefereeDecisions.setFop(fop);
 			syncDisplayedRefereeDecision(fop);

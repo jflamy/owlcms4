@@ -4069,6 +4069,8 @@ public class FieldOfPlay implements IUnregister {
 		// enable master to listening for decision
 		setState(TIME_RUNNING);
 		setGoodLift(null);
+		// Clock start ends the post-decision cooldown so referees can enter a new decision.
+		this.ignoreDecisionInputsUntil = 0;
 
 		if (getCurAthlete().getAttemptsDone() >= 3) {
 			setCjStarted(true);

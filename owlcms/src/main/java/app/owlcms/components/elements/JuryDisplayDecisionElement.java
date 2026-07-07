@@ -122,6 +122,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		if (this.finalOnly) {
 			return;
 		}
+		markDownSignalVisible();
 		// logger.debug("jury slaveDownSignal {} {} {} {}", this, this.getOrigin(), e.getOrigin(), isSilenced());
 		if (isSilenced()) {
 			// we emitted the down signal, don't do it again.
@@ -148,10 +149,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		}
 		if (e.getTimingPolicy() == TimingPolicy.IMMEDIATE) {
 			this.immediateWindowActive = true;
-			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-				showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(),
-				        e.getInputKind() == InputKind.ANNOUNCER_ENTRY);
-			});
+			showImmediateDecisionAfterMinimumDownSignal(e, e.getInputKind() == InputKind.ANNOUNCER_ENTRY);
 			return;
 		}
 		this.immediateWindowActive = false;
@@ -166,10 +164,16 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 		if (this.liveRefereeUpdatesDuringImmediateWindowOnly && !this.immediateWindowActive) {
 			return;
 		}
+		if (this.downSignalHoldPending) {
+			return;
+		}
 		if (this.finalOnly) {
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
+			if (this.downSignalHoldPending) {
+				return;
+			}
 			// logger.debug("{} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
 			getElement().setProperty("singleRef", e.isSingleLight());
 			getElement().setProperty("jury", true);
@@ -183,6 +187,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
 		this.immediateWindowActive = false;
+		this.downSignalHoldPending = false;
 		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleLight());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(),
@@ -216,6 +221,11 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	public void setLiveRefereeUpdatesDuringImmediateWindowOnly(boolean liveRefereeUpdatesDuringImmediateWindowOnly) {
 		this.liveRefereeUpdatesDuringImmediateWindowOnly = liveRefereeUpdatesDuringImmediateWindowOnly;
+	}
+
+	@Override
+	protected boolean isImmediatePreviewWindowActive() {
+		return this.immediateWindowActive;
 	}
 
 	private void setDecisionTimes(Integer ref1Time, Integer ref2Time, Integer ref3Time) {

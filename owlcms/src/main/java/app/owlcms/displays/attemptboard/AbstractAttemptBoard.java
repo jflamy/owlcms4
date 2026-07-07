@@ -302,6 +302,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 		if (this.decisions != null) {
 			this.decisions.setFop(fop);
+			// Keep the down signal visible for 1.5 s before showing an IMMEDIATE decision
+			// so athletes and spectators can see the down signal.
+			this.decisions.setDownSignalHoldMs(DecisionElement.MINIMUM_DOWN_SIGNAL_VISIBLE_MS);
 		}
 	}
 
