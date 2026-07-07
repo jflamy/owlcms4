@@ -42,6 +42,16 @@ import elemental.json.JsonObject;
 /**
  * ExplicitDecision display element.
  */
+/// Decision display behavior by view:
+///
+/// | View | Athlete Timer | Break Timer | Stopwatch | Decision Lights | Referee Decision Behavior |
+/// |---|---|---|---|---|---|
+/// | Attempt board | `AthleteTimerElement` | `BreakTimerElement` | no | `DecisionElement` | Public behavior: toggle off waits until `DECISION_VISIBLE`; toggle on shows `INITIAL_DECISION` immediately, then live reversals for 3 seconds until final. |
+/// | Decision board | `AthleteTimerElement` | `BreakTimerElement` | no | `DecisionElement` | Same public behavior as attempt board. |
+/// | Scoreboard | `AthleteTimerElement` | `BreakTimerElement` | decision section uses `StopwatchTimerElement` | main: `DecisionElement`; decision section: `JuryDisplayDecisionElement` | Public behavior: toggle off waits until `DECISION_VISIBLE`; toggle on shows `INITIAL_DECISION` immediately, then live reversals for 3 seconds until final. |
+/// | Jury keypad | review `AthleteTimerElement` | no | no | `JuryDisplayDecisionElement` | Live referee decisions always; no 3-second public delay. |
+/// | Control console | `AthleteTimerElement` | `BreakTimerElement` | no | `JuryDisplayDecisionElement` | Live referee decisions always; no 3-second public delay. |
+/// | Jury console | inherited `AthleteTimerElement` | inherited `BreakTimerElement` | no | `JuryDisplayDecisionElement` | Live referee decisions always; no 3-second public delay. |
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("decision-element")
 @JsModule("./components/DecisionElement.js")
@@ -67,6 +77,7 @@ public class DecisionElement extends LitTemplate
 	protected FieldOfPlay fop;
 	private final AtomicLong decisionDisplayGeneration = new AtomicLong();
 	private final AtomicLong decisionPayloadSequence = new AtomicLong();
+	private boolean immediatePreviewWindowActive;
 
 	public DecisionElement() {
 	}
@@ -218,6 +229,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		long generation = this.decisionDisplayGeneration.incrementAndGet();
+		this.immediatePreviewWindowActive = false;
 		if (isDontReset()) {
 			return;
 		}
@@ -254,6 +266,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
 		long generation = this.decisionDisplayGeneration.incrementAndGet();
+		this.immediatePreviewWindowActive = false;
 		if (isDontReset()) {
 			return;
 		}
@@ -268,6 +281,7 @@ public class DecisionElement extends LitTemplate
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
 		boolean announcerForced = e.getInputKind() == InputKind.ANNOUNCER_ENTRY;
+		this.immediatePreviewWindowActive = false;
 		// logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3,
 		// e.isSingleLight());
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
@@ -290,6 +304,14 @@ public class DecisionElement extends LitTemplate
 				FieldOfPlay.getLoggingName(this.fop), this.getOrigin(), e.getTimingPolicy(), e.isSingleLight(),
 				announcerForced, e.ref1, e.ref2, e.ref3);
 		}
+		if (e.getTimingPolicy() == TimingPolicy.IMMEDIATE) {
+			this.immediatePreviewWindowActive = true;
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+				showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), announcerForced);
+			});
+			return;
+		}
+		this.immediatePreviewWindowActive = false;
 		if (e.getTimingPolicy() != TimingPolicy.DELAYED) {
 			return;
 		}
@@ -322,8 +344,23 @@ public class DecisionElement extends LitTemplate
 	}
 
 	@Subscribe
+	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
+		if (!this.immediatePreviewWindowActive) {
+			return;
+		}
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
+			if (!this.immediatePreviewWindowActive) {
+				return;
+			}
+			Boolean decision = e.isSingleLight() ? e.ref2 : computeGoodLift(e.ref1, e.ref2, e.ref3, false);
+			showDecisionLights(decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), false);
+		});
+	}
+
+	@Subscribe
 	public void slaveStartTimer(UIEvent.StartTime e) {
 		this.decisionDisplayGeneration.incrementAndGet();
+		this.immediatePreviewWindowActive = false;
 		onStartTimer(e);
 	}
 

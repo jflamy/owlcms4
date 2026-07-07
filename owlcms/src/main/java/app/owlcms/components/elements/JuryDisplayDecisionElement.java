@@ -13,6 +13,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 
 import app.owlcms.fieldofplay.InputKind;
+import app.owlcms.fieldofplay.TimingPolicy;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
@@ -34,6 +35,9 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	private UI ui;
 	private boolean finalOnly = false;
+	private boolean liveRefereeUpdates = true;
+	private boolean liveRefereeUpdatesDuringImmediateWindowOnly = false;
+	private boolean immediateWindowActive = false;
 
 	public JuryDisplayDecisionElement() {
 		this.setJury(true);
@@ -50,6 +54,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	}
 
 	public void doReset() {
+		this.immediateWindowActive = false;
 		logger.debug("JuryDisplayDecisionElement doReset: fop={} isSingleRef={} ui={} {}",
 		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
 		        (ui != null ? "set" : "null"), LoggerUtils.whereFrom());
@@ -141,11 +146,26 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 			// Wait for the full decision; do not show the partial (majority-based) decision.
 			return;
 		}
+		if (e.getTimingPolicy() == TimingPolicy.IMMEDIATE) {
+			this.immediateWindowActive = true;
+			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
+				showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(),
+				        e.getInputKind() == InputKind.ANNOUNCER_ENTRY);
+			});
+			return;
+		}
+		this.immediateWindowActive = false;
 		super.slaveInitialDecision(e);
 	}
 
 	@Subscribe
 	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
+		if (!this.liveRefereeUpdates) {
+			return;
+		}
+		if (this.liveRefereeUpdatesDuringImmediateWindowOnly && !this.immediateWindowActive) {
+			return;
+		}
 		if (this.finalOnly) {
 			return;
 		}
@@ -162,6 +182,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 	@Override
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
+		this.immediateWindowActive = false;
 		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleLight());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(),
@@ -171,6 +192,7 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	@Override
 	protected void onStartTimer(UIEvent.StartTime e) {
+		this.immediateWindowActive = false;
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			getElement().setProperty("singleRef", this.isSingleRef());
 			doReset();
@@ -186,6 +208,14 @@ public class JuryDisplayDecisionElement extends DecisionElement {
 
 	public void setFinalOnly(boolean finalOnly) {
 		this.finalOnly = finalOnly;
+	}
+
+	public void setLiveRefereeUpdates(boolean liveRefereeUpdates) {
+		this.liveRefereeUpdates = liveRefereeUpdates;
+	}
+
+	public void setLiveRefereeUpdatesDuringImmediateWindowOnly(boolean liveRefereeUpdatesDuringImmediateWindowOnly) {
+		this.liveRefereeUpdatesDuringImmediateWindowOnly = liveRefereeUpdatesDuringImmediateWindowOnly;
 	}
 
 	private void setDecisionTimes(Integer ref1Time, Integer ref2Time, Integer ref3Time) {

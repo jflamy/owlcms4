@@ -22,8 +22,10 @@ import app.owlcms.components.elements.StopwatchTimerElement;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.InputKind;
+import app.owlcms.fieldofplay.TimingPolicy;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.lifting.UIEventProcessor;
@@ -190,9 +192,11 @@ public class Results extends BaseResults {
 		}
 		if (this.dsRefereeDecisions != null) {
 			this.dsRefereeDecisions.setFinalOnly(Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_REF_FINAL_ONLY));
+			this.dsRefereeDecisions.setLiveRefereeUpdates(true);
+			this.dsRefereeDecisions.setLiveRefereeUpdatesDuringImmediateWindowOnly(true);
 			this.dsRefereeDecisions.setSilenced(true);
 			this.dsRefereeDecisions.setFop(fop);
-			syncLiveRefereeDecisions(fop);
+			syncDisplayedRefereeDecision(fop);
 		}
 		// Live jury member decisions: show empty circles, then reflect current votes.
 		this.getElement().setProperty("dsShowStopwatch",
@@ -374,12 +378,15 @@ public class Results extends BaseResults {
 		});
 	}
 
-	private void syncLiveRefereeDecisions(FieldOfPlay fop) {
+	private void syncDisplayedRefereeDecision(FieldOfPlay fop) {
 		if (fop == null || this.dsRefereeDecisions == null) {
 			return;
 		}
+		boolean immediateDecisionActive = fop.isShowDecisionsImmediately() && fop.getGoodLift() != null;
+		if (fop.getState() != FOPState.DECISION_VISIBLE && !immediateDecisionActive) {
+			return;
+		}
 		Boolean[] curRefDecisions = fop.getRefereeDecision();
-		Long[] curRefTimes = fop.getRefereeTime();
 		boolean hasDecision = false;
 		if (curRefDecisions != null) {
 			for (Boolean d : curRefDecisions) {
@@ -394,17 +401,23 @@ public class Results extends BaseResults {
 		}
 		InputKind inputKind = fop.getCurrentInputKind();
 		boolean singleRef = inputKind == InputKind.ANNOUNCER_ENTRY || inputKind == InputKind.SOLO_INPUT;
+		TimingPolicy timingPolicy = inputKind == InputKind.ANNOUNCER_ENTRY
+		        ? TimingPolicy.IMMEDIATE
+		        : (fop.isShowDecisionsImmediately() ? TimingPolicy.IMMEDIATE : TimingPolicy.DELAYED);
+		Boolean ref1 = singleRef ? null : curRefDecisions[0];
+		Boolean ref2 = curRefDecisions[1];
+		Boolean ref3 = singleRef ? null : curRefDecisions[2];
+		Boolean goodLift = fop.getGoodLift() != null
+		        ? fop.getGoodLift()
+		        : (singleRef ? Boolean.TRUE.equals(ref2)
+		                : ((Boolean.TRUE.equals(ref1) ? 1 : 0)
+		                        + (Boolean.TRUE.equals(ref2) ? 1 : 0)
+		                        + (Boolean.TRUE.equals(ref3) ? 1 : 0)) >= 2);
 		// origin must NOT be this page: the element ignores events whose origin is its
 		// parent (self-origin filter in uiAccessIgnoreIfSelfOrigin).
-		if (singleRef) {
-			this.dsRefereeDecisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(
-			        fop.getAthleteUnderReview(), null, curRefDecisions[1], null, null,
-			        curRefTimes[1], null, this.dsRefereeDecisions, true, fop));
-		} else {
-			this.dsRefereeDecisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(
-			        fop.getAthleteUnderReview(), curRefDecisions[0], curRefDecisions[1], curRefDecisions[2],
-			        curRefTimes[0], curRefTimes[1], curRefTimes[2], this.dsRefereeDecisions, false, fop));
-		}
+		this.dsRefereeDecisions.slaveShowDecision(new UIEvent.Decision(
+		        fop.getAthleteUnderReview(), goodLift, ref1, ref2, ref3,
+		        this.dsRefereeDecisions, fop, singleRef, timingPolicy, inputKind));
 	}
 
 }

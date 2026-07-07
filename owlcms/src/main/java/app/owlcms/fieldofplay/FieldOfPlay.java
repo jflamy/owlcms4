@@ -2775,22 +2775,16 @@ public class FieldOfPlay implements IUnregister {
 				if (((FOPEvent.DecisionFullUpdate) e).isImmediate()) {
 					// logger.debug("is Immediate, full update NOW");
 					showDecisionNow(e.getOrigin());
-				} else if (isShowDecisionsImmediately()) {
-					emitInitialDecisionEvent(e.getOrigin());
-					showDecisionNow(e.getOrigin());
 				} else {
-					// logger.debug("NOT immediate, full update scheduling");
+					// Referee-originated decisions always keep the reversal window before
+					// becoming official (DECISION_VISIBLE).
 					emitInitialDecisionEvent(e.getOrigin());
 					showDecisionAfterDelay(e.getOrigin(), REVERSAL_DELAY);
 				}
 			} else {
 				// logger.debug("partial update scheduling");
 				emitInitialDecisionEvent(this);
-				if (isShowDecisionsImmediately()) {
-					showDecisionNow(this);
-				} else {
-					showDecisionAfterDelay(this, REVERSAL_DELAY);
-				}
+				showDecisionAfterDelay(this, REVERSAL_DELAY);
 			}
 		} else {
 			// logger.debug("already scheduled");
