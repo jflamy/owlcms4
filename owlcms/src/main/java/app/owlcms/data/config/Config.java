@@ -252,8 +252,8 @@ public class Config {
 
 	private Set<String> getParamFeatureSwitchIds() {
 		Set<String> activeSwitches = new LinkedHashSet<>();
-		applyFeatureSwitchOverrides(activeSwitches, parseLegacyFeatureSwitches(StartupUtils.getStringParam("featureSwitches")));
 		applyFeatureSwitchOverrides(activeSwitches, getConfiguredFeatureSwitches());
+		applyFeatureSwitchOverrides(activeSwitches, parseLegacyFeatureSwitches(StartupUtils.getStringParam("featureSwitches")));
 		return activeSwitches;
 	}
 
@@ -568,8 +568,9 @@ public class Config {
 
 	/**
 	 * @return the current list of feature switches.
-	 * Environment variable (OWLCMS_FEATURESWITCHES) provides the initial set,
-	 * then database values are processed. Switches starting with "-" remove that switch.
+	 * Database values provide the persisted set shown on the Features page, then
+	 * OWLCMS_FEATURESWITCHES overrides add or remove switches. Switches starting
+	 * with "-" remove that switch.
 	 */
 	@Transient
 	@JsonIgnore
