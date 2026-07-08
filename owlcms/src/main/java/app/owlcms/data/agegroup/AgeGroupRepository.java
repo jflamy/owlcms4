@@ -47,6 +47,8 @@ public class AgeGroupRepository {
 
 	static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroupRepository.class);
 
+	public static final String DEFAULT_AGE_GROUP_RESOURCE_NAME = "/agegroups/AgeGroups_2026-08.xlsx";
+
 	/**
 	 * Save.
 	 *
@@ -410,7 +412,7 @@ public class AgeGroupRepository {
 
 	public static void insertAgeGroups(EntityManager em, EnumSet<ChampionshipType> forcedInsertion) {
 		try {
-			String localizedName = ResourceWalker.getLocalizedResourceName("/agegroups/AgeGroups_2025-06.xlsx");
+			String localizedName = ResourceWalker.getLocalizedResourceName(DEFAULT_AGE_GROUP_RESOURCE_NAME);
 			AgeGroupDefinitionReader.doInsertAgeGroups(forcedInsertion, localizedName);
 			RankingConfig.updateMustCompute();
 		} catch (FileNotFoundException e1) {

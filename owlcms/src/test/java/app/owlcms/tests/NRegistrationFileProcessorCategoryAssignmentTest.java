@@ -79,9 +79,9 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 		assertTrue("U15 male age group should be active for explicit assignment", isAgeGroupActive("U15", Gender.M));
 		assertTrue("M45 male age group should be active for explicit assignment", isAgeGroupActive("M45", Gender.M));
 		assertFalse("M40 male age group should remain inactive in this controlled basis", isAgeGroupActive("M40", Gender.M));
-		assertActiveCategoryAvailable("U13 M 42");
-		assertActiveCategoryAvailable("M45 94");
-		assertActiveCategoryAvailable("M 94");
+		assertActiveCategoryAvailable("U13 M 45");
+		assertActiveCategoryAvailable("M45 95");
+		assertActiveCategoryAvailable("M 95");
 		assertActiveCategoryUnavailable("U15 M 79+");
 
 		try (InputStream xlsInputStream = this.getClass().getResourceAsStream(REGISTRATION_FILE)) {
@@ -106,7 +106,7 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 			Athlete caplan = findAthlete("Caplan", "Joey");
 			assertNotNull("Joey Caplan should be imported", caplan);
 			assertNotNull("Joey Caplan should receive a category", caplan.getCategory());
-			assertEquals("Joey Caplan should keep his explicit U13 category", Category.codeFromName("U13 M 42"), caplan.getCategory().getCode());
+			assertEquals("Joey Caplan should keep his explicit U13 category", Category.codeFromName("U13 M 45"), caplan.getCategory().getCode());
 			assertEquals("Joey Caplan should resolve to the U13 age group", "U13", caplan.getAgeGroup().getCode());
 
 			Athlete hall = findAthlete("Hall", "Kevin");
@@ -116,13 +116,13 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 			Athlete bromley = findAthlete("Bromley", "Chip");
 			assertNotNull("Chip Bromley should be imported", bromley);
 			assertNotNull("Chip Bromley should keep his explicit M45 category", bromley.getCategory());
-			assertEquals("Chip Bromley should keep his explicit M45 category", Category.codeFromName("M45 94"), bromley.getCategory().getCode());
+			assertEquals("Chip Bromley should keep his explicit M45 category", Category.codeFromName("M45 95"), bromley.getCategory().getCode());
 			assertEquals("Chip Bromley should resolve to the M45 age group", "M45", bromley.getAgeGroup().getCode());
 
 			Athlete schreiber = findAthlete("Schreiber", "Erik");
 			assertNotNull("Erik Schreiber should be imported", schreiber);
 			assertNotNull("Erik Schreiber should receive an automatically inferred category", schreiber.getCategory());
-			assertEquals("Erik Schreiber should be inferred into the active Open category", Category.codeFromName("M 94"), schreiber.getCategory().getCode());
+			assertEquals("Erik Schreiber should be inferred into the active Open category", Category.codeFromName("M 95"), schreiber.getCategory().getCode());
 			assertEquals("Erik Schreiber should resolve to the Open age group", "Open", schreiber.getAgeGroup().getCode());
 
 			Athlete buser = findAthlete("Buser", "Nicole");
@@ -143,7 +143,7 @@ public class NRegistrationFileProcessorCategoryAssignmentTest {
 			Athlete numericPass = findAthlete("NumericPass", "Case");
 			assertNotNull("The numeric-only success row should be imported", numericPass);
 			assertNotNull("The numeric-only success row should receive a category", numericPass.getCategory());
-			assertEquals("The numeric-only success row should resolve to the active Open category", Category.codeFromName("M 94"), numericPass.getCategory().getCode());
+			assertEquals("The numeric-only success row should resolve to the active Open category", Category.codeFromName("M 95"), numericPass.getCategory().getCode());
 			assertEquals("The numeric-only success row should resolve to the Open age group", "Open", numericPass.getAgeGroup().getCode());
 
 			String errors = importMessages.toString();

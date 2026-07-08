@@ -66,13 +66,16 @@ public class ConfigTest {
     }
 
     @Test
-    public void jsonFeatureSwitchCanRemoveEnvironmentSwitch() {
+    public void environmentSwitchOverridesJsonFeatureSwitch() {
+        // env enables the switch; JSON stored in DB says disabled — env wins at runtime
         System.setProperty("featureSwitches", FeatureSwitch.NO_LIVE_LIGHTS.getId());
         Config config = new Config();
 
         config.setFeatureSwitchJson("{\"noLiveLights\":false}");
 
-        assertFalse(config.featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS));
+        // effective value: env overrides stored JSON
+        assertTrue(config.featureSwitch(FeatureSwitch.NO_LIVE_LIGHTS));
+        // stored JSON still reflects the DB value (off)
         assertEquals("-noLiveLights", config.getFeatureSwitches());
     }
 
