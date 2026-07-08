@@ -68,7 +68,7 @@ class AttemptBoardSnapshotReader implements UpdateCheck.SnapshotReader {
             }
             Map<?, ?> data = snapshotData(raw);
             if (!(raw instanceof Map<?, ?>)) {
-                logger.warn("[{} {}] attempt board snapshot raw type={} parsedAsJson={} value={}",
+                logger.debug("[{} {}] attempt board snapshot raw type={} parsedAsJson={} value={}",
                         mp.fop(), mp.role().name().toLowerCase(), raw.getClass().getName(), data != null,
                         rawSummary(raw));
             }
