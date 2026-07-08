@@ -10,64 +10,22 @@
 
 **New in Release 67.1**
 
-67.0.0-beta07: Team Names can be selected from the list of previously entered ones (filtering as you type)
+67.1.0-beta08: Feature freeze.
 
-67.1.0-beta07: Ignore MQTT Devices during simulation (to avoid perturbing the flow of events)
-
-67.1.0-beta06: Break timer sounds
-  - Delays and sounds configured in local/timing/timing.properties.
-  - Defaults at 1:00, 0:30, 0:00; same sounds as for athletes (can be customized by adding .wav and .mp3 to local/sounds)
-
-67.1.0-beta05: Display projected rank (if lift is successful) on scoreboard. See `displayProjectedRanks` feature toggle
-
-67.1.0-beta05: Display timer at bottom of public scoreboards (when the attempt information is not shown at the top).  See `displayScoreboardTimers` feature toggle.
-
-67.1.0-beta05: Jury Second Vote
-  - If Jury votes a second time to end deliberation/challenge, send the decision directly (unless feature toggle `requireJuryPresidentDecision` is on)
-  - New "VPT in use" setting on the competition rules to apply the correct rules.
-
-67.1.0-beta04: Referee and Jury Decisions on scoreboard (experimental)
-  - When enabled by `decisionSection` feature toggle, IWF-style display of the referee decisions and jury decisions
-  - By default, referee decisions are shown live, and only the first jury vote is shown (same as IWF)
-  - Feature toggles are present to apply the (recommended) 3-second hiding period and to show the second jury vote for actual reversal or confirmation
-  - A stopwatch showing the time spent in deliberation or challenge can be enabled
-
-67.1.0-beta03: Records Eligibility Report
-  - On Records page: shows how many athletes are eligible for each record, to spot missing loads or mistyped federation codes
+67.1.0: Empty databases use IWF 2026-08 age groups by default
+  - The earlier 2025 age group files remain available using the drop down on the Age Groups configuration page
 
 67.1.0: Feature Switches Interactive Page
-  - The features can now be toggled interactively from a tab on the Language and System Settings page
-  - Each switch is documented (and the documentation is translated)
-  - A backward compatible string is exported in addition to a new extensible JSON torage format; starting with this version the new format is used on import if present.
+  - The features are now be toggled interactively from a tab on the Language and System Settings page
+  - Each switch is described in the current language
+  - The `OWLCMS_FEATURESWITCHES` environment variable is applied after the feature switches page; it is comma-separated list of the switches you want turned on or off (prefix the switch with a `-` to turn it off.)
 
-67.1.0: Fix for "Birth year moved to previous year"
-  - Birth date is now correctly stored as a local date not affected by time zones (earlier attempts to fix were incomplete).
-  - Newly loaded data will be correct.  Contact maintainer if you need to fix an older database.
-
-67.1.0: Adjusted the "start using collar when" threshold rules
-  - Made them relative to bar weight. Specified for men's bar, adjusted for actual bar. 40 threshold means 35 for women's bar
-  - 40 threshold means "when 20kg is added to the bar"; so collars are not used for 39 (20 + 2x5 + 2x2) but would be at 40 (20 + 2x5 + 2xcollars)
-  - Default on new databases is now 25 as per IWF rules -- always use collars
-  - If 2.5kg technique plagtes are toggled on (or childrenEquipment feature toggle is active) the threshold is 30, 
-    - so that on a men's bar 25 is loaded with large 2.5kg technique plates and no collars (20 kg for women's bar)
-  - Special rules (usawCollars, lightBarU13, lightBarU15) still have precedence.
-
-67.1.0: GAMX Support
-  - added GAMX variants for snatch and clean&jerk (for seniors and masters)
-  - changed the format to JSON so the same tables would be used for tracker
-  - packaged the tables as a zip so tracker can fetch them
-
-67.1.0: Adjusted the behaviour of `childrenEquipment` toggle.
-
-  - When importing into an empty (no athletes) database, if this toggle is present, the 5kg 10kg bars and large 2.5kg and 5kg plates will be configured on all platforms.
-  - Unsetting and setting this toggle reapplies the children equipment to all platforms
-  - Otherwise, the childrenEqupment setting is ignored. In this way changes made (e.g. removing a light bar on a platform) are not lost.
-
-67.1.0: Attempt board layout fixes
-  - fixed reactive break-timer alignment and athlete picture sizing.
-  - fixed attempt board CSS for long team names and long categories + barbell centering + long break durations
-
-67.1.0: Notification to announcer when waiting on a decision from referee (as opposed to a stuck down signal display)
+67.1.0: Optional information at the bottom of scoreboards
+  - When enabled by `decisionSection` feature toggle, IWF-style display of the referee decisions and jury decisions
+  - By default, decisions are shown according to TCRR, with a 3-second referee reversal delay. Use `showDecisionsImmediately` to get as-soon-as-possible display as experimented in recent IWF championships.
+  - A stopwatch showing the time spent in deliberation or challenge can be enabled using `decisionSectionStopwatch`
+  - Display projected rank (if lift is successful) on scoreboard if the `displayProjectedRanks` feature toggle is on.
+  - Display timer at bottom of public scoreboards (useful when the attempt information is not shown at the top).  Use the `displayScoreboardTimers` feature toggle.
 
 67.1.0: Reworked the Records page
   - all features are on a single page
@@ -81,17 +39,61 @@
   - Each Age Group is connected to a Championship.  If the Championship name is left empty when creating the age group, a Championship with the same name will be created using the defaults
   - Multiple age groups can refer to the same Championship.  For examples all Masters age groups belong to the same championship. If you have two Masters championships (state and national, for example) you should have two championships and attach age groups to the correct one.
 
+67.1.0: GAMX Support
+  - added GAMX variants for snatch and clean&jerk (for seniors and masters)
+  - changed the format to JSON so the same tables would be used for tracker
+  - packaged the tables as a zip so tracker can fetch them
+
+67.1.0: Jury Settings and Behaviour
+  - If Jury votes a second time to end deliberation/challenge, send the decision directly (unless feature toggle `requireJuryPresidentDecision` is on)
+  - New "VPT in use" setting on the competition rules to apply the correct rules.
+
+67.1.0: Adjusted the "start using collar when" threshold rules
+  - Made them relative to bar weight. Specified for men's bar, adjusted for actual bar. 40 threshold means 35 for women's bar
+  - 40 threshold means "when 20kg is added to the bar"; so collars are not used for 39 (20 + 2x5 + 2x2) but would be at 40 (20 + 2x5 + 2xcollars)
+  - Default on new databases is now 25 as per IWF rules -- always use collars
+  - If 2.5kg technique plagtes are toggled on (or childrenEquipment feature toggle is active) the threshold is 30, 
+    - so that on a men's bar 25 is loaded with large 2.5kg technique plates and no collars (20 kg for women's bar)
+  - Special rules (usawCollars, lightBarU13, lightBarU15) still have precedence.
+
+67.1.0: Break timer sounds
+  - Requires `breakTimerSounds` feature toggle.
+  - Delays and sounds are configured in local/timing/timing.properties.
+  - Defaults at 1:00, 0:30, 0:00; same sounds as for athletes (can be customized by adding .wav and .mp3 to local/sounds)
+
+67.1.0: Notification to announcer when waiting on a decision from referee (as opposed to a stuck down signal display)
+
+67.1.0: Adjusted the behaviour of `childrenEquipment` toggle.
+  - When importing into an empty (no athletes) database, if this toggle is present, the 5kg 10kg bars and large 2.5kg and 5kg plates will be configured on all platforms.
+  - Unsetting and setting this toggle reapplies the children equipment to all platforms
+  - Otherwise, the childrenEqupment setting is ignored. In this way changes made (e.g. removing a light bar on a platform) are not lost.
+
+67.1.0: Display body weight and best athlete scores on scoreboard
+  - Resurrected and updated an old feature, enabled using feature toggles.
+  - Use `displayBodyWeight,displayBestScore,noBestScoreRank` for a "best Sinclair score" meet.
+
+67.1.0: Records Eligibility Report
+  - On Records page: shows how many athletes are eligible for each record, to spot missing loads or mistyped federation codes
+
 67.1.0: Additional templates for team results
   - summary tables without the athlete details
   - total-only (when 3 medals are awarded but total only is used for team rankings)
 
+67.1.0: Team Names can be selected from the list of previously entered ones (filtering as you type)
+
+67.1.0: Fix: ignore MQTT Devices during simulation (to avoid perturbing the flow of events)
+
+67.1.0: Fix for "Birth year moved to previous year"
+  - Birth date is now correctly stored as a local date not affected by time zones (earlier attempts to fix were incomplete).
+  - Newly loaded data will be correct.  Contact maintainer if you need to fix an older database.
+
+67.1.0: Fix: Attempt board layout
+  - fixed reactive break-timer alignment and athlete picture sizing.
+  - fixed attempt board CSS for long team names and long categories + barbell centering + long break durations
+
 67.1.0: Default paper sizes can be set in the language and settings page
   - the default is based on person's location inferred from the time zone.
   - if stripping the paper size results in collisions with locally cleaned up names, both will be shown without stripping.s
-
-67.0.0: Display body weight and best athlete scores on scoreboard
-  - Resurrected and updated an old feature, enabled using feature toggles.
-  - Use `displayBodyWeight,displayBestScore,noBestScoreRank` for a "best Sinclair score" meet.
 
 67.1.0: Fixed the SBDE "Update athlete non-lifting data" mode to process record federation eligibilies and eligibility categories correctly
 
