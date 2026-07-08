@@ -187,7 +187,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	private void warnCompetitionDefaultDifferences(Championship championship) {
 		List<String> differences = championship.computeCompetitionDefaultDifferences(Championship.of(null));
 		if (!differences.isEmpty()) {
-			logger.warn("CHAMPIONSHIP_DEFAULT_TRACE '{}' differs from competition defaults: {} {}",
+			logger.debug("CHAMPIONSHIP_DEFAULT_TRACE '{}' differs from competition defaults: {} {}",
 			        championship.getName(), differences, LoggerUtils.whereFrom());
 		}
 	}

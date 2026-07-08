@@ -194,7 +194,7 @@ public class NCurrentAthlete extends Results {
 
 				scheduleDecisionStick();
 			} catch (Exception e1) {
-				logger.warn("exception while showing decision\n{}", LoggerUtils.stackTrace(e1));
+				logger.error("exception while showing decision\n{}", LoggerUtils.stackTrace(e1));
 			}
 		});
 	}

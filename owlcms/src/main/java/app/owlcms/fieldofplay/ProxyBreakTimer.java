@@ -293,7 +293,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	 */
 	@Override
 	public void stop() {
-		this.logger.info("ProxyBreakTimer.stop() called (running={})", isRunning());
+		this.logger.debug("ProxyBreakTimer.stop() called (running={})", isRunning());
 		if (isRunning()) {
 			computeTimeRemaining();
 		}
@@ -301,7 +301,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		this.timeRemainingAtLastStop = this.timeRemaining;
 		this.timeRemainingAtLastStop = getTimeRemaining();
 		if (this.serverTimer != null) {
-			this.logger.info("ProxyBreakTimer.stop(): cancelling serverTimer");
+			this.logger.debug("ProxyBreakTimer.stop(): cancelling serverTimer");
 			this.serverTimer.cancel();
 		}
 		UIEvent.BreakPaused event = new UIEvent.BreakPaused(isIndefinite() ? null : getTimeRemaining(), getOrigin(),
@@ -320,7 +320,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	public void timeOver(Object origin) {
 		// logger.debug("break {} {} timeover = {} [{}]", isRunning(), isIndefinite(), getTimeRemaining(),
 		// LoggerUtils.whereFrom());
-	this.logger.info("ProxyBreakTimer.timeOver() called (running={}, indefinite={}, getTimeRemaining={} )", isRunning(), isIndefinite(), getTimeRemaining());
+	this.logger.debug("ProxyBreakTimer.timeOver() called (running={}, indefinite={}, getTimeRemaining={} )", isRunning(), isIndefinite(), getTimeRemaining());
 	if (isRunning() && !isIndefinite()) {
 			long now = System.currentTimeMillis();
 			if (now - this.lastStop > 1000) {
@@ -346,13 +346,13 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 	}
 
 	private TimerTask computeTask(int timeRemaining2) {
-		this.logger.info("{}scheduling serverTimer break over {}", FieldOfPlay.getLoggingName(this.fop), this.timeRemaining);
+		this.logger.debug("{}scheduling serverTimer break over {}", FieldOfPlay.getLoggingName(this.fop), this.timeRemaining);
 		final int timeRemaining = timeRemaining2;
 		if (timeRemaining == 0) {
 			return new TimerTask() {
 				@Override
 				public void run() {
-					ProxyBreakTimer.this.logger.info("{}running break over", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
+					ProxyBreakTimer.this.logger.debug("{}running break over", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
 					timeOver(this);
 				}
 			};
@@ -360,7 +360,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 			return new TimerTask() {
 				@Override
 				public void run() {
-					ProxyBreakTimer.this.logger.info("{}running break final warning", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
+					ProxyBreakTimer.this.logger.debug("{}running break final warning", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
 					finalWarning(this);
 					scheduleTask(0, Competition.breakTimerFinalWarning);
 				}
@@ -369,7 +369,7 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 			return new TimerTask() {
 				@Override
 				public void run() {
-					ProxyBreakTimer.this.logger.info("{}running break initial warning", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
+					ProxyBreakTimer.this.logger.debug("{}running break initial warning", FieldOfPlay.getLoggingName(ProxyBreakTimer.this.fop));
 					initialWarning(this);
 					scheduleTask(Competition.breakTimerFinalWarning,
 					        Competition.breakTimerInitialWarning - Competition.breakTimerFinalWarning);

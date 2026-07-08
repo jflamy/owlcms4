@@ -261,7 +261,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				return new TimerTask() {
 					@Override
 					public void run() {
-						ProxyAthleteTimer.this.logger.info("{}running time over", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
+						ProxyAthleteTimer.this.logger.debug("{}running time over", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						timeOver(this);
 					}
 				};
@@ -270,7 +270,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				return new TimerTask() {
 					@Override
 					public void run() {
-						ProxyAthleteTimer.this.logger.info("{}running final warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
+						ProxyAthleteTimer.this.logger.debug("{}running final warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						finalWarning(this);
 						// next task is time over after the configured final-warning interval.
 						scheduleTask(0, Competition.athleteTimerFinalWarning);
@@ -281,7 +281,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				return new TimerTask() {
 					@Override
 					public void run() {
-						ProxyAthleteTimer.this.logger.info("{}running 1:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
+						ProxyAthleteTimer.this.logger.debug("{}running 1:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						// nothing to do, next task is final warning.
 						scheduleTask(Competition.athleteTimerFinalWarning,
 						        Competition.athleteTimerOneMinute - Competition.athleteTimerFinalWarning);
@@ -292,7 +292,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				return new TimerTask() {
 					@Override
 					public void run() {
-						ProxyAthleteTimer.this.logger.info("{}running initial warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
+						ProxyAthleteTimer.this.logger.debug("{}running initial warning", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						initialWarning(this);
 						// next task is final warning.
 						scheduleTask(Competition.athleteTimerFinalWarning,
@@ -304,7 +304,7 @@ public class ProxyAthleteTimer implements IProxyTimer {
 				return new TimerTask() {
 					@Override
 					public void run() {
-						ProxyAthleteTimer.this.logger.info("{}running 2:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
+						ProxyAthleteTimer.this.logger.debug("{}running 2:00", FieldOfPlay.getLoggingName(ProxyAthleteTimer.this.fop));
 						// next task is initial warning.
 						scheduleTask(Competition.athleteTimerInitialWarning,
 						        Competition.athleteTimerTwoMinutes - Competition.athleteTimerInitialWarning);
