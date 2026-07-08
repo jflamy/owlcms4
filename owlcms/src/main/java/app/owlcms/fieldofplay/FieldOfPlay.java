@@ -19,6 +19,7 @@ import static app.owlcms.uievents.BreakType.FIRST_SNATCH;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -134,6 +135,7 @@ public class FieldOfPlay implements IUnregister {
 
 	public static final long DECISION_VISIBLE_DURATION = 3500;
 	public static final long DECISION_INPUT_IGNORE_WINDOW_MS = 15000;
+	public static final long MINIMUM_DOWN_SIGNAL_VISIBLE_MS = 1500L;
 	public static final int REVERSAL_DELAY = 3000;
 	private static final int DEFAULT_BREAK_DURATION = 10 * 60 * 1000;
 	private static final int WAKEUP_DURATION_MS = 20000;
@@ -182,6 +184,9 @@ public class FieldOfPlay implements IUnregister {
 	private CountdownType countdownType;
 	private Athlete curAthlete;
 	private int curWeight;
+	private long decisionInputIgnoreWindowMs = DECISION_INPUT_IGNORE_WINDOW_MS;
+	private long decisionVisibleDuration = DECISION_VISIBLE_DURATION;
+	private boolean decisionCommitScheduled;
 	private boolean decisionDisplayScheduled = false;
 	private FOPEvent deferredBreak;
 	private List<Athlete> displayOrder;
@@ -211,6 +216,8 @@ public class FieldOfPlay implements IUnregister {
 	private Integer prevHash;
 	private Athlete previousAthlete;
 	private Boolean[] refereeDecision;
+	private Boolean[] lastShownRefereeDecision;
+	private Boolean lastShownGoodLift;
 	private Long[] refereeTime;
 	private FOPState state;
 	private boolean testingMode;
@@ -261,6 +268,10 @@ public class FieldOfPlay implements IUnregister {
 	private boolean showDecisionsImmediately;
 	private InputKind currentInputKind;
 	private long ignoreDecisionInputsUntil;
+	private long minimumDownSignalVisibleMs = MINIMUM_DOWN_SIGNAL_VISIBLE_MS;
+	private long recordNotificationDelayMs = 500;
+	private int reversalDelay = REVERSAL_DELAY;
+	private long downSignalVisibleSince;
 
 	public FieldOfPlay() {
 	}
@@ -1110,13 +1121,35 @@ public class FieldOfPlay implements IUnregister {
 					simulateDecision((ExplicitDecision) e);
 					// showExplicitDecision(((ExplicitDecision) e), e.origin);
 				} else if (e instanceof DecisionFullUpdate) {
-					// late update
-					pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
-							UIEvent.Notification.Level.ERROR, this));
+					if (this.decisionCommitScheduled) {
+						updateRefereeDecisions((DecisionFullUpdate) e);
+						uiShowUpdateOnJuryScreen(e);
+						setGoodLift(computeCurrentGoodLift());
+						// only re-emit when a referee actually reversed; an identical
+						// decision does not affect the outcome or the display.
+						if (!refereeDecisionUnchangedSinceLastShown()) {
+							uiShowCurrentRefereeDecision(e.getOrigin());
+						}
+					} else {
+						// late update
+						pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
+								UIEvent.Notification.Level.ERROR, this));
+					}
 				} else if (e instanceof DecisionUpdate) {
-					// late update
-					pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
-							UIEvent.Notification.Level.ERROR, this));
+					if (this.decisionCommitScheduled) {
+						updateRefereeDecisions((DecisionUpdate) e);
+						uiShowUpdateOnJuryScreen(e);
+						setGoodLift(computeCurrentGoodLift());
+						// only re-emit when a referee actually reversed; an identical
+						// decision does not affect the outcome or the display.
+						if (!refereeDecisionUnchangedSinceLastShown()) {
+							uiShowCurrentRefereeDecision(e.getOrigin());
+						}
+					} else {
+						// late update
+						pushOutUIEvent(new UIEvent.Notification(this.getCurAthlete(), e.getOrigin(), e, this.state,
+								UIEvent.Notification.Level.ERROR, this));
+					}
 				} else if (e instanceof WeightChange) {
 					// we need to defer the weight change event until the decision has been shown
 					this.logger.debug("{}weight change during decision visible {} {} {}",
@@ -1658,6 +1691,15 @@ public class FieldOfPlay implements IUnregister {
 		this.testingMode = testingMode;
 	}
 
+	public void setDecisionTimingForTests(long minimumDownSignalVisibleMs, int reversalDelay,
+			long decisionVisibleDuration, long decisionInputIgnoreWindowMs, long recordNotificationDelayMs) {
+		this.minimumDownSignalVisibleMs = minimumDownSignalVisibleMs;
+		this.reversalDelay = reversalDelay;
+		this.decisionVisibleDuration = decisionVisibleDuration;
+		this.decisionInputIgnoreWindowMs = decisionInputIgnoreWindowMs;
+		this.recordNotificationDelayMs = recordNotificationDelayMs;
+	}
+
 	public void setVideoAgeGroup(AgeGroup videoAgeGroup) {
 		this.videoAgeGroup = videoAgeGroup;
 	}
@@ -2005,6 +2047,7 @@ public class FieldOfPlay implements IUnregister {
 		cancelWakeUpRef();
 		pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this, this));
 		setClockOwner(null);
+		this.decisionCommitScheduled = false;
 		// MUST NOT change setClockOwnerInitialTimeAllowed
 		setNewRecords(List.of());
 
@@ -2109,7 +2152,7 @@ public class FieldOfPlay implements IUnregister {
 					setLastNewRecords(getNewRecords());
 				}
 				fopEventPost(new StartLifting(this));
-			}, DECISION_VISIBLE_DURATION);
+			}, this.decisionVisibleDuration);
 
 		}
 	}
@@ -2355,6 +2398,7 @@ public class FieldOfPlay implements IUnregister {
 		this.setPreviousAthlete(getCurAthlete()); // would be safer to use past lifting order
 		setClockOwner(null); // athlete has lifted, time does not keep running for them
 		setClockOwnerInitialTimeAllowed(0);
+		this.downSignalVisibleSince = System.currentTimeMillis();
 		uiShowDownSignalOnSlaveDisplays(e.origin);
 		setState(DOWN_SIGNAL_VISIBLE);
 	}
@@ -2422,6 +2466,9 @@ public class FieldOfPlay implements IUnregister {
 
 	private boolean shouldIgnoreDecisionInputDuringCooldown(FOPEvent e) {
 		if (isTestingMode() || CompetitionSimulator.isRunning()) {
+			return false;
+		}
+		if (this.decisionCommitScheduled) {
 			return false;
 		}
 		long now = System.currentTimeMillis();
@@ -2804,16 +2851,36 @@ public class FieldOfPlay implements IUnregister {
 					// Referee-originated decisions always keep the reversal window before
 					// becoming official (DECISION_VISIBLE).
 					emitInitialDecisionEvent(e.getOrigin());
-					showDecisionAfterDelay(e.getOrigin(), REVERSAL_DELAY);
+					if (isShowDecisionsImmediately()) {
+						showDecisionVisibleAfterDelay(e.getOrigin(), decisionDisplayDelayAfterInitialDecision());
+						commitDecisionAfterDelay(e.getOrigin(), this.reversalDelay);
+					} else {
+						showDecisionAfterDelay(e.getOrigin(), this.reversalDelay);
+					}
 				}
 			} else {
 				// logger.debug("partial update scheduling");
 				emitInitialDecisionEvent(this);
-				showDecisionAfterDelay(this, REVERSAL_DELAY);
+				if (isShowDecisionsImmediately()) {
+					showDecisionVisibleAfterDelay(this, decisionDisplayDelayAfterInitialDecision());
+					commitDecisionAfterDelay(this, this.reversalDelay);
+				} else {
+					showDecisionAfterDelay(this, this.reversalDelay);
+				}
 			}
 		} else {
 			// logger.debug("already scheduled");
 		}
+	}
+
+	private int decisionDisplayDelayAfterInitialDecision() {
+		if (!isShowDecisionsImmediately()) {
+			return this.reversalDelay;
+		}
+		long visibleSince = this.downSignalVisibleSince;
+		long visibleForMs = visibleSince > 0 ? System.currentTimeMillis() - visibleSince : 0;
+		long remainingMs = Math.max(0L, this.minimumDownSignalVisibleMs - visibleForMs);
+		return Math.toIntExact(remainingMs);
 	}
 
 	private void emitInitialDecisionEvent(Object origin) {
@@ -3319,7 +3386,9 @@ public class FieldOfPlay implements IUnregister {
 				ArrayList<Athlete> nAth = new ArrayList<>();
 				for (Athlete a : initialList) {
 					Athlete nA = em.find(Athlete.class, a.getId());
-					nAth.add(nA);
+					if (nA != null) {
+						nAth.add(nA);
+					}
 				}
 				return nAth;
 			});
@@ -3438,6 +3507,8 @@ public class FieldOfPlay implements IUnregister {
 	private void resetDecisions() {
 		// this.logger.trace("{}resetting all decisions on new clock",
 		// FieldOfPlay.getLoggingName(this));
+		this.lastShownRefereeDecision = null;
+		this.lastShownGoodLift = null;
 		setRefereeDecision(new Boolean[3]);
 		resetJuryDecisions();
 		setRefereeTime(new Long[3]);
@@ -3449,7 +3520,9 @@ public class FieldOfPlay implements IUnregister {
 		resetAthleteTimerWarningFlags();
 		setDownEmitted(false);
 		setDecisionDisplayScheduled(false);
+		this.decisionCommitScheduled = false;
 		setClockStoppedDecisionsAllowed(false);
+		this.downSignalVisibleSince = 0;
 		this.decisionReceivedWithoutClock = false;
 	}
 
@@ -3796,6 +3869,42 @@ public class FieldOfPlay implements IUnregister {
 				reversalDelay);
 	}
 
+	private synchronized void showDecisionVisibleAfterDelay(Object origin2, int displayDelay) {
+		assert !isDecisionDisplayScheduled();
+		setDecisionDisplayScheduled(true);
+		this.decisionDisplayTimer = new DelayTimer(isTestingMode()).schedule(() -> showDecisionVisibleNow(origin2),
+				displayDelay);
+	}
+
+	private synchronized void commitDecisionAfterDelay(Object origin2, int reversalDelay) {
+		this.decisionCommitScheduled = true;
+		new DelayTimer(isTestingMode()).schedule(() -> commitDecisionNow(origin2), reversalDelay);
+	}
+
+	private void showDecisionVisibleNow(Object origin) {
+		setGoodLift(computeCurrentGoodLift());
+		setState(DECISION_VISIBLE);
+		this.ignoreDecisionInputsUntil = System.currentTimeMillis() + this.decisionInputIgnoreWindowMs;
+		uiShowCurrentRefereeDecision(origin);
+		new DelayTimer(isTestingMode()).schedule(
+				() -> {
+					fopEventPost(new DecisionReset(this));
+				}, this.decisionVisibleDuration);
+	}
+
+	private void commitDecisionNow(Object origin) {
+		this.decisionCommitScheduled = false;
+		commitCurrentDecision();
+		// The decision is already visible (immediate mode). Only re-broadcast if the
+		// referee decisions changed since they were last shown (e.g. a reversal that
+		// arrived after the decision became visible). Otherwise this would be a
+		// redundant re-render of an identical decision.
+		if (!refereeDecisionUnchangedSinceLastShown()) {
+			uiShowCurrentRefereeDecision(origin);
+		}
+		recomputeLiftingOrder(true, true);
+	}
+
 	/**
 	 * The decision is confirmed as official after the 3 second delay following
 	 * majority. After this delay, manual announcer intervention is required to
@@ -3803,31 +3912,32 @@ public class FieldOfPlay implements IUnregister {
 	 * and announce.
 	 */
 	private void showDecisionNow(Object origin) {
-		// logger.debug("Show decision now - enter");
-		// we need to recompute majority, since they may have been reversal
-		int nbWhite = 0;
-		for (int i = 0; i < 3; i++) {
-			nbWhite = nbWhite + (Boolean.TRUE.equals(getRefereeDecision()[i]) ? 1 : 0);
-		}
+		commitCurrentDecision();
+		setState(DECISION_VISIBLE);
+		this.ignoreDecisionInputsUntil = System.currentTimeMillis() + this.decisionInputIgnoreWindowMs;
+		uiShowCurrentRefereeDecision(this);
+		recomputeLiftingOrder(true, true);
+		// tell ourself to reset after 3 secs.
+		// Decision reset will handle end of group.
+		new DelayTimer(isTestingMode()).schedule(
+				() -> {
+					fopEventPost(new DecisionReset(this));
+				}, this.decisionVisibleDuration);
+	}
+
+	private void commitCurrentDecision() {
 		var attempted = getCurAthlete().getNextAttemptRequestedWeight();
 		setAthleteUnderReview(getCurAthlete());
 		setPreviousAthlete(this.athleteUnderReview);
 		setLastChallengedRecords(this.challengedRecords);
-
-		if (nbWhite >= 2) {
-			setGoodLift(true);
-			if (getCurAthlete() != null) {
-				this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
+		setGoodLift(computeCurrentGoodLift());
+		if (getCurAthlete() != null) {
+			this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
+			if (Boolean.TRUE.equals(getGoodLift())) {
 				getCurAthlete().successfulLift();
-			}
-		} else {
-			setGoodLift(false);
-			if (getCurAthlete() != null) {
-				this.setCjStarted((getCurAthlete().getAttemptsDone() > 3));
+			} else {
 				getCurAthlete().failedLift();
 			}
-		}
-		if (getCurAthlete() != null) {
 			getCurAthlete().resetForcedAsCurrent();
 		}
 		setForcedTime(false);
@@ -3835,33 +3945,33 @@ public class FieldOfPlay implements IUnregister {
 		List<RecordEvent> newRecords = updateRecords(getCurAthlete(), getGoodLift(), getChallengedRecords(), List.of());
 		setNewRecords(newRecords);
 		setLastNewRecords(newRecords);
-
-		// must set state before recomputing order so that scoreboards stop blinking the
-		// current athlete
-		// must also set state prior to sending event, so that state monitor shows new
-		// state.
-		setState(DECISION_VISIBLE);
-		this.ignoreDecisionInputsUntil = System.currentTimeMillis() + DECISION_INPUT_IGNORE_WINDOW_MS;
-		// logger.debug("Show decision now - doit");
-		// use "this" because the origin must also show the decision.
-
-		uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), getRefereeTime(),
-				this);
-		recomputeLiftingOrder(true, true);
-
-		// control timing of notifications
 		new DelayTimer(isTestingMode()).schedule(
 				() -> {
 					boolean recordsBroken = !newRecords.isEmpty();
 					notifyRecords(recordsBroken ? getChallengedRecords() : List.of(),
 							recordsBroken, attempted);
-				}, 500);
-		// tell ourself to reset after 3 secs.
-		// Decision reset will handle end of group.
-		new DelayTimer(isTestingMode()).schedule(
-				() -> {
-					fopEventPost(new DecisionReset(this));
-				}, DECISION_VISIBLE_DURATION);
+				}, this.recordNotificationDelayMs);
+	}
+
+	private Boolean computeCurrentGoodLift() {
+		int nbWhite = 0;
+		for (int i = 0; i < 3; i++) {
+			nbWhite = nbWhite + (Boolean.TRUE.equals(getRefereeDecision()[i]) ? 1 : 0);
+		}
+		return nbWhite >= 2;
+	}
+
+	private void uiShowCurrentRefereeDecision(Object origin) {
+		uiShowRefereeDecisionOnSlaveDisplays(getCurAthlete(), getGoodLift(), getRefereeDecision(), getRefereeTime(),
+				origin);
+		this.lastShownRefereeDecision = getRefereeDecision() == null ? null : getRefereeDecision().clone();
+		this.lastShownGoodLift = getGoodLift();
+	}
+
+	private boolean refereeDecisionUnchangedSinceLastShown() {
+		return this.lastShownRefereeDecision != null
+				&& Arrays.equals(this.lastShownRefereeDecision, getRefereeDecision())
+				&& Objects.equals(this.lastShownGoodLift, getGoodLift());
 	}
 
 	private void showJuryMemberDecisionReceived(Object origin, int i, Boolean[] juryMemberDecision2, int jurySize) {

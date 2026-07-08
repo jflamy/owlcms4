@@ -22,8 +22,8 @@ import ch.qos.logback.classic.Logger;
 import elemental.json.Json;
 
 @SuppressWarnings("serial")
-public class JuryDisplayDecisionElement extends AbstractDecisionElement {
-	final private static Logger logger = (Logger) LoggerFactory.getLogger(JuryDisplayDecisionElement.class);
+public class DecisionBlockDecisionElement extends AbstractDecisionElement {
+	final private static Logger logger = (Logger) LoggerFactory.getLogger(DecisionBlockDecisionElement.class);
 	final private static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 
 	static {
@@ -33,25 +33,21 @@ public class JuryDisplayDecisionElement extends AbstractDecisionElement {
 
 	private UI ui;
 
-	public JuryDisplayDecisionElement() {
+	public DecisionBlockDecisionElement() {
 		this.setJury(true);
 		setShowsDownSignal(false);
-		setLiveRefereeUpdates(true);
+		setLiveRefereeUpdates(false);
 		setResetOnClockStart(true);
 		setDisplaySize("large");
-		logger.debug("JuryDisplayDecisionElement constructor: fop={} isSingleRef={} {}",
+		logger.debug("DecisionBlockDecisionElement constructor: fop={} isSingleRef={} {}",
 		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(), LoggerUtils.whereFrom());
 		getElement().setProperty("singleRef", this.isSingleRef());
 		this.getElement().getStyle().set("font-size", "100%");
 		doReset();
 	}
 
-	public JuryDisplayDecisionElement(boolean b) {
-		this();
-	}
-
 	public void doReset() {
-		logger.debug("JuryDisplayDecisionElement doReset: fop={} isSingleRef={} ui={} {}",
+		logger.debug("DecisionBlockDecisionElement doReset: fop={} isSingleRef={} ui={} {}",
 		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
 		        (ui != null ? "set" : "null"), LoggerUtils.whereFrom());
 		getElement().setProperty("singleRef", this.isSingleRef());
@@ -71,18 +67,11 @@ public class JuryDisplayDecisionElement extends AbstractDecisionElement {
 		});
 	}
 
-	// @Override
-	// public void slaveDownSignal(DownSignal e) {
-	// // ignore
-	// }
-
 	@Subscribe
 	public void slaveBreakStarted(UIEvent.BreakStarted e) {
 		if (e.isDisplayToggle()) {
 			return;
 		}
-		// Only reset if this is not a jury deliberation or challenge break: those
-		// deliberate about the decision currently shown, which must stay visible.
 		if (this.fop != null && this.fop.getBreakType() != BreakType.JURY
 		        && this.fop.getBreakType() != BreakType.CHALLENGE) {
 			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
@@ -100,13 +89,13 @@ public class JuryDisplayDecisionElement extends AbstractDecisionElement {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		ui = UI.getCurrent();
-		logger./**/warn("JuryDisplayDecisionElement onAttach: fop={} isSingleRef={} parent={} {}",
+		logger./**/warn("DecisionBlockDecisionElement onAttach: fop={} isSingleRef={} parent={} {}",
 		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
 		        this.getParent().map(p -> p.getClass().getSimpleName()).orElse("none"),
 		        LoggerUtils.whereFrom());
 		super.onAttach(attachEvent);
 		if (this.fop == null) {
-			logger./**/warn("No FOP available for JuryDisplayDecisionElement onAttach {}", LoggerUtils.whereFrom());
+			logger./**/warn("No FOP available for DecisionBlockDecisionElement onAttach {}", LoggerUtils.whereFrom());
 			return;
 		}
 		doReset();
@@ -130,7 +119,6 @@ public class JuryDisplayDecisionElement extends AbstractDecisionElement {
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			// logger.debug("{} referee update ({} {} {})", this.getOrigin(), e.ref1, e.ref2, e.ref3);
 			getElement().setProperty("singleRef", e.isSingleLight());
 			getElement().setProperty("jury", true);
 			setDecisionProperties(e.isSingleLight() ? e.ref2 : computeGoodLift(e.ref1, e.ref2, e.ref3, false),
@@ -142,7 +130,6 @@ public class JuryDisplayDecisionElement extends AbstractDecisionElement {
 	@Override
 	@Subscribe
 	public void slaveShowDecision(UIEvent.Decision e) {
-		//logger.debug("decision {} {} {} --- {}", e.ref1, e.ref2, e.ref3, e.isSingleLight());
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			showDecisionLights(e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(),
 			        e.getInputKind() == app.owlcms.fieldofplay.InputKind.ANNOUNCER_ENTRY);
@@ -160,19 +147,20 @@ public class JuryDisplayDecisionElement extends AbstractDecisionElement {
 		});
 	}
 
-	private Integer intBox(Long ref1Time) {
-		return ref1Time != null ? ref1Time.intValue() : null;
-	}
-
 	@Override
 	public void showDecisionLights(UIEvent event, Boolean decision, Boolean ref1, Boolean ref2, Boolean ref3,
 	        boolean singleLight, boolean announcerForced) {
 		super.showDecisionLights(event, decision, ref1, ref2, ref3, singleLight, announcerForced);
 		if (event instanceof UIEvent.RefereeUpdate refereeUpdate) {
 			UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, event, this.getOrigin(), () -> {
-				setDecisionTimes(intBox(refereeUpdate.ref1Time), intBox(refereeUpdate.ref2Time), intBox(refereeUpdate.ref3Time));
+				setDecisionTimes(intBox(refereeUpdate.ref1Time), intBox(refereeUpdate.ref2Time),
+				        intBox(refereeUpdate.ref3Time));
 			});
 		}
+	}
+
+	private Integer intBox(Long ref1Time) {
+		return ref1Time != null ? ref1Time.intValue() : null;
 	}
 
 	private void setDecisionTimes(Integer ref1Time, Integer ref2Time, Integer ref3Time) {
@@ -188,5 +176,4 @@ public class JuryDisplayDecisionElement extends AbstractDecisionElement {
 			getElement().setProperty(propertyName, value.intValue());
 		}
 	}
-
 }

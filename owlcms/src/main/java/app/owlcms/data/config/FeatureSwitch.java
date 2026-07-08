@@ -25,7 +25,6 @@ public enum FeatureSwitch {
     SHOW_DECISIONS_IMMEDIATELY("showDecisionsImmediately", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     BW_CLASS_THEN_AGE_GROUP("bwClassThenAgeGroup", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION("decisionSection", FeatureSwitchSection.SCOREBOARD_OPTIONS),
-    DECISION_SECTION_REF_FINAL_ONLY("decisionSectionRefFinalOnly", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_SHOW_BOTH_JURY_VOTES("decisionSectionShowBothJuryVotes",FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_STOPWATCH("decisionSectionStopwatch", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     CHAMPIONSHIP_GROUPING("championshipGrouping", FeatureSwitchSection.SCOREBOARD_OPTIONS),

@@ -16,8 +16,8 @@ import com.vaadin.flow.component.template.Id;
 
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
+import app.owlcms.components.elements.DecisionBlockDecisionElement;
 import app.owlcms.components.elements.DecisionElement;
-import app.owlcms.components.elements.JuryDisplayDecisionElement;
 import app.owlcms.components.elements.StopwatchTimerElement;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
@@ -65,7 +65,7 @@ public class Results extends BaseResults {
 	@Id("decisionSectionStopwatch")
 	private StopwatchTimerElement decisionSectionStopwatch; // WebComponent, injected by Vaadin
 	@Id("decisionSectionReferee")
-	private JuryDisplayDecisionElement dsRefereeDecisions; // WebComponent, injected by Vaadin
+	private DecisionBlockDecisionElement dsRefereeDecisions; // WebComponent, injected by Vaadin
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 
 	public Results() {
@@ -154,7 +154,7 @@ public class Results extends BaseResults {
 			this.decisionSectionStopwatch.setSilenced(true);
 			this.decisionSectionStopwatch.setFop(fop);
 		}
-		// Always give the jury display element a FOP so it initialises cleanly even when
+		// Always give the decision-block element a FOP so it initialises cleanly even when
 		// DECISION_SECTION is off (it is always present in the DOM, just hidden).
 		if (this.dsRefereeDecisions != null) {
 			this.dsRefereeDecisions.setSilenced(true);
@@ -181,7 +181,7 @@ public class Results extends BaseResults {
 
 	/**
 	 * Sync the bottom decision-section state. The referee lights
-	 * ({@link JuryDisplayDecisionElement}) are self-subscribing once given the FOP.
+	 * ({@link DecisionBlockDecisionElement}) are self-subscribing once given the FOP.
 	 * The jury lights are simple circles rendered directly in Results.js, driven by the single
 	 * {@link #slaveJuryUpdate(UIEvent.JuryUpdate)} subscription on this page.
 	 */
@@ -190,10 +190,8 @@ public class Results extends BaseResults {
 			return;
 		}
 		if (this.dsRefereeDecisions != null) {
-			this.dsRefereeDecisions.setFinalOnly(Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_REF_FINAL_ONLY));
-			this.dsRefereeDecisions.setLiveRefereeUpdates(true);
-			this.dsRefereeDecisions.setLiveRefereeUpdatesDuringImmediateWindowOnly(true);
-			this.dsRefereeDecisions.setDownSignalHoldMs(DecisionElement.MINIMUM_DOWN_SIGNAL_VISIBLE_MS);
+			// DecisionBlockDecisionElement constructor already sets: no DOWN, no live referee
+			// updates, resetOnClockStart. Only runtime state needs to be applied here.
 			this.dsRefereeDecisions.setSilenced(true);
 			this.dsRefereeDecisions.setFop(fop);
 			syncDisplayedRefereeDecision(fop);
