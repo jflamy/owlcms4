@@ -22,8 +22,8 @@ public enum FeatureSwitch {
 
     MEDALISTS_AS_LEADERS("medalistsAsLeaders", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     PREVIOUS_SESSION_MEDALS_ONLY("previousSessionMedalsOnly", FeatureSwitchSection.SCOREBOARD_OPTIONS),
-    SHOW_DECISIONS_IMMEDIATELY("showDecisionsImmediately", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     BW_CLASS_THEN_AGE_GROUP("bwClassThenAgeGroup", FeatureSwitchSection.SCOREBOARD_OPTIONS),
+    SHOW_DECISIONS_IMMEDIATELY("showDecisionsImmediately", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION("decisionSection", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_SHOW_BOTH_JURY_VOTES("decisionSectionShowBothJuryVotes",FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_STOPWATCH("decisionSectionStopwatch", FeatureSwitchSection.SCOREBOARD_OPTIONS),
