@@ -272,7 +272,7 @@
       "env": {
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        "OWLCMS_FEATURESWITCHES": "breakTimerSounds",
+        "OWLCMS_FEATURESWITCHES": "decisionSection,decisionSectionShowBothJuryVotes,decisionSectionStopwatch",
         "OWLCMS_PORT": "8081",
 
         //"OWLCMS_REMOTE": "http://localhost:8082",
