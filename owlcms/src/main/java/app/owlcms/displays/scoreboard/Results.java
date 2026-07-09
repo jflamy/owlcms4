@@ -19,6 +19,7 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionBlockDecisionElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.StopwatchTimerElement;
+import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPState;
@@ -66,6 +67,7 @@ public class Results extends BaseResults {
 	private StopwatchTimerElement decisionSectionStopwatch; // WebComponent, injected by Vaadin
 	@Id("decisionSectionReferee")
 	private DecisionBlockDecisionElement dsRefereeDecisions; // WebComponent, injected by Vaadin
+	private boolean ignoreStaleCollectiveJuryUpdate;
 	private final Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 
 	public Results() {
@@ -208,12 +210,17 @@ public class Results extends BaseResults {
 		return getFop().getJurySize();
 	}
 
+	private void setJuryLightsHidden(boolean hidden) {
+		this.getElement().setProperty("decisionSectionHideJuryLights", hidden);
+	}
+
 	/** Show one empty placeholder circle per juror. */
 	private void initJuryDecisions() {
 		JsonArray decisions = Json.createArray();
 		for (int i = 0; i < getNbJurors(); i++) {
 			decisions.set(i, "empty");
 		}
+		setJuryLightsHidden(false);
 		this.getElement().setPropertyJson("juryDecisions", decisions);
 		clearJuryMessage();
 	}
@@ -239,9 +246,22 @@ public class Results extends BaseResults {
 			return;
 		}
 		BreakType breakType = fop.getBreakType();
+		boolean showBothVotes = Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_BOTH_JURY_VOTES);
 		if (breakType == BreakType.JURY) {
+			setDecisionSectionDecisionAthlete(fop.getAthleteUnderReview());
+			if (showBothVotes) {
+				initJuryDecisions();
+			} else {
+				setJuryLightsHidden(true);
+			}
 			setJuryMessage(JuryDeliberationEventType.START_DELIBERATION);
 		} else if (breakType == BreakType.CHALLENGE) {
+			setDecisionSectionDecisionAthlete(fop.getAthleteUnderReview());
+			if (showBothVotes) {
+				initJuryDecisions();
+			} else {
+				setJuryLightsHidden(true);
+			}
 			setJuryMessage(JuryDeliberationEventType.CHALLENGE);
 		}
 	}
@@ -259,8 +279,10 @@ public class Results extends BaseResults {
 		if (fop == null) {
 			return;
 		}
-		Boolean[] votes = fop.getJuryMemberDecision();
-		int n = getNbJurors();
+		pushJuryDecisions(fop.getJuryMemberDecision(), getNbJurors());
+	}
+
+	private void pushJuryDecisions(Boolean[] votes, int n) {
 		boolean allVoted = true;
 		for (int i = 0; i < n; i++) {
 			if (votes == null || votes[i] == null) {
@@ -287,17 +309,27 @@ public class Results extends BaseResults {
 	@Subscribe
 	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			// First-vote-only (default): once a jury deliberation/challenge is in progress,
-			// freeze the circles on the initial vote and ignore the re-vote. When showing
-			// both votes, let the deliberation vote update the circles live.
+			// During deliberation/challenge, first-vote-only hides the jury lights. Show-both-votes
+			// starts with empty circles and live juror updates fill them, matching the jury
+			// keypad. Collective reveal events must not repaint stale pre-deliberation votes.
 			FieldOfPlay fop = getFop();
+			if (!isDecisionSectionReviewState(fop)) {
+				initJuryDecisions();
+				return;
+			}
 			boolean inDeliberation = fop != null && (fop.getBreakType() == BreakType.JURY
 			        || fop.getBreakType() == BreakType.CHALLENGE);
 			boolean showBothVotes = Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_BOTH_JURY_VOTES);
 			if (inDeliberation && !showBothVotes) {
 				return;
 			}
-			pushJuryDecisions();
+			if (inDeliberation && e.getJuryMemberUpdated() == null && this.ignoreStaleCollectiveJuryUpdate) {
+				this.ignoreStaleCollectiveJuryUpdate = false;
+				initJuryDecisions();
+				return;
+			}
+			this.ignoreStaleCollectiveJuryUpdate = false;
+			pushJuryDecisions(e.getJuryMemberDecision(), e.getJurySize());
 		});
 	}
 
@@ -316,33 +348,37 @@ public class Results extends BaseResults {
 		super.slaveJuryNotification(e);
 		JuryDeliberationEventType type = e.getDeliberationEventType();
 		if (type == JuryDeliberationEventType.START_DELIBERATION || type == JuryDeliberationEventType.CHALLENGE) {
-			// Default is first-vote-only: keep the jury lights from the initial vote and do
-			// not clear them when a new deliberation/challenge starts (they stay visible
-			// until the END_* events restore the athlete-centric view). When showing both
-			// the initial and final votes, clear at the start so each deliberation's votes
-			// are shown fresh.
+			// First-vote-only: hide jury lights during deliberation/challenge.
+			// Show-both-votes: clear lights at start so the deliberation re-vote appears fresh.
 			boolean showBothVotes = Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_BOTH_JURY_VOTES);
 			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-				if (showBothVotes) {
-					initJuryDecisions();
+				initJuryDecisions();
+				this.ignoreStaleCollectiveJuryUpdate = true;
+				Athlete athleteUnderReview = e.getAthlete() != null ? e.getAthlete()
+				        : (getFop() != null ? getFop().getAthleteUnderReview() : null);
+				setDecisionSectionDecisionAthlete(athleteUnderReview);
+				syncDisplayedRefereeDecision(getFop());
+				if (!showBothVotes) {
+					setJuryLightsHidden(true);
 				}
 				setJuryMessage(type);
 			});
 		} else if (type == JuryDeliberationEventType.GOOD_LIFT || type == JuryDeliberationEventType.BAD_LIFT) {
-			// The deliberation is only over once the speaker announces. While the jury
-			// decision is waiting for the announcer, everything stays visible.
-			if (!e.isWaitForAnnouncer()) {
-				UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-					// Announced: clear message, stopwatch, jury circles and referee lights right away.
-					initJuryDecisions();
-					if (this.dsRefereeDecisions != null) {
-						this.dsRefereeDecisions.doReset();
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+				if (!e.isWaitForAnnouncer()) {
+					FieldOfPlay fop = getFop();
+					if (fop != null && fop.getCurAthlete() != null) {
+						doUpdate(fop.getCurAthlete(), e);
 					}
-				});
-			}
+					// Announcer-confirmed verdict: the decision section is no longer in review
+					// mode. Show the next-athlete clock and empty decision lights.
+					this.ignoreStaleCollectiveJuryUpdate = false;
+					setDecisionSectionReadyForNextAthlete();
+				}
+			});
 		} else if (type == JuryDeliberationEventType.END_JURY_BREAK || type == JuryDeliberationEventType.END_CHALLENGE) {
 			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-				initJuryDecisions();
+				setDecisionSectionReadyForNextAthlete();
 			});
 		}
 	}
@@ -372,20 +408,34 @@ public class Results extends BaseResults {
 	@Subscribe
 	public void slaveJuryStartTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			initJuryDecisions();
-			clearDecisionSectionDecisionAthlete();
+			setDecisionSectionReadyForNextAthlete();
 		});
+	}
+
+	private boolean isDecisionSectionReviewState(FieldOfPlay fop) {
+		return fop != null && (fop.getState() == FOPState.DECISION_VISIBLE
+		        || (fop.getState() == FOPState.BREAK
+		                && (fop.getBreakType() == BreakType.JURY || fop.getBreakType() == BreakType.CHALLENGE)));
+	}
+
+	private void setDecisionSectionReadyForNextAthlete() {
+		this.ignoreStaleCollectiveJuryUpdate = false;
+		initJuryDecisions();
+		clearDecisionSectionDecisionAthlete();
+		if (this.dsRefereeDecisions != null) {
+			this.dsRefereeDecisions.doReset();
+		}
 	}
 
 	private void syncDisplayedRefereeDecision(FieldOfPlay fop) {
 		if (fop == null || this.dsRefereeDecisions == null) {
 			return;
 		}
-		boolean immediateDecisionActive = fop.isShowDecisionsImmediately() && fop.getGoodLift() != null;
-		if (fop.getState() != FOPState.DECISION_VISIBLE && !immediateDecisionActive) {
-			clearDecisionSectionDecisionAthlete();
+		if (!isDecisionSectionReviewState(fop)) {
+			setDecisionSectionReadyForNextAthlete();
 			return;
 		}
+		setDecisionSectionDecisionAthlete(fop.getAthleteUnderReview());
 		Boolean[] curRefDecisions = fop.getRefereeDecision();
 		boolean hasDecision = false;
 		if (curRefDecisions != null) {
@@ -397,6 +447,7 @@ public class Results extends BaseResults {
 			}
 		}
 		if (!hasDecision) {
+			this.dsRefereeDecisions.doReset();
 			return;
 		}
 		InputKind inputKind = fop.getCurrentInputKind();
@@ -415,7 +466,6 @@ public class Results extends BaseResults {
 		                        + (Boolean.TRUE.equals(ref3) ? 1 : 0)) >= 2);
 		// origin must NOT be this page: the element ignores events whose origin is its
 		// parent (self-origin filter in uiAccessIgnoreIfSelfOrigin).
-		setDecisionSectionDecisionAthlete(fop.getAthleteUnderReview());
 		this.dsRefereeDecisions.slaveShowDecision(new UIEvent.Decision(
 		        fop.getAthleteUnderReview(), goodLift, ref1, ref2, ref3,
 		        this.dsRefereeDecisions, fop, singleRef, timingPolicy, inputKind));

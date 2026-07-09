@@ -683,11 +683,12 @@ td {
     align-items: center;
     justify-content: start;
     gap: 0.35em;
-    background-color: var(--NameBackgroundColor);
+    background-color: transparent;
     color: var(--NameTextColor);
     font-size: 0.667em;
     font-weight: bold;
     padding-inline: 0.15em;
+    padding-left: 1em;
     padding-block: 0.1em;
     height: calc(var(--ds-light-width) * 1.5);
 }

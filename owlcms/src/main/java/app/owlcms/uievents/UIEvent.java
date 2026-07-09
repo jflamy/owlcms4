@@ -771,6 +771,7 @@ public class UIEvent {
 			this.collective = null;
 			this.juryMemberUpdated = i;
 			this.juryMemberDecision = juryMemberDecision2;
+			this.jurySize = jurySize;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}

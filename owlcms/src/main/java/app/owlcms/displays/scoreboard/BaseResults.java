@@ -626,7 +626,9 @@ public class BaseResults extends LitTemplate
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
-			clearDecisionSectionDecisionAthlete();
+			if (e.getBreakType() != BreakType.JURY && e.getBreakType() != BreakType.CHALLENGE) {
+				clearDecisionSectionDecisionAthlete();
+			}
 			doBreak(e);
 		});
 	}

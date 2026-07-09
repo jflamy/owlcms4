@@ -341,6 +341,7 @@ class Results extends LitElement {
       decisionSectionAthleteName: {},
       projectedRankText: {},
       juryDecisions: {type: Array},
+      decisionSectionHideJuryLights: {type: Boolean},
       juryMessage: {},
       dsShowStopwatch: {type: Boolean},
       logoSrc: {},
@@ -452,7 +453,7 @@ class Results extends LitElement {
   }
 
   dsJurySlotStyles() {
-    return this.showDecisionSection ? "" : "display:none";
+    return this.showDecisionSection && !this.decisionSectionHideJuryLights ? "" : "display:none";
   }
 
   dsProjectedRanksStyles() {
@@ -604,6 +605,7 @@ class Results extends LitElement {
     this.decisionSectionAthleteName = "";
     this.projectedRankText = "";
     this.juryDecisions = [];
+    this.decisionSectionHideJuryLights = false;
     this.juryMessage = "";
     this.dsShowStopwatch = false;
   }
