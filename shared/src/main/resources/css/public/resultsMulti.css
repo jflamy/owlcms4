@@ -7,6 +7,7 @@
 
 /* Import base styles - only override the grid template */
 @import url('results.css');
+@import url('resultsDecisionSection.css');
 
 /* Override grid layout for multi-category scoreboard */
 table {

@@ -20,6 +20,32 @@ class ResultsFull extends LitElement {
 
       <div class="${this.wrapperClasses()}" style="${this.sizeOverride} ${this.colorOverride}">
         <div class="blockPositioningWrapper">
+          <div class="decisionSection" style="${this.decisionSectionStyles()}">
+            <div class="dsTimerSlot" style="${this.dsTimerSlotStyles()}">
+              <div class="timer athleteTimer" style="${this.dsAthleteTimerStyles()}">
+                <timer-element id="decisionSectionTimer"></timer-element>
+              </div>
+              <div class="timer breakTime" style="${this.dsBreakTimerStyles()}">
+                <timer-element id="decisionSectionBreakTimer"></timer-element>
+              </div>
+              <div class="timer breakTime dsStopwatch" style="${this.dsStopwatchStyles()}">
+                <timer-element id="decisionSectionStopwatch"></timer-element>
+              </div>
+            </div>
+            <div class="dsDecisionAthlete name" style="${this.dsDecisionAthleteStyles()}">
+              <span class="dsDecisionStartNumber">${this.decisionSectionStartNumber}</span>
+              <span class="dsDecisionAthleteName ellipsis">${this.decisionSectionAthleteName}</span>
+            </div>
+            <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
+              <decision-element id="decisionSectionReferee"></decision-element>
+            </div>
+            <div class="dsJuryMessage" style="${this.dsJuryMessageStyles()}">${this.juryMessage}</div>
+            <div class="dsJurySlot" style="${this.dsJurySlotStyles()}">
+              ${(this.juryDecisions ?? []).map(d => html`<vaadin-icon class="juryIcon ${d}" icon="${this.juryIcon(d)}"></vaadin-icon>`)}
+            </div>
+            <div class="dsProjectedRanksSlot ${this.dsProjectedRanksMode()}" style="${this.dsProjectedRanksStyles()}">${this.projectedRankText}</div>
+            <div class="dsBranding"><img class="brandingLogo" src="local/logos/owlcms-logo.svg">&nbsp;owlcms</div>
+          </div>
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
               <div class="competitionName">${this.competitionName}</div>
@@ -42,13 +68,6 @@ class ResultsFull extends LitElement {
               </div>
               <div class="decisionBox" style="${this.decisionStyles()}">
                 <decision-element style="width: 100%" id="decisions"></decision-element>
-              </div>
-              <!-- hidden elements required because we subclass the results page -->
-              <div class="notused" style="display:none">
-                <timer-element id="decisionSectionTimer"></timer-element>
-                <timer-element id="decisionSectionBreakTimer"></timer-element>
-                <timer-element id="decisionSectionStopwatch"></timer-element>
-                <decision-element id="decisionSectionReferee"></decision-element>
               </div>
             </div>
           </div>
@@ -331,12 +350,12 @@ class ResultsFull extends LitElement {
                         </div>
                       `)}
                   <div class="${"recordNotification " + (this.recordKind ?? "")}"> ${this.recordMessage} </div>
-                  <div style="position: absolute; bottom: 2em; right: 2em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+                  <div class="branding" style="position: absolute; bottom: 2em; right: 2em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
                 </div>
               </div>
             `
-        : html`<div style="${this.bottomSpacerStyles()}">&nbsp;
-              <div style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
+          : html`<div style="${this.bottomSpacerStyles()}">&nbsp;
+            <div class="branding" style="position: absolute; bottom: 0.5em; right: 2em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
             `}
         </div>
@@ -378,6 +397,7 @@ class ResultsFull extends LitElement {
       twOverride: {},
       colorOverride: {},
       video: {},
+      currentAttempt: {},
       showTotal: { type: Boolean },
       showLiftRanks: { type: Boolean },
       showTotalRanks: { type: Boolean },
@@ -386,6 +406,19 @@ class ResultsFull extends LitElement {
       showSinclairRanks: { type: Boolean },
       showLeaders: { type: Boolean },
       showRecords: { type: Boolean },
+      showDecisionSection: { type: Boolean },
+      showProjectedRanks: { type: Boolean },
+      showScoreboardTimers: { type: Boolean },
+      decisionSectionDecisionActive: { type: Boolean },
+      decisionSectionStartNumber: {},
+      decisionSectionAthleteName: {},
+      projectedRankText: {},
+      juryDecisions: { type: Array },
+      decisionSectionHideJuryLights: { type: Boolean },
+      decisionSectionHideRefereeLights: { type: Boolean },
+      juryMessage: {},
+      dsShowStopwatch: { type: Boolean },
+      logoSrc: {},
 
       // translation map
       t: { type: Object },
@@ -418,6 +451,7 @@ class ResultsFull extends LitElement {
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
     classes = classes + (this.scoreboardType ? " " + this.scoreboardType : "");
+    classes = classes + (this.showDecisionSection && this.mode !== "WAIT" && !(this.scoreboardType ?? "").includes("Jury") ? " dsActive" : "");
     return classes;
   }
 
@@ -426,7 +460,8 @@ class ResultsFull extends LitElement {
   }
 
   attemptBarStyles() {
-    return "display: " + (this.mode === "WAIT" || this.video ? "none" : "block");
+    const showAttempt = this.currentAttempt === true || this.currentAttempt === "true";
+    return "display: " + (this.mode === "WAIT" || this.video || !showAttempt ? "none" : "block");
   }
 
   athleteInfoStyles() {
@@ -467,8 +502,84 @@ class ResultsFull extends LitElement {
     return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "flex" : "none");
   }
 
+  decisionSectionStyles() {
+    const juryScoreboard = (this.scoreboardType ?? "").includes("Jury");
+    if (this.mode === "WAIT" || juryScoreboard) return "display:none";
+    if (this.showDecisionSection) return "display:flex";
+    if (this.showScoreboardTimers) return "display:flex";
+    if (this.showProjectedRanks && this.projectedRankText) return "display:flex";
+    return "display:none";
+  }
+
+  dsTimerSlotStyles() {
+    if (this.showDecisionSection && this.decisionSectionDecisionActive) return "display:none";
+    return (this.showDecisionSection || this.showScoreboardTimers) ? "" : "display:none";
+  }
+
+  dsDecisionAthleteStyles() {
+    return "display: " + (this.showDecisionSection && this.decisionSectionDecisionActive ? "flex" : "none");
+  }
+
+  dsRefereeSlotStyles() {
+    return this.showDecisionSection && !this.decisionSectionHideRefereeLights ? "" : "display:none";
+  }
+
+  dsJurySlotStyles() {
+    return this.showDecisionSection && !this.decisionSectionHideJuryLights ? "" : "display:none";
+  }
+
+  dsProjectedRanksStyles() {
+    if (!this.showProjectedRanks || !this.projectedRankText) return "display:none";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "display:none";
+    return "";
+  }
+
+  dsProjectedRanksMode() {
+    if (!this.showProjectedRanks || !this.projectedRankText) return "";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "";
+    return this.showDecisionSection ? "pjInline" : "pjOverlay";
+  }
+
+  juryIcon(decision) {
+    switch (decision) {
+      case "voted":
+        return "vaadin:circle";
+      case "white":
+        return "vaadin:check-circle";
+      case "red":
+        return "vaadin:close-circle";
+      default:
+        return "vaadin:circle-thin";
+    }
+  }
+
+  dsAthleteTimerStyles() {
+    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
+    let visible = ((this.mode === "CURRENT_ATHLETE") ? "flex" : "none");
+    return "display: " + (this.isBreak() ? "none" : visible);
+  }
+
+  dsBreakTimerStyles() {
+    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
+  }
+
+  dsStopwatchStyles() {
+    const visible = this.stopwatchVisible();
+    return "display: " + (visible ? "flex" : "none");
+  }
+
+  stopwatchVisible() {
+    return Boolean(this.dsShowStopwatch) && Boolean(this.juryMessage) && this.mode === "INTERRUPTION";
+  }
+
+  dsJuryMessageStyles() {
+    return "display: " + (this.showDecisionSection && this.juryMessage ? "block" : "none");
+  }
+
   videoHeaderStyles() {
-    return "display: " + ((this.mode !== "WAIT" && this.video) ? "flex" : "none");
+    const showAttempt = this.currentAttempt === true || this.currentAttempt === "true";
+    return "display: " + ((this.mode !== "WAIT" && (this.video || !showAttempt)) ? "flex" : "none");
   }
 
   athleteClasses() {
@@ -528,6 +639,18 @@ class ResultsFull extends LitElement {
   constructor() {
     super();
     this.mode = "WAIT";
+    this.showDecisionSection = false;
+    this.showProjectedRanks = false;
+    this.showScoreboardTimers = false;
+    this.decisionSectionDecisionActive = false;
+    this.decisionSectionStartNumber = "";
+    this.decisionSectionAthleteName = "";
+    this.projectedRankText = "";
+    this.juryDecisions = [];
+    this.decisionSectionHideJuryLights = false;
+    this.decisionSectionHideRefereeLights = false;
+    this.juryMessage = "";
+    this.dsShowStopwatch = false;
   }
 }
 
