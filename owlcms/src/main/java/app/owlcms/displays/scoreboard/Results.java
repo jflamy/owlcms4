@@ -217,6 +217,10 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		        Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_STOPWATCH));
 	}
 
+	private boolean isDecisionSectionEnabled() {
+		return Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION);
+	}
+
 	/**
 	 * Derive the decision-section state from the current FOP on (re)attach or FOP change. Page
 	 * load can miss the events that would have driven the state machine, so we reconstruct it.
@@ -430,6 +434,9 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 
 	@Override
 	protected void afterSlaveDecision(UIEvent.Decision e) {
+		if (!isDecisionSectionEnabled()) {
+			return;
+		}
 		boolean announcerForced = e.getInputKind() == InputKind.ANNOUNCER_ENTRY;
 		DecisionBlockState.RefLights lights = new DecisionBlockState.RefLights(
 		        e.decision, e.ref1, e.ref2, e.ref3, e.isSingleLight(), announcerForced);
@@ -438,11 +445,17 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 
 	@Override
 	protected void afterSlaveDecisionReset(UIEvent.DecisionReset e) {
+		if (!isDecisionSectionEnabled()) {
+			return;
+		}
 		this.decisionBlock.onDecisionReset();
 	}
 
 	@Override
 	protected void afterSlaveStartBreak(UIEvent.BreakStarted e) {
+		if (!isDecisionSectionEnabled()) {
+			return;
+		}
 		boolean juryOrChallenge = e.getBreakType() == BreakType.JURY || e.getBreakType() == BreakType.CHALLENGE;
 		this.decisionBlock.onBreakStarted(juryOrChallenge);
 	}
@@ -453,6 +466,9 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	 */
 	@Subscribe
 	public void slaveJuryUpdate(UIEvent.JuryUpdate e) {
+		if (!isDecisionSectionEnabled()) {
+			return;
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			this.decisionBlock.onJuryUpdate(e.getJuryMemberDecision(), e.getJurySize());
 		});
@@ -461,6 +477,9 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	/** Reset jury circles on the same new-clock event used by the jury panel. */
 	@Subscribe
 	public void slaveJuryResetOnNewClock(UIEvent.ResetOnNewClock e) {
+		if (!isDecisionSectionEnabled()) {
+			return;
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			this.decisionBlock.onResetOnNewClock();
 		});
@@ -468,6 +487,9 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 
 	@Override
 	protected void afterSlaveJuryNotification(UIEvent.JuryNotification e) {
+		if (!isDecisionSectionEnabled()) {
+			return;
+		}
 		JuryDeliberationEventType type = e.getDeliberationEventType();
 		if (type == null) {
 			return;
@@ -498,6 +520,9 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 
 	@Override
 	protected void afterSlaveStartLifting(UIEvent.StartLifting e) {
+		if (!isDecisionSectionEnabled()) {
+			return;
+		}
 		this.decisionBlock.onStartLifting();
 	}
 
@@ -507,6 +532,9 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	 */
 	@Subscribe
 	public void slaveJuryStartTime(UIEvent.StartTime e) {
+		if (!isDecisionSectionEnabled()) {
+			return;
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			this.decisionBlock.onStartTime();
 		});
