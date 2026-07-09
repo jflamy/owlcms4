@@ -342,6 +342,7 @@ class Results extends LitElement {
       projectedRankText: {},
       juryDecisions: {type: Array},
       decisionSectionHideJuryLights: {type: Boolean},
+      decisionSectionHideRefereeLights: {type: Boolean},
       juryMessage: {},
       dsShowStopwatch: {type: Boolean},
       logoSrc: {},
@@ -449,7 +450,7 @@ class Results extends LitElement {
   }
 
   dsRefereeSlotStyles() {
-    return this.showDecisionSection ? "" : "display:none";
+    return this.showDecisionSection && !this.decisionSectionHideRefereeLights ? "" : "display:none";
   }
 
   dsJurySlotStyles() {
@@ -606,6 +607,7 @@ class Results extends LitElement {
     this.projectedRankText = "";
     this.juryDecisions = [];
     this.decisionSectionHideJuryLights = false;
+    this.decisionSectionHideRefereeLights = false;
     this.juryMessage = "";
     this.dsShowStopwatch = false;
   }

@@ -134,34 +134,36 @@ public class BaseResults extends LitTemplate
 	 */
 	@Override
 	public void doBreak(UIEvent event) {
-		// this.logger.debug("BaseResults doBreak {}", LoggerUtils.stackTrace());
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> doBreakLocked(event));
+	}
+
+	protected void doBreakLocked(UIEvent event) {
+		// this.logger.debug("BaseResults doBreakLocked {}", LoggerUtils.stackTrace());
 		FieldOfPlay fop = getFop();
 		if (fop == null) {
 			return;
 		}
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
+		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
-			String title = inferGroupName() + " &ndash; "
-			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
-			this.getElement().setProperty("fullName", title);
-			this.getElement().setProperty("teamName", "");
-			this.getElement().setProperty("attempt", "");
-			this.getElement().setProperty("kgSymbol", Translator.translate("KgSymbol"));
-			Athlete a = fop.getCurAthlete();
+		String title = inferGroupName() + " &ndash; "
+		        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
+		this.getElement().setProperty("fullName", title);
+		this.getElement().setProperty("teamName", "");
+		this.getElement().setProperty("attempt", "");
+		this.getElement().setProperty("kgSymbol", Translator.translate("KgSymbol"));
+		Athlete a = fop.getCurAthlete();
 
-			this.getElement().setProperty("weight", "");
-			Integer nextAttemptRequestedWeight = null;
-			if (a != null) {
-				nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
-			}
-			if (fop.getCeremonyType() == null && a != null && nextAttemptRequestedWeight != null
-			        && nextAttemptRequestedWeight > 0) {
-				this.getElement().setProperty("weight", nextAttemptRequestedWeight);
-			}
-			setDisplay();
-			updateDisplay(computeLiftType(a), fop);
-		});
+		this.getElement().setProperty("weight", "");
+		Integer nextAttemptRequestedWeight = null;
+		if (a != null) {
+			nextAttemptRequestedWeight = a.getNextAttemptRequestedWeight();
+		}
+		if (fop.getCeremonyType() == null && a != null && nextAttemptRequestedWeight != null
+		        && nextAttemptRequestedWeight > 0) {
+			this.getElement().setProperty("weight", nextAttemptRequestedWeight);
+		}
+		setDisplay();
+		updateDisplay(computeLiftType(a), fop);
 	}
 
 	@Override
@@ -533,7 +535,7 @@ public class BaseResults extends LitTemplate
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
 			// revert to current break
-			doBreak(null);
+			doBreakLocked(null);
 		});
 	}
 
@@ -550,9 +552,8 @@ public class BaseResults extends LitTemplate
 	@Subscribe
 	public void slaveInitialDecision(UIEvent.InitialDecision e) {
 		uiLog(e);
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			setDecisionSectionDecisionAthlete(e.getAthlete());
-		});
+		// The decision section (athlete under review, referee lights, jury circles) is owned by the
+		// DecisionBlockState state machine in Results. Nothing to do here.
 	}
 
 	@Subscribe
@@ -562,9 +563,9 @@ public class BaseResults extends LitTemplate
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", true);
 			Athlete a = e.getAthlete();
-			setDecisionSectionDecisionAthlete(a);
 			// -1 because if decision in on snatch 3 we don't want to show CJ
 			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), e.getFop());
+			afterSlaveDecision(e);
 		});
 	}
 
@@ -578,6 +579,7 @@ public class BaseResults extends LitTemplate
 			// start or break — see slaveJuryStartTime / slaveStartBreak / slaveStartLifting.
 			Athlete a = e.getAthlete();
 			updateDisplay(computeLiftType(a.getAttemptsDone() - 1), e.getFop());
+			afterSlaveDecisionReset(e);
 		});
 	}
 
@@ -607,6 +609,7 @@ public class BaseResults extends LitTemplate
 			if (e.getNewRecord()) {
 				spotlightNewRecord();
 			}
+			afterSlaveJuryNotification(e);
 		});
 	}
 
@@ -626,10 +629,8 @@ public class BaseResults extends LitTemplate
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			setDisplay();
-			if (e.getBreakType() != BreakType.JURY && e.getBreakType() != BreakType.CHALLENGE) {
-				clearDecisionSectionDecisionAthlete();
-			}
-			doBreak(e);
+			doBreakLocked(e);
+			afterSlaveStartBreak(e);
 		});
 	}
 
@@ -639,10 +640,25 @@ public class BaseResults extends LitTemplate
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
 			this.getElement().setProperty("decisionVisible", false);
-			clearDecisionSectionDecisionAthlete();
 			this.getElement().setProperty("recordName", "");
 			syncWithFOP();
+			afterSlaveStartLifting(e);
 		});
+	}
+
+	protected void afterSlaveDecision(UIEvent.Decision e) {
+	}
+
+	protected void afterSlaveDecisionReset(UIEvent.DecisionReset e) {
+	}
+
+	protected void afterSlaveJuryNotification(UIEvent.JuryNotification e) {
+	}
+
+	protected void afterSlaveStartBreak(UIEvent.BreakStarted e) {
+	}
+
+	protected void afterSlaveStartLifting(UIEvent.StartLifting e) {
 	}
 
 	@Subscribe
@@ -938,7 +954,7 @@ public class BaseResults extends LitTemplate
 				if (a != null) {
 					this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
 				}
-				doBreak(e);
+				doBreakLocked(e);
 			} else {
 				leaveTopAlone = !e2.isCurrentDisplayAffected();
 			}
@@ -962,7 +978,7 @@ public class BaseResults extends LitTemplate
 					this.getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
 				} else {
 					// logger.debug("group done {} {}", group, System.identityHashCode(group));
-					doBreak(e);
+					doBreakLocked(e);
 				}
 			}
 		}
@@ -1597,7 +1613,7 @@ public class BaseResults extends LitTemplate
 				} else {
 					resultsInit();
 					doUpdate(e.getAthlete(), e);
-					doBreak(e);
+					doBreakLocked(e);
 				}
 				break;
 			default:

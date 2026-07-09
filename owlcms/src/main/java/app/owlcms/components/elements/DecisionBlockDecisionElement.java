@@ -38,6 +38,10 @@ public class DecisionBlockDecisionElement extends AbstractDecisionElement {
 		setShowsDownSignal(false);
 		setLiveRefereeUpdates(false);
 		setResetOnClockStart(true);
+		// The results decision section owns a DecisionBlockState which is the single authority for
+		// this element. Do not self-subscribe to FOP decision events, so there is no second writer
+		// racing the state machine (this was the cause of stale referee lights in the ready state).
+		setBusDriven(false);
 		setDisplaySize("large");
 		logger.debug("DecisionBlockDecisionElement constructor: fop={} isSingleRef={} {}",
 		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(), LoggerUtils.whereFrom());

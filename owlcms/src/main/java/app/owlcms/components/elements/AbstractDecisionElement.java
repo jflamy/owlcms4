@@ -69,6 +69,7 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	private boolean dontReset;
 	private boolean liveRefereeUpdates;
 	private boolean publicFacing;
+	private boolean busDriven = true;
 	protected boolean downSlave;
 	protected FieldOfPlay fop;
 	private final AtomicLong decisionPayloadSequence = new AtomicLong();
@@ -82,6 +83,16 @@ public abstract class AbstractDecisionElement extends LitTemplate
 
 	public boolean isPublicFacing() {
 		return this.publicFacing;
+	}
+
+	/**
+	 * When {@code false}, this element does not self-subscribe to FOP decision events. Its parent
+	 * view becomes the single authority and drives the display explicitly (e.g. the results
+	 * decision section, whose {@code DecisionBlockState} is the sole authority). Must be set before
+	 * the element is bound to a FOP.
+	 */
+	public void setBusDriven(boolean busDriven) {
+		this.busDriven = busDriven;
 	}
 
 	public DecisionElementState getDecisionState() {
@@ -111,7 +122,14 @@ public abstract class AbstractDecisionElement extends LitTemplate
 		}
 		init(this.fop.getName());
 		this.fopEventBus = this.fop.getFopEventBus();
-		this.uiEventBus = uiEventBusRegisterNoUI(this.decisionState, this.fop);
+		if (this.busDriven) {
+			this.uiEventBus = uiEventBusRegisterNoUI(this.decisionState, this.fop);
+		} else {
+			// Pure-renderer mode: the parent view is the single authority and drives this element
+			// explicitly. Do not self-subscribe to FOP decision events. We still need the UI event
+			// bus reference for uiAccess in the renderer callbacks.
+			this.uiEventBus = this.fop.getUiEventBus();
+		}
 	}
 
 	/**

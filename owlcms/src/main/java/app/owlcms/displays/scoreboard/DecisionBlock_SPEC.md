@@ -50,8 +50,15 @@ the underlying element data.
   - jury members who have voted → `voted` (full gray, **not disclosed**);
   - jury members who have not voted → `empty`.
 - When **all jury members have voted**, disclose the jury decisions (`white`/`red`).
-- A **20-second review timer** runs. If nothing else happens before it expires →
-  `READY_FOR_NEXT_ATHLETE`.
+- A **20-second review timer** runs. It is the window in which the jury is expected to make up its
+  mind; after it expires, keeping the previous athlete on the board would confuse the audience, so
+  the block returns to `READY_FOR_NEXT_ATHLETE`. This timer is the **authoritative** happy-path
+  exit: the FOP's normal progression events (`DecisionReset`, `StartTime`, `ResetOnNewClock`) fire
+  within a few seconds — far sooner than the review window — and must **not** collapse the decision
+  section, otherwise the jury gets no opportunity to vote. The block therefore lingers, ignoring
+  those events, until the 20 s timer expires, a new referee decision replaces it, a jury
+  deliberation starts, a non-jury break begins, or the announcer resumes from a break
+  (`StartLifting`).
 
 ### `JURY_DELIBERATION` (jury deliberation or challenge)
 - Entered from any state on a jury-deliberation or challenge notification.
@@ -61,7 +68,8 @@ the underlying element data.
 - Jury circles: **cleared**, and:
   - shown (live, then disclosed) **only if** the "second jury vote is public" toggle is on
     (`DECISION_SECTION_SHOW_BOTH_JURY_VOTES`);
-  - hidden otherwise.
+  - when the toggle is off there is no second vote to show, so **no circles are displayed at all**
+    (not even empty placeholders).
 - The state persists through the whole deliberation/challenge. The verdict does **not**
   automatically leave this state.
 - Leaves the state only when the **announcer resumes competition** (`StartLifting`) →
@@ -83,7 +91,7 @@ Events are `UIEvent.*` posted by `FieldOfPlay`.
 | `JuryNotification GOOD_LIFT` / `BAD_LIFT` | — | (verdict shown, stay until resume) | stay (wait for resume) |
 | `JuryNotification END_JURY_BREAK` / `END_CHALLENGE` | stay | — | stay (wait for `StartLifting`) |
 | `StartLifting` (announcer resumes) | stay | → **READY_FOR_NEXT_ATHLETE** | → **READY_FOR_NEXT_ATHLETE** |
-| `StartTime` / `ResetOnNewClock` (clock for next athlete) | stay | → **READY_FOR_NEXT_ATHLETE** | → **READY_FOR_NEXT_ATHLETE** |
+| `StartTime` / `ResetOnNewClock` / `DecisionReset` (next athlete progression) | stay | **ignore** (keep the review window) | **ignore** (keep the deliberation) |
 
 Notes:
 - The **down signal** alone never makes the block visible; visibility waits for the referee
@@ -108,8 +116,9 @@ stateDiagram-v2
     READY --> DELIB: JuryNotification START_DELIBERATION | CHALLENGE
 
     DECISION --> DECISION: JuryUpdate (disclose when all voted)
+    DECISION --> DECISION: DecisionReset | StartTime | ResetOnNewClock (ignored)
     DECISION --> READY: review timer 20s expires
-    DECISION --> READY: StartTime | ResetOnNewClock | StartLifting
+    DECISION --> READY: StartLifting (announcer resumes from break)
     DECISION --> DELIB: JuryNotification START_DELIBERATION | CHALLENGE
 
     DELIB --> DELIB: JuryUpdate (only if 2nd-vote public)
@@ -157,12 +166,20 @@ Target design:
 
 ## 7. Open questions for review
 
-1. **Review timer = 20 s fixed**, or tied to `decisionVisibleDuration` / a config value?
-2. In `DECISION_VISIBLE`, if a **new clock starts** for the next athlete before the 20 s expire,
-   we go to `READY_FOR_NEXT_ATHLETE` immediately — confirm that is desired (vs. keeping the
-   decision up for the full 20 s).
-3. During `JURY_DELIBERATION` with the 2nd-vote-public toggle **off**, jury circles are fully
-   hidden (not gray). Confirm.
-4. `END_JURY_BREAK` / `END_CHALLENGE` do **not** by themselves return to ready — we wait for the
-   announcer's `StartLifting`. Confirm this matches operational reality (is there ever an
-   end-break without a subsequent start-lifting?).
+All resolved (2026-07-09):
+
+1. **Review timer = 20 s fixed, and authoritative.** It is the window in which the jury is expected
+   to decide; after it expires, keeping the previous athlete visible confuses the audience, so the
+   block returns to `READY_FOR_NEXT_ATHLETE`. The FOP's own decision flash clears after ~3 s (and
+   the next athlete's clock may start soon after), i.e. **sooner** than the review window — so the
+   block must **ignore** those FOP events and hold, otherwise the jury gets no chance to vote.
+2. **The block owns its review hold.** It does not follow the FOP's fast progression events
+   (`DecisionReset`, `StartTime`, `ResetOnNewClock`). It schedules its own 20 s hold and returns to
+   ready only on: the timer expiring, a new referee decision replacing it, a jury deliberation, a
+   non-jury break, or the announcer resuming from a break (`StartLifting`).
+3. **No second vote → no circles.** During `JURY_DELIBERATION` with the 2nd-vote-public toggle
+   **off**, no jury circles are displayed at all (not even empty placeholders).
+4. **Wait for `StartLifting`.** `END_JURY_BREAK` / `END_CHALLENGE` do not by themselves return to
+   ready; we wait for the announcer's `StartLifting`. There is also an automatic mode where the
+   decision is shown and the FOP posts `StartLifting` on its own — that path returns to ready via
+   the same `StartLifting` event.
