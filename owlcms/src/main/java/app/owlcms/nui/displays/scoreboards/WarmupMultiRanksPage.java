@@ -26,7 +26,7 @@ import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
-@Route("displays/resultsLeadersRanks")
+@Route("displays/multiRanks")
 
 public class WarmupMultiRanksPage extends AbstractResultsDisplayPage {
 

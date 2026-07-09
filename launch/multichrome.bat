@@ -31,4 +31,4 @@ start "" "%EDGE%" --app="%SITE%/ref?fop=%PLATFORM%&num=1" --window-size=400,275 
 start "" "%EDGE%" --app="%SITE%/ref?fop=%PLATFORM%&num=2" --window-size=400,275 --window-position=1295,1 %commonoptions% --user-data-dir=%tmp%\owlcms-tests\%RANDOM%  
 start "" "%EDGE%" --app="%SITE%/ref?fop=%PLATFORM%&num=3" --window-size=400,275 --window-position=1685,1 %commonoptions% --user-data-dir=%tmp%\owlcms-tests\%RANDOM%
 
-start "" "%EDGE%" --app="%SITE%/displays/resultsLeadersRanks?fop=%PLATFORM%&dark=false&em=0.90" --window-size=1280,720 --window-position=1025,645 %commonoptions% --user-data-dir=%tmp%\owlcms-tests\%RANDOM% --force-device-scale-factor=0.75
+start "" "%EDGE%" --app="%SITE%/displays/multiRanks?fop=%PLATFORM%&dark=false&em=0.90" --window-size=1280,720 --window-position=1025,645 %commonoptions% --user-data-dir=%tmp%\owlcms-tests\%RANDOM% --force-device-scale-factor=0.75
