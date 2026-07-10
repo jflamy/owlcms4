@@ -10,7 +10,7 @@
 
 **New in Release 67.1**
 
-67.1.0-beta09: Adjust CSS for compatibility with customized streaming and led wall scoreboards.
+67.1.0-beta09: CSS adjustments for easier handling of customized looks (e.g., PanAm continental events)
 
 67.1.0-beta08: Feature freeze.
 
