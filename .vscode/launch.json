@@ -303,6 +303,22 @@
       }
     },
     {
+      "type": "node-terminal",
+      "name": "⬇️ pull translation4.csv from Google Sheets",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "command": "python3 scripts/download-google-translations.py shared/src/main/resources/i18n/translation4.csv",
+      "windows": {
+        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
+      },
+      "linux": {
+        "envFile": "${workspaceFolder}/.vscode/.env.linux"
+      },
+      "osx": {
+        "envFile": "${workspaceFolder}/.vscode/.env.mac"
+      }
+    },
+    {
       "type": "java",
       "name": "♦️ Playwright Loadtesting",
       "request": "launch",

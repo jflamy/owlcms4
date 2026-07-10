@@ -16,6 +16,7 @@ fi
 REMOTE_TMP=$(mktemp)
 REMOTE_RETRY_TMP=$(mktemp)
 trap "rm -f ${REMOTE_TMP} ${REMOTE_RETRY_TMP}" EXIT
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if command -v python3 >/dev/null 2>&1; then
   PYTHON=python3
@@ -65,8 +66,6 @@ download_translation_csv "${REMOTE_TMP}"
 echo "Comparing translations..."
 echo ""
 
-# Run comparison script (separate file to avoid Git Bash heredoc issues)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set +e
 "${PYTHON}" "${SCRIPT_DIR}/compare-translations.py" "${TRANSLATION_CSV}" "${REMOTE_TMP}"
 PYTHON_EXIT=$?

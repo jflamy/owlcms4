@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="67.1.0-beta08"
+REVISION="67.1.0-beta09code"
 
 
 set -euo pipefail
@@ -121,40 +121,50 @@ echo "Checking translation4.csv against Google Sheets source..."
 REMOTE_TMP=$(mktemp)
 LOCAL_HEAD_TMP=$(mktemp)
 trap "rm -f ${REMOTE_TMP} ${LOCAL_HEAD_TMP}" EXIT
-if ! curl -fsSL --retry 3 --retry-delay 2 --max-time 120 --connect-timeout 30 \
-  -o "${REMOTE_TMP}" "${GOOGLE_SHEET_URL}"; then
-  echo "ERROR: Could not download Google Sheets translation CSV." >&2
-  exit 4
-fi
 
-if [[ ! -s "${REMOTE_TMP}" ]]; then
-  echo "ERROR: Downloaded Google Sheets translation CSV is empty." >&2
-  exit 4
-fi
+download_translation_csv() {
+  local destination="$1"
 
-if head -c 200 "${REMOTE_TMP}" | grep -qi '<html'; then
-  echo "ERROR: Google Sheets download returned HTML instead of CSV." >&2
-  exit 4
-fi
+  if [[ -n "${GOOGLE_SHEETS_API_KEY:-}" ]]; then
+    if ! "${PYTHON}" ./scripts/download-google-translations.py "${destination}"; then
+      echo "ERROR: Could not download Google Sheets translations through the Sheets API." >&2
+      exit 4
+    fi
+  elif ! curl -fsSL --retry 3 --retry-delay 2 --max-time 120 --connect-timeout 30 \
+      -o "${destination}" "${GOOGLE_SHEET_URL}"; then
+    echo "ERROR: Could not download Google Sheets translation CSV." >&2
+    exit 4
+  fi
 
-if ! head -1 "${REMOTE_TMP}" | grep -q '^key,'; then
-  echo "ERROR: Downloaded file does not look like a translation CSV." >&2
-  echo "First line: $(head -1 "${REMOTE_TMP}")" >&2
-  exit 4
-fi
+  if [[ ! -s "${destination}" ]]; then
+    echo "ERROR: Downloaded Google Sheets translation CSV is empty." >&2
+    exit 4
+  fi
+  if head -c 200 "${destination}" | grep -qi '<html'; then
+    echo "ERROR: Google Sheets download returned HTML instead of CSV." >&2
+    exit 4
+  fi
+  if ! head -1 "${destination}" | grep -q '^key,'; then
+    echo "ERROR: Downloaded file does not look like a translation CSV." >&2
+    echo "First line: $(head -1 "${destination}")" >&2
+    exit 4
+  fi
+}
+
+download_translation_csv "${REMOTE_TMP}"
 
 if ! git show "HEAD:${TRANSLATION_CSV}" > "${LOCAL_HEAD_TMP}"; then
   echo "ERROR: Could not read ${TRANSLATION_CSV} from HEAD." >&2
   exit 4
 fi
 
-if ! "${PYTHON}" ./scripts/compare-translations.py "${LOCAL_HEAD_TMP}" "${REMOTE_TMP}"; then
+if "${PYTHON}" ./scripts/compare-translations.py "${LOCAL_HEAD_TMP}" "${REMOTE_TMP}"; then
+  echo "translation4.csv matches Google Sheets source."
+else
   echo "ERROR: translation4.csv does not match the Google Sheets source!" >&2
   echo "       The committed HEAD version on this branch is out of date." >&2
   echo "       Update, commit and push translation4.csv from Google Sheets before releasing." >&2
   exit 4
-else
-  echo "translation4.csv matches Google Sheets source."
 fi
 fi
 

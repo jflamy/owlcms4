@@ -10,6 +10,8 @@
 
 **New in Release 67.1**
 
+67.1.0-beta09: Adjust CSS for compatibility with customized streaming and led wall scoreboards.
+
 67.1.0-beta08: Feature freeze.
 
 67.1.0: Empty databases use IWF 2026-08 age groups by default
