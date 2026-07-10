@@ -14,7 +14,45 @@ if [[ ! -f "${TRANSLATION_CSV}" ]]; then
 fi
 
 REMOTE_TMP=$(mktemp)
-trap "rm -f ${REMOTE_TMP}" EXIT
+REMOTE_RETRY_TMP=$(mktemp)
+trap "rm -f ${REMOTE_TMP} ${REMOTE_RETRY_TMP}" EXIT
+
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON=python3
+elif command -v python >/dev/null 2>&1; then
+  PYTHON=python
+else
+  echo "ERROR: neither 'python3' nor 'python' found on PATH" >&2
+  exit 1
+fi
+
+download_translation_csv() {
+  local destination="$1"
+
+  if [[ -n "${GOOGLE_SHEETS_API_KEY:-}" ]]; then
+    if ! "${PYTHON}" "${SCRIPT_DIR}/download-google-translations.py" "${destination}"; then
+      echo "ERROR: Google Sheets API download failed" >&2
+      exit 1
+    fi
+  elif ! curl -fsSL --retry 3 --retry-delay 2 --max-time 120 --connect-timeout 30 \
+      -o "${destination}" "${GOOGLE_SHEET_URL}"; then
+    echo "ERROR: Download failed" >&2
+    exit 1
+  fi
+  if [[ ! -s "${destination}" ]]; then
+    echo "ERROR: Download failed - empty file" >&2
+    exit 1
+  fi
+  if head -c 200 "${destination}" | grep -qi '<html'; then
+    echo "ERROR: Download returned HTML instead of CSV (auth or rate limit issue)" >&2
+    exit 1
+  fi
+  if ! head -1 "${destination}" | grep -q 'key'; then
+    echo "ERROR: Downloaded file does not look like a valid translation CSV" >&2
+    echo "First line: $(head -1 "${destination}")" >&2
+    exit 1
+  fi
+}
 
 if ! git restore --source=HEAD --worktree -- "${TRANSLATION_CSV}"; then
   echo "ERROR: Could not refresh ${TRANSLATION_CSV} from HEAD" >&2
@@ -22,24 +60,7 @@ if ! git restore --source=HEAD --worktree -- "${TRANSLATION_CSV}"; then
 fi
 
 echo "Downloading Google Sheets translation (this may take a moment)..."
-curl -sL --retry 3 --retry-delay 2 --max-time 120 --connect-timeout 30 \
-  -o "${REMOTE_TMP}" "${GOOGLE_SHEET_URL}"
-
-# Validate download: must be non-empty CSV, not an HTML error page
-if [[ ! -s "${REMOTE_TMP}" ]]; then
-  echo "ERROR: Download failed - empty file" >&2
-  exit 1
-fi
-if head -c 200 "${REMOTE_TMP}" | grep -qi '<html'; then
-  echo "ERROR: Download returned HTML instead of CSV (auth or rate limit issue)" >&2
-  exit 1
-fi
-# Sanity check: first line should contain 'key' as header
-if ! head -1 "${REMOTE_TMP}" | grep -q 'key'; then
-  echo "ERROR: Downloaded file does not look like a valid translation CSV" >&2
-  echo "First line: $(head -1 "${REMOTE_TMP}")" >&2
-  exit 1
-fi
+download_translation_csv "${REMOTE_TMP}"
 
 echo "Comparing translations..."
 echo ""
@@ -47,11 +68,25 @@ echo ""
 # Run comparison script (separate file to avoid Git Bash heredoc issues)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set +e
-python "${SCRIPT_DIR}/compare-translations.py" "${TRANSLATION_CSV}" "${REMOTE_TMP}"
+"${PYTHON}" "${SCRIPT_DIR}/compare-translations.py" "${TRANSLATION_CSV}" "${REMOTE_TMP}"
 PYTHON_EXIT=$?
 set -e
 
 if [[ ${PYTHON_EXIT} -ne 0 ]]; then
+  echo ""
+  echo "Initial comparison differed; downloading Google Sheets again..."
+  download_translation_csv "${REMOTE_RETRY_TMP}"
+  set +e
+  "${PYTHON}" "${SCRIPT_DIR}/compare-translations.py" "${TRANSLATION_CSV}" "${REMOTE_RETRY_TMP}"
+  RETRY_EXIT=$?
+  set -e
+
+  if [[ ${RETRY_EXIT} -eq 0 ]]; then
+    cp "${REMOTE_RETRY_TMP}" "${REMOTE_TMP}"
+    echo "Second Google Sheets snapshot matches the local file."
+    exit 0
+  fi
+
   if [[ "${PROMPT_DOWNLOAD}" == "true" ]]; then
     echo ""
     read -p "Download updated translation4.csv from Google Sheets? (y/N): " -r DOWNLOAD
