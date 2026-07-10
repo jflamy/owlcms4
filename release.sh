@@ -108,9 +108,10 @@ if git ls-remote --tags origin | grep -q "refs/tags/${REVISION}$"; then
   exit 3
 fi
 
-# Check that the HEAD version of translation4.csv matches the Google Sheets source.
-# The release workflow builds from committed files, so compare a temporary HEAD
-# copy without overwriting the worktree file the user may be inspecting.
+# Check that the working-tree translation4.csv matches the Google Sheets source.
+# The release workflow builds from committed files, so if the local file differs
+# from the Google Sheets master we offer to update, commit and push it; otherwise
+# the release is aborted.
 TRANSLATION_CSV="shared/src/main/resources/i18n/translation4.csv"
 GOOGLE_SHEET_URL="https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE/export?format=csv"
 
@@ -119,8 +120,7 @@ if [[ "${SKIP_TRANSLATIONS}" == "true" ]]; then
 else
 echo "Checking translation4.csv against Google Sheets source..."
 REMOTE_TMP=$(mktemp)
-LOCAL_HEAD_TMP=$(mktemp)
-trap "rm -f ${REMOTE_TMP} ${LOCAL_HEAD_TMP}" EXIT
+trap "rm -f ${REMOTE_TMP}" EXIT
 
 download_translation_csv() {
   local destination="$1"
@@ -153,18 +153,40 @@ download_translation_csv() {
 
 download_translation_csv "${REMOTE_TMP}"
 
-if ! git show "HEAD:${TRANSLATION_CSV}" > "${LOCAL_HEAD_TMP}"; then
-  echo "ERROR: Could not read ${TRANSLATION_CSV} from HEAD." >&2
+if [[ ! -f "${TRANSLATION_CSV}" ]]; then
+  echo "ERROR: ${TRANSLATION_CSV} not found in the working tree." >&2
   exit 4
 fi
 
-if "${PYTHON}" ./scripts/compare-translations.py "${LOCAL_HEAD_TMP}" "${REMOTE_TMP}"; then
+# Compare the local (working-tree) file against the Google Sheets source.
+# compare-translations.py labels the first argument "Local" and the second "Remote".
+if "${PYTHON}" ./scripts/compare-translations.py "${TRANSLATION_CSV}" "${REMOTE_TMP}"; then
   echo "translation4.csv matches Google Sheets source."
 else
-  echo "ERROR: translation4.csv does not match the Google Sheets source!" >&2
-  echo "       The committed HEAD version on this branch is out of date." >&2
-  echo "       Update, commit and push translation4.csv from Google Sheets before releasing." >&2
-  exit 4
+  echo ""
+  echo "Local translation4.csv differs from the Google Sheets source (differences shown above)."
+  read -r -p "Update local translation4.csv from Google Sheets, then commit and push it? (y/N): " UPDATE_TRANSLATIONS
+  if [[ "${UPDATE_TRANSLATIONS}" =~ ^[Yy]$ ]]; then
+    if ! cp "${REMOTE_TMP}" "${TRANSLATION_CSV}"; then
+      echo "ERROR: Could not overwrite ${TRANSLATION_CSV}." >&2
+      exit 4
+    fi
+    echo "Updated ${TRANSLATION_CSV} from Google Sheets."
+    git add -- "${TRANSLATION_CSV}"
+    if git diff --cached --quiet -- "${TRANSLATION_CSV}"; then
+      echo "No changes to commit for ${TRANSLATION_CSV}."
+    else
+      git commit -m "Update translations for ${REVISION}"
+      if [[ "${DO_PUSH}" == "true" ]]; then
+        git push origin "${CURRENT_BRANCH}"
+      else
+        echo "DO_PUSH=false; committed translations locally but did not push."
+      fi
+    fi
+  else
+    echo "ERROR: Release aborted — local translation4.csv differs from the Google Sheets source." >&2
+    exit 4
+  fi
 fi
 fi
 
