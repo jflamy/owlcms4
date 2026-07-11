@@ -183,7 +183,7 @@
 
 .attemptBoard .flag {
 	display: grid;
-	grid-area: firstName-start/timer-start/teamName-end/timer-end;
+	grid-area: firstName-start/timer-start/startNumber-start/timer-end;
 	place-items: center;
 	/* Do not show border when empty to avoid tiny white dot */
 	border: none;
@@ -191,12 +191,17 @@
 	height: 100%;
 	justify-self: stretch;
 	align-self: stretch;
+	position: relative;
+	overflow: hidden;
 }
 
 .attemptBoard .flag > img {
 	display: block;
-	width: 100%;
-	height: 100%;
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: auto;
+	height: auto;
 	max-width: 100%;
 	max-height: 100%;
 	object-fit: contain;
@@ -213,19 +218,24 @@
 	border: none;
 	width: 100%;
 	height: 100%;
+	position: relative;
+	overflow: hidden;
 }
 .attemptBoard .flagWithPicture > img {
 	display: block;
-	width: 100%;
-	height: 100%;
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: auto;
+	height: auto;
 	max-width: 100%;
 	max-height: 100%;
 	object-fit: contain;
 }
 
-/* Apply border only when the flag container actually has an image */
-.attemptBoard .flag:has(img),
-.attemptBoard .flagWithPicture:has(img) {
+/* Apply the border to the actual image, not its allocated grid cell. */
+.attemptBoard .flag:has(img) > img,
+.attemptBoard .flagWithPicture:has(img) > img {
 	border: 1px solid white;
 }
 
