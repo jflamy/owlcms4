@@ -460,7 +460,8 @@ public class BaseResults extends LitTemplate
 			// ja.put("teamLength", team.isBlank() ? "" : (team.length()*1.2) + "ch");
 		}
 		ja.put("flagURL", prop != null ? prop : "");
-		ja.put("flagClass", "flags");
+		boolean longTeamWithFlag = prop != null && a.getTeam().length() > Competition.SHORT_TEAM_LENGTH;
+		ja.put("flagClass", longTeamWithFlag ? "flags longTeam" : "flags");
 	}
 
 	@Override

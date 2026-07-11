@@ -215,6 +215,10 @@ table.results tr td.club div.clubName {
     flex-wrap: wrap;
 }
 
+table.results:has(td.club.flags.longTeam) tr td.club div.clubName {
+    justify-content: flex-start;
+}
+
 table.results tr td.club div.clubName div.ellipsis {
     width: var(--teamNameShortLength);
 }

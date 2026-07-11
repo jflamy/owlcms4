@@ -262,6 +262,10 @@ table.results tr td.club div.clubName {
     flex-wrap: wrap;
 }
 
+table.results:has(td.club.flags.longTeam) tr td.club div.clubName {
+    justify-content: flex-start;
+}
+
 :host([ranking-order]) table.results tr td.club div.clubName {
     justify-content: flex-start;
     align-items: center;

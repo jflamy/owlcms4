@@ -448,7 +448,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				prop = Team.getImgTag(team, "");
 			}
 			ja.put("flagURL", prop != null ? prop : "");
-			ja.put("flagClass", "flags");
+			boolean longTeamWithFlag = prop != null && team.length() > Competition.SHORT_TEAM_LENGTH;
+			ja.put("flagClass", longTeamWithFlag ? "flags longTeam" : "flags");
 		} else {
 			ja.put("flagURL", prop != null ? prop : "");
 		}
