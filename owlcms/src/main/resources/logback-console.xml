@@ -54,7 +54,10 @@
     </root>
     
     <!-- Startup logger - conditionally enabled when OWLCMS_CONTROLPANEL is present -->
-    <if condition='isDefined("OWLCMS_CONTROLPANEL")'>
+    <condition class="ch.qos.logback.core.boolex.IsPropertyDefinedCondition">
+        <key>OWLCMS_CONTROLPANEL</key>
+    </condition>
+    <if>
         <then>
             <!-- When control panel env var is set, enable startup logger and write to both console and file -->
             <logger name="app.owlcms.Main.startup" level="INFO" additivity="false">
