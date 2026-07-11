@@ -10,9 +10,16 @@
 
 **New in Release 67.1**
 
-67.1.0-beta09: CSS adjustments for easier handling of customized looks (e.g., PanAm continental events)
+67.1.0-beta10: CSS fixes
+  - Attempt board flag placement and hairline border was broken when adjusting picture sizing in release 67.0
+  - Left-justification of long team names on scoreboards when flags are displayed.
 
-67.1.0-beta08: Feature freeze.
+67.1.0-beta10: Logger configuration files
+  - Use logback's own conditionals instead of Janino (which has just been removed due to security concerns)
+
+67.1.0-beta09: CSS fixes for compatibility with customized looks (e.g., PanAm continental events)
+
+67.1.0-beta08: Feature freeze to items listed below; bug/security fixes only.
 
 67.1.0: Empty databases use IWF 2026-08 age groups by default
   - The earlier 2025 age group files remain available using the drop down on the Age Groups configuration page
