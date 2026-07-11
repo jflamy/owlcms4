@@ -184,7 +184,8 @@ td.flags div img {
     border-style: solid;
 }
 td.flags div {
-	width: calc(var(--flagHeight)*1.3);
+    flex: 0 0 calc(var(--flagHeight)*1.3 + 2vh);
+    width: calc(var(--flagHeight)*1.3 + 2vh);
     height: calc(var(--flagHeight));
     align-self: center;
     display: flex;
