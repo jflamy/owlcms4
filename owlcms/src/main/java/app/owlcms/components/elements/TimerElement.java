@@ -57,7 +57,7 @@ public abstract class TimerElement extends LitTemplate
 			+ " + \" display='\" + text + \"' running=\" + this.running + \" currentTime=\" + this.currentTime);"
 			+ "})));";
 	private static final long SERVER_RUNNING_CHECK_STOP_GRACE_MILLIS = 750L;
-	private static final AtomicBoolean playwrightTimerTripwireTriggered = new AtomicBoolean(false);
+	private static final AtomicBoolean clockTraceTripwireTriggered = new AtomicBoolean(false);
 
 	public long lastStartMillis;
 	public long lastStopMillis;
@@ -305,14 +305,14 @@ public abstract class TimerElement extends LitTemplate
 		this.logger.debug("{} doStartTimer {}", this, milliseconds);
 		setServerSound(serverSound);
 		// String trace = LoggerUtils.stackTrace();
-		// TEMPORARY (playwright) diagnostic: symmetric with doStopTimer so we can see
+		// TEMPORARY (clock) diagnostic: symmetric with doStopTimer so we can see
 		// the seq the
 		// start applied with and the resulting lastAppliedTimerSeq, to reason about
 		// whether a later
 		// StopTime is being stale-dropped. Remove once root cause confirmed.
-		boolean timerDebug = isPlaywrightTimerDiagnosticEnabled();
+		boolean timerDebug = isClockTraceEnabled();
 		if (timerDebug) {
-			this.logger./*playwright*/warn(
+			this.logger.warn(
 					"{}doStartTimer subscriber fired seq={} ms={} timer={} lastAppliedSeq={} elementRunning={} {}",
 					FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics(),
 					this.lastAppliedTimerSeq, this.elementRunning, LoggerUtils.whereFrom());
@@ -320,7 +320,7 @@ public abstract class TimerElement extends LitTemplate
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			if (isStaleTimerEvent(seq)) {
 				if (timerDebug) {
-					this.logger./*playwright*/warn("{}doStartTimer STALE-DROPPED seq={} timer={} lastAppliedSeq={}",
+					this.logger.warn("{}doStartTimer STALE-DROPPED seq={} timer={} lastAppliedSeq={}",
 							FieldOfPlay.getLoggingName(this.fop), seq, describeTimerForDiagnostics(),
 							this.lastAppliedTimerSeq);
 				}
@@ -328,7 +328,7 @@ public abstract class TimerElement extends LitTemplate
 			}
 			this.recentStopCommandMillis = 0L;
 			if (timerDebug) {
-				this.logger./*playwright*/warn("{}doStartTimer applying start seq={} ms={} timer={}",
+				this.logger.warn("{}doStartTimer applying start seq={} ms={} timer={}",
 						FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics());
 			}
 			this.elementRunning = true;
@@ -353,15 +353,15 @@ public abstract class TimerElement extends LitTemplate
 	protected void doStopTimer(Integer milliseconds, long seq) {
 		long stopAcceptedMillis = System.currentTimeMillis();
 		this.recentStopCommandMillis = stopAcceptedMillis;
-		// TEMPORARY (playwright) diagnostic: proves slaveStopTimer reached doStopTimer
+		// TEMPORARY (clock) diagnostic: proves slaveStopTimer reached doStopTimer
 		// (subscriber
 		// fired) and that the uiAccess command actually ran. Distinguishes a
 		// bus-delivery gap from a
 		// stale-gate drop for the missed-StopTime investigation. Remove once root cause
 		// confirmed.
-		boolean timerDebug = isPlaywrightTimerDiagnosticEnabled();
+		boolean timerDebug = isClockTraceEnabled();
 		if (timerDebug) {
-			this.logger./*playwright*/warn(
+			this.logger.warn(
 					"{}doStopTimer subscriber fired seq={} ms={} timer={} lastAppliedSeq={} elementRunning={} {}",
 					FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics(),
 					this.lastAppliedTimerSeq, this.elementRunning, LoggerUtils.whereFrom());
@@ -372,14 +372,14 @@ public abstract class TimerElement extends LitTemplate
 					this.recentStopCommandMillis = 0L;
 				}
 				if (timerDebug) {
-					this.logger./*playwright*/warn("{}doStopTimer STALE-DROPPED seq={} timer={} lastAppliedSeq={}",
+					this.logger.warn("{}doStopTimer STALE-DROPPED seq={} timer={} lastAppliedSeq={}",
 							FieldOfPlay.getLoggingName(this.fop), seq, describeTimerForDiagnostics(),
 							this.lastAppliedTimerSeq);
 				}
 				return;
 			}
 			if (timerDebug) {
-				this.logger./*playwright*/warn("{}doStopTimer applying stop seq={} ms={} timer={}",
+				this.logger.warn("{}doStopTimer applying stop seq={} ms={} timer={}",
 						FieldOfPlay.getLoggingName(this.fop), seq, milliseconds, describeTimerForDiagnostics());
 			}
 			this.elementRunning = false;
@@ -429,16 +429,16 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	private boolean isServerTickEnabled() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) && isDisplayAthleteTimer();
+		return Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) && isDisplayAthleteTimer();
 	}
 
 	private boolean isServerRunningCheckEnabled() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)
+		return Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES)
 				&& (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
 	}
 
 	/**
-	 * The Playwright-only server-authoritative running check is a diagnostic safety
+	 * The clock-trace server-authoritative running check is a diagnostic safety
 	 * net for athlete
 	 * timers that Playwright is verifying: operator control surfaces and attempt
 	 * boards. Matching is
@@ -473,8 +473,8 @@ public abstract class TimerElement extends LitTemplate
 		return isAthleteTimerOnControlPage() ? "control" : "other";
 	}
 
-	private boolean isPlaywrightTimerDiagnosticEnabled() {
-		return Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)
+	private boolean isClockTraceEnabled() {
+		return Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES)
 				&& (isAthleteTimerOnControlPage() || isAttemptBoardAthleteTimer());
 	}
 
@@ -601,18 +601,18 @@ public abstract class TimerElement extends LitTemplate
 			payload.put("startTime", getCountUpMaxSeconds());
 		}
 		timerElement2.setPropertyJson("timerCommandPayload", payload);
-		traceDisplayTimerClientRender(command, seconds, sequence);
+		traceClockClientRender(command, seconds, sequence);
 	}
 
-	private void traceDisplayTimerClientRender(String command, double seconds, long sequence) {
-		if (!Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) || !isDisplayAthleteTimer() || getUI().isEmpty()) {
+	private void traceClockClientRender(String command, double seconds, long sequence) {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) || !isDisplayAthleteTimer() || getUI().isEmpty()) {
 			return;
 		}
 		final String ctx = FieldOfPlay.getLoggingName(this.fop) + timerDiagnosticRole() + " timer ";
 		final long stamp = System.currentTimeMillis();
 		try {
 			getElement().executeJs(TRACE_TIMER_CLIENT_RENDER_SCRIPT).then(String.class, rendered -> {
-				this.logger./*playwright*/warn("{}{} client rendered +{}ms seq={} seconds={} {}", ctx, command,
+				this.logger.warn("{}{} client rendered +{}ms seq={} seconds={} {}", ctx, command,
 						System.currentTimeMillis() - stamp, sequence, seconds, rendered != null ? rendered : "<null>");
 			});
 		} catch (RuntimeException e) {
@@ -625,8 +625,8 @@ public abstract class TimerElement extends LitTemplate
 		long parsedSequence = parseTimerCommandSequence(sequence);
 		this.lastClientStoppedSequence = parsedSequence;
 		this.lastClientStoppedMillis = System.currentTimeMillis();
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) && isDisplayAthleteTimer()) {
-			this.logger./*playwright*/warn(
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) && isDisplayAthleteTimer()) {
+			this.logger.warn(
 					"{}{} timer stop client acknowledged seq={} display='{}' running={} currentTime={}",
 					FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), parsedSequence, display, running,
 					currentTime);
@@ -638,12 +638,13 @@ public abstract class TimerElement extends LitTemplate
 		if (!isServerTickEnabled()) {
 			return;
 		}
-		this.logger./*playwright*/warn("{}{} timer tick display='{}' currentTime={}",
+		this.logger.warn("{}{} timer tick display='{}' currentTime={}",
 				FieldOfPlay.getLoggingName(this.fop), timerDiagnosticRole(), display, currentTime);
 		if (("0:56".equals(display) || "1:56".equals(display))
-				&& playwrightTimerTripwireTriggered.compareAndSet(false, true)) {
-			this.logger./*playwright*/warn(
-					"{}TEMPORARY playwright timer tripwire display='{}' currentTime={} - stopping OWLCMS",
+				&& Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)
+				&& clockTraceTripwireTriggered.compareAndSet(false, true)) {
+			this.logger.warn(
+					"{}TEMPORARY clock trace tripwire display='{}' currentTime={} - stopping OWLCMS",
 					FieldOfPlay.getLoggingName(this.fop), display, currentTime);
 			new Thread(() -> {
 				Main.prepareForExit();
@@ -653,7 +654,7 @@ public abstract class TimerElement extends LitTemplate
 					Thread.currentThread().interrupt();
 				}
 				System.exit(0);
-			}, "Playwright-Timer-Tripwire").start();
+			}, "Clock-Trace-Tripwire").start();
 		}
 	}
 
@@ -666,11 +667,11 @@ public abstract class TimerElement extends LitTemplate
 	}
 
 	/**
-	 * Playwright observe-only check: when the client is about to render a lower
+	 * Clock-trace observe-only check: when the client is about to render a lower
 	 * second but the
 	 * authoritative FOP timer is already stopped, record evidence. Do not send a
 	 * corrective timer
-	 * command from this path; Playwright diagnostics must fail rather than
+	 * command from this path; clock diagnostics must fail rather than
 	 * compensate.
 	 */
 	private void reportStoppedServerTimerFromTick(String display, Double currentTime) {
@@ -686,8 +687,8 @@ public abstract class TimerElement extends LitTemplate
 		}
 		Integer milliseconds = fopTimer.getTimeRemainingAtLastStop();
 		String parent = DebugUtils.getOwlcmsParentName(this.getParent().orElse(null));
-		if (isPlaywrightTimerDiagnosticEnabled()) {
-			this.logger./*playwright*/warn(
+		if (isClockTraceEnabled()) {
+			this.logger.warn(
 					"{}timer tick mismatch timer={} display='{}' currentTime={} serverStoppedAt={}ms parent={} observeOnly=true",
 					FieldOfPlay.getLoggingName(this.fop), describeTimerForDiagnostics(), display, currentTime,
 					milliseconds, parent);

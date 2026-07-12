@@ -104,6 +104,8 @@ class CurrentAttempt extends LitElement {
       recordBroken: {},
       recordMessage: {},
       recordMessageSpeed: {},
+      attemptTraces: { type: Boolean },
+      displaySequence: {},
 
       // style sheets & misc.
       javaComponentId: {},
@@ -120,6 +122,21 @@ class CurrentAttempt extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
+  }
+
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    if (!this.attemptTraces || !changedProperties.has("weight")) {
+      return;
+    }
+    const renderedWeight = this.shadowRoot?.querySelector('[data-testid="attempt-board-weight"]')?.textContent?.trim() ?? "";
+    this.$server?.attemptBoardWeightRendered(
+      String(this.displaySequence ?? ""),
+      String(this.weight ?? ""),
+      Date.now(),
+      performance.now(),
+      renderedWeight
+    );
   }
 
   isBreak() {

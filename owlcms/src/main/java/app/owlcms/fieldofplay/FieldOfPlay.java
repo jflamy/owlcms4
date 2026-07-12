@@ -1428,19 +1428,27 @@ public class FieldOfPlay implements IUnregister {
 		// stamp a per-FOP monotonic sequence so clients can drop out-of-order timer
 		// events
 		event.setSequence(this.uiEventSequence.incrementAndGet());
-		// TEMPORARY (timer-gap) trace: decide whether missed StartTime/StopTime is a
+		// TEMPORARY (display-order) trace: decide whether missed StartTime/StopTime is a
 		// registration gap.
 		if ((event instanceof UIEvent.StartTime || event instanceof UIEvent.StopTime)
-				&& Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
+				&& Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES)) {
 			int athleteTimerSubscribers = SafeEventBusRegistration.registeredSubscriberCount(getUiEventBus(),
 					"AthleteTimerElement");
 			int controlAthleteTimerSubscribers = SafeEventBusRegistration
 					.registeredControlAthleteTimerCount(getUiEventBus());
-			this.logger./*playwright*/warn(
+			this.logger.warn(
 					"{}uiBus pre-post {} seq={} athleteTimerSubscribers={} controlAthleteTimerSubscribers={} timers={}",
 					FieldOfPlay.getLoggingName(this), event.getClass().getSimpleName(), event.getSequence(),
 					athleteTimerSubscribers, controlAthleteTimerSubscribers,
 					SafeEventBusRegistration.registeredTimerDetails(getUiEventBus()));
+		}
+		if (event instanceof UIEvent.LiftingOrderUpdated liftingOrderUpdated
+				&& Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+			this.logger.warn(
+					"{}displayOrder post seq={} athlete={} requested={} changedWeight={} displayAffected={} state={}",
+					FieldOfPlay.getLoggingName(this), liftingOrderUpdated.getSequence(), liftingOrderUpdated.getAthlete(),
+					getCurAthlete() != null ? getCurAthlete().getNextAttemptRequestedWeight() : null,
+					liftingOrderUpdated.getNewWeight(), liftingOrderUpdated.isCurrentDisplayAffected(), this.state);
 		}
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
 			if (event instanceof UIEvent.LiftingOrderUpdated liftingOrderUpdated) {

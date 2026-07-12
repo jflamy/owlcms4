@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -484,9 +485,23 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+			logger.warn("{}attemptBoard order received seq={} athlete={} requested={} changedWeight={} attached={}",
+					FieldOfPlay.getLoggingName(getFop()), e.getSequence(), e.getAthlete(),
+					e.getAthlete() != null ? e.getAthlete().getNextAttemptRequestedWeight() : null,
+					e.getNewWeight(), getUI().isPresent());
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			FieldOfPlay fop = getFop();
 			FOPState state = fop.getState();
+			boolean attemptTraces = Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES);
+			this.getElement().setProperty("attemptTraces", attemptTraces);
+			this.getElement().setProperty("displaySequence", Long.toString(e.getSequence()));
+			if (attemptTraces) {
+				logger.warn("{}attemptBoard order applying seq={} state={} athlete={} requested={}",
+						FieldOfPlay.getLoggingName(fop), e.getSequence(), state, fop.getCurAthlete(),
+						fop.getCurAthlete() != null ? fop.getCurAthlete().getNextAttemptRequestedWeight() : null);
+			}
 			uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(),
 			        e.isDisplayToggle());
 			if (state == FOPState.DECISION_VISIBLE) {
@@ -509,7 +524,19 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 				Athlete b = fop.getCurAthlete();
 				doAthleteUpdate(b, e.getFop());
 			}
+			getUI().ifPresent(UI::push);
 		});
+	}
+
+	@ClientCallable
+	public void attemptBoardWeightRendered(String sequence, String weight, Double clientEpochMillis,
+			Double clientPerformanceMillis, String renderedWeight) {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+			return;
+		}
+		logger.warn("{}attemptBoard weight rendered seq={} weight={} rendered={} clientEpochMs={} clientPerformanceMs={}",
+				FieldOfPlay.getLoggingName(getFop()), sequence, weight, renderedWeight, clientEpochMillis,
+				clientPerformanceMillis);
 	}
 
 	/**

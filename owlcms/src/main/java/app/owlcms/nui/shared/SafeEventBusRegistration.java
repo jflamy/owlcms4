@@ -109,8 +109,8 @@ public interface SafeEventBusRegistration {
 				}
 			}
 		}
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
-			logger./*playwright*/warn("uiBus OUT subscriber={} class={} bus={} registryHad={} {}",
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES)) {
+			logger.warn("uiBus OUT subscriber={} class={} bus={} registryHad={} {}",
 			        Integer.toHexString(System.identityHashCode(subscriber)),
 			        subscriber != null ? subscriber.getClass().getSimpleName() : "null", uiEventBus.identifier(),
 			        removedFromRegistry, LoggerUtils.whereFrom());
@@ -126,8 +126,8 @@ public interface SafeEventBusRegistration {
 			synchronized (BUS_REGISTRY) {
 				BUS_REGISTRY.computeIfAbsent(subscriber, key -> new HashSet<>()).add(uiEventBus);
 			}
-			if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
-				logger./*playwright*/warn("uiBus IN subscriber={} class={} bus={} {}",
+			if (Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES)) {
+				logger.warn("uiBus IN subscriber={} class={} bus={} {}",
 				        Integer.toHexString(System.identityHashCode(subscriber)),
 				        subscriber != null ? subscriber.getClass().getSimpleName() : "null", uiEventBus.identifier(),
 				        LoggerUtils.whereFrom());
@@ -152,8 +152,8 @@ public interface SafeEventBusRegistration {
 			Set<EventBus> registeredBuses = BUS_REGISTRY.get(c);
 			if (registeredBuses != null && registeredBuses.contains(uiEventBus)) {
 				// TEMPORARY (timer-gap) trace: confirm the control timer stays registered.
-				if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
-				logger./*playwright*/warn("uiBus already-registered {} bus={} {}",
+				if (Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+				logger.warn("uiBus already-registered {} bus={} {}",
 					        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier(),
 					        LoggerUtils.whereFrom());
 				}
@@ -162,8 +162,8 @@ public interface SafeEventBusRegistration {
 		}
 
 		// TEMPORARY (timer-gap) trace: a fresh register here means the component was OFF the bus.
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
-			logger./*playwright*/warn("uiBus FRESH-register {} bus={} {}",
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+			logger.warn("uiBus FRESH-register {} bus={} {}",
 			        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier(),
 			        LoggerUtils.whereFrom());
 		}
@@ -180,8 +180,8 @@ public interface SafeEventBusRegistration {
 		}
 		ui.addBeforeLeaveListener((e) -> {
 			// TEMPORARY (timer-gap) trace
-			if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
-				logger./*playwright*/warn("uiBus beforeLeave-unregister {} bus={}",
+			if (Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+				logger.warn("uiBus beforeLeave-unregister {} bus={}",
 				        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier());
 			}
 			unregister(c, uiEventBus);
@@ -190,8 +190,8 @@ public interface SafeEventBusRegistration {
 			// trace the unregistration
 			logger.debug("automatic: unregister {} class={} from {}", Integer.toHexString(System.identityHashCode(c)), c.getClass().getSimpleName(), uiEventBus.identifier());
 			// TEMPORARY (timer-gap) trace
-			if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT) && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
-				logger./*playwright*/warn("uiBus uiDetach-unregister {} bus={}",
+			if (Config.getCurrent().featureSwitch(FeatureSwitch.CLOCK_TRACES) && "AthleteTimerElement".equals(c.getClass().getSimpleName())) {
+				logger.warn("uiBus uiDetach-unregister {} bus={}",
 				        Integer.toHexString(System.identityHashCode(c)), uiEventBus.identifier());
 			}
 			unregister(c, uiEventBus);
