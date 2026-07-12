@@ -971,26 +971,22 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	private void showPlates() {
-		AbstractAttemptBoard attemptBoard = this;
-		UI ui = UI.getCurrent();
 		FieldOfPlay fop = getFop();
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			try {
-				if (this.plates != null) {
-					attemptBoard.getElement().removeChild(this.plates.getElement());
-				}
-				this.plates = new PlatesElement(ui);
-				this.plates.computeImageArea(fop, false);
-				Element platesElement = this.plates.getElement();
-				// tell polymer that the plates belong in the slot named barbell of the template
-				platesElement.setAttribute("slot", "barbell");
-				platesElement.getStyle().set("font-size", "3.3vh");
-				platesElement.getClassList().set("dark", true);
-				attemptBoard.getElement().appendChild(platesElement);
-			} catch (Throwable t) {
-				LoggerUtils.logError(logger, t);
+		try {
+			if (this.plates != null) {
+				this.getElement().removeChild(this.plates.getElement());
 			}
-		});
+			this.plates = new PlatesElement();
+			this.plates.computeImageArea(fop, false);
+			Element platesElement = this.plates.getElement();
+			// tell polymer that the plates belong in the slot named barbell of the template
+			platesElement.setAttribute("slot", "barbell");
+			platesElement.getStyle().set("font-size", "3.3vh");
+			platesElement.getClassList().set("dark", true);
+			this.getElement().appendChild(platesElement);
+		} catch (Throwable t) {
+			LoggerUtils.logError(logger, t);
+		}
 	}
 
 	private void spotlightNewRecord(List<RecordEvent> records) {

@@ -9,7 +9,6 @@ package app.owlcms.components.elements;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 
@@ -26,11 +25,9 @@ public class PlatesElement extends FlexLayout {
 	@SuppressWarnings("unused")
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(PlatesElement.class);
 	private int weight;
-	private UI ui;
 
-	public PlatesElement(UI ui) {
+	public PlatesElement() {
 		this.getClassNames().add("loadChart");
-		this.ui = ui;
 	}
 
 	public void computeImageArea(FieldOfPlay fop, boolean showCaption) {
@@ -110,25 +107,24 @@ public class PlatesElement extends FlexLayout {
 	 * @param caption
 	 */
 	private void createImageArea(FieldOfPlay fop, final Integer barWeight, final String caption) {
-		this.ui.access(() -> {
-			this.removeAll();
-			Platform platform = fop.getPlatform();
-			boolean outline = caption != null && !caption.isBlank();
+		this.removeAll();
+		Platform platform = fop.getPlatform();
+		boolean outline = caption != null && !caption.isBlank();
 
-			if (this.getWeight() == 0) {
-				return;
-				// compute the bar and collar first.
-			}
+		if (this.getWeight() == 0) {
+			return;
+			// compute the bar and collar first.
+		}
 
-			// logger.debug("barWeight {}",barWeight);
-			int nonBarWeight = this.getWeight() - barWeight;
+		// logger.debug("barWeight {}",barWeight);
+		int nonBarWeight = this.getWeight() - barWeight;
 
-			addPlates(1, "bar", barWeight, fop, outline);
+		addPlates(1, "bar", barWeight, fop, outline);
 
-			final Integer collarAvailable = platform.getNbC_2_5();
-			boolean useCollar = collarAvailable > 0 && fop.isUseCollarsIfAvailable();
+		final Integer collarAvailable = platform.getNbC_2_5();
+		boolean useCollar = collarAvailable > 0 && fop.isUseCollarsIfAvailable();
 
-			if (nonBarWeight >= 0) {
+		if (nonBarWeight >= 0) {
 				addPlates(1, "barInner", 0, fop, outline);
 
 				// logger.debug("barWeight = {} nonBarWeight = {}", barWeight, nonBarWeight);
@@ -179,9 +175,8 @@ public class PlatesElement extends FlexLayout {
 				addPlates(platform.getNbS_1_5(), "S_1_5", 2 * 1.5, fop, outline);
 				addPlates(platform.getNbS_1(), "S_1", 2 * 1, fop, outline);
 				addPlates(platform.getNbS_0_5(), "S_0_5", 2 * 0.5, fop, outline);
-				addPlates(1, "barOuter", 0, fop, outline);
-			}
-		});
+			addPlates(1, "barOuter", 0, fop, outline);
+		}
 	}
 
 	private int getWeight() {
