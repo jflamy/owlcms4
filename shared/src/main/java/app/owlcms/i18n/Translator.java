@@ -176,7 +176,7 @@ public class Translator implements I18NProvider {
 	 * Force a reload of the translation files
 	 */
 	public static void reset() {
-		logger.info("TRANSLATOR: reset() called - clearing caches and reloading translations");
+		logger.info("TRANSLATOR: reset() called - clearing caches");
 		resetTimeStamp = System.currentTimeMillis();
 		locales = null;
 		i18nloader = null;
@@ -186,6 +186,7 @@ public class Translator implements I18NProvider {
 		storedLocales = null;
 		storedBaseName = null;
 		logger.info("TRANSLATOR: cleared translation class loader and custom cache");
+		logTranslationCsvSource("cache reset");
 	}
 
 	public static void setForcedLocale(Locale locale) {
@@ -291,6 +292,7 @@ public class Translator implements I18NProvider {
 				bundleDir = MemTempUtils.createTempDirectory("bundles");
 
 				logger.debug("reloading translation bundles");
+				logTranslationCsvSource("bundle reload");
 				InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
 				logger.debug("csvStream {} {}", csvName, csvStream);
 				if (csvStream == null) {
@@ -513,6 +515,18 @@ public class Translator implements I18NProvider {
 			// throw new RuntimeException(e);
 			// }
 		}
+	}
+
+	private static void logTranslationCsvSource(String trigger) {
+		String csvName = BUNDLE_PACKAGE_SLASH + BUNDLE_BASE + ".csv";
+		Path localOverride = ResourceWalker.getLocalDirPath();
+		Path localTranslation = localOverride != null ? localOverride.resolve(csvName.substring(1)) : null;
+		URL classpathTranslation = Translator.class.getResource(csvName);
+		ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+		URL contextTranslation = contextLoader != null ? contextLoader.getResource(csvName.substring(1)) : null;
+		logger.info("translation CSV source trigger={} localOverride={} exists={} classpath={} contextClasspath={}", trigger,
+		        localTranslation, localTranslation != null && Files.exists(localTranslation), classpathTranslation,
+		        contextTranslation);
 	}
 
 	private static void throwInvalidLocale(String localeString) {
