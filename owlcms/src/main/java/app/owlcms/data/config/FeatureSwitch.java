@@ -25,7 +25,7 @@ public enum FeatureSwitch {
     BW_CLASS_THEN_AGE_GROUP("bwClassThenAgeGroup", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     SHOW_DECISIONS_IMMEDIATELY("showDecisionsImmediately", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION("decisionSection", FeatureSwitchSection.SCOREBOARD_OPTIONS),
-    DECISION_SECTION_SHOW_BOTH_JURY_VOTES("decisionSectionShowBothJuryVotes",FeatureSwitchSection.SCOREBOARD_OPTIONS),
+    DECISION_SECTION_SHOW_BOTH_JURY_VOTES("decisionSectionShowBothJuryVotes", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DECISION_SECTION_STOPWATCH("decisionSectionStopwatch", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     CHAMPIONSHIP_GROUPING("championshipGrouping", FeatureSwitchSection.SCOREBOARD_OPTIONS),
     DISPLAY_BEST_SCORE("displayBestScore", FeatureSwitchSection.SCOREBOARD_OPTIONS),
@@ -65,12 +65,14 @@ public enum FeatureSwitch {
     GENDER_INCLUSIVE("genderInclusive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     RECORD_NAME_IS_CATEGORY("recordNameIsCategory", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     SINCLAIR_MEET("SinclairMeet", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-    PLAYWRIGHT("playwright", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     V2_EXPORT("v2Export", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     NO_FORWARDER_KEEP_ALIVE("noForwarderKeepAlive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-
     REQUIRE_JURY_PRESIDENT_DECISION("requireJuryPresidentDecision", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-    IWF_LOOK("iwfLook", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK);
+    IWF_LOOK("iwfLook", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
+
+    ATTEMPT_TRACES("attemptTraces", FeatureSwitchSection.OBSERVABILITY),
+    CLOCK_TRACES("clockTraces", FeatureSwitchSection.OBSERVABILITY),
+    PLAYWRIGHT("playwright", FeatureSwitchSection.OBSERVABILITY);
 
     private static final Map<String, FeatureSwitch> BY_ID = buildLookup();
     private final String id;

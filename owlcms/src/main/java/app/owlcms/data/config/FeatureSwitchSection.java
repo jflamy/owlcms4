@@ -12,7 +12,8 @@ public enum FeatureSwitchSection {
 	GENERAL_OPTIONS("FeatureSwitchSection.GeneralOptions"),
 	SPECIALTY_FEATURES("FeatureSwitchSection.SpecialtyFeatures"),
 	CURRENT_FEATURES("FeatureSwitchSection.CurrentFeatures"),
-	USE_AT_YOUR_OWN_RISK("FeatureSwitchSection.UseAtYourOwnRisk");
+	USE_AT_YOUR_OWN_RISK("FeatureSwitchSection.UseAtYourOwnRisk"),
+	OBSERVABILITY("FeatureSwitchSection.Observability");
 
 	private final String translationKey;
 
