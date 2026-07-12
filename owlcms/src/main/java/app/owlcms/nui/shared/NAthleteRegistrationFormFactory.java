@@ -889,7 +889,8 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		this.teamField.setClearButtonVisible(true);
 		this.teamField.getStyle().set("--vaadin-combo-box-overlay-width", "30em");
 		this.teamField.setWidthFull();
-		bindField(this.binder.forField(this.teamField), this.teamField, Athlete::getTeam, Athlete::setTeam);
+		bindField(this.binder.forField(this.teamField), this.teamField, Athlete::getTeam,
+		        (athlete, team) -> athlete.setTeam(team != null ? team : ""));
 		layoutAddFormItem(layout, this.teamField, Translator.translate("Team"));
 
 		this.membershipField = new TextField();
