@@ -37,6 +37,7 @@ primary location assistants should read before taking actions.
 - Never exfiltrate secrets — use environment variables or the project's secrets manager.
 - Always format shell commands for `bash`. On Windows, execute via or Git Bash.
 - Never use fully-qualified class names in new or edited Java source files. Prefer adding an import and using the short type name. Only use a fully-qualified name when a collision or other exceptional situation requires it.
+- Never hard-code user-interface strings in UI elements. Use the translation system for all visible labels, messages, and button text. Hard-coded UI strings are allowed only for debugging purposes and only when explicitly authorized by the user.
 
 Important: The file `shared/src/main/resources/i18n/translation4.csv` is managed by an external i18n tool and must never be edited by automated assistants or by hand in source control. Do not modify `translation4.csv` in this repository; use the external translation management system and the approved process instead.
 
