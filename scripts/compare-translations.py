@@ -23,9 +23,14 @@ with open(REMOTE_FILE, 'r', encoding='utf-8-sig', newline='') as f:
     remote_reader = csv.reader(f)
     remote_rows = list(remote_reader)
 
-# Get header (language codes)
+# Get header (language codes). Google Sheets exports can preserve trailing blank
+# columns while the Values API omits them; they do not define a language.
 header = local_rows[0] if local_rows else []
 remote_header = remote_rows[0] if remote_rows else []
+while header and not header[-1]:
+    header.pop()
+while remote_header and not remote_header[-1]:
+    remote_header.pop()
 languages = header[1:] if len(header) > 1 else []
 
 # Build dictionaries keyed by translation key

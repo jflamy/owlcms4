@@ -10,7 +10,9 @@
 
 **New in Release 67.1**
 
-67.1.0-beta11: Changes to attempt board "barbell" behavior to avoid potential stuck display on weight changes.
+67.1.0-beta12: Replicated changes to technical controller plate isplay behavior to avoid potential stuck display on weight changes.
+
+67.1.0-beta11: Changes to attempt board plate display behavior to avoid potential stuck display on weight changes.
   - a new feature toggle `attemptTraces` can be enabled to observe the behaviour until which time we can confirm correctness.
 
 67.1.0-beta11: Fix empty team selection to not set the team to null.

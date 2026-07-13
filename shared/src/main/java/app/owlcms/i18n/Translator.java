@@ -605,7 +605,7 @@ public class Translator implements I18NProvider {
 		}
 
 		StringWriter csv = new StringWriter();
-		try (CsvListWriter writer = new CsvListWriter(csv, CsvPreference.STANDARD_PREFERENCE)) {
+		try (CsvListWriter writer = new CsvListWriter(csv, CsvPreference.EXCEL_PREFERENCE)) {
 			for (JsonNode rowNode : values) {
 				List<String> row = new ArrayList<>();
 				if (rowNode.isArray()) {
