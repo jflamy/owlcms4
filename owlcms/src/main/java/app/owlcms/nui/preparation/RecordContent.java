@@ -805,6 +805,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.federationFilter.setPlaceholder(Translator.translate("RecordEvent.Federation"));
 		this.federationFilter.setItems(RecordRepository.findDistinctFederations());
 		this.federationFilter.setClearButtonVisible(true);
+		this.federationFilter.getElement().setAttribute("autocomplete", "off");
 		this.federationFilter.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
 				return;
@@ -822,6 +823,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		// Record Name filter
 		this.recordNameFilter.setPlaceholder(Translator.translate("Records.RecordName"));
 		this.recordNameFilter.setClearButtonVisible(true);
+		this.recordNameFilter.getElement().setAttribute("autocomplete", "off");
 		this.recordNameFilter.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
 				return;
@@ -837,6 +839,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		// Age Group filter
 		this.ageGroupFilter.setPlaceholder(Translator.translate("AgeGroup"));
 		this.ageGroupFilter.setClearButtonVisible(true);
+		this.ageGroupFilter.getElement().setAttribute("autocomplete", "off");
 		this.ageGroupFilter.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
 				return;
@@ -855,6 +858,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		this.genderFilter.setItems(Gender.M, Gender.F);
 		this.genderFilter.setItemLabelGenerator(g -> g.asGenderName());
 		this.genderFilter.setClearButtonVisible(true);
+		this.genderFilter.getElement().setAttribute("autocomplete", "off");
 		this.genderFilter.addValueChangeListener(e -> {
 			setGender(e.getValue());
 			if (!this.updatingFilters) {
@@ -868,6 +872,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		// Name filter (for record name or athlete name)
 		this.nameFilter.setPlaceholder(Translator.translate("Name"));
 		this.nameFilter.setClearButtonVisible(true);
+		this.nameFilter.getElement().setAttribute("autocomplete", "off");
 		this.nameFilter.setValueChangeMode(ValueChangeMode.EAGER);
 		this.nameFilter.addValueChangeListener(e -> {
 			setName(e.getValue());
