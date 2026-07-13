@@ -50,13 +50,21 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 		});
 		Button restart = new Button("Restart", event -> RestartUtils.triggerRestart("Admin restart requested"));
 		Button reloadTranslations = new Button("Reload Translation Strings", event -> {
-			Translator.reset();
+			Translator.resetFromLocal();
 			WebSocketEventSender.sendTranslationsToAll();
 		});
+		Button reloadTranslationsFromGoogleSheets = new Button(
+		        Translator.translate("reloadTranslationFromGoogleSheets"), event -> {
+			Translator.resetFromGoogleSheets();
+			WebSocketEventSender.sendTranslationsToAll();
+		});
+		reloadTranslationsFromGoogleSheets.setEnabled(System.getenv("GOOGLE_SHEETS_API_KEY") != null
+		        && !System.getenv("GOOGLE_SHEETS_API_KEY").isBlank());
 		Span reloadTranslationsNote = new Span(
 		        "Reload the translation file and push updated strings to connected clients. Refresh browser pages to see the new text.");
 		reloadTranslationsNote.getStyle().set("color", "var(--lumo-secondary-text-color)");
-		HorizontalLayout reloadTranslationsAction = new HorizontalLayout(reloadTranslations, reloadTranslationsNote);
+		HorizontalLayout reloadTranslationsAction = new HorizontalLayout(reloadTranslations,
+		        reloadTranslationsFromGoogleSheets, reloadTranslationsNote);
 		reloadTranslationsAction.setAlignItems(FlexComponent.Alignment.CENTER);
 		Button repairBirthDates = new Button("Repair Birth Dates", event -> {
 			BirthDateRepairDialog dialog = new BirthDateRepairDialog(event.getSource());

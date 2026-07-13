@@ -4,6 +4,7 @@
 import csv
 import json
 import os
+import shlex
 import sys
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
@@ -12,6 +13,28 @@ from urllib.request import urlopen
 
 SPREADSHEET_ID = "1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE"
 PREFERRED_TAB = "translation4"
+ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".vscode", ".env.mac")
+
+
+def load_dotenv_file(path):
+    """Load unset variables from a simple shell-compatible dotenv file."""
+    if not os.path.isfile(path):
+        return
+
+    with open(path, encoding="utf-8") as environment_file:
+        for line in environment_file:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            name, value = line.split("=", 1)
+            name = name.strip()
+            if not name or name in os.environ:
+                continue
+            try:
+                parsed = shlex.split(value, comments=True, posix=True)
+            except ValueError:
+                continue
+            os.environ[name] = parsed[0] if parsed else ""
 
 
 def fetch_json(url):
@@ -45,6 +68,8 @@ def choose_tab(sheets):
 
 
 def main() -> int:
+    load_dotenv_file(ENV_FILE)
+
     if len(sys.argv) != 2:
         print(f"Usage: {sys.argv[0]} <destination.csv>", file=sys.stderr)
         return 2

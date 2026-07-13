@@ -42,6 +42,7 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.markdown.Markdown;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -753,7 +754,15 @@ public class ConfigEditingFormFactory
 		        	// Broadcast fresh translations to all connected WebSocket clients
 		        	WebSocketEventSender.sendTranslationsToAll();
 		        });
-		layout.addFormItem(resetTranslation, Translator.translate("reloadTranslationInfo"));
+		Button reloadFromGoogleSheets = new Button(Translator.translate("reloadTranslationFromGoogleSheets"),
+		        buttonClickEvent -> {
+		        	Translator.resetFromGoogleSheets();
+		        	WebSocketEventSender.sendTranslationsToAll();
+		        });
+		String googleSheetsApiKey = System.getenv("GOOGLE_SHEETS_API_KEY");
+		reloadFromGoogleSheets.setEnabled(googleSheetsApiKey != null && !googleSheetsApiKey.isBlank());
+		HorizontalLayout translationButtons = new HorizontalLayout(resetTranslation, reloadFromGoogleSheets);
+		layout.addFormItem(translationButtons, Translator.translate("reloadTranslationInfo"));
 		return layout;
 	}
 

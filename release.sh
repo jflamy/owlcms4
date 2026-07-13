@@ -4,6 +4,14 @@ REVISION="67.1.0-beta11"
 
 set -euo pipefail
 
+ENV_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.vscode/.env.mac"
+if [[ -z "${GOOGLE_SHEETS_API_KEY:-}" && -f "${ENV_FILE}" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "${ENV_FILE}"
+  set +a
+fi
+
 # The first positional argument is the revision; if omitted, the default above is used.
 # Flags may appear in any order.
 SKIP_TRANSLATIONS="${SKIP_TRANSLATIONS:-false}"

@@ -9,11 +9,16 @@ package app.owlcms.i18n;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +38,11 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.ICsvListReader;
+import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.i18n.I18NProvider;
@@ -58,6 +67,14 @@ public class Translator implements I18NProvider {
 	private static Translator helper = new Translator();
 	private static final String BUNDLE_BASE = "translation4";
 	private static final String BUNDLE_PACKAGE_SLASH = "/i18n/";
+	private static final String GOOGLE_SHEETS_API_KEY = "GOOGLE_SHEETS_API_KEY";
+	private static final String GOOGLE_SHEETS_TAB = "GOOGLE_SHEETS_TAB";
+	private static final String GOOGLE_SPREADSHEET_ID = "1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE";
+	private static final String GOOGLE_SHEETS_API = "https://sheets.googleapis.com/v4/spreadsheets/";
+	private static final Path DEVELOPMENT_TRANSLATION_CSV = Paths.get("..", "shared", "src", "main", "resources", "i18n",
+	        "translation4.csv");
+	private static final Path DEFAULT_LOCAL_TRANSLATION_CSV = Paths.get("local", "i18n", "translation4.csv");
+	private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 	private static List<Locale> locales = null;
 	private static Locale forcedLocale = null;
 	private static ClassLoader i18nloader = null;
@@ -185,8 +202,55 @@ public class Translator implements I18NProvider {
 		storedLanguageProperties = null; // Clear stored Properties
 		storedLocales = null;
 		storedBaseName = null;
-		logger.info("TRANSLATOR: cleared translation class loader and custom cache");
+		logger.debug("TRANSLATOR: cleared translation class loader and custom cache");
 		logTranslationCsvSource("cache reset");
+	}
+
+	public static void resetFromLocal() {
+		reset();
+	}
+
+	public static void resetFromGoogleSheets() {
+		String apiKey = System.getenv(GOOGLE_SHEETS_API_KEY);
+		if (apiKey == null || apiKey.isBlank()) {
+			throw new IllegalStateException(GOOGLE_SHEETS_API_KEY + " is not configured");
+		}
+		try {
+			Path translationTarget = getDevelopmentTranslationTarget();
+			if (translationTarget == null) {
+				throw new IllegalStateException("No development translation4.csv found");
+			}
+			logger.info("fetching translation CSV from Google Sheets");
+			byte[] translationCsv = downloadTranslationCsv(apiKey);
+			Files.write(translationTarget, translationCsv);
+			logger.info("updated translation CSV from Google Sheets: {}", translationTarget);
+			resetFromLocal();
+		} catch (IOException e) {
+			throw new RuntimeException("Could not update development translation CSV from Google Sheets", e);
+		}
+	}
+
+	private static Path getDevelopmentTranslationTarget() {
+		Path localDir = ResourceWalker.getLocalDirPath();
+		Path localTranslation = localDir == null ? null : localDir.resolve("i18n").resolve("translation4.csv");
+		List<Path> candidates = new ArrayList<>();
+		candidates.add(DEVELOPMENT_TRANSLATION_CSV);
+		for (Path directory = Paths.get("").toAbsolutePath().normalize(); directory != null; directory = directory.getParent()) {
+			candidates.add(directory.resolve("shared/src/main/resources/i18n/translation4.csv"));
+		}
+		candidates.add(localTranslation);
+		candidates.add(DEFAULT_LOCAL_TRANSLATION_CSV);
+		for (Path candidate : candidates) {
+			if (candidate != null) {
+				Path normalizedCandidate = candidate.toAbsolutePath().normalize();
+				boolean regularFile = Files.isRegularFile(normalizedCandidate);
+				logger.info("translation CSV candidate={} regularFile={}", normalizedCandidate, regularFile);
+				if (regularFile) {
+					return normalizedCandidate;
+				}
+			}
+		}
+		return null;
 	}
 
 	public static void setForcedLocale(Locale locale) {
@@ -293,7 +357,7 @@ public class Translator implements I18NProvider {
 
 				logger.debug("reloading translation bundles");
 				logTranslationCsvSource("bundle reload");
-				InputStream csvStream = ResourceWalker.getResourceAsStream(csvName);
+				InputStream csvStream = getTranslationCsvStream(csvName);
 				logger.debug("csvStream {} {}", csvName, csvStream);
 				if (csvStream == null) {
 					throw new RuntimeException(csvName + " not found");
@@ -359,7 +423,7 @@ public class Translator implements I18NProvider {
 							for (int i = 1; i < nbLanguages + 1; i++) {
 								// treat the CSV strings using same rules as Properties files.
 								// u0000 escapes are translated to Java characters
-								String input = stringList.get(i);
+								String input = i < stringList.size() ? stringList.get(i) : "";
 								if (input != null) {
 									input = input.trim();
 									// "\ " is not valid, \u0020 is needed.
@@ -517,6 +581,84 @@ public class Translator implements I18NProvider {
 		}
 	}
 
+	private static InputStream getTranslationCsvStream(String csvName) throws IOException {
+		return ResourceWalker.getResourceAsStream(csvName);
+	}
+
+	private static byte[] downloadTranslationCsv(String apiKey) throws IOException {
+		String encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
+		String metadataUrl = GOOGLE_SHEETS_API + GOOGLE_SPREADSHEET_ID
+		        + "?fields=sheets.properties.title&key=" + encodedKey;
+		JsonNode metadata = getGoogleSheetsJson(metadataUrl, "metadata");
+		String tab = chooseGoogleSheetsTab(metadata.path("sheets"));
+		if (tab == null) {
+			throw new IOException("Google Sheets API returned no worksheet titles");
+		}
+
+		String quotedTab = "'" + tab.replace("'", "''") + "'";
+		String valuesUrl = GOOGLE_SHEETS_API + GOOGLE_SPREADSHEET_ID + "/values/"
+		        + URLEncoder.encode(quotedTab, StandardCharsets.UTF_8)
+		        + "?majorDimension=ROWS&key=" + encodedKey;
+		JsonNode values = getGoogleSheetsJson(valuesUrl, "translation values").path("values");
+		if (!values.isArray() || values.isEmpty()) {
+			throw new IOException("Google Sheets API returned no translation values");
+		}
+
+		StringWriter csv = new StringWriter();
+		try (CsvListWriter writer = new CsvListWriter(csv, CsvPreference.STANDARD_PREFERENCE)) {
+			for (JsonNode rowNode : values) {
+				List<String> row = new ArrayList<>();
+				if (rowNode.isArray()) {
+					for (JsonNode value : rowNode) {
+						row.add(value.asText());
+					}
+				}
+				writer.write(row);
+			}
+		}
+		return csv.toString().getBytes(StandardCharsets.UTF_8);
+	}
+
+	private static JsonNode getGoogleSheetsJson(String url, String requestName) throws IOException {
+		HttpURLConnection connection = (HttpURLConnection) URI.create(url).toURL().openConnection();
+		connection.setRequestMethod("GET");
+		connection.setConnectTimeout(30_000);
+		connection.setReadTimeout(120_000);
+		try {
+			int responseCode = connection.getResponseCode();
+			if (responseCode < 200 || responseCode >= 300) {
+				throw new IOException("Google Sheets API " + requestName + " request failed with HTTP " + responseCode);
+			}
+			try (InputStream response = connection.getInputStream()) {
+				return JSON_MAPPER.readTree(response);
+			}
+		} finally {
+			connection.disconnect();
+		}
+	}
+
+	private static String chooseGoogleSheetsTab(JsonNode sheets) {
+		List<String> titles = new ArrayList<>();
+		for (JsonNode sheet : sheets) {
+			String title = sheet.path("properties").path("title").asText(null);
+			if (title != null && !title.isBlank()) {
+				titles.add(title);
+			}
+		}
+		String requested = System.getenv(GOOGLE_SHEETS_TAB);
+		List<String> candidates = requested == null || requested.isBlank()
+		        ? List.of(BUNDLE_BASE)
+		        : List.of(requested, BUNDLE_BASE);
+		for (String candidate : candidates) {
+			for (String title : titles) {
+				if (title.equals(candidate) || title.equalsIgnoreCase(candidate)) {
+					return title;
+				}
+			}
+		}
+		return titles.isEmpty() ? null : titles.get(0);
+	}
+
 	private static void logTranslationCsvSource(String trigger) {
 		String csvName = BUNDLE_PACKAGE_SLASH + BUNDLE_BASE + ".csv";
 		Path localOverride = ResourceWalker.getLocalDirPath();
@@ -524,9 +666,12 @@ public class Translator implements I18NProvider {
 		URL classpathTranslation = Translator.class.getResource(csvName);
 		ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
 		URL contextTranslation = contextLoader != null ? contextLoader.getResource(csvName.substring(1)) : null;
-		logger.info("translation CSV source trigger={} localOverride={} exists={} classpath={} contextClasspath={}", trigger,
-		        localTranslation, localTranslation != null && Files.exists(localTranslation), classpathTranslation,
-		        contextTranslation);
+		String source = localTranslation != null && Files.exists(localTranslation)
+		        ? "local override"
+		        : classpathTranslation != null
+		                ? "classpath"
+		                : contextTranslation != null ? "context classpath" : "not found";
+		logger.debug("translation CSV source trigger={} source={}", trigger, source);
 	}
 
 	private static void throwInvalidLocale(String localeString) {
