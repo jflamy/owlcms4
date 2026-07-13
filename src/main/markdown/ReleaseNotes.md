@@ -10,6 +10,8 @@
 
 **New in Release 67.1**
 
+67.1.0-beta12: Fix for spurious safety warnings related to translation sheet downloads (extra commas on header line, encoding of newline within cells)
+
 67.1.0-beta12: Replicated changes to technical controller plate isplay behavior to avoid potential stuck display on weight changes.
 
 67.1.0-beta11: Changes to attempt board plate display behavior to avoid potential stuck display on weight changes.
