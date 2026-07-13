@@ -10,33 +10,13 @@
 
 **New in Release 67.1**
 
-67.1.0-beta12: Fix for spurious safety warnings related to translation sheet downloads (extra commas on header line, encoding of newline within cells)
-
-67.1.0-beta12: Replicated changes to technical controller plate isplay behavior to avoid potential stuck display on weight changes.
-
-67.1.0-beta11: Changes to attempt board plate display behavior to avoid potential stuck display on weight changes.
-  - a new feature toggle `attemptTraces` can be enabled to observe the behaviour until which time we can confirm correctness.
-
-67.1.0-beta11: Fix empty team selection to not set the team to null.
-
-67.1.0-beta10: CSS fixes
-  - Attempt board flag placement and hairline border was broken when adjusting picture sizing in release 67.0
-  - Left-justification of long team names on scoreboards when flags are displayed.
-
-67.1.0-beta10: Logger configuration files
-  - Use logback's own conditionals instead of Janino (which has just been removed due to security concerns)
-
-67.1.0-beta09: CSS fixes for compatibility with customized looks (e.g., PanAm continental events)
-
-67.1.0-beta08: Feature freeze to items listed below; bug/security fixes only.
-
 67.1.0: Empty databases use IWF 2026-08 age groups by default
   - The earlier 2025 age group files remain available using the drop down on the Age Groups configuration page
 
 67.1.0: Feature Switches Interactive Page
   - The features are now be toggled interactively from a tab on the Language and System Settings page
   - Each switch is described in the current language
-  - The `OWLCMS_FEATURESWITCHES` environment variable is applied after the feature switches page; it is comma-separated list of the switches you want turned on or off (prefix the switch with a `-` to turn it off.)
+  - The `OWLCMS_FEATURESWITCHES` environment variable is applied after the feature switches page; it is a comma-separated list of the switches you want turned on or off (prefix the switch with a `-` to turn it off.)
 
 67.1.0: Optional information at the bottom of scoreboards
   - When enabled by `decisionSection` feature toggle, IWF-style display of the referee decisions and jury decisions
