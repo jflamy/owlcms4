@@ -15,6 +15,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -150,9 +151,14 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	@Override
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.LiftingOrderUpdated e) {
-		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
+		FieldOfPlay fop = e.getFop();
+		if (fop == null || this.plates == null) {
+			return;
+		}
+		UIEventProcessor.uiAccess(this.plates, this.uiEventBus, e, () -> {
 			this.plates.computeImageArea(fop, true);
-		}));
+			this.plates.getUI().ifPresent(UI::push);
+		});
 	}
 
 	@Override
