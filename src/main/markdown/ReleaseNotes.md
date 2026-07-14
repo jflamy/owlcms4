@@ -10,6 +10,10 @@
 
 **New in Release 67.1**
 
+67.1.0-rc02: Log cleanup
+  - moved long-standing DEBUG level traces to INFO as appropriate, demoted a few to TRACE, added the FOP prefix where missing
+  - temporarily hardcoded `attemptTraces` to true so we capture attemptboard rendering callback traces
+
 67.1.0: Empty databases use IWF 2026-08 age groups by default
   - The earlier 2025 age group files remain available using the drop down on the Age Groups configuration page
 

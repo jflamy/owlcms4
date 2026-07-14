@@ -254,6 +254,7 @@ public class Config {
 		Set<String> activeSwitches = new LinkedHashSet<>();
 		applyFeatureSwitchOverrides(activeSwitches, getConfiguredFeatureSwitches());
 		applyFeatureSwitchOverrides(activeSwitches, parseLegacyFeatureSwitches(StartupUtils.getStringParam("featureSwitches")));
+		applyFeatureSwitchOverrides(activeSwitches, parseLegacyFeatureSwitches("attemptTraces"));
 		return activeSwitches;
 	}
 

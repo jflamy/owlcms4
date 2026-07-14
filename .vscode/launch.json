@@ -208,10 +208,11 @@
       "type": "java",
       "name": "🟩 small demo owlcms memory",
       "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
+      "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
@@ -222,19 +223,21 @@
         "envFile": "${workspaceFolder}/.vscode/.env.mac"
       },
       "env": {
+        //"OWLCMS_FEATURESWITCHES": "attemptTraces",
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
-        "OWLCMS_PORT": "8081"
+        "OWLCMS_PORT": "8081",
       }
     },
     {
       "type": "java",
       "name": "🟩 WS small demo owlcms memory",
       "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
+      "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
@@ -272,9 +275,8 @@
       "env": {
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        "OWLCMS_FEATURESWITCHES": "attemptTraces",
+        //"OWLCMS_FEATURESWITCHES": "attemptTraces",
         "OWLCMS_PORT": "8083",
-
         //"OWLCMS_REMOTE": "http://localhost:8082",
         //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"
         //"OWLCMS_VIDEODATA": "wss://fhq.fly.dev/ws"

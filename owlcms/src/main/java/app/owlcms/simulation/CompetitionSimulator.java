@@ -79,7 +79,6 @@ public class CompetitionSimulator {
 	private final String skipBefore;
 	private final Set<String> platformFilter;
 	private final boolean randomDeclarationJumps;
-	private static final NaturalOrderComparator<String> groupNameComparator = new NaturalOrderComparator<>();
 
 	public CompetitionSimulator() {
 		this(false);
@@ -126,8 +125,15 @@ public class CompetitionSimulator {
 			        return ObjectUtils.compare(ta, tb, true);
 		        }).collect(Collectors.toList());
 		if (this.skipBefore != null) {
-			gs = gs.stream().filter(g -> !isBeforeSkipBoundary(g.getName(), this.skipBefore))
-			        .collect(Collectors.toList());
+			int boundaryIndex = findSkipBoundaryIndex(gs.stream().map(Group::getName).collect(Collectors.toList()),
+			        this.skipBefore);
+			if (boundaryIndex < 0) {
+				logger.warn("simulation skip boundary '{}' is not in the computed group order; no groups will be simulated",
+				        this.skipBefore);
+				gs = List.of();
+			} else {
+				gs = new ArrayList<>(gs.subList(boundaryIndex, gs.size()));
+			}
 		}
 		if (!this.platformFilter.isEmpty()) {
 			gs = gs.stream().filter(g -> platformMatchesFilter(g.getPlatform(), this.platformFilter))
@@ -243,19 +249,32 @@ public class CompetitionSimulator {
 		});
 	}
 
-	static boolean isBeforeSkipBoundary(String groupName, String skipBefore) {
+	static int findSkipBoundaryIndex(List<String> groupNames, String skipBefore) {
 		String boundary = normalizeSkipBefore(skipBefore);
-		if (groupName == null || boundary == null) {
-			return false;
+		if (groupNames == null || boundary == null) {
+			return -1;
 		}
 
-		int compare;
-		if (Character.isDigit(boundary.charAt(0))) {
-			compare = groupNameComparator.compare(groupName, boundary);
-		} else {
-			compare = groupName.compareToIgnoreCase(boundary);
+		for (int index = 0; index < groupNames.size(); index++) {
+			String groupName = groupNames.get(index);
+			if (matchesSkipBoundary(groupName, boundary)) {
+				return index;
+			}
 		}
-		return compare < 0;
+		return -1;
+	}
+
+	private static boolean matchesSkipBoundary(String groupName, String boundary) {
+		if (groupName == null || !groupName.regionMatches(true, 0, boundary, 0, boundary.length())) {
+			return false;
+		}
+		if (groupName.length() == boundary.length()) {
+			return true;
+		}
+		if (!boundary.chars().allMatch(Character::isDigit)) {
+			return false;
+		}
+		return !Character.isDigit(groupName.charAt(boundary.length()));
 	}
 
 	private static String normalizeSkipBefore(String skipBefore) {

@@ -7,6 +7,9 @@
 package app.owlcms.displays.attemptboard;
 
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +84,8 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	protected final static Logger logger = (Logger) LoggerFactory.getLogger(AbstractAttemptBoard.class);
 	protected final static Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + logger.getName());
 	private static final int JURY_NOTIFICATION_DIALOG_DURATION_MS = 5000;
+	private static final DateTimeFormatter CLIENT_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
+			.withZone(ZoneId.systemDefault());
 
 	static {
 		logger.setLevel(Level.INFO);
@@ -486,8 +491,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
-			logger.warn("{}attemptBoard order received seq={} athlete={} requested={} changedWeight={} attached={}",
+			logger.warn("{}attemptBoard order received seq={} athlete={} startNumber={} weight={} requested={} changedWeight={} attached={}",
 					FieldOfPlay.getLoggingName(getFop()), e.getSequence(), e.getAthlete(),
+					e.getAthlete() != null ? e.getAthlete().getStartNumber() : null,
+					e.getAthlete() != null ? e.getAthlete().getNextAttemptRequestedWeight() : null,
 					e.getAthlete() != null ? e.getAthlete().getNextAttemptRequestedWeight() : null,
 					e.getNewWeight(), getUI().isPresent());
 		}
@@ -498,7 +505,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			this.getElement().setProperty("attemptTraces", attemptTraces);
 			this.getElement().setProperty("displaySequence", Long.toString(e.getSequence()));
 			if (attemptTraces) {
-				logger.warn("{}attemptBoard order applying seq={} state={} athlete={} requested={}",
+				logger.debug("{}attemptBoard order applying seq={} state={} athlete={} requested={}",
 						FieldOfPlay.getLoggingName(fop), e.getSequence(), state, fop.getCurAthlete(),
 						fop.getCurAthlete() != null ? fop.getCurAthlete().getNextAttemptRequestedWeight() : null);
 			}
@@ -529,14 +536,16 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	@ClientCallable
-	public void attemptBoardWeightRendered(String sequence, String weight, Double clientEpochMillis,
-			Double clientPerformanceMillis, String renderedWeight) {
+	public void attemptBoardWeightRendered(String sequence, String weightUsedForRendering, Double clientEpochMillis,
+			String renderedStartNumber, String renderedWeight) {
 		if (!Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
 			return;
 		}
-		logger.warn("{}attemptBoard weight rendered seq={} weight={} rendered={} clientEpochMs={} clientPerformanceMs={}",
-				FieldOfPlay.getLoggingName(getFop()), sequence, weight, renderedWeight, clientEpochMillis,
-				clientPerformanceMillis);
+		String clientTime = clientEpochMillis == null ? "" : CLIENT_TIME_FORMATTER
+				.format(Instant.ofEpochMilli(clientEpochMillis.longValue()));
+		logger.warn("{}attemptBoard weight rendered seq={} startNumber={} weight={} rendered={} clientTime={}",
+				FieldOfPlay.getLoggingName(getFop()), sequence, renderedStartNumber, weightUsedForRendering, renderedWeight,
+				clientTime);
 	}
 
 	/**
@@ -766,25 +775,28 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			showPlates();
 		}
 
-		switch (fop.getBreakType()) {
-			case BEFORE_INTRODUCTION:
-				this.getElement().setProperty("introCountdownMode", "true");
-				break;
-			case CHALLENGE:
-			case JURY:
-			case TECHNICAL:
-			case MARSHAL:
-				this.getElement().setProperty("waitMode", "true");
-				break;
-			case FIRST_CJ:
-			case FIRST_SNATCH:
-				this.getElement().setProperty("liftCountdownMode", "true");
-				break;
-			case GROUP_DONE:
-				this.getElement().setProperty("doneMode", "true");
-				break;
-			default:
-				break;
+		BreakType breakType = fop.getBreakType();
+		if (breakType != null) {
+			switch (breakType) {
+				case BEFORE_INTRODUCTION:
+					this.getElement().setProperty("introCountdownMode", "true");
+					break;
+				case CHALLENGE:
+				case JURY:
+				case TECHNICAL:
+				case MARSHAL:
+					this.getElement().setProperty("waitMode", "true");
+					break;
+				case FIRST_CJ:
+				case FIRST_SNATCH:
+					this.getElement().setProperty("liftCountdownMode", "true");
+					break;
+				case GROUP_DONE:
+					this.getElement().setProperty("doneMode", "true");
+					break;
+				default:
+					break;
+			}
 		}
 		uiEventLogger.debug("$$$ attemptBoard doBreak(fop)");
 	}

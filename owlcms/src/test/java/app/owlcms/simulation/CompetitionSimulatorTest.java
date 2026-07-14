@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
@@ -11,24 +12,42 @@ import org.junit.Test;
 public class CompetitionSimulatorTest {
 
 	@Test
-	public void skipBeforeUsesNaturalComparisonWhenBoundaryStartsWithNumber() {
-		assertTrue(CompetitionSimulator.isBeforeSkipBoundary("1 RED", "10 RED"));
-		assertFalse(CompetitionSimulator.isBeforeSkipBoundary("10 RED", "1 RED"));
-		assertFalse(CompetitionSimulator.isBeforeSkipBoundary("10 RED", "10 RED"));
-		assertFalse(CompetitionSimulator.isBeforeSkipBoundary("11 RED", "10 RED"));
+	public void skipBeforeUsesTheRequestedGroupPositionInComputedOrder() {
+		List<String> computedOrder = List.of("M1", "M2", "F1", "Y1");
+
+		assertEquals(2, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "F1"));
+		assertEquals(2, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "f1"));
+		assertEquals(0, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "M1"));
+		assertEquals(3, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "Y1"));
 	}
 
 	@Test
-	public void skipBeforeFallsBackToCaseInsensitiveStringComparison() {
-		assertTrue(CompetitionSimulator.isBeforeSkipBoundary("Alpha", "bravo"));
-		assertFalse(CompetitionSimulator.isBeforeSkipBoundary("Bravo", "bravo"));
+	public void skipBeforeStartsAtTheRequestedSessionOrSessionBlock() {
+		List<String> computedOrder = List.of("1", "3", "2", "47A", "47B", "4", "48");
+
+		int sessionIndex = CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "3");
+		int sessionBlockIndex = CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "47");
+
+		assertEquals(List.of("3", "2", "47A", "47B", "4", "48"), computedOrder.subList(sessionIndex, computedOrder.size()));
+		assertEquals(List.of("47A", "47B", "4", "48"), computedOrder.subList(sessionBlockIndex, computedOrder.size()));
 	}
 
 	@Test
-	public void blankSkipBeforeDoesNotSkipAnything() {
-		assertFalse(CompetitionSimulator.isBeforeSkipBoundary("1 RED", null));
-		assertFalse(CompetitionSimulator.isBeforeSkipBoundary("1 RED", ""));
-		assertFalse(CompetitionSimulator.isBeforeSkipBoundary("1 RED", "   "));
+	public void skipBeforeNumericSessionBlockDoesNotMatchAnotherNumericGroup() {
+		List<String> computedOrder = List.of("3", "30", "31A");
+
+		assertEquals(0, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "3"));
+		assertEquals(1, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "30"));
+	}
+
+	@Test
+	public void missingSkipBeforeBoundaryHasNoPosition() {
+		List<String> computedOrder = List.of("M1", "M2", "F1", "Y1");
+
+		assertEquals(-1, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "X1"));
+		assertEquals(-1, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, null));
+		assertEquals(-1, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, ""));
+		assertEquals(-1, CompetitionSimulator.findSkipBoundaryIndex(computedOrder, "   "));
 	}
 
 	@Test

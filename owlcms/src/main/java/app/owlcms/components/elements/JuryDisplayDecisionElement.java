@@ -12,6 +12,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 
+import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
@@ -100,8 +101,8 @@ public class JuryDisplayDecisionElement extends AbstractDecisionElement {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		ui = UI.getCurrent();
-		logger./**/warn("JuryDisplayDecisionElement onAttach: fop={} isSingleRef={} parent={} {}",
-		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
+		logger.debug("{}JuryDisplayDecisionElement onAttach: fop={} isSingleRef={} parent={} {}",
+		        FieldOfPlay.getLoggingName(this.fop), (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
 		        this.getParent().map(p -> p.getClass().getSimpleName()).orElse("none"),
 		        LoggerUtils.whereFrom());
 		super.onAttach(attachEvent);

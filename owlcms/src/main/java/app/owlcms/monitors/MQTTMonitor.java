@@ -1784,7 +1784,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				.max(Long::compare);
 		if (curRefereeUpdateTimeStamp.isPresent()
 				&& curRefereeUpdateTimeStamp.get() >= this.prevRefereeTimeStamp) {
-			logger.debug("{}MQTT publishMqttRefereeUpdates {}({}) {}({}) {}({})",
+			logger.trace("{}MQTT publishMqttRefereeUpdates {}({}) {}({}) {}({})",
 					FieldOfPlay.getLoggingName(this.getFop()), ref1,
 					ref1Time,
 					ref2, ref2Time, ref3, ref3Time);

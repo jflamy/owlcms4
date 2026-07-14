@@ -126,15 +126,17 @@ class CurrentAttempt extends LitElement {
 
   updated(changedProperties) {
     super.updated(changedProperties);
-    if (!this.attemptTraces || !changedProperties.has("weight")) {
+    if (!this.attemptTraces || !changedProperties.has("displaySequence")) {
       return;
     }
+    const renderedStartNumber = this.shadowRoot?.querySelector('[data-testid="attempt-board-start-number"]')?.textContent?.trim() ?? "";
     const renderedWeight = this.shadowRoot?.querySelector('[data-testid="attempt-board-weight"]')?.textContent?.trim() ?? "";
+    const weightUsedForRendering = String(this.weight ?? "");
     this.$server?.attemptBoardWeightRendered(
       String(this.displaySequence ?? ""),
-      String(this.weight ?? ""),
+      weightUsedForRendering,
       Date.now(),
-      performance.now(),
+      renderedStartNumber,
       renderedWeight
     );
   }

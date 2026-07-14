@@ -126,7 +126,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		// note that the group is done.
 		this.groupDone = false; // WAS true
 		startWorker(() -> {
-			this.logger.info("########## group {} done", e.getGroup());
+			this.logger.info("{}group {} done", FieldOfPlay.getLoggingName(this.fop), e.getGroup());
 			if (this.groups.size() > 0) {
 				if (this.groups.get(0).getName().contentEquals(e.getGroup().getName())) {
 					this.groups.remove(0);
@@ -404,11 +404,11 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			if (this.skipDone && this.simulator != null) {
 				this.simulator.prepareSkipDoneGroup(g);
 			}
-			this.logger.info("########## waiting to start group {} of {}", g, curGs);
+			this.logger.info("{}waiting to start group {} of {}", FieldOfPlay.getLoggingName(this.fop), g, curGs);
 			if (!sleepQuietly(6000)) {
 				return false;
 			}
-			this.logger.info("{}########## switching to group {} of {}", FieldOfPlay.getLoggingName(this.fop), g, curGs);
+			this.logger.info("{}switching to group {} of {}", FieldOfPlay.getLoggingName(this.fop), g, curGs);
 			this.fop.fopEventPost(new FOPEvent.SwitchGroup(g, this));
 			
 			// Assign start numbers to athletes in the group for simulation
@@ -422,7 +422,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 						a.getLastName(), a.getFirstName(), a.getBodyWeight(), a.getStartNumber());
 				}
 				AthleteSorter.testAssignStartNumbers(athletes);
-				this.logger.info("{}########## assigned start numbers for group {}", FieldOfPlay.getLoggingName(this.fop), g);
+				this.logger.info("{}assigned start numbers for group {}", FieldOfPlay.getLoggingName(this.fop), g);
 				for (Athlete a : athletes) {
 					this.logger.debug("{}########## After assignment - Athlete: {} {} - bodyWeight: {} startNumber: {}", 
 						FieldOfPlay.getLoggingName(this.fop), 
@@ -430,7 +430,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 				}
 			}
 			
-			this.logger.info("{}########## starting group {}", FieldOfPlay.getLoggingName(this.fop), g);
+			this.logger.info("{}starting group {}", FieldOfPlay.getLoggingName(this.fop), g);
 			this.groupDone = false;
 			this.fop.fopEventPost(new FOPEvent.StartLifting(this));
 
