@@ -1,0 +1,90 @@
+# =========================================================================
+# config.toml — per-instance runtime configuration for cameras
+# =========================================================================
+#
+# This file controls settings for the current cameras instance.
+# Shared encoder/OS behavior is in ffmpeg.toml.
+#
+# Place this file next to cameras executable (or in ~/.local/share/replays/ on Linux).
+
+# =========================================================================
+# Multicast Settings
+# =========================================================================
+
+[multicast]
+    # Base multicast IP address. Cameras are assigned sequential ports.
+    ip = "239.255.0.1"
+    
+    # Starting port number (camera 1 = startPort, camera 2 = startPort+1, …)
+    startPort = 9001
+    
+    # When true, keep multicast output but set ttl=0 so packets stay local
+    localOnly = false
+
+# =========================================================================
+# Unicast Settings (alternative to multicast)
+# =========================================================================
+# Default mode: enabled with localhost so Cameras and Replays can run on the same machine.
+# When enabled, each camera stream is sent via ffmpeg tee to every
+# destination listed below, instead of a single multicast group.
+# Ports are auto-assigned sequentially (camera 1 = startPort, camera 2 = startPort+1, …).
+# Each destination receives its own independent UDP copy.
+# Use onfail=ignore so one dead receiver does not stop the stream.
+
+[unicast]
+    enabled = true
+
+    # Starting port (same convention as multicast.startPort)
+    startPort = 9001
+
+# Destination addresses (one [[unicast.destinations]] table per entry).
+# Include every machine that needs to receive the stream:
+#   "127.0.0.1" — local replays/ffmpeg reader on the sender machine
+#   remote IPs  — OBS or replays instances on other machines
+# enabled = false means the destination is skipped without removing it.
+
+[[unicast.destinations]]
+    address = "127.0.0.1"
+    enabled = true
+
+# [[unicast.destinations]]
+#     address = "192.168.2.21"
+#     enabled = true
+
+[cameras]
+    # Include integrated/raw webcam modes for this instance.
+    includeAll = true
+
+# =========================================================================
+# Autodetected USB Camera Assignments
+# =========================================================================
+# Persist operator-facing names, short IDs, and output ports for autodetected
+# local cameras. matchKey is derived from stable USB topology when available.
+# disabled controls whether the source is available in Configuration.
+# on controls whether an enabled source should be started in Monitoring.
+
+# [[deviceAssignment]]
+#     matchKey = "usb-example"
+#     name = "Platform Left"
+#     shortId = "C1"
+#     outputPort = 9001
+#     disabled = false
+#     on = true
+
+# =========================================================================
+# Configured RTSP Inputs
+# =========================================================================
+# Add RTSP cameras here so they run alongside autodetected USB cameras.
+# Use the full RTSP URL for the desired camera stream/profile.
+# enabled controls whether the source is available in Configuration.
+# on controls whether an enabled source should be started in Monitoring.
+
+# [[rtsp]]
+#     sourceId = "rtsp-example"
+#     name = "Remote PTZ"
+#     shortId = "R1"
+#     enabled = true
+#     on = true
+#     rtspUrl = "rtsp://user:password@192.168.2.50:554/stream1"
+#     outputPort = 9005
+#     transport = "tcp"

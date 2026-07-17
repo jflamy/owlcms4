@@ -1,0 +1,149 @@
+# =========================================================================
+# ffmpeg.toml — shared cameras/replays detection + encoder config
+# =========================================================================
+#
+# This file defines shared encoder and camera-selection behavior used by:
+#  - cameras (multicast emitter)
+#  - replays:  auto.toml generation, legacy compatibility
+#
+# cameras app
+# - input
+#   - input format is obtained by probing cameras
+#   - format preference is defined in [cameras] priorities
+# - output
+#   - H.264 input is copied (no re-encode)
+#   - MJPEG and raw inputs are encoded to H.264 using the settings in the encoder blocks
+#
+# replays app (this file is used for auto.toml generation)
+# - input
+#   - input format is obtained by probing cameras
+#   - format preference is defined in [cameras] priorities
+# - recording output in auto.toml
+#   - H.264 input is copied
+#   - MJPEG input is copied with recode=true (unlike cameras, no live encoding; recoding happens during trimming)
+#   - raw input uses encoder block settings to produce H.264 (or software fallback when no hardware encoder is available)
+# - trim/finalize output
+#   - MJPEG recode path currently uses built-in software libx264 settings (not encoder blocks, since it is done during trimming and not real time)
+
+
+# =========================================================================
+# Camera Selection Priorities
+# =========================================================================
+
+[cameras]
+    # Preferred camera input format priority (highest to lowest).
+    # h264 cameras are remuxed with -c:v copy (no encoding needed).
+    # mjpeg and raw cameras are encoded to H.264 using the best encoder.
+    formatPriority = ["h264", "mjpeg"]
+
+    # Preferred resolution/fps ladder (highest to lowest priority).
+    # Format: "WIDTHxHEIGHT@FPS" — fps uses >= threshold (59 matches 60, 29 matches 30).
+    modePriority = [
+        "1920x1080@59",
+        "1280x720@59",
+        "1920x1080@29",
+        "1280x720@29",
+    ]
+
+# =========================================================================
+# Software Encoder Fallback
+# =========================================================================
+# Used when no hardware encoder is available or functional.
+
+[software]
+    # libx264 fallback. -bf 0 + closed GOP + no scene-cut keyframes ensures every
+    # output keyframe is a real seekable IDR with monotonic DTS, so downstream
+    # `-c copy` trims produce playable files instead of frozen-frame output.
+    outputParameters = "-c:v libx264 -preset ultrafast -tune zerolatency -profile:v main -pix_fmt yuv420p -bf 0 -sc_threshold 0 -flags +cgop -b:v 4M -maxrate 4M -bufsize 4M"
+
+# =========================================================================
+# GPU Encoder Definitions
+# =========================================================================
+#
+# Each [[encoder]] block defines parameters for one hardware encoder.
+# The program probes ffmpeg for available encoders, then verifies each
+# one actually works on the current hardware. The first working encoder
+# (in the order listed here) is used for cameras that need encoding.
+#
+# Some blocks are specific to a platform (windows dshow vs linux v4l2)
+
+[[encoder]]
+    name = "h264_nvenc"
+    description = "NVIDIA GPU (NVENC)"
+    gpuVendors = ["nvidia"]
+    inputParameters = "-rtbufsize 512M -thread_queue_size 4096"
+    videoFilter = "format=yuv420p"
+    # -bf 0 disables B-frames (PTS==DTS, monotonic, safe for `-c copy` cuts).
+    # -no-scenecut 1 keeps a fixed keyframe cadence (-g is added by cameras code).
+    # -forced-idr 1 makes every keyframe a real IDR (seekable).
+    outputParameters = "-c:v h264_nvenc -preset p5 -profile:v main -rc cbr -b:v 8M -maxrate 8M -bufsize 8M -bf 0 -no-scenecut 1 -forced-idr 1"
+    testInit = ""
+
+[[encoder]]
+    name = "h264_amf"
+    description = "AMD GPU (AMF)"
+    gpuVendors = ["amd"]
+    inputParameters = "-rtbufsize 512M -thread_queue_size 4096"
+    videoFilter = "format=yuv420p"
+    # -bf 0 + low-latency usage avoids reorder delay; profile main for compatibility.
+    outputParameters = "-c:v h264_amf -usage lowlatency -profile:v main -rc cbr -b:v 8M -maxrate 8M -bufsize 8M -bf 0"
+    testInit = ""
+
+[[encoder]]
+    name = "h264_qsv"
+    platform = "v4l2"
+    description = "Intel GPU (QSV / Xe)"
+    gpuVendors = ["intel"]
+    inputParameters = "-init_hw_device qsv=hw:/dev/dri/renderD128 -filter_hw_device hw -rtbufsize 512M -thread_queue_size 4096"
+    videoFilter = "format=nv12"
+    # QSV defaults to 3 B-frames and idr_interval=0 (only frame 0 is a real IDR).
+    # That makes downstream `-c copy` trims unplayable. Force:
+    #   -bf 0           : no B-frames -> PTS==DTS, monotonic
+    #   -idr_interval 1 : every keyframe is a true IDR (seekable)
+    #   -forced_idr 1   : honor -force_key_frames if ever set
+    #   -async_depth 1  : minimize encoder reorder buffer (low latency)
+    outputParameters = "-c:v h264_qsv -profile:v main -preset medium -look_ahead 0 -rc_mode cbr -b:v 8M -maxrate 8M -bufsize 8M -bf 0 -idr_interval 1 -forced_idr 1 -async_depth 1"
+    testInit = "-init_hw_device qsv=hw:/dev/dri/renderD128 -filter_hw_device hw"
+
+[[encoder]]
+    name = "h264_vaapi"
+    platform = "v4l2"
+    description = "VAAPI (AMD/Intel on Linux)"
+    gpuVendors = ["amd", "intel"]
+    inputParameters = "-init_hw_device vaapi=va:/dev/dri/renderD128 -filter_hw_device va -rtbufsize 512M -thread_queue_size 4096"
+    videoFilter = "format=nv12,hwupload"
+    # -bf 0 ensures monotonic DTS for downstream `-c copy` trims.
+    # Note: h264_vaapi does not support -rc_mode; CBR is achieved via matching -b:v/-maxrate/-bufsize.
+    outputParameters = "-c:v h264_vaapi -profile:v main -b:v 8M -maxrate 8M -bufsize 8M -bf 0"
+    testInit = "-init_hw_device vaapi=va:/dev/dri/renderD128"
+
+[[encoder]]
+    name = "h264_videotoolbox"
+    platform = "avfoundation"
+    description = "Apple VideoToolbox H.264"
+    videoFilter = "format=nv12"
+    outputParameters = "-c:v h264_videotoolbox -profile:v main -realtime 1 -allow_sw 1 -b:v 8M -maxrate 8M -bufsize 8M -bf 0"
+
+[[encoder]]
+    name = "h264_qsv"
+    platform = "dshow"
+    description = "Intel GPU (QSV on Windows)"
+    gpuVendors = ["intel"]
+    inputParameters = "-init_hw_device qsv=hw -filter_hw_device hw -rtbufsize 512M -thread_queue_size 4096"
+    videoFilter = "format=nv12"
+    # See QSV (v4l2) block above for the rationale of -bf 0 / -idr_interval 1 /
+    # -forced_idr 1 / -async_depth 1. These are required so trims with `-c copy`
+    # produce playable output instead of a single frozen frame.
+    outputParameters = "-c:v h264_qsv -profile:v main -preset medium -look_ahead 0 -rc_mode cbr -b:v 8M -maxrate 8M -bufsize 8M -bf 0 -idr_interval 1 -forced_idr 1 -async_depth 1"
+    testInit = "-init_hw_device qsv=hw -filter_hw_device hw"
+
+# =========================================================================
+# Common Output Settings
+# =========================================================================
+
+[output]
+    # Additional output flags appended to every stream.
+    # -mpegts_flags +resend_headers+initial_discontinuity makes the muxer
+    # re-emit SPS/PPS at every keyframe and signal discontinuity at start, so a
+    # recorder that joins the UDP stream mid-flight always has decodable headers.
+    extraFlags = "-an -f mpegts -mpegts_flags +resend_headers+initial_discontinuity"

@@ -10,7 +10,6 @@
     * [Raspberry Pi/Linux](LocalPiLinuxSetup)
   * [Equipment Setup](EquipmentSetup)
 * Running in the Cloud
-  * [Overview](CloudOverview)
   * [Installation Instructions](Fly)
 * Competition Setup
   * [Pre-Competition Setup](2100PreCompetitionSetup)

@@ -1,8 +1,14 @@
-# Installation on fly.io
+In a Cloud-based installation, all that is needed is browsers (and a good internet connection). This is a good option for club competitions since many clubs have wifi.
 
-Fly.io is a cloud service that is, in effect, free, because the monthly charges are extremely low (2 to 3US$), below the minimum billable amount of 5 US$
+### Cloud-Based Setup
 
-To make the process easier, a web application dashboard has been created.  If you prefer doing all the steps by hand, you can see the manual installation process [here](Fly_Manual) .
+When using a cloud-based setup, especially for club meets, the only requirement is to have devices that connect to a local area wifi.  All the various display screens and devices connect to the cloud through the wifi.  In a simple club meet, flags are often used for refereeing (the [speaker enters the decisions](Refereeing.md#manual-refereeing)) or to use [phones as refereeing devices](Refereeing.md#mobile-device-refereeing).![Slide1](img/Fly/Slide1.SVG)
+
+### Fly.io
+
+To run on the cloud, the simplest solution is to run on [Fly.io](https://fly.io).   Fly.io is a cloud service that is, in effect, free, because the monthly charges are extremely low (2 to 3US$), below the minimum billable amount of 5 US$
+
+When running on fly.io, you get your own personal copy of OWLCMS and of all your data.  OWLCMS only provides an application dashboard to run the installation and upgrade commands on your behalf.
 
 ### Login to the Dashboard
 
@@ -16,44 +22,18 @@ You need a fly.io account to proceed.  If you don't have one, use the black butt
 
 The applications that will be created will belong to you.  The only thing the application does is type commands for you.  At any time, you can switch to using the fly commands directly and do what you want.
 
-### Create owlcms
+### Create a cloud-based OWLCMS
 
-The first application we will create is owlcms.  *If you run owlcms on-site and only want to publish results, skip this step.*
+![image-20260717122244974](img/Fly/image-20260717122244974.png)
 
-![30owlcms](nimg/1220FlyCloud/30owlcms.png)
-
-1. Type the name you want for your owlcms site.  The suffix `.fly.dev` will be added to create the site location. In this example, this would be [https://wl-gym.fly.dev](https://wl-gym.fly.dev)   If you own a domain name, you can later alias [a name you own](https://fly.io/docs/apps/custom-domain/).
+1. Type the name you want for your owlcms site.  The suffix `.fly.dev` will be added to create the site location. In this example, this would be [https://mymeet.fly.dev](https://mymeet.fly.dev)   If you own a domain name, you can later alias [a name you own](https://fly.io/docs/apps/custom-domain/).
 
 2. Select a location in the world where the owlcms will run.  There are more than 20 available.  The locations are normally shown to you from the closest to the farthest to where you are.  However, it is usually preferable to pick one in your own country, even if it is further than one in a neighboring country.
 
 3. Click the Create button.   An area at the bottom of the page will appear to show you the work being done.
 
-   > NOTE: There is a step in the process that sometimes takes two minutes to complete (but is sometimes instantaneous).  Just be patient.
+4. You are done.
 
-If all you wanted was to run owlcms, you are done.
+### Additional Modules
 
-### Create publicresults
-
-If you want people on the Internet to see the competition scoreboard, keep going.  The process is the same whether you are running owlcms in the cloud or on a laptop at the competition site.
-
-Pick a name for your internet scoreboard application.  Pick something short. In this fake example, people would have to type `wl-gym-results.fly.dev` on their phone, so that would not be a good choice.     If you own a domain, you can later make the scoreboard accessible [under a name you own](https://fly.io/docs/apps/custom-domain/).
-
-![40PublicResults](nimg/1220FlyCloud/40PublicResults.png)
-
-The process is normally very quick because there is no database creation.
-
-### Make publicresults trust owlcms
-
-The next step is needed so owlcms can be trusted to send information to publicresults.  A random character string is created.  Clicking the button saves it as a secret in both applications and connects them together.  If you are running your owlcms at the competition site, it is easier to pick your own character string, as you will need to type it again.
-
-![50SharedKey](nimg/1220FlyCloud/50SharedKey.png)
-
-If you are running both owlcms and publicresults in the cloud, you are done.
-
-### Connecting an on-site owlcms to a cloud publicresults
-
-This step is only required if you are running owlcms on a machine at the competition site.  Go to the Preparation | Language and System Settings | Connections page.  
-
-Set the URL to reach publicresults cloud application.  Set the secret update key to be the same as you set before for publicresults.  You are now done.
-
-![60SetOnSite](nimg/1220FlyCloud/60SetOnSite.png)
+It is possible to connect your OWLCMS to additional modules, for example to provide scoreboards that can be watched on any phone connected to the internet.  To do so, activate the TRACKER module further down on the same page, and set a Shared Key, also on the same page.
