@@ -9,13 +9,13 @@ package app.owlcms.nui.preparation;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -34,6 +34,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.NotificationUtils;
@@ -89,6 +91,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	private OwlcmsLayout routerLayout;
 	private FlexLayout topBar;
 	private Button clearEligibles;
+	private boolean applyingUrlFilter;
 
 	/**
 	 * Instantiates the ageGroup crudGrid.
@@ -414,7 +417,9 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.championshipFilter.setItemLabelGenerator((ad) -> ad.translate());
 		this.championshipFilter.setClearButtonVisible(true);
 		this.championshipFilter.addValueChangeListener(e -> {
-			crud.refreshGrid();
+			if (!this.applyingUrlFilter) {
+				crud.refreshGrid();
+			}
 		});
 		crud.getCrudLayout().addFilterComponent(this.championshipFilter);
 		crud.getCrudLayout().addToolbarComponent(new NativeLabel(""));
@@ -422,7 +427,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.activeFilter.addValueChangeListener(e -> {
 			crud.refreshGrid();
 		});
-		this.activeFilter.setLabel(Translator.translate("Active"));
+		this.activeFilter.setLabel(Translator.translate("EditChampionships.HideInactive"));
 		this.activeFilter.setAriaLabel(Translator.translate("ActiveCategoriesOnly"));
 		crud.getCrudLayout().addFilterComponent(this.activeFilter);
 
@@ -435,13 +440,22 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		crud.getCrudLayout().addFilterComponent(clearFilters);
 	}
 
-	/**
-	 * We do not connect to the event bus, and we do not track a field of play (non-Javadoc)
-	 *
-	 * @see com.vaadin.flow.component.Component#onAttach(com.vaadin.flow.component.AttachEvent)
-	 */
 	@Override
-	protected void onAttach(AttachEvent attachEvent) {
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		super.setParameter(event, parameter);
+		Map<String, List<String>> parameters = getUrlParameterMap();
+		List<String> championshipNames = parameters != null ? parameters.get("championship") : null;
+		if (championshipNames != null && !championshipNames.isEmpty()) {
+			Championship championship = Championship.findStored(championshipNames.get(0));
+			if (championship != null) {
+				this.applyingUrlFilter = true;
+				try {
+					this.championshipFilter.setValue(championship);
+				} finally {
+					this.applyingUrlFilter = false;
+				}
+			}
+		}
 	}
 
 	void closeDialog() {

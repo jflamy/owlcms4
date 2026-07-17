@@ -56,6 +56,11 @@ public class ChampionshipsContent extends BaseContent implements OwlcmsContent {
 	}
 
 	@Override
+	public boolean isIgnoreFopFromURL() {
+		return true;
+	}
+
+	@Override
 	public void setRouterLayout(OwlcmsLayout routerLayout) {
 		this.routerLayout = routerLayout;
 	}

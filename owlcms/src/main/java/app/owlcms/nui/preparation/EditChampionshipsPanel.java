@@ -25,6 +25,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.component.UI;
 
 import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -35,6 +37,7 @@ import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.URLUtils;
 
 import ch.qos.logback.classic.Logger;
 
@@ -69,11 +72,11 @@ public class EditChampionshipsPanel extends VerticalLayout {
 
 		ChampionshipRepository.normalizeDefaultTypes();
 		ChampionshipRepository.normalizeCompetitionDefaultFlags();
-		this.showActiveChampionshipsOnly = new Checkbox(Translator.translate("Active"));
-		this.showActiveChampionshipsOnly.setValue(true);
+		this.showActiveChampionshipsOnly = new Checkbox(Translator.translate("EditChampionships.HideInactive"));
+		this.showActiveChampionshipsOnly.setValue(false);
 		this.showActiveChampionshipsOnly.addValueChangeListener(e -> updateChampionshipsTable());
 		this.hideCompetitionDefaults = new Checkbox(Translator.translate("EditChampionships.HideCompetitionDefaults"));
-		this.hideCompetitionDefaults.setValue(true);
+		this.hideCompetitionDefaults.setValue(false);
 		this.hideCompetitionDefaults
 		        .addValueChangeListener(e -> updateChampionshipsTable(Boolean.TRUE.equals(e.getValue())));
 
@@ -216,6 +219,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			new ChampionshipDetailsDialog(championship, this::updateChampionshipsTable).open();
 		});
 		actions.add(championshipButton);
+		actions.add(editAgeGroupsButton(row.name));
 		if (row.championship != null && !row.championship.computeUsesCompetitionDefaults()) {
 			actions.add(resetButton(() -> {
 				new ConfirmationDialog(
@@ -243,6 +247,16 @@ public class EditChampionshipsPanel extends VerticalLayout {
 
 	private Button championshipButton(String name, Runnable action) {
 		Button button = new Button(Translator.translate("Edit"), VaadinIcon.PENCIL.create(), e -> action.run());
+		button.addThemeVariants(ButtonVariant.LUMO_SMALL);
+		return button;
+	}
+
+	private Button editAgeGroupsButton(String championshipName) {
+		Button button = new Button(Translator.translate("EditAgeGroups"), VaadinIcon.PENCIL.create(), e -> {
+			QueryParameters parameters = new QueryParameters(Map.of("championship", List.of(championshipName)));
+			String url = URLUtils.getUrlFromTargetClass(AgeGroupContent.class, null, parameters);
+			UI.getCurrent().getPage().executeJs("window.open($0, $1)", url, AgeGroupContent.class.getSimpleName());
+		});
 		button.addThemeVariants(ButtonVariant.LUMO_SMALL);
 		return button;
 	}
