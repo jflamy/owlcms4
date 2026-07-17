@@ -18,7 +18,7 @@
 4400UserInstructionsForZoom.md
 Announcing.md
 Breaks.md
-CloudOverview.md
+Championships.md
 Configuration.md
 Countries.md
 Credentials.md
@@ -26,12 +26,10 @@ DefenderOff.md
 Demo1.md
 Demo2.md
 Displays.md
-Docker.md
 EquipmentSetup.md
 FeatureToggles.md
 FlagsPictures.md
 Fly.md
-Fly_Manual.md
 Jury.md
 JuryReplays.md
 Keypads.md
@@ -39,6 +37,7 @@ Licensing.md
 LocalControlPanel.md
 LocalDownloads.md
 LocalMacSetup.md
+LocalMacSetupLegacy.md
 LocalManual.md
 LocalPiLinuxSetup.md
 LocalWindowsInstaller.md
@@ -51,6 +50,7 @@ PostgreSQL.md
 Preparation.md
 PublicResults.md
 PublicResults_Local.md
+RecordsRepository.md
 Refereeing.md
 ResultDocuments.md
 ScoreBasedCompetitions.md
@@ -59,6 +59,7 @@ Streaming.md
 Styles.md
 Support.md
 TemplateVariables.md
+Tracker.md
 Translation.md
 UploadingLocalSettings.md
 WiFiPlusEthernet.md

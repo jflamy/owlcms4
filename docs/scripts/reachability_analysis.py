@@ -116,22 +116,11 @@ referenced = {img: {'used_by_reachable': set(), 'used_by_unreachable': set()} fo
 
 for md, imgs in images_ref.items():
     for img in imgs:
-        imgn = img
-        # direct match
-        if imgn in referenced:
+        if img in referenced:
             if md in reachable:
-                referenced[imgn]['used_by_reachable'].add(md)
+                referenced[img]['used_by_reachable'].add(md)
             else:
-                referenced[imgn]['used_by_unreachable'].add(md)
-        else:
-            # try basename match
-            b = Path(imgn).name
-            matches = [x for x in all_images if x.endswith('/'+b) or x==b]
-            for m in matches:
-                if md in reachable:
-                    referenced[m]['used_by_reachable'].add(md)
-                else:
-                    referenced[m]['used_by_unreachable'].add(md)
+                referenced[img]['used_by_unreachable'].add(md)
 
 used_reachable = [img for img,data in referenced.items() if data['used_by_reachable']]
 used_only_unreachable = [img for img,data in referenced.items() if (not data['used_by_reachable']) and data['used_by_unreachable']]
