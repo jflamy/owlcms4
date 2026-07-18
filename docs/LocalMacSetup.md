@@ -17,15 +17,15 @@ Click on the link to download [**this file**](https://github.com/Homebrew/brew/r
 -  Click on **Continue** and accept all the proposed defaults.
 
   - You will be asked for your passoword or TouchId.
-  - At the end of the process (when the **Close** button is shown, a confusing text is shown. ***Blissfully ignore it.*** 
-  - When asked to move the .pkg installer to trash, you can accept.
+  - When the **Close** button is shown, just Close and ignore the "Next Steps" that are proposed.
+  - When asked to move the .pkg installer to trash, accept.
 
 #### 2. Install the control panel
 
 - Using the Application icon ![image-20260603094422742](img/LocalMacSetup/image-20260603094422742.png)  in the Dock, type `Terminal` to locate the Terminal application. Start it by clicking on the icon.
   ![image-20260717105936731](img/LocalMacSetup/image-20260717105936731.png)
 
-- If you have a newer Apple Silicon Mac (M1/M2/M3...) , copy and paste the following to the terminal window (move your mouse over the text and click on the box at the top right to copy)
+- If you have a newer Apple Silicon Mac (M1/M2/M3...) , copy and paste the following to the terminal window (move your mouse over the command text and click on the box at the top right to copy)
   ```
   /opt/homebrew/bin/brew install --cask owlcms/brew/controlpanel
   ```
@@ -35,7 +35,7 @@ Click on the link to download [**this file**](https://github.com/Homebrew/brew/r
   /usr/local/bin/brew install --cask owlcms/brew/controlpanel
   ```
 
-- The OWLCMS control panel will then be visible as owlcms in the Applications folder
+- After the installation runs, OWLCMS control panel will be visible as owlcms in the Applications folder
   ![image-20260717114320159](img/LocalMacSetup/image-20260717114320159.png)
   
   

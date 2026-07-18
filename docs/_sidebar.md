@@ -11,8 +11,12 @@
   * [Equipment Setup](EquipmentSetup)
 * Running in the Cloud
   * [Installation Instructions](Fly)
+* Pre-Competition Setup
+  * [Initial Configuration](2000PreCompetition)
+  * [Competition Information and Rules](2100CompetitionInformationAndRules)
+  * [Language and System Settings](2110LanguageAndSystemSettings)
+  * [Fields of Play](2130FieldsOfPlay)
 * Competition Setup
-  * [Pre-Competition Setup](2100PreCompetitionSetup)
   * [Registration](2200Registration)
   * [Edit Athlete Entries](2300EditAthleteEntries)
   * [Championships](Championships)
@@ -42,7 +46,7 @@
   * [Replays](JuryReplays)
 * Advanced Topics
   * [Optional Modified Competition Rules](ModifiedRules)
-  * [Competition Options Reference](2600AdvancedPreCompetitionSetup)
+  * [Competition Rules Reference](2101ReferenceCompetiionInformationAndRules)
   * [System Settings Reference](2120AdvancedSystemSettings)
   * [Record Repository](RecordsRepository)
   * [Packaging Local Settings](UploadingLocalSettings)
@@ -54,6 +58,7 @@
   * [Configuration Parameters](Configuration)
   * [Feature Toggles](FeatureToggles)
   * [Simulation and Load Testing](Simulation)
+  * [Using Tracker](Tracker)
   * [Keypad Configurations](Keypads)
   * [MQTT Server Configuration](MQTT)
   * [MQTT Messaging Specification](MQTTMessages)

@@ -4,7 +4,27 @@
 
 These settings are used when running large competitions, or when running in the cloud.
 
-### Access Control
+### Connections
+
+![image-20260717204355622](img/2120AdvancedSystemSettings/image-20260717204355622.png)
+
+#### External Event Feeds
+
+The first two sections are completely interchangeable; their names are historical and reflect typical usage.  The selection of the format used depends entirely on what you put in as URL
+
+- Public Results Scoreboard URL 
+  - The `publicresults Cloud Application URL` is normally refers to a [Tracker](Tracker.md) program running in the cloud.   It will take the form `wss://scoreboards.fly.dev/ws`  (where scoreboard is the actual name of the application in the cloud).  To create a Tracker in the cloud, you will use the same steps as described on the [Cloud Installation](Fly) page, but you will use the Tracker and Shared Key sections.
+  - The `Secret Update Key` is the one set using the Shared Key section.  There is normally one if the target is in the cloud
+- URL for Video Data
+  - There are two formats used for Video Data.  The first one is exactly the same as the scoreboard, except that video data is typically processed on a machine on the same network as OWLCMS.  So the difference is that the URL is of the form `ws://192.168.1.101/ws` where there is no encryption (ws instead of css, and typically a numerical IP address is used.)
+  - For some applications developed before the websocket (ws) format, you can use the legacy HTTP version.  In that case, the URL is whatever the application specifies. On a local area network, it will probably be something like `http://192.168.1.101/video` as determined by the receiver.
+  - The `Secret Update Key` is sometimes omitted when running on a closed local network with a dedicated router.
+
+#### Refereeing Devices MQTT Server
+
+This section is used if you wish to add protection to the OWLCMS server.  It is normally not used when running locally, and when running remotely you need to use secrets so the MQTT broker inside OWLCMS knows what to require `OWLCMS_MQTTUSERNAME` and `OWLCMS_MQTTPASSWORD` need to be set as secrets if security is expected.
+
+
 
 This section controls who can access the system.
 
