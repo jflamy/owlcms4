@@ -38,16 +38,16 @@ public interface RequireDisplayLogin extends BeforeEnterObserver {
 			return;
 		}
 
-		boolean isDisplayAuthenticated = OwlcmsSession.isDisplayAuthenticated();
+		boolean isDisplayAuthenticated = OwlcmsSession.computeDisplayAuthenticated();
 		if (isDisplayAuthenticated) {
 			// no check required
-			OwlcmsSession.setDisplayAuthenticated(true);
 			return;
 		}
 
 		String path = event.getLocation().getPath();
 		QueryParameters queryParameters = event.getLocation().getQueryParameters();
 		String displayList = Config.getCurrent().getParamDisplayList();
+		// An explicit empty OWLCMS_DISPLAYPIN disables any database display PIN.
 		String displayPin = Config.getCurrent().getParamDisplayPin();
 		String backdoorList = Config.getCurrent().getParamBackdoorList();
 

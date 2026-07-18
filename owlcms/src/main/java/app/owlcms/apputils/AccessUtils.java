@@ -37,7 +37,9 @@ public class AccessUtils {
 
 			String pinOverride = Config.getCurrent().getParamPin();
 			String dbPin = Config.getCurrent().getPin();
-			return checkPassword(password, pinOverride, dbPin, "TO");
+			boolean passwordValid = checkPassword(password, pinOverride, dbPin, "TO");
+			OwlcmsSession.setAuthenticated(passwordValid);
+			return passwordValid;
 		}
 		return true;
 	}
@@ -54,7 +56,7 @@ public class AccessUtils {
 	}
 
 	public static boolean checkDisplayAuthenticated(String password) {
-		boolean isAuthenticated = OwlcmsSession.isDisplayAuthenticated();
+		boolean isAuthenticated = OwlcmsSession.computeDisplayAuthenticated();
 
 		if (!isAuthenticated) {
 			String displayList = Config.getCurrent().getParamDisplayList();
@@ -62,14 +64,16 @@ public class AccessUtils {
 			String clientIp = getClientIp();
 			boolean ipIsAllowed = noDisplayList || AccessUtils.isIpAllowedForDisplay(clientIp);
 			if (!ipIsAllowed) {
-				OwlcmsSession.setAuthenticated(false);
+				OwlcmsSession.setDisplayAuthenticated(false);
 				return false;
 			}
 
 			// check for PIN if one is specified
 			String pinOverride = Config.getCurrent().getParamDisplayPin();
 			String dbPin = Config.getCurrent().getDisplayPin();
-			return checkPassword(password, pinOverride, dbPin, "Display");
+			boolean passwordValid = checkPassword(password, pinOverride, dbPin, "Display");
+			OwlcmsSession.setDisplayAuthenticated(passwordValid);
+			return passwordValid;
 		}
 		return true;
 	}
@@ -204,23 +208,18 @@ public class AccessUtils {
 		if (pinOverride != null && pinOverride.isBlank()) {
 			// no check
 			logger.info("empty {} password override", loggingContext);
-			OwlcmsSession.setAuthenticated(true);
 			return true;
 		} else if (pinOverride != null && !pinOverride.isBlank()) {
 			if (pinOverride.contentEquals(password)) {
 				logger.info("{} password override successful", loggingContext);
-				OwlcmsSession.setAuthenticated(true);
 				return true;
 			} else {
 				logger.error("{} password override unsuccessful", loggingContext);
-				OwlcmsSession.setAuthenticated(false);
 				return false;
 			}
 		} else if (dbPin == null || hashedPassword.contentEquals(dbPin)) {
-			OwlcmsSession.setAuthenticated(true);
 			return true;
 		} else {
-			OwlcmsSession.setAuthenticated(false);
 			return false;
 		}
 	}

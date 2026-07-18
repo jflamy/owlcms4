@@ -25,12 +25,13 @@ import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.nui.shared.RequireDisplayLogin;
 import ch.qos.logback.classic.Logger;
 
 @SuppressWarnings("serial")
 @Route("displays/resultsLeaders")
 
-public class WarmupScoreboardPage extends AbstractResultsDisplayPage {
+public class WarmupScoreboardPage extends AbstractResultsDisplayPage implements RequireDisplayLogin {
 
 	Logger logger = (Logger) LoggerFactory.getLogger(WarmupScoreboardPage.class);
 	Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());

@@ -309,8 +309,12 @@ public class OwlcmsSession {
 		return Boolean.TRUE.equals(getAttribute(AUTHENTICATED));
 	}
 
+	public static boolean computeDisplayAuthenticated() {
+		return isAuthenticated() || isDisplayAuthenticated();
+	}
+
 	public static boolean isDisplayAuthenticated() {
-		return isAuthenticated() || Boolean.TRUE.equals(getAttribute(DISPLAY_AUTHENTICATED));
+		return Boolean.TRUE.equals(getAttribute(DISPLAY_AUTHENTICATED));
 	}
 
 	/**
