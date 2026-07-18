@@ -1,12 +1,15 @@
-2100PreCompetitionSetup.md
+2000PreCompetition.md
+2100CompetitionInformationAndRules.md
+2101ReferenceCompetiionInformationAndRules.md
+2110LanguageAndSystemSettings.md
 2120AdvancedSystemSettings.md
 2125UploadingCustomizations.md
+2130FieldsOfPlay.md
 2200Registration.md
 2210DefineAgeGroupsAndCategories.md
 2300EditAthleteEntries.md
 2400PreCompetitionDocuments.md
 2500RecordsManagement.md
-2600AdvancedPreCompetitionSetup.md
 3000WeighIn.md
 3100AnnouncingIntro.md
 3200Marshaling.md

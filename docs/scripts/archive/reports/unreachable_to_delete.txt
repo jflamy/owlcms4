@@ -1,0 +1,25 @@
+UNREACHABLE DOCS MOVE PLAN
+
+These paths are candidates to move under docs/obsolete/ while preserving their
+relative structure. This is a report only. No files were deleted or moved.
+
+MARKDOWN FILES
+/Users/jflamy/git/owlcms_67_1/docs/CloudOverview.md
+/Users/jflamy/git/owlcms_67_1/docs/Docker.md
+/Users/jflamy/git/owlcms_67_1/docs/EquipmentSetup/FullVideo/setup.md
+/Users/jflamy/git/owlcms_67_1/docs/GAMX_NORMALIZATION_PLAN.md
+
+UNUSED MEDIA FILES
+/Users/jflamy/git/owlcms_67_1/docs/nimg/2100CompetitionInformation/11.png
+/Users/jflamy/git/owlcms_67_1/docs/nimg/2100CompetitionInformation/41a.png
+/Users/jflamy/git/owlcms_67_1/docs/nimg/2100PreCompetitionSetup/10.png
+/Users/jflamy/git/owlcms_67_1/docs/nimg/2100PreCompetitionSetup/20.png
+/Users/jflamy/git/owlcms_67_1/docs/nimg/2100PreCompetitionSetup/40.png
+/Users/jflamy/git/owlcms_67_1/docs/nimg/2100PreCompetitionSetup/60.png
+/Users/jflamy/git/owlcms_67_1/docs/nimg/2100PreCompetitionSetup/70.png
+
+MEDIA REFERENCED ONLY BY UNREACHABLE PAGES
+None reported.
+
+The existing move_to_archive.py script currently supports --dry-run for the
+unused media entries, but does not move Markdown files.

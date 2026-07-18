@@ -1,7 +1,12 @@
 USED_BY_REACHABLE:
-img/2100PreCompetitionSetup/image-20260717160042917.png
-img/2100PreCompetitionSetup/image-20260717161424145.png
-img/2100PreCompetitionSetup/image-20260717162444891.png
+img/2000PreCompetition/image-20260717181931137.png
+img/2100CompetitionInformation/image-20260717202601557.png
+img/2100CompetitionInformationAndRules/image-20260717161424145.png
+img/2100CompetitionInformationAndRules/image-20260717162444891.png
+img/2100CompetitionInformationAndRules/image-20260717184538614.png
+img/2101ReferenceCompetiionInformationAndRules/image-20260717191621802.png
+img/2110LanguageAndSystemSettings/image-20260717203744850.png
+img/2120AdvancedSystemSettings/image-20260717204355622.png
 img/2500RecordsManagement/image-20260316142736214.png
 img/2500RecordsManagement/image-20260603115701984.png
 img/2500RecordsManagement/image-20260603150656099.png
@@ -97,12 +102,8 @@ img/LocalControlPanel/image-20260717133650476.png
 img/LocalControlPanel/image-20260717133755668.png
 img/LocalControlPanel/image-20260717134055333.png
 img/LocalControlPanel/image-20260717134410894.png
-img/LocalMacSetup/image-20260603091558899.png
 img/LocalMacSetup/image-20260603094422742.png
-img/LocalMacSetup/image-20260603100336121.png
-img/LocalMacSetup/image-20260703080716068.png
 img/LocalMacSetup/image-20260717104511676.png
-img/LocalMacSetup/image-20260717104642781.png
 img/LocalMacSetup/image-20260717105936731.png
 img/LocalMacSetup/image-20260717114320159.png
 img/MQTT/juryBox.png
@@ -228,15 +229,8 @@ nimg/1110pi/pi_62.png
 nimg/1110pi/pi_70.png
 nimg/1220FlyCloud/10Home.png
 nimg/1220FlyCloud/20Login.png
-nimg/2100PreCompetitionSetup/10.png
-nimg/2100PreCompetitionSetup/11.png
-nimg/2100PreCompetitionSetup/20.png
 nimg/2100PreCompetitionSetup/30.png
-nimg/2100PreCompetitionSetup/40.png
-nimg/2100PreCompetitionSetup/41a.png
 nimg/2100PreCompetitionSetup/50.png
-nimg/2100PreCompetitionSetup/60.png
-nimg/2100PreCompetitionSetup/70.png
 nimg/2120AdvancedSystemSettings/10.png
 nimg/2120AdvancedSystemSettings/20.png
 nimg/2120AdvancedSystemSettings/30.png
@@ -374,4 +368,10 @@ USED_ONLY_BY_UNREACHABLE_PAGES:
 
 
 UNUSED_IMAGES:
-
+nimg/2100CompetitionInformation/11.png
+nimg/2100CompetitionInformation/41a.png
+nimg/2100PreCompetitionSetup/10.png
+nimg/2100PreCompetitionSetup/20.png
+nimg/2100PreCompetitionSetup/40.png
+nimg/2100PreCompetitionSetup/60.png
+nimg/2100PreCompetitionSetup/70.png
