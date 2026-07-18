@@ -15,23 +15,31 @@ To edit championships, use the Define Championships button on the Prepare Compet
 This brings up a list of championships
 ![image-20260718093055653](img/2140Championships/image-20260718093055653.png)
 
-You will observe thast some championships have a "Reset to Defaults" button.  These championships have one or more settings that differs from the default defined on the Competiion Rules page.  This is completely normal, the Competition-wide default is just a convenience for commonly used values.
+You will observe that some championships have a "Reset to Defaults" button.  These championships have one or more settings that differ from the default defined on the Competition Rules page.  This is completely normal; the Competition-wide default is just a convenience for commonly used values.
 
 ### Age Groups
 
-Age groups define the actual categories used by each championship.
+Age groups and the bodyweight categories are the building blocks for championships.  
 
-> **You must define the age groups before defining the championships**
+- You define championships first, so you can connect age groups to the championship they belong to.
+  - You can also create an age group without a championship -- A championship with the same name will then be created.  This is common for Youth age groups (Say a U15 championship)
+- An age group can belong to a single championship -- it is the age group that will
+- This is why there is a JR M age group with the same categories as a SR M age group. You assign the JR M and JR F categories to the Junior championship.
+- If you have two Senior Championships going on at once (say a National and a Continental), you would create additional age groups with a different codes (say SR for the continental and CanSR for a Canada Senior)
+- For Masters, it is the same. If you have two Masters championships going on at once (say a National and a Continental), you need to duplicate the age groups and give them different codes. 
 
 ### IWF-Style Championships
 
-As a first example, we use a traditional Junior Championship.  
+As a first example, we use a traditional Junior Championship. We observe that it is identical to the Competition defaults  
 
-![image-20260501204828475](img/2140Championships/image-20260501204828475.png)
+![image-20260718151501808](img/2140Championships/image-20260718151501808.png)
 
-We intentionally uncheck the "Use default values" checkbox to change the medals that can be won.
+And opening it confirms
+![image-20260718151718078](img/2140Championships/image-20260718151718078.png)
 
-![image-20260501205525473](img/2140Championships/image-20260501205525473.png)
+We intentionally uncheck the "Use default values" checkbox to change the medals that can be won so all 3 medals are given out.
+
+![image-20260718151903644](img/2140Championships/image-20260718151903644.png)
 
 In this example,
 
@@ -39,38 +47,39 @@ In this example,
 - The best Athletes are determined using GAMX as adopted by IWF
 - Team points follow the normal IWF rules 28 25 23 then 22, 21, etc.
 - Teams win according to the sum of points
-- There are 8 athletes per team, maximum 2 per category.   *Team Selection is explained [Below](#team-selection)*
+- There are 8 athletes per team, maximum 2 per category.   
+  - Team Selection is explicit and  is explained [Below](#team-selection)
 
-Rules can then be adjusted
+
+Rules can then be adjusted as we want, and apply to the championship
 
 - Smaller teams, smaller limits per category
 - Use different rules for the team (take top N men and top M women, for example)
 
-### **Score Based Championships**
+### **Score Based Awards**
 
-Many federation use score-based systems to assign a score to a team.,  This is done by changing the radio button and selecting a scoring system.
+Many federation use score-based systems to assign a score to a team.,  This is done by changing the radio button and selecting a scoring system.  For example we can change the team awards so the team with the best sum of GAMX wins, counting the top 4 men and top 4 women respectively.
 
-![image-20260501205759881](img/2140Championships/image-20260501205759881.png)
+![image-20260718152256954](img/2140Championships/image-20260718152256954.png)
 
 ### Mixed Championships
 
 Historically, mixed teams championships are defined by adding the points of the men and women teams.  The example below does this
 
 - The format selected is "sum of points"
-- Because adding two teams together yields a large number of participants, team members are explicitly selected, or the top N results are used, or the top N men and top N women are used
+- We take the best 8 (that means all) points for men and the best 8 women (there are 8 maximum)
+  - This is not really practical, so it would likely be something like 4 best of each gender, or an explicit team selection
 
-![image-20260501212233278](img/2140Championships/image-20260501212233278.png)
+
+![image-20260718153349131](img/2140Championships/image-20260718153349131.png)
 
 ### **Score-based Mixed Championships**
 
 There are now scoring formulas such as the GAMX series that are equitable for men and women, such that it is possible to add men and women scores together. "Sum of Scores"  is selected
 
-- In this example, instead of selecting the team members explicitly, we use the top 4 men scores and the top 4 women scores
-- to include all the men and all the women, simply set the top N value to the size of the teams, thereby including all athletes.
+- In this example, we use the top 4 men scores and the top 4 women scores.
 
-![image-20260501212359805](img/2140Championships/image-20260501212359805.png)
-
-- We could have just added the men+women teams together, and we could have decided to just pick the best n men and best n women instead of naming them in advance.  Each championship can have its 
+![image-20260718153536422](img/2140Championships/image-20260718153536422.png)
 
 ### Team Selection
 
