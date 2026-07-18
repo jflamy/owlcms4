@@ -10,6 +10,12 @@
 
 **New in Release 67.1**
 
+67.1.0-rc03: Documentation
+  - General: separated initial/typical from advanced setup, updated screenshots
+  - Documented updated macOS installation
+  - Documented Championships
+  - Documented Technical Officials and IWF-style timetable assignment
+
 67.1.0: Empty databases use IWF 2026-08 age groups by default
   - The earlier 2025 age group files remain available using the drop down on the Age Groups configuration page
 
