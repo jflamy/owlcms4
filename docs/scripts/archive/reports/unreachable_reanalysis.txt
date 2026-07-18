@@ -1,4 +1,1 @@
-CloudOverview.md
-Docker.md
-EquipmentSetup/FullVideo/setup.md
-GAMX_NORMALIZATION_PLAN.md
+

@@ -3,8 +3,8 @@
 2101ReferenceCompetiionInformationAndRules.md
 2110LanguageAndSystemSettings.md
 2120AdvancedSystemSettings.md
-2125UploadingCustomizations.md
-2130FieldsOfPlay.md
+2130SessionsAndFieldsOfPlay.md
+2140Championships.md
 2200Registration.md
 2210DefineAgeGroupsAndCategories.md
 2300EditAthleteEntries.md
@@ -19,9 +19,9 @@
 4200PrepareZoomBroadcasting.md
 4300Zoom.md
 4400UserInstructionsForZoom.md
+5040AgeGroupDefinitions.md
 Announcing.md
 Breaks.md
-Championships.md
 Configuration.md
 Countries.md
 Credentials.md
@@ -51,8 +51,6 @@ OBS.md
 OBSSceneSwitching.md
 PostgreSQL.md
 Preparation.md
-PublicResults.md
-PublicResults_Local.md
 RecordsRepository.md
 Refereeing.md
 ResultDocuments.md

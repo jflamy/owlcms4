@@ -1,14 +1,12 @@
 Move log - generated
 Starting docs obsolete move (move)
-MOVED MD: CloudOverview.md -> obsolete/CloudOverview.md
-MOVED MD: Docker.md -> obsolete/Docker.md
-MOVED MD: EquipmentSetup/FullVideo/setup.md -> obsolete/EquipmentSetup/FullVideo/setup.md
-MOVED MD: GAMX_NORMALIZATION_PLAN.md -> obsolete/GAMX_NORMALIZATION_PLAN.md
-MOVED MEDIA: nimg/2100CompetitionInformation/11.png -> obsolete/nimg/2100CompetitionInformation/11.png
-MOVED MEDIA: nimg/2100CompetitionInformation/41a.png -> obsolete/nimg/2100CompetitionInformation/41a.png
-MOVED MEDIA: nimg/2100PreCompetitionSetup/10.png -> obsolete/nimg/2100PreCompetitionSetup/10.png
-MOVED MEDIA: nimg/2100PreCompetitionSetup/20.png -> obsolete/nimg/2100PreCompetitionSetup/20.png
-MOVED MEDIA: nimg/2100PreCompetitionSetup/40.png -> obsolete/nimg/2100PreCompetitionSetup/40.png
-MOVED MEDIA: nimg/2100PreCompetitionSetup/60.png -> obsolete/nimg/2100PreCompetitionSetup/60.png
-MOVED MEDIA: nimg/2100PreCompetitionSetup/70.png -> obsolete/nimg/2100PreCompetitionSetup/70.png
+MOVED MEDIA: img/PublicResults/Example/GkwHZ4ZHeW.png -> obsolete/img/PublicResults/Example/GkwHZ4ZHeW.png
+MOVED MEDIA: img/PublicResults/Example/RIxGO9RShj.png -> obsolete/img/PublicResults/Example/RIxGO9RShj.png
+MOVED MEDIA: img/PublicResults/Example/X0qHw40LKh.png -> obsolete/img/PublicResults/Example/X0qHw40LKh.png
+MOVED MEDIA: img/PublicResults/Example/layHD1stff.png -> obsolete/img/PublicResults/Example/layHD1stff.png
+MOVED MEDIA: img/PublicResults/Example/vC53fjpSuq.png -> obsolete/img/PublicResults/Example/vC53fjpSuq.png
+MOVED MEDIA: img/PublicResults/LocalPublicResults/05_checkConnectivity.png -> obsolete/img/PublicResults/LocalPublicResults/05_checkConnectivity.png
+MOVED MEDIA: img/PublicResults/LocalPublicResults/06_actualTest.png -> obsolete/img/PublicResults/LocalPublicResults/06_actualTest.png
+MOVED MEDIA: img/PublicResults/LocalPublicResults/Slide1.SVG -> obsolete/img/PublicResults/LocalPublicResults/Slide1.SVG
+MOVED MEDIA: nimg/2210DefineAgeGroupsAndCategories/080_loadDefinitionFile.png -> obsolete/nimg/2210DefineAgeGroupsAndCategories/080_loadDefinitionFile.png
 Move operation completed

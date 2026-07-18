@@ -1,30 +1,13 @@
 The next step in preparing a competition is registering the athletes.  This involves
-
-- Defining the age groups and the categories
-- Defining the competition sessions
 - Entering the initial list of participating athletes
-- Assigning athletes to groups
+- Defining an initial schedule of competition sessions
+- Assigning athletes to sessions
 
 These steps are performed from the `Prepare Competition` page
 
-![10](nimg/2200Registration/10a.png)
+![image-20260718113519564](img/2200Registration/image-20260718113519564.png)
 
 
-
-## Defining Age Groups and Categories
-
-owlcms assigns athletes to their correct age group and body weight category within the age group.  In order for this to work, the definitions must be correct according to the competition's rules.
-
-***It is therefore very important that the age groups and categories be defined first !***
-
-- By default, OWLCMS is set up for an informal club meeting, with no age restrictions and additional light body weight categories for kids.  We will use this simple setup for most of this tutorial. 
-
-- OWLCMS also supports all the usual variations for normal and Masters age groups. **Please refer to the [Define Age Groups and Categories](2210DefineAgeGroupsAndCategories) page for how to proceed for the following cases.**
-
-  - Official IWF age groups and bodyweight categories.
-  - Specific Age Groups for a federation (there may be a predefined age group definition for you to use)
-
-  - Masters competitions, where athletes are automatically assigned to an age group based on their birth date according to IWF Masters rules
 
 ## Registering the Athletes
 
@@ -58,12 +41,12 @@ See below for explicit category assignments.
 
    ![20](nimg/2200Registration/20a.png)
 
-2. The groups that you use on the "Athletes" tab **must** be defined on the second "Groups" tab.  If you need new groups, go add them to the Groups tab. An example of the Groups tab is shown below.
+2. The groups that you use on the "Athletes" tab **must** be defined on the second "Sessions" tab.  If you need new groups, go add them to the Sessions tab. An example of the Sessions tab is shown below.
 
-   - The program will create groups with the code names you use.  You can use numbers, or any short combinations.
-   - You should use the Description field instead of making complicated group codes.  This will be used as a description.
+   - The program will create groups with the code names you use.  You can use numbers, or any *short* code.
+   - You should use the Description field instead of making complicated group codes.  This will be used as a description. For example, "Men 70 kg B, 65 kg A"
 
-   - You can leave the times alone and fix them later in the program.  But if you are entering them in the spreadsheet either use the format that Excel shows you</u> (which may vary based on your Office and operating system settings) or (even better) use the international `yyyy-MM-dd hh:mm`  format (4-digit year, month, day, 24-hour hour, minutes).
+   - You can leave the times alone and fix them later in the program.  But if you are entering them in the spreadsheet either use the format that Excel shows you (which may vary based on your Office and operating system settings) or (even better) use the international `yyyy-MM-dd hh:mm`  format (4-digit year, month, day, 24-hour hour, minutes).
 
    ![30](nimg/2200Registration/30a.png)
 

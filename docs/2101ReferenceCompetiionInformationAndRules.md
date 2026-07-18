@@ -55,7 +55,7 @@ The screen also allows selecting common variations on IWF rules.
 The page has 3 sections.
 
 - Default Championship Settings: 
-  - These settings are explained on the [Championships](Championships.md) page.
+  - These settings are explained on the [Championships](2140Championships.md) page.
   - They are used when creating a new Championship, and they are also used if you reset an existing championship to default.  
   - When you install OWLCMS, the settings match the TCRR rules for a Junior or Senior competition with medals awarded for Total.
 - `Scoring Systems`

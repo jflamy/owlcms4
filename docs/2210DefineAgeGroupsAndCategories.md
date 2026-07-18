@@ -1,13 +1,21 @@
+When running a competition, it is necessary to define the Categories and Age Groups that will be used.  
 
-OWLCMS computes the category of an athlete based on the age group (based on the birth year) and the body weight.  For example, IWF Youth age groups have different categories than IWF Senior age groups.
+This is done from the Define Age Groups and Categories page
+![image-20260718100602060](img/2210DefineAgeGroupsAndCategories/image-20260718100602060.png)
 
-The age groups and categories are fully customizable. 
+This opens a page with all define Age Groups.  By default OWLCMS create the IWF age groups, a common set of youth age groups, and the Masters age groups.
 
-## Default Open Age Groups and Categories
+![image-20260718100645879](img/2210DefineAgeGroupsAndCategories/image-20260718100645879.png)
 
-In order to keep things simple for club or regional meets, by default there are two "open" divisions active:  one for men and one for women. These divisions cover all ages and all bodyweight categories. 
+## Active and Inactive Age Groups
 
-## IWF Competitions
+In many competitions, an athlete may be eligible to compete in more than one age group.  A typical example is a 16-year-old athlete that would be eligible to Youth, Junior, Senior and Open medals in the same meet.
+
+To facilitate registration work, OWLCMS supports a typical registration method done by entering the athletes' bodyweight category. OWLCMS then assigns them to all age groups in which they fit. To support this convenient way, it is necessary to identify which age groups are active in the competition.
+
+In the screen shot above, only the Open age group is active,and we see that it includes all ages 0-999. So a simple club competition can use this Open category. 
+
+## IWF Age Groups
 
 IWF Competition Age Groups are predefined.  Just select the applicable age groups from the list.  The program will automatically assign the athlete based on age, body weight and qualifying total, if defined.
 
@@ -19,27 +27,14 @@ We type the desired total and click "OK".  You can do the same with the other ca
 
 NOTES:
 
-1. Once we are done with all the categories, we click the blue Update at the topto save the Age Group.
+1. Once we are done with all the categories, we click the blue Update at the top to save the Age Group.
 2. Because this is time consuming, you may prefer to enter the qualifying totals using a spreadsheet.  See further down on this page.
 
-## Age Group Competitions with Bodyweight Categories
+## Editing Age Groups and Bodyweight Categories
 
-An Age Group Competitions with Bodyweight Categories is like an IWF competition, but with additional age groups.
-In such competitions, it is often the case that age groups do not overlap (i.e. under-17 athletes will not be considered to be under-20).  The registration category is used to determine in what group the athletes will compete. You can also have additional eligibility categories (for example an "open" category). The system will assign the athletes to all the categories they are eligible to, so athletes can win multiple medals.
+Let's assume that we want to change the default U13 group to be U12, and also modify the bodyweight categories.
 
-> [!TIP]
->
-> Note: Instead of awarding medals for each bodyweight class, it is possible to have all the athletes in an age group compete together independently of their weight. owlcms provides several scoring systems (Sinclair, Robi, Q-Points, etc.) Please refer to the advanced topic [Score-Based Competitions](ScoreBasedCompetitions) if that is what you are trying to achieve.
-
-From the  `Prepare Competition` page, in the `Registration` section,  select the `Define Age Groups and Categories` button.  
-
-This leads to a list of currently defined age groups.  By default, we see that the two "All Ages Included" age groups are selected, with all the bodyweight categories.
-
-![020_ageGroupList](img/Categories/020_ageGroupList.png)
-
-Editing an Age Group
-
-Let's assume that we want to change the default U13 group to be U12.  We change the code, and the minumum and maximum age range.
+We change the code, and the minumum and maximum age range.
 
 ![20](nimg/2210DefineAgeGroupsAndCategories/20.png)
 
@@ -80,96 +75,8 @@ The default list contains non-standard Masters age groups:
 
 - The applicability of the percentage rule (as opposed to the 20kg rule) is based on the category in which the athlete is registered.  If an athlete has a Masters category selected, he is expected to lift in a Masters group, where the rule will apply to all lifters.  In a mixed group with senior and Masters lifters, the which rule applies would depend on the lifter.  The fairest rule would be to set the category to Senior for all athletes: Because they are qualified as Masters, the dual eligibility athletes can still appear in the Masters result sheets.
 
-## Overriding the Best Athlete Computation
+## Loading an Age Group Definition File
 
-If you have several championships going on at once, you may want to use different settings to compute the best athlete. For example, Youth could be computed with QYouth whereas seniors would be computed with QPoints and masters with QMasters
+The are predefined age group files that can be loaded, or you can load a custom one you created or were given  (see [Age Group and Categories Definitions](5040AgeGroupDefinitions))
 
- It is always possible to override the best athlete scheme used when producing the Excel sheets, but sometimes you may want to produce results with all the categories in the same file.
-
-For this purpose, there is now a new setting in the age group definitions, and a new column in the AgeGroup definition files.
-
-## Creating a Definition File for Local or Federation Settings
-
-If you look at the installation directory under the `local/agegroups` directory, you will notice files with a name similar to `AgeGroups.xlsx` .  
-
-There are two supported age group file formats.
-
-1. The legacy format is the format shown below. The first tab defines the bodyweight categories in use for a given federation or club. The second tab says which bodyweight categories are active for each age group. Existing files in this format continue to load, and missing championships are created automatically when needed.
-2. The new format, used when exporting age groups, has two tabs: `AgeGroups` and `Championships`. The `AgeGroups` tab lists the age group definitions, and the `Championships` tab lists the championship-specific settings. When importing the new format, age groups without a matching championship row fall back to default championship settings.
-
-### Championships Tab
-
-The `Championships` tab describes the championship-specific settings used by the age groups. Each row defines one championship. Boolean columns use `true` or `false`. Set `useCompetitionDefaults` to `true` to inherit the competition-wide defaults; otherwise, fill in the settings that are specific to this championship.
-
-The recommended way to learn the layout is to configure the championships using the interactive `Define Championships` form, export the age groups, and use the exported `Championships` tab as the starting point for your file.
-
-The spreadsheet uses the same defaults and precedence rules as the interactive `Define Championships` dialog.
-
-- If an age group names a championship that has no matching row in the `Championships` tab, it uses the default championship, which reads the competition-wide settings.
-- The competition-wide defaults are the settings from the competition rules and team rules: medals for snatch, clean and jerk, and total; the competition scoring system; team points for first, second, and third place; men's, women's, and mixed team counting limits; maximum team size; and maximum athletes per category. Best athlete, best snatch, and best clean and jerk scoring also default to the competition scoring system.
-- If a championship row has `useCompetitionDefaults` set to `true`, those competition-wide defaults take precedence for `scoringSystem`, `bestAthleteScoringSystem`, `bestSnatchScoringSystem`, `bestCJScoringSystem`, `snatchCJTotalMedals`, `teamPoints1st`, `teamPoints2nd`, `teamPoints3rd`, `mensBestN`, `womensBestN`, `mixedBestN`, `maxTeamSize`, and `maxPerCategory`. The row still supplies the championship `name` and `type`.
-- If `useCompetitionDefaults` is `false`, the championship row values take precedence for those fields. Blank `teamScoringSystem` or `mixedTeamScoringSystem` means sum of points; a scoring-system value means sum of scores using that system. If `snatchCJTotalMedals` is `true`, the medal `scoringSystem` is ignored, because medals are awarded separately for snatch, clean and jerk, and total.
-- Mixed team selection follows the same precedence as the dialog: `explicitMixedTeamMembers=true` uses explicit mixed team members and `explicitTeamSize`; otherwise a positive `mixedBestN` counts the top N mixed results; otherwise `mixedMensBestN` and `mixedWomensBestN` count men's and women's results separately.
-- If `maxTeamSize` is blank, the roster limit defaults to 8. If `maxPerCategory` is blank or 0, the per-category limit defaults to 2.
-
-The radio button choices in the interactive dialog are represented by the presence or absence of values in the spreadsheet.
-
-| Dialog choice | Spreadsheet values |
-| --- | --- |
-| Men/Women team ranking by sum of points | Leave `teamScoringSystem` empty. |
-| Men/Women team ranking by sum of scores | Set `teamScoringSystem` to the scoring system to use. |
-| Mixed team ranking by sum of points | Leave `mixedTeamScoringSystem` empty. |
-| Mixed team ranking by sum of scores | Set `mixedTeamScoringSystem` to the scoring system to use. |
-| Mixed team members selected explicitly | Set `explicitMixedTeamMembers` to `true` and set `explicitTeamSize`. |
-| Mixed team uses the top N mixed results | Set `explicitMixedTeamMembers` to `false` and set `mixedBestN` to a positive number. |
-| Mixed team uses separate men's and women's counts | Set `explicitMixedTeamMembers` to `false`, leave `mixedBestN` empty or 0, and set `mixedMensBestN` and `mixedWomensBestN`. |
-
-| Column | Meaning |
-| --- | --- |
-| `name` | Championship name. This must match the `championship` value used by rows in the `AgeGroups` tab. |
-| `type` | Championship type or age division used for this championship. |
-| `useCompetitionDefaults` | If `true`, the championship inherits the competition-wide defaults. |
-| `scoringSystem` | Scoring system used for medals and ranking in the championship. |
-| `bestAthleteScoringSystem` | Scoring system used for best athlete awards. |
-| `bestSnatchScoringSystem` | Scoring system used for best snatch awards. |
-| `bestCJScoringSystem` | Scoring system used for best clean and jerk awards. |
-| `snatchCJTotalMedals` | If `true`, medals are awarded separately for snatch, clean and jerk, and total. |
-| `teamPoints1st` | Team points awarded for first place. |
-| `teamPoints2nd` | Team points awarded for second place. |
-| `teamPoints3rd` | Team points awarded for third place. |
-| `mensBestN` | Number of men's results counted for team scoring. |
-| `womensBestN` | Number of women's results counted for team scoring. |
-| `teamScoringSystem` | Scoring method used for team results. |
-| `maxTeamSize` | Maximum number of athletes on a team. |
-| `maxPerCategory` | Maximum number of team athletes counted per bodyweight category. |
-| `mixedTeamEnabled` | If `true`, mixed team scoring is enabled for this championship. |
-| `mixedTeamScoringSystem` | Scoring method used for mixed team results. |
-| `explicitMixedTeamMembers` | If `true`, mixed team members are selected explicitly. |
-| `explicitTeamSize` | Number of athletes required when team membership is explicit. |
-| `mixedBestN` | Number of overall mixed team results counted. If empty or 0, the overall mixed-results mode is not selected; use `mixedMensBestN` and `mixedWomensBestN` instead. |
-| `mixedMensBestN` | Number of men's results counted for mixed team scoring. |
-| `mixedWomensBestN` | Number of women's results counted for mixed team scoring. |
-
-This step needs to be done on a local installation.  Once you are ready, you can upload you local settings to a cloud installation, as explained in [this page](UploadingLocalSettings)
-
-Let's say we want to create age groups for our annual U15 U17 competition.  We go to the local/agegroups directory, and copy the `AgeGroups.xlsx` file to another name (for example `AgeGroupsU15U17.xlsx` or whatever suits you).
-
-![090_spreadsheet_qtot](img/Categories/090_spreadsheet_qtot.png)
-
-In the example above, the cells outlined in red is interpreted to mean that in women's <u>category U17 F59, the qualifying total is 77</u>
-
-So in this example
-
-- there are four age groups defined (U15 and U17 for women, U15 and U17 for men)
-- the four groups are active (column G)
-- from column H onward, each cell defines the body weight categories and (if present, the qualifying total)
-  - The U17 female group has bodyweight categories F40, F45, F49, F55, F59, F83 and so on.
-  - The first part of each cell is a **bodyweight category code** that **must match** one of the codes defined in the first tab of the spreadsheet (`BW Categories`)  **If you need additional categories, add them in the first tab*.*
-  - When a number is present after the category code, it is the qualifying total
-  - Empty cells are ignored
-
-## Loading the Age Group  Definition File
-
-The drop-down at the top of the page shows the available files.  After loading the file, the athletes will automatically be reassigned.
-
-![080_loadDefinitionFile](nimg/2210DefineAgeGroupsAndCategories/080_loadDefinitionFile.png)
+![image-20260718103634751](img/2210DefineAgeGroupsAndCategories/image-20260718103634751.png)

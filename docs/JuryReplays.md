@@ -1,18 +1,18 @@
 # Self-Service Jury Replays
 
-> This feature is still evolving and if you intend to use it, **you need to experiment extensively beforehand**.  It is documented here so people provide feedback, and report issues.
-
 The `replays` module is a complement to owlcms that provides automatic recording of the lifts and makes them available to the jury.  Multiple cameras are supported. The lifts are automatically trimmed to start a little before the lift and stop after the decisions have been shown.  The jury can watch them using a regular browser, and the replays are organized by session and time (most recent first)
 
-There needs to be one `replays` program running for each platform.   There are options to the replays program if you need to run several on the same computer.
+There are three things to explain for the jury program
 
-First we show how the program is used, then we provide the configuration instructions.
+1. How the Jury Replay capture works, which includes a basic viewing mode
+2. How a user-friendly user interface is configured
+3. How the Jury Replay program is configured, including how it gets it's camera inputs.
 
 ### Using the Replay Program
 
 The replays program will normally locate owlcms.  So the first thing to do is to start owlcms and wait that it shows its home screen.
 
-> Reminder: Clicking once on a screenshot makes it bigger.
+> Reminder: Clicking on a screenshot makes it bigger.
 
 ***Announcer Screen***
 
