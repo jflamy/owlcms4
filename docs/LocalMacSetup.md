@@ -27,14 +27,16 @@ Click on the link to download [**this file**](https://github.com/Homebrew/brew/r
 
 - If you have a newer Apple Silicon Mac (M1/M2/M3...) , copy and paste the following to the terminal window (move your mouse over the command text and click on the box at the top right to copy)
   ```
-  /opt/homebrew/bin/brew install --cask owlcms/brew/controlpanel
+  /opt/homebrew/bin/brew install --cask owlcms/brew/controlpanel --force
   ```
 
   For an older Intel Mac, the command is
   ```
-  /usr/local/bin/brew install --cask owlcms/brew/controlpanel
+  /usr/local/bin/brew install --cask owlcms/brew/controlpanel --force
   ```
 
+  (the `--force` is for people that already had OWLCMS installed using the prior method)
+  
 - After the installation runs, OWLCMS control panel will be visible as owlcms in the Applications folder
   ![image-20260717114320159](img/LocalMacSetup/image-20260717114320159.png)
   
