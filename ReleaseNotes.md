@@ -10,9 +10,11 @@
 
 **New in Release 67.1**
 
+67.1.0-rc04: macOS installation instruction revised to 
+ - Use homebrew command line installer (.pkg does not install prerequisite tools)
+
 67.1.0-rc03: Documentation
   - General: separated initial/typical from advanced setup, updated screenshots
-  - Documented updated macOS installation
   - Documented Championships
   - Documented Technical Officials and IWF-style timetable assignment
 
