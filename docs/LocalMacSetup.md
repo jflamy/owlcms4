@@ -17,11 +17,12 @@ macOS is opinionated about software that has not gone through the notarization p
 
   ![image-20260717105936731](img/LocalMacSetup/image-20260717105936731.png)
 
-  - Start Terminal by clicking on the icon.
-  - Paste what was copied earlier using `⌘v` (Command-V, or use your mouse, right-click, Paste).  
+  - Start Terminal by clicking on the icon and click into that window
+  - Paste what we just copied using `⌘V` (Command-V)
   - Type `↩` to start the installation (Return key).
-  - You will be asked for your password -- type your password and  `↩`  (your password will not be shown while you type)
-  - You may have to type `↩` again to start the process, and may have to say "y" or "yes" so the installation is allowed to fetch missing pieces of software.  Basically accept all the suggestions made.
+  - You will be asked for your password
+    -  Type your password (it will not be shown) and hit  `↩`  (Return)
+  - Accept all the suggestions the script will make (hit Return or type yes as requested)
   - The installation will proceed and bring you back to a waiting Terminal.
 
 #### 2. (Needed only once) Install the control panel
@@ -42,27 +43,8 @@ macOS is opinionated about software that has not gone through the notarization p
 - After the installation runs, OWLCMS control panel will be visible as owlcms in the Applications folder
   ![image-20260717114320159](img/LocalMacSetup/image-20260717114320159.png)
 
-  Clicking on the icon will now start the control panel.
+- Clicking on the icon will now start the control panel.  We are done.
 
 
 
-#### 3. Upgrading the control panel to the current version
-
-If in the future you are asked to update the control panel, this is the recipe.  With luck you will never have to do it (I am hoping to automate this)
-
-- If you have a newer Apple Silicon (M1/M2/M3...) Mac, copy and paste the following to the terminal window 
-
-  ```
-  /opt/homebrew/bin/brew update 
-  /opt/homebrew/bin/brew upgrade --cask owlcms/brew/controlpanel
-  ```
-
-  For an older Intel Mac, the command is
-
-  ```
-  /opt/homebrew/bin/brew upgrade 
-  /usr/local/bin/brew upgrade --cask owlcms/brew/controlpanel
-  ```
-
-
-
+If you later want to update the control panel, see [this page](LocalMacSetupBrewUpdate.md)
