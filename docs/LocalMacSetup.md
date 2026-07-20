@@ -7,34 +7,39 @@ macOS is opinionated about software that has not gone through the notarization p
 
 #### 1. (Needed only once) Install the `homebrew` Installation Manager
 
-- Click on the text in the grey box just below. Move your mouse to the top right of the grey box. The text "Copy to Clipboard" will appear.  Move your mouse over it and click.  It should say "Copied"
+- Move your mouse over the grey box below, then click the **Copy to Clipboard** text that appears in its top-right corner (it will say "Copied").
 
   ```
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   ```
 
-- Using the Application icon ![image-20260603094422742](img/LocalMacSetup/image-20260603094422742.png)  in the Dock, type `Terminal` to locate the Terminal application. You should see something like this.
+- Using the Application icon ![image-20260603094422742](img/LocalMacSetup/image-20260603094422742.png)  at the bottom of your screen in  the Dock, 
+
+  1. Type `Terminal` to locate the Terminal application. You should see something like this.
 
   ![image-20260717105936731](img/LocalMacSetup/image-20260717105936731.png)
 
-  - Start Terminal by clicking on the icon and click into that window
-  - Paste what we just copied using `⌘V` (Command-V)
-  - Type `↩` to start the installation (Return key).
-  - You will be asked for your password
-    -  Type your password (it will not be shown) and hit  `↩`  (Return)
-  - Accept all the suggestions the script will make (hit Return or type yes as requested)
-  - The installation will proceed and bring you back to a waiting Terminal.
+  2. Start Terminal by clicking once on the icon
+  3. **Paste** the command that we copied earlier using `⌘V` (Command-V) and then type `↩` (Return) to start it.
+
+  4. You will be asked for your password
+     -  Type your password
+        *Nothing will appear as you type — no letters, no dots, no stars.*
+     -  hit  `↩`  (Return) at the end of your password
+  5. You will need to hit Return again and accept suggestions by typing `yes` or `y`  as requested
+     - Don't worry about lots of text being printed out
+  6. The installation will proceed and will bring you back to a waiting Terminal.
 
 #### 2. (Needed only once) Install the control panel
 
-- If you have a newer Apple Silicon Mac (M1/M2/M3...) , do the same recipe as before, click on the text, move to the top Right, click to copy.
+- If you have a newer Apple Silicon Mac (M1/M2/M3...) , move your mouse over the grey box below, then click the **Copy to Clipboard** text that appears in its top-right corner (it will say "Copied").
   ```
   /opt/homebrew/bin/brew install --cask owlcms/brew/controlpanel --force
   ```
 
-  Go back to the terminal window, Paste and use Return `↩` to start the actual installation.
+  Go back to the terminal window, **Paste** and hit **Return** `↩` to run the command.
 
-- For an older Intel Mac, the command to copy and paste is
+- For an older Intel Mac, move your mouse over the grey box below, then click the **Copy to Clipboard** text that appears in its top-right corner (it will say "Copied").
 
   ```
   /usr/local/bin/brew install --cask owlcms/brew/controlpanel --force
