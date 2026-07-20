@@ -2,9 +2,8 @@
 
 macOS is opinionated about software that has not gone through the notarization process and generates needlessly alarming warnings, even when updating (see the [legacy installation](LocalMacSetupLegacy.md) for examples)
 
-> Deepest apologies for forcing you to use the Terminal.  We will actually run two (2) commands.
->
-> A yearly subscription to the Apple Developer program would be required to do better. Should someone pledge 99 US$ per year, this could be fixed.
+> Deepest apologies for forcing you to use the Terminal.  
+> You will be asked to run two (2) commands and type your password once.
 
 #### 1. (Needed only once) Install the `homebrew` Installation Manager
 
