@@ -72,7 +72,6 @@ def move_candidates(candidates: list[Path], label: str, dry_run: bool):
         destination = OBSOLETE / relative_path
 
         if not source.is_file():
-            log(f"MISSING {label}: {relative_path}")
             continue
         if destination.exists():
             log(f"DESTINATION EXISTS {label}: {relative_path}")

@@ -1,12 +1,3 @@
 Move log - generated
 Starting docs obsolete move (move)
-MOVED MEDIA: img/PublicResults/Example/GkwHZ4ZHeW.png -> obsolete/img/PublicResults/Example/GkwHZ4ZHeW.png
-MOVED MEDIA: img/PublicResults/Example/RIxGO9RShj.png -> obsolete/img/PublicResults/Example/RIxGO9RShj.png
-MOVED MEDIA: img/PublicResults/Example/X0qHw40LKh.png -> obsolete/img/PublicResults/Example/X0qHw40LKh.png
-MOVED MEDIA: img/PublicResults/Example/layHD1stff.png -> obsolete/img/PublicResults/Example/layHD1stff.png
-MOVED MEDIA: img/PublicResults/Example/vC53fjpSuq.png -> obsolete/img/PublicResults/Example/vC53fjpSuq.png
-MOVED MEDIA: img/PublicResults/LocalPublicResults/05_checkConnectivity.png -> obsolete/img/PublicResults/LocalPublicResults/05_checkConnectivity.png
-MOVED MEDIA: img/PublicResults/LocalPublicResults/06_actualTest.png -> obsolete/img/PublicResults/LocalPublicResults/06_actualTest.png
-MOVED MEDIA: img/PublicResults/LocalPublicResults/Slide1.SVG -> obsolete/img/PublicResults/LocalPublicResults/Slide1.SVG
-MOVED MEDIA: nimg/2210DefineAgeGroupsAndCategories/080_loadDefinitionFile.png -> obsolete/nimg/2210DefineAgeGroupsAndCategories/080_loadDefinitionFile.png
 Move operation completed
