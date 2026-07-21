@@ -10,9 +10,8 @@
 
 **New in Release 67.1**
 
-67.1.0-rc05: 
-  - Settled on using homebrew for macOS installation.
-  - Final dry-run before releasing to have all tags aligned.
+67.1.0-rc06: 
+  - Support both a notarized DMG install and a `brew` command-line install. Updated documentation accordingly.
 
 67.1.0-rc03: Documentation
   - General: separated initial/typical from advanced setup, updated screenshots
