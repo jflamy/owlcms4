@@ -108,8 +108,8 @@ fi
 
 # Check that the working-tree translation4.csv matches the Google Sheets source.
 # The release workflow builds from committed files, so if the local file differs
-# from the Google Sheets master we offer to update, commit and push it; otherwise
-# the release is aborted.
+# from the Google Sheets master the release is aborted. The automated fetch can be
+# stale, so reconciliation must be done by a manual download from the sheet page.
 TRANSLATION_CSV="shared/src/main/resources/i18n/translation4.csv"
 
 if [[ "${SKIP_TRANSLATIONS}" == "true" ]]; then
@@ -137,29 +137,10 @@ if [[ ${TRANSLATION_COMPARE_EXIT} -eq 0 ]]; then
   echo "translation4.csv matches Google Sheets source."
 elif [[ ${TRANSLATION_COMPARE_EXIT} -eq 1 ]]; then
   echo ""
-  echo "Local translation4.csv differs from the Google Sheets source (differences shown above)."
-  read -r -p "Update local translation4.csv from Google Sheets, then commit and push it? (y/N): " UPDATE_TRANSLATIONS
-  if [[ "${UPDATE_TRANSLATIONS}" =~ ^[Yy]$ ]]; then
-    if ! cp "${REMOTE_TMP}" "${TRANSLATION_CSV}"; then
-      echo "ERROR: Could not overwrite ${TRANSLATION_CSV}." >&2
-      exit 4
-    fi
-    echo "Updated ${TRANSLATION_CSV} from Google Sheets."
-    git add -- "${TRANSLATION_CSV}"
-    if git diff --cached --quiet -- "${TRANSLATION_CSV}"; then
-      echo "No changes to commit for ${TRANSLATION_CSV}."
-    else
-      git commit -m "Update translations for ${REVISION}"
-      if [[ "${DO_PUSH}" == "true" ]]; then
-        git push origin "${CURRENT_BRANCH}"
-      else
-        echo "DO_PUSH=false; committed translations locally but did not push."
-      fi
-    fi
-  else
-    echo "ERROR: Release aborted — local translation4.csv differs from the Google Sheets source." >&2
-    exit 4
-  fi
+  echo "ERROR: Release aborted — local translation4.csv differs from the Google Sheets source (differences shown above)." >&2
+  echo "The automated Google Sheets fetch (API and CSV export) can return stale values, so it must not overwrite the local file." >&2
+  echo "Download the sheet manually (File > Download > Comma-separated values) and replace ${TRANSLATION_CSV}, then commit and push." >&2
+  exit 4
 else
   echo "ERROR: Could not download or compare Google Sheets translations." >&2
   exit 4
