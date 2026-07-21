@@ -211,17 +211,13 @@ public class Translator implements I18NProvider {
 	}
 
 	public static void resetFromGoogleSheets() {
-		String apiKey = System.getenv(GOOGLE_SHEETS_API_KEY);
-		if (apiKey == null || apiKey.isBlank()) {
-			throw new IllegalStateException(GOOGLE_SHEETS_API_KEY + " is not configured");
-		}
 		try {
 			Path translationTarget = getDevelopmentTranslationTarget();
 			if (translationTarget == null) {
 				throw new IllegalStateException("No development translation4.csv found");
 			}
 			logger.info("fetching translation CSV from Google Sheets");
-			byte[] translationCsv = downloadTranslationCsv(apiKey);
+			byte[] translationCsv = downloadTranslationCsvFromGoogleSheets();
 			Files.write(translationTarget, translationCsv);
 			logger.info("updated translation CSV from Google Sheets: {}", translationTarget);
 			resetFromLocal();
@@ -583,6 +579,20 @@ public class Translator implements I18NProvider {
 
 	private static InputStream getTranslationCsvStream(String csvName) throws IOException {
 		return ResourceWalker.getResourceAsStream(csvName);
+	}
+
+	/**
+	 * Downloads the configured Google Sheets translation CSV through the Sheets API.
+	 *
+	 * @return the CSV contents encoded as UTF-8
+	 * @throws IOException if Google Sheets cannot provide a valid translation CSV
+	 */
+	public static byte[] downloadTranslationCsvFromGoogleSheets() throws IOException {
+		String apiKey = System.getenv(GOOGLE_SHEETS_API_KEY);
+		if (apiKey == null || apiKey.isBlank()) {
+			throw new IllegalStateException(GOOGLE_SHEETS_API_KEY + " is not configured");
+		}
+		return downloadTranslationCsv(apiKey);
 	}
 
 	private static byte[] downloadTranslationCsv(String apiKey) throws IOException {

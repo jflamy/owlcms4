@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-REVISION="67.1.0-rc05s"
+REVISION="67.1.0-rc05"
 
 set -euo pipefail
 
@@ -68,15 +68,6 @@ if ! command -v git >/dev/null 2>&1; then
   exit 1
 fi
 
-if command -v python3 >/dev/null 2>&1; then
-  PYTHON=python3
-elif command -v python >/dev/null 2>&1; then
-  PYTHON=python
-else
-  echo "ERROR: neither 'python3' nor 'python' found on PATH." >&2
-  exit 1
-fi
-
 # Fail fast if not authenticated.
 if ! gh auth status >/dev/null 2>&1; then
   echo "ERROR: gh is not authenticated. Run: gh auth login" >&2
@@ -120,7 +111,6 @@ fi
 # from the Google Sheets master we offer to update, commit and push it; otherwise
 # the release is aborted.
 TRANSLATION_CSV="shared/src/main/resources/i18n/translation4.csv"
-GOOGLE_SHEET_URL="https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE/export?format=csv"
 
 if [[ "${SKIP_TRANSLATIONS}" == "true" ]]; then
   echo "Skipping translation4.csv comparison (--skipTranslations); the build will use the translations committed on this branch."
@@ -129,47 +119,23 @@ echo "Checking translation4.csv against Google Sheets source..."
 REMOTE_TMP=$(mktemp)
 trap "rm -f ${REMOTE_TMP}" EXIT
 
-download_translation_csv() {
-  local destination="$1"
-
-  if [[ -n "${GOOGLE_SHEETS_API_KEY:-}" ]]; then
-    if ! "${PYTHON}" ./scripts/download-google-translations.py "${destination}"; then
-      echo "ERROR: Could not download Google Sheets translations through the Sheets API." >&2
-      exit 4
-    fi
-  elif ! curl -fsSL --retry 3 --retry-delay 2 --max-time 120 --connect-timeout 30 \
-      -o "${destination}" "${GOOGLE_SHEET_URL}"; then
-    echo "ERROR: Could not download Google Sheets translation CSV." >&2
-    exit 4
-  fi
-
-  if [[ ! -s "${destination}" ]]; then
-    echo "ERROR: Downloaded Google Sheets translation CSV is empty." >&2
-    exit 4
-  fi
-  if head -c 200 "${destination}" | grep -qi '<html'; then
-    echo "ERROR: Google Sheets download returned HTML instead of CSV." >&2
-    exit 4
-  fi
-  if ! head -1 "${destination}" | grep -q '^key,'; then
-    echo "ERROR: Downloaded file does not look like a translation CSV." >&2
-    echo "First line: $(head -1 "${destination}")" >&2
-    exit 4
-  fi
-}
-
-download_translation_csv "${REMOTE_TMP}"
-
 if [[ ! -f "${TRANSLATION_CSV}" ]]; then
   echo "ERROR: ${TRANSLATION_CSV} not found in the working tree." >&2
   exit 4
 fi
 
-# Compare the local (working-tree) file against the Google Sheets source.
-# compare-translations.py labels the first argument "Local" and the second "Remote".
-if "${PYTHON}" ./scripts/compare-translations.py "${TRANSLATION_CSV}" "${REMOTE_TMP}"; then
+# The Java CLI downloads from Google Sheets using Translator's API client, writes
+# the snapshot to REMOTE_TMP, and compares it with the working-tree CSV.
+set +e
+mvn -pl shared -DskipTests compile exec:java \
+  -Dexec.mainClass=app.owlcms.i18n.TranslationComparison \
+  -Dexec.args="${TRANSLATION_CSV} ${REMOTE_TMP}"
+TRANSLATION_COMPARE_EXIT=$?
+set -e
+
+if [[ ${TRANSLATION_COMPARE_EXIT} -eq 0 ]]; then
   echo "translation4.csv matches Google Sheets source."
-else
+elif [[ ${TRANSLATION_COMPARE_EXIT} -eq 1 ]]; then
   echo ""
   echo "Local translation4.csv differs from the Google Sheets source (differences shown above)."
   read -r -p "Update local translation4.csv from Google Sheets, then commit and push it? (y/N): " UPDATE_TRANSLATIONS
@@ -194,6 +160,9 @@ else
     echo "ERROR: Release aborted — local translation4.csv differs from the Google Sheets source." >&2
     exit 4
   fi
+else
+  echo "ERROR: Could not download or compare Google Sheets translations." >&2
+  exit 4
 fi
 fi
 
