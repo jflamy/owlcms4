@@ -10,8 +10,9 @@
 
 **New in Release 67.1**
 
-67.1.0-rc04: macOS installation instruction revised to 
- - Use homebrew command line installer (.pkg does not install prerequisite tools)
+67.1.0-rc05: 
+  - Settled on using homebrew for macOS installation.
+  - Final dry-run before releasing to have all tags aligned.
 
 67.1.0-rc03: Documentation
   - General: separated initial/typical from advanced setup, updated screenshots
