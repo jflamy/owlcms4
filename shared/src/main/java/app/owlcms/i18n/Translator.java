@@ -634,6 +634,9 @@ public class Translator implements I18NProvider {
 		connection.setRequestMethod("GET");
 		connection.setConnectTimeout(30_000);
 		connection.setReadTimeout(120_000);
+		connection.setUseCaches(false);
+		connection.setRequestProperty("Cache-Control", "no-cache");
+		connection.setRequestProperty("Pragma", "no-cache");
 		try {
 			int responseCode = connection.getResponseCode();
 			if (responseCode < 200 || responseCode >= 300) {
