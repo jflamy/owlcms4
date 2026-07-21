@@ -80,11 +80,13 @@ fi
 echo "Pushing ${MAIN_BRANCH}..."
 git push origin "${MAIN_BRANCH}"
 
-# Step 5: Extract default REVISION from release.sh and remove suffix
-# release.sh uses format: REVISION="${1:-64.0.4-rc02}"
-# We need to extract the default value (after :-)
+# Step 5: Extract the configured REVISION from release.sh and remove its suffix.
 REVISION_LINE=$(grep '^REVISION=' ./release.sh | head -n 1)
-DEFAULT_REVISION=$(echo "${REVISION_LINE}" | sed 's/.*:-\([^}]*\)}.*/\1/')
+DEFAULT_REVISION=$(echo "${REVISION_LINE}" | sed 's/^REVISION="\([^"]*\)".*/\1/')
+if [[ -z "${DEFAULT_REVISION}" || "${DEFAULT_REVISION}" == "${REVISION_LINE}" ]]; then
+  echo "ERROR: Could not read REVISION from release.sh." >&2
+  exit 1
+fi
 BASE_REVISION=$(echo "${DEFAULT_REVISION}" | sed 's/-.*$//')
 
 echo "Default revision from release.sh: ${DEFAULT_REVISION}"
