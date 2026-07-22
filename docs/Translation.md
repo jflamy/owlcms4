@@ -4,7 +4,7 @@
 
 ## Translating the screens and displays
 
-1. For translation, you need to install OWLCMS locally.  Refer to the [Local Setup instructions](https://jflamy.github.io/owlcms4/#/LocalSetup). 
+1. For translation, you need to install OWLCMS locally.  Refer to the [Local Setup instructions](LocalDownloads).
 2. Use the following link to locate the [Google Drive](https://docs.google.com/spreadsheets/d/1ZRfYHCARnPCnUEVZYo3Y_7qJGS9z7NRVg-Se7z3lHtE/edit#gid=2066926495) that contains the master copy of the translations.  You will need to ask owlcms@jflamy.dev for access, and you may need to create a Google account.
 3. When you run the program, the translation file that is used is located in the `local/i18n` folder. To test your translation you will need to use the "File > Download" menu entry and use the CSV format.  You will copy the Google Drive file over that entry to do your tests (detailed instructions below)
 4. Each column of `translation4.gsheet`represents a language.  
@@ -68,7 +68,7 @@ If you see a string that starts with `\u`, it is a way to write down characters 
 
 7.  Copy or move the file to your local installation
 
-   - Under Windows, [open your installation directory](https://jflamy.github.io/owlcms4/#/LocalSetup?id=accessing-the-program-files-and-configuration) and locate the `local\i18n`  folder (which stands for "internationalization" -- the word has 18 letters between i and n)
+  - Under Windows, [open your installation directory](LocalControlPanel?id=menus) and locate the `local\i18n`  folder (which stands for "internationalization" -- the word has 18 letters between i and n)
    - Under Mac OS and Linux, open where you unzipped the file, and find the `local/i18n` directory
    - Overwrite the file that is currently in the local/i18n location
 
@@ -80,12 +80,10 @@ If you see a string that starts with `\u`, it is a way to write down characters 
 
   - Any string you have not translated will come out as `!xx: SomeCode`. This means that there is no value in the row `SomeCode` for the language `xx`.
 
-9. If you update the file while the program is running, you can reload the file to see your changes by going to the bottom of the `About` screen and clicking on the reload button.  After reloading the translations you need to tell your browser to reload the pages from OWLCMS to see the new text (F5 or Ctrl-R or Right-Click depending on your browser)
-
-![15_reload](img/Translation/15_reload.png)
+- **HINT**: If you update the file while the program is running, you can reload the file to see your changes by going to the bottom of the Languages and Settings page and using the reload translations button.
 
 - By default, OWLCMS obeys your browser settings.  So if your browser is set to have xx as the preferred language, and there are translations available for language `xx`, you will see the `xx` text you provided.
-  - If you don't get the right language (for example, my browser is in English, but I need to see French when translating to French), see the [instructions for forcing the language](https://jflamy.github.io/owlcms4/#/LocalSetup?id=defining-the-language)
+  - If you don't get the right language (for example, my browser is in English, but I need to see French when translating to French), see the [instructions for forcing the language](Configuration)
 
 ## Translation updates
 

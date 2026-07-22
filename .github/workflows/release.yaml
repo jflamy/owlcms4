@@ -128,6 +128,12 @@ jobs:
             cat src/main/markdown/release.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
           fi
 
+          sed -i \
+            -e 's#https://github.com/jflamy/owlcms4/blob/HEAD/ReleaseNotes.md#https://github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}/releases/tag/${{ env.REVISION }}#g' \
+            -e 's#https://github.com/jflamy/owlcms4/releases#https://github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}/releases#g' \
+            -e 's#https://jflamy.github.io/owlcms4#https://owlcms.github.io/owlcms4${{ env.RELEASE_SUFFIX }}#g' \
+            ReleaseNotes.assembled.md
+
       - name: Install GitHub CLI
         run: sudo apt-get install gh -y
 
@@ -156,6 +162,16 @@ jobs:
         run: |
           rm -rf ../new-repo/* # we only want the docs directory
           cp -a docs ../new-repo/docs
+
+          # Documentation is committed with development-site links so external
+          # indexers always find valid URLs.  Rewrite only the copied release
+          # documentation for its stable or prerelease publication target.
+          find ../new-repo/docs -type f \( -name '*.md' -o -name '*.html' \) -print0 | \
+            xargs -0 sed -i \
+              -e 's#https://github.com/jflamy/owlcms4/blob/HEAD/ReleaseNotes.md#https://github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}/releases/tag/${{ env.REVISION }}#g' \
+              -e 's#https://github.com/jflamy/owlcms4/releases#https://github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}/releases#g' \
+              -e 's#https://jflamy.github.io/owlcms4#https://owlcms.github.io/owlcms4${{ env.RELEASE_SUFFIX }}#g'
+
           echo ${{ env.REVISION }} > ../new-repo/version.txt
 
       - name: Push Updated Documentation to Target Repository

@@ -3,12 +3,15 @@
 ⚠️⚠️⚠️
 **To install and run OWLCMS, you need to use the OWLCMS Control Panel.** This location contains the release notes and the software modules that the control panel will install for you.
 
-- **The OWLCMS Control Panel can be downloaded at [this location](https://github.com/owlcms/owlcms-controlpanel/releases). and you can refer to the [Installation Instructions](https://owlcms.github.io/owlcms4-prerelease/#/LocalDownloads.md)**
-- **User Documentation for the Control Panel is located at [this location](https://owlcms.github.io/owlcms4-prerelease/#/LocalControlPanel.md)**
+- **The OWLCMS Control Panel can be downloaded at [this location](https://github.com/owlcms/owlcms-controlpanel/releases). and you can refer to the [Installation Instructions](https://jflamy.github.io/owlcms4/#/LocalDownloads.md)**
+- **User Documentation for the Control Panel is located at [this location](https://jflamy.github.io/owlcms4/#/LocalControlPanel.md)**
 
 <br>
 
 **New in Release 67.1**
+
+67.1.0-rc07:
+  - Fixed inconsistent links in documentation so that release and pre-release docs are self-contained.
 
 67.1.0-rc06: 
   - Support both a notarized DMG install and a `brew` command-line install. Updated documentation accordingly.
@@ -103,4 +106,4 @@
 
 67.1.0: Fixed the SBDE "Update athlete non-lifting data" mode to process record federation eligibilies and eligibility categories correctly
 
-For other recent changes, see [the release repository](https://github.com/owlcms/owlcms4/releases)
+For other recent changes, see [the release repository](https://github.com/jflamy/owlcms4/releases)
