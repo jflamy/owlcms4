@@ -10,8 +10,9 @@
 
 **New in Release 67.1**
 
-67.1.0-rc07:
-  - Fixed inconsistent links in documentation so that release and pre-release docs are self-contained.
+67.1.0-rc08:
+  - Fixed links in documentation
+  - Updated images for equipment setup
 
 67.1.0-rc06: 
   - Support both a notarized DMG install and a `brew` command-line install. Updated documentation accordingly.
