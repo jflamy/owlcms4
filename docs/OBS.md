@@ -93,7 +93,7 @@ The process used to create a scene for the athlete lifting with information at t
 
 3. Then we add, like earlier, our browser source with the URL we copied.  We define the resolution as 1920x1080
 
-   ![66](../../../OneDrive/Documents/ShareX/Screenshots/2024-12/66.png)
+   ![66](nimg/4000OBS/66.png)
 
 4. The view appears and we drag it to the bottom.
    ![68](nimg/4000OBS/68.png)

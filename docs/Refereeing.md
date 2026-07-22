@@ -1,4 +1,4 @@
-OWLCMS supports using refereeing devices, and also supports 3 and 5-person [Jury](#Jury). The decisions are displayed to the public and athletes on the displays started on the [Start Displays](Displays) page.
+OWLCMS supports using refereeing devices, and also supports 3 and 5-person [Jury](Jury). The decisions are displayed to the public and athletes on the displays started on the [Start Displays](Displays) page.
 
 There are several ways to referee using owlcms.  Each is discussed in details in a section of the document.
 
@@ -90,7 +90,7 @@ Refer to the [Keypads](Keypads) Advanced topic documentation for information on 
 
 ## Arduino-Based Devices
 
-If you want devices that can provide feedback, then you can build your own using an Arduino board. Commercially available pre-built devices using the same protocol are also being developed. 
+If you want devices that can provide feedback, then you can build your own using an Arduino board.
 
 See [this page](https://github.com/owlcms/owlcms-firmata/tree/main/README.md) for working timekeeper, referee, and jury setups.  Both the firmware that runs on the Arduino *and* the software that interfaces with owlcms are provided.  There is actually nothing to program.  
 
@@ -99,3 +99,7 @@ For example, a fully IWF-compliant design for the referee box is shown below. Yo
 ![refereeBox](img/MQTT/refereeBoxDown.png)
 
 owlcms uses the MQTT protocol used in Internet-Of-Things automation and monitoring applications to talks to the devices.  See the [MQTT](MQTT) page for more details and for schematics that you can use for your own devices.  
+
+## Commercial Devices
+
+Companies like Nemikor.com sell fully [IWF-Compliant devices](https://nemikor.com). 

@@ -118,7 +118,7 @@ Final decision.
 
 ## Top Teams Scoreboard
 
-Team competitions are supported by a Top Teams Scoreboard that show the teams in contention for a medal.  The full Teams results are available to the competition secretary (see [this page](Documents#Team_Results) for details).  Both pages consider points as computed when the athlete's group is done.  So in competitions where there are multiple groups for a single category the points shown are not definitive.
+Team competitions are supported by a Top Teams Scoreboard that show the teams in contention for a medal.  The full Teams results are available to the competition secretary (see [this page](ResultDocuments#team-results) for details).  Both pages consider points as computed when the athlete's group is done.  So in competitions where there are multiple groups for a single category the points shown are not definitive.
 
 ![050_TeamScoreboard](nimg/5100Displays//050_TeamScoreboard.png)
 

@@ -18,5 +18,5 @@ This is a typical macOS installation process.  If you prefer command-line instal
 - The control panel will now open. On first use, the control panel will offer to complete the installation by retrieving the current version of the scoring system. 
   ![image-20260721112105865](img/LocalMacSetupLegacy/image-20260721112105865.png)
 
-- After the `Install` OWLCMS will be ready for use using the `Launch` button.  See the [Control Panel](ControlPanel.md) page for more information.
+- After the `Install` OWLCMS will be ready for use using the `Launch` button.  See the [Control Panel](LocalControlPanel) page for more information.
   ![image-20260721112203693](img/LocalMacSetupLegacy/image-20260721112203693.png)

@@ -52,7 +52,7 @@ This page has several sections that reflect the work that has been done to overr
 
 - Visual Styling
 
-  When started from the [Control Panel](Control Panel.md) OWLCMS copies 4 visual themes in the `local/css`directory
+  When started from the [Control Panel](LocalControlPanel.md) OWLCMS copies 4 visual themes in the `local/css`directory
 
   - nogrid which is the usual theme for scoreboards
   - grid which is a legacy style where the scoreboard cells have borders

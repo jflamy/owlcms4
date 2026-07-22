@@ -16,7 +16,7 @@ This step is not needed if you already have `brew` installed.
 
   1. Type `Terminal` to locate the Terminal application. You should see something like this.
 
-  ![image-20260717105936731](img/LocalMacSetup/image-20260717105936731.png)
+  ![image-20260722114544654](img/LocalMacBrewSetup/image-20260722114544654.png)
 
   2. Start **Terminal** by clicking once on the icon
   3. **Paste** the command that we copied earlier using `⌘V` (Command-V) and then type `↩` (Return) to start it.
@@ -46,7 +46,7 @@ This step is not needed if you already have `brew` installed.
   ```
 
 - After the installation runs, OWLCMS control panel will be visible as owlcms in the Applications folder
-  ![image-20260717114320159](img/LocalMacSetup/image-20260717114320159.png)
+  ![image-20260722114643974](img/LocalMacBrewSetup/image-20260722114643974.png)
 
 - Clicking on the icon will now start the control panel.  The control panel will offer to finish the installation by retrieving the latest version of the actual scoring system.
 

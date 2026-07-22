@@ -2,7 +2,9 @@ In a Cloud-based installation, all that is needed is browsers (and a good intern
 
 ### Cloud-Based Setup
 
-When using a cloud-based setup, especially for club meets, the only requirement is to have devices that connect to a local area wifi.  All the various display screens and devices connect to the cloud through the wifi.  In a simple club meet, flags are often used for refereeing (the [speaker enters the decisions](Refereeing.md#manual-refereeing)) or to use [phones as refereeing devices](Refereeing.md#mobile-device-refereeing).![Slide1](img/Fly/Slide1.SVG)
+When using a cloud-based setup, especially for club meets, the only requirement is to have devices that connect to a local area wifi.  All the various display screens and devices connect to the cloud through the wifi.  In a simple club meet, flags are often used for refereeing (the [speaker enters the decisions](Refereeing.md#manual-refereeing)) or to use [phones as refereeing devices](Refereeing.md#mobile-device-refereeing).
+
+![Slide1](img/Fly/setup-club.svg)
 
 ### Fly.io
 

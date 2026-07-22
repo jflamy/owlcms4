@@ -68,7 +68,7 @@ Note that new records are also marked as provisional, so you can also use that s
 ![image-20260618092520914](img/2500RecordsManagement/image-20260618092520914.png)
 
 
-Use a "dataExchange" template will produce an Excel File that you can then load into OWLCMS or in a [Record Repository](RecordRepository)
+Use a "dataExchange" template will produce an Excel File that you can then load into OWLCMS or in a [Record Repository](RecordsRepository)
 ![image-20260603165707050](img/2500RecordsManagement/image-20260603165707050.png)
 
 The resulting file is in the exact same format as the record inputs, so you can merge it in Excel format if you prefer.
@@ -132,7 +132,7 @@ The following fields are expected in the file, in that specific order.  The firs
 | ---------- | ------------------------------------------------------------ |
 | Federation | The acronym of the federation with authority to certify the record.  In competitions that involve athletes from multiple federations, this can be used to check whether an athlete belongs to the correct federation to break a record (see [Eligibility Criteria](#eligibility-criteria) below).<br />Using the official federation acronym is recommended (e.g. IWF) |
 | RecordName | The name of the record, used for naming the rows in the display.  The values in this column *can be translated to the local language.*<br />For an IWF record, the name will likely be "World".<br />**Note:**  Because the name of the files controls the ordering of the rows, records that bear the same name should all be in the same file.  If you have "National" Masters records and "National" SR records, and you want them to be on the same row, then combine the two in the same file.  Otherwise there will be several rows with the same name. |
-| AgeGroup   | The age group to which the record applies.  The codes should match those that have been specified when loading the Age Groups (see the [Age Groups and Categories](Categories) page).  In competitions that involve multiple age groups, this can be used to determine which records can be broken by an athlete (see [Eligibility Criteria](#eligibility-criteria) below).<br />Note that there can also be records whose age group does not match a competition age group -- for example, a record that can be broken by anyone.  If the name does not match an age group active in the competition, the eligibility checks will be skipped. |
+| AgeGroup   | The age group to which the record applies.  The codes should match those that have been specified when loading the Age Groups (see the [Age Groups and Categories](2210DefineAgeGroupsAndCategories.md) page).  In competitions that involve multiple age groups, this can be used to determine which records can be broken by an athlete (see [Eligibility Criteria](#eligibility-criteria) below).<br />Note that there can also be records whose age group does not match a competition age group -- for example, a record that can be broken by anyone.  If the name does not match an age group active in the competition, the eligibility checks will be skipped. |
 | Gender     | M or F depending on the gender of the athlete.               |
 | ageLow     | Lowest inclusive age for breaking the record.  For IWF JR, you would use 15. |
 | ageCat     | Highest inclusive age for breaking the record. For IWF JR you would use 20. Use 999 when there is no upper limit. |

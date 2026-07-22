@@ -37,11 +37,11 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
 - Run a **regular** or **masters** competition, with or without a **jury**.
 
-- **State-of-the-art technology and high performance**: As an example, there is negligible CPU load and disk usage when [running a benchmark](https://groups.google.com/g/owlcms/c/57Ve5hUmMRM/m/T-NK8XkUBAAJ) with over 1150 athletes in 81 sessions spread over 4 simultaneous platforms, with athletes lifting at 8 times the normal rate. The system uses a modern, fully integrated web-based architecture and data is stored in a true relational database.
+- **State-of-the-art technology and high performance**: The system runs on very small computers (even Raspberry Pi 5).  Competitions with 6 platforms and 1500 athletes have been run on a normal Intel laptop.  Normal memory usage is well below 1GB even for such a competition.  Only one laptop is used to run the system even when there are multiple platforms.  Data is stored in a relational database.
 
-- Ability to run locally or in the [**cloud**](EquipmentSetup#cloud-access-over-the-internet).  Decisions, timers and sounds are handled locally in the browser to provide better feedback.
+- Ability to run locally or in the [**cloud**](EquipmentSetup.md#internet-access).  Decisions, timers and sounds are handled locally in the browser to provide better feedback.
 
-- **[Scoreboard](Displays#scoreboard)** for the public or warm-up room display.  
+- **[Scoreboard](Displays#simple-scoreboard)** for the public or warm-up room display.  
 
      - Current and next lifters are highlighted. 
 
@@ -71,7 +71,7 @@ The following list is a sampling of the many features available.  <u>*Click on t
       ![Announcer](img/Gallery/Announcer.png)
     - For the Marshal, the information about lifts is laid out as on the official cards.  Messages are given for late changes, and the changes are checked for correctness relative to the lifting order. The Marshal also sees the decisions as they are given.  For small competitions, the announcer can also act as marshal.  ![090](img/Gallery/Marshal.png)
 
-- [**Timekeeping**](Announcing#Starting_the_clock) Time can either be [managed by the announcer](Announcing#Starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
+- [**Timekeeping**](Announcing#starting-the-clock) Time can either be [managed by the announcer](Announcing#starting-the-clock)  (useful for smaller meets) or a dedicated [timekeeper screen](Announcing#Timekeeper) can be used. The timekeeper screen can be conveniently operated from a phone or tablet.
 
     <img src="img/Lifting/050_Timekeeper.png" alt="050_Timekeeper.png" style="border-style:solid; border-width: thin" />
 
@@ -84,12 +84,12 @@ The following list is a sampling of the many features available.  <u>*Click on t
   - [**Mobile phones or tablets**](Refereeing#mobile-device-refereeing) The easiest way to get started is to use phones or tablets. 
     
       ![mobile_ref](img/Refereeing/mobile_ref.png ':size=350')
-    
-  - [**Button keypads**](Refereeing#usb-or-bluetooth-keypads). Many people prefer using actual buttons. Any USB or Bluetooth keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions (you can buy or build you own, see [this link](Refereeing#usb-or-bluetooth-keypads))
+  
+  - [**Button keypads**](Refereeing#button-keypads). Many people prefer using actual buttons. Any USB or Bluetooth keypad that can be programmed to generate the digits 0 to 9 can be used to enter decisions.
     
       ![refereeingSetup](img/equipment/refereeingSetup.jpg ':size=350')  
-    
-  - [**Fully compliant devices**](Refereeing#full-feedback-keypad)  The IWF technical rules and regulations (TCRR) state requirements for refereeing and jury devices, notably regarding notifications to referees.  You can [buy commercial devices](https://blue-owl.nemikor.com) that are fully compliant or build your own. [Free do-it-yourself schematics
+  
+  - [**Fully compliant devices**](Refereeing#arduino-based-devices)  The IWF technical rules and regulations (TCRR) state requirements for refereeing and jury devices, notably regarding notifications to referees.  You can [buy commercial devices](https://nemikor.com) that are fully compliant or build your own. [Free do-it-yourself schematics
    and software](https://github.com/jflamy/owlcms-firmata/tree/v24?tab=readme-ov-file#owlcms-firmata) using low-cost Arduino boards are available.
 
   ![FederationKit](img/Gallery/FederationKit.png ':size=450')![home-built](img/Gallery/home-built.jpg ':size=250')
@@ -103,13 +103,13 @@ The following list is a sampling of the many features available.  <u>*Click on t
 - [**Integration with video streaming software**](OBS). Video-oriented layouts are included that can be customized using standard Web design techniques to achieve a competition-specific look.  Because the layouts are generated by the program itself, there is no delay and no risk of discrepency, and no additional work required at competition time.
     ![Streaming](img/Gallery/Streaming.png)
 
-- [**3 and 5-person jury**](Refereeing#jury).  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted. 
+- [**3 and 5-person jury**](Jury).  Jury members see referee decisions as they happen. Jury members see their vote outcome once all jurors have voted. 
 
     ![070_Jury](img/Refereeing/070_Jury.png)
 
-- **[Athlete Registration](Registration) and [Weigh-in](WeighIn) screens**, 
+- **[Athlete Registration](2200Registration) and [Weigh-in](3000WeighIn) screens**, 
 
-- **[Athlete cards](2400PreCompetitionDocuments#athlete-cards)** and **[weigh-in sheets](2400PreCompetitionDocuments#weigh-in-forms)** with starting weights
+- **[Athlete cards](2400PreCompetitionDocuments#athlete-cards)** and **[weigh-in sheets](2400PreCompetitionDocuments#weigh-in-form)** with starting weights
 
     ![042_AthleteCards](img/WeighIn/043_AthleteCards.png)
 
@@ -117,7 +117,7 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
     ![20a](nimg/2200Registration/20a.png)
 
-- Multiple **[Simultaneous age divisions](Preparation#defining-age-divisions-and-categories)**: ability to award separate medals according to age division (e.g. youth vs junior vs senior) .  Simultaneous inclusion of Masters and non-masters groups athletes is possible.
+- Multiple **[Simultaneous Championships](2140Championships)**: ability to award separate medals according to age division (e.g. youth vs junior vs senior) .  Simultaneous inclusion of Masters and non-masters groups athletes is possible.
 
      ![020_ageGroupList](img/Categories/020_ageGroupList.png)
 
@@ -138,15 +138,15 @@ The following list is a sampling of the many features available.  <u>*Click on t
 
     ![070_IntroTimer](img/Displays/070_IntroTimer.png ':size=350')
 
-- Production of **[session results (protocol sheets)](Documents#group-results)**, of interim competition results during the course of the competition, and of the **[final result package](Documents#competition-package)**
+- Production of **[session results (protocol sheets)](ResultDocuments#session-results)**, of interim competition results during the course of the competition, and of the **[final result package](ResultDocuments#final-package)**
 
     ![SessionResults](img/ResultDocuments/SessionResults.png  ':size=350')
 
-- Option to treat the competition as a **[Masters competition](Preparation#masters)** with proper processing of age groups (older age groups presented first)
+- Option to treat the competition as a **[Masters competition](2100CompetitionInformationAndRules#competition-rules)** with proper processing of age groups (older age groups presented first)
 
 - **[Video Streaming Scene Switching](OBSSceneSwitching)** When using OBS (or similar software) to stream a competition, a special status window can be monitored to switch scenes, trigger replays, or provide information as to the course of the competition (for example, jury deliberation, etc.)
 
-- [**Multiple languages**](Preparation#display-language). Currently English, French, Spanish (multiple variants), Danish, Swedish, German, Portuguese, Romanian, Hungarian, Russian, Finnish and Armenian.
+- [**Multiple languages**](2110LanguageAndSystemSettings). Currently 29 languages: English (default, US, Canada), Spanish (default, Latin America, Spain, El Salvador, Ecuador), French (default, Canada, France), Portuguese, Russian, German, Swedish, Danish, Finnish, Norwegian, Faroese, Hungarian, Romanian, Polish, Armenian, Hebrew, Arabic, Greek, Japanese, Traditional Chinese, and Estonian.
 
 - **[Color and Visual Styling Customization](Styles)**  The colors of the displays are controlled by Web-standard CSS stylesheets, the format used by web designers world wide. A tutorial is given for the common case of adjusting the color scheme to local preferences.
 

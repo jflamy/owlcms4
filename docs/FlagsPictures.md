@@ -20,7 +20,7 @@ The current implementation first looks for an exact team-name match and then fal
 - The file name cannot include the characters `: \ / * ? | < > ' "`  If these are present in the team name, they will be replaced by `_`. A team name `Good/Bad Lifts` will need to have its logo stored as `Good_Bad Lifts.svg` (or `Good_Bad Lifts.png`, etc.).
 - All the other characters in the spelling of the file name must be identical to the team name (spaces, lower and upper case, accented characters, etc.).  Only the characters listed above are replaced.
 - If the flag is not found, the space will be left empty.
-- This feature can be used in the cloud  Once you have tested your setup on a laptop, you will package the local directory and upload it to the cloud.  See the [Customization](Customization) page for details.
+- This feature can be used in the cloud  Once you have tested your setup on a laptop, you will package the local directory and upload it to the cloud.  See the [Uploading Local Settings](UploadingLocalSettings) page for details.
 
 ### Finding Flags to Display
 

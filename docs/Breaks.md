@@ -52,7 +52,7 @@ At any time during lifting, the announcer or technical controller or timekeeper 
 
 At any point when the platform is idle, or during any of the "before introduction", "before snatch" or "before clean and jerk" countdowns, it is possible to present medals.
 
-> Note that there is a results document that shows all the medals for a group in the correct presentation order.  See the [Medals document](Documents#medals) section for details
+> Note that there is a results document that shows all the medals for a group in the correct presentation order.  See the [Medals document](ResultDocuments#medals) section for details
 
 The medal ceremony has several special features:
 

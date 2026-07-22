@@ -47,7 +47,7 @@ By default, OWLCMS is set up for an informal club meeting, with no age restricti
 
 In the Default setting, athletes are assigned automatically to a category based on their bodyweight.
 
-OWLCMS also supports the IWF scenarios, and more complex scenarios with multiple age groups, please refer to the [Define Age Groups and Categories](Categories) page for how to proceed for the following cases.
+OWLCMS also supports the IWF scenarios, and more complex scenarios with multiple age groups, please refer to the [Define Age Groups and Categories](2210DefineAgeGroupsAndCategories) page for how to proceed for the following cases.
 - Official IWF age groups and bodyweight categories.
 - Masters competitions, where athletes are automatically assigned to an age group based on their birth date according to IWF Masters rules
 - Age Group competitions where regional or national federations define the age group boundaries.
