@@ -51,6 +51,8 @@ import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import tools.jackson.databind.node.BaseJsonNode;
+
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
@@ -114,10 +116,9 @@ import app.owlcms.uievents.UIEvent.BreakStarted;
 import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.uievents.UIEvent.Notification;
 import app.owlcms.utils.DelayTimer;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonValue;
 
 /**
  * This class describes one field of play at runtime.
@@ -228,7 +229,7 @@ public class FieldOfPlay implements IUnregister {
 	private Thread wakeUpRef;
 	private Integer weightAtLastStart;
 	private int prevWeight;
-	private JsonValue recordsJson;
+	private BaseJsonNode recordsJson;
 	private List<RecordEvent> challengedRecords;
 	private List<RecordEvent> newRecords;
 	private List<RecordEvent> lastChallengedRecords;
@@ -595,9 +596,9 @@ public class FieldOfPlay implements IUnregister {
 		return this.previousAthlete;
 	}
 
-	public JsonValue getRecordsJson() {
+	public BaseJsonNode getRecordsJson() {
 		if (this.recordsJson == null) {
-			return Json.createNull();
+			return JsonUtils.nullNode();
 		}
 		return this.recordsJson;
 	}
@@ -1507,7 +1508,7 @@ public class FieldOfPlay implements IUnregister {
 
 	public void recomputeRecords(Athlete curAthlete) {
 		if (curAthlete == null) {
-			setRecordsJson(Json.createNull());
+			setRecordsJson(JsonUtils.nullNode());
 			setChallengedRecords(List.of());
 			setNewRecords(List.of());
 			return;
@@ -1546,7 +1547,7 @@ public class FieldOfPlay implements IUnregister {
 			jsonRecords = eligibleRecords;
 		}
 
-		JsonValue recordsJson = null;
+		BaseJsonNode recordsJson = null;
 		try {
 			recordsJson = RecordFilter.buildRecordJson(
 					jsonRecords,
@@ -1557,7 +1558,7 @@ public class FieldOfPlay implements IUnregister {
 			recordsJson = null;
 		}
 		if (recordsJson == null) {
-			setRecordsJson(Json.createNull());
+			setRecordsJson(JsonUtils.nullNode());
 			setChallengedRecords(List.of());
 			setNewRecords(List.of());
 		} else {
@@ -1683,7 +1684,7 @@ public class FieldOfPlay implements IUnregister {
 		this.platform = platform;
 	}
 
-	public void setRecordsJson(JsonValue computedRecords) {
+	public void setRecordsJson(BaseJsonNode computedRecords) {
 		this.recordsJson = computedRecords;
 	}
 
