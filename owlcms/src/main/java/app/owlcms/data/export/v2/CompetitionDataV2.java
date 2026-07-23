@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 
@@ -103,10 +103,9 @@ public class CompetitionDataV2 {
 	}
 
 	private static ObjectMapper createMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		return mapper;
+		return JsonMapper.builder()
+		        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+		        .build();
 	}
 
 	public InputStream exportData() {

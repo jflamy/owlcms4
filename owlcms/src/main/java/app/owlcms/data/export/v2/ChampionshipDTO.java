@@ -7,7 +7,8 @@
 package app.owlcms.data.export.v2;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
@@ -26,8 +27,9 @@ public class ChampionshipDTO {
 	 * mixin) so the V2 export is "dumb" and reflects the database, not values
 	 * resolved through the competition-template defaults.
 	 */
-	private static final ObjectMapper STORED_FIELD_MAPPER = new ObjectMapper()
-	        .addMixIn(Championship.class, StoredChampionshipMixin.class);
+	private static final ObjectMapper STORED_FIELD_MAPPER = JsonMapper.builder()
+	        .addMixIn(Championship.class, StoredChampionshipMixin.class)
+	        .build();
 
 	private String name;
 	private ChampionshipType type;

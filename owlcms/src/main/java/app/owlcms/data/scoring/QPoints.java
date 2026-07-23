@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import javax.annotation.Nullable;
-
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.athlete.Athlete;
@@ -54,7 +52,7 @@ public class QPoints {
 	 * @return the Age/Gender Coefficient for that age.
 	 * @throws IOException
 	 */
-	public Float getAgeGenderCoefficient(@Nullable Integer age, @Nullable Gender gender) {
+	public Float getAgeGenderCoefficient(Integer age, Gender gender) {
 		if ((gender == null) || (age == null)) {
 			return 0.0F;
 		}

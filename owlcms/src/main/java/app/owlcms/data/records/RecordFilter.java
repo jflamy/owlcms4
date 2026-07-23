@@ -23,16 +23,17 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BaseJsonNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
+import app.owlcms.utils.JsonUtils;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 public class RecordFilter {
 
@@ -40,7 +41,7 @@ public class RecordFilter {
 	private static Logger logger = (Logger) LoggerFactory.getLogger(RecordFilter.class);
 	private static Boolean recordNameIsCategory = null;
 
-	public static JsonValue buildRecordJson(List<RecordEvent> displayedRecords, Set<RecordEvent> challengedRecords,
+	public static BaseJsonNode buildRecordJson(List<RecordEvent> displayedRecords, Set<RecordEvent> challengedRecords,
 	        Integer snatchRequest, Integer cjRequest,
 	        Integer totalRequest,
 	        Athlete a) {
@@ -60,7 +61,7 @@ public class RecordFilter {
 		Integer bestTotal = a.getPersonalBestTotal();
 		boolean personalRecords = bestSnatch != null || bestCleanJerk != null || bestTotal != null;
 		if (!personalRecords && (displayedRecords == null || displayedRecords.isEmpty())) {
-			return Json.createNull();
+			return JsonUtils.nullNode();
 		}
 
 		Multimap<String, RecordEvent> recordsByAgeWeight = ArrayListMultimap.create();
@@ -123,32 +124,32 @@ public class RecordFilter {
 			}
 		}
 
-		JsonObject recordInfo = Json.createObject();
-		JsonArray recordFederations = Json.createArray();
-		JsonArray recordCategories = Json.createArray();
+		ObjectNode recordInfo = JsonUtils.object();
+		ArrayNode recordFederations = JsonUtils.array();
+		ArrayNode recordCategories = JsonUtils.array();
 
 		int ix1 = 0;
 		for (String s : rowRecordNames) {
-			recordFederations.set(ix1++, s);
+			JsonUtils.set(recordFederations, ix1++, s);
 		}
 
-		JsonArray columns = Json.createArray();
+		ArrayNode columns = JsonUtils.array();
 		int categoryRecordsLength = 0;
 		if (recordTable.length > 0) {
 			categoryRecordsLength = recordTable[0].length;
 			for (int j = 0; j < categoryRecordsLength; j++) {
-				JsonObject column = Json.createObject();
-				JsonArray columnCells = Json.createArray();
+				ObjectNode column = JsonUtils.object();
+				ArrayNode columnCells = JsonUtils.array();
 				for (int i = 0; i < recordTable.length; i++) {
-					JsonObject cell = Json.createObject();
+					ObjectNode cell = JsonUtils.object();
 					cell.put(Ranking.SNATCH.name(), "\u00a0");
 					cell.put(Ranking.CLEANJERK.name(), "\u00a0");
 					cell.put(Ranking.TOTAL.name(), "\u00a0");
 					for (RecordEvent rec : recordTable[i][j]) {
-						if (recordCategories.length() <= j || recordCategories.get(j) == null) {
+						if (recordCategories.size() <= j || recordCategories.get(j) == null) {
 							String string = Translator.translate("Record.CategoryTitle", rec.getAgeGrp(),
 							        rec.getBwCatString());
-							recordCategories.set(j, string);
+							JsonUtils.set(recordCategories, j, string);
 							column.put("cat", string);
 						}
 						Double recordValue = rec.getRecordValue();
@@ -172,11 +173,11 @@ public class RecordFilter {
 							// logger.debug("rec {} not found in {}", rec, challengedRecords);
 						}
 					}
-					columnCells.set(i, cell);
+					JsonUtils.set(columnCells, i, cell);
 				}
-				column.put("records", columnCells);
+				column.set("records", columnCells);
 				column.put("recordClass", "recordBox");
-				columns.set(j, column);
+				JsonUtils.set(columns, j, column);
 			}
 		}
 
@@ -184,9 +185,9 @@ public class RecordFilter {
 
 		if (personalRecords) {
 			personalRecordsLength = 1;
-			JsonObject column = Json.createObject();
-			JsonArray columnCells = Json.createArray();
-			JsonObject cell = Json.createObject();
+			ObjectNode column = JsonUtils.object();
+			ArrayNode columnCells = JsonUtils.array();
+			ObjectNode cell = JsonUtils.object();
 			String string = Translator.translate("Record.PersonalBest");
 			column.put("cat", string);
 
@@ -194,16 +195,16 @@ public class RecordFilter {
 
 			cell.put(Ranking.CLEANJERK.name(), bestCleanJerk != null ? bestCleanJerk.toString() : "\u00a0");
 			cell.put(Ranking.TOTAL.name(), bestTotal != null ? bestTotal.toString() : "\u00a0");
-			columnCells.set(0, cell);
-			column.put("records", columnCells);
-			columns.set(categoryRecordsLength, column);
+			JsonUtils.set(columnCells, 0, cell);
+			column.set("records", columnCells);
+			JsonUtils.set(columns, categoryRecordsLength, column);
 			column.put("recordClass", "recordBoxPersonal");
 		}
 
-		recordInfo.put("recordNames", recordFederations);
-		recordInfo.put("recordCategories", recordCategories);
-		recordInfo.put("recordTable", columns);
-		recordInfo.put("nbRecords", Json.create(categoryRecordsLength + 1 + personalRecordsLength));
+		recordInfo.set("recordNames", recordFederations);
+		recordInfo.set("recordCategories", recordCategories);
+		recordInfo.set("recordTable", columns);
+		recordInfo.put("nbRecords", categoryRecordsLength + 1 + personalRecordsLength);
 
 		return recordInfo;
 	}

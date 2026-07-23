@@ -11,9 +11,8 @@ import java.io.InputStream;
 
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -53,12 +52,11 @@ public class FormatDetector {
 			inputStream.mark(4096);
 			
 			ObjectMapper mapper = new ObjectMapper();
-			mapper.registerModule(new JavaTimeModule());
 			
 			// Create a streaming parser with auto-close disabled so it won't close our stream
-			com.fasterxml.jackson.core.JsonParser parser = mapper.getFactory()
-				.createParser(inputStream)
-				.disable(com.fasterxml.jackson.core.JsonParser.Feature.AUTO_CLOSE_SOURCE);
+			tools.jackson.core.JsonParser parser = mapper.reader()
+				.without(tools.jackson.core.StreamReadFeature.AUTO_CLOSE_SOURCE)
+				.createParser(inputStream);
 			
 			String version = "1.0"; // default
 			boolean hasFormatVersion = false;
@@ -66,12 +64,12 @@ public class FormatDetector {
 			boolean hasGroups = false;
 			
 			// Read just the root level field names
-			if (parser.nextToken() == com.fasterxml.jackson.core.JsonToken.START_OBJECT) {
-				while (parser.nextToken() != com.fasterxml.jackson.core.JsonToken.END_OBJECT) {
+			if (parser.nextToken() == tools.jackson.core.JsonToken.START_OBJECT) {
+				while (parser.nextToken() != tools.jackson.core.JsonToken.END_OBJECT) {
 					String fieldName = parser.currentName();
 					if ("formatVersion".equals(fieldName)) {
 						parser.nextToken();
-						version = parser.getText();
+						version = parser.getString();
 						hasFormatVersion = true;
 						break; // Found explicit version, no need to check further
 					} else if ("sessions".equals(fieldName)) {
@@ -155,14 +153,13 @@ public class FormatDetector {
 	public static String detectVersion(InputStream inputStream) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			mapper.registerModule(new JavaTimeModule());
 			
 			// Read the JSON as a tree to examine structure
 			JsonNode root = mapper.readTree(inputStream);
 			
 			// Check if formatVersion field exists
 			if (root.has("formatVersion")) {
-				String version = root.get("formatVersion").asText();
+				String version = root.get("formatVersion").asString();
 				logger.debug("Found formatVersion field: {}", version);
 				return version;
 			}
@@ -198,11 +195,10 @@ public class FormatDetector {
 	public static String detectVersionFromString(String jsonString) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			mapper.registerModule(new JavaTimeModule());
 			JsonNode root = mapper.readTree(jsonString);
 			
 			if (root.has("formatVersion")) {
-				return root.get("formatVersion").asText();
+				return root.get("formatVersion").asString();
 			}
 			
 			if (root.has("sessions")) {

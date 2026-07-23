@@ -456,7 +456,6 @@ public class RecordRepository {
 		});
 	}
 
-	// public static JsonValue computeRecords(Gender gender, Integer age, Double bw, Integer snatchRequest,
 	// Integer cjRequest, Integer totalRequest) {
 	// List<RecordEvent> records = findFiltered(gender, age, bw, null, null);
 	// return buildRecordJson(records, snatchRequest, cjRequest, totalRequest);

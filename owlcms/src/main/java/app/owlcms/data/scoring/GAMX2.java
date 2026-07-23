@@ -14,7 +14,7 @@ import java.util.Map;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;

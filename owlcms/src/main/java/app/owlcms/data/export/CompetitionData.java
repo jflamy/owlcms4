@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 
@@ -73,10 +73,9 @@ public class CompetitionData {
 	}
 
 	private ObjectMapper createExportMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
-		mapper.addMixIn(Championship.class, StoredChampionshipMixin.class);
-		return mapper;
+		return JsonMapper.builder()
+		        .addMixIn(Championship.class, StoredChampionshipMixin.class)
+		        .build();
 	}
 
 	public InputStream exportData() {
@@ -142,7 +141,7 @@ public class CompetitionData {
 			serialized = writerWithDefaultPrettyPrinter.writeValueAsString(this.fromDatabase());
 			// System.out.println(serialized);
 			return serialized;
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -219,7 +218,6 @@ public class CompetitionData {
 
 	public CompetitionData importData(InputStream serialized) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		logger.debug("after unmarshall {}", newData.getPlatforms());
@@ -227,9 +225,8 @@ public class CompetitionData {
 	}
 
 	public CompetitionData importDataFromString(String serialized)
-	        throws JsonMappingException, JsonProcessingException {
+	        throws DatabindException, JacksonException {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		// logger.debug("after unmarshall {}", newData.getPlatforms());

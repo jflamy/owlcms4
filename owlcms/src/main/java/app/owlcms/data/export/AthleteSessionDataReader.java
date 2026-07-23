@@ -16,11 +16,12 @@ import java.util.List;
 
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.StreamReadFeature;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -71,7 +72,7 @@ public class AthleteSessionDataReader {
 		}
 	}
 
-	private static void doImportAthletes(InputStream is, List<Long> sessionIds) throws IOException, JsonParseException {
+	private static void doImportAthletes(InputStream is, List<Long> sessionIds) throws IOException, StreamReadException {
 		JsonFactory factory = JsonFactory.builder()
 		        .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION)
 		        .build();
@@ -126,7 +127,7 @@ public class AthleteSessionDataReader {
 		        "cleanJerk3LiftTime",
 		        "cleanJerk3ActualLift",
 		};
-		try (JsonParser parser = factory.createParser(is)) {
+		try (JsonParser parser = factory.createParser(ObjectReadContext.empty(), is)) {
 			jsonAthletes = readAthletes(parser, athletes, attributesToRead, sessionIds);
 		}
 		updateAthletes(jsonAthletes, attributesToRead);
@@ -140,7 +141,7 @@ public class AthleteSessionDataReader {
 			JsonToken token = parser.nextToken();
 
 			// skip tokens until top-level athlete field name.
-			if (JsonToken.FIELD_NAME.equals(token) && "athletes".equals(parser.currentName())) {
+			if (JsonToken.PROPERTY_NAME.equals(token) && "athletes".equals(parser.currentName())) {
 				token = parser.nextToken(); // Move to start of array of athletes
 
 				while ((token = parser.nextToken()) != JsonToken.END_ARRAY) {

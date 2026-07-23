@@ -30,8 +30,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
@@ -1117,7 +1118,7 @@ public class Competition {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			return mapper.readValue(this.enabledRankings, new TypeReference<List<String>>() {});
-		} catch (IOException e) {
+		} catch (JacksonException e) {
 			logger.error("Failed to parse enabledRankings: {}", e.getMessage());
 			return null;
 		}
@@ -1138,7 +1139,7 @@ public class Competition {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			this.enabledRankings = mapper.writeValueAsString(rankings);
-		} catch (IOException e) {
+		} catch (JacksonException e) {
 			logger.error("Failed to serialize enabledRankings: {}", e.getMessage());
 			this.enabledRankings = null;
 		}

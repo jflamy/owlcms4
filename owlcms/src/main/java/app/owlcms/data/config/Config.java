@@ -37,9 +37,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.AccessUtils;
@@ -310,7 +310,7 @@ public class Config {
 				        featureSwitch -> switches.put(featureSwitch.getId(), Boolean.TRUE.equals(entry.getValue())),
 				        () -> logger.warn("Ignoring unknown feature switch '{}' in JSON", entry.getKey()));
 			}
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			throw new IllegalArgumentException("Invalid feature switch JSON", e);
 		}
 		return switches;
@@ -322,7 +322,7 @@ public class Config {
 		}
 		try {
 			return FEATURE_SWITCH_JSON_MAPPER.writeValueAsString(switches);
-		} catch (JsonProcessingException e) {
+		} catch (JacksonException e) {
 			throw new IllegalStateException("Unable to write feature switch JSON", e);
 		}
 	}
