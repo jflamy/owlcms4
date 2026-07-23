@@ -50,4 +50,4 @@ But you can use maven to create a production build manually, as follows
 
 There is a Dockerfile in owlcms4top to build owlcms for quick testing to the fly.io cloud (see deploy.sh).
 
-The current process for actual production builds uses the `owlcms-docker` project to build Docker containers using  `mvn package`, once the production build has been done.
+The `owlcms-docker` project prepares the shaded application jar and logging configuration for the root Dockerfile. Both Fly.io testing and release builds use this same Dockerfile after Maven prepares the context.
