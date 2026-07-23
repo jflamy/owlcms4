@@ -36,9 +36,9 @@ import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import ch.qos.logback.classic.Logger;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import elemental.json.JsonValue;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.BaseJsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -292,7 +292,7 @@ public class URLUtils {
 	 * @param location the new location to set
 	 * @param originalLocation the original location before the change (for FOP validation)
 	 */
-	public static void replaceState(History history, JsonValue object, Location location, Location originalLocation) {
+    public static void replaceState(History history, BaseJsonNode object, Location location, Location originalLocation) {
 		//logger.debug("replaceState1 {} {}",location.getPathWithQueryParameters(), LoggerUtils.stackTrace());
 		
 		// Extract original FOP from the location passed in
@@ -423,7 +423,7 @@ public class URLUtils {
             return values;
         }
 
-        node.properties().forEach(entry -> values.put(entry.getKey(), entry.getValue().asText()));
+        node.properties().forEach(entry -> values.put(entry.getKey(), entry.getValue().asString()));
         return values;
     }
 

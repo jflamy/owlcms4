@@ -14,7 +14,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import ch.qos.logback.classic.Logger;
 

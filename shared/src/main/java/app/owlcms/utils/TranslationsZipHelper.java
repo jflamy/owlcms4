@@ -18,7 +18,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import app.owlcms.i18n.Translator;
 import ch.qos.logback.classic.Logger;
@@ -93,7 +93,6 @@ public class TranslationsZipHelper {
 	 * 
 	 * @return Map structure with "locales" key containing all locale translation maps and a checksum
 	 */
-	@SuppressWarnings("deprecation")
 	private static Map<String, Object> buildTranslationsStructure() {
 		Map<String, Object> root = new HashMap<>();
 		Map<String, Map<String, String>> localesMap = new HashMap<>();
@@ -115,7 +114,7 @@ public class TranslationsZipHelper {
 			
 			// First, get base language translations if this is a regional variant
 			if (locale.getCountry() != null && !locale.getCountry().isEmpty()) {
-				Locale baseLanguage = new Locale(locale.getLanguage());
+				Locale baseLanguage = Locale.of(locale.getLanguage());
 				// Get all base language translations
 				Map<String, String> baseTranslations = Translator.getMapForLocale(baseLanguage);
 				logger.debug("Base language {} for {} has {} keys", 

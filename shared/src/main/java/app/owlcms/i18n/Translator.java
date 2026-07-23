@@ -41,8 +41,8 @@ import org.supercsv.io.ICsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.i18n.I18NProvider;
@@ -620,7 +620,7 @@ public class Translator implements I18NProvider {
 				List<String> row = new ArrayList<>();
 				if (rowNode.isArray()) {
 					for (JsonNode value : rowNode) {
-						row.add(value.asText());
+						row.add(value.asString());
 					}
 				}
 				writer.write(row);
@@ -653,7 +653,7 @@ public class Translator implements I18NProvider {
 	private static String chooseGoogleSheetsTab(JsonNode sheets) {
 		List<String> titles = new ArrayList<>();
 		for (JsonNode sheet : sheets) {
-			String title = sheet.path("properties").path("title").asText(null);
+			String title = sheet.path("properties").path("title").asString(null);
 			if (title != null && !title.isBlank()) {
 				titles.add(title);
 			}
