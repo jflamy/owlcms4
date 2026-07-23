@@ -103,8 +103,11 @@ public class CompetitionDataV2 {
 	}
 
 	private static ObjectMapper createMapper() {
+		// Jackson 3 defaults FAIL_ON_NULL_FOR_PRIMITIVES to true; Jackson 2 defaulted to false.
+		// Restore the lenient behavior so null primitive fields (e.g. ranks/flags) map to their default value.
 		return JsonMapper.builder()
 		        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+		        .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
 		        .build();
 	}
 
