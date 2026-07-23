@@ -9,6 +9,7 @@ package app.owlcms.nui.lifting;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -62,7 +63,7 @@ public class JuryDialog extends Dialog {
 		this.deliberation = deliberation;
 		this.setCloseOnEsc(false);
 		this.setCloseOnOutsideClick(false);
-		this.setModal(false);
+		this.setModality(ModalityMode.MODELESS);
 		this.setDraggable(true);
 		this.logger.info(
 		        deliberation == JuryDeliberationEventType.START_DELIBERATION ? "{}{} reviewedAthlete {}" : "{}{}",

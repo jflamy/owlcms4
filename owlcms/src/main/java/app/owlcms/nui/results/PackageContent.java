@@ -631,7 +631,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			getCrudLayout(crud).addFilterComponent(new VerticalLayout(scoringCombo, winnersOnlyCheckbox));
 		}
 		
-		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+		Button clearFilters = new Button((String) null, VaadinIcon.CLOSE.create());
 		clearFilters.addClickListener(event -> {
 			clearFilters();
 			this.includeUnfinishedCategories.setValue(false);

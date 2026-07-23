@@ -754,7 +754,7 @@ public class RegistrationContent extends BaseContent implements CrudListener<Ath
 		crudGrid.getCrudLayout().addFilterComponent(this.getTeamFilter());
 
 		if (clearFilter) {
-			Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+			Button clearFilters = new Button((String) null, VaadinIcon.CLOSE.create());
 			clearFilters.addClickListener(event -> {
 				clearFilters();
 			});

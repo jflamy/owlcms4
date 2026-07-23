@@ -790,7 +790,7 @@ public class WeighinContent extends BaseContent
 		});
 		crudGrid.getCrudLayout().addFilterComponent(this.getTeamFilter());
 
-		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+		Button clearFilters = new Button((String) null, VaadinIcon.CLOSE.create());
 		clearFilters.addClickListener(event -> {
 			clearFilters();
 		});

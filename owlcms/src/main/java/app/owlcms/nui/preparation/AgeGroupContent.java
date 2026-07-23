@@ -431,7 +431,7 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 		this.activeFilter.setAriaLabel(Translator.translate("ActiveCategoriesOnly"));
 		crud.getCrudLayout().addFilterComponent(this.activeFilter);
 
-		Button clearFilters = new Button(null, VaadinIcon.CLOSE.create());
+		Button clearFilters = new Button((String) null, VaadinIcon.CLOSE.create());
 		clearFilters.addClickListener(event -> {
 			this.nameFilter.clear();
 			this.activeFilter.clear();

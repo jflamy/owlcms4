@@ -20,7 +20,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
@@ -35,7 +35,8 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.dom.Style;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 
@@ -59,8 +60,8 @@ import ch.qos.logback.classic.Logger;
  * The main view is a top-level placeholder for other views.
  */
 @SuppressWarnings({ "serial", "deprecation" })
-@JsModule("@vaadin/vaadin-lumo-styles/presets/compact.js")
-public class OwlcmsLayout extends AppLayout {
+@CssImport("@vaadin/vaadin-lumo-styles/presets/compact.css")
+public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	public static final String LARGE = "text-l";
 	public static final String NONE = "m-0";
@@ -150,7 +151,7 @@ public class OwlcmsLayout extends AppLayout {
 		if (getViewTitle() instanceof NativeLabel) {
 			((NativeLabel) getViewTitle()).setText(topBarTitle);
 		} else {
-			setMenuTitle(new NativeLabel("topBarTitle"));
+			setMenuTitle(new NativeLabel(topBarTitle));
 		}
 	}
 
@@ -212,13 +213,15 @@ public class OwlcmsLayout extends AppLayout {
 	}
 
 	@Override
-	protected void afterNavigation() {
-		super.afterNavigation();
+	public void afterNavigation(AfterNavigationEvent event) {
 		refreshDrawerIfNeeded();
 		if (Translator.isRTL(OwlcmsSession.getLocale())) {
 			UI.getCurrent().setDirection(Direction.RIGHT_TO_LEFT);
 		}
-		setMenuTitle(getCurrentPageTitle());
+		// The visible left label is set per-page by each content's setHeaderContent()
+		// (called from showRouterLayoutContent). We must NOT overwrite it here with the
+		// @PageTitle annotation value: pages that use HasDynamicTitle (e.g. Home, Announcer)
+		// have no @PageTitle, so getCurrentPageTitle() returns "" and would blank the header.
 	}
 
 	/**
@@ -302,11 +305,11 @@ public class OwlcmsLayout extends AppLayout {
 		return new Tab(link);
 	}
 
-	@SuppressWarnings("deprecation")
 	private Tab createTab(Icon viewIcon, String viewName,
 	        String docOpener) {
 		Anchor a = new Anchor();
 		a.setHref(docOpener);
+		a.setTarget("_blank");
 		a.add(viewIcon);
 		// copied from router-link
 		viewIcon.getElement().setAttribute("style",
@@ -317,14 +320,9 @@ public class OwlcmsLayout extends AppLayout {
 		return new Tab(a);
 	}
 
-	private String getCurrentPageTitle() {
-		PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-		return title == null ? "" : title.value();
-	}
-
 	private Tabs getTabs() {
 		Tabs tabs = new Tabs();
-		String docOpener = "javascript:window.open('https://jflamy.github.io/owlcms4/#/index','_blank')";
+		String docOpener = "https://jflamy.github.io/owlcms4/#/index";
 		boolean recordsOnly = Config.getCurrent().isRecordRepository();
 		if (recordsOnly) {
 			tabs.add(createTab(new Icon(VaadinIcon.TROPHY),

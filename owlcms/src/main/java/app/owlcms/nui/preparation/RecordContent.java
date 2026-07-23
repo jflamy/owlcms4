@@ -943,7 +943,7 @@ public class RecordContent extends BaseContent implements CrudListener<RecordEve
 		filterRow2.add(buildFilterBlock("RecordEvent.HistoricalDataTitle", this.historicalFilter));
 
 		// Clear filters button (stays on row 1)
-		Button clearFiltersButton = new Button(null, VaadinIcon.CLOSE.create());
+		Button clearFiltersButton = new Button((String) null, VaadinIcon.CLOSE.create());
 		clearFiltersButton.addClickListener(event -> {
 			clearFilters();
 			crud.refreshGrid();

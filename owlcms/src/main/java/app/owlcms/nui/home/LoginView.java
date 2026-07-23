@@ -117,7 +117,7 @@ public class LoginView extends Composite<VerticalLayout>
 	@Override
 	public void setHeaderContent() {
 		NativeLabel label = new NativeLabel(getMenuTitle());
-		label.getStyle().set("font-size", "var(--lumo-font-size-xl");
+		label.getStyle().set("font-size", "var(--lumo-font-size-xl)");
 		Image image = new Image("icons/owlcms.png", "owlcms icon");
 		image.getStyle().set("height", "7ex");
 		image.getStyle().set("width", "auto");

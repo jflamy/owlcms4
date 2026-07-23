@@ -13,8 +13,8 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.DatabindException;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 
@@ -85,7 +85,7 @@ public class JsonUploadDialog extends Dialog {
 		
 		Upload upload = new Upload(uploadHandler);
 		upload.setWidth("40em");
-		upload.setAcceptedFileTypes("application/json");
+		upload.setAcceptedMimeTypes("application/json");
 
 		H3 title = new H3(Translator.translate("ExportDatabase.UploadJson"));
 		VerticalLayout vl = new VerticalLayout(title, label, upload, ta);

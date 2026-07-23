@@ -139,7 +139,8 @@ public class NRegistrationFileUploadDialog extends Dialog {
 
 		Upload upload = new Upload(uploadHandler);
 		upload.setWidth("40em");
-		upload.setAcceptedFileTypes(XLS_CONTENT_TYPE, XLSX_CONTENT_TYPE, ".xls", ".xlsx");
+		upload.setAcceptedMimeTypes(XLS_CONTENT_TYPE, XLSX_CONTENT_TYPE);
+		upload.setAcceptedFileExtensions(".xls", ".xlsx");
 		upload.addFileRejectedListener(event -> appendErrors(ta, getUnsupportedRegistrationUploadMessage()));
 
 		H3 title = new H3(Translator.translate("UploadRegistrationFile"));

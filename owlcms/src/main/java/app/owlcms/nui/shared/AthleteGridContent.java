@@ -1476,7 +1476,7 @@ public abstract class AthleteGridContent extends BaseContent
 		final String ctx = notifContext();
 		final long[] openStamp = { 0L };
 		n.getElement().addEventListener("opened-changed", e -> {
-			boolean opened = e.getEventData().getBoolean("event.detail.value");
+			boolean opened = e.getEventData().path("event.detail.value").asBoolean();
 			if (!opened) {
 				return;
 			}

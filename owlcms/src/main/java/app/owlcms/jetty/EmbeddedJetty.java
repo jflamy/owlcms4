@@ -9,6 +9,7 @@ package app.owlcms.jetty;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import jakarta.websocket.ContainerProvider;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,14 @@ public class EmbeddedJetty extends com.github.mvysny.vaadinboot.VaadinBoot {
 	@Override
 	protected WebAppContext createWebAppContext() throws IOException {
 		WebAppContext context = super.createWebAppContext();
+		// Jetty ee10's ASM-based annotation scanner cannot parse Jackson's Java 23
+		// multi-release classes (META-INF/versions/23/...). Jackson jars contain no
+		// web/servlet annotations, so exclude them from the annotation scan.
+		Object pattern = context.getAttribute(MetaInfConfiguration.CONTAINER_JAR_PATTERN);
+		if (pattern instanceof String patternString) {
+			context.setAttribute(MetaInfConfiguration.CONTAINER_JAR_PATTERN,
+			        patternString.replace(".*\\.jar", "(?!.*jackson).*\\.jar"));
+		}
 		context.addServlet(ControlPanelServlet.class, "/controlpanel/stop");
 		return context;
 	}

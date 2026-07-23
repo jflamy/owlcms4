@@ -84,7 +84,7 @@ public class RecordImportDialog extends Dialog {
 		});
 
 		Upload upload = new Upload(uploadHandler);
-		upload.setAcceptedFileTypes(".xls", ".xlsx");
+		upload.setAcceptedFileExtensions(".xls", ".xlsx");
 		upload.setWidth("40em");
 
 		this.previewArea = new VerticalLayout();

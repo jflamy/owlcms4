@@ -89,7 +89,8 @@ public class TimetableUploadDialog extends Dialog {
         upload = new Upload(uploadHandler);
         upload.setUploadButton(uploadButton);
         upload.setDropLabel(new NativeLabel(Translator.translate("Timetable.SelectXLSXFile")));
-        upload.setAcceptedFileTypes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
+        upload.setAcceptedMimeTypes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        upload.setAcceptedFileExtensions(".xlsx");
 
         errorArea.setReadOnly(true);
         errorArea.setVisible(false);

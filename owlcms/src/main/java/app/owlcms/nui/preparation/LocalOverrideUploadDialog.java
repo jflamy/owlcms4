@@ -62,7 +62,7 @@ public class LocalOverrideUploadDialog extends Dialog {
 		Upload upload = new Upload(uploadHandler);
 		upload.setWidth("40em");
 
-		upload.setAcceptedFileTypes("application/zip", "application/x-zip-compressed");
+		upload.setAcceptedMimeTypes("application/zip", "application/x-zip-compressed");
 
 		upload.setUploadButton(new Button(Translator.translate("Config.Select")));
 
