@@ -2,7 +2,7 @@
 
 This is a typical macOS installation process.  If you prefer command-line installs using `brew`, see [this page](LocalMacBrewSetup).
 
-- Download the `.dmg` installer from the [release repository](https://github.com/owlcms/owlcms-controlpanel/releases) 
+- Download the `.dmg` installer from the [release repository](https://github.com/owlcms/owlcms-controlpanel/releases/latest) 
   - For current AppleSilicon Macs (M1/M2/M3...) use this link:  [macOS Installer](https://github.com/owlcms/owlcms-controlpanel/releases/latest/download/macOS_OWLMCS.dmg)
   - For older Intel Macs: use this link: [macOS **Intel** Installer](https://github.com/owlcms/owlcms-controlpanel/releases/latest/download/macOS_Intel_OWLMCS.dmg)
 - Open the `.dmg` file.   You should see something like this
