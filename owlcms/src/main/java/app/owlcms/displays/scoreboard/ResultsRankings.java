@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -27,7 +29,6 @@ import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import ch.qos.logback.classic.Logger;
-import elemental.json.JsonObject;
 
 /**
  * Rankings display using the standard results template.
@@ -50,7 +51,7 @@ public class ResultsRankings extends Results {
 	}
 
 	@Override
-	protected void getAthleteJson(Athlete athlete, JsonObject athleteJson, Category category, int liftOrderRank, FieldOfPlay fop) {
+	protected void getAthleteJson(Athlete athlete, ObjectNode athleteJson, Category category, int liftOrderRank, FieldOfPlay fop) {
 		super.getAthleteJson(athlete, athleteJson, category, liftOrderRank, fop);
 		applyMedalClasses(athlete, athleteJson);
 	}
@@ -92,7 +93,7 @@ public class ResultsRankings extends Results {
 		};
 	}
 
-	private void applyMedalClasses(Athlete athlete, JsonObject athleteJson) {
+	private void applyMedalClasses(Athlete athlete, ObjectNode athleteJson) {
 		athleteJson.put("snatchMedal", "");
 		athleteJson.put("cleanJerkMedal", "");
 		athleteJson.put("totalMedal", "");

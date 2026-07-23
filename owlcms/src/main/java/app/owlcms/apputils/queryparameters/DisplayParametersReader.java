@@ -15,6 +15,7 @@ import java.util.Timer;
 import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -26,6 +27,7 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.page.ExtendedClientDetails;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
@@ -49,7 +51,7 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 
 		dialog.setCloseOnOutsideClick(true);
 		dialog.setCloseOnEsc(true);
-		dialog.setModal(true);
+		dialog.setModality(ModalityMode.STRICT);
 		dialog.addDialogCloseActionListener(e -> {
 			// logger.debug("closeActionListener {}", getDialog());
 			getDialog().close();
@@ -57,13 +59,12 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		dialog.setWidth("75%");
 
 		VerticalLayout vl = new VerticalLayout();
-		UI.getCurrent().getPage().retrieveExtendedClientDetails(details -> {
-			if (details.getBodyClientWidth() >= 3800) {
-				// 4K screen
-				// could not figure out how to do with style sheet...
-				vl.getStyle().set("zoom", "200%");
-			}
-		});
+		ExtendedClientDetails details = UI.getCurrent().getPage().getExtendedClientDetails();
+		if (details != null && details.getBodyClientWidth() >= 3800) {
+			// 4K screen
+			// could not figure out how to do with style sheet...
+			vl.getStyle().set("zoom", "200%");
+		}
 		dialog.add(vl);
 
 		addDialogContent(page, vl);

@@ -24,6 +24,10 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BaseJsonNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
@@ -42,13 +46,10 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.spreadsheet.PAthlete;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 /**
  * Class TopSinclair
@@ -69,8 +70,8 @@ public class TopSinclair extends AbstractTop {
 	       logger.setLevel(Level.INFO);
 	       uiEventLogger.setLevel(Level.INFO);
        }
-       JsonArray cattempts;
-       JsonArray sattempts;
+	ArrayNode cattempts;
+	ArrayNode sattempts;
        private List<Athlete> sortedMen;
        private List<Athlete> sortedWomen;
        private double topManScore;
@@ -178,7 +179,7 @@ public class TopSinclair extends AbstractTop {
 	       updateBottom();
        }
 
-	public void getAthleteJson(Athlete a, JsonObject ja, Gender g, int needed) {
+	public void getAthleteJson(Athlete a, ObjectNode ja, Gender g, int needed) {
 		String category;
 		category = a.getCategory() != null ? a.getCategory().getDisplayName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -189,8 +190,8 @@ public class TopSinclair extends AbstractTop {
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a);
-		ja.put("sattempts", this.sattempts);
-		ja.put("cattempts", this.cattempts);
+		ja.set("sattempts", this.sattempts);
+		ja.set("cattempts", this.cattempts);
 		// Add best snatch and best clean & jerk
 		int bestSnatch = a.getBestSnatch();
 		int bestCleanJerk = a.getBestCleanJerk();
@@ -294,14 +295,14 @@ public class TopSinclair extends AbstractTop {
 	 * @return json string with nested attempts values
 	 */
 	protected void getAttemptsJson(Athlete a) {
-		this.sattempts = Json.createArray();
-		this.cattempts = Json.createArray();
+		this.sattempts = JsonUtils.array();
+		this.cattempts = JsonUtils.array();
 		XAthlete x = new XAthlete(a);
 		Integer liftOrderRank = x.getLiftOrderRank();
 		Integer curLift = x.getAttemptsDone();
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
-			JsonObject jri = Json.createObject();
+			ObjectNode jri = JsonUtils.object();
 			String stringValue = i.getStringValue();
 			boolean notDone = x.getAttemptsDone() < 6;
 			String blink = (notDone ? " blink" : "");
@@ -338,9 +339,9 @@ public class TopSinclair extends AbstractTop {
 			}
 
 			if (ix < 3) {
-				this.sattempts.set(ix, jri);
+				JsonUtils.set(this.sattempts, ix, jri);
 			} else {
-				this.cattempts.set(ix % 3, jri);
+				JsonUtils.set(this.cattempts, ix % 3, jri);
 			}
 			ix++;
 		}
@@ -366,7 +367,7 @@ public class TopSinclair extends AbstractTop {
 
 	@Override
 	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
+		ObjectNode translations = JsonUtils.object();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
 			String curKey = keys.nextElement();
@@ -393,8 +394,8 @@ public class TopSinclair extends AbstractTop {
 		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 
-	private JsonValue getAthletesJson(List<Athlete> list2, boolean overrideTeamWidth) {
-		JsonArray jath = Json.createArray();
+	private BaseJsonNode getAthletesJson(List<Athlete> list2, boolean overrideTeamWidth) {
+		ArrayNode jath = JsonUtils.array();
 		Ranking scoringSystem = this.scoringSystem != null ? this.scoringSystem : getEffectiveScoringSystem();
 		int athx = 0;
 		List<Athlete> list3 = list2 != null ? Collections.unmodifiableList(list2) : Collections.emptyList();
@@ -406,7 +407,7 @@ public class TopSinclair extends AbstractTop {
 		}
 
 		for (Athlete a : list3) {
-			JsonObject ja = Json.createObject();
+			ObjectNode ja = JsonUtils.object();
 			Gender curGender = a.getGender();
 			int needed = 0;
 
@@ -529,7 +530,7 @@ public class TopSinclair extends AbstractTop {
 			if (team != null && team.length() > Competition.SHORT_TEAM_LENGTH) {
 				setWide(true);
 			}
-			jath.set(athx, ja);
+			JsonUtils.set(jath, athx, ja);
 			athx++;
 		}
 		return jath;
@@ -598,11 +599,11 @@ public class TopSinclair extends AbstractTop {
 			       sortedMen2 != null && sortedMen2.size() > 0
 				       ? Translator.translate("Scoreboard.TopScoreMen", ssTitle) + championshipSuffix
 				       : "");
-		       JsonValue mAthletesJson = getAthletesJson(sortedMen2, true);
+		       BaseJsonNode mAthletesJson = getAthletesJson(sortedMen2, true);
 		       this.getElement().setPropertyJson("sortedMen", mAthletesJson);
 	       } else {
-		       this.getElement().setPropertyJson("topSinclairMen", Json.createNull());
-		       this.getElement().setPropertyJson("sortedMen", Json.createNull());
+		       this.getElement().setPropertyJson("topSinclairMen", JsonUtils.nullNode());
+		       this.getElement().setPropertyJson("sortedMen", JsonUtils.nullNode());
 	       }
 
 			   if (gender == null || gender == Gender.F) {
@@ -612,11 +613,11 @@ public class TopSinclair extends AbstractTop {
 			       sortedWomen2 != null && sortedWomen2.size() > 0
 				       ? Translator.translate("Scoreboard.TopScoreWomen", ssTitle) + championshipSuffix
 				       : "");
-		       JsonValue wAthletesJson = getAthletesJson(sortedWomen2, true);
+		       BaseJsonNode wAthletesJson = getAthletesJson(sortedWomen2, true);
 		       this.getElement().setPropertyJson("sortedWomen", wAthletesJson);
 	       } else {
-		       this.getElement().setPropertyJson("topSinclairWomen", Json.createNull());
-		       this.getElement().setPropertyJson("sortedWomen", Json.createNull());
+		       this.getElement().setPropertyJson("topSinclairWomen", JsonUtils.nullNode());
+		       this.getElement().setPropertyJson("sortedWomen", JsonUtils.nullNode());
 	       }
 	}
 

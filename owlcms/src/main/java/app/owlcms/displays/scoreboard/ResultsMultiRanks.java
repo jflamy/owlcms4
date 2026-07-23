@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.athlete.Athlete;
@@ -26,12 +29,9 @@ import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 /**
  * Show ranks for multiple age group competitions
@@ -66,7 +66,7 @@ public class ResultsMultiRanks extends Results {
 	}
 
 	@Override
-	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		boolean bestScore = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE);
 		boolean bestScoreRank = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK);
 
@@ -88,15 +88,15 @@ public class ResultsMultiRanks extends Results {
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank, fop);
-		ja.put("sattempts", getSattempts());
+		ja.set("sattempts", getSattempts());
 		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-		ja.put("cattempts", getCattempts());
+		ja.set("cattempts", getCattempts());
 		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		setCurrentAthleteRanks(a);
-		ja.put("snatchRanks", getRanksJson(a, Ranking.SNATCH, this.getAgeGroupMap()));
-		ja.put("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, this.getAgeGroupMap()));
-		ja.put("totalRanks", getRanksJson(a, Ranking.TOTAL, this.getAgeGroupMap()));
+		ja.set("snatchRanks", getRanksJson(a, Ranking.SNATCH, this.getAgeGroupMap()));
+		ja.set("cleanJerkRanks", getRanksJson(a, Ranking.CLEANJERK, this.getAgeGroupMap()));
+		ja.set("totalRanks", getRanksJson(a, Ranking.TOTAL, this.getAgeGroupMap()));
 		ja.put("group", a.getGroup().getName());
 		ja.put("subCategory", a.getSubCategory());
 
@@ -137,26 +137,26 @@ public class ResultsMultiRanks extends Results {
 		setTeamFlag(a, ja);
 	}
 
-	private JsonValue getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
-		JsonArray ranks = Json.createArray();
+	private ArrayNode getRanksJson(Athlete a, Ranking r, LinkedHashMap<String, Participation> ageGroupMap2) {
+		ArrayNode ranks = JsonUtils.array();
 		int i = 0;
 		for (Entry<String, Participation> e : this.getAgeGroupMap().entrySet()) {
 			Participation p = e.getValue();
 			if (p == null) {
-				ranks.set(i, formatRank(null));
+				JsonUtils.set(ranks, i, formatRank(null));
 			} else {
 				switch (r) {
 					case CLEANJERK:
-						ranks.set(i, formatRank(p.getCleanJerkRank()));
+						JsonUtils.set(ranks, i, formatRank(p.getCleanJerkRank()));
 						break;
 					case SNATCH:
-						ranks.set(i, formatRank(p.getSnatchRank()));
+						JsonUtils.set(ranks, i, formatRank(p.getSnatchRank()));
 						break;
 					case TOTAL:
-						ranks.set(i, formatRank(p.getCategoryScoreRank()));
+						JsonUtils.set(ranks, i, formatRank(p.getCategoryScoreRank()));
 						break;
 					default:
-						ranks.set(i, formatRank(p.getCategoryScoreRank()));
+						JsonUtils.set(ranks, i, formatRank(p.getCategoryScoreRank()));
 						break;
 				}
 			}
@@ -216,15 +216,15 @@ public class ResultsMultiRanks extends Results {
 	}
 
 	@Override
-	protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
+	protected ArrayNode getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
 		if (isChampionshipRanks()) {
 			return getChampionshipNamesJson(currentAthleteParticipations);
 		}
 
-		JsonArray ageGroups = Json.createArray();
+		ArrayNode ageGroups = JsonUtils.array();
 		int i = 0;
 		for (Entry<String, Participation> e : getFop().getAgeGroupMap().entrySet()) {
-			ageGroups.set(i, e.getKey());
+			JsonUtils.set(ageGroups, i, e.getKey());
 			i++;
 		}
 		getElement().setProperty("nbRanks", "" + i);
@@ -236,11 +236,11 @@ public class ResultsMultiRanks extends Results {
 		return Config.getCurrent().featureSwitch(FeatureSwitch.CHAMPIONSHIP_GROUPING) || (group2 != null && group2.isMasters());
 	}
 
-	private JsonArray getChampionshipNamesJson(LinkedHashMap<String, Participation> agMap) {
+	private ArrayNode getChampionshipNamesJson(LinkedHashMap<String, Participation> agMap) {
 		// temporary
 		var agMap2 = new LinkedHashMap<String, Participation>();
 		// setAgeGroupMap(new LinkedHashMap<String, Participation>(agMap));
-		JsonArray ageGroups = Json.createArray();
+		ArrayNode ageGroups = JsonUtils.array();
 		int i = 0;
 		for (Entry<String, Participation> e : agMap.entrySet()) {
 			AgeGroup ag = AgeGroupRepository.findByName(e.getKey());
@@ -249,7 +249,7 @@ public class ResultsMultiRanks extends Results {
 			}
 			String championshipName = getColumnName(ag);
 			if (!agMap2.containsKey(championshipName)) {
-				ageGroups.set(i, championshipName);
+				JsonUtils.set(ageGroups, i, championshipName);
 				agMap2.put(championshipName, null);
 				i++;
 			}

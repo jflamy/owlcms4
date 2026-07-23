@@ -20,6 +20,8 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.template.Id;
 
+import tools.jackson.databind.node.ArrayNode;
+
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionBlockDecisionElement;
@@ -38,11 +40,10 @@ import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
 
 /**
  * Class Results
@@ -287,13 +288,13 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 				break;
 			}
 		}
-		JsonArray jsonDecisions = Json.createArray();
+		ArrayNode jsonDecisions = JsonUtils.array();
 		for (int i = 0; i < n; i++) {
 			Boolean v = (votes != null) ? votes[i] : null;
 			if (allVoted) {
-				jsonDecisions.set(i, v ? "white" : "red");
+				JsonUtils.set(jsonDecisions, i, v ? "white" : "red");
 			} else {
-				jsonDecisions.set(i, v != null ? "voted" : "empty");
+				JsonUtils.set(jsonDecisions, i, v != null ? "voted" : "empty");
 			}
 		}
 		this.getElement().setPropertyJson("juryDecisions", jsonDecisions);
@@ -382,7 +383,7 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	@Override
 	public void renderNoJuryCircles() {
 		setJuryLightsHidden(true);
-		this.getElement().setPropertyJson("juryDecisions", Json.createArray());
+		this.getElement().setPropertyJson("juryDecisions", JsonUtils.array());
 	}
 
 	@Override

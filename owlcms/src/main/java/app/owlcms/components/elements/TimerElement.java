@@ -24,6 +24,8 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.server.VaadinSession;
 
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.Main;
 import app.owlcms.data.config.Config;
@@ -32,11 +34,10 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IProxyTimer;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonObject;
 
 /**
  * Countdown timer element.
@@ -415,7 +416,7 @@ public abstract class TimerElement extends LitTemplate
 		if (timerElement2 == null) {
 			return;
 		}
-		JsonObject payload = Json.createObject();
+		ObjectNode payload = JsonUtils.object();
 		payload.put("sequence", Long.toString(++this.timerSettingsSequence));
 		payload.put("silent", isSilent());
 		payload.put("serverTickEnabled", isServerTickEnabled());
@@ -579,7 +580,7 @@ public abstract class TimerElement extends LitTemplate
 	private void setTimerCommand(Element timerElement2, String command, double seconds, Boolean indefinite,
 			Boolean silent,
 			String from) {
-		JsonObject payload = Json.createObject();
+		ObjectNode payload = JsonUtils.object();
 		long sequence = ++this.timerCommandSequence;
 		payload.put("sequence", Long.toString(sequence));
 		payload.put("command", command);

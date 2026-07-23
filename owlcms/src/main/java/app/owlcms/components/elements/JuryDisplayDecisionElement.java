@@ -12,6 +12,8 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 
+import tools.jackson.databind.node.NullNode;
+
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
@@ -20,7 +22,6 @@ import app.owlcms.uievents.UIEvent.DecisionReset;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
 
 @SuppressWarnings("serial")
 public class JuryDisplayDecisionElement extends AbstractDecisionElement {
@@ -184,7 +185,7 @@ public class JuryDisplayDecisionElement extends AbstractDecisionElement {
 
 	private void setNullableIntegerProperty(String propertyName, Integer value) {
 		if (value == null) {
-			getElement().setPropertyJson(propertyName, Json.createNull());
+			getElement().setPropertyJson(propertyName, NullNode.instance);
 		} else {
 			getElement().setProperty(propertyName, value.intValue());
 		}

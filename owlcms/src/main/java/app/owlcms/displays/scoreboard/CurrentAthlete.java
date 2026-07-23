@@ -22,6 +22,10 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.template.Id;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BaseJsonNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionElement;
@@ -41,14 +45,11 @@ import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.CSSUtils;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 /**
  * Class Scoreboard
@@ -74,8 +75,8 @@ public class CurrentAthlete extends Results {
 		logger.setLevel(Level.INFO);
 		uiEventLogger.setLevel(Level.INFO);
 	}
-	JsonArray cattempts;
-	JsonArray sattempts;
+	ArrayNode cattempts;
+	ArrayNode sattempts;
 	@Id("breakTimer")
 	private BreakTimerElement breakTimer; // Flow creates it
 	@Id("decisions")
@@ -385,7 +386,7 @@ public class CurrentAthlete extends Results {
 	}
 
 	@Override
-	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -395,8 +396,8 @@ public class CurrentAthlete extends Results {
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank, fop);
-		ja.put("sattempts", this.sattempts);
-		ja.put("cattempts", this.cattempts);
+		ja.set("sattempts", this.sattempts);
+		ja.set("cattempts", this.cattempts);
 		ja.put("total", formatInt(a.getTotal()));
 		ja.put("snatchRank", formatInt(a.getMainRankings().getSnatchRank()));
 		ja.put("cleanJerkRank", formatInt(a.getMainRankings().getCleanJerkRank()));
@@ -415,8 +416,8 @@ public class CurrentAthlete extends Results {
 	 * @return
 	 */
 	@Override
-	protected JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, FieldOfPlay fop) {
-		JsonArray jath = Json.createArray();
+	protected BaseJsonNode getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, FieldOfPlay fop) {
+		ArrayNode jath = JsonUtils.array();
 		int athx = 0;
 
 		long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
@@ -428,7 +429,7 @@ public class CurrentAthlete extends Results {
 				continue;
 			}
 
-			JsonObject ja = Json.createObject();
+			ObjectNode ja = JsonUtils.object();
 			Category curCat = a.getCategory();
 			// compute the blinking rank (1 = current, 2 = next)
 			getAthleteJson(a, ja, curCat, (a.getId() == currentId)
@@ -442,7 +443,7 @@ public class CurrentAthlete extends Results {
 				logger.trace("long team {}", team);
 				setWideTeamNames(true);
 			}
-			jath.set(athx, ja);
+			JsonUtils.set(jath, athx, ja);
 			athx++;
 		}
 		return jath;
@@ -459,13 +460,13 @@ public class CurrentAthlete extends Results {
 	 */
 	@Override
 	protected void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
-		this.sattempts = Json.createArray();
-		this.cattempts = Json.createArray();
+		this.sattempts = JsonUtils.array();
+		this.cattempts = JsonUtils.array();
 		XAthlete x = new XAthlete(a);
 		Integer curLift = x.getAttemptsDone();
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
-			JsonObject jri = Json.createObject();
+			ObjectNode jri = JsonUtils.object();
 			String stringValue = i.getStringValue();
 			boolean notDone = x.getAttemptsDone() < 6;
 			String blink = "";// (notDone ? " blink" : "");
@@ -518,9 +519,9 @@ public class CurrentAthlete extends Results {
 			}
 
 			if (ix < 3) {
-				this.sattempts.set(ix, jri);
+				JsonUtils.set(this.sattempts, ix, jri);
 			} else {
-				this.cattempts.set(ix % 3, jri);
+				JsonUtils.set(this.cattempts, ix % 3, jri);
 			}
 			ix++;
 		}
@@ -551,7 +552,7 @@ public class CurrentAthlete extends Results {
 
 	@Override
 	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
+		ObjectNode translations = JsonUtils.object();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
 			String curKey = keys.nextElement();

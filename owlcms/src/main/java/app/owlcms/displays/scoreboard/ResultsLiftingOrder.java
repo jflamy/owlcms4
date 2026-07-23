@@ -12,11 +12,12 @@ import java.util.function.BiPredicate;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
+import tools.jackson.databind.node.BaseJsonNode;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.displays.scoreboards.WarmupLiftingOrderPage;
-import elemental.json.JsonValue;
 
 @SuppressWarnings({ "serial", "deprecation" })
 
@@ -48,7 +49,7 @@ public class ResultsLiftingOrder extends Results {
 
 	
 	@Override
-	protected JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
+	protected BaseJsonNode getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
 		nbSubsets = 1;
 		return super.getAthletesJson(displayOrder, liftOrder, fop);
 	}

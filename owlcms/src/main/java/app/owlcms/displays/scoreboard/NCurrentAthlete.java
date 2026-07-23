@@ -24,6 +24,9 @@ import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.dom.Element;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
@@ -43,13 +46,11 @@ import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.GroupDone;
 import app.owlcms.utils.CSSUtils;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
 
 /**
  * NCurrentAthlete: feeds the NCurrentAthlete.js web component.
@@ -207,13 +208,13 @@ public class NCurrentAthlete extends Results {
 			computeIndicators(athlete, 1, fop, decision);
 		}
 
-		JsonArray decisions = Json.createArray();
+		ArrayNode decisions = JsonUtils.array();
 		if (singleLight) {
-			decisions.set(0, ref2 != null ? ref2 : decision);
+			JsonUtils.set(decisions, 0, ref2 != null ? ref2 : decision);
 		} else {
-			decisions.set(0, ref1);
-			decisions.set(1, ref2);
-			decisions.set(2, ref3);
+			JsonUtils.set(decisions, 0, ref1);
+			JsonUtils.set(decisions, 1, ref2);
+			JsonUtils.set(decisions, 2, ref3);
 		}
 		this.getElement().setPropertyJson("decisions", decisions);
 
@@ -520,7 +521,7 @@ public class NCurrentAthlete extends Results {
 	}
 
 	@Override
-	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		this.getElement().setProperty("fullName", a.getFullName() != null ? a.getFullName() : "");
 		this.getElement().setProperty("team", a.getTeam() != null ? formatTeam(a) : "");
 		this.getElement().setProperty("lift", formatAttempt(a.getAttemptsDone()));
@@ -559,7 +560,7 @@ public class NCurrentAthlete extends Results {
 	}
 
 	protected void updateDisplay(String liftType, FieldOfPlay fop, Athlete a) {
-		JsonObject ja = Json.createObject();
+		ObjectNode ja = JsonUtils.object();
 		if (a != null) {
 			getAthleteJson(a, ja, a.getCategory(), 1, fop);
 			setDetails(this.getElement(),true);
@@ -598,10 +599,10 @@ public class NCurrentAthlete extends Results {
 	private void computeIndicators(Athlete a, int liftOrderRank, FieldOfPlay fop, Boolean decisionOverride) {
 		XAthlete x = new XAthlete(a);
 		Integer curLift = x.getAttemptsDone();
-		JsonArray snIndicators = Json.createArray();
-		JsonArray snIndicatorClasses = Json.createArray();
-		JsonArray cjIndicators = Json.createArray();
-		JsonArray cjIndicatorClasses = Json.createArray();
+		ArrayNode snIndicators = JsonUtils.array();
+		ArrayNode snIndicatorClasses = JsonUtils.array();
+		ArrayNode cjIndicators = JsonUtils.array();
+		ArrayNode cjIndicatorClasses = JsonUtils.array();
 
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
@@ -644,11 +645,11 @@ public class NCurrentAthlete extends Results {
 			}
 
 			if (ix < 3) {
-				snIndicators.set(ix, value);
-				snIndicatorClasses.set(ix, className);
+				JsonUtils.set(snIndicators, ix, value);
+				JsonUtils.set(snIndicatorClasses, ix, className);
 			} else {
-				cjIndicators.set(ix % 3, value);
-				cjIndicatorClasses.set(ix % 3, className);
+				JsonUtils.set(cjIndicators, ix % 3, value);
+				JsonUtils.set(cjIndicatorClasses, ix % 3, className);
 			}
 			ix++;
 		}

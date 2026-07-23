@@ -34,6 +34,8 @@ import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.components.elements.AthleteTimerElement;
@@ -62,13 +64,12 @@ import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.CSSUtils;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonObject;
 
 /**
  * Attempt board.
@@ -872,7 +873,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	}
 
 	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
+		ObjectNode translations = JsonUtils.object();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
 			String curKey = keys.nextElement();

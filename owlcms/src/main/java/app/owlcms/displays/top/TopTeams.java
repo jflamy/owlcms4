@@ -23,6 +23,10 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BaseJsonNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
@@ -35,13 +39,10 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 /**
  * Class TopTeams
@@ -200,7 +201,7 @@ public class TopTeams extends AbstractTop {
 
 	@Override
 	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
+		ObjectNode translations = JsonUtils.object();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
 			String curKey = keys.nextElement();
@@ -248,7 +249,7 @@ public class TopTeams extends AbstractTop {
 		return Ranking.TOTAL;
 	}
 
-	private void getTeamJson(Team t, JsonObject ja) {
+	private void getTeamJson(Team t, ObjectNode ja) {
 		ja.put("team", t.getName());
 		ja.put("counted", formatInt(t.getCounted()));
 		ja.put("size", formatInt((int) t.getSize()));
@@ -256,8 +257,8 @@ public class TopTeams extends AbstractTop {
 		ja.put("points", formatInt(t.getPoints()));
 	}
 
-	private JsonValue getTeamsJson(List<TeamTreeItem> teamItems, boolean overrideTeamWidth) {
-		JsonArray jath = Json.createArray();
+	private BaseJsonNode getTeamsJson(List<TeamTreeItem> teamItems, boolean overrideTeamWidth) {
+		ArrayNode jath = JsonUtils.array();
 		int athx = 0;
 		List<Team> list3 = teamItems != null
 		        ? teamItems.stream().map(TeamTreeItem::getTeam).collect(Collectors.toList())
@@ -270,14 +271,14 @@ public class TopTeams extends AbstractTop {
 		}
 
 		for (Team t : list3) {
-			JsonObject ja = Json.createObject();
+			ObjectNode ja = JsonUtils.object();
 			t.getGender();
 			getTeamJson(t, ja);
 			String teamName = t.getName();
 			if (teamName != null && teamName.length() > Competition.SHORT_TEAM_LENGTH) {
 				setWide(true);
 			}
-			jath.set(athx, ja);
+			JsonUtils.set(jath, athx, ja);
 			athx++;
 		}
 		return jath;
@@ -309,8 +310,8 @@ public class TopTeams extends AbstractTop {
 			                : "");
 			this.getElement().setPropertyJson("mensTeams", getTeamsJson(this.mensTeams, true));
 		} else {
-			this.getElement().setPropertyJson("topTeamsMen", Json.createNull());
-			this.getElement().setPropertyJson("mensTeams", Json.createNull());
+			this.getElement().setPropertyJson("topTeamsMen", JsonUtils.nullNode());
+			this.getElement().setPropertyJson("mensTeams", JsonUtils.nullNode());
 		}
 
 		if (gender == null || gender == Gender.F || gender == Gender.I) {
@@ -320,8 +321,8 @@ public class TopTeams extends AbstractTop {
 			                : "");
 			this.getElement().setPropertyJson("womensTeams", getTeamsJson(this.womensTeams, false));
 		} else {
-			this.getElement().setPropertyJson("topTeamsWomen", Json.createNull());
-			this.getElement().setPropertyJson("womensTeams", Json.createNull());
+			this.getElement().setPropertyJson("topTeamsWomen", JsonUtils.nullNode());
+			this.getElement().setPropertyJson("womensTeams", JsonUtils.nullNode());
 		}
 
 		if (gender == null || gender == Gender.MF) {
@@ -331,8 +332,8 @@ public class TopTeams extends AbstractTop {
 			                : "");
 			this.getElement().setPropertyJson("mixedTeams", getTeamsJson(this.mixedTeams, false));
 		} else {
-			this.getElement().setPropertyJson("topTeamsMixed", Json.createNull());
-			this.getElement().setPropertyJson("mixedTeams", Json.createNull());
+			this.getElement().setPropertyJson("topTeamsMixed", JsonUtils.nullNode());
+			this.getElement().setPropertyJson("mixedTeams", JsonUtils.nullNode());
 		}
 	}
 

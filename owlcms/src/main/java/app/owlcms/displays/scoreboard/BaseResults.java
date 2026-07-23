@@ -27,6 +27,10 @@ import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.Location;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BaseJsonNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.apputils.SoundUtils;
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
@@ -62,16 +66,13 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.CSSUtils;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 /**
  * Class BaseResults
@@ -91,7 +92,7 @@ public class BaseResults extends LitTemplate
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private boolean abbreviatedName;
 	private HashMap<Athlete, String> athleteToFlag = new HashMap<>();
-	private JsonArray cattempts;
+	private ArrayNode cattempts;
 	private boolean darkMode = true;
 	private boolean downSilenced;
 	private Double emFontSize;
@@ -105,7 +106,7 @@ public class BaseResults extends LitTemplate
 	private boolean publicDisplay;
 	private boolean recordsDisplay;
 	private String routeParameter;
-	private JsonArray sattempts;
+	private ArrayNode sattempts;
 	private boolean silenced;
 	private boolean teamFlags;
 	private Double teamWidth;
@@ -170,7 +171,7 @@ public class BaseResults extends LitTemplate
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 	}
 
-	public JsonArray getCattempts() {
+	public ArrayNode getCattempts() {
 		return this.cattempts;
 	}
 
@@ -210,7 +211,7 @@ public class BaseResults extends LitTemplate
 		return this.routeParameter;
 	}
 
-	final public JsonArray getSattempts() {
+	final public ArrayNode getSattempts() {
 		return this.sattempts;
 	}
 
@@ -335,7 +336,7 @@ public class BaseResults extends LitTemplate
 		this.abbreviatedName = b;
 	}
 
-	public void setCattempts(JsonArray cattempts) {
+	public void setCattempts(ArrayNode cattempts) {
 		this.cattempts = cattempts;
 	}
 
@@ -431,7 +432,7 @@ public class BaseResults extends LitTemplate
 		}
 	}
 
-	public void setSattempts(JsonArray sattempts) {
+	public void setSattempts(ArrayNode sattempts) {
 		this.sattempts = sattempts;
 	}
 
@@ -444,7 +445,7 @@ public class BaseResults extends LitTemplate
 	 * @param a
 	 * @param ja
 	 */
-	public void setTeamFlag(Athlete a, JsonObject ja) {
+	public void setTeamFlag(Athlete a, ObjectNode ja) {
 		String prop = null;
 		if (this.athleteToFlag.containsKey(a)) {
 			prop = this.athleteToFlag.get(a);
@@ -763,7 +764,7 @@ public class BaseResults extends LitTemplate
 		Athlete curAthlete = fop.getCurAthlete();
 		if (curAthlete == null) {
 			clearProjectedRankText();
-			this.getElement().setPropertyJson("leaders", Json.createNull());
+			this.getElement().setPropertyJson("leaders", JsonUtils.nullNode());
 			setBottomSize(1);
 			return;
 		}
@@ -792,7 +793,7 @@ public class BaseResults extends LitTemplate
 				setBottomSize(this.displayOrder.size() + 2); // spacer + title
 			} else {
 				// nothing to show
-				this.getElement().setPropertyJson("leaders", Json.createNull());
+				this.getElement().setPropertyJson("leaders", JsonUtils.nullNode());
 				setBottomSize(1);
 			}
 		}
@@ -860,7 +861,6 @@ public class BaseResults extends LitTemplate
 	protected void computeRecords(boolean done) {
 		// always compute
 		// if (!this.isRecordsDisplay()) {
-		// this.getElement().setPropertyJson("records", Json.createNull());
 		// return;
 		// }
 		FieldOfPlay fop = getFop();
@@ -870,10 +870,10 @@ public class BaseResults extends LitTemplate
 		Athlete curAthlete = fop.getCurAthlete();
 		if (curAthlete != null && curAthlete.getGender() != null) {
 			if (!done && showCurrent(fop)) {
-				this.getElement().setPropertyJson("records", fop.getRecordsJson());
+				this.getElement().setPropertyJson("records", (BaseJsonNode) fop.getRecordsJson());
 			} else {
 				// nothing to show
-				this.getElement().setPropertyJson("records", Json.createNull());
+				this.getElement().setPropertyJson("records", JsonUtils.nullNode());
 			}
 		}
 	}
@@ -1011,8 +1011,8 @@ public class BaseResults extends LitTemplate
 		}
 	}
 
-	protected JsonArray getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
-		JsonArray ageGroups = Json.createArray();
+	protected ArrayNode getAgeGroupNamesJson(LinkedHashMap<String, Participation> currentAthleteParticipations) {
+		ArrayNode ageGroups = JsonUtils.array();
 		return ageGroups;
 	}
 
@@ -1030,7 +1030,7 @@ public class BaseResults extends LitTemplate
 		return a.getCustom1() != null ? a.getCustom1() : "";
 	}
 
-	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 		boolean bestScore = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE);
 		boolean bestScoreRank = Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BEST_SCORE_RANK);
 
@@ -1051,9 +1051,9 @@ public class BaseResults extends LitTemplate
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank, fop);
-		ja.put("sattempts", getSattempts());
+		ja.set("sattempts", getSattempts());
 		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-		ja.put("cattempts", getCattempts());
+		ja.set("cattempts", getCattempts());
 		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		Participation mainRankings = a.getMainRankings();
@@ -1118,8 +1118,8 @@ public class BaseResults extends LitTemplate
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */
-	protected JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
-		JsonArray jath = Json.createArray();
+	protected BaseJsonNode getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
+		ArrayNode jath = JsonUtils.array();
 		int athx = 0;
 
 		Athlete prevAthlete = null;
@@ -1128,12 +1128,12 @@ public class BaseResults extends LitTemplate
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
 		        : Collections.emptyList();
 		for (Athlete a : athletes) {
-			JsonObject ja = Json.createObject();
+			ObjectNode ja = JsonUtils.object();
 			if (getSeparatorPredicate().test(a, prevAthlete)) {
 				// changing categories, put marker before athlete
 				ja.put("isSpacer", true);
-				jath.set(athx, ja);
-				ja = Json.createObject();
+				JsonUtils.set(jath, athx, ja);
+				ja = JsonUtils.object();
 				athx++;
 			}
 			// compute the blinking rank (1 = current, 2 = next)
@@ -1147,7 +1147,7 @@ public class BaseResults extends LitTemplate
 			if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
 				setWideTeamNames(true);
 			}
-			jath.set(athx, ja);
+			JsonUtils.set(jath, athx, ja);
 			athx++;
 			prevAthlete = a;
 		}
@@ -1164,13 +1164,13 @@ public class BaseResults extends LitTemplate
 	 * @return json string with nested attempts values
 	 */
 	protected void getAttemptsJson(Athlete a, int liftOrderRank, FieldOfPlay fop) {
-		setSattempts(Json.createArray());
-		setCattempts(Json.createArray());
+		setSattempts(JsonUtils.array());
+		setCattempts(JsonUtils.array());
 		XAthlete x = new XAthlete(a);
 		Integer curLift = x.getAttemptsDone();
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
-			JsonObject jri = Json.createObject();
+			ObjectNode jri = JsonUtils.object();
 			String stringValue = i.getStringValue();
 			boolean notDone = x.getAttemptsDone() < 6;
 			String blink = (notDone ? " blink" : "");
@@ -1229,9 +1229,9 @@ public class BaseResults extends LitTemplate
 			}
 
 			if (ix < 3) {
-				getSattempts().set(ix, jri);
+				JsonUtils.set(getSattempts(), ix, jri);
 			} else {
-				getCattempts().set(ix % 3, jri);
+				JsonUtils.set(getCattempts(), ix % 3, jri);
 			}
 			ix++;
 		}
@@ -1400,7 +1400,7 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
+		ObjectNode translations = JsonUtils.object();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
 			String curKey = keys.nextElement();

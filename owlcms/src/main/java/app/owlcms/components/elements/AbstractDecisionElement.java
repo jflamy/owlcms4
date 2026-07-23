@@ -21,6 +21,8 @@ import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPEvent;
@@ -28,11 +30,10 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonObject;
 
 /**
  * Shared behavior for decision display elements.
@@ -391,7 +392,7 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	 */
 	private void sendDecisionPayload(String mode, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleLight,
 			boolean showDecision, boolean announcerForced) {
-		JsonObject payload = Json.createObject();
+		ObjectNode payload = JsonUtils.object();
 		payload.put("sequence", Long.toString(this.decisionPayloadSequence.incrementAndGet()));
 		payload.put("mode", mode);
 		payload.put("singleRef", singleLight);
@@ -403,9 +404,9 @@ public abstract class AbstractDecisionElement extends LitTemplate
 		getElement().setPropertyJson("decisionPayload", payload);
 	}
 
-	private void putNullableBoolean(JsonObject payload, String key, Boolean value) {
+	private void putNullableBoolean(ObjectNode payload, String key, Boolean value) {
 		if (value == null) {
-			payload.put(key, Json.createNull());
+			payload.set(key, JsonUtils.nullNode());
 		} else {
 			payload.put(key, value.booleanValue());
 		}

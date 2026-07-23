@@ -23,6 +23,10 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.BaseJsonNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.ResultsParameters;
 import app.owlcms.data.agegroup.AgeGroup;
@@ -47,12 +51,9 @@ import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.CSSUtils;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 /**
  * Class Scoreboard
@@ -70,9 +71,9 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	@SuppressWarnings("unused")
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("UI" + this.logger.getName());
 	private Category category;
-	private JsonArray cattempts;
+	private ArrayNode cattempts;
 	private TreeMap<String, List<Athlete>> medals;
-	private JsonArray sattempts;
+	private ArrayNode sattempts;
 	private EventBus uiEventBus;
 	private boolean snatchCJTotalMedals;
 	private AgeGroup ageGroup;
@@ -190,7 +191,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	public void setSilenced(boolean silent) {
 	}
 
-	public void setTitles(JsonObject jMC, Category cat) {
+	public void setTitles(ObjectNode jMC, Category cat) {
 		jMC.put("categoryName", cat.getDisplayName());
 		AgeGroup ageGroup2 = cat.getAgeGroup();
 		if (ageGroup2 == null) {
@@ -371,7 +372,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		updateDisplay(null, fop);
 	}
 
-	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
+	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank) {
 		if (a.getGroup() == null) {
 			return;
 		}
@@ -388,9 +389,9 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		ja.put("startNumber", (startNumber != null ? startNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a);
-		ja.put("sattempts", this.sattempts);
+		ja.set("sattempts", this.sattempts);
 		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-		ja.put("cattempts", this.cattempts);
+		ja.set("cattempts", this.cattempts);
 		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 
@@ -462,10 +463,10 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */
-	protected JsonValue getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
+	protected BaseJsonNode getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
 		FieldOfPlay fop = _unused != null ? _unused : getFop();
 		this.snatchCJTotalMedals = resolveLiftRankVisibility(fop);
-		JsonArray jath = Json.createArray();
+		ArrayNode jath = JsonUtils.array();
 		AtomicInteger athx = new AtomicInteger(0);
 		// Category prevCat = null;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
@@ -474,7 +475,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		athletes.stream()
 		        .filter(a -> isMedalist(a))
 		        .forEach(a -> {
-			        JsonObject ja = Json.createObject();
+					ObjectNode ja = JsonUtils.object();
 			        Category curCat = a.getCategory();
 			        // no blinking = 0
 			        getAthleteJson(a, ja, curCat, 0);
@@ -483,7 +484,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				        this.logger.trace("long team {}", team);
 				        setWideTeamNames(true);
 			        }
-			        jath.set(athx.getAndIncrement(), ja);
+					JsonUtils.set(jath, athx.getAndIncrement(), ja);
 		        });
 
 		return jath;
@@ -504,7 +505,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	@Override
 	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
+		ObjectNode translations = JsonUtils.object();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
 			String curKey = keys.nextElement();
@@ -547,13 +548,13 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		        (medalists.get(0).getComputedScoringSystem() != Ranking.TOTAL);
 		setScoreRanks(scoreNeeded);
 
-		JsonArray jsonMCArray = Json.createArray();
-		JsonObject jMC = Json.createObject();
+		ArrayNode jsonMCArray = JsonUtils.array();
+		ObjectNode jMC = JsonUtils.object();
 		int mcX = 0;
 		if (medalists != null && !medalists.isEmpty()) {
 			jMC.put("categoryName", getCategory().getDisplayName());
 			setTitles(jMC, cat);
-			jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
+			jMC.set("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
 
 			// Check if all eligible athletes in this category have finished lifting
 			Group g = this.getGroup();
@@ -561,7 +562,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			        .noneMatch(a -> !a.isDone(g) && a.isEligibleForIndividualRanking());
 			jMC.put("categoryDone", allDone);
 
-			jsonMCArray.set(mcX, jMC);
+			JsonUtils.set(jsonMCArray, mcX, jMC);
 			mcX++;
 		}
 
@@ -573,7 +574,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 	private void computeGroupMedalsJson(TreeMap<String, List<Athlete>> medals2) {
 		// logger.debug("computeGroupMedalsJson group = {}\n{}", this.getGroup(), LoggerUtils.stackTrace());
-		JsonArray jsonMCArray = Json.createArray();
+		ArrayNode jsonMCArray = JsonUtils.array();
 		int mcX = 0;
 
 		boolean scoreNeeded = false;
@@ -588,7 +589,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		}
 
 		for (Entry<String, List<Athlete>> medalCat : medals2.entrySet()) {
-			JsonObject jMC = Json.createObject();
+			ObjectNode jMC = JsonUtils.object();
 			List<Athlete> medalists = medalCat.getValue();
 			if (medalists != null && !medalists.isEmpty()) {
 				String key = medalCat.getKey();
@@ -596,7 +597,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 				setTitles(jMC, cat);
 
-				jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), null));
+				jMC.set("leaders", getAthletesJson(new ArrayList<>(medalists), null));
 				if (mcX == 0) {
 					jMC.put("showCatHeader", "");
 				} else {
@@ -610,7 +611,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 				jMC.put("categoryDone", allDone);
 
 				setScoreRanks(scoreNeeded);
-				jsonMCArray.set(mcX, jMC);
+				JsonUtils.set(jsonMCArray, mcX, jMC);
 				mcX++;
 			}
 		}
@@ -709,12 +710,12 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	 * @return json string with nested attempts values
 	 */
 	private void getAttemptsJson(Athlete a) {
-		this.sattempts = Json.createArray();
-		this.cattempts = Json.createArray();
+		this.sattempts = JsonUtils.array();
+		this.cattempts = JsonUtils.array();
 		XAthlete x = new XAthlete(a);
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
-			JsonObject jri = Json.createObject();
+			ObjectNode jri = JsonUtils.object();
 			String stringValue = i.getStringValue();
 			boolean notDone = x.getAttemptsDone() < 6;
 
@@ -751,9 +752,9 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			}
 
 			if (ix < 3) {
-				this.sattempts.set(ix, jri);
+				JsonUtils.set(this.sattempts, ix, jri);
 			} else {
-				this.cattempts.set(ix % 3, jri);
+				JsonUtils.set(this.cattempts, ix % 3, jri);
 			}
 			ix++;
 		}

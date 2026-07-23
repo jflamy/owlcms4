@@ -20,6 +20,9 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.dom.Element;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
@@ -32,13 +35,11 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.GroupDone;
 import app.owlcms.utils.CSSUtils;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
 
 /**
  * NCurrentAthlete: feeds the NCurrentAthlete.js web component.
@@ -234,8 +235,7 @@ public class JuryDecisions extends BaseResults {
 	protected void doUpdate(Athlete a, UIEvent e) {
 	}
 
-	@Override
-	protected void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
+	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
 	}
 
 	protected void init() {
@@ -259,7 +259,7 @@ public class JuryDecisions extends BaseResults {
 		this.uiEventBus = uiEventBusRegister(this, fop);
 		logger.debug("JuryDecisions registered on uiEventBus for fop {}", fop.getName());
 		getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop.getName()));
-		getElement().setPropertyJson("decisions", Json.createArray());
+		getElement().setPropertyJson("decisions", JsonUtils.array());
 	}
 
 	@Override
@@ -276,15 +276,15 @@ public class JuryDecisions extends BaseResults {
 			}
 		}
 
-		JsonArray decisions = Json.createArray();
+		ArrayNode decisions = JsonUtils.array();
 		if (allVoted) {
 			for (int i = 0; i < getNbJurors(); i++) {
 				Boolean juryVote = getFop().getJuryMemberDecision()[i];
-				decisions.set(i, juryVote ? "white" : "red");
+				JsonUtils.set(decisions, i, juryVote ? "white" : "red");
 			}
 		} else {
 			for (int i = 0; i < getNbJurors(); i++) {
-				decisions.set(i, "waiting");
+				JsonUtils.set(decisions, i, "waiting");
 			}
 		}
 		getElement().setPropertyJson("decisions", decisions);
@@ -293,9 +293,9 @@ public class JuryDecisions extends BaseResults {
 
 	private void clear() {
 		logger.debug("clear() called");
-		JsonArray decisions = Json.createArray();
+		ArrayNode decisions = JsonUtils.array();
 		for (int i = 0; i < getNbJurors(); i++) {
-			decisions.set(i, "empty");
+			JsonUtils.set(decisions, i, "empty");
 		}
 		getElement().setPropertyJson("decisions", decisions);
 	}

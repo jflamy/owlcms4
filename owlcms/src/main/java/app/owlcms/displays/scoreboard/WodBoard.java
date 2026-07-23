@@ -6,6 +6,9 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.apputils.queryparameters.DisplayParameters;
 import com.vaadin.flow.component.template.Id;
 import app.owlcms.components.elements.BreakTimerElement;
@@ -23,8 +26,8 @@ import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.CeremonyStarted;
+import app.owlcms.utils.JsonUtils;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
 
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("wod-board")
@@ -85,12 +88,12 @@ public class WodBoard extends LitTemplate implements DisplayParameters, SafeEven
     public WodBoard() {
         super();
         // Initialize with empty athlete slots - will be populated when FOP is set via SwitchGroup event
-        var jath = Json.createArray();
+        ArrayNode jath = JsonUtils.array();
         for (int i = 0; i < 4; i++) {
-            var ja = Json.createObject();
+            ObjectNode ja = JsonUtils.object();
             ja.put("name", "");
             ja.put("club", "");
-            jath.set(i, ja);
+            JsonUtils.set(jath, i, ja);
         }
         this.getElement().setPropertyJson("athletes", jath);
         // register on the fop UI event bus will be done on attach
@@ -117,19 +120,19 @@ public class WodBoard extends LitTemplate implements DisplayParameters, SafeEven
             var f = e.getFop();
             setFop(f);
             setGroup(e.getGroup());
-            var jath = Json.createArray();
+            ArrayNode jath = JsonUtils.array();
             if (e.getGroup() == null) {
                 // clear the 4 slots
                 for (int i = 0; i < 4; i++) {
-                    var ja = Json.createObject();
+                    ObjectNode ja = JsonUtils.object();
                     ja.put("name", "");
                     ja.put("club", "");
-                    jath.set(i, ja);
+                    JsonUtils.set(jath, i, ja);
                 }
             } else {
                 var displayOrder = f != null ? f.getDisplayOrder() : null;
                 for (int i = 0; i < 4; i++) {
-                    var ja = Json.createObject();
+                    ObjectNode ja = JsonUtils.object();
                     if (displayOrder != null && i < displayOrder.size()) {
                         var a = displayOrder.get(i);
                         ja.put("name", a.getFullName());
@@ -138,7 +141,7 @@ public class WodBoard extends LitTemplate implements DisplayParameters, SafeEven
                         ja.put("name", "");
                         ja.put("club", "");
                     }
-                    jath.set(i, ja);
+                    JsonUtils.set(jath, i, ja);
                 }
             }
             this.getElement().setPropertyJson("athletes", jath);
