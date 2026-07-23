@@ -19,11 +19,6 @@
             <artifactId>owlcms</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>app.owlcms</groupId>
-            <artifactId>publicresults</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         		
 		<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
 		<dependency>
@@ -93,31 +88,6 @@
                                     <arg>-cp</arg>
                                     <arg>maven/classes:/maven/owlcms-${project.version}.jar</arg>
                                     <arg>app.owlcms.Main</arg>
-                                </entryPoint>
-                            </build>
-                        </image>
-                        <image>
-                            <name>${DOCKER_REG}/publicresults:${project.version}</name>
-                            <build>
-                                <tags>
-                                    <tag>latest</tag>
-                                    <tag>${env.DOCKER_TAG}</tag>
-                                </tags>
-                                <from>eclipse-temurin:17-jre</from>
-                                <!-- from>docker.io/adoptopenjdk:11-jre-openj9</from -->
-                                <assembly>
-                                    <descriptor>publicresults.xml</descriptor>
-                                </assembly>
-                                <entryPoint>
-                                    <arg>java</arg>
-<!--                                     <arg>-Djava.net.preferIPv4Stack=true</arg> -->
-<!--                                     <arg>-Dcom.sun.management.jmxremote.ssl=false</arg> -->
-<!--                                     <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg> -->
-                                    <arg>-XX:InitialRAMPercentage=65</arg>
-                                    <arg>-XX:MaxRAMPercentage=75</arg>
-                                    <arg>-cp</arg>
-                                    <arg>maven/classes:/maven/publicresults-${project.version}.jar</arg>
-                                    <arg>app.owlcms.publicresults.Main</arg>
                                 </entryPoint>
                             </build>
                         </image>
