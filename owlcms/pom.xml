@@ -509,13 +509,6 @@
 					<artifactId>maven-shade-plugin</artifactId>
 					<version>3.2.4</version>
 				</plugin>
-				<!--
-				https://mvnrepository.com/artifact/com.coderplus.maven.plugins/copy-rename-maven-plugin -->
-				<plugin>
-					<groupId>com.coderplus.maven.plugins</groupId>
-					<artifactId>copy-rename-maven-plugin</artifactId>
-					<version>1.0</version>
-				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -944,30 +937,6 @@
 									<packaging>jar</packaging>
 									<generatePom>false</generatePom>
 									<pomFile>target/classes/deployment-pom.xml</pomFile>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>com.coderplus.maven.plugins</groupId>
-						<artifactId>copy-rename-maven-plugin</artifactId>
-						<version>1.0</version>
-						<executions>
-							<execution>
-								<id>copy-prerelease</id>
-								<phase>package</phase>
-								<goals>
-									<goal>copy</goal>
-								</goals>
-								<configuration>
-									<fileSets>
-										<fileSet>
-											<sourceFile>
-												${project.build.directory}/${project.artifactId}.zip</sourceFile>
-											<destinationFile>
-												${project.build.directory}/prerelease/${project.artifactId}_${project.version}.zip</destinationFile>
-										</fileSet>
-									</fileSets>
 								</configuration>
 							</execution>
 						</executions>
