@@ -72,7 +72,7 @@
                                     <tag>latest</tag>
                                     <tag>${env.DOCKER_TAG}</tag>
                                 </tags>
-                                <from>eclipse-temurin:17-jre</from>
+                                <from>eclipse-temurin:25-jre</from>
                                 <assembly>
                                     <descriptor>owlcms.xml</descriptor>
                                 </assembly>
