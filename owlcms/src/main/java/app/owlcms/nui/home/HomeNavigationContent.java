@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -277,7 +276,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	private static final String REPO_OWNER = "jflamy";
 	private static final String REPO_NAME = "owlcms4";
 	private static final String CONTROL_PANEL_VERSION = "controlPanelVersion.txt";
-	private static final String GITHUB_API_URL = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/";
+	private static final String GITHUB_RAW_URL = "https://raw.githubusercontent.com/" + REPO_OWNER + "/" + REPO_NAME + "/master/";
 	private static LocalDateTime cpWarningEmitted = LocalDateTime.MIN;
 	private static LocalDateTime motdEmitted = LocalDateTime.MIN;
 
@@ -290,7 +289,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        .connectTimeout(Duration.ofSeconds(2))
 		        .build();
 		HttpRequest request = HttpRequest.newBuilder()
-		        .uri(URI.create(GITHUB_API_URL + CONTROL_PANEL_VERSION))
+		        .uri(URI.create(GITHUB_RAW_URL + CONTROL_PANEL_VERSION))
 		        .timeout(Duration.ofSeconds(2))
 		        .build();
 
@@ -299,16 +298,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			if (response.statusCode() != 200) {
 				throw new IOException(request.uri() + " Unexpected code " + response.statusCode());
 			}
-			String contentType = response.headers().firstValue("Content-Type").orElse("");
-			if (!contentType.contains("application/json")) {
-				throw new IOException(request.uri() + "Unexpected content type: " + contentType);
-			}
-
-			String responseBody = response.body();
-			JSONObject json = new JSONObject(responseBody);
-			String content = json.getString("content");
-			content = content.strip();
-			String string = new String(Base64.getDecoder().decode(content));
+			String string = response.body().strip();
 
 			// compare the versions using semantic versioning conventions.
 			ComparableVersion currentVersion = new ComparableVersion(curVer);
@@ -348,7 +338,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		        .connectTimeout(Duration.ofSeconds(2))
 		        .build();
 		HttpRequest request = HttpRequest.newBuilder()
-		        .uri(URI.create(GITHUB_API_URL + fileName))
+		        .uri(URI.create(GITHUB_RAW_URL + fileName))
 		        .timeout(Duration.ofSeconds(2))
 		        .build();
 
@@ -357,24 +347,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			if (response.statusCode() != 200) {
 				throw new IOException("Unexpected code " + response.statusCode());
 			}
-			String contentType = response.headers().firstValue("Content-Type").orElse("");
-			if (!contentType.contains("application/json")) {
-				throw new IOException("Unexpected content type: " + contentType);
-			}
-
-			String responseBody = response.body();
-			JSONObject json = new JSONObject(responseBody);
-			String content = json.getString("content");
-			if (content != null && !content.isEmpty()) {
-				content = content.strip();
-				content = content.replaceAll("\n", "");
-				content = content.replaceAll(" ", "");
-				if (!content.isEmpty()) {
-					String string = new String(Base64.getDecoder().decode(content));
-					return string;
-				}
-			}
-			return null;
+			return response.body();
 		} catch (Exception e) {
 			logger.debug("Error fetching motd: {} {}", e.getMessage(), request.uri());
 			return null;
