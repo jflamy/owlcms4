@@ -336,6 +336,19 @@ public class PlatformRepository {
 		return nPlatform;
 	}
 
+	public static void updateDisplayOrder(List<Platform> platforms) {
+		JPAService.runInTransaction(em -> {
+			for (int index = 0; index < platforms.size(); index++) {
+				Platform platform = platforms.get(index);
+				Platform managedPlatform = em.find(Platform.class, platform.getId());
+				if (managedPlatform != null) {
+					managedPlatform.setDisplayOrder(index + 1);
+				}
+			}
+			return null;
+		});
+	}
+
 	public static void syncFOPs() {
 		Set<String> preCheckPlatforms = PlatformRepository.findAll().stream().map(p -> p.getName())
 		        .collect(Collectors.toSet());

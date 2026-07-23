@@ -22,7 +22,6 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -45,9 +44,12 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
 
 	@Override
 	public Platform add(Platform platform) {
+		List<Platform> platforms = PlatformRepository.findAll();
 		platform.defaultPlates();
-		PlatformRepository.save(platform);
-		return platform;
+		Platform saved = PlatformRepository.save(platform);
+		platforms.add(saved);
+		PlatformRepository.updateDisplayOrder(platforms);
+		return saved;
 	}
 
 	@Override
@@ -101,8 +103,23 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
 		super.bindField(field, property, propertyType, c);
 	}
 
-	private String duplicatePlatformMessage(String normalizedName) {
+	private static String duplicatePlatformMessage(String normalizedName) {
 		return Translator.translate("PlatformNameAlreadyExists", normalizedName);
+	}
+
+	static ValidationResult validateName(Platform editedPlatform, String name) {
+		String normalizedName = PlatformRepository.normalizeName(name);
+		if (normalizedName == null || normalizedName.isBlank()) {
+			return ValidationResult.ok();
+		}
+
+		Platform candidate = new Platform();
+		candidate.setId(editedPlatform.getId());
+		candidate.setName(normalizedName);
+		if (PlatformRepository.hasDuplicateName(candidate)) {
+			return ValidationResult.error(duplicatePlatformMessage(normalizedName));
+		}
+		return ValidationResult.ok();
 	}
 
 	private FormLayout platformLayout(Platform editedPlatform) {
@@ -112,26 +129,9 @@ class PlatformEditingFormFactory extends OwlcmsCrudFormFactory<Platform> {
 		layout.add(nameField);
 		this.binder.forField(nameField)
 		        .withNullRepresentation("")
-		        .withValidator((name, context) -> {
-		        	String normalizedName = PlatformRepository.normalizeName(name);
-		        	if (normalizedName == null || normalizedName.isBlank()) {
-		        		return ValidationResult.ok();
-		        	}
-
-		        	Platform candidate = new Platform();
-		        	candidate.setId(editedPlatform.getId());
-		        	candidate.setName(normalizedName);
-		        	if (PlatformRepository.hasDuplicateName(candidate)) {
-		        		return ValidationResult.error(duplicatePlatformMessage(normalizedName));
-		        	}
-		        	return ValidationResult.ok();
-		        })
+		        .withValidator((name, context) -> validateName(editedPlatform, name))
 		        .bind(p -> PlatformRepository.normalizeName(p.getName()),
 		                (p, name) -> p.setName(PlatformRepository.normalizeName(name)));
-
-		IntegerField displayOrderField = new IntegerField(Translator.translate("PlatformDisplayOrder"));
-		this.binder.forField(displayOrderField).bind(Platform::getDisplayOrder, Platform::setDisplayOrder);
-		layout.add(displayOrderField);
 
 		ComboBox<String> soundMixerField = new ComboBox<>(Translator.translate("Speakers"));
 		List<String> outputNames = new ArrayList<>(Speakers.getOutputNames());

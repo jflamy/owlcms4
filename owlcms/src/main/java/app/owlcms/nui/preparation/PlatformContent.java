@@ -6,8 +6,12 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+
+import javax.sound.sampled.Mixer;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -15,9 +19,18 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.dnd.GridDropLocation;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
@@ -25,9 +38,9 @@ import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
+import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.nui.crudui.OwlcmsComboBoxProvider;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
-import app.owlcms.nui.crudui.OwlcmsCrudGrid;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
 import app.owlcms.nui.lifting.TCContent;
 import app.owlcms.nui.shared.OwlcmsContent;
@@ -52,6 +65,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 	}
 	private OwlcmsCrudFormFactory<Platform> editingFormFactory;
 	private OwlcmsLayout routerLayout;
+	private Platform draggedPlatform;
 
 	/**
 	 * Instantiates the Platform crudGrid.
@@ -127,9 +141,8 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 	 * @param crudFormFactory the factory that will create the form using this information
 	 */
 	protected void createFormLayout(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
-		crudFormFactory.setVisibleProperties("name", "displayOrder", "soundMixerName");
-		crudFormFactory.setFieldCaptions(Translator.translate("PlatformName"),
-		        Translator.translate("PlatformDisplayOrder"), Translator.translate("Speakers"));
+		crudFormFactory.setVisibleProperties("name", "soundMixerName");
+		crudFormFactory.setFieldCaptions(Translator.translate("PlatformName"), Translator.translate("Speakers"));
 		List<String> outputNames = Speakers.getOutputNames();
 		outputNames.add(0, Translator.translate("UseBrowserSound"));
 		crudFormFactory.setFieldProvider("soundMixerName", new OwlcmsComboBoxProvider<>(outputNames));
@@ -144,21 +157,121 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 	protected GridCrud<Platform> createGrid(OwlcmsCrudFormFactory<Platform> crudFormFactory) {
 		Grid<Platform> grid = new Grid<>(Platform.class, false);
 		grid.getThemeNames().add("row-stripes");
-		grid.addColumn(Platform::getName).setHeader(Translator.translate("Name"));
-		grid.addColumn(Platform::getSoundMixerName).setHeader(Translator.translate("Speakers"));
+		grid.addComponentColumn(platform -> {
+			Icon dragHandle = VaadinIcon.MENU.create();
+			dragHandle.getStyle().set("color", "var(--lumo-secondary-text-color)");
+			return dragHandle;
+		}).setHeader("").setWidth("2.5em").setFlexGrow(0);
+
+		PlatformGrid crud = new PlatformGrid(Platform.class, new OwlcmsGridLayout(Platform.class),
+		        crudFormFactory, grid);
+		grid.addComponentColumn(platform -> createNameField(platform, crud))
+		        .setHeader(Translator.translate("Name")).setWidth("15em").setFlexGrow(0);
 		grid.addColumn(new ComponentRenderer<>(p -> {
 			Button technical = openInNewTab(TCContent.class, Translator.translate("PlatesCollarBarbell"), p.getName());
 			// prevent grid row selection from triggering
 			technical.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
 			return technical;
-		})).setHeader(Translator.translate("PlatesCollarBarbell")).setWidth("0");
+		})).setHeader(Translator.translate("PlatesCollarBarbell")).setAutoWidth(true).setFlexGrow(0)
+		        .setTextAlign(ColumnTextAlign.CENTER);
+		grid.addComponentColumn(platform -> createSoundMixerField(platform, crud))
+		        .setHeader(Translator.translate("Speakers")).setWidth("30em").setFlexGrow(0);
 
-		GridCrud<Platform> crud = new OwlcmsCrudGrid<>(Platform.class, new OwlcmsGridLayout(Platform.class),
-		        crudFormFactory, grid);
+		grid.setRowsDraggable(true);
+		grid.addDragStartListener(event -> {
+			this.draggedPlatform = event.getDraggedItems().get(0);
+			grid.setDropMode(GridDropMode.BETWEEN);
+		});
+		grid.addDragEndListener(event -> {
+			this.draggedPlatform = null;
+			grid.setDropMode(null);
+		});
+		grid.addDropListener(event -> reorderPlatforms(event.getDropTargetItem().orElse(null), event.getDropLocation(), crud));
 		crud.setCrudListener(this);
-		crud.setClickRowToUpdate(true);
+		crud.setClickRowToUpdate(false);
 		return crud;
+	}
+
+	private TextField createNameField(Platform platform, PlatformGrid crud) {
+		TextField nameField = new TextField();
+		nameField.setAriaLabel(Translator.translate("Name"));
+		nameField.setValue(platform.getName() != null ? platform.getName() : "");
+		nameField.setValueChangeMode(ValueChangeMode.ON_BLUR);
+		nameField.setWidthFull();
+		nameField.addValueChangeListener(event -> {
+			if (!event.isFromClient()) {
+				return;
+			}
+
+			String normalizedName = PlatformRepository.normalizeName(event.getValue());
+			ValidationResult validation = PlatformEditingFormFactory.validateName(platform, normalizedName);
+			if (validation.isError()) {
+				nameField.setInvalid(true);
+				nameField.setErrorMessage(validation.getErrorMessage());
+				return;
+			}
+
+			nameField.setInvalid(false);
+			if (!Objects.equals(platform.getName(), normalizedName)) {
+				platform.setName(normalizedName);
+				this.update(platform);
+				crud.refreshGrid();
+			}
+		});
+		return nameField;
+	}
+
+	private ComboBox<String> createSoundMixerField(Platform platform, PlatformGrid crud) {
+		ComboBox<String> soundMixerField = new ComboBox<>();
+		soundMixerField.setAriaLabel(Translator.translate("Speakers"));
+		List<String> outputNames = new ArrayList<>(Speakers.getOutputNames());
+		outputNames.add(0, Translator.translate("UseBrowserSound"));
+		soundMixerField.setItems(outputNames);
+		soundMixerField.setValue(platform.getSoundMixerName());
+		soundMixerField.setWidthFull();
+		soundMixerField.addBlurListener(event -> {
+			String soundMixerName = soundMixerField.getValue();
+			if (!Objects.equals(platform.getSoundMixerName(), soundMixerName)) {
+				String previousMixerName = platform.getSoundMixerName();
+				platform.setSoundMixerName(soundMixerName);
+				this.update(platform);
+				testSoundMixer(previousMixerName, soundMixerName);
+				crud.refreshGrid();
+			}
+		});
+		return soundMixerField;
+	}
+
+	private void testSoundMixer(String previousMixerName, String soundMixerName) {
+		if (previousMixerName == null || Objects.equals(previousMixerName, soundMixerName)) {
+			return;
+		}
+
+		for (Mixer soundMixer : Speakers.getOutputs()) {
+			if (soundMixer.getMixerInfo().getName().equals(soundMixerName)) {
+				Speakers.testSound(soundMixer);
+				logger.debug("testing mixer {}", soundMixer.getMixerInfo().getName());
+				return;
+			}
+		}
+	}
+
+	private void reorderPlatforms(Platform dropTarget, GridDropLocation dropLocation, PlatformGrid crud) {
+		if (this.draggedPlatform == null || dropTarget == null || this.draggedPlatform.equals(dropTarget)) {
+			return;
+		}
+
+		List<Platform> platforms = new ArrayList<>(PlatformRepository.findAll());
+		platforms.remove(this.draggedPlatform);
+		int dropIndex = platforms.indexOf(dropTarget);
+		if (dropLocation == GridDropLocation.BELOW) {
+			dropIndex++;
+		}
+		platforms.add(dropIndex, this.draggedPlatform);
+		PlatformRepository.updateDisplayOrder(platforms);
+		WebSocketEventForwarder.sendDatabaseToAll();
+		crud.refreshGrid();
 	}
 
 	/**
