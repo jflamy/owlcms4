@@ -8,16 +8,22 @@
 
 <br>
 
+**New in Release 67.2**
+
+- 67.2.0-beta01: Platform ordering
+  - Platform can now be ordered on the Field of Play preparation page by dragging the rows.
+  - If the usawSessionBlocks feature toggle is active, this will affect the sorting of sessions, so that if red is before blue, 1 red will sort before 1 blue.
+
 **New in Release 67.1**
 
-67.1.0-rc08:
+67.1.0:
   - Fixed links in documentation
   - Updated images for equipment setup
 
-67.1.0-rc06: 
+67.1.0: 
   - Support both a notarized DMG install and a `brew` command-line install. Updated documentation accordingly.
 
-67.1.0-rc03: Documentation
+67.1.0: Documentation
   - General: separated initial/typical from advanced setup, updated screenshots
   - Documented Championships
   - Documented Technical Officials and IWF-style timetable assignment
