@@ -159,7 +159,6 @@ public class RecordDefinitionReaderTest {
 //        RecordDefinitionReader.readZip(zipStream);
 //        List<RecordEvent> results = RecordRepository.findFiltered(Gender.M, 16, 110.0D, null, null);
 //        assertEquals("wrong number of results", 18, results.size());
-//        JsonValue json = RecordFilter.buildRecordJson(results, null, null, null);
 //        System.out.println(json.toJson());
 //    }
 

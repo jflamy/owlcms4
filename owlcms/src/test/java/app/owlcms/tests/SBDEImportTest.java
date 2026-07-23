@@ -30,10 +30,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import app.owlcms.Main;
 import app.owlcms.data.athlete.Gender;
@@ -177,7 +177,7 @@ public class SBDEImportTest {
         Set<Long> groupIds = new LinkedHashSet<>();
         ArrayNode groups = mapper.createArrayNode();
         for (JsonNode group : root.withArray("groups")) {
-            if (sessionNames.contains(group.path("name").asText())) {
+            if (sessionNames.contains(group.path("name").asString())) {
                 groupIds.add(group.path("id").asLong());
                 groups.add(group.deepCopy());
             }
@@ -305,7 +305,7 @@ public class SBDEImportTest {
             JsonNode root = mapper.readTree(input);
             Set<Long> groupIds = new LinkedHashSet<>();
             for (JsonNode group : root.withArray("groups")) {
-                if (sessionNames.contains(group.path("name").asText())) {
+                if (sessionNames.contains(group.path("name").asString())) {
                     groupIds.add(group.path("id").asLong());
                 }
             }
