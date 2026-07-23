@@ -88,10 +88,6 @@ public class Group implements Comparable<Group> {
 		}
 	}
 
-	private enum USAFlagOrder {
-		RED, WHITE, BLUE, STARS, STRIPES, GOLD, ROGUE
-	}
-
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Group.class);
 	private final static NaturalOrderComparator<String> c = new NaturalOrderComparator<>();
 	private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
@@ -146,7 +142,14 @@ public class Group implements Comparable<Group> {
 
 		return 0;
 	};
-	public static Comparator<Group> groupWeighinTimeComparator = (lifter1Group, lifter2Group) -> {
+	public static Comparator<Group> groupWeighinTimeComparator = (lifter1Group, lifter2Group) -> compareGroupWeighinTime(
+	        lifter1Group, lifter2Group, Config.getCurrent());
+
+	public static Comparator<Group> groupWeighinTimeComparator(Config config) {
+		return (lifter1Group, lifter2Group) -> compareGroupWeighinTime(lifter1Group, lifter2Group, config);
+	}
+
+	private static int compareGroupWeighinTime(Group lifter1Group, Group lifter2Group, Config config) {
 
 		int compare;
 		if (lifter1Group == null || lifter2Group == null) {
@@ -157,9 +160,9 @@ public class Group implements Comparable<Group> {
 			return compare;
 		}
 
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
-			var lifter1SessionBlock = lifter1Group.getSessionBlock();
-			var lifter2SessionBlock = lifter2Group.getSessionBlock();
+		if (config.featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
+			var lifter1SessionBlock = lifter1Group.getSessionBlock(config);
+			var lifter2SessionBlock = lifter2Group.getSessionBlock(config);
 			// null sessionBlocks go last.
 			compare = ObjectUtils.compare(lifter1SessionBlock, lifter2SessionBlock, true);
 			if (compare != 0) {
@@ -169,29 +172,10 @@ public class Group implements Comparable<Group> {
 			}
 
 			var lifter1Platform = lifter1Group.getPlatform();
-			var lifter1PlatformName = lifter1Platform != null ? lifter1Platform.getName() : null;
 			var lifter2Platform = lifter2Group.getPlatform();
-			var lifter2PlatformName = lifter2Platform != null ? lifter2Platform.getName() : null;
-
-			// null platform names go last.
-			if (lifter1PlatformName == null || lifter2PlatformName == null) {
-				compare = ObjectUtils.compare(lifter1PlatformName, lifter2PlatformName, true);
-				AbstractLifterComparator.traceComparison("compare platform null", lifter1Group,
-				        lifter1PlatformName, lifter2Group, lifter2PlatformName, compare);
-				return compare;
-			}
-
-			try {
-				var order1 = USAFlagOrder.valueOf(lifter1PlatformName.toUpperCase());
-				var order2 = USAFlagOrder.valueOf(lifter2PlatformName.toUpperCase());
-				compare = order1.compareTo(order2);
-				AbstractLifterComparator.traceComparison("compare flagOrder", lifter1Group,
-				        order1, lifter2Group, order2, compare);
-			} catch (Exception e) {
-				compare = ObjectUtils.compare(lifter1PlatformName, lifter2PlatformName);
-				AbstractLifterComparator.traceComparison("compare platformName", lifter1Group,
-				        lifter1PlatformName, lifter2Group, lifter2PlatformName, compare);
-			}
+			compare = ObjectUtils.compare(lifter1Platform, lifter2Platform, true);
+			AbstractLifterComparator.traceComparison("compare platform displayOrder", lifter1Group,
+			        lifter1Platform, lifter2Group, lifter2Platform, compare);
 			return compare;
 
 		}
@@ -220,7 +204,7 @@ public class Group implements Comparable<Group> {
 		}
 
 		return 0;
-	};
+	}
 	public static Comparator<Group> groupSelectionComparator = (lifter1Group, lifter2Group) -> {
 
 		int compare;
@@ -1257,7 +1241,11 @@ public class Group implements Comparable<Group> {
 	@Transient
 	@JsonIgnore
 	public Integer getSessionBlock() {
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
+		return getSessionBlock(Config.getCurrent());
+	}
+
+	private Integer getSessionBlock(Config config) {
+		if (config.featureSwitch(FeatureSwitch.USAW_SESSION_BLOCKS)) {
 			Matcher matcher = this.pattern.matcher(this.getName());
 			if (matcher.find()) {
 				String number = matcher.group(1);
