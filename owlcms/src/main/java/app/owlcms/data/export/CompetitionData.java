@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.json.JsonMapper;
@@ -75,6 +76,14 @@ public class CompetitionData {
 	private ObjectMapper createExportMapper() {
 		return JsonMapper.builder()
 		        .addMixIn(Championship.class, StoredChampionshipMixin.class)
+		        .build();
+	}
+
+	private ObjectMapper createImportMapper() {
+		// Jackson 3 defaults FAIL_ON_NULL_FOR_PRIMITIVES to true; Jackson 2 defaulted to false.
+		// Restore the lenient behavior so null primitive fields (e.g. ranks) map to their default value.
+		return JsonMapper.builder()
+		        .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
 		        .build();
 	}
 
@@ -217,7 +226,7 @@ public class CompetitionData {
 	}
 
 	public CompetitionData importData(InputStream serialized) throws Exception {
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = createImportMapper();
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		logger.debug("after unmarshall {}", newData.getPlatforms());
@@ -226,7 +235,7 @@ public class CompetitionData {
 
 	public CompetitionData importDataFromString(String serialized)
 	        throws DatabindException, JacksonException {
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = createImportMapper();
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		// logger.debug("after unmarshall {}", newData.getPlatforms());
