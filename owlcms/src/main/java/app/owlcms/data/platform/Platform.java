@@ -110,6 +110,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 
 	/** The name. */
 	String name;
+	/** Optional display order. Blank values are sorted alphabetically by name. */
+	private Integer displayOrder;
 	/** The id. */
 	@Id
 	private
@@ -210,7 +212,20 @@ public class Platform implements Serializable, Comparable<Platform> {
 
 	@Override
 	public int compareTo(Platform o) {
-		return ObjectUtils.compare(this.getName(), o.getName(), true);
+		int orderComparison = ObjectUtils.compare(this.getDisplayOrder(), o.getDisplayOrder(), true);
+		if (orderComparison != 0) {
+			return orderComparison;
+		}
+		int nameComparison = ObjectUtils.compare(this.getName(), o.getName(), true);
+		return nameComparison != 0 ? nameComparison : ObjectUtils.compare(this.getId(), o.getId(), true);
+	}
+
+	public Integer getDisplayOrder() {
+		return this.displayOrder;
+	}
+
+	public void setDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
 	}
 
 	public void defaultPlates() {

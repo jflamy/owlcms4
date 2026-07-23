@@ -233,8 +233,11 @@ public class PlatformRepository {
 	 */
 	@SuppressWarnings("unchecked")
 	public static List<Platform> findAll() {
-		return JPAService
-		        .runInTransaction(em -> em.createQuery("select c from Platform c order by c.id").getResultList());
+		return JPAService.runInTransaction(em -> {
+			List<Platform> platforms = em.createQuery("select c from Platform c order by c.id").getResultList();
+			platforms.sort(Platform::compareTo);
+			return platforms;
+		});
 	}
 
 	/**
