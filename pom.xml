@@ -24,7 +24,7 @@
 		builds. this value is only used for local development -->
 		<revision>68.0.0-SNAPSHOT</revision>
 
-		<vaadin.version>24.9.6</vaadin.version>
+		<vaadin.version>25.2.3</vaadin.version>
 		<logback.version>1.5.25</logback.version>
 		<slf4j.version>2.0.16</slf4j.version>
 		<hibernate.version>5.6.15.Final</hibernate.version>
@@ -44,6 +44,11 @@
 
 		<!-- Pinned Apache Commons versions used across modules -->
 		<commons.io.version>2.19.0</commons.io.version>
+
+		<!-- ASM must support the Java 25 bytecode we compile to, so the Jetty
+		     annotation scanner (jetty-ee10-annotations) can parse our classes.
+		     Jetty 12.0.x bundles an older ASM; force 9.8 which supports major 69. -->
+		<asm.version>9.8</asm.version>
 	</properties>
 	<repositories>
 		<repository>
@@ -88,22 +93,6 @@
 				<version>${vaadin.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>
-			<!-- Force consistent Jackson versions to prevent classpath conflicts -->
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-annotations</artifactId>
-				<version>2.19.1</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-core</artifactId>
-				<version>2.19.1</version>
-			</dependency>
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>2.19.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
@@ -176,6 +165,28 @@
 				<artifactId>commons-io</artifactId>
 				<version>${commons.io.version}</version>
 			</dependency>
+			<!-- Force ASM 9.8 so Jetty's annotation scanner can read Java 25 (major 69)
+			     bytecode. asm-commons pulls asm-tree/asm-analysis transitively. -->
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>${asm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm-commons</artifactId>
+				<version>${asm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm-tree</artifactId>
+				<version>${asm.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm-analysis</artifactId>
+				<version>${asm.version}</version>
+			</dependency>
 		</dependencies>
 
 	</dependencyManagement>
@@ -218,7 +229,7 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.13.0</version>
 					<configuration>
-						<release>17</release>
+						<release>${java.release}</release>
 					</configuration>
 				</plugin>
 				<plugin>

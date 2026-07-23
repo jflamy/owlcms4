@@ -4,7 +4,7 @@
     {
       "label": "clear owlcms file logs",
       "type": "shell",
-      "command": "rm -f logs/*.log",
+      "command": "find logs -maxdepth 1 -name '*.log' -type f -delete 2>/dev/null || true",
       "options": {
         "cwd": "${workspaceFolder}/owlcms"
       },

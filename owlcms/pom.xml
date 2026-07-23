@@ -59,6 +59,14 @@
 			</exclusions>
 		</dependency>
 
+		<!-- Development-mode frontend bundle support. In Vaadin 25 this is no
+		longer pulled in transitively by vaadin-core. The production profile's
+		shade plugin excludes com.vaadin:vaadin-dev from the packaged jar. -->
+		<dependency>
+			<groupId>com.vaadin</groupId>
+			<artifactId>vaadin-dev</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>app.owlcms</groupId>
 			<artifactId>shared</artifactId>
