@@ -1,0 +1,42 @@
+# Based on the OWLCMS Fly deployment profile maintained in owlcms-cloud.
+# deploy.sh supplies the target application and primary region.
+
+[build]
+  dockerfile = "../Dockerfile"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[services.concurrency]
+  type = "requests"
+  hard_limit = 50
+  soft_limit = 45
+
+[http_service.concurrency]
+  type = "requests"
+  hard_limit = 50
+  soft_limit = 45
+
+[[services.ports]]
+  handlers = ["http"]
+  port = 80
+  force_https = true
+
+[[services.ports]]
+  handlers = ["tls", "http"]
+  port = 443
+
+[[restart]]
+  policy = "on-failure"
+  retries = 10
+  processes = ["app"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 2
+  memory_mb = 1024
