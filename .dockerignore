@@ -1,0 +1,6 @@
+**
+!Dockerfile
+!owlcms-docker/
+!owlcms-docker/target/
+!owlcms-docker/target/docker-context/
+!owlcms-docker/target/docker-context/**

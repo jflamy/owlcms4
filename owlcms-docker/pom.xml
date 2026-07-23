@@ -11,7 +11,7 @@
     <description>Owlcms Docker Packaging</description>
     <artifactId>owlcms-docker</artifactId>
     <version>${revision}</version>
-    <packaging>docker</packaging>
+    <packaging>pom</packaging>
 
     <dependencies>
         <dependency>
@@ -30,69 +30,56 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.8.1</version>
                 <executions>
                     <execution>
-                        <id>docker-tag</id>
-                        <phase>compile</phase>
+                        <id>copy-owlcms-jar</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>timestamp-property</goal>
+                            <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <name>dockerTag</name>
-                            <pattern>yyyyMMddHHmmss</pattern>
-                            <timeZone>America/Montreal</timeZone>
-                            <locale>en,US</locale>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>app.owlcms</groupId>
+                                    <artifactId>owlcms</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${project.build.directory}/docker-context</outputDirectory>
+                                    <destFileName>owlcms.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <overWriteReleases>true</overWriteReleases>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.42.1</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <skipRun>true</skipRun>
-                    <skipBuild>${yamlOnly}</skipBuild>
-                    <skipPush>${yamlOnly}</skipPush>
-                    <authConfig>
-                        <push>
-                            <username>${env.DOCKER_USER}</username>
-                            <password>${env.DOCKER_TOKEN}</password>
-                        </push>
-                    </authConfig>
-                    <images>
-                        <image> 	
-                            <name>${DOCKER_REG}/owlcms:${project.version}</name>
-                            <build>
-                                <tags>
-                                    <tag>latest</tag>
-                                    <tag>${env.DOCKER_TAG}</tag>
-                                </tags>
-                                <from>eclipse-temurin:25-jre</from>
-                                <assembly>
-                                    <descriptor>owlcms.xml</descriptor>
-                                </assembly>
-                                <env>
-                                    <OWLCMS_CONTROLPANEL>3.0.5</OWLCMS_CONTROLPANEL>
-                                </env>
-                                <entryPoint>
-                                    <arg>java</arg>
-<!--                                     <arg>-Djava.net.preferIPv4Stack=true</arg> -->
-<!--                                     <arg>-Dcom.sun.management.jmxremote.ssl=false</arg> -->
-<!--                                     <arg>-Dcom.sun.management.jmxremote.authenticate=false</arg> -->
-                                    <arg>-XX:MaxRAMPercentage=75</arg>
-                                    <arg>-cp</arg>
-                                    <arg>maven/classes:/maven/owlcms-${project.version}.jar</arg>
-                                    <arg>app.owlcms.Main</arg>
-                                </entryPoint>
-                            </build>
-                        </image>
-                    </images>
-                </configuration>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-logback-configuration</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/docker-context/classes</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>${project.parent.basedir}/owlcms/src/main/resources</directory>
+                                    <includes>
+                                        <include>logback.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
