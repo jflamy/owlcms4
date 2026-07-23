@@ -43,6 +43,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
@@ -83,13 +87,10 @@ import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonValue;
 
 public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
@@ -222,7 +223,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private String attempt;
 	private Integer attemptNumber;
 	private String categoryName;
-	private JsonArray cattempts;
+	private ArrayNode cattempts;
 	@SuppressWarnings("unused")
 	private Boolean debugMode;
 	private Boolean decisionLight1 = null;
@@ -233,24 +234,24 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	// private EventBus fopEventBus;
 	private FieldOfPlay fop;
 	private String fullName;
-	private JsonValue groupAthletes;
-	private JsonValue liftingOrderAthletes;
+	private JsonNode groupAthletes;
+	private JsonNode liftingOrderAthletes;
 	private List<Athlete> groupLeaders;
 	private String groupDescription;
 	private String groupName;
 	private boolean hidden;
-	private JsonValue leaders;
+	private JsonNode leaders;
 	private String liftsDone;
 	private EventBus postBus;
-	private JsonArray sattempts;
+	private ArrayNode sattempts;
 	private Integer startNumber;
 	private String teamName;
 	private Integer timeAllowed;
-	private JsonObject translationMap;
+	private ObjectNode translationMap;
 	private long translatorResetTimeStamp;
 	private Integer weight;
 	private boolean wideTeamNames;
-	private JsonValue records;
+	private JsonNode records;
 	private Boolean teamFlags;
 	private String boardMode;
 	private String groupInfo;
@@ -415,7 +416,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		return this.liftsDone;
 	}
 
-	public JsonValue getRecords() {
+	public JsonNode getRecords() {
 		return this.records;
 	}
 
@@ -427,7 +428,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		return this.timeAllowed;
 	}
 
-	public JsonObject getTranslationMap() {
+	public ObjectNode getTranslationMap() {
 		return this.translationMap;
 	}
 
@@ -571,7 +572,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 * @param a
 	 * @param ja
 	 */
-	public void setTeamFlag(Athlete a, JsonObject ja) {
+	public void setTeamFlag(Athlete a, ObjectNode ja) {
 		String team = a.getTeam();
 		String prop = null;
 		if (this.teamFlags == null) {
@@ -805,7 +806,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
+		ObjectNode translations = JsonUtils.object();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
 			String curKey = keys.nextElement();
@@ -920,7 +921,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		setShowSinclairRank(hasScoreMedals || Competition.getCurrent().isDisplayScoreRanks());
 
 		computeLeaders();
-		JsonValue recordsJson = this.fop.getRecordsJson();
+		JsonNode recordsJson = this.fop.getRecordsJson();
 		//logger.debug("setting records {}",recordsJson.toJson());
 		setRecords(recordsJson);
 	}
@@ -1100,7 +1101,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			} else {
 				mapPut(sb, "recordKind", "none");
 			}
-			mapPut(sb, "records", this.records.toJson());
+			mapPut(sb, "records", this.records.toString());
 		} else {
 			mapPut(sb, "records", null);
 		}
@@ -1315,18 +1316,18 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "showSinclairRank", Boolean.toString(isShowSinclairRank()));
 
 		if (this.groupAthletes != null) {
-			mapPut(sb, "groupAthletes", this.groupAthletes.toJson());
+			mapPut(sb, "groupAthletes", this.groupAthletes.toString());
 		}
 		if (this.liftingOrderAthletes != null) {
-			mapPut(sb, "liftingOrderAthletes", this.liftingOrderAthletes.toJson());
+			mapPut(sb, "liftingOrderAthletes", this.liftingOrderAthletes.toString());
 		}
 		if (this.leaders != null) {
-			mapPut(sb, "leaders", this.leaders.toJson());
+			mapPut(sb, "leaders", this.leaders.toString());
 		}
 		createRecord(sb);
 
 		// presentation information
-		mapPut(sb, "translationMap", this.translationMap.toJson());
+		mapPut(sb, "translationMap", this.translationMap.toString());
 		mapPut(sb, "hidden", String.valueOf(this.hidden));
 		mapPut(sb, "wideTeamNames", String.valueOf(this.wideTeamNames));
 		var activeChampionships = this.fop != null ? this.fop.getScoreboardChampionships() : Collections.singleton(Championship.of(null));
@@ -1617,7 +1618,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 
-	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
+	private void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank) {
 		String category;
 		category = curCat != null ? curCat.getNameWithAgeGroup() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -1629,9 +1630,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		ja.put("lotNumber", (lotNumber != null ? lotNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank);
-		ja.put("sattempts", this.sattempts);
+		ja.set("sattempts", this.sattempts);
 		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-		ja.put("cattempts", this.cattempts);
+		ja.set("cattempts", this.cattempts);
 		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		Participation mainRankings = a.getMainRankings();
@@ -1666,8 +1667,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */
-	private JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, boolean startOrder) {
-		JsonArray jath = Json.createArray();
+	private JsonNode getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, boolean startOrder) {
+		ArrayNode jath = JsonUtils.array();
 		int athx = 0;
 		Category prevCat = null;
 		Athlete prevAth = null;
@@ -1676,14 +1677,14 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		List<Athlete> athletes = groupAthletes != null ? Collections.unmodifiableList(groupAthletes)
 		        : Collections.emptyList();
 		for (Athlete a : athletes) {
-			JsonObject ja = Json.createObject();
+			ObjectNode ja = JsonUtils.object();
 			Category curCat = a.getCategory();
 			if (startOrder) {
 				if (curCat != null && !curCat.sameAs(prevCat)) {
 					// changing categories, put spacer before athlete
 					ja.put("isSpacer", true);
-					jath.set(athx, ja);
-					ja = Json.createObject();
+					JsonUtils.set(jath, athx, ja);
+					ja = JsonUtils.object();
 					prevCat = curCat;
 					athx++;
 				}
@@ -1693,8 +1694,8 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				                && prevAth.getActuallyAttemptedLifts() < 3)) {
 					// lifting order, put spacer before snatch done
 					ja.put("isSpacer", true);
-					jath.set(athx, ja);
-					ja = Json.createObject();
+					JsonUtils.set(jath, athx, ja);
+					ja = JsonUtils.object();
 					athx++;
 				}
 				prevAth = a;
@@ -1709,7 +1710,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 				logger.trace("long team {}", team);
 				setWideTeamNames(true);
 			}
-			jath.set(athx, ja);
+			JsonUtils.set(jath, athx, ja);
 			athx++;
 		}
 		return jath;
@@ -1725,17 +1726,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 * @return json string with nested attempts values
 	 */
 	private synchronized void getAttemptsJson(Athlete a, int liftOrderRank) {
-		this.sattempts = Json.createArray();
-		this.cattempts = Json.createArray();
+		this.sattempts = JsonUtils.array();
+		this.cattempts = JsonUtils.array();
 		for (int i = 0; i < 3; i++) {
-			this.sattempts.set(i, Json.createNull());
-			this.cattempts.set(i, Json.createNull());
+			JsonUtils.set(this.sattempts, i, JsonUtils.nullNode());
+			JsonUtils.set(this.cattempts, i, JsonUtils.nullNode());
 		}
 		XAthlete x = new XAthlete(a);
 		Integer curLift = x.getAttemptsDone();
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
-			JsonObject jri = Json.createObject();
+			ObjectNode jri = JsonUtils.object();
 			String stringValue = i.getStringValue();
 			boolean notDone = x.getAttemptsDone() < 6;
 			String blink = (notDone ? " blink" : "");
@@ -1772,9 +1773,9 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 			}
 
 			if (ix < 3) {
-				this.sattempts.set(ix, jri);
+				JsonUtils.set(this.sattempts, ix, jri);
 			} else {
-				this.cattempts.set(ix % 3, jri);
+				JsonUtils.set(this.cattempts, ix % 3, jri);
 			}
 			ix++;
 		}
@@ -2131,7 +2132,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.forwardedFopName = name;
 	}
 
-	private void setGroupAthletes(JsonValue athletesJson) {
+	private void setGroupAthletes(JsonNode athletesJson) {
 		this.groupAthletes = athletesJson;
 	}
 
@@ -2147,11 +2148,11 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.lastTimerMap = lastTimerMap;
 	}
 
-	private void setLeaders(JsonValue athletesJson) {
+	private void setLeaders(JsonNode athletesJson) {
 		this.leaders = athletesJson;
 	}
 
-	private void setLiftingOrderAthletes(JsonValue athletesJson) {
+	private void setLiftingOrderAthletes(JsonNode athletesJson) {
 		this.liftingOrderAthletes = athletesJson;
 	}
 
@@ -2161,7 +2162,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		mapPut(sb, "fopState", value);
 	}
 
-	private void setRecords(JsonValue recordsJson) {
+	private void setRecords(JsonNode recordsJson) {
 		this.records = recordsJson;
 	}
 
@@ -2185,7 +2186,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 		this.timeAllowed = timeAllowed;
 	}
 
-	private void setTranslationMap(JsonObject translations) {
+	private void setTranslationMap(ObjectNode translations) {
 		this.translationMap = translations;
 	}
 

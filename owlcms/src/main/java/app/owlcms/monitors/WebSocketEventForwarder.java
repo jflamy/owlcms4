@@ -23,6 +23,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
@@ -72,15 +76,11 @@ import app.owlcms.utils.GamxZipHelper;
 import app.owlcms.utils.LogosZipHelper;
 import app.owlcms.utils.PicturesZipHelper;
 import app.owlcms.utils.TranslationsZipHelper;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonType;
-import elemental.json.JsonValue;
 
 public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
@@ -214,7 +214,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private String attempt;
 	private Integer attemptNumber;
 	private String categoryName;
-	private JsonArray cattempts;
+	private ArrayNode cattempts;
 	@SuppressWarnings("unused")
 	private Boolean debugMode;
 	private Boolean decisionLight1 = null;
@@ -230,19 +230,19 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	private String sessionDescription;
 	private String sessionName;
 	private boolean hidden;
-	private JsonValue leaders;
+	private JsonNode leaders;
 	private List<Map<String, Object>> leadersSessionData;
 	private String liftsDone;
 	private EventBus postBus;
-	private JsonArray sattempts;
+	private ArrayNode sattempts;
 	private Integer startNumber;
 	private String teamName;
 	private Integer timeAllowed;
-	private JsonObject translationMap;
+	private ObjectNode translationMap;
 	private long translatorResetTimeStamp;
 	private Integer weight;
 	private boolean wideTeamNames;
-	private JsonValue records;
+	private JsonNode records;
 	private Boolean teamFlags;
 	private String boardMode;
 	private String sessionInfo;
@@ -397,7 +397,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return this.liftsDone;
 	}
 
-	public JsonValue getRecords() {
+	public JsonNode getRecords() {
 		return this.records;
 	}
 
@@ -409,7 +409,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		return this.timeAllowed;
 	}
 
-	public JsonObject getTranslationMap() {
+	public ObjectNode getTranslationMap() {
 		return this.translationMap;
 	}
 
@@ -553,7 +553,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * @param a
 	 * @param ja
 	 */
-	public void setTeamFlag(Athlete a, JsonObject ja) {
+	public void setTeamFlag(Athlete a, ObjectNode ja) {
 		String team = a.getTeam();
 		String prop = null;
 		if (this.teamFlags == null) {
@@ -789,7 +789,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	protected void setTranslationMap() {
-		JsonObject translations = Json.createObject();
+		ObjectNode translations = JsonUtils.object();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
 			String curKey = keys.nextElement();
@@ -902,7 +902,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		setShowSinclairRank(hasScoreMedals || Competition.getCurrent().isDisplayScoreRanks());
 
 		computeLeaders();
-		JsonValue recordsJson = this.fop.getRecordsJson();
+		JsonNode recordsJson = this.fop.getRecordsJson();
 		// logger.debug("setting records {}",recordsJson.toJson());
 		setRecords(recordsJson);
 	}
@@ -1100,7 +1100,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			} else {
 				sb.put("recordKind", "none");
 			}
-			sb.put("records", this.records.toJson());
+			sb.put("records", this.records.toString());
 		} else {
 			sb.remove("recordKind");
 			sb.remove("recordMessage");
@@ -1594,7 +1594,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 
-	private void getAthleteJson(Athlete a, JsonObject ja, Category curCat, int liftOrderRank) {
+	private void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank) {
 		String category;
 		category = curCat != null ? curCat.getNameWithAgeGroup() : "";
 		ja.put("id", a.getId() != null ? a.getId().toString() : "");
@@ -1608,9 +1608,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		ja.put("lotNumber", (lotNumber != null ? lotNumber.toString() : ""));
 		ja.put("category", category != null ? category : "");
 		getAttemptsJson(a, liftOrderRank);
-		ja.put("sattempts", this.sattempts);
+		ja.set("sattempts", this.sattempts);
 		ja.put("bestSnatch", formatInt(a.getBestSnatch()));
-		ja.put("cattempts", this.cattempts);
+		ja.set("cattempts", this.cattempts);
 		ja.put("bestCleanJerk", formatInt(a.getBestCleanJerk()));
 		ja.put("total", formatInt(a.getTotal()));
 		Participation mainRankings = a.getMainRankings();
@@ -1646,8 +1646,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * @return
 	 */
 	@SuppressWarnings("unused")
-	private JsonValue getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, boolean startOrder) {
-		JsonArray jath = Json.createArray();
+	private JsonNode getAthletesJson(List<Athlete> groupAthletes, List<Athlete> liftOrder, boolean startOrder) {
+		ArrayNode jath = JsonUtils.array();
 		int athx = 0;
 		Category prevCat = null;
 		Athlete prevAth = null;
@@ -1656,14 +1656,14 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		List<Athlete> athletes = groupAthletes != null ? Collections.unmodifiableList(groupAthletes)
 		        : Collections.emptyList();
 		for (Athlete a : athletes) {
-			JsonObject ja = Json.createObject();
+			ObjectNode ja = JsonUtils.object();
 			Category curCat = a.getCategory();
 			if (startOrder) {
 				if (curCat != null && !curCat.sameAs(prevCat)) {
 					// changing categories, put spacer before athlete
 					ja.put("isSpacer", true);
-					jath.set(athx, ja);
-					ja = Json.createObject();
+					JsonUtils.set(jath, athx, ja);
+					ja = JsonUtils.object();
 					prevCat = curCat;
 					athx++;
 				}
@@ -1673,8 +1673,8 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				                && prevAth.getActuallyAttemptedLifts() < 3)) {
 					// lifting order, put spacer before snatch done
 					ja.put("isSpacer", true);
-					jath.set(athx, ja);
-					ja = Json.createObject();
+					JsonUtils.set(jath, athx, ja);
+					ja = JsonUtils.object();
 					athx++;
 				}
 				prevAth = a;
@@ -1689,7 +1689,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 				logger.trace("long team {}", team);
 				setWideTeamNames(true);
 			}
-			jath.set(athx, ja);
+			JsonUtils.set(jath, athx, ja);
 			athx++;
 		}
 		return jath;
@@ -1713,17 +1713,17 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	 * @return json string with nested attempts values
 	 */
 	private synchronized void getAttemptsJson(Athlete a, int liftOrderRank) {
-		this.sattempts = Json.createArray();
-		this.cattempts = Json.createArray();
+		this.sattempts = JsonUtils.array();
+		this.cattempts = JsonUtils.array();
 		for (int i = 0; i < 3; i++) {
-			this.sattempts.set(i, Json.createNull());
-			this.cattempts.set(i, Json.createNull());
+			JsonUtils.set(this.sattempts, i, JsonUtils.nullNode());
+			JsonUtils.set(this.cattempts, i, JsonUtils.nullNode());
 		}
 		XAthlete x = new XAthlete(a);
 		Integer curLift = x.getAttemptsDone();
 		int ix = 0;
 		for (LiftInfo i : x.getRequestInfoArray()) {
-			JsonObject jri = Json.createObject();
+			ObjectNode jri = JsonUtils.object();
 			String stringValue = i.getStringValue();
 			boolean notDone = x.getAttemptsDone() < 6;
 			String blink = (notDone ? " blink" : "");
@@ -1760,9 +1760,9 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 			}
 
 			if (ix < 3) {
-				this.sattempts.set(ix, jri);
+				JsonUtils.set(this.sattempts, ix, jri);
 			} else {
-				this.cattempts.set(ix % 3, jri);
+				JsonUtils.set(this.cattempts, ix % 3, jri);
 			}
 			ix++;
 		}
@@ -1813,42 +1813,42 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 
 	// Competition data export and hash computation delegated to ForwarderPayloadBuilder
 
-	private Object convertJsonValue(JsonValue value) {
-		if (value == null || value.getType() == JsonType.NULL) {
+	private Object convertJsonValue(JsonNode value) {
+		if (value == null || value.isNull()) {
 			return null;
 		}
-		switch (value.getType()) {
-			case STRING:
-				return value.asString();
-			case NUMBER:
-				double number = value.asNumber();
-				if (Math.rint(number) == number) {
-					long longVal = (long) number;
-					if (longVal >= Integer.MIN_VALUE && longVal <= Integer.MAX_VALUE) {
-						return (int) longVal;
-					}
-					return longVal;
-				}
-				return number;
-			case BOOLEAN:
-				return value.asBoolean();
-			case ARRAY:
-				JsonArray array = (JsonArray) value;
-				List<Object> list = new ArrayList<>();
-				for (int i = 0; i < array.length(); i++) {
-					list.add(convertJsonValue(array.get(i)));
-				}
-				return list;
-			case OBJECT:
-				JsonObject object = (JsonObject) value;
-				Map<String, Object> map = new LinkedHashMap<>();
-				for (String key : object.keys()) {
-					map.put(key, convertJsonValue(object.get(key)));
-				}
-				return map;
-			default:
-				return null;
+		if (value.isString()) {
+			return value.asString();
 		}
+		if (value.isNumber()) {
+			double number = value.asDouble();
+			if (Math.rint(number) == number) {
+				long longVal = (long) number;
+				if (longVal >= Integer.MIN_VALUE && longVal <= Integer.MAX_VALUE) {
+					return (int) longVal;
+				}
+				return longVal;
+			}
+			return number;
+		}
+		if (value.isBoolean()) {
+			return value.asBoolean();
+		}
+		if (value.isArray()) {
+			List<Object> list = new ArrayList<>();
+			for (JsonNode item : value) {
+				list.add(convertJsonValue(item));
+			}
+			return list;
+		}
+		if (value.isObject()) {
+			Map<String, Object> map = new LinkedHashMap<>();
+			for (Map.Entry<String, JsonNode> property : value.properties()) {
+				map.put(property.getKey(), convertJsonValue(property.getValue()));
+			}
+			return map;
+		}
+		return null;
 	}
 
 	private synchronized void pushDecision(DecisionEventType det, UIEvent e) {
@@ -2382,7 +2382,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 	}
 
 	@SuppressWarnings("unused")
-	private void setLeaders(JsonValue athletesJson) {
+	private void setLeaders(JsonNode athletesJson) {
 		this.leaders = athletesJson;
 		this.leadersSessionData = null;
 	}
@@ -2410,7 +2410,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		temp.forEach((k, v) -> sb.put(k, v));
 	}
 
-	private void setRecords(JsonValue recordsJson) {
+	private void setRecords(JsonNode recordsJson) {
 		this.records = recordsJson;
 	}
 
@@ -2434,7 +2434,7 @@ public class WebSocketEventForwarder implements BreakDisplay, HasBoardMode, IUnr
 		this.timeAllowed = timeAllowed;
 	}
 
-	private void setTranslationMap(JsonObject translations) {
+	private void setTranslationMap(ObjectNode translations) {
 		this.translationMap = translations;
 	}
 

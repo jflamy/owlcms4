@@ -21,10 +21,10 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -45,13 +45,9 @@ import app.owlcms.uievents.UIEvent.JuryNotification;
 import app.owlcms.uievents.UIEvent.SetTime;
 import app.owlcms.uievents.UIEvent.StartTime;
 import app.owlcms.uievents.UIEvent.StopTime;
+import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
-import elemental.json.JsonType;
-import elemental.json.JsonValue;
 
 /**
  * Builds payload maps for WebSocket messages (update, timer, decision).
@@ -63,10 +59,7 @@ public class ForwarderPayloadBuilder {
 	private static final ObjectMapper JSON_MAPPER = createObjectMapper();
 
 	private static ObjectMapper createObjectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
-		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-		return mapper;
+		return new ObjectMapper();
 	}
 
 	/**
@@ -239,7 +232,7 @@ public class ForwarderPayloadBuilder {
 	public static Map<String, String> createDecision(UIEvent event, DecisionEventType det, FieldOfPlay fop,
 			String boardMode, String fullName, Integer attemptNumber, String liftTypeKey,
 			Boolean decisionLight1, Boolean decisionLight2, Boolean decisionLight3,
-			boolean decisionLightsVisible, boolean down, FOPState fopState, JsonValue records) {
+			boolean decisionLightsVisible, boolean down, FOPState fopState, JsonNode records) {
 		
 		Map<String, String> sb = new LinkedHashMap<>();
 		mapPut(sb, "decisionEventType", det.toString());
@@ -368,44 +361,44 @@ public class ForwarderPayloadBuilder {
 	}
 
 	/**
-	 * Convert JsonValue to standard Java types for serialization.
+	 * Convert a Jackson node to standard Java types for serialization.
 	 */
-	public static Object convertJsonValue(JsonValue value) {
-		if (value == null || value.getType() == JsonType.NULL) {
+	public static Object convertJsonValue(JsonNode value) {
+		if (value == null || value.isNull()) {
 			return null;
 		}
-		switch (value.getType()) {
-			case STRING:
-				return value.asString();
-			case NUMBER:
-				double number = value.asNumber();
-				if (Math.rint(number) == number) {
-					long longVal = (long) number;
-					if (longVal >= Integer.MIN_VALUE && longVal <= Integer.MAX_VALUE) {
-						return (int) longVal;
-					}
-					return longVal;
-				}
-				return number;
-			case BOOLEAN:
-				return value.asBoolean();
-			case ARRAY:
-				JsonArray array = (JsonArray) value;
-				List<Object> list = new ArrayList<>();
-				for (int i = 0; i < array.length(); i++) {
-					list.add(convertJsonValue(array.get(i)));
-				}
-				return list;
-			case OBJECT:
-				JsonObject object = (JsonObject) value;
-				Map<String, Object> map = new LinkedHashMap<>();
-				for (String key : object.keys()) {
-					map.put(key, convertJsonValue(object.get(key)));
-				}
-				return map;
-			default:
-				return null;
+		if (value.isString()) {
+			return value.asString();
 		}
+		if (value.isNumber()) {
+			double number = value.asDouble();
+			if (Math.rint(number) == number) {
+				long longVal = (long) number;
+				if (longVal >= Integer.MIN_VALUE && longVal <= Integer.MAX_VALUE) {
+					return (int) longVal;
+				}
+				return longVal;
+			}
+			return number;
+		}
+		if (value.isBoolean()) {
+			return value.asBoolean();
+		}
+		if (value.isArray()) {
+			List<Object> list = new ArrayList<>();
+			for (JsonNode item : value) {
+				list.add(convertJsonValue(item));
+			}
+			return list;
+		}
+		if (value.isObject()) {
+			Map<String, Object> map = new LinkedHashMap<>();
+			for (Map.Entry<String, JsonNode> property : value.properties()) {
+				map.put(property.getKey(), convertJsonValue(property.getValue()));
+			}
+			return map;
+		}
+		return null;
 	}
 
 	/**
@@ -415,13 +408,13 @@ public class ForwarderPayloadBuilder {
 		if (value == null) {
 			return null;
 		}
-		if (value instanceof JsonValue) {
-			return convertParameterValue(convertJsonValue((JsonValue) value), fop);
+		if (value instanceof JsonNode) {
+			return convertParameterValue(convertJsonValue((JsonNode) value), fop);
 		}
 		if (value instanceof Map || value instanceof Iterable || value.getClass().isArray()) {
 			try {
 				return JSON_MAPPER.writeValueAsString(value);
-			} catch (JsonProcessingException e) {
+			} catch (JacksonException e) {
 				logger.debug("{}could not serialize parameter value {}", 
 				        fop != null ? FieldOfPlay.getLoggingName(fop) : "",
 				        LoggerUtils.exceptionMessage(e));
@@ -450,8 +443,8 @@ public class ForwarderPayloadBuilder {
 	/**
 	 * Build translation map from Translator.
 	 */
-	public static JsonObject buildTranslationMap() {
-		JsonObject translations = Json.createObject();
+	public static ObjectNode buildTranslationMap() {
+		ObjectNode translations = JsonUtils.object();
 		Enumeration<String> keys = Translator.getKeys();
 		while (keys.hasMoreElements()) {
 			String curKey = keys.nextElement();
@@ -466,7 +459,7 @@ public class ForwarderPayloadBuilder {
 	/**
 	 * Populate record info in a Map<String, Object> payload.
 	 */
-	public static void populateRecordInfo(Map<String, Object> sb, JsonValue records, FieldOfPlay fop) {
+	public static void populateRecordInfo(Map<String, Object> sb, JsonNode records, FieldOfPlay fop) {
 		if (records != null) {
 			if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
 				sb.put("recordKind", "new");
@@ -497,7 +490,7 @@ public class ForwarderPayloadBuilder {
 		wr.put(key, value);
 	}
 
-	private static void populateRecordInfoStrings(Map<String, String> sb, JsonValue records, FieldOfPlay fop) {
+	private static void populateRecordInfoStrings(Map<String, String> sb, JsonNode records, FieldOfPlay fop) {
 		if (records != null) {
 			if (fop.getNewRecords() != null && !fop.getNewRecords().isEmpty()) {
 				sb.put("recordKind", "new");
@@ -508,7 +501,7 @@ public class ForwarderPayloadBuilder {
 			} else {
 				sb.put("recordKind", "none");
 			}
-			sb.put("records", records.toJson());
+			sb.put("records", records.toString());
 		} else {
 			sb.remove("recordKind");
 			sb.remove("recordMessage");

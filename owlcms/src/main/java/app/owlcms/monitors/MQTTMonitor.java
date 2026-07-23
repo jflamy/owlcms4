@@ -37,8 +37,8 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.Main;
@@ -1057,7 +1057,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 				String json;
 				try {
 					json = new ObjectMapper().writeValueAsString(payload);
-				} catch (JsonProcessingException ex) {
+				} catch (JacksonException ex) {
 					json = "";
 				}
 				publish("owlcms/fop/start/" + this.getFop().getName(),
@@ -1227,7 +1227,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			String json;
 			try {
 				json = new ObjectMapper().writeValueAsString(payload);
-			} catch (JsonProcessingException e) {
+			} catch (JacksonException e) {
 				json = "";
 			}
 			publishSimulator("owlcms/clock/" + this.getFop().getName(),
@@ -1603,7 +1603,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			logger.trace("Publishing MQTT config to topic '{}' with payload: {}", topic, json);
 			publish(topic, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
 			logger.trace("Successfully published MQTT config to topic '{}'", topic);
-		} catch (JsonProcessingException | MqttException e) {
+		} catch (JacksonException | MqttException e) {
 			logger.error("Error publishing MQTT config to topic {}", topic, e);
 		}
 	}
@@ -1639,7 +1639,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 		try {
 			String json = new ObjectMapper().writeValueAsString(payload);
 			publish(PLAYWRIGHT_DONE_TOPIC, new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
-		} catch (JsonProcessingException e1) {
+		} catch (JacksonException e1) {
 			logger.debug("{}MQTT playwright done publish failed", FieldOfPlay.getLoggingName(getFop()), e1);
 		}
 	}
@@ -1720,7 +1720,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			String json = new ObjectMapper().writeValueAsString(payload);
 			publish("owlcms/fop/playwright/currentAthlete/" + this.getFop().getName(),
 					new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
-		} catch (JsonProcessingException | MqttException e1) {
+		} catch (JacksonException | MqttException e1) {
 			logger.debug("{}MQTT playwright publish failed", FieldOfPlay.getLoggingName(getFop()), e1);
 		}
 	}
@@ -1736,7 +1736,7 @@ public class MQTTMonitor extends Thread implements IUnregister, SafeEventBusRegi
 			String json = new ObjectMapper().writeValueAsString(payload);
 			publish("owlcms/fop/playwright/pause/" + this.getFop().getName(),
 					new MqttMessage(json.getBytes(StandardCharsets.UTF_8)));
-		} catch (JsonProcessingException | MqttException e1) {
+		} catch (JacksonException | MqttException e1) {
 			logger.debug("{}MQTT playwright pause publish failed", FieldOfPlay.getLoggingName(getFop()), e1);
 		}
 	}
