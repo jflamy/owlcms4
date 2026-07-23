@@ -10,8 +10,8 @@ You can checkout this repository (or fork it if you intend to make changes.)
   - You will be prompted to install the typical Java extensions, accept them.
 - Advanced Use: 
   - If you want to use HotSwap with DCEVM, you can copy and edit `owlcmsHotswap.code-workspace` from the .vscode directory
-    - Get a JDK 17 from JetBrains [JetBrains/JetBrainsRuntime: Runtime environment based on OpenJDK for running IntelliJ Platform-based products on Windows, macOS, and Linux](https://github.com/JetBrains/JetBrainsRuntime) and unzip it.
-    - Edit your copy of `owlcmsHotswap.code-workspace` to have the path where you unzipped the JDK 17
+    - Get a JDK 25 from JetBrains [JetBrains/JetBrainsRuntime: Runtime environment based on OpenJDK for running IntelliJ Platform-based products on Windows, macOS, and Linux](https://github.com/JetBrains/JetBrainsRuntime) and unzip it.
+    - Edit your copy of `owlcmsHotswap.code-workspace` to have the path where you unzipped the JDK 25
     - Get the Hotswap agent from [HotswapAgent releases](https://github.com/HotswapProjects/HotswapAgent/releases)
     - Create a `lib/hotswap` in the JDK installation directory. Copy the agent jar, *and remove the version number* -- the file should be `lib/hotswap/hotswap-agent.jar`
   
@@ -37,7 +37,7 @@ But you can use maven to create a production build manually, as follows
 
 - Install git : Installing [GitHub Desktop](https://desktop.github.com/) is the easiest way to install Git on a Windows system. Select the options to add the programs to the execution path.
 - Clone this repository
-- Install Java 17
+- Install Java 25
 - Install Maven
 
 ### Building and testing

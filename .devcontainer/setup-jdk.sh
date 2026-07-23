@@ -3,7 +3,7 @@
 # JetBrains Runtime JDK 25 with DCEVM setup script for devcontainer
 # Java 21 is already provided by the base devcontainer image for VS Code extension
 # but project runtime uses JDK 25 DCEVM for enhanced class redefinition.
-# Maven compilation remains Java 17 via maven.compiler.release/source/target.
+# Maven compilation also targets Java 25.
 
 set -e
 
@@ -248,7 +248,7 @@ else
   fi
 fi
 
-# Set up Maven environment and configure it to use JDK 17
+# Set up Maven environment and configure it to use JDK 25
 echo 'export M2_HOME=/opt/maven' | sudo tee -a /etc/environment
 echo 'export PATH=$M2_HOME/bin:$PATH' | sudo tee -a /etc/environment
 
@@ -268,8 +268,8 @@ export PATH=$M2_HOME/bin:$PATH
 echo 'export M2_HOME=/opt/maven' >> ~/.bashrc
 echo 'export PATH=$M2_HOME/bin:$PATH' >> ~/.bashrc
 
-# Create Maven toolchains.xml to specify JDK 17 for compilation
-echo "Configuring Maven to use JDK 17 for compilation..."
+# Create Maven toolchains.xml to specify JDK 25 for compilation
+echo "Configuring Maven to use JDK 25 for compilation..."
 mkdir -p ~/.m2
 cat > ~/.m2/toolchains.xml << 'EOF'
 <?xml version="1.0" encoding="UTF8"?>
@@ -277,7 +277,7 @@ cat > ~/.m2/toolchains.xml << 'EOF'
   <toolchain>
     <type>jdk</type>
     <provides>
-      <version>17</version>
+      <version>25</version>
       <vendor>jetbrains</vendor>
     </provides>
     <configuration>
@@ -293,14 +293,14 @@ cat > ~/.m2/settings.xml << 'EOF'
 <settings>
   <profiles>
     <profile>
-      <id>jdk-17</id>
+      <id>jdk-25</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.release>25</maven.compiler.release>
         <java.home>/usr/local/jdk-25-dcevm</java.home>
       </properties>
     </profile>
@@ -384,5 +384,5 @@ rm -rf /tmp/jbr* 2>/dev/null || true
 echo ""
 echo "Setup complete!"
 echo "- Java 21: Provided by devcontainer base image (for VS Code Java Extension)"
-echo "- JDK 25 DCEVM: /usr/local/jdk-25-dcevm (for project runtime and hot-swap debugging; compilation target remains Java 17)"
+echo "- JDK 25 DCEVM: /usr/local/jdk-25-dcevm (for compilation, project runtime, and hot-swap debugging)"
 echo "- Maven ${MAVEN_VERSION}: /opt/maven"

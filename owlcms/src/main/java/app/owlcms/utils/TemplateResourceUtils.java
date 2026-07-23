@@ -33,7 +33,7 @@ public final class TemplateResourceUtils {
 	 * other entries in this map resolve to "None" (no enforced default). Timezone
 	 * IDs absent from this map default to A4.
 	 */
-	@SuppressWarnings("deprecation") // new Locale(lang, country) — Java 17 target; deprecated only in Java 19+
+	@SuppressWarnings("deprecation") // Locale constructors are deprecated in Java 19+.
 	private static final Map<String, Locale> TIMEZONE_TO_LOCALE = Map.ofEntries(
 	        // United States
 	        entry("America/New_York", new Locale("en", "US")),

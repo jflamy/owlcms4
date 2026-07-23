@@ -90,7 +90,7 @@ public class Translator implements I18NProvider {
 	// Cache for created ResourceBundles to avoid recreating them
 	private static final Map<String, ResourceBundle> bundleCache = new HashMap<>();
 
-	@SuppressWarnings("deprecation") // Java 19+ deprecation warning; Maven release is Java 17.
+	@SuppressWarnings("deprecation") // Locale constructors are deprecated in Java 19+.
 	public static Locale createLocale(String localeString) {
 		if (localeString == null) {
 			throwInvalidLocale(localeString);

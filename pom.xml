@@ -31,7 +31,7 @@
 		<guava.version>33.5.0-jre</guava.version>
 
 		<!-- maven configs -->
-		<java.release>17</java.release>
+		<java.release>25</java.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<failOnMissingWebXml>false</failOnMissingWebXml>

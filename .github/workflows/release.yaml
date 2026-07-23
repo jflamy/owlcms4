@@ -30,11 +30,11 @@ jobs:
           fetch-depth: 1
           persist-credentials: false # Disable credential persistence
 
-      - name: Set up Java 17 and pin Maven version
+      - name: Set up Java 25 and pin Maven version
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '25'
 
       - name: Install pinned Maven 3.8.8
         run: |
@@ -58,7 +58,7 @@ jobs:
           set -euo pipefail
           echo "Checking Java and Maven on runner..."
           if ! command -v java >/dev/null 2>&1; then
-            echo "ERROR: java not found on runner. Please enable actions/setup-java or use a runner with Java 17." >&2
+            echo "ERROR: java not found on runner. Please enable actions/setup-java or use a runner with Java 25." >&2
             exit 1
           fi
           if ! command -v mvn >/dev/null 2>&1; then
@@ -70,9 +70,9 @@ jobs:
           echo "which mvn: $(which mvn)"
           java -version 2>&1 | sed -n '1p'
           mvn -v
-          # Ensure Java 17 is installed (fail if not)
-          if ! java -version 2>&1 | grep -qE '"17|openjdk 17|Temurin.*17|jdk-17'; then
-            echo "ERROR: Java 17 is required but not found. Runner java output:" >&2
+          # Ensure Java 25 is installed (fail if not)
+          if ! java -version 2>&1 | grep -qE '"25|openjdk 25|Temurin.*25|jdk-25'; then
+            echo "ERROR: Java 25 is required but not found. Runner java output:" >&2
             java -version 2>&1 | sed -n '1,5p' >&2 || true
             exit 1
           fi
