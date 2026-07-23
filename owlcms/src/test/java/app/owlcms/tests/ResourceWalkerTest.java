@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Locale;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,6 +30,11 @@ public class ResourceWalkerTest {
         Main.injectSuppliers();
         JPAService.init(true, true);
         Config.initConfig();
+    }
+
+    @AfterClass
+    public static void tearDownTests() {
+        JPAService.close();
     }
 
     @SuppressWarnings("deprecation")

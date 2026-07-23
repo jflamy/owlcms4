@@ -13,6 +13,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -31,6 +32,11 @@ public class JSONExportImportTest {
         JPAService.init(true, true);
         Config.initConfig();
         TestData.insertInitialData(1, true);
+    }
+
+    @AfterClass
+    public static void tearDownTests() {
+        JPAService.close();
     }
 
 	@Test
