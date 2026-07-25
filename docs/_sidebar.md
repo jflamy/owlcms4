@@ -55,6 +55,7 @@
   * [Packaging Local Settings](UploadingLocalSettings)
   * [Scoreboard Styling](Styles)
   * [Flags and Pictures](FlagsPictures)
+  * [Timer Sounds](TimerSounds.md)
   * [Excel Template Variables](TemplateVariables)
   * [Credentials](Credentials)
   * [Translations](Translation)
