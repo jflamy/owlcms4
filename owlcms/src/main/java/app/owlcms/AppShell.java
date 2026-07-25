@@ -9,6 +9,7 @@ package app.owlcms;
 import org.eclipse.jetty.io.EofException;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.LoadingIndicatorConfiguration;
 import com.vaadin.flow.component.page.Push;
@@ -21,7 +22,7 @@ import com.vaadin.flow.server.VaadinServletResponse;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.communication.IndexHtmlRequestListener;
 import com.vaadin.flow.server.communication.IndexHtmlResponse;
-import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
@@ -35,7 +36,11 @@ import jakarta.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 // @PWA(name = "Olympic Weightlifting Competition Management System", shortName = "owlcms")
 @Push
-@Theme(value = "owlcms")
+// Styles are loaded in this order: the Lumo theme, the compact density preset, then the
+// application styles from src/main/resources/META-INF/resources/styles.css
+@StyleSheet(Lumo.STYLESHEET)
+@StyleSheet(Lumo.COMPACT_STYLESHEET)
+@StyleSheet("styles.css")
 public class AppShell implements AppShellConfigurator, VaadinServiceInitListener, IndexHtmlRequestListener {
 
 	/**

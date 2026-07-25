@@ -1,3 +1,7 @@
+/* Global application stylesheet, loaded by app.owlcms.AppShell with @StyleSheet("styles.css").
+   All rules here are document-scope: they reach into Vaadin components through ::part() and
+   must NOT be written as shadow-DOM rules (:host / [part=...]). */
+
 /* hide the keyboard focus ring in the grids - do NOT remove the cell content (display:none collapses the cell)
    Use outline/box-shadow removal so layout stays intact while the focus ring is hidden. */
 vaadin-grid::part(focused-cell) {
@@ -306,4 +310,85 @@ vaadin-dialog-overlay[theme~="jury-notification-dialog"]::part(overlay) {
 
 .jury-notification-chip-record.jury-notification-chip-error {
     background: rgba(255, 191, 0, 0.18);
+}
+
+/* ---------------------------------------------------------------------------
+   Notification variants.
+   Rule order is significant: later rules of equal specificity win.
+   --------------------------------------------------------------------------- */
+
+vaadin-notification-card[theme~="info"]::part(overlay) {
+    color: black;
+    background-color: aqua;
+    font-weight: bold;
+}
+
+vaadin-notification-card[theme~="success"]::part(overlay) {
+    background-color: var(--lumo-success-color);
+    color: var(--lumo-success-contrast-color);
+    font-weight: bold;
+}
+
+vaadin-notification-card[theme~="warning"]::part(overlay) {
+    background-color: yellow;
+    color: black;
+    font-weight: bold;
+}
+
+vaadin-notification-card[theme~="error"]::part(overlay) {
+    background-color: var(--lumo-error-color);
+    color: var(--lumo-error-contrast-color);
+    font-weight: bold;
+}
+
+/* ---------------------------------------------------------------------------
+   Attempt / weight entry fields (athlete card, technical controller).
+   The classes are set on the host element by AthleteCardFormFactory and TCContent.
+   Rule order is significant: .readonly deliberately overrides .bad and .good.
+   --------------------------------------------------------------------------- */
+
+vaadin-text-field.bad::part(input-field) {
+    background-color: red;
+    color: white;
+}
+
+vaadin-text-field.bad.readonly::part(input-field) {
+    background-color: var(--lumo-error-color-10pct);
+    color: gray;
+}
+
+vaadin-text-field.good::part(input-field) {
+    background-color: green;
+    color: white;
+}
+
+vaadin-text-field.good.readonly::part(input-field) {
+    background-color: var(--lumo-success-color-10pct);
+    color: gray;
+}
+
+vaadin-text-field.readonly::part(input-field) {
+    background-color: white;
+    color: gray;
+}
+
+vaadin-text-field.error::part(input-field) {
+    background-color: var(--lumo-error-color-10pct);
+    color: black;
+}
+
+vaadin-text-field.current::part(input-field) {
+    background-color: #fff89a;
+    color: black;
+}
+
+vaadin-text-field.current {
+    --vaadin-input-field-border-width: 1px;
+}
+
+vaadin-text-field.collar-threshold-field::part(input-field) {
+    align-self: flex-start;
+    box-sizing: border-box;
+    flex: none;
+    width: 5ch;
 }

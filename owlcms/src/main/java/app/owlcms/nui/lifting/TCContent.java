@@ -62,7 +62,6 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "lifting/tc", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/plates.css")
-@CssImport(value = "./styles/text-field-theme.css", themeFor = "vaadin-text-field")
 public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(TCContent.class);

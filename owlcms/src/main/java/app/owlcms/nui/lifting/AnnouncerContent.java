@@ -81,8 +81,6 @@ import ch.qos.logback.classic.Logger;
 @SuppressWarnings("serial")
 @Route(value = "lifting/announcer", layout = OwlcmsLayout.class)
 @CssImport(value = "./styles/shared-styles.css")
-@CssImport(value = "./styles/notification-theme.css", themeFor = "vaadin-notification-card")
-@CssImport(value = "./styles/text-field-theme.css", themeFor = "vaadin-text-field")
 public class AnnouncerContent extends AthleteGridContent implements HasDynamicTitle {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(AnnouncerContent.class);
