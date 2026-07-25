@@ -354,7 +354,10 @@ public class UpdateCheck {
     }
 
     static String browserChannel() {
-        return System.getenv("PLAYWRIGHT_BROWSER_CHANNEL");
+        // The bundled Chromium is not installed; the locally installed Chrome is used unless the
+        // environment explicitly selects another channel.
+        String channel = System.getenv("PLAYWRIGHT_BROWSER_CHANNEL");
+        return (channel == null || channel.isBlank()) ? "chrome" : channel;
     }
 
     static String browserLaunchDetails(Config config) {

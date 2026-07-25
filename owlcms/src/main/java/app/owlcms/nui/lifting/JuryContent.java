@@ -433,6 +433,9 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	private Icon bigIcon(VaadinIcon iconDef, String color) {
 		Icon icon = iconDef.create();
 		icon.setSize("80%");
+		// Vaadin 25 gives vaadin-icon "flex: none" in its base styles. Several icons share the row,
+		// so without shrinking they overflow and the rightmost ones are cut off.
+		icon.getStyle().set("flex", "0 1 auto");
 		icon.getStyle().set("color", color);
 		return icon;
 	}

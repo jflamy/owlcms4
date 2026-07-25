@@ -14,6 +14,8 @@ mkdir -p "$LOG_DIR"
 rm -f "$LOG_FILE"
 
 export OWLCMS_PLAYWRIGHT_LOG="$LOG_FILE"
+# Drives the locally installed Chrome, so the driver never needs its own browser bundle.
+export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 CP_FILE="$MODULE_DIR/cp.txt"
 if [[ ! -f "$CP_FILE" ]]; then

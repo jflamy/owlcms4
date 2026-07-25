@@ -60,11 +60,11 @@ public class RunResults {
             
             // create a single browser; we will create independent sessions.
             BrowserType.LaunchOptions launchOptions = new BrowserType.LaunchOptions();
-            String browserChannel = System.getenv("PLAYWRIGHT_BROWSER_CHANNEL");
-            if (browserChannel != null && !browserChannel.isBlank()) {
-                launchOptions.setChannel(browserChannel.trim());
-                System.out.println("Using Playwright browser channel: " + browserChannel.trim());
-            }
+            // The bundled Chromium is not installed; default to the locally installed Chrome.
+            String envChannel = System.getenv("PLAYWRIGHT_BROWSER_CHANNEL");
+            String browserChannel = (envChannel == null || envChannel.isBlank()) ? "chrome" : envChannel;
+            launchOptions.setChannel(browserChannel.trim());
+            System.out.println("Using Playwright browser channel: " + browserChannel.trim());
             Browser browser = playwright.chromium().launch(launchOptions);
             for (int i = 0; i < nbRemoteUsers; i++) {
                 // create two tabs in each incognito session, switch to the publicresults one

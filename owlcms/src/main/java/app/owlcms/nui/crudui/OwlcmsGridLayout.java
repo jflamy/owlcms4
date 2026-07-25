@@ -13,6 +13,7 @@ import org.vaadin.crudui.layout.impl.WindowBasedCrudLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -63,6 +64,7 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		this.filterLayout.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
 		this.filterLayout.setVisible(false);
 		this.filterLayout.setSpacing(true);
+		hideSearchIcon();
 		this.headerLayout.add(this.filterLayout);
 
 		this.mainComponentLayout.setWidth("100%");
@@ -86,6 +88,17 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 
 	public Component getHeaderLayout() {
 		return this.headerLayout;
+	}
+
+	/**
+	 * Remove the magnifier that the crudui library inserts in front of the filters. It is purely
+	 * decorative and not clickable, so it is dropped on every crud page.
+	 */
+	private void hideSearchIcon() {
+		this.filterLayout.getChildren()
+		        .filter(c -> c instanceof Icon)
+		        .findFirst()
+		        .ifPresent(this.filterLayout::remove);
 	}
 
 	public Component getMainLayout() {

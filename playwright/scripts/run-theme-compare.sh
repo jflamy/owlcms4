@@ -4,6 +4,9 @@
 # Both servers must run against the same database, with the same session/platform selected.
 # Defaults: old = http://localhost:8080, new = http://localhost:8083
 #
+# Uses the locally installed Google Chrome by default; the Chromium bundled with Playwright 1.41
+# segfaults on recent macOS. Pass --channel= (empty) to force the bundled build.
+#
 # Examples:
 #   playwright/scripts/run-theme-compare.sh
 #   playwright/scripts/run-theme-compare.sh --tiers=1 --fop=A
@@ -24,6 +27,9 @@ if [[ ! -f "$CP_FILE" || ! -d "$MODULE_DIR/target/classes" ]]; then
 fi
 
 CLASSPATH="$MODULE_DIR/target/classes:$(cat "$CP_FILE")"
+
+# The tool drives the locally installed Chrome, so the driver never needs its own browser bundle.
+export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 cd "$REPO_DIR"
 exec java -cp "$CLASSPATH" playwright.ThemeCompare "$@"

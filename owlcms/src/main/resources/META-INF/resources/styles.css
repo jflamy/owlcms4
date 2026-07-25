@@ -2,6 +2,15 @@
    All rules here are document-scope: they reach into Vaadin components through ::part() and
    must NOT be written as shadow-DOM rules (:host / [part=...]). */
 
+/* Vaadin 25 base styles reset the block margins of ul/ol to zero, whereas Vaadin 24 left the
+   browser default of 1em. Explanatory lists (for example the Time Zone notes in the language
+   and system settings) are laid out around that spacing, so it is restored here.
+   Vaadin's own CSS lives in @layer blocks, so this unlayered rule wins without !important. */
+ul,
+ol {
+    margin-block: 1em;
+}
+
 /* hide the keyboard focus ring in the grids - do NOT remove the cell content (display:none collapses the cell)
    Use outline/box-shadow removal so layout stays intact while the focus ring is hidden. */
 vaadin-grid::part(focused-cell) {

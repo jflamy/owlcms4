@@ -14,8 +14,8 @@ class Monitor extends LitElement {
 
   render() {
     return html`
-      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, `${this.video ?? ""}colors`) }" />
-      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, `${this.video ?? ""}eventmonitor`) }" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}" />
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "eventmonitor")}" />
       <div class="wrapper">
         <div class="${"notification " + (this.notificationClass ?? "")}">
           ${this.title}

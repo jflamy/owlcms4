@@ -206,6 +206,9 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 	private Icon bigIcon(VaadinIcon iconDef, String color) {
 		Icon icon = iconDef.create();
 		icon.setSize("70%");
+		// Vaadin 25 gives vaadin-icon "flex: none" in its base styles. The two icons ask for 70%
+		// each, so without shrinking they overflow the row and the second one is cut off.
+		icon.getStyle().set("flex", "0 1 auto");
 		icon.getStyle().set("color", color);
 		return icon;
 	}
