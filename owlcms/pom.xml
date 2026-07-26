@@ -60,11 +60,14 @@
 		</dependency>
 
 		<!-- Development-mode frontend bundle support. In Vaadin 25 this is no
-		longer pulled in transitively by vaadin-core. The production profile's
-		shade plugin excludes com.vaadin:vaadin-dev from the packaged jar. -->
+		longer pulled in transitively by vaadin-core. Declared optional so that
+		it is never packaged in the production jar (see Vaadin "Excluding
+		Development Server Module"); the production profile's shade plugin also
+		excludes it from the artifact set. -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-dev</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
@@ -388,6 +391,17 @@
 			<groupId>org.eclipse.jetty.ee10</groupId>
 			<artifactId>jetty-ee10-annotations</artifactId>
 			<version>12.0.4</version>
+		</dependency>
+
+		<!-- The Vaadin 25 BOM manages jakarta.servlet-api to 'provided' scope,
+		which is correct for a WAR deployed to an application server, but wrong
+		for our embedded Jetty fat jar: the API would be missing at runtime and
+		startup fails with NoClassDefFoundError: jakarta/servlet/ServletContext.
+		Declaring the scope explicitly here overrides the managed scope. -->
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 
@@ -816,6 +830,22 @@
 										<includes>
 											<include>*:*</include>
 										</includes>
+										<!-- Artifact coordinates must be excluded here,
+										not in <filters>, where the entries are resource
+										path patterns and would be silently ignored. -->
+										<excludes>
+											<exclude>com.vaadin:vaadin-dev</exclude>
+											<exclude>com.vaadin:vaadin-dev-server</exclude>
+											<exclude>com.vaadin:vaadin-dev-bundle</exclude>
+											<exclude>com.vaadin:copilot</exclude>
+											<exclude>com.vaadin:vaadin-board-flow</exclude>
+											<exclude>com.vaadin:vaadin-charts-flow</exclude>
+											<exclude>com.vaadin:vaadin-cookie-consent-flow</exclude>
+											<exclude>com.vaadin:vaadin-crud-flow</exclude>
+											<exclude>com.vaadin:vaadin-grid-pro-flow</exclude>
+											<exclude>com.vaadin:vaadin-map-flow</exclude>
+											<exclude>com.vaadin:vaadin-rich-text-editor-flow</exclude>
+										</excludes>
 									</artifactSet>
 									<filters>
 										<filter>
@@ -834,23 +864,6 @@
 												<exclude>META-INF/*.md</exclude>
 												<exclude>META-INF/AL2.0</exclude>
 												<exclude>META-INF/LGPL2.1</exclude>
-												<exclude>com.vaadin:vaadin-dev</exclude>
-												<exclude>
-													com.vaadin:vaadin-dev-server</exclude>
-												<exclude>
-													com.vaadin:vaadin-board-flow</exclude>
-												<exclude>
-													com.vaadin:vaadin-charts-flow</exclude>
-												<exclude>
-													com.vaadin:vaadin-cookie-consent-flow</exclude>
-												<exclude>
-													com.vaadin:vaadin-crud-flow</exclude>
-												<exclude>
-													com.vaadin:vaadin-grid-pro-flow</exclude>
-												<exclude>
-													com.vaadin:vaadin-map-flow</exclude>
-												<exclude>
-													com.vaadin:vaadin-rich-text-editor-flow</exclude>
 											</excludes>
 										</filter>
 									</filters>
