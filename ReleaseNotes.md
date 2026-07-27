@@ -10,7 +10,11 @@
 
 **New in Release 68.0**
 
-- 68.0.0-alpha00: Migration to Vaadin 25
+
+- 68.0.0-alpha02: Fixed Nested-style templates
+  - Restored automatic cell merging and border creation for the nested start lists and nested day schedules
+
+- 68.0.0-alpha01: Migration to Vaadin 25
   - Change to use new CSS theming mechanism
   - Internal changes to match JSON libraries required by Vaadin 25
   - Changes of build process and Docker container build to systematically use JDK 25 as required by Vaading 25
