@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.IntPredicate;
 import java.util.function.Supplier;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -42,6 +43,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.ss.util.RegionUtil;
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -1631,7 +1633,25 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 					// schedule is currently a variation on starting list
 					JXLSStartingListDocs xlsWriter = new JXLSStartingListDocs();
 					xlsWriter.setPostProcessor((w) -> {
-						if (xlsWriter.getFirstMergeLine() != null) {
+						boolean processed = false;
+						if (xlsWriter.getMergeDownStartRow() != null) {
+							mergeDown(w, xlsWriter.getMergeDownStartRow(), xlsWriter.getMergeDownStartColumn(),
+									xlsWriter.getMergeDownStopColumn());
+							processed = true;
+						}
+						if (xlsWriter.getBottomBorderStartRow() != null) {
+							fixExistingMergeBorders(w, xlsWriter.getBottomBorderStartRow(),
+									xlsWriter.getBottomBorderStartColumn(), xlsWriter.getBottomBorderStopColumn());
+							processed = true;
+						}
+						if (xlsWriter.getVerticalBorderStartRow() != null) {
+							fixVerticalBorders(w, xlsWriter.getVerticalBorderStartRow(),
+									xlsWriter.getVerticalBorderStartColumn(), xlsWriter.getVerticalBorderStopColumn());
+							processed = true;
+						}
+						if (processed) {
+							fixLastLine(w);
+						} else if (xlsWriter.getFirstMergeLine() != null) {
 							logger.debug("merging {} {}", xlsWriter.getFirstMergeLine(),
 									xlsWriter.getMergeColumnList());
 							// merged columns
@@ -1662,7 +1682,23 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 						// get current version of athletes.
 						List<Athlete> athletesFindAll = athletesFindAll(true);
 						xlsWriter.setSortedAthletes(athletesFindAll);
-						xlsWriter.setPostProcessor(null);
+						xlsWriter.setPostProcessor(w -> {
+							if (xlsWriter.getBottomBorderStartRow() != null) {
+								fixExistingMergeBorders(w, xlsWriter.getBottomBorderStartRow(),
+										xlsWriter.getBottomBorderStartColumn(), xlsWriter.getBottomBorderStopColumn());
+							} else if (xlsWriter.getFirstMergeLine() != null) {
+								fixExistingMergeBorders(w, xlsWriter.getFirstMergeLine(),
+										xlsWriter.getMergeColumnList());
+							}
+							if (xlsWriter.getVerticalBorderStartRow() != null) {
+								fixVerticalBorders(w, xlsWriter.getVerticalBorderStartRow(),
+										xlsWriter.getVerticalBorderStartColumn(), xlsWriter.getVerticalBorderStopColumn());
+							}
+							if (xlsWriter.getBottomBorderStartRow() != null || xlsWriter.getFirstMergeLine() != null
+									|| xlsWriter.getVerticalBorderStartRow() != null) {
+								fixLastLine(w);
+							}
+						});
 						return xlsWriter;
 					} catch (Throwable e) {
 						e.printStackTrace();
@@ -1929,13 +1965,33 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private void fixMerges(Workbook workbook, Integer startRowNum, List<Integer> columns) {
+		if (columns == null || columns.isEmpty()) {
+			return;
+		}
+		int startColumn = columns.stream().mapToInt(Integer::intValue).min().orElse(0);
+		int stopColumn = columns.stream().mapToInt(Integer::intValue).max().orElse(0);
+		mergeDown(workbook, startRowNum, columns::contains, startColumn, stopColumn);
+	}
+
+	private void mergeDown(Workbook workbook, Integer startRowNum, Integer startColumn, Integer stopColumn) {
+		if (startRowNum == null || startColumn == null || stopColumn == null || startColumn > stopColumn) {
+			return;
+		}
+		mergeDown(workbook, startRowNum, column -> true, startColumn, stopColumn);
+	}
+
+	private void mergeDown(Workbook workbook, Integer startRowNum, IntPredicate includedColumn, int startColumn,
+			int stopColumn) {
 		try {
 			Sheet sheet = workbook.getSheetAt(0);
 			int firstRow = 0;
 			boolean isMerging = false;
 			CellStyle style = null;
 
-			for (int colA : columns) {
+			for (int colA = startColumn; colA <= stopColumn; colA++) {
+				if (!includedColumn.test(colA)) {
+					continue;
+				}
 				isMerging = false;
 				firstRow = 0;
 				style = null;
@@ -1997,6 +2053,107 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		} catch (Exception e) {
 			// logger removed
 		}
+	}
+
+	private void fixExistingMergeBorders(Workbook workbook, Integer startRowNum, List<Integer> columns) {
+		if (columns == null || columns.isEmpty()) {
+			return;
+		}
+		int referenceColumn = columns.stream().mapToInt(Integer::intValue).max().orElse(0);
+		fixExistingMergeBorders(workbook, startRowNum, columns::contains, referenceColumn);
+	}
+
+	private void fixExistingMergeBorders(Workbook workbook, Integer startRowNum, Integer startColumn, Integer stopColumn) {
+		if (startRowNum == null || startColumn == null || stopColumn == null || startColumn > stopColumn) {
+			return;
+		}
+		fixExistingMergeBorders(workbook, startRowNum,
+				column -> column >= startColumn && column <= stopColumn, stopColumn);
+	}
+
+	private void fixExistingMergeBorders(Workbook workbook, Integer startRowNum, IntPredicate configuredColumn,
+			int referenceColumn) {
+		Sheet sheet = workbook.getSheetAt(0);
+		for (CellRangeAddress region : sheet.getMergedRegions()) {
+			boolean startsInData = region.getFirstRow() + 1 >= startRowNum;
+			boolean includedColumn = configuredColumn.test(region.getFirstColumn() + 1);
+			boolean singleColumn = region.getFirstColumn() == region.getLastColumn();
+			if (startsInData && includedColumn && singleColumn) {
+				Row endingRow = sheet.getRow(region.getLastRow());
+				Cell referenceCell = endingRow != null ? endingRow.getCell(referenceColumn) : null;
+				if (referenceCell != null) {
+					CellStyle referenceStyle = referenceCell.getCellStyle();
+					RegionUtil.setBorderBottom(referenceStyle.getBorderBottom(), region, sheet);
+					RegionUtil.setBottomBorderColor(referenceStyle.getBottomBorderColor(), region, sheet);
+				}
+			}
+		}
+	}
+
+	private void fixVerticalBorders(Workbook workbook, Integer startRowNum, Integer startColumn, Integer stopColumn) {
+		if (startRowNum == null || startColumn == null || stopColumn == null || startColumn > stopColumn) {
+			return;
+		}
+		Sheet sheet = workbook.getSheetAt(0);
+		for (int rowNum = startRowNum - 1; rowNum <= sheet.getLastRowNum(); rowNum++) {
+			Row row = sheet.getRow(rowNum);
+			if (row == null) {
+				continue;
+			}
+			Cell referenceCell = findVerticalBorderReference(row, startColumn, stopColumn);
+			if (referenceCell == null) {
+				continue;
+			}
+			CellStyle referenceStyle = referenceCell.getCellStyle();
+			Map<String, Object> properties = new HashMap<>();
+			properties.put(CellUtil.BORDER_LEFT, referenceStyle.getBorderBottom());
+			properties.put(CellUtil.LEFT_BORDER_COLOR, referenceStyle.getBottomBorderColor());
+			properties.put(CellUtil.BORDER_RIGHT, referenceStyle.getBorderBottom());
+			properties.put(CellUtil.RIGHT_BORDER_COLOR, referenceStyle.getBottomBorderColor());
+			for (int column = startColumn - 1; column < stopColumn; column++) {
+				Cell cell = row.getCell(column);
+				if (cell == null) {
+					cell = row.createCell(column);
+				}
+				CellUtil.setCellStyleProperties(cell, properties);
+			}
+		}
+		for (CellRangeAddress region : sheet.getMergedRegions()) {
+			boolean startsInData = region.getFirstRow() + 1 >= startRowNum;
+			boolean configuredColumn = region.getFirstColumn() + 1 >= startColumn
+					&& region.getLastColumn() + 1 <= stopColumn;
+			boolean singleColumn = region.getFirstColumn() == region.getLastColumn();
+			if (!startsInData || !configuredColumn || !singleColumn) {
+				continue;
+			}
+			Row firstRow = sheet.getRow(region.getFirstRow());
+			Cell referenceCell = firstRow != null
+					? findVerticalBorderReference(firstRow, startColumn, stopColumn)
+					: null;
+			if (referenceCell == null) {
+				continue;
+			}
+			CellStyle referenceStyle = referenceCell.getCellStyle();
+			RegionUtil.setBorderLeft(referenceStyle.getBorderBottom(), region, sheet);
+			RegionUtil.setLeftBorderColor(referenceStyle.getBottomBorderColor(), region, sheet);
+			RegionUtil.setBorderRight(referenceStyle.getBorderBottom(), region, sheet);
+			RegionUtil.setRightBorderColor(referenceStyle.getBottomBorderColor(), region, sheet);
+		}
+	}
+
+	private Cell findVerticalBorderReference(Row row, int startColumn, int stopColumn) {
+		for (int column = startColumn - 1; column < stopColumn; column++) {
+			Cell cell = row.getCell(column);
+			if (cell != null && cell.getCellStyle().getBorderBottom() != BorderStyle.NONE) {
+				return cell;
+			}
+		}
+		return findBottomBorderReference(row, stopColumn);
+	}
+
+	private Cell findBottomBorderReference(Row row, int preferredColumn) {
+		Cell endOfRangeCell = row.getCell(preferredColumn - 1);
+		return endOfRangeCell != null ? endOfRangeCell : row.getCell(preferredColumn);
 	}
 
 	private Platform getPlatform() {

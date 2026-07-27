@@ -166,6 +166,15 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 	private Integer lastLine;
 	private Integer firstMergeLine;
 	private List<Integer> mergeColumnList;
+	private Integer mergeDownStartRow;
+	private Integer mergeDownStartColumn;
+	private Integer mergeDownStopColumn;
+	private Integer bottomBorderStartRow;
+	private Integer bottomBorderStartColumn;
+	private Integer bottomBorderStopColumn;
+	private Integer verticalBorderStartRow;
+	private Integer verticalBorderStartColumn;
+	private Integer verticalBorderStopColumn;
 
 	protected boolean shouldHideInterimScoresInResults() {
 		return this.respectNoInterimScoresInResults && Config.getCurrent().featureSwitch(FeatureSwitch.NO_INTERIM_SCORES_IN_RESULTS);
@@ -315,6 +324,27 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 				getMergeColumnList().add(Integer.parseInt(column.trim()));
 			}
 		}
+
+		Pattern mergeDownPattern = Pattern.compile("owlcms:mergeDown\\((\\d+),(\\d+),(\\d+)\\)");
+		Matcher mergeDownMatcher = mergeDownPattern.matcher(comment);
+		if (mergeDownMatcher.find()) {
+			setMergeDownRange(Integer.parseInt(mergeDownMatcher.group(1)), Integer.parseInt(mergeDownMatcher.group(2)),
+					Integer.parseInt(mergeDownMatcher.group(3)));
+		}
+
+		Pattern horizontalBordersPattern = Pattern.compile("owlcms:horizontalBorders\\((\\d+),(\\d+),(\\d+)\\)");
+		Matcher horizontalBordersMatcher = horizontalBordersPattern.matcher(comment);
+		if (horizontalBordersMatcher.find()) {
+			setBottomBorderRange(Integer.parseInt(horizontalBordersMatcher.group(1)),
+					Integer.parseInt(horizontalBordersMatcher.group(2)), Integer.parseInt(horizontalBordersMatcher.group(3)));
+		}
+
+		Pattern verticalBordersPattern = Pattern.compile("owlcms:verticalBorders\\((\\d+),(\\d+),(\\d+)\\)");
+		Matcher verticalBordersMatcher = verticalBordersPattern.matcher(comment);
+		if (verticalBordersMatcher.find()) {
+			setVerticalBorderRange(Integer.parseInt(verticalBordersMatcher.group(1)),
+					Integer.parseInt(verticalBordersMatcher.group(2)), Integer.parseInt(verticalBordersMatcher.group(3)));
+		}
 	}
 
 	/**
@@ -349,6 +379,42 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public Integer getFirstMergeLine() {
 		return this.firstMergeLine;
+	}
+
+	public Integer getMergeDownStartRow() {
+		return this.mergeDownStartRow;
+	}
+
+	public Integer getMergeDownStartColumn() {
+		return this.mergeDownStartColumn;
+	}
+
+	public Integer getMergeDownStopColumn() {
+		return this.mergeDownStopColumn;
+	}
+
+	public Integer getBottomBorderStartRow() {
+		return this.bottomBorderStartRow;
+	}
+
+	public Integer getBottomBorderStartColumn() {
+		return this.bottomBorderStartColumn;
+	}
+
+	public Integer getBottomBorderStopColumn() {
+		return this.bottomBorderStopColumn;
+	}
+
+	public Integer getVerticalBorderStartRow() {
+		return this.verticalBorderStartRow;
+	}
+
+	public Integer getVerticalBorderStartColumn() {
+		return this.verticalBorderStartColumn;
+	}
+
+	public Integer getVerticalBorderStopColumn() {
+		return this.verticalBorderStopColumn;
 	}
 
 	public Group getGroup() {
@@ -431,6 +497,24 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 
 	public void setMergeColumnList(List<Integer> list) {
 		this.mergeColumnList = list;
+	}
+
+	public void setMergeDownRange(Integer startRow, Integer startColumn, Integer stopColumn) {
+		this.mergeDownStartRow = startRow;
+		this.mergeDownStartColumn = startColumn;
+		this.mergeDownStopColumn = stopColumn;
+	}
+
+	public void setBottomBorderRange(Integer startRow, Integer startColumn, Integer stopColumn) {
+		this.bottomBorderStartRow = startRow;
+		this.bottomBorderStartColumn = startColumn;
+		this.bottomBorderStopColumn = stopColumn;
+	}
+
+	public void setVerticalBorderRange(Integer startRow, Integer startColumn, Integer stopColumn) {
+		this.verticalBorderStartRow = startRow;
+		this.verticalBorderStartColumn = startColumn;
+		this.verticalBorderStopColumn = stopColumn;
 	}
 
 	public void setFileExtension(String ext) {
