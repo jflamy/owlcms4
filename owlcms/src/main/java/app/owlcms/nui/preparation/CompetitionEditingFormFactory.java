@@ -35,6 +35,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -50,6 +51,8 @@ import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.CustomFormFactory;
@@ -81,8 +84,16 @@ public class CompetitionEditingFormFactory
 	
 	// Reference to sinclairYear radio buttons for enabling/disabling
 	private RadioButtonGroup<Integer> sinclairYear;
+	private RadioButtonGroup<StartNumberOrder> startNumberOrderField;
 	private ChampionshipDetailsForm championshipDefaultsEditor;
 	private TabSheet tabSheet;
+
+	private enum StartNumberOrder {
+		BY_BODY_WEIGHT_CATEGORY,
+		BY_BODY_WEIGHT_CATEGORY_THEN_AGE_GROUP,
+		BY_ASCENDING_AGE_GROUP_THEN_BODY_WEIGHT_CATEGORY,
+		BY_DESCENDING_AGE_GROUP_THEN_BODY_WEIGHT_CATEGORY
+	}
 
 	CompetitionEditingFormFactory(Class<Competition> domainType, CompetitionContent origin) {
 		super(domainType);
@@ -93,7 +104,9 @@ public class CompetitionEditingFormFactory
 	public Competition add(Competition c) {
 		// Save current RankingConfig state to competition before persisting
 		c.saveRankingConfig();
+		applyStartNumberOrder(c);
 		CompetitionRepository.save(c);
+		saveStartNumberOrderConfiguration();
 		return c;
 	}
 
@@ -151,10 +164,11 @@ public class CompetitionEditingFormFactory
 		FormLayout federationLayout = federationForm();
 		FormLayout generalRulesLayout = generalRulesForm();
 		FormLayout juryRulesLayout = juryRulesForm();
-		FormLayout nonMastersRulesLayout = nonMastersRulesForm();
 		FormLayout mastersRulesLayout = mastersRulesForm();
 		FormLayout breakDurationLayout = breakDurationForm();
-		FormLayout specialLayout = specialRulesForm();
+		FormLayout startNumberLayout = startNumberForm(comp);
+		FormLayout liftingOrderLayout = liftingOrderForm();
+		FormLayout otherRulesLayout = otherRulesForm();
 		FormLayout pointScoresForm = pointScoresForm();
 		this.championshipDefaultsEditor = new ChampionshipDetailsForm(ChampionshipRepository.ensureCompetitionTemplate());
 
@@ -180,10 +194,11 @@ public class CompetitionEditingFormFactory
 		                scoringMedalingRulesIntro(), separator(),
 		                this.championshipDefaultsEditor, separator(),
 		                pointScoresForm));
-		ts.add(Translator.translate("Competition.specialRulesTitle"),
+		ts.add(Translator.translate("Competition.scoreboardAndLiftingOrder"),
 		        new VerticalLayout(
-		                specialLayout, separator(),
-		                nonMastersRulesLayout));
+		                startNumberLayout, separator(),
+		                liftingOrderLayout, separator(),
+		                otherRulesLayout));
 
 		// Listen for tab changes to preserve the selection in the URL.
 		ts.addSelectedChangeListener(event -> updateTabLocation());
@@ -243,7 +258,9 @@ public class CompetitionEditingFormFactory
 		}
 		// Save current RankingConfig state to competition before persisting
 		competition.saveRankingConfig();
+		applyStartNumberOrder(competition);
 		Competition saved = CompetitionRepository.save(competition);
+		saveStartNumberOrderConfiguration();
 		// Capture the target tab now and defer the navigation to the very end of the
 		// round-trip so it runs AFTER the CRUD grid callback, restoring the selected tab.
 		UI ui = UI.getCurrent();
@@ -384,6 +401,14 @@ public class CompetitionEditingFormFactory
 		title.getStyle().set("margin-top", "0");
 		title.getStyle().set("margin-bottom", "0");
 		return title;
+	}
+
+	private Component createDescription(String string) {
+		Paragraph description = new Paragraph(Translator.translate(string));
+		description.getStyle().set("margin-top", "0");
+		description.getStyle().set("margin-bottom", "var(--lumo-space-s)");
+		description.getStyle().set("color", "var(--lumo-secondary-text-color)");
+		return description;
 	}
 
 	private FormLayout federationForm() {
@@ -639,32 +664,12 @@ public class CompetitionEditingFormFactory
 		return layout;
 	}
 
-	private FormLayout nonMastersRulesForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Competition.nonMastersRulesTitle");
-		layout.add(title);
-		layout.setColspan(title, 2);
-		
-		Checkbox byAgeGroupField = new Checkbox();
-		layout.addFormItem(byAgeGroupField, Translator.translate("Competition.startNumbersByAgeGroup"));
-		this.binder.forField(byAgeGroupField)
-		        .bind(Competition::isDisplayByAgeGroup, Competition::setDisplayByAgeGroup);
-
-		return layout;
-	}
-	
 	private FormLayout mastersRulesForm() {
 		FormLayout layout = createLayout();
 		Component title = createTitle("Competition.mastersRulesTitle");
 		layout.add(title);
 		layout.setColspan(title, 2);
 		
-		Checkbox mastersField = new Checkbox(Translator.translate("Competition.mastersCompetitionCheckbox"));
-		layout.addFormItem(mastersField, Translator.translate("Competition.mastersCompetition"));
-		mastersField.setHelperText(Translator.translate("Competition.mastersCompetitionHelper"));
-		this.binder.forField(mastersField)
-		        .bind(Competition::isMasters, Competition::setMasters);
-
 		Checkbox imwaField = new Checkbox(Translator.translate("Competition.IMWARules"));
 		layout.addFormItem(imwaField, Translator.translate("Competition.IMWA"));
 		this.binder.forField(imwaField)
@@ -687,11 +692,70 @@ public class CompetitionEditingFormFactory
 		this.binder = buildBinder;
 	}
 
-	private FormLayout specialRulesForm() {
+	private FormLayout startNumberForm(Competition competition) {
 		FormLayout layout = createLayout();
-		Component title = createTitle("Competition.specialRulesTitle");
-		layout.add(title);
-		layout.setColspan(title, 2);
+
+		Component startNumberTitle = createTitle("StartNumber");
+		layout.add(startNumberTitle);
+		layout.setColspan(startNumberTitle, 2);
+
+		Component startNumberDescription = createDescription("Competition.startNumberOrder.Description");
+		layout.add(startNumberDescription);
+		layout.setColspan(startNumberDescription, 2);
+
+		this.startNumberOrderField = new RadioButtonGroup<>();
+		this.startNumberOrderField.setItems(StartNumberOrder.values());
+		this.startNumberOrderField.setItemLabelGenerator(this::startNumberOrderLabel);
+		this.startNumberOrderField.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+		this.startNumberOrderField.setValue(currentStartNumberOrder(competition));
+		layout.add(this.startNumberOrderField);
+		layout.setColspan(this.startNumberOrderField, 2);
+
+		return layout;
+	}
+
+	private void applyStartNumberOrder(Competition competition) {
+		StartNumberOrder selectedOrder = this.startNumberOrderField.getValue();
+		competition.setMasters(selectedOrder == StartNumberOrder.BY_DESCENDING_AGE_GROUP_THEN_BODY_WEIGHT_CATEGORY);
+		competition.setDisplayByAgeGroup(selectedOrder == StartNumberOrder.BY_ASCENDING_AGE_GROUP_THEN_BODY_WEIGHT_CATEGORY);
+	}
+
+	private StartNumberOrder currentStartNumberOrder(Competition competition) {
+		if (competition.isMasters()) {
+			return StartNumberOrder.BY_DESCENDING_AGE_GROUP_THEN_BODY_WEIGHT_CATEGORY;
+		}
+		if (competition.isDisplayByAgeGroup()) {
+			return StartNumberOrder.BY_ASCENDING_AGE_GROUP_THEN_BODY_WEIGHT_CATEGORY;
+		}
+		if (Config.getCurrent().getFeatureSwitchValue(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP)) {
+			return StartNumberOrder.BY_BODY_WEIGHT_CATEGORY_THEN_AGE_GROUP;
+		}
+		return StartNumberOrder.BY_BODY_WEIGHT_CATEGORY;
+	}
+
+	private void saveStartNumberOrderConfiguration() {
+		Config config = Config.getCurrent();
+		config.setFeatureSwitchValue(FeatureSwitch.BW_CLASS_THEN_AGE_GROUP,
+		        this.startNumberOrderField.getValue() == StartNumberOrder.BY_BODY_WEIGHT_CATEGORY_THEN_AGE_GROUP);
+		Config.setCurrent(config);
+	}
+
+	private String startNumberOrderLabel(StartNumberOrder startNumberOrder) {
+		return Translator.translate("Competition.startNumberOrder." + startNumberOrder.name());
+	}
+
+	private FormLayout liftingOrderForm() {
+		FormLayout layout = createLayout();
+
+		Component liftingOrderTitle = createTitle("Scoreboard.LiftingOrder");
+		layout.add(liftingOrderTitle);
+		layout.setColspan(liftingOrderTitle, 2);
+
+		Checkbox genderOrderField = new Checkbox();
+		layout.addFormItem(genderOrderField,
+		        labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
+		this.binder.forField(genderOrderField)
+		        .bind(Competition::isGenderOrder, Competition::setGenderOrder);
 
 		Checkbox roundRobinOrderField = new Checkbox();
 		layout.addFormItem(roundRobinOrderField,
@@ -705,11 +769,15 @@ public class CompetitionEditingFormFactory
 		this.binder.forField(roundRobinFixedOrderField)
 		        .bind(Competition::isFixedOrder, Competition::setFixedOrder);
 
-		Checkbox genderOrderField = new Checkbox();
-		layout.addFormItem(genderOrderField,
-		        labelWithHelp("Competition.genderOrder", "Competition.genderOrderExplanation"));
-		this.binder.forField(genderOrderField)
-		        .bind(Competition::isGenderOrder, Competition::setGenderOrder);
+		return layout;
+	}
+
+	private FormLayout otherRulesForm() {
+		FormLayout layout = createLayout();
+
+		Component otherTitle = createTitle("Competition.other");
+		layout.add(otherTitle);
+		layout.setColspan(otherTitle, 2);
 
 		IntegerField wakeUpDelayField = new IntegerField();
 		layout.addFormItem(wakeUpDelayField, Translator.translate("Competition.decisionRequestDelayLabel"));
