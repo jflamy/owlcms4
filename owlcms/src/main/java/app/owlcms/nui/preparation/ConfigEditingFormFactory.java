@@ -198,11 +198,19 @@ public class ConfigEditingFormFactory
 			updateTabLocation();
 		});
 
+		// The tab sheet takes all the available height and scrolls its own content, so the
+		// footer buttons remain visible at the bottom instead of scrolling away with the page.
+		tabSheet.setSizeFull();
+		tabSheet.setMinHeight("0");
+
 		VerticalLayout mainLayout = new VerticalLayout(
-		        footer,
-		        tabSheet);
+		        tabSheet,
+		        footer);
 		mainLayout.setMargin(false);
 		mainLayout.setPadding(false);
+		mainLayout.setSizeFull();
+		mainLayout.setFlexGrow(1.0, tabSheet);
+		mainLayout.setFlexShrink(0, footer);
 
 		config.setSkipReading(false);
 		this.binder.readBean(config);

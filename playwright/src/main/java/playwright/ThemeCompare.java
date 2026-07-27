@@ -240,6 +240,14 @@ public class ThemeCompare {
 	        new Route(1, "preparation/weighin", true, true),
 	        // 15%, believed to be athlete ordering, but not verified pixel by pixel
 	        new Route(1, "lifting/marshall", true, false),
+	        // The transparent and public stylesheet trees (css/transparent, css/public) are selected
+	        // by the video and public *query parameters*, which make StylesDirSelection point
+	        // stylesDir at getParamVideoStylesDir() / getParamPublicStylesDir(). The "video=true"
+	        // route further down is the Video Streaming navigation page and does not exercise them.
+	        new Route(1, "displays/resultsLeaders?video=true", true, false),
+	        new Route(1, "displays/attemptBoard?video=true", true, false),
+	        new Route(1, "displays/currentathlete?video=true", true, false),
+	        new Route(1, "displays/resultsLeaders?public=true", true, false),
 
 	        // ---- Tier 2: theme folder relocation / grids, still open ------------------------------
 	        new Route(2, "results/finalpackage", false, true),
@@ -253,8 +261,6 @@ public class ThemeCompare {
 	        // ---- Tier 3: still open ---------------------------------------------------------------
 	        new Route(3, "", false, true),
 	        new Route(3, "displays/publicStartList", true, false),
-	        // 404s on both servers, so the capture compares two error pages; needs a routing fix
-	        new Route(3, "displays/ncurrentathlete", true, false),
 	        // ~0.77% cluster. Only resultsLeaders was inspected (row permutation from differing
 	        // start numbers); the others share the value but have not been checked individually.
 	        new Route(3, "displays/resultsLeaders", true, false),
@@ -269,7 +275,7 @@ public class ThemeCompare {
 	        new Route(3, "displays/juryScoreboard", true, false),
 
 	        // ---- Tier 4: inspected, explained, and below 0.2% ------------------------------------
-	        // version string in the header differs between builds
+	        // 0.193% confined to rows 93-110: the version string in the header, confirmed
 	        new Route(4, "info", false, true),
 	        // start number 6 vs 4: the databases assign them differently
 	        new Route(4, "displays/attemptBoard", true, false),
@@ -288,6 +294,10 @@ public class ThemeCompare {
 	        new Route(4, "displays/resultsLiftingOrder", true, false),
 
 	        // ---- Tier 5: measured pixel-identical -------------------------------------------------
+	        // needs the page to be enabled in the database; while it was not, both servers returned a
+	        // Vaadin routing error page and the reported 6.688% was the difference between those two
+	        // error pages. Once enabled it measures identical.
+	        new Route(5, "displays/ncurrentathlete", true, false),
 	        new Route(5, "ref", true, false),
 	        new Route(5, "jury", true, false),
 	        new Route(5, "preparation/config", false, true),
@@ -295,6 +305,8 @@ public class ThemeCompare {
 	        new Route(5, "lifting", false, true),
 	        new Route(5, "displays", false, true),
 	        new Route(5, "recordsPreparation", false, true),
+	        // the Video Streaming navigation page: "video=true" is its literal @Route value, not a
+	        // query parameter, so this captures a menu page and not a transparently-styled display
 	        new Route(5, "video=true", false, true),
 	        new Route(5, "preparation/competition", false, true),
 	        new Route(5, "preparation/agegroup", false, true),
@@ -455,6 +467,10 @@ public class ThemeCompare {
 			page.addStyleTag(new Page.AddStyleTagOptions().setContent(FREEZE_CSS));
 			page.evaluate(HIDE_OVERLAYS_JS);
 			page.waitForTimeout(150);
+			String unresolved = routeError(page);
+			if (unresolved != null) {
+				return url + " -> " + unresolved;
+			}
 			page.screenshot(new Page.ScreenshotOptions().setPath(target).setFullPage(fullPage));
 			return null;
 		} catch (Exception e) {
@@ -468,8 +484,28 @@ public class ThemeCompare {
 		}
 	}
 
-	private static void login(Page page, String pin, int timeoutMs) {
-		if (pin == null) {
+	/**
+	 * Detects Vaadin's routing error page. A route that does not resolve produces two error pages
+	 * rather than two renderings of the page, and comparing those would yield a meaningless
+	 * percentage: the development server appends the list of available routes, the production one
+	 * does not. Such a route is reported as not compared instead.
+	 *
+	 * @return null when the page rendered, otherwise a message naming the problem
+	 */
+	private static String routeError(Page page) {
+		try {
+			Object text = page.evaluate("() => document.body ? document.body.innerText.slice(0, 200) : ''");
+			String body = text == null ? "" : text.toString().trim();
+			if (body.startsWith("Could not navigate to")) {
+				return "route did not resolve (Vaadin routing error page); the page may need to be enabled in the database";
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private static void login(Page page, String pin, int timeoutMs) {		if (pin == null) {
 			return;
 		}
 		Locator pinInput = page.locator("vaadin-password-field input").first();

@@ -61,7 +61,7 @@ public class ConfigContent extends Composite<VerticalLayout>
 		this.factory = createFormFactory();
 		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, Config.getCurrent(), false, null, event -> {
 		});
-		fillH(form, getContent());
+		fillHW(form, getContent());
 	}
 
 	@Override
