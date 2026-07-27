@@ -10,6 +10,10 @@
 
 **New in Release 67.2**
 
+- 67.2.0-rc01: Borders in nested-style schedule and start lists
+  - the DaySchedule* and NestedStartList* templates again have post-processing step to apply borders
+  - cleaned up jxls3 directives owlcms:horizontalBorders and owlcms:verticalBorders are used to trigger the processing
+
 - 67.2.0-beta01: Platform ordering
   - Platform can now be ordered on the Field of Play preparation page by dragging the rows.
   - If the usawSessionBlocks feature toggle is active, this will affect the sorting of sessions, so that if red is before blue, 1 red will sort before 1 blue.
