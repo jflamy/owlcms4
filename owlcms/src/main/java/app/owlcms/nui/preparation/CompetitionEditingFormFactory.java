@@ -454,8 +454,10 @@ public class CompetitionEditingFormFactory
 		help.getStyle().set("height", "1.2em");
 		help.getStyle().set("vertical-align", "top");
 		help.getStyle().set("font-weight", "bold");
+		help.getStyle().set("cursor", "help");
+		help.getElement().setAttribute("aria-label", Translator.translate(explanation));
 		NativeLabel label = new NativeLabel(Translator.translate(string) + "\u00a0");
-		Tooltip.forComponent(label).setText(Translator.translate(explanation));
+		Tooltip.forComponent(help).setText(Translator.translate(explanation));
 		Span span = new Span();
 		span.add(label, help);
 		return span;
