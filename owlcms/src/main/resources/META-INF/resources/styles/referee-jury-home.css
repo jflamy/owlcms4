@@ -1,0 +1,104 @@
+.referee-jury-home {
+    width: 100%;
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: var(--lumo-space-m);
+    /* keep the content clear of notches and the on-screen browser chrome */
+    padding-bottom: calc(var(--lumo-space-m) + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+    /* No min-height/overflow here on purpose: this element sits below the layout
+       header, so a 100svh min-height overflows the viewport by the header height,
+       and overflow-x:hidden would force overflow-y to compute to auto, turning
+       this into a scroll container. Horizontal overflow is instead prevented by
+       max-width/min-width on the grid and its buttons. */
+}
+
+.referee-jury-home-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--lumo-space-s);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.referee-jury-home-actions > vaadin-button {
+    min-width: 0;
+}
+
+.referee-jury-home-single-action {
+    grid-template-columns: minmax(10rem, 1fr);
+}
+
+.referee-jury-home-timekeeper {
+    margin-top: 3rem;
+}
+
+.referee-jury-home-platform-selector {
+    margin-bottom: var(--lumo-space-xl);
+}
+
+.referee-jury-home-navigation {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-top: 3rem;
+}
+
+.referee-jury-home-navigation > vaadin-button {
+    width: 100%;
+}
+
+@media screen and (orientation: portrait) {
+    .referee-jury-home-platform-selector,
+    .referee-jury-home-actions {
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Stack the referee buttons in portrait regardless of the reported viewport
+       width. Some Android phones (e.g. OnePlus) run with a "display size" setting
+       that reports a much wider CSS viewport than the physical screen size, so a
+       fixed max-width breakpoint alone misses them. */
+    .referee-jury-home-referees {
+        grid-template-columns: minmax(10rem, 1fr);
+    }
+}
+
+@media screen and (max-width: 599px) {
+    .referee-jury-home-referees {
+        grid-template-columns: minmax(10rem, 1fr);
+    }
+
+    /* Timekeeper / jury president duties are normally covered from a phone-sized
+       device by someone else; keep the buttons for tablet-sized screens only.
+       This is a resolution check (not orientation), since some phones have
+       enough pixels to behave like a tablet regardless of orientation. */
+    .referee-jury-home-timekeeper,
+    .referee-jury-home-president {
+        display: none;
+    }
+}
+
+@media screen and (orientation: landscape) {
+    .referee-jury-home-platform-selector,
+    .referee-jury-home-single-action {
+        max-width: 30rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .referee-jury-home-navigation {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .referee-jury-home-navigation > vaadin-button {
+        width: auto;
+    }
+}

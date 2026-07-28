@@ -106,6 +106,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	private VerticalLayout refVotingCenterHorizontally;
 	private HorizontalLayout topRow;
 	private EventBus uiEventBus;
+	private ComboBox<FieldOfPlay> fopSelect;
 	private Map<String, List<String>> urlParams;
 	private HorizontalLayout warningRow;
 	private HorizontalLayout juryRow;
@@ -149,6 +150,7 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		QueryParameters queryParameters = this.location.getQueryParameters();
 		Map<String, List<String>> parametersMap = queryParameters.getParameters(); // immutable
 		this.urlParams = readParams(this.location, parametersMap);
+		this.fopSelect.setValue(getFop());
 
 		// get the referee number from query parameters, do not add value if num is not
 		// defined
@@ -314,10 +316,10 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
 
 		SoundUtils.enableAudioContextNotification(this.getElement());
-		OwlcmsSession.withFop(fop -> {
-			// we listen on uiEventBus.
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
 			this.uiEventBus = uiEventBusRegister(this, fop);
-		});
+		}
 	}
 
 	private Icon bigIcon(VaadinIcon iconDef, String color) {
@@ -381,14 +383,14 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 			setUrl(getRef13ix() != null ? getRef13ix().toString() : null);
 		});
 
-		ComboBox<FieldOfPlay> fopSelect = createFopSelect();
-		fopSelect.setValue(OwlcmsSession.getFop());
-		fopSelect.addValueChangeListener((e) -> {
+		this.fopSelect = createFopSelect();
+		this.fopSelect.setValue(getFop());
+		this.fopSelect.addValueChangeListener((e) -> {
 			OwlcmsSession.setFop(e.getValue());
 		});
 
 		this.topRow = new HorizontalLayout();
-		this.topRow.add(labelWrapper, fopSelect, this.refField);
+		this.topRow.add(labelWrapper, this.fopSelect, this.refField);
 		this.topRow.setMargin(false);
 		this.topRow.setSpacing(true);
 		this.topRow.setAlignItems(Alignment.BASELINE);
@@ -441,12 +443,10 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	}
 
 	private void doRed() {
-		OwlcmsSession.withFop(fop -> {
-			if (getRef13ix() == null) {
-				return;
-			}
+		FieldOfPlay fop = getFop();
+		if (fop != null && getRef13ix() != null) {
 			fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), getRef13ix() - 1, false));
-		});
+		}
 		doRedColor();
 	}
 
@@ -460,12 +460,10 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	}
 
 	private void doWhite() {
-		OwlcmsSession.withFop(fop -> {
-			if (getRef13ix() == null) {
-				return;
-			}
+		FieldOfPlay fop = getFop();
+		if (fop != null && getRef13ix() != null) {
 			fop.fopEventPost(new FOPEvent.DecisionUpdate(getOrigin(), getRef13ix() - 1, true));
-		});
+		}
 		doWhiteColor();
 	}
 
