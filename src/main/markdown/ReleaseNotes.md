@@ -10,6 +10,11 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta01: Added mobile navigation pages.
+  - home page goes to a refereeing page
+  - links for jury and scoreboard pages as appropriate for mobile devices
+
+- 68.0.0-beta01: Dark mode/Light mode toggle in the main menu side bar.
 
 - 68.0.0-alpha02: Fixed Nested-style templates
   - Restored automatic cell merging and border creation for the nested start lists and nested day schedules
