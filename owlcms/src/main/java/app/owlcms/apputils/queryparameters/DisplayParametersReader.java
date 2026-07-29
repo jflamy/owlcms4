@@ -28,6 +28,7 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.ExtendedClientDetails;
+import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
@@ -311,6 +312,9 @@ public interface DisplayParametersReader extends SoundParametersReader, DisplayP
 		}
 		getDialog().setResizable(true);
 		getDialog().setDraggable(true);
+		// display pages are typically viewed in dark venues; force the settings dialog dark
+		// (Flow propagates the dialog's theme attribute to its overlay)
+		getDialog().getElement().getThemeList().add(Lumo.DARK);
 		return getDialog();
 	}
 

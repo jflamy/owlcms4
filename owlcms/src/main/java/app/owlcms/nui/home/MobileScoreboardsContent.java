@@ -53,7 +53,6 @@ public class MobileScoreboardsContent extends BaseNavigationContent implements H
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		RefereeJuryStyles.ensureLoaded(attachEvent.getUI());
-		RefereeJuryStyles.applyLightTheme(attachEvent.getUI());
 	}
 
 	@Override

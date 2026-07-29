@@ -8,10 +8,8 @@ package app.owlcms.nui.home;
 
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.function.DeploymentConfiguration;
 import com.vaadin.flow.server.VaadinSession;
-import com.vaadin.flow.theme.lumo.Lumo;
 
 import app.owlcms.utils.StartupUtils;
 
@@ -39,21 +37,6 @@ class RefereeJuryStyles {
 		}
 		ComponentUtil.setData(ui, LOADED_KEY, Boolean.TRUE);
 		ui.getPage().addStyleSheet(STYLESHEET + "?v=" + version(ui));
-	}
-
-	/**
-	 * Forces the light theme. These launchers are used on personal phones, which may be set to dark
-	 * mode, and the buttons must stay legible under competition lighting.
-	 *
-	 * @param ui the current UI
-	 */
-	static void applyLightTheme(UI ui) {
-		if (ui == null) {
-			return;
-		}
-		ThemeList themeList = ui.getElement().getThemeList();
-		themeList.remove(Lumo.DARK);
-		themeList.add(Lumo.LIGHT);
 	}
 
 	/**

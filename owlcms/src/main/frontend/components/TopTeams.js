@@ -124,7 +124,6 @@ class TopTeams extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    document.body.setAttribute("theme", "dark");
   }
 
 activeClasses() {

@@ -50,8 +50,8 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
 
 .wrapper {
     font-family: Arial, Helvetica, sans-serif;
-    color: var(--videoTextColor);
-    background-color: var(--videoHeaderBackgroundColor);
+    color: var(--pageTextColor);
+    background-color: var(--pageBackgroundColor);
     padding: 2vmin; /* Was 2vmin 2vmin 2vmin 2vmin, which is equivalent */
     overflow: hidden;
 }

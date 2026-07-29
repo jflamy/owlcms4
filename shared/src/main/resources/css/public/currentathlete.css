@@ -52,7 +52,8 @@ div > div.attemptBar > div.attempts > table > tr > td.totalRank {
 
 .wrapper {
     font-family: Arial, Helvetica, sans-serif;
-    color: var(--videoTextColor);
+    color: var(--pageTextColor);
+    /* deliberate: this style uses the video header background for the whole page */
     background-color: var(--videoHeaderBackgroundColor);
     /* padding: 2vmin 2vmin 2vmin 2vmin; */
     padding: 2vmin; /* This is shorthand for all sides, logical */

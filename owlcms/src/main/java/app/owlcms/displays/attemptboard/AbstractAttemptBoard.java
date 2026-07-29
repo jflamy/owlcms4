@@ -30,7 +30,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.theme.lumo.Lumo;
 
@@ -848,9 +847,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		logger.debug("{}onAttach {}", FieldOfPlay.getLoggingName(fop), fop.getState());
 		init();
 		computeStylesDir(this);
-		ThemeList themeList = UI.getCurrent().getElement().getThemeList();
-		themeList.remove(Lumo.LIGHT);
-		themeList.add(Lumo.DARK);
 
 		if (!isSilenced() || !isDownSilenced()) {
 			SoundUtils.enableAudioContextNotification(this.getElement());
@@ -1128,6 +1124,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		if (this.juryNotificationDialog == null) {
 			this.juryNotificationDialog = new Dialog();
 			this.juryNotificationDialog.addThemeName("jury-notification-dialog");
+			this.juryNotificationDialog.addThemeName(Lumo.DARK);
 			this.juryNotificationDialog.setCloseOnEsc(false);
 			this.juryNotificationDialog.setCloseOnOutsideClick(false);
 		}

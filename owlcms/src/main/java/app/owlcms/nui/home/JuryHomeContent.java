@@ -43,7 +43,6 @@ public class JuryHomeContent extends BaseNavigationContent implements HasDynamic
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		RefereeJuryStyles.ensureLoaded(attachEvent.getUI());
-		RefereeJuryStyles.applyLightTheme(attachEvent.getUI());
 	}
 
 	@Override

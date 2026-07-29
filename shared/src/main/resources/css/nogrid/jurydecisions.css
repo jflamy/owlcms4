@@ -6,8 +6,8 @@
         height: 100%;
         width: 100%;
 
-        color: var(--videoTextColor);
-	      background-color: var(--videoHeaderBackgroundColor);
+        color: var(--pageTextColor);
+	      background-color: var(--pageBackgroundColor);
       }
       .jury-decisions {
         display: flex;

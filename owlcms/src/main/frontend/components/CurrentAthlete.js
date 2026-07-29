@@ -141,7 +141,6 @@ class CurrentAthlete extends LitElement {
   firstUpdated(_changedProperties) {
     console.debug("ready");
     super.firstUpdated(_changedProperties);
-    document.body.setAttribute("theme", "dark");
   }
 
   start() {
@@ -219,7 +218,6 @@ class CurrentAthlete extends LitElement {
   firstUpdated(_changedProperties) {
     console.debug("ready");
     super.firstUpdated(_changedProperties);
-    document.body.setAttribute("theme", "dark");
   }
 
 }

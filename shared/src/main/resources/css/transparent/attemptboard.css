@@ -5,7 +5,8 @@
 .wrapper {
 	box-sizing: border-box;
 	font: Arial;
-	color: var(--videoTextColor);
+	color: var(--pageTextColor);
+	/* deliberate: this style uses the video header background for the whole board */
 	background-color: var(--videoHeaderBackgroundColor);
 	height: 100svh;
 	width: 100vw;

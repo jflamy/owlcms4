@@ -2,6 +2,7 @@
 * {
     --pageBackgroundColor: black;
     --pageTextColor: white;
+    --videoTextColor: var(--pageTextColor);
 }
 
 .wrapper {

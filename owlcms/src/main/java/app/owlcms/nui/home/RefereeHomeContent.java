@@ -58,7 +58,6 @@ public class RefereeHomeContent extends BaseNavigationContent implements HasDyna
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		RefereeJuryStyles.ensureLoaded(attachEvent.getUI());
-		RefereeJuryStyles.applyLightTheme(attachEvent.getUI());
 	}
 
 	@Override

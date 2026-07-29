@@ -130,7 +130,6 @@ class TopSinclair extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    document.body.setAttribute("theme", "dark");
   }
 
   static get properties() {
@@ -155,7 +154,6 @@ class TopSinclair extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
-    document.body.setAttribute("theme", "dark");
   }
 
   activeClasses() {

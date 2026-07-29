@@ -5,8 +5,8 @@
 .wrapper {
 	box-sizing: border-box;
 	font: Arial;
-	color: var(--videoTextColor);
-	background-color: var(--videoHeaderBackgroundColor);
+	color: var(--pageTextColor);
+	background-color: var(--pageBackgroundColor);
 	height: 100svh;
 	width: 100vw;
 	overflow: hidden;
