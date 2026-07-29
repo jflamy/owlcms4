@@ -35,7 +35,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  * Selects a jury member device or the jury keypad for one field of play.
  */
 @SuppressWarnings("serial")
-@Route(value = "juryhome", layout = OwlcmsLayout.class)
+@Route(value = "mobile/juryhome", layout = OwlcmsLayout.class)
 public class JuryHomeContent extends BaseNavigationContent implements HasDynamicTitle {
 	private boolean platformSelected;
 

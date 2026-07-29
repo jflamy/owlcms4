@@ -34,6 +34,18 @@
     margin-top: 3rem;
 }
 
+.referee-jury-home-displays {
+    margin-top: 3rem;
+}
+
+.mobile-scoreboards-group {
+    margin-top: 3rem;
+}
+
+.mobile-scoreboards-leaders {
+    grid-column: span 2;
+}
+
 .referee-jury-home-platform-selector {
     margin-bottom: var(--lumo-space-xl);
 }
@@ -76,12 +88,20 @@
     }
 
     /* Timekeeper / jury president duties are normally covered from a phone-sized
-       device by someone else; keep the buttons for tablet-sized screens only.
-       This is a resolution check (not orientation), since some phones have
-       enough pixels to behave like a tablet regardless of orientation. */
+       device by someone else, and a phone is too small to serve as a scoreboard or
+       board; keep these for tablet-sized screens only. This is a resolution check
+       (not orientation), since some phones have enough pixels to behave like a
+       tablet regardless of orientation. */
     .referee-jury-home-timekeeper,
-    .referee-jury-home-president {
+    .referee-jury-home-president,
+    .referee-jury-home-displays {
         display: none;
+    }
+}
+
+@media screen and (max-width: 30rem) {
+    .mobile-scoreboards-leaders {
+        grid-column: auto;
     }
 }
 

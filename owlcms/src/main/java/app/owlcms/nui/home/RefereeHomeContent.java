@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -38,7 +39,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  * Mobile-first launcher for referee, timekeeper, and jury devices.
  */
 @SuppressWarnings("serial")
-@Route(value = "refjury", layout = OwlcmsLayout.class)
+@Route(value = "mobile/refjury", layout = OwlcmsLayout.class)
 public class RefereeHomeContent extends BaseNavigationContent implements HasDynamicTitle {
 
 	private final List<Button> fopActions = new ArrayList<>();
@@ -91,11 +92,14 @@ public class RefereeHomeContent extends BaseNavigationContent implements HasDyna
 
 		Button juryButton = new Button(Translator.translate("Jury"), event -> navigateToJuryHome());
 		juryButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		Button scoreboardsButton = new Button(Translator.translate("Scoreboards"),
+		        event -> navigateToScoreboards());
+		scoreboardsButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
 		Button managementHome = new Button(Translator.translate("OWLCMS_Home"),
 		        event -> UI.getCurrent().navigate(HomeNavigationContent.class));
 		managementHome.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-		Div navigationActions = new Div(juryButton, managementHome);
+		Div navigationActions = new Div(juryButton, scoreboardsButton, managementHome);
 		navigationActions.addClassName("referee-jury-home-navigation");
 
 		add(fopSelector, refereeActions, timekeeperActions, navigationActions);
@@ -144,6 +148,10 @@ public class RefereeHomeContent extends BaseNavigationContent implements HasDyna
 		return button;
 	}
 
+	/**
+	 * Displays are a secondary use of the device, so they do not get the primary emphasis given to
+	 * the refereeing buttons. They show the current attempt bar, as warmup room displays do.
+	 */
 	private ComboBox<FieldOfPlay> createFopSelector() {
 		ComboBox<FieldOfPlay> fopSelector = new ComboBox<>(Translator.translate("CompetitionPlatform"));
 		Collection<FieldOfPlay> fops = OwlcmsFactory.getFOPs();
@@ -156,7 +164,7 @@ public class RefereeHomeContent extends BaseNavigationContent implements HasDyna
 		return fopSelector;
 	}
 
-	private void navigateTo(Class<? extends com.vaadin.flow.component.Component> target, String... additionalParameters) {
+	private void navigateTo(Class<? extends Component> target, String... additionalParameters) {
 		FieldOfPlay fop = selectedFop();
 		if (fop == null) {
 			return;
@@ -175,6 +183,15 @@ public class RefereeHomeContent extends BaseNavigationContent implements HasDyna
 			UI.getCurrent().navigate(JuryHomeContent.class);
 		} else {
 			navigateTo(JuryHomeContent.class);
+		}
+	}
+
+	private void navigateToScoreboards() {
+		FieldOfPlay fop = selectedFop();
+		if (fop == null) {
+			UI.getCurrent().navigate(MobileScoreboardsContent.class);
+		} else {
+			navigateTo(MobileScoreboardsContent.class);
 		}
 	}
 
