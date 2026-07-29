@@ -52,28 +52,42 @@ vaadin-grid ::part(cell):focus-visible {
     box-shadow: none !important;
 }
 
-/* highlight current/next/previous athlete */
+/* Highlight current/next/previous athlete.
+   These are functional signal colours and stay the same in both colour schemes, so the
+   text colour must be pinned as well: without it the text inherits from the grid and
+   becomes light-on-light under the dark colour scheme. */
 
 vaadin-grid::part(isPreviousAthlete) {
     background-image: none;
     background-color: lightskyblue;
+    color: #14202b;
     font-weight: bold;
 }
 
 vaadin-grid::part(isCurrentAthlete) {
     background-image: none;
     background-color: #fbf242;
+    color: #14202b;
     font-weight: bold;
 }
 
 vaadin-grid::part(isNextAthlete) {
     background-image: none;
     background-color: rgb(253, 199, 98);
+    color: #14202b;
     font-weight: bold;
 }
 
+/* The transparent page background is required by the video/OBS display variants, which
+   chroma-key the page. It also applies to the interactive pages, where it would let the
+   browser canvas show through instead of the Lumo background, so those restore it below. */
 html, body {
     background-color: transparent !important;
+}
+
+/* Interactive pages: AppLayout is used by OwlcmsLayout only, never by the display pages. */
+vaadin-app-layout {
+    background-color: var(--lumo-base-color);
 }
 
 /* Aggressive suppression of visible focus ring for vaadin-grid and parts.
@@ -363,7 +377,7 @@ vaadin-text-field.bad::part(input-field) {
 
 vaadin-text-field.bad.readonly::part(input-field) {
     background-color: var(--lumo-error-color-10pct);
-    color: gray;
+    color: var(--lumo-secondary-text-color);
 }
 
 vaadin-text-field.good::part(input-field) {
@@ -373,17 +387,17 @@ vaadin-text-field.good::part(input-field) {
 
 vaadin-text-field.good.readonly::part(input-field) {
     background-color: var(--lumo-success-color-10pct);
-    color: gray;
+    color: var(--lumo-secondary-text-color);
 }
 
 vaadin-text-field.readonly::part(input-field) {
-    background-color: white;
-    color: gray;
+    background-color: var(--lumo-contrast-5pct);
+    color: var(--lumo-secondary-text-color);
 }
 
 vaadin-text-field.error::part(input-field) {
     background-color: var(--lumo-error-color-10pct);
-    color: black;
+    color: var(--lumo-error-text-color);
 }
 
 vaadin-text-field.current::part(input-field) {

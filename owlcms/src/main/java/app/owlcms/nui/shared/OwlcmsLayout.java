@@ -13,6 +13,7 @@ import java.util.Locale;
 
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Direction;
 import com.vaadin.flow.component.HasElement;
@@ -29,6 +30,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -63,6 +65,10 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	public static final String LARGE = "text-l";
 	public static final String NONE = "m-0";
+	/** Key under which the color scheme preference is kept in the browser's local storage. */
+	private static final String COLOR_SCHEME_KEY = "owlcms.colorScheme";
+	private static final String DARK = "dark";
+	private static final String LIGHT = "light";
 	Logger logger = (Logger) LoggerFactory.getLogger(OwlcmsLayout.class);
 	private Component viewTitle;
 	protected List<Component> navBarComponents;
@@ -72,6 +78,10 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 	private HorizontalLayout header;
 	private boolean margin;
 	private Tabs drawerTabs;
+	private Tab colorSchemeToggle;
+	private Icon colorSchemeIcon;
+	private Span colorSchemeLabel;
+	private boolean darkMode;
 
 	public OwlcmsLayout() {
 		OwlcmsFactory.waitDBInitialized();
@@ -120,6 +130,19 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	public Component getViewTitle() {
 		return this.viewTitle;
+	}
+
+	/**
+	 * The color scheme preference is kept in the browser, so it can only be read once the UI is
+	 * attached, and only asynchronously.
+	 */
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
+		UI ui = attachEvent.getUI();
+		ui.getPage()
+		        .executeJs("return window.localStorage.getItem($0);", COLOR_SCHEME_KEY)
+		        .then(String.class, stored -> applyColorScheme(ui, DARK.equals(stored)));
 	}
 
 	@Override
@@ -260,7 +283,60 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	private void addDrawerContent() {
 		this.drawerTabs = getTabs();
+		this.colorSchemeToggle = createColorSchemeToggle();
+		this.drawerTabs.add(this.colorSchemeToggle);
 		addToDrawer(this.drawerTabs);
+	}
+
+	/**
+	 * Create the entry at the bottom of the drawer that switches between the light and the dark
+	 * color scheme. The entry always offers the scheme that is not currently in use.
+	 *
+	 * Built like the documentation entry, that is an anchor rather than a router link, because it
+	 * is an action and not a destination.
+	 */
+	private Tab createColorSchemeToggle() {
+		this.colorSchemeIcon = new Icon(VaadinIcon.MOON_O);
+		this.colorSchemeIcon.getStyle().set("box-sizing", "border-box")
+		        .set("margin-inline-end", "var(--lumo-space-m)")
+		        .set("padding", "var(--lumo-space-xs)");
+		this.colorSchemeLabel = new Span();
+
+		Anchor entry = new Anchor();
+		entry.add(this.colorSchemeIcon, this.colorSchemeLabel);
+		entry.getElement().setAttribute("router-link", true);
+		entry.getStyle().set("cursor", "pointer");
+		entry.getElement().addEventListener("click", e -> {
+			UI ui = UI.getCurrent();
+			applyColorScheme(ui, !this.darkMode);
+			ui.getPage().executeJs("window.localStorage.setItem($0, $1);",
+			        COLOR_SCHEME_KEY, this.darkMode ? DARK : LIGHT);
+		});
+
+		updateColorSchemeToggle();
+		return new Tab(entry);
+	}
+
+	/**
+	 * Apply the color scheme to the given UI and update the drawer entry accordingly.
+	 *
+	 * @param ui   the UI to act on; passed explicitly because this is also called from a
+	 *             JavaScript result callback
+	 * @param dark true to use the dark color scheme
+	 */
+	private void applyColorScheme(UI ui, boolean dark) {
+		this.darkMode = dark;
+		ui.getPage().setColorScheme(dark ? ColorScheme.Value.DARK : ColorScheme.Value.LIGHT);
+		updateColorSchemeToggle();
+	}
+
+	private void updateColorSchemeToggle() {
+		if (this.colorSchemeIcon == null) {
+			return;
+		}
+		this.colorSchemeIcon.setIcon(this.darkMode ? VaadinIcon.SUN_O : VaadinIcon.MOON_O);
+		this.colorSchemeLabel.setText(Translator
+		        .translate(this.darkMode ? "ColorScheme.Light" : "ColorScheme.Dark"));
 	}
 
 	private void clearNavBar() {
@@ -405,10 +481,18 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 
 	private void refreshDrawerIfNeeded() {
 		Tabs newTabs = getTabs();
+		// the drawer also holds the color scheme entry, which getTabs() does not produce
 		if (this.drawerTabs != null
-		        && newTabs.getComponentCount() != this.drawerTabs.getComponentCount()) {
+		        && newTabs.getComponentCount() != this.drawerTabs.getComponentCount() - 1) {
 			this.drawerTabs.removeFromParent();
 			this.drawerTabs = newTabs;
+			// keep the color scheme entry at the bottom of the drawer. It is normally created
+			// with the drawer, but an instance that predates a class redefinition will not have
+			// one, so create it on demand.
+			if (this.colorSchemeToggle == null) {
+				this.colorSchemeToggle = createColorSchemeToggle();
+			}
+			this.drawerTabs.add(this.colorSchemeToggle);
 			addToDrawer(this.drawerTabs);
 		}
 		// select the tab matching the current content's route

@@ -23,6 +23,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -302,6 +303,11 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	protected void init() {
 		this.setBoxSizing(BoxSizing.BORDER_BOX);
 		this.setSizeFull();
+		// referee devices are used in darkened venues: black page, Lumo dark palette.
+		// The theme is set on this component rather than on the document, so that it does not
+		// leak to the other pages visited in the same browser tab.
+		this.addClassName("refereeJuryDevice");
+		this.getElement().getThemeList().add(Lumo.DARK);
 		this.beeper = new BeepElement();
 		createContent(this);
 	}
@@ -311,10 +317,6 @@ public class RefContent extends BaseContent implements FOPParametersReader, Safe
 	 */
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		// crude workaround -- randomly getting light or dark due to multiple themes
-		// detected in app.
-		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
-
 		SoundUtils.enableAudioContextNotification(this.getElement());
 		FieldOfPlay fop = getFop();
 		if (fop != null) {

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.ColorScheme;
 import com.vaadin.flow.component.page.LoadingIndicatorConfiguration;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
@@ -41,6 +42,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @StyleSheet(Lumo.STYLESHEET)
 @StyleSheet(Lumo.COMPACT_STYLESHEET)
 @StyleSheet("styles.css")
+// Initial color scheme, used until the browser-stored preference is read. The user switches
+// schemes from the entry at the bottom of the drawer, see OwlcmsLayout.
+@ColorScheme(ColorScheme.Value.LIGHT)
 public class AppShell implements AppShellConfigurator, VaadinServiceInitListener, IndexHtmlRequestListener {
 
 	/**

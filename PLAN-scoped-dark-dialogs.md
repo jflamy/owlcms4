@@ -120,7 +120,7 @@ like `theme="primary error"`, are unrelated — leave them alone.)
 
 ### 5. Remove the launcher counter-hack `applyLightTheme`
 
-File: `owlcms/src/main/java/app/owlcms/nui/home/RefereeJuryStyles.java`
+File: `owlcms/src/main/java/app/owlcms/nui/home/navigation/RefereeJuryStyles.java`
 
 - Delete the `applyLightTheme(UI ui)` method entirely.
 - Remove now-unused imports: `com.vaadin.flow.dom.ThemeList`,
@@ -129,9 +129,9 @@ File: `owlcms/src/main/java/app/owlcms/nui/home/RefereeJuryStyles.java`
 Call sites — remove the `RefereeJuryStyles.applyLightTheme(ui);` line from
 `onAttach(...)` in each of:
 
-- `owlcms/src/main/java/app/owlcms/nui/home/RefereeHomeContent.java`
-- `owlcms/src/main/java/app/owlcms/nui/home/JuryHomeContent.java`
-- `owlcms/src/main/java/app/owlcms/nui/home/MobileScoreboardsContent.java`
+- `owlcms/src/main/java/app/owlcms/nui/home/navigation/RefereeNavigationContent.java`
+- `owlcms/src/main/java/app/owlcms/nui/home/navigation/JuryNavigationContent.java`
+- `owlcms/src/main/java/app/owlcms/nui/home/navigation/MobileScoreboardsNavigationContent.java`
 
 Keep the `RefereeJuryStyles.ensureLoaded(ui);` calls — those load the CSS and are
 unrelated to theming.

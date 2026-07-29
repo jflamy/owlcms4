@@ -18,6 +18,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
@@ -244,7 +245,11 @@ public class AthleteCard extends LitTemplate
 	}
 
 	private void init() {
-		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'light');");
+		// the card is meant to be printed, so it stays light whatever the application color
+		// scheme is. The theme is set on this component rather than on the document, so that it
+		// does not leak to the other pages visited in the same browser tab.
+		getElement().getThemeList().add(Lumo.LIGHT);
+		getStyle().set("background-color", "white");
 		setTranslationMap();
 
 		Button button = new Button(Translator.translate("Print"));

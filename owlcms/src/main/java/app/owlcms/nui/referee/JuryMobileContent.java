@@ -20,6 +20,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.icon.Icon;
@@ -186,12 +187,16 @@ public class JuryMobileContent extends BaseContent implements FOPParametersReade
 	protected void init() {
 		this.setBoxSizing(BoxSizing.BORDER_BOX);
 		this.setSizeFull();
+		// jury devices are used in darkened venues: black page, Lumo dark palette.
+		// The theme is set on this component rather than on the document, so that it does not
+		// leak to the other pages visited in the same browser tab.
+		this.addClassName("refereeJuryDevice");
+		this.getElement().getThemeList().add(Lumo.DARK);
 		createContent(this);
 	}
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
 		OwlcmsSession.withFop(this::bindToFop);
 	}
 

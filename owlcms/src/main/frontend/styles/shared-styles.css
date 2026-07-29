@@ -64,3 +64,8 @@ html {
         opacity: 0;
     }
 }
+/* Referee and jury handheld devices are used in darkened venues and have no AppLayout,
+   so nothing else paints the page. Keep them black whatever the Vaadin color scheme is. */
+.refereeJuryDevice {
+    background-color: black;
+}

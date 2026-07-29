@@ -25,6 +25,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.theme.lumo.Lumo;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -261,12 +262,16 @@ public class JuryKeypadContent extends BaseContent implements FOPParametersReade
 	protected void init() {
 		this.setBoxSizing(BoxSizing.BORDER_BOX);
 		this.setSizeFull();
+		// jury keypads are used in darkened venues: black page, Lumo dark palette.
+		// The theme is set on this component rather than on the document, so that it does not
+		// leak to the other pages visited in the same browser tab.
+		this.addClassName("refereeJuryDevice");
+		this.getElement().getThemeList().add(Lumo.DARK);
 		buildContent(this);
 	}
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		getElement().executeJs("document.querySelector('html').setAttribute('theme', 'dark');");
 		registerShortcuts();
 		OwlcmsSession.withFop(fop -> {
 			setFop(fop);

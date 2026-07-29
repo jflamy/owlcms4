@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.nui.home;
+package app.owlcms.nui.home.navigation;
 
 import java.util.Map;
 
@@ -26,6 +26,7 @@ import app.owlcms.apputils.queryparameters.FOPParameters;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
+import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.referee.JuryKeypadContent;
 import app.owlcms.nui.referee.JuryMobileContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
@@ -36,7 +37,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  */
 @SuppressWarnings("serial")
 @Route(value = "mobile/juryhome", layout = OwlcmsLayout.class)
-public class JuryHomeContent extends BaseNavigationContent implements HasDynamicTitle {
+public class JuryNavigationContent extends BaseNavigationContent implements HasDynamicTitle {
 	private boolean platformSelected;
 
 	@Override
@@ -107,14 +108,18 @@ public class JuryHomeContent extends BaseNavigationContent implements HasDynamic
 		}
 
 		Button back = new Button(Translator.translate("Referees"),
-		        event -> UI.getCurrent().navigate(RefereeHomeContent.class));
+		        event -> UI.getCurrent().navigate(RefereeNavigationContent.class));
 		back.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		Button scoreboardsButton = new Button(Translator.translate("Scoreboards"),
+		        event -> navigateToScoreboards());
+		scoreboardsButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		Button managementHome = new Button(Translator.translate("OWLCMS_Home"),
 		        event -> UI.getCurrent().navigate(HomeNavigationContent.class));
 		managementHome.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-		Div navigationActions = new Div(back, managementHome);
+		Div navigationActions = new Div(back, scoreboardsButton, managementHome);
 		navigationActions.addClassName("referee-jury-home-navigation");
-		add(fopSelector, juryMemberActions, juryPresidentActions, navigationActions);
+		add(fopSelector, juryMemberActions, juryPresidentActions, RefereeJuryStyles.verticalFiller(),
+		        navigationActions);
 	}
 
 	private ComboBox<FieldOfPlay> createFopSelector(FieldOfPlay selectedFop) {
@@ -127,7 +132,7 @@ public class JuryHomeContent extends BaseNavigationContent implements HasDynamic
 		fopSelector.addClassName("referee-jury-home-platform-selector");
 		fopSelector.addValueChangeListener(event -> {
 			if (event.isFromClient() && event.getValue() != null) {
-				UI.getCurrent().navigate(JuryHomeContent.class,
+				UI.getCurrent().navigate(JuryNavigationContent.class,
 				        QueryParameters.simple(Map.of("fop", event.getValue().getName())));
 			}
 		});
@@ -161,5 +166,13 @@ public class JuryHomeContent extends BaseNavigationContent implements HasDynamic
 			parameters.put(additionalParameters[index], additionalParameters[index + 1]);
 		}
 		UI.getCurrent().navigate(target, QueryParameters.simple(parameters));
+	}
+
+	private void navigateToScoreboards() {
+		if (getFop() == null) {
+			UI.getCurrent().navigate(MobileScoreboardsNavigationContent.class);
+		} else {
+			navigateTo(MobileScoreboardsNavigationContent.class);
+		}
 	}
 }

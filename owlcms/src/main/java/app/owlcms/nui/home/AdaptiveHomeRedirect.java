@@ -12,6 +12,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
+import app.owlcms.nui.home.navigation.RefereeNavigationContent;
+
 /**
  * Chooses the initial home screen from the browser viewport.
  */
@@ -31,7 +33,7 @@ public class AdaptiveHomeRedirect extends Div implements BeforeEnterObserver {
 
 		WindowSize windowSize = event.getUI().getPage().windowSizeSignal().peek();
 		if (windowSize.width() < REFEREE_JURY_HOME_MAXIMUM_WIDTH) {
-			event.forwardTo(RefereeHomeContent.class);
+			event.forwardTo(RefereeNavigationContent.class);
 		} else {
 			event.forwardTo(HomeNavigationContent.class);
 		}

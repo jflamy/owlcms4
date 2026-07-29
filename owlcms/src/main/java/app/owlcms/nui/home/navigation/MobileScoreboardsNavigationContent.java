@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.nui.home;
+package app.owlcms.nui.home.navigation;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +36,7 @@ import app.owlcms.nui.displays.attemptboards.PublicFacingAttemptBoardPage;
 import app.owlcms.nui.displays.scoreboards.WarmupLiftingOrderPage;
 import app.owlcms.nui.displays.scoreboards.WarmupNoLeadersPage;
 import app.owlcms.nui.displays.scoreboards.WarmupScoreboardPage;
+import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
@@ -44,7 +45,7 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  */
 @SuppressWarnings("serial")
 @Route(value = "mobile/scoreboards", layout = OwlcmsLayout.class)
-public class MobileScoreboardsContent extends BaseNavigationContent implements HasDynamicTitle {
+public class MobileScoreboardsNavigationContent extends BaseNavigationContent implements HasDynamicTitle {
 
 	private final List<Button> displayActions = new ArrayList<>();
 	private boolean platformSelected;
@@ -76,32 +77,42 @@ public class MobileScoreboardsContent extends BaseNavigationContent implements H
 		ComboBox<FieldOfPlay> fopSelector = createFopSelector(selectedFop);
 
 		Div scoreboardActions = new Div();
-		scoreboardActions.addClassNames("referee-jury-home-actions", "mobile-scoreboards-group");
+		scoreboardActions.addClassNames("referee-jury-home-actions", "mobile-scoreboards-group",
+		        "mobile-scoreboards-primary-actions");
 		Button simple = createDisplayButton("Scoreboard", VaadinIcon.LIST_OL, WarmupNoLeadersPage.class);
+		simple.setWidth(null);
 		Button leaders = createDisplayButton("ScoreboardWLeadersButton", VaadinIcon.TROPHY,
 		        WarmupScoreboardPage.class);
+		leaders.setWidth(null);
 		leaders.addClassName("mobile-scoreboards-leaders");
 		Button liftingOrder = createDisplayButton("Scoreboard.LiftingOrder", VaadinIcon.SORT,
 		        WarmupLiftingOrderPage.class);
+		liftingOrder.setWidth(null);
 		scoreboardActions.add(simple, leaders, liftingOrder);
 
 		Div boardActions = new Div();
-		boardActions.addClassNames("referee-jury-home-actions", "mobile-scoreboards-group");
-		boardActions.add(
-		        createDisplayButton("AttemptBoard", VaadinIcon.SCALE, PublicFacingAttemptBoardPage.class),
-		        createDisplayButton("Athlete_Decisions", VaadinIcon.CHECK_SQUARE_O,
-		                AthleteFacingDecisionBoardPage.class));
+		boardActions.addClassNames("referee-jury-home-actions", "mobile-scoreboards-group",
+		        "mobile-scoreboards-primary-actions");
+		Button attemptBoard = createDisplayButton("AttemptBoard", VaadinIcon.SCALE,
+		        PublicFacingAttemptBoardPage.class);
+		attemptBoard.setWidth(null);
+		Button athleteDecisions = createDisplayButton("Athlete_Decisions", VaadinIcon.CHECK_SQUARE_O,
+		        AthleteFacingDecisionBoardPage.class);
+		athleteDecisions.setWidth(null);
+		boardActions.add(attemptBoard, athleteDecisions);
 
 		Button back = new Button(Translator.translate("Referees"),
 		        event -> navigateToReferees());
 		back.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		Button juryButton = new Button(Translator.translate("Jury"), event -> navigateToJury());
+		juryButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		Button managementHome = new Button(Translator.translate("OWLCMS_Home"),
 		        event -> UI.getCurrent().navigate(HomeNavigationContent.class));
 		managementHome.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-		Div navigationActions = new Div(back, managementHome);
+		Div navigationActions = new Div(back, juryButton, managementHome);
 		navigationActions.addClassName("referee-jury-home-navigation");
 
-		add(fopSelector, scoreboardActions, boardActions, navigationActions);
+		add(fopSelector, scoreboardActions, boardActions, RefereeJuryStyles.verticalFiller(), navigationActions);
 
 		FieldOfPlay fop = selectedFop;
 		if (fop == null && OwlcmsFactory.getFOPs().size() == 1) {
@@ -126,7 +137,7 @@ public class MobileScoreboardsContent extends BaseNavigationContent implements H
 		fopSelector.addClassName("referee-jury-home-platform-selector");
 		fopSelector.addValueChangeListener(event -> {
 			if (event.isFromClient() && event.getValue() != null) {
-				UI.getCurrent().navigate(MobileScoreboardsContent.class,
+				UI.getCurrent().navigate(MobileScoreboardsNavigationContent.class,
 				        QueryParameters.simple(Map.of("fop", event.getValue().getName())));
 			}
 		});
@@ -159,9 +170,19 @@ public class MobileScoreboardsContent extends BaseNavigationContent implements H
 	private void navigateToReferees() {
 		FieldOfPlay fop = getFop();
 		if (fop == null) {
-			UI.getCurrent().navigate(RefereeHomeContent.class);
+			UI.getCurrent().navigate(RefereeNavigationContent.class);
 		} else {
-			UI.getCurrent().navigate(RefereeHomeContent.class,
+			UI.getCurrent().navigate(RefereeNavigationContent.class,
+			        QueryParameters.simple(Map.of("fop", fop.getName())));
+		}
+	}
+
+	private void navigateToJury() {
+		FieldOfPlay fop = getFop();
+		if (fop == null) {
+			UI.getCurrent().navigate(JuryNavigationContent.class);
+		} else {
+			UI.getCurrent().navigate(JuryNavigationContent.class,
 			        QueryParameters.simple(Map.of("fop", fop.getName())));
 		}
 	}

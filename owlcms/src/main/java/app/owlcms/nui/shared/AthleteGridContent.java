@@ -347,8 +347,6 @@ public abstract class AthleteGridContent extends BaseContent
 			return;
 		}
 		this.breakButton.getElement().setAttribute("theme", "primary error");
-		this.breakButton.getStyle().set("color", "white");
-		this.breakButton.getStyle().set("background-color", "var(--lumo-error-color)");
 		// breakButton.setText(Translator.translate("BreakButton.Paused"));
 		this.fop = this.getFop();
 		// OwlcmsSession.withFop(fop -> {
@@ -585,8 +583,6 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	public void quietBreakButton(String caption) {
-		this.breakButton.getStyle().set("color", "var(--lumo-error-color)");
-		this.breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
 		if (caption != null) {
 			this.breakButton.getElement().setAttribute("theme", "secondary error");
 			this.breakButton.setText(caption);
@@ -1696,8 +1692,6 @@ public abstract class AthleteGridContent extends BaseContent
 
 	protected HorizontalLayout layoutBreakButtons() {
 		this.breakButton.getElement().setAttribute("theme", "secondary error");
-		this.breakButton.getStyle().set("color", "var(--lumo-error-color)");
-		this.breakButton.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
 		this.breakButton.getElement().setAttribute("title", Translator.translate("BreakButton.Caption"));
 
 		HorizontalLayout buttons = new HorizontalLayout(this.breakButton);

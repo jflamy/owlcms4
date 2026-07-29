@@ -31,8 +31,8 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.home.HomeNavigationContent;
-import app.owlcms.nui.home.JuryHomeContent;
-import app.owlcms.nui.home.RefereeHomeContent;
+import app.owlcms.nui.home.navigation.JuryNavigationContent;
+import app.owlcms.nui.home.navigation.RefereeNavigationContent;
 import app.owlcms.nui.referee.JuryKeypadContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
@@ -132,8 +132,8 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		FlexibleGridLayout grid1 = HomeNavigationContent.navigationGrid(announcer, marshall, timekeeper, technical);
 		doGroup(Translator.translate("Scoreboard.LiftingOrder"), intro, grid1, this);
 
-		Button referee = openInNewTabWithFop(RefereeHomeContent.class, Translator.translate("Referee_Mobile_Device"));
-		Button juryMobile = openInNewTabWithFop(JuryHomeContent.class, Translator.translate("JuryMember_Mobile_Device"));
+		Button referee = openInNewTabWithFop(RefereeNavigationContent.class, Translator.translate("Referee_Mobile_Device"));
+		Button juryMobile = openInNewTabWithFop(JuryNavigationContent.class, Translator.translate("JuryMember_Mobile_Device"));
 		Button juryKeypad = openInNewTabWithFop(JuryKeypadContent.class, Translator.translate("Jury_Control_Mobile_Device"));
 		Button jury = openInNewTabWithFop(JuryContent.class, Translator.translate("Jury_Console"));
 		Button testing = openInNewTabWithFop(TestingContent.class, Translator.translate("TestButtons.Title"));

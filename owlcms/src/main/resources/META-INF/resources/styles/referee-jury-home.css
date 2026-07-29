@@ -6,11 +6,30 @@
     /* keep the content clear of notches and the on-screen browser chrome */
     padding-bottom: calc(var(--lumo-space-m) + env(safe-area-inset-bottom, 0px));
     box-sizing: border-box;
-    /* No min-height/overflow here on purpose: this element sits below the layout
-       header, so a 100svh min-height overflows the viewport by the header height,
-       and overflow-x:hidden would force overflow-y to compute to auto, turning
-       this into a scroll container. Horizontal overflow is instead prevented by
-       max-width/min-width on the grid and its buttons. */
+    /* Fill the visible area so the filler can push the navigation row to the bottom.
+       This element sits below the layout header, so the navbar offsets published by
+       vaadin-app-layout must be subtracted, otherwise the page overflows by the
+    header height. dvh (dynamic viewport height) tracks the visible area as a
+    mobile browser expands or collapses its URL bar and toolbars, so the
+    navigation row stays above them. No overflow declarations here:
+    overflow-x:hidden would force overflow-y to compute to auto and turn this
+    into a scroll container. Horizontal overflow is instead prevented by
+    max-width/min-width on the grid and its buttons. */
+    min-height: calc(100vh
+        - var(--vaadin-app-layout-navbar-offset-top, 0px)
+        - var(--vaadin-app-layout-navbar-offset-bottom, 0px));
+    min-height: calc(100svh
+        - var(--vaadin-app-layout-navbar-offset-top, 0px)
+        - var(--vaadin-app-layout-navbar-offset-bottom, 0px));
+    min-height: calc(100dvh
+        - var(--vaadin-app-layout-navbar-offset-top, 0px)
+        - var(--vaadin-app-layout-navbar-offset-bottom, 0px));
+}
+
+/* Absorbs the leftover vertical space so that the navigation row that follows it
+   sits at the bottom of the visible area. */
+.referee-jury-home-filler {
+    flex: 1 1 auto;
 }
 
 .referee-jury-home-actions {
@@ -42,8 +61,18 @@
     margin-top: 3rem;
 }
 
+.mobile-scoreboards-primary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.mobile-scoreboards-primary-actions > vaadin-button {
+    width: auto;
+}
+
 .mobile-scoreboards-leaders {
-    grid-column: span 2;
+    grid-column: auto;
 }
 
 .referee-jury-home-platform-selector {
@@ -96,6 +125,12 @@
     .referee-jury-home-president,
     .referee-jury-home-displays {
         display: none;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    .mobile-scoreboards-primary-actions {
+        flex-wrap: nowrap;
     }
 }
 

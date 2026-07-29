@@ -4,7 +4,7 @@
  * Licensed under the Non-Profit Open Software License version 3.0  ("NPOSL-3.0")
  * License text at https://opensource.org/licenses/NPOSL-3.0
  *******************************************************************************/
-package app.owlcms.nui.home;
+package app.owlcms.nui.home.navigation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +32,7 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.lifting.TimekeeperContent;
 import app.owlcms.nui.referee.RefContent;
+import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 
@@ -40,13 +41,13 @@ import app.owlcms.nui.shared.OwlcmsLayout;
  */
 @SuppressWarnings("serial")
 @Route(value = "mobile/refjury", layout = OwlcmsLayout.class)
-public class RefereeHomeContent extends BaseNavigationContent implements HasDynamicTitle {
+public class RefereeNavigationContent extends BaseNavigationContent implements HasDynamicTitle {
 
 	private final List<Button> fopActions = new ArrayList<>();
 	private ComboBox<FieldOfPlay> fopSelector;
 	private boolean platformSelected;
 
-	public RefereeHomeContent() {
+	public RefereeNavigationContent() {
 		setMargin(false);
 		setPadding(false);
 		setSpacing(true);
@@ -101,7 +102,7 @@ public class RefereeHomeContent extends BaseNavigationContent implements HasDyna
 		Div navigationActions = new Div(juryButton, scoreboardsButton, managementHome);
 		navigationActions.addClassName("referee-jury-home-navigation");
 
-		add(fopSelector, refereeActions, timekeeperActions, navigationActions);
+		add(fopSelector, refereeActions, timekeeperActions, RefereeJuryStyles.verticalFiller(), navigationActions);
 
 		fopSelector.addValueChangeListener(event -> updateActions(event.getValue()));
 		FieldOfPlay fop = platformSelected ? getFop() : null;
@@ -179,18 +180,18 @@ public class RefereeHomeContent extends BaseNavigationContent implements HasDyna
 	private void navigateToJuryHome() {
 		FieldOfPlay fop = selectedFop();
 		if (fop == null) {
-			UI.getCurrent().navigate(JuryHomeContent.class);
+			UI.getCurrent().navigate(JuryNavigationContent.class);
 		} else {
-			navigateTo(JuryHomeContent.class);
+			navigateTo(JuryNavigationContent.class);
 		}
 	}
 
 	private void navigateToScoreboards() {
 		FieldOfPlay fop = selectedFop();
 		if (fop == null) {
-			UI.getCurrent().navigate(MobileScoreboardsContent.class);
+			UI.getCurrent().navigate(MobileScoreboardsNavigationContent.class);
 		} else {
-			navigateTo(MobileScoreboardsContent.class);
+			navigateTo(MobileScoreboardsNavigationContent.class);
 		}
 	}
 
