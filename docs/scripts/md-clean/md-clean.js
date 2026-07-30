@@ -7,7 +7,7 @@ const IMAGE_EXTENSION_PATTERN = "(?:png|jpe?g|svg)";
 const DOCS_ROOT = path.resolve(__dirname, "..", "..");
 
 function isManagedImageFile(fileName) {
-  return new RegExp(`^image-.*\\.${IMAGE_EXTENSION_PATTERN}$`, "i").test(fileName);
+  return new RegExp(`^.+\\.${IMAGE_EXTENSION_PATTERN}$`, "i").test(fileName);
 }
 
 function findRepoRoot(startDir = process.cwd()) {
@@ -70,7 +70,7 @@ function findMarkdownFiles(docsRoot) {
       const entryPath = path.join(directory, entry.name);
       if (entry.isDirectory()) {
         visit(entryPath);
-      } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".md") && hasManagedImageDirectory(entryPath)) {
+      } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".md")) {
         markdownFiles.push(entryPath);
       }
     }
@@ -92,7 +92,7 @@ function findReferencedImages(markdownFiles, imgDir) {
   const relativeImgDir = path.relative(DOCS_ROOT, imgDir).split(path.sep).join("/");
   const imgDirPattern = escapeRegularExpression(relativeImgDir).replaceAll("/", "[\\\\/]");
   const regex = new RegExp(
-    `(?:\\./)?${imgDirPattern}[\\\\/]([^\\)]+\\.${IMAGE_EXTENSION_PATTERN})`,
+    `(?:\\./)?${imgDirPattern}[\\\\/]([^\\\\)\\s\"'<>]+\\.${IMAGE_EXTENSION_PATTERN})(?=[\\s\")'>]|$)`,
     "gi"
   );
   const referenced = new Set();
