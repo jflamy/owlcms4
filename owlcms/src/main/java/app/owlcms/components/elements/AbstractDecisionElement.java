@@ -152,9 +152,9 @@ public abstract class AbstractDecisionElement extends LitTemplate
 	 * @param ref2Time
 	 * @param ref3Time
 	 */
-	public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Integer ref1Time,
-			Integer ref2Time,
-			Integer ref3Time) {
+	public void masterRefereeUpdate(String fopName, Boolean ref1, Boolean ref2, Boolean ref3, Long ref1Time,
+			Long ref2Time,
+			Long ref3Time) {
 		Object origin = this.getOrigin();
 		if (this.fop != null && fopName.contentEquals(this.fop.getName())) {
 			if (this.isSingleRef()) {
@@ -172,9 +172,7 @@ public abstract class AbstractDecisionElement extends LitTemplate
 			// logger.debug("masterRefereeUpdate {} {} {}",ref1, ref2, ref3);
 			this.fop.fopEventPost(
 					new FOPEvent.DecisionFullUpdate(origin, this.fop.getCurAthlete(), ref1, ref2, ref3,
-							Long.valueOf(ref1Time),
-							Long.valueOf(ref2Time),
-							Long.valueOf(ref3Time), false));
+							ref1Time, ref2Time, ref3Time, false));
 		}
 	}
 
