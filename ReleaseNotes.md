@@ -10,6 +10,8 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta02: Fix: Referee decisions entered by keyboard or USB buttons did not register (JSON migration side-effect)
+
 - 68.0.0-beta01: Added mobile navigation pages.
   - home page goes to a refereeing page
   - links for jury and scoreboard pages as appropriate for mobile devices
