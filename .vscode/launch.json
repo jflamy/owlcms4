@@ -87,54 +87,6 @@
     },
     {
       "type": "java",
-      "name": "🟨 owlcms → publicresults",
-      "request": "launch",
-      "mainClass": "${config:owlcms.mainClass}",
-      "projectName": "owlcms",
-      "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
-      "env": {
-        "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_REMOTE": "http://127.0.0.1:8082",
-        //"OWLCMS_UPDATEKEY": "mapetitevache"
-      }
-    },
-    {
-      "type": "java",
-      "name": "🟨 owlcms → tracker + publicresults",
-      "request": "launch",
-      "mainClass": "${config:owlcms.mainClass}",
-      "projectName": "owlcms",
-      "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
-      "env": {
-        "OWLCMS_MEMORYMODE": "false",
-        "OWLCMS_REMOTE": "http://127.0.0.1:8082",
-        //s"OWLCMS_UPDATEKEY": "mapetitevache",
-        "OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws",
-        //"OWLCMS_VIDEODATAKEY": "amalauxpattes"
-      }
-    },
-    {
-      "type": "java",
       "name": "🟨 EDIT owlcms no reset ",
       "request": "launch",
       "mainClass": "${config:owlcms.mainClass}",
@@ -283,28 +235,6 @@
       }
     },
     {
-      "type": "java",
-      "name": "🟠 publicresults",
-      "request": "launch",
-      "mainClass": "app.owlcms.publicresults.Main",
-      "projectName": "publicresults",
-      "cwd": "${workspaceFolder}/publicresults",
-      "vmArgs": "${config:owlcms.vmArgs}",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
-      "env": {
-        "OWLCMS_PORT": "8082",
-        "OWLCMS_UPDATEKEY": "mapetitevache"
-      }
-    },
-    {
       "type": "node-terminal",
       "name": "⬇️ pull translation4.csv from Google Sheets",
       "request": "launch",
@@ -423,22 +353,7 @@
         "🟨 owlcms → tracker",
         "🔳 tracker normal"
       ]
-    },
-    {
-      "name": "🟪 owlcms + publicresults",
-      "configurations": [
-        "🟨 owlcms → publicresults",
-        "🟠 publicresults"
-      ]
-    },
-    {
-      "name": "🟪 owlcms + tracker + publicresults",
-      "configurations": [
-        "🟨 owlcms → tracker + publicresults",
-        "🔳 tracker normal",
-        "🟠 publicresults"
-      ]
-    },
+    },,
     {
       "name": "🟪 owlcms + tracker learning",
       "configurations": [
