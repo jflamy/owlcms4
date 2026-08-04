@@ -271,6 +271,9 @@ public class AgeGroupRepository {
 			}
 			return null;
 		});
+		// a failed cascade leaves categories with a null age group; they become invisible to every
+		// runtime query (which all inner-join to ageGroup) but their participations still export.
+		AthleteRepository.removeBrokenParticipationsAndCategories();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -510,6 +513,7 @@ public class AgeGroupRepository {
 					throw new RuntimeException(e);
 				}
 			});
+			AthleteRepository.removeBrokenParticipationsAndCategories();
 			return nAgeGroup;
 		} else {
 			// no need to change the categories
