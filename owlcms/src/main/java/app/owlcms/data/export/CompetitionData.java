@@ -148,6 +148,9 @@ public class CompetitionData {
 	}
 
 	public CompetitionData fromDatabase() {
+		// categories are only serialized nested under their age group; a category with a null age
+		// group is dropped from the export while its participations are still written out.
+		AthleteRepository.removeBrokenParticipationsAndCategories();
 		setAgeGroups(AgeGroupRepository.findAll());
 		List<Athlete> allAthletes = AthleteRepository
 		        .findAll()
