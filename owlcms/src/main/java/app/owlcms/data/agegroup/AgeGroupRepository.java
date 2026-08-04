@@ -265,7 +265,9 @@ public class AgeGroupRepository {
 				em.remove(mAgeGroup);
 				em.flush();
 			} catch (Exception e) {
+				// must not commit: a partial cascade leaves categories detached from their age group
 				LoggerUtils.logError(logger, e);
+				throw new RuntimeException(e);
 			}
 			return null;
 		});
@@ -503,9 +505,10 @@ public class AgeGroupRepository {
 				try {
 					return cleanUp(ageGroup, em);
 				} catch (Exception e) {
+					// must not commit: a partial cleanup leaves categories detached from their age group
 					LoggerUtils.logError(logger, e);
+					throw new RuntimeException(e);
 				}
-				return null;
 			});
 			return nAgeGroup;
 		} else {
@@ -588,8 +591,28 @@ public class AgeGroupRepository {
 	static void cascadeCategoryRemoval(EntityManager em, AgeGroup mAgeGroup, Category nc) {
 		// so far we have not categories removed from the age group, time to do so
 		logger.debug("removing category {} from age group", nc.getId());
+		removeParticipations(em, nc);
 		mAgeGroup.removeCategory(nc);
 		em.remove(nc);
+		em.flush();
+	}
+
+	private static void removeParticipations(EntityManager em, Category nc) {
+		TypedQuery<Participation> q = em.createQuery(
+		        "select p from Participation p where p.category = :category", Participation.class);
+		q.setParameter("category", nc);
+		for (Participation p : q.getResultList()) {
+			// Athlete.participations is EAGER with cascade ALL: an athlete already in the persistence
+			// context would re-insert the row and defeat orphanRemoval on Category.participations.
+			Athlete a = p.getAthlete();
+			if (a != null) {
+				a.getParticipations().remove(p);
+			}
+			// the category-side collection also cascades; a removed entity left in it fails the flush
+			nc.getParticipations().remove(p);
+			em.remove(p);
+		}
+		em.flush();
 	}
 
 	@SuppressWarnings("unchecked")
