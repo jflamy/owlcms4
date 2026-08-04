@@ -9,6 +9,9 @@ package app.owlcms.spreadsheet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -429,9 +432,11 @@ public class NRegistrationFileProcessor {
 		switch (cell.getCellType()) {
 			case NUMERIC:
 				if (DateUtil.isCellDateFormatted(cell)) {
-					this.logger.debug("Date Cell {}", cell.getDateCellValue());
+					// the display format is locale-dependent (e.g. yyyy/mm/dd) and not parseable; use the value
+					raw = isoDateTime(cell.getLocalDateTimeCellValue());
+				} else {
+					raw = this.formatter.formatCellValue(cell);
 				}
-				raw = this.formatter.formatCellValue(cell);
 				break;
 			case FORMULA:
 				raw = this.formatter.formatCellValue(cell, this.formulaEvaluator);
@@ -443,6 +448,15 @@ public class NRegistrationFileProcessor {
 			return "";
 		}
 		return raw.trim();
+	}
+
+	private static String isoDateTime(LocalDateTime ldt) {
+		if (ldt == null) {
+			return "";
+		}
+		return ldt.toLocalTime().equals(LocalTime.MIDNIGHT)
+		        ? ldt.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE)
+		        : ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 	}
 
 	// Use RGroup as the parsing target — it already wraps a Group and stores string fields
