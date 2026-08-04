@@ -8,13 +8,20 @@
 
 <br>
 
+**New in Release 67.3**
+
+- 67.3.0-rc01: Fix for incomplete deletion of category participations when removing age groups
+  - This could lead to a broken export if the cleanups done on category reassingment or restart had not happened
+
+- 67.3.0-rc01: Fix for LibreOffice date formatting issue in registration and SBDE files
+
 **New in Release 67.2**
 
-- 67.2.0-rc01: Borders in nested-style schedule and start lists
+- 67.2.0: Borders in nested-style schedule and start lists
   - the DaySchedule* and NestedStartList* templates again have post-processing step to apply borders
   - cleaned up jxls3 directives owlcms:horizontalBorders and owlcms:verticalBorders are used to trigger the processing
 
-- 67.2.0-beta01: Platform ordering
+- 67.2.0: Platform ordering
   - Platform can now be ordered on the Field of Play preparation page by dragging the rows.
   - If the usawSessionBlocks feature toggle is active, this will affect the sorting of sessions, so that if red is before blue, 1 red will sort before 1 blue.
 
