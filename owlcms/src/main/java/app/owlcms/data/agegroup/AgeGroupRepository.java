@@ -257,13 +257,7 @@ public class AgeGroupRepository {
 		JPAService.runInTransaction(em -> {
 			try {
 				AgeGroup mAgeGroup = em.contains(ageGroup) ? ageGroup : em.merge(ageGroup);
-				List<Category> cats = ageGroup.getCategories();
-				for (Category c : cats) {
-					Category mc = em.contains(c) ? c : em.merge(c);
-					cascadeCategoryRemoval(em, mAgeGroup, mc);
-				}
-				em.remove(mAgeGroup);
-				em.flush();
+				delete(em, mAgeGroup);
 			} catch (Exception e) {
 				// must not commit: a partial cascade leaves categories detached from their age group
 				LoggerUtils.logError(logger, e);
@@ -274,6 +268,15 @@ public class AgeGroupRepository {
 		// a failed cascade leaves categories with a null age group; they become invisible to every
 		// runtime query (which all inner-join to ageGroup) but their participations still export.
 		AthleteRepository.removeBrokenParticipationsAndCategories();
+	}
+
+	static void delete(EntityManager em, AgeGroup ageGroup) {
+		for (Category category : new ArrayList<>(ageGroup.getCategories())) {
+			Category managedCategory = em.contains(category) ? category : em.merge(category);
+			cascadeCategoryRemoval(em, ageGroup, managedCategory);
+		}
+		em.remove(ageGroup);
+		em.flush();
 	}
 
 	@SuppressWarnings("unchecked")

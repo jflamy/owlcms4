@@ -288,6 +288,28 @@ public class ChampionshipRepository {
 	}
 
 	/**
+	 * Delete a championship and its associated age groups in one transaction.
+	 */
+	public static void deleteWithAssociatedAgeGroups(Championship championship, List<AgeGroup> associatedAgeGroups) {
+		JPAService.runInTransaction(em -> {
+			for (AgeGroup ageGroup : associatedAgeGroups) {
+				if (ageGroup.getId() == null) {
+					continue;
+				}
+				AgeGroup managedAgeGroup = em.find(AgeGroup.class, ageGroup.getId());
+				if (managedAgeGroup != null) {
+					AgeGroupRepository.delete(em, managedAgeGroup);
+				}
+			}
+			Championship managedChampionship = em.find(Championship.class, championship.getId());
+			if (managedChampionship != null) {
+				em.remove(managedChampionship);
+			}
+			return null;
+		});
+	}
+
+	/**
 	 * Bootstrap stored championships from persisted age groups when the Championship
 	 * table is empty. Called once on first startup after upgrade.
 	 */

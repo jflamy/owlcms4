@@ -157,6 +157,7 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		boolean hideDefaultRows = this.hideCompetitionDefaults == null
 		        || Boolean.TRUE.equals(this.hideCompetitionDefaults.getValue());
 		Map<String, ChampionshipCandidate> candidates = championshipCandidates(activeOnly);
+		Map<String, ChampionshipCandidate> activeCandidates = championshipCandidates(true);
 		Map<String, Championship> explicitChampionships = explicitChampionships();
 		List<ChampionshipRow> rows = new ArrayList<>();
 
@@ -169,7 +170,8 @@ public class EditChampionshipsPanel extends VerticalLayout {
 			if (hideDefaultRows && usesDefaults) {
 				continue;
 			}
-			rows.add(new ChampionshipRow(candidate.name, candidate.type, existing, false));
+			boolean canDelete = existing != null && !activeCandidates.containsKey(candidate.name);
+			rows.add(new ChampionshipRow(candidate.name, candidate.type, existing, canDelete));
 		}
 
 		if (!activeOnly) {
@@ -181,7 +183,8 @@ public class EditChampionshipsPanel extends VerticalLayout {
 				if (hideDefaultRows && usesDefaults) {
 					return;
 				}
-				rows.add(new ChampionshipRow(c.getName(), c.getType(), c, true));
+				boolean canDelete = !activeCandidates.containsKey(c.getName());
+				rows.add(new ChampionshipRow(c.getName(), c.getType(), c, canDelete));
 			});
 		}
 		this.championshipsTable.setItems(rows);
@@ -231,13 +234,13 @@ public class EditChampionshipsPanel extends VerticalLayout {
 				        }).open();
 			}));
 		}
-		if (row.extraExplicit) {
+		if (row.canDelete) {
 			actions.add(deleteButton(() -> {
 				new ConfirmationDialog(
 				        Translator.translate("Delete"),
-				        Translator.translate("Championship.DeleteWarning", row.name),
+				        Translator.translate("Championship.DeleteWithAgeGroupsWarning", row.name),
 				        null, () -> {
-					        Championship.remove(row.championship);
+					        Championship.removeWithAssociatedAgeGroups(row.championship, associatedAgeGroups(row.name));
 					        updateChampionshipsTable();
 				        }).open();
 			}));
@@ -303,6 +306,16 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		return Championship.canonicalizeChampionshipName(name != null ? name.trim() : null);
 	}
 
+	private List<AgeGroup> associatedAgeGroups(String championshipName) {
+		List<AgeGroup> associatedAgeGroups = new ArrayList<>();
+		for (AgeGroup ageGroup : AgeGroupRepository.findAll()) {
+			if (championshipName.equalsIgnoreCase(effectiveChampionshipName(ageGroup))) {
+				associatedAgeGroups.add(ageGroup);
+			}
+		}
+		return associatedAgeGroups;
+	}
+
 	private Map<String, Championship> explicitChampionships() {
 		Map<String, Championship> explicitChampionships = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		for (Championship championship : Championship.getMap().values()) {
@@ -327,13 +340,13 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		private String name;
 		private ChampionshipType type;
 		private final Championship championship;
-		private final boolean extraExplicit;
+		private final boolean canDelete;
 
-		ChampionshipRow(String name, ChampionshipType type, Championship championship, boolean extraExplicit) {
+		ChampionshipRow(String name, ChampionshipType type, Championship championship, boolean canDelete) {
 			this.name = name;
 			this.type = type != null ? type : ChampionshipType.U;
 			this.championship = championship;
-			this.extraExplicit = extraExplicit;
+			this.canDelete = canDelete;
 		}
 	}
 }

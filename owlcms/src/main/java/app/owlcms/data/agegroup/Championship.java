@@ -329,6 +329,16 @@ public class Championship implements Comparable<Championship>, Serializable {
 		}
 	}
 
+	public static void removeWithAssociatedAgeGroups(Championship c, List<AgeGroup> associatedAgeGroups) {
+		if (c.isCompetitionTemplate()) {
+			return;
+		}
+		if (c.getId() != null) {
+			ChampionshipRepository.deleteWithAssociatedAgeGroups(c, associatedAgeGroups);
+		}
+		allChampionshipsMap.remove(c.getName());
+	}
+
 	public static void reset() {
 		allChampionshipsMap = null;
 		findAll();
