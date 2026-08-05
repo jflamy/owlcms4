@@ -6,8 +6,6 @@
  *******************************************************************************/
 package app.owlcms.utils;
 
-import java.io.FileNotFoundException;
-import java.net.HttpURLConnection;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -30,12 +28,41 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class IPInterfaceUtils {
 
+	/** An IPv4 address together with the interface it was found on. */
+	public record IfaceAddress(NetworkInterface iface, InetAddress address) {
+	}
+
+	/**
+	 * Active, non-virtual interfaces and their IPv4 addresses. Loopback is included; callers that do not want it must
+	 * filter it out themselves.
+	 */
+	public static List<IfaceAddress> getCandidateAddresses() throws SocketException {
+		List<IfaceAddress> candidates = new ArrayList<>();
+		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+		while (interfaces.hasMoreElements()) {
+			NetworkInterface iface = interfaces.nextElement();
+			if (!iface.isUp()) {
+				continue;
+			}
+			String displayName = iface.getDisplayName();
+			if (displayName != null && displayName.toLowerCase().contains("virtual")) {
+				continue;
+			}
+			Enumeration<InetAddress> addresses = iface.getInetAddresses();
+			while (addresses.hasMoreElements()) {
+				InetAddress addr = addresses.nextElement();
+				if (addr instanceof Inet4Address) {
+					candidates.add(new IfaceAddress(iface, addr));
+				}
+			}
+		}
+		return candidates;
+	}
+
 	// a fully qualified domain name
 	// reference: https://regex101.com/r/FLA9Bv/40
 	private static final String FQDN_REGEX = "^(?!.*?_.*?)(?!(?:[\\w]+?\\.)?\\-[\\w\\.\\-]*?)(?![\\w]+?\\-\\.(?:[\\w\\.\\-]+?))(?=[\\w])(?=[\\w\\.\\-]*?\\.+[\\w\\.\\-]*?)(?![\\w\\.\\-]{254})(?!(?:\\.?[\\w\\-\\.]*?[\\w\\-]{64,}\\.)+?)[\\w\\.\\-]+?(?<![\\w\\-\\.]*?\\.[\\d]+?)(?<=[\\w\\-]{2,})(?<![\\w\\-]{25})$";
 	private static final String NUMERIC_HOST_REGEX = "^(https?:\\/\\/)?\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}(\\/[^\s]*)?$";
-	private static String urlPrefix = "/local/";
-	private static String targetFile = "sounds/timeOver.mp3";
 	final private Logger logger = (Logger) LoggerFactory.getLogger(IPInterfaceUtils.class);
 	ArrayList<String> wired = new ArrayList<>();
 	ArrayList<String> recommended = new ArrayList<>();
@@ -44,51 +71,22 @@ public class IPInterfaceUtils {
 	ArrayList<String> networking = new ArrayList<>();
 
 	/**
-	 * Try to guess URLs that can reach the system.
+	 * Guess URLs that can reach the system.
 	 *
 	 * The browser on the master laptop most likely uses "localhost" in its URL. We can't know which of its available IP
-	 * addresses can actually reach the application. We scan the network addresses, and try the URLs one by one, listing
-	 * wired interfaces first, and wireless interfaces second (in as much as we can guess).
+	 * addresses can actually reach the application from other devices, so we list them all, wired interfaces first and
+	 * wireless second (in as much as we can guess).
 	 *
 	 * We rely on the URL used to reach the "about" screen to know how the application is named, what port is used, and
 	 * which protocol works.
-	 *
-	 * @return HTML ("a" tags) for the various URLs that appear to work.
 	 */
 	public IPInterfaceUtils() {
 	}
 
 	public void checkInterfaces(String protocol, int requestPort, boolean silent)
 	        throws SocketException {
-		String ip;
-		Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-		while (interfaces.hasMoreElements()) {
-			NetworkInterface iface = interfaces.nextElement();
-			// filters inactive interfaces
-			if (!iface.isUp()) {
-				continue;
-			}
-
-			String displayName = iface.getDisplayName();
-			String ifaceDisplay = displayName.toLowerCase();
-			//String ifaceName = iface.getName().toLowerCase();
-
-			// filter out interfaces to virtual machines
-			if (!virtual(ifaceDisplay)) {
-				Enumeration<InetAddress> addresses = iface.getInetAddresses();
-				while (addresses.hasMoreElements()) {
-					InetAddress addr = addresses.nextElement();
-					ip = addr.getHostAddress();
-					if (addr instanceof Inet4Address) {
-						// logger.debug("address:{} loopback:{} local:{} ipv4:{} interface: {} ({})", ip,
-						// addr.isLoopbackAddress(), addr.isSiteLocalAddress(), addr.getHostAddress(), ifaceName,
-						// ifaceDisplay);
-						
-						// try reaching the current IP address with the known protocol, port and site.
-						testIP(protocol, requestPort, "", urlPrefix + targetFile, ip, iface, addr, silent);
-					}
-				}
-			}
+		for (IfaceAddress candidate : getCandidateAddresses()) {
+			classify(protocol, requestPort, candidate.iface(), candidate.address(), silent);
 		}
 	}
 
@@ -97,8 +95,6 @@ public class IPInterfaceUtils {
 
 			HttpServletRequest request = VaadinServletRequest.getCurrent().getHttpServletRequest();
 			Map<String, String> headerMap = getRequestHeadersInMap(request);
-
-			checkTargetFileOk(targetFile);
 
 			String protocol = URLUtils.getScheme(request);
 			int requestPort = URLUtils.getServerPort(request);
@@ -111,15 +107,21 @@ public class IPInterfaceUtils {
 			// local = isLocalAddress(server) || isLoopbackAddress(server);
 			boolean loopbackAddress;
 			boolean siteLocalAddress;
-			try {
-				InetAddress serverAddr = InetAddress.getByName(server);
-				loopbackAddress = serverAddr.isLoopbackAddress();
-				siteLocalAddress = serverAddr.isSiteLocalAddress();
-				local = loopbackAddress || siteLocalAddress;
-				logger.trace("request {} loopback:{} sitelocal: {}", requestURL, loopbackAddress, siteLocalAddress);
-			} catch (UnknownHostException e) {
-				// reverse name lookup not configured (e.g. when running in cloud environments)
-				local = false;
+			if (server.endsWith(".local")) {
+				// mDNS name: resolving it does a live multicast round-trip that can block for seconds
+				local = true;
+			} else {
+				try {
+					InetAddress serverAddr = InetAddress.getByName(server);
+					loopbackAddress = serverAddr.isLoopbackAddress();
+					siteLocalAddress = serverAddr.isSiteLocalAddress();
+					local = loopbackAddress || siteLocalAddress;
+					logger.trace("request {} loopback:{} sitelocal: {}", requestURL, loopbackAddress,
+					        siteLocalAddress);
+				} catch (UnknownHostException e) {
+					// reverse name lookup not configured (e.g. when running in cloud environments)
+					local = false;
+				}
 			}
 
 			boolean numerical = server.matches(NUMERIC_HOST_REGEX);
@@ -150,33 +152,10 @@ public class IPInterfaceUtils {
 	}
 
 	public List<String> getLocalAdresses() {
-		String ip;
 		ArrayList<String> localAdresses = new ArrayList<>();
-		Enumeration<NetworkInterface> interfaces;
 		try {
-			interfaces = NetworkInterface.getNetworkInterfaces();
-			while (interfaces.hasMoreElements()) {
-				NetworkInterface iface = interfaces.nextElement();
-				// filters out 127.0.0.1 and inactive interfaces
-				if (// iface.isLoopback() ||
-				!iface.isUp()) {
-					continue;
-				}
-
-				String displayName = iface.getDisplayName();
-				String ifaceDisplay = displayName.toLowerCase();
-
-				// filter out interfaces to virtual machines
-				if (!virtual(ifaceDisplay)) {
-					Enumeration<InetAddress> addresses = iface.getInetAddresses();
-					while (addresses.hasMoreElements()) {
-						InetAddress addr = addresses.nextElement();
-						ip = addr.getHostAddress();
-						if (addr instanceof Inet4Address) {
-							localAdresses.add(ip);
-						}
-					}
-				}
+			for (IfaceAddress candidate : getCandidateAddresses()) {
+				localAdresses.add(candidate.address().getHostAddress());
 			}
 		} catch (SocketException e) {
 		}
@@ -236,49 +215,28 @@ public class IPInterfaceUtils {
 		this.networking = networking;
 	}
 
-	private void checkTargetFileOk(String targetFile) {
+	/** Builds the URL for the address and files it by interface kind; no connection is attempted. */
+	private void classify(String protocol, int requestPort, NetworkInterface iface, InetAddress addr,
+	        boolean silent) {
 		try {
-			ResourceWalker.getResourceAsStream("/" + targetFile);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("test resource not found " + targetFile);
-		}
-	}
-
-	private void testIP(String protocol, int requestPort, String uri, String targetFile, String ip,
-	        NetworkInterface iface, InetAddress addr, boolean silent) {
-		try {
-			URL siteURL = URI.create(protocol + "://" + ip + ":" + requestPort + uri).toURL();
-			String siteURLString = siteURL.toExternalForm();
-			siteURLString = URLUtils.cleanURL(siteURL, siteURLString);
-
-			// use a file inside the site to avoid triggering a loop if called on home page
-			URL testingURL = URI.create(protocol + "://" + ip + ":" + requestPort + uri + targetFile).toURL();
-			String testingURLString = testingURL.toExternalForm();
-
-			HttpURLConnection huc = (HttpURLConnection) testingURL.openConnection();
-			huc.setRequestMethod("GET");
-			huc.connect();
-			int response = huc.getResponseCode();
+			String ip = addr.getHostAddress();
+			URL siteURL = URI.create(protocol + "://" + ip + ":" + requestPort).toURL();
+			String siteURLString = URLUtils.cleanURL(siteURL, siteURL.toExternalForm());
 
 			String ifaceName = iface.getName();
 			String ifaceDisplay = iface.getDisplayName();
-			if (response != 200) {
-				logger./**/warn("{} not reachable: {} {} ({})", testingURLString, response, ifaceName, ifaceDisplay);
+			if (!silent) {
+				logger.debug("networking: {} {} ({})", siteURLString, ifaceName, ifaceDisplay);
+			}
+			if (addr.isLoopbackAddress()) {
+				loopback.add(siteURLString);
+			} else if (isWirelessInterface(ifaceName, ifaceDisplay)) {
+				wireless.add(siteURLString);
+			} else if (isWiredInterface(ifaceName)) {
+				wired.add(siteURLString);
 			} else {
-				if (!silent) {
-					logger.debug("networking check: {} OK {} ({}) {}", ip + ":" + requestPort, ifaceName, ifaceDisplay,
-					        testingURL);
-				}
-				if (addr.isLoopbackAddress()) {
-					loopback.add(siteURLString);
-				} else if (isWirelessInterface(ifaceName, ifaceDisplay)) {
-					wireless.add(siteURLString);
-				} else if (isWiredInterface(ifaceName)) {
-					wired.add(siteURLString);
-				} else {
-					// on certain versions of macOS, wireless and wired interfaces are both "en"
-					networking.add(siteURLString);
-				}
+				// on certain versions of macOS, wireless and wired interfaces are both "en"
+				networking.add(siteURLString);
 			}
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
@@ -310,10 +268,6 @@ public class IPInterfaceUtils {
 		}
 
 		return isMacOs() && normalizedName.startsWith("en") && !normalizedName.equals("en0");
-	}
-
-	private boolean virtual(String displayName) {
-		return displayName.contains("virtual");
 	}
 
 }

@@ -75,6 +75,8 @@ import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
+import app.owlcms.utils.MdnsResponder;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import jakarta.servlet.http.HttpServletRequest;
@@ -207,8 +209,16 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		urlFinder.checkRequest();
 		addP(intro, Translator.translate("SystemURL"));
 		UnorderedList ul = new UnorderedList();
+		String mdnsUrl = getMdnsUrl();
+		if (mdnsUrl != null) {
+			ul.add(new ListItem(new Anchor(mdnsUrl, mdnsUrl)));
+		}
 		ArrayList<String> recommended = urlFinder.getRecommended();
 		for (String url : recommended) {
+			// recommended echoes the Host header; skip it when it is the mDNS name already shown
+			if (url.equals(mdnsUrl)) {
+				continue;
+			}
 			ul.add(new ListItem(new Anchor(url, url)));
 		}
 		ArrayList<String> wired = urlFinder.getWired();
@@ -272,6 +282,16 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		                + Translator.translate("SeparateLaptops"));
 		intro.getStyle().set("margin-bottom", "-1em");
 		return intro;
+	}
+
+	/** @return the announced owlcms.local URL, or null when the name is not being announced. */
+	private String getMdnsUrl() {
+		String hostName = MdnsResponder.getRegisteredHostName();
+		if (hostName == null) {
+			return null;
+		}
+		int port = StartupUtils.getServerPort();
+		return "http://" + hostName + (port == 80 ? "" : ":" + port);
 	}
 
 	private static final String REPO_OWNER = "jflamy";

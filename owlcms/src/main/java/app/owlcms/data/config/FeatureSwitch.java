@@ -69,6 +69,7 @@ public enum FeatureSwitch {
     NO_FORWARDER_KEEP_ALIVE("noForwarderKeepAlive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     REQUIRE_JURY_PRESIDENT_DECISION("requireJuryPresidentDecision", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     IWF_LOOK("iwfLook", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
+    DISABLE_MDNS("disableMdns", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
 
     ATTEMPT_TRACES("attemptTraces", FeatureSwitchSection.OBSERVABILITY),
     CLOCK_TRACES("clockTraces", FeatureSwitchSection.OBSERVABILITY),

@@ -59,6 +59,8 @@
     <logger name="org.eclipse.jetty.ee10.annotations.AnnotationParser" level="ERROR" />
     <!-- benign Moquette session-eviction race when a client reconnects with the same clientId (e.g. config_configmonitor) -->
     <logger name="io.moquette.broker.MQTTConnection" level="ERROR" />
+    <!-- JmDNS warns on every HTTPS-record (type 65) query sent by modern browsers -->
+    <logger name="javax.jmdns" level="ERROR" />
 
     <!-- log all info to file; warnings and above unless logger specifies another level -->
     <root level="WARN">

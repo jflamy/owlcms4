@@ -36,6 +36,7 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.BenchmarkData;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
@@ -54,6 +55,7 @@ import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.servlet.MqttWebSocketProxyEndpoint;
 import app.owlcms.uievents.AppEvent;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.MdnsResponder;
 import app.owlcms.utils.ResourceWalker;
 import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Logger;
@@ -79,6 +81,7 @@ public class Main {
 
     public static void prepareForExit() {
         MQTTMonitor.disableReconnectForAll();
+        MdnsResponder.stop();
     }
 
     /** @return true if the JVM is shutting down because of an external signal (SIGTERM/SIGINT). */
@@ -178,6 +181,7 @@ public class Main {
             StartupUtils.getStartupLogger().info("Initializing Refereeing Devices.");
             startMQTT();
         }
+        startMdns();
         // initialization, don't push out to browsers
         OwlcmsFactory.initDefaultFOP();
 
@@ -242,6 +246,18 @@ public class Main {
             }
         }
 
+    }
+
+    /** Announces owlcms.local on the LAN. Pointless in the cloud, and can be turned off if it interferes. */
+    public static void startMdns() {
+        if (!JPAService.isLocalDb()) {
+            return;
+        }
+        if (Config.getCurrent().featureSwitch(FeatureSwitch.DISABLE_MDNS)) {
+            logger.info("mDNS disabled by feature switch");
+            return;
+        }
+        MdnsResponder.start("owlcms", StartupUtils.getServerPort());
     }
 
     public static void startMQTT() {

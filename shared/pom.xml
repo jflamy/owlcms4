@@ -16,6 +16,12 @@
 			<version>2.4.0</version>
 		</dependency>
 
+		<!-- mDNS responder, announces owlcms.local on the local network -->
+		<dependency>
+			<groupId>org.jmdns</groupId>
+			<artifactId>jmdns</artifactId>
+		</dependency>
+
 		<!-- event bus -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
