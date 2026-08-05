@@ -37,7 +37,6 @@ import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.Participation;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -543,7 +542,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		FieldOfPlay fop = getFop();
 		String catCode = getCategory().getCode();
 		List<Athlete> medalists = medals2.get(catCode);
-		Category cat = CategoryRepository.findByCode(catCode);
 		boolean scoreNeeded = (medalists != null && !medalists.isEmpty()) &&
 		        (medalists.get(0).getComputedScoringSystem() != Ranking.TOTAL);
 		setScoreRanks(scoreNeeded);
@@ -553,7 +551,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		int mcX = 0;
 		if (medalists != null && !medalists.isEmpty()) {
 			jMC.put("categoryName", getCategory().getDisplayName());
-			setTitles(jMC, cat);
+			setTitles(jMC, medalists.get(0).getCategory());
 			jMC.set("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
 
 			// Check if all eligible athletes in this category have finished lifting
@@ -592,10 +590,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			ObjectNode jMC = JsonUtils.object();
 			List<Athlete> medalists = medalCat.getValue();
 			if (medalists != null && !medalists.isEmpty()) {
-				String key = medalCat.getKey();
-				Category cat = CategoryRepository.findByCode(key);
-
-				setTitles(jMC, cat);
+				setTitles(jMC, medalists.get(0).getCategory());
 
 				jMC.set("leaders", getAthletesJson(new ArrayList<>(medalists), null));
 				if (mcX == 0) {

@@ -373,6 +373,13 @@ public class ChampionshipTest {
         assertNotNull("medal map should not be null", medals);
         assertTrue("medal map should have category entries", medals.size() > 0);
 
+        medals.forEach((categoryCode, medalists) -> medalists.forEach(medalist -> {
+            assertTrue("medalist should be a category participation wrapper", medalist instanceof PAthlete);
+            assertNotNull("medalist participation should have a category", medalist.getCategory());
+            assertEquals("medalist category code should match its medal map entry",
+                    categoryCode, medalist.getCategoryCode());
+        }));
+
         // Spot-check JR_F48: gold should be POURAMIN
         List<Athlete> jrF48 = medals.get("JR_F48");
         assertNotNull("JR_F48 should be in medal map", jrF48);

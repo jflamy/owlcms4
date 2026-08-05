@@ -2655,7 +2655,9 @@ public class Competition {
 		List<Athlete> nMedalists = new ArrayList<>();
 		for (Athlete med : medalists) {
 			// need the right participation with the right category.
-			Optional<Participation> part = med.getParticipations().stream().filter(p -> p.getCategory().sameAs(category)).findFirst();
+			Optional<Participation> part = med.getParticipations().stream()
+			        .filter(p -> Objects.equals(p.getCategory().getCode(), category.getCode()))
+			        .findFirst();
 			if (part.isPresent()) {
 				var particip = part.get();
 				if (debug) {
