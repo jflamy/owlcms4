@@ -42,6 +42,10 @@ public class MdnsResponder {
 
 	/** Announces the name in the background; probing and collision resolution take a few seconds. */
 	public static void start(String requestedName, int port) {
+		if (hasRequestedHostName(requestedName)) {
+			logger.info("not aliasing {}.local because it is already the server host name", requestedName);
+			return;
+		}
 		Thread announcer = new Thread(() -> announce(requestedName, port), "mdns-responder");
 		announcer.setDaemon(true);
 		announcer.start();
@@ -94,6 +98,17 @@ public class MdnsResponder {
 			return hostName.substring(0, hostName.length() - 1);
 		}
 		return hostName;
+	}
+
+	private static boolean hasRequestedHostName(String requestedName) {
+		try {
+			String hostName = InetAddress.getLocalHost().getHostName();
+			return requestedName.equalsIgnoreCase(hostName)
+			        || (requestedName + ".local").equalsIgnoreCase(hostName);
+		} catch (IOException e) {
+			logger.debug("could not determine server host name: {}", e.getMessage());
+			return false;
+		}
 	}
 
 }
