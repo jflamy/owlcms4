@@ -10,6 +10,13 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta03: Added mDNS binding to owlcms.local so [http://owlcms.local:*port*]( http://owlcms.local:*port*) should now work as stable URL
+- 68.0.0-beta03: Deletion of a championship also deletes the associated age groups (after confirmation)
+
+- 68.0.0-beta03: Fixed medal screen to avoid (rare) occasional, unpredictable exceptions
+
+- 68.0.0-beta02: Fix for keyboard/USB keypad referee decisions that were not registering.
+
 - 68.0.0-beta01: Added mobile navigation pages.
   - home page goes to a refereeing page
   - links for jury and scoreboard pages as appropriate for mobile devices
