@@ -248,7 +248,7 @@ public class Main {
 
     }
 
-    /** Announces owlcms.local on the LAN. Pointless in the cloud, and can be turned off if it interferes. */
+    /** Announces the configured mDNS name on the LAN. Pointless in the cloud, and can be turned off if it interferes. */
     public static void startMdns() {
         if (!JPAService.isLocalDb()) {
             return;
@@ -257,7 +257,17 @@ public class Main {
             logger.info("mDNS disabled by feature switch");
             return;
         }
-        MdnsResponder.start("owlcms", StartupUtils.getServerPort());
+        String mdnsName = System.getenv("OWLCMS_MDNS");
+        if (mdnsName == null) {
+            mdnsName = "owlcms";
+        } else {
+            mdnsName = mdnsName.trim();
+            if (mdnsName.isEmpty() || "false".equalsIgnoreCase(mdnsName) || "off".equalsIgnoreCase(mdnsName)) {
+                logger.info("mDNS disabled by OWLCMS_MDNS");
+                return;
+            }
+        }
+        MdnsResponder.start(mdnsName, StartupUtils.getServerPort());
     }
 
     public static void startMQTT() {
