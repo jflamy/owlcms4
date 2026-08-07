@@ -10,10 +10,15 @@
 
 **New in Release 67.3**
 
+ - 67.3.0-rc02: Fix for intermittent errors affecting the medals scoreboards
+
+ - 67.3.0-rc02: Fix for two doctors in a session (introduction sheets)
+
 - 67.3.0-rc01: Fix for incomplete deletion of category participations when removing age groups
   - This could lead to a broken export if the cleanups done on category reassingment or restart had not happened
 
 - 67.3.0-rc01: Fix for LibreOffice date formatting issue in registration and SBDE files
+
 
 **New in Release 67.2**
 
