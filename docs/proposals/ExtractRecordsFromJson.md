@@ -17,15 +17,11 @@ provisional records against the reference record definitions.
 ## Open Issue: Record Eligibility
 
 The repository may contain record definitions for ten federations while the
-imported competition database applies to only one or two federations. The
-extractor must not silently restrict candidate evaluation to the federations
-present in the imported competition configuration.
+imported competition database applies to only one or two federations. The extractor
+must not blindly assign records to the many federations that can be present in
+the repository.
 
-Define how each imported athlete's federation is matched against every active
-repository record definition, including whether a repository record definition
-can apply when its federation is not configured by the imported competition.
-This rule must be resolved before implementation so that the staging import
-does not omit otherwise eligible record candidates.
+This issue MUST be resolved before implementation so that the staging import.
 
 ## Open Issue: Candidate Cleanup
 
