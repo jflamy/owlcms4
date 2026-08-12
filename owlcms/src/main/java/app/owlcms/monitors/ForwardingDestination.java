@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.utils.StartupUtils;
 
 /**
@@ -72,19 +73,48 @@ public final class ForwardingDestination {
 		if (config == null) {
 			return new ArrayList<>();
 		}
-		String publicResultsUrl = config.getParamPublicResultsURL();
-		String publicResultsKey = config.getParamUpdateKey();
-		String videoDataUrl = config.getParamVideoDataURL();
-		String videoDataKey = config.getParamVideoDataKey();
-		logger.debug(
-		        "forwarder configuration: publicResults URL={} (from {}), updateKey {} (from {}); videoData URL={} (from {}), videoDataKey {} (from {})",
-		        publicResultsUrl, source("remote", publicResultsUrl),
-		        keyPresence(publicResultsKey), source("updateKey", publicResultsKey),
-		        videoDataUrl, source("videodata", videoDataUrl),
-		        keyPresence(videoDataKey), source("videoDataKey", videoDataKey));
-		addDestination(destinationsByUrl, conflictedUrls, publicResultsUrl, publicResultsKey);
-		addDestination(destinationsByUrl, conflictedUrls, videoDataUrl, videoDataKey);
+		for (DestinationInput input : collectDestinationInputs(config)) {
+			addDestination(destinationsByUrl, conflictedUrls, input);
+		}
 		return new ArrayList<>(destinationsByUrl.values());
+	}
+
+	/**
+	 * Single source of truth for the ordered destination inputs. Each configured source contributes
+	 * a (URL, key) pair; the caller deduplicates them into destinations. A future release will add
+	 * the JSON destination/key list as another input source here.
+	 *
+	 * <p>
+	 * When the {@code trackerExtra} feature switch is on, both stored database pairs are inputs and
+	 * non-blank OWLCMS_REMOTE and OWLCMS_VIDEODATA pairs are additional inputs. Environment keys win
+	 * when URLs deduplicate. Otherwise the environment pairs override the stored values as before.
+	 */
+	private static List<DestinationInput> collectDestinationInputs(Config config) {
+		List<DestinationInput> inputs = new ArrayList<>();
+		if (config.featureSwitch(FeatureSwitch.TRACKER_EXTRA)) {
+			inputs.add(new DestinationInput(config.getPublicResultsURL(), config.getUpdatekey(), false));
+			inputs.add(new DestinationInput(config.getVideoDataURL(), config.getVideoDataKey(), false));
+			addEnvironmentInput(inputs, "remote", "updateKey");
+			addEnvironmentInput(inputs, "videodata", "videoDataKey");
+		} else {
+			inputs.add(new DestinationInput(config.getParamPublicResultsURL(), config.getParamUpdateKey(), false));
+			inputs.add(new DestinationInput(config.getParamVideoDataURL(), config.getParamVideoDataKey(), false));
+		}
+		return inputs;
+	}
+
+	private static void addEnvironmentInput(List<DestinationInput> inputs, String urlParam, String keyParam) {
+		String url = StartupUtils.getStringParam(urlParam);
+		if (url != null && !url.isBlank()) {
+			if ("remote".equals(urlParam)) {
+				url = url.replaceFirst("/update$", "");
+			}
+			inputs.add(new DestinationInput(url, StartupUtils.getStringParam(keyParam), true));
+		}
+	}
+
+	/** One configured (URL, key) pair before normalization and deduplication into a destination. */
+	private record DestinationInput(String baseUrl, String updateKey, boolean environment) {
 	}
 
 	/**
@@ -99,27 +129,32 @@ public final class ForwardingDestination {
 		if (config == null) {
 			return;
 		}
-		String publicResultsUrl = config.getParamPublicResultsURL();
-		String publicResultsKey = config.getParamUpdateKey();
-		String videoDataUrl = config.getParamVideoDataURL();
-		String videoDataKey = config.getParamVideoDataKey();
-		logger.info(
-		        "forwarder configuration: publicResults URL={} (from {}), updateKey {} (from {}); videoData URL={} (from {}), videoDataKey {} (from {})",
-		        publicResultsUrl, source("remote", publicResultsUrl),
-		        keyPresence(publicResultsKey), source("updateKey", publicResultsKey),
-		        videoDataUrl, source("videodata", videoDataUrl),
-		        keyPresence(videoDataKey), source("videoDataKey", videoDataKey));
+		List<String> summaries = new ArrayList<>();
+		for (ForwardingDestination destination : fromConfig(config)) {
+			summaries.add(destination.getBaseUrl() + " [key " + keyPresence(destination.getUpdateKey()) + "]");
+		}
+		logger.info("forwarder configuration: trackerExtra={}, destinations={}",
+		        config.featureSwitch(FeatureSwitch.TRACKER_EXTRA), summaries);
 	}
 
 	private static void addDestination(Map<String, ForwardingDestination> destinationsByUrl, Set<String> conflictedUrls,
-			String baseUrl, String updateKey) {
-		String normalizedUrl = normalizeBaseUrl(baseUrl);
-		if (normalizedUrl == null || conflictedUrls.contains(normalizedUrl)) {
+			DestinationInput input) {
+		String normalizedUrl = normalizeBaseUrl(input.baseUrl());
+		if (normalizedUrl == null || conflictedUrls.contains(normalizedUrl) && !input.environment()) {
 			return;
 		}
-		ForwardingDestination destination = new ForwardingDestination(normalizedUrl, updateKey);
+		ForwardingDestination destination = new ForwardingDestination(normalizedUrl, input.updateKey());
 		if (!destination.isHttp() && !destination.isWebSocket()) {
 			logger.error("forwarding destination URL must start with http://, https://, ws://, or wss://: {}", normalizedUrl);
+			return;
+		}
+		if (input.environment()) {
+			if (input.updateKey() == null
+			        && (conflictedUrls.contains(normalizedUrl) || destinationsByUrl.containsKey(normalizedUrl))) {
+				return;
+			}
+			conflictedUrls.remove(normalizedUrl);
+			destinationsByUrl.put(normalizedUrl, destination);
 			return;
 		}
 		ForwardingDestination existing = destinationsByUrl.get(normalizedUrl);
@@ -164,17 +199,6 @@ public final class ForwardingDestination {
 	@Override
 	public int hashCode() {
 		return Objects.hash(baseUrl, updateKey);
-	}
-
-	/**
-	 * Indicate where a resolved value comes from: a runtime override (environment variable or
-	 * system property) or the saved database configuration. Used for INFO-level diagnostics.
-	 */
-	private static String source(String envParam, String resolvedValue) {
-		if (resolvedValue == null || resolvedValue.isBlank()) {
-			return "unset";
-		}
-		return StartupUtils.getStringParam(envParam) != null ? "environment variable" : "database";
 	}
 
 	/**
