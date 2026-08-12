@@ -674,13 +674,13 @@ public class ConfigEditingFormFactory
 
 	private FormLayout publicResultsForm() {
 		FormLayout layout = createLayout();
-		Component title = createTitle("Config.PublicResultsTitle");
+		Component title = createTitle("Config.EventPublishingDestination1");
 		layout.add(title);
 		layout.setColspan(title, 2);
 
 		TextField publicResultsField = new TextField();
 		publicResultsField.setWidthFull();
-		layout.addFormItem(publicResultsField, Translator.translate("Config.publicResultsURL"));
+		layout.addFormItem(publicResultsField, Translator.translate("Config.EventPublishingURL"));
 		this.binder.forField(publicResultsField)
 		        .withNullRepresentation("")
 		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(https?://|wss?://).*"))
@@ -831,13 +831,13 @@ public class ConfigEditingFormFactory
 
 	private FormLayout videoDataForm() {
 		FormLayout layout = createLayout();
-		Component title = createTitle("Config.VideoDataTitle");
+		Component title = createTitle("Config.EventPublishingDestination2");
 		layout.add(title);
 		layout.setColspan(title, 2);
 
 		TextField videoDataField = new TextField();
 		videoDataField.setWidthFull();
-		layout.addFormItem(videoDataField, Translator.translate("Config.videoDataURL"));
+		layout.addFormItem(videoDataField, Translator.translate("Config.EventPublishingURL"));
 		this.binder.forField(videoDataField)
 		        .withNullRepresentation("")
 		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(https?://|wss?://).*"))

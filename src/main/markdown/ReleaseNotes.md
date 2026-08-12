@@ -10,7 +10,14 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta04: If feature toggle `trackerExtra` is enabled, then the OWLCMS_REMOTE and OWLCMS_VIDEODATA environment variables are considered as additions instead of overrides
+  - This allows two destinations to be put in the database
+  - The Tracker destinations passed in by the control panel becomes a third destination, and a fourth could be set by using the env.properties file.
+  - Same idea using secrets for Cloud deployment
+  - When there are duplicates destinations, the last password seen wins according to the order publicresults, videodata, OWLCMS_REMOTE, OWLCMS_VIDEODATA
+
 - 68.0.0-beta03: Added mDNS binding to owlcms.local so [http://owlcms.local:*port*]( http://owlcms.local:*port*) should now work as stable URL
+
 - 68.0.0-beta03: Deletion of a championship also deletes the associated age groups (after confirmation)
 
 - 68.0.0-beta03: Fixed medal screen to avoid (rare) occasional, unpredictable exceptions

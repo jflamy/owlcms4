@@ -7,12 +7,10 @@
 package app.owlcms.monitors;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,13 +66,16 @@ public final class ForwardingDestination {
 	}
 
 	public static List<ForwardingDestination> fromConfig(Config config) {
+		return resolveDestinations(config, false);
+	}
+
+	private static List<ForwardingDestination> resolveDestinations(Config config, boolean logResolution) {
 		Map<String, ForwardingDestination> destinationsByUrl = new LinkedHashMap<>();
-		Set<String> conflictedUrls = new HashSet<>();
 		if (config == null) {
 			return new ArrayList<>();
 		}
-		for (DestinationInput input : collectDestinationInputs(config)) {
-			addDestination(destinationsByUrl, conflictedUrls, input);
+		for (DestinationInput input : collectDestinationInputs(config, logResolution)) {
+			addDestination(destinationsByUrl, input, logResolution);
 		}
 		return new ArrayList<>(destinationsByUrl.values());
 	}
@@ -89,32 +90,65 @@ public final class ForwardingDestination {
 	 * non-blank OWLCMS_REMOTE and OWLCMS_VIDEODATA pairs are additional inputs. Environment keys win
 	 * when URLs deduplicate. Otherwise the environment pairs override the stored values as before.
 	 */
-	private static List<DestinationInput> collectDestinationInputs(Config config) {
+	private static List<DestinationInput> collectDestinationInputs(Config config, boolean logResolution) {
 		List<DestinationInput> inputs = new ArrayList<>();
+		if (logResolution) {
+			logRawInputs(config);
+		}
 		if (config.featureSwitch(FeatureSwitch.TRACKER_EXTRA)) {
-			inputs.add(new DestinationInput(config.getPublicResultsURL(), config.getUpdatekey(), false));
-			inputs.add(new DestinationInput(config.getVideoDataURL(), config.getVideoDataKey(), false));
-			addEnvironmentInput(inputs, "remote", "updateKey");
-			addEnvironmentInput(inputs, "videodata", "videoDataKey");
+			addDatabaseInput(inputs, "publicResults", config.getPublicResultsURL(), config.getUpdatekey());
+			addDatabaseInput(inputs, "videoData", config.getVideoDataURL(), config.getVideoDataKey());
+			addEnvironmentInput(inputs, "OWLCMS_REMOTE", "remote", "updateKey", false);
+			addEnvironmentInput(inputs, "OWLCMS_VIDEODATA", "videodata", "videoDataKey", false);
 		} else {
-			inputs.add(new DestinationInput(config.getParamPublicResultsURL(), config.getParamUpdateKey(), false));
-			inputs.add(new DestinationInput(config.getParamVideoDataURL(), config.getParamVideoDataKey(), false));
+			inputs.add(new DestinationInput(config.getParamPublicResultsURL(), config.getParamUpdateKey(),
+			        "resolved publicResults"));
+			inputs.add(new DestinationInput(config.getParamVideoDataURL(), config.getParamVideoDataKey(),
+			        "resolved videoData"));
 		}
 		return inputs;
 	}
 
-	private static void addEnvironmentInput(List<DestinationInput> inputs, String urlParam, String keyParam) {
+	private static void logRawInputs(Config config) {
+		logger.info("forwarder database input: name=publicResults, URL={}, key={}",
+		        displayUrl(config.getPublicResultsURL()), keyPresence(config.getUpdatekey()));
+		logger.info("forwarder database input: name=videoData, URL={}, key={}",
+		        displayUrl(config.getVideoDataURL()), keyPresence(config.getVideoDataKey()));
+		logRawEnvironmentInput("OWLCMS_REMOTE", "remote", "updateKey");
+		logRawEnvironmentInput("OWLCMS_VIDEODATA", "videodata", "videoDataKey");
+	}
+
+	private static void logRawEnvironmentInput(String name, String urlParam, String keyParam) {
+		String url = StartupUtils.getStringParam(urlParam);
+		logger.info("forwarder environment input: name={}, URL={}, key={}", name, displayUrl(url),
+		        keyPresence(StartupUtils.getStringParam(keyParam)));
+	}
+
+	private static void addDatabaseInput(List<DestinationInput> inputs, String name, String url, String key) {
+		inputs.add(new DestinationInput(url, key, "database " + name));
+	}
+
+	private static void addEnvironmentInput(List<DestinationInput> inputs, String name, String urlParam,
+			String keyParam, boolean logResolution) {
 		String url = StartupUtils.getStringParam(urlParam);
 		if (url != null && !url.isBlank()) {
 			if ("remote".equals(urlParam)) {
 				url = url.replaceFirst("/update$", "");
 			}
-			inputs.add(new DestinationInput(url, StartupUtils.getStringParam(keyParam), true));
+			String key = StartupUtils.getStringParam(keyParam);
+			if (logResolution) {
+				logger.info("forwarder environment input added: name={}, URL={}, key={}", name, url,
+				        keyPresence(key));
+			}
+			inputs.add(new DestinationInput(url, key, "environment " + name));
+		} else if (logResolution) {
+			logger.info("forwarder environment input ignored: name={}, reason={}", name,
+			        url == null ? "unset" : "blank");
 		}
 	}
 
 	/** One configured (URL, key) pair before normalization and deduplication into a destination. */
-	private record DestinationInput(String baseUrl, String updateKey, boolean environment) {
+	private record DestinationInput(String baseUrl, String updateKey, String source) {
 	}
 
 	/**
@@ -130,17 +164,20 @@ public final class ForwardingDestination {
 			return;
 		}
 		List<String> summaries = new ArrayList<>();
-		for (ForwardingDestination destination : fromConfig(config)) {
+		for (ForwardingDestination destination : resolveDestinations(config, true)) {
 			summaries.add(destination.getBaseUrl() + " [key " + keyPresence(destination.getUpdateKey()) + "]");
 		}
-		logger.info("forwarder configuration: trackerExtra={}, destinations={}",
+		logger.info("forwarder configuration resolved: trackerExtra={}, destinations={}",
 		        config.featureSwitch(FeatureSwitch.TRACKER_EXTRA), summaries);
 	}
 
-	private static void addDestination(Map<String, ForwardingDestination> destinationsByUrl, Set<String> conflictedUrls,
-			DestinationInput input) {
+	private static void addDestination(Map<String, ForwardingDestination> destinationsByUrl, DestinationInput input,
+			boolean logResolution) {
 		String normalizedUrl = normalizeBaseUrl(input.baseUrl());
-		if (normalizedUrl == null || conflictedUrls.contains(normalizedUrl) && !input.environment()) {
+		if (normalizedUrl == null) {
+			if (logResolution) {
+				logger.info("forwarder input skipped: source={}, reason=URL unset or blank", input.source());
+			}
 			return;
 		}
 		ForwardingDestination destination = new ForwardingDestination(normalizedUrl, input.updateKey());
@@ -148,26 +185,24 @@ public final class ForwardingDestination {
 			logger.error("forwarding destination URL must start with http://, https://, ws://, or wss://: {}", normalizedUrl);
 			return;
 		}
-		if (input.environment()) {
-			if (input.updateKey() == null
-			        && (conflictedUrls.contains(normalizedUrl) || destinationsByUrl.containsKey(normalizedUrl))) {
-				return;
+		ForwardingDestination previous = destinationsByUrl.put(normalizedUrl, destination);
+		if (logResolution) {
+			if (previous == null) {
+				logger.info("forwarder input added: source={}, URL={}, key={}", input.source(), normalizedUrl,
+				        keyPresence(destination.getUpdateKey()));
+			} else {
+				logger.info("forwarder input deduped by priority: source={}, URL={}, retained key={}, replaced key={}",
+				        input.source(), normalizedUrl, keyPresence(destination.getUpdateKey()),
+				        keyPresence(previous.getUpdateKey()));
 			}
-			conflictedUrls.remove(normalizedUrl);
-			destinationsByUrl.put(normalizedUrl, destination);
-			return;
 		}
-		ForwardingDestination existing = destinationsByUrl.get(normalizedUrl);
-		if (existing == null) {
-			destinationsByUrl.put(normalizedUrl, destination);
-			return;
+	}
+
+	private static String displayUrl(String url) {
+		if (url == null) {
+			return "unset";
 		}
-		if (Objects.equals(existing.getUpdateKey(), destination.getUpdateKey())) {
-			return;
-		}
-		logger.error("forwarding destination {} is configured with conflicting update keys; destination disabled", normalizedUrl);
-		destinationsByUrl.remove(normalizedUrl);
-		conflictedUrls.add(normalizedUrl);
+		return url.isBlank() ? "blank" : url;
 	}
 
 	private static String normalizeBaseUrl(String baseUrl) {

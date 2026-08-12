@@ -58,6 +58,20 @@ public class ForwardingDestinationTest {
 	}
 
 	@Test
+	public void environmentKeysOverrideDatabaseKeysBeforeLegacyDedup() {
+		Config config = videoDataConfig("wss://same.example/ws", "database-video-key");
+		config.setPublicResultsURL("wss://same.example/ws");
+		config.setUpdatekey("database-results-key");
+		System.setProperty("updateKey", "environment-results-key");
+		System.setProperty("videoDataKey", "environment-video-key");
+
+		List<ForwardingDestination> destinations = ForwardingDestination.fromConfig(config);
+
+		assertEquals(1, destinations.size());
+		assertDestination(destinations.get(0), "wss://same.example/ws", "environment-video-key");
+	}
+
+	@Test
 	public void trackerExtraAddsDatabaseVideoDataDestination() {
 		Config config = videoDataConfig("wss://database.example/ws", "database-key");
 		config.setFeatureSwitchValue(FeatureSwitch.TRACKER_EXTRA, true);
@@ -120,7 +134,7 @@ public class ForwardingDestinationTest {
 	}
 
 	@Test
-	public void trackerExtraKeepsDatabaseKeyWhenMatchingEnvironmentKeyIsUnset() {
+	public void trackerExtraMatchingEnvironmentPairReplacesDatabasePairEvenWhenKeyIsUnset() {
 		Config config = new Config();
 		config.setPublicResultsURL("https://results.example");
 		config.setUpdatekey("database-key");
@@ -130,7 +144,24 @@ public class ForwardingDestinationTest {
 		List<ForwardingDestination> destinations = ForwardingDestination.fromConfig(config);
 
 		assertEquals(1, destinations.size());
-		assertDestination(destinations.get(0), "https://results.example", "database-key");
+		assertDestination(destinations.get(0), "https://results.example", null);
+	}
+
+	@Test
+	public void trackerExtraUsesLastPasswordWhenAllFourInputsShareOneUrl() {
+		Config config = videoDataConfig("wss://same.example/ws", "2");
+		config.setPublicResultsURL("wss://same.example/ws");
+		config.setUpdatekey("1");
+		config.setFeatureSwitchValue(FeatureSwitch.TRACKER_EXTRA, true);
+		System.setProperty("remote", "wss://same.example/ws");
+		System.setProperty("updateKey", "3");
+		System.setProperty("videodata", "wss://same.example/ws");
+		System.setProperty("videoDataKey", "4");
+
+		List<ForwardingDestination> destinations = ForwardingDestination.fromConfig(config);
+
+		assertEquals(1, destinations.size());
+		assertDestination(destinations.get(0), "wss://same.example/ws", "4");
 	}
 
 	@Test
