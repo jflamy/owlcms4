@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.slf4j.LoggerFactory;
@@ -27,8 +28,25 @@ public class MainWrapper {
 
     private static final Logger logger = (Logger) LoggerFactory.getLogger(MainWrapper.class);
     private static final int MAX_RESTARTS = 3;
+    private static final String DAEMON_MODE_ENV = "CONTROLPANEL_RUN_AS_DAEMON";
+    private static final String WRAPPER_PID_ENV = "OWLCMS_WRAPPER_PID";
     private static volatile Process currentProcess;
     private static volatile boolean shuttingDown = false;
+
+    private static boolean isDaemonMode(Map<String, String> environment) {
+        String value = environment.get(DAEMON_MODE_ENV);
+        if (value == null) {
+            return false;
+        }
+        return switch (value.strip().toLowerCase(Locale.ROOT)) {
+        case "1", "true", "yes", "on" -> true;
+        default -> false;
+        };
+    }
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
+    }
 
     public static void main(String... args) throws Exception {
         // Register shutdown hook to kill subprocess when wrapper is terminated
@@ -115,6 +133,9 @@ public class MainWrapper {
                 Map<String, String> subprocessEnv = pb.environment();
                 subprocessEnv.putAll(env); // Pass all environment variables
                 subprocessEnv.put("OWLCMS_CONTROLPANEL", "3.1.0"); // Triggers restart after JSON import
+                if (!isWindows() && !isDaemonMode(env)) {
+                    subprocessEnv.put(WRAPPER_PID_ENV, Long.toString(ProcessHandle.current().pid()));
+                }
                 
                 currentProcess = pb.start();
                 

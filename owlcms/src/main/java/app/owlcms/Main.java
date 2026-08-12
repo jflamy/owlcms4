@@ -79,6 +79,8 @@ public class Main {
     /** Set by the SIGTERM/SIGINT handler so shutdown hooks can exit 0. */
     private static volatile boolean intentionalSignalReceived = false;
 
+    private static final String WRAPPER_PID_ENV = "OWLCMS_WRAPPER_PID";
+
     public static void prepareForExit() {
         MQTTMonitor.disableReconnectForAll();
         MdnsResponder.stop();
@@ -87,6 +89,37 @@ public class Main {
     /** @return true if the JVM is shutting down because of an external signal (SIGTERM/SIGINT). */
     public static boolean isIntentionalSignalReceived() {
         return intentionalSignalReceived;
+    }
+
+    private static void exitWhenWrapperExits() {
+        if (System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win")) {
+            return;
+        }
+
+        String wrapperPid = System.getenv(WRAPPER_PID_ENV);
+        if (wrapperPid == null || wrapperPid.isBlank()) {
+            return;
+        }
+
+        try {
+            long pid = Long.parseLong(wrapperPid);
+            ProcessHandle.of(pid).ifPresentOrElse(
+                    wrapper -> {
+                        logger.info("Exiting when wrapper PID {} exits", pid);
+                        wrapper.onExit().thenRun(() -> {
+                            logger./**/warn("Wrapper PID {} exited; shutting down", pid);
+                            prepareForExit();
+                            System.exit(0);
+                        });
+                    },
+                    () -> {
+                        logger./**/warn("Wrapper PID {} already exited; shutting down", pid);
+                        prepareForExit();
+                        System.exit(0);
+                    });
+        } catch (NumberFormatException e) {
+            logger./**/warn("Invalid {} value: {}", WRAPPER_PID_ENV, wrapperPid);
+        }
     }
 
     private static final int WARNING_MINUTES = 5;
@@ -226,6 +259,8 @@ public class Main {
                 logger.debug("SIG{} handler not available: {}", sigName, e.getMessage());
             }
         }
+
+        exitWhenWrapperExits();
 
         // there is no config read so far.
         demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
