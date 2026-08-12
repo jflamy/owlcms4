@@ -49,6 +49,7 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -272,14 +273,24 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		Hr hr = new Hr();
 		hr.getStyle().set("margin-bottom", "2ex");
 		intro.add(hr);
-		addP(intro,
-		        Translator.translate("LeftMenuNavigate")
-		                + Translator.translate("PrepareCompatition_description", this.PREPARE_COMPETITION)
-		                + Translator.translate("RunLiftingGroup_description", this.RUN_LIFTING_GROUP)
-		                + Translator.translate("StartDisplays_description", this.START_DISPLAYS)
-		                + Translator.translate("VideoStreaming_description", this.VIDEO_STREAMING)
-		                + Translator.translate("CompetitionDocuments_description", this.RESULT_DOCUMENTS)
-		                + Translator.translate("SeparateLaptops"));
+		Div homeInstructions = new Div();
+		homeInstructions.addClassName("homeInstructions");
+		homeInstructions.add(new NativeLabel(Translator.translate("LeftMenuNavigate").replace("<ul>", "")));
+		UnorderedList instructionsList = new UnorderedList();
+		String[] instructionTexts = {
+		        Translator.translate("PrepareCompatition_description", this.PREPARE_COMPETITION),
+		        Translator.translate("RunLiftingGroup_description", this.RUN_LIFTING_GROUP),
+		        Translator.translate("StartDisplays_description", this.START_DISPLAYS),
+		        Translator.translate("VideoStreaming_description", this.VIDEO_STREAMING),
+		        Translator.translate("CompetitionDocuments_description", this.RESULT_DOCUMENTS)
+		};
+		for (String instructionText : instructionTexts) {
+			ListItem instruction = new ListItem();
+			instruction.getElement().setProperty("innerHTML", instructionText.replace("<li>", "").replace("</li>", ""));
+			instructionsList.add(instruction);
+		}
+		homeInstructions.add(instructionsList);
+		intro.add(homeInstructions);
 		intro.getStyle().set("margin-bottom", "-1em");
 		return intro;
 	}

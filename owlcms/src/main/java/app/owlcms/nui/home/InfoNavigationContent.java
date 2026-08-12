@@ -138,9 +138,11 @@ public class InfoNavigationContent extends BaseNavigationContent implements Navi
 		addUL(license, Translator.translate("About.Bugs"));
 
 		license.add(sectionTitle(Translator.translate("SourceDocumentation")));
+		String documentation = Translator.translate("Documentation")
+		        .replace("https://owlcms.github.io/owlcms4/", "https://jflamy.github.io/owlcms4/");
 		addUL(license,
 		        Translator.translate("ProjectRepository"),
-		        Translator.translate("Documentation"));
+		        documentation);
 
 		license.add(sectionTitle(Translator.translate("Notes")));
 		addUL(license, Translator.translate("TCRRCompliance") + Translator.translate("AtTimeOfRelease"),

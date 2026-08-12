@@ -11,6 +11,12 @@ ol {
     margin-block: 1em;
 }
 
+.homeInstructions ul,
+.homeInstructions + ul {
+    list-style-position: outside;
+    padding-inline-start: 1.2em;
+}
+
 /* hide the keyboard focus ring in the grids - do NOT remove the cell content (display:none collapses the cell)
    Use outline/box-shadow removal so layout stays intact while the focus ring is hidden. */
 vaadin-grid::part(focused-cell) {
