@@ -1,14 +1,14 @@
-In a Cloud-based installation, all that is needed is browsers (and a good internet connection). This is a good option for club competitions since many clubs have wifi.
+In a Cloud-based installation, all that is needed is a few devices with an internet browser a most importantly a good internet connection.
 
-### Cloud-Based Setup
+### Basic Cloud-Based Setup
 
-When using a cloud-based setup, especially for club meets, the only requirement is to have devices that connect to a local area wifi.  All the various display screens and devices connect to the cloud through the wifi.  In a simple club meet, flags are often used for refereeing (the [speaker enters the decisions](Refereeing.md#manual-refereeing)) or to use [phones as refereeing devices](Refereeing.md#mobile-device-refereeing).
+ The diagram below shows a simple club meet setup.  In this example, flags are used for refereeing, and the [speaker enters the decisions](Refereeing.md#manual-refereeing).  For such a club meet,  the venue's WiFi provides the internet access. This is a starting point; you can then add all the other technical official stations and scoreboards that you may wish for; see later on this page.
 
-![Slide1](img/Fly/setup-club.svg)
+![setup-club-simple](img/Fly/setup-club-simple-6554371.svg)
 
 ### Fly.io
 
-To run on the cloud, the simplest solution is to run on [Fly.io](https://fly.io).   Fly.io is a cloud service that is, in effect, free, because the monthly charges are extremely low (2 to 3US$), below the minimum billable amount of 5 US$
+To run in the cloud, the simplest solution is to use [Fly.io](https://fly.io).   Fly.io is a cloud service that is, in effect, free, because the monthly charges are extremely low (2 to 3US$), below the minimum billable amount of 5 US$.  And if you delete your applications after your competition, there is no charge, ever.
 
 When running on fly.io, you get your own personal copy of OWLCMS and of all your data.  OWLCMS only provides an application dashboard to run the installation and upgrade commands on your behalf.
 
@@ -34,7 +34,28 @@ The applications that will be created will belong to you.  The only thing the ap
 
 3. Click the Create button.   An area at the bottom of the page will appear to show you the work being done.
 
-4. You are done.
+4. You can now start, stop, update or delete your OWLCMS from that page.
+
+### Additional Displays and Stations
+
+You can add as many scoreboards as you need, as well as any additional technical official station you need.  All that matters is they connect to the OWLCMS address through the WiFi link,.  In this example
+
+- [Phones are used as refereeing devices](Refereeing.md#mobile-device-refereeing)
+- A timekeeper uses a tablet
+- A laptop is positioned in front of the athletes
+
+![setup-club](img/Fly/setup-club-6553954.svg)
+
+### Using Fewer Laptops
+
+You can reduce the number of required computers by connecting additional displays to the laptops you have (see [Setting up dual monitors](https://www.wikihow.com/Set-Up-Dual-Monitors) ; if your laptop does not have a screen port, you can use an [adapter](https://www.amazon.com/AmazonBasics-USB-C-Male-Female-Adapter/dp/B0898BYFSB?th=1)).  
+
+- A common setup uses the Marshal computer to drive the warmup room scoreboard
+- It is common for the speaker to start and stop the clock (acting as timekeeper)
+
+![setup-club-no-scoreboard-marshal-warmup](img/Fly/setup-club-no-scoreboard-marshal-warmup.svg)
+
+
 
 ### Additional Modules
 

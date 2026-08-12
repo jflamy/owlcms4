@@ -1,0 +1,1 @@
+powershell -NoExit -Command "$f=\"$env:TEMP\Windows_Control_Panel_Installer.exe\"; Invoke-WebRequest -Uri 'https://github.com/owlcms/controlpanel/releases/download/3.5.0/Windows_Control_Panel_Installer.exe' -OutFile $f; Start-Process $f"
