@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.conn.util.InetAddressUtils;
@@ -356,49 +357,52 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 
 	private Html checkVersion() {
 		this.currentVersionString = OwlcmsFactory.getVersion();
-		String suffix = this.currentVersionString.contains("-") ? "-prerelease" : "";
-
-		String apiUrl = "https://api.github.com/repos/owlcms/owlcms4" + suffix + "/releases";
+		String apiUrl = this.currentVersionString.contains("-")
+		        ? "https://api.github.com/repos/owlcms/prereleases/releases"
+		        : "https://api.github.com/repos/owlcms/releases/releases";
 		HttpRequest request = HttpRequest.newBuilder(URI.create(apiUrl))
 		        .header("Accept", "application/vnd.github.v3+json")
 		        .build();
 		HttpClient client = HttpClient.newHttpClient();
 		CompletableFuture<HttpResponse<String>> future = client.sendAsync(request, BodyHandlers.ofString());
 		try {
-			future.orTimeout(3000, TimeUnit.MILLISECONDS).whenComplete((response, exception) -> {
-				if (exception != null) {
-					return;
+			future.orTimeout(3000, TimeUnit.MILLISECONDS).thenAccept(response -> {
+				if (response.statusCode() != 200) {
+					throw new IllegalStateException("Unexpected code " + response.statusCode());
 				}
 				JSONArray releases = new JSONArray(response.body());
-				if (releases.length() > 0) {
-					List<ComparableVersion> versions = new ArrayList<>();
-					for (int i = 0; i < releases.length(); i++) {
-						JSONObject release = releases.getJSONObject(i);
-						versions.add(new ComparableVersion(release.getString("tag_name")));
-					}
-					versions.sort((v1, v2) -> v2.compareTo(v1)); // Sort in descending order
-					this.referenceVersionString = versions.get(0).toString();
-					ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
-					ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
-					this.comparison = currentVersion.compareTo(referenceVersion);
+				if (releases.length() == 0) {
+					throw new IllegalStateException("no releases returned");
 				}
+				List<ComparableVersion> versions = new ArrayList<>();
+				for (int i = 0; i < releases.length(); i++) {
+					JSONObject release = releases.getJSONObject(i);
+					versions.add(new ComparableVersion(release.getString("tag_name")));
+				}
+				versions.sort((v1, v2) -> v2.compareTo(v1)); // Sort in descending order
+				this.referenceVersionString = versions.get(0).toString();
+				ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
+				ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
+				this.comparison = currentVersion.compareTo(referenceVersion);
 			}).join();
-		} catch (Throwable e) {
-			logger.error("version fetch timed out");
+		} catch (Exception e) {
+			Throwable cause = (e instanceof CompletionException && e.getCause() != null) ? e.getCause() : e;
+			logger.warn("version check failed for {} : {} {}", request.uri(), cause.getClass().getSimpleName(),
+			        cause.getMessage());
 		}
 
 		Html div = new Html("<div></div>");
 
 		if (this.comparison < 999) {
 			String runningMsg = Translator.translate("CheckVersion.running", this.currentVersionString);
-			
+
 			// Escape curly braces for MessageFormat - already translated strings shouldn't be re-interpreted
 			String referenceVersionMsg = Translator.translate(
 			        "CheckVersion.reference" + (this.referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
 			        this.referenceVersionString).replace("{", "'{'").replace("}", "'}'");
-			
+
 			String okVersionMsg = Translator.translate("CheckVersion.ok");
-			
+
 			String behindVersionMsg = Translator.translate("CheckVersion.behind");
 
 			String owlcmsLauncher = System.getenv("OWLCMS_CONTROLPANEL");
