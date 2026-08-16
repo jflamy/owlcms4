@@ -10,6 +10,17 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta05: Athlete Timer on technical official stations (speaker, timekeeper, marshal, etc.) redone to fix intermittent missed starts on MQTT events
+
+- 68.0.0-beta05: Fix for missed declaration deadline not signaled after resetting a two-minute clock
+
+- 68.0.0-beta05: Fix to correctly disable legacy HTTP event-forwarder when the URL is cleared
+
+- 68.0.0-beta05: For developers, improved application shutdown when its launcher is killed by the IDE
+
+- 68.0.0-beta05: Administrator tools to selectively repair athlete birth dates due to time zone issues
+  - Add one day, or move dates to January 1 of the following year
+
 - 68.0.0-beta04: If feature toggle `trackerExtra` is enabled, then the OWLCMS_REMOTE and OWLCMS_VIDEODATA environment variables are considered as additions instead of overrides
   - This allows the environment variables to be treated as connections 3 and 4.
   - When there are duplicates destinations, the last password seen wins according to the order publicresults, videodata, OWLCMS_REMOTE, OWLCMS_VIDEODATA
