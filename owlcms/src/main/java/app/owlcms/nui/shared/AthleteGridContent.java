@@ -70,9 +70,9 @@ import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.SoundParametersReader;
-import app.owlcms.components.elements.AthleteTimerElement;
 import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.JuryDisplayDecisionElement;
+import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.components.elements.TimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
@@ -269,6 +269,7 @@ public abstract class AthleteGridContent extends BaseContent
 	protected Button startTimeButton;
 	protected Button stopTimeButton;
 	protected TimerElement timer;
+	protected PassiveTimerElement passiveTimer;
 	/**
 	 * Top part content
 	 */
@@ -427,16 +428,7 @@ public abstract class AthleteGridContent extends BaseContent
 		this.attempt.getElement().setAttribute("data-testid", "current-athlete-attempt");
 		this.weight = new H2();
 		this.weight.setText("");
-		if (this.timer == null) {
-			this.timer = new AthleteTimerElement(this);
-		}
-		// FOP may not be available yet during init; will be set in syncWithFop()/createTopBar()
-		FieldOfPlay fop = getFop();
-		if (fop != null) {
-			this.timer.setFop(fop);
-		}
-		this.timer.setSilenced(this.isSilenced());
-		H1 time = new H1(this.timer);
+		H1 time = new H1(createPassiveAthleteTimer());
 		clearVerticalMargins(this.attempt);
 		clearVerticalMargins(time);
 		clearVerticalMargins(this.weight);
@@ -864,8 +856,10 @@ public abstract class AthleteGridContent extends BaseContent
 		if (this.stopTimeButton == null) {
 			return;
 		}
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(),
-		        () -> buttonsTimeStopped());
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(), () -> {
+			buttonsTimeStopped();
+			passiveTimerDisplay(e.getTimeRemaining());
+		});
 	}
 
 	@Subscribe
@@ -888,8 +882,10 @@ public abstract class AthleteGridContent extends BaseContent
 		if (this.stopTimeButton == null) {
 			return;
 		}
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(),
-		        () -> buttonsTimeStarted());
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(), () -> {
+			buttonsTimeStarted();
+			passiveTimerStart(e.getTimeRemaining(), e.getStart(), e.isServerSound());
+		});
 	}
 
 	@Subscribe
@@ -900,8 +896,10 @@ public abstract class AthleteGridContent extends BaseContent
 		if (this.stopTimeButton == null) {
 			return;
 		}
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(),
-		        () -> buttonsTimeStopped());
+		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(), () -> {
+			buttonsTimeStopped();
+			passiveTimerPause(e.getTimeRemaining());
+		});
 	}
 
 	@Subscribe
@@ -925,6 +923,9 @@ public abstract class AthleteGridContent extends BaseContent
 			}
 			warnOthersIfCurrent(e, athlete, fop);
 			doUpdateTopBar(athlete, e.getTimeAllowed());
+			if (e.isTimerStateValid()) {
+				passiveTimerApplyState(e.isTimerShouldRun(), e.getTimerMillisRemaining());
+			}
 		});
 	}
 
@@ -1206,12 +1207,7 @@ public abstract class AthleteGridContent extends BaseContent
 		this.attempt.getElement().setAttribute("data-testid", "current-athlete-attempt");
 		this.weight = new H2();
 		this.weight.setText("");
-		if (this.timer == null) {
-			this.timer = new AthleteTimerElement(this);
-		}
-		this.timer.setFop(getFop());
-		this.timer.setSilenced(this.isSilenced());
-		H1 time = new H1(this.timer);
+		H1 time = new H1(createPassiveAthleteTimer());
 		clearVerticalMargins(this.attempt);
 		clearVerticalMargins(time);
 		clearVerticalMargins(this.weight);
@@ -1305,6 +1301,7 @@ public abstract class AthleteGridContent extends BaseContent
 			        if (this.timer != null) {
 				        this.timer.setSilenced(this.isSilenced());
 			        }
+			        updatePassiveTimerSoundMode();
 		        });
 		subItemSoundOn.setCheckable(true);
 		subItemSoundOn.setChecked(!this.isSilenced());
@@ -1366,10 +1363,12 @@ public abstract class AthleteGridContent extends BaseContent
 
 	protected void do1Minute() {
 		getFop().fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerOneMinute, this.getOrigin()));
+		passiveTimerDisplay(Competition.athleteTimerOneMinute);
 	}
 
 	protected void do2Minutes() {
 		getFop().fopEventPost(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this.getOrigin()));
+		passiveTimerDisplay(Competition.athleteTimerTwoMinutes);
 	}
 
 	/**
@@ -1533,11 +1532,14 @@ public abstract class AthleteGridContent extends BaseContent
 	protected void doStartTime() {
 		long now = System.currentTimeMillis();
 		long timeElapsed = now - this.previousStartMillis;
-		boolean running = getFop().getAthleteTimer().isRunning();
+		IProxyTimer athleteTimer = getFop().getAthleteTimer();
+		boolean running = athleteTimer.isRunning();
 		if (timeElapsed > 100 && !running) {
+			int milliseconds = athleteTimer.getTimeRemaining();
 			logger.debug("clock start {}ms running={}", timeElapsed, running);
 			getFop().fopEventPost(new FOPEvent.TimeStarted(this.getOrigin()));
 			buttonsTimeStarted();
+			passiveTimerStart(milliseconds, now, getFop().isEmitSoundsOnServer());
 		} else {
 			logger.debug("discarding duplicate clock start {}ms running={}", timeElapsed, running);
 		}
@@ -1552,6 +1554,7 @@ public abstract class AthleteGridContent extends BaseContent
 			logger.debug("clock stop {}ms running={}", timeElapsed, running);
 			getFop().fopEventPost(new FOPEvent.TimeStopped(this.getOrigin()));
 			buttonsTimeStopped();
+			passiveTimerPause(getFop().getAthleteTimer().getTimeRemainingAtLastStop());
 		} else {
 			logger.debug("discarding duplicate clock stop {}ms running={}", timeElapsed, running);
 		}
@@ -1570,6 +1573,74 @@ public abstract class AthleteGridContent extends BaseContent
 			}
 		}
 		this.previousToggleMillis = now;
+	}
+
+	protected PassiveTimerElement createPassiveAthleteTimer() {
+		if (this.passiveTimer == null) {
+			this.passiveTimer = new PassiveTimerElement();
+			this.passiveTimer.setWarningThresholds(
+			        Competition.athleteTimerInitialWarning / 1000.0D,
+			        Competition.athleteTimerFinalWarning / 1000.0D);
+			this.passiveTimer.setSoundUrls(
+			        "../local/sounds/" + Competition.athleteTimerInitialWarningSound + ".mp3",
+			        "../local/sounds/" + Competition.athleteTimerFinalWarningSound + ".mp3",
+			        "../local/sounds/" + Competition.athleteTimerTimeOverSound + ".mp3");
+		}
+		updatePassiveTimerSoundMode();
+		syncPassiveTimerWithFop();
+		return this.passiveTimer;
+	}
+
+	protected void updatePassiveTimerSoundMode() {
+		if (this.passiveTimer == null) {
+			return;
+		}
+		FieldOfPlay fop = getFop();
+		this.passiveTimer.setSilent(this.isSilenced() || (fop != null && fop.isEmitSoundsOnServer()));
+	}
+
+	private void passiveTimerApplyState(boolean running, Integer milliseconds) {
+		if (this.passiveTimer == null) {
+			return;
+		}
+		updatePassiveTimerSoundMode();
+		this.passiveTimer.applyState(running, milliseconds);
+	}
+
+	private void passiveTimerDisplay(Integer milliseconds) {
+		if (this.passiveTimer != null) {
+			this.passiveTimer.display(milliseconds);
+		}
+	}
+
+	private void passiveTimerPause(Integer milliseconds) {
+		if (this.passiveTimer != null) {
+			this.passiveTimer.pause(milliseconds);
+		}
+	}
+
+	private void passiveTimerStart(Integer milliseconds, long issuedAtMillis, boolean serverSound) {
+		if (this.passiveTimer == null) {
+			return;
+		}
+		this.passiveTimer.setSilent(this.isSilenced() || serverSound);
+		this.passiveTimer.start(milliseconds, issuedAtMillis);
+	}
+
+	private void syncPassiveTimerWithFop() {
+		if (this.passiveTimer == null || getFop() == null) {
+			return;
+		}
+		IProxyTimer athleteTimer = getFop().getAthleteTimer();
+		if (athleteTimer == null) {
+			return;
+		}
+		if (athleteTimer.isRunning()) {
+			passiveTimerStart(athleteTimer.liveTimeRemaining(), System.currentTimeMillis(),
+			        getFop().isEmitSoundsOnServer());
+		} else {
+			passiveTimerDisplay(athleteTimer.getTimeRemaining());
+		}
 	}
 
 	protected void doUpdateTopBar(Athlete athlete, Integer timeAllowed) {
@@ -1607,7 +1678,7 @@ public abstract class AthleteGridContent extends BaseContent
 						this.startNumber.setVisible(true);
 						this.startNumber.getStyle().set("font-size", "smaller");
 					}
-					this.timer.getElement().getStyle().set("visibility", "visible");
+					getAthleteTimerComponent().getElement().getStyle().set("visibility", "visible");
 					this.attempt.setText(formatAttemptNumber(athlete));
 					Integer nextAttemptRequestedWeight = athlete.getNextAttemptRequestedWeight();
 					this.weight.setText(
@@ -1928,12 +1999,19 @@ public abstract class AthleteGridContent extends BaseContent
 	private void topBarMessage(String string, String text) {
 		this.lastName.setText(text);
 		this.firstName.setText("");
-		this.timer.getElement().getStyle().set("visibility", "hidden");
+		Component athleteTimerComponent = getAthleteTimerComponent();
+		if (athleteTimerComponent != null) {
+			athleteTimerComponent.getElement().getStyle().set("visibility", "hidden");
+		}
 		this.attempt.setText("");
 		this.weight.setText("");
 		if (this.warning != null) {
 			this.warning.setText(string);
 		}
+	}
+
+	private Component getAthleteTimerComponent() {
+		return this.passiveTimer != null ? this.passiveTimer : this.timer;
 	}
 
 	/**

@@ -50,7 +50,7 @@ import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.components.GroupSelectionMenu;
-import app.owlcms.components.elements.AthleteTimerElement;
+import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
@@ -801,12 +801,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.weight = new H2();
 		this.weight.setText("");
 		this.weight.getElement().setAttribute("data-testid", "current-athlete-weight");
-		if (this.timer == null) {
-			this.timer = new AthleteTimerElement(this);
-		}
-		this.timer.setFop(getFop());
-		this.timer.setSilenced(this.isSilenced());
-		H1 time = new H1(this.timer);
+		PassiveTimerElement passiveTimer = createPassiveAthleteTimer();
+		H1 time = new H1(passiveTimer);
 		clearVerticalMargins(this.attempt);
 		clearVerticalMargins(time);
 		clearVerticalMargins(this.weight);
@@ -888,6 +884,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			        if (this.timer != null) {
 				        this.timer.setSilenced(this.isSilenced());
 			        }
+			        updatePassiveTimerSoundMode();
 		        });
 		subItemSoundOn.setCheckable(true);
 		subItemSoundOn.setChecked(!this.isSilenced());
