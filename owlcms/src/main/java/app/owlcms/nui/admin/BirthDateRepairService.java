@@ -37,7 +37,7 @@ final class BirthDateRepairService {
 		});
 	}
 
-	static BirthDateRepairResult apply(Set<Long> skippedAthleteIds, String clientIp) {
+	static BirthDateRepairResult apply(Set<Long> selectedAthleteIds, String clientIp) {
 		BirthDateRepairResult result = JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = em.createQuery(
 			        "select a from Athlete a where a.fullBirthDate is not null",
@@ -47,7 +47,7 @@ final class BirthDateRepairService {
 			int jan1Count = 0;
 			int dec31Count = 0;
 			int updatedCount = 0;
-			int skippedCount = 0;
+			int unselectedCount = 0;
 			for (Athlete athlete : athletes) {
 				LocalDate currentBirthDate = athlete.getFullBirthDate();
 				if (isJan1(currentBirthDate)) {
@@ -56,20 +56,24 @@ final class BirthDateRepairService {
 				if (isDec31(currentBirthDate)) {
 					dec31Count++;
 				}
-				if (skippedAthleteIds.contains(athlete.getId())) {
-					skippedCount++;
+				if (!selectedAthleteIds.contains(athlete.getId())) {
+					unselectedCount++;
 					continue;
 				}
-				athlete.setFullBirthDate(currentBirthDate.plusDays(1));
+				athlete.setFullBirthDate(repairedBirthDate(currentBirthDate));
 				updatedCount++;
 			}
 
-			return new BirthDateRepairResult(updatedCount, skippedCount, jan1Count, dec31Count);
+			return new BirthDateRepairResult(updatedCount, unselectedCount, jan1Count, dec31Count);
 		});
-		logger.warn(
+		logger./**/warn(
 		        "Emergency birth-date repair applied: added one day to {} Athlete.fullBirthDate values; skipped: {}; Jan 1 before repair: {}; Dec 31 before repair: {}; clientIp={}",
-		        result.getUpdatedCount(), result.getSkippedCount(), result.getJan1Count(), result.getDec31Count(), clientIp);
+		        result.getUpdatedCount(), result.getUnselectedCount(), result.getJan1Count(), result.getDec31Count(), clientIp);
 		return result;
+	}
+
+	static LocalDate repairedBirthDate(LocalDate currentBirthDate) {
+		return currentBirthDate.plusDays(1);
 	}
 
 	private static String sortKey(String value) {
@@ -114,13 +118,13 @@ final class BirthDateRepairService {
 
 	static final class BirthDateRepairResult {
 		private final int updatedCount;
-		private final int skippedCount;
+		private final int unselectedCount;
 		private final int jan1Count;
 		private final int dec31Count;
 
-		BirthDateRepairResult(int updatedCount, int skippedCount, int jan1Count, int dec31Count) {
+		BirthDateRepairResult(int updatedCount, int unselectedCount, int jan1Count, int dec31Count) {
 			this.updatedCount = updatedCount;
-			this.skippedCount = skippedCount;
+			this.unselectedCount = unselectedCount;
 			this.jan1Count = jan1Count;
 			this.dec31Count = dec31Count;
 		}
@@ -129,8 +133,8 @@ final class BirthDateRepairService {
 			return this.updatedCount;
 		}
 
-		int getSkippedCount() {
-			return this.skippedCount;
+		int getUnselectedCount() {
+			return this.unselectedCount;
 		}
 
 		int getJan1Count() {
@@ -156,7 +160,7 @@ final class BirthDateRepairService {
 			this.lastName = athlete.getLastName();
 			this.firstName = athlete.getFirstName();
 			this.currentBirthDate = athlete.getFullBirthDate();
-			this.repairedBirthDate = this.currentBirthDate.plusDays(1);
+			this.repairedBirthDate = BirthDateRepairService.repairedBirthDate(this.currentBirthDate);
 		}
 
 		Long getId() {

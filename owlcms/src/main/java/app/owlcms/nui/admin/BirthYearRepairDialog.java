@@ -14,20 +14,20 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import app.owlcms.apputils.AccessUtils;
 import app.owlcms.components.ConfirmationDialog;
-import app.owlcms.nui.admin.BirthDateRepairService.BirthDateRepairPreview;
-import app.owlcms.nui.admin.BirthDateRepairService.BirthDateRepairResult;
-import app.owlcms.nui.admin.BirthDateRepairService.BirthDateRepairRow;
+import app.owlcms.nui.admin.BirthYearRepairService.BirthYearRepairPreview;
+import app.owlcms.nui.admin.BirthYearRepairService.BirthYearRepairResult;
+import app.owlcms.nui.admin.BirthYearRepairService.BirthYearRepairRow;
 
 @SuppressWarnings("serial")
-final class BirthDateRepairDialog extends Dialog {
+final class BirthYearRepairDialog extends Dialog {
 
-	BirthDateRepairDialog(Button repairButton) {
-		BirthDateRepairPreview preview = BirthDateRepairService.preview();
+	BirthYearRepairDialog(Button repairButton) {
+		BirthYearRepairPreview preview = BirthYearRepairService.preview();
 		Set<Long> selectedAthleteIds = new HashSet<>();
-		preview.getRows().stream().map(BirthDateRepairRow::getId).forEach(selectedAthleteIds::add);
+		preview.getRows().stream().map(BirthYearRepairRow::getId).forEach(selectedAthleteIds::add);
 		Span selectedSummary = new Span();
 
-		setHeaderTitle("Repair Birth Dates");
+		setHeaderTitle("Repair Birth Years");
 		setWidth("72em");
 		setMaxWidth("calc(100vw - 2rem)");
 		setCloseOnEsc(true);
@@ -41,32 +41,32 @@ final class BirthDateRepairDialog extends Dialog {
 		content.add(warningText());
 		content.add(summary(preview, selectedSummary));
 
-		Grid<BirthDateRepairRow> reviewGrid = baseGrid(preview);
+		Grid<BirthYearRepairRow> reviewGrid = baseGrid(preview);
 		reviewGrid.asMultiSelect().addSelectionListener(event -> {
 			selectedAthleteIds.clear();
 			event.getAllSelectedItems().stream()
-			        .map(BirthDateRepairRow::getId)
+			        .map(BirthYearRepairRow::getId)
 			        .forEach(selectedAthleteIds::add);
 			updateSelectedSummary(selectedSummary, selectedAthleteIds.size(), preview.getTotalCount());
 		});
 		selectAll(reviewGrid, preview);
 		content.add(reviewGrid);
 
-		Button cancel = new Button("Cancel", event -> close());
 		Button selectAll = new Button("Select All", event -> selectAll(reviewGrid, preview));
+		Button cancel = new Button("Cancel", event -> close());
 		Button apply = new Button("Apply Repair", event -> {
 			ConfirmationDialog confirmationDialog = new ConfirmationDialog(
-			        "Apply Birth Date Repair",
+			        "Apply Birth Year Repair",
 			        confirmationQuestion(preview, selectedAthleteIds.size()),
 			        "Apply Repair",
 			        null,
 			        null,
 			        () -> {
-				        BirthDateRepairResult result = BirthDateRepairService.apply(Set.copyOf(selectedAthleteIds),
+				        BirthYearRepairResult result = BirthYearRepairService.apply(Set.copyOf(selectedAthleteIds),
 				                AccessUtils.getClientIp());
 				        repairButton.setEnabled(false);
 				        removeAll();
-				        setHeaderTitle("Birth Date Repair Applied");
+				        setHeaderTitle("Birth Year Repair Applied");
 				        add(successContent(result));
 			        });
 			confirmationDialog.open();
@@ -87,24 +87,23 @@ final class BirthDateRepairDialog extends Dialog {
 		warning.setPadding(false);
 		warning.setSpacing(false);
 
-		warning.add(new Paragraph("This emergency action adds one day to every selected athlete birth date."));
 		warning.add(new Paragraph(
-		        "Use it only when all selected birth dates are known to be one day too early."));
+		        "This emergency action adds one year to every selected athlete and stores January 1 of the following year."));
 		warning.add(new Paragraph(
-		        "This action cannot distinguish incorrect dates from correct dates. Review the full selection before applying."));
+		        "Existing month and day information will be permanently discarded. This action cannot distinguish incorrect dates from correct dates."));
+		warning.add(new Paragraph(
+		        "Use it only once when all selected birth years are known to be one year too low."));
 		warning.add(new Paragraph("Export or back up the database before continuing."));
 
 		warning.getStyle().set("color", "var(--lumo-error-text-color)");
 		return warning;
 	}
 
-	private VerticalLayout summary(BirthDateRepairPreview preview, Span selectedSummary) {
+	private VerticalLayout summary(BirthYearRepairPreview preview, Span selectedSummary) {
 		VerticalLayout summary = new VerticalLayout();
 		summary.setPadding(false);
 		summary.setSpacing(false);
 		summary.add(new Span("Athletes with birth dates: " + preview.getTotalCount()));
-		summary.add(new Span("January 1: " + preview.getJan1Count()));
-		summary.add(new Span("December 31: " + preview.getDec31Count()));
 		updateSelectedSummary(selectedSummary, preview.getTotalCount(), preview.getTotalCount());
 		summary.add(selectedSummary);
 		return summary;
@@ -114,39 +113,38 @@ final class BirthDateRepairDialog extends Dialog {
 		selectedSummary.setText("Selected athletes: " + selectedCount + " / " + totalCount);
 	}
 
-	private void selectAll(Grid<BirthDateRepairRow> grid, BirthDateRepairPreview preview) {
-		grid.asMultiSelect().select(preview.getRows().toArray(BirthDateRepairRow[]::new));
+	private void selectAll(Grid<BirthYearRepairRow> grid, BirthYearRepairPreview preview) {
+		grid.asMultiSelect().select(preview.getRows().toArray(BirthYearRepairRow[]::new));
 	}
 
-	private Grid<BirthDateRepairRow> baseGrid(BirthDateRepairPreview preview) {
-		Grid<BirthDateRepairRow> grid = new Grid<>(BirthDateRepairRow.class, false);
+	private Grid<BirthYearRepairRow> baseGrid(BirthYearRepairPreview preview) {
+		Grid<BirthYearRepairRow> grid = new Grid<>(BirthYearRepairRow.class, false);
 		grid.setSelectionMode(Grid.SelectionMode.MULTI);
-		grid.addColumn(BirthDateRepairRow::getId).setHeader("ID").setAutoWidth(true).setFlexGrow(0);
-		grid.addColumn(BirthDateRepairRow::getLotNumber).setHeader("Lot").setAutoWidth(true).setFlexGrow(0);
-		grid.addColumn(BirthDateRepairRow::getLastName).setHeader("Last Name").setAutoWidth(true);
-		grid.addColumn(BirthDateRepairRow::getFirstName).setHeader("First Name").setAutoWidth(true);
-		grid.addColumn(BirthDateRepairRow::getCurrentBirthDate).setHeader("Current DOB").setAutoWidth(true);
-		grid.addColumn(BirthDateRepairRow::getRepairedBirthDate).setHeader("After Repair").setAutoWidth(true);
+		grid.addColumn(BirthYearRepairRow::getId).setHeader("ID").setAutoWidth(true).setFlexGrow(0);
+		grid.addColumn(BirthYearRepairRow::getLotNumber).setHeader("Lot").setAutoWidth(true).setFlexGrow(0);
+		grid.addColumn(BirthYearRepairRow::getLastName).setHeader("Last Name").setAutoWidth(true);
+		grid.addColumn(BirthYearRepairRow::getFirstName).setHeader("First Name").setAutoWidth(true);
+		grid.addColumn(BirthYearRepairRow::getCurrentBirthDate).setHeader("Current DOB").setAutoWidth(true);
+		grid.addColumn(BirthYearRepairRow::getRepairedBirthDate).setHeader("After Repair").setAutoWidth(true);
 		grid.setItems(preview.getRows());
 		grid.setHeight("32em");
 		grid.getThemeNames().add("row-stripes");
 		return grid;
 	}
 
-	private String confirmationQuestion(BirthDateRepairPreview preview, int selectedCount) {
-		return "This will add one day to " + selectedCount
-		        + " athlete birth dates.<br><br>Unselected athletes: " + (preview.getTotalCount() - selectedCount)
+	private String confirmationQuestion(BirthYearRepairPreview preview, int selectedCount) {
+		return "This will move " + selectedCount
+		        + " athlete birth dates to January 1 of the following year.<br><br>Unselected athletes: "
+		        + (preview.getTotalCount() - selectedCount)
 		        + "<br><br>Export or back up the database before continuing.";
 	}
 
-	private VerticalLayout successContent(BirthDateRepairResult result) {
+	private VerticalLayout successContent(BirthYearRepairResult result) {
 		VerticalLayout content = new VerticalLayout();
 		content.setPadding(false);
 		content.setSpacing(true);
 		content.add(new Paragraph("Updated athletes: " + result.getUpdatedCount()));
 		content.add(new Paragraph("Unselected athletes: " + result.getUnselectedCount()));
-		content.add(new Paragraph("January 1 before repair: " + result.getJan1Count()));
-		content.add(new Paragraph("December 31 before repair: " + result.getDec31Count()));
 		content.add(new Button("Close", event -> close()));
 		return content;
 	}
