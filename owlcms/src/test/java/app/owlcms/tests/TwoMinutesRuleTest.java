@@ -8,6 +8,7 @@ package app.owlcms.tests;
 
 import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +25,9 @@ import app.owlcms.Main;
 import app.owlcms.apputils.DebugUtils;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
+import app.owlcms.data.athlete.RuleViolationException;
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
@@ -92,6 +95,32 @@ public class TwoMinutesRuleTest {
         EventBus fopBus = fopState.getFopEventBus();
 
         doLiftSequence4(fopState, fopBus, logger);
+    }
+
+    @Test
+    public void twoMinuteResetKeepsDeclarationDeadline() {
+        FieldOfPlay fopState = OwlcmsSession.getFop();
+        EventBus fopBus = fopState.getFopEventBus();
+        testPrepState4(fopState, fopBus, logger);
+        fopBus.post(new FOPEvent.SwitchGroup(fopState.getGroup(), this));
+        fopBus.post(new FOPEvent.StartLifting(this));
+
+        Athlete athlete = fopState.getCurAthlete();
+        successfulLift(fopBus, athlete, fopState);
+
+        athlete = fopState.getCurAthlete();
+        assertEquals(Competition.athleteTimerTwoMinutes, fopState.getTimeAllowed());
+        fopBus.post(new FOPEvent.TimeStarted(this));
+        fopBus.post(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this));
+        fopState.getAthleteTimer().setTimeRemaining(35_000, false);
+        athlete.setCheckTiming(true);
+
+        try {
+            declaration(athlete, "62", fopBus);
+            fail("late declaration was accepted after resetting the two-minute clock");
+        } catch (RuleViolationException.LateDeclaration expected) {
+            // expected
+        }
     }
 
     @Before

@@ -2091,9 +2091,6 @@ public class FieldOfPlay implements IUnregister {
 		getAthleteTimer().setTimeRemaining(ta, false);
 		setClockOwnerInitialTimeAllowed(ta);
 		setForcedTime(true);
-		// Reset clock owner so setupForDecisionWithoutClock will properly initialize
-		// when decisions arrive without the clock being started
-		setClockOwner(null);
 		setState(CURRENT_ATHLETE_DISPLAYED);
 	}
 
