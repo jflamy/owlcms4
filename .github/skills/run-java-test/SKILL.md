@@ -43,8 +43,12 @@ plain JUnit classes and the `AllTests` wildcard suite.
    code -r /absolute/path/to/SomeTest.java
    ```
 
-   Use `-r` (reuse window). Do not use the `vscode.open` command via
-   `run_vscode_command` — it fails in the agent tool context.
+  Use `-r` (reuse window). Run this one command outside the terminal sandbox.
+  On macOS, the sandboxed CLI emits an Electron `SecCodeCheckValidity` warning
+  and may not activate the editor; `open -a "Visual Studio Code"` also fails
+  with `procNotFound`. Unsandboxing only `code -r` restores normal process and
+  editor IPC access. Do not use the `vscode.open` command via
+  `run_vscode_command` — it fails in the agent tool context.
 
 2. Run the Java Test Runner command on the current file:
 

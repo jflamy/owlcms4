@@ -70,13 +70,22 @@ public class AdminView extends Composite<VerticalLayout> implements HasDynamicTi
 			BirthDateRepairDialog dialog = new BirthDateRepairDialog(event.getSource());
 			dialog.open();
 		});
-		Span repairBirthDatesNote = new Span(
-		        "Repair dates that were set in the past (previous day or previous year) during the registration process");
+		Span repairBirthDatesNote = new Span("Add one day to selected athlete birth dates");
 		repairBirthDatesNote.getStyle().set("color", "var(--lumo-secondary-text-color)");
 		HorizontalLayout repairBirthDatesAction = new HorizontalLayout(repairBirthDates, repairBirthDatesNote);
 		repairBirthDatesAction.setAlignItems(FlexComponent.Alignment.CENTER);
+		Button repairBirthYears = new Button("Repair Birth Years", event -> {
+			BirthYearRepairDialog dialog = new BirthYearRepairDialog(event.getSource());
+			dialog.open();
+		});
+		Span repairBirthYearsNote = new Span(
+		        "Move selected birth dates to January 1 of the following year");
+		repairBirthYearsNote.getStyle().set("color", "var(--lumo-secondary-text-color)");
+		HorizontalLayout repairBirthYearsAction = new HorizontalLayout(repairBirthYears, repairBirthYearsNote);
+		repairBirthYearsAction.setAlignItems(FlexComponent.Alignment.CENTER);
 
-		content.add(title, stop, restart, reloadTranslationsAction, separator(), repairBirthDatesAction);
+		content.add(title, stop, restart, reloadTranslationsAction, separator(), repairBirthDatesAction,
+		        repairBirthYearsAction);
 	}
 
 	private Hr separator() {
