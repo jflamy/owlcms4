@@ -68,7 +68,9 @@ abstract class ChampionshipLegacyMigrationSupport {
         Competition.setCurrent(null);
         memoryJdbcUrl = createMemoryJdbcUrl();
         System.setProperty("JDBC_DATABASE_URL", memoryJdbcUrl);
-        fixtureDirectory = Files.createTempDirectory("championship-migration-test-db-");
+        Path testTempDirectory = Path.of("target", "test-temp");
+        Files.createDirectories(testTempDirectory);
+        fixtureDirectory = Files.createTempDirectory(testTempDirectory, "championship-migration-test-db-");
         Path copiedDatabase = fixtureDirectory.resolve(copiedFileName);
         Path scriptFile = fixtureDirectory.resolve(copiedFileName.replaceAll("\\.mv\\.db$", ".sql"));
 

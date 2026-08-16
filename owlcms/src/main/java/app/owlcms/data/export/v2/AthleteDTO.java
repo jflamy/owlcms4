@@ -36,6 +36,7 @@ public class AthleteDTO {
 	private String lastName;
 	private String firstName;
 	private LocalDate fullBirthDate;
+	private String isoBirthDate;
 	private Gender gender;
 	private Double bodyWeight;
 	private Double presumedBodyWeight;
@@ -161,6 +162,7 @@ public class AthleteDTO {
 		dto.setLastName(athlete.getLastName());
 		dto.setFirstName(athlete.getFirstName());
 		dto.setFullBirthDate(athlete.getFullBirthDate());
+		dto.setIsoBirthDate(athlete.getIsoBirthDate());
 		dto.setGender(athlete.getGender());
 		dto.setBodyWeight(athlete.getBodyWeight());
 		dto.setPresumedBodyWeight(athlete.getPresumedBodyWeight());
@@ -298,7 +300,11 @@ public class AthleteDTO {
 		// Basic info
 		athlete.setLastName(this.lastName);
 		athlete.setFirstName(this.firstName);
-		athlete.setFullBirthDate(this.fullBirthDate);
+		if (this.isoBirthDate != null) {
+			athlete.setIsoBirthDate(this.isoBirthDate);
+		} else {
+			athlete.setFullBirthDate(this.fullBirthDate);
+		}
 		athlete.setGender(this.gender);
 		athlete.setBodyWeight(this.bodyWeight);
 		athlete.setPresumedBodyWeight(this.presumedBodyWeight);
@@ -481,6 +487,16 @@ public class AthleteDTO {
 
 	public void setFullBirthDate(LocalDate fullBirthDate) {
 		this.fullBirthDate = fullBirthDate;
+	}
+
+	@JsonProperty("isoBirthDate")
+	public String getIsoBirthDate() {
+		return isoBirthDate;
+	}
+
+	@JsonProperty("isoBirthDate")
+	public void setIsoBirthDate(String isoBirthDate) {
+		this.isoBirthDate = isoBirthDate;
 	}
 
 	public Gender getGender() {

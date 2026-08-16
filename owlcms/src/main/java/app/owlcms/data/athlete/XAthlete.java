@@ -624,6 +624,11 @@ public class XAthlete extends Athlete {
 		return this.a.getFullBirthDate();
 	}
 
+	@Override
+	public String getIsoBirthDate() {
+		return this.a.getIsoBirthDate();
+	}
+
 	/**
 	 * @return
 	 * @see app.owlcms.data.athlete.Athlete#getFullId()
@@ -1719,6 +1724,11 @@ public class XAthlete extends Athlete {
 	@Override
 	public void setFullBirthDate(LocalDate fullBirthDate) {
 		this.a.setFullBirthDate(fullBirthDate);
+	}
+
+	@Override
+	public void setIsoBirthDate(String isoBirthDate) {
+		this.a.setIsoBirthDate(isoBirthDate);
 	}
 
 	/**

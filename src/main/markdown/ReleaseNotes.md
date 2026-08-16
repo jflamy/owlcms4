@@ -10,6 +10,8 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta06: Migrate birth dates to directly readable canonical ISO8601 textual format to avoid interpretation, time zone, and conversion issues.
+
 - 68.0.0-beta05: Athlete Timer on technical official stations (speaker, timekeeper, marshal, etc.) redone to fix intermittent missed starts on MQTT events
 
 - 68.0.0-beta05: Fix for missed declaration deadline not signaled after resetting a two-minute clock

@@ -22,7 +22,7 @@ final class BirthDateRepairService {
 	static BirthDateRepairPreview preview() {
 		return JPAService.runInTransaction(em -> {
 			List<BirthDateRepairRow> rows = em.createQuery(
-			        "select a from Athlete a where a.fullBirthDate is not null",
+			        "select a from Athlete a where a.isoBirthDate is not null",
 			        Athlete.class)
 			        .getResultList()
 			        .stream()
@@ -40,7 +40,7 @@ final class BirthDateRepairService {
 	static BirthDateRepairResult apply(Set<Long> selectedAthleteIds, String clientIp) {
 		BirthDateRepairResult result = JPAService.runInTransaction(em -> {
 			List<Athlete> athletes = em.createQuery(
-			        "select a from Athlete a where a.fullBirthDate is not null",
+			        "select a from Athlete a where a.isoBirthDate is not null",
 			        Athlete.class)
 			        .getResultList();
 
@@ -67,7 +67,7 @@ final class BirthDateRepairService {
 			return new BirthDateRepairResult(updatedCount, unselectedCount, jan1Count, dec31Count);
 		});
 		logger./**/warn(
-		        "Emergency birth-date repair applied: added one day to {} Athlete.fullBirthDate values; skipped: {}; Jan 1 before repair: {}; Dec 31 before repair: {}; clientIp={}",
+		        "Emergency birth-date repair applied: added one day to {} athlete birth-date values; skipped: {}; Jan 1 before repair: {}; Dec 31 before repair: {}; clientIp={}",
 		        result.getUpdatedCount(), result.getUnselectedCount(), result.getJan1Count(), result.getDec31Count(), clientIp);
 		return result;
 	}

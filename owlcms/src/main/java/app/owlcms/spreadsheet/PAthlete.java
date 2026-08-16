@@ -556,6 +556,21 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	@Override
+	public String getIsoBirthDate() {
+		return this.a.getIsoBirthDate();
+	}
+
+	@Override
+	public void setFullBirthDate(LocalDate fullBirthDate) {
+		this.a.setFullBirthDate(fullBirthDate);
+	}
+
+	@Override
+	public void setIsoBirthDate(String isoBirthDate) {
+		this.a.setIsoBirthDate(isoBirthDate);
+	}
+
+	@Override
 	public String getFullId() {
 		return this.a.getFullId();
 	}

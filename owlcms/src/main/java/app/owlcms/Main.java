@@ -38,6 +38,7 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.BenchmarkData;
+import app.owlcms.data.jpa.BirthDateTextMigration;
 import app.owlcms.data.jpa.DemoData;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.jpa.ProdData;
@@ -172,6 +173,7 @@ public class Main {
 
         // Run UTC normalization migration after JPAService and Config are initialized
         JPAService.runInTransaction(em -> {
+            BirthDateTextMigration.migrate(em);
             UtcNormalizationMigration.normalizeAllToUtc(em);
             return null;
         });

@@ -8,6 +8,7 @@
 package app.owlcms.data.athlete;
 
 import java.text.DecimalFormat;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -42,10 +42,12 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import app.owlcms.data.agegroup.AgeGroup;
@@ -64,7 +66,6 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.DisplayGroup;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.jpa.LocalDateAttributeConverter;
 import app.owlcms.data.scoring.AgeFactors;
 import app.owlcms.data.scoring.GAMX2;
 import app.owlcms.data.scoring.QPoints;
@@ -166,7 +167,7 @@ public class Athlete {
 
 			dest.setLastName(src.getLastName());
 			dest.setFirstName(src.getFirstName());
-			dest.setFullBirthDate(src.getFullBirthDate());
+			dest.setIsoBirthDate(src.getIsoBirthDate());
 
 			if (copyChanges) {
 				// System.err./**/println(">> copying bodyweight "+src.getBodyWeight());
@@ -431,8 +432,10 @@ public class Athlete {
 	/** The forced as current. */
 	@Column(columnDefinition = "boolean default false")
 	private boolean forcedAsCurrent = false;
-	@Convert(converter = LocalDateAttributeConverter.class)
-	private LocalDate fullBirthDate = null;
+	private String isoBirthDate;
+	@Transient
+	@JsonIgnore
+	private boolean isoBirthDateImported;
 	@Column(columnDefinition = "integer default 0", name = "gmaxRank")
 	private Integer gamxRank;
 	@Column(columnDefinition = "integer default 0", name = "gamxMRank")
@@ -2125,8 +2128,21 @@ public class Athlete {
 	 *
 	 * @return the fullBirthDate
 	 */
+	@Transient
+	@JsonGetter("fullBirthDate")
 	public LocalDate getFullBirthDate() {
-		return this.fullBirthDate;
+		if (this.isoBirthDate == null) {
+			return null;
+		}
+		if (this.isoBirthDate.length() == 4) {
+			return LocalDate.of(Integer.parseInt(this.isoBirthDate), 1, 1);
+		}
+		return LocalDate.parse(this.isoBirthDate);
+	}
+
+	@JsonGetter("isoBirthDate")
+	public String getIsoBirthDate() {
+		return this.isoBirthDate;
 	}
 
 	@Transient
@@ -3602,11 +3618,11 @@ public class Athlete {
 	 * @return the year of birth
 	 */
 	public Integer getYearOfBirth() {
-		if (this.getFullBirthDate() != null) {
+		if (this.isoBirthDate != null) {
 			// logger.trace(" getYearOfBirth {} {} {}", getFullBirthDate(),
 			// getFullBirthDate().getYear(),
 			// LoggerUtils.whereFrom());
-			return getFullBirthDate().getYear();
+			return Integer.parseInt(this.isoBirthDate.substring(0, 4));
 		} else {
 			return null;
 		}
@@ -4542,10 +4558,47 @@ public class Athlete {
 	 *
 	 * @param fullBirthDate the fullBirthDate to set
 	 */
+	@Transient
+	@JsonIgnore
 	public void setFullBirthDate(LocalDate fullBirthDate) {
 		// logger.trace("setting {} {} {}",getShortName(), fullBirthDate,
 		// LoggerUtils.whereFrom());
-		this.fullBirthDate = fullBirthDate;
+		this.isoBirthDate = fullBirthDate == null ? null : fullBirthDate.toString();
+	}
+
+	@JsonIgnore
+	public void setIsoBirthDate(String isoBirthDate) {
+		if (isoBirthDate == null || isoBirthDate.isBlank()) {
+			this.isoBirthDate = null;
+			return;
+		}
+
+		String normalized = isoBirthDate.trim();
+		if (normalized.matches("\\d{4}")) {
+			this.isoBirthDate = normalized;
+			return;
+		}
+		if (!normalized.matches("\\d{4}-\\d{2}-\\d{2}")) {
+			throw new IllegalArgumentException("Birth date must be YYYY or YYYY-MM-DD");
+		}
+		try {
+			this.isoBirthDate = LocalDate.parse(normalized).toString();
+		} catch (DateTimeException e) {
+			throw new IllegalArgumentException("Birth date must be YYYY or YYYY-MM-DD", e);
+		}
+	}
+
+	@JsonSetter("fullBirthDate")
+	public void importFullBirthDate(LocalDate fullBirthDate) {
+		if (!this.isoBirthDateImported) {
+			setFullBirthDate(fullBirthDate);
+		}
+	}
+
+	@JsonSetter("isoBirthDate")
+	public void importIsoBirthDate(String isoBirthDate) {
+		this.isoBirthDateImported = true;
+		setIsoBirthDate(isoBirthDate);
 	}
 
 	public void setGamxRank(Integer rank) {
@@ -6360,10 +6413,10 @@ public class Athlete {
 
 	private void setFullBirthDateFromYear(Integer yearOfBirth) {
 		if (yearOfBirth != null) {
-			this.setFullBirthDate(LocalDate.of(yearOfBirth, 1, 1));
+			this.setIsoBirthDate(String.format(Locale.ROOT, "%04d", yearOfBirth));
 			// logger.trace("{} {}",yearOfBirth,getFullBirthDate());
 		} else {
-			this.setFullBirthDate(null);
+			this.setIsoBirthDate(null);
 		}
 	}
 
