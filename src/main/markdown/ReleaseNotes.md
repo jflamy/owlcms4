@@ -8,11 +8,25 @@
 
 <br>
 
+**New in Release 67.4**
+
+- 67.4.0: Athlete Timer on technical official stations (speaker, timekeeper, marshal, etc.) redone to fix intermittent missed starts.
+
+- 67.4.0: Fix for missed declaration deadline not signaled after resetting a two-minute clock
+
+- 67.4.0: Fix to correctly disable legacy HTTP event-forwarder when the URL is cleared
+
+- 67.4.0: For developers, improved application shutdown when its launcher is killed by the IDE
+
+- 67.4.0: Administrator tools to selectively repair athlete birth dates due to time zone issues
+  - Add one day, or move dates to January 1 of the following year
+
+
 **New in Release 67.3**
 
- - 67.3.0: Fix for intermittent errors affecting the medals scoreboards
+- 67.3.0: Fix for intermittent errors affecting the medals scoreboards
 
- - 67.3.0: Fix for two doctors in a session (introduction sheets)
+- 67.3.0: Fix for two doctors in a session (introduction sheets)
 
 - 67.3.0: Fix for incomplete deletion of category participations when removing age groups
   - This could lead to a broken export if the cleanups done on category reassingment or restart had not happened
