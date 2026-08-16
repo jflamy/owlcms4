@@ -10,9 +10,8 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
-import tools.jackson.databind.node.ObjectNode;
-
-import app.owlcms.utils.JsonUtils;
+import elemental.json.Json;
+import elemental.json.JsonObject;
 
 /**
  * Parent-driven countdown display with no timer or event-bus ownership.
@@ -79,8 +78,8 @@ public class PassiveTimerElement extends LitTemplate {
 		setTimerCommand("start", milliseconds, issuedAtMillis);
 	}
 
-	private ObjectNode createSettingsPayload() {
-		ObjectNode payload = JsonUtils.object();
+	private JsonObject createSettingsPayload() {
+		JsonObject payload = Json.createObject();
 		payload.put("silent", this.silent);
 		payload.put("initialWarningThresholdSeconds", this.initialWarningThresholdSeconds);
 		payload.put("finalWarningThresholdSeconds", this.finalWarningThresholdSeconds);
@@ -91,7 +90,7 @@ public class PassiveTimerElement extends LitTemplate {
 	}
 
 	private void setTimerCommand(String command, Integer milliseconds, long issuedAtMillis) {
-		ObjectNode payload = createSettingsPayload();
+		JsonObject payload = createSettingsPayload();
 		payload.put("sequence", Long.toString(++this.commandSequence));
 		payload.put("command", command);
 		payload.put("seconds", milliseconds == null ? 0.0D : milliseconds / 1000.0D);
@@ -101,7 +100,7 @@ public class PassiveTimerElement extends LitTemplate {
 	}
 
 	private void syncSettings() {
-		ObjectNode payload = createSettingsPayload();
+		JsonObject payload = createSettingsPayload();
 		payload.put("sequence", Long.toString(++this.settingsSequence));
 		getElement().setPropertyJson("timerSettingsPayload", payload);
 	}
