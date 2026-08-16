@@ -1,4 +1,4 @@
-import { html, LitElement } from "lit";
+import { css, html, LitElement } from "lit";
 
 /*******************************************************************************
  * Copyright (c) 2009-present Jean-François Lamy
@@ -10,6 +10,15 @@ import { html, LitElement } from "lit";
 class PassiveTimerElement extends LitElement {
   static get is() {
     return "passive-timer-element";
+  }
+
+  static get styles() {
+    return css`
+      #timer {
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum" 1;
+      }
+    `;
   }
 
   static get properties() {
