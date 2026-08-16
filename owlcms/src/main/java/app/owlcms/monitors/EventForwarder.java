@@ -179,6 +179,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 
 		if (desiredByUrl.isEmpty()) {
 			eventForwardersByName.remove(name);
+			fieldOfPlay.setEventForwarder(null);
 			logger.info("{}no HTTP URLs configured, skipping EventForwarder creation", FieldOfPlay.getLoggingName(fieldOfPlay));
 			return null;
 		}
@@ -275,6 +276,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	private String liftTypeKey;
 	private String baseUrl;
 	private String updateKey;
+	private volatile boolean active = true;
 	private Integer debouncingHash;
 	private Long debouncingMillis;
 	private final Object postLock = new Object();
@@ -288,7 +290,7 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	 * @return true if there are HTTP/HTTPS URLs configured, false otherwise
 	 */
 	public boolean isActive() {
-		return this.baseUrl != null;
+		return this.active && this.baseUrl != null;
 	}
 
 	private EventForwarder(String name, FieldOfPlay emittingFop, ForwardingDestination destination) {
@@ -793,15 +795,17 @@ public class EventForwarder implements BreakDisplay, HasBoardMode, IUnregister {
 	}
 
 	@Override
-	public void unregister() {
-		// we do nothing. We now have exactly one EventForwarder per name
-		// and we reuse it if we ever recreate the field of play
-
-		// logger.info("unregistering event forwarder for platform {}",getForwardedFopName());
-		// this.postBus.unregister(this);
-		// this.setFop(null);
-		// OwlcmsFactory.getFOPByName(getForwardedFopName()).setEventForwarder(null);
-		// eventForwarderByName.remove(getForwardedFopName());
+	public synchronized void unregister() {
+		if (!this.active) {
+			return;
+		}
+		logger.info("{}unregistering HTTP event forwarder for {}", FieldOfPlay.getLoggingName(getFop()), baseUrl);
+		this.active = false;
+		if (this.keepaliveThread != null) {
+			this.keepaliveThread.interrupt();
+			this.keepaliveThread = null;
+		}
+		setFop(null);
 	}
 
 	protected void setTranslationMap() {
