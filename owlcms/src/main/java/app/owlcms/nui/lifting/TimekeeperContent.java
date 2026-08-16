@@ -35,7 +35,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.components.GroupSelectionMenu;
-import app.owlcms.components.elements.AthleteTimerElement;
+import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
@@ -273,12 +273,8 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		this.attempt = new H2();
 		this.weight = new H2();
 		this.weight.setText("");
-		if (this.timer == null) {
-			this.timer = new AthleteTimerElement("");
-		}
-		this.timer.setFop(getFop());
-		this.timer.setSilenced(this.isSilenced());
-		H1 time = new H1(this.timer);
+		PassiveTimerElement passiveTimer = createPassiveAthleteTimer();
+		H1 time = new H1(passiveTimer);
 		clearVerticalMargins(this.attempt);
 		clearVerticalMargins(time);
 		clearVerticalMargins(this.weight);
@@ -403,18 +399,15 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	private void createBottom() {
 		this.removeAll();
-		if (this.timer == null) {
-			this.timer = new AthleteTimerElement("");
-		}
-		this.timer.setFop(getFop());
+		PassiveTimerElement passiveTimer = createPassiveAthleteTimer();
 		VerticalLayout time = new VerticalLayout();
 		time.setWidth("50%");
 
 		time.getElement().getStyle().set("font-size", "15vh");
 		time.getElement().getStyle().set("font-weight", "bold");
 		time.setAlignItems(Alignment.CENTER);
-		time.setAlignSelf(Alignment.CENTER, this.timer);
-		centerH(this.timer, time);
+		time.setAlignSelf(Alignment.CENTER, passiveTimer);
+		centerH(passiveTimer, time);
 		this.add(time);
 
 		createStartTimeButton();
@@ -466,7 +459,7 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 
 	private void hideButtons() {
 		this.buttons.setVisible(false);
-		this.timer.getElement().setVisible(false);
+		this.passiveTimer.getElement().setVisible(false);
 	}
 
 	private void registerShortcuts() {
@@ -496,6 +489,6 @@ public class TimekeeperContent extends AthleteGridContent implements HasDynamicT
 		if (this.buttons != null) {
 			this.buttons.setVisible(true);
 		}
-		this.timer.getElement().setVisible(true);
+		this.passiveTimer.getElement().setVisible(true);
 	}
 }
