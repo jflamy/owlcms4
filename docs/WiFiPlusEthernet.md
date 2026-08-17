@@ -1,47 +1,54 @@
 # Simultaneous Ethernet and Wi-Fi
 
-There are two scenarios where you might need Simultaneous Ethernet and Wi-Fi
+Say you want to stream the competition with scoreboards. The streaming computer must talk to the local network to get the scoreboards (and if using networked cameras, to get the video).  But it must also talk to the Internet to go to the streaming service.
 
-- There is no Internet access at the facility, so you use a local router. You'd like to make the owlcms and streaming laptops talk to a phone hotspot, in addition to the wired competition router.
-- You want to use a local router with Ethernet for reliability, but you cannot connect the router to the Internet using a wired connection.  You'd like to make the owlcms and streaming laptops talk to the facility's Wi-Fi, in addition to the wired competition router.
+- Unless the WiFi is absolutely brilliant, you would not run the competition in the cloud and stream on the same WiFi.  You will normally run locally on a laptop connected to your own router.
+- A common situation is that there is only WiFi Internet access at the facility, with no wired access.  Since there is no wired access, you cannot connect the router to the internet.  
+- There is no Internet access at the facility, so you need to use a phone hotspot to reach the Internet.
 
-### macOS and Raspberry Pi
+### macOS
 
-There is nothing special to do. Connect your computer to the Wifi provided by your phone or the facility, and connect the Ethernet cable. The computer should use both connections automatically.
+In macOS, the preferred way is to make WiFi the default connection.  Use the "System Settings" application and select Network.
+
+![image-20260817080416612](img/WiFiPlusEthernet/image-20260817080416612.png)
+
+Select "Set Service Order" in the menu that comes up, and drag WiFi to the first position.
+
+![image-20260817080608323](img/WiFiPlusEthernet/image-20260817080608323.png)
+
+
 
 ### Windows
 
-The following recipe is for Windows 10 and 11. On Windows, if Ethernet is plugged in, the WiFi connection is ignored. The idea is to disable the automatic priority Windows gives to a wired connection and also to give both network adapters the same importance.
+Windows, by default, will route traffic over the Ethernet connection because wired connections are listed as faster than wifi.  Normal home or gaming routers advertize themselves as gateways to the world even when they are not connected to the Internet. The trick is to make Windows forget about this route, so it uses the WiFi instead
 
-1. Follow the steps documented in this article https://www.makeuseof.com/use-wi-fi-ethernet-simultaneously-windows/
-2. Make sure you are connected using a wire to your router, and using Wifi to your phone hotspot.  One way to do that is from the control panel, immediately after steps above.
+1. Click on the Start menu and type `cmd`At the right, you will pick the option `Run as Administrator`
+   ![OPEIQnL0mB](https://jflamy.github.io/owlcms4/img/HotSpot/OPEIQnL0mB.png)
 
-![NJ3gtayHHH](img/HotSpot/NJ3gtayHHH.png)
+2. Type the following command 
 
-#### Using Wi-Fi to reach the Internet
+   ````
+   route delete 0.0.0.0
+   ````
 
-Now we have a connection to router that is NOT connected to the Internet, where owlcms and all the displays are connected.  And a Wi-Fi connection to the phone, that IS connected.  We need to tell Windows to use the Wi-Fi exclusively to get to the Internet, and to forget about the router that it would normally use to get there.
+    This deletes the active default route (the Ethernet one)
 
-> The following steps are not permanent. *They are reset after a reboot,* and need to be done again when you want to use Wi-Fi hotspot for the Internet and exclude the router.
+Rebooting will restore the normal priority.  If you need this to be permanent, you need to change interface metrics instead, and you can ask ChatGPT/Gemini/Copilot/Claude and the like for steps.
 
-The next steps require running a command shell in Administrator mode.  Use the Start menu to locate the CMD command and run it as administrator.
+### Raspberry Pi and Linux
 
-![OPEIQnL0mB](img/HotSpot/OPEIQnL0mB.png)
-
-We then issue a `netstat -rn` command to see the different routes that the machine has to reach the internet.  The two network destinations labelled `0.0.0.0` correspond to the Internet at large. We also see that Windows knows that wired is faster than Wi-Fi, so it will try to go through the router (and that won't work because it is not connected to the Internet.)
-
-![CBm1lyp1Zs](img/HotSpot/CBm1lyp1Zs.png)
-
-The gateway that starts with `192.168` is your local router.    This will be the same starting number that owlcms displays when it starts.  We want to remove that gateway because our router is NOT connected to the Internet, our phone is.
-
-So we delete the route with this command -- use your own router address shown under `Gateway`.
+The idea is to remove the route to the internet that comes from the router, so that no Internet traffic goes over the wired Ethernet connection.   The traffic destined to the LAN will always go to the wired connection anyway because that is a direct match.
 
 ```
-route delete 0.0.0.0 mask 0.0.0.0 192.168.1.1
+nmcli connection modify eth0 ipv4.never-default yes
+nmcli connection up eth0
 ```
 
-We can now see that there is only one `0.0.0.0` route, and that it goes through our phone.
+After the competition, to restore going to the Internet over the wired connection,
 
-![vu4HgfkXnM](img/HotSpot/vu4HgfkXnM.png)
+```
+nmcli connection modify eth0 ipv4.never-default no
+nmcli connection up eth0
+```
 
-Everything goes back to normal after a reboot.
+### 
