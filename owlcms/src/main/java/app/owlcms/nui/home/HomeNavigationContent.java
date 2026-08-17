@@ -26,9 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.conn.util.InetAddressUtils;
 import org.apache.maven.artifact.versioning.ComparableVersion;
@@ -280,22 +277,23 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	private static final String GITHUB_RAW_URL = "https://raw.githubusercontent.com/" + REPO_OWNER + "/" + REPO_NAME + "/master/";
 	private static LocalDateTime cpWarningEmitted = LocalDateTime.MIN;
 	private static LocalDateTime motdEmitted = LocalDateTime.MIN;
+	/** Shared: each HttpClient carries its own connection pool and threads, and is never closed. */
+	private static final HttpClient githubClient = HttpClient.newBuilder()
+	        .connectTimeout(Duration.ofSeconds(2))
+	        .build();
 
 	public static String checkControlPanelVersion(String curVer) {
 		if (LocalDateTime.now().minusHours(1).isBefore(cpWarningEmitted)) {
 			return null;
 		}
 		cpWarningEmitted = LocalDateTime.now();
-		HttpClient client = HttpClient.newBuilder()
-		        .connectTimeout(Duration.ofSeconds(2))
-		        .build();
 		HttpRequest request = HttpRequest.newBuilder()
 		        .uri(URI.create(GITHUB_RAW_URL + CONTROL_PANEL_VERSION))
 		        .timeout(Duration.ofSeconds(2))
 		        .build();
 
 		try {
-			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> response = githubClient.send(request, HttpResponse.BodyHandlers.ofString());
 			if (response.statusCode() != 200) {
 				throw new IOException(request.uri() + " Unexpected code " + response.statusCode());
 			}
@@ -335,16 +333,13 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			return null;
 		}
 		motdEmitted = LocalDateTime.now();
-		HttpClient client = HttpClient.newBuilder()
-		        .connectTimeout(Duration.ofSeconds(2))
-		        .build();
 		HttpRequest request = HttpRequest.newBuilder()
 		        .uri(URI.create(GITHUB_RAW_URL + fileName))
 		        .timeout(Duration.ofSeconds(2))
 		        .build();
 
 		try {
-			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> response = githubClient.send(request, HttpResponse.BodyHandlers.ofString());
 			if (response.statusCode() != 200) {
 				throw new IOException("Unexpected code " + response.statusCode());
 			}
@@ -360,35 +355,33 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		String apiUrl = this.currentVersionString.contains("-")
 		        ? "https://api.github.com/repos/owlcms/prereleases/releases"
 		        : "https://api.github.com/repos/owlcms/releases/releases";
+		// the request timeout aborts the exchange; CompletableFuture.orTimeout would leave it running.
 		HttpRequest request = HttpRequest.newBuilder(URI.create(apiUrl))
 		        .header("Accept", "application/vnd.github.v3+json")
+		        .timeout(Duration.ofSeconds(3))
 		        .build();
-		HttpClient client = HttpClient.newHttpClient();
-		CompletableFuture<HttpResponse<String>> future = client.sendAsync(request, BodyHandlers.ofString());
 		try {
-			future.orTimeout(3000, TimeUnit.MILLISECONDS).thenAccept(response -> {
-				if (response.statusCode() != 200) {
-					throw new IllegalStateException("Unexpected code " + response.statusCode());
-				}
-				JSONArray releases = new JSONArray(response.body());
-				if (releases.length() == 0) {
-					throw new IllegalStateException("no releases returned");
-				}
-				List<ComparableVersion> versions = new ArrayList<>();
-				for (int i = 0; i < releases.length(); i++) {
-					JSONObject release = releases.getJSONObject(i);
-					versions.add(new ComparableVersion(release.getString("tag_name")));
-				}
-				versions.sort((v1, v2) -> v2.compareTo(v1)); // Sort in descending order
-				this.referenceVersionString = versions.get(0).toString();
-				ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
-				ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
-				this.comparison = currentVersion.compareTo(referenceVersion);
-			}).join();
+			HttpResponse<String> response = githubClient.send(request, BodyHandlers.ofString());
+			if (response.statusCode() != 200) {
+				throw new IllegalStateException("Unexpected code " + response.statusCode());
+			}
+			JSONArray releases = new JSONArray(response.body());
+			if (releases.length() == 0) {
+				throw new IllegalStateException("no releases returned");
+			}
+			List<ComparableVersion> versions = new ArrayList<>();
+			for (int i = 0; i < releases.length(); i++) {
+				JSONObject release = releases.getJSONObject(i);
+				versions.add(new ComparableVersion(release.getString("tag_name")));
+			}
+			versions.sort((v1, v2) -> v2.compareTo(v1)); // Sort in descending order
+			this.referenceVersionString = versions.get(0).toString();
+			ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
+			ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
+			this.comparison = currentVersion.compareTo(referenceVersion);
 		} catch (Exception e) {
-			Throwable cause = (e instanceof CompletionException && e.getCause() != null) ? e.getCause() : e;
-			logger.warn("version check failed for {} : {} {}", request.uri(), cause.getClass().getSimpleName(),
-			        cause.getMessage());
+			logger.warn("version check failed for {} : {} {}", request.uri(), e.getClass().getSimpleName(),
+			        e.getMessage());
 		}
 
 		Html div = new Html("<div></div>");
