@@ -31,6 +31,7 @@ class ResultsFull extends LitElement {
               <div class="timer breakTime dsStopwatch" style="${this.dsStopwatchStyles()}">
                 <timer-element id="decisionSectionStopwatch"></timer-element>
               </div>
+              <div class="timer breakTime dsBreakText" style="${this.dsBreakTextStyles()}">${this.decisionSectionBreakText}</div>
             </div>
             <div class="dsDecisionAthlete name" style="${this.dsDecisionAthleteStyles()}">
               <span class="dsDecisionStartNumber">${this.decisionSectionStartNumber}</span>
@@ -414,6 +415,7 @@ class ResultsFull extends LitElement {
       decisionSectionStartNumber: {},
       decisionSectionAthleteName: {},
       decisionSectionAgeGroups: {},
+      decisionSectionBreakText: {},
       projectedRankText: {},
       juryDecisions: { type: Array },
       decisionSectionHideJuryLights: { type: Boolean },
@@ -521,7 +523,7 @@ class ResultsFull extends LitElement {
   dsDecisionAthleteStyles() {
     if (!this.showDecisionSection) return "display:none";
     if (this.decisionSectionDecisionActive) return "display: flex";
-    const current = this.decisionSectionCurrentActive;
+    const current = this.decisionSectionCurrentActive && this.mode === "CURRENT_ATHLETE";
     return "display: " + (current ? "flex" : "none");
   }
 
@@ -571,6 +573,12 @@ class ResultsFull extends LitElement {
   dsBreakTimerStyles() {
     if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
     return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
+  }
+
+  dsBreakTextStyles() {
+    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
+    // interruptions have no countdown; show the break status instead of a timer
+    return "display:" + ((this.mode === "INTERRUPTION" && this.decisionSectionBreakText) ? "flex" : "none");
   }
 
   dsStopwatchStyles() {
@@ -656,6 +664,7 @@ class ResultsFull extends LitElement {
     this.decisionSectionStartNumber = "";
     this.decisionSectionAthleteName = "";
     this.decisionSectionAgeGroups = "";
+    this.decisionSectionBreakText = "";
     this.projectedRankText = "";
     this.juryDecisions = [];
     this.decisionSectionHideJuryLights = false;
