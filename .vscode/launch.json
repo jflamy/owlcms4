@@ -24,7 +24,6 @@
         // comment out the next two lines to use what is in the database
         "OWLCMS_VIDEODATA": "",
         "OWLCMS_REMOTE": "",
-        "OWLCMS_PORT": "80",
         //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
         //"OWLCMS_VIDEODATAKEY": "amalauxpattes",
         //"OWLCMS_UPDATEKEY": "mapetitevache"
