@@ -144,6 +144,8 @@ public class BaseResults extends LitTemplate
 		if (fop == null) {
 			return;
 		}
+		// The FOP can retain its current athlete during a break.
+		this.getElement().setProperty("decisionSectionCurrentActive", false);
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
 		String title = inferGroupName() + " &ndash; "
@@ -289,8 +291,10 @@ public class BaseResults extends LitTemplate
 		Integer startNumber = athlete != null ? athlete.getStartNumber() : null;
 		this.getElement().setProperty("decisionSectionStartNumber", startNumber != null ? startNumber.toString() : "");
 		this.getElement().setProperty("decisionSectionAthleteName", decisionSectionAthleteName(athlete));
+		boolean showAgeGroups = athlete != null
+		        && Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS);
 		this.getElement().setProperty("decisionSectionAgeGroups",
-		        athlete != null ? athlete.getAgeGroupCodesMainFirstAsString() : "");
+		        showAgeGroups ? athlete.getAgeGroupCodesMainFirstAsString() : "");
 	}
 
 	/** Same athlete block as the jury deliberation, shown next to the clock for the current athlete. */
