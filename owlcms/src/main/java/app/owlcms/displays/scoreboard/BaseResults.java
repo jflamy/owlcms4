@@ -286,10 +286,11 @@ public class BaseResults extends LitTemplate
 		this.decisionSectionDecisionActive = true;
 		this.getElement().setProperty("decisionSectionDecisionActive", true);
 		this.getElement().setProperty("decisionSectionCurrentActive", false);
-		this.getElement().setProperty("decisionSectionAgeGroups", "");
 		Integer startNumber = athlete != null ? athlete.getStartNumber() : null;
 		this.getElement().setProperty("decisionSectionStartNumber", startNumber != null ? startNumber.toString() : "");
 		this.getElement().setProperty("decisionSectionAthleteName", decisionSectionAthleteName(athlete));
+		this.getElement().setProperty("decisionSectionAgeGroups",
+		        athlete != null ? athlete.getAgeGroupCodesMainFirstAsString() : "");
 	}
 
 	/** Same athlete block as the jury deliberation, shown next to the clock for the current athlete. */
@@ -799,7 +800,10 @@ public class BaseResults extends LitTemplate
 			List<Athlete> leaders = fop.getLeaders();
 			// 0 total is not shown -- cannot be a leader from a prior group
 			// (when medalistsAsLeaders is false, we show prior group leaders)
-			if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS) && leaders != null) {
+			// during the snatch of a multi-medal championship the total is still 0, snatch medallists are the leaders
+			boolean snatchMedalPhase = fop.isCurrentCategoryMultiMedal() && fop.isSnatchMedalPhase();
+			if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS) && leaders != null
+			        && !snatchMedalPhase) {
 				this.displayOrder = leaders.stream()
 					.filter(a -> a.getTotal() > 0)
 					.toList();
