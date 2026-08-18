@@ -9,9 +9,9 @@
 
 ### Clear current-athlete details on break entry
 
-The simplified Lit visibility rule uses `decisionSectionCurrentActive` as the server-owned source of truth. Every break path converges on `BaseResults.doBreakLocked()`, so that method now sets the property to `false` before changing board mode.
+The simplified Lit visibility rule uses `decisionSectionCurrentActive` as the server-owned source of truth. For an ordinary break, `DecisionBlockState.onBreakStarted()` renders READY and can repopulate the FOP's retained current athlete. `Results.afterSlaveStartBreak()` must therefore clear `decisionSectionCurrentActive` after that transition. Jury and challenge breaks retain the athlete under review through `decisionSectionDecisionActive`.
 
-Check dev68 for the same issue: if `doBreakLocked()` does not clear `decisionSectionCurrentActive`, the previous athlete can remain visible beside a break or ceremony clock because `FieldOfPlay.getCurAthlete()` may still be non-null.
+Check dev68 for the same ordering issue: clearing the property in `BaseResults.doBreakLocked()` is too early because the subsequent READY rendering restores it.
 
 ### Keep the reviewed athlete details
 

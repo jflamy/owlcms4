@@ -144,8 +144,6 @@ public class BaseResults extends LitTemplate
 		if (fop == null) {
 			return;
 		}
-		// The FOP can retain its current athlete during a break.
-		this.getElement().setProperty("decisionSectionCurrentActive", false);
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
 		String title = inferGroupName() + " &ndash; "
