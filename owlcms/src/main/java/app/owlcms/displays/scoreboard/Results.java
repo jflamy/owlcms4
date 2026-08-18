@@ -459,6 +459,10 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 		}
 		boolean juryOrChallenge = e.getBreakType() == BreakType.JURY || e.getBreakType() == BreakType.CHALLENGE;
 		this.decisionBlock.onBreakStarted(juryOrChallenge);
+		if (!juryOrChallenge) {
+			// READY rendering can restore the FOP's retained current athlete.
+			this.getElement().setProperty("decisionSectionCurrentActive", false);
+		}
 	}
 
 	/**
