@@ -254,7 +254,6 @@ public class Config {
 		Set<String> activeSwitches = new LinkedHashSet<>();
 		applyFeatureSwitchOverrides(activeSwitches, getConfiguredFeatureSwitches());
 		applyFeatureSwitchOverrides(activeSwitches, parseLegacyFeatureSwitches(StartupUtils.getStringParam("featureSwitches")));
-		applyFeatureSwitchOverrides(activeSwitches, parseLegacyFeatureSwitches("attemptTraces"));
 		return activeSwitches;
 	}
 
@@ -565,19 +564,6 @@ public class Config {
 		} else {
 			return uPin;
 		}
-	}
-
-	/**
-	 * @return the current list of feature switches.
-	 * Database values provide the persisted set shown on the Features page, then
-	 * OWLCMS_FEATURESWITCHES overrides add or remove switches. Switches starting
-	 * with "-" remove that switch.
-	 */
-	@Transient
-	@JsonIgnore
-	public String getParamFeatureSwitches() {
-		Set<String> activeSwitches = getParamFeatureSwitchIds();
-		return activeSwitches.isEmpty() ? null : String.join(",", activeSwitches);
 	}
 
 	@Transient
