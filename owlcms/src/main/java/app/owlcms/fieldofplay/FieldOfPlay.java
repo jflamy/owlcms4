@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -3052,32 +3053,23 @@ public class FieldOfPlay implements IUnregister {
 			logger.error("medalistLeaders called with null medalists");
 			medalists = Collections.emptyList();
 		}
-		boolean snatchCjTotal = Championship.anyMultiMedal(getActiveChampionships());
+		boolean snatchCjTotal = isCurrentCategoryMultiMedal();
+		if (snatchCjTotal && isSnatchMedalPhase()) {
+			setLeaders(snatchMedalLeaders(medalists));
+			return;
+		}
+		if (snatchCjTotal) {
+			setLeaders(multiMedalLeaders(medalists));
+			return;
+		}
 		var eligible = medalists.stream()
 				.filter(this::hasNonZeroTotal)
 				.toList();
-		if (snatchCjTotal) {
-			// Include anyone who medals in snatch, CJ, or total
-			// Sort by snatch rank during snatch phase, total rank during CJ phase
-			boolean inSnatchPhase = !isCjStarted();
-			List<Athlete> leaders = eligible.stream()
-					.filter(this::isMedalEligibleAnyLift)
-					.sorted((a, b) -> {
-						if (inSnatchPhase) {
-							return Integer.compare(rankOrMax(a.getSnatchRank()), rankOrMax(b.getSnatchRank()));
-						} else {
-							return Integer.compare(rankOrMax(a.getTotalRank()), rankOrMax(b.getTotalRank()));
-						}
-					})
-					.collect(Collectors.toList());
-			setLeaders(leaders);
-		} else {
-			List<Athlete> leaders = eligible.stream()
-					.filter(a -> isRankInRange(a.getTotalRank(), 3))
-					.sorted((a, b) -> Integer.compare(a.getTotalRank(), b.getTotalRank()))
-					.collect(Collectors.toList());
-			setLeaders(leaders);
-		}
+		List<Athlete> leaders = eligible.stream()
+				.filter(a -> isRankInRange(a.getTotalRank(), 3))
+				.sorted((a, b) -> Integer.compare(a.getTotalRank(), b.getTotalRank()))
+				.collect(Collectors.toList());
+		setLeaders(leaders);
 	}
 
 	public void previousGroupLeaders(List<Athlete> medalists) {
@@ -3089,38 +3081,27 @@ public class FieldOfPlay implements IUnregister {
 			Group group3 = m.getGroup();
 			return group2 != null && group3 != null && !group3.equals(group2);
 		}).toList();
-		boolean snatchCjTotal = Championship.anyMultiMedal(getActiveChampionships());
+		boolean snatchCjTotal = isCurrentCategoryMultiMedal();
 		var started = medalists.stream()
 				.filter(this::hasStarted)
 				.toList();
+		if (snatchCjTotal && isSnatchMedalPhase()) {
+			setLeaders(snatchMedalLeaders(started));
+			return;
+		}
+		if (snatchCjTotal) {
+			setLeaders(multiMedalLeaders(started));
+			return;
+		}
 		var eligible = started.stream()
 				.filter(this::hasNonZeroTotal)
 				.toList();
 
 		List<Athlete> leaders;
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.PREVIOUS_SESSION_MEDALS_ONLY)) {
-			if (snatchCjTotal) {
-				leaders = started.stream()
-						.filter(this::isMedalEligibleAnyLift)
-						.sorted((a, b) -> Integer.compare(rankOrMax(a.getTotalRank()), rankOrMax(b.getTotalRank())))
-						.collect(Collectors.toList());
-			} else {
-				leaders = started.stream()
-						.filter(a -> isRankInRange(a.getTotalRank(), 3))
-						.sorted((a, b) -> Integer.compare(a.getTotalRank(), b.getTotalRank()))
-						.collect(Collectors.toList());
-			}
-		} else if (snatchCjTotal) {
-			List<Athlete> top3ByTotal = eligible.stream()
-					.sorted((a, b) -> Integer.compare(rankOrMax(a.getTotalRank()), rankOrMax(b.getTotalRank())))
-					.limit(3)
-					.collect(Collectors.toList());
-			Set<Athlete> leaderSet = new HashSet<>(top3ByTotal);
-			eligible.stream()
-					.filter(a -> isRankInRange(a.getSnatchRank(), 3) || isRankInRange(a.getCleanJerkRank(), 3))
-					.forEach(leaderSet::add);
-			leaders = leaderSet.stream()
-					.sorted((a, b) -> Integer.compare(rankOrMax(a.getTotalRank()), rankOrMax(b.getTotalRank())))
+			leaders = started.stream()
+					.filter(a -> isRankInRange(a.getTotalRank(), 3))
+					.sorted((a, b) -> Integer.compare(a.getTotalRank(), b.getTotalRank()))
 					.collect(Collectors.toList());
 		} else {
 			leaders = eligible.stream()
@@ -3134,6 +3115,56 @@ public class FieldOfPlay implements IUnregister {
 	private boolean hasNonZeroTotal(Athlete a) {
 		Integer total = a.getTotal();
 		return total != null && total > 0;
+	}
+
+	/**
+	 * True while snatch medals are still the meaningful ranking, i.e. before the first clean &amp; jerk of the session.
+	 */
+	public boolean isSnatchMedalPhase() {
+		return !isCjStarted();
+	}
+
+	/**
+	 * Awarding of snatch/CJ/total medals is a property of the current athlete's registration category, not of the field of play as a whole.
+	 */
+	public boolean isCurrentCategoryMultiMedal() {
+		AgeGroup ageGroup = getCurAthlete() != null ? getCurAthlete().getAgeGroup() : null;
+		Championship championship = ageGroup != null ? ageGroup.getChampionship() : null;
+		return championship != null && championship.isSnatchCJTotalMedals();
+	}
+
+	/**
+	 * Snatch medallists according to the current standings. Total is unusable here: it stays 0 until a clean &amp; jerk is made.
+	 */
+	private List<Athlete> snatchMedalLeaders(List<Athlete> candidates) {
+		return candidates.stream()
+				.filter(a -> a.getSnatchTotal() > 0)
+				.filter(a -> isRankInRange(a.getSnatchRank(), 3))
+				.sorted((a, b) -> Integer.compare(rankOrMax(a.getSnatchRank()), rankOrMax(b.getSnatchRank())))
+				.collect(Collectors.toList());
+	}
+
+	private List<Athlete> multiMedalLeaders(List<Athlete> candidates) {
+		return candidates.stream()
+				.filter(this::isMedalEligibleAnyLift)
+				.sorted(Comparator.comparingInt(this::multiMedalLeaderGroup)
+						.thenComparingInt(this::multiMedalLeaderRank))
+				.collect(Collectors.toList());
+	}
+
+	private int multiMedalLeaderGroup(Athlete athlete) {
+		if (hasNonZeroTotal(athlete)) {
+			return 0;
+		}
+		return athlete.getSnatchTotal() == 0 ? 1 : 2;
+	}
+
+	private int multiMedalLeaderRank(Athlete athlete) {
+		return switch (multiMedalLeaderGroup(athlete)) {
+		case 0 -> rankOrMax(athlete.getTotalRank());
+		case 1 -> rankOrMax(athlete.getCleanJerkRank());
+		default -> rankOrMax(athlete.getSnatchRank());
+		};
 	}
 
 	private boolean isMedalEligibleAnyLift(Athlete a) {
