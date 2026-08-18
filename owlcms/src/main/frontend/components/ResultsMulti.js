@@ -520,7 +520,7 @@ class ResultsFull extends LitElement {
   dsDecisionAthleteStyles() {
     if (!this.showDecisionSection) return "display:none";
     if (this.decisionSectionDecisionActive) return "display: flex";
-    const current = this.decisionSectionCurrentActive && this.mode === "CURRENT_ATHLETE" && !this.decisionVisible;
+    const current = this.decisionSectionCurrentActive;
     return "display: " + (current ? "flex" : "none");
   }
 
