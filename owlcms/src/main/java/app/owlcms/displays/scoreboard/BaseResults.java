@@ -104,6 +104,7 @@ public class BaseResults extends LitTemplate
 	protected final Logger logger = (Logger) LoggerFactory.getLogger(BaseResults.class);
 	private boolean publicDisplay;
 	private boolean recordsDisplay;
+	private boolean decisionSectionDecisionActive;
 	private String routeParameter;
 	private JsonArray sattempts;
 	private boolean silenced;
@@ -276,16 +277,37 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected void clearDecisionSectionDecisionAthlete() {
+		this.decisionSectionDecisionActive = false;
 		this.getElement().setProperty("decisionSectionDecisionActive", false);
-		this.getElement().setProperty("decisionSectionStartNumber", "");
-		this.getElement().setProperty("decisionSectionAthleteName", "");
+		refreshDecisionSectionCurrentAthlete();
 	}
 
 	protected void setDecisionSectionDecisionAthlete(Athlete athlete) {
+		this.decisionSectionDecisionActive = true;
 		this.getElement().setProperty("decisionSectionDecisionActive", true);
+		this.getElement().setProperty("decisionSectionCurrentActive", false);
+		this.getElement().setProperty("decisionSectionAgeGroups", "");
 		Integer startNumber = athlete != null ? athlete.getStartNumber() : null;
 		this.getElement().setProperty("decisionSectionStartNumber", startNumber != null ? startNumber.toString() : "");
 		this.getElement().setProperty("decisionSectionAthleteName", decisionSectionAthleteName(athlete));
+	}
+
+	/** Same athlete block as the jury deliberation, shown next to the clock for the current athlete. */
+	protected void refreshDecisionSectionCurrentAthlete() {
+		if (this.decisionSectionDecisionActive) {
+			return;
+		}
+		FieldOfPlay fop = getFop();
+		Athlete a = fop != null ? fop.getCurAthlete() : null;
+		boolean show = a != null
+		        && Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS);
+		Integer startNumber = show ? a.getStartNumber() : null;
+		this.getElement().setProperty("decisionSectionCurrentActive", show);
+		this.getElement().setProperty("decisionSectionStartNumber",
+		        startNumber != null ? startNumber.toString() : "");
+		this.getElement().setProperty("decisionSectionAthleteName", show ? decisionSectionAthleteName(a) : "");
+		this.getElement().setProperty("decisionSectionAgeGroups",
+		        show ? a.getAgeGroupCodesMainFirstAsString() : "");
 	}
 
 	private String decisionSectionAthleteName(Athlete athlete) {
@@ -966,12 +988,14 @@ public class BaseResults extends LitTemplate
 			if (a != null) {
 				Group group = fop != null ? fop.getGroup() : null;
 				if (group != null && !group.isDone()) {
+					String fullName;
 					if (isAbbreviatedName() || (a.getFullName().length() >= 45)) {
-						this.getElement().setProperty("fullName",
-						        a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
+						fullName = a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "";
 					} else {
-						this.getElement().setProperty("fullName", a.getFullName() != null ? a.getFullName() : "");
+						fullName = a.getFullName() != null ? a.getFullName() : "";
 					}
+					this.getElement().setProperty("fullName", fullName);
+					refreshDecisionSectionCurrentAthlete();
 					this.getElement().setProperty("teamName", a.getTeam());
 					this.getElement().setProperty("startNumber", a.getStartNumber());
 					String formattedAttempt = formatAttempt(a.getAttemptsDone());
