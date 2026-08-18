@@ -150,6 +150,9 @@ public class BaseResults extends LitTemplate
 		String title = inferGroupName() + " &ndash; "
 		        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
 		this.getElement().setProperty("fullName", title);
+		// interruptions have no countdown; the decision section shows the break status instead
+		this.getElement().setProperty("decisionSectionBreakText",
+		        inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay()));
 		this.getElement().setProperty("teamName", "");
 		this.getElement().setProperty("attempt", "");
 		this.getElement().setProperty("kgSymbol", Translator.translate("KgSymbol"));
