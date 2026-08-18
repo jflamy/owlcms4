@@ -340,6 +340,7 @@ class Results extends LitElement {
       decisionSectionCurrentActive: {type: Boolean},
       decisionSectionStartNumber: {},
       decisionSectionAthleteName: {},
+      decisionSectionAgeGroups: {},
       projectedRankText: {},
       juryDecisions: {type: Array},
       decisionSectionHideJuryLights: {type: Boolean},
