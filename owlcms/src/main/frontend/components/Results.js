@@ -34,7 +34,7 @@ class Results extends LitElement {
             </div>
             <div class="dsDecisionAthlete name" style="${this.dsDecisionAthleteStyles()}">
               <span class="dsDecisionStartNumber">${this.decisionSectionStartNumber}</span>
-              <span class="dsDecisionAthleteName ellipsis">${this.decisionSectionAthleteName}</span>
+              <span class="dsDecisionAthleteName ellipsis">${this.decisionSectionAthleteName}<span style="${this.decisionSectionAgeGroupsStyles()}"> (${this.decisionSectionAgeGroups})</span></span>
             </div>
             <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
               <decision-element id="decisionSectionReferee"></decision-element>
@@ -337,6 +337,7 @@ class Results extends LitElement {
       showProjectedRanks: {type: Boolean},
       showScoreboardTimers: {type: Boolean},
       decisionSectionDecisionActive: {type: Boolean},
+      decisionSectionCurrentActive: {type: Boolean},
       decisionSectionStartNumber: {},
       decisionSectionAthleteName: {},
       projectedRankText: {},
@@ -445,7 +446,14 @@ class Results extends LitElement {
   }
 
   dsDecisionAthleteStyles() {
-    return "display: " + (this.showDecisionSection && this.decisionSectionDecisionActive ? "flex" : "none");
+    if (!this.showDecisionSection) return "display:none";
+    if (this.decisionSectionDecisionActive) return "display: flex";
+    const current = this.decisionSectionCurrentActive && this.mode === "CURRENT_ATHLETE" && !this.decisionVisible;
+    return "display: " + (current ? "flex" : "none");
+  }
+
+  decisionSectionAgeGroupsStyles() {
+    return "display: " + (this.decisionSectionAgeGroups ? "inline" : "none");
   }
 
   dsRefereeSlotStyles() {
@@ -601,8 +609,10 @@ class Results extends LitElement {
     this.showProjectedRanks = false;
     this.showScoreboardTimers = false;
     this.decisionSectionDecisionActive = false;
+    this.decisionSectionCurrentActive = false;
     this.decisionSectionStartNumber = "";
     this.decisionSectionAthleteName = "";
+    this.decisionSectionAgeGroups = "";
     this.projectedRankText = "";
     this.juryDecisions = [];
     this.decisionSectionHideJuryLights = false;
