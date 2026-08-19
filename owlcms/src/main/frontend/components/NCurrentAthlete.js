@@ -29,9 +29,7 @@ export class NCurrentAthlete extends LitElement {
       showAthleteClock: { type: Boolean },
       showBreakClock: { type: Boolean },
       showDecisions: { type: Boolean },
-      showDetails: { type: Boolean },
-
-      logoSrc: { type: String }
+      showDetails: { type: Boolean }
     };
   }
 
@@ -54,8 +52,6 @@ export class NCurrentAthlete extends LitElement {
     this.showDetails = false;
 
     this.longTeam = 3; // max length for short team names
-
-    this.logoSrc = "../../../../local/logos/left.png";
   }
 
   render() {
@@ -67,9 +63,7 @@ export class NCurrentAthlete extends LitElement {
         <div class="circle-container">
           <div class="shadow-circle"></div>
           <div class="circle"></div>
-          <div class="white-circle">
-            <img src="${this.logoSrc}" alt="Logo" />
-          </div>
+          <div class="white-circle"></div>
         </div>
         <div class="rectangle">
           <div class="top-row spacer"></div>
