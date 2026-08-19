@@ -31,11 +31,10 @@ class ResultsFull extends LitElement {
               <div class="timer breakTime dsStopwatch" style="${this.dsStopwatchStyles()}">
                 <timer-element id="decisionSectionStopwatch"></timer-element>
               </div>
-              <div class="timer breakTime dsBreakText" style="${this.dsBreakTextStyles()}">${this.decisionSectionBreakText}</div>
             </div>
             <div class="dsDecisionAthlete name" style="${this.dsDecisionAthleteStyles()}">
-              <span class="dsDecisionStartNumber">${this.decisionSectionStartNumber}</span>
-              <span class="dsDecisionAthleteName ellipsis">${this.decisionSectionAthleteName}<span style="${this.decisionSectionAgeGroupsStyles()}"> (${this.decisionSectionAgeGroups})</span></span>
+              <span class="dsDecisionStartNumber" style="${this.dsDecisionStartNumberStyles()}">${this.decisionSectionStartNumber}</span>
+              <span class="dsDecisionAthleteName ellipsis">${this.decisionSectionName()}<span style="${this.decisionSectionAgeGroupsStyles()}"> (${this.decisionSectionAgeGroups})</span></span>
             </div>
             <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
               <decision-element id="decisionSectionReferee"></decision-element>
@@ -524,11 +523,23 @@ class ResultsFull extends LitElement {
     if (!this.showDecisionSection) return "display:none";
     if (this.decisionSectionDecisionActive) return "display: flex";
     const current = this.decisionSectionCurrentActive && this.mode === "CURRENT_ATHLETE";
-    return "display: " + (current ? "flex" : "none");
+    return "display: " + (current || this.dsBreakDescriptionVisible() ? "flex" : "none");
+  }
+
+  dsBreakDescriptionVisible() {
+    return this.isBreak() && Boolean(this.decisionSectionBreakText);
+  }
+
+  dsDecisionStartNumberStyles() {
+    return "display: " + (this.dsBreakDescriptionVisible() ? "none" : "");
+  }
+
+  decisionSectionName() {
+    return this.dsBreakDescriptionVisible() ? this.decisionSectionBreakText : this.decisionSectionAthleteName;
   }
 
   decisionSectionAgeGroupsStyles() {
-    return "display: " + (this.decisionSectionAgeGroups ? "inline" : "none");
+    return "display: " + (!this.dsBreakDescriptionVisible() && this.decisionSectionAgeGroups ? "inline" : "none");
   }
 
   dsRefereeSlotStyles() {
@@ -573,12 +584,6 @@ class ResultsFull extends LitElement {
   dsBreakTimerStyles() {
     if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
     return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
-  }
-
-  dsBreakTextStyles() {
-    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
-    // interruptions have no countdown; show the break status instead of a timer
-    return "display:" + ((this.mode === "INTERRUPTION" && this.decisionSectionBreakText) ? "flex" : "none");
   }
 
   dsStopwatchStyles() {
