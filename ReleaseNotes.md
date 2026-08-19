@@ -10,13 +10,19 @@
 
 **New in Release 67.4**
 
-- 67.4.0: Athlete Timer on technical official stations (speaker, timekeeper, marshal, etc.) redone to fix intermittent missed starts.
+- 67.4.0: Enhancements to Decision Section at the bottom of the scorebords
+  - Show the athlete name and optionally the participations in the various categories (subject to feature toggle `decisionSectionShowAgeGroups`)
+  - Show nature of break currently under way.
 
-- 67.4.0: Fix for missed declaration deadline not signaled after resetting a two-minute clock
+- 67.4.0: Adjusted the rules for the Leaders section at the bottom of the scoreboards to better deal with 3-medal championships
 
-- 67.4.0: Fix to correctly disable legacy HTTP event-forwarder when the URL is cleared
+- 67.4.0: New athlete Timer implementation on technical official stations (speaker, timekeeper, marshal, etc.) to fix intermittent missed starts.
 
-- 67.4.0: For developers, improved application shutdown when its launcher is killed by the IDE
+- 67.4.0: Fix: After resetting to a two-minute clock, a for missed declaration deadline WAS not signaled
+
+- 67.4.0: Fix: Correctly disable legacy HTTP event-forwarder when such a forwarding URL is cleared
+
+- 67.4.0: Fix: For developers, kill the server cleanly when the watcher is killed by the IDE
 
 - 67.4.0: Administrator tools to selectively repair athlete birth dates due to time zone issues
   - Add one day, or move dates to January 1 of the following year
