@@ -10,6 +10,12 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta07: Enhancements to the Decision Section at the bottom of scoreboards
+  - Show the athlete name and, optionally, their category participations when the `decisionSectionShowAgeGroups` feature toggle is enabled
+  - Show the nature of the break currently under way
+
+- 68.0.0-beta07: Adjusted the rules for the Leaders section at the bottom of scoreboards to better support three-medal championships
+
 - 68.0.0-beta06: Migrate birth dates to directly readable canonical ISO8601 textual format to avoid interpretation, time zone, and conversion issues.
 
 - 68.0.0-beta05: Athlete Timer on technical official stations (speaker, timekeeper, marshal, etc.) redone to fix intermittent missed starts on MQTT events
