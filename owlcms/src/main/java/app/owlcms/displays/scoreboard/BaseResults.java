@@ -806,10 +806,10 @@ public class BaseResults extends LitTemplate
 			List<Athlete> leaders = fop.getLeaders();
 			// 0 total is not shown -- cannot be a leader from a prior group
 			// (when medalistsAsLeaders is false, we show prior group leaders)
-			// during the snatch of a multi-medal championship the total is still 0, snatch medallists are the leaders
-			boolean snatchMedalPhase = fop.isCurrentCategoryMultiMedal() && fop.isSnatchMedalPhase();
+			// in a multi-medal championship, zero-total medal holders remain listed
+			boolean multiMedal = fop.isCurrentCategoryMultiMedal();
 			if (!Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS) && leaders != null
-			        && !snatchMedalPhase) {
+			        && !multiMedal) {
 				this.displayOrder = leaders.stream()
 					.filter(a -> a.getTotal() > 0)
 					.toList();

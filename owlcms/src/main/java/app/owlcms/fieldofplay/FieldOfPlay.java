@@ -3053,22 +3053,22 @@ public class FieldOfPlay implements IUnregister {
 			logger.error("medalistLeaders called with null medalists");
 			medalists = Collections.emptyList();
 		}
-		boolean snatchCjTotal = isCurrentCategoryMultiMedal();
-		if (snatchCjTotal && isSnatchMedalPhase()) {
-			setLeaders(snatchMedalLeaders(medalists));
-			return;
-		}
-		if (snatchCjTotal) {
+		if (isCurrentCategoryMultiMedal()) {
+			// holding a medal on any lift is the sole inclusion criterion; zero-total
+			// medalists sort into the lower tiers.
 			setLeaders(multiMedalLeaders(medalists));
 			return;
 		}
-		var eligible = medalists.stream()
+		List<Athlete> leaders = medalists.stream()
 				.filter(this::hasNonZeroTotal)
-				.toList();
-		List<Athlete> leaders = eligible.stream()
 				.filter(a -> isRankInRange(a.getTotalRank(), 3))
 				.sorted((a, b) -> Integer.compare(a.getTotalRank(), b.getTotalRank()))
 				.collect(Collectors.toList());
+		if (leaders.isEmpty()) {
+			// nobody in the athlete's registration category has a total yet: the fake
+			// snatch podium shows the current lead even though no snatch medal is awarded.
+			leaders = snatchMedalLeaders(medalists);
+		}
 		setLeaders(leaders);
 	}
 
@@ -3081,22 +3081,18 @@ public class FieldOfPlay implements IUnregister {
 			Group group3 = m.getGroup();
 			return group2 != null && group3 != null && !group3.equals(group2);
 		}).toList();
-		boolean snatchCjTotal = isCurrentCategoryMultiMedal();
 		var started = medalists.stream()
 				.filter(this::hasStarted)
 				.toList();
-		if (snatchCjTotal && isSnatchMedalPhase()) {
-			setLeaders(snatchMedalLeaders(started));
-			return;
-		}
-		if (snatchCjTotal) {
+		if (isCurrentCategoryMultiMedal()) {
+			// prior-session athletes are done lifting; the tiered order handles bombed
+			// snatches and bombed CJs without any phase distinction.
 			setLeaders(multiMedalLeaders(started));
 			return;
 		}
 		var eligible = started.stream()
 				.filter(this::hasNonZeroTotal)
 				.toList();
-
 		List<Athlete> leaders;
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.PREVIOUS_SESSION_MEDALS_ONLY)) {
 			leaders = started.stream()
@@ -3115,13 +3111,6 @@ public class FieldOfPlay implements IUnregister {
 	private boolean hasNonZeroTotal(Athlete a) {
 		Integer total = a.getTotal();
 		return total != null && total > 0;
-	}
-
-	/**
-	 * True while snatch medals are still the meaningful ranking, i.e. before the first clean &amp; jerk of the session.
-	 */
-	public boolean isSnatchMedalPhase() {
-		return !isCjStarted();
 	}
 
 	/**
