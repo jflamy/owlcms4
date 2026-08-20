@@ -76,7 +76,13 @@ public class PassiveTimerElement extends LitTemplate {
 	}
 
 	public void start(Integer milliseconds, long issuedAtMillis) {
-		setTimerCommand("start", milliseconds, issuedAtMillis);
+		long payloadIssuedAtMillis = System.currentTimeMillis();
+		Integer adjustedMilliseconds = milliseconds;
+		if (milliseconds != null && issuedAtMillis > 0L) {
+			long serverDelayMillis = Math.max(0L, payloadIssuedAtMillis - issuedAtMillis);
+			adjustedMilliseconds = (int) Math.max(0L, milliseconds.longValue() - serverDelayMillis);
+		}
+		setTimerCommand("start", adjustedMilliseconds, payloadIssuedAtMillis);
 	}
 
 	private ObjectNode createSettingsPayload() {
