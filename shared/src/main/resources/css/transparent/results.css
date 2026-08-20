@@ -738,7 +738,7 @@ td {
 }
 
 .decisionSection .dsDecisionAthlete .dsDecisionStartNumber {
-    font-size: 70%;
+    font-size: 78.75%;
     font-weight: bold;
     border-width: 0.2ex;
     border-style: solid;
@@ -754,6 +754,7 @@ td {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-size: 1.125em;
 }
 
 .decisionSection .dsStopwatch {
@@ -827,7 +828,7 @@ td {
 .decisionSection .dsJuryMessage {
     flex: 0 0 auto;
     color: var(--TextColor);
-    font-size: 0.75em;
+    font-size: 0.85em;
     font-weight: bold;
     white-space: nowrap;
 }
