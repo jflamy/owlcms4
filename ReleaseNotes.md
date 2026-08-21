@@ -10,6 +10,10 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta09: Loading chart fixes and adjustments
+  - lightBarU13 and lightBarU15 clarified to not inadverently interfere with other settings
+  - added `noCollars5kgBar` to prevent 2.5kg collars from being used on kid bar for weights under 20kg
+
 - 68.8.0-beta08: Fix: 15kg bar with no plates was erroneously preferred to 5kg or 10kg bar + kid bumpers
 
 - 68.0.0-beta07: Enhancements to the Decision Section at the bottom of scoreboards
