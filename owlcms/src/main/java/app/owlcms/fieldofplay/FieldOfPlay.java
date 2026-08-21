@@ -1923,7 +1923,6 @@ public class FieldOfPlay implements IUnregister {
 		if (getPlatform() == null || a == null) {
 			return;
 		}
-		boolean use15Bar = false;
 		// Note: childrenEquipment is enforced eagerly when the toggle is added (see
 		// Platform.applyChildrenEquipment), not on session load.
 		// TC screen can still override settings during the session.
@@ -1932,84 +1931,59 @@ public class FieldOfPlay implements IUnregister {
 				&& (ageGroup != null && ageGroup.getMaxAge() <= 13);
 		boysLightBarAllowed = boysLightBarAllowed || Config.getCurrent().featureSwitch(FeatureSwitch.LIGHT_BAR_U15)
 				&& (ageGroup != null && ageGroup.getMaxAge() <= 15);
-		use15Bar = boysLightBarAllowed || (a != null && a.getGender() != Gender.M);
+		boolean use15Bar = boysLightBarAllowed || a.getGender() != Gender.M;
+		int maximumAllowedBarWeight = use15Bar ? 15 : 20;
+		Integer age = a.getAge();
+		PlatformEquipmentCalculator.Inventory inventory = new PlatformEquipmentCalculator.Inventory(
+				getPlatform().getNbB_20() > 0,
+				getPlatform().getNbB_15() > 0,
+				getPlatform().getNbB_10() > 0,
+				getPlatform().getNbB_5() > 0,
+				getPlatform().getNbC_2_5() > 0,
+				smallestAvailableBumperPairWeight());
+		PlatformEquipmentCalculator.Request request = new PlatformEquipmentCalculator.Request(
+				newWeight,
+				standardBarWeight(a.getGender()),
+				maximumAllowedBarWeight,
+				Config.getCurrent().featureSwitch(FeatureSwitch.USAW_COLLARS) && age != null && age > 13,
+				getPlatform().isUseNonStandardBar(),
+				getPlatform().getNonStandardBarWeight(),
+				getPlatform().getCollarThreshold(),
+				inventory);
+		PlatformEquipmentCalculator.Selection selection = PlatformEquipmentCalculator.select(request);
 
-		Integer age = this.curAthlete.getAge();
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.USAW_COLLARS) && age != null && age > 13) {
-			this.setLightBarInUse(false);
-			Gender gender = this.curAthlete != null ? this.curAthlete.getGender() : null;
-			this.setBarWeight((gender != null && gender == Gender.M) ? 20 : 15);
-			this.setUseCollarsIfAvailable(true);
-		} else if (getPlatform().isUseNonStandardBar()) {
-			this.logger.trace("non standard bar: {}", getPlatform().getNonStandardBarWeight());
-			Integer nonStandardBarWeight = getPlatform().getNonStandardBarWeight();
-			this.setBarWeight(nonStandardBarWeight);
-			this.setLightBarInUse((a.getGender() == Gender.F && nonStandardBarWeight != 15) ||
-					(a.getGender() == Gender.M && nonStandardBarWeight != 20));
-			this.setUseCollarsIfAvailable(shouldUseCollars(newWeight, nonStandardBarWeight));
-		} else if (newWeight <= 14 && getPlatform().getNbB_5() > 0) {
-			this.logger.trace("<= 14");
-			this.setLightBarInUse(true);
-			this.setBarWeight(5);
-			this.setUseCollarsIfAvailable(shouldUseCollars(newWeight, 5));
-		} else if (newWeight <= 19 && getPlatform().getNbB_10() > 0) {
-			this.logger.trace("<= 19");
-			this.setLightBarInUse(true);
-			this.setBarWeight(10);
-			this.setUseCollarsIfAvailable(shouldUseCollars(newWeight, 10));
-		} else if ((!shouldUseCollars(newWeight, 15) && (getPlatform().getNbB_20() == 0 || use15Bar)
-				&& (getPlatform().getNbB_15() > 0))) {
-			this.logger.trace("15kg bar no collars");
-			this.setLightBarInUse(a.getGender() != Gender.F);
-			this.setBarWeight(15);
-			this.setUseCollarsIfAvailable(false);
-		} else {
-			boolean useCollarsWith15Bar = shouldUseCollars(newWeight, 15);
-			if ((useCollarsWith15Bar && (getPlatform().getNbB_20() == 0 || use15Bar)
-					&& (getPlatform().getNbB_15() > 0))) {
-				this.logger.trace("15kg bar with collars");
-				this.setLightBarInUse(a.getGender() != Gender.F);
-				this.setBarWeight(15);
-				this.setUseCollarsIfAvailable(true);
-			} else {
-				// Standard bar selection based on gender and availability
-				Gender gender = this.curAthlete != null ? this.curAthlete.getGender() : null;
-				int standardBar = (gender != null && gender == Gender.M) ? 20 : 15;
+		this.logger.trace("using {}kg bar{}", selection.barWeight(), selection.useCollars() ? " with collars" : "");
+		this.setBarWeight(selection.barWeight());
+		this.setUseCollarsIfAvailable(selection.useCollars());
+		this.setLightBarInUse(selection.lightBarInUse());
+	}
 
-				// Check if standard bar is available, otherwise find heaviest available bar
-				int actualBar = standardBar;
-				if (standardBar == 20 && getPlatform().getNbB_20() == 0) {
-					// 20kg not available, try lighter bars in order
-					if (getPlatform().getNbB_15() > 0) {
-						actualBar = 15;
-					} else if (getPlatform().getNbB_10() > 0) {
-						actualBar = 10;
-					} else if (getPlatform().getNbB_5() > 0) {
-						actualBar = 5;
-					}
-				} else if (standardBar == 15 && getPlatform().getNbB_15() == 0) {
-					// 15kg not available, try lighter bars
-					if (getPlatform().getNbB_10() > 0) {
-						actualBar = 10;
-					} else if (getPlatform().getNbB_5() > 0) {
-						actualBar = 5;
-					}
-				}
+	private int standardBarWeight(Gender gender) {
+		return gender == Gender.M ? 20 : 15;
+	}
 
-				this.logger.trace("standard -> using {}kg bar", actualBar);
-				this.setLightBarInUse(actualBar != standardBar);
-				this.setBarWeight(actualBar);
-				this.setUseCollarsIfAvailable(shouldUseCollars(newWeight, actualBar));
-			}
+	/** weight of the lightest available large bumper pair (both sides), 0 if none */
+	private int smallestAvailableBumperPairWeight() {
+		Platform platform = getPlatform();
+		if (platform.getNbL_2_5() > 0) {
+			return 5;
 		}
-	}
-
-	private int getCollarThresholdForBar(int barWeight) {
-		return getPlatform().getCollarThreshold() - (20 - barWeight);
-	}
-
-	private boolean shouldUseCollars(Integer weight, int barWeight) {
-		return weight >= getCollarThresholdForBar(barWeight);
+		if (platform.getNbL_5() > 0) {
+			return 10;
+		}
+		if (platform.getNbL_10() > 0) {
+			return 20;
+		}
+		if (platform.getNbL_15() > 0) {
+			return 30;
+		}
+		if (platform.getNbL_20() > 0) {
+			return 40;
+		}
+		if (platform.getNbL_25() > 0) {
+			return 50;
+		}
+		return 0;
 	}
 
 	private void checkDeferredWeightChanges() {
