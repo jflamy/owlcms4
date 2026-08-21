@@ -53,6 +53,7 @@ public enum FeatureSwitch {
     TEAM_POINTS_TOTAL_ONLY("teamPointsTotalOnly", FeatureSwitchSection.GENERAL_OPTIONS),
     LIGHT_BAR_U13("lightBarU13", FeatureSwitchSection.GENERAL_OPTIONS),
     LIGHT_BAR_U15("lightBarU15", FeatureSwitchSection.GENERAL_OPTIONS),
+    NO_COLLARS_5KG_BAR("noCollars5kgBar", FeatureSwitchSection.GENERAL_OPTIONS),
     CHILDREN_EQUIPMENT("childrenEquipment", FeatureSwitchSection.GENERAL_OPTIONS),
 
     USAW_SESSION_BLOCKS("usawSessionBlocks", FeatureSwitchSection.SPECIALTY_FEATURES),

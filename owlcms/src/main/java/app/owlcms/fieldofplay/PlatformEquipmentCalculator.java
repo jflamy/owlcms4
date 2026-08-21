@@ -1,5 +1,7 @@
 package app.owlcms.fieldofplay;
 
+import app.owlcms.data.athlete.Gender;
+
 public final class PlatformEquipmentCalculator {
 
 	private static final int[] BAR_WEIGHTS = { 20, 15, 10, 5 };
@@ -7,16 +9,23 @@ public final class PlatformEquipmentCalculator {
 	private PlatformEquipmentCalculator() {
 	}
 
+	static int maximumAllowedBarWeight(Gender gender, Integer ageGroupMaximumAge, boolean lightBarU13,
+			boolean lightBarU15) {
+		boolean lightBarRequired = gender == Gender.M && ageGroupMaximumAge != null
+				&& (lightBarU13 && ageGroupMaximumAge <= 13 || lightBarU15 && ageGroupMaximumAge <= 15);
+		return lightBarRequired || gender != Gender.M ? 15 : 20;
+	}
+
 	public static Selection select(Request request) {
+		if (request.useUsawCollars()) {
+			return selection(Math.min(request.standardBarWeight(), request.maximumAllowedBarWeight()), true, request);
+		}
+
 		if (!request.useNonStandardBar()) {
 			Selection bumperSelection = findBumperSelection(request);
 			if (bumperSelection != null) {
 				return bumperSelection;
 			}
-		}
-
-		if (request.useUsawCollars()) {
-			return selection(Math.min(request.standardBarWeight(), request.maximumAllowedBarWeight()), true, request);
 		}
 
 		if (request.useNonStandardBar()) {
@@ -98,6 +107,9 @@ public final class PlatformEquipmentCalculator {
 	}
 
 	private static boolean shouldUseCollars(Request request, int barWeight) {
+		if (barWeight == 5 && request.noCollars5kgBar()) {
+			return false;
+		}
 		int threshold = request.collarThreshold() - (20 - barWeight);
 		return request.targetWeight() >= threshold;
 	}
@@ -111,7 +123,7 @@ public final class PlatformEquipmentCalculator {
 	}
 
 	public record Request(int targetWeight, int standardBarWeight, int maximumAllowedBarWeight,
-			boolean useUsawCollars, boolean useNonStandardBar, int nonStandardBarWeight,
+			boolean useUsawCollars, boolean noCollars5kgBar, boolean useNonStandardBar, int nonStandardBarWeight,
 			int collarThreshold, Inventory inventory) {
 	}
 
