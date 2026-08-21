@@ -10,6 +10,8 @@
 
 **New in Release 68.0**
 
+- 68.8.0-beta08: Fix: 15kg bar with no plates was erroneously preferred to 5kg or 10kg bar + kid bumpers
+
 - 68.0.0-beta07: Enhancements to the Decision Section at the bottom of scoreboards
   - Show the athlete name and, optionally, their category participations when the `decisionSectionShowAgeGroups` feature toggle is enabled
   - Show the nature of the break currently under way
