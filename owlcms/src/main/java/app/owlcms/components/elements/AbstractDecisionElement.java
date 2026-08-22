@@ -45,8 +45,8 @@ import elemental.json.JsonObject;
 /// | Decision board | `AthleteTimerElement` | `BreakTimerElement` | no | `DecisionElement` | Same public behavior as attempt board. |
 /// | Scoreboard | `AthleteTimerElement` | `BreakTimerElement` | decision section uses `StopwatchTimerElement` | main: `DecisionElement`; decision section: `DecisionBlockDecisionElement` | Public behavior: toggle off waits until `DECISION_VISIBLE`; toggle on shows `INITIAL_DECISION` immediately, then live reversals for 3 seconds until final. |
 /// | Jury keypad | review `AthleteTimerElement` | no | no | `JuryDisplayDecisionElement` | Live referee decisions always; no 3-second public delay. |
-/// | Control console | `AthleteTimerElement` | `BreakTimerElement` | no | `JuryDisplayDecisionElement` | Live referee decisions always; no 3-second public delay. |
-/// | Jury console | inherited `AthleteTimerElement` | inherited `BreakTimerElement` | no | `JuryDisplayDecisionElement` | Live referee decisions always; no 3-second public delay. |
+/// | Control console | `PassiveTimerElement` | `BreakTimerElement` | no | `PassiveDecisionElement` | Parent-driven; live lights only when the announcer/marshal toggle is on. |
+/// | Jury console | inherited `PassiveTimerElement` | inherited `BreakTimerElement` | no | `PassiveDecisionElement` | Parent-driven live referee decisions. |
 @SuppressWarnings({ "serial", "deprecation" })
 @Tag("decision-element")
 @JsModule("./components/DecisionElement.js")

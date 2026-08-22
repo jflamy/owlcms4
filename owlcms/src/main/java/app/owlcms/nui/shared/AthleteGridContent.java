@@ -71,7 +71,7 @@ import com.vaadin.flow.router.QueryParameters;
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.apputils.queryparameters.SoundParametersReader;
 import app.owlcms.components.elements.BreakTimerElement;
-import app.owlcms.components.elements.JuryDisplayDecisionElement;
+import app.owlcms.components.elements.PassiveDecisionElement;
 import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.components.elements.TimerElement;
 import app.owlcms.data.athlete.Athlete;
@@ -249,7 +249,7 @@ public abstract class AthleteGridContent extends BaseContent
 	protected HorizontalLayout buttons;
 	private OwlcmsCrudGrid<Athlete> crudGrid;
 	protected OwlcmsGridLayout crudLayout;
-	protected JuryDisplayDecisionElement decisionDisplay;
+	protected PassiveDecisionElement decisionDisplay;
 	protected HorizontalLayout decisions;
 	protected Span firstName;
 	protected ComboBox<Gender> genderFilter = new ComboBox<>();
@@ -714,9 +714,20 @@ public abstract class AthleteGridContent extends BaseContent
 	public void slaveDecision(UIEvent.Decision e) {
 		Athlete athlete = e.getAthlete();
 		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> {
+			passiveDecisionShow(e);
 			clearRecordNotifications();
 			warnOthersIfCurrent(e, athlete, e.getFop());
 		});
+	}
+
+	@Subscribe
+	public void slaveDecisionReset(UIEvent.DecisionReset e) {
+		UIEventProcessor.uiAccess(this.topBar, this.uiEventBus, e, () -> passiveDecisionReset(e.getFop()));
+	}
+
+	@Subscribe
+	public void slaveRefereeUpdate(UIEvent.RefereeUpdate e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> passiveLiveDecisionShow(e));
 	}
 
 	private synchronized void clearRecordNotifications() {
@@ -887,6 +898,7 @@ public abstract class AthleteGridContent extends BaseContent
 			return;
 		}
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this.stopTimeButton, this.uiEventBus, e, this.getOrigin(), () -> {
+			passiveDecisionReset(e.getFop());
 			buttonsTimeStarted();
 			passiveTimerStart(e.getTimeRemaining(), e.getStart(), e.isServerSound());
 		});
@@ -1112,10 +1124,8 @@ public abstract class AthleteGridContent extends BaseContent
 	}
 
 	protected void createDecisionLights() {
-		this.decisionDisplay = new JuryDisplayDecisionElement();
-		this.decisionDisplay.setFop(getFop());
-		this.decisionDisplay.doReset();
-		this.decisionDisplay.setSilenced(isDownSilenced());
+		this.decisionDisplay = new PassiveDecisionElement();
+		passiveDecisionReset(getFop());
 		this.decisionDisplay.setDisplaySize("small");
 		// Icon silenceIcon = AvIcons.MIC_OFF.create();
 		this.setDecisionLights(new HorizontalLayout(this.decisionDisplay));
@@ -1299,9 +1309,6 @@ public abstract class AthleteGridContent extends BaseContent
 		        e -> {
 			        switchSoundMode(!this.isSilenced(), true);
 			        e.getSource().setChecked(!this.isSilenced());
-			        if (this.decisionDisplay != null) {
-				        this.decisionDisplay.setSilenced(this.isSilenced());
-			        }
 			        if (this.timer != null) {
 				        this.timer.setSilenced(this.isSilenced());
 			        }
@@ -1644,6 +1651,25 @@ public abstract class AthleteGridContent extends BaseContent
 			        getFop().isEmitSoundsOnServer());
 		} else {
 			passiveTimerDisplay(athleteTimer.getTimeRemaining());
+		}
+	}
+
+	private void passiveDecisionReset(FieldOfPlay fop) {
+		if (this.decisionDisplay != null) {
+			this.decisionDisplay.reset(fop != null && fop.isSingleReferee());
+		}
+	}
+
+	protected void passiveDecisionShow(UIEvent.Decision event) {
+		if (this.decisionDisplay != null) {
+			this.decisionDisplay.showDecision(event.decision, event.ref1, event.ref2, event.ref3,
+			        event.isSingleLight());
+		}
+	}
+
+	protected void passiveLiveDecisionShow(UIEvent.RefereeUpdate event) {
+		if (isLiveLights() && this.decisionDisplay != null) {
+			this.decisionDisplay.showLiveDecisions(event.ref1, event.ref2, event.ref3, event.isSingleLight());
 		}
 	}
 
