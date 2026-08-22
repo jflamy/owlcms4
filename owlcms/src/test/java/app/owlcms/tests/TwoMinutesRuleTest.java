@@ -8,10 +8,13 @@ package app.owlcms.tests;
 
 import static app.owlcms.tests.AllTests.assertEqualsToReferenceFile;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -20,6 +23,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.Main;
 import app.owlcms.apputils.DebugUtils;
@@ -36,7 +40,9 @@ import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.MockFieldOfPlay;
+import app.owlcms.fieldofplay.ProxyAthleteTimer;
 import app.owlcms.init.OwlcmsSession;
+import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -99,6 +105,25 @@ public class TwoMinutesRuleTest {
 
     @Test
     public void twoMinuteResetKeepsDeclarationDeadline() {
+        assertResetKeepsDeclarationDeadline(Competition.athleteTimerTwoMinutes);
+    }
+
+    @Test
+    public void oneMinuteResetKeepsDeclarationDeadline() {
+        assertResetKeepsDeclarationDeadline(Competition.athleteTimerOneMinute);
+    }
+
+    @Test
+    public void oneMinuteClockResetReemitsFinalWarning() throws InterruptedException {
+        assertClockResetReemitsFinalWarning(Competition.athleteTimerOneMinute);
+    }
+
+    @Test
+    public void twoMinuteClockResetReemitsFinalWarning() throws InterruptedException {
+        assertClockResetReemitsFinalWarning(Competition.athleteTimerTwoMinutes);
+    }
+
+    private void assertResetKeepsDeclarationDeadline(int resetDuration) {
         FieldOfPlay fopState = OwlcmsSession.getFop();
         EventBus fopBus = fopState.getFopEventBus();
         testPrepState4(fopState, fopBus, logger);
@@ -111,15 +136,55 @@ public class TwoMinutesRuleTest {
         athlete = fopState.getCurAthlete();
         assertEquals(Competition.athleteTimerTwoMinutes, fopState.getTimeAllowed());
         fopBus.post(new FOPEvent.TimeStarted(this));
-        fopBus.post(new FOPEvent.ForceTime(Competition.athleteTimerTwoMinutes, this));
-        fopState.getAthleteTimer().setTimeRemaining(35_000, false);
+        fopBus.post(new FOPEvent.ForceTime(resetDuration, this));
+        fopState.getAthleteTimer().setTimeRemaining(
+            resetDuration - Competition.athleteTimerFinalWarning - 5_000, false);
         athlete.setCheckTiming(true);
 
         try {
             declaration(athlete, "62", fopBus);
-            fail("late declaration was accepted after resetting the two-minute clock");
+            fail("late declaration was accepted after resetting the clock");
         } catch (RuleViolationException.LateDeclaration expected) {
             // expected
+        }
+    }
+
+    private void assertClockResetReemitsFinalWarning(int resetDuration) throws InterruptedException {
+        FieldOfPlay fopState = OwlcmsSession.getFop();
+        EventBus fopBus = fopState.getFopEventBus();
+        FinalWarningRecorder recorder = new FinalWarningRecorder();
+        fopState.getUiEventBus().register(recorder);
+        testPrepState4(fopState, fopBus, logger);
+        fopBus.post(new FOPEvent.SwitchGroup(fopState.getGroup(), this));
+        fopBus.post(new FOPEvent.StartLifting(this));
+        fopBus.post(new FOPEvent.TimeStarted(this));
+
+        ProxyAthleteTimer warningTimer = new ProxyAthleteTimer(fopState);
+        warningTimer.finalWarning(this);
+        fopBus.post(new FOPEvent.ForceTime(resetDuration, this));
+        fopBus.post(new FOPEvent.TimeStarted(this));
+        warningTimer.finalWarning(this);
+
+        assertTrue("final warning events were not delivered", recorder.awaitFinalWarnings());
+        assertEquals("final warning should be emitted before and after resetting the clock", 2,
+                recorder.finalWarningCount);
+        fopState.getUiEventBus().unregister(recorder);
+    }
+
+    private static class FinalWarningRecorder {
+        private int finalWarningCount;
+        private final CountDownLatch finalWarnings = new CountDownLatch(2);
+
+        public boolean awaitFinalWarnings() throws InterruptedException {
+            return finalWarnings.await(1, TimeUnit.SECONDS);
+        }
+
+        @Subscribe
+        public void onTimeRemaining(UIEvent.TimeRemainingSeconds event) {
+            if (event.getSecondsRemaining() == Competition.athleteTimerFinalWarning / 1000) {
+                finalWarningCount++;
+                finalWarnings.countDown();
+            }
         }
     }
 
