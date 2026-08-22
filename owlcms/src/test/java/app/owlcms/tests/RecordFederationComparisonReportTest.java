@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import app.owlcms.Main;
@@ -129,32 +128,4 @@ public class RecordFederationComparisonReportTest {
 		assertTrue(html.contains("&laquo;   &raquo;"));
 	}
 
-	@Test
-	@Ignore("Production import readers discard empty federation tokens before report generation")
-	public void malformedFederationCodesCausingEmptyFederationAppearInHtmlSection() {
-		RecordEvent usRecord = new RecordEvent();
-		usRecord.setRecordFederation("US");
-
-		Athlete malformedAthlete = new Athlete();
-		malformedAthlete.setLastName("Malformed");
-		malformedAthlete.setFirstName("Case");
-		malformedAthlete.setFederationCodes("US, ,CA");
-
-		ReportData report = RecordFederationComparisonReport.buildReport(List.of(usRecord), List.of(malformedAthlete));
-
-		List<BlankEligibilityAthlete> flaggedEligibilityAthletes = report.getBlankEligibilityAthletes();
-		assertEquals(1, flaggedEligibilityAthletes.size());
-		assertEquals("US, ,CA", flaggedEligibilityAthletes.get(0).getDisplayEligibilityData());
-		assertTrue(flaggedEligibilityAthletes.get(0).getIssueDescription().contains("empty federation row"));
-
-		Map<String, FederationParticipationSummary> byFederation = report.getSummaries().stream()
-		        .collect(Collectors.toMap(FederationParticipationSummary::getFederation, Function.identity()));
-		assertEquals(1, byFederation.get("").getAthleteCount());
-
-		String html = RecordFederationComparisonReport.buildHtmlContent(report);
-		assertTrue(html.contains(Translator.translate("Records.EligBlankHeading")));
-		assertTrue(html.contains(flaggedEligibilityAthletes.get(0).getAthleteName()));
-		assertTrue(html.contains(flaggedEligibilityAthletes.get(0).getIssueDescription()));
-		assertTrue(html.contains("&laquo;US, ,CA&raquo;"));
-	}
 }

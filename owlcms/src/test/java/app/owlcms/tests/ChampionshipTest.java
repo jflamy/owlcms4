@@ -42,7 +42,6 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -1006,9 +1005,8 @@ public class ChampionshipTest {
         }
     }
 
-    @Ignore("Score-based mixed-team totals may include unfinished groups because scores are monotonic.")
-    @Test
-    public void testScoreBasedTeamResultsIgnoreUnfinishedGroups() {
+        @Test
+        public void testScoreBasedTeamResultsReplaceUnfinishedMembers() {
         Championship senior = ChampionshipRepository.findByName("Senior");
         assertNotNull("Senior championship should be loaded from fixture", senior);
         assertFalse("Senior mixed teams in fixture should be score-based", senior.computeMixedPointsBased());
@@ -1028,9 +1026,7 @@ public class ChampionshipTest {
         Long groupId = initialAthlete.getGroup().getId();
         Long athleteId = initialAthlete.getId();
         String teamName = initialTeam.getName();
-        double originalTeamScore = initialTeam.getScore();
         int originalCounted = initialTeam.getCounted();
-        double removedMemberScore = initialMember.getScore();
         boolean originalDone = setGroupDone(groupId, false);
         assertTrue("selected mixed group should start done in fixture", originalDone);
 
@@ -1042,10 +1038,13 @@ public class ChampionshipTest {
                     .orElseThrow(
                             () -> new AssertionError("missing mixed team after marking group unfinished: " + teamName));
 
-            assertRoundedTo2("unfinished group athlete should not add mixed team score",
-                    originalTeamScore - removedMemberScore, updatedTeam.getScore());
-            assertEquals("unfinished group athlete should not consume a counted mixed slot",
-                    originalCounted - 1, updatedTeam.getCounted().intValue());
+            double expectedTeamScore = updatedTeam.getCountedTeamMembers().stream()
+                    .mapToDouble(TeamTreeItem::getScore)
+                    .sum();
+            assertRoundedTo2("mixed team score should include all recomputed counted members",
+                    expectedTeamScore, updatedTeam.getScore());
+            assertEquals("score-based team should replace the unfinished member",
+                    originalCounted, updatedTeam.getCounted().intValue());
 
             TeamTreeItem unfinishedMember = updatedTeam.getTeamMembers().stream()
                     .filter(member -> member.getAthlete() != null && athleteId.equals(member.getAthlete().getId()))
@@ -1054,7 +1053,7 @@ public class ChampionshipTest {
             assertNotNull("unfinished mixed athlete should still be present in team member pool", unfinishedMember);
             assertFalse("unfinished mixed athlete should not be counted for the team",
                     unfinishedMember.isCountedForTeam());
-            assertFalse("unfinished mixed athlete should not appear in counted team members",
+            assertFalse("unfinished mixed athlete should not remain in counted team members",
                     updatedTeam.getCountedTeamMembers().stream()
                             .anyMatch(member -> member.getAthlete() != null
                                     && athleteId.equals(member.getAthlete().getId())));
