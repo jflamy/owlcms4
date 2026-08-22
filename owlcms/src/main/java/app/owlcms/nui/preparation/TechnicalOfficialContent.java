@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.nui.preparation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import app.owlcms.components.ConfirmationDialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -32,6 +34,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.TextRenderer;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 
@@ -398,7 +401,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		this.grid.getThemeNames().add("row-stripes");
 
 		// Active checkbox column - immediate update without opening form
-		this.grid.addColumn(new ComponentRenderer<>(official -> {
+		var activeColumn = this.grid.addColumn(new ComponentRenderer<>(official -> {
 			Checkbox activeBox = new Checkbox();
 			activeBox.setLabel(null);
 			activeBox.getElement().getThemeList().set("secondary", true);
@@ -414,11 +417,19 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			}).addEventData("event.stopPropagation()");
 			return activeBox;
 		})).setHeader(Translator.translate("TechnicalOfficial.Active")).setWidth("0");
+		activeColumn.setComparator(TechnicalOfficial::isActive).setSortable(true);
 
-		this.grid.addColumn(TechnicalOfficial::getFullName)
+		var nameColumn = this.grid.addColumn(TechnicalOfficial::getFullName)
 		        .setHeader(Translator.translate("Name"))
-		        .setAutoWidth(true);
-		this.grid.addColumn(TechnicalOfficial::getFederation).setHeader(Translator.translate("TechnicalOfficial.Federation"));
+		        .setAutoWidth(true)
+		        .setComparator(Comparator.comparing(TechnicalOfficial::getFullName,
+		                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+		        .setSortable(true);
+		this.grid.addColumn(TechnicalOfficial::getFederation)
+		        .setHeader(Translator.translate("TechnicalOfficial.Federation"))
+		        .setComparator(Comparator.comparing(TechnicalOfficial::getFederation,
+		                Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+		        .setSortable(true);
 		var teamColumn = this.grid.addColumn(official -> {
 			Integer team = official.getTechnicalOfficialTeam();
 			return team == null ? "" : team.toString();
@@ -429,9 +440,29 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        .thenComparing(o -> {
 		            var teamRole = o.getTeamRole();
 		            return teamRole == null ? Integer.MAX_VALUE : teamRole.ordinal();
-		        }));
+		        })).setSortable(true);
 
-		// Role column with translated role name
+		// TeamRole column (generic role for team assignment)
+		var teamRoleColumn = this.grid.addColumn(official -> {
+			var teamRole = official.getTeamRole();
+			return teamRole == null ? "" : Translator.translate(teamRole.getTranslationKey());
+		}).setHeader(Translator.translate("TechnicalOfficials.TeamRole"));
+		teamRoleColumn.setComparator(Comparator.comparing(
+		        official -> official.getTeamRole() == null ? Integer.MAX_VALUE : official.getTeamRole().ordinal()))
+		        .setSortable(true);
+
+		this.grid.addColumn(TechnicalOfficial::getLevel)
+		        .setHeader(Translator.translate("TechnicalOfficial.Level"))
+		        .setRenderer(new TextRenderer<>(official -> {
+		        	TOLevel level = official.getLevel();
+		        	return level == null ? "" : Translator.translate("TOLevel." + level.name());
+		        }))
+		        .setComparator(Comparator.comparing(TechnicalOfficial::getLevel,
+		                Comparator.nullsLast(Comparator.naturalOrder())))
+		        .setSortable(true)
+		        .setAutoWidth(true);
+
+		// Accreditation column with translated role name
 		var roleColumn = this.grid.addColumn(official -> {
 			TechnicalOfficial.Role role = official.getAccreditationRole();
 			if (role == null) {
@@ -447,23 +478,17 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        .thenComparing(o -> {
 		            Integer team = o.getTechnicalOfficialTeam();
 		            return team == null ? Integer.MAX_VALUE : team;
-		        }));
+		        })).setSortable(true);
 
-		// TeamRole column (generic role for team assignment)
-		this.grid.addColumn(official -> {
-			var teamRole = official.getTeamRole();
-			return teamRole == null ? "" : Translator.translate(teamRole.getTranslationKey());
-		}).setHeader(Translator.translate("TechnicalOfficials.TeamRole"));
-
-		this.grid.addColumn(TechnicalOfficial::getLevel)
-		        .setHeader(Translator.translate("TechnicalOfficial.Level"))
-		        .setRenderer(new TextRenderer<>(official -> {
-		        	TOLevel level = official.getLevel();
-		        	return level == null ? "" : Translator.translate("TOLevel." + level.name());
-		        }));
+		List<GridSortOrder<TechnicalOfficial>> sortOrder = new ArrayList<>();
+		sortOrder.add(new GridSortOrder<>(activeColumn, SortDirection.DESCENDING));
+		sortOrder.add(new GridSortOrder<>(nameColumn, SortDirection.ASCENDING));
+		this.grid.sort(sortOrder);
 		this.grid.addColumn(TechnicalOfficial::getFederationId).setHeader(Translator.translate("TechnicalOfficial.FederationId"));
 		this.grid.addColumn(TechnicalOfficial::getAffiliation).setHeader(Translator.translate("TechnicalOfficial.Affiliation"));
-		this.grid.addColumn(TechnicalOfficial::getIwfId).setHeader(Translator.translate("TechnicalOfficial.IWFId"));
+		this.grid.addColumn(TechnicalOfficial::getIwfId)
+		        .setHeader(Translator.translate("TechnicalOfficial.IWFId"))
+		        .setAutoWidth(true);
 
 		TechnicalOfficialCrudGrid crud = new TechnicalOfficialCrudGrid(TechnicalOfficial.class,
 		        new OwlcmsGridLayout(TechnicalOfficial.class),
