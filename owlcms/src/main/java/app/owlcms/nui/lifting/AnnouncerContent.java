@@ -894,9 +894,6 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        e -> {
 			        switchDownMode(!this.isDownSilenced(), true);
 			        e.getSource().setChecked(!this.isDownSilenced());
-			        if (this.decisionDisplay != null) {
-				        this.decisionDisplay.setSilenced(this.isDownSilenced());
-			        }
 		        });
 		subItemDownOn.setCheckable(true);
 		subItemDownOn.setChecked(!this.isDownSilenced());

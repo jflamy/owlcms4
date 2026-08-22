@@ -1,4 +1,5 @@
-import { html, LitElement, css } from "lit";
+import { html, LitElement } from "lit";
+import { stylesheetHref } from "./stylesheetHref.js";
 
 /*********************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
@@ -12,101 +13,9 @@ class DecisionElement extends LitElement {
     return "decision-element";
   }
 
-  static get styles() {
-    return [
-      css`
-        :host {
-          display: flex;
-          height: 100%;
-        }
-
-        :host([size="large"]) {
-          --attempt-font-size: 25vh;
-        }
-
-        :host([size="x-large"]) {
-          --attempt-font-size: 40vh;
-        }
-
-        :host(:not([size])),
-        :host([size="small"]) {
-          --attempt-font-size: 1.2em;
-        }
-        .decisionWrapper {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-        }
-
-        .decisions {
-          display: none;
-          height: 100%;
-          width: 100%;
-          display: flex;
-          align-items: stretch;
-          justify-content: space-between;
-        }
-
-        .decision {
-          border-radius: 5%;
-          border: var(--decision-border-width, 2px) solid var(--lumo-contrast);
-          margin: 3%;
-          /* 	background-color: #333333; */
-          width: 30%;
-        }
-
-        .soloDecision {
-          border-radius: 50%;
-          border: var(--decision-border-width, 2px) solid var(--lumo-contrast);
-          margin: 0;
-          padding: 0;
-          width: var(--solo-decision-size, var(--attempt-font-size, 20vh));
-          height: var(--solo-decision-size, var(--attempt-font-size, 20vh));
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: calc(var(--solo-decision-size, var(--attempt-font-size, 20vh)) * 0.6);
-          line-height: 1;
-          color: black;
-          align-self: center;
-        }
-
-        /* .soloDecision.none {
-          visibility: hidden;
-        } */
-
-        .red {
-          background-color: red;
-        }
-
-        .white {
-          background-color: white;
-        }
-
-        .none {
-          background-color: var(--lumo-contrast-20pct);
-          border: var(--decision-border-width, 2px) dashed var(--lumo-contrast);
-        }
-
-        .invisible {
-          visibility: hidden;
-        }
-
-        .down {
-          display: flex;
-          align-items: center;
-          justify-content: space-evenly;
-          font-weight: normal;
-          color: lime;
-          display: block;
-          font-family: 'Arial Black', Arial, Helvetica, sans-serif;
-        }
-      `,
-    ];
-  }
-
   render() {
     return html` 
+      <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "decision-lights")}" />
       <audio preload="auto" id="down" src="../local/sounds/down.mp3"></audio>
       <div class="decisionWrapper" style="${this.decisionWrapperStyle()}" >
         <div class="down" style="font-weight: 900; ${this.downStyles()}"><vaadin-icon icon="vaadin:arrow-circle-down"></vaadin-icon></div>
@@ -197,6 +106,7 @@ class DecisionElement extends LitElement {
     this._downShown = false;
     this._showDecision = false;
     this.size = "small";
+    this.stylesDir = "css";
     this.decisionPayload = null;
     // sequence of the last decisionPayload applied; drops stale/out-of-order payloads.
     this._lastDecisionSequence = 0;
