@@ -12,8 +12,9 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
+import tools.jackson.databind.node.ObjectNode;
+
+import app.owlcms.utils.JsonUtils;
 
 /** Parent-driven decision-light display with no event-bus ownership. */
 @SuppressWarnings("serial")
@@ -54,7 +55,7 @@ public class PassiveDecisionElement extends LitTemplate {
 	}
 
 	private void setDecisionPayload(String mode, Boolean ref1, Boolean ref2, Boolean ref3, boolean singleRef) {
-		JsonObject payload = Json.createObject();
+		ObjectNode payload = JsonUtils.object();
 		payload.put("sequence", Long.toString(++this.commandSequence));
 		payload.put("mode", mode);
 		payload.put("singleRef", singleRef);
@@ -64,9 +65,9 @@ public class PassiveDecisionElement extends LitTemplate {
 		getElement().setPropertyJson("decisionPayload", payload);
 	}
 
-	private void putNullableBoolean(JsonObject payload, String key, Boolean value) {
+	private void putNullableBoolean(ObjectNode payload, String key, Boolean value) {
 		if (value == null) {
-			payload.put(key, Json.createNull());
+			payload.putNull(key);
 		} else {
 			payload.put(key, value.booleanValue());
 		}
