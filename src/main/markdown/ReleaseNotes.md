@@ -10,6 +10,10 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta10: Decision displays on technical official stations, redone for robustness improvement.
+
+- 68.0.0-beta10: Technical-official web page support sorting, and import correctly processes inactive officials
+
 - 68.0.0-beta09: Loading chart fixes and adjustments
   - lightBarU13 and lightBarU15 clarified to not inadverently interfere with other settings
   - added `noCollars5kgBar` to prevent 2.5kg collars from being used on kid bar for weights under 20kg
