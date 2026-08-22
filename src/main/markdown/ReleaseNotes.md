@@ -10,13 +10,13 @@
 
 **New in Release 67.4**
 
+- 67.4.0: Implementation changes of Athlete timer and Decision display for the speaker, timekeeper, marshal and jury stations to fix intermittent missed updates.
+
 - 67.4.0: Enhancements to Decision Section at the bottom of the scorebords
   - Show the athlete name and optionally the participations in the various categories (subject to feature toggle `decisionSectionShowAgeGroups`)
   - Show nature of break currently under way.
 
 - 67.4.0: Adjusted the rules for the Leaders section at the bottom of the scoreboards to better deal with 3-medal championships
-
-- 67.4.0: New athlete Timer implementation on technical official stations (speaker, timekeeper, marshal, etc.) to fix intermittent missed starts.
 
 - 67.4.0: Fix: After resetting to a two-minute clock, a for missed declaration deadline WAS not signaled
 
