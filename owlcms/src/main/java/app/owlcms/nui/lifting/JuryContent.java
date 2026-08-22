@@ -44,7 +44,7 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
-import app.owlcms.components.elements.JuryDisplayDecisionElement;
+import app.owlcms.components.elements.PassiveDecisionElement;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
@@ -79,7 +79,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	Notification decisionNotification;
 	List<ShortcutRegistration> registrations;
 	private Athlete athleteUnderReview;
-	private JuryDisplayDecisionElement decisions;
+	private PassiveDecisionElement decisions;
 	private JuryDialog juryDialog;
 	private Icon[] juryIcons;
 	private NativeLabel juryLabel;
@@ -159,6 +159,17 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	@Subscribe
 	public void slaveBreakStart(UIEvent.BreakStarted e) {
 		super.slaveBreakStart(e);
+		if (!e.isDisplayToggle() && e.getBreakType() != BreakType.JURY
+		        && e.getBreakType() != BreakType.CHALLENGE) {
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> resetDecisionDisplay(e.getFop()));
+		}
+	}
+
+	@Override
+	@Subscribe
+	public void slaveBreakDone(UIEvent.BreakDone e) {
+		super.slaveBreakDone(e);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> resetDecisionDisplay(e.getFop()));
 	}
 
 	@Subscribe
@@ -266,8 +277,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			// jury votes from second vote during deliberation stay visible until clock starts.
 			// logger.debug("RESETTING");
 			UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-				this.decisions.doReset();
-				this.decisions.setSilenced(true);
+				resetDecisionDisplay(getFop());
 				if (this.decisionNotification != null) {
 					this.decisionNotification.close();
 				}
@@ -317,12 +327,6 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			        switchSoundMode(!this.isSilenced(), true);
 			        e.getSource().setText(this.isSilenced() ? Translator.translate("Settings.TurnOnSound")
 			                : Translator.translate("Settings.TurnOffSound"));
-			        if (this.decisionDisplay != null) {
-				        this.decisionDisplay.setSilenced(true);
-			        }
-			        if (this.decisions != null) {
-				        this.decisions.setSilenced(true);
-			        }
 			        if (this.timer != null) {
 				        this.timer.setSilenced(this.isSilenced());
 			        }
@@ -349,7 +353,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	protected void doSync() {
 		syncWithFop(false, getFop());
-		this.decisions.slaveDecisionReset(null);
+		resetDecisionDisplay(getFop());
 
 		// OwlcmsSession.getFop().fopEventPost(new FOPEvent.StartLifting(this));
 		if (this.decisionNotification != null) {
@@ -377,17 +381,13 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Override
 	protected void syncWithFop(boolean refreshGrid, FieldOfPlay fop) {
-		logger./**/warn("JuryContent syncWithFop: fop={} fop.isSingleReferee={} decisions={}",
-		        fop.getName(), fop.isSingleReferee(), (this.decisions != null ? "exists" : "null"));
+		logger.debug("{}syncWithFop singleReferee={} decisions={}",
+		        FieldOfPlay.getLoggingName(fop), fop.isSingleReferee(), (this.decisions != null ? "exists" : "null"));
 		super.syncWithFop(refreshGrid, fop);
 		
 		// Create decisions element if deferred from init (FOP was not available then)
 		addDecisionsElement(fop);
 		
-		// Ensure FOP is set on decision element
-		if (this.decisions != null) {
-			this.decisions.setFop(fop);
-		}
 		setAthleteUnderReview(fop.getAthleteUnderReview());
 		Boolean[] curDecisions = fop.getJuryMemberDecision();
 		if (curDecisions != null) {
@@ -398,10 +398,7 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 			}
 		}
 		Boolean[] curRefDecisions = fop.getRefereeDecision();
-		Long[] curRefTimes = fop.getRefereeTime();
-		if (this.decisions != null) {
-			this.decisions.doReset();
-		}
+		resetDecisionDisplay(fop);
 		if (curRefDecisions != null && this.decisions != null) {
 			// for (int i = 0; i < 3; i++) {
 			// Boolean goodBad = curRefDecisions[i];
@@ -418,15 +415,8 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 				this.decisions.getStyle().set("font-size", "100%");
 			}
 			
-			if (singleRef) {
-				this.decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(this.athleteUnderReview, null,
-				        curRefDecisions[1], null, null, curRefTimes[1], null, this, true, fop));
-			} else {
-				this.decisions.slaveRefereeUpdate(new UIEvent.RefereeUpdate(this.athleteUnderReview,
-				        curRefDecisions[0],
-				        curRefDecisions[1], curRefDecisions[2], curRefTimes[0], curRefTimes[1], curRefTimes[2],
-				        this, false, fop));
-			}
+			this.decisions.showLiveDecisions(singleRef ? null : curRefDecisions[0], curRefDecisions[1],
+			        singleRef ? null : curRefDecisions[2], singleRef);
 		}
 	}
 
@@ -513,16 +503,15 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	/**
-	 * Creates and adds the JuryDisplayDecisionElement to refContainer.
+	 * Creates and adds the passive decision element to refContainer.
 	 * Called either from buildRefereeBox (if FOP available) or syncWithFop (deferred).
 	 */
 	private void addDecisionsElement(FieldOfPlay fop) {
 		if (this.decisions != null || this.refContainer == null) {
 			return; // Already created or container not ready
 		}
-		this.decisions = new JuryDisplayDecisionElement();
-		this.decisions.setFop(fop);
-		this.decisions.doReset();
+		this.decisions = new PassiveDecisionElement();
+		this.decisions.reset(fop.isSingleReferee());
 		this.decisions.setDisplaySize("large");
 		this.decisions.getElement().setAttribute("theme", "dark");
 		this.decisions.getStyle().set("background-color", "black");
@@ -530,6 +519,27 @@ public class JuryContent extends AthleteGridContent implements HasDynamicTitle {
 		Div decisionWrapper = new Div(this.decisions);
 		decisionWrapper.getStyle().set("width", "50%");
 		this.refContainer.add(decisionWrapper);
+	}
+
+	private void resetDecisionDisplay(FieldOfPlay fop) {
+		if (this.decisions != null) {
+			this.decisions.reset(fop != null && fop.isSingleReferee());
+		}
+	}
+
+	@Override
+	protected void passiveDecisionShow(UIEvent.Decision event) {
+		super.passiveDecisionShow(event);
+		if (this.decisions != null) {
+			this.decisions.showDecision(event.decision, event.ref1, event.ref2, event.ref3, event.isSingleLight());
+		}
+	}
+
+	@Override
+	protected void passiveLiveDecisionShow(UIEvent.RefereeUpdate event) {
+		if (this.decisions != null) {
+			this.decisions.showLiveDecisions(event.ref1, event.ref2, event.ref3, event.isSingleLight());
+		}
 	}
 
 	private void checkAllVoted() {

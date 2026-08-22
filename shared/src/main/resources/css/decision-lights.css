@@ -1,0 +1,80 @@
+:host {
+  display: flex;
+  height: 100%;
+}
+
+:host([size="large"]) {
+  --attempt-font-size: 25vh;
+}
+
+:host([size="x-large"]) {
+  --attempt-font-size: 40vh;
+}
+
+:host(:not([size])),
+:host([size="small"]) {
+  --attempt-font-size: 1.2em;
+}
+
+.decisionWrapper {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.decisions {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+
+.decision {
+  border-radius: 5%;
+  border: var(--decision-border-width, 2px) solid var(--lumo-contrast);
+  margin: 3%;
+  width: 30%;
+}
+
+.soloDecision {
+  border-radius: 50%;
+  border: var(--decision-border-width, 2px) solid var(--lumo-contrast);
+  margin: 0;
+  padding: 0;
+  width: var(--solo-decision-size, var(--attempt-font-size, 20vh));
+  height: var(--solo-decision-size, var(--attempt-font-size, 20vh));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--solo-decision-size, var(--attempt-font-size, 20vh)) * 0.6);
+  line-height: 1;
+  color: black;
+  align-self: center;
+}
+
+.red {
+  background-color: red;
+}
+
+.white {
+  background-color: white;
+}
+
+.none {
+  background-color: var(--lumo-contrast-20pct);
+  border: var(--decision-border-width, 2px) dashed var(--lumo-contrast);
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+.down {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  font-weight: normal;
+  color: lime;
+  font-family: 'Arial Black', Arial, Helvetica, sans-serif;
+}
