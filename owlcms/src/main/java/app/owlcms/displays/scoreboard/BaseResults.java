@@ -962,11 +962,8 @@ public class BaseResults extends LitTemplate
 	}
 
 	protected int countSubsets(List<Athlete> order) {
-		if (Competition.getCurrent().isByAgeGroup()) {
-			return countCategories(order) + 1;
-		} else {
-			return (countBWClasses(order)) + 1;
-		}
+		// spacers actually emitted by getAthletesJson, +1 for the trailing filler line
+		return this.emittedSpacerCount + 1;
 	}
 
 	protected void doEmpty() {
@@ -1152,15 +1149,20 @@ public class BaseResults extends LitTemplate
 	 * @param groupAthletes, List<Athlete> liftOrder
 	 * @return
 	 */
+	/** number of spacer rows emitted by the last call to {@link #getAthletesJson} */
+	protected int emittedSpacerCount = 0;
+
 	protected JsonValue getAthletesJson(List<Athlete> displayOrder, List<Athlete> liftOrder, FieldOfPlay fop) {
 		JsonArray jath = Json.createArray();
 		int athx = 0;
+		int spacerCount = 0;
 
 		Athlete prevAthlete = null;
 		long currentId = (liftOrder != null && liftOrder.size() > 0) ? liftOrder.get(0).getId() : -1L;
 		long nextId = (liftOrder != null && liftOrder.size() > 1) ? liftOrder.get(1).getId() : -1L;
 		List<Athlete> athletes = displayOrder != null ? Collections.unmodifiableList(displayOrder)
 		        : Collections.emptyList();
+		Map<String, Boolean> allSecondarySubCategory = computeAllSecondarySubCategory(athletes);
 		for (Athlete a : athletes) {
 			JsonObject ja = Json.createObject();
 			if (getSeparatorPredicate().test(a, prevAthlete)) {
@@ -1169,6 +1171,7 @@ public class BaseResults extends LitTemplate
 				jath.set(athx, ja);
 				ja = Json.createObject();
 				athx++;
+				spacerCount++;
 			}
 			// compute the blinking rank (1 = current, 2 = next)
 			getAthleteJson(a, ja, a.getCategory(), (a.getId() == currentId)
@@ -1177,6 +1180,7 @@ public class BaseResults extends LitTemplate
 			                ? 2
 			                : 0),
 			        fop);
+			appendSubCategorySuffix(a, ja, allSecondarySubCategory);
 			String team = a.getTeam();
 			if (team != null && team.trim().length() > Competition.SHORT_TEAM_LENGTH) {
 				setWideTeamNames(true);
@@ -1185,7 +1189,35 @@ public class BaseResults extends LitTemplate
 			athx++;
 			prevAthlete = a;
 		}
+		this.emittedSpacerCount = spacerCount;
 		return jath;
+	}
+
+	/**
+	 * For each category shown, true if all its athletes in the current display carry a
+	 * non-A subcategory (B/C/D group lifting in this session).
+	 */
+	private Map<String, Boolean> computeAllSecondarySubCategory(List<Athlete> athletes) {
+		Map<String, Boolean> allSecondary = new HashMap<>();
+		for (Athlete a : athletes) {
+			Category cat = a.getCategory();
+			if (cat == null) {
+				continue;
+			}
+			String sub = a.getSubCategory();
+			boolean secondary = sub != null && !sub.isBlank() && !sub.equalsIgnoreCase("A");
+			allSecondary.merge(cat.getCode(), secondary, Boolean::logicalAnd);
+		}
+		return allSecondary;
+	}
+
+	private void appendSubCategorySuffix(Athlete a, JsonObject ja, Map<String, Boolean> allSecondarySubCategory) {
+		Category cat = a.getCategory();
+		String sub = a.getSubCategory();
+		if (cat != null && sub != null && !sub.isBlank()
+		        && allSecondarySubCategory.getOrDefault(cat.getCode(), false)) {
+			ja.put("category", cat.getDisplayName() + " " + sub);
+		}
 	}
 
 	/**
