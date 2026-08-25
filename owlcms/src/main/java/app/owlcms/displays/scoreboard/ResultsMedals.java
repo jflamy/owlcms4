@@ -109,10 +109,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		computeStylesDir(this);
 		this.teamFlags = URLUtils.checkFlags();
 		doMedals(this.getFop());
-
-		if (!resolveLiftRankVisibility(this.getFop())) {
-			getElement().setProperty("noLiftRanks", "noranks");
-		}
 		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
 	}
 
@@ -395,10 +391,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 
 		Participation mainRankings = a.getMainRankings();
 		if (mainRankings != null) {
+			boolean liftMedals = awardsLiftMedals(a);
 			int snatchRank = mainRankings.getSnatchRank();
 			if (a.getComputedScoringSystem() == Ranking.TOTAL) {
 				ja.put("snatchRank", formatRank(snatchRank));
-				ja.put("snatchMedal", snatchRank >= 1 && snatchRank <= 3 ? "medal" + snatchRank : "");
+				ja.put("snatchMedal", liftMedals && snatchRank >= 1 && snatchRank <= 3 ? "medal" + snatchRank : "");
 			} else {
 				ja.put("snatchRank", "");
 				ja.put("snatchMedal", "");
@@ -407,7 +404,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			int cleanJerkRank = mainRankings.getCleanJerkRank();
 			if (a.getComputedScoringSystem() == Ranking.TOTAL) {
 				ja.put("cleanJerkRank", formatRank(cleanJerkRank));
-				ja.put("cleanJerkMedal", cleanJerkRank >= 1 && cleanJerkRank <= 3 ? "medal" + cleanJerkRank : "");
+				ja.put("cleanJerkMedal", liftMedals && cleanJerkRank >= 1 && cleanJerkRank <= 3 ? "medal" + cleanJerkRank : "");
 			} else {
 				ja.put("cleanJerkRank", "");
 				ja.put("cleanJerkMedal", "");
@@ -462,8 +459,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	 * @return
 	 */
 	protected JsonValue getAthletesJson(List<Athlete> displayOrder, final FieldOfPlay _unused) {
-		FieldOfPlay fop = _unused != null ? _unused : getFop();
-		this.snatchCJTotalMedals = resolveLiftRankVisibility(fop);
 		JsonArray jath = Json.createArray();
 		AtomicInteger athx = new AtomicInteger(0);
 		// Category prevCat = null;
@@ -549,18 +544,22 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		JsonObject jMC = Json.createObject();
 		int mcX = 0;
 		if (medalists != null && !medalists.isEmpty()) {
-			jMC.put("categoryName", getCategory().getDisplayName());
-			setTitles(jMC, medalists.get(0).getCategory());
-			jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), fop));
+			JsonValue leaders = getAthletesJson(new ArrayList<>(medalists), fop);
+			// isMedalist filtering can leave no rows; skip the category entirely
+			if (((JsonArray) leaders).length() > 0) {
+				jMC.put("categoryName", getCategory().getDisplayName());
+				setTitles(jMC, medalists.get(0).getCategory());
+				jMC.put("leaders", leaders);
 
-			// Check if all eligible athletes in this category have finished lifting
-			Group g = this.getGroup();
-			boolean allDone = medalists.stream()
-			        .noneMatch(a -> !a.isDone(g) && a.isEligibleForIndividualRanking());
-			jMC.put("categoryDone", allDone);
+				// Check if all eligible athletes in this category have finished lifting
+				Group g = this.getGroup();
+				boolean allDone = medalists.stream()
+				        .noneMatch(a -> !a.isDone(g) && a.isEligibleForIndividualRanking());
+				jMC.put("categoryDone", allDone);
 
-			jsonMCArray.set(mcX, jMC);
-			mcX++;
+				jsonMCArray.set(mcX, jMC);
+				mcX++;
+			}
 		}
 
 		this.getElement().setPropertyJson("medalCategories", jsonMCArray);
@@ -589,9 +588,17 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			JsonObject jMC = Json.createObject();
 			List<Athlete> medalists = medalCat.getValue();
 			if (medalists != null && !medalists.isEmpty()) {
+				if (!isMedalingCategoryForSession(medalists, this.getGroup())) {
+					continue;
+				}
+				JsonValue leaders = getAthletesJson(new ArrayList<>(medalists), null);
+				// isMedalist filtering can leave no rows; skip the category entirely
+				if (((JsonArray) leaders).length() == 0) {
+					continue;
+				}
 				setTitles(jMC, medalists.get(0).getCategory());
 
-				jMC.put("leaders", getAthletesJson(new ArrayList<>(medalists), null));
+				jMC.put("leaders", leaders);
 				if (mcX == 0) {
 					jMC.put("showCatHeader", "");
 				} else {
@@ -642,15 +649,39 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	// private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {
+
 	// getElement().executeJs("return window.sessionStorage.getItem($0);", key)
 	// .then(String.class, resultHandler);
 	// }
 
 	protected boolean isOnlyFinished() {
-		return true;
+		//FIXME: some categories are in championships that show all medals, others only the total/score medal
+		return false;
+	}
+
+	/**
+	 * A category awards medals at the end of session g only if the session lifts its A (or unsplit)
+	 * portion; the medalists shown may still come from B/C/D groups in earlier sessions.
+	 */
+	private boolean isMedalingCategoryForSession(List<Athlete> medalists, Group g) {
+		if (g == null) {
+			return true;
+		}
+		List<Athlete> inSession = medalists.stream()
+		        .filter(a -> g.equals(a.getGroup()))
+		        .toList();
+		if (inSession.isEmpty()) {
+			// category not contested in this session
+			return false;
+		}
+		return inSession.stream().allMatch(a -> {
+			String sub = a.getSubCategory();
+			return sub == null || sub.isBlank() || sub.equalsIgnoreCase("A");
+		});
 	}
 
 	private void doMedals(FieldOfPlay fop2) {
+		this.snatchCJTotalMedals = resolveLiftRankVisibility(fop2);
 		if (this.getCategory() == null) {
 			if (this.getGroup() != null) {
 				// logger.debug("getgroup {}", this.getGroup());
@@ -667,7 +698,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			this.getMedals().put(this.getCategory().getCode(), catMedals);
 		}
 		setDisplay();
-		this.getElement().setProperty("showLiftRanks", resolveLiftRankVisibility(fop2));
+		this.getElement().setProperty("showLiftRanks", this.snatchCJTotalMedals);
 		this.getElement().setProperty("platformName", CSSUtils.sanitizeCSSClassName(fop2.getName()));
 		computeMedalsJson(this.getMedals());
 	}
@@ -677,10 +708,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		computeStylesDir(this);
 		this.teamFlags = URLUtils.checkFlags();
 		doMedals(this.getFop());
-
-		if (!resolveLiftRankVisibility(this.getFop())) {
-			getElement().setProperty("noLiftRanks", "noranks");
-		}
 		this.getElement().setProperty("displayTitle", Translator.translate("CeremonyType.MEDALS"));
 	}
 
@@ -766,7 +793,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		if (a.getGroup() == null) {
 			return false;
 		}
-		if (this.snatchCJTotalMedals) {
+		if (awardsLiftMedals(a)) {
 			int snatchRank = a.getSnatchRank();
 			if (snatchRank <= 3 && snatchRank > 0) {
 				return true;

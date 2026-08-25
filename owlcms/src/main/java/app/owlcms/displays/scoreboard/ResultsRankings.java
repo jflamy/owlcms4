@@ -109,11 +109,12 @@ public class ResultsRankings extends Results {
 		}
 
 		if (athlete.getComputedScoringSystem() == Ranking.TOTAL) {
+			boolean liftMedals = awardsLiftMedals(athlete);
 			int snatchRank = mainRankings.getSnatchRank();
-			athleteJson.put("snatchMedal", snatchRank >= 1 && snatchRank <= 3 ? "medal" + snatchRank : "");
+			athleteJson.put("snatchMedal", liftMedals && snatchRank >= 1 && snatchRank <= 3 ? "medal" + snatchRank : "");
 
 			int cleanJerkRank = mainRankings.getCleanJerkRank();
-			athleteJson.put("cleanJerkMedal", cleanJerkRank >= 1 && cleanJerkRank <= 3 ? "medal" + cleanJerkRank : "");
+			athleteJson.put("cleanJerkMedal", liftMedals && cleanJerkRank >= 1 && cleanJerkRank <= 3 ? "medal" + cleanJerkRank : "");
 
 			int totalRank = mainRankings.getTotalRank();
 			athleteJson.put("totalMedal", totalRank >= 1 && totalRank <= 3 ? "medal" + totalRank : "");
