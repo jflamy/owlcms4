@@ -398,6 +398,9 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	 */
 	protected GridCrud<TechnicalOfficial> createGrid(OwlcmsCrudFormFactory<TechnicalOfficial> crudFormFactory) {
 		this.grid = new Grid<>(TechnicalOfficial.class, false);
+		this.grid.setMultiSort(true);
+		this.grid.getElement().setProperty("multiSortOnShiftClick", true);
+		this.grid.getElement().setProperty("multiSortPriority", "append");
 		this.grid.getThemeNames().add("row-stripes");
 
 		// Active checkbox column - immediate update without opening form
@@ -482,6 +485,8 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 
 		List<GridSortOrder<TechnicalOfficial>> sortOrder = new ArrayList<>();
 		sortOrder.add(new GridSortOrder<>(activeColumn, SortDirection.DESCENDING));
+		sortOrder.add(new GridSortOrder<>(teamRoleColumn, SortDirection.ASCENDING));
+		sortOrder.add(new GridSortOrder<>(teamColumn, SortDirection.ASCENDING));
 		sortOrder.add(new GridSortOrder<>(nameColumn, SortDirection.ASCENDING));
 		this.grid.sort(sortOrder);
 		this.grid.addColumn(TechnicalOfficial::getFederationId).setHeader(Translator.translate("TechnicalOfficial.FederationId"));
