@@ -10,6 +10,8 @@
 
 **New in Release 67.4**
 
+- 67.4.0: Fixes to the medals and classification scoreboards to update live, minor presentation fixes
+
 - 67.4.0: Implementation changes of Athlete timer and Decision display for the speaker, timekeeper, marshal and jury stations to fix intermittent missed updates.
 
 - 67.4.0: Enhancements to Decision Section at the bottom of the scorebords
