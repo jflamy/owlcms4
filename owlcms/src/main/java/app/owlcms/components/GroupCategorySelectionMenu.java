@@ -9,9 +9,7 @@ package app.owlcms.components;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +28,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
-import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -61,7 +58,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 	private TriConsumer<Group, Category, FieldOfPlay> whenChecked;
 	private TriConsumer<Group, Category, FieldOfPlay> whenUnselected;
 	boolean subMenuLoaded = false;
-	Map<Group, Set<String>> medalCategoriesPerGroup = new HashMap<>();
+	Map<Group, Map<String, Category>> medalCategoriesPerGroup = new HashMap<>();
 
 	public GroupCategorySelectionMenu(List<Group> groups, FieldOfPlay fop,
 	        TriConsumer<Group, Category, FieldOfPlay> whenChecked,
@@ -73,7 +70,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		this.whenUnselected = whenUnselected;
 	}
 
-	public void fillMenu(List<Group> groups, Map<Group, Set<String>> medalCategoriesPerGroup, FieldOfPlay fop,
+	public void fillMenu(List<Group> groups, Map<Group, Map<String, Category>> medalCategoriesPerGroup, FieldOfPlay fop,
 	        TriConsumer<Group, Category, FieldOfPlay> whenChecked,
 	        TriConsumer<Group, Category, FieldOfPlay> whenUnselected, MenuItem item, String menuTitle) {
 		if (fop == null) {
@@ -81,7 +78,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		}
 		SubMenu subMenu = item.getSubMenu();
 		for (Group g : groups) {
-			Set<String> categories = medalCategoriesPerGroup.get(g);
+			Map<String, Category> categories = medalCategoriesPerGroup.get(g);
 			if (categories != null && categories.size() > 0) {
 				MenuItem subItem = subMenu.addItem(
 				        g.getName(),
@@ -98,9 +95,7 @@ public class GroupCategorySelectionMenu extends MenuBar {
 				subItem.getElement().setAttribute("style", "margin: 0px; padding: 0px");
 
 				this.logger.debug("medal categories {}", categories);
-				for (String c : categories) {
-
-					Category cat = CategoryRepository.findByCode(c);
+				for (Category cat : categories.values()) {
 					MenuItem subItem1 = subMenu.addItem(
 					        g.getName() + " - " + cat.getNameWithAgeGroup(),
 					        e -> {
@@ -163,16 +158,29 @@ public class GroupCategorySelectionMenu extends MenuBar {
 		}
 	}
 
-	private Set<String> getAllCategories(Group g) {
-		TreeMap<String, List<Athlete>> medals = Competition.getCurrent().getMedals(g, false);
-		return medals.keySet();
+	private Map<String, Category> getAllCategories(Group g) {
+		TreeMap<String, List<Athlete>> medals = Competition.getCurrent().computeMedals(g);
+		return categoriesFromMedals(medals, false, g);
 	}
 
-	private Set<String> getFinishedCategories(Group g) {
-		Set<String> finishedCategories = new TreeSet<>();
-		TreeMap<String, List<Athlete>> medals = Competition.getCurrent().getMedals(g, true);
-		finishedCategories = medals.keySet();
-		return finishedCategories;
+	private Map<String, Category> getFinishedCategories(Group g) {
+		TreeMap<String, List<Athlete>> medals = Competition.getCurrent().computeMedals(g);
+		return categoriesFromMedals(medals, true, g);
+	}
+
+	private Map<String, Category> categoriesFromMedals(TreeMap<String, List<Athlete>> medals, boolean onlyFinished, Group g) {
+		Map<String, Category> categories = new TreeMap<>();
+		medals.forEach((categoryCode, athletes) -> {
+			boolean unfinished = athletes.stream()
+			        .anyMatch(a -> !a.isDone(g) && a.isEligibleForIndividualRanking());
+			if ((!onlyFinished || !unfinished) && !athletes.isEmpty()) {
+				Category category = athletes.get(0).getCategory();
+				if (category != null) {
+					categories.put(categoryCode, category);
+				}
+			}
+		});
+		return categories;
 	}
 
 	private void init(List<Group> groups, FieldOfPlay fop, TriConsumer<Group, Category, FieldOfPlay> whenChecked,
@@ -198,19 +206,29 @@ public class GroupCategorySelectionMenu extends MenuBar {
 			new Thread(() -> {
 				try {
 					for (Group g : capturedGroups) {
-						Set<String> categories = this.includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
+						Map<String, Category> categories = this.includeNotCompleted ? getAllCategories(g) : getFinishedCategories(g);
 						if (!categories.isEmpty()) {
 							this.medalCategoriesPerGroup.put(g, categories);
 						}
 					}
-					this.subMenuLoaded = true;
-					ui.access(() -> {
-						fillMenu(capturedGroups, this.medalCategoriesPerGroup, capturedFop, capturedWhenChecked, capturedWhenUnselected, capturedItem, capturedMenuTitle);
-						this.setEnabled(true);
-					});
+				} catch (RuntimeException e) {
+					this.logger.warn("unable to compute medal ceremony choices", e);
 				} finally {
-					// Defensive cleanup of thread-local state copied to this thread via InheritableThreadLocal
-					try { OwlcmsSessionThreadLocal.remove(); } catch (Throwable ignore) {}
+					this.subMenuLoaded = true;
+					try {
+						ui.access(() -> {
+							try {
+								fillMenu(capturedGroups, this.medalCategoriesPerGroup, capturedFop, capturedWhenChecked, capturedWhenUnselected, capturedItem, capturedMenuTitle);
+							} catch (RuntimeException e) {
+								this.logger.warn("unable to render medal ceremony choices", e);
+							} finally {
+								this.setEnabled(true);
+							}
+						});
+					} finally {
+						// Defensive cleanup of thread-local state copied to this thread via InheritableThreadLocal
+						try { OwlcmsSessionThreadLocal.remove(); } catch (Throwable ignore) {}
+					}
 				}
 			}).start();
 		}

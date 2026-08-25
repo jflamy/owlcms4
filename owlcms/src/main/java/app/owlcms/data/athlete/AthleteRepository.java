@@ -68,6 +68,8 @@ public class AthleteRepository {
 		return result;
 	}
 
+	//FIXME: we also need unfinished categories AFTER this session completes (a is not done but a in current session)
+
 	public static void assignCategoryRanks() {
 		JPAService.runInTransaction(em -> {
 			// assign ranks to all groups.
