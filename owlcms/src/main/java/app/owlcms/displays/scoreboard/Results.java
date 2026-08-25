@@ -27,7 +27,10 @@ import app.owlcms.components.elements.BreakTimerElement;
 import app.owlcms.components.elements.DecisionBlockDecisionElement;
 import app.owlcms.components.elements.DecisionElement;
 import app.owlcms.components.elements.StopwatchTimerElement;
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.category.Category;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.fieldofplay.FOPState;
@@ -121,6 +124,16 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 
 	public void setTimer(AthleteTimerElement timer) {
 		this.timer = timer;
+	}
+
+	/** three-medal (snatch/C&J/total) vs total-only, per the athlete's championship */
+	protected boolean awardsLiftMedals(Athlete a) {
+		Category athleteCategory = a.getCategory();
+		AgeGroup athleteAgeGroup = athleteCategory != null ? athleteCategory.getAgeGroup() : null;
+		Championship athleteChampionship = athleteAgeGroup != null ? athleteAgeGroup.getChampionship() : null;
+		return athleteChampionship != null
+		        ? athleteChampionship.isSnatchCJTotalMedals()
+		        : Championship.of(null).isSnatchCJTotalMedals();
 	}
 	
 	@Override
