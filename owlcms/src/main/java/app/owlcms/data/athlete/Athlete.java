@@ -1479,9 +1479,10 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Boolean getCategoryFinished() {
+		// same convention as PAthlete: no category counts as finished
 		var allUnfinished = AthleteRepository.getAllUnfinishedCategories();
 		Category category = this.getCategory();
-		return category != null ? allUnfinished.contains(category) : false;
+		return category != null ? !allUnfinished.contains(category) : true;
 	}
 
 	public int getCategoryScoreRank() {
