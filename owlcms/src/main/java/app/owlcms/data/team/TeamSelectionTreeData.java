@@ -272,6 +272,7 @@ public class TeamSelectionTreeData extends TreeData<TeamTreeItem> {
 			boolean countedMember = mixedTeam ? effectiveMixedMembership(t, championship) : Boolean.TRUE.equals(t.isTeamMember());
 			t.setWarning(countedMember && illegalCounts.contains(t.getCategory()));
 		}
+		teamItem.setWarning(!illegalCounts.isEmpty());
 		return nbMembers;
 	}
 
