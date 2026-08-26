@@ -25,6 +25,8 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -369,8 +371,12 @@ public class TeamSelectionContent extends BaseContent
 
 		ComponentRenderer<Component, TeamTreeItem> warningRenderer = new ComponentRenderer<>(p -> {
 			if (p.isWarning()) {
-				NativeLabel label = new NativeLabel("\u26a0");
-				return label;
+				Icon warning = new Icon(VaadinIcon.WARNING);
+				warning.getStyle().set("color", "var(--lumo-error-color)");
+				warning.getStyle().set("width", "1.5em");
+				warning.getStyle().set("height", "1.5em");
+				warning.getElement().setAttribute("title", Translator.translate("Competition.TooManyPerCat"));
+				return warning;
 			} else {
 				return new NativeLabel();
 			}
@@ -387,10 +393,21 @@ public class TeamSelectionContent extends BaseContent
 				Championship champ = getChampionship();
 				Championship effectiveChampionship = champ != null ? champ : Championship.of(null);
 				int maxSize = effectiveChampionship.getMaxTeamSize();
-				NativeLabel label = new NativeLabel(
-				        nb > maxSize ? nb + "\u26a0" : nb + "");
-				p.setMembershipLabel(label);
-				return label;
+				NativeLabel countLabel = new NativeLabel(String.valueOf(nb));
+				HorizontalLayout teamCount = new HorizontalLayout(countLabel);
+				teamCount.setPadding(false);
+				teamCount.setSpacing(false);
+				teamCount.setAlignItems(FlexComponent.Alignment.CENTER);
+				if (nb > maxSize) {
+					Icon warning = new Icon(VaadinIcon.WARNING);
+					warning.getStyle().set("color", "var(--lumo-error-color)");
+					warning.getStyle().set("width", "1.5em");
+					warning.getStyle().set("height", "1.5em");
+					warning.getElement().setAttribute("title", Translator.translate("Competition.TooManyPerCat"));
+					teamCount.add(warning);
+				}
+				p.setMembershipLabel(countLabel);
+				return teamCount;
 			} else {
 				// checkbox to avoid entering in the form
 				Checkbox activeBox = new Checkbox("Name");
