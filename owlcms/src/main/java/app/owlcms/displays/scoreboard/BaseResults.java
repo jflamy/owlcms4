@@ -85,6 +85,8 @@ public class BaseResults extends LitTemplate
         implements DisplayParameters, SafeEventBusRegistration, UIEventProcessor, BreakDisplay,
         RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 
+	private static final int ABBREVIATED_NAME_MIN_LENGTH = 45;
+
 	protected Group curGroup;
 	protected List<Athlete> displayOrder;
 	protected EventBus uiEventBus;
@@ -321,11 +323,20 @@ public class BaseResults extends LitTemplate
 		if (athlete == null) {
 			return "";
 		}
-		String fullName = isAbbreviatedName()
-		        ? (athlete.getAbbreviatedName() != null ? athlete.getAbbreviatedName() : "")
-		        : (athlete.getFullName() != null ? athlete.getFullName() : "");
+		String fullName = getScoreboardDisplayName(athlete);
 		if (!athlete.isEligibleForIndividualRanking() && !fullName.isBlank()) {
 			return Translator.translate("Scoreboard.Extra/Invited", fullName);
+		}
+		return fullName;
+	}
+
+	protected String getScoreboardDisplayName(Athlete athlete) {
+		if (athlete == null) {
+			return "";
+		}
+		String fullName = athlete.getFullName() != null ? athlete.getFullName() : "";
+		if (isAbbreviatedName() && fullName.length() >= ABBREVIATED_NAME_MIN_LENGTH) {
+			return athlete.getAbbreviatedName() != null ? athlete.getAbbreviatedName() : "";
 		}
 		return fullName;
 	}
@@ -995,13 +1006,7 @@ public class BaseResults extends LitTemplate
 			if (a != null) {
 				Group group = fop != null ? fop.getGroup() : null;
 				if (group != null && !group.isDone()) {
-					String fullName;
-					if (isAbbreviatedName() || (a.getFullName().length() >= 45)) {
-						fullName = a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "";
-					} else {
-						fullName = a.getFullName() != null ? a.getFullName() : "";
-					}
-					this.getElement().setProperty("fullName", fullName);
+					this.getElement().setProperty("fullName", getScoreboardDisplayName(a));
 					refreshDecisionSectionCurrentAthlete();
 					this.getElement().setProperty("teamName", a.getTeam());
 					this.getElement().setProperty("startNumber", a.getStartNumber());
@@ -1067,12 +1072,7 @@ public class BaseResults extends LitTemplate
 
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
-		String fullName;
-		if (isAbbreviatedName()) {
-			fullName = a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "";
-		} else {
-			fullName = a.getFullName() != null ? a.getFullName() : "";
-		}
+		String fullName = getScoreboardDisplayName(a);
 		if (!a.isEligibleForIndividualRanking() && !fullName.isBlank()) {
 			fullName = Translator.translate("Scoreboard.Extra/Invited", fullName);
 		}
@@ -1473,6 +1473,15 @@ public class BaseResults extends LitTemplate
 			if (curKey.startsWith("Scoreboard.")) {
 				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
 			}
+		}
+		Config config = Config.getCurrent();
+		String publicStylesDir = config.getParamPublicStylesDir();
+		String videoStylesDir = config.getParamVideoStylesDir();
+		boolean blankStartHeader = isPublicDisplay()
+		        && (publicStylesDir.endsWith("paPublic") || publicStylesDir.endsWith("qcPublic"))
+		        || isVideo() && (videoStylesDir.endsWith("paTV") || videoStylesDir.endsWith("qcTV"));
+		if (blankStartHeader) {
+			translations.put("Start", "\u00A0");
 		}
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)) {
 			translations.put("Custom1", getCustom1Label());

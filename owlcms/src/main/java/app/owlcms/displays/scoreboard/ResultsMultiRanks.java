@@ -72,12 +72,7 @@ public class ResultsMultiRanks extends Results {
 
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
-		String fullName;
-		if (isAbbreviatedName()) {
-			fullName = a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "";
-		} else {
-			fullName = a.getFullName() != null ? a.getFullName() : "";
-		}
+		String fullName = getScoreboardDisplayName(a);
 		if (!a.isEligibleForIndividualRanking() && !fullName.isBlank()) {
 			fullName = Translator.translate("Scoreboard.Extra/Invited", fullName);
 		}
