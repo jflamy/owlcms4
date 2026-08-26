@@ -47,12 +47,13 @@ public class AthleteFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 	@Override
 	protected void init() {
 		setBoard(new AttemptBoard());
+		boolean mqttDownSignal = Config.getCurrent().featureSwitch(FeatureSwitch.MQTT_DOWN_SIGNAL);
 
 		// when navigating to the page, Vaadin will call setParameter+readParameters
 		// these parameters will be applied.
 		var initialMap = Map.of(
-		        SoundParameters.SILENT, "false",
-		        SoundParameters.DOWNSILENT, "false",
+			    SoundParameters.SILENT, Boolean.toString(mqttDownSignal),
+			    SoundParameters.DOWNSILENT, Boolean.toString(mqttDownSignal),
 		        DisplayParameters.DARK, "true",
 		        DisplayParameters.LEADERS, "false",
 		        DisplayParameters.RECORDS, "false",
@@ -75,6 +76,8 @@ public class AthleteFacingAttemptBoardPage extends AbstractAttemptBoardPage {
 		AbstractAttemptBoard board = (AbstractAttemptBoard) getBoard();
 		board.getDecisions().setDisplaySize("large");
 		board.setPublicFacing(false);
+		setSilenced(mqttDownSignal);
+		setDownSilenced(mqttDownSignal);
 		this.addComponent(board);
 	}
 
