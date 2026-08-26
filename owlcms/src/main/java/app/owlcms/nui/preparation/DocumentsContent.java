@@ -1767,9 +1767,13 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 		InputStream in = xlsWriter.createInputStream();
 		// Handle null group for documents that don't require a session (e.g., coach
 		// credentials)
-		String groupName = (g != null) ? g.getName() : "All";
+		String groupName = (g != null) ? zipFileNameSegment(g.getName()) : "All";
 		String name = seq + "_" + elem.id() + "_" + groupName + "." + elem.extension();
 		ZipUtils.zipStream(in, name, false, zipOut);
+	}
+
+	private static String zipFileNameSegment(String name) {
+		return name.replaceAll("[\\\\/:*?\"<>|]+", "-");
 	}
 
 	private void doNotification(String text) {
