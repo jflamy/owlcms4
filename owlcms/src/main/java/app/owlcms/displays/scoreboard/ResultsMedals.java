@@ -373,11 +373,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		}
 		String category;
 		category = curCat != null ? curCat.getDisplayName() : "";
-		if (isAbbreviatedName()) {
-			ja.put("fullName", a.getAbbreviatedName() != null ? a.getAbbreviatedName() : "");
-		} else {
-			ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
-		}
+		ja.put("fullName", getScoreboardDisplayName(a));
 		ja.put("teamName", a.getTeam() != null ? a.getTeam() : "");
 		ja.put("yearOfBirth", a.getYearOfBirth() != null ? a.getYearOfBirth().toString() : "");
 		Integer startNumber = a.getStartNumber();
