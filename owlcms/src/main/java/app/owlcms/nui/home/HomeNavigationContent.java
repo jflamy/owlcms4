@@ -24,6 +24,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -46,6 +47,7 @@ import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -74,7 +76,6 @@ import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * The Class HomeNavigationContent.
@@ -92,7 +93,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	static {
 		logger.setLevel(Level.INFO);
 	}
-	static private String usageStr;
 
 	/**
 	 * Navigation crudGrid.
@@ -122,9 +122,16 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	String VIDEO_STREAMING = Translator.translate("VideoStreaming");
 	String START_DISPLAYS = Translator.translate("StartDisplays");
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
-	String referenceVersionString;
 	String currentVersionString = "";
-	int comparison = 999;
+	private Div versionPlaceholder;
+	private Div motdPlaceholder;
+	private Div controlPanelVersionPlaceholder;
+	private String remoteAddr;
+	private String motdFileName;
+	private String launcherVersion;
+
+	private record VersionCheckResult(String referenceVersion, int comparison) {
+	}
 	
 	/**
 	 * Instantiates a new main navigation content.
@@ -182,19 +189,19 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	}
 
 	private VerticalLayout buildIntro() {
-
-		Html div = checkVersion();
+		this.currentVersionString = OwlcmsFactory.getVersion();
+		this.versionPlaceholder = new Div();
 		if (OwlcmsSession.getAttribute(USAGE_STR) == null) {
-			logUsage();
+			logUsage(UI.getCurrent().getLocale());
 		}
 
-		String launcherVersion = System.getenv("OWLCMS_CONTROLPANEL");
-		if (launcherVersion == null) {
-			launcherVersion = System.getenv("OWLCMS_LAUNCHER");
+		this.launcherVersion = System.getenv("OWLCMS_CONTROLPANEL");
+		if (this.launcherVersion == null) {
+			this.launcherVersion = System.getenv("OWLCMS_LAUNCHER");
 		}
-		String cpvHtml = null;
-		if (launcherVersion != null) {
-			cpvHtml = checkControlPanelVersion(launcherVersion);
+		VaadinRequest currentRequest = VaadinRequest.getCurrent();
+		if (currentRequest != null) {
+			this.remoteAddr = currentRequest.getRemoteAddr();
 		}
 
 		VerticalLayout intro = new VerticalLayout();
@@ -231,7 +238,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			}
 		}
 		intro.add(ul);
-		intro.add(div);
+		intro.add(this.versionPlaceholder);
 
 		var osName = System.getProperty("os.name");
 		if (osName.startsWith("Windows") || osName.startsWith("windows")) {
@@ -245,17 +252,15 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			osName = "cloud";
 		}
 
-		String motd = getMotd(osName + ".html");
-		if (motd != null && !motd.isBlank()) {
-			intro.add(new Hr());
-			intro.add(new Html(motd));
-		}
-		if (cpvHtml != null) {
-			intro.add(new Hr());
-			intro.add(new Html(cpvHtml));
+		this.motdFileName = osName + ".html";
+		this.motdPlaceholder = new Div();
+		intro.add(this.motdPlaceholder);
+		if (this.launcherVersion != null) {
+			this.controlPanelVersionPlaceholder = new Div();
+			intro.add(this.controlPanelVersionPlaceholder);
 		}
 
-		div.getStyle().set("margin-bottom", "1ex");
+		this.versionPlaceholder.getStyle().set("margin-bottom", "1ex");
 		Hr hr = new Hr();
 		hr.getStyle().set("margin-bottom", "2ex");
 		intro.add(hr);
@@ -350,8 +355,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		}
 	}
 
-	private Html checkVersion() {
-		this.currentVersionString = OwlcmsFactory.getVersion();
+	private VersionCheckResult checkVersion() {
 		String apiUrl = this.currentVersionString.contains("-")
 		        ? "https://api.github.com/repos/owlcms/prereleases/releases"
 		        : "https://api.github.com/repos/owlcms/releases/releases";
@@ -375,77 +379,68 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 				versions.add(new ComparableVersion(release.getString("tag_name")));
 			}
 			versions.sort((v1, v2) -> v2.compareTo(v1)); // Sort in descending order
-			this.referenceVersionString = versions.get(0).toString();
+			String referenceVersion = versions.get(0).toString();
 			ComparableVersion currentVersion = new ComparableVersion(this.currentVersionString);
-			ComparableVersion referenceVersion = new ComparableVersion(this.referenceVersionString);
-			this.comparison = currentVersion.compareTo(referenceVersion);
+			int versionComparison = currentVersion.compareTo(new ComparableVersion(referenceVersion));
+			if (referenceVersion.contains("-alpha")) {
+				versionComparison = 0;
+			}
+			return new VersionCheckResult(referenceVersion, versionComparison);
 		} catch (Exception e) {
 			logger.warn("version check failed for {} : {} {}", request.uri(), e.getClass().getSimpleName(),
 			        e.getMessage());
+			return null;
 		}
+	}
 
-		Html div = new Html("<div></div>");
+	private Html formatVersion(VersionCheckResult result, Locale locale, String remoteAddr) {
+		String runningMsg = Translator.translate("CheckVersion.running", locale, this.currentVersionString);
 
-		if (this.comparison < 999) {
-			String runningMsg = Translator.translate("CheckVersion.running", this.currentVersionString);
+		// Escape curly braces for MessageFormat - already translated strings shouldn't be re-interpreted
+		String referenceVersionMsg = Translator.translate(
+		        "CheckVersion.reference" + (result.referenceVersion().contains("-") ? "Prerelease" : "Stable"),
+		        locale, result.referenceVersion()).replace("{", "'{'").replace("}", "'}'");
 
-			// Escape curly braces for MessageFormat - already translated strings shouldn't be re-interpreted
-			String referenceVersionMsg = Translator.translate(
-			        "CheckVersion.reference" + (this.referenceVersionString.contains("-") ? "Prerelease" : "Stable"),
-			        this.referenceVersionString).replace("{", "'{'").replace("}", "'}'");
+		String okVersionMsg = Translator.translate("CheckVersion.ok", locale);
 
-			String okVersionMsg = Translator.translate("CheckVersion.ok");
+		String behindVersionMsg = Translator.translate("CheckVersion.behind", locale);
 
-			String behindVersionMsg = Translator.translate("CheckVersion.behind");
+		String owlcmsLauncher = this.launcherVersion;
 
-			String owlcmsLauncher = System.getenv("OWLCMS_CONTROLPANEL");
-			if (owlcmsLauncher == null) {
-				owlcmsLauncher = System.getenv("OWLCMS_LAUNCHER");
-			}
-
-			if (JPAService.isLocalDb()) {
-				HttpServletRequest httpRequest = (HttpServletRequest) VaadinService.getCurrentRequest();
-				String remoteAddr = httpRequest.getRemoteAddr();
-				InetAddress inetAddress;
-				try {
-					inetAddress = InetAddress.getByName(remoteAddr);
-					if (inetAddress.isLoopbackAddress()) {
-						if (owlcmsLauncher != null && !owlcmsLauncher.isBlank()) {
-							String controlPanelUpdate = Translator.translate("CheckVersion.ControlPanelUpdate");
-							if (controlPanelUpdate == null || controlPanelUpdate.isBlank() || "#ERROR!".contentEquals(controlPanelUpdate)) {
-								// Keep original behindVersionMsg
-							} else {
-								behindVersionMsg = "<b>" + controlPanelUpdate + "</b>";
-							}
+		if (JPAService.isLocalDb() && remoteAddr != null) {
+			InetAddress inetAddress;
+			try {
+				inetAddress = InetAddress.getByName(remoteAddr);
+				if (inetAddress.isLoopbackAddress()) {
+					if (owlcmsLauncher != null && !owlcmsLauncher.isBlank()) {
+						String controlPanelUpdate = Translator.translate("CheckVersion.ControlPanelUpdate", locale);
+						if (controlPanelUpdate != null && !controlPanelUpdate.isBlank()
+						        && !"#ERROR!".contentEquals(controlPanelUpdate)) {
+							behindVersionMsg = "<b>" + controlPanelUpdate + "</b>";
 						}
 					}
-				} catch (UnknownHostException e) {
-					logger.error("Error checking remote address: {}", e.getMessage());
 				}
-			} else {
-				String clickCloudUpdate = Translator.translate("CheckVersion.clickCloudUpdate");
-				behindVersionMsg = """
-				                   <a href='https://owlcms-cloud.fly.dev/apps' style='text-decoration:underline'>%s</a>
-				                   """
-				        .formatted(clickCloudUpdate);
+			} catch (UnknownHostException e) {
+				logger.error("Error checking remote address: {}", e.getMessage());
 			}
+		} else {
+			String clickCloudUpdate = Translator.translate("CheckVersion.clickCloudUpdate", locale);
+			behindVersionMsg = """
+			                   <a href='https://owlcms-cloud.fly.dev/apps' style='text-decoration:underline'>%s</a>
+			                   """
+			        .formatted(clickCloudUpdate);
+		}
 
-			String aheadVersionMsg = Translator.translate("CheckVersion.ahead");
-
-			if (this.referenceVersionString.contains("-alpha")) {
-				// do not recommend update to an alpha version.
-				this.comparison = 0;
-			}
-			String warningUnicode = this.comparison < 0 ? "\u26A0 " : "";
+		String aheadVersionMsg = Translator.translate("CheckVersion.ahead", locale);
+		String warningUnicode = result.comparison() < 0 ? "\u26A0 " : "";
 			
-			String formatted = MessageFormat.format(
+		String formatted = MessageFormat.format(
 			        "<div>{6}{1} {0, choice, 0#{2} {3}|1#{4}|2#{2} {5}}</div>",
-			        this.comparison + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg, warningUnicode);
+			        result.comparison() + 1, runningMsg, referenceVersionMsg, behindVersionMsg, okVersionMsg, aheadVersionMsg, warningUnicode);
 			
-			div.setHtmlContent(formatted);
-			if (this.comparison < 0) {
-				div.getStyle().set("color", "red");
-			}
+		Html div = new Html(formatted);
+		if (result.comparison() < 0) {
+			div.getStyle().set("color", "red");
 		}
 		return div;
 	}
@@ -453,9 +448,34 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
+		UI ui = attachEvent.getUI();
+		Locale locale = ui.getLocale();
+		VaadinService.getCurrent().getExecutor().execute(() -> {
+			VersionCheckResult versionResult = checkVersion();
+			String motd = getMotd(this.motdFileName);
+			String controlPanelVersion = this.launcherVersion == null ? null
+			        : checkControlPanelVersion(this.launcherVersion);
+			ui.access(() -> {
+				if (!isAttached()) {
+					return;
+				}
+				if (versionResult != null) {
+					this.versionPlaceholder.removeAll();
+					this.versionPlaceholder.add(formatVersion(versionResult, locale, this.remoteAddr));
+				}
+				if (motd != null && !motd.isBlank()) {
+					this.motdPlaceholder.removeAll();
+					this.motdPlaceholder.add(new Hr(), new Html(motd));
+				}
+				if (controlPanelVersion != null && !controlPanelVersion.isBlank()) {
+					this.controlPanelVersionPlaceholder.removeAll();
+					this.controlPanelVersionPlaceholder.add(new Hr(), new Html(controlPanelVersion));
+				}
+			});
+		});
 	}
 
-	private void logUsage() {
+	private void logUsage(Locale locale) {
 		HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 		VaadinRequest request = VaadinRequest.getCurrent();
 		String forwarded = request.getHeader("X-FORWARDED-FOR");
@@ -498,12 +518,12 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		String tzId = TimeZone.getDefault().getID().replaceAll("/", "_");
 
 		// use numeric address to avoid possible issues with DNS caching
-		usageStr = "http://143.110.208.71/?"
+		String usageStr = "http://143.110.208.71/?"
 		        + "&version=" + this.currentVersionString
 		        + "&localdate=" + LocalDate.now().toString()
 		        + "&localtime=" + LocalTime.now().toString()
 		        + "&timezone=" + tzId
-		        + "&locale=" + OwlcmsSession.getLocale()
+		        + "&locale=" + locale
 		        + (local ? "" : "&origin=" + ipAddress)
 		        + (JPAService.isLocalDb() ? "&local=true" : "&local=false");
 
