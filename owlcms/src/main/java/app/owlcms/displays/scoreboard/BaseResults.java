@@ -59,6 +59,7 @@ import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
+import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
 import app.owlcms.utils.CSSUtils;
@@ -148,13 +149,16 @@ public class BaseResults extends LitTemplate
 		}
 		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
 
-		String title = inferGroupName() + " &ndash; "
-		        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay());
+		boolean medalCeremony = fop.getCeremonyType() == CeremonyType.MEDALS;
+		this.getElement().setProperty("medalCeremony", medalCeremony);
+		String groupName = inferGroupName(fop.getCeremonyType());
+		String message = inferMessage(fop.getBreakType(), fop.getCeremonyType(), medalCeremony || isPublicDisplay());
+		String title = groupName.isBlank() ? message : groupName + " &ndash; " + message;
 		this.getElement().setProperty("fullName", title);
 		boolean juryOrChallenge = fop.getBreakType() == BreakType.JURY
 		        || fop.getBreakType() == BreakType.CHALLENGE;
 		this.getElement().setProperty("decisionSectionBreakText",
-		        juryOrChallenge ? "" : inferMessage(fop.getBreakType(), fop.getCeremonyType(), isPublicDisplay()));
+		        juryOrChallenge ? "" : message);
 		this.getElement().setProperty("teamName", "");
 		this.getElement().setProperty("attempt", "");
 		this.getElement().setProperty("kgSymbol", Translator.translate("KgSymbol"));
@@ -175,6 +179,7 @@ public class BaseResults extends LitTemplate
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
+		doBreakLocked(e);
 	}
 
 	public JsonArray getCattempts() {
