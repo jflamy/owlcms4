@@ -36,14 +36,16 @@ class ResultsFull extends LitElement {
               <span class="dsDecisionStartNumber" style="${this.dsDecisionStartNumberStyles()}">${this.decisionSectionStartNumber}</span>
               <span class="dsDecisionAthleteName ellipsis">${this.decisionSectionName()}<span style="${this.decisionSectionAgeGroupsStyles()}"> (${this.decisionSectionAgeGroups})</span></span>
             </div>
-            <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
-              <decision-element id="decisionSectionReferee"></decision-element>
-            </div>
-            <div class="dsJuryMessage" style="${this.dsJuryMessageStyles()}">${this.juryMessage}</div>
-            <div class="dsJurySlot" style="${this.dsJurySlotStyles()}">
-              ${(this.juryDecisions ?? []).map(d => html`<vaadin-icon class="juryIcon ${d}" icon="${this.juryIcon(d)}"></vaadin-icon>`)}
-            </div>
             <div class="dsProjectedRanksSlot ${this.dsProjectedRanksMode()}" style="${this.dsProjectedRanksStyles()}">${this.projectedRankText}</div>
+            <div class="dsDecisions">
+              <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
+                <decision-element id="decisionSectionReferee"></decision-element>
+              </div>
+              <div class="dsJuryMessage" style="${this.dsJuryMessageStyles()}">${this.juryMessage}</div>
+              <div class="dsJurySlot" style="${this.dsJurySlotStyles()}">
+                ${(this.juryDecisions ?? []).map(d => html`<vaadin-icon class="juryIcon ${d}" icon="${this.juryIcon(d)}"></vaadin-icon>`)}
+              </div>
+            </div>
             <div class="dsBranding"><img class="brandingLogo" src="local/logos/owlcms-logo.svg">&nbsp;owlcms</div>
           </div>
           <div class="waiting" style="${this.waitingStyles()}">
