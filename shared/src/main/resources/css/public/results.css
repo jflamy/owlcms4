@@ -765,15 +765,14 @@ td {
 }
 
 .decisionSection .dsBranding {
-    position: absolute;
-    bottom: 0.2em;
-    right: 0.3em;
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     font-weight: 100;
     font-size: 1.6vh;
     line-height: 1.25em;
     padding: 0.25em 0.2em;
+    padding-inline-end: 0.75em;
     opacity: 0.6;
 }
 
@@ -784,6 +783,14 @@ td {
 
 .wrapper.dsActive .branding {
     display: none !important;
+}
+
+.decisionSection .dsDecisions {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    flex: 0 0 auto;
+    margin-inline-start: auto;
 }
 
 .decisionSection .dsRefereeSlot {
