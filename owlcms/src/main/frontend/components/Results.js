@@ -37,7 +37,7 @@ class Results extends LitElement {
               <span class="dsDecisionAthleteName ellipsis">${this.decisionSectionName()}<span style="${this.decisionSectionAgeGroupsStyles()}"> (${this.decisionSectionAgeGroups})</span></span>
             </div>
             <div class="dsProjectedRanksSlot ${this.dsProjectedRanksMode()}" style="${this.dsProjectedRanksStyles()}">${this.projectedRankText}</div>
-            <div class="dsDecisions">
+            <div class="dsDecisions" style="${this.dsDecisionsStyles()}">
               <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
                 <decision-element id="decisionSectionReferee"></decision-element>
               </div>
@@ -318,6 +318,7 @@ class Results extends LitElement {
       // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
       mode: {},
       decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
+      medalCeremony: {type: Boolean},
 
       // dynamic styling
       darkMode: {},
@@ -476,6 +477,10 @@ class Results extends LitElement {
     return this.showDecisionSection && !this.decisionSectionHideRefereeLights ? "" : "display:none";
   }
 
+  dsDecisionsStyles() {
+    return this.medalCeremony ? "display:none" : "";
+  }
+
   dsJurySlotStyles() {
     return this.showDecisionSection && !this.decisionSectionHideJuryLights ? "" : "display:none";
   }
@@ -620,6 +625,7 @@ class Results extends LitElement {
   constructor() {
     super();
     this.mode = "WAIT";
+    this.medalCeremony = false;
     this.showCategoryHeaders = false;
     this.showDecisionSection = false;
     this.showProjectedRanks = false;
