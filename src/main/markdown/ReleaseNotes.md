@@ -10,6 +10,16 @@
 
 **New in Release 67.4**
 
+- 67.4.0: Home page no longer waits for internet checks
+
+- 67.4.0: MQTT down-signal mode silences athlete-facing boards
+
+- 67.4.0: Scoreboards abbreviate only exceptionally long athlete names
+
+- 67.4.0: Document ZIP export supports session names containing slashes
+
+- 67.4.0: Clearer team-selection warnings for oversized teams
+
 - 67.4.0: Fixes to the medals and classification scoreboards to update live, minor presentation fixes
 
 - 67.4.0: Implementation changes of Athlete timer and Decision display for the speaker, timekeeper, marshal and jury stations to fix intermittent missed updates.
