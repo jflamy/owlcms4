@@ -9,8 +9,10 @@ package app.owlcms.nui.results;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -404,11 +406,12 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 				this.setCurrentGroup(GroupRepository.findByName(groupName));
 			}
 		} else {
-			// if no group, we pick the first alphabetical group as a filter
-			// to avoid showing hundreds of athlete at the end of each of the groups
+			// If no group is specified, prefer the oldest unfinished session, or the
+			// most recently completed session when all sessions are done, instead of
+			// showing hundreds of athletes at the end of each of the groups
 			// (which has a noticeable impact on slower machines)
-			List<Group> groups = GroupRepository.findAll();
-			groups.sort(new NaturalOrderComparator<>());
+			List<Group> groups = startedResultGroups();
+			groups.sort(resultsGroupComparator());
 			this.setCurrentGroup((groups.size() > 0 ? groups.get(0) : null));
 		}
 		if (this.getCurrentGroup() != null) {
@@ -471,8 +474,8 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		// hidden field in the crudGrid part of the page so we just set that
 		// filter.
 
-		List<Group> groups = GroupRepository.findAll();
-		groups.sort(Group.groupSelectionComparator.reversed());
+		List<Group> groups = startedResultGroups();
+		groups.sort(resultsGroupComparator());
 
 		OwlcmsSession.withFop(fop -> {
 			// logger.debug("top bar setting group to {} {}", this.getCurrentGroup(), LoggerUtils.whereFrom());
@@ -487,6 +490,31 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		});
 	}
 
+	static Comparator<Group> resultsGroupComparator() {
+		return (group1, group2) -> {
+			int statusComparison = Boolean.compare(group1.isDone(), group2.isDone());
+			if (statusComparison != 0) {
+				return statusComparison;
+			}
+
+			Comparator<LocalDateTime> timeComparator = group1.isDone()
+			        ? Comparator.reverseOrder()
+			        : Comparator.naturalOrder();
+			int timeComparison = Comparator.nullsLast(timeComparator)
+			        .compare(group1.getCompetitionTime(), group2.getCompetitionTime());
+			if (timeComparison != 0) {
+				return timeComparison;
+			}
+			return new NaturalOrderComparator<Group>().compare(group1, group2);
+		};
+	}
+
+	private static List<Group> startedResultGroups() {
+		return GroupRepository.findAll().stream()
+		        .filter(group -> group.getNbAttemptedLifts() > 0)
+		        .collect(Collectors.toList());
+	}
+
 	/**
 	 * We do not control the groups on other screens/displays
 	 *
@@ -497,7 +525,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		// logger.debug("defineFilters {} - {}\n{}", getGroup(), currentGroup,LoggerUtils.stackTrace());
 
 		getGroupFilter().setPlaceholder(Translator.translate("Group"));
-		List<Group> groups = GroupRepository.findAll();
+		List<Group> groups = startedResultGroups();
 		groups.sort(new NaturalOrderComparator<>());
 		getGroupFilter().setItems(groups);
 		getGroupFilter().setValue(this.currentGroup);
