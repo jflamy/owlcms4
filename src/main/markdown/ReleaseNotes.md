@@ -10,7 +10,13 @@
 
 **New in Release 67.4**
 
-- 67.4.0: Home page no longer waits for internet checks
+- 67.4.0: Home page no longer waits for internet checks (done in background)
+
+- 67.4.0: Public results displays can show award-ceremony details
+
+- 67.4.0: Protocols referee information section fixed and standardized
+
+- 67.4.0: Weigh-in forms improved for landscape, double-printed, and manual entry use
 
 - 67.4.0: MQTT down-signal mode silences athlete-facing boards
 
