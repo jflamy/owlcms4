@@ -45,6 +45,7 @@ import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
@@ -74,6 +75,7 @@ import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
+import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -450,28 +452,44 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		super.onAttach(attachEvent);
 		UI ui = attachEvent.getUI();
 		Locale locale = ui.getLocale();
+		// temporary diagnostic traces: identify what detaches the UI during the version checks
+		logger.warn("home onAttach ui={} {}", ui.getUIId(), LoggerUtils.whereFrom());
+		// raw stack: LoggerUtils.stackTrace() truncates at vaadin frames, hiding the detach origin
+		ui.addDetachListener(e -> logger.warn("home ui={} detached\n{}", ui.getUIId(),
+		        LoggerUtils.stackTrace(new Throwable("detach origin"))));
+		long start = System.currentTimeMillis();
 		VaadinService.getCurrent().getExecutor().execute(() -> {
 			VersionCheckResult versionResult = checkVersion();
 			String motd = getMotd(this.motdFileName);
 			String controlPanelVersion = this.launcherVersion == null ? null
 			        : checkControlPanelVersion(this.launcherVersion);
-			ui.access(() -> {
-				if (!isAttached()) {
-					return;
-				}
-				if (versionResult != null) {
-					this.versionPlaceholder.removeAll();
-					this.versionPlaceholder.add(formatVersion(versionResult, locale, this.remoteAddr));
-				}
-				if (motd != null && !motd.isBlank()) {
-					this.motdPlaceholder.removeAll();
-					this.motdPlaceholder.add(new Hr(), new Html(motd));
-				}
-				if (controlPanelVersion != null && !controlPanelVersion.isBlank()) {
-					this.controlPanelVersionPlaceholder.removeAll();
-					this.controlPanelVersionPlaceholder.add(new Hr(), new Html(controlPanelVersion));
-				}
-			});
+			long elapsed = System.currentTimeMillis() - start;
+			if (!ui.isAttached()) {
+				logger.warn("home ui={} already detached after {}ms; version check results discarded", ui.getUIId(), elapsed);
+				return;
+			}
+			try {
+				ui.access(() -> {
+					if (!isAttached()) {
+						logger.warn("home ui={} alive but view detached after {}ms; results discarded", ui.getUIId(), elapsed);
+						return;
+					}
+					if (versionResult != null) {
+						this.versionPlaceholder.removeAll();
+						this.versionPlaceholder.add(formatVersion(versionResult, locale, this.remoteAddr));
+					}
+					if (motd != null && !motd.isBlank()) {
+						this.motdPlaceholder.removeAll();
+						this.motdPlaceholder.add(new Hr(), new Html(motd));
+					}
+					if (controlPanelVersion != null && !controlPanelVersion.isBlank()) {
+						this.controlPanelVersionPlaceholder.removeAll();
+						this.controlPanelVersionPlaceholder.add(new Hr(), new Html(controlPanelVersion));
+					}
+				});
+			} catch (UIDetachedException ignored) {
+				logger.warn("home ui={} detached during access dispatch after {}ms", ui.getUIId(), elapsed);
+			}
 		});
 	}
 
