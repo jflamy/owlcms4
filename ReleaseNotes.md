@@ -10,6 +10,13 @@
 
 **New in Release 67.4**
 
+
+- 67.4.0: Scoreboard titles remain centered between equal logo areas
+
+- 67.4.0: Imported scoreboard styles refresh correctly after software upgrades
+
+-  67.4.0: Session results show only started sessions and prioritize unfinished sessions
+
 - 67.4.0: Home page no longer waits for internet checks (done in background)
 
 - 67.4.0: Public results displays can show award-ceremony details
@@ -18,7 +25,7 @@
 
 - 67.4.0: Weigh-in forms improved for landscape, double-printed, and manual entry use
 
-- 67.4.0: MQTT down-signal mode silences athlete-facing boards
+- 67.4.0: MQTT down-signal mode silences athlete-facing boards and their sounds
 
 - 67.4.0: Scoreboards abbreviate only exceptionally long athlete names
 
