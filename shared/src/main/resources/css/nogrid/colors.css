@@ -7,6 +7,8 @@
     /* video header (same as page if no transparency) */
     --videoHeaderBackgroundColor: var(--pageBackgroundColor);
     --videoHeaderTextColor: var(--pageTextColor);
+    --videoHeaderLogoSize: 70px;
+    --videoHeaderLogoAreaWidth: 70px;
 
     /* control record notification on scoreboard and attempt board.
        Set to 10 to show notifications, set to -10 if notifications not wanted */

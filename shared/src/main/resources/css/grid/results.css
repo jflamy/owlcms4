@@ -50,11 +50,10 @@
     color: var(--videoHeaderTextColor);
     margin-bottom: 1.2rem; /* Logical for block direction */
     padding-block: 0.25em;
-    padding-inline-start: 0.5em;
-    padding-inline-end: 0.25em;
-    display: flex;
+    padding-inline: 0.25em;
+    display: grid;
+    grid-template-columns: var(--videoHeaderLogoAreaWidth, 70px) minmax(0, 1fr) var(--videoHeaderLogoAreaWidth, 70px);
     align-items: center;
-    justify-items: center;
 }
 
 .video .videoheader {
@@ -63,6 +62,7 @@
     align-items: center;
     justify-content: center;
     flex-grow: 1;
+    min-width: 0;
 }
 
 .video .eventlogo {
@@ -74,9 +74,10 @@
     /* background-color:white; */
     background-size: contain;
     background-repeat: no-repeat;
-    width: 70px;
-    height: 75px;
+    width: var(--videoHeaderLogoSize, 70px);
+    height: var(--videoHeaderLogoSize, 70px);
     background-position: center;
+    justify-self: center;
 }
 
 .video .federationlogo {
@@ -88,10 +89,10 @@
     /* background-color:white; */
     background-size: contain;
     background-repeat: no-repeat;
-    width: 70px;
-    height: 70px;
-    margin-inline-end:5px;
+    width: var(--videoHeaderLogoSize, 70px);
+    height: var(--videoHeaderLogoSize, 70px);
     background-position: center;
+    justify-self: center;
 }
 
 /* table general parameters
