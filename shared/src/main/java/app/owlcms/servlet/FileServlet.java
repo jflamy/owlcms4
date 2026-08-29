@@ -413,8 +413,12 @@ public class FileServlet extends HttpServlet {
 		long length = attr.size();
 		long lastModified = attr.lastModifiedTime().toMillis();
 		String eTag = fileName + "_" + length + "_" + lastModified;
+		// unversioned CSS is reached via @import from user style sheets; it must be
+		// revalidated on each load so upgrades are seen (ETag still answers 304 when unchanged)
+		boolean unversionedCss = requestedFileName != null && requestedFileName.endsWith(".css")
+		        && !requestedFileName.matches(".*_[0-9]{12,14}[.]css$");
 		long expires;
-		if (isIgnoreCaching()) {
+		if (isIgnoreCaching() || unversionedCss) {
 			expires = System.currentTimeMillis() - 2000; // already expired to force reload
 		} else {
 			expires = System.currentTimeMillis() + DEFAULT_EXPIRE_TIME;
