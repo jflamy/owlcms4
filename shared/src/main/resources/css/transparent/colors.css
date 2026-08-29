@@ -27,6 +27,8 @@
   /* video header */
   --videoHeaderBackgroundColor: darkblue;
   --videoHeaderTextColor: white;
+  --videoHeaderLogoSize: 70px;
+  --videoHeaderLogoAreaWidth: 70px;
 }
 
 /* sample override for a platform called 'JQ' */
