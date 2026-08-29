@@ -19,6 +19,8 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Location;
 
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.displays.video.StylesDirSelection;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.init.OwlcmsSession;
@@ -207,6 +209,7 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 	}
 
 	public default void switchDownMode(boolean silent, boolean updateURL, boolean persist) {
+		silent = silent || Config.getCurrent().featureSwitch(FeatureSwitch.MQTT_DOWN_SIGNAL);
 		setDownSilenced(silent);
 		// Save to platform settings and persist if requested
 		FieldOfPlay fop = OwlcmsSession.getFop();
@@ -274,6 +277,7 @@ public interface SoundParametersReader extends SoundParameters, FOPParametersRea
 	}
 
 	public default void switchSoundMode(boolean silent, boolean updateURL, boolean persist) {
+		silent = silent || Config.getCurrent().featureSwitch(FeatureSwitch.MQTT_DOWN_SIGNAL);
 		setSilenced(silent);
 		// Save to platform settings and persist if requested
 		FieldOfPlay fop = OwlcmsSession.getFop();
