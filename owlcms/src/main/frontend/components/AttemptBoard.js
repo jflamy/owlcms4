@@ -16,6 +16,7 @@ class CurrentAttempt extends LitElement {
   }
 
   render() {
+    const board = this.board;
     return html` 
     <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}"/>
     <!-- link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/resultsCustomization" + (this.autoversion ?? "") + ".css"}"/ -->
@@ -23,39 +24,39 @@ class CurrentAttempt extends LitElement {
 
     <div class="${this.wrapperClasses()}" style="${this.colorOverride}">
       <div class="${this.wrapperClasses()} bigTitle" style="${this.waitingStyles()}">
-        <div class="competitionName">${this.competitionName}</div>
+        <div class="competitionName">${board.competitionName}</div>
         <br />
         <div class="nextGroup">${this.t?.WaitingNextGroup}</div>
       </div>
       <div class="attemptBoard" style="${this.activeStyles()}">
         <div id="lastNameDiv" data-testid="attempt-board-last-name" class="${this.lastNameClasses()}" style="${this.lastNameStyles()}">
-          <div style="${this.nameSizeOverride}">${this.lastName}</div>
+          <div style="${board.nameSizeOverride}">${board.lastName}</div>
         </div>
         <div data-testid="attempt-board-first-name" class="${this.firstNameClasses()}" style="${this.firstNameStyles()}">
-          <div style="${this.firstNameSizeOverride}">${this.firstName}</div>
+          <div style="${board.firstNameSizeOverride}">${board.firstName}</div>
         </div>
         <div class="${this.teamNameClasses()}" style="${this.teamNameStyles()}">
-          ${this.teamName}
+          ${board.teamName}
         </div>
-        <div class="${this.teamFlagImgClasses()}" style="${this.teamFlagImgStyles()}" .innerHTML="${this.teamFlagImg}"></div>
-        <div class="${this.athleteImgClasses()}" style="${this.athleteImgStyles()}" .innerHTML="${this.athleteImg}"></div>
+        <div class="${this.teamFlagImgClasses()}" style="${this.teamFlagImgStyles()}" .innerHTML="${board.teamFlagImg}"></div>
+        <div class="${this.athleteImgClasses()}" style="${this.athleteImgStyles()}" .innerHTML="${board.athleteImg}"></div>
         <div class="${this.recordMessageClasses()}" style="${this.recordMessageStyles()}">
           <css-ticker
-            text="${this.recordMessage ? this.recordMessage + '     ' : ''}"
-            speed="${this.recordMessageSpeed}"
+            text="${board.recordMessage ? board.recordMessage + '     ' : ''}"
+            speed="${board.recordMessageSpeed}"
           ></css-ticker>
         </div>
         <div data-testid="attempt-board-start-number" class="startNumber" style="${this.startNumberStyles()}">
-          <span>${this.startNumber}</span>
+          <span>${board.startNumber}</span>
         </div>
         <div class=${classMap({ category: true, longCategory: this.isLongCategory() })} style="${this.attemptStyles()}">
           ${this.categoryContent()}
         </div>
         <div data-testid="attempt-board-attempt" class="attempt" style="${this.attemptStyles()}">
-          <span .innerHTML="${this.attempt}"></span>
+          <span .innerHTML="${board.attempt}"></span>
         </div>
         <div data-testid="attempt-board-weight" class="weight" style="${this.weightStyles()}">
-          <span style="white-space: nowrap;">${this.weight}<span style="font-size: 75%">${this.kgSymbol}</span></span>
+          <span style="white-space: nowrap;">${board.weight}<span style="font-size: 75%">${this.kgSymbol}</span></span>
         </div>
         <div class="barbell" style="${this.barbellStyles()}">
           <slot name="barbell"></slot>
@@ -76,36 +77,16 @@ class CurrentAttempt extends LitElement {
 
   static get properties() {
     return {
+    boardState: { type: Object, noAccessor: true },
       // top
-      fullName: {},
-      weight: {},
-      attempt: {},
-      teamName: {},
-      startNumber: {},
       decisionVisible: { type: Boolean },
-      competitionName: {},
-      groupName: {},
-      liftsDone: {},
       platformName: {},
 
       athletes: { type: Object },
       leaders: { type: Object },
       records: { type: Object },
 
-      // mode (mutually exclusive, one of:
-      // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
-      mode: {},
-      breakType: {},
-      initMode: {type: Boolean },
-
-      // during lifting
-
-      recordAttempt: {},
-      recordBroken: {},
-      recordMessage: {},
-      recordMessageSpeed: {},
       attemptTraces: { type: Boolean },
-      displaySequence: {},
 
       // style sheets & misc.
       javaComponentId: {},
@@ -126,35 +107,79 @@ class CurrentAttempt extends LitElement {
 
   updated(changedProperties) {
     super.updated(changedProperties);
-    if (!this.attemptTraces || !changedProperties.has("displaySequence")) {
+	if (!this.attemptTraces || !changedProperties.has("boardState")) {
       return;
     }
     const renderedStartNumber = this.shadowRoot?.querySelector('[data-testid="attempt-board-start-number"]')?.textContent?.trim() ?? "";
     const renderedWeight = this.shadowRoot?.querySelector('[data-testid="attempt-board-weight"]')?.textContent?.trim() ?? "";
-    const weightUsedForRendering = String(this.weight ?? "");
+    const weightUsedForRendering = String(this.board.weight ?? "");
+    const weightVisible = this.weightStyles().includes("display: grid");
     this.$server?.attemptBoardWeightRendered(
-      String(this.displaySequence ?? ""),
+      String(this.board.sequence ?? ""),
       weightUsedForRendering,
       Date.now(),
       renderedStartNumber,
-      renderedWeight
+      renderedWeight,
+      this.board.mode,
+      weightVisible
     );
   }
 
+  get board() {
+  return this._boardState;
+  }
+
+  get boardState() {
+  return this._boardState;
+  }
+
+  set boardState(value) {
+  const oldValue = this._boardState;
+  if (oldValue && value && Number(value.sequence) < Number(oldValue.sequence)) {
+    return;
+  }
+  this._boardState = value ?? CurrentAttempt.emptyBoardState();
+  this.requestUpdate("boardState", oldValue);
+  }
+
+  static emptyBoardState() {
+  return {
+    athleteImg: "",
+    attempt: "",
+    breakType: "",
+    category: "",
+    competitionName: "",
+    firstName: "",
+    firstNameSizeOverride: "",
+    lastName: "",
+    mode: "WAIT",
+    nameSizeOverride: "",
+    recordAttempt: false,
+    recordBroken: false,
+    recordMessage: "",
+    recordMessageSpeed: 0,
+    sequence: 0,
+    startNumber: 0,
+    teamFlagImg: "",
+    teamName: "",
+    weight: ""
+  };
+  }
+
   isBreak() {
-    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY" || this.mode === "SESSION_DONE" || this.mode === "CEREMONY"
+	return this.board.mode === "INTERRUPTION" || this.board.mode === "INTRO_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN_CEREMONY" || this.board.mode === "SESSION_DONE" || this.board.mode === "CEREMONY"
   }
 
   isCountdown() {
-    return this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY"
+	return this.board.mode === "INTRO_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN_CEREMONY"
   }
 
   isLongCategory() {
-    return (this.category ?? "").length > 10;
+	return this.board.category.length > 10;
   }
 
   categoryContent() {
-    const cat = this.category ?? "";
+  const cat = this.board.category;
     const words = cat.trim().split(/\s+/);
     if (words.length < 4) {
       return html`<span style="white-space: nowrap;">${cat}</span>`;
@@ -174,12 +199,12 @@ class CurrentAttempt extends LitElement {
     var mainClass = "picture";
     return mainClass +
       (this.decisionVisible ? " hideBecauseDecision" : "") +
-      ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
+      ((this.board.recordAttempt || this.board.recordBroken) ? " hideBecauseRecord" : "");
   }
   teamNameClasses() {
-    const hasPicture = this.athleteImg || this.athletePictures;
-    const hasFlag = Boolean(this.teamFlagImg) && this.mode === "CURRENT_ATHLETE" && !this.isBreak();
-    const teamName = this.teamName ?? "";
+    const hasPicture = this.board.athleteImg || this.athletePictures;
+    const hasFlag = Boolean(this.board.teamFlagImg) && this.board.mode === "CURRENT_ATHLETE" && !this.isBreak();
+    const teamName = this.board.teamName;
     const longTeamName = teamName.length > 28 ? " longTeamName" : "";
     if (hasPicture && hasFlag) return "teamName teamNameWithPictureAndFlag" + longTeamName;
     if (hasPicture) return "teamName teamNameWithPicture" + longTeamName;
@@ -187,30 +212,30 @@ class CurrentAttempt extends LitElement {
   }
 
   teamFlagImgClasses() {
-    var mainClass = (this.athleteImg || this.athletePictures) ? "flagWithPicture" : "flag";
+  var mainClass = (this.board.athleteImg || this.athletePictures) ? "flagWithPicture" : "flag";
     return mainClass +
       (this.decisionVisible ? " hideBecauseDecision" : "") +
-      ((this.recordAttempt || this.recordBroken) ? " hideBecauseRecord" : "");
+      ((this.board.recordAttempt || this.board.recordBroken) ? " hideBecauseRecord" : "");
   }
 
   waitingStyles() {
-    return "display: " + (this.mode === "WAIT" ? "grid" : "none");
+  return "display: " + (this.board.mode === "WAIT" ? "grid" : "none");
   }
 
   activeStyles() {
-    return "display: " + (this.mode !== "WAIT" ? "grid" : "none");
+  return "display: " + (this.board.mode !== "WAIT" ? "grid" : "none");
   }
 
   lastNameClasses() {
-    return (this.athleteImg ? "lastNameWithPicture" : "lastName");
+  return (this.board.athleteImg ? "lastNameWithPicture" : "lastName");
   }
   lastNameStyles() {
     return "display: grid";
   }
 
   firstNameClasses() {
-    const hasPicture = this.athleteImg || this.athletePictures;
-    const showTeamFlag = Boolean(this.teamFlagImg) && this.mode === "CURRENT_ATHLETE" && !this.isBreak();
+  const hasPicture = this.board.athleteImg || this.athletePictures;
+  const showTeamFlag = Boolean(this.board.teamFlagImg) && this.board.mode === "CURRENT_ATHLETE" && !this.isBreak();
     if (hasPicture) {
       return "firstNameWithPicture";
     }
@@ -220,8 +245,8 @@ class CurrentAttempt extends LitElement {
     return "firstName";
   }
   firstNameStyles() {
-    const hasPicture = this.athleteImg || this.athletePictures;
-    const showTeamFlag = Boolean(this.teamFlagImg) && this.mode === "CURRENT_ATHLETE" && !this.isBreak();
+  const hasPicture = this.board.athleteImg || this.athletePictures;
+  const showTeamFlag = Boolean(this.board.teamFlagImg) && this.board.mode === "CURRENT_ATHLETE" && !this.isBreak();
     if (hasPicture || showTeamFlag) {
       return ""; // Let CSS handle the display for these variants
     }
@@ -229,28 +254,28 @@ class CurrentAttempt extends LitElement {
   }
 
   teamNameStyles() {
-    return "display: " + ((this.recordAttempt || this.recordBroken || this.isBreak()) ? "none" : "grid");
+  return "display: " + ((this.board.recordAttempt || this.board.recordBroken || this.isBreak()) ? "none" : "grid");
   }
 
   teamFlagImgStyles() {
-    return "display: " + (this.isBreak() ? "none" : (this.mode === "CURRENT_ATHLETE" && this.teamFlagImg ? "grid" : "none"));
+  return "display: " + (this.isBreak() ? "none" : (this.board.mode === "CURRENT_ATHLETE" && this.board.teamFlagImg ? "grid" : "none"));
   }
 
 
   athleteImgStyles() {
-    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.athleteImg || this.athletePictures) && !(this.recordAttempt || this.recordBroken)) ? "grid" : "none");
+  return "display: " + ((this.board.mode === "CURRENT_ATHLETE" && (this.board.athleteImg || this.athletePictures) && !(this.board.recordAttempt || this.board.recordBroken)) ? "grid" : "none");
   }
 
   recordMessageClasses() {
     var mainClass = "recordNotification";
     return mainClass +
-      (this.recordAttempt ? " attempt" : "") +
-      (this.recordBroken ? " new" : "") +
-      (!this.recordAttempt && !this.recordBroken ? " none" : "");
+      (this.board.recordAttempt ? " attempt" : "") +
+      (this.board.recordBroken ? " new" : "") +
+      (!this.board.recordAttempt && !this.board.recordBroken ? " none" : "");
   }
 
   recordMessageStyles() {
-    return "display: " + ((this.mode === "CURRENT_ATHLETE" && (this.recordAttempt || this.recordBroken)) ? "grid" : "none") +
+  return "display: " + ((this.board.mode === "CURRENT_ATHLETE" && (this.board.recordAttempt || this.board.recordBroken)) ? "grid" : "none") +
            "; height: auto; overflow: hidden; align-items: stretch; padding: 0; margin: 0;";
   }
 
@@ -264,28 +289,28 @@ class CurrentAttempt extends LitElement {
 
   weightStyles() {
     // weights are visible during lift countdowns
-    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE") || (this.mode === "INTERRUPTION" && this.breakType === "TECHNICAL")) ? "grid" : "none");
+	return "display: " + ((this.board.mode === "LIFT_COUNTDOWN" || (this.board.mode === "CURRENT_ATHLETE") || (this.board.mode === "INTERRUPTION" && this.board.breakType === "TECHNICAL")) ? "grid" : "none");
   }
 
   athleteTimerStyles() {
-    return "display:" + ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "grid" : "none") + "; padding-bottom: 10px;";
+  return "display:" + ((this.board.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "grid" : "none") + "; padding-bottom: 10px;";
   }
 
   breakTimerStyles() {
-    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none");
+  return "display:" + ((this.board.mode === "INTRO_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none");
   }
 
   barbellStyles() {
-    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || (this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) || (this.mode === "INTERRUPTION" && this.breakType === "TECHNICAL")) ? "grid" : "none");
+  return "display: " + ((this.board.mode === "LIFT_COUNTDOWN" || (this.board.mode === "CURRENT_ATHLETE" && !this.decisionVisible) || (this.board.mode === "INTERRUPTION" && this.board.breakType === "TECHNICAL")) ? "grid" : "none");
   }
 
   decisionStyles() {
-    const style = "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
+  const style = "display: " + ((this.board.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
     return style;
   }
 
   brandingStyles() {
-    const style =  ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "display: none"
+  const style =  ((this.board.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "display: none"
        : "position: absolute; bottom: 0.5em; right: 2em; align-items: center; font-weight: thin; font-size: 1.5em; line-height: 1.5em");
     return style;
   }
@@ -293,21 +318,8 @@ class CurrentAttempt extends LitElement {
   constructor() {
     super();
     this.javaComponentId = "";
-    this.lastName = "";
-    this.firstName = "";
-    this.weight = 0;
-    this.competitionName = "";
-
-    this.mode == "WAIT";
-
-    this.attempt = "";
-    this.athleteImg = "";
-    this.teamName = "";
-    this.teamFlagImg = "";
-    this.startNumber = 0;
+  this._boardState = CurrentAttempt.emptyBoardState();
     this.decisionVisible = false;
-    this.recordAttempt = false;
-    this.recordBroken = false;
 
     this.stylesDir = "";
     this.autoVersion = 0;
