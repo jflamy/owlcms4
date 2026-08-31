@@ -10,6 +10,7 @@
 
 **New in Release 67.4**
 
+- 67.4.0: Further improvements to attempt board robustness on marginal network conditions (full updates instead of incremental)
 
 - 67.4.0: Scoreboard titles remain centered between equal logo areas
 
