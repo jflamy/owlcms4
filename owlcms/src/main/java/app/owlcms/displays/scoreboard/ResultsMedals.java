@@ -652,7 +652,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	// }
 
 	protected boolean isOnlyFinished() {
-		//FIXME: some categories are in championships that show all medals, others only the total/score medal
+		// we want live medals
 		return false;
 	}
 
