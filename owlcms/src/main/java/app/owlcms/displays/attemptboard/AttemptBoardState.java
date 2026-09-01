@@ -6,8 +6,9 @@
  *******************************************************************************/
 package app.owlcms.displays.attemptboard;
 
-import elemental.json.Json;
-import elemental.json.JsonObject;
+import tools.jackson.databind.node.ObjectNode;
+
+import app.owlcms.utils.JsonUtils;
 
 /** Immutable state published to the attempt board as one property. */
 final class AttemptBoardState {
@@ -88,8 +89,8 @@ final class AttemptBoardState {
 		return this.sequence;
 	}
 
-	JsonObject toJson() {
-		JsonObject state = Json.createObject();
+	ObjectNode toJson() {
+		ObjectNode state = JsonUtils.object();
 		state.put("athleteImg", this.athleteImg);
 		state.put("attempt", this.attempt);
 		state.put("breakType", this.breakType);

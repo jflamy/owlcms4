@@ -12,13 +12,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import elemental.json.JsonObject;
+import tools.jackson.databind.node.ObjectNode;
 
 public class AttemptBoardStateTest {
 
 	@Test
 	public void serializesCompleteSnapshot() {
-		JsonObject json = AttemptBoardState.builder(42, "CURRENT_ATHLETE")
+		ObjectNode json = AttemptBoardState.builder(42, "CURRENT_ATHLETE")
 				.athleteImg("athlete")
 				.attempt("second attempt")
 				.breakType("TECHNICAL")
@@ -40,31 +40,31 @@ public class AttemptBoardStateTest {
 				.build()
 				.toJson();
 
-		assertEquals(42, json.getNumber("sequence"), 0);
-		assertEquals("CURRENT_ATHLETE", json.getString("mode"));
-		assertEquals("TECHNICAL", json.getString("breakType"));
-		assertEquals("Competition", json.getString("competitionName"));
-		assertEquals("LAST", json.getString("lastName"));
-		assertEquals("First", json.getString("firstName"));
-		assertEquals("Team", json.getString("teamName"));
-		assertEquals("flag", json.getString("teamFlagImg"));
-		assertEquals("athlete", json.getString("athleteImg"));
-		assertEquals("M89", json.getString("category"));
-		assertEquals(7, json.getNumber("startNumber"), 0);
-		assertTrue(json.getBoolean("decisionVisible"));
-		assertEquals("second attempt", json.getString("attempt"));
-		assertEquals("190", json.getString("weight"));
-		assertTrue(json.getBoolean("recordAttempt"));
-		assertFalse(json.getBoolean("recordBroken"));
-		assertEquals("Record attempt", json.getString("recordMessage"));
-		assertEquals(10, json.getNumber("recordMessageSpeed"), 0);
-		assertEquals("last-size", json.getString("nameSizeOverride"));
-		assertEquals("first-size", json.getString("firstNameSizeOverride"));
+		assertEquals(42, json.path("sequence").asLong());
+		assertEquals("CURRENT_ATHLETE", json.path("mode").asString());
+		assertEquals("TECHNICAL", json.path("breakType").asString());
+		assertEquals("Competition", json.path("competitionName").asString());
+		assertEquals("LAST", json.path("lastName").asString());
+		assertEquals("First", json.path("firstName").asString());
+		assertEquals("Team", json.path("teamName").asString());
+		assertEquals("flag", json.path("teamFlagImg").asString());
+		assertEquals("athlete", json.path("athleteImg").asString());
+		assertEquals("M89", json.path("category").asString());
+		assertEquals(7, json.path("startNumber").asInt());
+		assertTrue(json.path("decisionVisible").asBoolean());
+		assertEquals("second attempt", json.path("attempt").asString());
+		assertEquals("190", json.path("weight").asString());
+		assertTrue(json.path("recordAttempt").asBoolean());
+		assertFalse(json.path("recordBroken").asBoolean());
+		assertEquals("Record attempt", json.path("recordMessage").asString());
+		assertEquals(10, json.path("recordMessageSpeed").asInt());
+		assertEquals("last-size", json.path("nameSizeOverride").asString());
+		assertEquals("first-size", json.path("firstNameSizeOverride").asString());
 	}
 
 	@Test
 	public void nullStringsAreSerializedAsEmptyStrings() {
-		JsonObject json = AttemptBoardState.builder(1, null)
+		ObjectNode json = AttemptBoardState.builder(1, null)
 				.athleteImg(null)
 				.firstName(null)
 				.teamFlagImg(null)
@@ -72,13 +72,13 @@ public class AttemptBoardStateTest {
 				.build()
 				.toJson();
 
-		assertEquals("", json.getString("mode"));
-		assertEquals("", json.getString("athleteImg"));
-		assertEquals("", json.getString("firstName"));
-		assertEquals("", json.getString("teamFlagImg"));
-		assertEquals("", json.getString("weight"));
-		assertEquals("", json.getString("recordMessage"));
-		assertFalse(json.getBoolean("decisionVisible"));
+		assertEquals("", json.path("mode").asString());
+		assertEquals("", json.path("athleteImg").asString());
+		assertEquals("", json.path("firstName").asString());
+		assertEquals("", json.path("teamFlagImg").asString());
+		assertEquals("", json.path("weight").asString());
+		assertEquals("", json.path("recordMessage").asString());
+		assertFalse(json.path("decisionVisible").asBoolean());
 	}
 
 	@Test
@@ -89,13 +89,13 @@ public class AttemptBoardStateTest {
 				.decisionVisible(true)
 				.recordAttempt(true)
 				.build();
-		JsonObject json = original.copy(6).recordAttempt(false).build().toJson();
+		ObjectNode json = original.copy(6).recordAttempt(false).build().toJson();
 
-		assertEquals(6, json.getNumber("sequence"), 0);
-		assertEquals("CURRENT_ATHLETE", json.getString("mode"));
-		assertEquals("LAST", json.getString("lastName"));
-		assertEquals("190", json.getString("weight"));
-		assertTrue(json.getBoolean("decisionVisible"));
-		assertFalse(json.getBoolean("recordAttempt"));
+		assertEquals(6, json.path("sequence").asLong());
+		assertEquals("CURRENT_ATHLETE", json.path("mode").asString());
+		assertEquals("LAST", json.path("lastName").asString());
+		assertEquals("190", json.path("weight").asString());
+		assertTrue(json.path("decisionVisible").asBoolean());
+		assertFalse(json.path("recordAttempt").asBoolean());
 	}
 }
