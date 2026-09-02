@@ -75,7 +75,6 @@ import app.owlcms.nui.shared.BaseNavigationContent;
 import app.owlcms.nui.shared.NavigationPage;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.utils.IPInterfaceUtils;
-import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -452,8 +451,6 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		super.onAttach(attachEvent);
 		UI ui = attachEvent.getUI();
 		Locale locale = ui.getLocale();
-		// temporary diagnostic trace: record home UI attachment during the version checks
-		logger.warn("home onAttach ui={} {}", ui.getUIId(), LoggerUtils.whereFrom());
 		long start = System.currentTimeMillis();
 		VaadinService.getCurrent().getExecutor().execute(() -> {
 			VersionCheckResult versionResult = checkVersion();
