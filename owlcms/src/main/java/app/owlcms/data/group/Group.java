@@ -1816,7 +1816,13 @@ public class Group implements Comparable<Group> {
 		addIfNotNull(officials, getJury3AsTO());
 		addIfNotNull(officials, getJury4AsTO());
 		addIfNotNull(officials, getJury5AsTO());
+		addIfNotNull(officials, getReserveJuryAsTO());
 		addIfNotNull(officials, getMarshallAsTO());
+		addIfNotNull(officials, getMarshal2AsTO());
+		addIfNotNull(officials, getReferee1AsTO());
+		addIfNotNull(officials, getReferee2AsTO());
+		addIfNotNull(officials, getReferee3AsTO());
+		addIfNotNull(officials, getReserveAsTO());
 		addIfNotNull(officials, getTechnicalControllerAsTO());
 		addIfNotNull(officials, getTechnicalController2AsTO());
 		addIfNotNull(officials, getTechnicalController3AsTO());
@@ -1824,6 +1830,10 @@ public class Group implements Comparable<Group> {
 		addIfNotNull(officials, getDoctor2AsTO());
 		addIfNotNull(officials, getDoctor3AsTO());
 		addIfNotNull(officials, getTimeKeeperAsTO());
+		addIfNotNull(officials, getWeighIn1AsTO());
+		addIfNotNull(officials, getWeighIn2AsTO());
+		addIfNotNull(officials, TechnicalOfficialRepository.safeFindByName(getTis1()));
+		addIfNotNull(officials, TechnicalOfficialRepository.safeFindByName(getTis2()));
 
 		return officials;
 	}

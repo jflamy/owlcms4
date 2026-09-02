@@ -181,7 +181,7 @@ public class SessionEditingFormFactory
 		TabSheet ts = new TabSheet();
 		
 		// Map TechnicalOfficial fields correctly
-		officials = TechnicalOfficialRepository.findAll().stream()
+		officials = TechnicalOfficialRepository.findAvailable().stream()
 		        .map(to -> (to.getLastName() != null ? to.getLastName() : "")
 		                + (to.getFirstName() != null ? ", " + to.getFirstName() : ""))
 		        .filter(name -> !name.isBlank())
