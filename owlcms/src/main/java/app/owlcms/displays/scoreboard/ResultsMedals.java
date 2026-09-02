@@ -644,14 +644,8 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
 	}
 
-	// private void retrieveFromSessionStorage(String key, SerializableConsumer<String> resultHandler) {
-
-	// getElement().executeJs("return window.sessionStorage.getItem($0);", key)
-	// .then(String.class, resultHandler);
-	// }
-
 	protected boolean isOnlyFinished() {
-		//FIXME: some categories are in championships that show all medals, others only the total/score medal
+		// we want live updates
 		return false;
 	}
 
