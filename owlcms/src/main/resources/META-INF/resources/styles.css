@@ -96,6 +96,21 @@ vaadin-app-layout {
     background-color: var(--lumo-base-color);
 }
 
+.startingTotalDebtField::part(input-field) {
+    background-color: var(--lumo-error-color-10pct);
+    border: 3px solid var(--lumo-error-color);
+}
+
+.startingTotalDebtUrgent::part(input-field) {
+    animation: startingTotalDebtBorderBlink 1.2s step-end infinite;
+}
+
+@keyframes startingTotalDebtBorderBlink {
+    50% {
+        border-color: transparent;
+    }
+}
+
 /* Aggressive suppression of visible focus ring for vaadin-grid and parts.
    Keeps keyboard focus intact but removes outlines/shadows that cause the ring. */
 vaadin-grid,

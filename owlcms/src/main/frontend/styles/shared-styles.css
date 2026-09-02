@@ -48,6 +48,13 @@ html {
 	background-color: var(--lumo-error-color-10pct);
 }
 
+.startingTotalDebtMessage {
+    color: var(--lumo-error-text-color);
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0;
+}
+
 .blink {
     animation: blink 1.5s step-start 0s infinite;
     -webkit-animation: blink 1.5s step-start 0s infinite;
