@@ -5206,6 +5206,13 @@ public class Athlete {
 	}
 
 	public int startingTotalDelta() {
+		if (!Competition.getCurrent().isEnforce20kgRule()) {
+			return 0;
+		}
+		return startingTotalDelta(getStartingTotalMargin(getCategory(), getEntryTotal()));
+	}
+
+	public int startingTotalDelta(int allowedMargin) {
 		int sn1Decl = zeroIfInvalid(this.snatch1Declaration);
 		int cj1Decl = zeroIfInvalid(this.cleanJerk1Declaration);
 		getLogger().trace("prior to checking {} {}", sn1Decl, cj1Decl);
@@ -5215,7 +5222,40 @@ public class Athlete {
 		Integer snatch1Request = last(sn1Decl, zeroIfInvalid(this.snatch1Change1), zeroIfInvalid(this.snatch1Change2));
 		Integer cleanJerk1Request = last(cj1Decl, zeroIfInvalid(this.cleanJerk1Change1),
 				zeroIfInvalid(this.cleanJerk1Change2));
-		return startingTotalDelta(snatch1Request, cleanJerk1Request, getEntryTotal());
+		return startingTotalDelta(snatch1Request, cleanJerk1Request, getEntryTotal(), allowedMargin);
+	}
+
+	public int startingDeclarationTotalDelta() {
+		if (!Competition.getCurrent().isEnforce20kgRule()) {
+			return 0;
+		}
+		return startingDeclarationTotalDelta(getStartingTotalMargin(getCategory(), getEntryTotal()));
+	}
+
+	public int startingDeclarationTotalDelta(int allowedMargin) {
+		return startingTotalDelta(zeroIfInvalid(this.snatch1Declaration),
+		        zeroIfInvalid(this.cleanJerk1Declaration), getEntryTotal(), allowedMargin);
+	}
+
+	public boolean hasFirstAttemptChanges() {
+		return !getSnatch1Change1().isBlank() || !getSnatch1Change2().isBlank()
+		        || !getCleanJerk1Change1().isBlank() || !getCleanJerk1Change2().isBlank();
+	}
+
+	public boolean hasStartingTotalDebt() {
+		return hasFirstAttemptChanges() && startingTotalDelta() > 0;
+	}
+
+	public boolean hasStartingTotalDebt(int allowedMargin) {
+		return hasFirstAttemptChanges() && startingTotalDelta(allowedMargin) > 0;
+	}
+
+	public int getRequiredCleanJerkForStartingTotal() {
+		return getRequestedWeightForAttempt(4) + Math.max(0, startingTotalDelta());
+	}
+
+	public int getRequiredCleanJerkForStartingTotal(int allowedMargin) {
+		return getRequestedWeightForAttempt(4) + Math.max(0, startingTotalDelta(allowedMargin));
 	}
 
 	/**
@@ -5514,7 +5554,7 @@ public class Athlete {
 	 * @throws RuleViolationException if rule violated, exception contains details.
 	 */
 	public boolean validateStartingTotalsRule(Integer snatch1Request, Integer cleanJerk1Request,
-			int qualTotal) throws RuleViolationException.Rule15_20Violated {
+			int qualTotal) throws RuleViolationException.StartingWeightDeclarationViolation {
 		boolean enforce20kg = Competition.getCurrent().isEnforce20kgRule();
 		// logger.debug("validateStartingTotalsRule {} {} {} {}",
 		// LoggerUtils.whereFrom(),
@@ -5528,11 +5568,7 @@ public class Athlete {
 		if (missing > 0) {
 			this.setStartingTotalViolation(true);
 			// logger.debug("FAIL missing {}", missing);
-			Integer startNumber2 = this.getStartNumber();
-			throw new RuleViolationException.Rule15_20Violated(this, this.getLastName(),
-					this.getFirstName(),
-					(startNumber2 != null ? startNumber2.toString() : "-"),
-					snatch1Request, cleanJerk1Request, missing, qualTotal);
+			throw new RuleViolationException.StartingWeightDeclarationViolation(this, missing);
 		} else {
 			this.setStartingTotalViolation(false);
 			// logger.debug("OK margin={}", -(missing));
@@ -6392,16 +6428,21 @@ public class Athlete {
 		if (!enforce20kg) {
 			return 0;
 		}
+		return startingTotalDelta(snatch1Request, cleanJerk1Request, qualTotal,
+		        getStartingTotalMargin(this.getCategory(), qualTotal));
+	}
+
+	private int startingTotalDelta(Integer snatch1Request, Integer cleanJerk1Request, int qualTotal,
+			int allowedMargin) {
 		int curStartingTotal = 0;
 		curStartingTotal = snatch1Request + cleanJerk1Request;
 		int delta = qualTotal - curStartingTotal;
-		int _20kgRuleValue = getStartingTotalMargin(this.getCategory(), qualTotal);
 
 		if (snatch1Request == 0 && cleanJerk1Request == 0) {
 			// not checking starting total - no declarations
 			return 0;
 		}
-		int missing = delta - _20kgRuleValue;
+		int missing = delta - allowedMargin;
 		return missing;
 	}
 

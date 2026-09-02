@@ -1906,7 +1906,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 	private boolean validateStartingTotals(
 	        LocalizedIntegerField snatch1DeclarationField2, LocalizedIntegerField cleanJerk1DeclarationField2,
-	        LocalizedIntegerField qualifyingTotalField2) throws RuleViolationException.Rule15_20Violated {
+	        LocalizedIntegerField qualifyingTotalField2) throws RuleViolationException.StartingWeightDeclarationViolation {
 		if (isIgnoreErrors()) {
 			return true;
 		}

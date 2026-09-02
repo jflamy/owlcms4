@@ -281,7 +281,7 @@ public class AthleteTest {
         try {
             athlete.validateStartingTotalsRule(60, 80, 185);
             fail("Expected 20kg rule violation for insufficient starting total");
-        } catch (RuleViolationException.Rule15_20Violated expected) {
+        } catch (RuleViolationException.StartingWeightDeclarationViolation expected) {
             // expected
         }
 
