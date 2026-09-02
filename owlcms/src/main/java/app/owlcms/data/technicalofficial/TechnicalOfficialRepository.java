@@ -7,9 +7,9 @@
 package app.owlcms.data.technicalofficial;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
@@ -110,35 +110,37 @@ public class TechnicalOfficialRepository {
 		em.createQuery("delete from TechnicalOfficial").executeUpdate();
 	}
 
-	/**
-	 * Find active technical officials. Returns officials that are either: 1. Explicitly marked as active (active flag = true) 2. Implicitly active because they
-	 * are assigned to a session/group
-	 * 
-	 * @return List of active technical officials (no duplicates)
-	 */
+	/** Find technical officials explicitly marked active. */
 	public static List<TechnicalOfficial> findActive() {
+		return JPAService.runInTransaction(em -> em.createQuery(
+		        "select t from TechnicalOfficial t where t.active = true order by t.lastName, t.firstName",
+		        TechnicalOfficial.class).getResultList());
+	}
+
+	/**
+	 * Find officials available for session assignment: active officials plus officials already assigned to a session.
+	 */
+	public static List<TechnicalOfficial> findAvailable() {
 		return JPAService.runInTransaction(em -> {
-			// Get all explicitly active officials
 			TypedQuery<TechnicalOfficial> query = em.createQuery(
 			        "select t from TechnicalOfficial t where t.active = true order by t.lastName, t.firstName",
 			        TechnicalOfficial.class);
 			List<TechnicalOfficial> activeOfficials = query.getResultList();
 
-			// Use a Set to avoid duplicates
-			Set<TechnicalOfficial> resultSet = new LinkedHashSet<>(activeOfficials);
+			Map<String, TechnicalOfficial> availableByName = new LinkedHashMap<>();
+			activeOfficials.forEach(official -> availableByName.put(official.getFullName(), official));
 
-			// Get all groups and extract TOs assigned to them
 			TypedQuery<Group> groupQuery = em.createQuery(
 			        "select g from CompetitionGroup g",
 			        Group.class);
-			List<Group> groups = groupQuery.getResultList(); // For each group, collect all assigned TOs
+			List<Group> groups = groupQuery.getResultList();
 			for (Group group : groups) {
-				List<TechnicalOfficial> assignedOfficials = group.findAssignedTechnicalOfficials();
-				resultSet.addAll(assignedOfficials);
+				for (TechnicalOfficial official : group.findAssignedTechnicalOfficials()) {
+					availableByName.putIfAbsent(official.getFullName(), official);
+				}
 			}
 
-			// Convert set back to list and sort
-			List<TechnicalOfficial> result = new ArrayList<>(resultSet);
+			List<TechnicalOfficial> result = new ArrayList<>(availableByName.values());
 			result.sort((a, b) -> {
 				int lastNameCompare = (a.getLastName() != null ? a.getLastName() : "").compareTo(
 				        b.getLastName() != null ? b.getLastName() : "");
