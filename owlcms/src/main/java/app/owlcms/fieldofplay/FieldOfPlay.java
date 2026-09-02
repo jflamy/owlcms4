@@ -4251,7 +4251,7 @@ public class FieldOfPlay implements IUnregister {
 		// nextAthlete, currentDisplayAffected);
 		Integer newWeight = getPrevWeight() != this.curWeight ? this.curWeight : null;
 
-		if (curAthlete2 != null && curAthlete2.getActuallyAttemptedLifts() == 3) {
+		if (curAthlete2 != null && curAthlete2.getSnatchAttemptsDone() == 3) {
 			// athlete has until before first CJ tSo comply with starting weights rule
 			// if the snatch was lowered.
 			warnMissingKg();

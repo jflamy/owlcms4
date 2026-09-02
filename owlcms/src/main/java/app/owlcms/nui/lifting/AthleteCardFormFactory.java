@@ -107,6 +107,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private TextField cj3Change1;
 	private TextField cj3Change2;
 	private TextField cj3Declaration;
+	private Paragraph startingTotalDebtLabel;
 	private Athlete editedAthlete;
 	private GridLayout gridLayout;
 	private Checkbox ignoreErrorsCheckbox;
@@ -347,7 +348,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		this.errorLabel.getStyle().set("margin", "0");
 		this.errorLabel.getStyle().set("max-width", "600px");
 		this.errorLabel.setWidthFull();
-		HorizontalLayout labelWrapper = new HorizontalLayout(this.errorLabel);
+		this.startingTotalDebtLabel = new Paragraph();
+		this.startingTotalDebtLabel.setVisible(false);
+		this.startingTotalDebtLabel.getClassNames().add("startingTotalDebtMessage");
+		this.startingTotalDebtLabel.setWidthFull();
+		HorizontalLayout labelWrapper = new HorizontalLayout(this.errorLabel, this.startingTotalDebtLabel);
 		// labelWrapper.addClassName("errorMessage");
 		labelWrapper.setWidthFull();
 		labelWrapper.getStyle().set("max-width", "600px");
@@ -938,11 +943,19 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		}
 
 		this.binder.withValidator((a, v) -> {
+			int missingKg = getEditedAthlete().startingTotalDelta();
+			if (getEditedAthlete().hasStartingTotalDebt()) {
+				doSetErrorLabel("binder-level", (StringBuilder) null);
+				showStartingTotalDebt(missingKg);
+				return ValidationResult.ok();
+			}
+			clearStartingTotalDebt();
 			ValidationResult vr = ValidationUtils
 			        .checkUsingException(u -> getEditedAthlete().validateStartingTotalsRule()).apply(a, v);
 			logger.debug("binder-level validation! error={} {}", vr.isError(),
 			        vr.isError() ? vr.getErrorMessage() : "");
 			if (vr.isError()) {
+				showStartingWeightDeclarationViolation();
 				doSetErrorLabel("binder-level", new StringBuilder(vr.getErrorMessage()));
 			} else {
 				doSetErrorLabel("binder-level", (StringBuilder) null);
@@ -966,6 +979,54 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		setFocus(getEditedAthlete());
 		this.binder.setValidatorsDisabled(false);
 		return this.binder;
+	}
+
+	private void clearStartingTotalDebt() {
+		this.startingTotalDebtLabel.setVisible(false);
+		this.snatch1Declaration.getClassNames().set("startingTotalDebtField", false);
+		this.cj1Declaration.getClassNames().set("startingTotalDebtField", false);
+		this.snatch1Change1.getClassNames().set("startingTotalDebtField", false);
+		this.snatch1Change2.getClassNames().set("startingTotalDebtField", false);
+		this.cj1Change1.getClassNames().set("startingTotalDebtField", false);
+		this.cj1Change2.getClassNames().set("startingTotalDebtField", false);
+		this.cj1Change1.getClassNames().set("startingTotalDebtUrgent", false);
+		this.cj1Change2.getClassNames().set("startingTotalDebtUrgent", false);
+	}
+
+	private void showStartingWeightDeclarationViolation() {
+		this.snatch1Declaration.getClassNames().set("startingTotalDebtField", true);
+		this.cj1Declaration.getClassNames().set("startingTotalDebtField", true);
+	}
+
+	private void showStartingTotalDebt(int missingKg) {
+		clearStartingTotalDebt();
+		if (!getEditedAthlete().getCleanJerk1ActualLift().isBlank()) {
+			return;
+		}
+		this.errorLabel.setVisible(false);
+		boolean snatchDone = getEditedAthlete().getSnatchAttemptsDone() >= 3;
+		if (snatchDone) {
+			int requiredCleanJerk = getEditedAthlete().getRequiredCleanJerkForStartingTotal();
+			this.startingTotalDebtLabel.setText(Translator.translate(
+			        "RuleViolation.StartingWeightDebtCleanJerk", missingKg, requiredCleanJerk));
+		} else {
+			this.startingTotalDebtLabel.setText(Translator.translate("RuleViolation.StartingWeightDebt", missingKg));
+		}
+		this.startingTotalDebtLabel.setVisible(true);
+		if (!snatchDone) {
+			firstAvailableChange(getEditedAthlete().getSnatch1Change1(), this.snatch1Change1,
+			        getEditedAthlete().getSnatch1Change2(), this.snatch1Change2)
+			        .getClassNames().set("startingTotalDebtField", true);
+		}
+		TextField cleanJerkChange = firstAvailableChange(getEditedAthlete().getCleanJerk1Change1(), this.cj1Change1,
+		        getEditedAthlete().getCleanJerk1Change2(), this.cj1Change2);
+		cleanJerkChange.getClassNames().set("startingTotalDebtField", true);
+		cleanJerkChange.getClassNames().set("startingTotalDebtUrgent", snatchDone);
+	}
+
+	private TextField firstAvailableChange(String change1Value, TextField change1Field, String change2Value,
+	        TextField change2Field) {
+		return change1Value.isBlank() ? change1Field : change2Field;
 	}
 
 	private Checkbox buildAllowResultsEditingCheckbox() {
@@ -1106,7 +1167,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			}
 		} else {
 			logger.debug("{} setting EMPTY", simpleName);
-			this.errorLabel.setVisible(true);
+			this.errorLabel.setVisible(!this.startingTotalDebtLabel.isVisible());
 			this.errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
 			this.errorLabel.getClassNames().clear();
 			// Show normal Update button, hide Accept Change button
@@ -1144,7 +1205,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			}
 		} else {
 			logger.debug("{} setting EMPTY");
-			this.errorLabel.setVisible(true);
+			this.errorLabel.setVisible(!this.startingTotalDebtLabel.isVisible());
 			this.errorLabel.getElement().setProperty("innerHTML", "&nbsp;");
 			this.errorLabel.getClassNames().clear();
 			field.getElement().getClassList().set("error", false);
@@ -1375,8 +1436,11 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 			}
 		}
 
-		// Don't show yellow "current" marker when there's an error; focus the first error cell instead
-		if (hasErrors || anyFieldHasError) {
+		boolean startingWeightDeclarationViolation = this.snatch1Declaration.getClassNames()
+		        .contains("startingTotalDebtField")
+		        && this.cj1Declaration.getClassNames().contains("startingTotalDebtField");
+
+		if ((hasErrors && !startingWeightDeclarationViolation) || anyFieldHasError) {
 			if (firstErrorField != null) {
 				firstErrorField.setAutofocus(true);
 				firstErrorField.setAutoselect(true);

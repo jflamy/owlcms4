@@ -28,6 +28,21 @@
 	color: black;
 }
 
+:host(.startingTotalDebtField) [part="input-field"] {
+	background-color: var(--lumo-error-color-10pct);
+	border: 3px solid var(--lumo-error-color);
+}
+
+:host(.startingTotalDebtUrgent) [part="input-field"] {
+	animation: startingTotalDebtBorderBlink 1.2s step-end infinite;
+}
+
+@keyframes startingTotalDebtBorderBlink {
+	50% {
+		border-color: transparent;
+	}
+}
+
 :host(.current) [part="input-field"] {
 	background-color: #fff89a;
 	color: black;
