@@ -452,11 +452,8 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		super.onAttach(attachEvent);
 		UI ui = attachEvent.getUI();
 		Locale locale = ui.getLocale();
-		// temporary diagnostic traces: identify what detaches the UI during the version checks
+		// temporary diagnostic trace: record home UI attachment during the version checks
 		logger.warn("home onAttach ui={} {}", ui.getUIId(), LoggerUtils.whereFrom());
-		// raw stack: LoggerUtils.stackTrace() truncates at vaadin frames, hiding the detach origin
-		ui.addDetachListener(e -> logger.warn("home ui={} detached\n{}", ui.getUIId(),
-		        LoggerUtils.stackTrace(new Throwable("detach origin"))));
 		long start = System.currentTimeMillis();
 		VaadinService.getCurrent().getExecutor().execute(() -> {
 			VersionCheckResult versionResult = checkVersion();
