@@ -10,6 +10,11 @@
 
 **New in Release 67.4**
 
+- 67.4.0: Improved message clarity and cell highlighting for 20kg rule violations
+  - The athlete card can now be reached from the Registration page as well.
+
+- 67.4.0: Fix: changing the CJ Break duration in the session editing form was no longer correctly taken into account at the time of the break
+
 - 67.4.0: Further improvements to attempt board robustness on marginal network conditions (full updates instead of incremental)
 
 - 67.4.0: Scoreboard titles remain centered between equal logo areas
