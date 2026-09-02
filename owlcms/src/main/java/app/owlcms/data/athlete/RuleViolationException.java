@@ -161,23 +161,14 @@ public class RuleViolationException extends RuntimeException {
 		}
 	}
 
-	public static class Rule15_20Violated extends RuleViolationException {
+	public static class StartingWeightDeclarationViolation extends RuleViolationException {
 		/**
-		 * The 20kg rule (or equivalent Masters rule) is not respected.
+		 * The starting-weight rule is not respected by the initial declarations.
 		 *
-		 * @param lastName
-		 * @param firstName
-		 * @param startNumber
-		 * @param snatch1Request
-		 * @param cleanJerk1Request
 		 * @param missing
-		 * @param qualTotal
 		 */
-		public Rule15_20Violated(Athlete requestingAthlete, String lastName, String firstName, String startNumber,
-		        Integer snatch1Request,
-		        Integer cleanJerk1Request, int missing, int qualTotal) {
-			super(requestingAthlete, "RuleViolation.rule15_20Violated", lastName, firstName, startNumber,
-			        snatch1Request, cleanJerk1Request, missing, qualTotal);
+		public StartingWeightDeclarationViolation(Athlete requestingAthlete, int missing) {
+			super(requestingAthlete, "RuleViolation.StartingWeightDeclarations", missing);
 		}
 	}
 
