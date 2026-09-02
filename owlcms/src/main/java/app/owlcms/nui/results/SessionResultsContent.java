@@ -9,10 +9,8 @@ package app.owlcms.nui.results;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +47,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
-import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -406,12 +403,12 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 				this.setCurrentGroup(GroupRepository.findByName(groupName));
 			}
 		} else {
-			// If no group is specified, prefer the oldest unfinished session, or the
-			// most recently completed session when all sessions are done, instead of
+			// If no group is specified, prefer a session active on a FOP, or the
+			// most recently finished session when no session is active, instead of
 			// showing hundreds of athletes at the end of each of the groups
 			// (which has a noticeable impact on slower machines)
 			List<Group> groups = startedResultGroups();
-			groups.sort(resultsGroupComparator());
+			SessionResultsGroupSelectionMenu.sortedGroups(groups, OwlcmsFactory.getFOPs());
 			this.setCurrentGroup((groups.size() > 0 ? groups.get(0) : null));
 		}
 		if (this.getCurrentGroup() != null) {
@@ -475,38 +472,18 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		// filter.
 
 		List<Group> groups = startedResultGroups();
-		groups.sort(resultsGroupComparator());
 
 		OwlcmsSession.withFop(fop -> {
 			// logger.debug("top bar setting group to {} {}", this.getCurrentGroup(), LoggerUtils.whereFrom());
 			getGroupFilter().setValue(this.getCurrentGroup());
 			// switching to group "*" is understood to mean all groups
-			this.topBarMenu = new GroupSelectionMenu(groups, this.getCurrentGroup(),
-			        fop,
+			this.topBarMenu = new SessionResultsGroupSelectionMenu(groups, this.getCurrentGroup(),
+			        OwlcmsFactory.getFOPs(),
 			        (g1) -> doSwitchGroup(g1),
 			        (g1) -> doSwitchGroup(new Group("*")),
 			        null,
-			        Translator.translate("AllGroups"), true);
+			        Translator.translate("AllGroups"));
 		});
-	}
-
-	static Comparator<Group> resultsGroupComparator() {
-		return (group1, group2) -> {
-			int statusComparison = Boolean.compare(group1.isDone(), group2.isDone());
-			if (statusComparison != 0) {
-				return statusComparison;
-			}
-
-			Comparator<LocalDateTime> timeComparator = group1.isDone()
-			        ? Comparator.reverseOrder()
-			        : Comparator.naturalOrder();
-			int timeComparison = Comparator.nullsLast(timeComparator)
-			        .compare(group1.getCompetitionTime(), group2.getCompetitionTime());
-			if (timeComparison != 0) {
-				return timeComparison;
-			}
-			return new NaturalOrderComparator<Group>().compare(group1, group2);
-		};
 	}
 
 	private static List<Group> startedResultGroups() {
