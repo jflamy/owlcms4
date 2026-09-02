@@ -122,6 +122,17 @@ public class GroupRepository {
 		});
 	}
 
+	public static Integer getCleanJerkBreakDuration(Long id) {
+		return JPAService.runInTransaction(em -> {
+			TypedQuery<Integer> query = em.createQuery(
+			        "select u.cleanJerkBreakDuration from CompetitionGroup u where u.id=:id", Integer.class);
+			query.setParameter("id", id);
+			query.setHint("javax.persistence.cache.retrieveMode", CacheRetrieveMode.BYPASS);
+			List<Integer> results = query.getResultList();
+			return results.isEmpty() ? null : results.get(0);
+		});
+	}
+
 	/**
 	 * Gets group by id
 	 *
