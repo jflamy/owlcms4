@@ -7,7 +7,6 @@
 package app.owlcms.nui.crudui;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.slf4j.LoggerFactory;
 import org.vaadin.crudui.crud.CrudListener;
@@ -483,7 +482,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
 	protected void performOperationAndCallback(CrudOperation operation, T domainObject,
 	        ComponentEventListener<ClickEvent<Button>> gridCallback, boolean ignoreErrors) {
-		String errorFieldName = null;
 		if (ignoreErrors) {
 			if (domainObject instanceof Athlete) {
 				((Athlete) domainObject).setValidation(!ignoreErrors);
@@ -497,14 +495,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			        writeBeanIfValid,
 			        domainObject != null ? domainObject.getClass().getSimpleName() : null,
 			        domainObject != null ? System.identityHashCode(domainObject) : null);
-			if (!writeBeanIfValid) {
-				BinderValidationStatus<T> status = this.binder.validate();
-				errorFieldName = status.getFieldValidationErrors().stream()
-				        .map(err -> extractFieldName(err.getField()))
-				        .filter(Objects::nonNull)
-				        .findFirst()
-				        .orElse(null);
-			}
 			if (domainObject instanceof Competition) {
 				Competition comp = (Competition) domainObject;
 				logger.debug("{} Competition deduct250g={} (id={}, name={})",
@@ -535,9 +525,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 		} else {
 			logger.debug("not valid {}", domainObject);
 			if (this.showValidationErrorNotification) {
-				String fieldLabel = errorFieldName != null ? errorFieldName : "unknown";
-				String message = String.format("Validation error for field %s", fieldLabel);
-				Notification errorNotification = Notification.show(message, 4000,
+				Notification errorNotification = Notification.show(this.validationErrorMessage, 4000,
 				        Position.TOP_END);
 				errorNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			}
@@ -546,18 +534,6 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 
 	protected void setValid(boolean valid) {
 		this.valid = valid;
-	}
-
-	private String extractFieldName(HasValue<?, ?> field) {
-		if (field instanceof Component) {
-			Component component = (Component) field;
-			String label = component.getElement().getProperty("label");
-			if (label != null && !label.isBlank()) {
-				return label;
-			}
-			return component.getClass().getSimpleName();
-		}
-		return field != null ? field.getClass().getSimpleName() : null;
 	}
 
 	private void init() {
