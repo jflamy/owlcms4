@@ -16,6 +16,8 @@
 
 **New in Release 67.4**
 
+- 67.4.0: Q-Points calculation for light athletes clamped at the minimum mathematically meaningful bodyweight for each gender (40/45)
+
 - 67.4.0: Improved message clarity and cell highlighting for 20kg rule violations
   - The athlete card can now be reached from the Registration page as well.
 
