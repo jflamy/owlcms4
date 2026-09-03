@@ -8,9 +8,11 @@ package app.owlcms.data.category;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -135,6 +137,25 @@ public class CategoryRepository {
 			logger./**/warn("allEligible bw={} {} -- {}", bw, allEligible, LoggerUtils.whereFrom());
 		}
 		return allEligible;
+	}
+
+	public static Set<Category> migrateEligibleCategories(Collection<Category> candidates,
+	        Collection<Category> previousCategories, Category previousRegistrationCategory, Integer entryTotal) {
+		Set<String> previousChampionships = previousCategories.stream()
+		        .map(Category::getAgeGroup)
+		        .filter(ageGroup -> ageGroup != null)
+		        .map(AgeGroup::getChampionshipName)
+		        .filter(name -> name != null)
+		        .collect(Collectors.toSet());
+		if (previousRegistrationCategory != null && previousRegistrationCategory.getAgeGroup() != null) {
+			previousChampionships.add(previousRegistrationCategory.getAgeGroup().getChampionshipName());
+		}
+
+		return candidates.stream()
+		        .filter(category -> category.getAgeGroup() != null)
+		        .filter(category -> previousChampionships.contains(category.getAgeGroup().getChampionshipName()))
+		        .filter(category -> !category.requiresEntryTotalConfirmation(entryTotal))
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
 	}
 
 	public static List<Category> doFindFiltered(EntityManager em, String name, Gender gender, Championship ageDivision,

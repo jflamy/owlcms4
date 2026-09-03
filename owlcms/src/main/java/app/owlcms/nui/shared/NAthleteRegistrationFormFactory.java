@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -1285,7 +1286,7 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 
 			recomputeCategories(this.genderField, this.bodyWeightField, vc.getValue(), this.eligibleField,
 			        this.dateField,
-			        this.qualifyingTotalField);
+			        this.qualifyingTotalField, true, vc.getOldValue());
 			setChangeListenersEnabled(true);
 		});
 
@@ -1542,15 +1543,77 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 		return fi;
 	}
 
+	private void migrateEligibleChampionships(ComboBox<Gender> genderField,
+	        LocalizedDecimalField bodyWeightField, Category selectedCategory,
+	        CheckboxGroup<Category> eligibleField, LocalizedIntegerField qualifyingTotalField,
+	        Integer age, Category previousRegistrationCategory) {
+		Set<Category> previousEligibles = new LinkedHashSet<>(eligibleField.getValue());
+		this.allEligible = findEligibleCategories(genderField, age, bodyWeightField, selectedCategory,
+		        qualifyingTotalField);
+
+		Double assumedBodyWeight = bodyWeightField.getValue() != null
+		        ? bodyWeightField.getValue()
+		        : inferBW(selectedCategory);
+		List<Category> candidates = CategoryRepository.doFindEligibleCategories(this.getEditedAthlete(),
+		        genderField.getValue(), age, assumedBodyWeight, zeroIfNull(qualifyingTotalField));
+		Set<Category> migratedEligibles = CategoryRepository.migrateEligibleCategories(
+		        candidates, previousEligibles, previousRegistrationCategory, qualifyingTotalField.getValue());
+
+		Map<String, Category> allItemsByCode = this.allEligible.stream()
+		        .collect(Collectors.toMap(Category::getCode, category -> category, (first, duplicate) -> first,
+		                LinkedHashMap::new));
+		candidates.forEach(category -> allItemsByCode.putIfAbsent(category.getCode(), category));
+		this.allEligible = new ArrayList<>(allItemsByCode.values());
+		Set<String> migratedCodes = migratedEligibles.stream().map(Category::getCode).collect(Collectors.toSet());
+		Set<Category> checkboxEligibles = this.allEligible.stream()
+		        .filter(category -> migratedCodes.contains(category.getCode()))
+		        .collect(Collectors.toCollection(LinkedHashSet::new));
+
+		this.currentEligibles = new HashSet<>(this.allEligible);
+		eligibleField.setItems(this.allEligible);
+		setEligibleField(checkboxEligibles);
+		String registrationChampionship = previousRegistrationCategory != null
+		        && previousRegistrationCategory.getAgeGroup() != null
+		                ? previousRegistrationCategory.getAgeGroup().getChampionshipName()
+		                : null;
+		Category bestMatchCategory = checkboxEligibles.stream()
+		        .filter(category -> category.getAgeGroup() != null)
+		        .filter(category -> Objects.equals(registrationChampionship,
+		                category.getAgeGroup().getChampionshipName()))
+		        .findFirst()
+		        .orElseGet(() -> bestMatch(new ArrayList<>(checkboxEligibles)));
+		setCategoryFieldValue(bestMatchCategory);
+		Binding<Athlete, ?> categoryBinding = this.fieldToBinding.get(this.categoryField);
+		if (categoryBinding != null) {
+			categoryBinding.validate();
+		}
+		refreshTeamMembershipFields();
+	}
+
 	private void recomputeCategories(
 	        ComboBox<Gender> genderField, LocalizedDecimalField bodyWeightField,
 	        Category selectedCategory, CheckboxGroup<Category> eligibleField,
 	        HasValue<?, ?> dateField, LocalizedIntegerField qualifyingTotalField2) {
+		recomputeCategories(genderField, bodyWeightField, selectedCategory, eligibleField, dateField,
+		        qualifyingTotalField2, false, null);
+	}
+
+	private void recomputeCategories(
+	        ComboBox<Gender> genderField, LocalizedDecimalField bodyWeightField,
+	        Category selectedCategory, CheckboxGroup<Category> eligibleField,
+	        HasValue<?, ?> dateField, LocalizedIntegerField qualifyingTotalField2,
+	        boolean migrateEligibleChampionships, Category previousRegistrationCategory) {
 
 		Integer age = getAgeFromFields();
 		// List<Championship> previousChampionships = championshipsForCategories(eligibleField.getValue());
 		List<String> previousAgeGroups = ageGroupsForCategories(eligibleField.getValue()).stream().map(ag -> ag.getCode()).toList();
 		logger.debug("previous age groups {}", previousAgeGroups);
+		if (migrateEligibleChampionships && selectedCategory != null && genderField.getValue() != null
+		        && age != null && age > 5 && age < 120) {
+			migrateEligibleChampionships(genderField, bodyWeightField, selectedCategory, eligibleField,
+			        qualifyingTotalField2, age, previousRegistrationCategory);
+			return;
+		}
 		if (bodyWeightField.getValue() != null) {
 			if (genderField.getValue() != null && age != null) {
 				// body weight, gender, date
@@ -1593,14 +1656,11 @@ public final class NAthleteRegistrationFormFactory extends OwlcmsCrudFormFactory
 					        selectedCategory, qualifyingTotalField2);
 
 					List<Category> filteredEligibles = this.allEligible.stream()
-					        .filter(e -> previousAgeGroups.isEmpty() || previousAgeGroups.contains(e.getAgeGroupCode())).toList();
-
-					// Use false for recomputeEligibles to preserve current checkbox selections
-					// (from DB or user choices), while showing all expanded potential categories
+					        .filter(category -> previousAgeGroups.isEmpty()
+					                || previousAgeGroups.contains(category.getAgeGroupCode()))
+					        .toList();
 					updateCategoryFields(selectedCategory, selectedCategory, eligibleField, qualifyingTotalField2,
-					        filteredEligibles,
-					        this.allEligible,
-					        false);
+					        filteredEligibles, this.allEligible, false);
 				}
 			} else if (genderField.getValue() != null && age != null) {
 				// use age, gender and qualifying total
