@@ -31,7 +31,7 @@ download_translation_csv() {
   local destination="$1"
 
   if [[ -n "${GOOGLE_SHEETS_API_KEY:-}" ]]; then
-    if ! "${PYTHON}" "${SCRIPT_DIR}/download-google-translations.py" "${destination}"; then
+    if ! "${SCRIPT_DIR}/download-translations-java.sh" "${destination}"; then
       echo "ERROR: Google Sheets API download failed" >&2
       exit 1
     fi
