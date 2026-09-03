@@ -309,7 +309,7 @@
       "name": "⬇️ pull translation4.csv from Google Sheets",
       "request": "launch",
       "cwd": "${workspaceFolder}",
-      "command": "python3 scripts/download-google-translations.py shared/src/main/resources/i18n/translation4.csv",
+      "command": "bash scripts/download-translations-java.sh",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
