@@ -317,6 +317,41 @@ public class PlatformRepository {
 	public static Platform save(Platform platform, boolean publishMqtt) {
 		logger.debug("Saving platform {} publishMqtt={}", platform.getName(), publishMqtt);
 		Platform nPlatform = JPAService.runInTransaction(em -> em.merge(platform));
+		return synchronizeFop(nPlatform, publishMqtt);
+	}
+
+	public static Platform saveEquipment(Platform platform) {
+		Platform saved = JPAService.runInTransaction(em -> {
+			Platform managed = em.find(Platform.class, platform.getId());
+			if (managed == null) {
+				throw new IllegalArgumentException("Platform not found: " + platform.getId());
+			}
+			managed.setNbC_2_5(platform.getNbC_2_5());
+			managed.setNbL_10(platform.getNbL_10());
+			managed.setNbL_15(platform.getNbL_15());
+			managed.setNbL_20(platform.getNbL_20());
+			managed.setNbL_25(platform.getNbL_25());
+			managed.setNbL_2_5(platform.getNbL_2_5());
+			managed.setNbL_5(platform.getNbL_5());
+			managed.setNbS_0_5(platform.getNbS_0_5());
+			managed.setNbS_1(platform.getNbS_1());
+			managed.setNbS_1_5(platform.getNbS_1_5());
+			managed.setNbS_2(platform.getNbS_2());
+			managed.setNbS_2_5(platform.getNbS_2_5());
+			managed.setNbS_5(platform.getNbS_5());
+			managed.setNbB_5(platform.getNbB_5());
+			managed.setNbB_10(platform.getNbB_10());
+			managed.setNbB_15(platform.getNbB_15());
+			managed.setNbB_20(platform.getNbB_20());
+			managed.setUseNonStandardBar(platform.isUseNonStandardBar());
+			managed.setNonStandardBarWeight(platform.getNonStandardBarWeight());
+			managed.setCollarThreshold(platform.getCollarThreshold());
+			return managed;
+		});
+		return synchronizeFop(saved, true);
+	}
+
+	private static Platform synchronizeFop(Platform nPlatform, boolean publishMqtt) {
 		String name = nPlatform.getName();
 		FieldOfPlay fop = null;
 		if (name != null) {
