@@ -451,21 +451,17 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 		super.onAttach(attachEvent);
 		UI ui = attachEvent.getUI();
 		Locale locale = ui.getLocale();
-		long start = System.currentTimeMillis();
 		VaadinService.getCurrent().getExecutor().execute(() -> {
 			VersionCheckResult versionResult = checkVersion();
 			String motd = getMotd(this.motdFileName);
 			String controlPanelVersion = this.launcherVersion == null ? null
 			        : checkControlPanelVersion(this.launcherVersion);
-			long elapsed = System.currentTimeMillis() - start;
 			if (!ui.isAttached()) {
-				logger.warn("home ui={} already detached after {}ms; version check results discarded", ui.getUIId(), elapsed);
 				return;
 			}
 			try {
 				ui.access(() -> {
 					if (!isAttached()) {
-						logger.warn("home ui={} alive but view detached after {}ms; results discarded", ui.getUIId(), elapsed);
 						return;
 					}
 					if (versionResult != null) {
@@ -482,7 +478,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 					}
 				});
 			} catch (UIDetachedException ignored) {
-				logger.warn("home ui={} detached during access dispatch after {}ms", ui.getUIId(), elapsed);
+				// The UI detached after the attachment check; discard the completed results.
 			}
 		});
 	}
