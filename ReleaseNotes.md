@@ -10,6 +10,8 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta11: Q-Points calculation for light athletes clamped at the minimum mathematically meaningful bodyweight for each gender (40/45)
+
 - 68.0.0-beta11: Changing an Athlete's category preserves the participation in the previously selected championships if still eligible according to the new age and meeting qualifiying totals.
 
 - 68.0.0-beta11: Improved message clarity and cell highlighting for 20kg rule violations
