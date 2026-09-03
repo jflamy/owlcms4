@@ -80,6 +80,26 @@ public class ConfigTest {
     }
 
     @Test
+    public void defaultEnabledFeatureSwitchCanBeDisabled() {
+        Config config = new Config();
+
+        assertTrue(config.featureSwitch(FeatureSwitch.NO_COLLARS_5KG_BAR));
+        assertTrue(config.getFeatureSwitchValue(FeatureSwitch.NO_COLLARS_5KG_BAR));
+
+        config.setFeatureSwitchValue(FeatureSwitch.NO_COLLARS_5KG_BAR, false);
+
+        assertFalse(config.featureSwitch(FeatureSwitch.NO_COLLARS_5KG_BAR));
+        assertFalse(config.getFeatureSwitchValue(FeatureSwitch.NO_COLLARS_5KG_BAR));
+        assertEquals("{\"noCollars5kgBar\":false}", config.getFeatureSwitchJson());
+
+        config.setFeatureSwitchValue(FeatureSwitch.NO_COLLARS_5KG_BAR, true);
+        System.setProperty("featureSwitches", "-" + FeatureSwitch.NO_COLLARS_5KG_BAR.getId());
+
+        assertFalse(config.featureSwitch(FeatureSwitch.NO_COLLARS_5KG_BAR));
+        assertTrue(config.getFeatureSwitchValue(FeatureSwitch.NO_COLLARS_5KG_BAR));
+    }
+
+    @Test
     public void jsonFeatureSwitchSetterCanonicalizesAliases() {
         Config config = new Config();
 

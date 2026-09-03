@@ -10,7 +10,16 @@
 
 **New in Release 68.0**
 
-- 68.0.0-beta10: Decision displays on technical official stations, redone for robustness improvement.
+- 68.0.0-beta11: Changing an Athlete's category preserves the participation in the previously selected championships if still eligible according to the new age and meeting qualifiying totals.
+
+- 68.0.0-beta11: Improved message clarity and cell highlighting for 20kg rule violations
+  - The athlete card can now be reached from the Registration page as well.
+
+- 68.0.0-beta11: Fix: changing the CJ Break duration in the session editing form was no longer correctly taken into account at the time of the break
+
+- 68.0.0-beta11: Further improvements to attempt board robustness on marginal network conditions (full updates instead of incremental)
+
+- 68.0.0-beta10: Redone: Decision displays on technical official stations for robustness improvement.
 
 - 68.0.0-beta10: Technical-official web page support sorting, and import correctly processes inactive officials
 

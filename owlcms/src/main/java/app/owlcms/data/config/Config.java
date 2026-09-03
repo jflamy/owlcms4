@@ -12,12 +12,10 @@ import java.nio.file.Path;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.TimeZone;
 
 import javax.persistence.Cacheable;
@@ -218,17 +216,8 @@ public class Config {
 	}
 
 	public boolean featureSwitch(FeatureSwitch featureSwitch) {
-		return featureSwitch(featureSwitch, true);
-	}
-
-	public boolean featureSwitch(FeatureSwitch featureSwitch, boolean trueIfPresent) {
-		Set<String> activeSwitches = getParamFeatureSwitchIds();
-		if (activeSwitches.isEmpty()) {
-			return !trueIfPresent;
-		}
-		String id = featureSwitch.getId().toLowerCase(Locale.ROOT);
-		boolean present = activeSwitches.contains(id);
-		return trueIfPresent ? present : !present;
+		Boolean configuredValue = getEffectiveFeatureSwitches().get(featureSwitch.getId());
+		return configuredValue != null ? configuredValue : featureSwitch.isEnabledByDefault();
 	}
 
 	@Transient
@@ -250,11 +239,10 @@ public class Config {
 		return true;
 	}
 
-	private Set<String> getParamFeatureSwitchIds() {
-		Set<String> activeSwitches = new LinkedHashSet<>();
-		applyFeatureSwitchOverrides(activeSwitches, getConfiguredFeatureSwitches());
-		applyFeatureSwitchOverrides(activeSwitches, parseLegacyFeatureSwitches(StartupUtils.getStringParam("featureSwitches")));
-		return activeSwitches;
+	private LinkedHashMap<String, Boolean> getEffectiveFeatureSwitches() {
+		LinkedHashMap<String, Boolean> effectiveSwitches = new LinkedHashMap<>(getConfiguredFeatureSwitches());
+		effectiveSwitches.putAll(parseLegacyFeatureSwitches(StartupUtils.getStringParam("featureSwitches")));
+		return effectiveSwitches;
 	}
 
 	private LinkedHashMap<String, Boolean> getConfiguredFeatureSwitches() {
@@ -262,18 +250,6 @@ public class Config {
 			return readFeatureSwitchJson(this.featureSwitchJson);
 		}
 		return parseLegacyFeatureSwitches(this.featureSwitches);
-	}
-
-	private static void applyFeatureSwitchOverrides(Set<String> activeSwitches,
-	        Map<String, Boolean> featureSwitches) {
-		for (Map.Entry<String, Boolean> entry : featureSwitches.entrySet()) {
-			String id = entry.getKey().toLowerCase(Locale.ROOT);
-			if (Boolean.TRUE.equals(entry.getValue())) {
-				activeSwitches.add(id);
-			} else {
-				activeSwitches.remove(id);
-			}
-		}
 	}
 
 	private static LinkedHashMap<String, Boolean> parseLegacyFeatureSwitches(String featureSwitches) {
@@ -376,15 +352,15 @@ public class Config {
 	}
 
 	public boolean getFeatureSwitchValue(FeatureSwitch featureSwitch) {
-		return Boolean.TRUE.equals(getConfiguredFeatureSwitches().get(featureSwitch.getId()));
+		return getConfiguredFeatureSwitches().getOrDefault(featureSwitch.getId(), featureSwitch.isEnabledByDefault());
 	}
 
 	public void setFeatureSwitchValue(FeatureSwitch featureSwitch, boolean enabled) {
 		LinkedHashMap<String, Boolean> switches = getConfiguredFeatureSwitches();
-		if (enabled) {
-			switches.put(featureSwitch.getId(), true);
-		} else {
+		if (enabled == featureSwitch.isEnabledByDefault()) {
 			switches.remove(featureSwitch.getId());
+		} else {
+			switches.put(featureSwitch.getId(), enabled);
 		}
 		setFeatureSwitches(switches);
 	}
