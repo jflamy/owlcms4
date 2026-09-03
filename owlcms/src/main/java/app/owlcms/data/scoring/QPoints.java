@@ -119,8 +119,7 @@ public class QPoints {
 		if (bw == null) {
 			return 0.0D;
 		}
-		// outside of validity range
-		if ((gender == Gender.M && bw <= 45.0D) || (gender == Gender.F && bw <= 40.0D) || (gender == Gender.I)) {
+		if (gender == Gender.I) {
 			return 0.0D;
 		}
 		Double qPointsFactor = qPointsFactor(gender, bw);
@@ -156,12 +155,16 @@ public class QPoints {
 			Double tMax;
 			switch (gender) {
 				case F:
+					// Use the minimum formula weight for lighter athletes.
+					bw = Math.max(bw, 40.0D);
 					beta0 = getWomenBeta0();
 					beta1 = getWomenBeta1();
 					beta2 = getWomenBeta2();
 					tMax = getWomenTMax();
 					break;
 				case M:
+					// Use the minimum formula weight for lighter athletes.
+					bw = Math.max(bw, 45.0D);
 					beta0 = getMenBeta0();
 					beta1 = getMenBeta1();
 					beta2 = getMenBeta2();

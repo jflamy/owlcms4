@@ -6777,9 +6777,7 @@ public class Athlete {
 		}
 
 		Double categoryWeight = computeCategoryBodyWeight(category);
-		// outside of validity range
-		if ((getGender() == Gender.M && categoryWeight <= 45.0D) || (getGender() == Gender.F && categoryWeight <= 40.0D)
-				|| (getGender() == Gender.I)) {
+		if (getGender() == Gender.I) {
 			return 0.0D;
 		}
 
