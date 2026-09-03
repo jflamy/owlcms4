@@ -8,6 +8,12 @@
 
 <br>
 
+**New in Release 67.4.1**
+
+- 67.4.1: Changing an Athlete's category preserves the participation in the previously selected championships if still eligible according to the new age and meeting qualifiying totals.
+
+- 67.4.1: 5 kg bar does not use collars. The 5kgNoCollars feature switch is ON by default. A 5 kg bar is good until 20kg normally, and is meant to allow large technique plates.
+
 **New in Release 67.4**
 
 - 67.4.0: Improved message clarity and cell highlighting for 20kg rule violations
@@ -21,7 +27,7 @@
 
 - 67.4.0: Imported scoreboard styles refresh correctly after software upgrades
 
--  67.4.0: Session results show only started sessions and prioritize unfinished sessions
+- 67.4.0: Session results show only started sessions and prioritize unfinished sessions
 
 - 67.4.0: Home page no longer waits for internet checks (done in background)
 
