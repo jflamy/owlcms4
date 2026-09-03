@@ -53,6 +53,7 @@ public enum FeatureSwitch {
     TEAM_POINTS_TOTAL_ONLY("teamPointsTotalOnly", FeatureSwitchSection.GENERAL_OPTIONS),
     LIGHT_BAR_U13("lightBarU13", FeatureSwitchSection.GENERAL_OPTIONS),
     LIGHT_BAR_U15("lightBarU15", FeatureSwitchSection.GENERAL_OPTIONS),
+    NO_COLLARS_5KG_BAR("noCollars5kgBar", FeatureSwitchSection.GENERAL_OPTIONS, true),
     CHILDREN_EQUIPMENT("childrenEquipment", FeatureSwitchSection.GENERAL_OPTIONS),
 
     USAW_SESSION_BLOCKS("usawSessionBlocks", FeatureSwitchSection.SPECIALTY_FEATURES),
@@ -78,11 +79,17 @@ public enum FeatureSwitch {
     private static final Map<String, FeatureSwitch> BY_ID = buildLookup();
     private final String id;
     private final FeatureSwitchSection section;
+    private final boolean enabledByDefault;
     private final String[] aliases;
 
     FeatureSwitch(String id, FeatureSwitchSection section, String... aliases) {
+        this(id, section, false, aliases);
+    }
+
+    FeatureSwitch(String id, FeatureSwitchSection section, boolean enabledByDefault, String... aliases) {
         this.id = id;
         this.section = section;
+        this.enabledByDefault = enabledByDefault;
         this.aliases = aliases;
     }
 
@@ -92,6 +99,10 @@ public enum FeatureSwitch {
 
     public FeatureSwitchSection getSection() {
         return this.section;
+    }
+
+    public boolean isEnabledByDefault() {
+        return this.enabledByDefault;
     }
 
     public String getTranslationKey() {
