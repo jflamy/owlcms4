@@ -293,11 +293,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 			case END_JURY_BREAK:
 				this.summonNotificationSent = false;
 				this.deliberationNotificationSent = false;
-				// Close jury decision dialog when competition resumes
-				if (this.juryConfirmationDialog != null) {
-					this.juryConfirmationDialog.close();
-					this.juryConfirmationDialog = null;
-				}
+				closeJuryConfirmationDialog();
 				text = Translator.translate("JuryNotification.END_JURY_BREAK");
 				break;
 				case TECHNICAL_PAUSE:
@@ -389,6 +385,13 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		closeWaitingForDecisionNotification();
 	}
 
+	private void closeJuryConfirmationDialog() {
+		if (this.juryConfirmationDialog != null) {
+			this.juryConfirmationDialog.close();
+			this.juryConfirmationDialog = null;
+		}
+	}
+
 	private void scheduleWaitingForDecisionNotification(int missingReferee) {
 		cancelWaitingForDecisionNotificationTask();
 		closeWaitingForDecisionNotification();
@@ -453,6 +456,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public void slaveStartLifting(UIEvent.StartLifting s) {
 		currentUI.access(() -> {
 			clearWaitingForDecisionReminder();
+			closeJuryConfirmationDialog();
 			super.slaveStartLifting(s);
 			if (this.stoppageAckNotification != null) {
 				this.stoppageAckNotification.close();
@@ -567,6 +571,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	@Subscribe
 	public void slaveStartTime(UIEvent.StartTime e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			closeJuryConfirmationDialog();
 			buttonsTimeStarted();
 			displayLiveDecisions();
 		});
@@ -599,6 +604,7 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	public void slaveResetOnNewClock(UIEvent.ResetOnNewClock e) {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			clearWaitingForDecisionReminder();
+			closeJuryConfirmationDialog();
 			syncWithFop(true, getFop());
 		});
 	}
