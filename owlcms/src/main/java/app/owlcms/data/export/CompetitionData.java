@@ -231,6 +231,7 @@ public class CompetitionData {
 	public CompetitionData importData(InputStream serialized) throws Exception {
 		ObjectMapper mapper = createImportMapper();
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
+		Championship.assignMissingOrder(newData.getChampionships());
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;
@@ -240,6 +241,7 @@ public class CompetitionData {
 	        throws DatabindException, JacksonException {
 		ObjectMapper mapper = createImportMapper();
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
+		Championship.assignMissingOrder(newData.getChampionships());
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		// logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;

@@ -32,6 +32,7 @@ public class ChampionshipDTO {
 	        .build();
 
 	private String name;
+	private Integer order;
 	private ChampionshipType type;
 	private Ranking scoringSystem;
 	private Ranking bestAthleteScoringSystem;
@@ -70,6 +71,7 @@ public class ChampionshipDTO {
 	public Championship toChampionship() {
 		Championship championship = new Championship(this.competitionTemplate ? Championship.COMPETITION_TEMPLATE_NAME : this.name, this.type);
 		championship.setCompetitionTemplate(this.competitionTemplate);
+		championship.setOrder(this.order);
 		championship.setScoringSystem(this.scoringSystem);
 		championship.setBestAthleteScoringSystem(this.bestAthleteScoringSystem);
 		championship.setBestSnatchScoringSystem(this.bestSnatchScoringSystem);
@@ -100,6 +102,14 @@ public class ChampionshipDTO {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
 	}
 
 	public ChampionshipType getType() {

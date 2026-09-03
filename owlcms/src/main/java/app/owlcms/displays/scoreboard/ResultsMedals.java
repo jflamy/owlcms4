@@ -35,6 +35,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
+import app.owlcms.data.athleteSort.MedalCategoryComparator;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -571,7 +572,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		int mcX = 0;
 
 		boolean scoreNeeded = false;
-		for (Entry<String, List<Athlete>> medalCat : medals2.entrySet()) {
+		List<Entry<String, List<Athlete>>> orderedMedalCategories = new ArrayList<>(medals2.entrySet());
+		MedalCategoryComparator categoryComparator = new MedalCategoryComparator(this.getGroup());
+		orderedMedalCategories.sort((a, b) -> categoryComparator.compare(
+		        medalCategoryAthlete(a), medalCategoryAthlete(b)));
+		for (Entry<String, List<Athlete>> medalCat : orderedMedalCategories) {
 			List<Athlete> athletes = medalCat.getValue();
 			if (athletes != null && !athletes.isEmpty()) {
 				if (athletes.get(0).getComputedScoringSystem() != Ranking.TOTAL) {
@@ -617,6 +622,11 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		if (mcX == 0) {
 			this.getElement().setProperty("noCategories", true);
 		}
+	}
+
+	private Athlete medalCategoryAthlete(Entry<String, List<Athlete>> medalCategory) {
+		List<Athlete> medalists = medalCategory.getValue();
+		return medalists != null && !medalists.isEmpty() ? medalists.get(0) : null;
 	}
 
 	private String computeLiftType(Athlete a) {

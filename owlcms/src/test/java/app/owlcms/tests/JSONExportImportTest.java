@@ -6,11 +6,14 @@
  *******************************************************************************/
 package app.owlcms.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -22,6 +25,8 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.export.CompetitionData;
+import app.owlcms.data.export.v2.ChampionshipDTO;
+import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
 
 public class JSONExportImportTest {
@@ -54,11 +59,56 @@ public class JSONExportImportTest {
         CompetitionData competitionData = new CompetitionData();
         try {
         	String s = competitionData.exportDataAsString();
-			competitionData.importDataFromString(s);
+            assertTrue("serialized JSON should include championship order", s.contains("\"order\""));
+            CompetitionData imported = competitionData.importDataFromString(s);
+            assertTrue("real championships should have an exported order",
+                    imported.getChampionships().stream()
+                            .filter(championship -> !championship.isCompetitionTemplate())
+                            .allMatch(championship -> championship.getOrder() != null));
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
 	}
+
+    @Test
+    public void legacyJsonWithoutChampionshipOrderPreservesArrayOrder() {
+        String json = "{\"championships\":["
+                + "{\"name\":\"Second\",\"type\":\"U\"},"
+                + "{\"name\":\"First\",\"type\":\"U\"}]}";
+
+        CompetitionData imported = new CompetitionData().importDataFromString(json);
+
+        assertEquals(Integer.valueOf(0), imported.getChampionships().get(0).getOrder());
+        assertEquals(Integer.valueOf(1), imported.getChampionships().get(1).getOrder());
+    }
+
+    @Test
+    public void v2JsonWithoutChampionshipOrderPreservesArrayOrder() {
+        String json = "{\"formatVersion\":\"2.0\",\"championships\":["
+                + "{\"name\":\"Explicit\",\"type\":\"U\",\"order\":5},"
+                + "{\"name\":\"Legacy First\",\"type\":\"U\"},"
+                + "{\"name\":\"Legacy Second\",\"type\":\"U\"}]}";
+
+        CompetitionDataV2 imported = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+
+        assertNotNull(imported);
+        assertEquals(Integer.valueOf(5), imported.getChampionships().get(0).getOrder());
+        assertEquals(Integer.valueOf(6), imported.getChampionships().get(1).getOrder());
+        assertEquals(Integer.valueOf(7), imported.getChampionships().get(2).getOrder());
+    }
+
+    @Test
+    public void championshipOrderRoundTripsThroughV2Dto() {
+        Championship championship = new Championship("Senior", null);
+        championship.setOrder(3);
+
+        ChampionshipDTO dto = ChampionshipDTO.fromChampionship(championship);
+        Championship restored = dto.toChampionship();
+
+        assertEquals(Integer.valueOf(3), dto.getOrder());
+        assertEquals(Integer.valueOf(3), restored.getOrder());
+    }
 
     @Test
     public void useCompetitionDefaultsRoundTripsThroughCompetitionDataJson() {

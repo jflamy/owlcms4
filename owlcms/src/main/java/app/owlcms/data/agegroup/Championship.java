@@ -74,6 +74,19 @@ public class Championship implements Comparable<Championship>, Serializable {
 		compare = ObjectUtils.compare(a.getName(), b.getName(), true);
 		return compare;
 	};
+	static Comparator<Championship> configuredOrderComparator = (a, b) -> {
+		if (a == null || b == null) {
+			return ObjectUtils.compare(a, b, true);
+		}
+		Integer aOrder = a.getOrder();
+		Integer bOrder = b.getOrder();
+		if (!Objects.equals(aOrder, bOrder)) {
+			if (aOrder == null) return 1;
+			if (bOrder == null) return -1;
+			return Integer.compare(aOrder, bOrder);
+		}
+		return ct.compare(a, b);
+	};
 
 	/**
 	 * Adds a championship, normalizing 'Masters' variants to canonical form.
@@ -169,6 +182,24 @@ public class Championship implements Comparable<Championship>, Serializable {
 		ArrayList<Championship> allChampionshipsList = new ArrayList<>(allChampionshipsMap.values());
 		allChampionshipsList.sort(Championship::compareTo);
 		return allChampionshipsList;
+	}
+
+	public static void assignMissingOrder(List<Championship> championships) {
+		if (championships == null) {
+			return;
+		}
+		int nextOrder = championships.stream()
+		        .filter(championship -> championship != null && !championship.isCompetitionTemplate())
+		        .map(Championship::getOrder)
+		        .filter(Objects::nonNull)
+		        .mapToInt(Integer::intValue)
+		        .max()
+		        .orElse(-1) + 1;
+		for (Championship championship : championships) {
+			if (championship != null && !championship.isCompetitionTemplate() && championship.getOrder() == null) {
+				championship.setOrder(nextOrder++);
+			}
+		}
 	}
 
 	public static List<Championship> findAllUsed(boolean activeOnly) {
@@ -355,6 +386,9 @@ public class Championship implements Comparable<Championship>, Serializable {
 	@Column(unique = true, nullable = false)
 	private String name;
 
+	@Column(name = "championship_order")
+	private Integer order;
+
 	@Enumerated(EnumType.STRING)
 	private ChampionshipType type;
 
@@ -421,7 +455,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	@Override
 	public int compareTo(Championship o) {
-		return ct.compare(this, o);
+		return configuredOrderComparator.compare(this, o);
 	}
 
 	public Long getId() {
@@ -430,6 +464,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public String getName() {
 		return this.name;
+	}
+
+	public Integer getOrder() {
+		return this.order;
 	}
 
 	private Ranking resolveMedalScoringSystem(Championship competitionDefaults) {
@@ -634,6 +672,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
 	}
 
 	/**

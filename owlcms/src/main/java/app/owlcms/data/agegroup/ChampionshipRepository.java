@@ -8,6 +8,7 @@ package app.owlcms.data.agegroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import javax.persistence.EntityManager;
@@ -39,9 +40,11 @@ public class ChampionshipRepository {
 	 */
 	public static List<Championship> findAll() {
 		return JPAService.runInTransaction(em -> {
-			return em.createQuery(
+			List<Championship> championships = em.createQuery(
 			        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class)
 			        .getResultList();
+			Championship.assignMissingOrder(championships);
+			return championships;
 		});
 	}
 
@@ -50,8 +53,10 @@ public class ChampionshipRepository {
 	 */
 	public static List<Championship> findAllIncludingTemplate() {
 		return JPAService.runInTransaction(em -> {
-			return em.createQuery("select c from Championship c order by c.id", Championship.class)
+			List<Championship> championships = em.createQuery("select c from Championship c order by c.id", Championship.class)
 			        .getResultList();
+			Championship.assignMissingOrder(championships);
+			return championships;
 		});
 	}
 
@@ -77,11 +82,44 @@ public class ChampionshipRepository {
 	 */
 	public static Championship save(Championship c) {
 		return JPAService.runInTransaction(em -> {
+			if (!c.isCompetitionTemplate() && c.getOrder() == null) {
+				int nextOrder = em.createQuery(
+				        "select c from Championship c where c.competitionTemplate = false", Championship.class)
+				        .getResultList().stream()
+				        .map(Championship::getOrder)
+				        .filter(Objects::nonNull)
+				        .mapToInt(Integer::intValue)
+				        .max()
+				        .orElse(-1) + 1;
+				c.setOrder(nextOrder);
+			}
 			Championship saved = em.merge(c);
 			normalizeDefaultTypes(em);
 			normalizeCompetitionDefaultFlags(em);
 			return saved;
 		});
+	}
+
+	public static void updateDisplayOrder(List<String> championshipNames) {
+		JPAService.runInTransaction(em -> {
+			List<Championship> championships = em.createQuery(
+			        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class)
+			        .getResultList();
+			int order = 0;
+			for (String championshipName : championshipNames) {
+				Championship championship = findChampionship(championshipName, championships);
+				if (championship != null) {
+					championship.setOrder(order++);
+					championships.remove(championship);
+				}
+			}
+			championships.sort(Championship::compareTo);
+			for (Championship championship : championships) {
+				championship.setOrder(order++);
+			}
+			return null;
+		});
+		Championship.reset();
 	}
 
 	public static Championship ensureCompetitionTemplate() {
@@ -554,6 +592,7 @@ public class ChampionshipRepository {
 			applyAgeGroupScoringOverrides(championship, championshipName, ageGroups);
 			em.persist(championship);
 			championships.add(championship);
+			Championship.assignMissingOrder(championships);
 			logger.info("Materialized championship '{}' from age groups", championshipName);
 		} else {
 			ChampionshipType canonicalType = canonicalizeType(championshipName, type);

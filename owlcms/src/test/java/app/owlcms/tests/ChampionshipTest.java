@@ -54,6 +54,7 @@ import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
+import app.owlcms.data.athleteSort.MedalCategoryComparator;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.data.category.Category;
@@ -214,6 +215,41 @@ public class ChampionshipTest {
         assertEquals("Senior best snatch scoring", Ranking.GAMX_S, senior.getBestSnatchScoringSystem());
         assertEquals("Senior best clean and jerk scoring", Ranking.GAMX_C, senior.getBestCJScoringSystem());
         assertEquals("Senior mixed team scoring", Ranking.GAMX, senior.getMixedTeamScoringSystem());
+    }
+
+    @Test
+    public void testMedalCategoryOrderUsesConfiguredChampionshipOrder() {
+        List<Championship> championships = ChampionshipRepository.findAll();
+        Championship first = Championship.of(championships.get(0).getName());
+        Championship second = Championship.of(championships.get(1).getName());
+        Integer firstOrder = first.getOrder();
+        Integer secondOrder = second.getOrder();
+
+        try {
+            first.setOrder(20);
+            second.setOrder(10);
+
+            AgeGroup firstAgeGroup = new AgeGroup();
+            firstAgeGroup.setChampionship(first);
+            Category firstCategory = new Category();
+            firstCategory.setAgeGroup(firstAgeGroup);
+
+            AgeGroup secondAgeGroup = new AgeGroup();
+            secondAgeGroup.setChampionship(second);
+            Category secondCategory = new Category();
+            secondCategory.setAgeGroup(secondAgeGroup);
+
+            assertTrue("medal categories should follow configured championship order",
+                    MedalCategoryComparator.categoryMedalOrder().compare(secondCategory, firstCategory) < 0);
+
+            firstCategory.setGender(Gender.F);
+            secondCategory.setGender(Gender.M);
+            assertTrue("women's categories should precede men's regardless of championship order",
+                    MedalCategoryComparator.categoryMedalOrder().compare(firstCategory, secondCategory) < 0);
+        } finally {
+            first.setOrder(firstOrder);
+            second.setOrder(secondOrder);
+        }
     }
 
     @Test

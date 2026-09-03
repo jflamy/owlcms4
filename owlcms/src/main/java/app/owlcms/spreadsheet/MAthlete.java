@@ -11,34 +11,29 @@ import java.util.Comparator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import app.owlcms.data.athleteSort.AthleteSorter;
+import app.owlcms.data.athleteSort.MedalCategoryComparator;
 import app.owlcms.data.athleteSort.Ranking;
-import app.owlcms.data.athleteSort.RegistrationOrderComparator;
 import app.owlcms.data.group.Group;
 import app.owlcms.i18n.Translator;
 
 public class MAthlete extends PAthlete {
 
 	public static class MedalComparator implements Comparator<MAthlete> {
-		private final boolean mastersAgeGroupOrder;
+		private final MedalCategoryComparator categoryComparator;
 
 		public MedalComparator() {
 			this(null);
 		}
 
 		public MedalComparator(Group group) {
-			this.mastersAgeGroupOrder = RegistrationOrderComparator.useMastersAgeGroupOrder(group);
+			this.categoryComparator = new MedalCategoryComparator(group);
 		}
 
 		@Override
 		public int compare(MAthlete o1, MAthlete o2) {
 			int compare;
 
-			compare = RegistrationOrderComparator.compareMastersAgeGroupOrder(o1, o2, this.mastersAgeGroupOrder);
-			if (compare != 0) {
-				return compare;
-			}
-
-			compare = ObjectUtils.compare(o1.getCategory().getMedalingSortCode(), o2.getCategory().getMedalingSortCode(), false);
+			compare = this.categoryComparator.compare(o1, o2);
 			if (compare != 0) {
 				return compare;
 			}

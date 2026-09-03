@@ -225,6 +225,7 @@ public class CompetitionDataV2 {
 		CompetitionDataV2 newData;
 		try {
 			newData = mapper.readValue(serialized, CompetitionDataV2.class);
+			normalizeChampionshipOrder(newData.getChampionships());
 			newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), null));
 			logger.info("V2 import: {} ageGroups, {} teams, {} sessions, {} athletes, {} platforms", 
 				newData.getChampionships() != null ? newData.getChampionships().size() : 0,
@@ -237,6 +238,23 @@ public class CompetitionDataV2 {
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
 			return null;
+		}
+	}
+
+	private static void normalizeChampionshipOrder(List<ChampionshipDTO> championships) {
+		if (championships == null) {
+			return;
+		}
+		int nextOrder = championships.stream()
+		        .filter(championship -> championship != null && !championship.isCompetitionTemplate()
+		                && championship.getOrder() != null)
+		        .mapToInt(ChampionshipDTO::getOrder)
+		        .max()
+		        .orElse(-1) + 1;
+		for (ChampionshipDTO championship : championships) {
+			if (championship != null && !championship.isCompetitionTemplate() && championship.getOrder() == null) {
+				championship.setOrder(nextOrder++);
+			}
 		}
 	}
 
@@ -277,6 +295,7 @@ public class CompetitionDataV2 {
 						em.persist(championship);
 					} else {
 						existing.setCompetitionTemplate(championship.isCompetitionTemplate());
+						existing.setOrder(championship.getOrder());
 						existing.setType(championship.getType());
 						existing.setScoringSystem(championship.getScoringSystem());
 						existing.setBestAthleteScoringSystem(championship.getBestAthleteScoringSystem());

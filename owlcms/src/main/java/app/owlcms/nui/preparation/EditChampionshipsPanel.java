@@ -19,7 +19,10 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.dnd.GridDropLocation;
+import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -36,6 +39,7 @@ import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsGridLayout;
+import app.owlcms.monitors.WebSocketEventForwarder;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.URLUtils;
 
@@ -53,6 +57,8 @@ public class EditChampionshipsPanel extends VerticalLayout {
 	private Grid<ChampionshipRow> championshipsTable = new Grid<>(ChampionshipRow.class, false);
 	private Checkbox showActiveChampionshipsOnly;
 	private Checkbox hideCompetitionDefaults;
+	private ChampionshipRow draggedChampionship;
+	private List<ChampionshipRow> displayedRows = new ArrayList<>();
 
 	public EditChampionshipsPanel() {
 		this(true);
@@ -124,6 +130,11 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		}
 		this.championshipsTable.setAllRowsVisible(true);
 		this.championshipsTable.getThemeNames().add("row-stripes");
+		this.championshipsTable.addComponentColumn(row -> {
+			Icon dragHandle = VaadinIcon.MENU.create();
+			dragHandle.getStyle().set("color", "var(--lumo-secondary-text-color)");
+			return dragHandle;
+		}).setHeader("").setWidth("2.5em").setFlexGrow(0);
 		Column<ChampionshipRow> nameColumn = this.championshipsTable.addColumn(new ComponentRenderer<>(this::nameCell))
 		        .setHeader(Translator.translate("Name"))
 		        .setWidth(NAME_COLUMN_WIDTH)
@@ -145,6 +156,17 @@ public class EditChampionshipsPanel extends VerticalLayout {
 		for (Column<ChampionshipRow> column : List.of(nameColumn, typeColumn, actionsColumn)) {
 			column.setResizable(true);
 		}
+
+		this.championshipsTable.addDragStartListener(event -> {
+			this.draggedChampionship = event.getDraggedItems().get(0);
+			this.championshipsTable.setDropMode(GridDropMode.BETWEEN);
+		});
+		this.championshipsTable.addDragEndListener(event -> {
+			this.draggedChampionship = null;
+			this.championshipsTable.setDropMode(null);
+		});
+		this.championshipsTable.addDropListener(event -> reorderChampionships(
+		        event.getDropTargetItem().orElse(null), event.getDropLocation()));
 	}
 
 	public void updateChampionshipsTable() {
@@ -187,7 +209,40 @@ public class EditChampionshipsPanel extends VerticalLayout {
 				rows.add(new ChampionshipRow(c.getName(), c.getType(), c, canDelete));
 			});
 		}
-		this.championshipsTable.setItems(rows);
+		rows.sort((first, second) -> {
+			Integer firstOrder = first.championship != null ? first.championship.getOrder() : null;
+			Integer secondOrder = second.championship != null ? second.championship.getOrder() : null;
+			if (firstOrder != null && secondOrder != null) return Integer.compare(firstOrder, secondOrder);
+			if (firstOrder != null) return -1;
+			if (secondOrder != null) return 1;
+			return first.name.compareToIgnoreCase(second.name);
+		});
+		this.displayedRows = rows;
+		boolean filtered = Boolean.TRUE.equals(this.showActiveChampionshipsOnly.getValue())
+		        || Boolean.TRUE.equals(this.hideCompetitionDefaults.getValue());
+		this.championshipsTable.setRowsDraggable(!filtered);
+		this.championshipsTable.setItems(this.displayedRows);
+	}
+
+	private void reorderChampionships(ChampionshipRow dropTarget, GridDropLocation dropLocation) {
+		if (this.draggedChampionship == null || dropTarget == null || this.draggedChampionship == dropTarget) {
+			return;
+		}
+		this.displayedRows.remove(this.draggedChampionship);
+		int dropIndex = this.displayedRows.indexOf(dropTarget);
+		if (dropLocation == GridDropLocation.BELOW) {
+			dropIndex++;
+		}
+		this.displayedRows.add(dropIndex, this.draggedChampionship);
+
+		for (ChampionshipRow row : this.displayedRows) {
+			if (row.championship == null) {
+				Championship.addChampionship(row.name, row.type);
+			}
+		}
+		ChampionshipRepository.updateDisplayOrder(this.displayedRows.stream().map(row -> row.name).toList());
+		WebSocketEventForwarder.sendDatabaseToAll();
+		updateChampionshipsTable();
 	}
 
 	private void warnCompetitionDefaultDifferences(Championship championship) {
