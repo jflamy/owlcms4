@@ -75,6 +75,40 @@ public class PlatformEquipmentCalculatorTest {
 	}
 
 	@Test
+	public void lightBarTogglesOffKeepTwentyKgBarForMaleU13Category() {
+		PlatformEquipmentCalculator.Inventory inventory = inventory(true, true, true, false, false, 5);
+		int maximumBarWeight = PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.M, 13, false, false);
+
+		assertEquals(20, maximumBarWeight);
+		assertSelection(20, false, false, select(25, 20, maximumBarWeight, false, false, 0, 30, inventory));
+	}
+
+	@Test
+	public void lightU13DoesNotApplyToOlderMaleCategories() {
+		assertEquals(20, PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.M, 14, true, false));
+		assertEquals(20, PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.M, 15, true, false));
+		assertEquals(20, PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.M, 17, true, true));
+	}
+
+	@Test
+	public void lightU15AlsoCoversU13Categories() {
+		assertEquals(15, PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.M, 13, false, true));
+		assertEquals(15, PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.M, 15, true, true));
+	}
+
+	@Test
+	public void lightBarPolicyIgnoresMissingAgeGroup() {
+		assertEquals(20, PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.M, null, true, true));
+	}
+
+	@Test
+	public void femaleAthletesAlwaysUseFifteenKgMaximum() {
+		assertEquals(15, PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.F, 13, false, false));
+		assertEquals(15, PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.F, 40, false, false));
+		assertEquals(15, PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.F, null, true, true));
+	}
+
+	@Test
 	public void usawCollarsOverrideTheCollarThreshold() {
 		PlatformEquipmentCalculator.Inventory inventory = inventory(true, true, false, false, false, 5);
 
