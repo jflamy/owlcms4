@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -105,6 +106,72 @@ public class AthleteTest {
             registrationCategory.setQualifyingTotal(originalQualifyingTotal);
             CategoryRepository.save(registrationCategory);
         }
+    }
+
+    @Test
+    public void testEligibleChampionshipsMigrateUsingNewAgeAndWeight() {
+        AgeGroup masters40 = ageGroup("M40", "Masters", 40, 44);
+        AgeGroup wso40 = ageGroup("WSO M40", "WSO", 40, 44);
+        AgeGroup masters45 = ageGroup("M45", "Masters", 45, 49);
+        AgeGroup wso45 = ageGroup("WSO M45", "WSO", 45, 49);
+        AgeGroup other45 = ageGroup("Other M45", "Other", 45, 49);
+
+        Category oldMasters = category("M40_F75", masters40, 70, 75);
+        Category oldWso = category("WSO M40_F75", wso40, 70, 75);
+        Category newMasters = category("M45_F85", masters45, 75, 85);
+        Category newWso = category("WSO M45_F85", wso45, 75, 85);
+        Category newOther = category("Other M45_F85", other45, 75, 85);
+
+        Set<Category> migrated = CategoryRepository.migrateEligibleCategories(
+            List.of(newMasters, newWso, newOther), Set.of(oldMasters, oldWso), oldMasters, 100);
+
+        assertEquals(new LinkedHashSet<>(List.of(newMasters, newWso)), migrated);
+    }
+
+    @Test
+    public void testMigrationAcceptsValidRegistrationCategoryWithoutPriorChampionships() {
+        AgeGroup senior = ageGroup("SR", "Senior", 15, 99);
+        Category selected = category("SR_F71", senior, 64, 71);
+
+        Set<Category> migrated = CategoryRepository.migrateEligibleCategories(
+                List.of(selected), Set.of(), selected, 100);
+
+        assertEquals(Set.of(selected), migrated);
+    }
+
+    @Test
+    public void testMigrationRejectsCategoriesBelowQualifyingTotal() {
+        AgeGroup masters40 = ageGroup("M40", "Masters", 40, 44);
+        AgeGroup wso40 = ageGroup("WSO M40", "WSO", 40, 44);
+        AgeGroup masters45 = ageGroup("M45", "Masters", 45, 49);
+        AgeGroup wso45 = ageGroup("WSO M45", "WSO", 45, 49);
+        Category oldMasters = category("M40_F75", masters40, 70, 75);
+        Category oldWso = category("WSO M40_F75", wso40, 70, 75);
+        Category selectedMasters = category("M45_F85", masters45, 75, 85);
+        Category newWso = category("WSO M45_F85", wso45, 75, 85);
+        selectedMasters.setQualifyingTotal(110);
+        newWso.setQualifyingTotal(110);
+
+        Set<Category> migrated = CategoryRepository.migrateEligibleCategories(
+            List.of(selectedMasters, newWso), Set.of(oldMasters, oldWso), oldMasters, 100);
+
+        assertTrue(migrated.isEmpty());
+    }
+
+    private static AgeGroup ageGroup(String code, String championshipName, int minimumAge, int maximumAge) {
+        AgeGroup ageGroup = new AgeGroup(code, true, minimumAge, maximumAge, Gender.F, "MASTERS", 0);
+        ageGroup.setChampionshipName(championshipName);
+        return ageGroup;
+    }
+
+    private static Category category(String code, AgeGroup ageGroup, double minimumWeight, double maximumWeight) {
+        Category category = new Category();
+        category.setCode(code);
+        category.setAgeGroup(ageGroup);
+        category.setGender(Gender.F);
+        category.setMinimumWeight(minimumWeight);
+        category.setMaximumWeight(maximumWeight);
+        return category;
     }
 
     @Test
