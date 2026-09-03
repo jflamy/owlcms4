@@ -8,6 +8,11 @@
 
 <br>
 
+
+**New in Release 67.4.2**
+
+- 67.4.2: Jury announcement dialogs now close on all announcer screens when lifting resumes
+
 **New in Release 67.4.1**
 
 - 67.4.1: Changing an Athlete's category preserves the participation in the previously selected championships if still eligible according to the new age and meeting qualifiying totals.
