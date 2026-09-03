@@ -8,6 +8,7 @@
 package app.owlcms.nui.lifting;
 
 import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
@@ -191,6 +192,7 @@ public class JuryDecisionDialog extends Dialog {
 			
 			buttonContainer.add(this.goodLiftButton, this.noLiftButton, this.resumeButton);
 		}
+		this.resumeButton.addClickShortcut(Key.ENTER).listenOn(this);
 		
 		footer.add(buttonContainer);
 		
