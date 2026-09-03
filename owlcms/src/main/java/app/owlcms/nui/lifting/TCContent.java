@@ -34,7 +34,9 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
+import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
@@ -46,7 +48,6 @@ import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
-import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
@@ -73,6 +74,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	private OwlcmsCrudFormFactory<Athlete> crudFormFactory;
 	private PlatesElement plates;
 	private Platform platform;
+	private Binder<Platform> platformBinder;
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public TCContent() {
@@ -126,7 +128,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
 	@Subscribe
 	public void slaveBarbellChanged(UIEvent.BarbellOrPlatesChanged e) {
-		FieldOfPlay fop2 = OwlcmsSession.getFop();
+		FieldOfPlay fop2 = getFop();
 		if (e.getOrigin() == this) {
 			return;
 		}
@@ -142,9 +144,12 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	@Override
 	@Subscribe
 	public void slaveUpdateGrid(UIEvent.Decision e) {
-		OwlcmsSession.withFop((fop) -> UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
-			this.plates.computeImageArea(fop, true);
-		}));
+		FieldOfPlay pageFop = getFop();
+		if (pageFop != null) {
+			UIEventProcessor.uiAccess(this.plates, this.uiEventBus, () -> {
+				this.plates.computeImageArea(pageFop, true);
+			});
+		}
 	}
 
 	@Override
@@ -167,6 +172,17 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 	}
 
 	@Override
+	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		super.setParameter(event, parameter);
+		FieldOfPlay pageFop = getFop();
+		if (pageFop != null) {
+			this.platform = pageFop.getPlatform();
+			this.platformBinder.readBean(this.platform);
+			this.plates.computeImageArea(pageFop, true);
+		}
+	}
+
+	@Override
 	protected HorizontalLayout announcerButtons(FlexLayout announcerBar) {
 		return null;
 	}
@@ -183,11 +199,6 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 
 		this.plates = new PlatesElement();
 		this.plates.setId("loadchart");
-		OwlcmsSession.withFop((fop) -> {
-			this.plates.computeImageArea(fop, true);
-			this.platform = fop.getPlatform();
-			// logger.debug"init 5kg = {}",this.platform.getNbB_5());
-		});
 		this.plates.getStyle().set("font-size", "150%");
 
 		FormLayout largePlates = new FormLayout();
@@ -196,7 +207,8 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		FormLayout lightBar = new FormLayout();
 		StringToIntegerConverter converter = new StringToIntegerConverter(Translator.translate("MustEnterNumber"));
 
-		Binder<Platform> binder = new Binder<>();
+		this.platformBinder = new Binder<>();
+		Binder<Platform> binder = this.platformBinder;
 		Converter<Boolean, Integer> bc = Converter.from(checked -> Result.ok(checked ? 1 : 0),
 		        value -> value > 0);
 
@@ -309,7 +321,7 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		});
 		binder.forField(useOtherBar).bind(Platform::isUseNonStandardBar, Platform::setUseNonStandardBar);
 
-		barWeight.setEnabled(this.platform.isUseNonStandardBar());
+		barWeight.setEnabled(false);
 		lightBar.addFormItem(barWeight, Translator.translate("BarWeight"));
 		int min = 1;
 		int max = 20;
@@ -327,18 +339,19 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		applyButton.addClickListener((e) -> {
 			try {
 				binder.writeBean(this.platform);
-				Platform np = PlatformRepository.save(this.platform);
-				OwlcmsSession.withFop((fop) -> {
+				Platform np = PlatformRepository.saveEquipment(this.platform);
+				FieldOfPlay targetFop = getFop();
+				if (targetFop != null) {
 					// logger.debug"after save, platform identity={}",System.identityHashCode(fop.getPlatform()));
 					platesDisplay.removeAll();
-					fop.setPlatform(np);
+					targetFop.setPlatform(np);
 					// Force immediate recalculation of bar weight before displaying
-					fop.recomputeBarInUse();
+					targetFop.recomputeBarInUse();
 					// Notify other UIs that equipment changed
-					fop.fopEventPost(new FOPEvent.BarbellOrPlatesChanged(this));
-					this.plates.computeImageArea(fop, true);
+					targetFop.fopEventPost(new FOPEvent.BarbellOrPlatesChanged(this));
+					this.plates.computeImageArea(targetFop, true);
 					platesDisplay.add(this.plates);
-				});
+				}
 			} catch (ValidationException e1) {
 			}
 		});
@@ -360,7 +373,6 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		leftRight.setAlignItems(Alignment.CENTER);
 
 		fillH(leftRight, this);
-		binder.readBean(this.platform);
 	}
 
 }
