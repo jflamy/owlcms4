@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import app.owlcms.data.athlete.Gender;
+
 public class PlatformEquipmentCalculatorTest {
 
 	@Test
@@ -42,10 +44,41 @@ public class PlatformEquipmentCalculatorTest {
 	}
 
 	@Test
-	public void youthPolicyExcludesTwentyKgBarBeforeBumperSelection() {
-		PlatformEquipmentCalculator.Inventory inventory = inventory(true, true, true, false, false, 5);
+	public void noCollars5kgBarIgnoresThreshold() {
+		PlatformEquipmentCalculator.Inventory inventory = inventory(false, false, false, true, true, 5);
 
-		assertSelection(15, false, true, select(25, 20, 15, false, false, 0, 30, inventory));
+		assertSelection(5, false, true, select(15, 15, 15, false, true, false, 0, 30, inventory));
+		assertSelection(5, false, true, select(19, 15, 15, false, true, false, 0, 30, inventory));
+	}
+
+	@Test
+	public void fiveKgBarUsesCollarsAtThresholdWhenToggleDisabled() {
+		PlatformEquipmentCalculator.Inventory inventory = inventory(false, false, false, true, true, 5);
+
+		assertSelection(5, true, true, select(15, 15, 15, false, false, false, 0, 30, inventory));
+	}
+
+	@Test
+	public void lightU13ExcludesTwentyKgBarForMaleU13Category() {
+		PlatformEquipmentCalculator.Inventory inventory = inventory(true, true, true, false, false, 5);
+		int maximumBarWeight = PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.M, 13, true, false);
+
+		assertSelection(15, false, true, select(25, 20, maximumBarWeight, false, false, 0, 30, inventory));
+	}
+
+	@Test
+	public void lightU15ExcludesTwentyKgBarForMaleU15Category() {
+		PlatformEquipmentCalculator.Inventory inventory = inventory(true, true, true, false, true, 5);
+		int maximumBarWeight = PlatformEquipmentCalculator.maximumAllowedBarWeight(Gender.M, 15, false, true);
+
+		assertSelection(15, false, true, select(25, 20, maximumBarWeight, false, false, 0, 35, inventory));
+	}
+
+	@Test
+	public void usawCollarsOverrideTheCollarThreshold() {
+		PlatformEquipmentCalculator.Inventory inventory = inventory(true, true, false, false, false, 5);
+
+		assertSelection(20, true, false, select(25, 20, 20, true, false, 0, 30, inventory));
 	}
 
 	@Test
@@ -93,8 +126,16 @@ public class PlatformEquipmentCalculatorTest {
 	private PlatformEquipmentCalculator.Selection select(int targetWeight, int standardBarWeight,
 			int maximumAllowedBarWeight, boolean useUsawCollars, boolean useNonStandardBar,
 			int nonStandardBarWeight, int collarThreshold, PlatformEquipmentCalculator.Inventory inventory) {
+		return select(targetWeight, standardBarWeight, maximumAllowedBarWeight, useUsawCollars, false,
+				useNonStandardBar, nonStandardBarWeight, collarThreshold, inventory);
+	}
+
+	private PlatformEquipmentCalculator.Selection select(int targetWeight, int standardBarWeight,
+			int maximumAllowedBarWeight, boolean useUsawCollars, boolean noCollars5kgBar,
+			boolean useNonStandardBar, int nonStandardBarWeight, int collarThreshold,
+			PlatformEquipmentCalculator.Inventory inventory) {
 		PlatformEquipmentCalculator.Request request = new PlatformEquipmentCalculator.Request(
-				targetWeight, standardBarWeight, maximumAllowedBarWeight, useUsawCollars,
+				targetWeight, standardBarWeight, maximumAllowedBarWeight, useUsawCollars, noCollars5kgBar,
 				useNonStandardBar, nonStandardBarWeight, collarThreshold, inventory);
 		return PlatformEquipmentCalculator.select(request);
 	}

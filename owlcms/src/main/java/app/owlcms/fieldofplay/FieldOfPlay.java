@@ -1927,13 +1927,11 @@ public class FieldOfPlay implements IUnregister {
 		// Platform.applyChildrenEquipment), not on session load.
 		// TC screen can still override settings during the session.
 		AgeGroup ageGroup = a.getAgeGroup();
-		boolean boysLightBarAllowed = Config.getCurrent().featureSwitch(FeatureSwitch.LIGHT_BAR_U13)
-				&& (ageGroup != null && ageGroup.getMaxAge() <= 13);
-		boysLightBarAllowed = boysLightBarAllowed || Config.getCurrent().featureSwitch(FeatureSwitch.LIGHT_BAR_U15)
-				&& (ageGroup != null && ageGroup.getMaxAge() <= 15);
-		boolean use15Bar = boysLightBarAllowed || a.getGender() != Gender.M;
-		int maximumAllowedBarWeight = use15Bar ? 15 : 20;
 		Integer age = a.getAge();
+		int maximumAllowedBarWeight = PlatformEquipmentCalculator.maximumAllowedBarWeight(
+				a.getGender(), ageGroup != null ? ageGroup.getMaxAge() : null,
+				Config.getCurrent().featureSwitch(FeatureSwitch.LIGHT_BAR_U13),
+				Config.getCurrent().featureSwitch(FeatureSwitch.LIGHT_BAR_U15));
 		PlatformEquipmentCalculator.Inventory inventory = new PlatformEquipmentCalculator.Inventory(
 				getPlatform().getNbB_20() > 0,
 				getPlatform().getNbB_15() > 0,
@@ -1946,6 +1944,7 @@ public class FieldOfPlay implements IUnregister {
 				standardBarWeight(a.getGender()),
 				maximumAllowedBarWeight,
 				Config.getCurrent().featureSwitch(FeatureSwitch.USAW_COLLARS) && age != null && age > 13,
+				Config.getCurrent().featureSwitch(FeatureSwitch.NO_COLLARS_5KG_BAR),
 				getPlatform().isUseNonStandardBar(),
 				getPlatform().getNonStandardBarWeight(),
 				getPlatform().getCollarThreshold(),
