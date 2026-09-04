@@ -4,3 +4,4 @@
 
 # Translation backup files
 src/main/resources/i18n/translation4.csv.backup.*
+src/main/resources/i18n/lift_reversal_translations.tsv

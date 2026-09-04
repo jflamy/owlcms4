@@ -219,6 +219,11 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 		super.updateButtonClicked();
 	}
 
+	public void showUpdateForm(T domainObject) {
+		this.grid.select(domainObject);
+		updateButtonClicked();
+	}
+
 	/**
 	 * Do nothing. Initialization must wait for crudGrid to be constructed, constuctor calls {@link #initLayoutGrid()} instead.
 	 *
