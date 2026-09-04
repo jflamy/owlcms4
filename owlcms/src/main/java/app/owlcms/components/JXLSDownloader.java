@@ -47,6 +47,7 @@ import app.owlcms.spreadsheet.JXLSWorkbookStreamSource;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.Resource;
 import app.owlcms.utils.ResourceWalker;
+import app.owlcms.utils.TemplateResourceUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -226,13 +227,16 @@ public class JXLSDownloader {
 
 		this.templateSelect.setPlaceholder(Translator.translate("AvailableTemplates"));
 		this.templateSelect.setHelperText(Translator.translate("SelectTemplate"));
+		String curTemplateName = this.templateNameGetter.apply(Competition.getCurrent());
 		List<Resource> resourceList = new ResourceWalker().getResourceList(
 		        this.resourceDirectoryLocation,
 		        ResourceWalker::relativeName,
 		        this.nameFilter,
 		        OwlcmsSession.getLocale(),
 		        Config.getCurrent().isLocalTemplatesOnly());
-		List<Resource> prioritizedList = xlsxPriority(resourceList);
+		List<Resource> prioritizedResources = xlsxPriority(resourceList);
+		List<Resource> prioritizedList = TemplateResourceUtils.filterTemplatesByPaperSize(prioritizedResources, curTemplateName,
+		        OwlcmsSession.getLocale());
 		this.templateSelect.setItems(prioritizedList);
 		this.templateSelect.setValue(null);
 		this.templateSelect.setWidth("30em");
@@ -242,7 +246,6 @@ public class JXLSDownloader {
 		try {
 			// Competition.getTemplateFileName()
 			// the getter should return a default if not set.
-			String curTemplateName = this.templateNameGetter.apply(Competition.getCurrent());
 			this.logger.debug("(1) curTemplateName {}", curTemplateName);
 			// searchMatch should always return something unless the directory is empty.
 			Resource found = searchMatch(prioritizedList, curTemplateName);
