@@ -152,6 +152,10 @@ public class BaseResults extends LitTemplate
 
 		boolean medalCeremony = fop.getCeremonyType() == CeremonyType.MEDALS;
 		this.getElement().setProperty("medalCeremony", medalCeremony);
+		boolean hideBreakTimer = fop.getBreakType() == BreakType.GROUP_DONE
+		        || fop.getCeremonyType() == CeremonyType.INTRODUCTION
+		        || medalCeremony;
+		this.getElement().setProperty("hideBreakTimer", hideBreakTimer);
 		String groupName = inferGroupName(fop.getCeremonyType());
 		String message = inferMessage(fop.getBreakType(), fop.getCeremonyType(), medalCeremony || isPublicDisplay());
 		String title = groupName.isBlank() ? message : groupName + " &ndash; " + message;
@@ -362,10 +366,11 @@ public class BaseResults extends LitTemplate
 
 	@Override
 	public void pushTeamWidth(Element element) {
-		String formattedTW = null;
 		if (this.teamWidth != null) {
-			formattedTW = ResultsParameters.formatEN_US.format(this.teamWidth);
+			String formattedTW = ResultsParameters.formatEN_US.format(this.teamWidth);
 			element.setProperty("twOverride", "--clubWidth:" + formattedTW + "em;");
+		} else {
+			element.setProperty("twOverride", "");
 		}
 	}
 

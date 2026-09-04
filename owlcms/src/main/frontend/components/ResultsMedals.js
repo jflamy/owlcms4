@@ -1,5 +1,6 @@
 import { html, LitElement, css } from "lit";
 import { stylesheetHref } from "./stylesheetHref.js";
+import { renderResultsAthleteRow } from "./renderResultsAthleteRow.js";
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
@@ -90,75 +91,7 @@ class ResultsMedals extends LitElement {
                         <th class="sinclairRank" .innerHTML="${mc.scoreRankingTitle}"></th>
                       </tr>
 
-                      ${(mc.leaders ?? []).map(
-                        (leader) => html`
-                          <tr class="athlete" style="${this.leadersDisplay}">
-                            <td class="groupCol">
-                              <div>${leader.subCategory}</div>
-                            </td>
-                            <td class="${"name " + (leader.classname ?? "")}">
-                              <div class="ellipsis">${leader.fullName}</div>
-                            </td>
-                            <td class="category">
-                              <div>${leader.category}</div>
-                            </td>
-                            <td class="yob">
-                              <div>${leader.yearOfBirth}</div>
-                            </td>
-                            <td class="custom1">
-                              <div>${leader.custom1}</div>
-                            </td>
-                            <td class="custom2">
-                              <div>${leader.custom2}</div>
-                            </td>
-                            <td class="${"club " + (leader.flagClass ?? "")}">
-                              <div class="${leader.flagClass}" .innerHTML="${leader.flagURL}"></div>
-                              <div class="clubName">
-                                <div class="ellipsis" style="${leader.teamLength !== undefined ? "width: "+leader.teamLength : ""}">${leader?.teamName}</div>
-                              </div>
-                            </td>
-                            <td class="vspacer"></td>
-                            ${(leader.sattempts ?? []).map(
-                              (attempt) => html`
-                                <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}" >
-                                  <div class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}">${attempt.stringValue}</div>
-                                </td>
-                              `)}
-                            <td class="best">
-                              <div .innerHTML="${leader.bestSnatch}"></div>
-                            </td>
-                            <td class="${"rank " + (leader.snatchMedal ?? "")}">
-                              <div .innerHTML="${leader.snatchRank}"></div>
-                            </td>
-                            <td class="vspacer"></td>
-                            ${(leader.cattempts ?? []).map(
-                              (attempt) => html`
-                                <td class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}" >
-                                  <div class="${(attempt.liftStatus ?? "") + " " + (attempt.className ?? "")}">${attempt.stringValue}</div>
-                                </td>
-                              `)}
-                            <td class="best">
-                              <div .innerHTML="${leader.bestCleanJerk}" ></div>
-                            </td>
-                            <td class="${"rank " + (leader.cleanJerkMedal ?? "")}">
-                              <div .innerHTML="${leader.cleanJerkRank}"></div>
-                            </td>
-                            <td class="vspacer"></td>
-                            <td class="total">
-                              <div>${leader.total}</div>
-                            </td>
-                            <td class="${"totalRank " + (leader.totalMedal ?? "")}">
-                              <div .innerHTML="${leader.totalRank}"></div>
-                            </td>
-                            <td class="sinclair">
-                              <div>${leader.sinclair}</div>
-                            </td>
-                            <td class="${"sinclairRank " + (leader.sinclairMedal ?? "")}">
-                              <div>${leader.sinclairRank}</div>
-                            </td>
-                          </tr>
-                        `
-                      )}
+                      ${(mc.leaders ?? []).map((leader) => renderResultsAthleteRow(leader))}
                       ${index < array.length - 1 ? html`
                         <tr>
                           <td class="filler" style="${"grid-column: 1 / -1; line-height:100%;" + (this.fillerDisplay ?? "")}">&nbsp;</td>
@@ -209,6 +142,7 @@ class ResultsMedals extends LitElement {
       twOverride: {},
 	    colorOverride: {},
       video: {},
+      currentAttempt: {},
       showLiftRanks: {type: Boolean},
       showBest: {type: Boolean},
       showSinclair: {type: Boolean},
@@ -241,7 +175,7 @@ class ResultsMedals extends LitElement {
   }
 
   wrapperClasses() {
-    var classes = "wrapper";
+    var classes = "wrapper Results";
     classes = classes + (this.platformName ? " " + this.platformName : "");
     classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
@@ -254,7 +188,8 @@ class ResultsMedals extends LitElement {
   }
 
   attemptBarStyles() {
-    return  "display: " + (!this.video ? "grid" : "none");
+    const showAttempt = this.currentAttempt === true || this.currentAttempt === "true";
+    return "display: " + (this.mode === "WAIT" || this.video || !showAttempt ? "none" : "block");
   }
 
   athleteInfoStyles() {
@@ -275,7 +210,8 @@ class ResultsMedals extends LitElement {
   }
 
   videoHeaderStyles() {
-    return "display: " + ((this.video)? "flex" : "none");
+    const showAttempt = this.currentAttempt === true || this.currentAttempt === "true";
+    return "display: " + ((this.mode !== "WAIT" && (this.video || !showAttempt)) ? "flex" : "none");
   }
 
   athleteClasses() {

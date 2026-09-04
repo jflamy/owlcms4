@@ -411,6 +411,7 @@ class ResultsFull extends LitElement {
       showDecisionSection: { type: Boolean },
       showProjectedRanks: { type: Boolean },
       showScoreboardTimers: { type: Boolean },
+      hideBreakTimer: { type: Boolean },
       decisionSectionDecisionActive: { type: Boolean },
       decisionSectionCurrentActive: { type: Boolean },
       decisionSectionStartNumber: {},
@@ -499,6 +500,7 @@ class ResultsFull extends LitElement {
   }
 
   breakTimerStyles() {
+    if (this.isBreak() && this.hideBreakTimer) return "display:none";
     return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
   }
 
@@ -516,6 +518,7 @@ class ResultsFull extends LitElement {
   }
 
   dsTimerSlotStyles() {
+    if (this.isBreak() && this.hideBreakTimer) return "display:none";
     if (this.showDecisionSection && this.decisionSectionDecisionActive) return "display:none";
     return (this.showDecisionSection || this.showScoreboardTimers) ? "" : "display:none";
   }
@@ -665,6 +668,7 @@ class ResultsFull extends LitElement {
     this.showDecisionSection = false;
     this.showProjectedRanks = false;
     this.showScoreboardTimers = false;
+    this.hideBreakTimer = false;
     this.decisionSectionDecisionActive = false;
     this.decisionSectionCurrentActive = false;
     this.decisionSectionStartNumber = "";

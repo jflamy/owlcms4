@@ -427,7 +427,6 @@ table.results tr td.club div.clubName div.ellipsis {
 
 /* grid layout */
 table {
-    /* use all available vertical space */
     flex: 1;
     display: grid;
     border-collapse: collapse;

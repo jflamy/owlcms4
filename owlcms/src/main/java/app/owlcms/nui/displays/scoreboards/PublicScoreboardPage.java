@@ -148,18 +148,9 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 	
 	@Override
 	final public void setTeamWidth(Double tw) {
-		// subjective visual kludging.
-		Double medalTw;
-		if (tw == null) {
-			tw = 9.0;
-			medalTw= 9.0;
-		} else {
-			//medalFontSize = emFontSize * 1.5;
-			medalTw = tw;
-		}
 		super.setTeamWidth(tw);
 		pushTeamWidth(getElement(), tw);
-		pushTeamWidth(this.getMedalsBoard().getElement(),medalTw);
+		pushTeamWidth(this.getMedalsBoard().getElement(), tw);
 	}
 
 	
@@ -180,8 +171,19 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		this.addComponent((Component) board);
 		this.addComponent(getMedalsBoard());
 
-		((Component) board).getElement().getStyle().set("display","block");
-		getMedalsBoard().getElement().getStyle().set("display","none");
+		boolean medalCeremony = getFop() != null && getFop().getCeremonyType() == CeremonyType.MEDALS;
+		((Component) board).getElement().getStyle().set("display", medalCeremony ? "none" : "block");
+		getMedalsBoard().getElement().getStyle().set("display", medalCeremony ? "block" : "none");
+		if (medalCeremony) {
+			getMedalsBoard().setDownSilenced(true);
+			getMedalsBoard().setDarkMode(board.isDarkMode());
+			getMedalsBoard().setVideo(board.isVideo());
+			getMedalsBoard().setPublicDisplay(board.isPublicDisplay());
+			getMedalsBoard().setSingleReferee(((SoundParameters) board).isSingleReferee());
+			getMedalsBoard().setAbbreviatedName(board.isAbbreviatedName());
+			computeStylesDir(getMedalsBoard());
+			getMedalsBoard().syncWithFOP(getFop());
+		}
 		pushEmSize(this.getElement());
 		pushTeamWidth(this.getElement());
 

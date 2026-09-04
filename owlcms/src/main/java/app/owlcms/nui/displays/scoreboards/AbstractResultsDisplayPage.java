@@ -136,16 +136,16 @@ public abstract class AbstractResultsDisplayPage extends AbstractDisplayPage
 	@Override
 	public void pushTeamWidth(Element element) {
 		Double teamWidth = getTeamWidth();
-		pushEmSize(element, teamWidth);
+		pushTeamWidth(element, teamWidth);
 	}
 
 	public void pushTeamWidth(Element element, Double size) {
-		String formattedTW = null;
-		Double teamWidth2 = size;
-		if (teamWidth2 != null) {
-			teamWidth2 = teamWidth2 <= 0.0 ? 0.0 : teamWidth2;
-			formattedTW = ResultsParameters.formatEN_US.format(teamWidth2);
+		if (size != null) {
+			Double teamWidth = size <= 0.0 ? 0.0 : size;
+			String formattedTW = ResultsParameters.formatEN_US.format(teamWidth);
 			element.setProperty("twOverride", "--clubWidth:" + formattedTW + "em;");
+		} else {
+			element.setProperty("twOverride", "");
 		}
 	}
 

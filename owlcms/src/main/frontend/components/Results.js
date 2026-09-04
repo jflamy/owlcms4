@@ -1,5 +1,6 @@
 import { html, LitElement, css } from "lit";
 import { stylesheetHref } from "./stylesheetHref.js";
+import { renderResultsAthleteRow } from "./renderResultsAthleteRow.js";
 /*******************************************************************************
  * Copyright (c) 2009-2023 Jean-François Lamy
  *
@@ -46,7 +47,7 @@ class Results extends LitElement {
                 ${(this.juryDecisions ?? []).map(d => html`<vaadin-icon class="juryIcon ${d}" icon="${this.juryIcon(d)}"></vaadin-icon>`)}
               </div>
             </div>
-            <div class="dsBranding"><img class="brandingLogo" src="local/logos/owlcms-logo.svg">&nbsp;owlcms</div>
+            <div class="dsBranding" style="${this.dsBrandingStyles()}"><img class="brandingLogo" src="local/logos/owlcms-logo.svg">&nbsp;owlcms</div>
           </div>
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
@@ -117,75 +118,7 @@ class Results extends LitElement {
                       html`
                         ${item?.isSpacer
                           ? this.renderSpacerRow(item, index, athletes)
-                          : html`
-                            <tr class="${"athlete" + (item?.classname ?? "")}">
-                              <td class="${"start " + (item?.classname ?? "")}">
-                                <div class="${item?.classname}"> ${item?.startNumber}</div>
-                              </td>
-                              <td class="${"name " + (item.classname ?? "")}">
-                                <div class="${"name ellipsis " + (item?.classname ?? "")}">${item?.fullName}</div>
-                              </td>
-                              <td class="category">
-                                <div>${item?.category}</div>
-                              </td>
-                              <td class="yob">
-                                <div>${item?.yearOfBirth}</div>
-                              </td>
-                              <td class="custom1">
-                                <div>${item?.custom1}</div>
-                              </td>
-                              <td class="custom2">
-                                <div>${item?.custom2}</div>
-                              </td>
-                              <td class="${"club " + (item?.flagClass ?? "")}">
-                                <div class="${item?.flagClass}" .innerHTML="${item?.flagURL} "></div>
-                                <div class="clubName">
-                                  <div class="ellipsis" style="${"width: " + (item?.teamLength ?? "")}">${item?.teamName}</div>
-                                </div>
-                              </td>
-                              <td class="vspacer"></td>
-                              ${(item?.sattempts ?? []).map(
-                                (attempt, index) =>
-                                  html`
-                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">
-                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
-                                    </td>
-                                  `)}
-                              <td class="best">
-                                <div .innerHTML="${item?.bestSnatch} "></div>
-                              </td>
-                              <td class="${"rank " + (item?.snatchMedal ?? "")}">
-                                <div .innerHTML="${item?.snatchRank} "></div>
-                              </td>
-                              <td class="vspacer"></td>
-                              ${(item?.cattempts ?? []).map(
-                                (attempt, index) =>
-                                  html`
-                                    <td class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">
-                                      <div class="${(attempt?.liftStatus ?? "") + " " + (attempt?.className ?? "")}">${attempt?.stringValue}</div>
-                                    </td>
-                                  `)}
-                              <td class="best">
-                                <div .innerHTML="${item?.bestCleanJerk}"></div>
-                              </td>
-                              <td class="${"rank " + (item?.cleanJerkMedal ?? "")}">
-                                <div .innerHTML="${item?.cleanJerkRank}"></div>
-                              </td>
-                              <td class="vspacer"></td>    
-                              <td class="total">
-                                <div>${item?.total}</div>
-                              </td>
-                              <td class="${"totalRank " + (item?.totalMedal ?? "")}">
-                                <div .innerHTML="${item?.totalRank}"></div>
-                              </td>
-                              <td class="sinclair">
-                                <div>${item?.sinclair}</div>
-                              </td>
-                              <td class="${"sinclairRank " + (item?.sinclairMedal ?? "")}">
-                                <div>${item?.sinclairRank}</div>
-                              </td>
-                            </tr>
-                          `}
+                          : renderResultsAthleteRow(item)}
                   `)}
               `
               : html``}
@@ -319,6 +252,7 @@ class Results extends LitElement {
       mode: {},
       decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
       medalCeremony: {type: Boolean},
+      hideBreakTimer: {type: Boolean},
 
       // dynamic styling
       darkMode: {},
@@ -429,6 +363,7 @@ class Results extends LitElement {
   }
 
   breakTimerStyles() {
+    if (this.isBreak() && this.hideBreakTimer) return "display:none";
     return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
   }
 
@@ -446,8 +381,13 @@ class Results extends LitElement {
   }
 
   dsTimerSlotStyles() {
+    if (this.isBreak() && this.hideBreakTimer) return "display:none";
     if (this.showDecisionSection && this.decisionSectionDecisionActive) return "display:none";
     return (this.showDecisionSection || this.showScoreboardTimers) ? "" : "display:none";
+  }
+
+  dsBrandingStyles() {
+    return this.medalCeremony ? "margin-inline-start:auto" : "";
   }
 
   dsDecisionAthleteStyles() {
@@ -626,6 +566,7 @@ class Results extends LitElement {
     super();
     this.mode = "WAIT";
     this.medalCeremony = false;
+    this.hideBreakTimer = false;
     this.showCategoryHeaders = false;
     this.showDecisionSection = false;
     this.showProjectedRanks = false;
