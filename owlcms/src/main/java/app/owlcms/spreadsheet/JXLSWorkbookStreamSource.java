@@ -799,7 +799,9 @@ public abstract class JXLSWorkbookStreamSource implements StreamResourceWriter, 
 		if (!shouldFilterStaleProvisionalRecords()) {
 			return records;
 		}
-		return RecordFilter.keepCurrentCompetitionProvisionalRecords(records, Competition.getCurrent().getCompetitionName());
+		Competition competition = Competition.getCurrent();
+		return RecordFilter.keepCurrentCompetitionProvisionalRecords(records, competition.getCompetitionName(),
+		        competition.getCompetitionDate(), competition.getCompetitionEndDate());
 	}
 
 	protected boolean shouldFilterStaleProvisionalRecords() {

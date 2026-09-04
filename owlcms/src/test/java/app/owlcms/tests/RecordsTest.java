@@ -146,19 +146,28 @@ public class RecordsTest {
     public void currentCompetitionProvisionalFilterDropsBlankAndStaleEvents() {
         RecordEvent current = createRecord(102.0D, "A");
         current.setEvent("Current Event");
+        current.setRecordDate(LocalDate.of(2026, 8, 26));
         RecordEvent blank = createRecord(103.0D, "A");
         blank.setEvent("");
         RecordEvent stale = createRecord(104.0D, "A");
         stale.setEvent("Old Event");
+        stale.setRecordDate(LocalDate.of(2026, 8, 25));
+        RecordEvent renamedCurrent = createRecord(106.0D, "A");
+        renamedCurrent.setEvent("Current Event With Different Spacing");
+        renamedCurrent.setRecordDate(LocalDate.of(2026, 8, 26));
         RecordEvent official = createRecord(105.0D, null);
         official.setEvent("Current Event");
+        official.setRecordDate(LocalDate.of(2026, 8, 26));
 
         List<RecordEvent> provisionalRecords = RecordFilter.keepCurrentCompetitionProvisionalRecords(
-                Arrays.asList(current, blank, stale, official),
-                "Current Event");
+            Arrays.asList(current, blank, stale, renamedCurrent, official),
+            "Current Event",
+            LocalDate.of(2026, 8, 26),
+            LocalDate.of(2026, 8, 30));
 
-        assertEquals(1, provisionalRecords.size());
+        assertEquals(2, provisionalRecords.size());
         assertEquals(102.0D, provisionalRecords.get(0).getRecordValue(), 0.001D);
+        assertEquals(106.0D, provisionalRecords.get(1).getRecordValue(), 0.001D);
     }
 
     @Test

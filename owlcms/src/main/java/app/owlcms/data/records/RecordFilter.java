@@ -6,6 +6,7 @@
  *******************************************************************************/
 package app.owlcms.data.records;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -265,23 +266,40 @@ public class RecordFilter {
 
 	public static List<RecordEvent> keepCurrentCompetitionProvisionalRecords(Collection<RecordEvent> records,
 	        String currentEvent) {
+		return keepCurrentCompetitionProvisionalRecords(records, currentEvent, null, null);
+	}
+
+	public static List<RecordEvent> keepCurrentCompetitionProvisionalRecords(Collection<RecordEvent> records,
+	        String currentEvent, LocalDate competitionDate, LocalDate competitionEndDate) {
 		if (records == null) {
 			return null;
 		}
 		return records.stream()
-		        .filter(record -> isCurrentCompetitionProvisionalRecord(record, currentEvent))
+		        .filter(record -> isCurrentCompetitionProvisionalRecord(record, currentEvent, competitionDate,
+		                competitionEndDate))
 		        .collect(Collectors.toList());
 	}
 
 	public static boolean isCurrentCompetitionProvisionalRecord(RecordEvent record, String currentEvent) {
+		return isCurrentCompetitionProvisionalRecord(record, currentEvent, null, null);
+	}
+
+	public static boolean isCurrentCompetitionProvisionalRecord(RecordEvent record, String currentEvent,
+	        LocalDate competitionDate, LocalDate competitionEndDate) {
 		if (record == null || !RecordRepository.isProvisional(record)) {
 			return false;
 		}
 		String recordEvent = record.getEvent();
-		if (recordEvent == null || recordEvent.isBlank() || currentEvent == null || currentEvent.isBlank()) {
+		if (recordEvent != null && !recordEvent.isBlank() && currentEvent != null && !currentEvent.isBlank()
+		        && recordEvent.trim().equals(currentEvent.trim())) {
+			return true;
+		}
+		LocalDate recordDate = record.getRecordDate();
+		if (recordDate == null || competitionDate == null) {
 			return false;
 		}
-		return recordEvent.trim().equals(currentEvent.trim());
+		LocalDate effectiveEndDate = competitionEndDate != null ? competitionEndDate : competitionDate;
+		return !recordDate.isBefore(competitionDate) && !recordDate.isAfter(effectiveEndDate);
 	}
 
 	public static List<RecordEvent> filterEligibleRecordsForAthlete(Athlete curAthlete,

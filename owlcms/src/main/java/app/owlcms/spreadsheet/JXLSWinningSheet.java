@@ -33,6 +33,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -233,11 +234,14 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 	@Override
 	protected Object createRecordsBean() {
 		Category category = getCategory();
-		if (category == null) {
-			return null;
+		if (category != null) {
+			return new LazyRecordEventList(() -> fetchCategoryRecords(category));
 		}
 
-		return new LazyRecordEventList(() -> fetchCategoryRecords(category));
+		Championship championship = getChampionship();
+		return championship != null
+		        ? new LazyRecordEventList(() -> fetchChampionshipRecords(championship))
+		        : null;
 	}
 
 	private List<RecordEvent> fetchCategoryRecords(Category category) {
@@ -246,6 +250,31 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		records = filterStaleProvisionalRecords(records);
 		logger.info("{} records found for winning sheet category {}", records != null ? records.size() : 0, category);
 		return records;
+	}
+
+	private List<RecordEvent> fetchChampionshipRecords(Championship championship) {
+		List<Category> categories = CategoryRepository.findFiltered(null, getGender(), championship, null, null, null,
+		        true, -1, -1);
+		List<RecordEvent> records = RecordRepository.findFiltered(getGender(), null, null, null, true).stream()
+		        .filter(record -> categories.stream().anyMatch(category -> recordMatchesCategory(record, category)))
+		        .toList();
+		records = normalizeRecordEventsForTemplate(records);
+		records = filterStaleProvisionalRecords(records);
+		logger.info("{} records found for winning sheet championship {}", records != null ? records.size() : 0,
+		        championship);
+		return records;
+	}
+
+	private boolean recordMatchesCategory(RecordEvent record, Category category) {
+		Integer athleteAge = record.getAthleteAge();
+		Double athleteBodyWeight = record.getAthleteBW();
+		AgeGroup ageGroup = category.getAgeGroup();
+		return athleteAge != null && athleteBodyWeight != null && ageGroup != null
+		        && record.getGender() == category.getGender()
+		        && athleteAge >= ageGroup.getMinAge()
+		        && athleteAge <= ageGroup.getMaxAge()
+		        && athleteBodyWeight > category.getMinimumWeight()
+		        && athleteBodyWeight <= category.getMaximumWeight();
 	}
 
 	@Override
