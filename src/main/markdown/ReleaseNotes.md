@@ -10,6 +10,14 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta12: Fixed countdowns on athlete-facing attempt and decision displays
+
+- 68.0.0-beta12: Unified medal ceremony results displays for consistent content and styling
+
+- 68.0.0-beta12: Fixed record sections in session and eligibility-category result exports if the name of the championship was changed along the way
+
+- 68.0.0-beta12: Result template selectors now show templates matching the configured paper size
+
 - 68.0.0-beta11: Decision reversal from the announcer/marshal screen, accessed by clicking on the cell for the attempt
 
 - 68.0.0-beta11: owlcms.local published as local network host name alias is now working on macOS also.
