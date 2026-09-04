@@ -5,10 +5,11 @@
       "type": "java",
       "name": "🟨 owlcms no reset",
       "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
+      "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
@@ -31,42 +32,13 @@
     },
     {
       "type": "java",
-      "name": "🟨 owlcms no reset + file logs",
+      "name": "🟨 owlcms → tracker",
       "request": "launch",
       "preLaunchTask": "clear owlcms file logs",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
       "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
-      "windows": {
-        "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
-      },
-      "linux": {
-        "envFile": "${workspaceFolder}/.vscode/.env.linux"
-      },
-      "osx": {
-        "envFile": "${workspaceFolder}/.vscode/.env.mac"
-      },
-      "env": {
-        // default is to ignore event forwarding by forcing "" as URL
-        // comment out the next two lines to use what is in the database
-        "OWLCMS_VIDEODATA": "",
-        "OWLCMS_REMOTE": "",
-        //"OWLCMS_VIDEODATAKEY": "amalauxpattes",
-        //"OWLCMS_UPDATEKEY": "mapetitevache"
-        // temporary for playwright testings
-        //"OWLCMS_MEMORYMODE": "true",
-        //"OWLCMS_INITIALDATA": "SINGLE_ATHLETE_GROUPS",
-      }
-    },
-    {
-      "type": "java",
-      "name": "🟨 owlcms → tracker",
-      "request": "launch",
-      "mainClass": "${config:owlcms.mainClass}",
-      "projectName": "owlcms",
-      "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
@@ -88,10 +60,11 @@
       "type": "java",
       "name": "🟨 EDIT owlcms no reset ",
       "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs}",
+      "vmArgs": "-Dvaadin.frontend.hotdeploy=true ${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
@@ -113,10 +86,11 @@
       "type": "java",
       "name": "🟥 owlcms empty reset",
       "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
+      "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
@@ -136,10 +110,11 @@
       "type": "java",
       "name": "🟥 large demo owlcms reset",
       "request": "launch",
+      "preLaunchTask": "clear owlcms file logs",
       "mainClass": "${config:owlcms.mainClass}",
       "projectName": "owlcms",
       "cwd": "${workspaceFolder}/owlcms",
-      "vmArgs": "${config:owlcms.vmArgs}",
+      "vmArgs": "${config:owlcms.vmArgs} -Dlogback.configurationFile=logback.xml",
       "windows": {
         "envFile": "${workspaceFolder}\\.vscode\\.env.windows"
       },
@@ -328,21 +303,21 @@
     {
       "name": "♦️ owlcms logs + playwright announcer",
       "configurations": [
-        "🟨 owlcms no reset + file logs",
+        "🟨 owlcms no reset",
         "♦️ Playwright Announcer Updates"
       ]
     },
     {
       "name": "♦️ owlcms logs + playwright attempt",
       "configurations": [
-        "🟨 owlcms no reset + file logs",
+        "🟨 owlcms no reset",
         "♦️ Playwright Attempt Board Updates"
       ]
     },
     {
       "name": "♦️ owlcms logs + playwright combined",
       "configurations": [
-        "🟨 owlcms no reset + file logs",
+        "🟨 owlcms no reset",
         "♦️ Playwright Announcer + Attempt Board Updates"
       ]
     },
