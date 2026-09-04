@@ -149,7 +149,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			try {
 				publish(buildBreakState(fop));
-				updatePlates(fop.getCurAthlete() != null && fop.getBreakType() != BreakType.GROUP_DONE);
+				updatePlates(hasRequestedWeight(fop.getCurAthlete()) && fop.getBreakType() != BreakType.GROUP_DONE);
 				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			} catch (Throwable e1) {
 				LoggerUtils.logError(logger, e1);
@@ -254,6 +254,9 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.fop = fop;
 		// Propagate FOP to timer elements so they can register on the correct event bus
 		propagateFopToTimerElements(fop);
+		if (fop != null && getUI().isPresent()) {
+			syncWithFOP(fop);
+		}
 	}
 
 	/**
@@ -489,7 +492,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 					updatePlates(athlete != null);
 				} else {
 					publish(buildBreakState(fop, state, breakType, ceremonyType, athlete, group, requestedWeight));
-					updatePlates(athlete != null && breakType != BreakType.GROUP_DONE);
+					updatePlates(hasRequestedWeight(athlete) && breakType != BreakType.GROUP_DONE);
 				}
 			} else if (state == FOPState.INACTIVE) {
 				publish(buildWaitState(fop));
@@ -602,7 +605,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 						hidePlates();
 					} else {
 						publish(buildBreakState(fop));
-						updatePlates(fop.getCurAthlete() != null && fop.getBreakType() != BreakType.GROUP_DONE);
+						updatePlates(hasRequestedWeight(fop.getCurAthlete()) && fop.getBreakType() != BreakType.GROUP_DONE);
 					}
 					break;
 				default:
@@ -764,13 +767,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private AttemptBoardState buildBreakState(FieldOfPlay fop, FOPState fopState, BreakType breakType,
 	        CeremonyType ceremonyType, Athlete athlete, Group group, Integer requestedWeight) {
 		BoardMode boardMode = computeBoardMode(fopState, breakType, ceremonyType);
-		boolean weightVisible = boardMode == BoardMode.LIFT_COUNTDOWN
-				|| (boardMode == BoardMode.INTERRUPTION && breakType == BreakType.TECHNICAL);
-		if (weightVisible && (requestedWeight == null || requestedWeight <= 0)) {
-			logger.error("{}attemptBoard cannot publish {}: athlete={} requested weight={} {}",
-			        FieldOfPlay.getLoggingName(fop), boardMode, athlete, requestedWeight, LoggerUtils.whereFrom());
-			return buildWaitState(fop);
-		}
 		AttemptBoardState.Builder builder = AttemptBoardState
 				.builder(nextBoardStateSequence(), boardMode.name())
 				.decisionVisible(this.decisionLightsVisible)
@@ -863,6 +859,11 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		}
 	}
 
+	private boolean hasRequestedWeight(Athlete athlete) {
+		return athlete != null && athlete.getNextAttemptRequestedWeight() != null
+				&& athlete.getNextAttemptRequestedWeight() > 0;
+	}
+
 	protected Object getOrigin() {
 		return this;
 	}
@@ -932,7 +933,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		Athlete currentAthlete = fop.getCurAthlete();
 		if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
 			publish(buildBreakState(fop));
-			updatePlates(currentAthlete != null && fop.getBreakType() != BreakType.GROUP_DONE);
+			updatePlates(hasRequestedWeight(currentAthlete) && fop.getBreakType() != BreakType.GROUP_DONE);
 			return;
 		}
 
