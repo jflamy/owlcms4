@@ -289,7 +289,7 @@ class CurrentAttempt extends LitElement {
 
   weightStyles() {
     // weights are visible during lift countdowns
-	return "display: " + ((this.board.mode === "LIFT_COUNTDOWN" || (this.board.mode === "CURRENT_ATHLETE") || (this.board.mode === "INTERRUPTION" && this.board.breakType === "TECHNICAL")) ? "grid" : "none");
+	return "display: " + (this.board.weight && (this.board.mode === "LIFT_COUNTDOWN" || (this.board.mode === "CURRENT_ATHLETE") || (this.board.mode === "INTERRUPTION" && this.board.breakType === "TECHNICAL")) ? "grid" : "none");
   }
 
   athleteTimerStyles() {

@@ -114,6 +114,7 @@ class DecisionBoard extends LitElement {
 
   static get properties() {
     return {
+      boardState: { type: Object, noAccessor: true },
       // top
       fullName: {},
       weight: {},
@@ -150,6 +151,22 @@ class DecisionBoard extends LitElement {
 
   firstUpdated(_changedProperties) {
     super.firstUpdated(_changedProperties);
+  }
+
+  get boardState() {
+    return this._boardState;
+  }
+
+  set boardState(value) {
+    const oldValue = this._boardState;
+    if (oldValue && value && Number(value.sequence) < Number(oldValue.sequence)) {
+      return;
+    }
+    this._boardState = value;
+    this.mode = value?.mode ?? "WAIT";
+    this.competitionName = value?.competitionName ?? "";
+    this.decisionVisible = Boolean(value?.decisionVisible);
+    this.requestUpdate("boardState", oldValue);
   }
 
   isBreak() {
@@ -261,7 +278,7 @@ class DecisionBoard extends LitElement {
     this.weight = 0;
     this.competitionName = "";
 
-    this.mode == "WAIT";
+    this.mode = "WAIT";
 
     this.attempt = "";
     this.athleteImg = "";
