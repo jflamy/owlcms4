@@ -28,6 +28,7 @@ import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -75,6 +76,7 @@ import app.owlcms.components.elements.PassiveDecisionElement;
 import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.components.elements.TimerElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
@@ -176,22 +178,31 @@ public abstract class AthleteGridContent extends BaseContent
 		}
 	}
 
-	private static String computeLiftClass(int i, Athlete a) {
+	private String computeLiftClass(int i, Athlete a) {
 		Integer lift = a.getActualLiftOrNull(i);
 		Integer attemptsDone = a.getAttemptsDone();
 		if (i == (attemptsDone + 1)) {
 			FieldOfPlay fop = a.getFop();
 			Athlete curAthlete = fop != null ? fop.getCurAthlete() : null;
-			return a == curAthlete ? "yellow" : "next";
+			return a == curAthlete ? "yellow lift-action" : "next lift-action";
 		} else if (lift == null) {
 			return ("gray");
 		} else if (lift > 0) {
-			return "green";
+			return "green" + liftActionClasses(i, a);
 		} else if (lift == 0) {
 			return "red";
 		} else {
-			return "red";
+			return "red" + liftActionClasses(i, a);
 		}
+	}
+
+	private String liftActionClasses(int liftNumber, Athlete athlete) {
+		if (!isLiftReversalEnabled()) {
+			return "";
+		}
+		boolean selected = this.selectedLiftNumber != null && this.selectedLiftNumber == liftNumber
+		        && this.selectedLiftAthleteId != null && this.selectedLiftAthleteId.equals(athlete.getId());
+		return selected ? " lift-action lift-selected" : " lift-action";
 	}
 
 	private static String computeNameClass(Athlete a) {
@@ -200,16 +211,16 @@ public abstract class AthleteGridContent extends BaseContent
 		return a == curAthlete ? "bold" : "";
 	}
 
-	private static Renderer<Athlete> createAttemptsRenderer() {
+	private Renderer<Athlete> createAttemptsRenderer() {
 		return LitRenderer.<Athlete>of(
 		        "<vaadin-horizontal-layout>" +
-		                "<span class='${item.sn1class}'>${item.sn1}</span>" +
-		                "<span class='${item.sn2class}'>${item.sn2}</span>" +
-		                "<span class='${item.sn3class}'>${item.sn3}</span>" +
+		                "<span class='${item.sn1class}' @click='${e => { e.stopPropagation(); const bounds = e.currentTarget.closest(\"vaadin-grid-cell-content\").getBoundingClientRect(); reverseLift(1, bounds.left, bounds.top); }}'>${item.sn1}</span>" +
+		                "<span class='${item.sn2class}' @click='${e => { e.stopPropagation(); const bounds = e.currentTarget.closest(\"vaadin-grid-cell-content\").getBoundingClientRect(); reverseLift(2, bounds.left, bounds.top); }}'>${item.sn2}</span>" +
+		                "<span class='${item.sn3class}' @click='${e => { e.stopPropagation(); const bounds = e.currentTarget.closest(\"vaadin-grid-cell-content\").getBoundingClientRect(); reverseLift(3, bounds.left, bounds.top); }}'>${item.sn3}</span>" +
 		                "<span class='spacer'>\u00a0\u00a0\u00a0</span>" +
-		                "<span class='${item.cj1class}'>${item.cj1}</span>" +
-		                "<span class='${item.cj2class}'>${item.cj2}</span>" +
-		                "<span class='${item.cj3class}'>${item.cj3}</span>" +
+		                "<span class='${item.cj1class}' @click='${e => { e.stopPropagation(); const bounds = e.currentTarget.closest(\"vaadin-grid-cell-content\").getBoundingClientRect(); reverseLift(4, bounds.left, bounds.top); }}'>${item.cj1}</span>" +
+		                "<span class='${item.cj2class}' @click='${e => { e.stopPropagation(); const bounds = e.currentTarget.closest(\"vaadin-grid-cell-content\").getBoundingClientRect(); reverseLift(5, bounds.left, bounds.top); }}'>${item.cj2}</span>" +
+		                "<span class='${item.cj3class}' @click='${e => { e.stopPropagation(); const bounds = e.currentTarget.closest(\"vaadin-grid-cell-content\").getBoundingClientRect(); reverseLift(6, bounds.left, bounds.top); }}'>${item.cj3}</span>" +
 		                "</vaadin-horizontal-layout>")
 		        .withProperty("sn1", (a) -> computeLift(1, a))
 		        .withProperty("sn2", (a) -> computeLift(2, a))
@@ -222,7 +233,216 @@ public abstract class AthleteGridContent extends BaseContent
 		        .withProperty("sn3class", (a) -> computeLiftClass(3, a))
 		        .withProperty("cj1class", (a) -> computeLiftClass(4, a))
 		        .withProperty("cj2class", (a) -> computeLiftClass(5, a))
-		        .withProperty("cj3class", (a) -> computeLiftClass(6, a));
+		        .withProperty("cj3class", (a) -> computeLiftClass(6, a))
+			        .withFunction("reverseLift", (athlete, arguments) -> {
+			        int liftNumber = arguments.get(0).asInt();
+			        double attemptBoxLeft = arguments.get(1).asDouble();
+			        double attemptBoxTop = arguments.get(2).asDouble();
+			        handleAttemptClick(athlete, liftNumber, attemptBoxLeft, attemptBoxTop);
+		        });
+	}
+
+	private void handleAttemptClick(Athlete athlete, int liftNumber, double attemptBoxLeft, double attemptBoxTop) {
+		Integer lift = athlete.getActualLiftOrNull(liftNumber);
+		if (isLiftReversalEnabled() && lift != null && lift != 0) {
+			openLiftReversalDialog(athlete, liftNumber, attemptBoxLeft, attemptBoxTop);
+			return;
+		}
+		if (this.liftReversalDialog != null) {
+			this.liftReversalDialog.close();
+		}
+		getCrudGrid().showUpdateForm(athlete);
+	}
+
+	private void openLiftReversalDialog(Athlete clickedAthlete, int liftNumber, double attemptBoxLeft,
+	        double attemptBoxTop) {
+		FieldOfPlay fop = getFop();
+		if (!isLiftReversalEnabled() || fop == null || liftNumber < 1 || liftNumber > 6) {
+			return;
+		}
+
+		Athlete athlete = fop.getLiftingOrder().stream()
+		        .filter(candidate -> candidate.equals(clickedAthlete))
+		        .findFirst()
+		        .orElse(clickedAthlete);
+		Integer currentLift = athlete.getActualLiftOrNull(liftNumber);
+		if (currentLift == null || currentLift == 0) {
+			return;
+		}
+		if (this.liftReversalDialog != null) {
+			this.liftReversalDialog.close();
+		}
+		this.selectedLiftAthleteId = athlete.getId();
+		this.selectedLiftNumber = liftNumber;
+		this.getCrudGrid().getGrid().getDataProvider().refreshItem(athlete);
+
+		boolean changeToGoodLift = currentLift < 0;
+		String attempt = liftNumber <= 3
+		        ? Translator.translate("Snatch_number", liftNumber)
+		        : Translator.translate("C_and_J_number", liftNumber - 3);
+
+		Dialog dialog = new Dialog();
+		this.liftReversalDialog = dialog;
+		dialog.setModality(ModalityMode.MODELESS);
+		Integer athleteStartNumber = athlete.getStartNumber();
+		Span dialogStartNumber = new Span(
+		        athleteStartNumber != null && athleteStartNumber > 0 ? athleteStartNumber.toString() : "\u26A0");
+		dialogStartNumber.getStyle()
+		        .set("margin", "0 0.5em 0 0")
+		        .set("padding", "0")
+		        .set("border", "2px solid var(--lumo-primary-color)")
+		        .set("font-size", athleteStartNumber != null && athleteStartNumber > 0 ? "90%" : "smaller")
+		        .set("width", "1.4em")
+		        .set("text-align", "center")
+		        .set("display", "inline-block");
+		if (athleteStartNumber == null || athleteStartNumber <= 0) {
+			dialogStartNumber.setTitle(Translator.translate("StartNumbersNotSet"));
+		}
+		Span athleteName = new Span(athlete.getAbbreviatedName());
+		athleteName.getStyle().set("font-size", "var(--lumo-font-size-xl)").set("font-weight", "bold");
+		HorizontalLayout athleteLine = new HorizontalLayout(dialogStartNumber, athleteName);
+		athleteLine.setAlignItems(FlexComponent.Alignment.CENTER);
+		athleteLine.setPadding(false);
+		athleteLine.setSpacing(false);
+		Span attemptName = new Span(attempt);
+		attemptName.getStyle()
+		        .set("width", "100%")
+		        .set("margin-top", "var(--lumo-space-m)")
+		        .set("color", "var(--lumo-primary-text-color)")
+		        .set("font-size", "var(--lumo-font-size-xxl)")
+		        .set("font-weight", "bold")
+		        .set("text-align", "center");
+		VerticalLayout dialogTitle = new VerticalLayout(athleteLine, attemptName);
+		dialogTitle.setWidthFull();
+		dialogTitle.setPadding(false);
+		dialogTitle.setSpacing(false);
+		dialog.getHeader().add(dialogTitle);
+		dialog.setCloseOnOutsideClick(true);
+		dialog.setWidth("min(24rem, calc(100vw - 2rem))");
+		dialog.setLeft("calc(" + attemptBoxLeft + "px - min(24rem, calc(100vw - 2rem)))");
+		dialog.setTop(attemptBoxTop + "px");
+
+		Button cancel = new Button(Translator.translate("Cancel"), event -> dialog.close());
+		Button clear = new Button(Translator.translate("Clear"), event -> {
+			athlete.doLift(liftNumber, null);
+			AthleteRepository.save(athlete);
+			fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, true));
+			dialog.close();
+		});
+		Button athleteCard = new Button(Translator.translate("Card"), event -> {
+			dialog.close();
+			getCrudGrid().showUpdateForm(athlete);
+		});
+		Button reverse = new Button(Translator.translate(changeToGoodLift ? "ReverseToGood" : "ReverseToBad"), event -> {
+			Integer lift = athlete.getActualLiftOrNull(liftNumber);
+			if (lift != null && lift != 0) {
+				int correctedLift = changeToGoodLift ? Math.abs(lift) : -Math.abs(lift);
+				athlete.doLift(liftNumber, Integer.toString(correctedLift));
+				AthleteRepository.save(athlete);
+				fop.fopEventPost(new FOPEvent.WeightChange(this, athlete, true));
+			}
+			dialog.close();
+		});
+		reverse.getElement().setAttribute("theme", changeToGoodLift ? "primary success" : "primary error");
+		reverse.setWidthFull();
+		clear.setWidth("0");
+		athleteCard.setWidth("0");
+		HorizontalLayout secondaryActions = new HorizontalLayout(clear, athleteCard);
+		secondaryActions.setWidthFull();
+		secondaryActions.setFlexGrow(1, clear, athleteCard);
+		VerticalLayout actions = new VerticalLayout(reverse, secondaryActions);
+		actions.setPadding(false);
+		actions.setWidthFull();
+		dialog.add(actions);
+		dialog.getFooter().add(cancel);
+		dialog.getElement().addEventListener("lift-reversal-outside-click", event -> dialog.close());
+		dialog.addOpenedChangeListener(event -> {
+			if (!event.isOpened() && this.liftReversalDialog == dialog) {
+				this.liftReversalDialog = null;
+			}
+			if (!event.isOpened() && this.selectedLiftNumber != null && this.selectedLiftNumber == liftNumber
+			        && athlete.getId().equals(this.selectedLiftAthleteId)) {
+				this.selectedLiftAthleteId = null;
+				this.selectedLiftNumber = null;
+				this.getCrudGrid().getGrid().getDataProvider().refreshItem(athlete);
+			}
+		});
+		dialog.open();
+		dialog.getElement().executeJs(
+		        "requestAnimationFrame(() => requestAnimationFrame(() => {"
+		                + "const positionDialog = () => {"
+		                + "const selectedLift = $0.querySelector('.lift-selected');"
+		                + "if (!selectedLift || !this.opened) return;"
+		                + "const attemptBounds = selectedLift.closest('vaadin-grid-cell-content').getBoundingClientRect();"
+		                + "const overlayHost = this.$.overlay;"
+		                + "const overlay = overlayHost.$.overlay;"
+		                + "overlay.style.background = 'transparent';"
+		                + "overlay.style.border = 'none';"
+		                + "overlay.style.boxShadow = 'none';"
+		                + "overlay.style.overflow = 'visible';"
+		                + "const hostBounds = overlayHost.getBoundingClientRect();"
+		                + "const dialogBounds = overlay.getBoundingClientRect();"
+		                + "const left = Math.max(0, attemptBounds.left - dialogBounds.width - 6);"
+						+ "const top = Math.max(0, Math.min(attemptBounds.top - 8, window.innerHeight - dialogBounds.height));"
+		                + "overlayHost.setBounds({left: left - hostBounds.left, top: top - hostBounds.top});"
+		                + "const triangleWidth = 24;"
+		                + "const triangleHalfHeight = 14;"
+		                + "const strokeWidth = 5;"
+		                + "const pointY = Math.max(triangleHalfHeight + strokeWidth / 2,"
+		                + "Math.min(dialogBounds.height - triangleHalfHeight - strokeWidth / 2,"
+		                + "attemptBounds.top + attemptBounds.height / 2 - top));"
+		                + "let calloutFill = overlay.querySelector(':scope > svg.lift-reversal-callout-fill');"
+		                + "let calloutOutline = overlay.querySelector(':scope > svg.lift-reversal-callout-outline');"
+		                + "if (!calloutFill) {"
+		                + "calloutFill = document.createElementNS('http://www.w3.org/2000/svg', 'svg');"
+		                + "calloutFill.classList.add('lift-reversal-callout-fill');"
+		                + "calloutFill.style.cssText = 'position:absolute;inset:0;overflow:visible;pointer-events:none;z-index:0';"
+		                + "calloutFill.innerHTML = '<path fill=\"var(--lumo-base-color)\"/>';"
+		                + "overlay.prepend(calloutFill);"
+		                + "calloutOutline = document.createElementNS('http://www.w3.org/2000/svg', 'svg');"
+		                + "calloutOutline.classList.add('lift-reversal-callout-outline');"
+		                + "calloutOutline.style.cssText = 'position:absolute;inset:0;overflow:visible;pointer-events:none;z-index:2';"
+		                + "calloutOutline.innerHTML = '<path fill=\"none\" stroke=\"#000\" stroke-width=\"5\" stroke-linejoin=\"round\"/>';"
+		                + "overlay.append(calloutOutline);"
+		                + "overlayHost.$.resizerContainer.style.position = 'relative';"
+		                + "overlayHost.$.resizerContainer.style.zIndex = '1';"
+		                + "}"
+		                + "const inset = strokeWidth / 2;"
+		                + "const width = dialogBounds.width;"
+		                + "const height = dialogBounds.height;"
+		                + "const viewBox = `0 0 ${width + triangleWidth} ${height}`;"
+		                + "const calloutPath = `M ${inset} ${inset} H ${width - inset} V ${pointY - triangleHalfHeight} ` +"
+		                + "`L ${width + triangleWidth - inset} ${pointY} L ${width - inset} ${pointY + triangleHalfHeight} ` +"
+		                + "`V ${height - inset} H ${inset} Z`;"
+		                + "for (const callout of [calloutFill, calloutOutline]) {"
+		                + "callout.setAttribute('width', width + triangleWidth);"
+		                + "callout.setAttribute('height', height);"
+		                + "callout.setAttribute('viewBox', viewBox);"
+		                + "callout.firstElementChild.setAttribute('d', calloutPath);"
+		                + "}"
+		                + "};"
+		                + "positionDialog();"
+		                + "setTimeout(positionDialog, 150);"
+		                + "const closeOnOutsidePointer = event => {"
+		                + "if (!event.composedPath().includes(this.$.overlay)) {"
+		                + "this.opened = false;"
+		                + "this.dispatchEvent(new CustomEvent('lift-reversal-outside-click'));"
+		                + "}"
+		                + "};"
+		                + "const removeOutsidePointerListener = event => {"
+		                + "if (!event.detail.value) {"
+		                + "document.removeEventListener('pointerdown', closeOnOutsidePointer, true);"
+		                + "this.removeEventListener('opened-changed', removeOutsidePointerListener);"
+		                + "}"
+		                + "};"
+		                + "document.addEventListener('pointerdown', closeOnOutsidePointer, true);"
+		                + "this.addEventListener('opened-changed', removeOutsidePointerListener);"
+		                + "}))",
+		        this.getCrudGrid().getGrid().getElement());
+	}
+
+	protected boolean isLiftReversalEnabled() {
+		return false;
 	}
 
 	private static Renderer<Athlete> createFirstNameRenderer() {
@@ -254,6 +474,9 @@ public abstract class AthleteGridContent extends BaseContent
 	protected Span firstName;
 	protected ComboBox<Gender> genderFilter = new ComboBox<>();
 	protected boolean initialBar;
+	private Dialog liftReversalDialog;
+	private Long selectedLiftAthleteId;
+	private Integer selectedLiftNumber;
 	/*
 	 * Initial Bar
 	 */

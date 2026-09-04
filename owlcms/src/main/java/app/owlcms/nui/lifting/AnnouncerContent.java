@@ -206,6 +206,11 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	}
 
 	@Override
+	protected boolean isLiftReversalEnabled() {
+		return true;
+	}
+
+	@Override
 	public boolean isSingleReferee() {
 		return this.singleReferee;
 	}
