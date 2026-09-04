@@ -10,7 +10,9 @@
 
 **New in Release 68.0**
 
-- 68.0.0-beta12: Clicking on a cell on the announcer or marshal screens brings up a reversal dialog
+- 68.0.0-beta11: Clicking on a cell on the announcer or marshal screens brings up a reversal dialog
+
+- 68.0.0-beta11: owlcms.local published as local network host name alias is now working on macOS also.
 
 - 68.0.0-beta11: Jury announcement dialogs now close on all announcer screens when lifting resumes
 

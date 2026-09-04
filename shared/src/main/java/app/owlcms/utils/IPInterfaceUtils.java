@@ -243,12 +243,12 @@ public class IPInterfaceUtils {
 		}
 	}
 
-	private boolean isMacOs() {
+	static boolean isMacOs() {
 		String osName = System.getProperty("os.name", "").toLowerCase();
 		return osName.startsWith("mac");
 	}
 
-	private boolean isWirelessInterface(String ifaceName, String ifaceDisplay) {
+	private static boolean isWirelessInterface(String ifaceName, String ifaceDisplay) {
 		String normalizedName = ifaceName == null ? "" : ifaceName.toLowerCase();
 		String normalizedDisplay = ifaceDisplay == null ? "" : ifaceDisplay.toLowerCase();
 
@@ -260,7 +260,7 @@ public class IPInterfaceUtils {
 		return isMacOs() && normalizedName.equals("en0");
 	}
 
-	private boolean isWiredInterface(String ifaceName) {
+	static boolean isWiredInterface(String ifaceName) {
 		String normalizedName = ifaceName == null ? "" : ifaceName.toLowerCase();
 
 		if (normalizedName.startsWith("eth") || normalizedName.startsWith("enp")) {
