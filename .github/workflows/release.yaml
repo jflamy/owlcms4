@@ -133,24 +133,25 @@ jobs:
           REPO_OWNER: owlcms
           O_REPO_NAME: owlcms4${{ env.RELEASE_SUFFIX }}
         run: |
-          mvn -B package --non-recursive -Dmaven.test.skip -Drevision=${{ env.REVISION }}
-          
+          RELEASE_NOTES_FILE="${RUNNER_TEMP}/ReleaseNotes.assembled.md"
+          echo "RELEASE_NOTES_FILE=${RELEASE_NOTES_FILE}" >> "${GITHUB_ENV}"
+
           # Assemble release notes: prepend the appropriate prefix to the maintained source notes.
           if [[ "${{ env.REVISION }}" == *"-alpha"* ]]; then
-            cat src/main/markdown/alpha.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
+            cat src/main/markdown/alpha.md src/main/markdown/ReleaseNotes.md > "${RELEASE_NOTES_FILE}"
           elif [[ "${{ env.REVISION }}" == *"-beta"* ]]; then
-            cat src/main/markdown/beta.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
+            cat src/main/markdown/beta.md src/main/markdown/ReleaseNotes.md > "${RELEASE_NOTES_FILE}"
           elif [[ "${{ env.REVISION }}" == *"-rc"* ]]; then
-            cat src/main/markdown/rc.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
+            cat src/main/markdown/rc.md src/main/markdown/ReleaseNotes.md > "${RELEASE_NOTES_FILE}"
           else
-            cat src/main/markdown/release.md src/main/markdown/ReleaseNotes.md > ReleaseNotes.assembled.md
+            cat src/main/markdown/release.md src/main/markdown/ReleaseNotes.md > "${RELEASE_NOTES_FILE}"
           fi
 
           sed -i \
             -e 's#https://github.com/jflamy/owlcms4/blob/HEAD/ReleaseNotes.md#https://github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}/releases/tag/${{ env.REVISION }}#g' \
             -e 's#https://github.com/jflamy/owlcms4/releases#https://github.com/owlcms/owlcms4${{ env.RELEASE_SUFFIX }}/releases#g' \
             -e 's#https://jflamy.github.io/owlcms4#https://owlcms.github.io/owlcms4${{ env.RELEASE_SUFFIX }}#g' \
-            ReleaseNotes.assembled.md
+            "${RELEASE_NOTES_FILE}"
 
       - name: Install GitHub CLI
         run: sudo apt-get install gh -y
@@ -221,7 +222,7 @@ jobs:
           gh release create ${{ env.REVISION }} \
             --repo owlcms/owlcms4${{ env.RELEASE_SUFFIX }} \
             --title "${{ env.REVISION }}" \
-            --notes-file ReleaseNotes.assembled.md \
+            --notes-file "${RELEASE_NOTES_FILE}" \
             owlcms/target/owlcms_${{ env.REVISION }}.zip
           set +x
           
@@ -253,8 +254,8 @@ jobs:
             echo "WARNING: Could not find REVISION line in release.sh" >&2
           fi
 
-          # Commit the assembled release notes and version marker so a local `git pull` brings them in.
-          git add ReleaseNotes.md version.txt release.sh
+          # Commit the version marker and updated release helper.
+          git add version.txt release.sh
           git commit -m "Release ${{ env.REVISION }}" --allow-empty
           git push origin HEAD
 
