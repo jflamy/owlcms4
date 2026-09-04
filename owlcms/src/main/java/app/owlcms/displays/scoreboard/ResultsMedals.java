@@ -8,7 +8,6 @@ package app.owlcms.displays.scoreboard;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -492,22 +491,6 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 		FieldOfPlay fop = getFop();
 		this.uiEventBus = uiEventBusRegister(this, fop);
 		doMedalsDisplay();
-	}
-
-	@Override
-	protected void setTranslationMap() {
-		ObjectNode translations = JsonUtils.object();
-		Enumeration<String> keys = Translator.getKeys();
-		while (keys.hasMoreElements()) {
-			String curKey = keys.nextElement();
-			if (curKey.startsWith("Scoreboard.")) {
-				translations.put(curKey.replace("Scoreboard.", ""), Translator.translate(curKey));
-			}
-		}
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.DISPLAY_BODY_WEIGHT)) {
-			translations.put("Custom1", getCustom1Label());
-		}
-		this.getElement().setPropertyJson("t", translations);
 	}
 
 	@Override
