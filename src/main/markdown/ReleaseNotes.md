@@ -10,7 +10,7 @@
 
 **New in Release 68.0**
 
-- 68.0.0-beta11: Clicking on a cell on the announcer or marshal screens brings up a reversal dialog
+- 68.0.0-beta11: Decision reversal from the announcer/marshal screen, accessed by clicking on the cell for the attempt
 
 - 68.0.0-beta11: owlcms.local published as local network host name alias is now working on macOS also.
 
