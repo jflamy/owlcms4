@@ -26,6 +26,7 @@ import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -35,6 +36,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
+import app.owlcms.components.ConfirmationDialog;
 import app.owlcms.data.platform.Platform;
 import app.owlcms.data.platform.PlatformRepository;
 import app.owlcms.i18n.Translator;
@@ -46,6 +48,7 @@ import app.owlcms.nui.lifting.TCContent;
 import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.sound.Speakers;
+import app.owlcms.utils.RestartUtils;
 import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -215,11 +218,36 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 			nameField.setInvalid(false);
 			if (!Objects.equals(platform.getName(), normalizedName)) {
 				platform.setName(normalizedName);
-				this.update(platform);
+				PlatformRepository.saveName(platform);
 				crud.refreshGrid();
+				showRenameRestartDialog();
 			}
 		});
 		return nameField;
+	}
+
+	private void showRenameRestartDialog() {
+		String message = Translator.translate("Platform.RenameRestartWarning");
+		if (!RestartUtils.isRestartScenario()) {
+			message += "<br>" + Translator.translate("Import.LocalRestart");
+		}
+		new ConfirmationDialog(
+		        Translator.translate("EditPlatforms"), message,
+		        Translator.translate("Platform.RestartNow"),
+		        Translator.translate("Platform.RestartLater"), null,
+		        () -> {
+			        Notification.show(Translator.translate("Platform.Restarting"), 0,
+			                Notification.Position.MIDDLE);
+			        new Thread(() -> {
+				        try {
+					        Thread.sleep(2000);
+				        } catch (InterruptedException e) {
+					        Thread.currentThread().interrupt();
+					        return;
+				        }
+				        RestartUtils.triggerRestart("Platform rename completed");
+			        }, "Platform-Rename-Restart").start();
+		        }).open();
 	}
 
 	private ComboBox<String> createSoundMixerField(Platform platform, PlatformGrid crud) {
@@ -235,7 +263,7 @@ public class PlatformContent extends BaseContent implements CrudListener<Platfor
 			if (!Objects.equals(platform.getSoundMixerName(), soundMixerName)) {
 				String previousMixerName = platform.getSoundMixerName();
 				platform.setSoundMixerName(soundMixerName);
-				this.update(platform);
+				PlatformRepository.saveSoundMixer(platform);
 				testSoundMixer(previousMixerName, soundMixerName);
 				crud.refreshGrid();
 			}
