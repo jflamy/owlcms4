@@ -22,6 +22,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
+import app.owlcms.data.team.TeamRanker;
 import app.owlcms.data.team.TeamResultsTreeData;
 import app.owlcms.data.team.TeamTreeItem;
 import app.owlcms.i18n.Translator;
@@ -243,12 +244,7 @@ public class JXLSTeamResultsSheet extends JXLSWorkbookStreamSource {
 	}
 
 	private List<TeamTreeItem> sortTeams(List<TeamTreeItem> teams, Comparator<TeamTreeItem> comparator) {
-		if (teams == null || teams.isEmpty()) {
-			return List.of();
-		}
-		List<TeamTreeItem> sorted = new ArrayList<>(teams);
-		sorted.sort(comparator);
-		return sorted;
+		return TeamRanker.sortAndRank(teams, comparator);
 	}
 
 	private void overrideScoringSystem(List<TeamTreeItem> teams, Ranking scoring) {

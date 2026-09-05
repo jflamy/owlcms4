@@ -56,6 +56,7 @@ public class Team {
 	private double robi = 0.0D;
 	private double gamx;
 	private double qPoints = 0.0D;
+	private Integer rank;
 	private Ranking scoringSystem;
 	private double qMasters = 0.0D;
 	private int totalOnlyPoints = 0;
@@ -108,6 +109,10 @@ public class Team {
 
 	public double getRobi() {
 		return this.robi;
+	}
+
+	public Integer getRank() {
+		return this.rank;
 	}
 
 	public Double getScore() {
@@ -207,6 +212,10 @@ public class Team {
 	
 	public void setQMasters(double q) {
 		this.qMasters = q;
+	}
+
+	public void setRank(Integer rank) {
+		this.rank = rank;
 	}
 
 	public void setScoringSystem(Ranking scoringSystem) {
