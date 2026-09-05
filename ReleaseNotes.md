@@ -10,6 +10,12 @@
 
 **Maintenance Log**
 
+- 67.4.3: Platform management fixes
+  - Editing the platorm order and editing the plates/bars correctly preserve each other
+  - Renaming platforms now asks for a restart to be completely safe
+
+- 67.4.3: Team ranks are now exposed for jxls templates ${team.rank}
+
 - 67.4.2: Fixed persistence of platform ordering changes and per-platform config changes
 
 - 67.4.2: Jury announcement dialogs now close on all announcer screens when lifting resumes
