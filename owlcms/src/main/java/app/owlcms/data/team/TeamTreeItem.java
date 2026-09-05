@@ -199,6 +199,10 @@ public class TeamTreeItem {
 		return pts;
 	}
 
+	public Integer getRank() {
+		return this.team != null ? this.team.getRank() : null;
+	}
+
 	public Double getScore() {
 		return (this.team != null ? this.team.getScore() : Ranking.getRankingValue(this.athlete, this.scoringSystem));
 	}
@@ -357,6 +361,12 @@ public class TeamTreeItem {
 
 	public void setParent(TeamTreeItem parent) {
 		this.parent = parent;
+	}
+
+	public void setRank(Integer rank) {
+		if (this.team != null) {
+			this.team.setRank(rank);
+		}
 	}
 
 	public void setTeamMember(boolean b) {
