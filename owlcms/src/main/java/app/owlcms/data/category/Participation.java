@@ -157,7 +157,7 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getCleanJerkPoints() {
-		if (AthleteSorter.isTotalOnlyTeamPoints(this)) {
+		if (!AthleteSorter.includesLiftTeamPoints(this)) {
 			return 0;
 		}
 		return isTeamMember() ? AthleteSorter.pointsFormula(this.cleanJerkRank, this) : 0;
@@ -194,7 +194,11 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getRawCombinedPoints() {
-		return getRawSnatchPoints() + getRawCleanJerkPoints() + getRawTotalPoints();
+		int liftPoints = AthleteSorter.includesLiftTeamPoints(this)
+		        ? getRawSnatchPoints() + getRawCleanJerkPoints()
+		        : 0;
+		int totalPoints = AthleteSorter.includesTotalTeamPoints(this) ? getRawTotalPoints() : 0;
+		return liftPoints + totalPoints;
 	}
 
 	public int getCombinedRank() {
@@ -222,7 +226,7 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getSnatchPoints() {
-		if (AthleteSorter.isTotalOnlyTeamPoints(this)) {
+		if (!AthleteSorter.includesLiftTeamPoints(this)) {
 			return 0;
 		}
 		return isTeamMember() ? AthleteSorter.pointsFormula(this.snatchRank, this) : 0;
@@ -263,7 +267,9 @@ public class Participation implements IRankHolder {
 	@Transient
 	@JsonIgnore
 	public int getTotalPoints() {
-		return isTeamMember() ? AthleteSorter.pointsFormula(this.totalRank, this) : 0;
+		return isTeamMember() && AthleteSorter.includesTotalTeamPoints(this)
+		        ? AthleteSorter.pointsFormula(this.totalRank, this)
+		        : 0;
 	}
 
 	public int getTotalRank() {

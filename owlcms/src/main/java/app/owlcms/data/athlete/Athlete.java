@@ -53,6 +53,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.agegroup.MedalPolicy;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
@@ -1084,6 +1085,21 @@ public class Athlete {
 
 	@Transient
 	@JsonIgnore
+	public MedalPolicy getMedalPolicy() {
+		AgeGroup ageGroup = getAgeGroup();
+		Championship championship = ageGroup != null ? ageGroup.getChampionship() : Championship.of(null);
+		return championship.getMedalPolicy();
+	}
+
+	@Transient
+	@JsonIgnore
+	public boolean isMedalist() {
+		int overallRank = getComputedScoringSystem() == Ranking.TOTAL ? getTotalRank() : getCategoryScoreRank();
+		return getMedalPolicy().isMedalist(getSnatchRank(), getCleanJerkRank(), overallRank);
+	}
+
+	@Transient
+	@JsonIgnore
 	public String getAgeGroupCodesAsString() {
 		return this.getEligibleCategories().stream()
 				.map(category -> {
@@ -1771,7 +1787,7 @@ public class Athlete {
 	@JsonIgnore
 	public int getCleanJerkPoints() {
 		Participation mr = getMainRankings();
-		if (AthleteSorter.isTotalOnlyTeamPoints(mr)) {
+		if (!AthleteSorter.includesLiftTeamPoints(mr)) {
 			return 0;
 		}
 		int points = (mr != null ? mr.getCleanJerkPoints() : 0);
@@ -1822,11 +1838,7 @@ public class Athlete {
 	@Transient
 	@JsonIgnore
 	public Integer getCombinedPoints() {
-		if (Competition.getCurrent().isSnatchCJTotalMedals()) {
-			return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
-		} else {
-			return getTotalPoints();
-		}
+		return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
 	}
 
 	public int getCombinedRank() {
@@ -3409,7 +3421,7 @@ public class Athlete {
 	 */
 	public int getSnatchPoints() {
 		Participation mr = getMainRankings();
-		if (AthleteSorter.isTotalOnlyTeamPoints(mr)) {
+		if (!AthleteSorter.includesLiftTeamPoints(mr)) {
 			return 0;
 		}
 		int points = (mr != null ? mr.getSnatchPoints() : 0);

@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -232,6 +233,7 @@ public class CompetitionData {
 		ObjectMapper mapper = createImportMapper();
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
 		Championship.assignMissingOrder(newData.getChampionships());
+		normalizeTeamPointsPolicies(newData.getChampionships());
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;
@@ -242,9 +244,16 @@ public class CompetitionData {
 		ObjectMapper mapper = createImportMapper();
 		CompetitionData newData = mapper.readValue(serialized, CompetitionData.class);
 		Championship.assignMissingOrder(newData.getChampionships());
+		normalizeTeamPointsPolicies(newData.getChampionships());
 		newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), newData.getGroups()));
 		// logger.debug("after unmarshall {}", newData.getPlatforms());
 		return newData;
+	}
+
+	private static void normalizeTeamPointsPolicies(List<Championship> championships) {
+		if (championships != null) {
+			championships.stream().filter(Objects::nonNull).forEach(Championship::normalizeTeamPointsPolicy);
+		}
 	}
 
 	public void restore(InputStream inputStream) {
@@ -336,7 +345,7 @@ public class CompetitionData {
 			}
 			return null;
 		});
-		ChampionshipRepository.reconcileFromAgeGroups();
+		ChampionshipRepository.reconcileImportedAgeGroups();
 		Competition.setCurrent(CompetitionRepository.findAll().stream().findFirst().orElse(null));
 		Championship.reset();
 //		CategoryRepository.resetCodeMap();

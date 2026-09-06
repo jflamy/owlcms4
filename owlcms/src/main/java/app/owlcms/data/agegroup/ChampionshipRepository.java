@@ -17,6 +17,8 @@ import javax.persistence.TypedQuery;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.competition.Competition;
+import app.owlcms.data.config.Config;
+import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.utils.LoggerUtils;
 import ch.qos.logback.classic.Logger;
@@ -370,6 +372,14 @@ public class ChampionshipRepository {
 	 * row already exists.
 	 */
 	public static void reconcileFromAgeGroups() {
+		reconcileFromAgeGroups(null);
+	}
+
+	public static void reconcileImportedAgeGroups() {
+		reconcileFromAgeGroups(TeamPointsPolicy.ALL_THREE);
+	}
+
+	private static void reconcileFromAgeGroups(TeamPointsPolicy importedThreeMedalDefault) {
 		if (Boolean.TRUE.equals(RECONCILING.get())) {
 			// Re-entrant call: Competition.getCurrent() or Championship.findAll() invoked
 			// from within an ongoing reconcile triggered the lazy bootstrap again.
@@ -379,7 +389,9 @@ public class ChampionshipRepository {
 		RECONCILING.set(Boolean.TRUE);
 		try {
 			JPAService.runInTransaction(em -> {
-				ensureCompetitionTemplate(em);
+			Championship template = ensureCompetitionTemplate(em);
+			template.initializeTeamPointsPolicy(importedThreeMedalDefault != null
+			        ? importedThreeMedalDefault : legacyTeamPointsPolicy(em));
 			TypedQuery<AgeGroup> q = em.createQuery("select ag from AgeGroup ag", AgeGroup.class);
 			List<AgeGroup> ageGroups = q.getResultList();
 			normalizeAgeGroupChampionshipNames(em, ageGroups);
@@ -493,10 +505,12 @@ public class ChampionshipRepository {
 		Championship template = findCompetitionTemplate(em);
 		boolean changed = template == null;
 		template = ensureCompetitionTemplate(em);
+		changed |= template.initializeTeamPointsPolicy(legacyTeamPointsPolicy(em));
 		changed |= template.normalizeInheritedScoringFields(null);
 		TypedQuery<Championship> query = em.createQuery(
 		        "select c from Championship c where c.competitionTemplate = false order by c.id", Championship.class);
 		for (Championship championship : query.getResultList()) {
+			changed |= championship.initializeTeamPointsPolicy(template.getTeamPointsPolicy());
 			changed |= championship.normalizeInheritedScoringFields(template);
 			championship.computeCompetitionDefaultDifferences(template, true);
 		}
@@ -504,6 +518,13 @@ public class ChampionshipRepository {
 			em.flush();
 		}
 		return changed;
+	}
+
+	private static TeamPointsPolicy legacyTeamPointsPolicy(EntityManager em) {
+		Config config = em.createQuery("select c from Config c", Config.class)
+		        .getResultList().stream().findFirst().orElse(null);
+		return config != null && config.featureSwitch(FeatureSwitch.TEAM_POINTS_TOTAL_ONLY)
+		        ? TeamPointsPolicy.TOTAL_ONLY : TeamPointsPolicy.ALL_THREE;
 	}
 
 	static boolean normalizeDefaultTypes(EntityManager em) {

@@ -390,10 +390,11 @@ public class AgeGroupContent extends BaseContent implements CrudListener<AgeGrou
 	private static String medalsText(AgeGroup ageGroup) {
 		Championship championship = ageGroup.getChampionship();
 		if (championship != null && championship.isSnatchCJTotalMedals()) {
-			return String.join(" ",
+			String lifts = String.join(" ",
 			        Translator.translate("Results.Snatch_abbrev"),
-			        Translator.translate("Results.CJ_abbrev"),
-			        Translator.translate("Results.Total"));
+			        Translator.translate("Results.CJ_abbrev"));
+			return championship.getMedalPolicy().includesTotal()
+			        ? lifts + " " + Translator.translate("Results.Total") : lifts;
 		}
 		return rankingText(ageGroup.getComputedScoringSystem());
 	}

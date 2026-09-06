@@ -322,7 +322,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		Boolean medals = this.medalsOnly.getValue();
 		if (medals != null && medals) {
 			return rankedAthletes.stream()
-			        .filter(a -> a.getMainRankings().getTotalRank() >= 1 && a.getMainRankings().getTotalRank() <= 3)
+			        .filter(Athlete::isMedalist)
 			        .collect(Collectors.toList());
 		} else {
 			return rankedAthletes;

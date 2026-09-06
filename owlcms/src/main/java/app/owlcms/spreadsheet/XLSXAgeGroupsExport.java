@@ -145,7 +145,9 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 		        "explicitTeamSize",
 		        "mixedBestN",
 		        "mixedMensBestN",
-		        "mixedWomensBestN"
+		        "mixedWomensBestN",
+		        "teamPointsPolicy",
+		        "medalPolicy"
 		};
 		Row header = sheet.createRow(0);
 		for (int i = 0; i < headers.length; i++) {
@@ -178,6 +180,8 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 			setIntegerCell(row, 19, championship.getMixedBestN());
 			setIntegerCell(row, 20, championship.getMixedMensBestN());
 			setIntegerCell(row, 21, championship.getMixedWomensBestN());
+			row.createCell(22).setCellValue(championship.getTeamPointsPolicy().name());
+			row.createCell(23).setCellValue(championship.getMedalPolicy().name());
 		}
 	}
 
@@ -310,7 +314,8 @@ public class XLSXAgeGroupsExport extends XLSXWorkbookStreamSource {
 
 	private boolean hasSameExportedSettingsAs(Championship championship, Championship template) {
 		return championship != null && template != null
-		        && championship.isSnatchCJTotalMedals() == template.isSnatchCJTotalMedals()
+		        && championship.getMedalPolicy() == template.getMedalPolicy()
+		        && championship.getTeamPointsPolicy() == template.getTeamPointsPolicy()
 		        && Objects.equals(championship.getScoringSystem(), template.getScoringSystem())
 		        && Objects.equals(championship.getBestAthleteScoringSystem(), template.getBestAthleteScoringSystem())
 		        && Objects.equals(championship.getBestSnatchScoringSystem(), template.getBestSnatchScoringSystem())

@@ -53,7 +53,7 @@ public class CompetitionContent extends Composite<VerticalLayout>
 		Component form = this.factory.buildNewForm(CrudOperation.UPDATE, Competition.getCurrent(), false, null,
 		        event -> {
 		        });
-		fillH(form, getContent());
+		fillHW(form, getContent());
 	}
 
 	/**

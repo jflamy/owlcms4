@@ -369,7 +369,7 @@ public class Competition {
 	@Column(name = "mensTeamSize", columnDefinition = "integer default 8")
 	@JsonProperty("mensTeamSize")
 	private Integer mensBestN = 8;
-	/* this is really "keep best n results", backward compatibility with database exports */
+	/* Legacy explicit mixed-membership roster size; keep the JSON/database name for compatibility. */
 	@Column(name = "mixedTeamSize", columnDefinition = "integer default 8")
 	@JsonProperty("mixedTeamSize")
 	private Integer mixedBestN = 8;
@@ -1465,7 +1465,7 @@ public class Competition {
 		if (this.migrated) {
 			Championship template = getCompetitionTemplate();
 			if (template != null) {
-				return template.getMixedBestN();
+				return template.getExplicitTeamSize();
 			}
 		}
 		return this.mixedBestN != null ? this.mixedBestN : this.maxTeamSize;
@@ -1485,7 +1485,7 @@ public class Competition {
 		if (this.migrated) {
 			Championship template = getCompetitionTemplate();
 			if (template != null) {
-				return template.getMixedBestN();
+				return template.getExplicitTeamSize();
 			}
 		}
 		return this.mixedBestN;

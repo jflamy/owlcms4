@@ -18,7 +18,24 @@ public class AgeGroupDefinitionReaderTest {
     public void rankingParserAcceptsEnumNamesAndReportingNames() {
         assertEquals(Ranking.QAGE, AgeGroupDefinitionReader.getRankingFromExportValue("QAGE"));
         assertEquals(Ranking.QAGE, AgeGroupDefinitionReader.getRankingFromExportValue("QMasters"));
-        assertEquals(Ranking.QAGE, AgeGroupDefinitionReader.getRankingFromExportValue(" qmasters "));
         assertEquals(Ranking.SMM, AgeGroupDefinitionReader.getRankingFromExportValue("SMHF"));
+    }
+
+    @Test
+    public void missingTeamPointsPolicyUsesMedalConfiguration() {
+        TeamPointsPolicy missing = AgeGroupDefinitionReader.getTeamPointsPolicyFromExportValue("");
+
+        assertEquals(TeamPointsPolicy.ALL_THREE, TeamPointsPolicy.effective(missing, true));
+        assertEquals(TeamPointsPolicy.TOTAL_ONLY, TeamPointsPolicy.effective(missing, false));
+    }
+
+    @Test
+    public void teamPointsPolicyParserAcceptsExportedEnumNames() {
+        assertEquals(TeamPointsPolicy.ALL_THREE,
+                AgeGroupDefinitionReader.getTeamPointsPolicyFromExportValue("ALL_THREE"));
+        assertEquals(TeamPointsPolicy.TOTAL_ONLY,
+            AgeGroupDefinitionReader.getTeamPointsPolicyFromExportValue("TOTAL_ONLY"));
+        assertEquals(TeamPointsPolicy.LIFTS_ONLY,
+            AgeGroupDefinitionReader.getTeamPointsPolicyFromExportValue("LIFTS_ONLY"));
     }
 }

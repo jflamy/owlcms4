@@ -28,8 +28,6 @@ import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
-import app.owlcms.data.config.Config;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.spreadsheet.PAthlete;
@@ -599,11 +597,18 @@ public class AthleteSorter implements Serializable {
 		return totalPoints;
 	}
 
-	public static boolean isTotalOnlyTeamPoints(Participation p) {
-		Competition competition = Competition.getCurrent();
-		return p != null && (!competition.isSnatchCJTotalMedals()
-		        || Config.getCurrent().featureSwitch(FeatureSwitch.TEAM_POINTS_TOTAL_ONLY)
-		        || isImwaMastersTeamPoints(p));
+	public static boolean includesLiftTeamPoints(Participation participation) {
+		Championship championship = championshipFrom(participation);
+		return championship != null
+		        && championship.getTeamPointsPolicy().includesSnatchAndCleanJerk()
+		        && !isImwaMastersTeamPoints(participation);
+	}
+
+	public static boolean includesTotalTeamPoints(Participation participation) {
+		Championship championship = championshipFrom(participation);
+		return championship == null
+		        || championship.getTeamPointsPolicy().includesTotal()
+		        || isImwaMastersTeamPoints(participation);
 	}
 
 	private static boolean isImwaMastersTeamPoints(Participation p) {

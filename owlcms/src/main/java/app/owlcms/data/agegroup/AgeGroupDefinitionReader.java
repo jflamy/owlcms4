@@ -303,6 +303,9 @@ public class AgeGroupDefinitionReader {
 			championship.setBestSnatchScoringSystem(getRankingValue(row, iRow, headerColumns, "bestsnatchscoringsystem"));
 			championship.setBestCJScoringSystem(getRankingValue(row, iRow, headerColumns, "bestcjscoringsystem"));
 			championship.setSnatchCJTotalMedals(getBooleanValue(row, headerColumns, "snatchcjtotalmedals", false));
+			championship.setMedalPolicy(getMedalPolicyValue(row, iRow, headerColumns));
+			championship.setTeamPointsPolicy(getTeamPointsPolicyValue(row, iRow, headerColumns, "teampointspolicy"));
+			championship.normalizeTeamPointsPolicy();
 			championship.setTeamPoints1st(getIntegerValue(row, iRow, headerColumns, "teampoints1st"));
 			championship.setTeamPoints2nd(getIntegerValue(row, iRow, headerColumns, "teampoints2nd"));
 			championship.setTeamPoints3rd(getIntegerValue(row, iRow, headerColumns, "teampoints3rd"));
@@ -421,6 +424,32 @@ public class AgeGroupDefinitionReader {
 
 	private static Ranking getRankingValue(Row row, int iRow, Map<String, Integer> headerColumns, String header) {
 		return getRankingValue(row, iRow, columnIndex(headerColumns, header, -1));
+	}
+
+	private static MedalPolicy getMedalPolicyValue(Row row, int iRow, Map<String, Integer> headerColumns) {
+		int column = columnIndex(headerColumns, "medalpolicy", -1);
+		String cellValue = getCellText(row, column);
+		MedalPolicy policy = MedalPolicy.fromValue(cellValue);
+		if (policy == null && !cellValue.isBlank()) {
+			reportError(iRow, column, cellValue, new IllegalArgumentException(cellValue));
+		}
+		return policy;
+	}
+
+	private static TeamPointsPolicy getTeamPointsPolicyValue(Row row, int iRow,
+	        Map<String, Integer> headerColumns, String header) {
+		int column = columnIndex(headerColumns, header, -1);
+		String cellValue = getCellText(row, column);
+		TeamPointsPolicy policy = getTeamPointsPolicyFromExportValue(cellValue);
+		if (policy == null && !cellValue.isBlank()) {
+			IllegalArgumentException e = new IllegalArgumentException(cellValue);
+			reportError(iRow, column, cellValue, e);
+		}
+		return policy;
+	}
+
+	static TeamPointsPolicy getTeamPointsPolicyFromExportValue(String cellValue) {
+		return TeamPointsPolicy.fromValue(cellValue);
 	}
 
 	private static TeamScoringValue getTeamScoringValue(Row row, int iRow, Map<String, Integer> headerColumns, String header) {

@@ -11,6 +11,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -226,6 +227,7 @@ public class CompetitionDataV2 {
 		try {
 			newData = mapper.readValue(serialized, CompetitionDataV2.class);
 			normalizeChampionshipOrder(newData.getChampionships());
+			normalizeTeamPointsPolicies(newData.getChampionships());
 			newData.setPlatforms(PlatformRepository.canonicalizeImportedPlatforms(newData.getPlatforms(), null));
 			logger.info("V2 import: {} ageGroups, {} teams, {} sessions, {} athletes, {} platforms", 
 				newData.getChampionships() != null ? newData.getChampionships().size() : 0,
@@ -238,6 +240,12 @@ public class CompetitionDataV2 {
 		} catch (Exception e) {
 			LoggerUtils.logError(logger, e);
 			return null;
+		}
+	}
+
+	private static void normalizeTeamPointsPolicies(List<ChampionshipDTO> championships) {
+		if (championships != null) {
+			championships.stream().filter(Objects::nonNull).forEach(ChampionshipDTO::normalizeTeamPointsPolicy);
 		}
 	}
 
@@ -302,6 +310,8 @@ public class CompetitionDataV2 {
 						existing.setBestSnatchScoringSystem(championship.getBestSnatchScoringSystem());
 						existing.setBestCJScoringSystem(championship.getBestCJScoringSystem());
 						existing.setSnatchCJTotalMedals(championship.isSnatchCJTotalMedals());
+						existing.setMedalPolicy(championship.getMedalPolicy());
+						existing.setTeamPointsPolicy(championship.getTeamPointsPolicy());
 						existing.setTeamPoints1st(championship.getTeamPoints1st());
 						existing.setTeamPoints2nd(championship.getTeamPoints2nd());
 						existing.setTeamPoints3rd(championship.getTeamPoints3rd());
@@ -399,7 +409,7 @@ public class CompetitionDataV2 {
 		}
 		return null;
 		});
-		ChampionshipRepository.reconcileFromAgeGroups();
+		ChampionshipRepository.reconcileImportedAgeGroups();
 		Championship.reset();
 		
 		RecordConfig current = RecordConfig.getCurrent();

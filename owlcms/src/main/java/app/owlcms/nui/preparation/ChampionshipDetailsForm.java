@@ -35,6 +35,8 @@ import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
 import app.owlcms.data.agegroup.DefaultChampionship;
+import app.owlcms.data.agegroup.MedalPolicy;
+import app.owlcms.data.agegroup.TeamPointsPolicy;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.athleteSort.RankingConfig;
 import app.owlcms.i18n.Translator;
@@ -48,6 +50,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 	private static final String SUM_OF_SCORES = "Championship.sumOfScores";
 	private static final String MIXED_SELECTION_EXPLICIT = "mixedSelection.explicit";
 	private static final String MIXED_SELECTION_OVERALL = "mixedSelection.overall";
+	private static final String MIXED_SELECTION_COMBINED = "mixedSelection.combined";
 	private static final String MIXED_SELECTION_PER_GENDER = "mixedSelection.perGender";
 
 	private final Championship championship;
@@ -99,32 +102,46 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		}
 
 		FormLayout medalsLayout = new FormLayout();
-		medalsLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
+		medalsLayout.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("900px", 2));
 
 		NativeLabel medalsTitle = new NativeLabel(Translator.translate("Championship.Medals"));
 		medalsTitle.getStyle().set("font-weight", "bold");
 		medalsLayout.add(medalsTitle);
 		medalsLayout.setColspan(medalsTitle, 2);
 
-		Checkbox snatchCJTotalField = new Checkbox();
-		snatchCJTotalField.setValue(championship.isSnatchCJTotalMedals());
-		medalsLayout.addFormItem(snatchCJTotalField, Translator.translate("Competition.snatchCJTotalMedals"));
+		RadioButtonGroup<TeamPointsPolicy> teamPointsPolicyField = new RadioButtonGroup<>();
+		teamPointsPolicyField.setItems(TeamPointsPolicy.allowedFor(championship.getMedalPolicy()));
+		teamPointsPolicyField.setItemLabelGenerator(policy -> Translator.translate(policy.labelKey()));
+		teamPointsPolicyField.setValue(championship.getTeamPointsPolicy());
+		teamPointsPolicyField.setWidthFull();
+
+		RadioButtonGroup<MedalPolicy> medalPolicyField = new RadioButtonGroup<>();
+		medalPolicyField.setItems(MedalPolicy.values());
+		medalPolicyField.setItemLabelGenerator(policy -> Translator.translate(policy.labelKey()));
+		medalPolicyField.setValue(championship.getMedalPolicy());
+		medalPolicyField.setWidthFull();
+		medalsLayout.addFormItem(medalPolicyField, Translator.translate("Championship.MedalPolicy"));
 
 		ComboBox<Ranking> scoringSystemField = createMedalScoringCombo();
 		scoringSystemField.setValue(medalScoringForDisplay(championship.getScoringSystem()));
-		scoringSystemField.setEnabled(!championship.isSnatchCJTotalMedals());
-		medalsLayout.addFormItem(scoringSystemField, Translator.translate("Championship.totalMedalScoring"));
+		scoringSystemField.setEnabled(championship.getMedalPolicy() == MedalPolicy.TOTAL_ONLY);
+		FormLayout.FormItem scoringSystemItem = medalsLayout.addFormItem(scoringSystemField,
+		        Translator.translate("Championship.totalMedalScoring"));
+		scoringSystemItem.setVisible(championship.getMedalPolicy().includesTotal());
 
-		snatchCJTotalField.addValueChangeListener(e -> {
+		medalPolicyField.addValueChangeListener(e -> {
 			if (!e.isFromClient()) {
 				return;
 			}
-			scoringSystemField.setEnabled(!Boolean.TRUE.equals(useDefaultsField.getValue()) && !e.getValue());
-			if (e.getValue()) {
-				scoringSystemField.clear();
-			} else if (scoringSystemField.getValue() == null) {
-				scoringSystemField.setValue(Ranking.TOTAL);
-			}
+			MedalPolicy medals = e.getValue();
+			scoringSystemField.setEnabled(!Boolean.TRUE.equals(useDefaultsField.getValue())
+			        && medals == MedalPolicy.TOTAL_ONLY);
+			scoringSystemField.setValue(Ranking.TOTAL);
+			scoringSystemItem.setVisible(medals.includesTotal());
+			teamPointsPolicyField.setItems(TeamPointsPolicy.allowedFor(medals));
+			teamPointsPolicyField.setValue(TeamPointsPolicy.effective(null, medals));
+			teamPointsPolicyField.setEnabled(medals != MedalPolicy.TOTAL_ONLY
+			        && !Boolean.TRUE.equals(useDefaultsField.getValue()));
 		});
 
 		add(medalsLayout);
@@ -154,12 +171,16 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		add(createSeparator());
 
 		FormLayout teamPointsLayout = new FormLayout();
-		teamPointsLayout.setResponsiveSteps(new ResponsiveStep("0", 2));
+		teamPointsLayout.setResponsiveSteps(new ResponsiveStep("0", 1), new ResponsiveStep("900px", 2));
 
 		NativeLabel teamPointsTitle = new NativeLabel(Translator.translate("Championship.TeamPoints"));
 		teamPointsTitle.getStyle().set("font-weight", "bold");
 		teamPointsLayout.add(teamPointsTitle);
 		teamPointsLayout.setColspan(teamPointsTitle, 2);
+
+		FormLayout.FormItem teamPointsPolicyItem = teamPointsLayout.addFormItem(teamPointsPolicyField,
+		        Translator.translate("Championship.TeamPointsPolicy"));
+		teamPointsLayout.setColspan(teamPointsPolicyItem, 2);
 
 		IntegerField teamPoints1stField = new IntegerField();
 		teamPoints1stField.setValue(championship.getTeamPoints1st() != null ? championship.getTeamPoints1st() : 0);
@@ -271,6 +292,7 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 
 		RadioButtonGroup<String> mixedSelectionField = new RadioButtonGroup<>();
 		mixedSelectionField.setItems(List.of(
+		        MIXED_SELECTION_COMBINED,
 		        MIXED_SELECTION_EXPLICIT,
 		        MIXED_SELECTION_OVERALL,
 		        MIXED_SELECTION_PER_GENDER));
@@ -352,12 +374,15 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			        : championship;
 			boolean useDefaults = Boolean.TRUE.equals(useDefaultsField.getValue());
 
-			snatchCJTotalField.setValue(effective.isSnatchCJTotalMedals());
+			medalPolicyField.setValue(effective.getMedalPolicy());
 			scoringSystemField.setValue(medalScoringForDisplay(effective.getScoringSystem()));
+			scoringSystemItem.setVisible(effective.getMedalPolicy().includesTotal());
 			bestAthleteField.setValue(effective.getBestAthleteScoringSystem());
 			bestSnatchField.setValue(effective.getBestSnatchScoringSystem());
 			bestCJField.setValue(effective.getBestCJScoringSystem());
 			teamPoints1stField.setValue(effective.getTeamPoints1st() != null ? effective.getTeamPoints1st() : 0);
+			teamPointsPolicyField.setItems(TeamPointsPolicy.allowedFor(effective.getMedalPolicy()));
+			teamPointsPolicyField.setValue(effective.getTeamPointsPolicy());
 			teamPoints2ndField.setValue(effective.getTeamPoints2nd() != null ? effective.getTeamPoints2nd() : 0);
 			teamPoints3rdField.setValue(effective.getTeamPoints3rd() != null ? effective.getTeamPoints3rd() : 0);
 			menWomenTeamsEnabledField.setValue(effective.isGenderedTeamsEnabled());
@@ -376,14 +401,15 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			mixedWomensBestNField.setValue(zeroAsEmpty(effective.getMixedWomensBestN()));
 			mixedSelectionField.setValue(determineMixedSelectionMode(effective));
 
-			snatchCJTotalField.setEnabled(!useDefaults);
-			scoringSystemField.setEnabled(!useDefaults && !Boolean.TRUE.equals(snatchCJTotalField.getValue()));
+			medalPolicyField.setEnabled(!useDefaults);
+			scoringSystemField.setEnabled(!useDefaults && effective.getMedalPolicy() == MedalPolicy.TOTAL_ONLY);
 			bestAthleteField.setEnabled(!useDefaults);
 			bestSnatchField.setEnabled(!useDefaults);
 			bestCJField.setEnabled(!useDefaults);
 			teamPoints1stField.setEnabled(!useDefaults);
 			teamPoints2ndField.setEnabled(!useDefaults);
 			teamPoints3rdField.setEnabled(!useDefaults);
+			teamPointsPolicyField.setEnabled(!useDefaults && effective.getMedalPolicy() != MedalPolicy.TOTAL_ONLY);
 			boolean genderedEnabled = Boolean.TRUE.equals(menWomenTeamsEnabledField.getValue());
 			menWomenTeamsEnabledField.setEnabled(!useDefaults);
 			teamMethodField.setEnabled(!useDefaults && genderedEnabled);
@@ -463,7 +489,9 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			championship.setBestAthleteScoringSystem(bestAthleteField.getValue());
 			championship.setBestSnatchScoringSystem(bestSnatchField.getValue());
 			championship.setBestCJScoringSystem(bestCJField.getValue());
-			championship.setSnatchCJTotalMedals(snatchCJTotalField.getValue());
+			championship.setMedalPolicy(medalPolicyField.getValue());
+			championship.setTeamPointsPolicy(teamPointsPolicyField.getValue());
+			championship.normalizeTeamPointsPolicy();
 			boolean genderedEnabled = Boolean.TRUE.equals(menWomenTeamsEnabledField.getValue());
 			championship.setGenderedTeamsEnabled(genderedEnabled);
 			championship.setTeamScoringSystem(
@@ -481,10 +509,12 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 			        mixedEnabled && SUM_OF_SCORES.equals(mixedMethodField.getValue()) ? mixedTeamScoringSystemField.getValue() : null);
 			championship.setMixedBestN(MIXED_SELECTION_OVERALL.equals(mixedSelectionMode)
 			        ? mixedBestNField.getValue() : null);
-			championship.setMixedMensBestN(MIXED_SELECTION_PER_GENDER.equals(mixedSelectionMode)
-			        ? mixedMensBestNField.getValue() : null);
-			championship.setMixedWomensBestN(MIXED_SELECTION_PER_GENDER.equals(mixedSelectionMode)
-			        ? mixedWomensBestNField.getValue() : null);
+			boolean combinedSelection = MIXED_SELECTION_COMBINED.equals(mixedSelectionMode);
+			boolean perGenderSelection = MIXED_SELECTION_PER_GENDER.equals(mixedSelectionMode);
+			championship.setMixedMensBestN(Championship.resolveMixedGenderLimit(
+			        combinedSelection, perGenderSelection, mixedMensBestNField.getValue()));
+			championship.setMixedWomensBestN(Championship.resolveMixedGenderLimit(
+			        combinedSelection, perGenderSelection, mixedWomensBestNField.getValue()));
 			championship.setMaxTeamSize(maxTeamSizeField.getValue());
 			championship.setMaxPerCategory(maxPerCategoryField.getValue());
 			if (!templateMode && !updatedName.equals(championship.getName())) {
@@ -633,6 +663,9 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 		if (championship != null && championship.isExplicitMixedTeamMembers()) {
 			return MIXED_SELECTION_EXPLICIT;
 		}
+		if (championship == null || championship.isCombinedMenWomenTeams()) {
+			return MIXED_SELECTION_COMBINED;
+		}
 		return championship != null && championship.getMixedBestN() != null && championship.getMixedBestN() > 0
 		        ? MIXED_SELECTION_OVERALL
 		        : MIXED_SELECTION_PER_GENDER;
@@ -640,6 +673,8 @@ public class ChampionshipDetailsForm extends VerticalLayout {
 
 	private String translateMixedSelectionMode(String mode) {
 		switch (mode) {
+			case MIXED_SELECTION_COMBINED:
+				return Translator.translate("Championship.combinedMenWomenTeams");
 			case MIXED_SELECTION_EXPLICIT:
 				return Translator.translate("Championship.explicitMixedTeamMembers");
 			case MIXED_SELECTION_OVERALL:

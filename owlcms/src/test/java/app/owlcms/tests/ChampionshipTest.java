@@ -51,6 +51,8 @@ import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.agegroup.MedalPolicy;
+import app.owlcms.data.agegroup.TeamPointsPolicy;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -62,7 +64,6 @@ import app.owlcms.data.category.Participation;
 import app.owlcms.data.category.ParticipationId;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.team.TeamResultsDisplayRules;
@@ -172,7 +173,11 @@ public class ChampionshipTest {
                 competition.getBestAthleteScoringSystem());
         assertEquals("competition medal scoring system", template.getScoringSystem(),
                 competition.getScoringSystem());
-        assertEquals("mixed team size", Integer.valueOf(8), competition.getMixedBestN());
+        assertEquals("legacy mixed team size", Integer.valueOf(8), competition.getMixedBestN());
+        assertEquals("legacy mixed team size should become the explicit roster size",
+                Integer.valueOf(8), template.getExplicitTeamSize());
+        assertTrue("mixed scoring should default to combined men's and women's teams",
+                template.isCombinedMenWomenTeams());
     }
 
     @Test
@@ -203,7 +208,11 @@ public class ChampionshipTest {
         assertNotNull("competition template should be created from legacy fixture", template);
         assertEquals("competition template men's best N", Integer.valueOf(5), template.getMensBestN());
         assertEquals("competition template women's best N", Integer.valueOf(5), template.getWomensBestN());
-        assertEquals("competition template mixed best N", Integer.valueOf(8), template.getMixedBestN());
+        assertEquals("competition template mixed best N", null, template.getMixedBestN());
+        assertEquals("competition template explicit mixed roster size", Integer.valueOf(8),
+                template.getExplicitTeamSize());
+        assertTrue("competition template should default to combined men's and women's teams",
+                template.isCombinedMenWomenTeams());
         assertEquals("competition template max team size", Integer.valueOf(5), template.getMaxTeamSize());
 
         assertEquals("stored non-template championship count", 5, ChampionshipRepository.findAll().size());
@@ -519,18 +528,9 @@ public class ChampionshipTest {
     }
 
     @Test
-    public void testTeamPointsCanOnlyComeFromTotal() {
+        public void testTeamPointsPolicy() {
         Competition competition = Competition.getCurrent();
-        Config config = Config.getCurrent();
-        boolean originalMigrated = competition.isMigrated();
-        // A prior test in the suite may have left the shared Competition singleton
-        // migrated. Once migrated, setSnatchCJTotalMedals() silently no-ops because the
-        // championship template becomes the source of truth, which breaks this test's
-        // direct manipulation of the legacy flag.
-        competition.setMigrated(false);
         boolean originalImwa = competition.isImwa();
-        boolean originalSnatchCJTotalMedals = competition.isSnatchCJTotalMedals();
-        String originalFeatureSwitches = config.getFeatureSwitches();
 
         Participation participation = AthleteRepository.findAll().stream()
                 .flatMap(a -> a.getParticipations().stream())
@@ -544,45 +544,84 @@ public class ChampionshipTest {
         scoringParticipation.setSnatchRank(1);
         scoringParticipation.setCleanJerkRank(1);
         scoringParticipation.setTotalRank(1);
+        Championship championship = scoringParticipation.getCategory().getAgeGroup().getChampionship();
+        MedalPolicy originalMedals = championship.getMedalPolicy();
+        TeamPointsPolicy originalPolicy = championship.getTeamPointsPolicy();
         Athlete sourceAthlete = mastersAthlete._getAthlete();
         Group originalGroup = sourceAthlete.getGroup();
         Group mastersGroup = new Group("Masters team points test");
         mastersGroup.setMasters(true);
 
         try {
+            championship.setMedalPolicy(MedalPolicy.ALL_THREE);
+            competition.setImwa(false);
+            championship.setTeamPointsPolicy(TeamPointsPolicy.ALL_THREE);
+            int snatchPoints = mastersAthlete.getSnatchPoints();
+            int cleanJerkPoints = mastersAthlete.getCleanJerkPoints();
+            int totalPoints = mastersAthlete.getTotalPoints();
+            assertTrue("all-three snatch points", snatchPoints > 0);
+            assertTrue("all-three clean and jerk points", cleanJerkPoints > 0);
+            assertTrue("all-three total points", totalPoints > 0);
+            assertEquals("all-three combined points", snatchPoints + cleanJerkPoints + totalPoints,
+                    mastersAthlete.getCombinedPoints().intValue());
+
+            championship.setTeamPointsPolicy(TeamPointsPolicy.TOTAL_ONLY);
+            assertEquals("total-only snatch points", 0, mastersAthlete.getSnatchPoints());
+            assertEquals("total-only clean and jerk points", 0, mastersAthlete.getCleanJerkPoints());
+            assertEquals("total-only combined points", totalPoints, mastersAthlete.getCombinedPoints().intValue());
+
+            championship.setTeamPointsPolicy(TeamPointsPolicy.LIFTS_ONLY);
+            assertEquals("lifts-only total points", 0, mastersAthlete.getTotalPoints());
+            assertEquals("lifts-only combined points", snatchPoints + cleanJerkPoints,
+                    mastersAthlete.getCombinedPoints().intValue());
+            assertEquals("lifts-only raw combined points",
+                    scoringParticipation.getRawSnatchPoints() + scoringParticipation.getRawCleanJerkPoints(),
+                    scoringParticipation.getRawCombinedPoints());
+
+            championship.setMedalPolicy(MedalPolicy.TOTAL_ONLY);
+            assertEquals("total-medal championship forces total policy", TeamPointsPolicy.TOTAL_ONLY,
+                    championship.getTeamPointsPolicy());
+            assertEquals("total-medal championship combined points", totalPoints,
+                    mastersAthlete.getCombinedPoints().intValue());
+
+            championship.setMedalPolicy(MedalPolicy.LIFTS_ONLY);
+                        championship.setTeamPointsPolicy(TeamPointsPolicy.ALL_THREE);
+                        assertEquals("lift medals permit all-three points", TeamPointsPolicy.ALL_THREE,
+                                championship.getTeamPointsPolicy());
+                        assertEquals("lift medals all-three combined points", snatchPoints + cleanJerkPoints + totalPoints,
+                                mastersAthlete.getCombinedPoints().intValue());
+            championship.setTeamPointsPolicy(TeamPointsPolicy.TOTAL_ONLY);
+                        assertEquals("lift medals permit total points", TeamPointsPolicy.TOTAL_ONLY,
+                    championship.getTeamPointsPolicy());
+                        assertEquals("lift medals total-only combined points", totalPoints,
+                    mastersAthlete.getCombinedPoints().intValue());
+                        championship.setTeamPointsPolicy(TeamPointsPolicy.LIFTS_ONLY);
+                        assertEquals("lift medals permit lift points", TeamPointsPolicy.LIFTS_ONLY,
+                                championship.getTeamPointsPolicy());
+                        assertEquals("lift medals lift-only combined points", snatchPoints + cleanJerkPoints,
+                                mastersAthlete.getCombinedPoints().intValue());
+            scoringParticipation.setSnatchRank(4);
+            scoringParticipation.setCleanJerkRank(4);
+            assertFalse("total podium alone does not award a lift medal", mastersAthlete.isMedalist());
+            scoringParticipation.setCleanJerkRank(3);
+            assertTrue("clean and jerk podium awards a lift medal", mastersAthlete.isMedalist());
+            scoringParticipation.setSnatchRank(1);
+            scoringParticipation.setCleanJerkRank(1);
+
+            championship.setMedalPolicy(MedalPolicy.ALL_THREE);
+            championship.setTeamPointsPolicy(TeamPointsPolicy.LIFTS_ONLY);
             sourceAthlete.setGroup(mastersGroup);
             competition.setImwa(true);
-            competition.setSnatchCJTotalMedals(true);
-
             assertEquals("IMWA Masters snatch team points", 0, mastersAthlete.getSnatchPoints());
             assertEquals("IMWA Masters clean and jerk team points", 0, mastersAthlete.getCleanJerkPoints());
             assertTrue("IMWA Masters total team points should still score", mastersAthlete.getTotalPoints() > 0);
             assertEquals("IMWA Masters combined points should equal total points only",
                     mastersAthlete.getTotalPoints(), mastersAthlete.getCombinedPoints().intValue());
-
-            competition.setImwa(false);
-            competition.setSnatchCJTotalMedals(false);
-
-            assertEquals("total-only snatch team points", 0, mastersAthlete.getSnatchPoints());
-            assertEquals("total-only clean and jerk team points", 0, mastersAthlete.getCleanJerkPoints());
-            assertTrue("total-only total team points should still score", mastersAthlete.getTotalPoints() > 0);
-            assertEquals("total-only combined points should equal total points only",
-                    mastersAthlete.getTotalPoints(), mastersAthlete.getCombinedPoints().intValue());
-
-            competition.setSnatchCJTotalMedals(true);
-            config.setFeatureSwitches(FeatureSwitch.TEAM_POINTS_TOTAL_ONLY.getId());
-
-            assertEquals("feature-toggle snatch team points", 0, mastersAthlete.getSnatchPoints());
-            assertEquals("feature-toggle clean and jerk team points", 0, mastersAthlete.getCleanJerkPoints());
-            assertTrue("feature-toggle total team points should still score", mastersAthlete.getTotalPoints() > 0);
-            assertEquals("feature-toggle combined points should equal total points only",
-                    mastersAthlete.getTotalPoints(), mastersAthlete.getCombinedPoints().intValue());
         } finally {
             sourceAthlete.setGroup(originalGroup);
-            config.setFeatureSwitches(originalFeatureSwitches);
             competition.setImwa(originalImwa);
-            competition.setSnatchCJTotalMedals(originalSnatchCJTotalMedals);
-            competition.setMigrated(originalMigrated);
+            championship.setMedalPolicy(originalMedals);
+            championship.setTeamPointsPolicy(originalPolicy);
         }
     }
 
@@ -772,8 +811,62 @@ public class ChampionshipTest {
                 senior.getConfiguredTeamSize(null, Gender.MF));
     }
 
+        @Test
+        public void testCombinedMenWomenTeamsUsesUnlimitedGenderCaps() {
+                Championship senior = ChampionshipRepository.findByName("Senior");
+                assertNotNull("Senior championship should be loaded from fixture", senior);
+
+                senior.setExplicitMixedTeamMembers(false);
+                senior.setMixedBestN(null);
+                senior.setMixedMensBestN(null);
+                senior.setMixedWomensBestN(null);
+                assertTrue("legacy unlimited gender caps should map to combined teams", senior.isCombinedMenWomenTeams());
+
+                senior.setMixedMensBestN(Championship.COMBINED_GENDER_TEAM_LIMIT);
+                senior.setMixedWomensBestN(Championship.COMBINED_GENDER_TEAM_LIMIT);
+                assertTrue("999 best men plus 999 best women should identify combined teams",
+                                senior.isCombinedMenWomenTeams());
+
+                senior.setMixedMensBestN(4);
+                senior.setMixedWomensBestN(3);
+                assertFalse("custom gender caps should remain a separate selection", senior.isCombinedMenWomenTeams());
+
+                senior.setMixedBestN(7);
+                assertFalse("an overall mixed cap should remain a separate selection", senior.isCombinedMenWomenTeams());
+
+                senior.setMixedBestN(null);
+                senior.setExplicitMixedTeamMembers(true);
+                assertFalse("explicit mixed membership should remain a separate selection", senior.isCombinedMenWomenTeams());
+        }
+
     @Test
-    public void testMixedExplicitTeamSizeDefaultsToSmallestChampionshipCategoryCount() {
+        public void testCombinedSelectionUses999ForBlankOrConfiguredGenderLimits() {
+                assertEquals(Integer.valueOf(999), Championship.resolveMixedGenderLimit(true, false, null));
+                assertEquals(Integer.valueOf(999), Championship.resolveMixedGenderLimit(true, false, 4));
+                assertEquals(Integer.valueOf(999), Championship.resolveMixedGenderLimit(true, false, 3));
+        }
+
+        @Test
+        public void testExplicitAndOverallSelectionClearGenderLimits() {
+                assertEquals("explicit and overall modes must accept blank gender limits", null,
+                                Championship.resolveMixedGenderLimit(false, false, null));
+                assertEquals("explicit and overall modes must clear previous quotas", null,
+                                Championship.resolveMixedGenderLimit(false, false, 4));
+                assertEquals("explicit and overall modes must clear combined limits", null,
+                                Championship.resolveMixedGenderLimit(false, false, 999));
+        }
+
+        @Test
+        public void testPerGenderSelectionPreservesNumbersAndBlanks() {
+                assertEquals(Integer.valueOf(4), Championship.resolveMixedGenderLimit(false, true, 4));
+                assertEquals(Integer.valueOf(3), Championship.resolveMixedGenderLimit(false, true, 3));
+                assertEquals(Integer.valueOf(0), Championship.resolveMixedGenderLimit(false, true, 0));
+                assertEquals("blank gender limits must remain null without unboxing", null,
+                                Championship.resolveMixedGenderLimit(false, true, null));
+        }
+
+        @Test
+        public void testMixedExplicitTeamSizeDefaultsToSmallestChampionshipCategoryCount() {
         Championship senior = ChampionshipRepository.findByName("Senior");
         assertNotNull("Senior championship should be loaded from fixture", senior);
 

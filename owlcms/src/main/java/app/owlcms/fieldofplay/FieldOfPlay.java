@@ -3131,9 +3131,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private boolean isMedalEligibleAnyLift(Athlete a) {
-		return isRankInRange(a.getSnatchRank(), 3)
-				|| isRankInRange(a.getCleanJerkRank(), 3)
-				|| isRankInRange(a.getTotalRank(), 3);
+		return a.isMedalist();
 	}
 
 	private boolean isRankInRange(int rank, int maxRank) {

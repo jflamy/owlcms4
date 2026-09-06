@@ -23,7 +23,10 @@ import org.junit.Test;
 import app.owlcms.Main;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
+import app.owlcms.data.agegroup.MedalPolicy;
+import app.owlcms.data.agegroup.TeamPointsPolicy;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.export.v2.ChampionshipDTO;
 import app.owlcms.data.export.v2.CompetitionDataV2;
@@ -96,6 +99,121 @@ public class JSONExportImportTest {
         assertEquals(Integer.valueOf(5), imported.getChampionships().get(0).getOrder());
         assertEquals(Integer.valueOf(6), imported.getChampionships().get(1).getOrder());
         assertEquals(Integer.valueOf(7), imported.getChampionships().get(2).getOrder());
+    }
+
+    @Test
+    public void legacyJsonWithoutTeamPointsPolicyUsesMedalConfiguration() {
+        String json = "{\"championships\":["
+                + "{\"name\":\"Three medals\",\"type\":\"U\",\"snatchCJTotalMedals\":true},"
+                + "{\"name\":\"Total\",\"type\":\"U\",\"snatchCJTotalMedals\":false}]}";
+
+        CompetitionData imported = new CompetitionData().importDataFromString(json);
+
+        assertEquals(TeamPointsPolicy.ALL_THREE, imported.getChampionships().get(0).getTeamPointsPolicy());
+        assertEquals(TeamPointsPolicy.TOTAL_ONLY, imported.getChampionships().get(1).getTeamPointsPolicy());
+        assertEquals(MedalPolicy.ALL_THREE, imported.getChampionships().get(0).getMedalPolicy());
+        assertEquals(MedalPolicy.TOTAL_ONLY, imported.getChampionships().get(1).getMedalPolicy());
+    }
+
+    @Test
+    public void v2JsonWithoutTeamPointsPolicyUsesMedalConfiguration() {
+        String json = "{\"formatVersion\":\"2.0\",\"championships\":["
+                + "{\"name\":\"Three medals\",\"type\":\"U\",\"snatchCJTotalMedals\":true},"
+                + "{\"name\":\"Total\",\"type\":\"U\",\"snatchCJTotalMedals\":false}]}";
+
+        CompetitionDataV2 imported = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+
+        assertNotNull(imported);
+        assertEquals(TeamPointsPolicy.ALL_THREE, imported.getChampionships().get(0).getTeamPointsPolicy());
+        assertEquals(TeamPointsPolicy.TOTAL_ONLY, imported.getChampionships().get(1).getTeamPointsPolicy());
+        assertEquals(MedalPolicy.ALL_THREE, imported.getChampionships().get(0).getMedalPolicy());
+        assertEquals(MedalPolicy.TOTAL_ONLY, imported.getChampionships().get(1).getMedalPolicy());
+    }
+
+    @Test
+    public void priorJsonMapsMixedTeamSizeToExplicitRosterSizeAndDefaultsToCombinedTeams() {
+        CompetitionData v1Explicit = new CompetitionData().importDataFromString(
+                "{\"competition\":{\"mixedTeamSize\":6}}");
+        CompetitionData v1Missing = new CompetitionData().importDataFromString(
+                "{\"competition\":{}}");
+        CompetitionDataV2 v2Explicit = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(
+                        "{\"formatVersion\":\"2.0\",\"competition\":{\"mixedTeamSize\":6}}"
+                                .getBytes(StandardCharsets.UTF_8)));
+        CompetitionDataV2 v2Missing = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(
+                        "{\"formatVersion\":\"2.0\",\"competition\":{}}"
+                                .getBytes(StandardCharsets.UTF_8)));
+
+        for (Competition competition : List.of(v1Explicit.getCompetition(), v2Explicit.getCompetition())) {
+            Championship template = new Championship(Championship.COMPETITION_TEMPLATE_NAME, null);
+            template.populateCompetitionTemplateDefaults(competition);
+            assertEquals("old mixedTeamSize should become the explicit mixed roster size",
+                    Integer.valueOf(6), template.getExplicitTeamSize());
+            assertEquals("old mixedTeamSize should not become # Best Mixed", null, template.getMixedBestN());
+            assertTrue("mixed scoring should default to combined teams", template.isCombinedMenWomenTeams());
+        }
+
+        for (Competition competition : List.of(v1Missing.getCompetition(), v2Missing.getCompetition())) {
+            Championship template = new Championship(Championship.COMPETITION_TEMPLATE_NAME, null);
+            template.populateCompetitionTemplateDefaults(competition);
+            assertEquals("missing old mixedTeamSize should retain the explicit roster default",
+                    Integer.valueOf(8), template.getExplicitTeamSize());
+            assertEquals("combined teams should have no overall mixed cap", null, template.getMixedBestN());
+            assertEquals(Integer.valueOf(Championship.COMBINED_GENDER_TEAM_LIMIT), template.getMixedMensBestN());
+            assertEquals(Integer.valueOf(Championship.COMBINED_GENDER_TEAM_LIMIT), template.getMixedWomensBestN());
+            assertTrue("missing old mixedTeamSize should use combined teams", template.isCombinedMenWomenTeams());
+        }
+    }
+
+    @Test
+    public void explicitMedalPolicyWinsRegardlessOfJsonPropertyOrder() {
+        for (String fields : List.of(
+                "\"medalPolicy\":\"LIFTS_ONLY\",\"snatchCJTotalMedals\":false,\"teamPointsPolicy\":\"TOTAL_ONLY\"",
+                "\"teamPointsPolicy\":\"TOTAL_ONLY\",\"snatchCJTotalMedals\":false,\"medalPolicy\":\"LIFTS_ONLY\"")) {
+            String json = "{\"formatVersion\":\"2.0\",\"championships\":[{\"name\":\"Lifts\",\"type\":\"U\"," + fields + "}]}";
+            Championship legacy = new CompetitionData().importDataFromString(json).getChampionships().get(0);
+            CompetitionDataV2 imported = new CompetitionDataV2().importData(
+                    new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+            assertNotNull(imported);
+            Championship restored = imported.getChampionships().get(0).toChampionship();
+            for (Championship championship : List.of(legacy, restored)) {
+                assertEquals(MedalPolicy.LIFTS_ONLY, championship.getMedalPolicy());
+                assertEquals(TeamPointsPolicy.TOTAL_ONLY, championship.getTeamPointsPolicy());
+            }
+        }
+    }
+
+    @Test
+    public void medalPolicyRoundTripsThroughDtoAndCopiesDefaults() {
+        Championship template = new Championship(Championship.COMPETITION_TEMPLATE_NAME, null);
+        template.setCompetitionTemplate(true);
+        template.setMedalPolicy(MedalPolicy.LIFTS_ONLY);
+        template.setTeamPointsPolicy(TeamPointsPolicy.ALL_THREE);
+        template.normalizeTeamPointsPolicy();
+
+        Championship copy = new Championship("Lifts", null);
+        copy.copyCompetitionSettingsFrom(template);
+        Championship restored = ChampionshipDTO.fromChampionship(copy).toChampionship();
+
+        assertEquals(MedalPolicy.LIFTS_ONLY, restored.getMedalPolicy());
+        assertEquals(TeamPointsPolicy.ALL_THREE, restored.getTeamPointsPolicy());
+        assertTrue(copy.computeCompetitionDefaultDifferences(template, false).isEmpty());
+        copy.setMedalPolicy(MedalPolicy.ALL_THREE);
+        assertTrue(copy.computeCompetitionDefaultDifferences(template, false).stream()
+                .anyMatch(difference -> difference.startsWith("medalPolicy=")));
+    }
+
+    @Test
+    public void v2TeamPointsPolicyRoundTripsThroughDto() {
+        Championship championship = new Championship("Senior", null);
+        championship.setSnatchCJTotalMedals(true);
+        championship.setTeamPointsPolicy(TeamPointsPolicy.LIFTS_ONLY);
+
+        Championship restored = ChampionshipDTO.fromChampionship(championship).toChampionship();
+
+        assertEquals(TeamPointsPolicy.LIFTS_ONLY, restored.getTeamPointsPolicy());
     }
 
     @Test

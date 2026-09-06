@@ -117,7 +117,7 @@ public class ResultsRankings extends Results {
 			athleteJson.put("cleanJerkMedal", liftMedals && cleanJerkRank >= 1 && cleanJerkRank <= 3 ? "medal" + cleanJerkRank : "");
 
 			int totalRank = mainRankings.getTotalRank();
-			athleteJson.put("totalMedal", totalRank >= 1 && totalRank <= 3 ? "medal" + totalRank : "");
+			athleteJson.put("totalMedal", athlete.getMedalPolicy().includesTotal() && totalRank >= 1 && totalRank <= 3 ? "medal" + totalRank : "");
 		} else {
 			int scoreRank = mainRankings.getCategoryScoreRank();
 			athleteJson.put("sinclairMedal", scoreRank >= 1 && scoreRank <= 3 ? "medal" + scoreRank : "");

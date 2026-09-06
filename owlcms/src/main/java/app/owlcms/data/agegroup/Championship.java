@@ -50,6 +50,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	public static final String COMPETITION_TEMPLATE_NAME = "COMPETITION_TEMPLATE";
+	public static final int COMBINED_GENDER_TEAM_LIMIT = 999;
 	private static final int DEFAULT_TEAM_SIZE = 8;
 	private static final int UNBOUNDED_TEAM_SIZE = 999;
 	private static final int LEGACY_UNBOUNDED_TEAM_SIZE = 50;
@@ -407,6 +408,12 @@ public class Championship implements Comparable<Championship>, Serializable {
 	@Column(columnDefinition = "boolean default false")
 	private boolean snatchCJTotalMedals = false;
 
+	@Enumerated(EnumType.STRING)
+	private MedalPolicy medalPolicy;
+
+	@Enumerated(EnumType.STRING)
+	private TeamPointsPolicy teamPointsPolicy;
+
 	private Integer teamPoints1st;
 	private Integer teamPoints2nd;
 	private Integer teamPoints3rd;
@@ -471,7 +478,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	private Ranking resolveMedalScoringSystem(Championship competitionDefaults) {
-		if (this.snatchCJTotalMedals) {
+		if (MedalPolicy.effective(this.medalPolicy, this.snatchCJTotalMedals).includesSnatchAndCleanJerk()) {
 			return Ranking.TOTAL;
 		}
 		if (this.scoringSystem != null) {
@@ -519,10 +526,45 @@ public class Championship implements Comparable<Championship>, Serializable {
 	}
 
 	public boolean isSnatchCJTotalMedals() {
+		return getMedalPolicy().includesSnatchAndCleanJerk();
+	}
+
+	public MedalPolicy getMedalPolicy() {
 		if (computeUsesCompetitionDefaults()) {
-			return getCompetitionDefaults().isSnatchCJTotalMedals();
+			return getCompetitionDefaults().getMedalPolicy();
 		}
-		return this.snatchCJTotalMedals;
+		return MedalPolicy.effective(this.medalPolicy, this.snatchCJTotalMedals);
+	}
+
+	public void setMedalPolicy(MedalPolicy medalPolicy) {
+		this.medalPolicy = medalPolicy;
+	}
+
+	public TeamPointsPolicy getTeamPointsPolicy() {
+		TeamPointsPolicy policy = computeUsesCompetitionDefaults()
+		        ? getCompetitionDefaults().getTeamPointsPolicy()
+		        : this.teamPointsPolicy;
+		return TeamPointsPolicy.effective(policy, getMedalPolicy());
+	}
+
+	public boolean normalizeTeamPointsPolicy() {
+		return initializeTeamPointsPolicy(null);
+	}
+
+	boolean initializeTeamPointsPolicy(TeamPointsPolicy legacyDefault) {
+		MedalPolicy normalizedMedals = MedalPolicy.effective(this.medalPolicy, this.snatchCJTotalMedals);
+		boolean changed = this.medalPolicy != normalizedMedals
+		        || this.snatchCJTotalMedals != normalizedMedals.includesSnatchAndCleanJerk();
+		this.medalPolicy = normalizedMedals;
+		this.snatchCJTotalMedals = normalizedMedals.includesSnatchAndCleanJerk();
+		TeamPointsPolicy normalized = TeamPointsPolicy.effective(
+				this.teamPointsPolicy != null ? this.teamPointsPolicy : legacyDefault,
+				this.medalPolicy);
+		if (this.teamPointsPolicy == normalized) {
+			return changed;
+		}
+		this.teamPointsPolicy = normalized;
+		return true;
 	}
 
 	public Integer getTeamPoints1st() {
@@ -573,6 +615,27 @@ public class Championship implements Comparable<Championship>, Serializable {
 			return getCompetitionDefaults().getMixedBestN();
 		}
 		return this.mixedBestN;
+	}
+
+	public static Integer resolveMixedGenderLimit(boolean combinedSelection, boolean perGenderSelection,
+	        Integer configuredLimit) {
+		if (combinedSelection) {
+			return Integer.valueOf(COMBINED_GENDER_TEAM_LIMIT);
+		}
+		return perGenderSelection ? configuredLimit : null;
+	}
+
+	@JsonIgnore
+	public boolean isCombinedMenWomenTeams() {
+		if (isExplicitMixedTeamMembers() || positiveCap(getMixedBestN()) != null) {
+			return false;
+		}
+		Integer mixedMen = getMixedMensBestN();
+		Integer mixedWomen = getMixedWomensBestN();
+		boolean legacyUnlimited = positiveCap(mixedMen) == null && positiveCap(mixedWomen) == null;
+		return legacyUnlimited
+		        || Integer.valueOf(COMBINED_GENDER_TEAM_LIMIT).equals(mixedMen)
+		                && Integer.valueOf(COMBINED_GENDER_TEAM_LIMIT).equals(mixedWomen);
 	}
 
 	public Integer getExplicitTeamSize() {
@@ -723,6 +786,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.snatchCJTotalMedals = snatchCJTotalMedals;
 	}
 
+	public void setTeamPointsPolicy(TeamPointsPolicy teamPointsPolicy) {
+		this.teamPointsPolicy = teamPointsPolicy;
+	}
+
 	public void setTeamPoints1st(Integer teamPoints1st) {
 		this.teamPoints1st = teamPoints1st;
 	}
@@ -853,8 +920,10 @@ public class Championship implements Comparable<Championship>, Serializable {
 		        competitionDefaults.getBestSnatchScoringSystem());
 		addDifference(differences, "bestCJScoringSystem", this.bestCJScoringSystem,
 		        competitionDefaults.getBestCJScoringSystem());
-		addDifference(differences, "snatchCJTotalMedals", this.snatchCJTotalMedals,
-		        competitionDefaults.isSnatchCJTotalMedals());
+		addDifference(differences, "medalPolicy", MedalPolicy.effective(this.medalPolicy, this.snatchCJTotalMedals),
+		        competitionDefaults.getMedalPolicy());
+		addDifference(differences, "teamPointsPolicy", this.teamPointsPolicy,
+		        competitionDefaults.getTeamPointsPolicy());
 		addDifference(differences, "teamPoints1st", this.teamPoints1st, competitionDefaults.getTeamPoints1st());
 		addDifference(differences, "teamPoints2nd", this.teamPoints2nd, competitionDefaults.getTeamPoints2nd());
 		addDifference(differences, "teamPoints3rd", this.teamPoints3rd, competitionDefaults.getTeamPoints3rd());
@@ -915,6 +984,8 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.bestSnatchScoringSystem = template.getBestSnatchScoringSystem();
 		this.bestCJScoringSystem = template.getBestCJScoringSystem();
 		this.snatchCJTotalMedals = template.isSnatchCJTotalMedals();
+		this.medalPolicy = template.getMedalPolicy();
+		this.teamPointsPolicy = template.getTeamPointsPolicy();
 		this.teamPoints1st = template.getTeamPoints1st();
 		this.teamPoints2nd = template.getTeamPoints2nd();
 		this.teamPoints3rd = template.getTeamPoints3rd();
@@ -1060,10 +1131,13 @@ public class Championship implements Comparable<Championship>, Serializable {
 		this.maxTeamSize = comp != null ? creationMaxTeamSize(comp.getMaxTeamSize()) : DEFAULT_TEAM_SIZE;
 		this.mensBestN = comp != null ? creationBestN(comp.getMensBestN(), comp.getMaxTeamSize()) : null;
 		this.womensBestN = comp != null ? creationBestN(comp.getWomensBestN(), comp.getMaxTeamSize()) : null;
-		this.mixedMensBestN = null;
-		this.mixedWomensBestN = null;
-		this.mixedBestN = comp != null ? comp.getMixedBestN() : null;
-		this.explicitTeamSize = DEFAULT_TEAM_SIZE;
+		this.mixedMensBestN = COMBINED_GENDER_TEAM_LIMIT;
+		this.mixedWomensBestN = COMBINED_GENDER_TEAM_LIMIT;
+		this.mixedBestN = null;
+		Integer legacyMixedTeamSize = comp != null ? comp.getMixedBestN() : null;
+		this.explicitTeamSize = legacyMixedTeamSize != null && legacyMixedTeamSize > 0
+		        ? legacyMixedTeamSize
+		        : DEFAULT_TEAM_SIZE;
 		this.maxPerCategory = comp != null ? comp.getMaxPerCategory() : 2;
 		this.explicitMixedTeamMembers = false;
 		this.genderedTeamsEnabled = true;

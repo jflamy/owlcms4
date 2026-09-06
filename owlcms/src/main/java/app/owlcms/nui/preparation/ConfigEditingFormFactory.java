@@ -415,7 +415,8 @@ public class ConfigEditingFormFactory
 
 			int switchesInSection = 0;
 			for (FeatureSwitch featureSwitch : FeatureSwitch.values()) {
-				if (featureSwitch.getSection() != section) {
+				if (featureSwitch.getSection() != section
+				        || featureSwitch == FeatureSwitch.TEAM_POINTS_TOTAL_ONLY) {
 					continue;
 				}
 				sectionLayout.add(featureSwitchRow(config, featureSwitch, switchesInSection > 0));

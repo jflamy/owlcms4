@@ -84,6 +84,18 @@ public class DefaultChampionship extends Championship {
 	}
 
 	@Override
+	public MedalPolicy getMedalPolicy() {
+		Championship template = template();
+		return template != null ? template.getMedalPolicy() : MedalPolicy.TOTAL_ONLY;
+	}
+
+	@Override
+	public TeamPointsPolicy getTeamPointsPolicy() {
+		Championship template = template();
+		return template != null ? template.getTeamPointsPolicy() : TeamPointsPolicy.TOTAL_ONLY;
+	}
+
+	@Override
 	public Integer getTeamPoints1st() {
 		Championship template = template();
 		if (template != null) {

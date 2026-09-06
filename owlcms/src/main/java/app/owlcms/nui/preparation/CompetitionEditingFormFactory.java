@@ -203,11 +203,18 @@ public class CompetitionEditingFormFactory
 		// Listen for tab changes to preserve the selection in the URL.
 		ts.addSelectedChangeListener(event -> updateTabLocation());
 
+		// Keep the action buttons visible below the scrollable tab content.
+		ts.setSizeFull();
+		ts.setMinHeight("0");
+
 		VerticalLayout mainLayout = new VerticalLayout(
-		        footer,
-		        ts);
+		        ts,
+		        footer);
 		mainLayout.setMargin(false);
 		mainLayout.setPadding(false);
+		mainLayout.setSizeFull();
+		mainLayout.setFlexGrow(1.0, ts);
+		mainLayout.setFlexShrink(0, footer);
 
 		this.binder.readBean(comp);
 		return mainLayout;

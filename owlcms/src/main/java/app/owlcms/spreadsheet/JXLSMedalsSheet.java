@@ -76,6 +76,9 @@ public class JXLSMedalsSheet extends JXLSWorkbookStreamSource {
 						}
 					}
 
+					if (!championship.getMedalPolicy().includesTotal()) {
+						continue;
+					}
 					if (p.getComputedScoringSystem() == Ranking.TOTAL && p.getTotalRank() <= 3) {
 						// logger.debug("adding total {}", p);
 						sa.add(new MAthlete((PAthlete) p, Ranking.TOTAL, p.getTotalRank(), (double) p.getTotal()));

@@ -410,7 +410,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 			int totalRank = mainRankings.getTotalRank();
 			if (a.getComputedScoringSystem() == Ranking.TOTAL) {
 				ja.put("totalRank", formatRank(totalRank));
-				ja.put("totalMedal", totalRank >= 1 && totalRank <= 3 ? "medal" + totalRank : "");
+				ja.put("totalMedal", a.getMedalPolicy().includesTotal() && totalRank >= 1 && totalRank <= 3 ? "medal" + totalRank : "");
 			} else {
 				ja.put("totalRank", "");
 				ja.put("totalMedal", "");
@@ -780,24 +780,7 @@ public class ResultsMedals extends Results implements ResultsParameters, Display
 	}
 
 	private boolean isMedalist(Athlete a) {
-		if (a.getGroup() == null) {
-			return false;
-		}
-		if (awardsLiftMedals(a)) {
-			int snatchRank = a.getSnatchRank();
-			if (snatchRank <= 3 && snatchRank > 0) {
-				return true;
-			}
-			int cjRank = a.getCleanJerkRank();
-			if (cjRank <= 3 && cjRank > 0) {
-				return true;
-			}
-		}
-		int totalRank = a.getTotalRank();
-		if (totalRank <= 3 && totalRank > 0) {
-			return true;
-		}
-		return false;
+		return a.getGroup() != null && a.isMedalist();
 	}
 
 	private boolean resolveLiftRankVisibility(FieldOfPlay fop) {

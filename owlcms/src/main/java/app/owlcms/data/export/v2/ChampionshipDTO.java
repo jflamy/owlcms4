@@ -12,6 +12,8 @@ import tools.jackson.databind.json.JsonMapper;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
+import app.owlcms.data.agegroup.MedalPolicy;
+import app.owlcms.data.agegroup.TeamPointsPolicy;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.export.StoredChampionshipMixin;
 
@@ -39,6 +41,8 @@ public class ChampionshipDTO {
 	private Ranking bestSnatchScoringSystem;
 	private Ranking bestCJScoringSystem;
 	private boolean snatchCJTotalMedals;
+	private MedalPolicy medalPolicy;
+	private TeamPointsPolicy teamPointsPolicy;
 	private Integer teamPoints1st;
 	private Integer teamPoints2nd;
 	private Integer teamPoints3rd;
@@ -77,6 +81,9 @@ public class ChampionshipDTO {
 		championship.setBestSnatchScoringSystem(this.bestSnatchScoringSystem);
 		championship.setBestCJScoringSystem(this.bestCJScoringSystem);
 		championship.setSnatchCJTotalMedals(this.snatchCJTotalMedals);
+		championship.setMedalPolicy(this.medalPolicy);
+		championship.setTeamPointsPolicy(this.teamPointsPolicy);
+		championship.normalizeTeamPointsPolicy();
 		championship.setTeamPoints1st(this.teamPoints1st);
 		championship.setTeamPoints2nd(this.teamPoints2nd);
 		championship.setTeamPoints3rd(this.teamPoints3rd);
@@ -158,6 +165,28 @@ public class ChampionshipDTO {
 
 	public void setSnatchCJTotalMedals(boolean snatchCJTotalMedals) {
 		this.snatchCJTotalMedals = snatchCJTotalMedals;
+	}
+
+	public TeamPointsPolicy getTeamPointsPolicy() {
+		return teamPointsPolicy;
+	}
+
+	public MedalPolicy getMedalPolicy() {
+		return medalPolicy;
+	}
+
+	public void setMedalPolicy(MedalPolicy medalPolicy) {
+		this.medalPolicy = medalPolicy;
+	}
+
+	public void setTeamPointsPolicy(TeamPointsPolicy teamPointsPolicy) {
+		this.teamPointsPolicy = teamPointsPolicy;
+	}
+
+	public void normalizeTeamPointsPolicy() {
+		this.medalPolicy = MedalPolicy.effective(this.medalPolicy, this.snatchCJTotalMedals);
+		this.snatchCJTotalMedals = this.medalPolicy.includesSnatchAndCleanJerk();
+		this.teamPointsPolicy = TeamPointsPolicy.effective(this.teamPointsPolicy, this.medalPolicy);
 	}
 
 	public Integer getTeamPoints1st() {

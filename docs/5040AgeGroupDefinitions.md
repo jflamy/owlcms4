@@ -22,11 +22,22 @@ The recommended way to learn the layout is to configure the championships using 
 
 The spreadsheet uses the same defaults and precedence rules as the interactive `Define Championships` dialog.
 
+`medalPolicy` selects the events awarding medals. `teamPointsPolicy` separately selects the placings counted for points-based teams:
+
+| `medalPolicy` | Medals awarded | Allowed `teamPointsPolicy` |
+| --- | --- | --- |
+| `ALL_THREE` | Snatch, clean and jerk, and total | `ALL_THREE`, `TOTAL_ONLY`, or `LIFTS_ONLY` |
+| `TOTAL_ONLY` | Total (or the configured total medal scoring system) | Forced to `TOTAL_ONLY` |
+| `LIFTS_ONLY` | Snatch and clean and jerk | `ALL_THREE`, `TOTAL_ONLY`, or `LIFTS_ONLY` |
+
+For older workbooks and JSON V1/V2 exports without `medalPolicy`, `snatchCJTotalMedals=true` means `ALL_THREE`; false or missing means `TOTAL_ONLY`. An explicit `medalPolicy` takes precedence over that legacy boolean. When `teamPointsPolicy` is absent, it defaults to the medal policy, regardless of the old global team-points toggle. Score-based team rankings are unchanged. IMWA Masters team points remain total-only.
+
 - If an age group names a championship that has no matching row in the `Championships` tab, it uses the default championship, which reads the competition-wide settings.
 - The competition-wide defaults are the settings from the competition rules and team rules: medals for snatch, clean and jerk, and total; the competition scoring system; team points for first, second, and third place; men's, women's, and mixed team counting limits; maximum team size; and maximum athletes per category. Best athlete, best snatch, and best clean and jerk scoring also default to the competition scoring system.
 - If a championship row has `useCompetitionDefaults` set to `true`, those competition-wide defaults take precedence for `scoringSystem`, `bestAthleteScoringSystem`, `bestSnatchScoringSystem`, `bestCJScoringSystem`, `snatchCJTotalMedals`, `teamPoints1st`, `teamPoints2nd`, `teamPoints3rd`, `mensBestN`, `womensBestN`, `mixedBestN`, `maxTeamSize`, and `maxPerCategory`. The row still supplies the championship `name` and `type`.
 - If `useCompetitionDefaults` is `false`, the championship row values take precedence for those fields. Blank `teamScoringSystem` or `mixedTeamScoringSystem` means sum of points; a scoring-system value means sum of scores using that system. If `snatchCJTotalMedals` is `true`, the medal `scoringSystem` is ignored, because medals are awarded separately for snatch, clean and jerk, and total.
-- Mixed team selection follows the same precedence as the dialog: `explicitMixedTeamMembers=true` uses explicit mixed team members and `explicitTeamSize`; otherwise a positive `mixedBestN` counts the top N mixed results; otherwise `mixedMensBestN` and `mixedWomensBestN` count men's and women's results separately.
+- Mixed team selection follows the same precedence as the dialog: `explicitMixedTeamMembers=true` uses explicit mixed team members and `explicitTeamSize`; otherwise a positive `mixedBestN` counts the top N mixed results; otherwise `mixedMensBestN` and `mixedWomensBestN` count men's and women's results separately. The default combined men's and women's teams mode uses 999 for each gender; older files with both values blank are interpreted the same way.
+- In prior JSON V1/V2 databases, the competition-level `mixedTeamSize` field is the roster size for an explicitly selected mixed-membership team. During migration it becomes `explicitTeamSize`; it does not select the "# Best Mixed" scoring mode.
 - If `maxTeamSize` is blank, the roster limit defaults to 8. If `maxPerCategory` is blank or 0, the per-category limit defaults to 2.
 
 The radio button choices in the interactive dialog are represented by the presence or absence of values in the spreadsheet.
@@ -38,6 +49,7 @@ The radio button choices in the interactive dialog are represented by the presen
 | Mixed team ranking by sum of points | Leave `mixedTeamScoringSystem` empty. |
 | Mixed team ranking by sum of scores | Set `mixedTeamScoringSystem` to the scoring system to use. |
 | Mixed team members selected explicitly | Set `explicitMixedTeamMembers` to `true` and set `explicitTeamSize`. |
+| Mixed team combines the men's and women's teams | Set `explicitMixedTeamMembers` to `false`, leave `mixedBestN` empty or 0, and set both `mixedMensBestN` and `mixedWomensBestN` to 999. This is the default. |
 | Mixed team uses the top N mixed results | Set `explicitMixedTeamMembers` to `false` and set `mixedBestN` to a positive number. |
 | Mixed team uses separate men's and women's counts | Set `explicitMixedTeamMembers` to `false`, leave `mixedBestN` empty or 0, and set `mixedMensBestN` and `mixedWomensBestN`. |
 
@@ -50,7 +62,9 @@ The radio button choices in the interactive dialog are represented by the presen
 | `bestAthleteScoringSystem` | Scoring system used for best athlete awards. |
 | `bestSnatchScoringSystem` | Scoring system used for best snatch awards. |
 | `bestCJScoringSystem` | Scoring system used for best clean and jerk awards. |
-| `snatchCJTotalMedals` | If `true`, medals are awarded separately for snatch, clean and jerk, and total. |
+| `snatchCJTotalMedals` | Legacy medal setting, used only when `medalPolicy` is absent. True means lifts and total; false means total only. |
+| `medalPolicy` | `ALL_THREE`, `TOTAL_ONLY`, or `LIFTS_ONLY`; see the medal and team-points table above. |
+| `teamPointsPolicy` | Placings counted for points-based teams, constrained by `medalPolicy`. |
 | `teamPoints1st` | Team points awarded for first place. |
 | `teamPoints2nd` | Team points awarded for second place. |
 | `teamPoints3rd` | Team points awarded for third place. |
