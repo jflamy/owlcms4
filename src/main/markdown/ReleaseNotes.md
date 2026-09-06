@@ -10,11 +10,11 @@
 
 **New in Release 68.0**
 
-- 68.0.0-beta12: Fixed countdowns on athlete-facing attempt and decision displays
+- 68.0.0-beta12: Fixed countdowns during medal ceremonies on athlete-facing attempt and decision displays
 
-- 68.0.0-beta12: Unified medal ceremony results displays for consistent content and styling
+- 68.0.0-beta12: Unified medal ceremony and results displays for consistent content and styling
 
-- 68.0.0-beta12: Fixed record sections in session and eligibility-category result exports if the name of the championship was changed along the way
+- 68.0.0-beta12: Fixed current-competition record identification in record management and result exports if the competition name was changed along the way
 
 - 68.0.0-beta12: Result template selectors now show templates matching the configured paper size
 

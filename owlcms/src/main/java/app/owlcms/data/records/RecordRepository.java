@@ -8,6 +8,7 @@ package app.owlcms.data.records;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1340,7 +1341,8 @@ public class RecordRepository {
 	 * </ul>
 	 *
 	 * @param thisCompetitionOnly when {@code true}, keep only records whose event matches the current
-	 *                            competition name; applied before the current/history grouping
+	 *                            competition name or whose record date falls within the competition;
+	 *                            applied before the current/history grouping
 	 */
 	public static List<RecordEvent> findWithFilters(
 	        String federation,
@@ -1454,11 +1456,13 @@ public class RecordRepository {
 		// This is independent of approval status and of current/history.
 		List<RecordEvent> scopedResults = allResults;
 		if (thisCompetitionOnly) {
-			String currentCompetitionName = Competition.getCurrent() != null
-			        ? Competition.getCurrent().getCompetitionName()
-			        : null;
+			Competition competition = Competition.getCurrent();
+			String currentCompetitionName = competition != null ? competition.getCompetitionName() : null;
+			LocalDate competitionDate = competition != null ? competition.getCompetitionDate() : null;
+			LocalDate competitionEndDate = competition != null ? competition.getCompetitionEndDate() : null;
 			scopedResults = allResults.stream()
-			        .filter(r -> currentCompetitionName != null && currentCompetitionName.equals(r.getEvent()))
+			        .filter(r -> RecordFilter.isCurrentCompetitionRecord(r, currentCompetitionName,
+			                competitionDate, competitionEndDate))
 			        .collect(Collectors.toList());
 		}
 

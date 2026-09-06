@@ -289,6 +289,14 @@ public class RecordFilter {
 		if (record == null || !RecordRepository.isProvisional(record)) {
 			return false;
 		}
+		return isCurrentCompetitionRecord(record, currentEvent, competitionDate, competitionEndDate);
+	}
+
+	public static boolean isCurrentCompetitionRecord(RecordEvent record, String currentEvent,
+	        LocalDate competitionDate, LocalDate competitionEndDate) {
+		if (record == null) {
+			return false;
+		}
 		String recordEvent = record.getEvent();
 		if (recordEvent != null && !recordEvent.isBlank() && currentEvent != null && !currentEvent.isBlank()
 		        && recordEvent.trim().equals(currentEvent.trim())) {

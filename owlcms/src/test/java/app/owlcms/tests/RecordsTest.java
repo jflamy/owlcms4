@@ -27,6 +27,7 @@ import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.data.group.GroupRepository;
 import app.owlcms.data.jpa.JPAService;
@@ -146,7 +147,7 @@ public class RecordsTest {
     public void currentCompetitionProvisionalFilterDropsBlankAndStaleEvents() {
         RecordEvent current = createRecord(102.0D, "A");
         current.setEvent("Current Event");
-        current.setRecordDate(LocalDate.of(2026, 8, 26));
+        current.setRecordDate(LocalDate.of(2026, 8, 25));
         RecordEvent blank = createRecord(103.0D, "A");
         blank.setEvent("");
         RecordEvent stale = createRecord(104.0D, "A");
@@ -168,6 +169,59 @@ public class RecordsTest {
         assertEquals(2, provisionalRecords.size());
         assertEquals(102.0D, provisionalRecords.get(0).getRecordValue(), 0.001D);
         assertEquals(106.0D, provisionalRecords.get(1).getRecordValue(), 0.001D);
+    }
+
+    @Test
+    public void thisCompetitionRecordsMatchEventOrCompetitionDates() {
+        Competition competition = Competition.getCurrent();
+        competition.setCompetitionName("Current Event");
+        competition.setCompetitionDate(LocalDate.of(2026, 8, 26));
+        competition.setCompetitionEndDate(LocalDate.of(2026, 8, 30));
+
+        RecordEvent matchingEvent = createRecord(102.0D, null);
+        matchingEvent.setEvent("Current Event");
+        matchingEvent.setRecordDate(LocalDate.of(2026, 8, 25));
+        RecordRepository.save(matchingEvent);
+
+        RecordEvent matchingDate = createRecord(103.0D, null);
+        matchingDate.setEvent("Renamed Event");
+        matchingDate.setRecordDate(LocalDate.of(2026, 8, 27));
+        RecordRepository.save(matchingDate);
+
+        RecordEvent staleRecord = createRecord(104.0D, null);
+        staleRecord.setEvent("Old Event");
+        staleRecord.setRecordDate(LocalDate.of(2026, 8, 31));
+        RecordRepository.save(staleRecord);
+
+        List<RecordEvent> currentRecords = RecordRepository.findWithFilters(
+                null,
+                null,
+                null,
+                null,
+                null,
+                "ALL",
+                "HISTORY",
+                null,
+                "ACTIVE",
+                true);
+
+        assertEquals(2, currentRecords.size());
+        assertEquals(102.0D, currentRecords.get(0).getRecordValue(), 0.001D);
+        assertEquals(103.0D, currentRecords.get(1).getRecordValue(), 0.001D);
+    }
+
+    @Test
+    public void currentCompetitionFilterFallsBackToDatesForOfficialRecords() {
+        RecordEvent renamedCurrent = createRecord(105.0D, null);
+        renamedCurrent.setEvent("Original Event Name");
+        renamedCurrent.setRecordDate(LocalDate.of(2026, 8, 27));
+
+        assertEquals(true, RecordFilter.isCurrentCompetitionRecord(
+                renamedCurrent, "Renamed Event", LocalDate.of(2026, 8, 26), LocalDate.of(2026, 8, 30)));
+
+        renamedCurrent.setRecordDate(LocalDate.of(2026, 8, 31));
+        assertEquals(false, RecordFilter.isCurrentCompetitionRecord(
+                renamedCurrent, "Renamed Event", LocalDate.of(2026, 8, 26), LocalDate.of(2026, 8, 30)));
     }
 
     @Test
