@@ -10,6 +10,10 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta12: Systematic cleanup of CSS files to use import+overrides instead of copies
+
+- 68.0.0-beta12: Interactive editing of IWF-style technical official team assignment table
+
 - 68.0.0-beta12: Platform management fixes
   - Editing platform order and plates/bar configuration now preserves each setting
   - Renaming a platform now prompts for a restart to apply the change safely
