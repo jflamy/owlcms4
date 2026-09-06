@@ -23,7 +23,6 @@ import tools.jackson.databind.node.ObjectNode;
 
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
-import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.Participation;
@@ -135,7 +134,14 @@ public class ResultsRankings extends Results {
 		}
 
 		Category category = athlete != null ? athlete.getCategory() : null;
-		return category != null && !AthleteRepository.getAllUnfinishedCategories().contains(category);
+		FieldOfPlay fop = getFop();
+		if (category == null || fop == null || fop.getGroup() == null || fop.getMedals() == null) {
+			return false;
+		}
+		List<Athlete> categoryAthletes = fop.getMedals().get(category.getCode());
+		return categoryAthletes != null && !categoryAthletes.isEmpty()
+		        && categoryAthletes.stream()
+		                .noneMatch(a -> !a.isDone(fop.getGroup()) && a.isEligibleForIndividualRanking());
 	}
 
 	private Ranking determineDisplayRanking(FieldOfPlay fop) {

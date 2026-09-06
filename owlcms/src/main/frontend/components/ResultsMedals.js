@@ -188,8 +188,7 @@ class ResultsMedals extends LitElement {
   }
 
   attemptBarStyles() {
-    const showAttempt = this.currentAttempt === true || this.currentAttempt === "true";
-    return "display: " + (this.mode === "WAIT" || this.video || !showAttempt ? "none" : "block");
+    return "display: none";
   }
 
   athleteInfoStyles() {
@@ -210,8 +209,7 @@ class ResultsMedals extends LitElement {
   }
 
   videoHeaderStyles() {
-    const showAttempt = this.currentAttempt === true || this.currentAttempt === "true";
-    return "display: " + ((this.mode !== "WAIT" && (this.video || !showAttempt)) ? "flex" : "none");
+    return "display: " + (this.mode !== "WAIT" ? "grid" : "none");
   }
 
   athleteClasses() {

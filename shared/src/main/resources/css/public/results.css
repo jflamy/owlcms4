@@ -723,9 +723,9 @@ td {
 }
 
 .decisionSection .dsDecisionAthlete {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     min-width: 0;
-    max-width: 40%;
+    max-width: none;
     display: flex;
     align-items: center;
     justify-content: start;
@@ -754,10 +754,22 @@ td {
 
 .decisionSection .dsDecisionAthlete .dsDecisionAthleteName {
     min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.25em;
+    font-size: 1.125em;
+}
+
+.decisionSection .dsDecisionAthlete .dsDecisionAthleteFullName {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 1.125em;
+}
+
+.decisionSection .dsDecisionAthlete .dsDecisionAthleteParticipations {
+    flex: 0 0 auto;
+    white-space: nowrap;
 }
 
 .decisionSection .dsStopwatch {
