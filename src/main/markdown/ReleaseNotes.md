@@ -10,6 +10,12 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta12: Platform management fixes
+  - Editing platform order and plates/bar configuration now preserves each setting
+  - Renaming a platform now prompts for a restart to apply the change safely
+
+- 68.0.0-beta12: Team ranks are available in JXLS result templates as ${team.rank}
+
 - 68.0.0-beta12: Fixed countdowns during medal ceremonies on athlete-facing attempt and decision displays
 
 - 68.0.0-beta12: Unified medal ceremony and results displays for consistent content and styling

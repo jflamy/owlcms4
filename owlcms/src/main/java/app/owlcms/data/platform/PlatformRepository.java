@@ -351,6 +351,29 @@ public class PlatformRepository {
 		return synchronizeFop(saved, true);
 	}
 
+	public static Platform saveSoundMixer(Platform platform) {
+		Platform saved = JPAService.runInTransaction(em -> {
+			Platform managed = em.find(Platform.class, platform.getId());
+			if (managed == null) {
+				throw new IllegalArgumentException("Platform not found: " + platform.getId());
+			}
+			managed.setSoundMixerName(platform.getSoundMixerName());
+			return managed;
+		});
+		return synchronizeFop(saved, false);
+	}
+
+	public static Platform saveName(Platform platform) {
+		return JPAService.runInTransaction(em -> {
+			Platform managed = em.find(Platform.class, platform.getId());
+			if (managed == null) {
+				throw new IllegalArgumentException("Platform not found: " + platform.getId());
+			}
+			managed.setName(platform.getName());
+			return managed;
+		});
+	}
+
 	private static Platform synchronizeFop(Platform nPlatform, boolean publishMqtt) {
 		String name = nPlatform.getName();
 		FieldOfPlay fop = null;
@@ -372,16 +395,21 @@ public class PlatformRepository {
 	}
 
 	public static void updateDisplayOrder(List<Platform> platforms) {
-		JPAService.runInTransaction(em -> {
+		List<Platform> saved = JPAService.runInTransaction(em -> {
+			List<Platform> managedPlatforms = new ArrayList<>();
 			for (int index = 0; index < platforms.size(); index++) {
 				Platform platform = platforms.get(index);
 				Platform managedPlatform = em.find(Platform.class, platform.getId());
 				if (managedPlatform != null) {
 					managedPlatform.setDisplayOrder(index + 1);
+					managedPlatforms.add(managedPlatform);
 				}
 			}
-			return null;
+			return managedPlatforms;
 		});
+		for (Platform platform : saved) {
+			synchronizeFop(platform, false);
+		}
 	}
 
 	public static void syncFOPs() {

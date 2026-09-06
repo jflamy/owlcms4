@@ -126,6 +126,11 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		this.crudFormFactory = crudFormFactory;
 	}
 
+	@Override
+	public void switchSoundMode(boolean silent, boolean updateURL) {
+		switchSoundMode(silent, updateURL, false);
+	}
+
 	@Subscribe
 	public void slaveBarbellChanged(UIEvent.BarbellOrPlatesChanged e) {
 		FieldOfPlay fop2 = getFop();
@@ -339,12 +344,10 @@ public class TCContent extends AthleteGridContent implements HasDynamicTitle {
 		applyButton.addClickListener((e) -> {
 			try {
 				binder.writeBean(this.platform);
-				Platform np = PlatformRepository.saveEquipment(this.platform);
+				this.platform = PlatformRepository.saveEquipment(this.platform);
 				FieldOfPlay targetFop = getFop();
 				if (targetFop != null) {
-					// logger.debug"after save, platform identity={}",System.identityHashCode(fop.getPlatform()));
 					platesDisplay.removeAll();
-					targetFop.setPlatform(np);
 					// Force immediate recalculation of bar weight before displaying
 					targetFop.recomputeBarInUse();
 					// Notify other UIs that equipment changed
