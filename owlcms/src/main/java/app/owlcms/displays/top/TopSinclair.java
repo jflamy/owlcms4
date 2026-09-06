@@ -179,7 +179,7 @@ public class TopSinclair extends AbstractTop {
 	       updateBottom();
        }
 
-	public void getAthleteJson(Athlete a, ObjectNode ja, Gender g, int needed) {
+	public void getAthleteJson(Athlete a, ObjectNode ja, Gender g, Integer needed) {
 		String category;
 		category = a.getCategory() != null ? a.getCategory().getDisplayName() : "";
 		ja.put("fullName", a.getFullName() != null ? a.getFullName() : "");
@@ -200,7 +200,7 @@ public class TopSinclair extends AbstractTop {
 		ja.put("total", formatInt(a.getTotal()));
 		ja.put("bw", String.format("%.2f", a.getBodyWeight()));
 		ja.put("sinclair", String.format("%.3f", Ranking.getRankingValue(a, this.scoringSystem)));
-		ja.put("needed", formatInt(needed));
+		ja.put("needed", needed != null ? formatInt(needed) : "");
 	}
 
 	/**
@@ -409,7 +409,7 @@ public class TopSinclair extends AbstractTop {
 		for (Athlete a : list3) {
 			ObjectNode ja = JsonUtils.object();
 			Gender curGender = a.getGender();
-			int needed = 0;
+			Integer needed = 0;
 
 			switch (scoringSystem) {
 				case BW_SINCLAIR:
@@ -525,6 +525,10 @@ public class TopSinclair extends AbstractTop {
 					break;
 			}
 
+			double topScore = curGender == Gender.F ? this.topWomanScore : this.topManScore;
+			if (Double.compare(Ranking.getRankingValue(a, scoringSystem), topScore) == 0) {
+				needed = null;
+			}
 			getAthleteJson(a, ja, curGender, needed);
 			String team = a.getTeam();
 			if (team != null && team.length() > Competition.SHORT_TEAM_LENGTH) {

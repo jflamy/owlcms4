@@ -27,7 +27,6 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.TopParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.Ranking;
@@ -78,14 +77,11 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 	 */
 	@Override
 	public void addDialogContent(Component target, VerticalLayout vl) {
-		 logger.debug("addDialogContent ad={} ag={} darkMode={}", getChampionship(),
-		 getAgeGroupPrefix(),
-		 isDarkMode());
+		 logger.debug("addDialogContent ad={} darkMode={}", getChampionship(), isDarkMode());
 
 		DisplayOptions.addLightingEntries(vl, target, this);
 		
 		ComboBox<Championship> championshipComboBox = new ComboBox<>();
-		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
 		List<Championship> championships = Championship.findAllUsed(true);
 
 		championshipComboBox.setItems(championships);
@@ -97,31 +93,11 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		championshipComboBox.addValueChangeListener(e -> {
 			Championship championship = e.getValue();
 			setChampionship(championship);
-			String existingAgeGroupPrefix = getAgeGroupPrefix();
-			List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, championship);
-			if (existingAgeGroupPrefix != null) {
-				ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
-			} else if (activeAgeGroups != null && !activeAgeGroups.isEmpty() && !championship.getType().isMasters()) {
-				ageGroupPrefixComboBox.setValue(activeAgeGroups.get(0));
-			}
-			// Restart timer after value change
-			restartDialogTimer();
-		});
-		ageGroupPrefixComboBox.setPlaceholder(Translator.translate("AgeGroup"));
-		ageGroupPrefixComboBox.setClearButtonVisible(true);
-		// Reset timer when user starts editing
-		ageGroupPrefixComboBox.addFocusListener(e -> restartDialogTimer());
-		ageGroupPrefixComboBox.addValueChangeListener(e -> {
-			setAgeGroupPrefix(e.getValue());
 			updateURLLocations();
-			// Restart timer after value change
 			restartDialogTimer();
 		});
-		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getChampionship());
-		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
 		championshipComboBox.setValue(getChampionship());
-		vl.add(new NativeLabel(Translator.translate("SelectAgeGroup")),
-		        new HorizontalLayout(championshipComboBox, ageGroupPrefixComboBox));
+		vl.add(new NativeLabel(Translator.translate("Championship")), championshipComboBox);
 		
 		ComboBox<Gender> genderComboBox = new ComboBox<>();
 		genderComboBox.setItems(Gender.values());
@@ -209,14 +185,8 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		   String value = getChampionship() != null ? getChampionship().getName() : null;
 		   updateParam(params1, "ad", value);
 
-	       List<String> ageGroupParams = params1.get("ag");
-	       // If 'ag' is missing or empty, treat as 'no filtering' (all age groups)
-	       String ageGroupPrefix = (ageGroupParams != null && !ageGroupParams.isEmpty() && ageGroupParams.get(0) != null && !ageGroupParams.get(0).isEmpty())
-		       ? ageGroupParams.get(0)
-		       : null;
-	       setAgeGroupPrefix(ageGroupPrefix); // null means no filtering, show all
-	       String value2 = getAgeGroupPrefix() != null ? getAgeGroupPrefix() : null;
-	       updateParam(params1, "ag", value2);
+		setAgeGroupPrefix(null);
+		updateParam(params1, "ag", null);
 
 		   List<String> genderParams = params1.get("gender");
 		   // If 'gender' is missing or empty, treat as 'no filtering' (all genders)
@@ -313,13 +283,6 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		setDefaultParameters(QueryParameters.simple(fullMap));
 	}
 
-	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
-	        Championship ageDivision2) {
-		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsedAgeGroupNames(ageDivision2);
-		ageGroupPrefixComboBox.setItems(activeAgeGroups);
-		return activeAgeGroups;
-	}
-
 	private void updateURLLocations() {
 		if (getLocation() == null) {
 			// sometimes called from routines outside of normal event flow.
@@ -327,14 +290,6 @@ public class TopTeamsSinclairPage extends AbstractResultsDisplayPage implements 
 		}
 		   updateURLLocation(UI.getCurrent(), getLocation(), DARK,
 				   !isDarkMode() ? Boolean.TRUE.toString() : null);
-
-		   // Only propagate non-null, non-empty age group
-		   String agPrefix = getAgeGroupPrefix();
-		   if (agPrefix != null && !agPrefix.isEmpty()) {
-			   updateURLLocation(UI.getCurrent(), getLocation(), "ag", agPrefix);
-		   } else {
-			   updateURLLocation(UI.getCurrent(), getLocation(), "ag", null);
-		   }
 
 		   // Only propagate non-null, non-empty championship (no empty 'ad' in URL)
 		   Championship champ = getChampionship();

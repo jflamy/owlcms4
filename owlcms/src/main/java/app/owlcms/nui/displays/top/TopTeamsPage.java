@@ -76,7 +76,6 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 	public void addDialogContent(Component target, VerticalLayout vl) {
 		DisplayOptions.addLightingEntries(vl, target, this);
 		ComboBox<Championship> championshipComboBox = new ComboBox<>();
-		ComboBox<String> ageGroupPrefixComboBox = new ComboBox<>();
 		List<Championship> championships = Championship.findAllUsed(true);
 		championshipComboBox.setItemLabelGenerator(c -> c.getName());
 		championshipComboBox.setItems(championships);
@@ -85,27 +84,10 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		championshipComboBox.addValueChangeListener(e -> {
 			Championship championship = e.getValue();
 			setChampionship(championship);
-			String existingAgeGroupPrefix = getAgeGroupPrefix();
-			List<String> activeAgeGroups = setAgeGroupPrefixItems(ageGroupPrefixComboBox, championship);
-			if (existingAgeGroupPrefix != null && activeAgeGroups != null
-			        && activeAgeGroups.contains(existingAgeGroupPrefix)) {
-				ageGroupPrefixComboBox.setValue(existingAgeGroupPrefix);
-			} else {
-				ageGroupPrefixComboBox.clear();
-			}
 		});
-		ageGroupPrefixComboBox.setPlaceholder(Translator.translate("AgeGroup"));
-		ageGroupPrefixComboBox.setClearButtonVisible(true);
-		ageGroupPrefixComboBox.addValueChangeListener(e -> {
-			setAgeGroupPrefix(e.getValue());
-			updateURLLocations();
-		});
-		setAgeGroupPrefixItems(ageGroupPrefixComboBox, getChampionship());
-		ageGroupPrefixComboBox.setValue(getAgeGroupPrefix());
 		championshipComboBox.setValue(getChampionship());
 
-		vl.add(new NativeLabel(Translator.translate("SelectAgeGroup")),
-		        new HorizontalLayout(championshipComboBox, ageGroupPrefixComboBox));
+		vl.add(new NativeLabel(Translator.translate("Championship")), championshipComboBox);
 		
 		ComboBox<Gender> genderComboBox = new ComboBox<>();
 		genderComboBox.setItems(Gender.values());
