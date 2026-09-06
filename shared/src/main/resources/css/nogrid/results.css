@@ -64,6 +64,7 @@
     justify-content: center;
     flex-grow: 1;
     min-width: 0;
+    text-align: center;
 }
 .video .eventlogo {
     display: flex;
@@ -75,6 +76,7 @@
     background-size: contain;
     background-repeat: no-repeat;
     width: var(--videoHeaderLogoSize, 70px);
+    min-width: var(--videoHeaderLogoSize, 70px);
     height: var(--videoHeaderLogoSize, 70px);
     background-position: center;
     justify-self: center;
@@ -90,6 +92,7 @@
     background-size: contain;
     background-repeat: no-repeat;
     width: var(--videoHeaderLogoSize, 70px);
+    min-width: var(--videoHeaderLogoSize, 70px);
     height: var(--videoHeaderLogoSize, 70px);
     background-position: center;
     justify-self: center;
@@ -427,7 +430,6 @@ table.results tr td.club div.clubName div.ellipsis {
 
 /* grid layout */
 table {
-    /* use all available vertical space */
     flex: 1;
     display: grid;
     border-collapse: collapse;
@@ -682,9 +684,9 @@ td {
 }
 
 .decisionSection .dsDecisionAthlete {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     min-width: 0;
-    max-width: 40%;
+    max-width: none;
     display: flex;
     align-items: center;
     justify-content: start;
@@ -713,10 +715,22 @@ td {
 
 .decisionSection .dsDecisionAthlete .dsDecisionAthleteName {
     min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.25em;
+    font-size: 1.125em;
+}
+
+.decisionSection .dsDecisionAthlete .dsDecisionAthleteFullName {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 1.125em;
+}
+
+.decisionSection .dsDecisionAthlete .dsDecisionAthleteParticipations {
+    flex: 0 0 auto;
+    white-space: nowrap;
 }
 
 .decisionSection .dsStopwatch {

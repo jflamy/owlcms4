@@ -72,28 +72,8 @@ public class MedalsPage extends AbstractResultsDisplayPage {
 	}
 	
 	@Override
-	public void setEmFontSize(Double emFontSize) {
-		Double medalFontSize;
-		// subjective visual kludging.
-		if (emFontSize == null) {
-			emFontSize = 1.0;
-			medalFontSize = 1.5;
-		} else {
-			//medalFontSize = emFontSize * 1.5;
-			medalFontSize = emFontSize;
-		}
-		super.setEmFontSize(emFontSize);
-		pushEmSize(this.getBoard().getElement(), medalFontSize);
-
-	}
-	
-	@Override
-	final public void setTeamWidth(Double tw) {
-		if (tw == null) {
-			return;
-		}
+	public void setTeamWidth(Double tw) {
 		super.setTeamWidth(tw);
-		pushTeamWidth(this.getBoard().getElement(),tw*1.4);
 	}
 
 

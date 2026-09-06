@@ -34,7 +34,10 @@ class ResultsFull extends LitElement {
             </div>
             <div class="dsDecisionAthlete name" style="${this.dsDecisionAthleteStyles()}">
               <span class="dsDecisionStartNumber" style="${this.dsDecisionStartNumberStyles()}">${this.decisionSectionStartNumber}</span>
-              <span class="dsDecisionAthleteName ellipsis">${this.decisionSectionName()}<span style="${this.decisionSectionAgeGroupsStyles()}"> (${this.decisionSectionAgeGroups})</span></span>
+              <span class="dsDecisionAthleteName">
+                <span class="dsDecisionAthleteFullName ellipsis">${this.decisionSectionName()}</span>
+                <span class="dsDecisionAthleteParticipations" style="${this.decisionSectionAgeGroupsStyles()}">(${this.decisionSectionAgeGroups})</span>
+              </span>
             </div>
             <div class="dsProjectedRanksSlot ${this.dsProjectedRanksMode()}" style="${this.dsProjectedRanksStyles()}">${this.projectedRankText}</div>
             <div class="dsDecisions">
@@ -411,6 +414,7 @@ class ResultsFull extends LitElement {
       showDecisionSection: { type: Boolean },
       showProjectedRanks: { type: Boolean },
       showScoreboardTimers: { type: Boolean },
+      hideBreakTimer: { type: Boolean },
       decisionSectionDecisionActive: { type: Boolean },
       decisionSectionCurrentActive: { type: Boolean },
       decisionSectionStartNumber: {},
@@ -499,6 +503,7 @@ class ResultsFull extends LitElement {
   }
 
   breakTimerStyles() {
+    if (this.isBreak() && this.hideBreakTimer) return "display:none";
     return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
   }
 
@@ -516,6 +521,7 @@ class ResultsFull extends LitElement {
   }
 
   dsTimerSlotStyles() {
+    if (this.isBreak() && this.hideBreakTimer) return "display:none";
     if (this.showDecisionSection && this.decisionSectionDecisionActive) return "display:none";
     return (this.showDecisionSection || this.showScoreboardTimers) ? "" : "display:none";
   }
@@ -665,6 +671,7 @@ class ResultsFull extends LitElement {
     this.showDecisionSection = false;
     this.showProjectedRanks = false;
     this.showScoreboardTimers = false;
+    this.hideBreakTimer = false;
     this.decisionSectionDecisionActive = false;
     this.decisionSectionCurrentActive = false;
     this.decisionSectionStartNumber = "";
