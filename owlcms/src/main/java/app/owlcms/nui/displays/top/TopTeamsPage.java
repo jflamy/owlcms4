@@ -27,7 +27,6 @@ import app.owlcms.apputils.queryparameters.DisplayParameters;
 import app.owlcms.apputils.queryparameters.SoundParameters;
 import app.owlcms.apputils.queryparameters.TopParametersReader;
 import app.owlcms.data.agegroup.AgeGroup;
-import app.owlcms.data.agegroup.AgeGroupRepository;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
@@ -263,13 +262,6 @@ public class TopTeamsPage extends AbstractResultsDisplayPage implements TopParam
 		fullMap.putAll(additionalMap);
 		setDefaultParameters(QueryParameters.simple(fullMap));
 		this.addComponent(board);
-	}
-
-	private List<String> setAgeGroupPrefixItems(ComboBox<String> ageGroupPrefixComboBox,
-	        Championship ageDivision2) {
-		List<String> activeAgeGroups = AgeGroupRepository.findActiveAndUsedAgeGroupNames(ageDivision2);
-		ageGroupPrefixComboBox.setItems(activeAgeGroups);
-		return activeAgeGroups;
 	}
 
 	private void updateURLLocations() {

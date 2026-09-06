@@ -10,6 +10,14 @@
 
 **New in Release 68.0**
 
+- Mixed teams can now combine the men's and women's teams directly. This is the default mixed-team selection mode.
+
+- Championships can award medals for lifts and total, total only, or lifts only. Team points are configured separately; total-only medals force total-only points, while championships awarding lift medals can count any combination of lift and total placings. Older JSON and spreadsheet imports preserve their existing medal mode.
+
+- Team points can now be configured per championship to count all three placings, total only, or snatch and clean-and-jerk only. Older JSON and spreadsheet imports retain total-only behavior for total championships and use all three placings for three-medal championships.
+
+- 68.8.0-beta14: Updated the "Top X" displays to respect the per-championhship ranking values
+
 - 68.0.0-beta13: beta12 Regression fix: scoreboards now show correctly when no session has been selected.
 
 - 68.0.0-beta13: Fixes for the start list scoreboard layouts
