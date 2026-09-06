@@ -706,6 +706,13 @@ td {
     box-sizing: border-box;
 }
 
+:host(.light) .decisionSection {
+    --BackgroundColor: #4d4d4d;
+    --NameTextColor: white;
+    --TextColor: white;
+    color: white;
+}
+
 .decisionSection .dsTimerSlot {
     flex: 0 0 8ch;
     display: flex;

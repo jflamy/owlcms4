@@ -70,8 +70,8 @@ import app.owlcms.utils.CSSUtils;
 import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.ResourceWalker;
-import app.owlcms.utils.StartupUtils;
 import app.owlcms.utils.URLUtils;
+import app.owlcms.utils.StartupUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -512,7 +512,20 @@ public class BaseResults extends LitTemplate
 		}
 		ja.put("flagURL", prop != null ? prop : "");
 		boolean longTeamWithFlag = prop != null && a.getTeam().length() > Competition.SHORT_TEAM_LENGTH;
-		ja.put("flagClass", longTeamWithFlag ? "flags longTeam" : "flags");
+		ja.put("flagClass", this.teamFlags ? (longTeamWithFlag ? "flags longTeam" : "flags") : "noflags");
+	}
+
+	private void initializeTeamFlags(List<Athlete> athletes) {
+		if (!URLUtils.checkFlags()) {
+			this.teamFlags = false;
+			return;
+		}
+		for (Athlete athlete : athletes) {
+			String team = athlete.getTeam();
+			String flag = team != null && !team.isBlank() ? Team.getImgTag(team, "") : null;
+			this.athleteToFlag.put(athlete, flag);
+		}
+		this.teamFlags = this.athleteToFlag.values().stream().anyMatch(flag -> flag != null);
 	}
 
 	@Override
@@ -1370,10 +1383,10 @@ public class BaseResults extends LitTemplate
 		// });
 		resultsInit();
 		computeStylesDir(this);
-		this.teamFlags = URLUtils.checkFlags();
 
 		// get the global category rankings (attached to each athlete)
 		this.displayOrder = getOrder(fop);
+		initializeTeamFlags(this.displayOrder);
 
 		this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 		syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));

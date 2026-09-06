@@ -667,6 +667,16 @@ td {
     box-sizing: border-box;
 }
 
+:host(.light) .decisionSection {
+    background-color: var(--pageBackgroundColor);
+    color: var(--pageTextColor);
+}
+
+:host(.light) .decisionSection .dsDecisionAthlete,
+:host(.light) .decisionSection .dsJuryMessage {
+    color: var(--pageTextColor);
+}
+
 .decisionSection .dsTimerSlot {
     flex: 0 0 8ch;
     display: flex;
