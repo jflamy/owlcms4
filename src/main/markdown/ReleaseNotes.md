@@ -10,6 +10,10 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta13: beta12 Regression fix: scoreboards now show correctly when no session has been selected.
+
+- 68.0.0-beta13: Fixes for the start list scoreboard layouts
+
 - 68.0.0-beta12: Systematic cleanup of CSS files to use import+overrides instead of copies
 
 - 68.0.0-beta12: Interactive editing of IWF-style technical official team assignment table
