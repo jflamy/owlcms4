@@ -484,6 +484,8 @@ public class Competition {
 	 */
 	@Column(columnDefinition = "text")
 	private String enabledRankings;
+	@Column(columnDefinition = "text")
+	private String teamScheduleColumnOrder;
 
 	public String getAthleteCredentialsTemplateFileName() {
 		return athleteCredentialsTemplateFileName;
@@ -1142,6 +1144,33 @@ public class Competition {
 		} catch (JacksonException e) {
 			logger.error("Failed to serialize enabledRankings: {}", e.getMessage());
 			this.enabledRankings = null;
+		}
+	}
+
+	@JsonIgnore
+	public List<String> getTeamScheduleColumnOrder() {
+		if (this.teamScheduleColumnOrder == null || this.teamScheduleColumnOrder.isBlank()) {
+			return List.of();
+		}
+		try {
+			return new ObjectMapper().readValue(this.teamScheduleColumnOrder, new TypeReference<List<String>>() {});
+		} catch (JacksonException e) {
+			logger.error("Failed to parse team schedule column order: {}", e.getMessage());
+			return List.of();
+		}
+	}
+
+	@JsonIgnore
+	public void setTeamScheduleColumnOrder(List<String> columnOrder) {
+		if (columnOrder == null || columnOrder.isEmpty()) {
+			this.teamScheduleColumnOrder = null;
+			return;
+		}
+		try {
+			this.teamScheduleColumnOrder = new ObjectMapper().writeValueAsString(columnOrder);
+		} catch (JacksonException e) {
+			logger.error("Failed to serialize team schedule column order: {}", e.getMessage());
+			this.teamScheduleColumnOrder = null;
 		}
 	}
 

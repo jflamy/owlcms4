@@ -75,10 +75,12 @@ public class SessionAssignmentGenerator {
             case TECHNICAL_CONTROLLER2:
                 return TeamRole.TECHNICAL_CONTROLLER;
             case DOCTOR:
+            case DOCTOR1:
             case DOCTOR2:
             case DOCTOR3:
                 return TeamRole.DOCTOR;
             case COMPETITION_SECRETARY:
+            case COMPETITION_SECRETARY1:
             case COMPETITION_SECRETARY2:
                 return TeamRole.COMPETITION_SECRETARY;
             case ANNOUNCER:
@@ -116,10 +118,10 @@ public class SessionAssignmentGenerator {
         map.put(OfficialRole.WEIGHIN2, Group::setWeighIn2);
         map.put(OfficialRole.REFEREE_RESERVE, Group::setReserve);
         map.put(OfficialRole.JURY_RESERVE, Group::setReserveJury);
-        map.put(OfficialRole.DOCTOR, Group::setDoctor);
+        map.put(OfficialRole.DOCTOR1, Group::setDoctor);
         map.put(OfficialRole.DOCTOR2, Group::setDoctor2);
         map.put(OfficialRole.DOCTOR3, Group::setDoctor3);
-        map.put(OfficialRole.COMPETITION_SECRETARY, Group::setCompetitionSecretary);
+        map.put(OfficialRole.COMPETITION_SECRETARY1, Group::setCompetitionSecretary);
         map.put(OfficialRole.COMPETITION_SECRETARY2, Group::setCompetitionSecretary2);
         return map;
     }
@@ -467,8 +469,8 @@ public class SessionAssignmentGenerator {
         teamRoleToPositions.put(TeamRole.TIMEKEEPER, new OfficialRole[]{OfficialRole.TIMEKEEPER});
         teamRoleToPositions.put(TeamRole.ANNOUNCER, new OfficialRole[]{OfficialRole.ANNOUNCER});
         teamRoleToPositions.put(TeamRole.WEIGHIN, new OfficialRole[]{OfficialRole.WEIGHIN1, OfficialRole.WEIGHIN2});
-        teamRoleToPositions.put(TeamRole.DOCTOR, new OfficialRole[]{OfficialRole.DOCTOR, OfficialRole.DOCTOR2, OfficialRole.DOCTOR3});
-        teamRoleToPositions.put(TeamRole.COMPETITION_SECRETARY, new OfficialRole[]{OfficialRole.COMPETITION_SECRETARY, OfficialRole.COMPETITION_SECRETARY2});
+        teamRoleToPositions.put(TeamRole.DOCTOR, new OfficialRole[]{OfficialRole.DOCTOR1, OfficialRole.DOCTOR2, OfficialRole.DOCTOR3});
+        teamRoleToPositions.put(TeamRole.COMPETITION_SECRETARY, new OfficialRole[]{OfficialRole.COMPETITION_SECRETARY1, OfficialRole.COMPETITION_SECRETARY2});
 
         for (Map.Entry<TeamRole, OfficialRole[]> entry : teamRoleToPositions.entrySet()) {
             TeamRole teamRole = entry.getKey();

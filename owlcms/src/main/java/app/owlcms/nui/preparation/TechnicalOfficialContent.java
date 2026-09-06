@@ -20,7 +20,6 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import app.owlcms.components.ConfirmationDialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Div;
@@ -37,19 +36,14 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteConfiguration;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
 import app.owlcms.components.JXLSDownloader;
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
-import app.owlcms.data.jpa.JPAService;
-import app.owlcms.init.OwlcmsFactory;
-import app.owlcms.data.technicalofficial.SessionAssignmentGenerator;
 import app.owlcms.data.technicalofficial.TechnicalOfficial;
 import app.owlcms.data.technicalofficial.TOLevel;
 import app.owlcms.data.technicalofficial.TechnicalOfficialRepository;
-import app.owlcms.data.technicalofficial.TechnicalOfficialsTimetableRepository;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.crudui.OwlcmsCrudFormFactory;
 import app.owlcms.nui.crudui.OwlcmsCrudGrid;
@@ -59,7 +53,6 @@ import app.owlcms.nui.shared.OwlcmsContent;
 import app.owlcms.nui.shared.OwlcmsLayout;
 import app.owlcms.spreadsheet.JXLSExportTechnicalOfficials;
 import app.owlcms.spreadsheet.XLSXTechnicalOfficialsExport;
-import app.owlcms.spreadsheet.XLSXTimetableExport;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -110,8 +103,6 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 	private String lastNameValue;
 	private ComboBox<TechnicalOfficial.Role> roleFilter = new ComboBox<>();
 	private TechnicalOfficial.Role roleValue;
-	private Button generateAssignmentsButton;
-	private Button clearTimetableButton;
 
 	/**
 	 * Instantiates the TechnicalOfficial crudGrid.
@@ -135,6 +126,12 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 
 	public FlexLayout createMenuArea() {
 		this.topBar = new FlexLayout();
+		Button editTeamScheduleButton = new Button(
+		        Translator.translate("Edit") + " " + Translator.translate("Timetable.TeamAssignments"),
+		        VaadinIcon.TABLE.create(), buttonClickEvent -> {
+			        String url = RouteConfiguration.forSessionScope().getUrl(TeamScheduleContent.class);
+			        UI.getCurrent().getPage().open(url, "_blank");
+		        });
 
 		// Export current officials button using the age groups pattern
 		Div exportOfficials = DownloadButtonFactory.createDynamicXLSXDownloadButton(
@@ -169,83 +166,6 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		// TO Credentials button
 		Div toCredentialsButton = DocumentsContent.createTOCredentialsButton();
 
-		// IWF Team Assignments Timetable buttons
-		XLSXTimetableExport timetableExport = new XLSXTimetableExport(UI.getCurrent());
-		Div downloadTimetableDiv = DownloadButtonFactory.createDynamicXLSXDownloadButton("timetable",
-		        Translator.translate("Timetable.ExportTimetable"), timetableExport);
-
-		Button uploadTimetableButton = new Button(Translator.translate("Timetable.ImportTimetable"),
-		        new Icon(VaadinIcon.UPLOAD_ALT),
-		        buttonClickEvent -> {
-			        TimetableUploadDialog dialog = new TimetableUploadDialog();
-			        dialog.setCallback(() -> {
-				        updateTimetableButtons();
-			        });
-			        dialog.open();
-		        });
-
-		generateAssignmentsButton = new Button(Translator.translate("Timetable.GenerateSessionAssignments"),
-		        new Icon(VaadinIcon.COGS),
-		        buttonClickEvent -> {
-			        new ConfirmationDialog(
-			                Translator.translate("Timetable.GenerateSessionAssignments"),
-			                Translator.translate("Timetable.GenerateAssignmentsWarning"),
-			                null,
-			                () -> {
-				                try {
-					                int count = SessionAssignmentGenerator.generateSessionAssignments();
-					                Notification.show(Translator.translate("Timetable.AssignmentsGenerated", count));
-				                } catch (Exception e) {
-					                logger.error("Error generating session assignments", e);
-					                Notification.show(Translator.translate("Timetable.AssignmentGenerationFailed") + ": " + e.getMessage());
-				                }
-			                }
-			        ).open();
-		        });
-
-		clearTimetableButton = new Button(Translator.translate("Timetable.ClearTimetable"),
-		        new Icon(VaadinIcon.TRASH),
-		        buttonClickEvent -> {
-			        new ConfirmationDialog(
-			                Translator.translate("Timetable.ClearTimetable"),
-			                Translator.translate("Timetable.ClearTimetableWarning"),
-			                Translator.translate("Delete"),
-			                null,
-			                () -> {
-				                try {
-					                int count = clearTimetableEntries();
-					                updateTimetableButtons();
-					                Notification.show(Translator.translate("Timetable.TimetableCleared", count));
-				                } catch (Exception e) {
-					                logger.error("Error clearing timetable", e);
-					                Notification.show(Translator.translate("Timetable.TimetableClearFailed") + ": " + e.getMessage());
-				                }
-			                }
-			        ).open();
-		        });
-
-		Button clearAssignmentsButton = new Button(Translator.translate("Timetable.ClearSessionAssignments"),
-		        new Icon(VaadinIcon.ERASER),
-		        buttonClickEvent -> {
-			        try {
-				        int count = JPAService.runInTransaction(em -> {
-					        List<Group> groups = GroupRepository.findAll();
-					        for (Group group : groups) {
-						        group.clearAllAssignments();
-						        em.merge(group);
-					        }
-					        return groups.size();
-				        });
-		        		OwlcmsFactory.refreshActiveFOPGroups();
-				        Notification.show(Translator.translate("Timetable.AssignmentsCleared", count));
-			        } catch (Exception e) {
-				        logger.error("Error clearing session assignments", e);
-				        Notification.show(Translator.translate("Timetable.AssignmentClearFailed") + ": " + e.getMessage());
-			        }
-		        });
-
-		updateTimetableButtons();
-
 		FlexLayout buttons = new FlexLayout(
 		        new NativeLabel(Translator.translate("TechnicalOfficials.ImportExport")),
 		        exportOfficials,
@@ -260,11 +180,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		        toCredentialsButton,
 		        hr(),
 		        new NativeLabel(Translator.translate("Timetable.TeamAssignments")),
-		        downloadTimetableDiv,
-		        uploadTimetableButton,
-		        clearTimetableButton,
-		        generateAssignmentsButton,
-		        clearAssignmentsButton);
+		        editTeamScheduleButton);
 		buttons.getStyle().set("flex-wrap", "wrap");
 		buttons.getStyle().set("gap", "1ex");
 		buttons.getStyle().set("margin-left", "5em");
@@ -286,27 +202,6 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 		return hr;
 	}
 
-	private int clearTimetableEntries() {
-		return JPAService.runInTransaction(em -> {
-			int count = TechnicalOfficialsTimetableRepository.findAll(em).size();
-			TechnicalOfficialsTimetableRepository.deleteAll(em);
-			return count;
-		});
-	}
-
-	private boolean hasTimetableEntries() {
-		return JPAService.runInTransaction(em -> !TechnicalOfficialsTimetableRepository.findAll(em).isEmpty());
-	}
-
-	private void updateTimetableButtons() {
-		boolean hasEntries = hasTimetableEntries();
-		if (this.generateAssignmentsButton != null) {
-			this.generateAssignmentsButton.setEnabled(hasEntries);
-		}
-		if (this.clearTimetableButton != null) {
-			this.clearTimetableButton.setEnabled(hasEntries);
-		}
-	}
 
 	private Object refreshGrid() {
 		crud.refreshGrid();
@@ -419,7 +314,7 @@ public class TechnicalOfficialContent extends BaseContent implements CrudListene
 			activeBox.getElement().addEventListener("click", ignore -> {
 			}).addEventData("event.stopPropagation()");
 			return activeBox;
-		})).setHeader(Translator.translate("TechnicalOfficial.Active")).setWidth("0");
+		})).setHeader(Translator.translate("TechnicalOfficial.Active")).setWidth("3rem");
 		activeColumn.setComparator(TechnicalOfficial::isActive).setSortable(true);
 
 		var nameColumn = this.grid.addColumn(TechnicalOfficial::getFullName)

@@ -251,6 +251,35 @@ public class SessionAssignmentGeneratorTest {
 		assertNull(refreshedB.getReserveJury());
 	}
 
+	@Test
+	public void generateSessionAssignmentsExpandsGenericDoctorAndCompetitionSecretaryRoles() {
+		Group session = GroupRepository.findByName(FIRST_SESSION_NAME);
+		assertNotNull(session);
+
+		createOfficial("Doctor", "One", TeamRole.DOCTOR, 1);
+		createOfficial("Doctor", "Two", TeamRole.DOCTOR, 1);
+		createOfficial("Doctor", "Three", TeamRole.DOCTOR, 1);
+		createOfficial("Secretary", "One", TeamRole.COMPETITION_SECRETARY, 2);
+		createOfficial("Secretary", "Two", TeamRole.COMPETITION_SECRETARY, 2);
+
+		createTimetableEntry(session, OfficialRole.DOCTOR, 1);
+		createTimetableEntry(session, OfficialRole.COMPETITION_SECRETARY, 2);
+
+		assertEquals(List.of(OfficialRole.DOCTOR1, OfficialRole.DOCTOR2, OfficialRole.DOCTOR3),
+		        OfficialRole.DOCTOR.getSpecificPositions());
+		assertEquals(List.of(OfficialRole.COMPETITION_SECRETARY1, OfficialRole.COMPETITION_SECRETARY2),
+		        OfficialRole.COMPETITION_SECRETARY.getSpecificPositions());
+
+		assertEquals(5, SessionAssignmentGenerator.generateSessionAssignments());
+
+		Group refreshed = GroupRepository.findByName(FIRST_SESSION_NAME);
+		assertEquals("Doctor, One", refreshed.getDoctor());
+		assertEquals("Doctor, Two", refreshed.getDoctor2());
+		assertEquals("Doctor, Three", refreshed.getDoctor3());
+		assertEquals("Secretary, One", refreshed.getCompetitionSecretary());
+		assertEquals("Secretary, Two", refreshed.getCompetitionSecretary2());
+	}
+
 	private static TechnicalOfficial createOfficial(String lastName, String firstName, TeamRole teamRole, int teamNumber) {
 		TechnicalOfficial official = new TechnicalOfficial();
 		official.setId(nextTechnicalOfficialId++);

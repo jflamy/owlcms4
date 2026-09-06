@@ -16,19 +16,21 @@ public enum OfficialRole {
     TECHNICAL_CONTROLLER("TechnicalController", "TechnicalController"),
     TECHNICAL_CONTROLLER1("TechnicalController1", "TechnicalController"),
     TECHNICAL_CONTROLLER2("TechnicalController2", "TechnicalController"),
-    DOCTOR("Doctor1", "Doctor"),
+    DOCTOR("Doctor", "Doctor"),
+    DOCTOR1("Doctor1", "Doctor"),
     DOCTOR2("Doctor2", "Doctor"),
     DOCTOR3("Doctor3", "Doctor"),
 
     // introduction not mandatory in TCRR
-    COMPETITION_SECRETARY("CompetitionSecretary1", "CompetitionSecretary"),
+    COMPETITION_SECRETARY("CompetitionSecretary", "CompetitionSecretary"),
+    COMPETITION_SECRETARY1("CompetitionSecretary1", "CompetitionSecretary"),
     COMPETITION_SECRETARY2("CompetitionSecretary2", "CompetitionSecretary"),
     ANNOUNCER("Announcer", "Announcer"),
 
     // For federations that do not use the referees as weigh-in staff
-    WEIGHIN("Weighin", "Weighin"),
-    WEIGHIN1("Weighin1", "Weighin"),
-    WEIGHIN2("Weighin2", "Weighin"),
+    WEIGHIN("WeighIn", "WeighIn"),
+    WEIGHIN1("Weighin1", "WeighIn"),
+    WEIGHIN2("Weighin2", "WeighIn"),
 
 
     // Jury, in introduction order
@@ -94,9 +96,9 @@ public enum OfficialRole {
             case TECHNICAL_CONTROLLER:
                 return java.util.List.of(TECHNICAL_CONTROLLER1, TECHNICAL_CONTROLLER2);
             case DOCTOR:
-                return java.util.List.of(DOCTOR, DOCTOR2, DOCTOR3);
+                return java.util.List.of(DOCTOR1, DOCTOR2, DOCTOR3);
             case COMPETITION_SECRETARY:
-                return java.util.List.of(COMPETITION_SECRETARY, COMPETITION_SECRETARY2);
+                return java.util.List.of(COMPETITION_SECRETARY1, COMPETITION_SECRETARY2);
             case TIMEKEEPER:
                 return java.util.List.of(TIMEKEEPER);
             case WEIGHIN:

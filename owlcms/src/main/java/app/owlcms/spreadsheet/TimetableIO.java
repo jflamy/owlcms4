@@ -47,11 +47,11 @@ public class TimetableIO {
             "REFEREE",
             "MARSHALL",
             "TIMEKEEPER",
-            "ANNOUNCER",
-            "WEIGHIN",
             "TECHNICAL_CONTROLLER",
             "DOCTOR",
-            "COMPETITION_SECRETARY"
+            "COMPETITION_SECRETARY",
+            "ANNOUNCER",
+            "WEIGHIN"
     };
 
     /**
