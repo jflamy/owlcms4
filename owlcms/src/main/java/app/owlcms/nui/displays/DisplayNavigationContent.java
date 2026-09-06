@@ -19,6 +19,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
@@ -70,6 +71,7 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		logger.setLevel(Level.INFO);
 	}
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
+	private VideoNavigationContent videoNavigationContent;
 
 	/**
 	 * Instantiates a new display navigation content.
@@ -82,6 +84,9 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			addP(intro, Translator.translate("Button_Open_Display"));
 			intro.getStyle().set("margin-bottom", "0");
 			fillH(intro, this);
+
+			TabSheet tabSheet = new TabSheet();
+			tabSheet.setWidthFull();
 
 			Button attempt = openInNewTabWithFop(PublicFacingAttemptBoardPage.class, Translator.translate("AttemptBoard"));
 			highlight(attempt);
@@ -121,15 +126,16 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        scoreboard,
 			        scoreboardWLeaders,
 			        liftingOrder,
-			        scoreboardMultiRanks,
-			        startList,
-			        scoreboardRankings,
-			        medals);
+			        scoreboardMultiRanks);
 			VerticalLayout warmupScoreboardsIntro = new VerticalLayout();
 			addP(warmupScoreboardsIntro, Translator.translate("WarmupScoreboards.explanation"));
-			doScoreboardSection(Translator.translate("WarmupScoreboards"), warmupSectionIntro, warmupAttemptIntro,
+			VerticalLayout warmupSection = doScoreboardSection(warmupSectionIntro, warmupAttemptIntro,
 			        warmupAttemptGrid,
 			        warmupDevicesIntro, warmupDevicesGrid, warmupScoreboardsIntro, warmupScoreboardsGrid);
+			doGroup(Translator.translate("Scoreboard.StartList"), HomeNavigationContent.navigationGrid(startList), warmupSection);
+			doGroup(Translator.translate("Scoreboard.RankingOrder"),
+			        HomeNavigationContent.navigationGrid(scoreboardRankings, medals), warmupSection);
+			tabSheet.add(Translator.translate("WarmupScoreboards"), warmupSection);
 
 			Button scoreboard1 = openInNewTabWithFopNoCurrentAttempt(PublicNoLeadersPage.class, Translator.translate("Scoreboard"));
 			Button scoreboardWLeaders1 = openInNewTabWithFopNoCurrentAttempt(PublicScoreboardPage.class,
@@ -165,20 +171,24 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			        scoreboard1,
 			        scoreboardWLeaders1,
 			        liftingOrder1,
-			        scoreboardMultiRanks1,
-			        startList1,
-			        scoreboardRankings1,
-			        publicMedals1);
+			        scoreboardMultiRanks1);
 			VerticalLayout publicScoreboardsIntro = new VerticalLayout();
 			addP(publicScoreboardsIntro, Translator.translate("PublicScoreboards.explanation"));
-			doScoreboardSection(Translator.translate("PublicScoreboards"), publicSectionIntro, publicAttemptIntro,
+			VerticalLayout publicSection = doScoreboardSection(publicSectionIntro, publicAttemptIntro,
 			        publicAttemptGrid,
 			        publicDevicesIntro, publicDevicesGrid, publicScoreboardsIntro, publicScoreboardsGrid);
+			doGroup(Translator.translate("Scoreboard.StartList"), HomeNavigationContent.navigationGrid(startList1), publicSection);
+			doGroup(Translator.translate("Scoreboard.RankingOrder"),
+			        HomeNavigationContent.navigationGrid(scoreboardRankings1, publicMedals1), publicSection);
+			tabSheet.add(Translator.translate("PublicScoreboards"), publicSection);
 
 			FlexibleGridLayout juryGrid = HomeNavigationContent.navigationGrid(
 			        juryScoreboard,
 			        juryDecisions1);
-			doGroup(Translator.translate("Jury"), juryGrid, this);
+			VerticalLayout jurySection = new VerticalLayout();
+			jurySection.setPadding(false);
+			doGroup(Translator.translate("Jury"), juryGrid, jurySection);
+			tabSheet.add(Translator.translate("Jury"), jurySection);
 
 			Ranking bestAthleteScoring = Championship.of(null).getBestAthleteScoringSystem();
 			String bestAthleteTitle = Ranking.getScoringTitle(bestAthleteScoring);
@@ -204,7 +214,16 @@ public class DisplayNavigationContent extends BaseNavigationContent
 			if (teamScoring == Ranking.ROBI) {
 				topTeamsSinclair.setEnabled(false);
 			}
-			doGroup(Translator.translate("Scoreboard.RankingOrder"), intro111, grid111, this);
+			VerticalLayout rankingsSection = new VerticalLayout();
+			rankingsSection.setPadding(false);
+			doGroup(Translator.translate("Scoreboard.RankingOrder"), intro111, grid111, rankingsSection);
+			tabSheet.add(Translator.translate("Scoreboard.RankingOrder"), rankingsSection);
+
+			this.videoNavigationContent = new VideoNavigationContent();
+			this.videoNavigationContent.setFop(getFop());
+			tabSheet.add(Translator.translate("VideoStreaming"), this.videoNavigationContent);
+
+			fillH(tabSheet, this);
 
 			DebugUtils.gc();
 		} catch (Throwable x) {
@@ -242,6 +261,9 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		fopSelect.setValue(getFop());
 		fopSelect.addValueChangeListener(e -> {
 			setFop(e.getValue());
+			if (this.videoNavigationContent != null) {
+				this.videoNavigationContent.setFop(e.getValue());
+			}
 			updateURLLocation(getLocationUI(), getLocation(), null);
 		});
 
@@ -254,30 +276,26 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		button.addThemeVariants(ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_PRIMARY);
 	}
 
-	private void doScoreboardSection(String label, VerticalLayout sectionIntro, VerticalLayout attemptIntro,
+	private VerticalLayout doScoreboardSection(VerticalLayout sectionIntro, VerticalLayout attemptIntro,
 	        FlexibleGridLayout attemptGrid, VerticalLayout devicesIntro, FlexibleGridLayout devicesGrid, VerticalLayout scoreboardsIntro,
 	        FlexibleGridLayout scoreboardsGrid) {
 		VerticalLayout section = new VerticalLayout();
 		section.setSpacing(false);
 		section.setPadding(false);
-		addSectionIntro(label, sectionIntro, section);
+		addUntitledSectionIntro(sectionIntro, section);
 
-		addIntroBlock(attemptIntro, section);
-		addGridBlock(attemptGrid, section);
-		addIntroBlock(devicesIntro, section);
-		addGridBlock(devicesGrid, section);
-		addIntroBlock(scoreboardsIntro, section);
-		addGridBlock(scoreboardsGrid, section);
-		fillH(section, this);
+		doGroup(Translator.translate("AttemptBoard"), attemptIntro, attemptGrid, section);
+		doGroup(Translator.translate("Athlete_Decisions"), devicesIntro, devicesGrid, section);
+		doGroup(Translator.translate("Scoreboards"), scoreboardsIntro, scoreboardsGrid, section);
+		return section;
 	}
 
-	private void addSectionIntro(String label, VerticalLayout intro, VerticalLayout section) {
+	private void addUntitledSectionIntro(VerticalLayout intro, VerticalLayout section) {
 		VerticalLayout content = new VerticalLayout();
 		content.setSpacing(false);
 		content.setPadding(true);
-		NativeLabel heading = new NativeLabel(label);
+		NativeLabel heading = new NativeLabel("\u00A0");
 		heading.getStyle().set("margin-bottom", "0.8ex");
-		heading.getStyle().set("font-weight", "bold");
 		content.add(heading);
 		intro.setPadding(false);
 		intro.getStyle().set("padding-left", "0");
@@ -286,16 +304,4 @@ public class DisplayNavigationContent extends BaseNavigationContent
 		fillH(content, section);
 	}
 
-	private void addIntroBlock(VerticalLayout intro, VerticalLayout section) {
-		intro.setPadding(false);
-		intro.getStyle().set("padding-left", "1em");
-		intro.getStyle().set("padding-top", "1em");
-		fillH(intro, section);
-	}
-
-	private void addGridBlock(FlexibleGridLayout grid, VerticalLayout section) {
-		grid.setPadding(false);
-		grid.getStyle().set("padding-left", "1em");
-		fillH(grid, section);
-	}
 }

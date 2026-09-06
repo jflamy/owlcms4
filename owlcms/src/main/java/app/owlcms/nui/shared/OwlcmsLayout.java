@@ -46,7 +46,6 @@ import app.owlcms.i18n.Translator;
 import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.displays.DisplayNavigationContent;
-import app.owlcms.nui.displays.VideoNavigationContent;
 import app.owlcms.nui.home.HomeNavigationContent;
 import app.owlcms.nui.home.InfoNavigationContent;
 import app.owlcms.nui.lifting.LiftingNavigationContent;
@@ -422,12 +421,6 @@ public class OwlcmsLayout extends AppLayout implements AfterNavigationObserver {
 		        createTab(new Icon(VaadinIcon.DESKTOP),
 		                Translator.translate("StartDisplays"),
 		                DisplayNavigationContent.class));
-		// if (tv) {
-		tabs.add(
-		        createTab(new Icon(VaadinIcon.MOVIE),
-		                Translator.translate("VideoStreaming"),
-		                VideoNavigationContent.class));
-		// }
 		tabs.add(
 		        createTab(new Icon(VaadinIcon.PRINT),
 		                Translator.translate("Results"),
