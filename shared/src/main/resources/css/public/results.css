@@ -184,7 +184,8 @@ table.results.sinclair.nosinclairRank {
     --birthWidth: 10ch;
 }
 
-:host .wrapper.Results table.results {
+:host .wrapper.Results table.results,
+:host .wrapper.ResultsStartList table.results {
     --nameWidth: 1fr;
     --clubWidth: fit-content(30ch);
     --categoryWidth: minmax(12ch, max-content);
@@ -249,7 +250,8 @@ table.results.sinclair.nosinclairRank {
     gap: 0.5em;
 }
 
-:host .wrapper.Results table.results tr td.club {
+:host .wrapper.Results table.results tr td.club,
+:host .wrapper.ResultsStartList table.results tr td.club.flags {
     justify-content: flex-start !important;
     gap: 0.5em;
 }
@@ -272,7 +274,8 @@ table.results:has(td.club.flags.longTeam) tr td.club div.clubName {
     gap: 1em;
 }
 
-:host .wrapper.Results table.results tr td.club div.clubName {
+:host .wrapper.Results table.results tr td.club div.clubName,
+:host .wrapper.ResultsStartList table.results tr td.club.flags div.clubName {
     justify-content: flex-start;
     align-items: center;
     gap: 1em;

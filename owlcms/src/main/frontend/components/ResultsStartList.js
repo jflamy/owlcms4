@@ -20,6 +20,37 @@ class ResultsStartList extends LitElement {
 
       <div class="${this.wrapperClasses()}" style="${this.sizeOverride} ${this.colorOverride}">
         <div class="blockPositioningWrapper">
+          <div class="decisionSection" style="${this.decisionSectionStyles()}">
+            <div class="dsTimerSlot" style="${this.dsTimerSlotStyles()}">
+              <div class="timer athleteTimer" style="${this.dsAthleteTimerStyles()}">
+                <timer-element id="decisionSectionTimer"></timer-element>
+              </div>
+              <div class="timer breakTime" style="${this.dsBreakTimerStyles()}">
+                <timer-element id="decisionSectionBreakTimer"></timer-element>
+              </div>
+              <div class="timer breakTime dsStopwatch" style="${this.dsStopwatchStyles()}">
+                <timer-element id="decisionSectionStopwatch"></timer-element>
+              </div>
+            </div>
+            <div class="dsDecisionAthlete name" style="${this.dsDecisionAthleteStyles()}">
+              <span class="dsDecisionStartNumber" style="${this.dsDecisionStartNumberStyles()}">${this.decisionSectionStartNumber}</span>
+              <span class="dsDecisionAthleteName">
+                <span class="dsDecisionAthleteFullName ellipsis">${this.decisionSectionName()}</span>
+                <span class="dsDecisionAthleteParticipations" style="${this.decisionSectionAgeGroupsStyles()}">(${this.decisionSectionAgeGroups})</span>
+              </span>
+            </div>
+            <div class="dsProjectedRanksSlot ${this.dsProjectedRanksMode()}" style="${this.dsProjectedRanksStyles()}">${this.projectedRankText}</div>
+            <div class="dsDecisions" style="${this.dsDecisionsStyles()}">
+              <div class="dsRefereeSlot" style="${this.dsRefereeSlotStyles()}">
+                <decision-element id="decisionSectionReferee"></decision-element>
+              </div>
+              <div class="dsJuryMessage" style="${this.dsJuryMessageStyles()}">${this.juryMessage}</div>
+              <div class="dsJurySlot" style="${this.dsJurySlotStyles()}">
+                ${(this.juryDecisions ?? []).map(d => html`<vaadin-icon class="juryIcon ${d}" icon="${this.juryIcon(d)}"></vaadin-icon>`)}
+              </div>
+            </div>
+            <div class="dsBranding" style="${this.dsBrandingStyles()}"><img class="brandingLogo" src="local/logos/owlcms-logo.svg">&nbsp;owlcms</div>
+          </div>
           <div class="waiting" style="${this.waitingStyles()}">
             <div>
               <div class="competitionName">${this.competitionName}</div>
@@ -42,13 +73,6 @@ class ResultsStartList extends LitElement {
               </div>
               <div class="decisionBox" style="${this.decisionStyles()}">
                 <decision-element style="width: 100%" id="decisions"></decision-element>
-              </div>
-              <!-- hidden elements required because we subclass the results page -->
-              <div class="notused" style="display:none">
-                <timer-element id="decisionSectionTimer"></timer-element>
-                <timer-element id="decisionSectionBreakTimer"></timer-element>
-                <timer-element id="decisionSectionStopwatch"></timer-element>
-                <decision-element id="decisionSectionReferee"></decision-element>
               </div>
             </div>
           </div>
@@ -153,6 +177,8 @@ class ResultsStartList extends LitElement {
       // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
       mode: {},
       decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
+      medalCeremony: {type: Boolean},
+      hideBreakTimer: {type: Boolean},
 
       // dynamic styling
       darkMode: {},
@@ -168,6 +194,21 @@ class ResultsStartList extends LitElement {
       showCustom1: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
+      showDecisionSection: {type: Boolean},
+      showProjectedRanks: {type: Boolean},
+      showScoreboardTimers: {type: Boolean},
+      decisionSectionDecisionActive: {type: Boolean},
+      decisionSectionCurrentActive: {type: Boolean},
+      decisionSectionStartNumber: {},
+      decisionSectionAthleteName: {},
+      decisionSectionAgeGroups: {},
+      decisionSectionBreakText: {},
+      projectedRankText: {},
+      juryDecisions: {type: Array},
+      decisionSectionHideJuryLights: {type: Boolean},
+      decisionSectionHideRefereeLights: {type: Boolean},
+      juryMessage: {},
+      dsShowStopwatch: {type: Boolean},
       logoSrc: {},
 
       // translation map
@@ -200,6 +241,7 @@ class ResultsStartList extends LitElement {
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
     classes = classes + (this.mode === "WAIT" ? " bigTitle" : "");
     classes = classes + (this.scoreboardType ? " " + this.scoreboardType : "");
+    classes = classes + (this.showDecisionSection && this.mode !== "WAIT" && !(this.scoreboardType ?? "").includes("Jury") ? " dsActive" : "");
     return classes;
   }
 
@@ -249,8 +291,109 @@ class ResultsStartList extends LitElement {
     return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "flex" : "none");
   }
 
+  decisionSectionStyles() {
+    const juryScoreboard = (this.scoreboardType ?? "").includes("Jury");
+    if (this.mode === "WAIT" || juryScoreboard) return "display:none";
+    if (this.showDecisionSection || this.showScoreboardTimers) return "display:flex";
+    if (this.showProjectedRanks && this.projectedRankText) return "display:flex";
+    return "display:none";
+  }
+
+  dsTimerSlotStyles() {
+    if (this.isBreak() && this.hideBreakTimer) return "display:none";
+    if (this.showDecisionSection && this.decisionSectionDecisionActive) return "display:none";
+    return (this.showDecisionSection || this.showScoreboardTimers) ? "" : "display:none";
+  }
+
+  dsBrandingStyles() {
+    return this.medalCeremony ? "margin-inline-start:auto" : "";
+  }
+
+  dsDecisionAthleteStyles() {
+    if (!this.showDecisionSection) return "display:none";
+    if (this.decisionSectionDecisionActive) return "display: flex";
+    const current = this.decisionSectionCurrentActive && this.mode === "CURRENT_ATHLETE";
+    return "display: " + (current || this.dsBreakDescriptionVisible() ? "flex" : "none");
+  }
+
+  dsBreakDescriptionVisible() {
+    return this.isBreak() && Boolean(this.decisionSectionBreakText);
+  }
+
+  dsDecisionStartNumberStyles() {
+    return "display: " + (this.dsBreakDescriptionVisible() ? "none" : "");
+  }
+
+  decisionSectionName() {
+    return this.dsBreakDescriptionVisible() ? this.decisionSectionBreakText : this.decisionSectionAthleteName;
+  }
+
+  decisionSectionAgeGroupsStyles() {
+    return "display: " + (!this.dsBreakDescriptionVisible() && this.decisionSectionAgeGroups ? "inline" : "none");
+  }
+
+  dsRefereeSlotStyles() {
+    return this.showDecisionSection && !this.decisionSectionHideRefereeLights ? "" : "display:none";
+  }
+
+  dsDecisionsStyles() {
+    return this.medalCeremony ? "display:none" : "";
+  }
+
+  dsJurySlotStyles() {
+    return this.showDecisionSection && !this.decisionSectionHideJuryLights ? "" : "display:none";
+  }
+
+  dsProjectedRanksStyles() {
+    if (!this.showProjectedRanks || !this.projectedRankText) return "display:none";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "display:none";
+    return "";
+  }
+
+  dsProjectedRanksMode() {
+    if (!this.showProjectedRanks || !this.projectedRankText) return "";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "";
+    return this.showDecisionSection ? "pjInline" : "pjOverlay";
+  }
+
+  juryIcon(decision) {
+    switch (decision) {
+      case "voted":
+        return "vaadin:circle";
+      case "white":
+        return "vaadin:check-circle";
+      case "red":
+        return "vaadin:close-circle";
+      default:
+        return "vaadin:circle-thin";
+    }
+  }
+
+  dsAthleteTimerStyles() {
+    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
+    const visible = this.mode === "CURRENT_ATHLETE" ? "flex" : "none";
+    return "display: " + (this.isBreak() ? "none" : visible);
+  }
+
+  dsBreakTimerStyles() {
+    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
+    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
+  }
+
+  dsStopwatchStyles() {
+    return "display: " + (this.stopwatchVisible() ? "flex" : "none");
+  }
+
+  stopwatchVisible() {
+    return Boolean(this.dsShowStopwatch) && Boolean(this.juryMessage) && this.mode === "INTERRUPTION";
+  }
+
+  dsJuryMessageStyles() {
+    return "display: " + (this.showDecisionSection && this.juryMessage ? "block" : "none");
+  }
+
   videoHeaderStyles() {
-    return "display: " + ((this.mode == "WAIT")? "none !important" : "flex");
+    return "display: " + ((this.mode == "WAIT") ? "none !important" : "grid");
   }
 
   bottomSpacerStyles() {
