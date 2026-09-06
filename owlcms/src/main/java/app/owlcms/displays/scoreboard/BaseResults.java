@@ -516,6 +516,10 @@ public class BaseResults extends LitTemplate
 	}
 
 	private void initializeTeamFlags(List<Athlete> athletes) {
+		if (athletes == null) {
+			this.teamFlags = false;
+			return;
+		}
 		if (!URLUtils.checkFlags()) {
 			this.teamFlags = false;
 			return;
