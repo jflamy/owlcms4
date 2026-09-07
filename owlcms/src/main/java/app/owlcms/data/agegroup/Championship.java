@@ -56,7 +56,9 @@ public class Championship implements Comparable<Championship>, Serializable {
 
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Championship.class);
 	private static Map<String, Championship> allChampionshipsMap;
-	static Comparator<Championship> ct = (a, b) -> {
+	static Comparator<Championship> ct = Championship::compare;
+
+	private static int compare(Championship a, Championship b) {
 		int compare = 0;
 		if (a == null || b == null) {
 			return ObjectUtils.compare(a, b, true);
@@ -73,7 +75,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 		}
 		compare = ObjectUtils.compare(a.getName(), b.getName(), true);
 		return compare;
-	};
+	}
 
 	/**
 	 * Adds a championship, normalizing 'Masters' variants to canonical form.
@@ -192,7 +194,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 			}
 		}
 		var sortedResults = new ArrayList<>(results.values());
-		sortedResults.sort(ct.reversed());
+		sortedResults.sort(ct);
 		return sortedResults;
 	}
 
