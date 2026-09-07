@@ -177,6 +177,7 @@ public class FieldOfPlay implements IUnregister {
 	private IProxyTimer breakTimer;
 	private BreakType breakType;
 	private CeremonyType ceremonyType;
+	private volatile CeremonyScope activeCeremony;
 	private boolean cjStarted;
 	/**
 	 * the clock owner is the last athlete for whom the clock has actually started.
@@ -247,6 +248,7 @@ public class FieldOfPlay implements IUnregister {
 	private Group videoGroup;
 	private Category videoCategory;
 	private AgeGroup videoAgeGroup;
+	private Championship videoChampionship;
 	private List<Athlete> resultsOrder;
 	private boolean cjBreakDisplayed;
 	private Long missingKgWarnedAthleteId;
@@ -418,6 +420,10 @@ public class FieldOfPlay implements IUnregister {
 
 	public CeremonyType getCeremonyType() {
 		return this.ceremonyType;
+	}
+
+	public CeremonyScope getActiveCeremony() {
+		return this.activeCeremony;
 	}
 
 	public List<RecordEvent> getChallengedRecords() {
@@ -678,6 +684,10 @@ public class FieldOfPlay implements IUnregister {
 		return this.videoAgeGroup;
 	}
 
+	public Championship getVideoChampionship() {
+		return this.videoChampionship;
+	}
+
 	public Category getVideoCategory() {
 		return this.videoCategory;
 	}
@@ -802,6 +812,7 @@ public class FieldOfPlay implements IUnregister {
 			}
 			// do not return; error message will be shown if state does not allow summon.
 		} else if (e instanceof StartLifting) {
+			endMedalCeremony(e.getOrigin());
 			this.setCeremonyType(null);
 			// Clear pending jury decision when forcefully exiting via StartLifting
 			// This is the escape route when announcer cancels or system needs to resume
@@ -920,8 +931,10 @@ public class FieldOfPlay implements IUnregister {
 						transitionToBreak(
 								new FOPEvent.BreakStarted(FIRST_SNATCH, CountdownType.INDEFINITE, null,
 										null, true, this));
-						doStartCeremony(
-								new FOPEvent.CeremonyStarted(CeremonyType.INTRODUCTION, getGroup(), null, this));
+						if (getActiveCeremony() == null || !getActiveCeremony().isMedals()) {
+							doStartCeremony(
+									new FOPEvent.CeremonyStarted(CeremonyType.INTRODUCTION, getGroup(), null, this));
+						}
 					} else {
 						transitionToLifting(e, getGroup(), false);
 					}
@@ -1600,6 +1613,9 @@ public class FieldOfPlay implements IUnregister {
 
 	public void setCeremonyType(CeremonyType ceremonyType) {
 		this.ceremonyType = ceremonyType;
+		if (ceremonyType == null) {
+			this.activeCeremony = null;
+		}
 	}
 
 	public void setChallengedRecords(List<RecordEvent> challengedRecords) {
@@ -1720,6 +1736,10 @@ public class FieldOfPlay implements IUnregister {
 
 	public void setVideoAgeGroup(AgeGroup videoAgeGroup) {
 		this.videoAgeGroup = videoAgeGroup;
+	}
+
+	public void setVideoChampionship(Championship videoChampionship) {
+		this.videoChampionship = videoChampionship;
 	}
 
 	public void setVideoCategory(Category c) {
@@ -2053,8 +2073,19 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doEndCeremony(CeremonyDone e) {
+		if (e.getCeremonyType() != getCeremonyType()) {
+			return;
+		}
 		setCeremonyType(null);
 		pushOutUIEvent(new UIEvent.CeremonyDone(e.getCeremonyType(), e, this));
+	}
+
+	private void endMedalCeremony(Object origin) {
+		CeremonyScope scope = this.activeCeremony;
+		if (scope != null && scope.isMedals()) {
+			setCeremonyType(null);
+			pushOutUIEvent(new UIEvent.CeremonyDone(CeremonyType.MEDALS, origin, this));
+		}
 	}
 
 	private void doForceTime(FOPEvent.ForceTime e) {
@@ -2205,11 +2236,21 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void doStartCeremony(CeremonyStarted e) {
+		if (e.getCeremony() != CeremonyType.MEDALS) {
+			endMedalCeremony(e.getOrigin());
+		}
+		this.activeCeremony = new CeremonyScope(e.getCeremony(), e.getCeremonyGroup(), e.getCeremonyChampionship(),
+		        e.getCeremonyAgeGroup(), e.getCeremonyCategory());
 		setCeremonyType(e.getCeremony());
 		setVideoGroup(e.getCeremonyGroup());
 		setVideoCategory(e.getCeremonyCategory());
-		pushOutUIEvent(new UIEvent.CeremonyStarted(e.getCeremony(), e.getCeremonyGroup(), e.getCeremonyCategory(),
-				e.getStackTrace(), e.getOrigin(), this));
+		setVideoAgeGroup(e.getCeremonyAgeGroup());
+		setVideoChampionship(e.getCeremonyChampionship());
+		UIEvent.CeremonyStarted event = new UIEvent.CeremonyStarted(e.getCeremony(), e.getCeremonyGroup(),
+				e.getCeremonyCategory(), e.getStackTrace(), e.getOrigin(), this);
+		event.setAgeGroup(e.getCeremonyAgeGroup());
+		event.setChampionship(e.getCeremonyChampionship());
+		pushOutUIEvent(event);
 	}
 
 	private void doSummonReferee(SummonReferee e) {
@@ -4046,7 +4087,9 @@ public class FieldOfPlay implements IUnregister {
 		CountdownType newCountdownType = e.getCountdownType();
 		IBreakTimer breakTimer = getBreakTimer();
 		boolean indefinite = breakTimer.isIndefinite();
-		this.ceremonyType = null;
+		if (this.activeCeremony == null || !this.activeCeremony.isMedals()) {
+			setCeremonyType(null);
+		}
 
 		// logger.debug("transitionToBreak {}", LoggerUtils.whereFrom());
 		if (this.state == BREAK && (getBreakType() == FIRST_CJ)
@@ -4190,6 +4233,7 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void transitionToTimeRunning() {
+		endMedalCeremony(this);
 
 		if (!getCurAthlete().equals(getClockOwner())) {
 			setClockOwner(getCurAthlete());

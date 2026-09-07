@@ -65,6 +65,7 @@ package.json
 docs/EquipmentSetup/FullVideo/*.mp4
 docs/EquipmentSetup/FullVideo/*.pid
 shared/src/main/resources/i18n/translation4.csv.bak
+shared/src/main/resources/i18n/medal_ceremony_scope_translations.tsv
 *.bkp
 
 # Ignore Eclipse/IDE project files

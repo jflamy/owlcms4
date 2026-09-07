@@ -101,7 +101,7 @@ class ResultsMedals extends LitElement {
                 </table>
               `
             : html``}
-            <div style="${this.bottomSpacerStyles()}">&nbsp;
+            <div class="bottomSpacer" style="${this.bottomSpacerStyles()}">&nbsp;
               <div style="position: fixed; bottom: 0.5em; right: 1em; display: flex; align-items: center; font-weight: 100; font-size: 1.6vh;"><img src="local/logos/owlcms-logo.svg" style="height:1.25em; margin-bottom:-0.2em">&nbsp;owlcms</div>
             </div>
         </div>
@@ -150,6 +150,10 @@ class ResultsMedals extends LitElement {
       showCustom1: {type: Boolean},
       showLeaders: {type: Boolean},
       showRecords: {type: Boolean},
+      resultLines: {},
+      leaderLines: {},
+      leadersLineHeight: {},
+      leaderFillerHeight: {},
 
       // translation map
       t: { type: Object },
@@ -224,9 +228,12 @@ class ResultsMedals extends LitElement {
   }
 
   athleteStyles() {
-    return "display:grid"
-    + "; " + (this.leadersLineHeight ?? "")
-    + "; " + (this.twOverride ?? "");
+    return "display:grid "
+      + (this.resultLines ? ("; --top: calc(" + this.resultLines + ")") : "")
+      + (this.leaderLines ? "; --bottom: " + this.leaderLines : "")
+      + (this.leadersLineHeight ? "; " + this.leadersLineHeight : "")
+      + (this.leaderFillerHeight ? "; " + this.leaderFillerHeight : "")
+      + (this.twOverride ? "; " + this.twOverride : "");
   }
 
   leadersStyles() {

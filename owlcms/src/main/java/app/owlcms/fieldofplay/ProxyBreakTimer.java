@@ -237,9 +237,9 @@ public class ProxyBreakTimer implements IProxyTimer, IBreakTimer {
 		        breakType,
 		        getFop().getCountdownType(), LoggerUtils.stackTrace(), this.isIndefinite(), getFop());
 		// logger.debug("posting {}", event);
+		setRunning(true);
 		getFop().pushOutUIEvent(event);
 		getFop().resetBreakTimerWarningFlags();
-		setRunning(true);
 
 		// if a break is running, need to stop it before starting another.
 		if (this.serverTimer != null) {

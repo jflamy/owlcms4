@@ -2093,14 +2093,15 @@ public abstract class AthleteGridContent extends BaseContent
 
 		Athlete curAthlete2 = fop.getCurAthlete();
 		FOPState state = fop.getState();
-		if (state == FOPState.INACTIVE || (state == FOPState.BREAK && fop.getGroup() == null)) {
+		boolean groupDone = state == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
+		if (state == FOPState.INACTIVE || groupDone || (state == FOPState.BREAK && fop.getGroup() == null)) {
 			getRouterLayout().setMenuTitle(getMenuTitle());
 			getRouterLayout().setMenuArea(createInitialBar());
 			getRouterLayout().updateHeader(false);
 
 			this.warning.setText(Translator.translate("IdlePlatform"));
-			if (curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
-				topBarWarning(fop.getGroup(), curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
+			if (groupDone || curAthlete2 == null || curAthlete2.getAttemptsDone() >= 6 || fop.getLiftingOrder().size() == 0) {
+				topBarWarning(fop.getGroup(), groupDone ? 6 : curAthlete2 == null ? 0 : curAthlete2.getAttemptsDone(),
 				        fop.getState(), fop.getLiftingOrder());
 			}
 			if (state == FOPState.BREAK) {

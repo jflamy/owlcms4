@@ -11,6 +11,8 @@ import java.util.Objects;
 
 import org.slf4j.LoggerFactory;
 
+import app.owlcms.data.agegroup.AgeGroup;
+import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
@@ -216,14 +218,25 @@ public class FOPEvent {
 
 		private CeremonyType ceremony;
 		private Category ceremonyCategory;
+		private AgeGroup ceremonyAgeGroup;
+		private Championship ceremonyChampionship;
 		private Group ceremonyGroup;
 
 		public CeremonyStarted(CeremonyType ceremony, Group ceremonyGroup,
 		        Category ceremonyCategory, Object origin) {
+			this(ceremony, ceremonyGroup, null, null, ceremonyCategory, origin);
+		}
+
+		public CeremonyStarted(CeremonyType ceremony, Group ceremonyGroup, Championship ceremonyChampionship,
+		        AgeGroup ceremonyAgeGroup, Category ceremonyCategory, Object origin) {
 			super(origin);
 			this.setCeremony(ceremony);
 			this.setCeremonyGroup(ceremonyGroup);
 			this.setCategoryCeremony(ceremonyCategory);
+			this.ceremonyAgeGroup = ceremonyAgeGroup != null ? ceremonyAgeGroup
+			        : ceremonyCategory != null ? ceremonyCategory.getAgeGroup() : null;
+			this.ceremonyChampionship = ceremonyChampionship != null ? ceremonyChampionship
+			        : this.ceremonyAgeGroup != null ? this.ceremonyAgeGroup.getChampionship() : null;
 			// logger.trace("FOPEvent ceremonyGroup = {} st={}", this.getCeremonyGroup(),
 			// LoggerUtils.stackTrace());
 		}
@@ -247,6 +260,14 @@ public class FOPEvent {
 
 		public Category getCeremonyCategory() {
 			return this.ceremonyCategory;
+		}
+
+		public AgeGroup getCeremonyAgeGroup() {
+			return this.ceremonyAgeGroup;
+		}
+
+		public Championship getCeremonyChampionship() {
+			return this.ceremonyChampionship;
 		}
 
 		public Group getCeremonyGroup() {

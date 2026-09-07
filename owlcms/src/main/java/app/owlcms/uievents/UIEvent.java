@@ -1605,11 +1605,21 @@ public class UIEvent {
 	public static class VideoRefresh extends UIEvent {
 		private Group group;
 		private Category category;
+		private AgeGroup ageGroup;
+		private Championship championship;
 
 		public VideoRefresh(Object origin, Group g, Category c, FieldOfPlay fop) {
+			this(origin, g, null, null, c, fop);
+		}
+
+		public VideoRefresh(Object origin, Group group, Championship championship, AgeGroup ageGroup, Category category,
+		        FieldOfPlay fop) {
 			super(origin, fop);
-			this.setGroup(g);
-			this.setCategory(c);
+			this.setGroup(group);
+			this.setCategory(category);
+			this.ageGroup = ageGroup != null ? ageGroup : category != null ? category.getAgeGroup() : null;
+			this.championship = championship != null ? championship
+			        : this.ageGroup != null ? this.ageGroup.getChampionship() : null;
 			if (this.trace == null || this.trace.isBlank()) {
 				this.setTrace(() -> LoggerUtils.stackTrace());
 			}
@@ -1617,6 +1627,14 @@ public class UIEvent {
 
 		public Category getCategory() {
 			return this.category;
+		}
+
+		public AgeGroup getAgeGroup() {
+			return this.ageGroup;
+		}
+
+		public Championship getChampionship() {
+			return this.championship;
 		}
 
 		public Group getGroup() {

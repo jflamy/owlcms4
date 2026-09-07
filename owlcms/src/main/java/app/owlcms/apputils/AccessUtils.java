@@ -130,17 +130,15 @@ public class AccessUtils {
 	}
 
 	public static String getClientIp() {
-		HttpServletRequest request;
 		VaadinServletRequest current = VaadinServletRequest.getCurrent();
-		request = current.getHttpServletRequest();
+		if (current == null) {
+			return "";
+		}
 
-		String remoteAddr = "";
-
-		if (request != null) {
-			remoteAddr = request.getHeader("X-FORWARDED-FOR");
-			if (remoteAddr == null || "".equals(remoteAddr)) {
-				remoteAddr = request.getRemoteAddr();
-			}
+		HttpServletRequest request = current.getHttpServletRequest();
+		String remoteAddr = request.getHeader("X-FORWARDED-FOR");
+		if (remoteAddr == null || remoteAddr.isEmpty()) {
+			remoteAddr = request.getRemoteAddr();
 		}
 		return remoteAddr;
 	}

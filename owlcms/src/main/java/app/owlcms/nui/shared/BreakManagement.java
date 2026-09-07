@@ -14,10 +14,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.EventBus;
@@ -45,13 +45,11 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.function.SerializableSupplier;
+import com.vaadin.flow.router.QueryParameters;
 
 import app.owlcms.apputils.queryparameters.BaseContent;
-import app.owlcms.components.GroupCategorySelectionMenu;
 import app.owlcms.components.fields.DurationField;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.group.Group;
-import app.owlcms.data.group.GroupRepository;
 import app.owlcms.fieldofplay.CountdownType;
 import app.owlcms.fieldofplay.FOPEvent;
 import app.owlcms.fieldofplay.FOPState;
@@ -59,12 +57,13 @@ import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.fieldofplay.IBreakTimer;
 import app.owlcms.i18n.Translator;
 import app.owlcms.nui.lifting.AnnouncerContent;
+import app.owlcms.nui.lifting.MedalCeremonyContent;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.utils.LoggerUtils;
-import app.owlcms.utils.NaturalOrderComparator;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -85,11 +84,9 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	private static final Duration DEFAULT_DURATION = Duration.ofMinutes(10L);
 	final private Logger logger = (Logger) LoggerFactory.getLogger(BreakManagement.class);
 	private Button endIntroButton;
-	private Button endMedalCeremony;
 	private Button endOfficials;
 	private Button endInterruption = null;
 	private Button startIntroButton;
-	private Button startMedalCeremony;
 	private Button startOfficials;
 	private Button stopCompetition = null;
 	private Button endCountdown = null;
@@ -102,11 +99,8 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	private DatePicker datePicker = new DatePicker();
 	private DurationField durationField = new DurationField();
 	private FieldOfPlay fop;
-	private boolean inactive = false;
 	private RadioButtonGroup<BreakType> interruptionRadios;
 	private List<BreakType> interruptions;
-	private Category medalCategory;
-	private Group medalGroup;
 	private NativeLabel minutes;
 	private Paragraph noCountdown = new Paragraph();
 	private Object origin;
@@ -300,7 +294,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		Tab bTab = ts.add(Translator.translate("BreakManagement.BreaksAndCeremonies"),
 		        new LazyComponent(
 		                () -> {
-			                // createCeremoniesColumn is expensive due to medals
 			                VerticalLayout cc = createCeremoniesColumn();
 			                HorizontalLayout bc = new HorizontalLayout(cb, cc);
 			                bc.setSizeFull();
@@ -505,80 +498,12 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		ce.add(officialsButtons);
 
 		ce.add(new Hr());
-		HorizontalLayout medalButtons = new HorizontalLayout();
-
-		List<Group> groups = GroupRepository.findAll();
-		groups.sort((g1, g2) -> {
-			int compare = -ObjectUtils.compare(g1.getCompetitionTime(), g2.getCompetitionTime(), true);
-			if (compare != 0) {
-				return compare;
-			}
-			compare = -(new NaturalOrderComparator<Group>().compare(g1, g2));
-			return compare;
-		});
-		FieldOfPlay fop2 = this.fop;
-		GroupCategorySelectionMenu groupCategorySelectionMenu = new GroupCategorySelectionMenu(groups, fop2,
-		        // group has been selected
-		        (g1, c1, fop1) -> selectCeremonyCategory(g1, c1),
-		        // no group
-		        (g1, c1, fop1) -> selectCeremonyCategory(null, c1));
-		// Checkbox includeNotCompleted = new Checkbox();
-		// includeNotCompleted.addValueChangeListener(e -> {
-		// groupCategorySelectionMenu.setIncludeNotCompleted(e.getValue());
-		// groupCategorySelectionMenu.recompute();
-		// });
-		// includeNotCompleted.setLabel(Translator.translate("Video.includeNotCompleted"));
-		HorizontalLayout hl = new HorizontalLayout();
-		hl.add(groupCategorySelectionMenu
-		// , includeNotCompleted
-		);
-
-		this.startMedalCeremony = new Button(
-		        Translator.translate("BreakMgmt.startMedals"), (e) -> {
-		        	this.startMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		        	this.endMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		        	FieldOfPlay currentFop = this.fop;
-		        	if (currentFop == null) {
-		        		return;
-		        	}
-		        	this.inactive = currentFop.getState() == FOPState.INACTIVE;
-		        	startBreakIfNeeded(currentFop);
-		        	Group g = getMedalGroup();
-		        	Category c = getMedalCategory();
-		        	if (g != null) {
-		        		currentFop.fopEventPost(
-		        		        new FOPEvent.CeremonyStarted(CeremonyType.MEDALS, g, c,
-		        		                this));
-		        		setMedalGroup(g);
-		        		setMedalCategory(c);
-		        		this.logger.info("{}switching {} to {} {}", logPrefix(), currentFop,
-		        		        g.getName() != null ? g.getName() : "-",
-		        		        c != null ? c.getNameWithAgeGroup() : "");
-		        		currentFop.getUiEventBus().post(new UIEvent.CeremonyStarted(CeremonyType.MEDALS, g, c, LoggerUtils.stackTrace(), this, currentFop));
-		        		currentFop.getUiEventBus().post(new UIEvent.VideoRefresh(this, g, c, currentFop));
-		        	}
-
-		        });
-		this.startMedalCeremony.setTabIndex(-1);
-		this.endMedalCeremony = new Button(
-		        Translator.translate("BreakMgmt.endMedals"), (e) -> {
-		        	FieldOfPlay currentFop = this.fop;
-		        	if (currentFop == null) {
-		        		return;
-		        	}
-		        	this.endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		        	currentFop.fopEventPost(new FOPEvent.CeremonyDone(CeremonyType.MEDALS, this.getOrigin()));
-		        	if (this.inactive) {
-		        		setBreakTimerFromFields(false);
-		        	}
-		        });
-		this.endMedalCeremony.setTabIndex(-1);
-		this.startMedalCeremony.getThemeNames().add("secondary contrast");
-		this.endMedalCeremony.getThemeNames().add("secondary contrast");
-		medalButtons.add(this.startMedalCeremony, this.endMedalCeremony);
-
-		ce.add(label("PublicMsg.Medals"), hl);
-		ce.add(medalButtons);
+		Button medalCeremony = new Button(Translator.translate("PublicMsg.Medals"), new Icon(VaadinIcon.TROPHY));
+		QueryParameters parameters = QueryParameters.simple(Map.of("fop", this.fop.getName()));
+		medalCeremony.getElement().setAttribute("onClick",
+		        "window.open('" + URLUtils.getUrlFromTargetClass(MedalCeremonyContent.class, null, parameters)
+		                + "','MedalCeremonyContent_" + this.fop.getName() + "')");
+		ce.add(medalCeremony);
 
 		return ce;
 	}
@@ -808,14 +733,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		return this.countdownType;
 	}
 
-	private Category getMedalCategory() {
-		return this.medalCategory;
-	}
-
-	private Group getMedalGroup() {
-		return this.medalGroup;
-	}
-
 	private Object getOrigin() {
 		return this.origin;
 	}
@@ -904,8 +821,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 		if (!interruption) {
 			this.startIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			this.endIntroButton.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-			this.startMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-			this.endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			this.startOfficials.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			this.endOfficials.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		}
@@ -948,14 +863,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 	private void masterStartCeremony(FieldOfPlay fop, CeremonyType ceremonyType) {
 		fop.fopEventPost(
 		        new FOPEvent.CeremonyStarted(ceremonyType, fop.getGroup(), null, this));
-	}
-
-	private void selectCeremonyCategory(Group g, Category c) {
-		this.endMedalCeremony.removeThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		this.startMedalCeremony.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		// logger.debug("selectCeremonyCategory {} {}",g,c);
-		setMedalGroup(g);
-		setMedalCategory(c);
 	}
 
 	private void selected() {
@@ -1214,14 +1121,6 @@ public class BreakManagement extends BaseContent implements SafeEventBusRegistra
 			        LoggerUtils.whereFrom());
 		}
 		this.interruptionRadios.setValue(breakType);
-	}
-
-	private void setMedalCategory(Category medalCategory) {
-		this.medalCategory = medalCategory;
-	}
-
-	private void setMedalGroup(Group medalGroup) {
-		this.medalGroup = medalGroup;
 	}
 
 	private void setOrigin(Object origin) {

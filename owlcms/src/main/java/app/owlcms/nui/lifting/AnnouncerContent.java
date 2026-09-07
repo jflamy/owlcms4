@@ -49,9 +49,11 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 
 import app.owlcms.apputils.queryparameters.SoundParameters;
+import app.owlcms.components.JXLSDownloader;
 import app.owlcms.components.GroupSelectionMenu;
 import app.owlcms.components.elements.PassiveTimerElement;
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.group.Group;
@@ -65,12 +67,14 @@ import app.owlcms.init.OwlcmsSession;
 import app.owlcms.nui.shared.AthleteGridContent;
 import app.owlcms.nui.shared.BreakDialog;
 import app.owlcms.nui.shared.OwlcmsLayout;
+import app.owlcms.spreadsheet.JXLSMedalsSheet;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.Decision;
 import app.owlcms.utils.DelayTimer;
 import app.owlcms.utils.LoggerUtils;
+import app.owlcms.utils.URLUtils;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
@@ -105,6 +109,8 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 	private TimerTask waitingForDecisionNotificationTask;
 	private long waitingForDecisionNotificationGeneration;
 	private Notification decisionNotification;
+	private Button medalsDownloadButton;
+	private Button medalCeremonyButton;
 
 	public AnnouncerContent() {
 		// when navigating to the page, Vaadin will call setParameter+readParameters
@@ -682,17 +688,10 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		        });
 		this.startLiftingButton.getThemeNames().add("success primary");
 
-		this.showResultsButton = new Button(Translator.translate("ShowResults"), new Icon(VaadinIcon.MEDAL),
-		        (e) -> {
-			        var fop = getFop();
-			        currentUI.access(() -> getRouterLayout().setMenuArea(createTopBar()));
-			        fop.fopEventPost(
-			                new FOPEvent.BreakStarted(BreakType.GROUP_DONE, CountdownType.INDEFINITE, null, null,
-			                        true,
-			                        this));
-		        });
-		this.showResultsButton.getThemeNames().add("success primary");
-		this.showResultsButton.setVisible(false);
+		this.medalsDownloadButton = createMedalsDownloadButton();
+		this.medalsDownloadButton.setVisible(false);
+		this.medalCeremonyButton = createMedalCeremonyButton();
+		this.medalCeremonyButton.setVisible(false);
 
 		this.warning = new H3();
 		this.warning.getStyle().set("margin-top", "0").set("margin-bottom", "0");
@@ -700,13 +699,16 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		HorizontalLayout topBarRight = new HorizontalLayout();
 		this.breaks = breakButtons(topBar);
 		this.breaks.setPadding(true);
+		Div spacer = new Div();
 
-		topBarRight.add(this.warning, this.introCountdownButton, this.startLiftingButton, this.showResultsButton, this.breaks);
+		topBarRight.add(this.warning, this.introCountdownButton, this.startLiftingButton,
+		        this.medalsDownloadButton, this.medalCeremonyButton, spacer, this.breaks);
 		topBarRight.setWidthFull();
 		topBarRight.setSpacing(true);
 		topBarRight.setPadding(true);
 		topBarRight.setAlignItems(FlexComponent.Alignment.CENTER);
 		topBarRight.setAlignSelf(Alignment.CENTER, this.breaks);
+		topBarRight.setFlexGrow(1.0, spacer);
 
 		this.topBar.removeAll();
 		this.topBar.setSizeFull();
@@ -717,6 +719,46 @@ public class AnnouncerContent extends AthleteGridContent implements HasDynamicTi
 		this.topBar.setFlexGrow(0.2, getTopBarLeft());
 		this.topBar.setFlexGrow(0.5, topBarRight);
 		return this.topBar;
+	}
+
+	private Button createMedalsDownloadButton() {
+		JXLSDownloader downloadDialog = new JXLSDownloader(
+		        () -> {
+			        JXLSMedalsSheet medalsSheet = new JXLSMedalsSheet();
+			        Group group = getFop() != null ? getFop().getGroup() : null;
+			        medalsSheet.setGroup(group != null ? GroupRepository.getById(group.getId()) : null);
+			        return medalsSheet;
+		        },
+		        "/templates/medals",
+		        Competition::getComputedMedalsTemplateFileName,
+		        Competition::setMedalsTemplateFileName,
+		        Translator.translate("Results.Medals"),
+		        Translator.translate("Download"));
+		return downloadDialog.createDownloadButton();
+	}
+
+	private Button createMedalCeremonyButton() {
+		Button button = new Button(Translator.translate("PublicMsg.Medals"), new Icon(VaadinIcon.TROPHY));
+		FieldOfPlay fop = getFop();
+		QueryParameters parameters = fop != null
+		        ? QueryParameters.simple(Map.of("fop", fop.getName()))
+		        : QueryParameters.empty();
+		button.getElement().setAttribute("onClick",
+		        "window.open('" + URLUtils.getUrlFromTargetClass(MedalCeremonyContent.class, null, parameters)
+		                + "','MedalCeremonyContent" + (fop != null ? "_" + fop.getName() : "") + "')");
+		return button;
+	}
+
+	@Override
+	protected void topBarWarning(Group group, Integer attemptsDone, FOPState state, List<Athlete> liftingOrder) {
+		super.topBarWarning(group, attemptsDone, state, liftingOrder);
+		boolean sessionDone = this.initialBar && group != null && attemptsDone >= 6;
+		if (this.medalsDownloadButton != null) {
+			this.medalsDownloadButton.setVisible(sessionDone);
+		}
+		if (this.medalCeremonyButton != null) {
+			this.medalCeremonyButton.setVisible(sessionDone);
+		}
 	}
 
 	/**

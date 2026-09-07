@@ -17,6 +17,16 @@
 	display: none;
 }
 
+table.results.medals {
+	flex: 0 0 auto;
+	grid-template-rows: none;
+}
+
+.bottomSpacer {
+	flex: 1 0 var(--bottomSpacerHeight);
+	min-height: var(--bottomSpacerHeight);
+}
+
 * {
 	--startWidth: 0;
 	--startVisibility: hidden;

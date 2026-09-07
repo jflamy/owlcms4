@@ -139,5 +139,10 @@ public class LiftingNavigationContent extends BaseNavigationContent implements N
 		Button testing = openInNewTabWithFop(TestingContent.class, Translator.translate("TestButtons.Title"));
 		FlexibleGridLayout grid2 = HomeNavigationContent.navigationGrid(referee, juryMobile, juryKeypad, jury, testing);
 		doGroup(Translator.translate("Referees_Jury"), grid2, this);
+
+		Button medalCeremony = openInNewTabWithFop(MedalCeremonyContent.class, Translator.translate("PublicMsg.Medals"));
+		medalCeremony.setIcon(new Icon(VaadinIcon.TROPHY));
+		FlexibleGridLayout medalCeremonyGrid = HomeNavigationContent.navigationGrid(medalCeremony);
+		doGroup(Translator.translate("PublicMsg.Medals"), medalCeremonyGrid, this);
 	}
 }

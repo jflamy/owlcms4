@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.UI;
 
 import tools.jackson.databind.node.NullNode;
 
@@ -32,8 +31,6 @@ public class DecisionBlockDecisionElement extends AbstractDecisionElement {
 		uiEventLogger.setLevel(Level.INFO);
 	}
 
-	private UI ui;
-
 	public DecisionBlockDecisionElement() {
 		this.setJury(true);
 		setShowsDownSignal(false);
@@ -52,16 +49,13 @@ public class DecisionBlockDecisionElement extends AbstractDecisionElement {
 	}
 
 	public void doReset() {
-		logger.debug("DecisionBlockDecisionElement doReset: fop={} isSingleRef={} ui={} {}",
+		logger.debug("DecisionBlockDecisionElement doReset: fop={} isSingleRef={} {}",
 		        (this.fop != null ? this.fop.getName() : "null"), this.isSingleRef(),
-		        (ui != null ? "set" : "null"), LoggerUtils.whereFrom());
+		        LoggerUtils.whereFrom());
 		getElement().setProperty("singleRef", this.isSingleRef());
 		getElement().setProperty("jury", true);
 		clearDecisionProperties(true);
 		setDecisionTimes(0L, 0L, 0L);
-		if (ui != null) {
-			ui.push();
-		}
 	}
 
 	@Subscribe
@@ -93,7 +87,6 @@ public class DecisionBlockDecisionElement extends AbstractDecisionElement {
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
-		ui = UI.getCurrent();
 		super.onAttach(attachEvent);
 		if (this.fop == null) {
 			logger./**/warn("No FOP available for DecisionBlockDecisionElement onAttach {}", LoggerUtils.whereFrom());
@@ -142,9 +135,6 @@ public class DecisionBlockDecisionElement extends AbstractDecisionElement {
 		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
 			getElement().setProperty("singleRef", this.isSingleRef());
 			doReset();
-			if (ui != null) {
-				ui.push();
-			}
 		});
 	}
 

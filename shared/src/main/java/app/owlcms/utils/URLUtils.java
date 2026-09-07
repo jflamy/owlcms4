@@ -91,8 +91,7 @@ public class URLUtils {
     }
 
     public static String buildAbsoluteURL(String string) {
-        return URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
-                string);
+        return absoluteOrRelativeURL(string);
     }
 
     public static String cleanURL(URL siteURL, String siteExternalForm) {
@@ -147,9 +146,7 @@ public class URLUtils {
 
     public static <T extends Component> String getUrlFromTargetClass(Class<T> class1) {
         String relativeURL = getRelativeURLFromTargetClass(class1);
-        String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
-                relativeURL);
-        return absoluteURL;
+        return absoluteOrRelativeURL(relativeURL);
     }
 
     public static <T extends Component & HasUrlParameter<String>> String getUrlFromTargetClass(Class<T> class1,
@@ -161,9 +158,7 @@ public class URLUtils {
         } else {
             relativeURL = routeResolver.<String, T>getUrl(class1, parameter);
         }
-        String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
-                relativeURL);
-        return absoluteURL;
+        return absoluteOrRelativeURL(relativeURL);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -177,9 +172,14 @@ public class URLUtils {
             relativeURL = routeResolver.<String, T>getUrl(class1, parameter);
         }
         String queryParameters = q != null ? "?" + q.getQueryString() : "";
-        String absoluteURL = URLUtils.buildAbsoluteURL(VaadinServletRequest.getCurrent().getHttpServletRequest(),
-                relativeURL)+queryParameters;
-        return absoluteURL;
+        return absoluteOrRelativeURL(relativeURL) + queryParameters;
+        }
+
+        private static String absoluteOrRelativeURL(String relativeURL) {
+        VaadinServletRequest current = VaadinServletRequest.getCurrent();
+        return current != null
+            ? URLUtils.buildAbsoluteURL(current.getHttpServletRequest(), relativeURL)
+            : relativeURL;
     }
 
     public static void logHeaders(HttpServletRequest request) {

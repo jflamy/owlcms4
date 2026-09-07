@@ -361,6 +361,8 @@ public abstract class AbstractDisplayPage extends Div implements DisplayParamete
 		}
 		if (this.board instanceof ResultsMedals) {
 			ResultsMedals medals = (ResultsMedals) this.board;
+			medals.setFopPinnedFromURL(this.urlParameterMap != null
+			        && this.urlParameterMap.containsKey(FOPParameters.FOP));
 			boolean hasCategoryInUrl = false;
 			if (this.urlParameterMap != null) {
 				List<String> catValues = this.urlParameterMap.get(DisplayParameters.CATEGORY);

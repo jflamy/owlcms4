@@ -26,8 +26,11 @@ import app.owlcms.data.config.Config;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.displays.scoreboard.Results;
 import app.owlcms.displays.scoreboard.ResultsMedals;
+import app.owlcms.displays.scoreboard.ResultsStartList;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.i18n.Translator;
+import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
 import ch.qos.logback.classic.Logger;
@@ -43,6 +46,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 	private Results resultsBoard;
 	protected UI ui;
 	private ResultsMedals medalsBoard;
+	private ResultsStartList startListBoard;
 
 	public PublicScoreboardPage() {
 		// intentionally empty. superclass will call init() as required.
@@ -59,67 +63,51 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 	}
 
 	@Subscribe
-	public void slaveCeremonyDone(UIEvent.CeremonyDone e) {
-		if (e.getCeremonyType() != CeremonyType.MEDALS) {
+	public void reconcileDisplay(UIEvent e) {
+		if (this.ui == null) {
 			return;
 		}
-		this.ui.access(() -> {
-			getMedalsBoard().getStyle().set("display", "none");
-			getResultsBoard().getStyle().set("display", "block");
-		});
+		this.ui.access(this::reconcileDisplayLocked);
 	}
 
-	@Subscribe
-	public void slaveCeremonyStarted(UIEvent.CeremonyStarted e) {
-		if (e.getCeremonyType() != CeremonyType.MEDALS) {
+	private void reconcileDisplayLocked() {
+		FieldOfPlay fop = getFop();
+		if (fop == null || !isAttached()) {
 			return;
 		}
-		this.ui.access(() -> {
-			/* copy current parameters from results board to medals board */
-			this.getMedalsBoard().getStyle().set("display","block");
-			this.getMedalsBoard().setDownSilenced(true);
-			this.getMedalsBoard().setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
-			this.getMedalsBoard().setVideo(((DisplayParameters) getBoard()).isVideo());
-			this.getMedalsBoard().setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
-			this.getMedalsBoard().setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
-			this.getMedalsBoard().setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
-//			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
-//			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
-			computeStylesDir(this.getMedalsBoard());
-			getMedalsBoard().getStyle().set("display", "block");
-			this.getMedalsBoard().syncWithFOP(getFop());
-			getResultsBoard().getStyle().set("display", "none");
-			pushEmSize(this.getElement());
-			pushTeamWidth(this.getElement());
-		});
+		boolean medals = fop.getActiveCeremony() != null && fop.getActiveCeremony().isMedals();
+		boolean introduction = fop.getCeremonyType() == CeremonyType.INTRODUCTION;
+		boolean beforeIntroduction = fop.getState() == FOPState.BREAK
+		        && fop.getBreakType() == BreakType.BEFORE_INTRODUCTION;
+		boolean waitingForSnatchCountdown = fop.getState() == FOPState.BREAK
+		        && fop.getBreakType() == BreakType.FIRST_SNATCH
+		        && !fop.getBreakTimer().isRunning();
+		boolean sessionSelected = fop.getGroup() != null;
+		boolean startList = !medals && sessionSelected
+		        && (beforeIntroduction || introduction || waitingForSnatchCountdown);
+
+		configureSecondaryBoard(getMedalsBoard());
+		configureSecondaryBoard(getStartListBoard());
+		getStartListBoard().setScoreboardTimerVisible(startList);
+		getMedalsBoard().getStyle().set("display", medals ? "block" : "none");
+		getStartListBoard().getStyle().set("display", startList ? "block" : "none");
+		getResultsBoard().getStyle().set("display", medals || startList ? "none" : "block");
+		if (medals) {
+			getMedalsBoard().syncWithFOP(fop);
+		}
+		pushEmSize(this.getElement());
+		pushTeamWidth(this.getElement());
 	}
 
-	@Subscribe
-	public void slaveVideoRefresh(UIEvent.VideoRefresh e) {
-		// this should never have isVideo() in actual practice.
-
-		// logger.debug("videorefresh {}",e.getFop());
-		if (!isVideo()) {
-			return;
-		}
-		this.ui.access(() -> {
-			/* copy current parameters from results board to medals board */
-//			this.getMedalsBoard().setVisible(true);
-			this.getMedalsBoard().setDownSilenced(true);
-			this.getMedalsBoard().setDarkMode(((DisplayParameters) getBoard()).isDarkMode());
-			this.getMedalsBoard().setVideo(((DisplayParameters) getBoard()).isVideo());
-			this.getMedalsBoard().setPublicDisplay(((DisplayParameters) getBoard()).isPublicDisplay());
-			this.getMedalsBoard().setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
-			this.getMedalsBoard().setAbbreviatedName(((DisplayParameters) getBoard()).isAbbreviatedName());
-//			this.getMedalsBoard().setTeamWidth(((DisplayParameters) getBoard()).getTeamWidth());
-//			this.getMedalsBoard().setEmFontSize(((DisplayParameters) getBoard()).getEmFontSize());
-			computeStylesDir(this.getMedalsBoard());
-			getMedalsBoard().getStyle().set("display", "block");
-			this.getMedalsBoard().syncWithFOP(getFop());
-			getResultsBoard().getStyle().set("display", "none");
-			pushEmSize(this.getElement());
-			pushTeamWidth(this.getElement());
-		});
+	private void configureSecondaryBoard(Results board) {
+		DisplayParameters source = (DisplayParameters) getBoard();
+		board.setDownSilenced(true);
+		board.setDarkMode(source.isDarkMode());
+		board.setVideo(source.isVideo());
+		board.setPublicDisplay(source.isPublicDisplay());
+		board.setSingleReferee(((SoundParameters) getBoard()).isSingleReferee());
+		board.setAbbreviatedName(source.isAbbreviatedName());
+		computeStylesDir(board);
 	}
 
 	@Override
@@ -144,6 +132,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		super.setEmFontSize(emFontSize);
 		pushEmSize(this.getBoard().getElement(), emFontSize);
 		pushEmSize(this.getMedalsBoard().getElement(),medalFontSize);
+		pushEmSize(this.getStartListBoard().getElement(), emFontSize);
 	}
 	
 	@Override
@@ -151,6 +140,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		super.setTeamWidth(tw);
 		pushTeamWidth(getElement(), tw);
 		pushTeamWidth(this.getMedalsBoard().getElement(), tw);
+		pushTeamWidth(this.getStartListBoard().getElement(), tw);
 	}
 
 	
@@ -164,26 +154,15 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		DisplayParameters board = (DisplayParameters) this.getBoard();
 		board.setFop(getFop());
 		getMedalsBoard().setFop(getFop());
+		getStartListBoard().setFop(getFop());
 
 		this.setResultsBoard((Results) board);
 		this.setMedalsBoard(getMedalsBoard());
 
 		this.addComponent((Component) board);
 		this.addComponent(getMedalsBoard());
-
-		boolean medalCeremony = getFop() != null && getFop().getCeremonyType() == CeremonyType.MEDALS;
-		((Component) board).getElement().getStyle().set("display", medalCeremony ? "none" : "block");
-		getMedalsBoard().getElement().getStyle().set("display", medalCeremony ? "block" : "none");
-		if (medalCeremony) {
-			getMedalsBoard().setDownSilenced(true);
-			getMedalsBoard().setDarkMode(board.isDarkMode());
-			getMedalsBoard().setVideo(board.isVideo());
-			getMedalsBoard().setPublicDisplay(board.isPublicDisplay());
-			getMedalsBoard().setSingleReferee(((SoundParameters) board).isSingleReferee());
-			getMedalsBoard().setAbbreviatedName(board.isAbbreviatedName());
-			computeStylesDir(getMedalsBoard());
-			getMedalsBoard().syncWithFOP(getFop());
-		}
+		this.addComponent(getStartListBoard());
+		reconcileDisplayLocked();
 		pushEmSize(this.getElement());
 		pushTeamWidth(this.getElement());
 
@@ -222,6 +201,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 	private void createComponents() {
 		var board = new Results();
 		setMedalsBoard(new ResultsMedals());
+		setStartListBoard(new ResultsStartList());
 		this.setBoard(board);
 
 		getMedalsBoard().setDownSilenced(true);
@@ -235,6 +215,7 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 		computeStylesDir(getMedalsBoard());
 
 		getMedalsBoard().getStyle().set("display", "none");
+		getStartListBoard().getStyle().set("display", "none");
 		this.ui = UI.getCurrent();
 	}
 
@@ -244,6 +225,22 @@ public class PublicScoreboardPage extends AbstractResultsDisplayPage {
 
 	private void setMedalsBoard(ResultsMedals medalsBoard) {
 		this.medalsBoard = medalsBoard;
+	}
+
+	private ResultsStartList getStartListBoard() {
+		if (this.startListBoard == null) {
+			this.startListBoard = new ResultsStartList();
+			this.startListBoard.setFop(getFop());
+			this.startListBoard.getStyle().set("display", "none");
+			if (isAttached() && this.startListBoard.getParent().isEmpty()) {
+				addComponent(this.startListBoard);
+			}
+		}
+		return this.startListBoard;
+	}
+
+	private void setStartListBoard(ResultsStartList startListBoard) {
+		this.startListBoard = startListBoard;
 	}
 
 }

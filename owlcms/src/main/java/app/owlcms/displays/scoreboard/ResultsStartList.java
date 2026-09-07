@@ -46,4 +46,8 @@ public class ResultsStartList extends Results {
 		return super.getSeparatorPredicate();
 	}
 
+	public void setScoreboardTimerVisible(boolean visible) {
+		this.getElement().setProperty("showScoreboardTimers", visible);
+	}
+
 }
