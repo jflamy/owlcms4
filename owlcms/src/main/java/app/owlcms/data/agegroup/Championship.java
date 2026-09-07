@@ -224,7 +224,7 @@ public class Championship implements Comparable<Championship>, Serializable {
 			}
 		}
 		var sortedResults = new ArrayList<>(results.values());
-		sortedResults.sort(ct.reversed());
+		sortedResults.sort(Championship::compareTo);
 		return sortedResults;
 	}
 

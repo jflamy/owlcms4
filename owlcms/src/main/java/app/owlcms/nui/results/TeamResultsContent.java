@@ -436,7 +436,7 @@ public class TeamResultsContent extends BaseContent
 		OwlcmsCrudFormFactory<TeamTreeItem> crudFormFactory = new TeamItemResultsFormFactory(TeamTreeItem.class, this);
 		this.crudGrid = createCrudGrid(crudFormFactory);
 		fillHW(this.crudGrid, this);
-		Championship value = (this.adItems != null && this.adItems.size() > 0) ? this.adItems.get(0) : null;
+		Championship value = (this.adItems != null && this.adItems.size() == 1) ? this.adItems.get(0) : null;
 		setChampionship(value);
 		this.topBarChampionshipSelect.setValue(value);
 	}
@@ -628,7 +628,7 @@ public class TeamResultsContent extends BaseContent
 			// championshipAgeGroupPrefixes, first,
 			// topBarAgeGroupPrefixSelect);
 
-			String value = notEmpty ? first : null;
+			String value = championshipAgeGroupPrefixes.size() == 1 ? first : null;
 			// logger.debug("setting prefix to {}", value);
 			this.topBarAgeGroupPrefixSelect.setValue(value);
 			updateFilters();
