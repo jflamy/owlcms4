@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 67.4.4: Championship/Age Group no longer selected by default on the team results page (same as comp results now)
+
 - 67.4.3: Platform management fixes
   - Editing the platorm order and editing the plates/bars correctly preserve each other
   - Renaming platforms now asks for a restart to be completely safe
