@@ -111,7 +111,7 @@ public class TemplateResourceUtilsTest {
 	@Test
 	public void singleLetterVariant_displayNameStripped() {
 		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
-		        List.of(res("NestedStartList-LETTER.xlsx")), null, Locale.US);
+		        List.of(res("NestedStartList-LETTER.xlsx")), Locale.US);
 		assertEquals(1, result.size());
 		assertEquals("NestedStartList", result.get(0).getDisplayName());
 		assertEquals("NestedStartList", result.get(0).toString());
@@ -125,28 +125,24 @@ public class TemplateResourceUtilsTest {
 	public void twoVariants_onlyPreferredKept_displayNameStripped() {
 		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
 		        List.of(res("NestedStartList-LETTER.xlsx"), res("NestedStartList-A4.xlsx")),
-		        null, Locale.US);
+		        Locale.US);
 		assertEquals(1, result.size());
 		assertEquals("NestedStartList-LETTER.xlsx", result.get(0).getFileName());
 		assertEquals("NestedStartList", result.get(0).getDisplayName());
 	}
 
 	/**
-	 * LETTER + A4 variants, LETTER preferred, A4 is the currently-selected template:
-	 * both survive (A4 kept as the saved template), both strip to the same key →
-	 * collision → both display the full file name.
+	 * LETTER + A4 variants, LETTER preferred, a previously selected A4 template
+	 * must not bypass the configured paper-size filter.
 	 */
 	@Test
-	public void twoVariants_selectedNonPreferred_collision_fullNameShown() {
+	public void twoVariants_selectedNonPreferred_onlyPreferredKept() {
 		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
 		        List.of(res("NestedStartList-LETTER.xlsx"), res("NestedStartList-A4.xlsx")),
-		        "NestedStartList-A4.xlsx", Locale.US);
-		assertEquals(2, result.size());
-		for (Resource r : result) {
-			assertNull("collision: displayName must be null for " + r.getFileName(), r.getDisplayName());
-			assertTrue("collision: toString() must return full fileName",
-			        r.toString().equals(r.getFileName()));
-		}
+		        Locale.US);
+		assertEquals(1, result.size());
+		assertEquals("NestedStartList-LETTER.xlsx", result.get(0).getFileName());
+		assertEquals("NestedStartList", result.get(0).getDisplayName());
 	}
 
 	/**
@@ -157,24 +153,23 @@ public class TemplateResourceUtilsTest {
 	@Test
 	public void paperSizeAndNoSuffixVariant_onlyPaperSizeKept_displayNameStripped() {
 		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
-		        List.of(res("foo-LETTER.xlsx"), res("foo.xlsx")), null, Locale.US);
+		        List.of(res("foo-LETTER.xlsx"), res("foo.xlsx")), Locale.US);
 		assertEquals(1, result.size());
 		assertEquals("foo-LETTER.xlsx", result.get(0).getFileName());
 		assertEquals("foo", result.get(0).getDisplayName());
 	}
 
 	/**
-	 * foo-LETTER.xlsx + foo.xlsx, LETTER preferred, foo.xlsx is the selected template:
-	 * both survive; both strip to "foo" → collision → full file names shown.
+	 * foo-LETTER.xlsx + foo.xlsx, LETTER preferred:
+	 * the generic saved template must not bypass the configured paper-size filter.
 	 */
 	@Test
-	public void paperSizeAndNoSuffixVariant_selectedNoSuffix_collision_fullNameShown() {
+	public void paperSizeAndNoSuffixVariant_onlyPaperSizeKept() {
 		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
-		        List.of(res("foo-LETTER.xlsx"), res("foo.xlsx")), "foo.xlsx", Locale.US);
-		assertEquals(2, result.size());
-		for (Resource r : result) {
-			assertNull("collision: displayName must be null for " + r.getFileName(), r.getDisplayName());
-		}
+		        List.of(res("foo-LETTER.xlsx"), res("foo.xlsx")), Locale.US);
+		assertEquals(1, result.size());
+		assertEquals("foo-LETTER.xlsx", result.get(0).getFileName());
+		assertEquals("foo", result.get(0).getDisplayName());
 	}
 
 	/**
@@ -184,7 +179,7 @@ public class TemplateResourceUtilsTest {
 	@Test
 	public void twoDistinctTemplates_bothGetStrippedDisplayNames() {
 		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
-		        List.of(res("StartList-LETTER.xlsx"), res("Protocol-LETTER.xlsx")), null, Locale.US);
+		        List.of(res("StartList-LETTER.xlsx"), res("Protocol-LETTER.xlsx")), Locale.US);
 		assertEquals(2, result.size());
 		assertEquals("StartList", result.stream().filter(r -> r.getFileName().startsWith("StartList"))
 		        .findFirst().get().getDisplayName());
@@ -201,7 +196,7 @@ public class TemplateResourceUtilsTest {
 	@Test
 	public void nonUsLocale_resolvesToA4_filtersNormally() {
 		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
-		        List.of(res("foo-LETTER.xlsx"), res("foo-A4.xlsx")), null,
+		        List.of(res("foo-LETTER.xlsx"), res("foo-A4.xlsx")),
 		        Locale.forLanguageTag("es-MX"));
 		assertEquals(1, result.size());
 		assertEquals("foo-A4.xlsx", result.get(0).getFileName());
@@ -215,7 +210,7 @@ public class TemplateResourceUtilsTest {
 	@Test
 	public void noPaperSizeSentinel_allResourcesReturnedUnfiltered() {
 		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
-		        List.of(res("foo-LETTER.xlsx"), res("foo-A4.xlsx")), null,
+		        List.of(res("foo-LETTER.xlsx"), res("foo-A4.xlsx")),
 		        TemplateResourceUtils.LOCALE_NO_PAPER_SIZE);
 		assertEquals(2, result.size());
 		for (Resource r : result) {
@@ -230,7 +225,7 @@ public class TemplateResourceUtilsTest {
 	@Test
 	public void localeSuffixPreservedInDisplayName() {
 		List<Resource> result = TemplateResourceUtils.filterTemplatesByPaperSize(
-		        List.of(res("Template_LETTER-es-SV.xlsx")), null, Locale.US);
+		        List.of(res("Template_LETTER-es-SV.xlsx")), Locale.US);
 		assertEquals(1, result.size());
 		assertEquals("Template-es-SV", result.get(0).getDisplayName());
 	}

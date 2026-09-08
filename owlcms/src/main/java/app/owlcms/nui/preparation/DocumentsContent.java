@@ -418,8 +418,7 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 				OwlcmsSession.getLocale(),
 				Config.getCurrent().isLocalTemplatesOnly());
 		List<Resource> prioritizedList = xlsxPriority(resourceList);
-		return TemplateResourceUtils.filterTemplatesByPaperSize(prioritizedList, selectedTemplateName,
-		        OwlcmsSession.getLocale());
+		return TemplateResourceUtils.filterTemplatesByPaperSize(prioritizedList, OwlcmsSession.getLocale());
 	}
 
 	public boolean matchExtension(PreCompetitionTemplate template, String f) {

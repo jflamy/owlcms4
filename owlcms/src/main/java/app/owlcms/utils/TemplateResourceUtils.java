@@ -195,8 +195,7 @@ public final class TemplateResourceUtils {
 		return "None";
 	}
 
-	public static List<Resource> filterTemplatesByPaperSize(List<Resource> resources, String selectedTemplateName,
-	        Locale locale) {
+	public static List<Resource> filterTemplatesByPaperSize(List<Resource> resources, Locale locale) {
 		if (resources == null || resources.isEmpty()) {
 			return resources;
 		}
@@ -217,24 +216,15 @@ public final class TemplateResourceUtils {
 		List<Resource> filtered = new ArrayList<>();
 		for (List<Resource> candidates : grouped.values()) {
 			List<Resource> matchingPaperSize = new ArrayList<>();
-			List<Resource> selected = new ArrayList<>();
 			for (Resource candidate : candidates) {
 				String fileName = candidate.getFileName();
 				if (hasPaperSizeSuffix(fileName, preferredPaperSize)) {
 					matchingPaperSize.add(candidate);
 				}
-				if (selectedTemplateName != null && selectedTemplateName.equals(fileName)) {
-					selected.add(candidate);
-				}
 			}
 
 			if (!matchingPaperSize.isEmpty()) {
 				filtered.addAll(matchingPaperSize);
-				for (Resource candidate : selected) {
-					if (!matchingPaperSize.contains(candidate)) {
-						filtered.add(candidate);
-					}
-				}
 			} else {
 				filtered.addAll(candidates);
 			}

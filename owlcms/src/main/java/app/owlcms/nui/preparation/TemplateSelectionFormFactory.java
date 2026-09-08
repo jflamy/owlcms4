@@ -158,8 +158,7 @@ public class TemplateSelectionFormFactory extends VerticalLayout {
 		        OwlcmsSession.getLocale(),
 		        Config.getCurrent().isLocalTemplatesOnly());
 		List<Resource> prioritizedList = xlsxPriority(resourceList);
-		return TemplateResourceUtils.filterTemplatesByPaperSize(prioritizedList, selectedTemplateName,
-		        OwlcmsSession.getLocale());
+		return TemplateResourceUtils.filterTemplatesByPaperSize(prioritizedList, OwlcmsSession.getLocale());
 	}
 
 	private FormLayout createLayout() {
