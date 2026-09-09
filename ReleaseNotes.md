@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 67.4.5: Registration page: addition of a athlete correctly filters as birth date and gender are entered
+
+- 67.4.5: Records with no valid lift type are flagged on import and import is prevented.
+
 - 67.4.4: Championship/Age Group no longer selected by default on the team results page (same as comp results now)
 
 - 67.4.3: Platform management fixes
