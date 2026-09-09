@@ -183,7 +183,7 @@ public class OwlcmsCrudGrid<T> extends GridCrud<T> {
 
 		// Step 1: Clear selection and focus outside the grid
 
-		this.grid.asSingleSelect().clear();
+		this.grid.deselectAll();
 		var focused = focusInFilterArea();
 		logger.debug("focusing on filter area component {}", focused);
 		current.push();
