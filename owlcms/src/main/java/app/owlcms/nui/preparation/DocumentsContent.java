@@ -2146,18 +2146,21 @@ public class DocumentsContent extends BaseContent implements CrudListener<Group>
 	}
 
 	private Cell findVerticalBorderReference(Row row, int startColumn, int stopColumn) {
+		Cell hairlineBorderCell = null;
 		for (int column = startColumn - 1; column < stopColumn; column++) {
 			Cell cell = row.getCell(column);
-			if (cell != null && cell.getCellStyle().getBorderBottom() != BorderStyle.NONE) {
-				return cell;
+			if (cell == null) {
+				continue;
+			}
+			BorderStyle borderBottom = cell.getCellStyle().getBorderBottom();
+			if (borderBottom != BorderStyle.NONE) {
+				if (borderBottom != BorderStyle.HAIR) {
+					return cell;
+				}
+				hairlineBorderCell = cell;
 			}
 		}
-		return findBottomBorderReference(row, stopColumn);
-	}
-
-	private Cell findBottomBorderReference(Row row, int preferredColumn) {
-		Cell endOfRangeCell = row.getCell(preferredColumn - 1);
-		return endOfRangeCell != null ? endOfRangeCell : row.getCell(preferredColumn);
+		return hairlineBorderCell;
 	}
 
 	private Platform getPlatform() {
