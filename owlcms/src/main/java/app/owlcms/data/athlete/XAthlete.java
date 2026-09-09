@@ -71,6 +71,16 @@ public class XAthlete extends Athlete {
 	}
 
 	@Override
+	public void setActualLift(int liftNo, String weight) {
+		this.a.setActualLift(liftNo, weight);
+	}
+
+	@Override
+	public void recordLift(int liftNo, String weight, LocalDateTime decisionTime) {
+		this.a.recordLift(liftNo, weight, decisionTime);
+	}
+
+	@Override
 	public void enforceCategoryIsEligible() {
 		this.a.enforceCategoryIsEligible();
 	}
@@ -1907,7 +1917,7 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setSnatch1LiftTime(LocalDateTime snatch1LiftTime) {
-		super.setSnatch1LiftTime(snatch1LiftTime);
+		this.a.setSnatch1LiftTime(snatch1LiftTime);
 	}
 
 	/**
@@ -1957,7 +1967,7 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setSnatch2LiftTime(LocalDateTime snatch2LiftTime) {
-		super.setSnatch2LiftTime(snatch2LiftTime);
+		this.a.setSnatch2LiftTime(snatch2LiftTime);
 	}
 
 	/**
@@ -2007,7 +2017,7 @@ public class XAthlete extends Athlete {
 
 	@Override
 	public void setSnatch3LiftTime(LocalDateTime snatch3LiftTime) {
-		super.setSnatch3LiftTime(snatch3LiftTime);
+		this.a.setSnatch3LiftTime(snatch3LiftTime);
 	}
 
 	/**
