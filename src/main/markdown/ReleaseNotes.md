@@ -10,6 +10,8 @@
 
 **Maintenance Log**
 
+- 67.4.6: Post-processing of documents to adjust borders improved to correctly infer the border widths.
+
 - 67.4.5: Registration page: addition of a athlete correctly filters as birth date and gender are entered
 
 - 67.4.5: Records with no valid lift type are flagged on import and import is prevented.
