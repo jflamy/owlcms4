@@ -104,6 +104,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 	private Group currentGroup;
 	private JXLSDownloader downloadDialog;
 	private Gender gender;
+	private Checkbox includeRecords;
 	private Checkbox includeUnfinishedCategories;
 	private ComboBox<Ranking> rankingSelector;
 	private Ranking scoringSystem;
@@ -592,6 +593,8 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		defineFilterCascade(crud);
 		this.includeUnfinishedCategories = new Checkbox(Translator.translate("Video.includeNotCompleted"));
 		getCrudLayout(crud).addFilterComponent(this.includeUnfinishedCategories);
+		this.includeRecords = new Checkbox(Translator.translate("Results.IncludeRecords"));
+		getCrudLayout(crud).addFilterComponent(this.includeRecords);
 		defineSelectionListeners();
 
 		this.includeUnfinishedCategories.addValueChangeListener(e -> crud.refreshGrid());
@@ -635,6 +638,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 		clearFilters.addClickListener(event -> {
 			clearFilters();
 			this.includeUnfinishedCategories.setValue(false);
+			this.includeRecords.setValue(false);
 			winnersOnlyCheckbox.setValue(false);
 		});
 		
@@ -730,6 +734,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setGender(this.gender);
 			        rs.setCategory(getCategoryValue());
+			        rs.setIncludeRecords(Boolean.TRUE.equals(this.includeRecords.getValue()));
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.currentGroup != null ? GroupRepository.getById(this.currentGroup.getId()) : null);
 
@@ -764,6 +769,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 					rs.setAgeGroupPrefix(this.ageGroupPrefix);
 					rs.setGender(this.gender);
 					rs.setCategory(this.categoryValue);
+					rs.setIncludeRecords(Boolean.TRUE.equals(this.includeRecords.getValue()));
 					rs.setIncludeUnfinished(Boolean.TRUE.equals(this.includeUnfinishedCategories.getValue()));
 					rs.setWinnersOnly(this.winnersOnly);
 					Ranking computeScoringSystem = computeScoringSystemForBook();
@@ -791,6 +797,7 @@ public class PackageContent extends AthleteGridContent implements HasDynamicTitl
 			        rs.setAgeGroupPrefix(this.ageGroupPrefix);
 			        rs.setGender(this.gender);
 			        rs.setCategory(getCategoryValue());
+			        rs.setIncludeRecords(Boolean.TRUE.equals(this.includeRecords.getValue()));
 			        rs.setGroup(null);
 			        rs.setSortedAthletes((List<Athlete>) findAll());
 

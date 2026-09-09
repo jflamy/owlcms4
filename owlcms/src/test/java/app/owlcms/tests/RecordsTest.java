@@ -7,7 +7,9 @@
 package app.owlcms.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -159,6 +161,24 @@ public class RecordsTest {
 
         assertEquals(1, provisionalRecords.size());
         assertEquals(102.0D, provisionalRecords.get(0).getRecordValue(), 0.001D);
+    }
+
+    @Test
+    public void currentCompetitionRecordMatchesBrokenProvisionalStatusByDateRange() {
+        RecordEvent renamed = createRecord(102.0D, "A");
+        renamed.setEvent("Original Event Name");
+        renamed.setRecordDate(LocalDate.of(2026, 9, 5));
+		renamed.setGroupNameString(null);
+		RecordEvent matchingEventOutsideDates = createRecord(103.0D, "A");
+		matchingEventOutsideDates.setEvent("Renamed Event");
+		matchingEventOutsideDates.setRecordDate(LocalDate.of(2026, 8, 31));
+
+        assertTrue(RecordFilter.isCurrentCompetitionRecord(
+                renamed, "Renamed Event", LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 8)));
+        assertFalse(RecordFilter.isCurrentCompetitionRecord(
+                renamed, "Renamed Event", LocalDate.of(2026, 9, 6), LocalDate.of(2026, 9, 8)));
+		assertFalse(RecordFilter.isCurrentCompetitionRecord(
+				matchingEventOutsideDates, "Renamed Event", LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 8)));
     }
 
     @Test

@@ -50,6 +50,7 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 	private String ageGroupPrefix;
 	@SuppressWarnings("unused")
 	private Logger logger = LoggerFactory.getLogger(JXLSCompetitionBook.class);
+	private boolean includeRecords;
 	private boolean isIncludeUnfinished;
 	private boolean winnersOnly;
 
@@ -98,6 +99,15 @@ public class JXLSCompetitionBook extends JXLSWorkbookStreamSource {
 
 	public void setIncludeUnfinished(boolean isIncludeUnifinished) {
 		this.isIncludeUnfinished = isIncludeUnifinished;
+	}
+
+	public void setIncludeRecords(boolean includeRecords) {
+		this.includeRecords = includeRecords;
+	}
+
+	@Override
+	protected Object createRecordsBean() {
+		return this.includeRecords ? super.createRecordsBean() : null;
 	}
 
 	@Override

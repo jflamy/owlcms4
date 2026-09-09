@@ -33,6 +33,7 @@ import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.athleteSort.Ranking;
 import app.owlcms.data.category.Category;
+import app.owlcms.data.category.CategoryRepository;
 import app.owlcms.data.category.UnfinishedCategories;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
@@ -62,6 +63,7 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 		jexlLogger.setLevel(Level.ERROR);
 		tagLogger.setLevel(Level.ERROR);
 	}
+	private boolean includeRecords;
 	private boolean resultsByCategory;
 
 	public JXLSWinningSheet() {
@@ -232,19 +234,47 @@ public class JXLSWinningSheet extends JXLSWorkbookStreamSource {
 
 	@Override
 	protected Object createRecordsBean() {
+		if (!this.includeRecords) {
+			return null;
+		}
 		Category category = getCategory();
-		if (category == null) {
+		if (category != null) {
+			return new LazyRecordEventList(() -> fetchCategoryRecords(List.of(category)));
+		}
+
+		List<Category> categories = CategoryRepository.findFiltered(null, getGender(), getChampionship(), null,
+		        null, null, true, -1, -1).stream()
+		        .filter(c -> getAgeGroupPrefix() == null
+		                || c.getAgeGroup() != null && getAgeGroupPrefix().equals(c.getAgeGroup().getCode()))
+		        .toList();
+		if (categories.isEmpty()) {
 			return null;
 		}
 
-		return new LazyRecordEventList(() -> fetchCategoryRecords(category));
+		return new LazyRecordEventList(() -> fetchCategoryRecords(categories));
 	}
 
-	private List<RecordEvent> fetchCategoryRecords(Category category) {
-		logger.debug("lazily fetching records for winning sheet category {}", category);
-		List<RecordEvent> records = normalizeRecordEventsForTemplate(RecordRepository.findProvisionalRecordsForCategory(category));
-		records = filterStaleProvisionalRecords(records);
-		logger.info("{} records found for winning sheet category {}", records != null ? records.size() : 0, category);
+	public void setIncludeRecords(boolean includeRecords) {
+		this.includeRecords = includeRecords;
+	}
+
+	private List<RecordEvent> fetchCategoryRecords(List<Category> categories) {
+		logger.debug("lazily fetching records for {} winning sheet categories", categories.size());
+		List<RecordEvent> candidateRecords = RecordRepository.findFiltered(null, null, null, null, null);
+		candidateRecords = filterStaleProvisionalRecords(candidateRecords);
+		JXLSExportRecords recordExtractor = new JXLSExportRecords(null, candidateRecords);
+		LinkedHashMap<Long, RecordEvent> recordsById = new LinkedHashMap<>();
+		for (Category category : categories) {
+			List<RecordEvent> categoryRecords = recordExtractor.getRecords(category);
+			if (categoryRecords != null) {
+				for (RecordEvent record : categoryRecords) {
+					recordsById.put(record.getId(), record);
+				}
+			}
+		}
+		List<RecordEvent> records = normalizeRecordEventsForTemplate(new ArrayList<>(recordsById.values()));
+		records.sort(JXLSExportRecords.recordOrderComparator());
+		logger.info("{} records found for {} winning sheet categories", records.size(), categories.size());
 		return records;
 	}
 

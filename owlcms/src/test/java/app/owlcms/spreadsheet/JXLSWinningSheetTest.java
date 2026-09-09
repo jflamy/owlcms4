@@ -1,6 +1,7 @@
 package app.owlcms.spreadsheet;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -19,6 +20,11 @@ public class JXLSWinningSheetTest {
 		assertFalse(JXLSWinningSheet.isIwfFlatFileTemplate(null));
 		assertFalse(JXLSWinningSheet.isIwfFlatFileTemplate("_FlatFile.xlsx"));
 		assertFalse(JXLSWinningSheet.isIwfFlatFileTemplate("Protocol_All_IWF-A4.xlsx"));
+	}
+
+	@Test
+	public void excludesRecordsByDefault() {
+		assertNull(new JXLSWinningSheet().createRecordsBean());
 	}
 
 }
