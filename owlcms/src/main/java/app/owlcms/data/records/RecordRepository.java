@@ -1340,9 +1340,9 @@ public class RecordRepository {
 	 * key, HISTORY keeps superseded records as well)</li>
 	 * </ul>
 	 *
-	 * @param thisCompetitionOnly when {@code true}, keep only records whose event matches the current
-	 *                            competition name or whose record date falls within the competition;
-	 *                            applied before the current/history grouping
+	 * @param thisCompetitionOnly when {@code true}, keep only records whose date falls within the
+	 *                            current competition; the event name is used only when no competition
+	 *                            date is configured; applied before the current/history grouping
 	 */
 	public static List<RecordEvent> findWithFilters(
 	        String federation,

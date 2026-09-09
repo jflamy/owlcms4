@@ -180,6 +180,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 	private Group currentGroup;
 	private JXLSDownloader downloadDialog;
+	private Checkbox includeRecords;
 	private Checkbox medalsOnly;
 	private ComboBox<Ranking> rankingSelector;
 	private Ranking scoringSystem;
@@ -526,6 +527,9 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 		});
 		crud.getCrudLayout().addFilterComponent(this.medalsOnly);
 
+		this.includeRecords = new Checkbox(Translator.translate("Results.IncludeRecords"));
+		crud.getCrudLayout().addFilterComponent(this.includeRecords);
+
 		if (this.getGenderFilter() == null) {
 			this.setGenderFilter(new ComboBox<>());
 		}
@@ -615,6 +619,7 @@ public class SessionResultsContent extends AthleteGridContent implements HasDyna
 			        JXLSWinningSheet rs = new JXLSWinningSheet();
 			        Ranking computeScoringSystem = computeScoringSystem();
 			        rs.setBestLifterScoringSystem(computeScoringSystem);
+			        rs.setIncludeRecords(Boolean.TRUE.equals(this.includeRecords.getValue()));
 			        // group may have been edited since the page was loaded
 			        rs.setGroup(this.getCurrentGroup() != null ? GroupRepository.getById(this.getCurrentGroup().getId()) : null);
 			        return rs;

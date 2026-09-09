@@ -94,6 +94,9 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 		for (RecordEvent record : this.records) {
 			Integer athleteAge = record.getAthleteAge();
 			Double athleteBW = record.getAthleteBW();
+			if (athleteAge == null || athleteBW == null) {
+				continue;
+			}
 			try {
 				if (record.getGender() == cat.getGender()
 				        && athleteAge >= cat.getAgeGroup().getMinAge()
@@ -169,6 +172,10 @@ public class JXLSExportRecords extends JXLSWorkbookStreamSource {
 	}
 
 	public Comparator<RecordEvent> sortRecords() {
+		return recordOrderComparator();
+	}
+
+	public static Comparator<RecordEvent> recordOrderComparator() {
 		// Use the same ordering as RecordRepository.findWithFilters for consistency
 		return Comparator
 		        .comparing(RecordEvent::getRecordFederation) // federation first

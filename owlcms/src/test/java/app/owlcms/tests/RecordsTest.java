@@ -144,7 +144,7 @@ public class RecordsTest {
     }
 
     @Test
-    public void currentCompetitionProvisionalFilterDropsBlankAndStaleEvents() {
+    public void currentCompetitionProvisionalFilterUsesCompetitionDates() {
         RecordEvent current = createRecord(102.0D, "A");
         current.setEvent("Current Event");
         current.setRecordDate(LocalDate.of(2026, 8, 25));
@@ -166,13 +166,12 @@ public class RecordsTest {
             LocalDate.of(2026, 8, 26),
             LocalDate.of(2026, 8, 30));
 
-        assertEquals(2, provisionalRecords.size());
-        assertEquals(102.0D, provisionalRecords.get(0).getRecordValue(), 0.001D);
-        assertEquals(106.0D, provisionalRecords.get(1).getRecordValue(), 0.001D);
+        assertEquals(1, provisionalRecords.size());
+        assertEquals(106.0D, provisionalRecords.get(0).getRecordValue(), 0.001D);
     }
 
     @Test
-    public void thisCompetitionRecordsMatchEventOrCompetitionDates() {
+    public void thisCompetitionRecordsMatchCompetitionDates() {
         Competition competition = Competition.getCurrent();
         competition.setCompetitionName("Current Event");
         competition.setCompetitionDate(LocalDate.of(2026, 8, 26));
@@ -205,9 +204,8 @@ public class RecordsTest {
                 "ACTIVE",
                 true);
 
-        assertEquals(2, currentRecords.size());
-        assertEquals(102.0D, currentRecords.get(0).getRecordValue(), 0.001D);
-        assertEquals(103.0D, currentRecords.get(1).getRecordValue(), 0.001D);
+        assertEquals(1, currentRecords.size());
+        assertEquals(103.0D, currentRecords.get(0).getRecordValue(), 0.001D);
     }
 
     @Test
@@ -222,6 +220,25 @@ public class RecordsTest {
         renamedCurrent.setRecordDate(LocalDate.of(2026, 8, 31));
         assertEquals(false, RecordFilter.isCurrentCompetitionRecord(
                 renamedCurrent, "Renamed Event", LocalDate.of(2026, 8, 26), LocalDate.of(2026, 8, 30)));
+    }
+
+    @Test
+    public void currentCompetitionRecordMatchesBrokenProvisionalStatusByDateRange() {
+        RecordEvent renamed = createRecord(102.0D, "A");
+        renamed.setEvent("Original Event Name");
+        renamed.setRecordDate(LocalDate.of(2026, 9, 5));
+		renamed.setGroupNameString(null);
+		RecordEvent matchingEventOutsideDates = createRecord(103.0D, "A");
+		matchingEventOutsideDates.setEvent("Renamed Event");
+		matchingEventOutsideDates.setRecordDate(LocalDate.of(2026, 8, 31));
+
+        List<RecordEvent> currentRecords = RecordFilter.keepCurrentCompetitionRecords(
+                Arrays.asList(renamed, matchingEventOutsideDates),
+                "Renamed Event",
+                LocalDate.of(2026, 9, 1),
+                LocalDate.of(2026, 9, 8));
+
+        assertEquals(List.of(renamed), currentRecords);
     }
 
     @Test

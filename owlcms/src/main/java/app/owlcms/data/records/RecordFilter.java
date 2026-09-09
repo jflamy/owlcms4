@@ -280,6 +280,17 @@ public class RecordFilter {
 		        .collect(Collectors.toList());
 	}
 
+	public static List<RecordEvent> keepCurrentCompetitionRecords(Collection<RecordEvent> records,
+	        String currentEvent, LocalDate competitionDate, LocalDate competitionEndDate) {
+		if (records == null) {
+			return null;
+		}
+		return records.stream()
+		        .filter(record -> isCurrentCompetitionRecord(record, currentEvent, competitionDate,
+		                competitionEndDate))
+		        .collect(Collectors.toList());
+	}
+
 	public static boolean isCurrentCompetitionProvisionalRecord(RecordEvent record, String currentEvent) {
 		return isCurrentCompetitionProvisionalRecord(record, currentEvent, null, null);
 	}
@@ -297,17 +308,22 @@ public class RecordFilter {
 		if (record == null) {
 			return false;
 		}
-		String recordEvent = record.getEvent();
-		if (recordEvent != null && !recordEvent.isBlank() && currentEvent != null && !currentEvent.isBlank()
-		        && recordEvent.trim().equals(currentEvent.trim())) {
-			return true;
+		if (competitionDate != null) {
+			return isWithinCompetitionDates(record, competitionDate, competitionEndDate);
 		}
-		LocalDate recordDate = record.getRecordDate();
-		if (recordDate == null || competitionDate == null) {
+		String recordEvent = record.getEvent();
+		return recordEvent != null && !recordEvent.isBlank() && currentEvent != null && !currentEvent.isBlank()
+		        && recordEvent.trim().equals(currentEvent.trim());
+	}
+
+	private static boolean isWithinCompetitionDates(RecordEvent record, LocalDate competitionDate,
+	        LocalDate competitionEndDate) {
+		if (record == null || record.getRecordDate() == null) {
 			return false;
 		}
 		LocalDate effectiveEndDate = competitionEndDate != null ? competitionEndDate : competitionDate;
-		return !recordDate.isBefore(competitionDate) && !recordDate.isAfter(effectiveEndDate);
+		return !record.getRecordDate().isBefore(competitionDate)
+		        && !record.getRecordDate().isAfter(effectiveEndDate);
 	}
 
 	public static List<RecordEvent> filterEligibleRecordsForAthlete(Athlete curAthlete,
