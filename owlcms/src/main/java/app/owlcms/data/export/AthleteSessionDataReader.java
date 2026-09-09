@@ -24,7 +24,6 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.StreamReadFeature;
-import tools.jackson.databind.ObjectMapper;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
@@ -140,7 +139,6 @@ public class AthleteSessionDataReader {
 	        List<Athlete> athletes, String[] attributesToRead,
 	        List<Long> sessionIds) throws IOException {
 		List<String> attributes = Arrays.asList(attributesToRead);
-		ObjectMapper mapper = new ObjectMapper();
 		while (!parser.isClosed()) {
 			JsonToken token = parser.nextToken();
 
@@ -160,7 +158,8 @@ public class AthleteSessionDataReader {
 						// value
 						token = parser.nextToken();
 						if (attributes.contains(fieldName) && fieldName.endsWith("LiftTime")) {
-							LocalDateTime liftTime = mapper.readValue(parser, LocalDateTime.class);
+							LocalDateTime liftTime = token == JsonToken.VALUE_NULL ? null
+									: LocalDateTime.parse(parser.getValueAsString());
 							try {
 								PropertyDescriptor property = new PropertyDescriptor(fieldName, Athlete.class);
 								property.getWriteMethod().invoke(jsonAthlete, liftTime);

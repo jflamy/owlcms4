@@ -26,6 +26,7 @@ public class AthleteBirthDateTest {
 		Main.injectSuppliers();
 		JPAService.init(true, true);
 		Config.initConfig();
+		TestData.insertInitialData(5, true);
 	}
 
 	@AfterClass

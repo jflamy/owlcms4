@@ -30,6 +30,7 @@ import com.google.common.eventbus.EventBus;
 import app.owlcms.Main;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
+import app.owlcms.data.agegroup.MedalPolicy;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athlete.Gender;
@@ -530,7 +531,7 @@ public class LeadersComputationTest {
 			Category cat = CategoryRepository.findByCode(code);
 			Championship championship = cat.getAgeGroup().getChampionship();
 			if (championship != null && championship.isSnatchCJTotalMedals() != threeMedals) {
-				championship.setSnatchCJTotalMedals(threeMedals);
+				championship.setMedalPolicy(threeMedals ? MedalPolicy.ALL_THREE : MedalPolicy.TOTAL_ONLY);
 				ChampionshipRepository.save(championship);
 			}
 		}
