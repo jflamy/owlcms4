@@ -59,6 +59,7 @@ jfl*.*
 owlcms/package.json
 owlcms/package-lock.json
 playwright/.flattened-pom.xml
+/playwright/theme-compare/
 package-lock.json
 package.json
 !docs/scripts/md-clean/package.json
