@@ -755,66 +755,63 @@ public class Athlete {
 	}
 
 	/**
-	 * used for jury overrides and for testing
+	 * Records a lift with the current decision time, including simulated lifts in tests.
 	 *
 	 * @param liftNo
 	 * @param weight
 	 */
 	public void doLift(int liftNo, final String weight) {
+		recordLift(liftNo, weight, LocalDateTime.now());
+	}
+
+	public void setActualLift(int liftNo, String weight) {
 		switch (liftNo) {
 			case 1:
-				this.setSnatch1ActualLift(weight);
-				if (this.getSnatch1LiftTime() == null) {
-					this.setSnatch1LiftTime(LocalDateTime.now());
-				}
-				if (weight == null || weight.isBlank()) {
-					this.setSnatch1LiftTime(null);
-				}
+				setSnatch1ActualLift(weight);
 				break;
 			case 2:
-				this.setSnatch2ActualLift(weight);
-				if (this.getSnatch2LiftTime() == null) {
-					this.setSnatch2LiftTime(LocalDateTime.now());
-				}
-				if (weight == null || weight.isBlank()) {
-					this.setSnatch2LiftTime(null);
-				}
+				setSnatch2ActualLift(weight);
 				break;
 			case 3:
-				this.setSnatch3ActualLift(weight);
-				if (this.getSnatch3LiftTime() == null) {
-					this.setSnatch3LiftTime(LocalDateTime.now());
-				}
-				if (weight == null || weight.isBlank()) {
-					this.setSnatch3LiftTime(null);
-				}
+				setSnatch3ActualLift(weight);
 				break;
 			case 4:
-				this.setCleanJerk1ActualLift(weight);
-				if (this.getCleanJerk1LiftTime() == null) {
-					this.setCleanJerk1LiftTime(LocalDateTime.now());
-				}
-				if (weight == null || weight.isBlank()) {
-					this.setCleanJerk1LiftTime(null);
-				}
+				setCleanJerk1ActualLift(weight);
 				break;
 			case 5:
-				this.setCleanJerk2ActualLift(weight);
-				if (this.getCleanJerk2LiftTime() == null) {
-					this.setCleanJerk1LiftTime(LocalDateTime.now());
-				}
-				if (weight == null || weight.isBlank()) {
-					this.setCleanJerk2LiftTime(null);
-				}
+				setCleanJerk2ActualLift(weight);
 				break;
 			case 6:
-				this.setCleanJerk3ActualLift(weight);
-				if (this.getCleanJerk3LiftTime() == null) {
-					this.setCleanJerk3LiftTime(LocalDateTime.now());
-				}
-				if (weight == null || weight.isBlank()) {
-					this.setCleanJerk3LiftTime(null);
-				}
+				setCleanJerk3ActualLift(weight);
+				break;
+			default:
+				throw new IllegalArgumentException("Invalid attempt: " + liftNo);
+		}
+	}
+
+	public void recordLift(int liftNo, String weight, LocalDateTime decisionTime) {
+		if (decisionTime == null || nullIfInvalid(weight) == null || nullIfInvalid(weight) == 0) {
+			throw new IllegalArgumentException("A live lift requires a nonzero result and a decision time");
+		}
+		setActualLift(liftNo, weight);
+		switch (liftNo) {
+			case 1:
+				this.setSnatch1LiftTime(decisionTime);
+				break;
+			case 2:
+				this.setSnatch2LiftTime(decisionTime);
+				break;
+			case 3:
+				this.setSnatch3LiftTime(decisionTime);
+				break;
+			case 4:
+				this.setCleanJerk1LiftTime(decisionTime);
+				break;
+			case 5:
+				this.setCleanJerk2LiftTime(decisionTime);
+				break;
+			case 6:
+				this.setCleanJerk3LiftTime(decisionTime);
 				break;
 		}
 	}
@@ -4054,11 +4051,6 @@ public class Athlete {
 		this.cleanJerk1ActualLift = cleanJerk1ActualLift;
 		getLogger().info("{}{} cleanJerk1ActualLift={}", getFopLoggingName(), this.getShortName(),
 				cleanJerk1ActualLift);
-		if (nullIfInvalid(cleanJerk1ActualLift) == null) {
-			this.setCleanJerk1LiftTime(null);
-		} else {
-			this.setCleanJerk1LiftTime(LocalDateTime.now());
-		}
 	}
 
 	/**
@@ -4158,11 +4150,6 @@ public class Athlete {
 		getLogger().info("{}{} cleanJerk2ActualLift={}", getFopLoggingName(), this.getShortName(),
 				cleanJerk2ActualLift);
 
-		if (nullIfInvalid(cleanJerk2ActualLift) == null) {
-			this.setCleanJerk2LiftTime((LocalDateTime) null);
-		} else {
-			this.setCleanJerk2LiftTime(LocalDateTime.now());
-		}
 	}
 
 	/**
@@ -4248,15 +4235,6 @@ public class Athlete {
 	public void setCleanJerk3ActualLift(String cleanJerk3ActualLift) {
 		if (isValidation()) {
 			validateCleanJerk3ActualLift(cleanJerk3ActualLift);
-		}
-
-		if (nullIfInvalid(cleanJerk3ActualLift) == null) {
-			this.setCleanJerk3LiftTime((LocalDateTime) null);
-		} else {
-			if (getFop() != null) {
-				getFop().checkLastDecision();
-			}
-			this.setCleanJerk3LiftTime(LocalDateTime.now());
 		}
 
 		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
@@ -4758,12 +4736,6 @@ public class Athlete {
 		this.snatch1ActualLift = snatch1ActualLift;
 		getLogger().info("{}{} snatch1ActualLift={}", getFopLoggingName(), this.getShortName(),
 				snatch1ActualLift);
-
-		if (nullIfInvalid(snatch1ActualLift) == null) {
-			this.setSnatch1LiftTime(null);
-		} else {
-			this.setSnatch1LiftTime(LocalDateTime.now());
-		}
 	}
 
 	/**
@@ -4852,11 +4824,6 @@ public class Athlete {
 		this.snatch2ActualLift = snatch2ActualLift;
 		getLogger().info("{}{} snatch2ActualLift={}", getFopLoggingName(), this.getShortName(),
 				snatch2ActualLift);
-		if (nullIfInvalid(snatch2ActualLift) == null) {
-			this.setSnatch2LiftTime(null);
-		} else {
-			this.setSnatch2LiftTime(LocalDateTime.now());
-		}
 	}
 
 	/**
@@ -4942,16 +4909,6 @@ public class Athlete {
 	public void setSnatch3ActualLift(String snatch3ActualLift) {
 		if (isValidation()) {
 			validateSnatch3ActualLift(snatch3ActualLift);
-		}
-
-		if (nullIfInvalid(snatch3ActualLift) == null) {
-			// editing emptied the cell
-			this.setSnatch3LiftTime(null);
-		} else {
-			if (getFop() != null) {
-				getFop().checkLastDecision();
-			}
-			this.setSnatch3LiftTime(LocalDateTime.now());
 		}
 
 		this.snatch3ActualLift = snatch3ActualLift;

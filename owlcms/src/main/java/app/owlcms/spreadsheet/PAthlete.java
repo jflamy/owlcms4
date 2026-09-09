@@ -81,6 +81,76 @@ public class PAthlete extends Athlete implements IRankHolder {
 		return this.a;
 	}
 
+	@Override
+	public void setActualLift(int liftNo, String weight) {
+		this.a.setActualLift(liftNo, weight);
+	}
+
+	@Override
+	public void recordLift(int liftNo, String weight, LocalDateTime decisionTime) {
+		this.a.recordLift(liftNo, weight, decisionTime);
+	}
+
+	@Override
+	public void setSnatch1ActualLift(String value) {
+		this.a.setSnatch1ActualLift(value);
+	}
+
+	@Override
+	public void setSnatch2ActualLift(String value) {
+		this.a.setSnatch2ActualLift(value);
+	}
+
+	@Override
+	public void setSnatch3ActualLift(String value) {
+		this.a.setSnatch3ActualLift(value);
+	}
+
+	@Override
+	public void setCleanJerk1ActualLift(String value) {
+		this.a.setCleanJerk1ActualLift(value);
+	}
+
+	@Override
+	public void setCleanJerk2ActualLift(String value) {
+		this.a.setCleanJerk2ActualLift(value);
+	}
+
+	@Override
+	public void setCleanJerk3ActualLift(String value) {
+		this.a.setCleanJerk3ActualLift(value);
+	}
+
+	@Override
+	public void setSnatch1LiftTime(LocalDateTime value) {
+		this.a.setSnatch1LiftTime(value);
+	}
+
+	@Override
+	public void setSnatch2LiftTime(LocalDateTime value) {
+		this.a.setSnatch2LiftTime(value);
+	}
+
+	@Override
+	public void setSnatch3LiftTime(LocalDateTime value) {
+		this.a.setSnatch3LiftTime(value);
+	}
+
+	@Override
+	public void setCleanJerk1LiftTime(LocalDateTime value) {
+		this.a.setCleanJerk1LiftTime(value);
+	}
+
+	@Override
+	public void setCleanJerk2LiftTime(LocalDateTime value) {
+		this.a.setCleanJerk2LiftTime(value);
+	}
+
+	@Override
+	public void setCleanJerk3LiftTime(LocalDateTime value) {
+		this.a.setCleanJerk3LiftTime(value);
+	}
+
 	/**
 	 * used only for debugging
 	 *
