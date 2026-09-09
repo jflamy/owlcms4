@@ -98,6 +98,8 @@ public class RecordDefinitionReader {
 
 	private static final CellSetter EMPTY_SETTER = (rec, cell) -> {
 	};
+
+	private final CellSetter recordLiftSetter = (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell, this.locale);
 	
 	private final Map<String, CellSetter> SETTER_MAP = Map.ofEntries(
 	        Map.entry("federation", (rec, cell) -> RecordEventSetters.setFederation(rec, cell)),
@@ -122,8 +124,8 @@ public class RecordDefinitionReader {
 	        Map.entry("bwhigh", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)), // synonym
 	        Map.entry("bodyweightmax", (rec, cell) -> RecordEventSetters.setBwUpper(rec, cell)), // synonym
 
-	        Map.entry("recordlift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell, this.locale)),  
-	        Map.entry("lift", (rec, cell) -> RecordEventSetters.setRecordLift(rec, cell, this.locale)), // synonym
+	        Map.entry("recordlift", recordLiftSetter),
+	        Map.entry("lift", recordLiftSetter), // synonym
 
 	        Map.entry("recordvalue", (rec, cell) -> RecordEventSetters.setRecordValue(rec, cell)),
 	        Map.entry("record", (rec, cell) -> RecordEventSetters.setRecordValue(rec, cell)), // synonym
@@ -194,7 +196,13 @@ public class RecordDefinitionReader {
 					// but if the row has blank non empty cells we will.
 					boolean error = false;
 					for (int iColumn = 0; setterTable != null && iColumn < setterTable.length; iColumn++) {
-						Cell cell = row.getCell(iColumn, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+						Cell cell = row.getCell(iColumn);
+						if (cell == null && setterTable[iColumn] != recordLiftSetter) {
+							continue;
+						}
+						if (cell == null) {
+							cell = row.getCell(iColumn, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+						}
 						try {
 
 							logger.debug("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
@@ -298,7 +306,13 @@ public class RecordDefinitionReader {
 
 				boolean error = false;
 				for (int iColumn = 0; setterTable != null && iColumn < setterTable.length; iColumn++) {
-					Cell cell = row.getCell(iColumn, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+					Cell cell = row.getCell(iColumn);
+					if (cell == null && setterTable[iColumn] != recordLiftSetter) {
+						continue;
+					}
+					if (cell == null) {
+						cell = row.getCell(iColumn, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+					}
 					try {
 						if (setterTable != null && iColumn < setterTable.length) {
 							setterTable[iColumn].set(rec, cell);
