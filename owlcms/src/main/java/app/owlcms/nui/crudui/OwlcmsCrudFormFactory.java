@@ -327,6 +327,7 @@ public abstract class OwlcmsCrudFormFactory<T> extends DefaultCrudFormFactory<T>
 			try {
 				clickListener.onComponentEvent(click);
 			} catch (Exception e) {
+				logger.error("Error executing {} operation for {}", operation, domainObject, e);
 				showError(operation, e);
 			}
 			dialog.close();
