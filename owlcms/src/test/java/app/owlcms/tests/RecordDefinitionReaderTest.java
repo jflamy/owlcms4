@@ -267,6 +267,16 @@ public class RecordDefinitionReaderTest {
         assertEquals("reference_upload", allRecords.get(0).getFileName());
     }
 
+    @Test
+    public void _13_testMissingRecordLiftIsNotImported() throws IOException {
+        try (Workbook workbook = createWorkbook("QC", "Provincial", "F", "SR", 15, 999, 71, 76, null, 101)) {
+            List<String> errors = new RecordDefinitionReader().createRecords(workbook, "missing-lift.xlsx", "missing-lift");
+
+            assertEquals(0, RecordRepository.findAll().size());
+            assertTrue(errors.stream().anyMatch(error -> error.contains("I2") && error.contains("Record lift cannot be empty")));
+        }
+    }
+
     private Workbook createWorkbook(
             String federation,
             String recordName,
@@ -325,7 +335,9 @@ public class RecordDefinitionReaderTest {
         row.createCell(5).setCellValue(ageUpper);
         row.createCell(6).setCellValue(bwLower);
         row.createCell(7).setCellValue(bwUpper);
-        row.createCell(8).setCellValue(lift);
+        if (lift != null) {
+            row.createCell(8).setCellValue(lift);
+        }
         row.createCell(9).setCellValue(recordValue);
         if (athleteName != null) {
             row.createCell(10).setCellValue(athleteName);

@@ -50,6 +50,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -192,9 +193,9 @@ public class RecordDefinitionReader {
 					// beware: on a truly empty row we will not enter this loop.
 					// but if the row has blank non empty cells we will.
 					boolean error = false;
-					for (Cell cell : row) {
+					for (int iColumn = 0; setterTable != null && iColumn < setterTable.length; iColumn++) {
+						Cell cell = row.getCell(iColumn, MissingCellPolicy.CREATE_NULL_AS_BLANK);
 						try {
-							int iColumn = cell.getAddress().getColumn();
 
 							logger.debug("[" + sheet.getSheetName() + "," + cell.getAddress() + "]");
 
@@ -202,7 +203,6 @@ public class RecordDefinitionReader {
 								setterTable[iColumn].set(rec, cell);
 							}
 
-							iColumn++;
 						} catch (Exception e) {
 							// do not report errors on empty rows
 							if (!isEmptyRow(rec)) {
@@ -297,9 +297,9 @@ public class RecordDefinitionReader {
 				rec.setFileName(baseName);
 
 				boolean error = false;
-				for (Cell cell : row) {
+				for (int iColumn = 0; setterTable != null && iColumn < setterTable.length; iColumn++) {
+					Cell cell = row.getCell(iColumn, MissingCellPolicy.CREATE_NULL_AS_BLANK);
 					try {
-						int iColumn = cell.getAddress().getColumn();
 						if (setterTable != null && iColumn < setterTable.length) {
 							setterTable[iColumn].set(rec, cell);
 						}

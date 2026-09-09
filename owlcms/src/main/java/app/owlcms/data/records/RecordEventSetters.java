@@ -96,6 +96,9 @@ public class RecordEventSetters {
     }
 
     public static void setRecordLift(RecordEvent rec, Cell cell, Locale locale) {
+        if (cell.getCellType() == CellType.BLANK || cell.getStringCellValue().isBlank()) {
+            throw new IllegalArgumentException("Record lift cannot be empty");
+        }
         String value = cell.getStringCellValue();
         value = value != null ? value.trim() : value;
         rec.setRecordLift(value, locale);
