@@ -57,6 +57,15 @@ final class RecordGrid extends OwlcmsCrudGrid<RecordEvent> {
 	}
 
 	@Override
+	protected void saveCallBack(OwlcmsCrudGrid<RecordEvent> crudGrid, String successMessage,
+	        CrudOperation operation, RecordEvent domainObject) {
+		if (this.refreshCallback != null) {
+			this.refreshCallback.run();
+		}
+		super.saveCallBack(crudGrid, successMessage, operation, domainObject);
+	}
+
+	@Override
 	protected void initLayoutGrid() {
 		initToolbar();
 

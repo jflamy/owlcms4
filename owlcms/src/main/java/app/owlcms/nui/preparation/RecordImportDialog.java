@@ -20,9 +20,9 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Pre;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
@@ -152,8 +152,19 @@ public class RecordImportDialog extends Dialog {
 
 		if (!errors.isEmpty()) {
 			this.previewArea.add(new H3(translate("Errors")));
-			Pre errorComponent = new Pre(String.join("\n", errors));
+			Div errorComponent = new Div();
 			errorComponent.getStyle().set("color", "var(--lumo-error-color)");
+			errorComponent.getStyle().set("font-size", "var(--lumo-font-size-s)");
+			errorComponent.getStyle().set("line-height", "var(--lumo-line-height-s)");
+			errorComponent.getStyle().set("max-height", "24em");
+			errorComponent.getStyle().set("overflow", "auto");
+			errorComponent.setWidthFull();
+			for (String error : errors) {
+				Span errorLine = new Span(error);
+				errorLine.getStyle().set("display", "block");
+				errorLine.getStyle().set("overflow-wrap", "anywhere");
+				errorComponent.add(errorLine);
+			}
 			this.previewArea.add(errorComponent);
 		} else {
 			this.previewArea.add(new H3(translate("Records.ImportDialog.PreviewTitle")));
