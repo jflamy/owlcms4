@@ -121,7 +121,6 @@ public class MdnsResponder {
 		        .start();
 		synchronized (instances) {
 			nativeResponder = process;
-			registeredHostName = hostName;
 		}
 		announcedAddresses.computeIfAbsent(hostName, ignored -> new ArrayList<>()).add(address);
 		logger.info("announcing {} on {} ({}) using macOS mDNSResponder", hostName, address.getHostAddress(),

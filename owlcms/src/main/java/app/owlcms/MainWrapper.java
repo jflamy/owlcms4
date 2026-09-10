@@ -132,7 +132,7 @@ public class MainWrapper {
                 pb.inheritIO(); // Redirect stdout/stderr to parent process
                 Map<String, String> subprocessEnv = pb.environment();
                 subprocessEnv.putAll(env); // Pass all environment variables
-                subprocessEnv.put("OWLCMS_CONTROLPANEL", "3.1.0"); // Triggers restart after JSON import
+                subprocessEnv.putIfAbsent("OWLCMS_CONTROLPANEL", "3.1.0"); // Fallback enables restart after JSON import
                 if (!isWindows() && !isDaemonMode(env)) {
                     subprocessEnv.put(WRAPPER_PID_ENV, Long.toString(ProcessHandle.current().pid()));
                 }

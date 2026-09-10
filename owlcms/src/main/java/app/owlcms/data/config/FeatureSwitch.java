@@ -69,10 +69,8 @@ public enum FeatureSwitch {
     SINCLAIR_MEET("SinclairMeet", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     V2_EXPORT("v2Export", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     NO_FORWARDER_KEEP_ALIVE("noForwarderKeepAlive", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-    TRACKER_EXTRA("trackerExtra", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     REQUIRE_JURY_PRESIDENT_DECISION("requireJuryPresidentDecision", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
     IWF_LOOK("iwfLook", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
-    DISABLE_MDNS("disableMdns", FeatureSwitchSection.USE_AT_YOUR_OWN_RISK),
 
     ATTEMPT_TRACES("attemptTraces", FeatureSwitchSection.OBSERVABILITY),
     CLOCK_TRACES("clockTraces", FeatureSwitchSection.OBSERVABILITY),

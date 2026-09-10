@@ -23,7 +23,7 @@
         "OWLCMS_MEMORYMODE": "false",
         // default is to ignore event forwarding by forcing "" as URL
         // comment out the next two lines to use what is in the database
-        "OWLCMS_VIDEODATA": "",
+        "OWLCMS_VIDEODATA": "ws://owlcms.local:8096/ws",
         "OWLCMS_REMOTE": "",
         //"OWLCMS_ENABLEEMBEDDEDMQTT": "false"
         //"OWLCMS_VIDEODATAKEY": "amalauxpattes",

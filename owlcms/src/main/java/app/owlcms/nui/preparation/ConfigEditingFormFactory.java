@@ -30,6 +30,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 
 import app.owlcms.components.ConfirmationDialog;
+import app.owlcms.components.fields.ForwardingConnectionsField;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition;
@@ -53,11 +54,11 @@ import com.vaadin.flow.server.streams.UploadHandler;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
 import com.vaadin.flow.data.provider.ListDataProvider;
-import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.router.Location;
 
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.config.Config;
+import app.owlcms.data.config.ForwardingConnection;
 import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.config.FeatureSwitchSection;
 import app.owlcms.data.config.ConfigRepository;
@@ -153,8 +154,7 @@ public class ConfigEditingFormFactory
 		FormLayout paperLayout = paperSizeForm();
 		FormLayout tzLayout = tzForm();
 		FormLayout languageLayout = presentationForm();
-		FormLayout publicResultsLayout = publicResultsForm();
-		FormLayout videoDataLayout = videoDataForm();
+		FormLayout forwardingConnectionsLayout = forwardingConnectionsForm();
 		FormLayout templateSelectionLayout = templateSelectionForm();
 		FormLayout localOverrideLayout = localOverrideForm();
 		FormLayout translationLayout = translationForm();
@@ -180,8 +180,7 @@ public class ConfigEditingFormFactory
 		tabSheet.add(Translator.translate("Config.ConnexionsTab"),
 		        new VerticalLayout(
 		                new Div(),
-		                publicResultsLayout, separator(),
-		                videoDataLayout, separator(),
+		                forwardingConnectionsLayout, separator(),
 		                mqttLayout, separator()));
 		tabSheet.add(Translator.translate("Config.AccessControlTab"),
 		        new VerticalLayout(
@@ -673,28 +672,25 @@ public class ConfigEditingFormFactory
 		return layout;
 	}
 
-	private FormLayout publicResultsForm() {
+	private FormLayout forwardingConnectionsForm() {
 		FormLayout layout = createLayout();
-		Component title = createTitle("Config.EventPublishingDestination1");
+		Component title = createTitle("Config.EventForwardingConnections");
 		layout.add(title);
 		layout.setColspan(title, 2);
 
-		TextField publicResultsField = new TextField();
-		publicResultsField.setWidthFull();
-		layout.addFormItem(publicResultsField, Translator.translate("Config.EventPublishingURL"));
-		this.binder.forField(publicResultsField)
-		        .withNullRepresentation("")
-		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(https?://|wss?://).*"))
-		        .bind(Config::getPublicResultsURL, Config::setPublicResultsURL);
-
-		PasswordField updateKey = new PasswordField();
-		updateKey.setWidthFull();
-		layout.addFormItem(updateKey, Translator.translate("Config.UpdateKey"));
-		this.binder.forField(updateKey)
-		        .withNullRepresentation("")
-		        .bind(Config::getUpdatekey, Config::setUpdatekey);
+		ForwardingConnectionsField connectionsField = new ForwardingConnectionsField();
+		layout.add(connectionsField);
+		layout.setColspan(connectionsField, 2);
+		this.binder.forField(connectionsField)
+		        .withValidator(this::validForwardingConnections, "")
+		        .bind(Config::getEffectiveForwardingDestinations, Config::setForwardingDestinations);
 
 		return layout;
+	}
+
+	private boolean validForwardingConnections(List<ForwardingConnection> connections) {
+		return connections != null && connections.stream()
+		        .allMatch(connection -> connection != null && ForwardingConnectionsField.isValidUrl(connection.getUrl()));
 	}
 
 	private Hr separator() {
@@ -826,30 +822,6 @@ public class ConfigEditingFormFactory
 			browserTZButton.setText(browserZoneText);
 			defaultTZ.setText(Translator.translate("Config.TZ_FromServer", defZone));
 		});
-
-		return layout;
-	}
-
-	private FormLayout videoDataForm() {
-		FormLayout layout = createLayout();
-		Component title = createTitle("Config.EventPublishingDestination2");
-		layout.add(title);
-		layout.setColspan(title, 2);
-
-		TextField videoDataField = new TextField();
-		videoDataField.setWidthFull();
-		layout.addFormItem(videoDataField, Translator.translate("Config.EventPublishingURL"));
-		this.binder.forField(videoDataField)
-		        .withNullRepresentation("")
-		        .withValidator(new RegexpValidator(Translator.translate("URL.missingProtocol"),"^(https?://|wss?://).*"))
-		        .bind(Config::getVideoDataURL, Config::setVideoDataURL);
-
-		PasswordField updateKey = new PasswordField();
-		updateKey.setWidthFull();
-		layout.addFormItem(updateKey, Translator.translate("Config.UpdateKey"));
-		this.binder.forField(updateKey)
-		        .withNullRepresentation("")
-		        .bind(Config::getVideoDataKey, Config::setVideoDataKey);
 
 		return layout;
 	}

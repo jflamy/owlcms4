@@ -143,6 +143,19 @@ public class JPAService {
 		return JPAService.localDb;
 	}
 
+	public static boolean isLocalDbConfigured(boolean inMemory) {
+		String dbUrl = StartupUtils.getRawStringParam("JDBC_DATABASE_URL");
+		if (dbUrl != null && !dbUrl.isBlank()) {
+			return inMemory || dbUrl.startsWith("jdbc:h2:mem") || dbUrl.startsWith("jdbc:h2:file");
+		}
+		String databaseUrl = StartupUtils.getRawStringParam("DATABASE_URL");
+		if (databaseUrl != null && databaseUrl.startsWith("postgres:")) {
+			return false;
+		}
+		String postgresHost = StartupUtils.getRawStringParam("POSTGRES_HOST");
+		return postgresHost == null || postgresHost.isBlank();
+	}
+
 	public static Properties processSettings(boolean inMemory, boolean reset) throws RuntimeException {
 		Properties properties;
 		String schemaGeneration = reset ? "drop-and-create" : "update";

@@ -221,10 +221,6 @@ public class StartupUtils {
 
     public static void startBrowser() {
         try {
-            if (getBooleanParam("publicDemo")) {
-                logger./**/warn("public demo, not starting browser");
-                return;
-            }
             String hostName = fixBrowserHostname();
             Desktop desktop = null;
             if (Desktop.isDesktopSupported()) {

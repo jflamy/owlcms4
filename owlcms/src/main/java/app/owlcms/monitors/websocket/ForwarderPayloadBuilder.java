@@ -27,7 +27,6 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
 
 import app.owlcms.data.competition.Competition;
-import app.owlcms.data.config.Config;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
@@ -94,10 +93,10 @@ public class ForwarderPayloadBuilder {
 	 */
 	public static Map<String, String> createTimer(UIEvent e, FieldOfPlay fop, String boardMode,
 			String fullName, Integer attemptNumber, String liftTypeKey, FOPState fopState,
-			BreakType breakType, CeremonyType ceremonyType) {
+			BreakType breakType, CeremonyType ceremonyType, String updateKey) {
 		
 		Map<String, String> sb = new LinkedHashMap<>();
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "fopName", fop.getName());
 		mapPut(sb, "fopState", fopState != null ? fopState.toString() : FOPState.INACTIVE.name());
 		mapPut(sb, "mode", boardMode);
@@ -232,11 +231,11 @@ public class ForwarderPayloadBuilder {
 	public static Map<String, String> createDecision(UIEvent event, DecisionEventType det, FieldOfPlay fop,
 			String boardMode, String fullName, Integer attemptNumber, String liftTypeKey,
 			Boolean decisionLight1, Boolean decisionLight2, Boolean decisionLight3,
-			boolean decisionLightsVisible, boolean down, FOPState fopState, JsonNode records) {
+			boolean decisionLightsVisible, boolean down, FOPState fopState, JsonNode records, String updateKey) {
 		
 		Map<String, String> sb = new LinkedHashMap<>();
 		mapPut(sb, "decisionEventType", det.toString());
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "mode", boardMode);
 
 		// competition state
@@ -288,11 +287,11 @@ public class ForwarderPayloadBuilder {
 	 * Create jury event payload.
 	 */
 	public static Map<String, String> createJuryEvent(JuryNotification e, FieldOfPlay fop,
-			String boardMode, FOPState fopState) {
+			String boardMode, FOPState fopState, String updateKey) {
 		
 		Map<String, String> sb = new LinkedHashMap<>();
 
-		mapPut(sb, "updateKey", Config.getCurrent().getParamUpdateKey());
+		mapPut(sb, "updateKey", updateKey);
 		mapPut(sb, "mode", boardMode);
 
 		// competition state

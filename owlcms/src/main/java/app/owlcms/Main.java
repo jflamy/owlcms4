@@ -36,7 +36,6 @@ import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.config.ConfigRepository;
-import app.owlcms.data.config.FeatureSwitch;
 import app.owlcms.data.jpa.BenchmarkData;
 import app.owlcms.data.jpa.BirthDateTextMigration;
 import app.owlcms.data.jpa.DemoData;
@@ -54,7 +53,6 @@ import app.owlcms.jetty.EmbeddedJetty;
 import app.owlcms.monitors.ForwarderSetup;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.servlet.MqttWebSocketProxyEndpoint;
-import app.owlcms.uievents.AppEvent;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.MdnsResponder;
 import app.owlcms.utils.ResourceWalker;
@@ -123,7 +121,6 @@ public class Main {
         }
     }
 
-    private static final int WARNING_MINUTES = 5;
     private final static Logger logger = (Logger) LoggerFactory.getLogger(Main.class);
     protected static boolean demoData;
     protected static boolean demoMode;
@@ -135,10 +132,10 @@ public class Main {
     protected static boolean smallData;
     private static InitialData initialData;
     public static String mqttStartup;
-    private static Integer demoResetDelay;
     private static volatile Server mqttBroker;
 
     public static EmbeddedJetty doRun() {
+        startMdns();
         EmbeddedJetty embeddedJetty = new EmbeddedJetty(null, "owlcms")
                 .setStartLogger(logger)
                 .setInitConfig(Main::initConfig)
@@ -160,14 +157,7 @@ public class Main {
     }
 
     public static void initConfig() {
-        // there is no config read so far.
-        boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
-        if (publicDemo) {
-            JPAService.init(true, true);
-        } else {
-            // setup database
-            JPAService.init(memoryMode, resetMode);
-        }
+        JPAService.init(memoryMode, resetMode);
         // check for database override of resource files
         Config.initConfig();
 
@@ -212,11 +202,8 @@ public class Main {
         overrideTimeZone();
         logger.info("Initialized data ({} ms)", System.currentTimeMillis() - now);
 
-        if (demoResetDelay == null) {
-            StartupUtils.getStartupLogger().info("Initializing Refereeing Devices.");
-            startMQTT();
-        }
-        startMdns();
+        StartupUtils.getStartupLogger().info("Initializing Refereeing Devices.");
+        startMQTT();
         // initialization, don't push out to browsers
         OwlcmsFactory.initDefaultFOP();
 
@@ -238,10 +225,7 @@ public class Main {
      * The main method.
      *
      * Start a web server and do all the required initializations for the
-     * application If running normally, we run until killed. If running as a public
-     * demo, we
-     * sleep for awhile, and then exit. Some external mechanism such as Kubernetes
-     * will notice and restart another instance.
+    * application, which runs until stopped.
      *
      * @param args the arguments
      * @throws Exception the exception
@@ -264,34 +248,13 @@ public class Main {
 
         exitWhenWrapperExits();
 
-        // there is no config read so far.
-        demoResetDelay = StartupUtils.getIntegerParam("publicDemo", null);
-        if (demoResetDelay != null) {
-            logger.info("Public demo server, will reset after {} seconds", demoResetDelay);
-        }
-
         init();
-        // CountDownLatch latch = OwlcmsFactory.getInitializationLatch();
-
-        // restart automatically forever if running as public demo
-        while (true) {
-            EmbeddedJetty embeddedJetty = doRun();
-            if (demoResetDelay == null) {
-                break;
-            } else {
-                warnAndExit(demoResetDelay, embeddedJetty);
-            }
-        }
-
+        doRun();
     }
 
-    /** Announces the configured mDNS name on the LAN. Pointless in the cloud, and can be turned off if it interferes. */
+    /** Announces the LAN name configured by OWLCMS_MDNS independently of the database. */
     public static void startMdns() {
-        if (!JPAService.isLocalDb()) {
-            return;
-        }
-        if (Config.getCurrent().featureSwitch(FeatureSwitch.DISABLE_MDNS)) {
-            logger.info("mDNS disabled by feature switch");
+        if (!JPAService.isLocalDbConfigured(memoryMode)) {
             return;
         }
         String mdnsName = System.getenv("OWLCMS_MDNS");
@@ -471,9 +434,7 @@ public class Main {
                 data = InitialData.EMPTY_COMPETITION;
             }
 
-            // there is no config read so far.
-            boolean publicDemo = StartupUtils.getBooleanParam("publicDemo");
-            if (allCompetitions.isEmpty() || publicDemo) {
+            if (allCompetitions.isEmpty()) {
                 logger.info("injecting initial data {}", data);
                 Config current = Config.getCurrent();
                 current.setLocalDateTimeUtcNormalized(true);
@@ -641,31 +602,6 @@ public class Main {
 			LoggerUtils.logError(logger, e, false);
 		}
 	}
-
-	private static void warnAndExit(Integer demoResetDelay, EmbeddedJetty server)
-			throws InterruptedException {
-
-        Thread.sleep(demoResetDelay * 1000);
-        String warningText = Translator.translate("App.ResetWarning", Integer.toString(WARNING_MINUTES));
-        AppEvent.AppNotification warning = new AppEvent.AppNotification(warningText);
-        // server.start() hijacks stderr and stdout. Must use new thread to log.
-        new Thread(() -> {
-            logger.info(warningText);
-        }).start();
-
-        OwlcmsFactory.getAppUIBus().post(warning);
-        Thread.sleep(WARNING_MINUTES * 60 * 1000);
-        OwlcmsFactory.getAppUIBus().post(new AppEvent.CloseUI());
-        Thread.sleep(5 * 1000);
-
-        // public demo is run with a restart policy of "always", so k8s will restart
-        // everything
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("public demo server shut down");
-        }));
-        prepareForExit();
-        System.exit(0);
-    }
 
     public static void restart() {
         EmbeddedJetty.stop(true);

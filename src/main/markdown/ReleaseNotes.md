@@ -10,6 +10,16 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta16: Event forwarding destinations can now be added, removed, and activated individually; local Tracker connections managed by the Control Panel is treated specially.
+
+- 68.0.0-beta16: Cleanup and standardization of template headers for protocols, jury protocols, and competition results
+
+- 68.0.0-beta16: Post-processing of documents to adjust borders improved to correctly infer the border widths.
+
+- 68.0.0-beta16: Registration page: addition of a athlete correctly filters as birth date and gender are entered
+
+- 68.0.0-beta16: Records with no valid lift type are flagged on import and import is prevented.
+
 - 68.0.0-beta15: Medal sheets and a dedicated Medal Ceremony control page can now be opened from a completed announcer session; the ceremony controls are also available from Run Lifting Session.
 
 - 68.0.0-beta15: Championship/Age Group no longer selected by default on the team results page (same as comp results now)

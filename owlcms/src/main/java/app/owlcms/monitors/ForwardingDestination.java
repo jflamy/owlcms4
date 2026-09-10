@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import app.owlcms.data.config.Config;
-import app.owlcms.data.config.FeatureSwitch;
+import app.owlcms.data.config.ForwardingConnection;
 import app.owlcms.utils.StartupUtils;
 
 /**
@@ -74,6 +74,12 @@ public final class ForwardingDestination {
 		if (config == null) {
 			return new ArrayList<>();
 		}
+		if (!config.getParamEventForwardingEnabled()) {
+			if (logResolution) {
+				logger.info("forwarder configuration disabled by OWLCMS_ENABLEEVENTFORWARDING");
+			}
+			return new ArrayList<>();
+		}
 		for (DestinationInput input : collectDestinationInputs(config, logResolution)) {
 			addDestination(destinationsByUrl, input, logResolution);
 		}
@@ -81,39 +87,38 @@ public final class ForwardingDestination {
 	}
 
 	/**
-	 * Single source of truth for the ordered destination inputs. Each configured source contributes
-	 * a (URL, key) pair; the caller deduplicates them into destinations. A future release will add
-	 * the JSON destination/key list as another input source here.
-	 *
-	 * <p>
-	 * When the {@code trackerExtra} feature switch is on, both stored database pairs are inputs and
-	 * non-blank OWLCMS_REMOTE and OWLCMS_VIDEODATA pairs are additional inputs. Environment keys win
-	 * when URLs deduplicate. Otherwise the environment pairs override the stored values as before.
+	 * Single source of truth for the ordered destination inputs. Persisted connections are followed
+	 * by non-blank environment connections, so environment keys win when URLs deduplicate.
 	 */
 	private static List<DestinationInput> collectDestinationInputs(Config config, boolean logResolution) {
 		List<DestinationInput> inputs = new ArrayList<>();
 		if (logResolution) {
 			logRawInputs(config);
 		}
-		if (config.featureSwitch(FeatureSwitch.TRACKER_EXTRA)) {
-			addDatabaseInput(inputs, "publicResults", config.getPublicResultsURL(), config.getUpdatekey());
-			addDatabaseInput(inputs, "videoData", config.getVideoDataURL(), config.getVideoDataKey());
-			addEnvironmentInput(inputs, "OWLCMS_REMOTE", "remote", "updateKey", false);
-			addEnvironmentInput(inputs, "OWLCMS_VIDEODATA", "videodata", "videoDataKey", false);
-		} else {
-			inputs.add(new DestinationInput(config.getParamPublicResultsURL(), config.getParamUpdateKey(),
-			        "resolved publicResults"));
-			inputs.add(new DestinationInput(config.getParamVideoDataURL(), config.getParamVideoDataKey(),
-			        "resolved videoData"));
+		int connectionNumber = 1;
+		List<String> inactiveManagedUrls = new ArrayList<>();
+		for (ForwardingConnection connection : config.getEffectiveForwardingDestinations()) {
+			if (connection != null && connection.isControlPanelManaged() && !connection.isActive()) {
+				inactiveManagedUrls.add(normalizeBaseUrl(connection.getUrl()));
+			}
+			if (connection != null && connection.isActive()) {
+				inputs.add(new DestinationInput(connection.getUrl(), connection.getUpdateKey(),
+				        "database connection " + connectionNumber));
+			}
+			connectionNumber++;
 		}
+		addEnvironmentInput(inputs, "OWLCMS_REMOTE", "remote", "updateKey", false);
+		addEnvironmentInput(inputs, "OWLCMS_VIDEODATA", "videodata", "videoDataKey", false);
+		inputs.removeIf(input -> inactiveManagedUrls.contains(normalizeBaseUrl(input.baseUrl())));
 		return inputs;
 	}
 
 	private static void logRawInputs(Config config) {
-		logger.info("forwarder database input: name=publicResults, URL={}, key={}",
-		        displayUrl(config.getPublicResultsURL()), keyPresence(config.getUpdatekey()));
-		logger.info("forwarder database input: name=videoData, URL={}, key={}",
-		        displayUrl(config.getVideoDataURL()), keyPresence(config.getVideoDataKey()));
+		int connectionNumber = 1;
+		for (ForwardingConnection connection : config.getForwardingDestinations()) {
+			logger.info("forwarder database input: connection={}, active={}, URL={}, key={}", connectionNumber++,
+			        connection.isActive(), displayUrl(connection.getUrl()), keyPresence(connection.getUpdateKey()));
+		}
 		logRawEnvironmentInput("OWLCMS_REMOTE", "remote", "updateKey");
 		logRawEnvironmentInput("OWLCMS_VIDEODATA", "videodata", "videoDataKey");
 	}
@@ -122,10 +127,6 @@ public final class ForwardingDestination {
 		String url = StartupUtils.getStringParam(urlParam);
 		logger.info("forwarder environment input: name={}, URL={}, key={}", name, displayUrl(url),
 		        keyPresence(StartupUtils.getStringParam(keyParam)));
-	}
-
-	private static void addDatabaseInput(List<DestinationInput> inputs, String name, String url, String key) {
-		inputs.add(new DestinationInput(url, key, "database " + name));
 	}
 
 	private static void addEnvironmentInput(List<DestinationInput> inputs, String name, String urlParam,
@@ -167,8 +168,8 @@ public final class ForwardingDestination {
 		for (ForwardingDestination destination : resolveDestinations(config, true)) {
 			summaries.add(destination.getBaseUrl() + " [key " + keyPresence(destination.getUpdateKey()) + "]");
 		}
-		logger.info("forwarder configuration resolved: trackerExtra={}, destinations={}",
-		        config.featureSwitch(FeatureSwitch.TRACKER_EXTRA), summaries);
+		logger.info("forwarder configuration resolved: enabled={}, destinations={}",
+		        config.getParamEventForwardingEnabled(), summaries);
 	}
 
 	private static void addDestination(Map<String, ForwardingDestination> destinationsByUrl, DestinationInput input,

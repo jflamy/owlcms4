@@ -6,15 +6,19 @@
  *******************************************************************************/
 package app.owlcms.data.config;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -68,6 +72,8 @@ public class Config {
 	private static final ObjectMapper FEATURE_SWITCH_JSON_MAPPER = new ObjectMapper();
 	private static final TypeReference<LinkedHashMap<String, Boolean>> FEATURE_SWITCH_JSON_TYPE = new TypeReference<>() {
 	};
+	private static final TypeReference<List<ForwardingConnection>> FORWARDING_CONNECTIONS_JSON_TYPE = new TypeReference<>() {
+	};
 	@Transient
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
 
@@ -99,6 +105,7 @@ public class Config {
 			return null;
 		});
 		migrateCurrentFeatureSwitchesToJson();
+		migrateCurrentForwardingConnectionsToJson();
 
 		JPAService.runInTransaction(em -> {
 			RecordConfig f = RecordConfig.getCurrent();
@@ -119,9 +126,19 @@ public class Config {
 		}
 	}
 
+	private static void migrateCurrentForwardingConnectionsToJson() {
+		Config config = getCurrent();
+		if (config.prepareForwardingConnections()) {
+			Config.setCurrent(config);
+		}
+	}
+
 	public static Config setCurrent(Config config) {
 		config.migrateFeatureSwitchesToJson();
-		current = ConfigRepository.save(config);
+		config.prepareForwardingConnections();
+		Config saved = ConfigRepository.save(config);
+		saved.managedForwardingActivity = config.managedForwardingActivity;
+		current = saved;
 		return current;
 	}
 
@@ -150,6 +167,12 @@ public class Config {
 	private String updatekey;
 	private String videoDataURL;
 	private String videoDataKey;
+	@Lob
+	@Column(name = "forwardingDestinationsJson")
+	private String forwardingDestinationsJson;
+	@Transient
+	@JsonIgnore
+	private volatile Map<String, Boolean> managedForwardingActivity = Map.of();
 	private String salt;
 	private String timeZoneId;
 	private Boolean traceMemory;
@@ -237,6 +260,151 @@ public class Config {
 		this.featureSwitchJson = writeFeatureSwitchJson(switches);
 		this.featureSwitches = toLegacyFeatureSwitchString(switches);
 		return true;
+	}
+
+	boolean migrateForwardingConnectionsToJson() {
+		if (this.forwardingDestinationsJson != null) {
+			clearLegacyForwardingConnections();
+			return false;
+		}
+		List<ForwardingConnection> connections = new ArrayList<>();
+		addLegacyForwardingConnection(connections, this.publicResultsURL, this.updatekey);
+		addLegacyForwardingConnection(connections, this.videoDataURL, this.videoDataKey);
+		this.forwardingDestinationsJson = writeForwardingConnectionsJson(normalizeForwardingConnections(connections));
+		clearLegacyForwardingConnections();
+		return true;
+	}
+
+	private boolean prepareForwardingConnections() {
+		boolean changed = migrateForwardingConnectionsToJson();
+		return synchronizeControlPanelVideoData() || changed;
+	}
+
+	private boolean synchronizeControlPanelVideoData() {
+		String controlPanel = StartupUtils.getStringParam("controlpanel");
+		if (controlPanel == null || controlPanel.isBlank()) {
+			controlPanel = StartupUtils.getStringParam("launcher");
+		}
+		if (controlPanel == null || controlPanel.isBlank()) {
+			return false;
+		}
+
+		List<ForwardingConnection> connections = readForwardingConnectionsJson(this.forwardingDestinationsJson);
+		String videoDataUrl = normalizeForwardingUrl(StartupUtils.getStringParam("videodata"));
+		boolean localVideoData = isLoopbackUrl(videoDataUrl);
+		boolean changed = false;
+		ForwardingConnection currentConnection = null;
+
+		for (ForwardingConnection connection : connections) {
+			if (connection.isControlPanelManaged()) {
+				boolean shouldBeActive = localVideoData && videoDataUrl.equals(normalizeForwardingUrl(connection.getUrl()));
+				if (connection.isActive() != shouldBeActive) {
+					connection.setActive(shouldBeActive);
+					changed = true;
+				}
+				if (shouldBeActive) {
+					currentConnection = connection;
+				}
+			}
+		}
+
+		if (localVideoData && currentConnection == null) {
+			for (ForwardingConnection connection : connections) {
+				if (videoDataUrl.equals(normalizeForwardingUrl(connection.getUrl()))) {
+					currentConnection = connection;
+					break;
+				}
+			}
+			if (currentConnection == null) {
+				currentConnection = new ForwardingConnection(videoDataUrl,
+				        StartupUtils.getStringParam("videoDataKey"), true, true);
+				connections.add(currentConnection);
+			} else {
+				currentConnection.setActive(true);
+				currentConnection.setControlPanelManaged(true);
+				currentConnection.setUpdateKey(StartupUtils.getStringParam("videoDataKey"));
+			}
+			changed = true;
+		}
+		if (localVideoData && currentConnection != null) {
+			String videoDataKey = StartupUtils.getStringParam("videoDataKey");
+			if (!Objects.equals(currentConnection.getUpdateKey(), videoDataKey)) {
+				currentConnection.setUpdateKey(videoDataKey);
+				changed = true;
+			}
+		}
+
+		if (changed) {
+			this.forwardingDestinationsJson = writeForwardingConnectionsJson(normalizeForwardingConnections(connections));
+		}
+		return changed;
+	}
+
+	private static boolean isLoopbackUrl(String url) {
+		if (url == null) {
+			return false;
+		}
+		try {
+			String host = new URI(url).getHost();
+			return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host);
+		} catch (URISyntaxException e) {
+			return false;
+		}
+	}
+
+	private static String normalizeForwardingUrl(String url) {
+		return url == null || url.isBlank() ? null : url.trim().replaceFirst("/+$", "");
+	}
+
+	private static void addLegacyForwardingConnection(List<ForwardingConnection> connections, String url,
+			String updateKey) {
+		if (url != null && !url.isBlank()) {
+			connections.add(new ForwardingConnection(url, updateKey));
+		}
+	}
+
+	private void clearLegacyForwardingConnections() {
+		this.publicResultsURL = null;
+		this.updatekey = null;
+		this.videoDataURL = null;
+		this.videoDataKey = null;
+	}
+
+	private static List<ForwardingConnection> readForwardingConnectionsJson(String json) {
+		if (json == null || json.isBlank()) {
+			return new ArrayList<>();
+		}
+		try {
+			return FEATURE_SWITCH_JSON_MAPPER.readValue(json, FORWARDING_CONNECTIONS_JSON_TYPE);
+		} catch (JacksonException e) {
+			throw new IllegalArgumentException("Invalid forwarding destinations JSON", e);
+		}
+	}
+
+	private static String writeForwardingConnectionsJson(List<ForwardingConnection> connections) {
+		try {
+			return FEATURE_SWITCH_JSON_MAPPER.writeValueAsString(connections != null ? connections : List.of());
+		} catch (JacksonException e) {
+			throw new IllegalStateException("Unable to write forwarding destinations JSON", e);
+		}
+	}
+
+	private static List<ForwardingConnection> normalizeForwardingConnections(List<ForwardingConnection> connections) {
+		Map<String, ForwardingConnection> connectionsByUrl = new LinkedHashMap<>();
+		if (connections == null) {
+			return new ArrayList<>();
+		}
+		for (ForwardingConnection connection : connections) {
+			if (connection == null || connection.getUrl() == null || connection.getUrl().isBlank()) {
+				continue;
+			}
+			String url = normalizeForwardingUrl(connection.getUrl());
+			String updateKey = connection.getUpdateKey();
+			connectionsByUrl.put(url, new ForwardingConnection(url,
+			        updateKey == null || updateKey.isBlank() ? null : updateKey,
+			        connection.isActive(), connection.isControlPanelManaged()));
+		}
+		return new ArrayList<>(connectionsByUrl.values());
 	}
 
 	private LinkedHashMap<String, Boolean> getEffectiveFeatureSwitches() {
@@ -349,6 +517,26 @@ public class Config {
 	public String getFeatureSwitchJson() {
 		migrateFeatureSwitchesToJson();
 		return this.featureSwitchJson;
+	}
+
+	@Transient
+	public List<ForwardingConnection> getForwardingDestinations() {
+		prepareForwardingConnections();
+		return readForwardingConnectionsJson(this.forwardingDestinationsJson);
+	}
+
+	@Transient
+	@JsonIgnore
+	public List<ForwardingConnection> getEffectiveForwardingDestinations() {
+		List<ForwardingConnection> connections = getForwardingDestinations();
+		Map<String, Boolean> activity = this.managedForwardingActivity;
+		for (ForwardingConnection connection : connections) {
+			Boolean active = activity.get(normalizeForwardingUrl(connection.getUrl()));
+			if (connection.isControlPanelManaged() && active != null) {
+				connection.setActive(active);
+			}
+		}
+		return connections;
 	}
 
 	public boolean getFeatureSwitchValue(FeatureSwitch featureSwitch) {
@@ -551,6 +739,13 @@ public class Config {
 		} else {
 			return isMqttInternal();
 		}
+	}
+
+	@Transient
+	@JsonIgnore
+	public boolean getParamEventForwardingEnabled() {
+		Boolean enabled = StartupUtils.getBooleanParamOrElseNull("enableEventForwarding");
+		return enabled == null || enabled;
 	}
 
 	/**
@@ -935,6 +1130,7 @@ public class Config {
 		}
 	}
 
+	@JsonProperty(access = Access.WRITE_ONLY)
 	public String getPublicResultsURL() {
 		return this.publicResultsURL;
 	}
@@ -965,14 +1161,17 @@ public class Config {
 		}
 	}
 
+	@JsonProperty(access = Access.WRITE_ONLY)
 	public String getUpdatekey() {
 		return this.updatekey;
 	}
 
+	@JsonProperty(access = Access.WRITE_ONLY)
 	public String getVideoDataKey() {
 		return this.videoDataKey;
 	}
 
+	@JsonProperty(access = Access.WRITE_ONLY)
 	public String getVideoDataURL() {
 		return this.videoDataURL;
 	}
@@ -1076,6 +1275,31 @@ public class Config {
 	public void setFeatureSwitchJson(String featureSwitchJson) {
 		LinkedHashMap<String, Boolean> switches = readFeatureSwitchJson(featureSwitchJson);
 		setFeatureSwitches(switches);
+	}
+
+	public void setForwardingDestinations(List<ForwardingConnection> forwardingDestinations) {
+		List<ForwardingConnection> existing = getForwardingDestinations();
+		List<ForwardingConnection> connections = normalizeForwardingConnections(forwardingDestinations);
+		Map<String, Boolean> activity = new LinkedHashMap<>(this.managedForwardingActivity);
+		for (ForwardingConnection managed : existing) {
+			if (!managed.isControlPanelManaged()) {
+				continue;
+			}
+			String url = normalizeForwardingUrl(managed.getUrl());
+			ForwardingConnection edited = connections.stream()
+			        .filter(connection -> url.equals(normalizeForwardingUrl(connection.getUrl())))
+			        .findFirst().orElse(null);
+			if (edited == null) {
+				connections.add(managed);
+			} else {
+				activity.put(url, edited.isActive());
+				edited.setActive(managed.isActive());
+				edited.setControlPanelManaged(true);
+			}
+		}
+		this.managedForwardingActivity = Map.copyOf(activity);
+		this.forwardingDestinationsJson = writeForwardingConnectionsJson(connections);
+		clearLegacyForwardingConnections();
 	}
 
 	private void setFeatureSwitches(LinkedHashMap<String, Boolean> switches) {
