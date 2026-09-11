@@ -174,8 +174,8 @@ public class Platform implements Serializable, Comparable<Platform> {
 	@Column(name = "nonStandardBarAvailable")
 	@JsonProperty("nonStandardBarAvailable")
 	private Boolean useNonStandardBar = false;
-	@Column(columnDefinition = "integer default 25")
-	private Integer collarThreshold = 25;
+	@Column(columnDefinition = "integer default 30")
+	private Integer collarThreshold = 30;
 
 	/**
 	 * UI settings for different roles (announcer, marshall, jury, etc.) stored as JSON.
@@ -316,8 +316,6 @@ public class Platform implements Serializable, Comparable<Platform> {
 
 	}
 
-	@Transient
-	@JsonIgnore
 	public Integer getCollarThreshold() {
 		return this.collarThreshold;
 	}
