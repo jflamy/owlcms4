@@ -131,16 +131,12 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 @JsonPropertyOrder({ "id", "participations", "category", "ligibleForIndividualRanking", "individualEligibilityStatus" })
 public class Athlete {
-	@Transient
 	@JsonIgnore
 	private static QPoints qPointsCoefficients = new QPoints(2023);
-	@Transient
 	@JsonIgnore
 	public static SinclairCoefficients sinclairProperties2020;
-	@Transient
 	@JsonIgnore
 	private static SinclairCoefficients sinclairProperties2024;
-	@Transient
 	@JsonIgnore
 	private static SinclairCoefficients sinclairProperties2028;
 	static private boolean skipValidationsDuringImport = false;
@@ -6432,7 +6428,6 @@ public class Athlete {
 	 * @param coefficient
 	 * @param maxWeight
 	 */
-	@Transient
 	@JsonIgnore
 	public static Double sinclairFactor(Double bodyWeight1, Double coefficient, Double maxWeight) {
 		if (bodyWeight1 == null) {

@@ -12,7 +12,6 @@ import java.io.Serializable;
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,6 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Coach implements Serializable, Comparable<Coach> {
 
-    @Transient
     @JsonIgnore
     private static final Logger logger = (Logger) LoggerFactory.getLogger(Coach.class);
 

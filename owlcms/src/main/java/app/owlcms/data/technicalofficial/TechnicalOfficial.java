@@ -41,7 +41,6 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class TechnicalOfficial implements Serializable, Comparable<TechnicalOfficial> {
 
-	@Transient
 	@JsonIgnore
 	private static final Logger logger = (Logger) LoggerFactory.getLogger(TechnicalOfficial.class);
 	/** The id. */

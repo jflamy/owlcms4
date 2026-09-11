@@ -57,7 +57,6 @@ import ch.qos.logback.classic.Logger;
 public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 
 	private static final long serialVersionUID = 8154757158144876816L;
-	@Transient
 	static Logger logger = (Logger) LoggerFactory.getLogger(AgeGroup.class);
 	public static Comparator<AgeGroup> registrationComparator = (a, b) -> {
 		if (a == null || b == null) {

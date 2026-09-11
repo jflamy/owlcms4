@@ -65,7 +65,7 @@ import ch.qos.logback.classic.Logger;
 public class Category implements Serializable, Comparable<Category>, Cloneable {
 
 	public final static Double ROBI_B = 3.321928095;
-	@Transient
+	@SuppressWarnings("unused")
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(Category.class);
 	public static Comparator<Category> specificityComparator = (a, b) -> {
 		if (a == null || b == null) {

@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import javax.persistence.Transient;
-
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -50,7 +48,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 	private Athlete a;
 	private Category c;
 	@JsonIgnore
-	@Transient
 	private Participation originalParticipation;
 	private Participation p;
 
@@ -76,7 +73,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 	 * @return
 	 */
 	@JsonIgnore
-	@Transient
 	public Athlete _getAthlete() {
 		return this.a;
 	}
@@ -157,7 +153,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 	 * @return
 	 */
 	@JsonIgnore
-	@Transient
 	public Participation _getOriginalParticipation() {
 		return this.originalParticipation;
 	}
@@ -168,7 +163,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 	 * @return
 	 */
 	@JsonIgnore
-	@Transient
 	public Participation _getParticipation() {
 		return this.p;
 	}
@@ -324,7 +318,6 @@ public class PAthlete extends Athlete implements IRankHolder {
 	}
 
 	//@Override
-	@Transient
 	@JsonIgnore
 	public String getCategorySortCode() {
 		Category sortCategory = getMainRankings().getCategory();

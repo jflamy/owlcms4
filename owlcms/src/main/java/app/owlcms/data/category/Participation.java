@@ -42,7 +42,7 @@ import ch.qos.logback.classic.Logger;
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "hibernateLazyInitializer", "logger" })
 public class Participation implements IRankHolder {
 
-	@Transient
+	@SuppressWarnings("unused")
 	private final static Logger logger = (Logger) LoggerFactory.getLogger(Participation.class);
 	@ManyToOne(fetch = FetchType.LAZY)
 	@MapsId("athleteId")

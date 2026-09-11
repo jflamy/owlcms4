@@ -60,7 +60,6 @@ public class RecordEvent implements Comparable<RecordEvent> {
 	public class UnknownIWFBodyWeightCategory extends Exception {
 	}
 
-	@Transient
 	final private static Logger logger = (Logger) LoggerFactory.getLogger(RecordEvent.class);
 
 	public static RecordEvent newRecord(Athlete a, RecordEvent rec, Double value, Group currentGroup) {

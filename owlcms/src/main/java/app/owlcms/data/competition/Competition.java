@@ -111,7 +111,6 @@ public class Competition {
 	private static final String ATHLETE_TIMER_TWO_MINUTES_ENV = "OWLCMS_ATHLETE_TIMER_TWO_MINUTES";
 	private static final String ATHLETE_TIMER_ONE_MINUTE_ENV = "OWLCMS_ATHLETE_TIMER_ONE_MINUTE";
 	private static Competition competition;
-	@Transient
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Competition.class);
 	private static final boolean SCORING_SYSTEM_ONLY = true;
 

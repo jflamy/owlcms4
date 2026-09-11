@@ -74,7 +74,6 @@ public class Config {
 	};
 	private static final TypeReference<List<ForwardingConnection>> FORWARDING_CONNECTIONS_JSON_TYPE = new TypeReference<>() {
 	};
-	@Transient
 	final static private Logger logger = (Logger) LoggerFactory.getLogger(Config.class);
 
 	/**
