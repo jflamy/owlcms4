@@ -14,7 +14,6 @@ import java.util.ListIterator;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 
 import org.slf4j.LoggerFactory;
@@ -41,8 +40,6 @@ import ch.qos.logback.classic.Logger;
  */
 
 @SuppressWarnings("serial")
-// must be listed in app.owlcms.data.jpa.JPAService.entityClassNames()
-@Entity
 public class AthleteSorter implements Serializable {
 
 	public static class TopScore {
