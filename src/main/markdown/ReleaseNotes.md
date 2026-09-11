@@ -10,6 +10,12 @@
 
 **New in Release 68.0**
 
+- 68.0.0-beta17: Collar threshold was not being exported/imported in JSON files.
+
+- 68.0.0-beta17: Changed the wording for the CJ break duration override rules to be inclusve (6 or less, 12 or more)
+
+- 68.0.0-beta17: added missing fields on the Registration and SBDE session definition tabs
+
 - 68.0.0-beta16: Event forwarding destinations can now be added, removed, and activated individually; local Tracker connections managed by the Control Panel is treated specially.
 
 - 68.0.0-beta16: Cleanup and standardization of template headers for protocols, jury protocols, and competition results

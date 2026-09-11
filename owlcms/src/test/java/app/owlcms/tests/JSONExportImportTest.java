@@ -31,6 +31,7 @@ import app.owlcms.data.export.CompetitionData;
 import app.owlcms.data.export.v2.ChampionshipDTO;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
+import app.owlcms.data.platform.Platform;
 
 public class JSONExportImportTest {
 	
@@ -99,6 +100,24 @@ public class JSONExportImportTest {
         assertEquals(Integer.valueOf(5), imported.getChampionships().get(0).getOrder());
         assertEquals(Integer.valueOf(6), imported.getChampionships().get(1).getOrder());
         assertEquals(Integer.valueOf(7), imported.getChampionships().get(2).getOrder());
+    }
+
+    @Test
+    public void collarThresholdRoundTripsThroughV2PlatformJson() throws Exception {
+        Platform platform = new Platform("Competition");
+        platform.setCollarThreshold(37);
+        CompetitionDataV2 exported = new CompetitionDataV2();
+        exported.setPlatforms(List.of(platform));
+
+        String json = new String(exported.exportData().readAllBytes(), StandardCharsets.UTF_8);
+        assertTrue("V2 export should include the platform collar threshold",
+                json.contains("\"collarThreshold\" : 37"));
+
+        CompetitionDataV2 imported = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+
+        assertNotNull(imported);
+        assertEquals(Integer.valueOf(37), imported.getPlatforms().get(0).getCollarThreshold());
     }
 
     @Test
