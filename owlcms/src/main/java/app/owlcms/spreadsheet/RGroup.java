@@ -54,6 +54,11 @@ public class RGroup {
 	String doctor3;
 	String competitionSecretary;
 	String competitionSecretary2;
+	String competitionDirector;
+	String techController3;
+	String tis1;
+	String tis2;
+	String cleanJerkBreakDuration;
 
 	public String getAnnouncer() {
 		return this.announcer;
@@ -165,6 +170,26 @@ public class RGroup {
 
 	public String getCompetitionSecretary2() {
 		return this.competitionSecretary2;
+	}
+
+	public String getCompetitionDirector() {
+		return this.competitionDirector;
+	}
+
+	public String getTechController3() {
+		return this.techController3;
+	}
+
+	public String getTis1() {
+		return this.tis1;
+	}
+
+	public String getTis2() {
+		return this.tis2;
+	}
+
+	public String getCleanJerkBreakDuration() {
+		return this.cleanJerkBreakDuration;
 	}
 
 	public void setAnnouncer(String announcer) {
@@ -349,6 +374,32 @@ public class RGroup {
 	public void setCompetitionSecretary2(String competitionSecretary2) {
 		this.group.setCompetitionSecretary2(competitionSecretary2);
 		this.competitionSecretary2 = competitionSecretary2;
+	}
+
+	public void setCompetitionDirector(String competitionDirector) {
+		this.group.setCompetitionDirector(competitionDirector);
+		this.competitionDirector = competitionDirector;
+	}
+
+	public void setTechController3(String techController3) {
+		this.group.setTechnicalController3(techController3);
+		this.techController3 = techController3;
+	}
+
+	public void setTis1(String tis1) {
+		this.group.setTis1(tis1);
+		this.tis1 = tis1;
+	}
+
+	public void setTis2(String tis2) {
+		this.group.setTis2(tis2);
+		this.tis2 = tis2;
+	}
+
+	public void setCleanJerkBreakDuration(String cleanJerkBreakDuration) {
+		String value = cleanJerkBreakDuration != null ? cleanJerkBreakDuration.trim() : "";
+		this.group.setCleanJerkBreakDuration(value.isEmpty() ? null : Integer.valueOf(value));
+		this.cleanJerkBreakDuration = cleanJerkBreakDuration;
 	}
 
 	public String getMasters() {

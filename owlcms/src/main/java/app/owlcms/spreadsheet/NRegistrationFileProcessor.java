@@ -552,6 +552,7 @@ public class NRegistrationFileProcessor {
 		base.put("Timekeeper", (rg, cell) -> rg.setTimekeeper(cellToString(cell)));
 		base.put("TechnicalController", (rg, cell) -> rg.setTechController(cellToString(cell)));
 		base.put("TechnicalController2", (rg, cell) -> rg.setTechController2(cellToString(cell)));
+		base.put("TechnicalController3", (rg, cell) -> rg.setTechController3(cellToString(cell)));
 		base.put("Referee1", (rg, cell) -> rg.setRef1(cellToString(cell)));
 		base.put("Referee2", (rg, cell) -> rg.setRef2(cellToString(cell)));
 		base.put("Referee3", (rg, cell) -> rg.setRef3(cellToString(cell)));
@@ -570,6 +571,12 @@ public class NRegistrationFileProcessor {
 
 		base.put("CompetitionSecretary", (rg, cell) -> rg.setCompetitionSecretary(cellToString(cell)));
 		base.put("CompetitionSecretary2", (rg, cell) -> rg.setCompetitionSecretary2(cellToString(cell)));
+		CellSetterRG competitionDirectorSetter = (rg, cell) -> rg.setCompetitionDirector(cellToString(cell));
+		base.put("CompetitionDirector", competitionDirectorSetter);
+		base.put("AccreditationRole.COMPETITION_DIRECTOR", competitionDirectorSetter);
+		base.put("TIS1", (rg, cell) -> rg.setTis1(cellToString(cell)));
+		base.put("TIS2", (rg, cell) -> rg.setTis2(cellToString(cell)));
+		base.put("CJ_BreakDuration", (rg, cell) -> rg.setCleanJerkBreakDuration(cellToString(cell)));
 
 		Map<String, CellSetterRG> result = new HashMap<>();
 		addPropertyNamesToBase(result, base);
@@ -643,6 +650,8 @@ public class NRegistrationFileProcessor {
 		result.put("timekeeper2", "Timekeeper");  // Treat as second timekeeper → Timekeeper
 		result.put("techcontroller", "TechnicalController");
 		result.put("techcontroller2", "TechnicalController2");
+		result.put("techcontroller3", "TechnicalController3");
+		result.put("technicalcontroller3", "TechnicalController3");
 		// Referee mappings: ref1 (first), ref2 (centre), ref3 (second)
 		result.put("ref1", "Referee1");
 		result.put("ref2", "Referee2");
@@ -659,6 +668,10 @@ public class NRegistrationFileProcessor {
 		result.put("doctor3", "Doctor3");
 		result.put("competitionsecretary", "CompetitionSecretary");
 		result.put("competitionsecretary2", "CompetitionSecretary2");
+		result.put("competitiondirector", "CompetitionDirector");
+		result.put("tis1", "TIS1");
+		result.put("tis2", "TIS2");
+		result.put("cleanjerkbreakduration", "CJ_BreakDuration");
 		return result;
 	}
 
@@ -1349,6 +1362,7 @@ public class NRegistrationFileProcessor {
 			existing.setTimeKeeper(src.getTimeKeeper());
 			existing.setTechnicalController(src.getTechnicalController());
 			existing.setTechnicalController2(src.getTechnicalController2());
+			existing.setTechnicalController3(src.getTechnicalController3());
 			existing.setReferee1(src.getReferee1());
 			existing.setReferee2(src.getReferee2());
 			existing.setReferee3(src.getReferee3());
@@ -1366,6 +1380,9 @@ public class NRegistrationFileProcessor {
 			existing.setDoctor3(src.getDoctor3());
 			existing.setCompetitionSecretary(src.getCompetitionSecretary());
 			existing.setCompetitionSecretary2(src.getCompetitionSecretary2());
+			existing.setCompetitionDirector(src.getCompetitionDirector());
+			existing.setTis1(src.getTis1());
+			existing.setTis2(src.getTis2());
 			GroupRepository.save(existing);
 		}
 	}

@@ -22,6 +22,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.junit.AfterClass;
@@ -59,6 +62,11 @@ public class SBDEImportTest {
     private static final Set<String> PART_2_SESSIONS = Set.of("3", "4", "5");
     private static final String CHANGED_REFEREE = "Poulin, Manon";
     private static final String CHANGED_RECORD_ELIGIBILITIES = "QC,CA";
+    private static final String CHANGED_COMPETITION_DIRECTOR = "Competition Director";
+    private static final String CHANGED_TECHNICAL_CONTROLLER_3 = "Technical Controller 3";
+    private static final String CHANGED_TIS_1 = "Technology Support 1";
+    private static final String CHANGED_TIS_2 = "Technology Support 2";
+    private static final int CHANGED_CJ_BREAK_DURATION = 7;
 
     @BeforeClass
     public static void setupTests() {
@@ -93,6 +101,7 @@ public class SBDEImportTest {
         Group session1 = GroupRepository.findByName("1");
         assertNotNull("session 1 should exist after first SBDE import", session1);
         String originalReferee = session1.getReferee1();
+        Integer originalBreakDuration = session1.getCleanJerkBreakDuration();
         assertNotEquals("fixture should let the test change referee 1", CHANGED_REFEREE, originalReferee);
 
         ImportResult officialsImport = updateSbdeSessionOfficialsOnly(changedOfficialsPart1);
@@ -100,6 +109,17 @@ public class SBDEImportTest {
         assertEquals("officials-only import should ignore athletes", 0, officialsImport.athletesProcessed);
         assertEquals("session 1 referee should be updated by officials-only import",
                 CHANGED_REFEREE, GroupRepository.findByName("1").getReferee1());
+        Group session1AfterOfficialsImport = GroupRepository.findByName("1");
+        assertEquals("competition director should be updated by officials-only import",
+            CHANGED_COMPETITION_DIRECTOR, session1AfterOfficialsImport.getCompetitionDirector());
+        assertEquals("technical controller 3 should be updated by officials-only import",
+            CHANGED_TECHNICAL_CONTROLLER_3, session1AfterOfficialsImport.getTechnicalController3());
+        assertEquals("technology support 1 should be updated by officials-only import",
+            CHANGED_TIS_1, session1AfterOfficialsImport.getTis1());
+        assertEquals("technology support 2 should be updated by officials-only import",
+            CHANGED_TIS_2, session1AfterOfficialsImport.getTis2());
+        assertEquals("CJ break duration should be preserved by officials-only import",
+            originalBreakDuration, session1AfterOfficialsImport.getCleanJerkBreakDuration());
         assertEquals("officials-only import should not add athletes",
                 expectedAthleteCount(PART_1_SESSIONS), AthleteRepository.findAll().size());
 
@@ -159,11 +179,57 @@ public class SBDEImportTest {
             Group session1 = GroupRepository.findByName("1");
             assertNotNull("session 1 should exist before changing referee", session1);
             session1.setReferee1(session1Referee);
+            session1.setCompetitionDirector(CHANGED_COMPETITION_DIRECTOR);
+            session1.setTechnicalController3(CHANGED_TECHNICAL_CONTROLLER_3);
+            session1.setTis1(CHANGED_TIS_1);
+            session1.setTis2(CHANGED_TIS_2);
+            session1.setCleanJerkBreakDuration(CHANGED_CJ_BREAK_DURATION);
             GroupRepository.save(session1);
         }
         assertSessionNames(sessionNames);
         assertEquals("filtered JSON athlete count", expectedAthleteCount(sessionNames), AthleteRepository.findAll().size());
-        return exportSbde();
+        byte[] bytes = exportSbde();
+        if (session1Referee != null) {
+            assertExportedSessionFields(bytes);
+        }
+        return bytes;
+    }
+
+    private void assertExportedSessionFields(byte[] bytes) throws Exception {
+        try (Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(bytes))) {
+            Sheet sessions = workbook.getSheet("Sessions");
+            assertNotNull("exported workbook should contain Sessions", sessions);
+            DataFormatter formatter = new DataFormatter(Locale.ENGLISH);
+            Row header = sessions.getRow(1);
+            Map<String, Integer> columns = new LinkedHashMap<>();
+            for (int column = 0; column < header.getLastCellNum(); column++) {
+                columns.put(formatter.formatCellValue(header.getCell(column)), column);
+            }
+            Row session = null;
+            for (int row = 2; row <= sessions.getLastRowNum(); row++) {
+                Row candidate = sessions.getRow(row);
+                if (candidate != null && "1".equals(formatter.formatCellValue(candidate.getCell(0)))) {
+                    session = candidate;
+                    break;
+                }
+            }
+            assertNotNull("exported workbook should contain session 1", session);
+            assertEquals(CHANGED_REFEREE, value(session, columns, "Referee 1", formatter));
+            assertEquals(CHANGED_TECHNICAL_CONTROLLER_3,
+                    value(session, columns, "Technical Controller 3", formatter));
+            assertEquals(CHANGED_COMPETITION_DIRECTOR,
+                    value(session, columns, "Competition Director", formatter));
+            assertEquals(CHANGED_TIS_1, value(session, columns, "Technology Support 1", formatter));
+            assertEquals(CHANGED_TIS_2, value(session, columns, "Technology Support 2", formatter));
+            assertEquals(Integer.toString(CHANGED_CJ_BREAK_DURATION),
+                    value(session, columns, "Time before Clean & Jerk", formatter));
+        }
+    }
+
+    private String value(Row row, Map<String, Integer> columns, String header, DataFormatter formatter) {
+        Integer column = columns.get(header);
+        assertNotNull("exported Sessions header should contain " + header + "; found " + columns.keySet(), column);
+        return formatter.formatCellValue(row.getCell(column));
     }
 
     private void importJsonPart(Set<String> sessionNames) throws Exception {

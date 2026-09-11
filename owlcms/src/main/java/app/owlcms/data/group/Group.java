@@ -6,8 +6,6 @@
  *******************************************************************************/
 package app.owlcms.data.group;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -15,10 +13,8 @@ import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -430,49 +426,45 @@ public class Group implements Comparable<Group> {
 		return compare;
 	}
 
-	// Method to copy properties from another instance using accessors
 	public void copyFrom(Group other) {
 		if (other == null) {
 			throw new IllegalArgumentException("Source instance must not be null");
 		}
 
-		try {
-			Map<String, Method> getters = new HashMap<>();
-			Map<String, Method> setters = new HashMap<>();
-
-			// Collect all getters and setters
-			for (Method method : Group.class.getDeclaredMethods()) {
-				String name = method.getName();
-
-				if (isGetter(method)) {
-					name = name.substring(name.startsWith("get") ? 3 : 2);
-					getters.put(name, method);
-				} else if (isSetter(method)) {
-					setters.put(name.substring(3), method);
-				}
-			}
-
-			// Copy properties
-			for (String propertyName : getters.keySet()) {
-				Method getter = getters.get(propertyName);
-				Method setter = setters.get(propertyName);
-				// skip the computed properties
-				if (propertyName.equals("Id") || getter.isAnnotationPresent(Transient.class)) {
-					continue;
-				}
-				if (getter != null && setter != null) {
-					try {
-						Object value = getter.invoke(other);
-						setter.invoke(this, value);
-					} catch (Exception e) {
-						logger.error("!!!! mismatch {}", propertyName);
-						throw e;
-					}
-				}
-			}
-		} catch (Exception e) {
-			LoggerUtils.logError(logger, e);
-		}
+		setAnnouncer(other.getAnnouncer());
+		setCleanJerkBreakDuration(other.getCleanJerkBreakDuration());
+		setCompetitionDirector(other.getCompetitionDirector());
+		setCompetitionSecretary(other.getCompetitionSecretary());
+		setCompetitionSecretary2(other.getCompetitionSecretary2());
+		setCompetitionTime(other.getCompetitionTime());
+		setDescription(other.getDescription());
+		setDoctor(other.getDoctor());
+		setDoctor2(other.getDoctor2());
+		setDoctor3(other.getDoctor3());
+		setJury1(other.getJury1());
+		setJury2(other.getJury2());
+		setJury3(other.getJury3());
+		setJury4(other.getJury4());
+		setJury5(other.getJury5());
+		setMarshall(other.getMarshall());
+		setMarshal2(other.getMarshal2());
+		setMasters(other.getMasters());
+		setName(other.getName());
+		setPlatform(other.getPlatform());
+		setReferee1(other.getReferee1());
+		setReferee2(other.getReferee2());
+		setReferee3(other.getReferee3());
+		setReserve(other.getReserve());
+		setReserveJury(other.getReserveJury());
+		setTechnicalController(other.getTechnicalController());
+		setTechnicalController2(other.getTechnicalController2());
+		setTechnicalController3(other.getTechnicalController3());
+		setTimeKeeper(other.getTimeKeeper());
+		setTis1(other.getTis1());
+		setTis2(other.getTis2());
+		setWeighIn1(other.getWeighIn1());
+		setWeighIn2(other.getWeighIn2());
+		setWeighInTime(other.getWeighInTime());
 	}
 
 	public void doDone() {
@@ -1627,30 +1619,6 @@ public class Group implements Comparable<Group> {
 
 	void setHourFormatter(DateTimeFormatter hourFormatter) {
 		this.hourFormatter = hourFormatter;
-	}
-
-	private boolean isGetter(Method method) {
-		if (!method.getName().startsWith("get"))
-			return false;
-		if (method.getParameterTypes().length != 0)
-			return false;
-		if (void.class.equals(method.getReturnType()))
-			return false;
-		if (!Modifier.isPublic(method.getModifiers()))
-			return false;
-		return true;
-	}
-
-	private boolean isSetter(Method method) {
-		if (!method.getName().startsWith("set"))
-			return false;
-		if (method.getParameterTypes().length != 1)
-			return false;
-		if (!void.class.equals(method.getReturnType()))
-			return false;
-		if (!Modifier.isPublic(method.getModifiers()))
-			return false;
-		return true;
 	}
 
 	private void setDayFormatter(Locale locale) {
