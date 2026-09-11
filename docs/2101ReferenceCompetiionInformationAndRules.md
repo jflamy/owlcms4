@@ -39,8 +39,8 @@ The screen also allows selecting common variations on IWF rules.
 
 - Clean and Jerk Automatic Break Durations
   - `Automatic switch to CJ Break`:  After the last snatch, automatically enter the Clean & Jerk break (normally 10 minutes)
-  - `Longer CJ Break if less than X athletes`.  Normally 6, meaning that 1-5 athletes will get a longer break as set by the Longer Break Duration.  Default is 10 minutes, meaning no change.  When used, the break is typically extended to 15 minutes.
-  - `Shorter CJ Break if more than X Athletes`.  Normally 9 meaning that if 10 athletes or more the break will be made shorter.  Default is 10 minutes, meaning no change.  When used, the break is usually shortened to 5 minutes.
+  - `Longer CJ Break for X athletes or fewer`.  Normally 5, meaning that 1-5 athletes will get a longer break as set by the Longer Break Duration.  Default is 10 minutes, meaning no change.  When used, the break is typically extended to 15 minutes.
+  - `Shorter CJ Break for X Athletes or more`.  Normally 10, meaning that if 10 athletes or more the break will be made shorter.  Default is 10 minutes, meaning no change.  When used, the break is usually shortened to 5 minutes.
   - The `Apply initial total weight rule` determines whether the 20kg rule (20% for Masters) will be enforced.  Some local or regional meets do not enforce this rule.
   - The `Medals for snatch, clean&jerk, total` checkbox determines whether separate rankings will be computed and shown for snatch and clean & jerk.  Leave it unchecked for a "total-only" competition.
   - The `Use Birth Year Only` allows the use of only the 4-digit birth year for athletes, instead of a full date as required by IWF.  Note that the athletes will be registered internally as being born on January 1.

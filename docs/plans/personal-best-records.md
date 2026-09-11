@@ -1,8 +1,25 @@
 # Personal Best Records: Implementation Handoff
 
-Status: implementation plan only. No application changes have been made.
+Status: OWLCMS implementation plan only. Tracker prerequisites are complete; no
+tracker or tracker-core migration remains.
 
 Target repository: `owlcms_68`.
+
+Tracker acceptance: [integration criteria](personal-best-records-tracker.md).
+
+## 0. Repository Boundary
+
+All phases in this plan modify OWLCMS only. Tracker and its book and OBS plugins
+already support the resulting contracts:
+
+- tracker-core keeps one complete semantic records collection;
+- books filter Personal-family rows at their consumer boundary;
+- standard scoreboards render the existing `recordBoxPersonal` display block;
+- OBS routes scenes from producer-computed `recordKind`.
+
+Do not add a second tracker-core collection or schedule further tracker migration.
+OWLCMS remains responsible for PB identity, persistence, improvement, reversal,
+display-block generation, and correct aggregate decision classification.
 
 ## 1. Instructions to the Implementing Agent
 

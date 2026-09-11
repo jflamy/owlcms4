@@ -42,6 +42,8 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.BinderValidationStatus;
+import com.vaadin.flow.data.binder.Result;
+import com.vaadin.flow.data.converter.Converter;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.router.Location;
 
@@ -321,6 +323,9 @@ public class CompetitionEditingFormFactory
 		LocalizedIntegerField ifLongerThreshold = new LocalizedIntegerField();
 		layout.addFormItem(ifLongerThreshold, Translator.translate("Competition.longerBreakThreshold"));
 		this.binder.forField(ifLongerThreshold)
+		        .withConverter(Converter.from(
+		                displayedMaximum -> Result.ok(displayedMaximum == null ? null : displayedMaximum + 1),
+		                storedMaximum -> storedMaximum == null ? null : storedMaximum - 1))
 		        .bind(Competition::getLongerBreakMax, Competition::setLongerBreakMax);
 
 		LocalizedIntegerField ifLongerDuration = new LocalizedIntegerField();
@@ -337,6 +342,9 @@ public class CompetitionEditingFormFactory
 		LocalizedIntegerField ifShorterThreshold = new LocalizedIntegerField();
 		layout.addFormItem(ifShorterThreshold, Translator.translate("Competition.shorterBreakThreshold"));
 		this.binder.forField(ifShorterThreshold)
+		        .withConverter(Converter.from(
+		                displayedMinimum -> Result.ok(displayedMinimum == null ? null : displayedMinimum - 1),
+		                storedMinimum -> storedMinimum == null ? null : storedMinimum + 1))
 		        .bind(Competition::getShorterBreakMin, Competition::setShorterBreakMin);
 
 		LocalizedIntegerField ifShorterDuration = new LocalizedIntegerField();
