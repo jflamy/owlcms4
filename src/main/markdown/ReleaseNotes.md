@@ -10,7 +10,13 @@
 
 **Maintenance Log**
 
-- 67.4.7: The collar threshold value is now included in database exports
+- 67.5.0: Further adjustments so Attempt boards stay synchronized with lifting-order updates
+
+- 67.5.0: Prevent moving to the next athlete while a 20 kg loading-rule violation is unresolved.
+
+- 67.5.0: Medal leaders are hidden during pre-session breaks.
+
+- 67.5.0: The collar threshold value is now included in database exports
 
 - 67.4.6: Post-processing of documents to adjust borders improved to correctly infer the border widths.
 
