@@ -57,7 +57,8 @@ Follow repository instructions and applicable skills:
 7. Identity collisions are assumed not to happen. Document the assumption; add no
    collision UI, namespace allocation, or name/team disambiguation.
 8. As little persistence as possible: no new `Athlete` field; `Athlete.membership`
-   is never modified; identity is computed transiently when needed.
+   is never modified. A membership-based identity is already stored on the athlete;
+   otherwise, the fallback identity is computed transiently when needed.
 9. PBs originate from registration (form or file) or from imported record files.
 10. If a registration file contains any PB column, that import is authoritative:
     delete all Personal records, then rebuild baselines from the file.
@@ -93,10 +94,11 @@ Compute with one pure function, `PersonalRecords.identityFor(Athlete)`:
    - `discriminator` = first available of full birth date (ISO), birth year,
      registration category code, lot number; empty string if none.
 
-The identity is never stored on the athlete. It is recomputed for matching, for
-baseline creation, and for improvements. A name/team/birth-date correction changes
-the generated identity; that is acceptable because registration reload rebuilds
-all Personal records (3.4).
+No separate PB identity is stored on the athlete. When membership is nonblank, the
+identity is the membership already stored on the athlete. Otherwise, the generated
+identity is recomputed for matching, baseline creation, and improvements. A
+name/team/birth-date correction changes the generated identity; that is acceptable
+because registration reload rebuilds all Personal records (3.4).
 
 Reuse an existing SHA-256 usage pattern (`ForwarderPayloadBuilder` line ~514) rather
 than adding a dependency.
