@@ -9,7 +9,25 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import app.owlcms.fieldofplay.FOPState;
+
 public class CompetitionSimulatorTest {
+
+	@Test
+	public void announcerStartsClockOnlyForAnAnnouncedOrStoppedAttempt() {
+		for (FOPState state : FOPState.values()) {
+			boolean allowed = state == FOPState.CURRENT_ATHLETE_DISPLAYED || state == FOPState.TIME_STOPPED;
+			assertEquals(state.name(), allowed, FOPSimulator.canStartClock(state));
+		}
+		assertFalse(FOPSimulator.canStartClock(null));
+	}
+
+	@Test
+	public void marshalChangesExcludeAttemptedAthleteOnlyDuringDecision() {
+		assertTrue(FOPSimulator.allowsAttemptedAthleteChange(FOPSimulator.MarshalChangePhase.BEFORE_CLOCK));
+		assertTrue(FOPSimulator.allowsAttemptedAthleteChange(FOPSimulator.MarshalChangePhase.CLOCK_RUNNING));
+		assertFalse(FOPSimulator.allowsAttemptedAthleteChange(FOPSimulator.MarshalChangePhase.DURING_DECISION));
+	}
 
 	@Test
 	public void skipBeforeUsesTheRequestedGroupPositionInComputedOrder() {

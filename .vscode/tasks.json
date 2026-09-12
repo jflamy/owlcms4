@@ -6,7 +6,11 @@
       "type": "shell",
       "command": "rm -f logs/*.log",
       "options": {
-        "cwd": "${workspaceFolder}/owlcms"
+        "cwd": "${workspaceFolder}/owlcms",
+        "shell": {
+          "executable": "/bin/bash",
+          "args": ["-c"]
+        }
       },
       "problemMatcher": []
     }

@@ -232,7 +232,7 @@ public class SimulationServlet extends HttpServlet {
 		        + "> Skip sessions already done (defer weigh-in, keep existing results)</label></p>");
 		pw.println("<p><label><input type='checkbox' name='randomDeclarationJumps' value='on'"
 		        + checked(formValues.randomDeclarationJumps())
-		        + "> Randomly declare +2 or +3 kg instead of +1 kg 25% of the time</label></p>");
+		        + "> Random declaration jumps (+2/+3 kg) and marshal weight changes while the clock runs</label></p>");
 		pw.println("<p><label>Skip sessions before <input type='text' name='skipBefore' value='"
 		        + htmlAttribute(formValues.skipBefore()) + "'></label></p>");
 		pw.println("<p><label>Only platforms <input type='text' name='platforms' placeholder='"

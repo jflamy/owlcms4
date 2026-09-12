@@ -16,45 +16,22 @@ export class NCurrentAthlete extends LitElement {
 
   static get properties() {
     return {
-      fullName: { type: String },
-      team: { type: String },
-      lift: { type: String },
-      snIndicators: { type: Array },
-      snIndicatorClasses: { type: Array },
-      cjIndicators: { type: Array },
-      cjIndicatorClasses: { type: Array },
+      boardState: { type: Object, noAccessor: true },
       clockValue: { type: String },
-      decisions: { type: Array },
-
-      showAthleteClock: { type: Boolean },
-      showBreakClock: { type: Boolean },
-      showDecisions: { type: Boolean },
-      showDetails: { type: Boolean }
     };
   }
 
   constructor() {
     super();
-    this.fullName = "";
-    this.team = "";
-    this.lift = "";
-    this.snIndicators = ["", "", ""];
-    this.snIndicatorClasses = ["empty", "empty", "empty"];
-    this.cjIndicators = ["", "", ""];
-    this.cjIndicatorClasses = ["empty", "empty", "empty"];
-    this.decisions = ["white", "white", "white"]; // default decisions
+    this._boardState = NCurrentAthlete.emptyBoardState();
 
     this.clockValue = "";
-
-    this.showAthleteClock = false;
-    this.showBreakClock = false;
-    this.showDecisions = false;
-    this.showDetails = false;
 
     this.longTeam = 3; // max length for short team names
   }
 
   render() {
+    const board = this.board;
     return html`
       <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}"/>
       <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "ncurrentathlete")}"/>
@@ -68,20 +45,20 @@ export class NCurrentAthlete extends LitElement {
         <div class="rectangle">
           <div class="top-row spacer"></div>
           <div class="top-row top-left grid-cell" style="grid-column: 2 / span 7;">
-            <div style="${this.team.length > this.longTeam ? "display: block; line-height: 1.05" : "display: flex; align-items: center;"}">
-              <div class="fullName">${this.fullName}</div>
-              <div class="team ${this.showDetails ? "shown" : "hidden"}" style="${this.team.length > this.longTeam ? "font-size: 85%;" : ""}">${this.team.length > this.longTeam ? this.team : ("\u00A0("+this.team+")")}</div>
+            <div style="${board.team.length > this.longTeam ? "display: block; line-height: 1.05" : "display: flex; align-items: center;"}">
+              <div class="fullName">${board.fullName}</div>
+              <div class="team ${board.showDetails ? "shown" : "hidden"}" style="${board.team.length > this.longTeam ? "font-size: 85%;" : ""}">${board.team.length > this.longTeam ? board.team : ("\u00A0("+board.team+")")}</div>
             </div>
           </div>
           <div class="top-row top-right grid-cell" style="grid-column: 9 / span 2;">
-            <div class="clock${this.showAthleteClock ? "" : " hidden"}">
+            <div class="clock${board.showAthleteClock ? "" : " hidden"}">
                 <timer-element id="timer"></timer-element>
             </div>
-            <div class="clock${this.showBreakClock ? "" : " hidden"}">
+            <div class="clock${board.showBreakClock ? "" : " hidden"}">
                 <timer-element id="breakTimer"></timer-element>
             </div>
-            <div class="decisions ${this.showDecisions ? "shown" : "hidden"}">
-              ${this.decisions.map(
+            <div class="decisions ${board.showDecisions ? "shown" : "hidden"}">
+              ${board.decisions.map(
                 d => html`<div class="decision ${d}"></div>`
               )}
             </div>
@@ -96,22 +73,59 @@ export class NCurrentAthlete extends LitElement {
           </div>
           <div class="bottom-row spacer"></div>
           <div class="bottom-row bottom-left grid-cell" style="grid-column: 2 / span 3;">
-            <div class="lift ${this.showDetails ? "shown" : "hidden"}" .innerHTML=${this.lift}></div>
+            <div class="lift ${board.showDetails ? "shown" : "hidden"}" .innerHTML=${board.lift}></div>
           </div>
           <div class="bottom-row bottom-right grid-cell" style="grid-column: 5 / span 6; gap:0.3em; display:flex;">
-            ${this.snIndicators.map(
-              (v, i) => html`<div class="indicator ${this.snIndicatorClasses[i]} ${this.showDetails ? "shown" : "hidden"}">${v}</div>`
+            ${board.snIndicators.map(
+              (v, i) => html`<div class="indicator ${board.snIndicatorClasses[i]} ${board.showAttemptResults ? "shown" : "hidden"}">${v}</div>`
             )}
             <div class="indicator-spacer"></div>
-            ${this.cjIndicators.map(
+            ${board.cjIndicators.map(
               (v, i) => v
-                ? html`<div class="indicator ${this.cjIndicatorClasses[i]} ${this.showDetails ? "shown" : "hidden"}">${v}</div>`
-                : html`<div class="indicator ${this.cjIndicatorClasses[i]} ${this.showDetails ? "shown" : "hidden"}"></div>`
+                ? html`<div class="indicator ${board.cjIndicatorClasses[i]} ${board.showAttemptResults ? "shown" : "hidden"}">${v}</div>`
+                : html`<div class="indicator ${board.cjIndicatorClasses[i]} ${board.showAttemptResults ? "shown" : "hidden"}"></div>`
             )}
           </div>
         </div>
       </div>
     `;
+  }
+
+  get board() {
+    return this._boardState;
+  }
+
+  get boardState() {
+    return this._boardState;
+  }
+
+  set boardState(value) {
+    const oldValue = this._boardState;
+    if (oldValue && value && Number(value.sequence) < Number(oldValue.sequence)) {
+      return;
+    }
+    this._boardState = value ?? NCurrentAthlete.emptyBoardState();
+    this.requestUpdate("boardState", oldValue);
+  }
+
+  static emptyBoardState() {
+    return {
+      cjIndicatorClasses: ["empty", "empty", "empty"],
+      cjIndicators: ["", "", ""],
+      decisions: ["white", "white", "white"],
+      fullName: "",
+      lift: "",
+      mode: "WAIT",
+      sequence: 0,
+      showAthleteClock: false,
+      showAttemptResults: false,
+      showBreakClock: false,
+      showDecisions: false,
+      showDetails: false,
+      snIndicatorClasses: ["empty", "empty", "empty"],
+      snIndicators: ["", "", ""],
+      team: ""
+    };
   }
 }
 

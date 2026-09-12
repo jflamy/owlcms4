@@ -19,6 +19,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.template.Id;
 
@@ -39,7 +40,7 @@ import app.owlcms.init.OwlcmsFactory;
 import app.owlcms.nui.displays.AbstractDisplayPage;
 import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.uievents.UIEvent;
-import app.owlcms.uievents.UIEvent.LiftingOrderUpdated;
+import app.owlcms.uievents.UIEventSequenceGuard;
 import app.owlcms.utils.CSSUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -85,6 +86,10 @@ public class CurrentAthlete extends Results {
 	@Id("timer")
 	private AthleteTimerElement timer; // Flow creates it
 	private EventBus uiEventBus;
+	private long boardStateSequence;
+	private CurrentAthleteState lastBoardState;
+	// guarded by ui.access; see UIEventSequenceGuard
+	private final UIEventSequenceGuard orderGuard = new UIEventSequenceGuard();
 	Map<String, List<String>> urlParameterMap = new HashMap<>();
 
 	public CurrentAthlete(AbstractDisplayPage page) {
@@ -111,41 +116,19 @@ public class CurrentAthlete extends Results {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		FieldOfPlay fop = getFop();
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			uiEventLogger.debug("$$$ currentAthlete calling doBreak()");
-			if (fop.getGroup() != null && fop.getGroup().isDone()) {
-				setDisplay();
-				getElement().setProperty("fullName", Translator.translate("Group_number_done", fop.getGroup().toString()));
-				getElement().setProperty("teamName", "");
-				getElement().setProperty("attempt", "");
-			} else {
-				getElement().setProperty("fullName",
-				        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
-				getElement().setProperty("teamName", "");
-				getElement().setProperty("attempt", "");
-				setDisplay();
+		uiEventLogger.debug("$$$ currentAthlete calling doBreak()");
+		publishState(null);
+	}
 
-				updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
-				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
-			}
-		});
+	@Override
+	protected void doBreakLocked(UIEvent e) {
+		doBreak(e);
 	}
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		uiEventLogger.debug("$$$ currentAthlete calling doCeremony()");
-		FieldOfPlay fop = getFop();
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			getElement().setProperty("fullName",
-			        inferGroupName() + " &ndash; " + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
-			getElement().setProperty("teamName", "");
-			getElement().setProperty("attempt", "");
-			setDisplay();
-
-			updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
-
-		});
+		publishState(null);
 	}
 
 	/**
@@ -163,7 +146,6 @@ public class CurrentAthlete extends Results {
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			FieldOfPlay fop = getFop();
 			Athlete a = e.getAthlete();
-			setDisplay();
 			if (a == null) {
 				this.order = fop.getLiftingOrder();
 				a = this.order.size() > 0 ? this.order.get(0) : null;
@@ -182,7 +164,6 @@ public class CurrentAthlete extends Results {
 		// logger.trace"------- slaveCeremonyDone {}", e.getCeremonyType());
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setDisplay();
 			// revert to current break
 			doBreak(null);
 		});
@@ -194,7 +175,6 @@ public class CurrentAthlete extends Results {
 		// logger.trace"------- slaveCeremonyStarted {}", e.getCeremonyType());
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setDisplay();
 			doCeremony(e);
 		});
 	}
@@ -204,9 +184,7 @@ public class CurrentAthlete extends Results {
 	public void slaveDecision(UIEvent.Decision e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			setDisplay();
-			this.getElement().setProperty("decisionVisible", true);
-			doUpdate(getFop().getCurAthlete(), e);
+			publishDecisionState(e.getAthlete());
 		});
 	}
 
@@ -214,11 +192,16 @@ public class CurrentAthlete extends Results {
 	@Subscribe
 	public void slaveDecisionReset(UIEvent.DecisionReset e) {
 		uiLog(e);
+		if (e.getAthlete() == null) {
+			FieldOfPlay fop = e.getFop();
+			logger.warn("{}TEMP null-athlete DecisionReset seq={} fopState={} curAthlete={} groupDone={} created at:\n{}",
+			        FieldOfPlay.getLoggingName(fop), e.getSequence(), fop != null ? fop.getState() : null,
+			        fop != null ? fop.getCurAthlete() : null, isDone(), e.getTrace());
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			setDisplay();
-			this.getElement().setProperty("decisionVisible", false);
 			if (isDone()) {
-				doDone(e.getAthlete().getGroup());
+				// no current athlete once the session is complete
+				doDone(getFop().getGroup());
 			} else {
 				doUpdate(getFop().getCurAthlete(), e);
 			}
@@ -230,8 +213,7 @@ public class CurrentAthlete extends Results {
 	public void slaveDownSignal(UIEvent.DownSignal e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			setDisplay();
-			this.getElement().setProperty("decisionVisible", true);
+			publishDecisionState(null);
 		});
 	}
 
@@ -246,9 +228,8 @@ public class CurrentAthlete extends Results {
 		logger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setDisplay();
 			setDone(true);
-			doBreak(e);
+			publishState(getFop().getPreviousAthlete());
 		});
 	}
 
@@ -263,10 +244,11 @@ public class CurrentAthlete extends Results {
 		}
 		uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			Athlete a = e.getAthlete();
+			if (isStaleOrderEvent(e)) {
+				return;
+			}
 			this.order = e.getDisplayOrder();
-			// liftsDone = AthleteSorter.countLiftsDone(order);
-			doUpdate(a, e);
+			doUpdate(e.getAthlete(), e);
 		});
 	}
 
@@ -277,7 +259,6 @@ public class CurrentAthlete extends Results {
 		// e.getClass().getSimpleName(),
 		// this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setDisplay();
 			doBreak(e);
 		});
 	}
@@ -297,7 +278,6 @@ public class CurrentAthlete extends Results {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setDisplay();
 			Athlete a = e.getAthlete();
 			doUpdate(a, e);
 		});
@@ -309,6 +289,9 @@ public class CurrentAthlete extends Results {
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (this.orderGuard.isStale(e.getSequence())) {
+				return;
+			}
 			syncWithFOP(e);
 		});
 	}
@@ -328,60 +311,15 @@ public class CurrentAthlete extends Results {
 
 	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
-		// logger.debug("doUpdate {} {} {}", e != null ? e.getClass().getSimpleName() : "no event", a,
-		// a != null ? a.getAttemptsDone() : null);
-		boolean leaveTopAlone = false;
 		FieldOfPlay fop = e.getFop();
-		
-		if (fop != null && fop.getState() == FOPState.DECISION_VISIBLE) {
-			// next event will refresh.
-			return;
-		}
-		if (e instanceof UIEvent.LiftingOrderUpdated) {
-			LiftingOrderUpdated e2 = (UIEvent.LiftingOrderUpdated) e;
-			if (e2.isInBreak()) {
-				leaveTopAlone = !e2.isDisplayToggle();
-			} else {
-				leaveTopAlone = !e2.isCurrentDisplayAffected();
-			}
-		}
-
-		if (!leaveTopAlone) {
-			if (a != null) {
-				if (fop == null) {
-					doEmpty();
-					return;
-				}
-				Group group = fop.getGroup();
-				if (group == null) {
-					doEmpty();
-				} else if (!group.isDone()) {
-					logger.debug("updating top {} {} {}", a.getFullName(), group, System.identityHashCode(group));
-					getElement().setProperty("fullName", a.getFullName());
-					getElement().setProperty("teamName", a.getTeam());
-					getElement().setProperty("startNumber", a.getStartNumber());
-					String formattedAttempt = formatAttempt(a.getAttemptsDone());
-					getElement().setProperty("attempt", formattedAttempt);
-					getElement().setProperty("weight", a.getNextAttemptRequestedWeight());
-				} else {
-					logger.debug("group done {} {}", group, System.identityHashCode(group));
-					doBreak(e);
-				}
-			}
-
-			// change bottom line as soon as possible
-			updateDisplay(a != null ? computeLiftType(a) : null, fop);
-
-		}
-		// logger.debug("leave top alone {} {}", leaveTopAlone, fop.getState());
 		if (fop == null) {
 			doEmpty();
 			return;
 		}
-		if (leaveTopAlone && fop.getState() == FOPState.CURRENT_ATHLETE_DISPLAYED) {
-			updateDisplay(a != null ? computeLiftType(a) : null, fop);
+		if (fop.getState() == FOPState.DECISION_VISIBLE || fop.getState() == FOPState.DOWN_SIGNAL_VISIBLE) {
+			return;
 		}
-
+		publishState(a);
 	}
 
 	@Override
@@ -569,25 +507,9 @@ public class CurrentAthlete extends Results {
 
 	@Override
 	protected void updateDisplay(String liftType, FieldOfPlay fop) {
-		// logger.debug("updateBottom {}",LoggerUtils.stackTrace());
-		if (liftType != null) {
-			getElement().setProperty("groupInfo", "");
-			getElement().setProperty("liftsDone", "");
-		} else {
-			getElement().setProperty("groupInfo", "X");
-			getElement().setProperty("liftsDone", "Y");
+		if (fop.getState() != FOPState.DECISION_VISIBLE && fop.getState() != FOPState.DOWN_SIGNAL_VISIBLE) {
+			publishState(null);
 		}
-		this.getElement().setPropertyJson("athletes",
-		        getAthletesJson(this.order, fop.getLiftingOrder(), fop));
-	}
-
-	private String computeLiftType(Athlete a) {
-		if (a == null || a.getAttemptsDone() > 6) {
-			return null;
-		}
-		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-		        : Translator.translate("Snatch");
-		return liftType;
 	}
 
 	private void doDone(Group g) {
@@ -595,9 +517,7 @@ public class CurrentAthlete extends Results {
 		if (g == null) {
 			doEmpty();
 		} else {
-			FieldOfPlay fop = getFop();
-			updateDisplay(null, fop);
-			getElement().setProperty("fullName", Translator.translate("Group_number_done", g.toString()));
+			publishState(null);
 		}
 	}
 
@@ -630,8 +550,14 @@ public class CurrentAthlete extends Results {
 	}
 
 	private void setDisplay() {
+		publishState(null);
+	}
+
+	private void publishState(Athlete eventAthlete) {
 		FieldOfPlay fop = getFop();
-		setBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType(), this.getElement());
+		boolean attemptedLift = fop.getState() == FOPState.DECISION_VISIBLE
+		        || fop.getState() == FOPState.DOWN_SIGNAL_VISIBLE;
+		BoardMode mode = computeBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType());
 		Group group = fop.getGroup();
 		String description = null;
 		if (group != null) {
@@ -640,7 +566,68 @@ public class CurrentAthlete extends Results {
 				description = Translator.translate("Group_number", group.getName());
 			}
 		}
-		this.getElement().setProperty("groupDescription", description != null ? description : "");
+
+		Athlete athlete = mode == BoardMode.SESSION_DONE ? fop.getPreviousAthlete()
+		        : eventAthlete != null ? eventAthlete
+		        : fop.getState() == FOPState.DECISION_VISIBLE && fop.getAthleteUnderReview() != null
+		                ? fop.getAthleteUnderReview() : fop.getCurAthlete();
+		CurrentAthleteState.Builder builder = CurrentAthleteState.builder(++this.boardStateSequence, mode.name())
+		        .groupDescription(description)
+		        .showDecisions(attemptedLift)
+		        .athletes(singleAthleteJson(athlete, fop));
+
+		if (mode == BoardMode.SESSION_DONE) {
+			builder.fullName(group != null ? Translator.translate("Group_number_done", group.toString()) : "");
+		} else if (mode == BoardMode.CURRENT_ATHLETE && athlete != null) {
+			builder.fullName(athlete.getFullName())
+			        .team(athlete.getTeam())
+			        .lift(formatAttempt(attemptedLift ? fop.getLiftsDoneAtLastStart() : athlete.getAttemptsDone()))
+			        .startNumber(athlete.getStartNumber())
+			        .weight(attemptedLift ? fop.getWeightAtLastStart() : athlete.getNextAttemptRequestedWeight());
+		} else if (mode != BoardMode.WAIT) {
+			builder.fullName(inferGroupName() + " &ndash; "
+			        + inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
+			if (mode == BoardMode.LIFT_COUNTDOWN || mode == BoardMode.LIFT_COUNTDOWN_CEREMONY) {
+				builder.weight(athlete != null ? athlete.getNextAttemptRequestedWeight() : null);
+			}
+		}
+
+		publish(builder.build());
+	}
+
+	private void publishDecisionState(Athlete athlete) {
+		if (this.lastBoardState != null && this.lastBoardState.isCurrentAthlete()) {
+			publish(this.lastBoardState.withDecision(++this.boardStateSequence));
+		} else {
+			// no retained snapshot (display just attached): the attempted lift belongs to the current athlete
+			publishState(athlete != null ? athlete : getFop().getCurAthlete());
+		}
+	}
+
+	private void publish(CurrentAthleteState state) {
+		this.lastBoardState = state;
+		this.getElement().setPropertyJson("boardState", state.toJson());
+		this.getUI().ifPresent(UI::push);
+	}
+
+	private boolean isStaleOrderEvent(UIEvent.LiftingOrderUpdated e) {
+		long lastApplied = this.orderGuard.getLastApplied();
+		boolean stale = this.orderGuard.isStale(e.getSequence());
+		if (stale) {
+			logger.debug("dropping out-of-order LiftingOrderUpdated seq={} lastApplied={}", e.getSequence(), lastApplied);
+		}
+		return stale;
+	}
+
+	private JsonArray singleAthleteJson(Athlete athlete, FieldOfPlay fop) {
+		JsonArray athletes = Json.createArray();
+		if (athlete == null) {
+			return athletes;
+		}
+		JsonObject athleteJson = Json.createObject();
+		getAthleteJson(athlete, athleteJson, athlete.getCategory(), 1, fop);
+		athletes.set(0, athleteJson);
+		return athletes;
 	}
 
 	private void setDone(boolean b) {
@@ -656,12 +643,10 @@ public class CurrentAthlete extends Results {
 				if (e.getGroup() == null) {
 					doEmpty();
 				} else {
-					doUpdate(e.getAthlete(), e);
 					doBreak(e);
 				}
 				break;
 			default:
-				setDisplay();
 				doUpdate(e.getAthlete(), e);
 		}
 	}

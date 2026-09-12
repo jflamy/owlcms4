@@ -17,12 +17,12 @@ final class AttemptBoardState {
 	private final String breakType;
 	private final String category;
 	private final String competitionName;
-	// dormant: published for a future passive decision display, ignored by AttemptBoard.js
 	private final boolean decisionVisible;
 	private final String firstName;
 	private final String firstNameSizeOverride;
 	private final String lastName;
 	private final String mode;
+	private final String platesHtml;
 	private final String nameSizeOverride;
 	private final boolean recordAttempt;
 	private final boolean recordBroken;
@@ -45,6 +45,7 @@ final class AttemptBoardState {
 		this.firstNameSizeOverride = builder.firstNameSizeOverride;
 		this.lastName = builder.lastName;
 		this.mode = builder.mode;
+		this.platesHtml = builder.platesHtml;
 		this.nameSizeOverride = builder.nameSizeOverride;
 		this.recordAttempt = builder.recordAttempt;
 		this.recordBroken = builder.recordBroken;
@@ -74,6 +75,7 @@ final class AttemptBoardState {
 				.firstNameSizeOverride(this.firstNameSizeOverride)
 				.lastName(this.lastName)
 				.nameSizeOverride(this.nameSizeOverride)
+				.platesHtml(this.platesHtml)
 				.recordAttempt(this.recordAttempt)
 				.recordBroken(this.recordBroken)
 				.recordMessage(this.recordMessage)
@@ -100,6 +102,7 @@ final class AttemptBoardState {
 		state.put("firstNameSizeOverride", this.firstNameSizeOverride);
 		state.put("lastName", this.lastName);
 		state.put("mode", this.mode);
+		state.put("platesHtml", this.platesHtml);
 		state.put("nameSizeOverride", this.nameSizeOverride);
 		state.put("recordAttempt", this.recordAttempt);
 		state.put("recordBroken", this.recordBroken);
@@ -125,6 +128,7 @@ final class AttemptBoardState {
 		private String firstNameSizeOverride = "";
 		private String lastName = "";
 		private final String mode;
+		private String platesHtml = "";
 		private String nameSizeOverride = "";
 		private boolean recordAttempt;
 		private boolean recordBroken;
@@ -197,6 +201,11 @@ final class AttemptBoardState {
 
 		Builder recordAttempt(boolean recordAttempt) {
 			this.recordAttempt = recordAttempt;
+			return this;
+		}
+
+		Builder platesHtml(String platesHtml) {
+			this.platesHtml = valueOrEmpty(platesHtml);
 			return this;
 		}
 

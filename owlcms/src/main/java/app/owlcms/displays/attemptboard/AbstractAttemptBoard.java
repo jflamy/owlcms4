@@ -58,10 +58,12 @@ import app.owlcms.nui.lifting.UIEventProcessor;
 import app.owlcms.nui.shared.HasBoardMode;
 import app.owlcms.nui.shared.RequireDisplayLogin;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
+import app.owlcms.simulation.CompetitionSimulator;
 import app.owlcms.uievents.BreakDisplay;
 import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.CeremonyType;
 import app.owlcms.uievents.UIEvent;
+import app.owlcms.uievents.UIEventSequenceGuard;
 import app.owlcms.utils.CSSUtils;
 import app.owlcms.utils.LoggerUtils;
 import app.owlcms.utils.StartupUtils;
@@ -110,7 +112,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private boolean silenced;
 	private boolean downSilenced;
 	private boolean groupDone;
-	private PlatesElement plates;
 	private boolean publicFacing;
 	private boolean showBarbell;
 	private boolean video;
@@ -124,6 +125,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	private long boardStateSequence;
 	private boolean decisionLightsVisible;
 	private AttemptBoardState lastBoardState;
+	private final AttemptBoardRenderCheck renderCheck = new AttemptBoardRenderCheck();
+	private Timer renderCheckTimer;
+	// guarded by ui.access; see UIEventSequenceGuard
+	private final UIEventSequenceGuard orderGuard = new UIEventSequenceGuard();
 
 	/**
 	 * Instantiates a new attempt board.
@@ -149,7 +154,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
 			try {
 				publish(buildBreakState(fop));
-				updatePlates(fop.getCurAthlete() != null && fop.getBreakType() != BreakType.GROUP_DONE);
 				uiEventLogger.debug("$$$ attemptBoard calling doBreak()");
 			} catch (Throwable e1) {
 				LoggerUtils.logError(logger, e1);
@@ -339,7 +343,11 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	@Subscribe
 	public void slaveBarbellOrPlatesChanged(UIEvent.BarbellOrPlatesChanged e) {
-		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> showPlates());
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			if (!decisionOwnsDisplay()) {
+				syncWithFOP(getFop());
+			}
+		});
 	}
 
 	@Subscribe
@@ -362,7 +370,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			// records only: athlete fields stay frozen so the board matches the decision being shown
-			publish(buildRecordUpdate(e.getFop()));
+			publishDecisionState(e);
 		});
 	}
 
@@ -390,7 +398,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		// the subsequent Decision/Reset events. (A previous version used a detached
 		// thread here, which queued this property change out of order.)
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			setDecisionLightsVisible(true);
+			publishDecisionState(e);
 		});
 	}
 
@@ -403,7 +411,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			        FieldOfPlay.getLoggingName(getFop()), e.getOrigin(), this.getOrigin(), e.decision, e.getTimingPolicy());
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			setDecisionLightsVisible(true);
+			publishDecisionState(e);
 		});
 	}
 
@@ -414,7 +422,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			Group g = e.getGroup();
 			publish(buildDoneState(g));
-			hidePlates();
 			setDone(true);
 		});
 	}
@@ -471,8 +478,10 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		Athlete athlete = e.isDisplayToggle() ? e.getAthlete() : fop.getCurAthlete();
 		Integer requestedWeight = athlete != null ? athlete.getNextAttemptRequestedWeight() : null;
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			if (isStaleOrderEvent(e)) {
+				return;
+			}
 			boolean attemptTraces = Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES);
-			this.getElement().setProperty("attemptTraces", attemptTraces);
 			if (attemptTraces) {
 				logger.debug("{}attemptBoard order applying seq={} state={} athlete={} requested={}",
 						FieldOfPlay.getLoggingName(fop), e.getSequence(), state, fop.getCurAthlete(),
@@ -480,31 +489,26 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			}
 			uiEventLogger.debug("### {} {} isDisplayToggle={}", state, this.getClass().getSimpleName(),
 			        e.isDisplayToggle());
-			if (state == FOPState.DECISION_VISIBLE) {
+			if (state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE) {
 				// ignore -- decision reset will resync.
 			} else if (state == FOPState.BREAK) {
 				if (e.isDisplayToggle()) {
-					setDecisionLightsVisible(false);
+					setDecisionLightsVisible(false, e);
 					publish(buildAthleteState(athlete, fop, state, breakType, requestedWeight));
-					updatePlates(athlete != null);
 				} else {
 					publish(buildBreakState(fop, state, breakType, ceremonyType, athlete, group, requestedWeight));
-					updatePlates(athlete != null && breakType != BreakType.GROUP_DONE);
 				}
 			} else if (state == FOPState.INACTIVE) {
 				publish(buildWaitState(fop));
-				hidePlates();
 			} else if (!e.isCurrentDisplayAffected()) {
 				// same as next case
 				// logging to see if this ever occurs
 				logger.info(">>>>> isCurrentDisplayAffected false");
-				setDecisionLightsVisible(false);
+				setDecisionLightsVisible(false, e);
 				publish(buildAthleteState(athlete, fop, state, breakType, requestedWeight));
-				updatePlates(athlete != null);
 			} else {
-				setDecisionLightsVisible(false);
+				setDecisionLightsVisible(false, e);
 				publish(buildAthleteState(athlete, fop, state, breakType, requestedWeight));
-				updatePlates(athlete != null);
 			}
 		});
 	}
@@ -520,29 +524,13 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		logger.warn("{}attemptBoard weight rendered seq={} startNumber={} weight={} rendered={} mode={} weightVisible={} clientTime={}",
 				FieldOfPlay.getLoggingName(getFop()), sequence, renderedStartNumber, weightUsedForRendering, renderedWeight,
 				mode, weightVisible, clientTime);
+		if (CompetitionSimulator.isRunning()) {
+			String failure = this.renderCheck.rendered(sequence, weightUsedForRendering, renderedStartNumber,
+			        renderedWeight, mode, weightVisible, System.nanoTime() / 1_000_000);
+			logRenderFailure("MISMATCH", failure);
+		}
 	}
 
-	/**
-	 * Multiple attempt boards and athlete-facing boards can co-exist. We need to show decisions on the slave devices -- the master device is the one where
-	 * refereeing buttons are attached.
-	 *
-	 * @param e
-	 */
-	@Subscribe
-	public void slaveRefereeDecision(UIEvent.Decision e) {
-		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
-		        this.getOrigin(), e.getOrigin());
-		if (Config.getCurrent().featureSwitch(FeatureSwitch.PLAYWRIGHT)) {
-			logger./*playwright*/warn("{}attemptBoard slaveRefereeDecision received origin={} self={} goodLift={}",
-			        FieldOfPlay.getLoggingName(getFop()), e.getOrigin(), this.getOrigin(), e.decision);
-		}
-		// hide the athleteTimer except if the decision came from this ui.
-		// this does not actually display the down signal, it makes it so the decision
-		// element can show the down or decision.
-		UIEventProcessor.uiAccessIgnoreIfSelfOrigin(this, this.uiEventBus, e, this.getOrigin(), () -> {
-			setDecisionLightsVisible(true);
-		});
-	}
 
 	@Subscribe
 	public void slaveStartBreak(UIEvent.BreakStarted e) {
@@ -556,22 +544,19 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			setDecisionLightsVisible(false);
+			setDecisionLightsVisible(false, e);
 			FieldOfPlay fop = e.getFop();
 			if (e.getGroup() == null) {
 				publish(buildWaitState(fop));
-				hidePlates();
 				return;
 			}
 			Athlete curAthlete = fop.getCurAthlete();
 			if (curAthlete != null) {
 				Athlete refreshed = AthleteRepository.findById(curAthlete.getId());
 				publish(buildAthleteState(refreshed, fop));
-				updatePlates(true);
 				this.athleteTimer.syncWithFop(fop);
 			} else {
 				publish(buildWaitState(fop));
-				hidePlates();
 			}
 		});
 	}
@@ -590,26 +575,25 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		uiEventLogger.debug("### {} {} {} {}", this.getClass().getSimpleName(), e.getClass().getSimpleName(),
 		        this.getOrigin(), e.getOrigin());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (this.orderGuard.isStale(e.getSequence())) {
+				return;
+			}
 			FieldOfPlay fop = getFop();
 			switch (fop.getState()) {
 				case INACTIVE:
 					publish(buildWaitState(fop));
-					hidePlates();
 					break;
 				case BREAK:
 					if (e.getGroup() == null) {
 						publish(buildWaitState(fop));
-						hidePlates();
 					} else {
 						publish(buildBreakState(fop));
-						updatePlates(fop.getCurAthlete() != null && fop.getBreakType() != BreakType.GROUP_DONE);
 					}
 					break;
 				default:
 					Athlete athlete = fop.getCurAthlete();
-					setDecisionLightsVisible(false);
+					setDecisionLightsVisible(false, e);
 					publish(buildAthleteState(athlete, e.getFop()));
-					updatePlates(athlete != null);
 			}
 		});
 	}
@@ -719,6 +703,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		Category category = athlete.getCategory();
 		builder.firstName(firstName)
 				.weight(requestedWeight.toString())
+				.platesHtml(buildPlatesHtml(fop, requestedWeight))
 				.category(category != null ? category.getDisplayName() : "")
 				.teamName(computeTeamName(athlete))
 				.startNumber(athlete.getStartNumber())
@@ -763,6 +748,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	private AttemptBoardState buildBreakState(FieldOfPlay fop, FOPState fopState, BreakType breakType,
 	        CeremonyType ceremonyType, Athlete athlete, Group group, Integer requestedWeight) {
+		setDecisionLightsVisible(false, null);
 		BoardMode boardMode = computeBoardMode(fopState, breakType, ceremonyType);
 		boolean weightVisible = boardMode == BoardMode.LIFT_COUNTDOWN
 				|| (boardMode == BoardMode.INTERRUPTION && breakType == BreakType.TECHNICAL);
@@ -799,6 +785,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 			Category category = athlete.getCategory();
 			builder.category(category != null ? category.getDisplayName() : "")
 					.attempt(formatAttempt(athlete))
+					.platesHtml(weightVisible ? buildPlatesHtml(fop, requestedWeight) : "")
 					.weight(requestedWeight != null && requestedWeight > 0 ? requestedWeight.toString() : "");
 		}
 		return builder.build();
@@ -829,38 +816,70 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		return ++this.boardStateSequence;
 	}
 
-	private void setDecisionLightsVisible(boolean visible) {
+	private void setDecisionLightsVisible(boolean visible, UIEvent trigger) {
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
-			FieldOfPlay fop = getFop();
-			FOPState fopState = fop != null ? fop.getState() : null;
-			// decision phases where visible lights are coherent with the FOP
-			boolean coherent = visible == (fopState == FOPState.DOWN_SIGNAL_VISIBLE || fopState == FOPState.DECISION_VISIBLE);
-			logger.warn("{}attemptBoard decisionVisible={} fopState={}{} {}", FieldOfPlay.getLoggingName(fop),
-			        visible, fopState, coherent ? "" : " MISMATCH", LoggerUtils.whereFrom());
+			logger.warn("{}attemptBoard decisionVisible={} trigger={} {}", FieldOfPlay.getLoggingName(getFop()),
+			        visible, trigger != null ? trigger.getClass().getSimpleName() : "syncWithFOP", LoggerUtils.whereFrom());
 		}
-		boolean changed = this.decisionLightsVisible != visible;
 		this.decisionLightsVisible = visible;
-		this.getElement().setProperty("decisionVisible", visible);
-		// keep the dormant snapshot field in sync, but only on real transitions
-		if (changed && this.lastBoardState != null) {
-			publish(this.lastBoardState.copy(nextBoardStateSequence()).decisionVisible(visible).build());
+	}
+
+	private boolean isStaleOrderEvent(UIEvent.LiftingOrderUpdated e) {
+		long lastApplied = this.orderGuard.getLastApplied();
+		boolean stale = this.orderGuard.isStale(e.getSequence());
+		if (stale && Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+			logger.warn("{}attemptBoard dropping out-of-order LiftingOrderUpdated seq={} lastApplied={}",
+			        FieldOfPlay.getLoggingName(getFop()), e.getSequence(), lastApplied);
 		}
+		return stale;
 	}
 
 	private void publish(AttemptBoardState state) {
 		this.lastBoardState = state;
-		this.getElement().setPropertyJson("boardState", state.toJson());
+		boolean traces = Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES);
+		JsonObject snapshot = state.toJson();
+		snapshot.put("attemptTraces", traces);
+		this.getElement().setPropertyJson("boardState", snapshot);
+		if (traces && CompetitionSimulator.isRunning() && isAttached()
+		        && "attempt-board-template".equals(this.getElement().getTag())) {
+			this.renderCheck.published(state, this.getElement().getProperty("kgSymbol", ""), System.nanoTime() / 1_000_000);
+			if (this.renderCheckTimer == null) {
+				this.renderCheckTimer = new Timer("attempt-board-render-check", true);
+				this.renderCheckTimer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						if (!CompetitionSimulator.isRunning()
+						        || !Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+							renderCheck.clear();
+							return;
+						}
+						logRenderFailure("TIMEOUT", renderCheck.timeout(System.nanoTime() / 1_000_000));
+					}
+				}, 1000, 1000);
+			}
+		} else {
+			stopRenderCheck();
+		}
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
 			logger.warn("{}attemptBoard state published seq={}", FieldOfPlay.getLoggingName(getFop()), state.getSequence());
 		}
+		this.getUI().ifPresent(UI::push);
 	}
 
-	private void updatePlates(boolean visible) {
-		if (visible) {
-			showPlates();
-		} else {
-			hidePlates();
+
+	private void logRenderFailure(String kind, String failure) {
+		if (failure != null) {
+			logger.error("{}SIMULATION_RENDER_{} board={}@{} {}", FieldOfPlay.getLoggingName(getFop()), kind,
+			        getClass().getSimpleName(), Integer.toHexString(System.identityHashCode(this)), failure);
 		}
+	}
+
+	private void stopRenderCheck() {
+		if (this.renderCheckTimer != null) {
+			this.renderCheckTimer.cancel();
+			this.renderCheckTimer = null;
+		}
+		this.renderCheck.clear();
 	}
 
 	protected Object getOrigin() {
@@ -905,6 +924,7 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 
 	@Override
 	protected void onDetach(DetachEvent detachEvent) {
+		stopRenderCheck();
 		clearJuryNotification();
 		super.onDetach(detachEvent);
 	}
@@ -928,26 +948,22 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 	protected void syncWithFOP(FieldOfPlay fop) {
 		if (fop.getState() == FOPState.INACTIVE && fop.getCeremonyType() == null) {
 			publish(buildWaitState(fop));
-			hidePlates();
 			return;
 		}
 
 		Athlete currentAthlete = fop.getCurAthlete();
 		if (fop.getState() == FOPState.BREAK || fop.getState() == FOPState.INACTIVE) {
 			publish(buildBreakState(fop));
-			updatePlates(currentAthlete != null && fop.getBreakType() != BreakType.GROUP_DONE);
 			return;
 		}
 
 		if (currentAthlete == null) {
 			publish(buildWaitState(fop));
-			hidePlates();
 			return;
 		}
 		Athlete refreshedAthlete = AthleteRepository.findById(currentAthlete.getId());
-		setDecisionLightsVisible(false);
+		setDecisionLightsVisible(false, null);
 		publish(buildAthleteState(refreshedAthlete, fop));
-		updatePlates(refreshedAthlete != null);
 		this.athleteTimer.syncWithFop(fop);
 	}
 
@@ -968,16 +984,6 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		return translation;
 	}
 
-	private void hidePlates() {
-		if (this.plates != null) {
-			try {
-				this.getElement().removeChild(this.plates.getElement());
-			} catch (IllegalArgumentException e) {
-				// ignore
-			}
-		}
-		this.plates = null;
-	}
 
 	private void init() {
 		FieldOfPlay fop = getFop();
@@ -994,23 +1000,23 @@ public abstract class AbstractAttemptBoard extends LitTemplate implements
 		this.groupDone = b;
 	}
 
-	private void showPlates() {
-		FieldOfPlay fop = getFop();
-		try {
-			if (this.plates != null) {
-				this.getElement().removeChild(this.plates.getElement());
-			}
-			this.plates = new PlatesElement();
-			this.plates.computeImageArea(fop, false);
-			Element platesElement = this.plates.getElement();
-			// tell polymer that the plates belong in the slot named barbell of the template
-			platesElement.setAttribute("slot", "barbell");
-			platesElement.getStyle().set("font-size", "3.3vh");
-			platesElement.getClassList().set("dark", true);
-			this.getElement().appendChild(platesElement);
-		} catch (Throwable t) {
-			LoggerUtils.logError(logger, t);
-		}
+	private String buildPlatesHtml(FieldOfPlay fop, int requestedWeight) {
+		PlatesElement plates = new PlatesElement();
+		plates.computeImageArea(fop, false, requestedWeight);
+		Element element = plates.getElement();
+		element.getStyle().set("font-size", "3.3vh");
+		element.getClassList().set("dark", true);
+		return element.getOuterHTML();
+	}
+
+	private boolean decisionOwnsDisplay() {
+		FOPState state = getFop().getState();
+		return state == FOPState.DOWN_SIGNAL_VISIBLE || state == FOPState.DECISION_VISIBLE;
+	}
+
+	private void publishDecisionState(UIEvent trigger) {
+		setDecisionLightsVisible(true, trigger);
+		publish(buildRecordUpdate(getFop()));
 	}
 
 	private void clearJuryNotification() {

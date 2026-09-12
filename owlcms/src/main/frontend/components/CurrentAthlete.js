@@ -13,6 +13,7 @@ class CurrentAthlete extends LitElement {
   }
 
   render() {
+	const board = this.board;
     return html` 
       <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}"/>
       <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "currentathlete")}"/>
@@ -24,12 +25,12 @@ class CurrentAthlete extends LitElement {
         </div>
 
         <div class="attemptBar" style="${this.attemptBarStyles()}">
-          <div class="startNumber" style="${this.startNumberStyles()}"><span>${this.startNumber}</span> </div>
-          <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${this.fullName}"></div>
-          <div class="clubName ellipsis" style="${this.teamNameStyles()}"><div class="clubNameEllipsis">${this.teamName}</div></div>
-          <div class="attempt" style="${this.attemptStyles()}"><span .innerHTML="${this.attempt}"></span></div>
+          <div class="startNumber" style="${this.startNumberStyles()}"><span>${board.startNumber}</span> </div>
+          <div class="fullName ellipsis" style="${this.fullNameStyles()}" .innerHTML="${board.fullName}"></div>
+          <div class="clubName ellipsis" style="${this.teamNameStyles()}"><div class="clubNameEllipsis">${board.team}</div></div>
+          <div class="attempt" style="${this.attemptStyles()}"><span .innerHTML="${board.lift}"></span></div>
           <div class="weight" style="${this.weightStyles()}">
-            <span >${this.weight}<span style="font-size: 75%" >&nbsp;${this.t?.KgSymbol}</span></span>
+            <span >${board.weight}<span style="font-size: 75%" >&nbsp;${this.t?.KgSymbol}</span></span>
           </div>
           <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
             <timer-element id="timer"></timer-element>
@@ -49,7 +50,7 @@ class CurrentAthlete extends LitElement {
           </div>
           <div class="attempts" style="${this.attemptStyles()}">
             <table class="results" id="resultsDiv">
-              ${(this.athletes ?? []).map(
+              ${(board.athletes ?? []).map(
                 (item) => html`
                   ${!item.isSpacer
                     ? html`
@@ -111,22 +112,12 @@ class CurrentAthlete extends LitElement {
 
   static get properties() {
     return {
+      boardState: { type: Object, noAccessor: true },
       competitionName: {},
-      // shared
-      startNumber: {},
-      fullName: {},
-      teamName: {},
-      attempt: {},
-      weight: {},
       displayType: {},
       groupName: {},
       groupDescription: {},
       platformName: {},
-
-      // mode (mutually exclusive, one of:
-      // WAIT INTRO_COUNTDOWN LIFT_COUNTDOWN CURRENT_ATHLETE INTERRUPTION SESSION_DONE CEREMONY
-      mode: {},
-      decisionVisible: { type: Boolean }, // sub-mode of CURRENT_ATHLETE
 
       // translation map
       t: { type: Object },
@@ -153,20 +144,20 @@ class CurrentAthlete extends LitElement {
     classes = classes + (this.platformName ? " " + this.platformName : "");
     classes = classes + (this.darkMode ? " " + this.darkMode : "");
     classes = classes + (this.teamWidthClass ? " " + this.teamWidthClass : "");
-    classes = classes + ((this.mode === "WAIT") ? " bigTitle" : "");
+    classes = classes + ((this.board.mode === "WAIT") ? " bigTitle" : "");
     return classes;
   }
 
   waitingStyles() { /* originally flex */
-    return "display: " + ((this.mode === "WAIT")  ? "grid" : "none");
+    return "display: " + ((this.board.mode === "WAIT")  ? "grid" : "none");
   }
 
   attemptBarStyles() {
-    return "display: " + ((this.mode === "WAIT") ? "none" : "grid");
+    return "display: " + ((this.board.mode === "WAIT") ? "none" : "grid");
   }
 
   fullNameStyles() {
-    return  "display: " + ((this.mode === "WAIT") ? "none" : "grid");
+    return  "display: " + ((this.board.mode === "WAIT") ? "none" : "grid");
   }
 
   teamNameStyles() {
@@ -174,7 +165,7 @@ class CurrentAthlete extends LitElement {
   }
 
   attemptStyles() {
-    return "display: grid; visibility: " + ((this.isBreak()) ? "; visibility: hidden" : "");
+    return "display: grid; visibility: " + ((this.isBreak() && this.board.mode !== "SESSION_DONE") ? "hidden" : "visible");
   }
 
   startNumberStyles() {
@@ -183,37 +174,67 @@ class CurrentAthlete extends LitElement {
 
   weightStyles() {
     // weights are visible during lift countdowns
-    return "display: " + ((this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY" || (this.mode === "CURRENT_ATHLETE")) ? "grid" : "none");
+    return "display: " + ((this.board.mode === "LIFT_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN_CEREMONY" || (this.board.mode === "CURRENT_ATHLETE")) ? "grid" : "none");
   }
 
   athleteTimerStyles() {
-   //return "display:" + ((this.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "flex" : "none");
    return "display: " + (this.isBreak() ? "none" : "grid");
   }
 
   breakTimerStyles() {
-    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none");
+    return "display:" + ((this.board.mode === "INTRO_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN_CEREMONY") ? "grid" : "none");
   }
 
   decisionStyles() {
-    return "display: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
+    return "display: " + ((this.board.mode === "CURRENT_ATHLETE" && this.board.showDecisions) ? "grid" : "none");
   }
 
   decisionHiddenStyles() {
-    return "visibility: " + ((this.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "hidden" : "");
+    return "visibility: " + ((this.board.mode === "CURRENT_ATHLETE" && this.board.showDecisions) ? "hidden" : "");
   }
 
   isBreak() {
-    return this.mode === "INTERRUPTION" || this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "CEREMONY" || this.mode === "SESSION_DONE"
+    return this.board.mode === "INTERRUPTION" || this.board.mode === "INTRO_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN" || this.board.mode === "CEREMONY" || this.board.mode === "SESSION_DONE"
   }
 
   isCountdown() {
-    return  this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN"
+    return  this.board.mode === "INTRO_COUNTDOWN" || this.board.mode === "LIFT_COUNTDOWN"
   }
 
   constructor() {
     super();
-    this.mode = "WAIT";
+    this._boardState = CurrentAthlete.emptyBoardState();
+  }
+
+  get board() {
+    return this._boardState;
+  }
+
+  get boardState() {
+    return this._boardState;
+  }
+
+  set boardState(value) {
+    const oldValue = this._boardState;
+    if (oldValue && value && Number(value.sequence) < Number(oldValue.sequence)) {
+      return;
+    }
+    this._boardState = value ?? CurrentAthlete.emptyBoardState();
+    this.requestUpdate("boardState", oldValue);
+  }
+
+  static emptyBoardState() {
+    return {
+      athletes: [],
+      fullName: "",
+      lift: "",
+      mode: "WAIT",
+      sequence: 0,
+      showDecisions: false,
+      startNumber: 0,
+      team: "",
+      weight: ""
+    };
   }
 
   firstUpdated(_changedProperties) {

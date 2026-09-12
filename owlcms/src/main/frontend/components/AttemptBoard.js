@@ -20,6 +20,7 @@ class CurrentAttempt extends LitElement {
     return html` 
     <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "colors")}"/>
     <!-- link rel="stylesheet" type="text/css" .href="${"local/" + (this.stylesDir ?? "") + "/resultsCustomization" + (this.autoversion ?? "") + ".css"}"/ -->
+    <link rel="stylesheet" type="text/css" href="local/css/plates.css"/>
     <link rel="stylesheet" type="text/css" .href="${stylesheetHref(this, "attemptboard")}"/>
 
     <div class="${this.wrapperClasses()}" style="${this.colorOverride}">
@@ -58,9 +59,7 @@ class CurrentAttempt extends LitElement {
         <div data-testid="attempt-board-weight" class="weight" style="${this.weightStyles()}">
           <span style="white-space: nowrap;">${board.weight}<span style="font-size: 75%">${this.kgSymbol}</span></span>
         </div>
-        <div class="barbell" style="${this.barbellStyles()}">
-          <slot name="barbell"></slot>
-        </div>
+        <div class="barbell" style="${this.barbellStyles()}" .innerHTML="${board.platesHtml}"></div>
         <div class="timer athleteTimer" style="${this.athleteTimerStyles()}">
           <timer-element id="athleteTimer"></timer-element>
         </div>
@@ -79,7 +78,6 @@ class CurrentAttempt extends LitElement {
     return {
     boardState: { type: Object, noAccessor: true },
       // top
-      decisionVisible: { type: Boolean },
       platformName: {},
 
       athletes: { type: Object },
@@ -107,7 +105,7 @@ class CurrentAttempt extends LitElement {
 
   updated(changedProperties) {
     super.updated(changedProperties);
-	if (!this.attemptTraces || !changedProperties.has("boardState")) {
+  if (!this.board.attemptTraces || !changedProperties.has("boardState")) {
       return;
     }
     const renderedStartNumber = this.shadowRoot?.querySelector('[data-testid="attempt-board-start-number"]')?.textContent?.trim() ?? "";
@@ -149,10 +147,12 @@ class CurrentAttempt extends LitElement {
     breakType: "",
     category: "",
     competitionName: "",
+    decisionVisible: false,
     firstName: "",
     firstNameSizeOverride: "",
     lastName: "",
     mode: "WAIT",
+    platesHtml: "",
     nameSizeOverride: "",
     recordAttempt: false,
     recordBroken: false,
@@ -198,7 +198,7 @@ class CurrentAttempt extends LitElement {
   athleteImgClasses() {
     var mainClass = "picture";
     return mainClass +
-      (this.decisionVisible ? " hideBecauseDecision" : "") +
+      (this.board.decisionVisible ? " hideBecauseDecision" : "") +
       ((this.board.recordAttempt || this.board.recordBroken) ? " hideBecauseRecord" : "");
   }
   teamNameClasses() {
@@ -214,7 +214,7 @@ class CurrentAttempt extends LitElement {
   teamFlagImgClasses() {
   var mainClass = (this.board.athleteImg || this.athletePictures) ? "flagWithPicture" : "flag";
     return mainClass +
-      (this.decisionVisible ? " hideBecauseDecision" : "") +
+      (this.board.decisionVisible ? " hideBecauseDecision" : "") +
       ((this.board.recordAttempt || this.board.recordBroken) ? " hideBecauseRecord" : "");
   }
 
@@ -280,7 +280,7 @@ class CurrentAttempt extends LitElement {
   }
 
   attemptStyles() {
-    return "display: " + ((this.isBreak() || this.decisionVisible) ? "none" : "grid");
+    return "display: " + ((this.isBreak() || this.board.decisionVisible) ? "none" : "grid");
   }
 
   startNumberStyles() {
@@ -293,7 +293,7 @@ class CurrentAttempt extends LitElement {
   }
 
   athleteTimerStyles() {
-  return "display:" + ((this.board.mode === "CURRENT_ATHLETE" && !this.decisionVisible) ? "grid" : "none") + "; padding-bottom: 10px;";
+  return "display:" + ((this.board.mode === "CURRENT_ATHLETE" && !this.board.decisionVisible) ? "grid" : "none") + "; padding-bottom: 10px;";
   }
 
   breakTimerStyles() {
@@ -301,16 +301,16 @@ class CurrentAttempt extends LitElement {
   }
 
   barbellStyles() {
-  return "display: " + ((this.board.mode === "LIFT_COUNTDOWN" || (this.board.mode === "CURRENT_ATHLETE" && !this.decisionVisible) || (this.board.mode === "INTERRUPTION" && this.board.breakType === "TECHNICAL")) ? "grid" : "none");
+  return "display: " + ((this.board.mode === "LIFT_COUNTDOWN" || (this.board.mode === "CURRENT_ATHLETE" && !this.board.decisionVisible) || (this.board.mode === "INTERRUPTION" && this.board.breakType === "TECHNICAL")) ? "grid" : "none");
   }
 
   decisionStyles() {
-  const style = "display: " + ((this.board.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "grid" : "none");
+  const style = "display: " + ((this.board.mode === "CURRENT_ATHLETE" && this.board.decisionVisible) ? "grid" : "none");
     return style;
   }
 
   brandingStyles() {
-  const style =  ((this.board.mode === "CURRENT_ATHLETE" && this.decisionVisible) ? "display: none"
+  const style =  ((this.board.mode === "CURRENT_ATHLETE" && this.board.decisionVisible) ? "display: none"
        : "position: absolute; bottom: 0.5em; right: 2em; align-items: center; font-weight: thin; font-size: 1.5em; line-height: 1.5em");
     return style;
   }
@@ -319,7 +319,6 @@ class CurrentAttempt extends LitElement {
     super();
     this.javaComponentId = "";
   this._boardState = CurrentAttempt.emptyBoardState();
-    this.decisionVisible = false;
 
     this.stylesDir = "";
     this.autoVersion = 0;
