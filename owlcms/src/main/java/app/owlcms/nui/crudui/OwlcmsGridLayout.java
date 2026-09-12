@@ -32,6 +32,7 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 	
 	private OwlcmsCrudGrid<?> owlcmsCrudGrid;
 	private H3 dialogCaption;
+	private boolean dialogCloseOnOutsideClick = true;
 
 	/**
 	 * Instantiates a new owlcms crudGrid layout.
@@ -116,6 +117,13 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		this.owlcmsCrudGrid = grid;
 	}
 
+	public void setDialogCloseOnOutsideClick(boolean closeOnOutsideClick) {
+		this.dialogCloseOnOutsideClick = closeOnOutsideClick;
+		if (this.dialog != null) {
+			this.dialog.setCloseOnOutsideClick(closeOnOutsideClick);
+		}
+	}
+
 	public void updateDialogCaption(String caption) {
 		if (this.dialogCaption != null) {
 			this.dialogCaption.setText(caption);
@@ -134,6 +142,7 @@ public class OwlcmsGridLayout extends WindowBasedCrudLayout {
 		this.dialogCaption.getStyle().set("margin-bottom", "0");
 		this.dialog = new Dialog(this.dialogCaption, dialogLayout);
 		this.dialog.setWidth(this.formWindowWidth);
+		this.dialog.setCloseOnOutsideClick(this.dialogCloseOnOutsideClick);
 		
 		// Add dialog close listener for focus management
 		if (this.owlcmsCrudGrid != null) {
