@@ -25,7 +25,7 @@
 		builds. this value is only used for local development -->
 		<revision>67.2.0-SNAPSHOT</revision>
 
-		<vaadin.version>24.9.6</vaadin.version>
+		<vaadin.version>24.9.18</vaadin.version>
 		<logback.version>1.5.25</logback.version>
 		<slf4j.version>2.0.16</slf4j.version>
 		<hibernate.version>5.6.15.Final</hibernate.version>
