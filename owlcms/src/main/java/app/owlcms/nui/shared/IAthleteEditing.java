@@ -13,6 +13,9 @@ public interface IAthleteEditing {
 
 	void closeDialog();
 
+	default void setDialogCloseOnOutsideClick(boolean closeOnOutsideClick) {
+	}
+
 	OwlcmsCrudGrid<?> getEditingGrid();
 
 	FieldOfPlay getFop();

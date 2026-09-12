@@ -391,6 +391,11 @@ public abstract class AthleteGridContent extends BaseContent
 		this.getCrudGrid().getGrid().asSingleSelect().clear();
 	}
 
+	@Override
+	public void setDialogCloseOnOutsideClick(boolean closeOnOutsideClick) {
+		this.crudLayout.setDialogCloseOnOutsideClick(closeOnOutsideClick);
+	}
+
 	/**
 	 * Used by the TimeKeeper and TechnicalController classes that abusively inherit from this class (they don't actually have a grid)
 	 *
