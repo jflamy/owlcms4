@@ -829,7 +829,9 @@ public class BaseResults extends LitTemplate
 			return;
 		}
 		Athlete curAthlete = fop.getCurAthlete();
-		if (curAthlete == null) {
+		if (curAthlete == null || (Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)
+		        && fop.getState() == FOPState.BREAK
+		        && (fop.getBreakType() == BreakType.BEFORE_INTRODUCTION || fop.getBreakType() == BreakType.FIRST_SNATCH))) {
 			clearProjectedRankText();
 			this.getElement().setPropertyJson("leaders", JsonUtils.nullNode());
 			setBottomSize(1);
@@ -935,6 +937,12 @@ public class BaseResults extends LitTemplate
 		// }
 		FieldOfPlay fop = getFop();
 		if (fop == null) {
+			return;
+		}
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)
+		        && fop.getState() == FOPState.BREAK
+		        && (fop.getBreakType() == BreakType.BEFORE_INTRODUCTION || fop.getBreakType() == BreakType.FIRST_SNATCH)) {
+			this.getElement().setPropertyJson("records", JsonUtils.nullNode());
 			return;
 		}
 		Athlete curAthlete = fop.getCurAthlete();
@@ -1565,7 +1573,9 @@ public class BaseResults extends LitTemplate
 		int resultLines = (order != null ? order.size() : 0) + countSubsets(order);
 		boolean done = fop.getState() == FOPState.BREAK && fop.getBreakType() == BreakType.GROUP_DONE;
 
-		if (!isLeadersDisplay() || done) {
+		if (!isLeadersDisplay() || done || (Config.getCurrent().featureSwitch(FeatureSwitch.MEDALISTS_AS_LEADERS)
+		        && fop.getState() == FOPState.BREAK
+		        && (fop.getBreakType() == BreakType.BEFORE_INTRODUCTION || fop.getBreakType() == BreakType.FIRST_SNATCH))) {
 			this.logger.debug("0px: isLeaders = {} done = {}", isLeadersDisplay(), done);
 			this.getElement().setProperty("leaderFillerHeight", "--leaderFillerHeight: 0px");
 		} else {
