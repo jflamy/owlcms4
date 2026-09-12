@@ -21,6 +21,7 @@
       },
       "env": {
         "OWLCMS_MEMORYMODE": "false",
+        "OWLCMS_FEATURESWITCHES": "attemptTraces",
         // default is to ignore event forwarding by forcing "" as URL
         // comment out the next two lines to use what is in the database
         "OWLCMS_VIDEODATA": "ws://owlcms.local:8096/ws",
