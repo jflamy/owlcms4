@@ -7,6 +7,9 @@
 package app.owlcms.displays.scoreboard;
 
 import java.io.FileNotFoundException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -22,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.dom.Element;
@@ -88,6 +92,8 @@ public class BaseResults extends LitTemplate
         RequireDisplayLogin, HasBoardMode, StylesDirSelection {
 
 	private static final int ABBREVIATED_NAME_MIN_LENGTH = 45;
+	private static final DateTimeFormatter CLIENT_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
+	        .withZone(ZoneId.systemDefault());
 
 	protected Group curGroup;
 	protected List<Athlete> displayOrder;
@@ -129,6 +135,8 @@ public class BaseResults extends LitTemplate
 		OwlcmsFactory.waitDBInitialized();
 		this.getElement().setProperty("autoversion", StartupUtils.getAutoVersion());
 		this.getElement().setProperty("scoreboardType", this.getClass().getSimpleName());
+		this.getElement().setProperty("attemptTraces",
+		        Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES));
 		this.capturedLocale = OwlcmsSession.getLocale();
 
 		overrideColors(this.getElement());
@@ -685,12 +693,36 @@ public class BaseResults extends LitTemplate
 	@Subscribe
 	public void slaveOrderUpdated(UIEvent.LiftingOrderUpdated e) {
 		uiLog(e);
+		if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+			logger.warn("{}scoreboard order received seq={} athlete={} startNumber={} weight={} requested={} changedWeight={} attached={}",
+					FieldOfPlay.getLoggingName(getFop()), e.getSequence(), e.getAthlete(),
+					e.getAthlete() != null ? e.getAthlete().getStartNumber() : null,
+					e.getAthlete() != null ? e.getAthlete().getNextAttemptRequestedWeight() : null,
+					e.getAthlete() != null ? e.getAthlete().getNextAttemptRequestedWeight() : null,
+					e.getNewWeight(), getUI().isPresent());
+		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			if (Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+				this.getElement().setProperty("scoreboardEventSequence", Long.toString(e.getSequence()));
+			}
 			Athlete a = e.getAthlete();
 			this.displayOrder = getOrder(e.getFop());
 			this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
 			doUpdate(a, e);
 		});
+	}
+
+	@ClientCallable
+	public void scoreboardTopRendered(String sequence, Double clientEpochMillis, String renderedStartNumber,
+	        String renderedName, String renderedWeight, String mode, boolean weightVisible) {
+		if (!Config.getCurrent().featureSwitch(FeatureSwitch.ATTEMPT_TRACES)) {
+			return;
+		}
+		String clientTime = clientEpochMillis == null ? ""
+		        : CLIENT_TIME_FORMATTER.format(Instant.ofEpochMilli(clientEpochMillis.longValue()));
+		logger.warn("{}scoreboard top rendered eventSeq={} startNumber={} name={} weight={} mode={} weightVisible={} clientTime={}",
+		        FieldOfPlay.getLoggingName(getFop()), sequence, renderedStartNumber, renderedName, renderedWeight, mode,
+		        weightVisible, clientTime);
 	}
 
 	@Subscribe

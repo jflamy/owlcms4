@@ -244,6 +244,8 @@ class Results extends LitElement {
       groupDescription: {},
       platformName: {},
       scoreboardType: {},
+      scoreboardEventSequence: {},
+      attemptTraces: { type: Boolean },
 
       // during lifting
       athletes: { type: Object },
@@ -303,6 +305,26 @@ class Results extends LitElement {
   firstUpdated(_changedProperties) {
     console.debug("ready");
     super.firstUpdated(_changedProperties);
+  }
+
+  updated(changedProperties) {
+    super.updated(changedProperties);
+    if (!this.attemptTraces || !changedProperties.has("scoreboardEventSequence")) {
+      return;
+    }
+    const renderedStartNumber = this.shadowRoot?.querySelector(".attemptBar .startNumber")?.textContent?.trim() ?? "";
+    const renderedName = this.shadowRoot?.querySelector(".attemptBar .fullName")?.textContent?.trim() ?? "";
+    const renderedWeight = this.shadowRoot?.querySelector(".attemptBar .weight")?.textContent?.trim() ?? "";
+    const weightVisible = this.weightStyles().includes("display: flex");
+    this.$server?.scoreboardTopRendered(
+      String(this.scoreboardEventSequence ?? ""),
+      Date.now(),
+      renderedStartNumber,
+      renderedName,
+      renderedWeight,
+      this.mode,
+      weightVisible
+    );
   }
 
   start() {
