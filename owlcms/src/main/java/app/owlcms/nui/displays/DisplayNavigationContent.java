@@ -13,6 +13,7 @@ import java.util.Map;
 import org.slf4j.LoggerFactory;
 
 import com.github.appreciated.layout.FlexibleGridLayout;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -77,6 +78,11 @@ public class DisplayNavigationContent extends BaseNavigationContent
 	 * Instantiates a new display navigation content.
 	 */
 	public DisplayNavigationContent() {
+	}
+
+	@Override
+	protected void onAttach(AttachEvent attachEvent) {
+		super.onAttach(attachEvent);
 		try {
 			VerticalLayout intro = new VerticalLayout();
 			intro.setSpacing(false);
