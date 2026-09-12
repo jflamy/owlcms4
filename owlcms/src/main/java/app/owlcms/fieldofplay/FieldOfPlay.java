@@ -2056,6 +2056,12 @@ public class FieldOfPlay implements IUnregister {
 		// the state will be rewritten in displayOrBreakIfDone
 		// this is so the decision reset knows that the decision is no longer displayed.
 		cancelWakeUpRef();
+		if (getCurAthlete() == null && CompetitionSimulator.isRunning()) {
+			this.logger.warn("{}SIMULATION creating null-athlete DecisionReset state={} previousAthlete={} liftingOrderSize={} trigger={}\n{}",
+			        FieldOfPlay.getLoggingName(this), getState(), getPreviousAthlete(),
+			        this.liftingOrder != null ? this.liftingOrder.size() : null,
+			        e != null ? e.getClass().getSimpleName() : null, LoggerUtils.stackTrace());
+		}
 		pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this, this));
 		setClockOwner(null);
 		this.decisionCommitScheduled = false;
@@ -3475,6 +3481,12 @@ public class FieldOfPlay implements IUnregister {
 			List<Athlete> liftingOrder2 = getLiftingOrder();
 			Athlete nextCurrentAthlete = liftingOrder2 != null && liftingOrder2.size() > 0 ? liftingOrder2.get(0)
 					: null;
+			if (nextCurrentAthlete == null && CompetitionSimulator.isRunning()) {
+				this.logger.warn("{}SIMULATION recompute produced no current athlete state={} group={} initialOrderSize={} refreshedGroupSize={} rankedAthleteSize={}\n{}",
+				        FieldOfPlay.getLoggingName(this), getState(), g,
+				        initialList != null ? initialList.size() : null, currentGroupAthletes.size(), athletes.size(),
+				        LoggerUtils.stackTrace());
+			}
 			if (nextCurrentAthlete != null && nextCurrentAthlete.isForcedAsCurrent()) {
 				nextCurrentAthlete.resetForcedAsCurrent();
 				AthleteRepository.save(nextCurrentAthlete);
@@ -3618,6 +3630,12 @@ public class FieldOfPlay implements IUnregister {
 			this.decisionDisplayTimer.cancel();
 		}
 		resetDecisions();
+		if (getCurAthlete() == null && CompetitionSimulator.isRunning()) {
+			this.logger.warn("{}SIMULATION restartTimer creating null-athlete DecisionReset state={} previousAthlete={} liftingOrderSize={} trigger={}\n{}",
+			        FieldOfPlay.getLoggingName(this), getState(), getPreviousAthlete(),
+			        this.liftingOrder != null ? this.liftingOrder.size() : null,
+			        e != null ? e.getClass().getSimpleName() : null, LoggerUtils.stackTrace());
+		}
 		pushOutUIEvent(new UIEvent.DecisionReset(getCurAthlete(), this, this));
 		transitionToLifting(e, this.group, true); // announcer decision is always immediate
 
@@ -3768,8 +3786,13 @@ public class FieldOfPlay implements IUnregister {
 	}
 
 	private void setCurAthlete(Athlete athlete) {
-		// logger.trace("setting curAthlete to {} [{}]", athlete,
-		// LoggerUtils.whereFrom());
+		if (athlete == null && CompetitionSimulator.isRunning() && getState() != INACTIVE) {
+			this.logger.warn("{}SIMULATION curAthlete cleared state={} group={} liftingOrderSize={} displayOrderSize={}\n{}",
+			        FieldOfPlay.getLoggingName(this), getState(), getGroup(),
+			        this.liftingOrder != null ? this.liftingOrder.size() : null,
+			        this.displayOrder != null ? this.displayOrder.size() : null,
+			        LoggerUtils.stackTrace());
+		}
 		this.curAthlete = athlete;
 		this.missingKgWarnedAthleteId = null;
 	}

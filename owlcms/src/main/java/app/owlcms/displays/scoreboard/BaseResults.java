@@ -742,7 +742,7 @@ public class BaseResults extends LitTemplate
 	public void slaveSwitchGroup(UIEvent.SwitchGroup e) {
 		uiLog(e);
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			syncWithFOP(e);
+			syncWithFOPLocked(e);
 		});
 	}
 
@@ -1401,7 +1401,7 @@ public class BaseResults extends LitTemplate
 		initializeTeamFlags(this.displayOrder);
 
 		this.liftsDone = AthleteSorter.countLiftsDone(this.displayOrder);
-		syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
+		syncWithFOPLocked(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
 		// we listen on uiEventBus.
 		this.uiEventBus = uiEventBusRegister(this, fop);
 
@@ -1708,11 +1708,11 @@ public class BaseResults extends LitTemplate
 	private void syncWithFOP() {
 		FieldOfPlay fop = getFop();
 		if (fop != null) {
-			syncWithFOP(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
+			syncWithFOPLocked(new UIEvent.SwitchGroup(fop.getGroup(), fop.getState(), fop.getCurAthlete(), this, fop));
 		}
 	}
 
-	private void syncWithFOP(UIEvent.SwitchGroup e) {
+	protected void syncWithFOPLocked(UIEvent.SwitchGroup e) {
 		var fop = e.getFop();
 		setFop(fop);
 		setGroup(fop != null ? fop.getGroup() : null);

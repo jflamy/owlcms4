@@ -40,8 +40,12 @@ public class PlatesElement extends FlexLayout {
 			return;
 		}
 
+		computeImageArea(fop, showCaption, currentAthlete.getNextAttemptRequestedWeight());
+	}
+
+	public void computeImageArea(FieldOfPlay fop, boolean showCaption, int requestedWeight) {
 		final int barWeight = fop.getBarWeight();
-		this.setWeight(currentAthlete.getNextAttemptRequestedWeight());
+		this.setWeight(requestedWeight);
 		final String caption = Translator.translate("Kg", this.getWeight());
 		// logger.debug("caption {}",caption);
 

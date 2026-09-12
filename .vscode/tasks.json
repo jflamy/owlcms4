@@ -6,7 +6,11 @@
       "type": "shell",
       "command": "find logs -maxdepth 1 -name '*.log' -type f -delete 2>/dev/null || true",
       "options": {
-        "cwd": "${workspaceFolder}/owlcms"
+        "cwd": "${workspaceFolder}/owlcms",
+        "shell": {
+          "executable": "/bin/bash",
+          "args": ["-c"]
+        }
       },
       "problemMatcher": []
     }

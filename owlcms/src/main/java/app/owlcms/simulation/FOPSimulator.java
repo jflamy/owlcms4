@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.LoggerFactory;
@@ -18,9 +19,11 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.AthleteSorter;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPEvent;
+import app.owlcms.fieldofplay.FOPState;
 import app.owlcms.fieldofplay.FieldOfPlay;
 import app.owlcms.monitors.MQTTMonitor;
 import app.owlcms.nui.shared.SafeEventBusRegistration;
@@ -40,6 +43,11 @@ import ch.qos.logback.classic.Logger;
  *
  */
 public class FOPSimulator implements SafeEventBusRegistration {
+	enum MarshalChangePhase {
+		BEFORE_CLOCK,
+		CLOCK_RUNNING,
+		DURING_DECISION
+	}
 
 	private static final boolean USE_MQTT_TIMER = true;
 	static private Random r = new Random(0);
@@ -57,6 +65,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 	final private Logger uiEventLogger = (Logger) LoggerFactory.getLogger("Simulation-" + this.logger.getName());
 	private final List<Thread> workers = Collections.synchronizedList(new ArrayList<>());
 	private volatile boolean stopped;
+	private final AtomicBoolean liftInProgress = new AtomicBoolean();
 
 	public FOPSimulator(FieldOfPlay f, List<Group> groups) {
 		this(f, groups, false, false);
@@ -147,7 +156,10 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	@Subscribe
 	public void slaveRefereeDecision(UIEvent.Decision e) {
-		// nothing to do
+		if (!isActive()) {
+			return;
+		}
+		startWorker(() -> maybeSimulateMarshalChange(MarshalChangePhase.DURING_DECISION, e.getAthlete()));
 	}
 
 	@Subscribe
@@ -203,6 +215,17 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	@SuppressWarnings("unused")
 	protected void doLift(Athlete a) {
+		if (!this.liftInProgress.compareAndSet(false, true)) {
+			return;
+		}
+		try {
+			doLiftSequence(a);
+		} finally {
+			this.liftInProgress.set(false);
+		}
+	}
+
+	private void doLiftSequence(Athlete a) {
 		if (!isActive()) {
 			return;
 		}
@@ -220,16 +243,11 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 		MQTTMonitor mm = this.fop.getMqttMonitor();
 		// do a lift in group g: start timer
-		if (USE_MQTT_TIMER && mm != null) {
-			try {
-				mm.simulateStartAthleteTimer();
-			} catch (MqttException | RuntimeException e) {
-				LoggerUtils.logError(this.logger, e);
-			}
-
-		} else {
-			this.fop.fopEventPost(new FOPEvent.TimeStarted(this));
+		if (!startClock(mm)) {
+			return;
 		}
+
+		maybeSimulateMarshalChange(MarshalChangePhase.CLOCK_RUNNING, a);
 
 		// wait for clock to run down a bit
 		if (!sleepQuietly(2000)) {
@@ -240,12 +258,39 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			return;
 		}
 
+		// a weight change stopped the clock: announcer restarts it for whoever is now current
+		if (canStartClock(this.fop.getState())) {
+			Athlete current = this.fop.getCurAthlete();
+			this.logger.warn("{}clock restarted after weight change, current athlete {}",
+			        FieldOfPlay.getLoggingName(this.fop), current != null ? current.getShortName() : null);
+			if (!startClock(mm)) {
+				return;
+			}
+			if (!sleepQuietly(1000)) {
+				return;
+			}
+			if (skipLiftDuringBreak(current, "before timer stop after restart")) {
+				return;
+			}
+		}
+
+		if (this.fop.getState() != FOPState.TIME_RUNNING || !this.fop.getAthleteTimer().isRunning()) {
+			return;
+		}
+		Athlete liftingAthlete = this.fop.getCurAthlete();
+		if (liftingAthlete == null || !liftingAthlete.equals(this.fop.getClockOwner())) {
+			return;
+		}
+		int attemptsDone = liftingAthlete.getAttemptsDone();
+		Integer liftingWeight = liftingAthlete.getNextAttemptRequestedWeight();
+
 		// stop time and get decisions
 		if (USE_MQTT_TIMER && mm != null) {
 			try {
 				mm.simulateStopAthleteTimer();
 			} catch (MqttException | RuntimeException e) {
 				LoggerUtils.logError(this.logger, e);
+				return;
 			}
 		} else {
 			this.fop.fopEventPost(new FOPEvent.TimeStopped(this));
@@ -256,7 +301,11 @@ public class FOPSimulator implements SafeEventBusRegistration {
 			return;
 		}
 
-		if (skipLiftDuringBreak(a, "before referee decisions")) {
+		if (!waitForClockState(FOPState.TIME_STOPPED)
+		        || !liftingAthlete.equals(this.fop.getCurAthlete())
+		        || !liftingAthlete.equals(this.fop.getClockOwner())
+		        || liftingAthlete.getAttemptsDone() != attemptsDone
+		        || !liftingWeight.equals(liftingAthlete.getNextAttemptRequestedWeight())) {
 			return;
 		}
 
@@ -279,6 +328,46 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	Object getOrigin() {
 		return this.origin;
+	}
+
+	private boolean startClock(MQTTMonitor mm) {
+		FOPState state = this.fop.getState();
+		if (!isActive() || this.fop.getCurAthlete() == null
+		        || !canStartClock(state)) {
+			return false;
+		}
+		if (USE_MQTT_TIMER && mm != null) {
+			try {
+				mm.simulateStartAthleteTimer();
+			} catch (MqttException | RuntimeException e) {
+				LoggerUtils.logError(this.logger, e);
+				return false;
+			}
+		} else {
+			this.fop.fopEventPost(new FOPEvent.TimeStarted(this));
+		}
+		return waitForClockState(FOPState.TIME_RUNNING);
+	}
+
+	static boolean canStartClock(FOPState state) {
+		return state == FOPState.CURRENT_ATHLETE_DISPLAYED || state == FOPState.TIME_STOPPED;
+	}
+
+	private boolean waitForClockState(FOPState expected) {
+		for (int retry = 0; retry < 40 && isActive(); retry++) {
+			FOPState state = this.fop.getState();
+			if (state == expected && this.fop.getAthleteTimer().isRunning() == (expected == FOPState.TIME_RUNNING)) {
+				return true;
+			}
+			if (state != FOPState.CURRENT_ATHLETE_DISPLAYED && state != FOPState.TIME_RUNNING
+			        && state != FOPState.TIME_STOPPED) {
+				return false;
+			}
+			if (!sleepQuietly(50)) {
+				return false;
+			}
+		}
+		return false;
 	}
 
 	private void doDeclaration(Athlete athlete, String automatic) {
@@ -310,12 +399,11 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		if (!isActive()) {
 			return;
 		}
-		List<Athlete> order = this.fop.getLiftingOrder();
-		Athlete athlete = order.size() > 0 ? order.get(0) : null;
-
-		if (!sleepQuietly(1000)) {
+		if (!waitBeforeClock(1000)) {
 			return;
 		}
+		List<Athlete> order = this.fop.getLiftingOrder();
+		Athlete athlete = order.size() > 0 ? order.get(0) : null;
 		if (skipLiftDuringBreak(athlete, "after next-athlete delay")) {
 			return;
 		}
@@ -326,7 +414,7 @@ public class FOPSimulator implements SafeEventBusRegistration {
 		if (!isActive()) {
 			return;
 		}
-		if (!sleepQuietly(2000)) {
+		if (!waitBeforeClock(2000)) {
 			return;
 		}
 		if (skipLiftDuringBreak(null, "after declaration delay")) {
@@ -389,6 +477,119 @@ public class FOPSimulator implements SafeEventBusRegistration {
 
 	private int declarationIncrement() {
 		return r.nextBoolean() ? 2 : 3;
+	}
+
+	private void maybeSimulateMarshalChange(MarshalChangePhase phase, Athlete attemptedAthlete) {
+		if (!this.randomDeclarationJumps || r.nextFloat() >= 0.85F) {
+			return;
+		}
+		if (!sleepQuietly(phase == MarshalChangePhase.CLOCK_RUNNING ? 500 + r.nextInt(800) : 200 + r.nextInt(400))) {
+			return;
+		}
+		boolean changeCurrentAthlete = allowsAttemptedAthleteChange(phase) && r.nextFloat() < 0.75F;
+		if (phase == MarshalChangePhase.BEFORE_CLOCK
+		        && this.fop.getState() != FOPState.CURRENT_ATHLETE_DISPLAYED) {
+			return;
+		}
+		if (phase == MarshalChangePhase.CLOCK_RUNNING && changeCurrentAthlete && (attemptedAthlete == null
+		        || this.fop.getState() != FOPState.TIME_RUNNING || !this.fop.getAthleteTimer().isRunning()
+		        || !attemptedAthlete.equals(this.fop.getCurAthlete())
+		        || !attemptedAthlete.equals(this.fop.getClockOwner()))) {
+			return;
+		}
+		if (phase == MarshalChangePhase.DURING_DECISION
+		        && this.fop.getState() != FOPState.DOWN_SIGNAL_VISIBLE
+		        && this.fop.getState() != FOPState.DECISION_VISIBLE) {
+			return;
+		}
+		Athlete target = changeCurrentAthlete ? this.fop.getCurAthlete() : null;
+		if (target == null) {
+			Athlete currentAthlete = this.fop.getCurAthlete();
+			Athlete currentClockOwner = this.fop.getClockOwner();
+			List<Athlete> candidates = this.fop.getLiftingOrder().stream()
+			        .filter(athlete -> !allowsAttemptedAthleteChange(phase)
+			                ? !athlete.equals(attemptedAthlete)
+			                : !athlete.equals(currentAthlete) && !athlete.equals(currentClockOwner))
+			        .limit(3).toList();
+			if (candidates.isEmpty()) {
+				return;
+			}
+			target = candidates.get(r.nextInt(candidates.size()));
+		}
+		if (target == null || target.getAttemptsDone() >= 6) {
+			return;
+		}
+		Integer requested = target.getNextAttemptRequestedWeight();
+		if (requested == null || requested <= 0) {
+			return;
+		}
+		String newWeight = Integer.toString(requested + 1 + r.nextInt(2));
+		try {
+			if (!doChange(target, newWeight)) {
+				return;
+			}
+			AthleteRepository.save(target);
+			this.logger.warn("{}simulated marshal change {} -> {} ({} {})", FieldOfPlay.getLoggingName(this.fop),
+			        target.getShortName(), newWeight, phase, changeCurrentAthlete ? "current athlete" : "other athlete");
+			this.fop.fopEventPost(new FOPEvent.WeightChange(this, target, false));
+		} catch (RuntimeException e1) {
+			this.logger.warn("{}simulated marshal change rejected: {}", FieldOfPlay.getLoggingName(this.fop),
+			        e1.getMessage());
+		}
+	}
+
+	static boolean allowsAttemptedAthleteChange(MarshalChangePhase phase) {
+		return phase != MarshalChangePhase.DURING_DECISION;
+	}
+
+	private boolean waitBeforeClock(long delayMillis) {
+		long start = System.nanoTime();
+		maybeSimulateMarshalChange(MarshalChangePhase.BEFORE_CLOCK, this.fop.getCurAthlete());
+		long elapsedMillis = (System.nanoTime() - start) / 1_000_000;
+		return sleepQuietly(Math.max(0, delayMillis - elapsedMillis));
+	}
+
+	/** Fill the first free change slot of the current attempt; returns false if both are used. */
+	private boolean doChange(Athlete athlete, String weight) {
+		boolean change1Free = isBlank(athlete.getCurrentChange1());
+		switch (athlete.getAttemptsDone() + 1) {
+			case 1:
+				if (change1Free) athlete.setSnatch1Change1(weight);
+				else if (isBlank(athlete.getSnatch1Change2())) athlete.setSnatch1Change2(weight);
+				else return false;
+				return true;
+			case 2:
+				if (change1Free) athlete.setSnatch2Change1(weight);
+				else if (isBlank(athlete.getSnatch2Change2())) athlete.setSnatch2Change2(weight);
+				else return false;
+				return true;
+			case 3:
+				if (change1Free) athlete.setSnatch3Change1(weight);
+				else if (isBlank(athlete.getSnatch3Change2())) athlete.setSnatch3Change2(weight);
+				else return false;
+				return true;
+			case 4:
+				if (change1Free) athlete.setCleanJerk1Change1(weight);
+				else if (isBlank(athlete.getCleanJerk1Change2())) athlete.setCleanJerk1Change2(weight);
+				else return false;
+				return true;
+			case 5:
+				if (change1Free) athlete.setCleanJerk2Change1(weight);
+				else if (isBlank(athlete.getCleanJerk2Change2())) athlete.setCleanJerk2Change2(weight);
+				else return false;
+				return true;
+			case 6:
+				if (change1Free) athlete.setCleanJerk3Change1(weight);
+				else if (isBlank(athlete.getCleanJerk3Change2())) athlete.setCleanJerk3Change2(weight);
+				else return false;
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	private static boolean isBlank(String s) {
+		return s == null || s.isBlank();
 	}
 
 	private void setOrigin(Object origin) {

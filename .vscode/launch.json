@@ -201,7 +201,7 @@
       "env": {
         "OWLCMS_MEMORYMODE": "true",
         "OWLCMS_INITIALDATA": "LARGEGROUP_DEMO",
-        //"OWLCMS_FEATURESWITCHES": "attemptTraces",
+        "OWLCMS_FEATURESWITCHES": "attemptTraces",
         "OWLCMS_PORT": "8083",
         //"OWLCMS_REMOTE": "http://localhost:8082",
         //"OWLCMS_VIDEODATA": "ws://127.0.0.1:8096/ws"

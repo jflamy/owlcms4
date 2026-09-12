@@ -22,16 +22,13 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.UIDetachedException;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.dom.Element;
 
 import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
 
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.LiftDefinition.Changes;
 import app.owlcms.data.athlete.LiftInfo;
 import app.owlcms.data.athlete.XAthlete;
-import app.owlcms.data.category.Category;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.group.Group;
 import app.owlcms.fieldofplay.FOPState;
@@ -45,6 +42,7 @@ import app.owlcms.uievents.BreakType;
 import app.owlcms.uievents.JuryDeliberationEventType;
 import app.owlcms.uievents.UIEvent;
 import app.owlcms.uievents.UIEvent.GroupDone;
+import app.owlcms.uievents.UIEventSequenceGuard;
 import app.owlcms.utils.CSSUtils;
 import app.owlcms.utils.JsonUtils;
 import app.owlcms.utils.LoggerUtils;
@@ -72,6 +70,9 @@ public class NCurrentAthlete extends Results {
 	private int decisionStickMillis;
 	private Timer decisionTimer;
 	private volatile long decisionStickyUntil;
+	private long boardStateSequence;
+	// guarded by ui.access; see UIEventSequenceGuard
+	private final UIEventSequenceGuard orderGuard = new UIEventSequenceGuard();
 	private UI ui;
 
 	public NCurrentAthlete(AbstractDisplayPage page) {
@@ -93,43 +94,23 @@ public class NCurrentAthlete extends Results {
 
 	@Override
 	public void doBreak(UIEvent e) {
-		FieldOfPlay fop = getFop();
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			uiEventLogger.debug("$$$ currentAthlete calling doBreak()");
-			if (fop.getGroup() != null && fop.getGroup().isDone()) {
-				setDisplay();
-				getElement().setProperty("fullName", Translator.translate("Group_number_done", fop.getGroup().toString()));
-			} else {
-				getElement().setProperty("fullName",
-				        inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
-				setDisplay();
-				updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
-			}
-		});
+		uiEventLogger.debug("$$$ currentAthlete calling doBreak()");
+		publishState(null, null, null, false);
+	}
+
+	@Override
+	protected void doBreakLocked(UIEvent e) {
+		doBreak(e);
 	}
 
 	@Override
 	public void doCeremony(UIEvent.CeremonyStarted e) {
 		uiEventLogger.debug("$$$ currentAthlete calling doCeremony()");
-		FieldOfPlay fop = getFop();
-		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			getElement().setProperty("fullName",
-			        inferMessage(fop.getBreakType(), fop.getCeremonyType(), true));
-			getElement().setProperty("teamName", "");
-			setDisplay();
-
-			updateDisplay(computeLiftType(fop.getCurAthlete()), fop);
-
-		});
+		publishState(null, null, null, false);
 	}
 
 	@Override
 	public void reset() {
-	}
-	
-	public void setDetails(Element element, boolean b) {
-		if (logger.isDebugEnabled()) logger.debug("setting details {} {}",b, LoggerUtils.whereFrom());
-		element.setProperty("showDetails", b);
 	}
 	
 	@Override
@@ -138,7 +119,7 @@ public class NCurrentAthlete extends Results {
 		if (isDecisionStickyActive(e)) {
 			return;
 		}
-		super.slaveBreakDone(e);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> doUpdate(getFop().getCurAthlete(), e));
 	}
 
 	@Override
@@ -150,7 +131,6 @@ public class NCurrentAthlete extends Results {
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setDisplay();
 			// revert to current break
 			doBreak(null);
 		});
@@ -165,7 +145,6 @@ public class NCurrentAthlete extends Results {
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setDisplay();
 			doCeremony(e);
 		});
 	}
@@ -179,10 +158,8 @@ public class NCurrentAthlete extends Results {
 		}
 		if (e.decision == null) {
 			if (logger.isDebugEnabled()) logger.debug("waiting for decision");
-			setShowDecisions(this.getElement(), false);
-			setShowAthleteClock(this.getElement(), false);
-			setShowBreakClock(this.getElement(), false);
-			this.getElement().setProperty("showDetails", true);
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () ->
+			        publishState(e.getAthlete(), null, null, false, BoardMode.CURRENT_ATHLETE, null, true));
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
@@ -202,33 +179,19 @@ public class NCurrentAthlete extends Results {
 
 	private void showDecision(Athlete athlete, FieldOfPlay fop, Boolean decision, Boolean ref1, Boolean ref2,
 	        Boolean ref3, boolean singleLight) {
-		setDisplay();
-		if (athlete != null) {
-			setDecisionAthleteText(athlete, fop);
-			computeIndicators(athlete, 1, fop, decision);
-		}
-
 		ArrayNode decisions = JsonUtils.array();
 		if (singleLight) {
-			JsonUtils.set(decisions, 0, ref2 != null ? ref2 : decision);
+			JsonUtils.set(decisions, 0, decisionColor(ref2 != null ? ref2 : decision));
 		} else {
-			JsonUtils.set(decisions, 0, ref1);
-			JsonUtils.set(decisions, 1, ref2);
-			JsonUtils.set(decisions, 2, ref3);
+			JsonUtils.set(decisions, 0, decisionColor(ref1));
+			JsonUtils.set(decisions, 1, decisionColor(ref2));
+			JsonUtils.set(decisions, 2, decisionColor(ref3));
 		}
-		this.getElement().setPropertyJson("decisions", decisions);
-
-		setShowDecisions(this.getElement(), true);
-		setShowAthleteClock(this.getElement(), false);
-		setShowBreakClock(this.getElement(), false);
-		this.getElement().setProperty("showDetails", true);
+		publishState(athlete, decision, decisions, true, BoardMode.CURRENT_ATHLETE, null, true);
 	}
 
-	private void setDecisionAthleteText(Athlete athlete, FieldOfPlay fop) {
-		int attemptNumber = fop != null ? fop.getLiftsDoneAtLastStart() : athlete.getAttemptsDone();
-		this.getElement().setProperty("fullName", athlete.getFullName() != null ? athlete.getFullName() : "");
-		this.getElement().setProperty("team", athlete.getTeam() != null ? formatTeam(athlete) : "");
-		this.getElement().setProperty("lift", formatAttempt(attemptNumber));
+	private String decisionColor(Boolean decision) {
+		return decision == null ? "empty" : decision ? "white" : "red";
 	}
 
 	private boolean recoverDecisionVisibleStick(UIEvent.SwitchGroup e) {
@@ -342,11 +305,8 @@ public class NCurrentAthlete extends Results {
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			setDisplay();
-			setShowDecisions(this.getElement(), false);
-			setShowAthleteClock(this.getElement(), false);
-			setShowBreakClock(this.getElement(), false);
-			setDetails(this.getElement(),true);
+			publishState(e.getFop().getCurAthlete(), null, null, false,
+			        BoardMode.CURRENT_ATHLETE, null, true);
 		});
 	}
 
@@ -358,9 +318,7 @@ public class NCurrentAthlete extends Results {
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			setDisplay();
-			setShowDecisions(this.getElement(), false);
-			doBreak(e);
+			publishState(getFop().getPreviousAthlete(), null, null, false);
 		});
 	}
 
@@ -377,13 +335,20 @@ public class NCurrentAthlete extends Results {
 			return;
 		}
 		if (state == FOPState.BREAK && fop.getBreakType() != null && fop.getBreakType().isInterruption()) {
-			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> showInterruption(fop.getBreakType()));
+			UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+				if (isStaleOrderEvent(e)) {
+					return;
+				}
+				showInterruption(fop.getBreakType());
+			});
 			return;
 		}
 		uiEventLogger.debug("### {} isDisplayToggle={}", this.getClass().getSimpleName(), e.isDisplayToggle());
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			Athlete a = e.getAthlete();
-			doUpdate(a, e);
+			if (isStaleOrderEvent(e)) {
+				return;
+			}
+			doUpdate(e.getAthlete(), e);
 		});
 	}
 
@@ -394,7 +359,6 @@ public class NCurrentAthlete extends Results {
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setDisplay();
 			doBreak(e);
 		});
 	}
@@ -409,10 +373,6 @@ public class NCurrentAthlete extends Results {
 		cancelDecisionTimer();
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
 			setDisplay();
-			setShowDecisions(this.getElement(), false);
-			setShowAthleteClock(this.getElement(), true);
-			setShowBreakClock(this.getElement(), false);
-			setDetails(this.getElement(),true);
 		});
 	}
 
@@ -423,7 +383,6 @@ public class NCurrentAthlete extends Results {
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
-			setDisplay();
 			Athlete a = e.getAthlete();
 			doUpdate(a, e);
 		});
@@ -435,7 +394,22 @@ public class NCurrentAthlete extends Results {
 		if (isDecisionStickyActive(e)) {
 			return;
 		}
-		super.slaveSwitchGroup(e);
+		uiLog(e);
+		UIEventProcessor.uiAccess(this, this.uiEventBus, () -> {
+			if (this.orderGuard.isStale(e.getSequence())) {
+				return;
+			}
+			syncWithFOP(e);
+		});
+	}
+
+	private boolean isStaleOrderEvent(UIEvent.LiftingOrderUpdated e) {
+		long lastApplied = this.orderGuard.getLastApplied();
+		boolean stale = this.orderGuard.isStale(e.getSequence());
+		if (stale) {
+			logger.debug("dropping out-of-order LiftingOrderUpdated seq={} lastApplied={}", e.getSequence(), lastApplied);
+		}
+		return stale;
 	}
 
 	@Override
@@ -473,16 +447,7 @@ public class NCurrentAthlete extends Results {
 	}
 
 	private void showInterruption(BreakType breakType) {
-		Element element = this.getElement();
-		element.setProperty("mode", "INTERRUPTION");
-		element.setProperty("breakType", breakType.name());
-		element.setProperty("fullName", inferMessage(breakType, null, true));
-		element.setProperty("team", "");
-		element.setProperty("lift", "");
-		setShowDecisions(element, false);
-		setShowAthleteClock(element, false);
-		setShowBreakClock(element, false);
-		setDetails(element, false);
+		publishState(null, null, null, false, BoardMode.INTERRUPTION, breakType, false);
 	}
 
 	public void setDecisionStickMillis(int decisionStickMillis) {
@@ -502,13 +467,7 @@ public class NCurrentAthlete extends Results {
 	@Override
 	protected void doUpdate(Athlete a, UIEvent e) {
 		if (logger.isDebugEnabled()) logger.debug("doUpdate called with athlete: {} {}", a, LoggerUtils.whereFrom());
-		FieldOfPlay fop = e.getFop();
-		if (a != null) {
-			getElement().setProperty("fullName", a.getFullName());
-			getElement().setProperty("team", formatTeam(a));
-			getElement().setProperty("lift", formatAttempt(a.getAttemptsDone()));
-		}
-		updateDisplay(computeLiftType(a), fop, a);
+		publishState(a, null, null, false);
 	}
 
 	public String formatTeam(Athlete a) {
@@ -518,15 +477,6 @@ public class NCurrentAthlete extends Results {
 		} else {
 			return "";
 		}
-	}
-
-	@Override
-	protected void getAthleteJson(Athlete a, ObjectNode ja, Category curCat, int liftOrderRank, FieldOfPlay fop) {
-		this.getElement().setProperty("fullName", a.getFullName() != null ? a.getFullName() : "");
-		this.getElement().setProperty("team", a.getTeam() != null ? formatTeam(a) : "");
-		this.getElement().setProperty("lift", formatAttempt(a.getAttemptsDone()));
-		this.getElement().setProperty("logoSrc", getLogoSrc());
-		computeIndicators(a, liftOrderRank, fop);
 	}
 
 	@Override
@@ -560,23 +510,9 @@ public class NCurrentAthlete extends Results {
 	}
 
 	protected void updateDisplay(String liftType, FieldOfPlay fop, Athlete a) {
-		ObjectNode ja = JsonUtils.object();
-		if (a != null) {
-			getAthleteJson(a, ja, a.getCategory(), 1, fop);
-			setDetails(this.getElement(),true);
-			setShowAthleteClock(this.getElement(), true);
-			setShowBreakClock(this.getElement(), false);
-			setShowDecisions(this.getElement(), false);
+		if (!isDecisionStickyActive(null)) {
+			publishState(a, null, null, false);
 		}
-	}
-
-	private String computeLiftType(Athlete a) {
-		if (a == null || a.getAttemptsDone() > 6) {
-			return null;
-		}
-		String liftType = a.getAttemptsDone() >= 3 ? Translator.translate("Clean_and_Jerk")
-		        : Translator.translate("Snatch");
-		return liftType;
 	}
 
 
@@ -592,13 +528,9 @@ public class NCurrentAthlete extends Results {
 		        : (total.startsWith("-") ? "(" + total.substring(1) + ")" : total);
 	}
 	
-	private void computeIndicators(Athlete a, int liftOrderRank, FieldOfPlay fop) {
-		computeIndicators(a, liftOrderRank, fop, null);
-	}
-
-	private void computeIndicators(Athlete a, int liftOrderRank, FieldOfPlay fop, Boolean decisionOverride) {
+	private IndicatorState buildIndicators(Athlete a, FieldOfPlay fop, Boolean decisionOverride) {
 		XAthlete x = new XAthlete(a);
-		Integer curLift = x.getAttemptsDone();
+		Integer curLift = decisionOverride != null ? fop.getLiftsDoneAtLastStart() : x.getAttemptsDone();
 		ArrayNode snIndicators = JsonUtils.array();
 		ArrayNode snIndicatorClasses = JsonUtils.array();
 		ArrayNode cjIndicators = JsonUtils.array();
@@ -653,10 +585,23 @@ public class NCurrentAthlete extends Results {
 			}
 			ix++;
 		}
-		this.getElement().setPropertyJson("snIndicators", snIndicators);
-		this.getElement().setPropertyJson("snIndicatorClasses", snIndicatorClasses);
-		this.getElement().setPropertyJson("cjIndicators", cjIndicators);
-		this.getElement().setPropertyJson("cjIndicatorClasses", cjIndicatorClasses);
+		return new IndicatorState(snIndicators, snIndicatorClasses, cjIndicators, cjIndicatorClasses);
+	}
+
+	private static class IndicatorState {
+
+		private final ArrayNode cjIndicatorClasses;
+		private final ArrayNode cjIndicators;
+		private final ArrayNode snIndicatorClasses;
+		private final ArrayNode snIndicators;
+
+		private IndicatorState(ArrayNode snIndicators, ArrayNode snIndicatorClasses, ArrayNode cjIndicators,
+		        ArrayNode cjIndicatorClasses) {
+			this.snIndicators = snIndicators;
+			this.snIndicatorClasses = snIndicatorClasses;
+			this.cjIndicators = cjIndicators;
+			this.cjIndicatorClasses = cjIndicatorClasses;
+		}
 	}
 	
 	protected void init() {
@@ -669,72 +614,22 @@ public class NCurrentAthlete extends Results {
 	}
 	
 	private void setDisplay() {
+		publishState(null, null, null, false);
+	}
+
+	private void publishState(Athlete eventAthlete, Boolean decisionOverride, ArrayNode decisions,
+	        boolean decisionVisible) {
+		FieldOfPlay fop = getFop();
+		publishState(eventAthlete, decisionOverride, decisions, decisionVisible,
+		        computeBoardMode(fop.getState(), fop.getBreakType(), fop.getCeremonyType()),
+		        fop.getBreakType(), false);
+	}
+
+	private void publishState(Athlete eventAthlete, Boolean decisionOverride, ArrayNode decisions,
+	        boolean decisionVisible, BoardMode mode, BreakType breakType, boolean attemptedLift) {
 		FieldOfPlay fop = getFop();
 		FOPState fopState = fop.getState();
-		BreakType breakType = fop.getBreakType();
-		Element element = this.getElement();
-		BoardMode bm = computeBoardMode(fopState, breakType, fop.getCeremonyType());
-		if (logger.isDebugEnabled()) logger.debug("setting board mode {} {}", bm.name(), LoggerUtils.whereFrom());
-		switch (bm) {
-			case WAIT:
-				element.setProperty("mode", "WAIT");
-				element.setProperty("fullName", Translator.translate("Scoreboard.WaitingNextGroup"));
-				setShowDecisions(element,false);
-				setShowAthleteClock(element, false);
-				setShowBreakClock(element,false);
-				setDetails(element, false);
-				break;
-			case INTRO_COUNTDOWN:
-				element.setProperty("mode", "INTRO_COUNTDOWN");
-				setShowDecisions(element,false);			
-				setShowAthleteClock(element, false);
-				setShowBreakClock(element,true);
-				setDetails(element, false);
-				break;
-			case CEREMONY:
-				element.setProperty("mode", "CEREMONY");
-				setShowDecisions(element,false);
-				setShowAthleteClock(element, false);
-				setShowBreakClock(element,true);
-				setDetails(element, false);
-				break;
-			case LIFT_COUNTDOWN:
-				element.setProperty("mode", "LIFT_COUNTDOWN");
-				setShowDecisions(element,false);
-				setShowAthleteClock(element, false);
-				setShowBreakClock(element,true);
-				setDetails(element, false);
-				break;
-			case CURRENT_ATHLETE:
-				element.setProperty("mode", "CURRENT_ATHLETE");
-//				setShowDecisions(element,false);
-//				setShowAthleteClock(element, true);
-//				setShowBreakClock(element,false);
-				setDetails(element,  true);
-				break;
-			case INTERRUPTION:
-				element.setProperty("mode", "INTERRUPTION");
-				setShowDecisions(element,false);
-				setShowAthleteClock(element, false);
-				setShowBreakClock(element,false);
-				setDetails(element, false);
-				break;
-			case SESSION_DONE:
-				element.setProperty("mode", "SESSION_DONE");
-				setShowDecisions(element,false);
-				setShowAthleteClock(element, false);
-				setShowBreakClock(element,false);
-				setDetails(element, false);
-				break;
-			case LIFT_COUNTDOWN_CEREMONY:
-				element.setProperty("mode", "LIFT_COUNTDOWN_CEREMONY");
-				setShowAthleteClock(element, true);
-				setShowBreakClock(element,false);
-				setDetails(element, false);
-				break;
-		}
-
-		element.setProperty("breakType", fopState == FOPState.BREAK ? breakType.name() : null);
+		if (logger.isDebugEnabled()) logger.debug("setting board mode {} {}", mode.name(), LoggerUtils.whereFrom());
 		Group group = fop.getGroup();
 		String description = null;
 		if (group != null) {
@@ -743,24 +638,47 @@ public class NCurrentAthlete extends Results {
 				description = Translator.translate("Group_number", group.getName());
 			}
 		}
-		this.getElement().setProperty("groupDescription", description != null ? description : "");
+		Athlete athlete = mode == BoardMode.SESSION_DONE ? fop.getPreviousAthlete()
+		        : eventAthlete != null ? eventAthlete : fop.getCurAthlete();
+		CurrentAthleteState.Builder builder = CurrentAthleteState.builder(++this.boardStateSequence, mode.name())
+		        .groupDescription(description)
+		        .showAthleteClock((fopState == FOPState.CURRENT_ATHLETE_DISPLAYED
+		                || fopState == FOPState.TIME_RUNNING || fopState == FOPState.TIME_STOPPED
+		                || mode == BoardMode.LIFT_COUNTDOWN_CEREMONY)
+		                && (mode == BoardMode.CURRENT_ATHLETE || mode == BoardMode.LIFT_COUNTDOWN_CEREMONY)
+		                && !attemptedLift && !decisionVisible)
+		        .showAttemptResults(mode == BoardMode.CURRENT_ATHLETE || mode == BoardMode.SESSION_DONE)
+		        .showBreakClock(mode == BoardMode.INTRO_COUNTDOWN || mode == BoardMode.LIFT_COUNTDOWN
+		                || mode == BoardMode.CEREMONY)
+		        .showDecisions(decisionVisible)
+		        .showDetails(mode == BoardMode.CURRENT_ATHLETE)
+		        .decisions(decisions);
+
+		if (athlete != null && (mode == BoardMode.CURRENT_ATHLETE || mode == BoardMode.SESSION_DONE)) {
+			IndicatorState indicators = buildIndicators(athlete, fop, decisionOverride);
+			builder.snIndicators(indicators.snIndicators)
+			        .snIndicatorClasses(indicators.snIndicatorClasses)
+			        .cjIndicators(indicators.cjIndicators)
+			        .cjIndicatorClasses(indicators.cjIndicatorClasses);
+		}
+
+		if (mode == BoardMode.SESSION_DONE) {
+			builder.fullName(group != null ? Translator.translate("Group_number_done", group.toString()) : "");
+		} else if (mode == BoardMode.CURRENT_ATHLETE && athlete != null) {
+			builder.fullName(athlete.getFullName())
+			        .team(formatTeam(athlete))
+			        .lift(formatAttempt(attemptedLift ? fop.getLiftsDoneAtLastStart() : athlete.getAttemptsDone()));
+		} else if (mode == BoardMode.WAIT) {
+			builder.fullName(Translator.translate("Scoreboard.WaitingNextGroup"));
+		} else {
+			builder.fullName(inferMessage(breakType,
+			        mode == BoardMode.INTERRUPTION ? null : fop.getCeremonyType(), true));
+		}
+
+		this.getElement().setPropertyJson("boardState", builder.build().toJson());
+		this.getUI().ifPresent(UI::push);
 	}
 
-	private void setShowBreakClock(Element element, boolean b) {
-		if (logger.isDebugEnabled()) logger.debug("showBreakClock({}) {}", b, LoggerUtils.whereFrom());
-		element.setProperty("showBreakClock", b);
-	}
-	
-	private void setShowAthleteClock(Element element, boolean b) {
-		if (logger.isDebugEnabled()) logger.debug("showAthleteClock({}) {}", b, LoggerUtils.whereFrom());
-		element.setProperty("showAthleteClock", b);;
-	}
-	
-	private void setShowDecisions(Element element, boolean b) {
-		if (logger.isDebugEnabled()) logger.debug("showDecisions({}) {}", b, LoggerUtils.whereFrom());
-		element.setProperty("showDecisions",b);
-	}
-	
 	private void syncWithFOP(UIEvent.SwitchGroup e) {
 		syncWithFOP(e, true);
 	}
@@ -777,12 +695,10 @@ public class NCurrentAthlete extends Results {
 				if (e.getGroup() == null) {
 					doEmpty();
 				} else {
-					doUpdate(e.getAthlete(), e);
 					doBreak(e);
 				}
 				break;
 			default:
-				setDisplay();
 				doUpdate(e.getAthlete(), e);
 		}
 	}
