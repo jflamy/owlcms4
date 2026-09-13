@@ -59,6 +59,9 @@ public class AthleteDTO {
 	private Integer snatch1Change1;
 	private Integer snatch1Change2;
 	private Integer snatch1ActualLift;
+	private List<Boolean> snatch1Decisions;
+	private Boolean snatch1JuryDeliberation;
+	private Boolean snatch1Challenge;
 	private LocalDateTime snatch1LiftTime;
 	
 	private String snatch2AutomaticProgression;
@@ -66,6 +69,9 @@ public class AthleteDTO {
 	private Integer snatch2Change1;
 	private Integer snatch2Change2;
 	private Integer snatch2ActualLift;
+	private List<Boolean> snatch2Decisions;
+	private Boolean snatch2JuryDeliberation;
+	private Boolean snatch2Challenge;
 	private LocalDateTime snatch2LiftTime;
 	
 	private String snatch3AutomaticProgression;
@@ -73,12 +79,18 @@ public class AthleteDTO {
 	private Integer snatch3Change1;
 	private Integer snatch3Change2;
 	private Integer snatch3ActualLift;
+	private List<Boolean> snatch3Decisions;
+	private Boolean snatch3JuryDeliberation;
+	private Boolean snatch3Challenge;
 	private LocalDateTime snatch3LiftTime;
 	
 	private Integer cleanJerk1Declaration;
 	private Integer cleanJerk1Change1;
 	private Integer cleanJerk1Change2;
 	private Integer cleanJerk1ActualLift;
+	private List<Boolean> cleanJerk1Decisions;
+	private Boolean cleanJerk1JuryDeliberation;
+	private Boolean cleanJerk1Challenge;
 	private LocalDateTime cleanJerk1LiftTime;
 	
 	private String cleanJerk2AutomaticProgression;
@@ -86,6 +98,9 @@ public class AthleteDTO {
 	private Integer cleanJerk2Change1;
 	private Integer cleanJerk2Change2;
 	private Integer cleanJerk2ActualLift;
+	private List<Boolean> cleanJerk2Decisions;
+	private Boolean cleanJerk2JuryDeliberation;
+	private Boolean cleanJerk2Challenge;
 	private LocalDateTime cleanJerk2LiftTime;
 	
 	private String cleanJerk3AutomaticProgression;
@@ -93,6 +108,9 @@ public class AthleteDTO {
 	private Integer cleanJerk3Change1;
 	private Integer cleanJerk3Change2;
 	private Integer cleanJerk3ActualLift;
+	private List<Boolean> cleanJerk3Decisions;
+	private Boolean cleanJerk3JuryDeliberation;
+	private Boolean cleanJerk3Challenge;
 	private LocalDateTime cleanJerk3LiftTime;
 	
 	// Personal bests
@@ -110,7 +128,7 @@ public class AthleteDTO {
 	// Rankings
 	private Integer sinclairRank;
 	private Integer qPointsRank;
-	private Integer qAgeRank;
+	private Integer qMastersRank;
 	private Integer smhfRank;
 	private Integer teamSinclairRank;
 	private Integer catSinclairRank;
@@ -197,6 +215,9 @@ public class AthleteDTO {
 		dto.setSnatch1Change1(parseWeight(athlete.getSnatch1Change1()));
 		dto.setSnatch1Change2(parseWeight(athlete.getSnatch1Change2()));
 		dto.setSnatch1ActualLift(parseWeight(athlete.getSnatch1ActualLift()));
+		dto.setSnatch1Decisions(athlete.getSnatch1Decisions());
+		dto.setSnatch1JuryDeliberation(athlete.getSnatch1JuryDeliberation());
+		dto.setSnatch1Challenge(athlete.getSnatch1Challenge());
 		dto.setSnatch1LiftTime(athlete.getSnatch1LiftTime());
 		
 		dto.setSnatch2AutomaticProgression(athlete.getSnatch2AutomaticProgression());
@@ -204,6 +225,9 @@ public class AthleteDTO {
 		dto.setSnatch2Change1(parseWeight(athlete.getSnatch2Change1()));
 		dto.setSnatch2Change2(parseWeight(athlete.getSnatch2Change2()));
 		dto.setSnatch2ActualLift(parseWeight(athlete.getSnatch2ActualLift()));
+		dto.setSnatch2Decisions(athlete.getSnatch2Decisions());
+		dto.setSnatch2JuryDeliberation(athlete.getSnatch2JuryDeliberation());
+		dto.setSnatch2Challenge(athlete.getSnatch2Challenge());
 		dto.setSnatch2LiftTime(athlete.getSnatch2LiftTime());
 		
 		dto.setSnatch3AutomaticProgression(athlete.getSnatch3AutomaticProgression());
@@ -211,12 +235,18 @@ public class AthleteDTO {
 		dto.setSnatch3Change1(parseWeight(athlete.getSnatch3Change1()));
 		dto.setSnatch3Change2(parseWeight(athlete.getSnatch3Change2()));
 		dto.setSnatch3ActualLift(parseWeight(athlete.getSnatch3ActualLift()));
+		dto.setSnatch3Decisions(athlete.getSnatch3Decisions());
+		dto.setSnatch3JuryDeliberation(athlete.getSnatch3JuryDeliberation());
+		dto.setSnatch3Challenge(athlete.getSnatch3Challenge());
 		dto.setSnatch3LiftTime(athlete.getSnatch3LiftTime());
 		
 		dto.setCleanJerk1Declaration(parseWeight(athlete.getCleanJerk1Declaration()));
 		dto.setCleanJerk1Change1(parseWeight(athlete.getCleanJerk1Change1()));
 		dto.setCleanJerk1Change2(parseWeight(athlete.getCleanJerk1Change2()));
 		dto.setCleanJerk1ActualLift(parseWeight(athlete.getCleanJerk1ActualLift()));
+		dto.setCleanJerk1Decisions(athlete.getCleanJerk1Decisions());
+		dto.setCleanJerk1JuryDeliberation(athlete.getCleanJerk1JuryDeliberation());
+		dto.setCleanJerk1Challenge(athlete.getCleanJerk1Challenge());
 		dto.setCleanJerk1LiftTime(athlete.getCleanJerk1LiftTime());
 		
 		dto.setCleanJerk2AutomaticProgression(athlete.getCleanJerk2AutomaticProgression());
@@ -224,6 +254,9 @@ public class AthleteDTO {
 		dto.setCleanJerk2Change1(parseWeight(athlete.getCleanJerk2Change1()));
 		dto.setCleanJerk2Change2(parseWeight(athlete.getCleanJerk2Change2()));
 		dto.setCleanJerk2ActualLift(parseWeight(athlete.getCleanJerk2ActualLift()));
+		dto.setCleanJerk2Decisions(athlete.getCleanJerk2Decisions());
+		dto.setCleanJerk2JuryDeliberation(athlete.getCleanJerk2JuryDeliberation());
+		dto.setCleanJerk2Challenge(athlete.getCleanJerk2Challenge());
 		dto.setCleanJerk2LiftTime(athlete.getCleanJerk2LiftTime());
 		
 		dto.setCleanJerk3AutomaticProgression(athlete.getCleanJerk3AutomaticProgression());
@@ -231,6 +264,9 @@ public class AthleteDTO {
 		dto.setCleanJerk3Change1(parseWeight(athlete.getCleanJerk3Change1()));
 		dto.setCleanJerk3Change2(parseWeight(athlete.getCleanJerk3Change2()));
 		dto.setCleanJerk3ActualLift(parseWeight(athlete.getCleanJerk3ActualLift()));
+		dto.setCleanJerk3Decisions(athlete.getCleanJerk3Decisions());
+		dto.setCleanJerk3JuryDeliberation(athlete.getCleanJerk3JuryDeliberation());
+		dto.setCleanJerk3Challenge(athlete.getCleanJerk3Challenge());
 		dto.setCleanJerk3LiftTime(athlete.getCleanJerk3LiftTime());
 		
 		// Personal bests
@@ -248,7 +284,7 @@ public class AthleteDTO {
 		// Rankings
 		dto.setSinclairRank(athlete.getSinclairRank());
 		dto.setqPointsRank(athlete.getqPointsRank());
-		dto.setqAgeRank(athlete.getQMastersRank());
+		dto.setQMastersRank(athlete.getQMastersRank());
 		dto.setSmhfRank(athlete.getSmhfRank());
 		dto.setTeamSinclairRank(athlete.getTeamSinclairRank());
 		dto.setCatSinclairRank(athlete.getCatSinclairRank());
@@ -357,6 +393,9 @@ public class AthleteDTO {
 		athlete.setSnatch1Change1(formatWeight(this.snatch1Change1));
 		athlete.setSnatch1Change2(formatWeight(this.snatch1Change2));
 		athlete.setSnatch1ActualLift(formatWeight(this.snatch1ActualLift));
+		athlete.setSnatch1Decisions(this.snatch1Decisions);
+		athlete.setSnatch1JuryDeliberation(this.snatch1JuryDeliberation);
+		athlete.setSnatch1Challenge(this.snatch1Challenge);
 		athlete.setSnatch1LiftTime(this.snatch1LiftTime);
 		
 		athlete.setSnatch2AutomaticProgression(this.snatch2AutomaticProgression);
@@ -364,6 +403,9 @@ public class AthleteDTO {
 		athlete.setSnatch2Change1(formatWeight(this.snatch2Change1));
 		athlete.setSnatch2Change2(formatWeight(this.snatch2Change2));
 		athlete.setSnatch2ActualLift(formatWeight(this.snatch2ActualLift));
+		athlete.setSnatch2Decisions(this.snatch2Decisions);
+		athlete.setSnatch2JuryDeliberation(this.snatch2JuryDeliberation);
+		athlete.setSnatch2Challenge(this.snatch2Challenge);
 		athlete.setSnatch2LiftTime(this.snatch2LiftTime);
 		
 		athlete.setSnatch3AutomaticProgression(this.snatch3AutomaticProgression);
@@ -371,12 +413,18 @@ public class AthleteDTO {
 		athlete.setSnatch3Change1(formatWeight(this.snatch3Change1));
 		athlete.setSnatch3Change2(formatWeight(this.snatch3Change2));
 		athlete.setSnatch3ActualLift(formatWeight(this.snatch3ActualLift));
+		athlete.setSnatch3Decisions(this.snatch3Decisions);
+		athlete.setSnatch3JuryDeliberation(this.snatch3JuryDeliberation);
+		athlete.setSnatch3Challenge(this.snatch3Challenge);
 		athlete.setSnatch3LiftTime(this.snatch3LiftTime);
 		
 		athlete.setCleanJerk1Declaration(formatWeight(this.cleanJerk1Declaration));
 		athlete.setCleanJerk1Change1(formatWeight(this.cleanJerk1Change1));
 		athlete.setCleanJerk1Change2(formatWeight(this.cleanJerk1Change2));
 		athlete.setCleanJerk1ActualLift(formatWeight(this.cleanJerk1ActualLift));
+		athlete.setCleanJerk1Decisions(this.cleanJerk1Decisions);
+		athlete.setCleanJerk1JuryDeliberation(this.cleanJerk1JuryDeliberation);
+		athlete.setCleanJerk1Challenge(this.cleanJerk1Challenge);
 		athlete.setCleanJerk1LiftTime(this.cleanJerk1LiftTime);
 		
 		athlete.setCleanJerk2AutomaticProgression(this.cleanJerk2AutomaticProgression);
@@ -384,6 +432,9 @@ public class AthleteDTO {
 		athlete.setCleanJerk2Change1(formatWeight(this.cleanJerk2Change1));
 		athlete.setCleanJerk2Change2(formatWeight(this.cleanJerk2Change2));
 		athlete.setCleanJerk2ActualLift(formatWeight(this.cleanJerk2ActualLift));
+		athlete.setCleanJerk2Decisions(this.cleanJerk2Decisions);
+		athlete.setCleanJerk2JuryDeliberation(this.cleanJerk2JuryDeliberation);
+		athlete.setCleanJerk2Challenge(this.cleanJerk2Challenge);
 		athlete.setCleanJerk2LiftTime(this.cleanJerk2LiftTime);
 		
 		athlete.setCleanJerk3AutomaticProgression(this.cleanJerk3AutomaticProgression);
@@ -391,6 +442,9 @@ public class AthleteDTO {
 		athlete.setCleanJerk3Change1(formatWeight(this.cleanJerk3Change1));
 		athlete.setCleanJerk3Change2(formatWeight(this.cleanJerk3Change2));
 		athlete.setCleanJerk3ActualLift(formatWeight(this.cleanJerk3ActualLift));
+		athlete.setCleanJerk3Decisions(this.cleanJerk3Decisions);
+		athlete.setCleanJerk3JuryDeliberation(this.cleanJerk3JuryDeliberation);
+		athlete.setCleanJerk3Challenge(this.cleanJerk3Challenge);
 		athlete.setCleanJerk3LiftTime(this.cleanJerk3LiftTime);
 		
 		// Personal bests
@@ -401,7 +455,7 @@ public class AthleteDTO {
 		// Rankings
 		athlete.setSinclairRank(this.sinclairRank);
 		athlete.setqPointsRank(this.qPointsRank);
-		athlete.setQMastersRank(this.qAgeRank);
+		athlete.setQMastersRank(this.qMastersRank);
 		athlete.setSmhfRank(this.smhfRank);
 		athlete.setTeamSinclairRank(this.teamSinclairRank);
 		athlete.setCatSinclairRank(this.catSinclairRank);
@@ -644,6 +698,30 @@ public class AthleteDTO {
 		this.snatch1ActualLift = snatch1ActualLift;
 	}
 
+	public List<Boolean> getSnatch1Decisions() {
+		return snatch1Decisions;
+	}
+
+	public void setSnatch1Decisions(List<Boolean> snatch1Decisions) {
+		this.snatch1Decisions = snatch1Decisions;
+	}
+
+	public Boolean getSnatch1JuryDeliberation() {
+		return snatch1JuryDeliberation;
+	}
+
+	public void setSnatch1JuryDeliberation(Boolean snatch1JuryDeliberation) {
+		this.snatch1JuryDeliberation = snatch1JuryDeliberation;
+	}
+
+	public Boolean getSnatch1Challenge() {
+		return snatch1Challenge;
+	}
+
+	public void setSnatch1Challenge(Boolean snatch1Challenge) {
+		this.snatch1Challenge = snatch1Challenge;
+	}
+
 	public LocalDateTime getSnatch1LiftTime() {
 		return snatch1LiftTime;
 	}
@@ -690,6 +768,30 @@ public class AthleteDTO {
 
 	public void setSnatch2ActualLift(Integer snatch2ActualLift) {
 		this.snatch2ActualLift = snatch2ActualLift;
+	}
+
+	public List<Boolean> getSnatch2Decisions() {
+		return snatch2Decisions;
+	}
+
+	public void setSnatch2Decisions(List<Boolean> snatch2Decisions) {
+		this.snatch2Decisions = snatch2Decisions;
+	}
+
+	public Boolean getSnatch2JuryDeliberation() {
+		return snatch2JuryDeliberation;
+	}
+
+	public void setSnatch2JuryDeliberation(Boolean snatch2JuryDeliberation) {
+		this.snatch2JuryDeliberation = snatch2JuryDeliberation;
+	}
+
+	public Boolean getSnatch2Challenge() {
+		return snatch2Challenge;
+	}
+
+	public void setSnatch2Challenge(Boolean snatch2Challenge) {
+		this.snatch2Challenge = snatch2Challenge;
 	}
 
 	public LocalDateTime getSnatch2LiftTime() {
@@ -740,6 +842,30 @@ public class AthleteDTO {
 		this.snatch3ActualLift = snatch3ActualLift;
 	}
 
+	public List<Boolean> getSnatch3Decisions() {
+		return snatch3Decisions;
+	}
+
+	public void setSnatch3Decisions(List<Boolean> snatch3Decisions) {
+		this.snatch3Decisions = snatch3Decisions;
+	}
+
+	public Boolean getSnatch3JuryDeliberation() {
+		return snatch3JuryDeliberation;
+	}
+
+	public void setSnatch3JuryDeliberation(Boolean snatch3JuryDeliberation) {
+		this.snatch3JuryDeliberation = snatch3JuryDeliberation;
+	}
+
+	public Boolean getSnatch3Challenge() {
+		return snatch3Challenge;
+	}
+
+	public void setSnatch3Challenge(Boolean snatch3Challenge) {
+		this.snatch3Challenge = snatch3Challenge;
+	}
+
 	public LocalDateTime getSnatch3LiftTime() {
 		return snatch3LiftTime;
 	}
@@ -778,6 +904,30 @@ public class AthleteDTO {
 
 	public void setCleanJerk1ActualLift(Integer cleanJerk1ActualLift) {
 		this.cleanJerk1ActualLift = cleanJerk1ActualLift;
+	}
+
+	public List<Boolean> getCleanJerk1Decisions() {
+		return cleanJerk1Decisions;
+	}
+
+	public void setCleanJerk1Decisions(List<Boolean> cleanJerk1Decisions) {
+		this.cleanJerk1Decisions = cleanJerk1Decisions;
+	}
+
+	public Boolean getCleanJerk1JuryDeliberation() {
+		return cleanJerk1JuryDeliberation;
+	}
+
+	public void setCleanJerk1JuryDeliberation(Boolean cleanJerk1JuryDeliberation) {
+		this.cleanJerk1JuryDeliberation = cleanJerk1JuryDeliberation;
+	}
+
+	public Boolean getCleanJerk1Challenge() {
+		return cleanJerk1Challenge;
+	}
+
+	public void setCleanJerk1Challenge(Boolean cleanJerk1Challenge) {
+		this.cleanJerk1Challenge = cleanJerk1Challenge;
 	}
 
 	public LocalDateTime getCleanJerk1LiftTime() {
@@ -828,6 +978,30 @@ public class AthleteDTO {
 		this.cleanJerk2ActualLift = cleanJerk2ActualLift;
 	}
 
+	public List<Boolean> getCleanJerk2Decisions() {
+		return cleanJerk2Decisions;
+	}
+
+	public void setCleanJerk2Decisions(List<Boolean> cleanJerk2Decisions) {
+		this.cleanJerk2Decisions = cleanJerk2Decisions;
+	}
+
+	public Boolean getCleanJerk2JuryDeliberation() {
+		return cleanJerk2JuryDeliberation;
+	}
+
+	public void setCleanJerk2JuryDeliberation(Boolean cleanJerk2JuryDeliberation) {
+		this.cleanJerk2JuryDeliberation = cleanJerk2JuryDeliberation;
+	}
+
+	public Boolean getCleanJerk2Challenge() {
+		return cleanJerk2Challenge;
+	}
+
+	public void setCleanJerk2Challenge(Boolean cleanJerk2Challenge) {
+		this.cleanJerk2Challenge = cleanJerk2Challenge;
+	}
+
 	public LocalDateTime getCleanJerk2LiftTime() {
 		return cleanJerk2LiftTime;
 	}
@@ -874,6 +1048,30 @@ public class AthleteDTO {
 
 	public void setCleanJerk3ActualLift(Integer cleanJerk3ActualLift) {
 		this.cleanJerk3ActualLift = cleanJerk3ActualLift;
+	}
+
+	public List<Boolean> getCleanJerk3Decisions() {
+		return cleanJerk3Decisions;
+	}
+
+	public void setCleanJerk3Decisions(List<Boolean> cleanJerk3Decisions) {
+		this.cleanJerk3Decisions = cleanJerk3Decisions;
+	}
+
+	public Boolean getCleanJerk3JuryDeliberation() {
+		return cleanJerk3JuryDeliberation;
+	}
+
+	public void setCleanJerk3JuryDeliberation(Boolean cleanJerk3JuryDeliberation) {
+		this.cleanJerk3JuryDeliberation = cleanJerk3JuryDeliberation;
+	}
+
+	public Boolean getCleanJerk3Challenge() {
+		return cleanJerk3Challenge;
+	}
+
+	public void setCleanJerk3Challenge(Boolean cleanJerk3Challenge) {
+		this.cleanJerk3Challenge = cleanJerk3Challenge;
 	}
 
 	public LocalDateTime getCleanJerk3LiftTime() {
@@ -940,20 +1138,23 @@ public class AthleteDTO {
 		this.sinclairRank = sinclairRank;
 	}
 
+	// Jackson does not recognize get/set followed by a lowercase letter as an accessor.
+	@JsonProperty("qPointsRank")
 	public Integer getqPointsRank() {
 		return qPointsRank;
 	}
 
+	@JsonProperty("qPointsRank")
 	public void setqPointsRank(Integer qPointsRank) {
 		this.qPointsRank = qPointsRank;
 	}
 
-	public Integer getqAgeRank() {
-		return qAgeRank;
+	public Integer getQMastersRank() {
+		return qMastersRank;
 	}
 
-	public void setqAgeRank(Integer qAgeRank) {
-		this.qAgeRank = qAgeRank;
+	public void setQMastersRank(Integer qMastersRank) {
+		this.qMastersRank = qMastersRank;
 	}
 
 	public Integer getSmhfRank() {

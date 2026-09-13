@@ -2156,7 +2156,13 @@ public class FieldOfPlay implements IUnregister {
 			// Apply the reversal/confirmation to the athlete BEFORE sending the
 			// notification
 			// so attempt board shows updated result
-			a.setActualLift(a.getAttemptsDone(), e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
+			int attempt = a.getAttemptsDone();
+			a.setActualLift(attempt, e.success ? Integer.toString(curValue) : Integer.toString(-curValue));
+			if (getBreakType() == BreakType.CHALLENGE) {
+				a.setChallenge(attempt, e.success);
+			} else if (getBreakType() == BreakType.JURY) {
+				a.setJuryDeliberation(attempt, e.success);
+			}
 			AthleteRepository.save(a);
 
 			// reversal from bad to good should add records
@@ -4012,6 +4018,10 @@ public class FieldOfPlay implements IUnregister {
 			LocalDateTime decisionTime = LocalDateTime.now();
 			String result = Integer.toString(Boolean.TRUE.equals(getGoodLift()) ? attempted : -attempted);
 			getCurAthlete().recordLift(attempt, result, decisionTime);
+			if (this.currentInputKind != InputKind.ANNOUNCER_ENTRY
+					&& this.currentInputKind != InputKind.SOLO_INPUT) {
+				getCurAthlete().setDecisions(attempt, Arrays.asList(getRefereeDecision().clone()));
+			}
 			if (lastSnatch) {
 				getGroup().setLastSnatchDecisionTime(decisionTime, getGroup(), this);
 			} else if (lastCleanJerk) {

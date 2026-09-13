@@ -9,11 +9,13 @@ package app.owlcms.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -36,6 +38,8 @@ import app.owlcms.data.export.v2.ChampionshipDTO;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
 import app.owlcms.data.platform.Platform;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class JSONExportImportTest {
 	
@@ -137,6 +141,77 @@ public class JSONExportImportTest {
         assertEquals(EligibleForIndividualRankingStatus.OOC_DID_NOT_MAKE_WEIGHT,
                 restored.getIndividualEligibilityStatus());
         assertFalse(restored.isEligibleForIndividualRanking());
+    }
+
+    @Test
+    public void athleteAttemptDecisionsRoundTripThroughV2Json() throws Exception {
+        Athlete source = new Athlete();
+        source.setSnatch1Decisions(List.of(false, true, false));
+        source.setSnatch1JuryDeliberation(false);
+        source.setSnatch2Decisions(List.of(true, true, false));
+        source.setSnatch2Challenge(false);
+        source.setSnatch3Decisions(List.of(true, false, true));
+        source.setCleanJerk1Decisions(List.of(false, false, true));
+        source.setCleanJerk1JuryDeliberation(true);
+        source.setCleanJerk2Decisions(List.of(false, false, false));
+        source.setCleanJerk3Decisions(List.of(true, true, true));
+        source.setCleanJerk3Challenge(true);
+
+        CompetitionDataV2 exported = new CompetitionDataV2();
+        exported.setConfig(Config.getCurrent());
+        exported.setAthletes(List.of(AthleteDTO.fromAthlete(source)));
+        exported.setPlatforms(List.of());
+        String json = new String(exported.exportData().readAllBytes(), StandardCharsets.UTF_8);
+        JsonNode athlete = JsonMapper.builder().build().readTree(json).get("athletes").get(0);
+
+        assertEquals(List.of(false, true, false), booleans(athlete.get("snatch1Decisions")));
+        assertTrue(athlete.get("snatch1JuryDeliberation").isBoolean());
+        assertFalse(athlete.get("snatch1JuryDeliberation").asBoolean());
+        assertTrue(athlete.get("snatch1Challenge").isNull());
+        assertFalse(athlete.get("snatch2Challenge").asBoolean());
+        assertTrue(athlete.get("cleanJerk1JuryDeliberation").asBoolean());
+        assertEquals(List.of(true, true, true), booleans(athlete.get("cleanJerk3Decisions")));
+        assertTrue(athlete.get("cleanJerk3JuryDeliberation").isNull());
+        assertTrue(athlete.get("cleanJerk3Challenge").isBoolean());
+        assertTrue(athlete.get("cleanJerk3Challenge").asBoolean());
+
+        CompetitionDataV2 imported = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+        Athlete restored = imported.getAthletes().get(0).toAthlete(null);
+
+        assertEquals(List.of(false, true, false), restored.getSnatch1Decisions());
+        assertEquals(Boolean.FALSE, restored.getSnatch1JuryDeliberation());
+        assertNull(restored.getSnatch1Challenge());
+
+        assertEquals(List.of(true, true, false), restored.getSnatch2Decisions());
+        assertNull(restored.getSnatch2JuryDeliberation());
+        assertEquals(Boolean.FALSE, restored.getSnatch2Challenge());
+
+        assertEquals(List.of(true, false, true), restored.getSnatch3Decisions());
+        assertNull(restored.getSnatch3JuryDeliberation());
+        assertNull(restored.getSnatch3Challenge());
+
+        assertEquals(List.of(false, false, true), restored.getCleanJerk1Decisions());
+        assertEquals(Boolean.TRUE, restored.getCleanJerk1JuryDeliberation());
+        assertNull(restored.getCleanJerk1Challenge());
+
+        assertEquals(List.of(false, false, false), restored.getCleanJerk2Decisions());
+        assertNull(restored.getCleanJerk2JuryDeliberation());
+        assertNull(restored.getCleanJerk2Challenge());
+
+        assertEquals(List.of(true, true, true), restored.getCleanJerk3Decisions());
+        assertNull(restored.getCleanJerk3JuryDeliberation());
+        assertEquals(Boolean.TRUE, restored.getCleanJerk3Challenge());
+    }
+
+    private static List<Boolean> booleans(JsonNode array) {
+        assertTrue(array.isArray());
+        List<Boolean> values = new ArrayList<>();
+        for (JsonNode node : array) {
+            assertTrue(node.isBoolean());
+            values.add(node.asBoolean());
+        }
+        return values;
     }
 
     @Test

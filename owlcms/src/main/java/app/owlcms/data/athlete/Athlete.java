@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -50,6 +51,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import app.owlcms.apputils.JpaJsonConverter;
 import app.owlcms.data.agegroup.AgeGroup;
 import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipType;
@@ -187,6 +189,9 @@ public class Athlete {
 			}
 			if (copyResults) {
 				dest.setSnatch1ActualLift(src.getSnatch1ActualLift());
+				dest.setSnatch1Decisions(src.getSnatch1Decisions());
+				dest.setSnatch1JuryDeliberation(src.getSnatch1JuryDeliberation());
+				dest.setSnatch1Challenge(src.getSnatch1Challenge());
 				dest.setSnatch1LiftTime(src.getSnatch1LiftTime());
 			}
 
@@ -198,6 +203,9 @@ public class Athlete {
 			}
 			if (copyResults) {
 				dest.setSnatch2ActualLift(src.getSnatch2ActualLift());
+				dest.setSnatch2Decisions(src.getSnatch2Decisions());
+				dest.setSnatch2JuryDeliberation(src.getSnatch2JuryDeliberation());
+				dest.setSnatch2Challenge(src.getSnatch2Challenge());
 				dest.setSnatch2LiftTime(src.getSnatch2LiftTime());
 			}
 
@@ -209,6 +217,9 @@ public class Athlete {
 			}
 			if (copyResults) {
 				dest.setSnatch3ActualLift(src.getSnatch3ActualLift());
+				dest.setSnatch3Decisions(src.getSnatch3Decisions());
+				dest.setSnatch3JuryDeliberation(src.getSnatch3JuryDeliberation());
+				dest.setSnatch3Challenge(src.getSnatch3Challenge());
 				dest.setSnatch3LiftTime(src.getSnatch3LiftTime());
 			}
 
@@ -219,6 +230,9 @@ public class Athlete {
 			}
 			if (copyResults) {
 				dest.setCleanJerk1ActualLift(src.getCleanJerk1ActualLift());
+				dest.setCleanJerk1Decisions(src.getCleanJerk1Decisions());
+				dest.setCleanJerk1JuryDeliberation(src.getCleanJerk1JuryDeliberation());
+				dest.setCleanJerk1Challenge(src.getCleanJerk1Challenge());
 				dest.setCleanJerk1LiftTime(src.getCleanJerk1LiftTime());
 			}
 
@@ -230,6 +244,9 @@ public class Athlete {
 			}
 			if (copyResults) {
 				dest.setCleanJerk2ActualLift(src.getCleanJerk2ActualLift());
+				dest.setCleanJerk2Decisions(src.getCleanJerk2Decisions());
+				dest.setCleanJerk2JuryDeliberation(src.getCleanJerk2JuryDeliberation());
+				dest.setCleanJerk2Challenge(src.getCleanJerk2Challenge());
 				dest.setCleanJerk2LiftTime(src.getCleanJerk2LiftTime());
 			}
 
@@ -241,6 +258,9 @@ public class Athlete {
 			}
 			if (copyResults) {
 				dest.setCleanJerk3ActualLift(src.getCleanJerk3ActualLift());
+				dest.setCleanJerk3Decisions(src.getCleanJerk3Decisions());
+				dest.setCleanJerk3JuryDeliberation(src.getCleanJerk3JuryDeliberation());
+				dest.setCleanJerk3Challenge(src.getCleanJerk3Challenge());
 				dest.setCleanJerk3LiftTime(src.getCleanJerk3LiftTime());
 			}
 
@@ -394,19 +414,31 @@ public class Athlete {
 	@JsonIgnore
 	private boolean checkTiming;
 	private String cleanJerk1ActualLift;
+	private Boolean cleanJerk1Challenge;
 	private String cleanJerk1Change1;
 	private String cleanJerk1Change2;
 	private String cleanJerk1Declaration;
+	@Convert(converter = JpaJsonConverter.class)
+	private ArrayList<Boolean> cleanJerk1Decisions;
+	private Boolean cleanJerk1JuryDeliberation;
 	private LocalDateTime cleanJerk1LiftTime;
 	private String cleanJerk2ActualLift;
+	private Boolean cleanJerk2Challenge;
 	private String cleanJerk2Change1;
 	private String cleanJerk2Change2;
 	private String cleanJerk2Declaration;
+	@Convert(converter = JpaJsonConverter.class)
+	private ArrayList<Boolean> cleanJerk2Decisions;
+	private Boolean cleanJerk2JuryDeliberation;
 	private LocalDateTime cleanJerk2LiftTime;
 	private String cleanJerk3ActualLift;
+	private Boolean cleanJerk3Challenge;
 	private String cleanJerk3Change1;
 	private String cleanJerk3Change2;
 	private String cleanJerk3Declaration;
+	@Convert(converter = JpaJsonConverter.class)
+	private ArrayList<Boolean> cleanJerk3Decisions;
+	private Boolean cleanJerk3JuryDeliberation;
 	private LocalDateTime cleanJerk3LiftTime;
 	private String coach;
 	@Column(columnDefinition = "integer default 0")
@@ -482,6 +514,7 @@ public class Athlete {
 	@Column(name = "smmRank", columnDefinition = "integer default 0")
 	private int smhfRank;
 	private String snatch1ActualLift;
+	private Boolean snatch1Challenge;
 	private String snatch1Change1;
 	private String snatch1Change2;
 	/**
@@ -495,16 +528,27 @@ public class Athlete {
 	 * would be annoying to users.
 	 */
 	private String snatch1Declaration;
+	@Convert(converter = JpaJsonConverter.class)
+	private ArrayList<Boolean> snatch1Decisions;
+	private Boolean snatch1JuryDeliberation;
 	private LocalDateTime snatch1LiftTime;
 	private String snatch2ActualLift;
+	private Boolean snatch2Challenge;
 	private String snatch2Change1;
 	private String snatch2Change2;
 	private String snatch2Declaration;
+	@Convert(converter = JpaJsonConverter.class)
+	private ArrayList<Boolean> snatch2Decisions;
+	private Boolean snatch2JuryDeliberation;
 	private LocalDateTime snatch2LiftTime;
 	private String snatch3ActualLift;
+	private Boolean snatch3Challenge;
 	private String snatch3Change1;
 	private String snatch3Change2;
 	private String snatch3Declaration;
+	@Convert(converter = JpaJsonConverter.class)
+	private ArrayList<Boolean> snatch3Decisions;
+	private Boolean snatch3JuryDeliberation;
 	private LocalDateTime snatch3LiftTime;
 	@Transient
 	@JsonIgnore
@@ -601,6 +645,9 @@ public class Athlete {
 			this.setCleanJerk1Change1("");
 			this.setCleanJerk1Change2("");
 			this.setCleanJerk1ActualLift(null);
+			this.setCleanJerk1Decisions(null);
+			this.setCleanJerk1JuryDeliberation(null);
+			this.setCleanJerk1Challenge(null);
 			this.setCleanJerk1LiftTime(null);
 
 			this.setCleanJerk2Declaration("");
@@ -608,6 +655,9 @@ public class Athlete {
 			this.setCleanJerk2Change1("");
 			this.setCleanJerk2Change2("");
 			this.setCleanJerk2ActualLift(null);
+			this.setCleanJerk2Decisions(null);
+			this.setCleanJerk2JuryDeliberation(null);
+			this.setCleanJerk2Challenge(null);
 			this.setCleanJerk2LiftTime(null);
 
 			this.setCleanJerk3Declaration("");
@@ -615,6 +665,9 @@ public class Athlete {
 			this.setCleanJerk3Change1("");
 			this.setCleanJerk3Change2("");
 			this.setCleanJerk3ActualLift(null);
+			this.setCleanJerk3Decisions(null);
+			this.setCleanJerk3JuryDeliberation(null);
+			this.setCleanJerk3Challenge(null);
 			this.setCleanJerk3LiftTime(null);
 
 			this.setSnatch1Declaration("");
@@ -622,6 +675,9 @@ public class Athlete {
 			this.setSnatch1Change1("");
 			this.setSnatch1Change2("");
 			this.setSnatch1ActualLift(null);
+			this.setSnatch1Decisions(null);
+			this.setSnatch1JuryDeliberation(null);
+			this.setSnatch1Challenge(null);
 			this.setSnatch1LiftTime(null);
 
 			this.setSnatch2Declaration("");
@@ -629,6 +685,9 @@ public class Athlete {
 			this.setSnatch2Change1("");
 			this.setSnatch2Change2("");
 			this.setSnatch2ActualLift(null);
+			this.setSnatch2Decisions(null);
+			this.setSnatch2JuryDeliberation(null);
+			this.setSnatch2Challenge(null);
 			this.setSnatch2LiftTime(null);
 
 			this.setSnatch3Declaration("");
@@ -636,6 +695,9 @@ public class Athlete {
 			this.setSnatch3Change1("");
 			this.setSnatch3Change2("");
 			this.setSnatch3ActualLift(null);
+			this.setSnatch3Decisions(null);
+			this.setSnatch3JuryDeliberation(null);
+			this.setSnatch3Challenge(null);
 			this.setSnatch3LiftTime(null);
 
 			this.setSnatch1Declaration(sn1Decl);
@@ -784,6 +846,189 @@ public class Athlete {
 			default:
 				throw new IllegalArgumentException("Invalid attempt: " + liftNo);
 		}
+	}
+
+	@JsonIgnore
+	public void setChallenge(int liftNo, Boolean decision) {
+		switch (liftNo) {
+			case 1 -> setSnatch1Challenge(decision);
+			case 2 -> setSnatch2Challenge(decision);
+			case 3 -> setSnatch3Challenge(decision);
+			case 4 -> setCleanJerk1Challenge(decision);
+			case 5 -> setCleanJerk2Challenge(decision);
+			case 6 -> setCleanJerk3Challenge(decision);
+			default -> throw new IllegalArgumentException("Invalid attempt: " + liftNo);
+		}
+	}
+
+	@JsonIgnore
+	public void setDecisions(int liftNo, List<Boolean> decisions) {
+		switch (liftNo) {
+			case 1 -> setSnatch1Decisions(decisions);
+			case 2 -> setSnatch2Decisions(decisions);
+			case 3 -> setSnatch3Decisions(decisions);
+			case 4 -> setCleanJerk1Decisions(decisions);
+			case 5 -> setCleanJerk2Decisions(decisions);
+			case 6 -> setCleanJerk3Decisions(decisions);
+			default -> throw new IllegalArgumentException("Invalid attempt: " + liftNo);
+		}
+	}
+
+	@JsonIgnore
+	public void setJuryDeliberation(int liftNo, Boolean decision) {
+		switch (liftNo) {
+			case 1 -> setSnatch1JuryDeliberation(decision);
+			case 2 -> setSnatch2JuryDeliberation(decision);
+			case 3 -> setSnatch3JuryDeliberation(decision);
+			case 4 -> setCleanJerk1JuryDeliberation(decision);
+			case 5 -> setCleanJerk2JuryDeliberation(decision);
+			case 6 -> setCleanJerk3JuryDeliberation(decision);
+			default -> throw new IllegalArgumentException("Invalid attempt: " + liftNo);
+		}
+	}
+
+	public List<Boolean> getCleanJerk1Decisions() {
+		return this.cleanJerk1Decisions;
+	}
+
+	public void setCleanJerk1Decisions(List<Boolean> decisions) {
+		this.cleanJerk1Decisions = decisions == null ? null : new ArrayList<>(decisions);
+	}
+
+	public Boolean getCleanJerk1JuryDeliberation() {
+		return this.cleanJerk1JuryDeliberation;
+	}
+
+	public void setCleanJerk1JuryDeliberation(Boolean decision) {
+		this.cleanJerk1JuryDeliberation = decision;
+	}
+
+	public Boolean getCleanJerk1Challenge() {
+		return this.cleanJerk1Challenge;
+	}
+
+	public void setCleanJerk1Challenge(Boolean decision) {
+		this.cleanJerk1Challenge = decision;
+	}
+
+	public List<Boolean> getCleanJerk2Decisions() {
+		return this.cleanJerk2Decisions;
+	}
+
+	public void setCleanJerk2Decisions(List<Boolean> decisions) {
+		this.cleanJerk2Decisions = decisions == null ? null : new ArrayList<>(decisions);
+	}
+
+	public Boolean getCleanJerk2JuryDeliberation() {
+		return this.cleanJerk2JuryDeliberation;
+	}
+
+	public void setCleanJerk2JuryDeliberation(Boolean decision) {
+		this.cleanJerk2JuryDeliberation = decision;
+	}
+
+	public Boolean getCleanJerk2Challenge() {
+		return this.cleanJerk2Challenge;
+	}
+
+	public void setCleanJerk2Challenge(Boolean decision) {
+		this.cleanJerk2Challenge = decision;
+	}
+
+	public List<Boolean> getCleanJerk3Decisions() {
+		return this.cleanJerk3Decisions;
+	}
+
+	public void setCleanJerk3Decisions(List<Boolean> decisions) {
+		this.cleanJerk3Decisions = decisions == null ? null : new ArrayList<>(decisions);
+	}
+
+	public Boolean getCleanJerk3JuryDeliberation() {
+		return this.cleanJerk3JuryDeliberation;
+	}
+
+	public void setCleanJerk3JuryDeliberation(Boolean decision) {
+		this.cleanJerk3JuryDeliberation = decision;
+	}
+
+	public Boolean getCleanJerk3Challenge() {
+		return this.cleanJerk3Challenge;
+	}
+
+	public void setCleanJerk3Challenge(Boolean decision) {
+		this.cleanJerk3Challenge = decision;
+	}
+
+	public List<Boolean> getSnatch1Decisions() {
+		return this.snatch1Decisions;
+	}
+
+	public void setSnatch1Decisions(List<Boolean> decisions) {
+		this.snatch1Decisions = decisions == null ? null : new ArrayList<>(decisions);
+	}
+
+	public Boolean getSnatch1JuryDeliberation() {
+		return this.snatch1JuryDeliberation;
+	}
+
+	public void setSnatch1JuryDeliberation(Boolean decision) {
+		this.snatch1JuryDeliberation = decision;
+	}
+
+	public Boolean getSnatch1Challenge() {
+		return this.snatch1Challenge;
+	}
+
+	public void setSnatch1Challenge(Boolean decision) {
+		this.snatch1Challenge = decision;
+	}
+
+	public List<Boolean> getSnatch2Decisions() {
+		return this.snatch2Decisions;
+	}
+
+	public void setSnatch2Decisions(List<Boolean> decisions) {
+		this.snatch2Decisions = decisions == null ? null : new ArrayList<>(decisions);
+	}
+
+	public Boolean getSnatch2JuryDeliberation() {
+		return this.snatch2JuryDeliberation;
+	}
+
+	public void setSnatch2JuryDeliberation(Boolean decision) {
+		this.snatch2JuryDeliberation = decision;
+	}
+
+	public Boolean getSnatch2Challenge() {
+		return this.snatch2Challenge;
+	}
+
+	public void setSnatch2Challenge(Boolean decision) {
+		this.snatch2Challenge = decision;
+	}
+
+	public List<Boolean> getSnatch3Decisions() {
+		return this.snatch3Decisions;
+	}
+
+	public void setSnatch3Decisions(List<Boolean> decisions) {
+		this.snatch3Decisions = decisions == null ? null : new ArrayList<>(decisions);
+	}
+
+	public Boolean getSnatch3JuryDeliberation() {
+		return this.snatch3JuryDeliberation;
+	}
+
+	public void setSnatch3JuryDeliberation(Boolean decision) {
+		this.snatch3JuryDeliberation = decision;
+	}
+
+	public Boolean getSnatch3Challenge() {
+		return this.snatch3Challenge;
+	}
+
+	public void setSnatch3Challenge(Boolean decision) {
+		this.snatch3Challenge = decision;
 	}
 
 	public void recordLift(int liftNo, String weight, LocalDateTime decisionTime) {
