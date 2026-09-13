@@ -16,6 +16,9 @@ public class JpaJsonConverter implements AttributeConverter<Object, String> {
 
 	@Override
 	public String convertToDatabaseColumn(Object attribute) {
+		if (attribute == null) {
+			return null;
+		}
 		try {
 			return om.writeValueAsString(attribute);
 		} catch (JacksonException ex) {
@@ -26,6 +29,9 @@ public class JpaJsonConverter implements AttributeConverter<Object, String> {
 
 	@Override
 	public Object convertToEntityAttribute(String dbData) {
+		if (dbData == null) {
+			return null;
+		}
 		try {
 			return om.readValue(dbData, Object.class);
 		} catch (JacksonException ex) {
