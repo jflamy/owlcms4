@@ -514,21 +514,18 @@ public class Group implements Comparable<Group> {
 		        + this.reserve + ", id=" + this.id + "]";
 	}
 
-	@Transient
 	@JsonIgnore
 	public List<AgeGroupInfo> getAgeGroupInfo() {
 		List<AgeGroupInfo> ageGroupInfos = new AgeGroupInfoFactory().getAgeGroupInfos(this);
 		return ageGroupInfos;
 	}
 
-	@Transient
 	@JsonIgnore
 	public List<AgeGroupInfo> getAgeGroupInfoByAge() {
 		List<AgeGroupInfo> ageGroupInfos = new AgeGroupInfoFactory().getAgeGroupInfos(this);
 		return ageGroupInfos.stream().sorted().toList();
 	}
 
-	@Transient
 	@JsonIgnore
 	public List<Athlete> getAlphaAthletes() {
 		List<Athlete> athletes = AthleteRepository.findAllByGroupAndWeighIn(this, null);
@@ -545,7 +542,6 @@ public class Group implements Comparable<Group> {
 		return this.announcer;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getAnnouncerAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getAnnouncer());
@@ -555,13 +551,11 @@ public class Group implements Comparable<Group> {
 	public void setAnnouncerAsTO(TechnicalOfficial ignored) {
 	}
 
-	@Transient
 	@JsonIgnore
 	public List<Athlete> getAthletes() {
 		return AthleteRepository.findAllByGroupAndWeighIn(this, null);
 	}
 
-	@Transient
 	@JsonIgnore
 	public List<RecordEvent> getRecords() {
 		// return RecordRepository.findFiltered(null, null, null, this.name, true);
@@ -569,7 +563,6 @@ public class Group implements Comparable<Group> {
 		        "PROVISIONAL", "HISTORY", this.getName());
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setRecords(List<RecordEvent> ignored) {
 	}
@@ -578,7 +571,6 @@ public class Group implements Comparable<Group> {
 		return cleanJerkBreakDuration;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getCleanJerkBreakMinutes() {
 		int minutesRemaining = 0;
@@ -603,7 +595,6 @@ public class Group implements Comparable<Group> {
 		return competitionDirector;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getCompetitionDirectorAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getCompetitionDirector());
@@ -614,7 +605,6 @@ public class Group implements Comparable<Group> {
 		return competitionSecretary;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getCompetitionSecretaryAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getCompetitionSecretary());
@@ -625,7 +615,6 @@ public class Group implements Comparable<Group> {
 		return competitionSecretary2;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getCompetitionSecretary2AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getCompetitionSecretary2());
@@ -639,7 +628,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the competition time
 	 */
-	@Transient
 	@JsonIgnore
 	public String getCompetitionShortDateTime() {
 		String formatted = "";
@@ -661,13 +649,11 @@ public class Group implements Comparable<Group> {
 		return this.competitionTime;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Date getCompetitionTimeAsDate() {
 		return DateTimeUtils.dateFromLocalDateTime(this.competitionTime);
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getCompetitionTimeAsExcelDate() {
 		var value = DateTimeUtils.localDateTimeToExcelDate(this.competitionTime);
@@ -678,7 +664,6 @@ public class Group implements Comparable<Group> {
 		return this.description;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getFormattedRange() {
 		List<Athlete> athletes = getAthletes();
@@ -787,7 +772,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the competition time
 	 */
-	@Transient
 	@JsonIgnore
 	public String getIntlStartDay() {
 		String formatted = "";
@@ -805,7 +789,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the competition time
 	 */
-	@Transient
 	@JsonIgnore
 	public String getIntlStartHour() {
 		String formatted = "";
@@ -823,7 +806,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the competition time
 	 */
-	@Transient
 	@JsonIgnore
 	public String getIntlWeighInDay() {
 		String formatted = "";
@@ -841,7 +823,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the competition time
 	 */
-	@Transient
 	@JsonIgnore
 	public String getIntlWeighInHour() {
 		String formatted = "";
@@ -873,7 +854,6 @@ public class Group implements Comparable<Group> {
 		return this.jury1;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getJury1AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury1());
@@ -887,7 +867,6 @@ public class Group implements Comparable<Group> {
 		return this.jury2;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getJury2AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury2());
@@ -901,7 +880,6 @@ public class Group implements Comparable<Group> {
 		return this.jury3;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getJury3AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury3());
@@ -915,7 +893,6 @@ public class Group implements Comparable<Group> {
 		return this.jury4;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getJury4AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury4());
@@ -929,7 +906,6 @@ public class Group implements Comparable<Group> {
 		return this.jury5;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getJury5AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getJury5());
@@ -941,7 +917,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the competition time
 	 */
-	@Transient
 	@JsonIgnore
 	public String getLocalizedStartDay() {
 		String formatted = "";
@@ -963,7 +938,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the competition time
 	 */
-	@Transient
 	@JsonIgnore
 	@Deprecated
 	public String getLocalizedStartHour() {
@@ -981,7 +955,6 @@ public class Group implements Comparable<Group> {
 		return formatted;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getLocalStartHour() {
 		return getLocalizedStartHour();
@@ -992,7 +965,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the competition time
 	 */
-	@Transient
 	@JsonIgnore
 	public String getLocalWeighInDay() {
 		String formatted = "";
@@ -1015,7 +987,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the competition time
 	 */
-	@Transient
 	@JsonIgnore
 	public String getLocalWeighInHour() {
 		String formatted = "";
@@ -1036,7 +1007,6 @@ public class Group implements Comparable<Group> {
 		return this.marshal2;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getMarshal2AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getMarshal2());
@@ -1052,7 +1022,6 @@ public class Group implements Comparable<Group> {
 		return this.marshall;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getMarshallAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getMarshall());
@@ -1096,7 +1065,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the referee 1
 	 */
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getReferee1AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.referee1);
@@ -1112,7 +1080,6 @@ public class Group implements Comparable<Group> {
 		return this.referee2;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getReferee2AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.referee2);
@@ -1128,7 +1095,6 @@ public class Group implements Comparable<Group> {
 		return this.referee3;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getReferee3AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.referee3);
@@ -1142,7 +1108,6 @@ public class Group implements Comparable<Group> {
 		return this.reserveJury;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getReserveJuryAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.reserveJury);
@@ -1192,21 +1157,18 @@ public class Group implements Comparable<Group> {
 		this.tis2 = tis2;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getDoctorAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor);
 		return to;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getDoctor2AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor2);
 		return to;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getDoctor3AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.doctor3);
@@ -1220,14 +1182,12 @@ public class Group implements Comparable<Group> {
 		return this.reserve;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getReserveAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.reserve);
 		return to;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getSessionBlock() {
 		return getSessionBlock(Config.getCurrent());
@@ -1250,7 +1210,6 @@ public class Group implements Comparable<Group> {
 		return 1;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Range getStartingRange() {
 		int min = Integer.MAX_VALUE;
@@ -1283,21 +1242,18 @@ public class Group implements Comparable<Group> {
 		return this.technicalController3;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getTechnicalController2AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getTechnicalController2());
 		return to;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getTechnicalController3AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getTechnicalController3());
 		return to;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getTechnicalControllerAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getTechnicalController());
@@ -1313,7 +1269,6 @@ public class Group implements Comparable<Group> {
 		return this.timeKeeper;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getTimeKeeperAsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getTimeKeeper());
@@ -1324,7 +1279,6 @@ public class Group implements Comparable<Group> {
 		return this.weighIn1;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getWeighIn1AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getWeighIn1());
@@ -1335,7 +1289,6 @@ public class Group implements Comparable<Group> {
 		return this.weighIn2;
 	}
 
-	@Transient
 	@JsonIgnore
 	public TechnicalOfficial getWeighIn2AsTO() {
 		TechnicalOfficial to = TechnicalOfficialRepository.safeFindByName(this.getWeighIn2());
@@ -1347,7 +1300,6 @@ public class Group implements Comparable<Group> {
 	 *
 	 * @return the weigh-in time (two hours before competition, normally)
 	 */
-	@Transient
 	@JsonIgnore
 	public String getWeighInShortDateTime() {
 		String formatted = "";
@@ -1369,7 +1321,6 @@ public class Group implements Comparable<Group> {
 		return this.weighInTime;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Date getWeighInTimeAsDate() {
 		return DateTimeUtils.dateFromLocalDateTime(this.weighInTime);
@@ -1673,26 +1624,22 @@ public class Group implements Comparable<Group> {
 		return;
 	}
 
-	@Transient
 	@JsonIgnore
 	public double getFirstSnatchExcelTime() {
 		double time = DateTimeUtils.localDateTimeToExcelDate(firstSnatchTime);
 		return time;
 	}
 
-	@Transient
 	@JsonIgnore
 	public double getFirstCJExcelTime() {
 		return DateTimeUtils.localDateTimeToExcelDate(firstCJTime);
 	}
 
-	@Transient
 	@JsonIgnore
 	public double getLastSnatchDecisionExcelTime() {
 		return DateTimeUtils.localDateTimeToExcelDate(lastSnatchDecisionTime);
 	}
 
-	@Transient
 	@JsonIgnore
 	public double getLastCJDecisionExcelTime() {
 		return DateTimeUtils.localDateTimeToExcelDate(lastCJDecisionTime);

@@ -108,10 +108,8 @@ import ch.qos.logback.classic.Logger;
  * displayed by the application
  * </p>
  * <p>
- * Computed fields are defined as final transient properties and marked
- * as @Transient; the only reason for this is so the JavaBeans introspection
- * mechanisms
- * find them.
+ * Computed values are exposed through JavaBeans getters. Since persistence uses
+ * field access, persistence annotations belong on fields rather than getters.
  * </p>
  * <p>
  * This class uses events to notify interested user interface components that
@@ -682,7 +680,6 @@ public class Athlete {
 	 *
 	 * @return the custom score
 	 */
-	@Transient
 	@JsonIgnore
 	public Double computedCategoryScore() {
 		AgeGroup ageGroup = getAgeGroup();
@@ -873,7 +870,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getAbbreviatedName() {
 		var fn = this.computeRawFullName();
@@ -900,7 +896,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getFixedName() {
 		Locale loc = OwlcmsSession.getLocale();
@@ -974,7 +969,6 @@ public class Athlete {
 		return formattedFirstName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getActualLift(int liftNo) {
 		try {
@@ -986,7 +980,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getActualLiftOrNull(int liftNo) {
 		try {
@@ -1003,7 +996,6 @@ public class Athlete {
 	 *
 	 * @return the attempted lifts
 	 */
-	@Transient
 	@JsonIgnore
 	public int getActuallyAttemptedLifts() {
 		int i = 0;
@@ -1031,7 +1023,6 @@ public class Athlete {
 	/**
 	 * @return age as of current day
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getAge() {
 		LocalDate date = null;
@@ -1049,7 +1040,6 @@ public class Athlete {
 		return date.getYear() - fullBirthDate2.getYear();
 	}
 
-	@Transient
 	@JsonIgnore
 	@Deprecated
 	// keep backward compatibility with older databases
@@ -1057,7 +1047,6 @@ public class Athlete {
 		return this.ageAdjustedTotalRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getQYouthRank() {
 		return this.getAgeAdjustedTotalRank();
@@ -1069,14 +1058,12 @@ public class Athlete {
 	 * @return the ageGroup. M80 if male missing birth date, F70 if female missing
 	 *         birth date or missing both gender and birth.
 	 */
-	@Transient
 	@JsonIgnore
 	public AgeGroup getAgeGroup() {
 		Category cat = getCategory();
 		return (cat != null ? cat.getAgeGroup() : null);
 	}
 
-	@Transient
 	@JsonIgnore
 	public MedalPolicy getMedalPolicy() {
 		AgeGroup ageGroup = getAgeGroup();
@@ -1084,14 +1071,12 @@ public class Athlete {
 		return championship.getMedalPolicy();
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isMedalist() {
 		int overallRank = getComputedScoringSystem() == Ranking.TOTAL ? getTotalRank() : getCategoryScoreRank();
 		return getMedalPolicy().isMedalist(getSnatchRank(), getCleanJerkRank(), overallRank);
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getAgeGroupCodesAsString() {
 		return this.getEligibleCategories().stream()
@@ -1101,7 +1086,6 @@ public class Athlete {
 				.collect(Collectors.joining(", "));
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getAgeGroupCodesMainFirstAsString() {
 		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
@@ -1128,7 +1112,6 @@ public class Athlete {
 		return ag != null ? ag.getDisplayName() : "";
 	}
 
-	@Transient
 	@JsonIgnore
 	public Set<String> getAgeGroupTeams() {
 		// we use strings because I can't figure out why AgeGroups don't behave properly
@@ -1148,7 +1131,6 @@ public class Athlete {
 		return s;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Set<String> getMixedAgeGroupTeams() {
 		Set<String> s = new LinkedHashSet<>();
@@ -1165,7 +1147,6 @@ public class Athlete {
 		return s;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getAllCategoriesAsString() {
 		Category mrCat = getCategory();
@@ -1193,13 +1174,11 @@ public class Athlete {
 	 *
 	 * @return
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getAttemptNumber() {
 		return getAttemptsDone() % 3 + 1;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getAttemptProgression(int attempt) {
 		return doGetProgression(this.getRequestedWeightForAttempt(attempt), attempt);
@@ -1210,7 +1189,6 @@ public class Athlete {
 	 *
 	 * @return the attemptsDone
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getAttemptsDone() {
 		return getSnatchAttemptsDone() + getCleanJerkAttemptsDone();
@@ -1221,7 +1199,6 @@ public class Athlete {
 	 *
 	 * @return the bestCleanJerk
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getBestCleanJerk() {
 		final int cj1 = zeroIfInvalid(this.cleanJerk1ActualLift);
@@ -1243,7 +1220,6 @@ public class Athlete {
 	 *
 	 * @return the best clean jerk attempt number
 	 */
-	@Transient
 	@JsonIgnore
 	public int getBestCleanJerkAttemptNumber() {
 		final int cj1 = zeroIfInvalid(this.cleanJerk1ActualLift);
@@ -1265,7 +1241,6 @@ public class Athlete {
 	 *
 	 * @return the best snatch attempt number
 	 */
-	@Transient
 	@JsonIgnore
 	public LocalDateTime getBestCleanJerkAttemptTime() {
 		final int cj1 = zeroIfInvalid(this.cleanJerk1ActualLift);
@@ -1282,7 +1257,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getBestLifterRank() {
 		if (!isEligibleForIndividualRanking()) {
@@ -1298,7 +1272,6 @@ public class Athlete {
 		return Ranking.getRanking(this, scoringSystem);
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getBestLifterScore() {
 		Ranking scoringSystem = JXLSWorkbookStreamSource.getBestLifterRankingThreadLocal();
@@ -1318,7 +1291,6 @@ public class Athlete {
 	 *
 	 * @return the best result attempt number
 	 */
-	@Transient
 	@JsonIgnore
 	public int getBestResultAttemptNumber() {
 		int referenceValue = getBestCleanJerk();
@@ -1355,7 +1327,6 @@ public class Athlete {
 	 *
 	 * @return the bestSnatch
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getBestSnatch() {
 		final int sn1 = zeroIfInvalid(this.snatch1ActualLift);
@@ -1377,7 +1348,6 @@ public class Athlete {
 	 *
 	 * @return the best snatch attempt number
 	 */
-	@Transient
 	@JsonIgnore
 	public int getBestSnatchAttemptNumber() {
 		final int sn1 = zeroIfInvalid(this.snatch1ActualLift);
@@ -1399,7 +1369,6 @@ public class Athlete {
 	 *
 	 * @return the best snatch attempt time
 	 */
-	@Transient
 	@JsonIgnore
 	public LocalDateTime getBestSnatchAttemptTime() {
 		final int sn1 = zeroIfInvalid(this.snatch1ActualLift);
@@ -1424,7 +1393,6 @@ public class Athlete {
 	 * @deprecated use getYearOfBirth
 	 */
 	@Deprecated
-	@Transient
 	@JsonIgnore
 	public Integer getBirthDate() {
 		return this.getYearOfBirth();
@@ -1444,7 +1412,6 @@ public class Athlete {
 	 *
 	 * @return the short category
 	 */
-	@Transient
 	@JsonIgnore
 	public String getBWCategory() {
 		// logger./**/warn("getBWCategory {}", this.getFullName());
@@ -1469,7 +1436,6 @@ public class Athlete {
 		return this.category;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getCategoryCode() {
 		return this.category != null ? this.getCategory().getCode() : "-";
@@ -1480,12 +1446,10 @@ public class Athlete {
 	 * 
 	 * @return the category display name, or empty string if no category is assigned
 	 */
-	@Transient // but intentionally JSON
 	public String getCategoryName() {
 		return this.category != null ? this.getCategory().getDisplayName() : "";
 	}
 
-	@Transient
 	@JsonIgnore
 	public Boolean getCategoryFinished() {
 		// same convention as PAthlete: no category counts as finished
@@ -1505,13 +1469,11 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	private boolean shouldHidePublishedCategoryScore() {
 		return JXLSWorkbookStreamSource.isNoInterimScoresInResults() && !isDone();
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getCategorySortCode() {
 		Category sortCategory = getCategory();
@@ -1527,7 +1489,6 @@ public class Athlete {
 	 *
 	 * @return the sinclair factor
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getCatSinclairFactor() {
 		if (this.getGender() == Gender.M) {
@@ -1559,7 +1520,6 @@ public class Athlete {
 	 *
 	 * @return the clean jerk 1 as integer
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getCleanJerk1AsInteger() {
 		return asInteger(this.cleanJerk1ActualLift);
@@ -1624,7 +1584,6 @@ public class Athlete {
 	 *
 	 * @return the clean jerk 2 as integer
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getCleanJerk2AsInteger() {
 		return asInteger(this.cleanJerk2ActualLift);
@@ -1690,7 +1649,6 @@ public class Athlete {
 	 *
 	 * @return the clean jerk 3 as integer
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getCleanJerk3AsInteger() {
 		return asInteger(this.cleanJerk3ActualLift);
@@ -1747,7 +1705,6 @@ public class Athlete {
 	 *
 	 * @return the cleanJerkAttemptsDone
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getCleanJerkAttemptsDone() {
 		// if Athlete signals he wont take his remaining tries, a zero is entered
@@ -1776,7 +1733,6 @@ public class Athlete {
 	 *
 	 * @return the clean jerk points
 	 */
-	@Transient
 	@JsonIgnore
 	public int getCleanJerkPoints() {
 		Participation mr = getMainRankings();
@@ -1787,7 +1743,6 @@ public class Athlete {
 		return points;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getCleanJerkRank() {
 		if (!isEligibleForIndividualRanking()) {
@@ -1801,7 +1756,6 @@ public class Athlete {
 	 *
 	 * @return total for clean and jerk
 	 */
-	@Transient
 	@JsonIgnore
 	public int getCleanJerkTotal() {
 		final int cleanJerkTotal = max(0, zeroIfInvalid(this.cleanJerk1ActualLift),
@@ -1828,7 +1782,6 @@ public class Athlete {
 	 *
 	 * @return the combined points
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getCombinedPoints() {
 		return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
@@ -1854,13 +1807,11 @@ public class Athlete {
 		return css;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getCumulativeAttemptProgression(int attempt) {
 		return doGetCumulativeProgression(this.getRequestedWeightForAttempt(attempt), attempt);
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getCumulativeProgression(Integer requestedWeight) {
 		int attempt = getAttemptsDone() + 1;
@@ -1872,7 +1823,6 @@ public class Athlete {
 	 *
 	 * @return the current automatic
 	 */
-	@Transient
 	@JsonIgnore
 	public String getCurrentAutomatic() {
 		switch (this.getAttemptsDone() + 1) {
@@ -1897,7 +1847,6 @@ public class Athlete {
 	 *
 	 * @return the current change 1
 	 */
-	@Transient
 	@JsonIgnore
 	public String getCurrentChange1() {
 		switch (this.getAttemptsDone() + 1) {
@@ -1922,7 +1871,6 @@ public class Athlete {
 	 *
 	 * @return the current declaration
 	 */
-	@Transient
 	@JsonIgnore
 	public String getCurrentDeclaration() {
 		switch (this.getAttemptsDone() + 1) {
@@ -1961,7 +1909,6 @@ public class Athlete {
 	 *
 	 * @return the customPoints
 	 */
-	@Transient
 	@JsonIgnore
 	public int getCustomPoints() {
 		Participation mr = getMainRankings();
@@ -1974,7 +1921,6 @@ public class Athlete {
 	 *
 	 * @return the custom rank
 	 */
-	@Transient
 	@JsonIgnore
 	public int getCustomRank() {
 		if (!isEligibleForIndividualRanking()) {
@@ -1992,7 +1938,6 @@ public class Athlete {
 	 *
 	 * @return the display category
 	 */
-	@Transient
 	@JsonIgnore
 	public String getDisplayCategory() {
 		Category category = getCategory();
@@ -2000,7 +1945,6 @@ public class Athlete {
 	}
 
 	@JsonIgnore
-	@Transient
 	public DisplayGroup getDisplayGroup() {
 		return this.getGroup() != null ? new DisplayGroup(
 				this.getGroup().getName(),
@@ -2011,7 +1955,6 @@ public class Athlete {
 				: Group.getEmptyDisplayGroup();
 	}
 
-	@Transient
 	@JsonIgnore
 	public Set<Category> getEligibleCategories() {
 		// defensive -- ignore historical corruption (category with no age group)
@@ -2026,7 +1969,6 @@ public class Athlete {
 		return s;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getEligibleCategoriesAsString() {
 		Category mrCat = getMainRankings() != null ? this.getMainRankings().getCategory() : null;
@@ -2070,7 +2012,6 @@ public class Athlete {
 	 *
 	 * @return the first attempted lift time
 	 */
-	@Transient
 	@JsonIgnore
 	public LocalDateTime getFirstAttemptedLiftTime() {
 		LocalDateTime attemptTime = LocalDateTime.MAX;// forever in the future
@@ -2102,7 +2043,6 @@ public class Athlete {
 				: null;
 	}
 
-	@Transient
 	@JsonIgnore
 	public FieldOfPlay getFop() {
 		if (this.fop == null) {
@@ -2115,7 +2055,6 @@ public class Athlete {
 		return FieldOfPlay.getLoggingName(this.fop);
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getFormattedBirth() {
 		if (Competition.getCurrent().isUseBirthYear()) {
@@ -2134,7 +2073,6 @@ public class Athlete {
 	 *
 	 * @return the fullBirthDate
 	 */
-	@Transient
 	@JsonGetter("fullBirthDate")
 	public LocalDate getFullBirthDate() {
 		if (this.isoBirthDate == null) {
@@ -2151,7 +2089,6 @@ public class Athlete {
 		return this.isoBirthDate;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getFullId() {
 		String fullName = computeRawFullName();
@@ -2164,13 +2101,11 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getFullName() {
 		return fixNames ? getFixedName() : computeRawFullName();
 	}
 
-	@Transient
 	@JsonIgnore
 	public String computeRawFullName() {
 		String upperCase = this.getLastName() != null ? this.getLastName().toUpperCase() : "";
@@ -2184,7 +2119,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamx() {
 		if (!isDone()) {
@@ -2193,13 +2127,11 @@ public class Athlete {
 		return getTotal() > 0 ? getGamxForDelta() : 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getGamxRank() {
 		return this.gamxRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxM() {
 		if (!isDone()) {
@@ -2208,37 +2140,31 @@ public class Athlete {
 		return getTotal() > 0 ? getGamxMForDelta() : 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getGamxMRank() {
 		return this.gamxMRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxMS() {
 		return 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getGamxMSRank() {
 		return 0;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxMC() {
 		return 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getGamxMCRank() {
 		return 0;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxU() {
 		if (!isDone()) {
@@ -2247,13 +2173,11 @@ public class Athlete {
 		return getTotal() > 0 ? getGamxUForDelta() : 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getGamxURank() {
 		return this.gamxURank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxA() {
 		if (!isDone()) {
@@ -2262,37 +2186,31 @@ public class Athlete {
 		return getTotal() > 0 ? getGamxAForDelta() : 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getGamxARank() {
 		return this.gamxARank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxS() {
 		return 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getGamxSRank() {
 		return 0;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxC() {
 		return 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getGamxCRank() {
 		return 0;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
@@ -2303,7 +2221,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxMForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
@@ -2314,19 +2231,16 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxMSForDelta() {
 		return 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxMCForDelta() {
 		return 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxUForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
@@ -2337,7 +2251,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxAForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
@@ -2348,13 +2261,11 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxSForDelta() {
 		return 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getGamxCForDelta() {
 		return 0.0D;
@@ -2367,13 +2278,11 @@ public class Athlete {
 	 *
 	 * @return the score value according to the global scoring system
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getGlobalScore() {
 		return Ranking.getRankingValue(this, Championship.of(null).getScoringSystem());
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setGlobalScore(Double ignored) {
 		// ignored, necessary for bean introspection
@@ -2407,7 +2316,6 @@ public class Athlete {
 		return this.id;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getIsoBirth() {
 		if (Competition.getCurrent().isUseBirthYear()) {
@@ -2424,7 +2332,6 @@ public class Athlete {
 	 *
 	 * @return the last attempted lift time
 	 */
-	@Transient
 	@JsonIgnore
 	public LocalDateTime getLastAttemptedLiftTime() {
 		LocalDateTime max = LocalDateTime.MIN;// long ago
@@ -2459,7 +2366,6 @@ public class Athlete {
 	 *
 	 * @return the last successful lift time
 	 */
-	@Transient
 	@JsonIgnore
 	public LocalDateTime getLastSuccessfulLiftTime() {
 		if (zeroIfInvalid(this.cleanJerk3ActualLift) > 0) {
@@ -2497,7 +2403,6 @@ public class Athlete {
 	 *
 	 * @return the logger
 	 */
-	@Transient
 	@JsonIgnore
 	public Logger getLogger() {
 		return this.logger;
@@ -2508,7 +2413,6 @@ public class Athlete {
 	 *
 	 * @return the long category
 	 */
-	@Transient
 	@JsonIgnore
 	public String getLongCategory() {
 		Category category = getCategory();
@@ -2533,7 +2437,6 @@ public class Athlete {
 	 *
 	 * @return the athlete key (hash code)
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getKey() {
 		String lastName = this.getLastName() != null ? this.getLastName() : "";
@@ -2552,7 +2455,6 @@ public class Athlete {
 		return Math.abs(hash) + 1000000000;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Participation getMainRankings() {
 		return this.mainRankings;
@@ -2563,7 +2465,6 @@ public class Athlete {
 	 *
 	 * @return the masters age group
 	 */
-	@Transient
 	@JsonIgnore
 	public String getMastersAgeGroup() {
 		if (this.getGender() == null || this.getAgeGroup() == null) {
@@ -2577,7 +2478,6 @@ public class Athlete {
 	 *
 	 * @return the ageGroup
 	 */
-	@Transient
 	@JsonIgnore
 	public String getMastersAgeGroupInterval() {
 		AgeGroup ag = getAgeGroup();
@@ -2599,7 +2499,6 @@ public class Athlete {
 	 *
 	 * @return the masters gender age group interval
 	 */
-	@Transient
 	@JsonIgnore
 	public String getMastersGenderAgeGroupInterval() {
 		String gender2 = getGender().name();
@@ -2615,7 +2514,6 @@ public class Athlete {
 	 * @return the masters long category
 	 */
 	@Deprecated
-	@Transient
 	@JsonIgnore
 	public String getMastersLongCategory() {
 		return getCategory().getDisplayName();
@@ -2626,7 +2524,6 @@ public class Athlete {
 	 *
 	 * @return the medal rank
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getMedalRank() {
 		Integer i = getRank();
@@ -2650,7 +2547,6 @@ public class Athlete {
 	 *
 	 * @return the nextAttemptRequestedWeight
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getNextAttemptRequestedWeight() {
 		int attempt = getAttemptsDone() + 1;
@@ -2661,7 +2557,6 @@ public class Athlete {
 		return this.participations;
 	}
 
-	@Transient
 	@JsonIgnore
 	public List<Participation> getCleanParticipations() {
 		return this.participations.stream()
@@ -2681,7 +2576,6 @@ public class Athlete {
 		return this.personalBestTotal;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Set<String> getPossibleAgeGroupTeams() {
 		// we use strings because I can't figure out why AgeGroups don't behave properly
@@ -2699,7 +2593,6 @@ public class Athlete {
 		return s;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Set<String> getPossibleMixedAgeGroupTeams() {
 		Set<String> s = new LinkedHashSet<>();
@@ -2715,7 +2608,6 @@ public class Athlete {
 		return s;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getPresumedBodyWeight() {
 		Double bodyWeight2 = getBodyWeight();
@@ -2728,7 +2620,6 @@ public class Athlete {
 		return this.presumedBodyWeight;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getPresumedBodyWeightString() {
 		Double bodyWeight2 = getBodyWeight();
@@ -2744,7 +2635,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getPresumedOpenCategoryString() {
 		if (this.gender == null) {
@@ -2767,7 +2657,6 @@ public class Athlete {
 	 *
 	 * @return null if Athlete has not lifted
 	 */
-	@Transient
 	@JsonIgnore
 	public LocalDateTime getPreviousLiftTime() {
 		LocalDateTime max = null; // long ago
@@ -2815,7 +2704,6 @@ public class Athlete {
 		return max;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getProgression(Integer requestedWeight) {
 		int attempt = getAttemptsDone() + 1;
@@ -2827,13 +2715,11 @@ public class Athlete {
 		return this.qAgeRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getQMastersRank() {
 		return getqAgeRank();
 	}
 
-	@Transient
 	@JsonIgnore
 	public Float getQMastersFactor() {
 		final Integer birthDate1 = getYearOfBirth();
@@ -2843,7 +2729,6 @@ public class Athlete {
 		return qPointsCoefficients.getAgeGenderCoefficient(YEAR - birthDate1, getGender());
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getqPoints() {
 		if (!isDone()) {
@@ -2860,20 +2745,17 @@ public class Athlete {
 	 * @param total1
 	 * @return
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getQPoints() {
 		return getqPoints();
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getqPointsForDelta() {
 		Integer total = getBestCleanJerk() + getBestSnatch();
 		return qPointsCoefficients.getQPoints(this, total);
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getQPointsForDelta() {
 		return getqPointsForDelta();
@@ -2900,7 +2782,6 @@ public class Athlete {
 	 *
 	 * @return the rank
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getRank() {
 		Participation mainRankings = getMainRankings();
@@ -2912,7 +2793,6 @@ public class Athlete {
 	 *
 	 * @return the registration category
 	 */
-	@Transient
 	@JsonIgnore
 	public Category getRegistrationCategory() {
 		return this.category;
@@ -2924,7 +2804,6 @@ public class Athlete {
 	 * @param attempt the attempt
 	 * @return the requested weight for attempt
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getRequestedWeightForAttempt(int attempt) {
 		switch (attempt) {
@@ -2964,7 +2843,6 @@ public class Athlete {
 	 *
 	 * @return the robi
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getRobi() {
 		Integer wr = getRobiWr();
@@ -2989,7 +2867,6 @@ public class Athlete {
 		return this.robiRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getRobiWr() {
 		Category robiC = RobiCategories.findRobiCategory(this);
@@ -3000,7 +2877,6 @@ public class Athlete {
 		return robiC.getWr(age != null ? age : 999);
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getRoundedBodyWeight() {
 		if (this.df == null) {
@@ -3018,13 +2894,11 @@ public class Athlete {
 	 * @see #getBWCategory()
 	 */
 	@Deprecated
-	@Transient
 	@JsonIgnore
 	public String getShortCategory() {
 		return getBWCategory();
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getShortName() {
 		String firstName2 = getFirstName();
@@ -3041,7 +2915,6 @@ public class Athlete {
 	 *
 	 * @return the sinclair-adjusted value for the Athlete
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getSinclair() {
 		if (!isDone()) {
@@ -3056,7 +2929,6 @@ public class Athlete {
 	 * @param bodyWeight1 the body weight 1
 	 * @return the sinclair
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getSinclair(Double bodyWeight1) {
 		Integer total1 = getTotal();
@@ -3068,7 +2940,6 @@ public class Athlete {
 	 *
 	 * @return the sinclair factor
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getSinclairFactor() {
 		if (this.getGender() == Gender.M) {
@@ -3087,7 +2958,6 @@ public class Athlete {
 	 *
 	 * @return a Sinclair value even if c&j has not started
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getSinclairForDelta() {
 		final Double bodyWeight1 = getBodyWeight();
@@ -3103,7 +2973,6 @@ public class Athlete {
 	 *
 	 * @return a Sinclair value even if c&j has not started
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getSinclairForDelta(Double bodyWeight1) {
 		if (bodyWeight1 == null) {
@@ -3131,7 +3000,6 @@ public class Athlete {
 	 *
 	 * @return the smm
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getSmhf() {
 		if (!isDone()) {
@@ -3140,7 +3008,6 @@ public class Athlete {
 		return getTotal() > 0 ? getSmhfForDelta() : 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Float getSmhfFactor() {
 		final Integer birthDate1 = getYearOfBirth();
@@ -3155,7 +3022,6 @@ public class Athlete {
 	 *
 	 * @return the smm
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getSmhfForDelta() {
 		double d = getMastersSinclairForDelta()
@@ -3163,19 +3029,16 @@ public class Athlete {
 		return d;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getSmhfRank() {
 		return this.smhfRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getSmm() {
 		return getSmhf();
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getSmmRank() {
 		return getSmhfRank();
@@ -3195,7 +3058,6 @@ public class Athlete {
 	 *
 	 * @return the snatch 1 as integer
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getSnatch1AsInteger() {
 		return asInteger(this.snatch1ActualLift);
@@ -3260,7 +3122,6 @@ public class Athlete {
 	 *
 	 * @return the snatch 2 as integer
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getSnatch2AsInteger() {
 		return asInteger(this.snatch2ActualLift);
@@ -3326,7 +3187,6 @@ public class Athlete {
 	 *
 	 * @return the snatch 3 as integer
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getSnatch3AsInteger() {
 		return asInteger(this.snatch3ActualLift);
@@ -3383,7 +3243,6 @@ public class Athlete {
 	 *
 	 * @return how many snatch attempts have been performed
 	 */
-	@Transient
 	@JsonIgnore
 	public Integer getSnatchAttemptsDone() {
 		// Athlete signals he wont take his remaining tries, a zero is entered
@@ -3440,7 +3299,6 @@ public class Athlete {
 	 *
 	 * @return total for snatch.
 	 */
-	@Transient
 	@JsonIgnore
 	public int getSnatchTotal() {
 		final int snatchTotal = max(0, zeroIfInvalid(this.snatch1ActualLift), zeroIfInvalid(this.snatch2ActualLift),
@@ -3448,7 +3306,6 @@ public class Athlete {
 		return snatchTotal;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getSortedCategoriesAsString() {
 		String eligiblesAsString = this.getParticipations().stream()
@@ -3481,14 +3338,12 @@ public class Athlete {
 		return this.team;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getTeamFlagPath() {
 		// use the same approach as URLUtils to find the flag
 		return URLUtils.getFlagResourcePath(this.team, new String[] { ".png" });
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getTeamAgeGroupsAsString() {
 		Set<String> s = new LinkedHashSet<>();
@@ -3539,7 +3394,6 @@ public class Athlete {
 		return isEligibleForTeamRanking();
 	}
 
-	@Transient
 	@JsonIgnore
 	public Boolean getMixedTeamMember() {
 		return (getMainRankings() != null ? getMainRankings().getMixedTeamMember() : false);
@@ -3645,13 +3499,11 @@ public class Athlete {
 	 * @return true, if is a team member
 	 */
 	@Deprecated
-	@Transient
 	@JsonIgnore
 	public boolean isATeamMember() {
 		return isEligibleForTeamRanking();
 	}
 
-	@Transient
 	@JsonIgnore
 	public Boolean isCategoryFinished() {
 		return getCategoryFinished();
@@ -3750,7 +3602,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isDone() {
 		boolean notFinishedLifting = this.getCleanJerk3ActualLift() == null || this.getCleanJerk3ActualLift().isBlank()
@@ -3772,7 +3623,6 @@ public class Athlete {
 		return !notFinishedLifting;
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isDone(Group medalingSession) {
 		// At the end of session "medalingSession", If a category still has athletes
@@ -3818,53 +3668,45 @@ public class Athlete {
 	 * @return true, if is invited
 	 */
 	@Deprecated
-	@Transient
 	@JsonIgnore
 	public boolean isInvited() {
 		return !isEligibleForIndividualRanking();
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isTeamMember() {
 		return (getMainRankings() != null ? getMainRankings().getTeamMember() : false);
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isMixedTeamMember() {
 		return (getMainRankings() != null ? getMainRankings().getMixedTeamMember() : false);
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getRawTotalPoints() {
 		Participation mainRankings = getMainRankings();
 		return mainRankings != null ? mainRankings.getRawTotalPoints() : 0;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getRawSnatchPoints() {
 		Participation mainRankings = getMainRankings();
 		return mainRankings != null ? mainRankings.getRawSnatchPoints() : 0;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getRawCleanJerkPoints() {
 		Participation mainRankings = getMainRankings();
 		return mainRankings != null ? mainRankings.getRawCleanJerkPoints() : 0;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getRawCombinedPoints() {
 		Participation mainRankings = getMainRankings();
 		return mainRankings != null ? mainRankings.getRawCombinedPoints() : 0;
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isValidation() {
 		return this.validation && !isSkipValidationsDuringImport();
@@ -3926,7 +3768,6 @@ public class Athlete {
 	}
 
 	@JsonIgnore
-	@Transient
 	public void setQYouthRank(Integer ageAdjustedTotalRank) {
 		setAgeAdjustedTotalRank(ageAdjustedTotalRank);
 	}
@@ -3938,7 +3779,6 @@ public class Athlete {
 		this.ageAdjustedTotalRank = ageAdjustedTotalRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setAgeGroupTeams(Set<String> s) {
 		// we use strings because I can't figure out why AgeGroups don't behave properly
@@ -3953,7 +3793,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setMixedAgeGroupTeams(Set<String> s) {
 		List<Participation> participations2 = getParticipations();
@@ -3996,7 +3835,6 @@ public class Athlete {
 	 * @param birthYear the new birth date
 	 */
 	@Deprecated
-	@Transient
 	@JsonIgnore
 	public void setBirthDate(Integer birthYear) {
 		setYearOfBirth(birthYear);
@@ -4034,7 +3872,6 @@ public class Athlete {
 		this.category = category;
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setCategoryFinished(Boolean done) {
 		// no-op, computed.
@@ -4043,7 +3880,6 @@ public class Athlete {
 	public void setCategoryScoreCode(String unused) {
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setCategoryScoreRank(int ignored) {
 		// ignored. computed property. setter needed for beans introspection.
@@ -4362,13 +4198,11 @@ public class Athlete {
 	 *
 	 * @param points the new clean jerk points
 	 */
-	@Transient
 	@JsonIgnore
 	public void setCleanJerkPoints(Integer points) {
 		// ignored. computed property. setter needed for beans introspection.
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setCleanJerkRank(int ignored) {
 		// ignored. computed property. setter needed for beans introspection.
@@ -4407,7 +4241,6 @@ public class Athlete {
 	 *
 	 * @param customPoints the new custom points
 	 */
-	@Transient
 	@JsonIgnore
 	public void setCustomPoints(Integer customPoints) {
 		// ignored. computed property. setter needed for beans introspection.
@@ -4418,7 +4251,6 @@ public class Athlete {
 	 *
 	 * @param customRank the new custom rank
 	 */
-	@Transient
 	@JsonIgnore
 	public void setCustomRank(Integer customRank) {
 		// ignored. computed property. setter needed for beans introspection
@@ -4545,7 +4377,6 @@ public class Athlete {
 	 *
 	 * @param fullBirthDate the fullBirthDate to set
 	 */
-	@Transient
 	@JsonIgnore
 	public void setFullBirthDate(LocalDate fullBirthDate) {
 		// logger.trace("setting {} {} {}",getShortName(), fullBirthDate,
@@ -4731,7 +4562,6 @@ public class Athlete {
 	}
 
 	@JsonIgnore
-	@Transient
 	public void setQMastersRank(int qAgeRank2) {
 		setqAgeRank(qAgeRank2);
 	}
@@ -5065,19 +4895,16 @@ public class Athlete {
 	 *
 	 * @param snatchPoints the new snatch points
 	 */
-	@Transient
 	@JsonIgnore
 	public void setSnatchPoints(Integer snatchPoints) {
 		// ignored. computed property. setter needed for beans introspection.
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setSnatchRank(int ignored) {
 		// ignored. computed property. setter needed for beans introspection.
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setSortedCategoriesAsString() {
 	}
@@ -5196,13 +5023,11 @@ public class Athlete {
 	 *
 	 * @param totalPoints the new total points
 	 */
-	@Transient
 	@JsonIgnore
 	public void setTotalPoints(Integer totalPoints) {
 		// ignored. computed property. setter needed for beans introspection.
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setTotalRank(int ignored) {
 		// ignored. computed property. setter needed for beans introspection.
@@ -5217,7 +5042,6 @@ public class Athlete {
 	 *
 	 * @param birthYear the new year of birth
 	 */
-	@Transient
 	@JsonIgnore
 	public void setYearOfBirth(Integer birthYear) {
 		setFullBirthDateFromYear(birthYear);
@@ -6123,7 +5947,6 @@ public class Athlete {
 		return (value == null ? "" : value);
 	}
 
-	@Transient
 	@JsonIgnore
 	private String getActualLiftStringOrElseNull(int liftNo) {
 		String value = null;
@@ -6161,7 +5984,6 @@ public class Athlete {
 	 *
 	 * @return a Sinclair value even if c&j has not started
 	 */
-	@Transient
 	@JsonIgnore
 	private Double getMastersSinclair() {
 		final Double bodyWeight1 = getBodyWeight();
@@ -6189,7 +6011,6 @@ public class Athlete {
 	 *
 	 * @return a Sinclair value even if c&j has not started
 	 */
-	@Transient
 	@JsonIgnore
 	private Double getMastersSinclairForDelta() {
 		final Double bodyWeight1 = getBodyWeight();
@@ -6215,7 +6036,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	private LiftOrderInfo getRunningLiftOrderInfo() {
 		LiftOrderInfo loi = new LiftOrderInfo();
@@ -6234,7 +6054,6 @@ public class Athlete {
 		return loi;
 	}
 
-	@Transient
 	@JsonIgnore
 	private Double getSinclair(Double bodyWeight1, Integer total1) {
 		var gender = getGender();
@@ -6292,7 +6111,6 @@ public class Athlete {
 	 * @return the allowed gap (inclusive) between sum of initial declarations and
 	 *         entry total.
 	 */
-	@Transient
 	@JsonIgnore
 	private int getStartingTotalMargin(Category cat, Integer entryTotal) {
 		if (cat != null) {
@@ -6317,7 +6135,6 @@ public class Athlete {
 		return 20;
 	}
 
-	@Transient
 	@JsonIgnore
 	private boolean isSameAthleteAs(Athlete other) {
 		if (other == null) {
@@ -6571,13 +6388,11 @@ public class Athlete {
 				LoggerUtils.whereFrom());
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getQYouth() {
 		return this.getAgeAdjustedTotal();
 	}
 
-	@Transient
 	@JsonIgnore
 	@Deprecated
 	public Double getAgeAdjustedTotal() {
@@ -6587,13 +6402,11 @@ public class Athlete {
 		return getTotal() > 0 ? getAgeAdjustedTotalForDelta() : 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getQYouthForDelta() {
 		return getAgeAdjustedTotalForDelta();
 	}
 
-	@Transient
 	@JsonIgnore
 	@Deprecated
 	public Double getAgeAdjustedTotalForDelta() {
@@ -6602,13 +6415,11 @@ public class Athlete {
 		return val;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getQMasters() {
 		return getQAge();
 	}
 
-	@Transient
 	@JsonIgnore
 	@Deprecated
 	public Double getQAge() {
@@ -6616,13 +6427,11 @@ public class Athlete {
 		return d;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getQMastersForDelta() {
 		return getQAgeForDelta();
 	}
 
-	@Transient
 	@JsonIgnore
 	@Deprecated
 	public Double getQAgeForDelta() {
@@ -6630,7 +6439,6 @@ public class Athlete {
 		return d;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getCategoryScore() {
 		if (shouldHidePublishedCategoryScore()) {
@@ -6639,13 +6447,11 @@ public class Athlete {
 		return computedCategoryScore();
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setCategoryScore(Double ignored) {
 		// ignored, necessary for bean introspection
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getCategoryScoreForDelta() {
 		AgeGroup ageGroup = getAgeGroup();
@@ -6661,19 +6467,16 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setCategoryScoreForDelta(Double ignored) {
 		// ignored, necessary for bean introspection
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getCategorySinclair() {
 		return (!isDone() || getTotal() > 0.0) ? getCategorySinclairForDelta() : 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getCategoryQPoints() {
 		return (!isDone() || getTotal() > 0.0) ? getCategoryQPointsForDelta() : 0.0D;
@@ -6688,7 +6491,6 @@ public class Athlete {
 	 *
 	 * @return the category sinclair
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getCategorySinclairForDelta() {
 		// Category category = getCategory();
@@ -6731,7 +6533,6 @@ public class Athlete {
 	 *
 	 * @return the category sinclair
 	 */
-	@Transient
 	@JsonIgnore
 	public Double getCategoryQPointsForDelta() {
 		// Category category = getCategory();
@@ -6756,13 +6557,11 @@ public class Athlete {
 		return qPoints;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getCategoryGAMX() {
 		return (!isDone() || getTotal() > 0.0) ? getCategoryGAMXForDelta() : 0.0D;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getCategoryGAMXForDelta() {
 		Category category = IWFCategories.findIWFCategory(this);
@@ -6785,7 +6584,6 @@ public class Athlete {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double computeIwfCategoryBodyWeight() {
 		Category category = IWFCategories.findIWFCategory(this);
@@ -6859,7 +6657,6 @@ public class Athlete {
 		this.catGAMXRank = catGAMXRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public LocalDateTime getLiftTime(int i) {
 		switch (i) {

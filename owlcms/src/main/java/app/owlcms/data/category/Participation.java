@@ -15,7 +15,6 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
@@ -139,14 +138,12 @@ public class Participation implements IRankHolder {
 		return this.category;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Double getCategoryScore() {
 		Double score = Ranking.getRankingValue(athlete, this.getCategory().getAgeGroup().getComputedScoringSystem());
 		return score;
 	}
 	
-	@Transient
 	@JsonIgnore
 	public int getCategoryScoreRank() {
 //		int rank = Ranking.getRanking(athlete, this.getCategory().getAgeGroup().getComputedScoringSystem());
@@ -154,7 +151,6 @@ public class Participation implements IRankHolder {
 		return this.categoryScoreRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getCleanJerkPoints() {
 		if (!AthleteSorter.includesLiftTeamPoints(this)) {
@@ -167,31 +163,26 @@ public class Participation implements IRankHolder {
 		return this.cleanJerkRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getCombinedPoints() {
 		return getSnatchPoints() + getCleanJerkPoints() + getTotalPoints();
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getRawTotalPoints() {
 		return AthleteSorter.pointsFormula(this.totalRank, this);
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getRawSnatchPoints() {
 		return AthleteSorter.pointsFormula(this.snatchRank, this);
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getRawCleanJerkPoints() {
 		return AthleteSorter.pointsFormula(this.cleanJerkRank, this);
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getRawCombinedPoints() {
 		int liftPoints = AthleteSorter.includesLiftTeamPoints(this)
@@ -205,7 +196,6 @@ public class Participation implements IRankHolder {
 		return this.combinedRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getCustomPoints() {
 		return isTeamMember() ? AthleteSorter.pointsFormula(this.customRank, this) : 0;
@@ -223,7 +213,6 @@ public class Participation implements IRankHolder {
 		return this.id;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getSnatchPoints() {
 		if (!AthleteSorter.includesLiftTeamPoints(this)) {
@@ -264,7 +253,6 @@ public class Participation implements IRankHolder {
 		return this.teamTotalRank;
 	}
 
-	@Transient
 	@JsonIgnore
 	public int getTotalPoints() {
 		return isTeamMember() && AthleteSorter.includesTotalTeamPoints(this)

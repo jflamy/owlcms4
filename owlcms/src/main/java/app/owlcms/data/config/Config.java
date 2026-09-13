@@ -174,6 +174,7 @@ public class Config {
 	private volatile Map<String, Boolean> managedForwardingActivity = Map.of();
 	private String salt;
 	private String timeZoneId;
+	@Transient
 	private Boolean traceMemory;
 	@Transient
 	@JsonIgnore
@@ -242,7 +243,6 @@ public class Config {
 		return configuredValue != null ? configuredValue : featureSwitch.isEnabledByDefault();
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isRecordRepository() {
 		return featureSwitch(FeatureSwitch.RECORD_REPOSITORY);
@@ -495,7 +495,6 @@ public class Config {
 		return this.displayPin;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getDisplayPinForField() {
 		if (getDisplayPin() == null) {
@@ -518,13 +517,11 @@ public class Config {
 		return this.featureSwitchJson;
 	}
 
-	@Transient
 	public List<ForwardingConnection> getForwardingDestinations() {
 		prepareForwardingConnections();
 		return readForwardingConnectionsJson(this.forwardingDestinationsJson);
 	}
 
-	@Transient
 	@JsonIgnore
 	public List<ForwardingConnection> getEffectiveForwardingDestinations() {
 		List<ForwardingConnection> connections = getForwardingDestinations();
@@ -578,7 +575,6 @@ public class Config {
 	 *
 	 * @return the locale
 	 */
-	@Transient
 	@JsonIgnore
 	public Locale getLocale() {
 		return getDefaultLocale();
@@ -622,7 +618,6 @@ public class Config {
 		return this.mqttPassword;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getMqttPasswordForField() {
 		if (getMqttPassword() == null) {
@@ -643,7 +638,6 @@ public class Config {
 	/**
 	 * @return the current whitelist.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamAccessList() {
 		String uAccessList = StartupUtils.getStringParam("ip");
@@ -660,7 +654,6 @@ public class Config {
 	/**
 	 * @return the current whitelist.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamBackdoorList() {
 		String uAccessList = StartupUtils.getStringParam("backdoor");
@@ -674,7 +667,6 @@ public class Config {
 		return uAccessList;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getParamDecisionUrl() {
 		String paramPublicResultsURL = getParamPublicResultsURL();
@@ -688,7 +680,6 @@ public class Config {
 		return paramPublicResultsURL + "/decision";
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getParamDisplayList() {
 		String uAccessList = StartupUtils.getStringParam("displayList");
@@ -705,7 +696,6 @@ public class Config {
 	/**
 	 * @return the current password.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamDisplayPin() {
 		String uPin = StartupUtils.getStringParam("displayPin");
@@ -729,7 +719,6 @@ public class Config {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean getParamMqttInternal() {
 		Boolean enableInternal = StartupUtils.getBooleanParamOrElseNull("enableEmbeddedMqtt");
@@ -740,7 +729,6 @@ public class Config {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean getParamEventForwardingEnabled() {
 		Boolean enabled = StartupUtils.getBooleanParamOrElseNull("enableEventForwarding");
@@ -750,7 +738,6 @@ public class Config {
 	/**
 	 * @return the current mqtt server.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamMqttPassword() {
 		// get non-encrypted password
@@ -769,7 +756,6 @@ public class Config {
 	/**
 	 * @return the current mqtt port.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamMqttPort() {
 		String param = StartupUtils.getStringParam("mqttPort");
@@ -786,7 +772,6 @@ public class Config {
 	/**
 	 * @return the configured MQTT-over-WebSocket port (if provided via env/args)
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamMqttWsPort() {
 		String param = StartupUtils.getStringParam("mqttWsPort");
@@ -799,7 +784,6 @@ public class Config {
 	/**
 	 * @return the current mqtt server.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamMqttServer() {
 		String param = StartupUtils.getStringParam("mqttServer");
@@ -809,7 +793,6 @@ public class Config {
 	/**
 	 * @return the current mqtt server.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamMqttUserName() {
 		String param = StartupUtils.getStringParam("mqttUserName");
@@ -826,7 +809,6 @@ public class Config {
 	/**
 	 * @return the current password.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamPin() {
 		String uPin = StartupUtils.getStringParam("pin");
@@ -861,7 +843,6 @@ public class Config {
 	/**
 	 * @return the public results url stored in the database, except if overridden by system property or envariable.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamPublicResultsURL() {
 		String uURL = StartupUtils.getStringParam("remote");
@@ -881,7 +862,6 @@ public class Config {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getParamStylesDir() {
 		String param = StartupUtils.getStringParam("stylesDir");
@@ -926,7 +906,6 @@ public class Config {
 		return param;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getParamTimerUrl() {
 		String paramPublicResultsURL = getParamPublicResultsURL();
@@ -943,7 +922,6 @@ public class Config {
 	/**
 	 * @return the updateKey stored in the database, except if overridden by system property or envariable.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamUpdateKey() {
 		String uKey = StartupUtils.getStringParam("updateKey");
@@ -957,7 +935,6 @@ public class Config {
 		return uKey;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getParamUpdateUrl() {
 		String publicResultsURLParam = getParamPublicResultsURL();
@@ -971,7 +948,6 @@ public class Config {
 		return publicResultsURLParam + "/update";
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getParamVideoDataDecisionUrl() {
 		String paramVideoDataURL = getParamVideoDataURL();
@@ -988,7 +964,6 @@ public class Config {
 	/**
 	 * @return the updateKey stored in the database, except if overridden by system property or envariable.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamVideoDataKey() {
 		String uKey = StartupUtils.getStringParam("videoDataKey");
@@ -1002,7 +977,6 @@ public class Config {
 		return uKey;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getParamVideoDataTimerUrl() {
 		String paramVideoDataURL = getParamVideoDataURL();
@@ -1016,7 +990,6 @@ public class Config {
 		return paramVideoDataURL + "/timer";
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getParamVideoDataUpdateUrl() {
 		String paramVideoDataURL = getParamVideoDataURL();
@@ -1033,7 +1006,6 @@ public class Config {
 	/**
 	 * @return the public results url stored in the database, except if overridden by system property or envariable.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getParamVideoDataURL() {
 		String uURL = StartupUtils.getStringParam("videodata");
@@ -1051,7 +1023,6 @@ public class Config {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getParamVideoStylesDir() {
 		String param = StartupUtils.getStringParam("videoStylesDir");
@@ -1083,7 +1054,6 @@ public class Config {
 		return param;
 	}
 	
-	@Transient
 	@JsonIgnore
 	public String getParamPublicStylesDir() {
 		String param = StartupUtils.getStringParam("publicStylesDir");
@@ -1119,7 +1089,6 @@ public class Config {
 		return this.pin;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getPinForField() {
 		if (getPin() == null) {
@@ -1138,7 +1107,6 @@ public class Config {
 		return this.salt;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getStylesDirBase() {
 		String bd = getParamStylesDir();
@@ -1175,7 +1143,6 @@ public class Config {
 		return this.videoDataURL;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getVideoStylesDirBase() {
 		String bd = getParamVideoStylesDir();
@@ -1195,7 +1162,6 @@ public class Config {
 		return 31;
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isClearZip() {
 		if (this.localOverride == null) {
@@ -1204,7 +1170,6 @@ public class Config {
 		return this.clearZip;
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isIgnoreCaching() {
 		return FileServlet.isIgnoreCaching();
@@ -1218,7 +1183,6 @@ public class Config {
 		return this.mqttInternal;
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isTraceMemory() {
 		if (this.traceMemory == null) {
@@ -1227,7 +1191,6 @@ public class Config {
 		return Boolean.TRUE.equals(this.traceMemory);
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isUseCompetitionDate() {
 		if (this.useCompetitionDate == null) {
@@ -1344,7 +1307,6 @@ public class Config {
 	 * 
 	 * @return the bytes from localOverride, or null if not set or unreadable
 	 */
-	@Transient
 	@JsonIgnore
 	public byte[] getLocalZipBlobBytes() {
 		if (this.clearZip) {

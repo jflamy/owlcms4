@@ -16,7 +16,6 @@ import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.EnumType;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -304,7 +303,6 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		this.active = active;
 	}
 
-	@Transient
 	@JsonIgnore
 	public CredentialType getCredentialType() {
 		return role != null ? role.getCredentialType() : null;
@@ -315,7 +313,6 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	 * 
 	 * @return translated role name, or empty string if role is null
 	 */
-	@Transient
 	@JsonIgnore
 	public String getTranslatedAccreditationRole() {
 		if (role == null) {
@@ -328,7 +325,6 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	 * @deprecated Use {@link #getTranslatedAccreditationRole()} instead
 	 */
 	@Deprecated
-	@Transient
 	@JsonIgnore
 	public String getTranslatedRole() {
 		return getTranslatedAccreditationRole();
@@ -339,7 +335,6 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 	 * 
 	 * @return translated credential type name, or empty string if credential type is null
 	 */
-	@Transient
 	@JsonIgnore
 	public String getTranslatedCredentialType() {
 		CredentialType credentialType = getCredentialType();
@@ -349,7 +344,6 @@ public class TechnicalOfficial implements Serializable, Comparable<TechnicalOffi
 		return Translator.translate("TO.CredentialType." + credentialType.name());
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getTeamFlagPath() {
 		String fed = this.getFederation();

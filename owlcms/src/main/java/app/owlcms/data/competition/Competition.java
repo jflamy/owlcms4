@@ -904,7 +904,6 @@ public class Competition {
 		return this.competitionDate;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Date getCompetitionDateAsDate() {
 		return DateTimeUtils.dateFromLocalDate(this.competitionDate);
@@ -937,7 +936,6 @@ public class Competition {
 		return this.competitionSite;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedCardsTemplateFileName() {
 		// logger.trace("getComputedCardsTemplateFileName {}",cardsTemplateFileName);
@@ -947,7 +945,6 @@ public class Competition {
 		return this.cardsTemplateFileName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedCategoriesListTemplateFileName() {
 		if (this.categoriesListTemplateFileName == null) {
@@ -956,7 +953,6 @@ public class Competition {
 		return this.categoriesListTemplateFileName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedCurrentRecordsTemplateFileName() {
 		if (this.currentRecordsTemplateFileName == null) {
@@ -979,7 +975,6 @@ public class Competition {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedJuryTemplateFileName() {
 		if (this.juryTemplateFileName == null) {
@@ -988,7 +983,6 @@ public class Competition {
 		return this.juryTemplateFileName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedMedalScheduleTemplateFileName() {
 		if (this.medalScheduleTemplateFileName == null) {
@@ -1003,7 +997,6 @@ public class Competition {
 	 * @return the protocol file name
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getComputedMedalsTemplateFileName() {
 		if (getMedalsTemplateFileName() == null) {
@@ -1013,7 +1006,6 @@ public class Competition {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedOfficialsListTemplateFileName() {
 		if (this.officialsListTemplateFileName == null) {
@@ -1028,7 +1020,6 @@ public class Competition {
 	 * @return the protocol file name
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getComputedProtocolTemplateFileName() {
 		if (getProtocolTemplateFileName() == null) {
@@ -1044,7 +1035,6 @@ public class Competition {
 	 * @return the protocol file name
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	@Transient
 	@JsonIgnore
 	public String getComputedResultsTemplateFileName() {
 		if (getResultsTemplateFileName() == null) {
@@ -1054,7 +1044,6 @@ public class Competition {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedStartListTemplateFileName() {
 		if (this.startListTemplateFileName == null) {
@@ -1063,7 +1052,6 @@ public class Competition {
 		return this.startListTemplateFileName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedTeamsListTemplateFileName() {
 		if (this.teamsListTemplateFileName == null) {
@@ -1072,7 +1060,6 @@ public class Competition {
 		return this.teamsListTemplateFileName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedTeamResultsTemplateFileName() {
 		if (this.teamResultsTemplateFileName == null) {
@@ -1081,7 +1068,6 @@ public class Competition {
 		return this.teamResultsTemplateFileName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getComputedTechnicalOfficialsTemplateFileName() {
 		if (this.technicalOfficialsTemplateFileName == null) {
@@ -1270,7 +1256,6 @@ public class Competition {
 		return this.finalPackageTemplateFileName;
 	}
 
-	@Transient
 	@JsonIgnore
 	synchronized public List<Athlete> getGlobalRanking(Gender gender, Ranking ranking) {
 		if (gender == null || ranking == null) {
@@ -1280,7 +1265,6 @@ public class Competition {
 		        gender == Gender.F ? ranking.getWReportingName() : ranking.getMReportingName());
 	}
 
-	@Transient
 	@JsonIgnore
 	synchronized public List<Athlete> getGlobalScoreRanking(Gender gender) {
 		return getGlobalRanking(gender, getScoringSystem());
@@ -1324,7 +1308,6 @@ public class Competition {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Transient
 	@JsonIgnore
 	synchronized public List<Athlete> getListOrElseRecompute(String listName) {
 		// logger.trace("getting list {}",listName);
@@ -1446,7 +1429,6 @@ public class Competition {
 
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getMenBestNElseDefault() {
 		if (this.migrated) {
@@ -1458,7 +1440,6 @@ public class Competition {
 		return this.mensBestN != null ? this.mensBestN : this.maxTeamSize;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getMixedBestNElseDefault() {
 		if (this.migrated) {
@@ -1509,7 +1490,6 @@ public class Competition {
 		return this.refereeWakeUpDelay;
 	}
 
-	@Transient
 	@JsonIgnore
 	public HashMap<String, Object> getReportingBeans() {
 		return this.reportingBeans;
@@ -1519,7 +1499,6 @@ public class Competition {
 		return this.resultsTemplateFileName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Ranking getLegacyCompetitionScoringSystem() {
 		Ranking migratedBestAthlete = getMigratedCompetitionBestAthleteScoringSystem();
@@ -1544,7 +1523,6 @@ public class Competition {
 		return null;
 	}
 
-	@Transient
 	@JsonIgnore
 	private Ranking getLegacyCompetitionBestAthleteScoringSystemForMigration() {
 		Ranking legacyScoring = getRawLegacyCompetitionScoringSystem();
@@ -1553,7 +1531,6 @@ public class Competition {
 		return RankingConfig.getAllScoringRankings().contains(legacyScoring) ? legacyScoring : null;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Ranking getLegacyCompetitionBestAthleteScoringSystemOrDefault() {
 		Ranking migratedBestAthlete = getMigratedCompetitionBestAthleteScoringSystem();
@@ -1581,7 +1558,6 @@ public class Competition {
 	 *
 	 * @return true if the Competition is migrated (already, or as a result of this call)
 	 */
-	@Transient
 	@JsonIgnore
 	public boolean migrateToChampionship(Championship template) {
 		if (this.migrated) {
@@ -1652,7 +1628,6 @@ public class Competition {
 		this.migrated = source.migrated;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Ranking getBestAthleteScoringSystem() {
 		if (this.migrated) {
@@ -1718,7 +1693,6 @@ public class Competition {
 		return this.weighInFormTemplateFileName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Integer getWomenBestNElseDefault() {
 		if (this.migrated) {
@@ -1765,7 +1739,6 @@ public class Competition {
 		return this.automaticCJBreak;
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isByAgeGroup() {
 		return this.isDisplayByAgeGroup() || this.isMasters();
@@ -1905,7 +1878,6 @@ public class Competition {
 	 * @return true, if is use registration category
 	 */
 	@Deprecated
-	@Transient
 	@JsonIgnore
 	public boolean isUseRegistrationCategory() {
 		return false;
@@ -2307,7 +2279,6 @@ public class Competition {
 	 * @param useRegistrationCategory the useRegistrationCategory to set
 	 */
 	@Deprecated
-	@Transient
 	@JsonIgnore
 	public void setUseRegistrationCategory(boolean useRegistrationCategory) {
 		this.useRegistrationCategory = false;

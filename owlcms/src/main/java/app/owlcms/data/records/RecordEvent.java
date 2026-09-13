@@ -237,7 +237,6 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		return this.athleteName;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getBirth() {
 		return (this.birthDate != null ? this.dateFormat.format(this.birthDate)
@@ -325,7 +324,6 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		return this.id;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getKey() {
 		return getRecordFederation() + "_" + getRecordName() + "_" + getGender() + "_" + getRecordLift() + "_" + getBwCatLower() + "_" + getBwCatUpper() + "_"
@@ -340,7 +338,6 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		return this.recordDate;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getRecordDateAsString() {
 		if (this.recordDate == null) {
@@ -369,13 +366,11 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		return this.recordYear;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getResAthleteName() {
 		return (this.athleteName != null ? this.athleteName.replaceAll(",", "") : "");
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getResRecordLift() {
 		if (this.recordLift == null) {
@@ -393,7 +388,6 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		}
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getTranslatedGender() {
 		if (this.gender == null) {
@@ -402,7 +396,6 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		return this.gender.asGenderName();
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getTranslatedLift() {
 		if (this.recordLift == null) {
@@ -738,7 +731,6 @@ public class RecordEvent implements Comparable<RecordEvent> {
 		return getRecordName() + " " + Translator.translate("Record."+getRecordLift()) + " " + getAgeGrp() + " " + getBwCatString();
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getName() {
 		return prettyPrint();

@@ -25,7 +25,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.Transient;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.LoggerFactory;
@@ -259,17 +258,14 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * Returns the raw stored active field, bypassing derivation from age group.
 	 * Used only for consistency checks that need to compare stored vs. derived values.
 	 */
-	@Transient
 	public Boolean getStoredActive() {
 		return this.active;
 	}
 
-	@Transient
 	public String getCode() {
 		return this.getComputedCode();// this.code != null ? this.code : "";
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getCodeLimitString() {
 		if (this.id == null || this.maximumWeight == null
@@ -286,7 +282,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	@JsonIgnore
-	@Transient
 	public String getComputedCode() {
 		String ageGroupCode = (this.ageGroup != null ? this.ageGroup.getCode() : "");
 
@@ -303,13 +298,11 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * explicit property name `translatedName` so downstream imports and consumers can rely on a stable field.
 	 */
 
-	@Transient
 	public String getCategoryName() {
 		return getDisplayName();
 	}
 
 	@JsonIgnore
-	@Transient
 	public String getDisplayName() {
 		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 		String catName = getLimitString();
@@ -340,7 +333,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return this.id;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getLimitString() {
 		// logger.debug("category {} {} {} {}", this.getId(), this.getCode(),
@@ -373,7 +365,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	@JsonIgnore
-	@Transient
 	public String getMedalingSortCode() {
 		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 
@@ -398,7 +389,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	@JsonIgnore
-	@Transient
 	public String getNameWithAgeGroup() {
 		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 		String catName = getLimitString();
@@ -435,13 +425,11 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	 * @return the name
 	 */
 	@JsonIgnore
-	@Transient
 	public String getSafeName() {
 		return getDisplayName();
 	}
 
 	@JsonIgnore
-	@Transient
 	public String getSortCode() {
 		String agName = (this.ageGroup != null ? this.ageGroup.getName() : "");
 
@@ -456,7 +444,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 		return result;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getSortCodeLimitString() {
 		if (this.id == null || this.maximumWeight == null
@@ -613,7 +600,6 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	@JsonIgnore
-	@Transient
 	public void setMedalingSortCode() {
 	}
 
@@ -671,14 +657,12 @@ public class Category implements Serializable, Comparable<Category>, Cloneable {
 	}
 
 	@JsonIgnore
-	@Transient
 	private boolean isAlreadyGendered() {
 		boolean alreadyGendered = this.ageGroup != null ? this.ageGroup.isAlreadyGendered() : false;
 		return alreadyGendered;
 	}
 
 	@JsonIgnore
-	@Transient
 	public String getAgeGroupCode() {
 		return this.getAgeGroup() != null ? this.getAgeGroup().getCode() : null;
 	}

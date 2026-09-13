@@ -223,7 +223,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	@JsonIgnore
-	@Transient
 	public String computeChampionshipName() {
 		if (this.getChampionshipName() == null || this.getChampionshipName().isBlank()) {
 			throw new IllegalStateException("AgeGroup " + this.getCode() + " is missing championshipName");
@@ -257,7 +256,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return this.ageDivision;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getAgeFirstSortCode() {
 		String core = scoreCodeCore();
@@ -287,7 +285,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	}
 
 	@JsonIgnore
-	@Transient
 	public Championship getChampionship() {
 		return Championship.of(this.computeChampionshipName());
 	}
@@ -315,7 +312,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return getConfiguredChampionshipType();
 	}
 
-	@Transient
 	@JsonIgnore
 	public boolean isMixedTeams() {
 		Championship championship = getChampionship();
@@ -330,7 +326,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return this.code;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Ranking getComputedScoringSystem() {
 		// Age groups delegate their (medal) scoring system to their championship. The age group's own
@@ -367,7 +362,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return this.gender;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getGenderFirstSortCode() {
 		// all women before all men
@@ -389,7 +383,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return this.maxAge;
 	}
 
-	@Transient
 	@JsonIgnore
 	public Ranking getMedalScoringSystem() {
 		Ranking scoringSystem = getComputedScoringSystem();
@@ -430,7 +423,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		return this.scoringSystem;
 	}
 
-	@Transient
 	@JsonIgnore
 	public String getScoringTitle() {
 		var scoringSystem = getComputedScoringSystem();
@@ -512,7 +504,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		        : ageDivision;
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setAgeFirstSortCode(String ignored) {
 	}
@@ -545,7 +536,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		this.code = code;
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setForceSave(boolean b) {
 		this.forceSave = true;
@@ -555,7 +545,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 		this.gender = gender;
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setGenderFirstSortCode(String ignored) {
 	}
@@ -609,7 +598,6 @@ public class AgeGroup implements Comparable<AgeGroup>, Serializable {
 	 * stored bestAthleteScoringSystem field is only consulted during the initial migration
 	 * (Championship.populateScoringDefaults), never at runtime.
 	 */
-	@Transient
 	@JsonIgnore
 	public Ranking computedBestAthleteScoringSystem() {
 		Championship championship = getChampionship();

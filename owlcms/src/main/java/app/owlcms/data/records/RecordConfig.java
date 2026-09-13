@@ -15,7 +15,6 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Transient;
 
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +107,6 @@ public class RecordConfig {
 		        && Objects.equals(this.showAllFederations, other.showAllFederations);
 	}
 
-	@Transient
 	@JsonIgnore
 	public List<RecordEvent> getLoadedFiles() {
 		return RecordRepository.findAllLoadedRecords();
@@ -131,7 +129,6 @@ public class RecordConfig {
 		return Objects.hash(this.id, this.recordOrder, this.showAllCategoryRecords, this.showAllFederations);
 	}
 
-	@Transient
 	@JsonIgnore
 	public void setLoadedFiles(List<RecordEvent> ignored) {
 	}
