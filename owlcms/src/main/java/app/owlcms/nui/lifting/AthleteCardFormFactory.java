@@ -27,6 +27,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.ShortcutRegistration;
+import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -118,6 +119,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	private String operationButtonTheme;
 	private ShortcutRegistration operationShortcut;
 	private boolean operationShortcutAllowed;
+	private boolean operationShortcutEnabled;
 	private boolean acceptingStartingWeightViolation;
 	private boolean startingWeightConfirmationRequired;
 	private boolean startingWeightRecheckPending;
@@ -249,6 +251,10 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		ComponentEventListener<ClickEvent<Button>> postOperationCallBack = (e) -> {
 		};
 		setOperationShortcutEnabled(false);
+		if (this.operationShortcut != null) {
+			this.operationShortcut.remove();
+			this.operationShortcut = null;
+		}
 		this.operationShortcutAllowed = operation == CrudOperation.UPDATE && shortcutEnter;
 		this.operationButton = null;
 		this.acceptChangeButton = null;
@@ -325,6 +331,15 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 		footerLayout.add(buttonStack);
 		footerLayout.setVerticalComponentAlignment(Alignment.START, buttonStack);
 		footerLayout.setFlexGrow(1.0, vl);
+		if (this.operationShortcutAllowed && this.operationButton != null) {
+			this.operationShortcut = Shortcuts.addShortcutListener(footerLayout, () -> {
+				boolean valid = this.binder.validate().isOk();
+				if (valid && this.operationShortcutEnabled) {
+					this.operationButton.click();
+				}
+			}, Key.ENTER);
+			this.operationShortcut.allowBrowserDefault();
+		}
 		return footerLayout;
 	}
 
@@ -1296,14 +1311,7 @@ public class AthleteCardFormFactory extends OwlcmsCrudFormFactory<Athlete> imple
 	}
 
 	private void setOperationShortcutEnabled(boolean enabled) {
-		if (this.operationShortcut != null) {
-			this.operationShortcut.remove();
-			this.operationShortcut = null;
-		}
-		if (enabled && this.operationShortcutAllowed && this.operationButton != null) {
-			this.operationShortcut = this.operationButton.addClickShortcut(Key.ENTER);
-			this.operationShortcut.allowBrowserDefault();
-		}
+		this.operationShortcutEnabled = enabled;
 	}
 
 	private void setOperationButtonWarningStyle(boolean warning) {
