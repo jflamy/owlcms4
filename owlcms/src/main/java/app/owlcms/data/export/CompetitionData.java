@@ -34,6 +34,8 @@ import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.RankingConfig;
+import app.owlcms.data.coach.Coach;
+import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.competition.CompetitionRepository;
 import app.owlcms.data.config.Config;
@@ -61,6 +63,7 @@ public class CompetitionData {
 	final static Logger logger = (Logger) LoggerFactory.getLogger(CompetitionData.class);
 	private List<AgeGroup> ageGroups;
 	private List<Athlete> athletes;
+	private List<Coach> coaches;
 	private List<Championship> championships;
 	private Competition competition;
 	private Config config;
@@ -169,6 +172,7 @@ public class CompetitionData {
 		        .collect(Collectors.toList());
 
 		setAthletes(allAthletes);
+		setCoaches(CoachRepository.findAll());
 		setGroups(GroupRepository.findAll());
 		setPlatforms(PlatformRepository.findAll());
 		setConfigForExport(Config.getCurrent());
@@ -192,6 +196,11 @@ public class CompetitionData {
 	@JsonProperty(index = 40)
 	public List<Athlete> getAthletes() {
 		return this.athletes;
+	}
+
+	@JsonProperty(index = 45)
+	public List<Coach> getCoaches() {
+		return this.coaches;
 	}
 
 	@JsonProperty(index = 35)
@@ -302,6 +311,12 @@ public class CompetitionData {
 					em.persist(a);
 				}
 
+				if (updated.getCoaches() != null) {
+					for (Coach coach : updated.getCoaches()) {
+						em.persist(coach);
+					}
+				}
+
 				for (Group g : updated.getGroups()) {
 					em.merge(g);
 				}
@@ -363,6 +378,10 @@ public class CompetitionData {
 
 	public void setAthletes(List<Athlete> athletes) {
 		this.athletes = athletes;
+	}
+
+	public void setCoaches(List<Coach> coaches) {
+		this.coaches = coaches;
 	}
 
 	public void setChampionships(List<Championship> championships) {

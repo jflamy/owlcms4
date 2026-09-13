@@ -34,6 +34,8 @@ import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.athlete.Athlete;
 import app.owlcms.data.athlete.AthleteRepository;
 import app.owlcms.data.athleteSort.RankingConfig;
+import app.owlcms.data.coach.Coach;
+import app.owlcms.data.coach.CoachRepository;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.group.Group;
@@ -73,6 +75,7 @@ import ch.qos.logback.classic.Logger;
 	"championships",
 	"ageGroups",
 	"teams",
+	"coaches",
 	"sessions",
 	"athletes",
 	"platforms",
@@ -92,6 +95,7 @@ public class CompetitionDataV2 {
 	private List<ChampionshipDTO> championships;
 	private List<AgeGroupDTO> ageGroups;
 	private List<TeamDTO> teams;
+	private List<Coach> coaches;
 	private List<SessionDTO> sessions;
 	private List<AthleteDTO> athletes;
 	private List<Platform> platforms;
@@ -190,6 +194,7 @@ public class CompetitionDataV2 {
 			}
 		}
 		setTeams(teamMap.values().stream().collect(Collectors.toList()));
+		setCoaches(CoachRepository.findAll());
 		
 		// Convert sessions first so athletes can reference sessions on import
 		List<Group> allGroups = GroupRepository.findAll();
@@ -371,6 +376,12 @@ public class CompetitionDataV2 {
 			em.persist(a);
 		}
 
+		if (updated.getCoaches() != null) {
+			for (Coach coach : updated.getCoaches()) {
+				em.persist(coach);
+			}
+		}
+
 		if (updated.getRecordConfig() != null) {
 			em.merge(updated.getRecordConfig());
 		}
@@ -516,6 +527,14 @@ public class CompetitionDataV2 {
 
 	public void setTeams(List<TeamDTO> teams) {
 		this.teams = teams;
+	}
+
+	public List<Coach> getCoaches() {
+		return coaches;
+	}
+
+	public void setCoaches(List<Coach> coaches) {
+		this.coaches = coaches;
 	}
 
 	public List<RecordEvent> getRecords() {

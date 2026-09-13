@@ -67,24 +67,6 @@
 		</repository>
 	</repositories>
 
-	<pluginRepositories>
-		<!-- Main Maven repository -->
-		<pluginRepository>
-			<id>central</id>
-			<url>https://repo.maven.apache.org/maven2</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>Vaadin Prereleases</id>
-			<url>https://maven.vaadin.com/vaadin-prereleases/</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

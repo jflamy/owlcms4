@@ -30,9 +30,10 @@ import java.util.TimeZone;
 
 import org.apache.http.conn.util.InetAddressUtils;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
+
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import com.github.appreciated.css.grid.GridLayoutComponent.AutoFlow;
 import com.github.appreciated.css.grid.GridLayoutComponent.Overflow;
@@ -317,6 +318,7 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 	private static final HttpClient githubClient = HttpClient.newBuilder()
 	        .connectTimeout(Duration.ofSeconds(2))
 	        .build();
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	public static String checkControlPanelVersion(String curVer) {
 		if (LocalDateTime.now().minusHours(1).isBefore(cpWarningEmitted)) {
@@ -400,14 +402,13 @@ public class HomeNavigationContent extends BaseNavigationContent implements Navi
 			if (response.statusCode() != 200) {
 				throw new IllegalStateException("Unexpected code " + response.statusCode());
 			}
-			JSONArray releases = new JSONArray(response.body());
-			if (releases.length() == 0) {
+			JsonNode releases = objectMapper.readTree(response.body());
+			if (!releases.isArray() || releases.isEmpty()) {
 				throw new IllegalStateException("no releases returned");
 			}
 			List<ComparableVersion> versions = new ArrayList<>();
-			for (int i = 0; i < releases.length(); i++) {
-				JSONObject release = releases.getJSONObject(i);
-				versions.add(new ComparableVersion(release.getString("tag_name")));
+			for (JsonNode release : releases) {
+				versions.add(new ComparableVersion(release.get("tag_name").asString()));
 			}
 			versions.sort((v1, v2) -> v2.compareTo(v1)); // Sort in descending order
 			String referenceVersion = versions.get(0).toString();

@@ -3,9 +3,6 @@ package com.github.appreciated.layout;
 import java.util.Arrays;
 import java.util.Objects;
 
-import org.vaddon.ClientMediaQuery;
-import org.vaddon.css.query.MediaQuery;
-
 import com.github.appreciated.css.grid.GridLayoutComponent;
 import com.github.appreciated.css.grid.entities.GridTemplates;
 import com.github.appreciated.css.grid.interfaces.RowOrColUnit;
@@ -383,13 +380,6 @@ public class GridLayout extends LitTemplate implements GridLayoutComponent {
 			this.gridLayout.getStyle().set("grid-template",
 			        template.getTemplateRows().getCssValue() + " / " + template.getTemplateColumns().getCssValue());
 		}
-	}
-
-	public void setTemplateAreas(MediaQuery queries, TemplateAreas... areas) {
-		ClientMediaQuery mediaQuery = new ClientMediaQuery(this.gridLayout);
-		setTemplateAreas(mediaQuery.getQueryStyle(), areas);
-		mediaQuery.setQuery(queries);
-		this.queries.add(mediaQuery);
 	}
 
 	/**

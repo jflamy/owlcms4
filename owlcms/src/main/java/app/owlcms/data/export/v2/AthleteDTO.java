@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.EntityManager;
 
 import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
 import app.owlcms.data.athlete.Gender;
 import app.owlcms.data.category.Category;
 import app.owlcms.data.category.CategoryRepository;
@@ -40,6 +41,7 @@ public class AthleteDTO {
 	private Gender gender;
 	private Double bodyWeight;
 	private Double presumedBodyWeight;
+	private Double scaleWeight;
 	
 	// Competition info
 	private String groupName;  // Instead of group ID
@@ -130,6 +132,7 @@ public class AthleteDTO {
 	private String custom2;
 	private Double customScore;
 	private Boolean eligibleForIndividualRanking;
+	private EligibleForIndividualRankingStatus individualEligibilityStatus;
 	private Boolean eligibleForTeamRanking;
 	private Boolean forcedAsCurrent;
 	private String subCategory;
@@ -166,6 +169,7 @@ public class AthleteDTO {
 		dto.setGender(athlete.getGender());
 		dto.setBodyWeight(athlete.getBodyWeight());
 		dto.setPresumedBodyWeight(athlete.getPresumedBodyWeight());
+		dto.setScaleWeight(athlete.getScaleWeight());
 		
 		// Competition info
 		dto.setGroupName(athlete.getGroup() != null ? athlete.getGroup().getName() : null);
@@ -266,6 +270,7 @@ public class AthleteDTO {
 		dto.setCustom2(athlete.getCustom2());
 		dto.setCustomScore(athlete.getCustomScore());
 		dto.setEligibleForIndividualRanking(athlete.isEligibleForIndividualRanking());
+		dto.setIndividualEligibilityStatus(athlete.getIndividualEligibilityStatus());
 		dto.setEligibleForTeamRanking(athlete.isEligibleForTeamRanking());
 		dto.setForcedAsCurrent(athlete.isForcedAsCurrent());
 		dto.setSubCategory(athlete.getSubCategory());
@@ -308,6 +313,7 @@ public class AthleteDTO {
 		athlete.setGender(this.gender);
 		athlete.setBodyWeight(this.bodyWeight);
 		athlete.setPresumedBodyWeight(this.presumedBodyWeight);
+		athlete.setScaleWeight(this.scaleWeight);
 		
 		// Competition info - resolve by name/code
 		if (this.groupName != null) {
@@ -417,6 +423,7 @@ public class AthleteDTO {
 		athlete.setCustom2(this.custom2);
 		athlete.setCustomScore(this.customScore);
 		athlete.setEligibleForIndividualRanking(this.eligibleForIndividualRanking != null ? this.eligibleForIndividualRanking : true);
+		athlete.setIndividualEligibilityStatus(this.individualEligibilityStatus);
 		athlete.setEligibleForTeamRanking(this.eligibleForTeamRanking != null ? this.eligibleForTeamRanking : true);
 		athlete.setForcedAsCurrent(this.forcedAsCurrent != null ? this.forcedAsCurrent : false);
 		athlete.setSubCategory(this.subCategory);
@@ -521,6 +528,14 @@ public class AthleteDTO {
 
 	public void setPresumedBodyWeight(Double presumedBodyWeight) {
 		this.presumedBodyWeight = presumedBodyWeight;
+	}
+
+	public Double getScaleWeight() {
+		return scaleWeight;
+	}
+
+	public void setScaleWeight(Double scaleWeight) {
+		this.scaleWeight = scaleWeight;
 	}
 
 	@JsonProperty("sessionName")
@@ -1091,6 +1106,14 @@ public class AthleteDTO {
 
 	public void setEligibleForIndividualRanking(Boolean eligibleForIndividualRanking) {
 		this.eligibleForIndividualRanking = eligibleForIndividualRanking;
+	}
+
+	public EligibleForIndividualRankingStatus getIndividualEligibilityStatus() {
+		return individualEligibilityStatus;
+	}
+
+	public void setIndividualEligibilityStatus(EligibleForIndividualRankingStatus individualEligibilityStatus) {
+		this.individualEligibilityStatus = individualEligibilityStatus;
 	}
 
 	public Boolean getEligibleForTeamRanking() {

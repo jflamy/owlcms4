@@ -25,9 +25,13 @@ import app.owlcms.data.agegroup.Championship;
 import app.owlcms.data.agegroup.ChampionshipRepository;
 import app.owlcms.data.agegroup.MedalPolicy;
 import app.owlcms.data.agegroup.TeamPointsPolicy;
+import app.owlcms.data.athlete.Athlete;
+import app.owlcms.data.athlete.EligibleForIndividualRankingStatus;
+import app.owlcms.data.coach.Coach;
 import app.owlcms.data.config.Config;
 import app.owlcms.data.competition.Competition;
 import app.owlcms.data.export.CompetitionData;
+import app.owlcms.data.export.v2.AthleteDTO;
 import app.owlcms.data.export.v2.ChampionshipDTO;
 import app.owlcms.data.export.v2.CompetitionDataV2;
 import app.owlcms.data.jpa.JPAService;
@@ -107,6 +111,7 @@ public class JSONExportImportTest {
         Platform platform = new Platform("Competition");
         platform.setCollarThreshold(37);
         CompetitionDataV2 exported = new CompetitionDataV2();
+        exported.setConfig(Config.getCurrent());
         exported.setPlatforms(List.of(platform));
 
         String json = new String(exported.exportData().readAllBytes(), StandardCharsets.UTF_8);
@@ -118,6 +123,38 @@ public class JSONExportImportTest {
 
         assertNotNull(imported);
         assertEquals(Integer.valueOf(37), imported.getPlatforms().get(0).getCollarThreshold());
+    }
+
+    @Test
+    public void athleteScaleWeightAndEligibilityStatusRoundTripThroughV2Dto() {
+        Athlete source = new Athlete();
+        source.setScaleWeight(81.37);
+        source.setIndividualEligibilityStatus(EligibleForIndividualRankingStatus.OOC_DID_NOT_MAKE_WEIGHT);
+
+        Athlete restored = AthleteDTO.fromAthlete(source).toAthlete(null);
+
+        assertEquals(Double.valueOf(81.37), restored.getScaleWeight());
+        assertEquals(EligibleForIndividualRankingStatus.OOC_DID_NOT_MAKE_WEIGHT,
+                restored.getIndividualEligibilityStatus());
+        assertFalse(restored.isEligibleForIndividualRanking());
+    }
+
+    @Test
+    public void coachesDeserializeInBothJsonFormats() {
+        String coachJson = "{\"coaches\":[{\"id\":123,\"lastName\":\"Doe\","
+                + "\"firstName\":\"Jane\",\"membershipId\":\"C-42\",\"team\":\"OWL\"}]}";
+
+        CompetitionData v1 = new CompetitionData().importDataFromString(coachJson);
+        CompetitionDataV2 v2 = new CompetitionDataV2().importData(
+                new ByteArrayInputStream(coachJson.getBytes(StandardCharsets.UTF_8)));
+
+        for (Coach coach : List.of(v1.getCoaches().get(0), v2.getCoaches().get(0))) {
+            assertEquals(Long.valueOf(123), coach.getId());
+            assertEquals("Doe", coach.getLastName());
+            assertEquals("Jane", coach.getFirstName());
+            assertEquals("C-42", coach.getMembershipId());
+            assertEquals("OWL", coach.getTeam());
+        }
     }
 
     @Test

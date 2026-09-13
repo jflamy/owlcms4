@@ -1,7 +1,5 @@
 package com.github.appreciated.layout;
 
-import org.vaddon.css.query.MediaQuery;
-
 import com.github.appreciated.css.grid.FluentGridLayoutComponent;
 import com.github.appreciated.css.grid.HasOverflow;
 import com.github.appreciated.css.grid.exception.NegativeValueException;
@@ -184,17 +182,6 @@ public class FluentGridLayout extends GridLayout
 	 */
 	public FluentGridLayout withRowStart(Component component, RowOrColUnit unit) {
 		setRowStart(component, unit);
-		return this;
-	}
-
-	/**
-	 * Fluent method of {@link GridLayout#setTemplateAreas(TemplateAreas[])} for setting the template areas available
-	 *
-	 * @param templateAreas the template areas you want to be assigned
-	 * @return this
-	 */
-	public FluentGridLayout withTemplateAreas(MediaQuery query, TemplateAreas... templateAreas) {
-		setTemplateAreas(query, templateAreas);
 		return this;
 	}
 
