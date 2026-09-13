@@ -10,6 +10,10 @@
 
 **Maintenance Log**
 
+- 67.5.1: Fixed the ENTER/Return shortcut on the Athlete Card to correctly close the dialog when there is no error
+
+**New in Release 67.5**
+
 - 67.5.0: Further adjustments so Attempt boards stay synchronized with lifting-order updates
 
 - 67.5.0: Prevent moving to the next athlete while a 20 kg loading-rule violation is unresolved.
@@ -17,6 +21,8 @@
 - 67.5.0: Medal leaders are hidden during pre-session breaks.
 
 - 67.5.0: The collar threshold value is now included in database exports
+
+**New in Release 67.4**
 
 - 67.4.6: Post-processing of documents to adjust borders improved to correctly infer the border widths.
 
@@ -39,8 +45,6 @@
 - 67.4.1: Changing an Athlete's category preserves the participation in the previously selected championships if still eligible according to the new age and meeting qualifiying totals.
 
 - 67.4.1: 5 kg bar does not use collars. The 5kgNoCollars feature switch is ON by default. A 5 kg bar is good until 20kg normally, and is meant to allow large technique plates.
-
-**New in Release 67.4**
 
 - 67.4.0: Q-Points calculation for light athletes clamped at the minimum mathematically meaningful bodyweight for each gender (40/45)
 
