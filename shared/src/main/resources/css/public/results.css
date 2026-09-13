@@ -733,7 +733,7 @@ td {
 }
 
 .decisionSection .dsDecisionAthlete {
-    flex: 1 1 auto;
+    flex: 1 0 auto;
     min-width: 0;
     max-width: none;
     display: flex;
@@ -771,9 +771,6 @@ td {
 }
 
 .decisionSection .dsDecisionAthlete .dsDecisionAthleteFullName {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
@@ -1191,7 +1188,8 @@ div.ellipsis {
 /* Inline mode: decision lights active — text fills remaining space after the lights */
 .decisionSection .dsProjectedRanksSlot.pjInline {
     display: flex;
-    flex: 1;
+    flex: 0 0 auto;
     justify-content: center;
     align-items: center;
+    white-space: nowrap;
 }

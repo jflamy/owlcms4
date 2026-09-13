@@ -35,7 +35,7 @@ class ResultsStartList extends LitElement {
             <div class="dsDecisionAthlete name" style="${this.dsDecisionAthleteStyles()}">
               <span class="dsDecisionStartNumber" style="${this.dsDecisionStartNumberStyles()}">${this.decisionSectionStartNumber}</span>
               <span class="dsDecisionAthleteName">
-                <span class="dsDecisionAthleteFullName ellipsis">${this.decisionSectionName()}</span>
+                <span class="dsDecisionAthleteFullName">${this.decisionSectionName()}</span>
                 <span class="dsDecisionAthleteParticipations" style="${this.decisionSectionAgeGroupsStyles()}">(${this.decisionSectionAgeGroups})</span>
               </span>
             </div>
@@ -197,6 +197,7 @@ class ResultsStartList extends LitElement {
       showDecisionSection: {type: Boolean},
       showProjectedRanks: {type: Boolean},
       showScoreboardTimers: {type: Boolean},
+      decisionSectionBreakTimerRunning: {type: Boolean},
       decisionSectionDecisionActive: {type: Boolean},
       decisionSectionCurrentActive: {type: Boolean},
       decisionSectionStartNumber: {},
@@ -204,6 +205,7 @@ class ResultsStartList extends LitElement {
       decisionSectionAgeGroups: {},
       decisionSectionBreakText: {},
       projectedRankText: {},
+      projectedRankClockStarted: {type: Boolean},
       juryDecisions: {type: Array},
       decisionSectionHideJuryLights: {type: Boolean},
       decisionSectionHideRefereeLights: {type: Boolean},
@@ -300,9 +302,10 @@ class ResultsStartList extends LitElement {
   }
 
   dsTimerSlotStyles() {
-    if (this.isBreak() && this.hideBreakTimer) return "display:none";
-    if (this.showDecisionSection && this.decisionSectionDecisionActive) return "display:none";
-    return (this.showDecisionSection || this.showScoreboardTimers) ? "" : "display:none";
+    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
+    if (this.decisionSectionDecisionActive) return this.stopwatchVisible() ? "" : "display:none";
+    if (this.isBreak()) return this.breakCountdownVisible() ? "" : "display:none";
+    return this.mode === "CURRENT_ATHLETE" ? "" : "display:none";
   }
 
   dsBrandingStyles() {
@@ -346,13 +349,13 @@ class ResultsStartList extends LitElement {
 
   dsProjectedRanksStyles() {
     if (!this.showProjectedRanks || !this.projectedRankText) return "display:none";
-    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "display:none";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStarted) return "display:none";
     return "";
   }
 
   dsProjectedRanksMode() {
     if (!this.showProjectedRanks || !this.projectedRankText) return "";
-    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStarted) return "";
     return this.showDecisionSection ? "pjInline" : "pjOverlay";
   }
 
@@ -377,7 +380,11 @@ class ResultsStartList extends LitElement {
 
   dsBreakTimerStyles() {
     if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
-    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
+    return "display:" + (this.breakCountdownVisible() ? "flex" : "none");
+  }
+
+  breakCountdownVisible() {
+    return Boolean(this.decisionSectionBreakTimerRunning);
   }
 
   dsStopwatchStyles() {
@@ -452,6 +459,8 @@ class ResultsStartList extends LitElement {
   constructor() {
     super();
     this.mode = "WAIT";
+    this.decisionSectionBreakTimerRunning = false;
+    this.projectedRankClockStarted = false;
   }
  }
 

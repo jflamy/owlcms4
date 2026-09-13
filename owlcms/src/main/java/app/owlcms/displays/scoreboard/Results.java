@@ -204,8 +204,13 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
+		FieldOfPlay fop = getFop();
+		if (fop != null) {
+			this.getElement().setProperty("projectedRankClockStarted",
+			        fop.getState() == FOPState.TIME_RUNNING || fop.getState() == FOPState.TIME_STOPPED);
+		}
 		if (Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION)) {
-			syncStateFromFop(getFop());
+			syncStateFromFop(fop);
 		}
 	}
 
@@ -495,11 +500,11 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	/** Reset jury circles on the same new-clock event used by the jury panel. */
 	@Subscribe
 	public void slaveJuryResetOnNewClock(UIEvent.ResetOnNewClock e) {
-		if (!isDecisionSectionEnabled()) {
-			return;
-		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			this.decisionBlock.onResetOnNewClock();
+			this.getElement().setProperty("projectedRankClockStarted", false);
+			if (isDecisionSectionEnabled()) {
+				this.decisionBlock.onResetOnNewClock();
+			}
 		});
 	}
 
@@ -550,11 +555,11 @@ public class Results extends BaseResults implements DecisionBlockState.DecisionS
 	 */
 	@Subscribe
 	public void slaveJuryStartTime(UIEvent.StartTime e) {
-		if (!isDecisionSectionEnabled()) {
-			return;
-		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
-			this.decisionBlock.onStartTime();
+			this.getElement().setProperty("projectedRankClockStarted", true);
+			if (isDecisionSectionEnabled()) {
+				this.decisionBlock.onStartTime();
+			}
 		});
 	}
 

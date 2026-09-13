@@ -36,7 +36,7 @@ class Results extends LitElement {
             <div class="dsDecisionAthlete name" style="${this.dsDecisionAthleteStyles()}">
               <span class="dsDecisionStartNumber" style="${this.dsDecisionStartNumberStyles()}">${this.decisionSectionStartNumber}</span>
               <span class="dsDecisionAthleteName">
-                <span class="dsDecisionAthleteFullName ellipsis">${this.decisionSectionName()}</span>
+                <span class="dsDecisionAthleteFullName">${this.decisionSectionName()}</span>
                 <span class="dsDecisionAthleteParticipations" style="${this.decisionSectionAgeGroupsStyles()}">(${this.decisionSectionAgeGroups})</span>
               </span>
             </div>
@@ -278,6 +278,7 @@ class Results extends LitElement {
       showDecisionSection: {type: Boolean},
       showProjectedRanks: {type: Boolean},
       showScoreboardTimers: {type: Boolean},
+      decisionSectionBreakTimerRunning: {type: Boolean},
       decisionSectionDecisionActive: {type: Boolean},
       decisionSectionCurrentActive: {type: Boolean},
       decisionSectionStartNumber: {},
@@ -285,6 +286,7 @@ class Results extends LitElement {
       decisionSectionAgeGroups: {},
       decisionSectionBreakText: {},
       projectedRankText: {},
+      projectedRankClockStarted: {type: Boolean},
       juryDecisions: {type: Array},
       decisionSectionHideJuryLights: {type: Boolean},
       decisionSectionHideRefereeLights: {type: Boolean},
@@ -406,9 +408,10 @@ class Results extends LitElement {
   }
 
   dsTimerSlotStyles() {
-    if (this.isBreak() && this.hideBreakTimer) return "display:none";
-    if (this.showDecisionSection && this.decisionSectionDecisionActive) return "display:none";
-    return (this.showDecisionSection || this.showScoreboardTimers) ? "" : "display:none";
+    if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
+    if (this.decisionSectionDecisionActive) return this.stopwatchVisible() ? "" : "display:none";
+    if (this.isBreak()) return this.breakCountdownVisible() ? "" : "display:none";
+    return this.mode === "CURRENT_ATHLETE" ? "" : "display:none";
   }
 
   dsBrandingStyles() {
@@ -452,13 +455,13 @@ class Results extends LitElement {
 
   dsProjectedRanksStyles() {
     if (!this.showProjectedRanks || !this.projectedRankText) return "display:none";
-    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "display:none";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStarted) return "display:none";
     return "";  // CSS class (pjOverlay or pjInline) handles layout
   }
 
   dsProjectedRanksMode() {
     if (!this.showProjectedRanks || !this.projectedRankText) return "";
-    if (this.mode !== "CURRENT_ATHLETE" || this.decisionVisible) return "";
+    if (this.mode !== "CURRENT_ATHLETE" || this.decisionSectionDecisionActive || this.projectedRankClockStarted) return "";
     // pjOverlay: absolute, fills full decisionSection (clock floats above)
     // pjInline:  flex item, fills remaining space to right of lights
     return this.showDecisionSection ? "pjInline" : "pjOverlay";
@@ -487,7 +490,11 @@ class Results extends LitElement {
 
   dsBreakTimerStyles() {
     if (!this.showDecisionSection && !this.showScoreboardTimers) return "display:none";
-    return "display:" + ((this.mode === "INTRO_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN" || this.mode === "LIFT_COUNTDOWN_CEREMONY") ? "flex" : "none");
+    return "display:" + (this.breakCountdownVisible() ? "flex" : "none");
+  }
+
+  breakCountdownVisible() {
+    return Boolean(this.decisionSectionBreakTimerRunning);
   }
 
   dsStopwatchStyles() {
@@ -596,6 +603,7 @@ class Results extends LitElement {
     this.showDecisionSection = false;
     this.showProjectedRanks = false;
     this.showScoreboardTimers = false;
+    this.decisionSectionBreakTimerRunning = false;
     this.decisionSectionDecisionActive = false;
     this.decisionSectionCurrentActive = false;
     this.decisionSectionStartNumber = "";
@@ -603,6 +611,7 @@ class Results extends LitElement {
     this.decisionSectionAgeGroups = "";
     this.decisionSectionBreakText = "";
     this.projectedRankText = "";
+    this.projectedRankClockStarted = false;
     this.juryDecisions = [];
     this.decisionSectionHideJuryLights = false;
     this.decisionSectionHideRefereeLights = false;

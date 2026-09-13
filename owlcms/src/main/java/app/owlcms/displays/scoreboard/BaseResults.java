@@ -164,6 +164,7 @@ public class BaseResults extends LitTemplate
 		        || fop.getCeremonyType() == CeremonyType.INTRODUCTION
 		        || medalCeremony;
 		this.getElement().setProperty("hideBreakTimer", hideBreakTimer);
+		this.getElement().setProperty("decisionSectionBreakTimerRunning", fop.getBreakTimer().isRunning());
 		String groupName = inferGroupName(fop.getCeremonyType());
 		String message = inferMessage(fop.getBreakType(), fop.getCeremonyType(), medalCeremony || isPublicDisplay());
 		String title = groupName.isBlank() ? message : groupName + " &ndash; " + message;
@@ -326,7 +327,8 @@ public class BaseResults extends LitTemplate
 		}
 		FieldOfPlay fop = getFop();
 		Athlete a = fop != null ? fop.getCurAthlete() : null;
-		boolean show = a != null
+		boolean show = a != null;
+		boolean showAgeGroups = show
 		        && Config.getCurrent().featureSwitch(FeatureSwitch.DECISION_SECTION_SHOW_AGE_GROUPS);
 		Integer startNumber = show ? a.getStartNumber() : null;
 		this.getElement().setProperty("decisionSectionCurrentActive", show);
@@ -334,7 +336,7 @@ public class BaseResults extends LitTemplate
 		        startNumber != null ? startNumber.toString() : "");
 		this.getElement().setProperty("decisionSectionAthleteName", show ? decisionSectionAthleteName(a) : "");
 		this.getElement().setProperty("decisionSectionAgeGroups",
-		        show ? a.getAgeGroupCodesMainFirstAsString() : "");
+		        showAgeGroups ? a.getAgeGroupCodesMainFirstAsString() : "");
 	}
 
 	private String decisionSectionAthleteName(Athlete athlete) {
@@ -592,6 +594,7 @@ public class BaseResults extends LitTemplate
 			return;
 		}
 		UIEventProcessor.uiAccess(this, this.uiEventBus, e, () -> {
+			this.getElement().setProperty("decisionSectionBreakTimerRunning", false);
 			Athlete a = e.getAthlete();
 			setDisplay();
 			if (a == null) {
@@ -604,6 +607,18 @@ public class BaseResults extends LitTemplate
 				doUpdate(a, e);
 			}
 		});
+	}
+
+	@Subscribe
+	public void slaveDecisionSectionBreakPaused(UIEvent.BreakPaused e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e,
+		        () -> this.getElement().setProperty("decisionSectionBreakTimerRunning", false));
+	}
+
+	@Subscribe
+	public void slaveDecisionSectionBreakSetTime(UIEvent.BreakSetTime e) {
+		UIEventProcessor.uiAccess(this, this.uiEventBus, e,
+		        () -> this.getElement().setProperty("decisionSectionBreakTimerRunning", false));
 	}
 
 	@Subscribe
